@@ -61,12 +61,12 @@ latest_workstream_card = "docs/development/current/main/workstreams/repository-a
 
 latest_card = "repository-artifact-lifecycle-h3-design-classification-consultation"
 latest_card_path = "docs/development/current/main/investigations/repository-artifact-lifecycle-h3-design-classification-consultation.md"
-latest_card_summary = """C1 is accepted and C2 design is now accepted for the
-largest hako-alloc-segment family. Its 163 rows are split into four semantic
-subfamilies under existing allocator authority; S1-S5 content review is next,
-with no superseded assignment or physical move."""
+latest_card_summary = """C2 S1 is green and the S2 review projection now covers
+all 163 hako-alloc-segment rows with body evidence and role hints. Owner,
+precedence, and sidecar fields remain unset pending explicit content review;
+superseded assignment and physical movement remain disabled."""
 
-current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H3-C2-HAKO-ALLOC-SEGMENT-FAMILY-CLASSIFICATION"
+current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H3-C2-HAKO-ALLOC-SEGMENT-S2-CONTENT-REVIEW"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

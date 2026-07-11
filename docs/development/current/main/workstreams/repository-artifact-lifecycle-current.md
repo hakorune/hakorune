@@ -456,10 +456,10 @@ unregistered_files = 163
 status_counts = SSOT:64, accepted:21, active:69, mimap_active:9
 external_incoming_references = 0
 internal_family_references = present
-authority_spine = unresolved
+authority_spine = existing allocator authority chain
 role_assignment = none
 physical_move = forbidden
-next = H3-C2-HAKO-ALLOC-SEGMENT-FAMILY-CLASSIFICATION
+next = S2 explicit content review projection
 ```
 
 ## H3 C2 Accepted Family Design
@@ -494,6 +494,31 @@ S5 = run cycle/orphan/reference/pointer/docs-slim/dev-gate guards
 
 superseded_rows = 0
 physical_moves = 0
+```
+
+S1 closeout:
+
+```text
+registered_rows = 118
+unregistered_current = 731
+unregistered_baseline = 732
+precedence_cycle_count = 0
+lifecycle_blueprint_registered = 1
+new_authority_documents = 0
+next = S2 explicit content review projection
+```
+
+S2 projection closeout:
+
+```text
+projection_manifest = tools/checks/manifests/hako_alloc_segment_family_projection_v0.json
+projection_rows = 163
+review_status = pending:163
+role_assignment = none
+owner_fields_set = 0
+precedence_parent_fields_set = 0
+sidecar_owner_fields_set = 0
+next = explicit content review before S3 registry landing
 ```
 
 `supporting`, `status-ledger`, and `sidecar` remain review outcomes, not

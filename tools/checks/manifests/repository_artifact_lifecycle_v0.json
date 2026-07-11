@@ -1,6 +1,6 @@
 {
   "counts": {
-    "checks": 3261,
+    "checks": 3262,
     "design_direct": 849,
     "docs": 12283,
     "docs_development_archive": 2589,
@@ -10,7 +10,7 @@
     "phase_296x_direct": 1032,
     "private": 0,
     "src": 3046,
-    "tools": 6824
+    "tools": 6826
   },
   "design_registry": {
     "authority_registry_decided": true,
@@ -1639,11 +1639,6 @@
           "review_status": "pending"
         },
         {
-          "family_key": "mimalloc-lifecycle-rewrite",
-          "file_count": 1,
-          "review_status": "pending"
-        },
-        {
           "family_key": "mimalloc-migration-closeout",
           "file_count": 1,
           "review_status": "pending"
@@ -2549,16 +2544,16 @@
           "review_status": "pending"
         }
       ],
-      "family_count": 393,
+      "family_count": 392,
       "multi_file_family_count": 37,
       "role_assignment": "none",
-      "singleton_family_count": 356
+      "singleton_family_count": 355
     },
     "direct_files": 849,
     "markdown_files": 828,
     "non_markdown_files": 21,
     "owned_sidecar_count": 0,
-    "registered_count": 117,
+    "registered_count": 118,
     "registry_mode": "warning",
     "seed_reference_counts": {
       "AGENTS.md": 14,
@@ -3100,7 +3095,6 @@
       "mimalloc-hakorune-lifecycle-skeleton-ssot.md",
       "mimalloc-hakorune-record-vocabulary-ssot.md",
       "mimalloc-lifecycle-integration-pilot-ssot.md",
-      "mimalloc-lifecycle-rewrite-blueprint-ssot.md",
       "mimalloc-migration-closeout-check-ssot.md",
       "mimalloc-next-row-selection-ssot.md",
       "mimalloc-object-lifecycle-queue-ssot.md",
@@ -3307,7 +3301,7 @@
       "vm-known-limitations-ssot.md"
     ],
     "unregistered_baseline": 732,
-    "unregistered_count": 732,
+    "unregistered_count": 731,
     "unseeded_count": 688,
     "violations": []
   },
@@ -4081,7 +4075,7 @@
     "root_seed_counts": {
       "active_phase_296x_direct": 1032,
       "current_pointer": 4,
-      "design_authority": 111,
+      "design_authority": 112,
       "fixed_current_entry": 4,
       "reference_src_tools": 3042
     },

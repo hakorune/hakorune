@@ -1,0 +1,6026 @@
+{
+  "family": "hako-alloc-segment",
+  "input_unregistered_count": 163,
+  "physical_move": 0,
+  "role_assignment": "none",
+  "rows": [
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-blocked-substrate-matrix-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "inventory",
+          "readiness",
+          "matrix",
+          "current blocker"
+        ],
+        "supporting-candidate": [
+          "proof-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-allocation-and-local-reuse",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "allocation readiness"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-lifecycle-and-membership": [
+          "page membership"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-consume-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-allocation-and-local-reuse",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "modeled consume"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-consume-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "readiness"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-allocation-and-local-reuse",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "modeled consume"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-ledger-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-allocation-and-local-reuse",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-ledger-release-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-ledger-release-span-facts-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-ledger-release-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-ledger-released-token-recycle-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-ledger-released-token-recycle-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-ledger-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-allocation-and-local-reuse",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "modeled consume"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-local-free-apply-plan-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-allocation-and-local-reuse",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "local-free"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-local-free-candidate-ledger-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-allocation-and-local-reuse",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "local-free"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-local-free-integration-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-allocation-and-local-reuse",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local-free"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-local-free-integration-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "composition"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-allocation-and-local-reuse",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local-free"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-local-free-page-apply-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-allocation-and-local-reuse",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local-free"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-local-free-page-apply-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "supporting-candidate": [
+          "pilot"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-allocation-and-local-reuse",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local-free"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-local-free-reuse-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-allocation-and-local-reuse",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-allocation-and-local-reuse",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-release-applied-recycle-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-release-applied-recycle-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-release-apply-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-release-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-local-free-scalar-lane-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-allocation-and-local-reuse",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local-free"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-modeled-released-span-ledger-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local-free"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-readiness-scalar-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "readiness"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-allocation-and-local-reuse",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "allocation readiness"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-allocation-readiness-scalar-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "readiness"
+        ],
+        "supporting-candidate": [
+          "proof-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-allocation-and-local-reuse",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "allocation readiness"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-lifecycle-and-membership": [
+          "segment state"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-handle-pilot-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "supporting-candidate": [
+          "pilot"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-apply-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-apply-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics"
+        ],
+        "status-ledger-candidate": [
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-apply-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-second-release-diagnostic-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-second-release-diagnostic-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-applied-recycle-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-apply-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-apply-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-apply-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-candidate-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "pilot"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-candidate-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "pilot"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-candidate-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-intent-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-intent-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-intent-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-applied-state-summary-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-applied-state-summary-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-applied-state-summary-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "model-only",
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-continuation-application-bridge-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-continuation-application-bridge-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-continuation-application-bridge-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "model-only",
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-intent-marker-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "model-only",
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-intent-marker-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-intent-marker-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "readiness",
+          "matrix"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-readiness-matrix-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory",
+          "readiness",
+          "matrix"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-readiness-matrix-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory",
+          "readiness",
+          "matrix"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-readiness-matrix-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "readiness",
+          "matrix"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-support-gate-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-support-gate-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-support-gate-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-support-requirement-matrix-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory",
+          "matrix"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-support-requirement-matrix-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory",
+          "matrix"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-support-requirement-matrix-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "matrix"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-unsupported-outcome-ledger-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-unsupported-outcome-ledger-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-execution-unsupported-outcome-ledger-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-lifecycle-continuation-bridge-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-lifecycle-continuation-bridge-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-lifecycle-continuation-bridge-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "model-only",
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-lifecycle-generation-prerequisite-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-lifecycle-generation-prerequisite-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-lifecycle-generation-prerequisite-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory",
+          "matrix"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-pointer-derived-lookup-prerequisite-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-pointer-derived-lookup-prerequisite-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-pointer-residence-prerequisite-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-pointer-residence-prerequisite-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-pointer-residence-prerequisite-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-remaining-execution-prerequisite-ledger-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "pilot"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-release-recycle-remaining-execution-prerequisite-ledger-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-ledger-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-plan-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-plan-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics"
+        ],
+        "status-ledger-candidate": [
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-allocation-plan-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-arena-slot-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-arena-slot-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-arena-slot-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-no-escape-address-residence-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "address residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-no-escape-address-residence-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics"
+        ],
+        "status-ledger-candidate": [
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "address residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-no-escape-address-residence-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "address residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-residence-arena-binding-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-residence-arena-binding-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics"
+        ],
+        "status-ledger-candidate": [
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-residence-arena-binding-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "ledger",
+          "matrix"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "address residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-source-accounting-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-source-accounting-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-source-accounting-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-source-bridge-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-source-bridge-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-modeled-source-bridge-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-no-escape-address-capability-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-no-escape-address-capability-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics"
+        ],
+        "status-ledger-candidate": [
+          "inventory",
+          "matrix"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-no-escape-address-capability-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "inventory",
+          "matrix"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-no-escape-pointer-residence-pilot-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "pilot"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-pointer-derived-lookup-execution-pilot-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "supporting-candidate": [
+          "pilot"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-readiness-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "inventory",
+          "readiness"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-readiness-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics"
+        ],
+        "status-ledger-candidate": [
+          "inventory",
+          "readiness"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-readiness-inventory-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "inventory",
+          "readiness"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-requirement-matrix-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "inventory",
+          "matrix"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "arena-backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-requirement-matrix-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics"
+        ],
+        "status-ledger-candidate": [
+          "inventory",
+          "readiness",
+          "matrix"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-backing-requirement-matrix-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "inventory",
+          "readiness",
+          "matrix"
+        ],
+        "supporting-candidate": [
+          "model-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-bitmap-inventory-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "inventory"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-arena-backing-and-residence": [
+          "pointer residence",
+          "bitmap"
+        ],
+        "segment-map-and-release": [
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-arena-bitmap-inventory-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "proof-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-arena-backing-and-residence",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "pointer residence",
+          "bitmap"
+        ],
+        "segment-map-and-release": [
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-lifecycle-scalar-state-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-lifecycle-and-membership",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-lifecycle-and-membership": [
+          "segment lifecycle",
+          "lifecycle scalar",
+          "segment state"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-lifecycle-scalar-state-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "inventory"
+        ],
+        "supporting-candidate": [
+          "proof-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-lifecycle-and-membership",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-lifecycle-and-membership": [
+          "segment lifecycle",
+          "lifecycle scalar",
+          "segment state",
+          "state vocabulary",
+          "transition"
+        ],
+        "segment-map-and-release": [
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-accepted-readiness-modeled-consume-ledger-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "readiness"
+        ],
+        "supporting-candidate": [
+          "composition"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "modeled consume"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-apply-plan-bridge-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local-free"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-apply-plan-bridge-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-integration-bridge-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local-free"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-integration-bridge-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "readiness"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local-free",
+          "modeled consume",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-page-apply-bridge-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local-free"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-page-apply-bridge-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-bridge-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-bridge-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "readiness"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local-free",
+          "modeled consume",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-bridge-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-bridge-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "readiness"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-apply-recycle-continuation-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-apply-recycle-continuation-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-apply-recycle-continuation-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-ledger-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "local free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-ledger-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-ledger-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "ledger",
+          "readiness"
+        ],
+        "supporting-candidate": [
+          "pilot"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "pilot"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-keyed-release-shadow-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "readiness"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-token-observer-diagnostic-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-token-observer-diagnostic-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "pilot"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-token-pilot-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "pilot"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-token-pilot-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "pilot"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-lifecycle-token-release-key-precondition-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-release-applied-recycle-bridge-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-release-applied-recycle-bridge-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "bridge",
+          "composition"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-release-applied-recycle-second-release-diagnostic-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-release-apply-bridge-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-release-apply-bridge-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "bridge",
+          "composition"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-release-bridge-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-local-free-reuse-ledger-release-bridge-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "bridge",
+          "composition"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local free",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-lookup-guarded-readiness-composition-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "inventory",
+          "readiness"
+        ],
+        "supporting-candidate": [
+          "proof-only",
+          "composition"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-lifecycle-and-membership": [
+          "page membership"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-modeled-consume-ledger-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "readiness"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "modeled consume"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-modeled-consume-ledger-diagnostics-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "readiness"
+        ],
+        "supporting-candidate": [
+          "composition"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "modeled consume"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-modeled-consume-ledger-release-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "modeled consume"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-modeled-consume-ledger-release-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "diagnostics",
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "readiness"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "modeled consume",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-modeled-consume-ledger-released-span-observation-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "modeled consume"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-modeled-consume-ledger-released-span-observation-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "readiness"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "modeled consume",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-modeled-consume-ledger-released-token-recycle-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "modeled consume"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-modeled-consume-ledger-released-token-recycle-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "readiness"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "modeled consume",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-mutation-pilot-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "supporting-candidate": [
+          "pilot"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-readiness-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory",
+          "readiness",
+          "matrix"
+        ],
+        "supporting-candidate": [
+          "composition"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "modeled consume"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-released-span-local-free-candidate-bridge-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local-free"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-released-span-local-free-candidate-bridge-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ],
+        "status-ledger-candidate": [
+          "ledger",
+          "readiness"
+        ],
+        "supporting-candidate": [
+          "bridge"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation",
+          "local-free",
+          "reuse"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "mutation",
+          "release",
+          "recycle"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-map-scalar-lookup-boundary-inventory-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "status-ledger-candidate": [
+          "ledger",
+          "inventory",
+          "matrix"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-map-and-release",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-page-membership-scalar-closeout-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "sidecar-candidate": [
+          "closeout"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-lifecycle-and-membership",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-lifecycle-and-membership": [
+          "page membership"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "release"
+        ]
+      }
+    },
+    {
+      "classification_basis": "body evidence queue only; reviewer decision required",
+      "owner": "",
+      "path": "hako-alloc-segment-page-membership-scalar-ssot.md",
+      "precedence_parent": "",
+      "review_status": "pending",
+      "role_hints": {
+        "supporting-candidate": [
+          "proof-only"
+        ]
+      },
+      "sidecar_owner": "",
+      "subfamily_candidate": "segment-lifecycle-and-membership",
+      "subfamily_evidence": {
+        "segment-allocation-and-local-reuse": [
+          "segment allocation"
+        ],
+        "segment-arena-backing-and-residence": [
+          "arena backing",
+          "pointer residence",
+          "bitmap",
+          "backing"
+        ],
+        "segment-lifecycle-and-membership": [
+          "page membership",
+          "segment state"
+        ],
+        "segment-map-and-release": [
+          "segment map",
+          "segment-map",
+          "lookup",
+          "release"
+        ]
+      }
+    }
+  ],
+  "schema_version": 0,
+  "superseded_assignment": 0
+}

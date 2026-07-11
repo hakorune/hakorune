@@ -37,3 +37,18 @@ The helper owns only repetitive row mechanics:
 
 It does not replace row-specific engineering judgment, implementation, or
 evidence checks.
+
+## Hako Alloc Segment Review Projection
+
+Use `tools/docs/hako_alloc_segment_family_projection.py` to generate the C2
+review projection for the 163 `hako-alloc-segment` documents:
+
+```bash
+python3 tools/docs/hako_alloc_segment_family_projection.py --write
+python3 tools/docs/hako_alloc_segment_family_projection.py --check
+```
+
+The generated manifest records body evidence, subfamily candidates, and role
+hints only. It deliberately leaves `owner`, `precedence_parent`, and
+`sidecar_owner` empty. It is a review queue, never an authority or role
+assignment mechanism.

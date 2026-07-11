@@ -437,7 +437,7 @@ retire_when = "owner-family review explicitly replaces this authority"
 path = "hako-alloc-mimalloc-port-identity-boundary-ssot.md"
 role = "authority"
 owner = "INDEX.md"
-precedence_parent = "INDEX.md"
+precedence_parent = "hako-alloc-policy-state-contract-ssot.md"
 classification_basis = "README:現役の設計図（入口）"
 sidecars = []
 supersedes = []
@@ -734,12 +734,23 @@ retire_when = "owner-family review explicitly replaces this authority"
 path = "mimalloc-hako-port-implementation-plan-ssot.md"
 role = "authority"
 owner = "INDEX.md"
-precedence_parent = "INDEX.md"
+precedence_parent = "hako-alloc-mimalloc-port-identity-boundary-ssot.md"
 classification_basis = "README:現役の設計図（入口）"
 sidecars = []
 supersedes = []
 superseded_by = ""
 retire_when = "owner-family review explicitly replaces this authority"
+
+[[documents]]
+path = "mimalloc-lifecycle-rewrite-blueprint-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "mimalloc-hako-port-implementation-plan-ssot.md"
+classification_basis = "C2:hako-alloc-segment; explicit enum lifecycle, transition, guard, and capability boundary"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "lifecycle authority is replaced explicitly and dependent rows are reparented"
 
 [[documents]]
 path = "minimal-capability-modules-ssot.md"

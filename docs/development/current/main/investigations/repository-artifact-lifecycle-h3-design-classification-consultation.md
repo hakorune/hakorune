@@ -132,6 +132,16 @@ candidates, model/ledger/readiness rows are status-ledger candidates,
 diagnostic/closeout rows are sidecar candidates only after one-base review,
 and bridge rows remain individual supporting review candidates.
 
+S1 is complete: the existing authority chain is represented in `INDEX.md`,
+the lifecycle blueprint is registered as its child authority, and no new
+authority document was created. The remaining 163 rows are now the S2 content
+review projection.
+
+The S2 projection is generated at
+`tools/checks/manifests/hako_alloc_segment_family_projection_v0.json` for all
+163 rows. It contains body evidence and role hints only; owner, precedence,
+and sidecar fields remain empty until explicit review.
+
 ## Minimum Next Slice
 
 ```text
