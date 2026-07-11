@@ -129,6 +129,10 @@ impl ExternCallRoute {
             }
         })
     }
+    pub fn required_capability(&self) -> Option<&'static str> {
+        crate::mir::extern_call_route_plan::extern_outcome_spec(self.kind)
+            .map(|spec| spec.required_capability)
+    }
     pub fn effect_tags(&self) -> &'static [&'static str] {
         self.kind.effect_tags()
     }
@@ -306,6 +310,10 @@ mod tests {
         assert_eq!(route.bridge_encoding(), Some("void_sentinel_i64_zero"));
         assert_eq!(route.semantic_result_policy(), Some("NoPayload"));
         assert_eq!(route.value_use_policy(), Some("StatementOnly"));
+        assert_eq!(
+            route.required_capability(),
+            Some("extern_unit_no_payload_hako_mem_free_v1")
+        );
         assert_eq!(route.result_value_opt(), None);
         assert_eq!(function.metadata.value_types.get(&ValueId::new(2)), None);
     }

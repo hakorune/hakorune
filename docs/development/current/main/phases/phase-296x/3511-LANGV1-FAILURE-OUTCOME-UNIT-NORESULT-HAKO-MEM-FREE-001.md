@@ -63,7 +63,7 @@ S0_contract_row = complete
 S1_route_separation = complete
 S2_result_use_convergence = complete
 S3_one_supported_backend = complete
-S4_preflight_and_fixtures = pending
+S4_preflight_and_fixtures = complete
 S5_activation = 0
 ```
 
@@ -73,6 +73,9 @@ the route from publishing `MirType::Integer`. S2 canonicalizes an unused
 temporary destination to `dst=None` and rejects a genuinely used result at the
 contract boundary before effects. S3 now has one LLVM/object consumer that
 emits only the native C-void call; VM/Wasm/legacy consumers remain unsupported.
+S4 now verifies the complete no-result metadata tuple, single-route
+cardinality, required capability, source/projection inventory checks, and
+removal of the zero-materializing emitter. Activation remains at zero.
 
 ### S0 — Contract row
 
@@ -106,12 +109,18 @@ emits only the native C-void call; VM/Wasm/legacy consumers remain unsupported.
 
 All contract, source freshness, result-use, capability, and projection
 observability checks must run before argument evaluation and before the native
-free call. Add positive and negative fixtures from the consultation matrix.
+free call. The focused route tests cover unused-result canonicalization and
+direct-result rejection; the M14 EXE guard covers the positive LLVM/object
+corridor, metadata tuple, single-route cardinality, builtin preflight, and
+no-zero emitter invariant. Inventory, exhaustiveness, and conflict guards
+remain green.
 
 ### S5 — Activation
 
 Only after every guard is green, set the narrow activation flag for this one
-contract. Do not activate Unit globally or change any other Void/Null site.
+contract. The activation flag's SSOT/owner is not yet defined in this card;
+do not invent a new runtime or manifest owner in S4. Do not activate Unit
+globally or change any other Void/Null site.
 
 ## Effect Order
 

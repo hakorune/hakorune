@@ -129,9 +129,9 @@
     },
     {
       "evidence": "(self.kind == ExternCallRouteKind::HakoMemFree).then_some(\"void_sentinel_i64_zero\")",
-      "evidence_id": "src/mir/extern_call_route_plan/route.rs:113:projection_encoding",
+      "evidence_id": "src/mir/extern_call_route_plan/route.rs:114:projection_encoding",
       "evidence_kind": "projection_encoding",
-      "line": 113,
+      "line": 114,
       "source_path": "src/mir/extern_call_route_plan/route.rs",
       "token": "projection_encoding"
     },
@@ -259,7 +259,7 @@
         "src/mir/extern_call_route_plan/route_spec.rs:427:route_id",
         "src/mir/extern_call_route_plan/route_spec.rs:434:abi_return_shape",
         "src/mir/extern_call_route_plan/route_spec.rs:435:semantic_result_policy",
-        "src/mir/extern_call_route_plan/route.rs:113:projection_encoding",
+        "src/mir/extern_call_route_plan/route.rs:114:projection_encoding",
         "src/mir/extern_call_route_plan/tests/hako_mem.rs:56:consumer_contract",
         "crates/nyash_kernel/src/exports/mem.rs:85:producer_implementation"
       ],
@@ -294,7 +294,7 @@
         "src/mir/extern_call_route_plan/route_spec.rs:427:route_id",
         "src/mir/extern_call_route_plan/route_spec.rs:434:abi_return_shape",
         "src/mir/extern_call_route_plan/route_spec.rs:435:semantic_result_policy",
-        "src/mir/extern_call_route_plan/route.rs:113:projection_encoding",
+        "src/mir/extern_call_route_plan/route.rs:114:projection_encoding",
         "src/mir/extern_call_route_plan/tests/hako_mem.rs:56:consumer_contract",
         "crates/nyash_kernel/src/exports/mem.rs:85:producer_implementation"
       ],

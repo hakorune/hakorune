@@ -31,7 +31,7 @@ pub struct ExternOutcomeSpec {
 pub const HAKO_MEM_FREE_OUTCOME: ExternOutcomeSpec = ExternOutcomeSpec {
     contract_id: "extern-outcome:hako-mem-free:v1",
     route_id: "extern.hako_mem.free",
-    source_site: "runtime.hako_mem.hako_mem_free.success",
+    source_site: "runtime_backend.extern.hako_mem_free.success",
     success_outcome: ExternSuccessOutcome::Unit,
     result_policy: ExternResultPolicy::NoPayload,
     value_use_policy: ExternValueUsePolicy::StatementOnly,

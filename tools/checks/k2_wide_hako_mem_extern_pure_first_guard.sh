@@ -45,6 +45,7 @@ if main is None:
     raise SystemExit("missing main")
 
 routes = main.get("metadata", {}).get("extern_call_routes", [])
+free_rows = [route for route in routes if route.get("route_id") == "extern.hako_mem.free"]
 seen = {
     (route.get("route_id"), route.get("symbol"), route.get("return_shape"), route.get("value_demand"))
     for route in routes
@@ -65,6 +66,20 @@ if want_alloc not in seen:
     raise SystemExit("missing hako_mem_alloc extern route")
 if want_free not in seen:
     raise SystemExit("missing hako_mem_free extern route")
+if len(free_rows) != 1:
+    raise SystemExit("expected exactly one hako_mem_free route")
+free = free_rows[0]
+expected = {
+    "result_value": None,
+    "abi_return_shape": "c_void",
+    "bridge_encoding": "void_sentinel_i64_zero",
+    "semantic_result_policy": "NoPayload",
+    "value_use_policy": "StatementOnly",
+    "required_capability": "extern_unit_no_payload_hako_mem_free_v1",
+}
+for key, value in expected.items():
+    if free.get(key) != value:
+        raise SystemExit(f"hako_mem_free {key} drift: {free.get(key)!r}")
 
 print("[m14-mir-json] ok")
 PY
@@ -74,6 +89,11 @@ pure_first_guard_assert_clean_build_log "$TAG" "$build_log"
 
 rg -F -q 'mir_call_hako_mem_alloc_emit' "$build_log"
 rg -F -q 'mir_call_hako_mem_free_emit' "$build_log"
+if rg -F -q 'HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR_ARG_VOID_ZERO' \
+  lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell_extern_emit.inc; then
+  echo "[$TAG] ERROR: zero-materializing hako_mem_free emitter remains" >&2
+  exit 1
+fi
 
 pure_first_guard_run_exe "$TAG" "$exe_out" "$run_log"
 rg -F -q 'hako-mem-extern-exe-proof' "$run_log"
