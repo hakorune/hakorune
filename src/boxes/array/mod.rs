@@ -5,7 +5,9 @@
 use crate::box_trait::{BoolBox, BoxBase, BoxCore, IntegerBox, NyashBox, StringBox};
 use crate::boxes::FloatBox;
 use crate::config::env;
-use parking_lot::RwLock;
+use parking_lot::{
+    MappedRwLockReadGuard, MappedRwLockWriteGuard, RwLock, RwLockReadGuard, RwLockWriteGuard,
+};
 use std::any::Any;
 use std::fmt::Display;
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -41,24 +43,45 @@ pub(crate) struct ArrayStateIdentity(u64);
 
 struct ArrayStateCell {
     identity: ArrayStateIdentity,
-    storage: RwLock<ArrayStorage>,
+    state: RwLock<ArrayStatePayload>,
+}
+
+struct ArrayStatePayload {
+    storage: ArrayStorage,
+    element_contract: Option<crate::typed_array_contract_spec::ArrayElementContractSpec>,
 }
 
 impl ArrayStateCell {
     fn new(storage: ArrayStorage) -> Self {
+        Self::new_with_contract(storage, None)
+    }
+
+    fn new_with_contract(
+        storage: ArrayStorage,
+        element_contract: Option<crate::typed_array_contract_spec::ArrayElementContractSpec>,
+    ) -> Self {
         static NEXT_ID: AtomicU64 = AtomicU64::new(1);
         Self {
             identity: ArrayStateIdentity(NEXT_ID.fetch_add(1, Ordering::Relaxed)),
-            storage: RwLock::new(storage),
+            state: RwLock::new(ArrayStatePayload {
+                storage,
+                element_contract,
+            }),
         }
     }
-}
 
-impl std::ops::Deref for ArrayStateCell {
-    type Target = RwLock<ArrayStorage>;
+    fn read(&self) -> MappedRwLockReadGuard<'_, ArrayStorage> {
+        RwLockReadGuard::map(self.state.read(), |payload| &payload.storage)
+    }
 
-    fn deref(&self) -> &Self::Target {
-        &self.storage
+    fn write(&self) -> MappedRwLockWriteGuard<'_, ArrayStorage> {
+        RwLockWriteGuard::map(self.state.write(), |payload| &mut payload.storage)
+    }
+
+    fn element_contract(
+        &self,
+    ) -> Option<crate::typed_array_contract_spec::ArrayElementContractSpec> {
+        self.state.read().element_contract
     }
 }
 

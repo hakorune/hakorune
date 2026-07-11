@@ -18,7 +18,10 @@ impl Clone for ArrayBox {
         };
 
         ArrayBox {
-            items: Arc::new(ArrayStateCell::new(cloned_items)),
+            items: Arc::new(ArrayStateCell::new_with_contract(
+                cloned_items,
+                self.items.element_contract(),
+            )),
             base: BoxBase::new(),
         }
     }
