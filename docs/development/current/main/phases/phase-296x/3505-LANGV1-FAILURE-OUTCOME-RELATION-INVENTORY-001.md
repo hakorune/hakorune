@@ -278,7 +278,7 @@ evidence_occurrences = 602
 semantic_sites = 54
 boundary_projection_sites = 10
 pending_sites = 52
-missing_argument_zero_pending = 2
+missing_argument_zero_pending = 0
 semantic_activation = 0
 ```
 

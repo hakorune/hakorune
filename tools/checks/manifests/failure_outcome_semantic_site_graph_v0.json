@@ -4818,13 +4818,13 @@
     }
   ],
   "pending_baseline_counts": {
-    "missing_argument_zero": 2
+    "missing_argument_zero": 0
   },
   "pending_counts": {
-    "missing_argument_zero": 2
+    "missing_argument_zero": 0
   },
   "previous_pending_counts": {
-    "missing_argument_zero": 2
+    "missing_argument_zero": 0
   },
   "schema_version": 0,
   "semantic_activation": 0,
@@ -6558,7 +6558,6 @@
       "outcome_branch": "ordinary_absence",
       "owner": "",
       "owner_domain": "option",
-      "pending_reason": "missing_argument_zero",
       "profile": "implementation",
       "review_status": "pending",
       "semantic_class": "",
@@ -6586,7 +6585,6 @@
       "outcome_branch": "recoverable_failure",
       "owner": "",
       "owner_domain": "result",
-      "pending_reason": "missing_argument_zero",
       "profile": "implementation",
       "review_status": "pending",
       "semantic_class": "",

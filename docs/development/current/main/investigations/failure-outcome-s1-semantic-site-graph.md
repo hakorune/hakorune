@@ -167,7 +167,8 @@ The deterministic graph generator is
 `tools/checks/manifests/failure_outcome_semantic_site_graph_v0.json`. The
 current inventory contains 602 evidence occurrences and 54 semantic sites,
 including 10 explicit boundary projections. `missing_argument_zero` has a
-manifest-visible pending count of 2. These are inventory facts only; semantic
+manifest-visible pending count of 0 after excluding unrelated Option/Result
+payload fixtures. These are inventory facts only; semantic
 activation remains zero.
 
 ## Next Stop

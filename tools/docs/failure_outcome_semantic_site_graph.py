@@ -23,7 +23,7 @@ OUTPUT = ROOT / "tools/checks/manifests/failure_outcome_semantic_site_graph_v0.j
 
 # Lower this only in the same accepted classification slice that reduces the
 # pending queue. Increasing the baseline would hide inventory regression.
-PENDING_BASELINE_COUNTS = {"missing_argument_zero": 2}
+PENDING_BASELINE_COUNTS = {"missing_argument_zero": 0}
 
 IDENTIFIER = re.compile(r"^[a-z][a-z0-9_]*$")
 SITE_SEGMENTS = ("layer", "owner_domain", "operation", "outcome_branch")
@@ -131,8 +131,12 @@ def contains_any(text: str, *needles: str) -> bool:
     return any(needle in text for needle in needles)
 
 
-def is_missing_argument_zero(text: str) -> bool:
-    return bool(re.search(r"(?:expected|expects|arg_count)[^\n]*\b0\b", text))
+def is_missing_argument_zero(text: str, token: str = "") -> bool:
+    if token in {"Option::None", "Result::Err"}:
+        return False
+    return bool(
+        re.search(r"(?:arg_count|default[^\n]*argument|argument[^\n]*default)[^\n]*\b0\b", text)
+    )
 
 
 def descriptor_for(row: dict[str, Any]) -> SiteDescriptor:
@@ -142,12 +146,12 @@ def descriptor_for(row: dict[str, Any]) -> SiteDescriptor:
     path = str(row["source_path"])
 
     if token == "env.get":
-        branch = "missing_argument_zero" if is_missing_argument_zero(evidence) else "provider_route"
+        branch = "missing_argument_zero" if is_missing_argument_zero(evidence, token) else "provider_route"
         if contains_any(evidence, "None =>", "provider", "missing"):
             branch = "provider_missing"
         return SiteDescriptor(layer, "extern", "env_get", branch)
     if token == "env.file.read":
-        branch = "missing_argument_zero" if is_missing_argument_zero(evidence) else "provider_route"
+        branch = "missing_argument_zero" if is_missing_argument_zero(evidence, token) else "provider_route"
         if contains_any(evidence, "Err", "error", "failure"):
             branch = "provider_failure"
         return SiteDescriptor(layer, "extern", "env_file_read", branch)
@@ -235,7 +239,10 @@ def semantic_site(descriptor: SiteDescriptor, rows: list[dict[str, Any]]) -> dic
     targets = {str(row.get("target_carrier", "")) for row in rows}
     classified = len(classes) == 1 and len(owners) == 1 and len(targets) == 1 and "" not in classes | owners | targets
     pending_reason = ""
-    if any(is_missing_argument_zero(str(row["evidence"])) for row in rows):
+    if any(
+        is_missing_argument_zero(str(row["evidence"]), str(row["surface_or_symbol"]))
+        for row in rows
+    ):
         pending_reason = "missing_argument_zero"
         classified = False
     site: dict[str, Any] = {
