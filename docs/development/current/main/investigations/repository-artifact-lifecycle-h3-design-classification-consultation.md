@@ -501,3 +501,58 @@ warning-unregistered pending consultation:
 No physical move, no new authority beyond the reviewed
 `allocator-replacement-hook-boundary-ssot.md` spine, and no baseline change
 beyond the exact landed count (395 -> 239).
+
+## C2 Multi-Family Residual Consultation List
+
+The 36-family multi-family batch is landed except for the residual families
+below. Content review is complete for every file; provisional roles are
+proposed, but each family lacks a registered design-root authority parent or
+has an ambiguous spine, so registration is held until the precedence parent is
+decided. (The batch proposal listed "29 files"; the exact residual count is 35.)
+
+```text
+1. nyrt-startup-env (8 files, all status-ledger)
+   NYRT-ENV-001..008 centralization ladder (Decision: current).
+   Open: parent = perf-userbox-link-startup-attribution-ssot.md (registered),
+   or register nyrt-startup-env-read-inventory-ssot.md as the family
+   status-ledger spine and parent the priority/p0..p5 ledgers to it.
+
+2. rc-gc-alignment (5 files; g1/g2/g3/g5 supporting gate locks, g4
+   status-ledger decision record)
+   Parents live outside design root (docs/reference/language/lifecycle.md,
+   20-Decisions.md). Open: spine = g1 lifecycle-parity lock, or a lifecycle
+   authority registration first.
+
+3. rust-to-hako (3 files; converter-implementation-role = authority candidate,
+   emitter-contract + ownership-converter-reference = supporting)
+   Open: authority parent = INDEX.md or
+   mirbuilder-rust-to-hako-converter-task-order-ssot.md (unregistered).
+
+4. trim-route-lowering (4) + promoted-carrier-identity (2)
+   Inventories/fixture probes/decision records in the lifecycle-lowering lane;
+   no SSOT authority in either family. Open: treat as one owner cluster and
+   name a durable lifecycle parent before landing.
+
+5. rep-mir-string (2) + transient-string-chain (2)
+   Provisional AOT string-perf pilot lane (Decision: provisional).
+   Open: register now under a string-lifecycle parent, or defer until the
+   shadow-RepMIR pilot is accepted.
+
+6. direct-slot-lease (2 files, both supporting)
+   Bridge + guard surface. Open: parent =
+   pinned-typed-object-arena-ssot.md (registered) — confirmation only.
+
+7. de-rust-full (3) + de-rust-backend (3)
+   backend-zero-boundary-lock = authority candidate; roadmap/order/inventory
+   ledgers = status-ledger, several marked Decision: provisional.
+   Open: parent chain (de-rust-master-task-map-ssot.md is registered) and
+   whether provisional roadmap docs register now or defer.
+
+8. language-minimal-surface-task-breakdown-ssot.md (1)
+   Role tie-break: task backlog (status-ledger by the matrix rule) that also
+   frames current surface decisions. Recommended status-ledger under
+   language-minimal-surface-ssot.md (registered in this batch as authority).
+```
+
+No physical move, no supersession, and no baseline change is requested for
+these 35 files before the answers; they remain warning-unregistered.

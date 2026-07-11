@@ -585,77 +585,57 @@
       "families": [
         {
           "family_key": "allocator-hook-activation",
-          "file_count": 5,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "allocator-hook-dry",
-          "file_count": 3,
+          "file_count": 1,
           "review_status": "pending"
         },
         {
           "family_key": "allocator-hook-plan",
-          "file_count": 2,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "allocator-hook-runtime",
-          "file_count": 2,
+          "file_count": 1,
           "review_status": "pending"
         },
         {
           "family_key": "allocator-provider-activation",
-          "file_count": 17,
+          "file_count": 4,
           "review_status": "pending"
         },
         {
           "family_key": "allocator-provider-debug",
-          "file_count": 2,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "allocator-provider-diagnostic",
-          "file_count": 2,
+          "file_count": 1,
           "review_status": "pending"
         },
         {
           "family_key": "allocator-provider-hako",
-          "file_count": 2,
+          "file_count": 1,
           "review_status": "pending"
         },
         {
           "family_key": "allocator-provider-manifest",
-          "file_count": 4,
+          "file_count": 1,
           "review_status": "pending"
         },
         {
           "family_key": "allocator-provider-native",
-          "file_count": 4,
+          "file_count": 2,
           "review_status": "pending"
         },
         {
           "family_key": "allocator-provider-proof",
-          "file_count": 7,
+          "file_count": 2,
           "review_status": "pending"
         },
         {
           "family_key": "allocator-provider-registry",
-          "file_count": 5,
+          "file_count": 1,
           "review_status": "pending"
         },
         {
           "family_key": "allocator-provider-rollback",
-          "file_count": 2,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "allocator-provider-selected",
-          "file_count": 2,
+          "file_count": 1,
           "review_status": "pending"
         },
         {
           "family_key": "allocator-provider-selection",
-          "file_count": 4,
+          "file_count": 1,
           "review_status": "pending"
         },
         {
@@ -699,31 +679,6 @@
           "review_status": "pending"
         },
         {
-          "family_key": "hako-alloc-allocator",
-          "file_count": 52,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-alloc-host",
-          "file_count": 5,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-alloc-provider",
-          "file_count": 24,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-alloc-real",
-          "file_count": 5,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "hako-alloc-reclaim",
-          "file_count": 18,
-          "review_status": "pending"
-        },
-        {
           "family_key": "hakorune-naming-and",
           "file_count": 1,
           "review_status": "pending"
@@ -735,7 +690,7 @@
         },
         {
           "family_key": "language-minimal-surface",
-          "file_count": 2,
+          "file_count": 1,
           "review_status": "pending"
         },
         {
@@ -809,16 +764,6 @@
           "review_status": "pending"
         },
         {
-          "family_key": "mimalloc-hako-port",
-          "file_count": 2,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "mimalloc-osvm-fast",
-          "file_count": 2,
-          "review_status": "pending"
-        },
-        {
           "family_key": "mimalloc-port-remaining",
           "file_count": 1,
           "review_status": "pending"
@@ -844,11 +789,6 @@
           "review_status": "pending"
         },
         {
-          "family_key": "purge-lifecycle-ladder",
-          "file_count": 2,
-          "review_status": "pending"
-        },
-        {
           "family_key": "rc-gc-alignment",
           "file_count": 5,
           "review_status": "pending"
@@ -864,18 +804,8 @@
           "review_status": "pending"
         },
         {
-          "family_key": "ring1-core-provider",
-          "file_count": 2,
-          "review_status": "pending"
-        },
-        {
           "family_key": "rust-to-hako",
           "file_count": 3,
-          "review_status": "pending"
-        },
-        {
-          "family_key": "selfhost-bootstrap-route",
-          "file_count": 2,
           "review_status": "pending"
         },
         {
@@ -894,16 +824,16 @@
           "review_status": "pending"
         }
       ],
-      "family_count": 62,
-      "multi_file_family_count": 36,
+      "family_count": 48,
+      "multi_file_family_count": 13,
       "role_assignment": "none",
-      "singleton_family_count": 26
+      "singleton_family_count": 35
     },
     "direct_files": 849,
     "markdown_files": 828,
     "non_markdown_files": 21,
-    "owned_sidecar_count": 88,
-    "registered_count": 522,
+    "owned_sidecar_count": 119,
+    "registered_count": 653,
     "registry_mode": "warning",
     "seed_reference_counts": {
       "AGENTS.md": 14,
@@ -918,68 +848,21 @@
       "other_or_missing": 690
     },
     "unregistered": [
-      "allocator-hook-activation-preflight-shape-ssot.md",
-      "allocator-hook-activation-preflight-ssot.md",
-      "allocator-hook-activation-proof-ssot.md",
       "allocator-hook-activation-proof-v0.toml",
-      "allocator-hook-activation-proof-validator-ssot.md",
-      "allocator-hook-dry-run-cli-surface-ssot.md",
-      "allocator-hook-dry-run-manifest-callsite-ssot.md",
-      "allocator-hook-dry-run-test-surface-ssot.md",
-      "allocator-hook-plan-v0-ssot.md",
       "allocator-hook-plan-v0.toml",
-      "allocator-hook-runtime-dry-run-ssot.md",
-      "allocator-hook-runtime-owner-ssot.md",
-      "allocator-provider-activation-decision-cli-surface-ssot.md",
-      "allocator-provider-activation-decision-closeout-inventory-ssot.md",
-      "allocator-provider-activation-decision-diagnostic-owner-ssot.md",
-      "allocator-provider-activation-decision-diagnostic-report-ssot.md",
-      "allocator-provider-activation-decision-surface-proposal-ssot.md",
       "allocator-provider-activation-decision-v0.toml",
-      "allocator-provider-activation-diagnostic-closeout-inventory-ssot.md",
-      "allocator-provider-activation-entry-contract-ssot.md",
       "allocator-provider-activation-entry-contract-v0.toml",
-      "allocator-provider-activation-implementation-entry-contract-ssot.md",
       "allocator-provider-activation-implementation-entry-contract-v0.toml",
-      "allocator-provider-activation-safety-cli-surface-ssot.md",
-      "allocator-provider-activation-safety-closeout-inventory-ssot.md",
-      "allocator-provider-activation-safety-diagnostic-owner-ssot.md",
-      "allocator-provider-activation-safety-diagnostic-report-ssot.md",
-      "allocator-provider-activation-safety-gate-ssot.md",
       "allocator-provider-activation-safety-gate-v0.toml",
-      "allocator-provider-debug-guarded-proof-ssot.md",
       "allocator-provider-debug-guarded-proof-v0.toml",
-      "allocator-provider-diagnostic-helper-cleanup-ssot.md",
-      "allocator-provider-diagnostic-inactive-actions-ssot.md",
-      "allocator-provider-hako-model-proof-ssot.md",
       "allocator-provider-hako-model-proof-v0.toml",
-      "allocator-provider-manifest-cli-surface-ssot.md",
-      "allocator-provider-manifest-diagnostic-parser-ssot.md",
-      "allocator-provider-manifest-v0-ssot.md",
       "allocator-provider-manifest-v0.toml",
-      "allocator-provider-native-mimalloc-proof-ssot.md",
       "allocator-provider-native-mimalloc-proof-v0.toml",
-      "allocator-provider-native-system-proof-ssot.md",
       "allocator-provider-native-system-proof-v0.toml",
-      "allocator-provider-proof-bundle-consumption-cli-surface-ssot.md",
-      "allocator-provider-proof-bundle-consumption-diagnostic-report-ssot.md",
-      "allocator-provider-proof-bundle-consumption-entry-contract-ssot.md",
       "allocator-provider-proof-bundle-consumption-entry-contract-v0.toml",
-      "allocator-provider-proof-bundle-consumption-ssot.md",
       "allocator-provider-proof-bundle-consumption-v0.toml",
-      "allocator-provider-proof-consumption-failfast-entry-ssot.md",
-      "allocator-provider-registry-boundary-ssot.md",
-      "allocator-provider-registry-snapshot-cli-surface-ssot.md",
-      "allocator-provider-registry-snapshot-diagnostic-report-ssot.md",
-      "allocator-provider-registry-snapshot-ssot.md",
       "allocator-provider-registry-snapshot-v0.toml",
-      "allocator-provider-rollback-preflight-ssot.md",
       "allocator-provider-rollback-preflight-v0.toml",
-      "allocator-provider-selected-provider-precondition-ssot.md",
-      "allocator-provider-selected-provider-proof-validation-ssot.md",
-      "allocator-provider-selection-decision-cli-surface-ssot.md",
-      "allocator-provider-selection-decision-diagnostic-report-ssot.md",
-      "allocator-provider-selection-decision-ssot.md",
       "allocator-provider-selection-decision-v0.toml",
       "boxbase-new-external-consultation-question.md",
       "collection-raw-substrate-contract-ssot.md",
@@ -994,113 +877,8 @@
       "direct-slot-lease-guard-surface-ssot.md",
       "exit-branch-feature-ssot.md",
       "exitbranch-ssot.md",
-      "hako-alloc-allocator-comparison-baseline-closeout-ssot.md",
-      "hako-alloc-allocator-comparison-baseline-diagnostics-ssot.md",
-      "hako-alloc-allocator-comparison-baseline-inventory-ssot.md",
-      "hako-alloc-allocator-comparison-benchmark-execution-preflight-closeout-ssot.md",
-      "hako-alloc-allocator-comparison-benchmark-execution-preflight-diagnostics-ssot.md",
-      "hako-alloc-allocator-comparison-benchmark-execution-preflight-inventory-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-execution-closeout-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-execution-diagnostics-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-execution-inventory-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-execution-plan-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-explicit-runner-closeout-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-explicit-runner-evidence-diagnostics-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-explicit-runner-execution-pilot-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-explicit-runner-planning-pilot-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-first-conclusion-pilot-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-first-conclusion-preflight-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-ledger-diagnostics-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-ledger-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-presentation-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-pilot-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-presentation-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-extension-pilot-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-presentation-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-pilot-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-presentation-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-extension-pilot-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-presentation-extension-follow-on-extension-follow-on-extension-follow-on-extension-follow-on-pilot-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-presentation-extension-follow-on-extension-follow-on-extension-follow-on-extension-pilot-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-presentation-extension-follow-on-extension-follow-on-extension-follow-on-pilot-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-presentation-extension-follow-on-extension-follow-on-extension-pilot-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-presentation-extension-follow-on-extension-follow-on-pilot-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-presentation-extension-follow-on-extension-pilot-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-presentation-extension-follow-on-pilot-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-presentation-extension-pilot-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-presentation-follow-on-pilot-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-presentation-only-conclusion-pilot-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-presentation-only-extension-pilot-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-reporting-closeout-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-reporting-diagnostics-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-reporting-inventory-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-summary-closeout-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-summary-diagnostics-ssot.md",
-      "hako-alloc-allocator-comparison-c-mimalloc-result-summary-inventory-ssot.md",
-      "hako-alloc-allocator-comparison-controlled-benchmark-execution-closeout-ssot.md",
-      "hako-alloc-allocator-comparison-controlled-benchmark-execution-diagnostics-ssot.md",
-      "hako-alloc-allocator-comparison-controlled-benchmark-execution-inventory-ssot.md",
-      "hako-alloc-allocator-comparison-controlled-benchmark-execution-plan-ssot.md",
-      "hako-alloc-allocator-comparison-measurement-plan-closeout-ssot.md",
-      "hako-alloc-allocator-comparison-measurement-plan-diagnostics-ssot.md",
-      "hako-alloc-allocator-comparison-measurement-plan-inventory-ssot.md",
-      "hako-alloc-allocator-comparison-representative-benchmark-execution-closeout-ssot.md",
-      "hako-alloc-allocator-comparison-representative-benchmark-execution-diagnostics-ssot.md",
-      "hako-alloc-allocator-comparison-representative-benchmark-execution-pilot-ssot.md",
-      "hako-alloc-allocator-comparison-workload-matrix-closeout-ssot.md",
-      "hako-alloc-allocator-comparison-workload-matrix-diagnostics-ssot.md",
-      "hako-alloc-allocator-comparison-workload-matrix-inventory-ssot.md",
-      "hako-alloc-host-replacement-backend-matcher-no-growth-closeout-ssot.md",
-      "hako-alloc-host-replacement-blocked-state-diagnostics-ssot.md",
-      "hako-alloc-host-replacement-explicit-preflight-inventory-ssot.md",
-      "hako-alloc-host-replacement-optional-ladder-plan-ssot.md",
-      "hako-alloc-host-replacement-preflight-closeout-ssot.md",
-      "hako-alloc-provider-activation-dry-run-unsupported-behavior-ssot.md",
-      "hako-alloc-provider-activation-explicit-input-contract-ssot.md",
-      "hako-alloc-provider-activation-first-pattern-plan-ssot.md",
-      "hako-alloc-provider-activation-input-bundle-inventory-ssot.md",
-      "hako-alloc-provider-activation-modeled-open-pilot-ssot.md",
-      "hako-alloc-provider-activation-unsupported-outcome-closeout-ssot.md",
-      "hako-alloc-provider-activation-unsupported-outcome-ledger-ssot.md",
-      "hako-alloc-provider-boundary-diagnostic-vocabulary-ssot.md",
-      "hako-alloc-provider-call-execution-capability-preflight-ssot.md",
-      "hako-alloc-provider-call-external-api-adapter-closeout-ssot.md",
-      "hako-alloc-provider-call-external-api-adapter-inventory-ssot.md",
-      "hako-alloc-provider-call-external-api-adapter-preflight-ssot.md",
-      "hako-alloc-provider-call-external-api-call-stub-execution-closeout-ssot.md",
-      "hako-alloc-provider-call-external-api-call-stub-execution-pilot-ssot.md",
-      "hako-alloc-provider-call-modeled-open-pilot-ssot.md",
-      "hako-alloc-provider-call-noop-execution-seam-pilot-ssot.md",
-      "hako-alloc-provider-call-real-api-execution-preflight-ssot.md",
-      "hako-alloc-provider-call-real-api-stub-execution-closeout-ssot.md",
-      "hako-alloc-provider-call-real-api-stub-execution-pilot-ssot.md",
-      "hako-alloc-provider-facing-ladder-closed-plan-ssot.md",
-      "hako-alloc-provider-facing-ladder-closeout-ssot.md",
-      "hako-alloc-provider-inactive-boundary-inventory-ssot.md",
-      "hako-alloc-provider-readiness-preflight-ssot.md",
-      "hako-alloc-provider-selection-inventory-ssot.md",
-      "hako-alloc-real-external-provider-api-adapter-execution-preflight-closeout-ssot.md",
-      "hako-alloc-real-external-provider-api-adapter-execution-preflight-ssot.md",
-      "hako-alloc-real-external-provider-api-call-first-pattern-closeout-ssot.md",
-      "hako-alloc-real-external-provider-api-call-first-pattern-pilot-ssot.md",
-      "hako-alloc-real-external-provider-api-call-first-pattern-plan-ssot.md",
-      "hako-alloc-reclaim-atomic-claim-contract-ssot.md",
-      "hako-alloc-reclaim-completion-marker-ssot.md",
-      "hako-alloc-reclaim-owner-transfer-contract-ssot.md",
-      "hako-alloc-reclaim-owner-transfer-execution-ssot.md",
-      "hako-alloc-reclaim-post-drain-owner-transfer-ssot.md",
-      "hako-alloc-reclaim-remote-free-drain-contract-ssot.md",
-      "hako-alloc-reclaim-remote-free-drain-execution-ssot.md",
-      "hako-alloc-reclaim-scalar-lane-closeout-ssot.md",
-      "hako-alloc-reclaim-scheduler-boundary-inventory-ssot.md",
-      "hako-alloc-reclaim-scheduler-marker-closeout-ssot.md",
-      "hako-alloc-reclaim-scheduler-request-ledger-closeout-ssot.md",
-      "hako-alloc-reclaim-scheduler-request-ledger-consume-closeout-ssot.md",
-      "hako-alloc-reclaim-scheduler-request-ledger-consume-ssot.md",
-      "hako-alloc-reclaim-scheduler-request-ledger-roundtrip-closeout-ssot.md",
-      "hako-alloc-reclaim-scheduler-request-ledger-roundtrip-ssot.md",
-      "hako-alloc-reclaim-scheduler-request-ledger-ssot.md",
-      "hako-alloc-reclaim-scheduler-request-marker-ssot.md",
-      "hako-alloc-reclaim-scheduler-scalar-lane-closeout-ssot.md",
       "hakorune-naming-and-rename-task-order-ssot.md",
       "joinir-pattern-selection-shadow-ssot.md",
-      "language-minimal-surface-ssot.md",
       "language-minimal-surface-task-breakdown-ssot.md",
       "map-literal-eviction-and-blockexpr-roadmap-ssot.md",
       "mapbox-proof-bearing-route-ssot.md",
@@ -1116,10 +894,6 @@
       "mimalloc-facade-known-page-loop-ssot.md",
       "mimalloc-facade-lifecycle-route-ssot.md",
       "mimalloc-facade-object-lifecycle-queue-ssot.md",
-      "mimalloc-hako-port-capability-gap-inventory-ssot.md",
-      "mimalloc-hako-port-purpose-ssot.md",
-      "mimalloc-osvm-fast-path-route-closeout-ssot.md",
-      "mimalloc-osvm-fast-path-unreserve-closeout-ssot.md",
       "mimalloc-port-remaining-inventory-ssot.md",
       "mirbuilder-rust-to-hako-converter-task-order-ssot.md",
       "nyrt-startup-env-centralization-priority-ssot.md",
@@ -1133,8 +907,6 @@
       "pattern-naming-migration-ssot.md",
       "promoted-carrier-identity-join-id-design-inventory.md",
       "promoted-carrier-identity-policy-decision.md",
-      "purge-lifecycle-ladder-closeout-ssot.md",
-      "purge-lifecycle-ladder-map-ssot.md",
       "rc-gc-alignment-g1-lifecycle-parity-ssot.md",
       "rc-gc-alignment-g2-fast-milestone-gate-ssot.md",
       "rc-gc-alignment-g3-cycle-explicit-drop-ssot.md",
@@ -1143,13 +915,9 @@
       "rep-mir-string-birth-map-inventory.md",
       "rep-mir-string-lowering-ssot.md",
       "return-proof-vocabulary-v0.toml",
-      "ring1-core-provider-promotion-template-ssot.md",
-      "ring1-core-provider-scope-ssot.md",
       "rust-to-hako-converter-implementation-role-ssot.md",
       "rust-to-hako-lifecycle-emitter-contract.md",
       "rust-to-hako-ownership-converter-reference.md",
-      "selfhost-bootstrap-route-evidence-and-legacy-lanes.md",
-      "selfhost-bootstrap-route-ssot.md",
       "source-selfhost-wider-route-selection-basis-ssot.md",
       "transient-string-chain-boxless-wave-ssot.md",
       "transient-string-chain-external-consultation-question.md",
@@ -1158,8 +926,8 @@
       "trim-route-lowering-proof-update.md",
       "trim-route-lowering-readiness-integration-inventory.md"
     ],
-    "unregistered_baseline": 239,
-    "unregistered_count": 239,
+    "unregistered_baseline": 77,
+    "unregistered_count": 77,
     "unseeded_count": 688,
     "violations": []
   },
@@ -1934,7 +1702,7 @@
     "root_seed_counts": {
       "active_phase_296x_direct": 1032,
       "current_pointer": 4,
-      "design_authority": 253,
+      "design_authority": 257,
       "fixed_current_entry": 4,
       "reference_src_tools": 3042
     },
