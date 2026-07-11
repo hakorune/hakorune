@@ -48,6 +48,7 @@ Do not add a dedicated shell guard for every inventory or selection row.
 | `tools/checks/run_proof_app.sh` | Manifest-backed proof app runner using `tools/checks/proof_apps.toml` and `tools/checks/lib/manifest_runner.py`. |
 | `tools/checks/k2_wide_allocator_gate.sh` | Reusable allocator/mimalloc/provider proof group entry for allocator-wide checks. |
 | `tools/checks/language_v1_grammar_contract_substrate_guard.sh` | Language v1 grammar-contract substrate: one registry, typed projection, shared corpus, and strict witness comparator. |
+| `tools/checks/language_v1_full_gate_for_changes.sh` | Changed-path entry that reads one sensitive-path manifest and requires the FULL Rust/Hako grammar gate for MIR binding/type-contract, Hako compiler, projection, or registry changes. |
 | `tools/checks/language_v1_rust_grammar_profile_guard.sh` | Rust Canonical/Compat2025 profile plumbing, statement-try seam, CLI/API entry, and legacy-env conflict boundary. |
 
 Naming compatibility notes kept here for `naming_charter_guard.sh`:

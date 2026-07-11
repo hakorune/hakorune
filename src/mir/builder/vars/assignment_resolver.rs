@@ -12,20 +12,22 @@ impl AssignmentResolverBox {
         builder: &MirBuilder,
         var_name: &str,
     ) -> Result<(), String> {
-        // Phase 288 P2: REPL mode allows implicit local declarations
+        // Pin temporaries are direct SSA values. Reaching named assignment is
+        // a compiler routing error in every mode, including the REPL.
+        if var_name.starts_with("__pin$") {
+            return Err(format!(
+                "[type/pin_named_assignment_forbidden] name={}",
+                var_name
+            ));
+        }
+
+        // Phase 288 P2: REPL mode allows implicit user local declarations.
         if builder.repl_mode {
             return Ok(());
         }
 
-        // Compiler-generated temporaries are not part of the user variable namespace.
-        if var_name.starts_with("__pin$") {
-            return Ok(());
-        }
-
         if builder.variable_ctx.variable_map.contains_key(var_name) {
-            return if builder.binding_ctx.contains(var_name)
-                || builder.scope_ctx.function_param_names.contains(var_name)
-            {
+            return if builder.binding_ctx.contains(var_name) {
                 Ok(())
             } else {
                 Err(format!(
@@ -80,7 +82,7 @@ mod tests {
     }
 
     #[test]
-    fn function_parameters_use_their_entry_identity_lane() {
+    fn parameter_observation_without_identity_is_rejected() {
         let mut builder = MirBuilder::new();
         builder
             .variable_ctx
@@ -91,7 +93,18 @@ mod tests {
             .function_param_names
             .insert("arg".to_string());
 
-        assert!(AssignmentResolverBox::ensure_declared(&builder, "arg").is_ok());
+        let error = AssignmentResolverBox::ensure_declared(&builder, "arg")
+            .expect_err("observation inventory is not assignment authority");
+        assert!(error.starts_with("[type/local_contract_binding_missing]"));
         assert!(!builder.binding_ctx.contains("arg"));
+    }
+
+    #[test]
+    fn synthetic_pin_named_assignment_is_rejected() {
+        let mut builder = MirBuilder::new();
+        builder.repl_mode = true;
+        let error = AssignmentResolverBox::ensure_declared(&builder, "__pin$1$recv")
+            .expect_err("pin names are direct SSA values");
+        assert!(error.starts_with("[type/pin_named_assignment_forbidden]"));
     }
 }

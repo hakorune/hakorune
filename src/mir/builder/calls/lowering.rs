@@ -375,7 +375,7 @@ impl MirBuilder {
         // ========================================
         // Step 3: パラメータ設定 (parameter_setup へ委譲)
         // ========================================
-        self.setup_function_params(&params);
+        self.setup_function_params(&params)?;
 
         // ========================================
         // Step 4: 本体lowering (このファイルで実装)
@@ -473,7 +473,7 @@ impl MirBuilder {
         // ========================================
         // Step 3b: パラメータ設定 (parameter_setup へ委譲 - me + params)
         // ========================================
-        self.setup_method_params(&box_name, &params);
+        self.setup_method_params(&box_name, &params)?;
 
         // ========================================
         // Step 4b: 本体lowering (このファイルで実装 - cf_block版)

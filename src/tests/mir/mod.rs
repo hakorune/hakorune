@@ -58,6 +58,8 @@ pub mod mir_move_contract;
 pub mod mir_no_phi_merge_tests;
 #[path = "../mir_outbox_contract.rs"]
 pub mod mir_outbox_contract;
+#[path = "../mir_parameter_binding_identity.rs"]
+pub mod mir_parameter_binding_identity;
 #[path = "../mir_peek_lower.rs"]
 pub mod mir_peek_lower;
 #[cfg(feature = "legacy-tests")]

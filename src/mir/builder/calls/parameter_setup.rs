@@ -1,154 +1,224 @@
-//! Parameter setup and binding (static/instance methods)
+//! Function-entry parameter identity owner.
 //!
-//! 責務:
-//! - static method のパラメータ設定（setup_function_params）
-//! - instance method のパラメータ設定（setup_method_params）
-//! - "me" パラメータの特別処理
-//! - SlotRegistry への登録
+//! Static parameters, instance receivers, and instance parameters all publish
+//! their ValueId and BindingId through one API. `function_param_names` remains
+//! observation inventory; it is never assignment authority.
 
-use crate::mir::builder::MirBuilder;
-use crate::mir::builder::MirType;
-use hakorune_mir_core::{MirValueKind, ValueId};
+use crate::mir::builder::{MirBuilder, MirType};
+use hakorune_mir_core::{BindingId, MirValueKind, ValueId};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum FunctionParameterKind {
+    Receiver,
+    Explicit,
+}
 
 impl MirBuilder {
-    /// 🎯 箱理論: Step 3 - パラメータ設定
-    /// Phase 269 P1.2: static call 正規化により、static box では "me" の擬似初期化を行わない（receiver は compile-time で確定）
-    #[allow(deprecated)]
-    pub(super) fn setup_function_params(&mut self, params: &[String]) {
-        // Phase 136 Step 3/7: Clear scope_ctx (SSOT)
+    pub(super) fn setup_function_params(&mut self, params: &[String]) -> Result<(), String> {
         self.scope_ctx.function_param_names.clear();
-        // SlotRegistry 更新は borrow 競合を避けるため、まずローカルに集約してから反映するよ。
-        let mut slot_regs: Vec<(String, Option<MirType>)> = Vec::new();
-        // Phase 26-A-3: パラメータ型情報も後で一括登録（借用競合回避）
-        let mut param_kinds: Vec<(ValueId, u32)> = Vec::new();
-
-        if let Some(ref mut f) = self.scope_ctx.current_function {
-            // 📦 Hotfix 5: Use pre-populated params from MirFunction::new()
-            // Static methods have implicit receiver at params[0], so actual parameters start at offset
-            let receiver_offset = if f.params.is_empty() {
-                0
-            } else {
-                // If params already populated (by Hotfix 4+5), use them
-                if f.params.len() > params.len() {
-                    1
-                } else {
-                    0
-                }
+        let entries = {
+            let Some(function) = self.scope_ctx.current_function.as_mut() else {
+                return Err("[type/parameter_binding_identity_missing] function=<none>".to_string());
             };
+            let receiver_offset = usize::from(function.params.len() > params.len());
+            let param_types = function.signature.params.clone();
+            params
+                .iter()
+                .enumerate()
+                .map(|(source_index, name)| {
+                    let formal_index = receiver_offset + source_index;
+                    let value = if formal_index < function.params.len() {
+                        function.params[formal_index]
+                    } else {
+                        let value = function.next_value_id();
+                        function.params.push(value);
+                        value
+                    };
+                    (
+                        name.clone(),
+                        value,
+                        formal_index,
+                        param_types.get(formal_index).cloned(),
+                    )
+                })
+                .collect::<Vec<_>>()
+        };
 
-            let param_types = f.signature.params.clone();
-
-            for (idx, p) in params.iter().enumerate() {
-                let param_idx = receiver_offset + idx;
-                let pid = if param_idx < f.params.len() {
-                    // Use pre-allocated ValueId from MirFunction::new()
-                    f.params[param_idx]
-                } else {
-                    // Allocate new ValueId when MirFunction was not pre-populated.
-                    let new_pid = f.next_value_id();
-                    f.params.push(new_pid);
-                    new_pid
-                };
-                self.variable_ctx.variable_map.insert(p.clone(), pid);
-                // Phase 136 Step 3/7: Insert into scope_ctx (SSOT)
-                self.scope_ctx.function_param_names.insert(p.clone());
-
-                // Phase 26-A-3: パラメータ型情報を収集（後で一括登録）
-                // param_idx: receiver offset を考慮した実際のパラメータインデックス
-                param_kinds.push((pid, param_idx as u32));
-
-                let ty = param_types.get(param_idx).cloned();
-                if let Some(ty) = ty.clone() {
-                    self.type_ctx.value_types.insert(pid, ty);
-                }
-                slot_regs.push((p.clone(), ty));
-            }
+        for (name, value, formal_index, ty) in entries {
+            self.declare_function_parameter(
+                &name,
+                value,
+                formal_index,
+                ty,
+                FunctionParameterKind::Explicit,
+                None,
+            )?;
         }
-
-        // Phase 26-A-3: パラメータ型情報を一括登録（GUARD Bug Prevention）
-        for (pid, param_idx) in param_kinds {
-            self.register_value_kind(pid, MirValueKind::Parameter(param_idx));
-        }
-
-        if let Some(reg) = self.comp_ctx.current_slot_registry.as_mut() {
-            for (name, ty) in slot_regs {
-                reg.ensure_slot(&name, ty);
-            }
-        }
+        Ok(())
     }
 
-    /// 🎯 箱理論: Step 3b - パラメータ設定（instance method版: me + params）
-    pub(super) fn setup_method_params(&mut self, box_name: &str, params: &[String]) {
-        // SlotRegistry 更新はローカルバッファに集約してから反映するよ。
-        let mut slot_regs: Vec<(String, Option<MirType>)> = Vec::new();
-        let mut param_kinds: Vec<(ValueId, u32)> = Vec::new();
+    pub(super) fn setup_method_params(
+        &mut self,
+        box_name: &str,
+        params: &[String],
+    ) -> Result<(), String> {
+        self.scope_ctx.function_param_names.clear();
         let me_type = MirType::Box(box_name.to_string());
-
-        if let Some(ref mut f) = self.scope_ctx.current_function {
-            // 📦 Hotfix 6 改訂版:
-            // MirFunction::new() が既に 0..N の ValueId を params 用に予約しているので、
-            // ここではそれを「上書き使用」するだけにして、push で二重定義しないようにするよ。
-            //
-            // params レイアウト:
-            //   index 0: me (box<MyBox>)
-            //   index 1..: 通常パラメータ
-            if f.params.is_empty() {
-                // 安全弁: 何らかの理由で pre-populate されていない場合は従来どおり new する
-                let me_id = ValueId(0);
-                f.params.push(me_id);
-                for i in 0..params.len() {
-                    f.params.push(ValueId((i + 1) as u32));
-                }
+        let entries = {
+            let Some(function) = self.scope_ctx.current_function.as_mut() else {
+                return Err("[type/parameter_binding_identity_missing] function=<none>".to_string());
+            };
+            let required_count = params.len() + 1;
+            while function.params.len() < required_count {
+                let value = function.next_value_id();
+                function.params.push(value);
             }
-
-            // me
-            let me_id = f.params[0];
-            self.variable_ctx
-                .variable_map
-                .insert("me".to_string(), me_id);
-            param_kinds.push((me_id, 0));
-            self.type_ctx.value_types.insert(me_id, me_type.clone());
-            self.type_ctx
-                .value_origin_newbox
-                .insert(me_id, box_name.to_string());
-            slot_regs.push(("me".to_string(), Some(me_type.clone())));
-
-            // 通常パラメータ
-            let param_types = f.signature.params.clone();
-            for (idx, p) in params.iter().enumerate() {
-                let param_idx = idx + 1;
-                if param_idx < f.params.len() {
-                    let pid = f.params[param_idx];
-                    self.variable_ctx.variable_map.insert(p.clone(), pid);
-                    param_kinds.push((pid, param_idx as u32));
-                    let ty = param_types.get(param_idx).cloned();
-                    if let Some(ty) = ty.clone() {
-                        self.type_ctx.value_types.insert(pid, ty);
-                    }
-                    slot_regs.push((p.clone(), ty));
-                } else {
-                    // 念のため足りない場合は新規に確保（互換用）
-                    let pid = f.next_value_id();
-                    f.params.push(pid);
-                    self.variable_ctx.variable_map.insert(p.clone(), pid);
-                    param_kinds.push((pid, param_idx as u32));
-                    let ty = param_types.get(param_idx).cloned();
-                    if let Some(ty) = ty.clone() {
-                        self.type_ctx.value_types.insert(pid, ty);
-                    }
-                    slot_regs.push((p.clone(), ty));
-                }
+            let param_types = function.signature.params.clone();
+            let mut entries = Vec::with_capacity(required_count);
+            entries.push((
+                "me".to_string(),
+                function.params[0],
+                0,
+                Some(me_type.clone()),
+                FunctionParameterKind::Receiver,
+            ));
+            for (source_index, name) in params.iter().enumerate() {
+                let formal_index = source_index + 1;
+                entries.push((
+                    name.clone(),
+                    function.params[formal_index],
+                    formal_index,
+                    param_types.get(formal_index).cloned(),
+                    FunctionParameterKind::Explicit,
+                ));
             }
+            entries
+        };
+
+        for (name, value, formal_index, ty, kind) in entries {
+            let receiver_box =
+                matches!(kind, FunctionParameterKind::Receiver).then_some(box_name.to_string());
+            self.declare_function_parameter(&name, value, formal_index, ty, kind, receiver_box)?;
+        }
+        Ok(())
+    }
+
+    fn declare_function_parameter(
+        &mut self,
+        name: &str,
+        value: ValueId,
+        formal_index: usize,
+        ty: Option<MirType>,
+        kind: FunctionParameterKind,
+        receiver_box: Option<String>,
+    ) -> Result<BindingId, String> {
+        if self.variable_ctx.variable_map.contains_key(name) || self.binding_ctx.contains(name) {
+            return Err(format!(
+                "[type/parameter_binding_identity_duplicate] name={} formal_index={}",
+                name, formal_index
+            ));
         }
 
-        for (pid, param_idx) in param_kinds {
-            self.register_value_kind(pid, MirValueKind::Parameter(param_idx));
+        let binding_id = self.allocate_binding_id();
+        self.variable_ctx
+            .variable_map
+            .insert(name.to_string(), value);
+        self.binding_ctx.insert(name.to_string(), binding_id);
+        self.scope_ctx.function_param_names.insert(name.to_string());
+        self.register_value_kind(value, MirValueKind::Parameter(formal_index as u32));
+        if let Some(ty) = ty.clone() {
+            self.type_ctx.value_types.insert(value, ty);
+        }
+        if let Some(box_name) = receiver_box {
+            self.type_ctx.value_origin_newbox.insert(value, box_name);
+        }
+        if let Some(registry) = self.comp_ctx.current_slot_registry.as_mut() {
+            registry.ensure_slot(name, ty);
         }
 
-        if let Some(reg) = self.comp_ctx.current_slot_registry.as_mut() {
-            for (name, ty) in slot_regs {
-                reg.ensure_slot(&name, ty);
-            }
-        }
+        debug_assert_eq!(
+            matches!(kind, FunctionParameterKind::Receiver),
+            name == "me",
+            "receiver identity must be published as me"
+        );
+        Ok(binding_id)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parameter_publication_is_atomic() {
+        let mut builder = MirBuilder::new();
+        let binding = builder
+            .declare_function_parameter(
+                "arg",
+                ValueId::new(4),
+                0,
+                Some(MirType::Integer),
+                FunctionParameterKind::Explicit,
+                None,
+            )
+            .expect("parameter declaration");
+
+        assert_eq!(
+            builder.variable_ctx.variable_map.get("arg"),
+            Some(&ValueId::new(4))
+        );
+        assert_eq!(builder.binding_ctx.lookup("arg"), Some(binding));
+        assert!(builder.scope_ctx.function_param_names.contains("arg"));
+        assert_eq!(
+            builder.get_value_kind(ValueId::new(4)),
+            Some(MirValueKind::Parameter(0))
+        );
+    }
+
+    #[test]
+    fn receiver_uses_the_same_identity_owner() {
+        let mut builder = MirBuilder::new();
+        let binding = builder
+            .declare_function_parameter(
+                "me",
+                ValueId::new(0),
+                0,
+                Some(MirType::Box("Counter".to_string())),
+                FunctionParameterKind::Receiver,
+                Some("Counter".to_string()),
+            )
+            .expect("receiver declaration");
+
+        assert_eq!(builder.binding_ctx.lookup("me"), Some(binding));
+        assert_eq!(
+            builder.type_ctx.value_origin_newbox.get(&ValueId::new(0)),
+            Some(&"Counter".to_string())
+        );
+    }
+
+    #[test]
+    fn duplicate_parameter_publication_fails() {
+        let mut builder = MirBuilder::new();
+        builder
+            .declare_function_parameter(
+                "arg",
+                ValueId::new(0),
+                0,
+                None,
+                FunctionParameterKind::Explicit,
+                None,
+            )
+            .expect("first declaration");
+        let error = builder
+            .declare_function_parameter(
+                "arg",
+                ValueId::new(1),
+                1,
+                None,
+                FunctionParameterKind::Explicit,
+                None,
+            )
+            .expect_err("duplicate declaration must fail");
+        assert!(error.starts_with("[type/parameter_binding_identity_duplicate]"));
     }
 }

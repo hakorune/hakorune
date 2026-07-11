@@ -1,0 +1,9 @@
+# Paths whose changes require the full Rust/Hako Language v1 grammar gate.
+# One shell glob per line; this file is the only path-selection authority.
+src/mir/builder/vars/**
+src/mir/builder/calls/parameter_setup.rs
+src/mir/type_contracts/**
+src/tests/mir_parameter_binding_identity.rs
+lang/src/compiler/**
+tools/language_v1/**
+grammar/language-v1-*
