@@ -178,6 +178,34 @@ def strongly_connected_phase_clusters(
     ]
 
 
+def weakly_connected_document_clusters(
+    candidates: set[str], graph: dict[str, set[str]]
+) -> list[dict[str, object]]:
+    neighbors = {candidate: set() for candidate in candidates}
+    for source in candidates:
+        for target in graph.get(source, set()) & candidates:
+            neighbors[source].add(target)
+            neighbors[target].add(source)
+    remaining = set(candidates)
+    components: list[list[str]] = []
+    while remaining:
+        first = min(remaining)
+        component: set[str] = {first}
+        queue = deque([first])
+        remaining.remove(first)
+        while queue:
+            source = queue.popleft()
+            for target in sorted(neighbors[source] & remaining):
+                remaining.remove(target)
+                component.add(target)
+                queue.append(target)
+        components.append(sorted(component))
+    return [
+        {"documents": component, "file_count": len(component)}
+        for component in sorted(components, key=lambda value: (-len(value), value))
+    ]
+
+
 def document_reachability_inventory(
     repository_paths: list[str], current_paths: set[str]
 ) -> dict[str, object]:
@@ -310,6 +338,34 @@ def document_reachability_inventory(
     clusters = strongly_connected_phase_clusters(
         unreachable_phases, phase_edges, phase_files
     )
+    partial_candidates = {
+        document
+        for phase, members in phase_documents.items()
+        if phase != "phase-296x" and members & reachable
+        for document in members - reachable
+    }
+    reachable_incoming_edges = sum(
+        target in partial_candidates
+        for source in reachable
+        for target in graph.get(source, set())
+    )
+    partial_clusters = weakly_connected_document_clusters(
+        partial_candidates, graph
+    )
+    partial_phases = {
+        document_phase[document] for document in partial_candidates
+    }
+    partial_target_collisions = sum(
+        (
+            ROOT
+            / document.replace(
+                "docs/development/current/main/phases/",
+                "docs/development/archive/phases/",
+                1,
+            )
+        ).exists()
+        for document in partial_candidates
+    )
     return {
         "document_count": len(documents),
         "root_count": len(roots),
@@ -326,6 +382,14 @@ def document_reachability_inventory(
         "phase_cluster_count": len(clusters),
         "phase_clusters": clusters,
         "phase_rows": phase_rows,
+        "partial_phase_unreachable": {
+            "phase_count": len(partial_phases),
+            "file_count": len(partial_candidates),
+            "reachable_incoming_edge_count": reachable_incoming_edges,
+            "archive_target_collision_count": partial_target_collisions,
+            "cluster_count": len(partial_clusters),
+            "clusters": partial_clusters,
+        },
         "ambiguous_basename_count": sum(
             len(paths) > 1 for paths in basename_groups.values()
         ),

@@ -63,10 +63,10 @@ latest_card_path = "docs/development/current/main/design/INDEX.md"
 latest_card_summary = """H3 lands the explicit design registry warning owner.
 Tracing reachability replaces reference counts as H2 archive authority. The
 first tracing batch moved 198 wholly unreachable phases and 517 files while
-preserving valid links; no wholly unreachable phase remains. Partial phases
-and unregistered design files remain protected."""
+preserving valid links. Partial-phase inventory now finds 1834 unreachable
+files in 1008 weakly connected clusters with zero reachable incoming edges."""
 
-current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H2-TRACE-PARTIAL-PHASE-CLUSTER-INVENTORY"
+current_blocker_token = "REPOSITORY-ARTIFACT-LIFECYCLE-H2-TRACE-PARTIAL-PHASE-RELOCATOR-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

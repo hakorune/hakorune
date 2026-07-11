@@ -271,6 +271,27 @@ dev_gate_quick = green
 next = H2-TRACE-PARTIAL-PHASE-CLUSTER-INVENTORY
 ```
 
+## H2 Partial-Phase Cluster Inventory
+
+```text
+partial_phases = 41
+unreachable_files = 1834
+weakly_connected_clusters = 1008
+largest_cluster_files = 503
+reachable_to_candidate_edges = 0
+archive_target_collisions = 0
+
+batch_law:
+  never split a weakly connected cluster
+  cluster > 200 files -> one dedicated batch
+  remaining clusters -> pack up to 200 files
+
+active_phase_296x = excluded
+design_unregistered = excluded
+
+next = H2-TRACE-PARTIAL-PHASE-RELOCATOR-001
+```
+
 ## Non-Claims
 
 ```text
