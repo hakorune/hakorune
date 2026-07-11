@@ -1,7 +1,7 @@
 # CURRENT_TASK
 
 Status: SSOT pointer
-Date: 2026-07-10
+Date: 2026-07-12
 Scope: root restart anchor only. Do not store landed history here.
 
 ## Quick Restart
@@ -22,3 +22,11 @@ acceptance, parked items, and non-claims belong in the active card and the
 workstream SSOT, not this pointer.
 
 When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executable owner from historical mirrors. To keep the goal open until the frontier names a concrete next owner, wait at the frontier.
+
+## Handoff
+
+The accepted Failure/Outcome owner-boundary consultation is complete. The next
+task is `LANGV1-FAILURE-OUTCOME-S1-SEMANTIC-SITE-GRAPH-001`; read
+`docs/development/current/main/investigations/failure-outcome-s1-semantic-site-graph.md`.
+This is inventory-tooling work only: preserve line/token evidence, add stable
+operation/outcome semantic sites, and keep runtime activation at zero.

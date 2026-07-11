@@ -1,5 +1,5 @@
 Status: Active
-Date: 2026-07-10
+Date: 2026-07-12
 Scope: restart in 2-5 minutes with a thin pointer surface.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -37,6 +37,13 @@ cargo check -q
 - current scope and parked resume: read `active_lane_status` and the workstream
 
 ## Restart Notes
+
+- handoff frontier: `LANGV1-FAILURE-OUTCOME-S1-SEMANTIC-SITE-GRAPH-001`
+- read `docs/development/current/main/investigations/failure-outcome-s1-semantic-site-graph.md`
+  before editing; preserve evidence occurrences and build semantic sites by
+  operation/outcome branch
+- no parser, MIR, VMValue, runtime, cleanup, or backend behavior changes in
+  this slice
 
 - do not paste landed chronology into restart docs
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
