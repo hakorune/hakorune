@@ -407,3 +407,50 @@ strict_design_registry_guard = 0
 failure_outcome_design_accepted = 1
 selfhost_claim = 0
 ```
+
+## C2 Singleton M-Z Residual Consultation List
+
+The singleton m-z slice (177 files) landed 172 rows and 1 owned sidecar. The
+following items were intentionally not classified/registered and require a
+focused consultation before a role is assigned.
+
+Unregistered (4):
+
+```text
+1. mirbuilder-rust-to-hako-converter-task-order-ssot.md
+   current-only restart-entry task order that other rows use as precedence
+   parent; behaves like a mutable task order (status-ledger) yet is used as
+   a family spine (authority). Its two dependents were landed with a
+   provisional parent (selfhost-parser-mirbuilder-migration-order-ssot.md)
+   and must be reparented if this row is accepted as authority.
+2. mimalloc-port-remaining-inventory-ssot.md
+   header says "historical SSOT" and the body declares the D206 direction
+   historical, but there is no explicit Moved-to / superseded_by target;
+   superseded (needs superseded_by) vs historical status-ledger is open.
+3. pattern-naming-migration-ssot.md
+   completed historical migration plan (Phases A/B/C done 2026-01-29) with
+   no Moved-to stub; superseded vs historical status-ledger is open
+   (recipe-file-naming-unification-ssot.md is its result ledger).
+4. source-selfhost-wider-route-selection-basis-ssot.md
+   consultation-gated route-selection basis; reads as a stop-line
+   (authority) but functions as a decision-basis record (status-ledger).
+```
+
+Registered with a tentative role, flagged borderline (3 + sidecar owner):
+
+```text
+5. mimalloc-hakorune-{brand-type,record,capability-surface}-vocabulary/
+   surface SSOTs (MIMAP-005A/B/D): registered as supporting blueprint
+   models, but they define normative brand/record/capability vocabulary
+   and may deserve authority under the lifecycle blueprint.
+6. rustc-semir-internal-adapter-boundary.md: Status "Design" registered as
+   authority with two Design-stage supporting children; confirm whether
+   Design-stage boundary docs may hold authority before acceptance.
+7. promoted-name-resolution-deny-closeout.md: landed as an owned sidecar of
+   promoted-body-locals-lifecycle-inventory.md; the closeout also touches
+   the PHI-carrier consumer inventory, so the one-owner choice should be
+   confirmed.
+```
+
+No physical move, no supersession execution, and no baseline change beyond the
+reviewed batch (568 -> 395) were made in this slice.
