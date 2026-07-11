@@ -2,8 +2,8 @@
 
 ## Status
 
-Queued implementation card behind 3492. Do not start while the FULL grammar
-gate is red.
+Active implementation card. The 3492 prerequisite and FULL grammar gate are
+green.
 
 Decision: accepted implementation scope from 3491.
 

@@ -2,8 +2,8 @@
 
 ## Status
 
-Active stop-the-line correctness prerequisite for 3491. This is a
-behavior-preserving BindingId ownership correction, not a language decision.
+Complete. The stop-the-line BindingId corrective is green and 3493 may start.
+This is a behavior-preserving identity correction, not a language decision.
 
 Decision: accepted corrective scope.
 
@@ -159,6 +159,38 @@ sensitive_change_full_gate_coupling = 1
 changed_production_source_over_800_lines = 0
 ```
 
+## Closeout Evidence
+
+```text
+implementation commit:
+  0b70fc96a0 fix: unify function parameter binding identity
+
+identity owner:
+  declare_function_parameter
+  existing CoreContext::next_binding allocator only
+
+focused tests:
+  parameter_setup unit tests = green
+  assignment_resolver unit tests = green
+  static/instance reassignment source fixture = green
+  parameter shadow/restore source fixture = green
+
+FULL gate:
+  LANGV1_GRAMMAR_FULL=1 language_v1_grammar_contract_substrate_guard.sh = green
+  differential case count = 12
+  Hako adapter process count = 1
+
+changed-path coupling:
+  one sensitive-path manifest
+  one local/CI wrapper
+  min-gate PR base comparison wired
+
+source line ceiling:
+  parameter_setup.rs = 224
+  lowering.rs = 544
+  assignment_resolver.rs = 110
+```
+
 ## Explicit Non-Claims
 
 ```text
@@ -173,5 +205,6 @@ selfhost_claim = 0
 
 ## Next
 
-Return to 3491 only after the focused identity fixtures and FULL grammar gate
-are green. Do not answer record-versus-Array from this corrective card.
+Proceed to accepted 3493 record-value contract implementation. The 3491
+record-versus-Array decision is already closed in favor of record
+construction/update.

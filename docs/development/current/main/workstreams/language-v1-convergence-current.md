@@ -359,9 +359,8 @@ T4 complete:
 T5 active:
   3491 selects record construction/update and RecordValueContractOwner
   typed Array remains unselected without a source-owned element contract
-  3492 stop-the-line parameter BindingId corrective precedes implementation
-  FULL differential batch must return 12/12 before 3493 starts
-  3493 is the queued record carrier/VM/JSON/backend-gate implementation
+  3492 parameter BindingId corrective and FULL 12/12 gate are complete
+  3493 record carrier/VM/JSON/backend-gate implementation is active
   require producer + owner + runtime consumer + JSON carrier + backend gate
   do not open FFI/backend lowering or all-types activation implicitly
 ```
