@@ -295,6 +295,12 @@ def document_reachability_inventory(
                 reachable.add(target)
                 queue.append(target)
     unreachable = documents - reachable
+    archived_in_place_prefix = "docs/development/current/main/phases/phase-296x/archive/"
+    archived_in_place = {
+        document
+        for document in unreachable
+        if document.startswith(archived_in_place_prefix)
+    }
 
     phase_prefix = "docs/development/current/main/phases/"
     phase_documents: dict[str, set[str]] = {}
@@ -374,6 +380,8 @@ def document_reachability_inventory(
         },
         "reachable_count": len(reachable),
         "unreachable_count": len(unreachable),
+        "archived_in_place_count": len(archived_in_place),
+        "unreachable_pending_count": len(unreachable - archived_in_place),
         "whole_phase_unreachable_count": len(unreachable_phases),
         "whole_phase_unreachable_files": sum(
             phase_files[phase] for phase in unreachable_phases

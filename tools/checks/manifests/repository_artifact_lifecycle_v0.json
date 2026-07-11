@@ -3139,6 +3139,7 @@
   },
   "document_reachability": {
     "ambiguous_basename_count": 15,
+    "archived_in_place_count": 1597,
     "document_count": 8278,
     "partial_phase_unreachable": {
       "archive_target_collision_count": 0,
@@ -3912,6 +3913,7 @@
       "reference_src_tools": 3042
     },
     "unreachable_count": 3369,
+    "unreachable_pending_count": 1772,
     "whole_phase_unreachable": [],
     "whole_phase_unreachable_count": 0,
     "whole_phase_unreachable_files": 0
