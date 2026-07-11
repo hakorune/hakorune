@@ -277,7 +277,7 @@ NYASH_LLVM_USE_HARNESS=1 NYASH_LEAK_LOG=1 ./target/release/hakorune --backend ll
 ```
 
 実装者向けの詳しい手順:
-- `docs/development/current/main/phases/phase-285/CLAUDE_CODE_RUNBOOK.md`
+- `docs/development/archive/phases/phase-285/CLAUDE_CODE_RUNBOOK.md`
 - Entry policy when a main exists:
   - `--test-entry wrap` → run tests then call original main
   - `--test-entry override` → replace entry with test harness only

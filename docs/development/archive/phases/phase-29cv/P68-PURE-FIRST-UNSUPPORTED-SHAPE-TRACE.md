@@ -4,7 +4,7 @@ Decision: accepted
 Date: 2026-05-01
 Scope: implement trace-only pure-first unsupported-shape inventory.
 Related:
-  - docs/development/current/main/phases/phase-29cv/P67-PURE-FIRST-UNSUPPORTED-SHAPE-DIAGNOSTIC-LOCK.md
+  - docs/development/archive/phases/phase-29cv/P67-PURE-FIRST-UNSUPPORTED-SHAPE-DIAGNOSTIC-LOCK.md
   - docs/development/current/main/design/ai-handoff-and-debug-contract.md
   - lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc
   - lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering.inc

@@ -255,7 +255,7 @@ tools/smokes/v2/run.sh --profile integration --filter "vm_llvm_*"
 ## Related Documents
 
 - [Phase 285LLVM-1.4 README](./phase-280/README.md) - Print handle resolution
-- [JoinIR Architecture](../../design/joinir-design-map.md) - Overall MIR architecture
+- [JoinIR Architecture](../../../current/main/design/joinir-design-map.md) - Overall MIR architecture
 - [Type Facts System](../../../architecture/type-facts-system.md) - Type tagging design
 
 ---

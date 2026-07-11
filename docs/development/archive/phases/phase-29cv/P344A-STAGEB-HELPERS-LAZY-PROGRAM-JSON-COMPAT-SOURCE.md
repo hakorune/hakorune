@@ -6,7 +6,7 @@ Scope: phase-29cv Stage-B fixture helper raw Program(JSON) source narrowing
 Related:
   - tools/smokes/v2/lib/stageb_helpers.sh
   - tools/lib/program_json_v0_compat.sh
-  - docs/development/current/main/phases/phase-29cv/P65-FIXTURE-CALLER-OWNERSHIP-SPLIT.md
+  - docs/development/archive/phases/phase-29cv/P65-FIXTURE-CALLER-OWNERSHIP-SPLIT.md
   - docs/development/current/main/CURRENT_STATE.toml
 ---
 

@@ -6,7 +6,7 @@ Scope: phase-29cv Stage1 contract raw Program(JSON) helper source narrowing
 Related:
   - tools/selfhost/lib/stage1_contract.sh
   - tools/lib/program_json_v0_compat.sh
-  - docs/development/current/main/phases/phase-29cv/P64-STAGE1-CONTRACT-CALLER-OWNERSHIP-SPLIT.md
+  - docs/development/archive/phases/phase-29cv/P64-STAGE1-CONTRACT-CALLER-OWNERSHIP-SPLIT.md
   - docs/development/current/main/CURRENT_STATE.toml
 ---
 
