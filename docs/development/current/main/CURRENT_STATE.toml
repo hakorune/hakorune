@@ -49,8 +49,9 @@ runtime convergence, JSON, and backend fail-fast. 3503 now selects whether to
 defer product lowering or name one carrier-aware product backend consumer;
 the VM remains a narrow semantic-reference adapter, not a product fallback.
 3503 accepts defer_with_failfast with declaration-level product rejection and
-no capability activation. 3504 owns the next Failure/Outcome decision but is
-temporarily parked while repository artifact lifecycle C2 review runs."""
+no capability activation. 3504 accepts relation/spec plus exhaustive
+inventory-only Failure/Outcome design; 3505 remains parked while repository
+artifact lifecycle C2 review runs."""
 
 active_phase = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"
 phase_status = "docs/development/current/main/workstreams/repository-artifact-lifecycle-current.md"

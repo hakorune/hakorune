@@ -14,7 +14,7 @@ semantics change in this workstream.
 
 ```text
 parked_next:
-  docs/development/current/main/phases/phase-296x/3504-LANGV1-FAILURE-OUTCOME-DESIGN-STOP-001.md
+  docs/development/current/main/phases/phase-296x/3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001.md
 
 active_order:
   H0 inventory + warning guard
@@ -23,6 +23,30 @@ active_order:
   H3 design/README authority registry
   H4 check-script manifest convergence
   H5 lifecycle enforcement
+```
+
+## 3504 / 3505 Failure-Outcome Handoff
+
+The 3504 design consultation is accepted as relation/spec plus exhaustive
+inventory only. It does not authorize grammar, runtime, VM, cleanup, or
+backend behavior changes.
+
+```text
+3504_decision = accepted
+first_slice = relation_spec_and_exhaustive_inventory
+canonical_unit = void
+canonical_absence = Option::None
+canonical_recoverable_failure = Result::Err
+canonical_fault = outcome_not_value
+canonical_catchable_fault_count = 0
+uninitialized_local = slot_only_state
+weak_upgrade_target = Option::Some_or_None
+foreign_null = boundary_only
+compat_null = Compat2025_only
+
+3505_status = parked
+3505_start_condition = repository artifact lifecycle C2 blocker resolved
+3505_behavior_change = 0
 ```
 
 ## H0 Inventory Owner
@@ -451,6 +475,6 @@ heuristic_role_assignment = 0
 design_file_move_started = 0
 check_script_retirement_complete = 0
 docs_private_retention_decided = 0
-failure_outcome_design_accepted = 0
+failure_outcome_design_accepted = 1
 selfhost_claim = 0
 ```

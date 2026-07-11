@@ -2,9 +2,18 @@
 
 ## Status
 
-Active design consultation stop. Do not change grammar profiles, null/void
-runtime representation, Option/Result APIs, catch behavior, local defaults,
-Weak upgrade results, VM errors, cleanup, or backend lowering before acceptance.
+Accepted design stop. Do not change grammar profiles, null/void runtime
+representation, Option/Result APIs, catch behavior, local defaults, Weak
+upgrade results, VM errors, cleanup, or backend lowering before a later
+activation card.
+
+Decision: accepted
+
+Selected first slice:
+
+```text
+relation/spec + exhaustive inventory only
+```
 
 ## Goal
 
@@ -133,6 +142,80 @@ then choose one narrow semantic activation from measured migration evidence.
 Do not move `literal_null` to Compat2025 before Canonical source and API users
 are removed.
 
+## Accepted Relation
+
+```text
+Unit:
+  canonical source spelling = void
+
+Option::None:
+  canonical ordinary value absence
+
+Result::Err:
+  canonical recoverable failure value
+
+Fault:
+  violated contract/control outcome, not a language value
+  canonical catchable Fault set = empty
+
+UninitializedSlot:
+  slot-only local state, not Unit/None/null
+
+Weak upgrade:
+  Option::Some(BoxRef) | Option::None
+
+ForeignNull:
+  boundary-only FFI carrier
+
+CompatNull:
+  Compat2025-only migration carrier
+
+canonical null:
+  rejected only after migration inventory and API migration close
+```
+
+Fault taxonomy is domain/code based (`contract`, `bounds`,
+`arithmetic`, `member`, `capability`, `lifecycle`,
+`task`, `foreign`, `resource`, `control`,
+`internal`). Fault never converts implicitly to Result::Err,
+Option::None, Unit, zero, or backend fallback. Cleanup preserves
+semantic-kernel precedence: cleanup Fault becomes primary, later faults are
+suppressed, and Return/Break/Continue from cleanup become control Faults.
+
+## Accepted Ownership Boundaries
+
+```text
+Unit / no-result:
+  UnitOutcomeOwner
+
+Option / Result:
+  OptionValueOwner / ResultValueOwner
+
+local x without initializer:
+  LocalInitializationStateOwner
+
+Weak upgrade:
+  WeakUpgradeOutcomeOwner
+
+Fault construction:
+  FaultRegistryOwner plus operation owner
+
+cleanup / top-level:
+  CleanupOutcomeOwner / ProgramOutcomeOwner
+
+foreign null/status:
+  FfiBoundaryContractOwner
+```
+
+The first slice records these relations and classifies every live null-like
+site. It does not activate any new runtime carrier or profile rule.
+
+## Next Card
+
+```text
+3505 - LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001
+```
+
 ## Stable Boundaries
 
 ```text
@@ -167,13 +250,13 @@ claims and non-claims
 ## Non-Claims
 
 ```text
-failure_outcome_design_accepted = 0
+failure_outcome_design_accepted = 1
 canonical_null_surface = 1
 compat2025_null_only = 0
 unit_runtime_carrier_activated = 0
 weak_upgrade_option_activation = 0
 local_default_policy_changed = 0
-catchable_fault_set_closed = 0
+catchable_fault_set_closed = 1
 ffi_null_contract_activated = 0
 broad_exception_system = 0
 runtime_backend_fallback = 0

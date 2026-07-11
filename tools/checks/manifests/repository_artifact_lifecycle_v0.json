@@ -2,12 +2,12 @@
   "counts": {
     "checks": 3261,
     "design_direct": 849,
-    "docs": 12282,
+    "docs": 12283,
     "docs_development_archive": 2589,
-    "docs_development_current": 8277,
+    "docs_development_current": 8278,
     "main_direct": 168,
     "phase_296x_archive": 2517,
-    "phase_296x_direct": 1031,
+    "phase_296x_direct": 1032,
     "private": 0,
     "src": 3046,
     "tools": 6824
@@ -3313,7 +3313,7 @@
   },
   "document_reachability": {
     "ambiguous_basename_count": 15,
-    "document_count": 8277,
+    "document_count": 8278,
     "partial_phase_unreachable": {
       "archive_target_collision_count": 0,
       "cluster_count": 0,
@@ -3754,8 +3754,8 @@
       },
       {
         "phase": "phase-296x",
-        "reachable_files": 1951,
-        "total_files": 3548,
+        "reachable_files": 1952,
+        "total_files": 3549,
         "unreachable_files": 1597,
         "whole_phase_unreachable": false
       },
@@ -4075,11 +4075,11 @@
         "whole_phase_unreachable": false
       }
     ],
-    "reachable_count": 4908,
-    "root_count": 3592,
+    "reachable_count": 4909,
+    "root_count": 3593,
     "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
     "root_seed_counts": {
-      "active_phase_296x_direct": 1031,
+      "active_phase_296x_direct": 1032,
       "current_pointer": 4,
       "design_authority": 111,
       "fixed_current_entry": 4,
@@ -4094,7 +4094,7 @@
   "phase_296x": {
     "archive_candidate_count": 0,
     "archive_candidates": [],
-    "card_count": 1028,
+    "card_count": 1029,
     "externally_referenced": [
       "docs/development/current/main/phases/phase-296x/1770-MIRBUILDER-CONTEXT-HAKO-NATIVE-SOURCE-OWNER-001.md",
       "docs/development/current/main/phases/phase-296x/1771-MIRBUILDER-CONTEXT-HAKO-ADOPTION-DECISION-001.md",
@@ -4945,7 +4945,7 @@
       "docs/development/current/main/phases/phase-296x/3459-LANGV1-EVALUATED-PLACE-COMPOUND-ASSIGN-001.md",
       "docs/development/current/main/phases/phase-296x/3460-LANGV1-GRAMMAR-DESIGN-STOP-001.md",
       "docs/development/current/main/phases/phase-296x/3461-LANGV1-GRAMMAR-CONTRACT-SUBSTRATE-001.md",
-      "docs/development/current/main/phases/phase-296x/3504-LANGV1-FAILURE-OUTCOME-DESIGN-STOP-001.md",
+      "docs/development/current/main/phases/phase-296x/3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001.md",
       "docs/development/current/main/phases/phase-296x/array-receiver-residence-proof-chain.md"
     ],
     "externally_referenced_count": 851,
@@ -5126,13 +5126,14 @@
       "docs/development/current/main/phases/phase-296x/3483-LANGV1-TYPE-GUARANTEE-RETURN-EXIT-DESIGN-STOP-001.md",
       "docs/development/current/main/phases/phase-296x/3491-LANGV1-NEXT-TYPE-FAMILY-SELECTION-DESIGN-STOP-001.md",
       "docs/development/current/main/phases/phase-296x/3500-LANGV1-WEAK-FIELD-CONTRACT-DESIGN-STOP-001.md",
-      "docs/development/current/main/phases/phase-296x/3501-LANGV1-WEAKREF-VALUE-LAW-CORRECTIVE-001.md"
+      "docs/development/current/main/phases/phase-296x/3501-LANGV1-WEAKREF-VALUE-LAW-CORRECTIVE-001.md",
+      "docs/development/current/main/phases/phase-296x/3504-LANGV1-FAILURE-OUTCOME-DESIGN-STOP-001.md"
     ],
-    "review_count": 177,
+    "review_count": 178,
     "status_counts": {
       "active_like": 116,
       "closed": 238,
-      "other_or_missing": 674
+      "other_or_missing": 675
     }
   },
   "phase_directories": {
@@ -5754,13 +5755,13 @@
       },
       {
         "current_pointer": false,
-        "direct_files": 1031,
+        "direct_files": 1032,
         "eligible_for_whole_phase_archive": false,
         "external_reference_count": 1376,
         "phase": "phase-296x",
         "status": "other_or_missing",
         "status_source": "docs/development/current/main/phases/phase-296x/STATUS.md",
-        "total_files": 3548
+        "total_files": 3549
       },
       {
         "current_pointer": false,
