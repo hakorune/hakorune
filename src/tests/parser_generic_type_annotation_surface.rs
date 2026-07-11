@@ -1,4 +1,5 @@
 use crate::ast::{ASTNode, ParamDecl};
+use crate::parser::NyashParser;
 use crate::tests::helpers::parser::program_statements;
 
 #[test]
@@ -96,5 +97,25 @@ record MetaStore<T> {
     assert_eq!(
         field_decls[0].declared_type_name.as_deref(),
         Some("PackedArray<T>")
+    );
+}
+
+#[test]
+fn parser_rejects_typed_array_constructor_as_second_contract_owner() {
+    let error = NyashParser::parse_from_string(
+        r#"
+static box Main {
+    main() {
+        local items = new Array<u8>()
+    }
+}
+"#,
+    )
+    .expect_err("constructor type arguments are not a Typed Array source owner");
+    assert!(
+        error
+            .to_string()
+            .contains("type/typed_array_contract_unsupported_spelling"),
+        "{error}"
     );
 }

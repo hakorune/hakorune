@@ -1,6 +1,7 @@
 use super::expr_support::{ast_expr_is_statically_nullish, record_type_name_for_expr};
 use super::typed_array::{
-    array_literal_to_json_v0, array_type_element_type, validate_array_element_type_supported,
+    array_literal_to_json_v0, array_type_element_type, ordinary_array_literal_to_json_v0,
+    validate_array_element_type_supported,
 };
 use super::{expression_to_json_v0, ProgramJsonV0LocalTypes, ProgramJsonV0LoweringContext};
 use crate::ast::{ASTNode, CatchClause};
@@ -78,10 +79,11 @@ fn local_statement_to_json_v0_many(
             .map(str::to_string);
         let initializer = match initializer_node {
             Some(ASTNode::ArrayLiteral { elements, .. }) => {
-                let declared_type_name = declared_type_name.ok_or_else(|| {
-                    "[array/literal-context] array literal requires local typed context".to_string()
-                })?;
-                array_literal_to_json_v0(declared_type_name, elements, context, local_types)?
+                if let Some(declared_type_name) = declared_type_name {
+                    array_literal_to_json_v0(declared_type_name, elements, context, local_types)?
+                } else {
+                    ordinary_array_literal_to_json_v0(elements, context, local_types)?
+                }
             }
             Some(value) => expression_to_json_v0(value, context, local_types)?,
             None => serde_json::json!({ "type": "Null" }),

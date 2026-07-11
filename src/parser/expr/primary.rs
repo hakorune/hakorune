@@ -244,6 +244,18 @@ impl NyashParser {
                             break;
                         }
                     }
+                    if let Err(expected) =
+                        crate::typed_array_contract_spec::reject_constructor_type_arguments(
+                            &class,
+                            !type_arguments.is_empty(),
+                        )
+                    {
+                        return Err(ParseError::UnexpectedToken {
+                            found: self.current_token().token_type.clone(),
+                            expected,
+                            line: self.current_token().line,
+                        });
+                    }
                     let mut arguments = Vec::new();
                     if self.match_token(&TokenType::LPAREN) {
                         self.advance();

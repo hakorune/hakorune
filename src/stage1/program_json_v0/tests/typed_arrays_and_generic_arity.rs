@@ -1,13 +1,11 @@
 use super::*;
 
 #[test]
-fn source_to_program_json_v0_lowers_typed_array_literal_context() {
+fn source_to_program_json_v0_lowers_exact_numeric_typed_array_literal_context() {
     let source = r#"
-brand PageId: i64
-
 static box Main {
   main() {
-local ids: Array<PageId> = []
+local ids: Array<i64> = []
 return 0
   }
 }
@@ -19,10 +17,10 @@ return 0
 
     assert_eq!(body[0]["type"], "Local");
     assert_eq!(body[0]["name"], "ids");
-    assert_eq!(body[0]["declared_type"], "Array<PageId>");
+    assert_eq!(body[0]["declared_type"], "Array<i64>");
     assert_eq!(body[0]["expr"]["type"], "ArrayLiteral");
-    assert_eq!(body[0]["expr"]["declared_type"], "Array<PageId>");
-    assert_eq!(body[0]["expr"]["element_type"], "PageId");
+    assert_eq!(body[0]["expr"]["declared_type"], "Array<i64>");
+    assert_eq!(body[0]["expr"]["element_type"], "i64");
     assert_eq!(body[0]["expr"]["elements"], serde_json::json!([]));
 }
 
@@ -91,7 +89,7 @@ return 0
 }
 
 #[test]
-fn source_to_program_json_v0_accepts_typed_array_element_checks_for_brands() {
+fn source_to_program_json_v0_rejects_deferred_brand_element_contract() {
     let source = r#"
 brand PageId: i64
 
@@ -105,7 +103,12 @@ return 0
 }
 "#;
 
-    source_to_program_json_v0_strict(source).expect("brand element values should match");
+    let error = source_to_program_json_v0_strict(source)
+        .expect_err("brand element contracts are deferred in the first slice");
+    assert!(
+        error.contains("[type/typed_array_contract_unsupported_element]"),
+        "{error}"
+    );
 }
 
 #[test]
@@ -123,10 +126,11 @@ return 0
 
     let error = source_to_program_json_v0_strict(source)
         .expect_err("raw integer must not satisfy PageId element type");
-    assert!(error.contains("[array/element-type]"), "{error}");
-    assert!(error.contains("array literal element"), "{error}");
+    assert!(
+        error.contains("[type/typed_array_contract_unsupported_element]"),
+        "{error}"
+    );
     assert!(error.contains("PageId"), "{error}");
-    assert!(error.contains("i64"), "{error}");
 }
 
 #[test]
@@ -145,8 +149,10 @@ return 0
 
     let error = source_to_program_json_v0_strict(source)
         .expect_err("push value must match PageId element type");
-    assert!(error.contains("[array/element-type]"), "{error}");
-    assert!(error.contains("push value"), "{error}");
+    assert!(
+        error.contains("[type/typed_array_contract_unsupported_element]"),
+        "{error}"
+    );
     assert!(error.contains("PageId"), "{error}");
 }
 
@@ -166,8 +172,10 @@ return 0
 
     let error = source_to_program_json_v0_strict(source)
         .expect_err("set value must match PageId element type");
-    assert!(error.contains("[array/element-type]"), "{error}");
-    assert!(error.contains("set value"), "{error}");
+    assert!(
+        error.contains("[type/typed_array_contract_unsupported_element]"),
+        "{error}"
+    );
     assert!(error.contains("PageId"), "{error}");
 }
 
@@ -184,12 +192,11 @@ return 0
 
     let error = source_to_program_json_v0_strict(source)
         .expect_err("unresolved Array<T> element should fail fast");
-    assert!(error.contains("[array/inference]"), "{error}");
-    assert!(error.contains("Array<T>"), "{error}");
     assert!(
-        error.contains("unresolved Array element type `T`"),
+        error.contains("[type/typed_array_contract_unsupported_element]"),
         "{error}"
     );
+    assert!(error.contains("Array<T>"), "{error}");
 }
 
 #[test]
@@ -212,7 +219,7 @@ return 0
 }
 
 #[test]
-fn source_to_program_json_v0_rejects_untyped_empty_array_literal() {
+fn source_to_program_json_v0_keeps_untyped_empty_array_literal_any_default() {
     let source = r#"
 static box Main {
   main() {
@@ -222,9 +229,10 @@ return 0
 }
 "#;
 
-    let error =
-        source_to_program_json_v0_strict(source).expect_err("untyped array literal should fail");
-    assert!(error.contains("[array/literal-context]"));
+    let json = source_to_program_json_v0_strict(source).expect("untyped AnyDefault array");
+    let value: serde_json::Value = serde_json::from_str(&json).expect("valid json");
+    assert_eq!(value["body"][0]["expr"]["type"], "ArrayLiteral");
+    assert_eq!(value["body"][0]["expr"]["element_type"], "Any");
 }
 
 #[test]

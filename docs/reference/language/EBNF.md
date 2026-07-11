@@ -167,7 +167,7 @@ unary_no_group := ( '-' | '!' | 'not' | '~' ) unary_no_group
                 | 'void'
                 | IDENT call_tail*
                 | new_expr
-                | '[' args? ']'           ; Array literal shape; Stage1 requires typed Array<T> context
+                | '[' args? ']'           ; Canonical Array literal; explicit Array<T> context adds an element contract
                 | '%{' map_entries? '}'   ; Map literal (Stage‑2 sugar, gated)
                 | match_expr              ; Pattern matching (replaces legacy peek)
 
@@ -185,7 +185,7 @@ factor    := INT
            | new_expr
            | record_literal
            | record_update
-           | '[' args? ']'           ; Array literal shape; Stage1 requires typed Array<T> context
+           | '[' args? ']'           ; Canonical Array literal; explicit Array<T> context adds an element contract
            | '%{' map_entries? '}'   ; Map literal (Stage‑2 sugar, gated)
            | match_expr              ; Pattern matching (replaces legacy peek)
 
@@ -244,8 +244,10 @@ Notes
   expression. It must not be treated as an alias for short-circuit '&&' / '||'.
 - Unary minus has higher precedence than '*' and '/'.
 - IDENT names consist of [A-Za-z_][A-Za-z0-9_]*
-- Array literal shape is parsed. Stage1 accepts it only with explicit
-  `Array<T>` local typed context in ARRAY-001; untyped `[]` fail-fasts.
+- Array literal syntax is canonical. An explicit supported `Array<T>` context
+  creates a Typed Array element contract; without one the value is an ordinary
+  `AnyDefault` Array. Homogeneous element inference is representation evidence
+  only and never creates a semantic contract.
 - Map literal is enabled when syntax sugar is on (NYASH_SYNTAX_SUGAR_LEVEL=basic|full) or when NYASH_ENABLE_MAP_LITERAL=1 is set.
 - Identifier keys in map literals are out of v1 scope (string keys only): use `%{"name" => v}`.
 - Pattern matching: `match` replaces legacy `peek`. MVP supports wildcard `_`, literals, simple type patterns, fixed/variadic array heads `[hd, ..tl]`, simple map key extract `{ "k": v, .. }`, OR patterns, and guards `if`.
@@ -714,10 +716,12 @@ AllocError::ZeroSize
 ```
 
 Stop line:
-ARRAY-001 implements typed-context array literal lowering for `Array<T>` only.
-`local ids = []` still fail-fasts because no type inference is owned here.
-`PackedArray<T> = []` also fail-fasts; there is no silent fallback to ordinary
-`Array<T>` / `ArrayBox`. ARRAY-002A implements typed `Array<T>` method-name and arity diagnostics.
+ARRAY-001's historical Stage1 typed-context restriction is superseded by the
+Language v1 split: unannotated literals produce ordinary `AnyDefault` Arrays,
+while supported explicit `Array<T>` annotations attach a semantic element
+contract. `PackedArray<T> = []` still fail-fasts; there is no silent fallback
+to ordinary `Array<T>` / `ArrayBox`. ARRAY-002A implements typed `Array<T>`
+method-name and arity diagnostics.
 ARRAY-002B implements direct typed `Array<T>` element diagnostics.
 ARRAY-002C keeps unsupported `Array<T>` inference fail-fast.
 ARRAY-002D fixes the JSON v0 / ArrayBox guard for ordinary `Array<T>` and PackedArray no-fallback.

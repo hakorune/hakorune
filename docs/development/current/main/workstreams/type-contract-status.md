@@ -33,7 +33,7 @@ must reject before effects.
 | --- | --- | --- |
 | static table element | readonly U16 closeout in progress | `StaticTableElementContractOwner` |
 | ordinary collection element | `Any` dynamic default | no typed activation |
-| typed `Array<T>` element | representation inference only; semantic carrier inactive | write-owner convergence first |
+| typed `Array<T>` element | transitional metadata-only; seven-type exact-numeric source spec selected, semantic carrier inactive | `TypedArrayElementContractOwner` in 3499 |
 | Weak field | builder-local `MirType` check; semantic carrier incomplete | ownership/absence row also constrains semantics |
 | FFI ingress/egress | transitional non-guarantee | dedicated FFI boundary decision |
 | backend preservation | capability preflight | representation boundary only |
@@ -60,7 +60,7 @@ consumer is already migrated.
 | Family | Source contract | Single owner | Semantic refresh | VM consumer | Backend preflight |
 | --- | --- | --- | --- | --- | --- |
 | static table readonly U16 | complete | complete | complete | complete | complete |
-| typed `Array<T>` | incomplete | incomplete | incomplete | runtime methods only | incomplete |
+| typed `Array<T>` | exact-numeric annotation spec selected | owner selected, not implemented | incomplete | runtime methods only | incomplete |
 | Weak field | declaration flag only | builder-local only | incomplete | weak operations only | incomplete |
 | FFI | incomplete | incomplete | incomplete | provider-specific | incomplete |
 
@@ -77,8 +77,8 @@ D3:
   keep MirType route users conservative and prohibit semantic-proof promotion
 
 D4:
-  keep typed Array inactive until ArrayElementWrite convergence lands and a
-  source-owned element contract is selected
+  keep typed Array inactive through 3499 S1-S4; activate only after all source
+  boundaries, state claims, runtime guards, and backend vetoes close in S5
 ```
 
 The null/void/Option relation, truthiness, equality compatibility, ownership,

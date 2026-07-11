@@ -1,5 +1,17 @@
 use crate::ast::{ASTNode, LiteralValue};
 
+pub(super) fn ordinary_array_literal_to_json_v0(
+    elements: &[ASTNode],
+    context: &super::ProgramJsonV0LoweringContext,
+    local_types: &mut super::ProgramJsonV0LocalTypes,
+) -> Result<serde_json::Value, String> {
+    Ok(serde_json::json!({
+        "type": "ArrayLiteral",
+        "element_type": "Any",
+        "elements": super::expressions_to_json_v0(elements, context, local_types)?,
+    }))
+}
+
 pub(super) fn array_literal_to_json_v0(
     declared_type_name: &str,
     elements: &[ASTNode],
@@ -29,8 +41,8 @@ pub(super) fn array_literal_element_type_for_context(
     declared_type_name: &str,
 ) -> Result<&str, String> {
     let type_name = declared_type_name.trim();
-    if let Some(inner) = array_type_element_type(type_name) {
-        return Ok(inner);
+    if let Some(spec) = crate::typed_array_contract_spec::parse_annotation(type_name)? {
+        return Ok(spec.element.source_name());
     }
     if type_name.starts_with("Array<") {
         return Err(format!(
@@ -66,6 +78,9 @@ pub(super) fn validate_array_element_type_supported(
     element_type: &str,
     declared_type_name: &str,
 ) -> Result<(), String> {
+    crate::typed_array_contract_spec::parse_annotation(declared_type_name)?.ok_or_else(|| {
+        format!("[type/typed_array_contract_unsupported_spelling] type={declared_type_name}")
+    })?;
     if array_element_type_has_unresolved_generic(element_type) {
         return Err(format!(
             "[array/inference] `{}` uses unresolved Array element type `{}`; use a concrete `Array<T>` element type",

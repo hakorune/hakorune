@@ -123,10 +123,10 @@ pub(crate) const GUARANTEE_MATRIX: [GuaranteeMatrixRow; 11] = [
     },
     GuaranteeMatrixRow {
         site: AnnotationSite::TypedArrayElement,
-        current: GuaranteeClass::RuntimeCheckedContract,
+        current: GuaranteeClass::MetadataOnlyNonGuarantee,
         target: GuaranteeClass::VerifiedRuntimeGuardedContract,
         owner: EnforcementOwner::TypedArrayElementContract,
-        activation: ActivationScope::ExistingNarrow,
+        activation: ActivationScope::Transitional,
         unsupported_backend: UnsupportedBackendPolicy::RejectBeforeEffects,
     },
     GuaranteeMatrixRow {
