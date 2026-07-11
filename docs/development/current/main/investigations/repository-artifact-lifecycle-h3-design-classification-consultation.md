@@ -194,6 +194,93 @@ Consultation questions:
 Until these questions are answered, superseded assignment, physical movement,
 and baseline lowering remain disabled.
 
+## Consultation Request: Residual Sidecar Ownership
+
+Please decide the registry representation for the four remaining local-free
+residual groups below. This is a design consultation only; no registry schema,
+role assignment, file move, or baseline change is requested before the answer.
+
+### Evidence
+
+```text
+registered_rows = 127
+owned_sidecars = 7
+remaining_hako_alloc_segment_rows = 147
+precedence_cycles = 0
+external_incoming_references_for_family = 0
+physical_move = 0
+```
+
+The registry currently enforces these laws:
+
+```text
+one direct document = at most one registry row
+one sidecar = exactly one owning base row
+sidecar != independent document row
+superseded row requires superseded_by
+no physical move before reachable-reference closure
+```
+
+### Affected Documents
+
+```text
+multi-base closeout:
+  hako-alloc-segment-allocation-modeled-local-free-scalar-lane-closeout-ssot.md
+  closes MIMAP-107A, MIMAP-109A, and MIMAP-111A together
+
+closeout without current direct base:
+  hako-alloc-segment-allocation-modeled-local-free-reuse-closeout-ssot.md
+  hako-alloc-segment-allocation-modeled-local-free-reuse-ledger-closeout-ssot.md
+
+independent residual candidate:
+  hako-alloc-segment-allocation-blocked-substrate-matrix-ssot.md
+```
+
+### Questions For Decision
+
+```text
+Q1. Multi-base closeout:
+    Keep it warning-unregistered as a grouped historical closeout, or add a
+    typed group/closeout relation to the registry without weakening the
+    one-owner sidecar invariant?
+
+Q2. Missing-base closeouts:
+    Keep both reuse closeouts warning-unregistered until their direct base
+    documents are restored/registered, or assign them to an existing owner
+    row? If assigning, which durable parent is authoritative?
+
+Q3. Blocked-substrate matrix:
+    Register it independently as a status-ledger row under
+    mimalloc-hako-port-implementation-plan-ssot.md while Q1/Q2 remain open,
+    or keep the entire residual group stopped as one transaction?
+
+Q4. No new authority:
+    Confirm that no umbrella SSOT and no filename-derived role rule should be
+    introduced to resolve these cases.
+```
+
+### Constraints After Decision
+
+```text
+allowed:
+  explicit INDEX row/sidecar updates
+  generated inventory/projection refresh
+  focused orphan/cycle/reference guards
+
+forbidden:
+  assigning one multi-base closeout to an arbitrary base
+  absorbing orphan closeouts into an unrelated owner
+  lowering the 732 baseline before the reviewed batch is closed
+  superseded assignment or physical movement
+```
+
+### Proposed Minimal Follow-up
+
+After Q1-Q4 are answered, land one focused batch only: either the approved
+registry relation/ownership representation or the blocked-substrate matrix
+row. Re-run strict inventory and pointer/docs guards before selecting the next
+local-free or arena/map review slice.
+
 ## Minimum Next Slice
 
 ```text
