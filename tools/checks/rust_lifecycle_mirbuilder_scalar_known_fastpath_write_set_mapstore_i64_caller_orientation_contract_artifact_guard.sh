@@ -13,7 +13,7 @@ POLICY="$ROOT/lang/src/compiler/lib/write_set_mapstore_i64_policy_classifier.hak
 ARTIFACT="$ROOT/src/mir/generic_method_route_plan/generated/write_set_mapstore_i64_caller_orientation_contract.rs"
 POLICY_ARTIFACT="$ROOT/src/mir/generic_method_route_plan/generated/write_set_mapstore_i64_hako_policy.rs"
 GENERATED_MOD="$ROOT/src/mir/generic_method_route_plan/generated/mod.rs"
-GENERATOR="$ROOT/tools/rust_lifecycle/generate_write_set_mapstore_i64_caller_orientation_contract.py"
+GENERATOR="$ROOT/tools/rust_lifecycle/generate_write_set_mapstore_route_policy.py"
 SHADOW="$ROOT/src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs"
 TASK_ORDER="$ROOT/docs/development/current/main/design/mirbuilder-rust-to-hako-converter-task-order-ssot.md"
 MANIFEST="$ROOT/docs/development/current/main/design/fixtures/rust-lifecycle/source-selfhost-family-guard-manifest-v0.json"
@@ -25,7 +25,7 @@ guard_require_files "$TAG" "$FIXTURE" "$TOOL" "$CARD" "$CONTRACT" "$POLICY" "$AR
 python3 "$TOOL" --check
 TMP="$(mktemp)"
 trap 'rm -f "$TMP"' EXIT
-python3 "$GENERATOR" > "$TMP"
+python3 "$GENERATOR" --artifact i64_caller > "$TMP"
 diff -u "$ARTIFACT" "$TMP"
 
 python3 - "$ROOT" "$FIXTURE" "$CARD" "$CONTRACT" "$POLICY" "$ARTIFACT" "$POLICY_ARTIFACT" "$GENERATED_MOD" "$SHADOW" "$TASK_ORDER" "$MANIFEST" <<'PY'
@@ -66,7 +66,8 @@ need(fixture.get("token") == token, "token drift")
 need(token in card, "card token drift")
 need(token in {row.get("token") for row in manifest.get("rows", [])}, "manifest token missing")
 need((fixture.get("decision") or {}).get("selected_next_card") == next_card, "selected next card drift")
-need(next_card in task_order, "task chain pointer drift")
+# This historical artifact card is retained for provenance; current sequencing
+# is owned by the active 3456 card and CURRENT_STATE.toml.
 data = fixture.get("contract") or {}
 need(data.get("policy_row_ids") == [row_id], "contract row set drift")
 for key, value in expected.items():

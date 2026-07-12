@@ -122,6 +122,13 @@ The first implementation slice is now materialized:
 - one neutral validator is shared by caller-orientation and shadow consumers;
 - shared domain/metadata validation rejects row drift;
 - independent key/stored-value axis tests are fixed in the Rust shadow suite.
+- the common generator now renders the typed Rust row, classifier compatibility
+  projections, and caller-contract projections from one parsed row table;
+- `--check` verifies every generated artifact, while `--write` renders and
+  validates the complete artifact set before atomic per-file replacement;
+- generated MapStore artifacts are now owned by the common generator, while
+  legacy projection fields remain compatibility metadata until the next
+  bounded value-boundary migration slice.
 
 The older I64/Any classifier artifacts remain compatibility projections for
 existing historical gates. They are not consumed by the live MapStore shadow
