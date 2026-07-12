@@ -1,6 +1,7 @@
 use super::*;
 
 mod decoded_utf8_byte_len;
+mod strict_json_tree;
 mod witness;
 
 #[test]

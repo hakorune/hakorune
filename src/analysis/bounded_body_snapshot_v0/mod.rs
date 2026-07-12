@@ -10,6 +10,7 @@ mod schema;
 mod snapshot;
 mod snapshot_builder;
 mod strict_json;
+mod strict_json_tree_v0;
 mod validated_view;
 
 pub use budget::{BoundedBodyBudgetV0, BudgetLimitV0};
@@ -27,6 +28,7 @@ pub use schema::{
 };
 pub use snapshot::{AtomValueV0, BoundedBodyAnalysisSnapshotV0, SnapshotNodeV0};
 pub use snapshot_builder::{SnapshotBuildErrorV0, SnapshotBuilderV0, SnapshotNodeIndexV0};
+pub(crate) use strict_json_tree_v0::{StrictJsonArenaV0, StrictJsonKindV0, StrictJsonNodeIdV0};
 pub use validated_view::{ValidatedAtomValueV0, ValidatedNodeV0, ValidatedTextV0};
 
 #[cfg(test)]
