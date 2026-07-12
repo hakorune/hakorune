@@ -5,10 +5,35 @@
 Active by explicit user priority change on 2026-07-12. Language v1
 conformance closeout remains parked; this card is the selected selfhost
 resume task. No language-v1 behavior, scope, evidence, or acceptance claim is
-changed by the reprioritization.
+changed by the reprioritization. The common-row design was accepted on
+2026-07-12.
 
 This card changes representation and validation structure only. It must not
 add an accepted route or move authority.
+
+## Accepted Design
+
+Use one hand-authored Hako `RoutePolicyRow` table as the policy SSOT. The
+existing I64/Any classifier boxes remain compatibility projections during the
+migration; they must not become independent policy owners.
+
+```text
+common Hako RoutePolicyRow
+        |
+        +--> I64/Any classifier projections
+        +--> one generator -> typed Rust decision payload
+        +--> caller/shadow shared validator
+
+Rust route matcher/oracle remains independent
+```
+
+The row separates `key_domain` from `stored_value_domain`. `value_boundary` is
+removed from the MapStore contract rather than renamed. Existing guards and
+fixtures may be migrated in bounded batches, but no compatibility copy may
+remain as an authority source.
+
+Decision: accepted. This is a BoxShape-only migration; route selection,
+runtime mutation, backend lowering, and Source Selfhost claims remain zero.
 
 ## Problem
 
@@ -25,14 +50,15 @@ allowed the error to remain internally consistent.
 
 ## Structural Delta
 
-1. Define one typed `RoutePolicyRow` SSOT for MapStore policy data with:
+1. Define one typed Hako `RoutePolicyRow` SSOT for MapStore policy data with:
    `policy_row_id`, `route_kind`, `key_domain`, `stored_value_domain`,
    `result_shape`, `effect_class`, `mutation_class`, `publication_policy`, and
    `authority_kind`.
 2. Keep row data owned by the hand-authored Hako source. Use one generator to
-   emit the typed decision payload and caller projection.
+   emit the typed decision payload and classifier/caller projections.
 3. Keep the Rust route matcher and Rust oracle independent.
-4. Replace caller/shadow tuple comparisons with one shared validator entry.
+4. Replace caller/shadow tuple comparisons with one shared validator entry;
+   projections must not validate policy independently.
 5. Remove the ambiguous `value_boundary` field from this MapStore contract.
 
 Expected touchpoints:
@@ -63,6 +89,16 @@ caller and shadow consumers use the same validator
 
 Tests must vary key and stored-value domains independently. A fixture that only
 copies the generated tuple is not an independent oracle.
+
+Migration guards must reject:
+
+```text
+missing key_domain
+missing stored_value_domain
+value_boundary present in the MapStore row
+classifier projection used as policy authority
+caller/shadow validator bypass
+```
 
 ## Authority Boundary
 
