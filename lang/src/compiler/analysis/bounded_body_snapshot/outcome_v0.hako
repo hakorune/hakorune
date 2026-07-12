@@ -19,4 +19,5 @@ static box BoundedBodySnapshotOutcomeV0Box {
   ready(snapshot) { return new BoundedBodySnapshotOutcomeV0("Ready", snapshot, "", null, "") }
   unsupported(path, node_kind, reason) { return new BoundedBodySnapshotOutcomeV0("Unsupported", null, path, node_kind, reason) }
   invalid(path, reason) { return new BoundedBodySnapshotOutcomeV0("InvalidInput", null, path, null, reason) }
+  internal(path, reason) { return new BoundedBodySnapshotOutcomeV0("InternalCarrierContractViolation", null, path, null, reason) }
 }

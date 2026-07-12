@@ -1,0 +1,71 @@
+// One-shot defensive reconstruction from a complete flat table.
+using lang.compiler.analysis.bounded_body_snapshot.snapshot_model_v0 as BoundedBodySnapshotModelV0Box
+
+box SnapshotSealV0 {
+  _status: String
+  _snapshot
+  _reason: String
+  birth(status, snapshot, reason) { me._status = status me._snapshot = snapshot me._reason = reason }
+  status() { return me._status }
+  snapshot() { return me._snapshot }
+  reason() { return me._reason }
+}
+static box SnapshotSealV0Box {
+  ready(snapshot) { return new SnapshotSealV0("Ready", snapshot, "") }
+  internal(reason) { return new SnapshotSealV0("InternalCarrierContractViolation", null, reason) }
+}
+
+static box SnapshotSealRecordV0Box {
+  atom(key, value_kind, value) { return new BoundedBodySnapshotAtomV0(key, value_kind, value) }
+  child(role, target) { return new BoundedBodySnapshotChildV0(role, target) }
+  node(index, path, domain, kind, atoms, children) {
+    return new BoundedBodySnapshotNodeV0(index, path, domain, kind, atoms, children)
+  }
+  snapshot(nodes, max_depth) { return new BoundedBodyAnalysisSnapshotV0(0, nodes, max_depth) }
+}
+
+static box BoundedBodySnapshotSealerV0Box {
+  seal(table, budget) {
+    if table == null { return SnapshotSealV0Box.internal("snapshot.flat_table_missing") }
+    if table.node_count() != budget.node_count() { return SnapshotSealV0Box.internal("snapshot.node_budget_mismatch") }
+    local root_issue = me._root_issue(table)
+    if root_issue != "" { return SnapshotSealV0Box.internal(root_issue) }
+    local nodes = new ArrayBox() local i = 0
+    loop(i < table.node_count()) {
+      local source = table.node(i)
+      if source == null || source.index() != i { return SnapshotSealV0Box.internal("snapshot.node_index_mismatch") }
+      local atoms = new ArrayBox() local j = 0
+      loop(j < source.atom_count()) {
+        local atom = source.atom(j)
+        atoms.push(SnapshotSealRecordV0Box.atom(atom.key(), atom.value_kind(), atom.value()))
+        j = j + 1
+      }
+      local children = new ArrayBox() j = 0
+      loop(j < source.child_count()) {
+        local edge = source.child(j)
+        if edge.target_index() <= i || edge.target_index() >= table.node_count() {
+          return SnapshotSealV0Box.internal("snapshot.child_target_invalid")
+        }
+        children.push(SnapshotSealRecordV0Box.child(edge.role(), edge.target_index()))
+        j = j + 1
+      }
+      nodes.push(SnapshotSealRecordV0Box.node(i, source.path(), source.domain(), source.kind(), atoms, children))
+      i = i + 1
+    }
+    return SnapshotSealV0Box.ready(SnapshotSealRecordV0Box.snapshot(nodes, budget.max_depth_observed()))
+  }
+
+  _root_issue(table) {
+    local previous = -1 local i = 0
+    loop(i < table.root_count()) {
+      local index = table.root(i)
+      if index <= previous || index < 0 || index >= table.node_count() { return "snapshot.root_index_invalid" }
+      local node = table.node(index)
+      if node.domain() != "stmt" || node.path() != "$.body[" + ("" + i) + "]" {
+        return "snapshot.root_shape_invalid"
+      }
+      previous = index i = i + 1
+    }
+    return ""
+  }
+}

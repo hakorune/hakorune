@@ -156,6 +156,7 @@ mod tests {
     use super::*;
 
     mod tests_call_expr;
+    mod tests_snapshot;
     mod tests_stmt;
 
     fn compile_hako_fixture(relative: &str) -> crate::mir::MirModule {

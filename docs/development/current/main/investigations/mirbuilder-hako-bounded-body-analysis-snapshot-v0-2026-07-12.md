@@ -984,8 +984,33 @@ stmt/expr preorder paths/indices/roles, decoded LoopRange Atom values, and
 top/nested body boundaries at 2047/2048/2049 under both `NYASH_STR_CP` modes.
 Rust tests remain physically split below `strict_json_session/tests/`; every
 source stays below 800 lines. Stable gate: `tools/checks/hako_stmt_reader_v0_guard.sh`.
-U4-A3.6 final one-shot snapshot seal, direct ProgramV0 invocation, and exact
-snapshot parity are next. No Fact or planner connection is active.
+At the A3.5 closure point, final sealing and complete direct parity remained
+pending. No Fact or planner connection was active.
+
+U4-A3.6 closed on 2026-07-12. `reader_v0.hako` is now the single direct entry
+from an invocation-scoped generic strict tree to root validation, complete body
+observation, mixed flat publication, and final seal. `snapshot_sealer_v0.hako`
+checks node-budget equality, ordered root shape, sequential node indices, and
+forward child targets before defensively reconstructing every public atom,
+edge, node, and `BoundedBodyAnalysisSnapshotV0`. Internal carrier failure has
+its own status and is never reclassified as user `InvalidInput`.
+
+The direct executable fixture compares canonical structural signatures from
+the independent Rust validated-view witness and the HHako reader. Equality
+covers schema/source versions, node count, max depth, every preorder node,
+domain/kind/path, ordered atom key/kind/value, and ordered role/target edge.
+The accepted corpus covers empty input, all eight statement kinds, all eleven
+expression kinds, every child role, decoded multibyte text, and all eighteen
+operators. Full fixtures run on an explicitly sized test thread so the Rust
+test harness stack does not narrow the Hako schema; product limits are not
+changed.
+
+Malformed and known-Unsupported direct outcomes remain exact Rust/Hako parity,
+and failure signatures are proven unable to begin with a snapshot signature.
+Both `NYASH_STR_CP` modes are identical. Stable gate:
+`tools/checks/hako_direct_snapshot_parity_v0_guard.sh`. U4-A4 broad nested
+negative corpus and repository independence aggregation are next. Fact,
+planner, route, backend, and runtime remain disconnected.
 
 Each slice must compile/run in isolation before the next reader family is
 added. A reader that again crosses the diagnostic boundary returns to the

@@ -1,0 +1,36 @@
+// Direct ProgramV0 strict-tree ingress to one complete bounded snapshot.
+using lang.compiler.analysis.bounded_body_snapshot.reader_root_v0 as HakoProgramV0RootReaderV0Box
+using lang.compiler.analysis.bounded_body_snapshot.reader_stmt_v0 as HakoProgramV0StmtReaderV0Box
+using lang.compiler.analysis.bounded_body_snapshot.flat_publisher_v0 as FlatNodePublisherV0Box
+using lang.compiler.analysis.bounded_body_snapshot.snapshot_sealer_v0 as BoundedBodySnapshotSealerV0Box
+using lang.compiler.analysis.bounded_body_snapshot.budget_v0 as BoundedBodySnapshotBudgetV0Box
+using lang.compiler.analysis.bounded_body_snapshot.outcome_v0 as BoundedBodySnapshotOutcomeV0Box
+
+static box HakoProgramV0SnapshotReaderV0Box {
+  read(session, root) {
+    local envelope = HakoProgramV0RootReaderV0Box.scan(session, root)
+    if envelope.status() != "Ready" {
+      return BoundedBodySnapshotOutcomeV0Box.invalid(envelope.path(), envelope.reason())
+    }
+    local budget = new BoundedBodySnapshotBudgetV0()
+    local body = HakoProgramV0StmtReaderV0Box.read_body(session, envelope.body_node(), "$.body", 1, budget)
+    if body.status() == "Unsupported" {
+      return BoundedBodySnapshotOutcomeV0Box.unsupported(body.path(), body.node_kind(), body.reason())
+    }
+    if body.status() == "InvalidInput" {
+      return BoundedBodySnapshotOutcomeV0Box.invalid(body.path(), body.reason())
+    }
+    if body.status() != "Ready" {
+      return BoundedBodySnapshotOutcomeV0Box.internal(body.path(), body.reason())
+    }
+    local table = FlatNodePublisherV0Box.publish_body(body.observations(), "$.body")
+    if table == null || table.root_count() != body.observations().size() {
+      return BoundedBodySnapshotOutcomeV0Box.internal("$.body", "snapshot.root_count_mismatch")
+    }
+    local sealed = BoundedBodySnapshotSealerV0Box.seal(table, budget)
+    if sealed.status() != "Ready" {
+      return BoundedBodySnapshotOutcomeV0Box.internal("$.body", sealed.reason())
+    }
+    return BoundedBodySnapshotOutcomeV0Box.ready(sealed.snapshot())
+  }
+}

@@ -75,3 +75,14 @@ preflights every body array before traversal, preserves schema child order,
 normalizes missing/null `else` to absence, validates known-but-unobserved
 `Local.declared_type`, and delegates every expression to the one expression
 reader. It never publishes a partial body after failure.
+
+`snapshot_sealer_v0.hako` is the final one-shot publication boundary. It
+checks root shape, node-budget agreement, sequential indices, and forward
+child targets, then defensively reconstructs every atom, edge, node, and the
+snapshot itself. Internal carrier violations remain distinct from ProgramV0
+`InvalidInput` and analysis `Unsupported`.
+
+`reader_v0.hako` is the only direct product-shaped reader entry. It composes
+strict root validation, statement traversal, flat publication, and sealing;
+only a fully sealed result becomes `Ready(snapshot)`. It retains no strict
+tree handle/node id and does not connect to Fact, planner, route, or runtime.

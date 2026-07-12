@@ -1,0 +1,41 @@
+using lang.compiler.analysis.bounded_body_snapshot.reader_v0 as HakoProgramV0SnapshotReaderV0Box
+
+static box SnapshotDirectReaderFixtureV0Box {
+  outcome(session, root) {
+    local result = HakoProgramV0SnapshotReaderV0Box.read(session, root)
+    return result.status() + "|" + result.path() + "|" + result.reason()
+  }
+  snapshot_signature(session, root) {
+    local result = HakoProgramV0SnapshotReaderV0Box.read(session, root)
+    if result.status() != "Ready" { return result.status() + "|" + result.path() + "|" + result.reason() }
+    local snapshot = result.snapshot()
+    local text = "v=" + ("" + snapshot.schema_version()) + ",src=" + ("" + snapshot.source_program_version())
+    text = text + ",n=" + ("" + snapshot.node_count()) + ",d=" + ("" + snapshot.max_depth_observed())
+    local i = 0
+    loop(i < snapshot.node_count()) {
+      local node = snapshot.node(i)
+      text = text + "|" + ("" + i) + ":" + node.path() + ":" + node.domain() + ":" + node.kind()
+      local j = 0
+      loop(j < node.atom_count()) {
+        local atom = node.atom(j)
+        text = text + ":a(" + atom.key() + "," + atom.value_kind() + "," + me._atom_value(atom) + ")"
+        j = j + 1
+      }
+      j = 0
+      loop(j < node.child_count()) {
+        local edge = node.child(j)
+        text = text + ":c(" + edge.role() + "," + ("" + edge.target_index()) + ")"
+        j = j + 1
+      }
+      i = i + 1
+    }
+    return text
+  }
+  _atom_value(atom) {
+    if atom.value_kind() == "Null" { return "null" }
+    if atom.value_kind() == "Bool" { if atom.value() == true { return "true" } return "false" }
+    return "" + atom.value()
+  }
+}
+
+static box Main { main() { return 0 } }
