@@ -25,6 +25,7 @@ pub mod box_operators {
     pub use crate::boxes::operators::*;
 }
 pub mod aggregate_storage_plan;
+pub mod analysis;
 pub mod array_receiver_representation_source;
 #[path = "boxes/box_trait.rs"]
 pub mod box_trait;

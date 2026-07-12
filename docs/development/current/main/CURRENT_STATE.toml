@@ -66,9 +66,12 @@ The consultation accepts wire_vocabulary: V0 is an explicitly lossy,
 removable Program(JSON v0) observational quotient and never recovers source
 kind. S0 ProgramV0WireContractInventoryV0 is closed with 40 classified union
 rows, 7 exact SchemaMismatchStop tags, field/root seams, and parser strictness
-gaps. The active S1 task is SnapshotSchemaV0: immutable kinds, roles, scalar
-encodings, limits, reasons, PathV0, exact equality, and three-way outcomes,
-with no AST/producer/MIR/planner/route/backend/runtime dependency.
+gaps. S1 SnapshotSchemaV0 is closed with neutral Rust/Hako declarative schema,
+immutable model, limits, PathV0, budget, exact equality, three-way outcomes,
+focused tests, Hako syntax evidence, and an analysis-only dependency guard.
+The active S2 task is a strict structured ProgramV0 body view: full-input and
+duplicate-key validation, explicit known/unknown fields and tags, scalar
+validation, and no raw scanner or MIR lowering entry.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
@@ -85,9 +88,10 @@ accepts wire_vocabulary. V0 observes only the closed ProgramV0 wire subset,
 is explicitly lossy and removable, and does not recover source distinctions.
 S0 ProgramV0WireContractInventoryV0 closes with 40 classified rows, 7 exact
 SchemaMismatchStop tags, explicit field/root/parser seams, and one generated
-fixture/guard. The active S1 task is SnapshotSchemaV0; it defines only the
-immutable analysis vocabulary and cannot depend on AST, ProgramV0 producer,
-MIR, planner, route, backend, or runtime code.
+fixture/guard. S1 closes the neutral Rust/Hako schema/model/path/budget/outcome
+slice with parity and dependency guards. The active S2 task is the strict
+structured ProgramV0 body view; existing permissive typed decode and MIR
+lowering entry are not reused as analysis authority.
 The LocalContractWrite exact-i64 Fact bridge is
 closed with canonical contract-id ownership, fresh identity matching,
 dst-only publication, Copy/same-slot PHI propagation, 17 focused tests, and
@@ -124,7 +128,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "MIRBUILDER-BOUNDED-BODY-SNAPSHOT-SCHEMA-V0-001"
+current_blocker_token = "MIRBUILDER-STRICT-STRUCTURED-PROGRAMV0-BODY-VIEW-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

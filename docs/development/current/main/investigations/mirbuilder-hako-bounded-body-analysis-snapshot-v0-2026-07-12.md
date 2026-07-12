@@ -289,14 +289,30 @@ Closeout evidence:
 - stable guard:
   `tools/checks/rust_lifecycle_mirbuilder_program_v0_wire_contract_inventory_guard.sh`.
 
-### S1 — SnapshotSchemaV0 (active)
+### S1 — SnapshotSchemaV0 (closed)
 
 - immutable kinds, child roles, scalar encodings, operator sets;
 - limits, reason codes, structural PathV0, and exact snapshot equality;
 - `Ready` / `Unsupported` / `InvalidInput` outcome types;
 - no AST, ProgramJSON producer, MIR, planner, route, backend, or runtime import.
 
-### S2 — Strict structured ProgramV0 body view
+Closeout evidence:
+
+- neutral Rust owner: `src/analysis/bounded_body_snapshot_v0/`;
+- Hako declarative owner:
+  `lang/src/compiler/analysis/bounded_body_snapshot_schema_v0.hako`;
+- limits, accepted/unsupported/mismatch classifications, operator partitions,
+  structural paths, exact equality, immutable nodes, budgets, and three-way
+  outcomes are explicit;
+- Rust and Hako share vocabulary only; neither imports AST, ProgramV0 producer,
+  MIR, planner, route, backend, or runtime code;
+- four focused Rust tests pass and Hako Program(JSON v0) emission validates
+  the standalone schema source;
+- stable guard:
+  `tools/checks/rust_lifecycle_mirbuilder_bounded_body_snapshot_schema_v0_guard.sh`;
+- all new Rust/Hako source files remain below 800 lines.
+
+### S2 — Strict structured ProgramV0 body view (active)
 
 - strict full-input JSON parse with duplicate-key detection;
 - version/kind/envelope and field-type validation;

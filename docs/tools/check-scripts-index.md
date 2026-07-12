@@ -417,6 +417,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_compare_runtime_route_authority_design_stop_guard.sh` | Selects the runtime-adjacent ProgramJSON shadow guard before any runtime route authority switch. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_recipematcher_runtime_route_adjacent_shadow_guard_refresh_guard.sh` | Reconfirms the runtime-adjacent ProgramJSON shadow guard before returning to Source Selfhost wider route selection. |
 | `tools/checks/rust_lifecycle_mirbuilder_program_v0_wire_contract_inventory_guard.sh` | ProgramV0 producer/consumer wire inventory guard; requires every Stmt/Expr tag to be Accepted, KnownUnsupported, or SchemaMismatchStop before bounded snapshot implementation. |
+| `tools/checks/rust_lifecycle_mirbuilder_bounded_body_snapshot_schema_v0_guard.sh` | Rust/Hako declarative schema parity and analysis-only dependency guard for BoundedBodyAnalysisSnapshotV0 limits, classifications, outcomes, paths, and source-file size. |
 | `tools/checks/rust_lifecycle_source_selfhost_post_rerun004_current_reentry_inventory_guard.sh` | Current reentry inventory guard proving basis-007 is consumed by RERUN-004 and selecting the checkpoint rerun without replaying route repair. |
 
 ## Update Policy
