@@ -767,6 +767,58 @@ the diagnostic boundary with a documented safe shape. Any compiler fix is a
 separate BoxShape commit with its own fixture and gate; it must not be mixed
 with a reader accepted-kind commit.
 
+U4-P1 result (2026-07-12): the reported 30-second cutoff is not reproducible
+from the tracked tree or the parked recursive prototype. The parked complete
+reader fixture compiles in about 270 ms with the release binary. The durable
+`HakoReaderCompileShapeDiagnosticV0` runner now measures parse and MIR compile
+separately for branch-count, direct/helper/loop recursion, import-count, and
+combined strict-tree extern shapes. On the current debug binary, representative
+no-optimize results are:
+
+```text
+case                 parse_ms  compile_ms  build_module  semantic_refresh
+baseline                   25          34             2                 6
+tracked_model              23         712           150               271
+branch_12                  24          46             5                13
+recursion_helper           21          38             2                10
+import_5                   23         621           141               205
+combined_plain             25         674           147               236
+combined_extern            26         730           150               262
+```
+
+With optimization enabled, `combined_extern` completes in about 458 ms;
+`optimize` itself is about 51 ms and the second post-canonicalization semantic
+refresh is avoided. Thus optimizer work does not explain the old cutoff. The
+largest measured owner for the current safe matrix is semantic refresh/route
+convergence, but it remains sub-second and is not evidence for the historical
+30-second observation.
+
+The diagnostic therefore closes as an explicit non-reproduction plus a safe
+source-shape boundary, not as a claimed compiler bug fix:
+
+```text
+safe U4-A3 slice:
+  one reader family per file
+  accepted-kind fanout <= 12
+  no monolithic stmt+expr validator
+  compile each slice in isolation through build_module and semantic refresh
+  diagnostic timeout = 10 seconds
+
+claim:
+  current per-kind shape is below the diagnostic boundary
+
+non-claim:
+  historical 30-second cause identified
+  compiler performance fixed
+```
+
+The generated diagnostic deliberately does not execute the reader. Its stable
+gate is `tools/checks/hako_reader_compile_shape_diagnostic_guard.sh`; it must
+report `fast_shape_matrix=green`, `reader_execution_reached=0`, and
+`original_30s_reproduced=0`. U4-A3.1 may now resume. If a real reader slice
+crosses 10 seconds, preserve that exact source as the new minimal reproducer
+and reopen U4-P1 before adding another accepted-kind family.
+
 Reader implementation order after U4-P1:
 
 ```text

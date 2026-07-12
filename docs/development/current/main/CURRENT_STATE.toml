@@ -142,21 +142,23 @@ Rust owns only strict JSON syntax, decoded duplicate/trailing rejection,
 generic kinds, ordered access, and handle validity. HHako independently owns
 ProgramV0 validation/classification, paths, budgets, traversal, and snapshot
 publication. B/C are replay-only; the ValidatedProgramV0BodyView, MapBox, and
-Rust-normalized carrier are forbidden on the direct reader path. U4-P1 is the
-active BoxShape diagnostic: isolate the minimal Hako source delta and compiler
-phase boundary responsible for the jump from the roughly 1.5-second
-common/builder baseline to the expression-reader 30-second cutoff before
-resuming per-kind reader expansion. The reference
+Rust-normalized carrier are forbidden on the direct reader path. U4-P1 closes
+as a guarded non-reproduction: branch, recursion, import, tracked-model, and
+combined strict-tree shapes all complete below one second on the current debug
+binary, optimizer work is not the historical cutoff, and the old 30-second
+observation has no reproducible tracked source. The safe boundary is one reader
+family per file, accepted-kind fanout at most 12, and an isolated 10-second
+compile gate. U4-A3.1 root-envelope work may now resume. The reference
 MIR interpreter is the only first-slice backend and unsupported backends fail
 before parse/session effects. U4-A0 generic arena, U4-A1 invocation session,
 and U4-A2 accessor/route/preflight are implemented and tested; U4-A3 has only
 the Hako generic facade so far. A first monolithic Hako reader prototype was
 removed after the common/builder imports stayed fast but the expression-reader
-import exceeded the 30-second diagnostic boundary. U4-P1 must first preserve
-a minimal fast/slow fixture pair, timing evidence, and a named compiler owner
-or safe source-shape boundary; per-accepted-kind reader work resumes at
-U4-A3.1 only after that diagnostic. Independent ProgramV0 reader and direct
-parity remain pending.
+import exceeded the 30-second diagnostic boundary. U4-P1 now preserves a
+generated compile-shape matrix, phase timing evidence, and the safe source
+shape above; the old cutoff remains explicitly unreproduced. Per-accepted-kind
+reader work resumes at U4-A3.1. Independent ProgramV0 reader and direct parity
+remain pending.
 The LocalContractWrite exact-i64 Fact bridge is
 closed with canonical contract-id ownership, fresh identity matching,
 dst-only publication, Copy/same-slot PHI propagation, 17 focused tests, and
@@ -193,7 +195,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "MIRBUILDER-BOUNDED-BODY-SNAPSHOT-V0-HAKO-READER-SHAPE-DIAGNOSTIC-001"
+current_blocker_token = "MIRBUILDER-BOUNDED-BODY-SNAPSHOT-V0-HAKO-ROOT-ENVELOPE-READER-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

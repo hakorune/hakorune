@@ -424,6 +424,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_decoded_utf8_byte_len_v0_guard.sh` | DecodedUtf8ByteLenV0 internal-leaf guard for UTF-8 octet semantics, environment independence, normalization/NUL fixtures, normalized consumer adoption, forbidden length-route isolation, and source-file size. |
 | `tools/checks/rust_lifecycle_mirbuilder_decoded_utf8_byte_len_v0_capability_guard.sh` | HHako internal capability guard for the closed extern route, metadata-only preflight, reference-VM direct byte count, product-backend rejection, two-mode fixture, and source-file size. |
 | `tools/checks/rust_lifecycle_mirbuilder_hako_bounded_body_snapshot_model_v0_guard.sh` | Hako VM-reference guard for the S3 outcome/path/budget/model plus sealed local text carrier, replay-only isolation, UTF-8 mode parity, and source-file size. |
+| `tools/checks/hako_reader_compile_shape_diagnostic_guard.sh` | U4-P1 diagnostic gate separating parse and MIR compile timing across branch, recursion, import, and combined strict-tree reader shapes; it does not execute or activate a reader. |
 | `tools/checks/rust_lifecycle_source_selfhost_post_rerun004_current_reentry_inventory_guard.sh` | Current reentry inventory guard proving basis-007 is consumed by RERUN-004 and selecting the checkpoint rerun without replaying route repair. |
 
 ## Update Policy
