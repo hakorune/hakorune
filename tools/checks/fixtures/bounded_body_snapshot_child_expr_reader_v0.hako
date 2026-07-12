@@ -1,0 +1,68 @@
+using lang.compiler.analysis.bounded_body_snapshot.reader_expr_child_v0 as HakoProgramV0ChildExprReaderV0Box
+using lang.compiler.analysis.bounded_body_snapshot.budget_v0 as BoundedBodySnapshotBudgetV0Box
+
+static box SnapshotChildExprReaderFixtureV0Box {
+  classify(session, root) {
+    local budget = new BoundedBodySnapshotBudgetV0()
+    local result = HakoProgramV0ChildExprReaderV0Box.read(session, root, "$.body[0].expr", 1, budget)
+    if result.status() == "Ready" {
+      local node = result.observation()
+      if node.atom_count() != 1 || node.child_count() != 2 { return 90 }
+      if node.atom(0).key() != "op" || node.atom(0).value_kind() != "Text" { return 91 }
+      if node.child(0).role() != "lhs" || node.child(1).role() != "rhs" { return 92 }
+      if node.kind() == "Binary" { return 1 }
+      if node.kind() == "Compare" { return 2 }
+      if node.kind() == "Logical" { return 3 }
+      return 93
+    }
+    if result.status() == "Unsupported" {
+      if result.reason() == "reader.call_expr_family_pending" { return 20 }
+      if result.reason() == "unsupported.wire_kind" { return 21 }
+      if result.reason() == "limit.max_depth" { return 22 }
+      if result.reason() == "limit.max_node_count" { return 23 }
+      return 29
+    }
+    if result.status() != "InvalidInput" { return 99 }
+    if result.reason() == "operator.invalid_for_kind" { return 30 }
+    if result.reason() == "object.required_field_missing" { return 31 }
+    if result.reason() == "object.forbidden_unknown_field" { return 32 }
+    if result.reason() == "type.expected_string.got_number" { return 33 }
+    if result.reason() == "type.expected_object.got_null" { return 34 }
+    return 39
+  }
+
+  preorder_signature(session, root) {
+    local result = HakoProgramV0ChildExprReaderV0Box.read(session, root, "$.body[0].expr", 1, new BoundedBodySnapshotBudgetV0())
+    if result.status() != "Ready" { return "<not-ready>" }
+    return me._signature(result.observation())
+  }
+  outcome(session, root) {
+    local result = HakoProgramV0ChildExprReaderV0Box.read(session, root, "$.body[0].expr", 1, new BoundedBodySnapshotBudgetV0())
+    return result.status() + "|" + result.path() + "|" + result.reason()
+  }
+  classify_at_limit_depth(session, root) {
+    local result = HakoProgramV0ChildExprReaderV0Box.read(session, root, "$.body[0].expr", 64, new BoundedBodySnapshotBudgetV0())
+    if result.status() == "Unsupported" && result.reason() == "limit.max_depth" { return 22 }
+    return 99
+  }
+  classify_at_node_limit(session, root) {
+    local budget = new BoundedBodySnapshotBudgetV0()
+    local i = 0
+    loop(i < 32768) { budget.observe_node(1) i = i + 1 }
+    local result = HakoProgramV0ChildExprReaderV0Box.read(session, root, "$.body[0].expr", 1, budget)
+    if result.status() == "Unsupported" && result.reason() == "limit.max_node_count" { return 23 }
+    return 99
+  }
+  _signature(node) {
+    local text = node.kind()
+    local i = 0
+    loop(i < node.child_count()) {
+      local edge = node.child(i)
+      text = text + ":" + edge.role() + "=" + me._signature(edge.observation())
+      i = i + 1
+    }
+    return text
+  }
+}
+
+static box Main { main() { return 0 } }

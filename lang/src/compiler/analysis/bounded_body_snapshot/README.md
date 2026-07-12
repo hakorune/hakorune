@@ -52,3 +52,10 @@ the negative direction so `i64::MIN` never requires a positive overflow.
 Its `substring` use is limited to one decoded decimal scalar and never observes
 raw JSON, node tags, field names, paths, token offsets, or source text. Every
 structured reader module remains substring/index-search free.
+
+`reader_expr_child_v0.hako` is the recursive expression coordinator for
+`Binary`, `Compare`, and `Logical`. It observes the parent before its children,
+validates the schema-owned operator partition, and preserves exact `lhs` then
+`rhs` order in invocation-local typed edges. Leaf observations share the same
+small read-only child interface. Call/Method/Field and flat snapshot-index
+publication remain outside this slice.

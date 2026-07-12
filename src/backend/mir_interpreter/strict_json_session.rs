@@ -184,6 +184,12 @@ mod tests {
         compile_hako_fixture("tools/checks/fixtures/bounded_body_snapshot_leaf_expr_reader_v0.hako")
     }
 
+    fn compile_child_expr_reader_fixture() -> crate::mir::MirModule {
+        compile_hako_fixture(
+            "tools/checks/fixtures/bounded_body_snapshot_child_expr_reader_v0.hako",
+        )
+    }
+
     fn run_session_function(
         interpreter: &mut MirInterpreter,
         module: &crate::mir::MirModule,
@@ -519,5 +525,137 @@ mod tests {
         let literal = serde_json::json!({"type":"Str", "value":"x".repeat(65537)}).to_string();
         assert_eq!(run_leaf_code(&mut interpreter, &module, &atom), 23);
         assert_eq!(run_leaf_code(&mut interpreter, &module, &literal), 24);
+    }
+
+    fn run_child_function(
+        interpreter: &mut MirInterpreter,
+        module: &crate::mir::MirModule,
+        expression: &str,
+        function: &str,
+    ) -> VMValue {
+        run_session_function(interpreter, module, expression, function)
+            .expect("child expression reader")
+    }
+
+    fn rust_child_outcome(expression: &str) -> String {
+        use crate::analysis::bounded_body_snapshot_v0::ProgramV0BodyViewError;
+        let input = format!(
+            r#"{{"version":0,"kind":"Program","body":[{{"type":"Expr","expr":{expression}}}]}}"#
+        );
+        match crate::analysis::bounded_body_snapshot_v0::read_program_v0_body(&input) {
+            Ok(_) => "Ready||".to_string(),
+            Err(ProgramV0BodyViewError::Unsupported { path, reason, .. }) => {
+                format!("Unsupported|{path}|{reason}")
+            }
+            Err(ProgramV0BodyViewError::InvalidInput { path, reason }) => {
+                format!("InvalidInput|{path}|{reason}")
+            }
+        }
+    }
+
+    #[test]
+    fn hako_child_expr_reader_matches_reference_outcomes() {
+        let module = compile_child_expr_reader_fixture();
+        let mut interpreter = MirInterpreter::new();
+        for expression in [
+            r#"{"type":"Binary","op":"+","lhs":{"type":"Int","value":1},"rhs":{"type":"Int","value":2}}"#,
+            r#"{"type":"Compare","op":"<=","lhs":{"type":"Var","name":"x"},"rhs":{"type":"Int","value":2}}"#,
+            r#"{"type":"Logical","op":"&&","lhs":{"type":"Bool","value":true},"rhs":{"type":"Bool","value":false}}"#,
+            r#"{"type":"Binary","op":"==","lhs":{"type":"Int","value":1},"rhs":{"type":"Int","value":2}}"#,
+            r#"{"type":"Binary","lhs":{"type":"Int","value":1},"rhs":{"type":"Int","value":2}}"#,
+            r#"{"type":"Binary","op":1,"lhs":{"type":"Int","value":1},"rhs":{"type":"Int","value":2}}"#,
+            r#"{"type":"Binary","op":"+","lhs":null,"rhs":{"type":"Int","value":2}}"#,
+            r#"{"type":"Binary","op":"+","lhs":{"type":"Int","value":1},"rhs":{"type":"Int","value":2},"future":0}"#,
+            r#"{"type":"Binary","op":"+","lhs":{"type":"ArrayLiteral"},"rhs":{"type":"Int","value":2}}"#,
+        ] {
+            let actual = run_child_function(
+                &mut interpreter,
+                &module,
+                expression,
+                "SnapshotChildExprReaderFixtureV0Box.outcome/2",
+            );
+            assert_eq!(
+                actual,
+                VMValue::String(rust_child_outcome(expression)),
+                "expression={expression}"
+            );
+            assert!(!interpreter.strict_json_session_active());
+        }
+    }
+
+    #[test]
+    fn hako_child_expr_reader_preserves_operator_partition_and_child_order() {
+        let module = compile_child_expr_reader_fixture();
+        let mut interpreter = MirInterpreter::new();
+        for (kind, expected_code, operators) in [
+            (
+                "Binary",
+                1,
+                &["+", "-", "*", "/", "%", "&", "|", "^", "<<", ">>"][..],
+            ),
+            ("Compare", 2, &["==", "!=", "<", ">", "<=", ">="][..]),
+            ("Logical", 3, &["&&", "||"][..]),
+        ] {
+            for operator in operators {
+                let expression = format!(
+                    r#"{{"type":"{kind}","op":"{operator}","lhs":{{"type":"Int","value":1}},"rhs":{{"type":"Int","value":2}}}}"#
+                );
+                assert_eq!(
+                    run_child_function(
+                        &mut interpreter,
+                        &module,
+                        &expression,
+                        "SnapshotChildExprReaderFixtureV0Box.classify/2",
+                    ),
+                    VMValue::Integer(expected_code)
+                );
+            }
+        }
+        let nested = r#"{"type":"Binary","op":"+","lhs":{"type":"Int","value":1},"rhs":{"type":"Compare","op":"<","lhs":{"type":"Var","name":"x"},"rhs":{"type":"Int","value":3}}}"#;
+        assert_eq!(
+            run_child_function(
+                &mut interpreter,
+                &module,
+                nested,
+                "SnapshotChildExprReaderFixtureV0Box.preorder_signature/2",
+            ),
+            VMValue::String("Binary:lhs=Int:rhs=Compare:lhs=Var:rhs=Int".to_string())
+        );
+        assert_eq!(
+            run_child_function(
+                &mut interpreter,
+                &module,
+                r#"{"type":"Call","name":"f","args":[]}"#,
+                "SnapshotChildExprReaderFixtureV0Box.classify/2",
+            ),
+            VMValue::Integer(20)
+        );
+    }
+
+    #[test]
+    fn hako_child_expr_reader_enforces_depth_before_publication() {
+        let module = compile_child_expr_reader_fixture();
+        let expression = r#"{"type":"Binary","op":"+","lhs":{"type":"Int","value":0},"rhs":{"type":"Int","value":0}}"#;
+        let mut interpreter = MirInterpreter::new();
+        assert_eq!(
+            run_child_function(
+                &mut interpreter,
+                &module,
+                expression,
+                "SnapshotChildExprReaderFixtureV0Box.classify_at_limit_depth/2",
+            ),
+            VMValue::Integer(22)
+        );
+        assert!(!interpreter.strict_json_session_active());
+        assert_eq!(
+            run_child_function(
+                &mut interpreter,
+                &module,
+                r#"{"type":"Int","value":0}"#,
+                "SnapshotChildExprReaderFixtureV0Box.classify_at_node_limit/2",
+            ),
+            VMValue::Integer(23)
+        );
+        assert!(!interpreter.strict_json_session_active());
     }
 }

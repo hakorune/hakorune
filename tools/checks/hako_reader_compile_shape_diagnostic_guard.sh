@@ -28,6 +28,7 @@ required = {
     "tracked_model",
     "tracked_root_reader",
     "tracked_leaf_reader",
+    "tracked_child_reader",
     "branch_1",
     "branch_4",
     "branch_8",

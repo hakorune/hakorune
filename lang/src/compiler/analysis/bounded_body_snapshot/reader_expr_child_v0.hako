@@ -1,0 +1,136 @@
+// Recursive Binary/Compare/Logical observation over generic strict JSON.
+using lang.compiler.analysis.bounded_body_snapshot.strict_json_tree_v0 as StrictJsonTreeV0Box
+using lang.compiler.analysis.bounded_body_snapshot.reader_expr_leaf_v0 as HakoProgramV0LeafExprReaderV0Box
+using lang.compiler.analysis.bounded_body_snapshot.validated_text_v0 as ValidatedTextV0Box
+using lang.compiler.analysis.bounded_body_snapshot.snapshot_model_v0 as BoundedBodySnapshotModelV0Box
+using lang.compiler.analysis.bounded_body_snapshot_schema_v0 as BoundedBodySnapshotSchemaV0Box
+
+box ChildExprEdgeV0 {
+  _role: String
+  _observation
+  birth(role, observation) { me._role = role me._observation = observation }
+  role() { return me._role }
+  observation() { return me._observation }
+}
+
+box ChildExprObservationV0 {
+  _kind: String
+  _atoms: ArrayBox
+  _children: ArrayBox
+  birth(kind, atoms, children) { me._kind = kind me._atoms = atoms me._children = children }
+  kind() { return me._kind }
+  atom_count() { return me._atoms.size() }
+  atom(index) { return me._atoms.get(index) }
+  child_count() { return me._children.size() }
+  child(index) { return me._children.get(index) }
+}
+
+box ChildExprReadV0 {
+  _status: String
+  _observation
+  _path: String
+  _node_kind
+  _reason: String
+  birth(status, observation, path, node_kind, reason) {
+    me._status = status me._observation = observation me._path = path
+    me._node_kind = node_kind me._reason = reason
+  }
+  status() { return me._status }
+  observation() { return me._observation }
+  path() { return me._path }
+  node_kind() { return me._node_kind }
+  reason() { return me._reason }
+}
+
+static box ChildExprReadV0Box {
+  ready(observation) { return new ChildExprReadV0("Ready", observation, "", null, "") }
+  unsupported(path, kind, reason) { return new ChildExprReadV0("Unsupported", null, path, kind, reason) }
+  invalid(path, reason) { return new ChildExprReadV0("InvalidInput", null, path, null, reason) }
+  internal(path, reason) { return new ChildExprReadV0("InternalCarrierContractViolation", null, path, null, reason) }
+  from_leaf(result) {
+    if result.status() == "Ready" { return me.ready(result.observation()) }
+    if result.status() == "Unsupported" { return me.unsupported(result.path(), result.node_kind(), result.reason()) }
+    if result.status() == "InvalidInput" { return me.invalid(result.path(), result.reason()) }
+    return me.internal(result.path(), result.reason())
+  }
+}
+
+static box HakoProgramV0ChildExprReaderV0Box {
+  read(session, node, path, depth, budget) {
+    local limit = budget.observe_node(depth)
+    if limit != null { return ChildExprReadV0Box.unsupported(path, null, limit) }
+    local leaf = HakoProgramV0LeafExprReaderV0Box.read(session, node, path, budget)
+    if leaf.status() != "Unsupported" || leaf.reason() != "reader.child_expr_family_pending" {
+      return ChildExprReadV0Box.from_leaf(leaf)
+    }
+    local keys = new ArrayBox() local values = new ArrayBox()
+    local i = 0 local count = StrictJsonTreeV0Box.object_len(session, node)
+    loop(i < count) {
+      keys.push(StrictJsonTreeV0Box.object_key_at(session, node, i))
+      values.push(StrictJsonTreeV0Box.object_value_at(session, node, i))
+      i = i + 1
+    }
+    local type_node = me._find(keys, values, "type")
+    local kind = StrictJsonTreeV0Box.string_value(session, type_node)
+    if me._is_child(kind) == 0 {
+      return ChildExprReadV0Box.unsupported(path, kind, "reader.call_expr_family_pending")
+    }
+    local closure_issue = me._field_closure_issue(keys)
+    if closure_issue != "" { return ChildExprReadV0Box.invalid(path + "." + closure_issue, "object.forbidden_unknown_field") }
+    local op_node = me._find(keys, values, "op")
+    if op_node < 0 { return ChildExprReadV0Box.invalid(path + ".op", "object.required_field_missing") }
+    local op_kind = StrictJsonTreeV0Box.kind(session, op_node)
+    if op_kind != "String" { return ChildExprReadV0Box.invalid(path + ".op", me._wrong_type("string", op_kind)) }
+    local op = StrictJsonTreeV0Box.string_value(session, op_node)
+    if me._operator_allowed(kind, op) == 0 { return ChildExprReadV0Box.invalid(path + ".op", "operator.invalid_for_kind") }
+    local checked_op = ValidatedTextV0Box.atom(op, budget)
+    if checked_op.status() == "Unsupported" { return ChildExprReadV0Box.unsupported(path + ".op", kind, checked_op.reason()) }
+    if checked_op.status() != "Ready" { return ChildExprReadV0Box.internal(path + ".op", checked_op.reason()) }
+    local lhs_node = me._find(keys, values, "lhs")
+    if lhs_node < 0 { return ChildExprReadV0Box.invalid(path + ".lhs", "object.required_field_missing") }
+    local lhs = me.read(session, lhs_node, path + ".lhs", depth + 1, budget)
+    if lhs.status() != "Ready" { return lhs }
+    local rhs_node = me._find(keys, values, "rhs")
+    if rhs_node < 0 { return ChildExprReadV0Box.invalid(path + ".rhs", "object.required_field_missing") }
+    local rhs = me.read(session, rhs_node, path + ".rhs", depth + 1, budget)
+    if rhs.status() != "Ready" { return rhs }
+    local atoms = new ArrayBox()
+    atoms.push(new BoundedBodySnapshotAtomV0("op", "Text", checked_op.text().value()))
+    local children = new ArrayBox()
+    children.push(new ChildExprEdgeV0("lhs", lhs.observation()))
+    children.push(new ChildExprEdgeV0("rhs", rhs.observation()))
+    return ChildExprReadV0Box.ready(new ChildExprObservationV0(kind, atoms, children))
+  }
+
+  _find(keys, values, name) {
+    local i = 0
+    loop(i < keys.size()) { if keys.get(i) == name { return values.get(i) } i = i + 1 }
+    return -1
+  }
+  _field_closure_issue(keys) {
+    local i = 0
+    loop(i < keys.size()) {
+      local key = keys.get(i)
+      if key != "type" && key != "op" && key != "lhs" && key != "rhs" { return key }
+      i = i + 1
+    }
+    return ""
+  }
+  _is_child(kind) { if kind == "Binary" || kind == "Compare" || kind == "Logical" { return 1 } return 0 }
+  _operator_allowed(kind, op) {
+    if kind == "Binary" { return BoundedBodySnapshotSchemaV0Box.binary_operator_allowed(op) }
+    if kind == "Compare" { return BoundedBodySnapshotSchemaV0Box.compare_operator_allowed(op) }
+    if kind == "Logical" { return BoundedBodySnapshotSchemaV0Box.logical_operator_allowed(op) }
+    return 0
+  }
+  _wrong_type(expected, actual) { return "type.expected_" + expected + ".got_" + me._kind_label(actual) }
+  _kind_label(kind) {
+    if kind == "Null" { return "null" }
+    if kind == "Bool" { return "bool" }
+    if kind == "I64" || kind == "U64" || kind == "F64" { return "number" }
+    if kind == "String" { return "string" }
+    if kind == "Array" { return "array" }
+    if kind == "Object" { return "object" }
+    return "unknown"
+  }
+}

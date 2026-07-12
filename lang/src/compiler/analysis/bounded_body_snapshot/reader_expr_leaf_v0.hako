@@ -12,6 +12,8 @@ box LeafExprObservationV0 {
   kind() { return me._kind }
   atom_count() { return me._atoms.size() }
   atom(index) { return me._atoms.get(index) }
+  child_count() { return 0 }
+  child(index) { return null }
 }
 
 box LeafExprReadV0 {

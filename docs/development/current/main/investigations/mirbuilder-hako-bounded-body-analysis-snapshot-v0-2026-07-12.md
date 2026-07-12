@@ -913,8 +913,26 @@ text, atom/literal limit rejection, field closure, wrong scalar types,
 KnownUnsupported, SchemaMismatchStop, unknown tags, and Rust/Hako outcome
 path/reason parity. Stable gate: `tools/checks/hako_leaf_expr_reader_v0_guard.sh`.
 The tracked leaf fixture is also below the U4-P1 ten-second compile boundary.
-U4-A3.3 child expressions are next; statement integration and complete
-snapshot publication remain pending.
+At that closure point, statement integration and complete snapshot publication
+remained pending.
+
+U4-A3.3 closed on 2026-07-12. `reader_expr_child_v0.hako` is a separate
+recursive coordinator for `Binary`, `Compare`, and `Logical`; the leaf reader
+remains the only leaf scalar owner. The coordinator observes node/depth budget
+in preorder, closes `type/op/lhs/rhs`, validates the schema-owned operator
+partition, counts `op` through the local Atom text carrier, and traverses
+`lhs` before `rhs`. Its typed invocation-local edges retain normalized child
+observations only; they are not published snapshot indices.
+
+The executable fixture proves all three child kinds, all eighteen accepted
+operators plus cross-family rejection,
+nested preorder and exact `lhs`/`rhs` roles, missing/wrong/unknown fields,
+required-null child rejection, nested KnownUnsupported propagation, inclusive
+depth acceptance with the first over-limit child rejected, exact Rust/Hako
+outcome path/reason parity, two `NYASH_STR_CP` modes, and cleanup after every
+outcome. Stable gate: `tools/checks/hako_child_expr_reader_v0_guard.sh`.
+U4-A3.4 Call/Method/Field and ordered flat child publication are next;
+statement integration and complete snapshot publication remain pending.
 
 Each slice must compile/run in isolation before the next reader family is
 added. A reader that again crosses the diagnostic boundary returns to the
