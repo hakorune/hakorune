@@ -1,0 +1,12 @@
+// write_set_mapstore_route_policy.hako - shared MapStore policy rows
+//
+// This table is the policy SSOT for MapStore key/value domains. The older
+// I64/Any classifier boxes are compatibility projections and are not owners.
+static box WriteSetMapStoreRoutePolicyBox {
+  static method rows() {
+    return [
+      "map_store_i64_set_surface|MapStoreI64|I64|Any|None|mutate|MutatesReceiverOrContainer|NonePublication|SetSurfacePolicy|MapSet|ColdFallback|WriteAny|HakoPolicyRow",
+      "map_store_any_set_surface|MapStoreAny|Any|Any|None|mutate|MutatesReceiverOrContainer|NonePublication|SetSurfacePolicy/MapStoreAny|MapSet|ColdFallback|WriteAny|HakoPolicyRow"
+    ]
+  }
+}

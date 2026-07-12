@@ -126,6 +126,34 @@ fn mapstore_any_shadow_artifact_matches_rust_fastpath_policy() {
 }
 
 #[test]
+fn mapstore_policy_rows_keep_key_and_stored_value_domains_independent() {
+    let i64_row = MAPSTORE_ROUTE_POLICY_ROWS
+        .iter()
+        .find(|row| row.route_kind == GenericMethodRouteKind::MapStoreI64)
+        .expect("MapStoreI64 RoutePolicyRow missing");
+    let any_row = MAPSTORE_ROUTE_POLICY_ROWS
+        .iter()
+        .find(|row| row.route_kind == GenericMethodRouteKind::MapStoreAny)
+        .expect("MapStoreAny RoutePolicyRow missing");
+
+    assert_eq!((i64_row.key_domain, i64_row.stored_value_domain), ("I64", "Any"));
+    assert_eq!((any_row.key_domain, any_row.stored_value_domain), ("Any", "Any"));
+}
+
+#[test]
+fn mapstore_policy_rows_do_not_infer_route_from_stored_value_domain() {
+    let rows_with_any_value = MAPSTORE_ROUTE_POLICY_ROWS
+        .iter()
+        .filter(|row| row.stored_value_domain == "Any")
+        .map(|row| row.route_kind)
+        .collect::<Vec<_>>();
+
+    assert_eq!(rows_with_any_value.len(), 2);
+    assert!(rows_with_any_value.contains(&GenericMethodRouteKind::MapStoreI64));
+    assert!(rows_with_any_value.contains(&GenericMethodRouteKind::MapStoreAny));
+}
+
+#[test]
 #[should_panic(expected = "assertion `left == right` failed")]
 fn mapstore_i64_shadow_rejects_route_kind_mismatch() {
     let mut policy = WRITE_SET_MAPSTORE_I64_HAKO_POLICY;

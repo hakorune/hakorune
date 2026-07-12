@@ -64,9 +64,12 @@ allowed the error to remain internally consistent.
 Expected touchpoints:
 
 ```text
+lang/src/compiler/lib/write_set_mapstore_route_policy.hako
 lang/src/compiler/lib/write_set_mapstore_i64_policy_classifier.hako
 lang/src/compiler/lib/write_set_mapstore_any_policy_classifier.hako
+tools/rust_lifecycle/generate_write_set_mapstore_route_policy.py
 tools/rust_lifecycle/generate_write_set_mapstore_*_hako_policy.py
+src/mir/generic_method_route_plan/generated/write_set_mapstore_route_policy.rs
 src/mir/generic_method_route_plan/generated/write_set_mapstore_*_hako_policy.rs
 src/mir/generic_method_route_plan/caller_orientation.rs
 src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs
@@ -76,6 +79,31 @@ src/mir/generic_method_route_plan/tests/map_set_routes/
 
 `write_routes.rs` is an oracle/test touchpoint, not a route-matching rewrite
 target for this card.
+
+## Implementation Progress
+
+The first implementation slice is now materialized:
+
+- common Hako `RoutePolicyRow` source contains both MapStore rows;
+- one generator emits the typed Rust row artifact;
+- live MapStore shadow decisions consume that shared artifact;
+- shared domain/metadata validation rejects row drift;
+- independent key/stored-value axis tests are fixed in the Rust shadow suite.
+
+The older I64/Any classifier artifacts remain compatibility projections for
+existing historical gates. They are not consumed by the live MapStore shadow
+decision and are scheduled for bounded projection migration before 3456
+closeout.
+
+Focused verification for this slice is:
+
+```bash
+python3 tools/rust_lifecycle/generate_write_set_mapstore_route_policy.py \
+  > /tmp/mapstore_route_policy.rs
+diff -u src/mir/generic_method_route_plan/generated/write_set_mapstore_route_policy.rs \
+  /tmp/mapstore_route_policy.rs
+cargo test -q --lib scalar_known_hako_shadow
+```
 
 ## Required Tests
 
@@ -129,7 +157,7 @@ source_selfhost_claim = 0
 
 ## Next
 
-After the typed row, shared validator, independent Rust oracle comparison, and
-all required tests are green, resume 3454. After a green 3454 fixture-backed
-rerun, enter 3455 and park caller orientation before the focused
-Fact/Plan/Boundary inventory.
+After the remaining classifier/caller projection migration, shared validator,
+independent Rust oracle comparison, and all required tests are green, resume
+3454. After a green 3454 fixture-backed rerun, enter 3455 and park caller
+orientation before the focused Fact/Plan/Boundary inventory.

@@ -13,11 +13,16 @@ use super::generated::string_search_scalar_i64_hako_policy::{
     HakoStringSearchScalarI64Policy, STRING_SEARCH_SCALAR_I64_HAKO_POLICIES,
 };
 use super::generated::write_push_hako_policy::{HakoWritePushPolicy, WRITE_PUSH_HAKO_POLICY};
-use super::generated::write_set_mapstore_any_hako_policy::{
-    HakoMapStoreAnyPolicy, WRITE_SET_MAPSTORE_ANY_HAKO_POLICY,
-};
-use super::generated::write_set_mapstore_i64_hako_policy::{
-    HakoMapStoreI64Policy, WRITE_SET_MAPSTORE_I64_HAKO_POLICY,
+#[cfg(test)]
+use super::generated::write_set_mapstore_any_hako_policy::HakoMapStoreAnyPolicy;
+#[cfg(test)]
+use super::generated::write_set_mapstore_any_hako_policy::WRITE_SET_MAPSTORE_ANY_HAKO_POLICY;
+#[cfg(test)]
+use super::generated::write_set_mapstore_i64_hako_policy::HakoMapStoreI64Policy;
+#[cfg(test)]
+use super::generated::write_set_mapstore_i64_hako_policy::WRITE_SET_MAPSTORE_I64_HAKO_POLICY;
+use super::generated::write_set_mapstore_route_policy::{
+    MapStoreRoutePolicyRow, MAPSTORE_ROUTE_POLICY_ROWS,
 };
 use super::scalar_known_typed_direct_closeout_contract::{
     accepted_scalar_known_contracts, ScalarKnownContractId, ScalarKnownEffectClass,
@@ -232,18 +237,15 @@ pub(super) fn mapstore_i64_shadow_consumed_decision() -> GenericMethodRouteDecis
 }
 
 pub(super) fn mapstore_i64_hako_route_authority_pilot_decision() -> GenericMethodRouteDecision {
-    let policy = WRITE_SET_MAPSTORE_I64_HAKO_POLICY;
+    let policy = mapstore_policy(GenericMethodRouteKind::MapStoreI64);
     super::caller_orientation::assert_mapstore_i64_policy_row(policy.policy_row_id);
     assert_write_contract_contains(GenericMethodRouteKind::MapStoreI64, "MapStoreI64");
-    assert_hako_policy_matches_rust(&policy);
+    assert_mapstore_policy_row(policy);
 
     let hako_decision = GenericMethodRouteDecision::new(
         policy.route_kind,
         GenericMethodRouteProof::SetSurfacePolicy,
-        Some(CoreMethodOpCarrier::manifest(
-            policy.core_op,
-            policy.lowering_tier,
-        )),
+        Some(CoreMethodOpCarrier::manifest(policy.core_op, policy.lowering_tier)),
         None,
         policy.value_demand,
         None,
@@ -330,18 +332,15 @@ pub(super) fn mapstore_any_shadow_consumed_decision() -> GenericMethodRouteDecis
 }
 
 pub(super) fn mapstore_any_hako_route_authority_pilot_decision() -> GenericMethodRouteDecision {
-    let policy = WRITE_SET_MAPSTORE_ANY_HAKO_POLICY;
+    let policy = mapstore_policy(GenericMethodRouteKind::MapStoreAny);
     super::caller_orientation::assert_mapstore_any_policy_row(policy.policy_row_id);
     assert_write_contract_contains(GenericMethodRouteKind::MapStoreAny, "MapStoreAny");
-    assert_hako_mapstore_any_policy_matches_rust(&policy);
+    assert_mapstore_policy_row(policy);
 
     let hako_decision = GenericMethodRouteDecision::new(
         policy.route_kind,
         GenericMethodRouteProof::SetSurfacePolicy,
-        Some(CoreMethodOpCarrier::manifest(
-            policy.core_op,
-            policy.lowering_tier,
-        )),
+        Some(CoreMethodOpCarrier::manifest(policy.core_op, policy.lowering_tier)),
         None,
         policy.value_demand,
         None,
@@ -362,6 +361,33 @@ pub(super) fn mapstore_any_hako_route_authority_pilot_decision() -> GenericMetho
         "MapStoreAny .hako authority pilot diverged from Rust oracle"
     );
     hako_decision
+}
+
+fn mapstore_policy(route_kind: GenericMethodRouteKind) -> &'static MapStoreRoutePolicyRow {
+    MAPSTORE_ROUTE_POLICY_ROWS
+        .iter()
+        .find(|policy| policy.route_kind == route_kind)
+        .expect("MapStore RoutePolicyRow missing requested route")
+}
+
+fn assert_mapstore_policy_row(policy: &MapStoreRoutePolicyRow) {
+    assert_eq!(policy.result_shape, "None");
+    assert_eq!(policy.effect_class, "mutate");
+    assert_eq!(policy.mutation_class, "MutatesReceiverOrContainer");
+    assert_eq!(policy.publication_policy, "NonePublication");
+    assert!(policy.surface.starts_with("SetSurfacePolicy"));
+    assert_eq!(policy.core_op, CoreMethodOp::MapSet);
+    assert_eq!(policy.lowering_tier, CoreMethodLoweringTier::ColdFallback);
+    assert_eq!(policy.value_demand, GenericMethodValueDemand::WriteAny);
+    assert_eq!(policy.authority_kind, "HakoPolicyRow");
+
+    let expected_domains = match policy.route_kind {
+        GenericMethodRouteKind::MapStoreI64 => ("I64", "Any"),
+        GenericMethodRouteKind::MapStoreAny => ("Any", "Any"),
+        _ => panic!("unexpected route in MapStore RoutePolicyRow"),
+    };
+    assert_eq!(policy.key_domain, expected_domains.0);
+    assert_eq!(policy.stored_value_domain, expected_domains.1);
 }
 
 fn assert_hako_write_push_policy_matches_rust(policy: &HakoWritePushPolicy) {
@@ -503,6 +529,7 @@ fn assert_hako_collection_scalar_i64_policy_matches_rust(
     assert_eq!(policy.role, "classifier_policy_mirror_only");
 }
 
+#[cfg(test)]
 fn assert_hako_policy_matches_rust(policy: &HakoMapStoreI64Policy) {
     assert_eq!(policy.surface, "SetSurfacePolicy");
     assert_eq!(policy.route_kind, GenericMethodRouteKind::MapStoreI64);
@@ -526,6 +553,7 @@ fn assert_hako_policy_matches_rust(policy: &HakoMapStoreI64Policy) {
     assert_eq!(policy.role, "classifier_policy_mirror_only");
 }
 
+#[cfg(test)]
 fn assert_hako_mapstore_any_policy_matches_rust(policy: &HakoMapStoreAnyPolicy) {
     assert_eq!(policy.surface, "SetSurfacePolicy/MapStoreAny");
     assert_eq!(policy.route_kind, GenericMethodRouteKind::MapStoreAny);
