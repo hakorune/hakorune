@@ -1,8 +1,26 @@
 # Hako Source AST Carrier — Design Stop
 
-Status: Consultation required; implementation stopped.
+Status: Closed; staged typed-parser-core Decision A accepted.
 Date: 2026-07-12
 Blocker: `HAKO-SOURCE-CARRIER-DESIGN-STOP-001`
+
+## Accepted decision
+
+```text
+A — typed_parser_core_with_sealed_source_arena_and_compat_projection
+```
+
+The implementation taskboard is:
+
+```text
+docs/development/current/main/investigations/
+mirbuilder-hako-typed-source-carrier-v1-2026-07-12.md
+```
+
+Parser helpers return explicit `ParserNodeProductV1` values. Migrated branches
+construct parser-private typed arena nodes and emit ProgramV0 only through the
+compat projector. Unmigrated branches are isolated as `CompatOnly`; they can
+serve only the ProgramV0 entry and poison V1 publication.
 
 ## Decision requested
 

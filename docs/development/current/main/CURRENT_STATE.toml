@@ -114,22 +114,23 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/mirbuilder-hako-source-carrier-design-stop-2026-07-12.md"
-phase_status = "docs/development/current/main/investigations/mirbuilder-hako-source-carrier-design-stop-2026-07-12.md"
+active_phase = "docs/development/current/main/investigations/mirbuilder-hako-typed-source-carrier-v1-2026-07-12.md"
+phase_status = "docs/development/current/main/investigations/mirbuilder-hako-typed-source-carrier-v1-2026-07-12.md"
 method_anchor = "docs/development/current/main/design/current-docs-archive-policy-ssot.md"
-taskboard = "docs/development/current/main/investigations/mirbuilder-hako-source-carrier-design-stop-2026-07-12.md"
+taskboard = "docs/development/current/main/investigations/mirbuilder-hako-typed-source-carrier-v1-2026-07-12.md"
 latest_workstream_card = "docs/development/current/main/investigations/mirbuilder-source-body-analysis-snapshot-v1-2026-07-12.md"
 
-latest_card = "mirbuilder-hako-source-carrier-design-stop-2026-07-12"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-hako-source-carrier-design-stop-2026-07-12.md"
-latest_card_summary = """SourceBodyAnalysisSnapshotV1 S0 closes an executable
-inventory of 57 ASTNode, 4 UnaryOperator, 18 BinaryOperator, and 7 LiteralValue
-variants. The current Hako parser has no private typed source carrier: it
-directly constructs ProgramV0 JSON fragment strings and loses Unary syntax,
-Local versus Assignment, initializer/Return presence, and Me/This kinds before
-a V1 projector can observe them. The active design stop selects the Hako
-source-carrier architecture; S1 must not begin and ProgramV0, raw scans, and
-Rust AST replay are forbidden substitutes.
+latest_card = "mirbuilder-hako-typed-source-carrier-v1-2026-07-12"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-hako-typed-source-carrier-v1-2026-07-12.md"
+latest_card_summary = """Decision A selects one Hako parser authority with
+explicit ParserNodeProductV1, a parser-private Open/Poisoned/Sealed source
+arena, and ProgramV0 as a lossy compatibility projection from migrated nodes.
+Unmigrated branches remain temporary CompatOnly values accepted only by the
+ProgramV0 entry; V1 poisons publication and never reads their fragments. The
+active P0 adds only the construction substrate and lifecycle gates with zero
+parser/ProgramV0 behavior change. P1 is the first Return/unary-minus vertical
+slice. ProgramV0 recovery, hidden side channels, mixed trees, and fallback are
+forbidden.
 The first semantic target is bool-predicate summary parity, with planner
 connection zero. V0 remains explicitly lossy/removable and never recovers
 source distinctions. Historical detail follows.
@@ -241,7 +242,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "HAKO-SOURCE-CARRIER-DESIGN-STOP-001"
+current_blocker_token = "HAKO-TYPED-SOURCE-CARRIER-V1-P0-CONSTRUCTION-SUBSTRATE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -235,6 +235,16 @@ docs/development/current/main/investigations/
 mirbuilder-hako-source-carrier-design-stop-2026-07-12.md
 ```
 
+Decision A is accepted. The active staged parser migration is:
+
+```text
+docs/development/current/main/investigations/
+mirbuilder-hako-typed-source-carrier-v1-2026-07-12.md
+```
+
+Snapshot schema/projector work resumes only after the required typed carrier
+vertical slices close.
+
 ### S1 — SourceBodyAnalysisSnapshotSchemaV1
 
 - Add source kinds, exact operators, child roles, Local binding presence,
