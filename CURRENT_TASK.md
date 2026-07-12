@@ -26,7 +26,8 @@ When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executa
 ## Handoff
 
 Read `latest_card_path` in `CURRENT_STATE.toml` before editing. The active
-slice is the A-only generic-loop progression-role BoxShape prerequisite named
-there. Keep parser/source-carrier P1 stash-only until the clean-HEAD
-ProgramV0 contract-pin is green and A is committed independently. Do not mix
-the deferred lightweight parser seam B or P1 wiring into A.
+slice is A2-C0 acceptance-neutral candidate capture. Restore only the A2 WIP
+on a clean temporary branch and exclude stale current-pointer files. Keep
+parser/source-carrier P1 stash-only until A2 lands independently and the
+clean-HEAD ProgramV0 contract-pin is green. C0 must not add a discriminator,
+rank, Recipe/CFG vocabulary, parser change, or acceptance widening.

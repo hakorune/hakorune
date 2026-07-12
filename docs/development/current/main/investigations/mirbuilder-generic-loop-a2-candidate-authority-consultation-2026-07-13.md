@@ -1,10 +1,34 @@
 # Generic Loop A2 Candidate Authority — Design Consultation
 
-Status: Active evidence-incomplete design stop; implementation is stashed.
+Status: Decision accepted; implementation task moved to the A2 hybrid-proof taskboard.
 Date: 2026-07-13
 Decision required: first approve a bounded observation-capture slice, then
 choose the candidate discriminator and its neutral authority owner.
 Classification: BoxShape only.
+
+Accepted decision:
+
+```text
+Evidence decision:
+  approve bounded capture
+
+before capture:
+  semantic discriminator = N
+  authority location      = U
+  acceptance widening     = 0
+
+after capture, when the closed algebra fits:
+  semantic discriminator = asymmetric E + R hybrid
+  authority location      = X (new neutral owner)
+  outcome                 = Unique / Zero / Multiple
+```
+
+Active implementation task:
+
+```text
+docs/development/current/main/investigations/
+  mirbuilder-generic-loop-a2-hybrid-proof-task-2026-07-13.md
+```
 
 ## Why this consultation is required
 
