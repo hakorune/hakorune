@@ -196,6 +196,7 @@ logging contract.
 
 ```text
 mapstore_i64_const_key_fact_candidate = 1
+mapstore_i64_const_fact_owner_implemented = 1
 mapstore_dynamic_i64_fact_candidate = pending
 mapstore_i64_plan_candidate = blocked
 mapstore_i64_boundary_candidate = blocked
@@ -213,7 +214,14 @@ scalar_known_wide_opened = 0
 source_selfhost_claim = 0
 ```
 
-After the inventory is green, select at most one minimal Fact-owner slice and
-close this card with its fixture/guard. If source authority or consumer
-completeness is ambiguous, return to design consultation instead of selecting
-a convenient-looking owner.
+## Implementation result
+
+The inventory proved the narrow `I64Const` source and consumer boundary. The
+Fact owner is implemented in `generic_method_route_facts.rs` and is consumed by
+`classify_key_route`; the dynamic `I64Value` branch remains unchanged and
+pending. The route matcher still owns route matching, and no Plan/Boundary or
+runtime authority moved.
+
+After this fixture/guard is green, this card is complete. If a future source
+or consumer ambiguity appears, return to design consultation instead of
+selecting a convenient-looking owner.

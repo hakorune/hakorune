@@ -35,6 +35,13 @@ impl std::fmt::Display for GenericMethodKeyRoute {
     }
 }
 
+/// The narrow, source-backed key fact used by the MapStoreI64 candidate.
+/// Dynamic integer typing remains a separate, non-authoritative branch.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct MapStoreI64ConstKeyFact {
+    pub(crate) value: i64,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GenericMethodValueDemand {
     ReadRef,
@@ -165,20 +172,28 @@ pub(crate) fn classify_key_route(
     def_map: &ValueDefMap,
     key: ValueId,
 ) -> GenericMethodKeyRoute {
-    match const_i64_value(function, def_map, key) {
-        Some(_) => GenericMethodKeyRoute::I64Const,
-        None => {
-            let origin = resolve_value_origin(function, def_map, key);
-            if matches!(
-                function.metadata.value_types.get(&origin),
-                Some(MirType::Integer)
-            ) {
-                GenericMethodKeyRoute::I64Value
-            } else {
-                GenericMethodKeyRoute::UnknownAny
-            }
-        }
+    if mapstore_i64_const_key_fact(function, def_map, key).is_some() {
+        return GenericMethodKeyRoute::I64Const;
     }
+
+    let origin = resolve_value_origin(function, def_map, key);
+    if matches!(
+        function.metadata.value_types.get(&origin),
+        Some(MirType::Integer)
+    ) {
+        GenericMethodKeyRoute::I64Value
+    } else {
+        GenericMethodKeyRoute::UnknownAny
+    }
+}
+
+/// Rebuild the I64Const fact from canonical MIR ConstValue evidence.
+pub(crate) fn mapstore_i64_const_key_fact(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+) -> Option<MapStoreI64ConstKeyFact> {
+    const_i64_value(function, def_map, value).map(|value| MapStoreI64ConstKeyFact { value })
 }
 
 pub(crate) fn const_i64_value(
@@ -247,6 +262,9 @@ mod tests {
         function.add_block(block);
 
         let def_map = crate::mir::value_origin::build_value_def_map(&function);
+        let fact = mapstore_i64_const_key_fact(&function, &def_map, ValueId::new(2))
+            .expect("integer copy-chain must produce I64Const fact");
+        assert_eq!(fact.value, -1);
         assert_eq!(
             classify_key_route(&function, &def_map, ValueId::new(2)),
             GenericMethodKeyRoute::I64Const

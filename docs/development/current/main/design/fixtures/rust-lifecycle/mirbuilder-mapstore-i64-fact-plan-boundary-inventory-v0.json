@@ -1,0 +1,143 @@
+{
+  "candidates": [
+    {
+      "authority_conflicts": [],
+      "authority_source": "src/mir/generic_method_route_facts.rs",
+      "behavior_delta": "none",
+      "blocked_reason": "",
+      "candidate_id": "fact.mapstore.key_domain.i64_const",
+      "candidate_kind": "Fact",
+      "consumers": [
+        "classify_key_route",
+        "write_routes::match_generic_set_route"
+      ],
+      "current_producer": "mapstore_i64_const_key_fact",
+      "derived_projections": [
+        "GenericMethodKeyRoute::I64Const"
+      ],
+      "eligibility": "implemented_narrow_fact_owner",
+      "fail_fast_boundary": "None: absent fact yields non-I64 route classification",
+      "fixture": "src/mir/generic_method_route_plan/tests/map_set_routes/map_get_scalar.rs",
+      "independent_oracle": "src/mir/generic_method_route_plan/tests/map_set_routes/map_get_scalar.rs",
+      "refresh_or_rebuild_owner": "value_origin::build_value_def_map",
+      "semantic_statement": "resolved key origin is ConstValue::Integer",
+      "stable_identity": "MapStoreI64ConstKeyFact"
+    },
+    {
+      "authority_conflicts": [
+        "MirType::Integer is not source-backed key origin"
+      ],
+      "authority_source": "src/mir/generic_method_route_facts.rs",
+      "behavior_delta": "none",
+      "blocked_reason": "dynamic integer provenance owner not isolated",
+      "candidate_id": "fact.mapstore.key_domain.i64_value",
+      "candidate_kind": "Fact",
+      "consumers": [
+        "write_routes::match_generic_set_route"
+      ],
+      "current_producer": "classify_key_route metadata branch",
+      "derived_projections": [
+        "GenericMethodKeyRoute::I64Value"
+      ],
+      "eligibility": "pending",
+      "fail_fast_boundary": "source provenance owner missing",
+      "fixture": "src/mir/generic_method_route_plan/tests/map_set_routes/map_get_scalar.rs",
+      "independent_oracle": "src/mir/generic_method_route_plan/tests/map_set_routes/map_get_scalar.rs",
+      "refresh_or_rebuild_owner": "unisolated MirType::Integer metadata",
+      "semantic_statement": "key is a dynamic integer value",
+      "stable_identity": "GenericMethodKeyRoute::I64Value"
+    },
+    {
+      "authority_conflicts": [
+        "would move route selection authority"
+      ],
+      "authority_source": "lang/src/compiler/lib/write_set_mapstore_route_policy.hako",
+      "behavior_delta": "forbidden",
+      "blocked_reason": "3454 route authority non-claim",
+      "candidate_id": "plan.mapstore.set.route_decision",
+      "candidate_kind": "Plan",
+      "consumers": [
+        "write_routes"
+      ],
+      "current_producer": "write_routes + generated Hako policy",
+      "derived_projections": [],
+      "eligibility": "blocked",
+      "fail_fast_boundary": "route-selection authority retained by Rust",
+      "fixture": "docs/development/current/main/phases/phase-296x/3457-MIRBUILDER-MAPSTORE-I64-FACT-PLAN-BOUNDARY-INVENTORY-001.md",
+      "independent_oracle": "src/mir/generic_method_route_plan/write_routes.rs",
+      "refresh_or_rebuild_owner": "policy generator",
+      "semantic_statement": "MapStoreI64 route decision payload",
+      "stable_identity": "GenericMethodRouteDecision"
+    },
+    {
+      "authority_conflicts": [
+        "runtime mutation authority = 0"
+      ],
+      "authority_source": "downstream Rust",
+      "behavior_delta": "forbidden",
+      "blocked_reason": "Fact and Plan authority must precede Boundary",
+      "candidate_id": "boundary.mapstore.set.mutation",
+      "candidate_kind": "Boundary",
+      "consumers": [],
+      "current_producer": "downstream consumer",
+      "derived_projections": [],
+      "eligibility": "blocked",
+      "fail_fast_boundary": "runtime mutation/publication remain closed",
+      "fixture": "docs/development/current/main/phases/phase-296x/3457-MIRBUILDER-MAPSTORE-I64-FACT-PLAN-BOUNDARY-INVENTORY-001.md",
+      "independent_oracle": "",
+      "refresh_or_rebuild_owner": "not selected",
+      "semantic_statement": "MapStore mutation/publication execution",
+      "stable_identity": "MapStore mutation boundary"
+    }
+  ],
+  "claims": {
+    "array_append_any_opened": 0,
+    "backend_lowering_authority": 0,
+    "delete_opened": 0,
+    "hard_authority_activation": 0,
+    "mapstore_any_opened": 0,
+    "mapstore_dynamic_i64_fact_candidate": "pending",
+    "mapstore_i64_boundary_candidate": "blocked",
+    "mapstore_i64_caller_projection_closed": 1,
+    "mapstore_i64_const_fact_owner_implemented": 1,
+    "mapstore_i64_const_key_fact_candidate": 1,
+    "mapstore_i64_plan_candidate": "blocked",
+    "mapstore_i64_registry_descriptor_candidate": "conditional",
+    "publication_execution": 0,
+    "route_behavior_change": 0,
+    "runtime_mutation_authority": 0,
+    "scalar_known_wide_opened": 0,
+    "source_selfhost_claim": 0
+  },
+  "kind": "MirBuilderMapStoreI64FactPlanBoundaryInventoryV1",
+  "provenance": {
+    "card": {
+      "path": "docs/development/current/main/phases/phase-296x/3457-MIRBUILDER-MAPSTORE-I64-FACT-PLAN-BOUNDARY-INVENTORY-001.md",
+      "sha256": "fa0de22a931a7a5f80f607817afe71862afbfe0e2ee63697ef99412416185274"
+    },
+    "facts": {
+      "path": "src/mir/generic_method_route_facts.rs",
+      "sha256": "8f66805522213ccdac2be5158f9c86e8979102fffa40a46789d374df062ca45f"
+    },
+    "policy": {
+      "path": "lang/src/compiler/lib/write_set_mapstore_route_policy.hako",
+      "sha256": "43d4711b398969a31684cc85576db5262a1a1a3a6cea73a32eb96a5a48832ef2"
+    },
+    "routes": {
+      "path": "src/mir/generic_method_route_plan/write_routes.rs",
+      "sha256": "8edbfc70898fd0e35fa3e2e57ecbcc73fc3f383b34dae33d6571c813f14d3abc"
+    },
+    "tests": {
+      "path": "src/mir/generic_method_route_plan/tests/map_set_routes/map_get_scalar.rs",
+      "sha256": "33fa22691fce2577f7b314c1e3f988546b9ee96504d12942e9e57f863bb717cd"
+    }
+  },
+  "schema_version": 0,
+  "scope": {
+    "policy_row_id": "map_store_i64_set_surface",
+    "route_kind": "MapStoreI64",
+    "stored_value_domain": "Any",
+    "surface": "SetSurfacePolicy"
+  },
+  "token": "MIRBUILDER-MAPSTORE-I64-FACT-PLAN-BOUNDARY-INVENTORY-001"
+}
