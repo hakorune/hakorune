@@ -33,6 +33,7 @@ an explicit pending `Unsupported` until the statement-family reader lands.
 The internal root envelope may retain the body node only during the same
 invocation; published snapshots retain no session handle or node id.
 
-`reader_common_v0.hako` owns only generic JSON-kind diagnostic spelling.
-Reader families share it instead of duplicating `type.expected_*.got_*`
-construction; it owns no ProgramV0 fields, tags, traversal, or outcomes.
+Tiny JSON-kind diagnostic formatters remain private to each reader family.
+A shared static-box helper was measured above the ten-second compile boundary
+because it widened semantic route convergence; keeping these pure spellings
+local avoids a compiler-shaped dependency without moving semantic authority.

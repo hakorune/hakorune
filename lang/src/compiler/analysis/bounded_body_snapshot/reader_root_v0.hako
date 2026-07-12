@@ -3,7 +3,6 @@
 using lang.compiler.analysis.bounded_body_snapshot.strict_json_tree_v0 as StrictJsonTreeV0Box
 using lang.compiler.analysis.bounded_body_snapshot.outcome_v0 as BoundedBodySnapshotOutcomeV0Box
 using lang.compiler.analysis.bounded_body_snapshot.snapshot_model_v0 as BoundedBodySnapshotModelV0Box
-using lang.compiler.analysis.bounded_body_snapshot.reader_common_v0 as ProgramV0ReaderCommonV0Box
 
 box ProgramV0RootEnvelopeV0 {
   _status: String
@@ -27,6 +26,68 @@ static box ProgramV0RootEnvelopeV0Box {
   invalid(path, reason) { return new ProgramV0RootEnvelopeV0("InvalidInput", -1, 0, path, reason) }
 }
 
+box ProgramV0RootFieldsV0 {
+  _status: String
+  _version_node: Integer
+  _kind_node: Integer
+  _body_node: Integer
+  _attrs_node: Integer
+  _imports_node: Integer
+  _defs_node: Integer
+  _user_box_decls_node: Integer
+  _record_decls_node: Integer
+  _enum_decls_node: Integer
+  _static_data_plans_node: Integer
+  _static_table_specs_node: Integer
+  _brand_decls_node: Integer
+  _type_alias_decls_node: Integer
+  _path: String
+  _reason: String
+  birth() {
+    me._status = "Ready" me._version_node = -1 me._kind_node = -1 me._body_node = -1
+    me._attrs_node = -1 me._imports_node = -1 me._defs_node = -1
+    me._user_box_decls_node = -1 me._record_decls_node = -1 me._enum_decls_node = -1
+    me._static_data_plans_node = -1 me._static_table_specs_node = -1
+    me._brand_decls_node = -1 me._type_alias_decls_node = -1
+    me._path = "" me._reason = ""
+  }
+  status() { return me._status }
+  version_node() { return me._version_node }
+  kind_node() { return me._kind_node }
+  body_node() { return me._body_node }
+  path() { return me._path }
+  reason() { return me._reason }
+  reject(path, reason) { me._status = "InvalidInput" me._path = path me._reason = reason }
+  observe(key, node) {
+    if key == "version" { me._version_node = node return 1 }
+    if key == "kind" { me._kind_node = node return 1 }
+    if key == "body" { me._body_node = node return 1 }
+    if key == "attrs" { me._attrs_node = node return 1 }
+    if key == "imports" { me._imports_node = node return 1 }
+    if key == "defs" { me._defs_node = node return 1 }
+    if key == "user_box_decls" { me._user_box_decls_node = node return 1 }
+    if key == "record_decls" { me._record_decls_node = node return 1 }
+    if key == "enum_decls" { me._enum_decls_node = node return 1 }
+    if key == "static_data_plans" { me._static_data_plans_node = node return 1 }
+    if key == "static_table_contract_specs" { me._static_table_specs_node = node return 1 }
+    if key == "brand_decls" { me._brand_decls_node = node return 1 }
+    if key == "type_alias_decls" { me._type_alias_decls_node = node return 1 }
+    return 0
+  }
+  optional_node(index) {
+    if index == 0 { return me._attrs_node }
+    if index == 1 { return me._imports_node }
+    if index == 2 { return me._defs_node }
+    if index == 3 { return me._user_box_decls_node }
+    if index == 4 { return me._record_decls_node }
+    if index == 5 { return me._enum_decls_node }
+    if index == 6 { return me._static_data_plans_node }
+    if index == 7 { return me._static_table_specs_node }
+    if index == 8 { return me._brand_decls_node }
+    return me._type_alias_decls_node
+  }
+}
+
 static box HakoProgramV0RootReaderV0Box {
   read_empty_program(session, root) {
     local envelope = me.scan(session, root)
@@ -42,32 +103,34 @@ static box HakoProgramV0RootReaderV0Box {
   scan(session, root) {
     local root_kind = StrictJsonTreeV0Box.kind(session, root)
     if root_kind != "Object" {
-      return ProgramV0RootEnvelopeV0Box.invalid("$", ProgramV0ReaderCommonV0Box.wrong_type("object", root_kind))
+      return ProgramV0RootEnvelopeV0Box.invalid("$", me._wrong_type("object", root_kind))
     }
-    local version_node = -1 local kind_node = -1 local body_node = -1
-    local optional_nodes = new ArrayBox() local optional_count = 10
-    local optional_fill = 0
-    loop(optional_fill < optional_count) { optional_nodes.push(-1) optional_fill = optional_fill + 1 }
+    local fields = me._collect_fields(session, root)
+    if fields.status() != "Ready" {
+      return ProgramV0RootEnvelopeV0Box.invalid(fields.path(), fields.reason())
+    }
+    return me._validate_fields(session, fields)
+  }
+
+  _collect_fields(session, root) {
+    local fields = new ProgramV0RootFieldsV0()
     local i = 0 local count = StrictJsonTreeV0Box.object_len(session, root)
     loop(i < count) {
       local key = StrictJsonTreeV0Box.object_key_at(session, root, i)
       local value_node = StrictJsonTreeV0Box.object_value_at(session, root, i)
-      if key == "version" { version_node = value_node }
-      else {
-        if key == "kind" { kind_node = value_node }
-        else {
-          if key == "body" { body_node = value_node }
-          else {
-            local optional_index = me._optional_index(key)
-            if optional_index < 0 {
-              return ProgramV0RootEnvelopeV0Box.invalid("$." + key, "object.forbidden_unknown_field")
-            }
-            optional_nodes.set(optional_index, value_node)
-          }
-        }
+      if fields.observe(key, value_node) == 0 {
+        fields.reject("$." + key, "object.forbidden_unknown_field")
+        return fields
       }
       i = i + 1
     }
+    return fields
+  }
+
+  _validate_fields(session, fields) {
+    local version_node = fields.version_node()
+    local kind_node = fields.kind_node()
+    local body_node = fields.body_node()
     if version_node < 0 { return ProgramV0RootEnvelopeV0Box.invalid("$.version", "object.required_field_missing") }
     if kind_node < 0 { return ProgramV0RootEnvelopeV0Box.invalid("$.kind", "object.required_field_missing") }
     if body_node < 0 { return ProgramV0RootEnvelopeV0Box.invalid("$.body", "object.required_field_missing") }
@@ -82,33 +145,35 @@ static box HakoProgramV0RootReaderV0Box {
     }
     local body_kind = StrictJsonTreeV0Box.kind(session, body_node)
     if body_kind != "Array" {
-      return ProgramV0RootEnvelopeV0Box.invalid("$.body", ProgramV0ReaderCommonV0Box.wrong_type("array", body_kind))
+      return ProgramV0RootEnvelopeV0Box.invalid("$.body", me._wrong_type("array", body_kind))
     }
-    local optional_issue = me._optional_issue(session, optional_nodes.get(0), "Object")
-    if optional_issue != "ok" { return ProgramV0RootEnvelopeV0Box.invalid("$.attrs", optional_issue) }
-    optional_issue = me._optional_issue(session, optional_nodes.get(1), "Object")
-    if optional_issue != "ok" { return ProgramV0RootEnvelopeV0Box.invalid("$.imports", optional_issue) }
-    local optional_names = new ArrayBox()
-    optional_names.push("defs") optional_names.push("user_box_decls") optional_names.push("record_decls")
-    optional_names.push("enum_decls") optional_names.push("static_data_plans")
-    optional_names.push("static_table_contract_specs") optional_names.push("brand_decls")
-    optional_names.push("type_alias_decls")
-    local optional_i = 0
-    loop(optional_i < optional_names.size()) {
-      optional_issue = me._optional_issue(session, optional_nodes.get(optional_i + 2), "Array")
-      if optional_issue != "ok" {
-        return ProgramV0RootEnvelopeV0Box.invalid("$." + optional_names.get(optional_i), optional_issue)
-      }
-      optional_i = optional_i + 1
-    }
+    local optional_error = me._validate_optionals(session, fields)
+    if optional_error != null { return optional_error }
     return ProgramV0RootEnvelopeV0Box.ready(body_node, StrictJsonTreeV0Box.array_len(session, body_node))
+  }
+
+  _validate_optionals(session, fields) {
+    local paths = new ArrayBox()
+    paths.push("$.attrs") paths.push("$.imports") paths.push("$.defs")
+    paths.push("$.user_box_decls") paths.push("$.record_decls") paths.push("$.enum_decls")
+    paths.push("$.static_data_plans") paths.push("$.static_table_contract_specs")
+    paths.push("$.brand_decls") paths.push("$.type_alias_decls")
+    local i = 0
+    loop(i < paths.size()) {
+      local expected = "Array"
+      if i < 2 { expected = "Object" }
+      local issue = me._optional_issue(session, fields.optional_node(i), expected)
+      if issue != "ok" { return ProgramV0RootEnvelopeV0Box.invalid(paths.get(i), issue) }
+      i = i + 1
+    }
+    return null
   }
 
   _version_is_zero(session, node) {
     local kind = StrictJsonTreeV0Box.kind(session, node)
     if kind == "I64" { if StrictJsonTreeV0Box.i64_value(session, node) == 0 { return 1 } return 0 }
     if kind == "U64" {
-      if StrictJsonTreeV0Box.u64_fits_i64(session, node) == 0 { return 0 }
+      if StrictJsonTreeV0Box.u64_fits_i64(session, node) == false { return 0 }
       if StrictJsonTreeV0Box.u64_as_i64(session, node) == 0 { return 1 }
     }
     return 0
@@ -118,22 +183,19 @@ static box HakoProgramV0RootReaderV0Box {
     if node < 0 { return "ok" }
     local actual = StrictJsonTreeV0Box.kind(session, node)
     if actual == expected { return "ok" }
-    if expected == "Object" { return ProgramV0ReaderCommonV0Box.wrong_type("object", actual) }
-    return ProgramV0ReaderCommonV0Box.wrong_type("array", actual)
+    if expected == "Object" { return me._wrong_type("object", actual) }
+    return me._wrong_type("array", actual)
   }
 
-  _optional_index(key) {
-    if key == "attrs" { return 0 }
-    if key == "imports" { return 1 }
-    if key == "defs" { return 2 }
-    if key == "user_box_decls" { return 3 }
-    if key == "record_decls" { return 4 }
-    if key == "enum_decls" { return 5 }
-    if key == "static_data_plans" { return 6 }
-    if key == "static_table_contract_specs" { return 7 }
-    if key == "brand_decls" { return 8 }
-    if key == "type_alias_decls" { return 9 }
-    return -1
+  _wrong_type(expected, actual) { return "type.expected_" + expected + ".got_" + me._kind_label(actual) }
+  _kind_label(kind) {
+    if kind == "Null" { return "null" }
+    if kind == "Bool" { return "bool" }
+    if kind == "I64" || kind == "U64" || kind == "F64" { return "number" }
+    if kind == "String" { return "string" }
+    if kind == "Array" { return "array" }
+    if kind == "Object" { return "object" }
+    return "unknown"
   }
 
 }
