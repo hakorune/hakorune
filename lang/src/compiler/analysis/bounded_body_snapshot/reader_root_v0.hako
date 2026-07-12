@@ -1,0 +1,148 @@
+// ProgramV0 root-envelope validation over the generic strict-JSON facade.
+// Statement interpretation is deliberately outside this file.
+using lang.compiler.analysis.bounded_body_snapshot.strict_json_tree_v0 as StrictJsonTreeV0Box
+using lang.compiler.analysis.bounded_body_snapshot.outcome_v0 as BoundedBodySnapshotOutcomeV0Box
+using lang.compiler.analysis.bounded_body_snapshot.snapshot_model_v0 as BoundedBodySnapshotModelV0Box
+
+box ProgramV0RootEnvelopeV0 {
+  _status: String
+  _body_node: Integer
+  _body_len: Integer
+  _path: String
+  _reason: String
+  birth(status, body_node, body_len, path, reason) {
+    me._status = status me._body_node = body_node me._body_len = body_len
+    me._path = path me._reason = reason
+  }
+  status() { return me._status }
+  body_node() { return me._body_node }
+  body_len() { return me._body_len }
+  path() { return me._path }
+  reason() { return me._reason }
+}
+
+static box ProgramV0RootEnvelopeV0Box {
+  ready(body_node, body_len) { return new ProgramV0RootEnvelopeV0("Ready", body_node, body_len, "", "") }
+  invalid(path, reason) { return new ProgramV0RootEnvelopeV0("InvalidInput", -1, 0, path, reason) }
+}
+
+static box HakoProgramV0RootReaderV0Box {
+  read_empty_program(session, root) {
+    local envelope = me.scan(session, root)
+    if envelope.status() != "Ready" {
+      return BoundedBodySnapshotOutcomeV0Box.invalid(envelope.path(), envelope.reason())
+    }
+    if envelope.body_len() != 0 {
+      return BoundedBodySnapshotOutcomeV0Box.unsupported("$.body[0]", "Statement", "reader.statement_family_pending")
+    }
+    return BoundedBodySnapshotOutcomeV0Box.ready(new BoundedBodyAnalysisSnapshotV0(0, new ArrayBox(), 0))
+  }
+
+  scan(session, root) {
+    local root_kind = StrictJsonTreeV0Box.kind(session, root)
+    if root_kind != "Object" {
+      return ProgramV0RootEnvelopeV0Box.invalid("$", me._wrong_type("object", root_kind))
+    }
+    local version_node = -1 local kind_node = -1 local body_node = -1
+    local optional_nodes = new ArrayBox() local optional_count = 10
+    local optional_fill = 0
+    loop(optional_fill < optional_count) { optional_nodes.push(-1) optional_fill = optional_fill + 1 }
+    local i = 0 local count = StrictJsonTreeV0Box.object_len(session, root)
+    loop(i < count) {
+      local key = StrictJsonTreeV0Box.object_key_at(session, root, i)
+      local value_node = StrictJsonTreeV0Box.object_value_at(session, root, i)
+      if key == "version" { version_node = value_node }
+      else {
+        if key == "kind" { kind_node = value_node }
+        else {
+          if key == "body" { body_node = value_node }
+          else {
+            local optional_index = me._optional_index(key)
+            if optional_index < 0 {
+              return ProgramV0RootEnvelopeV0Box.invalid("$." + key, "object.forbidden_unknown_field")
+            }
+            optional_nodes.set(optional_index, value_node)
+          }
+        }
+      }
+      i = i + 1
+    }
+    if version_node < 0 { return ProgramV0RootEnvelopeV0Box.invalid("$.version", "object.required_field_missing") }
+    if kind_node < 0 { return ProgramV0RootEnvelopeV0Box.invalid("$.kind", "object.required_field_missing") }
+    if body_node < 0 { return ProgramV0RootEnvelopeV0Box.invalid("$.body", "object.required_field_missing") }
+    if me._version_is_zero(session, version_node) == 0 {
+      return ProgramV0RootEnvelopeV0Box.invalid("$.version", "program.version_must_be_zero")
+    }
+    if StrictJsonTreeV0Box.kind(session, kind_node) != "String" {
+      return ProgramV0RootEnvelopeV0Box.invalid("$.kind", "program.kind_must_be_program")
+    }
+    if StrictJsonTreeV0Box.string_value(session, kind_node) != "Program" {
+      return ProgramV0RootEnvelopeV0Box.invalid("$.kind", "program.kind_must_be_program")
+    }
+    local body_kind = StrictJsonTreeV0Box.kind(session, body_node)
+    if body_kind != "Array" {
+      return ProgramV0RootEnvelopeV0Box.invalid("$.body", me._wrong_type("array", body_kind))
+    }
+    local optional_issue = me._optional_issue(session, optional_nodes.get(0), "Object")
+    if optional_issue != "ok" { return ProgramV0RootEnvelopeV0Box.invalid("$.attrs", optional_issue) }
+    optional_issue = me._optional_issue(session, optional_nodes.get(1), "Object")
+    if optional_issue != "ok" { return ProgramV0RootEnvelopeV0Box.invalid("$.imports", optional_issue) }
+    local optional_names = new ArrayBox()
+    optional_names.push("defs") optional_names.push("user_box_decls") optional_names.push("record_decls")
+    optional_names.push("enum_decls") optional_names.push("static_data_plans")
+    optional_names.push("static_table_contract_specs") optional_names.push("brand_decls")
+    optional_names.push("type_alias_decls")
+    local optional_i = 0
+    loop(optional_i < optional_names.size()) {
+      optional_issue = me._optional_issue(session, optional_nodes.get(optional_i + 2), "Array")
+      if optional_issue != "ok" {
+        return ProgramV0RootEnvelopeV0Box.invalid("$." + optional_names.get(optional_i), optional_issue)
+      }
+      optional_i = optional_i + 1
+    }
+    return ProgramV0RootEnvelopeV0Box.ready(body_node, StrictJsonTreeV0Box.array_len(session, body_node))
+  }
+
+  _version_is_zero(session, node) {
+    local kind = StrictJsonTreeV0Box.kind(session, node)
+    if kind == "I64" { if StrictJsonTreeV0Box.i64_value(session, node) == 0 { return 1 } return 0 }
+    if kind == "U64" {
+      if StrictJsonTreeV0Box.u64_fits_i64(session, node) == 0 { return 0 }
+      if StrictJsonTreeV0Box.u64_as_i64(session, node) == 0 { return 1 }
+    }
+    return 0
+  }
+
+  _optional_issue(session, node, expected) {
+    if node < 0 { return "ok" }
+    local actual = StrictJsonTreeV0Box.kind(session, node)
+    if actual == expected { return "ok" }
+    if expected == "Object" { return me._wrong_type("object", actual) }
+    return me._wrong_type("array", actual)
+  }
+
+  _optional_index(key) {
+    if key == "attrs" { return 0 }
+    if key == "imports" { return 1 }
+    if key == "defs" { return 2 }
+    if key == "user_box_decls" { return 3 }
+    if key == "record_decls" { return 4 }
+    if key == "enum_decls" { return 5 }
+    if key == "static_data_plans" { return 6 }
+    if key == "static_table_contract_specs" { return 7 }
+    if key == "brand_decls" { return 8 }
+    if key == "type_alias_decls" { return 9 }
+    return -1
+  }
+
+  _wrong_type(expected, actual) { return "type.expected_" + expected + ".got_" + me._kind_label(actual) }
+  _kind_label(kind) {
+    if kind == "Null" { return "null" }
+    if kind == "Bool" { return "bool" }
+    if kind == "I64" || kind == "U64" || kind == "F64" { return "number" }
+    if kind == "String" { return "string" }
+    if kind == "Array" { return "array" }
+    if kind == "Object" { return "object" }
+    return "unknown"
+  }
+}

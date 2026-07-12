@@ -26,6 +26,7 @@ rows = {row["case"]: row for row in report["results"]}
 required = {
     "baseline",
     "tracked_model",
+    "tracked_root_reader",
     "branch_1",
     "branch_4",
     "branch_8",

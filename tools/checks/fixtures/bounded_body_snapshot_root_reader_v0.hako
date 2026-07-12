@@ -1,0 +1,29 @@
+using lang.compiler.analysis.bounded_body_snapshot.reader_root_v0 as HakoProgramV0RootReaderV0Box
+
+static box SnapshotRootReaderFixtureV0Box {
+  read(session, root) {
+    local outcome = HakoProgramV0RootReaderV0Box.read_empty_program(session, root)
+    if outcome.status() == "Ready" {
+      if outcome.snapshot().node_count() != 0 { return 90 }
+      if outcome.snapshot().max_depth_observed() != 0 { return 91 }
+      return 0
+    }
+    if outcome.status() == "Unsupported" { return 20 }
+    if outcome.status() != "InvalidInput" { return 99 }
+    if outcome.path() == "$.version" && outcome.reason() == "object.required_field_missing" { return 11 }
+    if outcome.path() == "$.version" && outcome.reason() == "program.version_must_be_zero" { return 18 }
+    if outcome.path() == "$.kind" && outcome.reason() == "program.kind_must_be_program" { return 12 }
+    if outcome.path() == "$.kind" && outcome.reason() == "object.required_field_missing" { return 21 }
+    if outcome.path() == "$.body" && outcome.reason() == "object.required_field_missing" { return 13 }
+    if outcome.path() == "$" && outcome.reason() == "type.expected_object.got_array" { return 14 }
+    if outcome.path() == "$.future" && outcome.reason() == "object.forbidden_unknown_field" { return 15 }
+    if outcome.path() == "$.defs" && outcome.reason() == "type.expected_array.got_object" { return 16 }
+    if outcome.path() == "$.attrs" && outcome.reason() == "type.expected_object.got_array" { return 22 }
+    if outcome.path() == "$.body" && outcome.reason() == "type.expected_array.got_object" { return 17 }
+    return 19
+  }
+}
+
+static box Main {
+  main() { return 0 }
+}

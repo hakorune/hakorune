@@ -24,3 +24,11 @@ It does not open or close sessions, receive `MapBox`, recover ProgramV0
 meaning in Rust, or publish a carrier that retains a handle/node reference.
 ProgramV0 field closure, classification, paths, budgets, traversal, and
 snapshot publication remain Hako-owned reader responsibilities.
+
+`reader_root_v0.hako` owns only the ProgramV0 envelope and empty-body slice.
+It enumerates ordered generic object members, closes the thirteen root fields,
+validates version/kind/body and optional root container shapes, and publishes
+only a complete zero-node snapshot for an empty body. A non-empty body remains
+an explicit pending `Unsupported` until the statement-family reader lands.
+The internal root envelope may retain the body node only during the same
+invocation; published snapshots retain no session handle or node id.

@@ -707,10 +707,11 @@ U4-A5  one read-only Fact consumer; planner/route/runtime remain untouched
 ```
 
 Current implementation status: U4-A0, U4-A1, and U4-A2 are green and
-committed. U4-A3 currently contains only the Hako generic accessor facade;
-the Rust-injected session/root invocation, independent ProgramV0 field/tag
-reader, complete snapshot publication, direct parity, and all negative gates
-remain pending. A monolithic reader probe showed that the common/builder
+committed. U4-A3 now contains the Hako generic accessor facade plus the closed
+U4-A3.1 root-envelope/empty-body reader and dynamic Rust session/root function
+entry. Statement/expression tags, non-empty snapshot publication, full direct
+parity, and their negative gates remain pending. A monolithic reader probe
+showed that the common/builder
 imports compile quickly, while importing the first large expression reader
 does not finish within the 30-second diagnostic boundary even with
 `--no-optimize`. That prototype was removed before commit. The next task is
@@ -829,6 +830,39 @@ U4-A3.4  Call/Method/Field and ordered child publication
 U4-A3.5  statement families and body/argument limits
 U4-A3.6  snapshot seal, direct invocation fixture, and parity gate
 ```
+
+U4-A3.1 closed on 2026-07-12. `reader_root_v0.hako` independently enumerates
+the ordered generic root object, closes all thirteen ProgramV0 root fields,
+validates numeric zero version, `kind == "Program"`, body array shape, and the
+optional object/array container shapes. It retains only the body node and
+length in an invocation-local envelope and publishes a complete zero-node
+snapshot only for an empty body. Non-empty input remains explicit
+`Unsupported(reader.statement_family_pending)` until later reader families;
+it is not converted to an empty snapshot or false Fact.
+
+The Rust reference runner now has one thin function-entry adapter that opens
+the strict tree session, obtains the dynamic handle/root pair, and passes those
+two integers to the Hako function. Hako never opens/closes a session and no
+fixture hardcodes `(1, 0)`. Backend preflight still occurs before strict parse
+or session allocation, and RAII cleanup is proven after Ready, InvalidInput,
+and strict-ingress failure.
+
+The VM-reference fixture proves:
+
+```text
+empty canonical Program                 -> Ready(empty snapshot)
+permuted root order + valid optionals   -> Ready(empty snapshot)
+missing/wrong version, kind, body       -> exact Rust/Hako path+reason parity
+wrong root/body/optional container      -> exact Rust/Hako path+reason parity
+first forbidden root field              -> exact Rust/Hako path+reason parity
+decoded duplicate key                   -> strict ingress failure before Hako
+non-empty body                           -> explicit pending Unsupported
+```
+
+The actual tracked root reader is part of the U4-P1 compile-shape matrix and
+completes below the ten-second boundary. Stable gate:
+`tools/checks/hako_root_envelope_reader_v0_guard.sh`. U4-A3.2 is next; no
+statement/expr accepted-kind completion or full direct parity is claimed.
 
 Each slice must compile/run in isolation before the next reader family is
 added. A reader that again crosses the diagnostic boundary returns to the
