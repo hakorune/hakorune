@@ -1,6 +1,6 @@
 # Hako Typed Source Carrier V1 — Staged Parser Migration Taskboard
 
-Status: Active; P0 construction substrate selected.
+Status: Active; P0 closed and P1 Return vertical slice selected.
 Date: 2026-07-12
 Decision: `A — typed_parser_core_with_sealed_source_arena_and_compat_projection`
 
@@ -214,7 +214,7 @@ commit. Unmigrated direct JSON branches remain exhaustively classified as
 
 ## Task order
 
-### P0 — construction substrate (active)
+### P0 — construction substrate (closed)
 
 - Add small parser-private modules for:
   - closed node/branch/presence enums;
@@ -238,7 +238,46 @@ partial publication = 0
 raw Map/JSON carrier = 0
 ```
 
-### P1 — Return presence vertical slice
+P0 landed structure:
+
+```text
+lang/src/compiler/parser/source_carrier_v1/
+  source_vocabulary_v1.hako
+  source_refs_v1.hako
+  source_records_v1.hako
+  parser_node_product_v1.hako
+  source_carrier_outcome_v1.hako
+  source_carrier_builder_v1.hako
+  source_carrier_sealer_v1.hako
+```
+
+The builder owns mutation and Open/Poisoned/Sealed transitions. The separate
+sealer owns bottom-up validation, complete node/list reachability, defensive
+reconstruction, and one-shot immutable publication. This split was required
+after the first combined reachability loop exceeded the accepted JoinIR loop
+shape; no new accepted compiler shape was added.
+
+Executable gate:
+
+```text
+bash tools/checks/hako_parser_source_carrier_p0_guard.sh
+```
+
+Closeout evidence:
+
+```text
+release compile build_module/semantic_refresh = green under 10 seconds
+VM-reference lifecycle fixture = RC 0
+common Hako compile-shape matrix = green
+Language-v1 grammar contract substrate = green
+parser branch connection = 0
+ProgramV0 behavior change = 0
+typed branch count = 0
+partial publication = 0
+all source files < 800 lines
+```
+
+### P1 — Return presence vertical slice (active)
 
 Accepted fixtures:
 

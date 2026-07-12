@@ -1,0 +1,33 @@
+// Invocation-local typed indices. Builders validate arena ownership/ranges.
+box SourceNodeRefV1 {
+  _index: Integer
+  birth(index) { me._index = index }
+  index() { return me._index }
+}
+
+box SourceNodeListRefV1 {
+  _index: Integer
+  birth(index) { me._index = index }
+  index() { return me._index }
+}
+
+box SourcePresenceV1 {
+  _kind: String
+  _node_ref
+  birth(kind, node_ref) { me._kind = kind me._node_ref = node_ref }
+  kind() { return me._kind }
+  node_ref() { return me._node_ref }
+}
+
+static box SourceCarrierRefsV1Box {
+  node(index) {
+    if index < 0 { return null }
+    return new SourceNodeRefV1(index)
+  }
+  list(index) {
+    if index < 0 { return null }
+    return new SourceNodeListRefV1(index)
+  }
+  absent() { return new SourcePresenceV1("Absent", null) }
+  present(node_ref) { return new SourcePresenceV1("Present", node_ref) }
+}

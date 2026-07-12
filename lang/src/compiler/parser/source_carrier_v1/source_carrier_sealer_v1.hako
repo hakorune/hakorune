@@ -1,0 +1,145 @@
+using lang.compiler.parser.source_carrier_v1.source_refs_v1 as SourceCarrierRefsV1Box
+using lang.compiler.parser.source_carrier_v1.source_records_v1 as SourceCarrierRecordsV1Box
+using lang.compiler.parser.source_carrier_v1.source_carrier_outcome_v1 as SourceCarrierOutcomeV1Box
+
+// Complete validation and defensive reconstruction, separated from mutation.
+static box SourceCarrierSealerV1Box {
+  finish(root_ref, source_nodes, source_lists) {
+    local issue = me._reachability_issue(root_ref, source_nodes, source_lists)
+    if issue != "" { return SourceCarrierOutcomeV1Box.failed(SourceCarrierOutcomeV1Box.internal(issue)) }
+    local nodes = me._copy_nodes(source_nodes)
+    if nodes == null { return SourceCarrierOutcomeV1Box.failed(SourceCarrierOutcomeV1Box.internal("internal.carrier.node_reconstruction_failed")) }
+    local lists = me._copy_lists(source_lists)
+    if lists == null { return SourceCarrierOutcomeV1Box.failed(SourceCarrierOutcomeV1Box.internal("internal.carrier.list_reconstruction_failed")) }
+    local root_copy = SourceCarrierRefsV1Box.node(root_ref.index())
+    return SourceCarrierOutcomeV1Box.ready(SourceCarrierRecordsV1Box.tree(root_copy, nodes, lists))
+  }
+
+  _reachability_issue(root_ref, nodes, lists) {
+    local seen_nodes = me._false_array(nodes.size())
+    local seen_lists = me._false_array(lists.size())
+    local issue = me._mark_reachable(root_ref, nodes, lists, seen_nodes, seen_lists)
+    if issue != "" { return issue }
+    if me._all_true(seen_nodes) == false { return "internal.carrier.unreachable_node" }
+    if me._all_true(seen_lists) == false { return "internal.carrier.unreachable_list" }
+    return ""
+  }
+
+  _mark_reachable(root_ref, nodes, lists, seen_nodes, seen_lists) {
+    local stack = new ArrayBox() stack.push(root_ref)
+    loop(stack.size() > 0) {
+      local last = stack.size() - 1
+      local ref = stack.get(last)
+      stack.remove(last)
+      if ref == null || ref.index() < 0 || ref.index() >= nodes.size() {
+        return "internal.carrier.reachability_ref_invalid"
+      }
+      if seen_nodes.get(ref.index()) == false {
+        seen_nodes.set(ref.index(), true)
+        local node = nodes.get(ref.index())
+        local issue = me._push_children(node, stack)
+        if issue != "" { return issue }
+        issue = me._push_lists(node, lists, seen_lists, stack)
+        if issue != "" { return issue }
+      }
+    }
+    return ""
+  }
+
+  _push_children(node, stack) {
+    local i = 0
+    loop(i < node.child_count()) {
+      local ref = node.child(i)
+      if ref == null || ref.index() >= node.index() { return "internal.carrier.cycle_or_forward_ref" }
+      stack.push(ref)
+      i = i + 1
+    }
+    return ""
+  }
+
+  _push_lists(node, lists, seen_lists, stack) {
+    local i = 0
+    loop(i < node.list_count()) {
+      local list_ref = node.list_ref(i)
+      if list_ref == null || list_ref.index() < 0 || list_ref.index() >= lists.size() {
+        return "internal.carrier.reachability_list_invalid"
+      }
+      seen_lists.set(list_ref.index(), true)
+      local list = lists.get(list_ref.index())
+      local j = 0
+      loop(j < list.node_count()) {
+        stack.push(list.node_ref(j))
+        j = j + 1
+      }
+      i = i + 1
+    }
+    return ""
+  }
+
+  _false_array(count) {
+    local out = new ArrayBox() local i = 0
+    loop(i < count) { out.push(false) i = i + 1 }
+    return out
+  }
+
+  _all_true(values) {
+    local i = 0
+    loop(i < values.size()) {
+      if values.get(i) == false { return false }
+      i = i + 1
+    }
+    return true
+  }
+
+  _copy_nodes(source) {
+    local out = new ArrayBox() local i = 0
+    loop(i < source.size()) {
+      local node = source.get(i)
+      if node.index() != i { return null }
+      local children = me._copy_child_refs(node)
+      if children == null { return null }
+      local lists = me._copy_list_refs(node)
+      out.push(SourceCarrierRecordsV1Box.node(i, node.family(), node.kind(), node.scalar(), children, lists))
+      i = i + 1
+    }
+    return out
+  }
+
+  _copy_child_refs(node) {
+    local out = new ArrayBox() local i = 0
+    loop(i < node.child_count()) {
+      local ref = node.child(i)
+      if ref == null || ref.index() >= node.index() { return null }
+      out.push(SourceCarrierRefsV1Box.node(ref.index()))
+      i = i + 1
+    }
+    return out
+  }
+
+  _copy_list_refs(node) {
+    local out = new ArrayBox() local i = 0
+    loop(i < node.list_count()) {
+      local ref = node.list_ref(i)
+      if ref == null { return null }
+      out.push(SourceCarrierRefsV1Box.list(ref.index()))
+      i = i + 1
+    }
+    return out
+  }
+
+  _copy_lists(source) {
+    local out = new ArrayBox() local i = 0
+    loop(i < source.size()) {
+      local list = source.get(i)
+      if list.sealed() == false || list.index() != i { return null }
+      local refs = new ArrayBox() local j = 0
+      loop(j < list.node_count()) {
+        refs.push(SourceCarrierRefsV1Box.node(list.node_ref(j).index()))
+        j = j + 1
+      }
+      out.push(SourceCarrierRecordsV1Box.list(i, list.family(), refs))
+      i = i + 1
+    }
+    return out
+  }
+}

@@ -1,0 +1,129 @@
+using lang.compiler.parser.source_carrier_v1.source_vocabulary_v1
+using lang.compiler.parser.source_carrier_v1.source_refs_v1
+using lang.compiler.parser.source_carrier_v1.parser_node_product_v1
+using lang.compiler.parser.source_carrier_v1.source_carrier_builder_v1
+
+static box SourceCarrierP0FixtureV1Box {
+  success_tree() {
+    local b = SourceCarrierBuilderV1Box.open()
+    local body = b.create_list(SourceVocabularyV1Box.family_stmt())
+    local ret = b.add_return_absent()
+    if b.list_push(body, ret) == false { return 1 }
+    if b.seal_list(body) == false { return 2 }
+    local root = b.add_source_body(body)
+    if root == null { return 3 }
+    local result = b.finish()
+    if result.status() != "Ready" { return 4 }
+    if b.state() != "Sealed" || b.published_tree_count() != 1 { return 5 }
+    local tree = result.tree()
+    if tree.node_count() != 2 || tree.list_count() != 1 { return 6 }
+    if tree.root_ref().index() != 1 { return 7 }
+    if tree.node(0).kind() != SourceVocabularyV1Box.kind_return() { return 8 }
+    if tree.node(1).kind() != SourceVocabularyV1Box.kind_source_body() { return 9 }
+    if tree.list(0).node_ref(0).index() != 0 { return 10 }
+    return 0
+  }
+
+  products() {
+    local ref = SourceCarrierRefsV1Box.node(2)
+    local typed = ParserNodeProductV1Box.typed(ref, 10)
+    if typed.kind() != "Typed" || typed.node_ref().index() != 2 || typed.next_pos() != 10 { return 11 }
+    local compat = ParserNodeProductV1Box.compat_only("legacy.return", "Return", "opaque", 12)
+    if compat.kind() != "CompatOnly" || compat.branch_id() != "legacy.return" { return 12 }
+    if compat.source_kind() != "Return" || compat.next_pos() != 12 { return 13 }
+    local failed = ParserNodeProductV1Box.parse_error("source.parse.expected", 3)
+    if failed.kind() != "ParseError" || failed.issue().domain() != "SourceParseError" { return 14 }
+    return 0
+  }
+
+  invalid_ref_poison() {
+    local b = SourceCarrierBuilderV1Box.open()
+    local bad = SourceCarrierRefsV1Box.node(99)
+    if b.add_unary_neg(bad) != null { return 21 }
+    if b.state() != "Poisoned" { return 22 }
+    if b.issue().reason() != "internal.carrier.node_ref_invalid" { return 23 }
+    if b.add_return_absent() != null { return 24 }
+    local result = b.finish()
+    if result.status() != "InternalCarrierContractViolation" { return 25 }
+    if b.published_tree_count() != 0 { return 26 }
+    return 0
+  }
+
+  wrong_family_poison() {
+    local b = SourceCarrierBuilderV1Box.open()
+    local list = b.create_list(SourceVocabularyV1Box.family_stmt())
+    local value = b.add_literal_int(1)
+    if b.list_push(list, value) != false { return 31 }
+    if b.issue().reason() != "internal.carrier.list_node_family_mismatch" { return 32 }
+    return 0
+  }
+
+  mutation_after_list_seal() {
+    local b = SourceCarrierBuilderV1Box.open()
+    local list = b.create_list(SourceVocabularyV1Box.family_stmt())
+    local ret = b.add_return_absent()
+    if b.list_push(list, ret) == false || b.seal_list(list) == false { return 41 }
+    if b.list_push(list, ret) != false { return 42 }
+    if b.issue().reason() != "internal.carrier.list_mutation_after_seal" { return 43 }
+    return 0
+  }
+
+  incomplete_root() {
+    local b = SourceCarrierBuilderV1Box.open()
+    local result = b.finish()
+    if result.status() != "InternalCarrierContractViolation" { return 51 }
+    if result.issue().reason() != "internal.carrier.root_missing" { return 52 }
+    if b.published_tree_count() != 0 { return 53 }
+    return 0
+  }
+
+  unreachable_node() {
+    local b = SourceCarrierBuilderV1Box.open()
+    b.add_literal_int(7)
+    local list = b.create_list(SourceVocabularyV1Box.family_stmt())
+    local ret = b.add_return_absent()
+    b.list_push(list, ret) b.seal_list(list) b.add_source_body(list)
+    local result = b.finish()
+    if result.status() != "InternalCarrierContractViolation" { return 61 }
+    if result.issue().reason() != "internal.carrier.unreachable_node" { return 62 }
+    return 0
+  }
+
+  cycle_attempt() {
+    local b = SourceCarrierBuilderV1Box.open()
+    local future = SourceCarrierRefsV1Box.node(0)
+    if b.add_unary_neg(future) != null { return 71 }
+    if b.issue().reason() != "internal.carrier.node_ref_invalid" { return 72 }
+    return 0
+  }
+
+  double_finish_and_closed_mutation() {
+    local b = SourceCarrierBuilderV1Box.open()
+    local list = b.create_list(SourceVocabularyV1Box.family_stmt())
+    local ret = b.add_return_absent()
+    b.list_push(list, ret) b.seal_list(list) b.add_source_body(list)
+    if b.finish().status() != "Ready" { return 81 }
+    local second = b.finish()
+    if second.status() != "InternalCarrierContractViolation" { return 82 }
+    if second.issue().reason() != "internal.carrier.double_finish" { return 83 }
+    if b.add_return_absent() != null { return 84 }
+    if b.published_tree_count() != 1 { return 85 }
+    return 0
+  }
+
+  run() {
+    local rc = me.success_tree() if rc != 0 { return rc }
+    rc = me.products() if rc != 0 { return rc }
+    rc = me.invalid_ref_poison() if rc != 0 { return rc }
+    rc = me.wrong_family_poison() if rc != 0 { return rc }
+    rc = me.mutation_after_list_seal() if rc != 0 { return rc }
+    rc = me.incomplete_root() if rc != 0 { return rc }
+    rc = me.unreachable_node() if rc != 0 { return rc }
+    rc = me.cycle_attempt() if rc != 0 { return rc }
+    return me.double_finish_and_closed_mutation()
+  }
+}
+
+static box Main {
+  main() { return SourceCarrierP0FixtureV1Box.run() }
+}

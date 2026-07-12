@@ -1,0 +1,27 @@
+// Failure domains are explicit and never collapse into user InvalidInput.
+box SourceCarrierIssueV1 {
+  _domain: String
+  _reason: String
+  birth(domain, reason) { me._domain = domain me._reason = reason }
+  domain() { return me._domain }
+  reason() { return me._reason }
+}
+
+box SourceTreeFinishV1 {
+  _status: String
+  _tree
+  _issue
+  birth(status, tree, issue) { me._status = status me._tree = tree me._issue = issue }
+  status() { return me._status }
+  tree() { return me._tree }
+  issue() { return me._issue }
+}
+
+static box SourceCarrierOutcomeV1Box {
+  source_parse_error(reason) { return new SourceCarrierIssueV1("SourceParseError", reason) }
+  source_unsupported(reason) { return new SourceCarrierIssueV1("SourceCarrierUnsupported", reason) }
+  internal(reason) { return new SourceCarrierIssueV1("InternalCarrierContractViolation", reason) }
+  compat_projection(reason) { return new SourceCarrierIssueV1("ProgramV0CompatProjectionViolation", reason) }
+  ready(tree) { return new SourceTreeFinishV1("Ready", tree, null) }
+  failed(issue) { return new SourceTreeFinishV1(issue.domain(), null, issue) }
+}

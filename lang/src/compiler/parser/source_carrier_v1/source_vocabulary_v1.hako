@@ -1,0 +1,66 @@
+// Closed parser-private vocabulary. Strings never become source-kind authority
+// outside parser branch dispatch and these factories.
+static box SourceVocabularyV1Box {
+  state_open() { return "Open" }
+  state_poisoned() { return "Poisoned" }
+  state_sealed() { return "Sealed" }
+
+  family_root() { return "root" }
+  family_stmt() { return "stmt" }
+  family_expr() { return "expr" }
+
+  kind_source_body() { return "SourceBody" }
+  kind_loop() { return "Loop" }
+  kind_if() { return "If" }
+  kind_local() { return "Local" }
+  kind_assignment() { return "Assignment" }
+  kind_return() { return "Return" }
+  kind_break() { return "Break" }
+  kind_continue() { return "Continue" }
+  kind_literal_int() { return "LiteralInt" }
+  kind_literal_string() { return "LiteralString" }
+  kind_literal_bool() { return "LiteralBool" }
+  kind_literal_null() { return "LiteralNull" }
+  kind_variable() { return "Variable" }
+  kind_me() { return "Me" }
+  kind_this() { return "This" }
+  kind_unary_op() { return "UnaryOp" }
+  kind_binary_op() { return "BinaryOp" }
+  kind_method_call() { return "MethodCall" }
+
+  branch_typed() { return "Typed" }
+  branch_compat_only() { return "CompatOnly" }
+  branch_parse_error() { return "ParseError" }
+
+  presence_absent() { return "Absent" }
+  presence_present() { return "Present" }
+
+  valid_family(family) {
+    if family == me.family_root() { return true }
+    if family == me.family_stmt() { return true }
+    if family == me.family_expr() { return true }
+    return false
+  }
+
+  valid_kind_for_family(family, kind) {
+    if family == me.family_root() { return kind == me.kind_source_body() }
+    if family == me.family_stmt() { return me._valid_stmt(kind) }
+    if family == me.family_expr() { return me._valid_expr(kind) }
+    return false
+  }
+
+  _valid_stmt(kind) {
+    if kind == me.kind_loop() || kind == me.kind_if() { return true }
+    if kind == me.kind_local() || kind == me.kind_assignment() { return true }
+    if kind == me.kind_return() || kind == me.kind_break() { return true }
+    return kind == me.kind_continue()
+  }
+
+  _valid_expr(kind) {
+    if kind == me.kind_literal_int() || kind == me.kind_literal_string() { return true }
+    if kind == me.kind_literal_bool() || kind == me.kind_literal_null() { return true }
+    if kind == me.kind_variable() || kind == me.kind_me() || kind == me.kind_this() { return true }
+    if kind == me.kind_unary_op() || kind == me.kind_binary_op() { return true }
+    return kind == me.kind_method_call()
+  }
+}

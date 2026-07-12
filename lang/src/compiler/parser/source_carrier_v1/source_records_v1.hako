@@ -1,0 +1,61 @@
+// Immutable publication records. Arrays are exposed through count/get only.
+box SourceNodeRecordV1 {
+  _index: Integer
+  _family: String
+  _kind: String
+  _scalar
+  _children: ArrayBox
+  _lists: ArrayBox
+  birth(index, family, kind, scalar, children, lists) {
+    me._index = index me._family = family me._kind = kind me._scalar = scalar
+    me._children = children me._lists = lists
+  }
+  index() { return me._index }
+  family() { return me._family }
+  kind() { return me._kind }
+  scalar() { return me._scalar }
+  child_count() { return me._children.size() }
+  child(index) { return me._children.get(index) }
+  list_count() { return me._lists.size() }
+  list_ref(index) { return me._lists.get(index) }
+}
+
+box SourceNodeListRecordV1 {
+  _index: Integer
+  _family: String
+  _nodes: ArrayBox
+  birth(index, family, nodes) { me._index = index me._family = family me._nodes = nodes }
+  index() { return me._index }
+  family() { return me._family }
+  node_count() { return me._nodes.size() }
+  node_ref(index) { return me._nodes.get(index) }
+}
+
+box HakoSourceTreeV1 {
+  _root_ref
+  _nodes: ArrayBox
+  _lists: ArrayBox
+  birth(root_ref, nodes, lists) { me._root_ref = root_ref me._nodes = nodes me._lists = lists }
+  root_ref() { return me._root_ref }
+  node_count() { return me._nodes.size() }
+  node(index) { return me._nodes.get(index) }
+  list_count() { return me._lists.size() }
+  list(index) { return me._lists.get(index) }
+}
+
+static box SourceCarrierRecordsV1Box {
+  copy_refs(source) {
+    local out = new ArrayBox() local i = 0
+    loop(i < source.size()) { out.push(source.get(i)) i = i + 1 }
+    return out
+  }
+  node(index, family, kind, scalar, children, lists) {
+    return new SourceNodeRecordV1(index, family, kind, scalar, me.copy_refs(children), me.copy_refs(lists))
+  }
+  list(index, family, nodes) {
+    return new SourceNodeListRecordV1(index, family, me.copy_refs(nodes))
+  }
+  tree(root_ref, nodes, lists) {
+    return new HakoSourceTreeV1(root_ref, me.copy_refs(nodes), me.copy_refs(lists))
+  }
+}

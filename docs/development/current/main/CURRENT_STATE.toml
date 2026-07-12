@@ -125,12 +125,14 @@ latest_card_path = "docs/development/current/main/investigations/mirbuilder-hako
 latest_card_summary = """Decision A selects one Hako parser authority with
 explicit ParserNodeProductV1, a parser-private Open/Poisoned/Sealed source
 arena, and ProgramV0 as a lossy compatibility projection from migrated nodes.
-Unmigrated branches remain temporary CompatOnly values accepted only by the
-ProgramV0 entry; V1 poisons publication and never reads their fragments. The
-active P0 adds only the construction substrate and lifecycle gates with zero
-parser/ProgramV0 behavior change. P1 is the first Return/unary-minus vertical
-slice. ProgramV0 recovery, hidden side channels, mixed trees, and fallback are
-forbidden.
+P0 is closed with seven responsibility-split Hako modules, bottom-up refs,
+complete node/list reachability, defensive reconstruction, exact failure
+domains, release/VM lifecycle fixtures, zero parser connection, and every
+source file below 800 lines. Mutation and sealing were physically separated
+after a combined reachability loop hit the existing JoinIR shape boundary;
+compiler acceptance was not widened. Active P1 is the first Return/unary-minus
+vertical slice. ProgramV0 recovery, hidden side channels, mixed trees, and
+fallback remain forbidden.
 The first semantic target is bool-predicate summary parity, with planner
 connection zero. V0 remains explicitly lossy/removable and never recovers
 source distinctions. Historical detail follows.
@@ -242,7 +244,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "HAKO-TYPED-SOURCE-CARRIER-V1-P0-CONSTRUCTION-SUBSTRATE-001"
+current_blocker_token = "HAKO-TYPED-SOURCE-CARRIER-V1-P1-RETURN-VERTICAL-SLICE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
