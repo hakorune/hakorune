@@ -768,13 +768,14 @@ the diagnostic boundary with a documented safe shape. Any compiler fix is a
 separate BoxShape commit with its own fixture and gate; it must not be mixed
 with a reader accepted-kind commit.
 
-U4-P1 result (2026-07-12): the reported 30-second cutoff is not reproducible
-from the tracked tree or the parked recursive prototype. The parked complete
-reader fixture compiles in about 270 ms with the release binary. The durable
+U4-P1 result (2026-07-12): the original removed 30-second source is not
+reproducible from the tracked tree or the parked recursive prototype. The
+parked complete reader fixture compiles in about 270 ms with the release
+binary. The durable
 `HakoReaderCompileShapeDiagnosticV0` runner now measures parse and MIR compile
 separately for branch-count, direct/helper/loop recursion, import-count, and
 combined strict-tree extern shapes. On the current debug binary, representative
-no-optimize results are:
+pre-reader no-optimize results were:
 
 ```text
 case                 parse_ms  compile_ms  build_module  semantic_refresh
@@ -820,6 +821,29 @@ report `fast_shape_matrix=green`, `reader_execution_reached=0`, and
 crosses 10 seconds, preserve that exact source as the new minimal reproducer
 and reopen U4-P1 before adding another accepted-kind family.
 
+The first tracked root reader later supplied the missing phase-local evidence.
+Paired compilation of the same merged Hako source gives:
+
+```text
+compiler profile       wall_ms  build_module_ms  semantic_refresh_ms
+debug + vm-reference     11960            11570                  179
+release + vm-reference     825              761                   29
+
+tracked leaf reader, release + vm-reference:
+  wall_ms = 202
+  build_module_ms = 55
+  semantic_refresh_ms = 72
+```
+
+Thus the observed long pause is compilation, specifically `MirBuilder`
+`build_module` under an unoptimized Rust compiler; it is not Hako reader
+execution and not optimizer/semantic-refresh dominance. The historical exact
+30-second source remains unavailable, so no exact source-shape claim is made,
+but its phase family is now identified. The stable ten-second acceptance gate
+uses a fixed `--release --features vm-reference` binary. Debug timing remains
+a diagnostic signal and must not be mixed with Cargo rebuild/lock time or used
+as the product compile-time threshold.
+
 Reader implementation order after U4-P1:
 
 ```text
@@ -861,8 +885,36 @@ non-empty body                           -> explicit pending Unsupported
 
 The actual tracked root reader is part of the U4-P1 compile-shape matrix and
 completes below the ten-second boundary. Stable gate:
-`tools/checks/hako_root_envelope_reader_v0_guard.sh`. U4-A3.2 is next; no
-statement/expr accepted-kind completion or full direct parity is claimed.
+`tools/checks/hako_root_envelope_reader_v0_guard.sh`. At this boundary no
+statement/expr accepted-kind completion or full direct parity was claimed.
+
+U4-A3.2 closed on 2026-07-12. `reader_expr_leaf_v0.hako` independently owns
+field closure and one-atom observations for `Int`, `Str`, `Bool`, `Null`, and
+`Var`. It consumes only generic strict-tree accessors, uses schema
+classification for KnownUnsupported/SchemaMismatchStop/unknown tags, and
+returns a typed observation without publishing a partial snapshot. Accepted
+child expressions remain explicit `Unsupported(reader.child_expr_family_pending)`.
+
+`canonical_i64_v0.hako` owns number/string normalization. It validates decoded
+canonical decimal grammar, checks the full signed lexical range before
+arithmetic, and accumulates negative values in the negative direction so
+`-9223372036854775808` never requires a positive intermediate. Rust supplies
+no normalized integer witness. The only local `substring` use is decoded
+decimal digit access inside this scalar validator; the structured reader uses
+no raw JSON scan, substring tag detection, `indexOf`, token offset, or source
+text.
+
+`Str` and `Var` call the Hako-local validated text factory directly, classify
+Literal versus Atom locally, and apply decoded UTF-8 per-item/total budget
+policy without a Rust count sidecar. The executable fixture proves both
+`NYASH_STR_CP` modes, five leaf kinds, exact atom scalar values, i64 min/max,
+`-0`, overflow and noncanonical rejection, multibyte/combining/NUL decoded
+text, atom/literal limit rejection, field closure, wrong scalar types,
+KnownUnsupported, SchemaMismatchStop, unknown tags, and Rust/Hako outcome
+path/reason parity. Stable gate: `tools/checks/hako_leaf_expr_reader_v0_guard.sh`.
+The tracked leaf fixture is also below the U4-P1 ten-second compile boundary.
+U4-A3.3 child expressions are next; statement integration and complete
+snapshot publication remain pending.
 
 Each slice must compile/run in isolation before the next reader family is
 added. A reader that again crosses the diagnostic boundary returns to the

@@ -8,9 +8,9 @@ REPORT="$(mktemp /tmp/hako-reader-compile-shape.XXXXXX.json)"
 trap 'rm -f "$REPORT"' EXIT
 
 cd "$ROOT"
-cargo build -q --features vm-reference --bin hakorune
+cargo build -q --release --features vm-reference --bin hakorune
 python3 "$RUNNER" \
-  --bin "$ROOT/target/debug/hakorune" \
+  --bin "$ROOT/target/release/hakorune" \
   --timeout-sec 10 \
   --json-out "$REPORT" >/dev/null
 
@@ -27,6 +27,7 @@ required = {
     "baseline",
     "tracked_model",
     "tracked_root_reader",
+    "tracked_leaf_reader",
     "branch_1",
     "branch_4",
     "branch_8",

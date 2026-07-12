@@ -46,6 +46,7 @@ from pathlib import Path
 root, carrier_path, fixture_path, lang_root, fixture_root = map(Path, sys.argv[1:])
 sources = list(root.glob("*.hako"))
 joined = "\n".join(path.read_text(encoding="utf-8") for path in sources)
+canonical_i64_path = root / "canonical_i64_v0.hako"
 carrier = carrier_path.read_text(encoding="utf-8")
 fixture = fixture_path.read_text(encoding="utf-8")
 for needle in ("Ready", "Unsupported", "InvalidInput", "$.body", "max_node_count", "max_total_text_bytes",
@@ -53,9 +54,21 @@ for needle in ("Ready", "Unsupported", "InvalidInput", "$.body", "max_node_count
                "atom(index)", "child(index)", "node(index)"):
     if needle not in joined:
         raise SystemExit(f"missing model contract: {needle}")
-for forbidden in ("indexOf", "substring(", "MIRBuilder", "planner", "route"):
+for forbidden in ("indexOf", "MIRBuilder", "planner", "route"):
     if forbidden in joined:
         raise SystemExit(f"forbidden model dependency: {forbidden}")
+for path in sources:
+    if path == canonical_i64_path:
+        continue
+    if "substring(" in path.read_text(encoding="utf-8"):
+        raise SystemExit(f"substring is confined to canonical decoded-i64 parsing: {path}")
+canonical_i64 = canonical_i64_path.read_text(encoding="utf-8")
+for needle in ("ProgramV0CanonicalI64V0Box", "_read_decimal", "_digit_value"):
+    if needle not in canonical_i64:
+        raise SystemExit(f"missing canonical-i64 contract: {needle}")
+for forbidden in ("object_key_at", "object_value_at", '== "type"', '== "body"', "PathV0"):
+    if forbidden in canonical_i64:
+        raise SystemExit(f"canonical-i64 parser escaped scalar ownership: {forbidden}")
 for needle in (
     "box ValidatedTextV0",
     "box ValidatedTextBuildV0",

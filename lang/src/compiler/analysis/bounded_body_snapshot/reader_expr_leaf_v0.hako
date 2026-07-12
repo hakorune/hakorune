@@ -1,0 +1,159 @@
+// Accepted leaf ExprV0 observation over the generic strict-JSON facade.
+using lang.compiler.analysis.bounded_body_snapshot.strict_json_tree_v0 as StrictJsonTreeV0Box
+using lang.compiler.analysis.bounded_body_snapshot.canonical_i64_v0 as ProgramV0CanonicalI64V0Box
+using lang.compiler.analysis.bounded_body_snapshot.validated_text_v0 as ValidatedTextV0Box
+using lang.compiler.analysis.bounded_body_snapshot.snapshot_model_v0 as BoundedBodySnapshotModelV0Box
+using lang.compiler.analysis.bounded_body_snapshot_schema_v0 as BoundedBodySnapshotSchemaV0Box
+
+box LeafExprObservationV0 {
+  _kind: String
+  _atoms: ArrayBox
+  birth(kind, atoms) { me._kind = kind me._atoms = atoms }
+  kind() { return me._kind }
+  atom_count() { return me._atoms.size() }
+  atom(index) { return me._atoms.get(index) }
+}
+
+box LeafExprReadV0 {
+  _status: String
+  _observation
+  _path: String
+  _node_kind
+  _reason: String
+  birth(status, observation, path, node_kind, reason) {
+    me._status = status me._observation = observation me._path = path
+    me._node_kind = node_kind me._reason = reason
+  }
+  status() { return me._status }
+  observation() { return me._observation }
+  path() { return me._path }
+  node_kind() { return me._node_kind }
+  reason() { return me._reason }
+}
+
+static box LeafExprReadV0Box {
+  ready(observation) { return new LeafExprReadV0("Ready", observation, "", null, "") }
+  unsupported(path, kind, reason) { return new LeafExprReadV0("Unsupported", null, path, kind, reason) }
+  invalid(path, reason) { return new LeafExprReadV0("InvalidInput", null, path, null, reason) }
+  internal(path, reason) { return new LeafExprReadV0("InternalCarrierContractViolation", null, path, null, reason) }
+}
+
+static box HakoProgramV0LeafExprReaderV0Box {
+  read(session, node, path, budget) {
+    local actual_kind = StrictJsonTreeV0Box.kind(session, node)
+    if actual_kind != "Object" {
+      return LeafExprReadV0Box.invalid(path, me._wrong_type("object", actual_kind))
+    }
+    local keys = new ArrayBox() local values = new ArrayBox()
+    local i = 0 local count = StrictJsonTreeV0Box.object_len(session, node)
+    loop(i < count) {
+      keys.push(StrictJsonTreeV0Box.object_key_at(session, node, i))
+      values.push(StrictJsonTreeV0Box.object_value_at(session, node, i))
+      i = i + 1
+    }
+    local type_node = me._find(keys, values, "type")
+    if type_node < 0 { return LeafExprReadV0Box.invalid(path + ".type", "object.required_field_missing") }
+    local type_kind = StrictJsonTreeV0Box.kind(session, type_node)
+    if type_kind != "String" {
+      return LeafExprReadV0Box.invalid(path + ".type", me._wrong_type("string", type_kind))
+    }
+    local kind = StrictJsonTreeV0Box.string_value(session, type_node)
+    local classification = BoundedBodySnapshotSchemaV0Box.classify_expr(kind)
+    if classification == "KnownUnsupported" { return LeafExprReadV0Box.unsupported(path, kind, "unsupported.wire_kind") }
+    if classification == "SchemaMismatchStop" { return LeafExprReadV0Box.unsupported(path, kind, "transport.schema_mismatch_stop") }
+    if classification != "Accepted" { return LeafExprReadV0Box.invalid(path, "unknown expression tag: " + kind) }
+    if me._is_leaf(kind) == 0 { return LeafExprReadV0Box.unsupported(path, kind, "reader.child_expr_family_pending") }
+    local closure_issue = me._field_closure_issue(kind, keys)
+    if closure_issue != "" { return LeafExprReadV0Box.invalid(path + "." + closure_issue, "object.forbidden_unknown_field") }
+    if kind == "Int" {
+      local declared_type = me._find(keys, values, "declared_type")
+      if declared_type >= 0 {
+        local declared_kind = StrictJsonTreeV0Box.kind(session, declared_type)
+        if declared_kind != "String" && declared_kind != "Null" {
+          return LeafExprReadV0Box.invalid(path + ".declared_type", me._wrong_type("string_or_null", declared_kind))
+        }
+      }
+    }
+    return me._observe_leaf(session, kind, path, budget, keys, values)
+  }
+
+  _observe_leaf(session, kind, path, budget, keys, values) {
+    local atoms = new ArrayBox()
+    if kind == "Null" {
+      atoms.push(new BoundedBodySnapshotAtomV0("value", "Null", null))
+      return LeafExprReadV0Box.ready(new LeafExprObservationV0(kind, atoms))
+    }
+    local field = "value"
+    if kind == "Var" { field = "name" }
+    local value_node = me._find(keys, values, field)
+    if value_node < 0 { return LeafExprReadV0Box.invalid(path + "." + field, "object.required_field_missing") }
+    if kind == "Int" { return me._observe_int(session, value_node, path, atoms) }
+    if kind == "Bool" {
+      local bool_kind = StrictJsonTreeV0Box.kind(session, value_node)
+      if bool_kind != "Bool" {
+        return LeafExprReadV0Box.invalid(path + ".value", me._wrong_type("bool", bool_kind))
+      }
+      atoms.push(new BoundedBodySnapshotAtomV0("value", "Bool", StrictJsonTreeV0Box.bool_value(session, value_node)))
+      return LeafExprReadV0Box.ready(new LeafExprObservationV0(kind, atoms))
+    }
+    local text_kind = StrictJsonTreeV0Box.kind(session, value_node)
+    if text_kind != "String" {
+      return LeafExprReadV0Box.invalid(path + "." + field, me._wrong_type("string", text_kind))
+    }
+    local value = StrictJsonTreeV0Box.string_value(session, value_node)
+    local built = null
+    if kind == "Str" { built = ValidatedTextV0Box.literal(value, budget) }
+    else { built = ValidatedTextV0Box.atom(value, budget) }
+    if built.status() == "Unsupported" { return LeafExprReadV0Box.unsupported(path + "." + field, kind, built.reason()) }
+    if built.status() != "Ready" { return LeafExprReadV0Box.internal(path + "." + field, built.reason()) }
+    atoms.push(new BoundedBodySnapshotAtomV0(field, "Text", built.text().value()))
+    return LeafExprReadV0Box.ready(new LeafExprObservationV0(kind, atoms))
+  }
+
+  _observe_int(session, value_node, path, atoms) {
+    local parsed = ProgramV0CanonicalI64V0Box.read(session, value_node)
+    if parsed.status() != "Ready" { return LeafExprReadV0Box.invalid(path + ".value", parsed.reason()) }
+    atoms.push(new BoundedBodySnapshotAtomV0("value", "I64", parsed.value()))
+    return LeafExprReadV0Box.ready(new LeafExprObservationV0("Int", atoms))
+  }
+
+  _find(keys, values, name) {
+    local i = 0
+    loop(i < keys.size()) { if keys.get(i) == name { return values.get(i) } i = i + 1 }
+    return -1
+  }
+
+  _field_closure_issue(kind, keys) {
+    local i = 0
+    loop(i < keys.size()) {
+      local key = keys.get(i)
+      if me._field_allowed(kind, key) == 0 { return key }
+      i = i + 1
+    }
+    return ""
+  }
+
+  _field_allowed(kind, field) {
+    if field == "type" { return 1 }
+    if kind == "Int" { if field == "value" || field == "declared_type" { return 1 } return 0 }
+    if kind == "Str" || kind == "Bool" { if field == "value" { return 1 } return 0 }
+    if kind == "Var" { if field == "name" { return 1 } return 0 }
+    return 0
+  }
+
+  _is_leaf(kind) {
+    if kind == "Int" || kind == "Str" || kind == "Bool" || kind == "Null" || kind == "Var" { return 1 }
+    return 0
+  }
+
+  _wrong_type(expected, actual) { return "type.expected_" + expected + ".got_" + me._kind_label(actual) }
+  _kind_label(kind) {
+    if kind == "Null" { return "null" }
+    if kind == "Bool" { return "bool" }
+    if kind == "I64" || kind == "U64" || kind == "F64" { return "number" }
+    if kind == "String" { return "string" }
+    if kind == "Array" { return "array" }
+    if kind == "Object" { return "object" }
+    return "unknown"
+  }
+}

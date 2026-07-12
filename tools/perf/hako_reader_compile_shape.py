@@ -143,6 +143,7 @@ def measure(binary: pathlib.Path, case: str, timeout: float, optimize: bool) -> 
     tracked = {
         "tracked_model": "tools/checks/fixtures/bounded_body_snapshot_model_v0.hako",
         "tracked_root_reader": "tools/checks/fixtures/bounded_body_snapshot_root_reader_v0.hako",
+        "tracked_leaf_reader": "tools/checks/fixtures/bounded_body_snapshot_leaf_expr_reader_v0.hako",
     }
     if case in tracked:
         source_path = ROOT / tracked[case]
@@ -182,7 +183,8 @@ def main() -> int:
     parser.add_argument(
         "--cases",
         default=(
-            "baseline,tracked_model,tracked_root_reader,branch_1,branch_4,branch_8,branch_12,"
+            "baseline,tracked_model,tracked_root_reader,tracked_leaf_reader,"
+            "branch_1,branch_4,branch_8,branch_12,"
             "recursion_none,recursion_direct,recursion_helper,recursion_loop,"
             "import_0,import_1,import_3,import_5,combined_plain,combined_extern"
         ),

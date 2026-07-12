@@ -1,0 +1,80 @@
+// Canonical ProgramV0 i64 normalization over one decoded strict-JSON scalar.
+// No raw JSON text or serializer helper is observed here.
+using lang.compiler.analysis.bounded_body_snapshot.strict_json_tree_v0 as StrictJsonTreeV0Box
+
+box CanonicalI64ReadV0 {
+  _status: String
+  _value: Integer
+  _reason: String
+  birth(status, value, reason) { me._status = status me._value = value me._reason = reason }
+  status() { return me._status }
+  value() { return me._value }
+  reason() { return me._reason }
+}
+
+static box CanonicalI64ReadV0Box {
+  ready(value) { return new CanonicalI64ReadV0("Ready", value, "") }
+  invalid() { return new CanonicalI64ReadV0("InvalidInput", 0, "int.not_canonical_i64") }
+}
+
+static box ProgramV0CanonicalI64V0Box {
+  read(session, node) {
+    local kind = StrictJsonTreeV0Box.kind(session, node)
+    if kind == "I64" { return CanonicalI64ReadV0Box.ready(StrictJsonTreeV0Box.i64_value(session, node)) }
+    if kind == "U64" {
+      if StrictJsonTreeV0Box.u64_fits_i64(session, node) == false { return CanonicalI64ReadV0Box.invalid() }
+      return CanonicalI64ReadV0Box.ready(StrictJsonTreeV0Box.u64_as_i64(session, node))
+    }
+    if kind != "String" { return CanonicalI64ReadV0Box.invalid() }
+    return me._read_decimal(StrictJsonTreeV0Box.string_value(session, node))
+  }
+
+  _read_decimal(text) {
+    local count = text.length()
+    if count == 0 { return CanonicalI64ReadV0Box.invalid() }
+    local first = text.substring(0, 1) local start = 0 local negative = 0
+    if first == "+" { return CanonicalI64ReadV0Box.invalid() }
+    if first == "-" { if count == 1 { return CanonicalI64ReadV0Box.invalid() } start = 1 negative = 1 }
+    local digit_count = count - start
+    if text.substring(start, start + 1) == "0" && digit_count > 1 { return CanonicalI64ReadV0Box.invalid() }
+    if digit_count > 19 { return CanonicalI64ReadV0Box.invalid() }
+    if digit_count == 19 && me._within_range(text, start, negative) == 0 { return CanonicalI64ReadV0Box.invalid() }
+    local value = 0 local i = start
+    loop(i < count) {
+      local decimal = me._digit_value(text.substring(i, i + 1))
+      if decimal < 0 { return CanonicalI64ReadV0Box.invalid() }
+      if negative == 1 { value = value * 10 - decimal }
+      else { value = value * 10 + decimal }
+      i = i + 1
+    }
+    return CanonicalI64ReadV0Box.ready(value)
+  }
+
+  _within_range(text, start, negative) {
+    local limit = "9223372036854775807"
+    if negative == 1 { limit = "9223372036854775808" }
+    local i = 0
+    loop(i < 19) {
+      local left_digit = me._digit_value(text.substring(start + i, start + i + 1))
+      local right_digit = me._digit_value(limit.substring(i, i + 1))
+      if left_digit < right_digit { return 1 }
+      if left_digit > right_digit { return 0 }
+      i = i + 1
+    }
+    return 1
+  }
+
+  _digit_value(digit) {
+    if digit == "0" { return 0 }
+    if digit == "1" { return 1 }
+    if digit == "2" { return 2 }
+    if digit == "3" { return 3 }
+    if digit == "4" { return 4 }
+    if digit == "5" { return 5 }
+    if digit == "6" { return 6 }
+    if digit == "7" { return 7 }
+    if digit == "8" { return 8 }
+    if digit == "9" { return 9 }
+    return -1
+  }
+}

@@ -34,6 +34,21 @@ The internal root envelope may retain the body node only during the same
 invocation; published snapshots retain no session handle or node id.
 
 Tiny JSON-kind diagnostic formatters remain private to each reader family.
-A shared static-box helper was measured above the ten-second compile boundary
-because it widened semantic route convergence; keeping these pure spellings
-local avoids a compiler-shaped dependency without moving semantic authority.
+The spelling is too small to justify another cross-module route dependency;
+keeping it local does not move semantic authority. Compile-time acceptance is
+measured with the fixed release+VM-reference compiler, while debug compiler
+timing remains diagnostic evidence only.
+
+`reader_expr_leaf_v0.hako` owns the first accepted expression family:
+`Int`, `Str`, `Bool`, `Null`, and `Var`. It closes each leaf object, emits one
+ordered atom, delegates decoded text to the local checked text carrier, and
+returns an observation rather than publishing a partial snapshot. Accepted
+child expressions remain explicit pending `Unsupported` for the next slice.
+
+`canonical_i64_v0.hako` owns ProgramV0 number/string normalization to i64.
+It inspects only one decoded string scalar, validates canonical decimal grammar and
+the full signed range before arithmetic, and accumulates negative values in
+the negative direction so `i64::MIN` never requires a positive overflow.
+Its `substring` use is limited to one decoded decimal scalar and never observes
+raw JSON, node tags, field names, paths, token offsets, or source text. Every
+structured reader module remains substring/index-search free.

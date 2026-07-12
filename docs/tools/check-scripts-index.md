@@ -426,6 +426,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_hako_bounded_body_snapshot_model_v0_guard.sh` | Hako VM-reference guard for the S3 outcome/path/budget/model plus sealed local text carrier, replay-only isolation, UTF-8 mode parity, and source-file size. |
 | `tools/checks/hako_reader_compile_shape_diagnostic_guard.sh` | U4-P1 diagnostic gate separating parse and MIR compile timing across branch, recursion, import, and combined strict-tree reader shapes; it does not execute or activate a reader. |
 | `tools/checks/hako_root_envelope_reader_v0_guard.sh` | U4-A3.1 VM-reference gate for Hako-owned ProgramV0 root closure, empty snapshot publication, exact root-error parity, invocation-scoped handle/root injection, cleanup, compile timing, and source-file size. |
+| `tools/checks/hako_leaf_expr_reader_v0_guard.sh` | U4-A3.2 VM-reference gate for five Hako-owned leaf expression observations, full canonical-i64 normalization, decoded UTF-8 text budgets, exact outcome parity, compile timing, no partial snapshot, and source-file size. |
 | `tools/checks/rust_lifecycle_source_selfhost_post_rerun004_current_reentry_inventory_guard.sh` | Current reentry inventory guard proving basis-007 is consumed by RERUN-004 and selecting the checkpoint rerun without replaying route repair. |
 
 ## Update Policy

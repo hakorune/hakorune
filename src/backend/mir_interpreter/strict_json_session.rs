@@ -155,11 +155,9 @@ impl MirInterpreter {
 mod tests {
     use super::*;
 
-    fn compile_root_reader_fixture() -> crate::mir::MirModule {
-        let fixture = concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/tools/checks/fixtures/bounded_body_snapshot_root_reader_v0.hako"
-        );
+    fn compile_hako_fixture(relative: &str) -> crate::mir::MirModule {
+        let fixture = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(relative);
+        let fixture = fixture.to_str().expect("UTF-8 fixture path");
         let source = std::fs::read_to_string(fixture).expect("root reader fixture");
         let runner = crate::runner::NyashRunner::new(crate::cli::CliConfig::default());
         let (merged, imports) =
@@ -178,12 +176,30 @@ mod tests {
             .module
     }
 
+    fn compile_root_reader_fixture() -> crate::mir::MirModule {
+        compile_hako_fixture("tools/checks/fixtures/bounded_body_snapshot_root_reader_v0.hako")
+    }
+
+    fn compile_leaf_expr_reader_fixture() -> crate::mir::MirModule {
+        compile_hako_fixture("tools/checks/fixtures/bounded_body_snapshot_leaf_expr_reader_v0.hako")
+    }
+
+    fn run_session_function(
+        interpreter: &mut MirInterpreter,
+        module: &crate::mir::MirModule,
+        input: &str,
+        function: &str,
+    ) -> Result<VMValue, VMError> {
+        interpreter.execute_function_with_strict_json_session(module, input, function)
+    }
+
     fn run_root_reader(
         interpreter: &mut MirInterpreter,
         module: &crate::mir::MirModule,
         input: &str,
     ) -> Result<i64, VMError> {
-        match interpreter.execute_function_with_strict_json_session(
+        match run_session_function(
+            interpreter,
             module,
             input,
             "SnapshotRootReaderFixtureV0Box.read/2",
@@ -331,5 +347,177 @@ mod tests {
         .expect_err("decoded duplicate key");
         assert!(error.to_string().contains(INPUT_TAG));
         assert!(!interpreter.strict_json_session_active());
+    }
+
+    fn run_leaf_code(
+        interpreter: &mut MirInterpreter,
+        module: &crate::mir::MirModule,
+        expression: &str,
+    ) -> i64 {
+        match run_session_function(
+            interpreter,
+            module,
+            expression,
+            "SnapshotLeafExprReaderFixtureV0Box.classify/2",
+        )
+        .expect("leaf classification")
+        {
+            VMValue::Integer(value) => value,
+            other => panic!("leaf classifier returned {other:?}"),
+        }
+    }
+
+    fn rust_leaf_code(expression: &str) -> i64 {
+        use crate::analysis::bounded_body_snapshot_v0::ProgramV0BodyViewError;
+        let input = format!(
+            r#"{{"version":0,"kind":"Program","body":[{{"type":"Expr","expr":{expression}}}]}}"#
+        );
+        match crate::analysis::bounded_body_snapshot_v0::read_program_v0_body(&input) {
+            Ok(_) => match serde_json::from_str::<serde_json::Value>(expression)
+                .ok()
+                .and_then(|value| {
+                    value
+                        .get("type")
+                        .and_then(|kind| kind.as_str())
+                        .map(str::to_owned)
+                })
+                .as_deref()
+            {
+                Some("Int") => 1,
+                Some("Str") => 2,
+                Some("Bool") => 3,
+                Some("Null") => 4,
+                Some("Var") => 5,
+                _ => 99,
+            },
+            Err(ProgramV0BodyViewError::Unsupported { reason, .. }) => match reason.as_str() {
+                "unsupported.wire_kind" => 20,
+                "transport.schema_mismatch_stop" => 21,
+                _ => 29,
+            },
+            Err(ProgramV0BodyViewError::InvalidInput { path, reason }) => {
+                match (path.as_str(), reason.as_str()) {
+                    ("$.body[0].expr.type", "object.required_field_missing") => 30,
+                    ("$.body[0].expr.type", "type.expected_string.got_number") => 31,
+                    ("$.body[0].expr", "unknown expression tag: Future") => 32,
+                    (_, "object.forbidden_unknown_field") => 33,
+                    ("$.body[0].expr.value", "int.not_canonical_i64") => 34,
+                    (_, "type.expected_string.got_number") => 35,
+                    (_, "type.expected_bool.got_string") => 36,
+                    (_, "type.expected_string_or_null.got_number") => 37,
+                    _ => 39,
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn hako_leaf_expr_reader_matches_reference_kinds_and_failures() {
+        let module = compile_leaf_expr_reader_fixture();
+        let mut interpreter = MirInterpreter::new();
+        for expression in [
+            r#"{"type":"Int","value":-7}"#,
+            r#"{"type":"Str","value":"猫😸"}"#,
+            r#"{"type":"Bool","value":true}"#,
+            r#"{"type":"Null"}"#,
+            r#"{"type":"Var","name":"猫"}"#,
+            r#"{}"#,
+            r#"{"type":1}"#,
+            r#"{"type":"Future"}"#,
+            r#"{"type":"Int","value":1,"future":0}"#,
+            r#"{"type":"Int","value":"01"}"#,
+            r#"{"type":"Str","value":1}"#,
+            r#"{"type":"Bool","value":"true"}"#,
+            r#"{"type":"Var","name":1}"#,
+            r#"{"type":"Int","value":1,"declared_type":1}"#,
+            r#"{"type":"ArrayLiteral"}"#,
+            r#"{"type":"Float","value":1.0}"#,
+        ] {
+            assert_eq!(
+                run_leaf_code(&mut interpreter, &module, expression),
+                rust_leaf_code(expression),
+                "expression={expression}"
+            );
+            assert!(!interpreter.strict_json_session_active());
+        }
+        assert_eq!(
+            run_leaf_code(
+                &mut interpreter,
+                &module,
+                r#"{"type":"Binary","op":"+","lhs":{"type":"Int","value":1},"rhs":{"type":"Int","value":2}}"#,
+            ),
+            22
+        );
+    }
+
+    #[test]
+    fn hako_leaf_expr_reader_normalizes_full_canonical_i64_domain() {
+        let module = compile_leaf_expr_reader_fixture();
+        let mut interpreter = MirInterpreter::new();
+        for (expression, expected) in [
+            (r#"{"type":"Int","value":-7}"#, -7),
+            (r#"{"type":"Int","value":"-7"}"#, -7),
+            (r#"{"type":"Int","value":"-0"}"#, 0),
+            (r#"{"type":"Int","value":9223372036854775807}"#, i64::MAX),
+            (r#"{"type":"Int","value":"9223372036854775807"}"#, i64::MAX),
+            (r#"{"type":"Int","value":"-9223372036854775808"}"#, i64::MIN),
+        ] {
+            let value = run_session_function(
+                &mut interpreter,
+                &module,
+                expression,
+                "SnapshotLeafExprReaderFixtureV0Box.i64_value/2",
+            )
+            .unwrap();
+            assert_eq!(value, VMValue::Integer(expected), "expression={expression}");
+        }
+        for invalid in [
+            r#"{"type":"Int","value":"+1"}"#,
+            r#"{"type":"Int","value":"00"}"#,
+            r#"{"type":"Int","value":"-00"}"#,
+            r#"{"type":"Int","value":"9223372036854775808"}"#,
+            r#"{"type":"Int","value":"-9223372036854775809"}"#,
+            r#"{"type":"Int","value":9223372036854775808}"#,
+            r#"{"type":"Int","value":1.0}"#,
+        ] {
+            assert_eq!(run_leaf_code(&mut interpreter, &module, invalid), 34);
+        }
+    }
+
+    #[test]
+    fn hako_leaf_expr_reader_preserves_decoded_text_and_limits() {
+        let module = compile_leaf_expr_reader_fixture();
+        let mut interpreter = MirInterpreter::new();
+        for (expression, expected) in [
+            (r#"{"type":"Str","value":"猫😸"}"#, "猫😸"),
+            (r#"{"type":"Str","value":"e\u0301"}"#, "e\u{0301}"),
+            (r#"{"type":"Var","name":"a\u0000b"}"#, "a\0b"),
+        ] {
+            let value = run_session_function(
+                &mut interpreter,
+                &module,
+                expression,
+                "SnapshotLeafExprReaderFixtureV0Box.text_value/2",
+            )
+            .unwrap();
+            assert_eq!(value, VMValue::String(expected.to_string()));
+        }
+        for (expression, expected) in [
+            (r#"{"type":"Bool","value":true}"#, true),
+            (r#"{"type":"Bool","value":false}"#, false),
+        ] {
+            let value = run_session_function(
+                &mut interpreter,
+                &module,
+                expression,
+                "SnapshotLeafExprReaderFixtureV0Box.bool_value/2",
+            )
+            .unwrap();
+            assert_eq!(value, VMValue::Bool(expected));
+        }
+        let atom = serde_json::json!({"type":"Var", "name":"x".repeat(1025)}).to_string();
+        let literal = serde_json::json!({"type":"Str", "value":"x".repeat(65537)}).to_string();
+        assert_eq!(run_leaf_code(&mut interpreter, &module, &atom), 23);
+        assert_eq!(run_leaf_code(&mut interpreter, &module, &literal), 24);
     }
 }

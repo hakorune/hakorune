@@ -1,0 +1,58 @@
+using lang.compiler.analysis.bounded_body_snapshot.reader_expr_leaf_v0 as HakoProgramV0LeafExprReaderV0Box
+using lang.compiler.analysis.bounded_body_snapshot.budget_v0 as BoundedBodySnapshotBudgetV0Box
+
+static box SnapshotLeafExprReaderFixtureV0Box {
+  classify(session, root) {
+    local budget = new BoundedBodySnapshotBudgetV0()
+    local result = HakoProgramV0LeafExprReaderV0Box.read(session, root, "$.body[0].expr", budget)
+    if result.status() == "Ready" {
+      local observation = result.observation()
+      if observation.atom_count() != 1 { return 90 }
+      local atom = observation.atom(0)
+      if observation.kind() == "Int" && atom.key() == "value" && atom.value_kind() == "I64" { return 1 }
+      if observation.kind() == "Str" && atom.key() == "value" && atom.value_kind() == "Text" { return 2 }
+      if observation.kind() == "Bool" && atom.value_kind() == "Bool" { return 3 }
+      if observation.kind() == "Null" && atom.value_kind() == "Null" { return 4 }
+      if observation.kind() == "Var" && atom.key() == "name" && atom.value_kind() == "Text" { return 5 }
+      return 91
+    }
+    if result.status() == "Unsupported" {
+      if result.reason() == "unsupported.wire_kind" { return 20 }
+      if result.reason() == "transport.schema_mismatch_stop" { return 21 }
+      if result.reason() == "reader.child_expr_family_pending" { return 22 }
+      if result.reason() == "limit.max_atom_bytes" { return 23 }
+      if result.reason() == "limit.max_literal_bytes" { return 24 }
+      return 29
+    }
+    if result.status() != "InvalidInput" { return 99 }
+    if result.path() == "$.body[0].expr.type" && result.reason() == "object.required_field_missing" { return 30 }
+    if result.path() == "$.body[0].expr.type" && result.reason() == "type.expected_string.got_number" { return 31 }
+    if result.path() == "$.body[0].expr" && result.reason() == "unknown expression tag: Future" { return 32 }
+    if result.reason() == "object.forbidden_unknown_field" { return 33 }
+    if result.path() == "$.body[0].expr.value" && result.reason() == "int.not_canonical_i64" { return 34 }
+    if result.reason() == "type.expected_string.got_number" { return 35 }
+    if result.reason() == "type.expected_bool.got_string" { return 36 }
+    if result.reason() == "type.expected_string_or_null.got_number" { return 37 }
+    return 39
+  }
+
+  i64_value(session, root) {
+    local result = HakoProgramV0LeafExprReaderV0Box.read(session, root, "$.body[0].expr", new BoundedBodySnapshotBudgetV0())
+    if result.status() != "Ready" { return 777 }
+    return result.observation().atom(0).value()
+  }
+
+  text_value(session, root) {
+    local result = HakoProgramV0LeafExprReaderV0Box.read(session, root, "$.body[0].expr", new BoundedBodySnapshotBudgetV0())
+    if result.status() != "Ready" { return "<not-ready>" }
+    return result.observation().atom(0).value()
+  }
+
+  bool_value(session, root) {
+    local result = HakoProgramV0LeafExprReaderV0Box.read(session, root, "$.body[0].expr", new BoundedBodySnapshotBudgetV0())
+    if result.status() != "Ready" { return false }
+    return result.observation().atom(0).value()
+  }
+}
+
+static box Main { main() { return 0 } }
