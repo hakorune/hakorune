@@ -150,7 +150,7 @@ execution is never reached. The removed historical 30-second source is still
 unavailable, so exact source-shape causality is not claimed. The stable gate
 uses a fixed release+vm-reference binary with a ten-second boundary, one reader
 family per file, and accepted-kind fanout at most 12. U4-A3.1 through A3.6,
-U4-A4, and U4-A5 are closed; S4 Rust AST wire-observation oracle is next.
+U4-A4, U4-A5, and S4 are closed; S5 fixture/corpus closure is next.
 The reference
 MIR interpreter is the only first-slice backend and unsupported backends fail
 before parse/session effects. U4-A0 generic arena, U4-A1 invocation session,
@@ -185,8 +185,11 @@ path/reason parity, direct inclusive limit boundaries, exact large-budget
 component boundaries, replay/raw-scanner isolation, and backend rejection
 before parse/session/HHako effects. U4-A5 is closed with a snapshot-only
 LoopFeatureSummaryV0, nested-loop exit isolation, exact non-Ready outcome
-preservation, and zero planner/route/backend/runtime connection. S4 Rust AST
-wire-observation oracle is next.
+preservation, and zero planner/route/backend/runtime connection. S4 is closed
+with a test-only direct AST-to-snapshot oracle, source-loss equivalence,
+multi-binding Local expansion, all operator partitions, explicit
+context-sensitive Unsupported, and exact authoritative serializer-to-HHako
+parity. S5 fixture/corpus closure is next.
 The LocalContractWrite exact-i64 Fact bridge is
 closed with canonical contract-id ownership, fresh identity matching,
 dst-only publication, Copy/same-slot PHI propagation, 17 focused tests, and
@@ -223,7 +226,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "MIRBUILDER-BOUNDED-BODY-SNAPSHOT-V0-RUST-AST-WIRE-ORACLE-001"
+current_blocker_token = "MIRBUILDER-BOUNDED-BODY-SNAPSHOT-V0-FIXTURE-CORPUS-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

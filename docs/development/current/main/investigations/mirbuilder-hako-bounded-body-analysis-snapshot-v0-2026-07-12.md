@@ -1041,6 +1041,27 @@ complete; S4 Rust AST wire-observation oracle is the next implementation
 slice. Planner, route, backend, runtime, MIR mutation, and ID allocation remain
 disconnected.
 
+S4 closed on 2026-07-12. The Rust AST wire-observation oracle is physically
+test-only under `bounded_body_snapshot_v0/ast_wire_oracle_v0/` and projects
+canonical AST directly into the shared snapshot algebra. It never generates
+or parses JSON and imports no serializer, validated ProgramV0 view, MIR,
+planner, route, backend, or runtime owner. The accepted structural slice covers
+container flattening, multi-binding Local expansion, variable Assignment,
+Print, If/Loop/LoopRange, Return/Break/Continue, scalar/typed integers,
+Variable/This/Me, all eighteen Binary partitions, and the exact
+`env.console.log` call loss class. Context-sensitive function/method/field,
+enum/brand/typed-array/record, dynamic call, Float, non-literal Unary, and
+source-only shapes are explicit Unsupported.
+
+Loss-equivalence fixtures fix Local~Assignment, Print~explicit console Call,
+Return(None)~Return(0), Unary(-,1)~Int(-1), uninitialized Local~Null, and
+multi-binding Local~multiple wire Local nodes. An independent end-to-end test
+compares the oracle snapshot with authoritative source→ProgramV0 serialization
+and the HHako direct reader using exact node/atom/edge/path/depth equality, not
+JSON text. Stable gate:
+`tools/checks/rust_lifecycle_mirbuilder_ast_wire_observation_oracle_v0_guard.sh`.
+S5 fixture/corpus closure is next.
+
 Each slice must compile/run in isolation before the next reader family is
 added. A reader that again crosses the diagnostic boundary returns to the
 shape split; it is not accepted as a single large Hako box.

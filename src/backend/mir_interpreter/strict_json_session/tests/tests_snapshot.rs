@@ -4,6 +4,7 @@ use crate::analysis::bounded_body_snapshot_v0::{
     ProgramV0BodyViewError, WireNodeKindV0,
 };
 
+mod ast_oracle;
 mod limits;
 mod negative;
 mod summary;

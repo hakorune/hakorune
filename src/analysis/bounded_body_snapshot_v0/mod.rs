@@ -32,4 +32,6 @@ pub(crate) use strict_json_tree_v0::{StrictJsonArenaV0, StrictJsonKindV0, Strict
 pub use validated_view::{ValidatedAtomValueV0, ValidatedNodeV0, ValidatedTextV0};
 
 #[cfg(test)]
+pub(crate) mod ast_wire_oracle_v0;
+#[cfg(test)]
 mod tests;
