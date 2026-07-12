@@ -1,6 +1,6 @@
 # Snapshot Next Fact Consumer Selection — Design Stop
 
-Status: Consultation required; implementation stopped.
+Status: Closed; Decision B accepted and handed off to implementation.
 Date: 2026-07-12
 
 ## Decision requested
@@ -23,6 +23,24 @@ C. stop_after_v0
 Do not widen Program(JSON v0), recover source kinds in its reader, or connect
 the current snapshot to planner/route/backend/runtime while this decision is
 open.
+
+## Accepted decision
+
+```text
+Decision: B — source_snapshot_v1
+Mode: direct_dual_frontend_ast_projection_v1
+First semantic target: bool-predicate scan
+```
+
+The active implementation taskboard is:
+
+```text
+docs/development/current/main/investigations/
+mirbuilder-source-body-analysis-snapshot-v1-2026-07-12.md
+```
+
+V1 is a separate canonical-source observation family. It is not ProgramV0
+schema widening, and it does not recover source syntax from V0.
 
 ## Evidence
 

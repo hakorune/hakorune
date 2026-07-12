@@ -4,7 +4,7 @@
 status = "Active design consultation frontier"
 date = "2026-07-12"
 
-active_lane = "MIRBUILDER Hako BoundedBodyAnalysisSnapshotV0"
+active_lane = "MIRBUILDER Hako SourceBodyAnalysisSnapshotV1"
 active_lane_status = """Explicit user priority change on 2026-07-12 reopens
 the parked Source Selfhost/MirBuilder lane before LANGV1 conformance closeout.
 Language-v1 behavior remains unchanged and its closeout stays parked. 3456,
@@ -114,21 +114,24 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/mirbuilder-snapshot-next-fact-consumer-selection-design-stop-2026-07-12.md"
-phase_status = "docs/development/current/main/investigations/mirbuilder-snapshot-next-fact-consumer-selection-design-stop-2026-07-12.md"
+active_phase = "docs/development/current/main/investigations/mirbuilder-source-body-analysis-snapshot-v1-2026-07-12.md"
+phase_status = "docs/development/current/main/investigations/mirbuilder-source-body-analysis-snapshot-v1-2026-07-12.md"
 method_anchor = "docs/development/current/main/design/current-docs-archive-policy-ssot.md"
-taskboard = "docs/development/current/main/investigations/mirbuilder-snapshot-next-fact-consumer-selection-design-stop-2026-07-12.md"
-latest_workstream_card = "docs/development/current/main/investigations/mirbuilder-snapshot-next-fact-consumer-selection-design-stop-2026-07-12.md"
+taskboard = "docs/development/current/main/investigations/mirbuilder-source-body-analysis-snapshot-v1-2026-07-12.md"
+latest_workstream_card = "docs/development/current/main/investigations/mirbuilder-source-body-analysis-snapshot-v1-2026-07-12.md"
 
-latest_card = "mirbuilder-snapshot-next-fact-consumer-selection-design-stop-2026-07-12"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-snapshot-next-fact-consumer-selection-design-stop-2026-07-12.md"
-latest_card_summary = """The bounded ProgramV0 snapshot card is complete
-through S8. The current design stop selects among skeleton_cleanup_only,
-SourceBodyAnalysisSnapshotV1, or returning to another workstream. Bool
-predicate and string-is-integer Facts require Unary/Method/context distinctions
-that V0 intentionally cannot preserve; loop skeleton is a constant cleanup,
-not a meaningful Fact migration. V0 remains explicitly lossy/removable and
-must not recover source distinctions. Historical detail follows.
+latest_card = "mirbuilder-source-body-analysis-snapshot-v1-2026-07-12"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-source-body-analysis-snapshot-v1-2026-07-12.md"
+latest_card_summary = """Decision B selects SourceBodyAnalysisSnapshotV1 as
+a separate canonical-source observation family with direct Rust/Hako frontend
+projection parity. The active S0 inventories every canonical AST/operator
+variant and proves whether the Hako parser private carrier preserves UnaryOp,
+Local versus Assignment, Return absence, Me/This, and MethodCall ordering.
+If it does not, implementation stops at HAKO-SOURCE-CARRIER-DESIGN-STOP-001;
+ProgramV0, token scans, and Rust carrier replay are forbidden substitutes.
+The first semantic target is bool-predicate summary parity, with planner
+connection zero. V0 remains explicitly lossy/removable and never recovers
+source distinctions. Historical detail follows.
 S0 ProgramV0WireContractInventoryV0 closes with 40 classified rows, 7 exact
 SchemaMismatchStop tags, explicit field/root/parser seams, and one generated
 fixture/guard. S1 closes the neutral Rust/Hako schema/model/path/budget/outcome
@@ -237,7 +240,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "MIRBUILDER-SNAPSHOT-NEXT-FACT-CONSUMER-SELECTION-DESIGN-STOP-001"
+current_blocker_token = "MIRBUILDER-SOURCE-SNAPSHOT-V1-SOURCE-AST-VOCABULARY-INVENTORY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
