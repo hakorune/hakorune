@@ -25,11 +25,11 @@ meaning in Rust, or publish a carrier that retains a handle/node reference.
 ProgramV0 field closure, classification, paths, budgets, traversal, and
 snapshot publication remain Hako-owned reader responsibilities.
 
-`reader_root_v0.hako` owns only the ProgramV0 envelope and empty-body slice.
+`reader_root_v0.hako` owns only the ProgramV0 envelope.
 It enumerates ordered generic object members, closes the thirteen root fields,
-validates version/kind/body and optional root container shapes, and publishes
-only a complete zero-node snapshot for an empty body. A non-empty body remains
-an explicit pending `Unsupported` until the statement-family reader lands.
+and validates version/kind/body and optional root container shapes. The body
+node remains invocation-local and is passed to the statement owner; the root
+reader does not publish snapshots.
 The internal root envelope may retain the body node only during the same
 invocation; published snapshots retain no session handle or node id.
 
@@ -67,7 +67,8 @@ one factory entry because the current Hako MIR builder otherwise omits `birth`
 for a direct `new` inside a loop; the executable gate checks the emitted birth
 calls. Repeated `then`, `else`, `body`, and `args` roles receive deterministic
 zero-origin path indices; top-level statements become ordered roots. This
-table is not a public snapshot. Final snapshot sealing remains a later owner.
+table is not a public snapshot; only `snapshot_sealer_v0.hako` may publish it
+after complete structural validation.
 
 `reader_stmt_v0.hako` is the single recursive statement owner for `Local`,
 `Expr`, `If`, `Loop`, `LoopRange`, `Return`, `Break`, and `Continue`. It
@@ -85,4 +86,12 @@ snapshot itself. Internal carrier violations remain distinct from ProgramV0
 `reader_v0.hako` is the only direct product-shaped reader entry. It composes
 strict root validation, statement traversal, flat publication, and sealing;
 only a fully sealed result becomes `Ready(snapshot)`. It retains no strict
-tree handle/node id and does not connect to Fact, planner, route, or runtime.
+tree handle/node id and does not connect to planner, route, or runtime.
+
+`loop_feature_summary_v0.hako` is the first observation-only consumer. It
+accepts only the sealed snapshot outcome, preserves every non-Ready outcome,
+and derives break/continue/return/nested-loop flags plus the ordered exit map.
+It follows only `If` then/else edges and stops at nested Loop/LoopRange nodes,
+matching the Rust AST Fact rule that inner-loop exits do not belong to the
+outer body. The parked token facade remains intact; no planner, route,
+backend, runtime, MIR mutation, or ID-allocation path imports this consumer.

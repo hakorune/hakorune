@@ -6,6 +6,7 @@ use crate::analysis::bounded_body_snapshot_v0::{
 
 mod limits;
 mod negative;
+mod summary;
 
 fn compile_fixture() -> crate::mir::MirModule {
     compile_hako_fixture("tools/checks/fixtures/bounded_body_snapshot_direct_reader_v0.hako")

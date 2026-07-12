@@ -1026,6 +1026,21 @@ owners from the direct path. Stable gate:
 read-only Fact consumer is next. Planner, route, backend, and runtime remain
 disconnected.
 
+U4-A5 closed on 2026-07-12. `loop_feature_summary_v0.hako` consumes only a
+sealed `BoundedBodyAnalysisSnapshotV0` outcome and derives break, continue,
+return, nested-loop, and ordered exit-map observations. It traverses `If`
+then/else edges, stops at Loop/LoopRange boundaries, and therefore excludes
+inner-loop exits exactly like the existing Rust AST Fact owner. Ready fixtures
+cover empty, nested If, nested-loop exit isolation, all three exit kinds, and
+expression text containing feature tokens without false positives.
+Unsupported and InvalidInput path/reason outcomes are preserved unchanged;
+internal carrier failures remain separate. The existing token-only facade and
+planner-side Rust Fact are not removed or rewired. Stable gate:
+`tools/checks/hako_bounded_body_loop_feature_summary_v0_guard.sh`. U4 is
+complete; S4 Rust AST wire-observation oracle is the next implementation
+slice. Planner, route, backend, runtime, MIR mutation, and ID allocation remain
+disconnected.
+
 Each slice must compile/run in isolation before the next reader family is
 added. A reader that again crosses the diagnostic boundary returns to the
 shape split; it is not accepted as a single large Hako box.

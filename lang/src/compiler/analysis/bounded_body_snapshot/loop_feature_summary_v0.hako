@@ -1,0 +1,114 @@
+// Read-only LoopFeature summary over a sealed BoundedBodyAnalysisSnapshotV0.
+// Planner, route, MIR mutation, backend, and source-kind recovery are forbidden.
+box LoopFeatureSummaryV0 {
+  _has_break: Integer
+  _has_continue: Integer
+  _has_return: Integer
+  _nested_loop: Integer
+  birth(has_break, has_continue, has_return, nested_loop) {
+    me._has_break = has_break me._has_continue = has_continue
+    me._has_return = has_return me._nested_loop = nested_loop
+  }
+  has_break() { return me._has_break }
+  has_continue() { return me._has_continue }
+  has_return() { return me._has_return }
+  nested_loop() { return me._nested_loop }
+  exit_map() {
+    local out = ""
+    out = me._push(out, me._has_return, "Return")
+    out = me._push(out, me._has_break, "Break")
+    return me._push(out, me._has_continue, "Continue")
+  }
+  signature() {
+    return "break=" + me._has_break
+      + ";continue=" + me._has_continue
+      + ";return=" + me._has_return
+      + ";unwind=0;nested_loop=" + me._nested_loop
+      + ";exit_map=" + me.exit_map()
+      + ";value_join=none;cleanup=none"
+  }
+  _push(current, enabled, label) {
+    if enabled != 1 { return current }
+    if current == "" { return label }
+    return current + "," + label
+  }
+}
+
+box LoopFeatureSummaryStateV0 {
+  _has_break: Integer
+  _has_continue: Integer
+  _has_return: Integer
+  _nested_loop: Integer
+  birth() { me._has_break = 0 me._has_continue = 0 me._has_return = 0 me._nested_loop = 0 }
+  observe(kind) {
+    if kind == "Break" { me._has_break = 1 }
+    if kind == "Continue" { me._has_continue = 1 }
+    if kind == "Return" { me._has_return = 1 }
+    if kind == "Loop" || kind == "LoopRange" { me._nested_loop = 1 }
+  }
+  finish() { return new LoopFeatureSummaryV0(me._has_break, me._has_continue, me._has_return, me._nested_loop) }
+}
+
+box LoopFeatureSummaryOutcomeV0 {
+  _status: String
+  _summary
+  _path: String
+  _node_kind
+  _reason: String
+  birth(status, summary, path, node_kind, reason) {
+    me._status = status me._summary = summary me._path = path
+    me._node_kind = node_kind me._reason = reason
+  }
+  status() { return me._status }
+  summary() { return me._summary }
+  path() { return me._path }
+  node_kind() { return me._node_kind }
+  reason() { return me._reason }
+}
+
+static box LoopFeatureSummaryOutcomeV0Box {
+  ready(summary) { return new LoopFeatureSummaryOutcomeV0("Ready", summary, "", null, "") }
+  preserve(source) {
+    return new LoopFeatureSummaryOutcomeV0(source.status(), null, source.path(), source.node_kind(), source.reason())
+  }
+  internal(reason) { return new LoopFeatureSummaryOutcomeV0("InternalCarrierContractViolation", null, "$", null, reason) }
+}
+
+static box LoopFeatureSummaryV0Box {
+  consume(snapshot_outcome) {
+    if snapshot_outcome.status() != "Ready" { return LoopFeatureSummaryOutcomeV0Box.preserve(snapshot_outcome) }
+    local snapshot = snapshot_outcome.snapshot()
+    if snapshot == null { return LoopFeatureSummaryOutcomeV0Box.internal("loop_summary.snapshot_missing") }
+    if snapshot.schema_version() != 0 || snapshot.source_program_version() != 0 {
+      return LoopFeatureSummaryOutcomeV0Box.internal("loop_summary.version_mismatch")
+    }
+    local state = new LoopFeatureSummaryStateV0()
+    local root = 0 local i = 0
+    loop(i < snapshot.node_count()) {
+      local node = snapshot.node(i)
+      if node.domain() == "stmt" && node.path() == "$.body[" + ("" + root) + "]" {
+        me._visit_stmt(snapshot, i, state)
+        root = root + 1
+      }
+      i = i + 1
+    }
+    return LoopFeatureSummaryOutcomeV0Box.ready(state.finish())
+  }
+
+  _visit_stmt(snapshot, index, state) {
+    local node = snapshot.node(index)
+    local kind = node.kind()
+    state.observe(kind)
+    if kind == "Loop" || kind == "LoopRange" { return 0 }
+    if kind != "If" { return 0 }
+    local i = 0
+    loop(i < node.child_count()) {
+      local edge = node.child(i)
+      if edge.role() == "then" || edge.role() == "else" {
+        me._visit_stmt(snapshot, edge.target_index(), state)
+      }
+      i = i + 1
+    }
+    return 0
+  }
+}
