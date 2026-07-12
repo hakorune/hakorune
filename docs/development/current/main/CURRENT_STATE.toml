@@ -131,8 +131,19 @@ domains, release/VM lifecycle fixtures, zero parser connection, and every
 source file below 800 lines. Mutation and sealing were physically separated
 after a combined reachability loop hit the existing JoinIR shape boundary;
 compiler acceptance was not widened. Active P1 is the first Return/unary-minus
-vertical slice. ProgramV0 recovery, hidden side channels, mixed trees, and
-fallback remain forbidden.
+vertical slice. Its focused source-distinction, compat-projection, outcome,
+and publication gates are green in the unlanded WIP. Mutation and publication
+are now physically isolated, and ParserBox does not import the V1 sealer.
+P1 is not mergeable: the ordinary ProgramV0 contract-pin smoke is also red on
+clean HEAD and reaches existing generic-loop compile boundaries. Two worker
+inventories identify ParserDelegateExposesBox._parse_delegate/3 cursor `j`
+being treated as an in-body induction step; another clean-closure observation
+also exposes FuncScannerBox._scan_methods/4 first, so closure/order dependence
+is part of the BoxShape evidence. Active P1-S is now a design consultation:
+choose compiler BoxShape cleanup, a genuinely narrow parser-private compile
+seam, or P1 deferral before planner or parser code changes. ProgramV0
+recovery, hidden side channels, mixed trees, planner widening in the parser
+commit, and fallback remain forbidden.
 The first semantic target is bool-predicate summary parity, with planner
 connection zero. V0 remains explicitly lossy/removable and never recovers
 source distinctions. Historical detail follows.
@@ -244,7 +255,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "HAKO-TYPED-SOURCE-CARRIER-V1-P1-RETURN-VERTICAL-SLICE-001"
+current_blocker_token = "HAKO-TYPED-SOURCE-CARRIER-V1-P1S-TYPED-PARSER-COMPILE-SEAM-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

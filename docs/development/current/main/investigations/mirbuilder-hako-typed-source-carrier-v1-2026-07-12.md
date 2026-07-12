@@ -1,6 +1,6 @@
 # Hako Typed Source Carrier V1 — Staged Parser Migration Taskboard
 
-Status: Active; P0 closed and P1 Return vertical slice selected.
+Status: Active; P0 closed, P1 implemented as WIP, compile-seam blocker open.
 Date: 2026-07-12
 Decision: `A — typed_parser_core_with_sealed_source_arena_and_compat_projection`
 
@@ -306,6 +306,128 @@ Requirements:
 6. every other V1 branch is exact
    `source.parser_branch_unmigrated`;
 7. migrated legacy JSON constructors are removed in the same commit.
+
+P1 implementation inventory (unlanded):
+
+```text
+P1-A lexical/branch factorization:
+  ParserNumberPartsV1 owns one number scan result
+  Return and unary-minus branches return ParserNodeProductV1
+
+P1-B typed construction and compat projection:
+  Literal(Int), UnaryOp(Neg), Return presence
+  exact ProgramV0 compatibility projection
+  V1-only single-Return facade
+
+P1-C publication isolation:
+  mutation builder has no sealer import
+  V1 facade alone imports reachability/reconstruction
+  ParserBox does not import the V1 publication facade
+```
+
+Focused P1 evidence is green:
+
+```text
+bash tools/checks/hako_parser_source_carrier_p1_return_guard.sh
+
+return_presence_distinct = 1
+unary_minus_source_kind_preserved = 1
+program_v0_compat_parity = 1
+CompatOnly V1 acceptance = 0
+partial publication = 0
+planner connection = 0
+```
+
+P1 is not mergeable yet. The existing ProgramV0 contract-pin smoke is already
+red on clean `HEAD` and remains red during selfhost MIR compilation with the
+migrated parser branches connected:
+
+```text
+bash tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_program_json_contract_pin_vm.sh
+
+print_node:
+  [plan/freeze:unsupported]
+  generic loop v0.2: loop var used after in-body step
+```
+
+The first observed failure is outside source-tree publication. Independent
+worker inventories identified an existing parser loop owner rather than a P1
+node/product function:
+
+```text
+source owner:
+  ParserDelegateExposesBox._parse_delegate/3
+
+loop:
+  parser_delegate_exposes_box.hako:54
+
+candidate incorrectly treated as a loop step:
+  j = ctx.skip_ws(...) at line 60
+
+first ordinary post-update use:
+  ctx.starts_with_kw(src, j, "as") at line 61
+
+planner owner:
+  generic_loop_v1 step-placement validator
+
+reason:
+  loop_var_used_after_in_body_step
+```
+
+One independent compile-closure inventory also observed an earlier clean-HEAD
+failure at `FuncScannerBox._scan_methods/4` with
+`no_valid_loop_var_candidates`; exact first failure can therefore depend on
+the compiled closure/order. This strengthens the BoxShape diagnosis and means
+P1 must not claim to have introduced or repaired the baseline planner debt.
+Do not widen the planner, duplicate the parser, add a hidden side channel, or
+bypass the gate inside P1.
+
+### P1-S — typed parser compile seam (active blocker)
+
+Classify this as BoxShape/design before changing code acceptance:
+
+1. generate an exact import/compile-shape delta for baseline ParserBox versus
+   the P1 mutation/product closure;
+2. identify the first function and loop whose accepted shape changes, with
+   `first_block/first_inst/first_op/owner_hint/reason` evidence;
+3. decide whether the clean seam is:
+   - a parser-private lightweight construction interface that keeps one parser
+     authority and no second traversal; or
+   - a compiler-expression BoxShape fix owned by the existing loop planner;
+4. preserve the P1 focused fixture as evidence, but land no parser connection
+   while the ProgramV0 contract-pin smoke is red;
+5. after the decision, rerun P0, P1, ProgramV0 pin, compile-shape, and
+   Language-v1 grammar gates before commit.
+
+Consultation question:
+
+```text
+Choose the authority-preserving owner for P1-S:
+
+A. compiler BoxShape cleanup
+   Teach the existing generic-loop observation/planner boundary to distinguish
+   a parser scan cursor with multiple semantic updates from one canonical
+   induction step. Land as a separate compiler commit with fixture+gate before
+   reconnecting P1.
+
+B. parser-private construction seam
+   Reduce the ordinary ProgramV0 compile closure through a narrow typed
+   construction interface, while preserving one parser branch execution and
+   zero hidden side channels. This is acceptable only if it removes accidental
+   closure pressure rather than hiding a valid compiler shape.
+
+C. defer P1
+   Keep P0 and the design/task inventory, stash P1, and advance another
+   selfhost lane until the generic-loop owner is repaired independently.
+```
+
+The decision must name source authority, non-authority, exact fixture/gate,
+whether this is BoxShape or BoxCount, and what may not be claimed. Until that
+decision, P1 code remains stash-only.
+
+Stop and consult again if the solution requires a second parser, deferred
+source-kind inference, ProgramV0 widening, planner acceptance widening inside
+the parser commit, or any fallback.
 
 ### P2 — binding distinction
 
