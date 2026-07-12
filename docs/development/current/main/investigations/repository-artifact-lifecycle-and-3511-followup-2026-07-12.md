@@ -4,6 +4,8 @@ Status: Parked follow-up task; not the active lane.
 Date: 2026-07-12
 Active lane remains: 3457 MapStoreI64 authority inventory / design boundary.
 
+Decision: accepted minimal PR-only ratchet and evidence-only 3511 repair.
+
 ## Purpose
 
 Record two verified leftovers without reopening the active 3457 authority
@@ -50,6 +52,15 @@ from the implementation history/inventory; the
 `src/mir/extern_call_route_plan/tests/hako_mem.rs`, while that test tree is not
 currently wired from the parent module. A filtered cargo test can therefore
 return success without running that orphan test.
+
+Decision:
+
+- Keep the descriptive 3511 fixture labels as contract evidence labels.
+- Add an explicit mapping to the real executable test IDs rather than renaming
+  the semantic contract vocabulary.
+- Wire the existing orphan test tree if the parent test boundary accepts it;
+  otherwise add the narrowest equivalent collection guard.
+- Require `--list` evidence before accepting a filtered test run.
 
 Scope:
 
