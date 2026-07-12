@@ -710,8 +710,27 @@ Current implementation status: U4-A0, U4-A1, and U4-A2 are green and
 committed. U4-A3 currently contains only the Hako generic accessor facade;
 the Rust-injected session/root invocation, independent ProgramV0 field/tag
 reader, complete snapshot publication, direct parity, and all negative gates
-remain pending. No B2/B3 completion or exact RHako/HHako snapshot parity is
-claimed yet.
+remain pending. A monolithic reader probe showed that the common/builder
+imports compile quickly, while importing the first large expression reader
+does not finish within the 30-second diagnostic boundary even with
+`--no-optimize`. That prototype was removed before commit. The next task is
+to split reader work by accepted wire kind and keep each Hako file small; no
+reader or parity completion is claimed yet.
+
+Next diagnostic task order:
+
+```text
+U4-A3.1  empty-body/root-envelope reader over the generic facade
+U4-A3.2  one leaf expression family: Int/Str/Bool/Null/Var
+U4-A3.3  one child expression family: Binary/Compare/Logical
+U4-A3.4  Call/Method/Field and ordered child publication
+U4-A3.5  statement families and body/argument limits
+U4-A3.6  snapshot seal, direct invocation fixture, and parity gate
+```
+
+Each slice must compile/run in isolation before the next reader family is
+added. A reader that again crosses the diagnostic boundary returns to the
+shape split; it is not accepted as a single large Hako box.
 
 Required gates are strict syntax/accessor conformance, handle integrity and
 cleanup, HHako ownership of all ProgramV0 decisions, direct snapshot parity,
