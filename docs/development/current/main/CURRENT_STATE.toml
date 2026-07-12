@@ -62,11 +62,12 @@ history; the exact-i64 witness and LocalContractWrite Fact bridge slices are
 closed. The active next slice is BoundedBodyAnalysisSnapshotV0: one bounded,
 read-only Hako analysis capability over validated Program(JSON v0), with
 independent Rust/Hako traversal parity before another Fact facade moves.
-The implementation is stopped at the transport-vocabulary boundary: current
-Program(JSON v0) loses source distinctions including Assignment/Local, Print,
-folded unary literals, and Return(None). The active consultation selects
-wire_vocabulary versus a separate source-provenance transport widening and
-fixes all schema limits before code changes.
+The consultation accepts wire_vocabulary: V0 is an explicitly lossy,
+removable Program(JSON v0) observational quotient and never recovers source
+kind. The active S0 task is ProgramV0WireContractInventoryV0, which must fix
+the producer-emittable / consumer-decodable intersection and expose Float,
+FastMemRegion, Local.declared_type, duplicate-key, trailing-input, and
+extra-field seams before snapshot implementation.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
@@ -78,7 +79,12 @@ latest_workstream_card = "docs/development/current/main/investigations/mirbuilde
 
 latest_card = "mirbuilder-hako-bounded-body-analysis-snapshot-v0-2026-07-12"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-hako-bounded-body-analysis-snapshot-v0-2026-07-12.md"
-latest_card_summary = """The LocalContractWrite exact-i64 Fact bridge is
+latest_card_summary = """The BoundedBodyAnalysisSnapshotV0 consultation
+accepts wire_vocabulary. V0 observes only the closed ProgramV0 wire subset,
+is explicitly lossy and removable, and does not recover source distinctions.
+The active S0 task is ProgramV0WireContractInventoryV0; snapshot code cannot
+start until producer/consumer intersections and schema seams are classified.
+The LocalContractWrite exact-i64 Fact bridge is
 closed with canonical contract-id ownership, fresh identity matching,
 dst-only publication, Copy/same-slot PHI propagation, 17 focused tests, and
 the existing MapStoreI64 inventory guard. BoundedBodyAnalysisSnapshotV0 is
@@ -114,7 +120,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "MIRBUILDER-HAKO-BOUNDED-BODY-ANALYSIS-SNAPSHOT-V0-DESIGN-STOP-001"
+current_blocker_token = "MIRBUILDER-PROGRAMV0-WIRE-CONTRACT-INVENTORY-V0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
