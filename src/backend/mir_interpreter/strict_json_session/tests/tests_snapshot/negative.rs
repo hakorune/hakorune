@@ -75,3 +75,36 @@ fn strict_syntax_failures_precede_hako_reader_and_cleanup_session() {
         assert!(!interpreter.strict_json_session_active());
     }
 }
+
+#[test]
+fn unsupported_backend_fails_before_parse_session_and_hako_effects() {
+    let module = compile_fixture();
+    for backend in [
+        "ny-llvmc-exe",
+        "ny-llvmc-obj",
+        "llvmlite-obj",
+        "llvm-legacy-obj",
+        "llvm-mock-fallback",
+        "pyvm-harness",
+        "wasm",
+        "wasm-v2",
+    ] {
+        let mut interpreter = MirInterpreter::new();
+        let error = interpreter
+            .probe_strict_json_preflight_order(
+                &module,
+                "not-json",
+                "MissingHakoReader.effect/2",
+                backend,
+            )
+            .expect_err("unsupported backend must fail at preflight");
+        let message = error.to_string();
+        assert!(
+            message.contains("backend_unsupported"),
+            "{backend}: {message}"
+        );
+        assert!(message.contains(&format!("backend={backend}")));
+        assert!(!message.contains(INPUT_TAG));
+        assert!(!interpreter.strict_json_session_active());
+    }
+}

@@ -1008,9 +1008,23 @@ changed.
 Malformed and known-Unsupported direct outcomes remain exact Rust/Hako parity,
 and failure signatures are proven unable to begin with a snapshot signature.
 Both `NYASH_STR_CP` modes are identical. Stable gate:
-`tools/checks/hako_direct_snapshot_parity_v0_guard.sh`. U4-A4 broad nested
-negative corpus and repository independence aggregation are next. Fact,
-planner, route, backend, and runtime remain disconnected.
+`tools/checks/hako_direct_snapshot_parity_v0_guard.sh`.
+
+U4-A4 closed on 2026-07-12. The direct corpus now propagates Unsupported from
+`cond`, `then`, nested `body`, `rhs`, `args`, and `recv`, and matches nested
+InvalidInput paths/reasons without partial publication. Strict duplicate-key
+and trailing-input failures occur before HHako. Direct depth/body/argument and
+multibyte Atom/Literal boundaries are fixed at limit-1/limit/limit+1; the
+large node-count and total-text boundaries remain exact component proofs so a
+32,768-node fixture does not turn the daily gate into a multi-minute run.
+Unsupported backends are tested with malformed JSON and a nonexistent HHako
+entry, proving capability rejection precedes parse, session allocation, and
+reader effects. The aggregate dependency guard excludes replay input,
+MapBox/raw scanning, Rust validated carriers/witnesses, and compiler-policy
+owners from the direct path. Stable gate:
+`tools/checks/hako_direct_snapshot_negative_isolation_v0_guard.sh`. U4-A5 one
+read-only Fact consumer is next. Planner, route, backend, and runtime remain
+disconnected.
 
 Each slice must compile/run in isolation before the next reader family is
 added. A reader that again crosses the diagnostic boundary returns to the

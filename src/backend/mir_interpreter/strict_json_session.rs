@@ -96,7 +96,22 @@ impl MirInterpreter {
         input: &str,
         function: &str,
     ) -> Result<VMValue, VMError> {
-        crate::mir::backend_capability::enforce_mir_backend_supported(module, "mir-interpreter")
+        self.execute_function_with_strict_json_session_for_backend(
+            module,
+            input,
+            function,
+            "mir-interpreter",
+        )
+    }
+
+    fn execute_function_with_strict_json_session_for_backend(
+        &mut self,
+        module: &crate::mir::MirModule,
+        input: &str,
+        function: &str,
+        backend: &str,
+    ) -> Result<VMValue, VMError> {
+        crate::mir::backend_capability::enforce_mir_backend_supported(module, backend)
             .map_err(VMError::InvalidInstruction)?;
         let guard = self.open_strict_json_session(input)?;
         let handle = guard.handle();
@@ -106,6 +121,17 @@ impl MirInterpreter {
             function,
             &[VMValue::Integer(handle), VMValue::Integer(root)],
         )
+    }
+
+    #[cfg(test)]
+    pub(super) fn probe_strict_json_preflight_order(
+        &mut self,
+        module: &crate::mir::MirModule,
+        input: &str,
+        function: &str,
+        backend: &str,
+    ) -> Result<VMValue, VMError> {
+        self.execute_function_with_strict_json_session_for_backend(module, input, function, backend)
     }
 
     pub(super) fn open_strict_json_session(
