@@ -56,8 +56,8 @@ the VM remains a narrow semantic-reference adapter, not a product fallback.
 no capability activation. 3504 accepts relation/spec plus exhaustive
 inventory-only Failure/Outcome design. Repository artifact C2 classification
 is 91% complete with 77 warning-unregistered consultation rows; no physical
-move was started. 3505 S0-S5 is complete; 3511 is the active first semantic
-activation slice."""
+move was started. 3505 S0-S5 and the narrow 3511 activation slice are landed
+history; the active lane is the 3455 design stop."""
 
 active_phase = "docs/development/current/main/phases/phase-296x/3455-MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPSTORE-I64-CALLER-ORIENTATION-PILOT-DESIGN-STOP-001.md"
 phase_status = "docs/development/current/main/phases/phase-296x/3455-MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPSTORE-I64-CALLER-ORIENTATION-PILOT-DESIGN-STOP-001.md"
@@ -71,9 +71,9 @@ latest_card_summary = """3456 closed the BoxShape-only typed RoutePolicyRow
 prerequisite on 2026-07-12. 3454 is fixture-backed green, and 3455 is the
 active design consultation stop for the next hard-authority selection. The
 3455 task does not reopen the parked MapStore caller-orientation pilot; the
-3456/3454 work already separated key and stored-value
-domains, generate one typed decision payload and caller projection, retain the
-independent Rust matcher/oracle, and centralize validation. Language-v1
+3456/3454 work already separated key and stored-value domains, generated one
+typed decision payload and caller projection, retained the independent Rust
+matcher/oracle, and centralized validation. Language-v1
 runtime/semantic behavior remains unchanged; no route, mutation, backend, or
 Source Selfhost claim is activated. 3505/3511 remain landed history and the
 LANGV1 conformance closeout is parked until this user-priority lane closes.
@@ -103,16 +103,16 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-12: 3455 opens the MapStore caller-orientation Fact/Plan/Boundary design stop after the 3454 fixture-backed pilot; no next hard-authority owner is selected.",
+  "2026-07-12: 3454 closes the MapStoreI64 caller-orientation pilot with PolicyRowIdOnly/Unit scope, typed key/stored-value evidence, fail-fast identity validation, fixture, and guard.",
+  "2026-07-12: 3456 closes MapStore RoutePolicyRow BoxShape with one multi-artifact generator, projection ownership, atomic write/check, and value_boundary removal from current generated policy artifacts.",
+  "2026-07-12: 3511 closes the narrow hako_mem_free Unit/no-result semantic activation slice; global Unit activation remains zero.",
+  "2026-07-12: 3505 closes Failure/Outcome relation inventory S0-S5 and keeps semantic ownership pending outside the accepted narrow activation.",
+  "2026-07-12: 3504 accepts the Failure/Outcome relation/spec and exhaustive inventory-only design; physical artifact movement remains disabled.",
   "2026-07-11: H3 C1 accepts 112 README-section-reviewed design rows, lowers the warning backlog from 844 to 732, and keeps physical design moves disabled; C2 owner-family review is the next stop.",
   "2026-07-11: Repository artifact lifecycle inventory confirms docs/check history is the growth source; existing archive policy now owns H0-H5 baseline, bounded phase/card moves, design registry, guard convergence, and closeout enforcement without opening another numbered cleanup card.",
   "2026-07-11: 3503 accepts defer_with_failfast, proves declaration-only and dynamic-alias-only Weak obligations reject every product backend, keeps VM reference-only, and opens 3504 Failure/Outcome design.",
   "2026-07-11: Fable5 stop-the-line review closes obsolete parser comment-token guards, moves program-parser naming ownership, joins naming to the Language v1 FULL gate, and restores dev_gate quick plus FULL grammar green; 3503 remains the active design stop.",
   "2026-07-11: 3502 closes WeakFieldContractOwner, explicit writes, declaration-indexed slots, dynamic alias enforcement, refreshed JSON, VM reference checks, and non-VM fail-fast; 3503 opens product-backend selection.",
   "2026-07-11: 3501 closes stable WeakRef token equality, logical Dead/Freed upgrade, strict WeakRef.Load, and keeps Weak field activation at zero; 3502 becomes active.",
-  "2026-07-11: 3500 accepts WeakFieldContractOwner + WeakFieldWrite + declaration-indexed weak slots + unified-absence reads; 3501 opens the prerequisite WeakRef value-law corrective.",
-  "2026-07-11: 3499 closes seven-boundary typed Array exact-numeric state contracts; 3500 opens Weak field contract design.",
-  "2026-07-11: 3498 accepts annotation-only invariant typed Array state contracts and VM-only exact-numeric scope; 3499 becomes active.",
-  "2026-07-11: 3497 closes explicit Array write producer/planner/VM/JSON/projection convergence and shared-state identity; 3498 opens Typed Array element-contract design.",
-  "2026-07-11: 3496 accepts explicit ArrayElementWrite, ArrayElementWriteOwner, and shared mutable-state identity; 3497 becomes active.",
-  "2026-07-11: 3495 closes readonly U16 Static Table source spec, derived plan, refreshed carrier, VM/JSON consumers, and backend preflight; 3496 opens Array write-owner design.",
 ]

@@ -30,6 +30,9 @@ jobs:
       - name: ABI lane guard
         run: bash tools/checks/abi_lane_guard.sh
 
+      - name: Failure/Outcome semantic manifest drift
+        run: python3 tools/docs/failure_outcome_semantic_site_graph.py --check
+
       - name: Language v1 sensitive-change FULL gate
         if: ${{ github.event_name == 'pull_request' }}
         run: >-

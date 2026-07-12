@@ -2138,33 +2138,33 @@
     },
     {
       "evidence": "# env.get returns StringBox handle (or null). Mark as stringish so",
-      "evidence_id": "src/llvm_py/instructions/externcall.py:244:env.get",
+      "evidence_id": "src/llvm_py/instructions/externcall.py:249:env.get",
       "evidence_kind": "provider_optional_or_missing",
-      "line": 244,
+      "line": 249,
       "source_path": "src/llvm_py/instructions/externcall.py",
       "token": "env.get"
     },
     {
       "evidence": "if llvm_name == \"nyash.env.get\" and resolver is not None:",
-      "evidence_id": "src/llvm_py/instructions/externcall.py:247:env.get",
+      "evidence_id": "src/llvm_py/instructions/externcall.py:252:env.get",
       "evidence_kind": "provider_optional_or_missing",
-      "line": 247,
+      "line": 252,
       "source_path": "src/llvm_py/instructions/externcall.py",
       "token": "env.get"
     },
     {
       "evidence": "\"nyash.env.get\": (i64, [i64]),",
-      "evidence_id": "src/llvm_py/instructions/externcall.py:89:env.get",
+      "evidence_id": "src/llvm_py/instructions/externcall.py:94:env.get",
       "evidence_kind": "provider_optional_or_missing",
-      "line": 89,
+      "line": 94,
       "source_path": "src/llvm_py/instructions/externcall.py",
       "token": "env.get"
     },
     {
       "evidence": "\"nyash.env.now_ms\": (i64, []),",
-      "evidence_id": "src/llvm_py/instructions/externcall.py:91:env.now_ms",
+      "evidence_id": "src/llvm_py/instructions/externcall.py:96:env.now_ms",
       "evidence_kind": "provider_failure_surface",
-      "line": 91,
+      "line": 96,
       "source_path": "src/llvm_py/instructions/externcall.py",
       "token": "env.now_ms"
     },
@@ -2442,9 +2442,9 @@
     },
     {
       "evidence": "function_with_extern_call(\"env.get/1\", vec![ValueId::new(1)], Some(ValueId::new(2)));",
-      "evidence_id": "src/mir/extern_call_route_plan/route.rs:236:env.get",
+      "evidence_id": "src/mir/extern_call_route_plan/route.rs:294:env.get",
       "evidence_kind": "provider_optional_or_missing",
-      "line": 236,
+      "line": 294,
       "source_path": "src/mir/extern_call_route_plan/route.rs",
       "token": "env.get"
     },
@@ -5008,9 +5008,9 @@
         "src/host_providers/mir_builder/backend_shape.rs:150:env.get",
         "src/llvm_py/instructions/extern_normalize.py:41:env.get",
         "src/llvm_py/instructions/extern_normalize.py:42:env.get",
-        "src/llvm_py/instructions/externcall.py:244:env.get",
-        "src/llvm_py/instructions/externcall.py:247:env.get",
-        "src/llvm_py/instructions/externcall.py:89:env.get",
+        "src/llvm_py/instructions/externcall.py:249:env.get",
+        "src/llvm_py/instructions/externcall.py:252:env.get",
+        "src/llvm_py/instructions/externcall.py:94:env.get",
         "src/runner/json_v0_bridge/lowering/program.rs:479:env.get",
         "src/runner/json_v0_bridge/lowering/program.rs:487:env.get",
         "src/runner/reference/vm_hako.rs:26:env.get",
@@ -5037,7 +5037,7 @@
       "evidence_refs": [
         "src/llvm_py/instructions/extern_normalize.py:45:env.now_ms",
         "src/llvm_py/instructions/extern_normalize.py:46:env.now_ms",
-        "src/llvm_py/instructions/externcall.py:91:env.now_ms"
+        "src/llvm_py/instructions/externcall.py:96:env.now_ms"
       ],
       "layer": "implementation",
       "migration_action": "",
@@ -5296,7 +5296,7 @@
         "src/mir/control_tree/normalized_shadow/post_if_post_k.rs:416:env.get",
         "src/mir/control_tree/normalized_shadow/support/expr_lowering.rs:107:env.get",
         "src/mir/control_tree/normalized_shadow/support/expr_lowering.rs:46:env.get",
-        "src/mir/extern_call_route_plan/route.rs:236:env.get",
+        "src/mir/extern_call_route_plan/route.rs:294:env.get",
         "src/mir/extern_call_route_plan/route_spec.rs:105:env.get",
         "src/mir/extern_call_route_plan/route_spec.rs:107:env.get",
         "src/mir/extern_call_route_plan/route_spec.rs:108:env.get",
