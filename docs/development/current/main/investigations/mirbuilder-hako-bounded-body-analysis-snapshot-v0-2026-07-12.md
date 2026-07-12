@@ -469,8 +469,8 @@ A6 closeout evidence:
 
 ```text
 B1_flat_ordered_publication_model = complete
-B2_validated_typed_carrier = blocked_by_U3
-B3_one_node_observations = pending
+B2_validated_typed_carrier = active
+B3_one_node_observations = blocked_by_B2
 B4_preorder_coordinator = pending
 B5_poisoned_sealed_builder = pending
 B6_exact_rust_hako_parity = pending
@@ -572,9 +572,12 @@ U1 is closed with a crate-private byte leaf, RHako normalized-text/budget
 adoption, multibyte/NUL/normalization fixtures, both `NYASH_STR_CP` modes, and
 a dependency guard. U2 is closed with one internal `Callee::Extern` route,
 reference-VM direct dispatch, metadata-only shared backend preflight, product
-backend rejection, and a two-mode HHako fixture. U3 independent local carriers
-is active; then B2/B3 resume. Do not claim B2, text-budget parity, or exact
-RHako/HHako snapshot parity until U0-U5 are closed. The worker prototype also used unsupported
+backend rejection, and a two-mode HHako fixture. U3 is closed with sealed
+RHako construction, an HHako scalar carrier factory, replay-only count
+recomputation, factory-only repository guards, and the Hako literal/atom
+budget split. U4 B2 structured carrier ingress is active; B3 waits for it.
+Do not claim B2 completion, text-budget parity, or exact RHako/HHako snapshot
+parity until U0-U5 are closed. The worker prototype also used unsupported
 `String.split()` helpers; field closure must use a closed declarative schema,
 not CSV parsing or substring detection.
 

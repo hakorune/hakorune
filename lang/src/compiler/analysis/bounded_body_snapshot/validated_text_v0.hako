@@ -1,0 +1,57 @@
+// Local decoded-text witness for the Hako SnapshotV0 reader.
+// Only this factory constructs a witness. It retains scalar value/count/class;
+// this is not a physical String-copy or runtime tamper-proof claim.
+using lang.compiler.analysis.bounded_body_snapshot.budget_v0 as BoundedBodySnapshotBudgetV0
+using lang.compiler.analysis.bounded_body_snapshot.decoded_utf8_byte_len_v0 as DecodedUtf8ByteLenV0Box
+using lang.compiler.analysis.bounded_body_snapshot_schema_v0 as BoundedBodySnapshotSchemaV0Box
+
+box ValidatedTextV0 {
+  _value: String
+  _byte_count: Integer
+  _text_class: String
+  birth(value, byte_count, text_class) {
+    me._value = value me._byte_count = byte_count me._text_class = text_class
+  }
+  value() { return me._value }
+  byte_count() { return me._byte_count }
+  text_class() { return me._text_class }
+}
+
+box ValidatedTextBuildV0 {
+  _status: String
+  _text
+  _reason: String
+  birth(status, text, reason) { me._status = status me._text = text me._reason = reason }
+  status() { return me._status }
+  text() { return me._text }
+  reason() { return me._reason }
+}
+
+static box ValidatedTextV0Box {
+  atom(value, budget) { return me._from_decoded(value, "Atom", budget) }
+  literal(value, budget) { return me._from_decoded(value, "Literal", budget) }
+
+  replay_only(value, provided_byte_count, text_class, budget) {
+    if value == null || budget == null { return me._violation("internal.carrier.missing_input") }
+    local scalar_value = me._decoded_scalar(value)
+    local actual = DecodedUtf8ByteLenV0Box.count(scalar_value)
+    if provided_byte_count != actual { return me._violation("internal.carrier.byte_count_mismatch") }
+    return me._seal(scalar_value, actual, text_class, budget)
+  }
+
+  _from_decoded(value, text_class, budget) {
+    if value == null || budget == null { return me._violation("internal.carrier.missing_input") }
+    local scalar_value = me._decoded_scalar(value)
+    return me._seal(scalar_value, DecodedUtf8ByteLenV0Box.count(scalar_value), text_class, budget)
+  }
+
+  _seal(value, byte_count, text_class, budget) {
+    if BoundedBodySnapshotSchemaV0Box.text_class_allowed(text_class) != 1 { return me._violation("internal.carrier.text_class") }
+    local reason = budget.observe_text(byte_count, BoundedBodySnapshotSchemaV0Box.is_literal_text_class(text_class))
+    if reason != null { return new ValidatedTextBuildV0("Unsupported", null, "" + reason) }
+    return new ValidatedTextBuildV0("Ready", new ValidatedTextV0(value, byte_count, text_class), "")
+  }
+
+  _decoded_scalar(value) { return "" + value }
+  _violation(reason) { return new ValidatedTextBuildV0("InternalCarrierContractViolation", null, reason) }
+}

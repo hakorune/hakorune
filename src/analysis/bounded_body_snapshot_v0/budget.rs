@@ -94,4 +94,8 @@ impl BoundedBodyBudgetV0 {
     pub fn max_depth_observed(&self) -> usize {
         self.max_depth_observed
     }
+
+    pub fn total_text_bytes(&self) -> usize {
+        self.total_text_bytes
+    }
 }

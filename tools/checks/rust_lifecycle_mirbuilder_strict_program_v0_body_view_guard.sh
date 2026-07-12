@@ -40,7 +40,8 @@ required = (
     "ValidatedProgramV0BodyView",
     "ValidatedNodeV0",
     "ValidatedTextV0",
-    "DecodedUtf8ByteLenV0::count(text)",
+    "DecodedUtf8ByteLenV0::count(value)",
+    "ValidatedTextV0::from_decoded",
     "ValidatedAtomValueV0::I64",
 )
 for needle in required:

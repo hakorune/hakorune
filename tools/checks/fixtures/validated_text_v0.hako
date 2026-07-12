@@ -1,0 +1,49 @@
+using lang.compiler.analysis.bounded_body_snapshot.budget_v0 as BoundedBodySnapshotBudgetV0
+using lang.compiler.analysis.bounded_body_snapshot.validated_text_v0 as ValidatedTextV0Box
+
+static box Main {
+  main() {
+    local budget = new BoundedBodySnapshotBudgetV0()
+    local source = "猫😸"
+    local atom_result = ValidatedTextV0Box.atom(source, budget)
+    if atom_result.status() != "Ready" { return 1 }
+    local atom = atom_result.text()
+    source = "changed"
+    if atom.value() != "猫😸" { return 2 }
+    if atom.byte_count() != 7 { return 3 }
+    if atom.text_class() != "Atom" { return 4 }
+    if budget.total_text_bytes() != 7 { return 5 }
+
+    local literal_result = ValidatedTextV0Box.literal("é", budget)
+    if literal_result.status() != "Ready" { return 6 }
+    local literal = literal_result.text()
+    if literal.byte_count() != 3 || literal.text_class() != "Literal" { return 7 }
+    if budget.total_text_bytes() != 10 { return 8 }
+
+    local mismatch = ValidatedTextV0Box.replay_only("猫", 1, "Atom", budget)
+    if mismatch.status() != "InternalCarrierContractViolation" { return 9 }
+    if mismatch.reason() != "internal.carrier.byte_count_mismatch" { return 10 }
+    if mismatch.text() != null || budget.total_text_bytes() != 10 { return 11 }
+
+    local invalid_class = ValidatedTextV0Box.replay_only("a", 1, "Unknown", budget)
+    if invalid_class.status() != "InternalCarrierContractViolation" { return 12 }
+    if invalid_class.reason() != "internal.carrier.text_class" { return 13 }
+    if budget.total_text_bytes() != 10 { return 14 }
+
+    local oversized = ""
+    local i = 0
+    loop(i < 1025) { oversized = oversized + "a" i = i + 1 }
+    local over_limit = ValidatedTextV0Box.atom(oversized, budget)
+    if over_limit.status() != "Unsupported" { return 15 }
+    if over_limit.reason() != "limit.max_atom_bytes" { return 16 }
+    if over_limit.text() != null || budget.total_text_bytes() != 10 { return 17 }
+
+    local literal_budget = new BoundedBodySnapshotBudgetV0()
+    local large_literal = ValidatedTextV0Box.literal(oversized, literal_budget)
+    if large_literal.status() != "Ready" { return 18 }
+    local large_text = large_literal.text()
+    if large_text.byte_count() != 1025 { return 19 }
+    if literal_budget.total_text_bytes() != 1025 { return 20 }
+    return 0
+  }
+}

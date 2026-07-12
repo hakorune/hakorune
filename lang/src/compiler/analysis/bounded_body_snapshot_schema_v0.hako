@@ -13,6 +13,16 @@ static box BoundedBodySnapshotSchemaV0Box {
   root_body_depth() { return 0 }
   top_level_node_depth() { return 1 }
 
+  text_class_allowed(text_class) {
+    if text_class == "Atom" || text_class == "Literal" { return 1 }
+    return 0
+  }
+
+  is_literal_text_class(text_class) {
+    if text_class == "Literal" { return 1 }
+    return 0
+  }
+
   atom_schema(domain, kind) {
     if domain == "stmt" {
       if kind == "Local" { return "name:Text:Atom" }

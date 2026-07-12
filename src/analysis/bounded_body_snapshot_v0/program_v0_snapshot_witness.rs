@@ -70,7 +70,7 @@ fn owned_atom(value: ValidatedAtomValueV0<'_>) -> AtomValueV0 {
     match value {
         ValidatedAtomValueV0::I64(value) => AtomValueV0::I64(value),
         ValidatedAtomValueV0::Bool(value) => AtomValueV0::Bool(value),
-        ValidatedAtomValueV0::Text(value) => AtomValueV0::Text(value.value.to_owned()),
+        ValidatedAtomValueV0::Text(value) => AtomValueV0::Text(value.value().to_owned()),
         ValidatedAtomValueV0::Null => AtomValueV0::Null,
     }
 }

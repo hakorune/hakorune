@@ -394,11 +394,7 @@ fn validated_text_bundles_value_utf8_bytes_and_class() {
         local.atoms(),
         vec![(
             AtomKeyV0::Name,
-            ValidatedAtomValueV0::Text(ValidatedTextV0 {
-                value: "猫x",
-                utf8_byte_len: 4,
-                class: TextClassV0::Atom,
-            })
+            ValidatedAtomValueV0::Text(ValidatedTextV0::from_decoded("猫x", TextClassV0::Atom,))
         )]
     );
     let string = local.children()[0].1;
@@ -406,11 +402,9 @@ fn validated_text_bundles_value_utf8_bytes_and_class() {
         string.atoms(),
         vec![(
             AtomKeyV0::Value,
-            ValidatedAtomValueV0::Text(ValidatedTextV0 {
-                value: "猫😸",
-                utf8_byte_len: 7,
-                class: TextClassV0::Literal,
-            })
+            ValidatedAtomValueV0::Text(
+                ValidatedTextV0::from_decoded("猫😸", TextClassV0::Literal,)
+            )
         )]
     );
 }

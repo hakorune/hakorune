@@ -173,16 +173,41 @@ U2 closeout:
 - the stable guard is
   `tools/checks/rust_lifecycle_mirbuilder_decoded_utf8_byte_len_v0_capability_guard.sh`.
 
-### U3 — Independent local `ValidatedTextV0` (active)
+### U3 — Independent local `ValidatedTextV0` (complete)
 
 - RHako constructs and seals its local witness from the decoded Rust string;
-- HHako invokes the internal leaf during its own structured traversal and
-  constructs a separate local witness;
+- HHako normal factory invokes the internal leaf on already-decoded scalar
+  string data; U4 later wires that factory into structured traversal;
 - any replay-provided count is recomputed; mismatch becomes
   `InternalCarrierContractViolation`, never user `InvalidInput`;
 - no path-keyed sidecar, raw input alias, or ProgramV0 schema widening.
 
-### U4 — Resume S3 B2/B3
+U3 closeout:
+
+- RHako `ValidatedTextV0` has private fields and one crate-private
+  `from_decoded(value, class)` constructor; byte count is derived there and
+  consumers use read-only accessors only;
+- HHako `ValidatedTextV0Box.atom/literal` scalar-normalizes an already-decoded
+  String, calls `DecodedUtf8ByteLenV0Box.count`, applies the local budget, and
+  retains only value/count/class. It stores no `MapBox`, `ArrayBox`, `PathV0`,
+  raw node, or caller-provided count;
+- the declarative Hako schema owns the closed `Atom`/`Literal` class test.
+  The Hako budget now keeps the literal and atom per-item limits separate, so
+  a 1025-byte literal is accepted while a 1025-byte atom is Unsupported;
+- `replay_only` always recomputes count. A mismatch or unknown class returns
+  `InternalCarrierContractViolation` and leaves the budget unchanged. The
+  repository guard forbids normal Hako sources from constructing the carrier
+  or consuming `replay_only` directly;
+- Hako has no runtime-private field or true immutable-object seal. U3 claims
+  scalar containment plus a repository guard, not a runtime tamper-proof
+  carrier or a physical String-copy proof;
+- no Hako structured reader/traversal is claimed yet. U4 is the first slice
+  that may call this normal factory from structured ingress;
+- stable evidence remains
+  `rust_lifecycle_mirbuilder_decoded_utf8_byte_len_v0_guard.sh` and
+  `rust_lifecycle_mirbuilder_hako_bounded_body_snapshot_model_v0_guard.sh`.
+
+### U4 — Resume S3 B2/B3 (active)
 
 - rewrite the parked prototype around the selected operation;
 - use a closed declarative field schema, not `split`, substring, or `indexOf`;

@@ -96,7 +96,10 @@ non-authority. U0/U1 are closed: the RHako internal leaf owns only decoded
 UTF-8 octet length and is proven independent of `NYASH_STR_CP`; U2 closes one
 internal HHako `Callee::Extern` route, Rust reference direct dispatch,
 metadata-only shared product-backend preflight/rejection, and a two-mode Hako
-fixture. U3 independent local carriers is active before B2 resume. Both
+fixture. U3 closes sealed RHako construction, an HHako scalar carrier factory,
+replay-only count verification, repository construction guards, and the Hako
+literal/atom budget split. U4 B2 structured carrier ingress is active before
+B3 observations. Both
 recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
@@ -160,7 +163,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "MIRBUILDER-DECODED-UTF8-BYTE-LEN-V0-INDEPENDENT-LOCAL-CARRIER-001"
+current_blocker_token = "MIRBUILDER-BOUNDED-BODY-SNAPSHOT-V0-HHAKO-STRUCTURED-CARRIER-INGRESS-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

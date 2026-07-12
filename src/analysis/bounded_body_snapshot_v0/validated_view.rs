@@ -8,9 +8,35 @@ use super::{
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct ValidatedTextV0<'a> {
-    pub value: &'a str,
-    pub utf8_byte_len: usize,
-    pub class: TextClassV0,
+    value: &'a str,
+    utf8_byte_len: usize,
+    class: TextClassV0,
+}
+
+impl<'a> ValidatedTextV0<'a> {
+    /// Creates the only RHako local text witness from a decoded string.
+    ///
+    /// The derived byte count cannot be supplied by a caller, so the value and
+    /// witness remain tied to the declarative UTF-8 operation.
+    pub(crate) fn from_decoded(value: &'a str, class: TextClassV0) -> Self {
+        Self {
+            value,
+            utf8_byte_len: DecodedUtf8ByteLenV0::count(value),
+            class,
+        }
+    }
+
+    pub fn value(self) -> &'a str {
+        self.value
+    }
+
+    pub fn utf8_byte_len(self) -> usize {
+        self.utf8_byte_len
+    }
+
+    pub fn class(self) -> TextClassV0 {
+        self.class
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -229,11 +255,7 @@ fn text_atom<'a>(
     let text = required_string(value, field);
     (
         key,
-        ValidatedAtomValueV0::Text(ValidatedTextV0 {
-            value: text,
-            utf8_byte_len: DecodedUtf8ByteLenV0::count(text),
-            class,
-        }),
+        ValidatedAtomValueV0::Text(ValidatedTextV0::from_decoded(text, class)),
     )
 }
 
