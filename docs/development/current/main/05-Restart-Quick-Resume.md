@@ -38,11 +38,12 @@ cargo check -q
 
 ## Restart Notes
 
-- handoff frontier: `MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001`
-- read `docs/development/current/main/phases/phase-296x/3456-MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001.md`
-  before editing; preserve typed key/stored-value domain separation
-- this explicit user-priority lane is BoxShape-only; no route, mutation,
-  backend, or Source Selfhost activation
+- handoff frontier: read `current_blocker_token` in `CURRENT_STATE.toml`
+- read `latest_card_path` before editing
+- the active slice bridges checked `LocalContractWrite` evidence into the
+  existing `ExactNumericValueFact` owner
+- do not add a dynamic integer owner or move route, mutation, backend, or
+  Source Selfhost authority
 - LANGV1 conformance closeout and Failure/Outcome global migration remain
   parked and must not be inferred complete
 

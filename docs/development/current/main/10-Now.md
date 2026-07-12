@@ -1,5 +1,5 @@
 Status: SSOT mirror
-Date: 2026-07-10
+Date: 2026-07-12
 Scope: one-screen current dashboard. Do not store landed history here.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -19,7 +19,9 @@ Related:
 - blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
 - language-v1 workstream:
   `docs/development/current/main/workstreams/language-v1-convergence-current.md`
-- priority: explicit user-priority selfhost resume at MirBuilder 3456
+- priority: read `active_lane` and `current_blocker_token`; the current slice
+  is the checked `LocalContractWrite` to existing `ExactNumericValueFact`
+  bridge
 - parked language work: LANGV1 conformance closeout remains parked; no
   language behavior is changed by the reprioritization
 

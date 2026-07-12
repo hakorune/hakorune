@@ -25,9 +25,8 @@ When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executa
 
 ## Handoff
 
-The explicit user priority change reopens the parked selfhost lane at
-`MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001`. Read
-`docs/development/current/main/phases/phase-296x/3456-MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001.md`.
-This is a BoxShape-only task: no route selection, runtime mutation, backend
-lowering, or Source Selfhost claim. Language-v1 conformance closeout remains
-parked and is not silently claimed complete.
+Read `latest_card_path` in `CURRENT_STATE.toml` before editing. The active
+slice bridges checked `LocalContractWrite` evidence into the existing
+`ExactNumericValueFact` owner. Do not create a dynamic integer owner or move
+route-selection, runtime-mutation, backend-lowering, or Source Selfhost
+authority. Language-v1 conformance closeout remains parked.
