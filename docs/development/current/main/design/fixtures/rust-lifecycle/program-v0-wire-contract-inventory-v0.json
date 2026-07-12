@@ -1,0 +1,405 @@
+{
+  "claims": {
+    "all_variants_classified": 1,
+    "mir_or_id_allocation": 0,
+    "planner_or_route_authority": 0,
+    "program_json_schema_changed": 0,
+    "schema_mismatch_stops": 7,
+    "snapshot_implementation_started": 0,
+    "source_kind_recovery": 0
+  },
+  "field_seams": [
+    {
+      "classification": "known-but-unobserved",
+      "owner": "Local",
+      "path": "$.body[].declared_type"
+    },
+    {
+      "classification": "known-but-unobserved",
+      "owner": "Int",
+      "path": "$.body[].expr.declared_type"
+    },
+    {
+      "classification": "known-but-unobserved",
+      "owner": "New",
+      "path": "$.body[].expr.field_initializers"
+    },
+    {
+      "classification": "producer-only-extra",
+      "owner": "ProgramV0",
+      "path": "$.brand_decls"
+    },
+    {
+      "classification": "producer-only-extra",
+      "owner": "ProgramV0",
+      "path": "$.type_alias_decls"
+    },
+    {
+      "classification": "producer-only-extra",
+      "owner": "FuncDefV0",
+      "path": "$.defs[].uses"
+    },
+    {
+      "classification": "producer-only-extra",
+      "owner": "FuncDefV0",
+      "path": "$.defs[].contracts"
+    }
+  ],
+  "kind": "ProgramV0WireContractInventoryV0",
+  "operators": {
+    "Binary": [
+      "+",
+      "-",
+      "*",
+      "/",
+      "%",
+      "&",
+      "|",
+      "^",
+      "<<",
+      ">>"
+    ],
+    "Compare": [
+      "==",
+      "!=",
+      "<",
+      ">",
+      "<=",
+      ">="
+    ],
+    "Logical": [
+      "&&",
+      "||"
+    ]
+  },
+  "parser_seams": {
+    "deny_unknown_fields": 0,
+    "extra_fields": "tolerated_and_discarded",
+    "full_input_consumption": "strict_non_whitespace",
+    "int_value_decode": "serde_json_value_then_i64_number_or_decimal_string",
+    "json_syntax": "strict",
+    "known_duplicate_fields": "rejected",
+    "known_unsupported_vs_malformed": "not_distinguished",
+    "unknown_duplicate_fields": "unproven"
+  },
+  "provenance": {
+    "card": {
+      "path": "docs/development/current/main/investigations/mirbuilder-hako-bounded-body-analysis-snapshot-v0-2026-07-12.md",
+      "sha256": "4656aed887cb60bbadca4efed1395770b6638304c750e8ba7a64aeb8be9ff3c3"
+    },
+    "consumer": {
+      "path": "src/runner/json_v0_bridge/ast.rs",
+      "sha256": "e302a826086c22193fd32030a4da642d4ceca1401f208f5e93abc6b5a1c6451e"
+    },
+    "consumer_entry": {
+      "path": "src/runner/json_v0_bridge/core.rs",
+      "sha256": "c6cedec4d1c8dff853b56b5c3234ce40b8279f662b14ba2f71135ca608618711"
+    },
+    "int_consumer": {
+      "path": "src/runner/json_v0_bridge/lowering/expr.rs",
+      "sha256": "95b8885d104b4a4e64cb20e93a7c8f35ecddbff36a03107b720935cb3ddf7dc4"
+    },
+    "producers": [
+      {
+        "path": "src/stage1/program_json_v0/lowering.rs",
+        "sha256": "27f00e12165acd345be0de25caa1411d947e8f8fe741482497bf88ce768c53b8"
+      },
+      {
+        "path": "src/stage1/program_json_v0/lowering/statements.rs",
+        "sha256": "017982867f75f78c7115abb1ae3568efa7d7c36b7ff54e635330edb11044bfec"
+      },
+      {
+        "path": "src/stage1/program_json_v0/lowering/expr_support.rs",
+        "sha256": "d8107f96263fd55ee06387734e1d1975cd4c7ee810ff1c1fd87da51b47e85445"
+      },
+      {
+        "path": "src/stage1/program_json_v0/lowering/typed_array.rs",
+        "sha256": "4e68bb26e7de45d01247eb3a918b42d6df363150c1b1679119a46f2e23d948ea"
+      }
+    ]
+  },
+  "rows": [
+    {
+      "classification": "Accepted",
+      "consumer_decodable": 1,
+      "domain": "stmt",
+      "producer_emittable": 1,
+      "tag": "Break"
+    },
+    {
+      "classification": "Accepted",
+      "consumer_decodable": 1,
+      "domain": "stmt",
+      "producer_emittable": 1,
+      "tag": "Continue"
+    },
+    {
+      "classification": "Accepted",
+      "consumer_decodable": 1,
+      "domain": "stmt",
+      "producer_emittable": 1,
+      "tag": "Expr"
+    },
+    {
+      "classification": "KnownUnsupported",
+      "consumer_decodable": 1,
+      "domain": "stmt",
+      "producer_emittable": 0,
+      "tag": "Extern"
+    },
+    {
+      "classification": "SchemaMismatchStop",
+      "consumer_decodable": 0,
+      "domain": "stmt",
+      "producer_emittable": 1,
+      "tag": "FastMemRegion"
+    },
+    {
+      "classification": "KnownUnsupported",
+      "consumer_decodable": 1,
+      "domain": "stmt",
+      "producer_emittable": 0,
+      "tag": "FiniReg"
+    },
+    {
+      "classification": "Accepted",
+      "consumer_decodable": 1,
+      "domain": "stmt",
+      "producer_emittable": 1,
+      "tag": "If"
+    },
+    {
+      "classification": "Accepted",
+      "consumer_decodable": 1,
+      "domain": "stmt",
+      "producer_emittable": 1,
+      "tag": "Local"
+    },
+    {
+      "classification": "Accepted",
+      "consumer_decodable": 1,
+      "domain": "stmt",
+      "producer_emittable": 1,
+      "tag": "Loop"
+    },
+    {
+      "classification": "Accepted",
+      "consumer_decodable": 1,
+      "domain": "stmt",
+      "producer_emittable": 1,
+      "tag": "LoopRange"
+    },
+    {
+      "classification": "Accepted",
+      "consumer_decodable": 1,
+      "domain": "stmt",
+      "producer_emittable": 1,
+      "tag": "Return"
+    },
+    {
+      "classification": "KnownUnsupported",
+      "consumer_decodable": 1,
+      "domain": "stmt",
+      "producer_emittable": 1,
+      "tag": "TaskScope"
+    },
+    {
+      "classification": "KnownUnsupported",
+      "consumer_decodable": 1,
+      "domain": "stmt",
+      "producer_emittable": 1,
+      "tag": "Throw"
+    },
+    {
+      "classification": "KnownUnsupported",
+      "consumer_decodable": 1,
+      "domain": "stmt",
+      "producer_emittable": 1,
+      "tag": "Try"
+    },
+    {
+      "classification": "KnownUnsupported",
+      "consumer_decodable": 1,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "ArrayLiteral"
+    },
+    {
+      "classification": "Accepted",
+      "consumer_decodable": 1,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "Binary"
+    },
+    {
+      "classification": "KnownUnsupported",
+      "consumer_decodable": 1,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "BlockExpr"
+    },
+    {
+      "classification": "Accepted",
+      "consumer_decodable": 1,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "Bool"
+    },
+    {
+      "classification": "SchemaMismatchStop",
+      "consumer_decodable": 0,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "BrandConstruct"
+    },
+    {
+      "classification": "SchemaMismatchStop",
+      "consumer_decodable": 0,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "BrandUnwrap"
+    },
+    {
+      "classification": "Accepted",
+      "consumer_decodable": 1,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "Call"
+    },
+    {
+      "classification": "Accepted",
+      "consumer_decodable": 1,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "Compare"
+    },
+    {
+      "classification": "KnownUnsupported",
+      "consumer_decodable": 1,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "EnumCtor"
+    },
+    {
+      "classification": "KnownUnsupported",
+      "consumer_decodable": 1,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "EnumMatch"
+    },
+    {
+      "classification": "KnownUnsupported",
+      "consumer_decodable": 1,
+      "domain": "expr",
+      "producer_emittable": 0,
+      "tag": "Extern"
+    },
+    {
+      "classification": "Accepted",
+      "consumer_decodable": 1,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "Field"
+    },
+    {
+      "classification": "SchemaMismatchStop",
+      "consumer_decodable": 0,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "Float"
+    },
+    {
+      "classification": "Accepted",
+      "consumer_decodable": 1,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "Int"
+    },
+    {
+      "classification": "Accepted",
+      "consumer_decodable": 1,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "Logical"
+    },
+    {
+      "classification": "KnownUnsupported",
+      "consumer_decodable": 1,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "Match"
+    },
+    {
+      "classification": "Accepted",
+      "consumer_decodable": 1,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "Method"
+    },
+    {
+      "classification": "KnownUnsupported",
+      "consumer_decodable": 1,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "New"
+    },
+    {
+      "classification": "Accepted",
+      "consumer_decodable": 1,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "Null"
+    },
+    {
+      "classification": "SchemaMismatchStop",
+      "consumer_decodable": 0,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "RecordField"
+    },
+    {
+      "classification": "SchemaMismatchStop",
+      "consumer_decodable": 0,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "RecordLiteral"
+    },
+    {
+      "classification": "SchemaMismatchStop",
+      "consumer_decodable": 0,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "RecordUpdate"
+    },
+    {
+      "classification": "Accepted",
+      "consumer_decodable": 1,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "Str"
+    },
+    {
+      "classification": "KnownUnsupported",
+      "consumer_decodable": 1,
+      "domain": "expr",
+      "producer_emittable": 0,
+      "tag": "Ternary"
+    },
+    {
+      "classification": "KnownUnsupported",
+      "consumer_decodable": 1,
+      "domain": "expr",
+      "producer_emittable": 0,
+      "tag": "Throw"
+    },
+    {
+      "classification": "Accepted",
+      "consumer_decodable": 1,
+      "domain": "expr",
+      "producer_emittable": 1,
+      "tag": "Var"
+    }
+  ],
+  "schema_version": 0,
+  "token": "MIRBUILDER-PROGRAMV0-WIRE-CONTRACT-INVENTORY-V0-001"
+}

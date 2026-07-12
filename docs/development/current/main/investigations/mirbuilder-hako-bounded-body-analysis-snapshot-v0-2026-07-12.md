@@ -256,7 +256,7 @@ source provenance to V0.
 
 ## Task order
 
-### S0 — ProgramV0WireContractInventoryV0 (active)
+### S0 — ProgramV0WireContractInventoryV0 (closed)
 
 - inventory producer-emittable shapes and consumer-decodable shapes;
 - classify every StmtV0/ExprV0 variant with no wildcard;
@@ -269,7 +269,27 @@ source provenance to V0.
 Acceptance: the producer/consumer intersection and every mismatch are
 machine-checkable, and a new unclassified variant makes the guard fail.
 
-### S1 — SnapshotSchemaV0
+Closeout evidence:
+
+- one generated fixture classifies all 40 union rows: 19 Accepted, 14
+  KnownUnsupported, and 7 SchemaMismatchStop;
+- SchemaMismatchStop is exact: statement `FastMemRegion`; expressions
+  `Float`, `BrandConstruct`, `BrandUnwrap`, `RecordField`, `RecordLiteral`,
+  and `RecordUpdate`;
+- root/field seams record `brand_decls`, `type_alias_decls`, def
+  `uses/contracts`, `Local.declared_type`, typed `Int.declared_type`, and
+  `New.field_initializers`;
+- parser seams record strict syntax/full-input behavior, permissive extra
+  fields, unproven duplicate-unknown rejection, delayed Int scalar checking,
+  and the missing known-unsupported/malformed distinction;
+- the generator extracts consumer enum variants and producer literal tags;
+  any unclassified addition fails before fixture comparison;
+- existing ProgramV0 typed decode remains unchanged and is explicitly not the
+  future S2 strict reader;
+- stable guard:
+  `tools/checks/rust_lifecycle_mirbuilder_program_v0_wire_contract_inventory_guard.sh`.
+
+### S1 — SnapshotSchemaV0 (active)
 
 - immutable kinds, child roles, scalar encodings, operator sets;
 - limits, reason codes, structural PathV0, and exact snapshot equality;
