@@ -19,8 +19,9 @@ Related:
 - blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
 - language-v1 workstream:
   `docs/development/current/main/workstreams/language-v1-convergence-current.md`
-- priority: language contract before selfhost migration
-- parked resume: MirBuilder 3456 after language-v1 conformance closeout
+- priority: explicit user-priority selfhost resume at MirBuilder 3456
+- parked language work: LANGV1 conformance closeout remains parked; no
+  language behavior is changed by the reprioritization
 
 ## Rule
 

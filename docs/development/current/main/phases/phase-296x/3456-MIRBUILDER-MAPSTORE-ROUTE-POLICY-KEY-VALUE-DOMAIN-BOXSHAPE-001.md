@@ -2,9 +2,10 @@
 
 ## Status
 
-Parked while Language v1 convergence is active. Resume this ready BoxShape
-prerequisite after `LANGV1-CONFORMANCE-CLOSEOUT-001` or an explicit user
-priority change. No scope, evidence, or acceptance claim is discarded.
+Active by explicit user priority change on 2026-07-12. Language v1
+conformance closeout remains parked; this card is the selected selfhost
+resume task. No language-v1 behavior, scope, evidence, or acceptance claim is
+changed by the reprioritization.
 
 This card changes representation and validation structure only. It must not
 add an accepted route or move authority.

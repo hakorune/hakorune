@@ -4,9 +4,12 @@
 status = "Active implementation workstream"
 date = "2026-07-12"
 
-active_lane = "LANGV1-FAILURE-OUTCOME relation inventory"
-active_lane_status = """Language coherence remains the prerequisite; Source
-Selfhost and MirBuilder 3456 stay parked. 3478 closes LANGV1-GRAMMAR-001 with
+active_lane = "MIRBUILDER-MAPSTORE route-policy BoxShape"
+active_lane_status = """Explicit user priority change on 2026-07-12 reopens
+the parked Source Selfhost/MirBuilder lane before LANGV1 conformance closeout.
+Language-v1 behavior remains unchanged and its closeout stays parked. 3456 is
+the active BoxShape-only prerequisite; it does not add a route, change runtime
+authority, or make a Source Selfhost claim. 3478 closes LANGV1-GRAMMAR-001 with
 one physical registry, two independent recursive parser witnesses, 106/106
 corpus fixtures, zero Canonical-rejected spellings under lang/src, and bounded
 differential composition. 3479 accepts one eventual semantic meaning for every
@@ -55,15 +58,22 @@ is 91% complete with 77 warning-unregistered consultation rows; no physical
 move was started. 3505 S0-S5 is complete; 3511 is the active first semantic
 activation slice."""
 
-active_phase = "docs/development/current/main/phases/phase-296x/3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001.md"
-phase_status = "docs/development/current/main/phases/phase-296x/3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001.md"
+active_phase = "docs/development/current/main/phases/phase-296x/3456-MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001.md"
+phase_status = "docs/development/current/main/phases/phase-296x/3456-MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001.md"
 method_anchor = "docs/development/current/main/design/current-docs-archive-policy-ssot.md"
-taskboard = "docs/development/current/main/phases/phase-296x/3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001.md"
+taskboard = "docs/development/current/main/phases/phase-296x/3456-MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/3456-MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001.md"
 
-latest_card = "3511-LANGV1-FAILURE-OUTCOME-UNIT-NORESULT-HAKO-MEM-FREE-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3511-LANGV1-FAILURE-OUTCOME-UNIT-NORESULT-HAKO-MEM-FREE-001.md"
-latest_card_summary = """3505 is active after repository artifact C2 cleanup.
+latest_card = "3456-MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3456-MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001.md"
+latest_card_summary = """3456 is active by explicit user priority change on
+2026-07-12. The task is a BoxShape-only typed RoutePolicyRow prerequisite for
+the parked MapStore caller-orientation pilot: separate key and stored-value
+domains, generate one typed decision payload and caller projection, retain the
+independent Rust matcher/oracle, and centralize validation. Language-v1
+runtime/semantic behavior remains unchanged; no route, mutation, backend, or
+Source Selfhost claim is activated. 3505/3511 remain landed history and the
+LANGV1 conformance closeout is parked until this user-priority lane closes.
 The normative relation SSOT and 602-row evidence queue are landed; the
 line-independent semantic site graph now contains 54 sites over those
 occurrences, with 10 explicit projections and 52 pending sites. 55 explicit
@@ -81,7 +91,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "LANGV1-FAILURE-OUTCOME-UNIT-NORESULT-HAKO-MEM-FREE-001"
+current_blocker_token = "MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

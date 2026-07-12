@@ -25,13 +25,9 @@ When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executa
 
 ## Handoff
 
-The accepted Failure/Outcome owner-boundary consultation, S1 semantic-site
-graph, S2 projection binding, S2 runtime/provider evidence inventory, S3
-control-flow evidence inventory, S4 exhaustiveness checker, and S5 conflict
-ledger are complete. The first activation design is accepted and taskized as
-`LANGV1-FAILURE-OUTCOME-UNIT-NORESULT-HAKO-MEM-FREE-001`. Read
-`docs/development/current/main/phases/phase-296x/3511-LANGV1-FAILURE-OUTCOME-UNIT-NORESULT-HAKO-MEM-FREE-001.md`.
-Implementation must remain limited to this one route and must keep activation
-at zero until the card's S0-S4 gates are green.
-This remains inventory-only: semantic activation and runtime behavior stay at
-zero.
+The explicit user priority change reopens the parked selfhost lane at
+`MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001`. Read
+`docs/development/current/main/phases/phase-296x/3456-MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001.md`.
+This is a BoxShape-only task: no route selection, runtime mutation, backend
+lowering, or Source Selfhost claim. Language-v1 conformance closeout remains
+parked and is not silently claimed complete.

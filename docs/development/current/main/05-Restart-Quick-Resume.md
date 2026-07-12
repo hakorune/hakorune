@@ -38,12 +38,13 @@ cargo check -q
 
 ## Restart Notes
 
-- handoff frontier: `LANGV1-FAILURE-OUTCOME-UNIT-NORESULT-HAKO-MEM-FREE-001`
-- read `docs/development/current/main/phases/phase-296x/3511-LANGV1-FAILURE-OUTCOME-UNIT-NORESULT-HAKO-MEM-FREE-001.md`
-  before editing; preserve one-way source-site to projection binding
-- activation remains zero until S0-S4 are green; no global Void/Null migration
-- S0-S3 route separation, result-use convergence, and the single LLVM/object
-  consumer are complete; continue with S4 preflight/fixture work
+- handoff frontier: `MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001`
+- read `docs/development/current/main/phases/phase-296x/3456-MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001.md`
+  before editing; preserve typed key/stored-value domain separation
+- this explicit user-priority lane is BoxShape-only; no route, mutation,
+  backend, or Source Selfhost activation
+- LANGV1 conformance closeout and Failure/Outcome global migration remain
+  parked and must not be inferred complete
 
 - do not paste landed chronology into restart docs
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
