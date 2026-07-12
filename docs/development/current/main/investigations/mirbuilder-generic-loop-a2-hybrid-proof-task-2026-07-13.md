@@ -408,6 +408,59 @@ still unchanged; E is not connected until R and final selection are closed.
 
 ### A2-C2 — candidate-local Recipe draft and verifier (active)
 
+#### A2-C2-P0 — existing Recipe coverage preflight (first)
+
+Do not treat the existing `VerifiedRecipeBlock` name as evidence of exact
+source-statement accounting.  The current verifier visibly owns block
+contracts and port signatures; `StmtRef` bounds checks also exist, but the
+active slice must separately prove whether the existing Recipe tree enforces:
+
+```text
+every source statement site is represented exactly once
+no source statement site is duplicated
+no source statement site is omitted
+the canonical step witness names one exact structural site
+```
+
+Inventory these owners before adding a candidate draft:
+
+```text
+RecipeBody / BodyId / StmtRef identity
+RecipeItem recursive child ownership
+RecipeBlock contract verification
+existing bounds / Hole / duplicate checks
+generic-loop body filtering and Recipe construction
+```
+
+The result must be one of:
+
+```text
+ExistingCoverageOwner:
+  name the existing owner and reuse it through a thin candidate wrapper
+
+MissingCoverageOwnerButRepresentable:
+  add a candidate-independent structural accounting verifier only
+  no new RecipeItem, CFG wiring, acceptance, or Lower behavior
+
+MissingStructuralIdentity:
+  DESIGN STOP; do not approximate a nested source site with only a
+  top-level statement index or candidate-local preorder ordinal
+
+MissingRecipeVocabulary:
+  DESIGN STOP; split a separate Recipe/CFG BoxShape card
+```
+
+`CandidateSiteV0.preorder_index` is candidate-local observation order and is
+not automatically an exact Recipe/source identity.  C2 may reuse it only if a
+gate proves a total one-to-one mapping to the Recipe-owned structural site.
+Otherwise introduce no guessed mapping.
+
+P0 is read-only inventory plus focused tests/docs.  Product-path connection,
+candidate selection, parser/source carrier changes, and acceptance widening
+remain zero.
+
+#### A2-C2-P1 — candidate-local draft
+
 ```text
 Canonical hypothesis:
   separate the exact proven step site as CandidateStepWitnessV0
@@ -428,6 +481,16 @@ ports, exits, and carriers are closed
 
 `CandidateRecipeDraftV0` must not require a final selected candidate,
 `StepMode`, Lower result, or backend route. If it does, stop for circularity.
+
+P1 begins only after P0 names a valid exact-accounting owner.  Its output is
+candidate-local and cannot itself select or rank a candidate.
+
+#### A2-C2-P2 — candidate-independent verification
+
+Verify the draft with one invariant set shared by every candidate.  Semantic
+role constructors may change draft shape, but must not change verifier rules.
+The verifier returns a `VerifiedCandidateLoopRecipeV0` only after exact
+accounting and the existing Recipe contract/port checks are all green.
 
 ### A2-C3 — Unique / Zero / Multiple selection
 

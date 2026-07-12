@@ -26,10 +26,13 @@ When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executa
 ## Handoff
 
 Read `latest_card_path` in `CURRENT_STATE.toml` before editing. The active
-slice is A2-C2 candidate-local Recipe draft and candidate-independent
-verification. C0/C1 are closed with exact capture and one closed control-anchor
-proof, while product-path connection remains zero. C2 must account every
-source statement exactly once, retain every BodyManaged write, and must not
-require final selection or StepMode. New Recipe items/CFG wiring, rank,
-parser changes, and widening remain forbidden. Keep source-carrier P1
-stash-only until A2 lands independently and clean-HEAD ProgramV0 is green.
+slice is A2-C2-P0 Recipe coverage preflight. C0/C1 are closed with exact
+capture and one closed control-anchor proof, while product-path connection
+remains zero. Before constructing a candidate-local Recipe draft, P0 must name
+the exact source-statement accounting owner. Existing block-contract/port
+verification and StmtRef bounds checks must not be overclaimed as complete
+coverage. If exact nested identity or existing Recipe vocabulary is missing,
+stop as a separate BoxShape instead of approximating it. New Recipe items/CFG
+wiring, rank, parser changes, and widening remain forbidden. Keep
+source-carrier P1 stash-only until A2 lands independently and clean-HEAD
+ProgramV0 is green.
