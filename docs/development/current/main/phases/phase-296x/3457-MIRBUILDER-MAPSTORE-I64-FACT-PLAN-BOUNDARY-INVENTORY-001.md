@@ -2,10 +2,11 @@
 
 ## Status
 
-Selected by the completed 3455 consultation on 2026-07-12. This card is an
-inventory task, not a hard-authority activation. Do not choose an owner or
-change runtime, route, backend, publication, or Source Selfhost authority
-until the inventory is complete and reviewed.
+Selected by the completed 3455 consultation on 2026-07-12. This is one
+durable BoxShape slice: inventory the authority graph, verify the narrowest
+candidate, and—only if completeness is proven—implement one `I64Const` Fact
+owner with fixture and guard evidence. Do not widen to Plan, Boundary, or
+runtime/backend authority.
 
 ## Decision
 
@@ -22,6 +23,24 @@ The first preferred candidate after inventory is a narrow
 `MapStoreKeyDomainFactOwner` for `I64Const` only. `I64Value` remains pending
 because its current evidence depends on `MirType::Integer` and has no isolated
 source/provenance owner yet.
+
+## Execution slice
+
+This card intentionally contains the following as one task, not separate
+numbered cards:
+
+```text
+1. Build the machine-readable Fact/Plan/Boundary/RegistryDescriptor inventory.
+2. Prove I64Const source, consumer, refresh owner, fail-fast boundary, and fixture completeness.
+3. If all proofs are unique, implement MapStoreKeyDomainFactOwner for I64Const only.
+4. Add the focused fixture and reusable guard; keep the existing route matcher as consumer/oracle.
+5. If any proof is ambiguous, record blocked_reason and stop without owner activation.
+```
+
+The expected minimal code seam is the existing `classify_key_route` /
+`const_i64_value` boundary in `src/mir/generic_method_route_facts.rs`, consumed
+by `write_routes::match_generic_set_route`. This is a candidate seam, not a
+claim that the owner is already activated.
 
 ## Scope
 
@@ -194,6 +213,7 @@ scalar_known_wide_opened = 0
 source_selfhost_claim = 0
 ```
 
-After the inventory is green, select at most one minimal Fact-owner slice. If
-source authority or consumer completeness is ambiguous, return to design
-consultation instead of selecting a convenient-looking owner.
+After the inventory is green, select at most one minimal Fact-owner slice and
+close this card with its fixture/guard. If source authority or consumer
+completeness is ambiguous, return to design consultation instead of selecting
+a convenient-looking owner.
