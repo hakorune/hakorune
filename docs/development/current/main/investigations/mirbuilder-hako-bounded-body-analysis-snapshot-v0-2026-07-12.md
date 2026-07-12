@@ -701,10 +701,17 @@ Implementation task order:
 U4-A0  neutral StrictJsonArenaV0 and generic strict-tree tests
 U4-A1  invocation-owned session/handle guard and cleanup tests
 U4-A2  closed accessor extern family and MIR capability/preflight rows
-U4-A3  HHako structured ingress and independent ProgramV0 reader
+U4-A3  HHako generic facade (started), structured ingress and independent ProgramV0 reader
 U4-A4  direct RHako/HHako parity, negative corpus, and independence guards
 U4-A5  one read-only Fact consumer; planner/route/runtime remain untouched
 ```
+
+Current implementation status: U4-A0, U4-A1, and U4-A2 are green and
+committed. U4-A3 currently contains only the Hako generic accessor facade;
+the Rust-injected session/root invocation, independent ProgramV0 field/tag
+reader, complete snapshot publication, direct parity, and all negative gates
+remain pending. No B2/B3 completion or exact RHako/HHako snapshot parity is
+claimed yet.
 
 Required gates are strict syntax/accessor conformance, handle integrity and
 cleanup, HHako ownership of all ProgramV0 decisions, direct snapshot parity,

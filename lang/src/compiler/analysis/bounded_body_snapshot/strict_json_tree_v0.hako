@@ -1,0 +1,40 @@
+// Generic strict-JSON tree accessor facade.
+//
+// The session handle is injected by the Rust reference runner. Hako owns no
+// open/close operation and this facade performs no ProgramV0 interpretation.
+// Published SnapshotV0 carriers must not retain this facade or its handles.
+static box StrictJsonTreeV0Box {
+  kind(session_handle, node_id) {
+    return externcall "hako.analysis.strict_json_tree_v0.kind"(session_handle, node_id)
+  }
+  object_len(session_handle, node_id) {
+    return externcall "hako.analysis.strict_json_tree_v0.object_len"(session_handle, node_id)
+  }
+  object_key_at(session_handle, node_id, member_index) {
+    return externcall "hako.analysis.strict_json_tree_v0.object_key_at"(session_handle, node_id, member_index)
+  }
+  object_value_at(session_handle, node_id, member_index) {
+    return externcall "hako.analysis.strict_json_tree_v0.object_value_at"(session_handle, node_id, member_index)
+  }
+  array_len(session_handle, node_id) {
+    return externcall "hako.analysis.strict_json_tree_v0.array_len"(session_handle, node_id)
+  }
+  array_at(session_handle, node_id, index) {
+    return externcall "hako.analysis.strict_json_tree_v0.array_at"(session_handle, node_id, index)
+  }
+  string_value(session_handle, node_id) {
+    return externcall "hako.analysis.strict_json_tree_v0.string_value"(session_handle, node_id)
+  }
+  bool_value(session_handle, node_id) {
+    return externcall "hako.analysis.strict_json_tree_v0.bool_value"(session_handle, node_id)
+  }
+  i64_value(session_handle, node_id) {
+    return externcall "hako.analysis.strict_json_tree_v0.i64_value"(session_handle, node_id)
+  }
+  u64_fits_i64(session_handle, node_id) {
+    return externcall "hako.analysis.strict_json_tree_v0.u64_fits_i64"(session_handle, node_id)
+  }
+  u64_as_i64(session_handle, node_id) {
+    return externcall "hako.analysis.strict_json_tree_v0.u64_as_i64"(session_handle, node_id)
+  }
+}

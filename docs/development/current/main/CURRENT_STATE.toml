@@ -144,7 +144,10 @@ ProgramV0 validation/classification, paths, budgets, traversal, and snapshot
 publication. B/C are replay-only; the ValidatedProgramV0BodyView, MapBox, and
 Rust-normalized carrier are forbidden on the direct reader path. The reference
 MIR interpreter is the only first-slice backend and unsupported backends fail
-before parse/session effects.
+before parse/session effects. U4-A0 generic arena, U4-A1 invocation session,
+and U4-A2 accessor/route/preflight are implemented and tested; U4-A3 has only
+the Hako generic facade so far, while independent ProgramV0 reader and direct
+parity remain pending.
 The LocalContractWrite exact-i64 Fact bridge is
 closed with canonical contract-id ownership, fresh identity matching,
 dst-only publication, Copy/same-slot PHI propagation, 17 focused tests, and

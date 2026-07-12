@@ -16,3 +16,11 @@ the internal capability, applies the bounded text budget, and retains only
 scalar value/count/class fields. It does not retain a structured input node,
 `MapBox`, `ArrayBox`, or `PathV0`. Hako has no runtime-private field seal, so
 factory-only construction and replay-only isolation are repository guards.
+
+`strict_json_tree_v0.hako` is the only Hako-side ingress facade for the
+invocation-scoped opaque strict-JSON arena. Rust injects one session handle and
+the root node; Hako receives only generic kind/object/array/scalar accessors.
+It does not open or close sessions, receive `MapBox`, recover ProgramV0
+meaning in Rust, or publish a carrier that retains a handle/node reference.
+ProgramV0 field closure, classification, paths, budgets, traversal, and
+snapshot publication remain Hako-owned reader responsibilities.
