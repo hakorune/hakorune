@@ -136,6 +136,9 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - daily selfhost vocabulary owner; keeps Program(JSON v0) as the single
     current boundary, reads stage0/stage1 through that boundary, and quarantines
     stage2 / K-axis wording as roadmap or historical vocabulary for daily work
+- `design/decoded-utf8-byte-length-contract-v0.md`
+  - RHako/HHako SnapshotV0 decoded UTF-8 byte-count authority, internal
+    capability boundary, independent parity task order, and retirement owner
 - `design/hako-alloc-policy-state-contract-ssot.md`
   - allocator policy/state owner vs native metal keep stop-line owner
 - `design/hako-thread-substrate-boundary-ssot.md`

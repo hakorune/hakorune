@@ -469,7 +469,7 @@ A6 closeout evidence:
 
 ```text
 B1_flat_ordered_publication_model = complete
-B2_validated_typed_carrier = design_stop
+B2_validated_typed_carrier = blocked_by_U0_U3
 B3_one_node_observations = pending
 B4_preorder_coordinator = pending
 B5_poisoned_sealed_builder = pending
@@ -511,7 +511,7 @@ B2-B5 must combine a sealed typed carrier, explicit coordinator, builder
 state machine, and defensive publication reconstruction. The stash remains
 reference-only and must not be applied or partially cherry-picked.
 
-#### B2 UTF-8 byte authority design stop
+#### B2 UTF-8 byte authority decision (hybrid accepted)
 
 The first complete carrier prototype exposed an authority mismatch before it
 was landed. `SnapshotLimitsV0` counts decoded UTF-8 bytes, but Hako
@@ -525,19 +525,36 @@ The prototype is parked as:
 wip/s3-b2-typed-carrier utf8-byte-authority-design-stop
 ```
 
-It must not be revived until one of these designs is selected:
+The consultation selects a B-led hybrid. The durable contract and task order
+are owned by:
 
-1. `inline_validated_text_bundle`:
-   the strict ingress supplies each normalized text atom as
-   `(value, utf8_byte_count, TextClassV0)` and Hako validates/consumes that
-   typed bundle without a path-keyed sidecar;
-2. `explicit_len_bytes_surface`:
-   implement the already documented `String.len_bytes()` contract across all
-   required execution routes, then make the reader depend on that stable
-   environment-independent operation;
-3. `rust_validated_carrier_bridge`:
-   expose the Rust `ValidatedProgramV0BodyView` normalized observations to
-   Hako through a narrow typed bridge without making ProgramV0 JSON wider.
+```text
+docs/development/current/main/design/decoded-utf8-byte-length-contract-v0.md
+```
+
+The selected boundary is:
+
+```text
+declarative authority:
+  DecodedUtf8ByteLengthContractV0
+
+initial executable leaf:
+  environment-independent analysis/internal capability
+
+RHako / HHako:
+  independently construct local ValidatedTextV0 witnesses
+
+Rust normalized carrier bridge:
+  replay-only; never direct parity authority
+```
+
+The earlier alternatives are resolved as follows:
+
+1. inline validated text bundles are local derived witnesses, not
+   Rust-to-HHako authority;
+2. an explicit byte operation is required, but the first slice is internal
+   and does not activate a Stable public String API;
+3. a Rust normalized-carrier bridge is allowed only for replay tests.
 
 Decision criteria:
 
@@ -548,8 +565,10 @@ Decision criteria:
 - producer, validator, Hako reader, fixture, and retirement owner are named;
 - the carrier cannot expose a mutable alias of its structured input.
 
-Do not claim B2, text-budget parity, or exact Rust/Hako snapshot parity until
-this decision is closed. The worker prototype also used unsupported
+Current task order is U0 contract/capability inventory, U1 reference leaf, U2
+HHako capability/preflight, U3 independent local carriers, then B2/B3 resume.
+Do not claim B2, text-budget parity, or exact RHako/HHako snapshot parity until
+U0-U5 are closed. The worker prototype also used unsupported
 `String.split()` helpers; field closure must use a closed declarative schema,
 not CSV parsing or substring detection.
 

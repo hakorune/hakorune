@@ -3000,6 +3000,17 @@ superseded_by = ""
 retire_when = "owner-family review explicitly replaces this authority"
 
 [[documents]]
+path = "decoded-utf8-byte-length-contract-v0.md"
+role = "authority"
+owner = "selfhost-program-json-boundary-vocabulary-ssot.md"
+precedence_parent = "selfhost-program-json-boundary-vocabulary-ssot.md"
+classification_basis = "SnapshotV0 RHako/HHako decoded UTF-8 byte-count authority, capability task order, and adapter retirement boundary"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "ProgramV0 adapters retire and no non-Snapshot consumer retains the generic byte-length contract"
+
+[[documents]]
 path = "selfhost-tools-loopless-subset-ssot.md"
 role = "authority"
 owner = "selfhost-coreplan-unblocking-policy.md"
