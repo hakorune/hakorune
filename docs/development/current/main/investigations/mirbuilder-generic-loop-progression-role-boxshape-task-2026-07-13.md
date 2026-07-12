@@ -1,6 +1,6 @@
 # Generic Loop Progression Role V0 — BoxShape Cleanup Taskboard
 
-Status: Active prerequisite; implementation not started.
+Status: Active prerequisite; A0 closed, A1 selected.
 Date: 2026-07-13
 Decision: `A — compiler_boxshape_cleanup`
 Classification: BoxShape only.
@@ -207,7 +207,7 @@ decision. Do not widen A1.
 
 ## Task order
 
-### A0 — exact baseline and minimized fixtures
+### A0 — exact baseline and minimized fixtures (closed)
 
 - Capture clean-HEAD per-function/per-loop outcomes for both real owners.
 - Add minimized structural fixtures for rebased/post-update and no-unique-step
@@ -215,7 +215,52 @@ decision. Do not widen A1.
 - Record candidate list, write/use sites, selected rule, Recipe digest, and
   final behavior independently of first-freeze order.
 
-### A1 — pure candidate observation
+Landed-ready structure:
+
+```text
+progression_role_baseline_tests.rs
+  delegate-style rebased/post-update cursor
+  scanner-style body-only cursor
+
+test_support.rs
+  one process-wide JoinIR environment lock/restore owner
+
+generic_loop_progression_role_v0_guard.sh
+  structural unit fixtures
+  real-source ProgramV0 contract-pin observation
+  source-size and parser-isolation assertions
+```
+
+A0 intentionally separates two observations:
+
+```text
+minimized per-loop structural fixtures:
+  no accepted progression role
+  no dependence on first-freeze ordering
+
+real-source contract-pin:
+  known RED at an existing cursor-loop owner/reason
+```
+
+This avoids making the first compiled function or freeze string semantic
+authority. A0 changes no parser source and no generic-loop acceptance.
+
+Executable evidence:
+
+```text
+bash tools/checks/generic_loop_progression_role_v0_guard.sh
+  a0_structural_fixtures=green
+  clean_head_contract_pin=known_red
+  parser_source_change=0
+
+cargo test -q generic_loop_v1 --lib
+  18 passed
+
+largest generic-loop Rust source:
+  648 lines
+```
+
+### A1 — pure candidate observation (active)
 
 Add a physically separate observation module:
 

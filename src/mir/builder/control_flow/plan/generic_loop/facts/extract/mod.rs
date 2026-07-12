@@ -1,5 +1,9 @@
 mod collection;
 #[cfg(test)]
+mod progression_role_baseline_tests;
+#[cfg(test)]
+mod test_support;
+#[cfg(test)]
 mod tests;
 mod v0;
 mod v1;
