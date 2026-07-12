@@ -27,21 +27,22 @@ python3 tools/docs/failure_outcome_semantic_site_graph.py --check
 Expected result: `--check` exits 0; occurrence/site counts remain evidence
 derived and no semantic owner is selected.
 
-### FOM-2 — Add the semantic graph ratchet to the gate surface
+### FOM-2 — Add the minimal PR-only semantic graph ratchet
 
-Wire the manifest check into the selected reusable gate, then verify the same
-check is reached from the documented local gate and CI/commit path. The exact
-gate owner must be chosen from `docs/tools/check-scripts-index.md` before code
-or shell wiring is changed.
+Wire one direct check into the existing `.github/workflows/min-gate.yml`
+`rust-check` job. This workflow already runs on pull requests, so do not add a
+push trigger, `dev_gate quick` step, pre-commit hook, cargo build, LLVM setup,
+or a second workflow. The check is Python-only and runs after checkout.
 
 Acceptance:
 
 ```bash
-rg -n "failure_outcome_semantic_site_graph.py --check" tools/checks tools/dev_gate.sh .github
+rg -n "failure_outcome_semantic_site_graph.py --check" .github/workflows/min-gate.yml
 ```
 
-Expected result: one stable gate path owns the check; duplicate ad-hoc wiring
-is rejected; the gate fails on a deliberately stale manifest fixture.
+Expected result: exactly one PR-only gate path owns the check; ordinary pushes
+pay no new CI cost; duplicate ad-hoc wiring is rejected; the gate fails on a
+deliberately stale manifest fixture.
 
 ### FOM-3 — Synchronize CURRENT_STATE landed tail
 
