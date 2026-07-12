@@ -339,7 +339,13 @@ pub(super) fn generic_i64_body_refine_instruction(
                 | ExternCallRouteKind::HakoTlsCacheSlotGetI64
                 | ExternCallRouteKind::HakoTlsCacheSlotSetI64
                 | ExternCallRouteKind::HakoWorkerCurrentIdI64
-                | ExternCallRouteKind::HakoAnalysisDecodedUtf8ByteLenV0,
+                | ExternCallRouteKind::HakoAnalysisDecodedUtf8ByteLenV0
+                | ExternCallRouteKind::HakoAnalysisStrictJsonTreeObjectLenV0
+                | ExternCallRouteKind::HakoAnalysisStrictJsonTreeObjectValueAtV0
+                | ExternCallRouteKind::HakoAnalysisStrictJsonTreeArrayLenV0
+                | ExternCallRouteKind::HakoAnalysisStrictJsonTreeArrayAtV0
+                | ExternCallRouteKind::HakoAnalysisStrictJsonTreeI64ValueV0
+                | ExternCallRouteKind::HakoAnalysisStrictJsonTreeU64AsI64V0,
             ) => {
                 if let Some(dst) = dst {
                     set_generic_i64_value_class(values, *dst, GenericI64ValueClass::I64, changed)

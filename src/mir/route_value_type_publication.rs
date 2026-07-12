@@ -51,6 +51,7 @@ pub(crate) fn route_return_shape_value_type(return_shape: Option<&str>) -> Optio
         Some("string_handle") | Some("string_handle_or_null") => {
             Some(MirType::Box("StringBox".to_string()))
         }
+        Some("scalar_bool") => Some(MirType::Bool),
         Some("c_void") | Some("no_payload") => None,
         Some("array_handle") => Some(MirType::Box("ArrayBox".to_string())),
         Some("map_handle") => Some(MirType::Box("MapBox".to_string())),

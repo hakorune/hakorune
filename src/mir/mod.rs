@@ -99,6 +99,7 @@ pub mod source_packed_array_autouse_pilot; // MIR-owned source PackedArray<T> pi
 pub mod source_packed_array_direct_read_consumption; // MIR-owned source PackedArray<T> direct-read consumption metadata
 pub mod span_access_plan; // MIR-owned Span no-escape access plans
 pub mod ssot; // Shared helpers (SSOT) for instruction lowering
+pub(crate) mod strict_json_tree_backend_capability; // SnapshotV0 strict JSON tree preflight
 pub(crate) mod type_contracts; // Language v1 annotation guarantee matrix/proof vocabulary
 pub mod types; // core MIR enums (ConstValue, Ops, MirType)
 pub mod utils; // Phase 15 control flow utilities for root treatment

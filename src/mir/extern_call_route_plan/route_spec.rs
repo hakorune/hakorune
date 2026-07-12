@@ -34,6 +34,17 @@ pub enum ExternCallRouteKind {
     HakoTlsCacheSlotSetI64,
     HakoWorkerCurrentIdI64,
     HakoAnalysisDecodedUtf8ByteLenV0,
+    HakoAnalysisStrictJsonTreeKindV0,
+    HakoAnalysisStrictJsonTreeObjectLenV0,
+    HakoAnalysisStrictJsonTreeObjectKeyAtV0,
+    HakoAnalysisStrictJsonTreeObjectValueAtV0,
+    HakoAnalysisStrictJsonTreeArrayLenV0,
+    HakoAnalysisStrictJsonTreeArrayAtV0,
+    HakoAnalysisStrictJsonTreeStringValueV0,
+    HakoAnalysisStrictJsonTreeBoolValueV0,
+    HakoAnalysisStrictJsonTreeI64ValueV0,
+    HakoAnalysisStrictJsonTreeU64FitsI64V0,
+    HakoAnalysisStrictJsonTreeU64AsI64V0,
     HostBridgeExternInvoke,
     Stage1EmitProgramJson,
     Stage1EmitMirFromSource,
@@ -99,6 +110,25 @@ impl ExternCallRouteSpec {
 }
 
 const EXTERN_REGISTRY_PROOF: &str = "extern_registry";
+
+macro_rules! strict_json_tree_route {
+    ($kind:ident, $suffix:literal, $core_op:literal, $arity:literal, $return_shape:literal) => {
+        ExternCallRouteSpec {
+            kind: ExternCallRouteKind::$kind,
+            route_id: concat!("extern.hako.analysis.strict_json_tree_v0.", $suffix),
+            core_op: $core_op,
+            symbol: concat!("hako.analysis.strict_json_tree_v0.", $suffix),
+            aliases: &[],
+            arity: $arity,
+            value_arg_index: None,
+            proof: EXTERN_REGISTRY_PROOF,
+            return_shape: $return_shape,
+            value_demand: "runtime_i64",
+            effect_tags: &[concat!("analysis.strict_json_tree_v0.", $suffix)],
+            accepts_void_result: false,
+        }
+    };
+}
 
 static EXTERN_CALL_ROUTE_SPECS: &[ExternCallRouteSpec] = &[
     ExternCallRouteSpec {
@@ -549,6 +579,83 @@ static EXTERN_CALL_ROUTE_SPECS: &[ExternCallRouteSpec] = &[
         effect_tags: &["analysis.decoded_utf8_byte_len_v0"],
         accepts_void_result: false,
     },
+    strict_json_tree_route!(
+        HakoAnalysisStrictJsonTreeKindV0,
+        "kind",
+        "HakoAnalysisStrictJsonTreeKindV0",
+        2,
+        "string_handle"
+    ),
+    strict_json_tree_route!(
+        HakoAnalysisStrictJsonTreeObjectLenV0,
+        "object_len",
+        "HakoAnalysisStrictJsonTreeObjectLenV0",
+        2,
+        "scalar_i64"
+    ),
+    strict_json_tree_route!(
+        HakoAnalysisStrictJsonTreeObjectKeyAtV0,
+        "object_key_at",
+        "HakoAnalysisStrictJsonTreeObjectKeyAtV0",
+        3,
+        "string_handle"
+    ),
+    strict_json_tree_route!(
+        HakoAnalysisStrictJsonTreeObjectValueAtV0,
+        "object_value_at",
+        "HakoAnalysisStrictJsonTreeObjectValueAtV0",
+        3,
+        "scalar_i64"
+    ),
+    strict_json_tree_route!(
+        HakoAnalysisStrictJsonTreeArrayLenV0,
+        "array_len",
+        "HakoAnalysisStrictJsonTreeArrayLenV0",
+        2,
+        "scalar_i64"
+    ),
+    strict_json_tree_route!(
+        HakoAnalysisStrictJsonTreeArrayAtV0,
+        "array_at",
+        "HakoAnalysisStrictJsonTreeArrayAtV0",
+        3,
+        "scalar_i64"
+    ),
+    strict_json_tree_route!(
+        HakoAnalysisStrictJsonTreeStringValueV0,
+        "string_value",
+        "HakoAnalysisStrictJsonTreeStringValueV0",
+        2,
+        "string_handle"
+    ),
+    strict_json_tree_route!(
+        HakoAnalysisStrictJsonTreeBoolValueV0,
+        "bool_value",
+        "HakoAnalysisStrictJsonTreeBoolValueV0",
+        2,
+        "scalar_bool"
+    ),
+    strict_json_tree_route!(
+        HakoAnalysisStrictJsonTreeI64ValueV0,
+        "i64_value",
+        "HakoAnalysisStrictJsonTreeI64ValueV0",
+        2,
+        "scalar_i64"
+    ),
+    strict_json_tree_route!(
+        HakoAnalysisStrictJsonTreeU64FitsI64V0,
+        "u64_fits_i64",
+        "HakoAnalysisStrictJsonTreeU64FitsI64V0",
+        2,
+        "scalar_bool"
+    ),
+    strict_json_tree_route!(
+        HakoAnalysisStrictJsonTreeU64AsI64V0,
+        "u64_as_i64",
+        "HakoAnalysisStrictJsonTreeU64AsI64V0",
+        2,
+        "scalar_i64"
+    ),
     ExternCallRouteSpec {
         kind: ExternCallRouteKind::HostBridgeExternInvoke,
         route_id: "extern.hostbridge.extern_invoke",

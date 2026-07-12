@@ -55,7 +55,7 @@ impl StrictJsonArenaV0 {
         Ok(Self::from_value(parse_strict_json(input)?))
     }
 
-    pub(crate) fn from_value(value: StrictJsonValue) -> Self {
+    fn from_value(value: StrictJsonValue) -> Self {
         let mut nodes = Vec::new();
         let root = Self::lower(value, &mut nodes);
         Self { nodes, root }

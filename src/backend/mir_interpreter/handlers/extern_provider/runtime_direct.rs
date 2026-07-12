@@ -184,6 +184,9 @@ impl MirInterpreter {
                 })?;
                 Ok(VMValue::Integer(count))
             }
+            name if name.starts_with("hako.analysis.strict_json_tree_v0.") => {
+                self.dispatch_strict_json_tree_extern(name, args)
+            }
             "env.set" => {
                 if args.len() < 2 {
                     return Err(ErrorBuilder::arg_count_mismatch("env.set", 2, args.len()));

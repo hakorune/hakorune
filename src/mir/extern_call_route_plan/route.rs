@@ -419,4 +419,92 @@ mod tests {
             Some(&MirType::Integer)
         );
     }
+
+    #[test]
+    fn strict_json_tree_accessor_routes_are_closed_and_typed() {
+        let cases = [
+            (
+                "hako.analysis.strict_json_tree_v0.kind",
+                ExternCallRouteKind::HakoAnalysisStrictJsonTreeKindV0,
+                2,
+                "string_handle",
+                MirType::Box("StringBox".to_string()),
+            ),
+            (
+                "hako.analysis.strict_json_tree_v0.object_len",
+                ExternCallRouteKind::HakoAnalysisStrictJsonTreeObjectLenV0,
+                2,
+                "scalar_i64",
+                MirType::Integer,
+            ),
+            (
+                "hako.analysis.strict_json_tree_v0.object_key_at",
+                ExternCallRouteKind::HakoAnalysisStrictJsonTreeObjectKeyAtV0,
+                3,
+                "string_handle",
+                MirType::Box("StringBox".to_string()),
+            ),
+            (
+                "hako.analysis.strict_json_tree_v0.object_value_at",
+                ExternCallRouteKind::HakoAnalysisStrictJsonTreeObjectValueAtV0,
+                3,
+                "scalar_i64",
+                MirType::Integer,
+            ),
+            (
+                "hako.analysis.strict_json_tree_v0.array_len",
+                ExternCallRouteKind::HakoAnalysisStrictJsonTreeArrayLenV0,
+                2,
+                "scalar_i64",
+                MirType::Integer,
+            ),
+            (
+                "hako.analysis.strict_json_tree_v0.array_at",
+                ExternCallRouteKind::HakoAnalysisStrictJsonTreeArrayAtV0,
+                3,
+                "scalar_i64",
+                MirType::Integer,
+            ),
+            (
+                "hako.analysis.strict_json_tree_v0.string_value",
+                ExternCallRouteKind::HakoAnalysisStrictJsonTreeStringValueV0,
+                2,
+                "string_handle",
+                MirType::Box("StringBox".to_string()),
+            ),
+            (
+                "hako.analysis.strict_json_tree_v0.bool_value",
+                ExternCallRouteKind::HakoAnalysisStrictJsonTreeBoolValueV0,
+                2,
+                "scalar_bool",
+                MirType::Bool,
+            ),
+            (
+                "hako.analysis.strict_json_tree_v0.i64_value",
+                ExternCallRouteKind::HakoAnalysisStrictJsonTreeI64ValueV0,
+                2,
+                "scalar_i64",
+                MirType::Integer,
+            ),
+            (
+                "hako.analysis.strict_json_tree_v0.u64_fits_i64",
+                ExternCallRouteKind::HakoAnalysisStrictJsonTreeU64FitsI64V0,
+                2,
+                "scalar_bool",
+                MirType::Bool,
+            ),
+            (
+                "hako.analysis.strict_json_tree_v0.u64_as_i64",
+                ExternCallRouteKind::HakoAnalysisStrictJsonTreeU64AsI64V0,
+                2,
+                "scalar_i64",
+                MirType::Integer,
+            ),
+        ];
+        for (symbol, kind, arity, shape, ty) in cases {
+            assert_eq!(classify_extern_call_route(symbol, arity), Some(kind));
+            assert_eq!(kind.return_shape(), shape);
+            assert_eq!(route_return_shape_value_type(Some(shape)), Some(ty));
+        }
+    }
 }

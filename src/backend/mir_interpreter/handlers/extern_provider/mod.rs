@@ -6,6 +6,7 @@ mod hostbridge;
 mod lane;
 mod loader_cold;
 mod runtime_direct;
+mod strict_json_tree;
 #[cfg(test)]
 mod tests;
 

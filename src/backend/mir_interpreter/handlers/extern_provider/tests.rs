@@ -16,6 +16,17 @@ fn classify_runtime_direct_lane_for_console_and_env() {
         "env.now_ms",
         "env.set",
         "hako.analysis.decoded_utf8_byte_len_v0",
+        "hako.analysis.strict_json_tree_v0.kind",
+        "hako.analysis.strict_json_tree_v0.object_len",
+        "hako.analysis.strict_json_tree_v0.object_key_at",
+        "hako.analysis.strict_json_tree_v0.object_value_at",
+        "hako.analysis.strict_json_tree_v0.array_len",
+        "hako.analysis.strict_json_tree_v0.array_at",
+        "hako.analysis.strict_json_tree_v0.string_value",
+        "hako.analysis.strict_json_tree_v0.bool_value",
+        "hako.analysis.strict_json_tree_v0.i64_value",
+        "hako.analysis.strict_json_tree_v0.u64_fits_i64",
+        "hako.analysis.strict_json_tree_v0.u64_as_i64",
     ] {
         assert_eq!(
             classify_extern_provider_lane(extern_name),

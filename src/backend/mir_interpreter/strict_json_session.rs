@@ -75,6 +75,17 @@ impl Drop for StrictJsonSessionGuard<'_> {
 }
 
 impl MirInterpreter {
+    pub(crate) fn execute_module_with_strict_json_session(
+        &mut self,
+        module: &crate::mir::MirModule,
+        input: &str,
+    ) -> Result<Box<dyn crate::box_trait::NyashBox>, VMError> {
+        crate::mir::backend_capability::enforce_mir_backend_supported(module, "mir-interpreter")
+            .map_err(VMError::InvalidInstruction)?;
+        let guard = self.open_strict_json_session(input)?;
+        guard.interpreter.execute_module(module)
+    }
+
     pub(super) fn open_strict_json_session(
         &mut self,
         input: &str,

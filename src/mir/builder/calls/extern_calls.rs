@@ -252,7 +252,18 @@ pub fn explicit_extern_return_type(name: &str) -> MirType {
         | "hako_tls_cache_slot_get_i64"
         | "hako_tls_cache_slot_set_i64"
         | "hako_worker_current_id_i64"
-        | "hako.analysis.decoded_utf8_byte_len_v0" => MirType::Integer,
+        | "hako.analysis.decoded_utf8_byte_len_v0"
+        | "hako.analysis.strict_json_tree_v0.object_len"
+        | "hako.analysis.strict_json_tree_v0.object_value_at"
+        | "hako.analysis.strict_json_tree_v0.array_len"
+        | "hako.analysis.strict_json_tree_v0.array_at"
+        | "hako.analysis.strict_json_tree_v0.i64_value"
+        | "hako.analysis.strict_json_tree_v0.u64_as_i64" => MirType::Integer,
+        "hako.analysis.strict_json_tree_v0.kind"
+        | "hako.analysis.strict_json_tree_v0.object_key_at"
+        | "hako.analysis.strict_json_tree_v0.string_value" => MirType::Box("StringBox".to_string()),
+        "hako.analysis.strict_json_tree_v0.bool_value"
+        | "hako.analysis.strict_json_tree_v0.u64_fits_i64" => MirType::Bool,
         "nyash.box.from_i8_string" => MirType::Box("StringBox".to_string()),
         _ => MirType::Unknown,
     }
