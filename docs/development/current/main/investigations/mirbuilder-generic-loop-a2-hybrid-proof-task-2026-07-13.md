@@ -1,6 +1,6 @@
 # Generic Loop A2 — Capture, Proof, Recipe Taskboard
 
-Status: Active prerequisite; A2-C0 bounded capture selected.
+Status: Active prerequisite; A2-C0 closed, A2-C1 neutral proof selected.
 Date: 2026-07-13
 Decision: acceptance-neutral capture first, then asymmetric `E + R` hybrid.
 Classification: BoxShape only.
@@ -233,7 +233,7 @@ never returns early from the loop-wide selection.
 
 ## Task order
 
-### A2-C0 — acceptance-neutral bounded capture (active)
+### A2-C0 — acceptance-neutral bounded capture (closed)
 
 Add physically separate diagnostic/report types:
 
@@ -273,6 +273,42 @@ Requirements:
 C0 may claim deterministic/replayable candidate evidence only. It may not
 claim a progression owner or new accepted loop.
 
+Closed evidence:
+
+```text
+cargo test -q progression_role --lib
+  8 passed
+
+bash tools/checks/generic_loop_progression_role_v0_guard.sh
+  c0_candidate_capture=green
+  c0_acceptance_widening=0
+  c0_product_path_connection=0
+  c0_preexisting_terminal=preserved
+  c0_record_inventory=exact_fixture
+  parser_source_change=0
+```
+
+The isolated probe captures three diagnostic rows:
+
+```text
+j
+  provisional BodyManaged/Mixed
+  no canonical step
+  broad non-step and post-update uses
+
+fields
+  provisional BodyManaged/Mixed
+  one canonical site plus conditional/extra writes
+
+field_count
+  provisional CanonicalInduction
+  one canonical site
+```
+
+These spellings and provisional classes are evidence only. They prove no
+progression owner. The fixture is exact and the clean product route remains
+at its pre-C0 rejection.
+
 ### A2-C0 checkpoint
 
 Compare the captured three witness families:
@@ -287,7 +323,28 @@ If the record-declaration rows do not fit the closed proof algebra, retain
 `N + U`, keep the family Unsupported/Ambiguous, and stop for a new decision.
 Do not add another rank or constructor to pass the corpus.
 
-### A2-C1 — neutral progression proof
+Checkpoint result:
+
+```text
+inventory completeness:
+  sufficient to begin the declared closed-anchor proof implementation
+
+semantic discriminator:
+  still N
+
+authority location:
+  still U
+
+accepted progression owner:
+  none
+```
+
+C1 may implement only the already accepted header/exit/backedge anchor
+constructors. If those constructors produce Zero or Multiple on the captured
+family, retain Unsupported/Ambiguous and stop; do not extend the algebra from
+source inspection.
+
+### A2-C1 — neutral progression proof (active)
 
 Only after C0 evidence supports the declared algebra:
 
@@ -520,4 +577,3 @@ new Recipe/CFG support
 5. Remove candidate-local early Freeze in favor of aggregate outcome.
 6. Keep only stable rejection diagnostics or test-only report formatting.
 7. Land A2, prove clean ProgramV0 GREEN, then restore P1 separately.
-

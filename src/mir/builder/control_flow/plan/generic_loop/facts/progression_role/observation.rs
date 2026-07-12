@@ -1,7 +1,7 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::generic_loop_canon::matches_loop_increment;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub(in crate::mir::builder) struct CandidateSiteV0 {
     pub preorder_index: usize,
     pub top_level_stmt_index: usize,
@@ -12,21 +12,29 @@ pub(in crate::mir::builder) struct CandidateSiteV0 {
 pub(in crate::mir::builder) struct CandidateObservationV0 {
     pub candidate: String,
     pub condition_anchored: bool,
+    pub existing_true_loop_increment_derived: bool,
     pub writes: Vec<CandidateSiteV0>,
     pub uses: Vec<CandidateSiteV0>,
     pub canonical_step_sites: Vec<CandidateSiteV0>,
+    pub uses_outside_canonical_step: Vec<CandidateSiteV0>,
     pub post_update_uses: Vec<CandidateSiteV0>,
     pub conditional_writes: Vec<CandidateSiteV0>,
 }
 
 impl CandidateObservationV0 {
-    fn new(candidate: &str, condition_anchored: bool) -> Self {
+    fn new(
+        candidate: &str,
+        condition_anchored: bool,
+        existing_true_loop_increment_derived: bool,
+    ) -> Self {
         Self {
             candidate: candidate.to_string(),
             condition_anchored,
+            existing_true_loop_increment_derived,
             writes: Vec::new(),
             uses: Vec::new(),
             canonical_step_sites: Vec::new(),
+            uses_outside_canonical_step: Vec::new(),
             post_update_uses: Vec::new(),
             conditional_writes: Vec::new(),
         }
@@ -49,6 +57,7 @@ struct ObservationBuilder<'a> {
 pub(in crate::mir::builder) fn observe_candidate_progression_v0(
     candidate: &str,
     condition_anchored: bool,
+    existing_true_loop_increment_derived: bool,
     body: &[ASTNode],
     canonical_increment: Option<&ASTNode>,
 ) -> CandidateObservationV0 {
@@ -57,7 +66,11 @@ pub(in crate::mir::builder) fn observe_candidate_progression_v0(
         canonical_increment,
         next_preorder_index: 0,
         first_write_index: None,
-        observation: CandidateObservationV0::new(candidate, condition_anchored),
+        observation: CandidateObservationV0::new(
+            candidate,
+            condition_anchored,
+            existing_true_loop_increment_derived,
+        ),
     };
     for (top_level_stmt_index, stmt) in body.iter().enumerate() {
         builder.visit_stmt(stmt, top_level_stmt_index, false);
@@ -79,12 +92,16 @@ impl ObservationBuilder<'_> {
     fn visit_stmt(&mut self, node: &ASTNode, top_level_stmt_index: usize, conditional: bool) {
         match node {
             ASTNode::Assignment { target, value, .. } => {
-                self.visit_expr(value, top_level_stmt_index, conditional);
-                if matches!(target.as_ref(), ASTNode::Variable { name, .. } if name == self.candidate)
-                {
+                let writes_candidate = matches!(target.as_ref(), ASTNode::Variable { name, .. } if name == self.candidate);
+                let canonical_step = writes_candidate
+                    && self.canonical_increment.is_some_and(|increment| {
+                        matches_loop_increment(node, self.candidate, increment)
+                    });
+                self.visit_expr(value, top_level_stmt_index, conditional, canonical_step);
+                if writes_candidate {
                     self.record_write(node, top_level_stmt_index, conditional);
                 } else {
-                    self.visit_expr(target, top_level_stmt_index, conditional);
+                    self.visit_expr(target, top_level_stmt_index, conditional, false);
                 }
             }
             ASTNode::Local {
@@ -93,7 +110,7 @@ impl ObservationBuilder<'_> {
                 ..
             } => {
                 for value in initial_values.iter().flatten() {
-                    self.visit_expr(value, top_level_stmt_index, conditional);
+                    self.visit_expr(value, top_level_stmt_index, conditional, false);
                 }
                 if variables.iter().any(|name| name == self.candidate) {
                     self.record_write(node, top_level_stmt_index, conditional);
@@ -105,7 +122,7 @@ impl ObservationBuilder<'_> {
                 else_body,
                 ..
             } => {
-                self.visit_expr(condition, top_level_stmt_index, conditional);
+                self.visit_expr(condition, top_level_stmt_index, conditional, false);
                 for stmt in then_body {
                     self.visit_stmt(stmt, top_level_stmt_index, true);
                 }
@@ -126,37 +143,78 @@ impl ObservationBuilder<'_> {
             ASTNode::Loop { .. } | ASTNode::LoopRange { .. } => {
                 // Nested-loop state belongs to another loop observation.
             }
-            _ => self.visit_expr(node, top_level_stmt_index, conditional),
+            _ => self.visit_expr(node, top_level_stmt_index, conditional, false),
         }
     }
 
-    fn visit_expr(&mut self, node: &ASTNode, top_level_stmt_index: usize, conditional: bool) {
+    fn visit_expr(
+        &mut self,
+        node: &ASTNode,
+        top_level_stmt_index: usize,
+        conditional: bool,
+        within_canonical_step: bool,
+    ) {
         match node {
             ASTNode::Variable { name, .. } if name == self.candidate => {
-                self.record_use(top_level_stmt_index, conditional);
+                self.record_use(top_level_stmt_index, conditional, within_canonical_step);
             }
             ASTNode::UnaryOp { operand, .. } => {
-                self.visit_expr(operand, top_level_stmt_index, conditional);
+                self.visit_expr(
+                    operand,
+                    top_level_stmt_index,
+                    conditional,
+                    within_canonical_step,
+                );
             }
             ASTNode::BinaryOp { left, right, .. } => {
-                self.visit_expr(left, top_level_stmt_index, conditional);
-                self.visit_expr(right, top_level_stmt_index, conditional);
+                self.visit_expr(
+                    left,
+                    top_level_stmt_index,
+                    conditional,
+                    within_canonical_step,
+                );
+                self.visit_expr(
+                    right,
+                    top_level_stmt_index,
+                    conditional,
+                    within_canonical_step,
+                );
             }
             ASTNode::MethodCall {
                 object, arguments, ..
             } => {
-                self.visit_expr(object, top_level_stmt_index, conditional);
+                self.visit_expr(
+                    object,
+                    top_level_stmt_index,
+                    conditional,
+                    within_canonical_step,
+                );
                 for argument in arguments {
-                    self.visit_expr(argument, top_level_stmt_index, conditional);
+                    self.visit_expr(
+                        argument,
+                        top_level_stmt_index,
+                        conditional,
+                        within_canonical_step,
+                    );
                 }
             }
             ASTNode::FunctionCall { arguments, .. } => {
                 for argument in arguments {
-                    self.visit_expr(argument, top_level_stmt_index, conditional);
+                    self.visit_expr(
+                        argument,
+                        top_level_stmt_index,
+                        conditional,
+                        within_canonical_step,
+                    );
                 }
             }
             ASTNode::FieldAccess { object, .. } => {
-                self.visit_expr(object, top_level_stmt_index, conditional);
+                self.visit_expr(
+                    object,
+                    top_level_stmt_index,
+                    conditional,
+                    within_canonical_step,
+                );
             }
             ASTNode::If { .. }
             | ASTNode::Assignment { .. }
@@ -186,8 +244,18 @@ impl ObservationBuilder<'_> {
         self.observation.writes.push(site);
     }
 
-    fn record_use(&mut self, top_level_stmt_index: usize, conditional: bool) {
+    fn record_use(
+        &mut self,
+        top_level_stmt_index: usize,
+        conditional: bool,
+        within_canonical_step: bool,
+    ) {
         let site = self.next_site(top_level_stmt_index, conditional);
+        if !within_canonical_step {
+            self.observation
+                .uses_outside_canonical_step
+                .push(site.clone());
+        }
         if self
             .first_write_index
             .is_some_and(|write_index| site.preorder_index > write_index)
@@ -248,7 +316,8 @@ mod tests {
         let increment = add(var("cursor"), lit_i(1));
         let body = vec![assign("cursor", increment.clone())];
 
-        let observation = observe_candidate_progression_v0("cursor", true, &body, Some(&increment));
+        let observation =
+            observe_candidate_progression_v0("cursor", true, false, &body, Some(&increment));
 
         assert!(observation.condition_anchored);
         assert_eq!(observation.writes.len(), 1);
@@ -265,7 +334,7 @@ mod tests {
             call_with_arg(var("cursor")),
         ];
 
-        let observation = observe_candidate_progression_v0("cursor", true, &body, None);
+        let observation = observe_candidate_progression_v0("cursor", true, false, &body, None);
 
         assert_eq!(observation.writes.len(), 1);
         assert_eq!(observation.uses.len(), 2);
@@ -288,7 +357,7 @@ mod tests {
             call_with_arg(var("cursor")),
         ];
 
-        let observation = observe_candidate_progression_v0("cursor", true, &body, None);
+        let observation = observe_candidate_progression_v0("cursor", true, false, &body, None);
 
         assert_eq!(observation.writes.len(), 2);
         assert_eq!(observation.conditional_writes.len(), 1);
@@ -304,7 +373,7 @@ mod tests {
             span: Span::unknown(),
         }];
 
-        let observation = observe_candidate_progression_v0("cursor", true, &body, None);
+        let observation = observe_candidate_progression_v0("cursor", true, false, &body, None);
 
         assert!(observation.writes.is_empty());
         assert!(observation.uses.is_empty());

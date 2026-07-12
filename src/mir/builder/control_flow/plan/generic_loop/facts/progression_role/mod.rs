@@ -4,3 +4,5 @@
 //! acceptance. A2 consumes these observations after A1 fixes their contract.
 
 pub(in crate::mir::builder) mod observation;
+#[cfg(test)]
+pub(in crate::mir::builder) mod report;
