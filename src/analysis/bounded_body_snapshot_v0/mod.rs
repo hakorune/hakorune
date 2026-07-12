@@ -6,6 +6,7 @@ mod path;
 mod program_v0_body_view;
 mod schema;
 mod snapshot;
+mod snapshot_builder;
 mod strict_json;
 mod validated_view;
 
@@ -21,6 +22,7 @@ pub use schema::{
     TextClassV0, WireClassificationV0, WireExprKindV0, WireNodeKindV0, WireStmtKindV0,
 };
 pub use snapshot::{AtomValueV0, BoundedBodyAnalysisSnapshotV0, SnapshotNodeV0};
+pub use snapshot_builder::{SnapshotBuildErrorV0, SnapshotBuilderV0, SnapshotNodeIndexV0};
 pub use validated_view::{ValidatedAtomValueV0, ValidatedNodeV0, ValidatedTextV0};
 
 #[cfg(test)]

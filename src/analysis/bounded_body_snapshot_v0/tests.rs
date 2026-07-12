@@ -33,14 +33,18 @@ fn path_is_structural_and_zero_based() {
 
 #[test]
 fn snapshot_equality_is_exact_and_node_count_is_derived() {
-    let node = SnapshotNodeV0 {
-        path: PathV0::root_body().index(0),
-        kind: WireNodeKindV0::Stmt(WireStmtKindV0::Break),
-        atoms: vec![],
-        children: vec![],
-    };
-    let snapshot = BoundedBodyAnalysisSnapshotV0::new(0, vec![node], 1);
-    assert_eq!(snapshot.node_count, 1);
+    let mut builder = SnapshotBuilderV0::new(0);
+    let root = builder
+        .reserve_node(
+            PathV0::root_body().index(0),
+            WireNodeKindV0::Stmt(WireStmtKindV0::Break),
+            1,
+        )
+        .unwrap();
+    builder.seal_node(root, vec![], vec![]).unwrap();
+    builder.add_root(root).unwrap();
+    let snapshot = builder.finish().unwrap();
+    assert_eq!(snapshot.node_count(), 1);
     assert_eq!(snapshot.clone(), snapshot);
 }
 
@@ -448,4 +452,209 @@ fn validated_node_handles_borrow_the_view() {
         first_kind(&view),
         WireNodeKindV0::Stmt(WireStmtKindV0::Break)
     );
+}
+
+#[test]
+fn snapshot_builder_publishes_only_complete_preorder_tables() {
+    let mut builder = SnapshotBuilderV0::new(0);
+    let root = builder
+        .reserve_node(
+            PathV0::root_body().index(0),
+            WireNodeKindV0::Stmt(WireStmtKindV0::If),
+            1,
+        )
+        .unwrap();
+    let cond = builder
+        .reserve_node(
+            PathV0::root_body().index(0).field(PathFieldV0::Cond),
+            WireNodeKindV0::Expr(WireExprKindV0::Bool),
+            2,
+        )
+        .unwrap();
+    let then = builder
+        .reserve_node(
+            PathV0::root_body()
+                .index(0)
+                .field(PathFieldV0::Then)
+                .index(0),
+            WireNodeKindV0::Stmt(WireStmtKindV0::Break),
+            2,
+        )
+        .unwrap();
+    builder
+        .seal_node(
+            cond,
+            vec![(AtomKeyV0::Value, AtomValueV0::Bool(true))],
+            vec![],
+        )
+        .unwrap();
+    builder.seal_node(then, vec![], vec![]).unwrap();
+    builder
+        .seal_node(
+            root,
+            vec![],
+            vec![(ChildRoleV0::Cond, cond), (ChildRoleV0::Then, then)],
+        )
+        .unwrap();
+    builder.add_root(root).unwrap();
+    let snapshot = builder.finish().unwrap();
+    assert_eq!(snapshot.node_count(), 3);
+    assert_eq!(snapshot.max_depth_observed(), 2);
+    assert_eq!(
+        snapshot.nodes()[0].kind(),
+        WireNodeKindV0::Stmt(WireStmtKindV0::If)
+    );
+    assert_eq!(
+        snapshot.nodes()[0].children(),
+        &[(ChildRoleV0::Cond, 1), (ChildRoleV0::Then, 2)]
+    );
+}
+
+#[test]
+fn snapshot_builder_rejects_incomplete_and_double_sealed_drafts() {
+    let mut incomplete = SnapshotBuilderV0::new(0);
+    let root = incomplete
+        .reserve_node(
+            PathV0::root_body().index(0),
+            WireNodeKindV0::Stmt(WireStmtKindV0::Break),
+            1,
+        )
+        .unwrap();
+    incomplete.add_root(root).unwrap();
+    assert_eq!(
+        incomplete.finish(),
+        Err(SnapshotBuildErrorV0::IncompleteDraft)
+    );
+
+    let mut duplicate = SnapshotBuilderV0::new(0);
+    let root = duplicate
+        .reserve_node(
+            PathV0::root_body().index(0),
+            WireNodeKindV0::Stmt(WireStmtKindV0::Break),
+            1,
+        )
+        .unwrap();
+    duplicate.seal_node(root, vec![], vec![]).unwrap();
+    assert_eq!(
+        duplicate.seal_node(root, vec![], vec![]),
+        Err(SnapshotBuildErrorV0::AlreadySealed)
+    );
+    assert_eq!(duplicate.finish(), Err(SnapshotBuildErrorV0::AlreadySealed));
+}
+
+#[test]
+fn snapshot_builder_rejects_atom_and_child_schema_drift() {
+    let mut atom = SnapshotBuilderV0::new(0);
+    let root = atom
+        .reserve_node(
+            PathV0::root_body().index(0),
+            WireNodeKindV0::Expr(WireExprKindV0::Int),
+            1,
+        )
+        .unwrap();
+    assert_eq!(
+        atom.seal_node(
+            root,
+            vec![(AtomKeyV0::Value, AtomValueV0::Text("1".into()))],
+            vec![]
+        ),
+        Err(SnapshotBuildErrorV0::AtomSchema)
+    );
+
+    let mut child = SnapshotBuilderV0::new(0);
+    let root = child
+        .reserve_node(
+            PathV0::root_body().index(0),
+            WireNodeKindV0::Stmt(WireStmtKindV0::Local),
+            1,
+        )
+        .unwrap();
+    assert_eq!(
+        child.seal_node(
+            root,
+            vec![(AtomKeyV0::Name, AtomValueV0::Text("x".into()))],
+            vec![]
+        ),
+        Err(SnapshotBuildErrorV0::ChildSchema)
+    );
+}
+
+#[test]
+fn snapshot_builder_rejects_bad_targets_paths_preorder_and_depth() {
+    let mut target = SnapshotBuilderV0::new(0);
+    let root = target
+        .reserve_node(
+            PathV0::root_body().index(0),
+            WireNodeKindV0::Stmt(WireStmtKindV0::Local),
+            1,
+        )
+        .unwrap();
+    target
+        .seal_node(
+            root,
+            vec![(AtomKeyV0::Name, AtomValueV0::Text("x".into()))],
+            vec![(ChildRoleV0::Expr, root)],
+        )
+        .unwrap();
+    target.add_root(root).unwrap();
+    assert_eq!(target.finish(), Err(SnapshotBuildErrorV0::ChildTarget));
+
+    let mut path = SnapshotBuilderV0::new(0);
+    let root = path
+        .reserve_node(
+            PathV0::root_body().index(0),
+            WireNodeKindV0::Stmt(WireStmtKindV0::Local),
+            1,
+        )
+        .unwrap();
+    let expr = path
+        .reserve_node(
+            PathV0::root_body().index(0).field(PathFieldV0::Cond),
+            WireNodeKindV0::Expr(WireExprKindV0::Int),
+            2,
+        )
+        .unwrap();
+    path.seal_node(expr, vec![(AtomKeyV0::Value, AtomValueV0::I64(1))], vec![])
+        .unwrap();
+    path.seal_node(
+        root,
+        vec![(AtomKeyV0::Name, AtomValueV0::Text("x".into()))],
+        vec![(ChildRoleV0::Expr, expr)],
+    )
+    .unwrap();
+    path.add_root(root).unwrap();
+    assert_eq!(path.finish(), Err(SnapshotBuildErrorV0::ChildPath));
+
+    let mut preorder = SnapshotBuilderV0::new(0);
+    let second = preorder
+        .reserve_node(
+            PathV0::root_body().index(1),
+            WireNodeKindV0::Stmt(WireStmtKindV0::Break),
+            1,
+        )
+        .unwrap();
+    let first = preorder
+        .reserve_node(
+            PathV0::root_body().index(0),
+            WireNodeKindV0::Stmt(WireStmtKindV0::Continue),
+            1,
+        )
+        .unwrap();
+    preorder.seal_node(second, vec![], vec![]).unwrap();
+    preorder.seal_node(first, vec![], vec![]).unwrap();
+    preorder.add_root(first).unwrap();
+    preorder.add_root(second).unwrap();
+    assert_eq!(preorder.finish(), Err(SnapshotBuildErrorV0::Preorder));
+
+    let mut depth = SnapshotBuilderV0::new(0);
+    let root = depth
+        .reserve_node(
+            PathV0::root_body().index(0),
+            WireNodeKindV0::Stmt(WireStmtKindV0::Break),
+            2,
+        )
+        .unwrap();
+    depth.seal_node(root, vec![], vec![]).unwrap();
+    depth.add_root(root).unwrap();
+    assert_eq!(depth.finish(), Err(SnapshotBuildErrorV0::Depth));
 }

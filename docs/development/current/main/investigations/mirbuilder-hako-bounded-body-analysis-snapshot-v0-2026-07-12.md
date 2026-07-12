@@ -353,8 +353,8 @@ A1_canonical_atom_schema = complete
 A2_canonical_child_edge_schema = complete
 A3_closed_structural_paths = complete
 A4_normalized_validated_view = complete
-A5_construction_invariants = active
-A6_rust_executable_witness = pending
+A5_construction_invariants = complete
+A6_rust_executable_witness = active
 ```
 
 1. **A1 — Canonical atom schema**
@@ -431,6 +431,26 @@ A4 closeout evidence:
 - the strict body-view guard now proves normalized read-only projection,
   canonical i64, typed UTF-8 text, schema child order, dependency isolation,
   and the 800-line ceiling. Eighteen focused tests are green.
+
+A5 closeout evidence:
+
+- `SnapshotBuilderV0` owns private drafts with typed
+  `SnapshotNodeIndexV0`; callers can only reserve, seal once, add roots, and
+  consume the builder through `finish(self)`;
+- any budget/schema/double-seal failure poisons the invocation and no snapshot
+  can be published afterward;
+- finish requires every draft sealed, source version `0`, derived node count,
+  canonical atom and child schemas, in-range forward edges, exact child paths,
+  root paths, DFS preorder, connectivity, and exact depth;
+- published `SnapshotNodeV0` and `BoundedBodyAnalysisSnapshotV0` expose only
+  read-only accessors; mutable draft storage is moved into a fresh snapshot
+  and cannot remain shared with the consumed builder;
+- positive nested-If construction and negative incomplete, double-seal,
+  atom/child drift, target, path, preorder, and depth cases are green;
+- stable guard:
+  `tools/checks/rust_lifecycle_mirbuilder_bounded_body_snapshot_builder_v0_guard.sh`;
+- twenty-two focused tests are green; builder is 324 lines and the existing
+  test module is 660 lines, so A6 fixtures must use a separate test file.
 
 ### S3 — Hako ProgramV0 snapshot reader (blocked by S2.5)
 
