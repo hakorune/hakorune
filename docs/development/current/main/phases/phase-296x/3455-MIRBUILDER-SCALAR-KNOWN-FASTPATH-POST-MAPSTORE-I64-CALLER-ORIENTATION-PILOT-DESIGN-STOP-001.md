@@ -2,7 +2,8 @@
 
 ## Status
 
-Queued after a green 3454 fixture-backed rerun. Do not enter early.
+Active after the green 3454 fixture-backed rerun. This is a design
+consultation stop; do not implement or select a new owner here.
 
 ## Exit Decision
 
@@ -19,3 +20,15 @@ next action:
 Do not open ArrayAppendAny, MapStoreAny, Delete, or ScalarKnown-wide from this
 card. Runtime mutation, publication, backend, and Source Selfhost authority
 remain zero.
+
+## Evidence
+
+3454 is fixture-backed green through:
+
+```text
+tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_mapstore_i64_caller_orientation_authority_pilot_guard.sh
+```
+
+The next owner must be selected only after a focused Fact / Plan / Boundary
+inventory identifies one minimal hard-authority slice. This card intentionally
+does not choose that owner.
