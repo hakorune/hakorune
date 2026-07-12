@@ -1,6 +1,6 @@
 # MapStoreI64 LocalContractWrite Fact Bridge
 
-Status: Active implementation task.
+Status: Closed implementation task.
 Date: 2026-07-12
 Parent decision: accepted deferred-root consultation after the exact-i64
 MapStoreI64 witness slice.
@@ -111,3 +111,22 @@ source_selfhost_claim = 0
 
 Stop if LocalContractWrite cannot be matched to a fresh LocalSlotContract and
 LocalIdentityEvidence without adding a second source authority.
+
+## Closeout evidence
+
+- `ExactNumericValueFactSource::LocalContractWrite` records the matched
+  contract, slot, write kind, checked source, block, and instruction index.
+- Facts publish only on the checked `dst`; raw `src`, raw stores, MirType-only
+  values, stale contract ids, stale identity evidence, wrong slots, and
+  mixed/different-slot PHIs do not gain hard facts.
+- `local_slot` remains the sole contract-id and identity owner through
+  `local_slot_contract_id` and `fresh_local_identity_slots`.
+- Copy and same-slot PHI propagation reuse the existing Fact owner and fresh
+  identity snapshot. MapStore route matching remains unchanged.
+- Focused tests: 17 passed.
+- Local-slot owner tests: 5 passed.
+- `cargo check -q`: green.
+- `rust_lifecycle_mirbuilder_mapstore_i64_fact_plan_boundary_inventory_guard.sh`:
+  green with the existing inventory/gate entry extended for this bridge.
+- Source line counts remain below 800: `local_slot.rs` 217,
+  `exact_numeric_value_facts.rs` 630, focused test file 331.

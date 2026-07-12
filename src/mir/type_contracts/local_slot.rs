@@ -42,7 +42,7 @@ pub(crate) fn register_local_slot_contract(
         .metadata
         .local_slot_contracts
         .push(LocalSlotContract {
-            contract_id: format!("local-slot:{}", local_slot_id.binding_id().raw()),
+            contract_id: local_slot_contract_id(local_slot_id),
             local_slot_id,
             diagnostic_source_name: source_name.to_string(),
             declared_type_name: declared_type_name.to_string(),
@@ -68,6 +68,7 @@ pub(crate) fn validate_local_slot_contracts(function: &MirFunction) -> Result<()
             ));
         }
         if !is_exact_numeric_local_type(Some(&contract.declared_type_name))
+            || contract.contract_id != local_slot_contract_id(contract.local_slot_id)
             || !contract.runtime_check_required
             || contract.proof_elision_allowed
             || contract.backend_capability_required != LOCAL_SLOT_EXACT_NUMERIC_CAPABILITY
@@ -122,10 +123,19 @@ pub(crate) fn validate_local_slot_contracts(function: &MirFunction) -> Result<()
 }
 
 pub(crate) fn refresh_function_local_identity_evidence(function: &mut MirFunction) {
-    function.metadata.local_identity_evidence = build_local_identity_evidence(function);
+    function.metadata.local_identity_evidence = build_local_identity_state(function).1;
 }
 
 fn build_local_identity_evidence(function: &MirFunction) -> Vec<LocalIdentityEvidence> {
+    build_local_identity_state(function).1
+}
+
+fn build_local_identity_state(
+    function: &MirFunction,
+) -> (
+    BTreeMap<crate::mir::ValueId, LocalSlotId>,
+    Vec<LocalIdentityEvidence>,
+) {
     let mut checked_slots = BTreeMap::<crate::mir::ValueId, LocalSlotId>::new();
     for block in function.blocks.values() {
         for instruction in &block.instructions {
@@ -178,7 +188,18 @@ fn build_local_identity_evidence(function: &MirFunction) -> Vec<LocalIdentityEvi
             break;
         }
     }
-    evidence_by_merge.into_values().collect()
+    (checked_slots, evidence_by_merge.into_values().collect())
+}
+
+pub(crate) fn fresh_local_identity_slots(
+    function: &MirFunction,
+) -> Option<BTreeMap<crate::mir::ValueId, LocalSlotId>> {
+    let (slots, evidence) = build_local_identity_state(function);
+    (function.metadata.local_identity_evidence == evidence).then_some(slots)
+}
+
+pub(crate) fn local_slot_contract_id(local_slot_id: LocalSlotId) -> String {
+    format!("local-slot:{}", local_slot_id.binding_id().raw())
 }
 
 pub(crate) fn local_slot_contract(

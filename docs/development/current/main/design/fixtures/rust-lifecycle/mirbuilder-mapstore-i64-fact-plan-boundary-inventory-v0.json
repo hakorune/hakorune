@@ -49,6 +49,28 @@
     },
     {
       "authority_conflicts": [
+        "LocalSlotContract or LocalContractWrite alone is insufficient"
+      ],
+      "authority_source": "src/mir/exact_numeric_value_facts.rs",
+      "behavior_delta": "exact i64 Fact source only",
+      "blocked_reason": "",
+      "candidate_id": "fact.mapstore.key_domain.local_contract_write_i64",
+      "candidate_kind": "FactSourceBridge",
+      "consumers": [
+        "MapStoreI64KeyWitness"
+      ],
+      "current_producer": "seed_local_contract_write_facts",
+      "derived_projections": [],
+      "eligibility": "implemented_checked_local_bridge",
+      "fail_fast_boundary": "stale contract or identity evidence publishes no Fact",
+      "fixture": "src/mir/exact_numeric_value_facts/tests/local_contract_write.rs",
+      "independent_oracle": "src/mir/exact_numeric_value_facts/tests/local_contract_write.rs",
+      "refresh_or_rebuild_owner": "refresh_module_exact_numeric_value_facts",
+      "semantic_statement": "checked i64 LocalContractWrite publishes exact evidence on dst",
+      "stable_identity": "ExactNumericValueFactSource::LocalContractWrite"
+    },
+    {
+      "authority_conflicts": [
         "must not become a second numeric Fact owner"
       ],
       "authority_source": "src/mir/exact_numeric_value_facts.rs",
@@ -119,6 +141,7 @@
     "delete_opened": 0,
     "existing_exact_numeric_fact_owner_reused": 1,
     "hard_authority_activation": 0,
+    "local_contract_write_exact_i64_bridge": 1,
     "mapstore_any_opened": 0,
     "mapstore_dynamic_i64_fact_candidate": "pending",
     "mapstore_i64_boundary_candidate": "blocked",
@@ -145,11 +168,19 @@
     },
     "exact_numeric_facts": {
       "path": "src/mir/exact_numeric_value_facts.rs",
-      "sha256": "0479e37a9be6f75e55ddb96d7c25e7e73268dabd246166acf4a3d65ad0027cd5"
+      "sha256": "b8b7808cf55b1c17fb2f83fab84fb4e120710c5293734787faaf9468ddaff70b"
     },
     "facts": {
       "path": "src/mir/generic_method_route_facts.rs",
       "sha256": "8f66805522213ccdac2be5158f9c86e8979102fffa40a46789d374df062ca45f"
+    },
+    "local_contract_write_tests": {
+      "path": "src/mir/exact_numeric_value_facts/tests/local_contract_write.rs",
+      "sha256": "e3266f34ec9fe2bf4e2ad8cfd9fc588b5cbced9a7072884941dbdde01d489495"
+    },
+    "local_slot": {
+      "path": "src/mir/type_contracts/local_slot.rs",
+      "sha256": "a970778a71652aaf4db3b6c33c22c5c619c0f6571d068f09b075fbc50481428b"
     },
     "policy": {
       "path": "lang/src/compiler/lib/write_set_mapstore_route_policy.hako",

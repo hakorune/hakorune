@@ -5,7 +5,7 @@ use crate::mir::numeric_substrate::{
     exact_numeric_mir_type_from_declared_name, ExactNumericMirType, NumericTarget,
 };
 use crate::mir::{
-    BasicBlockId, BinaryOp, MirFunction, MirInstruction, MirModule, MirType, ValueId,
+    BasicBlockId, BinaryOp, LocalSlotId, MirFunction, MirInstruction, MirModule, MirType, ValueId,
 };
 use std::collections::BTreeMap;
 
@@ -57,6 +57,14 @@ pub enum ExactNumericValueFactSource {
     FieldGet {
         box_name: String,
         field: String,
+    },
+    LocalContractWrite {
+        contract_id: String,
+        local_slot_id: LocalSlotId,
+        write_kind: crate::mir::function::LocalContractWriteKind,
+        src: ValueId,
+        block: BasicBlockId,
+        instruction_index: usize,
     },
     BinaryOp {
         op: BinaryOp,
@@ -131,12 +139,15 @@ pub(crate) fn refresh_function_exact_numeric_value_facts(
     field_decls: &BTreeMap<(String, String), String>,
 ) -> usize {
     let object_defs = collect_object_defs(function);
+    let local_identity_slots =
+        crate::mir::type_contracts::local_slot::fresh_local_identity_slots(function);
     let mut facts = BTreeMap::new();
 
     seed_const_facts(function, &mut facts);
     seed_param_facts(function, &mut facts);
     seed_field_get_facts(function, field_decls, &object_defs, &mut facts);
-    propagate_exact_numeric_value_facts(function, &mut facts);
+    seed_local_contract_write_facts(function, local_identity_slots.as_ref(), &mut facts);
+    propagate_exact_numeric_value_facts(function, local_identity_slots.as_ref(), &mut facts);
     let rejections = collect_control_merge_rejections(function, &facts);
     let binary_op_route_facts = collect_binary_op_route_facts(function, &facts);
     let binary_op_route_rejections = collect_binary_op_route_rejections(function, &facts);
@@ -290,8 +301,66 @@ fn seed_field_get_facts(
     }
 }
 
+fn seed_local_contract_write_facts(
+    function: &MirFunction,
+    identity_slots: Option<&BTreeMap<ValueId, LocalSlotId>>,
+    facts: &mut BTreeMap<ValueId, ExactNumericValueFact>,
+) {
+    let Some(identity_slots) = identity_slots else {
+        return;
+    };
+    for block_id in function.block_ids() {
+        let Some(block) = function.get_block(block_id) else {
+            continue;
+        };
+        for (instruction_index, spanned) in block.all_spanned_instructions_enumerated() {
+            let MirInstruction::LocalContractWrite {
+                dst,
+                src,
+                local_slot_id,
+                write_kind,
+            } = spanned.inst
+            else {
+                continue;
+            };
+            if identity_slots.get(dst) != Some(local_slot_id) {
+                continue;
+            }
+            let Some(contract) = crate::mir::type_contracts::local_slot::local_slot_contract(
+                function,
+                *local_slot_id,
+            ) else {
+                continue;
+            };
+            if contract.contract_id
+                != crate::mir::type_contracts::local_slot::local_slot_contract_id(*local_slot_id)
+                || contract.declared_type_name != "i64"
+                || !contract.runtime_check_required
+                || contract.proof_elision_allowed
+            {
+                continue;
+            }
+            facts.insert(
+                *dst,
+                ExactNumericValueFact {
+                    declared_type_name: contract.declared_type_name.clone(),
+                    source: ExactNumericValueFactSource::LocalContractWrite {
+                        contract_id: contract.contract_id.clone(),
+                        local_slot_id: *local_slot_id,
+                        write_kind: *write_kind,
+                        src: *src,
+                        block: block_id,
+                        instruction_index,
+                    },
+                },
+            );
+        }
+    }
+}
+
 fn propagate_exact_numeric_value_facts(
     function: &MirFunction,
+    local_identity_slots: Option<&BTreeMap<ValueId, LocalSlotId>>,
     facts: &mut BTreeMap<ValueId, ExactNumericValueFact>,
 ) {
     for _ in 0..16 {
@@ -318,6 +387,13 @@ fn propagate_exact_numeric_value_facts(
                         }
                     }
                     MirInstruction::Phi { dst, inputs, .. } => {
+                        if local_merge_lacks_identity(
+                            *dst,
+                            inputs.iter().map(|(_, value)| *value),
+                            local_identity_slots,
+                        ) {
+                            continue;
+                        }
                         changed |= try_publish_control_merge_fact(
                             facts,
                             *dst,
@@ -332,6 +408,13 @@ fn propagate_exact_numeric_value_facts(
                         else_val,
                         ..
                     } => {
+                        if local_merge_lacks_identity(
+                            *dst,
+                            [*then_val, *else_val],
+                            local_identity_slots,
+                        ) {
+                            continue;
+                        }
                         changed |= try_publish_control_merge_fact(
                             facts,
                             *dst,
@@ -353,6 +436,27 @@ fn propagate_exact_numeric_value_facts(
             break;
         }
     }
+}
+
+fn local_merge_lacks_identity<I>(
+    dst: ValueId,
+    inputs: I,
+    local_identity_slots: Option<&BTreeMap<ValueId, LocalSlotId>>,
+) -> bool
+where
+    I: IntoIterator<Item = ValueId>,
+{
+    let Some(local_identity_slots) = local_identity_slots else {
+        return false;
+    };
+    let input_slots = inputs
+        .into_iter()
+        .filter_map(|value| local_identity_slots.get(&value).copied())
+        .collect::<Vec<_>>();
+    !input_slots.is_empty()
+        && local_identity_slots
+            .get(&dst)
+            .is_none_or(|dst_slot| input_slots.iter().any(|input_slot| input_slot != dst_slot))
 }
 
 fn try_publish_control_merge_fact<I>(

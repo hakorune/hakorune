@@ -69,3 +69,7 @@ mod acceptance;
 #[cfg(test)]
 #[path = "tests/rejections.rs"]
 mod rejections;
+
+#[cfg(test)]
+#[path = "tests/local_contract_write.rs"]
+mod local_contract_write;

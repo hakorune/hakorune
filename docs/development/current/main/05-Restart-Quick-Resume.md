@@ -40,9 +40,9 @@ cargo check -q
 
 - handoff frontier: read `current_blocker_token` in `CURRENT_STATE.toml`
 - read `latest_card_path` before editing
-- the active slice bridges checked `LocalContractWrite` evidence into the
-  existing `ExactNumericValueFact` owner
-- do not add a dynamic integer owner or move route, mutation, backend, or
+- the active slice builds bounded read-only `BoundedBodyAnalysisSnapshotV0`
+  traversal parity over validated Program(JSON v0)
+- do not move Fact, planner, route, backend, MIR mutation, ID allocation, or
   Source Selfhost authority
 - LANGV1 conformance closeout and Failure/Outcome global migration remain
   parked and must not be inferred complete

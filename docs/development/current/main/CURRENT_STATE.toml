@@ -4,7 +4,7 @@
 status = "Active implementation workstream"
 date = "2026-07-12"
 
-active_lane = "MIRBUILDER-MAPSTORE I64 LocalContractWrite bridge"
+active_lane = "MIRBUILDER Hako BoundedBodyAnalysisSnapshotV0"
 active_lane_status = """Explicit user priority change on 2026-07-12 reopens
 the parked Source Selfhost/MirBuilder lane before LANGV1 conformance closeout.
 Language-v1 behavior remains unchanged and its closeout stays parked. 3456,
@@ -58,20 +58,29 @@ no capability activation. 3504 accepts relation/spec plus exhaustive
 inventory-only Failure/Outcome design. Repository artifact C2 classification
 is 91% complete with 77 warning-unregistered consultation rows; no physical
 move was started. 3505 S0-S5 and the narrow 3511 activation slice are landed
-history; the exact-i64 witness slice is closed and the accepted next slice is
-the LocalContractWrite bridge into the existing ExactNumericValueFact owner.
-BoundedBodyAnalysisSnapshotV0 and LoopFeature parity remain parked follow-ups;
+history; the exact-i64 witness and LocalContractWrite Fact bridge slices are
+closed. The active next slice is BoundedBodyAnalysisSnapshotV0: one bounded,
+read-only Hako analysis capability over validated Program(JSON v0), with
+independent Rust/Hako traversal parity before another Fact facade moves.
+LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/mirbuilder-mapstore-i64-local-contract-write-fact-bridge-2026-07-12.md"
-phase_status = "docs/development/current/main/investigations/mirbuilder-mapstore-i64-local-contract-write-fact-bridge-2026-07-12.md"
+active_phase = "docs/development/current/main/investigations/mirbuilder-hako-bounded-body-analysis-snapshot-v0-2026-07-12.md"
+phase_status = "docs/development/current/main/investigations/mirbuilder-hako-bounded-body-analysis-snapshot-v0-2026-07-12.md"
 method_anchor = "docs/development/current/main/design/current-docs-archive-policy-ssot.md"
-taskboard = "docs/development/current/main/investigations/mirbuilder-mapstore-i64-local-contract-write-fact-bridge-2026-07-12.md"
-latest_workstream_card = "docs/development/current/main/investigations/mirbuilder-mapstore-i64-local-contract-write-fact-bridge-2026-07-12.md"
+taskboard = "docs/development/current/main/investigations/mirbuilder-hako-bounded-body-analysis-snapshot-v0-2026-07-12.md"
+latest_workstream_card = "docs/development/current/main/investigations/mirbuilder-hako-bounded-body-analysis-snapshot-v0-2026-07-12.md"
 
-latest_card = "mirbuilder-mapstore-i64-local-contract-write-fact-bridge-2026-07-12"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-mapstore-i64-local-contract-write-fact-bridge-2026-07-12.md"
-latest_card_summary = """3456 closed the BoxShape-only typed RoutePolicyRow
+latest_card = "mirbuilder-hako-bounded-body-analysis-snapshot-v0-2026-07-12"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-hako-bounded-body-analysis-snapshot-v0-2026-07-12.md"
+latest_card_summary = """The LocalContractWrite exact-i64 Fact bridge is
+closed with canonical contract-id ownership, fresh identity matching,
+dst-only publication, Copy/same-slot PHI propagation, 17 focused tests, and
+the existing MapStoreI64 inventory guard. BoundedBodyAnalysisSnapshotV0 is
+the accepted next card. It adds a bounded read-only analysis snapshot over
+validated Program(JSON v0), requires independent Rust/Hako traversal parity,
+and does not move Fact, planner, route, backend, MIR mutation, ID allocation,
+or Source Selfhost authority. Historical context: 3456 closed the BoxShape-only typed RoutePolicyRow
 prerequisite on 2026-07-12. 3454 is fixture-backed green, 3455 accepted
 focused inventory first, and 3457 closed the authority inventory. The
 exact-i64 witness slice is complete and the active LocalContractWrite bridge
@@ -100,7 +109,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "MIRBUILDER-MAPSTORE-I64-LOCAL-CONTRACT-WRITE-FACT-BRIDGE-001"
+current_blocker_token = "MIRBUILDER-HAKO-BOUNDED-BODY-ANALYSIS-SNAPSHOT-V0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -109,6 +118,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-12: LocalContractWrite exact-i64 Fact bridge closes with canonical contract-id/fresh-identity matching, dst-only publication, Copy/same-slot PHI propagation, and the existing MapStore inventory guard.",
   "2026-07-12: MapStoreI64 source-backed key witness reuses ExactNumericValueFact for exact i64 only; dynamic I64Value remains derived and route selection is unchanged.",
   "2026-07-12: 3457 closes the focused MapStoreI64 Fact/Plan/Boundary inventory; exact-i64 witness work reuses the existing ExactNumericValueFact owner.",
   "2026-07-12: 3455 opens the MapStore caller-orientation Fact/Plan/Boundary design stop after the 3454 fixture-backed pilot; no next hard-authority owner is selected.",
@@ -120,5 +130,4 @@ landed_tail = [
   "2026-07-11: H3 C1 accepts 112 README-section-reviewed design rows, lowers the warning backlog from 844 to 732, and keeps physical design moves disabled; C2 owner-family review is the next stop.",
   "2026-07-11: Repository artifact lifecycle inventory confirms docs/check history is the growth source; existing archive policy now owns H0-H5 baseline, bounded phase/card moves, design registry, guard convergence, and closeout enforcement without opening another numbered cleanup card.",
   "2026-07-11: 3503 accepts defer_with_failfast, proves declaration-only and dynamic-alias-only Weak obligations reject every product backend, keeps VM reference-only, and opens 3504 Failure/Outcome design.",
-  "2026-07-11: Fable5 stop-the-line review closes obsolete parser comment-token guards, moves program-parser naming ownership, joins naming to the Language v1 FULL gate, and restores dev_gate quick plus FULL grammar green; 3503 remains the active design stop.",
 ]

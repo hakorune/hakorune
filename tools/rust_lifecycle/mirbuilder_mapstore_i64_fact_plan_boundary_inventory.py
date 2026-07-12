@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Record the 3457 MapStoreI64 Fact/Plan/Boundary inventory result."""
+"""Record the MapStoreI64 Fact/Plan/Boundary inventory and active Fact bridge."""
 
 from __future__ import annotations
 
@@ -14,6 +14,8 @@ OUTPUT = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle/mi
 CARD = ROOT / "docs/development/current/main/phases/phase-296x/3457-MIRBUILDER-MAPSTORE-I64-FACT-PLAN-BOUNDARY-INVENTORY-001.md"
 FACTS = ROOT / "src/mir/generic_method_route_facts.rs"
 EXACT_FACTS = ROOT / "src/mir/exact_numeric_value_facts.rs"
+LOCAL_SLOT = ROOT / "src/mir/type_contracts/local_slot.rs"
+LOCAL_TESTS = ROOT / "src/mir/exact_numeric_value_facts/tests/local_contract_write.rs"
 WITNESS = ROOT / "src/mir/generic_method_route_plan/mapstore_i64_key_witness.rs"
 ROUTES = ROOT / "src/mir/generic_method_route_plan/write_routes.rs"
 TESTS = ROOT / "src/mir/generic_method_route_plan/tests/map_set_routes/map_get_scalar.rs"
@@ -79,6 +81,24 @@ def build_fixture() -> dict[str, Any]:
                 "blocked_reason": "dynamic integer provenance owner not isolated",
             },
             {
+                "candidate_id": "fact.mapstore.key_domain.local_contract_write_i64",
+                "candidate_kind": "FactSourceBridge",
+                "semantic_statement": "checked i64 LocalContractWrite publishes exact evidence on dst",
+                "authority_source": rel(EXACT_FACTS),
+                "stable_identity": "ExactNumericValueFactSource::LocalContractWrite",
+                "current_producer": "seed_local_contract_write_facts",
+                "refresh_or_rebuild_owner": "refresh_module_exact_numeric_value_facts",
+                "consumers": ["MapStoreI64KeyWitness"],
+                "derived_projections": [],
+                "independent_oracle": rel(LOCAL_TESTS),
+                "fail_fast_boundary": "stale contract or identity evidence publishes no Fact",
+                "fixture": rel(LOCAL_TESTS),
+                "authority_conflicts": ["LocalSlotContract or LocalContractWrite alone is insufficient"],
+                "behavior_delta": "exact i64 Fact source only",
+                "eligibility": "implemented_checked_local_bridge",
+                "blocked_reason": "",
+            },
+            {
                 "candidate_id": "projection.mapstore.key_domain.exact_i64_witness",
                 "candidate_kind": "ValidationProjection",
                 "semantic_statement": "MapStoreI64 key has source-backed exact i64 evidence",
@@ -137,6 +157,8 @@ def build_fixture() -> dict[str, Any]:
             "card": evidence(CARD),
             "facts": evidence(FACTS),
             "exact_numeric_facts": evidence(EXACT_FACTS),
+            "local_slot": evidence(LOCAL_SLOT),
+            "local_contract_write_tests": evidence(LOCAL_TESTS),
             "witness": evidence(WITNESS),
             "routes": evidence(ROUTES),
             "tests": evidence(TESTS),
@@ -146,6 +168,7 @@ def build_fixture() -> dict[str, Any]:
             "mapstore_i64_const_key_fact_candidate": 1,
             "mapstore_i64_const_fact_owner_implemented": 1,
             "existing_exact_numeric_fact_owner_reused": 1,
+            "local_contract_write_exact_i64_bridge": 1,
             "mapstore_i64_source_backed_key_witness_candidate": 1,
             "mapstore_i64_first_hard_scope": "exact_i64_only",
             "current_i64value_disposition": "derived_projection",

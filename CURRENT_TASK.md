@@ -26,7 +26,7 @@ When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executa
 ## Handoff
 
 Read `latest_card_path` in `CURRENT_STATE.toml` before editing. The active
-slice bridges checked `LocalContractWrite` evidence into the existing
-`ExactNumericValueFact` owner. Do not create a dynamic integer owner or move
-route-selection, runtime-mutation, backend-lowering, or Source Selfhost
-authority. Language-v1 conformance closeout remains parked.
+slice builds `BoundedBodyAnalysisSnapshotV0` over validated Program(JSON v0)
+with independent Rust/Hako traversal parity. Keep it read-only and bounded;
+do not move Fact, planner, route-selection, backend-lowering, MIR-mutation,
+ID-allocation, or Source Selfhost authority. Language-v1 closeout is parked.
