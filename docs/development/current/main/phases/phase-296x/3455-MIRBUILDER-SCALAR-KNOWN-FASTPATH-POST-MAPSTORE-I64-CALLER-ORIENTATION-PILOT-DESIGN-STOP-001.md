@@ -32,3 +32,9 @@ tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_mapstore_i64_caller
 The next owner must be selected only after a focused Fact / Plan / Boundary
 inventory identifies one minimal hard-authority slice. This card intentionally
 does not choose that owner.
+
+Parked audit follow-up (not active):
+
+```text
+docs/development/current/main/investigations/failure-outcome-manifest-ratchet-current-state-followup-2026-07-12.md
+```
