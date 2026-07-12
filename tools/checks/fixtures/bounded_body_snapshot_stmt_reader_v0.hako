@@ -1,0 +1,76 @@
+using lang.compiler.analysis.bounded_body_snapshot.reader_root_v0 as HakoProgramV0RootReaderV0Box
+using lang.compiler.analysis.bounded_body_snapshot.reader_stmt_v0 as HakoProgramV0StmtReaderV0Box
+using lang.compiler.analysis.bounded_body_snapshot.flat_publisher_v0 as FlatNodePublisherV0Box
+using lang.compiler.analysis.bounded_body_snapshot.budget_v0 as BoundedBodySnapshotBudgetV0Box
+
+static box SnapshotStmtReaderFixtureV0Box {
+  classify(session, root) {
+    local result = me._read(session, root)
+    if result.status() == "Ready" {
+      local observations = result.observations()
+      if observations.size() == 0 { return 0 }
+      local kind = observations.get(0).kind()
+      if kind == "Local" { return 1 }
+      if kind == "Expr" { return 2 }
+      if kind == "If" { return 3 }
+      if kind == "Loop" { return 4 }
+      if kind == "LoopRange" { return 5 }
+      if kind == "Return" { return 6 }
+      if kind == "Break" { return 7 }
+      if kind == "Continue" { return 8 }
+      return 90
+    }
+    if result.status() == "Unsupported" {
+      if result.reason() == "limit.max_children_per_body" { return 20 }
+      if result.reason() == "limit.max_atom_bytes" { return 21 }
+      if result.reason() == "unsupported.wire_kind" { return 22 }
+      if result.reason() == "transport.schema_mismatch_stop" { return 23 }
+      return 29
+    }
+    if result.status() != "InvalidInput" { return 99 }
+    if result.reason() == "object.required_field_missing" { return 30 }
+    if result.reason() == "object.forbidden_unknown_field" { return 31 }
+    if result.reason() == "type.expected_string.got_number" { return 32 }
+    if result.reason() == "type.expected_array.got_object" { return 33 }
+    if result.reason() == "type.expected_string_or_null.got_number" { return 34 }
+    return 39
+  }
+
+  outcome(session, root) {
+    local result = me._read(session, root)
+    return result.status() + "|" + result.path() + "|" + result.reason()
+  }
+  flat_signature(session, root) {
+    local result = me._read(session, root)
+    if result.status() != "Ready" { return "<not-ready>" }
+    local table = FlatNodePublisherV0Box.publish_body(result.observations(), "$.body")
+    local text = "roots=" + ("" + table.root_count()) local i = 0
+    loop(i < table.root_count()) { text = text + ":" + ("" + table.root(i)) i = i + 1 }
+    i = 0
+    loop(i < table.node_count()) {
+      local node = table.node(i)
+      text = text + "|" + ("" + node.index()) + ":" + node.path() + ":" + node.domain() + ":" + node.kind()
+      local j = 0
+      loop(j < node.child_count()) {
+        local edge = node.child(j)
+        text = text + ":" + edge.role() + "=" + ("" + edge.target_index())
+        j = j + 1
+      }
+      i = i + 1
+    }
+    return text
+  }
+  first_atom(session, root) {
+    local result = me._read(session, root)
+    if result.status() != "Ready" { return "<not-ready>" }
+    return result.observations().get(0).atom(0).value()
+  }
+
+  _read(session, root) {
+    local envelope = HakoProgramV0RootReaderV0Box.scan(session, root)
+    if envelope.status() != "Ready" { return new StmtBodyReadV0(envelope.status(), null, envelope.path(), null, envelope.reason()) }
+    return HakoProgramV0StmtReaderV0Box.read_body(session, envelope.body_node(), "$.body", 1, new BoundedBodySnapshotBudgetV0())
+  }
+}
+
+static box Main { main() { return 0 } }

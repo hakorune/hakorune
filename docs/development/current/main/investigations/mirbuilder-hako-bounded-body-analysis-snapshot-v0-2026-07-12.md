@@ -942,7 +942,7 @@ argument count is rejected before child traversal, Method observes `recv`
 before `args`, and mixed Binary-under-Call / Call-under-Binary recursion stays
 within one traversal owner. No callee, Print, or source-kind recovery exists.
 
-`expr_flat_publisher_v0.hako` closes expression-only preorder publication:
+At A3.4, the expression-only `expr_flat_publisher_v0.hako` closed preorder publication:
 reserve parent draft, recursively reserve children, seal ordered role/index
 edges, then defensively reconstruct all public records. Exact forward indices,
 paths, atoms, and `recv -> args[]` / `lhs -> rhs` ordering are executable.
@@ -959,8 +959,33 @@ types, required-null recv, nested Unsupported propagation, exact Rust/Hako
 outcome parity, two `NYASH_STR_CP` modes, and session cleanup. Rust executable
 tests are physically split below `strict_json_session/tests/` to keep every
 source under 800 lines. Stable gate: `tools/checks/hako_call_expr_reader_v0_guard.sh`.
-U4-A3.5 statement families and body/argument integration are next; complete
-snapshot sealing/direct parity remains A3.6.
+At that closure point, statement families and complete snapshot parity
+remained pending.
+
+U4-A3.5 closed on 2026-07-12. `reader_stmt_v0.hako` independently owns all
+eight accepted statement kinds, field closure, Local/LoopRange Atom text,
+known-but-unobserved `Local.declared_type` validation, required expression
+children, missing/null optional else, and recursive statement bodies. Every
+body array is type-checked and `max_children_per_body`-checked before its first
+child is read. Expressions remain delegated to the one expression owner.
+
+The A3.4 publisher is renamed/generalized to `flat_publisher_v0.hako` rather
+than duplicated. Normalized observations now expose only `domain` in addition
+to their existing read-only interface. The publisher retains one
+reserve/seal/reconstruct algorithm for mixed stmt/expr trees, ordered top-level
+roots, forward child indices, and list paths. Repeated `then`, `else`, `body`,
+and `args` ordinals are derived from preceding edges of the same role; no
+public Hako-only ordinal is stored.
+
+The executable fixture proves eight accepted kinds, exact Rust/Hako malformed
+and Unsupported outcomes, missing and null else equivalence, Local declared
+type closure, nested Unsupported propagation, multiple roots, exact mixed
+stmt/expr preorder paths/indices/roles, decoded LoopRange Atom values, and
+top/nested body boundaries at 2047/2048/2049 under both `NYASH_STR_CP` modes.
+Rust tests remain physically split below `strict_json_session/tests/`; every
+source stays below 800 lines. Stable gate: `tools/checks/hako_stmt_reader_v0_guard.sh`.
+U4-A3.6 final one-shot snapshot seal, direct ProgramV0 invocation, and exact
+snapshot parity are next. No Fact or planner connection is active.
 
 Each slice must compile/run in isolation before the next reader family is
 added. A reader that again crosses the diagnostic boundary returns to the

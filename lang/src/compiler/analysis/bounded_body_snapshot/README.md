@@ -59,11 +59,19 @@ operator partition, and preserves `lhs/rhs`, `recv`, and repeated `args` roles
 in exact schema order. `Call`, `Method`, and `Field` keep their wire kinds;
 the reader does not infer dynamic callees, Print, or source syntax.
 
-`expr_flat_publisher_v0.hako` converts a complete normalized expression tree
-into invocation-local flat preorder records. It reserves mutable drafts,
+`flat_publisher_v0.hako` converts complete normalized statement/expression
+trees into invocation-local flat preorder records. It reserves mutable drafts,
 recursively obtains forward child indices, seals every draft, then defensively
 reconstructs atoms, edges, and nodes exactly once. Loop-created records use
 one factory entry because the current Hako MIR builder otherwise omits `birth`
 for a direct `new` inside a loop; the executable gate checks the emitted birth
-calls. This table is expression-only and is not a partial public snapshot.
-Statement/root integration and final snapshot sealing remain later owners.
+calls. Repeated `then`, `else`, `body`, and `args` roles receive deterministic
+zero-origin path indices; top-level statements become ordered roots. This
+table is not a public snapshot. Final snapshot sealing remains a later owner.
+
+`reader_stmt_v0.hako` is the single recursive statement owner for `Local`,
+`Expr`, `If`, `Loop`, `LoopRange`, `Return`, `Break`, and `Continue`. It
+preflights every body array before traversal, preserves schema child order,
+normalizes missing/null `else` to absence, validates known-but-unobserved
+`Local.declared_type`, and delegates every expression to the one expression
+reader. It never publishes a partial body after failure.

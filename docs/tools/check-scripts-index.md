@@ -429,6 +429,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/hako_leaf_expr_reader_v0_guard.sh` | U4-A3.2 VM-reference gate for five Hako-owned leaf expression observations, full canonical-i64 normalization, decoded UTF-8 text budgets, exact outcome parity, compile timing, no partial snapshot, and source-file size. |
 | `tools/checks/hako_child_expr_reader_v0_guard.sh` | U4-A3.3 VM-reference gate for recursive Binary/Compare/Logical observations, closed operator partitions, lhs/rhs order, node/depth limits, exact outcome parity, compile timing, no partial snapshot, and source-file size. |
 | `tools/checks/hako_call_expr_reader_v0_guard.sh` | U4-A3.4 VM-reference gate for Call/Method/Field, unified mixed recursion, recv/args order, 127/128/129 argument limits, UTF-8 atoms, expression-only flat preorder records, emitted record birth calls, exact outcome parity, compile timing, and source-file size. |
+| `tools/checks/hako_stmt_reader_v0_guard.sh` | U4-A3.5 VM-reference gate for all eight accepted statement kinds, optional else, top/nested body preflight, mixed stmt/expr preorder roots and paths, 2047/2048/2049 limits, emitted record birth calls, exact outcome parity, compile timing, and source-file size. |
 | `tools/checks/rust_lifecycle_source_selfhost_post_rerun004_current_reentry_inventory_guard.sh` | Current reentry inventory guard proving basis-007 is consumed by RERUN-004 and selecting the checkpoint rerun without replaying route repair. |
 
 ## Update Policy

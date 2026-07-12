@@ -1,28 +1,32 @@
-// Expression-only defensive flattening. Complete snapshots remain a later owner.
+// Defensive mixed stmt/expr flattening. Complete snapshots remain a later owner.
 using lang.compiler.analysis.bounded_body_snapshot.snapshot_model_v0 as BoundedBodySnapshotModelV0Box
 
-box ExprFlatTableV0 {
+box FlatNodeTableV0 {
   _nodes: ArrayBox
-  _root_index: Integer
-  birth(nodes, root_index) { me._nodes = nodes me._root_index = root_index }
+  _roots: ArrayBox
+  birth(nodes, roots) { me._nodes = nodes me._roots = roots }
   node_count() { return me._nodes.size() }
   node(index) { return me._nodes.get(index) }
-  root_index() { return me._root_index }
+  root_count() { return me._roots.size() }
+  root(index) { return me._roots.get(index) }
+  root_index() { return me._roots.get(0) }
 }
 
-box ExprFlatDraftV0 {
+box FlatNodeDraftV0 {
   _index: Integer
   _path: String
   _kind: String
+  _domain: String
   _atoms: ArrayBox
   _children: ArrayBox
   _sealed: Bool
-  birth(index, path, kind, atoms) {
-    me._index = index me._path = path me._kind = kind me._atoms = atoms
+  birth(index, path, domain, kind, atoms) {
+    me._index = index me._path = path me._domain = domain me._kind = kind me._atoms = atoms
     me._children = new ArrayBox() me._sealed = false
   }
   index() { return me._index }
   path() { return me._path }
+  domain() { return me._domain }
   kind() { return me._kind }
   atoms() { return me._atoms }
   children() { return me._children }
@@ -30,21 +34,32 @@ box ExprFlatDraftV0 {
   seal(children) { me._children = children me._sealed = true }
 }
 
-static box ExprFlatRecordV0Box {
+static box FlatNodeRecordV0Box {
   atom(key, value_kind, value) { return new BoundedBodySnapshotAtomV0(key, value_kind, value) }
   child(role, target) { return new BoundedBodySnapshotChildV0(role, target) }
-  node(index, path, kind, atoms, children) {
-    return new BoundedBodySnapshotNodeV0(index, path, "expr", kind, atoms, children)
+  node(index, path, domain, kind, atoms, children) {
+    return new BoundedBodySnapshotNodeV0(index, path, domain, kind, atoms, children)
   }
 }
 
-static box ExprFlatPublisherV0Box {
+static box FlatNodePublisherV0Box {
   publish(observation, root_path) {
     local drafts = new ArrayBox()
     local root_index = me._reserve_node(observation, root_path, drafts)
     local nodes = me._reconstruct(drafts)
     if nodes == null { return null }
-    return new ExprFlatTableV0(nodes, root_index)
+    local roots = new ArrayBox() roots.push(root_index)
+    return new FlatNodeTableV0(nodes, roots)
+  }
+  publish_body(observations, root_path) {
+    local drafts = new ArrayBox() local roots = new ArrayBox() local i = 0
+    loop(i < observations.size()) {
+      roots.push(me._reserve_node(observations.get(i), root_path + "[" + ("" + i) + "]", drafts))
+      i = i + 1
+    }
+    local nodes = me._reconstruct(drafts)
+    if nodes == null { return null }
+    return new FlatNodeTableV0(nodes, roots)
   }
 
   _reserve_node(observation, path, drafts) {
@@ -54,20 +69,23 @@ static box ExprFlatPublisherV0Box {
       source_atoms.push(observation.atom(atom_i))
       atom_i = atom_i + 1
     }
-    local draft = new ExprFlatDraftV0(index, path, observation.kind(), source_atoms)
+    local draft = new FlatNodeDraftV0(index, path, observation.domain(), observation.kind(), source_atoms)
     drafts.push(draft)
-    local children = new ArrayBox()
-    local args_ordinal = 0 local i = 0
+    local children = new ArrayBox() local i = 0
     loop(i < observation.child_count()) {
       local edge = observation.child(i)
       local role = edge.role()
       local child_path = path + "." + role
-      if role == "args" {
-        child_path = path + ".args[" + ("" + args_ordinal) + "]"
-        args_ordinal = args_ordinal + 1
+      if role == "args" || role == "then" || role == "else" || role == "body" {
+        local ordinal = 0 local j = 0
+        loop(j < i) {
+          if observation.child(j).role() == role { ordinal = ordinal + 1 }
+          j = j + 1
+        }
+        child_path = path + "." + role + "[" + ("" + ordinal) + "]"
       }
       local target = me._reserve_node(edge.observation(), child_path, drafts)
-      children.push(ExprFlatRecordV0Box.child(role, target))
+      children.push(FlatNodeRecordV0Box.child(role, target))
       i = i + 1
     }
     draft.seal(children)
@@ -82,16 +100,16 @@ static box ExprFlatPublisherV0Box {
       local atoms = new ArrayBox() local j = 0
       loop(j < draft.atoms().size()) {
         local atom = draft.atoms().get(j)
-        atoms.push(ExprFlatRecordV0Box.atom(atom.key(), atom.value_kind(), atom.value()))
+        atoms.push(FlatNodeRecordV0Box.atom(atom.key(), atom.value_kind(), atom.value()))
         j = j + 1
       }
       local children = new ArrayBox() j = 0
       loop(j < draft.children().size()) {
         local edge = draft.children().get(j)
-        children.push(ExprFlatRecordV0Box.child(edge.role(), edge.target_index()))
+        children.push(FlatNodeRecordV0Box.child(edge.role(), edge.target_index()))
         j = j + 1
       }
-      nodes.push(ExprFlatRecordV0Box.node(draft.index(), draft.path(), draft.kind(), atoms, children))
+      nodes.push(FlatNodeRecordV0Box.node(draft.index(), draft.path(), draft.domain(), draft.kind(), atoms, children))
       i = i + 1
     }
     return nodes

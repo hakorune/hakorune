@@ -1,0 +1,257 @@
+// Recursive accepted StmtV0 observation over generic strict JSON.
+using lang.compiler.analysis.bounded_body_snapshot.strict_json_tree_v0 as StrictJsonTreeV0Box
+using lang.compiler.analysis.bounded_body_snapshot.reader_expr_child_v0 as HakoProgramV0ChildExprReaderV0Box
+using lang.compiler.analysis.bounded_body_snapshot.validated_text_v0 as ValidatedTextV0Box
+using lang.compiler.analysis.bounded_body_snapshot.snapshot_model_v0 as BoundedBodySnapshotModelV0Box
+using lang.compiler.analysis.bounded_body_snapshot_schema_v0 as BoundedBodySnapshotSchemaV0Box
+
+box StmtObservationEdgeV0 {
+  _role: String
+  _observation
+  birth(role, observation) { me._role = role me._observation = observation }
+  role() { return me._role }
+  observation() { return me._observation }
+}
+static box StmtObservationEdgeV0Box {
+  make(role, observation) { return new StmtObservationEdgeV0(role, observation) }
+}
+
+box StmtObservationV0 {
+  _kind: String
+  _atoms: ArrayBox
+  _children: ArrayBox
+  birth(kind, atoms, children) { me._kind = kind me._atoms = atoms me._children = children }
+  domain() { return "stmt" }
+  kind() { return me._kind }
+  atom_count() { return me._atoms.size() }
+  atom(index) { return me._atoms.get(index) }
+  child_count() { return me._children.size() }
+  child(index) { return me._children.get(index) }
+}
+
+box StmtReadV0 {
+  _status: String
+  _observation
+  _path: String
+  _node_kind
+  _reason: String
+  birth(status, observation, path, node_kind, reason) {
+    me._status = status me._observation = observation me._path = path
+    me._node_kind = node_kind me._reason = reason
+  }
+  status() { return me._status }
+  observation() { return me._observation }
+  path() { return me._path }
+  node_kind() { return me._node_kind }
+  reason() { return me._reason }
+}
+static box StmtReadV0Box {
+  ready(observation) { return new StmtReadV0("Ready", observation, "", null, "") }
+  unsupported(path, kind, reason) { return new StmtReadV0("Unsupported", null, path, kind, reason) }
+  invalid(path, reason) { return new StmtReadV0("InvalidInput", null, path, null, reason) }
+  internal(path, reason) { return new StmtReadV0("InternalCarrierContractViolation", null, path, null, reason) }
+  from_child(result) {
+    if result.status() == "Unsupported" { return me.unsupported(result.path(), result.node_kind(), result.reason()) }
+    if result.status() == "InvalidInput" { return me.invalid(result.path(), result.reason()) }
+    return me.internal(result.path(), result.reason())
+  }
+}
+
+box StmtBodyReadV0 {
+  _status: String
+  _observations: ArrayBox
+  _path: String
+  _node_kind
+  _reason: String
+  birth(status, observations, path, node_kind, reason) {
+    me._status = status me._observations = observations me._path = path
+    me._node_kind = node_kind me._reason = reason
+  }
+  status() { return me._status }
+  observations() { return me._observations }
+  path() { return me._path }
+  node_kind() { return me._node_kind }
+  reason() { return me._reason }
+}
+static box StmtBodyReadV0Box {
+  ready(observations) { return new StmtBodyReadV0("Ready", observations, "", null, "") }
+  from_stmt(result) { return new StmtBodyReadV0(result.status(), null, result.path(), result.node_kind(), result.reason()) }
+  invalid(path, reason) { return new StmtBodyReadV0("InvalidInput", null, path, null, reason) }
+  unsupported(path, reason) { return new StmtBodyReadV0("Unsupported", null, path, null, reason) }
+}
+
+static box HakoProgramV0StmtReaderV0Box {
+  read_body(session, body_node, path, depth, budget) {
+    local actual = StrictJsonTreeV0Box.kind(session, body_node)
+    if actual != "Array" { return StmtBodyReadV0Box.invalid(path, me._wrong_type("array", actual)) }
+    local count = StrictJsonTreeV0Box.array_len(session, body_node)
+    local limit = budget.observe_body_children(count)
+    if limit != null { return StmtBodyReadV0Box.unsupported(path, limit) }
+    local observations = new ArrayBox() local i = 0
+    loop(i < count) {
+      local result = me.read(session, StrictJsonTreeV0Box.array_at(session, body_node, i), path + "[" + ("" + i) + "]", depth, budget)
+      if result.status() != "Ready" { return StmtBodyReadV0Box.from_stmt(result) }
+      observations.push(result.observation())
+      i = i + 1
+    }
+    return StmtBodyReadV0Box.ready(observations)
+  }
+
+  read(session, node, path, depth, budget) {
+    local limit = budget.observe_node(depth)
+    if limit != null { return StmtReadV0Box.unsupported(path, null, limit) }
+    local actual = StrictJsonTreeV0Box.kind(session, node)
+    if actual != "Object" { return StmtReadV0Box.invalid(path, me._wrong_type("object", actual)) }
+    local keys = new ArrayBox() local values = new ArrayBox()
+    local i = 0 local count = StrictJsonTreeV0Box.object_len(session, node)
+    loop(i < count) {
+      keys.push(StrictJsonTreeV0Box.object_key_at(session, node, i))
+      values.push(StrictJsonTreeV0Box.object_value_at(session, node, i))
+      i = i + 1
+    }
+    local type_node = me._find(keys, values, "type")
+    if type_node < 0 { return StmtReadV0Box.invalid(path + ".type", "object.required_field_missing") }
+    local type_kind = StrictJsonTreeV0Box.kind(session, type_node)
+    if type_kind != "String" { return StmtReadV0Box.invalid(path + ".type", me._wrong_type("string", type_kind)) }
+    local kind = StrictJsonTreeV0Box.string_value(session, type_node)
+    local classification = BoundedBodySnapshotSchemaV0Box.classify_stmt(kind)
+    if classification == "KnownUnsupported" { return StmtReadV0Box.unsupported(path, kind, "unsupported.wire_kind") }
+    if classification == "SchemaMismatchStop" { return StmtReadV0Box.unsupported(path, kind, "transport.schema_mismatch_stop") }
+    if classification != "Accepted" { return StmtReadV0Box.invalid(path, "unknown statement tag: " + kind) }
+    local closure_issue = me._field_closure_issue(kind, keys)
+    if closure_issue != "" { return StmtReadV0Box.invalid(path + "." + closure_issue, "object.forbidden_unknown_field") }
+    return me._observe_stmt(session, kind, path, depth, budget, keys, values)
+  }
+
+  _observe_stmt(session, kind, path, depth, budget, keys, values) {
+    local atoms = new ArrayBox() local children = new ArrayBox()
+    if kind == "Break" || kind == "Continue" { return StmtReadV0Box.ready(new StmtObservationV0(kind, atoms, children)) }
+    if kind == "Local" || kind == "LoopRange" {
+      local atom_field = "name"
+      if kind == "LoopRange" { atom_field = "var_name" }
+      local atom_result = me._read_atom(session, kind, atom_field, path, budget, keys, values)
+      if atom_result.status() != "Ready" { return atom_result }
+      atoms.push(atom_result.observation().atom(0))
+      if kind == "Local" {
+        local declared = me._find(keys, values, "declared_type")
+        if declared >= 0 {
+          local declared_kind = StrictJsonTreeV0Box.kind(session, declared)
+          if declared_kind != "String" && declared_kind != "Null" {
+            return StmtReadV0Box.invalid(path + ".declared_type", me._wrong_type("string_or_null", declared_kind))
+          }
+        }
+      }
+    }
+    if kind == "Local" || kind == "Expr" || kind == "Return" {
+      return me._with_expr(session, kind, "expr", path, depth, budget, keys, values, atoms, children)
+    }
+    if kind == "If" { return me._observe_if(session, path, depth, budget, keys, values, atoms, children) }
+    if kind == "Loop" { return me._observe_loop(session, path, depth, budget, keys, values, atoms, children) }
+    return me._observe_loop_range(session, path, depth, budget, keys, values, atoms, children)
+  }
+
+  _read_atom(session, kind, field, path, budget, keys, values) {
+    local node = me._find(keys, values, field)
+    if node < 0 { return StmtReadV0Box.invalid(path + "." + field, "object.required_field_missing") }
+    local actual = StrictJsonTreeV0Box.kind(session, node)
+    if actual != "String" { return StmtReadV0Box.invalid(path + "." + field, me._wrong_type("string", actual)) }
+    local built = ValidatedTextV0Box.atom(StrictJsonTreeV0Box.string_value(session, node), budget)
+    if built.status() == "Unsupported" { return StmtReadV0Box.unsupported(path + "." + field, kind, built.reason()) }
+    if built.status() != "Ready" { return StmtReadV0Box.internal(path + "." + field, built.reason()) }
+    local atoms = new ArrayBox() atoms.push(new BoundedBodySnapshotAtomV0(field, "Text", built.text().value()))
+    return StmtReadV0Box.ready(new StmtObservationV0(kind, atoms, new ArrayBox()))
+  }
+
+  _with_expr(session, kind, field, path, depth, budget, keys, values, atoms, children) {
+    local node = me._find(keys, values, field)
+    if node < 0 { return StmtReadV0Box.invalid(path + "." + field, "object.required_field_missing") }
+    local result = HakoProgramV0ChildExprReaderV0Box.read(session, node, path + "." + field, depth + 1, budget)
+    if result.status() != "Ready" { return StmtReadV0Box.from_child(result) }
+    children.push(StmtObservationEdgeV0Box.make(field, result.observation()))
+    return StmtReadV0Box.ready(new StmtObservationV0(kind, atoms, children))
+  }
+
+  _observe_if(session, path, depth, budget, keys, values, atoms, children) {
+    local cond = me._append_expr(session, "cond", path, depth, budget, keys, values, children)
+    if cond != null { return cond }
+    local then_result = me._append_body(session, "then", path, depth, budget, keys, values, children)
+    if then_result != null { return then_result }
+    local else_node = me._find(keys, values, "else")
+    if else_node >= 0 && StrictJsonTreeV0Box.kind(session, else_node) != "Null" {
+      local else_result = me._append_body(session, "else", path, depth, budget, keys, values, children)
+      if else_result != null { return else_result }
+    }
+    return StmtReadV0Box.ready(new StmtObservationV0("If", atoms, children))
+  }
+  _observe_loop(session, path, depth, budget, keys, values, atoms, children) {
+    local cond = me._append_expr(session, "cond", path, depth, budget, keys, values, children)
+    if cond != null { return cond }
+    local body = me._append_body(session, "body", path, depth, budget, keys, values, children)
+    if body != null { return body }
+    return StmtReadV0Box.ready(new StmtObservationV0("Loop", atoms, children))
+  }
+  _observe_loop_range(session, path, depth, budget, keys, values, atoms, children) {
+    local start = me._append_expr(session, "start", path, depth, budget, keys, values, children)
+    if start != null { return start }
+    local end = me._append_expr(session, "end", path, depth, budget, keys, values, children)
+    if end != null { return end }
+    local body = me._append_body(session, "body", path, depth, budget, keys, values, children)
+    if body != null { return body }
+    return StmtReadV0Box.ready(new StmtObservationV0("LoopRange", atoms, children))
+  }
+
+  _append_expr(session, field, path, depth, budget, keys, values, children) {
+    local node = me._find(keys, values, field)
+    if node < 0 { return StmtReadV0Box.invalid(path + "." + field, "object.required_field_missing") }
+    local result = HakoProgramV0ChildExprReaderV0Box.read(session, node, path + "." + field, depth + 1, budget)
+    if result.status() != "Ready" { return StmtReadV0Box.from_child(result) }
+    children.push(StmtObservationEdgeV0Box.make(field, result.observation()))
+    return null
+  }
+  _append_body(session, field, path, depth, budget, keys, values, children) {
+    local node = me._find(keys, values, field)
+    if node < 0 { return StmtReadV0Box.invalid(path + "." + field, "object.required_field_missing") }
+    local result = me.read_body(session, node, path + "." + field, depth + 1, budget)
+    if result.status() != "Ready" { return new StmtReadV0(result.status(), null, result.path(), result.node_kind(), result.reason()) }
+    local i = 0
+    loop(i < result.observations().size()) {
+      children.push(StmtObservationEdgeV0Box.make(field, result.observations().get(i)))
+      i = i + 1
+    }
+    return null
+  }
+
+  _find(keys, values, name) {
+    local i = 0
+    loop(i < keys.size()) { if keys.get(i) == name { return values.get(i) } i = i + 1 }
+    return -1
+  }
+  _field_closure_issue(kind, keys) {
+    local i = 0
+    loop(i < keys.size()) {
+      local key = keys.get(i)
+      if me._field_allowed(kind, key) == 0 { return key }
+      i = i + 1
+    }
+    return ""
+  }
+  _field_allowed(kind, field) {
+    if field == "type" { return 1 }
+    if kind == "Local" { if field == "name" || field == "expr" || field == "declared_type" { return 1 } return 0 }
+    if kind == "Expr" || kind == "Return" { if field == "expr" { return 1 } return 0 }
+    if kind == "If" { if field == "cond" || field == "then" || field == "else" { return 1 } return 0 }
+    if kind == "Loop" { if field == "cond" || field == "body" { return 1 } return 0 }
+    if kind == "LoopRange" { if field == "var_name" || field == "start" || field == "end" || field == "body" { return 1 } return 0 }
+    return 0
+  }
+  _wrong_type(expected, actual) { return "type.expected_" + expected + ".got_" + me._kind_label(actual) }
+  _kind_label(kind) {
+    if kind == "Null" { return "null" }
+    if kind == "Bool" { return "bool" }
+    if kind == "I64" || kind == "U64" || kind == "F64" { return "number" }
+    if kind == "String" { return "string" }
+    if kind == "Array" { return "array" }
+    if kind == "Object" { return "object" }
+    return "unknown"
+  }
+}

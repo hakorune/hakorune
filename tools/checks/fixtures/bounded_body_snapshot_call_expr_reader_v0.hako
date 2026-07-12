@@ -1,5 +1,5 @@
 using lang.compiler.analysis.bounded_body_snapshot.reader_expr_child_v0 as HakoProgramV0ChildExprReaderV0Box
-using lang.compiler.analysis.bounded_body_snapshot.expr_flat_publisher_v0 as ExprFlatPublisherV0Box
+using lang.compiler.analysis.bounded_body_snapshot.flat_publisher_v0 as FlatNodePublisherV0Box
 using lang.compiler.analysis.bounded_body_snapshot.budget_v0 as BoundedBodySnapshotBudgetV0Box
 
 static box SnapshotCallExprReaderFixtureV0Box {
@@ -34,7 +34,7 @@ static box SnapshotCallExprReaderFixtureV0Box {
   flat_signature(session, root) {
     local result = me._read(session, root)
     if result.status() != "Ready" { return "<not-ready>" }
-    local table = ExprFlatPublisherV0Box.publish(result.observation(), "$.body[0].expr")
+    local table = FlatNodePublisherV0Box.publish(result.observation(), "$.body[0].expr")
     local text = "root=" + ("" + table.root_index()) local i = 0
     loop(i < table.node_count()) {
       local node = table.node(i)

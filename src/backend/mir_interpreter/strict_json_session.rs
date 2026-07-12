@@ -156,6 +156,7 @@ mod tests {
     use super::*;
 
     mod tests_call_expr;
+    mod tests_stmt;
 
     fn compile_hako_fixture(relative: &str) -> crate::mir::MirModule {
         let fixture = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(relative);

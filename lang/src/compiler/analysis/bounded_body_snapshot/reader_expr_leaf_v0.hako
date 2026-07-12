@@ -9,6 +9,7 @@ box LeafExprObservationV0 {
   _kind: String
   _atoms: ArrayBox
   birth(kind, atoms) { me._kind = kind me._atoms = atoms }
+  domain() { return "expr" }
   kind() { return me._kind }
   atom_count() { return me._atoms.size() }
   atom(index) { return me._atoms.get(index) }

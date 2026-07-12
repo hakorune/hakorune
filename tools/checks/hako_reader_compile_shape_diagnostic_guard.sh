@@ -30,6 +30,7 @@ required = {
     "tracked_leaf_reader",
     "tracked_child_reader",
     "tracked_call_reader",
+    "tracked_stmt_reader",
     "branch_1",
     "branch_4",
     "branch_8",

@@ -5,7 +5,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TAG="hako-call-expr-reader-v0"
 DIR="$ROOT/lang/src/compiler/analysis/bounded_body_snapshot"
 READER="$DIR/reader_expr_child_v0.hako"
-PUBLISHER="$DIR/expr_flat_publisher_v0.hako"
+PUBLISHER="$DIR/flat_publisher_v0.hako"
 FIXTURE="$ROOT/tools/checks/fixtures/bounded_body_snapshot_call_expr_reader_v0.hako"
 SESSION="$ROOT/src/backend/mir_interpreter/strict_json_session.rs"
 TESTS="$ROOT/src/backend/mir_interpreter/strict_json_session/tests/tests_call_expr.rs"
@@ -56,7 +56,7 @@ for forbidden in ("MapBox", "indexOf", "substring(", "ValidatedProgramV0BodyView
     if forbidden in reader + publisher:
         raise SystemExit(f"forbidden call-reader dependency: {forbidden}")
 for needle in (
-    "ExprFlatDraftV0", "ExprFlatRecordV0Box", "_reserve_node", "_reconstruct",
+    "FlatNodeDraftV0", "FlatNodeRecordV0Box", "_reserve_node", "_reconstruct",
     "nodes.push", "draft.seal", 'role == "args"', "target_index()",
 ):
     if needle not in publisher:

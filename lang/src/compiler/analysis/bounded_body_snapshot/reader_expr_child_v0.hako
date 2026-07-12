@@ -21,6 +21,7 @@ box ChildExprObservationV0 {
   _atoms: ArrayBox
   _children: ArrayBox
   birth(kind, atoms, children) { me._kind = kind me._atoms = atoms me._children = children }
+  domain() { return "expr" }
   kind() { return me._kind }
   atom_count() { return me._atoms.size() }
   atom(index) { return me._atoms.get(index) }
