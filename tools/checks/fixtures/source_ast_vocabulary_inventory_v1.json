@@ -1,0 +1,1007 @@
+{
+  "schema": "SourceAstVocabularyInventoryV1",
+  "authority": {
+    "ast": "crates/hakorune_frontend_ast/src/ast_node.rs",
+    "operators": "crates/hakorune_frontend_ast/src/operators.rs",
+    "literals": "crates/hakorune_frontend_ast/src/literal.rs"
+  },
+  "enums": {
+    "ASTNode": [
+      {
+        "variant": "Program",
+        "fields": [
+          "statements",
+          "span"
+        ],
+        "classification": "ContextRequired",
+        "reason": "root_body_only",
+        "child_order": [
+          "statements[]"
+        ]
+      },
+      {
+        "variant": "Assignment",
+        "fields": [
+          "target",
+          "value",
+          "span"
+        ],
+        "classification": "ContextRequired",
+        "reason": "variable_target_only",
+        "child_order": [
+          "target",
+          "value"
+        ]
+      },
+      {
+        "variant": "CompoundAssignment",
+        "fields": [
+          "target",
+          "operator",
+          "value",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "target",
+          "value"
+        ]
+      },
+      {
+        "variant": "Print",
+        "fields": [
+          "expression",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "expression"
+        ]
+      },
+      {
+        "variant": "If",
+        "fields": [
+          "condition",
+          "then_body",
+          "else_body",
+          "span"
+        ],
+        "classification": "Accepted",
+        "reason": "initial_bool_predicate_subset",
+        "child_order": [
+          "condition",
+          "then_body[]",
+          "else_body[]?"
+        ]
+      },
+      {
+        "variant": "Loop",
+        "fields": [
+          "condition",
+          "body",
+          "span"
+        ],
+        "classification": "Accepted",
+        "reason": "initial_bool_predicate_subset",
+        "child_order": [
+          "condition",
+          "body[]"
+        ]
+      },
+      {
+        "variant": "LoopRange",
+        "fields": [
+          "var_name",
+          "start",
+          "end",
+          "body",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "start",
+          "end",
+          "body[]"
+        ]
+      },
+      {
+        "variant": "Return",
+        "fields": [
+          "value",
+          "span"
+        ],
+        "classification": "Accepted",
+        "reason": "initial_bool_predicate_subset",
+        "child_order": [
+          "value?"
+        ]
+      },
+      {
+        "variant": "Break",
+        "fields": [
+          "span"
+        ],
+        "classification": "Accepted",
+        "reason": "initial_bool_predicate_subset",
+        "child_order": []
+      },
+      {
+        "variant": "Continue",
+        "fields": [
+          "span"
+        ],
+        "classification": "Accepted",
+        "reason": "initial_bool_predicate_subset",
+        "child_order": []
+      },
+      {
+        "variant": "UsingStatement",
+        "fields": [
+          "namespace_name",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": []
+      },
+      {
+        "variant": "ImportStatement",
+        "fields": [
+          "path",
+          "alias",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": []
+      },
+      {
+        "variant": "BuildGate",
+        "fields": [
+          "predicate",
+          "then_items",
+          "else_items",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "then_items[]",
+          "else_items[]?"
+        ]
+      },
+      {
+        "variant": "Nowait",
+        "fields": [
+          "variable",
+          "expression",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "expression"
+        ]
+      },
+      {
+        "variant": "TaskScope",
+        "fields": [
+          "body",
+          "source_keyword",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "body[]"
+        ]
+      },
+      {
+        "variant": "ContextScope",
+        "fields": [
+          "name",
+          "declared_type_name",
+          "value",
+          "body",
+          "source_keyword",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "value",
+          "body[]"
+        ]
+      },
+      {
+        "variant": "FastMemRegion",
+        "fields": [
+          "contract",
+          "body",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "body[]"
+        ]
+      },
+      {
+        "variant": "AwaitExpression",
+        "fields": [
+          "expression",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "expression"
+        ]
+      },
+      {
+        "variant": "QMarkPropagate",
+        "fields": [
+          "expression",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "expression"
+        ]
+      },
+      {
+        "variant": "MatchExpr",
+        "fields": [
+          "scrutinee",
+          "arms",
+          "else_expr",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "scrutinee",
+          "arms[].1",
+          "else_expr"
+        ]
+      },
+      {
+        "variant": "EnumMatchExpr",
+        "fields": [
+          "enum_name",
+          "scrutinee",
+          "arms",
+          "else_expr",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "scrutinee",
+          "arms[].body[]",
+          "else_expr?"
+        ]
+      },
+      {
+        "variant": "ArrayLiteral",
+        "fields": [
+          "elements",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "elements[]"
+        ]
+      },
+      {
+        "variant": "MapLiteral",
+        "fields": [
+          "entries",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "entries[].1"
+        ]
+      },
+      {
+        "variant": "RecordLiteral",
+        "fields": [
+          "record_type_name",
+          "fields",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "fields[].1"
+        ]
+      },
+      {
+        "variant": "RecordUpdate",
+        "fields": [
+          "base",
+          "updates",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "base",
+          "updates[].1"
+        ]
+      },
+      {
+        "variant": "Lambda",
+        "fields": [
+          "params",
+          "body",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "body[]"
+        ]
+      },
+      {
+        "variant": "BlockExpr",
+        "fields": [
+          "prelude_stmts",
+          "tail_expr",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "prelude_stmts[]",
+          "tail_expr"
+        ]
+      },
+      {
+        "variant": "Arrow",
+        "fields": [
+          "sender",
+          "receiver",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "sender",
+          "receiver"
+        ]
+      },
+      {
+        "variant": "TryCatch",
+        "fields": [
+          "try_body",
+          "catch_clauses",
+          "finally_body",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "try_body[]",
+          "catch_clauses[].body[]",
+          "finally_body[]?"
+        ]
+      },
+      {
+        "variant": "Throw",
+        "fields": [
+          "expression",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "expression"
+        ]
+      },
+      {
+        "variant": "BoxDeclaration",
+        "fields": [
+          "name",
+          "fields",
+          "field_decls",
+          "public_fields",
+          "private_fields",
+          "methods",
+          "constructors",
+          "init_fields",
+          "weak_fields",
+          "delegates",
+          "invariants",
+          "transitions",
+          "is_interface",
+          "is_record",
+          "extends",
+          "implements",
+          "type_parameters",
+          "is_sync",
+          "is_static",
+          "static_init",
+          "attrs",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "invariants[]",
+          "static_init[]?",
+          "methods{}",
+          "constructors{}"
+        ]
+      },
+      {
+        "variant": "FunctionDeclaration",
+        "fields": [
+          "name",
+          "params",
+          "param_decls",
+          "return_type_name",
+          "body",
+          "uses",
+          "contracts",
+          "is_static",
+          "is_override",
+          "attrs",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "contracts[].condition",
+          "body[]"
+        ]
+      },
+      {
+        "variant": "EnumDeclaration",
+        "fields": [
+          "name",
+          "variants",
+          "type_parameters",
+          "attrs",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": []
+      },
+      {
+        "variant": "BrandDeclaration",
+        "fields": [
+          "name",
+          "underlying_type_name",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": []
+      },
+      {
+        "variant": "TypeAliasDeclaration",
+        "fields": [
+          "name",
+          "target_type_name",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": []
+      },
+      {
+        "variant": "GlobalVar",
+        "fields": [
+          "name",
+          "value",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "value"
+        ]
+      },
+      {
+        "variant": "StaticConstTable",
+        "fields": [
+          "name",
+          "element_type",
+          "values",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": []
+      },
+      {
+        "variant": "Literal",
+        "fields": [
+          "value",
+          "span"
+        ],
+        "classification": "ContextRequired",
+        "reason": "literal_variant_policy",
+        "child_order": []
+      },
+      {
+        "variant": "Variable",
+        "fields": [
+          "name",
+          "span"
+        ],
+        "classification": "Accepted",
+        "reason": "initial_bool_predicate_subset",
+        "child_order": []
+      },
+      {
+        "variant": "UnaryOp",
+        "fields": [
+          "operator",
+          "operand",
+          "span"
+        ],
+        "classification": "ContextRequired",
+        "reason": "unary_operator_policy",
+        "child_order": [
+          "operand"
+        ]
+      },
+      {
+        "variant": "BinaryOp",
+        "fields": [
+          "operator",
+          "left",
+          "right",
+          "span"
+        ],
+        "classification": "Accepted",
+        "reason": "initial_bool_predicate_subset",
+        "child_order": [
+          "left",
+          "right"
+        ]
+      },
+      {
+        "variant": "CheckExpr",
+        "fields": [
+          "name",
+          "items",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "items[].expression"
+        ]
+      },
+      {
+        "variant": "GroupedAssignmentExpr",
+        "fields": [
+          "lhs",
+          "rhs",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "rhs"
+        ]
+      },
+      {
+        "variant": "MethodCall",
+        "fields": [
+          "object",
+          "method",
+          "arguments",
+          "span"
+        ],
+        "classification": "Accepted",
+        "reason": "initial_bool_predicate_subset",
+        "child_order": [
+          "object",
+          "arguments[]"
+        ]
+      },
+      {
+        "variant": "FieldAccess",
+        "fields": [
+          "object",
+          "field",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "object"
+        ]
+      },
+      {
+        "variant": "Index",
+        "fields": [
+          "target",
+          "index",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "target",
+          "index"
+        ]
+      },
+      {
+        "variant": "New",
+        "fields": [
+          "class",
+          "arguments",
+          "field_initializers",
+          "type_arguments",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "arguments[]",
+          "field_initializers[].1"
+        ]
+      },
+      {
+        "variant": "This",
+        "fields": [
+          "span"
+        ],
+        "classification": "Accepted",
+        "reason": "initial_bool_predicate_subset",
+        "child_order": []
+      },
+      {
+        "variant": "Me",
+        "fields": [
+          "span"
+        ],
+        "classification": "Accepted",
+        "reason": "initial_bool_predicate_subset",
+        "child_order": []
+      },
+      {
+        "variant": "FromCall",
+        "fields": [
+          "parent",
+          "method",
+          "arguments",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "arguments[]"
+        ]
+      },
+      {
+        "variant": "ThisField",
+        "fields": [
+          "field",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": []
+      },
+      {
+        "variant": "MeField",
+        "fields": [
+          "field",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": []
+      },
+      {
+        "variant": "Local",
+        "fields": [
+          "variables",
+          "initial_values",
+          "declared_type_names",
+          "span"
+        ],
+        "classification": "ContextRequired",
+        "reason": "untyped_bindings_only",
+        "child_order": [
+          "initial_values[]?"
+        ]
+      },
+      {
+        "variant": "ScopeBox",
+        "fields": [
+          "body",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "body[]"
+        ]
+      },
+      {
+        "variant": "Outbox",
+        "fields": [
+          "variables",
+          "initial_values",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "initial_values[]?"
+        ]
+      },
+      {
+        "variant": "FunctionCall",
+        "fields": [
+          "name",
+          "arguments",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "arguments[]"
+        ]
+      },
+      {
+        "variant": "Call",
+        "fields": [
+          "callee",
+          "arguments",
+          "span"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.kind_deferred",
+        "child_order": [
+          "callee",
+          "arguments[]"
+        ]
+      }
+    ],
+    "UnaryOperator": [
+      {
+        "variant": "Minus",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "exact_source_operator"
+      },
+      {
+        "variant": "Not",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "exact_source_operator"
+      },
+      {
+        "variant": "BitNot",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "exact_source_operator"
+      },
+      {
+        "variant": "Weak",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "exact_source_operator"
+      }
+    ],
+    "BinaryOperator": [
+      {
+        "variant": "Add",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "exact_source_operator"
+      },
+      {
+        "variant": "Subtract",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "exact_source_operator"
+      },
+      {
+        "variant": "Multiply",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "exact_source_operator"
+      },
+      {
+        "variant": "Divide",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "exact_source_operator"
+      },
+      {
+        "variant": "Modulo",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "exact_source_operator"
+      },
+      {
+        "variant": "BitAnd",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "exact_source_operator"
+      },
+      {
+        "variant": "BitOr",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "exact_source_operator"
+      },
+      {
+        "variant": "BitXor",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "exact_source_operator"
+      },
+      {
+        "variant": "Shl",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "exact_source_operator"
+      },
+      {
+        "variant": "Shr",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "exact_source_operator"
+      },
+      {
+        "variant": "Equal",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "exact_source_operator"
+      },
+      {
+        "variant": "NotEqual",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "exact_source_operator"
+      },
+      {
+        "variant": "Less",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "exact_source_operator"
+      },
+      {
+        "variant": "Greater",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "exact_source_operator"
+      },
+      {
+        "variant": "LessEqual",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "exact_source_operator"
+      },
+      {
+        "variant": "GreaterEqual",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "exact_source_operator"
+      },
+      {
+        "variant": "And",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "exact_source_operator"
+      },
+      {
+        "variant": "Or",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "exact_source_operator"
+      }
+    ],
+    "LiteralValue": [
+      {
+        "variant": "String",
+        "fields": [
+          "$0"
+        ],
+        "classification": "Accepted",
+        "reason": "source_literal"
+      },
+      {
+        "variant": "Integer",
+        "fields": [
+          "$0"
+        ],
+        "classification": "Accepted",
+        "reason": "source_literal"
+      },
+      {
+        "variant": "TypedInteger",
+        "fields": [
+          "value",
+          "declared_type_name"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.type_syntax_deferred"
+      },
+      {
+        "variant": "Float",
+        "fields": [
+          "$0"
+        ],
+        "classification": "KnownUnsupported",
+        "reason": "source.literal_float_deferred"
+      },
+      {
+        "variant": "Bool",
+        "fields": [
+          "$0"
+        ],
+        "classification": "Accepted",
+        "reason": "source_literal"
+      },
+      {
+        "variant": "Null",
+        "fields": [],
+        "classification": "Accepted",
+        "reason": "source_literal"
+      },
+      {
+        "variant": "Void",
+        "fields": [],
+        "classification": "KnownUnsupported",
+        "reason": "source.literal_void_deferred"
+      }
+    ]
+  },
+  "hako_source_carrier": [
+    {
+      "distinction": "private_typed_source_carrier",
+      "status": "Missing",
+      "evidence": "parser functions return JSON fragment strings directly"
+    },
+    {
+      "distinction": "UnaryOp",
+      "status": "Lost",
+      "evidence": "Minus becomes Binary(Int(0), rhs); Not/BitNot source nodes absent"
+    },
+    {
+      "distinction": "Local_vs_Assignment",
+      "status": "Lost",
+      "evidence": "both statement routes emit ProgramV0 Local"
+    },
+    {
+      "distinction": "Local_initializer_presence",
+      "status": "Lost",
+      "evidence": "missing initializer becomes Int(0)"
+    },
+    {
+      "distinction": "Return_value_presence",
+      "status": "Lost",
+      "evidence": "bare return becomes Return(Int(0))"
+    },
+    {
+      "distinction": "Me_This_Variable_kind",
+      "status": "Lost",
+      "evidence": "all identifiers emit Var(name)"
+    },
+    {
+      "distinction": "MethodCall_receiver_argument_order",
+      "status": "WireOnly",
+      "evidence": "recv and args order survive only in JSON fragment strings"
+    }
+  ],
+  "decision": "HAKO-SOURCE-CARRIER-DESIGN-STOP-001"
+}

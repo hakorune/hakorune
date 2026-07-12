@@ -1,6 +1,6 @@
 # SourceBodyAnalysisSnapshotV1 — Direct Dual-Frontend Taskboard
 
-Status: Active; implementation starts with S0 inventory.
+Status: S0 closed; stopped at Hako source-carrier design boundary.
 Date: 2026-07-12
 Decision: `B — source_snapshot_v1`
 Mode: `direct_dual_frontend_ast_projection_v1`
@@ -183,7 +183,7 @@ claiming the initial values are sufficient.
 
 ## Task order
 
-### S0 — SourceAstVocabularyInventoryV1 (active)
+### S0 — SourceAstVocabularyInventoryV1 (closed)
 
 - Inventory every `hakorune_frontend_ast::ASTNode`, `UnaryOperator`, and
   `BinaryOperator` variant as `Accepted`, `KnownUnsupported`, or
@@ -208,6 +208,32 @@ raw scan dependency = 0
 If the Hako parser only materializes ProgramV0 or loses any required source
 distinction, stop at `HAKO-SOURCE-CARRIER-DESIGN-STOP-001`. Do not begin the
 snapshot schema or add token/JSON sidecars.
+
+S0 result:
+
+```text
+ASTNode variants = 57 classified
+UnaryOperator variants = 4 classified
+BinaryOperator variants = 18 classified
+LiteralValue variants = 7 classified
+private Hako typed source carrier = 0
+required Hako source distinctions preserved = 0
+decision = HAKO-SOURCE-CARRIER-DESIGN-STOP-001
+```
+
+Executable inventory:
+
+```text
+tools/checks/fixtures/source_ast_vocabulary_inventory_v1.json
+bash tools/checks/source_ast_vocabulary_inventory_v1_guard.sh
+```
+
+The continuation consultation is:
+
+```text
+docs/development/current/main/investigations/
+mirbuilder-hako-source-carrier-design-stop-2026-07-12.md
+```
 
 ### S1 — SourceBodyAnalysisSnapshotSchemaV1
 
