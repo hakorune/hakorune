@@ -88,8 +88,12 @@ kinds/roles/operators, and inclusive limit boundaries. Twenty-six tests are
 green. S2.5 is complete and S3 Hako traversal is active;
 its B1 flat ordered publication model is VM-reference green and exactly uses
 ordered atom/child records rather than maps or Hako-only ordinals. B2 typed
-validated carrier is active. The recursive reader prototype remains parked
-and must be rewritten during S3.
+validated carrier is at a design stop: Hako `String.length()` changes between
+UTF-8 bytes and codepoint count under `NYASH_STR_CP`, while SnapshotV0 requires
+environment-independent decoded UTF-8 byte budgets. Select inline typed text
+bundles, an explicit `len_bytes` surface, or a narrow Rust validated-carrier
+bridge before implementation resumes. Both recursive prototypes remain
+parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
@@ -152,7 +156,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "MIRBUILDER-HAKO-VALIDATED-CARRIER-OBSERVATION-READER-001"
+current_blocker_token = "MIRBUILDER-HAKO-UTF8-BYTE-AUTHORITY-DESIGN-CONSULT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

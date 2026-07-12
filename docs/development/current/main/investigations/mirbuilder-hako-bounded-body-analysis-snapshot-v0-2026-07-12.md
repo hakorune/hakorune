@@ -469,7 +469,7 @@ A6 closeout evidence:
 
 ```text
 B1_flat_ordered_publication_model = complete
-B2_validated_typed_carrier = active
+B2_validated_typed_carrier = design_stop
 B3_one_node_observations = pending
 B4_preorder_coordinator = pending
 B5_poisoned_sealed_builder = pending
@@ -510,6 +510,48 @@ confirms that no existing Hako component provides all lifecycle guarantees;
 B2-B5 must combine a sealed typed carrier, explicit coordinator, builder
 state machine, and defensive publication reconstruction. The stash remains
 reference-only and must not be applied or partially cherry-picked.
+
+#### B2 UTF-8 byte authority design stop
+
+The first complete carrier prototype exposed an authority mismatch before it
+was landed. `SnapshotLimitsV0` counts decoded UTF-8 bytes, but Hako
+`String.length()` is environment-sensitive: it returns UTF-8 bytes by default
+and Unicode scalar count when `NYASH_STR_CP=1`. Therefore the Hako reader must
+not use `length()` as the schema byte authority.
+
+The prototype is parked as:
+
+```text
+wip/s3-b2-typed-carrier utf8-byte-authority-design-stop
+```
+
+It must not be revived until one of these designs is selected:
+
+1. `inline_validated_text_bundle`:
+   the strict ingress supplies each normalized text atom as
+   `(value, utf8_byte_count, TextClassV0)` and Hako validates/consumes that
+   typed bundle without a path-keyed sidecar;
+2. `explicit_len_bytes_surface`:
+   implement the already documented `String.len_bytes()` contract across all
+   required execution routes, then make the reader depend on that stable
+   environment-independent operation;
+3. `rust_validated_carrier_bridge`:
+   expose the Rust `ValidatedProgramV0BodyView` normalized observations to
+   Hako through a narrow typed bridge without making ProgramV0 JSON wider.
+
+Decision criteria:
+
+- exact parity under both default mode and `NYASH_STR_CP=1`;
+- no path-keyed byte sidecar and no raw JSON/source scanner;
+- no Program(JSON v0) schema widening;
+- no hidden environment override;
+- producer, validator, Hako reader, fixture, and retirement owner are named;
+- the carrier cannot expose a mutable alias of its structured input.
+
+Do not claim B2, text-budget parity, or exact Rust/Hako snapshot parity until
+this decision is closed. The worker prototype also used unsupported
+`String.split()` helpers; field closure must use a closed declarative schema,
+not CSV parsing or substring detection.
 
 The uncommitted recursive-reader prototype is parked as
 `wip/s3-hako-snapshot-reader before rust-algebra-design-stop`. Do not revive
