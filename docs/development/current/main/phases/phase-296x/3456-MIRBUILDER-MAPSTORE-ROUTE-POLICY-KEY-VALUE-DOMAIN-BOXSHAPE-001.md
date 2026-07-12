@@ -35,6 +35,38 @@ remain as an authority source.
 Decision: accepted. This is a BoxShape-only migration; route selection,
 runtime mutation, backend lowering, and Source Selfhost claims remain zero.
 
+## Final Design Refinements
+
+The accepted design is tightened by the following rules:
+
+1. The generator parses the common Hako source exactly once into a typed
+   `PolicyTable` model, validates that model, and renders every artifact from
+   the in-memory model. No renderer reparses a generated projection.
+2. Structural/schema validation belongs to the generator. Semantic parity is
+   an independent Rust-oracle veto; the generator must not become a second
+   route-selection oracle.
+3. Caller contracts are generated from the row plus one explicit
+   `MetadataOnlySingleSurfaceV1` projection profile. Route-name conditionals
+   must not encode caller policy.
+4. The generated Rust model uses typed enums for MapStore domains and closed
+   policy fields. Pipe-delimited Hako text is wire format only.
+
+```text
+hand-authored Hako RoutePolicyRow
+        -> parse once
+        -> typed PolicyTable
+        -> structural validator
+        +-> Rust policy artifact
+        +-> Hako classifier projections
+        +-> caller-contract projections
+
+independent Rust matcher/oracle -> parity veto only
+```
+
+The generator exposes `--check` and atomic `--write` modes. It renders all
+outputs in memory before comparing or replacing any artifact, so partial
+projection state cannot be committed.
+
 ## Problem
 
 `MapStoreI64` names the key domain, not the stored-value domain:
@@ -118,6 +150,9 @@ be treated as policy authority. Existing historical gates can be migrated in
 the same bounded slice to assert the common source and generated projection.
 This is a design boundary finding, not a parser or runtime expansion.
 
+The direct Hako `using` projection probe remains rejected. Projection
+generation must not depend on Hako merge/parser composition.
+
 Focused verification for this slice is:
 
 ```bash
@@ -149,6 +184,10 @@ missing stored_value_domain
 value_boundary present in the MapStore row
 classifier projection used as policy authority
 caller/shadow validator bypass
+generator parse count greater than one
+generated artifact used as generator input
+Rust oracle used as projection source
+partial multi-artifact write
 ```
 
 ## Authority Boundary
@@ -178,9 +217,39 @@ publication_execution = 0
 source_selfhost_claim = 0
 ```
 
+Additional closeout claims:
+
+```text
+common_hako_policy_authority_count = 1
+common_generator_count = 1
+common_source_parse_count_per_run = 1
+hand_authored_i64_classifier = 0
+hand_authored_any_classifier = 0
+hand_authored_mapstore_caller_contract = 0
+legacy_generator_reads_classifier_source = 0
+legacy_generator_reads_caller_contract_source = 0
+value_boundary_mapstore_residual = 0
+generated_projection_used_as_policy_authority = 0
+rust_route_matcher_independent = 1
+rust_oracle_generated_from_hako = 0
+```
+
 ## Next
 
-After the remaining classifier/caller projection migration, shared validator,
-independent Rust oracle comparison, and all required tests are green, resume
-3454. After a green 3454 fixture-backed rerun, enter 3455 and park caller
-orientation before the focused Fact/Plan/Boundary inventory.
+Implementation order:
+
+```text
+1. common parser + typed PolicyTable + schema validator
+2. multi-artifact generator with atomic --write/--check
+3. generated I64/Any classifier projections
+4. caller contracts from the fixed projection profile
+5. live/shared validator migration
+6. old generators become delegators/checkers
+7. historical parity gates move to common-row evidence
+8. value_boundary and legacy-source residuals reach zero
+```
+
+After this order, the independent Rust oracle comparison, and all required
+tests are green, resume 3454. After a green 3454 fixture-backed rerun, enter
+3455 and park caller orientation before the focused Fact/Plan/Boundary
+inventory.
