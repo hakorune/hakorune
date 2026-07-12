@@ -717,7 +717,57 @@ does not finish within the 30-second diagnostic boundary even with
 to split reader work by accepted wire kind and keep each Hako file small; no
 reader or parity completion is claimed yet.
 
-Next diagnostic task order:
+The compile delay is now a separate BoxShape diagnostic task. It does not add
+an accepted wire kind, change reader semantics, or attempt an optimization.
+The observed boundary is compilation/lowering before reader execution: the
+common reader and snapshot builder fixture completes in about 1.5 seconds,
+whereas adding the large expression reader exceeded 30 seconds even with
+`--no-optimize`. The exact expensive compiler pass is not yet identified.
+
+```text
+U4-P1  Hako reader compile-shape diagnostic
+
+Purpose:
+  identify the first compiler phase and the smallest Hako source shape that
+  changes the reader fixture from the fast baseline to the >30-second case
+
+Measurement matrix:
+  baseline = wrapper + reader_common + snapshot_builder
+  add root-envelope-only reader
+  add one leaf kind at a time
+  vary branch count, recursive call shape, and import count independently
+  separate parse / resolve / MIR build / verify / optimize timing where the
+  current runner exposes a boundary
+  compare normal compilation with --no-optimize
+
+Deliverables:
+  one minimal reproducer fixture
+  a timing table with command, source shape, last completed phase, and result
+  the narrowest proven slow compiler phase or phase boundary
+  BoxCount/BoxShape classification and one named compiler owner
+  a bounded fix proposal or an explicit diagnostic stop
+
+Acceptance:
+  distinguish compile time from reader execution time
+  reproduce the first material timing jump with a minimal source delta
+  preserve a fast baseline and a slow/cutoff case
+  name the evidence needed to resume U4-A3.1
+
+Forbidden:
+  increasing the timeout as the fix
+  reviving the monolithic reader as product code
+  shrinking the accepted SnapshotV0 vocabulary
+  adding fallback or changing ProgramV0/outcome semantics
+  speculative compiler edits before the minimal reproducer names an owner
+```
+
+U4-P1 precedes reader expansion. U4-A3.1 may resume once the minimal fixture
+has isolated a compiler owner or shown that the per-kind split remains below
+the diagnostic boundary with a documented safe shape. Any compiler fix is a
+separate BoxShape commit with its own fixture and gate; it must not be mixed
+with a reader accepted-kind commit.
+
+Reader implementation order after U4-P1:
 
 ```text
 U4-A3.1  empty-body/root-envelope reader over the generic facade
