@@ -263,6 +263,10 @@ fn assert_collection_policy_metadata(
 }
 
 pub(super) fn assert_mapstore_i64_policy_row(policy_row_id: &str) {
+    let policy = super::mapstore_route_policy_validator::mapstore_policy(
+        super::GenericMethodRouteKind::MapStoreI64,
+    );
+    super::mapstore_route_policy_validator::assert_mapstore_policy_row(policy);
     let contract = WRITE_SET_MAPSTORE_I64_CALLER_ORIENTATION_CONTRACT;
     assert_eq!(
         contract.policy_row_id, policy_row_id,
@@ -303,6 +307,10 @@ fn assert_push_arrayappendany_contract_metadata(
 }
 
 pub(super) fn assert_mapstore_any_policy_row(policy_row_id: &str) {
+    let policy = super::mapstore_route_policy_validator::mapstore_policy(
+        super::GenericMethodRouteKind::MapStoreAny,
+    );
+    super::mapstore_route_policy_validator::assert_mapstore_policy_row(policy);
     let contract = WRITE_SET_MAPSTORE_ANY_CALLER_ORIENTATION_CONTRACT;
     assert_eq!(
         contract.policy_row_id, policy_row_id,

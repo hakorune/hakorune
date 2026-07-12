@@ -23,6 +23,7 @@ mod collection_read_routes;
 mod flow_origin;
 mod generated;
 mod map_set_scalar_proof;
+mod mapstore_route_policy_validator;
 mod mir_json_routes;
 mod model;
 mod origin_inference;

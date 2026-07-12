@@ -87,6 +87,7 @@ The first implementation slice is now materialized:
 - common Hako `RoutePolicyRow` source contains both MapStore rows;
 - one generator emits the typed Rust row artifact;
 - live MapStore shadow decisions consume that shared artifact;
+- one neutral validator is shared by caller-orientation and shadow consumers;
 - shared domain/metadata validation rejects row drift;
 - independent key/stored-value axis tests are fixed in the Rust shadow suite.
 

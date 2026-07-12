@@ -1,4 +1,5 @@
 use super::super::scalar_known_typed_direct_closeout_contract::ScalarKnownContractId;
+use super::super::generated::write_set_mapstore_route_policy::MAPSTORE_ROUTE_POLICY_ROWS;
 use super::*;
 
 #[test]
