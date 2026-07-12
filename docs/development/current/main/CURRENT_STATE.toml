@@ -114,15 +114,27 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/mirbuilder-generic-loop-progression-role-boxshape-task-2026-07-13.md"
-phase_status = "docs/development/current/main/investigations/mirbuilder-generic-loop-progression-role-boxshape-task-2026-07-13.md"
+active_phase = "docs/development/current/main/investigations/mirbuilder-generic-loop-a2-candidate-authority-consultation-2026-07-13.md"
+phase_status = "docs/development/current/main/investigations/mirbuilder-generic-loop-a2-candidate-authority-consultation-2026-07-13.md"
 method_anchor = "docs/development/current/main/design/current-docs-archive-policy-ssot.md"
-taskboard = "docs/development/current/main/investigations/mirbuilder-generic-loop-progression-role-boxshape-task-2026-07-13.md"
+taskboard = "docs/development/current/main/investigations/mirbuilder-generic-loop-a2-candidate-authority-consultation-2026-07-13.md"
 latest_workstream_card = "docs/development/current/main/investigations/mirbuilder-hako-typed-source-carrier-v1-2026-07-12.md"
 
-latest_card = "mirbuilder-generic-loop-progression-role-boxshape-task-2026-07-13"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-generic-loop-progression-role-boxshape-task-2026-07-13.md"
-latest_card_summary = """P1-S consultation selects A:
+latest_card = "mirbuilder-generic-loop-a2-candidate-authority-consultation-2026-07-13"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-generic-loop-a2-candidate-authority-consultation-2026-07-13.md"
+latest_card_summary = """A2 is now at a design consultation stop. The
+progression-role WIP has pure observation, role classification, deterministic
+aggregate selection, 19/19 focused role tests, 3/3 v0 tests, and 18/18 v1
+tests, with every generic-loop Rust source below 800 lines. Structural
+evidence advances the full ProgramV0 contract-pin through read-digits-like and
+parse-block-like loops, but a record-declaration-like loop exposes another
+tied body-derived candidate set. Adding further evidence ranks risks heuristic
+corpus tuning, so the WIP is stashed as
+`wip/generic-loop-progression-role-a2` and a new decision must select closed
+evidence algebra, Recipe-first competition, an existing neutral observation
+owner, or explicit Unsupported. Parser/source-carrier changes, names,
+ShapeIds, fallback, and P1 restoration remain forbidden until that decision.
+Historical context follows. P1-S consultation selects A:
 compiler_boxshape_cleanup must close before the typed-parser P1 stash is
 restored. LoopProgressionRoleObservationV0 separates CanonicalInduction from
 BodyManagedCursor using condition-anchored candidates and complete write/use
@@ -279,7 +291,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "GENERIC-LOOP-PROGRESSION-ROLE-V0-A2-CLASSIFICATION-SELECTION-001"
+current_blocker_token = "GENERIC-LOOP-A2-CANDIDATE-AUTHORITY-CONSULTATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
