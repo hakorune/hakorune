@@ -98,11 +98,18 @@ internal HHako `Callee::Extern` route, Rust reference direct dispatch,
 metadata-only shared product-backend preflight/rejection, and a two-mode Hako
 fixture. U3 closes sealed RHako construction, an HHako scalar carrier factory,
 replay-only count verification, repository construction guards, and the Hako
-literal/atom budget split. U4 stops before B2 implementation at the strict
-structured-ingress bridge boundary: no reusable Rust strict JSON to HHako
-opaque accessor exists, while a MapBox conversion cannot carry the duplicate-key
-evidence required by the contract. A bridge authority decision is required
-before B3 observations. Both
+literal/atom budget split. U4 now selects an invocation-scoped opaque strict
+JSON arena: Rust owns generic strict JSON syntax/access only, while HHako owns
+ProgramV0 validation, classification, paths, budgets, traversal, and snapshot
+publication. B and C remain replay-only. Direct ingress is raw JSON -> generic
+strict tree handle -> independent HHako ProgramV0 reader; a
+ValidatedProgramV0BodyView bridge, MapBox reader input, and Rust text/count
+witness bridge are forbidden. The reference MIR interpreter is the only
+first-slice backend and all other backends fail before parse/session effects.
+U4 implementation replaces the earlier stop at the strict
+structured-ingress implementation boundary. U4-A0 through U4-A2 now cover the
+neutral arena/session/accessor and reference-VM capability; U4-A3 through U4-A5
+cover the HHako reader, parity gates, and one read-only consumer. Both
 recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
@@ -130,6 +137,14 @@ complete; active S3 now rewrites the parked recursive prototype around a
 validated typed carrier, one-node observations, an explicit preorder
 coordinator, and one-shot sealed publication. Existing permissive
 typed decode and MIR lowering entry are not reused as analysis authority.
+U4 now selects an invocation-scoped opaque generic strict JSON arena/session.
+Rust owns only strict JSON syntax, decoded duplicate/trailing rejection,
+generic kinds, ordered access, and handle validity. HHako independently owns
+ProgramV0 validation/classification, paths, budgets, traversal, and snapshot
+publication. B/C are replay-only; the ValidatedProgramV0BodyView, MapBox, and
+Rust-normalized carrier are forbidden on the direct reader path. The reference
+MIR interpreter is the only first-slice backend and unsupported backends fail
+before parse/session effects.
 The LocalContractWrite exact-i64 Fact bridge is
 closed with canonical contract-id ownership, fresh identity matching,
 dst-only publication, Copy/same-slot PHI propagation, 17 focused tests, and
@@ -166,7 +181,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "MIRBUILDER-BOUNDED-BODY-SNAPSHOT-V0-STRICT-STRUCTURED-INGRESS-BRIDGE-DESIGN-STOP-001"
+current_blocker_token = "MIRBUILDER-BOUNDED-BODY-SNAPSHOT-V0-STRICT-JSON-ARENA-SESSION-IMPLEMENTATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

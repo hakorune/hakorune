@@ -582,12 +582,14 @@ parity until U0-U5 are closed. The worker prototype also used unsupported
 `String.split()` helpers; field closure must use a closed declarative schema,
 not CSV parsing or substring detection.
 
-#### U4 strict structured-ingress bridge design stop
+#### U4 strict structured-ingress bridge decision: opaque arena selected
 
 ```text
 worker_inventory = consumed
-worker_inventory_scope = strict JSON / Hako structured accessors / parked prototypes
-current_root = no reusable strict JSON -> HHako typed accessor
+decision = invocation_scoped_opaque_strict_json_arena
+compatibility = B_and_C_replay_only
+direct_backend = mir-interpreter-only
+current_root = generic strict JSON tree before ProgramV0 interpretation
 ```
 
 Evidence:
@@ -620,6 +622,34 @@ non-authority:
   raw scanner, mutable MapBox as public reader input, MIR/planner/runtime
 ```
 
+The selected direct path is:
+
+```text
+raw ProgramV0 JSON
+  -> Rust generic strict JSON parse
+  -> invocation-scoped opaque StrictJsonTreeHandleV0
+  -> independent HHako ProgramV0 validator/reader
+  -> HHako snapshot
+```
+
+The handle wraps only generic strict JSON. It must never wrap
+`ValidatedProgramV0BodyView`, `ValidatedNodeV0`, a snapshot witness, a text
+carrier, or a Rust-computed byte-count sidecar.
+
+Rust owns only:
+
+```text
+JSON syntax, escape decoding, decoded duplicate-key rejection,
+trailing-input rejection, generic scalar/container kind, ordered object
+members, ordered array elements, immutable accessor bounds, and session
+handle validity.
+```
+
+HHako independently owns ProgramV0 envelope/field closure, tag and operator
+validation, canonical i64 policy, accepted/Unsupported/InvalidInput
+classification, PathV0, all schema limits, TextClass and UTF-8 budgets,
+traversal, and sealed snapshot publication.
+
 Candidate transport choices:
 
 1. **Opaque strict JSON tree accessor** — Rust owns a generic, reference-VM
@@ -634,22 +664,60 @@ Candidate transport choices:
    cannot be the direct reader/parity transport and is rejected as the U4
    product boundary.
 
-Recommended consultation question:
+The decision closes the consultation question as follows:
 
 ```text
-Should U4 adopt choice 1 as an internal reference-VM-only generic strict JSON
-tree accessor, and if so what is the minimal handle/capability/lifetime shape
-that keeps Rust responsible only for JSON syntax while HHako independently
-owns ProgramV0 validation, classification, paths, text budgets, and traversal?
+Choice 1 is adopted as an internal reference-VM-only generic strict JSON tree
+accessor. Tagged MapBox and generated Hako paths are replay-only. The minimal
+transport is one invocation-owned session handle plus checked
+`(session_handle, node_id)` arena references; no per-node global handles, raw
+pointers, BoxIds, ValueIds, path identities, or process-global `host_handles`
+registry.
 
-Is any tagged MapBox compatibility adapter acceptable even temporarily, or
-must it remain replay-only? Name the required fail-fast backend support,
-fixture/gate set, and retirement condition.
+The closed accessor family is:
+
+```text
+kind, object_len, object_key_at, object_value_at,
+array_len, array_at, string_value, bool_value, i64_value,
+u64_fits_i64, u64_as_i64
 ```
 
-Until this is answered, do not add a raw JSON reader, `MapBox` reader input,
-`ReadOnlyMapView`, Rust-normalized text carrier, path-keyed sidecar, or direct
-parity claim.
+Object keys and string values cross the boundary as owned decoded UTF-8
+strings. F64 kind observation is allowed; a F64 value accessor is deferred.
+Wrong-kind, out-of-bounds, stale, cross-session, forged, or post-cleanup
+access is an internal bridge violation, never an input outcome. Strict JSON
+syntax failures are `InvalidInput` before HHako traversal; valid-but-outside
+wire shapes are HHako `Unsupported`.
+
+Capability preflight runs before strict parsing/session allocation. Only
+`mir-interpreter` is supported in this slice; product/AOT/Wasm/PyVM lanes
+fail fast and never fall back to VM. Rust owns a host-only RAII cleanup guard;
+HHako has no open/close responsibility. One active session per interpreter,
+no nested session, and no async/task escape are permitted.
+
+Implementation task order:
+
+```text
+U4-A0  neutral StrictJsonArenaV0 and generic strict-tree tests
+U4-A1  invocation-owned session/handle guard and cleanup tests
+U4-A2  closed accessor extern family and MIR capability/preflight rows
+U4-A3  HHako structured ingress and independent ProgramV0 reader
+U4-A4  direct RHako/HHako parity, negative corpus, and independence guards
+U4-A5  one read-only Fact consumer; planner/route/runtime remain untouched
+```
+
+Required gates are strict syntax/accessor conformance, handle integrity and
+cleanup, HHako ownership of all ProgramV0 decisions, direct snapshot parity,
+backend zero-effects before preflight rejection, and replay-only isolation
+for MapBox/generated-Hako adapters. The direct reader must retain no tree
+handle, node id, raw JSON, MapBox, Rust pointer, or borrowed string after
+publication.
+```
+
+Implementation must not add a raw-text Hako reader, `MapBox` direct input,
+`ReadOnlyMapView`, Rust-normalized text carrier, path-keyed sidecar, or
+ProgramV0-aware Rust accessor. Direct parity starts after the shared strict
+JSON syntax boundary; independent Rust/Hako JSON parser parity is not claimed.
 
 The uncommitted recursive-reader prototype is parked as
 `wip/s3-hako-snapshot-reader before rust-algebra-design-stop`. Do not revive
