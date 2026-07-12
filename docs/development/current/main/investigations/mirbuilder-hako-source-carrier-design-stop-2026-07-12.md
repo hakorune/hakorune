@@ -229,3 +229,15 @@ Do not implement while this decision is open. Stop any proposal that:
 8. silently falls back from typed parsing to the old JSON parser;
 9. connects snapshot or derived summaries to planner;
 10. creates a parser/source file at or above 800 lines.
+
+## Parked parallel task
+
+The zero-new-syntax low-level fast-path inventory and task order are parked at:
+
+```text
+docs/development/current/main/investigations/
+low-level-fast-path-v0-task-2026-07-12.md
+```
+
+It does not change this card's active blocker or authorize implementation in
+the direct-memory/backend lane.
