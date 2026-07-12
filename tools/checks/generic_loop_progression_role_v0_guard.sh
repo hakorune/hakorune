@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TAG="generic-loop-progression-role-v0"
-BASELINE_TEST="progression_role_baseline_tests"
+ROLE_TEST="progression_role"
 CONTRACT_PIN="tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_program_json_contract_pin_vm.sh"
 LOG="/tmp/${TAG}.contract-pin.log"
 source "$ROOT/tools/checks/lib/guard_common.sh"
@@ -13,10 +13,11 @@ guard_require_command "$TAG" timeout
 guard_require_files "$TAG" \
   "$ROOT/src/mir/builder/control_flow/plan/generic_loop/facts/extract/progression_role_baseline_tests.rs" \
   "$ROOT/src/mir/builder/control_flow/plan/generic_loop/facts/extract/test_support.rs" \
+  "$ROOT/src/mir/builder/control_flow/plan/generic_loop/facts/progression_role/observation.rs" \
   "$ROOT/$CONTRACT_PIN"
 
 cd "$ROOT"
-cargo test -q "$BASELINE_TEST" --lib
+cargo test -q "$ROLE_TEST" --lib
 
 set +e
 timeout 180s bash "$CONTRACT_PIN" >"$LOG" 2>&1
@@ -50,6 +51,7 @@ root = pathlib.Path(sys.argv[1])
 paths = [
     root / "src/mir/builder/control_flow/plan/generic_loop/facts/extract/progression_role_baseline_tests.rs",
     root / "src/mir/builder/control_flow/plan/generic_loop/facts/extract/test_support.rs",
+    root / "src/mir/builder/control_flow/plan/generic_loop/facts/progression_role/observation.rs",
 ]
 for path in paths:
     lines = len(path.read_text(encoding="utf-8").splitlines())
@@ -65,7 +67,35 @@ for needle in (
     if needle not in fixture:
         raise SystemExit(f"missing A0 progression-role fixture: {needle}")
 
+observation = paths[2].read_text(encoding="utf-8")
+for needle in (
+    "CandidateObservationV0",
+    "condition_anchored",
+    "canonical_step_sites",
+    "post_update_uses",
+    "conditional_writes",
+):
+    if needle not in observation:
+        raise SystemExit(f"missing A1 candidate observation field: {needle}")
+for forbidden in (
+    "ParserDelegateExposesBox",
+    "FuncScannerBox",
+    "_parse_delegate",
+    "_scan_methods",
+    "skip_ws",
+    "starts_with_kw",
+    "std::env",
+):
+    if forbidden in observation:
+        raise SystemExit(f"forbidden A1 observation dependency: {forbidden}")
+
+v1 = (root / "src/mir/builder/control_flow/plan/generic_loop/facts/extract/v1.rs").read_text(encoding="utf-8")
+if "observe_candidate_progression_v0" in v1:
+    raise SystemExit("A1 pure observation must not change generic-loop acceptance")
+
 print("a0_structural_fixtures=green")
+print("a1_pure_candidate_observation=green")
+print("generic_loop_acceptance_change=0")
 print("clean_head_contract_pin=known_red")
 print("parser_source_change=0")
 print("summary=ok")

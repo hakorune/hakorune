@@ -1,6 +1,6 @@
 # Generic Loop Progression Role V0 — BoxShape Cleanup Taskboard
 
-Status: Active prerequisite; A0 closed, A1 selected.
+Status: Active prerequisite; A0-A1 closed, A2 selected.
 Date: 2026-07-13
 Decision: `A — compiler_boxshape_cleanup`
 Classification: BoxShape only.
@@ -260,7 +260,7 @@ largest generic-loop Rust source:
   648 lines
 ```
 
-### A1 — pure candidate observation (active)
+### A1 — pure candidate observation (closed)
 
 Add a physically separate observation module:
 
@@ -278,7 +278,52 @@ CandidateObservationV0 {
 Collection is read-only and side-effect-free. It performs no selection,
 Recipe construction, lowering, or source rewrite.
 
-### A2 — progression-role classification and selection
+Closed structure:
+
+```text
+facts/progression_role/observation.rs
+  CandidateObservationV0
+  CandidateSiteV0
+  observe_candidate_progression_v0(...)
+```
+
+The existing condition and canonical-step owners supply
+`condition_anchored` and the optional canonical increment. The observer does
+not rediscover either policy. It records:
+
+```text
+all current-loop writes
+all current-loop uses in evaluation order
+canonical step sites using the existing matcher
+post-update uses
+conditional writes
+stable preorder and top-level statement indices
+```
+
+Nested-loop state is deliberately excluded because it belongs to another
+loop observation. Assignment RHS uses are visited before the write, matching
+evaluation order and preventing `i = i + 1` from becoming a false
+post-update use.
+
+Evidence:
+
+```text
+cargo test -q progression_role --lib
+  6 passed
+
+bash tools/checks/generic_loop_progression_role_v0_guard.sh
+  a1_pure_candidate_observation=green
+  generic_loop_acceptance_change=0
+  clean_head_contract_pin=known_red
+
+cargo test -q generic_loop_v1 --lib
+  18 passed
+```
+
+The observation module contains no parser/fixture owner names, callee
+spellings, environment reads, selection, Recipe, or Lower dependency.
+
+### A2 — progression-role classification and selection (active)
 
 - Classify each observation as CanonicalInduction, BodyManagedCursor,
   NotCandidate, Ambiguous, or Unsupported.

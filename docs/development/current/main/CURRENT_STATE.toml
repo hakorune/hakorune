@@ -136,9 +136,14 @@ wiring are forbidden. A0 is closed with two responsibility-split structural
 cursor fixtures, one shared test environment owner, and a reusable A0-A4 lane
 guard. The minimized per-loop fixtures stably record no accepted progression
 role while the real-source ProgramV0 contract-pin remains explicitly
-known-red; first-freeze order is not semantic authority. All 18 focused
-generic-loop-v1 tests are green and the largest affected source is 648 lines.
-Active A1 adds pure candidate write/use observation without acceptance change.
+known-red; first-freeze order is not semantic authority. A1 is closed with a
+pure CandidateObservationV0 owner for evaluation-ordered write/use sites,
+canonical-step sites, post-update uses, conditional writes, and stable source
+indices. It consumes condition anchoring and the existing canonical matcher
+without rediscovering policy, excludes nested-loop state, and has no
+selection/Recipe/Lower/parser/env dependency. Six progression-role and all 18
+generic-loop-v1 tests are green; acceptance change remains zero. Active A2
+adds structural role classification and deterministic aggregate selection.
 Clean HEAD ProgramV0 contract-pin must become green before A commits; then P1
 WIP is restored and gated separately. Historical
 source-carrier context follows. Decision A selects one Hako parser authority with
@@ -274,7 +279,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "GENERIC-LOOP-PROGRESSION-ROLE-V0-A1-PURE-CANDIDATE-OBSERVATION-001"
+current_blocker_token = "GENERIC-LOOP-PROGRESSION-ROLE-V0-A2-CLASSIFICATION-SELECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
