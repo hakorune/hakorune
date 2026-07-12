@@ -76,7 +76,7 @@ for key, value in expected.items():
 need(contract.count(row_id) == 1, "contract row ID count drift")
 need(policy.count(row_id) == 1, "policy row count drift")
 need(artifact.count(row_id) == 1, "artifact row ID count drift")
-for value in ["effect_class", "mutation_class", "value_boundary", "any_boundary_policy"]:
+for value in ["effect_class", "mutation_class", "any_boundary_policy"]:
     need(value not in artifact, f"caller artifact copied policy field: {value}")
 for value in ['"mutate"', '"MutatesReceiverOrContainer"', '"Any"', '"DeclaredMetadataOnly"']:
     need(value not in artifact, f"caller artifact copied policy value: {value}")

@@ -158,7 +158,7 @@ def row_by_route(rows: list[list[str]], route_kind: str) -> list[str]:
     raise SystemExit(f"MapStore policy row not found: {route_kind}")
 
 
-def render_classifier(row: list[str], route_kind: str, value_boundary: str,
+def render_classifier(row: list[str], route_kind: str,
                       any_boundary_policy: str = "") -> str:
     (
         row_id, _route_kind, _key_domain, _stored_value_domain, result_shape,
@@ -188,7 +188,6 @@ pub(crate) struct {struct_name} {{
     pub(crate) result_class: &'static str,
     pub(crate) return_shape: &'static str,
     pub(crate) value_demand: GenericMethodValueDemand,
-    pub(crate) value_boundary: &'static str,
     pub(crate) publication_policy: &'static str,
     pub(crate) effect_class: &'static str,
     pub(crate) mutation_class: &'static str,
@@ -204,7 +203,6 @@ pub(crate) const {const_name}: {struct_name} = {struct_name} {{
     result_class: "NoneResult",
     return_shape: {lit(result_shape)},
     value_demand: GenericMethodValueDemand::{value_demand},
-    value_boundary: {lit(value_boundary)},
     publication_policy: {lit(publication_policy)},
     effect_class: {lit(effect_class)},
     mutation_class: {lit(mutation_class)},
@@ -252,8 +250,8 @@ pub(crate) const {const_name}: {struct_name} = {struct_name} {{
 def render_all(rows: list[list[str]]) -> dict[Path, str]:
     outputs = {
         GENERATED["rust"]: render(rows),
-        GENERATED["i64_policy"]: render_classifier(row_by_route(rows, "MapStoreI64"), "MapStoreI64", "ScalarI64"),
-        GENERATED["any_policy"]: render_classifier(row_by_route(rows, "MapStoreAny"), "MapStoreAny", "Any", "DeclaredMetadataOnly"),
+        GENERATED["i64_policy"]: render_classifier(row_by_route(rows, "MapStoreI64"), "MapStoreI64"),
+        GENERATED["any_policy"]: render_classifier(row_by_route(rows, "MapStoreAny"), "MapStoreAny", "DeclaredMetadataOnly"),
         GENERATED["i64_caller"]: render_caller(row_by_route(rows, "MapStoreI64"), "MapStoreI64"),
         GENERATED["any_caller"]: render_caller(row_by_route(rows, "MapStoreAny"), "MapStoreAny"),
     }

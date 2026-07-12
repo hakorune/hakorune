@@ -11,7 +11,6 @@
     "role": "classifier_policy_mirror_only",
     "route_kind": "MapStoreAny",
     "surface": "SetSurfacePolicy/MapStoreAny",
-    "value_boundary": "Any",
     "value_demand": "WriteAny"
   },
   "claims": {
@@ -60,9 +59,9 @@
   "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-CONNECTED-CLOSEOUT-INVENTORY-RERUN-002",
   "source_hako": "lang/src/compiler/lib/write_set_mapstore_any_policy_classifier.hako",
   "source_hashes": {
-    "generated_artifact": "454223be7813d505d03e8224f6ada2862f8578b3d62b07aaf65e9e97ecbd3a91",
+    "generated_artifact": "e0eb56daa584cfdfb9cc0ee25170234351d93449faceaf3a1a288edfc84267d1",
     "generator": "24584861acc64360e2fadee45d468b5d41cec2fad014fec336ad3e8214738504",
-    "runtime_consumer": "649ff35f978476e92f1ef564b7292aaad325773f77b4aa675d4460f415a47ff7",
+    "runtime_consumer": "43f1bed5dad149ab579d4a4ebe2515e41a32a0414e54f808d7a3762ec8109fdd",
     "runtime_path": "8edbfc70898fd0e35fa3e2e57ecbcc73fc3f383b34dae33d6571c813f14d3abc",
     "source_hako": "77e00016586d44ba582e5fd6ba6dd58d594eca4d7c595ef5979b329297bd5f3d"
   },

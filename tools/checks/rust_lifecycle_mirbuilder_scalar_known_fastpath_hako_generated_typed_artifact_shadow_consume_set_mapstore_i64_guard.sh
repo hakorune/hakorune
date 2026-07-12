@@ -100,7 +100,6 @@ for needle in [
     "core_op: CoreMethodOp::MapSet",
     "lowering_tier: CoreMethodLoweringTier::ColdFallback",
     "value_demand: GenericMethodValueDemand::WriteAny",
-    'value_boundary: "ScalarI64"',
     'role: "classifier_policy_mirror_only"',
 ]:
     need(needle in artifact, f"artifact missing: {needle}")

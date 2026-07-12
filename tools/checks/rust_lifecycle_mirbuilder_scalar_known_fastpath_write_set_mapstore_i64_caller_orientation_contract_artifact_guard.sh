@@ -76,11 +76,11 @@ for key, value in expected.items():
 need(contract.count(row_id) == 1, "contract row ID count drift")
 need(policy.count(row_id) == 1, "policy row count drift")
 need(artifact.count(row_id) == 1, "artifact row ID count drift")
-for value in ["effect_class", "mutation_class", "value_boundary"]:
+for value in ["effect_class", "mutation_class"]:
     need(value not in artifact, f"caller artifact copied policy field: {value}")
 for value in ["mutate", "MutatesReceiverOrContainer", "ScalarI64"]:
     need(value not in artifact, f"caller artifact copied policy value: {value}")
-need("effect_class" in policy_artifact and "mutation_class" in policy_artifact and "value_boundary" in policy_artifact, "policy artifact semantics missing")
+need("effect_class" in policy_artifact and "mutation_class" in policy_artifact, "policy artifact semantics missing")
 need("pub(super) mod write_set_mapstore_i64_caller_orientation_contract;" in generated_mod, "generated module missing")
 need("mapstore_i64_hako_route_authority_pilot_decision" in shadow, "MapStoreI64 Rust oracle missing")
 for source in (root / "src/mir").rglob("*.rs"):

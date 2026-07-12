@@ -520,7 +520,6 @@ fn assert_hako_policy_matches_rust(policy: &HakoMapStoreI64Policy) {
         GenericMethodValueDemand::WriteAny.as_metadata_name(),
         "write_any"
     );
-    assert_eq!(policy.value_boundary, "ScalarI64");
     assert_eq!(policy.publication_policy, "NonePublication");
     assert_eq!(policy.effect_class, "mutate");
     assert_eq!(policy.mutation_class, "MutatesReceiverOrContainer");
@@ -540,7 +539,6 @@ fn assert_hako_mapstore_any_policy_matches_rust(policy: &HakoMapStoreAnyPolicy) 
         GenericMethodValueDemand::WriteAny,
         "MapStoreAny .hako policy value demand drifted"
     );
-    assert_eq!(policy.value_boundary, "Any");
     assert_eq!(policy.publication_policy, "NonePublication");
     assert_eq!(policy.effect_class, "mutate");
     assert_eq!(policy.mutation_class, "MutatesReceiverOrContainer");

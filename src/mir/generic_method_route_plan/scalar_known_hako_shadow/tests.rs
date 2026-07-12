@@ -266,14 +266,6 @@ fn write_push_shadow_rejects_role_mismatch() {
 
 #[test]
 #[should_panic(expected = "assertion `left == right` failed")]
-fn mapstore_any_shadow_rejects_value_boundary_mismatch() {
-    let mut policy = WRITE_SET_MAPSTORE_ANY_HAKO_POLICY;
-    policy.value_boundary = "ScalarI64";
-    assert_hako_mapstore_any_policy_matches_rust(&policy);
-}
-
-#[test]
-#[should_panic(expected = "assertion `left == right` failed")]
 fn mapstore_any_shadow_rejects_any_boundary_policy_mismatch() {
     let mut policy = WRITE_SET_MAPSTORE_ANY_HAKO_POLICY;
     policy.any_boundary_policy = "RuntimeAuthority";

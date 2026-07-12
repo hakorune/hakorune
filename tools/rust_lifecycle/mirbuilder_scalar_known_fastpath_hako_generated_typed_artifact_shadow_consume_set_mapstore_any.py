@@ -79,7 +79,6 @@ def build_fixture() -> dict[str, Any]:
             "result_class": "NoneResult",
             "return_shape": "None",
             "value_demand": "WriteAny",
-            "value_boundary": "Any",
             "publication_policy": "NonePublication",
             "effect_class": "mutate",
             "mutation_class": "MutatesReceiverOrContainer",

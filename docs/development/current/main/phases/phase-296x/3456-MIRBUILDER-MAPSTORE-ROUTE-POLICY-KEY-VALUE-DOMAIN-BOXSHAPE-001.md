@@ -127,8 +127,9 @@ The first implementation slice is now materialized:
 - `--check` verifies every generated artifact, while `--write` renders and
   validates the complete artifact set before atomic per-file replacement;
 - generated MapStore artifacts are now owned by the common generator, while
-  legacy projection fields remain compatibility metadata until the next
-  bounded value-boundary migration slice.
+  classifier projections no longer carry the ambiguous `value_boundary` field;
+- MapStore shadow checks now validate only the independent key/stored-value
+  domains and shared policy metadata.
 
 The older I64/Any classifier artifacts remain compatibility projections for
 existing historical gates. They are not consumed by the live MapStore shadow

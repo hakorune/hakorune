@@ -81,7 +81,6 @@ for key, value in {
     "result_class": "NoneResult",
     "return_shape": "None",
     "value_demand": "WriteAny",
-    "value_boundary": "Any",
     "publication_policy": "NonePublication",
     "effect_class": "mutate",
     "mutation_class": "MutatesReceiverOrContainer",
@@ -127,7 +126,6 @@ for needle in [
     "core_op: CoreMethodOp::MapSet",
     "lowering_tier: CoreMethodLoweringTier::ColdFallback",
     "value_demand: GenericMethodValueDemand::WriteAny",
-    'value_boundary: "Any"',
     'any_boundary_policy: "DeclaredMetadataOnly"',
     'role: "classifier_policy_mirror_only"',
 ]:
@@ -144,7 +142,6 @@ for needle in [
     "assert_hako_mapstore_any_policy_matches_rust",
     "GenericMethodRouteKind::MapStoreAny",
     "GenericMethodValueDemand::WriteAny",
-    'policy.value_boundary, "Any"',
     'policy.any_boundary_policy, "DeclaredMetadataOnly"',
 ]:
     need(needle in shadow_rs, f"runtime typed artifact consumer missing: {needle}")
