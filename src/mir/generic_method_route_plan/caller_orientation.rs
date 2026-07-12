@@ -269,6 +269,10 @@ pub(super) fn assert_mapstore_i64_policy_row(policy_row_id: &str) {
     super::mapstore_route_policy_validator::assert_mapstore_policy_row(policy);
     let contract = WRITE_SET_MAPSTORE_I64_CALLER_ORIENTATION_CONTRACT;
     assert_eq!(
+        policy.policy_row_id, policy_row_id,
+        "MapStoreI64 policy row identity drift"
+    );
+    assert_eq!(
         contract.policy_row_id, policy_row_id,
         "MapStoreI64 caller-orientation policy row identity drift"
     );

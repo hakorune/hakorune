@@ -2,9 +2,9 @@
 
 ## Status
 
-Selected, implementation pending. Do not implement this pilot until 3456 is
-green. The original selection incorrectly treated `I64` as the stored-value
-domain; Rust route matching uses it as the map-key domain.
+Implementation complete and fixture-backed green after 3456. The original selection incorrectly treated
+`I64` as the stored-value domain; Rust route matching uses it as the map-key
+domain. The implementation fixture is the rerun boundary before 3455.
 
 ## Exact Scope
 
@@ -75,11 +75,24 @@ any_key_boundary_not_opened = 1
 no_new_route_authority = 1
 ```
 
-Until then:
+The fixture-backed completion claims are now green:
 
 ```text
-mapstore_i64_caller_orientation_authority_pilot = 0
-implementation_deferred = 1
+mapstore_i64_caller_orientation_authority_pilot = 1
+implementation_deferred = 0
+```
+
+Implementation fixture:
+
+```text
+tools/rust_lifecycle/mirbuilder_scalar_known_fastpath_mapstore_i64_caller_orientation_authority_pilot.py
+docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-scalar-known-fastpath-mapstore-i64-caller-orientation-authority-pilot-v0.json
+```
+
+Guard:
+
+```bash
+bash tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_mapstore_i64_caller_orientation_authority_pilot_guard.sh
 ```
 
 ## Non-Claims
