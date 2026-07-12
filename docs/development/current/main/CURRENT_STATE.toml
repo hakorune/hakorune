@@ -62,6 +62,11 @@ history; the exact-i64 witness and LocalContractWrite Fact bridge slices are
 closed. The active next slice is BoundedBodyAnalysisSnapshotV0: one bounded,
 read-only Hako analysis capability over validated Program(JSON v0), with
 independent Rust/Hako traversal parity before another Fact facade moves.
+The implementation is stopped at the transport-vocabulary boundary: current
+Program(JSON v0) loses source distinctions including Assignment/Local, Print,
+folded unary literals, and Return(None). The active consultation selects
+wire_vocabulary versus a separate source-provenance transport widening and
+fixes all schema limits before code changes.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
@@ -109,7 +114,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "MIRBUILDER-HAKO-BOUNDED-BODY-ANALYSIS-SNAPSHOT-V0-001"
+current_blocker_token = "MIRBUILDER-HAKO-BOUNDED-BODY-ANALYSIS-SNAPSHOT-V0-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

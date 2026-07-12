@@ -1,7 +1,7 @@
 # BoundedBodyAnalysisSnapshotV0
 
-Status: Parked design/implementation task; starts after the LocalContractWrite
-Fact bridge.
+Status: Active design consultation stop after the LocalContractWrite Fact
+bridge.
 Date: 2026-07-12
 
 ## Decision
@@ -94,3 +94,84 @@ source_selfhost_claim = 0
 
 Stop if the snapshot requires language-semantic inference, ValueId/BlockId
 allocation, or a second raw-token semantic path.
+
+## Design-stop brief
+
+### Source authority
+
+- Canonical source syntax and child roles: frontend `ASTNode`.
+- Program transport shape: `ProgramV0` / `StmtV0` / `ExprV0` and the existing
+  Program(JSON v0) producer.
+- Hako may consume only a strict structured JSON parse result. Existing raw
+  scanner offsets, substring matches, and `indexOf` results are not authority.
+
+### Non-authority
+
+- `parse_json_v0_to_module*` is a lowering entry and cannot own analysis; it
+  allocates MIR/IDs and refreshes semantic metadata.
+- `ProgramJsonV0ScannerBox`, phase-state scanners, and statement handlers are
+  token/recipe consumers, not a general structured body owner.
+- `env.console.log` must not be reverse-inferred as source `Print`, and wire
+  `Local` must not be reverse-inferred as source `Local` versus `Assignment`.
+
+### Mismatch that blocks implementation
+
+Program(JSON v0) is not lossless for the card's canonical-AST vocabulary:
+
+```text
+Literal -> Int/Str/Bool/Null
+BinaryOp -> Binary/Compare/Logical
+Assignment and Local -> Local
+Print -> Expr(Call env.console.log)
+UnaryOp(-literal) -> folded numeric literal
+Return(None) -> Return(Int(0))
+CompoundAssignment / GroupedAssignmentExpr / Index -> no complete wire owner
+```
+
+Therefore source-kind parity cannot be claimed from the current transport
+without either changing the snapshot vocabulary or widening Program(JSON v0).
+
+### Fail-fast boundary
+
+- Unknown/closed-out structured nodes return `Unsupported(path, kind, reason)`.
+- Invalid JSON/envelope/field types and trailing input return
+  `InvalidInput(path, reason)`.
+- No empty snapshot/NoFact fallback is permitted.
+- No MIR IDs, symbol resolution, type inference, route selection, or runtime
+  behavior may be introduced by either option.
+
+### Candidate slices
+
+1. `wire_vocabulary`:
+   define V0 over exact `StmtV0` / `ExprV0` transport kinds and explicitly
+   normalize the Rust AST oracle to that lossy wire view. This does not widen
+   Program(JSON v0), but it must not claim source-kind preservation.
+2. `source_provenance_discriminator`:
+   first add lossless source-kind provenance to Program(JSON v0), then retain
+   the card's current canonical-AST vocabulary. This changes the transport
+   contract and requires its own compatibility/consumer inventory.
+
+### Recommended next slice
+
+Choose `wire_vocabulary` for V0. It keeps the snapshot analysis-only, avoids a
+Program(JSON v0) schema widening, and makes the Hako side a strict structured
+transport reader. Revise the closed subset and parity claim to exact wire
+kinds before implementation. Keep source-provenance parity as a separate
+future transport decision.
+
+Before implementation, the accepted option must also fix schema-owned values
+for maximum depth, node count, body children, arguments, literal bytes, path
+grammar, depth/node counting, and null-child treatment.
+
+### Explicit non-claims at this stop
+
+```text
+implementation_started = 0
+program_json_schema_widened = 0
+source_kind_parity = 0
+fact_authority_moved = 0
+planner_input = 0
+raw_token_fallback = 0
+mir_or_id_allocation = 0
+source_selfhost_claim = 0
+```
