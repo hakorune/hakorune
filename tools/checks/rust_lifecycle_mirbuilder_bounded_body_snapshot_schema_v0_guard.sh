@@ -52,6 +52,62 @@ for row in rows:
     if needle not in hako:
         raise SystemExit(f"Hako classification missing: {row['domain']}:{tag}")
 
+atom_rows = {
+    ("stmt", "Local"): "name:Text:Atom",
+    ("stmt", "Expr"): "",
+    ("stmt", "If"): "",
+    ("stmt", "Loop"): "",
+    ("stmt", "LoopRange"): "var_name:Text:Atom",
+    ("stmt", "Return"): "",
+    ("stmt", "Break"): "",
+    ("stmt", "Continue"): "",
+    ("expr", "Int"): "value:I64:-",
+    ("expr", "Str"): "value:Text:Literal",
+    ("expr", "Bool"): "value:Bool:-",
+    ("expr", "Null"): "value:Null:-",
+    ("expr", "Var"): "name:Text:Atom",
+    ("expr", "Binary"): "op:Text:Atom",
+    ("expr", "Compare"): "op:Text:Atom",
+    ("expr", "Logical"): "op:Text:Atom",
+    ("expr", "Call"): "name:Text:Atom",
+    ("expr", "Method"): "method:Text:Atom",
+    ("expr", "Field"): "field:Text:Atom",
+}
+child_rows = {
+    ("stmt", "Local"): "expr:One",
+    ("stmt", "Expr"): "expr:One",
+    ("stmt", "If"): "cond:One,then:List,else:OptionalList",
+    ("stmt", "Loop"): "cond:One,body:List",
+    ("stmt", "LoopRange"): "start:One,end:One,body:List",
+    ("stmt", "Return"): "expr:One",
+    ("stmt", "Break"): "",
+    ("stmt", "Continue"): "",
+    ("expr", "Int"): "",
+    ("expr", "Str"): "",
+    ("expr", "Bool"): "",
+    ("expr", "Null"): "",
+    ("expr", "Var"): "",
+    ("expr", "Binary"): "lhs:One,rhs:One",
+    ("expr", "Compare"): "lhs:One,rhs:One",
+    ("expr", "Logical"): "lhs:One,rhs:One",
+    ("expr", "Call"): "args:List",
+    ("expr", "Method"): "recv:One,args:List",
+    ("expr", "Field"): "recv:One",
+}
+for (_, kind), encoding in atom_rows.items():
+    if encoding and f'kind == "{kind}"' not in hako:
+        raise SystemExit(f"Hako atom kind missing: {kind}")
+    if encoding and f'return "{encoding}"' not in hako:
+        raise SystemExit(f"Hako atom schema missing: {kind}={encoding}")
+for (_, kind), encoding in child_rows.items():
+    if encoding and f'return "{encoding}"' not in hako:
+        raise SystemExit(f"Hako child schema missing: {kind}={encoding}")
+if 'root_body_depth() { return 0 }' not in hako or 'top_level_node_depth() { return 1 }' not in hako:
+    raise SystemExit("Hako depth convention drift")
+for field in ("body", "type", "expr", "cond", "then", "else", "start", "end", "lhs", "rhs", "recv", "args", "name", "method", "field", "var_name", "op", "value"):
+    if f'field == "{field}"' not in hako:
+        raise SystemExit(f"Hako path field missing: {field}")
+
 for forbidden in ("crate::ast", "crate::mir", "crate::runner", "crate::stage1", "planner", "backend", "runtime"):
     if forbidden in rust:
         raise SystemExit(f"Rust dependency boundary violated: {forbidden}")
@@ -72,6 +128,9 @@ if len(hako.splitlines()) > 800:
 
 print("output_contract=BoundedBodySnapshotSchemaV0")
 print("rust_hako_schema_parity=1")
+print("ordered_atom_schema_parity=1")
+print("ordered_child_schema_parity=1")
+print("closed_path_depth_parity=1")
 print("analysis_only_dependency_boundary=1")
 print("source_files_under_800=1")
 print("summary=ok")

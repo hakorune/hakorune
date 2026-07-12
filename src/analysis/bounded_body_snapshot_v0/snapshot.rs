@@ -1,4 +1,4 @@
-use super::{ChildRoleV0, PathV0, WireNodeKindV0};
+use super::{AtomKeyV0, ChildRoleV0, PathV0, WireNodeKindV0};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum AtomValueV0 {
@@ -12,7 +12,7 @@ pub enum AtomValueV0 {
 pub struct SnapshotNodeV0 {
     pub path: PathV0,
     pub kind: WireNodeKindV0,
-    pub atoms: Vec<(&'static str, AtomValueV0)>,
+    pub atoms: Vec<(AtomKeyV0, AtomValueV0)>,
     pub children: Vec<(ChildRoleV0, usize)>,
 }
 

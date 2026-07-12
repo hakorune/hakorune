@@ -23,10 +23,10 @@ fn schema_limits_are_fixed_and_inclusive() {
 fn path_is_structural_and_zero_based() {
     let path = PathV0::root_body()
         .index(2)
-        .field("then")
+        .field(PathFieldV0::Then)
         .index(1)
-        .field("expr")
-        .field("args")
+        .field(PathFieldV0::Expr)
+        .field(PathFieldV0::Args)
         .index(0);
     assert_eq!(path.to_string(), "$.body[2].then[1].expr.args[0]");
 }
@@ -144,4 +144,212 @@ fn strict_json_duplicate_detection_uses_decoded_unicode_keys() {
         read_program_v0_body(input),
         Err(ProgramV0BodyViewError::InvalidInput { reason, .. }) if reason.contains("duplicate key")
     ));
+}
+
+#[test]
+fn canonical_atom_schema_is_exhaustive_and_ordered() {
+    use AtomKeyV0 as Key;
+    use AtomValueKindV0 as Value;
+    use TextClassV0 as Text;
+
+    let expected = [
+        (
+            WireNodeKindV0::Stmt(WireStmtKindV0::Local),
+            Some((Key::Name, Value::Text, Some(Text::Atom))),
+        ),
+        (WireNodeKindV0::Stmt(WireStmtKindV0::Expr), None),
+        (WireNodeKindV0::Stmt(WireStmtKindV0::If), None),
+        (WireNodeKindV0::Stmt(WireStmtKindV0::Loop), None),
+        (
+            WireNodeKindV0::Stmt(WireStmtKindV0::LoopRange),
+            Some((Key::VarName, Value::Text, Some(Text::Atom))),
+        ),
+        (WireNodeKindV0::Stmt(WireStmtKindV0::Return), None),
+        (WireNodeKindV0::Stmt(WireStmtKindV0::Break), None),
+        (WireNodeKindV0::Stmt(WireStmtKindV0::Continue), None),
+        (
+            WireNodeKindV0::Expr(WireExprKindV0::Int),
+            Some((Key::Value, Value::I64, None)),
+        ),
+        (
+            WireNodeKindV0::Expr(WireExprKindV0::Str),
+            Some((Key::Value, Value::Text, Some(Text::Literal))),
+        ),
+        (
+            WireNodeKindV0::Expr(WireExprKindV0::Bool),
+            Some((Key::Value, Value::Bool, None)),
+        ),
+        (
+            WireNodeKindV0::Expr(WireExprKindV0::Null),
+            Some((Key::Value, Value::Null, None)),
+        ),
+        (
+            WireNodeKindV0::Expr(WireExprKindV0::Var),
+            Some((Key::Name, Value::Text, Some(Text::Atom))),
+        ),
+        (
+            WireNodeKindV0::Expr(WireExprKindV0::Binary),
+            Some((Key::Op, Value::Text, Some(Text::Atom))),
+        ),
+        (
+            WireNodeKindV0::Expr(WireExprKindV0::Compare),
+            Some((Key::Op, Value::Text, Some(Text::Atom))),
+        ),
+        (
+            WireNodeKindV0::Expr(WireExprKindV0::Logical),
+            Some((Key::Op, Value::Text, Some(Text::Atom))),
+        ),
+        (
+            WireNodeKindV0::Expr(WireExprKindV0::Call),
+            Some((Key::Name, Value::Text, Some(Text::Atom))),
+        ),
+        (
+            WireNodeKindV0::Expr(WireExprKindV0::Method),
+            Some((Key::Method, Value::Text, Some(Text::Atom))),
+        ),
+        (
+            WireNodeKindV0::Expr(WireExprKindV0::Field),
+            Some((Key::Field, Value::Text, Some(Text::Atom))),
+        ),
+    ];
+    assert_eq!(
+        expected.len(),
+        WireStmtKindV0::ALL.len() + WireExprKindV0::ALL.len()
+    );
+    for (kind, atom) in expected {
+        let schema = kind.atom_schema();
+        match atom {
+            None => assert!(schema.is_empty(), "unexpected atom schema for {kind:?}"),
+            Some((key, value_kind, text_class)) => assert_eq!(
+                schema,
+                &[AtomSpecV0 {
+                    key,
+                    value_kind,
+                    text_class
+                }],
+                "atom schema drift for {kind:?}"
+            ),
+        }
+    }
+}
+
+#[test]
+fn canonical_child_schema_uses_vector_position_as_ordinal() {
+    use ChildCardinalityV0 as Card;
+    use ChildRoleV0 as Role;
+
+    let specs = |kind: WireNodeKindV0| {
+        kind.child_schema()
+            .iter()
+            .map(|spec| (spec.role, spec.cardinality))
+            .collect::<Vec<_>>()
+    };
+    for kind in [
+        WireStmtKindV0::Local,
+        WireStmtKindV0::Expr,
+        WireStmtKindV0::Return,
+    ] {
+        assert_eq!(
+            specs(WireNodeKindV0::Stmt(kind)),
+            vec![(Role::Expr, Card::One)]
+        );
+    }
+    assert_eq!(
+        specs(WireNodeKindV0::Stmt(WireStmtKindV0::If)),
+        vec![
+            (Role::Cond, Card::One),
+            (Role::Then, Card::List),
+            (Role::Else, Card::OptionalList)
+        ]
+    );
+    assert_eq!(
+        specs(WireNodeKindV0::Stmt(WireStmtKindV0::Loop)),
+        vec![(Role::Cond, Card::One), (Role::Body, Card::List)]
+    );
+    assert_eq!(
+        specs(WireNodeKindV0::Stmt(WireStmtKindV0::LoopRange)),
+        vec![
+            (Role::Start, Card::One),
+            (Role::End, Card::One),
+            (Role::Body, Card::List)
+        ]
+    );
+    for kind in [
+        WireExprKindV0::Binary,
+        WireExprKindV0::Compare,
+        WireExprKindV0::Logical,
+    ] {
+        assert_eq!(
+            specs(WireNodeKindV0::Expr(kind)),
+            vec![(Role::Lhs, Card::One), (Role::Rhs, Card::One)]
+        );
+    }
+    assert_eq!(
+        specs(WireNodeKindV0::Expr(WireExprKindV0::Call)),
+        vec![(Role::Args, Card::List)]
+    );
+    assert_eq!(
+        specs(WireNodeKindV0::Expr(WireExprKindV0::Method)),
+        vec![(Role::Recv, Card::One), (Role::Args, Card::List)]
+    );
+    assert_eq!(
+        specs(WireNodeKindV0::Expr(WireExprKindV0::Field)),
+        vec![(Role::Recv, Card::One)]
+    );
+    for kind in [WireStmtKindV0::Break, WireStmtKindV0::Continue] {
+        assert!(WireNodeKindV0::Stmt(kind).child_schema().is_empty());
+    }
+    for kind in [
+        WireExprKindV0::Int,
+        WireExprKindV0::Str,
+        WireExprKindV0::Bool,
+        WireExprKindV0::Null,
+        WireExprKindV0::Var,
+    ] {
+        assert!(WireNodeKindV0::Expr(kind).child_schema().is_empty());
+    }
+}
+
+#[test]
+fn operator_wire_encodings_are_closed() {
+    assert_eq!(
+        BinaryOperatorV0::ALL.map(BinaryOperatorV0::wire_text),
+        ["+", "-", "*", "/", "%", "&", "|", "^", "<<", ">>"]
+    );
+    assert_eq!(
+        CompareOperatorV0::ALL.map(CompareOperatorV0::wire_text),
+        ["==", "!=", "<", ">", "<=", ">="]
+    );
+    assert_eq!(
+        LogicalOperatorV0::ALL.map(LogicalOperatorV0::wire_text),
+        ["&&", "||"]
+    );
+}
+
+#[test]
+fn path_fields_and_depth_convention_are_closed() {
+    assert_eq!(DepthConventionV0::ROOT_BODY_CONTAINER, 0);
+    assert_eq!(DepthConventionV0::TOP_LEVEL_NODE, 1);
+    assert_eq!(
+        PathFieldV0::ALL.map(PathFieldV0::wire_text),
+        [
+            "body", "type", "expr", "cond", "then", "else", "start", "end", "lhs", "rhs", "recv",
+            "args", "name", "method", "field", "var_name", "op", "value"
+        ]
+    );
+    for role in [
+        ChildRoleV0::Expr,
+        ChildRoleV0::Cond,
+        ChildRoleV0::Then,
+        ChildRoleV0::Else,
+        ChildRoleV0::Body,
+        ChildRoleV0::Start,
+        ChildRoleV0::End,
+        ChildRoleV0::Lhs,
+        ChildRoleV0::Rhs,
+        ChildRoleV0::Recv,
+        ChildRoleV0::Args,
+    ] {
+        assert_eq!(role.path_field().wire_text(), role.wire_text());
+    }
 }

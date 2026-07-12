@@ -10,13 +10,14 @@ mod strict_json;
 
 pub use budget::{BoundedBodyBudgetV0, BudgetLimitV0};
 pub use outcome::{AnalysisIssueV0, BoundedBodyAnalysisOutcomeV0};
-pub use path::{PathSegmentV0, PathV0};
+pub use path::{PathFieldV0, PathSegmentV0, PathV0};
 pub use program_v0_body_view::{
     read_program_v0_body, ProgramV0BodyViewError, ValidatedProgramV0BodyView,
 };
 pub use schema::{
-    BinaryOperatorV0, ChildRoleV0, CompareOperatorV0, LogicalOperatorV0, SnapshotLimitsV0,
-    WireClassificationV0, WireExprKindV0, WireNodeKindV0, WireStmtKindV0,
+    AtomKeyV0, AtomSpecV0, AtomValueKindV0, BinaryOperatorV0, ChildCardinalityV0, ChildRoleV0,
+    ChildSpecV0, CompareOperatorV0, DepthConventionV0, LogicalOperatorV0, SnapshotLimitsV0,
+    TextClassV0, WireClassificationV0, WireExprKindV0, WireNodeKindV0, WireStmtKindV0,
 };
 pub use snapshot::{AtomValueV0, BoundedBodyAnalysisSnapshotV0, SnapshotNodeV0};
 

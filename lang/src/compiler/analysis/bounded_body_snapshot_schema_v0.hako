@@ -10,6 +10,58 @@ static box BoundedBodySnapshotSchemaV0Box {
   max_literal_bytes() { return 65536 }
   max_atom_bytes() { return 1024 }
   max_total_text_bytes() { return 4194304 }
+  root_body_depth() { return 0 }
+  top_level_node_depth() { return 1 }
+
+  atom_schema(domain, kind) {
+    if domain == "stmt" {
+      if kind == "Local" { return "name:Text:Atom" }
+      if kind == "LoopRange" { return "var_name:Text:Atom" }
+      if me.classify_stmt(kind) == "Accepted" { return "" }
+      return "InvalidInput"
+    }
+    if domain == "expr" {
+      if kind == "Int" { return "value:I64:-" }
+      if kind == "Str" { return "value:Text:Literal" }
+      if kind == "Bool" { return "value:Bool:-" }
+      if kind == "Null" { return "value:Null:-" }
+      if kind == "Var" || kind == "Call" { return "name:Text:Atom" }
+      if kind == "Method" { return "method:Text:Atom" }
+      if kind == "Field" { return "field:Text:Atom" }
+      if kind == "Binary" || kind == "Compare" || kind == "Logical" { return "op:Text:Atom" }
+      return "InvalidInput"
+    }
+    return "InvalidInput"
+  }
+
+  child_schema(domain, kind) {
+    if domain == "stmt" {
+      if kind == "Local" || kind == "Expr" || kind == "Return" { return "expr:One" }
+      if kind == "If" { return "cond:One,then:List,else:OptionalList" }
+      if kind == "Loop" { return "cond:One,body:List" }
+      if kind == "LoopRange" { return "start:One,end:One,body:List" }
+      if kind == "Break" || kind == "Continue" { return "" }
+      return "InvalidInput"
+    }
+    if domain == "expr" {
+      if kind == "Binary" || kind == "Compare" || kind == "Logical" { return "lhs:One,rhs:One" }
+      if kind == "Call" { return "args:List" }
+      if kind == "Method" { return "recv:One,args:List" }
+      if kind == "Field" { return "recv:One" }
+      if kind == "Int" || kind == "Str" || kind == "Bool" || kind == "Null" || kind == "Var" { return "" }
+      return "InvalidInput"
+    }
+    return "InvalidInput"
+  }
+
+  path_field_allowed(field) {
+    if field == "body" || field == "type" || field == "expr" || field == "cond" { return 1 }
+    if field == "then" || field == "else" || field == "start" || field == "end" { return 1 }
+    if field == "lhs" || field == "rhs" || field == "recv" || field == "args" { return 1 }
+    if field == "name" || field == "method" || field == "field" || field == "var_name" { return 1 }
+    if field == "op" || field == "value" { return 1 }
+    return 0
+  }
 
   classify_stmt(kind) {
     if kind == "Local" { return "Accepted" }

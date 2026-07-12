@@ -348,6 +348,15 @@ must not guess those rules independently.
 
 Ordered tasks:
 
+```text
+A1_canonical_atom_schema = complete
+A2_canonical_child_edge_schema = complete
+A3_closed_structural_paths = complete
+A4_normalized_validated_view = active
+A5_construction_invariants = pending
+A6_rust_executable_witness = pending
+```
+
 1. **A1 — Canonical atom schema**
    - declare every accepted node kind's ordered atom keys and value kinds;
    - keep atoms as an ordered sequence, never a map-iteration result;
@@ -387,6 +396,23 @@ all source files remain below 800 lines
 
 Stop if closing the algebra would require source provenance, ProgramV0 schema
 widening, or planner/runtime authority.
+
+A1-A3 closeout evidence:
+
+- `AtomKeyV0` / `AtomValueKindV0` / `TextClassV0` and each accepted
+  `WireNodeKindV0::atom_schema()` define one ordered atom sequence;
+- snapshot atoms now use typed `AtomKeyV0`, so arbitrary string keys and map
+  iteration cannot enter exact equality;
+- `ChildSpecV0` fixes schema order and cardinality while public edges remain
+  exactly `(ChildRoleV0, target_index)`; vector position is the sole ordinal;
+- all operator enums own their exact ProgramV0 wire encodings;
+- `PathFieldV0` closes the eighteen structural fields and
+  `DepthConventionV0` fixes root body depth `0` / top-level node depth `1`;
+- Hako declarative schema mirrors the same atom, child, path, operator, and
+  depth vocabulary without starting traversal implementation;
+- fourteen focused Rust tests and the expanded
+  `rust_lifecycle_mirbuilder_bounded_body_snapshot_schema_v0_guard.sh` are
+  green; largest source is 490 lines.
 
 ### S3 — Hako ProgramV0 snapshot reader (blocked by S2.5)
 
