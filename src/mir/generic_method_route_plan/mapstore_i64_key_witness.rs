@@ -1,7 +1,5 @@
 use super::{GenericMethodRoute, GenericMethodRouteKind, GenericMethodRouteSite};
-use crate::mir::exact_numeric_value_facts::{
-    ExactNumericValueFact, ExactNumericValueFactSource,
-};
+use crate::mir::exact_numeric_value_facts::{ExactNumericValueFact, ExactNumericValueFactSource};
 use crate::mir::{MirFunction, MirModule, ValueId};
 use std::collections::BTreeMap;
 
@@ -179,8 +177,14 @@ mod tests {
         refresh_function_mapstore_i64_key_witnesses(&mut function);
 
         assert_eq!(function.metadata.mapstore_i64_key_witnesses.len(), 1);
-        assert!(function.metadata.mapstore_i64_key_fact_rejections.is_empty());
-        assert_eq!(function.metadata.mapstore_i64_key_witnesses[0].key_value, key);
+        assert!(function
+            .metadata
+            .mapstore_i64_key_fact_rejections
+            .is_empty());
+        assert_eq!(
+            function.metadata.mapstore_i64_key_witnesses[0].key_value,
+            key
+        );
     }
 
     fn test_route(site: GenericMethodRouteSite, key: ValueId) -> GenericMethodRoute {

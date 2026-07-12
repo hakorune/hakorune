@@ -15,14 +15,14 @@ pub(crate) struct HakoMapLoadCallerOrientationContract {
 }
 
 #[allow(dead_code)]
-pub(crate) const MAPLOAD_SCALAR_I64_CALLER_ORIENTATION_CONTRACT: HakoMapLoadCallerOrientationContract =
-    HakoMapLoadCallerOrientationContract {
-        policy_row_id: "map_load_scalar_i64_routes",
-        orientation_kind: "CallerOrientationContractMetadataOnly",
-        scope: "SingleSurface",
-        runtime_consumer: "Forbidden",
-        backend_lowering_consumer: "Forbidden",
-        mutation_consumer: "Forbidden",
-        publication_consumer: "Forbidden",
-        mismatch_policy: "FailFast",
-    };
+pub(crate) const MAPLOAD_SCALAR_I64_CALLER_ORIENTATION_CONTRACT:
+    HakoMapLoadCallerOrientationContract = HakoMapLoadCallerOrientationContract {
+    policy_row_id: "map_load_scalar_i64_routes",
+    orientation_kind: "CallerOrientationContractMetadataOnly",
+    scope: "SingleSurface",
+    runtime_consumer: "Forbidden",
+    backend_lowering_consumer: "Forbidden",
+    mutation_consumer: "Forbidden",
+    publication_consumer: "Forbidden",
+    mismatch_policy: "FailFast",
+};

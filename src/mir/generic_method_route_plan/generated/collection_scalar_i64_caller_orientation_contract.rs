@@ -15,7 +15,8 @@ pub(crate) struct HakoCollectionCallerOrientationContract {
 }
 
 #[allow(dead_code)]
-pub(crate) const COLLECTION_SCALAR_I64_CALLER_ORIENTATION_CONTRACTS: &[HakoCollectionCallerOrientationContract] = &[
+pub(crate) const COLLECTION_SCALAR_I64_CALLER_ORIENTATION_CONTRACTS:
+    &[HakoCollectionCallerOrientationContract] = &[
     HakoCollectionCallerOrientationContract {
         policy_row_id: "collection_map_entry_count_scalar_i64_routes",
         orientation_kind: "CallerOrientationContractMetadataOnly",

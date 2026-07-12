@@ -15,7 +15,8 @@ pub(crate) struct HakoWritePushArrayAppendAnyCallerOrientationContract {
 }
 
 #[allow(dead_code)]
-pub(crate) const WRITE_PUSH_ARRAYAPPENDANY_CALLER_ORIENTATION_CONTRACT: HakoWritePushArrayAppendAnyCallerOrientationContract =
+pub(crate) const WRITE_PUSH_ARRAYAPPENDANY_CALLER_ORIENTATION_CONTRACT:
+    HakoWritePushArrayAppendAnyCallerOrientationContract =
     HakoWritePushArrayAppendAnyCallerOrientationContract {
         policy_row_id: "array_append_any_push_surface",
         orientation_kind: "CallerOrientationContractMetadataOnly",

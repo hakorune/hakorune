@@ -5,7 +5,9 @@ use super::GenericMethodRouteKind;
 use crate::mir::core_method_op::{CoreMethodLoweringTier, CoreMethodOp};
 use crate::mir::generic_method_route_facts::GenericMethodValueDemand;
 
-pub(super) fn mapstore_policy(route_kind: GenericMethodRouteKind) -> &'static MapStoreRoutePolicyRow {
+pub(super) fn mapstore_policy(
+    route_kind: GenericMethodRouteKind,
+) -> &'static MapStoreRoutePolicyRow {
     MAPSTORE_ROUTE_POLICY_ROWS
         .iter()
         .find(|policy| policy.route_kind == route_kind)

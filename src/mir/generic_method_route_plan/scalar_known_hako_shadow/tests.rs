@@ -1,5 +1,5 @@
-use super::super::scalar_known_typed_direct_closeout_contract::ScalarKnownContractId;
 use super::super::generated::write_set_mapstore_route_policy::MAPSTORE_ROUTE_POLICY_ROWS;
+use super::super::scalar_known_typed_direct_closeout_contract::ScalarKnownContractId;
 use super::*;
 
 #[test]
@@ -55,8 +55,7 @@ fn string_scalar_i64_shadow_artifact_matches_rust_fastpath_policy() {
             CoreMethodOp::StringContains,
         ),
     ] {
-        let decision =
-            string_scalar_i64_shadow_consumed_decision(route_kind, route_proof, core_op);
+        let decision = string_scalar_i64_shadow_consumed_decision(route_kind, route_proof, core_op);
         assert_eq!(
             decision,
             GenericMethodRouteDecision::new(
@@ -137,8 +136,14 @@ fn mapstore_policy_rows_keep_key_and_stored_value_domains_independent() {
         .find(|row| row.route_kind == GenericMethodRouteKind::MapStoreAny)
         .expect("MapStoreAny RoutePolicyRow missing");
 
-    assert_eq!((i64_row.key_domain, i64_row.stored_value_domain), ("I64", "Any"));
-    assert_eq!((any_row.key_domain, any_row.stored_value_domain), ("Any", "Any"));
+    assert_eq!(
+        (i64_row.key_domain, i64_row.stored_value_domain),
+        ("I64", "Any")
+    );
+    assert_eq!(
+        (any_row.key_domain, any_row.stored_value_domain),
+        ("Any", "Any")
+    );
 }
 
 #[test]

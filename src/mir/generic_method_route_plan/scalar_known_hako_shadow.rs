@@ -244,7 +244,10 @@ pub(super) fn mapstore_i64_hako_route_authority_pilot_decision() -> GenericMetho
     let hako_decision = GenericMethodRouteDecision::new(
         policy.route_kind,
         GenericMethodRouteProof::SetSurfacePolicy,
-        Some(CoreMethodOpCarrier::manifest(policy.core_op, policy.lowering_tier)),
+        Some(CoreMethodOpCarrier::manifest(
+            policy.core_op,
+            policy.lowering_tier,
+        )),
         None,
         policy.value_demand,
         None,
@@ -341,7 +344,10 @@ pub(super) fn mapstore_any_hako_route_authority_pilot_decision() -> GenericMetho
     let hako_decision = GenericMethodRouteDecision::new(
         policy.route_kind,
         GenericMethodRouteProof::SetSurfacePolicy,
-        Some(CoreMethodOpCarrier::manifest(policy.core_op, policy.lowering_tier)),
+        Some(CoreMethodOpCarrier::manifest(
+            policy.core_op,
+            policy.lowering_tier,
+        )),
         None,
         policy.value_demand,
         None,

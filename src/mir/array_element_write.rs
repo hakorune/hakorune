@@ -561,23 +561,22 @@ mod tests {
             },
             BasicBlockId::new(0),
         );
-        function
-            .metadata
-            .typed_array_contract_sources
-            .push(crate::mir::function::TypedArrayContractSource {
+        function.metadata.typed_array_contract_sources.push(
+            crate::mir::function::TypedArrayContractSource {
                 contract_id: "typed-array:parameter:0".to_string(),
                 boundary: crate::mir::function::TypedArrayContractBoundary::ParameterEntry,
                 source_identity:
                     crate::mir::function::TypedArrayContractSourceIdentity::Parameter {
                         formal_index: 0,
                     },
-                boundary_value: crate::mir::function::TypedArrayBoundaryValue::Value(
-                    ValueId::new(0),
-                ),
+                boundary_value: crate::mir::function::TypedArrayBoundaryValue::Value(ValueId::new(
+                    0,
+                )),
                 element_spec: crate::typed_array_contract_spec::ArrayElementContractSpec {
                     element: crate::typed_array_contract_spec::ExactArrayElementType::U8,
                 },
-            });
+            },
+        );
         let mut module = MirModule::new("typed-projection".to_string());
         module.add_function(function);
         let error = project_module_to_legacy_calls(&module).unwrap_err();

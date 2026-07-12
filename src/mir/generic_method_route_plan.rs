@@ -47,8 +47,7 @@ pub(crate) use map_set_scalar_proof::{
     instruction_may_escape_or_mutate_receiver, prove_scalar_i64_map_get_store_fact,
 };
 pub(crate) use mapstore_i64_key_witness::{
-    refresh_module_mapstore_i64_key_witnesses, MapStoreI64KeyFactRejection,
-    MapStoreI64KeyWitness,
+    refresh_module_mapstore_i64_key_witnesses, MapStoreI64KeyFactRejection, MapStoreI64KeyWitness,
 };
 pub use model::GenericMethodRoute;
 pub(crate) use model::{
