@@ -114,17 +114,21 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/mirbuilder-hako-bounded-body-analysis-snapshot-v0-2026-07-12.md"
-phase_status = "docs/development/current/main/investigations/mirbuilder-hako-bounded-body-analysis-snapshot-v0-2026-07-12.md"
+active_phase = "docs/development/current/main/investigations/mirbuilder-snapshot-next-fact-consumer-selection-design-stop-2026-07-12.md"
+phase_status = "docs/development/current/main/investigations/mirbuilder-snapshot-next-fact-consumer-selection-design-stop-2026-07-12.md"
 method_anchor = "docs/development/current/main/design/current-docs-archive-policy-ssot.md"
-taskboard = "docs/development/current/main/investigations/mirbuilder-hako-bounded-body-analysis-snapshot-v0-2026-07-12.md"
-latest_workstream_card = "docs/development/current/main/investigations/mirbuilder-hako-bounded-body-analysis-snapshot-v0-2026-07-12.md"
+taskboard = "docs/development/current/main/investigations/mirbuilder-snapshot-next-fact-consumer-selection-design-stop-2026-07-12.md"
+latest_workstream_card = "docs/development/current/main/investigations/mirbuilder-snapshot-next-fact-consumer-selection-design-stop-2026-07-12.md"
 
-latest_card = "mirbuilder-hako-bounded-body-analysis-snapshot-v0-2026-07-12"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-hako-bounded-body-analysis-snapshot-v0-2026-07-12.md"
-latest_card_summary = """The BoundedBodyAnalysisSnapshotV0 consultation
-accepts wire_vocabulary. V0 observes only the closed ProgramV0 wire subset,
-is explicitly lossy and removable, and does not recover source distinctions.
+latest_card = "mirbuilder-snapshot-next-fact-consumer-selection-design-stop-2026-07-12"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-snapshot-next-fact-consumer-selection-design-stop-2026-07-12.md"
+latest_card_summary = """The bounded ProgramV0 snapshot card is complete
+through S8. The current design stop selects among skeleton_cleanup_only,
+SourceBodyAnalysisSnapshotV1, or returning to another workstream. Bool
+predicate and string-is-integer Facts require Unary/Method/context distinctions
+that V0 intentionally cannot preserve; loop skeleton is a constant cleanup,
+not a meaningful Fact migration. V0 remains explicitly lossy/removable and
+must not recover source distinctions. Historical detail follows.
 S0 ProgramV0WireContractInventoryV0 closes with 40 classified rows, 7 exact
 SchemaMismatchStop tags, explicit field/root/parser seams, and one generated
 fixture/guard. S1 closes the neutral Rust/Hako schema/model/path/budget/outcome
