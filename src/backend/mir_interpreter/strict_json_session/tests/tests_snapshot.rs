@@ -4,6 +4,7 @@ use crate::analysis::bounded_body_snapshot_v0::{
     ProgramV0BodyViewError, WireNodeKindV0,
 };
 
+mod limits;
 mod negative;
 
 fn compile_fixture() -> crate::mir::MirModule {
