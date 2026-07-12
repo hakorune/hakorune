@@ -4,13 +4,13 @@
 status = "Active implementation workstream"
 date = "2026-07-12"
 
-active_lane = "MIRBUILDER-MAPSTORE caller-orientation design stop"
+active_lane = "MIRBUILDER-MAPSTORE I64 authority inventory"
 active_lane_status = """Explicit user priority change on 2026-07-12 reopens
 the parked Source Selfhost/MirBuilder lane before LANGV1 conformance closeout.
 Language-v1 behavior remains unchanged and its closeout stays parked. 3456 is
-closed as the BoxShape-only prerequisite and 3455 is now the active design
-stop; neither adds a route, changes runtime authority, or makes a Source
-Selfhost claim. 3478 closes LANGV1-GRAMMAR-001 with
+closed as the BoxShape-only prerequisite, 3454/3455 are closed, and 3457 is
+the active focused authority inventory; no owner is selected and no route,
+runtime authority, or Source Selfhost claim is added. 3478 closes LANGV1-GRAMMAR-001 with
 one physical registry, two independent recursive parser witnesses, 106/106
 corpus fixtures, zero Canonical-rejected spellings under lang/src, and bounded
 differential composition. 3479 accepts one eventual semantic meaning for every
@@ -57,20 +57,21 @@ no capability activation. 3504 accepts relation/spec plus exhaustive
 inventory-only Failure/Outcome design. Repository artifact C2 classification
 is 91% complete with 77 warning-unregistered consultation rows; no physical
 move was started. 3505 S0-S5 and the narrow 3511 activation slice are landed
-history; the active lane is the 3455 design stop."""
+history; the active lane is the 3457 focused authority inventory."""
 
-active_phase = "docs/development/current/main/phases/phase-296x/3455-MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPSTORE-I64-CALLER-ORIENTATION-PILOT-DESIGN-STOP-001.md"
-phase_status = "docs/development/current/main/phases/phase-296x/3455-MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPSTORE-I64-CALLER-ORIENTATION-PILOT-DESIGN-STOP-001.md"
+active_phase = "docs/development/current/main/phases/phase-296x/3457-MIRBUILDER-MAPSTORE-I64-FACT-PLAN-BOUNDARY-INVENTORY-001.md"
+phase_status = "docs/development/current/main/phases/phase-296x/3457-MIRBUILDER-MAPSTORE-I64-FACT-PLAN-BOUNDARY-INVENTORY-001.md"
 method_anchor = "docs/development/current/main/design/current-docs-archive-policy-ssot.md"
-taskboard = "docs/development/current/main/phases/phase-296x/3455-MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPSTORE-I64-CALLER-ORIENTATION-PILOT-DESIGN-STOP-001.md"
-latest_workstream_card = "docs/development/current/main/phases/phase-296x/3455-MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPSTORE-I64-CALLER-ORIENTATION-PILOT-DESIGN-STOP-001.md"
+taskboard = "docs/development/current/main/phases/phase-296x/3457-MIRBUILDER-MAPSTORE-I64-FACT-PLAN-BOUNDARY-INVENTORY-001.md"
+latest_workstream_card = "docs/development/current/main/phases/phase-296x/3457-MIRBUILDER-MAPSTORE-I64-FACT-PLAN-BOUNDARY-INVENTORY-001.md"
 
-latest_card = "3455-MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPSTORE-I64-CALLER-ORIENTATION-PILOT-DESIGN-STOP-001"
-latest_card_path = "docs/development/current/main/phases/phase-296x/3455-MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPSTORE-I64-CALLER-ORIENTATION-PILOT-DESIGN-STOP-001.md"
+latest_card = "3457-MIRBUILDER-MAPSTORE-I64-FACT-PLAN-BOUNDARY-INVENTORY-001"
+latest_card_path = "docs/development/current/main/phases/phase-296x/3457-MIRBUILDER-MAPSTORE-I64-FACT-PLAN-BOUNDARY-INVENTORY-001.md"
 latest_card_summary = """3456 closed the BoxShape-only typed RoutePolicyRow
-prerequisite on 2026-07-12. 3454 is fixture-backed green, and 3455 is the
-active design consultation stop for the next hard-authority selection. The
-3455 task does not reopen the parked MapStore caller-orientation pilot; the
+prerequisite on 2026-07-12. 3454 is fixture-backed green, 3455 accepted
+focused inventory first, and 3457 is the active inventory task. No hard
+authority owner is selected; the parked MapStore caller-orientation pilot is
+not reopened. The
 3456/3454 work already separated key and stored-value domains, generated one
 typed decision payload and caller projection, retained the independent Rust
 matcher/oracle, and centralized validation. Language-v1
@@ -94,7 +95,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPSTORE-I64-CALLER-ORIENTATION-PILOT-DESIGN-STOP-001"
+current_blocker_token = "MIRBUILDER-MAPSTORE-I64-FACT-PLAN-BOUNDARY-INVENTORY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -103,6 +104,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-12: 3457 is selected for focused MapStoreI64 Fact/Plan/Boundary inventory; no hard authority owner is selected before the machine-readable candidate graph is green.",
   "2026-07-12: 3455 opens the MapStore caller-orientation Fact/Plan/Boundary design stop after the 3454 fixture-backed pilot; no next hard-authority owner is selected.",
   "2026-07-12: 3454 closes the MapStoreI64 caller-orientation pilot with PolicyRowIdOnly/Unit scope, typed key/stored-value evidence, fail-fast identity validation, fixture, and guard.",
   "2026-07-12: 3456 closes MapStore RoutePolicyRow BoxShape with one multi-artifact generator, projection ownership, atomic write/check, and value_boundary removal from current generated policy artifacts.",
@@ -114,5 +116,4 @@ landed_tail = [
   "2026-07-11: 3503 accepts defer_with_failfast, proves declaration-only and dynamic-alias-only Weak obligations reject every product backend, keeps VM reference-only, and opens 3504 Failure/Outcome design.",
   "2026-07-11: Fable5 stop-the-line review closes obsolete parser comment-token guards, moves program-parser naming ownership, joins naming to the Language v1 FULL gate, and restores dev_gate quick plus FULL grammar green; 3503 remains the active design stop.",
   "2026-07-11: 3502 closes WeakFieldContractOwner, explicit writes, declaration-indexed slots, dynamic alias enforcement, refreshed JSON, VM reference checks, and non-VM fail-fast; 3503 opens product-backend selection.",
-  "2026-07-11: 3501 closes stable WeakRef token equality, logical Dead/Freed upgrade, strict WeakRef.Load, and keeps Weak field activation at zero; 3502 becomes active.",
 ]

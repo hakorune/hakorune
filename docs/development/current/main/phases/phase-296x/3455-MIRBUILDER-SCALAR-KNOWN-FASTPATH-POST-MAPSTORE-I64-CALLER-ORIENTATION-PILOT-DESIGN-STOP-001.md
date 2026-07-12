@@ -2,8 +2,9 @@
 
 ## Status
 
-Active after the green 3454 fixture-backed rerun. This is a design
-consultation stop; do not implement or select a new owner here.
+Closed after the green 3454 fixture-backed rerun and consultation. The
+accepted direction is focused inventory first; do not implement or select a
+hard owner in this card.
 
 ## Exit Decision
 
@@ -32,6 +33,12 @@ tools/checks/rust_lifecycle_mirbuilder_scalar_known_fastpath_mapstore_i64_caller
 The next owner must be selected only after a focused Fact / Plan / Boundary
 inventory identifies one minimal hard-authority slice. This card intentionally
 does not choose that owner.
+
+The selected inventory task is:
+
+```text
+docs/development/current/main/phases/phase-296x/3457-MIRBUILDER-MAPSTORE-I64-FACT-PLAN-BOUNDARY-INVENTORY-001.md
+```
 
 Parked audit follow-up (not active):
 
