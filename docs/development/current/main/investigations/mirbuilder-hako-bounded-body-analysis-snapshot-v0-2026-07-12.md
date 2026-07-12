@@ -1080,6 +1080,21 @@ The bounded snapshot implementation card is therefore green through S7. S8
 token-only facade retirement remains a separate follow-up slice; planner,
 route, backend, runtime, MIR mutation, and ID allocation remain unchanged.
 
+S8 closed on 2026-07-12. The obsolete token owner family
+`loop_feature_facts.hako` plus its token parity and scoped-adoption guards was
+removed. Historical Rust-oracle/decision fixtures and archived cards remain
+unchanged evidence. The replacement snapshot gate now proves the old Hako
+source and callers are absent, while `feature_facts.rs`, `loop_builder.rs`,
+`LoopFeatureFacts`, and `try_extract_loop_feature_facts` remain the untouched
+Rust planner Fact authority. No planner, route, backend, runtime, MIR mutation,
+or ID allocation rewiring occurred.
+
+BoundedBodyAnalysisSnapshotV0 is complete through S8. Selecting the next
+snapshot-backed read-only Fact family is a separate authority decision; this
+card does not silently choose bool-predicate, string-is-integer, skeleton, or
+planner adoption. Stable retirement gate:
+`tools/checks/hako_bounded_body_loop_feature_summary_v0_guard.sh`.
+
 Each slice must compile/run in isolation before the next reader family is
 added. A reader that again crosses the diagnostic boundary returns to the
 shape split; it is not accepted as a single large Hako box.

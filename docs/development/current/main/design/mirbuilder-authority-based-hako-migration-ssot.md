@@ -198,9 +198,12 @@ Current next authority-facade candidate:
 try_extract_bool_predicate_scan_facts
 ```
 
-`try_extract_loop_feature_facts` is already HakoAdoptedScoped for the
-backend-safe token snapshot reducer. Do not select it again unless the task is
-the explicitly gated full AST body traversal backlog.
+The historical backend-safe token snapshot reducer for
+`try_extract_loop_feature_facts` was retired after bounded body snapshot parity
+closed. `LoopFeatureSummaryV0` is now an observation-only snapshot consumer;
+the Rust planner-side Fact remains authoritative and is not rewired. Do not
+select the retired token facade again. Any planner adoption or another Fact
+consumer requires a new explicit authority decision.
 
 Runner-up plan candidates:
 

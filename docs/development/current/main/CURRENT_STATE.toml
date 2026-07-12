@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Active implementation workstream"
+status = "Active design consultation frontier"
 date = "2026-07-12"
 
 active_lane = "MIRBUILDER Hako BoundedBodyAnalysisSnapshotV0"
@@ -150,8 +150,8 @@ execution is never reached. The removed historical 30-second source is still
 unavailable, so exact source-shape causality is not claimed. The stable gate
 uses a fixed release+vm-reference binary with a ten-second boundary, one reader
 family per file, and accepted-kind fanout at most 12. U4-A3.1 through A3.6,
-U4-A4, U4-A5, S4, S5, S6, and S7 are closed; S8 token-only facade retirement
-is the next separate slice.
+U4-A4, U4-A5, and S4-S8 are closed. The bounded snapshot card is complete;
+selection of the next snapshot-backed Fact family is a design consultation.
 The reference
 MIR interpreter is the only first-slice backend and unsupported backends fail
 before parse/session effects. U4-A0 generic arena, U4-A1 invocation session,
@@ -194,7 +194,9 @@ parity. S5/S6 close with a seven-source manifest permitting only three Ready
 exact-parity and four explicit-Unsupported outcomes, zero skip/NoMatch/
 InvalidInput, explicit declared_type/Float/FastMemRegion seams, and aggregate
 isolation gates. S7 was already closed by the snapshot-only LoopFeatureSummary
-consumer. S8 token-only facade retirement is next.
+consumer. S8 removes only the obsolete Hako loop-feature token facade and its
+two dedicated gates, preserves historical fixtures, and leaves the Rust
+planner Fact unchanged. The next Fact consumer is intentionally unselected.
 The LocalContractWrite exact-i64 Fact bridge is
 closed with canonical contract-id ownership, fresh identity matching,
 dst-only publication, Copy/same-slot PHI propagation, 17 focused tests, and
@@ -231,7 +233,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "MIRBUILDER-BOUNDED-BODY-SNAPSHOT-V0-TOKEN-FACADE-RETIREMENT-001"
+current_blocker_token = "MIRBUILDER-SNAPSHOT-NEXT-FACT-CONSUMER-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
