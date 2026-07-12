@@ -12,11 +12,13 @@ CARD="docs/development/current/main/phases/phase-293x/293x-066-M14-HAKO-MEM-EXTE
 TASKBOARD="docs/development/current/main/design/mimalloc-capability-taskboard-ssot.md"
 RETURN_PROOF="docs/development/current/main/design/return-proof-vocabulary-ssot.md"
 VM_HANDLER="lang/src/vm/boxes/mir_call_v1_handler.hako"
+VM_MIN="lang/src/vm/boxes/mir_vm_min.hako"
+VM_DISPATCHER="lang/src/vm/hakorune-vm/dispatcher_v1.hako"
 PY_EXTERN="src/llvm_py/instructions/externcall.py"
 
 echo "[$TAG] running M14 hako.mem extern pure-first guard"
 
-guard_require_files "$TAG" "$APP" "$APP_README" "$CARD" "$TASKBOARD" "$RETURN_PROOF" "$VM_HANDLER" "$PY_EXTERN"
+guard_require_files "$TAG" "$APP" "$APP_README" "$CARD" "$TASKBOARD" "$RETURN_PROOF" "$VM_HANDLER" "$VM_MIN" "$VM_DISPATCHER" "$PY_EXTERN"
 
 cargo test -q refresh_function_extern_call_routes_records_hako_mem_alloc_route -- --nocapture
 cargo test -q refresh_function_extern_call_routes_records_hako_mem_free_route -- --nocapture
@@ -94,6 +96,9 @@ pure_first_guard_assert_clean_build_log "$TAG" "$build_log"
 rg -F -q 'mir_call_hako_mem_alloc_emit' "$build_log"
 rg -F -q 'mir_call_hako_mem_free_emit' "$build_log"
 rg -F -q '[failure/outcome_unit_backend_unsupported]' "$VM_HANDLER"
+rg -F -q 'call_out' "$VM_MIN"
+rg -F -q 'call_out0' "$VM_DISPATCHER"
+rg -F -q 'call_out1' "$VM_DISPATCHER"
 rg -F -q '[failure/outcome_unit_backend_unsupported]' "$PY_EXTERN"
 if rg -F -q 'HAKO_LLVMC_MIR_CALL_EXTERN_EMIT_NATIVE_PTR_ARG_VOID_ZERO' \
   lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell_extern_emit.inc; then

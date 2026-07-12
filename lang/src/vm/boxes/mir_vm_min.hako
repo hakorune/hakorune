@@ -24,7 +24,7 @@ static box MirVmMin {
   }
   _d(msg, trace) { if trace == 1 { print(msg) } }
   _handle_mir_call(seg, regs) {
-    MirCallV1HandlerBox.handle(seg, regs)
+    return MirCallV1HandlerBox.handle(seg, regs)
   }
   // Compatibility runner (prints and returns). Prefer run_min for quiet return-only.
   run(mjson) { local v = me._run_min(mjson) print(me._int_to_str(v)) return v }
@@ -436,7 +436,8 @@ static box MirVmMin {
           }
         }
         else if op == "mir_call" {
-          me._handle_mir_call(seg, regs)
+          local call_out = me._handle_mir_call(seg, regs)
+          if call_out != null && ("" + call_out) != "" { return call_out }
         }
         else if op == "newbox" {
           // S0b minimal support: treat allocation as opaque handle placeholder.

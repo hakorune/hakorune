@@ -37,7 +37,10 @@ static box NyVmDispatcherV1Box {
       local op = tup.substring(c2+1, tup.length())
       local item = seg.substring(s, e)
       if op == "const" { OpHandlersBox.handle_const(item, regs) }
-      else if op == "mir_call" { MirCallV1HandlerBox.handle(item, regs) }
+      else if op == "mir_call" {
+        local call_out0 = MirCallV1HandlerBox.handle(item, regs)
+        if call_out0 != null && ("" + call_out0) != "" { return call_out0 }
+      }
       else if op == "ret" { return MirVmMin._handle_ret_op(item, regs, -1, 0, 0) }
       scan = e
     }
@@ -117,7 +120,10 @@ static box NyVmDispatcherV1Box {
               local sv = regs.getField(StringHelpers.int_to_str(dst)); if sv != null { last_cmp_val = JsonFragBox._str_to_int(""+sv) } else { last_cmp_val = 0 }
             }
           }
-          else if op == "mir_call" { MirCallV1HandlerBox.handle(item, regs) }
+          else if op == "mir_call" {
+            local call_out1 = MirCallV1HandlerBox.handle(item, regs)
+            if call_out1 != null && ("" + call_out1) != "" { return call_out1 }
+          }
           else if op == "branch" {
             local c = ent.get("cond"); if c == null { c = JsonFragBox.get_int(item, "cond") }
             local t = ent.get("then"); if t == null { t = JsonFragBox.get_int(item, "then") }
