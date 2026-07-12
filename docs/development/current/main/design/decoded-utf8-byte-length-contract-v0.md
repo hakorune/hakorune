@@ -89,7 +89,7 @@ RHako semantic leaf:
   crate-private DecodedUtf8ByteLenV0(&str) -> usize
 
 future HHako internal call spelling:
-  hako_internal_decoded_utf8_byte_len_v0(text)
+  hako.analysis.decoded_utf8_byte_len_v0(text)
   Callee::Extern only; no String method, slot, alias, or public ABI row
 
 reference execution route:
@@ -126,7 +126,7 @@ before reader effects and has no `PathV0`; it must never be translated to
 reader `Unsupported` or `InvalidInput`. Carrier witness mismatch is separately
 named `InternalCarrierContractViolation`.
 
-### U1 — Environment-independent reference leaf (active)
+### U1 — Environment-independent reference leaf (complete)
 
 - implement the smallest analysis/internal executable leaf;
 - count decoded Rust strings by `value.as_bytes().len()`;
@@ -134,7 +134,19 @@ named `InternalCarrierContractViolation`.
 - prove no dependency on `NYASH_STR_CP`, codepoint mode, generic length routes,
   or C-string APIs.
 
-### U2 — HHako internal capability and preflight
+U1 closeout:
+
+- `DecodedUtf8ByteLenV0::count` is crate-private under the SnapshotV0 analysis
+  module and has exactly one implementation: `value.as_bytes().len()`;
+- RHako `ValidatedTextV0` construction and SnapshotV0 budget accounting both
+  consume that leaf;
+- contract fixtures cover ASCII, three- and four-byte scalars, combining versus
+  precomposed text, embedded NUL, and decoded multibyte text;
+- the focused suite runs with `NYASH_STR_CP` unset and with `NYASH_STR_CP=1`;
+- a dedicated guard rejects mode/config, public string surface, generic length,
+  C-string, and legacy helper dependencies.
+
+### U2 — HHako internal capability and preflight (active)
 
 - expose only the internal `decoded_utf8_byte_len_v0` capability to the HHako
   parity lane;

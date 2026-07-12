@@ -1,6 +1,7 @@
 //! Immutable schema for the bounded ProgramV0 wire observation quotient.
 
 mod budget;
+mod decoded_utf8_byte_len_v0;
 mod outcome;
 mod path;
 mod program_v0_body_view;
@@ -12,6 +13,7 @@ mod strict_json;
 mod validated_view;
 
 pub use budget::{BoundedBodyBudgetV0, BudgetLimitV0};
+pub(crate) use decoded_utf8_byte_len_v0::DecodedUtf8ByteLenV0;
 pub use outcome::{AnalysisIssueV0, BoundedBodyAnalysisOutcomeV0};
 pub use path::{PathFieldV0, PathSegmentV0, PathV0};
 pub use program_v0_body_view::{

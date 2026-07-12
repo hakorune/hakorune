@@ -8,22 +8,24 @@ source "$ROOT/tools/checks/lib/guard_common.sh"
 VIEW="$ROOT/src/analysis/bounded_body_snapshot_v0/program_v0_body_view.rs"
 NORMALIZED="$ROOT/src/analysis/bounded_body_snapshot_v0/validated_view.rs"
 JSON="$ROOT/src/analysis/bounded_body_snapshot_v0/strict_json.rs"
+BYTE_LEN="$ROOT/src/analysis/bounded_body_snapshot_v0/decoded_utf8_byte_len_v0.rs"
 TESTS="$ROOT/src/analysis/bounded_body_snapshot_v0/tests.rs"
 
 guard_require_command "$TAG" cargo
 guard_require_command "$TAG" python3
-guard_require_files "$TAG" "$VIEW" "$NORMALIZED" "$JSON" "$TESTS"
+guard_require_files "$TAG" "$VIEW" "$NORMALIZED" "$JSON" "$BYTE_LEN" "$TESTS"
 
 cargo test -q --lib analysis::bounded_body_snapshot_v0::tests
 
-python3 - "$VIEW" "$NORMALIZED" "$JSON" "$TESTS" <<'PY'
+python3 - "$VIEW" "$NORMALIZED" "$JSON" "$BYTE_LEN" "$TESTS" <<'PY'
 import sys
 from pathlib import Path
 
-view_path, normalized_path, json_path, tests_path = map(Path, sys.argv[1:])
+view_path, normalized_path, json_path, byte_len_path, tests_path = map(Path, sys.argv[1:])
 view = view_path.read_text(encoding="utf-8")
 normalized = normalized_path.read_text(encoding="utf-8")
 strict_json = json_path.read_text(encoding="utf-8")
+byte_len = byte_len_path.read_text(encoding="utf-8")
 tests = tests_path.read_text(encoding="utf-8")
 joined = view + "\n" + normalized + "\n" + strict_json
 
@@ -38,12 +40,15 @@ required = (
     "ValidatedProgramV0BodyView",
     "ValidatedNodeV0",
     "ValidatedTextV0",
-    "utf8_byte_len: text.len()",
+    "DecodedUtf8ByteLenV0::count(text)",
     "ValidatedAtomValueV0::I64",
 )
 for needle in required:
     if needle not in joined:
         raise SystemExit(f"missing strict boundary token: {needle}")
+
+if "value.as_bytes().len()" not in byte_len:
+    raise SystemExit("normalized text leaf lacks UTF-8 octet implementation")
 
 test_contracts = (
     "rejects_duplicate_keys_and_trailing_input",
@@ -71,7 +76,7 @@ for forbidden in (
     if forbidden in joined:
         raise SystemExit(f"forbidden strict body-view dependency: {forbidden}")
 
-for path in (view_path, normalized_path, json_path):
+for path in (view_path, normalized_path, json_path, byte_len_path):
     if len(path.read_text(encoding="utf-8").splitlines()) > 800:
         raise SystemExit(f"source exceeds 800 lines: {path}")
 

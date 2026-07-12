@@ -2,8 +2,8 @@
 
 use super::strict_json::StrictJsonValue;
 use super::{
-    AtomKeyV0, ChildRoleV0, TextClassV0, ValidatedProgramV0BodyView, WireExprKindV0,
-    WireNodeKindV0, WireStmtKindV0,
+    AtomKeyV0, ChildRoleV0, DecodedUtf8ByteLenV0, TextClassV0, ValidatedProgramV0BodyView,
+    WireExprKindV0, WireNodeKindV0, WireStmtKindV0,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -231,7 +231,7 @@ fn text_atom<'a>(
         key,
         ValidatedAtomValueV0::Text(ValidatedTextV0 {
             value: text,
-            utf8_byte_len: text.len(),
+            utf8_byte_len: DecodedUtf8ByteLenV0::count(text),
             class,
         }),
     )

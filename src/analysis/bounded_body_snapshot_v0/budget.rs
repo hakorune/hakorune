@@ -1,4 +1,4 @@
-use super::SnapshotLimitsV0;
+use super::{DecodedUtf8ByteLenV0, SnapshotLimitsV0};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BudgetLimitV0 {
@@ -60,7 +60,7 @@ impl BoundedBodyBudgetV0 {
     }
 
     pub fn observe_literal(&mut self, value: &str) -> Result<(), BudgetLimitV0> {
-        let bytes = value.len();
+        let bytes = DecodedUtf8ByteLenV0::count(value);
         if bytes > self.limits.max_literal_bytes {
             return Err(BudgetLimitV0::LiteralBytes);
         }
@@ -68,7 +68,7 @@ impl BoundedBodyBudgetV0 {
     }
 
     pub fn observe_atom(&mut self, value: &str) -> Result<(), BudgetLimitV0> {
-        let bytes = value.len();
+        let bytes = DecodedUtf8ByteLenV0::count(value);
         if bytes > self.limits.max_atom_bytes {
             return Err(BudgetLimitV0::AtomBytes);
         }

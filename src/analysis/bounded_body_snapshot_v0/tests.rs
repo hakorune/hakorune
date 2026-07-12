@@ -1,5 +1,6 @@
 use super::*;
 
+mod decoded_utf8_byte_len;
 mod witness;
 
 #[test]
