@@ -1,8 +1,8 @@
 # Repository Artifact Lifecycle and 3511 Follow-up
 
-Status: Parked follow-up task; not the active lane.
+Status: Verified queued follow-up; implementation not started.
 Date: 2026-07-12
-Active lane remains: 3457 MapStoreI64 authority inventory / design boundary.
+Active lane remains: BoundedBodyAnalysisSnapshotV0 SnapshotAlgebraV0 closure.
 
 Decision: accepted minimal PR-only ratchet and evidence-only 3511 repair.
 
@@ -14,6 +14,30 @@ artifact manifest freshness failure. The second is a 3511 contract-to-test
 inventory mismatch with one apparent orphan test module.
 
 ## Tasks
+
+### OLF-0 — Reverification ledger (closed)
+
+Reverified on 2026-07-12:
+
+```text
+failure_outcome_semantic_site_graph --check:
+  EXIT=0, evidence=602, sites=54
+
+repository_artifact_lifecycle --check:
+  EXIT=0 with WARNING inventory drift
+
+repository_artifact_lifecycle --check --strict:
+  EXIT=1 with ERROR inventory drift
+
+cargo test -q --lib hako_mem_free -- --list:
+  EXIT=0, four collected tests
+
+current_state_pointer_guard:
+  EXIT=0
+```
+
+Failure/Outcome manifest drift needs no task. Do not regenerate a green
+manifest merely because this follow-up runs.
 
 ### OLF-1 — Refresh and minimally ratchet repository artifact lifecycle
 
@@ -31,6 +55,8 @@ Scope:
 3. Add one PR-only Python check to the existing minimal gate. Do not add a
    push trigger, `dev_gate`, pre-commit hook, cargo build, LLVM setup, or a
    second workflow.
+4. Prove deliberate drift fails the exact PR command, not only the standalone
+   strict command.
 
 Acceptance:
 
@@ -72,6 +98,17 @@ Scope:
    not merely that a filter exits 0.
 4. Keep the hako_mem_free semantic owner, backend support, and non-claims
    unchanged.
+5. Add a machine-readable evidence table for all sixteen descriptive labels:
+   `ExecutableTest`, `GuardAssertion`, or `ContractLabelOnly`, with the exact
+   real test ID/guard path for every executable claim.
+6. Wire `src/mir/extern_call_route_plan/tests/mod.rs` from
+   `extern_call_route_plan.rs` under `#[cfg(test)]` unless a narrower existing
+   test owner is proven. The currently orphaned
+   `refresh_function_extern_call_routes_records_hako_mem_free_route` must be
+   visible in `--list` evidence.
+7. Change the 3511 card status from `Active implementation task` only after
+   the evidence table, collection proof, and existing guards are green. Use a
+   closed status that distinguishes semantic completion from evidence repair.
 
 Acceptance:
 
@@ -84,12 +121,23 @@ Expected result: every claimed executable test is listed and run, or the card
 clearly labels non-executable names as contract fixtures. No zero-test
 filtered command is accepted as evidence.
 
+Additional acceptance:
+
+```text
+collected hako_mem_free tests >= 5
+orphan refresh route test appears in --list output
+all sixteen labels have one explicit evidence classification
+3511 card no longer says Active implementation task
+3511 semantic/runtime claims remain unchanged
+```
+
 ## Ordering
 
-1. OLF-1 manifest refresh and PR-only strict gate decision.
-2. OLF-2 3511 fixture/test inventory and wiring decision.
-3. Implement only after the consultation answers the gate surface and test
-   ownership questions.
+1. Active SnapshotAlgebraV0/S3 lane reaches a clean commit boundary.
+2. OLF-1 manifest refresh and one PR-only strict gate.
+3. OLF-2 evidence mapping, orphan test wiring, and 3511 status repair.
+
+Do not mix OLF-1 and OLF-2 with compiler snapshot implementation commits.
 
 ## Non-claims
 

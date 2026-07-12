@@ -340,7 +340,55 @@ Closeout evidence:
   `tools/checks/rust_lifecycle_mirbuilder_strict_program_v0_body_view_guard.sh`
   are green; all source files remain below 800 lines.
 
-### S3 — Hako ProgramV0 snapshot reader (active)
+### S2.5 — SnapshotAlgebraV0 Rust authority closure (active)
+
+The S3 design audit found that the current Rust model fixes the outer value
+types but does not yet close every equality-relevant rule. Hako implementation
+must not guess those rules independently.
+
+Ordered tasks:
+
+1. **A1 — Canonical atom schema**
+   - declare every accepted node kind's ordered atom keys and value kinds;
+   - keep atoms as an ordered sequence, never a map-iteration result;
+   - fix operator text encoding and canonical i64 normalization.
+2. **A2 — Canonical child-edge schema**
+   - retain the existing Rust public algebra `(ChildRoleV0, target_index)`;
+   - vector position is the only ordinal; do not publish a Hako-only ordinal;
+   - fix schema child order for every accepted kind with exhaustive tests.
+3. **A3 — Closed structural paths**
+   - replace arbitrary field strings at construction boundaries with the
+     schema-owned role/field vocabulary;
+   - prove zero-based path generation and top-level depth `1`.
+4. **A4 — Normalized validated view**
+   - add read-only stmt/expr accessors to `ValidatedProgramV0BodyView`;
+   - expose canonical `i64`, typed bool/null, and a text atom that bundles its
+     decoded value with exact UTF-8 byte length and Literal/Atom class;
+   - do not add provenance or widen Program(JSON v0).
+5. **A5 — Construction invariants**
+   - enforce flat preorder indices, in-range forward child edges, canonical
+     atom/edge ordering, derived node count, and exact max depth;
+   - reject incomplete drafts and publish no partial snapshot.
+6. **A6 — Rust executable witness**
+   - build one Rust validated-view-to-snapshot witness before Hako traversal;
+   - cover empty body, every accepted kind/role/operator, integer wire
+     equivalence, multibyte text, and all inclusive limit boundaries.
+
+Acceptance:
+
+```text
+Rust snapshot equality has one fully declared algebra
+validated input is normalized and read-only
+atom and edge order are machine-checkable
+no Hako-private field participates in public equality
+no serializer/MIR/planner/route/runtime authority is imported
+all source files remain below 800 lines
+```
+
+Stop if closing the algebra would require source provenance, ProgramV0 schema
+widening, or planner/runtime authority.
+
+### S3 — Hako ProgramV0 snapshot reader (blocked by S2.5)
 
 - split schema/outcome/path/budget/model/builder/stmt/expr responsibilities;
 - publish an immutable snapshot only after full traversal succeeds;
@@ -361,6 +409,22 @@ Landed foundation:
 
 Remaining in S3: private atomic builder plus split statement/expression
 structured traversal and failure-discard fixtures.
+
+The uncommitted recursive-reader prototype is parked as
+`wip/s3-hako-snapshot-reader before rust-algebra-design-stop`. Do not revive
+it directly. After S2.5, rewrite S3 as four boundaries:
+
+```text
+validated typed carrier
+-> one-node stmt/expr observations
+-> explicit preorder coordinator
+-> one-shot sealed builder
+```
+
+The public Hako snapshot must exactly mirror Rust: flat preorder nodes,
+ordered atoms, and ordered `(role, target_index)` edges. Path-keyed byte-count
+sidecars, public Hako-only ordinals, raw `MapBox.get()` validation, recursive
+reader/builder mutation, and mutable storage sharing are prohibited.
 
 ### S4 — Rust AST wire-observation oracle
 
@@ -404,3 +468,16 @@ May claim only bounded structural observation and exact parity for the accepted
 wire subset. Must not claim full AST support, source-kind preservation,
 semantic equivalence, complete ProgramV0 support, MIR/planner parity, route or
 runtime authority, Program(JSON v0) permanence, or Source Selfhost completion.
+
+## Queued maintenance after a clean compiler milestone
+
+`docs/development/current/main/investigations/repository-artifact-lifecycle-and-3511-followup-2026-07-12.md`
+owns two verified non-semantic leftovers:
+
+```text
+OLF-1 = repository artifact lifecycle refresh + one PR-only strict ratchet
+OLF-2 = 3511 evidence-label mapping + orphan test wiring + card status repair
+```
+
+Failure/Outcome semantic graph and current pointer are already green and do
+not require work. Keep OLF commits separate from S2.5/S3 compiler commits.
