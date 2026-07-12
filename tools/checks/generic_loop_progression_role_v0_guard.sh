@@ -17,6 +17,7 @@ guard_require_files "$TAG" \
   "$ROOT/src/mir/builder/control_flow/plan/generic_loop/facts/progression_role/report.rs" \
   "$ROOT/src/mir/builder/control_flow/plan/generic_loop/facts/progression_role/branch_control.rs" \
   "$ROOT/src/mir/builder/control_flow/plan/generic_loop/facts/progression_role/policy.rs" \
+  "$ROOT/src/mir/builder/control_flow/plan/generic_loop/facts/progression_role/coverage_inventory.rs" \
   "$ROOT/$REPORT_FIXTURE" \
   "$ROOT/$PROOF_FIXTURE" \
   "$ROOT/$CONTRACT_PIN"
@@ -138,6 +139,7 @@ if proof.count("proof=Proven(") != 1 or proof.count("proof=Unproven(") != 2:
 
 policy = (base / "facts/progression_role/policy.rs").read_text(encoding="utf-8")
 branch_control = (base / "facts/progression_role/branch_control.rs").read_text(encoding="utf-8")
+coverage_inventory = (base / "facts/progression_role/coverage_inventory.rs").read_text(encoding="utf-8")
 neutral = policy + "\n" + branch_control
 for forbidden in (
     "ParserRecordDeclarationBox",
@@ -157,6 +159,14 @@ for forbidden_import in (
     if re.search(forbidden_import, neutral, flags=re.MULTILINE | re.IGNORECASE):
         raise SystemExit(f"forbidden C1 neutral-proof import: {forbidden_import}")
 
+for needle in (
+    "existing_verifier_does_not_reject_an_omitted_statement",
+    "existing_verifier_does_not_reject_a_duplicate_statement_reference",
+    "existing_verifier_still_rejects_an_out_of_bounds_reference",
+):
+    if needle not in coverage_inventory:
+        raise SystemExit(f"missing C2-P0 coverage evidence: {needle}")
+
 print("c0_candidate_capture=green")
 print("c0_acceptance_widening=0")
 print("c0_product_path_connection=0")
@@ -165,6 +175,9 @@ print("c0_record_inventory=exact_fixture")
 print("c1_closed_anchor_policy=green")
 print("c1_record_proof_outcome=unique")
 print("c1_product_path_connection=0")
+print("c2_p0_existing_exact_coverage_owner=missing")
+print("c2_p0_recipe_local_coverage=representable")
+print("c2_p0_source_recipe_identity=design_stop")
 print("parser_source_change=0")
 print("summary=ok")
 PY

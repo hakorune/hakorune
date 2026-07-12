@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Active implementation prerequisite"
+status = "Design consultation stop"
 date = "2026-07-13"
 
 active_lane = "MIRBUILDER Hako SourceBodyAnalysisSnapshotV1"
@@ -123,7 +123,8 @@ latest_workstream_card = "docs/development/current/main/investigations/mirbuilde
 latest_card = "mirbuilder-generic-loop-a2-hybrid-proof-task-2026-07-13"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-generic-loop-a2-hybrid-proof-task-2026-07-13.md"
 latest_card_summary = """A2-C0 acceptance-neutral candidate capture and C1
-neutral progression proof are closed. Fifteen focused progression tests and
+neutral progression proof plus C2-P0 Recipe coverage preflight are closed.
+Eighteen focused progression tests and
 the reusable lane guard are green. The exact
 isolated-probe record inventory contains j, fields, and field_count diagnostic
 rows with stable structural sites, provisional update shape/rank, and tied
@@ -133,9 +134,14 @@ The C1 isolated proof probe yields exactly one proof: j has two
 CurrentLoopExitGuard anchors and is ControlAnchoredBodyManaged; fields and
 field_count have no anchors and remain Unproven. No rank, name, ShapeId,
 Recipe, or new constructor participates, and product-path connection remains
-zero. Active C2 now adds candidate-local Recipe drafts and a
-candidate-independent exact-accounting verifier. E proves identity; R only
-gates execution and may not rank candidates. A2 uses an asymmetric E+R
+zero. C2-P0 proves the existing verifier owns contract/reference-bounds/ports
+but not exact statement coverage: omission and duplicate references are
+accepted while out-of-range is rejected. Recipe-local coverage is
+representable, but flattening and canonical filtering retain no exact nested
+source-site identity. C2 is therefore stopped for a decision on the source
+path owner, ScopeBox accounting, canonical-step witness transport, and the
+source/Recipe bijection verifier. E proves identity; R only gates execution
+and may not rank candidates. A2 uses an asymmetric E+R
 hybrid: a new neutral
 algebra fits, A2 uses an asymmetric E+R hybrid: a new neutral
 LoopProgressionCandidatePolicyV0 proves candidate identity/control role, while
@@ -318,7 +324,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "GENERIC-LOOP-A2-C2-P0-RECIPE-COVERAGE-PREFLIGHT-001"
+current_blocker_token = "GENERIC-LOOP-A2-C2-SOURCE-RECIPE-IDENTITY-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

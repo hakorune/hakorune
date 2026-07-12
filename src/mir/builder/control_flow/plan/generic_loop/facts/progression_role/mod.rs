@@ -5,6 +5,8 @@
 
 #[cfg(test)]
 pub(in crate::mir::builder) mod branch_control;
+#[cfg(test)]
+mod coverage_inventory;
 pub(in crate::mir::builder) mod observation;
 #[cfg(test)]
 pub(in crate::mir::builder) mod policy;

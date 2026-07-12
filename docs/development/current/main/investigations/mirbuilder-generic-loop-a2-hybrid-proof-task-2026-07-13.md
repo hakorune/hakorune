@@ -1,6 +1,6 @@
 # Generic Loop A2 — Capture, Proof, Recipe Taskboard
 
-Status: Active prerequisite; A2-C0/C1 closed, A2-C2 Recipe draft selected.
+Status: Design stop; A2-C0/C1 and C2-P0 closed, source/Recipe identity decision required.
 Date: 2026-07-13
 Decision: acceptance-neutral capture first, then asymmetric `E + R` hybrid.
 Classification: BoxShape only.
@@ -459,7 +459,66 @@ P0 is read-only inventory plus focused tests/docs.  Product-path connection,
 candidate selection, parser/source carrier changes, and acceptance widening
 remain zero.
 
-#### A2-C2-P1 — candidate-local draft
+P0 result (closed):
+
+```text
+existing exact-coverage owner:
+  missing
+
+Recipe-local (BodyId, StmtRef) hole/duplicate verification:
+  MissingCoverageOwnerButRepresentable
+
+original source tree -> Recipe nested-site identity:
+  MissingStructuralIdentity
+
+canonical step witness -> removed source statement identity:
+  MissingStructuralIdentity
+
+ScopeBox as an accounted source statement:
+  MissingRecipeVocabulary unless declared a transparent container
+```
+
+Focused executable evidence proves that the current block verifier accepts
+both an omitted body statement and a duplicate `StmtRef`, while still
+rejecting an out-of-range reference.  Therefore `VerifiedRecipeBlock` proves
+contract/port shape, not exact source coverage.
+
+The generic-loop canonical route also filters statements with
+`matches_loop_increment` and retains no removed source-site witness.  A
+candidate-local preorder ordinal and top-level index cannot recover nested
+branch identity.  C2-P1 is blocked by the declared `MissingStructuralIdentity`
+stop condition; no approximate mapping is allowed.
+
+#### C2 design consultation required
+
+Choose the owner and scope of exact structural identity before P1:
+
+```text
+1. Does source accounting begin before `flatten_scope_boxes`, with a stable
+   SourceStmtSiteV0/path projected through transparent containers?
+
+2. Is ScopeBox an accounted source statement, or a schema-declared
+   transparent container whose children alone are accounted?
+
+3. Does CandidateStepWitnessV0 carry the original structural source site into
+   the filtered Recipe draft, or is canonical extraction deferred while the
+   BodyManaged subset proceeds?
+
+4. Which owner proves the source-site <-> reachable Recipe-site bijection:
+   a neutral projection ledger, or a widened Recipe construction result?
+```
+
+The consultation must preserve:
+
+```text
+new RecipeItem / CFG wiring = 0 unless opened as a separate BoxShape
+source AST rewrite = 0
+name/rank/ShapeId authority = 0
+candidate-local preorder as identity = 0
+acceptance widening before exact proof = 0
+```
+
+#### A2-C2-P1 — candidate-local draft (blocked on design decision)
 
 ```text
 Canonical hypothesis:
