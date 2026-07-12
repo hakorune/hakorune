@@ -42,7 +42,10 @@ fn enforce_refreshed_mir_backend_supported(
     crate::mir::weak_field_backend_capability::enforce_weak_field_backend_supported(
         module, backend,
     )?;
-    crate::mir::array_element_write::enforce_backend_supported(module, backend)
+    crate::mir::array_element_write::enforce_backend_supported(module, backend)?;
+    crate::mir::decoded_utf8_byte_len_backend_capability::enforce_decoded_utf8_byte_len_backend_supported(
+        module, backend,
+    )
 }
 
 #[cfg(test)]

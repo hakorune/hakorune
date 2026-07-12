@@ -251,7 +251,8 @@ pub fn explicit_extern_return_type(name: &str) -> MirType {
         | "hako_osvm_unreserve_bytes_i64"
         | "hako_tls_cache_slot_get_i64"
         | "hako_tls_cache_slot_set_i64"
-        | "hako_worker_current_id_i64" => MirType::Integer,
+        | "hako_worker_current_id_i64"
+        | "hako.analysis.decoded_utf8_byte_len_v0" => MirType::Integer,
         "nyash.box.from_i8_string" => MirType::Box("StringBox".to_string()),
         _ => MirType::Unknown,
     }

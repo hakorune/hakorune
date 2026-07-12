@@ -1,0 +1,11 @@
+using lang.compiler.analysis.bounded_body_snapshot.decoded_utf8_byte_len_v0 as DecodedUtf8ByteLenV0Box
+
+static box Main {
+  main() {
+    if DecodedUtf8ByteLenV0Box.count("abc") != 3 { return 1 }
+    if DecodedUtf8ByteLenV0Box.count("猫") != 3 { return 2 }
+    if DecodedUtf8ByteLenV0Box.count("😸") != 4 { return 3 }
+    if DecodedUtf8ByteLenV0Box.count("猫😸") != 7 { return 4 }
+    return 0
+  }
+}

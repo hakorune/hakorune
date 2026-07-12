@@ -1,0 +1,7 @@
+// SnapshotV0-only internal UTF-8 byte-count capability.
+// It is not a public String method and has no aliases.
+static box DecodedUtf8ByteLenV0Box {
+  count(value) {
+    return externcall "hako.analysis.decoded_utf8_byte_len_v0"(value)
+  }
+}

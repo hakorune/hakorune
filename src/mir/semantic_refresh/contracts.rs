@@ -89,7 +89,7 @@ pub fn refresh_and_validate_for_boundary(
     module: &mut MirModule,
     boundary: ContractRefreshBoundary,
 ) -> Result<RefreshedContractBundle<'_>, String> {
-    refresh_active_contract_carriers(module)?;
+    refresh_active_contract_carriers(module, boundary)?;
     validate_refreshed_contracts(module)?;
     let carriers = collect_carrier_summary(module);
     Ok(RefreshedContractBundle {
@@ -99,7 +99,10 @@ pub fn refresh_and_validate_for_boundary(
     })
 }
 
-fn refresh_active_contract_carriers(module: &mut MirModule) -> Result<(), String> {
+fn refresh_active_contract_carriers(
+    module: &mut MirModule,
+    boundary: ContractRefreshBoundary,
+) -> Result<(), String> {
     crate::mir::type_contracts::weak_field::refresh_module_specs(module)?;
     let weak_specs = module.metadata.weak_field_contract_specs.clone();
     let record_decls = module.metadata.record_decls.clone();
@@ -131,6 +134,12 @@ fn refresh_active_contract_carriers(module: &mut MirModule) -> Result<(), String
         module,
     );
     crate::mir::type_contracts::static_table::refresh_module_static_table_contracts(module)?;
+    if boundary == ContractRefreshBoundary::BackendPreflight {
+        // Backend capability owners consume the route-plan carrier, never a
+        // raw extern symbol scan. Rebuild it at this boundary so an immutable
+        // caller cannot accidentally bypass the preflight proof.
+        crate::mir::extern_call_route_plan::refresh_module_extern_call_routes(module);
+    }
     Ok(())
 }
 

@@ -3,7 +3,7 @@ use super::*;
 #[test]
 fn extern_call_route_specs_are_complete_and_self_classifying() {
     let specs = extern_call_route_specs();
-    assert_eq!(specs.len(), 28);
+    assert_eq!(specs.len(), 29);
 
     for spec in specs {
         let kind = spec.kind();

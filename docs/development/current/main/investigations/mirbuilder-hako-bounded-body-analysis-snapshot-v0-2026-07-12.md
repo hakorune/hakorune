@@ -469,7 +469,7 @@ A6 closeout evidence:
 
 ```text
 B1_flat_ordered_publication_model = complete
-B2_validated_typed_carrier = blocked_by_U0_U3
+B2_validated_typed_carrier = blocked_by_U3
 B3_one_node_observations = pending
 B4_preorder_coordinator = pending
 B5_poisoned_sealed_builder = pending
@@ -570,9 +570,11 @@ spelling is `hako.analysis.decoded_utf8_byte_len_v0` through `Callee::Extern`,
 and product backends use shared `BackendPreflight` rather than reader outcomes.
 U1 is closed with a crate-private byte leaf, RHako normalized-text/budget
 adoption, multibyte/NUL/normalization fixtures, both `NYASH_STR_CP` modes, and
-a dependency guard. U2 HHako capability/preflight is active; U3 independent
-local carriers, then B2/B3 resume. Do not claim B2, text-budget parity, or
-exact RHako/HHako snapshot parity until U0-U5 are closed. The worker prototype also used unsupported
+a dependency guard. U2 is closed with one internal `Callee::Extern` route,
+reference-VM direct dispatch, metadata-only shared backend preflight, product
+backend rejection, and a two-mode HHako fixture. U3 independent local carriers
+is active; then B2/B3 resume. Do not claim B2, text-budget parity, or exact
+RHako/HHako snapshot parity until U0-U5 are closed. The worker prototype also used unsupported
 `String.split()` helpers; field closure must use a closed declarative schema,
 not CSV parsing or substring detection.
 

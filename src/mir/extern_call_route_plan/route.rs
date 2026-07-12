@@ -58,6 +58,9 @@ impl ExternCallRoute {
     pub fn route_id(&self) -> &'static str {
         self.kind.route_id()
     }
+    pub fn kind(&self) -> ExternCallRouteKind {
+        self.kind
+    }
     pub fn core_op(&self) -> &'static str {
         self.kind.core_op()
     }
@@ -383,5 +386,37 @@ mod tests {
             "native_ptr_nullable"
         );
         assert_eq!(function.metadata.value_types.get(&ValueId::new(2)), None);
+    }
+
+    #[test]
+    fn decoded_utf8_byte_len_v0_route_publishes_the_internal_integer_contract() {
+        let mut function = function_with_extern_call(
+            "hako.analysis.decoded_utf8_byte_len_v0",
+            vec![ValueId::new(1)],
+            Some(ValueId::new(2)),
+        );
+
+        refresh_function_extern_call_routes(&mut function);
+
+        assert_eq!(function.metadata.extern_call_routes.len(), 1);
+        let route = &function.metadata.extern_call_routes[0];
+        assert_eq!(
+            route.kind(),
+            ExternCallRouteKind::HakoAnalysisDecodedUtf8ByteLenV0
+        );
+        assert_eq!(
+            route.route_id(),
+            "extern.hako.analysis.decoded_utf8_byte_len_v0"
+        );
+        assert_eq!(route.core_op(), "HakoAnalysisDecodedUtf8ByteLenV0");
+        assert_eq!(route.symbol(), "hako.analysis.decoded_utf8_byte_len_v0");
+        assert_eq!(route.arity(), 1);
+        assert_eq!(route.return_shape(), "scalar_i64");
+        assert_eq!(route.value_demand(), "string_handle");
+        assert_eq!(route.effect_tags(), &["analysis.decoded_utf8_byte_len_v0"]);
+        assert_eq!(
+            function.metadata.value_types.get(&ValueId::new(2)),
+            Some(&MirType::Integer)
+        );
     }
 }

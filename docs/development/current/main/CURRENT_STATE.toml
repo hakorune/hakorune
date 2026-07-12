@@ -93,8 +93,10 @@ DecodedUtf8ByteLengthContractV0 is authority, the first executable leaf is an
 analysis/internal environment-independent capability, and RHako/HHako build
 local checked text witnesses independently. Rust normalized-carrier replay is
 non-authority. U0/U1 are closed: the RHako internal leaf owns only decoded
-UTF-8 octet length and is proven independent of `NYASH_STR_CP`; U2 HHako
-capability/preflight is active before U3 local carriers and B2 resume. Both
+UTF-8 octet length and is proven independent of `NYASH_STR_CP`; U2 closes one
+internal HHako `Callee::Extern` route, Rust reference direct dispatch,
+metadata-only shared product-backend preflight/rejection, and a two-mode Hako
+fixture. U3 independent local carriers is active before B2 resume. Both
 recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
@@ -158,7 +160,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "MIRBUILDER-DECODED-UTF8-BYTE-LEN-V0-HHAKO-CAPABILITY-PREFLIGHT-001"
+current_blocker_token = "MIRBUILDER-DECODED-UTF8-BYTE-LEN-V0-INDEPENDENT-LOCAL-CARRIER-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -148,6 +148,42 @@ impl MirInterpreter {
                     };
                 Ok(VMValue::Integer(now_ms))
             }
+            "hako.analysis.decoded_utf8_byte_len_v0" => {
+                if args.len() != 1 {
+                    return Err(ErrorBuilder::arg_count_mismatch(
+                        "hako.analysis.decoded_utf8_byte_len_v0",
+                        1,
+                        args.len(),
+                    ));
+                }
+                let value = self.reg_load(args[0])?;
+                let text = match value {
+                    VMValue::String(text) => text,
+                    VMValue::BoxRef(value) => value
+                        .as_any()
+                        .downcast_ref::<crate::box_trait::StringBox>()
+                        .map(|text| text.value.clone())
+                        .ok_or_else(|| {
+                            self.err_invalid(
+                                "[analysis/decoded_utf8_byte_len_v0/internal_carrier_contract_violation] expected StringBox",
+                            )
+                        })?,
+                    _ => {
+                        return Err(self.err_invalid(
+                            "[analysis/decoded_utf8_byte_len_v0/internal_carrier_contract_violation] expected StringBox",
+                        ))
+                    }
+                };
+                let count = i64::try_from(
+                    crate::analysis::bounded_body_snapshot_v0::DecodedUtf8ByteLenV0::count(&text),
+                )
+                .map_err(|_| {
+                    self.err_invalid(
+                        "[analysis/decoded_utf8_byte_len_v0/internal_carrier_contract_violation] byte count out of i64 range",
+                    )
+                })?;
+                Ok(VMValue::Integer(count))
+            }
             "env.set" => {
                 if args.len() < 2 {
                     return Err(ErrorBuilder::arg_count_mismatch("env.set", 2, args.len()));

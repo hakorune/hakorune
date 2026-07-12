@@ -146,14 +146,34 @@ U1 closeout:
 - a dedicated guard rejects mode/config, public string surface, generic length,
   C-string, and legacy helper dependencies.
 
-### U2 — HHako internal capability and preflight (active)
+### U2 — HHako internal capability and preflight (complete)
 
 - expose only the internal `decoded_utf8_byte_len_v0` capability to the HHako
   parity lane;
 - make unsupported backends fail before reader effects;
 - keep capability failure distinct from reader `Unsupported`/`InvalidInput`.
 
-### U3 — Independent local `ValidatedTextV0`
+U2 closeout:
+
+- the only HHako-facing spelling is
+  `hako.analysis.decoded_utf8_byte_len_v0` through `Callee::Extern`; it has no
+  aliases, String method slot, or public ABI registration;
+- the extern route publishes one `scalar_i64` result with `string_handle`
+  demand, and the explicit-extern builder preserves that integer result type;
+- the Rust reference execution lane dispatches directly to
+  `DecodedUtf8ByteLenV0::count`, including embedded NUL, without invoking a
+  String length route or hostbridge;
+- `BackendPreflight` rebuilds the declarative extern-route metadata before the
+  shared capability gate reads it; LLVM/object, PyVM, and Wasm reject the
+  capability before reader effects, while `mir-interpreter` remains the sole
+  supported first-slice consumer;
+- the HHako wrapper and fixture are green with `NYASH_STR_CP` unset and set to
+  `1`; the runtime-direct fixture covers ASCII, multibyte scalars, combining
+  versus precomposed text, and embedded NUL;
+- the stable guard is
+  `tools/checks/rust_lifecycle_mirbuilder_decoded_utf8_byte_len_v0_capability_guard.sh`.
+
+### U3 — Independent local `ValidatedTextV0` (active)
 
 - RHako constructs and seals its local witness from the decoded Rust string;
 - HHako invokes the internal leaf during its own structured traversal and
