@@ -1,6 +1,6 @@
 # Generic Loop A2 — Capture, Proof, Recipe Taskboard
 
-Status: Active prerequisite; A2-C0 closed, A2-C1 neutral proof selected.
+Status: Active prerequisite; A2-C0/C1 closed, A2-C2 Recipe draft selected.
 Date: 2026-07-13
 Decision: acceptance-neutral capture first, then asymmetric `E + R` hybrid.
 Classification: BoxShape only.
@@ -344,7 +344,7 @@ constructors. If those constructors produce Zero or Multiple on the captured
 family, retain Unsupported/Ambiguous and stop; do not extend the algebra from
 source inspection.
 
-### A2-C1 — neutral progression proof (active)
+### A2-C1 — neutral progression proof (closed)
 
 Only after C0 evidence supports the declared algebra:
 
@@ -356,7 +356,57 @@ Only after C0 evidence supports the declared algebra:
 
 No Recipe or Lower changes in C1.
 
-### A2-C2 — candidate-local Recipe draft and verifier
+Closed structure:
+
+```text
+branch_control.rs
+  BranchControlObservationV0
+  CandidateControlAnchorsV0
+  CurrentLoopExitGuard
+  CurrentLoopBackedgeGuard
+
+policy.rs
+  NormalizedCandidateObservationV0
+  LoopProgressionProofV0
+  CandidateProofOutcomeV0
+```
+
+The branch observer projects the existing generic control-flow counter and
+stops at nested loops. The neutral policy receives no candidate label.
+
+Evidence:
+
+```text
+cargo test -q progression_role --lib
+  15 passed
+
+bash tools/checks/generic_loop_progression_role_v0_guard.sh
+  c1_closed_anchor_policy=green
+  c1_record_proof_outcome=unique
+  c1_product_path_connection=0
+```
+
+The isolated proof probe records:
+
+```text
+j:
+  two CurrentLoopExitGuard sites
+  Proven(ControlAnchoredBodyManaged)
+
+fields:
+  no control anchor
+  Unproven(candidate.control_anchor_missing)
+
+field_count:
+  no control anchor
+  Unproven(candidate.control_anchor_missing)
+```
+
+Thus the declared algebra produces exactly one semantic proof without names,
+ranks, ShapeIds, Recipe success, or new constructors. Product acceptance is
+still unchanged; E is not connected until R and final selection are closed.
+
+### A2-C2 — candidate-local Recipe draft and verifier (active)
 
 ```text
 Canonical hypothesis:

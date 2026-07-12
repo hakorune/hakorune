@@ -26,9 +26,10 @@ When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executa
 ## Handoff
 
 Read `latest_card_path` in `CURRENT_STATE.toml` before editing. The active
-slice is A2-C1 neutral progression proof. C0 is closed with an exact
-acceptance-neutral three-row capture and zero product-path connection. C1 may
-add only the declared header/current-loop-exit/current-loop-backedge proof
-constructors; rank, Recipe/CFG changes, parser changes, and widening remain
-forbidden. Keep source-carrier P1 stash-only until A2 lands independently and
-the clean-HEAD ProgramV0 contract-pin is green.
+slice is A2-C2 candidate-local Recipe draft and candidate-independent
+verification. C0/C1 are closed with exact capture and one closed control-anchor
+proof, while product-path connection remains zero. C2 must account every
+source statement exactly once, retain every BodyManaged write, and must not
+require final selection or StepMode. New Recipe items/CFG wiring, rank,
+parser changes, and widening remain forbidden. Keep source-carrier P1
+stash-only until A2 lands independently and clean-HEAD ProgramV0 is green.

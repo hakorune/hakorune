@@ -122,19 +122,21 @@ latest_workstream_card = "docs/development/current/main/investigations/mirbuilde
 
 latest_card = "mirbuilder-generic-loop-a2-hybrid-proof-task-2026-07-13"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-generic-loop-a2-hybrid-proof-task-2026-07-13.md"
-latest_card_summary = """A2-C0 acceptance-neutral candidate capture is
-closed. Eight focused tests and the reusable lane guard are green. The exact
+latest_card_summary = """A2-C0 acceptance-neutral candidate capture and C1
+neutral progression proof are closed. Fifteen focused progression tests and
+the reusable lane guard are green. The exact
 isolated-probe record inventory contains j, fields, and field_count diagnostic
 rows with stable structural sites, provisional update shape/rank, and tied
 comparison. The clean product route remains at its pre-C0 owner/reason;
 acceptance widening, product-path connection, and parser changes are zero.
-Semantic discriminator therefore remains N and authority remains
-Unsupported-only. Active C1 may implement only the accepted closed
-header/current-loop-exit/current-loop-backedge anchor algebra in a new neutral
-owner. If captured candidates yield Zero or Multiple, C1 must retain
-Unsupported/Ambiguous and stop without adding ranks or constructors. After a
-Unique closed proof, and only if the declared algebra fits, A2 uses an
-asymmetric E+R hybrid: a new neutral
+The C1 isolated proof probe yields exactly one proof: j has two
+CurrentLoopExitGuard anchors and is ControlAnchoredBodyManaged; fields and
+field_count have no anchors and remain Unproven. No rank, name, ShapeId,
+Recipe, or new constructor participates, and product-path connection remains
+zero. Active C2 now adds candidate-local Recipe drafts and a
+candidate-independent exact-accounting verifier. E proves identity; R only
+gates execution and may not rank candidates. A2 uses an asymmetric E+R
+hybrid: a new neutral
 algebra fits, A2 uses an asymmetric E+R hybrid: a new neutral
 LoopProgressionCandidatePolicyV0 proves candidate identity/control role, while
 a candidate-independent Recipe verifier gates complete execution. Recipe
@@ -316,7 +318,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "GENERIC-LOOP-A2-C1-NEUTRAL-PROGRESSION-PROOF-001"
+current_blocker_token = "GENERIC-LOOP-A2-C2-CANDIDATE-RECIPE-DRAFT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -6,6 +6,7 @@ TAG="generic-loop-progression-role-v0"
 ROLE_TEST="progression_role"
 CONTRACT_PIN="tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_program_json_contract_pin_vm.sh"
 REPORT_FIXTURE="tools/checks/fixtures/generic_loop_a2_c0_record_candidate_report.txt"
+PROOF_FIXTURE="tools/checks/fixtures/generic_loop_a2_c1_record_proof_report.txt"
 LOG="/tmp/${TAG}.contract-pin.log"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
@@ -14,7 +15,10 @@ guard_require_command "$TAG" timeout
 guard_require_files "$TAG" \
   "$ROOT/src/mir/builder/control_flow/plan/generic_loop/facts/progression_role/observation.rs" \
   "$ROOT/src/mir/builder/control_flow/plan/generic_loop/facts/progression_role/report.rs" \
+  "$ROOT/src/mir/builder/control_flow/plan/generic_loop/facts/progression_role/branch_control.rs" \
+  "$ROOT/src/mir/builder/control_flow/plan/generic_loop/facts/progression_role/policy.rs" \
   "$ROOT/$REPORT_FIXTURE" \
+  "$ROOT/$PROOF_FIXTURE" \
   "$ROOT/$CONTRACT_PIN"
 
 cd "$ROOT"
@@ -83,6 +87,13 @@ for forbidden in (
 ):
     if forbidden in v1:
         raise SystemExit(f"C0 changed product acceptance path: {forbidden}")
+for forbidden in (
+    "observe_candidate_control_anchors_v0",
+    "prove_candidate_progression_v0",
+    "LoopProgressionProofV0",
+):
+    if forbidden in v1:
+        raise SystemExit(f"C1 changed product acceptance path: {forbidden}")
 
 fixture_path = root / "tools/checks/fixtures/generic_loop_a2_c0_record_candidate_report.txt"
 fixture = fixture_path.read_text(encoding="utf-8").strip()
@@ -110,11 +121,50 @@ for needle in (
     if needle not in fixture:
         raise SystemExit(f"C0 fixture missing captured field: {needle}")
 
+proof_path = root / "tools/checks/fixtures/generic_loop_a2_c1_record_proof_report.txt"
+proof = proof_path.read_text(encoding="utf-8").strip()
+for needle in (
+    "label=j|",
+    "CurrentLoopExitGuard",
+    "proof=Proven(ControlAnchoredBodyManaged",
+    "label=fields|anchors=CandidateControlAnchorsV0 { anchors: [] }",
+    'proof=Unproven("candidate.control_anchor_missing")',
+    "label=field_count|anchors=CandidateControlAnchorsV0 { anchors: [] }",
+):
+    if needle not in proof:
+        raise SystemExit(f"C1 fixture missing proof evidence: {needle}")
+if proof.count("proof=Proven(") != 1 or proof.count("proof=Unproven(") != 2:
+    raise SystemExit("C1 fixture must preserve exactly one Proven and two Unproven rows")
+
+policy = (base / "facts/progression_role/policy.rs").read_text(encoding="utf-8")
+branch_control = (base / "facts/progression_role/branch_control.rs").read_text(encoding="utf-8")
+neutral = policy + "\n" + branch_control
+for forbidden in (
+    "ParserRecordDeclarationBox",
+    "label=j",
+    "label=fields",
+    "ShapeId",
+    "std::env",
+):
+    if forbidden in neutral:
+        raise SystemExit(f"forbidden C1 neutral-proof dependency: {forbidden}")
+for forbidden_import in (
+    r"^use .*recipes",
+    r"^use .*lower",
+    r"^use .*backend",
+    r"^use .*runtime",
+):
+    if re.search(forbidden_import, neutral, flags=re.MULTILINE | re.IGNORECASE):
+        raise SystemExit(f"forbidden C1 neutral-proof import: {forbidden_import}")
+
 print("c0_candidate_capture=green")
 print("c0_acceptance_widening=0")
 print("c0_product_path_connection=0")
 print("c0_preexisting_terminal=preserved")
 print("c0_record_inventory=exact_fixture")
+print("c1_closed_anchor_policy=green")
+print("c1_record_proof_outcome=unique")
+print("c1_product_path_connection=0")
 print("parser_source_change=0")
 print("summary=ok")
 PY
