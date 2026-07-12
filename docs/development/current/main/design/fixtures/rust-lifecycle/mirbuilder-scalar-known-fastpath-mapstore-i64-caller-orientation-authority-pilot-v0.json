@@ -1,0 +1,63 @@
+{
+  "claims": {
+    "backend_lowering_authority": 0,
+    "caller_orientation_runtime_path": 0,
+    "caller_runtime_dispatch_authority": 0,
+    "caller_selected_route_authority": 0,
+    "mapstore_i64_caller_orientation_authority_pilot": 1,
+    "mapstore_i64_caller_orientation_authority_scope_policy_row_id_contract_only": 1,
+    "mapstore_i64_caller_orientation_consumer_unit_only": 1,
+    "mapstore_i64_key_domain_i64": 1,
+    "mapstore_i64_mismatch_fail_fast": 1,
+    "mapstore_i64_stored_value_domain_any": 1,
+    "mutation_boundary_declared_but_not_authorized": 1,
+    "publication_execution": 0,
+    "runtime_mutation_authority": 0,
+    "rust_compatibility_veto_retained": 1,
+    "rust_route_match_authority_retained": 1,
+    "source_selfhost_claim": 0
+  },
+  "decision": {
+    "implementation_complete": true,
+    "kind": "MapStoreI64CallerOrientationContractAuthorityPilot",
+    "route_decision_authority_retained": true,
+    "rust_oracle_compat_veto_retained": true,
+    "selected_next_card": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPSTORE-I64-CALLER-ORIENTATION-PILOT-DESIGN-STOP-001"
+  },
+  "kind": "MirBuilderScalarKnownFastpathMapStoreI64CallerOrientationAuthorityPilotV1",
+  "provenance": {
+    "caller_contract": {
+      "path": "src/mir/generic_method_route_plan/generated/write_set_mapstore_i64_caller_orientation_contract.rs",
+      "sha256": "fa4457b318582d35239108ccca780422ae6e86edf58c3faf4c03a4075723fd3f"
+    },
+    "caller_orientation": {
+      "path": "src/mir/generic_method_route_plan/caller_orientation.rs",
+      "sha256": "583545788367b0f256d1c799042f9e4b240e1c07daf39fb3d9b84a9220342bbb"
+    },
+    "card": {
+      "path": "docs/development/current/main/phases/phase-296x/3454-MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-I64-CALLER-ORIENTATION-AUTHORITY-PILOT-001.md",
+      "sha256": "60f56581651d3b047e51776ba7f2f7ee1a812c096fc13978f3c4ee73b6c0e98e"
+    },
+    "shadow": {
+      "path": "src/mir/generic_method_route_plan/scalar_known_hako_shadow.rs",
+      "sha256": "43f1bed5dad149ab579d4a4ebe2515e41a32a0414e54f808d7a3762ec8109fdd"
+    },
+    "typed_policy": {
+      "path": "src/mir/generic_method_route_plan/generated/write_set_mapstore_route_policy.rs",
+      "sha256": "28099821839e487f2701a9be26cd9849b5721bbd1b401e7d64fed913216a06d5"
+    }
+  },
+  "schema_version": 0,
+  "scope": {
+    "authority_scope": "policy_row_id_contract_only",
+    "consumer_input": "PolicyRowIdOnly",
+    "consumer_return": "Unit",
+    "key_domain": "I64",
+    "mutation_boundary": "DeclaredMetadataOnly",
+    "policy_row_id": "map_store_i64_set_surface",
+    "route_kind": "MapStoreI64",
+    "stored_value_domain": "Any",
+    "surface": "SetSurfacePolicy"
+  },
+  "token": "MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-I64-CALLER-ORIENTATION-AUTHORITY-PILOT-001"
+}
