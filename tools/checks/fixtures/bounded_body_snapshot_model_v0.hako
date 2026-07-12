@@ -7,12 +7,19 @@ static box Main {
     local path = BoundedBodySnapshotPathV0Box.index(BoundedBodySnapshotPathV0Box.root_body(), 0)
     local budget = new BoundedBodySnapshotBudgetV0()
     if budget.observe_node(1) != null { return 1 }
-    local node = new BoundedBodySnapshotNodeV0(path, "stmt", "Break", new MapBox(), new ArrayBox())
-    local roots = new ArrayBox() roots.push(node)
-    local snapshot = new BoundedBodyAnalysisSnapshotV0(0, roots, budget.node_count(), budget.max_depth_observed())
+    local atoms = new ArrayBox()
+    atoms.push(new BoundedBodySnapshotAtomV0("name", "Text", "x"))
+    local children = new ArrayBox()
+    children.push(new BoundedBodySnapshotChildV0("expr", 1))
+    local node = new BoundedBodySnapshotNodeV0(0, path, "stmt", "Local", atoms, children)
+    local nodes = new ArrayBox() nodes.push(node)
+    local snapshot = new BoundedBodyAnalysisSnapshotV0(0, nodes, budget.max_depth_observed())
     local outcome = BoundedBodySnapshotOutcomeV0Box.ready(snapshot)
     if outcome.status() != "Ready" { return 2 }
-    if outcome.snapshot().root(0).path() != "$.body[0]" { return 3 }
+    if outcome.snapshot().node(0).path() != "$.body[0]" { return 3 }
+    if outcome.snapshot().node(0).atom(0).key() != "name" { return 4 }
+    if outcome.snapshot().node(0).child(0).target_index() != 1 { return 5 }
+    if outcome.snapshot().node_count() != 1 { return 6 }
     return 0
   }
 }

@@ -467,6 +467,15 @@ A6 closeout evidence:
 
 ### S3 — Hako ProgramV0 snapshot reader (active)
 
+```text
+B1_flat_ordered_publication_model = complete
+B2_validated_typed_carrier = active
+B3_one_node_observations = pending
+B4_preorder_coordinator = pending
+B5_poisoned_sealed_builder = pending
+B6_exact_rust_hako_parity = pending
+```
+
 - split schema/outcome/path/budget/model/builder/stmt/expr responsibilities;
 - publish an immutable snapshot only after full traversal succeeds;
 - no input mutation or partial publication;
@@ -486,6 +495,21 @@ Landed foundation:
 
 Remaining in S3: private atomic builder plus split statement/expression
 structured traversal and failure-discard fixtures.
+
+B1 replaces the provisional root/tree model with the exact Rust algebra:
+
+- one flat preorder node table;
+- ordered `(key, value_kind, value)` atom records instead of `MapBox`;
+- ordered `(role, target_index)` child records with vector position as the
+  only ordinal;
+- `node_count` derived from the publication table;
+- no mutable atom/child collection is exposed by the read-only surface.
+
+The VM-reference model fixture and stable model guard are green. Worker audit
+confirms that no existing Hako component provides all lifecycle guarantees;
+B2-B5 must combine a sealed typed carrier, explicit coordinator, builder
+state machine, and defensive publication reconstruction. The stash remains
+reference-only and must not be applied or partially cherry-picked.
 
 The uncommitted recursive-reader prototype is parked as
 `wip/s3-hako-snapshot-reader before rust-algebra-design-stop`. Do not revive

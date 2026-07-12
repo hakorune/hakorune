@@ -1,36 +1,61 @@
-// Immutable published snapshot records. No mutation API is exposed.
+// Immutable flat snapshot records. Arrays preserve schema order exactly.
+box BoundedBodySnapshotAtomV0 {
+  _key: String
+  _value_kind: String
+  _value
+  birth(key, value_kind, value) {
+    me._key = key me._value_kind = value_kind me._value = value
+  }
+  key() { return me._key }
+  value_kind() { return me._value_kind }
+  value() { return me._value }
+}
+
+box BoundedBodySnapshotChildV0 {
+  _role: String
+  _target_index: Integer
+  birth(role, target_index) {
+    me._role = role me._target_index = target_index
+  }
+  role() { return me._role }
+  target_index() { return me._target_index }
+}
+
 box BoundedBodySnapshotNodeV0 {
+  _index: Integer
   _path: String
   _domain: String
   _kind: String
-  _atoms: MapBox
+  _atoms: ArrayBox
   _children: ArrayBox
-  birth(path, domain, kind, atoms, children) {
-    me._path = path me._domain = domain me._kind = kind
+  birth(index, path, domain, kind, atoms, children) {
+    me._index = index me._path = path me._domain = domain me._kind = kind
     me._atoms = atoms me._children = children
   }
+  index() { return me._index }
   path() { return me._path }
   domain() { return me._domain }
   kind() { return me._kind }
-  atom(name) { return me._atoms.get(name) }
+  atom_count() { return me._atoms.size() }
+  atom(index) { return me._atoms.get(index) }
   child_count() { return me._children.size() }
   child(index) { return me._children.get(index) }
 }
+
 box BoundedBodyAnalysisSnapshotV0 {
   _schema_version: Integer
   _source_program_version: Integer
-  _roots: ArrayBox
+  _nodes: ArrayBox
   _node_count: Integer
   _max_depth_observed: Integer
-  birth(source_version, roots, node_count, max_depth_observed) {
+  birth(source_version, nodes, max_depth_observed) {
     me._schema_version = 0 me._source_program_version = source_version
-    me._roots = roots me._node_count = node_count
+    me._nodes = nodes me._node_count = nodes.size()
     me._max_depth_observed = max_depth_observed
   }
   schema_version() { return me._schema_version }
   source_program_version() { return me._source_program_version }
-  root_count() { return me._roots.size() }
-  root(index) { return me._roots.get(index) }
   node_count() { return me._node_count }
+  node(index) { return me._nodes.get(index) }
   max_depth_observed() { return me._max_depth_observed }
 }

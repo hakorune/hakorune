@@ -27,7 +27,9 @@ from pathlib import Path
 root = Path(sys.argv[1])
 sources = list(root.glob("*.hako"))
 joined = "\n".join(path.read_text(encoding="utf-8") for path in sources)
-for needle in ("Ready", "Unsupported", "InvalidInput", "$.body", "max_node_count", "max_total_text_bytes"):
+for needle in ("Ready", "Unsupported", "InvalidInput", "$.body", "max_node_count", "max_total_text_bytes",
+               "BoundedBodySnapshotAtomV0", "value_kind", "BoundedBodySnapshotChildV0", "target_index",
+               "atom(index)", "child(index)", "node(index)"):
     if needle not in joined:
         raise SystemExit(f"missing model contract: {needle}")
 for forbidden in ("indexOf", "substring(", "MIRBuilder", "planner", "route"):
@@ -41,6 +43,9 @@ print("three_way_outcome=1")
 print("structural_path=1")
 print("schema_budget=1")
 print("immutable_publication_model=1")
+print("flat_preorder_table=1")
+print("ordered_atom_records=1")
+print("ordered_child_edges=1")
 print("raw_json_reader=0")
 print("summary=ok")
 PY

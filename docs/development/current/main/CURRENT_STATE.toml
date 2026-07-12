@@ -86,8 +86,10 @@ read-only publication. A6 is closed with a verification-only validated-view
 witness, builder-only publication, exact integer equivalence, all accepted
 kinds/roles/operators, and inclusive limit boundaries. Twenty-six tests are
 green. S2.5 is complete and S3 Hako traversal is active;
-its landed model foundation remains VM-reference green, while the recursive
-reader prototype is parked and must be rewritten during S3.
+its B1 flat ordered publication model is VM-reference green and exactly uses
+ordered atom/child records rather than maps or Hako-only ordinals. B2 typed
+validated carrier is active. The recursive reader prototype remains parked
+and must be rewritten during S3.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
