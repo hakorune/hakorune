@@ -575,11 +575,81 @@ reference-VM direct dispatch, metadata-only shared backend preflight, product
 backend rejection, and a two-mode HHako fixture. U3 is closed with sealed
 RHako construction, an HHako scalar carrier factory, replay-only count
 recomputation, factory-only repository guards, and the Hako literal/atom
-budget split. U4 B2 structured carrier ingress is active; B3 waits for it.
+budget split. U4 stops before B2 structured carrier implementation at the
+missing strict structured-ingress bridge; B3 waits for the bridge decision.
 Do not claim B2 completion, text-budget parity, or exact RHako/HHako snapshot
 parity until U0-U5 are closed. The worker prototype also used unsupported
 `String.split()` helpers; field closure must use a closed declarative schema,
 not CSV parsing or substring detection.
+
+#### U4 strict structured-ingress bridge design stop
+
+```text
+worker_inventory = consumed
+worker_inventory_scope = strict JSON / Hako structured accessors / parked prototypes
+current_root = no reusable strict JSON -> HHako typed accessor
+```
+
+Evidence:
+
+- Rust `strict_json.rs` owns complete JSON syntax, duplicate decoded-key, and
+  trailing-input rejection, while `ValidatedProgramV0BodyView` exposes only
+  Rust opaque nodes; no HHako bridge exposes that strict view;
+- existing ProgramJSON components are raw-text scanners or MIRBuilder-facing
+  projectors and cannot become the analysis reader;
+- `MapBox` is a mutable hash map, so conversion before strict validation loses
+  duplicate-key evidence. A shallow `ReadOnlyMapView` cannot restore it;
+- the parked carriers are reference-only: one uses raw `MapBox` plus a
+  path-keyed byte sidecar; another uses CSV `split()` and `String.length()`.
+
+Required authority split:
+
+```text
+Rust strict JSON substrate:
+  JSON syntax / duplicate keys / trailing input only
+
+strict structured accessor transport:
+  opaque object / array / scalar access only
+
+HHako B2 carrier:
+  ProgramV0 field closure, accepted/unsupported classification,
+  schema child order, paths, local text witnesses, budgets, deep copy
+
+non-authority:
+  source-kind recovery, ProgramV0 producer mapping, Rust text-count witness,
+  raw scanner, mutable MapBox as public reader input, MIR/planner/runtime
+```
+
+Candidate transport choices:
+
+1. **Opaque strict JSON tree accessor** — Rust owns a generic, reference-VM
+   internal tree handle and exposes read-only object/array/scalar accessors to
+   HHako. This preserves the syntax boundary while leaving every ProgramV0
+   classification and traversal branch independent in HHako.
+2. **Tagged mutable `MapBox` tree** — Rust validates first and HHako deep-copies
+   immediately. It is operationally smaller but cannot claim opacity or
+   tamper-proof provenance; it is not selected without an explicit temporary
+   transport decision.
+3. **Rust-generated Hako replay fixture** — useful only for a replay test; it
+   cannot be the direct reader/parity transport and is rejected as the U4
+   product boundary.
+
+Recommended consultation question:
+
+```text
+Should U4 adopt choice 1 as an internal reference-VM-only generic strict JSON
+tree accessor, and if so what is the minimal handle/capability/lifetime shape
+that keeps Rust responsible only for JSON syntax while HHako independently
+owns ProgramV0 validation, classification, paths, text budgets, and traversal?
+
+Is any tagged MapBox compatibility adapter acceptable even temporarily, or
+must it remain replay-only? Name the required fail-fast backend support,
+fixture/gate set, and retirement condition.
+```
+
+Until this is answered, do not add a raw JSON reader, `MapBox` reader input,
+`ReadOnlyMapView`, Rust-normalized text carrier, path-keyed sidecar, or direct
+parity claim.
 
 The uncommitted recursive-reader prototype is parked as
 `wip/s3-hako-snapshot-reader before rust-algebra-design-stop`. Do not revive
