@@ -1,9 +1,9 @@
 # Generic Loop A2 Candidate Authority — Design Consultation
 
-Status: Active design stop; implementation is stashed.
+Status: Active evidence-incomplete design stop; implementation is stashed.
 Date: 2026-07-13
-Decision required: choose the final candidate-selection authority for
-`loop(true)` body-derived progression candidates.
+Decision required: first approve a bounded observation-capture slice, then
+choose the candidate discriminator and its neutral authority owner.
 Classification: BoxShape only.
 
 ## Why this consultation is required
@@ -15,11 +15,13 @@ assignment observed
   != induction step proven
 ```
 
-The WIP now has pure write/use observation, explicit
+The WIP now has pure write/use observation, provisional
 `CanonicalInduction | BodyManagedCursor` classification, and aggregate
-order-independent selection. Focused tests are green and all Rust files stay
-below 800 lines. The full ProgramV0 contract-pin advances substantially, but
-does not close.
+order-independent selection. `BodyManagedCursor` is only a WIP spelling for a
+candidate with body-managed updates. It does not establish cursor identity or
+progression ownership. Focused tests were green before stashing and all Rust
+files stayed below 800 lines. The full ProgramV0 contract-pin advances
+substantially, but does not close.
 
 Successive clean-corpus blockers are:
 
@@ -31,7 +33,10 @@ Successive clean-corpus blockers are:
    candidates: j, body
 
 3. ParserRecordDeclarationBox.parse/3
-   multiple candidates remain tied
+   observed terminal outcome:
+     AmbiguousLoopVarCandidates
+   candidate inventory and per-candidate observation tuples:
+     NOT CAPTURED
 ```
 
 The first two can be separated structurally:
@@ -46,7 +51,9 @@ parse_block:
   body is updated inside one local conditional region
 ```
 
-However, adding another evidence rank for each newly exposed corpus shape
+The third outcome proves neither which source values competed nor why they
+tied. Source inspection must not reconstruct that missing runtime inventory.
+Adding another evidence rank for each newly exposed corpus shape
 would turn A2 into heuristic score tuning. That violates the intent of the
 BoxShape decision even if no source names are inspected.
 
@@ -55,8 +62,18 @@ BoxShape decision even if no source names are inspected.
 Stash:
 
 ```text
-wip/generic-loop-progression-role-a2
+a8f50bbb / wip/generic-loop-progression-role-a2
   (focused green, contract-pin advances but remains red)
+```
+
+Evidence status:
+
+```text
+the test results below are pre-stash observations
+the stash is WIP, not a mergeable proof artifact
+classification.rs and selection.rs are untracked payloads in its third parent
+focused green does not prove semantic uniqueness or corpus exhaustiveness
+the terminal ProgramV0 failure preserves location/reason, not candidate tuples
 ```
 
 Focused evidence before stashing:
@@ -86,24 +103,61 @@ bash tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_program_json_con
 No parser/source-carrier file was changed. No environment toggle, source
 rewrite, function/callee/variable-name branch, ShapeId, or fallback was added.
 
-## Authority question
+## Mandatory evidence slice before authority selection
+
+Before selecting a semantic discriminator, capture one deterministic
+candidate table at the existing Ambiguous boundary. This is diagnostic
+evidence only and changes no acceptance.
+
+Required fields:
+
+```text
+candidate diagnostic label
+candidate discovery source
+condition_anchored
+existing_true_loop_increment_derived
+writes and stable structural sites
+canonical_step_sites
+uses_outside_canonical_step
+post_update_uses
+conditional_writes
+provisional update-shape classification
+provisional evidence rank
+final comparison/tie result
+```
+
+Candidate labels may appear in diagnostics, but may not be classifier input.
+No new rank, Recipe item, CFG wiring, parser change, or acceptance widening is
+allowed in this capture slice.
+
+## Authority question after evidence capture
 
 For a `loop(true)` with no condition-anchored variable, what is the smallest
 non-heuristic authority that may choose one progression candidate?
 
-The decision must explain whether body-derived candidate selection is owned
-by:
+The final decision has three independent axes. Do not present them as one
+exclusive A/B/C/D choice.
 
 ```text
-1. a closed structural evidence algebra before Recipe construction;
-2. candidate-specific complete Recipe construction and verification;
-3. an existing canonical loop/route observation owner;
-4. no generic owner, making this source family explicit Unsupported.
+Axis 1 — semantic discriminator
+  E: closed evidence algebra
+  R: candidate-complete verified Recipe
+  N: no discriminator currently proven
+
+Axis 2 — authority location
+  P: existing neutral declarative policy owner
+  X: new neutral owner required
+  U: Unsupported boundary only
+
+Axis 3 — outcome
+  exactly one proven candidate -> Accepted
+  zero proven candidates       -> Unsupported
+  multiple proven candidates   -> Ambiguous
 ```
 
-## Candidate decisions
+## Semantic discriminator candidates
 
-### A — closed evidence algebra
+### E — closed evidence algebra
 
 Define a finite, schema-owned evidence vocabulary such as:
 
@@ -127,7 +181,7 @@ the selected role preserves every BodyManaged update in Recipe
 Risk: an apparently generic rank can still encode corpus-specific preference
 and may not be semantic authority.
 
-### B — Recipe-first candidate competition
+### R — Recipe-first candidate competition
 
 For every observed candidate:
 
@@ -155,7 +209,23 @@ Risk: if multiple candidate-specific Recipes preserve the same body, Recipe
 verification alone may not identify progression ownership. It may also expose
 a need for a new Recipe item or CFG wiring, which is outside current A2.
 
-### C — existing route observation owns selection
+Recipe-first is admissible only if a `CandidateRecipeDraft` can be built
+without a preselected progression owner or `StepMode`, and its verifier uses
+candidate-independent invariants. Otherwise the design is circular:
+
+```text
+select candidate using VerifiedRecipe
+  -> Recipe requires progression role / StepMode
+  -> progression role requires selected candidate
+```
+
+If every candidate preserves the same complete body, Recipe completeness is
+not a discriminator and the result remains Ambiguous. Needing a new Recipe
+item or CFG wiring is a stop condition, not an implementation detail.
+
+## Authority-location constraint
+
+### P/X — neutral policy owner
 
 Reuse an existing canonical loop/route observation only if it already owns a
 declarative state-carrier role independent of ShapeId and source names.
@@ -172,7 +242,9 @@ Risk: current route recognizers are largely diagnostic/coverage shapes and
 the previous consultation explicitly rejected ShapeId as acceptance
 authority.
 
-### D — keep ambiguous true-loop families Unsupported
+## Mandatory outcome boundary
+
+### U — keep unproven true-loop families Unsupported/Ambiguous
 
 Do not generically select body-derived candidates when more than one remains.
 Defer the typed-parser P1 reconnection or split a separately proven loop
@@ -181,12 +253,43 @@ family.
 This is the smallest sound boundary, but clean-HEAD ProgramV0 remains red and
 selfhost progress pauses.
 
+## A2 and P1 dependency direction
+
+```text
+A2 has no source/build dependency on the P1 WIP
+P1 restoration depends operationally on clean-HEAD A2 closeout
+P1 evidence may not become A2 candidate-selection authority
+A2 and P1 remain separate commits and separate gate runs
+```
+
+Stable stash identities:
+
+```text
+a8f50bbb  generic-loop A2 WIP — KEEP, decision pending
+ce69e049  source-carrier P1 WIP — KEEP/PARK after A2
+fded1abc  old S3 typed-carrier prototype — reference-only/archive candidate
+47907362  old S3 recursive reader — direct restore forbidden/archive candidate
+3af1b029  old 3226 snapshot AOT — superseded/archive candidate
+```
+
+Never restore current pointer documents from a code stash. Restore active
+code WIP on a clean temporary branch, inspect its untracked third-parent
+payload, and rerun current gates. Archive/drop of historical stashes is a
+separate lifecycle task and requires preserved patch, metadata, base/stash
+hashes, untracked payload, and user approval before drop.
+
 ## Required answer
 
 Please return:
 
 ```text
-Decision: A | B | C | D | hybrid
+Evidence decision:
+  approve bounded capture | request different capture
+
+After capture:
+  semantic discriminator = E | R | N | hybrid
+  authority location      = P | X | U
+  outcome boundary        = Unique/Zero/Multiple rule
 
 Canonical authority
 Non-authority
@@ -194,7 +297,8 @@ Accepted boundary
 Rejected boundary
 Candidate-selection algorithm
 Recipe/Verifier/Lower responsibility split
-Whether ParserRecordDeclaration requires a new Recipe/CFG vocabulary
+Whether captured candidate recipes expose missing Recipe/CFG vocabulary
+  (answer Unknown until the inventory exists)
 Smallest implementation slice
 Required fixtures/gates
 Implementation may claim
@@ -203,13 +307,13 @@ Retirement path
 Stop conditions
 ```
 
-The answer must explicitly address these three corpus witnesses without using
-their names as classifier inputs:
+The answer must explicitly address the first two structural witnesses and the
+third evidence gap without using source names as classifier inputs:
 
 ```text
 read_digits-like accumulator + cursor
 parse-block-like multi-write cursor + local body accumulator
-record-declaration-like tied body-derived candidates
+record-declaration terminal Ambiguous with candidate inventory not captured
 ```
 
 ## Frozen constraints
@@ -227,6 +331,11 @@ Lower role rediscovery = 0
 BodyManaged assignment filtering = 0
 synthetic increment = 0
 all source files < 800 lines
+new evidence rank before capture = 0
+new Recipe item / CFG wiring during capture = 0
 ```
 
-Do not restore the A2 or P1 stash until this authority decision is recorded.
+Do not restore A2 until the bounded capture is approved. Then restore it only
+on a clean temporary branch for acceptance-neutral evidence collection. Do
+not restore P1 until the final A2 authority is recorded, A2 lands
+independently, and the clean-HEAD ProgramV0 contract-pin is green.

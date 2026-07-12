@@ -122,18 +122,21 @@ latest_workstream_card = "docs/development/current/main/investigations/mirbuilde
 
 latest_card = "mirbuilder-generic-loop-a2-candidate-authority-consultation-2026-07-13"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-generic-loop-a2-candidate-authority-consultation-2026-07-13.md"
-latest_card_summary = """A2 is now at a design consultation stop. The
+latest_card_summary = """A2 is now at an evidence-incomplete design stop. The
 progression-role WIP has pure observation, role classification, deterministic
 aggregate selection, 19/19 focused role tests, 3/3 v0 tests, and 18/18 v1
 tests, with every generic-loop Rust source below 800 lines. Structural
 evidence advances the full ProgramV0 contract-pin through read-digits-like and
-parse-block-like loops, but a record-declaration-like loop exposes another
-tied body-derived candidate set. Adding further evidence ranks risks heuristic
-corpus tuning, so the WIP is stashed as
-`wip/generic-loop-progression-role-a2` and a new decision must select closed
-evidence algebra, Recipe-first competition, an existing neutral observation
-owner, or explicit Unsupported. Parser/source-carrier changes, names,
-ShapeIds, fallback, and P1 restoration remain forbidden until that decision.
+parse-block-like loops, but the record-declaration terminal Ambiguous did not
+preserve candidate tuples. Adding further evidence ranks now would be
+heuristic corpus tuning. The WIP is stashed as `a8f50bbb` and the next allowed
+slice is bounded, acceptance-neutral observation capture. Only after that
+evidence may consultation choose semantic discriminator, neutral owner, and
+Unique/Zero/Multiple outcome axes. `BodyManagedCursor` remains a provisional
+update-shape spelling, not cursor authority. Parser/source-carrier changes,
+names, ShapeIds, fallback, Recipe/CFG widening, and P1 restoration remain
+forbidden until that decision. Historical S3/3226 stashes are reference-only
+archive candidates, while A2 and P1 remain separate active WIPs.
 Historical context follows. P1-S consultation selects A:
 compiler_boxshape_cleanup must close before the typed-parser P1 stash is
 restored. LoopProgressionRoleObservationV0 separates CanonicalInduction from
@@ -291,7 +294,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "GENERIC-LOOP-A2-CANDIDATE-AUTHORITY-CONSULTATION-001"
+current_blocker_token = "GENERIC-LOOP-A2-CANDIDATE-OBSERVATION-CAPTURE-CONSULTATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
