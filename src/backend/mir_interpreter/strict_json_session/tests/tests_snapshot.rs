@@ -5,6 +5,7 @@ use crate::analysis::bounded_body_snapshot_v0::{
 };
 
 mod ast_oracle;
+mod corpus;
 mod limits;
 mod negative;
 mod summary;

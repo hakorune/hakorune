@@ -1062,6 +1062,24 @@ JSON text. Stable gate:
 `tools/checks/rust_lifecycle_mirbuilder_ast_wire_observation_oracle_v0_guard.sh`.
 S5 fixture/corpus closure is next.
 
+S5 and S6 closed on 2026-07-12. The source-owned corpus manifest contains
+seven authoritative serializer cases and permits only `ReadyExactParity` or
+`ExplicitUnsupported`. Three Ready cases cover accepted core/control and
+known-but-unobserved `Local.declared_type`; four Unsupported cases expose
+Float and FastMemRegion schema-mismatch stops plus typed-array and TaskScope
+known variants. Every serializer failure, InvalidInput, unknown class, skip,
+NoMatch, or count drift fails the runner. Both `NYASH_STR_CP` modes agree.
+
+The aggregate gate also executes the accepted kind/role/operator pack, Rust
+AST loss-equivalence oracle, nested negative and all-limit component packs,
+backend-before-effects proof, replay/raw-scanner isolation, and exact
+authoritative serializer→HHako structural parity. Stable gate:
+`tools/checks/hako_bounded_body_snapshot_program_v0_corpus_v0_guard.sh`. S7's
+one observation-only LoopFeatureSummary consumer was already closed by U4-A5.
+The bounded snapshot implementation card is therefore green through S7. S8
+token-only facade retirement remains a separate follow-up slice; planner,
+route, backend, runtime, MIR mutation, and ID allocation remain unchanged.
+
 Each slice must compile/run in isolation before the next reader family is
 added. A reader that again crosses the diagnostic boundary returns to the
 shape split; it is not accepted as a single large Hako box.

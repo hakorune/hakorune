@@ -1,0 +1,40 @@
+{
+  "schema_version": 0,
+  "cases": [
+    {
+      "id": "minimal_print_return",
+      "class": "ReadyExactParity",
+      "source": "static box Main { main() { print(42) return 0 } }"
+    },
+    {
+      "id": "control_and_assignment",
+      "class": "ReadyExactParity",
+      "source": "static box Main {\n  main() {\nlocal i = 0\nloop i < 3 {\ni = i + 1\nif i == 2 { continue }\nif i == 3 { break }\n}\nreturn i\n  }\n}"
+    },
+    {
+      "id": "declared_type_known_unobserved",
+      "class": "ReadyExactParity",
+      "source": "static box Main { main() { local n: i64 = 7 return n } }"
+    },
+    {
+      "id": "float_schema_seam",
+      "class": "ExplicitUnsupported",
+      "source": "static box Main { main() { return 2.5 } }"
+    },
+    {
+      "id": "typed_array_known_unsupported",
+      "class": "ExplicitUnsupported",
+      "source": "static box Main { main() { local ids: Array<i64> = [] return 0 } }"
+    },
+    {
+      "id": "task_scope_known_unsupported",
+      "class": "ExplicitUnsupported",
+      "source": "static box Main { main() { co { local value = 1 } return 0 } }"
+    },
+    {
+      "id": "fastmem_schema_seam",
+      "class": "ExplicitUnsupported",
+      "source": "static box Main { main() { fastmem Region { local value = 1 } return 0 } }"
+    }
+  ]
+}
