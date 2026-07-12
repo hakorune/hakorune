@@ -382,52 +382,66 @@ P1 must not claim to have introduced or repaired the baseline planner debt.
 Do not widen the planner, duplicate the parser, add a hidden side channel, or
 bypass the gate inside P1.
 
-### P1-S — typed parser compile seam (active blocker)
+### P1-S — generic-loop progression role prerequisite (selected)
 
-Classify this as BoxShape/design before changing code acceptance:
+Decision: `A — compiler_boxshape_cleanup`.
 
-1. generate an exact import/compile-shape delta for baseline ParserBox versus
-   the P1 mutation/product closure;
-2. identify the first function and loop whose accepted shape changes, with
-   `first_block/first_inst/first_op/owner_hint/reason` evidence;
-3. decide whether the clean seam is:
-   - a parser-private lightweight construction interface that keeps one parser
-     authority and no second traversal; or
-   - a compiler-expression BoxShape fix owned by the existing loop planner;
-4. preserve the P1 focused fixture as evidence, but land no parser connection
-   while the ProgramV0 contract-pin smoke is red;
-5. after the decision, rerun P0, P1, ProgramV0 pin, compile-shape, and
-   Language-v1 grammar gates before commit.
-
-Consultation question:
+Executable taskboard:
 
 ```text
-Choose the authority-preserving owner for P1-S:
-
-A. compiler BoxShape cleanup
-   Teach the existing generic-loop observation/planner boundary to distinguish
-   a parser scan cursor with multiple semantic updates from one canonical
-   induction step. Land as a separate compiler commit with fixture+gate before
-   reconnecting P1.
-
-B. parser-private construction seam
-   Reduce the ordinary ProgramV0 compile closure through a narrow typed
-   construction interface, while preserving one parser branch execution and
-   zero hidden side channels. This is acceptable only if it removes accidental
-   closure pressure rather than hiding a valid compiler shape.
-
-C. defer P1
-   Keep P0 and the design/task inventory, stash P1, and advance another
-   selfhost lane until the generic-loop owner is repaired independently.
+docs/development/current/main/investigations/
+  mirbuilder-generic-loop-progression-role-boxshape-task-2026-07-13.md
 ```
 
-The decision must name source authority, non-authority, exact fixture/gate,
-whether this is BoxShape or BoxCount, and what may not be claimed. Until that
-decision, P1 code remains stash-only.
+Required sequence:
 
-Stop and consult again if the solution requires a second parser, deferred
-source-kind inference, ProgramV0 widening, planner acceptance widening inside
-the parser commit, or any fallback.
+```text
+A-only LoopProgressionRoleObservationV0 / StepModeV0 cleanup
+  -> clean HEAD ProgramV0 contract-pin GREEN
+  -> commit and push A alone
+  -> restore P1 stash
+  -> P1 focused + ProgramV0 contract-pin GREEN
+  -> consider B only if a dependency audit still proves it necessary
+```
+
+Why A is first:
+
+```text
+clean HEAD focused P1 gate is not relevant to the baseline failure
+clean HEAD ProgramV0 contract-pin is already red
+assignment observation is currently conflated with induction-step proof
+candidate-local Freeze can preempt complete Recipe evaluation
+closure/order can change which pre-existing loop failure appears first
+```
+
+This is BoxShape, not a parser-specific BoxCount. A owns generic-loop
+observation/classification/Recipe flow only. Parser/source-carrier files,
+ProgramV0 projection, and the P1 stash remain unchanged.
+
+The previous consultation inventory is closed. The selected task must:
+
+1. freeze minimized clean-HEAD fixtures for both observed cursor-loop owners;
+2. classify CanonicalInduction versus BodyManagedCursor structurally and
+   select candidates deterministically after observing all outcomes;
+3. require complete VerifiedRecipe construction before Facts acceptance and
+   pass explicit StepMode to Lower without role rediscovery;
+4. preserve the P1 focused fixture as evidence, but land no parser connection
+   while the ProgramV0 contract-pin smoke is red;
+5. make the clean-HEAD ProgramV0 contract-pin green and commit A alone;
+6. only after A lands, restore P1 and rerun P0, P1, ProgramV0 pin,
+   compile-shape, and Language-v1 grammar gates before the separate P1 commit.
+
+Deferred B boundary:
+
+```text
+B may open only after A closeout and P1 reapplication if an exact dependency
+audit still proves unnecessary publication/sealer closure in the ordinary
+ProgramV0 path. B remains a separate commit and may not hide A's compiler
+fixture.
+```
+
+P1 code remains stash-only until A's clean-HEAD contract-pin gate is green and
+A is committed independently.
 
 ### P2 — binding distinction
 

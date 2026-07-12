@@ -40,10 +40,10 @@ cargo check -q
 
 - handoff frontier: read `current_blocker_token` in `CURRENT_STATE.toml`
 - read `latest_card_path` before editing
-- the active slice builds bounded read-only `BoundedBodyAnalysisSnapshotV0`
-  traversal parity over validated Program(JSON v0)
-- do not move Fact, planner, route, backend, MIR mutation, ID allocation, or
-  Source Selfhost authority
+- the active slice is the A-only generic-loop progression-role BoxShape
+  prerequisite named by `latest_card_path`
+- keep parser/source-carrier P1 stash-only until the clean-HEAD ProgramV0
+  contract-pin is green and A is committed independently
 - LANGV1 conformance closeout and Failure/Outcome global migration remain
   parked and must not be inferred complete
 

@@ -114,15 +114,27 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/mirbuilder-hako-typed-source-carrier-v1-2026-07-12.md"
-phase_status = "docs/development/current/main/investigations/mirbuilder-hako-typed-source-carrier-v1-2026-07-12.md"
+active_phase = "docs/development/current/main/investigations/mirbuilder-generic-loop-progression-role-boxshape-task-2026-07-13.md"
+phase_status = "docs/development/current/main/investigations/mirbuilder-generic-loop-progression-role-boxshape-task-2026-07-13.md"
 method_anchor = "docs/development/current/main/design/current-docs-archive-policy-ssot.md"
-taskboard = "docs/development/current/main/investigations/mirbuilder-hako-typed-source-carrier-v1-2026-07-12.md"
-latest_workstream_card = "docs/development/current/main/investigations/mirbuilder-source-body-analysis-snapshot-v1-2026-07-12.md"
+taskboard = "docs/development/current/main/investigations/mirbuilder-generic-loop-progression-role-boxshape-task-2026-07-13.md"
+latest_workstream_card = "docs/development/current/main/investigations/mirbuilder-hako-typed-source-carrier-v1-2026-07-12.md"
 
-latest_card = "mirbuilder-hako-typed-source-carrier-v1-2026-07-12"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-hako-typed-source-carrier-v1-2026-07-12.md"
-latest_card_summary = """Decision A selects one Hako parser authority with
+latest_card = "mirbuilder-generic-loop-progression-role-boxshape-task-2026-07-13"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-generic-loop-progression-role-boxshape-task-2026-07-13.md"
+latest_card_summary = """P1-S consultation selects A:
+compiler_boxshape_cleanup must close before the typed-parser P1 stash is
+restored. LoopProgressionRoleObservationV0 separates CanonicalInduction from
+BodyManagedCursor using condition-anchored candidates and complete write/use
+observation, never Box/function/callee/variable names. StepModeV0 explicitly
+distinguishes ExtractedCanonical from BodyManaged; every BodyManaged update
+stays in a complete VerifiedRecipe and Lower performs zero role rediscovery.
+Candidate evaluation becomes side-effect-free and order-independent before
+stable final selection. A is an isolated generic-loop BoxShape commit:
+parser/source-carrier files, ProgramV0 projection, B lightweight seam, and P1
+wiring are forbidden. Clean HEAD ProgramV0 contract-pin must become green
+before A commits; then P1 WIP is restored and gated separately. Historical
+source-carrier context follows. Decision A selects one Hako parser authority with
 explicit ParserNodeProductV1, a parser-private Open/Poisoned/Sealed source
 arena, and ProgramV0 as a lossy compatibility projection from migrated nodes.
 P0 is closed with seven responsibility-split Hako modules, bottom-up refs,
@@ -255,7 +267,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "HAKO-TYPED-SOURCE-CARRIER-V1-P1S-TYPED-PARSER-COMPILE-SEAM-DESIGN-STOP-001"
+current_blocker_token = "GENERIC-LOOP-PROGRESSION-ROLE-V0-A0-BASELINE-FIXTURES-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

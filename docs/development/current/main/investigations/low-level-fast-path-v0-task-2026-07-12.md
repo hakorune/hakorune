@@ -22,6 +22,52 @@ ordinary Hakorune source
 
 The V0 source keyword delta is zero.
 
+## Library facade and implementation classification
+
+“Put low-level work behind a library” does not mean “send every operation
+through TypeBox ABI.” Source callers see one ordinary typed Hako capability
+library, while each implementation is classified by ownership and call shape.
+
+```text
+source API:
+  ordinary typed Hako capability library
+
+pure Hako model:
+  semantic reference for the selected operation
+
+TypeBox ABI v2:
+  stateful/dynamic external Box
+  identity, lifecycle, and multiple methods
+
+backend-private native leaf:
+  static/hot/scalar operation
+  hidden symbol or hidden leaf ID
+
+TargetRecipe / intrinsic lowering:
+  compile-time backend artifact and selection
+
+BackendPreflight:
+  unsupported target rejects before effects
+```
+
+Memory, atomic, and intrinsic wrappers own the public source meaning. Raw
+plugin names, native symbols, target recipes, and backend choice remain hidden
+below those wrappers. Core C ABI and TypeBox ABI v2 remain the only canonical
+public ABI surfaces; a hidden leaf is not a third ABI.
+
+Examples:
+
+```text
+CryptoContextBox / RegexBox / DeviceBox:
+  TypeBox ABI candidate
+
+ctz.u64 / one byte load / fixed CAS leaf:
+  native-leaf or intrinsic candidate
+
+atomic.cas.u64 -> x86 lock cmpxchg / AArch64 casal:
+  TargetRecipe/backend lowering candidate
+```
+
 ## Explicitly excluded source surface
 
 ```text
@@ -247,6 +293,10 @@ their own answer.
 - Do not expose hidden leaf symbols as a third public ABI.
 - Generate FastLeafManifest from existing ABI/callable authority; do not
   hand-author it.
+- Classify the operation before implementation. A static hot scalar row uses
+  a backend-private leaf or intrinsic lowering, not TypeBox TLV. TypeBox is
+  allowed only when the selected implementation is genuinely a stateful or
+  dynamically loaded external Box.
 
 ### F7 — specialized atomic expansion by evidence only
 
@@ -316,6 +366,24 @@ their own answer.
     - split contract registry, proof producers, plan, verifier, backend adapter,
       and fixtures by responsibility.
 
+12. **Implementation-classification gate**
+    - every selected row is exactly one of pure Hako, stateful/dynamic TypeBox,
+      backend-private native leaf, or compile-time target recipe;
+    - no row becomes TypeBox merely for uniformity;
+    - no target recipe is selected through runtime plugin dispatch.
+
+13. **Typed source facade gate**
+    - source code observes only the typed capability/library contract;
+    - raw symbol names, hidden leaf IDs, plugin transport details, and target
+      recipe IDs are absent from ordinary source.
+
+14. **Atomic native-leaf gate**
+    - an atomic row requires a Hako abstract state-transition model, native
+      differential tests, ABI/clobber verification, concurrency stress, and
+      memory-order litmus tests;
+    - passing single-thread differential tests alone does not claim atomicity,
+      linearizability, or memory-order correctness.
+
 ## Implementation may claim
 
 Only after the corresponding rows are green:
@@ -343,6 +411,8 @@ all backends support FastMem
 FastLeafManifest is already live
 inline MIR/asm/model language support
 backend selfhost complete
+all low-level library calls use TypeBox ABI
+single-thread model parity proves concurrent atomic correctness
 ```
 
 ## Stop conditions
@@ -364,6 +434,13 @@ Stop and return to design if:
 13. BoxShape and a new MemOp/backend BoxCount are mixed in one commit;
 14. perf work begins before the exact-front baseline identifies the owner;
 15. one source file approaches 800 lines.
+16. a static hot scalar operation is routed through TypeBox TLV only to unify
+    implementation plumbing;
+17. a stateful/dynamic external object is decomposed into unowned native leaves
+    without an explicit identity/lifecycle contract;
+18. a backend recipe is selected by runtime plugin dispatch;
+19. an atomic implementation claims ordering or linearizability from model
+    differential tests without concurrency, litmus, and ABI/clobber gates.
 
 ## Relationship to existing workstreams
 
@@ -378,6 +455,11 @@ docs/development/current/main/design/fastmem-verified-direct-default-retirement-
 docs/development/current/main/design/stage2-fast-leaf-manifest-ssot.md
 docs/development/current/main/design/perf-owner-first-optimization-ssot.md
 ```
+
+The related stateful plugin route-freezing work is parked separately in
+`typebox-plugin-execution-route-freeze-task-2026-07-12.md`. The two tasks share
+the typed source facade and two-public-ABI rule, but neither activates or owns
+the other's execution route.
 
 It may become active only after `CURRENT_STATE.toml` selects it. The current
 SourceSnapshot source-carrier design stop remains unchanged.

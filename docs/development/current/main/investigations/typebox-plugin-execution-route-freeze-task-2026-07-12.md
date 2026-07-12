@@ -13,6 +13,43 @@ reconstruction, and long-held loader locks.
 
 This task does not create a third ABI and does not replace TypeBox ABI v2.
 
+## Box versus leaf boundary
+
+This task owns external stateful/dynamic **Box** execution only. It does not
+make TypeBox ABI the universal low-level call path.
+
+```text
+TypeBox ABI v2:
+  external stateful/dynamic objects
+  identity + lifecycle + multiple methods
+  cross-language/plugin dispatch
+
+backend-private native leaf:
+  static hot scalar operations
+  instruction-like capability operations
+  no external Box identity or dynamic method family
+
+TargetRecipe / intrinsic lowering:
+  compile-time backend selection
+  never runtime TypeBox dispatch
+```
+
+The source-facing API may still be one ordinary typed Hako capability library.
+Its implementation projection is selected below that source API:
+
+```text
+ordinary Hako library call
+  -> pure Hako model
+  -> backend-private native leaf
+  -> TypeBox plugin when the implementation is genuinely Box-like/dynamic
+  -> backend capability rejection
+```
+
+Do not route `ctz`, one CAS, one byte load, or allocator-loop scalar work
+through TypeBox TLV merely to obtain a uniform implementation mechanism.
+Conversely, do not disguise a stateful plugin object as a collection of
+unowned native leaves.
+
 ## Current evidence
 
 Load time already owns:
@@ -184,6 +221,19 @@ separate TypeBox ABI v2 version/capability decision.
    - missing, stale, or incompatible route does not silently fall back to a
      newly reconstructed generic route.
 
+7. **Box/leaf classification gate**
+   - each candidate is classified as stateful/dynamic Box, backend-private
+     native leaf, or compile-time recipe before route work starts;
+   - static hot scalar leaves do not enter TypeBox TLV dispatch;
+   - stateful plugin identity/lifecycle does not escape into ad-hoc leaf
+     handles.
+
+8. **Source facade isolation gate**
+   - ordinary Hako callers depend on a typed capability/library API, not raw
+     plugin symbols, hidden leaf names, or target recipe IDs;
+   - implementation selection does not add source syntax or a third public
+     ABI.
+
 ## Implementation may claim
 
 ```text
@@ -207,6 +257,8 @@ all backends use the frozen route
 plugin hot reload is supported
 plugin call semantics changed
 performance win without a focused measurement
+TypeBox ABI is the universal low-level function/instruction boundary
+backend recipes are selected through runtime plugin dispatch
 ```
 
 ## Stop conditions
@@ -226,6 +278,9 @@ Stop and return to design if:
 8. BoxCount behavior changes are mixed into this BoxShape task;
 9. one file approaches 800 lines instead of splitting publication, lookup,
    and execution responsibilities.
+10. a static hot scalar operation is moved into TypeBox TLV solely for API
+    uniformity;
+11. a compile-time target recipe becomes a runtime plugin-dispatch decision.
 
 ## Resume condition
 
@@ -234,3 +289,7 @@ selects it or the current design-stop decision returns to another workstream.
 Before implementation, run a focused baseline that counts route rebuilds,
 config resolution, and locks per named plugin call. The baseline is evidence,
 not permission to widen the ABI.
+
+The related native-leaf and target-recipe work remains parked in
+`low-level-fast-path-v0-task-2026-07-12.md`; neither parked task activates the
+other.

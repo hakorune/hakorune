@@ -1,7 +1,7 @@
 # CURRENT_TASK
 
 Status: SSOT pointer
-Date: 2026-07-12
+Date: 2026-07-13
 Scope: root restart anchor only. Do not store landed history here.
 
 ## Quick Restart
@@ -26,7 +26,7 @@ When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executa
 ## Handoff
 
 Read `latest_card_path` in `CURRENT_STATE.toml` before editing. The active
-slice builds `BoundedBodyAnalysisSnapshotV0` over validated Program(JSON v0)
-with independent Rust/Hako traversal parity. Keep it read-only and bounded;
-do not move Fact, planner, route-selection, backend-lowering, MIR-mutation,
-ID-allocation, or Source Selfhost authority. Language-v1 closeout is parked.
+slice is the A-only generic-loop progression-role BoxShape prerequisite named
+there. Keep parser/source-carrier P1 stash-only until the clean-HEAD
+ProgramV0 contract-pin is green and A is committed independently. Do not mix
+the deferred lightweight parser seam B or P1 wiring into A.

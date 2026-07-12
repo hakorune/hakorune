@@ -1,5 +1,5 @@
 Status: SSOT mirror
-Date: 2026-07-12
+Date: 2026-07-13
 Scope: one-screen current dashboard. Do not store landed history here.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -20,8 +20,8 @@ Related:
 - language-v1 workstream:
   `docs/development/current/main/workstreams/language-v1-convergence-current.md`
 - priority: read `active_lane` and `current_blocker_token`; the current slice
-  is bounded read-only `BoundedBodyAnalysisSnapshotV0` Rust/Hako traversal
-  parity over validated Program(JSON v0)
+  is the A-only generic-loop progression-role BoxShape prerequisite; P1
+  source-carrier wiring remains stash-only until A closeout
 - parked language work: LANGV1 conformance closeout remains parked; no
   language behavior is changed by the reprioritization
 
