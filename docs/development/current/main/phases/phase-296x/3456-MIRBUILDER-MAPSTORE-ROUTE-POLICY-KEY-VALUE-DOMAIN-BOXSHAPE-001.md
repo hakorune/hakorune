@@ -96,6 +96,28 @@ existing historical gates. They are not consumed by the live MapStore shadow
 decision and are scheduled for bounded projection migration before 3456
 closeout.
 
+## Projection Boundary Finding
+
+Directly importing the common policy Box from the classifier source was probed
+and rejected by the existing Hako merge/parser contract: the imported static
+Box is merged into the classifier compilation unit and fails before the
+classifier body is parsed. The probe was reverted; the existing parity gate
+remains green and no parser workaround is allowed in this card.
+
+The next projection slice must therefore use the generator boundary:
+
+```text
+common Hako RoutePolicyRow
+        -> one generator
+        -> typed row + legacy classifier projection artifacts
+```
+
+The generator must validate the common row first, then emit the legacy output
+shape as a derived compatibility view. Classifier source text must no longer
+be treated as policy authority. Existing historical gates can be migrated in
+the same bounded slice to assert the common source and generated projection.
+This is a design boundary finding, not a parser or runtime expansion.
+
 Focused verification for this slice is:
 
 ```bash
