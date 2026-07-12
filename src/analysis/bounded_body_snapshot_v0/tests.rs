@@ -1,5 +1,7 @@
 use super::*;
 
+mod witness;
+
 #[test]
 fn schema_limits_are_fixed_and_inclusive() {
     let limits = SnapshotLimitsV0::SCHEMA;

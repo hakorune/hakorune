@@ -85,7 +85,7 @@
   "provenance": {
     "card": {
       "path": "docs/development/current/main/investigations/mirbuilder-hako-bounded-body-analysis-snapshot-v0-2026-07-12.md",
-      "sha256": "4a68b084323ffd89b7cbac21168a8e13d8d9561d199dc7973b7838f91db2901c"
+      "sha256": "e0db7ec93fe18bf73e857502427de01143165f18dc4dba9eed533089df19b61f"
     },
     "consumer": {
       "path": "src/runner/json_v0_bridge/ast.rs",

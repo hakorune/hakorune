@@ -340,7 +340,7 @@ Closeout evidence:
   `tools/checks/rust_lifecycle_mirbuilder_strict_program_v0_body_view_guard.sh`
   are green; all source files remain below 800 lines.
 
-### S2.5 — SnapshotAlgebraV0 Rust authority closure (active)
+### S2.5 — SnapshotAlgebraV0 Rust authority closure (complete)
 
 The S3 design audit found that the current Rust model fixes the outer value
 types but does not yet close every equality-relevant rule. Hako implementation
@@ -354,7 +354,7 @@ A2_canonical_child_edge_schema = complete
 A3_closed_structural_paths = complete
 A4_normalized_validated_view = complete
 A5_construction_invariants = complete
-A6_rust_executable_witness = active
+A6_rust_executable_witness = complete
 ```
 
 1. **A1 — Canonical atom schema**
@@ -452,7 +452,20 @@ A5 closeout evidence:
 - twenty-two focused tests are green; builder is 324 lines and the existing
   test module is 660 lines, so A6 fixtures must use a separate test file.
 
-### S3 — Hako ProgramV0 snapshot reader (blocked by S2.5)
+A6 closeout evidence:
+
+- crate-private verification entry accepts only `ValidatedProgramV0BodyView`;
+- traversal publishes through `SnapshotBuilderV0` only and does not import the
+  producer serializer, source AST, MIR, planner, route, backend, or runtime;
+- fixtures cover empty body, every accepted kind/role/operator, canonical
+  integer wire equivalence, multibyte text, and `limit-1 / limit / limit+1`
+  for every inclusive schema limit;
+- stable guard:
+  `tools/checks/rust_lifecycle_mirbuilder_bounded_body_snapshot_rust_witness_v0_guard.sh`;
+- twenty-six focused tests are green and both witness source files remain
+  below 800 lines.
+
+### S3 — Hako ProgramV0 snapshot reader (active)
 
 - split schema/outcome/path/budget/model/builder/stmt/expr responsibilities;
 - publish an immutable snapshot only after full traversal succeeds;

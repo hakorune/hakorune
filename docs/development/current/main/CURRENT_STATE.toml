@@ -82,10 +82,12 @@ is now closed with opaque borrowed nodes, canonical i64, typed text bundled
 with exact UTF-8 bytes/class, and schema-ordered read-only children. Eighteen
 focused tests are green. A5 is closed with one-shot poisoned drafts, complete
 seal checks, canonical schemas, forward paths, flat DFS preorder/depth, and
-read-only publication. Twenty-two tests are green; A6 executable Rust witness
-is active. S3 Hako traversal is blocked on that algebra;
+read-only publication. A6 is closed with a verification-only validated-view
+witness, builder-only publication, exact integer equivalence, all accepted
+kinds/roles/operators, and inclusive limit boundaries. Twenty-six tests are
+green. S2.5 is complete and S3 Hako traversal is active;
 its landed model foundation remains VM-reference green, while the recursive
-reader prototype is parked and must be rewritten after S2.5.
+reader prototype is parked and must be rewritten during S3.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
@@ -107,8 +109,10 @@ slice with parity and dependency guards. S2 closes the strict Rust
 analysis-only JSON/ProgramV0 body view with decoded duplicate rejection,
 full-input and closed field validation, and distinct Unsupported/InvalidInput
 outcomes. S2.5 A1-A4 close the exact vocabulary and normalized validated
-carrier and A5 construction invariants; active A6 adds the executable Rust
-witness before S3 Hako traversal. Existing permissive
+carrier, A5 construction invariants, and A6 executable Rust witness. S2.5 is
+complete; active S3 now rewrites the parked recursive prototype around a
+validated typed carrier, one-node observations, an explicit preorder
+coordinator, and one-shot sealed publication. Existing permissive
 typed decode and MIR lowering entry are not reused as analysis authority.
 The LocalContractWrite exact-i64 Fact bridge is
 closed with canonical contract-id ownership, fresh identity matching,
@@ -146,7 +150,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "MIRBUILDER-SNAPSHOT-ALGEBRA-V0-RUST-EXECUTABLE-WITNESS-001"
+current_blocker_token = "MIRBUILDER-HAKO-VALIDATED-CARRIER-OBSERVATION-READER-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

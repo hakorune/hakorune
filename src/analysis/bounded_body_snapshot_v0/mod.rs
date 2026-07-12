@@ -4,6 +4,7 @@ mod budget;
 mod outcome;
 mod path;
 mod program_v0_body_view;
+mod program_v0_snapshot_witness;
 mod schema;
 mod snapshot;
 mod snapshot_builder;
@@ -16,6 +17,7 @@ pub use path::{PathFieldV0, PathSegmentV0, PathV0};
 pub use program_v0_body_view::{
     read_program_v0_body, ProgramV0BodyViewError, ValidatedProgramV0BodyView,
 };
+pub(crate) use program_v0_snapshot_witness::build_snapshot_from_validated_view_v0;
 pub use schema::{
     AtomKeyV0, AtomSpecV0, AtomValueKindV0, BinaryOperatorV0, ChildCardinalityV0, ChildRoleV0,
     ChildSpecV0, CompareOperatorV0, DepthConventionV0, LogicalOperatorV0, SnapshotLimitsV0,
