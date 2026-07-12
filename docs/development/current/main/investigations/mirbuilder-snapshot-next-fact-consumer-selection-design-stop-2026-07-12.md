@@ -159,3 +159,15 @@ Stop immediately if implementation attempts to:
 4. convert Unsupported to false/None/NoMatch;
 5. connect the observation facade to planner or route selection;
 6. call skeleton cleanup a bool/string Fact migration.
+
+## Parked parallel task
+
+The TypeBox/plugin execution-path cleanup discovered while this consultation
+is open is taskized separately at:
+
+```text
+docs/development/current/main/investigations/typebox-plugin-execution-route-freeze-task-2026-07-12.md
+```
+
+It is a BoxShape-only parked task. It does not change this card's decision,
+active lane, or blocker.
