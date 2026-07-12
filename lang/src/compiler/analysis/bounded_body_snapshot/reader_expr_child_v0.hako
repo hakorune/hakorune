@@ -1,4 +1,4 @@
-// Recursive Binary/Compare/Logical observation over generic strict JSON.
+// Recursive accepted ExprV0 observation over generic strict JSON.
 using lang.compiler.analysis.bounded_body_snapshot.strict_json_tree_v0 as StrictJsonTreeV0Box
 using lang.compiler.analysis.bounded_body_snapshot.reader_expr_leaf_v0 as HakoProgramV0LeafExprReaderV0Box
 using lang.compiler.analysis.bounded_body_snapshot.validated_text_v0 as ValidatedTextV0Box
@@ -11,6 +11,9 @@ box ChildExprEdgeV0 {
   birth(role, observation) { me._role = role me._observation = observation }
   role() { return me._role }
   observation() { return me._observation }
+}
+static box ChildExprEdgeV0Box {
+  make(role, observation) { return new ChildExprEdgeV0(role, observation) }
 }
 
 box ChildExprObservationV0 {
@@ -72,10 +75,8 @@ static box HakoProgramV0ChildExprReaderV0Box {
     }
     local type_node = me._find(keys, values, "type")
     local kind = StrictJsonTreeV0Box.string_value(session, type_node)
-    if me._is_child(kind) == 0 {
-      return ChildExprReadV0Box.unsupported(path, kind, "reader.call_expr_family_pending")
-    }
-    local closure_issue = me._field_closure_issue(keys)
+    if me._is_child(kind) == 0 { return me._read_call_family(session, kind, path, depth, budget, keys, values) }
+    local closure_issue = me._field_closure_issue(kind, keys)
     if closure_issue != "" { return ChildExprReadV0Box.invalid(path + "." + closure_issue, "object.forbidden_unknown_field") }
     local op_node = me._find(keys, values, "op")
     if op_node < 0 { return ChildExprReadV0Box.invalid(path + ".op", "object.required_field_missing") }
@@ -97,8 +98,53 @@ static box HakoProgramV0ChildExprReaderV0Box {
     local atoms = new ArrayBox()
     atoms.push(new BoundedBodySnapshotAtomV0("op", "Text", checked_op.text().value()))
     local children = new ArrayBox()
-    children.push(new ChildExprEdgeV0("lhs", lhs.observation()))
-    children.push(new ChildExprEdgeV0("rhs", rhs.observation()))
+    children.push(ChildExprEdgeV0Box.make("lhs", lhs.observation()))
+    children.push(ChildExprEdgeV0Box.make("rhs", rhs.observation()))
+    return ChildExprReadV0Box.ready(new ChildExprObservationV0(kind, atoms, children))
+  }
+
+  _read_call_family(session, kind, path, depth, budget, keys, values) {
+    if me._is_call_family(kind) == 0 { return ChildExprReadV0Box.internal(path, "reader.accepted_expr_unowned") }
+    local closure_issue = me._field_closure_issue(kind, keys)
+    if closure_issue != "" { return ChildExprReadV0Box.invalid(path + "." + closure_issue, "object.forbidden_unknown_field") }
+    local atom_field = "name"
+    if kind == "Method" { atom_field = "method" }
+    if kind == "Field" { atom_field = "field" }
+    local atom_node = me._find(keys, values, atom_field)
+    if atom_node < 0 { return ChildExprReadV0Box.invalid(path + "." + atom_field, "object.required_field_missing") }
+    local atom_kind = StrictJsonTreeV0Box.kind(session, atom_node)
+    if atom_kind != "String" { return ChildExprReadV0Box.invalid(path + "." + atom_field, me._wrong_type("string", atom_kind)) }
+    local checked_atom = ValidatedTextV0Box.atom(StrictJsonTreeV0Box.string_value(session, atom_node), budget)
+    if checked_atom.status() == "Unsupported" { return ChildExprReadV0Box.unsupported(path + "." + atom_field, kind, checked_atom.reason()) }
+    if checked_atom.status() != "Ready" { return ChildExprReadV0Box.internal(path + "." + atom_field, checked_atom.reason()) }
+    local args_node = -1 local args_count = 0
+    if kind == "Call" || kind == "Method" {
+      args_node = me._find(keys, values, "args")
+      if args_node < 0 { return ChildExprReadV0Box.invalid(path + ".args", "object.required_field_missing") }
+      local args_kind = StrictJsonTreeV0Box.kind(session, args_node)
+      if args_kind != "Array" { return ChildExprReadV0Box.invalid(path + ".args", me._wrong_type("array", args_kind)) }
+      args_count = StrictJsonTreeV0Box.array_len(session, args_node)
+      local args_limit = budget.observe_arguments(args_count)
+      if args_limit != null { return ChildExprReadV0Box.unsupported(path + ".args", kind, args_limit) }
+    }
+    local children = new ArrayBox()
+    if kind == "Method" || kind == "Field" {
+      local recv_node = me._find(keys, values, "recv")
+      if recv_node < 0 { return ChildExprReadV0Box.invalid(path + ".recv", "object.required_field_missing") }
+      local recv = me.read(session, recv_node, path + ".recv", depth + 1, budget)
+      if recv.status() != "Ready" { return recv }
+      children.push(ChildExprEdgeV0Box.make("recv", recv.observation()))
+    }
+    local i = 0
+    loop(i < args_count) {
+      local arg_node = StrictJsonTreeV0Box.array_at(session, args_node, i)
+      local arg = me.read(session, arg_node, path + ".args[" + ("" + i) + "]", depth + 1, budget)
+      if arg.status() != "Ready" { return arg }
+      children.push(ChildExprEdgeV0Box.make("args", arg.observation()))
+      i = i + 1
+    }
+    local atoms = new ArrayBox()
+    atoms.push(new BoundedBodySnapshotAtomV0(atom_field, "Text", checked_atom.text().value()))
     return ChildExprReadV0Box.ready(new ChildExprObservationV0(kind, atoms, children))
   }
 
@@ -107,16 +153,25 @@ static box HakoProgramV0ChildExprReaderV0Box {
     loop(i < keys.size()) { if keys.get(i) == name { return values.get(i) } i = i + 1 }
     return -1
   }
-  _field_closure_issue(keys) {
+  _field_closure_issue(kind, keys) {
     local i = 0
     loop(i < keys.size()) {
       local key = keys.get(i)
-      if key != "type" && key != "op" && key != "lhs" && key != "rhs" { return key }
+      if me._field_allowed(kind, key) == 0 { return key }
       i = i + 1
     }
     return ""
   }
+  _field_allowed(kind, field) {
+    if field == "type" { return 1 }
+    if me._is_child(kind) == 1 { if field == "op" || field == "lhs" || field == "rhs" { return 1 } return 0 }
+    if kind == "Call" { if field == "name" || field == "args" { return 1 } return 0 }
+    if kind == "Method" { if field == "recv" || field == "method" || field == "args" { return 1 } return 0 }
+    if kind == "Field" { if field == "recv" || field == "field" { return 1 } return 0 }
+    return 0
+  }
   _is_child(kind) { if kind == "Binary" || kind == "Compare" || kind == "Logical" { return 1 } return 0 }
+  _is_call_family(kind) { if kind == "Call" || kind == "Method" || kind == "Field" { return 1 } return 0 }
   _operator_allowed(kind, op) {
     if kind == "Binary" { return BoundedBodySnapshotSchemaV0Box.binary_operator_allowed(op) }
     if kind == "Compare" { return BoundedBodySnapshotSchemaV0Box.compare_operator_allowed(op) }

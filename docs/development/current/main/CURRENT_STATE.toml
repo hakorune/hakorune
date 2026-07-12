@@ -149,8 +149,8 @@ debug versus 0.825s release, while semantic refresh remains small and reader
 execution is never reached. The removed historical 30-second source is still
 unavailable, so exact source-shape causality is not claimed. The stable gate
 uses a fixed release+vm-reference binary with a ten-second boundary, one reader
-family per file, and accepted-kind fanout at most 12. U4-A3.1 through A3.3 are
-closed and U4-A3.4 may now resume.
+family per file, and accepted-kind fanout at most 12. U4-A3.1 through A3.4 are
+closed and U4-A3.5 may now resume.
 The reference
 MIR interpreter is the only first-slice backend and unsupported backends fail
 before parse/session effects. U4-A0 generic arena, U4-A1 invocation session,
@@ -171,9 +171,12 @@ values, Rust/Hako outcome path/reason parity, two-mode `NYASH_STR_CP` evidence,
 and no partial snapshot publication. U4-A3.3 is closed with a separate
 recursive Binary/Compare/Logical coordinator, closed operator partitions,
 preorder node/depth budget, exact lhs/rhs order, nested failure propagation,
-and exact Rust/Hako outcome parity. U4-A3.4 Call/Method/Field plus ordered flat
-child publication is next; statement traversal and complete direct parity
-remain pending.
+and exact Rust/Hako outcome parity. U4-A3.4 is closed with one unified accepted
+expression recursion owner, Call/Method/Field closure, preflight argument
+limits, exact recv/args order, and an expression-only reserve/seal/reconstruct
+flat preorder publisher. Record factories structurally preserve loop-created
+birth calls. U4-A3.5 statement traversal is next; complete direct snapshot
+parity remains pending.
 The LocalContractWrite exact-i64 Fact bridge is
 closed with canonical contract-id ownership, fresh identity matching,
 dst-only publication, Copy/same-slot PHI propagation, 17 focused tests, and
@@ -210,7 +213,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "MIRBUILDER-BOUNDED-BODY-SNAPSHOT-V0-HAKO-CALL-EXPR-READER-001"
+current_blocker_token = "MIRBUILDER-BOUNDED-BODY-SNAPSHOT-V0-HAKO-STATEMENT-READER-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

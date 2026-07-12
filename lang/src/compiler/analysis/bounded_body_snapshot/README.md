@@ -53,9 +53,17 @@ Its `substring` use is limited to one decoded decimal scalar and never observes
 raw JSON, node tags, field names, paths, token offsets, or source text. Every
 structured reader module remains substring/index-search free.
 
-`reader_expr_child_v0.hako` is the recursive expression coordinator for
-`Binary`, `Compare`, and `Logical`. It observes the parent before its children,
-validates the schema-owned operator partition, and preserves exact `lhs` then
-`rhs` order in invocation-local typed edges. Leaf observations share the same
-small read-only child interface. Call/Method/Field and flat snapshot-index
-publication remain outside this slice.
+`reader_expr_child_v0.hako` is the single recursive expression coordinator.
+It observes the parent before its children, validates the schema-owned
+operator partition, and preserves `lhs/rhs`, `recv`, and repeated `args` roles
+in exact schema order. `Call`, `Method`, and `Field` keep their wire kinds;
+the reader does not infer dynamic callees, Print, or source syntax.
+
+`expr_flat_publisher_v0.hako` converts a complete normalized expression tree
+into invocation-local flat preorder records. It reserves mutable drafts,
+recursively obtains forward child indices, seals every draft, then defensively
+reconstructs atoms, edges, and nodes exactly once. Loop-created records use
+one factory entry because the current Hako MIR builder otherwise omits `birth`
+for a direct `new` inside a loop; the executable gate checks the emitted birth
+calls. This table is expression-only and is not a partial public snapshot.
+Statement/root integration and final snapshot sealing remain later owners.

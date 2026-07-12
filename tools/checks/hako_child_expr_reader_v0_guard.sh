@@ -41,9 +41,9 @@ for path in (reader_path, leaf_path, fixture_path, session_path):
     if len(path.read_text(encoding="utf-8").splitlines()) > 800:
         raise SystemExit(f"source exceeds 800 lines: {path}")
 for needle in (
-    "ChildExprObservationV0", "ChildExprEdgeV0", 'ChildExprEdgeV0("lhs"',
-    'ChildExprEdgeV0("rhs"', "budget.observe_node(depth)",
-    "operator.invalid_for_kind", "reader.call_expr_family_pending",
+    "ChildExprObservationV0", "ChildExprEdgeV0", 'ChildExprEdgeV0Box.make("lhs"',
+    'ChildExprEdgeV0Box.make("rhs"', "budget.observe_node(depth)",
+    "operator.invalid_for_kind",
     "ValidatedTextV0Box.atom", "HakoProgramV0LeafExprReaderV0Box.read",
 ):
     if needle not in reader:

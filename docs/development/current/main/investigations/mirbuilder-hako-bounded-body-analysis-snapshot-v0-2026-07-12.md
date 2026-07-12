@@ -931,8 +931,36 @@ required-null child rejection, nested KnownUnsupported propagation, inclusive
 depth acceptance with the first over-limit child rejected, exact Rust/Hako
 outcome path/reason parity, two `NYASH_STR_CP` modes, and cleanup after every
 outcome. Stable gate: `tools/checks/hako_child_expr_reader_v0_guard.sh`.
-U4-A3.4 Call/Method/Field and ordered flat child publication are next;
-statement integration and complete snapshot publication remain pending.
+At the A3.3 closure point, Call/Method/Field, statement integration, and
+complete snapshot publication remained pending.
+
+U4-A3.4 closed on 2026-07-12. The existing expression coordinator is now the
+single recursive entry for every accepted ExprV0 kind, avoiding a cyclic
+Call-family/Binary-family reader pair. `Call` owns `name,args`; `Method` owns
+`recv,method,args`; `Field` owns `recv,field`. Atom text is locally validated,
+argument count is rejected before child traversal, Method observes `recv`
+before `args`, and mixed Binary-under-Call / Call-under-Binary recursion stays
+within one traversal owner. No callee, Print, or source-kind recovery exists.
+
+`expr_flat_publisher_v0.hako` closes expression-only preorder publication:
+reserve parent draft, recursively reserve children, seal ordered role/index
+edges, then defensively reconstruct all public records. Exact forward indices,
+paths, atoms, and `recv -> args[]` / `lhs -> rhs` ordering are executable.
+Direct record construction inside a Hako loop was rejected after MIR evidence
+showed the current builder omitted `birth`, leaving null fields. One factory
+entry now owns each record constructor and the gate requires emitted birth
+calls. No null placeholder replacement, partial table on reader failure,
+statement/root connection, or complete snapshot claim is made.
+
+The fixture proves all three call-family kinds, empty and repeated args,
+mixed recursive families, exact flat preorder paths/indices/edges, decoded
+UTF-8 Atom values, argument counts 127/128/129, malformed field closure and
+types, required-null recv, nested Unsupported propagation, exact Rust/Hako
+outcome parity, two `NYASH_STR_CP` modes, and session cleanup. Rust executable
+tests are physically split below `strict_json_session/tests/` to keep every
+source under 800 lines. Stable gate: `tools/checks/hako_call_expr_reader_v0_guard.sh`.
+U4-A3.5 statement families and body/argument integration are next; complete
+snapshot sealing/direct parity remains A3.6.
 
 Each slice must compile/run in isolation before the next reader family is
 added. A reader that again crosses the diagnostic boundary returns to the

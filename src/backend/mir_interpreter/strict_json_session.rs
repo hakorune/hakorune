@@ -155,6 +155,8 @@ impl MirInterpreter {
 mod tests {
     use super::*;
 
+    mod tests_call_expr;
+
     fn compile_hako_fixture(relative: &str) -> crate::mir::MirModule {
         let fixture = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(relative);
         let fixture = fixture.to_str().expect("UTF-8 fixture path");
@@ -620,15 +622,6 @@ mod tests {
                 "SnapshotChildExprReaderFixtureV0Box.preorder_signature/2",
             ),
             VMValue::String("Binary:lhs=Int:rhs=Compare:lhs=Var:rhs=Int".to_string())
-        );
-        assert_eq!(
-            run_child_function(
-                &mut interpreter,
-                &module,
-                r#"{"type":"Call","name":"f","args":[]}"#,
-                "SnapshotChildExprReaderFixtureV0Box.classify/2",
-            ),
-            VMValue::Integer(20)
         );
     }
 
