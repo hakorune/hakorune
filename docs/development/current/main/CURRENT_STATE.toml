@@ -4,7 +4,7 @@
 status = "Active implementation workstream"
 date = "2026-07-12"
 
-active_lane = "MIRBUILDER-MAPSTORE I64 source-backed key witness"
+active_lane = "MIRBUILDER-MAPSTORE I64 deferred-root design boundary"
 active_lane_status = """Explicit user priority change on 2026-07-12 reopens
 the parked Source Selfhost/MirBuilder lane before LANGV1 conformance closeout.
 Language-v1 behavior remains unchanged and its closeout stays parked. 3456,
@@ -58,7 +58,8 @@ no capability activation. 3504 accepts relation/spec plus exhaustive
 inventory-only Failure/Outcome design. Repository artifact C2 classification
 is 91% complete with 77 warning-unregistered consultation rows; no physical
 move was started. 3505 S0-S5 and the narrow 3511 activation slice are landed
-history; the active lane is the source-backed MapStoreI64 exact-i64 witness."""
+history; the exact-i64 witness slice is closed and the active lane is the
+deferred local/call/provider-root design boundary."""
 
 active_phase = "docs/development/current/main/investigations/mirbuilder-mapstore-i64-source-backed-key-fact-task-2026-07-12.md"
 phase_status = "docs/development/current/main/investigations/mirbuilder-mapstore-i64-source-backed-key-fact-task-2026-07-12.md"
@@ -70,10 +71,10 @@ latest_card = "mirbuilder-mapstore-i64-source-backed-key-fact-task-2026-07-12"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-mapstore-i64-source-backed-key-fact-task-2026-07-12.md"
 latest_card_summary = """3456 closed the BoxShape-only typed RoutePolicyRow
 prerequisite on 2026-07-12. 3454 is fixture-backed green, 3455 accepted
-focused inventory first, and 3457 closed the authority inventory. The active
-slice reuses the existing ExactNumericValueFact owner for a narrow
-MapStoreI64 exact-i64 witness; the parked MapStore caller-orientation pilot is
-not reopened. The
+focused inventory first, and 3457 closed the authority inventory. The
+exact-i64 witness slice is complete; local-write, call-return, and
+provider/helper roots remain deferred at a design boundary. The parked
+MapStore caller-orientation pilot is not reopened. The
 3456/3454 work already separated key and stored-value domains, generated one
 typed decision payload and caller projection, retained the independent Rust
 matcher/oracle, and centralized validation. Language-v1
@@ -97,7 +98,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "MIRBUILDER-MAPSTORE-I64-SOURCE-BACKED-KEY-FACT-001"
+current_blocker_token = "MIRBUILDER-MAPSTORE-I64-DEFERRED-ROOTS-DESIGN-STOP"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

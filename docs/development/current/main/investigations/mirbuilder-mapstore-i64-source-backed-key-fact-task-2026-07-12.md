@@ -1,6 +1,7 @@
 # MapStoreI64 Source-Backed Key Fact Task
 
-Status: Active implementation slice; selected by the accepted 3457 follow-up.
+Status: Complete for the exact-i64 slice; next frontier is design consultation
+for deferred local/call/provider roots.
 Date: 2026-07-12
 Active lane remains: 3457 MapStoreI64 authority inventory/design boundary.
 Decision source: 3457 follow-up consultation, accepted.
