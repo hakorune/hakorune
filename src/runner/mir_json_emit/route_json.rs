@@ -89,6 +89,8 @@ pub(super) fn build_lowering_plan_json(f: &crate::mir::MirFunction) -> Vec<serde
             "semantic_result_policy": route.semantic_result_policy(),
             "value_use_policy": route.value_use_policy(),
             "required_capability": route.required_capability(),
+            "semantic_activation": route.semantic_activation(),
+            "backend_support_consumer": route.backend_support_consumer(),
             "publication_policy": serde_json::Value::Null,
             "effects": route.effect_tags(),
         })
@@ -248,6 +250,8 @@ pub(super) fn build_extern_call_route_json(
         "semantic_result_policy": route.semantic_result_policy(),
         "value_use_policy": route.value_use_policy(),
         "required_capability": route.required_capability(),
+        "semantic_activation": route.semantic_activation(),
+        "backend_support_consumer": route.backend_support_consumer(),
         "effects": route.effect_tags(),
     })
 }

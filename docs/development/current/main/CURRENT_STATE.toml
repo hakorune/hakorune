@@ -71,14 +71,15 @@ reference/provider rows remain classified in the evidence queue while
 semantic ownership stays pending. The VMValue::Void owner-boundary and S2
 projection-source consultations are accepted; S1 through S5 are complete and
 the accepted first activation slice is 3511 hako_mem_free Unit/no-result;
-S0-S4 are complete and S5 activation-owner resolution is next; activation
-remains zero until that narrow owner is explicitly fixed.
+S0-S5 are complete: hako_mem_free semantic activation is narrow and
+backend-independent, LLVM/object support is the sole consumer, and VM/Wasm/
+PyVM remain fail-fast. Global Unit activation remains zero.
 The design registry has 653 rows
 and 119 owned sidecars; 77 files remain
 warning-unregistered for focused consultation. C3 supersession movement is
-not started. The active S0/S1 slice changes only extern route metadata and
-publication facts; runtime effects, backend consumer support, and activation
-remain unchanged."""
+not started. 3511 now owns the narrow semantic activation claim and its
+LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
+sites remain inactive."""
 
 current_blocker_token = "LANGV1-FAILURE-OUTCOME-UNIT-NORESULT-HAKO-MEM-FREE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"

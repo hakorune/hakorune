@@ -64,7 +64,7 @@ S1_route_separation = complete
 S2_result_use_convergence = complete
 S3_one_supported_backend = complete
 S4_preflight_and_fixtures = complete
-S5_activation = 0
+S5_activation = complete
 ```
 
 S0/S1 provide the machine-readable outcome contract, expose
@@ -75,7 +75,9 @@ contract boundary before effects. S3 now has one LLVM/object consumer that
 emits only the native C-void call; VM/Wasm/legacy consumers remain unsupported.
 S4 now verifies the complete no-result metadata tuple, single-route
 cardinality, required capability, source/projection inventory checks, and
-removal of the zero-materializing emitter. Activation remains at zero.
+removal of the zero-materializing emitter. S5 activates the backend-independent
+semantic contract and keeps only LLVM/object support; VM/Wasm/PyVM remain
+unsupported consumers that reject before effects.
 
 ### S0 — Contract row
 
@@ -117,10 +119,17 @@ remain green.
 
 ### S5 — Activation
 
-Only after every guard is green, set the narrow activation flag for this one
-contract. The activation flag's SSOT/owner is not yet defined in this card;
-do not invent a new runtime or manifest owner in S4. Do not activate Unit
-globally or change any other Void/Null site.
+The activation registry in `outcome_contract.rs` owns the backend-independent
+semantic activation. Backend capability/projection belongs to the separate
+support registry in the same module. This activates only
+`extern-outcome:hako-mem-free:v1`; it does not activate a global Unit carrier
+or any other Void/Null site.
+
+```text
+ExternOutcomeSpec
+  -> ExternOutcomeActivation
+  -> ExternOutcomeBackendSupport(NyLlvmObject)
+```
 
 ## Effect Order
 
@@ -168,6 +177,9 @@ hako_mem_free_projection_missing_or_observable_rejects
 hako_mem_free_vm_wasm_and_unknown_backend_reject_before_free
 ```
 
+The VM/legacy reject rows are fixed at the consumer boundary; no backend
+support row is created for them.
+
 ## Stable Diagnostic Tags
 
 ```text
@@ -202,10 +214,22 @@ only hako_mem_free.success activation may become 1
 all other Unit/absence/Err/Fault/Weak/FFI sites remain inactive
 ```
 
+## Claims
+
+```text
+hako_mem_free_semantic_activation = 1
+hako_mem_free_llvm_object_support = 1
+hako_mem_free_vm_support = 0
+hako_mem_free_wasm_support = 0
+manifest_is_activation_authority = 0
+backend_presence_implies_activation = 0
+```
+
 ## Non-Claims
 
 ```text
 global_Unit_runtime_carrier = 0
+global_semantic_activation = 0
 void_literal_runtime_migration = 0
 VMValue_or_ConstValue_global_migration = 0
 provider_missing_fallback_correction = 0
@@ -224,7 +248,7 @@ selfhost_claim = 0
 python3 tools/docs/failure_outcome_exhaustiveness.py --check
 python3 tools/docs/failure_outcome_conflict_ledger.py --check
 bash tools/checks/k2_wide_hako_mem_extern_pure_first_guard.sh
-# S4 adds the remaining positive/negative matrix before S5 closeout.
+# S5 activation is limited to the typed outcome registry and its support row.
 bash tools/checks/current_state_pointer_guard.sh
 bash tools/checks/dev_gate.sh quick
 git diff --check

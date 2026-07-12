@@ -701,11 +701,7 @@ static box MirCallV1HandlerBox {
       return
     }
     if name == "hako_mem_free" || name == "hako_mem_free/1" {
-      local dst_free = JsonFragBox.get_int(seg, "dst")
-      if dst_free != null {
-        regs.setField(StringHelpers.int_to_str(dst_free), "0")
-      }
-      return
+      return "[failure/outcome_unit_backend_unsupported] route=extern.hako_mem.free consumer=reference-vm"
     }
     if name == "hako_osvm_page_size_i64" || name == "hako_osvm_page_size_i64/0" {
       local dst_page = JsonFragBox.get_int(seg, "dst")

@@ -514,7 +514,8 @@ static box MirVmS0ExecDispatchBox {
   }
 
   _exec_mir_call(seg, regs, kinds, handle_regs) {
-    MirCallV1HandlerBox.handle_with_state(seg, regs, handle_regs, kinds)
+    local outcome = MirCallV1HandlerBox.handle_with_state(seg, regs, handle_regs, kinds)
+    if outcome != null && ("" + outcome) != "" { return outcome }
     return "__NEXT__"
   }
 

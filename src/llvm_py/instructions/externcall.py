@@ -51,6 +51,11 @@ def lower_externcall(
             pass
     # Normalize extern target names through shared policy
     llvm_name = normalize_extern_name(func_name)
+    if llvm_name in ("hako_mem_free", "hako_mem_free/1"):
+        raise RuntimeError(
+            "[failure/outcome_unit_backend_unsupported] "
+            "route=extern.hako_mem.free consumer=pyvm"
+        )
     # Use the normalized name directly as C symbol name.
     # NyKernel exports symbols with dots (e.g., "nyash.console.log"), which is
     # valid in ELF symbol tables. Do NOT convert dots to underscores.

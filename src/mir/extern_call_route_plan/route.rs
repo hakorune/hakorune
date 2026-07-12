@@ -130,8 +130,21 @@ impl ExternCallRoute {
         })
     }
     pub fn required_capability(&self) -> Option<&'static str> {
-        crate::mir::extern_call_route_plan::extern_outcome_spec(self.kind)
-            .map(|spec| spec.required_capability)
+        crate::mir::extern_call_route_plan::extern_outcome_backend_support(
+            self.kind,
+            crate::mir::extern_call_route_plan::ExternOutcomeConsumer::NyLlvmObject,
+        )
+        .map(|support| support.capability.as_str())
+    }
+    pub fn semantic_activation(&self) -> bool {
+        crate::mir::extern_call_route_plan::extern_outcome_activation(self.kind).is_some()
+    }
+    pub fn backend_support_consumer(&self) -> Option<&'static str> {
+        crate::mir::extern_call_route_plan::extern_outcome_backend_support(
+            self.kind,
+            crate::mir::extern_call_route_plan::ExternOutcomeConsumer::NyLlvmObject,
+        )
+        .map(|support| support.consumer.as_str())
     }
     pub fn effect_tags(&self) -> &'static [&'static str] {
         self.kind.effect_tags()
@@ -314,6 +327,8 @@ mod tests {
             route.required_capability(),
             Some("extern_unit_no_payload_hako_mem_free_v1")
         );
+        assert!(route.semantic_activation());
+        assert_eq!(route.backend_support_consumer(), Some("ny-llvmc-object"));
         assert_eq!(route.result_value_opt(), None);
         assert_eq!(function.metadata.value_types.get(&ValueId::new(2)), None);
     }

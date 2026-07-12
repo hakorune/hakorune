@@ -12,8 +12,12 @@ mod route;
 mod route_spec;
 
 pub use outcome_contract::{
-    extern_outcome_spec, ExternOutcomeSpec, ExternResultPolicy, ExternSuccessOutcome,
-    ExternValueUsePolicy, HAKO_MEM_FREE_OUTCOME,
+    extern_outcome_activation, extern_outcome_backend_support, extern_outcome_spec,
+    validate_extern_outcome_backend_support, ExternOutcomeActivation, ExternOutcomeBackendSupport,
+    ExternOutcomeCapability, ExternOutcomeConsumer, ExternOutcomeContractId,
+    ExternOutcomeProjection, ExternOutcomeSpec, ExternResultPolicy, ExternSuccessOutcome,
+    ExternValueUsePolicy, ACTIVE_EXTERN_OUTCOMES, EXTERN_OUTCOME_BACKEND_SUPPORT,
+    HAKO_MEM_FREE_LLVM_OBJECT_SUPPORT, HAKO_MEM_FREE_OUTCOME,
 };
 pub use route::{ExternCallRoute, ExternCallRouteSite};
 pub use route_spec::{
@@ -36,6 +40,14 @@ pub fn validate_semantic_outcome_routes(module: &MirModule) -> Result<(), String
         for route in &function.metadata.extern_call_routes {
             if route.route_id() != "extern.hako_mem.free" {
                 continue;
+            }
+            if extern_outcome_activation(ExternCallRouteKind::HakoMemFree).is_none() {
+                return Err(format!(
+                    "[failure/outcome_activation_missing] route_id={} source_site={} function={}",
+                    route.route_id(),
+                    HAKO_MEM_FREE_OUTCOME.source_site,
+                    function.signature.name,
+                ));
             }
             if let Some(result_value) = route.result_value_opt() {
                 return Err(format!(
