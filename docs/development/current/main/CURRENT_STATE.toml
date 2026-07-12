@@ -74,7 +74,9 @@ decoded duplicate-key and trailing-input rejection, closed field/tag/scalar
 validation, explicit Unsupported versus InvalidInput outcomes, ten focused
 tests, and no MIR lowering/raw-scanner dependency. The active S3 task is the
 Hako ProgramV0 snapshot reader over validated structured input; raw JSON is
-not a Hako reader input.
+not a Hako reader input. Its three-way outcome, structural path, inclusive
+budget, and immutable model foundation are VM-reference green; private atomic
+builder and split statement/expression traversal remain active.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 

@@ -419,6 +419,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | `tools/checks/rust_lifecycle_mirbuilder_program_v0_wire_contract_inventory_guard.sh` | ProgramV0 producer/consumer wire inventory guard; requires every Stmt/Expr tag to be Accepted, KnownUnsupported, or SchemaMismatchStop before bounded snapshot implementation. |
 | `tools/checks/rust_lifecycle_mirbuilder_bounded_body_snapshot_schema_v0_guard.sh` | Rust/Hako declarative schema parity and analysis-only dependency guard for BoundedBodyAnalysisSnapshotV0 limits, classifications, outcomes, paths, and source-file size. |
 | `tools/checks/rust_lifecycle_mirbuilder_strict_program_v0_body_view_guard.sh` | Strict full-input and duplicate-key ProgramV0 body-view guard; fixes closed fields/tags/scalars, Unsupported versus InvalidInput, analysis-only dependencies, and source-file size. |
+| `tools/checks/rust_lifecycle_mirbuilder_hako_bounded_body_snapshot_model_v0_guard.sh` | Hako VM-reference guard for the S3 three-way outcome, structural path, schema budget, immutable snapshot model, dependency boundary, and source-file size. |
 | `tools/checks/rust_lifecycle_source_selfhost_post_rerun004_current_reentry_inventory_guard.sh` | Current reentry inventory guard proving basis-007 is consumed by RERUN-004 and selecting the checkpoint rerun without replaying route repair. |
 
 ## Update Policy

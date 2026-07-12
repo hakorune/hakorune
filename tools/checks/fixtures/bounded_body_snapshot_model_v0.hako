@@ -1,0 +1,18 @@
+using lang.compiler.analysis.bounded_body_snapshot.outcome_v0 as BoundedBodySnapshotOutcomeV0Box
+using lang.compiler.analysis.bounded_body_snapshot.path_v0 as BoundedBodySnapshotPathV0Box
+using lang.compiler.analysis.bounded_body_snapshot.budget_v0 as BoundedBodySnapshotBudgetV0Box
+using lang.compiler.analysis.bounded_body_snapshot.snapshot_model_v0 as BoundedBodySnapshotModelV0Box
+static box Main {
+  main() {
+    local path = BoundedBodySnapshotPathV0Box.index(BoundedBodySnapshotPathV0Box.root_body(), 0)
+    local budget = new BoundedBodySnapshotBudgetV0()
+    if budget.observe_node(1) != null { return 1 }
+    local node = new BoundedBodySnapshotNodeV0(path, "stmt", "Break", new MapBox(), new ArrayBox())
+    local roots = new ArrayBox() roots.push(node)
+    local snapshot = new BoundedBodyAnalysisSnapshotV0(0, roots, budget.node_count(), budget.max_depth_observed())
+    local outcome = BoundedBodySnapshotOutcomeV0Box.ready(snapshot)
+    if outcome.status() != "Ready" { return 2 }
+    if outcome.snapshot().root(0).path() != "$.body[0]" { return 3 }
+    return 0
+  }
+}

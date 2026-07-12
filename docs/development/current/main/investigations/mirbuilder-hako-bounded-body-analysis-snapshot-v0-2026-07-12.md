@@ -347,6 +347,21 @@ Closeout evidence:
 - no input mutation or partial publication;
 - keep every `.hako` source below 800 lines.
 
+Landed foundation:
+
+- `bounded_body_snapshot/{outcome,path,budget,snapshot_model}_v0.hako`
+  separates three-way outcomes, structural path generation, inclusive schema
+  budgets, and immutable publication records before traversal is added;
+- the focused VM-reference fixture proves custom records, node accounting,
+  root publication, and path construction execute with `RC: 0`;
+- the foundation has no raw JSON scan, MIRBuilder, planner, route, backend, or
+  runtime authority and every Hako source is below 40 lines;
+- stable guard:
+  `tools/checks/rust_lifecycle_mirbuilder_hako_bounded_body_snapshot_model_v0_guard.sh`.
+
+Remaining in S3: private atomic builder plus split statement/expression
+structured traversal and failure-discard fixtures.
+
 ### S4 — Rust AST wire-observation oracle
 
 - test/parity-only independent implementation;

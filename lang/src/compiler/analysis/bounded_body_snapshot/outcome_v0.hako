@@ -1,0 +1,22 @@
+// Three-way result for the Hako ProgramV0 snapshot reader.
+box BoundedBodySnapshotOutcomeV0 {
+  _status: String
+  _snapshot
+  _path: String
+  _node_kind
+  _reason: String
+  birth(status, snapshot, path, node_kind, reason) {
+    me._status = status me._snapshot = snapshot me._path = path
+    me._node_kind = node_kind me._reason = reason
+  }
+  status() { return me._status }
+  snapshot() { return me._snapshot }
+  path() { return me._path }
+  node_kind() { return me._node_kind }
+  reason() { return me._reason }
+}
+static box BoundedBodySnapshotOutcomeV0Box {
+  ready(snapshot) { return new BoundedBodySnapshotOutcomeV0("Ready", snapshot, "", null, "") }
+  unsupported(path, node_kind, reason) { return new BoundedBodySnapshotOutcomeV0("Unsupported", null, path, node_kind, reason) }
+  invalid(path, reason) { return new BoundedBodySnapshotOutcomeV0("InvalidInput", null, path, null, reason) }
+}

@@ -1,0 +1,32 @@
+// Invocation-wide resource accounting. Every schema limit is inclusive.
+using lang.compiler.analysis.bounded_body_snapshot_schema_v0 as BoundedBodySnapshotSchemaV0Box
+box BoundedBodySnapshotBudgetV0 {
+  _node_count: Integer
+  _max_depth_observed: Integer
+  _total_text_bytes: Integer
+  birth() { me._node_count = 0 me._max_depth_observed = 0 me._total_text_bytes = 0 }
+  node_count() { return me._node_count }
+  max_depth_observed() { return me._max_depth_observed }
+  observe_node(depth) {
+    if depth > BoundedBodySnapshotSchemaV0Box.max_depth() { return "limit.max_depth" }
+    if me._node_count + 1 > BoundedBodySnapshotSchemaV0Box.max_node_count() { return "limit.max_node_count" }
+    me._node_count = me._node_count + 1
+    if depth > me._max_depth_observed { me._max_depth_observed = depth }
+    return null
+  }
+  observe_body_children(count) {
+    if count > BoundedBodySnapshotSchemaV0Box.max_children_per_body() { return "limit.max_children_per_body" }
+    return null
+  }
+  observe_arguments(count) {
+    if count > BoundedBodySnapshotSchemaV0Box.max_arguments() { return "limit.max_arguments" }
+    return null
+  }
+  observe_text(byte_count, literal) {
+    if literal == 1 && byte_count > BoundedBodySnapshotSchemaV0Box.max_literal_bytes() { return "limit.max_literal_bytes" }
+    if byte_count > BoundedBodySnapshotSchemaV0Box.max_atom_bytes() { return "limit.max_atom_bytes" }
+    if me._total_text_bytes + byte_count > BoundedBodySnapshotSchemaV0Box.max_total_text_bytes() { return "limit.max_total_text_bytes" }
+    me._total_text_bytes = me._total_text_bytes + byte_count
+    return null
+  }
+}

@@ -1,0 +1,17 @@
+// Structural PathV0 construction. User names and literals are never accepted.
+static box BoundedBodySnapshotPathV0Box {
+  root_body() { return "$.body" }
+  index(parent, index) { return parent + "[" + ("" + index) + "]" }
+  field(parent, role) {
+    if me._allowed(role) == 0 { return null }
+    return parent + "." + role
+  }
+  _allowed(role) {
+    if role == "type" || role == "expr" || role == "cond" { return 1 }
+    if role == "then" || role == "else" || role == "body" { return 1 }
+    if role == "start" || role == "end" || role == "lhs" || role == "rhs" { return 1 }
+    if role == "recv" || role == "args" || role == "name" || role == "method" { return 1 }
+    if role == "field" || role == "var_name" || role == "op" || role == "value" { return 1 }
+    return 0
+  }
+}
