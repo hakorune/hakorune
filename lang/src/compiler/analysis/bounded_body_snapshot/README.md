@@ -32,3 +32,7 @@ only a complete zero-node snapshot for an empty body. A non-empty body remains
 an explicit pending `Unsupported` until the statement-family reader lands.
 The internal root envelope may retain the body node only during the same
 invocation; published snapshots retain no session handle or node id.
+
+`reader_common_v0.hako` owns only generic JSON-kind diagnostic spelling.
+Reader families share it instead of duplicating `type.expected_*.got_*`
+construction; it owns no ProgramV0 fields, tags, traversal, or outcomes.

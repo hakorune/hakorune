@@ -3,6 +3,7 @@
 using lang.compiler.analysis.bounded_body_snapshot.strict_json_tree_v0 as StrictJsonTreeV0Box
 using lang.compiler.analysis.bounded_body_snapshot.outcome_v0 as BoundedBodySnapshotOutcomeV0Box
 using lang.compiler.analysis.bounded_body_snapshot.snapshot_model_v0 as BoundedBodySnapshotModelV0Box
+using lang.compiler.analysis.bounded_body_snapshot.reader_common_v0 as ProgramV0ReaderCommonV0Box
 
 box ProgramV0RootEnvelopeV0 {
   _status: String
@@ -41,7 +42,7 @@ static box HakoProgramV0RootReaderV0Box {
   scan(session, root) {
     local root_kind = StrictJsonTreeV0Box.kind(session, root)
     if root_kind != "Object" {
-      return ProgramV0RootEnvelopeV0Box.invalid("$", me._wrong_type("object", root_kind))
+      return ProgramV0RootEnvelopeV0Box.invalid("$", ProgramV0ReaderCommonV0Box.wrong_type("object", root_kind))
     }
     local version_node = -1 local kind_node = -1 local body_node = -1
     local optional_nodes = new ArrayBox() local optional_count = 10
@@ -81,7 +82,7 @@ static box HakoProgramV0RootReaderV0Box {
     }
     local body_kind = StrictJsonTreeV0Box.kind(session, body_node)
     if body_kind != "Array" {
-      return ProgramV0RootEnvelopeV0Box.invalid("$.body", me._wrong_type("array", body_kind))
+      return ProgramV0RootEnvelopeV0Box.invalid("$.body", ProgramV0ReaderCommonV0Box.wrong_type("array", body_kind))
     }
     local optional_issue = me._optional_issue(session, optional_nodes.get(0), "Object")
     if optional_issue != "ok" { return ProgramV0RootEnvelopeV0Box.invalid("$.attrs", optional_issue) }
@@ -117,8 +118,8 @@ static box HakoProgramV0RootReaderV0Box {
     if node < 0 { return "ok" }
     local actual = StrictJsonTreeV0Box.kind(session, node)
     if actual == expected { return "ok" }
-    if expected == "Object" { return me._wrong_type("object", actual) }
-    return me._wrong_type("array", actual)
+    if expected == "Object" { return ProgramV0ReaderCommonV0Box.wrong_type("object", actual) }
+    return ProgramV0ReaderCommonV0Box.wrong_type("array", actual)
   }
 
   _optional_index(key) {
@@ -135,14 +136,4 @@ static box HakoProgramV0RootReaderV0Box {
     return -1
   }
 
-  _wrong_type(expected, actual) { return "type.expected_" + expected + ".got_" + me._kind_label(actual) }
-  _kind_label(kind) {
-    if kind == "Null" { return "null" }
-    if kind == "Bool" { return "bool" }
-    if kind == "I64" || kind == "U64" || kind == "F64" { return "number" }
-    if kind == "String" { return "string" }
-    if kind == "Array" { return "array" }
-    if kind == "Object" { return "object" }
-    return "unknown"
-  }
 }

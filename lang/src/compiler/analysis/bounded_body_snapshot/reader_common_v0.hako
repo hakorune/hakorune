@@ -1,0 +1,17 @@
+// Generic diagnostic spelling shared by ProgramV0 structured readers.
+// This box owns no ProgramV0 field, tag, traversal, or outcome policy.
+static box ProgramV0ReaderCommonV0Box {
+  wrong_type(expected, actual) {
+    return "type.expected_" + expected + ".got_" + me.kind_label(actual)
+  }
+
+  kind_label(kind) {
+    if kind == "Null" { return "null" }
+    if kind == "Bool" { return "bool" }
+    if kind == "I64" || kind == "U64" || kind == "F64" { return "number" }
+    if kind == "String" { return "string" }
+    if kind == "Array" { return "array" }
+    if kind == "Object" { return "object" }
+    return "unknown"
+  }
+}

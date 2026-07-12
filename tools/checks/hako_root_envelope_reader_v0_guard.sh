@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TAG="hako-root-envelope-reader-v0"
 READER="$ROOT/lang/src/compiler/analysis/bounded_body_snapshot/reader_root_v0.hako"
+COMMON="$ROOT/lang/src/compiler/analysis/bounded_body_snapshot/reader_common_v0.hako"
 FIXTURE="$ROOT/tools/checks/fixtures/bounded_body_snapshot_root_reader_v0.hako"
 SESSION="$ROOT/src/backend/mir_interpreter/strict_json_session.rs"
 
@@ -16,15 +17,16 @@ timeout 10s env NYASH_DISABLE_PLUGINS=1 NYASH_MIR_COMPILE_TRACE=1 \
 grep -q 'stage=build_module' /tmp/hako-root-envelope-reader-v0.timing.log
 grep -q 'stage=semantic_refresh' /tmp/hako-root-envelope-reader-v0.timing.log
 
-python3 - "$READER" "$FIXTURE" "$SESSION" <<'PY'
+python3 - "$READER" "$COMMON" "$FIXTURE" "$SESSION" <<'PY'
 import sys
 from pathlib import Path
 
-reader_path, fixture_path, session_path = map(Path, sys.argv[1:])
+reader_path, common_path, fixture_path, session_path = map(Path, sys.argv[1:])
 reader = reader_path.read_text(encoding="utf-8")
+common = common_path.read_text(encoding="utf-8")
 fixture = fixture_path.read_text(encoding="utf-8")
 session = session_path.read_text(encoding="utf-8")
-for path in (reader_path, fixture_path, session_path):
+for path in (reader_path, common_path, fixture_path, session_path):
     if len(path.read_text(encoding="utf-8").splitlines()) > 800:
         raise SystemExit(f"source exceeds 800 lines: {path}")
 for needle in (
@@ -42,6 +44,9 @@ for needle in (
 for forbidden in ("MapBox", "indexOf", "substring(", "ValidatedProgramV0BodyView", "MIRBuilder"):
     if forbidden in reader:
         raise SystemExit(f"forbidden root-reader dependency: {forbidden}")
+for needle in ("wrong_type(expected, actual)", "kind_label(kind)"):
+    if needle not in common:
+        raise SystemExit(f"missing shared reader diagnostic: {needle}")
 for needle in (
     "execute_function_with_strict_json_session",
     "VMValue::Integer(handle)",
