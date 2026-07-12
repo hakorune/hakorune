@@ -59,6 +59,13 @@ impl StrictJsonValue {
         }
     }
 
+    pub(super) fn boolean(&self) -> Option<bool> {
+        match self {
+            Self::Bool(value) => Some(*value),
+            _ => None,
+        }
+    }
+
     pub(super) fn exact_i64(&self) -> Option<i64> {
         match self {
             Self::I64(value) => Some(*value),

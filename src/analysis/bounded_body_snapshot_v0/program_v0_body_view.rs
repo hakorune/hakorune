@@ -19,7 +19,7 @@ pub enum ProgramV0BodyViewError {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct ValidatedProgramV0BodyView {
-    root: StrictJsonValue,
+    pub(super) root: StrictJsonValue,
 }
 
 impl ValidatedProgramV0BodyView {

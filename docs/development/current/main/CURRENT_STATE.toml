@@ -78,7 +78,9 @@ edges, closed paths, normalized validated accessors, construction invariants,
 and one executable Rust witness. A1-A3 are closed with typed ordered atom and
 child schemas, exact operator encodings, eighteen closed path fields, fixed
 depth conventions, fourteen tests, and Rust/Hako declarative parity. A4
-normalized validated accessors are active. S3 Hako traversal is blocked on that algebra;
+is now closed with opaque borrowed nodes, canonical i64, typed text bundled
+with exact UTF-8 bytes/class, and schema-ordered read-only children. Eighteen
+focused tests are green; A5 construction invariants are active. S3 Hako traversal is blocked on that algebra;
 its landed model foundation remains VM-reference green, while the recursive
 reader prototype is parked and must be rewritten after S2.5.
 LoopFeature parity remains a parked follow-up;
@@ -101,8 +103,8 @@ fixture/guard. S1 closes the neutral Rust/Hako schema/model/path/budget/outcome
 slice with parity and dependency guards. S2 closes the strict Rust
 analysis-only JSON/ProgramV0 body view with decoded duplicate rejection,
 full-input and closed field validation, and distinct Unsupported/InvalidInput
-outcomes. S2.5 A1-A3 close the exact ordered atom/edge/path/depth vocabulary;
-the active A4 task adds the normalized validated carrier before S3 Hako traversal. Existing permissive
+outcomes. S2.5 A1-A4 close the exact vocabulary and normalized validated
+carrier; active A5 closes construction invariants before S3 Hako traversal. Existing permissive
 typed decode and MIR lowering entry are not reused as analysis authority.
 The LocalContractWrite exact-i64 Fact bridge is
 closed with canonical contract-id ownership, fresh identity matching,
@@ -140,7 +142,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "MIRBUILDER-SNAPSHOT-ALGEBRA-V0-NORMALIZED-VALIDATED-VIEW-001"
+current_blocker_token = "MIRBUILDER-SNAPSHOT-ALGEBRA-V0-CONSTRUCTION-INVARIANTS-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

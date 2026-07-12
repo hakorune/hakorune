@@ -353,3 +353,99 @@ fn path_fields_and_depth_convention_are_closed() {
         assert_eq!(role.path_field().wire_text(), role.wire_text());
     }
 }
+
+#[test]
+fn validated_view_normalizes_integer_wire_equivalence() {
+    let numeric = read_program_v0_body(
+        r#"{"version":0,"kind":"Program","body":[{"type":"Expr","expr":{"type":"Int","value":-7}}]}"#,
+    )
+    .expect("numeric Int view");
+    let decimal = read_program_v0_body(
+        r#"{"version":0,"kind":"Program","body":[{"type":"Expr","expr":{"type":"Int","value":"-7"}}]}"#,
+    )
+    .expect("decimal Int view");
+
+    for view in [&numeric, &decimal] {
+        assert_eq!(view.source_program_version(), 0);
+        let statement = view.body_node(0).expect("statement");
+        let expression = statement.children()[0].1;
+        assert_eq!(
+            expression.atoms(),
+            vec![(AtomKeyV0::Value, ValidatedAtomValueV0::I64(-7))]
+        );
+    }
+}
+
+#[test]
+fn validated_text_bundles_value_utf8_bytes_and_class() {
+    let view = read_program_v0_body(
+        r#"{"version":0,"kind":"Program","body":[{"type":"Local","name":"猫x","expr":{"type":"Str","value":"猫😸"}}]}"#,
+    )
+    .expect("multibyte text view");
+    let local = view.body_node(0).expect("Local");
+    assert_eq!(
+        local.atoms(),
+        vec![(
+            AtomKeyV0::Name,
+            ValidatedAtomValueV0::Text(ValidatedTextV0 {
+                value: "猫x",
+                utf8_byte_len: 4,
+                class: TextClassV0::Atom,
+            })
+        )]
+    );
+    let string = local.children()[0].1;
+    assert_eq!(
+        string.atoms(),
+        vec![(
+            AtomKeyV0::Value,
+            ValidatedAtomValueV0::Text(ValidatedTextV0 {
+                value: "猫😸",
+                utf8_byte_len: 7,
+                class: TextClassV0::Literal,
+            })
+        )]
+    );
+}
+
+#[test]
+fn validated_children_follow_canonical_schema_order() {
+    let view = read_program_v0_body(
+        r#"{"version":0,"kind":"Program","body":[{"type":"If","cond":{"type":"Bool","value":true},"then":[{"type":"Break"},{"type":"Continue"}],"else":[{"type":"Expr","expr":{"type":"Method","recv":{"type":"Var","name":"x"},"method":"m","args":[{"type":"Int","value":1},{"type":"Null"}]}}]}]}"#,
+    )
+    .expect("ordered child view");
+    let root = view.body_node(0).expect("If");
+    let children = root.children();
+    assert_eq!(
+        children.iter().map(|(role, _)| *role).collect::<Vec<_>>(),
+        vec![
+            ChildRoleV0::Cond,
+            ChildRoleV0::Then,
+            ChildRoleV0::Then,
+            ChildRoleV0::Else,
+        ]
+    );
+    let expr_stmt = children[3].1;
+    let method = expr_stmt.children()[0].1;
+    assert_eq!(
+        method
+            .children()
+            .iter()
+            .map(|(role, _)| *role)
+            .collect::<Vec<_>>(),
+        vec![ChildRoleV0::Recv, ChildRoleV0::Args, ChildRoleV0::Args]
+    );
+}
+
+#[test]
+fn validated_node_handles_borrow_the_view() {
+    fn first_kind(view: &ValidatedProgramV0BodyView) -> WireNodeKindV0 {
+        view.body_node(0).expect("first node").kind()
+    }
+    let view = read_program_v0_body(r#"{"version":0,"kind":"Program","body":[{"type":"Break"}]}"#)
+        .expect("view");
+    assert_eq!(
+        first_kind(&view),
+        WireNodeKindV0::Stmt(WireStmtKindV0::Break)
+    );
+}

@@ -60,6 +60,20 @@ impl WireStmtKindV0 {
         Self::Break,
         Self::Continue,
     ];
+
+    pub fn from_wire_text(value: &str) -> Option<Self> {
+        Some(match value {
+            "Local" => Self::Local,
+            "Expr" => Self::Expr,
+            "If" => Self::If,
+            "Loop" => Self::Loop,
+            "LoopRange" => Self::LoopRange,
+            "Return" => Self::Return,
+            "Break" => Self::Break,
+            "Continue" => Self::Continue,
+            _ => return None,
+        })
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -91,6 +105,23 @@ impl WireExprKindV0 {
         Self::Method,
         Self::Field,
     ];
+
+    pub fn from_wire_text(value: &str) -> Option<Self> {
+        Some(match value {
+            "Int" => Self::Int,
+            "Str" => Self::Str,
+            "Bool" => Self::Bool,
+            "Null" => Self::Null,
+            "Var" => Self::Var,
+            "Binary" => Self::Binary,
+            "Compare" => Self::Compare,
+            "Logical" => Self::Logical,
+            "Call" => Self::Call,
+            "Method" => Self::Method,
+            "Field" => Self::Field,
+            _ => return None,
+        })
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]

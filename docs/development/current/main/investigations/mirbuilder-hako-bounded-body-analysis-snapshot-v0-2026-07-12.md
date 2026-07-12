@@ -352,8 +352,8 @@ Ordered tasks:
 A1_canonical_atom_schema = complete
 A2_canonical_child_edge_schema = complete
 A3_closed_structural_paths = complete
-A4_normalized_validated_view = active
-A5_construction_invariants = pending
+A4_normalized_validated_view = complete
+A5_construction_invariants = active
 A6_rust_executable_witness = pending
 ```
 
@@ -413,6 +413,24 @@ A1-A3 closeout evidence:
 - fourteen focused Rust tests and the expanded
   `rust_lifecycle_mirbuilder_bounded_body_snapshot_schema_v0_guard.sh` are
   green; largest source is 490 lines.
+
+A4 closeout evidence:
+
+- `ValidatedNodeV0<'view>` is an opaque borrowed handle that cannot be forged
+  from raw JSON or outlive `ValidatedProgramV0BodyView`;
+- accepted wire tags convert to typed `WireStmtKindV0` / `WireExprKindV0`
+  only after strict validation;
+- integer JSON numbers and canonical decimal strings project to one `i64`;
+- `ValidatedTextV0` bundles decoded text, exact Rust UTF-8 byte length, and
+  schema-owned `Atom` versus `Literal` class, removing path-keyed sidecars;
+- `atoms()` returns typed ordered atom sequences and `children()` returns
+  schema-ordered `(ChildRoleV0, opaque child)` sequences without exposing the
+  underlying `StrictJsonValue`;
+- multibyte text, integer wire equivalence, If body order, and Method
+  recv-before-args order are fixed by four focused tests;
+- the strict body-view guard now proves normalized read-only projection,
+  canonical i64, typed UTF-8 text, schema child order, dependency isolation,
+  and the 800-line ceiling. Eighteen focused tests are green.
 
 ### S3 — Hako ProgramV0 snapshot reader (blocked by S2.5)
 
