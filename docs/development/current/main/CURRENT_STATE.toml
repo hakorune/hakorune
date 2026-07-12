@@ -69,9 +69,12 @@ rows, 7 exact SchemaMismatchStop tags, field/root seams, and parser strictness
 gaps. S1 SnapshotSchemaV0 is closed with neutral Rust/Hako declarative schema,
 immutable model, limits, PathV0, budget, exact equality, three-way outcomes,
 focused tests, Hako syntax evidence, and an analysis-only dependency guard.
-The active S2 task is a strict structured ProgramV0 body view: full-input and
-duplicate-key validation, explicit known/unknown fields and tags, scalar
-validation, and no raw scanner or MIR lowering entry.
+S2 is closed with a Rust analysis-only strict JSON/ProgramV0 compat adapter,
+decoded duplicate-key and trailing-input rejection, closed field/tag/scalar
+validation, explicit Unsupported versus InvalidInput outcomes, ten focused
+tests, and no MIR lowering/raw-scanner dependency. The active S3 task is the
+Hako ProgramV0 snapshot reader over validated structured input; raw JSON is
+not a Hako reader input.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
@@ -89,9 +92,12 @@ is explicitly lossy and removable, and does not recover source distinctions.
 S0 ProgramV0WireContractInventoryV0 closes with 40 classified rows, 7 exact
 SchemaMismatchStop tags, explicit field/root/parser seams, and one generated
 fixture/guard. S1 closes the neutral Rust/Hako schema/model/path/budget/outcome
-slice with parity and dependency guards. The active S2 task is the strict
-structured ProgramV0 body view; existing permissive typed decode and MIR
-lowering entry are not reused as analysis authority.
+slice with parity and dependency guards. S2 closes the strict Rust
+analysis-only JSON/ProgramV0 body view with decoded duplicate rejection,
+full-input and closed field validation, and distinct Unsupported/InvalidInput
+outcomes. The active S3 task is the Hako snapshot reader over validated
+structured input; existing permissive typed decode and MIR lowering entry are
+not reused as analysis authority.
 The LocalContractWrite exact-i64 Fact bridge is
 closed with canonical contract-id ownership, fresh identity matching,
 dst-only publication, Copy/same-slot PHI propagation, 17 focused tests, and
@@ -128,7 +134,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "MIRBUILDER-STRICT-STRUCTURED-PROGRAMV0-BODY-VIEW-001"
+current_blocker_token = "MIRBUILDER-HAKO-PROGRAMV0-SNAPSHOT-READER-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

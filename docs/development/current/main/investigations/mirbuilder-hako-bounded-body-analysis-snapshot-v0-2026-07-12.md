@@ -312,14 +312,35 @@ Closeout evidence:
   `tools/checks/rust_lifecycle_mirbuilder_bounded_body_snapshot_schema_v0_guard.sh`;
 - all new Rust/Hako source files remain below 800 lines.
 
-### S2 — Strict structured ProgramV0 body view (active)
+### S2 — Strict structured ProgramV0 body view (closed)
 
 - strict full-input JSON parse with duplicate-key detection;
 - version/kind/envelope and field-type validation;
 - no raw scanner, substring tag detection, token offset, or fallback;
 - excluded known variants remain distinguishable from malformed/unknown input.
 
-### S3 — Hako ProgramV0 snapshot reader
+Closeout evidence:
+
+- `strict_json.rs` owns full-input JSON syntax parsing and rejects duplicate
+  keys after JSON escape decoding, including escaped/unescaped equivalent
+  keys; it does not use `serde_json::Value` or the permissive MIR lowerer;
+- `program_v0_body_view.rs` validates the Program v0 envelope, known root
+  fields, every accepted statement/expression field shape, required children,
+  canonical i64 values, and the closed operator partitions;
+- unknown fields/tags and malformed scalars are `InvalidInput`; current known
+  excluded tags are `Unsupported`; the seven producer/consumer mismatches use
+  `transport.schema_mismatch_stop`;
+- the adapter is read-only, publishes only `ValidatedProgramV0BodyView` after
+  complete validation, and imports no AST producer, MIRBuilder, planner,
+  route, backend, or runtime owner;
+- the abandoned Hako raw-parser probe was not landed: current Hako lacks a
+  proven exact Unicode-codepoint construction primitive, so it could not own
+  complete duplicate-key validation without weakening the strict claim;
+- ten focused analysis tests and
+  `tools/checks/rust_lifecycle_mirbuilder_strict_program_v0_body_view_guard.sh`
+  are green; all source files remain below 800 lines.
+
+### S3 — Hako ProgramV0 snapshot reader (active)
 
 - split schema/outcome/path/budget/model/builder/stmt/expr responsibilities;
 - publish an immutable snapshot only after full traversal succeeds;
