@@ -23,6 +23,7 @@ mod collection_read_routes;
 mod flow_origin;
 mod generated;
 mod map_set_scalar_proof;
+mod mapstore_i64_key_witness;
 mod mapstore_route_policy_validator;
 mod mir_json_routes;
 mod model;
@@ -44,6 +45,10 @@ use flow_origin::{
 pub(crate) use map_set_scalar_proof::ScalarI64MapGetStoreFact;
 pub(crate) use map_set_scalar_proof::{
     instruction_may_escape_or_mutate_receiver, prove_scalar_i64_map_get_store_fact,
+};
+pub(crate) use mapstore_i64_key_witness::{
+    refresh_module_mapstore_i64_key_witnesses, MapStoreI64KeyFactRejection,
+    MapStoreI64KeyWitness,
 };
 pub use model::GenericMethodRoute;
 pub(crate) use model::{

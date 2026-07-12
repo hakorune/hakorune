@@ -13,6 +13,8 @@ ROOT = Path(__file__).resolve().parents[2]
 OUTPUT = ROOT / "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-mapstore-i64-fact-plan-boundary-inventory-v0.json"
 CARD = ROOT / "docs/development/current/main/phases/phase-296x/3457-MIRBUILDER-MAPSTORE-I64-FACT-PLAN-BOUNDARY-INVENTORY-001.md"
 FACTS = ROOT / "src/mir/generic_method_route_facts.rs"
+EXACT_FACTS = ROOT / "src/mir/exact_numeric_value_facts.rs"
+WITNESS = ROOT / "src/mir/generic_method_route_plan/mapstore_i64_key_witness.rs"
 ROUTES = ROOT / "src/mir/generic_method_route_plan/write_routes.rs"
 TESTS = ROOT / "src/mir/generic_method_route_plan/tests/map_set_routes/map_get_scalar.rs"
 POLICY = ROOT / "lang/src/compiler/lib/write_set_mapstore_route_policy.hako"
@@ -77,6 +79,24 @@ def build_fixture() -> dict[str, Any]:
                 "blocked_reason": "dynamic integer provenance owner not isolated",
             },
             {
+                "candidate_id": "projection.mapstore.key_domain.exact_i64_witness",
+                "candidate_kind": "ValidationProjection",
+                "semantic_statement": "MapStoreI64 key has source-backed exact i64 evidence",
+                "authority_source": rel(EXACT_FACTS),
+                "stable_identity": "MapStoreI64KeyWitness",
+                "current_producer": "refresh_function_mapstore_i64_key_witnesses",
+                "refresh_or_rebuild_owner": "refresh_module_exact_numeric_value_facts",
+                "consumers": ["verify_mapstore_i64_key_route"],
+                "derived_projections": [],
+                "independent_oracle": rel(WITNESS),
+                "fail_fast_boundary": "missing witness is report-only; claimed witness must verify",
+                "fixture": rel(WITNESS),
+                "authority_conflicts": ["must not become a second numeric Fact owner"],
+                "behavior_delta": "none",
+                "eligibility": "implemented_exact_i64_projection",
+                "blocked_reason": "",
+            },
+            {
                 "candidate_id": "plan.mapstore.set.route_decision",
                 "candidate_kind": "Plan",
                 "semantic_statement": "MapStoreI64 route decision payload",
@@ -116,6 +136,8 @@ def build_fixture() -> dict[str, Any]:
         "provenance": {
             "card": evidence(CARD),
             "facts": evidence(FACTS),
+            "exact_numeric_facts": evidence(EXACT_FACTS),
+            "witness": evidence(WITNESS),
             "routes": evidence(ROUTES),
             "tests": evidence(TESTS),
             "policy": evidence(POLICY),
@@ -123,6 +145,12 @@ def build_fixture() -> dict[str, Any]:
         "claims": {
             "mapstore_i64_const_key_fact_candidate": 1,
             "mapstore_i64_const_fact_owner_implemented": 1,
+            "existing_exact_numeric_fact_owner_reused": 1,
+            "mapstore_i64_source_backed_key_witness_candidate": 1,
+            "mapstore_i64_first_hard_scope": "exact_i64_only",
+            "current_i64value_disposition": "derived_projection",
+            "mirtype_integer_hard_authority": 0,
+            "new_dynamic_integer_owner": 0,
             "mapstore_dynamic_i64_fact_candidate": "pending",
             "mapstore_i64_plan_candidate": "blocked",
             "mapstore_i64_boundary_candidate": "blocked",

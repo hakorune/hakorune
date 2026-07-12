@@ -49,6 +49,28 @@
     },
     {
       "authority_conflicts": [
+        "must not become a second numeric Fact owner"
+      ],
+      "authority_source": "src/mir/exact_numeric_value_facts.rs",
+      "behavior_delta": "none",
+      "blocked_reason": "",
+      "candidate_id": "projection.mapstore.key_domain.exact_i64_witness",
+      "candidate_kind": "ValidationProjection",
+      "consumers": [
+        "verify_mapstore_i64_key_route"
+      ],
+      "current_producer": "refresh_function_mapstore_i64_key_witnesses",
+      "derived_projections": [],
+      "eligibility": "implemented_exact_i64_projection",
+      "fail_fast_boundary": "missing witness is report-only; claimed witness must verify",
+      "fixture": "src/mir/generic_method_route_plan/mapstore_i64_key_witness.rs",
+      "independent_oracle": "src/mir/generic_method_route_plan/mapstore_i64_key_witness.rs",
+      "refresh_or_rebuild_owner": "refresh_module_exact_numeric_value_facts",
+      "semantic_statement": "MapStoreI64 key has source-backed exact i64 evidence",
+      "stable_identity": "MapStoreI64KeyWitness"
+    },
+    {
+      "authority_conflicts": [
         "would move route selection authority"
       ],
       "authority_source": "lang/src/compiler/lib/write_set_mapstore_route_policy.hako",
@@ -93,7 +115,9 @@
   "claims": {
     "array_append_any_opened": 0,
     "backend_lowering_authority": 0,
+    "current_i64value_disposition": "derived_projection",
     "delete_opened": 0,
+    "existing_exact_numeric_fact_owner_reused": 1,
     "hard_authority_activation": 0,
     "mapstore_any_opened": 0,
     "mapstore_dynamic_i64_fact_candidate": "pending",
@@ -101,8 +125,12 @@
     "mapstore_i64_caller_projection_closed": 1,
     "mapstore_i64_const_fact_owner_implemented": 1,
     "mapstore_i64_const_key_fact_candidate": 1,
+    "mapstore_i64_first_hard_scope": "exact_i64_only",
     "mapstore_i64_plan_candidate": "blocked",
     "mapstore_i64_registry_descriptor_candidate": "conditional",
+    "mapstore_i64_source_backed_key_witness_candidate": 1,
+    "mirtype_integer_hard_authority": 0,
+    "new_dynamic_integer_owner": 0,
     "publication_execution": 0,
     "route_behavior_change": 0,
     "runtime_mutation_authority": 0,
@@ -114,6 +142,10 @@
     "card": {
       "path": "docs/development/current/main/phases/phase-296x/3457-MIRBUILDER-MAPSTORE-I64-FACT-PLAN-BOUNDARY-INVENTORY-001.md",
       "sha256": "fa0de22a931a7a5f80f607817afe71862afbfe0e2ee63697ef99412416185274"
+    },
+    "exact_numeric_facts": {
+      "path": "src/mir/exact_numeric_value_facts.rs",
+      "sha256": "0479e37a9be6f75e55ddb96d7c25e7e73268dabd246166acf4a3d65ad0027cd5"
     },
     "facts": {
       "path": "src/mir/generic_method_route_facts.rs",
@@ -130,6 +162,10 @@
     "tests": {
       "path": "src/mir/generic_method_route_plan/tests/map_set_routes/map_get_scalar.rs",
       "sha256": "33fa22691fce2577f7b314c1e3f988546b9ee96504d12942e9e57f863bb717cd"
+    },
+    "witness": {
+      "path": "src/mir/generic_method_route_plan/mapstore_i64_key_witness.rs",
+      "sha256": "2fe8d91fcc6aa255e8829f83e6849a9644ea11c1e23e2593696a586900890973"
     }
   },
   "schema_version": 0,

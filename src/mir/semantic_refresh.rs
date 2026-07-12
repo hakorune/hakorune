@@ -45,7 +45,9 @@ use super::{
     fastmem_table_length_fact::refresh_function_fastmem_table_length_facts,
     fastpath_required_diagnostic::refresh_function_fastpath_obligations,
     function::ModuleMetadata,
-    generic_method_route_plan::refresh_function_generic_method_routes,
+    generic_method_route_plan::{
+        refresh_function_generic_method_routes, refresh_module_mapstore_i64_key_witnesses,
+    },
     global_call_route_plan::refresh_function_global_call_routes,
     hako_alloc_aligned_small_packed_store_pilot::refresh_module_hako_alloc_aligned_small_packed_store_pilot_plans,
     hako_alloc_huge_page_packed_store_pilot::refresh_module_hako_alloc_huge_page_packed_store_pilot_plans,
@@ -367,6 +369,7 @@ fn refresh_module_contracts_and_exact_numeric(module: &mut MirModule) {
     refresh_module_userbox_known_receiver_method_seed_routes(module);
     refresh_module_exact_seed_backend_routes(module);
     refresh_module_exact_numeric_value_facts(module);
+    refresh_module_mapstore_i64_key_witnesses(module);
     refresh_module_exact_numeric_runtime_check_contracts(module);
 }
 

@@ -1,6 +1,6 @@
 # MapStoreI64 Source-Backed Key Fact Task
 
-Status: Parked next implementation task; not the active lane.
+Status: Active implementation slice; selected by the accepted 3457 follow-up.
 Date: 2026-07-12
 Active lane remains: 3457 MapStoreI64 authority inventory/design boundary.
 Decision source: 3457 follow-up consultation, accepted.
@@ -205,6 +205,17 @@ Commands must include the focused exact-numeric tests, the new witness
 fixture/guard, `git diff --check`, and `bash
 tools/checks/current_state_pointer_guard.sh`. A filtered test command that
 collects zero tests is not evidence.
+
+## Implementation result
+
+Implemented the typed `MapStoreI64KeyWitness` projection and its verifier.
+The projection runs after `refresh_module_exact_numeric_value_facts`, stores
+only exact `i64` witnesses, and records missing/dynamic/non-`i64` routes in a
+report-only rejection ledger. Existing `GenericMethodKeyRoute::I64Value`
+classification and `write_routes.rs` route selection remain unchanged.
+
+The existing 3457 inventory fixture and guard now cover the witness contract,
+so no second lane guard was added.
 
 ## Stop boundary
 

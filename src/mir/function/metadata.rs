@@ -45,6 +45,7 @@ use crate::mir::{
     extern_call_route_plan::ExternCallRoute,
     fastmem_access_plan::{FastMemAccessPlan, FastMemTableFieldAccessLink},
     generic_method_route_plan::GenericMethodRoute,
+    generic_method_route_plan::{MapStoreI64KeyFactRejection, MapStoreI64KeyWitness},
     global_call_route_plan::GlobalCallRoute,
     hotcore_method_summary::HotCoreMethodSummary,
     inline_plan::InlinePlan,
@@ -354,6 +355,14 @@ pub struct FunctionMetadata {
     /// These own narrow method-surface policy decisions in MIR so backend
     /// shims can emit selected helpers without reclassifying method strings.
     pub generic_method_routes: Vec<GenericMethodRoute>,
+
+    /// Source-backed exact-i64 key witnesses for MapStoreI64 routes. Absence
+    /// leaves the existing derived Integer route behavior unchanged.
+    pub(crate) mapstore_i64_key_witnesses: Vec<MapStoreI64KeyWitness>,
+
+    /// Report-only reasons why a MapStoreI64 route did not produce a hard
+    /// witness. These rows do not reject the existing route behavior.
+    pub(crate) mapstore_i64_key_fact_rejections: Vec<MapStoreI64KeyFactRejection>,
 
     /// Backend-consumable collection constructor call route plans.
     /// These own narrow constructor declaration/origin facts in MIR so backend
