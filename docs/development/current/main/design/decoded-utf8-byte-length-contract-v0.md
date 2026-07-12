@@ -72,7 +72,7 @@ as `nyash.string.len_bytes_h`; it must not reuse `nyash.any.length_h`,
 
 ## Durable task order
 
-### U0 — Contract and capability inventory (active)
+### U0 — Contract and capability inventory (complete)
 
 - freeze this semantic contract and operation ID;
 - inventory the reference-VM callable seam and every backend preflight owner;
@@ -81,7 +81,52 @@ as `nyash.string.len_bytes_h`; it must not reuse `nyash.any.length_h`,
 - name the internal carrier-integrity failure outcome without mapping it to
   user `InvalidInput`.
 
-### U1 — Environment-independent reference leaf
+U0 closeout inventory:
+
+```text
+RHako semantic leaf:
+  src/analysis/bounded_body_snapshot_v0/decoded_utf8_byte_len_v0.rs
+  crate-private DecodedUtf8ByteLenV0(&str) -> usize
+
+future HHako internal call spelling:
+  hako_internal_decoded_utf8_byte_len_v0(text)
+  Callee::Extern only; no String method, slot, alias, or public ABI row
+
+reference execution route:
+  Callee::Extern
+  -> MirInterpreter::execute_extern_function
+  -> analysis leaf
+
+HHako preflight:
+  reference VM extern allowlist only
+
+product backend gate:
+  MIR metadata -> decoded_utf8_byte_len_backend_capability
+  -> shared BackendPreflight -> backend entry rejection
+```
+
+Non-authority inventory:
+
+```text
+StringBox.length / len / size
+StringBox method slot 300
+NYASH_STR_CP and string_codepoint_mode
+Rust VM String fast/slow dispatch
+ByteCursorBox.len_bytes MVP placeholder
+nyash.string.len_h and nyash.any.length_h
+nyrt_string_length / raw pointer / CStr / strlen
+LLVM string corridors
+generic HostFacade / hostbridge / hako.intrin
+Rust normalized-carrier replay input
+```
+
+Existing fail-fast owners are `src/mir/backend_capability.rs` plus the LLVM,
+PyVM, and Wasm backend entries. Capability failure is a backend/runner error
+before reader effects and has no `PathV0`; it must never be translated to
+reader `Unsupported` or `InvalidInput`. Carrier witness mismatch is separately
+named `InternalCarrierContractViolation`.
+
+### U1 — Environment-independent reference leaf (active)
 
 - implement the smallest analysis/internal executable leaf;
 - count decoded Rust strings by `value.as_bytes().len()`;

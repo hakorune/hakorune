@@ -565,10 +565,12 @@ Decision criteria:
 - producer, validator, Hako reader, fixture, and retirement owner are named;
 - the carrier cannot expose a mutable alias of its structured input.
 
-Current task order is U0 contract/capability inventory, U1 reference leaf, U2
-HHako capability/preflight, U3 independent local carriers, then B2/B3 resume.
-Do not claim B2, text-budget parity, or exact RHako/HHako snapshot parity until
-U0-U5 are closed. The worker prototype also used unsupported
+U0 is closed: the RHako leaf lives under the analysis module, the future HHako
+spelling is `hako_internal_decoded_utf8_byte_len_v0` through `Callee::Extern`,
+and product backends use shared `BackendPreflight` rather than reader outcomes.
+U1 reference leaf is active; U2 is HHako capability/preflight, U3 independent
+local carriers, then B2/B3 resume. Do not claim B2, text-budget parity, or
+exact RHako/HHako snapshot parity until U0-U5 are closed. The worker prototype also used unsupported
 `String.split()` helpers; field closure must use a closed declarative schema,
 not CSV parsing or substring detection.
 
