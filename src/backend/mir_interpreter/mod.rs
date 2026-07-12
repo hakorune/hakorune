@@ -26,6 +26,7 @@ mod helpers;
 mod method_router;
 mod object_field_store;
 pub mod static_box_registry;
+mod strict_json_session;
 mod trace;
 mod utils;
 
@@ -97,6 +98,10 @@ pub struct MirInterpreter {
     /// Dev-only preflight checks already performed for a function name.
     /// Avoids repeating verifier work on hot call paths.
     pub(super) preflight_checked_fns: FxHashSet<String>,
+    /// Invocation-owned generic strict JSON arena.  ProgramV0 interpretation
+    /// is intentionally not stored here.
+    pub(super) strict_json_session: Option<strict_json_session::StrictJsonSessionV0>,
+    pub(super) strict_json_generation: u64,
 }
 
 const VM_RECENT_STEP_LIMIT: usize = 32;
@@ -170,6 +175,8 @@ impl MirInterpreter {
             recent_steps: VecDeque::new(),
             repl_session: None,
             preflight_checked_fns: FxHashSet::default(),
+            strict_json_session: None,
+            strict_json_generation: 0,
         }
     }
 
