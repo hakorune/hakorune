@@ -534,6 +534,101 @@ accepted, add exact scope fixtures and a differential Lower gate. Otherwise
 retain the explicit compatibility sequencing contract. Do not infer the
 choice from braces alone during migration.
 
+#### Evidence inventory
+
+The repository currently contains a real contract split:
+
+```text
+docs/reference/language/block-expressions-and-map-literals.md:
+  Status = Draft
+  Decision = provisional
+  statement order and required tail are specified
+  local lifetime / leakage is not specified
+
+block-expressions-and-condition-blocks-ssot.md:
+  says BlockExpr enables "condition is a scope"
+  says later parser sugar must keep those semantics fixed
+
+Rust direct MIR Lower:
+  lowers each prelude statement in the current builder scope
+  performs no BlockExpr-specific lexical scope push/pop
+
+ProgramV0 JSON bridge:
+  mutates the caller vars map directly
+  its scope-exit path is cleanup-aware, not proof of lexical isolation
+
+current BlockExpr fixture:
+  proves prelude order, tail value, and condition use
+  does not prove local leakage, shadow restoration, or outer rebind behavior
+```
+
+Therefore current execution is evidence of compatibility behavior, not
+language authority. The phrase "condition is a scope" is evidence for lexical
+scope intent, but the provisional reference cannot silently override shipped
+behavior. B0 must choose one explicit language row.
+
+#### Decision requested
+
+```text
+A — lexical_blockexpr (recommended for the resolved-region model)
+
+  every canonical BlockExpr owns ScopeId + RegionId
+  prelude locals are visible to the tail only
+  prelude locals do not escape the expression
+  outer BindingId rebinds propagate normally
+  non-local exits remain forbidden in v1
+
+B — compatibility_sequence
+
+  BlockExpr does not introduce lexical lifetime
+  prelude declarations/rebinds remain in the surrounding scope
+  resolver records an explicit sequencing contract
+  docs must stop calling it a scope
+
+C — split vocabulary
+
+  canonical BlockExpr is lexical
+  a separately named internal SequenceExpr owns compatibility behavior
+  the same AST variant may never carry both meanings
+```
+
+The consultation must decide:
+
+```text
+canonical language authority
+whether existing leakage is compatibility or intended behavior
+whether a separate SequenceExpr is needed
+Rust/Hako parser parity requirement
+ProgramV0 compatibility mapping
+minimum differential fixtures
+cutover and retirement order
+```
+
+No resolver or Lower implementation starts before this decision.
+
+#### Post-decision task slices
+
+```text
+B0-D:
+  mark the chosen language row accepted in docs/reference
+  name non-authority and fail-fast boundaries
+
+B0-S:
+  add BlockExpr RegionId/ScopeId or explicit sequence disposition
+  source identity only; Planner/Lower connection = 0
+
+B0-F:
+  fixtures for inner-local leakage, same-name shadowing, outer rebind,
+  tail visibility, and recursive non-local-exit rejection
+
+B0-L:
+  differential legacy/new Lower gate
+  explicit route selection; silent fallback = 0
+
+B0-R:
+  retire the losing semantic path only after parity/cutover is green
+```
+
 ### M0 — Match structural identity
 
 ```text

@@ -156,6 +156,9 @@ runtime layout/slot, AST clone, ValueId, BasicBlockId, Planner, RegionFlow, and
 Lower wiring remain zero. B0 is now the explicit design stop: decide whether
 canonical BlockExpr owns a real lexical scope or preserves compatibility
 sequencing semantics before changing resolver visibility or Lower behavior.
+The evidence inventory records a provisional reference row, a design SSOT
+that says "condition is a scope", current direct/JSON Lower mutation of the
+surrounding scope, and no leakage/shadow-restoration fixture.
 Production resolver installation, Planner/Lower connection, legacy fallback,
 and BindingId authority cutover remain zero. Historical decision follows.
 Resolved Region Flow V1 accepts
