@@ -1,331 +1,627 @@
 ---
-Status: Design consultation stop
+Status: Decision accepted; P0 source-role vocabulary is the active code slice
 Date: 2026-07-13
-Scope: Resolved Semantic Arena V1 nested owners and expression-level exits
+Scope: Resolved Semantic Owner Forest V1 design and implementation task order
 Parent: mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
+Decision: A-double-prime sealed_owner_forest_with_structural_upvar_edges
 ---
 
-# Resolved Semantic Owner Forest V1 — Design Consultation
+# Resolved Semantic Owner Forest V1 — Decision and Task Card
 
-## Decision already fixed
+## Outcome
 
-The accepted base architecture is not under reconsideration:
+The nested-owner design stop is closed with the smallest owner-forest model:
 
 ```text
-canonical function AST
-  -> FunctionSemanticResolverV1
-  -> VerifiedResolvedFunctionV1
+canonical owner syntax
+  -> SemanticOwnerForestResolverSessionV1
+  -> owner-local sealed products
+  -> forest verification
+  -> VerifiedSemanticOwnerForestV1
   -> Planner / RegionFlow
   -> Lower materialization
 ```
 
-`VerifiedResolvedFunctionV1` is one immutable, owner-scoped semantic arena.
-It owns `BindingId`, `ScopeId`, `RegionId`, resolved variable/assignment
-indices, and exact control targets. `BindingOriginV1` and `RegionOriginV1`
-are checked provenance, not identity authorities. Lower allocates `ValueId`
-and blocks only; it does not resolve names or targets again.
-
-The disconnected producer, seal/verifier, exhaustive 57-variant classifier,
-leaf-expression traversal, assignment-target resolution, Nowait binding
-identity, and TaskScope/FastMem lexical containers are green. Production
-installation remains zero.
-
-## Why implementation stops here
-
-The remaining canonical variants cross a semantic owner or exit-domain
-boundary rather than merely adding recursive traversal:
+The final semantic vocabulary is:
 
 ```text
-Lambda:
-  nested function owner, parameters/locals, captures, return target
+FunctionOwnerIdV1:
+  one function/lambda owner membership handle
 
-QMarkPropagate:
-  expression-site early return
+BindingId:
+  one source lexical declaration
 
-MatchExpr / EnumMatchExpr:
-  arm regions, arm lexical scopes, pattern binders, result merge
+UpvarRefV1:
+  one child-owner reference to an ancestor BindingRefV1
 
-TryCatch / Throw:
-  exception target, catch binder/scope, finally/cleanup ports
+ResolvedExitSiteV1:
+  exact statement or expression exit origin
 
-BlockExpr:
-  expression result plus explicit lexical-scope contract
+VerifiedRegionFlowV1:
+  normal/exit/result/cleanup/state flow
+
+ValueId / BasicBlockId:
+  Lower-only MIR identity
 ```
 
-Putting a lambda's declarations into its parent function arena would violate
-owner-scoped identity. Putting QMark/Throw into the existing statement-only
-exit index would lose exact source identity. Letting the resolver decide
-match result merges or finally execution would mix identity resolution with
-RegionFlow semantics.
+There is no resolver-owned `CaptureId`, no child synthetic capture
+`BindingId`, and no resolver-owned closure layout slot. A dense
+`CaptureSlotId` may be created later only by a verified capture transport
+plan.
 
-## Consultation question
+## Current evidence
 
-Please choose the smallest clean extension of the accepted owner-scoped
-semantic arena. The recommended candidate is below, but it is not yet an
-implementation decision.
+The disconnected canonical resolver producer, seal/verifier, exhaustive
+57-variant classifier, leaf-expression traversal, assignment-target
+resolution, Nowait binding identity, and TaskScope/FastMem lexical containers
+are green. Production resolver installation remains zero.
 
-### 1. Semantic owner topology
-
-Should nested functions use an owner forest?
+The current code also fixes the migration seams that this card must replace:
 
 ```text
-A — VerifiedSemanticOwnerForestV1 (recommended)
+Lambda Lower:
+  HashSet<String> free-variable rediscovery
 
-  compilation/function-body owner
-    -> independently sealed VerifiedResolvedFunctionV1 products
-    -> explicit parent/child owner edges
-    -> explicit capture edges
+resolved function product:
+  parallel control_exits / control_exit_regions maps
 
-B — independent product registry
+SourceExprSiteV1:
+  relative to one owner root, not globally unique in a forest
 
-  separately sealed function products keyed by owner
-  no canonical parent/child forest
+BlockExpr Lower:
+  sequential prelude today, no lexical-scope push/pop
 
-C — defer nested owners
-
-  Lambda remains exact Unsupported through the production cutover
+canonical surface:
+  throw prohibited
+  question-mark propagation noncanonical
 ```
 
-If A is selected, should a captured outer binding become a child-local
-`Capture` binding whose record points to a parent `BindingRefV1`, rather than
-reusing the parent's `BindingId` inside the child?
+Therefore owner topology, exact cross-owner source identity, and exit record
+shape may be implemented now. Capture mode, QMark language activation,
+source `throw`, BlockExpr scope semantics, match result flow, and cleanup flow
+remain separate decisions or later verified products.
 
-Recommended invariant:
-
-```text
-child BindingId equality:
-  child lexical identity only
-
-capture edge:
-  child Capture BindingId -> parent BindingRefV1
-
-cross-owner raw BindingId reuse:
-  forbidden
-```
-
-Also decide who allocates owner IDs, how owner-forest sealing proves no
-dangling/cyclic capture edge, and whether recursive/self capture requires a
-separate closed constructor.
-
-### 2. Exact exit-site identity
-
-The current side table is statement-keyed. QMark and Throw may originate at
-expression sites. Which closed identity should replace it?
+## Canonical authority
 
 ```text
-A — ResolvedExitSiteV1 (recommended)
+owner-local declarations/scopes/regions:
+  SealedResolvedOwnerV1
 
-  Statement(SourceStmtSiteV1)
-  Expression(SourceExprSiteV1)
-
-B — generalized SourceNodeSiteV1
-
-  one node-site type with a verified statement/expression family tag
-
-C — separate statement-exit and expression-exit maps
-```
-
-The exit vocabulary must distinguish semantic target identity from later
-edge-state/cleanup behavior. Please classify the minimum accepted family:
-
-```text
-Continue(target_loop: RegionId)
-Break(target_loop: RegionId)
-Return(target_function: RegionId)
-QMarkReturn(target_function: RegionId)
-Throw(target_exception_region or function boundary)
-```
-
-Should `QMarkReturn` remain a distinct origin/kind for diagnostics while
-sharing the function return target, or normalize immediately to `Return`?
-
-### 3. Resolver versus RegionFlow ownership
-
-Proposed boundary:
-
-```text
-FunctionSemanticResolverV1 owns:
-  owner / binding / scope / region identity
-  declaration and use resolution
-  capture edges
-  exact break/continue/return/throw target identity
-  match-arm and catch lexical binder identity
-
-ResolvedRegionFlowV1 owns:
-  port propagation
-  condition/evaluation flow
-  match result merge
-  QMark success/early-return branching
-  throw/catch/finally flow
-  edge binding-state contracts
-  cleanup obligations
-
-Lower owns:
-  BindingId -> ValueId
-  RegionId -> block materialization
-```
-
-Is this split correct? In particular:
-
-1. Does the resolver create Match/arm and Try/Catch/Finally `RegionId`s while
-   leaving result/exception flow entirely to RegionFlow?
-2. Is `finally` a plain region plus verified cleanup-port contract, or does it
-   require a different semantic owner/product?
-3. Is a BlockExpr always a real lexical `ScopeId` plus expression region, or
-   are there canonical AST variants where it is sequencing-only?
-4. May the resolver reject unsupported control semantics before publishing,
-   while RegionFlow reports unsupported execution vocabulary later?
-
-## Canonical authority proposed
-
-```text
-per-function lexical/control identity:
-  VerifiedResolvedFunctionV1
-
-cross-function ownership and capture correspondence:
+cross-owner topology and Upvar validity:
   VerifiedSemanticOwnerForestV1
 
+source syntax and execution order:
+  canonical AST
+
 source provenance:
-  BindingOriginV1 / RegionOriginV1 / ResolvedExitSiteV1
+  owner-branded Source*SiteV1 values
 
-control and state-flow execution contract:
-  VerifiedRegionFlowV1
+capture mode and runtime transport:
+  future VerifiedCapturePlanV1
 
-MIR identity:
-  ValueId / BasicBlockId allocated only by Lower
+control/state execution:
+  future VerifiedRegionFlowV1
+
+MIR materialization:
+  Lower
 ```
+
+`VerifiedResolvedFunctionV1` remains the current migration name. Before
+cross-owner references are publicly consumable, its final role must be made
+explicit as either `SealedResolvedOwnerV1` or an owner-local product view.
+Only the verified forest is complete cross-owner authority.
 
 ## Non-authority
 
 ```text
 variable/function names
-raw owner-local integer IDs across functions
-source paths as semantic equality
+raw owner-local integer IDs
+source path by itself
 AST pointer identity
-Lower loop stack depth
+first capture use
+HashSet iteration order
+Lower loop-stack depth
 Recipe success alone
-capture discovery in Lower
-QMark desugaring into a synthetic statement
-Match/Try result merge in the resolver
+CaptureSlotId before capture planning
 ProgramV0
 ```
 
-## Smallest implementation slice after consultation
+## Minimal data model
 
-The next code-facing slice must prove the selected outer shape without
-connecting Planner or Lower.
+### Owner topology
 
-Recommended `OF0` if the owner forest is accepted:
+The forest stores only owner products and parent edges as primary data.
 
-```text
-1. add owner-local FunctionOwnerIdV1 and sealed owner forest builder
-2. resolve one non-capturing Lambda as an independently sealed child product
-3. record one parent -> child owner edge
-4. keep Lambda expression site -> child owner lookup as a verified index
-5. reject captures explicitly in OF0
-6. publish no AST clone and allocate no ValueId
-7. keep production resolver installation = 0
+```rust
+pub struct VerifiedSemanticOwnerForestV1 {
+    owners: BTreeMap<FunctionOwnerIdV1, SealedResolvedOwnerV1>,
+    parents: BTreeMap<FunctionOwnerIdV1, OwnerParentEdgeV1>,
+
+    // roots, child_at, and upvar indexes are seal-derived witnesses.
+}
 ```
 
-Recommended `EX0` after the exit-site decision:
-
-```text
-1. add the chosen typed exit-site identity
-2. move current statement exits without behavior change
-3. resolve one QMark expression to the owning function return target
-4. do not build QMark branch/merge MIR
-5. keep Planner/RegionFlow/Lower connections = 0
+```rust
+pub struct OwnerParentEdgeV1 {
+    parent_owner: FunctionOwnerIdV1,
+    definition_site: OwnedExprSiteV1,
+    parent_scope: ScopeId,
+}
 ```
 
-These are separate commits. Match and Try/Catch remain later slices after the
-owner and exit schemas are executable.
+`roots`, `child_at`, and the unique Upvar inventory must not be mutable
+parallel authorities. Forest seal derives them from `owners`, `parents`, and
+resolved lexical references.
 
-## Required gates
+### Owner-branded source sites
 
-```text
-owner forest:
-  distinct owner-local BindingId(0) values never compare cross-owner
-  child product sealed independently
-  parent/child edge exact and acyclic
-  missing child product rejected
-  capture edge owner/kind checked
-  nested owner AST clone ownership = 0
+`SourceExprSiteV1` is relative to one owner root. Every cross-owner index must
+therefore carry its owner explicitly.
 
-exit site:
-  statement and expression sites cannot alias accidentally
-  one exact exit per accepted source site
-  target belongs to the same owner forest
-  QMark target is owning function, not nearest loop
-  Lower depth recount = 0
-
-responsibility:
-  resolver allocates no ValueId/block
-  RegionFlow allocates no BindingId/ScopeId/RegionId
-  Lower performs no name/capture/target rediscovery
+```rust
+pub struct OwnedExprSiteV1 {
+    owner: FunctionOwnerIdV1,
+    site: SourceExprSiteV1,
+}
 ```
 
-Rust/Hako parity compares normalized origins and graph edges, never raw arena
-numbers.
+The same pattern may be used for statement/node sites when they cross an
+owner boundary. A forest map keyed by bare `SourceExprSiteV1` is forbidden.
 
-## Implementation may claim after the first slices
+### Structural Upvar relation
+
+```rust
+pub struct UpvarRefV1 {
+    capturing_owner: FunctionOwnerIdV1,
+    source: BindingRefV1,
+}
+```
+
+```rust
+pub enum ResolvedLexicalRefV1 {
+    Local(BindingRefV1),
+    Upvar(UpvarRefV1),
+}
+```
+
+The source of an Upvar is the original declaration in a strict lexical
+ancestor. Grandparent capture is represented directly:
 
 ```text
-OF0:
-  nested function syntax can own an independently sealed semantic product
-  parent/child owner identity is explicit
-  no nested declaration is inserted into its parent function arena
+inner UpvarRefV1
+  -> grandparent BindingRefV1
+```
 
-EX0:
-  statement and expression exits have exact typed source identity
-  QMark target identity is resolved before Planner/Lower
+Intermediate runtime forwarding is not a resolver fact. A later
+`VerifiedCapturePlanV1` may create forwarding slots while preserving the
+direct semantic source edge.
+
+Multiple uses of the same `(capturing_owner, source BindingRefV1)` relation
+are naturally one Upvar. No integer capture allocator or capture arena is
+needed.
+
+### Exact exit record
+
+```rust
+pub enum ResolvedExitSiteV1 {
+    Statement(SourceStmtSiteV1),
+    Expression(SourceExprSiteV1),
+}
+```
+
+```rust
+pub struct ResolvedExitRecordV1 {
+    source_region: RegionId,
+    origin: ResolvedExitOriginV1,
+    transfer: ResolvedControlTransferV1,
+}
+```
+
+```text
+resolved_exits:
+  BTreeMap<ResolvedExitSiteV1, ResolvedExitRecordV1>
+```
+
+This one record replaces the current parallel `control_exits` and
+`control_exit_regions` maps.
+
+The first accepted transfer vocabulary remains:
+
+```text
+Continue(target_loop)
+Break(target_loop)
+Return(target_function)
+```
+
+If the existing QMark compatibility path must be retained, it is represented
+without losing origin:
+
+```text
+origin:
+  QMarkPropagate
+
+transfer:
+  Return(current function)
+```
+
+This does not activate `?` as canonical Result/Option syntax. Source `throw`
+is prohibited by the current language SSOT and is not part of the first exit
+vocabulary.
+
+## Construction and sealing
+
+One resolver session owns the existing function-owner issuer. A separate
+owner-inventory authority or prepass is not required.
+
+```text
+enter root owner
+  -> allocate owner-local binding/scope/region IDs
+  -> encounter Lambda
+     -> allocate child owner
+     -> record parent edge and exact OwnedExprSiteV1
+     -> resolve child with ancestor lexical frames visible
+     -> local seal child
+  -> local seal parent
+  -> verify and seal complete forest
+```
+
+Name lookup first searches current-owner lexical scopes. If it reaches a
+strict ancestor owner, it records `UpvarRefV1`. It never creates a child
+capture BindingId.
+
+Initializer-before-declaration ordering remains unchanged. Therefore implicit
+self/recursive capture is not backpatched. Recursive closure support requires
+a later closed `RecursiveOwnerGroupV1`-style decision and remains
+Unsupported.
+
+Local sealing verifies owner-local shape. Forest sealing verifies:
+
+```text
+products key == product owner
+every non-root owner has exactly one parent
+parent graph acyclic
+definition site belongs to parent owner
+parent_scope belongs to parent owner
+derived child_at index is unique
+every Upvar source exists
+Upvar source owner is a strict ancestor
+source declaration is visible at the lexical definition chain
+sibling/descendant/foreign-owner Upvar rejected
+partial forest publication = 0
+```
+
+Planner and RegionFlow receive only a forest-derived verified owner view.
+They do not consume a standalone owner product containing unchecked foreign
+references.
+
+## Resolver / RegionFlow / Lower split
+
+```text
+Semantic resolver owns:
+  owner/binding/scope/region identity
+  local and Upvar reference resolution
+  exact declaration/use/assignment indices
+  exact break/continue/return target identity
+  match/catch/pattern binder identity
+
+RegionFlow owns:
+  branch/arm result flow
+  QMark success/early-return flow
+  catch/cleanup propagation
+  per-port binding effects
+  edge state closure
+
+CapturePlan owns:
+  by-value/cell/weak/move policy
+  transitive forwarding
+  environment field ordering
+  CaptureSlotId
+
+Lower owns:
+  BindingId/Upvar/CaptureSlot -> ValueId
+  RegionId -> BasicBlockId
+  verified edge arguments and MIR instructions
+```
+
+Lower may read syntax to emit expression operations. It may not rediscover
+names, free variables, capture mode, loop targets, match merge policy, or
+cleanup obligations.
+
+## Match / cleanup / BlockExpr boundary
+
+Match identity may use existing IDs only:
+
+```text
+RegionId:
+  Match / MatchArm
+
+ScopeId:
+  arm lexical scope when a binder/lifetime requires it
+
+BindingId:
+  PatternBinder
+```
+
+There is no separate ArmId. Match dispatch, result merge, and PHI policy are
+RegionFlow/Lower responsibilities.
+
+`TryCatch` is the current compatibility carrier for catch/cleanup. Semantic
+vocabulary should call the finally-style region `Cleanup`, matching the
+canonical surface. Catch selection and cleanup continuation are not resolver
+facts. Source `throw` remains rejected.
+
+The clean final BlockExpr model is lexical scope + ordered prelude + one tail
+result. Current Lower does not create that lexical scope and the language
+document remains provisional. Therefore scope activation requires its own
+language `Decision: accepted` and differential gate. The owner-forest
+migration must not silently change BlockExpr visibility.
+
+## Implementation task order
+
+Only one row is active at a time. Every row is a separate green commit.
+
+### P0 — closed source-role vocabulary (active)
+
+Add exact path roles needed by the remaining owner/control variants without
+changing resolver acceptance:
+
+```text
+LambdaBodyRoot / LambdaBody(index)
+QMarkOperand
+MatchScrutinee / MatchArm(index) / MatchElse
+EnumMatchScrutinee / EnumMatchArm(index) / EnumMatchElse
+BlockExprPreludeRoot / BlockExprPrelude(index) / BlockExprTail
+TryBodyRoot / TryBody(index)
+CatchClause(index) / CatchBodyRoot / CatchBody(index)
+CleanupBodyRoot / CleanupBody(index)
+```
+
+Also add `OwnedExprSiteV1` as passive owner-branded provenance. Do not add
+owner forest, Upvar, exit behavior, or new accepted syntax in P0.
+
+P0 gates:
+
+```text
+all new path roles have deterministic equality/order/debug formatting
+same relative expression site in two owners remains distinct when branded
+existing normalized graph fixtures unchanged
+resolver accepted-variant count unchanged
+Planner/Lower imports = 0
+all source files < 800 lines
+```
+
+### E0 — behavior-neutral exit record unification
+
+```text
+add ResolvedExitSiteV1
+add ResolvedExitRecordV1
+merge control_exits + control_exit_regions
+migrate Break/Continue/Return only
+verify exact source region and target ancestry
+QMark/Throw acceptance unchanged
+```
+
+### OF0 — non-capturing owner forest
+
+```text
+reuse existing FunctionOwnerIssuerV1 inside one forest resolver session
+add owner product map and parent edges
+resolve one non-capturing Lambda as a child owner
+derive roots and child_at during seal
+child return targets child function region
+capture encounter -> exact Unsupported
+AST clone / ValueId / BasicBlockId = 0
+Planner/RegionFlow/Lower connection = 0
+```
+
+### UP0 — read-only structural Upvar
+
+```text
+add UpvarRefV1 and ResolvedLexicalRefV1
+resolve outer parameter/local/receiver reads
+deduplicate by structural relation
+grandparent source points directly to original BindingRefV1
+capture mode/layout/slot allocation = 0
+Lower connection = 0
+```
+
+### UP1 — Upvar writes and capture-plan input
+
+```text
+classify Upvar rebind separately from local BindingRebind
+publish read/rebind observations for CapturePlan
+do not select by-value/cell/weak mode in resolver
+do not materialize runtime forwarding
+```
+
+### B0 — BlockExpr language boundary
+
+Open a language decision before changing visibility. If lexical scope is
+accepted, add exact scope fixtures and a differential Lower gate. Otherwise
+retain the explicit compatibility sequencing contract. Do not infer the
+choice from braces alone during migration.
+
+### M0 — Match structural identity
+
+```text
+Match/arm RegionId
+optional arm ScopeId
+PatternBinder BindingId
+no dispatch/result merge/ValueId
+```
+
+### T0 — catch/cleanup structural identity
+
+```text
+Try/Catch/Cleanup RegionId and ScopeId
+CatchBinder BindingId
+no source Throw activation
+no catch selection or cleanup continuation
+no MIR connection
+```
+
+### F0 — RegionFlow and production cutover
+
+After P0 through the required structural rows are green:
+
+```text
+build VerifiedRegionFlowV1
+build VerifiedCapturePlanV1 where needed
+connect one disconnected differential Lower route
+prove behavior parity
+perform atomic production semantic-authority cutover
+retire name/depth/free-variable rediscovery only after caller-zero gates
+```
+
+## Required fixtures
+
+Owner forest:
+
+```text
+one non-capturing Lambda
+two sibling Lambdas with owner-local BindingId(0)
+nested Lambda parent chain
+duplicate definition site
+missing child product
+multiple parents
+parent cycle
+foreign parent_scope
+partial forest publication
+```
+
+Upvar:
+
+```text
+outer parameter/local/receiver read
+nearest shadow wins
+child local prevents Upvar
+multiple uses -> one structural relation
+grandparent direct source
+sibling/descendant source rejected
+self/recursive capture rejected
+global/static symbol is not Upvar
+Upvar rebind is not local BindingRebind
+```
+
+Exit:
+
+```text
+statement/expression sites cannot alias
+one record owns source region + origin + transfer
+nested break/continue exact nearest loop
+return exact current function
+QMark in child, if compatibility-retained, targets child function
+Lower depth recount = 0
+```
+
+Block/Match/Cleanup:
+
+```text
+BlockExpr local visibility decision fixture
+BlockExpr outer rebind fixture
+separate match-arm binders are distinct
+arm/catch binder does not escape
+Cleanup is not a new function owner
+resolver allocates no result ValueId or cleanup block
+```
+
+Rust/Hako parity compares normalized owner origins, source sites, declaration
+origins, Upvar source edges, region origins, and exit records. It never
+compares raw owner/binding/scope/region numbers or iteration order.
+
+## Implementation may claim
+
+After P0:
+
+```text
+remaining nested/control syntax has exact, non-overloaded structural path
+vocabulary
+cross-owner expression sites can be owner-branded
+resolver acceptance is unchanged
+```
+
+After OF0:
+
+```text
+nested function syntax owns a distinct sealed semantic owner
+child declarations never enter the parent binding arena
+parent/child identity is explicit and acyclic
+```
+
+After UP0:
+
+```text
+free-variable identity is structural and name-independent
+Upvar source resolves to one strict-ancestor declaration
+capture runtime policy remains unselected
 ```
 
 ## Implementation must not claim
 
 ```text
-closure capture lowering complete
-capture mode/ownership semantics complete
-recursive closure support complete
-Match result lowering complete
-exception/finally semantics complete
-full AST resolver coverage
-production semantic authority cutover complete
-legacy loop_var retirement complete
+closure lowering complete
+capture mode or transport complete
+recursive closure support
+QMark canonical language activation
+source Throw activation
+Match result lowering
+catch selection / cleanup flow
+BlockExpr scope cutover before its language decision
+full AST resolver support
+production semantic-authority cutover
+legacy loop_var retirement
+raw IDs stable across source edits or Rust/Hako implementations
 ```
+
+## Retirement path
+
+After verified replacement and caller-zero gates:
+
+```text
+exprs_lambda.rs name-based collect_vars
+vars/free_vars.rs name resolver authority
+name-keyed closure capture lookup
+closure body AST clone ownership
+parallel control_exits / control_exit_regions
+QMark direct CFG authority
+Match direct merge/PHI authority
+Try/Cleanup mutable control-policy flags
+Lower-side break/continue depth resolution
+mandatory loop_var / loop_increment / BodyManagedCursor
+```
+
+Traversal fixtures may be moved before deleting old walkers. Runtime emit
+helpers may remain after their semantic decision authority is removed.
 
 ## Stop conditions
 
 ```text
-1. Lambda declarations are inserted into the parent function arena.
-2. A parent BindingId is reused as a child owner-local BindingId.
-3. Capture identity is inferred again in Planner or Lower.
-4. QMark/Throw are keyed by a fabricated statement path.
-5. Expression exits are normalized before exact origin is recorded.
-6. Resolver allocates ValueId or BasicBlockId.
-7. RegionFlow allocates semantic owner/binding/scope/region IDs.
-8. Match result merge or finally cleanup semantics become resolver facts.
-9. Lower counts loop depth or searches AST to recover an exit target.
-10. Unsupported nested/control syntax retries the legacy resolver.
-11. Partial child products or a partial owner forest are published.
-12. Raw owner-local IDs are compared for Rust/Hako parity.
+1. Lambda declarations enter the parent owner arena.
+2. A parent BindingId is reused raw inside a child owner.
+3. Resolver allocates CaptureId or CaptureSlotId.
+4. Resolver creates a child synthetic capture BindingId.
+5. Upvar source is not a strict lexical ancestor.
+6. Grandparent Upvar is rewritten into semantic forwarding bindings.
+7. Capture mode/layout is selected in the resolver.
+8. A cross-owner index uses bare SourceExprSiteV1.
+9. roots/child_at/upvar inventory becomes mutable parallel authority.
+10. A standalone owner product with unchecked foreign refs reaches Planner.
+11. QMark/Throw receives a fabricated statement path.
+12. QMark becomes canonical syntax through resolver implementation alone.
+13. Source Throw is accepted despite the language prohibition.
+14. BlockExpr scope changes without a language decision and differential gate.
+15. Resolver owns Match result merge or Cleanup continuation.
+16. Resolver or RegionFlow allocates ValueId/BasicBlockId.
+17. Lower rediscovers names, free variables, loop depth, or cleanup targets.
+18. Unsupported syntax retries a legacy resolver.
+19. Partial owner/forest products publish.
+20. Rust/Hako parity compares raw IDs or map iteration order.
+21. Any source file reaches 800 lines.
 ```
 
-## Requested final answer
+## Closeout condition
 
-Please return:
-
-```text
-Decision
-Reasoning
-owner topology and capture identity
-exit-site schema and exit vocabulary
-resolver / RegionFlow / Lower responsibility split
-Match / Try / BlockExpr boundary
-smallest implementation slices
-required fixtures/gates
-Rust/Hako parity
-retirement path
-implementation may/must-not claim
-stop conditions
-```
-
+This card leaves the design-stop state only through P0 code. The next commit
+must be source-role vocabulary, executable tests, or an explicit source
+contradiction that reopens this decision. Another docs-only refinement is not
+an accepted next action.

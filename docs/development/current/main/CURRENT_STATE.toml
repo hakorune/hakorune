@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "SA3-B1 nested-owner/expression-exit design consultation stop"
+status = "Owner Forest V1 decision accepted; P0 source-role vocabulary next"
 date = "2026-07-13"
 
 active_lane = "MIRBUILDER Hako SourceBodyAnalysisSnapshotV1"
@@ -122,19 +122,23 @@ latest_workstream_card = "docs/development/current/main/investigations/mirbuilde
 
 latest_card = "mirbuilder-resolved-semantic-owner-forest-design-stop-2026-07-13"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-resolved-semantic-owner-forest-design-stop-2026-07-13.md"
-latest_card_summary = """Resolved Semantic Arena V1 has reached the hard
-nested-owner/expression-exit design boundary after the disconnected producer,
-seal hardening, exhaustive syntax classifier, leaf traversal, assignment
-targets, Nowait binding identity, and TaskScope/FastMem lexical containers.
-The accepted owner-scoped `VerifiedResolvedFunctionV1` architecture remains
-fixed. The consultation now selects whether independently sealed function
-products form a `VerifiedSemanticOwnerForestV1`, how child capture bindings
-refer to parent `BindingRefV1`, and whether exact statement/expression exits
-use a typed `ResolvedExitSiteV1` or another closed schema. It also fixes the
-resolver versus RegionFlow boundary for Match arms, QMark, Try/Catch/Throw,
-finally cleanup, and BlockExpr scope. Production resolver installation,
-Planner/Lower connection, legacy fallback, and BindingId authority cutover
-remain zero until that boundary is selected. Historical decision follows.
+latest_card_summary = """Resolved Semantic Owner Forest V1 accepts A-double-
+prime `sealed_owner_forest_with_structural_upvar_edges`. One recursive forest
+resolver session reuses the existing function-owner issuer, builds owner-local
+sealed products, and publishes only a forest-verified cross-owner authority.
+BindingId remains source lexical declaration identity. A child reference to a
+strict ancestor is `UpvarRefV1(capturing_owner, source BindingRefV1)`; the
+resolver creates neither CaptureId, child synthetic capture BindingId, capture
+mode, forwarding binding, nor runtime slot. Roots, child-at, and Upvar indexes
+are derived seal witnesses rather than mutable parallel authorities. Exact
+control exits use one Statement/Expression site enum and one record containing
+source region, origin, and transfer, replacing the current parallel maps.
+QMark and source Throw are not activated as canonical language syntax, and
+BlockExpr scope requires its own language decision. P0 is the next code-facing
+slice: add closed Lambda/QMark/Match/BlockExpr/Try/Cleanup source path roles and
+owner-branded cross-owner expression provenance with zero acceptance change.
+Production resolver installation, Planner/Lower connection, legacy fallback,
+and BindingId authority cutover remain zero. Historical decision follows.
 Resolved Region Flow V1 accepts
 `function_semantic_resolver_v1_owner_scoped_arena`. One pre-plan
 `FunctionSemanticResolverV1` constructs and seals
@@ -405,7 +409,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-ARENA-V1-NESTED-OWNER-EXPR-EXIT-DESIGN-STOP-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-P0-SOURCE-ROLE-VOCAB-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
