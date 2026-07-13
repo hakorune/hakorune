@@ -1,5 +1,5 @@
 ---
-Status: Consultation requested — no production code authorized
+Status: Accepted — A + A2′ pre-Builder canonical Loop contract
 Date: 2026-07-14
 Scope: B0-L4 exact located Loop/CorePlan source coverage boundary
 Work kind: BoxShape decision stop
@@ -14,6 +14,65 @@ Related:
 ---
 
 # B0-L4 Located CorePlan Source Coverage Consultation
+
+## Accepted decision
+
+A + A2′ is accepted:
+
+```text
+architecture:
+  new ID-free pre-Builder canonical Loop contract
+
+coverage:
+  reusable generic sidecar type
+  + inseparable co-seal with VerifiedLocatedLoopFlowV1
+
+order:
+  S1 exact Loop bundle
+  -> S2 generic located coverage
+  -> S3 verified Loop flow
+  -> I1 disconnected materialization transaction
+  -> I2 atomic production activation
+
+V1 exit:
+  condition-false only
+
+RegionId:
+  exact consume + transaction-local role mapping
+  durable publication remains SA4
+```
+
+Local validation made these mechanical corrections without reopening the
+decision:
+
+1. reuse the existing owner-closed `ResolvedFunctionLoweringInputV1` instead
+   of adding a second freely constructible flow context;
+2. keep suffix first/range/advance navigation in `FunctionSourceViewV1`, use a
+   borrowed request, and check every index conversion/addition;
+3. defer cross-owner site closure to S3 because bare statement/expression
+   sites are owner-relative;
+4. let S2 seal only generic coverage schema and let S3 prove exact Loop
+   subtree completeness;
+5. omit a ceremonial seal field: private fields and verifier-only constructors
+   are the seal;
+6. use a source-preorder coverage cursor instead of adding a BitSet dependency;
+7. exclude calls, Outbox, and short-circuit And/Or because the current exact
+   canonical value Lower does not support them;
+8. consume the Loop/LoopBody pair around body only, after condition closes;
+9. restore body compilation to post-condition state C rather than restoring
+   false exit to entry state E;
+10. define every provisional PHI before one existing-binding header rebind,
+    and verify actual predecessors before patching.
+
+The executable series, gates, claims, and stop conditions are fixed in:
+
+```text
+docs/development/current/main/investigations/
+  mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md
+```
+
+The original decision request and P0 evidence remain below as historical
+input.
 
 ## Decision request
 

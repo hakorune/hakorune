@@ -1,4 +1,4 @@
-Status: Design stop — P0 inventory closed; consultation pending
+Status: Closed — A + A2′ accepted; implementation task opened at S1
 Date: 2026-07-14
 Blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-L4-LOCATED-COREPLAN-SOURCE-COVERAGE-DESIGN-STOP-001
 
@@ -20,6 +20,17 @@ P0 inventory is closed. The shareable decision sheet is:
 ```text
 docs/development/current/main/investigations/
   mirbuilder-b0-l4-located-coreplan-source-coverage-consultation-2026-07-14.md
+```
+
+The consultation accepts A + A2′. Production implementation is authorized
+only through the bounded task card:
+
+```text
+docs/development/current/main/investigations/
+  mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md
+
+current slice:
+  B0-L4-S1 passive exact Loop bundle
 ```
 
 ## Why this is a new boundary
@@ -152,4 +163,5 @@ atomic landing order
 required fixtures, gates, may-claim, must-not-claim, stop conditions
 ```
 
-No production code edit is authorized by this card.
+This design-stop card is closed. The implementation task authorizes S1 only;
+later slices open only after the preceding slice is green and published.
