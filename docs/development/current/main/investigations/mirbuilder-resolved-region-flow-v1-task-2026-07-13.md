@@ -1,6 +1,6 @@
 # Resolved Region Flow V1 — Taskboard
 
-Status: SA0 closed; SA1 disconnected shadow resolver is the next code-facing slice.
+Status: SA1 closed; SA2 verifier/seal/normalized graph is the next code-facing slice.
 Date: 2026-07-13
 Decision: `function_semantic_resolver_v1_owner_scoped_arena` followed by
 `recursive_structured_region_flow`.
@@ -634,6 +634,47 @@ break/continue choose nearest active loop RegionId
 return chooses the owning function RegionId
 unsupported syntax rejects; no old-resolver retry
 ```
+
+Closed evidence:
+
+```text
+src/mir/resolved_semantics/shadow/
+  ids.rs       shadow-only binding/scope/region handles
+  product.rs   disconnected records, indexes, and typed failures
+  path.rs      structural source-site construction
+  resolver.rs  function owner, lexical stack, region/control stack
+  expr.rs      closed expression/use/assignment-target traversal
+  stmt.rs      declaration/scope/If/Loop/exit traversal
+  tests.rs     22 focused fixtures
+```
+
+The function receiver and parameters occupy the function scope; the function
+body has a child lexical scope, so body locals may shadow parameters or `me`
+without reusing an ordinal. All Local initializers are resolved before any
+binding from that declaration is inserted. Outbox initializer payload remains
+non-semantic compatibility data, matching its current Lower owner. ScopeBox
+and If branches own independent lexical scopes, and function/branch/loop/scope
+body containers have distinct structural origins. Loop exits bind directly to
+the nearest shadow loop region, while Return binds to the function region.
+
+The reusable authority guard proves:
+
+```text
+canonical BindingId in shadow family = 0
+canonical draft/product construction = 0
+AST payload retained by shadow product = 0
+external consumers = 0
+Facts/Planner/Recipe/Lower connections = 0
+all source files < 800 lines
+```
+
+Focused tests cover receiver/parameter/body-local identity, same-scope
+rejection, all-initializers-first resolution, ScopeBox non-leak and outer
+rebind, independent If scopes, Outbox, variable/field/index assignment
+classification, exact inner/outer loop targets, Return ownership, malformed
+declarations, unresolved names, and unsupported syntax. SA1 publishes no
+canonical semantic authority; SA2 remains responsible for verification,
+sealing, and normalized parity graphs.
 
 ### SA2 — verifier, seal, and normalized semantic graph
 

@@ -27,12 +27,17 @@ impl FunctionOriginV1 {
 /// A typed step in a path relative to a function AST root.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum SourcePathSegmentV1 {
+    FunctionBody,
     Body(u32),
+    ScopeBodyRoot,
     ScopeBody(u32),
     IfCondition,
+    IfThenBody,
     IfThen(u32),
+    IfElseBody,
     IfElse(u32),
     LoopCondition,
+    LoopBodyRoot,
     LoopBody(u32),
     Receiver,
     Argument(u32),

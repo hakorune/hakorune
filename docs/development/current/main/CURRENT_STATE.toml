@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "SA0 closed; SA1 implementation ready"
+status = "SA1 closed; SA2 verifier/seal implementation ready"
 date = "2026-07-13"
 
 active_lane = "MIRBUILDER Hako SourceBodyAnalysisSnapshotV1"
@@ -140,9 +140,14 @@ legacy resolution, and partial semantic drafts never publish. SA0 is closed
 with a crate-private passive schema, owner-branded BindingRef/ScopeId/RegionId,
 non-dense BindingId arena, explicit function roots, six focused tests, and one
 reusable authority guard. External consumers, AST clones, ID allocation,
-Planner, and Lower connections remain zero. SA1 is the next code-facing slice:
-it builds a separate disconnected ShadowResolvedFunctionV0 and must never
-populate the canonical draft or wrap shadow ordinals in BindingId.
+Planner, and Lower connections remain zero. SA1 is closed with a physically
+separate ShadowResolvedFunctionV0, shadow-only binding/scope/region handles,
+closed lexical/control traversal, typed fail-fast outcomes, exact nearest-loop
+targets, twenty-two focused fixtures, and an expanded authority guard. Canonical
+BindingId/product construction and Facts/Planner/Recipe/Lower connections
+remain zero. SA2 is next: name the unique function-owner brand issuer, verify
+complete arena/index/ancestry contracts, seal the canonical product, remove
+the schema-test bypass, and publish a deterministic origin-keyed parity graph.
 Historical decision follows. Resolved Region Flow V1 generalizes generic-loop
 state closure into one recursive structured-region summary. Each region
 publishes Port -> MayRebind(canonical BindingId set); analysis allocates no
@@ -387,7 +392,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-ARENA-V1-SA1-SHADOW-RESOLVER-001"
+current_blocker_token = "RESOLVED-SEMANTIC-ARENA-V1-SA2-VERIFY-SEAL-GRAPH-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

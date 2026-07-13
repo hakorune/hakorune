@@ -11,8 +11,12 @@ canonical function AST
   -> VerifiedResolvedFunctionV1
 ```
 
-SA0 adds only the closed schema and publication boundary. It does not resolve
-syntax, allocate identities, plan control flow, or lower MIR.
+SA0 adds only the closed canonical schema and publication boundary. SA1 adds
+a physically separate, disconnected shadow resolver. The shadow resolver may
+read canonical syntax, but it owns only `Shadow*V0` handles and can publish
+only `ShadowResolvedFunctionV0` for tests and deterministic inspection. It
+cannot populate the canonical draft, allocate `BindingId`, plan control flow,
+or lower MIR.
 
 ## Authority
 
@@ -32,7 +36,8 @@ syntax, allocate identities, plan control flow, or lower MIR.
 
 This module family must not import or call:
 
-- `ASTNode` or any cloned/normalized AST payload;
+- canonical arena files must not import `ASTNode` or own cloned/normalized AST
+  payloads; only the disconnected `shadow/` resolver may borrow `ASTNode`;
 - Planner, Recipe, JoinIR ownership, or Lower modules;
 - `ValueId` or `BasicBlockId`;
 - `MirBuilder`, `CoreContext`, or any BindingId allocator;
@@ -42,7 +47,8 @@ This module family must not import or call:
 Mutable drafts remain crate-private. Only a verified sealed product may become
 a public consumer input. Unsupported resolution never retries a legacy path.
 
-SA1's `ShadowBindingOrdinalV0` must use a separate test-only shadow product.
-It must never populate this canonical BindingId product or enter Planner or
-Lower. SA2 removes the schema-test verifier bypass once the real verifier is
-available.
+SA1's `ShadowBindingOrdinalV0` uses a separate crate-private shadow product.
+It never populates this canonical BindingId product or enters Planner or
+Lower. Unsupported syntax returns a typed resolver error and never retries an
+old resolver. SA2 removes the schema-test verifier bypass once the real
+verifier is available.

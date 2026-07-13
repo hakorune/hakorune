@@ -9,6 +9,7 @@
 mod ids;
 mod product;
 mod records;
+mod shadow;
 mod source_site;
 
 pub use ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
