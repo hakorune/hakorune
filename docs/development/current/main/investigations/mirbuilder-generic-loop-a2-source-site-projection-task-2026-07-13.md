@@ -1,11 +1,18 @@
 # Generic Loop A2-C2 — Source Site Projection Taskboard
 
-Status: Active implementation prerequisite; C2-I0 selected.
+Status: Superseded by Generic Loop Baseline V1; source projection continues as G0 coverage infrastructure.
 Date: 2026-07-13
 Decision: hybrid (`A + E-light + sealed paired provenance`).
 Classification: BoxShape only; acceptance-neutral until C2-I4.
 
 ## Purpose
+
+Superseding taskboard:
+
+```text
+docs/development/current/main/investigations/
+  mirbuilder-generic-loop-baseline-v1-task-2026-07-13.md
+```
 
 Repair the missing source/Recipe identity owner without contaminating generic
 Recipe vocabulary with source provenance:
@@ -375,4 +382,3 @@ cross-family decision.
 13. New RecipeItem or CFG wiring is required.
 14. ProgramV0 or parser P1 enters this lane.
 15. Any source file reaches 800 lines.
-

@@ -114,15 +114,29 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/mirbuilder-generic-loop-a2-source-site-projection-task-2026-07-13.md"
-phase_status = "docs/development/current/main/investigations/mirbuilder-generic-loop-a2-source-site-projection-task-2026-07-13.md"
+active_phase = "docs/development/current/main/investigations/mirbuilder-generic-loop-baseline-v1-task-2026-07-13.md"
+phase_status = "docs/development/current/main/investigations/mirbuilder-generic-loop-baseline-v1-task-2026-07-13.md"
 method_anchor = "docs/development/current/main/design/current-docs-archive-policy-ssot.md"
-taskboard = "docs/development/current/main/investigations/mirbuilder-generic-loop-a2-source-site-projection-task-2026-07-13.md"
+taskboard = "docs/development/current/main/investigations/mirbuilder-generic-loop-baseline-v1-task-2026-07-13.md"
 latest_workstream_card = "docs/development/current/main/investigations/mirbuilder-hako-typed-source-carrier-v1-2026-07-12.md"
 
-latest_card = "mirbuilder-generic-loop-a2-source-site-projection-task-2026-07-13"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-generic-loop-a2-source-site-projection-task-2026-07-13.md"
-latest_card_summary = """The C2 identity consultation accepts a hybrid:
+latest_card = "mirbuilder-generic-loop-baseline-v1-task-2026-07-13"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-generic-loop-baseline-v1-task-2026-07-13.md"
+latest_card_summary = """Generic Loop Baseline V1 supersedes mandatory
+progression-owner acceptance. Generic correctness is condition + complete body
+Recipe + exact source coverage + loop-carried binding set + closed ports. A
+selected loop_var, loop_increment, step filtering, BodyManagedCursor, and
+candidate Unique/Zero/Multiple are absent from generic acceptance. Canonical
+step extraction becomes an optional proven optimization over an already
+verified baseline; NotApplicable is nonfatal and Lower never falls back.
+Active G0 keeps SourceStmtSiteV0 and identity-preserving projection, now as
+complete-body coverage infrastructure. The interrupted pre-decision WIP is
+parked at `05fb9b0577` and must be restored selectively because review found
+node/child double-truth, orphan ownership, Scope ordering, and corpus-parity
+gaps. G1-G5 add a disconnected baseline witness, state/port closure, neutral
+latch skeleton, differential gates, and acceptance cutover. O0 isolates
+canonical optimization. R0 mandatory caller-zero retirement of the legacy
+single-loop-var family is part of Epic completion. Historical identity decision follows. The C2 identity consultation accepts a hybrid:
 SourceStmtSiteV0 is canonical identity, generic-loop untyped flatten becomes
 an identity-preserving typed projection, and Recipe provenance is a sealed,
 co-constructed positional witness rather than RecipeItem fields or a mutable
@@ -335,7 +349,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "GENERIC-LOOP-A2-C2-I0-SOURCE-SITE-PROJECTION-001"
+current_blocker_token = "GENERIC-LOOP-BASELINE-V1-G0-IDENTITY-COVERAGE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

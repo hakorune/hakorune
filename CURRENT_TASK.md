@@ -26,13 +26,14 @@ When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executa
 ## Handoff
 
 Read `latest_card_path` in `CURRENT_STATE.toml` before editing. The active
-slice is A2-C2-I0 identity-preserving source projection. The consultation
-selects SourceStmtSiteV0 structural paths as authority, ScopeBox as a certified
-transparent container, and a sealed typed projection before Recipe building.
-I0 adds only schema/path/model/builder/sealer, typed If/Loop child identities,
-ScopeBody paths, and old-flatten AST-sequence parity. Acceptance, Recipe,
-candidate selection, Lower, ProgramV0, and parser/source-carrier P1 connections
-remain zero. Do not use flattened indices, candidate preorder, spans, pointers,
-or mutable path maps as identity. Keep every source file below 800 lines and
-keep source-carrier P1 stash-only until A2 lands independently and clean-HEAD
-ProgramV0 is green.
+slice is Generic Loop Baseline V1 G0 identity/coverage. Generic correctness no
+longer requires one progression owner: condition variables are ordinary
+operands, the complete body remains unfiltered, and loop-carried bindings are
+later closed as a set. G0 keeps SourceStmtSiteV0 and typed transparent
+projection for complete-body coverage. Restore the parked `05fb9b0577` WIP
+selectively, fixing its node/child, orphan ownership, Scope ordering, and
+corpus-parity gaps. Product, planner, Lower, ProgramV0, and parser P1
+connections remain zero. G1-G5 build and cut over the generic baseline; O0
+isolates optional canonical specialization; R0 caller-zero retirement of the
+mandatory single-loop-var family is required for Epic completion. Keep every
+source file below 800 lines.
