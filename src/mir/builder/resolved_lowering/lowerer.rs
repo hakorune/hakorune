@@ -4,24 +4,30 @@ use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::located::{LocatedBodyV1, LocatedExprV1, LocatedStmtV1};
 use crate::mir::compiler::source_view::{BodyChildRoleV1, ExprChildRoleV1};
+use crate::mir::resolved_region_flow::VerifiedResolvedFunctionFlowV1;
 use crate::mir::resolved_semantics::{BindingKindV1, ResolvedExitSiteV1, SourceBindingSiteV1};
 use crate::mir::{MirInstruction, MirType, ValueId};
 
 use super::super::MirBuilder;
+use super::branch_transaction::{ResolvedActiveEffectStackV1, ResolvedEffectBindingClassV1};
+use super::flow_consumption::ResolvedFlowConsumptionV1;
 use super::identity::ResolvedIdentityStateV1;
-use super::semantic_stack::ResolvedSemanticStackV1;
+use super::semantic_stack::{ResolvedSemanticExpectedCountsV1, ResolvedSemanticStackV1};
 
 pub(super) struct CanonicalFunctionLowererV1<'builder, 'source> {
-    builder: &'builder mut MirBuilder,
-    input: ResolvedFunctionLoweringInputV1<'source>,
-    identity: ResolvedIdentityStateV1<'source>,
-    semantics: ResolvedSemanticStackV1,
+    pub(super) builder: &'builder mut MirBuilder,
+    pub(super) input: ResolvedFunctionLoweringInputV1<'source>,
+    pub(super) identity: ResolvedIdentityStateV1<'source>,
+    pub(super) semantics: ResolvedSemanticStackV1,
+    pub(super) flow: ResolvedFlowConsumptionV1,
+    pub(super) effects: ResolvedActiveEffectStackV1,
 }
 
 impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
     pub(super) fn new(
         builder: &'builder mut MirBuilder,
         input: ResolvedFunctionLoweringInputV1<'source>,
+        function_flow: VerifiedResolvedFunctionFlowV1,
         block_expr_count: usize,
     ) -> Result<Self, String> {
         if !builder
@@ -30,16 +36,26 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
         {
             return Err("[freeze:contract][canonical_lowerer/authority_not_installed]".to_string());
         }
-        let semantics = ResolvedSemanticStackV1::new(
+        let flow = ResolvedFlowConsumptionV1::new(function_flow);
+        if flow.owner() != input.owner() {
+            return Err("[freeze:contract][canonical_lowerer/flow_owner_mismatch]".to_string());
+        }
+        let semantics = ResolvedSemanticStackV1::new_with_expectations(
             input.function(),
             input.function().lowering_roots(),
-            block_expr_count,
+            ResolvedSemanticExpectedCountsV1::new(
+                block_expr_count,
+                flow.expected_if_control_regions(),
+                flow.expected_if_branch_pairs(),
+            ),
         )?;
         Ok(Self {
             builder,
             input,
             identity: ResolvedIdentityStateV1::new(input.function()),
             semantics,
+            flow,
+            effects: ResolvedActiveEffectStackV1::new(),
         })
     }
 
@@ -51,6 +67,10 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
             .root_body()
             .map_err(|error| error.to_string())?;
         self.lower_body(&body)?;
+        self.flow.finish()?;
+        if !self.effects.is_empty() {
+            return Err("[freeze:contract][canonical_effect/finish_not_empty]".to_string());
+        }
         self.semantics.finish()?;
         self.identity.finish()?;
         self.builder
@@ -110,7 +130,7 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
         Ok(())
     }
 
-    fn lower_body(&mut self, body: &LocatedBodyV1<'source>) -> Result<(), String> {
+    pub(super) fn lower_body(&mut self, body: &LocatedBodyV1<'source>) -> Result<(), String> {
         for index in 0..body.statements().len() {
             let statement = self
                 .input
@@ -133,32 +153,8 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
                 ..
             } => self.lower_local(statement, variables, initial_values),
             ASTNode::Outbox { variables, .. } => self.lower_outbox(statement, variables),
-            ASTNode::Assignment { target, .. } => {
-                let ASTNode::Variable { name, .. } = target.as_ref() else {
-                    unreachable!("preflight accepts binding assignments only")
-                };
-                let target = self
-                    .input
-                    .source()
-                    .child_expr_from_stmt(statement, ExprChildRoleV1::AssignmentTarget)
-                    .map_err(|error| error.to_string())?;
-                let binding = self.identity.assignment_binding(target.site(), name)?;
-                let value = self
-                    .input
-                    .source()
-                    .child_expr_from_stmt(statement, ExprChildRoleV1::AssignmentValue)
-                    .map_err(|error| error.to_string())?;
-                let value = self.lower_expr(&value)?;
-                let previous = self.identity.current_value(binding)?;
-                if !self.builder.is_current_block_terminated() {
-                    self.builder
-                        .emit_instruction(MirInstruction::ReleaseStrong {
-                            values: vec![previous],
-                        })?;
-                }
-                self.identity.rebind(binding, value)?;
-                Ok(())
-            }
+            ASTNode::Assignment { .. } => self.lower_assignment(statement),
+            ASTNode::If { .. } => self.lower_statement_if(statement),
             ASTNode::Return { value, .. } => {
                 let return_value = if value.is_some() {
                     let value = self
@@ -268,7 +264,10 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
         Ok(())
     }
 
-    fn lower_expr(&mut self, expression: &LocatedExprV1<'source>) -> Result<ValueId, String> {
+    pub(super) fn lower_expr(
+        &mut self,
+        expression: &LocatedExprV1<'source>,
+    ) -> Result<ValueId, String> {
         self.builder
             .metadata_ctx
             .set_current_span(expression.node().span());
@@ -294,6 +293,57 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
             ASTNode::BlockExpr { .. } => self.lower_block_expr(expression),
             _ => unreachable!("preflight seals the first-family expression grammar"),
         }
+    }
+
+    fn lower_assignment(&mut self, statement: &LocatedStmtV1<'source>) -> Result<(), String> {
+        let ASTNode::Assignment { target, .. } = statement.node() else {
+            unreachable!("lower_assignment is called only for Assignment")
+        };
+        let ASTNode::Variable { name, .. } = target.as_ref() else {
+            unreachable!("preflight accepts binding assignments only")
+        };
+        let target = self
+            .input
+            .source()
+            .child_expr_from_stmt(statement, ExprChildRoleV1::AssignmentTarget)
+            .map_err(|error| error.to_string())?;
+        let binding = self
+            .identity
+            .resolve_assignment_binding(target.site(), name)?;
+        let class = if self.effects.is_empty() {
+            ResolvedEffectBindingClassV1::Visible
+        } else {
+            self.effects
+                .authorize_current(self.input.function(), binding)?
+        };
+
+        let value = self
+            .input
+            .source()
+            .child_expr_from_stmt(statement, ExprChildRoleV1::AssignmentValue)
+            .map_err(|error| error.to_string())?;
+        let value = self.lower_expr(&value)?;
+        self.flow.claim_assignment(target.site(), binding, class)?;
+        self.identity
+            .claim_assignment_binding(target.site(), binding)?;
+        let previous = self.identity.current_value(binding)?;
+        if !self.builder.is_current_block_terminated() {
+            self.builder
+                .emit_instruction(MirInstruction::ReleaseStrong {
+                    values: vec![previous],
+                })?;
+        }
+        if self.effects.is_empty() {
+            self.identity.rebind(binding, value)?;
+        } else {
+            self.effects.rebind_current(
+                &mut self.identity,
+                self.input.function(),
+                binding,
+                value,
+            )?;
+        }
+        Ok(())
     }
 
     fn lower_block_expr(&mut self, expression: &LocatedExprV1<'source>) -> Result<ValueId, String> {

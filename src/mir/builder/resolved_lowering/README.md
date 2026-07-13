@@ -16,9 +16,12 @@ Invariants:
 - canonical lowering seeds separate RegionId and ScopeId stacks from the sealed
   function/function-body roots; BlockExpr consumes one exact pair and retires
   only pair-owned BindingRefs at scope leave.
-- I1a owns disconnected branch transactions and conditional CFG/final-PHI
-  materialization. It accepts an ordered join domain, never syntax or a flow
-  product; may-rebind permits are an upper bound, and no BindingRef can be
-  published until every PHI is defined.
+- I1b consumes one pre-Builder verified statement-If flow in source preorder.
+  Both branches start from the same post-condition BindingRef baseline; the
+  sealed join-source matrix selects final PHI inputs, and all PHIs define
+  before one effect-authorized batch publication.
+- RegionId and ScopeId stacks remain separate. Statement If consumes exact
+  control/branch identities and coverage only; no durable RegionId-to-block
+  map is published before SA4.
 - legacy statement/expression dispatch, Planner/CorePlan, Lambda, production
-  If/Loop activation, Main, REPL, and ProgramV0 are outside this boundary.
+  Loop activation, Main, REPL, and ProgramV0 are outside this boundary.

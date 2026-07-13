@@ -254,9 +254,11 @@ def main() -> None:
             fail(f"B0-L2b introduced forbidden {label}: {token}")
     if "name: String" in projection_text or "name: Box<str>" in projection_text:
         fail("source projection must not carry name identity")
-    for forbidden in ("MirBuilder", "control_flow::plan", "Recipe", "RegionFlow"):
+    for forbidden in ("MirBuilder", "control_flow::plan", "Recipe"):
         if forbidden in production_navigator_text:
             fail(f"B0-L2b connected a forbidden consumer: {forbidden}")
+    if "resolved_region_flow" in "\n".join((located_text, projection_text, view_text)):
+        fail("B0-L2b source navigator directly imported RegionFlow")
 
     located_constructors = (
         "LocatedBodyV1::new(",
@@ -447,7 +449,8 @@ def main() -> None:
         ("struct CanonicalFunctionLowererV1<'builder, 'source>", "lowerer"),
         ("values: BTreeMap<BindingRefV1, ValueId>", "identity"),
         ("fn variable_value(", "identity"),
-        ("fn assignment_binding(", "identity"),
+        ("fn resolve_assignment_binding(", "identity"),
+        ("fn claim_assignment_binding(", "identity"),
         ("fn with_resolved_function_lowering_session(", "session"),
         ("fn veto_legacy_allocation(", "gate"),
         ("self.resolved_binding_state.veto_legacy_allocation()?", "allocator"),
@@ -468,7 +471,6 @@ def main() -> None:
         "binding_ctx",
         "LexicalScopeGuard",
         "control_flow::plan",
-        "RegionFlow",
     ):
         if forbidden in lowerer_text:
             fail(f"SA3-B lowerer crossed a forbidden legacy/later seam: {forbidden}")
@@ -507,7 +509,7 @@ def main() -> None:
     }
     if b0_l3a != expected_b0_l3a:
         fail(f"B0-L3a BlockExpr contract drifted: {b0_l3a!r}")
-    if data.get("selected_next_slice") != "B0-L3b-located-control-flow":
+    if b0_l3a.get("selected_next_slice") != "B0-L3b-located-control-flow":
         fail("closed B0-L3a must mechanically select B0-L3b")
 
     b0_l3a_files = {
@@ -537,6 +539,44 @@ def main() -> None:
     if b0_text["tests"].count('#[cfg(feature = "vm-reference")]\n#[test]') != 2:
         fail("B0-L3a must retain two VM-reference runtime fixtures")
 
+    b0_l3b = data.get("b0_l3b_if_contract", {})
+    expected_b0_l3b = {
+        "slice": "B0-L3b",
+        "status": "closed",
+        "branch_effect_authority": "VerifiedResolvedFunctionFlowV1",
+        "flow_analysis_before_builder": 1,
+        "source_preorder_flow_consumption": 1,
+        "post_condition_shared_baseline": 1,
+        "sealed_join_source_consumption": 1,
+        "legacy_if_form_calls": 0,
+        "lower_map_diff_discovery": 0,
+        "durable_region_materialization_maps": 0,
+        "runtime_fixture_count": 6,
+        "selected_next_slice": "B0-L4-located-coreplan-source-coverage-design-stop",
+    }
+    if b0_l3b != expected_b0_l3b:
+        fail(f"B0-L3b statement-If contract drifted: {b0_l3b!r}")
+    if data.get("selected_next_slice") != expected_b0_l3b["selected_next_slice"]:
+        fail("closed B0-L3b must select the B0-L4 design stop")
+
+    if_files = {
+        "capability": compiler_dir / "capability.rs",
+        "flow": resolved_lowering_dir / "flow_consumption.rs",
+        "lower": resolved_lowering_dir / "located_if.rs",
+        "tests": resolved_lowering_dir / "if_tests.rs",
+    }
+    if_text = {label: path.read_text(encoding="utf-8") for label, path in if_files.items()}
+    for anchor, label in (
+        ("analyze_resolved_function_flow_v1", "capability"),
+        ("claim_next_if", "flow"),
+        ("join_rows_for_contract", "lower"),
+        ("EffectAwareJoinStoreV1", "lower"),
+    ):
+        if anchor not in if_text[label]:
+            fail(f"B0-L3b {label} anchor is missing: {anchor}")
+    if if_text["tests"].count("#[test]") != expected_b0_l3b["runtime_fixture_count"]:
+        fail("B0-L3b must retain six runtime fixtures")
+
     check_evidence(root, modules, "module_ingresses")
     check_evidence(root, functions, "function_families")
     check_evidence(root, seams, "body_route_seams")
@@ -561,7 +601,8 @@ def main() -> None:
     print("resolved_lowering_transaction_injected_checkpoints=5")
     print("resolved_lowering_sa3_b=closed")
     print("resolved_lowering_legacy_allocator_during_canonical=forbidden")
-    print("resolved_lowering_selected_next_slice=B0-L3b")
+    print("resolved_lowering_b0_l3b=closed")
+    print("resolved_lowering_selected_next_slice=B0-L4-design-stop")
 
 
 if __name__ == "__main__":

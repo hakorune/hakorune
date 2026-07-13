@@ -119,7 +119,7 @@ impl IfCfgSessionV1 {
     }
 
     pub(super) fn verify_actual_predecessors(
-        self,
+        &self,
         builder: &mut MirBuilder,
     ) -> Result<VerifiedIfMergePredecessorsV1, String> {
         let then_pred = self
@@ -142,6 +142,18 @@ impl IfCfgSessionV1 {
         verified.reverify(builder)?;
         builder.start_new_block(self.layout.merge)?;
         Ok(verified)
+    }
+
+    /// Restores the post-condition dispatch block after an aborted If draft.
+    ///
+    /// The enclosing function transaction discards the partial CFG. Resetting
+    /// the current block here closes only Builder-local cursor/cache state so
+    /// nested cleanup can continue deterministically.
+    pub(super) fn restore_header_after_error(
+        &self,
+        builder: &mut MirBuilder,
+    ) -> Result<(), String> {
+        builder.start_new_block(self.layout.header)
     }
 
     fn open(

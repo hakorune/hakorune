@@ -5,15 +5,21 @@
 //! statement/expression dispatch is intentionally not reachable from it.
 
 mod branch_transaction;
+mod flow_consumption;
 mod identity;
 mod if_materialization;
+mod located_if;
 mod lowerer;
 mod semantic_stack;
 
 #[cfg(test)]
 mod block_expr_tests;
 #[cfg(test)]
+mod flow_consumption_tests;
+#[cfg(test)]
 mod if_materialization_tests;
+#[cfg(test)]
+mod if_tests;
 #[cfg(test)]
 mod semantic_stack_tests;
 #[cfg(test)]
@@ -31,8 +37,8 @@ impl MirBuilder {
         &mut self,
         plan: CanonicalFirstFamilyPlanV1<'_>,
     ) -> Result<MirModule, String> {
+        let (input, flow, returns_value, block_expr_count) = plan.into_parts();
         self.prepare_module()?;
-        let input = plan.function();
         let crate::ast::ASTNode::FunctionDeclaration {
             name,
             params,
@@ -64,8 +70,8 @@ impl MirBuilder {
             builder.set_current_function_runes(attrs);
             builder.set_current_function_declared_capability_uses(uses);
 
-            CanonicalFunctionLowererV1::new(builder, input, plan.block_expr_count())?.lower()?;
-            builder.finalize_function_draft(plan.returns_value())
+            CanonicalFunctionLowererV1::new(builder, input, flow, block_expr_count)?.lower()?;
+            builder.finalize_function_draft(returns_value)
         })?;
 
         let entry_result = crate::mir::builder::emission::constant::emit_void(self)?;

@@ -24,6 +24,27 @@ pub(super) struct ResolvedScopeRegionSessionV1 {
     declarations: Vec<BindingRefV1>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) struct ResolvedSemanticExpectedCountsV1 {
+    block_expr_pairs: usize,
+    if_control_regions: usize,
+    if_branch_pairs: usize,
+}
+
+impl ResolvedSemanticExpectedCountsV1 {
+    pub(super) const fn new(
+        block_expr_pairs: usize,
+        if_control_regions: usize,
+        if_branch_pairs: usize,
+    ) -> Self {
+        Self {
+            block_expr_pairs,
+            if_control_regions,
+            if_branch_pairs,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub(super) struct ResolvedSemanticStackV1 {
     root_regions: [RegionId; 2],
@@ -34,6 +55,10 @@ pub(super) struct ResolvedSemanticStackV1 {
     consumed_scopes: BTreeSet<ScopeId>,
     consumed_block_expr_pairs: usize,
     expected_block_expr_pairs: usize,
+    consumed_if_control_regions: usize,
+    expected_if_control_regions: usize,
+    consumed_if_branch_pairs: usize,
+    expected_if_branch_pairs: usize,
 }
 
 impl ResolvedSemanticStackV1 {
@@ -41,6 +66,18 @@ impl ResolvedSemanticStackV1 {
         product: &VerifiedResolvedFunctionV1,
         roots: ResolvedFunctionLoweringRootsV1,
         expected_block_expr_pairs: usize,
+    ) -> Result<Self, String> {
+        Self::new_with_expectations(
+            product,
+            roots,
+            ResolvedSemanticExpectedCountsV1::new(expected_block_expr_pairs, 0, 0),
+        )
+    }
+
+    pub(super) fn new_with_expectations(
+        product: &VerifiedResolvedFunctionV1,
+        roots: ResolvedFunctionLoweringRootsV1,
+        expected: ResolvedSemanticExpectedCountsV1,
     ) -> Result<Self, String> {
         let function = roots.function_pair();
         let body = roots.body_pair();
@@ -71,7 +108,11 @@ impl ResolvedSemanticStackV1 {
             consumed_regions: BTreeSet::new(),
             consumed_scopes: BTreeSet::new(),
             consumed_block_expr_pairs: 0,
-            expected_block_expr_pairs,
+            expected_block_expr_pairs: expected.block_expr_pairs,
+            consumed_if_control_regions: 0,
+            expected_if_control_regions: expected.if_control_regions,
+            consumed_if_branch_pairs: 0,
+            expected_if_branch_pairs: expected.if_branch_pairs,
         })
     }
 
@@ -117,6 +158,9 @@ impl ResolvedSemanticStackV1 {
             );
         }
         self.regions.push(region);
+        if expected_kind == RegionKindV1::If {
+            self.consumed_if_control_regions += 1;
+        }
         Ok(ResolvedRegionSessionV1 { region })
     }
 
@@ -153,6 +197,12 @@ impl ResolvedSemanticStackV1 {
         self.consumed_regions.insert(pair.region());
         self.scopes.push(pair.scope());
         self.regions.push(pair.region());
+        if matches!(
+            expected_scope_kind,
+            ScopeKindV1::IfThen | ScopeKindV1::IfElse
+        ) {
+            self.consumed_if_branch_pairs += 1;
+        }
         let declarations = product
             .scope(pair.scope())
             .expect("verified pair scope exists")
@@ -184,13 +234,19 @@ impl ResolvedSemanticStackV1 {
         if self.regions.as_slice() != self.root_regions.as_slice()
             || self.scopes.as_slice() != self.root_scopes.as_slice()
             || self.consumed_block_expr_pairs != self.expected_block_expr_pairs
+            || self.consumed_if_control_regions != self.expected_if_control_regions
+            || self.consumed_if_branch_pairs != self.expected_if_branch_pairs
         {
             return Err(format!(
-                "[freeze:contract][canonical_semantic_stack/finish_mismatch] region_depth={} scope_depth={} block_expr_pairs={}/{}",
+                "[freeze:contract][canonical_semantic_stack/finish_mismatch] region_depth={} scope_depth={} block_expr_pairs={}/{} if_controls={}/{} if_branches={}/{}",
                 self.regions.len(),
                 self.scopes.len(),
                 self.consumed_block_expr_pairs,
                 self.expected_block_expr_pairs,
+                self.consumed_if_control_regions,
+                self.expected_if_control_regions,
+                self.consumed_if_branch_pairs,
+                self.expected_if_branch_pairs,
             ));
         }
         Ok(())

@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "B0-L3b-I1a disconnected materialization infrastructure closed; I1b atomic canonical statement If activation is active"
+status = "B0-L3b closed; B0-L4 located CorePlan source-coverage boundary is at design stop"
 date = "2026-07-14"
 
 active_lane = "MIRBUILDER Hako SourceBodyAnalysisSnapshotV1"
@@ -120,17 +120,17 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-resolved-region-flow-v1-task-2026-07-13.md"
 latest_workstream_card = "docs/development/current/main/investigations/mirbuilder-hako-typed-source-carrier-v1-2026-07-12.md"
 
-latest_card = "mirbuilder-b0-l3b-a-plus-implementation-task-2026-07-13"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-b0-l3b-a-plus-implementation-task-2026-07-13.md"
-latest_card_summary = """B0-L3b accepts A+: one pre-Builder verified function
-flow is the only statement-If branch-effect authority. The first runtime claim
-is fallthrough-only, exact RegionIds are consume-only until SA4, and S1 now
-closes the exact If/IfThen/optional-IfElse identity topology. S2 now closes
-the owner-closed, lifetime-free verified function If flow. I1a now closes
-seal-derived roots, separated semantic stacks, plan-bounded branch
-transactions, exact conditional CFG predecessors, and all-PHI-before-batch
-publication with zero production If activation. I1b is the active atomic
-canonical statement-If activation slice.
+latest_card = "mirbuilder-b0-l4-located-coreplan-source-coverage-design-stop-2026-07-14"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-b0-l4-located-coreplan-source-coverage-design-stop-2026-07-14.md"
+latest_card_summary = """B0-L3b is closed with one pre-Builder verified function
+flow as the only fallthrough statement-If branch-effect authority. Canonical
+Lower consumes exact located sites, RegionId/ScopeId identities, ordered
+effects, and sealed join-source rows without map diff or legacy IfForm. The
+condition closes before both branches snapshot one post-condition baseline;
+actual CFG predecessors feed final PHIs before one authorized batch publish.
+Durable RegionId-to-block publication remains zero until SA4. The next
+boundary is the B0-L4 located CorePlan source-coverage design stop: inventory
+the live raw body/suffix route and select one exact carrier before code edits.
 Historical owner-forest context follows. Resolved Semantic Owner Forest V1
 accepts A-double-prime `sealed_owner_forest_with_structural_upvar_edges`. One recursive forest
 resolver session reuses the existing function-owner issuer, builds owner-local
@@ -186,13 +186,14 @@ SA3-B closes the first canonical owner family atomically: one preflighted
 non-main static/free straight-line source unit, exact located carriers,
 BindingRef-keyed values, legacy BindingId allocator veto, complete source and
 identity coverage, and function/module publication only after cleanup. The
-default source route remains legacy; Planner, RegionFlow, If/Loop/CorePlan,
-Lambda, BlockExpr runtime lowering, and legacy retry remain disconnected.
+default source route remains legacy; Planner/CorePlan, Loop, Lambda, and
+legacy retry remain disconnected.
 B0-L3a closes straight-line BlockExpr sealed ScopeId/RegionId consumption,
 located prelude/tail Lower, active/retired BindingRef disposition, and two
-VM-reference runtime fixtures. B0-L3b accepts A+ pre-Builder verified If flow.
-S1 exact If region bundle and S2 verified function If flow are closed. I1a
-disconnected materialization infrastructure is the active executable slice.
+VM-reference runtime fixtures. B0-L3b closes A+ pre-Builder verified If flow,
+disconnected materialization infrastructure, and canonical fallthrough
+statement-If runtime. B0-L4 located CorePlan source coverage is the active
+design-stop boundary.
 Historical decision follows.
 Resolved Region Flow V1 accepts
 `function_semantic_resolver_v1_owner_scoped_arena`. One pre-plan
@@ -464,7 +465,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-L3B-I1B-ATOMIC-CANONICAL-STATEMENT-IF-ACTIVATION-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-L4-LOCATED-COREPLAN-SOURCE-COVERAGE-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -473,6 +474,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-14: B0-L3b-I1b closes atomic canonical fallthrough statement-If activation with one pre-Builder flow analysis, source-preorder exact coverage, shared post-condition branch baseline, sealed join-source PHIs, six VM/reference fixtures, and zero durable RegionId materialization.",
   "2026-07-14: B0-L3b-I1a closes seal-derived function/body roots, separate RegionId/ScopeId stacks, join-domain-only branch transactions, exact conditional predecessors, final PHIs before one batch publication, and zero production If activation.",
   "2026-07-13: B0-L3b-S2 closes one owner-closed lifetime-free function If flow with typed fallthrough ports, separate condition effects, exact join-source rows, source-preorder publication, nested child-summary composition, exact coverage/bundle bijection, ten focused fixtures, and zero Builder/Lower/runtime activation.",
   "2026-07-13: B0-L3b-S1 closes a private seal-derived exact If/IfThen/optional-IfElse identity index, self-relative query, full branch record accounting, ten focused fixtures, and zero production query/RegionFlow/Lower activation.",
@@ -484,5 +486,4 @@ landed_tail = [
   "2026-07-12: LocalContractWrite exact-i64 Fact bridge closes with canonical contract-id/fresh-identity matching, dst-only publication, Copy/same-slot PHI propagation, and the existing MapStore inventory guard.",
   "2026-07-12: MapStoreI64 source-backed key witness reuses ExactNumericValueFact for exact i64 only; dynamic I64Value remains derived and route selection is unchanged.",
   "2026-07-12: 3457 closes the focused MapStoreI64 Fact/Plan/Boundary inventory; exact-i64 witness work reuses the existing ExactNumericValueFact owner.",
-  "2026-07-12: 3455 opens the MapStore caller-orientation Fact/Plan/Boundary design stop after the 3454 fixture-backed pilot; no next hard-authority owner is selected.",
 ]

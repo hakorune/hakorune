@@ -1,7 +1,7 @@
 # CURRENT_TASK
 
 Status: SSOT pointer
-Date: 2026-07-13
+Date: 2026-07-14
 Scope: root restart anchor only. Do not store landed history here.
 
 ## Quick Restart
@@ -43,11 +43,13 @@ B0-L0/B0-L1/B0-L2a/B0-L2b/B0-L2c and the
 atomic SA3-B first family. One explicit resolved route now lowers a preflighted
 non-main static/free straight-line owner with exact BindingRef authority,
 legacy allocator veto, and coverage-before-publication. The default source
-route is still legacy. B0-L3a BlockExpr Lower and B0-L3b-S1/S2 exact If
-identity/verified flow and I1a disconnected materialization infrastructure
-are closed. The active frontier is B0-L3b-I1b atomic canonical statement If
-activation, named by `current_blocker_token`; Loop/CorePlan/Lambda and capture
-mode/layout remain zero. The first SA3-B owner cutover is complete;
+route is still legacy. B0-L3a BlockExpr Lower and B0-L3b-S1/S2/I1a/I1b
+canonical fallthrough statement If are closed. The active frontier is the
+B0-L4 located CorePlan source-coverage design stop named by
+`current_blocker_token`; no production code edit is authorized until the
+exact carrier/coverage owner and first closed runtime grammar are selected.
+Loop/CorePlan/Lambda and capture mode/layout remain otherwise zero. The first
+SA3-B owner cutover is complete;
 later families, exact RegionId target cutover, and duplicate-owner retirement
 remain bounded follow-ups. Never let resolver and Lower allocate independent
 BindingIds for the same declaration. R1

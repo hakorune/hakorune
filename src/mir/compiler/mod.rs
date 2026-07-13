@@ -22,6 +22,8 @@ mod source_projection;
 pub(in crate::mir) mod source_view;
 
 #[cfg(test)]
+mod capability_tests;
+#[cfg(test)]
 mod source_view_tests;
 
 use capability::CanonicalLoweringPreflightV1;

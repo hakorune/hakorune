@@ -164,6 +164,9 @@ pub enum CanonicalLoweringErrorV1 {
         actual: &'static str,
         reason: &'static str,
     },
+    ResolvedRegionFlow {
+        detail: String,
+    },
     BuilderContract {
         detail: String,
     },
@@ -210,6 +213,10 @@ impl fmt::Display for CanonicalLoweringErrorV1 {
             } => write!(
                 formatter,
                 "[freeze:contract][canonical_lowering/unsupported_first_family_shape] site={site} actual={actual} reason={reason}"
+            ),
+            Self::ResolvedRegionFlow { detail } => write!(
+                formatter,
+                "[freeze:contract][canonical_lowering/resolved_region_flow] detail={detail}"
             ),
             Self::BuilderContract { detail } => write!(
                 formatter,
@@ -337,13 +344,12 @@ mod tests {
         let ASTNode::FunctionDeclaration { body, .. } = &mut root else {
             unreachable!()
         };
-        body.push(ASTNode::If {
+        body.push(ASTNode::Loop {
             condition: Box::new(ASTNode::Literal {
                 value: LiteralValue::Bool(true),
                 span: Span::unknown(),
             }),
-            then_body: Vec::new(),
-            else_body: None,
+            body: Vec::new(),
             span: Span::unknown(),
         });
         let unit = verified_source_unit_for_test(root);

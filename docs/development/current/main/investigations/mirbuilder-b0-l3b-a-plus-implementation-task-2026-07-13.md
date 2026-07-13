@@ -1,5 +1,5 @@
 ---
-Status: Active — S1/S2/I1a closed; I1b atomic activation
+Status: Closed — S1/S2/I1a/I1b landed atomically
 Date: 2026-07-14
 Decision: A+ pre-Builder verified flow contract
 Work mode: Refactor Series Mode; one purpose, five green commits
@@ -668,6 +668,54 @@ landing rule:
   I1b-P/L/M/G must commit together; no intermediate production activation
 ```
 
+I1b frozen implementation contract (2026-07-14):
+
+```text
+plan transport:
+  capability owns the only production RegionFlow analysis call
+  CanonicalFirstFamilyPlanV1 owns one lifetime-free function flow
+  plan is non-Copy and Builder consumes it once through into_parts
+
+flow consumption:
+  Lower owns one source-preorder cursor; no second site map
+  claim_if(site) must match the next sealed row exactly
+  FunctionDirect / IfCondition / IfThen / IfElse coverage frames own
+    ordered direct-assignment sites and finish exactly
+  function finish requires every row and coverage site consumed once
+
+branch effects:
+  both branch transactions snapshot the same post-condition join domain
+  every may-rebind permit is journaled before branch-body evaluation
+  unused permits are valid and restore the same entry value
+  nested whole-effects are validated against every enclosing branch before
+    the child condition starts
+  assignment identity is resolved and authorized before its RHS; coverage is
+    claimed after recursive RHS lowering in analyzer order
+  bindings owned by the exact branch scope or descendants are branch-local;
+    every other rebind must be in the sealed permit set
+  non-permitted join-domain values must remain equal to entry at capture
+
+condition effects:
+  condition has a commit-only effect frame using condition_effects
+  BlockExpr locals are excluded only by sealed scope ancestry
+  condition frame closes before the shared branch baseline is consumed
+
+join:
+  join domain and PostConditionEntry/BranchExit selection come only from
+    the sealed ordered join rows
+  same-input rows still define a fresh final PHI
+  nested join batch publication passes through enclosing branch permits
+  all final PHIs define before one identity batch publication
+
+cleanup:
+  branch error restores the full first-old journal, retires branch locals,
+    closes semantic sessions, and resets the current block to the saved
+    post-condition header
+  cleanup attempts all owned components and preserves primary plus cleanup
+    errors
+  partial CFG/PHI instructions remain only in the unpublished function draft
+```
+
 Runtime fixtures:
 
 ```text
@@ -777,4 +825,31 @@ outer BindingRef state is materialized from sealed join rows only
 implicit false and explicit else predecessors are exact
 each sealed If/branch RegionId is consumed exactly once
 durable RegionId -> BasicBlockId mapping remains zero until SA4
+```
+
+## I1b closure evidence (2026-07-14)
+
+```text
+pre-Builder RegionFlow analysis callers = 1 (capability only)
+owned one-shot function flow transport = green
+source-preorder If/assignment coverage = green
+condition/then/else effect frames = green
+sealed join-source matrix consumption = green
+legacy IfForm / name-keyed map diff = 0
+durable RegionId materialization map = 0
+capability tests = 3/3
+resolved_region_flow tests = 10/10
+flow consumption tests = 4/4
+semantic stack tests = 6/6
+If materialization tests = 14/14
+VM/reference If fixtures = 6/6
+authority guard = green
+```
+
+Selected next boundary:
+
+```text
+B0-L4 located CorePlan source coverage design stop
+docs/development/current/main/investigations/
+  mirbuilder-b0-l4-located-coreplan-source-coverage-design-stop-2026-07-14.md
 ```

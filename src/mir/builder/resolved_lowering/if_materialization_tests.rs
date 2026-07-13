@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use hakorune_mir_core::BindingId;
 
@@ -18,6 +18,8 @@ use super::MirBuilder;
 struct TestValueStoreV1 {
     values: BTreeMap<BindingRefV1, ValueId>,
     fail_current_for: Option<BindingRefV1>,
+    fail_rebind_for: BTreeSet<BindingRefV1>,
+    rebind_attempts: Vec<BindingRefV1>,
     published: usize,
 }
 
@@ -36,6 +38,10 @@ impl BranchValueStoreV1 for TestValueStoreV1 {
         &mut self,
         authorization: AuthorizedBranchRebindV1,
     ) -> Result<ValueId, String> {
+        self.rebind_attempts.push(authorization.binding());
+        if self.fail_rebind_for.contains(&authorization.binding()) {
+            return Err("[injected/rebind]".to_string());
+        }
         let slot = self
             .values
             .get_mut(&authorization.binding())
@@ -83,6 +89,8 @@ fn store(entries: &[(BindingRefV1, ValueId)]) -> TestValueStoreV1 {
     TestValueStoreV1 {
         values: entries.iter().copied().collect(),
         fail_current_for: None,
+        fail_rebind_for: BTreeSet::new(),
+        rebind_attempts: Vec::new(),
         published: 0,
     }
 }
@@ -176,6 +184,47 @@ fn branch_body_error_uses_explicit_restore_without_source_side_effects() {
 }
 
 #[test]
+fn snapshot_prime_restores_entry_even_when_rhs_changes_before_rebind() {
+    let binding = bindings(1)[0];
+    let entry = ValueId::new(30);
+    let mut values = store(&[(binding, entry)]);
+    let mut transaction =
+        ResolvedBranchTransactionV1::snapshot(&values, &[binding], &[binding]).unwrap();
+
+    // Simulate a nested If published while the outer assignment RHS lowers.
+    values.values.insert(binding, ValueId::new(31));
+    transaction
+        .rebind(&mut values, binding, ValueId::new(32))
+        .unwrap();
+    transaction.restore_error(&mut values).unwrap();
+    assert_eq!(values.values[&binding], entry);
+}
+
+#[test]
+fn nonpermit_domain_change_is_rejected_and_restore_attempts_every_permit() {
+    let domain = bindings(3);
+    let entries = [ValueId::new(40), ValueId::new(41), ValueId::new(42)];
+    let mut values = store(&[
+        (domain[0], entries[0]),
+        (domain[1], entries[1]),
+        (domain[2], entries[2]),
+    ]);
+    let mut transaction =
+        ResolvedBranchTransactionV1::snapshot(&values, &domain, &domain[..2]).unwrap();
+    values.values.insert(domain[0], ValueId::new(50));
+    values.values.insert(domain[1], ValueId::new(51));
+    values.values.insert(domain[2], ValueId::new(52));
+    values.fail_rebind_for.insert(domain[1]);
+
+    let error = transaction.capture_and_restore(&mut values).unwrap_err();
+    assert!(error.contains("nonpermit_domain_changed"));
+    assert!(error.contains("restore_failures"));
+    assert_eq!(values.rebind_attempts, vec![domain[1], domain[0]]);
+    assert_eq!(values.values[&domain[0]], entries[0]);
+    assert_eq!(values.values[&domain[1]], ValueId::new(51));
+}
+
+#[test]
 fn implicit_false_edge_targets_merge_without_synthetic_else() {
     let (mut builder, condition, _) = builder_fixture();
     let mut session = IfCfgSessionV1::open_implicit_false(&mut builder, condition).unwrap();
@@ -194,6 +243,20 @@ fn implicit_false_edge_targets_merge_without_synthetic_else() {
     assert_eq!(actual[&layout.merge()].len(), 2);
     assert_eq!(builder.current_block, Some(layout.merge()));
     let _ = predecessors;
+}
+
+#[test]
+fn aborted_if_restores_the_saved_post_condition_header_cursor() {
+    let (mut builder, condition, _) = builder_fixture();
+    let session = IfCfgSessionV1::open_implicit_false(&mut builder, condition).unwrap();
+    let header = session.layout().header();
+    session.enter_then(&mut builder).unwrap();
+    assert_ne!(builder.current_block, Some(header));
+
+    session.restore_header_after_error(&mut builder).unwrap();
+
+    assert_eq!(builder.current_block, Some(header));
+    assert!(builder.scope_ctx.current_function.as_ref().unwrap().blocks[&header].is_terminated());
 }
 
 #[test]

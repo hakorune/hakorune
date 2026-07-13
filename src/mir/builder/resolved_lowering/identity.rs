@@ -165,8 +165,8 @@ impl<'a> ResolvedIdentityStateV1<'a> {
         self.values.value(binding)
     }
 
-    pub(super) fn assignment_binding(
-        &mut self,
+    pub(super) fn resolve_assignment_binding(
+        &self,
         site: &SourceExprSiteV1,
         expected_name: &str,
     ) -> Result<BindingRefV1, String> {
@@ -179,12 +179,27 @@ impl<'a> ResolvedIdentityStateV1<'a> {
             ));
         };
         self.verify_name(*binding, expected_name)?;
+        Ok(*binding)
+    }
+
+    pub(super) fn claim_assignment_binding(
+        &mut self,
+        site: &SourceExprSiteV1,
+        binding: BindingRefV1,
+    ) -> Result<(), String> {
+        let expected = self.product.assignment_target(site).ok_or_else(|| {
+            format!("[freeze:contract][canonical_identity/assignment_missing] site={site:?}")
+        })?;
+        if expected != &ResolvedAssignmentTargetV1::BindingRebind(binding) {
+            return Err(format!(
+                "[freeze:contract][canonical_identity/assignment_claim_mismatch] site={site:?} binding={binding:?}"
+            ));
+        }
         LoweringSourceCoverageV1::mark(
             &mut self.coverage.assignment_targets,
             site,
             "assignment_target",
-        )?;
-        Ok(*binding)
+        )
     }
 
     pub(super) fn current_value(&self, binding: BindingRefV1) -> Result<ValueId, String> {

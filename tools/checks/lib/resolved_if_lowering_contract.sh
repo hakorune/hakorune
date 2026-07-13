@@ -4,6 +4,7 @@ guard_resolved_if_lowering_contract() {
   guard_resolved_if_s1_contract_impl "$1" "$2"
   guard_resolved_if_s2_contract_impl "$1" "$2"
   guard_resolved_if_i1a_contract_impl "$1" "$2"
+  guard_resolved_if_i1b_contract_impl "$1" "$2"
 }
 
 guard_resolved_if_s1_contract_impl() {
@@ -254,7 +255,10 @@ PY
       [[ -z "$consumer" ]] && continue
       case "$consumer" in
         "$flow"/*) ;;
-        *) guard_fail "$tag" "B0-L3b-S2 flow gained an early production consumer: $consumer" ;;
+        "$root/src/mir/compiler/capability.rs" | \
+        "$root/src/mir/builder/resolved_lowering/flow_consumption.rs" | \
+        "$root/src/mir/builder/resolved_lowering/lowerer.rs") ;;
+        *) guard_fail "$tag" "B0-L3b-I1b flow consumer is outside the exact production transport: $consumer" ;;
       esac
     done <<< "$flow_consumers"
   else
@@ -287,11 +291,9 @@ PY
   echo "if_region_s2_assignment_coverage=exact-once"
   echo "if_region_s2_bundle_flow_bijection=verified"
   echo "if_region_s2_semantic_query_production_callers=1-regionflow"
-  echo "if_region_s2_flow_production_callers=0"
-  echo "if_region_s2_builder_connection=0"
-  echo "if_region_s2_lower_connection=0"
-  echo "if_region_s2_runtime_activation=0"
-  echo "if_region_s2_selected_next_slice=B0-L3b-I1a"
+  echo "if_region_s2_flow_production_transport=capability-to-flow-consumption"
+  echo "if_region_s2_builder_semantic_analysis=0"
+  echo "if_region_s2_runtime_activation=canonical-statement-if"
 }
 
 guard_resolved_if_i1a_contract_impl() {
@@ -336,7 +338,7 @@ guard_resolved_if_i1a_contract_impl() {
       "B0-L3b-I1a disconnected materialization contract drifted: $file:$anchor"
   done
 
-  if rg -n 'ASTNode|Located(Body|Stmt|Expr)V1|VerifiedResolved(Function|If)FlowV1|resolved_region_flow|lower_if_form|variable_map|HashMap<String|BTreeMap<String' \
+  if rg -n 'ASTNode|Located(Body|Stmt|Expr)V1|lower_if_form|variable_map|HashMap<String|BTreeMap<String' \
     "$lower/branch_transaction.rs" "$lower/if_materialization.rs"; then
     guard_fail "$tag" "B0-L3b-I1a infrastructure crossed a syntax/flow/legacy identity boundary"
   fi
@@ -352,7 +354,9 @@ guard_resolved_if_i1a_contract_impl() {
   if consumers="$(rg -l 'IfCfgSessionV1::open_|define_join_phis[[:space:]]*\(' \
       "$root/src" --glob '*.rs' --glob '!*_tests.rs' --glob '!tests.rs' \
       --glob '!if_materialization.rs')"; then
-    guard_fail "$tag" "B0-L3b-I1a gained an early production activation: $consumers"
+    if [[ "$consumers" != "$lower/located_if.rs" ]]; then
+      guard_fail "$tag" "B0-L3b-I1b CFG materializer has a non-canonical production caller: $consumers"
+    fi
   else
     caller_rc=$?
     if [[ "$caller_rc" != "1" ]]; then
@@ -384,6 +388,122 @@ guard_resolved_if_i1a_contract_impl() {
   echo "if_region_i1a_branch_diff_discovery=0"
   echo "if_region_i1a_implicit_else=direct-merge-edge"
   echo "if_region_i1a_phi_policy=final-all-before-batch-publish"
-  echo "if_region_i1a_production_activation=0"
-  echo "if_region_i1a_selected_next_slice=B0-L3b-I1b"
+  echo "if_region_i1a_production_owner=canonical-located-if-only"
+}
+
+guard_resolved_if_i1b_contract_impl() {
+  local tag="$1"
+  local root="$2"
+  local lower="$root/src/mir/builder/resolved_lowering"
+  local compiler="$root/src/mir/compiler"
+  local flow="$root/src/mir/resolved_region_flow"
+
+  guard_require_files "$tag" \
+    "$compiler/capability.rs" \
+    "$compiler/capability_tests.rs" \
+    "$lower/flow_consumption.rs" \
+    "$lower/flow_consumption_tests.rs" \
+    "$lower/located_if.rs" \
+    "$lower/if_tests.rs" \
+    "$lower/lowerer.rs"
+
+  for spec in \
+    'capability.rs:analyze_resolved_function_flow_v1' \
+    'capability.rs:CanonicalFirstFamilyPlanV1' \
+    'capability.rs:into_parts' \
+    'flow_consumption.rs:claim_next_if' \
+    'flow_consumption.rs:abort_condition' \
+    'flow_consumption.rs:abort_then' \
+    'flow_consumption.rs:abort_else' \
+    'branch_transaction.rs:prime_current_effects' \
+    'branch_transaction.rs:join_rows_for_contract' \
+    'located_if.rs:lower_statement_if' \
+    'located_if.rs:lower_if_condition' \
+    'located_if.rs:ResolvedBranchTransactionV1::snapshot' \
+    'located_if.rs:join_rows_for_contract' \
+    'located_if.rs:define_join_phis' \
+    'located_if.rs:EffectAwareJoinStoreV1' \
+    'lowerer.rs:resolve_assignment_binding' \
+    'lowerer.rs:claim_assignment_binding'; do
+    local file="${spec%%:*}"
+    local anchor="${spec#*:}"
+    local owner="$lower/$file"
+    [[ "$file" == capability.rs ]] && owner="$compiler/$file"
+    guard_expect_fixed_in_file "$tag" "$anchor" "$owner" \
+      "B0-L3b-I1b atomic activation contract drifted: $file:$anchor"
+  done
+
+  local analysis_calls
+  analysis_calls="$(rg -n 'analyze_resolved_function_flow_v1[[:space:]]*\(' \
+    "$root/src" --glob '*.rs' --glob '!*_tests.rs' --glob '!tests.rs' \
+    --glob '!analyzer.rs')"
+  if [[ "$(printf '%s\n' "$analysis_calls" | wc -l | tr -d '[:space:]')" != "1" \
+      || "$analysis_calls" != "$compiler/capability.rs:"* ]]; then
+    guard_fail "$tag" "RegionFlow analysis must occur exactly once in pre-Builder capability: $analysis_calls"
+  fi
+
+  if rg -n 'lower_if_form|variable_map|HashMap<String|BTreeMap<String|build_statement|build_expression|emit_conditional_edgecfg' \
+    "$lower/located_if.rs" "$lower/lowerer.rs" "$lower/flow_consumption.rs"; then
+    guard_fail "$tag" "canonical statement If reached a legacy/name-keyed Lower route"
+  fi
+  if rg -n 'BTreeMap<RegionId|HashMap<RegionId|RegionId[^\n]*BasicBlockId' \
+    "$lower" --glob '*.rs' --glob '!*_tests.rs'; then
+    guard_fail "$tag" "B0-L3b-I1b published a durable RegionId materialization map before SA4"
+  fi
+
+  python3 - "$compiler/capability.rs" "$lower/lowerer.rs" "$lower/located_if.rs" <<'PY'
+from pathlib import Path
+import re
+import sys
+
+capability, lowerer, located = (Path(path).read_text() for path in sys.argv[1:])
+header = re.search(r"#\[derive\((?P<derive>[^)]*)\)\]\s*pub\(crate\) struct CanonicalFirstFamilyPlanV1", capability)
+if header is None or "Copy" in header.group("derive") or "Clone" in header.group("derive"):
+    raise SystemExit("canonical plan must remain owned and one-shot")
+if capability.count("analyze_resolved_function_flow_v1(function)") != 1:
+    raise SystemExit("capability must own exactly one production RegionFlow analysis")
+
+resolve = lowerer.find("resolve_assignment_binding")
+rhs = lowerer.find("self.lower_expr(&value)", resolve)
+claim = lowerer.find("claim_assignment_binding", resolve)
+if min(resolve, rhs, claim) < 0 or not resolve < rhs < claim:
+    raise SystemExit("assignment must resolve/authorize before RHS and claim after RHS")
+
+condition = located.find("lower_if_condition")
+then_snapshot = located.find("let then_transaction = ResolvedBranchTransactionV1::snapshot", condition)
+else_snapshot = located.find("let else_transaction =", then_snapshot)
+control = located.find("self.semantics.enter_region", else_snapshot)
+if min(condition, then_snapshot, else_snapshot, control) < 0 or not condition < then_snapshot < else_snapshot < control:
+    raise SystemExit("If branches must share the post-condition baseline before control materialization")
+if "join_rows_for_contract(row.join()" not in located:
+    raise SystemExit("production If must consume the sealed per-binding join source matrix")
+PY
+
+  local file lines
+  for file in "$compiler/capability.rs" "$compiler/capability_tests.rs" \
+    "$lower/branch_transaction.rs" "$lower/flow_consumption.rs" \
+    "$lower/flow_consumption_tests.rs" "$lower/located_if.rs" \
+    "$lower/lowerer.rs" "$lower/if_tests.rs"; do
+    lines="$(wc -l < "$file" | tr -d '[:space:]')"
+    if (( lines >= 800 )); then
+      guard_fail "$tag" "B0-L3b-I1b source reached the 800-line stop boundary: $file ($lines)"
+    fi
+  done
+
+  cargo test -q --manifest-path "$root/Cargo.toml" --lib \
+    mir::compiler::capability_tests
+  cargo test -q --manifest-path "$root/Cargo.toml" --lib \
+    mir::builder::resolved_lowering::flow_consumption_tests
+  cargo test -q --manifest-path "$root/Cargo.toml" --lib \
+    mir::builder::resolved_lowering::if_tests --features vm-reference
+
+  echo "if_region_i1b_plan_transport=owned-one-shot"
+  echo "if_region_i1b_flow_analysis=pre-builder-exactly-one"
+  echo "if_region_i1b_flow_consumption=source-preorder-exact-once"
+  echo "if_region_i1b_branch_baseline=post-condition-shared"
+  echo "if_region_i1b_branch_diff_discovery=0"
+  echo "if_region_i1b_join_source=sealed-contract-only"
+  echo "if_region_i1b_region_identity=consume-and-coverage-only"
+  echo "if_region_i1b_durable_region_materialization=0"
+  echo "if_region_i1b_runtime_claim=fallthrough-statement-if"
 }

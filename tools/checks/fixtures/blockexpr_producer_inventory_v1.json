@@ -260,6 +260,32 @@
       "retirement_owner": "resolved-region-flow-tests"
     },
     {
+      "producer_id": "test-canonical-capability-if-blockexpr",
+      "producer_path": "src/mir/compiler/capability_tests.rs",
+      "producer_status": "TestOnly",
+      "output_family": "test ASTNode::BlockExpr",
+      "consumer_entry": "B0-L3b-I1b pre-Builder capability tests",
+      "classification": "TestOnly",
+      "required_scope_semantics": "TestOnlyExactResolvedPair",
+      "live_caller_evidence": [
+        "src/mir/compiler/capability_tests.rs#fn block_expr(prelude_stmts: Vec<ASTNode>, tail: ASTNode) -> ASTNode"
+      ],
+      "retirement_owner": "canonical-capability-tests"
+    },
+    {
+      "producer_id": "test-canonical-if-lower-blockexpr",
+      "producer_path": "src/mir/builder/resolved_lowering/if_tests.rs",
+      "producer_status": "TestOnly",
+      "output_family": "test ASTNode::BlockExpr",
+      "consumer_entry": "B0-L3b-I1b canonical statement If runtime tests",
+      "classification": "TestOnly",
+      "required_scope_semantics": "TestOnlyExactResolvedPair",
+      "live_caller_evidence": [
+        "src/mir/builder/resolved_lowering/if_tests.rs#fn block(prelude: Vec<ASTNode>, tail: ASTNode) -> ASTNode"
+      ],
+      "retirement_owner": "canonical-if-lowering-tests"
+    },
+    {
       "producer_id": "test-json-v0-sum-lane-blockexpr",
       "producer_path": "src/runner/json_v0_bridge/tests/sum_lane.rs",
       "producer_status": "TestOnly",

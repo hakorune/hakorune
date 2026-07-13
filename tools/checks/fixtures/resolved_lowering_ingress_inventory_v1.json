@@ -389,5 +389,19 @@
     "vm_runtime_fixture_count": 2,
     "selected_next_slice": "B0-L3b-located-control-flow"
   },
-  "selected_next_slice": "B0-L3b-located-control-flow"
+  "b0_l3b_if_contract": {
+    "slice": "B0-L3b",
+    "status": "closed",
+    "branch_effect_authority": "VerifiedResolvedFunctionFlowV1",
+    "flow_analysis_before_builder": 1,
+    "source_preorder_flow_consumption": 1,
+    "post_condition_shared_baseline": 1,
+    "sealed_join_source_consumption": 1,
+    "legacy_if_form_calls": 0,
+    "lower_map_diff_discovery": 0,
+    "durable_region_materialization_maps": 0,
+    "runtime_fixture_count": 6,
+    "selected_next_slice": "B0-L4-located-coreplan-source-coverage-design-stop"
+  },
+  "selected_next_slice": "B0-L4-located-coreplan-source-coverage-design-stop"
 }

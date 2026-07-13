@@ -1,6 +1,9 @@
 //! Whole-unit capability proof before the first Builder effect.
 
 use crate::ast::{ASTNode, BinaryOperator};
+use crate::mir::resolved_region_flow::{
+    analyze_resolved_function_flow_v1, VerifiedResolvedFunctionFlowV1,
+};
 use crate::mir::resolved_semantics::{
     BindingKindV1, RegionKindV1, ResolvedAssignmentTargetV1, ResolvedExitOriginV1,
     ResolvedLexicalRefV1, ScopeKindV1, SourceBindingSiteV1,
@@ -11,24 +14,29 @@ use super::located::{LocatedBodyV1, LocatedExprV1, LocatedStmtV1};
 use super::lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1};
 use super::source_view::{BodyChildRoleV1, ExprChildRoleV1};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 pub(crate) struct CanonicalFirstFamilyPlanV1<'a> {
     function: ResolvedFunctionLoweringInputV1<'a>,
+    flow: VerifiedResolvedFunctionFlowV1,
     returns_value: bool,
     block_expr_count: usize,
 }
 
 impl<'a> CanonicalFirstFamilyPlanV1<'a> {
-    pub(crate) const fn function(self) -> ResolvedFunctionLoweringInputV1<'a> {
-        self.function
-    }
-
-    pub(crate) const fn returns_value(self) -> bool {
-        self.returns_value
-    }
-
-    pub(crate) const fn block_expr_count(self) -> usize {
-        self.block_expr_count
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        ResolvedFunctionLoweringInputV1<'a>,
+        VerifiedResolvedFunctionFlowV1,
+        bool,
+        usize,
+    ) {
+        (
+            self.function,
+            self.flow,
+            self.returns_value,
+            self.block_expr_count,
+        )
     }
 }
 
@@ -94,9 +102,15 @@ impl CanonicalLoweringPreflightV1 {
         debug_assert_eq!(body.len(), located_body.statements().len());
         let (returns_value, block_expr_count) =
             verify_body(function, &located_body, ReturnPolicyV1::FinalOnly)?;
-        verify_product_shape(function, block_expr_count)?;
+        let flow = analyze_resolved_function_flow_v1(function).map_err(|error| {
+            CanonicalLoweringErrorV1::ResolvedRegionFlow {
+                detail: format!("{error:?}"),
+            }
+        })?;
+        verify_product_shape(function, &flow, block_expr_count)?;
         Ok(CanonicalFirstFamilyPlanV1 {
             function,
+            flow,
             returns_value,
             block_expr_count,
         })
@@ -189,6 +203,28 @@ fn verify_statement(
                 .map_err(source_navigation)?;
             Ok((false, verify_expression(input, &value)?))
         }
+        ASTNode::If { else_body, .. } => {
+            let condition = input
+                .source()
+                .child_expr_from_stmt(statement, ExprChildRoleV1::IfCondition)
+                .map_err(source_navigation)?;
+            let mut block_expr_count = verify_expression(input, &condition)?;
+            let then_body = input
+                .source()
+                .child_body_from_stmt(statement, BodyChildRoleV1::IfThen)
+                .map_err(source_navigation)?;
+            let (_, then_count) = verify_body(input, &then_body, ReturnPolicyV1::Forbidden)?;
+            block_expr_count += then_count;
+            if else_body.is_some() {
+                let else_body = input
+                    .source()
+                    .child_body_from_stmt(statement, BodyChildRoleV1::IfElse)
+                    .map_err(source_navigation)?;
+                let (_, else_count) = verify_body(input, &else_body, ReturnPolicyV1::Forbidden)?;
+                block_expr_count += else_count;
+            }
+            Ok((false, block_expr_count))
+        }
         ASTNode::Return { value, .. } => {
             if return_policy == ReturnPolicyV1::Forbidden || !is_last {
                 return unsupported(site, statement.node(), "return_not_allowed_here");
@@ -262,6 +298,7 @@ fn verify_expression(
 
 fn verify_product_shape(
     input: ResolvedFunctionLoweringInputV1<'_>,
+    flow: &VerifiedResolvedFunctionFlowV1,
     block_expr_count: usize,
 ) -> Result<(), CanonicalLoweringErrorV1> {
     let product = input.function();
@@ -295,8 +332,16 @@ fn verify_product_shape(
         .regions()
         .filter(|(_, region)| region.kind() == RegionKindV1::BlockExpr)
         .count();
-    if product.scope_count() != 2 + block_expr_count
-        || product.region_count() != 2 + block_expr_count
+    let if_count = flow.if_flows().len();
+    let explicit_else_count = flow
+        .if_flows()
+        .iter()
+        .filter(|row| row.regions().else_pair().is_some())
+        .count();
+    let expected_scope_count = 2 + block_expr_count + if_count + explicit_else_count;
+    let expected_region_count = 2 + block_expr_count + (2 * if_count) + explicit_else_count;
+    if product.scope_count() != expected_scope_count
+        || product.region_count() != expected_region_count
         || product_block_expr_scopes != block_expr_count
         || product_block_expr_regions != block_expr_count
         || product
@@ -311,13 +356,22 @@ fn verify_product_shape(
         || product.scopes().any(|(_, scope)| {
             !matches!(
                 scope.kind(),
-                ScopeKindV1::Function | ScopeKindV1::LexicalBlock | ScopeKindV1::BlockExpr
+                ScopeKindV1::Function
+                    | ScopeKindV1::LexicalBlock
+                    | ScopeKindV1::BlockExpr
+                    | ScopeKindV1::IfThen
+                    | ScopeKindV1::IfElse
             )
         })
         || product.regions().any(|(_, region)| {
             !matches!(
                 region.kind(),
-                RegionKindV1::Function | RegionKindV1::Sequence | RegionKindV1::BlockExpr
+                RegionKindV1::Function
+                    | RegionKindV1::Sequence
+                    | RegionKindV1::BlockExpr
+                    | RegionKindV1::If
+                    | RegionKindV1::IfThen
+                    | RegionKindV1::IfElse
             )
         })
     {

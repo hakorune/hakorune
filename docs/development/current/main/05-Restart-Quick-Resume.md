@@ -40,10 +40,11 @@ cargo check -q
 
 - handoff frontier: read `current_blocker_token` in `CURRENT_STATE.toml`
 - read `latest_card_path` before editing
-- owner-scoped arena through B0-L3b-I1a is closed (B0-C was skipped); exact If
-  flow and disconnected materialization infrastructure are green. The active
-  frontier is the atomic B0-L3b-I1b canonical statement-If activation named by
-  `current_blocker_token` and `latest_card_path`
+- owner-scoped arena through B0-L3b-I1b is closed (B0-C was skipped); exact If
+  flow and canonical fallthrough statement-If runtime are green. The active
+  frontier is the B0-L4 located CorePlan source-coverage design stop named by
+  `current_blocker_token` and `latest_card_path`; do not implement before the
+  carrier/coverage consultation is accepted
 - keep RegionFlow R1, parser/source-carrier P1, and all parked source-projection
   stashes disconnected until the semantic-arena prerequisite series closes
 - LANGV1 conformance closeout and Failure/Outcome global migration remain
