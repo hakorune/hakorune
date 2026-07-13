@@ -11,6 +11,7 @@ pub enum BindingKindV1 {
     Parameter { index: u32 },
     Local { ordinal: u32 },
     Outbox { ordinal: u32 },
+    Nowait,
     LoopBinder,
     CatchBinder { ordinal: u32 },
     PatternBinder { ordinal: u32 },

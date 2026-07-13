@@ -834,6 +834,12 @@ once through the existing place boundary.  Grouped assignment keeps its RHS
 and string-named target at distinct typed sites.  No desugaring to Assignment
 or BinaryOp is performed.
 
+`B1-D nowait-1` closed on 2026-07-13.  `Nowait` has a distinct source origin
+and binding kind; its expression resolves before its binder is inserted, so a
+same-name binder observes the outer lexical binding in the initializer.
+Production Lower remains unchanged and still has zero canonical-product
+installs.  Catch and pattern binders remain in the later region-owning slice.
+
 Known production boundary mismatches must be resolved explicitly before B2:
 
 ```text

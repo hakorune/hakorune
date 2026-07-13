@@ -13,6 +13,7 @@ pub(crate) enum ShadowBindingKindV0 {
     Parameter { index: u32 },
     Local { ordinal: u32 },
     Outbox { ordinal: u32 },
+    Nowait,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

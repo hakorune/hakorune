@@ -1,6 +1,7 @@
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::resolved_semantics::source_site::{
-    FunctionOriginV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
+    FunctionOriginV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1,
+    SourceStmtSiteV1,
 };
 
 use super::{
@@ -99,6 +100,36 @@ fn initializer_observes_outer_binding_before_shadow_is_inserted() {
     ]);
     assert_eq!(product.variable_uses[&use_site], outer);
     assert_eq!(product.bindings.len(), 3, "receiver plus two x bindings");
+}
+
+#[test]
+fn nowait_expression_resolves_before_its_binding_is_declared() {
+    let tree = function(
+        &["x"],
+        vec![ASTNode::Nowait {
+            variable: "x".into(),
+            expression: Box::new(var("x")),
+            span: span(),
+        }],
+    );
+    let product = resolve(&tree);
+    let declaration = SourceBindingSiteV1::Nowait {
+        statement: stmt_site(vec![SourcePathSegmentV1::Body(0)]),
+    };
+    let nowait = product.declarations[&declaration];
+    let parameter = product
+        .bindings
+        .iter()
+        .find(|(_, record)| record.kind == ShadowBindingKindV0::Parameter { index: 0 })
+        .map(|(binding, _)| *binding)
+        .unwrap();
+    let initializer = expr_site(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::Value,
+    ]);
+    assert_eq!(product.bindings[&nowait].kind, ShadowBindingKindV0::Nowait);
+    assert_eq!(product.variable_uses[&initializer], parameter);
+    assert_ne!(nowait, parameter);
 }
 
 #[test]
@@ -583,6 +614,7 @@ fn accepted_vocabulary_is_closed_and_reviewable() {
         [
             "Local",
             "Outbox",
+            "Nowait",
             "Assignment",
             "CompoundAssignment",
             "ScopeBox",

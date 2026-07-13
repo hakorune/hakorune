@@ -56,6 +56,21 @@ impl ShadowResolverV0 {
             ASTNode::Print { expression, .. } => {
                 self.resolve_expr(expression, &path.child(SourcePathSegmentV1::Value))
             }
+            ASTNode::Nowait {
+                variable,
+                expression,
+                ..
+            } => {
+                self.resolve_expr(expression, &path.child(SourcePathSegmentV1::Value))?;
+                self.declare_binding(
+                    variable,
+                    ShadowBindingKindV0::Nowait,
+                    SourceBindingSiteV1::Nowait {
+                        statement: path.stmt(),
+                    },
+                )?;
+                Ok(())
+            }
             ASTNode::ScopeBox { body, .. } => self.resolve_scope_box(body, path),
             ASTNode::If {
                 condition,

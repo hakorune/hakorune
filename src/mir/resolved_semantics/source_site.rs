@@ -114,6 +114,9 @@ pub enum SourceBindingSiteV1 {
         statement: SourceStmtSiteV1,
         ordinal: u32,
     },
+    Nowait {
+        statement: SourceStmtSiteV1,
+    },
     LoopBinder {
         loop_site: SourceStmtSiteV1,
     },

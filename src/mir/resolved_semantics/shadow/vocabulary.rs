@@ -35,6 +35,7 @@ pub(super) fn classify_shadow_ast_disposition_v0(node: &ASTNode) -> ShadowAstDis
         | ASTNode::Break { .. }
         | ASTNode::Continue { .. }
         | ASTNode::Print { .. }
+        | ASTNode::Nowait { .. }
         | ASTNode::Local { .. }
         | ASTNode::ScopeBox { .. }
         | ASTNode::Outbox { .. } => CurrentResolvedStatement,
@@ -68,7 +69,6 @@ pub(super) fn classify_shadow_ast_disposition_v0(node: &ASTNode) -> ShadowAstDis
 
         ASTNode::LoopRange { .. }
         | ASTNode::BuildGate { .. }
-        | ASTNode::Nowait { .. }
         | ASTNode::ContextScope { .. }
         | ASTNode::QMarkPropagate { .. }
         | ASTNode::MatchExpr { .. }
@@ -93,6 +93,7 @@ pub(super) fn classify_shadow_ast_disposition_v0(node: &ASTNode) -> ShadowAstDis
 pub(super) const SHADOW_ACCEPTED_STATEMENTS_V0: &[&str] = &[
     "Local",
     "Outbox",
+    "Nowait",
     "Assignment",
     "CompoundAssignment",
     "ScopeBox",

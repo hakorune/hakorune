@@ -269,6 +269,7 @@ const fn binding_kind(kind: ShadowBindingKindV0) -> BindingKindV1 {
         ShadowBindingKindV0::Parameter { index } => BindingKindV1::Parameter { index },
         ShadowBindingKindV0::Local { ordinal } => BindingKindV1::Local { ordinal },
         ShadowBindingKindV0::Outbox { ordinal } => BindingKindV1::Outbox { ordinal },
+        ShadowBindingKindV0::Nowait => BindingKindV1::Nowait,
     }
 }
 

@@ -221,7 +221,7 @@ for required in \
   guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/shadow/vocabulary.rs" \
     "shadow accepted vocabulary manifest drifted: $required"
 done
-for variant in Local Outbox Assignment CompoundAssignment ScopeBox If Loop Break Continue Return Print; do
+for variant in Local Outbox Nowait Assignment CompoundAssignment ScopeBox If Loop Break Continue Return Print; do
   guard_expect_fixed_in_file "$TAG" "ASTNode::$variant" "$MODULE/shadow/stmt.rs" \
     "accepted statement lost its explicit resolver arm: $variant"
 done
@@ -247,7 +247,7 @@ expected_expr = {
     "GroupedAssignmentExpr",
 }
 expected_stmt = {
-    "Local", "Outbox", "Assignment", "CompoundAssignment", "ScopeBox", "If", "Loop",
+    "Local", "Outbox", "Nowait", "Assignment", "CompoundAssignment", "ScopeBox", "If", "Loop",
     "Break", "Continue", "Return", "Print",
 }
 if expr != expected_expr:

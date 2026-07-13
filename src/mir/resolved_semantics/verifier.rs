@@ -95,6 +95,10 @@ fn verify_kind_origin_contracts(
                 }),
             ) => ordinal == *origin,
             (
+                super::records::BindingKindV1::Nowait,
+                BindingOriginV1::Source(SourceBindingSiteV1::Nowait { .. }),
+            ) => true,
+            (
                 super::records::BindingKindV1::LoopBinder,
                 BindingOriginV1::Source(SourceBindingSiteV1::LoopBinder { .. }),
             ) => true,
