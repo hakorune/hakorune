@@ -141,6 +141,41 @@ for required in \
 done
 
 for required in \
+  "pub struct OwnedExprSiteV1" \
+  "owner: FunctionOwnerIdV1" \
+  "site: SourceExprSiteV1"; do
+  guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/source_site.rs" \
+    "P0 owner-branded expression provenance drifted: $required"
+done
+for role in \
+  LambdaBodyRoot \
+  'LambdaBody(u32)' \
+  QMarkOperand \
+  MatchScrutinee \
+  'MatchArm(u32)' \
+  MatchElse \
+  EnumMatchScrutinee \
+  'EnumMatchArm(u32)' \
+  EnumMatchElse \
+  BlockExprPreludeRoot \
+  'BlockExprPrelude(u32)' \
+  BlockExprTail \
+  TryBodyRoot \
+  'TryBody(u32)' \
+  'CatchClause(u32)' \
+  CatchBodyRoot \
+  'CatchBody(u32)' \
+  CleanupBodyRoot \
+  'CleanupBody(u32)'; do
+  guard_expect_fixed_in_file "$TAG" "$role" "$MODULE/source_site.rs" \
+    "P0 source-role vocabulary drifted: $role"
+done
+if rg -n '\b(CaptureId|CaptureSlotId|UpvarRefV1|VerifiedSemanticOwnerForestV1)\b' \
+  "${PRODUCTION_FILES[@]}"; then
+  guard_fail "$TAG" "P0 source-role slice must not pre-install later owner-forest/upvar vocabulary"
+fi
+
+for required in \
   "pub(crate) fn seal(" \
   "verify_resolved_function(&self.data)?" \
   "build_normalized_graph(&self.data)" \

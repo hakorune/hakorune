@@ -32,8 +32,8 @@ pub use records::{
 };
 pub(crate) use resolver::{FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1};
 pub use source_site::{
-    FunctionOriginV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1,
-    SourceStmtSiteV1,
+    FunctionOriginV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1,
+    SourcePathSegmentV1, SourceStmtSiteV1,
 };
 pub use verifier::ResolvedFunctionVerificationErrorV1;
 

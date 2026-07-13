@@ -1,5 +1,5 @@
 ---
-Status: Decision accepted; P0 source-role vocabulary is the active code slice
+Status: P0 source-role vocabulary closed; E0 exit-record unification is active
 Date: 2026-07-13
 Scope: Resolved Semantic Owner Forest V1 design and implementation task order
 Parent: mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
@@ -360,7 +360,7 @@ migration must not silently change BlockExpr visibility.
 
 Only one row is active at a time. Every row is a separate green commit.
 
-### P0 — closed source-role vocabulary (active)
+### P0 — closed source-role vocabulary (closed)
 
 Add exact path roles needed by the remaining owner/control variants without
 changing resolver acceptance:
@@ -390,7 +390,21 @@ Planner/Lower imports = 0
 all source files < 800 lines
 ```
 
-### E0 — behavior-neutral exit record unification
+P0 closeout evidence:
+
+```text
+closed path roles = 19
+owner-branded passive expression provenance = OwnedExprSiteV1
+same relative site across two owners = distinct
+resolver accepted vocabulary change = 0
+owner forest / Upvar / exit behavior installation = 0
+Planner / Lower connection = 0
+resolved-region-flow-authority guard = green
+release compiler check = green
+all source files < 800 lines
+```
+
+### E0 — behavior-neutral exit record unification (active)
 
 ```text
 add ResolvedExitSiteV1

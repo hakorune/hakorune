@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use hakorune_mir_core::BindingId;
 
@@ -10,8 +10,8 @@ use super::records::{
     ScopeKindV1, ScopeOriginV1,
 };
 use super::source_site::{
-    FunctionOriginV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1,
-    SourceStmtSiteV1,
+    FunctionOriginV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1,
+    SourcePathSegmentV1, SourceStmtSiteV1,
 };
 use super::VerifiedResolvedFunctionV1;
 
@@ -439,4 +439,77 @@ fn mutable_draft_is_crate_private_and_distinct_from_verified_product() {
         data: sample_data(owner(), BindingId::new(0)),
     };
     assert_eq!(draft.data.bindings.len(), 1);
+}
+
+#[test]
+fn p0_source_roles_have_stable_order_and_debug_vocabulary() {
+    let roles = vec![
+        SourcePathSegmentV1::LambdaBodyRoot,
+        SourcePathSegmentV1::LambdaBody(3),
+        SourcePathSegmentV1::QMarkOperand,
+        SourcePathSegmentV1::MatchScrutinee,
+        SourcePathSegmentV1::MatchArm(3),
+        SourcePathSegmentV1::MatchElse,
+        SourcePathSegmentV1::EnumMatchScrutinee,
+        SourcePathSegmentV1::EnumMatchArm(3),
+        SourcePathSegmentV1::EnumMatchElse,
+        SourcePathSegmentV1::BlockExprPreludeRoot,
+        SourcePathSegmentV1::BlockExprPrelude(3),
+        SourcePathSegmentV1::BlockExprTail,
+        SourcePathSegmentV1::TryBodyRoot,
+        SourcePathSegmentV1::TryBody(3),
+        SourcePathSegmentV1::CatchClause(3),
+        SourcePathSegmentV1::CatchBodyRoot,
+        SourcePathSegmentV1::CatchBody(3),
+        SourcePathSegmentV1::CleanupBodyRoot,
+        SourcePathSegmentV1::CleanupBody(3),
+    ];
+    let expected_debug = [
+        "LambdaBodyRoot",
+        "LambdaBody(3)",
+        "QMarkOperand",
+        "MatchScrutinee",
+        "MatchArm(3)",
+        "MatchElse",
+        "EnumMatchScrutinee",
+        "EnumMatchArm(3)",
+        "EnumMatchElse",
+        "BlockExprPreludeRoot",
+        "BlockExprPrelude(3)",
+        "BlockExprTail",
+        "TryBodyRoot",
+        "TryBody(3)",
+        "CatchClause(3)",
+        "CatchBodyRoot",
+        "CatchBody(3)",
+        "CleanupBodyRoot",
+        "CleanupBody(3)",
+    ];
+
+    assert!(roles.windows(2).all(|pair| pair[0] < pair[1]));
+    assert_eq!(
+        roles
+            .iter()
+            .map(|role| format!("{role:?}"))
+            .collect::<Vec<_>>(),
+        expected_debug
+    );
+}
+
+#[test]
+fn owned_expression_site_distinguishes_equal_relative_paths_across_owners() {
+    let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
+    let first_owner = issuer.issue().unwrap();
+    let second_owner = issuer.issue().unwrap();
+    let relative = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+        SourcePathSegmentV1::LambdaBody(0),
+        SourcePathSegmentV1::QMarkOperand,
+    ]));
+    let first = OwnedExprSiteV1::new(first_owner, relative.clone());
+    let second = OwnedExprSiteV1::new(second_owner, relative.clone());
+
+    assert_eq!(first.owner(), first_owner);
+    assert_eq!(first.site(), &relative);
+    assert_ne!(first, second);
+    assert_eq!(BTreeSet::from([first, second]).len(), 2);
 }

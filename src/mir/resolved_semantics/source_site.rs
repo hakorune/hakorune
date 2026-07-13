@@ -1,5 +1,7 @@
 //! Structural source provenance for one canonical function AST.
 
+use super::ids::FunctionOwnerIdV1;
+
 /// Function provenance within one compilation input.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct FunctionOriginV1 {
@@ -59,6 +61,25 @@ pub enum SourcePathSegmentV1 {
     Operand,
     Initializer(u32),
     Binding(u32),
+    LambdaBodyRoot,
+    LambdaBody(u32),
+    QMarkOperand,
+    MatchScrutinee,
+    MatchArm(u32),
+    MatchElse,
+    EnumMatchScrutinee,
+    EnumMatchArm(u32),
+    EnumMatchElse,
+    BlockExprPreludeRoot,
+    BlockExprPrelude(u32),
+    BlockExprTail,
+    TryBodyRoot,
+    TryBody(u32),
+    CatchClause(u32),
+    CatchBodyRoot,
+    CatchBody(u32),
+    CleanupBodyRoot,
+    CleanupBody(u32),
 }
 
 /// Structural node provenance relative to one function root.
@@ -100,6 +121,31 @@ impl SourceExprSiteV1 {
 
     pub fn node(&self) -> &SourceNodeSiteV1 {
         &self.0
+    }
+}
+
+/// Expression provenance branded by the semantic owner whose syntax contains it.
+///
+/// A bare `SourceExprSiteV1` is relative to one owner root. Cross-owner maps
+/// must use this type so identical relative paths in sibling owners cannot
+/// alias.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct OwnedExprSiteV1 {
+    owner: FunctionOwnerIdV1,
+    site: SourceExprSiteV1,
+}
+
+impl OwnedExprSiteV1 {
+    pub(crate) const fn new(owner: FunctionOwnerIdV1, site: SourceExprSiteV1) -> Self {
+        Self { owner, site }
+    }
+
+    pub const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub const fn site(&self) -> &SourceExprSiteV1 {
+        &self.site
     }
 }
 
