@@ -63,6 +63,7 @@ pub(crate) struct ShadowRegionRecordV0 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ShadowAssignmentTargetV0 {
     BindingRebind(ShadowBindingOrdinalV0),
+    AncestorRebind(Box<str>),
     FieldWrite { receiver: SourceExprSiteV1 },
     IndexWrite { receiver: SourceExprSiteV1 },
 }
@@ -117,10 +118,6 @@ pub(crate) enum ShadowResolveErrorV0 {
         site: SourceExprSiteV1,
     },
     UnsupportedAssignmentTarget {
-        site: SourceExprSiteV1,
-    },
-    UnsupportedAncestorRebind {
-        name: Box<str>,
         site: SourceExprSiteV1,
     },
     DuplicateExitSite {

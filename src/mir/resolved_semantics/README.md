@@ -60,10 +60,15 @@ references point directly to the original declaration. Forest seal verifies
 the source exists, belongs to a strict ancestor, was visible at every Lambda
 definition boundary, and is not hidden by a nearer same-name declaration.
 Normalized parity uses structural owner keys and binding origins, never raw
-owner or binding numbers. Upvar writes remain an exact typed Unsupported until
-UP1. UP0 creates no CaptureId, synthetic child BindingId, capture mode,
-forwarding binding, runtime slot, ValueId, BasicBlockId, Recipe, Planner, or
-Lower connection.
+owner or binding numbers.
+
+UP1 adds exact-site `Read | Rebind` observations over the same structural
+relation. A write is `ResolvedAssignmentTargetV1::UpvarRebind`; it is never
+misreported as a local `BindingRebind`. The unique Upvar inventory and ordered
+access observations are both seal-derived. They are capture-plan input only:
+UP1 creates no CaptureId, synthetic child BindingId, capture mode, forwarding
+binding, runtime slot, ValueId, BasicBlockId, Recipe, Planner, or Lower
+connection.
 
 SA2 installs the real publication boundary. A compilation-scoped issuer with
 a process-unique compilation brand is the only owner-brand constructor;

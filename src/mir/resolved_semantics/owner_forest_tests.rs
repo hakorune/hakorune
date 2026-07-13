@@ -9,9 +9,9 @@ use super::owner_forest::{
 use super::tests::sample_verified_for_owner_forest;
 use super::{
     FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, OwnedExprSiteV1,
-    ResolveFunctionErrorV1, ResolveOwnerForestErrorV1, ResolvedControlTransferV1,
-    ResolvedExitSiteV1, ResolvedLexicalRefV1, SourceBindingSiteV1, SourceExprSiteV1,
-    SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
+    ResolveFunctionErrorV1, ResolveOwnerForestErrorV1, ResolvedAssignmentTargetV1,
+    ResolvedControlTransferV1, ResolvedExitSiteV1, ResolvedLexicalRefV1, SourceBindingSiteV1,
+    SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1, UpvarAccessKindV1,
 };
 
 fn function(body: Vec<ASTNode>) -> ASTNode {
@@ -85,6 +85,14 @@ fn add(left: ASTNode, right: ASTNode) -> ASTNode {
         operator: BinaryOperator::Add,
         left: Box::new(left),
         right: Box::new(right),
+        span: Span::unknown(),
+    }
+}
+
+fn assign(name: &str, value: ASTNode) -> ASTNode {
+    ASTNode::Assignment {
+        target: Box::new(variable(name)),
+        value: Box::new(value),
         span: Span::unknown(),
     }
 }
@@ -292,14 +300,17 @@ fn resolver_seals_outer_parameter_read_as_structural_upvar() {
 }
 
 #[test]
-fn resolver_deduplicates_multiple_uses_of_the_same_structural_upvar() {
+fn resolver_deduplicates_multiple_reads_and_rebinds_of_the_same_structural_upvar() {
     let tree = function(vec![
         local("outer", int(1)),
         local(
             "f",
             lambda(
                 &[],
-                vec![return_value(add(variable("outer"), variable("outer")))],
+                vec![
+                    assign("outer", int(2)),
+                    return_value(add(variable("outer"), variable("outer"))),
+                ],
             ),
         ),
     ]);
@@ -319,12 +330,12 @@ fn resolver_deduplicates_multiple_uses_of_the_same_structural_upvar() {
         .unwrap();
     let child_product = forest.owner(child).unwrap();
     let lhs = expr_site(vec![
-        SourcePathSegmentV1::LambdaBody(0),
+        SourcePathSegmentV1::LambdaBody(1),
         SourcePathSegmentV1::Value,
         SourcePathSegmentV1::Lhs,
     ]);
     let rhs = expr_site(vec![
-        SourcePathSegmentV1::LambdaBody(0),
+        SourcePathSegmentV1::LambdaBody(1),
         SourcePathSegmentV1::Value,
         SourcePathSegmentV1::Rhs,
     ]);
@@ -337,20 +348,22 @@ fn resolver_deduplicates_multiple_uses_of_the_same_structural_upvar() {
 
     assert_eq!(lhs_upvar, rhs_upvar);
     assert_eq!(forest.upvars(), &[lhs_upvar]);
+    assert_eq!(forest.upvar_observations().len(), 3);
+    assert!(forest
+        .upvar_observations()
+        .iter()
+        .any(|row| row.access() == UpvarAccessKindV1::Rebind));
 }
 
 #[test]
-fn resolver_flattens_grandparent_capture_to_the_original_binding_ref() {
+fn resolver_flattens_grandparent_rebind_to_the_original_binding_ref() {
     let tree = function(vec![
         local("outer", int(1)),
         local(
             "parent",
             lambda(
                 &[],
-                vec![local(
-                    "child",
-                    lambda(&[], vec![return_value(variable("outer"))]),
-                )],
+                vec![local("child", lambda(&[], vec![assign("outer", int(2))]))],
             ),
         ),
     ]);
@@ -377,17 +390,14 @@ fn resolver_flattens_grandparent_capture_to_the_original_binding_ref() {
             ]),
         ))
         .unwrap();
-    let use_site = expr_site(vec![
+    let target_site = expr_site(vec![
         SourcePathSegmentV1::LambdaBody(0),
-        SourcePathSegmentV1::Value,
+        SourcePathSegmentV1::Target,
     ]);
-    let ResolvedLexicalRefV1::Upvar(upvar) = forest
-        .owner(child)
-        .unwrap()
-        .variable_ref(&use_site)
-        .unwrap()
+    let Some(ResolvedAssignmentTargetV1::UpvarRebind(upvar)) =
+        forest.owner(child).unwrap().assignment_target(&target_site)
     else {
-        panic!("expected grandparent Upvar");
+        panic!("expected grandparent Upvar rebind");
     };
     let source = forest
         .owner(root)
@@ -403,7 +413,11 @@ fn resolver_flattens_grandparent_capture_to_the_original_binding_ref() {
     assert_eq!(upvar.capturing_owner(), child);
     assert_eq!(upvar.source(), source);
     assert_ne!(upvar.source().owner(), parent);
-    assert_eq!(forest.upvars(), &[upvar]);
+    assert_eq!(forest.upvars(), &[*upvar]);
+    assert_eq!(
+        forest.upvar_observations()[0].access(),
+        UpvarAccessKindV1::Rebind
+    );
 }
 
 #[test]
@@ -414,7 +428,11 @@ fn resolver_child_local_shadow_prevents_structural_upvar() {
             "f",
             lambda(
                 &[],
-                vec![local("outer", int(2)), return_value(variable("outer"))],
+                vec![
+                    local("outer", int(2)),
+                    assign("outer", int(3)),
+                    return_value(variable("outer")),
+                ],
             ),
         ),
     ]);
@@ -434,7 +452,7 @@ fn resolver_child_local_shadow_prevents_structural_upvar() {
         .unwrap();
     let child_product = forest.owner(child).unwrap();
     let use_site = expr_site(vec![
-        SourcePathSegmentV1::LambdaBody(1),
+        SourcePathSegmentV1::LambdaBody(2),
         SourcePathSegmentV1::Value,
     ]);
     let local_binding = child_product
@@ -449,6 +467,14 @@ fn resolver_child_local_shadow_prevents_structural_upvar() {
     assert_eq!(
         child_product.variable_ref(&use_site),
         Some(ResolvedLexicalRefV1::Local(local_binding))
+    );
+    let target_site = expr_site(vec![
+        SourcePathSegmentV1::LambdaBody(1),
+        SourcePathSegmentV1::Target,
+    ]);
+    assert_eq!(
+        child_product.assignment_target(&target_site),
+        Some(&ResolvedAssignmentTargetV1::BindingRebind(local_binding))
     );
     assert!(forest.upvars().is_empty());
 }
@@ -477,25 +503,52 @@ fn resolver_seals_receiver_read_as_structural_upvar() {
 }
 
 #[test]
-fn resolver_keeps_upvar_rebind_unsupported_until_up1() {
-    let assignment = ASTNode::Assignment {
+fn resolver_seals_simple_outer_rebind_as_one_upvar_observation() {
+    let tree = function(vec![
+        local("outer", int(1)),
+        local("f", lambda(&[], vec![assign("outer", int(2))])),
+    ]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let forest = session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let observation = &forest.upvar_observations()[0];
+
+    assert_eq!(forest.upvars(), &[observation.upvar()]);
+    assert_eq!(observation.access(), UpvarAccessKindV1::Rebind);
+    assert_eq!(
+        observation.site().site(),
+        &expr_site(vec![
+            SourcePathSegmentV1::LambdaBody(0),
+            SourcePathSegmentV1::Target,
+        ])
+    );
+}
+
+#[test]
+fn resolver_records_compound_outer_assignment_as_read_and_rebind_at_one_site() {
+    let compound = ASTNode::CompoundAssignment {
         target: Box::new(variable("outer")),
-        value: Box::new(int(2)),
+        operator: BinaryOperator::Add,
+        value: Box::new(int(1)),
         span: Span::unknown(),
     };
     let tree = function(vec![
         local("outer", int(1)),
-        local("f", lambda(&[], vec![assignment])),
+        local("f", lambda(&[], vec![compound])),
     ]);
     let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
-    let error = session
+    let forest = session
         .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
-        .unwrap_err();
+        .unwrap();
+    let observations = forest.upvar_observations();
 
-    assert!(matches!(
-        error,
-        ResolveOwnerForestErrorV1::UnsupportedUpvarRebind { .. }
-    ));
+    assert_eq!(forest.upvars().len(), 1);
+    assert_eq!(observations.len(), 2);
+    assert_eq!(observations[0].site(), observations[1].site());
+    assert_eq!(observations[0].upvar(), observations[1].upvar());
+    assert_eq!(observations[0].access(), UpvarAccessKindV1::Read);
+    assert_eq!(observations[1].access(), UpvarAccessKindV1::Rebind);
 }
 
 #[test]
@@ -564,7 +617,10 @@ fn normalized_forest_with_structural_upvars_is_independent_of_owner_issuer_brand
             "f",
             lambda(
                 &[],
-                vec![return_value(add(variable("outer"), variable("outer")))],
+                vec![
+                    assign("outer", int(2)),
+                    return_value(add(variable("outer"), variable("outer"))),
+                ],
             ),
         ),
     ]);
@@ -581,6 +637,10 @@ fn normalized_forest_with_structural_upvars_is_independent_of_owner_issuer_brand
     assert_ne!(first.roots(), second.roots());
     assert_eq!(first.upvars().len(), 1);
     assert_eq!(second.upvars().len(), 1);
+    assert!(first
+        .upvar_observations()
+        .iter()
+        .any(|row| row.access() == UpvarAccessKindV1::Rebind));
     assert_ne!(first.upvars(), second.upvars());
     assert_eq!(first.normalized_graph(), second.normalized_graph());
 }

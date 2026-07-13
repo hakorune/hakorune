@@ -130,10 +130,11 @@ impl<'ast> ShadowResolverV0<'ast> {
             ASTNode::Variable { name, .. } => {
                 let Some(binding) = self.lookup(name) else {
                     if self.ancestor_is_visible(name) {
-                        return Err(ShadowResolveErrorV0::UnsupportedAncestorRebind {
-                            name: name.clone().into(),
-                            site: target_site,
-                        });
+                        self.record_assignment(
+                            target_site,
+                            ShadowAssignmentTargetV0::AncestorRebind(name.clone().into()),
+                        );
+                        return Ok(());
                     }
                     return Err(ShadowResolveErrorV0::UnresolvedName {
                         name: name.clone().into(),
@@ -190,10 +191,8 @@ impl<'ast> ShadowResolverV0<'ast> {
         let site = path.expr();
         let Some(binding) = self.lookup(name) else {
             if self.ancestor_is_visible(name) {
-                return Err(ShadowResolveErrorV0::UnsupportedAncestorRebind {
-                    name: name.into(),
-                    site,
-                });
+                self.record_assignment(site, ShadowAssignmentTargetV0::AncestorRebind(name.into()));
+                return Ok(());
             }
             return Err(ShadowResolveErrorV0::UnresolvedName {
                 name: name.into(),

@@ -132,6 +132,12 @@ impl VerifiedResolvedFunctionV1 {
         self.data.assignment_targets.get(site)
     }
 
+    pub(crate) fn assignment_targets(
+        &self,
+    ) -> impl Iterator<Item = (&SourceExprSiteV1, &ResolvedAssignmentTargetV1)> {
+        self.data.assignment_targets.iter()
+    }
+
     pub fn resolved_exit(&self, site: &ResolvedExitSiteV1) -> Option<&ResolvedExitRecordV1> {
         self.data.resolved_exits.get(site)
     }

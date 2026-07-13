@@ -189,13 +189,17 @@ for required in \
   "parents: BTreeMap<FunctionOwnerIdV1, OwnerParentEdgeV1>" \
   "root: FunctionOwnerIdV1" \
   "child_at: BTreeMap<OwnedExprSiteV1, FunctionOwnerIdV1>" \
+  "upvar_observations: Box<[UpvarObservationV1]>" \
   "upvars: Box<[UpvarRefV1]>" \
   "normalized: NormalizedSemanticOwnerForestGraphV1" \
   "pub struct NormalizedOwnerKeyV1" \
-  "pub struct NormalizedUpvarRefV1" \
+  "pub struct UpvarObservationV1" \
+  "pub enum UpvarAccessKindV1" \
+  "pub struct NormalizedUpvarObservationV1" \
   "pub struct NormalizedUpvarEdgeV1" \
   "pub struct NormalizedSemanticOwnerForestGraphV1" \
   "fn derive_and_verify_upvars(" \
+  "pub fn upvar_observations(&self)" \
   "fn verify_nearest_visible_source(" \
   "pub(crate) fn insert_parent(" \
   "pub(crate) fn seal("; do
@@ -204,7 +208,7 @@ for required in \
 done
 for required in \
   "resolve_owner_shadow_view_v0" \
-  "UnsupportedUpvarRebind" \
+  "visible_bindings_for_child" \
   "lambda.syntax_view()" \
   "seal_owner_with_ancestors"; do
   guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/owner_resolver.rs" \
@@ -234,6 +238,14 @@ for required in \
   "transfer: ResolvedControlTransferV1"; do
   guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/records.rs" \
     "E0 atomic exit record drifted: $required"
+done
+for required in \
+  "pub enum ResolvedLexicalRefV1" \
+  "Upvar(UpvarRefV1)" \
+  "pub enum ResolvedAssignmentTargetV1" \
+  "UpvarRebind(UpvarRefV1)"; do
+  guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/records.rs" \
+    "UP1 structural Upvar read/rebind vocabulary drifted: $required"
 done
 if rg -n 'ResolvedControlExitV1|control_exit_regions' "$MODULE"; then
   guard_fail "$TAG" "E0 sealed product must not retain the parallel exit-map schema"
@@ -281,6 +293,7 @@ for required in \
   "pub(crate) struct ShadowResolvedFunctionV0" \
   "BTreeMap<ShadowBindingOrdinalV0, ShadowBindingRecordV0>" \
   "BTreeMap<SourceExprSiteV1, ShadowLexicalRefV0>" \
+  "AncestorRebind(Box<str>)" \
   "pub(crate) struct ShadowExitRecordV0" \
   "pub(crate) source_region: ShadowRegionIdV0" \
   "pub(crate) origin: ShadowExitOriginV0" \
@@ -461,6 +474,7 @@ allowed = {
     "variable_ref",
     "variable_refs",
     "assignment_target",
+    "assignment_targets",
     "resolved_exit",
     "binding_count",
     "scope_count",
@@ -556,7 +570,7 @@ echo "semantic_arena_expression_exit_records=0"
 echo "semantic_arena_qmark_throw_acceptance=0"
 echo "semantic_owner_forest_noncapturing_lambda=1"
 echo "semantic_owner_forest_readonly_upvar=1"
-echo "semantic_owner_forest_upvar_write=0"
+echo "semantic_owner_forest_upvar_write=1"
 echo "semantic_owner_forest_capture_mode=0"
 echo "semantic_owner_forest_runtime_slot=0"
 echo "semantic_arena_source_files_under_800=1"

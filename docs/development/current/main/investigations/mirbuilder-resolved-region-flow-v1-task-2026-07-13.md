@@ -1,6 +1,6 @@
 # Resolved Region Flow V1 — Taskboard
 
-Status: Owner Forest V1 P0/E0/OF0/UP0 closed; UP1 Upvar rebind observation is active.
+Status: Owner Forest V1 P0/E0/OF0/UP0/UP1 closed; B0 BlockExpr language decision is active.
 Date: 2026-07-13
 Decision: `function_semantic_resolver_v1_owner_scoped_arena` followed by
 `recursive_structured_region_flow`.
@@ -859,11 +859,12 @@ docs/development/current/main/investigations/
   mirbuilder-resolved-semantic-owner-forest-design-stop-2026-07-13.md
 ```
 
-P0, E0, OF0, and UP0 are closed. The current code-facing owner is UP1:
-classify strict-ancestor writes separately from local `BindingRebind` and
-publish read/rebind observations as capture-plan input. Resolver still does
-not choose capture mode, forwarding, environment layout, or runtime slots.
-The fail-fast boundary remains explicit for every later nested/control row.
+P0, E0, OF0, UP0, and UP1 are closed. Structural Upvar reads and rebinds now
+publish exact-site capture-plan observations without selecting capture mode,
+forwarding, environment layout, or runtime slots. The next owner is B0, an
+explicit language decision on whether canonical `BlockExpr` introduces a real
+lexical scope or retains compatibility sequencing semantics. No resolver or
+Lower change may precede that decision.
 
 Known production boundary mismatches must be resolved explicitly before B2:
 

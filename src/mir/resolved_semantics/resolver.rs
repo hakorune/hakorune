@@ -262,6 +262,18 @@ fn canonicalize_draft(
                 ShadowAssignmentTargetV0::BindingRebind(id) => {
                     ResolvedAssignmentTargetV1::BindingRebind(binding_ref(*id))
                 }
+                ShadowAssignmentTargetV0::AncestorRebind(name) => {
+                    let ancestor =
+                        ancestors
+                            .get(name)
+                            .ok_or(ResolveFunctionErrorV1::DraftInvariant(
+                                "shadow ancestor rebind lacks canonical source",
+                            ))?;
+                    ResolvedAssignmentTargetV1::UpvarRebind(super::UpvarRefV1::new(
+                        owner,
+                        ancestor.reference,
+                    ))
+                }
                 ShadowAssignmentTargetV0::FieldWrite { receiver } => {
                     ResolvedAssignmentTargetV1::FieldWrite {
                         receiver: receiver.clone(),
@@ -273,9 +285,9 @@ fn canonicalize_draft(
                     }
                 }
             };
-            (site.clone(), target)
+            Ok((site.clone(), target))
         })
-        .collect();
+        .collect::<Result<BTreeMap<_, _>, ResolveFunctionErrorV1>>()?;
     let resolved_exits = draft
         .resolved_exits
         .iter()

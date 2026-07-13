@@ -207,6 +207,7 @@ impl ResolvedRegionRecordV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ResolvedAssignmentTargetV1 {
     BindingRebind(BindingRefV1),
+    UpvarRebind(UpvarRefV1),
     FieldWrite { receiver: SourceExprSiteV1 },
     IndexWrite { receiver: SourceExprSiteV1 },
 }

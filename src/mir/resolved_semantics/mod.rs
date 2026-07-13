@@ -28,9 +28,9 @@ pub use normalized::{
     NormalizedVariableUseV1,
 };
 pub use owner_forest::{
-    NormalizedForestVariableUseV1, NormalizedLexicalRefV1, NormalizedOwnerKeyV1,
-    NormalizedOwnerRecordV1, NormalizedSemanticOwnerForestGraphV1, NormalizedUpvarEdgeV1,
-    NormalizedUpvarRefV1, OwnerParentEdgeV1, SemanticOwnerForestVerificationErrorV1,
+    NormalizedOwnerKeyV1, NormalizedOwnerRecordV1, NormalizedSemanticOwnerForestGraphV1,
+    NormalizedUpvarEdgeV1, NormalizedUpvarObservationV1, OwnerParentEdgeV1,
+    SemanticOwnerForestVerificationErrorV1, UpvarAccessKindV1, UpvarObservationV1,
     VerifiedSemanticOwnerForestV1,
 };
 pub(crate) use owner_resolver::ResolveOwnerForestErrorV1;

@@ -347,23 +347,38 @@ fn verify_indexes(
                 }
             }
             super::ResolvedLexicalRefV1::Upvar(upvar) => {
-                if upvar.capturing_owner() != data.owner {
-                    return Err(ResolvedFunctionVerificationErrorV1::InvalidUpvarOwner(
-                        upvar,
-                    ));
-                }
-                if upvar.source().owner() == data.owner {
-                    return Err(ResolvedFunctionVerificationErrorV1::LocalUpvarSource(upvar));
-                }
+                verify_owner_local_upvar(data, upvar)?;
             }
         }
     }
     for target in data.assignment_targets.values() {
-        if let ResolvedAssignmentTargetV1::BindingRebind(binding) = target {
-            if verify_binding_ref(data, *binding).is_err() {
-                return Err(ResolvedFunctionVerificationErrorV1::DanglingAssignmentBinding);
+        match target {
+            ResolvedAssignmentTargetV1::BindingRebind(binding) => {
+                if verify_binding_ref(data, *binding).is_err() {
+                    return Err(ResolvedFunctionVerificationErrorV1::DanglingAssignmentBinding);
+                }
             }
+            ResolvedAssignmentTargetV1::UpvarRebind(upvar) => {
+                verify_owner_local_upvar(data, *upvar)?;
+            }
+            ResolvedAssignmentTargetV1::FieldWrite { .. }
+            | ResolvedAssignmentTargetV1::IndexWrite { .. } => {}
         }
+    }
+    Ok(())
+}
+
+fn verify_owner_local_upvar(
+    data: &ResolvedFunctionDataV1,
+    upvar: super::UpvarRefV1,
+) -> Result<(), ResolvedFunctionVerificationErrorV1> {
+    if upvar.capturing_owner() != data.owner {
+        return Err(ResolvedFunctionVerificationErrorV1::InvalidUpvarOwner(
+            upvar,
+        ));
+    }
+    if upvar.source().owner() == data.owner {
+        return Err(ResolvedFunctionVerificationErrorV1::LocalUpvarSource(upvar));
     }
     Ok(())
 }

@@ -1,5 +1,5 @@
 ---
-Status: P0/E0/OF0/UP0 closed; UP1 Upvar rebind observation is active
+Status: P0/E0/OF0/UP0/UP1 closed; B0 BlockExpr language decision is the next stop
 Date: 2026-07-13
 Scope: Resolved Semantic Owner Forest V1 design and implementation task order
 Parent: mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
@@ -501,13 +501,30 @@ resolved-region-flow-authority guard = green
 all source files < 800 lines
 ```
 
-### UP1 — Upvar writes and capture-plan input (active)
+### UP1 — Upvar writes and capture-plan input (closed)
 
 ```text
 classify Upvar rebind separately from local BindingRebind
 publish read/rebind observations for CapturePlan
 do not select by-value/cell/weak mode in resolver
 do not materialize runtime forwarding
+```
+
+UP1 closeout evidence:
+
+```text
+outer assignment target = UpvarRebind(UpvarRefV1)
+outer compound assignment = Read + Rebind at one exact source site
+local assignment target = BindingRebind(BindingRefV1)
+unique Upvar relation is shared by all read/rebind observations
+forest publication = ordered UpvarObservationV1[] + deduplicated UpvarRefV1[]
+grandparent read/rebind source = original ancestor BindingRefV1
+normalized parity includes access kind and structural owner keys
+capture mode / forwarding / runtime slot = 0
+Planner / RegionFlow / Lower connection = 0
+focused owner-forest fixtures = 18 green
+resolved-region-flow-authority guard = green
+all source files < 800 lines
 ```
 
 ### B0 — BlockExpr language boundary

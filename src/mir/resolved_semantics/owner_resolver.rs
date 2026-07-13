@@ -12,18 +12,12 @@ use super::resolver::{
     AncestorBindingV1, FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1,
     SealedOwnerConstructionV1,
 };
-use super::shadow::{
-    resolve_owner_shadow_view_v0, ShadowLambdaSyntaxV0, ShadowResolveErrorV0, ShadowResolvedOwnerV0,
-};
-use super::{BindingRefV1 as PublicBindingRefV1, OwnedExprSiteV1};
+use super::shadow::{resolve_owner_shadow_view_v0, ShadowLambdaSyntaxV0, ShadowResolvedOwnerV0};
+use super::OwnedExprSiteV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ResolveOwnerForestErrorV1 {
     Function(ResolveFunctionErrorV1),
-    UnsupportedUpvarRebind {
-        use_site: OwnedExprSiteV1,
-        source: PublicBindingRefV1,
-    },
     Verification(SemanticOwnerForestVerificationErrorV1),
 }
 
@@ -57,27 +51,9 @@ impl FunctionSemanticResolverSessionV1 {
             .issue_owner()
             .map_err(ResolveOwnerForestErrorV1::Function)?;
         let ancestor_names = ancestor_bindings.keys().cloned().collect::<BTreeSet<_>>();
-        let shadow = match resolve_owner_shadow_view_v0(origin, view, ancestor_names) {
-            Ok(shadow) => shadow,
-            Err(ShadowResolveErrorV0::UnsupportedAncestorRebind { name, site }) => {
-                if let Some(source) = ancestor_bindings.get(name.as_ref()) {
-                    return Err(ResolveOwnerForestErrorV1::UnsupportedUpvarRebind {
-                        use_site: OwnedExprSiteV1::new(owner, site),
-                        source: source.reference,
-                    });
-                }
-                return Err(ResolveOwnerForestErrorV1::Function(
-                    ResolveFunctionErrorV1::Syntax(
-                        ShadowResolveErrorV0::UnsupportedAncestorRebind { name, site },
-                    ),
-                ));
-            }
-            Err(error) => {
-                return Err(ResolveOwnerForestErrorV1::Function(
-                    ResolveFunctionErrorV1::Syntax(error),
-                ));
-            }
-        };
+        let shadow = resolve_owner_shadow_view_v0(origin, view, ancestor_names)
+            .map_err(ResolveFunctionErrorV1::Syntax)
+            .map_err(ResolveOwnerForestErrorV1::Function)?;
         let ShadowResolvedOwnerV0 { function, lambdas } = shadow;
         let SealedOwnerConstructionV1 {
             product,

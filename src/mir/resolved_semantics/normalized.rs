@@ -295,9 +295,9 @@ fn normalize_assignments(
 ) -> Box<[NormalizedAssignmentV1]> {
     data.assignment_targets
         .iter()
-        .map(|(site, target)| NormalizedAssignmentV1 {
-            site: site.clone(),
-            target: match target {
+        .filter_map(|(site, target)| {
+            let target = match target {
+                ResolvedAssignmentTargetV1::UpvarRebind(_) => return None,
                 ResolvedAssignmentTargetV1::BindingRebind(binding) => {
                     NormalizedAssignmentTargetV1::BindingRebind(binding_key(binding, binding_keys))
                 }
@@ -311,7 +311,11 @@ fn normalize_assignments(
                         receiver: receiver.clone(),
                     }
                 }
-            },
+            };
+            Some(NormalizedAssignmentV1 {
+                site: site.clone(),
+                target,
+            })
         })
         .collect::<Vec<_>>()
         .into_boxed_slice()
