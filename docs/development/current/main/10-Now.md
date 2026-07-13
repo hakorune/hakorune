@@ -20,8 +20,9 @@ Related:
 - language-v1 workstream:
   `docs/development/current/main/workstreams/language-v1-convergence-current.md`
 - priority: read `active_lane` and `current_blocker_token`; the current slice
-  is the A-only generic-loop progression-role BoxShape prerequisite; P1
-  source-carrier wiring remains stash-only until A closeout
+  is the behavior-neutral SA0 schema/ownership guard for one pre-plan
+  owner-scoped resolved semantic arena; RegionFlow R1 and parser/source-carrier
+  P1 remain disconnected
 - parked language work: LANGV1 conformance closeout remains parked; no
   language behavior is changed by the reprioritization
 

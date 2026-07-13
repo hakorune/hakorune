@@ -1,8 +1,9 @@
 # Resolved Region Flow V1 — Taskboard
 
-Status: Design consultation stop; R0 closed, pre-plan lexical identity owner required.
+Status: Decision closed; SA0 owner-scoped semantic-arena schema/guard is the next code-facing slice.
 Date: 2026-07-13
-Decision: `recursive_structured_region_flow`.
+Decision: `function_semantic_resolver_v1_owner_scoped_arena` followed by
+`recursive_structured_region_flow`.
 Final retirement target: legacy mandatory single-`loop_var` family = 0 callers.
 
 ## Purpose
@@ -25,6 +26,137 @@ canonical AST
 
 This follows the established structured-region/gamma-theta family of ideas,
 but the implementation must not claim to be a complete RVSDG or MLIR model.
+
+## Accepted prerequisite — owner-scoped resolved semantic arena
+
+R0 proved that the existing `hakorune_mir_core::BindingId` has the correct
+lexical meaning but is allocated too late, while Lower executes declarations.
+It also proved that source exits have no exact resolved control owner before
+Planner.  The accepted correction is one function-owned, verified semantic
+sidecar constructed before Planner and Lower:
+
+```text
+canonical function AST
+  -> FunctionSemanticResolverV1
+  -> ResolvedFunctionDraftV1
+  -> ResolvedFunctionVerifierV1
+  -> VerifiedResolvedFunctionV1
+       bindings arena
+       scopes arena
+       regions arena
+       declaration/use/assignment indexes
+       exact control-exit targets
+  -> ResolvedRegionViewV1
+  -> RegionFlowSummaryV1
+  -> LoopStateContractV1
+  -> VerifiedGenericWhilePlanV1
+  -> Lower
+```
+
+`VerifiedResolvedFunctionV1` is the canonical semantic sidecar authority for
+one immutable function AST.  It is not a replacement AST and stores no cloned
+`ASTNode` payload.  Consumers receive syntax plus the sealed semantic sidecar.
+
+```text
+source syntax/node meaning:
+  canonical AST
+
+lexical/control semantic authority:
+  VerifiedResolvedFunctionV1
+
+lexical identity handle:
+  owner-scoped BindingId
+
+lexical lifetime/name visibility:
+  owner-scoped ScopeId
+
+control identity/target:
+  owner-scoped RegionId
+
+MIR representation:
+  Lower-owned ValueId / BasicBlockId
+
+diagnostic and parity provenance:
+  BindingOriginV1 / RegionOriginV1 / structural source sites
+```
+
+Raw numeric IDs and origin paths are not semantic equality authorities across
+functions or frontends.  The arena record addressed by an owner-scoped ID is
+the authority.  Origin fields are checked provenance and normalized parity
+keys only.
+
+### Closed arena shape
+
+```text
+VerifiedResolvedFunctionV1 {
+  function_origin,
+  bindings: Arena<BindingId, ResolvedBindingRecordV1>,
+  scopes: Arena<ScopeId, ResolvedScopeRecordV1>,
+  regions: Arena<RegionId, ResolvedRegionRecordV1>,
+  declarations: SourceBindingSiteV1 -> BindingId,
+  variable_uses: SourceExprSiteV1 -> BindingId,
+  assignment_targets: SourceExprSiteV1 -> ResolvedAssignmentTargetV1,
+  control_exits: SourceStmtSiteV1 -> ResolvedControlExitV1,
+}
+```
+
+The indexes are sealed, rebuildable witnesses over the arenas.  They never
+allocate identities and cannot override arena records.
+
+```text
+ResolvedAssignmentTargetV1 =
+  BindingRebind(BindingId)
+  | FieldWrite
+  | IndexWrite
+  | KnownUnsupported(reason)
+
+ResolvedControlExitV1 =
+  Continue(target_loop_region_id)
+  | Break(target_loop_region_id)
+  | Return(target_function_region_id)
+```
+
+`ScopeId` and `RegionId` remain distinct: scope owns name visibility and
+lifetime; region owns control structure and ports.  The control-target
+resolver consumes already allocated RegionIds and never allocates them.
+
+### Authority-cutover invariant
+
+There may be a non-authoritative shadow resolver, but one function invocation
+must never have two production lexical identity allocators.
+
+```text
+shadow phase:
+  ShadowBindingOrdinalV0 only
+  plan/lower input = 0
+
+canonical cutover:
+  FunctionSemanticResolverV1 allocates BindingId
+  CoreContext/MirBuilder Lower-time BindingId allocation = 0
+  Lower receives exact resolved declaration BindingId
+```
+
+The cutover is one Refactor Series Mode objective.  Intermediate commits must
+build, but no commit may allow the same function to allocate one lexical
+binding independently in both resolver and Lower.  Unsupported syntax rejects
+before semantic product publication; there is no legacy retry or fallback.
+
+### Lower boundary after cutover
+
+```text
+ResolverScopeStackV1:
+  mutable name -> BindingId during resolution only
+  discarded at seal
+
+LowerValueEnvironmentV1:
+  mutable BindingId -> current ValueId during Lower only
+
+Region materialization:
+  RegionId -> BasicBlockId/entry/continue/break/after targets
+```
+
+Lower may read syntax to emit expressions.  It may not rediscover lexical
+identity, control targets, carrier roles, or loop depth from syntax.
 
 ## Minimal principles
 
@@ -386,16 +518,126 @@ docs/development/current/main/investigations/
 R0 proves canonical BindingId exists but body-local allocation happens during
 Lower, after AST-only generic Facts.  No immutable pre-plan resolved binding
 tree or resolved control-target RegionId owner exists.  The private ownership
-BindingId is `SchemaMismatchStop`.  R1 remains blocked until consultation
-chooses lifted canonical BindingId resolution or an explicitly authoritative
-structural BindingKey with checked Lower mapping.
+BindingId is `SchemaMismatchStop`.
+
+Consultation closes this fork with
+`function_semantic_resolver_v1_owner_scoped_arena`:
+`FunctionSemanticResolverV1` becomes the sole eventual BindingId/ScopeId/
+RegionId allocator for one function and publishes
+`VerifiedResolvedFunctionV1` before Planner.  Structural source keys remain
+provenance, not a second lexical identity authority.
+
+### SA0 — passive semantic-arena schema and ownership guard (next)
+
+Add the closed owner-scoped ID/record/index vocabulary and module boundary.
+This is a code-facing, behavior-neutral slice.
+
+```text
+add:
+  BindingOriginV1 / RegionOriginV1
+  ScopeId / RegionId owner-scoped handles
+  resolved binding/scope/region records
+  resolved assignment/control-exit vocabulary
+  draft/sealed product type boundary
+
+prove:
+  AST clone fields = 0
+  BindingId allocation in new module = 0
+  ValueId/BasicBlockId imports = 0
+  Planner/Lower connection = 0
+  private ownership BindingId import = 0
+```
+
+Do not split a new crate in SA0.  Start in one neutral MIR-adjacent module
+family with an explicit README/layer guard.  Moving passive IDs/records into a
+dedicated semantic-core crate is a later dependency-direction cleanup after
+the API and caller inventory are stable.
+
+### SA1 — non-authoritative shadow resolver
+
+Resolve the current closed function-syntax inventory with private
+`ShadowBindingOrdinalV0`, source sites, scope ancestry, region ancestry,
+assignment kind, and exact exit targets.  The shadow product is dump/test only
+and cannot enter Facts, Planner, Recipe, or Lower.
+
+Rules:
+
+```text
+initializer resolution occurs before declaration insertion
+same-scope redeclaration rejects
+shadowing creates a distinct shadow ordinal
+field/index writes are not BindingRebind
+break/continue choose nearest active loop RegionId
+return chooses the owning function RegionId
+unsupported syntax rejects; no old-resolver retry
+```
+
+### SA2 — verifier, seal, and normalized semantic graph
+
+Add `ResolvedFunctionVerifierV1` and seal only complete products.  Verify arena
+ownership, parent acyclicity, source-index bijections, resolved use/assignment
+totality, and ancestor control targets.  Publish a deterministic normalized
+graph for Rust/Hako parity using origin records, never raw numeric IDs.
+
+The shadow resolver must cover the complete production declaration/use/control
+inventory before SA3.  Wildcard acceptance is forbidden.
+
+### SA3 — atomic canonical BindingId authority cutover
+
+In one Refactor Series Mode objective:
+
+```text
+FunctionSemanticResolverV1:
+  allocates canonical hakorune_mir_core::BindingId once
+
+Lower declaration APIs:
+  receive the resolved BindingId
+  allocate ValueId only
+
+retire from active production path:
+  CoreContext::next_binding
+  MirBuilder::allocate_binding_id
+  Lower-time declaration BindingId allocation
+```
+
+Temporary dual verification may compare the old name-to-ValueId cache with the
+new BindingId-to-ValueId environment, but it may not allocate a second lexical
+identity.  Any mismatch is fail-fast; no fallback is permitted.
+
+### SA4 — exact control-target cutover
+
+Make resolved RegionId the production target authority.  A temporary checked
+`RegionId + legacy_depth` witness is allowed only to prove equivalence.  Lower
+uses `RegionId -> materialized blocks`; it does not select by stack depth.
+
+After parity:
+
+```text
+Recipe depth synthesis = 0
+plan/verifier depth recount = 0
+Lower stack.len() - depth target selection = 0
+```
+
+The structured construction stack may remain for LIFO/resource invariants but
+is not target authority.
+
+### SA5 — duplicate-owner retirement
+
+Migrate only the recursive traversal/effect-propagation shape from
+`join_ir/ownership/ast_analyzer`.  Replace its name resolver and private ID
+allocator with `VerifiedResolvedFunctionV1` lookups, then delete the private
+BindingId family and old mutable name-based lexical authority.
+
+SA5 also closes caller-zero for legacy declaration BindingId allocation and
+numeric exit-depth target selection before R1 begins.
 
 ### R1 — minimal resolved region view
 
-Implement closed `Sequence/Scope/If/Loop/Statement/Exit` structural vocabulary
-with canonical BindingId references and resolved target RegionIds.  Source
-projection stores no AST clones.  Shadowing, scope exit, and source order are
-fixed by focused fixtures.  Product connection remains zero.
+Consume `VerifiedResolvedFunctionV1` and implement the closed
+`Sequence/Scope/If/Loop/Statement/Exit` structural vocabulary with canonical
+BindingId references and exact target RegionIds.  Source projection stores no
+AST clones.  Shadowing, scope exit, and source order are fixed by focused
+fixtures.  Product connection remains zero.
 
 ### R2 — recursive region effect summary
 
@@ -445,6 +687,18 @@ R9 is required for Epic completion.
 ## Mandatory fixtures
 
 ```text
+same-scope redeclaration:
+  resolver rejects before seal
+
+initializer-before-declaration:
+  local x initializer resolves an outer x before the new x is inserted
+
+parameter/receiver/local identity:
+  distinct binding kinds and origins; shadowing never reuses an ID
+
+multi-local declaration:
+  stable binder ordinals and exactly one declaration index per binding
+
 shadowing:
   inner same-name local does not rebind outer BindingId
 
@@ -472,6 +726,12 @@ break:
 return-only write:
   return port owns result; header state excludes it
 
+nested exit targets:
+  inner break/continue resolve to the inner loop RegionId exactly once
+
+invalid exit placement:
+  break/continue outside a loop reject during resolution
+
 multiple condition/state variables:
   no selected progression owner
 ```
@@ -480,6 +740,11 @@ multiple condition/state variables:
 
 ```text
 canonical BindingId owner count = 1
+one active BindingId allocator per function = 1
+resolved semantic product partial publication = 0
+resolved semantic product AST clone ownership = 0
+origin/path used as lexical equality authority = 0
+raw ID used for Rust/Hako parity = 0
 RegionFlow BindingId allocation = 0
 name-keyed state authority = 0
 resolved target depth recount = 0
@@ -495,6 +760,20 @@ legacy caller-zero before R9
 all source files < 800 lines
 ```
 
+SA0 focused guard must print at least:
+
+```text
+semantic_arena_schema=present
+semantic_arena_ast_clone_fields=0
+semantic_arena_binding_allocator_calls=0
+semantic_arena_value_id_imports=0
+semantic_arena_basic_block_id_imports=0
+semantic_arena_planner_connection=0
+semantic_arena_lower_connection=0
+ownership_private_binding_id_imports=0
+summary=ok
+```
+
 ## May claim after R5
 
 ```text
@@ -504,6 +783,24 @@ nested regions export verified outer-binding effects
 generic loop state is a set, not one selected variable
 binding rebind and non-binding effects are separate
 every declared loop edge has a complete binding contract
+```
+
+## May claim after SA2
+
+```text
+the declared syntax subset has a deterministic, sealed shadow semantic graph
+binding/scope/region provenance is normalized without raw-ID parity
+shadowing and exact control-target resolution are independently verifiable
+production BindingId allocation and Lower behavior remain unchanged
+```
+
+## May claim after SA5
+
+```text
+supported functions have one pre-plan lexical/control semantic authority
+Lower allocates ValueIds but not BindingIds
+Lower materializes RegionIds but does not rediscover exit targets
+the private ownership BindingId allocator has no production caller
 ```
 
 ## Must not claim
@@ -518,6 +815,11 @@ liveness optimization complete
 raw BindingId stable across frontends
 Recipe verification alone proves state closure
 canonical step extraction is generic semantics
+ResolvedFunctionV1 replaces the canonical AST
+BindingOrigin or source path is binding equality authority
+SA1 shadow ordinals are production lexical identities
+Lower-time BindingId allocation retired before SA3 is actually complete
+exit depth retired before SA4 equivalence and caller-zero gates are green
 ```
 
 ## Stop conditions
@@ -540,3 +842,15 @@ canonical step extraction is generic semantics
 16. ProgramV0 or parser/source-carrier P1 becomes authority.
 17. Unsupported backend falls back to VM.
 18. Any source file reaches 800 lines.
+19. Resolver and Lower allocate distinct BindingIds for the same declaration.
+20. A shadow ordinal enters Facts, Planner, Recipe, or Lower.
+21. BindingOrigin/source path decides lexical equality.
+22. Raw owner-local IDs are compared across Rust/Hako implementations.
+23. `ScopeId` and `RegionId` are collapsed into one identity.
+24. Control-target resolution allocates RegionIds.
+25. A partial or poisoned resolved-function draft is published.
+26. ResolvedFunction stores cloned AST nodes or pointer identity.
+27. Unsupported resolver syntax retries the legacy Lower resolver.
+28. A synthetic binding receives a fabricated source declaration path.
+29. SA3 begins before the shadow resolver covers the production inventory.
+30. Old and new target authorities silently disagree during SA4.

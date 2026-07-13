@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Design consultation stop"
+status = "Implementation ready"
 date = "2026-07-13"
 
 active_lane = "MIRBUILDER Hako SourceBodyAnalysisSnapshotV1"
@@ -122,22 +122,23 @@ latest_workstream_card = "docs/development/current/main/investigations/mirbuilde
 
 latest_card = "mirbuilder-resolved-region-flow-v1-task-2026-07-13"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-resolved-region-flow-v1-task-2026-07-13.md"
-latest_card_summary = """Resolved Region Flow V1 R0 is closed at a pre-plan
-identity design stop. Canonical hakorune_mir_core::BindingId, CoreContext
-allocation, BindingContext live lookup, and lexical scope restoration are
-singular and correct, but body-local BindingIds are allocated during Lower.
-Generic-loop Facts are AST-only and run without MirBuilder/BindingContext;
-current snapshots contain only live maps, not declaration inventory, scope
-ancestry, or a resolved function tree. The join_ir/ownership analyzer's
-private BindingId independently reallocates the same lexical meaning and is
-classified SchemaMismatchStop; only its recursive traversal shape is reusable.
-Source Break/Continue have no target and production repeatedly synthesizes or
-recounts depth through Facts, Recipe, verifier, and Lower; no resolved source
-RegionId owner exists. R1 must not start until consultation chooses either
-pre-plan canonical BindingId resolution adopted by Lower, or structural
-BindingKey authority with a checked BindingKey<->BindingId bijection. Mutable
-planner allocation, private IDs, name-based shadow authority, and Lower-time
-rediscovery are rejected. Static R0 drift guard owns this evidence. Historical decision follows. Resolved Region Flow V1 generalizes generic-loop
+latest_card_summary = """Resolved Region Flow V1 accepts
+`function_semantic_resolver_v1_owner_scoped_arena`. One pre-plan
+`FunctionSemanticResolverV1` constructs and seals
+`VerifiedResolvedFunctionV1`, whose owner-scoped binding, scope, and region
+arenas are the lexical/control semantic authority for one canonical function
+AST. BindingOrigin/RegionOrigin/source sites are checked provenance and
+Rust/Hako normalized-graph keys, not a second identity authority. Lower later
+materializes BindingId -> ValueId and RegionId -> BasicBlockId only; it does
+not allocate lexical identities or rediscover control targets. The migration
+is SA0 passive schema/guard, SA1 non-authoritative shadow resolver, SA2
+verifier/seal/dump, SA3 atomic canonical BindingId authority cutover, SA4
+exact RegionId target cutover, and SA5 duplicate-owner retirement before R1
+ResolvedRegionView begins. The same function may never receive independent
+BindingIds from resolver and Lower, unsupported resolver syntax never retries
+legacy resolution, and partial semantic drafts never publish. SA0 is the next
+code-facing slice; it changes no behavior or planner/Lower connection.
+Historical decision follows. Resolved Region Flow V1 generalizes generic-loop
 state closure into one recursive structured-region summary. Each region
 publishes Port -> MayRebind(canonical BindingId set); analysis allocates no
 BindingIds or ValueIds, uses no name-based identity, simulates no SSA versions,
@@ -381,7 +382,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-REGION-FLOW-V1-R0-PREPLAN-IDENTITY-DESIGN-STOP-001"
+current_blocker_token = "RESOLVED-SEMANTIC-ARENA-V1-SA0-SCHEMA-GUARD-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

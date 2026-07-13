@@ -25,16 +25,15 @@ When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executa
 
 ## Handoff
 
-Read `latest_card_path` in `CURRENT_STATE.toml` before editing. The active
-slice is the Resolved Region Flow V1 R0 pre-plan identity design stop. R0 proves
-canonical BindingId is singular but body-local IDs are allocated during Lower,
-after AST-only generic Facts; no complete resolved binding/scope tree is
-available pre-plan. The join_ir/ownership private BindingId is a duplicate
-lexical authority (`SchemaMismatchStop`). Source exits also have no target and
-production recounts Recipe/Lower depth; no resolved RegionId owner exists.
-Consultation must choose pre-plan canonical BindingId resolution versus an
-explicit structural BindingKey authority with checked Lower mapping. Planner
-allocation, private IDs, name-based identity, and Lower rediscovery are
-rejected. R1 remains blocked; product behavior is unchanged. R9 legacy
-loop_var retirement remains Epic completion. Keep every source file below 800
-lines.
+Read `latest_card_path` in `CURRENT_STATE.toml` before editing. Resolved Region
+Flow V1 now has an accepted prerequisite: one owner-scoped
+`VerifiedResolvedFunctionV1` semantic arena built before Planner and Lower.
+The next code-facing slice is SA0 passive schema plus ownership/dependency
+guard only. It adds no resolver behavior, BindingId allocation, Planner/Lower
+connection, AST clone ownership, or product behavior. SA1/SA2 close a
+non-authoritative shadow resolver and verifier; SA3 then performs the atomic
+canonical BindingId authority cutover, followed by exact RegionId target
+cutover and duplicate-owner retirement. Never let resolver and Lower allocate
+independent BindingIds for the same declaration. R1 ResolvedRegionView starts
+only after SA5. R9 legacy loop_var retirement remains Epic completion. Keep
+every source file below 800 lines.

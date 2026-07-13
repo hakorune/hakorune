@@ -1,6 +1,6 @@
 # Resolved Region Flow V1 — R0 Seam Inventory
 
-Status: Closed inventory; design consultation required before R1.
+Status: Closed inventory; consultation resolved by owner-scoped semantic arena.
 Date: 2026-07-13
 Classification: two missing pre-plan resolution owners plus one duplicate authority.
 
@@ -235,7 +235,36 @@ BasicBlockIds, or ValueIds.
 
 ## Design consultation
 
-Choose the canonical pre-plan lexical identity strategy.
+Decision closed on 2026-07-13:
+
+```text
+function_semantic_resolver_v1_owner_scoped_arena
+
+FunctionSemanticResolverV1
+  -> VerifiedResolvedFunctionV1
+       owner-scoped BindingId arena
+       ScopeId arena
+       RegionId arena
+       resolved uses/assignments/control exits
+  -> Planner / ResolvedRegionFlowV1 / Lower consumers
+```
+
+The existing canonical BindingId meaning is retained but allocation moves to
+the pre-plan function resolver at the atomic authority cutover.  Structural
+binding/source keys are provenance for diagnostics and Rust/Hako normalized
+graph parity, not a second identity authority.  The private ownership
+BindingId remains `SchemaMismatchStop` and is retired after its recursive
+effect-walker shape is migrated to consume the sealed product.
+
+The active implementation order and stop conditions are owned by:
+
+```text
+docs/development/current/main/investigations/
+  mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
+```
+
+Historical alternatives considered before the decision follow.  The choice is
+closed; these are not active implementation options.
 
 ### Option A — lift canonical BindingId resolution before Planner
 
@@ -330,4 +359,3 @@ Facts receives mutable MirBuilder only to allocate identity
 private ownership BindingId is adapted without explicit mapping/retirement
 Lower continues target-depth recount while resolved-target claim is made
 ```
-

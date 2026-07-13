@@ -1,5 +1,5 @@
 Status: Active
-Date: 2026-07-12
+Date: 2026-07-13
 Scope: restart in 2-5 minutes with a thin pointer surface.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -40,10 +40,11 @@ cargo check -q
 
 - handoff frontier: read `current_blocker_token` in `CURRENT_STATE.toml`
 - read `latest_card_path` before editing
-- the active slice is the A-only generic-loop progression-role BoxShape
-  prerequisite named by `latest_card_path`
-- keep parser/source-carrier P1 stash-only until the clean-HEAD ProgramV0
-  contract-pin is green and A is committed independently
+- the active slice is the SA0 passive schema/ownership guard for the
+  owner-scoped `VerifiedResolvedFunctionV1` semantic arena named by
+  `latest_card_path`
+- keep RegionFlow R1, parser/source-carrier P1, and all parked source-projection
+  stashes disconnected until the semantic-arena prerequisite series closes
 - LANGV1 conformance closeout and Failure/Outcome global migration remain
   parked and must not be inferred complete
 
