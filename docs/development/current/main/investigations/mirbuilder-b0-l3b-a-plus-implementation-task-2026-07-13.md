@@ -1,6 +1,6 @@
 ---
-Status: Active — S1/S2 closed; I1a disconnected materialization infrastructure
-Date: 2026-07-13
+Status: Active — S1/S2/I1a closed; I1b atomic activation
+Date: 2026-07-14
 Decision: A+ pre-Builder verified flow contract
 Work mode: Refactor Series Mode; one purpose, five green commits
 Parent:
@@ -537,7 +537,82 @@ canonical If syntax acceptance = 0
 production flow transport = 0
 ```
 
+I1a frozen implementation contract (2026-07-14):
+
+```text
+resolved_semantics:
+  seal-derived ResolvedFunctionLoweringRootsV1
+  = exact Function pair + exact FunctionBody/LambdaBody pair
+  draft/data fields = 0
+  Lower root arena discovery = 0
+
+compiler preflight:
+  keeps the already verified BlockExpr count in the Copy plan
+  does not admit statement If
+
+semantic stack:
+  RegionId Vec and ScopeId Vec are physically separate
+  both are seeded with function/body roots
+  lexical pair enter validates each exact parent independently
+  control-region enter changes no lexical scope
+  BlockExpr migrates behavior-preservingly
+
+branch transaction:
+  local ordered join-domain carrier only; no RegionFlow import
+  snapshot stores only requested BindingRefs
+  branch permit is a duplicate-free subset of the ordered join domain
+  permit means may-rebind: unused permits preserve the entry value
+  unauthorized rebind fails before environment mutation
+  first old value is journaled once; success/error restore emits no Release
+  full environment clone, map diff, and port union = 0
+
+If materialization:
+  accepts no AST, Located node, semantic bundle, or function flow
+  implicit false edge is header -> merge directly
+  branch exits are actual current blocks
+  actual merge predecessors are verified exactly before PHI definition
+  same-input rows still create a fresh final PHI
+  private consuming tokens enforce predecessor-check -> define all rows
+    -> one DefinedIfJoinSetV1 -> batch publish
+  a later PHI failure can never leave earlier BindingRefs published
+  durable RegionId -> BasicBlockId publication = 0
+
+activation:
+  production flow consumer = 0
+  canonical statement If acceptance = 0
+  canonical If runtime = 0
+```
+
+Additional files owned by this slice:
+
+```text
+src/mir/resolved_semantics/function_root.rs
+src/mir/resolved_semantics/function_root_tests.rs
+src/mir/builder/resolved_lowering/semantic_stack.rs
+src/mir/builder/resolved_lowering/branch_transaction.rs
+src/mir/builder/resolved_lowering/if_materialization.rs
+src/mir/builder/resolved_lowering/if_materialization_tests.rs
+```
+
+`scope.rs` is retired only after every existing BlockExpr fixture is green.
+No new file may reach 800 lines; near-limit verifier/guard files receive only
+thin calls into the new small boxes.
+
 All existing BlockExpr focused and VM-reference fixtures must remain green.
+
+I1a closure evidence (2026-07-14):
+
+```text
+seal-derived exact function/body root tests = 5/5 green
+resolved_semantics = 109/109 green
+resolved_lowering = 24/24 green
+VM-reference BlockExpr = 5/5 green
+authority guard = green
+dev_gate quick = 66/66 green
+branch map diff / production flow consumer / canonical If runtime = 0
+all owned Rust and guard sources < 800 lines
+selected next slice = B0-L3b-I1b atomic canonical statement If activation
+```
 
 Gates:
 
@@ -566,6 +641,32 @@ verified MIR and VM-reference runtime behavior
 
 Preflight acceptance without Lower support, or Lower support without the
 verified flow, is forbidden intermediate state.
+
+I1b is one atomic landing, split into reviewable work packages only:
+
+```text
+I1b-P:
+  preflight constructs VerifiedResolvedFunctionFlowV1 before Builder effects
+  CanonicalFirstFamilyPlanV1 owns the flow and loses Copy
+  closed fallthrough statement-If grammar only
+
+I1b-L:
+  located condition/then/optional-else traversal
+  one exact flow lookup and one exact region/scope consumption per site
+  condition BlockExpr closes before the shared branch baseline
+
+I1b-M:
+  plan-directed branch transactions from the same baseline
+  actual predecessor verification and final BindingRef PHIs
+  coverage/stack verification before function publication
+
+I1b-G:
+  runtime/error/nested/shadow fixtures
+  authority counters, MIR verifier, VM-reference, quick gate, pointer update
+
+landing rule:
+  I1b-P/L/M/G must commit together; no intermediate production activation
+```
 
 Runtime fixtures:
 

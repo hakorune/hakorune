@@ -118,6 +118,19 @@ S1 proves arena topology only. Matching `else=None` versus
 Builder, Lower, ValueId, BasicBlockId, branch effects, ports, join contracts,
 and canonical If runtime activation remain disconnected.
 
+## B0-L3b-I1a exact lowering roots
+
+The verified product owns one seal-derived ID-only lowering-root carrier. It
+pairs the authoritative Function scope/region roots with exactly one lexical
+function-body scope and `Sequence` region rooted at `FunctionBody` or
+`LambdaBodyRoot`. The draft/data schema remains carrier-free.
+
+Lower consumes this carrier directly when seeding separate lexical-scope and
+control-region stacks. It must not scan the arenas or reconstruct source paths
+to rediscover the function-body root. The carrier is a rebuildable seal
+witness, not a second scope/region authority, and adds no Builder or runtime
+connection by itself.
+
 ## B0-L2b shared source-path boundary
 
 `SourcePathSegmentV1` remains the only path grammar. B0-L2b promotes its small

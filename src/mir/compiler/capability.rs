@@ -15,6 +15,7 @@ use super::source_view::{BodyChildRoleV1, ExprChildRoleV1};
 pub(crate) struct CanonicalFirstFamilyPlanV1<'a> {
     function: ResolvedFunctionLoweringInputV1<'a>,
     returns_value: bool,
+    block_expr_count: usize,
 }
 
 impl<'a> CanonicalFirstFamilyPlanV1<'a> {
@@ -24,6 +25,10 @@ impl<'a> CanonicalFirstFamilyPlanV1<'a> {
 
     pub(crate) const fn returns_value(self) -> bool {
         self.returns_value
+    }
+
+    pub(crate) const fn block_expr_count(self) -> usize {
+        self.block_expr_count
     }
 }
 
@@ -93,6 +98,7 @@ impl CanonicalLoweringPreflightV1 {
         Ok(CanonicalFirstFamilyPlanV1 {
             function,
             returns_value,
+            block_expr_count,
         })
     }
 }

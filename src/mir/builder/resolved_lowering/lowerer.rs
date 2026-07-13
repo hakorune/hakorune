@@ -9,19 +9,20 @@ use crate::mir::{MirInstruction, MirType, ValueId};
 
 use super::super::MirBuilder;
 use super::identity::ResolvedIdentityStateV1;
-use super::scope::ResolvedScopeStateV1;
+use super::semantic_stack::ResolvedSemanticStackV1;
 
 pub(super) struct CanonicalFunctionLowererV1<'builder, 'source> {
     builder: &'builder mut MirBuilder,
     input: ResolvedFunctionLoweringInputV1<'source>,
     identity: ResolvedIdentityStateV1<'source>,
-    scopes: ResolvedScopeStateV1,
+    semantics: ResolvedSemanticStackV1,
 }
 
 impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
     pub(super) fn new(
         builder: &'builder mut MirBuilder,
         input: ResolvedFunctionLoweringInputV1<'source>,
+        block_expr_count: usize,
     ) -> Result<Self, String> {
         if !builder
             .resolved_binding_state
@@ -29,11 +30,16 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
         {
             return Err("[freeze:contract][canonical_lowerer/authority_not_installed]".to_string());
         }
+        let semantics = ResolvedSemanticStackV1::new(
+            input.function(),
+            input.function().lowering_roots(),
+            block_expr_count,
+        )?;
         Ok(Self {
             builder,
             input,
             identity: ResolvedIdentityStateV1::new(input.function()),
-            scopes: ResolvedScopeStateV1::new(input.function()),
+            semantics,
         })
     }
 
@@ -45,7 +51,7 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
             .root_body()
             .map_err(|error| error.to_string())?;
         self.lower_body(&body)?;
-        self.scopes.finish()?;
+        self.semantics.finish()?;
         self.identity.finish()?;
         self.builder
             .resolved_binding_state
@@ -308,17 +314,22 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
             .source()
             .child_expr_from_expr(expression, ExprChildRoleV1::BlockExprTail)
             .map_err(|error| error.to_string())?;
-        let session = self.scopes.enter(self.input.function(), pair)?;
+        let session = self
+            .semantics
+            .enter_block_expr(self.input.function(), pair)?;
         let primary = self
             .lower_body(&prelude)
             .and_then(|()| self.lower_expr(&tail));
         match primary {
             Ok(value) => {
-                self.scopes
-                    .close_success(session, &mut self.identity)?;
+                self.semantics
+                    .close_scope_region_success(session, &mut self.identity)?;
                 Ok(value)
             }
-            Err(primary) => match self.scopes.close_error(session, &mut self.identity) {
+            Err(primary) => match self
+                .semantics
+                .close_scope_region_error(session, &mut self.identity)
+            {
                 Ok(()) => Err(primary),
                 Err(cleanup) => Err(format!(
                     "[freeze:contract][canonical_scope/during_cleanup] primary={primary} cleanup={cleanup}"

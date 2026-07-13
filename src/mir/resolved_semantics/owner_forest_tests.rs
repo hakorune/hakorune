@@ -107,7 +107,7 @@ fn seal_derives_roots_and_child_index_from_primary_topology() {
     let parent = issuer.issue().unwrap();
     let child = issuer.issue().unwrap();
     let parent_product = sample_verified_for_owner_forest(parent, BindingId::new(0));
-    let parent_scope = parent_product.function_scope();
+    let parent_scope = parent_product.lowering_roots().body_pair().scope();
     let child_product = sample_verified_for_owner_forest(child, BindingId::new(0));
     let definition_site = OwnedExprSiteV1::new(
         parent,
@@ -136,8 +136,8 @@ fn seal_rejects_parent_cycle() {
     let second = issuer.issue().unwrap();
     let first_product = sample_verified_for_owner_forest(first, BindingId::new(0));
     let second_product = sample_verified_for_owner_forest(second, BindingId::new(0));
-    let first_scope = first_product.function_scope();
-    let second_scope = second_product.function_scope();
+    let first_scope = first_product.lowering_roots().body_pair().scope();
+    let second_scope = second_product.lowering_roots().body_pair().scope();
     let site = |owner| {
         OwnedExprSiteV1::new(
             owner,

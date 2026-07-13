@@ -1,5 +1,5 @@
 Status: Active
-Date: 2026-07-13
+Date: 2026-07-14
 Scope: restart in 2-5 minutes with a thin pointer surface.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -40,9 +40,9 @@ cargo check -q
 
 - handoff frontier: read `current_blocker_token` in `CURRENT_STATE.toml`
 - read `latest_card_path` before editing
-- owner-scoped arena through atomic SA3-B is closed (B0-C was skipped); the
-  first explicit resolved function route is green and the active frontier is
-  B0-L3a straight-line BlockExpr ScopeId/RegionId consumption named by
+- owner-scoped arena through B0-L3b-I1a is closed (B0-C was skipped); exact If
+  flow and disconnected materialization infrastructure are green. The active
+  frontier is the atomic B0-L3b-I1b canonical statement-If activation named by
   `current_blocker_token` and `latest_card_path`
 - keep RegionFlow R1, parser/source-carrier P1, and all parked source-projection
   stashes disconnected until the semantic-arena prerequisite series closes

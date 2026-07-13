@@ -234,6 +234,19 @@
       "retirement_owner": "canonical-resolved-lowering-tests"
     },
     {
+      "producer_id": "test-canonical-semantic-stack-blockexpr",
+      "producer_path": "src/mir/builder/resolved_lowering/semantic_stack_tests.rs",
+      "producer_status": "TestOnly",
+      "output_family": "test ASTNode::BlockExpr",
+      "consumer_entry": "B0-L3b-I1a separated semantic-stack tests",
+      "classification": "TestOnly",
+      "required_scope_semantics": "TestOnlyExactResolvedPair",
+      "live_caller_evidence": [
+        "src/mir/builder/resolved_lowering/semantic_stack_tests.rs#fn block(tail: ASTNode) -> ASTNode"
+      ],
+      "retirement_owner": "canonical-semantic-stack-tests"
+    },
+    {
       "producer_id": "test-resolved-region-flow-blockexpr",
       "producer_path": "src/mir/resolved_region_flow/if_flow_tests.rs",
       "producer_status": "TestOnly",

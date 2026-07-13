@@ -3,6 +3,7 @@
 guard_resolved_if_lowering_contract() {
   guard_resolved_if_s1_contract_impl "$1" "$2"
   guard_resolved_if_s2_contract_impl "$1" "$2"
+  guard_resolved_if_i1a_contract_impl "$1" "$2"
 }
 
 guard_resolved_if_s1_contract_impl() {
@@ -30,7 +31,7 @@ guard_resolved_if_s1_contract_impl() {
       "B0-L3b-S1 exact If bundle contract drifted: $anchor"
   done
   for anchor in 'if_regions: ResolvedIfRegionIndexV1' \
-    'let if_regions = verify_resolved_function(&self.data)?' 'if_regions,'; do
+    'let derived = verify_resolved_function(&self.data)?' 'if_regions: derived.if_regions'; do
     guard_expect_fixed_in_file "$tag" "$anchor" "$product" \
       "B0-L3b-S1 verified-product index boundary drifted: $anchor"
   done
@@ -291,4 +292,98 @@ PY
   echo "if_region_s2_lower_connection=0"
   echo "if_region_s2_runtime_activation=0"
   echo "if_region_s2_selected_next_slice=B0-L3b-I1a"
+}
+
+guard_resolved_if_i1a_contract_impl() {
+  local tag="$1"
+  local root="$2"
+  local lower="$root/src/mir/builder/resolved_lowering"
+  local semantics="$root/src/mir/resolved_semantics"
+
+  guard_require_files "$tag" \
+    "$semantics/function_root.rs" \
+    "$semantics/function_root_tests.rs" \
+    "$lower/semantic_stack.rs" \
+    "$lower/semantic_stack_tests.rs" \
+    "$lower/branch_transaction.rs" \
+    "$lower/if_materialization.rs" \
+    "$lower/if_materialization_tests.rs" \
+    "$lower/README.md"
+
+  for spec in \
+    'function_root.rs:ResolvedFunctionLoweringRootsV1' \
+    'function_root.rs:function_pair' \
+    'function_root.rs:body_pair' \
+    'semantic_stack.rs:regions: Vec<RegionId>' \
+    'semantic_stack.rs:scopes: Vec<ScopeId>' \
+    'semantic_stack.rs:enter_region' \
+    'semantic_stack.rs:enter_scope_region' \
+    'branch_transaction.rs:ordered_join_domain' \
+    'branch_transaction.rs:AuthorizedBranchRebindV1' \
+    'branch_transaction.rs:first_old_journal' \
+    'branch_transaction.rs:if !self.permits.contains(&binding)' \
+    'if_materialization.rs:open_implicit_false' \
+    'if_materialization.rs:compute_predecessors' \
+    'if_materialization.rs:define_phi_final' \
+    'if_materialization.rs:DefinedIfJoinSetV1' \
+    'if_materialization.rs:publish_join_values' \
+    'if_materialization.rs:publish_defined_join_batch'; do
+    local file="${spec%%:*}"
+    local anchor="${spec#*:}"
+    local owner="$lower/$file"
+    [[ "$file" == function_root.rs ]] && owner="$semantics/$file"
+    guard_expect_fixed_in_file "$tag" "$anchor" "$owner" \
+      "B0-L3b-I1a disconnected materialization contract drifted: $file:$anchor"
+  done
+
+  if rg -n 'ASTNode|Located(Body|Stmt|Expr)V1|VerifiedResolved(Function|If)FlowV1|resolved_region_flow|lower_if_form|variable_map|HashMap<String|BTreeMap<String' \
+    "$lower/branch_transaction.rs" "$lower/if_materialization.rs"; then
+    guard_fail "$tag" "B0-L3b-I1a infrastructure crossed a syntax/flow/legacy identity boundary"
+  fi
+  if rg -n 'journaled[[:space:]]*[!=]=[[:space:]]*self\.permits|self\.permits[[:space:]]*[!=]=[[:space:]]*self\.journaled' \
+    "$lower/branch_transaction.rs"; then
+    guard_fail "$tag" "B0-L3b-I1a turned may-rebind permits into a must-write contract"
+  fi
+  if rg -n 'scope.*region.*Vec|region.*scope.*Vec' "$lower/semantic_stack.rs"; then
+    guard_fail "$tag" "B0-L3b-I1a collapsed RegionId and ScopeId into one stack"
+  fi
+
+  local consumers="" caller_rc
+  if consumers="$(rg -l 'IfCfgSessionV1::open_|define_join_phis[[:space:]]*\(' \
+      "$root/src" --glob '*.rs' --glob '!*_tests.rs' --glob '!tests.rs' \
+      --glob '!if_materialization.rs')"; then
+    guard_fail "$tag" "B0-L3b-I1a gained an early production activation: $consumers"
+  else
+    caller_rc=$?
+    if [[ "$caller_rc" != "1" ]]; then
+      guard_fail "$tag" "B0-L3b-I1a production activation scan failed: rc=$caller_rc"
+    fi
+  fi
+
+  local file lines
+  for file in "$semantics/function_root.rs" "$semantics/function_root_tests.rs" \
+    "$lower/semantic_stack.rs" "$lower/semantic_stack_tests.rs" \
+    "$lower/branch_transaction.rs" "$lower/if_materialization.rs" \
+    "$lower/if_materialization_tests.rs"; do
+    lines="$(wc -l < "$file" | tr -d '[:space:]')"
+    if (( lines >= 800 )); then
+      guard_fail "$tag" "B0-L3b-I1a source reached the 800-line stop boundary: $file ($lines)"
+    fi
+  done
+
+  cargo test -q --manifest-path "$root/Cargo.toml" --lib \
+    mir::resolved_semantics::function_root_tests
+  cargo test -q --manifest-path "$root/Cargo.toml" --lib \
+    mir::builder::resolved_lowering::semantic_stack_tests
+  cargo test -q --manifest-path "$root/Cargo.toml" --lib \
+    mir::builder::resolved_lowering::if_materialization_tests
+
+  echo "if_region_i1a_function_roots=seal-derived"
+  echo "if_region_i1a_semantic_stacks=region-and-scope-separated"
+  echo "if_region_i1a_branch_snapshot=ordered-join-domain-only"
+  echo "if_region_i1a_branch_diff_discovery=0"
+  echo "if_region_i1a_implicit_else=direct-merge-edge"
+  echo "if_region_i1a_phi_policy=final-all-before-batch-publish"
+  echo "if_region_i1a_production_activation=0"
+  echo "if_region_i1a_selected_next_slice=B0-L3b-I1b"
 }

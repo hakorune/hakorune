@@ -4,12 +4,18 @@
 //! owns exact source traversal and BindingRef-based value publication; legacy
 //! statement/expression dispatch is intentionally not reachable from it.
 
+mod branch_transaction;
 mod identity;
+mod if_materialization;
 mod lowerer;
-mod scope;
+mod semantic_stack;
 
 #[cfg(test)]
 mod block_expr_tests;
+#[cfg(test)]
+mod if_materialization_tests;
+#[cfg(test)]
+mod semantic_stack_tests;
 #[cfg(test)]
 mod tests;
 
@@ -58,7 +64,7 @@ impl MirBuilder {
             builder.set_current_function_runes(attrs);
             builder.set_current_function_declared_capability_uses(uses);
 
-            CanonicalFunctionLowererV1::new(builder, input)?.lower()?;
+            CanonicalFunctionLowererV1::new(builder, input, plan.block_expr_count())?.lower()?;
             builder.finalize_function_draft(plan.returns_value())
         })?;
 

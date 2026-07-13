@@ -8,15 +8,22 @@ guard_resolved_blockexpr_lowering_contract() {
   local capability="$root/src/mir/compiler/capability.rs"
 
   guard_require_files "$tag" \
-    "$lower/scope.rs" \
+    "$lower/semantic_stack.rs" \
+    "$root/src/mir/resolved_semantics/function_root.rs" \
     "$lower/block_expr_tests.rs"
   for anchor in ResolvedScopeRegionPairV1 block_expr_scope_region_pair BlockExprPreludeRoot; do
     guard_expect_fixed_in_file "$tag" "$anchor" "$product" \
       "B0-L3a exact sealed pair query drifted: $anchor"
   done
-  for anchor in ResolvedScopeSessionV1 close_success close_error pair_reconsumed; do
-    guard_expect_fixed_in_file "$tag" "$anchor" "$lower/scope.rs" \
+  for anchor in ResolvedSemanticStackV1 enter_block_expr close_scope_region_success \
+    close_scope_region_error pair_reconsumed; do
+    guard_expect_fixed_in_file "$tag" "$anchor" "$lower/semantic_stack.rs" \
       "B0-L3a resolved scope transaction drifted: $anchor"
+  done
+  for anchor in ResolvedFunctionLoweringRootsV1 function_pair body_pair; do
+    guard_expect_fixed_in_file "$tag" "$anchor" \
+      "$root/src/mir/resolved_semantics/function_root.rs" \
+      "B0-L3a sealed lowering root drifted: $anchor"
   done
   guard_expect_fixed_in_file "$tag" "values: BTreeMap<BindingRefV1, ValueId>" \
     "$lower/identity.rs" "canonical BindingRef value environment missing"

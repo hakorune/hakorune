@@ -6,6 +6,7 @@
 // gives the schema its first shadow-only producer/consumer.
 #![allow(dead_code, unused_imports)]
 
+mod function_root;
 mod function_view;
 mod ids;
 mod if_region;
@@ -19,7 +20,12 @@ mod shadow;
 mod source_site;
 mod verifier;
 
+pub(crate) use function_root::{
+    ResolvedFunctionLoweringRootsV1, ResolvedFunctionRootVerificationErrorV1,
+};
 pub(crate) use function_view::FunctionSyntaxViewV1;
+#[cfg(test)]
+pub(crate) use ids::FunctionOwnerIssuerV1;
 pub use ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId, UpvarRefV1};
 pub use if_region::ResolvedIfRegionVerificationErrorV1;
 pub(crate) use if_region::{ResolvedIfRegionBundleV1, ResolvedIfRegionLookupErrorV1};
@@ -55,6 +61,8 @@ pub use verifier::ResolvedFunctionVerificationErrorV1;
 
 #[cfg(test)]
 mod block_expr_tests;
+#[cfg(test)]
+mod function_root_tests;
 #[cfg(test)]
 mod if_region_tests;
 #[cfg(test)]

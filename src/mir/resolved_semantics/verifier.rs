@@ -4,6 +4,10 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use hakorune_mir_core::BindingId;
 
+use super::function_root::{
+    build_verified_function_lowering_roots_v1, ResolvedFunctionLoweringRootsV1,
+    ResolvedFunctionRootVerificationErrorV1,
+};
 use super::ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
 use super::if_region::{
     build_verified_if_region_index_v1, ResolvedIfRegionIndexV1, ResolvedIfRegionVerificationErrorV1,
@@ -21,6 +25,7 @@ use super::source_site::{
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ResolvedFunctionVerificationErrorV1 {
     IfRegion(ResolvedIfRegionVerificationErrorV1),
+    FunctionRoot(ResolvedFunctionRootVerificationErrorV1),
     ForeignScopeId(ScopeId),
     ForeignRegionId(RegionId),
     MissingFunctionScope(ScopeId),
@@ -65,9 +70,14 @@ pub enum ResolvedFunctionVerificationErrorV1 {
     WrongReturnTarget(ResolvedExitSiteV1),
 }
 
+pub(super) struct ResolvedFunctionDerivedArtifactsV1 {
+    pub(super) if_regions: ResolvedIfRegionIndexV1,
+    pub(super) lowering_roots: ResolvedFunctionLoweringRootsV1,
+}
+
 pub(super) fn verify_resolved_function(
     data: &ResolvedFunctionDataV1,
-) -> Result<ResolvedIfRegionIndexV1, ResolvedFunctionVerificationErrorV1> {
+) -> Result<ResolvedFunctionDerivedArtifactsV1, ResolvedFunctionVerificationErrorV1> {
     verify_owner_and_roots(data)?;
     verify_scope_graph(data)?;
     verify_region_graph(data)?;
@@ -78,7 +88,14 @@ pub(super) fn verify_resolved_function(
     verify_kind_origin_contracts(data)?;
     verify_normalized_key_uniqueness(data)?;
     verify_control_targets(data)?;
-    build_verified_if_region_index_v1(data).map_err(ResolvedFunctionVerificationErrorV1::IfRegion)
+    let lowering_roots = build_verified_function_lowering_roots_v1(data)
+        .map_err(ResolvedFunctionVerificationErrorV1::FunctionRoot)?;
+    let if_regions = build_verified_if_region_index_v1(data)
+        .map_err(ResolvedFunctionVerificationErrorV1::IfRegion)?;
+    Ok(ResolvedFunctionDerivedArtifactsV1 {
+        if_regions,
+        lowering_roots,
+    })
 }
 
 fn verify_blockexpr_scope_region_contract(

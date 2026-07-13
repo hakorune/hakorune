@@ -125,9 +125,12 @@ fn resolve(tree: &ASTNode) -> std::sync::Arc<super::VerifiedResolvedFunctionV1> 
 fn blockexpr_data(owner: FunctionOwnerIdV1) -> ResolvedFunctionDataV1 {
     let function_origin = FunctionOriginV1::new(0, 0);
     let function_scope = ScopeId::new(owner, 0);
+    let body_scope = ScopeId::new(owner, 1000);
     let blockexpr_scope = ScopeId::new(owner, 1);
     let function_region = RegionId::new(owner, 0);
+    let body_region = RegionId::new(owner, 1000);
     let blockexpr_region = RegionId::new(owner, 1);
+    let body_origin = node(vec![SourcePathSegmentV1::FunctionBody]);
     let blockexpr_origin = blockexpr_root();
 
     ResolvedFunctionDataV1 {
@@ -148,10 +151,20 @@ fn blockexpr_data(owner: FunctionOwnerIdV1) -> ResolvedFunctionDataV1 {
                 ),
             ),
             (
+                body_scope,
+                ResolvedScopeRecordV1::new(
+                    ScopeKindV1::LexicalBlock,
+                    Some(function_scope),
+                    body_region,
+                    Vec::new(),
+                    ScopeOriginV1::Source(body_origin.clone()),
+                ),
+            ),
+            (
                 blockexpr_scope,
                 ResolvedScopeRecordV1::new(
                     ScopeKindV1::BlockExpr,
-                    Some(function_scope),
+                    Some(body_scope),
                     blockexpr_region,
                     Vec::new(),
                     ScopeOriginV1::Source(blockexpr_origin.clone()),
@@ -169,10 +182,19 @@ fn blockexpr_data(owner: FunctionOwnerIdV1) -> ResolvedFunctionDataV1 {
                 ),
             ),
             (
+                body_region,
+                ResolvedRegionRecordV1::new(
+                    RegionKindV1::Sequence,
+                    Some(function_region),
+                    Some(body_scope),
+                    RegionOriginV1::Source(body_origin),
+                ),
+            ),
+            (
                 blockexpr_region,
                 ResolvedRegionRecordV1::new(
                     RegionKindV1::BlockExpr,
-                    Some(function_region),
+                    Some(body_region),
                     Some(blockexpr_scope),
                     RegionOriginV1::Source(blockexpr_origin),
                 ),
@@ -213,7 +235,7 @@ fn seal_rejects_blockexpr_scope_with_non_blockexpr_region() {
         RegionId::new(owner, 1),
         ResolvedRegionRecordV1::new(
             RegionKindV1::LexicalScope,
-            Some(RegionId::new(owner, 0)),
+            Some(RegionId::new(owner, 1000)),
             Some(ScopeId::new(owner, 1)),
             RegionOriginV1::Source(blockexpr_root()),
         ),
@@ -233,7 +255,7 @@ fn seal_rejects_blockexpr_region_with_non_blockexpr_scope() {
         ScopeId::new(owner, 1),
         ResolvedScopeRecordV1::new(
             ScopeKindV1::LexicalBlock,
-            Some(ScopeId::new(owner, 0)),
+            Some(ScopeId::new(owner, 1000)),
             RegionId::new(owner, 1),
             Vec::new(),
             ScopeOriginV1::Source(blockexpr_root()),
@@ -254,7 +276,7 @@ fn seal_rejects_blockexpr_pair_with_different_exact_origins() {
         RegionId::new(owner, 1),
         ResolvedRegionRecordV1::new(
             RegionKindV1::BlockExpr,
-            Some(RegionId::new(owner, 0)),
+            Some(RegionId::new(owner, 1000)),
             Some(ScopeId::new(owner, 1)),
             RegionOriginV1::Source(node(vec![
                 SourcePathSegmentV1::Body(1),

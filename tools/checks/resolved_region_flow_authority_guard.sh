@@ -24,6 +24,8 @@ guard_require_files "$TAG" \
   "$MODULE/README.md" \
   "$MODULE/mod.rs" \
   "$MODULE/ids.rs" \
+  "$MODULE/function_root.rs" \
+  "$MODULE/function_root_tests.rs" \
   "$MODULE/function_view.rs" \
   "$MODULE/source_site.rs" \
   "$MODULE/records.rs" \
@@ -63,6 +65,7 @@ guard_require_files "$TAG" \
 
 expected_manifest="$(printf '%s\n' \
   block_expr_tests.rs \
+  function_root.rs function_root_tests.rs \
   function_view.rs \
   ids.rs \
   if_region.rs if_region_tests.rs \
@@ -684,7 +687,7 @@ allowed = {
     "region_count",
     "normalized_graph",
     "exact_scope_containing", "from_verified",
-    "block_expr_scope_region_pair",
+    "block_expr_scope_region_pair", "lowering_roots",
     "seal",
 }
 methods = set(re.findall(r"pub(?:\([^)]*\))?\s+(?:const\s+)?fn\s+(\w+)", text))

@@ -13,7 +13,12 @@ Invariants:
 - legacy `allocate_binding_id()` is structurally vetoed while an owner is installed.
 - declarations, variable uses, assignment targets, and exits must all finish
   source coverage before the function draft can be published.
-- canonical BlockExpr consumes one exact sealed ScopeId/RegionId pair through
-  `ResolvedScopeSessionV1`; only pair-owned BindingRefs retire at scope leave.
-- legacy statement/expression dispatch, Planner/CorePlan, Lambda, If/Loop,
-  Main, REPL, and ProgramV0 are outside this boundary.
+- canonical lowering seeds separate RegionId and ScopeId stacks from the sealed
+  function/function-body roots; BlockExpr consumes one exact pair and retires
+  only pair-owned BindingRefs at scope leave.
+- I1a owns disconnected branch transactions and conditional CFG/final-PHI
+  materialization. It accepts an ordered join domain, never syntax or a flow
+  product; may-rebind permits are an upper bound, and no BindingRef can be
+  published until every PHI is defined.
+- legacy statement/expression dispatch, Planner/CorePlan, Lambda, production
+  If/Loop activation, Main, REPL, and ProgramV0 are outside this boundary.

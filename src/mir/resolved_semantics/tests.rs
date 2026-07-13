@@ -43,6 +43,9 @@ fn sample_data(owner: FunctionOwnerIdV1, binding: BindingId) -> ResolvedFunction
     let binding_ref = BindingRefV1::new(owner, binding);
     let scope = ScopeId::new(owner, 0);
     let region = RegionId::new(owner, 0);
+    let body_scope = ScopeId::new(owner, 1000);
+    let body_region = RegionId::new(owner, 1000);
+    let body_origin = node(vec![SourcePathSegmentV1::FunctionBody]);
     let declaration = SourceBindingSiteV1::Local {
         statement: stmt(0),
         ordinal: 0,
@@ -65,25 +68,48 @@ fn sample_data(owner: FunctionOwnerIdV1, binding: BindingId) -> ResolvedFunction
                 BindingOriginV1::Source(declaration.clone()),
             ),
         )]),
-        scopes: BTreeMap::from([(
-            scope,
-            ResolvedScopeRecordV1::new(
-                ScopeKindV1::Function,
-                None,
+        scopes: BTreeMap::from([
+            (
+                scope,
+                ResolvedScopeRecordV1::new(
+                    ScopeKindV1::Function,
+                    None,
+                    region,
+                    vec![binding_ref],
+                    ScopeOriginV1::Function(function_origin),
+                ),
+            ),
+            (
+                body_scope,
+                ResolvedScopeRecordV1::new(
+                    ScopeKindV1::LexicalBlock,
+                    Some(scope),
+                    body_region,
+                    Vec::new(),
+                    ScopeOriginV1::Source(body_origin.clone()),
+                ),
+            ),
+        ]),
+        regions: BTreeMap::from([
+            (
                 region,
-                vec![binding_ref],
-                ScopeOriginV1::Function(function_origin),
+                ResolvedRegionRecordV1::new(
+                    RegionKindV1::Function,
+                    None,
+                    Some(scope),
+                    RegionOriginV1::Function(function_origin),
+                ),
             ),
-        )]),
-        regions: BTreeMap::from([(
-            region,
-            ResolvedRegionRecordV1::new(
-                RegionKindV1::Function,
-                None,
-                Some(scope),
-                RegionOriginV1::Function(function_origin),
+            (
+                body_region,
+                ResolvedRegionRecordV1::new(
+                    RegionKindV1::Sequence,
+                    Some(region),
+                    Some(body_scope),
+                    RegionOriginV1::Source(body_origin),
+                ),
             ),
-        )]),
+        ]),
         declarations: BTreeMap::from([(declaration.clone(), binding_ref)]),
         variable_uses: BTreeMap::from([(
             use_site,
@@ -96,7 +122,7 @@ fn sample_data(owner: FunctionOwnerIdV1, binding: BindingId) -> ResolvedFunction
         resolved_exits: BTreeMap::from([(
             ResolvedExitSiteV1::Statement(exit_site),
             ResolvedExitRecordV1::new(
-                region,
+                body_region,
                 ResolvedExitOriginV1::ExplicitReturn,
                 ResolvedControlTransferV1::Return {
                     target_function: region,
@@ -166,8 +192,8 @@ fn sealed_product_exposes_read_only_owner_scoped_records() {
     assert_eq!(verified.owner(), owner);
     assert_eq!(verified.function_origin().function_ordinal(), 3);
     assert_eq!(verified.binding_count(), 1);
-    assert_eq!(verified.scope_count(), 1);
-    assert_eq!(verified.region_count(), 1);
+    assert_eq!(verified.scope_count(), 2);
+    assert_eq!(verified.region_count(), 2);
     assert_eq!(
         verified.binding(binding_ref).unwrap().diagnostic_name(),
         "x"
@@ -198,7 +224,7 @@ fn sealed_product_exposes_read_only_owner_scoped_records() {
     let exit = verified
         .resolved_exit(&ResolvedExitSiteV1::Statement(exit_site))
         .unwrap();
-    assert_eq!(exit.source_region(), RegionId::new(owner, 0));
+    assert_eq!(exit.source_region(), RegionId::new(owner, 1000));
     assert_eq!(exit.origin(), ResolvedExitOriginV1::ExplicitReturn);
     assert_eq!(
         exit.transfer(),
@@ -557,10 +583,11 @@ fn seal_rejects_exit_origin_transfer_mismatch() {
     let owner = owner();
     let mut data = sample_data(owner, BindingId::new(0));
     let site = data.resolved_exits.keys().next().unwrap().clone();
+    let source_region = data.resolved_exits[&site].source_region();
     data.resolved_exits.insert(
         site,
         ResolvedExitRecordV1::new(
-            data.function_region,
+            source_region,
             ResolvedExitOriginV1::ExplicitBreak,
             ResolvedControlTransferV1::Return {
                 target_function: data.function_region,

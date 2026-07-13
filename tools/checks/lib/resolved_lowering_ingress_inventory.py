@@ -492,7 +492,7 @@ def main() -> None:
         "slice": "B0-L3a",
         "status": "closed",
         "exact_pair_query": "VerifiedResolvedFunctionV1::block_expr_scope_region_pair",
-        "scope_session_type": "ResolvedScopeSessionV1",
+        "scope_session_type": "ResolvedSemanticStackV1",
         "value_disposition": "active-or-retired-BindingRef",
         "located_prelude_transport": 1,
         "located_tail_transport": 1,
@@ -513,7 +513,7 @@ def main() -> None:
     b0_l3a_files = {
         "product": root / "src/mir/resolved_semantics/product.rs",
         "capability": compiler_dir / "capability.rs",
-        "scope": resolved_lowering_dir / "scope.rs",
+        "scope": resolved_lowering_dir / "semantic_stack.rs",
         "identity": resolved_lowering_dir / "identity.rs",
         "lowerer": resolved_lowering_dir / "lowerer.rs",
         "tests": resolved_lowering_dir / "block_expr_tests.rs",
@@ -524,7 +524,7 @@ def main() -> None:
     b0_text = {label: path.read_text(encoding="utf-8") for label, path in b0_l3a_files.items()}
     for anchor, label in (
         ("fn block_expr_scope_region_pair(", "product"),
-        ("struct ResolvedScopeSessionV1", "scope"),
+        ("struct ResolvedSemanticStackV1", "scope"),
         ("retire_scope_success", "identity"),
         ("BodyChildRoleV1::BlockExprPrelude", "lowerer"),
         ("ExprChildRoleV1::BlockExprTail", "lowerer"),

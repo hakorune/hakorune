@@ -1,5 +1,5 @@
 Status: SSOT mirror
-Date: 2026-07-13
+Date: 2026-07-14
 Scope: one-screen current dashboard. Do not store landed history here.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -24,10 +24,10 @@ Related:
   B0-L0/B0-L1/B0-L2a/B0-L2b/B0-L2c/SA3-B are closed; one explicit non-main
   static/free straight-line resolved route and B0-L3a BlockExpr Lower are
   landed with exact BindingRef/ScopeId/RegionId authority. B0-L3b-S1/S2 exact
-  If identity and verified pre-Builder flow are closed; I1a disconnected If
-  materialization infrastructure is next. Default source, canonical If
-  activation, Loop/CorePlan/Lambda, and parser/source-carrier P1 remain
-  disconnected
+  If identity, verified pre-Builder flow, and I1a disconnected materialization
+  infrastructure are closed. I1b atomic canonical statement-If activation is
+  next. Default source, Loop/CorePlan/Lambda, and parser/source-carrier P1
+  remain disconnected
 - parked language work: LANGV1 conformance closeout remains parked; no
   language behavior is changed by the reprioritization
 

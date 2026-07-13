@@ -8,7 +8,7 @@ use crate::mir::resolved_semantics::ResolvedScopeRegionLookupErrorV1;
 use crate::mir::{ConstValue, MirInstruction};
 
 use super::identity::ResolvedIdentityStateV1;
-use super::scope::ResolvedScopeStateV1;
+use super::semantic_stack::ResolvedSemanticStackV1;
 use super::MirBuilder;
 
 fn int(value: i64) -> ASTNode {
@@ -231,10 +231,14 @@ fn error_close_balances_scope_and_reconsumption_is_rejected() {
         .function()
         .block_expr_scope_region_pair(expression.owner(), expression.site())
         .unwrap();
-    let mut scopes = ResolvedScopeStateV1::new(input.function());
+    let mut semantics =
+        ResolvedSemanticStackV1::new(input.function(), input.function().lowering_roots(), 1)
+            .unwrap();
     let mut identity = ResolvedIdentityStateV1::new(input.function());
-    let session = scopes.enter(input.function(), pair).unwrap();
-    scopes.close_error(session, &mut identity).unwrap();
-    scopes.finish().unwrap();
-    assert!(scopes.enter(input.function(), pair).is_err());
+    let session = semantics.enter_block_expr(input.function(), pair).unwrap();
+    semantics
+        .close_scope_region_error(session, &mut identity)
+        .unwrap();
+    semantics.finish().unwrap();
+    assert!(semantics.enter_block_expr(input.function(), pair).is_err());
 }

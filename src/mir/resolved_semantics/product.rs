@@ -4,6 +4,7 @@ use std::collections::BTreeMap;
 
 use hakorune_mir_core::BindingId;
 
+use super::function_root::ResolvedFunctionLoweringRootsV1;
 use super::ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
 use super::if_region::ResolvedIfRegionIndexV1;
 use super::normalized::{build_normalized_graph, NormalizedResolvedFunctionGraphV1};
@@ -44,6 +45,7 @@ pub(crate) struct ResolvedFunctionDraftV1 {
 pub struct VerifiedResolvedFunctionV1 {
     data: ResolvedFunctionDataV1,
     normalized: NormalizedResolvedFunctionGraphV1,
+    lowering_roots: ResolvedFunctionLoweringRootsV1,
     pub(super) if_regions: ResolvedIfRegionIndexV1,
 }
 
@@ -78,12 +80,13 @@ impl ResolvedFunctionDraftV1 {
     pub(crate) fn seal(
         self,
     ) -> Result<VerifiedResolvedFunctionV1, ResolvedFunctionVerificationErrorV1> {
-        let if_regions = verify_resolved_function(&self.data)?;
+        let derived = verify_resolved_function(&self.data)?;
         let normalized = build_normalized_graph(&self.data);
         Ok(VerifiedResolvedFunctionV1 {
             data: self.data,
             normalized,
-            if_regions,
+            lowering_roots: derived.lowering_roots,
+            if_regions: derived.if_regions,
         })
     }
 }
@@ -103,6 +106,10 @@ impl VerifiedResolvedFunctionV1 {
 
     pub const fn function_region(&self) -> RegionId {
         self.data.function_region
+    }
+
+    pub(crate) const fn lowering_roots(&self) -> ResolvedFunctionLoweringRootsV1 {
+        self.lowering_roots
     }
 
     pub fn binding_ref(&self, id: BindingId) -> Option<BindingRefV1> {

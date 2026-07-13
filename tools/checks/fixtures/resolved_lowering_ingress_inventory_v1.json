@@ -376,7 +376,7 @@
     "slice": "B0-L3a",
     "status": "closed",
     "exact_pair_query": "VerifiedResolvedFunctionV1::block_expr_scope_region_pair",
-    "scope_session_type": "ResolvedScopeSessionV1",
+    "scope_session_type": "ResolvedSemanticStackV1",
     "value_disposition": "active-or-retired-BindingRef",
     "located_prelude_transport": 1,
     "located_tail_transport": 1,

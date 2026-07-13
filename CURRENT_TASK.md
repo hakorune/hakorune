@@ -44,10 +44,10 @@ atomic SA3-B first family. One explicit resolved route now lowers a preflighted
 non-main static/free straight-line owner with exact BindingRef authority,
 legacy allocator veto, and coverage-before-publication. The default source
 route is still legacy. B0-L3a BlockExpr Lower and B0-L3b-S1/S2 exact If
-identity/verified flow are closed. The active frontier is B0-L3b-I1a
-disconnected If materialization infrastructure, named by
-`current_blocker_token`; canonical If activation, Loop/CorePlan/Lambda, and
-capture mode/layout remain zero. The first SA3-B owner cutover is complete;
+identity/verified flow and I1a disconnected materialization infrastructure
+are closed. The active frontier is B0-L3b-I1b atomic canonical statement If
+activation, named by `current_blocker_token`; Loop/CorePlan/Lambda and capture
+mode/layout remain zero. The first SA3-B owner cutover is complete;
 later families, exact RegionId target cutover, and duplicate-owner retirement
 remain bounded follow-ups. Never let resolver and Lower allocate independent
 BindingIds for the same declaration. R1
