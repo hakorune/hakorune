@@ -1,0 +1,291 @@
+{
+  "schema": "ResolvedLoweringIngressInventoryV1",
+  "decision": "A-prime",
+  "slice": "B0-L1",
+  "production_semantic_activation": 0,
+  "canonical_lower_route_count": 0,
+  "resolved_scope_consumer_count": 0,
+  "exact_source_site_transport_count": 0,
+  "route_selection_before_prepare_module": 0,
+  "legacy_retry_after_canonical_selection": 0,
+  "module_ingresses": [
+    {
+      "id": "rust-source-default-bare-ast",
+      "source_family": "RustParsedSource",
+      "current_route": "LegacyBareAst",
+      "canonical_candidate": true,
+      "source_unit_provenance_preserved": false,
+      "current_entry": "MirCompiler::compile_with_source",
+      "convergence_entry": "MirCompiler::compile_with_source_internal",
+      "preflight_before_prepare_module": false,
+      "evidence": [
+        "src/mir/compiler/mod.rs#pub fn compile_with_source(",
+        "src/mir/compiler/mod.rs#self.compile_with_source_internal(ast, source_file)",
+        "src/mir/compiler/mod.rs#let mut module = self.builder.build_module(ast)?;"
+      ]
+    },
+    {
+      "id": "rust-source-imports-bare-ast",
+      "source_family": "RustParsedSourceWithImports",
+      "current_route": "LegacyBareAstWithImportSideTable",
+      "canonical_candidate": true,
+      "source_unit_provenance_preserved": false,
+      "current_entry": "MirCompiler::compile_with_source_and_imports",
+      "convergence_entry": "MirCompiler::compile_with_source_internal",
+      "preflight_before_prepare_module": false,
+      "evidence": [
+        "src/mir/compiler/mod.rs#pub fn compile_with_source_and_imports(",
+        "src/mir/compiler/mod.rs#self.builder.comp_ctx.set_using_import_boxes(imports);"
+      ]
+    },
+    {
+      "id": "direct-bare-ast-api",
+      "source_family": "DirectAstAndSelfhostBridge",
+      "current_route": "LegacyBareAst",
+      "canonical_candidate": false,
+      "source_unit_provenance_preserved": false,
+      "current_entry": "MirCompiler::compile",
+      "convergence_entry": "MirCompiler::compile_with_source",
+      "preflight_before_prepare_module": false,
+      "evidence": [
+        "src/mir/compiler/mod.rs#pub fn compile(&mut self, ast: crate::ast::ASTNode)",
+        "src/runner/selfhost.rs#match mir_compiler.compile(ast) {"
+      ]
+    },
+    {
+      "id": "program-v0-import-bundle",
+      "source_family": "ProgramV0CompatibilityImportBundle",
+      "current_route": "LegacyCompatibilityReparsedAst",
+      "canonical_candidate": false,
+      "source_unit_provenance_preserved": false,
+      "current_entry": "program_json_v0_loader import bundle",
+      "convergence_entry": "compile_with_source_hint",
+      "preflight_before_prepare_module": false,
+      "evidence": [
+        "src/runner/json_artifact/program_json_v0_loader.rs#let mut compiler = MirCompiler::with_options(true);",
+        "src/runner/json_artifact/program_json_v0_loader.rs#compile_with_source_hint("
+      ]
+    },
+    {
+      "id": "repl-wrapper-source",
+      "source_family": "ReplCompatibilityWrapper",
+      "current_route": "LegacyRewrittenAst",
+      "canonical_candidate": false,
+      "source_unit_provenance_preserved": false,
+      "current_entry": "ReplRunner wrapper parse/rewrite",
+      "convergence_entry": "MirCompiler::compile_with_source",
+      "preflight_before_prepare_module": false,
+      "evidence": [
+        "src/runner/repl/repl_runner.rs#let rewritten_ast = ReplAstRewriter::rewrite(ast);",
+        "src/runner/repl/repl_runner.rs#.compile_with_source(rewritten_ast, Some(\"<repl>\"))"
+      ]
+    }
+  ],
+  "function_families": [
+    {
+      "id": "free-static-function",
+      "owner_kind": "FreeOrStaticFunction",
+      "source_container": "ProgramFunctionDeclaration",
+      "current_lowering_entry": "lower_static_method_as_function",
+      "exact_source_root_transport": false,
+      "requires_synthetic_wrapper": false,
+      "requires_receiver": false,
+      "requires_core_plan": false,
+      "may_contain_nested_owner": true,
+      "first_canonical_capability_order": 1,
+      "evidence": [
+        "src/mir/builder/module_lifecycle.rs#} else if let N::FunctionDeclaration {",
+        "src/mir/builder/module_lifecycle.rs#self.lower_static_method_as_function("
+      ]
+    },
+    {
+      "id": "static-box-method-app",
+      "owner_kind": "StaticBoxMethod",
+      "source_container": "DeferredStaticBoxMethodMapEntry",
+      "current_lowering_entry": "lower_static_method_as_function",
+      "exact_source_root_transport": false,
+      "requires_synthetic_wrapper": false,
+      "requires_receiver": false,
+      "requires_core_plan": false,
+      "may_contain_nested_owner": true,
+      "first_canonical_capability_order": 1,
+      "evidence": [
+        "src/mir/builder/module_lifecycle.rs#deferred_static_boxes.push((name.clone(), methods.clone()));",
+        "src/mir/builder/module_lifecycle.rs#for (name, methods) in deferred_static_boxes {"
+      ]
+    },
+    {
+      "id": "static-box-method-script",
+      "owner_kind": "StaticBoxMethod",
+      "source_container": "ScriptModeStaticBoxMethodMapEntry",
+      "current_lowering_entry": "lower_static_method_as_function",
+      "exact_source_root_transport": false,
+      "requires_synthetic_wrapper": false,
+      "requires_receiver": false,
+      "requires_core_plan": false,
+      "may_contain_nested_owner": true,
+      "first_canonical_capability_order": 1,
+      "evidence": [
+        "src/mir/builder/exprs.rs#for (method_name, method_ast) in sorted_method_entries(&methods) {",
+        "src/mir/builder/exprs.rs#self.lower_static_method_as_function("
+      ]
+    },
+    {
+      "id": "instance-constructor",
+      "owner_kind": "InstanceConstructor",
+      "source_container": "BoxConstructorMapEntry",
+      "current_lowering_entry": "lower_method_as_function",
+      "exact_source_root_transport": false,
+      "requires_synthetic_wrapper": false,
+      "requires_receiver": true,
+      "requires_core_plan": false,
+      "may_contain_nested_owner": true,
+      "first_canonical_capability_order": 2,
+      "evidence": [
+        "src/mir/builder/module_lifecycle.rs#for (ctor_key, ctor_ast) in sorted_constructor_entries(constructors) {",
+        "src/mir/builder/module_lifecycle.rs#self.lower_method_as_function("
+      ]
+    },
+    {
+      "id": "instance-method",
+      "owner_kind": "InstanceMethod",
+      "source_container": "BoxMethodMapEntry",
+      "current_lowering_entry": "lower_method_as_function",
+      "exact_source_root_transport": false,
+      "requires_synthetic_wrapper": false,
+      "requires_receiver": true,
+      "requires_core_plan": false,
+      "may_contain_nested_owner": true,
+      "first_canonical_capability_order": 2,
+      "evidence": [
+        "src/mir/builder/module_lifecycle.rs#if !*is_static {",
+        "src/mir/builder/module_lifecycle.rs#self.lower_method_as_function("
+      ]
+    },
+    {
+      "id": "script-runtime-root",
+      "owner_kind": "SyntheticScriptEntry",
+      "source_container": "ProgramRuntimeStatements",
+      "current_lowering_entry": "cf_block",
+      "exact_source_root_transport": false,
+      "requires_synthetic_wrapper": true,
+      "requires_receiver": false,
+      "requires_core_plan": true,
+      "may_contain_nested_owner": true,
+      "first_canonical_capability_order": 3,
+      "evidence": [
+        "src/mir/builder/module_lifecycle.rs#let runtime_statements: Vec<N> = statements",
+        "src/mir/builder/module_lifecycle.rs#self.cf_block(runtime_statements)"
+      ]
+    },
+    {
+      "id": "main-callable-optional",
+      "owner_kind": "StaticMainFunction",
+      "source_container": "MainMethodMapEntry",
+      "current_lowering_entry": "lower_static_method_as_function",
+      "exact_source_root_transport": false,
+      "requires_synthetic_wrapper": false,
+      "requires_receiver": false,
+      "requires_core_plan": false,
+      "may_contain_nested_owner": true,
+      "first_canonical_capability_order": 4,
+      "evidence": [
+        "src/mir/builder/decls.rs#if crate::config::env::builder_build_static_main_entry() {",
+        "src/mir/builder/decls.rs#let _ = self.lower_static_method_as_function("
+      ]
+    },
+    {
+      "id": "main-inline-wrapper",
+      "owner_kind": "SyntheticMainEntryInlineBody",
+      "source_container": "MainMethodBodyClone",
+      "current_lowering_entry": "build_static_main_box then cf_block",
+      "exact_source_root_transport": false,
+      "requires_synthetic_wrapper": true,
+      "requires_receiver": false,
+      "requires_core_plan": true,
+      "may_contain_nested_owner": true,
+      "first_canonical_capability_order": 4,
+      "evidence": [
+        "src/mir/builder/decls.rs#let saved_var_map = std::mem::take(&mut self.variable_ctx.variable_map);",
+        "src/mir/builder/decls.rs#let lowered = self.cf_block(body.clone());"
+      ]
+    },
+    {
+      "id": "lambda-closure-body",
+      "owner_kind": "LambdaChildOwner",
+      "source_container": "LambdaExpressionBody",
+      "current_lowering_entry": "build_lambda_expression then intern_closure_body",
+      "exact_source_root_transport": false,
+      "requires_synthetic_wrapper": false,
+      "requires_receiver": false,
+      "requires_core_plan": false,
+      "may_contain_nested_owner": true,
+      "first_canonical_capability_order": 5,
+      "evidence": [
+        "src/mir/builder/exprs.rs#ASTNode::Lambda { params, body, .. } => {",
+        "src/mir/builder/exprs_lambda.rs#let body_id = self.intern_closure_body(body.clone());"
+      ]
+    },
+    {
+      "id": "repl-submission-main",
+      "owner_kind": "ReplSyntheticMain",
+      "source_container": "RewrittenMainWrapper",
+      "current_lowering_entry": "build_static_main_box",
+      "exact_source_root_transport": false,
+      "requires_synthetic_wrapper": true,
+      "requires_receiver": false,
+      "requires_core_plan": true,
+      "may_contain_nested_owner": true,
+      "first_canonical_capability_order": 7,
+      "evidence": [
+        "src/runner/repl/repl_runner.rs#let code = format!(\"static box Main {{ main() {{ {} }} }}\", line);",
+        "src/runner/repl/repl_runner.rs#compiler.set_repl_mode(true);"
+      ]
+    }
+  ],
+  "body_route_seams": [
+    {
+      "id": "raw-body-suffix-router",
+      "current_input": "RawAstSlice",
+      "current_output": "ConsumedUsize",
+      "located_transport": false,
+      "planner_connection_allowed_in_b0_l2": false,
+      "evidence": [
+        "src/mir/builder/stmts/block_stmt.rs#let remaining = &statements[idx..];",
+        "src/mir/builder/control_flow/normalization/suffix_router_box.rs#) -> Result<Option<usize>, String> {"
+      ]
+    },
+    {
+      "id": "function-body-program-wrapper",
+      "current_input": "OwnedBodyVec",
+      "current_output": "SyntheticProgramAst",
+      "located_transport": false,
+      "planner_connection_allowed_in_b0_l2": false,
+      "evidence": [
+        "src/mir/builder/calls/function_lowering.rs#pub fn wrap_in_program(statements: Vec<ASTNode>) -> ASTNode",
+        "src/mir/builder/calls/lowering.rs#let program_ast = function_lowering::wrap_in_program(body);"
+      ]
+    }
+  ],
+  "atomic_activation_contract": {
+    "carrier_infrastructure_may_land_disconnected": true,
+    "first_production_canonical_owner_requires": [
+      "sealed_product_install",
+      "exact_source_site",
+      "resolved_binding_identity",
+      "resolved_variable_use",
+      "resolved_assignment_target",
+      "legacy_allocator_forbidden",
+      "source_coverage",
+      "function_transaction_cleanup"
+    ],
+    "forbidden_partial_states": [
+      "installed_product_plus_legacy_local_allocation",
+      "exact_site_plus_name_based_variable_use",
+      "legacy_parameter_plus_resolved_local",
+      "resolved_blockexpr_pair_plus_bare_ast_prelude_lowering",
+      "canonical_parent_plus_legacy_child_in_one_source_unit"
+    ]
+  },
+  "selected_next_slice": "B0-L2a-typed-source-unit-ingress"
+}

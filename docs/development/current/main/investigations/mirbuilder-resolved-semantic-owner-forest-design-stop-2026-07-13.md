@@ -1,5 +1,5 @@
 ---
-Status: P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S/B0-F closed; B0-C skipped; B0-L0 design stop is active
+Status: P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S/B0-F/B0-L0/B0-L1 closed; B0-C skipped; B0-L2a is active
 Date: 2026-07-13
 Scope: Resolved Semantic Owner Forest V1 design and implementation task order
 Parent: mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
@@ -1011,7 +1011,7 @@ resolved-region-flow-authority guard = green
 all changed source files < 800 lines
 ```
 
-**B0-L0 — canonical Lower ingress/site-carrier design stop (active)**
+**B0-L0 — canonical Lower ingress/site-carrier design stop (closed)**
 
 Worker inventory proves that B0-L cannot begin as a local BlockExpr edit:
 
@@ -1074,10 +1074,91 @@ resolved ScopeId consumer remains 0 during consultation
 heuristic scope lookup / fallback / retry remains 0
 ```
 
-Stop here for design consultation. Do not implement B0-L until this card names
-the complete atomic slice and the user accepts its source-authority boundary.
+Decision A′ is accepted:
 
-**B0-L — explicit Rust canonical Lower cutover (blocked by B0-L0)**
+```text
+B0-L1  ingress inventory
+B0-L2a typed source-unit ingress (activation zero)
+B0-L2b immutable FunctionSourceView / LocatedNode navigator (activation zero)
+B0-L2c closure-scoped function transaction (behavior preserving)
+SA3-B   first closed owner-family atomic identity activation
+B0-L3a straight-line BlockExpr resolved pair consumption
+B0-L3b/B0-L4/B0-L5 located control flow, CorePlan, Lambda child transport
+```
+
+`FunctionSourceViewV1` and located node values replace a mutable source cursor.
+Family activation is staged, but one source unit cannot mix canonical and
+legacy owners. `CanonicalFunctionLoweringSessionV1` owns explicit fallible
+cleanup. Carrier infrastructure may land disconnected; production activation
+must atomically include sealed identity, exact sites, legacy-allocation veto,
+coverage, cleanup, and publication.
+
+**B0-L1 — ingress inventory (closed)**
+
+The machine-readable inventory is:
+
+```text
+tools/checks/fixtures/resolved_lowering_ingress_inventory_v1.json
+module ingress rows = 5
+function family rows = 10
+raw body-route seam rows = 2
+production semantic activation = 0
+canonical Lower route = 0
+exact source-site transport = 0
+resolved ScopeId consumer = 0
+```
+
+It classifies free/static functions, app/script static methods, instance
+constructors/methods, script root, optional callable and inline Main, Lambda,
+REPL, ProgramV0 compatibility ingress, the raw suffix router, and the synthetic
+Program body wrapper. Every row carries live source evidence and a staged
+capability order. The existing Resolved Region Flow family guard invokes the
+inventory validator and mechanically selects B0-L2a.
+
+**B0-L2a — typed source-unit ingress (active)**
+
+Add only disconnected transport vocabulary above `MirBuilder`:
+
+```text
+VerifiedResolvedSourceUnitV1
+ResolvedModuleLoweringInputV1<'a>
+LegacyModuleLoweringInputV1
+MirLoweringRequestV1 (match once; never recurse)
+CanonicalLoweringErrorV1 capability/preflight vocabulary
+```
+
+Contract:
+
+1. `VerifiedResolvedSourceUnitV1` bundles the one immutable canonical syntax
+   owner and its sealed owner forest; it is not a rewritten/resolved AST.
+2. A resolved module input can only be derived from that verified bundle.
+   Bare AST, ProgramV0, and REPL compatibility remain explicit legacy inputs.
+3. Route selection belongs in `MirCompiler`, before `MirBuilder::prepare_module`.
+   B0-L2a adds the types and one-match boundary only; it adds no production
+   canonical caller and never invokes semantic resolution or Lower.
+4. The route enum is consumed immediately by distinct resolved/legacy methods.
+   It must not become an `Option`, boolean mode, or recursive Lower parameter.
+5. Unsupported canonical capability is typed and would fail before module,
+   entry block, FunctionRegion, resolver session, or Lower effects. There is no
+   legacy retry.
+6. B0-L2a does not yet define child navigation. That belongs exclusively to
+   B0-L2b `FunctionSourceViewV1` / located node vocabulary.
+
+Acceptance:
+
+```text
+types compile and remain constructor-bounded
+resolved input cannot be built from bare AST
+legacy input cannot carry a sealed forest
+request dispatch has one match site above MirBuilder
+production resolved request constructors/callers = 0
+prepare_module remains reachable only through the legacy implementation
+semantic product install / exact source-site transport / ScopeId consumer = 0
+Planner / RegionFlow / Recipe connection = 0
+all source files < 800 lines
+```
+
+**B0-L — explicit Rust canonical Lower cutover (ordered after B0-L2 and SA3-B)**
 
 ```text
 enter resolved BlockExpr ScopeId

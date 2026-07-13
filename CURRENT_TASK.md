@@ -37,9 +37,10 @@ sealed owner-local products under one verified single-root forest; strict
 ancestor reads/rebinds are exact structural observations. The schema-test
 bypass is gone and Facts/Planner/Recipe/Lower remain disconnected. Canonical
 BlockExpr is lexical and resolver-backed; ProgramV0 remains non-authoritative
-and unwidened. The active frontier is the B0-L0 canonical Lower ingress/
-site-carrier design stop named by `current_blocker_token`; capture mode/layout
-remain zero. Do not implement the cutover before that consultation closes.
+and unwidened. Decision A′ closes the B0-L0 consultation and B0-L1 ingress
+inventory. The active frontier is B0-L2a typed source-unit ingress with
+production semantic activation still zero, named by `current_blocker_token`;
+capture mode/layout remain zero.
 SA3 later performs the atomic canonical
 BindingId authority cutover, followed by exact RegionId target cutover and
 duplicate-owner retirement. Never let resolver and Lower allocate independent

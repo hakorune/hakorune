@@ -741,6 +741,8 @@ if ! rg -q 'pub\(super\) struct BindingId\(u32\)' \
   guard_fail "$TAG" "private ownership BindingId inventory drifted; reclassify before migration"
 fi
 
+python3 "$ROOT/tools/checks/lib/resolved_lowering_ingress_inventory.py" "$ROOT" "$ROOT/tools/checks/fixtures/resolved_lowering_ingress_inventory_v1.json"
+
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::block_expr_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::resolver_tests

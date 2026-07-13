@@ -1,6 +1,6 @@
 # Resolved Region Flow V1 — Taskboard
 
-Status: Owner Forest V1 through B0-F closed; B0-C skipped; B0-L0 design stop is active.
+Status: Owner Forest V1 through B0-L1 closed; B0-C skipped; B0-L2a is active.
 Date: 2026-07-13
 Decision: `function_semantic_resolver_v1_owner_scoped_arena` followed by
 `recursive_structured_region_flow`.
@@ -874,10 +874,11 @@ BlockExpr/sequence producer and proves `InternalSequenceRequired = 0`, so B0-C
 is mechanically skipped without adding compatibility vocabulary. B0-S closes
 the passive kind pair and B0-F installs the canonical lexical traversal,
 recursive exit rejection, and Lambda declaration-order proof. Worker inventory
-finds production semantic install and Lower source-site transport both zero,
-so B0-L0 now owns the typed ingress/site-carrier design stop while Planner/
-Lower behavior remains unchanged. Detailed task order and stop conditions
-remain in the active owner-forest card.
+found production semantic install and Lower source-site transport both zero.
+Decision A′ closes B0-L0, and B0-L1 fixes 5 module ingresses, 10 function
+families, and 2 raw body seams with activation zero. B0-L2a typed source-unit
+ingress is active while Planner/Lower behavior remains unchanged. Detailed
+task order and stop conditions remain in the active owner-forest card.
 
 Known production boundary mismatches must be resolved explicitly before B2:
 
