@@ -1,9 +1,9 @@
 ---
-Status: Active — A + A2′ accepted; B0-L4-S1 selected
+Status: Active — B0-L4-S1 closed; B0-L4-S2 selected
 Date: 2026-07-14
 Decision: new pre-Builder canonical Loop contract with inseparable generic coverage sidecar
 Work mode: Refactor Series Mode; one authority boundary, five code milestones
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-L4-S1-EXACT-LOOP-REGION-BUNDLE-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-L4-S2-GENERIC-LOCATED-COVERAGE-CARRIER-001
 Parent:
   - mirbuilder-b0-l4-located-coreplan-source-coverage-consultation-2026-07-14.md
 Related:
@@ -540,7 +540,7 @@ discards. Cleanup errors preserve the primary error.
 
 ## Implementation series
 
-### B0-L4-S1 — passive exact Loop bundle
+### B0-L4-S1 — passive exact Loop bundle — closed
 
 Files:
 
@@ -974,12 +974,12 @@ Do not fix or claim the defect from static inspection alone during B0-L4.
 
 ## Immediate next action
 
-Implement B0-L4-S1 only:
+Implement B0-L4-S2 only:
 
 ```text
-exact Loop pair index/query/count
-Loop-specific seal verification
-focused identity fixtures
-line-neutral reusable authority guard entry
-production activation delta = 0
+typed nonempty consumed source range
+FunctionSourceViewV1-owned suffix navigation
+generic structural coverage schema/verifier
+foreign/gap/overlap/duplicate fixtures
+Loop flow and production activation remain zero
 ```

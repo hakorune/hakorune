@@ -13,7 +13,7 @@ RESOLVED_LOWER="$ROOT/src/mir/builder/resolved_lowering"
 BLOCKEXPR_INVENTORY="$ROOT/tools/checks/fixtures/blockexpr_producer_inventory_v1.json"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 source "$ROOT/tools/checks/lib/resolved_blockexpr_lowering_contract.sh"
-source "$ROOT/tools/checks/lib/resolved_if_lowering_contract.sh"
+source "$ROOT/tools/checks/lib/resolved_control_lowering_contract.sh"
 guard_require_command "$TAG" cargo
 guard_require_command "$TAG" find
 guard_require_command "$TAG" python3
@@ -67,8 +67,7 @@ expected_manifest="$(printf '%s\n' \
   block_expr_tests.rs \
   function_root.rs function_root_tests.rs \
   function_view.rs \
-  ids.rs \
-  if_region.rs if_region_tests.rs \
+  ids.rs if_region.rs if_region_tests.rs loop_region.rs loop_region_tests.rs \
   mod.rs \
   normalized.rs \
   owner_forest.rs \
@@ -725,7 +724,7 @@ done <<< "$consumer_output"
 guard_expect_fixed_in_file "$TAG" "legacy_allocation_forbidden" "$LOWER_STATE" \
   "SA3-B legacy BindingId allocator veto missing"
 guard_resolved_blockexpr_lowering_contract "$TAG" "$ROOT"
-guard_resolved_if_lowering_contract "$TAG" "$ROOT"
+guard_resolved_control_lowering_contract "$TAG" "$ROOT"
 
 while IFS= read -r file; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"

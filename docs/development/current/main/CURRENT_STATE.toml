@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "B0-L4 A + A2′ accepted; S1 passive exact Loop region bundle is active"
+status = "B0-L4-S1 exact Loop region bundle is closed; S2 generic located coverage carrier is active"
 date = "2026-07-14"
 
 active_lane = "MIRBUILDER Hako SourceBodyAnalysisSnapshotV1"
@@ -132,8 +132,9 @@ Durable RegionId-to-block publication remains zero until SA4. B0-L4 accepts
 A + A2′: one new ID-free pre-Builder canonical Loop contract, reusable generic
 coverage co-sealed in an inseparable Loop wrapper, disconnected S1/S2/S3 then
 I1 and atomic I2, condition-false-only V1, and transaction-local role blocks.
-The active slice is S1 passive exact Loop bundle with zero RegionFlow/Builder/
-Lower/runtime activation.
+S1 is closed with one private seal-derived exact Loop/LoopBody pair index,
+self-relative query, full record accounting, and zero RegionFlow/Builder/Lower/
+runtime activation. The active slice is S2 generic located coverage carrier.
 Historical owner-forest context follows. Resolved Semantic Owner Forest V1
 accepts A-double-prime `sealed_owner_forest_with_structural_upvar_edges`. One recursive forest
 resolver session reuses the existing function-owner issuer, builds owner-local
@@ -199,8 +200,9 @@ statement-If runtime. B0-L4-P0 closes the bounded production-seam inventory:
 canonical located Lower, the dev-only raw suffix normalization route, and the
 legacy Builder-time CorePlan route are three distinct paths. Current CorePlan
 already owns ValueId/BasicBlockId/PHI/name-keyed state and cannot be the first
-pre-Builder source authority. The B0-L4 consultation accepts A + A2′. S1 now
-adds only a seal-derived exact Loop/LoopBody pair query and verifier; generic
+pre-Builder source authority. The B0-L4 consultation accepts A + A2′. S1
+closes a seal-derived exact Loop/LoopBody pair query, reciprocal verifier,
+focused identity fixtures, and reusable line-neutral authority guard. Generic
 coverage, Loop flow, materialization, and production activation remain later
 separately gated slices.
 Historical decision follows.
@@ -474,7 +476,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-L4-S1-EXACT-LOOP-REGION-BUNDLE-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-L4-S2-GENERIC-LOCATED-COVERAGE-CARRIER-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -483,6 +485,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-14: B0-L4-S1 closes one private seal-derived exact Loop/LoopBody pair index with self-relative point lookup, exact origin/parent/reciprocal validation, full LoopBody record accounting, nine focused fixtures, and zero RegionFlow/Builder/Lower/runtime activation.",
   "2026-07-14: B0-L4 accepts A + A2′: a new ID-free canonical Loop flow, reusable coverage sidecar inseparably co-sealed with each Loop row, disconnected S1/S2/S3 then I1 and atomic I2, condition-false-only V1, and transaction-local role blocks until SA4.",
   "2026-07-14: B0-L3b-I1b closes atomic canonical fallthrough statement-If activation with one pre-Builder flow analysis, source-preorder exact coverage, shared post-condition branch baseline, sealed join-source PHIs, six VM/reference fixtures, and zero durable RegionId materialization.",
   "2026-07-14: B0-L3b-I1a closes seal-derived function/body roots, separate RegionId/ScopeId stacks, join-domain-only branch transactions, exact conditional predecessors, final PHIs before one batch publication, and zero production If activation.",
@@ -494,5 +497,4 @@ landed_tail = [
   "2026-07-13: B0-L2b closes immutable exact source navigation with shared SourcePathV1 grammar, a sealed syntax/forest projection, unforgeable located carriers, exact nested BlockExpr/Lambda navigation, and zero Builder/Planner consumers or production activation.",
   "2026-07-13: B0-L2a closes constructor-bounded typed resolved/legacy compiler ingress, one pre-Builder request match, explicit ProgramV0/REPL legacy provenance, typed canonical stop, and zero production resolved callers or semantic activation.",
   "2026-07-12: LocalContractWrite exact-i64 Fact bridge closes with canonical contract-id/fresh-identity matching, dst-only publication, Copy/same-slot PHI propagation, and the existing MapStore inventory guard.",
-  "2026-07-12: MapStoreI64 source-backed key witness reuses ExactNumericValueFact for exact i64 only; dynamic I64Value remains derived and route selection is unchanged.",
 ]

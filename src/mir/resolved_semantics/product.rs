@@ -7,6 +7,7 @@ use hakorune_mir_core::BindingId;
 use super::function_root::ResolvedFunctionLoweringRootsV1;
 use super::ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
 use super::if_region::ResolvedIfRegionIndexV1;
+use super::loop_region::ResolvedLoopRegionIndexV1;
 use super::normalized::{build_normalized_graph, NormalizedResolvedFunctionGraphV1};
 use super::records::{
     RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1, ResolvedBindingRecordV1,
@@ -47,6 +48,7 @@ pub struct VerifiedResolvedFunctionV1 {
     normalized: NormalizedResolvedFunctionGraphV1,
     lowering_roots: ResolvedFunctionLoweringRootsV1,
     pub(super) if_regions: ResolvedIfRegionIndexV1,
+    pub(super) loop_regions: ResolvedLoopRegionIndexV1,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -87,6 +89,7 @@ impl ResolvedFunctionDraftV1 {
             normalized,
             lowering_roots: derived.lowering_roots,
             if_regions: derived.if_regions,
+            loop_regions: derived.loop_regions,
         })
     }
 }

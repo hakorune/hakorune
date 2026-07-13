@@ -118,6 +118,26 @@ S1 proves arena topology only. Matching `else=None` versus
 Builder, Lower, ValueId, BasicBlockId, branch effects, ports, join contracts,
 and canonical If runtime activation remain disconnected.
 
+## B0-L4-S1 exact Loop identity bundle
+
+S1 derives one private ID-only Loop index while sealing
+`VerifiedResolvedFunctionV1`. Each exact self-relative Loop statement site
+maps to one reciprocal `Loop` region / `LoopBody` scope pair. The Loop region
+is a child of the exact surrounding region; its scope is a child of the exact
+surrounding lexical scope. The region origin is the Loop statement site and
+the scope origin is its `LoopBodyRoot` child.
+
+The authoritative records remain the owner-scoped scope and region arenas.
+The private index is a rebuildable seal witness and exists neither in mutable
+drafts nor in `ResolvedFunctionDataV1`. Consumers use
+`loop_region_bundle(site)` and may not rescan the arenas. Because
+`SourceStmtSiteV1` is relative to one function root, cross-owner
+source/product closure remains a later RegionFlow obligation.
+
+S1 proves identity topology only. Located source coverage, carrier effects,
+ports, ValueId, BasicBlockId, PHI policy, Builder/Lower connections, and
+canonical Loop runtime activation remain disconnected.
+
 ## B0-L3b-I1a exact lowering roots
 
 The verified product owns one seal-derived ID-only lowering-root carrier. It

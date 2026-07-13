@@ -12,6 +12,10 @@ use super::ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
 use super::if_region::{
     build_verified_if_region_index_v1, ResolvedIfRegionIndexV1, ResolvedIfRegionVerificationErrorV1,
 };
+use super::loop_region::{
+    build_verified_loop_region_index_v1, ResolvedLoopRegionIndexV1,
+    ResolvedLoopRegionVerificationErrorV1,
+};
 use super::normalized::{NormalizedBindingKeyV1, NormalizedRegionKeyV1, NormalizedScopeKeyV1};
 use super::product::ResolvedFunctionDataV1;
 use super::records::{
@@ -25,6 +29,7 @@ use super::source_site::{
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ResolvedFunctionVerificationErrorV1 {
     IfRegion(ResolvedIfRegionVerificationErrorV1),
+    LoopRegion(ResolvedLoopRegionVerificationErrorV1),
     FunctionRoot(ResolvedFunctionRootVerificationErrorV1),
     ForeignScopeId(ScopeId),
     ForeignRegionId(RegionId),
@@ -72,6 +77,7 @@ pub enum ResolvedFunctionVerificationErrorV1 {
 
 pub(super) struct ResolvedFunctionDerivedArtifactsV1 {
     pub(super) if_regions: ResolvedIfRegionIndexV1,
+    pub(super) loop_regions: ResolvedLoopRegionIndexV1,
     pub(super) lowering_roots: ResolvedFunctionLoweringRootsV1,
 }
 
@@ -92,8 +98,11 @@ pub(super) fn verify_resolved_function(
         .map_err(ResolvedFunctionVerificationErrorV1::FunctionRoot)?;
     let if_regions = build_verified_if_region_index_v1(data)
         .map_err(ResolvedFunctionVerificationErrorV1::IfRegion)?;
+    let loop_regions = build_verified_loop_region_index_v1(data)
+        .map_err(ResolvedFunctionVerificationErrorV1::LoopRegion)?;
     Ok(ResolvedFunctionDerivedArtifactsV1 {
         if_regions,
+        loop_regions,
         lowering_roots,
     })
 }
