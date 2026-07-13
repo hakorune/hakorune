@@ -5,6 +5,9 @@ use std::collections::{BTreeMap, BTreeSet};
 use hakorune_mir_core::BindingId;
 
 use super::ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
+use super::if_region::{
+    build_verified_if_region_index_v1, ResolvedIfRegionIndexV1, ResolvedIfRegionVerificationErrorV1,
+};
 use super::normalized::{NormalizedBindingKeyV1, NormalizedRegionKeyV1, NormalizedScopeKeyV1};
 use super::product::ResolvedFunctionDataV1;
 use super::records::{
@@ -17,6 +20,7 @@ use super::source_site::{
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ResolvedFunctionVerificationErrorV1 {
+    IfRegion(ResolvedIfRegionVerificationErrorV1),
     ForeignScopeId(ScopeId),
     ForeignRegionId(RegionId),
     MissingFunctionScope(ScopeId),
@@ -63,7 +67,7 @@ pub enum ResolvedFunctionVerificationErrorV1 {
 
 pub(super) fn verify_resolved_function(
     data: &ResolvedFunctionDataV1,
-) -> Result<(), ResolvedFunctionVerificationErrorV1> {
+) -> Result<ResolvedIfRegionIndexV1, ResolvedFunctionVerificationErrorV1> {
     verify_owner_and_roots(data)?;
     verify_scope_graph(data)?;
     verify_region_graph(data)?;
@@ -74,7 +78,7 @@ pub(super) fn verify_resolved_function(
     verify_kind_origin_contracts(data)?;
     verify_normalized_key_uniqueness(data)?;
     verify_control_targets(data)?;
-    Ok(())
+    build_verified_if_region_index_v1(data).map_err(ResolvedFunctionVerificationErrorV1::IfRegion)
 }
 
 fn verify_blockexpr_scope_region_contract(

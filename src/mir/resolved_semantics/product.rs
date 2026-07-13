@@ -5,6 +5,7 @@ use std::collections::BTreeMap;
 use hakorune_mir_core::BindingId;
 
 use super::ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
+use super::if_region::ResolvedIfRegionIndexV1;
 use super::normalized::{build_normalized_graph, NormalizedResolvedFunctionGraphV1};
 use super::records::{
     RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1, ResolvedBindingRecordV1,
@@ -43,6 +44,7 @@ pub(crate) struct ResolvedFunctionDraftV1 {
 pub struct VerifiedResolvedFunctionV1 {
     data: ResolvedFunctionDataV1,
     normalized: NormalizedResolvedFunctionGraphV1,
+    pub(super) if_regions: ResolvedIfRegionIndexV1,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -52,6 +54,10 @@ pub(crate) struct ResolvedScopeRegionPairV1 {
 }
 
 impl ResolvedScopeRegionPairV1 {
+    pub(super) const fn from_verified(scope: ScopeId, region: RegionId) -> Self {
+        Self { scope, region }
+    }
+
     pub(crate) const fn scope(self) -> ScopeId {
         self.scope
     }
@@ -72,11 +78,12 @@ impl ResolvedFunctionDraftV1 {
     pub(crate) fn seal(
         self,
     ) -> Result<VerifiedResolvedFunctionV1, ResolvedFunctionVerificationErrorV1> {
-        verify_resolved_function(&self.data)?;
+        let if_regions = verify_resolved_function(&self.data)?;
         let normalized = build_normalized_graph(&self.data);
         Ok(VerifiedResolvedFunctionV1 {
             data: self.data,
             normalized,
+            if_regions,
         })
     }
 }

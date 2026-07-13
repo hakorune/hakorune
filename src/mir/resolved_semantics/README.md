@@ -96,6 +96,28 @@ RegionFlow, ProgramV0, and compatibility fallback remain disconnected.
 B0-L3a is the first bounded Lower consumer: it queries the sealed BlockExpr
 pair by exact expression site and does not change resolver ownership.
 
+## B0-L3b-S1 exact If identity bundle
+
+S1 derives one private ID-only index while sealing
+`VerifiedResolvedFunctionV1`. Each exact self-relative statement site maps to
+one `If` control RegionId, one required reciprocal `IfThen` scope/region pair,
+and zero or one reciprocal `IfElse` pair. The control has no lexical scope;
+each branch region is a child of the control and each branch scope is a child
+of the surrounding lexical scope.
+
+The authoritative records remain the owner-scoped scope and region arenas.
+The private index is a rebuildable seal witness and exists neither in mutable
+drafts nor in `ResolvedFunctionDataV1`. Consumers use
+`if_region_bundle(site)`; they may not rescan the arenas. Because
+`SourceStmtSiteV1` is relative to one function root, this query means “site
+inside this verified product.” S2 will prove the cross-owner source/product
+closure before RegionFlow consumes it.
+
+S1 proves arena topology only. Matching `else=None` versus
+`else=Some(empty)` to located syntax remains an S2 obligation. RegionFlow,
+Builder, Lower, ValueId, BasicBlockId, branch effects, ports, join contracts,
+and canonical If runtime activation remain disconnected.
+
 ## B0-L2b shared source-path boundary
 
 `SourcePathSegmentV1` remains the only path grammar. B0-L2b promotes its small

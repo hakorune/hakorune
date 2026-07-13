@@ -1,5 +1,5 @@
 ---
-Status: P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S/B0-F/B0-L0/B0-L1/B0-L2a/B0-L2b/B0-L2c/SA3-B/B0-L3a closed; B0-C skipped; B0-L3b A+ accepted; S1 is active
+Status: P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S/B0-F/B0-L0/B0-L1/B0-L2a/B0-L2b/B0-L2c/SA3-B/B0-L3a/B0-L3b-S1 closed; B0-C skipped; S2 is active
 Date: 2026-07-13
 Scope: Resolved Semantic Owner Forest V1 design and implementation task order
 Parent: mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
@@ -1538,7 +1538,7 @@ resolved_region_flow_authority_guard = green
 canonical BlockExpr Lower connection = 1
 Planner / RegionFlow / If / Loop / Lambda connections = 0
 all guarded Rust source files < 800 lines
-selected next slice = B0-L3b-S1 exact If region bundle
+selected next slice = B0-L3b-S2 verified function If flow
 ```
 
 B0-L3b inventory found that exact If source carriers and sealed passive

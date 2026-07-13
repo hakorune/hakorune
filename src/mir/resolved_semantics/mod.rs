@@ -8,6 +8,7 @@
 
 mod function_view;
 mod ids;
+mod if_region;
 mod normalized;
 mod owner_forest;
 mod owner_resolver;
@@ -20,6 +21,8 @@ mod verifier;
 
 pub(crate) use function_view::FunctionSyntaxViewV1;
 pub use ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId, UpvarRefV1};
+pub use if_region::ResolvedIfRegionVerificationErrorV1;
+pub(crate) use if_region::{ResolvedIfRegionBundleV1, ResolvedIfRegionLookupErrorV1};
 pub use normalized::{
     NormalizedAssignmentTargetV1, NormalizedAssignmentV1, NormalizedBindingKeyV1,
     NormalizedBindingRecordV1, NormalizedControlTransferV1, NormalizedDeclarationV1,
@@ -52,6 +55,8 @@ pub use verifier::ResolvedFunctionVerificationErrorV1;
 
 #[cfg(test)]
 mod block_expr_tests;
+#[cfg(test)]
+mod if_region_tests;
 #[cfg(test)]
 mod owner_forest_tests;
 #[cfg(test)]

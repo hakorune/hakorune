@@ -1,5 +1,5 @@
 ---
-Status: Active — S1 exact If region bundle
+Status: Active — S1 closed; S2 verified function If flow
 Date: 2026-07-13
 Decision: A+ pre-Builder verified flow contract
 Work mode: Refactor Series Mode; one purpose, five green commits
@@ -346,7 +346,7 @@ primary error rather than replacing it.
 
 ```text
 consultation = Accepted A+
-current blocker = S1 exact If region bundle
+decision-time blocker = S1 exact If region bundle
 production If activation = 0
 code delta = 0
 ```
@@ -407,6 +407,33 @@ cargo test -q --lib mir::resolved_semantics::if_region_tests
 bash tools/checks/resolved_region_flow_authority_guard.sh
 tools/checks/dev_gate.sh quick
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+S1 closed on 2026-07-13. The sealed product now owns one private,
+rebuildable, ID-only index from each self-relative statement site to its exact
+If control, required IfThen pair, and optional IfElse pair. The seal rejects
+wrong control scope/parent, derived branch origin, branch parent/scope parent,
+broken reciprocity, duplicate topology, and orphan branch records before
+publication.
+
+Closeout evidence:
+
+```text
+focused exact If fixtures = 10 green
+same-Span site distinction = verified
+implicit versus explicit-empty else arena topology = verified
+nested exact bundle independence = verified
+private verified-product index = 1
+draft/data index fields = 0
+production query callers = 0
+source optional-else totality = deferred to S2
+RegionFlow / Builder / Lower connection = 0
+canonical If runtime activation = 0
+resolved_region_flow_authority_guard = green
+dev_gate quick = PASS 66/66
+top authority guard lines = 794
+all Rust source files < 800 lines
+selected next slice = B0-L3b-S2 verified function If flow
 ```
 
 ### 3. S2 — verified function If flow
