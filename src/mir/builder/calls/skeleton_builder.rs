@@ -15,7 +15,7 @@ use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
 
 impl MirBuilder {
     /// 🎯 箱理論: Step 2 - 関数スケルトン作成
-    pub(super) fn create_function_skeleton(
+    pub(in crate::mir::builder) fn create_function_skeleton(
         &mut self,
         func_name: String,
         params: &[String],

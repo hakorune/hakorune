@@ -2,7 +2,7 @@
 //!
 //! B0-L2b seals canonical syntax, the semantic owner forest, and immutable
 //! exact-source projection into one disconnected transport bundle. The bundle
-//! has no production constructor until atomic SA3-B activation.
+//! is constructed atomically from one owned syntax root at SA3-B.
 
 use std::fmt;
 
@@ -21,9 +21,8 @@ struct ResolvedSourceUnitSealV1;
 
 /// Immutable canonical syntax bundled with the forest sealed for that syntax.
 ///
-/// There is deliberately no production constructor before atomic SA3-B.
-/// Focused B0-L2b tests construct syntax, forest, and source projection in one
-/// factory so independently supplied products cannot be paired accidentally.
+/// Syntax, forest, and projection cannot be supplied independently. The sole
+/// production constructor resolves and seals all three from the same owned AST.
 #[derive(Debug)]
 pub struct VerifiedResolvedSourceUnitV1 {
     syntax: CanonicalSyntaxOwnerV1,
@@ -33,6 +32,41 @@ pub struct VerifiedResolvedSourceUnitV1 {
 }
 
 impl VerifiedResolvedSourceUnitV1 {
+    /// Resolve one canonical function source unit without exposing a seam for
+    /// pairing foreign syntax and semantic products.
+    pub fn resolve_function(root: ASTNode) -> Result<Self, CanonicalLoweringErrorV1> {
+        use crate::mir::resolved_semantics::{
+            FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1,
+        };
+
+        let view = FunctionSyntaxViewV1::from_ast(&root).ok_or_else(|| {
+            CanonicalLoweringErrorV1::SourceUnitResolution {
+                detail: "root_is_not_function_declaration".to_string(),
+            }
+        })?;
+        let mut session = FunctionSemanticResolverSessionV1::new(0).map_err(|error| {
+            CanonicalLoweringErrorV1::SourceUnitResolution {
+                detail: format!("{error:?}"),
+            }
+        })?;
+        let forest = session.resolve_forest(view).map_err(|error| {
+            CanonicalLoweringErrorV1::SourceUnitResolution {
+                detail: format!("{error:?}"),
+            }
+        })?;
+        let projection = VerifiedSourceProjectionV1::seal(&root, &forest).map_err(|error| {
+            CanonicalLoweringErrorV1::SourceNavigation {
+                detail: error.to_string(),
+            }
+        })?;
+        Ok(Self {
+            syntax: CanonicalSyntaxOwnerV1 { root },
+            forest,
+            projection,
+            _seal: ResolvedSourceUnitSealV1,
+        })
+    }
+
     pub(crate) fn syntax_root(&self) -> &ASTNode {
         &self.syntax.root
     }
@@ -119,6 +153,20 @@ pub enum CanonicalLoweringErrorV1 {
     UnsupportedCanonicalControlRoute,
     MissingCorePlanSiteCarrier,
     MissingLambdaOwnerTransport,
+    SourceUnitResolution {
+        detail: String,
+    },
+    SourceNavigation {
+        detail: String,
+    },
+    UnsupportedFirstFamilyShape {
+        site: String,
+        actual: &'static str,
+        reason: &'static str,
+    },
+    BuilderContract {
+        detail: String,
+    },
 }
 
 impl fmt::Display for CanonicalLoweringErrorV1 {
@@ -146,6 +194,26 @@ impl fmt::Display for CanonicalLoweringErrorV1 {
             ),
             Self::MissingLambdaOwnerTransport => formatter.write_str(
                 "[freeze:contract][canonical_lowering/missing_lambda_owner_transport]",
+            ),
+            Self::SourceUnitResolution { detail } => write!(
+                formatter,
+                "[freeze:contract][canonical_lowering/source_unit_resolution] detail={detail}"
+            ),
+            Self::SourceNavigation { detail } => write!(
+                formatter,
+                "[freeze:contract][canonical_lowering/source_navigation] detail={detail}"
+            ),
+            Self::UnsupportedFirstFamilyShape {
+                site,
+                actual,
+                reason,
+            } => write!(
+                formatter,
+                "[freeze:contract][canonical_lowering/unsupported_first_family_shape] site={site} actual={actual} reason={reason}"
+            ),
+            Self::BuilderContract { detail } => write!(
+                formatter,
+                "[freeze:contract][canonical_lowering/builder_contract] detail={detail}"
             ),
         }
     }
@@ -186,19 +254,7 @@ impl MirLoweringRequestErrorV1 {
 
 #[cfg(test)]
 pub(super) fn verified_source_unit_for_test(root: ASTNode) -> VerifiedResolvedSourceUnitV1 {
-    use crate::mir::resolved_semantics::{FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1};
-
-    let forest = FunctionSemanticResolverSessionV1::new(0)
-        .unwrap()
-        .resolve_forest(FunctionSyntaxViewV1::from_ast(&root).unwrap())
-        .unwrap();
-    let projection = VerifiedSourceProjectionV1::seal(&root, &forest).unwrap();
-    VerifiedResolvedSourceUnitV1 {
-        syntax: CanonicalSyntaxOwnerV1 { root },
-        forest,
-        projection,
-        _seal: ResolvedSourceUnitSealV1,
-    }
+    VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap()
 }
 
 #[cfg(test)]
@@ -262,19 +318,46 @@ mod tests {
     }
 
     #[test]
-    fn resolved_entry_stops_before_builder_effects() {
+    fn resolved_entry_activates_only_the_closed_first_family() {
         let root = function();
         let unit = verified_source_unit_for_test(root);
         let mut compiler = crate::mir::MirCompiler::with_options(false);
 
-        let error = compiler
+        let result = compiler
             .compile_resolved(unit.lowering_input(), Some("fixture.hako"))
+            .unwrap();
+
+        assert!(result.module.functions.contains_key("fixture/0"));
+        assert!(compiler.builder.current_module.is_none());
+    }
+
+    #[test]
+    fn unsupported_shape_fails_before_builder_effects_without_legacy_retry() {
+        let mut root = function();
+        let ASTNode::FunctionDeclaration { body, .. } = &mut root else {
+            unreachable!()
+        };
+        body.push(ASTNode::If {
+            condition: Box::new(ASTNode::Literal {
+                value: LiteralValue::Bool(true),
+                span: Span::unknown(),
+            }),
+            then_body: Vec::new(),
+            else_body: None,
+            span: Span::unknown(),
+        });
+        let unit = verified_source_unit_for_test(root);
+        let mut compiler = crate::mir::MirCompiler::with_options(false);
+
+        let error = compiler
+            .compile_resolved(unit.lowering_input(), Some("unsupported.hako"))
             .unwrap_err();
 
-        assert_eq!(
+        assert!(matches!(
             error,
-            CanonicalLoweringErrorV1::CapabilityNotActivated { boundary: "B0-L2a" }
-        );
+            CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape { .. }
+        ));
         assert!(compiler.builder.current_module.is_none());
+        assert_eq!(compiler.builder.core_ctx.next_binding_id, 0);
     }
 }

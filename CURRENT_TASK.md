@@ -35,17 +35,19 @@ control ancestry uses RegionId parentage plus exact source containment, and
 normalized parity ignores arena ordering. Lambda children own independent
 sealed owner-local products under one verified single-root forest; strict
 ancestor reads/rebinds are exact structural observations. The schema-test
-bypass is gone and Facts/Planner/Recipe/Lower remain disconnected. Canonical
-BlockExpr is lexical and resolver-backed; ProgramV0 remains non-authoritative
-and unwidened. Decision A′ closes B0-L0/B0-L1/B0-L2a/B0-L2b/B0-L2c: typed
-ingress, immutable exact source navigation, and the closure-scoped function
-transaction are sealed while production resolved callers and semantic
-activation remain zero. The active frontier is atomic SA3-B for the first
-closed non-main static/free straight-line family, named by
-`current_blocker_token`; capture mode/layout remain zero.
-SA3 later performs the atomic canonical
-BindingId authority cutover, followed by exact RegionId target cutover and
-duplicate-owner retirement. Never let resolver and Lower allocate independent
-BindingIds for the same declaration. R1 ResolvedRegionView starts only after
-SA5. R9 legacy loop_var retirement remains Epic completion. Keep every source
-file below 800 lines.
+bypass is gone and Facts/Planner/Recipe/RegionFlow remain disconnected.
+Canonical Lower is limited to one closed owner family; canonical BlockExpr is
+lexical and resolver-backed but not yet lowered. ProgramV0 remains
+non-authoritative and unwidened. Decision A′ closes
+B0-L0/B0-L1/B0-L2a/B0-L2b/B0-L2c and the
+atomic SA3-B first family. One explicit resolved route now lowers a preflighted
+non-main static/free straight-line owner with exact BindingRef authority,
+legacy allocator veto, and coverage-before-publication. The default source
+route is still legacy. The active frontier is B0-L3a straight-line BlockExpr
+ScopeId/RegionId consumption, named by `current_blocker_token`; If/Loop/
+CorePlan/Lambda and capture mode/layout remain zero. The first SA3-B owner
+cutover is complete; later families, exact RegionId target cutover, and
+duplicate-owner retirement remain bounded follow-ups. Never let resolver and
+Lower allocate independent BindingIds for the same declaration. R1
+ResolvedRegionView starts only after SA5. R9 legacy loop_var retirement remains
+Epic completion. Keep every source file below 800 lines.

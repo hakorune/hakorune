@@ -1,8 +1,8 @@
 //! Closure-scoped transaction for one function lowering lifecycle.
 //!
-//! B0-L2c uses the current legacy body Lower only. The session establishes the
-//! cleanup/publication order required by future canonical lowering without
-//! installing resolved semantics or changing BindingId authority.
+//! B0-L2c established this transaction without changing behavior. SA3-B now
+//! reuses it through a distinct resolved entry whose successful close requires
+//! installed and completed canonical BindingId authority.
 
 use std::fmt;
 
@@ -35,25 +35,37 @@ impl fmt::Display for FunctionSessionCleanupErrorV1 {
 
 /// Owns the caller snapshot until one Lower result is explicitly closed.
 ///
-/// The canonical name is intentional: SA3-B will install resolved identity at
-/// this boundary. B0-L2c keeps the source view and semantic product absent.
+/// Legacy and resolved entries share cleanup mechanics, but the captured mode
+/// fixes whether resolved authority must be absent or completed at success.
 pub(super) struct CanonicalFunctionLoweringSessionV1<'builder> {
     builder: &'builder mut MirBuilder,
     context: Option<LoweringContext>,
+    requires_resolved_authority: bool,
     closed: bool,
+}
+
+enum FunctionBodyCaptureV1 {
+    Legacy(Vec<ASTNode>),
+    CanonicalClosedFamily,
 }
 
 impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
     fn open(
         builder: &'builder mut MirBuilder,
         function_name: &str,
-        body_snapshot: Vec<ASTNode>,
+        body_capture: FunctionBodyCaptureV1,
     ) -> Self {
+        let requires_resolved_authority =
+            matches!(&body_capture, FunctionBodyCaptureV1::CanonicalClosedFamily);
         let context = builder.prepare_lowering_context(function_name);
-        builder.comp_ctx.fn_body_ast = Some(body_snapshot);
+        builder.comp_ctx.fn_body_ast = match body_capture {
+            FunctionBodyCaptureV1::Legacy(body) => Some(body),
+            FunctionBodyCaptureV1::CanonicalClosedFamily => None,
+        };
         Self {
             builder,
             context: Some(context),
+            requires_resolved_authority,
             closed: false,
         }
     }
@@ -143,6 +155,13 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
             if !self.builder.scope_ctx.fastmem_region_stack.is_empty() {
                 imbalances.push("fastmem_region_stack");
             }
+            if !self
+                .builder
+                .resolved_binding_state
+                .session_success_is_closed(self.requires_resolved_authority)
+            {
+                imbalances.push("resolved_binding_authority");
+            }
         }
 
         if imbalances.is_empty() {
@@ -179,6 +198,24 @@ impl MirBuilder {
         body_snapshot: Vec<ASTNode>,
         operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
     ) -> Result<(), String> {
-        CanonicalFunctionLoweringSessionV1::open(self, function_name, body_snapshot).run(operation)
+        CanonicalFunctionLoweringSessionV1::open(
+            self,
+            function_name,
+            FunctionBodyCaptureV1::Legacy(body_snapshot),
+        )
+        .run(operation)
+    }
+
+    pub(in crate::mir::builder) fn with_resolved_function_lowering_session(
+        &mut self,
+        function_name: &str,
+        operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
+    ) -> Result<(), String> {
+        CanonicalFunctionLoweringSessionV1::open(
+            self,
+            function_name,
+            FunctionBodyCaptureV1::CanonicalClosedFamily,
+        )
+        .run(operation)
     }
 }

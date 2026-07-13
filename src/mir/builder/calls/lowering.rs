@@ -183,7 +183,7 @@ impl MirBuilder {
     /// - 型推論（return 型が不明な場合）
     /// - session へ未公開 `MirFunction` draft を返す
     #[allow(deprecated)]
-    pub(super) fn finalize_function_draft(
+    pub(in crate::mir::builder) fn finalize_function_draft(
         &mut self,
         returns_value: bool,
     ) -> Result<MirFunction, String> {

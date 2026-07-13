@@ -112,8 +112,17 @@ reach into route-specific plan internals. The current boundary SSOT is
     must not pair prepare/restore manually or pop FunctionRegion state.
   - error paths and panic unwinding restore the caller and publish no partial
     function. Explicit cleanup reports imbalances; Drop is only the panic
-    backstop. B0-L2c does not consume resolved source views or change BindingId
-    authority.
+    backstop. B0-L2c itself is behavior-preserving; SA3-B reuses the same
+    transaction through a separate resolved entry.
+- resolved function lowering
+  - `src/mir/builder/resolved_lowering/README.md` defines the first closed
+    canonical family.
+  - recursive lowering consumes exact located carriers and owns a
+    `BindingRefV1 -> ValueId` environment. It never calls legacy AST dispatch
+    for declaration, variable use, or assignment.
+  - `vars/resolved_binding_state.rs` is only the structural veto gate for the
+    legacy BindingId allocator; exact identity and coverage live under
+    `resolved_lowering/`.
 - field/property receiver facts
   - `src/mir/builder/field_facts.rs` (observation only; no receiver AST re-lowering)
   - `src/mir/builder/fields.rs`

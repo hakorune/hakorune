@@ -1,5 +1,5 @@
 ---
-Status: P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S/B0-F/B0-L0/B0-L1/B0-L2a/B0-L2b/B0-L2c closed; B0-C skipped; SA3-B first canonical family is active
+Status: P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S/B0-F/B0-L0/B0-L1/B0-L2a/B0-L2b/B0-L2c/SA3-B closed; B0-C skipped; B0-L3a is active
 Date: 2026-07-13
 Scope: Resolved Semantic Owner Forest V1 design and implementation task order
 Parent: mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
@@ -1337,7 +1337,7 @@ stack, recursion/re-entry guards, and the existing binding/scope/SSA/cleanup
 state. Error paths discard the partial function; success also remains
 unpublished until cleanup is verified.
 
-**SA3-B — first closed canonical BindingId authority family (active)**
+**SA3-B — first closed canonical BindingId authority family (closed)**
 
 This is one atomic authority cutover, not a partial transport experiment. The
 first capability is exactly one non-main static/free function source unit with
@@ -1397,6 +1397,52 @@ product/site, calls the legacy allocator after install, recovers a site by
 name/Span/pointer/order, mixes canonical and legacy owners in one source unit,
 or discovers unsupported capability after Builder effects. B0-L3 starts only
 after this first family is atomically green.
+
+Closeout evidence:
+
+```text
+VerifiedResolvedSourceUnitV1::resolve_function production constructor = 1
+CanonicalLoweringPreflightV1 before candidate Builder = verified
+CanonicalModuleLoweringSessionV1 candidate commit/discard = verified
+ResolvedFunctionLoweringInputV1 independent assembly seams = 0
+CanonicalFunctionLowererV1 legacy recursive dispatch calls = 0
+canonical value environment key = BindingRefV1
+parameter/local/outbox exact adoption = verified
+variable-use/assignment-target exact coverage = verified
+legacy BindingId allocation while product installed = rejected
+identity/source coverage finish before function draft commit = verified
+partial function publication on injected error = 0
+focused SA3-B tests = 6 green
+resolved_region_flow_authority_guard = green
+Planner / RegionFlow / BlockExpr / If / Loop / Lambda connections = 0
+```
+
+The source unit constructor resolves and projects the same owned syntax; a
+foreign syntax/product pair cannot be supplied. A fresh candidate Builder is
+the module transaction, so preflight failure and every later error leave the
+caller's Builder untouched. The function session installs the sealed product,
+the lowerer finishes identity/source coverage, and only then returns an
+unpublished draft for cleanup verification and commit.
+
+**B0-L3a — straight-line canonical BlockExpr Lower (active)**
+
+The next slice widens only the already-closed canonical expression grammar
+with BlockExpr. It consumes the resolver-sealed ScopeId/RegionId pair through
+one `ResolvedScopeSessionV1`, tracks declarations by BindingRef, removes only
+inner declarations on scope exit, preserves outer rebinds, and returns the
+tail ValueId after balanced leave.
+
+```text
+BlockExpr prelude: Local / Outbox / Assignment / closed expressions only
+tail: existing first-family expression grammar plus nested BlockExpr
+exact sealed ScopeId + RegionId pair consumed = 1 per BlockExpr
+tail lower count = 1
+inner binding leak = 0
+same-name shadow restoration = resolver BindingRef identity
+outer rebind survives scope leave
+error path balances resolved scope/region session
+If / Loop / CorePlan / Lambda / call runtime widening = 0
+```
 
 **B0-L — explicit Rust canonical Lower cutover (ordered after B0-L2 and SA3-B)**
 

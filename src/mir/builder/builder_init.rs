@@ -101,8 +101,9 @@ impl MirBuilder {
     /// //                      next_value_id() -> ValueId(20)
     /// // }
     /// ```
-    pub fn allocate_binding_id(&mut self) -> BindingId {
+    pub fn allocate_binding_id(&mut self) -> Result<BindingId, String> {
+        self.resolved_binding_state.veto_legacy_allocation()?;
         // Phase 136 Step 2/7 + Phase 2-2: Use core_ctx as SSOT (no sync needed)
-        self.core_ctx.next_binding()
+        Ok(self.core_ctx.next_binding())
     }
 }

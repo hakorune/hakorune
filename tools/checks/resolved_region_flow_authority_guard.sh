@@ -9,6 +9,7 @@ LOWER_STATE="$ROOT/src/mir/builder/vars/resolved_binding_state.rs"
 LOWER_LOCAL="$ROOT/src/mir/builder/vars/lexical_scope.rs"
 LOWER_PARAM="$ROOT/src/mir/builder/calls/parameter_setup.rs"
 LOWERING_INPUT="$ROOT/src/mir/compiler/lowering_input.rs"
+RESOLVED_LOWER="$ROOT/src/mir/builder/resolved_lowering"
 BLOCKEXPR_INVENTORY="$ROOT/tools/checks/fixtures/blockexpr_producer_inventory_v1.json"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 guard_require_command "$TAG" cargo
@@ -37,6 +38,7 @@ guard_require_files "$TAG" \
   "$LOWER_PARAM" \
   "$ROOT/src/mir/compiler/README.md" "$LOWERING_INPUT" \
   "$ROOT/src/mir/compiler/located.rs" "$ROOT/src/mir/compiler/source_projection.rs" "$ROOT/src/mir/compiler/source_view.rs" "$ROOT/src/mir/compiler/source_view_tests.rs" "$ROOT/src/mir/builder/calls/context_lifecycle.rs" "$ROOT/src/mir/builder/calls/function_session.rs" "$ROOT/src/mir/builder/calls/function_session_tests.rs" "$ROOT/src/mir/builder/calls/lowering.rs" "$ROOT/src/mir/builder/calls/skeleton_builder.rs" \
+  "$ROOT/src/mir/compiler/capability.rs" "$ROOT/src/mir/compiler/function_input.rs" "$ROOT/src/mir/compiler/module_session.rs" "$RESOLVED_LOWER/README.md" "$RESOLVED_LOWER/mod.rs" "$RESOLVED_LOWER/identity.rs" "$RESOLVED_LOWER/lowerer.rs" "$RESOLVED_LOWER/tests.rs" \
   "$BLOCKEXPR_INVENTORY" \
   "$MODULE/tests.rs" \
   "$MODULE/shadow/mod.rs" \
@@ -705,38 +707,30 @@ fi
 while IFS= read -r consumer; do
   [[ -z "$consumer" ]] && continue
   case "$consumer" in
-    "$MIR_MOD"|"$MODULE"/*|"$LOWER_STATE"|"$LOWER_LOCAL"|"$LOWER_PARAM"|"$LOWERING_INPUT"|"$ROOT/src/mir/compiler/located.rs"|"$ROOT/src/mir/compiler/source_projection.rs"|"$ROOT/src/mir/compiler/source_view.rs"|"$ROOT/src/mir/compiler/source_view_tests.rs")
+    "$MIR_MOD"|"$MODULE"/*|"$LOWER_STATE"|"$LOWER_LOCAL"|"$LOWER_PARAM"|"$LOWERING_INPUT"|"$ROOT/src/mir/compiler/located.rs"|"$ROOT/src/mir/compiler/source_projection.rs"|"$ROOT/src/mir/compiler/source_view.rs"|"$ROOT/src/mir/compiler/source_view_tests.rs"|"$ROOT/src/mir/compiler/capability.rs"|"$ROOT/src/mir/compiler/function_input.rs"|"$RESOLVED_LOWER"/*)
       ;;
     *)
-      guard_fail "$TAG" "SA3-A semantic product transport escaped its bounded files: $consumer"
+      guard_fail "$TAG" "resolved semantic product escaped its bounded resolver/compiler/lower files: $consumer"
       ;;
   esac
 done <<< "$consumer_output"
 
-for required in \
-  "pub(in crate::mir) struct ResolvedBindingLoweringStateV1" \
-  "product: Option<Arc<VerifiedResolvedFunctionV1>>" \
-  "values: BTreeMap<BindingId, ValueId>" \
-  "claimed_declarations: BTreeSet<SourceBindingSiteV1>" \
-  "[freeze:contract][resolved_binding/declaration_reclaimed]"; do
-  guard_expect_fixed_in_file "$TAG" "$required" "$LOWER_STATE" \
-    "SA3-A resolved binding transport drifted: $required"
+guard_expect_fixed_in_file "$TAG" "legacy_allocation_forbidden" "$LOWER_STATE" \
+  "SA3-B legacy BindingId allocator veto missing"
+guard_expect_fixed_in_file "$TAG" "values: BTreeMap<BindingRefV1, ValueId>" "$RESOLVED_LOWER/identity.rs" \
+  "SA3-B canonical BindingRef value environment missing"
+for forbidden in build_expression build_variable_access build_assignment allocate_binding_id variable_map binding_ctx LexicalScopeGuard; do
+  if rg -n "$forbidden" "$RESOLVED_LOWER/lowerer.rs"; then
+    guard_fail "$TAG" "SA3-B lowerer crossed legacy identity/dispatch seam: $forbidden"
+  fi
 done
-guard_expect_fixed_in_file "$TAG" "declare_resolved_local_in_current_scope" "$LOWER_LOCAL" \
-  "SA3-A resolved local publication seam missing"
-guard_expect_fixed_in_file "$TAG" "declare_resolved_function_parameter" "$LOWER_PARAM" \
-  "SA3-A resolved parameter publication seam missing"
-if [[ "$(rg -n 'fn declare_resolved_local_in_current_scope' "$ROOT/src" --glob '*.rs' | wc -l)" != "1" ]] || \
-   [[ "$(rg -n 'fn declare_resolved_function_parameter' "$ROOT/src" --glob '*.rs' | wc -l)" != "1" ]]; then
-  guard_fail "$TAG" "SA3-A resolved declaration seams must remain disconnected definitions only"
-fi
 
 while IFS= read -r file; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "source file reached the 800-line stop boundary: $file ($lines)"
   fi
-done < <(find "$MODULE" "$ROOT/src/mir/compiler" "$ROOT/src/mir/builder/calls" -type f -name '*.rs' -print; printf '%s\n' "$MIR_MOD")
+done < <(find "$MODULE" "$ROOT/src/mir/compiler" "$ROOT/src/mir/builder/calls" "$RESOLVED_LOWER" -type f -name '*.rs' -print; printf '%s\n' "$MIR_MOD" "$LOWER_STATE")
 
 if ! rg -q 'pub\(super\) struct BindingId\(u32\)' \
   "$ROOT/src/mir/join_ir/ownership/ast_analyzer/core.rs"; then
@@ -755,17 +749,18 @@ cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::scope_container_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::vocabulary_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::builder::vars::resolved_binding_state::tests
-for test in mir::compiler::lowering_input::tests mir::compiler::source_view_tests mir::builder::calls::function_session_tests; do cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib "$test"; done
+for test in mir::compiler::lowering_input::tests mir::compiler::source_view_tests mir::builder::calls::function_session_tests mir::builder::resolved_lowering; do cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib "$test"; done
 
 echo "semantic_arena_schema=present"
 echo "semantic_arena_ast_clone_fields=0"
 echo "canonical_resolver_binding_allocator_sites=1"
-echo "canonical_resolver_production_installs=0"
+echo "canonical_resolver_production_installs=1-closed-family"
 echo "semantic_arena_value_id_imports=0"
 echo "semantic_arena_basic_block_id_imports=0"
 echo "semantic_arena_bounded_lower_transport=1"
 echo "semantic_arena_planner_connection=0"
-echo "semantic_arena_active_lower_declaration_calls=0"
+echo "semantic_arena_active_canonical_lowerer=1"
+echo "semantic_arena_legacy_allocator_during_canonical=forbidden"
 echo "semantic_arena_parallel_exit_maps=0"
 echo "semantic_arena_statement_exit_records=1"
 echo "semantic_arena_expression_exit_records=0"

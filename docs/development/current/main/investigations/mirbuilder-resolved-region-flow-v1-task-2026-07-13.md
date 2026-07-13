@@ -1,6 +1,6 @@
 # Resolved Region Flow V1 — Taskboard
 
-Status: Owner Forest V1 through B0-L2c closed; B0-C skipped; SA3-B first family is active.
+Status: Owner Forest V1 through SA3-B closed; B0-C skipped; B0-L3a is active.
 Date: 2026-07-13
 Decision: `function_semantic_resolver_v1_owner_scoped_arena` followed by
 `recursive_structured_region_flow`.
@@ -882,8 +882,11 @@ and typed inactive canonical route while production resolved callers remain
 zero. B0-L2b closes immutable exact source navigation with sealed located
 carriers and zero Builder/Planner consumers. B0-L2c closes the shared
 static/instance transaction with unpublished drafts and complete cleanup.
-Atomic SA3-B first-family identity activation is active. Detailed task order
-and stop conditions remain in the active owner-forest card.
+Atomic SA3-B first-family identity activation is closed with one preflighted
+non-main static/free source unit, exact declaration/use/assignment sites,
+BindingRef-keyed values, allocator veto, coverage-before-commit, and a fresh
+module transaction. B0-L3a straight-line BlockExpr consumption is active.
+Detailed task order and stop conditions remain in the active owner-forest card.
 
 Known production boundary mismatches must be resolved explicitly before B2:
 

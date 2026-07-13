@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate B0-L1 plus behavior-neutral B0-L2a/B0-L2b transport slices."""
+"""Validate the B0-L ingress history and atomic SA3-B first family."""
 
 from __future__ import annotations
 
@@ -157,28 +157,21 @@ def main() -> None:
     ):
         if anchor not in lowering_text:
             fail(f"B0-L2a lowering-input anchor is missing: {anchor}")
-    if lowering_text.count("\n    VerifiedResolvedSourceUnitV1 {\n") != 1:
-        fail("verified source unit gained a constructor outside its type/test factory")
     if compiler_text.count("match request {") != 1:
         fail("MirLoweringRequestV1 must have exactly one match site")
     for anchor in (
         "pub fn compile_resolved(",
         "pub fn compile_legacy(",
-        "Self::compile_resolved_inactive(input, source_file)",
+        ".compile_resolved_first_family(input, source_file)",
+        "CanonicalLoweringPreflightV1::verify(input.source_unit())?",
+        ".build_resolved_function_module(plan)",
         "let (ast, _legacy_origin) = input.into_parts();",
         ".compile_with_source_internal(ast, source_file)",
-        'boundary: "B0-L2a"',
     ):
         if anchor not in compiler_text:
-            fail(f"B0-L2a compiler boundary anchor is missing: {anchor}")
-    production_resolved_callers = []
-    for source in (root / "src").rglob("*.rs"):
-        if source == lowering_input:
-            continue
-        if ".compile_resolved(" in source.read_text(encoding="utf-8"):
-            production_resolved_callers.append(source.relative_to(root).as_posix())
-    if production_resolved_callers:
-        fail(f"resolved ingress gained production callers: {production_resolved_callers}")
+            fail(f"resolved compiler boundary anchor is missing: {anchor}")
+    if lowering_text.count("pub fn resolve_function(") != 1:
+        fail("verified source unit must have one atomic production constructor")
 
     navigator = data.get("source_navigator_contract", {})
     expected_navigator = {
@@ -280,7 +273,12 @@ def main() -> None:
         if any(token in text for token in located_constructors):
             fail(f"located carrier constructor escaped FunctionSourceViewV1: {source}")
 
-    allowed_view_files = set(navigator_files.values()) | {lowering_input}
+    resolved_lowering_dir = root / "src/mir/builder/resolved_lowering"
+    allowed_view_files = set(navigator_files.values()) | {
+        lowering_input,
+        compiler_dir / "capability.rs",
+        compiler_dir / "function_input.rs",
+    } | set(resolved_lowering_dir.glob("*.rs"))
     external_view_consumers = []
     view_tokens = (
         "VerifiedSourceProjectionV1",
@@ -297,7 +295,7 @@ def main() -> None:
         if any(token in text for token in view_tokens):
             external_view_consumers.append(source.relative_to(root).as_posix())
     if external_view_consumers:
-        fail(f"source navigator escaped compiler transport: {external_view_consumers}")
+        fail(f"source navigator escaped its compiler/lower allowlist: {external_view_consumers}")
 
     transaction = data.get("function_transaction_contract", {})
     expected_transaction = {
@@ -320,9 +318,6 @@ def main() -> None:
     }
     if transaction != expected_transaction:
         fail(f"B0-L2c function transaction contract drifted: {transaction!r}")
-    if data.get("selected_next_slice") != "SA3-B-first-closed-canonical-family":
-        fail("closed B0-L2c must mechanically select atomic SA3-B")
-
     calls_dir = root / "src/mir/builder/calls"
     session_file = calls_dir / "function_session.rs"
     session_tests_file = calls_dir / "function_session_tests.rs"
@@ -396,6 +391,102 @@ def main() -> None:
         if forbidden in transaction_text:
             fail(f"B0-L2c activated a forbidden dependency: {forbidden}")
 
+    sa3 = data.get("sa3_b_first_family_contract", {})
+    expected_sa3 = {
+        "slice": "SA3-B",
+        "status": "closed",
+        "owner_family": "single-non-main-static-free-function",
+        "verified_unit_constructor": "VerifiedResolvedSourceUnitV1::resolve_function",
+        "function_input_type": "ResolvedFunctionLoweringInputV1",
+        "module_session_type": "CanonicalModuleLoweringSessionV1",
+        "function_lowerer_type": "CanonicalFunctionLowererV1",
+        "value_environment_key": "BindingRefV1",
+        "production_verified_unit_constructors": 1,
+        "production_resolved_routes": 1,
+        "default_source_route_cutover": 0,
+        "whole_unit_preflight_before_builder": 1,
+        "exact_declaration_site_authority": 1,
+        "exact_variable_use_authority": 1,
+        "exact_assignment_target_authority": 1,
+        "legacy_allocator_veto_count": 1,
+        "canonical_failure_legacy_retry_count": 0,
+        "partial_function_publication_on_error": 0,
+        "focused_test_count": 6,
+        "blockexpr_runtime_claims": 0,
+        "if_loop_coreplan_runtime_claims": 0,
+        "lambda_runtime_claims": 0,
+        "program_v0_repl_main_claims": 0,
+        "planner_regionflow_connections": 0,
+        "selected_next_slice": "B0-L3a-straight-line-blockexpr",
+    }
+    if sa3 != expected_sa3:
+        fail(f"SA3-B first-family contract drifted: {sa3!r}")
+    if data.get("selected_next_slice") != "B0-L3a-straight-line-blockexpr":
+        fail("closed SA3-B must mechanically select B0-L3a")
+
+    sa3_files = {
+        "capability": compiler_dir / "capability.rs",
+        "function_input": compiler_dir / "function_input.rs",
+        "module_session": compiler_dir / "module_session.rs",
+        "resolved_mod": resolved_lowering_dir / "mod.rs",
+        "identity": resolved_lowering_dir / "identity.rs",
+        "lowerer": resolved_lowering_dir / "lowerer.rs",
+        "tests": resolved_lowering_dir / "tests.rs",
+        "gate": root / "src/mir/builder/vars/resolved_binding_state.rs",
+        "allocator": root / "src/mir/builder/builder_init.rs",
+        "session": session_file,
+    }
+    for label, path in sa3_files.items():
+        if not path.is_file():
+            fail(f"SA3-B source is missing: {label}")
+    sa3_text = {label: path.read_text(encoding="utf-8") for label, path in sa3_files.items()}
+    for anchor, label in (
+        ("struct ResolvedFunctionLoweringInputV1<'a>", "function_input"),
+        ("struct CanonicalModuleLoweringSessionV1", "module_session"),
+        ("struct CanonicalFunctionLowererV1<'builder, 'source>", "lowerer"),
+        ("values: BTreeMap<BindingRefV1, ValueId>", "identity"),
+        ("fn variable_value(", "identity"),
+        ("fn assignment_binding(", "identity"),
+        ("fn with_resolved_function_lowering_session(", "session"),
+        ("fn veto_legacy_allocation(", "gate"),
+        ("self.resolved_binding_state.veto_legacy_allocation()?", "allocator"),
+        (".install(input.function())?", "resolved_mod"),
+        ("self.identity.finish()?", "lowerer"),
+        (".finish(self.input.owner())", "lowerer"),
+    ):
+        if anchor not in sa3_text[label]:
+            fail(f"SA3-B {label} anchor is missing: {anchor}")
+    lowerer_text = sa3_text["lowerer"]
+    for forbidden in (
+        "build_expression(",
+        "build_variable_access(",
+        "build_assignment(",
+        "declare_local_in_current_scope(",
+        "allocate_binding_id(",
+        "variable_map",
+        "binding_ctx",
+        "LexicalScopeGuard",
+        "BlockExpr",
+        "control_flow::plan",
+        "RegionFlow",
+    ):
+        if forbidden in lowerer_text:
+            fail(f"SA3-B lowerer crossed a forbidden legacy/later seam: {forbidden}")
+    compile_section = compiler_text.split("fn compile_resolved_first_family(", 1)[1].split(
+        "fn compile_with_source_internal(", 1
+    )[0]
+    preflight_pos = compile_section.find("CanonicalLoweringPreflightV1::verify")
+    session_pos = compile_section.find("CanonicalModuleLoweringSessionV1::open")
+    build_pos = compile_section.find("build_resolved_function_module")
+    if not (0 <= preflight_pos < session_pos < build_pos):
+        fail("SA3-B preflight must precede module/session Builder effects")
+    if "compile_legacy" in compile_section or "compile_with_source_internal" in compile_section:
+        fail("canonical first-family failure gained a legacy retry")
+    if sa3_text["tests"].count("#[test]") != 6:
+        fail("SA3-B must retain six focused first-family tests")
+    if "self.compile_legacy(LegacyModuleLoweringInputV1::bare_ast(ast), source_file)" not in compiler_text:
+        fail("default bare-AST source route changed during SA3-B")
+
     check_evidence(root, modules, "module_ingresses")
     check_evidence(root, functions, "function_families")
     check_evidence(root, seams, "body_route_seams")
@@ -405,19 +496,22 @@ def main() -> None:
     print("resolved_lowering_body_route_seams=2")
     print("resolved_lowering_typed_ingress=closed")
     print("resolved_lowering_request_match_sites=1")
-    print("resolved_lowering_production_verified_unit_constructors=0")
+    print("resolved_lowering_production_verified_unit_constructors=1")
     print("resolved_lowering_production_resolved_request_callers=0")
-    print("resolved_lowering_production_activation=0")
+    print("resolved_lowering_production_activation=1-closed-family")
     print("resolved_lowering_source_navigator=closed")
     print("resolved_lowering_disconnected_exact_source_transport=1")
     print("resolved_lowering_mutable_source_cursor=0")
     print("resolved_lowering_pointer_span_name_identity=0")
-    print("resolved_lowering_builder_planner_consumers=0")
+    print("resolved_lowering_builder_consumers=1-closed-family")
+    print("resolved_lowering_planner_consumers=0")
     print("resolved_lowering_function_transaction=closed")
     print("resolved_lowering_manual_function_cleanup_sites=0")
     print("resolved_lowering_unpublished_draft_before_cleanup=1")
     print("resolved_lowering_transaction_injected_checkpoints=5")
-    print("resolved_lowering_selected_next_slice=SA3-B")
+    print("resolved_lowering_sa3_b=closed")
+    print("resolved_lowering_legacy_allocator_during_canonical=forbidden")
+    print("resolved_lowering_selected_next_slice=B0-L3a")
 
 
 if __name__ == "__main__":

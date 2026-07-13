@@ -21,10 +21,11 @@ Related:
   `docs/development/current/main/workstreams/language-v1-convergence-current.md`
 - priority: read `active_lane` and `current_blocker_token`; owner-forest
   P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S/B0-F are closed, B0-C was skipped, and
-  B0-L0/B0-L1/B0-L2a/B0-L2b/B0-L2c are closed; atomic SA3-B for the first
-  non-main static/free straight-line canonical function family is active with
-  production resolved callers and semantic activation still zero;
-  RegionFlow and parser/source-carrier P1 remain disconnected
+  B0-L0/B0-L1/B0-L2a/B0-L2b/B0-L2c/SA3-B are closed; one explicit non-main
+  static/free straight-line resolved route is landed with exact BindingRef
+  authority. B0-L3a straight-line BlockExpr Lower is next; default source,
+  If/Loop/CorePlan/Lambda, RegionFlow, and parser/source-carrier P1 remain
+  disconnected
 - parked language work: LANGV1 conformance closeout remains parked; no
   language behavior is changed by the reprioritization
 

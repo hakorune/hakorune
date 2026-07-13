@@ -10,22 +10,27 @@ use super::verification::MirVerifier;
 use super::verification_types::VerificationError;
 use std::time::Instant;
 
+pub(in crate::mir) mod capability;
+pub(in crate::mir) mod function_input;
 #[allow(dead_code)]
-mod located;
+pub(in crate::mir) mod located;
 mod lowering_input;
+mod module_session;
 #[allow(dead_code)]
 mod source_projection;
 #[allow(dead_code)]
-mod source_view;
+pub(in crate::mir) mod source_view;
 
 #[cfg(test)]
 mod source_view_tests;
 
+use capability::CanonicalLoweringPreflightV1;
 pub use lowering_input::{
     CanonicalLoweringErrorV1, LegacyModuleLoweringInputV1, ResolvedModuleLoweringInputV1,
     VerifiedResolvedSourceUnitV1,
 };
 use lowering_input::{MirLoweringRequestErrorV1, MirLoweringRequestV1};
+use module_session::CanonicalModuleLoweringSessionV1;
 
 /// MIR compilation result
 #[derive(Debug, Clone)]
@@ -92,8 +97,9 @@ impl MirCompiler {
 
     /// Compile syntax that carries a verified canonical source-unit seal.
     ///
-    /// B0-L2a intentionally returns a typed capability error before any
-    /// Builder effect. Production activation starts only with atomic SA3-B.
+    /// SA3-B activates one closed non-main static/free function family. The
+    /// whole source unit is rejected before Builder effects if it is outside
+    /// that capability.
     pub fn compile_resolved(
         &mut self,
         input: ResolvedModuleLoweringInputV1<'_>,
@@ -129,10 +135,9 @@ impl MirCompiler {
         source_file: Option<&str>,
     ) -> Result<MirCompileResult, MirLoweringRequestErrorV1> {
         match request {
-            MirLoweringRequestV1::Resolved(input) => {
-                Self::compile_resolved_inactive(input, source_file)
-                    .map_err(MirLoweringRequestErrorV1::Canonical)
-            }
+            MirLoweringRequestV1::Resolved(input) => self
+                .compile_resolved_first_family(input, source_file)
+                .map_err(MirLoweringRequestErrorV1::Canonical),
             MirLoweringRequestV1::Legacy(input) => {
                 let (ast, _legacy_origin) = input.into_parts();
                 self.compile_with_source_internal(ast, source_file)
@@ -141,16 +146,36 @@ impl MirCompiler {
         }
     }
 
-    fn compile_resolved_inactive(
+    fn compile_resolved_first_family(
+        &mut self,
         input: ResolvedModuleLoweringInputV1<'_>,
-        _source_file: Option<&str>,
+        source_file: Option<&str>,
     ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
-        let verified_source_unit = input.source_unit();
-        let _transport_bundle = (
-            verified_source_unit.syntax_root(),
-            verified_source_unit.forest(),
-        );
-        Err(CanonicalLoweringErrorV1::CapabilityNotActivated { boundary: "B0-L2a" })
+        if self.builder.repl_mode {
+            return Err(CanonicalLoweringErrorV1::UnsupportedCanonicalOwnerKind);
+        }
+        let plan = CanonicalLoweringPreflightV1::verify(input.source_unit())?;
+
+        // The candidate Builder is the canonical module transaction. Preflight
+        // has already succeeded, and any later error discards this candidate,
+        // leaving the compiler's prior Builder state untouched.
+        let mut module_session = CanonicalModuleLoweringSessionV1::open(&self.builder);
+        let candidate = module_session.builder_mut();
+        if let Some(source) = source_file {
+            candidate.set_source_file_hint(source.to_string());
+        } else {
+            candidate.clear_source_file_hint();
+        }
+        let stage_start = Instant::now();
+        let module = candidate
+            .build_resolved_function_module(plan)
+            .map_err(|detail| CanonicalLoweringErrorV1::BuilderContract { detail })?;
+        super::compile_timing::trace_stage("build_resolved_module", stage_start.elapsed());
+        let result = self
+            .finish_built_module(module)
+            .map_err(|detail| CanonicalLoweringErrorV1::BuilderContract { detail })?;
+        module_session.commit(&mut self.builder);
+        Ok(result)
     }
 
     fn compile_with_source_internal(
@@ -166,9 +191,13 @@ impl MirCompiler {
 
         // Convert AST to MIR using builder
         let stage_start = Instant::now();
-        let mut module = self.builder.build_module(ast)?;
+        let module = self.builder.build_module(ast)?;
         super::compile_timing::trace_stage("build_module", stage_start.elapsed());
 
+        self.finish_built_module(module)
+    }
+
+    fn finish_built_module(&mut self, mut module: MirModule) -> Result<MirCompileResult, String> {
         // Builder attaches declaration runes before each function body is fully
         // lowered. Refresh once after module build so optimizer consumers see
         // body-dependent rune facts such as verified required InlinePlan.

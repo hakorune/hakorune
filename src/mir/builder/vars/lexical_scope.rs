@@ -1,4 +1,3 @@
-use crate::mir::resolved_semantics::SourceBindingSiteV1;
 use crate::mir::{BindingId, LocalSlotId, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -134,29 +133,8 @@ impl super::super::MirBuilder {
         value: ValueId,
     ) -> Result<LocalSlotId, String> {
         self.ensure_local_name_available(name)?;
-        let binding_id = self.allocate_binding_id();
+        let binding_id = self.allocate_binding_id()?;
         self.publish_local_binding(name, value, binding_id)
-    }
-
-    /// SA3-B entry: publish a local using the exact pre-resolved declaration.
-    /// SA3-A provides the seam but leaves all production callers on the legacy
-    /// allocator until the canonical resolver can switch them atomically.
-    #[allow(dead_code)]
-    pub(in crate::mir::builder) fn declare_resolved_local_in_current_scope(
-        &mut self,
-        site: &SourceBindingSiteV1,
-        expected_kind: crate::mir::resolved_semantics::BindingKindV1,
-        name: &str,
-        value: ValueId,
-    ) -> Result<LocalSlotId, String> {
-        self.ensure_local_name_available(name)?;
-        let claim = self
-            .resolved_binding_state
-            .claim_declaration(site, expected_kind, name)?;
-        let slot = self.publish_local_binding(name, value, claim.binding_id())?;
-        self.resolved_binding_state
-            .publish_declared_value(claim, value)?;
-        Ok(slot)
     }
 
     fn ensure_local_name_available(&self, name: &str) -> Result<(), String> {

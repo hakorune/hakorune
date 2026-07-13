@@ -108,6 +108,7 @@ mod property_reads;
 mod receiver; // ReceiverMaterializationBox（Method recv の pin+LocalSSA 集約）
 mod record_helper_args; // RECORD-VALUE-HELPER-001: local record helper argument scalarization
 mod record_values; // C205b: builder-local record value scalarization
+mod resolved_lowering; // sealed source/product -> exact BindingRef lowering
 mod rewrite; // P1: Known rewrite & special consolidation
 mod router; // RouterPolicyBox（Unified vs BoxCall）
 mod schedule; // BlockScheduleBox（物理順序: PHI→materialize→body）
@@ -268,9 +269,9 @@ mod binding_id_tests {
     #[test]
     fn test_binding_allocation_sequential() {
         let mut builder = MirBuilder::new();
-        let bid0 = builder.allocate_binding_id();
-        let bid1 = builder.allocate_binding_id();
-        let bid2 = builder.allocate_binding_id();
+        let bid0 = builder.allocate_binding_id().unwrap();
+        let bid1 = builder.allocate_binding_id().unwrap();
+        let bid2 = builder.allocate_binding_id().unwrap();
 
         assert_eq!(bid0.raw(), 0);
         assert_eq!(bid1.raw(), 1);
@@ -326,9 +327,9 @@ mod binding_id_tests {
         // so this test still validates ValueId/BindingId independence
         // Allocate ValueIds and BindingIds in parallel
         let vid0 = builder.next_value_id();
-        let bid0 = builder.allocate_binding_id();
+        let bid0 = builder.allocate_binding_id().unwrap();
         let vid1 = builder.next_value_id();
-        let bid1 = builder.allocate_binding_id();
+        let bid1 = builder.allocate_binding_id().unwrap();
 
         // ValueId and BindingId should be independent
         assert_eq!(vid0.0, 0);
@@ -339,12 +340,12 @@ mod binding_id_tests {
         // Allocating more ValueIds should not affect BindingId counter
         let _ = builder.next_value_id();
         let _ = builder.next_value_id();
-        let bid2 = builder.allocate_binding_id();
+        let bid2 = builder.allocate_binding_id().unwrap();
         assert_eq!(bid2.raw(), 2); // Still sequential
 
         // Allocating more BindingIds should not affect ValueId counter
-        let _ = builder.allocate_binding_id();
-        let _ = builder.allocate_binding_id();
+        let _ = builder.allocate_binding_id().unwrap();
+        let _ = builder.allocate_binding_id().unwrap();
         let vid2 = builder.next_value_id();
         assert_eq!(vid2.0, 4); // Continues from where we left off
     }

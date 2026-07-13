@@ -21,7 +21,7 @@
       "evidence": [
         "src/mir/compiler/mod.rs#pub fn compile_with_source(",
         "src/mir/compiler/mod.rs#self.compile_legacy(LegacyModuleLoweringInputV1::bare_ast(ast), source_file)",
-        "src/mir/compiler/mod.rs#let mut module = self.builder.build_module(ast)?;"
+        "src/mir/compiler/mod.rs#let module = self.builder.build_module(ast)?;"
       ]
     },
     {
@@ -345,5 +345,32 @@
     "source_view_builder_consumers": 0,
     "planner_connection_count": 0
   },
-  "selected_next_slice": "SA3-B-first-closed-canonical-family"
+  "sa3_b_first_family_contract": {
+    "slice": "SA3-B",
+    "status": "closed",
+    "owner_family": "single-non-main-static-free-function",
+    "verified_unit_constructor": "VerifiedResolvedSourceUnitV1::resolve_function",
+    "function_input_type": "ResolvedFunctionLoweringInputV1",
+    "module_session_type": "CanonicalModuleLoweringSessionV1",
+    "function_lowerer_type": "CanonicalFunctionLowererV1",
+    "value_environment_key": "BindingRefV1",
+    "production_verified_unit_constructors": 1,
+    "production_resolved_routes": 1,
+    "default_source_route_cutover": 0,
+    "whole_unit_preflight_before_builder": 1,
+    "exact_declaration_site_authority": 1,
+    "exact_variable_use_authority": 1,
+    "exact_assignment_target_authority": 1,
+    "legacy_allocator_veto_count": 1,
+    "canonical_failure_legacy_retry_count": 0,
+    "partial_function_publication_on_error": 0,
+    "focused_test_count": 6,
+    "blockexpr_runtime_claims": 0,
+    "if_loop_coreplan_runtime_claims": 0,
+    "lambda_runtime_claims": 0,
+    "program_v0_repl_main_claims": 0,
+    "planner_regionflow_connections": 0,
+    "selected_next_slice": "B0-L3a-straight-line-blockexpr"
+  },
+  "selected_next_slice": "B0-L3a-straight-line-blockexpr"
 }

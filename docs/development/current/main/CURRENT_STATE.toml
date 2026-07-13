@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Owner Forest V1 through B0-L2c closed; B0-C skipped; SA3-B first canonical family"
+status = "Owner Forest V1 through SA3-B closed; B0-C skipped; B0-L3a straight-line BlockExpr"
 date = "2026-07-13"
 
 active_lane = "MIRBUILDER Hako SourceBodyAnalysisSnapshotV1"
@@ -173,10 +173,14 @@ navigation, unforgeable carrier construction, and four focused fixtures.
 B0-L2c closes one closure-scoped function transaction for static and instance
 Lower: complete caller snapshots, unpublished function drafts, explicit
 success/error cleanup, panic restoration, and post-cleanup module commit.
-SA3-B first closed canonical owner family is active. Production resolver
-installation, source-view Builder consumption, and BindingId authority cutover
-remain zero until that atomic slice lands; Planner and legacy retry remain
-forbidden. Historical decision follows.
+SA3-B closes the first canonical owner family atomically: one preflighted
+non-main static/free straight-line source unit, exact located carriers,
+BindingRef-keyed values, legacy BindingId allocator veto, complete source and
+identity coverage, and function/module publication only after cleanup. The
+default source route remains legacy; Planner, RegionFlow, If/Loop/CorePlan,
+Lambda, BlockExpr runtime lowering, and legacy retry remain disconnected.
+B0-L3a straight-line BlockExpr sealed ScopeId/RegionId consumption is active.
+Historical decision follows.
 Resolved Region Flow V1 accepts
 `function_semantic_resolver_v1_owner_scoped_arena`. One pre-plan
 `FunctionSemanticResolverV1` constructs and seals
@@ -447,7 +451,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-SA3-B-FIRST-CLOSED-CANONICAL-FAMILY-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-L3A-STRAIGHT-LINE-BLOCKEXPR-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -456,6 +460,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-13: SA3-B closes the first canonical function family atomically with one verified source-unit constructor, pre-Builder capability check, exact located carriers, BindingRef-keyed values, legacy allocator veto, complete coverage, transactional publication, and six focused tests.",
   "2026-07-13: B0-L2c closes CanonicalFunctionLoweringSessionV1 with complete caller snapshot/restore, one static/instance lifecycle entry, unpublished drafts, post-cleanup commit, five injected failure checkpoints, panic backstop, and zero semantic activation.",
   "2026-07-13: B0-L2b closes immutable exact source navigation with shared SourcePathV1 grammar, a sealed syntax/forest projection, unforgeable located carriers, exact nested BlockExpr/Lambda navigation, and zero Builder/Planner consumers or production activation.",
   "2026-07-13: B0-L2a closes constructor-bounded typed resolved/legacy compiler ingress, one pre-Builder request match, explicit ProgramV0/REPL legacy provenance, typed canonical stop, and zero production resolved callers or semantic activation.",
@@ -467,5 +472,4 @@ landed_tail = [
   "2026-07-12: 3456 closes MapStore RoutePolicyRow BoxShape with one multi-artifact generator, projection ownership, atomic write/check, and value_boundary removal from current generated policy artifacts.",
   "2026-07-12: 3511 closes the narrow hako_mem_free Unit/no-result semantic activation slice; global Unit activation remains zero.",
   "2026-07-12: 3505 closes Failure/Outcome relation inventory S0-S5 and keeps semantic ownership pending outside the accepted narrow activation.",
-  "2026-07-12: 3504 accepts the Failure/Outcome relation/spec and exhaustive inventory-only design; physical artifact movement remains disabled.",
 ]
