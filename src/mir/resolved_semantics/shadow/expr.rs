@@ -73,6 +73,10 @@ impl ShadowResolverV0 {
                 }
                 Ok(())
             }
+            ASTNode::GroupedAssignmentExpr { lhs, rhs, .. } => {
+                self.resolve_expr(rhs, &path.child(SourcePathSegmentV1::Value))?;
+                self.resolve_named_assignment(lhs, &path.child(SourcePathSegmentV1::Target))
+            }
             ASTNode::MethodCall {
                 object, arguments, ..
             } => {
@@ -157,6 +161,33 @@ impl ShadowResolverV0 {
             }
         };
         self.record_assignment(target_site, resolved);
+        Ok(())
+    }
+
+    pub(super) fn resolve_compound_assignment_target(
+        &mut self,
+        target: &ASTNode,
+        path: &ShadowSourcePathV0,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        if matches!(target, ASTNode::Variable { .. }) {
+            self.resolve_expr(target, path)?;
+        }
+        self.resolve_assignment_target(target, path)
+    }
+
+    fn resolve_named_assignment(
+        &mut self,
+        name: &str,
+        path: &ShadowSourcePathV0,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        let site = path.expr();
+        let binding = self
+            .lookup(name)
+            .ok_or_else(|| ShadowResolveErrorV0::UnresolvedName {
+                name: name.into(),
+                site: site.clone(),
+            })?;
+        self.record_assignment(site, ShadowAssignmentTargetV0::BindingRebind(binding));
         Ok(())
     }
 

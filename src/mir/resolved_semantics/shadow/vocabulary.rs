@@ -28,6 +28,7 @@ pub(super) fn classify_shadow_ast_disposition_v0(node: &ASTNode) -> ShadowAstDis
 
     match node {
         ASTNode::Assignment { .. }
+        | ASTNode::CompoundAssignment { .. }
         | ASTNode::If { .. }
         | ASTNode::Loop { .. }
         | ASTNode::Return { .. }
@@ -55,7 +56,8 @@ pub(super) fn classify_shadow_ast_disposition_v0(node: &ASTNode) -> ShadowAstDis
         | ASTNode::RecordUpdate { .. }
         | ASTNode::CheckExpr { .. }
         | ASTNode::FromCall { .. }
-        | ASTNode::Call { .. } => CurrentResolvedExpression,
+        | ASTNode::Call { .. }
+        | ASTNode::GroupedAssignmentExpr { .. } => CurrentResolvedExpression,
 
         ASTNode::Program { .. }
         | ASTNode::UsingStatement { .. }
@@ -64,8 +66,7 @@ pub(super) fn classify_shadow_ast_disposition_v0(node: &ASTNode) -> ShadowAstDis
         | ASTNode::FastMemRegion { .. }
         | ASTNode::StaticConstTable { .. } => SemanticallyTransparentCandidate,
 
-        ASTNode::CompoundAssignment { .. }
-        | ASTNode::LoopRange { .. }
+        ASTNode::LoopRange { .. }
         | ASTNode::BuildGate { .. }
         | ASTNode::Nowait { .. }
         | ASTNode::ContextScope { .. }
@@ -83,7 +84,6 @@ pub(super) fn classify_shadow_ast_disposition_v0(node: &ASTNode) -> ShadowAstDis
         | ASTNode::BrandDeclaration { .. }
         | ASTNode::TypeAliasDeclaration { .. }
         | ASTNode::GlobalVar { .. }
-        | ASTNode::GroupedAssignmentExpr { .. }
         | ASTNode::This { .. }
         | ASTNode::ThisField { .. }
         | ASTNode::MeField { .. } => ExplicitUnsupported,
@@ -94,6 +94,7 @@ pub(super) const SHADOW_ACCEPTED_STATEMENTS_V0: &[&str] = &[
     "Local",
     "Outbox",
     "Assignment",
+    "CompoundAssignment",
     "ScopeBox",
     "If",
     "Loop",
@@ -123,6 +124,7 @@ pub(super) const SHADOW_ACCEPTED_EXPRESSIONS_V0: &[&str] = &[
     "CheckExpr",
     "FromCall",
     "Call",
+    "GroupedAssignmentExpr",
 ];
 
 pub(super) const SHADOW_ACCEPTED_ASSIGNMENT_TARGETS_V0: &[&str] =

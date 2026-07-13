@@ -584,6 +584,7 @@ fn accepted_vocabulary_is_closed_and_reviewable() {
             "Local",
             "Outbox",
             "Assignment",
+            "CompoundAssignment",
             "ScopeBox",
             "If",
             "Loop",
@@ -615,6 +616,7 @@ fn accepted_vocabulary_is_closed_and_reviewable() {
             "CheckExpr",
             "FromCall",
             "Call",
+            "GroupedAssignmentExpr",
         ]
     );
     assert_eq!(

@@ -33,6 +33,7 @@ guard_require_files "$TAG" \
   "$LOWER_PARAM" \
   "$MODULE/tests.rs" \
   "$MODULE/shadow/mod.rs" \
+  "$MODULE/shadow/assignment_traversal_tests.rs" \
   "$MODULE/shadow/ids.rs" \
   "$MODULE/shadow/path.rs" \
   "$MODULE/shadow/product.rs" \
@@ -55,6 +56,7 @@ expected_manifest="$(printf '%s\n' \
   records.rs \
   resolver.rs \
   resolver_tests.rs \
+  shadow/assignment_traversal_tests.rs \
   shadow/expr.rs \
   shadow/ids.rs \
   shadow/leaf_traversal_tests.rs \
@@ -219,12 +221,13 @@ for required in \
   guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/shadow/vocabulary.rs" \
     "shadow accepted vocabulary manifest drifted: $required"
 done
-for variant in Local Outbox Assignment ScopeBox If Loop Break Continue Return Print; do
+for variant in Local Outbox Assignment CompoundAssignment ScopeBox If Loop Break Continue Return Print; do
   guard_expect_fixed_in_file "$TAG" "ASTNode::$variant" "$MODULE/shadow/stmt.rs" \
     "accepted statement lost its explicit resolver arm: $variant"
 done
 for variant in Literal Variable Me UnaryOp BinaryOp MethodCall FieldAccess Index FunctionCall New \
-  AwaitExpression ArrayLiteral MapLiteral RecordLiteral RecordUpdate CheckExpr FromCall Call; do
+  AwaitExpression ArrayLiteral MapLiteral RecordLiteral RecordUpdate CheckExpr FromCall Call \
+  GroupedAssignmentExpr; do
   guard_expect_fixed_in_file "$TAG" "ASTNode::$variant" "$MODULE/shadow/expr.rs" \
     "accepted expression lost its explicit resolver arm: $variant"
 done
@@ -241,9 +244,10 @@ expected_expr = {
     "FieldAccess", "Index", "FunctionCall", "New", "AwaitExpression",
     "ArrayLiteral", "MapLiteral", "RecordLiteral", "RecordUpdate",
     "CheckExpr", "FromCall", "Call",
+    "GroupedAssignmentExpr",
 }
 expected_stmt = {
-    "Local", "Outbox", "Assignment", "ScopeBox", "If", "Loop",
+    "Local", "Outbox", "Assignment", "CompoundAssignment", "ScopeBox", "If", "Loop",
     "Break", "Continue", "Return", "Print",
 }
 if expr != expected_expr:
@@ -396,6 +400,7 @@ fi
 
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::resolver_tests
+cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::assignment_traversal_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::leaf_traversal_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::vocabulary_tests

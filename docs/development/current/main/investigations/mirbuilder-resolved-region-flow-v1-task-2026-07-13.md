@@ -827,6 +827,13 @@ variable-use sites.  `This` legacy acceptance was removed because canonical
 parsing emits `Me`; it is now an exact Unsupported expression.  QMark, Match,
 Try, Lambda, Nowait, and scope-owning containers remain outside this slice.
 
+`B1-A` closed on 2026-07-13 for `CompoundAssignment` and
+`GroupedAssignmentExpr`.  Compound variable targets produce both a read and a
+write at the same exact target site; receiver/index children are traversed
+once through the existing place boundary.  Grouped assignment keeps its RHS
+and string-named target at distinct typed sites.  No desugaring to Assignment
+or BinaryOp is performed.
+
 Known production boundary mismatches must be resolved explicitly before B2:
 
 ```text

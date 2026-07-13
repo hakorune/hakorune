@@ -46,6 +46,13 @@ impl ShadowResolverV0 {
                 self.resolve_assignment_target(target, &path.child(SourcePathSegmentV1::Target))?;
                 self.resolve_expr(value, &path.child(SourcePathSegmentV1::Value))
             }
+            ASTNode::CompoundAssignment { target, value, .. } => {
+                self.resolve_compound_assignment_target(
+                    target,
+                    &path.child(SourcePathSegmentV1::Target),
+                )?;
+                self.resolve_expr(value, &path.child(SourcePathSegmentV1::Value))
+            }
             ASTNode::Print { expression, .. } => {
                 self.resolve_expr(expression, &path.child(SourcePathSegmentV1::Value))
             }
