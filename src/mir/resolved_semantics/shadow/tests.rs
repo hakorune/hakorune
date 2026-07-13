@@ -671,6 +671,7 @@ fn accepted_vocabulary_is_closed_and_reviewable() {
             "FromCall",
             "Call",
             "GroupedAssignmentExpr",
+            "BlockExpr",
         ]
     );
     assert_eq!(

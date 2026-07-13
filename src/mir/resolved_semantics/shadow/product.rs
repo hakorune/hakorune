@@ -4,7 +4,8 @@ use std::collections::BTreeMap;
 
 use super::ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
 use crate::mir::resolved_semantics::source_site::{
-    FunctionOriginV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1, SourceStmtSiteV1,
+    FunctionOriginV1, ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1,
+    SourceStmtSiteV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -28,6 +29,7 @@ pub(crate) struct ShadowBindingRecordV0 {
 pub(crate) enum ShadowScopeKindV0 {
     Function,
     LexicalBlock,
+    BlockExpr,
     IfThen,
     IfElse,
     LoopBody,
@@ -46,6 +48,7 @@ pub(crate) enum ShadowRegionKindV0 {
     Function,
     Sequence,
     LexicalScope,
+    BlockExpr,
     If,
     IfThen,
     IfElse,
@@ -122,6 +125,9 @@ pub(crate) enum ShadowResolveErrorV0 {
     },
     DuplicateExitSite {
         site: SourceStmtSiteV1,
+    },
+    BlockExprNonLocalExit {
+        site: ResolvedExitSiteV1,
     },
 }
 

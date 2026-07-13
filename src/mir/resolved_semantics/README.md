@@ -70,7 +70,7 @@ UP1 creates no CaptureId, synthetic child BindingId, capture mode, forwarding
 binding, runtime slot, ValueId, BasicBlockId, Recipe, Planner, or Lower
 connection.
 
-## B0-S passive BlockExpr pair
+## B0-F lexical BlockExpr resolver contract
 
 B0-S adds a disconnected canonical vocabulary for lexical BlockExpr identity:
 `ScopeKindV1::BlockExpr` and `RegionKindV1::BlockExpr`. A sealed draft may
@@ -83,10 +83,16 @@ only `BlockExprPrelude(index)` and `BlockExprTail` descendants with the same
 prefix as members. Existing owner-branded IDs, parent graphs, and normalized
 records remain the only identity and ancestry mechanisms.
 
-B0-S does not make BlockExpr resolver-supported. B0-F must install canonical
-AST traversal together with lexical lifetime fixtures, recursive non-local
-exit rejection, and owner-forest declaration-order proof. Planner, RegionFlow,
-Lower, ProgramV0, and compatibility fallback remain disconnected.
+B0-F installs one dedicated shadow traversal box over that sealed pair. It
+resolves the ordered prelude before the tail, restores the outer lexical scope
+after the expression, and gives nested BlockExprs independent pairs. Existing
+binding and owner-forest machinery supplies initializer-before-declaration,
+outer rebind, and Lambda declaration-order behavior without a second policy.
+
+The neutral AST non-local-exit query is the acceptance SSOT. A rejected
+prelude reports its exact statement container and a rejected tail reports its
+exact expression container; loop-local Break/Continue remain valid. Planner,
+RegionFlow, Lower, ProgramV0, and compatibility fallback remain disconnected.
 
 SA2 installs the real publication boundary. A compilation-scoped issuer with
 a process-unique compilation brand is the only owner-brand constructor;

@@ -60,7 +60,8 @@ pub(super) fn classify_shadow_ast_disposition_v0(node: &ASTNode) -> ShadowAstDis
         | ASTNode::CheckExpr { .. }
         | ASTNode::FromCall { .. }
         | ASTNode::Call { .. }
-        | ASTNode::GroupedAssignmentExpr { .. } => CurrentResolvedExpression,
+        | ASTNode::GroupedAssignmentExpr { .. }
+        | ASTNode::BlockExpr { .. } => CurrentResolvedExpression,
 
         ASTNode::Program { .. }
         | ASTNode::UsingStatement { .. }
@@ -74,7 +75,6 @@ pub(super) fn classify_shadow_ast_disposition_v0(node: &ASTNode) -> ShadowAstDis
         | ASTNode::MatchExpr { .. }
         | ASTNode::EnumMatchExpr { .. }
         | ASTNode::Lambda { .. }
-        | ASTNode::BlockExpr { .. }
         | ASTNode::Arrow { .. }
         | ASTNode::TryCatch { .. }
         | ASTNode::Throw { .. }
@@ -128,6 +128,7 @@ pub(super) const SHADOW_ACCEPTED_EXPRESSIONS_V0: &[&str] = &[
     "FromCall",
     "Call",
     "GroupedAssignmentExpr",
+    "BlockExpr",
 ];
 
 pub(super) const SHADOW_ACCEPTED_ASSIGNMENT_TARGETS_V0: &[&str] =

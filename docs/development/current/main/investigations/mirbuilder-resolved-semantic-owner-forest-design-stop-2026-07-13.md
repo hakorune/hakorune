@@ -1,5 +1,5 @@
 ---
-Status: P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S closed; B0-C skipped; B0-F is active
+Status: P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S/B0-F closed; B0-C skipped; B0-L0 design stop is active
 Date: 2026-07-13
 Scope: Resolved Semantic Owner Forest V1 design and implementation task order
 Parent: mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
@@ -917,14 +917,167 @@ add the vocabulary.
 B0-P proved zero callers. No compatibility carrier, AST variant, ProgramV0
 tag, parser producer, or fallback is added.
 
-**B0-F — lexical fixture lock (active)**
+**B0-F — lexical fixture lock (closed)**
 
 Pin tail visibility, inner-local non-leakage, same-name shadow restoration,
 outer rebind propagation, initializer-before-declaration, nested BlockExpr,
 condition-scope end, repeated loop-header scope, same-scope redeclaration,
 and recursive non-local-exit rejection.
 
-**B0-L — explicit Rust canonical Lower cutover**
+##### B0-F executable task card
+
+```text
+work kind = BoxShape canonical installation
+resolver shape delta = exactly ASTNode::BlockExpr
+new source syntax = 0
+new ID / AST rewrite / fallback = 0
+```
+
+Implementation owner:
+
+1. Add `shadow/block_expr.rs` as the single traversal box. It preflights the
+   prelude and tail with the existing neutral AST observation
+   `contains_non_local_exit_outside_loops()`, enters one
+   `ShadowScopeKindV0::BlockExpr` / `ShadowRegionKindV0::BlockExpr` pair at the
+   shared `BlockExprPreludeRoot`, resolves `BlockExprPrelude(index)` in source
+   order and `BlockExprTail` exactly once, then leaves the pair on success or
+   error. Every nested BlockExpr invokes the same entry and therefore resets
+   the non-local-exit boundary.
+2. Add one typed `BlockExprNonLocalExit { site: ResolvedExitSiteV1 }` error.
+   Prelude failure uses the containing Statement site; tail failure uses its
+   Expression site. Return/Throw always fail the neutral observation;
+   Break/Continue pass only inside a loop nested within that BlockExpr.
+   Lambda/function/box owner boundaries remain opaque to the observation.
+3. Move BlockExpr from `ExplicitUnsupported` to
+   `CurrentResolvedExpression`, add its explicit expression arm, shadow kinds,
+   and exhaustive shadow-to-canonical kind mappings. No wildcard or retry is
+   allowed.
+4. Reuse the existing scope stack and declaration algorithm. Initializers are
+   resolved before declarations; the tail sees completed prelude declarations;
+   leaving restores outer shadowing; an assignment to an already-visible outer
+   name retains that outer BindingRef.
+5. Extend only `owner_forest.rs::direct_member_index`: prelude members use
+   their source index and the tail uses `u32::MAX`. Existing `record_lambda`,
+   parent-scope snapshot, and `visible_bindings_for_child` remain unchanged.
+   This proves a prelude Lambda sees earlier declarations but never later ones,
+   while a tail Lambda sees all completed prelude declarations.
+6. Extend the existing `block_expr_tests.rs`; do not grow the 748-line
+   `owner_forest_tests.rs`. Cover empty pair creation, tail visibility,
+   non-leakage, same-name restoration, outer rebind, initializer ordering,
+   nested BlockExpr, condition/loop scope end, redeclaration, recursive exits,
+   nested-loop Break/Continue acceptance, and prelude/tail Lambda declaration
+   order. Keep the test file below 800 lines.
+7. Extend the existing authority guard without creating a new shell or JSON
+   fixture. Preserve the B0-P inventory selector as landed history and add
+   stable B0-F acceptance/ordering evidence.
+
+Forbidden:
+
+```text
+Planner / RegionFlow / Lower connection
+ProgramV0 or ASTNode schema change
+CompatSequence carrier
+name-based scope or binding reconstruction
+independent non-local-exit semantics in the resolver
+owner-forest visible-binding rescan
+expression-level Return/QMark/Throw activation
+```
+
+Acceptance:
+
+```bash
+cargo test -q --lib mir::resolved_semantics::block_expr_tests
+cargo test -q --lib mir::resolved_semantics::owner_forest_tests
+bash tools/checks/resolved_region_flow_authority_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+B0-F closes only when all lexical fixtures and normalized forest parity are
+green with Planner/RegionFlow/Lower connections still zero. Closeout selects
+B0-L; it does not claim runtime scope cutover.
+
+B0-F closeout evidence:
+
+```text
+dedicated shadow/block_expr.rs traversal owner = installed
+tail visibility / nonleak / shadow restore / outer rebind = green
+condition If/Loop scope end / nested BlockExpr = green
+recursive non-local exit rejection / nested-loop exits = green
+prelude and tail Lambda declaration order / normalized forest parity = green
+canonical resolver BlockExpr acceptance = 1
+Planner / RegionFlow / Lower connection = 0
+focused BlockExpr fixtures = 16 green
+resolved-region-flow-authority guard = green
+all changed source files < 800 lines
+```
+
+**B0-L0 — canonical Lower ingress/site-carrier design stop (active)**
+
+Worker inventory proves that B0-L cannot begin as a local BlockExpr edit:
+
+```text
+canonical resolver / owner forest production install = 0
+Lower SourceStmtSiteV1 / SourceExprSiteV1 carrier = 0
+resolved declaration production callers = 0
+direct Rust BlockExpr Lower = unscoped ASTNode arm
+```
+
+The existing `ResolvedBindingLoweringStateV1` is a disconnected declaration
+transport seam. Installing a product while BlockExpr locals still use the
+legacy BindingId allocator would create two identities for the same
+declaration. Adding only `LexicalScopeGuard` would improve name restoration
+but would not enter the resolved ScopeId/RegionId pair and therefore cannot be
+claimed as B0-L.
+
+##### B0-L0 executable consultation card
+
+Inventory and decide, without changing Lower behavior:
+
+1. Enumerate every canonical function ingress before params/body are split:
+   free/static function, constructor, instance/static method, inline/callable
+   Main, script main, REPL, Lambda child, and CorePlan-produced body.
+2. Select one typed route boundary before Lower. Candidate canonical input is
+   `ResolvedFunctionLoweringInputV1 { syntax, sealed owner product/forest }`;
+   legacy and ProgramV0 inputs remain distinct typed non-authority routes.
+3. Select the owner of a borrowed structural source cursor from `Body(index)`
+   through `BlockExprPrelude(index)` / `BlockExprTail` and every nested child.
+   Decide whether exact-site threading can be an independent slice or must be
+   the same atomic SA3-B declaration/BindingId cutover.
+4. Define one exact product query from source site to the sealed BlockExpr
+   ScopeId/RegionId pair and one error-safe resolved scope guard. Function
+   lowering must restore resolved state, region/scope stacks, function
+   context, and body AST on both success and failure.
+5. Decide the all-or-nothing declaration boundary. Receiver, parameters,
+   locals, outbox, nested owner products, use sites, and assignment targets
+   may not mix resolved and legacy BindingId allocation under one installed
+   product. Name-keyed Planner helpers remain B0-R retirement work.
+
+Authority and non-authority:
+
+```text
+authority = VerifiedResolvedFunctionV1 / VerifiedSemanticOwnerForestV1
+identity lookup = exact SourceStmtSiteV1 / SourceExprSiteV1 only
+non-authority = AST pointer, Span, name, traversal order, producer path, ProgramV0
+route failure after selection = fail-fast; legacy retry = forbidden
+Planner / RegionFlow / Recipe connection = forbidden in B0-L0
+```
+
+Acceptance:
+
+```text
+all canonical function ingress families classified
+typed route owner and exact source-cursor owner selected
+SA3-B dependency/order decided explicitly
+success/error cleanup owner and fail-fast sites fixed
+canonical Lower route remains 0 during consultation
+resolved ScopeId consumer remains 0 during consultation
+heuristic scope lookup / fallback / retry remains 0
+```
+
+Stop here for design consultation. Do not implement B0-L until this card names
+the complete atomic slice and the user accepts its source-authority boundary.
+
+**B0-L — explicit Rust canonical Lower cutover (blocked by B0-L0)**
 
 ```text
 enter resolved BlockExpr ScopeId

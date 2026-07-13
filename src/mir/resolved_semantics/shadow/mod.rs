@@ -5,6 +5,7 @@
 //! its draft records only inside `resolver.rs`, immediately canonicalize them,
 //! and seal the canonical product before publication.
 
+mod block_expr;
 mod expr;
 mod ids;
 mod owner_boundary;

@@ -56,5 +56,5 @@ cargo check -q
 - product/app validation now uses EXE/AOT as the primary route; VM work is a
   small semantic-reference subset only
 - if a future current blocker token names an explicit design-stop frontier,
-  stop the goal-driven execution loop there and review the frontier card
-  before naming a new executable owner
+  pause the goal-driven execution loop here and review the frontier card before
+  naming a new executable owner

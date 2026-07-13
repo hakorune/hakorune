@@ -40,6 +40,7 @@ guard_require_files "$TAG" \
   "$MODULE/shadow/mod.rs" \
   "$MODULE/shadow/owner_boundary.rs" \
   "$MODULE/shadow/assignment_traversal_tests.rs" \
+  "$MODULE/shadow/block_expr.rs" \
   "$MODULE/shadow/ids.rs" \
   "$MODULE/shadow/path.rs" \
   "$MODULE/shadow/product.rs" \
@@ -68,6 +69,7 @@ expected_manifest="$(printf '%s\n' \
   resolver.rs \
   resolver_tests.rs \
   shadow/assignment_traversal_tests.rs \
+  shadow/block_expr.rs \
   shadow/expr.rs \
   shadow/ids.rs \
   shadow/leaf_traversal_tests.rs \
@@ -488,6 +490,7 @@ for required in \
   "pub(crate) origin: ShadowExitOriginV0" \
   "pub(crate) transfer: ShadowControlExitV0" \
   "DuplicateExitSite" \
+  "BlockExprNonLocalExit" \
   "BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>"; do
   guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/shadow/product.rs" \
     "shadow product schema drifted: $required"
@@ -556,12 +559,16 @@ for variant in Local Outbox Nowait Assignment CompoundAssignment ScopeBox TaskSc
 done
 for variant in Literal Variable Me UnaryOp BinaryOp MethodCall FieldAccess Index FunctionCall New \
   AwaitExpression ArrayLiteral MapLiteral RecordLiteral RecordUpdate CheckExpr FromCall Call \
-  GroupedAssignmentExpr; do
+  GroupedAssignmentExpr BlockExpr; do
   guard_expect_fixed_in_file "$TAG" "ASTNode::$variant" "$MODULE/shadow/expr.rs" \
     "accepted expression lost its explicit resolver arm: $variant"
 done
 guard_expect_fixed_in_file "$TAG" "lambda @ ASTNode::Lambda" "$MODULE/shadow/expr.rs" \
   "OF0 Lambda inventory arm missing"
+for required in resolve_block_expr BlockExprPreludeRoot BlockExprNonLocalExit; do
+  guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/shadow/block_expr.rs" "B0-F BlockExpr traversal contract drifted: $required"
+done
+guard_expect_fixed_in_file "$TAG" 'SourcePathSegmentV1::BlockExprPreludeRoot, SourcePathSegmentV1::BlockExprTail' "$MODULE/owner_forest.rs" "B0-F BlockExpr tail owner order drifted"
 
 python3 - "$MODULE/shadow/expr.rs" "$MODULE/shadow/stmt.rs" <<'PY'
 from pathlib import Path
@@ -575,7 +582,7 @@ expected_expr = {
     "FieldAccess", "Index", "FunctionCall", "New", "AwaitExpression",
     "ArrayLiteral", "MapLiteral", "RecordLiteral", "RecordUpdate",
     "CheckExpr", "FromCall", "Call",
-    "GroupedAssignmentExpr", "Lambda",
+    "GroupedAssignmentExpr", "BlockExpr", "Lambda",
 }
 expected_stmt = {
     "Local", "Outbox", "Nowait", "Assignment", "CompoundAssignment", "ScopeBox",
@@ -773,7 +780,9 @@ echo "blockexpr_scope_kind=present"
 echo "blockexpr_region_kind=present"
 echo "blockexpr_identity_pair=verified"
 echo "blockexpr_exact_origin=verified"
-echo "blockexpr_resolver_acceptance=0"
+echo "blockexpr_resolver_acceptance=1"
+echo "blockexpr_non_local_exit_rejection=1"
+echo "blockexpr_lambda_declaration_order=verified"
 echo "blockexpr_planner_regionflow_lower_connections=0"
 echo "semantic_arena_source_files_under_800=1"
 echo "shadow_resolver_canonical_binding_ids=0"

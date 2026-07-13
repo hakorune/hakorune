@@ -378,6 +378,7 @@ const fn scope_kind(kind: ShadowScopeKindV0) -> ScopeKindV1 {
     match kind {
         ShadowScopeKindV0::Function => ScopeKindV1::Function,
         ShadowScopeKindV0::LexicalBlock => ScopeKindV1::LexicalBlock,
+        ShadowScopeKindV0::BlockExpr => ScopeKindV1::BlockExpr,
         ShadowScopeKindV0::IfThen => ScopeKindV1::IfThen,
         ShadowScopeKindV0::IfElse => ScopeKindV1::IfElse,
         ShadowScopeKindV0::LoopBody => ScopeKindV1::LoopBody,
@@ -389,6 +390,7 @@ const fn region_kind(kind: ShadowRegionKindV0) -> RegionKindV1 {
         ShadowRegionKindV0::Function => RegionKindV1::Function,
         ShadowRegionKindV0::Sequence => RegionKindV1::Sequence,
         ShadowRegionKindV0::LexicalScope => RegionKindV1::LexicalScope,
+        ShadowRegionKindV0::BlockExpr => RegionKindV1::BlockExpr,
         ShadowRegionKindV0::If => RegionKindV1::If,
         ShadowRegionKindV0::IfThen => RegionKindV1::IfThen,
         ShadowRegionKindV0::IfElse => RegionKindV1::IfElse,

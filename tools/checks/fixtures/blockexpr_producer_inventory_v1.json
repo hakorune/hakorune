@@ -198,11 +198,11 @@
       "producer_path": "src/mir/resolved_semantics/block_expr_tests.rs",
       "producer_status": "TestOnly",
       "output_family": "test ASTNode::BlockExpr",
-      "consumer_entry": "resolved-semantics B0-S schema tests",
+      "consumer_entry": "resolved-semantics B0-F lexical tests",
       "classification": "TestOnly",
       "required_scope_semantics": "TestOnlyNoAuthority",
       "live_caller_evidence": [
-        "src/mir/resolved_semantics/block_expr_tests.rs#body: vec![ASTNode::BlockExpr {"
+        "src/mir/resolved_semantics/block_expr_tests.rs#fn block_expr(prelude_stmts: Vec<ASTNode>, tail_expr: ASTNode) -> ASTNode"
       ],
       "retirement_owner": "resolved-semantics-blockexpr-tests"
     },

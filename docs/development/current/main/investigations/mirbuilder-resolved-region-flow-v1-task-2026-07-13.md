@@ -1,6 +1,6 @@
 # Resolved Region Flow V1 — Taskboard
 
-Status: Owner Forest V1 through B0-S closed; B0-C skipped; B0-F is active.
+Status: Owner Forest V1 through B0-F closed; B0-C skipped; B0-L0 design stop is active.
 Date: 2026-07-13
 Decision: `function_semantic_resolver_v1_owner_scoped_arena` followed by
 `recursive_structured_region_flow`.
@@ -872,10 +872,12 @@ B0-P is closed with a machine-readable producer inventory consumed by the
 reusable Resolved Region Flow authority guard. It classifies every active
 BlockExpr/sequence producer and proves `InternalSequenceRequired = 0`, so B0-C
 is mechanically skipped without adding compatibility vocabulary. B0-S closes
-the passive kind pair, seal/origin/containment law, and normalized parity while
-keeping resolver acceptance zero. B0-F is now active. Planner/Lower behavior
-remains unchanged. Detailed task order and stop conditions remain in the
-active owner-forest card.
+the passive kind pair and B0-F installs the canonical lexical traversal,
+recursive exit rejection, and Lambda declaration-order proof. Worker inventory
+finds production semantic install and Lower source-site transport both zero,
+so B0-L0 now owns the typed ingress/site-carrier design stop while Planner/
+Lower behavior remains unchanged. Detailed task order and stop conditions
+remain in the active owner-forest card.
 
 Known production boundary mismatches must be resolved explicitly before B2:
 
@@ -884,7 +886,7 @@ Nowait currently bypasses BindingId publication
 TryCatch does not publish the catch binder
 CorePlan local publication lacks an exact SourceBindingSiteV1
 inline Main.main bypasses ordinary parameter publication
-BlockExpr scope semantics are accepted but not yet installed in the resolver
+BlockExpr scope semantics are installed in the resolver but not yet Lower
 Lambda owns a separate capture/function boundary
 ```
 

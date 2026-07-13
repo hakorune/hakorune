@@ -480,9 +480,16 @@ fn direct_member_index(origin: &ScopeOriginV1, site: &SourceNodeSiteV1) -> Optio
         | (SourcePathSegmentV1::ScopeBodyRoot, SourcePathSegmentV1::ScopeBody(index))
         | (SourcePathSegmentV1::TaskScopeBodyRoot, SourcePathSegmentV1::TaskScopeBody(index))
         | (SourcePathSegmentV1::FastMemBodyRoot, SourcePathSegmentV1::FastMemBody(index))
+        | (
+            SourcePathSegmentV1::BlockExprPreludeRoot,
+            SourcePathSegmentV1::BlockExprPrelude(index),
+        )
         | (SourcePathSegmentV1::IfThenBody, SourcePathSegmentV1::IfThen(index))
         | (SourcePathSegmentV1::IfElseBody, SourcePathSegmentV1::IfElse(index))
         | (SourcePathSegmentV1::LoopBodyRoot, SourcePathSegmentV1::LoopBody(index)) => Some(*index),
+        (SourcePathSegmentV1::BlockExprPreludeRoot, SourcePathSegmentV1::BlockExprTail) => {
+            Some(u32::MAX)
+        }
         _ => None,
     }
 }

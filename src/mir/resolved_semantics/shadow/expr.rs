@@ -18,6 +18,11 @@ impl<'ast> ShadowResolverV0<'ast> {
             ASTNode::Variable { name, .. } => self.resolve_named_use(name, path),
             ASTNode::Me { .. } => self.resolve_receiver_use(path, "Me"),
             lambda @ ASTNode::Lambda { .. } => self.record_lambda(lambda, path),
+            ASTNode::BlockExpr {
+                prelude_stmts,
+                tail_expr,
+                ..
+            } => self.resolve_block_expr(prelude_stmts, tail_expr, path),
             ASTNode::UnaryOp { operand, .. } => {
                 self.resolve_expr(operand, &path.child(SourcePathSegmentV1::Operand))
             }

@@ -214,34 +214,36 @@ impl<'ast> ShadowResolverV0<'ast> {
     ) -> Result<(), ShadowResolveErrorV0> {
         self.resolve_expr(condition, &path.child(SourcePathSegmentV1::IfCondition))?;
         let if_region = self.enter_control_region(ShadowRegionKindV0::If, path);
-
-        let then_path = path.child(SourcePathSegmentV1::IfThenBody);
-        let (then_region, _) = self.enter_region_scope(
-            ShadowRegionKindV0::IfThen,
-            ShadowScopeKindV0::IfThen,
-            &then_path,
-        );
-        let then_result = self.resolve_body(then_body, |index| {
-            path.child(SourcePathSegmentV1::IfThen(index as u32))
-        });
-        self.leave_region_scope(then_region);
-        then_result?;
-
-        if let Some(else_body) = else_body {
-            let else_path = path.child(SourcePathSegmentV1::IfElseBody);
-            let (else_region, _) = self.enter_region_scope(
-                ShadowRegionKindV0::IfElse,
-                ShadowScopeKindV0::IfElse,
-                &else_path,
+        let result = (|| {
+            let then_path = path.child(SourcePathSegmentV1::IfThenBody);
+            let (then_region, _) = self.enter_region_scope(
+                ShadowRegionKindV0::IfThen,
+                ShadowScopeKindV0::IfThen,
+                &then_path,
             );
-            let else_result = self.resolve_body(else_body, |index| {
-                path.child(SourcePathSegmentV1::IfElse(index as u32))
+            let then_result = self.resolve_body(then_body, |index| {
+                path.child(SourcePathSegmentV1::IfThen(index as u32))
             });
-            self.leave_region_scope(else_region);
-            else_result?;
-        }
+            self.leave_region_scope(then_region);
+            then_result?;
+
+            if let Some(else_body) = else_body {
+                let else_path = path.child(SourcePathSegmentV1::IfElseBody);
+                let (else_region, _) = self.enter_region_scope(
+                    ShadowRegionKindV0::IfElse,
+                    ShadowScopeKindV0::IfElse,
+                    &else_path,
+                );
+                let else_result = self.resolve_body(else_body, |index| {
+                    path.child(SourcePathSegmentV1::IfElse(index as u32))
+                });
+                self.leave_region_scope(else_region);
+                else_result?;
+            }
+            Ok(())
+        })();
         self.leave_control_region(if_region);
-        Ok(())
+        result
     }
 
     fn resolve_loop(
