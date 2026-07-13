@@ -145,13 +145,17 @@ impl super::super::MirBuilder {
     pub(in crate::mir::builder) fn declare_resolved_local_in_current_scope(
         &mut self,
         site: &SourceBindingSiteV1,
+        expected_kind: crate::mir::resolved_semantics::BindingKindV1,
         name: &str,
         value: ValueId,
     ) -> Result<LocalSlotId, String> {
         self.ensure_local_name_available(name)?;
-        let binding = self.resolved_binding_state.claim_declaration(site, name)?;
-        let slot = self.publish_local_binding(name, value, binding.binding())?;
-        self.resolved_binding_state.publish_value(binding, value)?;
+        let claim = self
+            .resolved_binding_state
+            .claim_declaration(site, expected_kind, name)?;
+        let slot = self.publish_local_binding(name, value, claim.binding_id())?;
+        self.resolved_binding_state
+            .publish_declared_value(claim, value)?;
         Ok(slot)
     }
 

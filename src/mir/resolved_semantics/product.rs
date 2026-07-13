@@ -25,7 +25,6 @@ pub(crate) struct ResolvedFunctionDataV1 {
     pub(crate) scopes: BTreeMap<ScopeId, ResolvedScopeRecordV1>,
     pub(crate) regions: BTreeMap<RegionId, ResolvedRegionRecordV1>,
     pub(crate) declarations: BTreeMap<SourceBindingSiteV1, BindingRefV1>,
-    pub(crate) declaration_order: Box<[SourceBindingSiteV1]>,
     pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, BindingRefV1>,
     pub(crate) assignment_targets: BTreeMap<SourceExprSiteV1, ResolvedAssignmentTargetV1>,
     pub(crate) control_exits: BTreeMap<SourceStmtSiteV1, ResolvedControlExitV1>,
@@ -104,8 +103,8 @@ impl VerifiedResolvedFunctionV1 {
         self.data.declarations.get(site).copied()
     }
 
-    pub fn declaration_order(&self) -> &[SourceBindingSiteV1] {
-        &self.data.declaration_order
+    pub(crate) fn declaration_sites(&self) -> impl Iterator<Item = &SourceBindingSiteV1> {
+        self.data.declarations.keys()
     }
 
     pub fn variable_binding(&self, site: &SourceExprSiteV1) -> Option<BindingRefV1> {

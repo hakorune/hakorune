@@ -106,7 +106,6 @@ for required in \
   "pub(crate) scopes: BTreeMap<ScopeId, ResolvedScopeRecordV1>" \
   "pub(crate) regions: BTreeMap<RegionId, ResolvedRegionRecordV1>" \
   "pub(crate) declarations: BTreeMap<SourceBindingSiteV1, BindingRefV1>" \
-  "pub(crate) declaration_order: Box<[SourceBindingSiteV1]>" \
   "pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, BindingRefV1>" \
   "pub(crate) assignment_targets:" \
   "pub(crate) control_exits:" \
@@ -151,6 +150,17 @@ if rg -n 'ASTNode|Box[[:space:]]*<[[:space:]]*AST|Vec[[:space:]]*<[[:space:]]*AS
   "${CANONICAL_ARENA_FILES[@]}"; then
   guard_fail "$TAG" "canonical resolved semantic arena must not own cloned AST payloads"
 fi
+for required in \
+  "params: &'a [String]" \
+  "body: &'a [ASTNode]" \
+  "pub(crate) fn from_ast(function: &'a ASTNode)"; do
+  guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/function_view.rs" \
+    "canonical function syntax view must remain borrowed and AST-derived: $required"
+done
+if rg -n 'fn new\(|Vec[[:space:]]*<[[:space:]]*AST|Box[[:space:]]*<[[:space:]]*AST|Arc[[:space:]]*<[[:space:]]*AST|Rc[[:space:]]*<[[:space:]]*AST' \
+  "$MODULE/function_view.rs"; then
+  guard_fail "$TAG" "canonical function syntax view must not be forgeable or own AST payloads"
+fi
 
 for required in \
   "pub(crate) struct ShadowBindingOrdinalV0" \
@@ -163,8 +173,7 @@ for required in \
   "pub(crate) struct ShadowResolvedFunctionV0" \
   "BTreeMap<ShadowBindingOrdinalV0, ShadowBindingRecordV0>" \
   "BTreeMap<SourceExprSiteV1, ShadowBindingOrdinalV0>" \
-  "BTreeMap<SourceStmtSiteV1, ShadowControlExitV0>" \
-  "pub(crate) declaration_order: Box<[SourceBindingSiteV1]>"; do
+  "BTreeMap<SourceStmtSiteV1, ShadowControlExitV0>"; do
   guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/shadow/product.rs" \
     "shadow product schema drifted: $required"
 done
@@ -301,7 +310,7 @@ allowed = {
     "scope",
     "region",
     "declaration_binding",
-    "declaration_order",
+    "declaration_sites",
     "variable_binding",
     "assignment_target",
     "control_exit",
@@ -376,6 +385,7 @@ fi
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::resolver_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::tests
+cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::builder::vars::resolved_binding_state::tests
 
 echo "semantic_arena_schema=present"
 echo "semantic_arena_ast_clone_fields=0"

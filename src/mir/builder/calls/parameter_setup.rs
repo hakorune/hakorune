@@ -5,7 +5,7 @@
 //! observation inventory; it is never assignment authority.
 
 use crate::mir::builder::{MirBuilder, MirType};
-use crate::mir::resolved_semantics::SourceBindingSiteV1;
+use crate::mir::resolved_semantics::{BindingKindV1, SourceBindingSiteV1};
 use hakorune_mir_core::{BindingId, MirValueKind, ValueId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -130,6 +130,7 @@ impl MirBuilder {
     fn declare_resolved_function_parameter(
         &mut self,
         site: &SourceBindingSiteV1,
+        resolved_kind: BindingKindV1,
         name: &str,
         value: ValueId,
         formal_index: usize,
@@ -138,17 +139,20 @@ impl MirBuilder {
         receiver_box: Option<String>,
     ) -> Result<BindingId, String> {
         self.ensure_function_parameter_available(name, formal_index)?;
-        let binding = self.resolved_binding_state.claim_declaration(site, name)?;
+        let claim = self
+            .resolved_binding_state
+            .claim_declaration(site, resolved_kind, name)?;
         let binding_id = self.publish_function_parameter(
             name,
             value,
-            binding.binding(),
+            claim.binding_id(),
             formal_index,
             ty,
             kind,
             receiver_box,
         )?;
-        self.resolved_binding_state.publish_value(binding, value)?;
+        self.resolved_binding_state
+            .publish_declared_value(claim, value)?;
         Ok(binding_id)
     }
 

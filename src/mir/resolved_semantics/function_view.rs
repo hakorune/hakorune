@@ -10,14 +10,6 @@ pub(crate) struct FunctionSyntaxViewV1<'a> {
 }
 
 impl<'a> FunctionSyntaxViewV1<'a> {
-    pub(crate) const fn new(params: &'a [String], body: &'a [ASTNode], is_static: bool) -> Self {
-        Self {
-            params,
-            body,
-            is_static,
-        }
-    }
-
     pub(crate) fn from_ast(function: &'a ASTNode) -> Option<Self> {
         let ASTNode::FunctionDeclaration {
             params,
@@ -28,7 +20,11 @@ impl<'a> FunctionSyntaxViewV1<'a> {
         else {
             return None;
         };
-        Some(Self::new(params, body, *is_static))
+        Some(Self {
+            params,
+            body,
+            is_static: *is_static,
+        })
     }
 
     pub(crate) const fn params(self) -> &'a [String] {

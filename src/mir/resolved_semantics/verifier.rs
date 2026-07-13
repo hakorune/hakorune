@@ -39,8 +39,6 @@ pub enum ResolvedFunctionVerificationErrorV1 {
     DuplicateRegionOrigin,
     DeclarationBindingMismatch(SourceBindingSiteV1),
     MissingDeclarationIndex(BindingId),
-    DuplicateDeclarationOrderSite(SourceBindingSiteV1),
-    DeclarationOrderMismatch,
     BindingKindOriginMismatch(BindingId),
     ScopeKindOriginMismatch(ScopeId),
     RegionKindOriginMismatch(RegionId),
@@ -313,17 +311,6 @@ fn verify_binding_inventory(
 fn verify_indexes(
     data: &ResolvedFunctionDataV1,
 ) -> Result<(), ResolvedFunctionVerificationErrorV1> {
-    let mut ordered_sites = BTreeSet::new();
-    for site in &*data.declaration_order {
-        if !ordered_sites.insert(site.clone()) {
-            return Err(
-                ResolvedFunctionVerificationErrorV1::DuplicateDeclarationOrderSite(site.clone()),
-            );
-        }
-    }
-    if ordered_sites != data.declarations.keys().cloned().collect() {
-        return Err(ResolvedFunctionVerificationErrorV1::DeclarationOrderMismatch);
-    }
     let mut source_bindings = BTreeSet::new();
     for (site, binding) in &data.declarations {
         verify_binding_ref(data, *binding)?;

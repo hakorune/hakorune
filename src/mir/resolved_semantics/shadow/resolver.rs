@@ -37,7 +37,6 @@ pub(super) struct ShadowResolverV0 {
     scopes: BTreeMap<ShadowScopeIdV0, ShadowScopeRecordV0>,
     regions: BTreeMap<ShadowRegionIdV0, ShadowRegionRecordV0>,
     declarations: BTreeMap<SourceBindingSiteV1, ShadowBindingOrdinalV0>,
-    declaration_order: Vec<SourceBindingSiteV1>,
     variable_uses: BTreeMap<SourceExprSiteV1, ShadowBindingOrdinalV0>,
     assignment_targets: BTreeMap<SourceExprSiteV1, ShadowAssignmentTargetV0>,
     control_exits: BTreeMap<SourceStmtSiteV1, ShadowControlExitV0>,
@@ -135,7 +134,6 @@ impl ShadowResolverV0 {
             scopes,
             regions,
             declarations: BTreeMap::new(),
-            declaration_order: Vec::new(),
             variable_uses: BTreeMap::new(),
             assignment_targets: BTreeMap::new(),
             control_exits: BTreeMap::new(),
@@ -152,7 +150,6 @@ impl ShadowResolverV0 {
             scopes: self.scopes,
             regions: self.regions,
             declarations: self.declarations,
-            declaration_order: self.declaration_order.into_boxed_slice(),
             variable_uses: self.variable_uses,
             assignment_targets: self.assignment_targets,
             control_exits: self.control_exits,
@@ -227,7 +224,6 @@ impl ShadowResolverV0 {
                 origin: origin.clone(),
             },
         );
-        self.declaration_order.push(origin.clone());
         self.declarations.insert(origin, binding);
         let scope = self.scopes.get_mut(&frame.id).expect("scope record exists");
         let mut declarations = scope.declarations.to_vec();

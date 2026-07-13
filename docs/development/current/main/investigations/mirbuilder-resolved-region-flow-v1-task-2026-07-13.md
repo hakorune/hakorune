@@ -778,12 +778,55 @@ Every canonical AST branch is classified exhaustively as resolved,
 semantically transparent, or explicitly unsupported.  Wildcards, legacy
 resolver retry, and partial publication are forbidden.
 
+Inventory evidence on 2026-07-13:
+
+```text
+canonical AST variants = 57
+current explicit resolver variants = 20
+unclassified variants = 37
+unclassified but production-accepted/no-op variants = 25
+```
+
+Therefore SA3-B1 is a required BoxShape closeout, not an incidental extension
+inside the production cutover.  It is split into closed behavior-neutral
+slices:
+
+```text
+B1-C  exhaustive 57-variant disposition classifier; wildcard = 0
+B1-P  structural source paths for collections, calls, match, try, and blocks
+B1-E  expression/container traversal with no declaration/control ownership
+B1-A  CompoundAssignment and GroupedAssignment exact target resolution
+B1-D  Nowait/Catch/Pattern declaration ownership and initializer ordering
+B1-R  Try/Catch/Finally and match-arm scope/region construction
+B1-N  nested-function/Lambda owner stop or independent product decision
+B1-I  table-driven production entry installation proof
+```
+
+Known production boundary mismatches must be resolved explicitly before B2:
+
+```text
+Nowait currently bypasses BindingId publication
+TryCatch does not publish the catch binder
+CorePlan local publication lacks an exact SourceBindingSiteV1
+inline Main.main bypasses ordinary parameter publication
+BlockExpr scope semantics are not yet an explicit resolver contract
+Lambda owns a separate capture/function boundary
+```
+
+The B1-I installation matrix includes static/free functions, static box
+methods, instance methods/constructors, inline and callable `Main.main`,
+synthetic script/test `main`, rewritten REPL wrappers, and CorePlan local
+publication.  Every applicable path must reach exactly one resolve/verify/seal
+before parameter or body Lower.  Unsupported paths fail before Lower; they do
+not use an old resolver.
+
 SA3-B2 is the atomic production cutover:
 
 ```text
 resolve + verify + seal before function Lower
 install exactly one sealed product
-claim receiver / parameters / locals / outboxes in declaration order
+claim receiver / parameters / locals / outboxes by exact SourceBindingSiteV1
+consume each one-shot claim when publishing its ValueId
 materialize BindingId -> ValueId only
 finish with zero unclaimed declarations
 ```

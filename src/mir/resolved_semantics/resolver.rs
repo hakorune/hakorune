@@ -235,7 +235,6 @@ fn canonicalize_draft(
         scopes,
         regions,
         declarations,
-        declaration_order: draft.declaration_order,
         variable_uses,
         assignment_targets,
         control_exits,

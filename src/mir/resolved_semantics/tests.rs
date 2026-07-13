@@ -85,7 +85,6 @@ fn sample_data(owner: FunctionOwnerIdV1, binding: BindingId) -> ResolvedFunction
             ),
         )]),
         declarations: BTreeMap::from([(declaration.clone(), binding_ref)]),
-        declaration_order: vec![declaration].into_boxed_slice(),
         variable_uses: BTreeMap::from([(use_site, binding_ref)]),
         assignment_targets: BTreeMap::from([(
             assignment_site,
@@ -125,14 +124,6 @@ fn two_binding_data(
         ),
     );
     data.declarations.insert(second_site, second_ref);
-    data.declaration_order = vec![
-        data.declaration_order[0].clone(),
-        SourceBindingSiteV1::Local {
-            statement: stmt(4),
-            ordinal: 0,
-        },
-    ]
-    .into_boxed_slice();
     let first_ref = data.declarations.values().copied().next().unwrap();
     let declarations = if reverse_scope_order {
         vec![second_ref, first_ref]

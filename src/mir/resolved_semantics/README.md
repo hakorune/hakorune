@@ -38,14 +38,17 @@ omniscience.
 
 SA3-A adds a behavior-neutral Lower transport in
 `builder/vars/resolved_binding_state.rs`. It can hold one sealed product,
-claim an exact `SourceBindingSiteV1` once, and publish `BindingId -> ValueId`.
+claim an exact `SourceBindingSiteV1` once, then consume that one-shot claim to
+publish `BindingId -> ValueId`.  Order, name, and kind alone are never
+declaration identity.
 Resolved parameter/local publication APIs exist but have no production caller
 until the atomic SA3-B switch. During SA3-A the legacy Lower allocator remains
 the single active canonical BindingId owner; installing a canonical product is
 still zero.
 
 The canonical `FunctionSemanticResolverSessionV1` also exists as a
-disconnected producer. It borrows `FunctionSyntaxViewV1`, uses
+disconnected producer. It derives and borrows `FunctionSyntaxViewV1` from one
+canonical function AST, uses
 construction-local draft indices during one traversal, converts them once to
 owner-scoped canonical IDs, and immediately verifies/seals. Draft indices
 never enter Lower or the normalized parity graph. Production installation
