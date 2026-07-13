@@ -6,14 +6,17 @@
 // gives the schema its first shadow-only producer/consumer.
 #![allow(dead_code, unused_imports)]
 
+mod function_view;
 mod ids;
 mod normalized;
 mod product;
 mod records;
+mod resolver;
 mod shadow;
 mod source_site;
 mod verifier;
 
+pub(crate) use function_view::FunctionSyntaxViewV1;
 pub use ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
 pub use normalized::{
     NormalizedAssignmentTargetV1, NormalizedAssignmentV1, NormalizedBindingKeyV1,
@@ -27,11 +30,14 @@ pub use records::{
     ResolvedBindingRecordV1, ResolvedControlExitV1, ResolvedRegionRecordV1, ResolvedScopeRecordV1,
     ScopeKindV1, ScopeOriginV1, SyntheticBindingKindV1,
 };
+pub(crate) use resolver::{FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1};
 pub use source_site::{
     FunctionOriginV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1,
     SourceStmtSiteV1,
 };
 pub use verifier::ResolvedFunctionVerificationErrorV1;
 
+#[cfg(test)]
+mod resolver_tests;
 #[cfg(test)]
 mod tests;

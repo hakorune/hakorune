@@ -44,6 +44,14 @@ until the atomic SA3-B switch. During SA3-A the legacy Lower allocator remains
 the single active canonical BindingId owner; installing a canonical product is
 still zero.
 
+The canonical `FunctionSemanticResolverSessionV1` also exists as a
+disconnected producer. It borrows `FunctionSyntaxViewV1`, uses
+construction-local draft indices during one traversal, converts them once to
+owner-scoped canonical IDs, and immediately verifies/seals. Draft indices
+never enter Lower or the normalized parity graph. Production installation
+remains zero until the accepted syntax inventory and all declaration callers
+can switch together.
+
 ## Authority
 
 - The canonical AST owns syntax and source execution order.
@@ -62,8 +70,8 @@ still zero.
 
 This module family must not import or call:
 
-- canonical arena files must not import `ASTNode` or own cloned/normalized AST
-  payloads; only the disconnected `shadow/` resolver may borrow `ASTNode`;
+- canonical arena files must not own cloned/normalized AST payloads;
+  `FunctionSyntaxViewV1` and the construction resolver may only borrow syntax;
 - Planner, Recipe, JoinIR ownership, or Lower modules;
 - `ValueId` or `BasicBlockId`;
 - `MirBuilder`, `CoreContext`, or any BindingId allocator;
@@ -73,7 +81,8 @@ This module family must not import or call:
 Mutable drafts remain crate-private. Only a verified sealed product may become
 a public consumer input. Unsupported resolution never retries a legacy path.
 
-SA1's `ShadowBindingOrdinalV0` uses a separate crate-private shadow product.
-It never populates this canonical BindingId product or enters Planner or
-Lower. Unsupported syntax returns a typed resolver error and never retries an
-old resolver. There is no test-only unverified publication bypass.
+SA1's `ShadowBindingOrdinalV0` is now also the construction-local draft index
+used inside canonical resolution. It is converted and discarded before seal;
+it never enters Planner or Lower and is not semantic identity. Unsupported
+syntax returns a typed resolver error and never retries an old resolver. There
+is no test-only unverified publication bypass.

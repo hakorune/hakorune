@@ -102,6 +102,7 @@ pub struct NormalizedResolvedFunctionGraphV1 {
     scopes: Box<[NormalizedScopeRecordV1]>,
     regions: Box<[NormalizedRegionRecordV1]>,
     declarations: Box<[NormalizedDeclarationV1]>,
+    declaration_order: Box<[SourceBindingSiteV1]>,
     variable_uses: Box<[NormalizedVariableUseV1]>,
     assignments: Box<[NormalizedAssignmentV1]>,
     exits: Box<[NormalizedExitV1]>,
@@ -126,6 +127,10 @@ impl NormalizedResolvedFunctionGraphV1 {
 
     pub fn declarations(&self) -> &[NormalizedDeclarationV1] {
         &self.declarations
+    }
+
+    pub fn declaration_order(&self) -> &[SourceBindingSiteV1] {
+        &self.declaration_order
     }
 
     pub fn variable_uses(&self) -> &[NormalizedVariableUseV1] {
@@ -225,6 +230,7 @@ pub(super) fn build_normalized_graph(
         scopes: scopes.into_boxed_slice(),
         regions: regions.into_boxed_slice(),
         declarations: normalize_declarations(data, &binding_keys),
+        declaration_order: data.declaration_order.clone(),
         variable_uses: normalize_uses(data, &binding_keys),
         assignments: normalize_assignments(data, &binding_keys),
         exits: normalize_exits(data, &region_keys),

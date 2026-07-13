@@ -6,6 +6,7 @@ use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::source_site::{
     FunctionOriginV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
+use crate::mir::resolved_semantics::FunctionSyntaxViewV1;
 
 use super::ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
 use super::path::ShadowSourcePathV0;
@@ -36,27 +37,32 @@ pub(super) struct ShadowResolverV0 {
     scopes: BTreeMap<ShadowScopeIdV0, ShadowScopeRecordV0>,
     regions: BTreeMap<ShadowRegionIdV0, ShadowRegionRecordV0>,
     declarations: BTreeMap<SourceBindingSiteV1, ShadowBindingOrdinalV0>,
+    declaration_order: Vec<SourceBindingSiteV1>,
     variable_uses: BTreeMap<SourceExprSiteV1, ShadowBindingOrdinalV0>,
     assignment_targets: BTreeMap<SourceExprSiteV1, ShadowAssignmentTargetV0>,
     control_exits: BTreeMap<SourceStmtSiteV1, ShadowControlExitV0>,
+    control_exit_regions: BTreeMap<SourceStmtSiteV1, ShadowRegionIdV0>,
 }
 
 pub(super) fn resolve_function_shadow_v0(
     function_origin: FunctionOriginV1,
     function: &ASTNode,
 ) -> Result<ShadowResolvedFunctionV0, ShadowResolveErrorV0> {
-    let ASTNode::FunctionDeclaration {
-        params,
-        body,
-        is_static,
-        ..
-    } = function
-    else {
+    let Some(view) = FunctionSyntaxViewV1::from_ast(function) else {
         return Err(ShadowResolveErrorV0::ExpectedFunctionDeclaration);
     };
+    resolve_function_shadow_view_v0(function_origin, view)
+}
+
+pub(in crate::mir::resolved_semantics) fn resolve_function_shadow_view_v0(
+    function_origin: FunctionOriginV1,
+    view: FunctionSyntaxViewV1<'_>,
+) -> Result<ShadowResolvedFunctionV0, ShadowResolveErrorV0> {
+    let params = view.params();
+    let body = view.body();
 
     let mut resolver = ShadowResolverV0::new(function_origin);
-    if !is_static {
+    if !view.is_static() {
         resolver.declare_binding(
             "me",
             ShadowBindingKindV0::Receiver,
@@ -129,9 +135,11 @@ impl ShadowResolverV0 {
             scopes,
             regions,
             declarations: BTreeMap::new(),
+            declaration_order: Vec::new(),
             variable_uses: BTreeMap::new(),
             assignment_targets: BTreeMap::new(),
             control_exits: BTreeMap::new(),
+            control_exit_regions: BTreeMap::new(),
         }
     }
 
@@ -144,9 +152,11 @@ impl ShadowResolverV0 {
             scopes: self.scopes,
             regions: self.regions,
             declarations: self.declarations,
+            declaration_order: self.declaration_order.into_boxed_slice(),
             variable_uses: self.variable_uses,
             assignment_targets: self.assignment_targets,
             control_exits: self.control_exits,
+            control_exit_regions: self.control_exit_regions,
         }
     }
 
@@ -190,6 +200,8 @@ impl ShadowResolverV0 {
     }
 
     pub(super) fn record_exit(&mut self, site: SourceStmtSiteV1, exit: ShadowControlExitV0) {
+        self.control_exit_regions
+            .insert(site.clone(), self.current_region());
         self.control_exits.insert(site, exit);
     }
 
@@ -215,6 +227,7 @@ impl ShadowResolverV0 {
                 origin: origin.clone(),
             },
         );
+        self.declaration_order.push(origin.clone());
         self.declarations.insert(origin, binding);
         let scope = self.scopes.get_mut(&frame.id).expect("scope record exists");
         let mut declarations = scope.declarations.to_vec();

@@ -6,11 +6,11 @@
 
 #![allow(dead_code)] // SA3-A transport lands behavior-neutral before SA3-B.
 
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, VecDeque};
 use std::sync::Arc;
 
 use crate::mir::resolved_semantics::{
-    BindingRefV1, SourceBindingSiteV1, VerifiedResolvedFunctionV1,
+    BindingKindV1, BindingRefV1, SourceBindingSiteV1, VerifiedResolvedFunctionV1,
 };
 use crate::mir::{BindingId, ValueId};
 
@@ -19,6 +19,7 @@ pub(in crate::mir) struct ResolvedBindingLoweringStateV1 {
     product: Option<Arc<VerifiedResolvedFunctionV1>>,
     values: BTreeMap<BindingId, ValueId>,
     claimed_declarations: BTreeSet<SourceBindingSiteV1>,
+    pending_declarations: VecDeque<SourceBindingSiteV1>,
 }
 
 impl ResolvedBindingLoweringStateV1 {
@@ -29,10 +30,46 @@ impl ResolvedBindingLoweringStateV1 {
         if self.product.is_some()
             || !self.values.is_empty()
             || !self.claimed_declarations.is_empty()
+            || !self.pending_declarations.is_empty()
         {
             return Err("[freeze:contract][resolved_binding/install_nonempty]".to_string());
         }
+        self.pending_declarations = product.declaration_order().iter().cloned().collect();
         self.product = Some(product);
+        Ok(())
+    }
+
+    pub(in crate::mir::builder) fn claim_next_declaration(
+        &mut self,
+        expected_kind: BindingKindV1,
+        expected_name: &str,
+    ) -> Result<(SourceBindingSiteV1, BindingRefV1), String> {
+        let site = self.pending_declarations.pop_front().ok_or_else(|| {
+            "[freeze:contract][resolved_binding/declaration_order_exhausted]".to_string()
+        })?;
+        let binding = self.claim_declaration(&site, expected_name)?;
+        let actual_kind = self
+            .product
+            .as_ref()
+            .expect("claim requires product")
+            .binding(binding)
+            .expect("sealed declaration must resolve")
+            .kind();
+        if actual_kind != expected_kind {
+            return Err(format!(
+                "[freeze:contract][resolved_binding/kind_mismatch] expected={expected_kind:?} actual={actual_kind:?} site={site:?}"
+            ));
+        }
+        Ok((site, binding))
+    }
+
+    pub(in crate::mir::builder) fn finish_claims(&self) -> Result<(), String> {
+        if let Some(site) = self.pending_declarations.front() {
+            return Err(format!(
+                "[freeze:contract][resolved_binding/declaration_unclaimed] first={site:?} remaining={}",
+                self.pending_declarations.len()
+            ));
+        }
         Ok(())
     }
 

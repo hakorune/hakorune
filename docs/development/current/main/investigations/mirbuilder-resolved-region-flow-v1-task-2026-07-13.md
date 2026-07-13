@@ -697,6 +697,59 @@ inventory before SA3.  Wildcard acceptance is forbidden.
 
 ### SA3 — atomic canonical BindingId authority cutover
 
+Decision:
+
+```text
+D: owner_scoped_resolved_semantic_arena
+```
+
+SA3 is an authority relocation, not merely an allocator replacement.  The
+single pre-Planner semantic authority is:
+
+```text
+Canonical Function AST
+  -> FunctionSemanticResolverV1
+  -> ResolvedFunctionDraftV1
+  -> ResolvedFunctionVerifierV1
+  -> VerifiedResolvedFunctionV1
+```
+
+`VerifiedResolvedFunctionV1` owns the sealed function-local binding, scope,
+and control-region arenas plus exact declaration/use/assignment/exit indexes.
+The identities remain strictly separate:
+
+```text
+SourceNodeSiteV1  source provenance
+BindingId         lexical declaration identity within one function owner
+ScopeId           lexical visibility and lifetime identity
+RegionId          structured control identity
+ValueId           Lower-owned SSA value identity
+```
+
+`BindingOriginV1` and `RegionOriginV1` are provenance used for diagnostics,
+normalized Rust/Hako parity, and deterministic dumps.  They are not equality
+or lookup authority.  Raw owner-local ordinals have no meaning outside their
+sealed function owner.  `ResolvedFunctionV1` is a syntax-free semantic sidecar,
+not a replacement AST and not an execution IR.
+
+Construction ownership is closed:
+
+```text
+FunctionSemanticResolverSessionV1:
+  issues the function owner
+  allocates BindingId / ScopeId / RegionId once
+  resolves names and exact control targets
+
+RegionFlow / Planner:
+  consume the verified arena
+  allocate no semantic or SSA identities
+
+Lower:
+  BindingId -> current ValueId
+  RegionId  -> materialized BasicBlockId targets
+  performs no name or control-target rediscovery
+```
+
 SA3-A behavior-neutral transport preparation:
 
 ```text
@@ -712,6 +765,57 @@ legacy allocator remains the only active allocator
 
 SA3-B performs the atomic producer/caller switch. SA3-C deletes the then-dead
 CoreContext/MirBuilder allocator surface.
+
+SA3-B0 lands the disconnected canonical producer first. Its only canonical
+`BindingId::new` site is the draft-to-arena conversion inside
+`FunctionSemanticResolverSessionV1`; no production function installs the
+result yet. `FunctionSyntaxViewV1` borrows params/body and never reconstructs
+or stores an AST clone. Construction-local draft IDs remain unpublished and
+are discarded before seal.
+
+SA3-B1 closes the complete production declaration/use/control inventory.
+Every canonical AST branch is classified exhaustively as resolved,
+semantically transparent, or explicitly unsupported.  Wildcards, legacy
+resolver retry, and partial publication are forbidden.
+
+SA3-B2 is the atomic production cutover:
+
+```text
+resolve + verify + seal before function Lower
+install exactly one sealed product
+claim receiver / parameters / locals / outboxes in declaration order
+materialize BindingId -> ValueId only
+finish with zero unclaimed declarations
+```
+
+SA3-B2 may use a temporary dual ValueId check, but there is still exactly one
+lexical identity authority.  It must cover ordinary static/instance lowering,
+CorePlan-local declarations, and all production function entry paths before
+SA3-C removes the legacy allocator.
+
+SA3-C retires every active Lower-time BindingId constructor and name-keyed
+lexical authority only after SA3-B2 is green.  The exact caller-zero set is:
+
+```text
+CoreContext::next_binding_id
+CoreContext::next_binding
+MirBuilder::allocate_binding_id
+declare-local APIs that allocate BindingId
+Lower-side String -> BindingId authority
+```
+
+Stop SA3 before production cutover if any of the following remains:
+
+```text
+unsupported syntax requires silent fallback
+Resolver is not the only BindingId allocator
+BindingOrigin is used as binding equality
+Lower resolves a name or exit target again
+another function owner's BindingId / ScopeId / RegionId is accepted
+one declaration/use/assignment/exit lacks an exact sealed index
+same-scope redeclaration semantics differ between producer and consumer
+ResolvedFunctionV1 owns or publishes cloned AST payloads
+```
 
 In one Refactor Series Mode objective:
 

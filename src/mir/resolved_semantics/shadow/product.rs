@@ -109,7 +109,9 @@ pub(crate) struct ShadowResolvedFunctionV0 {
     pub(crate) scopes: BTreeMap<ShadowScopeIdV0, ShadowScopeRecordV0>,
     pub(crate) regions: BTreeMap<ShadowRegionIdV0, ShadowRegionRecordV0>,
     pub(crate) declarations: BTreeMap<SourceBindingSiteV1, ShadowBindingOrdinalV0>,
+    pub(crate) declaration_order: Box<[SourceBindingSiteV1]>,
     pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, ShadowBindingOrdinalV0>,
     pub(crate) assignment_targets: BTreeMap<SourceExprSiteV1, ShadowAssignmentTargetV0>,
     pub(crate) control_exits: BTreeMap<SourceStmtSiteV1, ShadowControlExitV0>,
+    pub(crate) control_exit_regions: BTreeMap<SourceStmtSiteV1, ShadowRegionIdV0>,
 }

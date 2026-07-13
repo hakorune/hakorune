@@ -20,8 +20,11 @@ guard_require_files "$TAG" \
   "$MODULE/README.md" \
   "$MODULE/mod.rs" \
   "$MODULE/ids.rs" \
+  "$MODULE/function_view.rs" \
   "$MODULE/source_site.rs" \
   "$MODULE/records.rs" \
+  "$MODULE/resolver.rs" \
+  "$MODULE/resolver_tests.rs" \
   "$MODULE/normalized.rs" \
   "$MODULE/product.rs" \
   "$MODULE/verifier.rs" \
@@ -42,11 +45,14 @@ guard_require_files "$TAG" \
   "$ROOT/src/mir/join_ir/ownership/ast_analyzer/core.rs"
 
 expected_manifest="$(printf '%s\n' \
+  function_view.rs \
   ids.rs \
   mod.rs \
   normalized.rs \
   product.rs \
   records.rs \
+  resolver.rs \
+  resolver_tests.rs \
   shadow/expr.rs \
   shadow/ids.rs \
   shadow/mod.rs \
@@ -71,6 +77,14 @@ mapfile -t PRODUCTION_FILES < <(
 mapfile -t CANONICAL_FILES < <(
   find "$MODULE" -maxdepth 1 -type f -name '*.rs' ! -name 'tests.rs' -print | LC_ALL=C sort
 )
+mapfile -t CANONICAL_NON_RESOLVER_FILES < <(
+  find "$MODULE" -maxdepth 1 -type f -name '*.rs' ! -name 'tests.rs' \
+    ! -name 'resolver.rs' ! -name 'resolver_tests.rs' -print | LC_ALL=C sort
+)
+mapfile -t CANONICAL_ARENA_FILES < <(
+  find "$MODULE" -maxdepth 1 -type f -name '*.rs' ! -name 'tests.rs' \
+    ! -name 'resolver_tests.rs' ! -name 'function_view.rs' -print | LC_ALL=C sort
+)
 mapfile -t SHADOW_FILES < <(
   find "$MODULE/shadow" -type f -name '*.rs' ! -name 'tests.rs' -print | LC_ALL=C sort
 )
@@ -92,6 +106,7 @@ for required in \
   "pub(crate) scopes: BTreeMap<ScopeId, ResolvedScopeRecordV1>" \
   "pub(crate) regions: BTreeMap<RegionId, ResolvedRegionRecordV1>" \
   "pub(crate) declarations: BTreeMap<SourceBindingSiteV1, BindingRefV1>" \
+  "pub(crate) declaration_order: Box<[SourceBindingSiteV1]>" \
   "pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, BindingRefV1>" \
   "pub(crate) assignment_targets:" \
   "pub(crate) control_exits:" \
@@ -133,7 +148,7 @@ guard_expect_fixed_in_file "$TAG" "pub struct NormalizedResolvedFunctionGraphV1"
   "$MODULE/normalized.rs" "normalized semantic graph missing"
 
 if rg -n 'ASTNode|Box[[:space:]]*<[[:space:]]*AST|Vec[[:space:]]*<[[:space:]]*AST' \
-  "${CANONICAL_FILES[@]}"; then
+  "${CANONICAL_ARENA_FILES[@]}"; then
   guard_fail "$TAG" "canonical resolved semantic arena must not own cloned AST payloads"
 fi
 
@@ -148,7 +163,8 @@ for required in \
   "pub(crate) struct ShadowResolvedFunctionV0" \
   "BTreeMap<ShadowBindingOrdinalV0, ShadowBindingRecordV0>" \
   "BTreeMap<SourceExprSiteV1, ShadowBindingOrdinalV0>" \
-  "BTreeMap<SourceStmtSiteV1, ShadowControlExitV0>"; do
+  "BTreeMap<SourceStmtSiteV1, ShadowControlExitV0>" \
+  "pub(crate) declaration_order: Box<[SourceBindingSiteV1]>"; do
   guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/shadow/product.rs" \
     "shadow product schema drifted: $required"
 done
@@ -174,8 +190,8 @@ if ! rg -q '^mod shadow;$' "$MODULE/mod.rs"; then
   guard_fail "$TAG" "shadow module must remain private to resolved_semantics"
 fi
 if rg -n 'pub(\([^)]*\))?[[:space:]]+(use|mod).*shadow|pub[[:space:]]+use.*ShadowResolvedFunctionV0' \
-  "$MODULE/mod.rs" "$MODULE/shadow/mod.rs"; then
-  guard_fail "$TAG" "shadow resolver/product must remain crate-private and disconnected"
+  "$MODULE/mod.rs"; then
+  guard_fail "$TAG" "construction-local resolver drafts must not escape resolved_semantics"
 fi
 
 for required in \
@@ -222,8 +238,11 @@ if stmt != expected_stmt:
 PY
 
 if rg -n 'allocate_binding_id|next_binding|BindingId::new|BindingId[[:space:]]*\(' \
-  "${CANONICAL_FILES[@]}"; then
+  "${CANONICAL_NON_RESOLVER_FILES[@]}"; then
   guard_fail "$TAG" "canonical resolved-semantics files must not allocate BindingIds"
+fi
+if [[ "$(rg -n 'BindingId::new' "$MODULE/resolver.rs" | wc -l)" != "1" ]]; then
+  guard_fail "$TAG" "canonical resolver must own exactly one construction-site BindingId allocator"
 fi
 if rg -n 'BindingId[[:space:]]+as|hakorune_mir_core[[:space:]]+as|hakorune_mir_core::\*|type[[:space:]].*BindingId|\.next[[:space:]]*\(' \
   "${CANONICAL_FILES[@]}"; then
@@ -282,6 +301,7 @@ allowed = {
     "scope",
     "region",
     "declaration_binding",
+    "declaration_order",
     "variable_binding",
     "assignment_target",
     "control_exit",
@@ -354,11 +374,13 @@ if ! rg -q 'pub\(super\) struct BindingId\(u32\)' \
 fi
 
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::tests
+cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::resolver_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::tests
 
 echo "semantic_arena_schema=present"
 echo "semantic_arena_ast_clone_fields=0"
-echo "semantic_arena_binding_allocator_calls=0"
+echo "canonical_resolver_binding_allocator_sites=1"
+echo "canonical_resolver_production_installs=0"
 echo "semantic_arena_value_id_imports=0"
 echo "semantic_arena_basic_block_id_imports=0"
 echo "semantic_arena_bounded_lower_transport=1"

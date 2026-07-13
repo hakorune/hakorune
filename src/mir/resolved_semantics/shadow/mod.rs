@@ -1,7 +1,9 @@
-//! Disconnected SA1 shadow resolver.
+//! SA1 shadow resolver and SA3 construction-local resolution core.
 //!
 //! This family may observe canonical syntax, but it must never construct the
-//! canonical arena product or become a Planner/Lower input.
+//! canonical arena product or become a Planner/Lower input. SA3 may consume
+//! its draft records only inside `resolver.rs`, immediately canonicalize them,
+//! and seal the canonical product before publication.
 
 mod expr;
 mod ids;
@@ -11,12 +13,13 @@ mod resolver;
 mod stmt;
 mod vocabulary;
 
-use ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
-use product::{
+pub(super) use ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
+pub(super) use product::{
     ShadowAssignmentTargetV0, ShadowBindingKindV0, ShadowControlExitV0, ShadowRegionKindV0,
-    ShadowResolveErrorV0, ShadowResolvedFunctionV0,
+    ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowScopeKindV0,
 };
 use resolver::resolve_function_shadow_v0;
+pub(super) use resolver::resolve_function_shadow_view_v0;
 
 #[cfg(test)]
 mod tests;
