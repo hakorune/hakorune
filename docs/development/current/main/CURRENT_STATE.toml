@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Design consultation stop"
+status = "Active implementation prerequisite"
 date = "2026-07-13"
 
 active_lane = "MIRBUILDER Hako SourceBodyAnalysisSnapshotV1"
@@ -114,15 +114,26 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/mirbuilder-generic-loop-a2-hybrid-proof-task-2026-07-13.md"
-phase_status = "docs/development/current/main/investigations/mirbuilder-generic-loop-a2-hybrid-proof-task-2026-07-13.md"
+active_phase = "docs/development/current/main/investigations/mirbuilder-generic-loop-a2-source-site-projection-task-2026-07-13.md"
+phase_status = "docs/development/current/main/investigations/mirbuilder-generic-loop-a2-source-site-projection-task-2026-07-13.md"
 method_anchor = "docs/development/current/main/design/current-docs-archive-policy-ssot.md"
-taskboard = "docs/development/current/main/investigations/mirbuilder-generic-loop-a2-hybrid-proof-task-2026-07-13.md"
+taskboard = "docs/development/current/main/investigations/mirbuilder-generic-loop-a2-source-site-projection-task-2026-07-13.md"
 latest_workstream_card = "docs/development/current/main/investigations/mirbuilder-hako-typed-source-carrier-v1-2026-07-12.md"
 
-latest_card = "mirbuilder-generic-loop-a2-hybrid-proof-task-2026-07-13"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-generic-loop-a2-hybrid-proof-task-2026-07-13.md"
-latest_card_summary = """A2-C0 acceptance-neutral candidate capture and C1
+latest_card = "mirbuilder-generic-loop-a2-source-site-projection-task-2026-07-13"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-generic-loop-a2-source-site-projection-task-2026-07-13.md"
+latest_card_summary = """The C2 identity consultation accepts a hybrid:
+SourceStmtSiteV0 is canonical identity, generic-loop untyped flatten becomes
+an identity-preserving typed projection, and Recipe provenance is a sealed,
+co-constructed positional witness rather than RecipeItem fields or a mutable
+path map. ScopeBox is a separately certified transparent container. Existing
+Recipe remains source-independent and VerifiedRecipeBlock keeps its current
+contract/port meaning. C2-I0 is acceptance-neutral and adds only path/schema,
+typed projected bodies/statements, transparent expansion, sealing, and old
+flatten sequence parity. Recipe, candidate selection, Lower, ProgramV0, and
+parser/source-carrier P1 connections remain zero. C2-I1 through I4 later add
+paired registration, source/Recipe bijection, exact canonical-step identity,
+and composite E+R selection. Historical A2 evidence follows. A2-C0 acceptance-neutral candidate capture and C1
 neutral progression proof plus C2-P0 Recipe coverage preflight are closed.
 Eighteen focused progression tests and
 the reusable lane guard are green. The exact
@@ -324,7 +335,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "GENERIC-LOOP-A2-C2-SOURCE-RECIPE-IDENTITY-DESIGN-STOP-001"
+current_blocker_token = "GENERIC-LOOP-A2-C2-I0-SOURCE-SITE-PROJECTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

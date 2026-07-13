@@ -1,6 +1,6 @@
 # Generic Loop A2 — Capture, Proof, Recipe Taskboard
 
-Status: Design stop; A2-C0/C1 and C2-P0 closed, source/Recipe identity decision required.
+Status: Superseded at C2 by the accepted source-site projection taskboard.
 Date: 2026-07-13
 Decision: acceptance-neutral capture first, then asymmetric `E + R` hybrid.
 Classification: BoxShape only.
@@ -489,7 +489,16 @@ candidate-local preorder ordinal and top-level index cannot recover nested
 branch identity.  C2-P1 is blocked by the declared `MissingStructuralIdentity`
 stop condition; no approximate mapping is allowed.
 
-#### C2 design consultation required
+#### C2 design consultation (resolved)
+
+Decision: hybrid (`A + E-light + sealed paired provenance`).  Continue at:
+
+```text
+docs/development/current/main/investigations/
+  mirbuilder-generic-loop-a2-source-site-projection-task-2026-07-13.md
+```
+
+Historical questions were:
 
 Choose the owner and scope of exact structural identity before P1:
 

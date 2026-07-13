@@ -26,14 +26,13 @@ When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executa
 ## Handoff
 
 Read `latest_card_path` in `CURRENT_STATE.toml` before editing. The active
-slice is the A2-C2 source/Recipe identity design stop. C0/C1 and the C2-P0
-coverage preflight are closed. P0 proves that current Recipe verification
-accepts omitted and duplicate body references: Recipe-local exact coverage is
-representable but has no owner. More importantly, flattening and canonical
-step filtering retain no exact nested source-site identity, so P1 must not
-approximate it with candidate-local preorder or a top-level index. Consultation
-must select the source-site/path owner, ScopeBox accounting rule, canonical
-step witness transport, and bijection verifier owner. New Recipe items/CFG
-wiring, rank, parser changes, and widening remain forbidden. Keep
-source-carrier P1 stash-only until A2 lands independently and clean-HEAD
+slice is A2-C2-I0 identity-preserving source projection. The consultation
+selects SourceStmtSiteV0 structural paths as authority, ScopeBox as a certified
+transparent container, and a sealed typed projection before Recipe building.
+I0 adds only schema/path/model/builder/sealer, typed If/Loop child identities,
+ScopeBody paths, and old-flatten AST-sequence parity. Acceptance, Recipe,
+candidate selection, Lower, ProgramV0, and parser/source-carrier P1 connections
+remain zero. Do not use flattened indices, candidate preorder, spans, pointers,
+or mutable path maps as identity. Keep every source file below 800 lines and
+keep source-carrier P1 stash-only until A2 lands independently and clean-HEAD
 ProgramV0 is green.
