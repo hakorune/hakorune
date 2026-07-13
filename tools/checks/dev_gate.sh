@@ -19,7 +19,7 @@ set -euo pipefail
 #   milestone         : milestone-runtime + milestone-perf (backward compatible)
 #
 # Output:
-#   default            : one compact line per successful quick step
+#   default            : summary-only successful quick output
 #   DEV_GATE_VERBOSE=1 : stream child stdout/stderr for diagnosis
 
 PROFILE="${1:-quick}"

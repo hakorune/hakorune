@@ -63,7 +63,6 @@ dev_gate_group_execute() {
   if [[ "$status" == "0" ]]; then
     DEV_GATE_GROUP_PASS_COUNT=$((DEV_GATE_GROUP_PASS_COUNT + 1))
     rm -f "$log_file"
-    echo "[${DEV_GATE_GROUP_TAG}] ok  ${label} (${elapsed}s)"
     return 0
   fi
 

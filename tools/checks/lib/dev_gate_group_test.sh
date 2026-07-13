@@ -12,8 +12,15 @@ export TMPDIR="$TMP_DIR"
 
 compact_out="$TMP_DIR/compact.out"
 dev_gate_group_run "compact-test" "$SUCCESS_STEPS" >"$compact_out" 2>&1
-grep -Fq '[compact-test] ok  quiet success' "$compact_out"
 grep -Fq '[compact-test] PASS 1/1' "$compact_out"
+if [[ "$(wc -l <"$compact_out")" != "1" ]]; then
+  echo "[dev-gate-group-test] compact success must emit exactly one group line" >&2
+  exit 1
+fi
+if grep -Fq '[compact-test] ok  quiet success' "$compact_out"; then
+  echo "[dev-gate-group-test] compact success leaked per-step output" >&2
+  exit 1
+fi
 if grep -Eq 'hidden-(stdout|stderr)' "$compact_out"; then
   echo "[dev-gate-group-test] compact success leaked child output" >&2
   exit 1
