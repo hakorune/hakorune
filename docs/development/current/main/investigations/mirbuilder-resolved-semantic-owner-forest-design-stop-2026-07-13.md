@@ -778,10 +778,114 @@ remain unchanged.
 ```text
 ScopeKindV1::BlockExpr
 RegionKindV1::BlockExpr
-every canonical BlockExpr receives both identities
+every represented canonical BlockExpr owns both identities as one sealed pair
 scope ancestry and exact source origin verified at seal
 Planner / RegionFlow / Lower connection = 0
 ```
+
+##### B0-S executable task card
+
+Classification:
+
+```text
+work kind = BoxShape
+accepted resolver syntax delta = 0
+docs_only_closeout = forbidden
+code_or_artifact_delta_required = 1
+```
+
+The B0 aggregate end-state requires every canonical source BlockExpr to receive
+both identities. B0-S does not claim production AST coverage yet. It adds the
+disconnected vocabulary and seal law only: when a BlockExpr pair is supplied
+to a canonical draft, it is complete, internally consistent, and cannot be
+published as a partial scope-only or region-only truth. B0-F owns the first
+canonical AST traversal and lexical behavior fixtures.
+
+Source authority and non-authority:
+
+```text
+authority:
+  records.rs ScopeKindV1 / RegionKindV1
+  verifier.rs sealed pair/origin/containment contract
+  source_site.rs existing BlockExprPreludeRoot / Prelude(index) / Tail
+
+non-authority:
+  shadow resolver acceptance
+  ProgramV0 BlockExpr
+  Planner / RegionFlow / Lower success
+  names, AST pointers, producer paths, or local presence
+```
+
+Required implementation slice:
+
+1. Add only `ScopeKindV1::BlockExpr` and `RegionKindV1::BlockExpr`; reuse the
+   existing owner-branded `ScopeId`, `RegionId`, records, and normalized graph.
+   No new identity, record family, or source-path segment is allowed.
+2. Add one seal-time BlockExpr pair verifier. A BlockExpr scope and its owner
+   region must point to each other, both kinds must be `BlockExpr`, and both
+   origins must be the same `Source(BlockExprPreludeRoot)` node. The root token
+   is the lexical-root anchor for the entire expression, including the tail;
+   it is not evidence that the tail lives outside the scope.
+3. Extend source containment for that origin to exactly
+   `BlockExprPrelude(index)` and `BlockExprTail` descendants with the same
+   prefix. Sibling/outer/another-BlockExpr sites are excluded. Existing generic
+   scope/region ancestry remains the authority; do not create a second ancestry
+   index.
+4. Add `resolved_semantics/block_expr_tests.rs` instead of growing the existing
+   large test modules. Cover a valid sealed pair, scope-only/region-only kind
+   mismatch, different exact origins, prelude/tail containment, nested-site
+   exclusion, normalized parity, and the unchanged typed resolver rejection of
+   `ASTNode::BlockExpr`.
+5. Extend only `resolved_region_flow_authority_guard.sh`. Reuse the B0-P
+   producer inventory; do not add another JSON fixture or a B0-S-specific shell
+   guard. Update its source manifest, required vocabulary/verifier anchors,
+   focused test call, and stable summary fields.
+6. Update `resolved_semantics/README.md` with the passive BlockExpr pair law and
+   the B0-F installation boundary.
+
+Explicitly forbidden in B0-S:
+
+```text
+ShadowScopeKindV0::BlockExpr / ShadowRegionKindV0::BlockExpr
+shadow/vocabulary.rs acceptance change
+shadow/expr.rs BlockExpr traversal
+canonical shadow-to-kind mapping
+owner_forest declaration-order changes
+non-local exit scanning or activation
+Planner / RegionFlow / Lower connection
+ASTNode or ProgramV0 schema change
+CompatSequence vocabulary or fallback
+```
+
+These are not omissions. A resolver arm without B0-F's recursive non-local
+exit rejection and BlockExpr-local Lambda declaration-order proof would widen
+acceptance with a partial semantic contract. B0-F must add those pieces
+together before it may move BlockExpr from `ExplicitUnsupported` into resolved
+expression vocabulary.
+
+Acceptance:
+
+```bash
+cargo test -q --lib mir::resolved_semantics::block_expr_tests
+cargo test -q --lib mir::resolved_semantics::resolver_tests
+bash tools/checks/resolved_region_flow_authority_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+Expected stable evidence:
+
+```text
+blockexpr_scope_kind=present
+blockexpr_region_kind=present
+blockexpr_identity_pair=verified
+blockexpr_exact_origin=verified
+blockexpr_resolver_acceptance=0
+blockexpr_planner_regionflow_lower_connections=0
+```
+
+Closeout mechanically selects B0-F. B0-S must not close if the resolver accepts
+BlockExpr, if only one identity is present, if scope/region origins disagree,
+or if the focused authority guard is red.
 
 **B0-C — optional internal compatibility carrier (skipped)**
 
