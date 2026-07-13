@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "B0-L3b closed; B0-L4 located CorePlan source-coverage boundary is at design stop"
+status = "B0-L4 P0 inventory closed; located CorePlan source-coverage consultation is pending"
 date = "2026-07-14"
 
 active_lane = "MIRBUILDER Hako SourceBodyAnalysisSnapshotV1"
@@ -192,8 +192,13 @@ B0-L3a closes straight-line BlockExpr sealed ScopeId/RegionId consumption,
 located prelude/tail Lower, active/retired BindingRef disposition, and two
 VM-reference runtime fixtures. B0-L3b closes A+ pre-Builder verified If flow,
 disconnected materialization infrastructure, and canonical fallthrough
-statement-If runtime. B0-L4 located CorePlan source coverage is the active
-design-stop boundary.
+statement-If runtime. B0-L4-P0 closes the bounded production-seam inventory:
+canonical located Lower, the dev-only raw suffix normalization route, and the
+legacy Builder-time CorePlan route are three distinct paths. Current CorePlan
+already owns ValueId/BasicBlockId/PHI/name-keyed state and cannot be the first
+pre-Builder source authority. The shareable B0-L4 consultation selects the
+ID-free Loop flow/coverage carrier and first disconnected/runtime slice before
+any production code edit.
 Historical decision follows.
 Resolved Region Flow V1 accepts
 `function_semantic_resolver_v1_owner_scoped_arena`. One pre-plan
