@@ -1,11 +1,18 @@
 # Generic Loop Baseline V1 — Taskboard
 
-Status: Active BoxShape series; G0 identity/coverage selected.
+Status: Superseded by Resolved Region Flow V1; generic baseline remains the loop consumer.
 Date: 2026-07-13
 Decision: `generic_baseline_plus_optional_canonical`.
 Final retirement target: mandatory single-`loop_var` family = 0 callers.
 
 ## Purpose
+
+Superseding taskboard:
+
+```text
+docs/development/current/main/investigations/
+  mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
+```
 
 Make complete-body generic semantics the correctness baseline, move canonical
 step extraction to an optional proven optimization, then retire the legacy
@@ -540,4 +547,3 @@ parser/source-carrier P1 is connected
 16. Unsupported backend falls back to VM.
 17. Legacy loop-var callers remain uncounted at cutover.
 18. Any source file reaches 800 lines.
-

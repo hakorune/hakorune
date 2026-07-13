@@ -114,15 +114,32 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/mirbuilder-generic-loop-baseline-v1-task-2026-07-13.md"
-phase_status = "docs/development/current/main/investigations/mirbuilder-generic-loop-baseline-v1-task-2026-07-13.md"
+active_phase = "docs/development/current/main/investigations/mirbuilder-resolved-region-flow-v1-task-2026-07-13.md"
+phase_status = "docs/development/current/main/investigations/mirbuilder-resolved-region-flow-v1-task-2026-07-13.md"
 method_anchor = "docs/development/current/main/design/current-docs-archive-policy-ssot.md"
-taskboard = "docs/development/current/main/investigations/mirbuilder-generic-loop-baseline-v1-task-2026-07-13.md"
+taskboard = "docs/development/current/main/investigations/mirbuilder-resolved-region-flow-v1-task-2026-07-13.md"
 latest_workstream_card = "docs/development/current/main/investigations/mirbuilder-hako-typed-source-carrier-v1-2026-07-12.md"
 
-latest_card = "mirbuilder-generic-loop-baseline-v1-task-2026-07-13"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-generic-loop-baseline-v1-task-2026-07-13.md"
-latest_card_summary = """Generic Loop Baseline V1 supersedes mandatory
+latest_card = "mirbuilder-resolved-region-flow-v1-task-2026-07-13"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-resolved-region-flow-v1-task-2026-07-13.md"
+latest_card_summary = """Resolved Region Flow V1 generalizes generic-loop
+state closure into one recursive structured-region summary. Each region
+publishes Port -> MayRebind(canonical BindingId set); analysis allocates no
+BindingIds or ValueIds, uses no name-based identity, simulates no SSA versions,
+and publishes no normalized AST clones. Loop header/after state domains and
+edge binding requirements are derived from resolved port summaries. Lower
+only materializes required BindingIds through its current BindingId->ValueId
+environment. SourceStmtSite, BindingId, RegionId, and ValueId remain distinct.
+ScopeBox is execution-inline for Recipe coverage and a real lexical boundary
+for region flow. Binding rebind and non-binding heap effects are separate.
+Active R0 inventories the canonical binding_ctx snapshot seam, scope/control
+target owners, and the private join_ir/ownership BindingId disposition before
+implementation. WIP `f74e5961e1` is acceptance-neutral and green but must be
+restored selectively; R1 first removes ProjectedStmt AST clone ownership.
+R1-R8 build the resolved view, recursive summaries, loop contracts, verifier,
+disconnected plan, reference Lower, differential corpus, and authority
+cutover. R9 caller-zero retirement of mandatory loop_var is Epic completion.
+Historical generic-baseline decision follows. Generic Loop Baseline V1 supersedes mandatory
 progression-owner acceptance. Generic correctness is condition + complete body
 Recipe + exact source coverage + loop-carried binding set + closed ports. A
 selected loop_var, loop_increment, step filtering, BodyManagedCursor, and
@@ -349,7 +366,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "GENERIC-LOOP-BASELINE-V1-G0-IDENTITY-COVERAGE-001"
+current_blocker_token = "RESOLVED-REGION-FLOW-V1-R0-BINDING-REGION-SEAM-INVENTORY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

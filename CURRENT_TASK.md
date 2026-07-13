@@ -26,14 +26,14 @@ When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executa
 ## Handoff
 
 Read `latest_card_path` in `CURRENT_STATE.toml` before editing. The active
-slice is Generic Loop Baseline V1 G0 identity/coverage. Generic correctness no
-longer requires one progression owner: condition variables are ordinary
-operands, the complete body remains unfiltered, and loop-carried bindings are
-later closed as a set. G0 keeps SourceStmtSiteV0 and typed transparent
-projection for complete-body coverage. Restore the parked `05fb9b0577` WIP
-selectively, fixing its node/child, orphan ownership, Scope ordering, and
-corpus-parity gaps. Product, planner, Lower, ProgramV0, and parser P1
-connections remain zero. G1-G5 build and cut over the generic baseline; O0
-isolates optional canonical specialization; R0 caller-zero retirement of the
-mandatory single-loop-var family is required for Epic completion. Keep every
-source file below 800 lines.
+slice is Resolved Region Flow V1 R0 binding/region seam inventory. Before code,
+identify the sole canonical lexical BindingId producer, immutable binding_ctx
+snapshot seam, scope/shadow owner, assignment Place seam, resolved
+break/continue target owner, and classify the private join_ir/ownership
+BindingId. RegionFlow must allocate no IDs, use no names as identity, simulate
+no SSA values, and publish no cloned normalized AST. WIP `f74e5961e1` is green
+acceptance-neutral evidence but must be restored selectively only after R0;
+R1 first removes ProjectedStmt AST clone ownership. R1-R8 lead to generic
+baseline cutover, and R9 caller-zero retirement of mandatory loop_var remains
+Epic completion. Product/Planner/Lower behavior stays unchanged in R0. Keep
+every source file below 800 lines.
