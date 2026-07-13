@@ -1,6 +1,6 @@
 //! Passive records stored in a sealed resolved-function arena.
 
-use super::ids::{BindingRefV1, RegionId, ScopeId};
+use super::ids::{BindingRefV1, RegionId, ScopeId, UpvarRefV1};
 use super::source_site::{
     FunctionOriginV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1,
 };
@@ -32,6 +32,12 @@ pub enum BindingOriginV1 {
         kind: SyntheticBindingKindV1,
         ordinal: u32,
     },
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum ResolvedLexicalRefV1 {
+    Local(BindingRefV1),
+    Upvar(UpvarRefV1),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

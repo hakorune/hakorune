@@ -29,13 +29,13 @@ Read `latest_card_path` in `CURRENT_STATE.toml` before editing. Resolved Region
 Flow V1 now has an accepted prerequisite: one owner-scoped
 `VerifiedResolvedFunctionV1` semantic arena built before Planner and Lower.
 SA0, the disconnected SA1 shadow resolver, the bounded SA2 seal hardening,
-and OF0 non-capturing owner forest are closed. Owner brands are unique across independent compilation issuers,
+and OF0 owner forest plus UP0 read-only structural Upvar are closed. Owner brands are unique across independent compilation issuers,
 control ancestry uses RegionId parentage plus exact source containment, and
 normalized parity ignores arena ordering. Lambda children own independent
 sealed owner-local products under one verified single-root forest; strict
 ancestor references still stop at typed UnsupportedCapture. The schema-test
-bypass is gone and Facts/Planner/Recipe/Lower remain disconnected. UP0
-structural read-only Upvar identity is next; capture mode/layout remain zero.
+bypass is gone and Facts/Planner/Recipe/Lower remain disconnected. UP1
+strict-ancestor rebind observation is next; capture mode/layout remain zero.
 SA3 later performs the atomic canonical
 BindingId authority cutover, followed by exact RegionId target cutover and
 duplicate-owner retirement. Never let resolver and Lower allocate independent

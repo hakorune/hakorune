@@ -6,7 +6,8 @@ use super::ids::{BindingRefV1, ScopeId};
 use super::product::ResolvedFunctionDataV1;
 use super::records::{
     BindingKindV1, BindingOriginV1, RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1,
-    ResolvedControlTransferV1, ResolvedExitOriginV1, ScopeKindV1, ScopeOriginV1,
+    ResolvedControlTransferV1, ResolvedExitOriginV1, ResolvedLexicalRefV1, ScopeKindV1,
+    ScopeOriginV1,
 };
 use super::source_site::{
     FunctionOriginV1, ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
@@ -275,9 +276,14 @@ fn normalize_uses(
 ) -> Box<[NormalizedVariableUseV1]> {
     data.variable_uses
         .iter()
-        .map(|(site, binding)| NormalizedVariableUseV1 {
-            site: site.clone(),
-            binding: binding_key(binding, binding_keys),
+        .filter_map(|(site, lexical_ref)| {
+            let ResolvedLexicalRefV1::Local(binding) = lexical_ref else {
+                return None;
+            };
+            Some(NormalizedVariableUseV1 {
+                site: site.clone(),
+                binding: binding_key(binding, binding_keys),
+            })
         })
         .collect::<Vec<_>>()
         .into_boxed_slice()

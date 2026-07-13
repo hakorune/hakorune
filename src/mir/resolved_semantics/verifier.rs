@@ -45,6 +45,8 @@ pub enum ResolvedFunctionVerificationErrorV1 {
     ScopeKindOriginMismatch(ScopeId),
     RegionKindOriginMismatch(RegionId),
     DanglingVariableUse,
+    InvalidUpvarOwner(super::UpvarRefV1),
+    LocalUpvarSource(super::UpvarRefV1),
     DanglingAssignmentBinding,
     DanglingControlTarget(ResolvedExitSiteV1),
     DanglingExitSourceRegion(ResolvedExitSiteV1),
@@ -337,9 +339,23 @@ fn verify_indexes(
             return Err(ResolvedFunctionVerificationErrorV1::MissingDeclarationIndex(*binding));
         }
     }
-    for binding in data.variable_uses.values().copied() {
-        if verify_binding_ref(data, binding).is_err() {
-            return Err(ResolvedFunctionVerificationErrorV1::DanglingVariableUse);
+    for lexical_ref in data.variable_uses.values().copied() {
+        match lexical_ref {
+            super::ResolvedLexicalRefV1::Local(binding) => {
+                if verify_binding_ref(data, binding).is_err() {
+                    return Err(ResolvedFunctionVerificationErrorV1::DanglingVariableUse);
+                }
+            }
+            super::ResolvedLexicalRefV1::Upvar(upvar) => {
+                if upvar.capturing_owner() != data.owner {
+                    return Err(ResolvedFunctionVerificationErrorV1::InvalidUpvarOwner(
+                        upvar,
+                    ));
+                }
+                if upvar.source().owner() == data.owner {
+                    return Err(ResolvedFunctionVerificationErrorV1::LocalUpvarSource(upvar));
+                }
+            }
         }
     }
     for target in data.assignment_targets.values() {

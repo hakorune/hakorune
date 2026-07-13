@@ -1,5 +1,5 @@
 ---
-Status: P0/E0/OF0 closed; UP0 read-only structural Upvar is active
+Status: P0/E0/OF0/UP0 closed; UP1 Upvar rebind observation is active
 Date: 2026-07-13
 Scope: Resolved Semantic Owner Forest V1 design and implementation task order
 Parent: mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
@@ -454,12 +454,14 @@ derived witnesses = one root + exact child_at + normalized forest graph
 non-capturing Lambda child owner = green
 child parameter/local BindingId domain = child owner-local
 child Return target = child function region
-strict-ancestor variable/rebind/receiver use = exact UnsupportedCapture
+strict-ancestor variable/receiver read = structural UpvarRefV1
+strict-ancestor rebind = exact UnsupportedUpvarRebind
 initializer self-reference backpatch = 0
 second root / mixed compilation / cycle / duplicate parent = rejected
 parent_scope = exact lexical definition scope, verified at seal
 AST clone / ValueId / BasicBlockId = 0
-CaptureId / UpvarRefV1 / capture mode / runtime slot = 0
+structural read-only UpvarRefV1 = 1
+CaptureId / synthetic child BindingId / capture mode / runtime slot = 0
 Planner / RegionFlow / Lower connection = 0
 normalized forest parity across independent owner issuers = green
 resolved-region-flow-authority guard = green
@@ -467,7 +469,7 @@ release compiler check = green
 all source files < 800 lines
 ```
 
-### UP0 — read-only structural Upvar (active)
+### UP0 — read-only structural Upvar (closed)
 
 ```text
 add UpvarRefV1 and ResolvedLexicalRefV1
@@ -478,7 +480,28 @@ capture mode/layout/slot allocation = 0
 Lower connection = 0
 ```
 
-### UP1 — Upvar writes and capture-plan input
+UP0 closeout evidence:
+
+```text
+variable-use authority = ResolvedLexicalRefV1(Local | Upvar)
+Upvar identity allocator = 0
+Upvar relation = capturing owner + original strict-ancestor BindingRefV1
+outer local / parameter / receiver reads = green
+multiple reads of one relation = deduplicated
+grandparent reference = direct original BindingRefV1
+nearer local shadow = local reference; no Upvar
+later declaration / initializer self-reference = not visible
+forest seal checks source existence / strict ancestry / visibility / shadowing
+normalized parity uses NormalizedOwnerKeyV1; raw owner IDs = 0
+Upvar rebind = exact UnsupportedUpvarRebind
+capture mode / forwarding / runtime slot = 0
+Planner / RegionFlow / Lower connection = 0
+focused owner-forest fixtures = 17 green
+resolved-region-flow-authority guard = green
+all source files < 800 lines
+```
+
+### UP1 — Upvar writes and capture-plan input (active)
 
 ```text
 classify Upvar rebind separately from local BindingRebind

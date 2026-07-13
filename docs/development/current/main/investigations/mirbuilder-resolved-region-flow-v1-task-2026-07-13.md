@@ -1,6 +1,6 @@
 # Resolved Region Flow V1 — Taskboard
 
-Status: Owner Forest V1 decision accepted; P0 source-role vocabulary is active.
+Status: Owner Forest V1 P0/E0/OF0/UP0 closed; UP1 Upvar rebind observation is active.
 Date: 2026-07-13
 Decision: `function_semantic_resolver_v1_owner_scoped_arena` followed by
 `recursive_structured_region_flow`.
@@ -859,11 +859,11 @@ docs/development/current/main/investigations/
   mirbuilder-resolved-semantic-owner-forest-design-stop-2026-07-13.md
 ```
 
-The next code-facing owner is P0 closed source-role vocabulary. It adds exact
-Lambda/QMark/Match/BlockExpr/Try/Cleanup path roles and owner-branded
-cross-owner expression provenance without changing resolver acceptance. The
-fail-fast boundary remains the current explicit Unsupported disposition for
-all unresolved nested/control variants.
+P0, E0, OF0, and UP0 are closed. The current code-facing owner is UP1:
+classify strict-ancestor writes separately from local `BindingRebind` and
+publish read/rebind observations as capture-plan input. Resolver still does
+not choose capture mode, forwarding, environment layout, or runtime slots.
+The fail-fast boundary remains explicit for every later nested/control row.
 
 Known production boundary mismatches must be resolved explicitly before B2:
 

@@ -2,10 +2,13 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use super::normalized::{NormalizedResolvedFunctionGraphV1, NormalizedScopeKeyV1};
-use super::records::ResolvedScopeRecordV1;
+use super::normalized::{
+    NormalizedBindingKeyV1, NormalizedResolvedFunctionGraphV1, NormalizedScopeKeyV1,
+};
+use super::records::{BindingOriginV1, ResolvedLexicalRefV1, ResolvedScopeRecordV1, ScopeOriginV1};
 use super::{
-    FunctionOriginV1, FunctionOwnerIdV1, OwnedExprSiteV1, ScopeId, SourceExprSiteV1,
+    FunctionOriginV1, FunctionOwnerIdV1, OwnedExprSiteV1, ScopeId, SourceBindingSiteV1,
+    SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1, UpvarRefV1,
     VerifiedResolvedFunctionV1,
 };
 
@@ -57,10 +60,38 @@ pub struct NormalizedOwnerRecordV1 {
     product: NormalizedResolvedFunctionGraphV1,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct NormalizedUpvarRefV1 {
+    source_owner: NormalizedOwnerKeyV1,
+    source_binding: NormalizedBindingKeyV1,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum NormalizedLexicalRefV1 {
+    Local(NormalizedBindingKeyV1),
+    Upvar(NormalizedUpvarRefV1),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct NormalizedForestVariableUseV1 {
+    owner: NormalizedOwnerKeyV1,
+    site: SourceExprSiteV1,
+    lexical_ref: NormalizedLexicalRefV1,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct NormalizedUpvarEdgeV1 {
+    capturing_owner: NormalizedOwnerKeyV1,
+    source_owner: NormalizedOwnerKeyV1,
+    source_binding: NormalizedBindingKeyV1,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NormalizedSemanticOwnerForestGraphV1 {
     root: NormalizedOwnerKeyV1,
     owners: Box<[NormalizedOwnerRecordV1]>,
+    upvar_uses: Box<[NormalizedForestVariableUseV1]>,
+    upvars: Box<[NormalizedUpvarEdgeV1]>,
 }
 
 #[derive(Debug, Default)]
@@ -75,6 +106,7 @@ pub struct VerifiedSemanticOwnerForestV1 {
     parents: BTreeMap<FunctionOwnerIdV1, OwnerParentEdgeV1>,
     root: FunctionOwnerIdV1,
     child_at: BTreeMap<OwnedExprSiteV1, FunctionOwnerIdV1>,
+    upvars: Box<[UpvarRefV1]>,
     normalized: NormalizedSemanticOwnerForestGraphV1,
 }
 
@@ -96,6 +128,10 @@ pub enum SemanticOwnerForestVerificationErrorV1 {
     ParentScopeMismatch(FunctionOwnerIdV1),
     DuplicateDefinitionSite(OwnedExprSiteV1),
     NormalizedOwnerCollision,
+    MissingUpvarSource(UpvarRefV1),
+    NonAncestorUpvarSource(UpvarRefV1),
+    InvisibleUpvarSource(UpvarRefV1),
+    ShadowedUpvarSource(UpvarRefV1),
 }
 
 impl SemanticOwnerForestDraftV1 {
@@ -180,14 +216,222 @@ impl SemanticOwnerForestDraftV1 {
             return Err(SemanticOwnerForestVerificationErrorV1::MultipleRoots);
         }
         let root = roots[0];
+        let upvars = derive_and_verify_upvars(&self.owners, &self.parents)?;
         let normalized = build_normalized_forest(root, &self.owners, &self.parents)?;
         Ok(VerifiedSemanticOwnerForestV1 {
             owners: self.owners,
             parents: self.parents,
             root,
             child_at,
+            upvars,
             normalized,
         })
+    }
+}
+
+fn derive_and_verify_upvars(
+    owners: &BTreeMap<FunctionOwnerIdV1, VerifiedResolvedFunctionV1>,
+    parents: &BTreeMap<FunctionOwnerIdV1, OwnerParentEdgeV1>,
+) -> Result<Box<[UpvarRefV1]>, SemanticOwnerForestVerificationErrorV1> {
+    let mut upvars = BTreeSet::new();
+    for (owner, product) in owners {
+        for (site, lexical_ref) in product.variable_refs() {
+            let ResolvedLexicalRefV1::Upvar(upvar) = lexical_ref else {
+                continue;
+            };
+            let source_owner = upvar.source().owner();
+            let Some(source_product) = owners.get(&source_owner) else {
+                return Err(SemanticOwnerForestVerificationErrorV1::MissingUpvarSource(
+                    *upvar,
+                ));
+            };
+            let Some(source_record) = source_product.binding(upvar.source()) else {
+                return Err(SemanticOwnerForestVerificationErrorV1::MissingUpvarSource(
+                    *upvar,
+                ));
+            };
+            let Some(definition_edge) = edge_below_ancestor(*owner, source_owner, parents) else {
+                return Err(SemanticOwnerForestVerificationErrorV1::NonAncestorUpvarSource(*upvar));
+            };
+            if !binding_visible_at_definition(
+                source_product,
+                source_record.origin(),
+                definition_edge,
+            ) {
+                return Err(SemanticOwnerForestVerificationErrorV1::InvisibleUpvarSource(*upvar));
+            }
+            verify_nearest_visible_source(
+                *owner,
+                *upvar,
+                source_record.diagnostic_name(),
+                owners,
+                parents,
+            )?;
+            let _ = site;
+            upvars.insert(*upvar);
+        }
+    }
+    Ok(upvars.into_iter().collect::<Vec<_>>().into_boxed_slice())
+}
+
+fn edge_below_ancestor<'a>(
+    mut descendant: FunctionOwnerIdV1,
+    ancestor: FunctionOwnerIdV1,
+    parents: &'a BTreeMap<FunctionOwnerIdV1, OwnerParentEdgeV1>,
+) -> Option<&'a OwnerParentEdgeV1> {
+    loop {
+        let edge = parents.get(&descendant)?;
+        if edge.parent_owner == ancestor {
+            return Some(edge);
+        }
+        descendant = edge.parent_owner;
+    }
+}
+
+fn verify_nearest_visible_source(
+    capturing_owner: FunctionOwnerIdV1,
+    upvar: UpvarRefV1,
+    diagnostic_name: &str,
+    owners: &BTreeMap<FunctionOwnerIdV1, VerifiedResolvedFunctionV1>,
+    parents: &BTreeMap<FunctionOwnerIdV1, OwnerParentEdgeV1>,
+) -> Result<(), SemanticOwnerForestVerificationErrorV1> {
+    let mut child = capturing_owner;
+    loop {
+        let Some(edge) = parents.get(&child) else {
+            return Err(SemanticOwnerForestVerificationErrorV1::NonAncestorUpvarSource(upvar));
+        };
+        let parent_owner = edge.parent_owner;
+        let parent = &owners[&parent_owner];
+        if let Some(nearest) = nearest_visible_binding(parent, edge, diagnostic_name) {
+            if nearest != upvar.source() {
+                return Err(SemanticOwnerForestVerificationErrorV1::ShadowedUpvarSource(
+                    upvar,
+                ));
+            }
+            return Ok(());
+        }
+        if parent_owner == upvar.source().owner() {
+            return Err(SemanticOwnerForestVerificationErrorV1::InvisibleUpvarSource(upvar));
+        }
+        child = parent_owner;
+    }
+}
+
+fn nearest_visible_binding(
+    owner: &VerifiedResolvedFunctionV1,
+    edge: &OwnerParentEdgeV1,
+    diagnostic_name: &str,
+) -> Option<super::BindingRefV1> {
+    let mut nearest = None;
+    for (binding, record) in owner.bindings() {
+        if record.diagnostic_name() != diagnostic_name
+            || !binding_visible_at_definition(owner, record.origin(), edge)
+        {
+            continue;
+        }
+        nearest = match nearest {
+            None => Some(binding),
+            Some(current) => {
+                let current_scope = owner.binding(current)?.owner_scope();
+                let candidate_scope = record.owner_scope();
+                if current_scope != candidate_scope
+                    && scope_is_ancestor(owner, current_scope, candidate_scope)
+                {
+                    Some(binding)
+                } else {
+                    Some(current)
+                }
+            }
+        };
+    }
+    nearest
+}
+
+fn binding_visible_at_definition(
+    owner: &VerifiedResolvedFunctionV1,
+    origin: &BindingOriginV1,
+    edge: &OwnerParentEdgeV1,
+) -> bool {
+    let binding_scope = match origin {
+        BindingOriginV1::Source(SourceBindingSiteV1::Receiver)
+        | BindingOriginV1::Source(SourceBindingSiteV1::Parameter { .. }) => {
+            Some(owner.function_scope())
+        }
+        BindingOriginV1::Source(site) => owner
+            .declaration_binding(site)
+            .and_then(|binding| owner.binding(binding))
+            .map(|record| record.owner_scope()),
+        BindingOriginV1::Synthetic { .. } => None,
+    };
+    let Some(binding_scope) = binding_scope else {
+        return false;
+    };
+    if !scope_is_ancestor(owner, binding_scope, edge.parent_scope) {
+        return false;
+    }
+    let Some(declaration_site) = binding_statement(origin) else {
+        return matches!(
+            origin,
+            BindingOriginV1::Source(SourceBindingSiteV1::Receiver)
+                | BindingOriginV1::Source(SourceBindingSiteV1::Parameter { .. })
+        );
+    };
+    let Some(scope) = owner.scope(binding_scope) else {
+        return false;
+    };
+    let Some(declaration_index) = direct_member_index(scope.origin(), declaration_site.node())
+    else {
+        return false;
+    };
+    let Some(definition_index) =
+        direct_member_index(scope.origin(), edge.definition_site.site().node())
+    else {
+        return false;
+    };
+    declaration_index < definition_index
+}
+
+fn scope_is_ancestor(
+    owner: &VerifiedResolvedFunctionV1,
+    ancestor: ScopeId,
+    mut descendant: ScopeId,
+) -> bool {
+    loop {
+        if descendant == ancestor {
+            return true;
+        }
+        let Some(parent) = owner.scope(descendant).and_then(|record| record.parent()) else {
+            return false;
+        };
+        descendant = parent;
+    }
+}
+
+fn binding_statement(origin: &BindingOriginV1) -> Option<&SourceStmtSiteV1> {
+    match origin {
+        BindingOriginV1::Source(SourceBindingSiteV1::Local { statement, .. })
+        | BindingOriginV1::Source(SourceBindingSiteV1::Outbox { statement, .. })
+        | BindingOriginV1::Source(SourceBindingSiteV1::Nowait { statement }) => Some(statement),
+        _ => None,
+    }
+}
+
+fn direct_member_index(origin: &ScopeOriginV1, site: &SourceNodeSiteV1) -> Option<u32> {
+    let ScopeOriginV1::Source(origin) = origin else {
+        return None;
+    };
+    let (root, prefix) = origin.segments().split_last()?;
+    let member = site.segments().strip_prefix(prefix)?.first()?;
+    match (root, member) {
+        (SourcePathSegmentV1::FunctionBody, SourcePathSegmentV1::Body(index))
+        | (SourcePathSegmentV1::LambdaBodyRoot, SourcePathSegmentV1::LambdaBody(index))
+        | (SourcePathSegmentV1::ScopeBodyRoot, SourcePathSegmentV1::ScopeBody(index))
+        | (SourcePathSegmentV1::TaskScopeBodyRoot, SourcePathSegmentV1::TaskScopeBody(index))
+        | (SourcePathSegmentV1::FastMemBodyRoot, SourcePathSegmentV1::FastMemBody(index))
+        | (SourcePathSegmentV1::IfThenBody, SourcePathSegmentV1::IfThen(index))
+        | (SourcePathSegmentV1::IfElseBody, SourcePathSegmentV1::IfElse(index))
+        | (SourcePathSegmentV1::LoopBodyRoot, SourcePathSegmentV1::LoopBody(index)) => Some(*index),
+        _ => None,
     }
 }
 
@@ -276,9 +520,39 @@ fn build_normalized_forest(
         })
         .collect::<Vec<_>>();
     records.sort_by(|left, right| left.key.cmp(&right.key));
+    let mut upvar_uses = Vec::new();
+    let mut normalized_upvars = Vec::new();
+    for (owner, product) in owners {
+        for (site, lexical_ref) in product.variable_refs() {
+            let ResolvedLexicalRefV1::Upvar(upvar) = lexical_ref else {
+                continue;
+            };
+            let source_product = &owners[&upvar.source().owner()];
+            let source_record = source_product.binding(upvar.source()).unwrap();
+            let source = NormalizedUpvarRefV1 {
+                source_owner: keys[&upvar.source().owner()].clone(),
+                source_binding: NormalizedBindingKeyV1(source_record.origin().clone()),
+            };
+            upvar_uses.push(NormalizedForestVariableUseV1 {
+                owner: keys[owner].clone(),
+                site: site.clone(),
+                lexical_ref: NormalizedLexicalRefV1::Upvar(source.clone()),
+            });
+            normalized_upvars.push(NormalizedUpvarEdgeV1 {
+                capturing_owner: keys[owner].clone(),
+                source_owner: source.source_owner,
+                source_binding: source.source_binding,
+            });
+        }
+    }
+    upvar_uses.sort();
+    normalized_upvars.sort();
+    normalized_upvars.dedup();
     Ok(NormalizedSemanticOwnerForestGraphV1 {
         root: keys[&root].clone(),
         owners: records.into_boxed_slice(),
+        upvar_uses: upvar_uses.into_boxed_slice(),
+        upvars: normalized_upvars.into_boxed_slice(),
     })
 }
 
@@ -338,6 +612,10 @@ impl VerifiedSemanticOwnerForestV1 {
 
     pub fn owner_count(&self) -> usize {
         self.owners.len()
+    }
+
+    pub fn upvars(&self) -> &[UpvarRefV1] {
+        &self.upvars
     }
 
     pub fn normalized_graph(&self) -> &NormalizedSemanticOwnerForestGraphV1 {

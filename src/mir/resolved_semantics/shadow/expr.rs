@@ -4,7 +4,7 @@ use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::source_site::SourcePathSegmentV1;
 
 use super::path::ShadowSourcePathV0;
-use super::product::{ShadowAssignmentTargetV0, ShadowResolveErrorV0};
+use super::product::{ShadowAssignmentTargetV0, ShadowLexicalRefV0, ShadowResolveErrorV0};
 use super::resolver::ShadowResolverV0;
 
 impl<'ast> ShadowResolverV0<'ast> {
@@ -128,12 +128,18 @@ impl<'ast> ShadowResolverV0<'ast> {
         let target_site = path.expr();
         let resolved = match target {
             ASTNode::Variable { name, .. } => {
-                let binding =
-                    self.lookup(name)
-                        .ok_or_else(|| ShadowResolveErrorV0::UnresolvedName {
+                let Some(binding) = self.lookup(name) else {
+                    if self.ancestor_is_visible(name) {
+                        return Err(ShadowResolveErrorV0::UnsupportedAncestorRebind {
                             name: name.clone().into(),
-                            site: target_site.clone(),
-                        })?;
+                            site: target_site,
+                        });
+                    }
+                    return Err(ShadowResolveErrorV0::UnresolvedName {
+                        name: name.clone().into(),
+                        site: target_site,
+                    });
+                };
                 ShadowAssignmentTargetV0::BindingRebind(binding)
             }
             ASTNode::FieldAccess { object, .. } => {
@@ -182,12 +188,18 @@ impl<'ast> ShadowResolverV0<'ast> {
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
         let site = path.expr();
-        let binding = self
-            .lookup(name)
-            .ok_or_else(|| ShadowResolveErrorV0::UnresolvedName {
+        let Some(binding) = self.lookup(name) else {
+            if self.ancestor_is_visible(name) {
+                return Err(ShadowResolveErrorV0::UnsupportedAncestorRebind {
+                    name: name.into(),
+                    site,
+                });
+            }
+            return Err(ShadowResolveErrorV0::UnresolvedName {
                 name: name.into(),
-                site: site.clone(),
-            })?;
+                site,
+            });
+        };
         self.record_assignment(site, ShadowAssignmentTargetV0::BindingRebind(binding));
         Ok(())
     }
@@ -198,13 +210,17 @@ impl<'ast> ShadowResolverV0<'ast> {
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
         let site = path.expr();
-        let binding = self
-            .lookup(name)
-            .ok_or_else(|| ShadowResolveErrorV0::UnresolvedName {
+        let lexical_ref = if let Some(binding) = self.lookup(name) {
+            ShadowLexicalRefV0::Local(binding)
+        } else if self.ancestor_is_visible(name) {
+            ShadowLexicalRefV0::Ancestor(name.into())
+        } else {
+            return Err(ShadowResolveErrorV0::UnresolvedName {
                 name: name.into(),
-                site: site.clone(),
-            })?;
-        self.record_use(site, binding);
+                site,
+            });
+        };
+        self.record_use(site, lexical_ref);
         Ok(())
     }
 
@@ -214,13 +230,14 @@ impl<'ast> ShadowResolverV0<'ast> {
         kind: &'static str,
     ) -> Result<(), ShadowResolveErrorV0> {
         let site = path.expr();
-        let binding =
-            self.receiver()
-                .ok_or_else(|| ShadowResolveErrorV0::UnsupportedExpression {
-                    kind,
-                    site: site.clone(),
-                })?;
-        self.record_use(site, binding);
+        let lexical_ref = if let Some(binding) = self.receiver() {
+            ShadowLexicalRefV0::Local(binding)
+        } else if self.ancestor_is_visible("me") {
+            ShadowLexicalRefV0::Ancestor("me".into())
+        } else {
+            return Err(ShadowResolveErrorV0::UnsupportedExpression { kind, site });
+        };
+        self.record_use(site, lexical_ref);
         Ok(())
     }
 

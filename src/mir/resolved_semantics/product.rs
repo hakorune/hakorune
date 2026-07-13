@@ -8,7 +8,7 @@ use super::ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
 use super::normalized::{build_normalized_graph, NormalizedResolvedFunctionGraphV1};
 use super::records::{
     ResolvedAssignmentTargetV1, ResolvedBindingRecordV1, ResolvedExitRecordV1,
-    ResolvedRegionRecordV1, ResolvedScopeRecordV1,
+    ResolvedLexicalRefV1, ResolvedRegionRecordV1, ResolvedScopeRecordV1,
 };
 use super::source_site::{
     FunctionOriginV1, ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
@@ -25,7 +25,7 @@ pub(crate) struct ResolvedFunctionDataV1 {
     pub(crate) scopes: BTreeMap<ScopeId, ResolvedScopeRecordV1>,
     pub(crate) regions: BTreeMap<RegionId, ResolvedRegionRecordV1>,
     pub(crate) declarations: BTreeMap<SourceBindingSiteV1, BindingRefV1>,
-    pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, BindingRefV1>,
+    pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, ResolvedLexicalRefV1>,
     pub(crate) assignment_targets: BTreeMap<SourceExprSiteV1, ResolvedAssignmentTargetV1>,
     pub(crate) resolved_exits: BTreeMap<ResolvedExitSiteV1, ResolvedExitRecordV1>,
 }
@@ -86,6 +86,15 @@ impl VerifiedResolvedFunctionV1 {
             .flatten()
     }
 
+    pub(crate) fn bindings(
+        &self,
+    ) -> impl Iterator<Item = (BindingRefV1, &ResolvedBindingRecordV1)> {
+        self.data
+            .bindings
+            .iter()
+            .map(|(binding, record)| (BindingRefV1::new(self.data.owner, *binding), record))
+    }
+
     pub fn scope(&self, id: ScopeId) -> Option<&ResolvedScopeRecordV1> {
         (id.owner() == self.data.owner)
             .then(|| self.data.scopes.get(&id))
@@ -106,8 +115,14 @@ impl VerifiedResolvedFunctionV1 {
         self.data.declarations.keys()
     }
 
-    pub fn variable_binding(&self, site: &SourceExprSiteV1) -> Option<BindingRefV1> {
+    pub fn variable_ref(&self, site: &SourceExprSiteV1) -> Option<ResolvedLexicalRefV1> {
         self.data.variable_uses.get(site).copied()
+    }
+
+    pub(crate) fn variable_refs(
+        &self,
+    ) -> impl Iterator<Item = (&SourceExprSiteV1, &ResolvedLexicalRefV1)> {
+        self.data.variable_uses.iter()
     }
 
     pub fn assignment_target(

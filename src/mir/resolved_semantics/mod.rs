@@ -19,7 +19,7 @@ mod source_site;
 mod verifier;
 
 pub(crate) use function_view::FunctionSyntaxViewV1;
-pub use ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
+pub use ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId, UpvarRefV1};
 pub use normalized::{
     NormalizedAssignmentTargetV1, NormalizedAssignmentV1, NormalizedBindingKeyV1,
     NormalizedBindingRecordV1, NormalizedControlTransferV1, NormalizedDeclarationV1,
@@ -28,16 +28,18 @@ pub use normalized::{
     NormalizedVariableUseV1,
 };
 pub use owner_forest::{
-    NormalizedOwnerKeyV1, NormalizedOwnerRecordV1, NormalizedSemanticOwnerForestGraphV1,
-    OwnerParentEdgeV1, SemanticOwnerForestVerificationErrorV1, VerifiedSemanticOwnerForestV1,
+    NormalizedForestVariableUseV1, NormalizedLexicalRefV1, NormalizedOwnerKeyV1,
+    NormalizedOwnerRecordV1, NormalizedSemanticOwnerForestGraphV1, NormalizedUpvarEdgeV1,
+    NormalizedUpvarRefV1, OwnerParentEdgeV1, SemanticOwnerForestVerificationErrorV1,
+    VerifiedSemanticOwnerForestV1,
 };
 pub(crate) use owner_resolver::ResolveOwnerForestErrorV1;
 pub use product::VerifiedResolvedFunctionV1;
 pub use records::{
     BindingKindV1, BindingOriginV1, RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1,
     ResolvedBindingRecordV1, ResolvedControlTransferV1, ResolvedExitOriginV1, ResolvedExitRecordV1,
-    ResolvedRegionRecordV1, ResolvedScopeRecordV1, ScopeKindV1, ScopeOriginV1,
-    SyntheticBindingKindV1,
+    ResolvedLexicalRefV1, ResolvedRegionRecordV1, ResolvedScopeRecordV1, ScopeKindV1,
+    ScopeOriginV1, SyntheticBindingKindV1,
 };
 pub(crate) use resolver::{FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1};
 pub use source_site::{

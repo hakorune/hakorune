@@ -1,6 +1,6 @@
 use hakorune_mir_core::BindingId;
 
-use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
+use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
 
 use super::ids::FunctionOwnerIssuerV1;
 use super::owner_forest::{
@@ -10,18 +10,26 @@ use super::tests::sample_verified_for_owner_forest;
 use super::{
     FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, OwnedExprSiteV1,
     ResolveFunctionErrorV1, ResolveOwnerForestErrorV1, ResolvedControlTransferV1,
-    ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1,
-    SourcePathSegmentV1, SourceStmtSiteV1,
+    ResolvedExitSiteV1, ResolvedLexicalRefV1, SourceBindingSiteV1, SourceExprSiteV1,
+    SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
 };
 
 fn function(body: Vec<ASTNode>) -> ASTNode {
-    function_with_receiver(body, false)
+    function_with_signature(body, &[], false)
 }
 
 fn function_with_receiver(body: Vec<ASTNode>, has_receiver: bool) -> ASTNode {
+    function_with_signature(body, &[], has_receiver)
+}
+
+fn function_with_params(body: Vec<ASTNode>, params: &[&str]) -> ASTNode {
+    function_with_signature(body, params, false)
+}
+
+fn function_with_signature(body: Vec<ASTNode>, params: &[&str], has_receiver: bool) -> ASTNode {
     ASTNode::FunctionDeclaration {
         name: "root".into(),
-        params: Vec::new(),
+        params: params.iter().map(|name| (*name).to_owned()).collect(),
         param_decls: Vec::new(),
         return_type_name: None,
         body,
@@ -70,6 +78,19 @@ fn return_value(value: ASTNode) -> ASTNode {
         value: Some(Box::new(value)),
         span: Span::unknown(),
     }
+}
+
+fn add(left: ASTNode, right: ASTNode) -> ASTNode {
+    ASTNode::BinaryOp {
+        operator: BinaryOperator::Add,
+        left: Box::new(left),
+        right: Box::new(right),
+        span: Span::unknown(),
+    }
+}
+
+fn expr_site(segments: Vec<SourcePathSegmentV1>) -> SourceExprSiteV1 {
+    SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(segments))
 }
 
 #[test]
@@ -174,7 +195,10 @@ fn resolver_seals_one_noncapturing_lambda_as_a_child_owner() {
 
     assert_eq!(forest.owner_count(), 2);
     assert_eq!(forest.parent(child).unwrap().parent_owner(), root);
-    assert_eq!(child_product.variable_binding(&use_site), Some(parameter));
+    assert_eq!(
+        child_product.variable_ref(&use_site),
+        Some(ResolvedLexicalRefV1::Local(parameter))
+    );
     assert_eq!(
         child_product
             .resolved_exit(&return_site)
@@ -187,31 +211,250 @@ fn resolver_seals_one_noncapturing_lambda_as_a_child_owner() {
 }
 
 #[test]
-fn resolver_reports_ancestor_use_as_exact_unsupported_capture() {
+fn resolver_seals_read_only_ancestor_use_as_structural_upvar() {
     let tree = function(vec![
         local("outer", int(1)),
         local("f", lambda(&[], vec![return_value(variable("outer"))])),
     ]);
     let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
-    let error = session
+    let forest = session
         .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
-        .unwrap_err();
-
-    let ResolveOwnerForestErrorV1::UnsupportedCapture { use_site, source } = error else {
-        panic!("expected capture boundary");
-    };
-    assert_ne!(use_site.owner(), source.owner());
-    assert_eq!(
-        use_site.site().node().segments(),
-        &[
-            SourcePathSegmentV1::LambdaBody(0),
-            SourcePathSegmentV1::Value,
-        ]
+        .unwrap();
+    let root = forest.roots()[0];
+    let definition = OwnedExprSiteV1::new(
+        root,
+        SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+            SourcePathSegmentV1::Body(1),
+            SourcePathSegmentV1::Initializer(0),
+        ])),
     );
+    let child = forest.child_at(&definition).unwrap();
+    let use_site = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+        SourcePathSegmentV1::LambdaBody(0),
+        SourcePathSegmentV1::Value,
+    ]));
+    let ResolvedLexicalRefV1::Upvar(upvar) = forest
+        .owner(child)
+        .unwrap()
+        .variable_ref(&use_site)
+        .unwrap()
+    else {
+        panic!("expected structural Upvar");
+    };
+    assert_eq!(upvar.capturing_owner(), child);
+    assert_eq!(upvar.source().owner(), root);
+    assert_eq!(forest.upvars(), &[upvar]);
 }
 
 #[test]
-fn resolver_reports_receiver_capture_at_the_same_boundary() {
+fn resolver_seals_outer_parameter_read_as_structural_upvar() {
+    let tree = function_with_params(
+        vec![local(
+            "f",
+            lambda(&[], vec![return_value(variable("outer"))]),
+        )],
+        &["outer"],
+    );
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let forest = session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let root = forest.roots()[0];
+    let child = forest
+        .child_at(&OwnedExprSiteV1::new(
+            root,
+            expr_site(vec![
+                SourcePathSegmentV1::Body(0),
+                SourcePathSegmentV1::Initializer(0),
+            ]),
+        ))
+        .unwrap();
+    let use_site = expr_site(vec![
+        SourcePathSegmentV1::LambdaBody(0),
+        SourcePathSegmentV1::Value,
+    ]);
+    let ResolvedLexicalRefV1::Upvar(upvar) = forest
+        .owner(child)
+        .unwrap()
+        .variable_ref(&use_site)
+        .unwrap()
+    else {
+        panic!("expected parameter Upvar");
+    };
+    let parameter = forest
+        .owner(root)
+        .unwrap()
+        .declaration_binding(&SourceBindingSiteV1::Parameter { index: 0 })
+        .unwrap();
+
+    assert_eq!(upvar.source(), parameter);
+    assert_eq!(forest.upvars(), &[upvar]);
+}
+
+#[test]
+fn resolver_deduplicates_multiple_uses_of_the_same_structural_upvar() {
+    let tree = function(vec![
+        local("outer", int(1)),
+        local(
+            "f",
+            lambda(
+                &[],
+                vec![return_value(add(variable("outer"), variable("outer")))],
+            ),
+        ),
+    ]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let forest = session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let root = forest.roots()[0];
+    let child = forest
+        .child_at(&OwnedExprSiteV1::new(
+            root,
+            expr_site(vec![
+                SourcePathSegmentV1::Body(1),
+                SourcePathSegmentV1::Initializer(0),
+            ]),
+        ))
+        .unwrap();
+    let child_product = forest.owner(child).unwrap();
+    let lhs = expr_site(vec![
+        SourcePathSegmentV1::LambdaBody(0),
+        SourcePathSegmentV1::Value,
+        SourcePathSegmentV1::Lhs,
+    ]);
+    let rhs = expr_site(vec![
+        SourcePathSegmentV1::LambdaBody(0),
+        SourcePathSegmentV1::Value,
+        SourcePathSegmentV1::Rhs,
+    ]);
+    let ResolvedLexicalRefV1::Upvar(lhs_upvar) = child_product.variable_ref(&lhs).unwrap() else {
+        panic!("expected lhs Upvar");
+    };
+    let ResolvedLexicalRefV1::Upvar(rhs_upvar) = child_product.variable_ref(&rhs).unwrap() else {
+        panic!("expected rhs Upvar");
+    };
+
+    assert_eq!(lhs_upvar, rhs_upvar);
+    assert_eq!(forest.upvars(), &[lhs_upvar]);
+}
+
+#[test]
+fn resolver_flattens_grandparent_capture_to_the_original_binding_ref() {
+    let tree = function(vec![
+        local("outer", int(1)),
+        local(
+            "parent",
+            lambda(
+                &[],
+                vec![local(
+                    "child",
+                    lambda(&[], vec![return_value(variable("outer"))]),
+                )],
+            ),
+        ),
+    ]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let forest = session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let root = forest.roots()[0];
+    let parent = forest
+        .child_at(&OwnedExprSiteV1::new(
+            root,
+            expr_site(vec![
+                SourcePathSegmentV1::Body(1),
+                SourcePathSegmentV1::Initializer(0),
+            ]),
+        ))
+        .unwrap();
+    let child = forest
+        .child_at(&OwnedExprSiteV1::new(
+            parent,
+            expr_site(vec![
+                SourcePathSegmentV1::LambdaBody(0),
+                SourcePathSegmentV1::Initializer(0),
+            ]),
+        ))
+        .unwrap();
+    let use_site = expr_site(vec![
+        SourcePathSegmentV1::LambdaBody(0),
+        SourcePathSegmentV1::Value,
+    ]);
+    let ResolvedLexicalRefV1::Upvar(upvar) = forest
+        .owner(child)
+        .unwrap()
+        .variable_ref(&use_site)
+        .unwrap()
+    else {
+        panic!("expected grandparent Upvar");
+    };
+    let source = forest
+        .owner(root)
+        .unwrap()
+        .declaration_binding(&SourceBindingSiteV1::Local {
+            statement: SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+                SourcePathSegmentV1::Body(0),
+            ])),
+            ordinal: 0,
+        })
+        .unwrap();
+
+    assert_eq!(upvar.capturing_owner(), child);
+    assert_eq!(upvar.source(), source);
+    assert_ne!(upvar.source().owner(), parent);
+    assert_eq!(forest.upvars(), &[upvar]);
+}
+
+#[test]
+fn resolver_child_local_shadow_prevents_structural_upvar() {
+    let tree = function(vec![
+        local("outer", int(1)),
+        local(
+            "f",
+            lambda(
+                &[],
+                vec![local("outer", int(2)), return_value(variable("outer"))],
+            ),
+        ),
+    ]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let forest = session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let root = forest.roots()[0];
+    let child = forest
+        .child_at(&OwnedExprSiteV1::new(
+            root,
+            expr_site(vec![
+                SourcePathSegmentV1::Body(1),
+                SourcePathSegmentV1::Initializer(0),
+            ]),
+        ))
+        .unwrap();
+    let child_product = forest.owner(child).unwrap();
+    let use_site = expr_site(vec![
+        SourcePathSegmentV1::LambdaBody(1),
+        SourcePathSegmentV1::Value,
+    ]);
+    let local_binding = child_product
+        .declaration_binding(&SourceBindingSiteV1::Local {
+            statement: SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+                SourcePathSegmentV1::LambdaBody(0),
+            ])),
+            ordinal: 0,
+        })
+        .unwrap();
+
+    assert_eq!(
+        child_product.variable_ref(&use_site),
+        Some(ResolvedLexicalRefV1::Local(local_binding))
+    );
+    assert!(forest.upvars().is_empty());
+}
+
+#[test]
+fn resolver_seals_receiver_read_as_structural_upvar() {
     let tree = function_with_receiver(
         vec![local(
             "f",
@@ -225,13 +468,33 @@ fn resolver_reports_receiver_capture_at_the_same_boundary() {
         true,
     );
     let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let forest = session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+
+    assert_eq!(forest.upvars().len(), 1);
+    assert_eq!(forest.upvars()[0].source().owner(), forest.roots()[0]);
+}
+
+#[test]
+fn resolver_keeps_upvar_rebind_unsupported_until_up1() {
+    let assignment = ASTNode::Assignment {
+        target: Box::new(variable("outer")),
+        value: Box::new(int(2)),
+        span: Span::unknown(),
+    };
+    let tree = function(vec![
+        local("outer", int(1)),
+        local("f", lambda(&[], vec![assignment])),
+    ]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
     let error = session
         .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
         .unwrap_err();
 
     assert!(matches!(
         error,
-        ResolveOwnerForestErrorV1::UnsupportedCapture { .. }
+        ResolveOwnerForestErrorV1::UnsupportedUpvarRebind { .. }
     ));
 }
 
@@ -241,6 +504,25 @@ fn resolver_does_not_backpatch_lambda_initializer_self_reference() {
         "f",
         lambda(&[], vec![return_value(variable("f"))]),
     )]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let error = session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap_err();
+
+    assert!(matches!(
+        error,
+        ResolveOwnerForestErrorV1::Function(ResolveFunctionErrorV1::Syntax(
+            super::shadow::ShadowResolveErrorV0::UnresolvedName { .. }
+        ))
+    ));
+}
+
+#[test]
+fn resolver_does_not_capture_a_later_ancestor_declaration() {
+    let tree = function(vec![
+        local("f", lambda(&[], vec![return_value(variable("later"))])),
+        local("later", int(1)),
+    ]);
     let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
     let error = session
         .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
@@ -271,6 +553,35 @@ fn normalized_forest_is_independent_of_owner_issuer_brand() {
         .unwrap();
 
     assert_ne!(first.roots(), second.roots());
+    assert_eq!(first.normalized_graph(), second.normalized_graph());
+}
+
+#[test]
+fn normalized_forest_with_structural_upvars_is_independent_of_owner_issuer_brand() {
+    let tree = function(vec![
+        local("outer", int(1)),
+        local(
+            "f",
+            lambda(
+                &[],
+                vec![return_value(add(variable("outer"), variable("outer")))],
+            ),
+        ),
+    ]);
+    let view = FunctionSyntaxViewV1::from_ast(&tree).unwrap();
+    let first = FunctionSemanticResolverSessionV1::new(9)
+        .unwrap()
+        .resolve_forest(view)
+        .unwrap();
+    let second = FunctionSemanticResolverSessionV1::new(9)
+        .unwrap()
+        .resolve_forest(view)
+        .unwrap();
+
+    assert_ne!(first.roots(), second.roots());
+    assert_eq!(first.upvars().len(), 1);
+    assert_eq!(second.upvars().len(), 1);
+    assert_ne!(first.upvars(), second.upvars());
     assert_eq!(first.normalized_graph(), second.normalized_graph());
 }
 

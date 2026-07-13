@@ -98,7 +98,10 @@ fn initializer_observes_outer_binding_before_shadow_is_inserted() {
         SourcePathSegmentV1::ScopeBody(0),
         SourcePathSegmentV1::Initializer(0),
     ]);
-    assert_eq!(product.variable_uses[&use_site], outer);
+    assert_eq!(
+        product.variable_uses[&use_site],
+        super::ShadowLexicalRefV0::Local(outer)
+    );
     assert_eq!(product.bindings.len(), 3, "receiver plus two x bindings");
 }
 
@@ -128,7 +131,10 @@ fn nowait_expression_resolves_before_its_binding_is_declared() {
         SourcePathSegmentV1::Value,
     ]);
     assert_eq!(product.bindings[&nowait].kind, ShadowBindingKindV0::Nowait);
-    assert_eq!(product.variable_uses[&initializer], parameter);
+    assert_eq!(
+        product.variable_uses[&initializer],
+        super::ShadowLexicalRefV0::Local(parameter)
+    );
     assert_ne!(nowait, parameter);
 }
 
@@ -335,7 +341,10 @@ fn body_local_may_shadow_parameter_but_not_a_body_sibling() {
         SourcePathSegmentV1::Body(0),
         SourcePathSegmentV1::Initializer(0),
     ]);
-    assert_eq!(product.variable_uses[&initializer], parameter);
+    assert_eq!(
+        product.variable_uses[&initializer],
+        super::ShadowLexicalRefV0::Local(parameter)
+    );
 }
 
 #[test]

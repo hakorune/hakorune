@@ -122,7 +122,7 @@ for required in \
   "pub(crate) scopes: BTreeMap<ScopeId, ResolvedScopeRecordV1>" \
   "pub(crate) regions: BTreeMap<RegionId, ResolvedRegionRecordV1>" \
   "pub(crate) declarations: BTreeMap<SourceBindingSiteV1, BindingRefV1>" \
-  "pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, BindingRefV1>" \
+  "pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, ResolvedLexicalRefV1>" \
   "pub(crate) assignment_targets:" \
   "pub(crate) resolved_exits: BTreeMap<ResolvedExitSiteV1, ResolvedExitRecordV1>"; do
   guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/product.rs" \
@@ -141,6 +141,7 @@ for required in \
   "pub struct FunctionOwnerIdV1" \
   "pub(crate) struct FunctionOwnerIssuerV1" \
   "pub struct BindingRefV1" \
+  "pub struct UpvarRefV1" \
   "pub struct ScopeId" \
   "pub struct RegionId"; do
   guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/ids.rs" \
@@ -177,9 +178,9 @@ for role in \
   guard_expect_fixed_in_file "$TAG" "$role" "$MODULE/source_site.rs" \
     "P0 source-role vocabulary drifted: $role"
 done
-if rg -n '\b(CaptureId|CaptureSlotId|UpvarRefV1)\b' \
+if rg -n '\b(CaptureId|CaptureSlotId)\b' \
   "${PRODUCTION_FILES[@]}"; then
-  guard_fail "$TAG" "OF0 must not pre-install later capture/upvar vocabulary"
+  guard_fail "$TAG" "UP0 structural Upvar must not create capture or runtime-slot identities"
 fi
 
 for required in \
@@ -188,9 +189,14 @@ for required in \
   "parents: BTreeMap<FunctionOwnerIdV1, OwnerParentEdgeV1>" \
   "root: FunctionOwnerIdV1" \
   "child_at: BTreeMap<OwnedExprSiteV1, FunctionOwnerIdV1>" \
+  "upvars: Box<[UpvarRefV1]>" \
   "normalized: NormalizedSemanticOwnerForestGraphV1" \
   "pub struct NormalizedOwnerKeyV1" \
+  "pub struct NormalizedUpvarRefV1" \
+  "pub struct NormalizedUpvarEdgeV1" \
   "pub struct NormalizedSemanticOwnerForestGraphV1" \
+  "fn derive_and_verify_upvars(" \
+  "fn verify_nearest_visible_source(" \
   "pub(crate) fn insert_parent(" \
   "pub(crate) fn seal("; do
   guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/owner_forest.rs" \
@@ -198,9 +204,9 @@ for required in \
 done
 for required in \
   "resolve_owner_shadow_view_v0" \
-  "UnsupportedCapture" \
+  "UnsupportedUpvarRebind" \
   "lambda.syntax_view()" \
-  "seal_owner_with_maps"; do
+  "seal_owner_with_ancestors"; do
   guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/owner_resolver.rs" \
     "OF0 recursive owner resolution drifted: $required"
 done
@@ -274,7 +280,7 @@ done
 for required in \
   "pub(crate) struct ShadowResolvedFunctionV0" \
   "BTreeMap<ShadowBindingOrdinalV0, ShadowBindingRecordV0>" \
-  "BTreeMap<SourceExprSiteV1, ShadowBindingOrdinalV0>" \
+  "BTreeMap<SourceExprSiteV1, ShadowLexicalRefV0>" \
   "pub(crate) struct ShadowExitRecordV0" \
   "pub(crate) source_region: ShadowRegionIdV0" \
   "pub(crate) origin: ShadowExitOriginV0" \
@@ -447,11 +453,13 @@ allowed = {
     "function_region",
     "binding_ref",
     "binding",
+    "bindings",
     "scope",
     "region",
     "declaration_binding",
     "declaration_sites",
-    "variable_binding",
+    "variable_ref",
+    "variable_refs",
     "assignment_target",
     "resolved_exit",
     "binding_count",
@@ -547,7 +555,10 @@ echo "semantic_arena_statement_exit_records=1"
 echo "semantic_arena_expression_exit_records=0"
 echo "semantic_arena_qmark_throw_acceptance=0"
 echo "semantic_owner_forest_noncapturing_lambda=1"
-echo "semantic_owner_forest_capture_acceptance=0"
+echo "semantic_owner_forest_readonly_upvar=1"
+echo "semantic_owner_forest_upvar_write=0"
+echo "semantic_owner_forest_capture_mode=0"
+echo "semantic_owner_forest_runtime_slot=0"
 echo "semantic_arena_source_files_under_800=1"
 echo "shadow_resolver_canonical_binding_ids=0"
 echo "shadow_resolver_external_consumers=0"

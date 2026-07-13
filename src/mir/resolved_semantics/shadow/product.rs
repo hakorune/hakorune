@@ -67,6 +67,12 @@ pub(crate) enum ShadowAssignmentTargetV0 {
     IndexWrite { receiver: SourceExprSiteV1 },
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum ShadowLexicalRefV0 {
+    Local(ShadowBindingOrdinalV0),
+    Ancestor(Box<str>),
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ShadowControlExitV0 {
     Continue { target_loop: ShadowRegionIdV0 },
@@ -113,6 +119,10 @@ pub(crate) enum ShadowResolveErrorV0 {
     UnsupportedAssignmentTarget {
         site: SourceExprSiteV1,
     },
+    UnsupportedAncestorRebind {
+        name: Box<str>,
+        site: SourceExprSiteV1,
+    },
     DuplicateExitSite {
         site: SourceStmtSiteV1,
     },
@@ -127,7 +137,7 @@ pub(crate) struct ShadowResolvedFunctionV0 {
     pub(crate) scopes: BTreeMap<ShadowScopeIdV0, ShadowScopeRecordV0>,
     pub(crate) regions: BTreeMap<ShadowRegionIdV0, ShadowRegionRecordV0>,
     pub(crate) declarations: BTreeMap<SourceBindingSiteV1, ShadowBindingOrdinalV0>,
-    pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, ShadowBindingOrdinalV0>,
+    pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, ShadowLexicalRefV0>,
     pub(crate) assignment_targets: BTreeMap<SourceExprSiteV1, ShadowAssignmentTargetV0>,
     pub(crate) resolved_exits: BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>,
 }

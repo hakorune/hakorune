@@ -87,6 +87,33 @@ impl BindingRefV1 {
     }
 }
 
+/// One structural relation to an original declaration in a strict ancestor.
+///
+/// This is neither a separately allocated capture identity nor a runtime
+/// environment slot. It carries no capture mode or forwarding policy.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct UpvarRefV1 {
+    capturing_owner: FunctionOwnerIdV1,
+    source: BindingRefV1,
+}
+
+impl UpvarRefV1 {
+    pub(crate) const fn new(capturing_owner: FunctionOwnerIdV1, source: BindingRefV1) -> Self {
+        Self {
+            capturing_owner,
+            source,
+        }
+    }
+
+    pub const fn capturing_owner(self) -> FunctionOwnerIdV1 {
+        self.capturing_owner
+    }
+
+    pub const fn source(self) -> BindingRefV1 {
+        self.source
+    }
+}
+
 /// Lexical-scope handle local to one resolved function.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ScopeId {

@@ -1,6 +1,6 @@
 //! Function-level shadow resolution entry and mutable construction owner.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::function_view::{FunctionBodyOriginV1, ReceiverPolicyV1};
@@ -14,9 +14,9 @@ use super::owner_boundary::ShadowLambdaSyntaxV0;
 use super::path::ShadowSourcePathV0;
 use super::product::{
     ShadowAssignmentTargetV0, ShadowBindingKindV0, ShadowBindingRecordV0, ShadowControlExitV0,
-    ShadowExitOriginV0, ShadowExitRecordV0, ShadowRegionKindV0, ShadowRegionRecordV0,
-    ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowResolvedOwnerV0, ShadowScopeKindV0,
-    ShadowScopeRecordV0,
+    ShadowExitOriginV0, ShadowExitRecordV0, ShadowLexicalRefV0, ShadowRegionKindV0,
+    ShadowRegionRecordV0, ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowResolvedOwnerV0,
+    ShadowScopeKindV0, ShadowScopeRecordV0,
 };
 
 #[derive(Debug)]
@@ -46,11 +46,12 @@ pub(super) struct ShadowResolverV0<'ast> {
     scopes: BTreeMap<ShadowScopeIdV0, ShadowScopeRecordV0>,
     regions: BTreeMap<ShadowRegionIdV0, ShadowRegionRecordV0>,
     declarations: BTreeMap<SourceBindingSiteV1, ShadowBindingOrdinalV0>,
-    variable_uses: BTreeMap<SourceExprSiteV1, ShadowBindingOrdinalV0>,
+    variable_uses: BTreeMap<SourceExprSiteV1, ShadowLexicalRefV0>,
     assignment_targets: BTreeMap<SourceExprSiteV1, ShadowAssignmentTargetV0>,
     resolved_exits: BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>,
     lambda_mode: ShadowLambdaModeV0,
     lambdas: Vec<ShadowLambdaSyntaxV0<'ast>>,
+    ancestor_names: BTreeSet<Box<str>>,
 }
 
 pub(super) fn resolve_function_shadow_v0(
@@ -67,26 +68,38 @@ pub(in crate::mir::resolved_semantics) fn resolve_function_shadow_view_v0(
     function_origin: FunctionOriginV1,
     view: FunctionSyntaxViewV1<'_>,
 ) -> Result<ShadowResolvedFunctionV0, ShadowResolveErrorV0> {
-    resolve_shadow_view(function_origin, view, ShadowLambdaModeV0::Reject)
-        .map(|owner| owner.function)
+    resolve_shadow_view(
+        function_origin,
+        view,
+        ShadowLambdaModeV0::Reject,
+        BTreeSet::new(),
+    )
+    .map(|owner| owner.function)
 }
 
 pub(in crate::mir::resolved_semantics) fn resolve_owner_shadow_view_v0<'ast>(
     function_origin: FunctionOriginV1,
     view: FunctionSyntaxViewV1<'ast>,
+    ancestor_names: BTreeSet<Box<str>>,
 ) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
-    resolve_shadow_view(function_origin, view, ShadowLambdaModeV0::Inventory)
+    resolve_shadow_view(
+        function_origin,
+        view,
+        ShadowLambdaModeV0::Inventory,
+        ancestor_names,
+    )
 }
 
 fn resolve_shadow_view<'ast>(
     function_origin: FunctionOriginV1,
     view: FunctionSyntaxViewV1<'ast>,
     lambda_mode: ShadowLambdaModeV0,
+    ancestor_names: BTreeSet<Box<str>>,
 ) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
     let params = view.params();
     let body = view.body();
 
-    let mut resolver = ShadowResolverV0::new(function_origin, lambda_mode);
+    let mut resolver = ShadowResolverV0::new(function_origin, lambda_mode, ancestor_names);
     if view.receiver_policy() == ReceiverPolicyV1::DeclaredInstance {
         resolver.declare_binding(
             "me",
@@ -129,7 +142,11 @@ fn resolve_shadow_view<'ast>(
 }
 
 impl<'ast> ShadowResolverV0<'ast> {
-    fn new(function_origin: FunctionOriginV1, lambda_mode: ShadowLambdaModeV0) -> Self {
+    fn new(
+        function_origin: FunctionOriginV1,
+        lambda_mode: ShadowLambdaModeV0,
+        ancestor_names: BTreeSet<Box<str>>,
+    ) -> Self {
         let function_scope = ShadowScopeIdV0::new(0);
         let function_region = ShadowRegionIdV0::new(0);
         let mut scopes = BTreeMap::new();
@@ -175,6 +192,7 @@ impl<'ast> ShadowResolverV0<'ast> {
             resolved_exits: BTreeMap::new(),
             lambda_mode,
             lambdas: Vec::new(),
+            ancestor_names,
         }
     }
 
@@ -249,8 +267,12 @@ impl<'ast> ShadowResolverV0<'ast> {
             .find_map(|frame| frame.names.get(name).copied())
     }
 
-    pub(super) fn record_use(&mut self, site: SourceExprSiteV1, binding: ShadowBindingOrdinalV0) {
-        self.variable_uses.insert(site, binding);
+    pub(super) fn ancestor_is_visible(&self, name: &str) -> bool {
+        self.ancestor_names.contains(name)
+    }
+
+    pub(super) fn record_use(&mut self, site: SourceExprSiteV1, lexical_ref: ShadowLexicalRefV0) {
+        self.variable_uses.insert(site, lexical_ref);
     }
 
     pub(super) fn record_assignment(

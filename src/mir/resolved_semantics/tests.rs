@@ -85,7 +85,10 @@ fn sample_data(owner: FunctionOwnerIdV1, binding: BindingId) -> ResolvedFunction
             ),
         )]),
         declarations: BTreeMap::from([(declaration.clone(), binding_ref)]),
-        variable_uses: BTreeMap::from([(use_site, binding_ref)]),
+        variable_uses: BTreeMap::from([(
+            use_site,
+            super::ResolvedLexicalRefV1::Local(binding_ref),
+        )]),
         assignment_targets: BTreeMap::from([(
             assignment_site,
             ResolvedAssignmentTargetV1::BindingRebind(binding_ref),
@@ -184,7 +187,10 @@ fn sealed_product_exposes_read_only_owner_scoped_records() {
         verified.declaration_binding(&declaration),
         Some(binding_ref)
     );
-    assert_eq!(verified.variable_binding(&use_site), Some(binding_ref));
+    assert_eq!(
+        verified.variable_ref(&use_site),
+        Some(super::ResolvedLexicalRefV1::Local(binding_ref))
+    );
     assert_eq!(
         verified.assignment_target(&assignment_site),
         Some(&ResolvedAssignmentTargetV1::BindingRebind(binding_ref))

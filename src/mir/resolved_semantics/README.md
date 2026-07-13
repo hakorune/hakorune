@@ -18,7 +18,7 @@ only `ShadowResolvedFunctionV0` for tests and deterministic inspection. It
 cannot populate the canonical draft, allocate `BindingId`, plan control flow,
 or lower MIR.
 
-## OF0 owner-forest boundary
+## OF0/UP0 owner-forest boundary
 
 `VerifiedSemanticOwnerForestV1` is the first cross-owner authority. One
 `FunctionSemanticResolverSessionV1` reuses one compilation-scoped owner issuer
@@ -42,9 +42,27 @@ scope containing the Lambda definition.
 
 Lambda syntax is borrowed through an AST-derived view and never cloned into a
 semantic product. A child declaration uses a child-local `BindingId`; raw IDs
-may repeat across owners without aliasing. A strict-ancestor read/rebind (and
-receiver use) stops at typed `UnsupportedCapture`. OF0 creates no CaptureId,
-Upvar, capture mode, runtime slot, ValueId, BasicBlockId, Recipe, Planner, or
+may repeat across owners without aliasing.
+
+UP0 adds only a structural read relation:
+
+```text
+ResolvedLexicalRefV1
+  = Local(BindingRefV1)
+  | Upvar(UpvarRefV1 {
+      capturing_owner,
+      source: strict-ancestor BindingRefV1,
+    })
+```
+
+The relation is deduplicated by `(capturing_owner, source)` and grandchild
+references point directly to the original declaration. Forest seal verifies
+the source exists, belongs to a strict ancestor, was visible at every Lambda
+definition boundary, and is not hidden by a nearer same-name declaration.
+Normalized parity uses structural owner keys and binding origins, never raw
+owner or binding numbers. Upvar writes remain an exact typed Unsupported until
+UP1. UP0 creates no CaptureId, synthetic child BindingId, capture mode,
+forwarding binding, runtime slot, ValueId, BasicBlockId, Recipe, Planner, or
 Lower connection.
 
 SA2 installs the real publication boundary. A compilation-scoped issuer with

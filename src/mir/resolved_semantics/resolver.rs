@@ -13,13 +13,14 @@ use super::product::{ResolvedFunctionDataV1, ResolvedFunctionDraftV1};
 use super::records::{
     BindingKindV1, BindingOriginV1, RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1,
     ResolvedBindingRecordV1, ResolvedControlTransferV1, ResolvedExitOriginV1, ResolvedExitRecordV1,
-    ResolvedRegionRecordV1, ResolvedScopeRecordV1, ScopeKindV1, ScopeOriginV1,
+    ResolvedLexicalRefV1, ResolvedRegionRecordV1, ResolvedScopeRecordV1, ScopeKindV1,
+    ScopeOriginV1,
 };
 use super::shadow::{
     resolve_function_shadow_view_v0, ShadowAssignmentTargetV0, ShadowBindingKindV0,
-    ShadowBindingOrdinalV0, ShadowControlExitV0, ShadowExitOriginV0, ShadowRegionIdV0,
-    ShadowRegionKindV0, ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowScopeIdV0,
-    ShadowScopeKindV0,
+    ShadowBindingOrdinalV0, ShadowControlExitV0, ShadowExitOriginV0, ShadowLexicalRefV0,
+    ShadowRegionIdV0, ShadowRegionKindV0, ShadowResolveErrorV0, ShadowResolvedFunctionV0,
+    ShadowScopeIdV0, ShadowScopeKindV0,
 };
 use super::source_site::{FunctionOriginV1, ResolvedExitSiteV1};
 use super::{ResolvedFunctionVerificationErrorV1, VerifiedResolvedFunctionV1};
@@ -45,6 +46,11 @@ pub(super) struct SealedOwnerConstructionV1 {
     pub(super) product: VerifiedResolvedFunctionV1,
     pub(super) binding_refs: BTreeMap<ShadowBindingOrdinalV0, BindingRefV1>,
     pub(super) scope_ids: BTreeMap<ShadowScopeIdV0, ScopeId>,
+}
+
+#[derive(Debug, Clone)]
+pub(super) struct AncestorBindingV1 {
+    pub(super) reference: BindingRefV1,
 }
 
 struct CanonicalizedDraftV1 {
@@ -102,7 +108,16 @@ impl FunctionSemanticResolverSessionV1 {
         owner: super::FunctionOwnerIdV1,
         draft: ShadowResolvedFunctionV0,
     ) -> Result<SealedOwnerConstructionV1, ResolveFunctionErrorV1> {
-        let canonical = canonicalize_draft(owner, draft)?;
+        self.seal_owner_with_ancestors(owner, draft, &BTreeMap::new())
+    }
+
+    pub(super) fn seal_owner_with_ancestors(
+        &mut self,
+        owner: super::FunctionOwnerIdV1,
+        draft: ShadowResolvedFunctionV0,
+        ancestors: &BTreeMap<Box<str>, AncestorBindingV1>,
+    ) -> Result<SealedOwnerConstructionV1, ResolveFunctionErrorV1> {
+        let canonical = canonicalize_draft(owner, draft, ancestors)?;
         let product = ResolvedFunctionDraftV1 {
             data: canonical.data,
         }
@@ -119,6 +134,7 @@ impl FunctionSemanticResolverSessionV1 {
 fn canonicalize_draft(
     owner: super::FunctionOwnerIdV1,
     draft: ShadowResolvedFunctionV0,
+    ancestors: &BTreeMap<Box<str>, AncestorBindingV1>,
 ) -> Result<CanonicalizedDraftV1, ResolveFunctionErrorV1> {
     let binding_ids = draft
         .bindings
@@ -221,8 +237,23 @@ fn canonicalize_draft(
     let variable_uses = draft
         .variable_uses
         .iter()
-        .map(|(site, id)| (site.clone(), binding_ref(*id)))
-        .collect();
+        .map(|(site, lexical_ref)| {
+            let lexical_ref = match lexical_ref {
+                ShadowLexicalRefV0::Local(id) => ResolvedLexicalRefV1::Local(binding_ref(*id)),
+                ShadowLexicalRefV0::Ancestor(name) => {
+                    let ancestor =
+                        ancestors
+                            .get(name)
+                            .ok_or(ResolveFunctionErrorV1::DraftInvariant(
+                                "shadow ancestor reference lacks canonical source",
+                            ))?;
+                    let upvar = super::UpvarRefV1::new(owner, ancestor.reference);
+                    ResolvedLexicalRefV1::Upvar(upvar)
+                }
+            };
+            Ok((site.clone(), lexical_ref))
+        })
+        .collect::<Result<BTreeMap<_, _>, ResolveFunctionErrorV1>>()?;
     let assignment_targets = draft
         .assignment_targets
         .iter()

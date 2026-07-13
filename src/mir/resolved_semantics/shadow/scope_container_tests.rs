@@ -65,7 +65,10 @@ fn assert_container_scope(container: ASTNode, child_segment: SourcePathSegmentV1
         SourcePathSegmentV1::Value,
     ]));
     assert_ne!(inner, parameter);
-    assert_eq!(product.variable_uses[&after], parameter);
+    assert_eq!(
+        product.variable_uses[&after],
+        super::ShadowLexicalRefV0::Local(parameter)
+    );
 }
 
 #[test]
