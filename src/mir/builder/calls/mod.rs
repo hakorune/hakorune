@@ -23,6 +23,9 @@ pub mod call_unified;
 pub mod extern_calls;
 pub mod function_lowering;
 pub mod function_preflight; // Function-call special gate before arg materialization
+mod function_session; // Closure-scoped function transaction and cleanup owner
+#[cfg(test)]
+mod function_session_tests;
 pub mod method_resolution;
 pub mod special_handlers;
 

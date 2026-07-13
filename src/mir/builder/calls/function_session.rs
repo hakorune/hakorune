@@ -1,0 +1,184 @@
+//! Closure-scoped transaction for one function lowering lifecycle.
+//!
+//! B0-L2c uses the current legacy body Lower only. The session establishes the
+//! cleanup/publication order required by future canonical lowering without
+//! installing resolved semantics or changing BindingId authority.
+
+use std::fmt;
+
+use crate::ast::ASTNode;
+use crate::mir::builder::MirBuilder;
+use crate::mir::function::MirFunction;
+
+use super::context_lifecycle::LoweringContext;
+
+#[derive(Debug)]
+struct FunctionSessionCleanupErrorV1 {
+    imbalances: Vec<&'static str>,
+    saved_region_depth: usize,
+    actual_region_depth: usize,
+    region_prefix_matches: bool,
+}
+
+impl fmt::Display for FunctionSessionCleanupErrorV1 {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            formatter,
+            "[freeze:contract][canonical_function_session/state_imbalance] fields={} saved_region_depth={} actual_region_depth={} region_prefix_matches={}",
+            self.imbalances.join(","),
+            self.saved_region_depth,
+            self.actual_region_depth,
+            self.region_prefix_matches
+        )
+    }
+}
+
+/// Owns the caller snapshot until one Lower result is explicitly closed.
+///
+/// The canonical name is intentional: SA3-B will install resolved identity at
+/// this boundary. B0-L2c keeps the source view and semantic product absent.
+pub(super) struct CanonicalFunctionLoweringSessionV1<'builder> {
+    builder: &'builder mut MirBuilder,
+    context: Option<LoweringContext>,
+    closed: bool,
+}
+
+impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
+    fn open(
+        builder: &'builder mut MirBuilder,
+        function_name: &str,
+        body_snapshot: Vec<ASTNode>,
+    ) -> Self {
+        let context = builder.prepare_lowering_context(function_name);
+        builder.comp_ctx.fn_body_ast = Some(body_snapshot);
+        Self {
+            builder,
+            context: Some(context),
+            closed: false,
+        }
+    }
+
+    fn run(
+        self,
+        operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
+    ) -> Result<(), String> {
+        let outcome = operation(self.builder);
+        self.finish(outcome)
+    }
+
+    fn finish(mut self, outcome: Result<MirFunction, String>) -> Result<(), String> {
+        let cleanup = self.cleanup(outcome.is_ok());
+        match (outcome, cleanup) {
+            (Ok(draft), Ok(())) => {
+                let name = draft.signature.name.clone();
+                let module = self.builder.current_module.as_mut().ok_or_else(|| {
+                    format!(
+                        "[freeze:contract][canonical_function_session/module_missing] function={name}"
+                    )
+                })?;
+                module.add_function(draft);
+                Ok(())
+            }
+            (Err(primary), Ok(())) => Err(primary),
+            (Ok(_draft), Err(cleanup)) => Err(format!(
+                "[freeze:contract][canonical_function_session/cleanup_failed] cleanup={cleanup}"
+            )),
+            (Err(primary), Err(cleanup)) => Err(format!(
+                "[freeze:contract][canonical_function_session/during_cleanup] primary={primary} cleanup={cleanup}"
+            )),
+        }
+    }
+
+    fn cleanup(&mut self, operation_succeeded: bool) -> Result<(), FunctionSessionCleanupErrorV1> {
+        let validation = self.validate_before_restore(operation_succeeded);
+        if let Some(context) = self.context.take() {
+            self.builder.restore_lowering_context(context);
+        }
+        self.closed = true;
+        validation
+    }
+
+    fn validate_before_restore(
+        &self,
+        operation_succeeded: bool,
+    ) -> Result<(), FunctionSessionCleanupErrorV1> {
+        let context = self
+            .context
+            .as_ref()
+            .expect("open function session always owns one context");
+        let current_regions = self.builder.metadata_ctx.current_region_stack();
+        let saved_regions = context.saved_region_stack.as_slice();
+        let region_prefix_matches = current_regions.starts_with(saved_regions);
+        let region_depth_is_bounded = current_regions.len() <= saved_regions.len() + 1;
+
+        let mut imbalances = Vec::new();
+        if !region_prefix_matches || !region_depth_is_bounded {
+            imbalances.push("observer_region_stack");
+        }
+        if self.builder.recursion_depth != 0 {
+            imbalances.push("recursion_depth");
+        }
+        if self.builder.in_unified_boxcall_fallback {
+            imbalances.push("unified_boxcall_fallback");
+        }
+        if operation_succeeded {
+            if self.builder.scope_ctx.current_function.is_some() {
+                imbalances.push("published_draft_still_installed");
+            }
+            if !self.builder.scope_ctx.lexical_scope_stack.is_empty() {
+                imbalances.push("lexical_scope_stack");
+            }
+            if !self.builder.scope_ctx.loop_header_stack.is_empty() {
+                imbalances.push("loop_header_stack");
+            }
+            if !self.builder.scope_ctx.loop_exit_stack.is_empty() {
+                imbalances.push("loop_exit_stack");
+            }
+            if !self.builder.scope_ctx.if_merge_stack.is_empty() {
+                imbalances.push("if_merge_stack");
+            }
+            if !self.builder.scope_ctx.debug_scope_stack.is_empty() {
+                imbalances.push("debug_scope_stack");
+            }
+            if !self.builder.scope_ctx.fastmem_region_stack.is_empty() {
+                imbalances.push("fastmem_region_stack");
+            }
+        }
+
+        if imbalances.is_empty() {
+            Ok(())
+        } else {
+            Err(FunctionSessionCleanupErrorV1 {
+                imbalances,
+                saved_region_depth: saved_regions.len(),
+                actual_region_depth: current_regions.len(),
+                region_prefix_matches,
+            })
+        }
+    }
+}
+
+impl Drop for CanonicalFunctionLoweringSessionV1<'_> {
+    fn drop(&mut self) {
+        if self.closed {
+            return;
+        }
+        if let Some(context) = self.context.take() {
+            self.builder.restore_lowering_context(context);
+        }
+        if cfg!(debug_assertions) && !std::thread::panicking() {
+            panic!("[freeze:contract][canonical_function_session/dropped_without_close]");
+        }
+    }
+}
+
+impl MirBuilder {
+    pub(super) fn with_function_lowering_session(
+        &mut self,
+        function_name: &str,
+        body_snapshot: Vec<ASTNode>,
+        operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
+    ) -> Result<(), String> {
+        CanonicalFunctionLoweringSessionV1::open(self, function_name, body_snapshot).run(operation)
+    }
+}

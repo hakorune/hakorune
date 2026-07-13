@@ -11,12 +11,12 @@
 //! ## アーキテクチャ
 //! ```text
 //! lowering.rs (オーケストレーター)
-//!   ├─ Step 1: context_lifecycle::prepare_lowering_context()
+//!   ├─ function_session::with_function_lowering_session()
 //!   ├─ Step 2: skeleton_builder::create_function_skeleton()
 //!   ├─ Step 3: parameter_setup::setup_function_params()
 //!   ├─ Step 4: lower_function_body() (本体lowering - このファイルで実装)
-//!   ├─ Step 5: finalize_function() (Void return追加・型推論 - このファイルで実装)
-//!   └─ Step 6: context_lifecycle::restore_lowering_context()
+//!   ├─ Step 5: finalize_function_draft() (未公開 draft を返す)
+//!   └─ session close: caller restore → module commit
 //! ```
 //!
 //! ## 設計原則
@@ -26,7 +26,7 @@
 
 use super::function_lowering;
 use crate::ast::{ASTNode, ParamDecl};
-use crate::mir::builder::{MirBuilder, MirInstruction, MirType};
+use crate::mir::builder::{MirBuilder, MirFunction, MirInstruction, MirType};
 use crate::mir::function::MirParamDecl;
 
 fn parse_declared_method_arity(func_name: &str) -> Option<usize> {
@@ -114,7 +114,7 @@ impl MirBuilder {
     /// 責務: 関数本体（static method）を MIR に lowering
     /// - StepTree capability guard 実行（strict-only）
     /// - build_expression() 経由で本体処理
-    fn lower_function_body(&mut self, body: Vec<ASTNode>) -> Result<(), String> {
+    pub(super) fn lower_function_body(&mut self, body: Vec<ASTNode>) -> Result<(), String> {
         let trace = crate::mir::builder::control_flow::joinir::trace::trace();
 
         // Phase 112: StepTree capability guard (strict-only) + dev shadow lowering
@@ -181,9 +181,12 @@ impl MirBuilder {
     /// 責務: 関数の最終処理
     /// - Void return 追加（必要な場合）
     /// - 型推論（return 型が不明な場合）
-    /// - Module への関数追加
+    /// - session へ未公開 `MirFunction` draft を返す
     #[allow(deprecated)]
-    fn finalize_function(&mut self, returns_value: bool) -> Result<(), String> {
+    pub(super) fn finalize_function_draft(
+        &mut self,
+        returns_value: bool,
+    ) -> Result<MirFunction, String> {
         // Void return追加（必要な場合）
         if !returns_value {
             if let Some(ref mut f) = self.scope_ctx.current_function {
@@ -249,18 +252,15 @@ impl MirBuilder {
             f.metadata.value_origin_callers = origin_callers;
         }
 
-        // Moduleに追加
-        // Phase 136 Step 3/7: Take from scope_ctx (SSOT)
+        // Keep the draft unpublished until the function session restores and
+        // verifies the caller context.
         crate::mir::builder::emission::value_lifecycle::verify_typed_values_are_defined(
             self,
-            "finalize_function",
+            "finalize_function_draft",
         )?;
-        let finalized = self.scope_ctx.current_function.take().unwrap();
-        if let Some(ref mut module) = self.current_module {
-            module.add_function(finalized);
-        }
-
-        Ok(())
+        self.scope_ctx.current_function.take().ok_or_else(|| {
+            "[freeze:contract][canonical_function_session/finalize_without_draft]".to_string()
+        })
     }
 
     // ============================================================================
@@ -272,7 +272,7 @@ impl MirBuilder {
     /// 責務: メソッド本体（instance method）を MIR に lowering
     /// - StepTree capability guard 実行（strict-only）
     /// - cf_block() 経由で本体処理（method専用）
-    fn lower_method_body(&mut self, body: Vec<ASTNode>) -> Result<(), String> {
+    pub(super) fn lower_method_body(&mut self, body: Vec<ASTNode>) -> Result<(), String> {
         let trace = crate::mir::builder::control_flow::joinir::trace::trace();
         let strict = crate::config::env::joinir_dev::strict_enabled();
         let dev = crate::config::env::joinir_dev_enabled();
@@ -314,13 +314,7 @@ impl MirBuilder {
 
     /// 🎯 箱理論: 統合エントリーポイント - static method lowering
     ///
-    /// 6-Step オーケストレーション:
-    /// 1. Context準備 (context_lifecycle)
-    /// 2. 関数スケルトン作成 (skeleton_builder)
-    /// 3. パラメータ設定 (parameter_setup)
-    /// 4. 本体lowering (lower_function_body)
-    /// 5. 関数finalize (finalize_function)
-    /// 6. Context復元 (context_lifecycle)
+    /// Function session owns prepare, rollback, and post-cleanup publication.
     pub(in crate::mir::builder) fn lower_static_method_as_function(
         &mut self,
         func_name: String,
@@ -354,67 +348,30 @@ impl MirBuilder {
                 ring0.log.debug(&msg);
             }
         }
-        self.comp_ctx.fn_body_ast = Some(body.clone());
+        let session_name = func_name.clone();
+        self.with_function_lowering_session(&session_name, body.clone(), move |builder| {
+            builder.create_function_skeleton(func_name, &params, &body)?;
+            builder.set_current_function_declared_signature(
+                mir_param_decls_from_source(&params, &param_decls),
+                return_type_name,
+            );
+            builder.set_current_function_runes(&attrs);
+            builder.set_current_function_declared_capability_uses(&uses);
+            builder.setup_function_params(&params)?;
+            builder.lower_function_body(body)?;
 
-        // ========================================
-        // Step 1: Context準備 (context_lifecycle へ委譲)
-        // ========================================
-        let mut ctx = self.prepare_lowering_context(&func_name);
-
-        // ========================================
-        // Step 2: 関数スケルトン作成 (skeleton_builder へ委譲)
-        // ========================================
-        self.create_function_skeleton(func_name, &params, &body, &mut ctx)?;
-        self.set_current_function_declared_signature(
-            mir_param_decls_from_source(&params, &param_decls),
-            return_type_name,
-        );
-        self.set_current_function_runes(&attrs);
-        self.set_current_function_declared_capability_uses(&uses);
-
-        // ========================================
-        // Step 3: パラメータ設定 (parameter_setup へ委譲)
-        // ========================================
-        self.setup_function_params(&params)?;
-
-        // ========================================
-        // Step 4: 本体lowering (このファイルで実装)
-        // ========================================
-        self.lower_function_body(body)?;
-
-        // ========================================
-        // Step 5: 関数finalize (このファイルで実装)
-        // ========================================
-        let returns_value = if let Some(ref f) = self.scope_ctx.current_function {
-            !matches!(f.signature.return_type, MirType::Void)
-        } else {
-            false
-        };
-        self.finalize_function(returns_value)?;
-
-        // FunctionRegion を 1 段ポップして元の関数コンテキストに戻るよ。
-        crate::mir::region::observer::pop_function_region(self);
-
-        // ========================================
-        // Step 6: Context復元 (context_lifecycle へ委譲)
-        // ========================================
-        self.restore_lowering_context(ctx);
-
-        // Phase 200-C: Clear fn_body_ast after function lowering
-        self.comp_ctx.fn_body_ast = None;
-
-        Ok(())
+            let returns_value = builder
+                .scope_ctx
+                .current_function
+                .as_ref()
+                .is_some_and(|function| !matches!(function.signature.return_type, MirType::Void));
+            builder.finalize_function_draft(returns_value)
+        })
     }
 
     /// 🎯 箱理論: 統合エントリーポイント - instance method lowering
     ///
-    /// 6-Step オーケストレーション (method版):
-    /// 1. Context準備 (インラインで実装)
-    /// 2b. メソッドスケルトン作成 (skeleton_builder)
-    /// 3b. パラメータ設定 (parameter_setup - me + params)
-    /// 4b. 本体lowering (lower_method_body)
-    /// 5. 関数finalize (インラインで実装)
-    /// 6. Context復元 (インラインで実装)
+    /// The same function session owns instance-method cleanup and publication.
     pub(in crate::mir::builder) fn lower_method_as_function(
         &mut self,
         func_name: String,
@@ -451,57 +408,25 @@ impl MirBuilder {
                 ring0.log.debug(&msg);
             }
         }
-        // Phase 200-C: Store fn_body for capture analysis
-        self.comp_ctx.fn_body_ast = Some(body.clone());
+        let session_name = func_name.clone();
+        self.with_function_lowering_session(&session_name, body.clone(), move |builder| {
+            builder.create_method_skeleton(func_name, &box_name, &params, &body)?;
+            builder.set_current_function_declared_signature(
+                mir_method_param_decls_from_source(&box_name, &params, &param_decls),
+                return_type_name,
+            );
+            builder.set_current_function_runes(&attrs);
+            builder.set_current_function_declared_capability_uses(&uses);
+            builder.setup_method_params(&box_name, &params)?;
+            builder.lower_method_body(body)?;
 
-        // ========================================
-        // Step 1: Context準備 (context_lifecycle へ委譲)
-        // ========================================
-        let mut ctx = self.prepare_lowering_context(&func_name);
-
-        // ========================================
-        // Step 2b: メソッドスケルトン作成 (skeleton_builder へ委譲)
-        // ========================================
-        self.create_method_skeleton(func_name, &box_name, &params, &body, &mut ctx)?;
-        self.set_current_function_declared_signature(
-            mir_method_param_decls_from_source(&box_name, &params, &param_decls),
-            return_type_name,
-        );
-        self.set_current_function_runes(&attrs);
-        self.set_current_function_declared_capability_uses(&uses);
-
-        // ========================================
-        // Step 3b: パラメータ設定 (parameter_setup へ委譲 - me + params)
-        // ========================================
-        self.setup_method_params(&box_name, &params)?;
-
-        // ========================================
-        // Step 4b: 本体lowering (このファイルで実装 - cf_block版)
-        // ========================================
-        self.lower_method_body(body)?;
-
-        // ========================================
-        // Step 5: 関数finalize (このファイルで実装)
-        // ========================================
-        let returns_value = if let Some(ref f) = self.scope_ctx.current_function {
-            !matches!(f.signature.return_type, MirType::Void)
-        } else {
-            false
-        };
-        self.finalize_function(returns_value)?;
-
-        // FunctionRegion を 1 段ポップして元の関数コンテキストに戻るよ。
-        crate::mir::region::observer::pop_function_region(self);
-
-        // ========================================
-        // Step 6: Context復元 (context_lifecycle へ委譲)
-        // ========================================
-        self.restore_lowering_context(ctx);
-
-        // Phase 200-C: Clear fn_body_ast after function lowering
-        self.comp_ctx.fn_body_ast = None;
-
-        Ok(())
+            let returns_value = builder
+                .scope_ctx
+                .current_function
+                .as_ref()
+                .is_some_and(|function| !matches!(function.signature.return_type, MirType::Void));
+            builder.finalize_function_draft(returns_value)
+        })
     }
 }
 

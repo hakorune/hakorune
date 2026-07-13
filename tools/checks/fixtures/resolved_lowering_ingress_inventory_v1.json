@@ -324,7 +324,26 @@
     "mutable_source_cursor_count": 0,
     "pointer_identity_lookup_count": 0,
     "span_identity_lookup_count": 0,
-    "name_identity_lookup_count": 0
+    "name_identity_lookup_count": 0,
+    "selected_next_slice": "B0-L2c-function-transaction"
   },
-  "selected_next_slice": "B0-L2c-function-transaction"
+  "function_transaction_contract": {
+    "slice": "B0-L2c",
+    "status": "closed",
+    "session_type": "CanonicalFunctionLoweringSessionV1",
+    "session_entry": "with_function_lowering_session",
+    "static_session_callers": 1,
+    "instance_session_callers": 1,
+    "manual_prepare_restore_pairs_in_lowering": 0,
+    "manual_function_region_pops_in_lowering": 0,
+    "manual_fn_body_mutations_in_lowering": 0,
+    "unpublished_draft_finalize_count": 1,
+    "focused_test_count": 4,
+    "injected_checkpoint_count": 5,
+    "combined_primary_cleanup_error_contracts": 1,
+    "production_semantic_activation": 0,
+    "source_view_builder_consumers": 0,
+    "planner_connection_count": 0
+  },
+  "selected_next_slice": "SA3-B-first-closed-canonical-family"
 }

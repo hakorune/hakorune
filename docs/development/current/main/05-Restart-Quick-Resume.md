@@ -40,9 +40,10 @@ cargo check -q
 
 - handoff frontier: read `current_blocker_token` in `CURRENT_STATE.toml`
 - read `latest_card_path` before editing
-- owner-scoped arena through B0-L2b is closed (B0-C was skipped); canonical
-  BlockExpr is lexical and the active frontier is B0-L2c closure-scoped
-  function transaction named by `current_blocker_token` and `latest_card_path`
+- owner-scoped arena through B0-L2c is closed (B0-C was skipped); canonical
+  BlockExpr is lexical and the active frontier is atomic SA3-B for the first
+  closed canonical function family named by `current_blocker_token` and
+  `latest_card_path`
 - keep RegionFlow R1, parser/source-carrier P1, and all parked source-projection
   stashes disconnected until the semantic-arena prerequisite series closes
 - LANGV1 conformance closeout and Failure/Outcome global migration remain

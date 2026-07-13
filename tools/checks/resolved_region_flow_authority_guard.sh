@@ -36,7 +36,7 @@ guard_require_files "$TAG" \
   "$LOWER_LOCAL" \
   "$LOWER_PARAM" \
   "$ROOT/src/mir/compiler/README.md" "$LOWERING_INPUT" \
-  "$ROOT/src/mir/compiler/located.rs" "$ROOT/src/mir/compiler/source_projection.rs" "$ROOT/src/mir/compiler/source_view.rs" "$ROOT/src/mir/compiler/source_view_tests.rs" \
+  "$ROOT/src/mir/compiler/located.rs" "$ROOT/src/mir/compiler/source_projection.rs" "$ROOT/src/mir/compiler/source_view.rs" "$ROOT/src/mir/compiler/source_view_tests.rs" "$ROOT/src/mir/builder/calls/context_lifecycle.rs" "$ROOT/src/mir/builder/calls/function_session.rs" "$ROOT/src/mir/builder/calls/function_session_tests.rs" "$ROOT/src/mir/builder/calls/lowering.rs" "$ROOT/src/mir/builder/calls/skeleton_builder.rs" \
   "$BLOCKEXPR_INVENTORY" \
   "$MODULE/tests.rs" \
   "$MODULE/shadow/mod.rs" \
@@ -736,7 +736,7 @@ while IFS= read -r file; do
   if (( lines >= 800 )); then
     guard_fail "$TAG" "source file reached the 800-line stop boundary: $file ($lines)"
   fi
-done < <(find "$MODULE" "$ROOT/src/mir/compiler" -type f -name '*.rs' -print; printf '%s\n' "$MIR_MOD")
+done < <(find "$MODULE" "$ROOT/src/mir/compiler" "$ROOT/src/mir/builder/calls" -type f -name '*.rs' -print; printf '%s\n' "$MIR_MOD")
 
 if ! rg -q 'pub\(super\) struct BindingId\(u32\)' \
   "$ROOT/src/mir/join_ir/ownership/ast_analyzer/core.rs"; then
@@ -755,7 +755,7 @@ cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::scope_container_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::vocabulary_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::builder::vars::resolved_binding_state::tests
-for test in mir::compiler::lowering_input::tests mir::compiler::source_view_tests; do cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib "$test"; done
+for test in mir::compiler::lowering_input::tests mir::compiler::source_view_tests mir::builder::calls::function_session_tests; do cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib "$test"; done
 
 echo "semantic_arena_schema=present"
 echo "semantic_arena_ast_clone_fields=0"

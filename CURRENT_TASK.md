@@ -37,10 +37,11 @@ sealed owner-local products under one verified single-root forest; strict
 ancestor reads/rebinds are exact structural observations. The schema-test
 bypass is gone and Facts/Planner/Recipe/Lower remain disconnected. Canonical
 BlockExpr is lexical and resolver-backed; ProgramV0 remains non-authoritative
-and unwidened. Decision A′ closes B0-L0/B0-L1/B0-L2a/B0-L2b: typed ingress and
-immutable exact source navigation are sealed while production resolved callers
-and semantic activation remain zero. The active frontier is B0-L2c
-closure-scoped behavior-preserving function transaction, named by
+and unwidened. Decision A′ closes B0-L0/B0-L1/B0-L2a/B0-L2b/B0-L2c: typed
+ingress, immutable exact source navigation, and the closure-scoped function
+transaction are sealed while production resolved callers and semantic
+activation remain zero. The active frontier is atomic SA3-B for the first
+closed non-main static/free straight-line family, named by
 `current_blocker_token`; capture mode/layout remain zero.
 SA3 later performs the atomic canonical
 BindingId authority cutover, followed by exact RegionId target cutover and

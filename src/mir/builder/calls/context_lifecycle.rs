@@ -12,8 +12,10 @@
 
 use crate::mir::builder::compilation_context::RecordLocalValue;
 use crate::mir::builder::type_context::TypeContextSnapshot;
-use crate::mir::builder::MirBuilder;
+use crate::mir::builder::{FragEmitSession, MirBuilder};
+use crate::mir::instruction::FastMemRegionId;
 use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
+use crate::mir::region::RegionId;
 use crate::mir::{BasicBlockId, ValueId};
 use std::collections::{BTreeMap, HashMap, HashSet}; // Phase 25.1: 決定性確保
 
@@ -25,6 +27,7 @@ pub(super) struct ScopeStacksSnapshot {
     pub(super) if_merge_stack: Vec<BasicBlockId>,
     pub(super) debug_scope_stack: Vec<String>,
     pub(super) function_param_names: HashSet<String>,
+    pub(super) fastmem_region_stack: Vec<FastMemRegionId>,
 }
 
 /// 🎯 箱理論: Lowering Context（準備と復元）
@@ -36,6 +39,11 @@ pub(super) struct LoweringContext {
     pub(super) saved_function: Option<crate::mir::builder::MirFunction>,
     pub(super) saved_block: Option<crate::mir::builder::BasicBlockId>,
     pub(super) saved_slot_registry: Option<FunctionSlotRegistry>,
+    pub(super) saved_reserved_value_ids: HashSet<ValueId>,
+    pub(super) saved_fn_body_ast: Option<Vec<crate::ast::ASTNode>>,
+    pub(super) saved_frag_emit_session: FragEmitSession,
+    pub(super) saved_current_span: crate::ast::Span,
+    pub(super) saved_region_stack: Vec<RegionId>,
 
     // Function lowering is re-entrant (nested method lowering while building another function).
     // Preserve the caller function's per-function state so lexical scopes and SSA caches stay balanced.
@@ -56,11 +64,18 @@ pub(super) struct LoweringContext {
     pub(super) saved_cleanup_allow_return: bool,
     pub(super) saved_cleanup_allow_throw: bool,
     pub(super) saved_suppress_pin_entry_copy_next: bool,
+    pub(super) saved_in_unified_boxcall_fallback: bool,
+    pub(super) saved_recursion_depth: usize,
 }
 
 impl MirBuilder {
     /// 🎯 箱理論: Step 1 - Lowering Context準備
     pub(super) fn prepare_lowering_context(&mut self, func_name: &str) -> LoweringContext {
+        // Snapshot the caller function first. No later fallible step owns this
+        // state, so the session can restore even if skeleton creation fails.
+        let saved_function = self.scope_ctx.current_function.take();
+        let saved_block = self.current_block.take();
+
         // Static box context設定
         let saved_static_ctx = self.comp_ctx.current_static_box.clone();
         if let Some(pos) = func_name.find('.') {
@@ -87,9 +102,11 @@ impl MirBuilder {
 
         // 関数スコープ SlotRegistry は元の関数側から退避しておくよ。
         let saved_slot_registry = self.comp_ctx.current_slot_registry.take();
-
-        // Phase 201-A: Clear reserved ValueIds at function entry (function-local).
-        self.comp_ctx.clear_reserved_value_ids();
+        let saved_reserved_value_ids = std::mem::take(&mut self.comp_ctx.reserved_value_ids);
+        let saved_fn_body_ast = self.comp_ctx.fn_body_ast.take();
+        let saved_frag_emit_session = std::mem::take(&mut self.frag_emit_session);
+        let saved_current_span = self.metadata_ctx.current_span();
+        let saved_region_stack = self.metadata_ctx.current_region_stack().to_vec();
 
         // Nested function lowering must not destroy the caller's lexical scopes / SSA caches.
         let saved_binding_ctx = std::mem::take(&mut self.binding_ctx);
@@ -101,6 +118,7 @@ impl MirBuilder {
             if_merge_stack: std::mem::take(&mut self.scope_ctx.if_merge_stack),
             debug_scope_stack: std::mem::take(&mut self.scope_ctx.debug_scope_stack),
             function_param_names: std::mem::take(&mut self.scope_ctx.function_param_names),
+            fastmem_region_stack: std::mem::take(&mut self.scope_ctx.fastmem_region_stack),
         };
         let saved_pending_phis = std::mem::take(&mut self.pending_phis);
         let saved_local_ssa_map = std::mem::take(&mut self.local_ssa_map);
@@ -115,6 +133,8 @@ impl MirBuilder {
         let saved_cleanup_allow_return = self.cleanup_allow_return;
         let saved_cleanup_allow_throw = self.cleanup_allow_throw;
         let saved_suppress_pin_entry_copy_next = self.suppress_pin_entry_copy_next;
+        let saved_in_unified_boxcall_fallback = self.in_unified_boxcall_fallback;
+        let saved_recursion_depth = self.recursion_depth;
 
         // Function boundary: clear per-function state to avoid ValueId leaks across functions.
         self.binding_ctx.clear_for_function_entry();
@@ -132,6 +152,8 @@ impl MirBuilder {
         self.cleanup_allow_return = false;
         self.cleanup_allow_throw = false;
         self.suppress_pin_entry_copy_next = false;
+        self.in_unified_boxcall_fallback = false;
+        self.recursion_depth = 0;
 
         // BoxCompilationContext mode: clear()で完全独立化
         if context_active {
@@ -151,9 +173,14 @@ impl MirBuilder {
             saved_var_map,
             saved_type_ctx,
             saved_static_ctx,
-            saved_function: None,
-            saved_block: None,
+            saved_function,
+            saved_block,
             saved_slot_registry,
+            saved_reserved_value_ids,
+            saved_fn_body_ast,
+            saved_frag_emit_session,
+            saved_current_span,
+            saved_region_stack,
             saved_binding_ctx,
             saved_resolved_binding_state,
             saved_scope_stacks,
@@ -170,6 +197,8 @@ impl MirBuilder {
             saved_cleanup_allow_return,
             saved_cleanup_allow_throw,
             saved_suppress_pin_entry_copy_next,
+            saved_in_unified_boxcall_fallback,
+            saved_recursion_depth,
         }
     }
 
@@ -200,6 +229,14 @@ impl MirBuilder {
         self.comp_ctx.current_static_box = ctx.saved_static_ctx;
         // 関数スコープ SlotRegistry も元の関数に戻すよ。
         self.comp_ctx.current_slot_registry = ctx.saved_slot_registry;
+        self.comp_ctx.reserved_value_ids = ctx.saved_reserved_value_ids;
+        self.comp_ctx.fn_body_ast = ctx.saved_fn_body_ast;
+        self.frag_emit_session = ctx.saved_frag_emit_session;
+        self.metadata_ctx.set_current_span(ctx.saved_current_span);
+        while self.metadata_ctx.pop_region().is_some() {}
+        for region in ctx.saved_region_stack {
+            self.metadata_ctx.push_region(region);
+        }
 
         // Restore caller function state (lexical scopes / SSA caches / try-cleanup flags).
         self.binding_ctx = ctx.saved_binding_ctx;
@@ -210,6 +247,7 @@ impl MirBuilder {
         self.scope_ctx.if_merge_stack = ctx.saved_scope_stacks.if_merge_stack;
         self.scope_ctx.debug_scope_stack = ctx.saved_scope_stacks.debug_scope_stack;
         self.scope_ctx.function_param_names = ctx.saved_scope_stacks.function_param_names;
+        self.scope_ctx.fastmem_region_stack = ctx.saved_scope_stacks.fastmem_region_stack;
         self.pending_phis = ctx.saved_pending_phis;
         self.local_ssa_map = ctx.saved_local_ssa_map;
         self.schedule_mat_map = ctx.saved_schedule_mat_map;
@@ -223,5 +261,7 @@ impl MirBuilder {
         self.cleanup_allow_return = ctx.saved_cleanup_allow_return;
         self.cleanup_allow_throw = ctx.saved_cleanup_allow_throw;
         self.suppress_pin_entry_copy_next = ctx.saved_suppress_pin_entry_copy_next;
+        self.in_unified_boxcall_fallback = ctx.saved_in_unified_boxcall_fallback;
+        self.recursion_depth = ctx.saved_recursion_depth;
     }
 }

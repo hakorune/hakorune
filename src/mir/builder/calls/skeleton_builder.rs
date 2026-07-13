@@ -8,7 +8,6 @@
 //! このモジュールは関数の「骨格」を作成する責務のみを持つ。
 //! 本体lowering や finalize は別モジュールで処理される。
 
-use super::context_lifecycle::LoweringContext;
 use super::function_lowering;
 use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
@@ -21,16 +20,11 @@ impl MirBuilder {
         func_name: String,
         params: &[String],
         body: &[ASTNode],
-        ctx: &mut LoweringContext,
     ) -> Result<(), String> {
         let signature =
             function_lowering::prepare_static_method_signature(func_name.clone(), params, body);
         let entry = self.next_block_id();
         let function = self.new_function_with_metadata(signature, entry);
-
-        // Phase 136 Step 3/7: Save from scope_ctx (SSOT)
-        ctx.saved_function = self.scope_ctx.current_function.take();
-        ctx.saved_block = self.current_block.take();
 
         let trace = crate::mir::builder::control_flow::joinir::trace::trace();
         trace.emit_if(
@@ -68,16 +62,11 @@ impl MirBuilder {
         box_name: &str,
         params: &[String],
         body: &[ASTNode],
-        ctx: &mut LoweringContext,
     ) -> Result<(), String> {
         let signature =
             function_lowering::prepare_method_signature(func_name, box_name, params, body);
         let entry = self.next_block_id();
         let function = self.new_function_with_metadata(signature, entry);
-
-        // Phase 136 Step 3/7: Save from scope_ctx (SSOT)
-        ctx.saved_function = self.scope_ctx.current_function.take();
-        ctx.saved_block = self.current_block.take();
 
         // Phase 136 Step 3/7: Use scope_ctx as SSOT
         self.scope_ctx.current_function = Some(function);

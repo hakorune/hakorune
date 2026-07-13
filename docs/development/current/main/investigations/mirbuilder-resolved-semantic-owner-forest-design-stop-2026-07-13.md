@@ -1,5 +1,5 @@
 ---
-Status: P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S/B0-F/B0-L0/B0-L1/B0-L2a/B0-L2b closed; B0-C skipped; B0-L2c is active
+Status: P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S/B0-F/B0-L0/B0-L1/B0-L2a/B0-L2b/B0-L2c closed; B0-C skipped; SA3-B first canonical family is active
 Date: 2026-07-13
 Scope: Resolved Semantic Owner Forest V1 design and implementation task order
 Parent: mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
@@ -1255,7 +1255,7 @@ are sealed by an unforgeable `SourceViewSealV1`; safe code outside
 AST-field navigation remains centralized in `source_projection.rs`, while the
 resolver and compiler share the one `SourcePathV1` builder.
 
-**B0-L2c — closure-scoped function transaction (active)**
+**B0-L2c — closure-scoped function transaction (closed)**
 
 This is a behavior-preserving BoxShape slice over the existing static/instance
 function Lower. It activates neither the resolved source view nor semantic
@@ -1274,7 +1274,8 @@ Required structure:
    and resolved-binding state, variable/type context, lexical/loop/if/debug/
    FastMem stacks, SSA caches, try/cleanup flags, recursion/re-entry guards,
    slot registry, reserved values, `fn_body_ast`, FragEmitSession, current
-   source Span, and observer Region stack.
+   source Span, and observer Region stack. Existing `BoxCompilationContext`
+   clear-only mode remains an explicit isolation policy, not caller state.
 3. Finalization returns an unpublished `MirFunction` draft. The session first
    verifies/restores caller state, then commits that draft to the module.
    Any primary or cleanup error publishes no function.
@@ -1306,6 +1307,96 @@ all source files < 800 lines
 Stop if closure ownership requires `Option<VerifiedResolvedFunctionV1>`, a
 mutable source cursor, a new environment toggle, or any canonical/legacy
 identity mixture. Those belong to atomic SA3-B, not this lifecycle slice.
+
+Closeout evidence:
+
+```text
+cleanup owner = CanonicalFunctionLoweringSessionV1
+static session entries = 1
+instance session entries = 1
+manual prepare/restore pairs in lowering.rs = 0
+manual FunctionRegion pops in lowering.rs = 0
+manual fn_body_ast mutations in lowering.rs = 0
+finalize result = unpublished MirFunction draft
+module commit order = caller restore/validation then add_function
+injected checkpoints = before skeleton / after skeleton / after params /
+                       after body / after finalize
+primary + cleanup diagnostic preservation = verified
+panic Drop restoration = verified
+focused transaction fixtures = 4 green
+builder calls tests = 23 green
+resolved_region_flow_authority_guard = green
+dev_gate quick = green
+resolved source-view Builder consumers / semantic activation = 0
+selected next slice = atomic SA3-B first family
+```
+
+The complete caller snapshot now includes the previously unowned FastMem stack,
+reserved ValueIds, `fn_body_ast`, FragEmitSession, current Span, observer Region
+stack, recursion/re-entry guards, and the existing binding/scope/SSA/cleanup
+state. Error paths discard the partial function; success also remains
+unpublished until cleanup is verified.
+
+**SA3-B — first closed canonical BindingId authority family (active)**
+
+This is one atomic authority cutover, not a partial transport experiment. The
+first capability is exactly one non-main static/free function source unit with
+one owner and a straight-line body. Lambda, If, Loop, CorePlan, BlockExpr,
+Try/Catch/Cleanup, Match, QMark, Main inline/callable, instance receiver, REPL,
+and ProgramV0 are unsupported before any Builder/module effect.
+
+Required structure:
+
+1. Add `ResolvedFunctionLoweringInputV1` derived only from
+   `VerifiedResolvedSourceUnitV1`. It always carries one owner,
+   `FunctionSourceViewV1`, the matching `VerifiedResolvedFunctionV1`, and the
+   forest; syntax/product/definition origin cannot be supplied independently.
+2. Add a whole-unit `CanonicalLoweringPreflightV1` before module preparation.
+   It accepts only the closed first-family grammar and `owner_count = 1`.
+   Unsupported syntax/owner/control returns typed canonical error and never
+   retries legacy.
+3. Add a distinct `CanonicalFunctionLowererV1`. Recursive canonical lowering
+   accepts only `LocatedBodyV1` / `LocatedStmtV1` / `LocatedExprV1`; it may
+   share emission primitives but may not call legacy statement/expression
+   dispatch for declarations, variables, or assignment targets.
+4. Install the sealed product at function-session entry. Receiver/parameter/
+   local/outbox declaration claims, variable uses, and assignment targets use
+   exact source sites and the product's `BindingRefV1`. The canonical value
+   environment is keyed by `BindingRefV1`, not names.
+5. Veto every Lower-side `allocate_binding_id()` while the resolved product is
+   installed. Parameter, local, use, and assignment cut over together for the
+   owner; no owner-local mixed mode is allowed.
+6. Split completion into identity adoption and source coverage. Every source
+   declaration receives one disposition; materialized declarations publish
+   exactly once. Coverage and session stack checks finish before the draft is
+   committed.
+
+First-family acceptance:
+
+```text
+production verified-unit constructor / compile_resolved path = 1 closed route
+whole-unit capability preflight occurs before module/entry/function effects
+canonical failure -> legacy retry = 0
+source-unit canonical/legacy owner mixture = 0
+exact parameter/local declaration claims = verified
+exact variable-use and assignment-target lookup = verified
+legacy BindingId allocation while resolved product installed = 0
+name lookup as canonical identity = 0
+all materialized bindings originate in the sealed product
+duplicate/foreign/unclaimed identity rejects before function commit
+partial function publication on every error = 0
+BlockExpr / If / Loop / CorePlan / Lambda runtime claims = 0
+ProgramV0 / REPL / Main / instance-method canonical claims = 0
+Planner / RegionFlow connection = 0
+fixture + fast gate + existing legacy route regression = green
+all source files < 800 lines
+```
+
+Stop immediately if the implementation introduces an optional resolved
+product/site, calls the legacy allocator after install, recovers a site by
+name/Span/pointer/order, mixes canonical and legacy owners in one source unit,
+or discovers unsupported capability after Builder effects. B0-L3 starts only
+after this first family is atomically green.
 
 **B0-L — explicit Rust canonical Lower cutover (ordered after B0-L2 and SA3-B)**
 

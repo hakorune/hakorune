@@ -201,10 +201,11 @@ def main() -> None:
         "pointer_identity_lookup_count": 0,
         "span_identity_lookup_count": 0,
         "name_identity_lookup_count": 0,
+        "selected_next_slice": "B0-L2c-function-transaction",
     }
     if navigator != expected_navigator:
         fail(f"B0-L2b source navigator contract drifted: {navigator!r}")
-    if data.get("selected_next_slice") != "B0-L2c-function-transaction":
+    if navigator.get("selected_next_slice") != "B0-L2c-function-transaction":
         fail("closed B0-L2b must mechanically select B0-L2c")
 
     compiler_dir = root / "src/mir/compiler"
@@ -298,6 +299,103 @@ def main() -> None:
     if external_view_consumers:
         fail(f"source navigator escaped compiler transport: {external_view_consumers}")
 
+    transaction = data.get("function_transaction_contract", {})
+    expected_transaction = {
+        "slice": "B0-L2c",
+        "status": "closed",
+        "session_type": "CanonicalFunctionLoweringSessionV1",
+        "session_entry": "with_function_lowering_session",
+        "static_session_callers": 1,
+        "instance_session_callers": 1,
+        "manual_prepare_restore_pairs_in_lowering": 0,
+        "manual_function_region_pops_in_lowering": 0,
+        "manual_fn_body_mutations_in_lowering": 0,
+        "unpublished_draft_finalize_count": 1,
+        "focused_test_count": 4,
+        "injected_checkpoint_count": 5,
+        "combined_primary_cleanup_error_contracts": 1,
+        "production_semantic_activation": 0,
+        "source_view_builder_consumers": 0,
+        "planner_connection_count": 0,
+    }
+    if transaction != expected_transaction:
+        fail(f"B0-L2c function transaction contract drifted: {transaction!r}")
+    if data.get("selected_next_slice") != "SA3-B-first-closed-canonical-family":
+        fail("closed B0-L2c must mechanically select atomic SA3-B")
+
+    calls_dir = root / "src/mir/builder/calls"
+    session_file = calls_dir / "function_session.rs"
+    session_tests_file = calls_dir / "function_session_tests.rs"
+    context_file = calls_dir / "context_lifecycle.rs"
+    lowering_file = calls_dir / "lowering.rs"
+    for path in (session_file, session_tests_file, context_file, lowering_file):
+        if not path.is_file():
+            fail(f"B0-L2c source is missing: {path.relative_to(root)}")
+    session_text = session_file.read_text(encoding="utf-8")
+    session_tests_text = session_tests_file.read_text(encoding="utf-8")
+    context_text = context_file.read_text(encoding="utf-8")
+    function_lowering_text = lowering_file.read_text(encoding="utf-8")
+    for anchor, text in (
+        ("struct CanonicalFunctionLoweringSessionV1<'builder>", session_text),
+        ("fn with_function_lowering_session(", session_text),
+        ("fn finalize_function_draft(", function_lowering_text),
+        ("saved_fn_body_ast", context_text),
+        ("saved_frag_emit_session", context_text),
+        ("saved_region_stack", context_text),
+        ("fastmem_region_stack", context_text),
+        ("canonical_function_session/during_cleanup", session_text),
+    ):
+        if anchor not in text:
+            fail(f"B0-L2c function transaction anchor is missing: {anchor}")
+    static_section = function_lowering_text.split(
+        "fn lower_static_method_as_function(", 1
+    )[1].split("fn lower_method_as_function(", 1)[0]
+    instance_section = function_lowering_text.split(
+        "fn lower_method_as_function(", 1
+    )[1]
+    if static_section.count(".with_function_lowering_session(") != 1:
+        fail("static function lowering must enter exactly one function session")
+    if instance_section.count(".with_function_lowering_session(") != 1:
+        fail("instance function lowering must enter exactly one function session")
+    if function_lowering_text.count("fn finalize_function_draft(") != 1:
+        fail("function draft finalization must have one unpublished owner")
+    if session_text.count("canonical_function_session/during_cleanup") != 1:
+        fail("primary+cleanup error composition must have one stable owner")
+    for forbidden in (
+        "prepare_lowering_context(",
+        "restore_lowering_context(",
+        "pop_function_region(",
+        "fn_body_ast =",
+    ):
+        if forbidden in function_lowering_text:
+            fail(f"lowering.rs regained manual function cleanup: {forbidden}")
+    if session_tests_text.count("#[test]") != 4:
+        fail("B0-L2c must retain four focused transaction tests")
+    for checkpoint in (
+        "BeforeSkeleton",
+        "AfterSkeleton",
+        "AfterParameters",
+        "AfterBody",
+        "AfterFinalize",
+    ):
+        if checkpoint not in session_tests_text:
+            fail(f"B0-L2c injected checkpoint is missing: {checkpoint}")
+    transaction_text = "\n".join(
+        (session_text, context_text, function_lowering_text)
+    )
+    for forbidden in ("std::env", "config::env", "eprintln!"):
+        if forbidden in "\n".join((session_text, context_text)):
+            fail(f"B0-L2c added a lifecycle toggle/log side channel: {forbidden}")
+    for forbidden in (
+        "FunctionSourceViewV1",
+        "LocatedStmtV1",
+        "VerifiedResolvedFunctionV1",
+        "control_flow::plan",
+        "RegionFlow",
+    ):
+        if forbidden in transaction_text:
+            fail(f"B0-L2c activated a forbidden dependency: {forbidden}")
+
     check_evidence(root, modules, "module_ingresses")
     check_evidence(root, functions, "function_families")
     check_evidence(root, seams, "body_route_seams")
@@ -315,7 +413,11 @@ def main() -> None:
     print("resolved_lowering_mutable_source_cursor=0")
     print("resolved_lowering_pointer_span_name_identity=0")
     print("resolved_lowering_builder_planner_consumers=0")
-    print("resolved_lowering_selected_next_slice=B0-L2c")
+    print("resolved_lowering_function_transaction=closed")
+    print("resolved_lowering_manual_function_cleanup_sites=0")
+    print("resolved_lowering_unpublished_draft_before_cleanup=1")
+    print("resolved_lowering_transaction_injected_checkpoints=5")
+    print("resolved_lowering_selected_next_slice=SA3-B")
 
 
 if __name__ == "__main__":

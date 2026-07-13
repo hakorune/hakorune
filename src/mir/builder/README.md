@@ -102,6 +102,18 @@ reach into route-specific plan internals. The current boundary SSOT is
 - function-call preflight special gates
   - `src/mir/builder/calls/function_preflight.rs`
   - `src/mir/builder/calls/special_method_handlers.rs`
+- function lowering transaction
+  - `src/mir/builder/calls/function_session.rs` is the sole static/instance
+    lifecycle owner: snapshot reentrant caller state, run one closure, restore,
+    then publish the returned `MirFunction` draft. Existing
+    `BoxCompilationContext` mode remains an explicit clear-only isolation
+    policy rather than fabricated caller state.
+  - `context_lifecycle.rs` owns that snapshot/isolation policy only. Call sites
+    must not pair prepare/restore manually or pop FunctionRegion state.
+  - error paths and panic unwinding restore the caller and publish no partial
+    function. Explicit cleanup reports imbalances; Drop is only the panic
+    backstop. B0-L2c does not consume resolved source views or change BindingId
+    authority.
 - field/property receiver facts
   - `src/mir/builder/field_facts.rs` (observation only; no receiver AST re-lowering)
   - `src/mir/builder/fields.rs`
