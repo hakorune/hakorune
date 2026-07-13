@@ -1,6 +1,6 @@
 # Resolved Region Flow V1 — Taskboard
 
-Status: Owner Forest V1 through B0-L3a closed; B0-L3b canonical If branch-flow design stop is active.
+Status: Owner Forest V1 through B0-L3a closed; B0-L3b A+ accepted; S1 exact If region bundle is active.
 Date: 2026-07-13
 Decision: `function_semantic_resolver_v1_owner_scoped_arena` followed by
 `recursive_structured_region_flow`.
@@ -887,17 +887,19 @@ non-main static/free source unit, exact declaration/use/assignment sites,
 BindingRef-keyed values, allocator veto, coverage-before-commit, and a fresh
 module transaction. B0-L3a closes exact sealed BlockExpr pair consumption,
 located prelude/tail Lower, BindingRef retirement, and runtime fixtures.
-B0-L3b reached a BoxShape design stop after the located If inventory. Exact
-source carriers already exist, but the owner of per-branch BindingRef effects,
-fallthrough ports, and PHI requests is not fixed. The consultation is:
+B0-L3b accepts A+: one pre-Builder `VerifiedResolvedFunctionFlowV1` owns
+condition/branch effects, typed fallthrough ports, exact join sources, and
+coverage. Lower owns only plan-directed ValueId/BasicBlock materialization.
+The active implementation card is:
 
 ```text
 docs/development/current/main/investigations/
-  mirbuilder-b0-l3b-located-if-branch-flow-consultation-2026-07-13.md
+  mirbuilder-b0-l3b-a-plus-implementation-task-2026-07-13.md
 ```
 
-Production If activation remains zero until that decision. Do not connect the
-legacy IfForm, name-keyed variable maps, Planner, Loop, CorePlan, or Lambda.
+S1 builds the passive exact If/IfThen/optional-IfElse bundle. Production If
+activation remains zero until the atomic I1b commit. Do not connect the legacy
+IfForm, name-keyed variable maps, Planner, Loop, CorePlan, or Lambda.
 Detailed task order and stop conditions remain in the active owner-forest card.
 
 Known production boundary mismatches must be resolved explicitly before B2:

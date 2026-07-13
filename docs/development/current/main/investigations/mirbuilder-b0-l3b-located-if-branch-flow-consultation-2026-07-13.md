@@ -1,8 +1,8 @@
 ---
-Status: Consultation required
+Status: Accepted — A+ pre-Builder verified flow contract
 Date: 2026-07-13
 Scope: B0-L3b canonical located statement-If branch-state authority
-Work kind: BoxShape design stop
+Work kind: BoxShape decision closed; implementation series opened
 Related:
   - docs/development/current/main/investigations/mirbuilder-resolved-semantic-owner-forest-design-stop-2026-07-13.md
   - docs/development/current/main/investigations/mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
@@ -11,6 +11,53 @@ Related:
 ---
 
 # B0-L3b Located If Branch Flow Consultation
+
+## Accepted decision
+
+A+ is accepted:
+
+```text
+branch-effect owner:
+  pre-Builder VerifiedResolvedFunctionFlowV1
+
+first runtime claim:
+  fallthrough-only statement If
+
+RegionId boundary:
+  exact consume + coverage in B0-L3b
+  durable role-aware block materialization in SA4
+
+order:
+  S1 exact identity bundle
+  -> S2 verified function If flow
+  -> I1 canonical materialization
+```
+
+The verified flow owns condition effects, fallthrough ports, outer-binding
+effect summaries, join source rows, and exact source coverage. Lower owns only
+plan-directed ValueId lookup, BasicBlock allocation, predecessor verification,
+and final PHI publication.
+
+Current-code validation found four mechanical refinements without reopening
+the decision:
+
+1. the bare statement site query is self-relative; foreign-owner validation
+   stays at the owner-branded S2 input boundary;
+2. source optional-else totality is the composite S1 topology + source
+   projection + S2 located-source proof;
+3. `Entry` is spelled `PostConditionEntry` because condition BlockExpr effects
+   precede the branch baseline;
+4. source order is stored explicitly rather than inferred from `BTreeMap` key
+   order.
+
+Executable tasks and gates are fixed in:
+
+```text
+docs/development/current/main/investigations/
+  mirbuilder-b0-l3b-a-plus-implementation-task-2026-07-13.md
+```
+
+The original decision request and evidence follow as historical input.
 
 ## Decision request
 

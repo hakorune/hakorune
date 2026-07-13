@@ -1,5 +1,5 @@
 ---
-Status: P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S/B0-F/B0-L0/B0-L1/B0-L2a/B0-L2b/B0-L2c/SA3-B/B0-L3a closed; B0-C skipped; B0-L3b canonical If branch-flow design stop is active
+Status: P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S/B0-F/B0-L0/B0-L1/B0-L2a/B0-L2b/B0-L2c/SA3-B/B0-L3a closed; B0-C skipped; B0-L3b A+ accepted; S1 is active
 Date: 2026-07-13
 Scope: Resolved Semantic Owner Forest V1 design and implementation task order
 Parent: mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
@@ -1538,23 +1538,31 @@ resolved_region_flow_authority_guard = green
 canonical BlockExpr Lower connection = 1
 Planner / RegionFlow / If / Loop / Lambda connections = 0
 all guarded Rust source files < 800 lines
-selected next slice = B0-L3b canonical If branch-flow design decision
+selected next slice = B0-L3b-S1 exact If region bundle
 ```
 
 B0-L3b inventory found that exact If source carriers and sealed passive
-region/scope kinds exist, but the branch-effect/PHI request owner is not fixed.
-The accepted architecture assigns per-port binding effects to RegionFlow and
-ValueId/BasicBlockId materialization to Lower, while the tempting minimal
-implementation would discover changes by diffing Lower's mutable value
-environment. Code is stopped until this boundary is decided in:
+region/scope kinds existed while the branch-effect/PHI request owner remained
+unfixed. That design stop was recorded in:
 
 ```text
 docs/development/current/main/investigations/
   mirbuilder-b0-l3b-located-if-branch-flow-consultation-2026-07-13.md
 ```
 
-Canonical If production activation remains zero. The legacy IfForm and name-keyed PHI
-paths are not canonical implementation candidates.
+The consultation accepts A+: a pre-Builder verified function-flow product is
+the only branch-effect authority; the first runtime claim is fallthrough-only
+statement If; RegionId mapping remains SA4. The five-commit executable series
+is fixed in:
+
+```text
+docs/development/current/main/investigations/
+  mirbuilder-b0-l3b-a-plus-implementation-task-2026-07-13.md
+```
+
+S1 is passive exact identity topology. Canonical If production activation
+remains zero until I1b. The legacy IfForm and name-keyed PHI paths are not
+canonical implementation candidates.
 
 **B0-L — explicit Rust canonical Lower cutover (ordered after B0-L2 and SA3-B)**
 
