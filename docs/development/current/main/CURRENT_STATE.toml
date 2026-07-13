@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Implementation ready"
+status = "SA0 closed; SA1 implementation ready"
 date = "2026-07-13"
 
 active_lane = "MIRBUILDER Hako SourceBodyAnalysisSnapshotV1"
@@ -136,8 +136,13 @@ verifier/seal/dump, SA3 atomic canonical BindingId authority cutover, SA4
 exact RegionId target cutover, and SA5 duplicate-owner retirement before R1
 ResolvedRegionView begins. The same function may never receive independent
 BindingIds from resolver and Lower, unsupported resolver syntax never retries
-legacy resolution, and partial semantic drafts never publish. SA0 is the next
-code-facing slice; it changes no behavior or planner/Lower connection.
+legacy resolution, and partial semantic drafts never publish. SA0 is closed
+with a crate-private passive schema, owner-branded BindingRef/ScopeId/RegionId,
+non-dense BindingId arena, explicit function roots, six focused tests, and one
+reusable authority guard. External consumers, AST clones, ID allocation,
+Planner, and Lower connections remain zero. SA1 is the next code-facing slice:
+it builds a separate disconnected ShadowResolvedFunctionV0 and must never
+populate the canonical draft or wrap shadow ordinals in BindingId.
 Historical decision follows. Resolved Region Flow V1 generalizes generic-loop
 state closure into one recursive structured-region summary. Each region
 publishes Port -> MayRebind(canonical BindingId set); analysis allocates no
@@ -382,7 +387,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-ARENA-V1-SA0-SCHEMA-GUARD-001"
+current_blocker_token = "RESOLVED-SEMANTIC-ARENA-V1-SA1-SHADOW-RESOLVER-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

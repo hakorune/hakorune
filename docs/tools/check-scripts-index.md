@@ -68,6 +68,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 | Script | Purpose |
 | --- | --- |
 | `tools/checks/generic_loop_progression_role_v0_guard.sh` | Generic-loop progression lane guard. Active C0 proves acceptance-neutral candidate-report schema, exact isolated-probe record inventory, zero product-path connection, preserved clean-HEAD ProgramV0 rejection, parser isolation, and the 800-line boundary. Later proof/Recipe slices must evolve the same guard deliberately. |
+| `tools/checks/resolved_region_flow_authority_guard.sh` | Reusable Resolved Region Flow authority guard. SA0 fixes the passive owner-scoped semantic-arena schema, forbids AST/MIR-materialization/Planner/Lower dependencies and BindingId allocation, proves zero consumers, and enforces the 800-line source boundary. Later resolver/cutover slices evolve this same family guard. |
 | `tools/checks/rust_lifecycle_source_selfhost_family_guard.sh` | Reusable Source Selfhost family guard; prefer this over row-boilerplate guards. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_loop_cond_continue_with_return_snapshot_implementation_gate.sh` | ProgramJSON loop-cond continue-with-return snapshot implementation gate. |
 | `tools/checks/rust_lifecycle_mirbuilder_programjson_loop_cond_continue_with_return_snapshot_parity_gate.sh` | ProgramJSON-vs-Rust ASTNode token oracle parity for the loop-cond continue-with-return snapshot. |

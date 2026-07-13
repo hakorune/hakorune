@@ -40,8 +40,8 @@ cargo check -q
 
 - handoff frontier: read `current_blocker_token` in `CURRENT_STATE.toml`
 - read `latest_card_path` before editing
-- the active slice is the SA0 passive schema/ownership guard for the
-  owner-scoped `VerifiedResolvedFunctionV1` semantic arena named by
+- SA0 passive schema/ownership guard is closed; the active slice is the
+  disconnected SA1 `ShadowResolvedFunctionV0` resolver named by
   `latest_card_path`
 - keep RegionFlow R1, parser/source-carrier P1, and all parked source-projection
   stashes disconnected until the semantic-arena prerequisite series closes

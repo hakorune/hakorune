@@ -131,6 +131,7 @@ pub mod receiver_snapshot_publication_plan; // MIR-owned narrow mixed-base publi
 pub mod record_layout_plan; // MIR-owned record layout plan metadata
 pub mod record_state_residence_plan; // metadata-only box-private record-state candidates
 pub mod region; // Phase 25.1l: Region/GC観測レイヤ（LoopForm v2 × RefKind）
+pub(crate) mod resolved_semantics; // pre-plan owner-scoped binding/scope/region semantic arena
 pub(crate) mod route_dependency_graph; // typed shadow graph for route-family convergence
 pub mod route_fixpoint; // module-level route convergence owner
 pub mod route_value_type_publication;

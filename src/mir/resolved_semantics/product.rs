@@ -1,0 +1,120 @@
+//! Draft/sealed publication boundary for resolved function semantics.
+
+use std::collections::BTreeMap;
+
+use hakorune_mir_core::BindingId;
+
+use super::ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
+use super::records::{
+    ResolvedAssignmentTargetV1, ResolvedBindingRecordV1, ResolvedControlExitV1,
+    ResolvedRegionRecordV1, ResolvedScopeRecordV1,
+};
+use super::source_site::{
+    FunctionOriginV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
+};
+
+#[derive(Debug)]
+pub(crate) struct ResolvedFunctionDataV1 {
+    pub(crate) owner: FunctionOwnerIdV1,
+    pub(crate) function_origin: FunctionOriginV1,
+    pub(crate) function_scope: ScopeId,
+    pub(crate) function_region: RegionId,
+    pub(crate) bindings: BTreeMap<BindingId, ResolvedBindingRecordV1>,
+    pub(crate) scopes: BTreeMap<ScopeId, ResolvedScopeRecordV1>,
+    pub(crate) regions: BTreeMap<RegionId, ResolvedRegionRecordV1>,
+    pub(crate) declarations: BTreeMap<SourceBindingSiteV1, BindingRefV1>,
+    pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, BindingRefV1>,
+    pub(crate) assignment_targets: BTreeMap<SourceExprSiteV1, ResolvedAssignmentTargetV1>,
+    pub(crate) control_exits: BTreeMap<SourceStmtSiteV1, ResolvedControlExitV1>,
+}
+
+/// Mutable construction state. It is never a public consumer input.
+#[derive(Debug)]
+pub(crate) struct ResolvedFunctionDraftV1 {
+    pub(crate) data: ResolvedFunctionDataV1,
+}
+
+/// Immutable semantic authority published only after verification.
+#[derive(Debug)]
+pub struct VerifiedResolvedFunctionV1 {
+    data: ResolvedFunctionDataV1,
+}
+
+impl VerifiedResolvedFunctionV1 {
+    pub const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.data.owner
+    }
+
+    pub const fn function_origin(&self) -> FunctionOriginV1 {
+        self.data.function_origin
+    }
+
+    pub const fn function_scope(&self) -> ScopeId {
+        self.data.function_scope
+    }
+
+    pub const fn function_region(&self) -> RegionId {
+        self.data.function_region
+    }
+
+    pub fn binding_ref(&self, id: BindingId) -> Option<BindingRefV1> {
+        self.data
+            .bindings
+            .contains_key(&id)
+            .then(|| BindingRefV1::new(self.data.owner, id))
+    }
+
+    pub fn binding(&self, id: BindingRefV1) -> Option<&ResolvedBindingRecordV1> {
+        (id.owner() == self.data.owner)
+            .then(|| self.data.bindings.get(&id.binding()))
+            .flatten()
+    }
+
+    pub fn scope(&self, id: ScopeId) -> Option<&ResolvedScopeRecordV1> {
+        (id.owner() == self.data.owner)
+            .then(|| self.data.scopes.get(&id))
+            .flatten()
+    }
+
+    pub fn region(&self, id: RegionId) -> Option<&ResolvedRegionRecordV1> {
+        (id.owner() == self.data.owner)
+            .then(|| self.data.regions.get(&id))
+            .flatten()
+    }
+
+    pub fn declaration_binding(&self, site: &SourceBindingSiteV1) -> Option<BindingRefV1> {
+        self.data.declarations.get(site).copied()
+    }
+
+    pub fn variable_binding(&self, site: &SourceExprSiteV1) -> Option<BindingRefV1> {
+        self.data.variable_uses.get(site).copied()
+    }
+
+    pub fn assignment_target(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&ResolvedAssignmentTargetV1> {
+        self.data.assignment_targets.get(site)
+    }
+
+    pub fn control_exit(&self, site: &SourceStmtSiteV1) -> Option<ResolvedControlExitV1> {
+        self.data.control_exits.get(site).copied()
+    }
+
+    pub fn binding_count(&self) -> usize {
+        self.data.bindings.len()
+    }
+
+    pub fn scope_count(&self) -> usize {
+        self.data.scopes.len()
+    }
+
+    pub fn region_count(&self) -> usize {
+        self.data.regions.len()
+    }
+
+    #[cfg(test)]
+    pub(super) fn from_unverified_data_for_schema_test(data: ResolvedFunctionDataV1) -> Self {
+        Self { data }
+    }
+}

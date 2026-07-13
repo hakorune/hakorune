@@ -1,6 +1,6 @@
 # Resolved Region Flow V1 — Taskboard
 
-Status: Decision closed; SA0 owner-scoped semantic-arena schema/guard is the next code-facing slice.
+Status: SA0 closed; SA1 disconnected shadow resolver is the next code-facing slice.
 Date: 2026-07-13
 Decision: `function_semantic_resolver_v1_owner_scoped_arena` followed by
 `recursive_structured_region_flow`.
@@ -105,10 +105,9 @@ allocate identities and cannot override arena records.
 
 ```text
 ResolvedAssignmentTargetV1 =
-  BindingRebind(BindingId)
+  BindingRebind(BindingRefV1)
   | FieldWrite
   | IndexWrite
-  | KnownUnsupported(reason)
 
 ResolvedControlExitV1 =
   Continue(target_loop_region_id)
@@ -119,6 +118,22 @@ ResolvedControlExitV1 =
 `ScopeId` and `RegionId` remain distinct: scope owns name visibility and
 lifetime; region owns control structure and ports.  The control-target
 resolver consumes already allocated RegionIds and never allocates them.
+
+Unsupported assignment syntax is a resolver outcome and prevents sealing. It
+is not stored as a variant inside `VerifiedResolvedFunctionV1`.
+
+Public lookups use an invocation-local function owner brand:
+
+```text
+BindingRefV1 = FunctionOwnerIdV1 + canonical BindingId
+ScopeId      = FunctionOwnerIdV1 + scope slot
+RegionId     = FunctionOwnerIdV1 + region slot
+```
+
+The owner brand detects accidental cross-function mixing but is not source or
+parity identity. Canonical BindingIds are not assumed dense or zero-based in a
+function; the passive arena is keyed explicitly. The sealed product also
+publishes exact `function_scope` and `function_region` roots.
 
 ### Authority-cutover invariant
 
@@ -527,7 +542,7 @@ RegionId allocator for one function and publishes
 `VerifiedResolvedFunctionV1` before Planner.  Structural source keys remain
 provenance, not a second lexical identity authority.
 
-### SA0 — passive semantic-arena schema and ownership guard (next)
+### SA0 — passive semantic-arena schema and ownership guard (closed)
 
 Add the closed owner-scoped ID/record/index vocabulary and module boundary.
 This is a code-facing, behavior-neutral slice.
@@ -553,12 +568,60 @@ family with an explicit README/layer guard.  Moving passive IDs/records into a
 dedicated semantic-core crate is a later dependency-direction cleanup after
 the API and caller inventory are stable.
 
+Closed evidence:
+
+```text
+module:
+  src/mir/resolved_semantics/
+
+publication:
+  crate-private module
+  crate-private draft/data
+  immutable VerifiedResolvedFunctionV1 facade
+  production verified constructors = 0
+
+membership:
+  FunctionOwnerIdV1 brand
+  BindingRefV1 = owner + canonical BindingId
+  ScopeId / RegionId = owner + slot
+  cross-owner lookup rejects
+
+arena layout:
+  BTreeMap keyed identities
+  canonical BindingId dense/zero-based assumption = 0
+  explicit function scope/region roots
+
+focused tests:
+  6 passed
+
+reusable guard:
+  tools/checks/resolved_region_flow_authority_guard.sh
+  summary=ok
+
+behavior/planner/lower connection:
+  0
+```
+
+All SA0 Rust files are below 800 lines; the largest is below 250 lines.  The
+guard owns an exact source manifest, repository-wide consumer scan, public API
+allowlist, focused test invocation, and alias-resistant BindingId allocation
+ban.
+
 ### SA1 — non-authoritative shadow resolver
 
 Resolve the current closed function-syntax inventory with private
 `ShadowBindingOrdinalV0`, source sites, scope ancestry, region ancestry,
 assignment kind, and exact exit targets.  The shadow product is dump/test only
 and cannot enter Facts, Planner, Recipe, or Lower.
+
+SA1 uses a separate `ShadowResolvedFunctionV0` product parameterized only by
+shadow ordinals. It must not populate `ResolvedFunctionDraftV1`, wrap an
+ordinal in `BindingId`, or publish `VerifiedResolvedFunctionV1`.
+
+Before any canonical product producer is connected, SA2/SA3 must name the
+`FunctionOwnerIdV1` issuance owner and prove one unique brand per active
+function compilation.  Raw owner values never participate in Rust/Hako
+parity.
 
 Rules:
 
@@ -768,8 +831,10 @@ semantic_arena_ast_clone_fields=0
 semantic_arena_binding_allocator_calls=0
 semantic_arena_value_id_imports=0
 semantic_arena_basic_block_id_imports=0
+semantic_arena_external_consumers=0
 semantic_arena_planner_connection=0
 semantic_arena_lower_connection=0
+semantic_arena_source_files_under_800=1
 ownership_private_binding_id_imports=0
 summary=ok
 ```
