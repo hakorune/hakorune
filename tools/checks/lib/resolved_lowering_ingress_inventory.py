@@ -421,7 +421,7 @@ def main() -> None:
     }
     if sa3 != expected_sa3:
         fail(f"SA3-B first-family contract drifted: {sa3!r}")
-    if data.get("selected_next_slice") != "B0-L3a-straight-line-blockexpr":
+    if sa3.get("selected_next_slice") != "B0-L3a-straight-line-blockexpr":
         fail("closed SA3-B must mechanically select B0-L3a")
 
     sa3_files = {
@@ -466,7 +466,6 @@ def main() -> None:
         "variable_map",
         "binding_ctx",
         "LexicalScopeGuard",
-        "BlockExpr",
         "control_flow::plan",
         "RegionFlow",
     ):
@@ -486,6 +485,56 @@ def main() -> None:
         fail("SA3-B must retain six focused first-family tests")
     if "self.compile_legacy(LegacyModuleLoweringInputV1::bare_ast(ast), source_file)" not in compiler_text:
         fail("default bare-AST source route changed during SA3-B")
+
+    b0_l3a = data.get("b0_l3a_blockexpr_contract", {})
+    expected_b0_l3a = {
+        "slice": "B0-L3a",
+        "status": "closed",
+        "exact_pair_query": "VerifiedResolvedFunctionV1::block_expr_scope_region_pair",
+        "scope_session_type": "ResolvedScopeSessionV1",
+        "value_disposition": "active-or-retired-BindingRef",
+        "located_prelude_transport": 1,
+        "located_tail_transport": 1,
+        "canonical_blockexpr_runtime_claims": 1,
+        "if_loop_coreplan_runtime_claims": 0,
+        "lambda_call_runtime_claims": 0,
+        "planner_regionflow_connections": 0,
+        "legacy_scope_guard_calls": 0,
+        "focused_test_count": 5,
+        "vm_runtime_fixture_count": 2,
+        "selected_next_slice": "B0-L3b-located-control-flow",
+    }
+    if b0_l3a != expected_b0_l3a:
+        fail(f"B0-L3a BlockExpr contract drifted: {b0_l3a!r}")
+    if data.get("selected_next_slice") != "B0-L3b-located-control-flow":
+        fail("closed B0-L3a must mechanically select B0-L3b")
+
+    b0_l3a_files = {
+        "product": root / "src/mir/resolved_semantics/product.rs",
+        "capability": compiler_dir / "capability.rs",
+        "scope": resolved_lowering_dir / "scope.rs",
+        "identity": resolved_lowering_dir / "identity.rs",
+        "lowerer": resolved_lowering_dir / "lowerer.rs",
+        "tests": resolved_lowering_dir / "block_expr_tests.rs",
+    }
+    for label, path in b0_l3a_files.items():
+        if not path.is_file():
+            fail(f"B0-L3a source is missing: {label}")
+    b0_text = {label: path.read_text(encoding="utf-8") for label, path in b0_l3a_files.items()}
+    for anchor, label in (
+        ("fn block_expr_scope_region_pair(", "product"),
+        ("struct ResolvedScopeSessionV1", "scope"),
+        ("retire_scope_success", "identity"),
+        ("BodyChildRoleV1::BlockExprPrelude", "lowerer"),
+        ("ExprChildRoleV1::BlockExprTail", "lowerer"),
+        ("ASTNode::BlockExpr", "capability"),
+    ):
+        if anchor not in b0_text[label]:
+            fail(f"B0-L3a {label} anchor is missing: {anchor}")
+    if b0_text["tests"].count("#[test]") != 5:
+        fail("B0-L3a must retain five focused BlockExpr Lower tests")
+    if b0_text["tests"].count('#[cfg(feature = "vm-reference")]\n#[test]') != 2:
+        fail("B0-L3a must retain two VM-reference runtime fixtures")
 
     check_evidence(root, modules, "module_ingresses")
     check_evidence(root, functions, "function_families")
@@ -511,7 +560,7 @@ def main() -> None:
     print("resolved_lowering_transaction_injected_checkpoints=5")
     print("resolved_lowering_sa3_b=closed")
     print("resolved_lowering_legacy_allocator_during_canonical=forbidden")
-    print("resolved_lowering_selected_next_slice=B0-L3a")
+    print("resolved_lowering_selected_next_slice=B0-L3b")
 
 
 if __name__ == "__main__":

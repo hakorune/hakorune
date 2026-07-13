@@ -372,5 +372,22 @@
     "planner_regionflow_connections": 0,
     "selected_next_slice": "B0-L3a-straight-line-blockexpr"
   },
-  "selected_next_slice": "B0-L3a-straight-line-blockexpr"
+  "b0_l3a_blockexpr_contract": {
+    "slice": "B0-L3a",
+    "status": "closed",
+    "exact_pair_query": "VerifiedResolvedFunctionV1::block_expr_scope_region_pair",
+    "scope_session_type": "ResolvedScopeSessionV1",
+    "value_disposition": "active-or-retired-BindingRef",
+    "located_prelude_transport": 1,
+    "located_tail_transport": 1,
+    "canonical_blockexpr_runtime_claims": 1,
+    "if_loop_coreplan_runtime_claims": 0,
+    "lambda_call_runtime_claims": 0,
+    "planner_regionflow_connections": 0,
+    "legacy_scope_guard_calls": 0,
+    "focused_test_count": 5,
+    "vm_runtime_fixture_count": 2,
+    "selected_next_slice": "B0-L3b-located-control-flow"
+  },
+  "selected_next_slice": "B0-L3b-located-control-flow"
 }

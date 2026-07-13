@@ -35,6 +35,7 @@ pub use owner_forest::{
 };
 pub(crate) use owner_resolver::ResolveOwnerForestErrorV1;
 pub use product::VerifiedResolvedFunctionV1;
+pub(crate) use product::{ResolvedScopeRegionLookupErrorV1, ResolvedScopeRegionPairV1};
 pub use records::{
     BindingKindV1, BindingOriginV1, RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1,
     ResolvedBindingRecordV1, ResolvedControlTransferV1, ResolvedExitOriginV1, ResolvedExitRecordV1,

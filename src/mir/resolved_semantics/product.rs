@@ -7,11 +7,13 @@ use hakorune_mir_core::BindingId;
 use super::ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
 use super::normalized::{build_normalized_graph, NormalizedResolvedFunctionGraphV1};
 use super::records::{
-    ResolvedAssignmentTargetV1, ResolvedBindingRecordV1, ResolvedExitRecordV1,
-    ResolvedLexicalRefV1, ResolvedRegionRecordV1, ResolvedScopeRecordV1,
+    RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1, ResolvedBindingRecordV1,
+    ResolvedExitRecordV1, ResolvedLexicalRefV1, ResolvedRegionRecordV1, ResolvedScopeRecordV1,
+    ScopeKindV1, ScopeOriginV1,
 };
 use super::source_site::{
     FunctionOriginV1, ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
+    SourcePathSegmentV1, SourcePathV1,
 };
 use super::verifier::{verify_resolved_function, ResolvedFunctionVerificationErrorV1};
 
@@ -41,6 +43,29 @@ pub(crate) struct ResolvedFunctionDraftV1 {
 pub struct VerifiedResolvedFunctionV1 {
     data: ResolvedFunctionDataV1,
     normalized: NormalizedResolvedFunctionGraphV1,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct ResolvedScopeRegionPairV1 {
+    scope: ScopeId,
+    region: RegionId,
+}
+
+impl ResolvedScopeRegionPairV1 {
+    pub(crate) const fn scope(self) -> ScopeId {
+        self.scope
+    }
+
+    pub(crate) const fn region(self) -> RegionId {
+        self.region
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ResolvedScopeRegionLookupErrorV1 {
+    ForeignOwner,
+    MissingExactPair,
+    PairContractMismatch,
 }
 
 impl ResolvedFunctionDraftV1 {
@@ -184,5 +209,50 @@ impl VerifiedResolvedFunctionV1 {
     ) -> Option<ScopeId> {
         let region = super::verifier::exact_source_region_v1(&self.data, site)?;
         self.data.regions.get(&region)?.lexical_scope()
+    }
+
+    pub(crate) fn block_expr_scope_region_pair(
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: &SourceExprSiteV1,
+    ) -> Result<ResolvedScopeRegionPairV1, ResolvedScopeRegionLookupErrorV1> {
+        if owner != self.data.owner {
+            return Err(ResolvedScopeRegionLookupErrorV1::ForeignOwner);
+        }
+        let path = SourcePathV1::from_node(site.node());
+        let origin = path.child(SourcePathSegmentV1::BlockExprPreludeRoot).node();
+        let matching_regions = self
+            .data
+            .regions
+            .iter()
+            .filter(|(_, record)| {
+                record.kind() == RegionKindV1::BlockExpr
+                    && matches!(
+                        record.origin(),
+                        RegionOriginV1::Source(actual) if actual == &origin
+                    )
+            })
+            .collect::<Vec<_>>();
+        if matching_regions.is_empty() {
+            return Err(ResolvedScopeRegionLookupErrorV1::MissingExactPair);
+        }
+        if matching_regions.len() != 1 {
+            return Err(ResolvedScopeRegionLookupErrorV1::PairContractMismatch);
+        }
+        let (&region, region_record) = matching_regions[0];
+        let scope = region_record
+            .lexical_scope()
+            .ok_or(ResolvedScopeRegionLookupErrorV1::PairContractMismatch)?;
+        let scope_record = self
+            .scope(scope)
+            .ok_or(ResolvedScopeRegionLookupErrorV1::PairContractMismatch)?;
+        if region_record.kind() != RegionKindV1::BlockExpr
+            || scope_record.kind() != ScopeKindV1::BlockExpr
+            || scope_record.owner_region() != region
+            || scope_record.origin() != &ScopeOriginV1::Source(origin)
+        {
+            return Err(ResolvedScopeRegionLookupErrorV1::PairContractMismatch);
+        }
+        Ok(ResolvedScopeRegionPairV1 { scope, region })
     }
 }

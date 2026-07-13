@@ -221,6 +221,19 @@
       "retirement_owner": "canonical-source-view-tests"
     },
     {
+      "producer_id": "test-canonical-lower-blockexpr",
+      "producer_path": "src/mir/builder/resolved_lowering/block_expr_tests.rs",
+      "producer_status": "TestOnly",
+      "output_family": "test ASTNode::BlockExpr",
+      "consumer_entry": "canonical B0-L3a resolved Lower tests",
+      "classification": "TestOnly",
+      "required_scope_semantics": "TestOnlyExactResolvedPair",
+      "live_caller_evidence": [
+        "src/mir/builder/resolved_lowering/block_expr_tests.rs#fn block(prelude: Vec<ASTNode>, tail: ASTNode) -> ASTNode"
+      ],
+      "retirement_owner": "canonical-resolved-lowering-tests"
+    },
+    {
       "producer_id": "test-json-v0-sum-lane-blockexpr",
       "producer_path": "src/runner/json_v0_bridge/tests/sum_lane.rs",
       "producer_status": "TestOnly",

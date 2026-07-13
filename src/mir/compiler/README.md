@@ -57,6 +57,9 @@ assignment-target sites, and Return sites must all finish coverage before the
 unpublished draft may commit. The Builder's legacy BindingId allocator is
 fallibly vetoed for the entire installed-owner interval.
 
-The default bare-AST route, ProgramV0, REPL, Main, instance methods, Lambda,
-BlockExpr, If/Loop/CorePlan, and Planner remain outside this first capability.
-Canonical failure never retries legacy.
+The first capability also admits straight-line lexical BlockExpr. Each
+expression consumes its exact sealed scope/region pair, retires only inner
+BindingRefs, and returns the tail ValueId after balanced leave. The default
+bare-AST route, ProgramV0, REPL, Main, instance methods, Lambda,
+If/Loop/CorePlan, and Planner remain outside it. Canonical failure never
+retries legacy.

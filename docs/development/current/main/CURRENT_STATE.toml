@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Owner Forest V1 through SA3-B closed; B0-C skipped; B0-L3a straight-line BlockExpr"
+status = "Owner Forest V1 through B0-L3a closed; B0-C skipped; B0-L3b located control flow"
 date = "2026-07-13"
 
 active_lane = "MIRBUILDER Hako SourceBodyAnalysisSnapshotV1"
@@ -179,7 +179,9 @@ BindingRef-keyed values, legacy BindingId allocator veto, complete source and
 identity coverage, and function/module publication only after cleanup. The
 default source route remains legacy; Planner, RegionFlow, If/Loop/CorePlan,
 Lambda, BlockExpr runtime lowering, and legacy retry remain disconnected.
-B0-L3a straight-line BlockExpr sealed ScopeId/RegionId consumption is active.
+B0-L3a closes straight-line BlockExpr sealed ScopeId/RegionId consumption,
+located prelude/tail Lower, active/retired BindingRef disposition, and two
+VM-reference runtime fixtures. B0-L3b located control flow is active.
 Historical decision follows.
 Resolved Region Flow V1 accepts
 `function_semantic_resolver_v1_owner_scoped_arena`. One pre-plan
@@ -451,7 +453,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-L3A-STRAIGHT-LINE-BLOCKEXPR-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-L3B-LOCATED-CONTROL-FLOW-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -460,6 +462,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-13: B0-L3a closes straight-line canonical BlockExpr Lower with exact sealed ScopeId/RegionId pair consumption, explicit scope transactions, active/retired BindingRef dispositions, nested/shadow/rebind fixtures, and VM-reference results.",
   "2026-07-13: SA3-B closes the first canonical function family atomically with one verified source-unit constructor, pre-Builder capability check, exact located carriers, BindingRef-keyed values, legacy allocator veto, complete coverage, transactional publication, and six focused tests.",
   "2026-07-13: B0-L2c closes CanonicalFunctionLoweringSessionV1 with complete caller snapshot/restore, one static/instance lifecycle entry, unpublished drafts, post-cleanup commit, five injected failure checkpoints, panic backstop, and zero semantic activation.",
   "2026-07-13: B0-L2b closes immutable exact source navigation with shared SourcePathV1 grammar, a sealed syntax/forest projection, unforgeable located carriers, exact nested BlockExpr/Lambda navigation, and zero Builder/Planner consumers or production activation.",
@@ -471,5 +474,4 @@ landed_tail = [
   "2026-07-12: 3454 closes the MapStoreI64 caller-orientation pilot with PolicyRowIdOnly/Unit scope, typed key/stored-value evidence, fail-fast identity validation, fixture, and guard.",
   "2026-07-12: 3456 closes MapStore RoutePolicyRow BoxShape with one multi-artifact generator, projection ownership, atomic write/check, and value_boundary removal from current generated policy artifacts.",
   "2026-07-12: 3511 closes the narrow hako_mem_free Unit/no-result semantic activation slice; global Unit activation remains zero.",
-  "2026-07-12: 3505 closes Failure/Outcome relation inventory S0-S5 and keeps semantic ownership pending outside the accepted narrow activation.",
 ]

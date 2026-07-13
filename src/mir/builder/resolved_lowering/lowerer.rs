@@ -3,17 +3,19 @@
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::located::{LocatedBodyV1, LocatedExprV1, LocatedStmtV1};
-use crate::mir::compiler::source_view::ExprChildRoleV1;
+use crate::mir::compiler::source_view::{BodyChildRoleV1, ExprChildRoleV1};
 use crate::mir::resolved_semantics::{BindingKindV1, ResolvedExitSiteV1, SourceBindingSiteV1};
 use crate::mir::{MirInstruction, MirType, ValueId};
 
 use super::super::MirBuilder;
 use super::identity::ResolvedIdentityStateV1;
+use super::scope::ResolvedScopeStateV1;
 
 pub(super) struct CanonicalFunctionLowererV1<'builder, 'source> {
     builder: &'builder mut MirBuilder,
     input: ResolvedFunctionLoweringInputV1<'source>,
     identity: ResolvedIdentityStateV1<'source>,
+    scopes: ResolvedScopeStateV1,
 }
 
 impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
@@ -31,6 +33,7 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
             builder,
             input,
             identity: ResolvedIdentityStateV1::new(input.function()),
+            scopes: ResolvedScopeStateV1::new(input.function()),
         })
     }
 
@@ -42,6 +45,7 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
             .root_body()
             .map_err(|error| error.to_string())?;
         self.lower_body(&body)?;
+        self.scopes.finish()?;
         self.identity.finish()?;
         self.builder
             .resolved_binding_state
@@ -281,7 +285,45 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
                 self.builder
                     .build_binary_op_from_values(operator.clone(), lhs, rhs)
             }
+            ASTNode::BlockExpr { .. } => self.lower_block_expr(expression),
             _ => unreachable!("preflight seals the first-family expression grammar"),
+        }
+    }
+
+    fn lower_block_expr(&mut self, expression: &LocatedExprV1<'source>) -> Result<ValueId, String> {
+        let pair = self
+            .input
+            .function()
+            .block_expr_scope_region_pair(expression.owner(), expression.site())
+            .map_err(|error| {
+                format!("[freeze:contract][canonical_scope/exact_pair_lookup] error={error:?}")
+            })?;
+        let prelude = self
+            .input
+            .source()
+            .child_body_from_expr(expression, BodyChildRoleV1::BlockExprPrelude)
+            .map_err(|error| error.to_string())?;
+        let tail = self
+            .input
+            .source()
+            .child_expr_from_expr(expression, ExprChildRoleV1::BlockExprTail)
+            .map_err(|error| error.to_string())?;
+        let session = self.scopes.enter(self.input.function(), pair)?;
+        let primary = self
+            .lower_body(&prelude)
+            .and_then(|()| self.lower_expr(&tail));
+        match primary {
+            Ok(value) => {
+                self.scopes
+                    .close_success(session, &mut self.identity)?;
+                Ok(value)
+            }
+            Err(primary) => match self.scopes.close_error(session, &mut self.identity) {
+                Ok(()) => Err(primary),
+                Err(cleanup) => Err(format!(
+                    "[freeze:contract][canonical_scope/during_cleanup] primary={primary} cleanup={cleanup}"
+                )),
+            },
         }
     }
 

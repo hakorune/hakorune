@@ -92,7 +92,9 @@ outer rebind, and Lambda declaration-order behavior without a second policy.
 The neutral AST non-local-exit query is the acceptance SSOT. A rejected
 prelude reports its exact statement container and a rejected tail reports its
 exact expression container; loop-local Break/Continue remain valid. Planner,
-RegionFlow, Lower, ProgramV0, and compatibility fallback remain disconnected.
+RegionFlow, ProgramV0, and compatibility fallback remain disconnected.
+B0-L3a is the first bounded Lower consumer: it queries the sealed BlockExpr
+pair by exact expression site and does not change resolver ownership.
 
 ## B0-L2b shared source-path boundary
 

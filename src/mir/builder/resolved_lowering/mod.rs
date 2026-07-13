@@ -6,7 +6,10 @@
 
 mod identity;
 mod lowerer;
+mod scope;
 
+#[cfg(test)]
+mod block_expr_tests;
 #[cfg(test)]
 mod tests;
 

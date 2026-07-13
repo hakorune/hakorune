@@ -12,6 +12,7 @@ LOWERING_INPUT="$ROOT/src/mir/compiler/lowering_input.rs"
 RESOLVED_LOWER="$ROOT/src/mir/builder/resolved_lowering"
 BLOCKEXPR_INVENTORY="$ROOT/tools/checks/fixtures/blockexpr_producer_inventory_v1.json"
 source "$ROOT/tools/checks/lib/guard_common.sh"
+source "$ROOT/tools/checks/lib/resolved_blockexpr_lowering_contract.sh"
 guard_require_command "$TAG" cargo
 guard_require_command "$TAG" find
 guard_require_command "$TAG" python3
@@ -681,6 +682,7 @@ allowed = {
     "region_count",
     "normalized_graph",
     "exact_scope_containing",
+    "block_expr_scope_region_pair",
     "seal",
 }
 methods = set(re.findall(r"pub(?:\([^)]*\))?\s+(?:const\s+)?fn\s+(\w+)", text))
@@ -717,13 +719,7 @@ done <<< "$consumer_output"
 
 guard_expect_fixed_in_file "$TAG" "legacy_allocation_forbidden" "$LOWER_STATE" \
   "SA3-B legacy BindingId allocator veto missing"
-guard_expect_fixed_in_file "$TAG" "values: BTreeMap<BindingRefV1, ValueId>" "$RESOLVED_LOWER/identity.rs" \
-  "SA3-B canonical BindingRef value environment missing"
-for forbidden in build_expression build_variable_access build_assignment allocate_binding_id variable_map binding_ctx LexicalScopeGuard; do
-  if rg -n "$forbidden" "$RESOLVED_LOWER/lowerer.rs"; then
-    guard_fail "$TAG" "SA3-B lowerer crossed legacy identity/dispatch seam: $forbidden"
-  fi
-done
+guard_resolved_blockexpr_lowering_contract "$TAG" "$ROOT"
 
 while IFS= read -r file; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
@@ -783,7 +779,8 @@ echo "blockexpr_exact_origin=verified"
 echo "blockexpr_resolver_acceptance=1"
 echo "blockexpr_non_local_exit_rejection=1"
 echo "blockexpr_lambda_declaration_order=verified"
-echo "blockexpr_planner_regionflow_lower_connections=0"
+echo "blockexpr_canonical_straight_line_lower_connection=1"
+echo "blockexpr_planner_regionflow_if_loop_lambda_connections=0"
 echo "semantic_arena_source_files_under_800=1"
 echo "shadow_resolver_canonical_binding_ids=0"
 echo "shadow_resolver_external_consumers=0"

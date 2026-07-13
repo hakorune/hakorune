@@ -47,6 +47,14 @@ impl ResolvedValueEnvironmentV1 {
         *previous = value;
         Ok(old)
     }
+
+    fn remove(&mut self, binding: BindingRefV1) -> Option<ValueId> {
+        self.values.remove(&binding)
+    }
+
+    fn bindings(&self) -> BTreeSet<BindingRefV1> {
+        self.values.keys().copied().collect()
+    }
 }
 
 #[derive(Debug)]
@@ -105,6 +113,7 @@ pub(super) struct ResolvedIdentityStateV1<'a> {
     values: ResolvedValueEnvironmentV1,
     adoption: ResolvedIdentityAdoptionLedgerV1,
     coverage: LoweringSourceCoverageV1,
+    retired: BTreeSet<BindingRefV1>,
 }
 
 impl<'a> ResolvedIdentityStateV1<'a> {
@@ -114,6 +123,7 @@ impl<'a> ResolvedIdentityStateV1<'a> {
             values: ResolvedValueEnvironmentV1::new(),
             adoption: ResolvedIdentityAdoptionLedgerV1::new(),
             coverage: LoweringSourceCoverageV1::new(),
+            retired: BTreeSet::new(),
         }
     }
 
@@ -195,6 +205,39 @@ impl<'a> ResolvedIdentityStateV1<'a> {
         LoweringSourceCoverageV1::mark(&mut self.coverage.exits, &site, "return")
     }
 
+    pub(super) fn retire_scope_success(
+        &mut self,
+        declarations: &[BindingRefV1],
+    ) -> Result<(), String> {
+        for binding in declarations {
+            if !self.adoption.adopted.contains(binding)
+                || !self.values.values.contains_key(binding)
+                || self.retired.contains(binding)
+            {
+                return Err(format!(
+                    "[freeze:contract][canonical_scope/declaration_not_active] binding={binding:?}"
+                ));
+            }
+        }
+        self.retire_materialized(declarations);
+        Ok(())
+    }
+
+    pub(super) fn retire_scope_error(&mut self, declarations: &[BindingRefV1]) {
+        self.retire_materialized(declarations);
+    }
+
+    fn retire_materialized(&mut self, declarations: &[BindingRefV1]) -> Vec<ValueId> {
+        let mut values = Vec::new();
+        for binding in declarations {
+            if let Some(value) = self.values.remove(*binding) {
+                self.retired.insert(*binding);
+                values.push(value);
+            }
+        }
+        values
+    }
+
     pub(super) fn finish(self) -> Result<(), String> {
         let expected_declarations = self
             .product
@@ -221,15 +264,19 @@ impl<'a> ResolvedIdentityStateV1<'a> {
             .map(|(site, _)| site.clone())
             .collect::<BTreeSet<_>>();
 
+        let active_bindings = self.values.bindings();
+        let mut disposed_bindings = active_bindings.clone();
+        disposed_bindings.extend(self.retired.iter().copied());
         if self.adoption.adopted != expected_bindings
             || self.coverage.declarations != expected_declarations
             || self.coverage.variable_uses != expected_uses
             || self.coverage.assignment_targets != expected_targets
             || self.coverage.exits != expected_exits
-            || self.values.values.len() != expected_bindings.len()
+            || disposed_bindings != expected_bindings
+            || !active_bindings.is_disjoint(&self.retired)
         {
             return Err(format!(
-                "[freeze:contract][canonical_coverage/finish_mismatch] declarations={}/{} bindings={}/{} uses={}/{} assignments={}/{} exits={}/{} values={}/{}",
+                "[freeze:contract][canonical_coverage/finish_mismatch] declarations={}/{} bindings={}/{} uses={}/{} assignments={}/{} exits={}/{} active_values={} retired={} disposed={}/{}",
                 self.coverage.declarations.len(),
                 expected_declarations.len(),
                 self.adoption.adopted.len(),
@@ -240,7 +287,9 @@ impl<'a> ResolvedIdentityStateV1<'a> {
                 expected_targets.len(),
                 self.coverage.exits.len(),
                 expected_exits.len(),
-                self.values.values.len(),
+                active_bindings.len(),
+                self.retired.len(),
+                disposed_bindings.len(),
                 expected_bindings.len(),
             ));
         }

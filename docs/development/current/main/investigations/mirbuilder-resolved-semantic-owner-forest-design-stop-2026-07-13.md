@@ -1,5 +1,5 @@
 ---
-Status: P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S/B0-F/B0-L0/B0-L1/B0-L2a/B0-L2b/B0-L2c/SA3-B closed; B0-C skipped; B0-L3a is active
+Status: P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S/B0-F/B0-L0/B0-L1/B0-L2a/B0-L2b/B0-L2c/SA3-B/B0-L3a closed; B0-C skipped; B0-L3b is active
 Date: 2026-07-13
 Scope: Resolved Semantic Owner Forest V1 design and implementation task order
 Parent: mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
@@ -754,10 +754,10 @@ resolver/Planner/Lower behavior change = 0
 Closeout:
 
 ```text
-fixture rows = 17
+fixture rows = 18
 active producers = 8
 planned producers = 1
-test-only producers = 7
+test-only producers = 8
 dead producers = 1
 InternalSequenceRequired = 0
 source parser CompatSequence producers = 0
@@ -1424,13 +1424,60 @@ caller's Builder untouched. The function session installs the sealed product,
 the lowerer finishes identity/source coverage, and only then returns an
 unpublished draft for cleanup verification and commit.
 
-**B0-L3a — straight-line canonical BlockExpr Lower (active)**
+**B0-L3a — straight-line canonical BlockExpr Lower (closed)**
 
 The next slice widens only the already-closed canonical expression grammar
 with BlockExpr. It consumes the resolver-sealed ScopeId/RegionId pair through
 one `ResolvedScopeSessionV1`, tracks declarations by BindingRef, removes only
 inner declarations on scope exit, preserves outer rebinds, and returns the
 tail ValueId after balanced leave.
+
+Classification and implementation owners:
+
+```text
+work kind = BoxShape canonical-consumer activation
+accepted source syntax delta = 0
+docs_only_closeout = forbidden
+code_or_artifact_delta_required = 1
+
+exact pair lookup:
+  VerifiedResolvedFunctionV1
+
+scope transaction:
+  resolved_lowering/scope.rs ResolvedScopeSessionV1
+
+value lifetime disposition:
+  resolved_lowering/identity.rs
+
+source navigation:
+  existing FunctionSourceViewV1 located carriers only
+```
+
+Required structure:
+
+1. Preflight walks located bodies and expressions rather than rebuilding path
+   grammar. It admits only Local, Outbox, binding Assignment, the existing
+   literal/variable/non-short-circuit binary expressions, and nested
+   BlockExpr. If, Loop, Call, Lambda, CorePlan, and non-local exits remain
+   unsupported before Builder effects.
+2. Add one typed exact-site query from a located BlockExpr expression to its
+   sealed ScopeId/RegionId pair. It verifies owner, BlockExpr kinds, reciprocal
+   links, and the shared `site + BlockExprPreludeRoot` origin. Span, name,
+   pointer, encounter-order, and generic containment recovery are forbidden.
+3. Add `resolved_lowering/scope.rs`. `ResolvedScopeSessionV1` consumes each
+   pair once, enforces nested LIFO parentage, and closes explicitly on success
+   and error. Cleanup errors preserve the primary Lower error.
+4. Split the BindingRef value environment into active and retired
+   dispositions. Scope leave retires only the declarations listed by the
+   sealed scope record. It never snapshots or restores the whole environment;
+   therefore an outer rebind remains published while an inner shadow is
+   removed.
+5. Lower BlockExpr through `BlockExprPrelude` and `BlockExprTail` located
+   carriers. Prelude statements run in order, the tail is lowered exactly
+   once, and its ValueId is returned after the pair is closed.
+6. Keep the reusable authority guard below 800 lines. Put B0-L3a static
+   anchors in one small library helper instead of growing the already-large
+   top-level guard.
 
 ```text
 BlockExpr prelude: Local / Outbox / Assignment / closed expressions only
@@ -1442,6 +1489,56 @@ same-name shadow restoration = resolver BindingRef identity
 outer rebind survives scope leave
 error path balances resolved scope/region session
 If / Loop / CorePlan / Lambda / call runtime widening = 0
+```
+
+Focused fixtures:
+
+```text
+empty prelude and tail value
+initializer before declaration publication
+inner local visible to tail and retired at leave
+same-name shadow restores the outer BindingRef
+outer rebind survives leave
+nested BlockExpr consumes independent exact pairs
+tail lowered exactly once and ValueId survives leave
+wrong/missing pair rejects
+error path balances pair and preserves the primary error
+verified MIR/runtime result
+```
+
+Acceptance:
+
+```bash
+cargo test -q --lib mir::builder::resolved_lowering
+cargo test -q --lib mir::resolved_semantics::block_expr_tests
+bash tools/checks/resolved_region_flow_authority_guard.sh
+tools/checks/dev_gate.sh quick
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+Stop if this requires the legacy `LexicalScopeGuard`, name-keyed state,
+optional resolved authority/site, mutable source cursor, raw AST recursion in
+the new BlockExpr path, or any If/Loop/CorePlan/Lambda/Call activation.
+
+Closeout evidence:
+
+```text
+exact product query = block_expr_scope_region_pair
+scope owner = ResolvedScopeSessionV1
+value disposition = active or retired BindingRef
+located prelude/tail transport = 1/1
+tail constant lower count = exactly once
+shadow restoration and outer rebind VM result = 5
+nested tail-after-leave VM result = 9
+wrong/foreign pair rejection = verified
+error close balance and pair reconsumption veto = verified
+focused default resolved_lowering tests = 9 green
+focused VM-reference BlockExpr tests = 5 green
+resolved_region_flow_authority_guard = green
+canonical BlockExpr Lower connection = 1
+Planner / RegionFlow / If / Loop / Lambda connections = 0
+all guarded Rust source files < 800 lines
+selected next slice = B0-L3b located control flow
 ```
 
 **B0-L — explicit Rust canonical Lower cutover (ordered after B0-L2 and SA3-B)**
