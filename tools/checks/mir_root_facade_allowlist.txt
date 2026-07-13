@@ -15,6 +15,7 @@ BasicBlockId
 BinaryOp
 BindingId
 Callee
+CanonicalLoweringErrorV1
 ClosureBodyId
 CompareOp
 ContractRefreshBoundary
@@ -23,6 +24,7 @@ EdgeArgs
 Effect
 EffectMask
 FunctionSignature
+LegacyModuleLoweringInputV1
 MirBuilder
 MirCompileResult
 MirCompiler
@@ -36,12 +38,14 @@ MirPrinter
 MirType
 MirVerifier
 LocalSlotId
+ResolvedModuleLoweringInputV1
 SpannedInstruction
 TypeOpKind
 UnaryOp
 UserBoxFieldDecl
 ValueId
 VerificationError
+VerifiedResolvedSourceUnitV1
 WeakFieldWriteSiteId
 WeakRefOp
 derive_string_kernel_plan

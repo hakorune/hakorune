@@ -183,7 +183,10 @@ pub(crate) mod weak_field_backend_capability; // extracted error types // Optimi
 // tools/checks/mir_root_facade_allowlist.txt.
 pub use basic_block::{BasicBlock, EdgeArgs};
 pub use builder::MirBuilder;
-pub use compiler::{MirCompileResult, MirCompiler};
+pub use compiler::{
+    CanonicalLoweringErrorV1, LegacyModuleLoweringInputV1, MirCompileResult, MirCompiler,
+    ResolvedModuleLoweringInputV1, VerifiedResolvedSourceUnitV1,
+};
 pub use hakorune_mir_core::{BasicBlockId, BindingId, LocalSlotId};
 
 // Public facade exports: core MIR surfaces and refresh orchestration entry

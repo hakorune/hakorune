@@ -8,9 +8,9 @@ MIR_MOD="$ROOT/src/mir/mod.rs"
 LOWER_STATE="$ROOT/src/mir/builder/vars/resolved_binding_state.rs"
 LOWER_LOCAL="$ROOT/src/mir/builder/vars/lexical_scope.rs"
 LOWER_PARAM="$ROOT/src/mir/builder/calls/parameter_setup.rs"
+LOWERING_INPUT="$ROOT/src/mir/compiler/lowering_input.rs"
 BLOCKEXPR_INVENTORY="$ROOT/tools/checks/fixtures/blockexpr_producer_inventory_v1.json"
 source "$ROOT/tools/checks/lib/guard_common.sh"
-
 guard_require_command "$TAG" cargo
 guard_require_command "$TAG" find
 guard_require_command "$TAG" python3
@@ -35,6 +35,8 @@ guard_require_files "$TAG" \
   "$LOWER_STATE" \
   "$LOWER_LOCAL" \
   "$LOWER_PARAM" \
+  "$ROOT/src/mir/compiler/README.md" \
+  "$LOWERING_INPUT" \
   "$BLOCKEXPR_INVENTORY" \
   "$MODULE/tests.rs" \
   "$MODULE/shadow/mod.rs" \
@@ -703,7 +705,7 @@ fi
 while IFS= read -r consumer; do
   [[ -z "$consumer" ]] && continue
   case "$consumer" in
-    "$MIR_MOD"|"$MODULE"/*|"$LOWER_STATE"|"$LOWER_LOCAL"|"$LOWER_PARAM")
+    "$MIR_MOD"|"$MODULE"/*|"$LOWER_STATE"|"$LOWER_LOCAL"|"$LOWER_PARAM"|"$LOWERING_INPUT")
       ;;
     *)
       guard_fail "$TAG" "SA3-A semantic product transport escaped its bounded files: $consumer"
@@ -734,7 +736,7 @@ while IFS= read -r file; do
   if (( lines >= 800 )); then
     guard_fail "$TAG" "source file reached the 800-line stop boundary: $file ($lines)"
   fi
-done < <(find "$MODULE" -type f -name '*.rs' -print; printf '%s\n' "$MIR_MOD")
+done < <(find "$MODULE" -type f -name '*.rs' -print; printf '%s\n' "$MIR_MOD" "$LOWERING_INPUT")
 
 if ! rg -q 'pub\(super\) struct BindingId\(u32\)' \
   "$ROOT/src/mir/join_ir/ownership/ast_analyzer/core.rs"; then
@@ -753,6 +755,7 @@ cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::scope_container_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::vocabulary_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::builder::vars::resolved_binding_state::tests
+cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::compiler::lowering_input::tests
 
 echo "semantic_arena_schema=present"
 echo "semantic_arena_ast_clone_fields=0"

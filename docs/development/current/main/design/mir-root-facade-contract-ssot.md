@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-27
+Date: 2026-07-13
 Scope: MIR root facade export contract.
 Related:
   - src/mir/mod.rs
@@ -10,6 +10,7 @@ Related:
   - docs/development/current/main/phases/phase-291x/291x-523-semantic-metadata-root-export-inventory-card.md
   - docs/development/current/main/phases/phase-291x/291x-537-mir-root-facade-contract-card.md
   - docs/development/current/main/phases/phase-296x/archive/296x-976-MIMALLOC-SUBSTRING-CONCAT-DEAD-TEXT-REGION-PLAN-SURFACE-001.md
+  - docs/development/current/main/investigations/mirbuilder-resolved-semantic-owner-forest-design-stop-2026-07-13.md
 ---
 
 # MIR Root Facade Contract
@@ -33,6 +34,8 @@ Keep these categories available at the MIR root:
 - Compiler facade entry points:
   - builder/compiler/optimizer/printer/query/verifier surfaces
   - small cross-cutting query helpers used as MIR infrastructure
+  - opaque module-lowering input bundles and typed compiler-entry errors that
+    external runners must pass to `MirCompiler`
 - Refresh orchestration entry points:
   - `refresh_function_*`
   - `refresh_module_*`
@@ -120,3 +123,10 @@ write operation enums and IDs plus `LocalSlotId` as core MIR model vocabulary.
 `ContractRefreshBoundary` and the two refresh-and-validate functions are
 orchestration facade entries. Carrier summaries and refreshed bundle types stay
 owned by `mir::semantic_refresh` and are not re-exported from the MIR root.
+
+B0-L2a adds only the compiler facade inputs
+`LegacyModuleLoweringInputV1`, `ResolvedModuleLoweringInputV1`, the opaque
+`VerifiedResolvedSourceUnitV1`, and `CanonicalLoweringErrorV1`. Their internal
+legacy provenance and sealed semantic-owner vocabulary are not root exports.
+The resolved bundle has no production constructor in B0-L2a, so this facade
+change activates neither semantic resolution nor canonical Lower.

@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Owner Forest V1 through B0-L1 closed; B0-C skipped; B0-L2a typed source-unit ingress"
+status = "Owner Forest V1 through B0-L2a closed; B0-C skipped; B0-L2b immutable source navigator"
 date = "2026-07-13"
 
 active_lane = "MIRBUILDER Hako SourceBodyAnalysisSnapshotV1"
@@ -163,9 +163,13 @@ B0-P proves zero InternalSequenceRequired callers. B0-P closes the exhaustive
 producer inventory without changing resolver, Planner, RegionFlow, or Lower
 behavior. B0-S closes the passive BlockExpr scope/region kind pair, exact
 shared origin, containment, normalized parity, and resolver-acceptance veto.
-B0-F lexical fixture lock is active.
-Production resolver installation, Planner/Lower connection, legacy fallback,
-and BindingId authority cutover remain zero. Historical decision follows.
+B0-F lexical fixture lock is closed. B0-L0/B0-L1 close the accepted design and
+ingress inventory. B0-L2a closes a constructor-bounded typed compiler ingress,
+one request match, explicit bare-AST/ProgramV0/REPL legacy provenance, and a
+typed pre-Builder canonical stop with production resolved callers still zero.
+B0-L2b immutable exact source navigation is active. Production resolver
+installation, Planner/Lower connection, legacy fallback, and BindingId
+authority cutover remain zero. Historical decision follows.
 Resolved Region Flow V1 accepts
 `function_semantic_resolver_v1_owner_scoped_arena`. One pre-plan
 `FunctionSemanticResolverV1` constructs and seals
@@ -436,7 +440,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-L2A-TYPED-SOURCE-UNIT-INGRESS-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-L2B-IMMUTABLE-SOURCE-NAVIGATOR-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -445,6 +449,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-13: B0-L2a closes constructor-bounded typed resolved/legacy compiler ingress, one pre-Builder request match, explicit ProgramV0/REPL legacy provenance, typed canonical stop, and zero production resolved callers or semantic activation.",
   "2026-07-12: LocalContractWrite exact-i64 Fact bridge closes with canonical contract-id/fresh-identity matching, dst-only publication, Copy/same-slot PHI propagation, and the existing MapStore inventory guard.",
   "2026-07-12: MapStoreI64 source-backed key witness reuses ExactNumericValueFact for exact i64 only; dynamic I64Value remains derived and route selection is unchanged.",
   "2026-07-12: 3457 closes the focused MapStoreI64 Fact/Plan/Boundary inventory; exact-i64 witness work reuses the existing ExactNumericValueFact owner.",
@@ -456,5 +461,4 @@ landed_tail = [
   "2026-07-12: 3504 accepts the Failure/Outcome relation/spec and exhaustive inventory-only design; physical artifact movement remains disabled.",
   "2026-07-11: H3 C1 accepts 112 README-section-reviewed design rows, lowers the warning backlog from 844 to 732, and keeps physical design moves disabled; C2 owner-family review is the next stop.",
   "2026-07-11: Repository artifact lifecycle inventory confirms docs/check history is the growth source; existing archive policy now owns H0-H5 baseline, bounded phase/card moves, design registry, guard convergence, and closeout enforcement without opening another numbered cleanup card.",
-  "2026-07-11: 3503 accepts defer_with_failfast, proves declaration-only and dynamic-alias-only Weak obligations reject every product backend, keeps VM reference-only, and opens 3504 Failure/Outcome design.",
 ]

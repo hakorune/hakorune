@@ -109,7 +109,7 @@ impl ReplRunnerBox {
     #[cfg(feature = "vm-reference")]
     fn eval_line(&self, line: &str) -> Result<String, String> {
         use crate::backend::mir_interpreter::MirInterpreter;
-        use crate::mir::MirCompiler;
+        use crate::mir::{LegacyModuleLoweringInputV1, MirCompiler};
         use crate::parser::NyashParser;
 
         // REPL mode では内部デバッグログを自動抑制
@@ -140,7 +140,10 @@ impl ReplRunnerBox {
 
         // Phase 288.1: Use rewritten AST for compilation
         let mir_result = compiler
-            .compile_with_source(rewritten_ast, Some("<repl>"))
+            .compile_legacy(
+                LegacyModuleLoweringInputV1::repl_compatibility(rewritten_ast),
+                Some("<repl>"),
+            )
             .map_err(|e| format!("Compile error: {}", e))?;
 
         // Phase 288.1: Set REPL session in VM (Rc clone, not inner session clone)

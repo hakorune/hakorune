@@ -1,6 +1,6 @@
 # Resolved Region Flow V1 — Taskboard
 
-Status: Owner Forest V1 through B0-L1 closed; B0-C skipped; B0-L2a is active.
+Status: Owner Forest V1 through B0-L2a closed; B0-C skipped; B0-L2b is active.
 Date: 2026-07-13
 Decision: `function_semantic_resolver_v1_owner_scoped_arena` followed by
 `recursive_structured_region_flow`.
@@ -876,9 +876,12 @@ the passive kind pair and B0-F installs the canonical lexical traversal,
 recursive exit rejection, and Lambda declaration-order proof. Worker inventory
 found production semantic install and Lower source-site transport both zero.
 Decision A′ closes B0-L0, and B0-L1 fixes 5 module ingresses, 10 function
-families, and 2 raw body seams with activation zero. B0-L2a typed source-unit
-ingress is active while Planner/Lower behavior remains unchanged. Detailed
-task order and stop conditions remain in the active owner-forest card.
+families, and 2 raw body seams with activation zero. B0-L2a closes the typed
+source-unit ingress, one pre-Builder request match, explicit legacy provenance,
+and typed inactive canonical route while production resolved callers remain
+zero. B0-L2b immutable exact source navigation is active; Planner/Lower
+behavior remains unchanged. Detailed task order and stop conditions remain in
+the active owner-forest card.
 
 Known production boundary mismatches must be resolved explicitly before B2:
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the behavior-neutral B0-L1 Lower ingress inventory."""
+"""Validate the B0-L1 inventory and behavior-neutral B0-L2a typed ingress."""
 
 from __future__ import annotations
 
@@ -31,7 +31,7 @@ BODY_SEAM_IDS = {
     "raw-body-suffix-router",
     "function-body-program-wrapper",
 }
-ZERO_FIELDS = {
+BASELINE_ZERO_FIELDS = {
     "production_semantic_activation",
     "canonical_lower_route_count",
     "resolved_scope_consumer_count",
@@ -83,9 +83,9 @@ def main() -> None:
         fail("schema drifted")
     if data.get("decision") != "A-prime" or data.get("slice") != "B0-L1":
         fail("Decision A-prime / B0-L1 marker drifted")
-    for field in ZERO_FIELDS:
+    for field in BASELINE_ZERO_FIELDS:
         if data.get(field) != 0:
-            fail(f"behavior-neutral field must remain zero: {field}={data.get(field)!r}")
+            fail(f"B0-L1 baseline field drifted: {field}={data.get(field)!r}")
 
     modules = data.get("module_ingresses")
     functions = data.get("function_families")
@@ -116,8 +116,73 @@ def main() -> None:
         fail("forbidden partial-state inventory drifted")
     if atomic.get("carrier_infrastructure_may_land_disconnected") is not True:
         fail("behavior-neutral carrier landing decision drifted")
-    if data.get("selected_next_slice") != "B0-L2a-typed-source-unit-ingress":
+    if data.get("b0_l1_selected_next_slice") != "B0-L2a-typed-source-unit-ingress":
         fail("B0-L1 must mechanically select B0-L2a")
+
+    typed = data.get("typed_ingress_contract", {})
+    expected_typed = {
+        "slice": "B0-L2a",
+        "status": "closed",
+        "verified_source_unit_type": "VerifiedResolvedSourceUnitV1",
+        "resolved_input_type": "ResolvedModuleLoweringInputV1",
+        "legacy_input_type": "LegacyModuleLoweringInputV1",
+        "request_type": "MirLoweringRequestV1",
+        "canonical_error_type": "CanonicalLoweringErrorV1",
+        "request_match_sites": 1,
+        "production_verified_unit_constructors": 0,
+        "production_resolved_request_callers": 0,
+        "production_semantic_activation": 0,
+        "exact_source_site_transport_count": 0,
+        "resolved_scope_consumer_count": 0,
+        "planner_connection_count": 0,
+    }
+    if typed != expected_typed:
+        fail(f"B0-L2a typed ingress contract drifted: {typed!r}")
+    if data.get("selected_next_slice") != "B0-L2b-immutable-source-navigator":
+        fail("closed B0-L2a must mechanically select B0-L2b")
+
+    lowering_input = root / "src/mir/compiler/lowering_input.rs"
+    compiler = root / "src/mir/compiler/mod.rs"
+    for path in (lowering_input, compiler):
+        if not path.is_file():
+            fail(f"B0-L2a source is missing: {path.relative_to(root)}")
+    lowering_text = lowering_input.read_text(encoding="utf-8")
+    compiler_text = compiler.read_text(encoding="utf-8")
+    for anchor in (
+        "pub struct VerifiedResolvedSourceUnitV1",
+        "pub struct ResolvedModuleLoweringInputV1<'a>",
+        "pub struct LegacyModuleLoweringInputV1",
+        "pub enum CanonicalLoweringErrorV1",
+        "pub(super) enum MirLoweringRequestV1<'a>",
+        "#[cfg(test)]\nfn verified_source_unit_for_test(",
+    ):
+        if anchor not in lowering_text:
+            fail(f"B0-L2a lowering-input anchor is missing: {anchor}")
+    if lowering_text.count("\n    VerifiedResolvedSourceUnitV1 {\n") != 1:
+        fail("verified source unit gained a constructor outside its type/test factory")
+    if compiler_text.count("match request {") != 1:
+        fail("MirLoweringRequestV1 must have exactly one match site")
+    for anchor in (
+        "pub fn compile_resolved(",
+        "pub fn compile_legacy(",
+        "Self::compile_resolved_inactive(input, source_file)",
+        "let (ast, _legacy_origin) = input.into_parts();",
+        ".compile_with_source_internal(ast, source_file)",
+        'boundary: "B0-L2a"',
+    ):
+        if anchor not in compiler_text:
+            fail(f"B0-L2a compiler boundary anchor is missing: {anchor}")
+    production_resolved_callers = []
+    for source in (root / "src").rglob("*.rs"):
+        if source == lowering_input:
+            continue
+        if ".compile_resolved(" in source.read_text(encoding="utf-8"):
+            production_resolved_callers.append(source.relative_to(root).as_posix())
+    if production_resolved_callers:
+        fail(f"resolved ingress gained production callers: {production_resolved_callers}")
+    for forbidden in ("FunctionSourceViewV1", "LocatedStmtV1", "LocatedExprV1"):
+        if forbidden in compiler_text or forbidden in lowering_text:
+            fail(f"B0-L2b vocabulary activated during B0-L2a: {forbidden}")
 
     check_evidence(root, modules, "module_ingresses")
     check_evidence(root, functions, "function_families")
@@ -126,8 +191,12 @@ def main() -> None:
     print("resolved_lowering_module_ingresses=5")
     print("resolved_lowering_function_families=10")
     print("resolved_lowering_body_route_seams=2")
+    print("resolved_lowering_typed_ingress=closed")
+    print("resolved_lowering_request_match_sites=1")
+    print("resolved_lowering_production_verified_unit_constructors=0")
+    print("resolved_lowering_production_resolved_request_callers=0")
     print("resolved_lowering_production_activation=0")
-    print("resolved_lowering_selected_next_slice=B0-L2a")
+    print("resolved_lowering_selected_next_slice=B0-L2b")
 
 
 if __name__ == "__main__":

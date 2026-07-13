@@ -20,7 +20,7 @@
       "preflight_before_prepare_module": false,
       "evidence": [
         "src/mir/compiler/mod.rs#pub fn compile_with_source(",
-        "src/mir/compiler/mod.rs#self.compile_with_source_internal(ast, source_file)",
+        "src/mir/compiler/mod.rs#self.compile_legacy(LegacyModuleLoweringInputV1::bare_ast(ast), source_file)",
         "src/mir/compiler/mod.rs#let mut module = self.builder.build_module(ast)?;"
       ]
     },
@@ -59,11 +59,11 @@
       "canonical_candidate": false,
       "source_unit_provenance_preserved": false,
       "current_entry": "program_json_v0_loader import bundle",
-      "convergence_entry": "compile_with_source_hint",
+      "convergence_entry": "MirCompiler::compile_legacy",
       "preflight_before_prepare_module": false,
       "evidence": [
         "src/runner/json_artifact/program_json_v0_loader.rs#let mut compiler = MirCompiler::with_options(true);",
-        "src/runner/json_artifact/program_json_v0_loader.rs#compile_with_source_hint("
+        "src/runner/json_artifact/program_json_v0_loader.rs#LegacyModuleLoweringInputV1::program_v0_compatibility(ast)"
       ]
     },
     {
@@ -73,11 +73,11 @@
       "canonical_candidate": false,
       "source_unit_provenance_preserved": false,
       "current_entry": "ReplRunner wrapper parse/rewrite",
-      "convergence_entry": "MirCompiler::compile_with_source",
+      "convergence_entry": "MirCompiler::compile_legacy",
       "preflight_before_prepare_module": false,
       "evidence": [
         "src/runner/repl/repl_runner.rs#let rewritten_ast = ReplAstRewriter::rewrite(ast);",
-        "src/runner/repl/repl_runner.rs#.compile_with_source(rewritten_ast, Some(\"<repl>\"))"
+        "src/runner/repl/repl_runner.rs#LegacyModuleLoweringInputV1::repl_compatibility(rewritten_ast)"
       ]
     }
   ],
@@ -287,5 +287,22 @@
       "canonical_parent_plus_legacy_child_in_one_source_unit"
     ]
   },
-  "selected_next_slice": "B0-L2a-typed-source-unit-ingress"
+  "b0_l1_selected_next_slice": "B0-L2a-typed-source-unit-ingress",
+  "typed_ingress_contract": {
+    "slice": "B0-L2a",
+    "status": "closed",
+    "verified_source_unit_type": "VerifiedResolvedSourceUnitV1",
+    "resolved_input_type": "ResolvedModuleLoweringInputV1",
+    "legacy_input_type": "LegacyModuleLoweringInputV1",
+    "request_type": "MirLoweringRequestV1",
+    "canonical_error_type": "CanonicalLoweringErrorV1",
+    "request_match_sites": 1,
+    "production_verified_unit_constructors": 0,
+    "production_resolved_request_callers": 0,
+    "production_semantic_activation": 0,
+    "exact_source_site_transport_count": 0,
+    "resolved_scope_consumer_count": 0,
+    "planner_connection_count": 0
+  },
+  "selected_next_slice": "B0-L2b-immutable-source-navigator"
 }

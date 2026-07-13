@@ -1,4 +1,4 @@
-use crate::mir::MirCompiler;
+use crate::mir::{LegacyModuleLoweringInputV1, MirCompiler};
 use crate::runner::NyashRunner;
 use std::collections::BTreeSet;
 
@@ -285,12 +285,12 @@ fn compile_program_json_v0_imports_bundle(
         let ast = crate::r#macro::maybe_expand_and_dump(&ast, false);
 
         let mut compiler = MirCompiler::with_options(true);
-        let compile = crate::runner::modes::common_util::source_hint::compile_with_source_hint(
-            &mut compiler,
-            ast,
-            Some("<json_v0/imports>"),
-        )
-        .map_err(|error| format!("[freeze:contract][json_v0/imports] compile: {error}"))?;
+        let compile = compiler
+            .compile_legacy(
+                LegacyModuleLoweringInputV1::program_v0_compatibility(ast),
+                Some("<json_v0/imports>"),
+            )
+            .map_err(|error| format!("[freeze:contract][json_v0/imports] compile: {error}"))?;
         Ok(compile.module)
     })();
 

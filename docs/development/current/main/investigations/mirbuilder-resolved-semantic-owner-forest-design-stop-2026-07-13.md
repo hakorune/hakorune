@@ -1,5 +1,5 @@
 ---
-Status: P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S/B0-F/B0-L0/B0-L1 closed; B0-C skipped; B0-L2a is active
+Status: P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S/B0-F/B0-L0/B0-L1/B0-L2a closed; B0-C skipped; B0-L2b is active
 Date: 2026-07-13
 Scope: Resolved Semantic Owner Forest V1 design and implementation task order
 Parent: mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
@@ -1115,7 +1115,7 @@ Program body wrapper. Every row carries live source evidence and a staged
 capability order. The existing Resolved Region Flow family guard invokes the
 inventory validator and mechanically selects B0-L2a.
 
-**B0-L2a — typed source-unit ingress (active)**
+**B0-L2a — typed source-unit ingress (closed)**
 
 Add only disconnected transport vocabulary above `MirBuilder`:
 
@@ -1155,6 +1155,77 @@ production resolved request constructors/callers = 0
 prepare_module remains reachable only through the legacy implementation
 semantic product install / exact source-site transport / ScopeId consumer = 0
 Planner / RegionFlow / Recipe connection = 0
+all source files < 800 lines
+```
+
+Closeout evidence:
+
+```text
+typed compiler ingress = present
+request match sites above Builder = 1
+production VerifiedResolvedSourceUnitV1 constructors = 0
+production compile_resolved callers = 0
+canonical capability stop before Builder effects = verified
+bare AST / ProgramV0 / REPL legacy provenance = explicit
+semantic product install / exact source navigation / ScopeId consumer = 0
+Planner / RegionFlow / Recipe connection = 0
+focused compiler ingress tests = 3 green
+```
+
+The boundary lives in `src/mir/compiler/lowering_input.rs`; its ownership and
+forbidden edges are fixed by `src/mir/compiler/README.md`. The existing legacy
+Builder implementation is unchanged behind the legacy request branch.
+
+**B0-L2b — immutable exact source navigator (active)**
+
+Add disconnected source projection and located-node vocabulary without
+activating canonical Lower:
+
+```text
+VerifiedSourceProjectionV1
+FunctionSourceViewV1<'a>
+LocatedBodyV1<'a>
+LocatedStmtV1<'a>
+LocatedExprV1<'a>
+LocatedBodySuffixV1<'a>
+SourceNavigationErrorV1
+closed ExprChildRoleV1 / BodyChildRoleV1
+```
+
+Contract:
+
+1. `VerifiedResolvedSourceUnitV1` owns canonical syntax, its sealed owner
+   forest, and the source projection verified for that same syntax. A view can
+   only be derived for an owner/product/source-root triple in that unit.
+2. Navigation is immutable and parent-relative. Recursive callers carry a
+   borrowed AST node and its exact typed site together; there is no Builder
+   cursor to save or restore.
+3. The existing `SourcePathSegmentV1` grammar remains the path SSOT. Lower must
+   not reproduce path construction. Closed child-role APIs delegate to the
+   verified projection and reject wrong node family, missing child, foreign
+   owner, and site/node mismatch.
+4. AST pointer, Span, name, encounter order, reconstructed ProgramV0, and AST
+   clone are forbidden identity sources. Equal Span values must not alias two
+   distinct sites.
+5. Body suffix transport is typed as `(LocatedBodyV1, start_index)` only. The
+   raw Planner seam is not changed and no `consumed: usize` route is connected
+   in this slice.
+6. The verified source-unit production constructor, `compile_resolved` caller,
+   semantic-product install, recursive Lower consumer, and Planner connection
+   all remain zero. Focused tests may use the bounded test factory.
+
+Acceptance:
+
+```text
+FunctionBody / body statement navigation is exact
+Local initializer and assignment target/value navigation is exact
+BlockExpr prelude/tail and nested BlockExpr navigation is exact
+Lambda definition-site navigation preserves owner boundary
+wrong family / missing child / foreign owner / site-node mismatch reject
+same-Span sibling nodes remain distinct
+mutable source cursor / pointer lookup / Span lookup / name lookup = 0
+production verified-unit constructors / compile_resolved callers = 0
+Builder / Planner / RegionFlow / Recipe connections = 0
 all source files < 800 lines
 ```
 

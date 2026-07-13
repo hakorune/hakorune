@@ -21,8 +21,9 @@ Related:
   `docs/development/current/main/workstreams/language-v1-convergence-current.md`
 - priority: read `active_lane` and `current_blocker_token`; owner-forest
   P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S/B0-F are closed, B0-C was skipped, and
-  B0-L0/B0-L1 are closed and B0-L2a typed source-unit ingress is active with
-  production activation zero; RegionFlow and parser/source-carrier P1 remain disconnected
+  B0-L0/B0-L1/B0-L2a are closed; B0-L2b immutable exact source navigation is
+  active with production resolved callers and semantic activation zero;
+  RegionFlow and parser/source-carrier P1 remain disconnected
 - parked language work: LANGV1 conformance closeout remains parked; no
   language behavior is changed by the reprioritization
 

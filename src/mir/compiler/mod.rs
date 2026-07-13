@@ -10,6 +10,14 @@ use super::verification::MirVerifier;
 use super::verification_types::VerificationError;
 use std::time::Instant;
 
+mod lowering_input;
+
+pub use lowering_input::{
+    CanonicalLoweringErrorV1, LegacyModuleLoweringInputV1, ResolvedModuleLoweringInputV1,
+    VerifiedResolvedSourceUnitV1,
+};
+use lowering_input::{MirLoweringRequestErrorV1, MirLoweringRequestV1};
+
 /// MIR compilation result
 #[derive(Debug, Clone)]
 pub struct MirCompileResult {
@@ -59,8 +67,7 @@ impl MirCompiler {
         ast: crate::ast::ASTNode,
         source_file: Option<&str>,
     ) -> Result<MirCompileResult, String> {
-        self.builder.comp_ctx.clear_using_import_boxes();
-        self.compile_with_source_internal(ast, source_file)
+        self.compile_legacy(LegacyModuleLoweringInputV1::bare_ast(ast), source_file)
     }
 
     /// Compile AST to MIR with an explicit imported static-box alias table.
@@ -71,7 +78,70 @@ impl MirCompiler {
         imports: std::collections::HashMap<String, String>,
     ) -> Result<MirCompileResult, String> {
         self.builder.comp_ctx.set_using_import_boxes(imports);
-        self.compile_with_source_internal(ast, source_file)
+        self.compile_legacy_request(LegacyModuleLoweringInputV1::bare_ast(ast), source_file)
+    }
+
+    /// Compile syntax that carries a verified canonical source-unit seal.
+    ///
+    /// B0-L2a intentionally returns a typed capability error before any
+    /// Builder effect. Production activation starts only with atomic SA3-B.
+    pub fn compile_resolved(
+        &mut self,
+        input: ResolvedModuleLoweringInputV1<'_>,
+        source_file: Option<&str>,
+    ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
+        self.compile_request(MirLoweringRequestV1::Resolved(input), source_file)
+            .map_err(MirLoweringRequestErrorV1::into_canonical)
+    }
+
+    /// Compile an explicitly non-canonical AST input.
+    pub fn compile_legacy(
+        &mut self,
+        input: LegacyModuleLoweringInputV1,
+        source_file: Option<&str>,
+    ) -> Result<MirCompileResult, String> {
+        self.builder.comp_ctx.clear_using_import_boxes();
+        self.compile_legacy_request(input, source_file)
+    }
+
+    fn compile_legacy_request(
+        &mut self,
+        input: LegacyModuleLoweringInputV1,
+        source_file: Option<&str>,
+    ) -> Result<MirCompileResult, String> {
+        self.compile_request(MirLoweringRequestV1::Legacy(input), source_file)
+            .map_err(MirLoweringRequestErrorV1::into_legacy)
+    }
+
+    /// The sole route-selection site. The request enum ends at this boundary.
+    fn compile_request(
+        &mut self,
+        request: MirLoweringRequestV1<'_>,
+        source_file: Option<&str>,
+    ) -> Result<MirCompileResult, MirLoweringRequestErrorV1> {
+        match request {
+            MirLoweringRequestV1::Resolved(input) => {
+                Self::compile_resolved_inactive(input, source_file)
+                    .map_err(MirLoweringRequestErrorV1::Canonical)
+            }
+            MirLoweringRequestV1::Legacy(input) => {
+                let (ast, _legacy_origin) = input.into_parts();
+                self.compile_with_source_internal(ast, source_file)
+                    .map_err(MirLoweringRequestErrorV1::Legacy)
+            }
+        }
+    }
+
+    fn compile_resolved_inactive(
+        input: ResolvedModuleLoweringInputV1<'_>,
+        _source_file: Option<&str>,
+    ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
+        let verified_source_unit = input.source_unit();
+        let _transport_bundle = (
+            verified_source_unit.syntax_root(),
+            verified_source_unit.forest(),
+        );
+        Err(CanonicalLoweringErrorV1::CapabilityNotActivated { boundary: "B0-L2a" })
     }
 
     fn compile_with_source_internal(
