@@ -17,6 +17,10 @@ set -euo pipefail
 #   milestone-runtime : hotpath + runtime/selfhost milestone smoke
 #   milestone-perf    : hotpath + phase21.5 full perf milestone checks
 #   milestone         : milestone-runtime + milestone-perf (backward compatible)
+#
+# Output:
+#   default            : one compact line per successful quick step
+#   DEV_GATE_VERBOSE=1 : stream child stdout/stderr for diagnosis
 
 PROFILE="${1:-quick}"
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"

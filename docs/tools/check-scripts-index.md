@@ -41,7 +41,7 @@ Do not add a dedicated shell guard for every inventory or selection row.
 
 | Script | Purpose |
 | --- | --- |
-| `tools/checks/dev_gate.sh` | Integrated daily gate. `quick` is the default smoke path; heavier profiles remain explicit. |
+| `tools/checks/dev_gate.sh` | Integrated daily gate. `quick` is the default compact smoke path: successful steps emit one summary line, failures emit a bounded tail plus a retained full-log path, and `DEV_GATE_VERBOSE=1` restores streamed child output. Heavier profiles remain explicit. |
 | `tools/checks/current_state_pointer_guard.sh` | Compact current-state pointer consistency guard. Run on restart and before docs/current pointer commits. |
 | `tools/checks/naming_charter_guard.sh` | Hakorune naming charter guard for binary/env/docs naming drift. |
 | `tools/checks/run_row_guard.sh` | Manifest-backed row guard runner using `tools/checks/guard_rows.toml` and `tools/checks/lib/manifest_runner.py`. |
