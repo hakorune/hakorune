@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Owner Forest V1 P0/E0/OF0/UP0/UP1 closed; B0 BlockExpr language design stop"
+status = "Owner Forest V1 P0/E0/OF0/UP0/UP1/B0-D closed; B0-P BlockExpr producer inventory"
 date = "2026-07-13"
 
 active_lane = "MIRBUILDER Hako SourceBodyAnalysisSnapshotV1"
@@ -153,12 +153,14 @@ distinct UpvarRebind assignment target, exact-site Read/Rebind observations,
 one deduplicated structural Upvar inventory, grandparent flattening, and
 normalized access parity. CaptureId, synthetic child BindingId, capture mode,
 runtime layout/slot, AST clone, ValueId, BasicBlockId, Planner, RegionFlow, and
-Lower wiring remain zero. B0 is now the explicit design stop: decide whether
-canonical BlockExpr owns a real lexical scope or preserves compatibility
-sequencing semantics before changing resolver visibility or Lower behavior.
-The evidence inventory records a provisional reference row, a design SSOT
-that says "condition is a scope", current direct/JSON Lower mutation of the
-surrounding scope, and no leakage/shadow-restoration fixture.
+Lower wiring remain zero. B0-D accepts lexical BlockExpr plus inventory-gated
+compatibility isolation: every canonical source BlockExpr owns ScopeId and
+RegionId, inner bindings end after the tail, outer BindingId rebinds propagate,
+and condition scope does not extend into branch/body regions. ProgramV0 stays
+lossy and gains neither source-kind recovery nor a new compatibility tag. A
+non-wire compiler-private CompatSequenceExpr may exist only if B0-P proves a
+live caller. B0-P now materializes the exhaustive producer inventory without
+changing resolver, Planner, RegionFlow, or Lower behavior.
 Production resolver installation, Planner/Lower connection, legacy fallback,
 and BindingId authority cutover remain zero. Historical decision follows.
 Resolved Region Flow V1 accepts
@@ -431,7 +433,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-BLOCKEXPR-LANGUAGE-DESIGN-STOP-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-P-BLOCKEXPR-PRODUCER-INVENTORY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

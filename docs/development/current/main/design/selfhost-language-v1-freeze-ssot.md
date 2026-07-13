@@ -41,7 +41,9 @@ implementation slice.
 
 v1 とは、次を “互換破壊しない” と約束する範囲:
 
-1. Rust parser と selfhost parser が同じ AST/JSON v0 形を生成できる
+1. Rust parser と selfhost parser が同じ accepted source shapeを独立に
+   生成できる。JSON v0 shape parityはcompatibility evidenceであり、source
+   lexical identity authorityではない
 2. planner-required 経路（CorePlan/Parts）で lowering できる
 3. 失敗は `[freeze:contract]` タグ付きで fail-fast できる
 
@@ -78,9 +80,17 @@ v1 とは、次を “互換破壊しない” と約束する範囲:
 - AST: `ASTNode::BlockExpr { prelude_stmts: Vec<ASTNode>, tail_expr: Box<ASTNode> }`
 - Contract (v1):
   - `tail_expr` is required
+  - canonical BlockExpr は必ずreal lexical scopeを持つ
+    - prelude localはtailまで見える
+    - inner bindingはexpression外へ漏れない
+    - outer bindingへのrebind effectは外へ伝わる
+    - condition-position scopeはthen/elseまたはloop bodyへ延長しない
   - expression-position BlockExpr は **non-local exit を再帰的に禁止**
     - fail-fast tag: `[freeze:contract][blockexpr]`
   - JSON v0 bridge compatibility (selfhost Stage‑B):
+    - JSON v0はlossy compatibility familyであり、BlockExpr lexical semantics
+      やLocal/Assignment distinctionのauthorityではない。
+    - v0 schemaへcompatibility expression tagを追加しない。
     - Stage‑B JSON v0 が `tail` を “stmt JSON” として出す場合がある（例: `If`）。
     - 許可（保守的）: `If`（再帰）, `Local`, `Extern`, `Expr` のみ。lower は stmt を実行して `void` を返す。
     - それ以外の tail stmt は `[freeze:contract][json_v0][blockexpr]` で fail-fast。

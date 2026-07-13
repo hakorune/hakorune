@@ -1,6 +1,6 @@
 # Resolved Region Flow V1 — Taskboard
 
-Status: Owner Forest V1 P0/E0/OF0/UP0/UP1 closed; B0 BlockExpr language decision is active.
+Status: Owner Forest V1 P0/E0/OF0/UP0/UP1/B0-D closed; B0-P producer inventory is active.
 Date: 2026-07-13
 Decision: `function_semantic_resolver_v1_owner_scoped_arena` followed by
 `recursive_structured_region_flow`.
@@ -861,10 +861,19 @@ docs/development/current/main/investigations/
 
 P0, E0, OF0, UP0, and UP1 are closed. Structural Upvar reads and rebinds now
 publish exact-site capture-plan observations without selecting capture mode,
-forwarding, environment layout, or runtime slots. The next owner is B0, an
-explicit language decision on whether canonical `BlockExpr` introduces a real
-lexical scope or retains compatibility sequencing semantics. No resolver or
-Lower change may precede that decision.
+forwarding, environment layout, or runtime slots. B0-D accepts lexical
+`BlockExpr`: every canonical source BlockExpr owns one ScopeId and RegionId,
+its locals end after the tail, and outer-binding rebinds propagate. Any live
+compatibility sequencing must use a distinct compiler-private non-wire carrier
+outside ASTNode and ProgramV0. ProgramV0 remains lossy and may neither recover
+Local versus Assignment nor gain a new v0 tag.
+
+The active B0-P owner is a machine-readable producer inventory consumed by the
+reusable Resolved Region Flow authority guard. It classifies every active
+BlockExpr/sequence producer, proves source-parser compatibility-carrier count
+zero, and mechanically selects whether an internal carrier has any live
+caller. Resolver/Planner/Lower behavior remains unchanged in B0-P. Detailed
+task order and stop conditions remain in the active owner-forest card.
 
 Known production boundary mismatches must be resolved explicitly before B2:
 
@@ -873,7 +882,7 @@ Nowait currently bypasses BindingId publication
 TryCatch does not publish the catch binder
 CorePlan local publication lacks an exact SourceBindingSiteV1
 inline Main.main bypasses ordinary parameter publication
-BlockExpr scope semantics are not yet an explicit resolver contract
+BlockExpr scope semantics are accepted but not yet installed in the resolver
 Lambda owns a separate capture/function boundary
 ```
 

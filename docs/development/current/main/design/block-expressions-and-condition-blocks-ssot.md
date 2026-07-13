@@ -40,11 +40,19 @@ SSOT: this is view-only (no algebraic rewrite) and must preserve evaluation orde
 
 ## 3. Block Expression Semantics (v1; language-level SSOT)
 
-If/when Nyash introduces *block expressions* (as a general expression form), the value rules are:
+Block expressions are a general expression form with these value rules:
 
 - A block evaluates statements in source order.
-- The block’s value is the value of the **last expression** if the last element is an expression.
-- If the block ends with a statement or is empty, the block’s value is `void` (runtime `Void`).
+- The required tail expression is evaluated exactly once.
+- The block’s value is the value of that tail expression.
+- An empty block or a block ending in a statement is rejected in the current
+  accepted surface; explicit `void` is used when a void result is intended.
+
+Every canonical `BlockExpr` owns one real lexical scope. Prelude declarations
+are visible to later prelude statements and to the tail, but not outside the
+expression. Tail values and effects on already-visible outer bindings may
+escape. A condition-position `BlockExpr` ends its scope before the enclosing
+then/else or loop body begins.
 
 Boolean contexts use the same truthiness conversion as any other value:
 - `void` / `null` in boolean context is **TypeError** (fail-fast).
@@ -82,6 +90,8 @@ and `cond { ... }`-style dedicated syntax is no longer necessary (the condition 
 ## 5. Staging plan (avoid debt)
 
 1) Keep internal `CondBlockView` as the *only* condition-entry interface.
-2) Phase B2 complete: `{...}` block expressions enable “condition is a scope” in the surface language.
+2) Phase B2 complete: `{...}` block expressions enable a scoped expression in
+   condition position. The scope belongs to the condition expression and does
+   not extend into branch bodies.
 3) Phase B4 planned: enable `CondBlockView.predule_stmts` lowering under planner-required paths (CorePlan/Parts), pinned by fixture+fast gate.
 4) Decide additional surface sugar later (parser-level only, emits BlockExpr directly), keeping semantics fixed by this SSOT.

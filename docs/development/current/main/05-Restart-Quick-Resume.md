@@ -40,8 +40,9 @@ cargo check -q
 
 - handoff frontier: read `current_blocker_token` in `CURRENT_STATE.toml`
 - read `latest_card_path` before editing
-- owner-scoped arena P0/E0/OF0/UP0/UP1 are closed; the active frontier is B0,
-  the BlockExpr language design stop named by `latest_card_path`
+- owner-scoped arena P0/E0/OF0/UP0/UP1/B0-D are closed; canonical BlockExpr is
+  lexical and the active frontier is the B0-P producer inventory named by
+  `current_blocker_token` and `latest_card_path`
 - keep RegionFlow R1, parser/source-carrier P1, and all parked source-projection
   stashes disconnected until the semantic-arena prerequisite series closes
 - LANGV1 conformance closeout and Failure/Outcome global migration remain
@@ -54,6 +55,6 @@ cargo check -q
   selfhost/MirBuilder resumes only through the workstream closeout
 - product/app validation now uses EXE/AOT as the primary route; VM work is a
   small semantic-reference subset only
-- if the current blocker token names the explicit design-stop frontier, stop
-  the goal-driven execution loop here and review the frontier card before
-  naming a new executable owner
+- if a future current blocker token names an explicit design-stop frontier,
+  stop the goal-driven execution loop there and review the frontier card
+  before naming a new executable owner

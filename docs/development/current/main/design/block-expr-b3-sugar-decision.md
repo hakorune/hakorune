@@ -1,6 +1,6 @@
 ---
-Status: Draft
-Decision: provisional (design only; implementation deferred)
+Status: Superseded
+Decision: rejected — branch-visible `if-local` cannot desugar to plain `BlockExpr`
 SSOT: This document is the SSOT for B3 sugar design. Roadmap references this.
 ---
 
@@ -8,40 +8,52 @@ SSOT: This document is the SSOT for B3 sugar design. Roadmap references this.
 
 ## Scope
 
-This document records the design direction for optional sugar syntax that lowers to BlockExpr.
+This document records why the original optional sugar design is no longer an
+accepted plain-`BlockExpr` desugaring.
 
-**Core principle**: Sugar is parser-level only. No new semantic core, no lowering changes.
+Canonical `BlockExpr` now has an accepted lexical boundary that ends after its
+tail expression. A sugar whose binding remains visible in then/else bodies
+therefore requires a distinct language construct and scope owner.
 
 ## Sugar: if-local
 
 **Syntax**: `if local x = f(); x > 0 { ... }`
 
-**Desugars to**: `if ({ local x = f(); x > 0 }) { ... }`
+**Old proposed desugaring**: `if ({ local x = f(); x > 0 }) { ... }`
 
 ### Rationale
 
-This sugar provides a convenient pattern for conditional bindings without introducing new semantic core. The desugaring is purely syntactic.
+The old desugaring is valid only if `x` is visible inside the condition and is
+not visible in then/else bodies. That is not the intended branch-visible
+contract recorded below.
 
 ### Scoping
 
-The variable `x` is scoped to the if condition and body (including else branches if present).
+The desired variable `x` was scoped to the condition and branch bodies,
+including else branches. A plain `BlockExpr` cannot provide that lifetime.
 
 ## Implementation Rules (SSOT)
 
-1. **Parser emits BlockExpr directly** - Sugar is recognized and transformed to `ASTNode::BlockExpr` at parse time
-2. **No lowering changes** - MIR builder sees only `BlockExpr` (already supported)
-3. **No runtime AST rewrite** - This "parser desugar" is distinct from the "AST rewrite prohibition" (which forbids runtime transformations for semantic equivalence tricks)
+1. A branch-visible form must use a future distinct construct such as
+   `IfInit` / `IfBindingScope`, with an explicit `ScopeId` owned by the whole
+   conditional.
+2. It must not be emitted as `ASTNode::BlockExpr`.
+3. No syntax or semantic core is accepted by this document; a new language
+   decision is required before implementation.
 
-**Clarification**: "No AST rewrite" in the compiler-expressivity-first policy refers to *runtime* rewrites that hide complexity. Parser-level sugar is acceptable because it's transparent and doesn't affect lowering paths.
+**Clarification**: parser-level sugar is acceptable only when its target AST
+has exactly the same scope and execution semantics. The rejected desugaring
+does not meet that condition.
 
 ## Implementation Status
 
-**Deferred** - no implementation planned for now. This document serves as a design anchor.
+**Deferred** - no implementation is accepted. This document is a rejection
+anchor for the old plain-`BlockExpr` desugaring.
 
 ## Decision
 
-- **Accepted**: desugaring to BlockExpr (no new semantic core)
-- **Deferred**: actual implementation (pending demand)
+- **Rejected**: branch-visible binding via plain `BlockExpr` desugaring
+- **Deferred**: any separately owned `IfInit` / `IfBindingScope` design
 
 ## Related
 

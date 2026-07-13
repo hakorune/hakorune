@@ -136,21 +136,28 @@ No **code-level** `{ "k": v }` map literals should exist.
 
 Token note: `%{` is `TokenType::PercentLBrace` (no whitespace allowed between `%` and `{`).
 
-### Phase B3: Optional sugar (post-stability)
+### Phase B3: Optional sugar (superseded design)
 
 Purpose: improve ergonomics without expanding core semantics.
 
 **SSOT**: `docs/development/current/main/design/block-expr-b3-sugar-decision.md`
 
-Examples:
-- `if local x = f(); x > 0 { ... }` desugars to `if ({ local x = f(); x > 0 }) { ... }`
+The old branch-visible example:
+
+```text
+if local x = f(); x > 0 { ... }
+```
+
+must not desugar to a plain BlockExpr. Canonical BlockExpr scope ends after
+its tail and does not extend into then/else bodies.
 
 Rules (from SSOT):
-1. Sugar is **parser-level only** - parser emits `BlockExpr` directly
-2. No lowering changes - MIR builder sees only `BlockExpr`
-3. "Parser desugar" is distinct from "AST rewrite prohibition" (runtime transformations)
+1. The old plain-BlockExpr desugaring is rejected.
+2. A branch-visible form requires a separate future AST/scope owner such as
+   `IfInit` / `IfBindingScope`.
+3. No replacement syntax is accepted by this roadmap.
 
-Status: **Deferred** (design anchor only, no implementation planned).
+Status: **Superseded** (replacement design deferred; no implementation planned).
 
 ### Phase B4: Enable condition prelude under planner-required (JoinIR/plan)
 

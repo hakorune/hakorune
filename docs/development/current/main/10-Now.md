@@ -20,8 +20,8 @@ Related:
 - language-v1 workstream:
   `docs/development/current/main/workstreams/language-v1-convergence-current.md`
 - priority: read `active_lane` and `current_blocker_token`; owner-forest
-  P0/E0/OF0/UP0/UP1 are closed and B0 BlockExpr language design is the active
-  stop; RegionFlow and parser/source-carrier P1 remain disconnected
+  P0/E0/OF0/UP0/UP1/B0-D are closed and B0-P producer inventory is active;
+  RegionFlow and parser/source-carrier P1 remain disconnected
 - parked language work: LANGV1 conformance closeout remains parked; no
   language behavior is changed by the reprioritization
 

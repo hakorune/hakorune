@@ -1,17 +1,19 @@
 ---
-Status: Draft
-Decision: provisional (syntax migration planned; implementation staged)
+Status: Accepted (semantic contract; implementation migration staged)
+Decision: accepted — `lexical_blockexpr`
 Scope: language surface syntax + AST representation
 ---
 
-# Block Expressions and Map Literals (Provisional)
+# Block Expressions and Map Literals
 
-This document defines a *provisional* language direction to:
+This document defines the language contract to:
 
 - Reserve `{ ... }` for **block expressions** (and statement blocks).
 - Move map literals off `{ ... }` to avoid `{}` ambiguity in expression position.
 
-This is a **spec-level** document. Implementation may be staged behind phases and migration gates.
+This is a **spec-level** document. Implementation may be staged behind phases
+and migration gates, but every source-level `BlockExpr` has the same lexical
+meaning on every route.
 
 ## Selfhost compiler v1 (SSOT link)
 
@@ -33,6 +35,44 @@ The selfhost compiler “v1” boundary (the frozen subset used to unblock `.hak
 The block expression's value is the value of `tail_expr`.
 
 Note: Empty blocks or blocks ending with a statement (without a trailing expression) are rejected at compile time. Use explicit `void` literal if needed.
+
+### Lexical scope
+
+Every source-level block expression introduces one lexical scope.
+
+```text
+scope begins:
+  immediately before the first prelude statement
+
+scope contains:
+  every prelude statement and the tail expression
+
+scope ends:
+  immediately after the tail expression has been evaluated once
+```
+
+Bindings declared inside the block expression are visible to later prelude
+statements and to the tail expression, but do not escape the expression. The
+tail value may escape. A rebind of an already-visible outer binding also
+propagates normally; shadowing it with a new local does not.
+
+```nyash
+local x = 1
+local y = {
+  local x = 2
+  x
+}
+// y == 2, outer x == 1
+```
+
+```nyash
+local x = 1
+local y = {
+  x = 2
+  x
+}
+// y == 2, outer x == 2
+```
 
 ### Exit statements (v1 rule)
 
@@ -61,6 +101,20 @@ Block expressions used in condition position (e.g. `if ({ ... }) { ... }`, `loop
 
 v1 constraint: the prelude statement vocabulary is restricted (and enforced) by SSOT:
 - `src/mir/builder/control_flow/cleanup/policies/cond_prelude_vocab.rs`
+
+The block-expression scope ends after its tail is evaluated. It does not
+extend into an enclosing `if` then/else body or a loop body. A future syntax
+that intentionally exposes a condition binding to branches requires a
+separate language decision and a distinct scope owner; it must not be
+desugared to a plain `BlockExpr`.
+
+### Compatibility sequencing is not source syntax
+
+Compiler compatibility paths may temporarily need an explicitly typed,
+compiler-private sequencing carrier with no lexical scope. Such a carrier is
+not `BlockExpr`, is not emitted by either source parser, and is not part of the
+public language. The same `BlockExpr` node must never change scope semantics
+according to producer, consumer, or lowering route.
 
 ### Examples
 
@@ -98,7 +152,7 @@ Key (v1):
 local m = %{"a" => 1, "b" => 2}
 ```
 
-## 3. Backward Compatibility (provisional window)
+## 3. Backward Compatibility (migration window)
 
 During the migration window:
 
@@ -106,6 +160,11 @@ During the migration window:
 - The long-term target is:
   - `{ ... }` is a block (expression or statement).
   - `%{ ... }` is the only map literal surface syntax.
+
+`Program(JSON v0)` is an explicitly lossy compatibility family and is not
+source lexical-scope authority. Untagged legacy artifacts must not be used to
+infer whether a source statement was a declaration or an assignment. No new
+compatibility-expression tag is added to the v0 wire schema.
 
 The concrete migration schedule is tracked in design SSOT:
 

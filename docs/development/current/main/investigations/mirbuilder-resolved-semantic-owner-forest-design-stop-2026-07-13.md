@@ -1,5 +1,5 @@
 ---
-Status: P0/E0/OF0/UP0/UP1 closed; B0 BlockExpr language decision is the next stop
+Status: P0/E0/OF0/UP0/UP1/B0-D closed; B0-P producer inventory is active
 Date: 2026-07-13
 Scope: Resolved Semantic Owner Forest V1 design and implementation task order
 Parent: mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
@@ -527,16 +527,26 @@ resolved-region-flow-authority guard = green
 all source files < 800 lines
 ```
 
-### B0 — BlockExpr language boundary
+### B0 — lexical BlockExpr and compatibility isolation
 
-Open a language decision before changing visibility. If lexical scope is
-accepted, add exact scope fixtures and a differential Lower gate. Otherwise
-retain the explicit compatibility sequencing contract. Do not infer the
-choice from braces alone during migration.
+Decision:
+
+```text
+C — lexical_blockexpr + inventory-gated internal CompatSequenceExpr
+
+canonical language authority:
+  A — every source BlockExpr is lexical
+
+compatibility structure:
+  a distinct non-wire carrier only when a live producer is proven
+```
+
+C does not create two source meanings. It is A plus an isolation boundary for
+any compatibility sequencing that survives the producer inventory.
 
 #### Evidence inventory
 
-The repository currently contains a real contract split:
+Before B0-D, the repository contained a real contract split:
 
 ```text
 docs/reference/language/block-expressions-and-map-literals.md:
@@ -563,70 +573,262 @@ current BlockExpr fixture:
 ```
 
 Therefore current execution is evidence of compatibility behavior, not
-language authority. The phrase "condition is a scope" is evidence for lexical
-scope intent, but the provisional reference cannot silently override shipped
-behavior. B0 must choose one explicit language row.
+language authority. B0-D now fixes the language meaning explicitly.
 
-#### Decision requested
+#### Accepted canonical semantics
 
 ```text
-A — lexical_blockexpr (recommended for the resolved-region model)
+scope begins:
+  before the first BlockExpr prelude statement
 
-  every canonical BlockExpr owns ScopeId + RegionId
-  prelude locals are visible to the tail only
-  prelude locals do not escape the expression
-  outer BindingId rebinds propagate normally
-  non-local exits remain forbidden in v1
+scope contains:
+  ordered prelude statements + one required tail expression
 
-B — compatibility_sequence
+scope ends:
+  immediately after the tail has been evaluated exactly once
 
-  BlockExpr does not introduce lexical lifetime
-  prelude declarations/rebinds remain in the surrounding scope
-  resolver records an explicit sequencing contract
-  docs must stop calling it a scope
+escapes:
+  tail result value
+  effects on already-visible outer BindingIds
 
-C — split vocabulary
-
-  canonical BlockExpr is lexical
-  a separately named internal SequenceExpr owns compatibility behavior
-  the same AST variant may never carry both meanings
+does not escape:
+  bindings declared in the BlockExpr scope
+  their lexical visibility
 ```
 
-The consultation must decide:
+Every canonical BlockExpr owns both a `ScopeId` and a `RegionId`, including a
+block with no local declaration. A condition-position BlockExpr ends before
+then/else or loop-body entry. A future branch-visible `if-local` requires a
+separate AST/scope owner and must not desugar to plain BlockExpr.
+
+Non-local exits remain rejected recursively in the accepted v1 BlockExpr
+subset. B0 does not activate expression-level Return, Break, Continue, QMark,
+or Throw flow.
+
+#### ProgramV0 correction
+
+ProgramV0 is not a lexical-scope authority. The accepted Hako source-carrier
+contract already fixes:
 
 ```text
-canonical language authority
-whether existing leakage is compatibility or intended behavior
-whether a separate SequenceExpr is needed
-Rust/Hako parser parity requirement
-ProgramV0 compatibility mapping
-minimum differential fixtures
-cutover and retirement order
+source Assignment -> ProgramV0 Local
+ProgramV0 schema widening = 0
+ProgramV0 source-kind recovery = 0
 ```
 
-No resolver or Lower implementation starts before this decision.
-
-#### Post-decision task slices
+Consequently, ProgramV0 cannot distinguish a new shadowing declaration from
+an outer-binding rebind. The following mappings are forbidden:
 
 ```text
-B0-D:
-  mark the chosen language row accepted in docs/reference
-  name non-authority and fail-fast boundaries
+ProgramV0 BlockExpr -> canonical lexical BlockExpr
+add ProgramV0 ExprV0::CompatSequenceExpr
+infer lexical/sequence meaning from producer name, route, or body contents
+```
 
-B0-S:
-  add BlockExpr RegionId/ScopeId or explicit sequence disposition
-  source identity only; Planner/Lower connection = 0
+The final source-sensitive boundary is:
 
-B0-F:
-  fixtures for inner-local leakage, same-name shadowing, outer rebind,
-  tail visibility, and recursive non-local-exit rejection
+```text
+Rust authoritative parser
+  -> canonical AST BlockExpr
+  -> lexical BlockExpr
 
-B0-L:
-  differential legacy/new Lower gate
-  explicit route selection; silent fallback = 0
+Hako authoritative parser
+  -> parser-private HakoSourceTreeV1 BlockExpr
+  -> lexical BlockExpr
 
-B0-R:
-  retire the losing semantic path only after parity/cutover is green
+ProgramV0 BlockExpr
+  -> explicit legacy compatibility lane only
+  -> no source semantics or Rust/Hako parity claim
+```
+
+An internal `CompatSequenceExprV0` may be introduced only if B0-P proves at
+least one live non-wire producer that cannot be retired in the same bounded
+slice. If added, it lives outside `ASTNode` and ProgramV0, is never emitted by
+a source parser, has no `ScopeId`, and has an explicit `RegionId`. If the live
+producer count is zero, the type is not created.
+
+Unknown or saved ProgramV0 artifacts are never heuristically upgraded to
+canonical lexical source. A caller requiring canonical semantics must use the
+typed source path, regenerate from source, or fail fast.
+
+#### Authority and non-authority
+
+```text
+language meaning:
+  docs/reference/language/block-expressions-and-map-literals.md
+
+source syntax/order:
+  canonical Rust AST
+  future parser-private HakoSourceTreeV1
+
+lexical/control identity:
+  VerifiedSemanticOwnerForestV1 ScopeId + RegionId
+
+execution/state flow:
+  future VerifiedRegionFlowV1
+
+compatibility producer inventory:
+  B0-P generated fixture
+```
+
+Non-authority:
+
+```text
+ProgramV0 tag or Local record
+current direct-Lower scope mutation
+current JSON bridge vars map
+variable names
+producer/module/function names
+AST pointer identity
+Lower success
+legacy fixture output alone
+```
+
+#### B0 task slices
+
+Only one row is active at a time. B0 is a BoxShape migration; it does not add
+accepted source syntax or non-local exit vocabulary.
+
+**B0-D — decision lock (closed)**
+
+```text
+reference Decision = accepted lexical_blockexpr
+canonical BlockExpr always owns one lexical scope
+condition BlockExpr scope ends before branch/body entry
+branch-visible B3 plain-BlockExpr desugar = rejected
+ProgramV0 schema widening/source recovery = 0
+```
+
+**B0-P — machine-readable producer inventory (active)**
+
+Materialize one generated or checked-in fixture consumed by the reusable
+`resolved_region_flow_authority_guard.sh`:
+
+```text
+tools/checks/fixtures/blockexpr_producer_inventory_v1.json
+```
+
+Its closed row schema is:
+
+```text
+producer_id
+producer_path
+producer_status = Active | Planned | TestOnly | Dead
+output_family
+consumer_entry
+classification
+required_scope_semantics
+live_caller_evidence[]
+retirement_owner
+```
+
+Enumerate every active producer of BlockExpr-shaped syntax or compatibility
+sequencing and classify it exhaustively as:
+
+```text
+CanonicalRustSource
+CanonicalHakoTypedSourcePlanned
+CompilerGeneratedCanonical
+LegacyProgramV0Compatibility
+InternalSequenceRequired
+TestOnly
+RejectedOrUnknown
+```
+
+Each row records producer path, output family, consumer entry, required scope
+semantics, live caller evidence, and retirement owner. Wildcards and
+name-based semantic inference are forbidden.
+
+Acceptance:
+
+```text
+all active producers classified exactly once
+ProgramV0 schema delta = 0
+ProgramV0 source-kind recovery = 0
+source parser CompatSequence producer count = 0
+unknown production producer count = 0
+InternalSequenceRequired count selects B0-C or skip mechanically
+resolver/Planner/Lower behavior change = 0
+```
+
+**B0-S — disconnected canonical scope/region schema**
+
+```text
+ScopeKindV1::BlockExpr
+RegionKindV1::BlockExpr
+every canonical BlockExpr receives both identities
+scope ancestry and exact source origin verified at seal
+Planner / RegionFlow / Lower connection = 0
+```
+
+**B0-C — optional internal compatibility carrier**
+
+Run only when B0-P proves a non-zero `InternalSequenceRequired` caller set.
+
+```text
+compiler-private typed carrier outside ASTNode and ProgramV0
+explicit origin and RegionId
+ScopeId = none
+source parser producer = 0
+silent fallback = 0
+```
+
+If B0-P proves zero callers, record `B0-C = skipped_by_zero_callers` and do not
+add the vocabulary.
+
+**B0-F — lexical fixture lock**
+
+Pin tail visibility, inner-local non-leakage, same-name shadow restoration,
+outer rebind propagation, initializer-before-declaration, nested BlockExpr,
+condition-scope end, repeated loop-header scope, same-scope redeclaration,
+and recursive non-local-exit rejection.
+
+**B0-L — explicit Rust canonical Lower cutover**
+
+```text
+enter resolved BlockExpr ScopeId
+lower prelude in source order
+lower tail exactly once
+retain tail ValueId
+leave scope
+publish verified outer rebind effects
+```
+
+Legacy and canonical routes are selected before Lower by distinct typed
+inputs. Failure after route selection is a contract violation; there is no
+retry to another route.
+
+**B0-H — Hako typed-source parity (source-carrier dependency)**
+
+After HakoSourceTreeV1 preserves Local/Assignment and BlockExpr scope, compare
+normalized BlockExpr scope/region/origin graphs from independent Rust and Hako
+parsers. ProgramV0 is not an input or oracle for this parity.
+
+**B0-R — retirement**
+
+Retire direct unscoped Rust lowering, name-keyed planner BlockExpr state, and
+legacy ProgramV0 bridge behavior only after their exact caller and parity
+gates close. A compatibility carrier is deleted at zero callers; it is never
+promoted to permanent IR without a new decision.
+
+#### B0 stop conditions
+
+```text
+same BlockExpr variant changes semantics by context/producer/route
+source parser emits CompatSequenceExpr
+canonical BlockExpr lacks ScopeId or RegionId
+scope existence depends on whether a local is present
+Lower infers scope, binding identity, or outer rebind from names
+condition-local visibility leaks into then/else or loop body
+ProgramV0 is used to recover Local versus Assignment
+ProgramV0 v0 schema gains a compatibility expression tag
+untagged artifacts are classified heuristically
+lexical Lower failure retries legacy sequence Lower
+child-local BindingId escapes through RegionFlow state
+outer rebind is lost at BlockExpr scope exit
+tail ValueId lifetime is confused with child binding visibility
+scope-sensitive fixtures are absent at cutover
+non-local exit support is mixed into B0
 ```
 
 ### M0 — Match structural identity
@@ -705,8 +907,11 @@ Lower depth recount = 0
 Block/Match/Cleanup:
 
 ```text
-BlockExpr local visibility decision fixture
-BlockExpr outer rebind fixture
+BlockExpr tail sees inner local
+BlockExpr inner local does not escape
+BlockExpr shadow restores outer binding
+BlockExpr outer rebind propagates
+condition BlockExpr scope ends before branch/body entry
 separate match-arm binders are distinct
 arm/catch binder does not escape
 Cleanup is not a new function owner
@@ -744,6 +949,16 @@ Upvar source resolves to one strict-ancestor declaration
 capture runtime policy remains unselected
 ```
 
+After B0-D:
+
+```text
+canonical source BlockExpr has one accepted lexical meaning
+condition BlockExpr bindings do not escape into branch/body regions
+ProgramV0 is not BlockExpr source-scope authority
+compatibility sequencing requires a distinct non-wire typed carrier if any
+live producer remains
+```
+
 ## Implementation must not claim
 
 ```text
@@ -754,7 +969,7 @@ QMark canonical language activation
 source Throw activation
 Match result lowering
 catch selection / cleanup flow
-BlockExpr scope cutover before its language decision
+BlockExpr production scope cutover before B0-F/B0-L gates
 full AST resolver support
 production semantic-authority cutover
 legacy loop_var retirement

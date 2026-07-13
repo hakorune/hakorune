@@ -41,9 +41,24 @@ if ({
     local x = compute()
     x > 0
 }) {
-    // use x
+    print("positive")
 }
 ```
+
+The canonical lexical boundary is exact:
+
+```text
+enter BlockExpr scope
+  -> evaluate prelude in source order
+  -> evaluate tail exactly once
+leave BlockExpr scope
+  -> convert the tail value in boolean context
+  -> enter then/else or loop body
+```
+
+Prelude bindings do not become branch-body bindings. “Condition is a scope”
+means that the condition may contain a scoped expression, not that its local
+bindings leak into the enclosing control-flow bodies.
 
 v1 constraints (enforced by MIR lowering):
 - `tail_expr` is required (the final condition expression)
@@ -61,7 +76,8 @@ If BlockExpr proves insufficient, supporting explicit condition prelude would re
    - Introduce a dedicated AST node that can carry:
      - `prelude_stmts: Vec<ASTNode>` (stmt-only, no exits)
      - `tail_expr: ASTNode` (evaluated once)
-   - This is a language/AST change and must be accompanied by a Decision (accepted/provisional) before implementation.
+   - This is a language/AST change and must be accompanied by a Decision
+     (accepted/provisional) before implementation.
 
    Alternative path (adopt BlockExpr):
    - ✅ Implemented via Phase B2 (BlockExpr carries prelude+tail).
