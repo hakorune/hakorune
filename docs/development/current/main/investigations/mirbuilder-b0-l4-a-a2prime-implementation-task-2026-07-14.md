@@ -10,6 +10,7 @@ Related:
   - mirbuilder-b0-l4-located-coreplan-source-coverage-design-stop-2026-07-14.md
   - mirbuilder-b0-l3b-a-plus-implementation-task-2026-07-13.md
   - mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
+  - mirbuilder-resolved-control-flow-v2-final-form-extraction-task-2026-07-14.md
 ---
 
 # B0-L4 A + A2′ Implementation Task
