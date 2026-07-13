@@ -840,6 +840,13 @@ same-name binder observes the outer lexical binding in the initializer.
 Production Lower remains unchanged and still has zero canonical-product
 installs.  Catch and pattern binders remain in the later region-owning slice.
 
+`B1-R scope-container-1` closed on 2026-07-13 for `TaskScope` and
+`FastMemRegion`.  Both are inline in execution order but own a real lexical
+scope with distinct typed child paths.  Focused fixtures prove inner locals
+do not escape and the outer same-name binding remains visible after the
+container.  Their runtime task/fastmem effects remain Lower-owned and are not
+copied into the semantic arena.
+
 Known production boundary mismatches must be resolved explicitly before B2:
 
 ```text

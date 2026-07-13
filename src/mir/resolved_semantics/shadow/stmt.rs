@@ -72,6 +72,8 @@ impl ShadowResolverV0 {
                 Ok(())
             }
             ASTNode::ScopeBox { body, .. } => self.resolve_scope_box(body, path),
+            ASTNode::TaskScope { body, .. } => self.resolve_task_scope(body, path),
+            ASTNode::FastMemRegion { body, .. } => self.resolve_fastmem_scope(body, path),
             ASTNode::If {
                 condition,
                 then_body,
@@ -162,6 +164,42 @@ impl ShadowResolverV0 {
         );
         let result = self.resolve_body(body, |index| {
             path.child(SourcePathSegmentV1::ScopeBody(index as u32))
+        });
+        self.leave_region_scope(region);
+        result
+    }
+
+    fn resolve_task_scope(
+        &mut self,
+        body: &[ASTNode],
+        path: &ShadowSourcePathV0,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        let body_path = path.child(SourcePathSegmentV1::TaskScopeBodyRoot);
+        let (region, _) = self.enter_region_scope(
+            ShadowRegionKindV0::LexicalScope,
+            ShadowScopeKindV0::LexicalBlock,
+            &body_path,
+        );
+        let result = self.resolve_body(body, |index| {
+            path.child(SourcePathSegmentV1::TaskScopeBody(index as u32))
+        });
+        self.leave_region_scope(region);
+        result
+    }
+
+    fn resolve_fastmem_scope(
+        &mut self,
+        body: &[ASTNode],
+        path: &ShadowSourcePathV0,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        let body_path = path.child(SourcePathSegmentV1::FastMemBodyRoot);
+        let (region, _) = self.enter_region_scope(
+            ShadowRegionKindV0::LexicalScope,
+            ShadowScopeKindV0::LexicalBlock,
+            &body_path,
+        );
+        let result = self.resolve_body(body, |index| {
+            path.child(SourcePathSegmentV1::FastMemBody(index as u32))
         });
         self.leave_region_scope(region);
         result

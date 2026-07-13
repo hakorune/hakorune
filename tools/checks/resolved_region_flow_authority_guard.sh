@@ -38,6 +38,7 @@ guard_require_files "$TAG" \
   "$MODULE/shadow/path.rs" \
   "$MODULE/shadow/product.rs" \
   "$MODULE/shadow/resolver.rs" \
+  "$MODULE/shadow/scope_container_tests.rs" \
   "$MODULE/shadow/expr.rs" \
   "$MODULE/shadow/leaf_traversal_tests.rs" \
   "$MODULE/shadow/stmt.rs" \
@@ -64,6 +65,7 @@ expected_manifest="$(printf '%s\n' \
   shadow/path.rs \
   shadow/product.rs \
   shadow/resolver.rs \
+  shadow/scope_container_tests.rs \
   shadow/stmt.rs \
   shadow/tests.rs \
   shadow/vocabulary.rs \
@@ -221,7 +223,7 @@ for required in \
   guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/shadow/vocabulary.rs" \
     "shadow accepted vocabulary manifest drifted: $required"
 done
-for variant in Local Outbox Nowait Assignment CompoundAssignment ScopeBox If Loop Break Continue Return Print; do
+for variant in Local Outbox Nowait Assignment CompoundAssignment ScopeBox TaskScope FastMemRegion If Loop Break Continue Return Print; do
   guard_expect_fixed_in_file "$TAG" "ASTNode::$variant" "$MODULE/shadow/stmt.rs" \
     "accepted statement lost its explicit resolver arm: $variant"
 done
@@ -247,7 +249,8 @@ expected_expr = {
     "GroupedAssignmentExpr",
 }
 expected_stmt = {
-    "Local", "Outbox", "Nowait", "Assignment", "CompoundAssignment", "ScopeBox", "If", "Loop",
+    "Local", "Outbox", "Nowait", "Assignment", "CompoundAssignment", "ScopeBox",
+    "TaskScope", "FastMemRegion", "If", "Loop",
     "Break", "Continue", "Return", "Print",
 }
 if expr != expected_expr:
@@ -403,6 +406,7 @@ cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::assignment_traversal_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::leaf_traversal_tests
+cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::scope_container_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::vocabulary_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::builder::vars::resolved_binding_state::tests
 

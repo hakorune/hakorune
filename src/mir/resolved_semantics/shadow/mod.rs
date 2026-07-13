@@ -26,6 +26,8 @@ mod assignment_traversal_tests;
 #[cfg(test)]
 mod leaf_traversal_tests;
 #[cfg(test)]
+mod scope_container_tests;
+#[cfg(test)]
 mod tests;
 #[cfg(test)]
 mod vocabulary_tests;

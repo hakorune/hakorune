@@ -618,6 +618,8 @@ fn accepted_vocabulary_is_closed_and_reviewable() {
             "Assignment",
             "CompoundAssignment",
             "ScopeBox",
+            "TaskScope",
+            "FastMemRegion",
             "If",
             "Loop",
             "Break",

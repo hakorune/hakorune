@@ -38,6 +38,8 @@ pub(super) fn classify_shadow_ast_disposition_v0(node: &ASTNode) -> ShadowAstDis
         | ASTNode::Nowait { .. }
         | ASTNode::Local { .. }
         | ASTNode::ScopeBox { .. }
+        | ASTNode::TaskScope { .. }
+        | ASTNode::FastMemRegion { .. }
         | ASTNode::Outbox { .. } => CurrentResolvedStatement,
 
         ASTNode::Literal { .. }
@@ -63,8 +65,6 @@ pub(super) fn classify_shadow_ast_disposition_v0(node: &ASTNode) -> ShadowAstDis
         ASTNode::Program { .. }
         | ASTNode::UsingStatement { .. }
         | ASTNode::ImportStatement { .. }
-        | ASTNode::TaskScope { .. }
-        | ASTNode::FastMemRegion { .. }
         | ASTNode::StaticConstTable { .. } => SemanticallyTransparentCandidate,
 
         ASTNode::LoopRange { .. }
@@ -97,6 +97,8 @@ pub(super) const SHADOW_ACCEPTED_STATEMENTS_V0: &[&str] = &[
     "Assignment",
     "CompoundAssignment",
     "ScopeBox",
+    "TaskScope",
+    "FastMemRegion",
     "If",
     "Loop",
     "Break",
