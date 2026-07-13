@@ -34,6 +34,16 @@ checkable only when the SA3 resolver co-constructs the closed indexes. SA2
 claims referential integrity of supplied indexes, not syntax-independent
 omniscience.
 
+## SA3 transport boundary
+
+SA3-A adds a behavior-neutral Lower transport in
+`builder/vars/resolved_binding_state.rs`. It can hold one sealed product,
+claim an exact `SourceBindingSiteV1` once, and publish `BindingId -> ValueId`.
+Resolved parameter/local publication APIs exist but have no production caller
+until the atomic SA3-B switch. During SA3-A the legacy Lower allocator remains
+the single active canonical BindingId owner; installing a canonical product is
+still zero.
+
 ## Authority
 
 - The canonical AST owns syntax and source execution order.

@@ -40,6 +40,8 @@ pub(super) struct LoweringContext {
     // Function lowering is re-entrant (nested method lowering while building another function).
     // Preserve the caller function's per-function state so lexical scopes and SSA caches stay balanced.
     pub(super) saved_binding_ctx: hakorune_mir_builder::BindingContext,
+    pub(super) saved_resolved_binding_state:
+        crate::mir::builder::vars::resolved_binding_state::ResolvedBindingLoweringStateV1,
     pub(super) saved_scope_stacks: ScopeStacksSnapshot,
     pub(super) saved_pending_phis: Vec<(BasicBlockId, ValueId, String)>,
     pub(super) saved_local_ssa_map: HashMap<(BasicBlockId, ValueId, u8), ValueId>,
@@ -91,6 +93,7 @@ impl MirBuilder {
 
         // Nested function lowering must not destroy the caller's lexical scopes / SSA caches.
         let saved_binding_ctx = std::mem::take(&mut self.binding_ctx);
+        let saved_resolved_binding_state = std::mem::take(&mut self.resolved_binding_state);
         let saved_scope_stacks = ScopeStacksSnapshot {
             lexical_scope_stack: std::mem::take(&mut self.scope_ctx.lexical_scope_stack),
             loop_header_stack: std::mem::take(&mut self.scope_ctx.loop_header_stack),
@@ -152,6 +155,7 @@ impl MirBuilder {
             saved_block: None,
             saved_slot_registry,
             saved_binding_ctx,
+            saved_resolved_binding_state,
             saved_scope_stacks,
             saved_pending_phis,
             saved_local_ssa_map,
@@ -199,6 +203,7 @@ impl MirBuilder {
 
         // Restore caller function state (lexical scopes / SSA caches / try-cleanup flags).
         self.binding_ctx = ctx.saved_binding_ctx;
+        self.resolved_binding_state = ctx.saved_resolved_binding_state;
         self.scope_ctx.lexical_scope_stack = ctx.saved_scope_stacks.lexical_scope_stack;
         self.scope_ctx.loop_header_stack = ctx.saved_scope_stacks.loop_header_stack;
         self.scope_ctx.loop_exit_stack = ctx.saved_scope_stacks.loop_exit_stack;

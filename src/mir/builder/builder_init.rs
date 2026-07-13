@@ -29,6 +29,8 @@ impl MirBuilder {
             type_ctx: type_context::TypeContext::new(), // Phase 136: Type context
             scope_ctx: scope_context::ScopeContext::new(), // Phase 136 Step 3/7: Scope context
             binding_ctx: BindingContext::new(),         // Phase 136 Step 4/7: Binding context
+            resolved_binding_state:
+                super::vars::resolved_binding_state::ResolvedBindingLoweringStateV1::default(),
             variable_ctx: variable_context::VariableContext::new(), // Phase 136 Step 5/7: Variable context
             metadata_ctx: metadata_context::MetadataContext::new(crate::ast::Span::unknown()), // Phase 136 Step 6/7: Metadata context
             comp_ctx, // Phase 136 Step 7/7: Compilation context

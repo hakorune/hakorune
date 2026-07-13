@@ -5,6 +5,9 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TAG="resolved-region-flow-authority"
 MODULE="$ROOT/src/mir/resolved_semantics"
 MIR_MOD="$ROOT/src/mir/mod.rs"
+LOWER_STATE="$ROOT/src/mir/builder/vars/resolved_binding_state.rs"
+LOWER_LOCAL="$ROOT/src/mir/builder/vars/lexical_scope.rs"
+LOWER_PARAM="$ROOT/src/mir/builder/calls/parameter_setup.rs"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" cargo
@@ -22,6 +25,9 @@ guard_require_files "$TAG" \
   "$MODULE/normalized.rs" \
   "$MODULE/product.rs" \
   "$MODULE/verifier.rs" \
+  "$LOWER_STATE" \
+  "$LOWER_LOCAL" \
+  "$LOWER_PARAM" \
   "$MODULE/tests.rs" \
   "$MODULE/shadow/mod.rs" \
   "$MODULE/shadow/ids.rs" \
@@ -309,13 +315,31 @@ fi
 while IFS= read -r consumer; do
   [[ -z "$consumer" ]] && continue
   case "$consumer" in
-    "$MIR_MOD"|"$MODULE"/*)
+    "$MIR_MOD"|"$MODULE"/*|"$LOWER_STATE"|"$LOWER_LOCAL"|"$LOWER_PARAM")
       ;;
     *)
-      guard_fail "$TAG" "SA0 external product connection must remain zero: $consumer"
+      guard_fail "$TAG" "SA3-A semantic product transport escaped its bounded files: $consumer"
       ;;
   esac
 done <<< "$consumer_output"
+
+for required in \
+  "pub(in crate::mir) struct ResolvedBindingLoweringStateV1" \
+  "product: Option<Arc<VerifiedResolvedFunctionV1>>" \
+  "values: BTreeMap<BindingId, ValueId>" \
+  "claimed_declarations: BTreeSet<SourceBindingSiteV1>" \
+  "[freeze:contract][resolved_binding/declaration_reclaimed]"; do
+  guard_expect_fixed_in_file "$TAG" "$required" "$LOWER_STATE" \
+    "SA3-A resolved binding transport drifted: $required"
+done
+guard_expect_fixed_in_file "$TAG" "declare_resolved_local_in_current_scope" "$LOWER_LOCAL" \
+  "SA3-A resolved local publication seam missing"
+guard_expect_fixed_in_file "$TAG" "declare_resolved_function_parameter" "$LOWER_PARAM" \
+  "SA3-A resolved parameter publication seam missing"
+if [[ "$(rg -n 'fn declare_resolved_local_in_current_scope' "$ROOT/src" --glob '*.rs' | wc -l)" != "1" ]] || \
+   [[ "$(rg -n 'fn declare_resolved_function_parameter' "$ROOT/src" --glob '*.rs' | wc -l)" != "1" ]]; then
+  guard_fail "$TAG" "SA3-A resolved declaration seams must remain disconnected definitions only"
+fi
 
 while IFS= read -r file; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
@@ -337,9 +361,9 @@ echo "semantic_arena_ast_clone_fields=0"
 echo "semantic_arena_binding_allocator_calls=0"
 echo "semantic_arena_value_id_imports=0"
 echo "semantic_arena_basic_block_id_imports=0"
-echo "semantic_arena_external_consumers=0"
+echo "semantic_arena_bounded_lower_transport=1"
 echo "semantic_arena_planner_connection=0"
-echo "semantic_arena_lower_connection=0"
+echo "semantic_arena_active_lower_declaration_calls=0"
 echo "semantic_arena_source_files_under_800=1"
 echo "shadow_resolver_canonical_binding_ids=0"
 echo "shadow_resolver_external_consumers=0"

@@ -697,6 +697,22 @@ inventory before SA3.  Wildcard acceptance is forbidden.
 
 ### SA3 — atomic canonical BindingId authority cutover
 
+SA3-A behavior-neutral transport preparation:
+
+```text
+ResolvedBindingLoweringStateV1:
+  optional sealed function product
+  exact declaration claims
+  BindingId -> current ValueId
+
+production canonical resolver installs = 0
+production resolved declaration calls = 0
+legacy allocator remains the only active allocator
+```
+
+SA3-B performs the atomic producer/caller switch. SA3-C deletes the then-dead
+CoreContext/MirBuilder allocator surface.
+
 In one Refactor Series Mode objective:
 
 ```text

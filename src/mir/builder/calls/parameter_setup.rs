@@ -5,6 +5,7 @@
 //! observation inventory; it is never assignment authority.
 
 use crate::mir::builder::{MirBuilder, MirType};
+use crate::mir::resolved_semantics::SourceBindingSiteV1;
 use hakorune_mir_core::{BindingId, MirValueKind, ValueId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -112,14 +113,70 @@ impl MirBuilder {
         kind: FunctionParameterKind,
         receiver_box: Option<String>,
     ) -> Result<BindingId, String> {
+        self.ensure_function_parameter_available(name, formal_index)?;
+        let binding_id = self.allocate_binding_id();
+        self.publish_function_parameter(
+            name,
+            value,
+            binding_id,
+            formal_index,
+            ty,
+            kind,
+            receiver_box,
+        )
+    }
+
+    #[allow(dead_code)]
+    fn declare_resolved_function_parameter(
+        &mut self,
+        site: &SourceBindingSiteV1,
+        name: &str,
+        value: ValueId,
+        formal_index: usize,
+        ty: Option<MirType>,
+        kind: FunctionParameterKind,
+        receiver_box: Option<String>,
+    ) -> Result<BindingId, String> {
+        self.ensure_function_parameter_available(name, formal_index)?;
+        let binding = self.resolved_binding_state.claim_declaration(site, name)?;
+        let binding_id = self.publish_function_parameter(
+            name,
+            value,
+            binding.binding(),
+            formal_index,
+            ty,
+            kind,
+            receiver_box,
+        )?;
+        self.resolved_binding_state.publish_value(binding, value)?;
+        Ok(binding_id)
+    }
+
+    fn ensure_function_parameter_available(
+        &self,
+        name: &str,
+        formal_index: usize,
+    ) -> Result<(), String> {
         if self.variable_ctx.variable_map.contains_key(name) || self.binding_ctx.contains(name) {
             return Err(format!(
                 "[type/parameter_binding_identity_duplicate] name={} formal_index={}",
                 name, formal_index
             ));
         }
+        Ok(())
+    }
 
-        let binding_id = self.allocate_binding_id();
+    #[allow(clippy::too_many_arguments)]
+    fn publish_function_parameter(
+        &mut self,
+        name: &str,
+        value: ValueId,
+        binding_id: BindingId,
+        formal_index: usize,
+        ty: Option<MirType>,
+        kind: FunctionParameterKind,
+        receiver_box: Option<String>,
+    ) -> Result<BindingId, String> {
         self.variable_ctx
             .variable_map
             .insert(name.to_string(), value);

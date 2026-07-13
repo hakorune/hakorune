@@ -1,3 +1,4 @@
+use crate::mir::resolved_semantics::SourceBindingSiteV1;
 use crate::mir::{BindingId, LocalSlotId, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -132,6 +133,29 @@ impl super::super::MirBuilder {
         name: &str,
         value: ValueId,
     ) -> Result<LocalSlotId, String> {
+        self.ensure_local_name_available(name)?;
+        let binding_id = self.allocate_binding_id();
+        self.publish_local_binding(name, value, binding_id)
+    }
+
+    /// SA3-B entry: publish a local using the exact pre-resolved declaration.
+    /// SA3-A provides the seam but leaves all production callers on the legacy
+    /// allocator until the canonical resolver can switch them atomically.
+    #[allow(dead_code)]
+    pub(in crate::mir::builder) fn declare_resolved_local_in_current_scope(
+        &mut self,
+        site: &SourceBindingSiteV1,
+        name: &str,
+        value: ValueId,
+    ) -> Result<LocalSlotId, String> {
+        self.ensure_local_name_available(name)?;
+        let binding = self.resolved_binding_state.claim_declaration(site, name)?;
+        let slot = self.publish_local_binding(name, value, binding.binding())?;
+        self.resolved_binding_state.publish_value(binding, value)?;
+        Ok(slot)
+    }
+
+    fn ensure_local_name_available(&self, name: &str) -> Result<(), String> {
         let func_name = self
             .scope_ctx
             .current_function
@@ -139,16 +163,29 @@ impl super::super::MirBuilder {
             .map(|f| f.signature.name.clone())
             .unwrap_or_else(|| "<unknown>".to_string());
         // Phase 2-4: Use scope_ctx (SSOT)
-        let Some(frame) = self.scope_ctx.current_scope_mut() else {
+        let Some(frame) = self.scope_ctx.lexical_scope_stack.last() else {
             return Err("COMPILER BUG: local declaration outside lexical scope".to_string());
         };
-
-        if !frame.declared.insert(name.to_string()) {
+        if frame.declared.contains(name) {
             return Err(format!(
                 "[freeze:contract][local/redeclare_same_scope] fn={} name={}",
                 func_name, name
             ));
         }
+        Ok(())
+    }
+
+    fn publish_local_binding(
+        &mut self,
+        name: &str,
+        value: ValueId,
+        binding_id: BindingId,
+    ) -> Result<LocalSlotId, String> {
+        let frame = self
+            .scope_ctx
+            .current_scope_mut()
+            .expect("local availability check requires current scope");
+        assert!(frame.declared.insert(name.to_string()));
         // Capture previous ValueId for restoration
         let previous = self.variable_ctx.variable_map.get(name).copied();
         frame.restore.insert(name.to_string(), previous);
@@ -165,8 +202,6 @@ impl super::super::MirBuilder {
             .variable_map
             .insert(name.to_string(), value);
 
-        // Phase 74: Allocate and register new BindingId for this binding
-        let binding_id = self.allocate_binding_id();
         // Phase 2-5: binding_ctx is the binding-id SSOT.
         self.binding_ctx.insert(name.to_string(), binding_id);
 

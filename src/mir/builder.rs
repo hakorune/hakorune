@@ -156,6 +156,10 @@ pub struct MirBuilder {
     /// Direct field access for backward compatibility (migration in progress).
     pub(super) binding_ctx: BindingContext,
 
+    /// SA3 pre-Lower transport for one sealed function's BindingId authority.
+    /// Disconnected in SA3-A; production declarations switch atomically in SA3-B.
+    pub(super) resolved_binding_state: vars::resolved_binding_state::ResolvedBindingLoweringStateV1,
+
     /// Phase 136 follow-up (Step 5/7): Variable context
     /// Consolidates variable_map (String -> ValueId mapping for SSA conversion).
     /// Direct field access for backward compatibility (migration in progress).
