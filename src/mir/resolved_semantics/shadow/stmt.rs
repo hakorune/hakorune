@@ -5,8 +5,8 @@ use crate::mir::resolved_semantics::source_site::{SourceBindingSiteV1, SourcePat
 
 use super::path::ShadowSourcePathV0;
 use super::product::{
-    ShadowBindingKindV0, ShadowControlExitV0, ShadowRegionKindV0, ShadowResolveErrorV0,
-    ShadowScopeKindV0,
+    ShadowBindingKindV0, ShadowControlExitV0, ShadowExitOriginV0, ShadowRegionKindV0,
+    ShadowResolveErrorV0, ShadowScopeKindV0,
 };
 use super::resolver::ShadowResolverV0;
 use super::vocabulary::{classify_shadow_ast_disposition_v0, ShadowAstDispositionV0};
@@ -91,11 +91,11 @@ impl ShadowResolverV0 {
                 }
                 self.record_exit(
                     path.stmt(),
+                    ShadowExitOriginV0::ExplicitReturn,
                     ShadowControlExitV0::Return {
                         target_function: self.function_region(),
                     },
-                );
-                Ok(())
+                )
             }
             expression if is_closed_expression(expression) => self.resolve_expr(expression, path),
             other => Err(ShadowResolveErrorV0::UnsupportedStatement {
@@ -278,17 +278,22 @@ impl ShadowResolverV0 {
                 kind: if is_continue { "Continue" } else { "Break" },
                 site: path.stmt(),
             })?;
-        let exit = if is_continue {
-            ShadowControlExitV0::Continue {
-                target_loop: target,
-            }
+        let (origin, transfer) = if is_continue {
+            (
+                ShadowExitOriginV0::ExplicitContinue,
+                ShadowControlExitV0::Continue {
+                    target_loop: target,
+                },
+            )
         } else {
-            ShadowControlExitV0::Break {
-                target_loop: target,
-            }
+            (
+                ShadowExitOriginV0::ExplicitBreak,
+                ShadowControlExitV0::Break {
+                    target_loop: target,
+                },
+            )
         };
-        self.record_exit(path.stmt(), exit);
-        Ok(())
+        self.record_exit(path.stmt(), origin, transfer)
     }
 }
 

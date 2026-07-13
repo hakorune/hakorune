@@ -1,8 +1,9 @@
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 
 use super::{
-    FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, SourceBindingSiteV1, SourceNodeSiteV1,
-    SourcePathSegmentV1, SourceStmtSiteV1,
+    FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, RegionKindV1,
+    ResolvedControlTransferV1, ResolvedExitOriginV1, ResolvedExitSiteV1, SourceBindingSiteV1,
+    SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
 };
 
 fn fixture() -> ASTNode {
@@ -65,4 +66,113 @@ fn canonical_resolver_normalizes_across_compilation_sessions() {
 
     assert_ne!(first.owner(), second.owner());
     assert_eq!(first.normalized_graph(), second.normalized_graph());
+}
+
+#[test]
+fn canonical_resolver_seals_atomic_top_level_return_record() {
+    let tree = ASTNode::FunctionDeclaration {
+        name: "returns".into(),
+        params: Vec::new(),
+        param_decls: Vec::new(),
+        return_type_name: None,
+        body: vec![ASTNode::Return {
+            value: None,
+            span: Span::unknown(),
+        }],
+        uses: Vec::new(),
+        contracts: Vec::new(),
+        is_static: true,
+        is_override: false,
+        attrs: DeclarationAttrs::default(),
+        span: Span::unknown(),
+    };
+    let view = FunctionSyntaxViewV1::from_ast(&tree).unwrap();
+    let product = FunctionSemanticResolverSessionV1::new(0)
+        .unwrap()
+        .resolve(view)
+        .unwrap();
+    let comparison = FunctionSemanticResolverSessionV1::new(0)
+        .unwrap()
+        .resolve(view)
+        .unwrap();
+    let site = ResolvedExitSiteV1::Statement(SourceStmtSiteV1::from_node(
+        SourceNodeSiteV1::from_segments(vec![SourcePathSegmentV1::Body(0)]),
+    ));
+    let exit = product.resolved_exit(&site).unwrap();
+
+    assert_eq!(exit.origin(), ResolvedExitOriginV1::ExplicitReturn);
+    assert_eq!(
+        exit.transfer(),
+        ResolvedControlTransferV1::Return {
+            target_function: product.function_region(),
+        }
+    );
+    assert_eq!(
+        product.region(exit.source_region()).unwrap().kind(),
+        RegionKindV1::Sequence
+    );
+    assert_eq!(product.normalized_graph(), comparison.normalized_graph());
+}
+
+#[test]
+fn canonical_resolver_seals_loop_exit_source_and_target_regions() {
+    let tree = ASTNode::FunctionDeclaration {
+        name: "loop_exits".into(),
+        params: Vec::new(),
+        param_decls: Vec::new(),
+        return_type_name: None,
+        body: vec![ASTNode::Loop {
+            condition: Box::new(ASTNode::Literal {
+                value: LiteralValue::Bool(true),
+                span: Span::unknown(),
+            }),
+            body: vec![
+                ASTNode::Continue {
+                    span: Span::unknown(),
+                },
+                ASTNode::Break {
+                    span: Span::unknown(),
+                },
+            ],
+            span: Span::unknown(),
+        }],
+        uses: Vec::new(),
+        contracts: Vec::new(),
+        is_static: true,
+        is_override: false,
+        attrs: DeclarationAttrs::default(),
+        span: Span::unknown(),
+    };
+    let product = FunctionSemanticResolverSessionV1::new(0)
+        .unwrap()
+        .resolve(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let continue_site = ResolvedExitSiteV1::Statement(SourceStmtSiteV1::from_node(
+        SourceNodeSiteV1::from_segments(vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::LoopBody(0),
+        ]),
+    ));
+    let break_site = ResolvedExitSiteV1::Statement(SourceStmtSiteV1::from_node(
+        SourceNodeSiteV1::from_segments(vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::LoopBody(1),
+        ]),
+    ));
+    let continue_exit = product.resolved_exit(&continue_site).unwrap();
+    let break_exit = product.resolved_exit(&break_site).unwrap();
+
+    assert_eq!(continue_exit.source_region(), break_exit.source_region());
+    assert_eq!(
+        continue_exit.transfer(),
+        ResolvedControlTransferV1::Continue {
+            target_loop: continue_exit.source_region(),
+        }
+    );
+    assert_eq!(
+        break_exit.transfer(),
+        ResolvedControlTransferV1::Break {
+            target_loop: break_exit.source_region(),
+        }
+    );
 }

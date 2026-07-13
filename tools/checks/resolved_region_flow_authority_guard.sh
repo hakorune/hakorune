@@ -116,8 +116,7 @@ for required in \
   "pub(crate) declarations: BTreeMap<SourceBindingSiteV1, BindingRefV1>" \
   "pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, BindingRefV1>" \
   "pub(crate) assignment_targets:" \
-  "pub(crate) control_exits:" \
-  "pub(crate) control_exit_regions: BTreeMap<SourceStmtSiteV1, RegionId>"; do
+  "pub(crate) resolved_exits: BTreeMap<ResolvedExitSiteV1, ResolvedExitRecordV1>"; do
   guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/product.rs" \
     "sealed semantic product schema drifted: $required"
 done
@@ -176,6 +175,30 @@ if rg -n '\b(CaptureId|CaptureSlotId|UpvarRefV1|VerifiedSemanticOwnerForestV1)\b
 fi
 
 for required in \
+  "pub enum ResolvedExitSiteV1" \
+  "Statement(SourceStmtSiteV1)" \
+  "Expression(SourceExprSiteV1)"; do
+  guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/source_site.rs" \
+    "E0 typed exit source vocabulary drifted: $required"
+done
+for required in \
+  "pub enum ResolvedExitOriginV1" \
+  "ExplicitContinue" \
+  "ExplicitBreak" \
+  "ExplicitReturn" \
+  "pub enum ResolvedControlTransferV1" \
+  "pub struct ResolvedExitRecordV1" \
+  "source_region: RegionId" \
+  "origin: ResolvedExitOriginV1" \
+  "transfer: ResolvedControlTransferV1"; do
+  guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/records.rs" \
+    "E0 atomic exit record drifted: $required"
+done
+if rg -n 'ResolvedControlExitV1|control_exit_regions' "$MODULE"; then
+  guard_fail "$TAG" "E0 sealed product must not retain the parallel exit-map schema"
+fi
+
+for required in \
   "pub(crate) fn seal(" \
   "verify_resolved_function(&self.data)?" \
   "build_normalized_graph(&self.data)" \
@@ -216,10 +239,35 @@ for required in \
   "pub(crate) struct ShadowResolvedFunctionV0" \
   "BTreeMap<ShadowBindingOrdinalV0, ShadowBindingRecordV0>" \
   "BTreeMap<SourceExprSiteV1, ShadowBindingOrdinalV0>" \
-  "BTreeMap<SourceStmtSiteV1, ShadowControlExitV0>"; do
+  "pub(crate) struct ShadowExitRecordV0" \
+  "pub(crate) source_region: ShadowRegionIdV0" \
+  "pub(crate) origin: ShadowExitOriginV0" \
+  "pub(crate) transfer: ShadowControlExitV0" \
+  "DuplicateExitSite" \
+  "BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>"; do
   guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/shadow/product.rs" \
     "shadow product schema drifted: $required"
 done
+for required in \
+  "pub site: ResolvedExitSiteV1" \
+  "pub source_region: NormalizedRegionKeyV1" \
+  "pub origin: ResolvedExitOriginV1" \
+  "pub transfer: NormalizedControlTransferV1"; do
+  guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/normalized.rs" \
+    "E0 normalized exit record drifted: $required"
+done
+for required in \
+  "UnsupportedExitSiteKind(ResolvedExitSiteV1)" \
+  "ResolvedExitOriginV1::ExplicitContinue" \
+  "ResolvedExitOriginV1::ExplicitBreak" \
+  "ResolvedExitOriginV1::ExplicitReturn" \
+  "source_region_contains_site_v1"; do
+  guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/verifier.rs" \
+    "E0 statement-only exit verifier drifted: $required"
+done
+if rg -n 'QMark|Throw' "$MODULE/records.rs"; then
+  guard_fail "$TAG" "E0 must not activate QMark/Throw exit vocabulary"
+fi
 guard_expect_fixed_in_file "$TAG" "pub(super) fn resolve_function_shadow_v0" \
   "$MODULE/shadow/resolver.rs" "shadow resolver entry must remain explicit"
 
@@ -367,7 +415,7 @@ allowed = {
     "declaration_sites",
     "variable_binding",
     "assignment_target",
-    "control_exit",
+    "resolved_exit",
     "binding_count",
     "scope_count",
     "region_count",
@@ -454,6 +502,10 @@ echo "semantic_arena_basic_block_id_imports=0"
 echo "semantic_arena_bounded_lower_transport=1"
 echo "semantic_arena_planner_connection=0"
 echo "semantic_arena_active_lower_declaration_calls=0"
+echo "semantic_arena_parallel_exit_maps=0"
+echo "semantic_arena_statement_exit_records=1"
+echo "semantic_arena_expression_exit_records=0"
+echo "semantic_arena_qmark_throw_acceptance=0"
 echo "semantic_arena_source_files_under_800=1"
 echo "shadow_resolver_canonical_binding_ids=0"
 echo "shadow_resolver_external_consumers=0"

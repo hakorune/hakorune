@@ -1,5 +1,5 @@
 ---
-Status: P0 source-role vocabulary closed; E0 exit-record unification is active
+Status: P0/E0 closed; OF0 non-capturing owner forest is active
 Date: 2026-07-13
 Scope: Resolved Semantic Owner Forest V1 design and implementation task order
 Parent: mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
@@ -404,7 +404,7 @@ release compiler check = green
 all source files < 800 lines
 ```
 
-### E0 — behavior-neutral exit record unification (active)
+### E0 — behavior-neutral exit record unification (closed)
 
 ```text
 add ResolvedExitSiteV1
@@ -415,7 +415,24 @@ verify exact source region and target ancestry
 QMark/Throw acceptance unchanged
 ```
 
-### OF0 — non-capturing owner forest
+E0 closeout evidence:
+
+```text
+canonical and shadow parallel exit maps = 0
+one atomic source-region/origin/transfer record = active
+accepted transfers = explicit Break / Continue / Return only
+Expression exit publication = 0
+QMark / Throw acceptance change = 0
+source-region containment = closed root/member role policy
+top-level Return canonical resolver fixture = green
+loop Break/Continue canonical resolver fixture = green
+normalized exit parity across owner/raw IDs = green
+resolved-region-flow-authority guard = green
+release compiler check = green
+all source files < 800 lines
+```
+
+### OF0 — non-capturing owner forest (active)
 
 ```text
 reuse existing FunctionOwnerIssuerV1 inside one forest resolver session

@@ -7,11 +7,11 @@ use hakorune_mir_core::BindingId;
 use super::ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
 use super::normalized::{build_normalized_graph, NormalizedResolvedFunctionGraphV1};
 use super::records::{
-    ResolvedAssignmentTargetV1, ResolvedBindingRecordV1, ResolvedControlExitV1,
+    ResolvedAssignmentTargetV1, ResolvedBindingRecordV1, ResolvedExitRecordV1,
     ResolvedRegionRecordV1, ResolvedScopeRecordV1,
 };
 use super::source_site::{
-    FunctionOriginV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
+    FunctionOriginV1, ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
 };
 use super::verifier::{verify_resolved_function, ResolvedFunctionVerificationErrorV1};
 
@@ -27,8 +27,7 @@ pub(crate) struct ResolvedFunctionDataV1 {
     pub(crate) declarations: BTreeMap<SourceBindingSiteV1, BindingRefV1>,
     pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, BindingRefV1>,
     pub(crate) assignment_targets: BTreeMap<SourceExprSiteV1, ResolvedAssignmentTargetV1>,
-    pub(crate) control_exits: BTreeMap<SourceStmtSiteV1, ResolvedControlExitV1>,
-    pub(crate) control_exit_regions: BTreeMap<SourceStmtSiteV1, RegionId>,
+    pub(crate) resolved_exits: BTreeMap<ResolvedExitSiteV1, ResolvedExitRecordV1>,
 }
 
 /// Mutable construction state. It is never a public consumer input.
@@ -118,8 +117,8 @@ impl VerifiedResolvedFunctionV1 {
         self.data.assignment_targets.get(site)
     }
 
-    pub fn control_exit(&self, site: &SourceStmtSiteV1) -> Option<ResolvedControlExitV1> {
-        self.data.control_exits.get(site).copied()
+    pub fn resolved_exit(&self, site: &ResolvedExitSiteV1) -> Option<&ResolvedExitRecordV1> {
+        self.data.resolved_exits.get(site)
     }
 
     pub fn binding_count(&self) -> usize {

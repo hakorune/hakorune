@@ -9,9 +9,11 @@ use super::normalized::{NormalizedBindingKeyV1, NormalizedRegionKeyV1, Normalize
 use super::product::ResolvedFunctionDataV1;
 use super::records::{
     BindingOriginV1, RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1,
-    ResolvedControlExitV1, ScopeKindV1, ScopeOriginV1,
+    ResolvedControlTransferV1, ResolvedExitOriginV1, ScopeKindV1, ScopeOriginV1,
 };
-use super::source_site::{SourceBindingSiteV1, SourceNodeSiteV1, SourceStmtSiteV1};
+use super::source_site::{
+    ResolvedExitSiteV1, SourceBindingSiteV1, SourceNodeSiteV1, SourcePathSegmentV1,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ResolvedFunctionVerificationErrorV1 {
@@ -44,14 +46,15 @@ pub enum ResolvedFunctionVerificationErrorV1 {
     RegionKindOriginMismatch(RegionId),
     DanglingVariableUse,
     DanglingAssignmentBinding,
-    DanglingControlTarget(SourceStmtSiteV1),
-    MissingControlExitRegion(SourceStmtSiteV1),
-    ExtraControlExitRegion(SourceStmtSiteV1),
-    ControlExitRegionMismatch(SourceStmtSiteV1),
-    WrongControlTargetKind(SourceStmtSiteV1),
-    NonAncestorControlTarget(SourceStmtSiteV1),
-    NonNearestLoopTarget(SourceStmtSiteV1),
-    WrongReturnTarget(SourceStmtSiteV1),
+    DanglingControlTarget(ResolvedExitSiteV1),
+    DanglingExitSourceRegion(ResolvedExitSiteV1),
+    ExitSourceRegionMismatch(ResolvedExitSiteV1),
+    UnsupportedExitSiteKind(ResolvedExitSiteV1),
+    ExitOriginTransferMismatch(ResolvedExitSiteV1),
+    WrongControlTargetKind(ResolvedExitSiteV1),
+    NonAncestorControlTarget(ResolvedExitSiteV1),
+    NonNearestLoopTarget(ResolvedExitSiteV1),
+    WrongReturnTarget(ResolvedExitSiteV1),
 }
 
 pub(super) fn verify_resolved_function(
@@ -384,38 +387,50 @@ fn verify_normalized_key_uniqueness(
 fn verify_control_targets(
     data: &ResolvedFunctionDataV1,
 ) -> Result<(), ResolvedFunctionVerificationErrorV1> {
-    for site in data.control_exit_regions.keys() {
-        if !data.control_exits.contains_key(site) {
-            return Err(ResolvedFunctionVerificationErrorV1::ExtraControlExitRegion(
-                site.clone(),
-            ));
+    for (site, exit) in &data.resolved_exits {
+        if !matches!(site, ResolvedExitSiteV1::Statement(_)) {
+            return Err(ResolvedFunctionVerificationErrorV1::UnsupportedExitSiteKind(site.clone()));
         }
-    }
-    for (site, exit) in &data.control_exits {
-        let owner_region = *data.control_exit_regions.get(site).ok_or_else(|| {
-            ResolvedFunctionVerificationErrorV1::MissingControlExitRegion(site.clone())
-        })?;
-        if owner_region.owner() != data.owner || !data.regions.contains_key(&owner_region) {
+        let source_region = exit.source_region();
+        if source_region.owner() != data.owner || !data.regions.contains_key(&source_region) {
             return Err(
-                ResolvedFunctionVerificationErrorV1::MissingControlExitRegion(site.clone()),
+                ResolvedFunctionVerificationErrorV1::DanglingExitSourceRegion(site.clone()),
             );
         }
-        if !is_exact_source_container(data, owner_region, site.node()) {
+        if !is_exact_source_container(data, source_region, site.node()) {
             return Err(
-                ResolvedFunctionVerificationErrorV1::ControlExitRegionMismatch(site.clone()),
+                ResolvedFunctionVerificationErrorV1::ExitSourceRegionMismatch(site.clone()),
             );
         }
-        match exit {
-            ResolvedControlExitV1::Return { target_function } => {
-                if *target_function != data.function_region {
+        let origin_matches = matches!(
+            (exit.origin(), exit.transfer()),
+            (
+                ResolvedExitOriginV1::ExplicitContinue,
+                ResolvedControlTransferV1::Continue { .. }
+            ) | (
+                ResolvedExitOriginV1::ExplicitBreak,
+                ResolvedControlTransferV1::Break { .. }
+            ) | (
+                ResolvedExitOriginV1::ExplicitReturn,
+                ResolvedControlTransferV1::Return { .. }
+            )
+        );
+        if !origin_matches {
+            return Err(
+                ResolvedFunctionVerificationErrorV1::ExitOriginTransferMismatch(site.clone()),
+            );
+        }
+        match exit.transfer() {
+            ResolvedControlTransferV1::Return { target_function } => {
+                if target_function != data.function_region {
                     return Err(ResolvedFunctionVerificationErrorV1::WrongReturnTarget(
                         site.clone(),
                     ));
                 }
             }
-            ResolvedControlExitV1::Break { target_loop }
-            | ResolvedControlExitV1::Continue { target_loop } => {
-                let target = data.regions.get(target_loop).ok_or_else(|| {
+            ResolvedControlTransferV1::Break { target_loop }
+            | ResolvedControlTransferV1::Continue { target_loop } => {
+                let target = data.regions.get(&target_loop).ok_or_else(|| {
                     ResolvedFunctionVerificationErrorV1::DanglingControlTarget(site.clone())
                 })?;
                 if target_loop.owner() != data.owner || target.kind() != RegionKindV1::Loop {
@@ -423,12 +438,12 @@ fn verify_control_targets(
                         site.clone(),
                     ));
                 }
-                if !is_region_ancestor(data, *target_loop, owner_region) {
+                if !is_region_ancestor(data, target_loop, source_region) {
                     return Err(
                         ResolvedFunctionVerificationErrorV1::NonAncestorControlTarget(site.clone()),
                     );
                 }
-                if nearest_loop_for_region(data, owner_region) != Some(*target_loop) {
+                if nearest_loop_for_region(data, source_region) != Some(target_loop) {
                     return Err(ResolvedFunctionVerificationErrorV1::NonNearestLoopTarget(
                         site.clone(),
                     ));
@@ -495,18 +510,81 @@ fn is_exact_source_container(
     site: &SourceNodeSiteV1,
 ) -> bool {
     let owner_record = &data.regions[&owner];
-    if let RegionOriginV1::Source(origin) = owner_record.origin() {
-        if !site.segments().starts_with(origin.segments()) {
-            return false;
-        }
+    if !source_region_contains_site_v1(owner_record.kind(), owner_record.origin(), site) {
+        return false;
     }
     !data.regions.iter().any(|(candidate, record)| {
         *candidate != owner
             && is_region_ancestor(data, owner, *candidate)
-            && matches!(
-                record.origin(),
-                RegionOriginV1::Source(origin)
-                    if site.segments().starts_with(origin.segments())
-            )
+            && source_region_contains_site_v1(record.kind(), record.origin(), site)
     })
+}
+
+pub(super) fn source_region_contains_site_v1(
+    kind: RegionKindV1,
+    origin: &RegionOriginV1,
+    site: &SourceNodeSiteV1,
+) -> bool {
+    let RegionOriginV1::Source(origin) = origin else {
+        return kind == RegionKindV1::Function;
+    };
+    let origin = origin.segments();
+    let site = site.segments();
+    match kind {
+        RegionKindV1::Function => false,
+        RegionKindV1::Sequence => {
+            sibling_body_member(origin, site, SourcePathSegmentV1::FunctionBody, |segment| {
+                matches!(segment, SourcePathSegmentV1::Body(_))
+            })
+        }
+        RegionKindV1::LexicalScope => {
+            sibling_body_member(
+                origin,
+                site,
+                SourcePathSegmentV1::ScopeBodyRoot,
+                |segment| matches!(segment, SourcePathSegmentV1::ScopeBody(_)),
+            ) || sibling_body_member(
+                origin,
+                site,
+                SourcePathSegmentV1::TaskScopeBodyRoot,
+                |segment| matches!(segment, SourcePathSegmentV1::TaskScopeBody(_)),
+            ) || sibling_body_member(
+                origin,
+                site,
+                SourcePathSegmentV1::FastMemBodyRoot,
+                |segment| matches!(segment, SourcePathSegmentV1::FastMemBody(_)),
+            )
+        }
+        RegionKindV1::IfThen => {
+            sibling_body_member(origin, site, SourcePathSegmentV1::IfThenBody, |segment| {
+                matches!(segment, SourcePathSegmentV1::IfThen(_))
+            })
+        }
+        RegionKindV1::IfElse => {
+            sibling_body_member(origin, site, SourcePathSegmentV1::IfElseBody, |segment| {
+                matches!(segment, SourcePathSegmentV1::IfElse(_))
+            })
+        }
+        RegionKindV1::Loop => {
+            site.len() > origin.len()
+                && site.starts_with(origin)
+                && matches!(site[origin.len()], SourcePathSegmentV1::LoopBody(_))
+        }
+        RegionKindV1::If | RegionKindV1::Try | RegionKindV1::Catch | RegionKindV1::Finally => false,
+    }
+}
+
+fn sibling_body_member(
+    origin: &[SourcePathSegmentV1],
+    site: &[SourcePathSegmentV1],
+    root: SourcePathSegmentV1,
+    is_member: impl FnOnce(&SourcePathSegmentV1) -> bool,
+) -> bool {
+    let Some((origin_role, prefix)) = origin.split_last() else {
+        return false;
+    };
+    *origin_role == root
+        && site.len() > prefix.len()
+        && site.starts_with(prefix)
+        && is_member(&site[prefix.len()])
 }

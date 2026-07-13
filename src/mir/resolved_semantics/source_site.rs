@@ -124,6 +124,39 @@ impl SourceExprSiteV1 {
     }
 }
 
+/// Exact source origin for a control transfer.
+///
+/// Statement and expression exits share one index without fabricating one
+/// source family as the other. The first resolver slice publishes statement
+/// exits only; expression provenance remains passive until its language row is
+/// accepted independently.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum ResolvedExitSiteV1 {
+    Statement(SourceStmtSiteV1),
+    Expression(SourceExprSiteV1),
+}
+
+impl ResolvedExitSiteV1 {
+    pub fn node(&self) -> &SourceNodeSiteV1 {
+        match self {
+            Self::Statement(site) => site.node(),
+            Self::Expression(site) => site.node(),
+        }
+    }
+}
+
+impl From<SourceStmtSiteV1> for ResolvedExitSiteV1 {
+    fn from(site: SourceStmtSiteV1) -> Self {
+        Self::Statement(site)
+    }
+}
+
+impl From<SourceExprSiteV1> for ResolvedExitSiteV1 {
+    fn from(site: SourceExprSiteV1) -> Self {
+        Self::Expression(site)
+    }
+}
+
 /// Expression provenance branded by the semantic owner whose syntax contains it.
 ///
 /// A bare `SourceExprSiteV1` is relative to one owner root. Cross-owner maps

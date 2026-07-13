@@ -74,6 +74,20 @@ pub(crate) enum ShadowControlExitV0 {
     Return { target_function: ShadowRegionIdV0 },
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ShadowExitOriginV0 {
+    ExplicitContinue,
+    ExplicitBreak,
+    ExplicitReturn,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct ShadowExitRecordV0 {
+    pub(crate) source_region: ShadowRegionIdV0,
+    pub(crate) origin: ShadowExitOriginV0,
+    pub(crate) transfer: ShadowControlExitV0,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ShadowResolveErrorV0 {
     ExpectedFunctionDeclaration,
@@ -99,6 +113,9 @@ pub(crate) enum ShadowResolveErrorV0 {
     UnsupportedAssignmentTarget {
         site: SourceExprSiteV1,
     },
+    DuplicateExitSite {
+        site: SourceStmtSiteV1,
+    },
 }
 
 #[derive(Debug, Clone)]
@@ -112,6 +129,5 @@ pub(crate) struct ShadowResolvedFunctionV0 {
     pub(crate) declarations: BTreeMap<SourceBindingSiteV1, ShadowBindingOrdinalV0>,
     pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, ShadowBindingOrdinalV0>,
     pub(crate) assignment_targets: BTreeMap<SourceExprSiteV1, ShadowAssignmentTargetV0>,
-    pub(crate) control_exits: BTreeMap<SourceStmtSiteV1, ShadowControlExitV0>,
-    pub(crate) control_exit_regions: BTreeMap<SourceStmtSiteV1, ShadowRegionIdV0>,
+    pub(crate) resolved_exits: BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>,
 }

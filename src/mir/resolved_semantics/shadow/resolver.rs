@@ -12,8 +12,8 @@ use super::ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
 use super::path::ShadowSourcePathV0;
 use super::product::{
     ShadowAssignmentTargetV0, ShadowBindingKindV0, ShadowBindingRecordV0, ShadowControlExitV0,
-    ShadowRegionKindV0, ShadowRegionRecordV0, ShadowResolveErrorV0, ShadowResolvedFunctionV0,
-    ShadowScopeKindV0, ShadowScopeRecordV0,
+    ShadowExitOriginV0, ShadowExitRecordV0, ShadowRegionKindV0, ShadowRegionRecordV0,
+    ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowScopeKindV0, ShadowScopeRecordV0,
 };
 
 #[derive(Debug)]
@@ -39,8 +39,7 @@ pub(super) struct ShadowResolverV0 {
     declarations: BTreeMap<SourceBindingSiteV1, ShadowBindingOrdinalV0>,
     variable_uses: BTreeMap<SourceExprSiteV1, ShadowBindingOrdinalV0>,
     assignment_targets: BTreeMap<SourceExprSiteV1, ShadowAssignmentTargetV0>,
-    control_exits: BTreeMap<SourceStmtSiteV1, ShadowControlExitV0>,
-    control_exit_regions: BTreeMap<SourceStmtSiteV1, ShadowRegionIdV0>,
+    resolved_exits: BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>,
 }
 
 pub(super) fn resolve_function_shadow_v0(
@@ -136,8 +135,7 @@ impl ShadowResolverV0 {
             declarations: BTreeMap::new(),
             variable_uses: BTreeMap::new(),
             assignment_targets: BTreeMap::new(),
-            control_exits: BTreeMap::new(),
-            control_exit_regions: BTreeMap::new(),
+            resolved_exits: BTreeMap::new(),
         }
     }
 
@@ -152,8 +150,7 @@ impl ShadowResolverV0 {
             declarations: self.declarations,
             variable_uses: self.variable_uses,
             assignment_targets: self.assignment_targets,
-            control_exits: self.control_exits,
-            control_exit_regions: self.control_exit_regions,
+            resolved_exits: self.resolved_exits,
         }
     }
 
@@ -196,10 +193,21 @@ impl ShadowResolverV0 {
         self.assignment_targets.insert(site, target);
     }
 
-    pub(super) fn record_exit(&mut self, site: SourceStmtSiteV1, exit: ShadowControlExitV0) {
-        self.control_exit_regions
-            .insert(site.clone(), self.current_region());
-        self.control_exits.insert(site, exit);
+    pub(super) fn record_exit(
+        &mut self,
+        site: SourceStmtSiteV1,
+        origin: ShadowExitOriginV0,
+        transfer: ShadowControlExitV0,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        let record = ShadowExitRecordV0 {
+            source_region: self.current_region(),
+            origin,
+            transfer,
+        };
+        if self.resolved_exits.insert(site.clone(), record).is_some() {
+            return Err(ShadowResolveErrorV0::DuplicateExitSite { site });
+        }
+        Ok(())
     }
 
     pub(super) fn declare_binding(

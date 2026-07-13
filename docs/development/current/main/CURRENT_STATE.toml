@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Owner Forest V1 P0 source-role vocabulary closed; E0 exit-record unification next"
+status = "Owner Forest V1 P0/E0 closed; OF0 non-capturing owner forest next"
 date = "2026-07-13"
 
 active_lane = "MIRBUILDER Hako SourceBodyAnalysisSnapshotV1"
@@ -137,10 +137,13 @@ QMark and source Throw are not activated as canonical language syntax, and
 BlockExpr scope requires its own language decision. P0 is closed with 19 closed
 Lambda/QMark/Match/BlockExpr/Try/Cleanup source path roles, passive
 owner-branded cross-owner expression provenance, exact owner distinction, and
-zero resolver acceptance change. E0 is the next code-facing slice: replace the
-parallel statement-only exit maps with one typed Statement/Expression site and
-one behavior-neutral Break/Continue/Return record while QMark/Throw acceptance
-remains unchanged.
+zero resolver acceptance change. E0 is closed with canonical and shadow
+parallel exit maps retired, one atomic source-region/origin/transfer record,
+closed root/member source-region containment, statement-only explicit
+Break/Continue/Return publication, normalized parity, and unchanged QMark/Throw
+acceptance. OF0 is the next code-facing slice: construct and seal a
+non-capturing Lambda child owner in one resolver session, with explicit parent
+edge and exact child-at provenance but no Upvar/capture/Planner/Lower wiring.
 Production resolver installation, Planner/Lower connection, legacy fallback,
 and BindingId authority cutover remain zero. Historical decision follows.
 Resolved Region Flow V1 accepts
@@ -413,7 +416,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-E0-EXIT-RECORD-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-OF0-NONCAPTURING-OWNER-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

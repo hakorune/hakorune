@@ -244,13 +244,22 @@ fn nested_loop_exits_resolve_to_the_nearest_exact_region() {
         SourcePathSegmentV1::LoopBody(0),
         SourcePathSegmentV1::LoopBody(1),
     ]);
-    let ShadowControlExitV0::Continue { target_loop } = product.control_exits[&continue_site]
+    let ShadowControlExitV0::Continue { target_loop } =
+        product.resolved_exits[&continue_site].transfer
     else {
         panic!("continue target")
     };
     assert_eq!(
-        product.control_exits[&break_site],
+        product.resolved_exits[&break_site].transfer,
         ShadowControlExitV0::Break { target_loop }
+    );
+    assert_eq!(
+        product.resolved_exits[&continue_site].source_region,
+        target_loop
+    );
+    assert_eq!(
+        product.resolved_exits[&break_site].source_region,
+        target_loop
     );
     assert_ne!(target_loop, product.function_region);
 }
@@ -267,7 +276,7 @@ fn return_targets_function_and_resolves_value_first() {
     let product = resolve(&tree);
     let site = stmt_site(vec![SourcePathSegmentV1::Body(0)]);
     assert_eq!(
-        product.control_exits[&site],
+        product.resolved_exits[&site].transfer,
         ShadowControlExitV0::Return {
             target_function: product.function_region
         }
@@ -518,11 +527,13 @@ fn outer_exit_after_nested_loop_targets_outer_region() {
         SourcePathSegmentV1::Body(0),
         SourcePathSegmentV1::LoopBody(1),
     ]);
-    let ShadowControlExitV0::Break { target_loop: inner } = product.control_exits[&inner_site]
+    let ShadowControlExitV0::Break { target_loop: inner } =
+        product.resolved_exits[&inner_site].transfer
     else {
         panic!("inner break")
     };
-    let ShadowControlExitV0::Continue { target_loop: outer } = product.control_exits[&outer_site]
+    let ShadowControlExitV0::Continue { target_loop: outer } =
+        product.resolved_exits[&outer_site].transfer
     else {
         panic!("outer continue")
     };

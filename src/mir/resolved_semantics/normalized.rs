@@ -6,10 +6,10 @@ use super::ids::{BindingRefV1, ScopeId};
 use super::product::ResolvedFunctionDataV1;
 use super::records::{
     BindingKindV1, BindingOriginV1, RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1,
-    ResolvedControlExitV1, ScopeKindV1, ScopeOriginV1,
+    ResolvedControlTransferV1, ResolvedExitOriginV1, ScopeKindV1, ScopeOriginV1,
 };
 use super::source_site::{
-    FunctionOriginV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
+    FunctionOriginV1, ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -76,7 +76,7 @@ pub struct NormalizedAssignmentV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum NormalizedControlExitV1 {
+pub enum NormalizedControlTransferV1 {
     Continue {
         target_loop: NormalizedRegionKeyV1,
     },
@@ -90,9 +90,10 @@ pub enum NormalizedControlExitV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NormalizedExitV1 {
-    pub site: SourceStmtSiteV1,
-    pub owner_region: NormalizedRegionKeyV1,
-    pub exit: NormalizedControlExitV1,
+    pub site: ResolvedExitSiteV1,
+    pub source_region: NormalizedRegionKeyV1,
+    pub origin: ResolvedExitOriginV1,
+    pub transfer: NormalizedControlTransferV1,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -314,23 +315,26 @@ fn normalize_exits(
     data: &ResolvedFunctionDataV1,
     region_keys: &BTreeMap<super::ids::RegionId, NormalizedRegionKeyV1>,
 ) -> Box<[NormalizedExitV1]> {
-    data.control_exits
+    data.resolved_exits
         .iter()
         .map(|(site, exit)| NormalizedExitV1 {
             site: site.clone(),
-            owner_region: region_keys[&data.control_exit_regions[site]].clone(),
-            exit: match exit {
-                ResolvedControlExitV1::Continue { target_loop } => {
-                    NormalizedControlExitV1::Continue {
-                        target_loop: region_keys[target_loop].clone(),
+            source_region: region_keys[&exit.source_region()].clone(),
+            origin: exit.origin(),
+            transfer: match exit.transfer() {
+                ResolvedControlTransferV1::Continue { target_loop } => {
+                    NormalizedControlTransferV1::Continue {
+                        target_loop: region_keys[&target_loop].clone(),
                     }
                 }
-                ResolvedControlExitV1::Break { target_loop } => NormalizedControlExitV1::Break {
-                    target_loop: region_keys[target_loop].clone(),
-                },
-                ResolvedControlExitV1::Return { target_function } => {
-                    NormalizedControlExitV1::Return {
-                        target_function: region_keys[target_function].clone(),
+                ResolvedControlTransferV1::Break { target_loop } => {
+                    NormalizedControlTransferV1::Break {
+                        target_loop: region_keys[&target_loop].clone(),
+                    }
+                }
+                ResolvedControlTransferV1::Return { target_function } => {
+                    NormalizedControlTransferV1::Return {
+                        target_function: region_keys[&target_function].clone(),
                     }
                 }
             },

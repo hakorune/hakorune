@@ -59,3 +59,30 @@ fn unconnected_program_container_is_only_a_transparent_candidate() {
         ShadowAstDispositionV0::SemanticallyTransparentCandidate
     );
 }
+
+#[test]
+fn qmark_and_throw_remain_explicitly_unsupported() {
+    let qmark = ASTNode::QMarkPropagate {
+        expression: Box::new(ASTNode::Literal {
+            value: LiteralValue::Integer(1),
+            span: span(),
+        }),
+        span: span(),
+    };
+    let throw = ASTNode::Throw {
+        expression: Box::new(ASTNode::Literal {
+            value: LiteralValue::Integer(1),
+            span: span(),
+        }),
+        span: span(),
+    };
+
+    assert_eq!(
+        classify_shadow_ast_disposition_v0(&qmark),
+        ShadowAstDispositionV0::ExplicitUnsupported
+    );
+    assert_eq!(
+        classify_shadow_ast_disposition_v0(&throw),
+        ShadowAstDispositionV0::ExplicitUnsupported
+    );
+}

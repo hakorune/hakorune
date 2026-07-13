@@ -205,9 +205,53 @@ pub enum ResolvedAssignmentTargetV1 {
     IndexWrite { receiver: SourceExprSiteV1 },
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ResolvedControlExitV1 {
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum ResolvedExitOriginV1 {
+    ExplicitContinue,
+    ExplicitBreak,
+    ExplicitReturn,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum ResolvedControlTransferV1 {
     Continue { target_loop: RegionId },
     Break { target_loop: RegionId },
     Return { target_function: RegionId },
+}
+
+/// One atomic source-to-control correspondence.
+///
+/// Keeping the containing source region and transfer together removes the
+/// parallel-map update order that previously existed in the sealed product.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ResolvedExitRecordV1 {
+    source_region: RegionId,
+    origin: ResolvedExitOriginV1,
+    transfer: ResolvedControlTransferV1,
+}
+
+impl ResolvedExitRecordV1 {
+    pub(crate) const fn new(
+        source_region: RegionId,
+        origin: ResolvedExitOriginV1,
+        transfer: ResolvedControlTransferV1,
+    ) -> Self {
+        Self {
+            source_region,
+            origin,
+            transfer,
+        }
+    }
+
+    pub const fn source_region(&self) -> RegionId {
+        self.source_region
+    }
+
+    pub const fn origin(&self) -> ResolvedExitOriginV1 {
+        self.origin
+    }
+
+    pub const fn transfer(&self) -> ResolvedControlTransferV1 {
+        self.transfer
+    }
 }

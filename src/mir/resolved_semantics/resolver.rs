@@ -12,15 +12,16 @@ use super::ids::{
 use super::product::{ResolvedFunctionDataV1, ResolvedFunctionDraftV1};
 use super::records::{
     BindingKindV1, BindingOriginV1, RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1,
-    ResolvedBindingRecordV1, ResolvedControlExitV1, ResolvedRegionRecordV1, ResolvedScopeRecordV1,
-    ScopeKindV1, ScopeOriginV1,
+    ResolvedBindingRecordV1, ResolvedControlTransferV1, ResolvedExitOriginV1, ResolvedExitRecordV1,
+    ResolvedRegionRecordV1, ResolvedScopeRecordV1, ScopeKindV1, ScopeOriginV1,
 };
 use super::shadow::{
     resolve_function_shadow_view_v0, ShadowAssignmentTargetV0, ShadowBindingKindV0,
-    ShadowBindingOrdinalV0, ShadowControlExitV0, ShadowRegionIdV0, ShadowRegionKindV0,
-    ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowScopeIdV0, ShadowScopeKindV0,
+    ShadowBindingOrdinalV0, ShadowControlExitV0, ShadowExitOriginV0, ShadowRegionIdV0,
+    ShadowRegionKindV0, ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowScopeIdV0,
+    ShadowScopeKindV0,
 };
-use super::source_site::FunctionOriginV1;
+use super::source_site::{FunctionOriginV1, ResolvedExitSiteV1};
 use super::{ResolvedFunctionVerificationErrorV1, VerifiedResolvedFunctionV1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -202,28 +203,35 @@ fn canonicalize_draft(
             (site.clone(), target)
         })
         .collect();
-    let control_exits = draft
-        .control_exits
+    let resolved_exits = draft
+        .resolved_exits
         .iter()
-        .map(|(site, exit)| {
-            let exit = match exit {
-                ShadowControlExitV0::Continue { target_loop } => ResolvedControlExitV1::Continue {
-                    target_loop: region_ids[target_loop],
-                },
-                ShadowControlExitV0::Break { target_loop } => ResolvedControlExitV1::Break {
-                    target_loop: region_ids[target_loop],
-                },
-                ShadowControlExitV0::Return { target_function } => ResolvedControlExitV1::Return {
-                    target_function: region_ids[target_function],
-                },
+        .map(|(site, record)| {
+            let origin = match record.origin {
+                ShadowExitOriginV0::ExplicitContinue => ResolvedExitOriginV1::ExplicitContinue,
+                ShadowExitOriginV0::ExplicitBreak => ResolvedExitOriginV1::ExplicitBreak,
+                ShadowExitOriginV0::ExplicitReturn => ResolvedExitOriginV1::ExplicitReturn,
             };
-            (site.clone(), exit)
+            let transfer = match record.transfer {
+                ShadowControlExitV0::Continue { target_loop } => {
+                    ResolvedControlTransferV1::Continue {
+                        target_loop: region_ids[&target_loop],
+                    }
+                }
+                ShadowControlExitV0::Break { target_loop } => ResolvedControlTransferV1::Break {
+                    target_loop: region_ids[&target_loop],
+                },
+                ShadowControlExitV0::Return { target_function } => {
+                    ResolvedControlTransferV1::Return {
+                        target_function: region_ids[&target_function],
+                    }
+                }
+            };
+            (
+                ResolvedExitSiteV1::Statement(site.clone()),
+                ResolvedExitRecordV1::new(region_ids[&record.source_region], origin, transfer),
+            )
         })
-        .collect();
-    let control_exit_regions = draft
-        .control_exit_regions
-        .iter()
-        .map(|(site, region)| (site.clone(), region_ids[region]))
         .collect();
 
     Ok(ResolvedFunctionDataV1 {
@@ -237,8 +245,7 @@ fn canonicalize_draft(
         declarations,
         variable_uses,
         assignment_targets,
-        control_exits,
-        control_exit_regions,
+        resolved_exits,
     })
 }
 

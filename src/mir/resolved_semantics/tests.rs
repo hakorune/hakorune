@@ -6,12 +6,12 @@ use super::ids::{BindingRefV1, FunctionOwnerIdV1, FunctionOwnerIssuerV1, RegionI
 use super::product::{ResolvedFunctionDataV1, ResolvedFunctionDraftV1};
 use super::records::{
     BindingKindV1, BindingOriginV1, RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1,
-    ResolvedBindingRecordV1, ResolvedControlExitV1, ResolvedRegionRecordV1, ResolvedScopeRecordV1,
-    ScopeKindV1, ScopeOriginV1,
+    ResolvedBindingRecordV1, ResolvedControlTransferV1, ResolvedExitOriginV1, ResolvedExitRecordV1,
+    ResolvedRegionRecordV1, ResolvedScopeRecordV1, ScopeKindV1, ScopeOriginV1,
 };
 use super::source_site::{
-    FunctionOriginV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1,
-    SourcePathSegmentV1, SourceStmtSiteV1,
+    FunctionOriginV1, OwnedExprSiteV1, ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
+    SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
 };
 use super::VerifiedResolvedFunctionV1;
 
@@ -90,13 +90,16 @@ fn sample_data(owner: FunctionOwnerIdV1, binding: BindingId) -> ResolvedFunction
             assignment_site,
             ResolvedAssignmentTargetV1::BindingRebind(binding_ref),
         )]),
-        control_exits: BTreeMap::from([(
-            exit_site.clone(),
-            ResolvedControlExitV1::Return {
-                target_function: region,
-            },
+        resolved_exits: BTreeMap::from([(
+            ResolvedExitSiteV1::Statement(exit_site),
+            ResolvedExitRecordV1::new(
+                region,
+                ResolvedExitOriginV1::ExplicitReturn,
+                ResolvedControlTransferV1::Return {
+                    target_function: region,
+                },
+            ),
         )]),
-        control_exit_regions: BTreeMap::from([(exit_site, region)]),
     }
 }
 
@@ -179,11 +182,16 @@ fn sealed_product_exposes_read_only_owner_scoped_records() {
         verified.assignment_target(&assignment_site),
         Some(&ResolvedAssignmentTargetV1::BindingRebind(binding_ref))
     );
+    let exit = verified
+        .resolved_exit(&ResolvedExitSiteV1::Statement(exit_site))
+        .unwrap();
+    assert_eq!(exit.source_region(), RegionId::new(owner, 0));
+    assert_eq!(exit.origin(), ResolvedExitOriginV1::ExplicitReturn);
     assert_eq!(
-        verified.control_exit(&exit_site),
-        Some(ResolvedControlExitV1::Return {
-            target_function: RegionId::new(owner, 0)
-        })
+        exit.transfer(),
+        ResolvedControlTransferV1::Return {
+            target_function: RegionId::new(owner, 0),
+        }
     );
 
     let binding_record = verified.binding(binding_ref).unwrap();
@@ -332,8 +340,7 @@ fn seal_rejects_missing_source_declaration_index() {
 fn seal_rejects_sibling_loop_as_control_target() {
     let owner = owner();
     let mut data = sample_data(owner, BindingId::new(0));
-    data.control_exits.clear();
-    data.control_exit_regions.clear();
+    data.resolved_exits.clear();
     let first_loop = RegionId::new(owner, 1);
     let sibling_loop = RegionId::new(owner, 2);
     data.regions.insert(
@@ -358,13 +365,16 @@ fn seal_rejects_sibling_loop_as_control_target() {
         SourcePathSegmentV1::Body(4),
         SourcePathSegmentV1::LoopBody(0),
     ]));
-    data.control_exits.insert(
-        exit_site.clone(),
-        ResolvedControlExitV1::Break {
-            target_loop: sibling_loop,
-        },
+    data.resolved_exits.insert(
+        ResolvedExitSiteV1::Statement(exit_site),
+        ResolvedExitRecordV1::new(
+            first_loop,
+            ResolvedExitOriginV1::ExplicitBreak,
+            ResolvedControlTransferV1::Break {
+                target_loop: sibling_loop,
+            },
+        ),
     );
-    data.control_exit_regions.insert(exit_site, first_loop);
 
     assert!(ResolvedFunctionDraftV1 { data }.seal().is_err());
 }
@@ -373,8 +383,7 @@ fn seal_rejects_sibling_loop_as_control_target() {
 fn seal_rejects_falsified_outer_owner_for_inner_loop_exit() {
     let owner = owner();
     let mut data = sample_data(owner, BindingId::new(0));
-    data.control_exits.clear();
-    data.control_exit_regions.clear();
+    data.resolved_exits.clear();
     let outer_loop = RegionId::new(owner, 1);
     let inner_loop = RegionId::new(owner, 2);
     let outer_site = node(vec![SourcePathSegmentV1::Body(4)]);
@@ -405,13 +414,16 @@ fn seal_rejects_falsified_outer_owner_for_inner_loop_exit() {
         SourcePathSegmentV1::LoopBody(0),
         SourcePathSegmentV1::LoopBody(0),
     ]));
-    data.control_exits.insert(
-        exit_site.clone(),
-        ResolvedControlExitV1::Break {
-            target_loop: outer_loop,
-        },
+    data.resolved_exits.insert(
+        ResolvedExitSiteV1::Statement(exit_site),
+        ResolvedExitRecordV1::new(
+            outer_loop,
+            ResolvedExitOriginV1::ExplicitBreak,
+            ResolvedControlTransferV1::Break {
+                target_loop: outer_loop,
+            },
+        ),
     );
-    data.control_exit_regions.insert(exit_site, outer_loop);
 
     assert!(ResolvedFunctionDraftV1 { data }.seal().is_err());
 }
@@ -512,4 +524,134 @@ fn owned_expression_site_distinguishes_equal_relative_paths_across_owners() {
     assert_eq!(first.site(), &relative);
     assert_ne!(first, second);
     assert_eq!(BTreeSet::from([first, second]).len(), 2);
+}
+
+#[test]
+fn exit_site_preserves_statement_and_expression_source_families() {
+    let statement = stmt(7);
+    let expression = SourceExprSiteV1::from_node(statement.node().clone());
+
+    let statement_exit = ResolvedExitSiteV1::Statement(statement.clone());
+    let expression_exit = ResolvedExitSiteV1::Expression(expression);
+
+    assert_eq!(statement_exit.node(), statement.node());
+    assert_eq!(expression_exit.node(), statement.node());
+    assert_ne!(statement_exit, expression_exit);
+}
+
+#[test]
+fn seal_rejects_exit_origin_transfer_mismatch() {
+    let owner = owner();
+    let mut data = sample_data(owner, BindingId::new(0));
+    let site = data.resolved_exits.keys().next().unwrap().clone();
+    data.resolved_exits.insert(
+        site,
+        ResolvedExitRecordV1::new(
+            data.function_region,
+            ResolvedExitOriginV1::ExplicitBreak,
+            ResolvedControlTransferV1::Return {
+                target_function: data.function_region,
+            },
+        ),
+    );
+
+    assert!(matches!(
+        ResolvedFunctionDraftV1 { data }.seal(),
+        Err(super::ResolvedFunctionVerificationErrorV1::ExitOriginTransferMismatch(_))
+    ));
+}
+
+#[test]
+fn seal_rejects_explicit_statement_origin_at_expression_site() {
+    let owner = owner();
+    let mut data = sample_data(owner, BindingId::new(0));
+    let statement = stmt(3);
+    let expression = SourceExprSiteV1::from_node(statement.node().clone());
+    let record = data.resolved_exits.values().next().copied().unwrap();
+    data.resolved_exits.clear();
+    data.resolved_exits
+        .insert(ResolvedExitSiteV1::Expression(expression), record);
+
+    assert!(matches!(
+        ResolvedFunctionDraftV1 { data }.seal(),
+        Err(super::ResolvedFunctionVerificationErrorV1::UnsupportedExitSiteKind(_))
+    ));
+}
+
+#[test]
+fn source_region_containment_uses_closed_root_member_roles() {
+    use super::verifier::source_region_contains_site_v1;
+
+    let cases = [
+        (
+            RegionKindV1::Sequence,
+            vec![SourcePathSegmentV1::FunctionBody],
+            vec![SourcePathSegmentV1::Body(0)],
+        ),
+        (
+            RegionKindV1::LexicalScope,
+            vec![
+                SourcePathSegmentV1::Body(0),
+                SourcePathSegmentV1::ScopeBodyRoot,
+            ],
+            vec![
+                SourcePathSegmentV1::Body(0),
+                SourcePathSegmentV1::ScopeBody(0),
+            ],
+        ),
+        (
+            RegionKindV1::LexicalScope,
+            vec![
+                SourcePathSegmentV1::Body(0),
+                SourcePathSegmentV1::TaskScopeBodyRoot,
+            ],
+            vec![
+                SourcePathSegmentV1::Body(0),
+                SourcePathSegmentV1::TaskScopeBody(0),
+            ],
+        ),
+        (
+            RegionKindV1::LexicalScope,
+            vec![
+                SourcePathSegmentV1::Body(0),
+                SourcePathSegmentV1::FastMemBodyRoot,
+            ],
+            vec![
+                SourcePathSegmentV1::Body(0),
+                SourcePathSegmentV1::FastMemBody(0),
+            ],
+        ),
+        (
+            RegionKindV1::IfThen,
+            vec![
+                SourcePathSegmentV1::Body(0),
+                SourcePathSegmentV1::IfThenBody,
+            ],
+            vec![SourcePathSegmentV1::Body(0), SourcePathSegmentV1::IfThen(0)],
+        ),
+        (
+            RegionKindV1::IfElse,
+            vec![
+                SourcePathSegmentV1::Body(0),
+                SourcePathSegmentV1::IfElseBody,
+            ],
+            vec![SourcePathSegmentV1::Body(0), SourcePathSegmentV1::IfElse(0)],
+        ),
+        (
+            RegionKindV1::Loop,
+            vec![SourcePathSegmentV1::Body(0)],
+            vec![
+                SourcePathSegmentV1::Body(0),
+                SourcePathSegmentV1::LoopBody(0),
+            ],
+        ),
+    ];
+
+    for (kind, origin, site) in cases {
+        assert!(source_region_contains_site_v1(
+            kind,
+            &RegionOriginV1::Source(node(origin)),
+            &node(site),
+        ));
+    }
 }
