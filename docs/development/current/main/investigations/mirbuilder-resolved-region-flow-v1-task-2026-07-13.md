@@ -1,6 +1,6 @@
 # Resolved Region Flow V1 — Taskboard
 
-Status: Owner Forest V1 through B0-L3a closed; B0-C skipped; B0-L3b is active.
+Status: Owner Forest V1 through B0-L3a closed; B0-L3b canonical If branch-flow design stop is active.
 Date: 2026-07-13
 Decision: `function_semantic_resolver_v1_owner_scoped_arena` followed by
 `recursive_structured_region_flow`.
@@ -887,7 +887,17 @@ non-main static/free source unit, exact declaration/use/assignment sites,
 BindingRef-keyed values, allocator veto, coverage-before-commit, and a fresh
 module transaction. B0-L3a closes exact sealed BlockExpr pair consumption,
 located prelude/tail Lower, BindingRef retirement, and runtime fixtures.
-B0-L3b located control flow is active.
+B0-L3b reached a BoxShape design stop after the located If inventory. Exact
+source carriers already exist, but the owner of per-branch BindingRef effects,
+fallthrough ports, and PHI requests is not fixed. The consultation is:
+
+```text
+docs/development/current/main/investigations/
+  mirbuilder-b0-l3b-located-if-branch-flow-consultation-2026-07-13.md
+```
+
+Production If activation remains zero until that decision. Do not connect the
+legacy IfForm, name-keyed variable maps, Planner, Loop, CorePlan, or Lambda.
 Detailed task order and stop conditions remain in the active owner-forest card.
 
 Known production boundary mismatches must be resolved explicitly before B2:

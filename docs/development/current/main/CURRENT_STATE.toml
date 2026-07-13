@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Owner Forest V1 through B0-L3a closed; B0-C skipped; B0-L3b located control flow"
+status = "Owner Forest V1 through B0-L3a closed; B0-L3b canonical If branch-flow design stop"
 date = "2026-07-13"
 
 active_lane = "MIRBUILDER Hako SourceBodyAnalysisSnapshotV1"
@@ -181,7 +181,8 @@ default source route remains legacy; Planner, RegionFlow, If/Loop/CorePlan,
 Lambda, BlockExpr runtime lowering, and legacy retry remain disconnected.
 B0-L3a closes straight-line BlockExpr sealed ScopeId/RegionId consumption,
 located prelude/tail Lower, active/retired BindingRef disposition, and two
-VM-reference runtime fixtures. B0-L3b located control flow is active.
+VM-reference runtime fixtures. B0-L3b is stopped for a decision on canonical
+If branch-effect ownership, first runtime claim, and RegionId mapping boundary.
 Historical decision follows.
 Resolved Region Flow V1 accepts
 `function_semantic_resolver_v1_owner_scoped_arena`. One pre-plan
@@ -453,7 +454,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-L3B-LOCATED-CONTROL-FLOW-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-L3B-CANONICAL-IF-BRANCH-FLOW-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
