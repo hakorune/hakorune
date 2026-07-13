@@ -1,6 +1,6 @@
 # Resolved Region Flow V1 — Taskboard
 
-Status: SA2 verifier/seal hardening closed; SA3 atomic BindingId authority cutover is next.
+Status: SA3-B1 reached the nested-owner/expression-exit design stop.
 Date: 2026-07-13
 Decision: `function_semantic_resolver_v1_owner_scoped_arena` followed by
 `recursive_structured_region_flow`.
@@ -846,6 +846,22 @@ scope with distinct typed child paths.  Focused fixtures prove inner locals
 do not escape and the outer same-name binding remains visible after the
 container.  Their runtime task/fastmem effects remain Lower-owned and are not
 copied into the semantic arena.
+
+`B1-N / B1-R control-owner stop` was reached on 2026-07-13 after the bounded
+traversal slices. `Lambda`, `QMarkPropagate`, Match, and Try/Catch are not more
+of the same traversal: they require nested function ownership, expression
+exit identity, arm/catch region ownership, or exception/cleanup ports. No
+production cutover or legacy fallback is allowed until the owner topology and
+exit-site schema are selected. The active consultation is:
+
+```text
+docs/development/current/main/investigations/
+  mirbuilder-resolved-semantic-owner-forest-design-stop-2026-07-13.md
+```
+
+The next code-facing owner is the selected sealed owner-forest builder or the
+selected typed exit-site migration. The fail-fast boundary is the current
+explicit Unsupported disposition for all unresolved nested/control variants.
 
 Known production boundary mismatches must be resolved explicitly before B2:
 

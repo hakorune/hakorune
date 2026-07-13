@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "SA2 verifier/seal hardening closed; SA3 authority cutover next"
+status = "SA3-B1 nested-owner/expression-exit design consultation stop"
 date = "2026-07-13"
 
 active_lane = "MIRBUILDER Hako SourceBodyAnalysisSnapshotV1"
@@ -120,9 +120,22 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-resolved-region-flow-v1-task-2026-07-13.md"
 latest_workstream_card = "docs/development/current/main/investigations/mirbuilder-hako-typed-source-carrier-v1-2026-07-12.md"
 
-latest_card = "mirbuilder-resolved-region-flow-v1-task-2026-07-13"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-resolved-region-flow-v1-task-2026-07-13.md"
-latest_card_summary = """Resolved Region Flow V1 accepts
+latest_card = "mirbuilder-resolved-semantic-owner-forest-design-stop-2026-07-13"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-resolved-semantic-owner-forest-design-stop-2026-07-13.md"
+latest_card_summary = """Resolved Semantic Arena V1 has reached the hard
+nested-owner/expression-exit design boundary after the disconnected producer,
+seal hardening, exhaustive syntax classifier, leaf traversal, assignment
+targets, Nowait binding identity, and TaskScope/FastMem lexical containers.
+The accepted owner-scoped `VerifiedResolvedFunctionV1` architecture remains
+fixed. The consultation now selects whether independently sealed function
+products form a `VerifiedSemanticOwnerForestV1`, how child capture bindings
+refer to parent `BindingRefV1`, and whether exact statement/expression exits
+use a typed `ResolvedExitSiteV1` or another closed schema. It also fixes the
+resolver versus RegionFlow boundary for Match arms, QMark, Try/Catch/Throw,
+finally cleanup, and BlockExpr scope. Production resolver installation,
+Planner/Lower connection, legacy fallback, and BindingId authority cutover
+remain zero until that boundary is selected. Historical decision follows.
+Resolved Region Flow V1 accepts
 `function_semantic_resolver_v1_owner_scoped_arena`. One pre-plan
 `FunctionSemanticResolverV1` constructs and seals
 `VerifiedResolvedFunctionV1`, whose owner-scoped binding, scope, and region
@@ -392,7 +405,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-ARENA-V1-SA3-BINDING-AUTHORITY-CUTOVER-001"
+current_blocker_token = "RESOLVED-SEMANTIC-ARENA-V1-NESTED-OWNER-EXPR-EXIT-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
