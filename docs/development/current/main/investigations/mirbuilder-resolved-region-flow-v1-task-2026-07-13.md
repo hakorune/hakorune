@@ -1,6 +1,6 @@
 # Resolved Region Flow V1 — Taskboard
 
-Status: Active BoxShape series; R0 binding/region seam inventory selected.
+Status: Design consultation stop; R0 closed, pre-plan lexical identity owner required.
 Date: 2026-07-13
 Decision: `recursive_structured_region_flow`.
 Final retirement target: legacy mandatory single-`loop_var` family = 0 callers.
@@ -357,7 +357,7 @@ path/schema/tests selectively.  The first code action is to remove published
 
 ## Task order
 
-### R0 — binding/region seam inventory (active)
+### R0 — binding/region seam inventory (closed)
 
 1. Inventory every BindingId type, producer, allocator, and consumer.
 2. Identify the one canonical lexical BindingId owner.
@@ -375,6 +375,20 @@ ResolvedRegionSeamInventoryV1
 ```
 
 No behavior, planner, Recipe, Lower, or product change.
+
+Closed evidence and the A/B design question:
+
+```text
+docs/development/current/main/investigations/
+  mirbuilder-resolved-region-flow-r0-seam-inventory-2026-07-13.md
+```
+
+R0 proves canonical BindingId exists but body-local allocation happens during
+Lower, after AST-only generic Facts.  No immutable pre-plan resolved binding
+tree or resolved control-target RegionId owner exists.  The private ownership
+BindingId is `SchemaMismatchStop`.  R1 remains blocked until consultation
+chooses lifted canonical BindingId resolution or an explicitly authoritative
+structural BindingKey with checked Lower mapping.
 
 ### R1 — minimal resolved region view
 
@@ -526,4 +540,3 @@ canonical step extraction is generic semantics
 16. ProgramV0 or parser/source-carrier P1 becomes authority.
 17. Unsupported backend falls back to VM.
 18. Any source file reaches 800 lines.
-

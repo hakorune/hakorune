@@ -26,14 +26,15 @@ When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executa
 ## Handoff
 
 Read `latest_card_path` in `CURRENT_STATE.toml` before editing. The active
-slice is Resolved Region Flow V1 R0 binding/region seam inventory. Before code,
-identify the sole canonical lexical BindingId producer, immutable binding_ctx
-snapshot seam, scope/shadow owner, assignment Place seam, resolved
-break/continue target owner, and classify the private join_ir/ownership
-BindingId. RegionFlow must allocate no IDs, use no names as identity, simulate
-no SSA values, and publish no cloned normalized AST. WIP `f74e5961e1` is green
-acceptance-neutral evidence but must be restored selectively only after R0;
-R1 first removes ProjectedStmt AST clone ownership. R1-R8 lead to generic
-baseline cutover, and R9 caller-zero retirement of mandatory loop_var remains
-Epic completion. Product/Planner/Lower behavior stays unchanged in R0. Keep
-every source file below 800 lines.
+slice is the Resolved Region Flow V1 R0 pre-plan identity design stop. R0 proves
+canonical BindingId is singular but body-local IDs are allocated during Lower,
+after AST-only generic Facts; no complete resolved binding/scope tree is
+available pre-plan. The join_ir/ownership private BindingId is a duplicate
+lexical authority (`SchemaMismatchStop`). Source exits also have no target and
+production recounts Recipe/Lower depth; no resolved RegionId owner exists.
+Consultation must choose pre-plan canonical BindingId resolution versus an
+explicit structural BindingKey authority with checked Lower mapping. Planner
+allocation, private IDs, name-based identity, and Lower rediscovery are
+rejected. R1 remains blocked; product behavior is unchanged. R9 legacy
+loop_var retirement remains Epic completion. Keep every source file below 800
+lines.
