@@ -19,8 +19,8 @@ Related:
 - blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
 - language-v1 workstream:
   `docs/development/current/main/workstreams/language-v1-convergence-current.md`
-- priority: read `active_lane` and `current_blocker_token`; SA0/SA1 are closed
-  and the current slice is SA2 canonical verification/seal/normalized graph;
+- priority: read `active_lane` and `current_blocker_token`; SA0/SA1/SA2 are
+  closed and the current slice is SA3 atomic BindingId authority cutover;
   RegionFlow R1 and parser/source-carrier P1 remain disconnected
 - parked language work: LANGV1 conformance closeout remains parked; no
   language behavior is changed by the reprioritization

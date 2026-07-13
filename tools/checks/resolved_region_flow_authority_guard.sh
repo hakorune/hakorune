@@ -19,7 +19,9 @@ guard_require_files "$TAG" \
   "$MODULE/ids.rs" \
   "$MODULE/source_site.rs" \
   "$MODULE/records.rs" \
+  "$MODULE/normalized.rs" \
   "$MODULE/product.rs" \
+  "$MODULE/verifier.rs" \
   "$MODULE/tests.rs" \
   "$MODULE/shadow/mod.rs" \
   "$MODULE/shadow/ids.rs" \
@@ -36,6 +38,7 @@ guard_require_files "$TAG" \
 expected_manifest="$(printf '%s\n' \
   ids.rs \
   mod.rs \
+  normalized.rs \
   product.rs \
   records.rs \
   shadow/expr.rs \
@@ -48,7 +51,8 @@ expected_manifest="$(printf '%s\n' \
   shadow/tests.rs \
   shadow/vocabulary.rs \
   source_site.rs \
-  tests.rs)"
+  tests.rs \
+  verifier.rs)"
 actual_manifest="$(find "$MODULE" -type f -name '*.rs' -printf '%P\n' | LC_ALL=C sort)"
 if [[ "$actual_manifest" != "$expected_manifest" ]]; then
   printf '%s\n' "$actual_manifest" >&2
@@ -91,12 +95,27 @@ done
 
 for required in \
   "pub struct FunctionOwnerIdV1" \
+  "pub(crate) struct FunctionOwnerIssuerV1" \
   "pub struct BindingRefV1" \
   "pub struct ScopeId" \
   "pub struct RegionId"; do
   guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/ids.rs" \
     "owner-scoped identity schema drifted: $required"
 done
+
+for required in \
+  "pub(crate) fn seal(" \
+  "verify_resolved_function(&self.data)?" \
+  "build_normalized_graph(&self.data)" \
+  "pub fn normalized_graph(&self)"; do
+  guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/product.rs" \
+    "verified seal/publication boundary drifted: $required"
+done
+
+guard_expect_fixed_in_file "$TAG" "pub enum ResolvedFunctionVerificationErrorV1" \
+  "$MODULE/verifier.rs" "resolved-function verifier outcome vocabulary missing"
+guard_expect_fixed_in_file "$TAG" "pub struct NormalizedResolvedFunctionGraphV1" \
+  "$MODULE/normalized.rs" "normalized semantic graph missing"
 
 if rg -n 'ASTNode|Box[[:space:]]*<[[:space:]]*AST|Vec[[:space:]]*<[[:space:]]*AST' \
   "${CANONICAL_FILES[@]}"; then
@@ -208,6 +227,14 @@ if rg -n 'ValueId|BasicBlockId|MirBuilder|CoreContext' "${PRODUCTION_FILES[@]}";
   guard_fail "$TAG" "SA0 schema must not import MIR materialization owners"
 fi
 
+if rg -n 'FunctionOwnerIdV1[[:space:]]*\(' \
+  $(find "$MODULE" -type f -name '*.rs' ! -path "$MODULE/ids.rs" -print); then
+  guard_fail "$TAG" "only the compilation-scoped issuer may construct function owner brands"
+fi
+if rg -n 'from_unverified_data_for_schema_test' "$MODULE"; then
+  guard_fail "$TAG" "unverified semantic products must not bypass seal, including tests"
+fi
+
 if rg -n 'join_ir::ownership|mir::region::RegionId|control_flow::plan|lowerer|Recipe' \
   "${PRODUCTION_FILES[@]}"; then
   guard_fail "$TAG" "SA0 schema crossed a forbidden ownership/planner/lower boundary"
@@ -246,7 +273,8 @@ allowed = {
     "binding_count",
     "scope_count",
     "region_count",
-    "from_unverified_data_for_schema_test",
+    "normalized_graph",
+    "seal",
 }
 methods = set(re.findall(r"pub(?:\([^)]*\))?\s+(?:const\s+)?fn\s+(\w+)", text))
 unexpected = sorted(methods - allowed)

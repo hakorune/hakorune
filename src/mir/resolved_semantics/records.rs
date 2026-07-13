@@ -5,7 +5,7 @@ use super::source_site::{
     FunctionOriginV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1,
 };
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum BindingKindV1 {
     Receiver,
     Parameter { index: u32 },
@@ -17,13 +17,13 @@ pub enum BindingKindV1 {
     CompilerSynthetic,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum SyntheticBindingKindV1 {
     DeclaredContractSlot,
 }
 
 /// Diagnostic/parity provenance for an arena-owned binding entity.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum BindingOriginV1 {
     Source(SourceBindingSiteV1),
     Synthetic {
@@ -73,7 +73,7 @@ impl ResolvedBindingRecordV1 {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum ScopeKindV1 {
     Function,
     LexicalBlock,
@@ -84,7 +84,7 @@ pub enum ScopeKindV1 {
     PatternArm,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum ScopeOriginV1 {
     Function(FunctionOriginV1),
     Source(SourceNodeSiteV1),
@@ -137,7 +137,7 @@ impl ResolvedScopeRecordV1 {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum RegionKindV1 {
     Function,
     Sequence,
@@ -151,7 +151,7 @@ pub enum RegionKindV1 {
     Finally,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum RegionOriginV1 {
     Function(FunctionOriginV1),
     Source(SourceNodeSiteV1),

@@ -1,6 +1,6 @@
 # Resolved Region Flow V1 — Taskboard
 
-Status: SA1 closed; SA2 verifier/seal/normalized graph is the next code-facing slice.
+Status: SA2 verifier/seal/normalized graph closed; SA3 atomic BindingId authority cutover is next.
 Date: 2026-07-13
 Decision: `function_semantic_resolver_v1_owner_scoped_arena` followed by
 `recursive_structured_region_flow`.
@@ -677,6 +677,11 @@ canonical semantic authority; SA2 remains responsible for verification,
 sealing, and normalized parity graphs.
 
 ### SA2 — verifier, seal, and normalized semantic graph
+
+Status: closed on 2026-07-13. The compilation-scoped owner issuer is the sole
+brand constructor; draft publication requires verification and seal; the
+test-only bypass is removed; and normalized equality excludes raw owner,
+binding, scope, and region numbers. Planner and Lower connections remain zero.
 
 Add `ResolvedFunctionVerifierV1` and seal only complete products.  Verify arena
 ownership, parent acyclicity, source-index bijections, resolved use/assignment

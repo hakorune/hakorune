@@ -5,6 +5,7 @@ use std::collections::BTreeMap;
 use hakorune_mir_core::BindingId;
 
 use super::ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
+use super::normalized::{build_normalized_graph, NormalizedResolvedFunctionGraphV1};
 use super::records::{
     ResolvedAssignmentTargetV1, ResolvedBindingRecordV1, ResolvedControlExitV1,
     ResolvedRegionRecordV1, ResolvedScopeRecordV1,
@@ -12,6 +13,7 @@ use super::records::{
 use super::source_site::{
     FunctionOriginV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
+use super::verifier::{verify_resolved_function, ResolvedFunctionVerificationErrorV1};
 
 #[derive(Debug)]
 pub(crate) struct ResolvedFunctionDataV1 {
@@ -38,6 +40,20 @@ pub(crate) struct ResolvedFunctionDraftV1 {
 #[derive(Debug)]
 pub struct VerifiedResolvedFunctionV1 {
     data: ResolvedFunctionDataV1,
+    normalized: NormalizedResolvedFunctionGraphV1,
+}
+
+impl ResolvedFunctionDraftV1 {
+    pub(crate) fn seal(
+        self,
+    ) -> Result<VerifiedResolvedFunctionV1, ResolvedFunctionVerificationErrorV1> {
+        verify_resolved_function(&self.data)?;
+        let normalized = build_normalized_graph(&self.data);
+        Ok(VerifiedResolvedFunctionV1 {
+            data: self.data,
+            normalized,
+        })
+    }
 }
 
 impl VerifiedResolvedFunctionV1 {
@@ -113,8 +129,7 @@ impl VerifiedResolvedFunctionV1 {
         self.data.regions.len()
     }
 
-    #[cfg(test)]
-    pub(super) fn from_unverified_data_for_schema_test(data: ResolvedFunctionDataV1) -> Self {
-        Self { data }
+    pub fn normalized_graph(&self) -> &NormalizedResolvedFunctionGraphV1 {
+        &self.normalized
     }
 }

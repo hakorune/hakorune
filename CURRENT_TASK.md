@@ -28,11 +28,11 @@ When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executa
 Read `latest_card_path` in `CURRENT_STATE.toml` before editing. Resolved Region
 Flow V1 now has an accepted prerequisite: one owner-scoped
 `VerifiedResolvedFunctionV1` semantic arena built before Planner and Lower.
-SA0 and the disconnected SA1 shadow resolver are closed. The next code-facing
-slice is SA2: canonical arena verification, sealing, and an origin-keyed
-normalized parity graph. SA2 must name the unique function-owner brand issuer,
-remove the schema-test bypass, and keep Facts/Planner/Recipe/Lower disconnected.
-SA3 then performs the atomic canonical
+SA0, the disconnected SA1 shadow resolver, and SA2 verification/sealing are
+closed. The sealed product now owns an origin-keyed normalized parity graph;
+only the compilation-scoped issuer creates owner brands, and the schema-test
+bypass is gone. Facts/Planner/Recipe/Lower remain disconnected. The next
+code-facing slice, SA3, performs the atomic canonical
 BindingId authority cutover, followed by exact RegionId target cutover and
 duplicate-owner retirement. Never let resolver and Lower allocate independent
 BindingIds for the same declaration. R1 ResolvedRegionView starts only after

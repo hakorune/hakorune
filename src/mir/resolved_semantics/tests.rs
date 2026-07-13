@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use hakorune_mir_core::BindingId;
 
-use super::ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
+use super::ids::{BindingRefV1, FunctionOwnerIdV1, FunctionOwnerIssuerV1, RegionId, ScopeId};
 use super::product::{ResolvedFunctionDataV1, ResolvedFunctionDraftV1};
 use super::records::{
     BindingKindV1, BindingOriginV1, RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1,
@@ -14,6 +14,16 @@ use super::source_site::{
     SourceStmtSiteV1,
 };
 use super::VerifiedResolvedFunctionV1;
+
+fn owner() -> FunctionOwnerIdV1 {
+    FunctionOwnerIssuerV1::new_for_compilation()
+        .issue()
+        .unwrap()
+}
+
+fn seal(data: ResolvedFunctionDataV1) -> VerifiedResolvedFunctionV1 {
+    ResolvedFunctionDraftV1 { data }.seal().unwrap()
+}
 
 fn node(segments: Vec<SourcePathSegmentV1>) -> SourceNodeSiteV1 {
     SourceNodeSiteV1::from_segments(segments)
@@ -90,11 +100,9 @@ fn sample_data(owner: FunctionOwnerIdV1, binding: BindingId) -> ResolvedFunction
 
 #[test]
 fn sealed_product_exposes_read_only_owner_scoped_records() {
-    let owner = FunctionOwnerIdV1::from_raw(7);
+    let owner = owner();
     let binding = BindingId::new(11);
-    let verified = VerifiedResolvedFunctionV1::from_unverified_data_for_schema_test(sample_data(
-        owner, binding,
-    ));
+    let verified = seal(sample_data(owner, binding));
     let binding_ref = verified.binding_ref(binding).unwrap();
 
     assert_eq!(verified.owner(), owner);
@@ -162,12 +170,11 @@ fn sealed_product_exposes_read_only_owner_scoped_records() {
 
 #[test]
 fn lookup_rejects_handles_from_another_function_owner() {
-    let owner = FunctionOwnerIdV1::from_raw(7);
-    let other = FunctionOwnerIdV1::from_raw(8);
+    let mut issuer = FunctionOwnerIssuerV1::new_for_compilation();
+    let owner = issuer.issue().unwrap();
+    let other = issuer.issue().unwrap();
     let binding = BindingId::new(11);
-    let verified = VerifiedResolvedFunctionV1::from_unverified_data_for_schema_test(sample_data(
-        owner, binding,
-    ));
+    let verified = seal(sample_data(owner, binding));
 
     assert!(verified
         .binding(BindingRefV1::new(other, binding))
@@ -178,11 +185,9 @@ fn lookup_rejects_handles_from_another_function_owner() {
 
 #[test]
 fn binding_arena_does_not_assume_dense_or_zero_based_canonical_ids() {
-    let owner = FunctionOwnerIdV1::from_raw(7);
+    let owner = owner();
     let binding = BindingId::new(42);
-    let verified = VerifiedResolvedFunctionV1::from_unverified_data_for_schema_test(sample_data(
-        owner, binding,
-    ));
+    let verified = seal(sample_data(owner, binding));
     let binding_ref = verified.binding_ref(binding).unwrap();
 
     assert_eq!(
@@ -201,7 +206,7 @@ fn structural_sites_distinguish_identical_roles_at_different_positions() {
 
 #[test]
 fn binding_rebind_and_heap_writes_are_distinct_vocabulary() {
-    let owner = FunctionOwnerIdV1::from_raw(7);
+    let owner = owner();
     let binding = BindingRefV1::new(owner, BindingId::new(0));
     let receiver = expr(1, SourcePathSegmentV1::Receiver);
 
@@ -220,9 +225,44 @@ fn binding_rebind_and_heap_writes_are_distinct_vocabulary() {
 }
 
 #[test]
+fn compilation_owner_issuer_never_reuses_a_brand() {
+    let mut issuer = FunctionOwnerIssuerV1::new_for_compilation();
+    assert_ne!(issuer.issue().unwrap(), issuer.issue().unwrap());
+}
+
+#[test]
+fn seal_rejects_foreign_scope_identity() {
+    let mut issuer = FunctionOwnerIssuerV1::new_for_compilation();
+    let owner = issuer.issue().unwrap();
+    let foreign = issuer.issue().unwrap();
+    let mut data = sample_data(owner, BindingId::new(0));
+    let record = data.scopes.remove(&data.function_scope).unwrap();
+    data.scopes.insert(ScopeId::new(foreign, 0), record);
+
+    assert!(ResolvedFunctionDraftV1 { data }.seal().is_err());
+}
+
+#[test]
+fn normalized_graph_ignores_owner_and_raw_binding_numbers() {
+    let mut issuer = FunctionOwnerIssuerV1::new_for_compilation();
+    let first = seal(sample_data(issuer.issue().unwrap(), BindingId::new(7)));
+    let second = seal(sample_data(issuer.issue().unwrap(), BindingId::new(91)));
+
+    assert_eq!(first.normalized_graph(), second.normalized_graph());
+}
+
+#[test]
+fn seal_rejects_missing_source_declaration_index() {
+    let mut data = sample_data(owner(), BindingId::new(0));
+    data.declarations.clear();
+
+    assert!(ResolvedFunctionDraftV1 { data }.seal().is_err());
+}
+
+#[test]
 fn mutable_draft_is_crate_private_and_distinct_from_verified_product() {
     let draft = ResolvedFunctionDraftV1 {
-        data: sample_data(FunctionOwnerIdV1::from_raw(7), BindingId::new(0)),
+        data: sample_data(owner(), BindingId::new(0)),
     };
     assert_eq!(draft.data.bindings.len(), 1);
 }

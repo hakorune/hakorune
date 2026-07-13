@@ -8,13 +8,30 @@ use hakorune_mir_core::BindingId;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct FunctionOwnerIdV1(u32);
 
-impl FunctionOwnerIdV1 {
-    pub(crate) const fn from_raw(raw: u32) -> Self {
-        Self(raw)
+/// One owner-brand issuer per active function-compilation session.
+///
+/// The emitted slot is an invocation-local membership brand. It is never a
+/// source identity or Rust/Hako parity value.
+#[derive(Debug, Default)]
+pub(crate) struct FunctionOwnerIssuerV1 {
+    next_slot: u32,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct FunctionOwnerIssueExhaustedV1;
+
+impl FunctionOwnerIssuerV1 {
+    pub(crate) const fn new_for_compilation() -> Self {
+        Self { next_slot: 0 }
     }
 
-    pub const fn raw(self) -> u32 {
-        self.0
+    pub(crate) fn issue(&mut self) -> Result<FunctionOwnerIdV1, FunctionOwnerIssueExhaustedV1> {
+        let slot = self.next_slot;
+        self.next_slot = self
+            .next_slot
+            .checked_add(1)
+            .ok_or(FunctionOwnerIssueExhaustedV1)?;
+        Ok(FunctionOwnerIdV1(slot))
     }
 }
 

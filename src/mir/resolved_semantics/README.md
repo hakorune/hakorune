@@ -18,6 +18,15 @@ only `ShadowResolvedFunctionV0` for tests and deterministic inspection. It
 cannot populate the canonical draft, allocate `BindingId`, plan control flow,
 or lower MIR.
 
+SA2 installs the real publication boundary. A compilation-scoped issuer is
+the only owner-brand constructor; `ResolvedFunctionDraftV1::seal` verifies
+owner membership, graph roots/ancestry, binding accounting, source indexes,
+and exact control targets before publishing. The sealed product also owns a
+deterministic origin-keyed normalized graph for parity. Raw owner, binding,
+scope, and region numbers never enter that graph. SA2 still has no canonical
+AST resolver producer and no Planner or Lower connection; those are later
+authority-cutover slices.
+
 ## Authority
 
 - The canonical AST owns syntax and source execution order.
@@ -50,5 +59,4 @@ a public consumer input. Unsupported resolution never retries a legacy path.
 SA1's `ShadowBindingOrdinalV0` uses a separate crate-private shadow product.
 It never populates this canonical BindingId product or enters Planner or
 Lower. Unsupported syntax returns a typed resolver error and never retries an
-old resolver. SA2 removes the schema-test verifier bypass once the real
-verifier is available.
+old resolver. There is no test-only unverified publication bypass.

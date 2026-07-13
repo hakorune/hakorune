@@ -40,9 +40,9 @@ cargo check -q
 
 - handoff frontier: read `current_blocker_token` in `CURRENT_STATE.toml`
 - read `latest_card_path` before editing
-- SA0 and disconnected SA1 shadow resolution are closed; the active slice is
-  SA2 canonical verification, seal, and normalized graph named by
-  `latest_card_path`
+- SA0, disconnected SA1 shadow resolution, and SA2 canonical verification,
+  seal, and normalized graph are closed; the active slice is SA3 atomic
+  BindingId authority cutover named by `latest_card_path`
 - keep RegionFlow R1, parser/source-carrier P1, and all parked source-projection
   stashes disconnected until the semantic-arena prerequisite series closes
 - LANGV1 conformance closeout and Failure/Outcome global migration remain
