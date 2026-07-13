@@ -711,7 +711,7 @@ fi
 while IFS= read -r consumer; do
   [[ -z "$consumer" ]] && continue
   case "$consumer" in
-    "$MIR_MOD"|"$MODULE"/*|"$LOWER_STATE"|"$LOWER_LOCAL"|"$LOWER_PARAM"|"$LOWERING_INPUT"|"$ROOT/src/mir/compiler/located.rs"|"$ROOT/src/mir/compiler/source_projection.rs"|"$ROOT/src/mir/compiler/source_view.rs"|"$ROOT/src/mir/compiler/source_view_tests.rs"|"$ROOT/src/mir/compiler/capability.rs"|"$ROOT/src/mir/compiler/function_input.rs"|"$RESOLVED_LOWER"/*)
+    "$MIR_MOD"|"$MODULE"/*|"$LOWER_STATE"|"$LOWER_LOCAL"|"$LOWER_PARAM"|"$LOWERING_INPUT"|"$ROOT/src/mir/compiler/located.rs"|"$ROOT/src/mir/compiler/source_projection.rs"|"$ROOT/src/mir/compiler/source_view.rs"|"$ROOT/src/mir/compiler/source_view_tests.rs"|"$ROOT/src/mir/compiler/capability.rs"|"$ROOT/src/mir/compiler/function_input.rs"|"$ROOT/src/mir/resolved_region_flow"/*|"$RESOLVED_LOWER"/*)
       ;;
     *)
       guard_fail "$TAG" "resolved semantic product escaped its bounded resolver/compiler/lower files: $consumer"
@@ -722,7 +722,7 @@ done <<< "$consumer_output"
 guard_expect_fixed_in_file "$TAG" "legacy_allocation_forbidden" "$LOWER_STATE" \
   "SA3-B legacy BindingId allocator veto missing"
 guard_resolved_blockexpr_lowering_contract "$TAG" "$ROOT"
-guard_resolved_if_s1_contract "$TAG" "$ROOT"
+guard_resolved_if_lowering_contract "$TAG" "$ROOT"
 
 while IFS= read -r file; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"

@@ -43,11 +43,13 @@ B0-L0/B0-L1/B0-L2a/B0-L2b/B0-L2c and the
 atomic SA3-B first family. One explicit resolved route now lowers a preflighted
 non-main static/free straight-line owner with exact BindingRef authority,
 legacy allocator veto, and coverage-before-publication. The default source
-route is still legacy. The active frontier is B0-L3a straight-line BlockExpr
-ScopeId/RegionId consumption, named by `current_blocker_token`; If/Loop/
-CorePlan/Lambda and capture mode/layout remain zero. The first SA3-B owner
-cutover is complete; later families, exact RegionId target cutover, and
-duplicate-owner retirement remain bounded follow-ups. Never let resolver and
-Lower allocate independent BindingIds for the same declaration. R1
+route is still legacy. B0-L3a BlockExpr Lower and B0-L3b-S1/S2 exact If
+identity/verified flow are closed. The active frontier is B0-L3b-I1a
+disconnected If materialization infrastructure, named by
+`current_blocker_token`; canonical If activation, Loop/CorePlan/Lambda, and
+capture mode/layout remain zero. The first SA3-B owner cutover is complete;
+later families, exact RegionId target cutover, and duplicate-owner retirement
+remain bounded follow-ups. Never let resolver and Lower allocate independent
+BindingIds for the same declaration. R1
 ResolvedRegionView starts only after SA5. R9 legacy loop_var retirement remains
 Epic completion. Keep every source file below 800 lines.

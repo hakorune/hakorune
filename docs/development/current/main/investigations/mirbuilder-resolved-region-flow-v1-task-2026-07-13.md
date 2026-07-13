@@ -1,6 +1,6 @@
 # Resolved Region Flow V1 — Taskboard
 
-Status: Owner Forest V1 through B0-L3b-S1 closed; S2 verified function If flow is active.
+Status: Owner Forest V1 through B0-L3b-S2 closed; I1a disconnected materialization infrastructure is active.
 Date: 2026-07-13
 Decision: `function_semantic_resolver_v1_owner_scoped_arena` followed by
 `recursive_structured_region_flow`.

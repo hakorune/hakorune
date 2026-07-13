@@ -234,6 +234,19 @@
       "retirement_owner": "canonical-resolved-lowering-tests"
     },
     {
+      "producer_id": "test-resolved-region-flow-blockexpr",
+      "producer_path": "src/mir/resolved_region_flow/if_flow_tests.rs",
+      "producer_status": "TestOnly",
+      "output_family": "test ASTNode::BlockExpr",
+      "consumer_entry": "B0-L3b-S2 pre-Builder If flow tests",
+      "classification": "TestOnly",
+      "required_scope_semantics": "TestOnlyExactResolvedPair",
+      "live_caller_evidence": [
+        "src/mir/resolved_region_flow/if_flow_tests.rs#let condition = ASTNode::BlockExpr {"
+      ],
+      "retirement_owner": "resolved-region-flow-tests"
+    },
+    {
       "producer_id": "test-json-v0-sum-lane-blockexpr",
       "producer_path": "src/runner/json_v0_bridge/tests/sum_lane.rs",
       "producer_status": "TestOnly",

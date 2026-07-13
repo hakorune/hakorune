@@ -22,9 +22,11 @@ Related:
 - priority: read `active_lane` and `current_blocker_token`; owner-forest
   P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S/B0-F are closed, B0-C was skipped, and
   B0-L0/B0-L1/B0-L2a/B0-L2b/B0-L2c/SA3-B are closed; one explicit non-main
-  static/free straight-line resolved route is landed with exact BindingRef
-  authority. B0-L3a straight-line BlockExpr Lower is next; default source,
-  If/Loop/CorePlan/Lambda, RegionFlow, and parser/source-carrier P1 remain
+  static/free straight-line resolved route and B0-L3a BlockExpr Lower are
+  landed with exact BindingRef/ScopeId/RegionId authority. B0-L3b-S1/S2 exact
+  If identity and verified pre-Builder flow are closed; I1a disconnected If
+  materialization infrastructure is next. Default source, canonical If
+  activation, Loop/CorePlan/Lambda, and parser/source-carrier P1 remain
   disconnected
 - parked language work: LANGV1 conformance closeout remains parked; no
   language behavior is changed by the reprioritization

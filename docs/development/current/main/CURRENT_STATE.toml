@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "B0-L3b-S1 exact If region bundle closed; S2 verified function If flow is active"
+status = "B0-L3b-S2 verified function If flow closed; I1a disconnected materialization infrastructure is active"
 date = "2026-07-13"
 
 active_lane = "MIRBUILDER Hako SourceBodyAnalysisSnapshotV1"
@@ -125,9 +125,10 @@ latest_card_path = "docs/development/current/main/investigations/mirbuilder-b0-l
 latest_card_summary = """B0-L3b accepts A+: one pre-Builder verified function
 flow is the only statement-If branch-effect authority. The first runtime claim
 is fallthrough-only, exact RegionIds are consume-only until SA4, and S1 now
-closes the exact If/IfThen/optional-IfElse identity topology. S2 verified
-function If flow is active. Production If activation remains zero through
-S2/I1a and switches atomically in I1b.
+closes the exact If/IfThen/optional-IfElse identity topology. S2 now closes
+the owner-closed, lifetime-free verified function If flow. I1a disconnected
+materialization infrastructure is active. Production If activation remains
+zero through I1a and switches atomically in I1b.
 Historical owner-forest context follows. Resolved Semantic Owner Forest V1
 accepts A-double-prime `sealed_owner_forest_with_structural_upvar_edges`. One recursive forest
 resolver session reuses the existing function-owner issuer, builds owner-local
@@ -188,8 +189,8 @@ Lambda, BlockExpr runtime lowering, and legacy retry remain disconnected.
 B0-L3a closes straight-line BlockExpr sealed ScopeId/RegionId consumption,
 located prelude/tail Lower, active/retired BindingRef disposition, and two
 VM-reference runtime fixtures. B0-L3b accepts A+ pre-Builder verified If flow.
-S1 exact If region bundle is closed and S2 verified function If flow is the
-active executable slice.
+S1 exact If region bundle and S2 verified function If flow are closed. I1a
+disconnected materialization infrastructure is the active executable slice.
 Historical decision follows.
 Resolved Region Flow V1 accepts
 `function_semantic_resolver_v1_owner_scoped_arena`. One pre-plan
@@ -461,7 +462,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-L3B-S2-VERIFIED-FUNCTION-IF-FLOW-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-L3B-I1A-DISCONNECTED-IF-MATERIALIZATION-INFRASTRUCTURE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -470,6 +471,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-13: B0-L3b-S2 closes one owner-closed lifetime-free function If flow with typed fallthrough ports, separate condition effects, exact join-source rows, source-preorder publication, nested child-summary composition, exact coverage/bundle bijection, ten focused fixtures, and zero Builder/Lower/runtime activation.",
   "2026-07-13: B0-L3b-S1 closes a private seal-derived exact If/IfThen/optional-IfElse identity index, self-relative query, full branch record accounting, ten focused fixtures, and zero production query/RegionFlow/Lower activation.",
   "2026-07-13: B0-L3a closes straight-line canonical BlockExpr Lower with exact sealed ScopeId/RegionId pair consumption, explicit scope transactions, active/retired BindingRef dispositions, nested/shadow/rebind fixtures, and VM-reference results.",
   "2026-07-13: SA3-B closes the first canonical function family atomically with one verified source-unit constructor, pre-Builder capability check, exact located carriers, BindingRef-keyed values, legacy allocator veto, complete coverage, transactional publication, and six focused tests.",
@@ -481,5 +483,4 @@ landed_tail = [
   "2026-07-12: 3457 closes the focused MapStoreI64 Fact/Plan/Boundary inventory; exact-i64 witness work reuses the existing ExactNumericValueFact owner.",
   "2026-07-12: 3455 opens the MapStore caller-orientation Fact/Plan/Boundary design stop after the 3454 fixture-backed pilot; no next hard-authority owner is selected.",
   "2026-07-12: 3454 closes the MapStoreI64 caller-orientation pilot with PolicyRowIdOnly/Unit scope, typed key/stored-value evidence, fail-fast identity validation, fixture, and guard.",
-  "2026-07-12: 3456 closes MapStore RoutePolicyRow BoxShape with one multi-artifact generator, projection ownership, atomic write/check, and value_boundary removal from current generated policy artifacts.",
 ]

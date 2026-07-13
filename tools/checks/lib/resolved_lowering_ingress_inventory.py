@@ -278,6 +278,7 @@ def main() -> None:
         lowering_input,
         compiler_dir / "capability.rs",
         compiler_dir / "function_input.rs",
+        root / "src/mir/resolved_region_flow/analyzer.rs",
     } | set(resolved_lowering_dir.glob("*.rs"))
     external_view_consumers = []
     view_tokens = (

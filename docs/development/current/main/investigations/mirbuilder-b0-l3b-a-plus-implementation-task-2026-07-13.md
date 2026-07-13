@@ -1,5 +1,5 @@
 ---
-Status: Active — S1 closed; S2 verified function If flow
+Status: Active — S1/S2 closed; I1a disconnected materialization infrastructure
 Date: 2026-07-13
 Decision: A+ pre-Builder verified flow contract
 Work mode: Refactor Series Mode; one purpose, five green commits
@@ -432,7 +432,7 @@ canonical If runtime activation = 0
 resolved_region_flow_authority_guard = green
 dev_gate quick = PASS 66/66
 top authority guard lines = 794
-all Rust source files < 800 lines
+all S1 Rust source files < 800 lines
 selected next slice = B0-L3b-S2 verified function If flow
 ```
 
@@ -486,6 +486,27 @@ cargo test -q --lib mir::resolved_region_flow
 bash tools/checks/resolved_region_flow_authority_guard.sh
 tools/checks/dev_gate.sh quick
 bash tools/checks/current_state_pointer_guard.sh
+```
+
+S2 closure evidence (2026-07-13):
+
+```text
+owner-closed analyzer entry = 1
+lifetime-free function product = 1
+source-preorder If rows = verified
+nested composition = postorder child summary
+typed fallthrough bool fields = 0
+condition effects / branch join = separated
+implicit identity / explicit empty else = distinct
+branch-local join rows = 0
+assignment coverage = exact once
+bundle / source site / flow row bijection = verified
+focused tests = 10/10
+production flow callers = 0
+Builder / Lower / runtime activation = 0
+top authority guard lines = 794
+all S2 Rust source files < 800 lines
+selected next slice = B0-L3b-I1a disconnected materialization infrastructure
 ```
 
 ### 4. I1a — disconnected materialization infrastructure

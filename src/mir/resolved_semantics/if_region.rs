@@ -61,6 +61,10 @@ impl ResolvedIfRegionIndexV1 {
     fn get(&self, site: &SourceStmtSiteV1) -> Option<&ResolvedIfRegionBundleV1> {
         self.by_site.get(site)
     }
+
+    fn len(&self) -> usize {
+        self.by_site.len()
+    }
 }
 
 impl VerifiedResolvedFunctionV1 {
@@ -75,6 +79,14 @@ impl VerifiedResolvedFunctionV1 {
         self.if_regions
             .get(site)
             .ok_or_else(|| ResolvedIfRegionLookupErrorV1::MissingExactBundle(site.clone()))
+    }
+
+    /// Returns only the sealed bundle cardinality for flow/site bijection.
+    ///
+    /// RegionFlow still has to prove every exact source site by point lookup;
+    /// this count does not expose arena or index iteration as another authority.
+    pub(crate) fn if_region_bundle_count(&self) -> usize {
+        self.if_regions.len()
     }
 }
 
