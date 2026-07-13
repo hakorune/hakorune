@@ -1,0 +1,232 @@
+{
+  "schema": "BlockExprProducerInventoryV1",
+  "decision": "lexical_blockexpr",
+  "rows": [
+    {
+      "producer_id": "rust-source-blockexpr-parser",
+      "producer_path": "src/parser/expr/primary/block.rs",
+      "producer_status": "Active",
+      "output_family": "ASTNode::BlockExpr",
+      "consumer_entry": "NyashParser::parse_primary",
+      "classification": "CanonicalRustSource",
+      "required_scope_semantics": "LexicalScopeAndRegion",
+      "live_caller_evidence": [
+        "src/parser/expr/primary.rs#self.parse_block_expr()",
+        "src/parser/expr/primary/block.rs#Ok(ASTNode::BlockExpr {"
+      ],
+      "retirement_owner": "canonical-rust-source-parser"
+    },
+    {
+      "producer_id": "rust-ternary-branch-wrapper",
+      "producer_path": "src/parser/expr/ternary.rs",
+      "producer_status": "Active",
+      "output_family": "ASTNode::BlockExpr",
+      "consumer_entry": "NyashParser::expr_parse_ternary",
+      "classification": "CompilerGeneratedCanonical",
+      "required_scope_semantics": "LexicalScopeAndRegion",
+      "live_caller_evidence": [
+        "src/parser/expr/ternary.rs#fn wrap_ternary_branch_expr(expr: ASTNode) -> ASTNode",
+        "src/parser/expr/ternary.rs#then_body: vec![wrap_ternary_branch_expr(then_expr)]"
+      ],
+      "retirement_owner": "canonical-ternary-syntax"
+    },
+    {
+      "producer_id": "rust-enum-match-payload-wrapper",
+      "producer_path": "src/parser/expr/match_expr_impl.rs",
+      "producer_status": "Active",
+      "output_family": "ASTNode::BlockExpr",
+      "consumer_entry": "wrap_compat_payload_enum_arm_body",
+      "classification": "CompilerGeneratedCanonical",
+      "required_scope_semantics": "LexicalScopeAndRegion",
+      "live_caller_evidence": [
+        "src/parser/expr/match_expr_impl.rs#fn wrap_compat_payload_enum_arm_body(",
+        "src/parser/expr/match_expr_impl.rs#Ok(ASTNode::BlockExpr {"
+      ],
+      "retirement_owner": "enum-match-pattern-desugaring"
+    },
+    {
+      "producer_id": "rust-build-gate-blockexpr-rebuilder",
+      "producer_path": "src/parser/build_cfg/prune.rs",
+      "producer_status": "Active",
+      "output_family": "ASTNode::BlockExpr",
+      "consumer_entry": "BuildCfgEvaluator::prune_build_gate_items",
+      "classification": "CompilerGeneratedCanonical",
+      "required_scope_semantics": "PreserveCanonicalLexicalScopeAndRegion",
+      "live_caller_evidence": [
+        "src/parser/build_cfg/prune.rs#out.push(ASTNode::BlockExpr {",
+        "src/parser/build_cfg/prune.rs#} => Ok(ASTNode::BlockExpr {"
+      ],
+      "retirement_owner": "build-gate-structural-pruner"
+    },
+    {
+      "producer_id": "ast-json-roundtrip-blockexpr",
+      "producer_path": "src/macro/ast_json/roundtrip.rs",
+      "producer_status": "Active",
+      "output_family": "ast_json_roundtrip_v1 ASTNode::BlockExpr",
+      "consumer_entry": "macro AST roundtrip ingress",
+      "classification": "CompilerGeneratedCanonical",
+      "required_scope_semantics": "PreserveCanonicalLexicalScopeAndRegion",
+      "live_caller_evidence": [
+        "src/macro/ast_json/roundtrip.rs#\"BlockExpr\" => ASTNode::BlockExpr {",
+        "src/host_providers/mir_builder/lowering/ast_json.rs#crate::r#macro::ast_json::json_to_ast(parsed)"
+      ],
+      "retirement_owner": "ast-json-roundtrip-v1"
+    },
+    {
+      "producer_id": "hako-typed-source-blockexpr",
+      "producer_path": "lang/src/compiler/parser/expr/parser_literal_box.hako",
+      "producer_status": "Planned",
+      "output_family": "HakoSourceTreeV1::BlockExpr",
+      "consumer_entry": "FunctionSemanticResolverV1 typed-source ingress",
+      "classification": "CanonicalHakoTypedSourcePlanned",
+      "required_scope_semantics": "PlannedLexicalScopeAndRegion",
+      "live_caller_evidence": [
+        "docs/development/current/main/investigations/mirbuilder-resolved-semantic-owner-forest-design-stop-2026-07-13.md#parser-private HakoSourceTreeV1 BlockExpr"
+      ],
+      "retirement_owner": "hako-typed-source-parser-adoption"
+    },
+    {
+      "producer_id": "rust-program-v0-blockexpr-projector",
+      "producer_path": "src/stage1/program_json_v0/lowering.rs",
+      "producer_status": "Active",
+      "output_family": "ProgramV0 ExprV0::BlockExpr",
+      "consumer_entry": "json_v0_bridge::lower_expr_with_vars",
+      "classification": "LegacyProgramV0Compatibility",
+      "required_scope_semantics": "LegacyCompatibilityNoSourceRecovery",
+      "live_caller_evidence": [
+        "src/stage1/program_json_v0/lowering.rs#fn block_expr_to_json_v0(",
+        "src/runner/json_v0_bridge/lowering/expr.rs#ExprV0::BlockExpr { prelude, tail }"
+      ],
+      "retirement_owner": "program-json-v0-retirement"
+    },
+    {
+      "producer_id": "hako-program-v0-blockexpr-parser",
+      "producer_path": "lang/src/compiler/parser/expr/parser_literal_box.hako",
+      "producer_status": "Active",
+      "output_family": "ProgramV0 BlockExpr JSON",
+      "consumer_entry": "json_v0_bridge strict ProgramV0 ingress",
+      "classification": "LegacyProgramV0Compatibility",
+      "required_scope_semantics": "LegacyCompatibilityNoSourceRecovery",
+      "live_caller_evidence": [
+        "lang/src/compiler/parser/expr/parser_expr_box.hako#return ParserLiteralBox.parse_block_expr(src, j, ctx)",
+        "lang/src/compiler/parser/expr/parser_literal_box.hako#return \"{\\\"type\\\":\\\"BlockExpr\\\",\\\"prelude\\\":\" + prelude"
+      ],
+      "retirement_owner": "hako-typed-source-parser-adoption"
+    },
+    {
+      "producer_id": "program-v0-blockexpr-ingress",
+      "producer_path": "src/runner/json_v0_bridge/ast.rs",
+      "producer_status": "Active",
+      "output_family": "ExprV0::BlockExpr",
+      "consumer_entry": "json_v0_bridge expression and legacy-sequence lowerers",
+      "classification": "LegacyProgramV0Compatibility",
+      "required_scope_semantics": "LegacyCompatibilityNoSourceRecovery",
+      "live_caller_evidence": [
+        "src/runner/json_v0_bridge/ast.rs#BlockExpr {",
+        "src/runner/json_v0_bridge/lowering/if_legacy.rs#ExprV0::BlockExpr { prelude, tail }",
+        "src/runner/json_v0_bridge/lowering/while_legacy.rs#ExprV0::BlockExpr { prelude, tail }",
+        "src/runner/json_v0_bridge/lowering/lambda_legacy.rs#let ExprV0::BlockExpr { prelude, tail } = be else"
+      ],
+      "retirement_owner": "program-json-v0-retirement"
+    },
+    {
+      "producer_id": "dead-joinir-compat-blockexpr-rehydrator",
+      "producer_path": "src/macro/ast_json/joinir_compat/json_to_ast.rs",
+      "producer_status": "Dead",
+      "output_family": "legacy joinir_compat ASTNode::BlockExpr",
+      "consumer_entry": "none",
+      "classification": "RejectedOrUnknown",
+      "required_scope_semantics": "DeadNoAuthority",
+      "live_caller_evidence": [],
+      "retirement_owner": "macro-joinir-compat-cleanup"
+    },
+    {
+      "producer_id": "test-normalizer-blockexpr-builders",
+      "producer_path": "src/mir/builder/control_flow/plan/normalizer/helpers_pure_value.rs",
+      "producer_status": "TestOnly",
+      "output_family": "test ASTNode::BlockExpr",
+      "consumer_entry": "PlanNormalizer focused tests",
+      "classification": "TestOnly",
+      "required_scope_semantics": "TestOnlyNoAuthority",
+      "live_caller_evidence": [
+        "src/mir/builder/control_flow/plan/normalizer/helpers_pure_value.rs#fn empty_blockexpr(tail_expr: ASTNode) -> ASTNode",
+        "src/mir/builder/control_flow/plan/normalizer/helpers_pure_value.rs#fn blockexpr(prelude_stmts: Vec<ASTNode>, tail_expr: ASTNode) -> ASTNode"
+      ],
+      "retirement_owner": "plan-normalizer-tests"
+    },
+    {
+      "producer_id": "test-generic-loop-pure-value-blockexpr",
+      "producer_path": "src/mir/builder/control_flow/plan/facts/expr_generic_loop.rs",
+      "producer_status": "TestOnly",
+      "output_family": "test ASTNode::BlockExpr",
+      "consumer_entry": "generic-loop pure-value facts tests",
+      "classification": "TestOnly",
+      "required_scope_semantics": "TestOnlyNoAuthority",
+      "live_caller_evidence": [
+        "src/mir/builder/control_flow/plan/facts/expr_generic_loop.rs#let wrapped = ASTNode::BlockExpr {"
+      ],
+      "retirement_owner": "generic-loop-facts-tests"
+    },
+    {
+      "producer_id": "test-generic-loop-extract-blockexpr",
+      "producer_path": "src/mir/builder/control_flow/plan/generic_loop/facts/extract/tests.rs",
+      "producer_status": "TestOnly",
+      "output_family": "test ASTNode::BlockExpr",
+      "consumer_entry": "generic-loop extraction tests",
+      "classification": "TestOnly",
+      "required_scope_semantics": "TestOnlyNoAuthority",
+      "live_caller_evidence": [
+        "src/mir/builder/control_flow/plan/generic_loop/facts/extract/tests.rs#let if_cond = ASTNode::BlockExpr {"
+      ],
+      "retirement_owner": "generic-loop-extract-tests"
+    },
+    {
+      "producer_id": "test-balanced-depth-blockexpr-builder",
+      "producer_path": "src/mir/policies/balanced_depth_scan/tests.rs",
+      "producer_status": "TestOnly",
+      "output_family": "test ASTNode::BlockExpr",
+      "consumer_entry": "balanced-depth scan tests",
+      "classification": "TestOnly",
+      "required_scope_semantics": "TestOnlyNoAuthority",
+      "live_caller_evidence": [
+        "src/mir/policies/balanced_depth_scan/tests.rs#fn blockexpr(prelude_stmts: Vec<ASTNode>, tail_expr: ASTNode) -> ASTNode"
+      ],
+      "retirement_owner": "balanced-depth-scan-tests"
+    },
+    {
+      "producer_id": "test-json-v0-sum-lane-blockexpr",
+      "producer_path": "src/runner/json_v0_bridge/tests/sum_lane.rs",
+      "producer_status": "TestOnly",
+      "output_family": "test ProgramV0 BlockExpr JSON",
+      "consumer_entry": "json_v0_bridge sum-lane tests",
+      "classification": "TestOnly",
+      "required_scope_semantics": "TestOnlyNoAuthority",
+      "live_caller_evidence": [
+        "src/runner/json_v0_bridge/tests/sum_lane.rs#\"type\": \"BlockExpr\""
+      ],
+      "retirement_owner": "json-v0-bridge-tests"
+    },
+    {
+      "producer_id": "test-strict-json-malformed-blockexpr",
+      "producer_path": "src/backend/mir_interpreter/strict_json_session/tests/tests_snapshot/negative.rs",
+      "producer_status": "TestOnly",
+      "output_family": "invalid test ProgramV0 BlockExpr JSON",
+      "consumer_entry": "strict JSON negative snapshot tests",
+      "classification": "TestOnly",
+      "required_scope_semantics": "TestOnlyNoAuthority",
+      "live_caller_evidence": [
+        "src/backend/mir_interpreter/strict_json_session/tests/tests_snapshot/negative.rs#\"type\":\"BlockExpr\""
+      ],
+      "retirement_owner": "strict-json-session-tests"
+    }
+  ],
+  "selection": {
+    "internal_sequence_required_count": 0,
+    "source_parser_compat_sequence_count": 0,
+    "unknown_production_producer_count": 0,
+    "program_v0_schema_delta": 0,
+    "program_v0_source_kind_recovery": 0,
+    "b0_c_disposition": "skipped_by_zero_callers",
+    "selected_next_slice": "B0-S"
+  }
+}

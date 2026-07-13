@@ -8,6 +8,7 @@ MIR_MOD="$ROOT/src/mir/mod.rs"
 LOWER_STATE="$ROOT/src/mir/builder/vars/resolved_binding_state.rs"
 LOWER_LOCAL="$ROOT/src/mir/builder/vars/lexical_scope.rs"
 LOWER_PARAM="$ROOT/src/mir/builder/calls/parameter_setup.rs"
+BLOCKEXPR_INVENTORY="$ROOT/tools/checks/fixtures/blockexpr_producer_inventory_v1.json"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" cargo
@@ -34,6 +35,7 @@ guard_require_files "$TAG" \
   "$LOWER_STATE" \
   "$LOWER_LOCAL" \
   "$LOWER_PARAM" \
+  "$BLOCKEXPR_INVENTORY" \
   "$MODULE/tests.rs" \
   "$MODULE/shadow/mod.rs" \
   "$MODULE/shadow/owner_boundary.rs" \
@@ -104,6 +106,183 @@ mapfile -t CANONICAL_ARENA_FILES < <(
 mapfile -t SHADOW_FILES < <(
   find "$MODULE/shadow" -type f -name '*.rs' ! -name 'tests.rs' -print | LC_ALL=C sort
 )
+
+python3 - "$ROOT" "$BLOCKEXPR_INVENTORY" <<'PY'
+from collections import Counter
+import json
+from pathlib import Path
+import re
+import sys
+
+root = Path(sys.argv[1])
+inventory_path = Path(sys.argv[2])
+data = json.loads(inventory_path.read_text())
+
+if set(data) != {"schema", "decision", "rows", "selection"}:
+    raise SystemExit("BlockExpr producer inventory top-level schema drifted")
+if data["schema"] != "BlockExprProducerInventoryV1":
+    raise SystemExit("BlockExpr producer inventory schema name drifted")
+if data["decision"] != "lexical_blockexpr":
+    raise SystemExit("BlockExpr decision must remain lexical_blockexpr")
+
+row_fields = {
+    "producer_id", "producer_path", "producer_status", "output_family",
+    "consumer_entry", "classification", "required_scope_semantics",
+    "live_caller_evidence", "retirement_owner",
+}
+statuses = {"Active", "Planned", "TestOnly", "Dead"}
+classifications = {
+    "CanonicalRustSource", "CanonicalHakoTypedSourcePlanned",
+    "CompilerGeneratedCanonical", "LegacyProgramV0Compatibility",
+    "InternalSequenceRequired", "TestOnly", "RejectedOrUnknown",
+}
+rows = data["rows"]
+ids = [row.get("producer_id") for row in rows]
+if len(ids) != len(set(ids)):
+    raise SystemExit("BlockExpr producer inventory contains duplicate producer_id")
+
+for row in rows:
+    producer_id = row["producer_id"]
+    if set(row) != row_fields:
+        raise SystemExit(f"{producer_id}: row schema drifted")
+    if row["producer_status"] not in statuses:
+        raise SystemExit(f"{producer_id}: unknown producer_status")
+    if row["classification"] not in classifications:
+        raise SystemExit(f"{producer_id}: unknown classification")
+    producer_path = root / row["producer_path"]
+    if not producer_path.is_file():
+        raise SystemExit(f"{producer_id}: producer_path is missing: {producer_path}")
+    for field in row_fields - {"live_caller_evidence"}:
+        value = row[field]
+        if not isinstance(value, str) or not value:
+            raise SystemExit(f"{producer_id}: {field} must be a non-empty string")
+    evidence = row["live_caller_evidence"]
+    if not isinstance(evidence, list) or not all(isinstance(item, str) for item in evidence):
+        raise SystemExit(f"{producer_id}: live_caller_evidence must be a string array")
+    if row["producer_status"] in {"Active", "Planned", "TestOnly"} and not evidence:
+        raise SystemExit(f"{producer_id}: live/planned/test producer lacks evidence")
+    for item in evidence:
+        if "#" not in item:
+            raise SystemExit(f"{producer_id}: evidence must use path#literal format: {item}")
+        rel, literal = item.split("#", 1)
+        evidence_path = root / rel
+        if not evidence_path.is_file() or literal not in evidence_path.read_text():
+            raise SystemExit(f"{producer_id}: stale evidence: {item}")
+
+counts = Counter(row["classification"] for row in rows)
+unknown_production = sum(
+    row["producer_status"] == "Active" and row["classification"] == "RejectedOrUnknown"
+    for row in rows
+)
+selection = data["selection"]
+expected_selection = {
+    "internal_sequence_required_count": counts["InternalSequenceRequired"],
+    "source_parser_compat_sequence_count": 0,
+    "unknown_production_producer_count": unknown_production,
+    "program_v0_schema_delta": 0,
+    "program_v0_source_kind_recovery": 0,
+    "b0_c_disposition": "skipped_by_zero_callers",
+    "selected_next_slice": "B0-S",
+}
+if selection != expected_selection:
+    raise SystemExit(
+        f"BlockExpr mechanical selection drifted: expected={expected_selection} actual={selection}"
+    )
+if counts["InternalSequenceRequired"] != 0:
+    raise SystemExit("B0-C is forbidden unless a live InternalSequenceRequired producer exists")
+
+# Conservative syntax inventory: count every Rust ASTNode::BlockExpr literal whose
+# top-level fields contain a colon. Current destructuring sites use shorthand fields,
+# so a new constructor or renamed-field pattern intentionally forces reclassification.
+def blockexpr_literal_counts():
+    result = Counter()
+    needle = "ASTNode::BlockExpr {"
+    for base in (root / "src", root / "crates"):
+        for path in base.rglob("*.rs"):
+            text = path.read_text(errors="ignore")
+            start = 0
+            while True:
+                pos = text.find(needle, start)
+                if pos < 0:
+                    break
+                opening = text.find("{", pos)
+                depth = 0
+                has_top_level_colon = False
+                in_string = False
+                escaped = False
+                index = opening
+                while index < len(text):
+                    char = text[index]
+                    if in_string:
+                        if escaped:
+                            escaped = False
+                        elif char == "\\":
+                            escaped = True
+                        elif char == '"':
+                            in_string = False
+                    elif char == '"':
+                        in_string = True
+                    elif char == "{":
+                        depth += 1
+                    elif char == "}":
+                        depth -= 1
+                        if depth == 0:
+                            break
+                    elif char == ":" and depth == 1:
+                        has_top_level_colon = True
+                    index += 1
+                if has_top_level_colon:
+                    result[str(path.relative_to(root))] += 1
+                start = pos + len(needle)
+    return result
+
+actual_literal_counts = blockexpr_literal_counts()
+classified_literal_paths = {
+    row["producer_path"] for row in rows if "ASTNode::BlockExpr" in row["output_family"]
+}
+if set(actual_literal_counts) != classified_literal_paths:
+    raise SystemExit(
+        "ASTNode::BlockExpr producer-path inventory drifted: "
+        f"unclassified={sorted(set(actual_literal_counts) - classified_literal_paths)} "
+        f"stale={sorted(classified_literal_paths - set(actual_literal_counts))}"
+    )
+
+program_v0_literal_paths = set()
+program_v0_literal = re.compile(r'(?:\\?\")type(?:\\?\")\s*:\s*(?:\\?\")BlockExpr')
+for base in (root / "src", root / "lang" / "src"):
+    for suffix in ("*.rs", "*.hako"):
+        for path in base.rglob(suffix):
+            if program_v0_literal.search(path.read_text(errors="ignore")):
+                program_v0_literal_paths.add(str(path.relative_to(root)))
+classified_program_v0_literal_paths = {
+    row["producer_path"] for row in rows if "ProgramV0" in row["output_family"]
+}
+if program_v0_literal_paths != classified_program_v0_literal_paths:
+    raise SystemExit(
+        "ProgramV0 BlockExpr literal producer inventory drifted: "
+        f"unclassified={sorted(program_v0_literal_paths - classified_program_v0_literal_paths)} "
+        f"stale={sorted(classified_program_v0_literal_paths - program_v0_literal_paths)}"
+    )
+
+program_v0_ast = (root / "src/runner/json_v0_bridge/ast.rs").read_text()
+if program_v0_ast.count("BlockExpr {") != 1 or "CompatSequence" in program_v0_ast:
+    raise SystemExit("ProgramV0 BlockExpr schema drifted or gained CompatSequence")
+ingress_rows = [
+    row for row in rows
+    if row["producer_path"] == "src/runner/json_v0_bridge/ast.rs"
+    and row["classification"] == "LegacyProgramV0Compatibility"
+]
+if len(ingress_rows) != 1:
+    raise SystemExit("ProgramV0 BlockExpr ingress must be classified exactly once")
+for rel in (
+    "src/parser/expr/primary/block.rs",
+    "src/parser/expr/ternary.rs",
+    "src/parser/expr/match_expr_impl.rs",
+    "lang/src/compiler/parser/expr/parser_literal_box.hako",
+):
+    if "CompatSequence" in (root / rel).read_text():
+        raise SystemExit(f"source parser must not produce CompatSequence: {rel}")
+PY
 
 guard_expect_fixed_in_file "$TAG" "pub(crate) mod resolved_semantics" "$MIR_MOD" \
   "SA0 module must remain crate-private"
@@ -573,6 +752,12 @@ echo "semantic_owner_forest_readonly_upvar=1"
 echo "semantic_owner_forest_upvar_write=1"
 echo "semantic_owner_forest_capture_mode=0"
 echo "semantic_owner_forest_runtime_slot=0"
+echo "blockexpr_producer_inventory=closed"
+echo "blockexpr_internal_sequence_required=0"
+echo "blockexpr_source_parser_compat_sequence=0"
+echo "blockexpr_unknown_production_producers=0"
+echo "blockexpr_b0_c=skipped_by_zero_callers"
+echo "blockexpr_selected_next_slice=B0-S"
 echo "semantic_arena_source_files_under_800=1"
 echo "shadow_resolver_canonical_binding_ids=0"
 echo "shadow_resolver_external_consumers=0"

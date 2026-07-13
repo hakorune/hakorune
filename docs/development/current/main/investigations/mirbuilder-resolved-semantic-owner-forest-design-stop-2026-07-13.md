@@ -1,5 +1,5 @@
 ---
-Status: P0/E0/OF0/UP0/UP1/B0-D closed; B0-P producer inventory is active
+Status: P0/E0/OF0/UP0/UP1/B0-D/B0-P closed; B0-C skipped; B0-S is active
 Date: 2026-07-13
 Scope: Resolved Semantic Owner Forest V1 design and implementation task order
 Parent: mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
@@ -699,7 +699,7 @@ branch-visible B3 plain-BlockExpr desugar = rejected
 ProgramV0 schema widening/source recovery = 0
 ```
 
-**B0-P — machine-readable producer inventory (active)**
+**B0-P — machine-readable producer inventory (closed)**
 
 Materialize one generated or checked-in fixture consumed by the reusable
 `resolved_region_flow_authority_guard.sh`:
@@ -751,7 +751,29 @@ InternalSequenceRequired count selects B0-C or skip mechanically
 resolver/Planner/Lower behavior change = 0
 ```
 
-**B0-S — disconnected canonical scope/region schema**
+Closeout:
+
+```text
+fixture rows = 16
+active producers = 8
+planned producers = 1
+test-only producers = 6
+dead producers = 1
+InternalSequenceRequired = 0
+source parser CompatSequence producers = 0
+unknown production producers = 0
+ProgramV0 schema/source-kind delta = 0
+B0-C = skipped_by_zero_callers
+selected next slice = B0-S
+```
+
+The reusable authority guard validates the closed row schema, exact evidence,
+producer/status/classification uniqueness, all current Rust
+`ASTNode::BlockExpr` construction sites, the unchanged ProgramV0 variant, and
+the zero-result selector. Resolver, Planner, RegionFlow, and Lower behavior
+remain unchanged.
+
+**B0-S — disconnected canonical scope/region schema (active)**
 
 ```text
 ScopeKindV1::BlockExpr
@@ -761,7 +783,7 @@ scope ancestry and exact source origin verified at seal
 Planner / RegionFlow / Lower connection = 0
 ```
 
-**B0-C — optional internal compatibility carrier**
+**B0-C — optional internal compatibility carrier (skipped)**
 
 Run only when B0-P proves a non-zero `InternalSequenceRequired` caller set.
 
@@ -775,6 +797,9 @@ silent fallback = 0
 
 If B0-P proves zero callers, record `B0-C = skipped_by_zero_callers` and do not
 add the vocabulary.
+
+B0-P proved zero callers. No compatibility carrier, AST variant, ProgramV0
+tag, parser producer, or fallback is added.
 
 **B0-F — lexical fixture lock**
 

@@ -1,6 +1,6 @@
 # Resolved Region Flow V1 — Taskboard
 
-Status: Owner Forest V1 P0/E0/OF0/UP0/UP1/B0-D closed; B0-P producer inventory is active.
+Status: Owner Forest V1 P0/E0/OF0/UP0/UP1/B0-D/B0-P closed; B0-C skipped; B0-S is active.
 Date: 2026-07-13
 Decision: `function_semantic_resolver_v1_owner_scoped_arena` followed by
 `recursive_structured_region_flow`.
@@ -868,12 +868,12 @@ compatibility sequencing must use a distinct compiler-private non-wire carrier
 outside ASTNode and ProgramV0. ProgramV0 remains lossy and may neither recover
 Local versus Assignment nor gain a new v0 tag.
 
-The active B0-P owner is a machine-readable producer inventory consumed by the
+B0-P is closed with a machine-readable producer inventory consumed by the
 reusable Resolved Region Flow authority guard. It classifies every active
-BlockExpr/sequence producer, proves source-parser compatibility-carrier count
-zero, and mechanically selects whether an internal carrier has any live
-caller. Resolver/Planner/Lower behavior remains unchanged in B0-P. Detailed
-task order and stop conditions remain in the active owner-forest card.
+BlockExpr/sequence producer and proves `InternalSequenceRequired = 0`, so B0-C
+is mechanically skipped without adding compatibility vocabulary. B0-S is now
+active. Resolver/Planner/Lower behavior remains unchanged. Detailed task order
+and stop conditions remain in the active owner-forest card.
 
 Known production boundary mismatches must be resolved explicitly before B2:
 
