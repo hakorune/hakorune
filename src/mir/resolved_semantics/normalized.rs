@@ -91,6 +91,7 @@ pub enum NormalizedControlExitV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NormalizedExitV1 {
     pub site: SourceStmtSiteV1,
+    pub owner_region: NormalizedRegionKeyV1,
     pub exit: NormalizedControlExitV1,
 }
 
@@ -190,16 +191,19 @@ pub(super) fn build_normalized_graph(
     let mut scopes = data
         .scopes
         .iter()
-        .map(|(id, record)| NormalizedScopeRecordV1 {
-            key: scope_keys[id].clone(),
-            parent: record.parent().map(|parent| scope_keys[&parent].clone()),
-            owner_region: region_keys[&record.owner_region()].clone(),
-            declarations: record
+        .map(|(id, record)| {
+            let mut declarations = record
                 .declarations()
                 .iter()
                 .map(|binding| binding_key(binding, &binding_keys))
-                .collect::<Vec<_>>()
-                .into_boxed_slice(),
+                .collect::<Vec<_>>();
+            declarations.sort();
+            NormalizedScopeRecordV1 {
+                key: scope_keys[id].clone(),
+                parent: record.parent().map(|parent| scope_keys[&parent].clone()),
+                owner_region: region_keys[&record.owner_region()].clone(),
+                declarations: declarations.into_boxed_slice(),
+            }
         })
         .collect::<Vec<_>>();
     scopes.sort_by(|left, right| left.key.cmp(&right.key));
@@ -314,6 +318,7 @@ fn normalize_exits(
         .iter()
         .map(|(site, exit)| NormalizedExitV1 {
             site: site.clone(),
+            owner_region: region_keys[&data.control_exit_regions[site]].clone(),
             exit: match exit {
                 ResolvedControlExitV1::Continue { target_loop } => {
                     NormalizedControlExitV1::Continue {

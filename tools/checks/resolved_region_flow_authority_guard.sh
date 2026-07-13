@@ -88,9 +88,18 @@ for required in \
   "pub(crate) declarations: BTreeMap<SourceBindingSiteV1, BindingRefV1>" \
   "pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, BindingRefV1>" \
   "pub(crate) assignment_targets:" \
-  "pub(crate) control_exits:"; do
+  "pub(crate) control_exits:" \
+  "pub(crate) control_exit_regions: BTreeMap<SourceStmtSiteV1, RegionId>"; do
   guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/product.rs" \
     "sealed semantic product schema drifted: $required"
+done
+
+for required in \
+  "static NEXT_COMPILATION_BRAND: AtomicU64" \
+  "fetch_update(Ordering::Relaxed, Ordering::Relaxed" \
+  "compilation: u64"; do
+  guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/ids.rs" \
+    "function-owner uniqueness contract drifted: $required"
 done
 
 for required in \
@@ -227,7 +236,7 @@ if rg -n 'ValueId|BasicBlockId|MirBuilder|CoreContext' "${PRODUCTION_FILES[@]}";
   guard_fail "$TAG" "SA0 schema must not import MIR materialization owners"
 fi
 
-if rg -n 'FunctionOwnerIdV1[[:space:]]*\(' \
+if rg -n -U 'FunctionOwnerIdV1[[:blank:]]*\{[[:space:]]*(compilation|slot)[[:blank:]]*:' \
   $(find "$MODULE" -type f -name '*.rs' ! -path "$MODULE/ids.rs" -print); then
   guard_fail "$TAG" "only the compilation-scoped issuer may construct function owner brands"
 fi

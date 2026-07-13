@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "SA2 verifier/seal/normalized graph closed; SA3 authority cutover next"
+status = "SA2 verifier/seal hardening closed; SA3 authority cutover next"
 date = "2026-07-13"
 
 active_lane = "MIRBUILDER Hako SourceBodyAnalysisSnapshotV1"

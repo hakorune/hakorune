@@ -18,14 +18,21 @@ only `ShadowResolvedFunctionV0` for tests and deterministic inspection. It
 cannot populate the canonical draft, allocate `BindingId`, plan control flow,
 or lower MIR.
 
-SA2 installs the real publication boundary. A compilation-scoped issuer is
-the only owner-brand constructor; `ResolvedFunctionDraftV1::seal` verifies
-owner membership, graph roots/ancestry, binding accounting, source indexes,
-and exact control targets before publishing. The sealed product also owns a
+SA2 installs the real publication boundary. A compilation-scoped issuer with
+a process-unique compilation brand is the only owner-brand constructor;
+`ResolvedFunctionDraftV1::seal` verifies owner membership, graph
+roots/ancestry, binding accounting, supplied source-index integrity, and exact
+RegionId control targets before publishing. The sealed product also owns a
 deterministic origin-keyed normalized graph for parity. Raw owner, binding,
 scope, and region numbers never enter that graph. SA2 still has no canonical
 AST resolver producer and no Planner or Lower connection; those are later
 authority-cutover slices.
+
+Because the canonical AST is intentionally not stored here, SA2 cannot prove
+that a caller omitted no syntax site. Canonical-AST site totality becomes
+checkable only when the SA3 resolver co-constructs the closed indexes. SA2
+claims referential integrity of supplied indexes, not syntax-independent
+omniscience.
 
 ## Authority
 

@@ -28,6 +28,7 @@ pub(crate) struct ResolvedFunctionDataV1 {
     pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, BindingRefV1>,
     pub(crate) assignment_targets: BTreeMap<SourceExprSiteV1, ResolvedAssignmentTargetV1>,
     pub(crate) control_exits: BTreeMap<SourceStmtSiteV1, ResolvedControlExitV1>,
+    pub(crate) control_exit_regions: BTreeMap<SourceStmtSiteV1, RegionId>,
 }
 
 /// Mutable construction state. It is never a public consumer input.

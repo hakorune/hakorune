@@ -17,6 +17,7 @@ use super::VerifiedResolvedFunctionV1;
 
 fn owner() -> FunctionOwnerIdV1 {
     FunctionOwnerIssuerV1::new_for_compilation()
+        .unwrap()
         .issue()
         .unwrap()
 }
@@ -90,12 +91,56 @@ fn sample_data(owner: FunctionOwnerIdV1, binding: BindingId) -> ResolvedFunction
             ResolvedAssignmentTargetV1::BindingRebind(binding_ref),
         )]),
         control_exits: BTreeMap::from([(
-            exit_site,
+            exit_site.clone(),
             ResolvedControlExitV1::Return {
                 target_function: region,
             },
         )]),
+        control_exit_regions: BTreeMap::from([(exit_site, region)]),
     }
+}
+
+fn two_binding_data(
+    owner: FunctionOwnerIdV1,
+    first: BindingId,
+    second: BindingId,
+    reverse_scope_order: bool,
+) -> ResolvedFunctionDataV1 {
+    let mut data = sample_data(owner, first);
+    let scope = data.function_scope;
+    let region = data.function_region;
+    let second_site = SourceBindingSiteV1::Local {
+        statement: stmt(4),
+        ordinal: 0,
+    };
+    let second_ref = BindingRefV1::new(owner, second);
+    data.bindings.insert(
+        second,
+        ResolvedBindingRecordV1::new(
+            "y",
+            BindingKindV1::Local { ordinal: 0 },
+            scope,
+            BindingOriginV1::Source(second_site.clone()),
+        ),
+    );
+    data.declarations.insert(second_site, second_ref);
+    let first_ref = data.declarations.values().copied().next().unwrap();
+    let declarations = if reverse_scope_order {
+        vec![second_ref, first_ref]
+    } else {
+        vec![first_ref, second_ref]
+    };
+    data.scopes.insert(
+        scope,
+        ResolvedScopeRecordV1::new(
+            ScopeKindV1::Function,
+            None,
+            region,
+            declarations,
+            ScopeOriginV1::Function(data.function_origin),
+        ),
+    );
+    data
 }
 
 #[test]
@@ -170,7 +215,7 @@ fn sealed_product_exposes_read_only_owner_scoped_records() {
 
 #[test]
 fn lookup_rejects_handles_from_another_function_owner() {
-    let mut issuer = FunctionOwnerIssuerV1::new_for_compilation();
+    let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
     let owner = issuer.issue().unwrap();
     let other = issuer.issue().unwrap();
     let binding = BindingId::new(11);
@@ -226,13 +271,20 @@ fn binding_rebind_and_heap_writes_are_distinct_vocabulary() {
 
 #[test]
 fn compilation_owner_issuer_never_reuses_a_brand() {
-    let mut issuer = FunctionOwnerIssuerV1::new_for_compilation();
+    let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
     assert_ne!(issuer.issue().unwrap(), issuer.issue().unwrap());
 }
 
 #[test]
+fn independent_compilation_issuers_never_collide() {
+    let first = owner();
+    let second = owner();
+    assert_ne!(first, second);
+}
+
+#[test]
 fn seal_rejects_foreign_scope_identity() {
-    let mut issuer = FunctionOwnerIssuerV1::new_for_compilation();
+    let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
     let owner = issuer.issue().unwrap();
     let foreign = issuer.issue().unwrap();
     let mut data = sample_data(owner, BindingId::new(0));
@@ -244,10 +296,27 @@ fn seal_rejects_foreign_scope_identity() {
 
 #[test]
 fn normalized_graph_ignores_owner_and_raw_binding_numbers() {
-    let mut issuer = FunctionOwnerIssuerV1::new_for_compilation();
+    let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
     let first = seal(sample_data(issuer.issue().unwrap(), BindingId::new(7)));
     let second = seal(sample_data(issuer.issue().unwrap(), BindingId::new(91)));
 
+    assert_eq!(first.normalized_graph(), second.normalized_graph());
+}
+
+#[test]
+fn normalized_graph_ignores_scope_declaration_storage_order() {
+    let first = seal(two_binding_data(
+        owner(),
+        BindingId::new(1),
+        BindingId::new(2),
+        false,
+    ));
+    let second = seal(two_binding_data(
+        owner(),
+        BindingId::new(9),
+        BindingId::new(4),
+        true,
+    ));
     assert_eq!(first.normalized_graph(), second.normalized_graph());
 }
 
@@ -256,6 +325,111 @@ fn seal_rejects_missing_source_declaration_index() {
     let mut data = sample_data(owner(), BindingId::new(0));
     data.declarations.clear();
 
+    assert!(ResolvedFunctionDraftV1 { data }.seal().is_err());
+}
+
+#[test]
+fn seal_rejects_sibling_loop_as_control_target() {
+    let owner = owner();
+    let mut data = sample_data(owner, BindingId::new(0));
+    data.control_exits.clear();
+    data.control_exit_regions.clear();
+    let first_loop = RegionId::new(owner, 1);
+    let sibling_loop = RegionId::new(owner, 2);
+    data.regions.insert(
+        first_loop,
+        ResolvedRegionRecordV1::new(
+            RegionKindV1::Loop,
+            Some(data.function_region),
+            None,
+            RegionOriginV1::Source(stmt(4).node().clone()),
+        ),
+    );
+    data.regions.insert(
+        sibling_loop,
+        ResolvedRegionRecordV1::new(
+            RegionKindV1::Loop,
+            Some(data.function_region),
+            None,
+            RegionOriginV1::Source(stmt(5).node().clone()),
+        ),
+    );
+    let exit_site = SourceStmtSiteV1::from_node(node(vec![
+        SourcePathSegmentV1::Body(4),
+        SourcePathSegmentV1::LoopBody(0),
+    ]));
+    data.control_exits.insert(
+        exit_site.clone(),
+        ResolvedControlExitV1::Break {
+            target_loop: sibling_loop,
+        },
+    );
+    data.control_exit_regions.insert(exit_site, first_loop);
+
+    assert!(ResolvedFunctionDraftV1 { data }.seal().is_err());
+}
+
+#[test]
+fn seal_rejects_falsified_outer_owner_for_inner_loop_exit() {
+    let owner = owner();
+    let mut data = sample_data(owner, BindingId::new(0));
+    data.control_exits.clear();
+    data.control_exit_regions.clear();
+    let outer_loop = RegionId::new(owner, 1);
+    let inner_loop = RegionId::new(owner, 2);
+    let outer_site = node(vec![SourcePathSegmentV1::Body(4)]);
+    let inner_site = node(vec![
+        SourcePathSegmentV1::Body(4),
+        SourcePathSegmentV1::LoopBody(0),
+    ]);
+    data.regions.insert(
+        outer_loop,
+        ResolvedRegionRecordV1::new(
+            RegionKindV1::Loop,
+            Some(data.function_region),
+            None,
+            RegionOriginV1::Source(outer_site),
+        ),
+    );
+    data.regions.insert(
+        inner_loop,
+        ResolvedRegionRecordV1::new(
+            RegionKindV1::Loop,
+            Some(outer_loop),
+            None,
+            RegionOriginV1::Source(inner_site.clone()),
+        ),
+    );
+    let exit_site = SourceStmtSiteV1::from_node(node(vec![
+        SourcePathSegmentV1::Body(4),
+        SourcePathSegmentV1::LoopBody(0),
+        SourcePathSegmentV1::LoopBody(0),
+    ]));
+    data.control_exits.insert(
+        exit_site.clone(),
+        ResolvedControlExitV1::Break {
+            target_loop: outer_loop,
+        },
+    );
+    data.control_exit_regions.insert(exit_site, outer_loop);
+
+    assert!(ResolvedFunctionDraftV1 { data }.seal().is_err());
+}
+
+#[test]
+fn seal_rejects_binding_kind_origin_drift() {
+    let mut data = sample_data(owner(), BindingId::new(0));
+    let binding = *data.bindings.keys().next().unwrap();
+    let record = data.bindings.get(&binding).unwrap();
+    data.bindings.insert(
+        binding,
+        ResolvedBindingRecordV1::new(
+            record.diagnostic_name(),
+            BindingKindV1::Parameter { index: 0 },
+            record.owner_scope(),
+            record.origin().clone(),
+        ),
+    );
     assert!(ResolvedFunctionDraftV1 { data }.seal().is_err());
 }
 

@@ -39,9 +39,15 @@ pub enum ResolvedFunctionVerificationErrorV1 {
     DuplicateRegionOrigin,
     DeclarationBindingMismatch(SourceBindingSiteV1),
     MissingDeclarationIndex(BindingId),
+    BindingKindOriginMismatch(BindingId),
+    ScopeKindOriginMismatch(ScopeId),
+    RegionKindOriginMismatch(RegionId),
     DanglingVariableUse,
     DanglingAssignmentBinding,
     DanglingControlTarget(SourceStmtSiteV1),
+    MissingControlExitRegion(SourceStmtSiteV1),
+    ExtraControlExitRegion(SourceStmtSiteV1),
+    ControlExitRegionMismatch(SourceStmtSiteV1),
     WrongControlTargetKind(SourceStmtSiteV1),
     NonAncestorControlTarget(SourceStmtSiteV1),
     NonNearestLoopTarget(SourceStmtSiteV1),
@@ -57,8 +63,83 @@ pub(super) fn verify_resolved_function(
     verify_scope_region_bijection(data)?;
     verify_binding_inventory(data)?;
     verify_indexes(data)?;
+    verify_kind_origin_contracts(data)?;
     verify_normalized_key_uniqueness(data)?;
     verify_control_targets(data)?;
+    Ok(())
+}
+
+fn verify_kind_origin_contracts(
+    data: &ResolvedFunctionDataV1,
+) -> Result<(), ResolvedFunctionVerificationErrorV1> {
+    for (binding, record) in &data.bindings {
+        let valid = match (record.kind(), record.origin()) {
+            (
+                super::records::BindingKindV1::Receiver,
+                BindingOriginV1::Source(SourceBindingSiteV1::Receiver),
+            ) => true,
+            (
+                super::records::BindingKindV1::Parameter { index },
+                BindingOriginV1::Source(SourceBindingSiteV1::Parameter { index: origin }),
+            ) => index == *origin,
+            (
+                super::records::BindingKindV1::Local { ordinal },
+                BindingOriginV1::Source(SourceBindingSiteV1::Local {
+                    ordinal: origin, ..
+                }),
+            ) => ordinal == *origin,
+            (
+                super::records::BindingKindV1::Outbox { ordinal },
+                BindingOriginV1::Source(SourceBindingSiteV1::Outbox {
+                    ordinal: origin, ..
+                }),
+            ) => ordinal == *origin,
+            (
+                super::records::BindingKindV1::LoopBinder,
+                BindingOriginV1::Source(SourceBindingSiteV1::LoopBinder { .. }),
+            ) => true,
+            (
+                super::records::BindingKindV1::CatchBinder { ordinal },
+                BindingOriginV1::Source(SourceBindingSiteV1::CatchBinder {
+                    ordinal: origin, ..
+                }),
+            ) => ordinal == *origin,
+            (
+                super::records::BindingKindV1::PatternBinder { ordinal },
+                BindingOriginV1::Source(SourceBindingSiteV1::PatternBinder {
+                    ordinal: origin, ..
+                }),
+            ) => ordinal == *origin,
+            (
+                super::records::BindingKindV1::CompilerSynthetic,
+                BindingOriginV1::Synthetic { .. },
+            ) => true,
+            _ => false,
+        };
+        if !valid {
+            return Err(ResolvedFunctionVerificationErrorV1::BindingKindOriginMismatch(*binding));
+        }
+    }
+    for (scope, record) in &data.scopes {
+        let valid = matches!(
+            (record.kind(), record.origin()),
+            (ScopeKindV1::Function, ScopeOriginV1::Function(_))
+        ) || (record.kind() != ScopeKindV1::Function
+            && matches!(record.origin(), ScopeOriginV1::Source(_)));
+        if !valid {
+            return Err(ResolvedFunctionVerificationErrorV1::ScopeKindOriginMismatch(*scope));
+        }
+    }
+    for (region, record) in &data.regions {
+        let valid = matches!(
+            (record.kind(), record.origin()),
+            (RegionKindV1::Function, RegionOriginV1::Function(_))
+        ) || (record.kind() != RegionKindV1::Function
+            && matches!(record.origin(), RegionOriginV1::Source(_)));
+        if !valid {
+            return Err(ResolvedFunctionVerificationErrorV1::RegionKindOriginMismatch(*region));
+        }
+    }
     Ok(())
 }
 
@@ -169,6 +250,14 @@ fn verify_scope_region_bijection(
             return Err(ResolvedFunctionVerificationErrorV1::ScopeRegionMismatch(
                 *scope,
             ));
+        }
+        if let Some(parent_scope) = record.parent() {
+            let parent_region = data.scopes[&parent_scope].owner_region();
+            if !is_region_ancestor(data, parent_region, record.owner_region()) {
+                return Err(ResolvedFunctionVerificationErrorV1::ScopeRegionMismatch(
+                    *scope,
+                ));
+            }
         }
     }
     for (region, record) in &data.regions {
@@ -291,7 +380,27 @@ fn verify_normalized_key_uniqueness(
 fn verify_control_targets(
     data: &ResolvedFunctionDataV1,
 ) -> Result<(), ResolvedFunctionVerificationErrorV1> {
+    for site in data.control_exit_regions.keys() {
+        if !data.control_exits.contains_key(site) {
+            return Err(ResolvedFunctionVerificationErrorV1::ExtraControlExitRegion(
+                site.clone(),
+            ));
+        }
+    }
     for (site, exit) in &data.control_exits {
+        let owner_region = *data.control_exit_regions.get(site).ok_or_else(|| {
+            ResolvedFunctionVerificationErrorV1::MissingControlExitRegion(site.clone())
+        })?;
+        if owner_region.owner() != data.owner || !data.regions.contains_key(&owner_region) {
+            return Err(
+                ResolvedFunctionVerificationErrorV1::MissingControlExitRegion(site.clone()),
+            );
+        }
+        if !is_exact_source_container(data, owner_region, site.node()) {
+            return Err(
+                ResolvedFunctionVerificationErrorV1::ControlExitRegionMismatch(site.clone()),
+            );
+        }
         match exit {
             ResolvedControlExitV1::Return { target_function } => {
                 if *target_function != data.function_region {
@@ -310,17 +419,12 @@ fn verify_control_targets(
                         site.clone(),
                     ));
                 }
-                let RegionOriginV1::Source(target_site) = target.origin() else {
-                    return Err(
-                        ResolvedFunctionVerificationErrorV1::NonAncestorControlTarget(site.clone()),
-                    );
-                };
-                if !is_source_ancestor(target_site, site.node()) {
+                if !is_region_ancestor(data, *target_loop, owner_region) {
                     return Err(
                         ResolvedFunctionVerificationErrorV1::NonAncestorControlTarget(site.clone()),
                     );
                 }
-                if nearest_loop_for_site(data, site) != Some(*target_loop) {
+                if nearest_loop_for_region(data, owner_region) != Some(*target_loop) {
                     return Err(ResolvedFunctionVerificationErrorV1::NonNearestLoopTarget(
                         site.clone(),
                     ));
@@ -348,23 +452,57 @@ fn verify_binding_ref(
     Ok(())
 }
 
-fn nearest_loop_for_site(
+fn nearest_loop_for_region(
     data: &ResolvedFunctionDataV1,
-    site: &SourceStmtSiteV1,
+    mut region: RegionId,
 ) -> Option<RegionId> {
-    data.regions
-        .iter()
-        .filter_map(|(region, record)| {
-            let RegionOriginV1::Source(origin) = record.origin() else {
-                return None;
-            };
-            (record.kind() == RegionKindV1::Loop && is_source_ancestor(origin, site.node()))
-                .then_some((*region, origin.segments().len()))
-        })
-        .max_by_key(|(_, depth)| *depth)
-        .map(|(region, _)| region)
+    loop {
+        let record = data.regions.get(&region)?;
+        if record.kind() == RegionKindV1::Loop {
+            return Some(region);
+        }
+        region = record.parent()?;
+    }
 }
 
-fn is_source_ancestor(ancestor: &SourceNodeSiteV1, descendant: &SourceNodeSiteV1) -> bool {
-    descendant.segments().starts_with(ancestor.segments())
+fn is_region_ancestor(
+    data: &ResolvedFunctionDataV1,
+    ancestor: RegionId,
+    mut descendant: RegionId,
+) -> bool {
+    loop {
+        if descendant == ancestor {
+            return true;
+        }
+        let Some(parent) = data
+            .regions
+            .get(&descendant)
+            .and_then(|record| record.parent())
+        else {
+            return false;
+        };
+        descendant = parent;
+    }
+}
+
+fn is_exact_source_container(
+    data: &ResolvedFunctionDataV1,
+    owner: RegionId,
+    site: &SourceNodeSiteV1,
+) -> bool {
+    let owner_record = &data.regions[&owner];
+    if let RegionOriginV1::Source(origin) = owner_record.origin() {
+        if !site.segments().starts_with(origin.segments()) {
+            return false;
+        }
+    }
+    !data.regions.iter().any(|(candidate, record)| {
+        *candidate != owner
+            && is_region_ancestor(data, owner, *candidate)
+            && matches!(
+                record.origin(),
+                RegionOriginV1::Source(origin)
+                    if site.segments().starts_with(origin.segments())
+            )
+    })
 }
