@@ -33,6 +33,7 @@ pub(super) fn classify_shadow_ast_disposition_v0(node: &ASTNode) -> ShadowAstDis
         | ASTNode::Return { .. }
         | ASTNode::Break { .. }
         | ASTNode::Continue { .. }
+        | ASTNode::Print { .. }
         | ASTNode::Local { .. }
         | ASTNode::ScopeBox { .. }
         | ASTNode::Outbox { .. } => CurrentResolvedStatement,
@@ -46,7 +47,15 @@ pub(super) fn classify_shadow_ast_disposition_v0(node: &ASTNode) -> ShadowAstDis
         | ASTNode::Index { .. }
         | ASTNode::New { .. }
         | ASTNode::Me { .. }
-        | ASTNode::FunctionCall { .. } => CurrentResolvedExpression,
+        | ASTNode::FunctionCall { .. }
+        | ASTNode::AwaitExpression { .. }
+        | ASTNode::ArrayLiteral { .. }
+        | ASTNode::MapLiteral { .. }
+        | ASTNode::RecordLiteral { .. }
+        | ASTNode::RecordUpdate { .. }
+        | ASTNode::CheckExpr { .. }
+        | ASTNode::FromCall { .. }
+        | ASTNode::Call { .. } => CurrentResolvedExpression,
 
         ASTNode::Program { .. }
         | ASTNode::UsingStatement { .. }
@@ -56,19 +65,13 @@ pub(super) fn classify_shadow_ast_disposition_v0(node: &ASTNode) -> ShadowAstDis
         | ASTNode::StaticConstTable { .. } => SemanticallyTransparentCandidate,
 
         ASTNode::CompoundAssignment { .. }
-        | ASTNode::Print { .. }
         | ASTNode::LoopRange { .. }
         | ASTNode::BuildGate { .. }
         | ASTNode::Nowait { .. }
         | ASTNode::ContextScope { .. }
-        | ASTNode::AwaitExpression { .. }
         | ASTNode::QMarkPropagate { .. }
         | ASTNode::MatchExpr { .. }
         | ASTNode::EnumMatchExpr { .. }
-        | ASTNode::ArrayLiteral { .. }
-        | ASTNode::MapLiteral { .. }
-        | ASTNode::RecordLiteral { .. }
-        | ASTNode::RecordUpdate { .. }
         | ASTNode::Lambda { .. }
         | ASTNode::BlockExpr { .. }
         | ASTNode::Arrow { .. }
@@ -80,13 +83,10 @@ pub(super) fn classify_shadow_ast_disposition_v0(node: &ASTNode) -> ShadowAstDis
         | ASTNode::BrandDeclaration { .. }
         | ASTNode::TypeAliasDeclaration { .. }
         | ASTNode::GlobalVar { .. }
-        | ASTNode::CheckExpr { .. }
         | ASTNode::GroupedAssignmentExpr { .. }
         | ASTNode::This { .. }
-        | ASTNode::FromCall { .. }
         | ASTNode::ThisField { .. }
-        | ASTNode::MeField { .. }
-        | ASTNode::Call { .. } => ExplicitUnsupported,
+        | ASTNode::MeField { .. } => ExplicitUnsupported,
     }
 }
 
@@ -100,6 +100,7 @@ pub(super) const SHADOW_ACCEPTED_STATEMENTS_V0: &[&str] = &[
     "Break",
     "Continue",
     "Return",
+    "Print",
     "ClosedExpressionStatement",
 ];
 
@@ -107,7 +108,6 @@ pub(super) const SHADOW_ACCEPTED_EXPRESSIONS_V0: &[&str] = &[
     "Literal",
     "Variable",
     "Me",
-    "This",
     "UnaryOp",
     "BinaryOp",
     "MethodCall",
@@ -115,6 +115,14 @@ pub(super) const SHADOW_ACCEPTED_EXPRESSIONS_V0: &[&str] = &[
     "Index",
     "FunctionCall",
     "New",
+    "AwaitExpression",
+    "ArrayLiteral",
+    "MapLiteral",
+    "RecordLiteral",
+    "RecordUpdate",
+    "CheckExpr",
+    "FromCall",
+    "Call",
 ];
 
 pub(super) const SHADOW_ACCEPTED_ASSIGNMENT_TARGETS_V0: &[&str] =

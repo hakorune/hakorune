@@ -9,6 +9,7 @@ use super::product::{
     ShadowScopeKindV0,
 };
 use super::resolver::ShadowResolverV0;
+use super::vocabulary::{classify_shadow_ast_disposition_v0, ShadowAstDispositionV0};
 
 impl ShadowResolverV0 {
     pub(super) fn resolve_body<F>(
@@ -44,6 +45,9 @@ impl ShadowResolverV0 {
             ASTNode::Assignment { target, value, .. } => {
                 self.resolve_assignment_target(target, &path.child(SourcePathSegmentV1::Target))?;
                 self.resolve_expr(value, &path.child(SourcePathSegmentV1::Value))
+            }
+            ASTNode::Print { expression, .. } => {
+                self.resolve_expr(expression, &path.child(SourcePathSegmentV1::Value))
             }
             ASTNode::ScopeBox { body, .. } => self.resolve_scope_box(body, path),
             ASTNode::If {
@@ -229,18 +233,5 @@ impl ShadowResolverV0 {
 }
 
 fn is_closed_expression(node: &ASTNode) -> bool {
-    matches!(
-        node,
-        ASTNode::Literal { .. }
-            | ASTNode::Variable { .. }
-            | ASTNode::Me { .. }
-            | ASTNode::This { .. }
-            | ASTNode::UnaryOp { .. }
-            | ASTNode::BinaryOp { .. }
-            | ASTNode::MethodCall { .. }
-            | ASTNode::FieldAccess { .. }
-            | ASTNode::Index { .. }
-            | ASTNode::FunctionCall { .. }
-            | ASTNode::New { .. }
-    )
+    classify_shadow_ast_disposition_v0(node) == ShadowAstDispositionV0::CurrentResolvedExpression
 }

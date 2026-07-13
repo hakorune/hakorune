@@ -38,6 +38,7 @@ guard_require_files "$TAG" \
   "$MODULE/shadow/product.rs" \
   "$MODULE/shadow/resolver.rs" \
   "$MODULE/shadow/expr.rs" \
+  "$MODULE/shadow/leaf_traversal_tests.rs" \
   "$MODULE/shadow/stmt.rs" \
   "$MODULE/shadow/vocabulary.rs" \
   "$MODULE/shadow/vocabulary_tests.rs" \
@@ -56,6 +57,7 @@ expected_manifest="$(printf '%s\n' \
   resolver_tests.rs \
   shadow/expr.rs \
   shadow/ids.rs \
+  shadow/leaf_traversal_tests.rs \
   shadow/mod.rs \
   shadow/path.rs \
   shadow/product.rs \
@@ -217,11 +219,12 @@ for required in \
   guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/shadow/vocabulary.rs" \
     "shadow accepted vocabulary manifest drifted: $required"
 done
-for variant in Local Outbox Assignment ScopeBox If Loop Break Continue Return; do
+for variant in Local Outbox Assignment ScopeBox If Loop Break Continue Return Print; do
   guard_expect_fixed_in_file "$TAG" "ASTNode::$variant" "$MODULE/shadow/stmt.rs" \
     "accepted statement lost its explicit resolver arm: $variant"
 done
-for variant in Literal Variable Me This UnaryOp BinaryOp MethodCall FieldAccess Index FunctionCall New; do
+for variant in Literal Variable Me UnaryOp BinaryOp MethodCall FieldAccess Index FunctionCall New \
+  AwaitExpression ArrayLiteral MapLiteral RecordLiteral RecordUpdate CheckExpr FromCall Call; do
   guard_expect_fixed_in_file "$TAG" "ASTNode::$variant" "$MODULE/shadow/expr.rs" \
     "accepted expression lost its explicit resolver arm: $variant"
 done
@@ -234,12 +237,14 @@ import sys
 expr = set(re.findall(r"ASTNode::(\w+)", Path(sys.argv[1]).read_text()))
 stmt = set(re.findall(r"ASTNode::(\w+)", Path(sys.argv[2]).read_text()))
 expected_expr = {
-    "Literal", "Variable", "Me", "This", "UnaryOp", "BinaryOp",
-    "MethodCall", "FieldAccess", "Index", "FunctionCall", "New",
+    "Literal", "Variable", "Me", "UnaryOp", "BinaryOp", "MethodCall",
+    "FieldAccess", "Index", "FunctionCall", "New", "AwaitExpression",
+    "ArrayLiteral", "MapLiteral", "RecordLiteral", "RecordUpdate",
+    "CheckExpr", "FromCall", "Call",
 }
-expected_stmt = expected_expr | {
+expected_stmt = {
     "Local", "Outbox", "Assignment", "ScopeBox", "If", "Loop",
-    "Break", "Continue", "Return",
+    "Break", "Continue", "Return", "Print",
 }
 if expr != expected_expr:
     raise SystemExit(
@@ -392,6 +397,7 @@ fi
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::resolver_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::tests
+cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::leaf_traversal_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::vocabulary_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::builder::vars::resolved_binding_state::tests
 

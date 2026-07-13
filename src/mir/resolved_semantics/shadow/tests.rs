@@ -260,14 +260,18 @@ fn break_outside_loop_rejects_without_fallback() {
 fn unsupported_statement_rejects_without_partial_publication() {
     let tree = function(
         &[],
-        vec![ASTNode::Print {
-            expression: Box::new(int(1)),
+        vec![ASTNode::GlobalVar {
+            name: "global".into(),
+            value: Box::new(int(1)),
             span: span(),
         }],
     );
     assert!(matches!(
         resolve_function_shadow_v0(FunctionOriginV1::new(0, 0), &tree),
-        Err(ShadowResolveErrorV0::UnsupportedStatement { kind: "Print", .. })
+        Err(ShadowResolveErrorV0::UnsupportedStatement {
+            kind: "GlobalVar",
+            ..
+        })
     ));
 }
 
@@ -431,19 +435,13 @@ fn unsupported_expression_inside_return_rejects_at_exact_site() {
     let tree = function(
         &[],
         vec![ASTNode::Return {
-            value: Some(Box::new(ASTNode::ArrayLiteral {
-                elements: vec![int(1)],
-                span: span(),
-            })),
+            value: Some(Box::new(ASTNode::This { span: span() })),
             span: span(),
         }],
     );
     assert!(matches!(
         resolve_function_shadow_v0(FunctionOriginV1::new(0, 0), &tree),
-        Err(ShadowResolveErrorV0::UnsupportedExpression {
-            kind: "ArrayLiteral",
-            ..
-        })
+        Err(ShadowResolveErrorV0::UnsupportedExpression { kind: "This", .. })
     ));
 }
 
@@ -592,6 +590,7 @@ fn accepted_vocabulary_is_closed_and_reviewable() {
             "Break",
             "Continue",
             "Return",
+            "Print",
             "ClosedExpressionStatement",
         ]
     );
@@ -601,7 +600,6 @@ fn accepted_vocabulary_is_closed_and_reviewable() {
             "Literal",
             "Variable",
             "Me",
-            "This",
             "UnaryOp",
             "BinaryOp",
             "MethodCall",
@@ -609,6 +607,14 @@ fn accepted_vocabulary_is_closed_and_reviewable() {
             "Index",
             "FunctionCall",
             "New",
+            "AwaitExpression",
+            "ArrayLiteral",
+            "MapLiteral",
+            "RecordLiteral",
+            "RecordUpdate",
+            "CheckExpr",
+            "FromCall",
+            "Call",
         ]
     );
     assert_eq!(

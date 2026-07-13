@@ -809,6 +809,24 @@ as explicit unsupported pending removal of the legacy resolver acceptance.
 The authority guard forbids wildcard reintroduction and runs the focused
 classifier fixtures.
 
+`B1-P/E leaf-1` closed on 2026-07-13 for syntax without declaration, scope,
+or control ownership:
+
+```text
+Print
+AwaitExpression
+ArrayLiteral / MapLiteral
+RecordLiteral / RecordUpdate
+CheckExpr
+FromCall / Call
+```
+
+Each child receives a typed structural path (`Callee`, ordered argument or
+element/value roles, `Base`, and `CheckItem`).  Focused fixtures prove exact
+variable-use sites.  `This` legacy acceptance was removed because canonical
+parsing emits `Me`; it is now an exact Unsupported expression.  QMark, Match,
+Try, Lambda, Nowait, and scope-owning containers remain outside this slice.
+
 Known production boundary mismatches must be resolved explicitly before B2:
 
 ```text

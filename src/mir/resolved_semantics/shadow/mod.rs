@@ -22,6 +22,8 @@ use resolver::resolve_function_shadow_v0;
 pub(super) use resolver::resolve_function_shadow_view_v0;
 
 #[cfg(test)]
+mod leaf_traversal_tests;
+#[cfg(test)]
 mod tests;
 #[cfg(test)]
 mod vocabulary_tests;

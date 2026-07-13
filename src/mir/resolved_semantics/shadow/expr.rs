@@ -17,13 +17,61 @@ impl ShadowResolverV0 {
             ASTNode::Literal { .. } => Ok(()),
             ASTNode::Variable { name, .. } => self.resolve_named_use(name, path),
             ASTNode::Me { .. } => self.resolve_receiver_use(path, "Me"),
-            ASTNode::This { .. } => self.resolve_receiver_use(path, "This"),
             ASTNode::UnaryOp { operand, .. } => {
                 self.resolve_expr(operand, &path.child(SourcePathSegmentV1::Operand))
             }
             ASTNode::BinaryOp { left, right, .. } => {
                 self.resolve_expr(left, &path.child(SourcePathSegmentV1::Lhs))?;
                 self.resolve_expr(right, &path.child(SourcePathSegmentV1::Rhs))
+            }
+            ASTNode::AwaitExpression { expression, .. } => {
+                self.resolve_expr(expression, &path.child(SourcePathSegmentV1::Operand))
+            }
+            ASTNode::ArrayLiteral { elements, .. } => {
+                for (index, element) in elements.iter().enumerate() {
+                    self.resolve_expr(
+                        element,
+                        &path.child(SourcePathSegmentV1::Element(index as u32)),
+                    )?;
+                }
+                Ok(())
+            }
+            ASTNode::MapLiteral { entries, .. } => {
+                for (index, (_, value)) in entries.iter().enumerate() {
+                    self.resolve_expr(
+                        value,
+                        &path.child(SourcePathSegmentV1::EntryValue(index as u32)),
+                    )?;
+                }
+                Ok(())
+            }
+            ASTNode::RecordLiteral { fields, .. } => {
+                for (index, (_, value)) in fields.iter().enumerate() {
+                    self.resolve_expr(
+                        value,
+                        &path.child(SourcePathSegmentV1::FieldValue(index as u32)),
+                    )?;
+                }
+                Ok(())
+            }
+            ASTNode::RecordUpdate { base, updates, .. } => {
+                self.resolve_expr(base, &path.child(SourcePathSegmentV1::Base))?;
+                for (index, (_, value)) in updates.iter().enumerate() {
+                    self.resolve_expr(
+                        value,
+                        &path.child(SourcePathSegmentV1::UpdateValue(index as u32)),
+                    )?;
+                }
+                Ok(())
+            }
+            ASTNode::CheckExpr { items, .. } => {
+                for (index, item) in items.iter().enumerate() {
+                    self.resolve_expr(
+                        &item.expression,
+                        &path.child(SourcePathSegmentV1::CheckItem(index as u32)),
+                    )?;
+                }
+                Ok(())
             }
             ASTNode::MethodCall {
                 object, arguments, ..
@@ -39,6 +87,13 @@ impl ShadowResolverV0 {
                 self.resolve_expr(index, &path.child(SourcePathSegmentV1::Argument(0)))
             }
             ASTNode::FunctionCall { arguments, .. } => self.resolve_arguments(arguments, path),
+            ASTNode::FromCall { arguments, .. } => self.resolve_arguments(arguments, path),
+            ASTNode::Call {
+                callee, arguments, ..
+            } => {
+                self.resolve_expr(callee, &path.child(SourcePathSegmentV1::Callee))?;
+                self.resolve_arguments(arguments, path)
+            }
             ASTNode::New {
                 arguments,
                 field_initializers,
