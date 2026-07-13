@@ -40,6 +40,7 @@ guard_require_files "$TAG" \
   "$MODULE/shadow/expr.rs" \
   "$MODULE/shadow/stmt.rs" \
   "$MODULE/shadow/vocabulary.rs" \
+  "$MODULE/shadow/vocabulary_tests.rs" \
   "$MODULE/shadow/tests.rs" \
   "$MIR_MOD" \
   "$ROOT/src/mir/join_ir/ownership/ast_analyzer/core.rs"
@@ -62,6 +63,7 @@ expected_manifest="$(printf '%s\n' \
   shadow/stmt.rs \
   shadow/tests.rs \
   shadow/vocabulary.rs \
+  shadow/vocabulary_tests.rs \
   source_site.rs \
   tests.rs \
   verifier.rs)"
@@ -187,6 +189,11 @@ fi
 if rg -n 'ASTNode|Box[[:space:]]*<[[:space:]]*AST|Vec[[:space:]]*<[[:space:]]*AST' \
   "$MODULE/shadow/ids.rs" "$MODULE/shadow/path.rs" "$MODULE/shadow/product.rs"; then
   guard_fail "$TAG" "shadow IDs/product must not retain canonical AST payloads"
+fi
+guard_expect_fixed_in_file "$TAG" "fn classify_shadow_ast_disposition_v0(node: &ASTNode)" \
+  "$MODULE/shadow/vocabulary.rs" "exhaustive AST disposition classifier missing"
+if rg -n '(^|[[:space:]])_[[:space:]]*=>' "$MODULE/shadow/vocabulary.rs"; then
+  guard_fail "$TAG" "AST disposition classifier must remain exhaustive without wildcard"
 fi
 if rg -n 'ValueId|BasicBlockId|MirBuilder|CoreContext|control_flow::plan|lowerer|Recipe|join_ir::ownership' \
   "${SHADOW_FILES[@]}"; then
@@ -385,6 +392,7 @@ fi
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::resolver_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::tests
+cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::vocabulary_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::builder::vars::resolved_binding_state::tests
 
 echo "semantic_arena_schema=present"

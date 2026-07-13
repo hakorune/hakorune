@@ -802,6 +802,13 @@ B1-N  nested-function/Lambda owner stop or independent product decision
 B1-I  table-driven production entry installation proof
 ```
 
+`B1-C` closed on 2026-07-13 with an inventory-only exhaustive Rust match over
+all 57 variants.  It changes no resolver acceptance.  Transparent rows remain
+candidates until their own traversal proof is connected; `This` is recorded
+as explicit unsupported pending removal of the legacy resolver acceptance.
+The authority guard forbids wildcard reintroduction and runs the focused
+classifier fixtures.
+
 Known production boundary mismatches must be resolved explicitly before B2:
 
 ```text

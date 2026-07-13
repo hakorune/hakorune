@@ -23,3 +23,5 @@ pub(super) use resolver::resolve_function_shadow_view_v0;
 
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod vocabulary_tests;
