@@ -26,6 +26,9 @@ guard_require_files "$TAG" \
   "$MODULE/resolver.rs" \
   "$MODULE/resolver_tests.rs" \
   "$MODULE/normalized.rs" \
+  "$MODULE/owner_forest.rs" \
+  "$MODULE/owner_forest_tests.rs" \
+  "$MODULE/owner_resolver.rs" \
   "$MODULE/product.rs" \
   "$MODULE/verifier.rs" \
   "$LOWER_STATE" \
@@ -33,6 +36,7 @@ guard_require_files "$TAG" \
   "$LOWER_PARAM" \
   "$MODULE/tests.rs" \
   "$MODULE/shadow/mod.rs" \
+  "$MODULE/shadow/owner_boundary.rs" \
   "$MODULE/shadow/assignment_traversal_tests.rs" \
   "$MODULE/shadow/ids.rs" \
   "$MODULE/shadow/path.rs" \
@@ -53,6 +57,9 @@ expected_manifest="$(printf '%s\n' \
   ids.rs \
   mod.rs \
   normalized.rs \
+  owner_forest.rs \
+  owner_forest_tests.rs \
+  owner_resolver.rs \
   product.rs \
   records.rs \
   resolver.rs \
@@ -62,6 +69,7 @@ expected_manifest="$(printf '%s\n' \
   shadow/ids.rs \
   shadow/leaf_traversal_tests.rs \
   shadow/mod.rs \
+  shadow/owner_boundary.rs \
   shadow/path.rs \
   shadow/product.rs \
   shadow/resolver.rs \
@@ -86,12 +94,12 @@ mapfile -t CANONICAL_FILES < <(
   find "$MODULE" -maxdepth 1 -type f -name '*.rs' ! -name 'tests.rs' -print | LC_ALL=C sort
 )
 mapfile -t CANONICAL_NON_RESOLVER_FILES < <(
-  find "$MODULE" -maxdepth 1 -type f -name '*.rs' ! -name 'tests.rs' \
-    ! -name 'resolver.rs' ! -name 'resolver_tests.rs' -print | LC_ALL=C sort
+  find "$MODULE" -maxdepth 1 -type f -name '*.rs' ! -name '*_tests.rs' ! -name 'tests.rs' \
+    ! -name 'resolver.rs' ! -name 'owner_resolver.rs' -print | LC_ALL=C sort
 )
 mapfile -t CANONICAL_ARENA_FILES < <(
-  find "$MODULE" -maxdepth 1 -type f -name '*.rs' ! -name 'tests.rs' \
-    ! -name 'resolver_tests.rs' ! -name 'function_view.rs' -print | LC_ALL=C sort
+  find "$MODULE" -maxdepth 1 -type f -name '*.rs' ! -name '*_tests.rs' ! -name 'tests.rs' \
+    ! -name 'function_view.rs' -print | LC_ALL=C sort
 )
 mapfile -t SHADOW_FILES < <(
   find "$MODULE/shadow" -type f -name '*.rs' ! -name 'tests.rs' -print | LC_ALL=C sort
@@ -169,9 +177,36 @@ for role in \
   guard_expect_fixed_in_file "$TAG" "$role" "$MODULE/source_site.rs" \
     "P0 source-role vocabulary drifted: $role"
 done
-if rg -n '\b(CaptureId|CaptureSlotId|UpvarRefV1|VerifiedSemanticOwnerForestV1)\b' \
+if rg -n '\b(CaptureId|CaptureSlotId|UpvarRefV1)\b' \
   "${PRODUCTION_FILES[@]}"; then
-  guard_fail "$TAG" "P0 source-role slice must not pre-install later owner-forest/upvar vocabulary"
+  guard_fail "$TAG" "OF0 must not pre-install later capture/upvar vocabulary"
+fi
+
+for required in \
+  "pub struct VerifiedSemanticOwnerForestV1" \
+  "owners: BTreeMap<FunctionOwnerIdV1, VerifiedResolvedFunctionV1>" \
+  "parents: BTreeMap<FunctionOwnerIdV1, OwnerParentEdgeV1>" \
+  "root: FunctionOwnerIdV1" \
+  "child_at: BTreeMap<OwnedExprSiteV1, FunctionOwnerIdV1>" \
+  "normalized: NormalizedSemanticOwnerForestGraphV1" \
+  "pub struct NormalizedOwnerKeyV1" \
+  "pub struct NormalizedSemanticOwnerForestGraphV1" \
+  "pub(crate) fn insert_parent(" \
+  "pub(crate) fn seal("; do
+  guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/owner_forest.rs" \
+    "OF0 sealed owner-forest authority drifted: $required"
+done
+for required in \
+  "resolve_owner_shadow_view_v0" \
+  "UnsupportedCapture" \
+  "lambda.syntax_view()" \
+  "seal_owner_with_maps"; do
+  guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/owner_resolver.rs" \
+    "OF0 recursive owner resolution drifted: $required"
+done
+if rg -n 'Arc<VerifiedResolvedFunctionV1>|ValueId|BasicBlockId|MirBuilder|CoreContext|Planner|Lower|Recipe' \
+  "$MODULE/owner_forest.rs" "$MODULE/owner_resolver.rs"; then
+  guard_fail "$TAG" "OF0 forest must directly own sealed owners and remain disconnected"
 fi
 
 for required in \
@@ -219,7 +254,8 @@ fi
 for required in \
   "params: &'a [String]" \
   "body: &'a [ASTNode]" \
-  "pub(crate) fn from_ast(function: &'a ASTNode)"; do
+  "pub(crate) fn from_ast(function: &'a ASTNode)" \
+  "pub(crate) fn from_lambda_ast(lambda: &'a ASTNode)"; do
   guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/function_view.rs" \
     "canonical function syntax view must remain borrowed and AST-derived: $required"
 done
@@ -316,6 +352,8 @@ for variant in Literal Variable Me UnaryOp BinaryOp MethodCall FieldAccess Index
   guard_expect_fixed_in_file "$TAG" "ASTNode::$variant" "$MODULE/shadow/expr.rs" \
     "accepted expression lost its explicit resolver arm: $variant"
 done
+guard_expect_fixed_in_file "$TAG" "lambda @ ASTNode::Lambda" "$MODULE/shadow/expr.rs" \
+  "OF0 Lambda inventory arm missing"
 
 python3 - "$MODULE/shadow/expr.rs" "$MODULE/shadow/stmt.rs" <<'PY'
 from pathlib import Path
@@ -329,7 +367,7 @@ expected_expr = {
     "FieldAccess", "Index", "FunctionCall", "New", "AwaitExpression",
     "ArrayLiteral", "MapLiteral", "RecordLiteral", "RecordUpdate",
     "CheckExpr", "FromCall", "Call",
-    "GroupedAssignmentExpr",
+    "GroupedAssignmentExpr", "Lambda",
 }
 expected_stmt = {
     "Local", "Outbox", "Nowait", "Assignment", "CompoundAssignment", "ScopeBox",
@@ -420,6 +458,7 @@ allowed = {
     "scope_count",
     "region_count",
     "normalized_graph",
+    "exact_scope_containing",
     "seal",
 }
 methods = set(re.findall(r"pub(?:\([^)]*\))?\s+(?:const\s+)?fn\s+(\w+)", text))
@@ -486,6 +525,7 @@ fi
 
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::resolver_tests
+cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::owner_forest_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::assignment_traversal_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::leaf_traversal_tests
@@ -506,6 +546,8 @@ echo "semantic_arena_parallel_exit_maps=0"
 echo "semantic_arena_statement_exit_records=1"
 echo "semantic_arena_expression_exit_records=0"
 echo "semantic_arena_qmark_throw_acceptance=0"
+echo "semantic_owner_forest_noncapturing_lambda=1"
+echo "semantic_owner_forest_capture_acceptance=0"
 echo "semantic_arena_source_files_under_800=1"
 echo "shadow_resolver_canonical_binding_ids=0"
 echo "shadow_resolver_external_consumers=0"

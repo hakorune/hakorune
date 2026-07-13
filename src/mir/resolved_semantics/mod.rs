@@ -9,6 +9,8 @@
 mod function_view;
 mod ids;
 mod normalized;
+mod owner_forest;
+mod owner_resolver;
 mod product;
 mod records;
 mod resolver;
@@ -25,6 +27,11 @@ pub use normalized::{
     NormalizedResolvedFunctionGraphV1, NormalizedScopeKeyV1, NormalizedScopeRecordV1,
     NormalizedVariableUseV1,
 };
+pub use owner_forest::{
+    NormalizedOwnerKeyV1, NormalizedOwnerRecordV1, NormalizedSemanticOwnerForestGraphV1,
+    OwnerParentEdgeV1, SemanticOwnerForestVerificationErrorV1, VerifiedSemanticOwnerForestV1,
+};
+pub(crate) use owner_resolver::ResolveOwnerForestErrorV1;
 pub use product::VerifiedResolvedFunctionV1;
 pub use records::{
     BindingKindV1, BindingOriginV1, RegionKindV1, RegionOriginV1, ResolvedAssignmentTargetV1,
@@ -39,6 +46,8 @@ pub use source_site::{
 };
 pub use verifier::ResolvedFunctionVerificationErrorV1;
 
+#[cfg(test)]
+mod owner_forest_tests;
 #[cfg(test)]
 mod resolver_tests;
 #[cfg(test)]

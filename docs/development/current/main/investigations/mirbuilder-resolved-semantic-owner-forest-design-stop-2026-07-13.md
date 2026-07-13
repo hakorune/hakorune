@@ -1,5 +1,5 @@
 ---
-Status: P0/E0 closed; OF0 non-capturing owner forest is active
+Status: P0/E0/OF0 closed; UP0 read-only structural Upvar is active
 Date: 2026-07-13
 Scope: Resolved Semantic Owner Forest V1 design and implementation task order
 Parent: mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
@@ -432,7 +432,7 @@ release compiler check = green
 all source files < 800 lines
 ```
 
-### OF0 — non-capturing owner forest (active)
+### OF0 — non-capturing owner forest (closed)
 
 ```text
 reuse existing FunctionOwnerIssuerV1 inside one forest resolver session
@@ -445,7 +445,29 @@ AST clone / ValueId / BasicBlockId = 0
 Planner/RegionFlow/Lower connection = 0
 ```
 
-### UP0 — read-only structural Upvar
+OF0 closeout evidence:
+
+```text
+forest primary authority = sealed owner products + child-to-parent edges
+forest-owned owner products = direct ownership; per-owner Arc escape = 0
+derived witnesses = one root + exact child_at + normalized forest graph
+non-capturing Lambda child owner = green
+child parameter/local BindingId domain = child owner-local
+child Return target = child function region
+strict-ancestor variable/rebind/receiver use = exact UnsupportedCapture
+initializer self-reference backpatch = 0
+second root / mixed compilation / cycle / duplicate parent = rejected
+parent_scope = exact lexical definition scope, verified at seal
+AST clone / ValueId / BasicBlockId = 0
+CaptureId / UpvarRefV1 / capture mode / runtime slot = 0
+Planner / RegionFlow / Lower connection = 0
+normalized forest parity across independent owner issuers = green
+resolved-region-flow-authority guard = green
+release compiler check = green
+all source files < 800 lines
+```
+
+### UP0 — read-only structural Upvar (active)
 
 ```text
 add UpvarRefV1 and ResolvedLexicalRefV1

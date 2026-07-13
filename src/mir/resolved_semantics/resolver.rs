@@ -41,6 +41,18 @@ pub(crate) struct FunctionSemanticResolverSessionV1 {
     owners: FunctionOwnerIssuerV1,
 }
 
+pub(super) struct SealedOwnerConstructionV1 {
+    pub(super) product: VerifiedResolvedFunctionV1,
+    pub(super) binding_refs: BTreeMap<ShadowBindingOrdinalV0, BindingRefV1>,
+    pub(super) scope_ids: BTreeMap<ShadowScopeIdV0, ScopeId>,
+}
+
+struct CanonicalizedDraftV1 {
+    data: ResolvedFunctionDataV1,
+    binding_refs: BTreeMap<ShadowBindingOrdinalV0, BindingRefV1>,
+    scope_ids: BTreeMap<ShadowScopeIdV0, ScopeId>,
+}
+
 impl FunctionSemanticResolverSessionV1 {
     pub(crate) fn new(compilation_unit_ordinal: u32) -> Result<Self, ResolveFunctionErrorV1> {
         Ok(Self {
@@ -55,29 +67,59 @@ impl FunctionSemanticResolverSessionV1 {
         &mut self,
         view: FunctionSyntaxViewV1<'_>,
     ) -> Result<Arc<VerifiedResolvedFunctionV1>, ResolveFunctionErrorV1> {
+        let (origin, owner) = self.issue_owner()?;
+        let draft = resolve_function_shadow_view_v0(origin, view)
+            .map_err(ResolveFunctionErrorV1::Syntax)?;
+        self.seal_owner(owner, draft).map(Arc::new)
+    }
+
+    pub(super) fn issue_owner(
+        &mut self,
+    ) -> Result<(FunctionOriginV1, super::FunctionOwnerIdV1), ResolveFunctionErrorV1> {
         let ordinal = self.next_function_ordinal;
         self.next_function_ordinal = ordinal
             .checked_add(1)
             .ok_or(ResolveFunctionErrorV1::FunctionOrdinalExhausted)?;
         let origin = FunctionOriginV1::new(self.compilation_unit_ordinal, ordinal);
-        let draft = resolve_function_shadow_view_v0(origin, view)
-            .map_err(ResolveFunctionErrorV1::Syntax)?;
         let owner = self
             .owners
             .issue()
             .map_err(ResolveFunctionErrorV1::OwnerIssue)?;
-        let data = canonicalize_draft(owner, draft)?;
-        ResolvedFunctionDraftV1 { data }
-            .seal()
-            .map(Arc::new)
-            .map_err(ResolveFunctionErrorV1::Verification)
+        Ok((origin, owner))
+    }
+
+    pub(super) fn seal_owner(
+        &mut self,
+        owner: super::FunctionOwnerIdV1,
+        draft: ShadowResolvedFunctionV0,
+    ) -> Result<VerifiedResolvedFunctionV1, ResolveFunctionErrorV1> {
+        self.seal_owner_with_maps(owner, draft)
+            .map(|sealed| sealed.product)
+    }
+
+    pub(super) fn seal_owner_with_maps(
+        &mut self,
+        owner: super::FunctionOwnerIdV1,
+        draft: ShadowResolvedFunctionV0,
+    ) -> Result<SealedOwnerConstructionV1, ResolveFunctionErrorV1> {
+        let canonical = canonicalize_draft(owner, draft)?;
+        let product = ResolvedFunctionDraftV1 {
+            data: canonical.data,
+        }
+        .seal()
+        .map_err(ResolveFunctionErrorV1::Verification)?;
+        Ok(SealedOwnerConstructionV1 {
+            product,
+            binding_refs: canonical.binding_refs,
+            scope_ids: canonical.scope_ids,
+        })
     }
 }
 
 fn canonicalize_draft(
     owner: super::FunctionOwnerIdV1,
     draft: ShadowResolvedFunctionV0,
-) -> Result<ResolvedFunctionDataV1, ResolveFunctionErrorV1> {
+) -> Result<CanonicalizedDraftV1, ResolveFunctionErrorV1> {
     let binding_ids = draft
         .bindings
         .keys()
@@ -234,7 +276,7 @@ fn canonicalize_draft(
         })
         .collect();
 
-    Ok(ResolvedFunctionDataV1 {
+    let data = ResolvedFunctionDataV1 {
         owner,
         function_origin: draft.function_origin,
         function_scope: scope_ids[&draft.function_scope],
@@ -246,6 +288,15 @@ fn canonicalize_draft(
         variable_uses,
         assignment_targets,
         resolved_exits,
+    };
+    let binding_refs = binding_ids
+        .into_iter()
+        .map(|(shadow, binding)| (shadow, BindingRefV1::new(owner, binding)))
+        .collect();
+    Ok(CanonicalizedDraftV1 {
+        data,
+        binding_refs,
+        scope_ids,
     })
 }
 

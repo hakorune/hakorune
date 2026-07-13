@@ -11,10 +11,10 @@ use super::product::{
 use super::resolver::ShadowResolverV0;
 use super::vocabulary::{classify_shadow_ast_disposition_v0, ShadowAstDispositionV0};
 
-impl ShadowResolverV0 {
+impl<'ast> ShadowResolverV0<'ast> {
     pub(super) fn resolve_body<F>(
         &mut self,
-        body: &[ASTNode],
+        body: &'ast [ASTNode],
         path_for: F,
     ) -> Result<(), ShadowResolveErrorV0>
     where
@@ -28,7 +28,7 @@ impl ShadowResolverV0 {
 
     fn resolve_stmt(
         &mut self,
-        statement: &ASTNode,
+        statement: &'ast ASTNode,
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
         match statement {
@@ -108,7 +108,7 @@ impl ShadowResolverV0 {
     fn resolve_declaration(
         &mut self,
         variables: &[String],
-        initial_values: &[Option<Box<ASTNode>>],
+        initial_values: &'ast [Option<Box<ASTNode>>],
         path: &ShadowSourcePathV0,
         outbox: bool,
         resolve_initializers: bool,
@@ -153,7 +153,7 @@ impl ShadowResolverV0 {
 
     fn resolve_scope_box(
         &mut self,
-        body: &[ASTNode],
+        body: &'ast [ASTNode],
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
         let body_path = path.child(SourcePathSegmentV1::ScopeBodyRoot);
@@ -171,7 +171,7 @@ impl ShadowResolverV0 {
 
     fn resolve_task_scope(
         &mut self,
-        body: &[ASTNode],
+        body: &'ast [ASTNode],
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
         let body_path = path.child(SourcePathSegmentV1::TaskScopeBodyRoot);
@@ -189,7 +189,7 @@ impl ShadowResolverV0 {
 
     fn resolve_fastmem_scope(
         &mut self,
-        body: &[ASTNode],
+        body: &'ast [ASTNode],
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
         let body_path = path.child(SourcePathSegmentV1::FastMemBodyRoot);
@@ -207,9 +207,9 @@ impl ShadowResolverV0 {
 
     fn resolve_if(
         &mut self,
-        condition: &ASTNode,
-        then_body: &[ASTNode],
-        else_body: Option<&[ASTNode]>,
+        condition: &'ast ASTNode,
+        then_body: &'ast [ASTNode],
+        else_body: Option<&'ast [ASTNode]>,
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
         self.resolve_expr(condition, &path.child(SourcePathSegmentV1::IfCondition))?;
@@ -246,8 +246,8 @@ impl ShadowResolverV0 {
 
     fn resolve_loop(
         &mut self,
-        condition: &ASTNode,
-        body: &[ASTNode],
+        condition: &'ast ASTNode,
+        body: &'ast [ASTNode],
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
         self.resolve_expr(condition, &path.child(SourcePathSegmentV1::LoopCondition))?;

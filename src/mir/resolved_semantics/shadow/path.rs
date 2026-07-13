@@ -12,8 +12,16 @@ impl ShadowSourcePathV0 {
         Self(vec![SourcePathSegmentV1::FunctionBody])
     }
 
+    pub(super) fn lambda_body() -> Self {
+        Self(vec![SourcePathSegmentV1::LambdaBodyRoot])
+    }
+
     pub(super) fn root_body(index: usize) -> Self {
         Self(vec![SourcePathSegmentV1::Body(index as u32)])
+    }
+
+    pub(super) fn lambda_body_item(index: usize) -> Self {
+        Self(vec![SourcePathSegmentV1::LambdaBody(index as u32)])
     }
 
     pub(super) fn child(&self, segment: SourcePathSegmentV1) -> Self {

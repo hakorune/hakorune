@@ -14,6 +14,16 @@ pub struct FunctionOwnerIdV1 {
     slot: u32,
 }
 
+impl FunctionOwnerIdV1 {
+    pub(crate) const fn compilation_brand(self) -> u64 {
+        self.compilation
+    }
+
+    pub(crate) const fn slot(self) -> u32 {
+        self.slot
+    }
+}
+
 /// One owner-brand issuer per active function-compilation session.
 ///
 /// The emitted slot is an invocation-local membership brand. It is never a

@@ -3,17 +3,20 @@
 use std::collections::BTreeMap;
 
 use crate::ast::ASTNode;
+use crate::mir::resolved_semantics::function_view::{FunctionBodyOriginV1, ReceiverPolicyV1};
 use crate::mir::resolved_semantics::source_site::{
     FunctionOriginV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
 use crate::mir::resolved_semantics::FunctionSyntaxViewV1;
 
 use super::ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
+use super::owner_boundary::ShadowLambdaSyntaxV0;
 use super::path::ShadowSourcePathV0;
 use super::product::{
     ShadowAssignmentTargetV0, ShadowBindingKindV0, ShadowBindingRecordV0, ShadowControlExitV0,
     ShadowExitOriginV0, ShadowExitRecordV0, ShadowRegionKindV0, ShadowRegionRecordV0,
-    ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowScopeKindV0, ShadowScopeRecordV0,
+    ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowResolvedOwnerV0, ShadowScopeKindV0,
+    ShadowScopeRecordV0,
 };
 
 #[derive(Debug)]
@@ -22,7 +25,13 @@ struct ResolverScopeFrameV0 {
     names: BTreeMap<String, ShadowBindingOrdinalV0>,
 }
 
-pub(super) struct ShadowResolverV0 {
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ShadowLambdaModeV0 {
+    Reject,
+    Inventory,
+}
+
+pub(super) struct ShadowResolverV0<'ast> {
     function_origin: FunctionOriginV1,
     function_scope: ShadowScopeIdV0,
     function_region: ShadowRegionIdV0,
@@ -40,6 +49,8 @@ pub(super) struct ShadowResolverV0 {
     variable_uses: BTreeMap<SourceExprSiteV1, ShadowBindingOrdinalV0>,
     assignment_targets: BTreeMap<SourceExprSiteV1, ShadowAssignmentTargetV0>,
     resolved_exits: BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>,
+    lambda_mode: ShadowLambdaModeV0,
+    lambdas: Vec<ShadowLambdaSyntaxV0<'ast>>,
 }
 
 pub(super) fn resolve_function_shadow_v0(
@@ -56,11 +67,27 @@ pub(in crate::mir::resolved_semantics) fn resolve_function_shadow_view_v0(
     function_origin: FunctionOriginV1,
     view: FunctionSyntaxViewV1<'_>,
 ) -> Result<ShadowResolvedFunctionV0, ShadowResolveErrorV0> {
+    resolve_shadow_view(function_origin, view, ShadowLambdaModeV0::Reject)
+        .map(|owner| owner.function)
+}
+
+pub(in crate::mir::resolved_semantics) fn resolve_owner_shadow_view_v0<'ast>(
+    function_origin: FunctionOriginV1,
+    view: FunctionSyntaxViewV1<'ast>,
+) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
+    resolve_shadow_view(function_origin, view, ShadowLambdaModeV0::Inventory)
+}
+
+fn resolve_shadow_view<'ast>(
+    function_origin: FunctionOriginV1,
+    view: FunctionSyntaxViewV1<'ast>,
+    lambda_mode: ShadowLambdaModeV0,
+) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
     let params = view.params();
     let body = view.body();
 
-    let mut resolver = ShadowResolverV0::new(function_origin);
-    if !view.is_static() {
+    let mut resolver = ShadowResolverV0::new(function_origin, lambda_mode);
+    if view.receiver_policy() == ReceiverPolicyV1::DeclaredInstance {
         resolver.declare_binding(
             "me",
             ShadowBindingKindV0::Receiver,
@@ -79,20 +106,30 @@ pub(in crate::mir::resolved_semantics) fn resolve_function_shadow_view_v0(
             },
         )?;
     }
-    let body_path = ShadowSourcePathV0::function_body();
+    let body_path = match view.body_origin() {
+        FunctionBodyOriginV1::Function => ShadowSourcePathV0::function_body(),
+        FunctionBodyOriginV1::Lambda => ShadowSourcePathV0::lambda_body(),
+    };
     let (body_region, _) = resolver.enter_region_scope(
         ShadowRegionKindV0::Sequence,
         ShadowScopeKindV0::LexicalBlock,
         &body_path,
     );
-    let body_result = resolver.resolve_body(body, ShadowSourcePathV0::root_body);
+    let body_result = match view.body_origin() {
+        FunctionBodyOriginV1::Function => {
+            resolver.resolve_body(body, ShadowSourcePathV0::root_body)
+        }
+        FunctionBodyOriginV1::Lambda => {
+            resolver.resolve_body(body, ShadowSourcePathV0::lambda_body_item)
+        }
+    };
     resolver.leave_region_scope(body_region);
     body_result?;
-    Ok(resolver.finish())
+    Ok(resolver.finish_owner())
 }
 
-impl ShadowResolverV0 {
-    fn new(function_origin: FunctionOriginV1) -> Self {
+impl<'ast> ShadowResolverV0<'ast> {
+    fn new(function_origin: FunctionOriginV1, lambda_mode: ShadowLambdaModeV0) -> Self {
         let function_scope = ShadowScopeIdV0::new(0);
         let function_region = ShadowRegionIdV0::new(0);
         let mut scopes = BTreeMap::new();
@@ -136,22 +173,53 @@ impl ShadowResolverV0 {
             variable_uses: BTreeMap::new(),
             assignment_targets: BTreeMap::new(),
             resolved_exits: BTreeMap::new(),
+            lambda_mode,
+            lambdas: Vec::new(),
         }
     }
 
-    fn finish(self) -> ShadowResolvedFunctionV0 {
-        ShadowResolvedFunctionV0 {
-            function_origin: self.function_origin,
-            function_scope: self.function_scope,
-            function_region: self.function_region,
-            bindings: self.bindings,
-            scopes: self.scopes,
-            regions: self.regions,
-            declarations: self.declarations,
-            variable_uses: self.variable_uses,
-            assignment_targets: self.assignment_targets,
-            resolved_exits: self.resolved_exits,
+    fn finish_owner(self) -> ShadowResolvedOwnerV0<'ast> {
+        ShadowResolvedOwnerV0 {
+            function: ShadowResolvedFunctionV0 {
+                function_origin: self.function_origin,
+                function_scope: self.function_scope,
+                function_region: self.function_region,
+                bindings: self.bindings,
+                scopes: self.scopes,
+                regions: self.regions,
+                declarations: self.declarations,
+                variable_uses: self.variable_uses,
+                assignment_targets: self.assignment_targets,
+                resolved_exits: self.resolved_exits,
+            },
+            lambdas: self.lambdas.into_boxed_slice(),
         }
+    }
+
+    pub(super) fn record_lambda(
+        &mut self,
+        lambda: &'ast ASTNode,
+        path: &ShadowSourcePathV0,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        if self.lambda_mode == ShadowLambdaModeV0::Reject {
+            return Err(ShadowResolveErrorV0::UnsupportedExpression {
+                kind: "Lambda",
+                site: path.expr(),
+            });
+        }
+        let mut visible_bindings = BTreeMap::new();
+        for frame in &self.scope_stack {
+            for (name, binding) in &frame.names {
+                visible_bindings.insert(name.clone().into_boxed_str(), *binding);
+            }
+        }
+        self.lambdas.push(ShadowLambdaSyntaxV0::new(
+            path.expr(),
+            self.current_scope(),
+            visible_bindings,
+            lambda,
+        ));
+        Ok(())
     }
 
     pub(super) fn current_scope(&self) -> ShadowScopeIdV0 {

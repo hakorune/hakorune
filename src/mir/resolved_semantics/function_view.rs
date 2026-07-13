@@ -2,11 +2,24 @@
 
 use crate::ast::ASTNode;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum FunctionBodyOriginV1 {
+    Function,
+    Lambda,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ReceiverPolicyV1 {
+    DeclaredInstance,
+    Absent,
+}
+
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct FunctionSyntaxViewV1<'a> {
     params: &'a [String],
     body: &'a [ASTNode],
-    is_static: bool,
+    receiver_policy: ReceiverPolicyV1,
+    body_origin: FunctionBodyOriginV1,
 }
 
 impl<'a> FunctionSyntaxViewV1<'a> {
@@ -23,7 +36,24 @@ impl<'a> FunctionSyntaxViewV1<'a> {
         Some(Self {
             params,
             body,
-            is_static: *is_static,
+            receiver_policy: if *is_static {
+                ReceiverPolicyV1::Absent
+            } else {
+                ReceiverPolicyV1::DeclaredInstance
+            },
+            body_origin: FunctionBodyOriginV1::Function,
+        })
+    }
+
+    pub(crate) fn from_lambda_ast(lambda: &'a ASTNode) -> Option<Self> {
+        let ASTNode::Lambda { params, body, .. } = lambda else {
+            return None;
+        };
+        Some(Self {
+            params,
+            body,
+            receiver_policy: ReceiverPolicyV1::Absent,
+            body_origin: FunctionBodyOriginV1::Lambda,
         })
     }
 
@@ -35,7 +65,11 @@ impl<'a> FunctionSyntaxViewV1<'a> {
         self.body
     }
 
-    pub(crate) const fn is_static(self) -> bool {
-        self.is_static
+    pub(crate) const fn receiver_policy(self) -> ReceiverPolicyV1 {
+        self.receiver_policy
+    }
+
+    pub(crate) const fn body_origin(self) -> FunctionBodyOriginV1 {
+        self.body_origin
     }
 }

@@ -136,4 +136,12 @@ impl VerifiedResolvedFunctionV1 {
     pub fn normalized_graph(&self) -> &NormalizedResolvedFunctionGraphV1 {
         &self.normalized
     }
+
+    pub(crate) fn exact_scope_containing(
+        &self,
+        site: &super::source_site::SourceNodeSiteV1,
+    ) -> Option<ScopeId> {
+        let region = super::verifier::exact_source_region_v1(&self.data, site)?;
+        self.data.regions.get(&region)?.lexical_scope()
+    }
 }

@@ -7,6 +7,7 @@
 
 mod expr;
 mod ids;
+mod owner_boundary;
 mod path;
 mod product;
 mod resolver;
@@ -14,13 +15,14 @@ mod stmt;
 mod vocabulary;
 
 pub(super) use ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
+pub(super) use owner_boundary::ShadowLambdaSyntaxV0;
 pub(super) use product::{
     ShadowAssignmentTargetV0, ShadowBindingKindV0, ShadowControlExitV0, ShadowExitOriginV0,
     ShadowExitRecordV0, ShadowRegionKindV0, ShadowResolveErrorV0, ShadowResolvedFunctionV0,
-    ShadowScopeKindV0,
+    ShadowResolvedOwnerV0, ShadowScopeKindV0,
 };
 use resolver::resolve_function_shadow_v0;
-pub(super) use resolver::resolve_function_shadow_view_v0;
+pub(super) use resolver::{resolve_function_shadow_view_v0, resolve_owner_shadow_view_v0};
 
 #[cfg(test)]
 mod assignment_traversal_tests;

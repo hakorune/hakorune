@@ -18,6 +18,35 @@ only `ShadowResolvedFunctionV0` for tests and deterministic inspection. It
 cannot populate the canonical draft, allocate `BindingId`, plan control flow,
 or lower MIR.
 
+## OF0 owner-forest boundary
+
+`VerifiedSemanticOwnerForestV1` is the first cross-owner authority. One
+`FunctionSemanticResolverSessionV1` reuses one compilation-scoped owner issuer
+and recursively resolves a root function plus non-capturing Lambda children.
+
+```text
+borrowed canonical syntax
+  -> owner-local shadow traversal
+  -> owner-local VerifiedResolvedFunctionV1
+  -> primary owners + parent edges
+  -> forest verify/derive
+  -> VerifiedSemanticOwnerForestV1
+```
+
+The forest directly owns every sealed owner product. Its only primary
+topology is the owner map plus child-to-parent edges; the single root,
+definition-site child index, and normalized graph are derived exactly once at
+seal. OF0 rejects a second root, mixed compilation brands, cycles, duplicate
+parent/definition sites, and a parent scope that is not the exact lexical
+scope containing the Lambda definition.
+
+Lambda syntax is borrowed through an AST-derived view and never cloned into a
+semantic product. A child declaration uses a child-local `BindingId`; raw IDs
+may repeat across owners without aliasing. A strict-ancestor read/rebind (and
+receiver use) stops at typed `UnsupportedCapture`. OF0 creates no CaptureId,
+Upvar, capture mode, runtime slot, ValueId, BasicBlockId, Recipe, Planner, or
+Lower connection.
+
 SA2 installs the real publication boundary. A compilation-scoped issuer with
 a process-unique compilation brand is the only owner-brand constructor;
 `ResolvedFunctionDraftV1::seal` verifies owner membership, graph

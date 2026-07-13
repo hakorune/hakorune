@@ -520,6 +520,16 @@ fn is_exact_source_container(
     })
 }
 
+pub(super) fn exact_source_region_v1(
+    data: &ResolvedFunctionDataV1,
+    site: &SourceNodeSiteV1,
+) -> Option<RegionId> {
+    data.regions
+        .keys()
+        .copied()
+        .find(|region| is_exact_source_container(data, *region, site))
+}
+
 pub(super) fn source_region_contains_site_v1(
     kind: RegionKindV1,
     origin: &RegionOriginV1,
@@ -535,7 +545,12 @@ pub(super) fn source_region_contains_site_v1(
         RegionKindV1::Sequence => {
             sibling_body_member(origin, site, SourcePathSegmentV1::FunctionBody, |segment| {
                 matches!(segment, SourcePathSegmentV1::Body(_))
-            })
+            }) || sibling_body_member(
+                origin,
+                site,
+                SourcePathSegmentV1::LambdaBodyRoot,
+                |segment| matches!(segment, SourcePathSegmentV1::LambdaBody(_)),
+            )
         }
         RegionKindV1::LexicalScope => {
             sibling_body_member(

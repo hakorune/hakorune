@@ -103,6 +103,13 @@ fn sample_data(owner: FunctionOwnerIdV1, binding: BindingId) -> ResolvedFunction
     }
 }
 
+pub(super) fn sample_verified_for_owner_forest(
+    owner: FunctionOwnerIdV1,
+    binding: BindingId,
+) -> VerifiedResolvedFunctionV1 {
+    seal(sample_data(owner, binding))
+}
+
 fn two_binding_data(
     owner: FunctionOwnerIdV1,
     first: BindingId,

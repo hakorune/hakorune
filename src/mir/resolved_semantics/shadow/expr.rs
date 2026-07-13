@@ -7,16 +7,17 @@ use super::path::ShadowSourcePathV0;
 use super::product::{ShadowAssignmentTargetV0, ShadowResolveErrorV0};
 use super::resolver::ShadowResolverV0;
 
-impl ShadowResolverV0 {
+impl<'ast> ShadowResolverV0<'ast> {
     pub(super) fn resolve_expr(
         &mut self,
-        expr: &ASTNode,
+        expr: &'ast ASTNode,
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
         match expr {
             ASTNode::Literal { .. } => Ok(()),
             ASTNode::Variable { name, .. } => self.resolve_named_use(name, path),
             ASTNode::Me { .. } => self.resolve_receiver_use(path, "Me"),
+            lambda @ ASTNode::Lambda { .. } => self.record_lambda(lambda, path),
             ASTNode::UnaryOp { operand, .. } => {
                 self.resolve_expr(operand, &path.child(SourcePathSegmentV1::Operand))
             }
@@ -121,7 +122,7 @@ impl ShadowResolverV0 {
 
     pub(super) fn resolve_assignment_target(
         &mut self,
-        target: &ASTNode,
+        target: &'ast ASTNode,
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
         let target_site = path.expr();
@@ -166,7 +167,7 @@ impl ShadowResolverV0 {
 
     pub(super) fn resolve_compound_assignment_target(
         &mut self,
-        target: &ASTNode,
+        target: &'ast ASTNode,
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
         if matches!(target, ASTNode::Variable { .. }) {
@@ -225,7 +226,7 @@ impl ShadowResolverV0 {
 
     fn resolve_arguments(
         &mut self,
-        arguments: &[ASTNode],
+        arguments: &'ast [ASTNode],
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
         for (index, argument) in arguments.iter().enumerate() {

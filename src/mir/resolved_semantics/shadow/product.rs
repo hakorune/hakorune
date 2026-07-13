@@ -131,3 +131,9 @@ pub(crate) struct ShadowResolvedFunctionV0 {
     pub(crate) assignment_targets: BTreeMap<SourceExprSiteV1, ShadowAssignmentTargetV0>,
     pub(crate) resolved_exits: BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>,
 }
+
+#[derive(Debug)]
+pub(crate) struct ShadowResolvedOwnerV0<'ast> {
+    pub(crate) function: ShadowResolvedFunctionV0,
+    pub(crate) lambdas: Box<[super::owner_boundary::ShadowLambdaSyntaxV0<'ast>]>,
+}
