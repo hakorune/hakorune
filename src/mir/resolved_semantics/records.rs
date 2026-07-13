@@ -84,6 +84,7 @@ impl ResolvedBindingRecordV1 {
 pub enum ScopeKindV1 {
     Function,
     LexicalBlock,
+    BlockExpr,
     IfThen,
     IfElse,
     LoopBody,
@@ -149,6 +150,7 @@ pub enum RegionKindV1 {
     Function,
     Sequence,
     LexicalScope,
+    BlockExpr,
     If,
     IfThen,
     IfElse,

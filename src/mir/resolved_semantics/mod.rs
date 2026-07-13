@@ -49,6 +49,8 @@ pub use source_site::{
 pub use verifier::ResolvedFunctionVerificationErrorV1;
 
 #[cfg(test)]
+mod block_expr_tests;
+#[cfg(test)]
 mod owner_forest_tests;
 #[cfg(test)]
 mod resolver_tests;

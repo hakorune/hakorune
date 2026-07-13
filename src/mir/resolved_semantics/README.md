@@ -70,6 +70,24 @@ UP1 creates no CaptureId, synthetic child BindingId, capture mode, forwarding
 binding, runtime slot, ValueId, BasicBlockId, Recipe, Planner, or Lower
 connection.
 
+## B0-S passive BlockExpr pair
+
+B0-S adds a disconnected canonical vocabulary for lexical BlockExpr identity:
+`ScopeKindV1::BlockExpr` and `RegionKindV1::BlockExpr`. A sealed draft may
+represent the expression only as one reciprocal scope/region pair. Both
+records carry the same `Source(BlockExprPreludeRoot)` origin; that root is the
+lexical anchor for the ordered prelude and the required tail together.
+
+The seal verifier rejects a partial kind pair or different origins and treats
+only `BlockExprPrelude(index)` and `BlockExprTail` descendants with the same
+prefix as members. Existing owner-branded IDs, parent graphs, and normalized
+records remain the only identity and ancestry mechanisms.
+
+B0-S does not make BlockExpr resolver-supported. B0-F must install canonical
+AST traversal together with lexical lifetime fixtures, recursive non-local
+exit rejection, and owner-forest declaration-order proof. Planner, RegionFlow,
+Lower, ProgramV0, and compatibility fallback remain disconnected.
+
 SA2 installs the real publication boundary. A compilation-scoped issuer with
 a process-unique compilation brand is the only owner-brand constructor;
 `ResolvedFunctionDraftV1::seal` verifies owner membership, graph

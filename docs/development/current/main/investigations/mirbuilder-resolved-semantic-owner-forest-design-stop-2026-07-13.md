@@ -1,5 +1,5 @@
 ---
-Status: P0/E0/OF0/UP0/UP1/B0-D/B0-P closed; B0-C skipped; B0-S is active
+Status: P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S closed; B0-C skipped; B0-F is active
 Date: 2026-07-13
 Scope: Resolved Semantic Owner Forest V1 design and implementation task order
 Parent: mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
@@ -754,10 +754,10 @@ resolver/Planner/Lower behavior change = 0
 Closeout:
 
 ```text
-fixture rows = 16
+fixture rows = 17
 active producers = 8
 planned producers = 1
-test-only producers = 6
+test-only producers = 7
 dead producers = 1
 InternalSequenceRequired = 0
 source parser CompatSequence producers = 0
@@ -773,7 +773,7 @@ producer/status/classification uniqueness, all current Rust
 the zero-result selector. Resolver, Planner, RegionFlow, and Lower behavior
 remain unchanged.
 
-**B0-S — disconnected canonical scope/region schema (active)**
+**B0-S — disconnected canonical scope/region schema (closed)**
 
 ```text
 ScopeKindV1::BlockExpr
@@ -883,9 +883,21 @@ blockexpr_resolver_acceptance=0
 blockexpr_planner_regionflow_lower_connections=0
 ```
 
-Closeout mechanically selects B0-F. B0-S must not close if the resolver accepts
-BlockExpr, if only one identity is present, if scope/region origins disagree,
-or if the focused authority guard is red.
+B0-S closeout evidence:
+
+```text
+ScopeKindV1::BlockExpr / RegionKindV1::BlockExpr = present
+reciprocal sealed pair / shared BlockExprPreludeRoot origin = verified
+Prelude(index) / Tail exact containment = verified
+independent normalized parity = green
+canonical resolver BlockExpr acceptance = 0
+Planner / RegionFlow / Lower connection = 0
+focused BlockExpr schema fixtures = 6 green
+resolved-region-flow-authority guard = green
+all changed source files < 800 lines
+```
+
+B0-S mechanically selects B0-F.
 
 **B0-C — optional internal compatibility carrier (skipped)**
 
@@ -905,7 +917,7 @@ add the vocabulary.
 B0-P proved zero callers. No compatibility carrier, AST variant, ProgramV0
 tag, parser producer, or fallback is added.
 
-**B0-F — lexical fixture lock**
+**B0-F — lexical fixture lock (active)**
 
 Pin tail visibility, inner-local non-leakage, same-name shadow restoration,
 outer rebind propagation, initializer-before-declaration, nested BlockExpr,

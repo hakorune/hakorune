@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Owner Forest V1 P0/E0/OF0/UP0/UP1/B0-D/B0-P closed; B0-C skipped; B0-S BlockExpr schema"
+status = "Owner Forest V1 through B0-S closed; B0-C skipped; B0-F BlockExpr lexical fixture lock"
 date = "2026-07-13"
 
 active_lane = "MIRBUILDER Hako SourceBodyAnalysisSnapshotV1"
@@ -161,7 +161,9 @@ lossy and gains neither source-kind recovery nor a new compatibility tag. A
 non-wire compiler-private CompatSequenceExpr was mechanically skipped because
 B0-P proves zero InternalSequenceRequired callers. B0-P closes the exhaustive
 producer inventory without changing resolver, Planner, RegionFlow, or Lower
-behavior. B0-S disconnected BlockExpr scope/region schema is active.
+behavior. B0-S closes the passive BlockExpr scope/region kind pair, exact
+shared origin, containment, normalized parity, and resolver-acceptance veto.
+B0-F lexical fixture lock is active.
 Production resolver installation, Planner/Lower connection, legacy fallback,
 and BindingId authority cutover remain zero. Historical decision follows.
 Resolved Region Flow V1 accepts
@@ -434,7 +436,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-S-BLOCKEXPR-SCOPE-REGION-SCHEMA-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-F-BLOCKEXPR-LEXICAL-FIXTURE-LOCK-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

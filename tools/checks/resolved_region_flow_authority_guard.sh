@@ -55,6 +55,7 @@ guard_require_files "$TAG" \
   "$ROOT/src/mir/join_ir/ownership/ast_analyzer/core.rs"
 
 expected_manifest="$(printf '%s\n' \
+  block_expr_tests.rs \
   function_view.rs \
   ids.rs \
   mod.rs \
@@ -306,6 +307,15 @@ for required in \
   "pub(crate) resolved_exits: BTreeMap<ResolvedExitSiteV1, ResolvedExitRecordV1>"; do
   guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/product.rs" \
     "sealed semantic product schema drifted: $required"
+done
+for required in 'ScopeKindV1 {' BlockExpr 'RegionKindV1 {'; do
+  guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/records.rs" \
+    "B0-S passive BlockExpr kind vocabulary drifted: $required"
+done
+for required in verify_blockexpr_scope_region_contract BlockExprScopeContractMismatch \
+  BlockExprRegionContractMismatch 'RegionKindV1::BlockExpr =>'; do
+  guard_expect_fixed_in_file "$TAG" "$required" "$MODULE/verifier.rs" \
+    "B0-S BlockExpr seal/containment contract drifted: $required"
 done
 
 for required in \
@@ -725,6 +735,7 @@ if ! rg -q 'pub\(super\) struct BindingId\(u32\)' \
 fi
 
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::tests
+cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::block_expr_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::resolver_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::owner_forest_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::assignment_traversal_tests
@@ -758,6 +769,12 @@ echo "blockexpr_source_parser_compat_sequence=0"
 echo "blockexpr_unknown_production_producers=0"
 echo "blockexpr_b0_c=skipped_by_zero_callers"
 echo "blockexpr_selected_next_slice=B0-S"
+echo "blockexpr_scope_kind=present"
+echo "blockexpr_region_kind=present"
+echo "blockexpr_identity_pair=verified"
+echo "blockexpr_exact_origin=verified"
+echo "blockexpr_resolver_acceptance=0"
+echo "blockexpr_planner_regionflow_lower_connections=0"
 echo "semantic_arena_source_files_under_800=1"
 echo "shadow_resolver_canonical_binding_ids=0"
 echo "shadow_resolver_external_consumers=0"

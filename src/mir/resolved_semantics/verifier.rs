@@ -30,6 +30,8 @@ pub enum ResolvedFunctionVerificationErrorV1 {
     MissingScopeOwnerRegion(ScopeId),
     MissingRegionLexicalScope(RegionId),
     ScopeRegionMismatch(ScopeId),
+    BlockExprScopeContractMismatch(ScopeId),
+    BlockExprRegionContractMismatch(RegionId),
     MissingBindingOwnerScope(BindingId),
     ForeignBindingRef(BindingRefV1),
     DanglingBindingRef(BindingRefV1),
@@ -66,11 +68,66 @@ pub(super) fn verify_resolved_function(
     verify_scope_graph(data)?;
     verify_region_graph(data)?;
     verify_scope_region_bijection(data)?;
+    verify_blockexpr_scope_region_contract(data)?;
     verify_binding_inventory(data)?;
     verify_indexes(data)?;
     verify_kind_origin_contracts(data)?;
     verify_normalized_key_uniqueness(data)?;
     verify_control_targets(data)?;
+    Ok(())
+}
+
+fn verify_blockexpr_scope_region_contract(
+    data: &ResolvedFunctionDataV1,
+) -> Result<(), ResolvedFunctionVerificationErrorV1> {
+    for (scope, scope_record) in &data.scopes {
+        if scope_record.kind() != ScopeKindV1::BlockExpr {
+            continue;
+        }
+        let Some(region_record) = data.regions.get(&scope_record.owner_region()) else {
+            return Err(
+                ResolvedFunctionVerificationErrorV1::BlockExprScopeContractMismatch(*scope),
+            );
+        };
+        let origins_match = match (scope_record.origin(), region_record.origin()) {
+            (ScopeOriginV1::Source(scope_origin), RegionOriginV1::Source(region_origin)) => {
+                scope_origin == region_origin
+                    && matches!(
+                        scope_origin.segments().last(),
+                        Some(SourcePathSegmentV1::BlockExprPreludeRoot)
+                    )
+            }
+            _ => false,
+        };
+        if region_record.kind() != RegionKindV1::BlockExpr
+            || region_record.lexical_scope() != Some(*scope)
+            || !origins_match
+        {
+            return Err(
+                ResolvedFunctionVerificationErrorV1::BlockExprScopeContractMismatch(*scope),
+            );
+        }
+    }
+    for (region, region_record) in &data.regions {
+        if region_record.kind() != RegionKindV1::BlockExpr {
+            continue;
+        }
+        let Some(scope) = region_record.lexical_scope() else {
+            return Err(
+                ResolvedFunctionVerificationErrorV1::BlockExprRegionContractMismatch(*region),
+            );
+        };
+        let Some(scope_record) = data.scopes.get(&scope) else {
+            return Err(
+                ResolvedFunctionVerificationErrorV1::BlockExprRegionContractMismatch(*region),
+            );
+        };
+        if scope_record.kind() != ScopeKindV1::BlockExpr || scope_record.owner_region() != *region {
+            return Err(
+                ResolvedFunctionVerificationErrorV1::BlockExprRegionContractMismatch(*region),
+            );
+        }
+    }
     Ok(())
 }
 
@@ -599,6 +656,19 @@ pub(super) fn source_region_contains_site_v1(
                 site,
                 SourcePathSegmentV1::FastMemBodyRoot,
                 |segment| matches!(segment, SourcePathSegmentV1::FastMemBody(_)),
+            )
+        }
+        RegionKindV1::BlockExpr => {
+            sibling_body_member(
+                origin,
+                site,
+                SourcePathSegmentV1::BlockExprPreludeRoot,
+                |segment| matches!(segment, SourcePathSegmentV1::BlockExprPrelude(_)),
+            ) || sibling_body_member(
+                origin,
+                site,
+                SourcePathSegmentV1::BlockExprPreludeRoot,
+                |segment| matches!(segment, SourcePathSegmentV1::BlockExprTail),
             )
         }
         RegionKindV1::IfThen => {
