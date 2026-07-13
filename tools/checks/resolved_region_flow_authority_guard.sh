@@ -35,8 +35,8 @@ guard_require_files "$TAG" \
   "$LOWER_STATE" \
   "$LOWER_LOCAL" \
   "$LOWER_PARAM" \
-  "$ROOT/src/mir/compiler/README.md" \
-  "$LOWERING_INPUT" \
+  "$ROOT/src/mir/compiler/README.md" "$LOWERING_INPUT" \
+  "$ROOT/src/mir/compiler/located.rs" "$ROOT/src/mir/compiler/source_projection.rs" "$ROOT/src/mir/compiler/source_view.rs" "$ROOT/src/mir/compiler/source_view_tests.rs" \
   "$BLOCKEXPR_INVENTORY" \
   "$MODULE/tests.rs" \
   "$MODULE/shadow/mod.rs" \
@@ -665,15 +665,15 @@ allowed = {
     "binding_ref",
     "binding",
     "bindings",
-    "scope",
-    "region",
+    "scope", "scopes",
+    "region", "regions",
     "declaration_binding",
     "declaration_sites",
     "variable_ref",
     "variable_refs",
     "assignment_target",
     "assignment_targets",
-    "resolved_exit",
+    "resolved_exit", "resolved_exits",
     "binding_count",
     "scope_count",
     "region_count",
@@ -705,7 +705,7 @@ fi
 while IFS= read -r consumer; do
   [[ -z "$consumer" ]] && continue
   case "$consumer" in
-    "$MIR_MOD"|"$MODULE"/*|"$LOWER_STATE"|"$LOWER_LOCAL"|"$LOWER_PARAM"|"$LOWERING_INPUT")
+    "$MIR_MOD"|"$MODULE"/*|"$LOWER_STATE"|"$LOWER_LOCAL"|"$LOWER_PARAM"|"$LOWERING_INPUT"|"$ROOT/src/mir/compiler/located.rs"|"$ROOT/src/mir/compiler/source_projection.rs"|"$ROOT/src/mir/compiler/source_view.rs"|"$ROOT/src/mir/compiler/source_view_tests.rs")
       ;;
     *)
       guard_fail "$TAG" "SA3-A semantic product transport escaped its bounded files: $consumer"
@@ -736,7 +736,7 @@ while IFS= read -r file; do
   if (( lines >= 800 )); then
     guard_fail "$TAG" "source file reached the 800-line stop boundary: $file ($lines)"
   fi
-done < <(find "$MODULE" -type f -name '*.rs' -print; printf '%s\n' "$MIR_MOD" "$LOWERING_INPUT")
+done < <(find "$MODULE" "$ROOT/src/mir/compiler" -type f -name '*.rs' -print; printf '%s\n' "$MIR_MOD")
 
 if ! rg -q 'pub\(super\) struct BindingId\(u32\)' \
   "$ROOT/src/mir/join_ir/ownership/ast_analyzer/core.rs"; then
@@ -755,7 +755,7 @@ cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::scope_container_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::resolved_semantics::shadow::vocabulary_tests
 cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::builder::vars::resolved_binding_state::tests
-cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib mir::compiler::lowering_input::tests
+for test in mir::compiler::lowering_input::tests mir::compiler::source_view_tests; do cargo test -q --manifest-path "$ROOT/Cargo.toml" --lib "$test"; done
 
 echo "semantic_arena_schema=present"
 echo "semantic_arena_ast_clone_fields=0"

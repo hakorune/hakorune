@@ -94,6 +94,22 @@ prelude reports its exact statement container and a rejected tail reports its
 exact expression container; loop-local Break/Continue remain valid. Planner,
 RegionFlow, Lower, ProgramV0, and compatibility fallback remain disconnected.
 
+## B0-L2b shared source-path boundary
+
+`SourcePathSegmentV1` remains the only path grammar. B0-L2b promotes its small
+immutable builder to `SourcePathV1` in `source_site.rs`; the shadow resolver's
+historical `ShadowSourcePathV0` name is only a local alias. The compiler-side
+source projection consumes these paths but this semantic module never imports
+compiler or Lower code.
+
+The sealed compiler projection validates that every owner root follows the
+forest's exact Lambda definition chain and that semantic declaration/use/
+assignment/exit/scope/region sites project to the expected syntax family.
+It stores no AST reference or pointer. Future Lower obtains borrowed syntax
+only through an immutable function source view and located-node carriers.
+B0-L2b adds no resolver acceptance, production source-unit construction,
+Planner/RegionFlow/Recipe connection, or MIR materialization.
+
 SA2 installs the real publication boundary. A compilation-scoped issuer with
 a process-unique compilation brand is the only owner-brand constructor;
 `ResolvedFunctionDraftV1::seal` verifies owner membership, graph

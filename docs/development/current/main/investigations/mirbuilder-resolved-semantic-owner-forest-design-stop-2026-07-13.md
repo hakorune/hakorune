@@ -1,5 +1,5 @@
 ---
-Status: P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S/B0-F/B0-L0/B0-L1/B0-L2a closed; B0-C skipped; B0-L2b is active
+Status: P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S/B0-F/B0-L0/B0-L1/B0-L2a/B0-L2b closed; B0-C skipped; B0-L2c is active
 Date: 2026-07-13
 Scope: Resolved Semantic Owner Forest V1 design and implementation task order
 Parent: mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
@@ -1176,7 +1176,7 @@ The boundary lives in `src/mir/compiler/lowering_input.rs`; its ownership and
 forbidden edges are fixed by `src/mir/compiler/README.md`. The existing legacy
 Builder implementation is unchanged behind the legacy request branch.
 
-**B0-L2b — immutable exact source navigator (active)**
+**B0-L2b — immutable exact source navigator (closed)**
 
 Add disconnected source projection and located-node vocabulary without
 activating canonical Lower:
@@ -1228,6 +1228,84 @@ production verified-unit constructors / compile_resolved callers = 0
 Builder / Planner / RegionFlow / Recipe connections = 0
 all source files < 800 lines
 ```
+
+Closeout evidence:
+
+```text
+shared source path builder = SourcePathV1
+shadow resolver duplicate path builder = 0 (local alias only)
+verified syntax/forest projection = present
+projection stored syntax pointers / Span / names / AST clones = 0
+located carrier safe-code factories outside FunctionSourceViewV1 = 0
+exact FunctionBody/Local/Assignment/nested BlockExpr navigation = verified
+Lambda child owner transition / foreign-owner rejection = verified
+same-Span sibling site distinction = verified
+syntax/product signature mismatch rejection = verified
+focused source-navigation fixtures = 4 green
+production verified-unit constructors / compile_resolved callers = 0
+Builder / Planner / RegionFlow / Recipe consumers = 0
+resolved_region_flow_authority_guard = green
+selected next slice = B0-L2c
+```
+
+The source unit owns `VerifiedSourceProjectionV1` beside syntax and the sealed
+forest. The projection stores only owner definition chains. Located carriers
+are sealed by an unforgeable `SourceViewSealV1`; safe code outside
+`FunctionSourceViewV1` cannot assemble an arbitrary site/node pair. Physical
+AST-field navigation remains centralized in `source_projection.rs`, while the
+resolver and compiler share the one `SourcePathV1` builder.
+
+**B0-L2c — closure-scoped function transaction (active)**
+
+This is a behavior-preserving BoxShape slice over the existing static/instance
+function Lower. It activates neither the resolved source view nor semantic
+identity. The cleanup owner is `CanonicalFunctionLoweringSessionV1`; the name
+reserves the future canonical boundary, while this slice proves the lifecycle
+using the current legacy body path.
+
+Required structure:
+
+1. Add one `calls/function_session.rs` lifecycle box. Both
+   `lower_static_method_as_function` and `lower_method_as_function` enter it;
+   neither may call prepare/restore, FunctionRegion pop, or `fn_body_ast`
+   clear manually.
+2. The session owns the complete caller snapshot before any fallible skeleton,
+   parameter, body, or finalize step. Include current function/block, binding
+   and resolved-binding state, variable/type context, lexical/loop/if/debug/
+   FastMem stacks, SSA caches, try/cleanup flags, recursion/re-entry guards,
+   slot registry, reserved values, `fn_body_ast`, FragEmitSession, current
+   source Span, and observer Region stack.
+3. Finalization returns an unpublished `MirFunction` draft. The session first
+   verifies/restores caller state, then commits that draft to the module.
+   Any primary or cleanup error publishes no function.
+4. Cleanup is explicit and returns `Result`; Drop is only a debug assertion
+   and panic-restoration backstop. If primary and cleanup both fail, preserve
+   both diagnostics under one stable contract error.
+5. Restore the exact observer Region stack snapshot rather than assuming one
+   unconditional pop. Success and every `?` error path use the same close
+   operation.
+
+Acceptance:
+
+```text
+manual prepare/restore pairs in lowering.rs = 0
+manual FunctionRegion pop in lowering.rs = 0
+manual fn_body_ast set/clear in lowering.rs = 0
+static and instance method lifecycle owner = one session
+unpublished draft before cleanup = verified
+skeleton / parameter / body / finalize injected errors publish functions = 0
+success and error restore caller function/block and all snapshotted state
+primary + cleanup error preserves both diagnostics
+resolved source-view Builder consumers = 0
+production semantic activation / BindingId authority change = 0
+Planner / RegionFlow / Recipe connection = 0
+focused transaction tests and existing representative function gates = green
+all source files < 800 lines
+```
+
+Stop if closure ownership requires `Option<VerifiedResolvedFunctionV1>`, a
+mutable source cursor, a new environment toggle, or any canonical/legacy
+identity mixture. Those belong to atomic SA3-B, not this lifecycle slice.
 
 **B0-L — explicit Rust canonical Lower cutover (ordered after B0-L2 and SA3-B)**
 

@@ -1,5 +1,5 @@
 ---
-Status: accepted; B0-L1/B0-L2a closed; B0-L2b selected
+Status: accepted; B0-L1/B0-L2a/B0-L2b closed; B0-L2c selected
 Date: 2026-07-13
 Scope: B0-L0 canonical Lower ingress and exact source-site carrier
 Parent: mirbuilder-resolved-semantic-owner-forest-design-stop-2026-07-13.md

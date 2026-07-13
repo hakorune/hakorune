@@ -42,6 +42,7 @@ pub use records::{
     ScopeOriginV1, SyntheticBindingKindV1,
 };
 pub(crate) use resolver::{FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1};
+pub(crate) use source_site::SourcePathV1;
 pub use source_site::{
     FunctionOriginV1, OwnedExprSiteV1, ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
     SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,

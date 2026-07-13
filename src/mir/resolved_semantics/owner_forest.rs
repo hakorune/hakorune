@@ -655,6 +655,12 @@ fn normalized_scope(
 }
 
 impl VerifiedSemanticOwnerForestV1 {
+    pub(crate) fn owners(
+        &self,
+    ) -> impl Iterator<Item = (FunctionOwnerIdV1, &VerifiedResolvedFunctionV1)> {
+        self.owners.iter().map(|(owner, product)| (*owner, product))
+    }
+
     pub fn owner(&self, owner: FunctionOwnerIdV1) -> Option<&VerifiedResolvedFunctionV1> {
         self.owners.get(&owner)
     }

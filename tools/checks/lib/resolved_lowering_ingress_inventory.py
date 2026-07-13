@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the B0-L1 inventory and behavior-neutral B0-L2a typed ingress."""
+"""Validate B0-L1 plus behavior-neutral B0-L2a/B0-L2b transport slices."""
 
 from __future__ import annotations
 
@@ -135,11 +135,10 @@ def main() -> None:
         "exact_source_site_transport_count": 0,
         "resolved_scope_consumer_count": 0,
         "planner_connection_count": 0,
+        "selected_next_slice": "B0-L2b-immutable-source-navigator",
     }
     if typed != expected_typed:
         fail(f"B0-L2a typed ingress contract drifted: {typed!r}")
-    if data.get("selected_next_slice") != "B0-L2b-immutable-source-navigator":
-        fail("closed B0-L2a must mechanically select B0-L2b")
 
     lowering_input = root / "src/mir/compiler/lowering_input.rs"
     compiler = root / "src/mir/compiler/mod.rs"
@@ -154,7 +153,7 @@ def main() -> None:
         "pub struct LegacyModuleLoweringInputV1",
         "pub enum CanonicalLoweringErrorV1",
         "pub(super) enum MirLoweringRequestV1<'a>",
-        "#[cfg(test)]\nfn verified_source_unit_for_test(",
+        "#[cfg(test)]\npub(super) fn verified_source_unit_for_test(",
     ):
         if anchor not in lowering_text:
             fail(f"B0-L2a lowering-input anchor is missing: {anchor}")
@@ -180,9 +179,124 @@ def main() -> None:
             production_resolved_callers.append(source.relative_to(root).as_posix())
     if production_resolved_callers:
         fail(f"resolved ingress gained production callers: {production_resolved_callers}")
-    for forbidden in ("FunctionSourceViewV1", "LocatedStmtV1", "LocatedExprV1"):
-        if forbidden in compiler_text or forbidden in lowering_text:
-            fail(f"B0-L2b vocabulary activated during B0-L2a: {forbidden}")
+
+    navigator = data.get("source_navigator_contract", {})
+    expected_navigator = {
+        "slice": "B0-L2b",
+        "status": "closed",
+        "shared_path_builder_type": "SourcePathV1",
+        "verified_projection_type": "VerifiedSourceProjectionV1",
+        "function_view_type": "FunctionSourceViewV1",
+        "located_body_type": "LocatedBodyV1",
+        "located_statement_type": "LocatedStmtV1",
+        "located_expression_type": "LocatedExprV1",
+        "located_suffix_type": "LocatedBodySuffixV1",
+        "request_test_count": 4,
+        "disconnected_exact_source_transport_count": 1,
+        "production_verified_unit_constructors": 0,
+        "production_resolved_request_callers": 0,
+        "builder_consumer_count": 0,
+        "planner_connection_count": 0,
+        "mutable_source_cursor_count": 0,
+        "pointer_identity_lookup_count": 0,
+        "span_identity_lookup_count": 0,
+        "name_identity_lookup_count": 0,
+    }
+    if navigator != expected_navigator:
+        fail(f"B0-L2b source navigator contract drifted: {navigator!r}")
+    if data.get("selected_next_slice") != "B0-L2c-function-transaction":
+        fail("closed B0-L2b must mechanically select B0-L2c")
+
+    compiler_dir = root / "src/mir/compiler"
+    navigator_files = {
+        "located.rs": compiler_dir / "located.rs",
+        "source_projection.rs": compiler_dir / "source_projection.rs",
+        "source_view.rs": compiler_dir / "source_view.rs",
+        "source_view_tests.rs": compiler_dir / "source_view_tests.rs",
+    }
+    for label, path in navigator_files.items():
+        if not path.is_file():
+            fail(f"B0-L2b source is missing: {label}")
+    located_text = navigator_files["located.rs"].read_text(encoding="utf-8")
+    projection_text = navigator_files["source_projection.rs"].read_text(encoding="utf-8")
+    view_text = navigator_files["source_view.rs"].read_text(encoding="utf-8")
+    view_tests_text = navigator_files["source_view_tests.rs"].read_text(encoding="utf-8")
+    source_site_text = (root / "src/mir/resolved_semantics/source_site.rs").read_text(
+        encoding="utf-8"
+    )
+    shadow_path_text = (root / "src/mir/resolved_semantics/shadow/path.rs").read_text(
+        encoding="utf-8"
+    )
+    for anchor, text in (
+        ("pub(crate) struct SourcePathV1", source_site_text),
+        ("SourcePathV1 as ShadowSourcePathV0", shadow_path_text),
+        ("pub(crate) struct VerifiedSourceProjectionV1", projection_text),
+        ("pub(super) struct SourceViewSealV1(())", view_text),
+        ("pub(crate) struct FunctionSourceViewV1<'a>", view_text),
+        ("pub(crate) struct LocatedBodyV1<'a>", located_text),
+        ("pub(crate) struct LocatedStmtV1<'a>", located_text),
+        ("pub(crate) struct LocatedExprV1<'a>", located_text),
+        ("pub(crate) struct LocatedBodySuffixV1<'a>", located_text),
+    ):
+        if anchor not in text:
+            fail(f"B0-L2b source navigator anchor is missing: {anchor}")
+    if "struct ShadowSourcePathV0" in shadow_path_text:
+        fail("shadow resolver regained a second source-path builder")
+    if view_tests_text.count("#[test]") != 4:
+        fail("B0-L2b must retain four focused source-navigation tests")
+
+    lowering_production_text = lowering_text.split("#[cfg(test)]", 1)[0]
+    production_navigator_text = "\n".join(
+        (located_text, projection_text, view_text, lowering_production_text)
+    )
+    forbidden_identity_tokens = {
+        "mutable source cursor": "current_source_site",
+        "raw pointer": "NonNull<",
+        "pointer lookup": ".as_ptr()",
+        "Span identity": "Span",
+    }
+    for label, token in forbidden_identity_tokens.items():
+        if token in production_navigator_text:
+            fail(f"B0-L2b introduced forbidden {label}: {token}")
+    if "name: String" in projection_text or "name: Box<str>" in projection_text:
+        fail("source projection must not carry name identity")
+    for forbidden in ("MirBuilder", "control_flow::plan", "Recipe", "RegionFlow"):
+        if forbidden in production_navigator_text:
+            fail(f"B0-L2b connected a forbidden consumer: {forbidden}")
+
+    located_constructors = (
+        "LocatedBodyV1::new(",
+        "LocatedStmtV1::new(",
+        "LocatedExprV1::new(",
+        "LocatedBodySuffixV1::new(",
+        "SourceBodySiteV1::new_root(",
+        "SourceBodySiteV1::new_child(",
+    )
+    for source in compiler_dir.rglob("*.rs"):
+        if source == navigator_files["source_view.rs"]:
+            continue
+        text = source.read_text(encoding="utf-8")
+        if any(token in text for token in located_constructors):
+            fail(f"located carrier constructor escaped FunctionSourceViewV1: {source}")
+
+    allowed_view_files = set(navigator_files.values()) | {lowering_input}
+    external_view_consumers = []
+    view_tokens = (
+        "VerifiedSourceProjectionV1",
+        "FunctionSourceViewV1",
+        "LocatedBodyV1",
+        "LocatedStmtV1",
+        "LocatedExprV1",
+        "LocatedBodySuffixV1",
+    )
+    for source in (root / "src").rglob("*.rs"):
+        if source in allowed_view_files:
+            continue
+        text = source.read_text(encoding="utf-8")
+        if any(token in text for token in view_tokens):
+            external_view_consumers.append(source.relative_to(root).as_posix())
+    if external_view_consumers:
+        fail(f"source navigator escaped compiler transport: {external_view_consumers}")
 
     check_evidence(root, modules, "module_ingresses")
     check_evidence(root, functions, "function_families")
@@ -196,7 +310,12 @@ def main() -> None:
     print("resolved_lowering_production_verified_unit_constructors=0")
     print("resolved_lowering_production_resolved_request_callers=0")
     print("resolved_lowering_production_activation=0")
-    print("resolved_lowering_selected_next_slice=B0-L2b")
+    print("resolved_lowering_source_navigator=closed")
+    print("resolved_lowering_disconnected_exact_source_transport=1")
+    print("resolved_lowering_mutable_source_cursor=0")
+    print("resolved_lowering_pointer_span_name_identity=0")
+    print("resolved_lowering_builder_planner_consumers=0")
+    print("resolved_lowering_selected_next_slice=B0-L2c")
 
 
 if __name__ == "__main__":

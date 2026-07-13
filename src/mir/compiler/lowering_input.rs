@@ -1,13 +1,15 @@
 //! Typed module ingress before any MIR Builder effects.
 //!
-//! B0-L2a installs disconnected transport vocabulary only. The resolved
-//! source-unit seal has no production constructor until exact source
-//! projection is available in B0-L2b.
+//! B0-L2b seals canonical syntax, the semantic owner forest, and immutable
+//! exact-source projection into one disconnected transport bundle. The bundle
+//! has no production constructor until atomic SA3-B activation.
 
 use std::fmt;
 
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::VerifiedSemanticOwnerForestV1;
+
+use super::source_projection::VerifiedSourceProjectionV1;
 
 #[derive(Debug)]
 struct CanonicalSyntaxOwnerV1 {
@@ -19,13 +21,14 @@ struct ResolvedSourceUnitSealV1;
 
 /// Immutable canonical syntax bundled with the forest sealed for that syntax.
 ///
-/// There is deliberately no production constructor in B0-L2a. B0-L2b must
-/// provide the exact source-projection proof before this value becomes
-/// constructible outside focused tests.
+/// There is deliberately no production constructor before atomic SA3-B.
+/// Focused B0-L2b tests construct syntax, forest, and source projection in one
+/// factory so independently supplied products cannot be paired accidentally.
 #[derive(Debug)]
 pub struct VerifiedResolvedSourceUnitV1 {
     syntax: CanonicalSyntaxOwnerV1,
     forest: VerifiedSemanticOwnerForestV1,
+    projection: VerifiedSourceProjectionV1,
     _seal: ResolvedSourceUnitSealV1,
 }
 
@@ -36,6 +39,10 @@ impl VerifiedResolvedSourceUnitV1 {
 
     pub(crate) fn forest(&self) -> &VerifiedSemanticOwnerForestV1 {
         &self.forest
+    }
+
+    pub(crate) fn projection(&self) -> &VerifiedSourceProjectionV1 {
+        &self.projection
     }
 
     pub fn lowering_input(&self) -> ResolvedModuleLoweringInputV1<'_> {
@@ -178,13 +185,18 @@ impl MirLoweringRequestErrorV1 {
 }
 
 #[cfg(test)]
-fn verified_source_unit_for_test(
-    root: ASTNode,
-    forest: VerifiedSemanticOwnerForestV1,
-) -> VerifiedResolvedSourceUnitV1 {
+pub(super) fn verified_source_unit_for_test(root: ASTNode) -> VerifiedResolvedSourceUnitV1 {
+    use crate::mir::resolved_semantics::{FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1};
+
+    let forest = FunctionSemanticResolverSessionV1::new(0)
+        .unwrap()
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&root).unwrap())
+        .unwrap();
+    let projection = VerifiedSourceProjectionV1::seal(&root, &forest).unwrap();
     VerifiedResolvedSourceUnitV1 {
         syntax: CanonicalSyntaxOwnerV1 { root },
         forest,
+        projection,
         _seal: ResolvedSourceUnitSealV1,
     }
 }
@@ -192,7 +204,6 @@ fn verified_source_unit_for_test(
 #[cfg(test)]
 mod tests {
     use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
-    use crate::mir::resolved_semantics::{FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1};
 
     use super::*;
 
@@ -240,11 +251,7 @@ mod tests {
     #[test]
     fn verified_unit_is_the_only_resolved_input_factory() {
         let root = function();
-        let forest = FunctionSemanticResolverSessionV1::new(0)
-            .unwrap()
-            .resolve_forest(FunctionSyntaxViewV1::from_ast(&root).unwrap())
-            .unwrap();
-        let unit = verified_source_unit_for_test(root, forest);
+        let unit = verified_source_unit_for_test(root);
         let input = unit.lowering_input();
 
         assert!(matches!(
@@ -257,11 +264,7 @@ mod tests {
     #[test]
     fn resolved_entry_stops_before_builder_effects() {
         let root = function();
-        let forest = FunctionSemanticResolverSessionV1::new(0)
-            .unwrap()
-            .resolve_forest(FunctionSyntaxViewV1::from_ast(&root).unwrap())
-            .unwrap();
-        let unit = verified_source_unit_for_test(root, forest);
+        let unit = verified_source_unit_for_test(root);
         let mut compiler = crate::mir::MirCompiler::with_options(false);
 
         let error = compiler

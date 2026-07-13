@@ -96,6 +96,50 @@ impl SourceNodeSiteV1 {
     }
 }
 
+/// Immutable path builder shared by resolver production and source projection.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct SourcePathV1(Vec<SourcePathSegmentV1>);
+
+impl SourcePathV1 {
+    pub(crate) fn function_body() -> Self {
+        Self(vec![SourcePathSegmentV1::FunctionBody])
+    }
+
+    pub(crate) fn lambda_body() -> Self {
+        Self(vec![SourcePathSegmentV1::LambdaBodyRoot])
+    }
+
+    pub(crate) fn root_body(index: usize) -> Self {
+        Self(vec![SourcePathSegmentV1::Body(index as u32)])
+    }
+
+    pub(crate) fn lambda_body_item(index: usize) -> Self {
+        Self(vec![SourcePathSegmentV1::LambdaBody(index as u32)])
+    }
+
+    pub(crate) fn from_node(site: &SourceNodeSiteV1) -> Self {
+        Self(site.segments().to_vec())
+    }
+
+    pub(crate) fn child(&self, segment: SourcePathSegmentV1) -> Self {
+        let mut segments = self.0.clone();
+        segments.push(segment);
+        Self(segments)
+    }
+
+    pub(crate) fn node(&self) -> SourceNodeSiteV1 {
+        SourceNodeSiteV1::from_segments(self.0.clone())
+    }
+
+    pub(crate) fn stmt(&self) -> SourceStmtSiteV1 {
+        SourceStmtSiteV1::from_node(self.node())
+    }
+
+    pub(crate) fn expr(&self) -> SourceExprSiteV1 {
+        SourceExprSiteV1::from_node(self.node())
+    }
+}
+
 /// Structural statement provenance.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct SourceStmtSiteV1(SourceNodeSiteV1);

@@ -10,7 +10,16 @@ use super::verification::MirVerifier;
 use super::verification_types::VerificationError;
 use std::time::Instant;
 
+#[allow(dead_code)]
+mod located;
 mod lowering_input;
+#[allow(dead_code)]
+mod source_projection;
+#[allow(dead_code)]
+mod source_view;
+
+#[cfg(test)]
+mod source_view_tests;
 
 pub use lowering_input::{
     CanonicalLoweringErrorV1, LegacyModuleLoweringInputV1, ResolvedModuleLoweringInputV1,

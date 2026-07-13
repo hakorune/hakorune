@@ -207,6 +207,20 @@
       "retirement_owner": "resolved-semantics-blockexpr-tests"
     },
     {
+      "producer_id": "test-canonical-source-view-blockexpr",
+      "producer_path": "src/mir/compiler/source_view_tests.rs",
+      "producer_status": "TestOnly",
+      "output_family": "test ASTNode::BlockExpr",
+      "consumer_entry": "canonical source projection B0-L2b tests",
+      "classification": "TestOnly",
+      "required_scope_semantics": "TestOnlyNoAuthority",
+      "live_caller_evidence": [
+        "src/mir/compiler/source_view_tests.rs#let nested = ASTNode::BlockExpr {",
+        "src/mir/compiler/source_view_tests.rs#let outer = ASTNode::BlockExpr {"
+      ],
+      "retirement_owner": "canonical-source-view-tests"
+    },
+    {
       "producer_id": "test-json-v0-sum-lane-blockexpr",
       "producer_path": "src/runner/json_v0_bridge/tests/sum_lane.rs",
       "producer_status": "TestOnly",

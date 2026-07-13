@@ -302,7 +302,29 @@
     "production_semantic_activation": 0,
     "exact_source_site_transport_count": 0,
     "resolved_scope_consumer_count": 0,
-    "planner_connection_count": 0
+    "planner_connection_count": 0,
+    "selected_next_slice": "B0-L2b-immutable-source-navigator"
   },
-  "selected_next_slice": "B0-L2b-immutable-source-navigator"
+  "source_navigator_contract": {
+    "slice": "B0-L2b",
+    "status": "closed",
+    "shared_path_builder_type": "SourcePathV1",
+    "verified_projection_type": "VerifiedSourceProjectionV1",
+    "function_view_type": "FunctionSourceViewV1",
+    "located_body_type": "LocatedBodyV1",
+    "located_statement_type": "LocatedStmtV1",
+    "located_expression_type": "LocatedExprV1",
+    "located_suffix_type": "LocatedBodySuffixV1",
+    "request_test_count": 4,
+    "disconnected_exact_source_transport_count": 1,
+    "production_verified_unit_constructors": 0,
+    "production_resolved_request_callers": 0,
+    "builder_consumer_count": 0,
+    "planner_connection_count": 0,
+    "mutable_source_cursor_count": 0,
+    "pointer_identity_lookup_count": 0,
+    "span_identity_lookup_count": 0,
+    "name_identity_lookup_count": 0
+  },
+  "selected_next_slice": "B0-L2c-function-transaction"
 }

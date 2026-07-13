@@ -101,10 +101,24 @@ impl VerifiedResolvedFunctionV1 {
             .flatten()
     }
 
+    pub(crate) fn scopes(&self) -> impl Iterator<Item = (ScopeId, &ResolvedScopeRecordV1)> {
+        self.data
+            .scopes
+            .iter()
+            .map(|(scope, record)| (*scope, record))
+    }
+
     pub fn region(&self, id: RegionId) -> Option<&ResolvedRegionRecordV1> {
         (id.owner() == self.data.owner)
             .then(|| self.data.regions.get(&id))
             .flatten()
+    }
+
+    pub(crate) fn regions(&self) -> impl Iterator<Item = (RegionId, &ResolvedRegionRecordV1)> {
+        self.data
+            .regions
+            .iter()
+            .map(|(region, record)| (*region, record))
     }
 
     pub fn declaration_binding(&self, site: &SourceBindingSiteV1) -> Option<BindingRefV1> {
@@ -140,6 +154,12 @@ impl VerifiedResolvedFunctionV1 {
 
     pub fn resolved_exit(&self, site: &ResolvedExitSiteV1) -> Option<&ResolvedExitRecordV1> {
         self.data.resolved_exits.get(site)
+    }
+
+    pub(crate) fn resolved_exits(
+        &self,
+    ) -> impl Iterator<Item = (&ResolvedExitSiteV1, &ResolvedExitRecordV1)> {
+        self.data.resolved_exits.iter()
     }
 
     pub fn binding_count(&self) -> usize {
