@@ -3,6 +3,8 @@
 # D′ SSA-P0: behavior-neutral inventory of every canonical value/CFG/PHI/RC/
 # publication/Return/old-If seam that must move, remain, isolate, or disappear.
 
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/resolved_ownership_legacy_release_contract.sh"
+
 guard_resolved_binding_ssa_contract() {
   local tag="$1"
   local root="$2"
@@ -39,6 +41,7 @@ guard_resolved_binding_ssa_contract() {
   python3 "$identity_validator" "$root"
   python3 "$mir_adapter_validator" "$root"
   python3 "$ownership_validator" "$root" "$ownership_profile"
+  guard_resolved_ownership_legacy_release_contract "$tag" "$root"
 
   local file lines
   for file in \

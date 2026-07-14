@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-RC-RET-P0 legacy ReleaseStrong inventory is next
+Status: Active — SSA-RC0 disconnected ownership-transition planner is next
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-RET-P0-LEGACY-RELEASE-INVENTORY-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC0-OWNERSHIP-TRANSITION-PLANNER-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -1090,6 +1090,8 @@ Evidence card:
 
 #### SSA-RC-RET-P0 — legacy ReleaseStrong inventory and isolation
 
+Status: closed
+
 Create a separate machine ledger for every `ReleaseStrong` producer, consumer,
 opcode surface, document, pass, and fixture. Do not mutate the historical
 92-row SSA seam evidence. Classify each row as:
@@ -1106,6 +1108,30 @@ dead after repository caller zero
 Connect a private ownership helper beneath
 `tools/checks/lib/resolved_binding_ssa_contract.sh`; add no public guard and do
 not grow the 796-line authority guard.
+
+Closed evidence:
+
+```text
+tracked surfaces = 118
+exact token occurrences = 266
+canonical caller-zero delete = 1
+legacy builder isolate = 4
+optional RC insertion isolate = 3
+optimizer/CFG rewrite isolate = 11
+backend/JSON compatibility isolate = 31
+dead after repository caller zero = 68
+historical 92-row inventory mutations = 0
+semantic/backend/opcode/JSON/caller delta = 0
+new public guards = 0
+new/modified source and check files <= 217 lines
+authority guard = green
+release build = green
+dev_gate quick = 66/66 green
+current-state pointer guard = green
+```
+
+Evidence card:
+`mirbuilder-ssa-rc-ret-p0-legacy-release-inventory-2026-07-14.md`.
 
 #### SSA-RC0 — disconnected ownership transition planner
 
@@ -2094,16 +2120,16 @@ state.
 
 ## Immediate next action
 
-Implement SSA-RC-RET-P0 only. Keep legacy meaning and canonical production
+Implement disconnected SSA-RC0 only. Keep production Binding SSA and
 ownership callers unchanged:
 
 ```text
-inventory every ReleaseStrong producer, consumer, transport, pass, fixture, and document
-classify every row by the closed RET-P0 retirement vocabulary
-use a separate machine ledger; do not mutate the historical 92-row SSA seam inventory
-add the private helper beneath resolved_binding_ssa_contract.sh
-grow neither the public authority guard nor accepted grammar
-change no ReleaseStrong semantics, opcode surface, backend behavior, or caller
-record exact caller-zero deletion prerequisites for later RET-R1/RET-R2
+introduce one pure typed ownership-transition planner
+model Trivial, Owned, and BorrowedStrong provenance without a second BindingRef value map
+materialize replacement before destroying the previous owned value
+use exact BindingRef identity for self-assignment
+seal scope-close and terminal Return disposition in reverse declaration order
+emit no MirInstruction and allocate no ValueId or BasicBlockId
+connect no production canonical caller
 keep every new or modified source/check file below 800 lines
 ```
