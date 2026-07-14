@@ -79,6 +79,7 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
         | MirInstruction::StaticDataLoad { index: operand, .. }
         | MirInstruction::TypeOp { value: operand, .. }
         | MirInstruction::Copy { src: operand, .. }
+        | MirInstruction::CopyOwned { src: operand, .. }
         | MirInstruction::LocalContractWrite { src: operand, .. }
         | MirInstruction::RecordFieldContractCheck { value: operand, .. }
         | MirInstruction::Debug { value: operand, .. }
@@ -130,6 +131,7 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
             used
         }
         MirInstruction::KeepAlive { values } => values.clone(),
+        MirInstruction::DestroyOwned { value } => vec![*value],
         MirInstruction::ReleaseStrong { values } => values.clone(),
         MirInstruction::Throw { exception, .. } => vec![*exception],
         MirInstruction::Catch {

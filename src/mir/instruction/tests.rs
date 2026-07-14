@@ -20,6 +20,26 @@ fn test_const_instruction() {
 }
 
 #[test]
+fn ownership_transport_instructions_are_conservative_and_exact() {
+    let src = ValueId::new(7);
+    let dst = ValueId::new(8);
+    let copy = MirInstruction::CopyOwned { dst, src };
+    let destroy = MirInstruction::DestroyOwned { value: dst };
+
+    assert_eq!(copy.dst_value(), Some(dst));
+    assert_eq!(copy.used_values(), vec![src]);
+    assert_eq!(copy.effects(), EffectMask::WRITE);
+    assert!(!copy.effects().is_pure());
+    assert_eq!(copy.to_string(), "%8 = copy_owned %7");
+
+    assert_eq!(destroy.dst_value(), None);
+    assert_eq!(destroy.used_values(), vec![dst]);
+    assert_eq!(destroy.effects(), EffectMask::WRITE);
+    assert!(!destroy.effects().is_pure());
+    assert_eq!(destroy.to_string(), "destroy_owned %8");
+}
+
+#[test]
 fn test_binop_instruction() {
     let dst = ValueId::new(0);
     let lhs = ValueId::new(1);

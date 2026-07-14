@@ -314,6 +314,8 @@ fn emit_instruction(
         I::Return { value } => Ok(control_flow::emit_return(value.as_ref())),
         I::WeakRef { dst, op, value } => Ok(weak::emit_weak_ref(dst, op, value)),
         I::KeepAlive { values } => Ok(weak::emit_keep_alive(values)),
+        I::CopyOwned { dst, src } => Ok(weak::emit_copy_owned(*dst, *src)),
+        I::DestroyOwned { value } => Ok(weak::emit_destroy_owned(*value)),
         I::ReleaseStrong { values } => Ok(weak::emit_release_strong(values)),
         _ => unreachable!("pre-checked by backend_core_ops allowlist"),
     }

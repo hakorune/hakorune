@@ -54,6 +54,8 @@ pub(crate) fn def_inst_kind(inst: &MirInstruction) -> &'static str {
         MirInstruction::UnaryOp { .. } => "UnaryOp",
         MirInstruction::Compare { .. } => "Compare",
         MirInstruction::Copy { .. } => "Copy",
+        MirInstruction::CopyOwned { .. } => "CopyOwned",
+        MirInstruction::DestroyOwned { .. } => "DestroyOwned",
         MirInstruction::LocalContractWrite { .. } => "LocalContractWrite",
         MirInstruction::RecordFieldContractCheck { .. } => "RecordFieldContractCheck",
         MirInstruction::RecordValuePublish { .. } => "RecordValuePublish",

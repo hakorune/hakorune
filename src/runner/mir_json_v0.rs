@@ -23,7 +23,7 @@ use helpers::*;
 use lifecycle::parse_value_transport_or_lifecycle;
 
 /// Parse minimal MIR JSON v0 (no schema_version, root has `functions` and each function has `blocks`).
-/// Supported ops (minimal): const, copy, load, static_data_load, array_get, array_set, store, binop, compare, typeop, ref_new, weak_new, weak_load, future_new, future_set, await, branch, jump, phi, ret, newbox, boxcall, call, mir_call, externcall, safepoint, keepalive, release_strong, debug, select, barrier.
+/// Supported ops (minimal): const, copy, copy_owned, destroy_owned, load, static_data_load, array_get, array_set, store, binop, compare, typeop, ref_new, weak_new, weak_load, future_new, future_set, await, branch, jump, phi, ret, newbox, boxcall, call, mir_call, externcall, safepoint, keepalive, release_strong, debug, select, barrier.
 pub fn parse_mir_v0_to_module(json: &str) -> Result<MirModule, String> {
     let value: Value = serde_json::from_str(json).map_err(|e| format!("invalid JSON: {}", e))?;
     let functions = value
@@ -126,7 +126,7 @@ pub fn parse_mir_v0_to_module(json: &str) -> Result<MirModule, String> {
                         });
                         max_value_id = max_value_id.max(dst + 1);
                     }
-                    "copy" | "keepalive" | "release_strong" => {
+                    "copy" | "copy_owned" | "destroy_owned" | "keepalive" | "release_strong" => {
                         let instruction = parse_value_transport_or_lifecycle(op, inst)?;
                         if let Some(dst) = instruction.dst_value() {
                             max_value_id = max_value_id.max(dst.as_u32() + 1);
@@ -605,6 +605,7 @@ pub fn parse_mir_v0_to_module(json: &str) -> Result<MirModule, String> {
 
         // Set max value id (best effort)
         mir_fn.next_value_id = max_value_id;
+        crate::runner::mir_json::ownership_witness::apply_and_verify(func, &mut mir_fn)?;
         module.functions.insert(func_name.clone(), mir_fn);
     }
 

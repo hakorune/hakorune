@@ -137,6 +137,7 @@ pub fn try_parse_v1_to_module(json: &str) -> Result<Option<MirModule>, String> {
         }
         mir_fn.signature = signature;
         mir_fn.next_value_id = max_value_id.max(mir_fn.next_value_id);
+        crate::runner::mir_json::ownership_witness::apply_and_verify(func, &mut mir_fn)?;
         module.add_function(mir_fn);
     }
 

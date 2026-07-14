@@ -2,6 +2,42 @@ use super::try_parse_v1_to_module;
 use crate::mir::{BasicBlockId, MirInstruction, ValueId};
 
 #[test]
+fn parse_v1_ownership_transport_requires_exact_boxref_witness() {
+    let payload = r#"{
+      "schema_version":"1.0",
+      "functions":[{
+        "name":"main",
+        "metadata":{
+          "value_types":{
+            "1":{"kind":"handle","box_type":"WidgetBox"},
+            "2":{"kind":"handle","box_type":"WidgetBox"}
+          },
+          "storage_classes":{"1":"box_ref","2":"box_ref"}
+        },
+        "blocks":[{"id":0,"instructions":[
+          {"op":"copy_owned","dst":2,"src":1},
+          {"op":"destroy_owned","value":2}
+        ]}]
+      }]
+    }"#;
+
+    let module = try_parse_v1_to_module(payload)
+        .expect("v1 parse")
+        .expect("v1 handled");
+    let instructions = &module
+        .get_function("main")
+        .unwrap()
+        .get_block(BasicBlockId::new(0))
+        .unwrap()
+        .instructions;
+    assert!(matches!(instructions[0], MirInstruction::CopyOwned { .. }));
+    assert!(matches!(
+        instructions[1],
+        MirInstruction::DestroyOwned { .. }
+    ));
+}
+
+#[test]
 fn parse_phi_incoming_uses_value_then_pred_order() {
     let payload = r#"{
       "schema_version":"1.0",

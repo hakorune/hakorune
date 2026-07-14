@@ -20,6 +20,7 @@ mod local_contracts;
 mod map_lookup_fusion_routes;
 mod map_repr_plans;
 mod ordering;
+mod ownership_transport;
 mod parameter_contracts;
 mod placement;
 mod proof_envelopes;

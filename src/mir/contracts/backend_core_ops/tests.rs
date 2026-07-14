@@ -281,10 +281,37 @@ fn memop_v0_dialect_is_json_and_llvm_supported() {
 
 #[test]
 fn instruction_diet_ledger_counts_match_ssot() {
-    assert_eq!(MIR_INSTRUCTION_KEPT_TAGS.len(), 41);
+    assert_eq!(MIR_INSTRUCTION_KEPT_TAGS.len(), 43);
     assert_eq!(MIR_INSTRUCTION_LOWERED_AWAY_TAGS.len(), 0);
     assert_eq!(MIR_INSTRUCTION_REMOVED_TAGS.len(), 16);
-    assert_eq!(MIR_INSTRUCTION_VOCABULARY_COUNT, 57);
+    assert_eq!(MIR_INSTRUCTION_VOCABULARY_COUNT, 59);
+}
+
+#[test]
+fn ownership_ssa_vocabulary_is_transport_only_before_handlers_land() {
+    let copy = MirInstruction::CopyOwned {
+        dst: ValueId::new(2),
+        src: ValueId::new(1),
+    };
+    let destroy = MirInstruction::DestroyOwned {
+        value: ValueId::new(2),
+    };
+
+    for (instruction, tag, op) in [
+        (copy, "CopyOwned", "copy_owned"),
+        (destroy, "DestroyOwned", "destroy_owned"),
+    ] {
+        assert_eq!(instruction_tag(&instruction), tag);
+        assert_eq!(
+            instruction_diet_cohort(&instruction),
+            InstructionDietCohort::Kept
+        );
+        assert!(is_supported_mir_json_instruction(&instruction));
+        assert!(!is_supported_vm_instruction(&instruction));
+        assert_eq!(llvm_json_ops_for_instruction(&instruction), &[] as &[&str]);
+        assert!(MIR_JSON_TRANSPORT_ONLY_OPS.contains(&op));
+        assert!(!is_supported_llvm_json_op(op));
+    }
 }
 
 #[test]

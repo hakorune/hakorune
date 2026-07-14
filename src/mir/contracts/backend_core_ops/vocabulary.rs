@@ -28,6 +28,8 @@ pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
         MirInstruction::NewBox { .. } => "NewBox",
         MirInstruction::TypeOp { .. } => "TypeOp",
         MirInstruction::Copy { .. } => "Copy",
+        MirInstruction::CopyOwned { .. } => "CopyOwned",
+        MirInstruction::DestroyOwned { .. } => "DestroyOwned",
         MirInstruction::LocalContractWrite { .. } => "LocalContractWrite",
         MirInstruction::RecordFieldContractCheck { .. } => "RecordFieldContractCheck",
         MirInstruction::RecordValuePublish { .. } => "RecordValuePublish",
@@ -66,6 +68,8 @@ pub const MIR_INSTRUCTION_KEPT_TAGS: &[&str] = &[
     "Compare",
     "Const",
     "Copy",
+    "CopyOwned",
+    "DestroyOwned",
     "LocalContractWrite",
     "RecordFieldContractCheck",
     "RecordValuePublish",
@@ -137,6 +141,8 @@ pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
         | MirInstruction::StaticDataLoad { .. }
         | MirInstruction::Const { .. }
         | MirInstruction::Copy { .. }
+        | MirInstruction::CopyOwned { .. }
+        | MirInstruction::DestroyOwned { .. }
         | MirInstruction::LocalContractWrite { .. }
         | MirInstruction::RecordFieldContractCheck { .. }
         | MirInstruction::RecordValuePublish { .. }

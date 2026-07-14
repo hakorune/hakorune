@@ -59,7 +59,9 @@ impl MirInstruction {
             | MirInstruction::ArrayStateContractClaim { .. } => EffectMask::WRITE,
 
             // Phase 287: Reference lifecycle
-            MirInstruction::ReleaseStrong { .. } => EffectMask::WRITE,
+            MirInstruction::CopyOwned { .. }
+            | MirInstruction::DestroyOwned { .. }
+            | MirInstruction::ReleaseStrong { .. } => EffectMask::WRITE,
 
             // Function calls use provided effect mask
             MirInstruction::Call { effects, .. } => *effects,
@@ -123,6 +125,7 @@ impl MirInstruction {
             | MirInstruction::NewBox { dst, .. }
             | MirInstruction::TypeOp { dst, .. }
             | MirInstruction::Copy { dst, .. }
+            | MirInstruction::CopyOwned { dst, .. }
             | MirInstruction::LocalContractWrite { dst, .. }
             | MirInstruction::RecordValuePublish { dst, .. }
             | MirInstruction::RefNew { dst, .. }
@@ -144,6 +147,7 @@ impl MirInstruction {
             | MirInstruction::Return { .. }
             | MirInstruction::Debug { .. }
             | MirInstruction::KeepAlive { .. }
+            | MirInstruction::DestroyOwned { .. }
             | MirInstruction::ReleaseStrong { .. }
             | MirInstruction::Throw { .. }
             | MirInstruction::Barrier { .. }
@@ -237,6 +241,7 @@ impl MirInstruction {
             | MirInstruction::StaticDataLoad { index: operand, .. }
             | MirInstruction::TypeOp { value: operand, .. }
             | MirInstruction::Copy { src: operand, .. }
+            | MirInstruction::CopyOwned { src: operand, .. }
             | MirInstruction::LocalContractWrite { src: operand, .. }
             | MirInstruction::RecordFieldContractCheck { value: operand, .. }
             | MirInstruction::Debug { value: operand, .. } => vec![*operand],
@@ -260,6 +265,7 @@ impl MirInstruction {
 
             // Phase 287: Lifecycle management uses all values
             MirInstruction::KeepAlive { values } => values.clone(),
+            MirInstruction::DestroyOwned { value } => vec![*value],
             MirInstruction::ReleaseStrong { values } => values.clone(),
 
             // Phase 256 P1.5: Select instruction uses cond, then_val, else_val

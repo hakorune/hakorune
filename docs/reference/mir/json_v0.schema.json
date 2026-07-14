@@ -45,6 +45,7 @@
         },
         "return_type": { "type": "string" },
         "entry_block": { "type": ["integer", "string"] },
+        "metadata": { "$ref": "#/definitions/functionMetadata" },
         "blocks": { "$ref": "#/definitions/blocks" }
       },
       "required": ["name", "blocks"]
@@ -56,9 +57,38 @@
         "params": { "$ref": "#/definitions/function/properties/params" },
         "return_type": { "type": "string" },
         "entry_block": { "type": ["integer", "string"] },
+        "metadata": { "$ref": "#/definitions/functionMetadata" },
         "blocks": { "$ref": "#/definitions/blocks" }
       },
       "required": ["blocks"]
+    },
+    "functionMetadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "value_types": {
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              { "type": ["string", "null"] },
+              {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "kind": { "type": "string" },
+                  "box_type": { "type": "string" }
+                }
+              }
+            ]
+          }
+        },
+        "storage_classes": {
+          "type": "object",
+          "additionalProperties": {
+            "enum": ["inline_i64", "inline_bool", "inline_f64", "borrowed_text", "box_ref", "opaque"]
+          }
+        }
+      }
     },
     "blocks": {
       "oneOf": [
@@ -103,6 +133,8 @@
             "compare",
             "const",
             "copy",
+            "copy_owned",
+            "destroy_owned",
             "externcall",
             "field_get",
             "field_set",

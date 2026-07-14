@@ -501,6 +501,19 @@ pub enum MirInstruction {
     /// `%dst = copy %src`
     Copy { dst: ValueId, src: ValueId },
 
+    /// Create one independent owned token for the same language-level object.
+    /// `%dst = copy_owned %src`
+    ///
+    /// Passive until the Ownership SSA verifier and backend capability rows
+    /// land. Ordinary `Copy` remains ownership-neutral.
+    CopyOwned { dst: ValueId, src: ValueId },
+
+    /// Consume exactly the named owned token.
+    /// `destroy_owned %value`
+    ///
+    /// This is distinct from legacy alias-group `ReleaseStrong`.
+    DestroyOwned { value: ValueId },
+
     /// Check an exact-numeric local contract, then publish `%dst = %src`.
     LocalContractWrite {
         dst: ValueId,

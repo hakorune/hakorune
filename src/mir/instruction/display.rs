@@ -122,6 +122,12 @@ impl fmt::Display for MirInstruction {
                 }
                 Ok(())
             }
+            MirInstruction::CopyOwned { dst, src } => {
+                write!(f, "{} = copy_owned {}", dst, src)
+            }
+            MirInstruction::DestroyOwned { value } => {
+                write!(f, "destroy_owned {}", value)
+            }
             MirInstruction::ReleaseStrong { values } => {
                 write!(f, "release_strong")?;
                 for v in values {

@@ -121,6 +121,9 @@ def main() -> None:
     instruction = (root / "src/mir/instruction.rs").read_text()
     lowerer = (root / "src/mir/builder/resolved_lowering/lowerer.rs").read_text()
     json_emit = (root / "src/runner/mir_json_emit/metadata.rs").read_text()
+    ownership_json = (
+        root / "src/runner/mir_json/ownership_witness.rs"
+    ).read_text()
     json_v0_files = [
         root / "src/runner/mir_json_v0.rs",
         *(root / "src/runner/mir_json_v0").glob("*.rs"),
@@ -143,13 +146,24 @@ def main() -> None:
         fail("generic BoxRef representation fact appeared without P0/A0 schema decision")
     require_count(representation, "BoxedSumHandle", 3, "existing representation vocabulary")
 
-    if "CopyOwned" in instruction or "DestroyOwned" in instruction:
-        fail("passive ownership opcodes appeared before SSA-RC-A0")
+    require_count(instruction, "CopyOwned {", 1, "passive CopyOwned variant")
+    require_count(instruction, "DestroyOwned {", 1, "passive DestroyOwned variant")
+    if "CopyOwned" in lowerer or "DestroyOwned" in lowerer:
+        fail("canonical production ownership caller appeared during passive A0")
     require_count(lowerer, "MirInstruction::ReleaseStrong", 1, "legacy canonical release caller")
 
     require_count(json_emit, '"storage_classes"', 1, "JSON storage inventory emitter")
-    if "storage_classes" in json_v0_parse:
-        fail("JSON v0 ingress began accepting non-authoritative storage inventory")
+    for anchor in (
+        'required_map(metadata, "value_types")',
+        'required_map(metadata, "storage_classes")',
+        "StorageClass::BoxRef",
+        "copy_owned type mismatch",
+    ):
+        if anchor not in ownership_json:
+            fail(f"direct JSON ownership witness lost {anchor!r}")
+    for anchor in ('"copy_owned"', '"destroy_owned"'):
+        if anchor not in json_v0_parse:
+            fail(f"JSON v0 passive transport lost {anchor}")
 
     counts = {profile: 0 for profile in EXPECTED_PROFILES}
     for row in rows:
@@ -164,8 +178,8 @@ def main() -> None:
         fail(f"profile counts drifted: expected={expected_counts} actual={counts}")
 
     print(
-        "SSA-RC-P0 ownership profile: "
-        "17/17 rows, BoxRef producers=0, activation=0, trivial-only first cutover"
+        "SSA-RC-A0 ownership profile: 17/17 rows, passive transport=2, "
+        "BoxRef producers=0, activation=0, trivial-only first cutover"
     )
 
 

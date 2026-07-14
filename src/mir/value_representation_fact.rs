@@ -107,7 +107,7 @@ fn refresh_instruction_fact(
                 );
             }
         }
-        MirInstruction::Copy { dst, src } => {
+        MirInstruction::Copy { dst, src } | MirInstruction::CopyOwned { dst, src } => {
             if let Some(fact) = facts.get(src).cloned() {
                 facts.insert(*dst, fact);
             }

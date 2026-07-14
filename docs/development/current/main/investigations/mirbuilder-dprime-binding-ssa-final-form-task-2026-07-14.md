@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-RC-A0 passive Ownership SSA vocabulary is next
+Status: Active — SSA-RC-A1a Rust ownership-op handlers are next
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-A0-PASSIVE-VOCABULARY-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-A1A-RUST-HANDLERS-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -803,6 +803,28 @@ vocabulary = 59
 
 Production callers, VM execution, and canonical behavior remain zero. The
 historical 92-row seam inventory and its 7 RC rows stay hash-stable.
+
+Closed evidence:
+
+```text
+passive instruction variants = 2
+effect = conservative WRITE
+instruction-diet ledger = 43 kept / 16 removed / 59 total
+MIR JSON emitter / v0 parser / v1 bridge = present
+direct JSON ownership witness = exact MirType::Box + StorageClass::BoxRef
+storage/type mismatch rejection = green
+transport round-trip fixtures = green
+production CopyOwned / DestroyOwned callers = 0 / 0
+VM / LLVM execution semantics = 0 / 0
+canonical behavior and grammar delta = 0
+all new or modified source/check files below 800 lines
+resolved authority guard = green
+cargo build --release --bin hakorune = green
+dev_gate quick = 66/66 green
+```
+
+Evidence card:
+`mirbuilder-ssa-rc-a0-passive-ownership-vocabulary-2026-07-14.md`.
 
 #### SSA-RC-A1a — Rust ownership-op handlers
 
@@ -1979,14 +2001,14 @@ state.
 
 ## Immediate next action
 
-Implement SSA-RC-A0 only. Keep production ownership callers at zero:
+Implement SSA-RC-A1a only. Keep production ownership callers at zero:
 
 ```text
-add passive CopyOwned { dst, src } and DestroyOwned { value } vocabulary
-use conservative WRITE effects; do not spend the final effect bit
-cover printer, tags, dst/used-values, remapping, and transport schema
-update kept/removed/vocabulary ledger to 43/16/59
-add no executor semantics or production caller
+add Rust MirInterpreter handlers over the closed L1 frame transaction
+CopyOwned clones one BoxRef into a fresh destination register
+DestroyOwned takes exactly the named register and never scans aliases
+reject non-BoxRef input and an already-defined CopyOwned destination
+add no canonical production caller and do not change Phi/Return forwarding
 change no accepted grammar, backend behavior, or ownership activation
 keep every new or modified source/check file below 800 lines
 ```

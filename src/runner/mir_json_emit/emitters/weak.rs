@@ -23,3 +23,11 @@ pub(crate) fn emit_release_strong(values: &[ValueId]) -> serde_json::Value {
     let values_json: Vec<_> = values.iter().map(|v| json!(v.as_u32())).collect();
     json!({"op":"release_strong","values":values_json})
 }
+
+pub(crate) fn emit_copy_owned(dst: ValueId, src: ValueId) -> serde_json::Value {
+    json!({"op":"copy_owned","dst":dst.as_u32(),"src":src.as_u32()})
+}
+
+pub(crate) fn emit_destroy_owned(value: ValueId) -> serde_json::Value {
+    json!({"op":"destroy_owned","value":value.as_u32()})
+}

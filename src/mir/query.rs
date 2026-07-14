@@ -57,7 +57,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
         use MirInstruction::*;
         match inst {
             Const { .. } => Vec::new(),
-            Copy { src, .. } | LocalContractWrite { src, .. } => vec![*src],
+            Copy { src, .. } | CopyOwned { src, .. } | LocalContractWrite { src, .. } => vec![*src],
             RecordFieldContractCheck { value, .. } => vec![*value],
             RecordValuePublish { base, fields, .. } => {
                 let mut values = base.iter().copied().collect::<Vec<_>>();
@@ -114,6 +114,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             Debug { value, .. } => vec![*value],
             // Phase 287: Lifecycle management reads all values
             KeepAlive { values } => values.clone(),
+            DestroyOwned { value } => vec![*value],
             ReleaseStrong { values } => values.clone(),
             Throw { exception, .. } => vec![*exception],
             Catch { .. } => Vec::new(),
@@ -168,6 +169,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             | NewClosure { dst, .. }
             | Await { dst, .. }
             | Copy { dst, .. }
+            | CopyOwned { dst, .. }
             | LocalContractWrite { dst, .. }
             | RecordValuePublish { dst, .. }
             | Select { dst, .. } => vec![*dst], // Copy writes to dst, Select writes to dst
@@ -180,6 +182,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             | Branch { .. }
             | Jump { .. }
             | Debug { .. }
+            | DestroyOwned { .. }
             | Throw { .. }
             | Catch { .. }
             | Barrier { .. }

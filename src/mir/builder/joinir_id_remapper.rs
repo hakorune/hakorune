@@ -150,7 +150,9 @@ impl JoinIrIdRemapper {
                 vals.extend(inputs.iter().map(|(_, v)| *v));
                 vals
             }
-            Copy { dst, src } | LocalContractWrite { dst, src, .. } => vec![*dst, *src],
+            Copy { dst, src } | CopyOwned { dst, src } | LocalContractWrite { dst, src, .. } => {
+                vec![*dst, *src]
+            }
             RecordFieldContractCheck { value, .. } => vec![*value],
             RecordValuePublish {
                 dst, base, fields, ..
@@ -178,6 +180,7 @@ impl JoinIrIdRemapper {
             Debug { value, .. } => vec![*value],
             // Phase 287: Lifecycle management collects all values
             KeepAlive { values } => values.clone(),
+            DestroyOwned { value } => vec![*value],
             ReleaseStrong { values } => values.clone(),
             Throw { exception, .. } => vec![*exception],
             Catch {
@@ -496,6 +499,13 @@ impl JoinIrIdRemapper {
             // Phase 287: Lifecycle management remaps all values
             KeepAlive { values } => KeepAlive {
                 values: values.iter().map(|&v| remap(v)).collect(),
+            },
+            CopyOwned { dst, src } => CopyOwned {
+                dst: remap(*dst),
+                src: remap(*src),
+            },
+            DestroyOwned { value } => DestroyOwned {
+                value: remap(*value),
             },
             ReleaseStrong { values } => ReleaseStrong {
                 values: values.iter().map(|&v| remap(v)).collect(),

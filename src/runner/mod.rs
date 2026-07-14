@@ -25,6 +25,7 @@ mod json_v1_bridge;
 mod lint_fields_top;
 pub mod mir_json {
     pub mod common;
+    pub(crate) mod ownership_witness;
 }
 pub mod core_executor;
 pub mod hv1_inline;

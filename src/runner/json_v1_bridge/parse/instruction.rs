@@ -52,6 +52,22 @@ pub(super) fn apply_v1_instruction(
             });
             *max_value_id = (*max_value_id).max(dst + 1).max(src + 1);
         }
+        "copy_owned" => {
+            let dst = require_u64(inst, "dst", "copy_owned dst")? as u32;
+            let src = require_u64(inst, "src", "copy_owned src")? as u32;
+            block_ref.add_instruction(MirInstruction::CopyOwned {
+                dst: ValueId::new(dst),
+                src: ValueId::new(src),
+            });
+            *max_value_id = (*max_value_id).max(dst + 1).max(src + 1);
+        }
+        "destroy_owned" => {
+            let value = require_u64(inst, "value", "destroy_owned value")? as u32;
+            block_ref.add_instruction(MirInstruction::DestroyOwned {
+                value: ValueId::new(value),
+            });
+            *max_value_id = (*max_value_id).max(value + 1);
+        }
         "newbox" => {
             let dst = require_u64(inst, "dst", "newbox dst")? as u32;
             let box_type = inst

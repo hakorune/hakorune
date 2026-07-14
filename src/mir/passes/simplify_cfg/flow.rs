@@ -427,6 +427,7 @@ fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: Val
         | MirInstruction::VariantProject { value: operand, .. }
         | MirInstruction::TypeOp { value: operand, .. }
         | MirInstruction::Copy { src: operand, .. }
+        | MirInstruction::CopyOwned { src: operand, .. }
         | MirInstruction::LocalContractWrite { src: operand, .. }
         | MirInstruction::RecordFieldContractCheck { value: operand, .. }
         | MirInstruction::Debug { value: operand, .. }
@@ -556,6 +557,7 @@ fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: Val
                 rewrite_value_use(value, from, to);
             }
         }
+        MirInstruction::DestroyOwned { value } => rewrite_value_use(value, from, to),
         MirInstruction::FutureSet { future, value } => {
             rewrite_value_use(future, from, to);
             rewrite_value_use(value, from, to);

@@ -23,10 +23,10 @@ Primary implementation pointers:
 
 以下の行は CI/テストで参照する契約値（編集時は実装と同時更新）。
 
-DOC_SYNC_MIR_KEPT_COUNT=41
+DOC_SYNC_MIR_KEPT_COUNT=43
 DOC_SYNC_MIR_LOWERED_AWAY_COUNT=0
 DOC_SYNC_MIR_REMOVED_COUNT=16
-DOC_SYNC_MIR_VOCABULARY_COUNT=57
+DOC_SYNC_MIR_VOCABULARY_COUNT=59
 DOC_SYNC_MIR14_COUNT=13
 DOC_SYNC_CORE26_COUNT=26
 
@@ -44,6 +44,9 @@ Transition Note
 - VM/JIT の代表的な Core-15 カバー手順は `docs/reference/mir/MIR15_COVERAGE_CHECKLIST.md` を参照。
 - Core-14 安定後に本ドキュメントの「Core Instructions」を14命令へ更新し、マッピング表を併記する。
 - Phase 285–287: lifecycle conformance のため `KeepAlive` / `ReleaseStrong` を追加（語彙の明確化）。
+- SSA-RC-A0: ownership-neutral `Copy` と legacy `ReleaseStrong` から分離した
+  passive `CopyOwned` / `DestroyOwned` transport vocabulary を追加。A0では
+  executor semantics と production caller は 0 のまま。
 - Phase 163x: canonical variant op lane のため `VariantMake` / `VariantTag` / `VariantProject` を追加（Core profile とは別の kept vocabulary）。
 - MIR-FMEM-002..005: FastMemory dialect vocabulary のため `MemOp` を追加。
   `MemOp` は kept instruction vocabulary。FastMemRegion metadata and
@@ -74,6 +77,8 @@ allowlists are being updated.
 
 - Const
 - Copy
+- CopyOwned
+- DestroyOwned
 - ArrayElementWrite
 - LocalContractWrite
 - RecordFieldContractCheck

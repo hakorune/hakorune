@@ -1,6 +1,62 @@
 use super::parse_mir_v0_to_module;
 use crate::mir::{BasicBlockId, Callee, Effect, MirInstruction, ValueId};
 
+fn ownership_json(value_types: &str, storage_classes: &str) -> String {
+    format!(
+        r#"{{
+          "functions":[{{
+            "name":"main",
+            "metadata":{{"value_types":{value_types},"storage_classes":{storage_classes}}},
+            "blocks":[{{"id":0,"instructions":[
+              {{"op":"copy_owned","dst":2,"src":1}},
+              {{"op":"destroy_owned","value":2}}
+            ]}}]
+          }}]
+        }}"#
+    )
+}
+
+#[test]
+fn parse_ownership_transport_requires_exact_boxref_witness() {
+    let json = ownership_json(
+        r#"{"1":{"kind":"handle","box_type":"WidgetBox"},"2":{"kind":"handle","box_type":"WidgetBox"}}"#,
+        r#"{"1":"box_ref","2":"box_ref"}"#,
+    );
+    let module = parse_mir_v0_to_module(&json).expect("exact witness must parse");
+    let instructions = &module
+        .get_function("main")
+        .unwrap()
+        .get_block(BasicBlockId::new(0))
+        .unwrap()
+        .instructions;
+    assert!(matches!(instructions[0], MirInstruction::CopyOwned { .. }));
+    assert!(matches!(
+        instructions[1],
+        MirInstruction::DestroyOwned { .. }
+    ));
+}
+
+#[test]
+fn parse_ownership_transport_rejects_storage_mismatch() {
+    let json = ownership_json(
+        r#"{"1":{"kind":"handle","box_type":"WidgetBox"},"2":{"kind":"handle","box_type":"WidgetBox"}}"#,
+        r#"{"1":"box_ref","2":"opaque"}"#,
+    );
+    let error = parse_mir_v0_to_module(&json).expect_err("opaque ownership dst must reject");
+    assert!(error.contains("[ownership-json-witness]"));
+    assert!(error.contains("storage must be box_ref"));
+}
+
+#[test]
+fn parse_ownership_transport_rejects_type_mismatch() {
+    let json = ownership_json(
+        r#"{"1":{"kind":"handle","box_type":"WidgetBox"},"2":{"kind":"handle","box_type":"OtherBox"}}"#,
+        r#"{"1":"box_ref","2":"box_ref"}"#,
+    );
+    let error = parse_mir_v0_to_module(&json).expect_err("different box types must reject");
+    assert!(error.contains("copy_owned type mismatch"));
+}
+
 #[test]
 fn parse_call_accepts_extern_callee_without_func() {
     let json = r#"{

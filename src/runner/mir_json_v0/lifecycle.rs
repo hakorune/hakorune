@@ -21,6 +21,20 @@ pub(super) fn parse_value_transport_or_lifecycle(
                 src: ValueId::new(src),
             })
         }
+        "copy_owned" => {
+            let dst = require_u64(instruction, "dst", "copy_owned dst")? as u32;
+            let src = require_u64(instruction, "src", "copy_owned src")? as u32;
+            Ok(MirInstruction::CopyOwned {
+                dst: ValueId::new(dst),
+                src: ValueId::new(src),
+            })
+        }
+        "destroy_owned" => {
+            let value = require_u64(instruction, "value", "destroy_owned value")? as u32;
+            Ok(MirInstruction::DestroyOwned {
+                value: ValueId::new(value),
+            })
+        }
         "keepalive" => {
             let values = parse_value_id_array(instruction, "values", "keepalive value")?;
             Ok(MirInstruction::KeepAlive { values })
