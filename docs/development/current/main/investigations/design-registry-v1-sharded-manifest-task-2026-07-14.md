@@ -6,7 +6,7 @@ Decision: deterministic sharded manifest V1
 
 Current activation: 0
 
-Current blocker replacement: none — `SSA-RC-L0` remains active until `SELECT0`
+Current blocker replacement: none — the current active lane remains authoritative until `SELECT0`
 
 ## Objective
 
@@ -70,7 +70,7 @@ Exit:
 - V0 remains the only active registry authority
 - V1 shards do not exist
 - production activation remains 0
-- `SSA-RC-L0` remains the current blocker
+- the pre-existing active lane remains the current blocker
 
 ## CLEAN0 — Mandatory clean-worktree boundary
 
@@ -79,19 +79,19 @@ This is the first implementation task. No loader, generator, shard, or cutover e
 ### Preferred path
 
 1. capture `git status -sb` and `git diff --stat`
-2. finish the selected `SSA-RC-L0` slice
+2. finish the selected active-lane slice recorded by `CURRENT_STATE.toml`
 3. run its authorized active gates
 4. commit and push that slice
 5. verify `git status --porcelain=v1` is empty
 6. run `bash tools/checks/current_state_pointer_guard.sh`
 
-### Fallback when SSA-RC-L0 cannot be closed
+### Fallback when the selected active-lane slice cannot be closed
 
 1. record the exact blocker and next action in its active taskboard
 2. create a named stash including untracked files:
 
    ```bash
-   git stash push -u -m "wip/ssa-rc-l0 before design-registry-v1"
+   git stash push -u -m "wip/<active-lane> before design-registry-v1"
    ```
 
 3. verify `git status --porcelain=v1` is empty
@@ -103,7 +103,7 @@ Forbidden:
 - `git reset --hard`
 - destructive checkout of user changes
 - deleting untracked WIP
-- mixing SSA-RC files into a registry commit
+- mixing prior-lane files into a registry commit
 - starting SELECT0 while the worktree is dirty
 
 Exit proof:
@@ -340,4 +340,5 @@ Stop the series if any occurs:
 
 ## Immediate next action
 
-None while `SSA-RC-L0` is active. When this series is explicitly selected, begin with `CLEAN0`; do not jump to loader implementation.
+None while another lane is active. When this series is explicitly selected,
+begin with `CLEAN0`; do not jump to loader implementation.

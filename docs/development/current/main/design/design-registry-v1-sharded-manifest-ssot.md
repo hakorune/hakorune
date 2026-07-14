@@ -225,7 +225,7 @@ cycles, and violation ordering. A row-count-only comparison is insufficient.
 ## Clean-worktree prerequisite
 
 This BoxShape series must not start implementation in a dirty tree. The paired
-taskboard begins with `DR-V1-CLEAN0`, which resolves the active SSA-RC-L0 work
+taskboard begins with `DR-V1-CLEAN0`, which resolves the then-active lane work
 by green commit/push or a documented named stash, then proves:
 
 ```text
@@ -269,7 +269,7 @@ Stop the series if a row:
 
 ```text
 starts before DR-V1-CLEAN0 proves a clean worktree
-mixes SSA-RC-L0 source/check changes into the registry series
+mixes prior-lane source/check changes into the registry series
 chooses shards from subject, owner, role, or README section
 adds implicit row defaults or heuristic classification
 keeps a generated aggregate as a second membership truth
