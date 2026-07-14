@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-M0 closed; SSA-RC0 selected
+Status: Active design stop — SSA-M0 closed; SSA-RC0 acquire boundary pending
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC0-OWNERSHIP-SCOPE-ESCAPE-LAW-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC0-OWNED-ALIAS-MATERIALIZATION-DESIGN-STOP-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -15,6 +15,7 @@ Related:
   - mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
   - mirbuilder-b0-l3b-a-plus-implementation-task-2026-07-13.md
   - mirbuilder-resolved-semantic-owner-forest-design-stop-2026-07-13.md
+  - mirbuilder-ssa-rc0-owned-alias-materialization-design-stop-2026-07-14.md
 ---
 
 # D′ Binding SSA Final-Form Taskboard
@@ -106,7 +107,8 @@ The headings below remain the detailed cards. This graph is the short
 dependency SSOT; optional X0/O0/O1 work is not on the blocking path.
 
 ```text
-SSA-E0 -> SSA-S3 -> {SSA-M0, SSA-RC0} -> SSA-I1 -> SSA-R1
+SSA-E0 -> SSA-S3 -> SSA-M0 -> SSA-RC0-D0
+SSA-RC0-D0 -> SSA-RC-A0 -> SSA-RC-A1 -> SSA-RC0 -> SSA-I1 -> SSA-R1
 
 SSA-I1 -> Loop-S3′ -> Loop-I1′ -> Loop-I2′
 Loop-I2′ -> {N1, N2, N3} -> N4
@@ -551,6 +553,25 @@ accepted grammar and production behavior delta = 0
 ```
 
 ### SSA-RC0 — ownership and scope-escape law — active
+
+#### SSA-RC0-D0 — owned-alias materialization design stop — active
+
+The ownership audit found that borrowed-binding assignment and outer-binding
+BlockExpr escape require an owned-alias acquire operation. VM `Copy` clones a
+`BoxRef`, while Wasm `Copy` is only `local.get`/`local.set`, and no general MIR
+retain instruction currently owns this cross-backend meaning. Do not implement
+or activate RC0 from backend-specific behavior.
+
+The shareable consultation and final corrected task order are fixed in:
+
+```text
+mirbuilder-ssa-rc0-owned-alias-materialization-design-stop-2026-07-14.md
+```
+
+Preliminary recommendation is an explicit destination-producing MIR acquire
+instruction, followed by passive vocabulary/backend proof, disconnected pure
+RC0 planning, and only then atomic SSA-I1. Production Binding SSA and acquire
+callers remain zero during this design stop.
 
 Seal the bounded ownership contract before production Binding SSA activation:
 
@@ -1100,7 +1121,7 @@ decision and cannot coexist as a second generic-baseline truth.
 
 | Milestone | Binding SSA production | If production owner | Loop production | Source grammar delta |
 | --- | ---: | --- | ---: | ---: |
-| D0 / S2′ / SSA-P0 / SSA-L0 / SSA-C1 / SSA-P1 / SSA-V0 / SSA-S1 / SSA-S2 / SSA-E0 / SSA-S3 / SSA-M0 / SSA-RC0 | 0 | current A+ path | 0 | 0 |
+| D0 / S2′ / SSA-P0 / SSA-L0 / SSA-C1 / SSA-P1 / SSA-V0 / SSA-S1 / SSA-S2 / SSA-E0 / SSA-S3 / SSA-M0 / SSA-RC0-D0 / SSA-RC-A0 / SSA-RC-A1 / SSA-RC0 | 0 | current A+ path | 0 | 0 |
 | SSA-I1 | 1 whole owner | Binding SSA + If CFG box | 0 | 0 |
 | SSA-R1 / S3′ / I1′ | 1 whole owner | Binding SSA | 0 | 0 |
 | I2′ | 1 whole owner | Binding SSA | 1 closed Loop family | +1 family |
@@ -1378,15 +1399,15 @@ of this final form.
 
 ## Immediate next action
 
-Close SSA-RC0 only:
+Resolve SSA-RC0-D0 only. Do not start RC0 code until the owned-alias acquire
+contract is accepted:
 
 ```text
-seal assignment old-value-before-new-definition ownership
-seal successful scope-exit read/release of the current reaching value
-separate BlockExpr tail transfer from scope-local release
-fix self-assignment retain/release behavior explicitly
-keep local/parameter/receiver separate from Upvar/cell/place storage
-prove unpublished draft discard does not duplicate runtime cleanup
+choose explicit MIR acquire versus a repository-wide Copy ownership contract
+fix dst/src and immediate/reference semantics
+fix VM/LLVM-object/Wasm implementation or preflight boundaries
+fix printer/JSON/verifier/optimizer obligations
+retain the pure RC0 assignment/scope-escape law as the next code-facing owner
 keep production Binding SSA callers at zero
 keep old A+ If as the sole production If authority
 keep accepted grammar and production behavior unchanged

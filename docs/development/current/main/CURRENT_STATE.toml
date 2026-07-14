@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ SSA-M0 real-MIR Binding SSA adapter is closed; SSA-RC0 ownership law is active"
+status = "D′ SSA-RC0 owned-alias materialization design stop is active"
 date = "2026-07-14"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -9,7 +9,7 @@ active_lane_status = """D′ is the current canonical control-lowering authority
 pre-Builder products retain exact coverage/topology/ports/cleanup, while one
 function-owned Binding SSA becomes the only BindingRef-to-ValueId/PHI merge
 owner. B0-L4-S2′, SSA-P0's guarded 92-row inventory, behavior-neutral SSA-L0,
-SSA-C1, SSA-P1, SSA-V0, SSA-S1, SSA-S2, SSA-E0, SSA-S3, and SSA-M0 are closed; the active slice is SSA-RC0. Historical
+SSA-C1, SSA-P1, SSA-V0, SSA-S1, SSA-S2, SSA-E0, SSA-S3, and SSA-M0 are closed. SSA-RC0 is paused at the owned-alias acquire materialization design stop: VM Copy clones BoxRef while Wasm Copy is a plain local copy, and no general MIR retain/acquire instruction owns the cross-backend meaning. Historical
 lane chronology follows and is non-authoritative.
 Explicit user priority change on 2026-07-12 reopens
 the parked Source Selfhost/MirBuilder lane before LANGV1 conformance closeout.
@@ -154,7 +154,9 @@ SSA-S3 closes exact source-preorder carrier-free If rows, sealed topology,
 exclusive nested coverage, one internal coverage consumer, and zero new
 production callers or behavior delta. SSA-M0 closes the borrowed real-MIR
 adapter, conservative Unknown PHI facts, exact C1 witnesses, pending-only
-rollback, and five focused fixtures. SSA-RC0 is next.
+rollback, and five focused fixtures. The active SSA-RC0-D0 consultation must
+choose an explicit owned-alias acquire instruction or a repository-wide Copy
+ownership contract before RC0 or SSA-I1 code begins.
 Old A+A2′ carrier-bearing
 S3/I1/I2 and effect-bearing V2 extraction are superseded. Everything below is
 historical evidence and is not current implementation authority. Historical
@@ -499,7 +501,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC0-OWNERSHIP-SCOPE-ESCAPE-LAW-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC0-OWNED-ALIAS-MATERIALIZATION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -508,6 +510,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-14: D′ SSA-RC0 audit stops before code at the owned-alias materialization boundary: VM Copy clones BoxRef, Wasm Copy is a plain local copy, no general MIR retain/acquire instruction owns cross-backend semantics, and the final order is corrected to acquire decision/vocabulary/backend proof -> pure RC0 -> atomic SSA-I1 -> Loop/nesting/exits/families/retirement/publication with production callers zero.",
   "2026-07-14: D′ SSA-M0 closes one borrowed real-MIR Binding SSA adapter over MirBuilder/PhiTxn, exact CanonicalCfgSessionV1 predecessor witnesses, conservative Unknown open/patched PHI facts, explicit unreachable/non-dominance rejection, pending-only rollback with poisoned-draft discard, five focused fixtures, zero production callers, and zero grammar/behavior delta; SSA-RC0 is selected.",
   "2026-07-14: D′ SSA-S3 closes one disconnected carrier-free statement-If control product with exact source-preorder rows, sealed If/IfThen/optional IfElse topology, distinct implicit/explicit-empty else ports, exclusive nested coverage partition, nine focused fixtures, one internal coverage consumer, zero new production analyzer callers, zero binding-effect rows, and zero grammar/behavior delta; SSA-M0 is selected.",
   "2026-07-14: D′ SSA-E0 closes exact explicit root-Return and implicit Void completion products, exact site/body/end/function-target consumption, explicit empty cleanup, direct canonical Return emission, post-Lower ready-witness finalization, eleven focused fixtures, zero Binding SSA production callers, and zero grammar delta; SSA-S3 is selected.",
@@ -519,5 +522,4 @@ landed_tail = [
   "2026-07-14: D′ SSA-L0 behavior-neutrally splits the 807-line PHI input helper into an 18-line facade, 331-line edge rematerialization, 166-line legacy whole-function repair, and responsibility-specific tests; API, callers, grammar, and production behavior remain unchanged, and SSA-C1 is selected.",
   "2026-07-14: D′ SSA-P0 closes a guarded 92-row inventory across canonical binding/value, CFG/predecessor, PHI lifecycle, RC/lifetime, publication, terminal Return, and old If authority seams; it adds SSA-V0 publication safety, explicit scope/tail/self-assignment RC gaps, and selects behavior-neutral SSA-L0.",
   "2026-07-14: D′ B0-L4-S2′ closes checked owner/body/start/nonzero range navigation and a private owner-branded ordered coverage schema under resolved_control_flow, with ten focused tests, production consumers zero, existing A+ If unchanged, and Binding SSA/Loop activation zero.",
-  "2026-07-14: D′ taskization supersedes forward carrier/effect PHI authority with one function-owned Binding SSA final form; exact control/coverage/cleanup stays pre-Builder, closed B0-L4-S1 and generic S2 intent are retained, and S2′ was selected as the next zero-production slice.",
 ]
