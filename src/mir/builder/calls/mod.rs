@@ -24,6 +24,9 @@ pub mod extern_calls;
 pub mod function_lowering;
 pub mod function_preflight; // Function-call special gate before arg materialization
 mod function_session; // Closure-scoped function transaction and cleanup owner
+pub(in crate::mir) use function_session::CanonicalFunctionSessionErrorV1;
+#[cfg(test)]
+mod function_publication_tests;
 #[cfg(test)]
 mod function_session_tests;
 pub mod method_resolution;

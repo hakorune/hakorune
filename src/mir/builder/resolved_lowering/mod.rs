@@ -30,14 +30,38 @@ use crate::mir::compiler::capability::CanonicalFirstFamilyPlanV1;
 use crate::mir::function::MirParamDecl;
 use crate::mir::MirModule;
 
+use super::calls::CanonicalFunctionSessionErrorV1;
 use super::MirBuilder;
 use lowerer::CanonicalFunctionLowererV1;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir) enum CanonicalResolvedBuildErrorV1 {
+    BuilderContract(String),
+    DuplicateFunctionPublication { function_name: String },
+}
+
+impl From<String> for CanonicalResolvedBuildErrorV1 {
+    fn from(detail: String) -> Self {
+        Self::BuilderContract(detail)
+    }
+}
+
+impl From<CanonicalFunctionSessionErrorV1> for CanonicalResolvedBuildErrorV1 {
+    fn from(error: CanonicalFunctionSessionErrorV1) -> Self {
+        match error.duplicate_function_name() {
+            Some(function_name) => Self::DuplicateFunctionPublication {
+                function_name: function_name.to_string(),
+            },
+            None => Self::BuilderContract(error.to_string()),
+        }
+    }
+}
 
 impl MirBuilder {
     pub(in crate::mir) fn build_resolved_function_module(
         &mut self,
         plan: CanonicalFirstFamilyPlanV1<'_>,
-    ) -> Result<MirModule, String> {
+    ) -> Result<MirModule, CanonicalResolvedBuildErrorV1> {
         let (input, flow, returns_value, block_expr_count) = plan.into_parts();
         self.prepare_module()?;
         let crate::ast::ASTNode::FunctionDeclaration {
@@ -76,6 +100,6 @@ impl MirBuilder {
         })?;
 
         let entry_result = crate::mir::builder::emission::constant::emit_void(self)?;
-        self.finalize_module(entry_result)
+        Ok(self.finalize_module(entry_result)?)
     }
 }

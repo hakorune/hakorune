@@ -10,6 +10,7 @@ guard_resolved_binding_ssa_contract() {
   local validator="$root/tools/checks/lib/resolved_binding_ssa_inventory.py"
   local cfg_validator="$root/tools/checks/lib/resolved_binding_ssa_cfg.py"
   local phi_txn_validator="$root/tools/checks/lib/resolved_binding_ssa_phi_txn.py"
+  local publication_validator="$root/tools/checks/lib/resolved_binding_ssa_publication.py"
   local helper="${BASH_SOURCE[0]}"
 
   guard_require_files \
@@ -18,10 +19,12 @@ guard_resolved_binding_ssa_contract() {
     "$validator" \
     "$cfg_validator" \
     "$phi_txn_validator" \
+    "$publication_validator" \
     "$helper"
   python3 "$validator" "$root" "$inventory"
   python3 "$cfg_validator" "$root"
   python3 "$phi_txn_validator" "$root"
+  python3 "$publication_validator" "$root"
 
   local file lines
   for file in \
@@ -29,6 +32,7 @@ guard_resolved_binding_ssa_contract() {
     "$validator" \
     "$cfg_validator" \
     "$phi_txn_validator" \
+    "$publication_validator" \
     "$helper"; do
     lines="$(wc -l < "$file" | tr -d '[:space:]')"
     if (( lines >= 800 )); then

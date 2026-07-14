@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-P1 closed; SSA-V0 selected
+Status: Active — SSA-V0 closed; SSA-S1 selected
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-V0-CANONICAL-PUBLICATION-VERIFIER-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-S1-DISCONNECTED-BINDING-SSA-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -299,7 +299,7 @@ production Binding SSA callers = 0
 accepted grammar delta = 0
 ```
 
-### SSA-V0 — canonical publication/verifier prerequisite
+### SSA-V0 — canonical publication/verifier prerequisite — closed
 
 Close the invalid-publication boundary before Binding SSA production work:
 
@@ -315,6 +315,24 @@ This row changes no accepted source grammar. It must land before SSA-S1 is
 connected to production. Legacy result-reporting behavior, if still required,
 stays behind explicit legacy provenance rather than weakening the canonical
 barrier.
+
+Closed evidence:
+
+```text
+canonical post-RC/canonicalize verification Err -> MirVerificationFailed
+CanonicalModuleLoweringSessionV1 commit after that Err = unreachable
+same-name canonical draft -> typed DuplicateFunctionPublication
+duplicate replacement of the first sealed draft = 0
+legacy add_function and pre-RC result reporting remain explicit legacy seams
+focused publication/verifier fixtures = 3/3 green
+private SSA-V0 publication guard = green
+production Binding SSA callers = 0
+accepted grammar delta = 0
+```
+
+SSA-V0 does not fabricate a Binding SSA completion witness before the owner
+exists. SSA-S1 remains disconnected; the final function-publication witness
+connection is made atomically with the later production cutover.
 
 ### SSA-S1 — disconnected Binding SSA
 
@@ -1064,14 +1082,14 @@ of this final form.
 
 ## Immediate next action
 
-Close SSA-V0 only:
+Close SSA-S1 only:
 
 ```text
-turn canonical post-RC MIR verifier failure into a typed compile failure
-make canonical module commit unreachable after verifier failure
-reject duplicate same-name canonical function publication with a typed error
-publish no function/module before seal and SSA completion witnesses
-preserve explicit legacy result-reporting only behind legacy provenance
-connect no production Binding SSA caller
+create builder/ssa/binding/ with a responsibility README
+implement one disconnected sealed-block BindingSsaBuilderV1
+use a fake/narrow IR adapter with no AST, source, RegionFlow, or name dependency
+cover entry/single-pred/diamond/nested/loop/multi-backedge/error fixtures
+retain same-input and self PHIs in the baseline
+connect zero production caller
 preserve accepted grammar and existing A+ If behavior
 ```

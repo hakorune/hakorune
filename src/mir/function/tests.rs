@@ -37,6 +37,30 @@ fn test_module_creation() {
     assert_eq!(module.function_names().len(), 1);
 }
 
+#[test]
+fn checked_function_publication_rejects_duplicate_without_replacement() {
+    let mut module = MirModule::new("checked-publication".to_string());
+    let first = MirFunction::new(
+        FunctionSignature {
+            name: "same/0".to_string(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(1),
+    );
+    let duplicate = MirFunction::new(first.signature.clone(), BasicBlockId::new(2));
+
+    module.try_add_function(first).unwrap();
+    let error = module.try_add_function(duplicate).unwrap_err();
+
+    assert_eq!(error.function_name, "same/0");
+    assert_eq!(
+        module.get_function("same/0").unwrap().entry_block,
+        BasicBlockId::new(1)
+    );
+}
+
 // Legacy ValueId 割り当て仕様（LoopForm v2 導入前の想定）.
 #[test]
 #[ignore]

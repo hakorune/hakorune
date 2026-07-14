@@ -1,4 +1,4 @@
-use super::builder::MirBuilder;
+use super::builder::{CanonicalResolvedBuildErrorV1, MirBuilder};
 use super::function::MirModule;
 use super::optimizer::MirOptimizer;
 use super::passes::rc_insertion::insert_rc_instructions;
@@ -33,6 +33,18 @@ pub use lowering_input::{
 };
 use lowering_input::{MirLoweringRequestErrorV1, MirLoweringRequestV1};
 use module_session::CanonicalModuleLoweringSessionV1;
+
+fn require_canonical_verification(
+    verification_result: Result<(), Vec<VerificationError>>,
+) -> Result<(), CanonicalLoweringErrorV1> {
+    verification_result.map_err(|errors| CanonicalLoweringErrorV1::MirVerificationFailed {
+        errors: errors
+            .into_iter()
+            .map(|error| error.to_string())
+            .collect::<Vec<_>>()
+            .into_boxed_slice(),
+    })
+}
 
 /// MIR compilation result
 #[derive(Debug, Clone)]
@@ -169,15 +181,44 @@ impl MirCompiler {
             candidate.clear_source_file_hint();
         }
         let stage_start = Instant::now();
-        let module = candidate
-            .build_resolved_function_module(plan)
-            .map_err(|detail| CanonicalLoweringErrorV1::BuilderContract { detail })?;
+        let module =
+            candidate
+                .build_resolved_function_module(plan)
+                .map_err(|error| match error {
+                    CanonicalResolvedBuildErrorV1::BuilderContract(detail) => {
+                        CanonicalLoweringErrorV1::BuilderContract { detail }
+                    }
+                    CanonicalResolvedBuildErrorV1::DuplicateFunctionPublication {
+                        function_name,
+                    } => CanonicalLoweringErrorV1::DuplicateFunctionPublication { function_name },
+                })?;
         super::compile_timing::trace_stage("build_resolved_module", stage_start.elapsed());
+        let result = self.finish_built_canonical_module(module)?;
+        module_session.commit(&mut self.builder);
+        Ok(result)
+    }
+
+    fn finish_built_canonical_module(
+        &mut self,
+        module: MirModule,
+    ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
         let result = self
             .finish_built_module(module)
             .map_err(|detail| CanonicalLoweringErrorV1::BuilderContract { detail })?;
-        module_session.commit(&mut self.builder);
-        Ok(result)
+
+        // Legacy reports its historical pre-RC verifier result. Canonical
+        // publication has a stronger barrier: verify the fully transformed
+        // module after RC insertion and callsite canonicalization, and never
+        // let an Err cross the module-session commit.
+        let stage_start = Instant::now();
+        let verification_result = self.verifier.verify_module(&result.module);
+        super::compile_timing::trace_stage("canonical_post_rc_verify", stage_start.elapsed());
+        require_canonical_verification(verification_result)?;
+
+        Ok(MirCompileResult {
+            module: result.module,
+            verification_result: Ok(()),
+        })
     }
 
     fn compile_with_source_internal(

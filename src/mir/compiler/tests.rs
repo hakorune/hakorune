@@ -1,4 +1,7 @@
-use super::MirCompiler;
+use super::{
+    module_session::CanonicalModuleLoweringSessionV1, require_canonical_verification,
+    CanonicalLoweringErrorV1, MirCompiler,
+};
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::exact_numeric_value_facts::{ExactNumericReturnFact, ExactNumericValueFactSource};
 use crate::mir::function::ExactNumericRuntimeCheckContractKind;
@@ -26,6 +29,28 @@ fn test_basic_mir_compilation() {
         !compile_result.module.functions.is_empty(),
         "Module should contain at least one function"
     );
+}
+
+#[test]
+fn canonical_verification_failure_discards_candidate_before_commit() {
+    let mut compiler = MirCompiler::with_options(false);
+    compiler.builder.repl_mode = true;
+    let mut session = CanonicalModuleLoweringSessionV1::open(&compiler.builder);
+    session.builder_mut().repl_mode = false;
+
+    let error = require_canonical_verification(Err(vec![
+        crate::mir::VerificationError::UnreachableBlock {
+            block: crate::mir::BasicBlockId::new(900),
+        },
+    ]))
+    .unwrap_err();
+    drop(session);
+
+    assert!(matches!(
+        error,
+        CanonicalLoweringErrorV1::MirVerificationFailed { .. }
+    ));
+    assert!(compiler.builder.repl_mode);
 }
 
 #[test]

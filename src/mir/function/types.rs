@@ -276,6 +276,28 @@ pub struct MirModule {
     pub metadata: ModuleMetadata,
 }
 
+/// Typed rejection for publication that would replace an existing function.
+///
+/// Legacy module assembly still has an explicit overwrite-capable entry. The
+/// canonical function transaction uses this error so duplicate publication
+/// cannot silently destroy the first sealed draft.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FunctionPublicationErrorV1 {
+    pub function_name: String,
+}
+
+impl std::fmt::Display for FunctionPublicationErrorV1 {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            formatter,
+            "[freeze:contract][canonical_function_publication/duplicate] function={}",
+            self.function_name
+        )
+    }
+}
+
+impl std::error::Error for FunctionPublicationErrorV1 {}
+
 /// Metadata for MIR modules
 #[derive(Debug, Clone, Default)]
 pub struct ModuleMetadata {

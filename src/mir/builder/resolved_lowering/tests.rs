@@ -167,7 +167,7 @@ fn function_error_discards_unpublished_canonical_draft() {
             builder.finalize_function_draft(false)
         })
         .unwrap_err();
-    assert!(error.contains("resolved_binding_authority"));
+    assert!(error.to_string().contains("resolved_binding_authority"));
     assert!(!missing_authority
         .current_module
         .as_ref()
@@ -185,7 +185,7 @@ fn function_error_discards_unpublished_canonical_draft() {
         })
         .unwrap_err();
 
-    assert_eq!(error, "[injected/canonical_body]");
+    assert_eq!(error.to_string(), "[injected/canonical_body]");
     assert!(!builder
         .current_module
         .as_ref()

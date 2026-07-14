@@ -8,7 +8,7 @@ use std::fmt;
 
 use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
-use crate::mir::function::MirFunction;
+use crate::mir::function::{FunctionPublicationErrorV1, MirFunction, MirModule};
 
 use super::context_lifecycle::LoweringContext;
 
@@ -49,6 +49,81 @@ enum FunctionBodyCaptureV1 {
     CanonicalClosedFamily,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir) enum FunctionDraftPublicationErrorV1 {
+    MissingModule { function_name: String },
+    Duplicate(FunctionPublicationErrorV1),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir) enum CanonicalFunctionSessionErrorV1 {
+    Primary(String),
+    Cleanup(String),
+    DuringCleanup { primary: String, cleanup: String },
+    Publication(FunctionDraftPublicationErrorV1),
+}
+
+impl CanonicalFunctionSessionErrorV1 {
+    pub(in crate::mir) fn duplicate_function_name(&self) -> Option<&str> {
+        match self {
+            Self::Publication(FunctionDraftPublicationErrorV1::Duplicate(error)) => {
+                Some(&error.function_name)
+            }
+            _ => None,
+        }
+    }
+}
+
+impl fmt::Display for CanonicalFunctionSessionErrorV1 {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Primary(detail) => formatter.write_str(detail),
+            Self::Cleanup(cleanup) => write!(
+                formatter,
+                "[freeze:contract][canonical_function_session/cleanup_failed] cleanup={cleanup}"
+            ),
+            Self::DuringCleanup { primary, cleanup } => write!(
+                formatter,
+                "[freeze:contract][canonical_function_session/during_cleanup] primary={primary} cleanup={cleanup}"
+            ),
+            Self::Publication(error) => error.fmt(formatter),
+        }
+    }
+}
+
+impl std::error::Error for CanonicalFunctionSessionErrorV1 {}
+
+impl fmt::Display for FunctionDraftPublicationErrorV1 {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::MissingModule { function_name } => write!(
+                formatter,
+                "[freeze:contract][canonical_function_session/module_missing] function={function_name}"
+            ),
+            Self::Duplicate(error) => error.fmt(formatter),
+        }
+    }
+}
+
+pub(super) fn publish_function_draft(
+    module: Option<&mut MirModule>,
+    draft: MirFunction,
+    requires_resolved_authority: bool,
+) -> Result<(), FunctionDraftPublicationErrorV1> {
+    let name = draft.signature.name.clone();
+    let module = module.ok_or(FunctionDraftPublicationErrorV1::MissingModule {
+        function_name: name,
+    })?;
+    if requires_resolved_authority {
+        module
+            .try_add_function(draft)
+            .map_err(FunctionDraftPublicationErrorV1::Duplicate)
+    } else {
+        module.add_function(draft);
+        Ok(())
+    }
+}
+
 impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
     fn open(
         builder: &'builder mut MirBuilder,
@@ -73,31 +148,31 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
     fn run(
         self,
         operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
-    ) -> Result<(), String> {
+    ) -> Result<(), CanonicalFunctionSessionErrorV1> {
         let outcome = operation(self.builder);
         self.finish(outcome)
     }
 
-    fn finish(mut self, outcome: Result<MirFunction, String>) -> Result<(), String> {
+    fn finish(
+        mut self,
+        outcome: Result<MirFunction, String>,
+    ) -> Result<(), CanonicalFunctionSessionErrorV1> {
         let cleanup = self.cleanup(outcome.is_ok());
         match (outcome, cleanup) {
-            (Ok(draft), Ok(())) => {
-                let name = draft.signature.name.clone();
-                let module = self.builder.current_module.as_mut().ok_or_else(|| {
-                    format!(
-                        "[freeze:contract][canonical_function_session/module_missing] function={name}"
-                    )
-                })?;
-                module.add_function(draft);
-                Ok(())
-            }
-            (Err(primary), Ok(())) => Err(primary),
-            (Ok(_draft), Err(cleanup)) => Err(format!(
-                "[freeze:contract][canonical_function_session/cleanup_failed] cleanup={cleanup}"
+            (Ok(draft), Ok(())) => publish_function_draft(
+                self.builder.current_module.as_mut(),
+                draft,
+                self.requires_resolved_authority,
+            )
+            .map_err(CanonicalFunctionSessionErrorV1::Publication),
+            (Err(primary), Ok(())) => Err(CanonicalFunctionSessionErrorV1::Primary(primary)),
+            (Ok(_draft), Err(cleanup)) => Err(CanonicalFunctionSessionErrorV1::Cleanup(
+                cleanup.to_string(),
             )),
-            (Err(primary), Err(cleanup)) => Err(format!(
-                "[freeze:contract][canonical_function_session/during_cleanup] primary={primary} cleanup={cleanup}"
-            )),
+            (Err(primary), Err(cleanup)) => Err(CanonicalFunctionSessionErrorV1::DuringCleanup {
+                primary,
+                cleanup: cleanup.to_string(),
+            }),
         }
     }
 
@@ -204,13 +279,14 @@ impl MirBuilder {
             FunctionBodyCaptureV1::Legacy(body_snapshot),
         )
         .run(operation)
+        .map_err(|error| error.to_string())
     }
 
     pub(in crate::mir::builder) fn with_resolved_function_lowering_session(
         &mut self,
         function_name: &str,
         operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
-    ) -> Result<(), String> {
+    ) -> Result<(), CanonicalFunctionSessionErrorV1> {
         CanonicalFunctionLoweringSessionV1::open(
             self,
             function_name,

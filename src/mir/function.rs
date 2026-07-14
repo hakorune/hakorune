@@ -51,12 +51,12 @@ pub use typed_array_contract::{
 };
 pub use types::{
     ArrayElementWriteWitness, ArrayStateTerm, ArrayStateTermId, ArrayStateTermKind, ClosureBodyId,
-    ExactNumericRuntimeCheckContract, ExactNumericRuntimeCheckContractKind, FunctionSignature,
-    FunctionStats, LocalContractWriteKind, LocalIdentityEvidence, LocalSlotContract, MirEnumDecl,
-    MirEnumVariantDecl, MirFunction, MirModule, MirParamDecl, ModuleMetadata, ModuleStats,
-    ParameterEntryContract, ParameterEntryContractKind, RecordContractDisposition,
-    RecordFieldValueContract, RecordValueBoundaryKind, RecordValueContract, ReturnExitContract,
-    ReturnExitContractKind, ReturnExitContractOwner, ReturnExitVoidPolicy, StaticDataPlan,
-    StaticElementType, StaticTableContractProof, StaticTableContractSpec, StaticTableId,
-    VerifiedStaticTableContract,
+    ExactNumericRuntimeCheckContract, ExactNumericRuntimeCheckContractKind,
+    FunctionPublicationErrorV1, FunctionSignature, FunctionStats, LocalContractWriteKind,
+    LocalIdentityEvidence, LocalSlotContract, MirEnumDecl, MirEnumVariantDecl, MirFunction,
+    MirModule, MirParamDecl, ModuleMetadata, ModuleStats, ParameterEntryContract,
+    ParameterEntryContractKind, RecordContractDisposition, RecordFieldValueContract,
+    RecordValueBoundaryKind, RecordValueContract, ReturnExitContract, ReturnExitContractKind,
+    ReturnExitContractOwner, ReturnExitVoidPolicy, StaticDataPlan, StaticElementType,
+    StaticTableContractProof, StaticTableContractSpec, StaticTableId, VerifiedStaticTableContract,
 };

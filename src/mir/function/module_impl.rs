@@ -1,4 +1,6 @@
-use super::{ClosureBodyId, MirFunction, MirModule, ModuleMetadata, ModuleStats};
+use super::{
+    ClosureBodyId, FunctionPublicationErrorV1, MirFunction, MirModule, ModuleMetadata, ModuleStats,
+};
 use crate::mir::ConstValue;
 use std::collections::{BTreeMap, HashMap};
 
@@ -17,6 +19,21 @@ impl MirModule {
     pub fn add_function(&mut self, function: MirFunction) {
         let name = function.signature.name.clone();
         self.functions.insert(name, function);
+    }
+
+    /// Publish a canonical function without replacing an existing draft.
+    pub fn try_add_function(
+        &mut self,
+        function: MirFunction,
+    ) -> Result<(), FunctionPublicationErrorV1> {
+        let name = function.signature.name.clone();
+        if self.functions.contains_key(&name) {
+            return Err(FunctionPublicationErrorV1 {
+                function_name: name,
+            });
+        }
+        self.functions.insert(name, function);
+        Ok(())
     }
 
     /// Get a function by name

@@ -167,6 +167,12 @@ pub enum CanonicalLoweringErrorV1 {
     ResolvedRegionFlow {
         detail: String,
     },
+    MirVerificationFailed {
+        errors: Box<[String]>,
+    },
+    DuplicateFunctionPublication {
+        function_name: String,
+    },
     BuilderContract {
         detail: String,
     },
@@ -217,6 +223,16 @@ impl fmt::Display for CanonicalLoweringErrorV1 {
             Self::ResolvedRegionFlow { detail } => write!(
                 formatter,
                 "[freeze:contract][canonical_lowering/resolved_region_flow] detail={detail}"
+            ),
+            Self::MirVerificationFailed { errors } => write!(
+                formatter,
+                "[freeze:contract][canonical_lowering/mir_verification_failed] count={} errors={}",
+                errors.len(),
+                errors.join(" | ")
+            ),
+            Self::DuplicateFunctionPublication { function_name } => write!(
+                formatter,
+                "[freeze:contract][canonical_lowering/duplicate_function_publication] function={function_name}"
             ),
             Self::BuilderContract { detail } => write!(
                 formatter,
