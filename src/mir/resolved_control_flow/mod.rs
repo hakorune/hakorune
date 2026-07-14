@@ -6,10 +6,13 @@
 
 mod cleanup;
 mod function_control;
+mod if_control;
 mod source_coverage;
 
 #[cfg(test)]
 mod function_control_tests;
+#[cfg(test)]
+mod if_control_tests;
 #[cfg(test)]
 mod source_coverage_tests;
 

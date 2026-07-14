@@ -237,15 +237,17 @@ PY
   if query_calls="$(rg -n '\.if_region_bundle[[:space:]]*\(' "$root/src" \
     --glob '*.rs' --glob '!*_tests.rs' --glob '!tests.rs')"; then
     query_count="$(printf '%s\n' "$query_calls" | wc -l | tr -d '[:space:]')"
-    if [[ "$query_count" != "1" || "$query_calls" != "$flow/"* ]]; then
-      guard_fail "$tag" "B0-L3b-S2 semantic query must have exactly one RegionFlow caller: $query_calls"
+    if [[ "$query_count" != "2" ]] \
+      || ! printf '%s\n' "$query_calls" | rg -q "^$flow/verifier.rs:" \
+      || ! printf '%s\n' "$query_calls" | rg -q "^$root/src/mir/resolved_control_flow/if_control.rs:"; then
+      guard_fail "$tag" "If bundle query callers must be old A+ plus disconnected SSA-S3 only: $query_calls"
     fi
   else
     caller_rc=$?
     if [[ "$caller_rc" != "1" ]]; then
       guard_fail "$tag" "B0-L3b-S2 semantic query caller scan failed: rc=$caller_rc"
     fi
-    guard_fail "$tag" "B0-L3b-S2 semantic query has no RegionFlow caller"
+    guard_fail "$tag" "If bundle query has no authorized caller"
   fi
 
   local flow_consumers=""

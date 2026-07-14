@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-E0 closed; SSA-S3 selected
+Status: Active — SSA-S3 closed; SSA-M0 selected
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-S3-CARRIER-FREE-IF-CONTROL-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-M0-REAL-MIR-BINDING-SSA-ADAPTER-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -475,7 +475,7 @@ production Binding SSA callers = 0
 accepted grammar delta = 0
 ```
 
-### SSA-S3 — disconnected carrier-free If control product
+### SSA-S3 — disconnected carrier-free If control product — closed
 
 Seal the future If-side control contract without changing production:
 
@@ -492,6 +492,26 @@ no effects, may_rebind, join-source rows, ValueId, or BasicBlockId
 
 The historical A+ product remains the sole production If path until SSA-I1.
 Do not run both analyzers as production authorities for one function.
+
+Closed evidence:
+
+```text
+every semantic statement-If site has exactly one source-preorder row
+If/IfThen/optional IfElse topology is queried from the sealed owner product
+else=None and else=Some(empty) remain distinct typed ports/topologies
+fallthrough port carries zero binding-effect data
+each row co-seals one exact nonempty outer statement range and coverage
+nested If coverage is an exclusive function-level partition with no overlap
+condition BlockExpr closes its exact prelude/tail coverage around child rows
+coverage-use Missing/Duplicate/ForeignOwner/WrongOrder are typed failures
+generic coverage verifier internal family consumers = 1
+new If analyzer production callers = 0
+old A+ If production authority remains unchanged
+BindingRef effect/join/carrier rows and MIR identities = 0
+focused fixtures = 9/9 green
+92-row SSA seam inventory remains unchanged and authority guard = green
+accepted grammar and production behavior delta = 0
+```
 
 ### SSA-M0 — disconnected real-MIR Binding SSA adapter
 
@@ -1339,14 +1359,14 @@ of this final form.
 
 ## Immediate next action
 
-Close SSA-S3 only:
+Close SSA-M0 only:
 
 ```text
-seal exact If/IfThen/optional IfElse control-only topology and coverage
-represent else=None and else=Some(empty) distinctly
-keep fallthrough-only typed V1 ports
-add no effect, may_rebind, join-source, ValueId, or BasicBlockId rows
-keep historical A+ as the sole production If authority
-keep Binding SSA production callers at zero
+adapt the closed BindingSsaIrV1 protocol to real MirBuilder/PHI lifecycle types
+consume only immutable CanonicalCfgSessionV1 predecessor/seal witnesses
+keep provisional open-PHI facts conservative until exact input patch succeeds
+use the same facade for Return and every other touched block
+keep production Binding SSA callers at zero
+keep old A+ If as the sole production If authority
 keep accepted grammar and production behavior unchanged
 ```

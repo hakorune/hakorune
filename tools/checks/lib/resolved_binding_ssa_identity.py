@@ -149,7 +149,7 @@ def main() -> None:
         "### SSA-S2 — identity/value separation — closed",
         "old If value path remains the sole production value owner",
         "production Binding SSA callers = 0",
-        "Close SSA-E0 only:",
+        "### SSA-E0 — preserved terminal Return contract — closed",
     ):
         require(taskboard, anchor, "taskboard")
 

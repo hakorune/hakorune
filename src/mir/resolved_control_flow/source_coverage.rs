@@ -40,7 +40,7 @@ impl CoveredSourceSiteV1 {
         }
     }
 
-    const fn owner(&self) -> FunctionOwnerIdV1 {
+    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
         match self {
             Self::Body(body) => body.owner(),
             Self::Statement { owner, .. } | Self::Expression { owner, .. } => *owner,

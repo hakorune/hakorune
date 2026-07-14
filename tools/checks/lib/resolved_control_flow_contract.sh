@@ -11,6 +11,8 @@ guard_resolved_control_flow_contract() {
   local coverage="$flow/source_coverage.rs"
   local completion="$flow/function_control.rs"
   local cleanup="$flow/cleanup.rs"
+  local if_control="$flow/if_control.rs"
+  local if_control_tests="$flow/if_control_tests.rs"
   local lowering="$root/src/mir/builder/resolved_lowering"
   local helper="${BASH_SOURCE[0]}"
   local authority_guard="$root/tools/checks/resolved_region_flow_authority_guard.sh"
@@ -20,6 +22,8 @@ guard_resolved_control_flow_contract() {
     "$cleanup" \
     "$completion" \
     "$flow/function_control_tests.rs" \
+    "$if_control" \
+    "$if_control_tests" \
     "$flow/mod.rs" \
     "$coverage" \
     "$flow/source_coverage_tests.rs" \
@@ -31,7 +35,7 @@ guard_resolved_control_flow_contract() {
     "$root/src/mir/mod.rs"
 
   local expected_manifest actual_manifest
-  expected_manifest="$(printf '%s\n' README.md cleanup.rs function_control.rs function_control_tests.rs mod.rs source_coverage.rs source_coverage_tests.rs)"
+  expected_manifest="$(printf '%s\n' README.md cleanup.rs function_control.rs function_control_tests.rs if_control.rs if_control_tests.rs mod.rs source_coverage.rs source_coverage_tests.rs)"
   actual_manifest="$(find "$flow" -mindepth 1 -maxdepth 1 -printf '%f\n' | LC_ALL=C sort)"
   if [[ "$actual_manifest" != "$expected_manifest" ]]; then
     printf '%s\n' "$actual_manifest" >&2
@@ -78,9 +82,12 @@ guard_resolved_control_flow_contract() {
   if rg -n 'as u32' "$compiler/source_view.rs"; then
     guard_fail "$tag" "D′ S2′ source navigation reintroduced unchecked usize-to-u32 conversion"
   fi
-  if rg -n 'verify_located_source_coverage_v1\(' "$flow" \
-    --glob '!source_coverage.rs' --glob '!source_coverage_tests.rs'; then
-    guard_fail "$tag" "D′ S2′ coverage verifier gained a production consumer"
+  local coverage_consumers=""
+  coverage_consumers="$(rg -l 'verify_located_source_coverage_v1\(' "$flow" \
+    --glob '!source_coverage.rs' --glob '!source_coverage_tests.rs' \
+    --glob '!if_control_tests.rs' || true)"
+  if [[ "$coverage_consumers" != "$if_control" ]]; then
+    guard_fail "$tag" "D′ SSA-S3 generic coverage must have exactly one internal family consumer: $coverage_consumers"
   fi
   if rg -n 'ConsumedSourceRangeV1|VerifiedLocatedSourceCoverageV1|CoveredSourceSiteV1' \
     "$root/src/mir/builder" "$root/src/mir/join_ir" "$root/src/mir/resolved_region_flow"; then
@@ -125,6 +132,68 @@ for carrier in ("LocatedBodyV1", "LocatedStmtV1", "LocatedExprV1"):
         raise SystemExit(f"owner-branded coverage constructor missing {carrier}")
 if "VerifiedLocatedSourceCoverageV1" in module:
     raise SystemExit("disconnected coverage product must not be re-exported")
+PY
+
+  for spec in \
+    'if_control.rs:VerifiedResolvedFunctionIfControlV1' \
+    'if_control.rs:VerifiedLocatedIfControlV1' \
+    'if_control.rs:ResolvedIfFallthroughPortV1' \
+    'if_control.rs:ResolvedIfElsePortV1' \
+    'if_control.rs:ImplicitIdentity' \
+    'if_control.rs:VerifiedLocatedSourceCoverageV1' \
+    'if_control.rs:IfControlCoverageUseV1' \
+    'if_control.rs:CoveragePartitionOverlap' \
+    'if_control.rs:UnsupportedStatement' \
+    'README.md:SSA-S3 carrier-free If control'; do
+    local file="${spec%%:*}"
+    local anchor="${spec#*:}"
+    guard_expect_fixed_in_file "$tag" "$anchor" "$flow/$file" \
+      "D′ SSA-S3 If control contract drifted: $file:$anchor"
+  done
+  if rg -n 'BindingRefV1|may_rebind|ResolvedIfJoin|ValueId|BasicBlockId|MirBuilder|variable_map|lower_if_form|resolved_region_flow|CorePlan|LoopRouteContext|HashMap<String|BTreeMap<String' \
+    "$if_control"; then
+    guard_fail "$tag" "D′ SSA-S3 If control crossed the binding-effect/materialization boundary"
+  fi
+  if rg -n 'analyze_resolved_if_control_v1' "$root/src" \
+    --glob '*.rs' --glob '!if_control.rs' --glob '!if_control_tests.rs'; then
+    guard_fail "$tag" "D′ SSA-S3 disconnected analyzer gained a production caller"
+  fi
+
+  python3 - "$if_control" "$flow/mod.rs" <<'PY'
+from pathlib import Path
+import re
+import sys
+
+control = Path(sys.argv[1]).read_text()
+module = Path(sys.argv[2]).read_text()
+
+def struct_body(name: str) -> str:
+    match = re.search(rf"struct {name}[^{{]*\{{(?P<body>.*?)\n\}}", control, re.S)
+    if match is None:
+        raise SystemExit(f"missing struct {name}")
+    return match.group("body")
+
+for name in ("VerifiedLocatedIfControlV1", "VerifiedResolvedFunctionIfControlV1"):
+    body = struct_body(name)
+    if re.search(r"\bpub(?:\([^)]*\))?\s+\w+\s*:", body):
+        raise SystemExit(f"{name} fields must remain private")
+    prefix = control.split(f"struct {name}", 1)[0]
+    derive = prefix.rsplit("#[derive(", 1)[-1].split(")]", 1)[0]
+    if "Clone" in derive:
+        raise SystemExit(f"{name} must not implement Clone")
+
+row = struct_body("VerifiedLocatedIfControlV1")
+for field in ("site", "regions", "then_port", "else_port", "coverage"):
+    if re.search(rf"\b{field}\s*:", row) is None:
+        raise SystemExit(f"If control row missing co-sealed field: {field}")
+function = struct_body("VerifiedResolvedFunctionIfControlV1")
+for field in ("owner", "rows", "coverage_partition"):
+    if re.search(rf"\b{field}\s*:", function) is None:
+        raise SystemExit(f"function If product missing sealed field: {field}")
+if re.search(r"fn\s+into_parts\b", control):
+    raise SystemExit("If control product must not separate topology from coverage")
+if "pub(crate) use if_control" in module or "pub use if_control" in module:
+    raise SystemExit("disconnected If control product must not be re-exported")
 PY
 
   for spec in \
@@ -182,6 +251,8 @@ PY
     "$cleanup" \
     "$completion" \
     "$flow/function_control_tests.rs" \
+    "$if_control" \
+    "$if_control_tests" \
     "$lowering/completion_consumption.rs" \
     "$lowering/completion_tests.rs" \
     "$helper"; do
@@ -202,6 +273,8 @@ PY
   cargo test -q --manifest-path "$root/Cargo.toml" --lib \
     mir::resolved_control_flow::function_control_tests
   cargo test -q --manifest-path "$root/Cargo.toml" --lib \
+    mir::resolved_control_flow::if_control_tests
+  cargo test -q --manifest-path "$root/Cargo.toml" --lib \
     mir::builder::resolved_lowering::completion_tests
 
   echo "resolved_control_flow_s2prime_range=owner-body-start-nonzero-count"
@@ -210,6 +283,12 @@ PY
   echo "resolved_control_flow_s2prime_effect_rows=0"
   echo "resolved_control_flow_s2prime_production_consumers=0"
   echo "resolved_control_flow_s2prime_runtime_activation=0"
+  echo "resolved_control_flow_ssa_s3_if_rows=exact-source-preorder"
+  echo "resolved_control_flow_ssa_s3_nested_coverage=exclusive-partition"
+  echo "resolved_control_flow_ssa_s3_internal_coverage_consumers=1"
+  echo "resolved_control_flow_ssa_s3_production_analyzer_callers=0"
+  echo "resolved_control_flow_ssa_s3_binding_effect_rows=0"
+  echo "resolved_control_flow_ssa_s3_runtime_activation=0"
   echo "resolved_control_flow_ssa_e0_exact_completion=explicit-or-implicit"
   echo "resolved_control_flow_ssa_e0_cleanup=explicit-empty-only"
   echo "resolved_control_flow_ssa_e0_grammar_delta=0"

@@ -61,3 +61,22 @@ Production Lower consumes the explicit site and target exactly once. Implicit
 completion remains a separate variant and is finalized only after the
 canonical function Lower session has finished. This slice adds no Return
 shape, nested exit, `ValueId`, `BasicBlockId`, or Binding SSA connection.
+
+## SSA-S3 carrier-free If control
+
+`if_control.rs` owns the disconnected future statement-`If` contract. One
+function product contains one source-preorder row for every exact semantic If
+site. Each row co-seals its exact If/IfThen/optional IfElse topology,
+fallthrough-only typed ports, one nonempty statement range, and one exclusive
+structural coverage partition.
+
+Nested If rows own their own statement/subtree claims. Their parent row owns
+the containing body marker but never duplicates a child row's source claims.
+The function wrapper verifies the flat partition and exposes only exact-site
+lookup; coverage cannot be split from its row or recombined with another
+owner.
+
+This product contains no binding effects, `may_rebind` sets, carrier or join
+rows, names, MIR identities, or Builder state. The historical A+ RegionFlow
+product remains the sole production If authority until the atomic SSA-I1
+cutover. The new analyzer has zero production callers.

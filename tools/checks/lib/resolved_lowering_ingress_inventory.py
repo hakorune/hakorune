@@ -282,6 +282,7 @@ def main() -> None:
         compiler_dir / "function_input.rs",
         root / "src/mir/resolved_control_flow/source_coverage.rs",
         root / "src/mir/resolved_control_flow/source_coverage_tests.rs",
+        root / "src/mir/resolved_control_flow/if_control.rs",
         root / "src/mir/resolved_region_flow/analyzer.rs",
     } | set(resolved_lowering_dir.glob("*.rs"))
     external_view_consumers = []

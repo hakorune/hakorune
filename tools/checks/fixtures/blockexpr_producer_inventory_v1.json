@@ -260,6 +260,19 @@
       "retirement_owner": "resolved-region-flow-tests"
     },
     {
+      "producer_id": "test-resolved-control-flow-if-blockexpr",
+      "producer_path": "src/mir/resolved_control_flow/if_control_tests.rs",
+      "producer_status": "TestOnly",
+      "output_family": "test ASTNode::BlockExpr",
+      "consumer_entry": "SSA-S3 disconnected carrier-free If control tests",
+      "classification": "TestOnly",
+      "required_scope_semantics": "TestOnlyExactResolvedPair",
+      "live_caller_evidence": [
+        "src/mir/resolved_control_flow/if_control_tests.rs#fn block_expr(prelude_stmts: Vec<ASTNode>, tail_expr: ASTNode) -> ASTNode"
+      ],
+      "retirement_owner": "resolved-control-flow-if-tests"
+    },
+    {
       "producer_id": "test-canonical-capability-if-blockexpr",
       "producer_path": "src/mir/compiler/capability_tests.rs",
       "producer_status": "TestOnly",
