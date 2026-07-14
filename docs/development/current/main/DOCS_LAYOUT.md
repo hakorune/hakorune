@@ -160,6 +160,16 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
     StaticUnique/LocalRc/SharedRc optimization; normal Box exposes no manual
     physical-free operation, and lazy PromotableUnique/source reclaim stay
     parked in the paired investigations taskboard
+- `investigations/hakorune-ownership-v2-root-anchored-alias-task-2026-07-14.md`
+  - parked Ownership V2 source-ergonomics taskboard; owns evidence-first
+    P0a/P0r/P0b1/P0c -> D0 order, zero-RC scoped aliases, explicit owner
+    movement versus paid sharing, diagnostics/LoanTrace boundaries, and the
+    future LoanPhi branch without replacing the current SSA-I1 blocker
+- `investigations/hakorune-ownership-v2-anchored-view-return-abi-task-2026-07-15.md`
+  - parked P1 call-result-view subtask; keeps result type and ownership axes
+    separate, seals explicit receiver/parameter anchors and conservative
+    WholeObject invalidation first, and reserves field domains, temporary
+    anchors, and ViewPhi as later rows
 - `design/object-handle-box-identity-contract-ssot.md`
   - ARC-RETIRE-003 contract owner for `ObjectHandle`, `BoxIdentity`,
     generation, weak handles, root visibility, plugin instance mapping, and
