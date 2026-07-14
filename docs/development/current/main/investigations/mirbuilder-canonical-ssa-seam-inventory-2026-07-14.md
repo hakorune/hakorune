@@ -224,7 +224,7 @@ legacy callers reach zero.
 
 ```text
 SSA-P0  exhaustive seam inventory                 closed here
-SSA-L0  split oversized PHI helper                 next
+SSA-L0  split oversized PHI helper                 closed
 SSA-C1  fallible canonical edge + real seal
 SSA-P1  all-attempt PHI cleanup transaction
 SSA-V0  verifier/duplicate-publication veto

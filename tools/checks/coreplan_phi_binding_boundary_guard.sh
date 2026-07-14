@@ -219,7 +219,7 @@ if violations:
 allowed_prefixes = (
     "src/mir/ssot/cf_common.rs:",
     "src/mir/builder/emission/phi_lifecycle.rs:",
-    "src/mir/builder/ssa/phi_input_materializer.rs:",
+    "src/mir/builder/ssa/phi_input_materializer/function_repair_tests.rs:",
     "src/mir/builder/record_helper_args.rs:",
     "src/runner/json_v1_bridge/parse/instruction.rs:",
     "src/mir/builder/control_flow/joinir/merge/exit_phi_builder.rs:",

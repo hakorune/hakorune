@@ -21,7 +21,8 @@ Related:
   `docs/development/current/main/workstreams/language-v1-convergence-current.md`
 - priority: D′ is taskized through the final canonical-source form. S2′
   generic located coverage and the guarded 92-row SSA-P0 seam inventory are
-  closed. The active blocker is behavior-neutral SSA-L0 PHI-helper splitting.
+  closed, and SSA-L0 has split the oversized PHI helper without behavior
+  change. The active blocker is disconnected SSA-C1 canonical CFG/seal.
   Existing If remains runtime-green on its old owner; Loop production,
   carrier rows, legacy fallback, default source, Lambda/capture, ProgramV0
   authority, and durable RegionId materialization remain inactive

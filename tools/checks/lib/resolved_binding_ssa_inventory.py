@@ -263,9 +263,43 @@ def main() -> None:
     if lowering_input.count(".compile_resolved(") != 2 or "#[cfg(test)]" not in lowering_input:
         fail("inline compile_resolved test caller boundary drifted")
 
-    oversized = root / "src/mir/builder/ssa/phi_input_materializer.rs"
-    if len(oversized.read_text().splitlines()) < 800:
-        fail("SSA-L0 oversized-helper prerequisite changed without advancing the card")
+    facade = root / "src/mir/builder/ssa/phi_input_materializer.rs"
+    split_dir = root / "src/mir/builder/ssa/phi_input_materializer"
+    expected_split_manifest = {
+        "edge_rematerialization.rs",
+        "edge_rematerialization_tests.rs",
+        "function_repair.rs",
+        "function_repair_tests.rs",
+        "test_support.rs",
+    }
+    actual_split_manifest = {path.name for path in split_dir.iterdir() if path.is_file()}
+    if actual_split_manifest != expected_split_manifest:
+        fail(
+            "SSA-L0 split manifest drifted: "
+            f"expected={sorted(expected_split_manifest)} "
+            f"actual={sorted(actual_split_manifest)}"
+        )
+    facade_text = facade.read_text()
+    for anchor in (
+        "mod edge_rematerialization;",
+        "mod function_repair;",
+        "use edge_rematerialization::for_pred;",
+        "use function_repair::materialize_all_phi_inputs;",
+    ):
+        if anchor not in facade_text:
+            fail(f"SSA-L0 facade anchor missing: {anchor}")
+    for forbidden in (
+        "struct PhiInputMaterializationAnalysis",
+        "fn rematerialize_for_pred",
+        "fn prune_unused_phi_instructions",
+        "fn complete_missing_self_carried_phi_inputs",
+    ):
+        if forbidden in facade_text:
+            fail(f"SSA-L0 facade regained implementation: {forbidden}")
+    for path in [facade, *(split_dir / name for name in expected_split_manifest)]:
+        lines = len(path.read_text().splitlines())
+        if lines >= 800:
+            fail(f"SSA-L0 source reached the 800-line stop boundary: {path} ({lines})")
 
     print(f"canonical_ssa_p0_rows={len(rows)}")
     for category in sorted(categories):
@@ -274,7 +308,11 @@ def main() -> None:
         key = disposition.replace(" ", "_").replace("-", "_")
         print(f"canonical_ssa_p0_{key}={dispositions[disposition]}")
     print("canonical_ssa_p0_behavior_delta=0")
-    print("canonical_ssa_p0_next=SSA-L0")
+    print("canonical_ssa_l0_facade=thin")
+    print("canonical_ssa_l0_edge_rematerialization=isolated")
+    print("canonical_ssa_l0_function_repair=legacy-isolated")
+    print("canonical_ssa_l0_behavior_delta=0")
+    print("canonical_ssa_p0_next=SSA-C1")
 
 
 if __name__ == "__main__":

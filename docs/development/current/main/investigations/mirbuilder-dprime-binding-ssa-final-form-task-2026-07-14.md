@@ -1,8 +1,8 @@
 ---
-Status: Active — D0, B0-L4-S2′, and SSA-P0 closed; SSA-L0 selected
+Status: Active — SSA-P0 and SSA-L0 closed; SSA-C1 selected
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-L0-PHI-INPUT-MATERIALIZER-SPLIT-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-C1-CANONICAL-CFG-SEAL-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -224,6 +224,25 @@ all existing PHI lifecycle tests green
 each resulting source file below 800 lines
 no Binding SSA acceptance code in the split commit
 ```
+
+Closed evidence:
+
+```text
+facade = 18 lines
+edge_rematerialization = 331 lines
+function_repair = 166 lines
+edge tests = 77 lines
+function repair tests = 237 lines
+shared test support = 10 lines
+existing focused fixtures = 5/5 green
+public/private caller API delta = 0
+production behavior delta = 0
+accepted grammar delta = 0
+```
+
+The whole-function repair box is explicitly legacy infrastructure. The split
+does not authorize canonical SSA to depend on CFG repair, PHI pruning, or
+missing-input fabrication.
 
 ### SSA-C1 — canonical CFG/seal prerequisite
 
@@ -1017,12 +1036,13 @@ of this final form.
 
 ## Immediate next action
 
-Close SSA-L0 only:
+Close SSA-C1 only:
 
 ```text
-split phi_input_materializer by existing responsibility
-facade + edge_rematerialization + function_repair + focused test modules
-preserve every current API/caller and runtime behavior
-add no Binding SSA, CFG seal, PHI cleanup, or grammar acceptance code
-keep every resulting source/check file below 800 lines
+add one disconnected fallible canonical CFG edge/seal substrate
+derive predecessor truth directly from MIR terminators
+compare cached predecessor/successor witnesses without repairing them
+reject duplicate terminators, duplicate edges, edge-after-seal, and seal-twice
+connect no production If/Loop/Binding SSA caller
+preserve accepted grammar and existing A+ If behavior
 ```
