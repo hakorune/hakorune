@@ -1,4 +1,5 @@
 use super::{BasicBlockId, FunctionSignature, MirBuilder, MirFunction};
+use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
 use crate::mir::function::MirParamDecl;
 use crate::mir::MirType;
 
@@ -117,8 +118,11 @@ fn project_declared_signature_representation(function: &mut MirFunction) {
 }
 
 fn source_type_name_to_mir(name: &str) -> MirType {
+    if let Some(exact) = ExactTrivialParameterAbiV1::classify(name) {
+        return exact.mir_type();
+    }
     match name {
-        "i64" | "int" | "Integer" | "IntegerBox" => MirType::Integer,
+        "int" | "Integer" | "IntegerBox" => MirType::Integer,
         "bool" | "i1" | "Bool" | "BoolBox" => MirType::Bool,
         "f64" | "float" | "Float" | "FloatBox" => MirType::Float,
         "String" | "StringBox" => MirType::String,

@@ -59,6 +59,7 @@ pub(crate) mod exact_numeric_field_contracts; // exact numeric field-write facts
 pub(crate) mod exact_numeric_unification; // exact numeric PHI/Select merge policy owner
 pub mod exact_numeric_value_facts; // exact numeric per-value facts derived from MIR metadata
 pub mod exact_seed_backend_route; // function-level backend route tags for exact seed bridges
+pub(crate) mod exact_trivial_parameter_abi; // exact source spelling for first Binding-SSA parameter row
 pub mod extern_call_route_plan; // MIR-owned extern call route policy plans
 pub mod fastmem_access_plan; // MIR-owned FastMemory layout/table access plans
 pub mod fastmem_layout_contract; // memory-profile FastMemory layout/table contracts
