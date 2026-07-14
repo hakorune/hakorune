@@ -9,7 +9,7 @@ use crate::mir::resolved_semantics::{
 
 use super::product::{
     TrivialBindingDefinitionOriginV1, TrivialProfileCoverageSubjectV1, TrivialRepresentationV1,
-    TrivialTerminalProfileV1, VerifiedTrivialCanonicalOwnerV1,
+    TrivialTerminalProfileV1, VerifiedTrivialCanonicalOwnerV1, VerifiedTrivialParameterEntryV1,
 };
 
 #[derive(Debug)]
@@ -25,6 +25,32 @@ impl TrivialProfileConsumptionV1 {
 
     pub(crate) fn owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
         self.product.owner()
+    }
+
+    pub(crate) fn parameter_entry_count(&self) -> usize {
+        self.product.parameter_entries().len()
+    }
+
+    pub(crate) fn claim_parameter_entry(
+        &mut self,
+        formal_index: u32,
+    ) -> Result<VerifiedTrivialParameterEntryV1, String> {
+        let row = self
+            .product
+            .parameter_entries()
+            .iter()
+            .find(|row| row.formal_index() == formal_index)
+            .cloned()
+            .ok_or_else(|| {
+                format!(
+                    "[freeze:contract][trivial_profile/parameter_entry_missing] formal_index={formal_index}"
+                )
+            })?;
+        self.claim_definition(
+            row.binding(),
+            TrivialBindingDefinitionOriginV1::Declaration(row.site().clone()),
+        )?;
+        Ok(row)
     }
 
     pub(crate) fn claim_value(

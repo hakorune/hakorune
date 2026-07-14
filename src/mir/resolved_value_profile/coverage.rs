@@ -1,5 +1,6 @@
 //! Exact deterministic coverage draft and terminal co-seal helpers.
 
+use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use std::collections::BTreeSet;
 
@@ -12,11 +13,13 @@ use super::error::TrivialProfileContractErrorV1;
 use super::product::{
     TrivialBindingDefinitionOriginV1, TrivialProfileCoverageSubjectV1, TrivialRepresentationV1,
     TrivialTerminalProfileV1, VerifiedLocatedTrivialValueV1, VerifiedTrivialBindingDefinitionV1,
-    VerifiedTrivialIfMergeProfileV1, VerifiedTrivialProfileCoverageV1,
+    VerifiedTrivialIfMergeProfileV1, VerifiedTrivialParameterEntryV1,
+    VerifiedTrivialProfileCoverageV1,
 };
 
 pub(super) struct TrivialProfileDraftV1 {
     owner: FunctionOwnerIdV1,
+    parameter_entries: Vec<VerifiedTrivialParameterEntryV1>,
     values: Vec<VerifiedLocatedTrivialValueV1>,
     definitions: Vec<VerifiedTrivialBindingDefinitionV1>,
     merge_profiles: Vec<VerifiedTrivialIfMergeProfileV1>,
@@ -24,6 +27,7 @@ pub(super) struct TrivialProfileDraftV1 {
 }
 
 pub(super) struct TrivialProfilePartsV1 {
+    pub(super) parameter_entries: Vec<VerifiedTrivialParameterEntryV1>,
     pub(super) values: Vec<VerifiedLocatedTrivialValueV1>,
     pub(super) definitions: Vec<VerifiedTrivialBindingDefinitionV1>,
     pub(super) merge_profiles: Vec<VerifiedTrivialIfMergeProfileV1>,
@@ -122,11 +126,49 @@ impl TrivialProfileDraftV1 {
     pub(super) fn new(owner: FunctionOwnerIdV1) -> Self {
         Self {
             owner,
+            parameter_entries: Vec::new(),
             values: Vec::new(),
             definitions: Vec::new(),
             merge_profiles: Vec::new(),
             ordered_subjects: Vec::new(),
         }
+    }
+
+    pub(super) fn record_parameter_entry(
+        &mut self,
+        site: SourceBindingSiteV1,
+        binding: BindingRefV1,
+        formal_index: u32,
+        source_name: String,
+        abi: ExactTrivialParameterAbiV1,
+    ) -> Result<(), TrivialProfileContractErrorV1> {
+        let expected_site = SourceBindingSiteV1::Parameter {
+            index: formal_index,
+        };
+        if site != expected_site
+            || formal_index as usize != self.parameter_entries.len()
+            || abi != ExactTrivialParameterAbiV1::I64
+        {
+            return Err(
+                TrivialProfileContractErrorV1::ParameterEntryContractMismatch { formal_index },
+            );
+        }
+        let representation = TrivialRepresentationV1::InlineI64;
+        self.record_definition(
+            binding,
+            TrivialBindingDefinitionOriginV1::Declaration(site.clone()),
+            representation,
+        )?;
+        self.parameter_entries
+            .push(VerifiedTrivialParameterEntryV1::new(
+                site,
+                binding,
+                formal_index,
+                source_name,
+                abi,
+                representation,
+            ));
+        Ok(())
     }
 
     pub(super) fn record_value(
@@ -193,6 +235,7 @@ impl TrivialProfileDraftV1 {
 
     pub(super) fn finish(self) -> TrivialProfilePartsV1 {
         TrivialProfilePartsV1 {
+            parameter_entries: self.parameter_entries,
             values: self.values,
             definitions: self.definitions,
             merge_profiles: self.merge_profiles,

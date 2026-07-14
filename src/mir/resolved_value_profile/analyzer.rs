@@ -21,6 +21,7 @@ use super::operator::{
     derive_trivial_binary_profile_v1, derive_trivial_literal_profile_v1,
     TrivialBinaryProfileStopV1, TrivialLiteralProfileStopV1,
 };
+use super::parameter_entry::seal_parameter_entries_v1;
 use super::product::{
     TrivialBindingDefinitionOriginV1, TrivialProfileCoverageSubjectV1, TrivialRepresentationV1,
     TrivialTerminalProfileV1, VerifiedTrivialCanonicalOwnerV1,
@@ -88,6 +89,11 @@ impl<'a> AnalyzerV1<'a> {
             .root_body()
             .map_err(|error| self.source_navigation(error))?;
         let mut environment = ValueEnvironmentV1::new();
+        for (binding, representation) in
+            seal_parameter_entries_v1(self.input, &mut self.draft, &mut self.fact_coverage)?
+        {
+            environment.insert(binding, representation);
+        }
         let mut writes = BTreeSet::new();
         self.analyze_body(
             &body,
@@ -120,6 +126,7 @@ impl<'a> AnalyzerV1<'a> {
         let parts = self.draft.finish();
         Ok(VerifiedTrivialCanonicalOwnerV1::from_verified_parts(
             self.input.owner(),
+            parts.parameter_entries,
             parts.values,
             parts.definitions,
             parts.merge_profiles,
@@ -141,8 +148,6 @@ impl<'a> AnalyzerV1<'a> {
     fn verify_root_profile(&self) -> AnalysisResultV1<()> {
         let ASTNode::FunctionDeclaration {
             name,
-            params,
-            param_decls,
             return_type_name,
             uses,
             contracts,
@@ -167,21 +172,10 @@ impl<'a> AnalyzerV1<'a> {
                 TrivialProfileStopReasonV1::FunctionMetadataOutsideProfile,
             );
         }
-        if return_type_name.is_some()
-            || (!param_decls.is_empty() && param_decls.len() != params.len())
-            || param_decls
-                .iter()
-                .any(|decl| decl.declared_type_name.is_some())
-        {
+        if return_type_name.is_some() {
             return stop(
                 owner_site,
                 TrivialProfileStopReasonV1::TypedSignatureOutsideProfile,
-            );
-        }
-        if !params.is_empty() || !param_decls.is_empty() {
-            return stop(
-                owner_site,
-                TrivialProfileStopReasonV1::ParameterRepresentationUnavailable,
             );
         }
         Ok(())

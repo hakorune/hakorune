@@ -20,6 +20,8 @@ guard_resolved_trivial_owner_profile_contract() {
     "$owner/error.rs"
     "$owner/mod.rs"
     "$owner/operator.rs"
+    "$owner/parameter_entry.rs"
+    "$owner/parameter_tests.rs"
     "$owner/product.rs"
     "$owner/tests.rs"
     "$helper"
@@ -28,7 +30,7 @@ guard_resolved_trivial_owner_profile_contract() {
   guard_require_files "$tag" "${files[@]}"
   python3 "$validator" "$root" "$profile"
   cargo test -q --manifest-path "$root/Cargo.toml" --lib \
-    mir::resolved_value_profile::tests
+    mir::resolved_value_profile
 
   local file lines
   for file in "${files[@]}"; do

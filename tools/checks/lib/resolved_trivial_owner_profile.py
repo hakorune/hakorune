@@ -15,12 +15,12 @@ HISTORICAL_SHA256 = (
     "0c8395ce8f893ee0e7faf427490f77f8da6a5f3f7a729aae06d2a2cd382927b4"
 )
 EXPECTED_CLAIMS = {
-    "profile_manifest_entries": 9,
-    "profile_production_rust_files": 7,
-    "profile_test_rust_files": 1,
+    "profile_manifest_entries": 11,
+    "profile_production_rust_files": 8,
+    "profile_test_rust_files": 2,
     "profile_entry_definitions": 1,
     "sealed_product_definitions": 1,
-    "focused_profile_fixtures": 13,
+    "focused_profile_fixtures": 18,
     "profile_production_callers": 1,
     "production_route_delta": 1,
     "accepted_grammar_delta": 0,
@@ -43,6 +43,8 @@ EXPECTED_MANIFEST = {
     "error.rs",
     "mod.rs",
     "operator.rs",
+    "parameter_entry.rs",
+    "parameter_tests.rs",
     "product.rs",
     "tests.rs",
 }
@@ -53,9 +55,10 @@ EXPECTED_PRODUCTION_RUST = {
     "error.rs",
     "mod.rs",
     "operator.rs",
+    "parameter_entry.rs",
     "product.rs",
 }
-EXPECTED_TEST_RUST = {"tests.rs"}
+EXPECTED_TEST_RUST = {"parameter_tests.rs", "tests.rs"}
 EXPECTED_FORBIDDEN = {
     "BasicBlockId",
     "BindingSsaBuilderV1",
@@ -97,7 +100,10 @@ EXPECTED_TERMINALS = {
 }
 EXPECTED_REJECTIONS = {
     "receiver": ("origin.receiver", "owner_family_not_admitted"),
-    "parameter": ("origin.parameter", "parameter_abi_not_sealed"),
+    "parameter.unsupported": (
+        "origin.parameter",
+        "unsupported_parameter_abi_not_sealed",
+    ),
     "outbox": ("origin.outbox", "outbox_void_seed_is_not_a_value"),
     "string_literal": (
         "origin.literal.borrowed_text",
@@ -105,6 +111,14 @@ EXPECTED_REJECTIONS = {
     ),
     "local_without_initializer": ("origin.local", "definition_profile_missing"),
     "mixed_if_merge": ("origin.phi", "incoming_profiles_not_homogeneous"),
+}
+EXPECTED_PARAMETER_ROWS = {
+    "parameter.inline_i64": (
+        "i64",
+        "InlineI64",
+        "definition",
+        "disconnected",
+    )
 }
 
 
@@ -165,6 +179,7 @@ def main() -> None:
         "ownership_inventory",
         "claims",
         "profile_symbols",
+        "parameter_rows",
         "value_rows",
         "terminal_rows",
         "rejection_rows",
@@ -182,6 +197,28 @@ def main() -> None:
         fail("executable-profile claims drifted")
     if set(data["profile_symbols"]) != EXPECTED_SYMBOLS:
         fail("reserved profile symbol vocabulary drifted")
+    parameter_rows = checked_rows(
+        data["parameter_rows"],
+        {
+            "id",
+            "source_spelling",
+            "representation",
+            "coverage_authority",
+            "production_route",
+        },
+        "parameter_rows",
+    )
+    actual_parameter_rows = {
+        row["id"]: (
+            row["source_spelling"],
+            row["representation"],
+            row["coverage_authority"],
+            row["production_route"],
+        )
+        for row in parameter_rows
+    }
+    if actual_parameter_rows != EXPECTED_PARAMETER_ROWS:
+        fail("exact parameter profile matrix drifted")
     if set(data["forbidden_authorities"]) != EXPECTED_FORBIDDEN:
         fail("forbidden authority vocabulary drifted")
 
@@ -299,6 +336,7 @@ def main() -> None:
     contract_payload = json.dumps(
         {
             "claims": data["claims"],
+            "parameter_rows": parameter_rows,
             "value_rows": values,
             "terminal_rows": terminals,
             "rejection_rows": rejections,
@@ -355,8 +393,8 @@ def main() -> None:
     if owner_production_text.count(result_definition) != 1:
         fail("analysis result definition count must remain exactly one")
     test_text = "\n".join(path.read_text() for path in test_files)
-    if test_text.count("#[test]") != 13:
-        fail("focused profile fixture count must remain exactly 13")
+    if test_text.count("#[test]") != 18:
+        fail("focused profile fixture count must remain exactly 18")
     for fixture in (
         "exact_literals_binary_and_value_return_seal",
         "local_assignment_and_blockexpr_tail_preserve_exact_profile",
@@ -371,6 +409,11 @@ def main() -> None:
         "mixed_binary_and_short_circuit_are_typed_stops",
         "duplicate_coverage_and_foreign_if_control_cannot_seal",
         "current_a_plus_acceptance_is_not_narrowed_by_disconnected_profile",
+        "exact_i64_parameters_are_sealed_before_body_subjects",
+        "parameter_profile_consumption_uses_one_global_ordered_ledger",
+        "parameter_rebind_and_if_merge_reuse_the_existing_profile_environment",
+        "unsupported_parameter_types_and_untyped_parameters_do_not_admit",
+        "exact_parameter_profile_remains_disconnected_from_production_preflight",
     ):
         if f"fn {fixture}(" not in test_text:
             fail(f"focused profile fixture missing: {fixture}")
@@ -456,12 +499,13 @@ def main() -> None:
         fail(f"default/non-test resolved caller activated: {resolved_callers}")
 
     print("canonical_ssa_i0_profile_owner=src/mir/resolved_value_profile")
-    print("canonical_ssa_i0_profile_manifest_entries=9")
-    print("canonical_ssa_i0_profile_production_rust_files=7")
-    print("canonical_ssa_i0_profile_test_rust_files=1")
+    print("canonical_ssa_i0_profile_manifest_entries=11")
+    print("canonical_ssa_i0_profile_production_rust_files=8")
+    print("canonical_ssa_i0_profile_test_rust_files=2")
     print("canonical_ssa_i0_profile_entry_definitions=1")
     print("canonical_ssa_i0_profile_sealed_product_definitions=1")
-    print("canonical_ssa_i0_profile_focused_fixtures=13")
+    print("canonical_ssa_i0_profile_focused_fixtures=18")
+    print("canonical_ssa_i0_profile_parameter_rows=1")
     print("canonical_ssa_i0_profile_production_callers=1")
     print("canonical_ssa_i0_profile_binding_ssa_callers=1")
     print("canonical_ssa_i0_profile_ownership_ssa_callers=0")

@@ -3,6 +3,7 @@
 //! This module classifies source declarations only. It does not admit a
 //! function, allocate parameter values, or validate runtime arguments.
 
+use crate::mir::function::MirParamDecl;
 use crate::mir::MirType;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -21,6 +22,20 @@ impl ExactTrivialParameterAbiV1 {
     pub(crate) const fn mir_type(self) -> MirType {
         match self {
             Self::I64 => MirType::Integer,
+        }
+    }
+
+    pub(crate) const fn source_type_name(self) -> &'static str {
+        match self {
+            Self::I64 => "i64",
+        }
+    }
+
+    pub(crate) fn mir_param_decl(self, source_name: &str) -> MirParamDecl {
+        MirParamDecl {
+            name: source_name.to_string(),
+            declared_type_name: Some(self.source_type_name().to_string()),
+            implicit_receiver: false,
         }
     }
 }
@@ -44,5 +59,14 @@ mod tests {
     #[test]
     fn exact_i64_projects_to_existing_integer_representation() {
         assert_eq!(ExactTrivialParameterAbiV1::I64.mir_type(), MirType::Integer);
+        assert_eq!(ExactTrivialParameterAbiV1::I64.source_type_name(), "i64");
+        assert_eq!(
+            ExactTrivialParameterAbiV1::I64.mir_param_decl("value"),
+            crate::mir::function::MirParamDecl {
+                name: "value".to_string(),
+                declared_type_name: Some("i64".to_string()),
+                implicit_receiver: false,
+            }
+        );
     }
 }

@@ -7,8 +7,11 @@ mod consumption;
 mod coverage;
 pub(crate) mod error;
 mod operator;
+mod parameter_entry;
 pub(crate) mod product;
 
+#[cfg(test)]
+mod parameter_tests;
 #[cfg(test)]
 mod tests;
 

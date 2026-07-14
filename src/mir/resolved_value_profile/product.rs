@@ -1,6 +1,7 @@
 //! Sealed whole-owner trivial representation product.
 
 use crate::mir::compiler::located::SourceBodySiteV1;
+use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
@@ -14,6 +15,66 @@ pub(crate) enum TrivialRepresentationV1 {
     ExplicitVoidValue,
     /// Exact source `null`; runtime representation remains the no-value lane.
     NullSentinel,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct VerifiedTrivialParameterEntryV1 {
+    site: SourceBindingSiteV1,
+    binding: BindingRefV1,
+    formal_index: u32,
+    source_name: String,
+    declared_type_name: String,
+    abi: ExactTrivialParameterAbiV1,
+    representation: TrivialRepresentationV1,
+}
+
+impl VerifiedTrivialParameterEntryV1 {
+    pub(super) fn new(
+        site: SourceBindingSiteV1,
+        binding: BindingRefV1,
+        formal_index: u32,
+        source_name: String,
+        abi: ExactTrivialParameterAbiV1,
+        representation: TrivialRepresentationV1,
+    ) -> Self {
+        Self {
+            site,
+            binding,
+            formal_index,
+            source_name,
+            declared_type_name: abi.source_type_name().to_string(),
+            abi,
+            representation,
+        }
+    }
+
+    pub(crate) const fn site(&self) -> &SourceBindingSiteV1 {
+        &self.site
+    }
+
+    pub(crate) const fn binding(&self) -> BindingRefV1 {
+        self.binding
+    }
+
+    pub(crate) const fn formal_index(&self) -> u32 {
+        self.formal_index
+    }
+
+    pub(crate) fn source_name(&self) -> &str {
+        &self.source_name
+    }
+
+    pub(crate) fn declared_type_name(&self) -> &str {
+        &self.declared_type_name
+    }
+
+    pub(crate) const fn abi(&self) -> ExactTrivialParameterAbiV1 {
+        self.abi
+    }
+
+    pub(crate) const fn representation(&self) -> TrivialRepresentationV1 {
+        self.representation
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -174,6 +235,7 @@ struct TrivialCanonicalOwnerSealV1;
 #[derive(Debug)]
 pub(crate) struct VerifiedTrivialCanonicalOwnerV1 {
     owner: FunctionOwnerIdV1,
+    parameter_entries: Box<[VerifiedTrivialParameterEntryV1]>,
     values: Box<[VerifiedLocatedTrivialValueV1]>,
     definitions: Box<[VerifiedTrivialBindingDefinitionV1]>,
     merge_profiles: Box<[VerifiedTrivialIfMergeProfileV1]>,
@@ -185,6 +247,7 @@ pub(crate) struct VerifiedTrivialCanonicalOwnerV1 {
 impl VerifiedTrivialCanonicalOwnerV1 {
     pub(super) fn from_verified_parts(
         owner: FunctionOwnerIdV1,
+        parameter_entries: Vec<VerifiedTrivialParameterEntryV1>,
         values: Vec<VerifiedLocatedTrivialValueV1>,
         definitions: Vec<VerifiedTrivialBindingDefinitionV1>,
         merge_profiles: Vec<VerifiedTrivialIfMergeProfileV1>,
@@ -193,6 +256,7 @@ impl VerifiedTrivialCanonicalOwnerV1 {
     ) -> Self {
         Self {
             owner,
+            parameter_entries: parameter_entries.into_boxed_slice(),
             values: values.into_boxed_slice(),
             definitions: definitions.into_boxed_slice(),
             merge_profiles: merge_profiles.into_boxed_slice(),
@@ -204,6 +268,10 @@ impl VerifiedTrivialCanonicalOwnerV1 {
 
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
+    }
+
+    pub(crate) fn parameter_entries(&self) -> &[VerifiedTrivialParameterEntryV1] {
+        &self.parameter_entries
     }
 
     pub(crate) fn values(&self) -> &[VerifiedLocatedTrivialValueV1] {

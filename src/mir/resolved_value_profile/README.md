@@ -10,6 +10,8 @@ product. Outputs may contain only:
 
 - `FunctionOwnerIdV1`, `BindingRefV1`, and exact source sites;
 - closed representation vocabulary owned by this directory;
+- sealed parameter ABI rows whose source names are transport/diagnostic data,
+  never lookup or binding identity authority;
 - exact value/definition/join/terminal coverage.
 
 This layer must not import or infer from `MirBuilder`, `ValueId`,
@@ -31,6 +33,11 @@ return ABI.
 Merge-profile rows prove representation homogeneity only; they never decide
 whether a PHI is needed or placed. Function-owned Binding SSA retains that
 authority.
+
+Exact parameter rows are ABI sidecars. Their declaration `Definition` row is
+the sole exact-once coverage subject, and parameter names never replace
+`BindingRefV1` identity. The first row accepts only exact source `i64`; it
+allocates no `ValueId` and has no production Builder connection until P0a-I1.
 
 Profile rejection is data, not fallback. A later compiler route may select the
 existing canonical A+ path from a sealed rejection before Builder effects, but

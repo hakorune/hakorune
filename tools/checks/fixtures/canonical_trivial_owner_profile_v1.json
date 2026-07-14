@@ -11,6 +11,8 @@
       "error.rs",
       "mod.rs",
       "operator.rs",
+      "parameter_entry.rs",
+      "parameter_tests.rs",
       "product.rs",
       "tests.rs"
     ],
@@ -21,9 +23,11 @@
       "error.rs",
       "mod.rs",
       "operator.rs",
+      "parameter_entry.rs",
       "product.rs"
     ],
     "test_rust": [
+      "parameter_tests.rs",
       "tests.rs"
     ],
     "entry_symbol": "analyze_trivial_canonical_owner_v1",
@@ -47,12 +51,12 @@
     "rows": 18
   },
   "claims": {
-    "profile_manifest_entries": 9,
-    "profile_production_rust_files": 7,
-    "profile_test_rust_files": 1,
+    "profile_manifest_entries": 11,
+    "profile_production_rust_files": 8,
+    "profile_test_rust_files": 2,
     "profile_entry_definitions": 1,
     "sealed_product_definitions": 1,
-    "focused_profile_fixtures": 13,
+    "focused_profile_fixtures": 18,
     "profile_production_callers": 1,
     "production_route_delta": 1,
     "accepted_grammar_delta": 0,
@@ -66,6 +70,15 @@
     "VerifiedTrivialCanonicalOwnerV1",
     "TrivialCanonicalOwnerAnalysisV1",
     "analyze_trivial_canonical_owner_v1"
+  ],
+  "parameter_rows": [
+    {
+      "id": "parameter.inline_i64",
+      "source_spelling": "i64",
+      "representation": "InlineI64",
+      "coverage_authority": "definition",
+      "production_route": "disconnected"
+    }
   ],
   "value_rows": [
     {
@@ -158,9 +171,9 @@
       "reason": "owner_family_not_admitted"
     },
     {
-      "id": "parameter",
+      "id": "parameter.unsupported",
       "source_row": "origin.parameter",
-      "reason": "parameter_abi_not_sealed"
+      "reason": "unsupported_parameter_abi_not_sealed"
     },
     {
       "id": "outbox",

@@ -63,6 +63,10 @@ impl TrivialProfileStopV1 {
 pub(crate) enum TrivialProfileContractErrorV1 {
     OwnerTransportMismatch,
     InvalidFunctionRoot,
+    ParameterDeclarationShapeMismatch,
+    ParameterEntryContractMismatch {
+        formal_index: u32,
+    },
     IfControlOwnerMismatch,
     SourceNavigation {
         detail: String,
