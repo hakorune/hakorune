@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ SSA-RC0 owned-alias materialization design stop is active"
+status = "D′ A′ Ownership SSA accepted; SSA-RC-L0 seam split is active"
 date = "2026-07-14"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -9,7 +9,11 @@ active_lane_status = """D′ is the current canonical control-lowering authority
 pre-Builder products retain exact coverage/topology/ports/cleanup, while one
 function-owned Binding SSA becomes the only BindingRef-to-ValueId/PHI merge
 owner. B0-L4-S2′, SSA-P0's guarded 92-row inventory, behavior-neutral SSA-L0,
-SSA-C1, SSA-P1, SSA-V0, SSA-S1, SSA-S2, SSA-E0, SSA-S3, and SSA-M0 are closed. SSA-RC0 is paused at the owned-alias acquire materialization design stop: VM Copy clones BoxRef while Wasm Copy is a plain local copy, and no general MIR retain/acquire instruction owns the cross-backend meaning. Historical
+SSA-C1, SSA-P1, SSA-V0, SSA-S1, SSA-S2, SSA-E0, SSA-S3, and SSA-M0 are closed.
+A′ accepts explicit CopyOwned/DestroyOwned Ownership SSA, keeps Copy neutral,
+and isolates legacy ReleaseStrong. The active code row is behavior-neutral
+SSA-RC-L0: split the near-800-line backend opcode and MIR JSON seams before
+adding passive vocabulary. Historical
 lane chronology follows and is non-authoritative.
 Explicit user priority change on 2026-07-12 reopens
 the parked Source Selfhost/MirBuilder lane before LANGV1 conformance closeout.
@@ -154,9 +158,14 @@ SSA-S3 closes exact source-preorder carrier-free If rows, sealed topology,
 exclusive nested coverage, one internal coverage consumer, and zero new
 production callers or behavior delta. SSA-M0 closes the borrowed real-MIR
 adapter, conservative Unknown PHI facts, exact C1 witnesses, pending-only
-rollback, and five focused fixtures. The active SSA-RC0-D0 consultation must
-choose an explicit owned-alias acquire instruction or a repository-wide Copy
-ownership contract before RC0 or SSA-I1 code begins.
+rollback, and five focused fixtures. SSA-RC0-D0 is closed by A′: CopyOwned
+creates a fresh independent Owned token, DestroyOwned consumes exactly the
+named token, Copy stays neutral, and ReleaseStrong remains legacy. Before RC0
+or SSA-I1, L0/L1/P0/A0/A1a/V0/A1b/A1c/RET-P0 close physical seams, the exact BoxRef
+profile, transport, supported backends, path-sensitive ownership forwarding,
+and legacy retirement inventory. If no exact BoxRef source producer exists,
+SSA-I1 is a trivial-only Binding SSA cutover and production Ownership SSA waits
+for the separate SSA-I1-O1 producer/ABI witness.
 Rust `MirInterpreter` retirement is now an explicit later selfhost branch:
 after the ownership MIR vocabulary stabilizes, a sealed `.hako` MIR
 interpreter subset gains normalized parity, becomes the no-fallback semantic
@@ -505,7 +514,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC0-OWNED-ALIAS-MATERIALIZATION-DESIGN-STOP-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-L0-OWNERSHIP-SEAM-SPLIT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -514,8 +523,8 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-14: A′ accepts explicit CopyOwned/DestroyOwned Ownership SSA, keeps Copy ownership-neutral, isolates legacy ReleaseStrong, and taskizes L0/L1/P0/A0/A1a/V0/A1b/A1c/RET-P0/RC0/I1/I1-O1 plus caller-zero retirement; local verification corrects the stale VM pointer-sweep claim, and SSA-RC-L0 is selected as the first behavior-neutral code row.",
   "2026-07-14: Rust MirInterpreter retirement is taskized as a separate required selfhost branch: stable MIR ownership vocabulary -> sealed ingress/opcode/event contract -> disconnected `.hako` MIR interpreter -> independent normalized parity -> no-fallback semantic-reference cutover -> consumer-driven expansion -> exact caller-zero Rust physical retirement; EXE/AOT remains the product route and RC0 remains at its design stop.",
-  "2026-07-14: D′ SSA-RC0 audit stops before code at the owned-alias materialization boundary: VM Copy clones BoxRef, Wasm Copy is a plain local copy, no general MIR retain/acquire instruction owns cross-backend semantics, and the final order is corrected to acquire decision/vocabulary/backend proof -> pure RC0 -> atomic SSA-I1 -> Loop/nesting/exits/families/retirement/publication with production callers zero.",
   "2026-07-14: D′ SSA-M0 closes one borrowed real-MIR Binding SSA adapter over MirBuilder/PhiTxn, exact CanonicalCfgSessionV1 predecessor witnesses, conservative Unknown open/patched PHI facts, explicit unreachable/non-dominance rejection, pending-only rollback with poisoned-draft discard, five focused fixtures, zero production callers, and zero grammar/behavior delta; SSA-RC0 is selected.",
   "2026-07-14: D′ SSA-S3 closes one disconnected carrier-free statement-If control product with exact source-preorder rows, sealed If/IfThen/optional IfElse topology, distinct implicit/explicit-empty else ports, exclusive nested coverage partition, nine focused fixtures, one internal coverage consumer, zero new production analyzer callers, zero binding-effect rows, and zero grammar/behavior delta; SSA-M0 is selected.",
   "2026-07-14: D′ SSA-E0 closes exact explicit root-Return and implicit Void completion products, exact site/body/end/function-target consumption, explicit empty cleanup, direct canonical Return emission, post-Lower ready-witness finalization, eleven focused fixtures, zero Binding SSA production callers, and zero grammar delta; SSA-S3 is selected.",

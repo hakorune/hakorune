@@ -1,8 +1,8 @@
 ---
-Status: Active design stop — SSA-M0 closed; SSA-RC0 acquire boundary pending
+Status: Active — A′ accepted; SSA-RC-L0 ownership seam split is next
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC0-OWNED-ALIAS-MATERIALIZATION-DESIGN-STOP-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-L0-OWNERSHIP-SEAM-SPLIT-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -108,7 +108,12 @@ dependency SSOT; optional X0/O0/O1 work is not on the blocking path.
 
 ```text
 SSA-E0 -> SSA-S3 -> SSA-M0 -> SSA-RC0-D0
-SSA-RC0-D0 -> SSA-RC-A0 -> SSA-RC-A1 -> SSA-RC0 -> SSA-I1 -> SSA-R1
+SSA-RC0-D0 -> SSA-RC-L0 -> SSA-RC-L1 -> SSA-RC-P0 -> SSA-RC-A0 -> SSA-RC-A1a
+SSA-RC-A1a -> SSA-RC-V0 -> SSA-RC-A1b -> SSA-RC-A1c
+SSA-RC-A1c -> SSA-RC-RET-P0 -> SSA-RC0 -> SSA-I1 -> SSA-R1
+SSA-I1 -> SSA-RC-RET-R1
+{SSA-I1, exact BoxRef source producer} -> SSA-I1-O1
+repository-wide ReleaseStrong caller zero -> SSA-RC-RET-R2
 
 SSA-I1 -> Loop-S3′ -> Loop-I1′ -> Loop-I2′
 Loop-I2′ -> {N1, N2, N3} -> N4
@@ -125,8 +130,8 @@ capture-cell authority + F0 -> F1d
 F2-I1 + canonical caller zero -> RET-R1 -> PUB-F0
 repository-wide caller zero -> RET-R2
 
-SSA-RC-A1 -> HMI-P0 -> HMI-S0 -> HMI-S1 -> HMI-I0 -> HMI-P1
-{SSA-I1, HMI-P1} -> HMI-C0 -> HMI-X0 -> HMI-R1
+{SSA-RC-A1c, SSA-RC-V0, SSA-RC-RET-P0} -> HMI-P0 -> HMI-S0 -> HMI-S1 -> HMI-I0 -> HMI-P1
+{SSA-I1-O1, HMI-P1} -> HMI-C0 -> HMI-X0 -> HMI-R1
 repository-wide Rust MirInterpreter caller zero -> HMI-R2
 ```
 
@@ -558,49 +563,284 @@ accepted grammar and production behavior delta = 0
 
 ### SSA-RC0 — ownership and scope-escape law — active
 
-#### SSA-RC0-D0 — owned-alias materialization design stop — active
+#### SSA-RC0-D0 — explicit Ownership SSA decision — closed
 
-The ownership audit found that borrowed-binding assignment and outer-binding
-BlockExpr escape require an owned-alias acquire operation. VM `Copy` clones a
-`BoxRef`, while Wasm `Copy` is only `local.get`/`local.set`, and no general MIR
-retain instruction currently owns this cross-backend meaning. Do not implement
-or activate RC0 from backend-specific behavior.
-
-The shareable consultation and final corrected task order are fixed in:
+A′ is accepted:
 
 ```text
-mirbuilder-ssa-rc0-owned-alias-materialization-design-stop-2026-07-14.md
+CopyOwned(dst, src):
+  src remains valid; fresh dst owns one independently consumable token
+
+DestroyOwned(value):
+  consume exactly the named Owned token
+
+Copy:
+  ownership-neutral
+
+ReleaseStrong:
+  legacy only; canonical caller count must reach zero before retirement
 ```
 
-Preliminary recommendation is an explicit destination-producing MIR acquire
-instruction, followed by passive vocabulary/backend proof, disconnected pure
-RC0 planning, and only then atomic SSA-I1. Production Binding SSA and acquire
-callers remain zero during this design stop.
+The local VM already destroys only the named register, so no pointer-sweep
+deletion task exists. This does not make `ReleaseStrong` canonical Ownership
+SSA: its vector vocabulary, reference contract, Wasm no-op, and missing
+forward/consume verifier remain incompatible with A′.
+
+The accepted decision and local correction are fixed in
+`mirbuilder-ssa-rc0-owned-alias-materialization-design-stop-2026-07-14.md`.
+Production Binding SSA and ownership-op callers remain zero.
+
+#### SSA-RC-L0 — ownership transport seam split — active
+
+Before adding opcodes, split two near-stop files by existing responsibility in
+one behavior-neutral BoxShape commit:
+
+```text
+src/mir/contracts/backend_core_ops.rs (780 lines):
+  facade
+  vocabulary/diet
+  backend allowlists
+  focused tests
+
+src/runner/mir_json_v0.rs (749 lines):
+  facade
+  lifecycle opcode parser
+  existing family helpers/tests
+```
+
+Every resulting source file remains below 800 lines. Public APIs, kept/removed
+counts, JSON behavior, backend support, accepted grammar, and production
+behavior remain unchanged. Do not touch the 796-line public
+`resolved_region_flow_authority_guard.sh`.
+
+#### SSA-RC-L1 — Rust interpreter frame transaction
+
+Before ownership opcodes introduce new typed executor failures, close the
+existing function-frame lifecycle in a separate BoxShape row:
+
+```text
+one closure-scoped frame transaction
+success and every error restore caller regs and current function
+fast slots, alias/cache state, step/phi failures covered
+primary execution error preserved if restoration also fails
+no opcode, grammar, or accepted success-path behavior change
+```
+
+This row does not add `CopyOwned`/`DestroyOwned` and is not backend ownership
+activation.
+
+#### SSA-RC-P0 — exact ownership production profile
+
+Seal a machine-checked value-origin/storage matrix before passive vocabulary:
+
+```text
+BoxRef:
+  ownership-managed after exact static witness
+
+InlineI64 / InlineBool / InlineF64:
+  trivial; reuse ValueId; ownership ops 0
+
+BorrowedText / Array / Future / WeakRef / Void / Opaque / Unknown:
+  typed preflight reject before Builder effects
+```
+
+Inventory every currently accepted receiver, parameter, local, Outbox,
+literal, PHI, BlockExpr-tail, call argument, and call result origin. The
+current untyped parameter/call path is not silently treated as `BoxRef`;
+SSA-I1 either excludes it from the first closed profile or waits for an
+independently sealed representation and caller/callee ABI witness.
+`StorageClass` is currently an inventory, not an execution proof, and
+`MirType::Box` metadata does not by itself prove the same ABI class on every
+JSON/backend path. P0 must promote or derive one sealed ownership
+representation witness and require it at direct JSON ingress too. Its schema,
+v0/v1 parse, round-trip, and type/storage mismatch rejection land with A0.
+This row activates no ownership instruction and changes no grammar.
+
+#### SSA-RC-A0 — passive Ownership SSA MIR vocabulary
+
+Add `CopyOwned { dst, src }` and singleton `DestroyOwned { value }` with:
+
+```text
+effect mask = WRITE
+is_mut = true
+parallel_safe / moveable / pure = false
+printer, tag, dst/used-values, ID remapper
+JSON emitter/schema, v0 parser, v1 bridge, and round-trip
+storage/type propagation and verifier shape
+backend opcode diets and transport-only classification
+```
+
+Do not consume the final free `u16` effect bit without a named optimizer or
+analysis consumer. The instruction variants plus Ownership SSA verifier own
+the semantic distinction; conservative `WRITE` prevents generic DCE/CSE and
+matches the current lifecycle safety boundary. A dedicated effect remains a
+separate future decision. Expected opcode ledger after A0:
+
+```text
+kept = 42
+removed = 16
+vocabulary = 58
+```
+
+Production callers, VM execution, and canonical behavior remain zero. The
+historical 92-row seam inventory and its 7 RC rows stay hash-stable.
+
+#### SSA-RC-A1a — Rust ownership-op handlers
+
+Implement the fixed meaning for the temporary Rust semantic oracle only:
+
+```text
+Rust MIR interpreter:
+  BoxRef clone into fresh dst; exact register take on DestroyOwned
+  non-BoxRef input is a typed error, never the legacy silent skip
+  preflight rejects an already-defined CopyOwned dst
+```
+
+This row implements only explicit opcode handlers over the closed L1 frame
+transaction. Ordinary Phi, Return, and parameter/result ABI behavior remains
+unchanged until the verified ownership classification exists. Production
+canonical callers remain zero.
+
+#### SSA-RC-V0 — Ownership SSA verifier and forwarding
+
+Add a verifier-owned classification, not a second reaching-value map:
+
+```rust
+enum MirOwnershipKindV1 {
+    None,
+    Borrowed,
+    Owned,
+}
+```
+
+Seal the result as `VerifiedOwnershipSsaV1`, containing owner-branded
+parameter/result roots, the exact ValueId ownership kind, and verified
+consuming/forwarding dispositions. The verifier, interpreter, and codegen
+consume this one artifact; they do not rebuild ownership from runtime values.
+
+Close these unconditional laws with edge/path-sensitive live-owned dataflow,
+not a static instruction-count check or environment toggle:
+
+```text
+CopyOwned:
+  strong-ownable src, fresh Owned dst, non-consuming src use
+
+DestroyOwned:
+  exact one Owned consuming use
+
+Phi incoming / Return:
+  forward the selected token; retain 0
+
+canonical edge arguments:
+  V1 requires absent; Phi.inputs is the sole edge transfer vocabulary
+
+function parameter/result ABI:
+  explicit Borrowed/Owned convention or typed rejection
+
+receiver/call argument/result ABI:
+  caller and callee witness must agree or the managed call shape is rejected
+
+Borrowed V1:
+  sealed ABI root only
+  Borrowed Phi/Return/edge escape forbidden
+  CopyOwned is the only conversion to an independent owner
+
+canonical Copy on Owned:
+  reject
+
+duplicate consume / use after consume / reachable path without disposition:
+  reject
+```
+
+At every finite reachable function exit, every Owned token is consumed or
+forwarded exactly once. An infinite path may keep a live token; this is not a
+missing consume. Unreachable ownership blocks are rejected in V1.
+
+Generic DCE/CSE/copy propagation/CFG rewrites preserve ownership effects and
+may not merge `CopyOwned`, rewrite it to `Copy`, or duplicate consuming uses.
+
+#### SSA-RC-A1b — Rust Owned forwarding and ABI
+
+Consume `VerifiedOwnershipSsaV1` in the Rust interpreter. Owned Phi is a
+parallel move: collect selected inputs, take consumed source registers, then
+publish destinations. Return and Owned parameter/result transport move rather
+than clone. Borrowed roots obey V0 and cannot escape without `CopyOwned`.
+
+#### SSA-RC-A1c — exact llvm_py + nyash_kernel materialization
+
+Implement the fixed meaning only for the pinned handle provider:
+
+```text
+llvm_py / llvmlite object lane:
+  strict BoxRef handle + VerifiedOwnershipSsaV1 witness
+  nyrt_handle_retain_h -> fresh dst
+  nyrt_handle_release_h(value)
+
+runtime provider:
+  nyash_kernel only
+```
+
+The root proof-of-concept shim, llvm_py PyVM harness, Wasm, `.hako` reference
+interpreter, native llvmc, archived Cranelift/JIT, and every unproved consumer
+fail a typed `owned-value-lifecycle-v1` capability preflight. In particular,
+the PyVM unknown-op skip must not hide either opcode. No backend may lower an
+ownership opcode as a no-op or silently map old `release_strong` JSON to
+`destroy_owned`. Production canonical callers remain zero.
+
+#### SSA-RC-RET-P0 — legacy ReleaseStrong inventory and isolation
+
+Create a separate machine ledger for every `ReleaseStrong` producer, consumer,
+opcode surface, document, pass, and fixture. Do not mutate the historical
+92-row SSA seam evidence. Classify each row as:
+
+```text
+canonical caller-zero delete
+legacy builder isolate
+optional RC insertion isolate
+optimizer/CFG rewrite isolate until ownership-profile preservation is proven
+backend/JSON compatibility isolate
+dead after repository caller zero
+```
+
+Connect a private ownership helper beneath
+`tools/checks/lib/resolved_binding_ssa_contract.sh`; add no public guard and do
+not grow the 796-line authority guard.
+
+#### SSA-RC0 — disconnected ownership transition planner
 
 Seal the bounded ownership contract before production Binding SSA activation:
 
 ```text
-assignment reads old value before installing the new definition
-self-assignment retain/release behavior is explicit
-successful scope exit reads and releases the current reaching value
-BlockExpr tail/current aliases transfer or retain ownership exactly once
+assignment materializes next before destroying old and installing definition
+local/Outbox declaration copies a borrowed strong initializer or transfers an
+owned initializer
+exact BindingRef self-assignment emits ownership ops 0
+successful scope exit reads and destroys the current reaching value
+BlockExpr tail/current aliases transfer or CopyOwned exactly once
 outer-binding and scope-local tail cases remain distinct
 unpublished draft discard emits no duplicate runtime cleanup
 local/parameter/receiver versus Upvar/cell/place storage stays separated
+remaining locals destroy in reverse source declaration order
+terminal Owned Return transfers and leaves the destroy set
+terminal BorrowedStrong Return materializes CopyOwned before transfer
+Void/fallthrough destroys every current Owned root in reverse declaration order
+return result ownership matches the sealed function ABI profile
 ```
 
-Disconnected fixtures own these laws. This row activates neither Binding SSA
-nor new source grammar and does not claim a general whole-language RC verifier.
+The disconnected pure planner emits typed plans, not `MirInstruction`, and
+allocates no `ValueId`. It distinguishes `Trivial`, `Owned`, and
+`BorrowedStrong` provenance. This row activates neither Binding SSA nor new
+source grammar and does not claim a whole-language ownership solution.
 
 ### SSA-I1 — atomic current-owner cutover
 
 In one production commit, move the entire currently accepted canonical owner
-grammar to Binding SSA:
+grammar admitted by the closed SSA-RC-P0 ownership profile to Binding SSA:
 
 ```text
-parameters, locals, and Outbox declarations
+only receiver/parameter/local/Outbox origins with a sealed representation
 variable reads
-binding assignments and ReleaseStrong(previous)
+binding assignments using CopyOwned/DestroyOwned plans
 straight-line statements
 BlockExpr
 fallthrough statement If, including nested If
@@ -617,11 +857,15 @@ Atomic acceptance:
 SSA-M0 and SSA-RC0 are closed
 all current canonical If/BlockExpr runtime fixtures green
 all canonical declaration/read/rebind operations use Binding SSA
+all ownership-managed definitions use Ownership SSA
 then definitions do not leak into else compilation state
 scope leave retires identity without deleting historical SSA definitions
-assignment ReleaseStrong reads the previous value through Binding SSA
+assignment DestroyOwned reads the previous value through Binding SSA
 scope-exit cleanup reads the current merged value through Binding SSA
+self-assignment uses exact BindingRef provenance, not raw ValueId equality
 self-assignment and BlockExpr tail/alias ownership fixtures are green
+canonical ReleaseStrong calls = 0
+optional RC insertion double-destroy paths = 0
 flat value-map merge authority calls = 0
 canonical If may_rebind/join-source queries = 0
 manual branch snapshot/restore = 0
@@ -634,6 +878,49 @@ canonical failure legacy retry = 0
 ```
 
 No Loop syntax is activated in this commit.
+
+If SSA-RC-P0 proves that the current source producer set contains no exact
+`BoxRef` origin, SSA-I1 may claim only a trivial-value Binding SSA cutover.
+`CopyOwned`/`DestroyOwned` production activation remains zero; disconnected
+MIR/backend fixtures do not count as a source producer.
+
+### SSA-I1-O1 — first exact BoxRef Ownership SSA activation
+
+After one exact source `BoxRef` producer and its caller/result ABI witness are
+sealed, atomically activate that one closed owner profile:
+
+```text
+production CopyOwned/DestroyOwned callers > 0 only inside the selected owner
+VerifiedOwnershipSsaV1 consumed by verifier and supported backends
+declaration/assignment/BlockExpr/Return ownership plans all active together
+Owned Phi/call shapes either fully verified or rejected before Builder effects
+legacy ReleaseStrong and optional RC insertion on the same owner = 0
+```
+
+This is the first row allowed to claim production Ownership SSA. It adds no
+new source syntax and does not broaden beyond the exact producer/profile.
+
+### SSA-RC-RET-R1 — canonical legacy ownership isolation
+
+After SSA-I1, prove `ReleaseStrong` canonical callers are exactly zero. Keep
+remaining legacy builder, optional RC insertion, JSON compatibility, and
+backend callers behind explicit legacy provenance. Do not change opcode
+meaning or delete repository vocabulary in this row.
+
+### SSA-RC-RET-R2 — physical ReleaseStrong retirement
+
+Only after repository-wide exact producer/consumer zero, remove
+`ReleaseStrong` from MIR enum, printer, JSON/schema, backend handlers,
+reference docs, and opcode diets. Expected final ledger if no replacement op
+is removed:
+
+```text
+kept = 41
+removed = 17
+vocabulary = 58
+```
+
+This row is not implied by canonical caller zero.
 
 ### SSA-R1 — retire old If value-flow authority
 
@@ -1156,22 +1443,23 @@ HMI-R1/R2:
   isolate remaining Rust callers, then delete only after repository caller zero
 ```
 
-The first closed subset is intended to cover `Const`, `Copy`, the accepted
-owned-alias acquire instruction, `ReleaseStrong`, `BinOp`, `Jump`, `Branch`,
-`Phi`, and `Return`. Exact spelling waits for SSA-RC0-D0. EXE/AOT remains the
-production route throughout.
+The first closed subset covers `Const`, `Copy`, `CopyOwned`, `DestroyOwned`,
+`BinOp`, `Jump`, `Branch`, `Phi`, and `Return`. Legacy `ReleaseStrong` is not
+part of the new portable subset. EXE/AOT remains the production route
+throughout.
 
 HMI-C0 requires the first canonical Binding-SSA owner so parity includes a
 real canonical control/ownership fixture. HMI-P0 through HMI-P1 may otherwise
-proceed as disconnected work after SSA-RC-A1. Hako interpreter parity is not
-Hako compiler-Lower parity.
+proceed as disconnected work only after SSA-RC-A1c, SSA-RC-V0, and
+SSA-RC-RET-P0. Hako interpreter parity is not Hako compiler-Lower parity.
 
 ## Production activation table
 
 | Milestone | Binding SSA production | If production owner | Loop production | Source grammar delta |
 | --- | ---: | --- | ---: | ---: |
-| D0 / S2′ / SSA-P0 / SSA-L0 / SSA-C1 / SSA-P1 / SSA-V0 / SSA-S1 / SSA-S2 / SSA-E0 / SSA-S3 / SSA-M0 / SSA-RC0-D0 / SSA-RC-A0 / SSA-RC-A1 / SSA-RC0 | 0 | current A+ path | 0 | 0 |
-| SSA-I1 | 1 whole owner | Binding SSA + If CFG box | 0 | 0 |
+| D0 / S2′ / SSA-P0 / SSA-L0 / SSA-C1 / SSA-P1 / SSA-V0 / SSA-S1 / SSA-S2 / SSA-E0 / SSA-S3 / SSA-M0 / SSA-RC0-D0 / SSA-RC-L0 / SSA-RC-L1 / SSA-RC-P0 / SSA-RC-A0 / SSA-RC-A1a / SSA-RC-V0 / SSA-RC-A1b / SSA-RC-A1c / SSA-RC-RET-P0 / SSA-RC0 | 0 | current A+ path | 0 | 0 |
+| SSA-I1 | 1 whole owner | Binding SSA + If CFG box | 0 | 0; ownership activation may remain 0 |
+| SSA-I1-O1 | 1 exact BoxRef owner | Binding SSA + Ownership SSA | 0 | 0 |
 | SSA-R1 / S3′ / I1′ | 1 whole owner | Binding SSA | 0 | 0 |
 | I2′ | 1 whole owner | Binding SSA | 1 closed Loop family | +1 family |
 | N1-N3 | 1 whole owner | Binding SSA | bounded nesting expansion | one nesting shape per slice |
@@ -1263,7 +1551,7 @@ Success and publication order after every block seal:
 4. every touched block sealed
 5. incomplete PHIs = 0
 6. PhiTxn committed
-7. accepted ownership/ReleaseStrong contract checks green
+7. Ownership SSA forwarding/consuming-use verification green
 8. resolved authority finished and function draft finalized
 9. function session restores caller state
 10. sealed function draft enters the unpublished candidate module
@@ -1308,10 +1596,28 @@ SSA-S3:
   line-neutrally admit resolved_control_flow as a disconnected consumer
   keep old production If S2/I1 checks
 
+SSA-RC-L0:
+  assert both split facades preserve public behavior and every file is <800
+
+SSA-RC-L1:
+  require Rust interpreter caller-frame restoration on all injected errors
+
+SSA-RC-A0/A1a/V0/A1b/A1c:
+  add one private resolved_binding_ssa_owned_mir helper
+  require opcode/effect/JSON/transport/backend/verifier contracts
+  keep production ownership callers zero and 92-row evidence unchanged
+
+SSA-RC-RET-P0:
+  add a separate ReleaseStrong producer/consumer retirement ledger
+  forbid canonical ownership aliases to the legacy opcode
+
 SSA-I1 atomic commit:
   replace production If effect/join assertions with Binding SSA/control-only assertions
   require exactly one function Binding SSA production session
   require flat value owner and old adapters to have zero production callers
+  require canonical ReleaseStrong and optional-RC double-destroy paths to be zero
+  freeze the 92-row artifact as historical evidence and move live ownership
+  caller counts to the RET-P0 ledger
 
 SSA-R1:
   assert exact old symbol and caller counts are zero
@@ -1354,8 +1660,14 @@ Add focused unit/runtime commands named by each milestone before committing.
 | SSA-S2 | identity and temporary value ownership are separated; production Binding SSA calls remain zero |
 | SSA-E0 | the already accepted terminal Return has an exact preservation contract; grammar delta is zero |
 | SSA-S3 | one carrier-free If control product is sealed; production If still uses A+ |
-| SSA-M0/RC0 | the real-MIR adapter and bounded ownership laws are sealed; production Binding SSA calls remain zero |
+| SSA-RC-L0/L1/P0 | ownership transport/frame seams are closed and the exact BoxRef/trivial/reject profile is sealed; production ownership is unchanged |
+| SSA-RC-A0 | passive CopyOwned/DestroyOwned transport exists; production callers and backend execution are zero |
+| SSA-RC-A1a/V0/A1b/A1c | supported backends and path-sensitive Ownership SSA verification implement the closed BoxRef profile; canonical callers are zero |
+| SSA-RC-RET-P0 | every legacy ReleaseStrong surface is classified without changing its meaning |
+| SSA-M0/RC0 | the real-MIR adapter and bounded pure ownership plans are sealed; production Binding SSA calls remain zero |
 | SSA-I1 | the current closed canonical owner has one BindingRef value/PHI authority |
+| SSA-I1-O1 | one exact BoxRef source profile uses production CopyOwned/DestroyOwned with verified forwarding |
+| SSA-RC-RET-R1/R2 | canonical legacy ownership callers are isolated, then repository-wide caller-zero vocabulary is physically retired |
 | SSA-R1 | old canonical If value authority and the temporary flat environment are caller-zero; explicit legacy mechanisms may remain |
 | S3′ | one carrier-free Loop control contract is sealed; Builder connection is zero |
 | I1′ | one disconnected Loop CFG transaction exists; production Loop activation is zero |
@@ -1396,6 +1708,8 @@ ordinary-source compatibility before F0 and F2-I1 close
 ownership correctness beyond the bounded SSA-RC0/I1 contract
 global legacy deletion from canonical caller-zero evidence alone
 narrow preflight acceptance as proof of ordinary-source compatibility
+BorrowedText/Opaque/Unknown ownership support from the BoxRef first profile
+ReleaseStrong physical retirement before repository-wide exact caller zero
 ```
 
 ## Stop conditions
@@ -1418,6 +1732,13 @@ exposes a Reserve-only PHI dst
 infers a concrete open-PHI fact from only the entry input
 erases historical SSA definitions on lexical scope leave
 routes Upvar/field/index writes through local Binding SSA
+uses ordinary Copy to create an Owned alias
+maps CopyOwned directly to legacy ReleaseStrong
+lets DestroyOwned inspect or remove a same-object alias
+infers BoxRef ownership from Unknown/Opaque runtime data
+lowers ownership ops as an unsupported-backend no-op
+publishes an Owned Phi by cloning without a verified forwarding law
+changes legacy ReleaseStrong meaning during migration
 discovers unsupported control after Builder effects
 lets PHI/cleanup failure overwrite the primary error
 publishes before SSA/coverage/stack/function verification finishes
@@ -1462,15 +1783,14 @@ state.
 
 ## Immediate next action
 
-Resolve SSA-RC0-D0 only. Do not start RC0 code until the owned-alias acquire
-contract is accepted:
+Implement SSA-RC-L0 only. Do not add ownership opcodes in the same commit:
 
 ```text
-choose explicit MIR acquire versus a repository-wide Copy ownership contract
-fix dst/src and immediate/reference semantics
-fix VM/LLVM-object/Wasm implementation or preflight boundaries
-fix printer/JSON/verifier/optimizer obligations
-retain the pure RC0 assignment/scope-escape law as the next code-facing owner
+split backend_core_ops.rs by existing vocabulary/allowlist/test responsibility
+split mir_json_v0.rs lifecycle parsing behind the existing facade
+keep every resulting source file below 800 lines
+keep opcode counts, JSON behavior, backend behavior, grammar, and API unchanged
+do not touch the 796-line public authority guard
 keep production Binding SSA callers at zero
 keep old A+ If as the sole production If authority
 keep accepted grammar and production behavior unchanged

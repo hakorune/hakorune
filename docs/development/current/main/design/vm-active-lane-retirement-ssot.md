@@ -120,14 +120,18 @@ canonical MIR
 MIR owns meanings such as:
 
 ```text
-AcquireStrong:
-  produce one independently releasable strong owner for the same object
+CopyOwned:
+  produce a fresh independently consumable owner for the same object without
+  consuming the source
 
-ReleaseStrong:
-  release exactly the named owned value
+DestroyOwned:
+  consume exactly the named owned value and no same-object alias
 
 Copy:
   value/representation copy, not an implicit ownership-policy authority
+
+ReleaseStrong:
+  legacy lifecycle vocabulary; canonical callers forbidden
 ```
 
 `Arc`, `VMValue`, Rust register storage, runtime handle numbers, and backend
@@ -192,8 +196,8 @@ Seal the first required subset instead of translating the Rust VM wholesale:
 ```text
 Const
 Copy
-AcquireStrong
-ReleaseStrong
+CopyOwned
+DestroyOwned
 BinOp
 Jump
 Branch
@@ -212,7 +216,7 @@ Compare portable meaning only:
 function outcome
 ordered block/edge visits
 normalized scalar values
-AcquireStrong / ReleaseStrong ownership events
+CopyOwned / DestroyOwned ownership events
 typed failure category and exact source MIR instruction position
 ```
 
@@ -239,10 +243,10 @@ frame/
   ValueId environment and current predecessor
 
 control/
-  block entry, edge selection, Phi input selection
+  block entry, edge selection, Phi input selection and Owned parallel move
 
 ownership/
-  AcquireStrong / ReleaseStrong semantic adapter
+  VerifiedOwnershipSsaV1 reader and CopyOwned / DestroyOwned semantic adapter
 
 execute/
   instruction dispatch and typed outcome
@@ -255,7 +259,8 @@ does not own opcode semantics; each small box implements the sealed contract.
 
 Run the same sealed MIR fixtures through both interpreters and compare the S1
 normalized result. Required fixtures include straight-line arithmetic,
-diamond/Phi, Loop backedge/Phi, owned alias acquire/release, self-assignment
+diamond/Phi, Loop backedge/Phi, owned copy/destroy, Owned Phi forwarding,
+self-assignment
 law, BlockExpr tail ownership, and typed unsupported-op rejection.
 
 Rust is a temporary comparison oracle only. Matching Rust behavior does not
@@ -300,14 +305,16 @@ not claim physical retirement.
 ## Dependency order
 
 ```text
-stable MIR ownership vocabulary/backend boundary
+SSA-RC-A1c stable MIR ownership vocabulary/backend boundary
+  + SSA-RC-V0 ownership verifier
+  + SSA-RC-RET-P0 legacy ReleaseStrong isolation inventory
   -> HMI-P0
   -> HMI-S0
   -> HMI-S1
   -> HMI-I0
   -> HMI-P1
 
-HMI-P1 + first canonical Binding-SSA owner
+HMI-P1 + first exact BoxRef SSA-I1-O1 owner
   -> HMI-C0
   -> HMI-X0
   -> HMI-R1

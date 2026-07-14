@@ -231,10 +231,65 @@ Assignment ownership cleanup reads the old value through Binding SSA before
 the new definition is installed. Scope-exit cleanup also reads the current
 SSA value. RC behavior is part of each atomic production gate.
 
-Before scope-exit release is activated, ownership law must distinguish
-self-assignment and a BlockExpr tail/current value that escapes the closing
-scope. Error cleanup of an unpublished draft restores compiler state but does
-not emit duplicate runtime cleanup for discarded code.
+Ownership SSA is distinct from Binding SSA:
+
+```text
+Binding SSA:
+  which ValueId reaches a BindingRef use
+
+MirOwnershipKindV1:
+  None | Borrowed | Owned discipline for that MIR ValueId
+```
+
+The portable ownership pair is:
+
+```text
+CopyOwned(dst, src):
+  non-consuming src use; fresh independently consumable Owned dst
+
+DestroyOwned(value):
+  exactly one consuming use of the named Owned value
+```
+
+Ordinary `Copy` remains ownership-neutral. Legacy `ReleaseStrong` is not the
+canonical consume operation and its meaning is not changed during migration.
+It is isolated, guarded to zero canonical callers, and retired only after
+repository-wide exact caller zero.
+
+Owned PHI input selection and Return forward one ownership token rather than
+create an implicit copy. At each finite reachable function exit, every Owned
+value has exactly one consuming or forwarding disposition; a non-terminating
+path may keep its token live. `Copy` on an Owned value, duplicate consume, use
+after consume, and missing exit disposition are canonical verification
+failures.
+
+V1 seals this classification and its path-sensitive dispositions as one
+owner-branded `VerifiedOwnershipSsaV1` consumed by verification and supported
+backends. It is value-lifetime metadata, not a second
+`BindingRef -> ValueId` authority. Canonical V1 requires edge arguments to be
+absent; `Phi.inputs` is the sole owned edge-transfer vocabulary. Borrowed V1
+roots exist only at a sealed function ABI boundary and cannot escape through
+Phi/Return without `CopyOwned`.
+
+The first executable representation profile is deliberately closed:
+
+```text
+BoxRef:
+  CopyOwned / DestroyOwned allowed after exact static proof
+
+InlineI64 / InlineBool / InlineF64:
+  None; reuse ValueId and emit no ownership instruction
+
+BorrowedText / Array / Future / WeakRef / Void / Opaque / Unknown:
+  reject before Builder effects
+```
+
+Before scope close is activated, the pure plan distinguishes self-assignment,
+owned temporary transfer, a borrowed strong alias, and a BlockExpr tail/current
+value that escapes the closing scope. It materializes the next value before
+destroying the previous value and destroys remaining locals in reverse source
+declaration order. Error cleanup of an unpublished draft restores compiler
+state but does not emit runtime ownership cleanup for discarded code.
 
 ## Open PHI facts
 

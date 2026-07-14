@@ -1,8 +1,8 @@
 ---
-Status: Active design stop
+Status: Resolved — A′ accepted; implementation remains inactive
 Date: 2026-07-14
-Decision: Pending — owned-alias acquire materialization
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC0-OWNED-ALIAS-MATERIALIZATION-DESIGN-STOP-001
+Decision: A′ — explicit Ownership SSA pair (`CopyOwned` / `DestroyOwned`)
+Resolved blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC0-OWNED-ALIAS-MATERIALIZATION-DESIGN-STOP-001
 Related:
   - mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
   - ../design/binding-ssa-first-control-lowering-ssot.md
@@ -90,37 +90,90 @@ In particular, a second `BindingRef -> ValueId` map or a post-hoc ownership
 event ledger must not be introduced. Binding SSA remains the sole reaching
 value authority.
 
-## Recommended decision: A
+## Accepted decision: A′
 
-Add an explicit MIR owned-alias acquire instruction. Working vocabulary:
+Add an explicit MIR ownership pair whose names describe MIR meaning rather
+than one backend's RC implementation:
 
 ```rust
-MirInstruction::AcquireStrong {
+MirInstruction::CopyOwned {
     dst: ValueId,
     src: ValueId,
 }
+
+MirInstruction::DestroyOwned {
+    value: ValueId,
+}
 ```
 
-The final name may instead be `RetainStrong`, but the instruction should have
-a destination. The runtime handle ABI may return a distinct handle for the
-same object, so an in-place hint-only retain is not a sufficient general
-contract.
-
-Recommended semantic law:
+Semantic law:
 
 ```text
-reference-like src:
-  create one independently releasable owned alias in dst
+Copy:
+  representation / SSA materialization only; no ownership effect
 
-immediate/non-owning src:
-  copy the value into dst without an RC effect
+CopyOwned:
+  do not consume src
+  create a fresh dst for the same language-level value/object identity
+  dst is an independent ownership token that may be consumed exactly once
+  physical handle equality is not part of the contract
 
-invalid/unsupported representation:
-  typed fail-fast before publication
+DestroyOwned:
+  consume exactly the named Owned value
+  never scan or destroy another alias of the same object
+
+ReleaseStrong:
+  legacy lifecycle vocabulary only
+  forbidden on the canonical ownership route
+  retire only after repository-wide exact caller zero
 ```
 
-This keeps ordinary `Copy` a representation/value-copy operation and keeps
-ownership visible in MIR, its printer/JSON/verifier, and every backend.
+`AcquireStrong` is rejected as the final spelling because it resembles memory
+ordering, while `RetainStrong` exposes one backend implementation strategy.
+
+## Local verification correction
+
+The consultation correctly identified that the published/reference
+`ReleaseStrong` contract was not a suitable canonical Ownership SSA consume
+operation, but one implementation observation was stale for this worktree.
+
+Current local Rust MIR interpreter code already takes only the named register;
+it no longer pointer-scans and deletes every register containing the same
+`Arc`. Current instruction comments and RC insertion helpers also describe
+exact named SSA values. Therefore deleting a VM alias sweep is **not** a future
+task.
+
+The separate `DestroyOwned` instruction is still required because:
+
+```text
+ReleaseStrong is vector-valued legacy lifecycle vocabulary
+the tracked MIR reference contains stale alias-group permission that must be
+repaired without changing the already exact-slot local VM behavior
+Wasm lowers ReleaseStrong as a no-op
+there is no None/Borrowed/Owned verifier or consuming-use law
+PHI/Return ownership forwarding and edge-argument exclusion are not defined
+```
+
+No existing `ReleaseStrong` meaning is changed during migration.
+
+First production representation profile:
+
+```text
+StorageClass::BoxRef:
+  CopyOwned / DestroyOwned allowed after exact proof
+
+InlineI64 / InlineBool / InlineF64:
+  ValueId reuse; ownership instruction count = 0
+
+BorrowedText / Array / Future / WeakRef / Void / Opaque / Unknown:
+  typed capability rejection before Builder effects
+```
+
+The existing canonical grammar contains untyped parameter/value origins, so
+the first production owner profile must not infer `BoxRef` from runtime data.
+It either excludes those origins or waits for an independently sealed storage
+witness. Disconnected hand-built MIR fixtures may exercise `BoxRef` before a
+source producer exists.
 
 ## Alternatives
 
@@ -168,8 +221,13 @@ vocabulary should distinguish provenance rather than infer it from values:
 
 ```rust
 enum LoweredValueOwnershipV1 {
-    Owned(ValueId),
-    BorrowedBinding {
+    Trivial {
+        value: ValueId,
+    },
+    Owned {
+        value: OwnedValueIdV1,
+    },
+    BorrowedStrong {
         binding: LocalBindingSubjectV1,
         value: ValueId,
     },
@@ -187,13 +245,16 @@ Assignment laws:
 
 ```text
 x = x:
-  exact same BindingRef provenance; acquire 0, release 0
+  exact same BindingRef provenance; CopyOwned 0, DestroyOwned 0
 
 x = owned temporary:
-  transfer next ownership, then release previous x
+  transfer next ownership, then destroy previous x
 
 x = borrowed y:
-  acquire owned alias first, then release previous x
+  CopyOwned first, then DestroyOwned previous x
+
+x = trivial y:
+  reuse y's ValueId; ownership instruction count 0
 
 raw ValueId equality without same BindingRef provenance:
   never self-assignment authority
@@ -203,16 +264,19 @@ Scope-escape laws:
 
 ```text
 scope-local tail binding:
-  transfer its current owned value; exclude it from scope release
+  transfer its current owned value; exclude it from scope destroy
 
 outer borrowed tail binding:
-  acquire one owned alias; close the inner scope normally
+  CopyOwned once; close the inner scope normally
 
 owned temporary / already transferred nested tail:
   forward ownership
 
 other closing-scope bindings:
-  read their current Binding SSA values and release exactly once
+  read their current Binding SSA values and DestroyOwned exactly once
+
+destroy order:
+  reverse source declaration order
 ```
 
 Error law:
@@ -233,22 +297,43 @@ ownership vocabulary and fail preflight until their owners are designed.
 
 ```text
 SSA-RC0-D0:
-  decide explicit acquire versus Copy semantics
+  accept CopyOwned / DestroyOwned and isolate legacy ReleaseStrong
+
+SSA-RC-L0:
+  behavior-neutral split of near-800-line backend opcode and MIR JSON seams
+
+SSA-RC-L1:
+  closure-scope Rust interpreter frames across every success/error exit
+
+SSA-RC-P0:
+  seal the exact value-origin/storage profile; Unknown/Opaque fail preflight
 
 SSA-RC-A0:
-  add passive MIR acquire vocabulary, printer/JSON/verifier contract,
+  add passive CopyOwned/DestroyOwned vocabulary, conservative WRITE effect,
+  printer/JSON/transport/verifier shape,
   production canonical callers 0
 
-SSA-RC-A1:
-  prove VM + supported production backend materialization and explicit
-  unsupported-backend fail-fast; production canonical callers 0
+SSA-RC-V0:
+  close None/Borrowed/Owned kinds, forwarding/consuming-use verification,
+  and optimizer preservation; production canonical callers 0
+
+SSA-RC-A1a/A1b/A1c:
+  add Rust explicit handlers, then prove Rust forwarding and exact llvm_py +
+  nyash_kernel materialization around the shared V0 artifact;
+  every other consumer fails preflight; production canonical callers 0
+
+SSA-RC-RET-P0:
+  inventory/isolate legacy ReleaseStrong and unverified transform callers
 
 SSA-RC0:
   implement disconnected pure assignment/scope-escape planner and fixtures
 
 SSA-I1:
   atomically cut the whole current canonical owner, including If and
-  BlockExpr, to one Binding SSA plus the sealed ownership actions
+  BlockExpr, to one Binding SSA; ownership activation may remain zero
+
+SSA-I1-O1:
+  activate one exact BoxRef source owner only after its producer/ABI witness
 
 SSA-R1:
   retire old canonical If value/effect authority after exact caller zero
@@ -307,30 +392,31 @@ the 796-line public authority guard or add another public guard.
 Before SSA-RC0 may become executable, the selected acquire contract must fix:
 
 ```text
-instruction name and dst/src result law
-immediate/non-owning value behavior
+CopyOwned/DestroyOwned spelling and dst/src result law
+trivial/non-owning ValueId reuse behavior
 invalid representation fail-fast
 VM semantics
 LLVM/object semantics
 Wasm support or preflight rejection
 MIR JSON round-trip and printer spelling
 verifier def/use and type/representation checks
+Phi/Return ownership forwarding and V1 edge-argument exclusion
 optimizer preservation or explicit rejection rules
-ReleaseStrong pairing and rollback behavior
+legacy ReleaseStrong isolation and caller-zero retirement
 ```
 
 ## May claim after this design stop
 
 ```text
-the final roadmap includes the missing owned-alias materialization prerequisite
+the final roadmap includes the explicit Ownership SSA prerequisite
 the pure RC0 authority and its non-authorities are bounded
-production Binding SSA and canonical acquire callers remain zero
+production Binding SSA and canonical ownership callers remain zero
 ```
 
 ## Must not claim
 
 ```text
-AcquireStrong/RetainStrong is accepted or implemented
+CopyOwned/DestroyOwned is implemented
 Copy has ownership-acquire semantics
 SSA-RC0 is closed
 canonical If uses Binding SSA
@@ -356,30 +442,20 @@ activates If/Loop before acquire, RC0, CFG, SSA, and publication verification
 silently no-ops an unsupported ownership instruction in a production backend
 ```
 
-## Consultation response requested
-
-Please return one decision in this form:
+## Accepted response
 
 ```text
-1. owned-alias operation:
-   A explicit MIR AcquireStrong/RetainStrong
-   or B ordinary Copy contract
-   or D park
+owned-alias operation:
+  A′ explicit CopyOwned + DestroyOwned
 
-2. instruction spelling and result:
-   dst/src law, including whether a distinct runtime handle is allowed
+first representation profile:
+  BoxRef only; trivial values reuse; Unknown/Opaque reject
 
-3. non-owning values:
-   typed copy/no-op semantics or reject
+first backend profile:
+  Rust MIR interpreter + llvm_py/handle ABI
+  Wasm and every unproved consumer reject
 
-4. backend boundary:
-   which backends implement the first slice and which fail preflight
-
-5. landing order:
-   SSA-RC-A0 -> SSA-RC-A1 -> SSA-RC0 -> atomic SSA-I1
-   accepted or corrected
+landing order:
+  D0 -> L0 -> L1 -> P0 -> A0 -> A1a -> V0 -> A1b -> A1c
+     -> RET-P0 -> RC0 -> atomic I1 -> exact-BoxRef I1-O1
 ```
-
-Preliminary recommendation is A: make ownership acquisition explicit in MIR,
-then keep RC0 as a pure source-ownership transition planner and Binding SSA as
-the only reaching-value authority.
