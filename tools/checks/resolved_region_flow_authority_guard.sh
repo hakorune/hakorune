@@ -42,7 +42,7 @@ guard_require_files "$TAG" \
   "$LOWER_PARAM" \
   "$ROOT/src/mir/compiler/README.md" "$LOWERING_INPUT" \
   "$ROOT/src/mir/compiler/located.rs" "$ROOT/src/mir/compiler/source_projection.rs" "$ROOT/src/mir/compiler/source_view.rs" "$ROOT/src/mir/compiler/source_view_tests.rs" "$ROOT/src/mir/builder/calls/context_lifecycle.rs" "$ROOT/src/mir/builder/calls/function_session.rs" "$ROOT/src/mir/builder/calls/function_session_tests.rs" "$ROOT/src/mir/builder/calls/lowering.rs" "$ROOT/src/mir/builder/calls/skeleton_builder.rs" \
-  "$ROOT/src/mir/compiler/capability.rs" "$ROOT/src/mir/compiler/capability_tests.rs" "$ROOT/src/mir/compiler/function_input.rs" "$ROOT/src/mir/compiler/module_session.rs" "$RESOLVED_LOWER/README.md" "$RESOLVED_LOWER/mod.rs" "$RESOLVED_LOWER/identity.rs" "$RESOLVED_LOWER/lowerer.rs" "$RESOLVED_LOWER/tests.rs" \
+  "$ROOT/src/mir/compiler/capability.rs" "$ROOT/src/mir/compiler/capability_tests.rs" "$ROOT/src/mir/compiler/function_input.rs" "$ROOT/src/mir/compiler/module_session.rs" "$RESOLVED_LOWER/README.md" "$RESOLVED_LOWER/mod.rs" "$RESOLVED_LOWER/identity.rs" "$RESOLVED_LOWER/identity/ledger.rs" "$RESOLVED_LOWER/identity/value_environment.rs" "$RESOLVED_LOWER/lowerer.rs" "$RESOLVED_LOWER/tests.rs" \
   "$BLOCKEXPR_INVENTORY" \
   "$MODULE/tests.rs" \
   "$MODULE/shadow/mod.rs" \

@@ -206,6 +206,12 @@ def main() -> None:
 
     lowerer = (root / "src/mir/builder/resolved_lowering/lowerer.rs").read_text()
     identity = (root / "src/mir/builder/resolved_lowering/identity.rs").read_text()
+    identity_ledger = (
+        root / "src/mir/builder/resolved_lowering/identity/ledger.rs"
+    ).read_text()
+    value_environment = (
+        root / "src/mir/builder/resolved_lowering/identity/value_environment.rs"
+    ).read_text()
     if_materialization = (
         root / "src/mir/builder/resolved_lowering/if_materialization.rs"
     ).read_text()
@@ -242,10 +248,14 @@ def main() -> None:
         if actual != expected:
             fail(f"{label}: expected {expected}, got {actual}")
 
-    if identity.count("self.values.values.contains_key(binding)") != 1:
-        fail("flat environment direct membership seam drifted")
-    if identity.count("self.values.remove(*binding)") != 1:
+    if value_environment.count("values: BTreeMap<BindingRefV1, ValueId>") != 1:
+        fail("pre-SSA flat environment owner drifted")
+    if identity.count("self.values.contains(*binding)") != 1:
+        fail("pre-SSA environment membership seam drifted")
+    if identity.count("self.values.remove(*binding)") != 2:
         fail("flat environment scope removal seam drifted")
+    if "ValueId" in identity_ledger or "BasicBlockId" in identity_ledger:
+        fail("SSA-S2 identity ledger regained MIR value/block ownership")
     if "materialize_all_phi_inputs" not in module_lifecycle:
         fail("module PHI repair seam disappeared without SSA-I1 reclassification")
 

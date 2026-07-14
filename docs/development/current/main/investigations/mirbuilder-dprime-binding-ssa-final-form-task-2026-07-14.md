@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-S1 closed; SSA-S2 selected
+Status: Active — SSA-S2 closed; SSA-E0 selected
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-S2-IDENTITY-VALUE-SEPARATION-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-E0-TERMINAL-RETURN-CONTRACT-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -378,7 +378,7 @@ production Binding SSA callers = 0
 accepted grammar delta = 0
 ```
 
-### SSA-S2 — identity/value separation
+### SSA-S2 — identity/value separation — closed
 
 Refactor the canonical Lowerer behind the old production behavior:
 
@@ -390,6 +390,24 @@ all current canonical fixtures remain green
 ```
 
 This is Refactor Series Mode and adds no source grammar.
+
+Closed evidence:
+
+```text
+ResolvedIdentityLedgerV2 owns exact claims, source coverage, and retirement only
+PreSsaValueEnvironmentV1 is the one temporary BindingRef-to-ValueId owner
+ledger ValueId / BasicBlockId / MirBuilder dependencies = 0
+old If value path remains the sole production value owner
+declaration adoption -> value publication -> coverage order is preserved
+scope-success preflight and value-first retirement are behavior-neutral
+scope-error cleanup remains value-first, best-effort, and idempotent
+canonical_coverage/finish_mismatch tag and priority are preserved
+old-map / Binding SSA synchronization bridges = 0
+production Binding SSA callers = 0
+focused behavior-equivalence fixtures = 2/2 green
+all resolved_lowering focused fixtures = 50/50 green
+accepted grammar delta = 0
+```
 
 ### SSA-E0 — preserved terminal Return contract
 
@@ -1100,13 +1118,14 @@ of this final form.
 
 ## Immediate next action
 
-Close SSA-S2 only:
+Close SSA-E0 only:
 
 ```text
-split ResolvedIdentityLedgerV2 from the old identity/value state
-keep exact declaration/use/assignment/source coverage claims in the identity owner
-keep the old If value path as the sole production value owner
-connect zero BindingSsaBuilderV1 production caller
-add no old-map/SSA synchronization bridge
-preserve current canonical fixtures, accepted grammar, and A+ If behavior
+seal the already accepted root-terminal Return and implicit fallthrough forms
+consume the exact function target and exact terminal source site
+represent ordered crossed-scope cleanup obligations explicitly, including empty
+fix unreachable suffix count at zero for this preserved grammar
+keep nested If/Loop Return activation at zero
+keep Binding SSA production callers at zero
+preserve accepted grammar and runtime behavior
 ```

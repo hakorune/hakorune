@@ -9,6 +9,8 @@ guard_resolved_blockexpr_lowering_contract() {
 
   guard_require_files "$tag" \
     "$lower/semantic_stack.rs" \
+    "$lower/identity/ledger.rs" \
+    "$lower/identity/value_environment.rs" \
     "$root/src/mir/resolved_semantics/function_root.rs" \
     "$lower/block_expr_tests.rs"
   for anchor in ResolvedScopeRegionPairV1 block_expr_scope_region_pair BlockExprPreludeRoot; do
@@ -26,16 +28,20 @@ guard_resolved_blockexpr_lowering_contract() {
       "B0-L3a sealed lowering root drifted: $anchor"
   done
   guard_expect_fixed_in_file "$tag" "values: BTreeMap<BindingRefV1, ValueId>" \
-    "$lower/identity.rs" "canonical BindingRef value environment missing"
+    "$lower/identity/value_environment.rs" "canonical pre-SSA BindingRef value owner missing"
   for forbidden in build_expression build_variable_access build_assignment allocate_binding_id \
     variable_map binding_ctx LexicalScopeGuard; do
     if rg -n "$forbidden" "$lower/lowerer.rs"; then
       guard_fail "$tag" "canonical lowerer crossed a legacy identity seam: $forbidden"
     fi
   done
-  for anchor in retired retire_scope_success retire_scope_error disposed_bindings; do
+  for anchor in retired disposed_bindings; do
+    guard_expect_fixed_in_file "$tag" "$anchor" "$lower/identity/ledger.rs" \
+      "B0-L3a identity disposition drifted: $anchor"
+  done
+  for anchor in retire_scope_success retire_scope_error; do
     guard_expect_fixed_in_file "$tag" "$anchor" "$lower/identity.rs" \
-      "B0-L3a BindingRef disposition drifted: $anchor"
+      "B0-L3a retirement facade drifted: $anchor"
   done
   for anchor in BodyChildRoleV1::BlockExprPrelude ExprChildRoleV1::BlockExprTail \
     lower_block_expr during_cleanup; do

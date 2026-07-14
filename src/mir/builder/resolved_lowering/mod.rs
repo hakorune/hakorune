@@ -18,6 +18,8 @@ mod block_expr_tests;
 #[cfg(test)]
 mod flow_consumption_tests;
 #[cfg(test)]
+mod identity_separation_tests;
+#[cfg(test)]
 mod if_materialization_tests;
 #[cfg(test)]
 mod if_tests;

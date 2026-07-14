@@ -124,7 +124,7 @@ def main() -> None:
         "### SSA-S1 — disconnected Binding SSA — closed",
         "entry/single/diamond/nested/Loop/multi-backedge/error fixtures = 12/12 green",
         "production Binding SSA callers = 0",
-        "Close SSA-S2 only:",
+        "### SSA-S2 — identity/value separation — closed",
     ):
         require(taskboard, anchor, "taskboard")
 
