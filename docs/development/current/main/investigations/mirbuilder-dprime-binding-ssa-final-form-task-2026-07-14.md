@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-P0 and SSA-L0 closed; SSA-C1 selected
+Status: Active — SSA-C1 closed; SSA-P1 selected
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-C1-CANONICAL-CFG-SEAL-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-P1-PHI-TRANSACTION-CLEANUP-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -244,7 +244,7 @@ The whole-function repair box is explicitly legacy infrastructure. The split
 does not authorize canonical SSA to depend on CFG repair, PHI pruning, or
 missing-input fabrication.
 
-### SSA-C1 — canonical CFG/seal prerequisite
+### SSA-C1 — canonical CFG/seal prerequisite — closed
 
 ```text
 one canonical edge facade
@@ -256,6 +256,20 @@ PHI analysis/update_cfg side-effect repair forbidden on canonical edges
 ```
 
 Production activation remains zero. Existing If continues on its old path.
+
+Closed evidence:
+
+```text
+one fallible CanonicalCfgSessionV1 facade
+terminator-derived predecessor truth
+cached successors/predecessors checked without repair
+immutable per-block seal witness
+duplicate edge / duplicate terminator / edge-after-seal / seal-twice typed errors
+raw late-edge mutation detected at finish
+focused fixtures = 15/15 green
+production If/Loop/Binding SSA callers = 0
+accepted grammar delta = 0
+```
 
 ### SSA-P1 — PHI transaction cleanup prerequisite
 
@@ -1036,13 +1050,14 @@ of this final form.
 
 ## Immediate next action
 
-Close SSA-C1 only:
+Close SSA-P1 only:
 
 ```text
-add one disconnected fallible canonical CFG edge/seal substrate
-derive predecessor truth directly from MIR terminators
-compare cached predecessor/successor witnesses without repairing them
-reject duplicate terminators, duplicate edges, edge-after-seal, and seal-twice
-connect no production If/Loop/Binding SSA caller
+make PhiTxn abort attempt every pending rollback
+continue cleanup after an individual rollback failure
+retain both the primary failure and every cleanup failure
+publish no partial PHI or function state
+commit a successful transaction exactly once
+connect no production Binding SSA caller
 preserve accepted grammar and existing A+ If behavior
 ```

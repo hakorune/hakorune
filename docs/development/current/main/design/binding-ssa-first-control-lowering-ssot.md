@@ -393,7 +393,7 @@ src/mir/builder/ssa/binding/
 
 src/mir/builder/resolved_lowering/
   identity_ledger.rs
-  canonical_cfg.rs
+  canonical_cfg/
   active_control_targets.rs
   located_if.rs
   located_loop.rs

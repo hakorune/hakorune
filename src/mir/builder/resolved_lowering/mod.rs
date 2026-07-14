@@ -5,6 +5,7 @@
 //! statement/expression dispatch is intentionally not reachable from it.
 
 mod branch_transaction;
+pub(in crate::mir::builder) mod canonical_cfg;
 mod flow_consumption;
 mod identity;
 mod if_materialization;

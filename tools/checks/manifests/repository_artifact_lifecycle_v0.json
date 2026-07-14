@@ -1,6 +1,6 @@
 {
   "counts": {
-    "checks": 3322,
+    "checks": 3323,
     "design_direct": 851,
     "docs": 12332,
     "docs_development_archive": 2589,
@@ -9,8 +9,8 @@
     "phase_296x_archive": 2517,
     "phase_296x_direct": 1039,
     "private": 0,
-    "src": 3176,
-    "tools": 6904
+    "src": 3182,
+    "tools": 6905
   },
   "design_registry": {
     "authority_registry_decided": true,
@@ -1709,7 +1709,7 @@
       "current_pointer": 4,
       "design_authority": 259,
       "fixed_current_entry": 4,
-      "reference_src_tools": 3047
+      "reference_src_tools": 3048
     },
     "unreachable_count": 3362,
     "unreachable_pending_count": 1765,

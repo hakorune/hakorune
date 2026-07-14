@@ -31,9 +31,10 @@ function-wide Binding SSA will own every canonical local BindingRef value
 merge. Existing If must cut over to that owner before Loop production; no
 Loop-only SSA bridge, carrier rows, map diff, or legacy retry is authorized.
 
-B0-L4-S2′, the guarded 92-row SSA-P0 inventory, and the behavior-neutral
-SSA-L0 PHI-helper split are closed. The current blocker is disconnected
-SSA-C1: add one fallible canonical edge/seal substrate with terminator-derived
-predecessor truth and zero production If/Loop/Binding SSA callers. ProgramV0, REPL, Lambda
-capture/layout, default-route cutover, and durable RegionId materialization
-remain parked. Keep every new or modified source/check file below 800 lines.
+B0-L4-S2′, the guarded 92-row SSA-P0 inventory, the behavior-neutral SSA-L0
+PHI-helper split, and disconnected SSA-C1 CFG/seal substrate are closed.
+Continue only the `current_blocker_token` named by `CURRENT_STATE.toml`; all
+pre-I1 prerequisites keep production Binding SSA and Loop activation at zero.
+ProgramV0, REPL, Lambda capture/layout, default-route cutover, and durable
+RegionId materialization remain parked. Keep every new or modified
+source/check file below 800 lines.

@@ -312,7 +312,7 @@ def main() -> None:
     print("canonical_ssa_l0_edge_rematerialization=isolated")
     print("canonical_ssa_l0_function_repair=legacy-isolated")
     print("canonical_ssa_l0_behavior_delta=0")
-    print("canonical_ssa_p0_next=SSA-C1")
+    print("canonical_ssa_p0_follow_on=SSA-C1")
 
 
 if __name__ == "__main__":

@@ -25,3 +25,11 @@ Invariants:
   map is published before SA4.
 - legacy statement/expression dispatch, Planner/CorePlan, Lambda, production
   Loop activation, Main, REPL, and ProgramV0 are outside this boundary.
+
+## Disconnected canonical CFG prerequisite
+
+`canonical_cfg/` owns the SSA-C1 edge/seal substrate. It emits a terminator and
+its cached predecessor witness as one fallible operation, derives predecessor
+truth directly from terminators, and rejects late edges or cache drift without
+calling CFG repair. During SSA-C1 it has zero production If, Loop, and Binding
+SSA callers; the existing A+ If path remains unchanged.
