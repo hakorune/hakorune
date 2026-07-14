@@ -6,12 +6,17 @@
 
 mod adapter;
 mod error;
+mod mir_adapter;
 
+#[cfg(test)]
+mod mir_adapter_tests;
 #[cfg(test)]
 mod tests;
 
 pub(in crate::mir::builder) use adapter::BindingSsaIrV1;
 pub(in crate::mir::builder) use error::BindingSsaErrorV1;
+#[cfg(test)]
+pub(in crate::mir::builder) use mir_adapter::MirBindingSsaAdapterV1;
 
 use crate::mir::builder::resolved_lowering::canonical_cfg::VerifiedPredecessorsV1;
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
@@ -200,6 +205,7 @@ impl<Token: Copy + Eq + std::fmt::Debug> BindingSsaBuilderV1<Token> {
                         detail,
                     }
                 })?;
+                forget_cleanup(created, token);
                 Ok(value)
             }
         }
@@ -238,6 +244,7 @@ impl<Token: Copy + Eq + std::fmt::Debug> BindingSsaBuilderV1<Token> {
                 operation: "patch",
                 detail,
             })?;
+        forget_cleanup(affected, token);
         self.incomplete.remove(&(block, binding));
         Ok(())
     }
@@ -296,5 +303,11 @@ impl<Token: Copy + Eq + std::fmt::Debug> BindingSsaBuilderV1<Token> {
                 actual: binding.owner(),
             })
         }
+    }
+}
+
+fn forget_cleanup<Token: Copy + Eq>(pending: &mut Vec<PhiCleanupV1<Token>>, token: Token) {
+    if let Some(index) = pending.iter().rposition(|phi| phi.token == token) {
+        pending.remove(index);
     }
 }

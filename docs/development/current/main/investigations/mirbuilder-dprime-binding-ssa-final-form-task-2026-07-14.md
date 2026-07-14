@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-S3 closed; SSA-M0 selected
+Status: Active — SSA-M0 closed; SSA-RC0 selected
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-M0-REAL-MIR-BINDING-SSA-ADAPTER-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC0-OWNERSHIP-SCOPE-ESCAPE-LAW-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -513,7 +513,7 @@ focused fixtures = 9/9 green
 accepted grammar and production behavior delta = 0
 ```
 
-### SSA-M0 — disconnected real-MIR Binding SSA adapter
+### SSA-M0 — disconnected real-MIR Binding SSA adapter — closed
 
 Connect the closed SSA-S1 algorithm to real MIR/PHI lifecycle types without a
 production canonical caller:
@@ -522,16 +522,35 @@ production canonical caller:
 BindingSsaIrV1 -> MirBuilder/PhiTxn adapter
 CanonicalCfgSessionV1 VerifiedPredecessorsV1 -> Binding SSA seal
 provisional PHI facts remain conservative unknown while open
-patched inputs trigger only the accepted fact join/refinement
+patched PHI facts also remain conservative unknown
+accepted fact refinement set = empty
 Return and every other touched block can be sealed by the same facade
-production Binding SSA callers = 0
+production Binding SSA and adapter callers = 0
 accepted grammar delta = 0
 ```
 
 This card prevents SSA-I1 from mixing a new physical MIR adapter with the
 whole-owner authority cutover.
 
-### SSA-RC0 — ownership and scope-escape law
+Closed evidence:
+
+```text
+one borrowed MirBindingSsaAdapterV1 owns only MirBuilder/PhiTxn mechanics
+real provisional PHI exists before an open-header read is exposed
+open and patched PHI facts remain MirType::Unknown
+CanonicalCfgSessionV1 witnesses are the only predecessor/seal input
+non-dominating sibling and unreachable predecessor inputs fail without repair
+only still-pending provisional PHIs are individually rolled back
+already-patched peers remain in a poisoned unpublished draft
+rollback failure retains primary plus cleanup failure before draft discard
+entry, Loop header, merge, and Return use the same seal facade
+Binding SSA finish precedes PhiTxn commit and CFG finish
+focused real-MIR fixtures = 5/5 green
+production Binding SSA and adapter callers = 0
+accepted grammar and production behavior delta = 0
+```
+
+### SSA-RC0 — ownership and scope-escape law — active
 
 Seal the bounded ownership contract before production Binding SSA activation:
 
@@ -1081,7 +1100,7 @@ decision and cannot coexist as a second generic-baseline truth.
 
 | Milestone | Binding SSA production | If production owner | Loop production | Source grammar delta |
 | --- | ---: | --- | ---: | ---: |
-| D0 / S2′ / SSA-P0 / SSA-L0 / SSA-C1 / SSA-P1 / SSA-V0 / SSA-S1 / SSA-S2 / SSA-E0 / SSA-S3 | 0 | current A+ path | 0 | 0 |
+| D0 / S2′ / SSA-P0 / SSA-L0 / SSA-C1 / SSA-P1 / SSA-V0 / SSA-S1 / SSA-S2 / SSA-E0 / SSA-S3 / SSA-M0 / SSA-RC0 | 0 | current A+ path | 0 | 0 |
 | SSA-I1 | 1 whole owner | Binding SSA + If CFG box | 0 | 0 |
 | SSA-R1 / S3′ / I1′ | 1 whole owner | Binding SSA | 0 | 0 |
 | I2′ | 1 whole owner | Binding SSA | 1 closed Loop family | +1 family |
@@ -1359,13 +1378,15 @@ of this final form.
 
 ## Immediate next action
 
-Close SSA-M0 only:
+Close SSA-RC0 only:
 
 ```text
-adapt the closed BindingSsaIrV1 protocol to real MirBuilder/PHI lifecycle types
-consume only immutable CanonicalCfgSessionV1 predecessor/seal witnesses
-keep provisional open-PHI facts conservative until exact input patch succeeds
-use the same facade for Return and every other touched block
+seal assignment old-value-before-new-definition ownership
+seal successful scope-exit read/release of the current reaching value
+separate BlockExpr tail transfer from scope-local release
+fix self-assignment retain/release behavior explicitly
+keep local/parameter/receiver separate from Upvar/cell/place storage
+prove unpublished draft discard does not duplicate runtime cleanup
 keep production Binding SSA callers at zero
 keep old A+ If as the sole production If authority
 keep accepted grammar and production behavior unchanged

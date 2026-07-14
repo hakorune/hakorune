@@ -46,6 +46,12 @@ pub(in crate::mir::builder) struct PhiToken {
     dst: ValueId,
 }
 
+impl PhiToken {
+    pub(in crate::mir::builder) const fn dst(self) -> ValueId {
+        self.dst
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(in crate::mir::builder) struct PhiRollbackFailureV1 {
     token: PhiToken,
@@ -160,6 +166,35 @@ impl PhiTxn {
         self.pending
             .retain(|pending| pending.block != token.block || pending.dst != token.dst);
         Ok(())
+    }
+
+    /// Roll back one still-pending provisional PHI owned by this transaction.
+    ///
+    /// A patched token is no longer pending and cannot be rolled back through
+    /// this entry. Failed rollback keeps the token pending so the enclosing
+    /// abort path can retain and retry every cleanup obligation.
+    pub(in crate::mir::builder) fn rollback_pending_phi(
+        &mut self,
+        builder: &mut MirBuilder,
+        token: PhiToken,
+        tag: &str,
+    ) -> Result<(), String> {
+        if !self.pending.contains(&token) {
+            return Err(format!(
+                "[freeze:contract][phi_lifecycle/rollback_not_pending] tag={} bb={:?} dst=%{}",
+                tag, token.block, token.dst.0
+            ));
+        }
+        match rollback_provisional_phi(builder, token.block, token.dst, tag)? {
+            true => {
+                self.pending.retain(|pending| *pending != token);
+                Ok(())
+            }
+            false => Err(format!(
+                "[freeze:contract][phi_lifecycle/rollback_missing_phi] tag={} bb={:?} dst=%{}",
+                tag, token.block, token.dst.0
+            )),
+        }
     }
 
     pub(in crate::mir::builder) fn commit(

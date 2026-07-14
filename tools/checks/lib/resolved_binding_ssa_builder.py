@@ -27,6 +27,8 @@ def main() -> None:
         "error": box / "error.rs",
         "builder": box / "mod.rs",
         "tests": box / "tests.rs",
+        "mir_adapter": box / "mir_adapter.rs",
+        "mir_tests": box / "mir_adapter_tests.rs",
         "cfg_session": root
         / "src/mir/builder/resolved_lowering/canonical_cfg/session.rs",
         "cfg_tests": root
@@ -76,7 +78,9 @@ def main() -> None:
         "may_rebind",
         "carrier",
     )
-    production_text = text["adapter"] + text["error"] + text["builder"]
+    production_text = (
+        text["adapter"] + text["error"] + text["builder"] + text["mir_adapter"]
+    )
     for token in forbidden:
         if token in production_text:
             fail(f"forbidden dependency/policy token reached the box: {token}")
@@ -108,7 +112,12 @@ def main() -> None:
     code_root = root / "src"
     callers = []
     for path in code_root.rglob("*.rs"):
-        if path == paths["builder"] or path == paths["tests"]:
+        if path in (
+            paths["builder"],
+            paths["tests"],
+            paths["mir_adapter"],
+            paths["mir_tests"],
+        ):
             continue
         if "BindingSsaBuilderV1" in path.read_text():
             callers.append(str(path.relative_to(root)))

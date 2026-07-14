@@ -19,8 +19,17 @@ Forbidden inputs and decisions:
 
 `read` defines a provisional PHI before recursive predecessor reads. `seal`
 completes open-block PHIs from the exact witness. Any PHI failure attempts all
-owned rollback operations and poisons the instance; the enclosing unpublished
-function transaction must then be discarded.
+still-pending provisional rollback operations and poisons the instance. A PHI
+that was already patched is part of the poisoned unpublished draft and is not
+individually undone; the enclosing function transaction discards the whole
+draft.
+
+SSA-M0 adds one borrowed real-MIR adapter over `MirBuilder` and `PhiTxn`.
+It is mechanical only: allocation, provisional definition, exact input patch,
+dominance/reachability verification, and pending rollback. Open and patched
+PHIs both retain `MirType::Unknown`; the accepted fact-refinement set is empty.
+Every predecessor set comes from `CanonicalCfgSessionV1`, including Return
+blocks. The adapter has no production caller.
 
 SSA-S1 keeps this module disconnected from production. Production activation
 must be one whole-function owner cutover; no old-map synchronization bridge is
