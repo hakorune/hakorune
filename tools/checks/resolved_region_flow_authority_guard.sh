@@ -713,7 +713,7 @@ fi
 while IFS= read -r consumer; do
   [[ -z "$consumer" ]] && continue
   case "$consumer" in
-    "$MIR_MOD"|"$MODULE"/*|"$LOWER_STATE"|"$LOWER_LOCAL"|"$LOWER_PARAM"|"$LOWERING_INPUT"|"$ROOT/src/mir/compiler/located.rs"|"$ROOT/src/mir/compiler/source_projection.rs"|"$ROOT/src/mir/compiler/source_view.rs"|"$ROOT/src/mir/compiler/source_view_tests.rs"|"$ROOT/src/mir/compiler/capability.rs"|"$ROOT/src/mir/compiler/capability_tests.rs"|"$ROOT/src/mir/compiler/function_input.rs"|"$ROOT/src/mir/resolved_region_flow"/*|"$RESOLVED_LOWER"/*)
+    "$MIR_MOD"|"$MODULE"/*|"$LOWER_STATE"|"$LOWER_LOCAL"|"$LOWER_PARAM"|"$LOWERING_INPUT"|"$ROOT/src/mir/compiler/located.rs"|"$ROOT/src/mir/compiler/source_projection.rs"|"$ROOT/src/mir/compiler/source_view.rs"|"$ROOT/src/mir/compiler/source_view_tests.rs"|"$ROOT/src/mir/compiler/capability.rs"|"$ROOT/src/mir/compiler/capability_tests.rs"|"$ROOT/src/mir/compiler/function_input.rs"|"$ROOT/src/mir/resolved_control_flow"/*|"$ROOT/src/mir/resolved_region_flow"/*|"$RESOLVED_LOWER"/*)
       ;;
     *)
       guard_fail "$TAG" "resolved semantic product escaped its bounded resolver/compiler/lower files: $consumer"

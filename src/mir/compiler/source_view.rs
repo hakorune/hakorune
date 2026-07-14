@@ -1,5 +1,7 @@
 //! Immutable function syntax views and exact parent-relative navigation.
 
+use std::num::NonZeroU32;
+
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{
     FunctionOwnerIdV1, OwnedExprSiteV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1,
@@ -7,8 +9,8 @@ use crate::mir::resolved_semantics::{
 };
 
 use super::located::{
-    LocatedBodySuffixV1, LocatedBodyV1, LocatedExprV1, LocatedStmtV1, SourceBodyKindV1,
-    SourceBodySiteV1,
+    ConsumedSourceRangeV1, LocatedBodySuffixV1, LocatedBodyV1, LocatedExprV1, LocatedStmtV1,
+    SourceBodyKindV1, SourceBodySiteV1,
 };
 use super::lowering_input::VerifiedResolvedSourceUnitV1;
 use super::source_projection::{
@@ -20,11 +22,16 @@ use super::source_projection::{
 /// The type is visible to `located.rs`, but its field and constructor remain
 /// private to this module. This keeps `FunctionSourceViewV1` as the sole
 /// safe-code carrier factory without relying on call-site convention.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) struct SourceViewSealV1(());
 
 impl SourceViewSealV1 {
     const fn new() -> Self {
+        Self(())
+    }
+
+    #[cfg(test)]
+    pub(super) const fn for_test() -> Self {
         Self(())
     }
 }
@@ -222,17 +229,22 @@ impl<'a> FunctionSourceViewV1<'a> {
         index: usize,
     ) -> Result<LocatedStmtV1<'a>, SourceNavigationErrorV1> {
         self.require_owner(body.site().owner())?;
-        let len = body.statements().len();
+        let index = self.checked_source_index(body.site(), index, "body_statement_index")?;
+        let len = self.checked_source_index(
+            body.site(),
+            body.statements().len(),
+            "body_statement_length",
+        )?;
         if index >= len {
             return Err(SourceNavigationErrorV1::BodyIndexOutOfBounds {
                 owner: self.owner,
                 body: body.site().root(),
-                index: index as u32,
-                len: len as u32,
+                index,
+                len,
             });
         }
         let seal = SourceViewSealV1::new();
-        let site = body.site().statement(index as u32, seal);
+        let site = body.site().statement(index, seal);
         let node = self.project_node(site.node())?;
         Ok(LocatedStmtV1::new(self.owner, site, node, seal))
     }
@@ -317,18 +329,121 @@ impl<'a> FunctionSourceViewV1<'a> {
         start_index: usize,
     ) -> Result<LocatedBodySuffixV1<'a>, SourceNavigationErrorV1> {
         self.require_owner(body.site().owner())?;
-        let len = body.statements().len();
+        let start_index =
+            self.checked_source_index(body.site(), start_index, "body_suffix_start")?;
+        let len =
+            self.checked_source_index(body.site(), body.statements().len(), "body_suffix_length")?;
         if start_index > len {
             return Err(SourceNavigationErrorV1::SuffixStartOutOfBounds {
                 owner: self.owner,
                 body: body.site().root(),
-                start: start_index as u32,
-                len: len as u32,
+                start: start_index,
+                len,
             });
         }
         Ok(LocatedBodySuffixV1::new(
             body,
-            start_index as u32,
+            start_index,
+            SourceViewSealV1::new(),
+        ))
+    }
+
+    pub(crate) fn suffix_first_stmt(
+        self,
+        suffix: &LocatedBodySuffixV1<'a>,
+    ) -> Result<LocatedStmtV1<'a>, SourceNavigationErrorV1> {
+        self.require_owner(suffix.body().site().owner())?;
+        let len = self.checked_source_index(
+            suffix.body().site(),
+            suffix.body().statements().len(),
+            "body_suffix_length",
+        )?;
+        if suffix.start_index() >= len {
+            return Err(SourceNavigationErrorV1::EmptyBodySuffix {
+                owner: self.owner,
+                body: suffix.body().site().root(),
+                start: suffix.start_index(),
+            });
+        }
+        self.body_stmt(suffix.body(), suffix.start_index() as usize)
+    }
+
+    pub(crate) fn consumed_prefix(
+        self,
+        suffix: &LocatedBodySuffixV1<'a>,
+        count: NonZeroU32,
+    ) -> Result<ConsumedSourceRangeV1, SourceNavigationErrorV1> {
+        self.require_owner(suffix.body().site().owner())?;
+        let len = self.checked_source_index(
+            suffix.body().site(),
+            suffix.body().statements().len(),
+            "body_suffix_length",
+        )?;
+        if suffix.start_index() >= len {
+            return Err(SourceNavigationErrorV1::EmptyBodySuffix {
+                owner: self.owner,
+                body: suffix.body().site().root(),
+                start: suffix.start_index(),
+            });
+        }
+        let end = self.checked_range_end(suffix.body().site(), suffix.start_index(), count)?;
+        if end > len {
+            return Err(SourceNavigationErrorV1::ConsumedRangeOutOfBounds {
+                owner: self.owner,
+                body: suffix.body().site().root(),
+                start: suffix.start_index(),
+                count,
+                len,
+            });
+        }
+        Ok(ConsumedSourceRangeV1::new(
+            suffix.body().site().clone(),
+            suffix.start_index(),
+            count,
+            SourceViewSealV1::new(),
+        ))
+    }
+
+    pub(crate) fn advance_body_suffix(
+        self,
+        suffix: LocatedBodySuffixV1<'a>,
+        range: &ConsumedSourceRangeV1,
+    ) -> Result<LocatedBodySuffixV1<'a>, SourceNavigationErrorV1> {
+        self.require_owner(suffix.body().site().owner())?;
+        self.require_owner(range.body().owner())?;
+        if suffix.body().site() != range.body() {
+            return Err(SourceNavigationErrorV1::ConsumedRangeBodyMismatch {
+                owner: self.owner,
+                expected_body: suffix.body().site().root(),
+                actual_body: range.body().root(),
+            });
+        }
+        if suffix.start_index() != range.start() {
+            return Err(SourceNavigationErrorV1::ConsumedRangeStartMismatch {
+                owner: self.owner,
+                body: suffix.body().site().root(),
+                expected: suffix.start_index(),
+                actual: range.start(),
+            });
+        }
+        let end = self.checked_range_end(range.body(), range.start(), range.count())?;
+        let len = self.checked_source_index(
+            suffix.body().site(),
+            suffix.body().statements().len(),
+            "body_suffix_length",
+        )?;
+        if end > len {
+            return Err(SourceNavigationErrorV1::ConsumedRangeOutOfBounds {
+                owner: self.owner,
+                body: suffix.body().site().root(),
+                start: range.start(),
+                count: range.count(),
+                len,
+            });
+        }
+        Ok(LocatedBodySuffixV1::new(
+            suffix.body().clone(),
+            end,
             SourceViewSealV1::new(),
         ))
     }
@@ -455,6 +570,36 @@ impl<'a> FunctionSourceViewV1<'a> {
                 actual,
             })
         }
+    }
+
+    fn checked_source_index(
+        self,
+        body: &SourceBodySiteV1,
+        value: usize,
+        role: &'static str,
+    ) -> Result<u32, SourceNavigationErrorV1> {
+        u32::try_from(value).map_err(|_| SourceNavigationErrorV1::SourceIndexOverflow {
+            owner: self.owner,
+            body: body.root(),
+            value,
+            role,
+        })
+    }
+
+    fn checked_range_end(
+        self,
+        body: &SourceBodySiteV1,
+        start: u32,
+        count: NonZeroU32,
+    ) -> Result<u32, SourceNavigationErrorV1> {
+        start.checked_add(count.get()).ok_or_else(|| {
+            SourceNavigationErrorV1::ConsumedRangeEndOverflow {
+                owner: self.owner,
+                body: body.root(),
+                start,
+                count,
+            }
+        })
     }
 
     fn invalid_root_site(self, reason: &'static str) -> SourceNavigationErrorV1 {

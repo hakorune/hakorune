@@ -1,6 +1,6 @@
 {
   "counts": {
-    "checks": 3318,
+    "checks": 3319,
     "design_direct": 851,
     "docs": 12331,
     "docs_development_archive": 2589,
@@ -9,8 +9,8 @@
     "phase_296x_archive": 2517,
     "phase_296x_direct": 1039,
     "private": 0,
-    "src": 3167,
-    "tools": 6900
+    "src": 3171,
+    "tools": 6901
   },
   "design_registry": {
     "authority_registry_decided": true,

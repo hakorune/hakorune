@@ -236,8 +236,8 @@ def main() -> None:
             fail(f"B0-L2b source navigator anchor is missing: {anchor}")
     if "struct ShadowSourcePathV0" in shadow_path_text:
         fail("shadow resolver regained a second source-path builder")
-    if view_tests_text.count("#[test]") != 4:
-        fail("B0-L2b must retain four focused source-navigation tests")
+    if view_tests_text.count("#[test]") != 7:
+        fail("B0-L4-S2′ must retain seven focused source-navigation tests")
 
     lowering_production_text = lowering_text.split("#[cfg(test)]", 1)[0]
     production_navigator_text = "\n".join(
@@ -280,6 +280,8 @@ def main() -> None:
         lowering_input,
         compiler_dir / "capability.rs",
         compiler_dir / "function_input.rs",
+        root / "src/mir/resolved_control_flow/source_coverage.rs",
+        root / "src/mir/resolved_control_flow/source_coverage_tests.rs",
         root / "src/mir/resolved_region_flow/analyzer.rs",
     } | set(resolved_lowering_dir.glob("*.rs"))
     external_view_consumers = []
@@ -290,6 +292,7 @@ def main() -> None:
         "LocatedStmtV1",
         "LocatedExprV1",
         "LocatedBodySuffixV1",
+        "ConsumedSourceRangeV1",
     )
     for source in (root / "src").rglob("*.rs"):
         if source in allowed_view_files:

@@ -1,5 +1,7 @@
 //! Immutable syntax carriers paired with exact owner-branded source sites.
 
+use std::num::NonZeroU32;
+
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{
     FunctionOwnerIdV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1, SourcePathV1,
@@ -243,5 +245,67 @@ impl<'a> LocatedBodySuffixV1<'a> {
 
     pub(crate) const fn start_index(&self) -> u32 {
         self.start_index
+    }
+
+    #[cfg(test)]
+    pub(super) const fn new_for_test(body: LocatedBodyV1<'a>, start_index: u32) -> Self {
+        Self {
+            body,
+            start_index,
+            _seal: SourceViewSealV1::for_test(),
+        }
+    }
+}
+
+/// One nonempty, exact, contiguous prefix consumed from a located body suffix.
+///
+/// Only `FunctionSourceViewV1` can construct this in production safe code.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ConsumedSourceRangeV1 {
+    body: SourceBodySiteV1,
+    start: u32,
+    count: NonZeroU32,
+    _seal: SourceViewSealV1,
+}
+
+impl ConsumedSourceRangeV1 {
+    pub(super) const fn new(
+        body: SourceBodySiteV1,
+        start: u32,
+        count: NonZeroU32,
+        seal: SourceViewSealV1,
+    ) -> Self {
+        Self {
+            body,
+            start,
+            count,
+            _seal: seal,
+        }
+    }
+
+    pub(crate) const fn body(&self) -> &SourceBodySiteV1 {
+        &self.body
+    }
+
+    pub(crate) const fn start(&self) -> u32 {
+        self.start
+    }
+
+    pub(crate) const fn count(&self) -> NonZeroU32 {
+        self.count
+    }
+
+    #[cfg(test)]
+    pub(super) const fn new_for_test(
+        body: SourceBodySiteV1,
+        start: u32,
+        count: NonZeroU32,
+    ) -> Self {
+        Self {
+            body,
+            start,
+            count,
+            _seal: SourceViewSealV1::for_test(),
+        }
     }
 }

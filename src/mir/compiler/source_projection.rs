@@ -2,6 +2,7 @@
 
 use std::collections::BTreeMap;
 use std::fmt;
+use std::num::NonZeroU32;
 
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{
@@ -45,6 +46,41 @@ pub(crate) enum SourceNavigationErrorV1 {
         body: SourceNodeSiteV1,
         start: u32,
         len: u32,
+    },
+    SourceIndexOverflow {
+        owner: FunctionOwnerIdV1,
+        body: SourceNodeSiteV1,
+        value: usize,
+        role: &'static str,
+    },
+    EmptyBodySuffix {
+        owner: FunctionOwnerIdV1,
+        body: SourceNodeSiteV1,
+        start: u32,
+    },
+    ConsumedRangeEndOverflow {
+        owner: FunctionOwnerIdV1,
+        body: SourceNodeSiteV1,
+        start: u32,
+        count: NonZeroU32,
+    },
+    ConsumedRangeOutOfBounds {
+        owner: FunctionOwnerIdV1,
+        body: SourceNodeSiteV1,
+        start: u32,
+        count: NonZeroU32,
+        len: u32,
+    },
+    ConsumedRangeBodyMismatch {
+        owner: FunctionOwnerIdV1,
+        expected_body: SourceNodeSiteV1,
+        actual_body: SourceNodeSiteV1,
+    },
+    ConsumedRangeStartMismatch {
+        owner: FunctionOwnerIdV1,
+        body: SourceNodeSiteV1,
+        expected: u32,
+        actual: u32,
     },
 }
 
@@ -102,6 +138,55 @@ impl fmt::Display for SourceNavigationErrorV1 {
             } => write!(
                 formatter,
                 "[freeze:contract][canonical_source/suffix_start_out_of_bounds] owner={owner:?} body={body:?} start={start} len={len}"
+            ),
+            Self::SourceIndexOverflow {
+                owner,
+                body,
+                value,
+                role,
+            } => write!(
+                formatter,
+                "[freeze:contract][canonical_source/source_index_overflow] owner={owner:?} body={body:?} value={value} role={role}"
+            ),
+            Self::EmptyBodySuffix { owner, body, start } => write!(
+                formatter,
+                "[freeze:contract][canonical_source/empty_body_suffix] owner={owner:?} body={body:?} start={start}"
+            ),
+            Self::ConsumedRangeEndOverflow {
+                owner,
+                body,
+                start,
+                count,
+            } => write!(
+                formatter,
+                "[freeze:contract][canonical_source/consumed_range_end_overflow] owner={owner:?} body={body:?} start={start} count={count}"
+            ),
+            Self::ConsumedRangeOutOfBounds {
+                owner,
+                body,
+                start,
+                count,
+                len,
+            } => write!(
+                formatter,
+                "[freeze:contract][canonical_source/consumed_range_out_of_bounds] owner={owner:?} body={body:?} start={start} count={count} len={len}"
+            ),
+            Self::ConsumedRangeBodyMismatch {
+                owner,
+                expected_body,
+                actual_body,
+            } => write!(
+                formatter,
+                "[freeze:contract][canonical_source/consumed_range_body_mismatch] owner={owner:?} expected_body={expected_body:?} actual_body={actual_body:?}"
+            ),
+            Self::ConsumedRangeStartMismatch {
+                owner,
+                body,
+                expected,
+                actual,
+            } => write!(
+                formatter,
+                "[freeze:contract][canonical_source/consumed_range_start_mismatch] owner={owner:?} body={body:?} expected={expected} actual={actual}"
             ),
         }
     }

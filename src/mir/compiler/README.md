@@ -42,6 +42,22 @@ transport remains disconnected.
 Forbidden identity sources are AST pointer, Span, name, traversal order,
 producer path, and ProgramV0 reconstruction.
 
+## B0-L4-S2 located suffix range boundary
+
+`FunctionSourceViewV1` is also the sole factory and navigator for typed
+`ConsumedSourceRangeV1` values. A range is owner/body/start exact, has a
+`NonZeroU32` count, and is bounded against the borrowed canonical body before
+publication. Suffix first/range/advance operations use checked `usize -> u32`
+and checked end arithmetic. Empty, foreign, out-of-bounds, and body/start
+mismatches (including a gap, overlap, or already-advanced suffix) fail with
+typed navigation errors.
+
+The compiler layer owns only exact syntax transport. It does not infer Loop
+coverage, plan membership, effects, or MIR identity. The generic structural
+coverage schema in `resolved_control_flow` verifies these sealed ranges without
+reimplementing source-path navigation. S2′ leaves that schema disconnected from
+all production control lowering.
+
 ## SA3-B first-family activation
 
 `CanonicalLoweringPreflightV1` accepts exactly one non-main static/free

@@ -1,15 +1,15 @@
 ---
-Status: Active — D0 taskization closed; B0-L4-S2′ selected
+Status: Active — D0 and B0-L4-S2′ closed; SSA-P0 selected
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-B0-L4-S2PRIME-GENERIC-LOCATED-COVERAGE-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-P0-CANONICAL-SSA-SEAM-INVENTORY-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
   - mirbuilder-resolved-control-flow-v2-final-form-extraction-task-2026-07-14.md as the effect-bearing final form
 Retains:
   - closed B0-L4-S1 exact Loop/LoopBody identity bundle
-  - B0-L4-S2 generic located source range and coverage intent
+  - closed B0-L4-S2′ generic located source range and coverage schema
 Related:
   - ../design/binding-ssa-first-control-lowering-ssot.md
   - mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
@@ -131,12 +131,12 @@ or modified source/check files stay below 800 lines.
 D′ is the final canonical value authority
 old A+A2′ S3/I1/I2 are unauthorized
 S1 identity and S2 coverage intent are retained
-the next blocker is code-facing S2′
+the next blocker is behavior-neutral SSA-P0 seam inventory
 ```
 
 Production behavior delta: zero.
 
-### B0-L4-S2′ — generic located source coverage
+### B0-L4-S2′ — generic located source coverage — closed
 
 Land only the authority-neutral portion of the preserved S2 WIP:
 
@@ -156,16 +156,16 @@ existing A+ If production remains unchanged
 Prefer `resolved_control_flow/source_coverage.rs`; do not land the historical
 `PlanSourceCoverage` name or carrier-oriented README wording unchanged.
 
-Local recovery, when the named stash exists:
+Closed evidence:
 
-```bash
-ref="$(git stash list --format='%gd %s' | sed -n '/wip\/b0-l4-s2 before ssa-first consultation/{s/ .*//;p;q;}')"
-test -n "$ref"
-git stash show --stat --include-untracked "$ref"
-git stash apply "$ref"
+```text
+compiler-owned checked range navigation fixtures = 7
+private coverage verification fixtures = 3
+resolved_control_flow production consumers = 0
+effect/carrier rows = 0
+Binding SSA / Loop runtime activation = 0
+existing A+ If production behavior = unchanged
 ```
-
-Use `apply`, not `pop`; drop the stash only after S2′ is committed and green.
 
 Production behavior delta: zero.
 
@@ -966,15 +966,14 @@ of this final form.
 
 ## Immediate next action
 
-Implement B0-L4-S2′ only:
+Close SSA-P0 inventory only:
 
 ```text
-restore the named S2 WIP with stash apply
-retain checked located range/navigation and generic coverage logic
-move/rename the sidecar to the carrier-free resolved_control_flow boundary
-remove A+A2′ carrier/Plan wording from the candidate diff
-run focused coverage/source-view tests and the stable authority guard
-new coverage product production consumers remain zero
-Binding SSA and Loop production activation remain zero
-existing A+ If production remains unchanged
+enumerate every canonical declaration/read/rebind/scope-exit value access
+enumerate every canonical CFG edge and predecessor writer
+enumerate every PHI reserve/define/expose/patch/rollback path
+enumerate assignment and scope-exit RC read/release paths
+enumerate function finish/publication barriers and terminal Return shape
+classify each row as move-to-SSA, control-only retain, legacy isolate, or caller-zero delete
+production behavior and accepted grammar remain unchanged
 ```

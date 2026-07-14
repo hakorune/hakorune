@@ -1,9 +1,11 @@
+use std::num::NonZeroU32;
+
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, SourcePathSegmentV1,
 };
 
-use super::located::SourceBodyKindV1;
+use super::located::{ConsumedSourceRangeV1, LocatedBodySuffixV1, SourceBodyKindV1};
 use super::lowering_input::verified_source_unit_for_test;
 use super::source_projection::{SourceNavigationErrorV1, VerifiedSourceProjectionV1};
 use super::source_view::{BodyChildRoleV1, ExprChildRoleV1};
@@ -242,5 +244,152 @@ fn projection_rejects_syntax_and_semantic_product_mismatch() {
     assert!(matches!(
         VerifiedSourceProjectionV1::seal(&foreign_syntax, &forest),
         Err(SourceNavigationErrorV1::SignatureMismatch { .. })
+    ));
+}
+
+#[test]
+fn suffix_range_navigation_is_exact_and_advances_to_body_end() {
+    let unit = verified_source_unit_for_test(fixture_function());
+    let owner = unit.forest().roots()[0];
+    let view = unit.function_source_view(owner).unwrap();
+    let body = view.root_body().unwrap();
+    let start = view.body_suffix(body.clone(), 0).unwrap();
+    let first = view.suffix_first_stmt(&start).unwrap();
+    let first_range = view
+        .consumed_prefix(&start, NonZeroU32::new(1).unwrap())
+        .unwrap();
+
+    assert_eq!(
+        first.site().node().segments(),
+        &[SourcePathSegmentV1::Body(0)]
+    );
+    assert_eq!(first_range.body(), body.site());
+    assert_eq!(first_range.start(), 0);
+    assert_eq!(first_range.count(), NonZeroU32::new(1).unwrap());
+
+    let middle = view.advance_body_suffix(start, &first_range).unwrap();
+    assert_eq!(middle.start_index(), 1);
+    let second = view.suffix_first_stmt(&middle).unwrap();
+    assert_ne!(first.site(), second.site());
+    assert_eq!(first.node().span(), second.node().span());
+
+    let remaining = view
+        .consumed_prefix(&middle, NonZeroU32::new(2).unwrap())
+        .unwrap();
+    let end = view.advance_body_suffix(middle, &remaining).unwrap();
+    assert_eq!(end.start_index(), 3);
+    assert!(matches!(
+        view.suffix_first_stmt(&end),
+        Err(SourceNavigationErrorV1::EmptyBodySuffix { start: 3, .. })
+    ));
+}
+
+#[test]
+fn suffix_navigation_rejects_empty_bounds_and_integer_overflow() {
+    let unit = verified_source_unit_for_test(fixture_function());
+    let owner = unit.forest().roots()[0];
+    let view = unit.function_source_view(owner).unwrap();
+    let body = view.root_body().unwrap();
+
+    assert!(matches!(
+        view.body_stmt(&body, usize::MAX),
+        Err(SourceNavigationErrorV1::SourceIndexOverflow {
+            role: "body_statement_index",
+            ..
+        })
+    ));
+    assert!(matches!(
+        view.body_suffix(body.clone(), usize::MAX),
+        Err(SourceNavigationErrorV1::SourceIndexOverflow {
+            role: "body_suffix_start",
+            ..
+        })
+    ));
+
+    let end = view
+        .body_suffix(body.clone(), body.statements().len())
+        .unwrap();
+    assert!(matches!(
+        view.consumed_prefix(&end, NonZeroU32::new(1).unwrap()),
+        Err(SourceNavigationErrorV1::EmptyBodySuffix { .. })
+    ));
+    let middle = view.body_suffix(body.clone(), 1).unwrap();
+    assert!(matches!(
+        view.consumed_prefix(&middle, NonZeroU32::new(3).unwrap()),
+        Err(SourceNavigationErrorV1::ConsumedRangeOutOfBounds { .. })
+    ));
+
+    let overflow_suffix = LocatedBodySuffixV1::new_for_test(body.clone(), u32::MAX);
+    let overflow_range = ConsumedSourceRangeV1::new_for_test(
+        body.site().clone(),
+        u32::MAX,
+        NonZeroU32::new(1).unwrap(),
+    );
+    assert!(matches!(
+        view.advance_body_suffix(overflow_suffix, &overflow_range),
+        Err(SourceNavigationErrorV1::ConsumedRangeEndOverflow { .. })
+    ));
+}
+
+#[test]
+fn suffix_advance_rejects_foreign_body_gap_overlap_and_reuse() {
+    let unit = verified_source_unit_for_test(fixture_function());
+    let owner = unit.forest().roots()[0];
+    let view = unit.function_source_view(owner).unwrap();
+    let body = view.root_body().unwrap();
+    let suffix0 = view.body_suffix(body.clone(), 0).unwrap();
+    let suffix1 = view.body_suffix(body.clone(), 1).unwrap();
+    let range0 = view
+        .consumed_prefix(&suffix0, NonZeroU32::new(1).unwrap())
+        .unwrap();
+    let range1 = view
+        .consumed_prefix(&suffix1, NonZeroU32::new(1).unwrap())
+        .unwrap();
+
+    assert!(matches!(
+        view.advance_body_suffix(suffix0.clone(), &range1),
+        Err(SourceNavigationErrorV1::ConsumedRangeStartMismatch {
+            expected: 0,
+            actual: 1,
+            ..
+        })
+    ));
+    assert!(matches!(
+        view.advance_body_suffix(suffix1, &range0),
+        Err(SourceNavigationErrorV1::ConsumedRangeStartMismatch {
+            expected: 1,
+            actual: 0,
+            ..
+        })
+    ));
+    let advanced = view.advance_body_suffix(suffix0, &range0).unwrap();
+    assert!(matches!(
+        view.advance_body_suffix(advanced, &range0),
+        Err(SourceNavigationErrorV1::ConsumedRangeStartMismatch { .. })
+    ));
+
+    let assign = view.body_stmt(&body, 1).unwrap();
+    let block = view
+        .child_expr_from_stmt(&assign, ExprChildRoleV1::AssignmentValue)
+        .unwrap();
+    let prelude = view
+        .child_body_from_expr(&block, BodyChildRoleV1::BlockExprPrelude)
+        .unwrap();
+    let prelude_suffix = view.body_suffix(prelude, 0).unwrap();
+    assert!(matches!(
+        view.advance_body_suffix(prelude_suffix, &range0),
+        Err(SourceNavigationErrorV1::ConsumedRangeBodyMismatch { .. })
+    ));
+
+    let lambda_local = view.body_stmt(&body, 2).unwrap();
+    let lambda = view
+        .child_expr_from_stmt(&lambda_local, ExprChildRoleV1::LocalInitializer(0))
+        .unwrap();
+    let child_view = view.child_function(&lambda).unwrap();
+    let child_body = child_view.root_body().unwrap();
+    let child_suffix = child_view.body_suffix(child_body, 0).unwrap();
+    assert!(matches!(
+        child_view.advance_body_suffix(child_suffix, &range0),
+        Err(SourceNavigationErrorV1::ForeignOwner { .. })
     ));
 }
