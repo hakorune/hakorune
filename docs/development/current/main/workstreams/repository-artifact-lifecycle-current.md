@@ -657,3 +657,28 @@ docs_private_retention_decided = 0
 failure_outcome_design_accepted = 1
 selfhost_claim = 0
 ```
+
+## H3 Design Registry V1 sharding taskization (2026-07-14)
+
+The embedded registry has crossed 7,000 lines, so its storage is taskized as a
+behavior-neutral BoxShape series. The accepted final form keeps one semantic
+registry while moving explicit rows into deterministic SHA-256 first-nybble
+shards selected by one manifest.
+
+```text
+decision = deterministic_sharded_manifest_v1
+task_status = parked
+production_activation = 0
+current_blocker_replaced = 0
+first_implementation_row = CLEAN0
+clean_requirement = worktree_empty_and_pointer_guard_green
+cutover = atomic_after_full_normalized_v0_v1_parity
+v0_fallback_after_cutover = forbidden
+index_final_line_budget = 200
+return_owner = RETURN0
+```
+
+The execution taskboard is
+`investigations/design-registry-v1-sharded-manifest-task-2026-07-14.md`.
+`SSA-RC-L0` remains selected; this row does not authorize SELECT0 or registry
+implementation on top of its current worktree.

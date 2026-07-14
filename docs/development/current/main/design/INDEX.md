@@ -7429,6 +7429,17 @@ sidecars = []
 supersedes = []
 superseded_by = ""
 retire_when = "Box lifecycle and ownership substrate adopt an explicitly accepted replacement constitution"
+
+[[documents]]
+path = "design-registry-v1-sharded-manifest-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "current-docs-archive-policy-ssot.md"
+classification_basis = "README:現役の設計図（入口）; deterministic sharded Design Registry V1 storage, parity, cutover, and V0 retirement boundary"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "design registry storage adopts an explicitly accepted replacement schema"
 ```
 <!-- design-registry-v0:end -->
 

@@ -99,6 +99,12 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - archive buckets, landed ledger, and current-doc slimming contract
   - repository artifact lifecycle baseline, bounded archive batches, design
     registry, and check-script retirement task order
+- `design/design-registry-v1-sharded-manifest-ssot.md`
+  - 7,000-line embedded registryを deterministic 16-shard manifestへ移す
+    BoxShape-only authority。実装は必ず clean worktree を作る `CLEAN0` から始める
+- `investigations/design-registry-v1-sharded-manifest-task-2026-07-14.md`
+  - parked execution taskboard。V0 parity、atomic cutover、V0 retirement、prior
+    laneへの `RETURN0` までを固定し、current blockerを暗黙に切り替えない
 - `design/mir-cleanup-policy-ssot.md`
   - BoxShape-only MIR cleanup policy; keeps cleanup work separate from
     acceptance-shape, optimizer, and perf keeper changes
