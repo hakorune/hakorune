@@ -15,6 +15,7 @@ guard_resolved_trivial_owner_profile_contract() {
     "$validator"
     "$owner/README.md"
     "$owner/analyzer.rs"
+    "$owner/consumption.rs"
     "$owner/coverage.rs"
     "$owner/error.rs"
     "$owner/mod.rs"

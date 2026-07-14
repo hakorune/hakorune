@@ -18,7 +18,7 @@ names. It decides no CFG layout and emits no MIR.
 
 ## SSA-I0-PROFILE contract
 
-`VerifiedTrivialCanonicalOwnerV1` is a disconnected whole-owner proof. It
+`VerifiedTrivialCanonicalOwnerV1` is a pre-Builder whole-owner proof. It
 admits only exact `InlineI64`, `InlineBool`, and `InlineF64` values and proves
 their propagation through locals, reads, rebinds, binary expressions,
 BlockExpr results, fallthrough If merge profiles, and terminal disposition.
@@ -31,4 +31,6 @@ existing canonical A+ path from a sealed rejection before Builder effects, but
 it must never retry A+ after a trivial-profile lowering failure or mix the two
 authorities inside one source unit.
 
-Production callers remain zero in SSA-I0-PROFILE.
+SSA-I1-T consumes an admitted profile exactly once in the dedicated trivial
+Binding-SSA lowerer. A non-admitted profile selects the whole-unit A+ route
+before Builder effects; a lowering failure never retries another route.

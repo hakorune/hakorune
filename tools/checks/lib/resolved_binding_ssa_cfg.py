@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the disconnected D-prime SSA-C1 canonical CFG substrate."""
+"""Validate the D-prime SSA-C1 substrate and its bounded SSA-I1-T caller."""
 
 from __future__ import annotations
 
@@ -61,7 +61,6 @@ def main() -> None:
         "mod session;",
         "CanonicalCfgSessionV1",
         "VerifiedPredecessorsV1",
-        "#![allow(dead_code)]",
     ):
         require(module, anchor, "facade")
 
@@ -112,7 +111,7 @@ def main() -> None:
             fail(f"forbidden repair/legacy dependency found: {forbidden}")
 
     require(readme, "MIR terminators remain", "README")
-    require(readme, "production If, Loop, or Binding SSA activation", "README")
+    require(readme, "SSA-I1-T has exactly one production consumer", "README")
     test_count = tests.count("#[test]")
     if test_count < 15:
         fail(f"focused fixture count dropped below 15: {test_count}")
@@ -123,13 +122,21 @@ def main() -> None:
             if lines >= 800:
                 fail(f"source/check reached the 800-line stop boundary: {path} ({lines})")
 
-    production_callers = 0
+    production_callers = []
     for path in production_rs(root):
         if cfg_dir in path.parents:
             continue
-        production_callers += path.read_text(errors="ignore").count("CanonicalCfgSessionV1")
-    if production_callers != 0:
-        fail(f"production activation must remain zero, got {production_callers}")
+        if "CanonicalCfgSessionV1" in path.read_text(errors="ignore"):
+            production_callers.append(str(path.relative_to(root)))
+    production_callers.sort()
+    expected_callers = [
+        "src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs",
+    ]
+    if production_callers != expected_callers:
+        fail(
+            "production caller set must be the one trivial-owner lowerer: "
+            f"expected={expected_callers} actual={production_callers}"
+        )
 
     taskboard = (
         root
@@ -149,7 +156,7 @@ def main() -> None:
     print("canonical_ssa_c1_late_edge=typed-error")
     print("canonical_ssa_c1_seal_witness=immutable")
     print(f"canonical_ssa_c1_focused_fixtures={test_count}")
-    print("canonical_ssa_c1_production_callers=0")
+    print("canonical_ssa_c1_production_callers=1")
     print("canonical_ssa_c1_accepted_grammar_delta=0")
 
 

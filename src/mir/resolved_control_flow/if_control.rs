@@ -17,7 +17,7 @@ use super::source_coverage::{
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) struct ResolvedIfFallthroughPortV1(());
+pub(crate) struct ResolvedIfFallthroughPortV1(());
 
 impl ResolvedIfFallthroughPortV1 {
     pub(super) const fn verified() -> Self {
@@ -26,7 +26,7 @@ impl ResolvedIfFallthroughPortV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum ResolvedIfElsePortV1 {
+pub(crate) enum ResolvedIfElsePortV1 {
     ImplicitIdentity,
     Explicit(ResolvedIfFallthroughPortV1),
 }
@@ -67,12 +67,92 @@ impl VerifiedLocatedIfControlV1 {
         self.coverage.preorder()
     }
 
-    pub(super) fn coverage_use(&self) -> IfControlCoverageUseV1<'_> {
+    pub(super) fn coverage_use(&self) -> IfControlCoverageUseV1 {
         IfControlCoverageUseV1 {
             owner: self.coverage.owner(),
-            expected: self.coverage.preorder(),
+            expected: self.coverage.preorder().into(),
             next: 0,
         }
+    }
+
+    fn into_materialization(self) -> ResolvedIfControlMaterializationV1 {
+        ResolvedIfControlMaterializationV1 {
+            site: self.site,
+            regions: self.regions,
+            then_port: self.then_port,
+            else_port: self.else_port,
+            outer_range: self.coverage.outer().clone(),
+            coverage: IfControlCoverageUseV1 {
+                owner: self.coverage.owner(),
+                expected: self.coverage.preorder().into(),
+                next: 0,
+            },
+        }
+    }
+}
+
+/// Owned exact row handed to one canonical If materializer.
+///
+/// It contains control identity and source coverage only. Binding effects,
+/// ValueIds, BasicBlockIds, and PHI placement remain outside this product.
+#[derive(Debug)]
+pub(crate) struct ResolvedIfControlMaterializationV1 {
+    site: SourceStmtSiteV1,
+    regions: ResolvedIfRegionBundleV1,
+    then_port: ResolvedIfFallthroughPortV1,
+    else_port: ResolvedIfElsePortV1,
+    outer_range: crate::mir::compiler::located::ConsumedSourceRangeV1,
+    coverage: IfControlCoverageUseV1,
+}
+
+impl ResolvedIfControlMaterializationV1 {
+    pub(crate) const fn site(&self) -> &SourceStmtSiteV1 {
+        &self.site
+    }
+
+    pub(crate) const fn regions(&self) -> ResolvedIfRegionBundleV1 {
+        self.regions
+    }
+
+    pub(crate) const fn then_port(&self) -> ResolvedIfFallthroughPortV1 {
+        self.then_port
+    }
+
+    pub(crate) const fn else_port(&self) -> ResolvedIfElsePortV1 {
+        self.else_port
+    }
+
+    pub(crate) const fn outer_range(
+        &self,
+    ) -> &crate::mir::compiler::located::ConsumedSourceRangeV1 {
+        &self.outer_range
+    }
+
+    pub(crate) fn claim_statement(
+        &mut self,
+        statement: &LocatedStmtV1<'_>,
+    ) -> Result<(), IfControlCoverageUseErrorV1> {
+        self.coverage
+            .claim(&CoveredSourceSiteV1::statement(statement))
+    }
+
+    pub(crate) fn claim_body(
+        &mut self,
+        body: &LocatedBodyV1<'_>,
+    ) -> Result<(), IfControlCoverageUseErrorV1> {
+        self.coverage.claim(&CoveredSourceSiteV1::body(body))
+    }
+
+    pub(crate) fn claim_expression(
+        &mut self,
+        expression: &LocatedExprV1<'_>,
+    ) -> Result<(), IfControlCoverageUseErrorV1> {
+        self.coverage
+            .claim(&CoveredSourceSiteV1::expression(expression))
+    }
+
+    pub(crate) fn finish_coverage(self) -> Result<(), IfControlCoverageUseErrorV1> {
+        self.coverage.finish()
     }
 }
 
@@ -112,6 +192,89 @@ impl VerifiedResolvedFunctionIfControlV1 {
     pub(crate) fn exact_if_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
         self.rows.iter().map(VerifiedLocatedIfControlV1::site)
     }
+
+    pub(crate) const fn row_count(&self) -> usize {
+        self.rows.len()
+    }
+
+    pub(crate) fn explicit_else_count(&self) -> usize {
+        self.rows
+            .iter()
+            .filter(|row| matches!(row.else_port(), ResolvedIfElsePortV1::Explicit(_)))
+            .count()
+    }
+
+    /// Exact preorder row consumer for the production canonical lowerer.
+    ///
+    /// A caller cannot scan the product and later claim a different row set:
+    /// every statement If must be consumed once, in the sealed source order.
+    pub(crate) fn into_use_ledger(self) -> FunctionIfControlUseLedgerV1 {
+        let expected_sites = self
+            .rows
+            .iter()
+            .map(|row| row.site().clone())
+            .collect::<Vec<_>>()
+            .into_boxed_slice();
+        FunctionIfControlUseLedgerV1 {
+            owner: self.owner,
+            expected_sites,
+            rows: self.rows.into_vec().into_iter().map(Some).collect(),
+            next: 0,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum FunctionIfControlUseErrorV1 {
+    ForeignOwner,
+    Duplicate,
+    WrongOrder,
+    Unexpected,
+    MissingMaterializationRow,
+    Missing,
+}
+
+pub(crate) struct FunctionIfControlUseLedgerV1 {
+    owner: FunctionOwnerIdV1,
+    expected_sites: Box<[SourceStmtSiteV1]>,
+    rows: Vec<Option<VerifiedLocatedIfControlV1>>,
+    next: usize,
+}
+
+impl FunctionIfControlUseLedgerV1 {
+    pub(crate) fn claim(
+        &mut self,
+        statement: &LocatedStmtV1<'_>,
+    ) -> Result<ResolvedIfControlMaterializationV1, FunctionIfControlUseErrorV1> {
+        if statement.owner() != self.owner {
+            return Err(FunctionIfControlUseErrorV1::ForeignOwner);
+        }
+        let site = statement.site();
+        if self.expected_sites.get(self.next) == Some(site) {
+            let row = self
+                .rows
+                .get_mut(self.next)
+                .and_then(Option::take)
+                .ok_or(FunctionIfControlUseErrorV1::MissingMaterializationRow)?;
+            self.next += 1;
+            return Ok(row.into_materialization());
+        }
+        if self.expected_sites[..self.next].contains(site) {
+            return Err(FunctionIfControlUseErrorV1::Duplicate);
+        }
+        if self.expected_sites[self.next..].contains(site) {
+            return Err(FunctionIfControlUseErrorV1::WrongOrder);
+        }
+        Err(FunctionIfControlUseErrorV1::Unexpected)
+    }
+
+    pub(crate) fn finish(self) -> Result<(), FunctionIfControlUseErrorV1> {
+        if self.next == self.expected_sites.len() {
+            Ok(())
+        } else {
+            Err(FunctionIfControlUseErrorV1::Missing)
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -142,7 +305,7 @@ impl From<SourceCoverageVerificationErrorV1> for ResolvedIfControlErrorV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(super) enum IfControlCoverageUseErrorV1 {
+pub(crate) enum IfControlCoverageUseErrorV1 {
     ForeignOwner,
     Duplicate,
     WrongOrder,
@@ -150,13 +313,14 @@ pub(super) enum IfControlCoverageUseErrorV1 {
     Missing,
 }
 
-pub(super) struct IfControlCoverageUseV1<'a> {
+#[derive(Debug)]
+pub(crate) struct IfControlCoverageUseV1 {
     owner: FunctionOwnerIdV1,
-    expected: &'a [CoveredSourceSiteV1],
+    expected: Box<[CoveredSourceSiteV1]>,
     next: usize,
 }
 
-impl IfControlCoverageUseV1<'_> {
+impl IfControlCoverageUseV1 {
     pub(super) fn claim(
         &mut self,
         actual: &CoveredSourceSiteV1,
@@ -177,7 +341,7 @@ impl IfControlCoverageUseV1<'_> {
         Err(IfControlCoverageUseErrorV1::Unexpected)
     }
 
-    pub(super) fn finish(self) -> Result<(), IfControlCoverageUseErrorV1> {
+    pub(crate) fn finish(self) -> Result<(), IfControlCoverageUseErrorV1> {
         if self.next == self.expected.len() {
             Ok(())
         } else {
@@ -193,12 +357,25 @@ pub(super) fn analyze_resolved_if_control_v1(
     IfControlAnalyzerV1::new(input, completion)?.analyze()
 }
 
-#[cfg(test)]
+/// Typed production boundary for the sealed If-control analyzer.
+///
+/// Internal verifier vocabulary stays encapsulated in this module; callers
+/// may report the detail but cannot reinterpret a contract failure as profile
+/// non-admission.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ResolvedFunctionIfControlContractErrorV1 {
+    detail: String,
+}
+
 pub(crate) fn verify_resolved_function_if_control_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     completion: &VerifiedFunctionCompletionV1,
-) -> Result<VerifiedResolvedFunctionIfControlV1, String> {
-    analyze_resolved_if_control_v1(input, completion).map_err(|error| format!("{error:?}"))
+) -> Result<VerifiedResolvedFunctionIfControlV1, ResolvedFunctionIfControlContractErrorV1> {
+    analyze_resolved_if_control_v1(input, completion).map_err(|error| {
+        ResolvedFunctionIfControlContractErrorV1 {
+            detail: format!("{error:?}"),
+        }
+    })
 }
 
 struct IfControlRowDraftV1<'source> {

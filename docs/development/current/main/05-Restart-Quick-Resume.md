@@ -42,10 +42,12 @@ cargo check -q
 - read `latest_card_path` before editing
 - D′ is accepted: exact coverage/topology/ports/cleanup stays pre-Builder and
   one function-wide Binding SSA becomes canonical local value/PHI authority
-- B0-L4-S2′, the guarded 92-row SSA-P0 inventory, the SSA-L0 PHI-helper split,
-  and disconnected SSA-C1 CFG/seal substrate are closed
-- continue only the `current_blocker_token` from `CURRENT_STATE.toml`; pre-I1
-  prerequisites keep production Binding SSA/Loop activation at zero
+- B0-L4-S2′ through SSA-I0-PROFILE and the atomic SSA-I1-T trivial-owner
+  cutover are closed
+- one admitted whole owner uses production Binding SSA; Ownership SSA and Loop
+  activation remain zero
+- continue only the `current_blocker_token` from `CURRENT_STATE.toml`; an
+  SSA-I1-COMPAT row-selection token is a design stop, not implementation leave
 - old A+A2′ carrier S3/I1/I2 and effect-bearing V2 extraction are superseded;
   do not revive them from historical cards
 - keep parser/source-carrier and unrelated parked stashes disconnected

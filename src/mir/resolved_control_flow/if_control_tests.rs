@@ -1,11 +1,13 @@
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
+use crate::mir::compiler::source_view::{BodyChildRoleV1, ExprChildRoleV1};
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::resolved_semantics::SourcePathSegmentV1;
 
 use super::function_control::verify_function_completion_v1;
 use super::if_control::{
-    analyze_resolved_if_control_v1, IfControlCoverageUseErrorV1, ResolvedIfControlErrorV1,
-    ResolvedIfElsePortV1, ResolvedIfFallthroughPortV1, VerifiedResolvedFunctionIfControlV1,
+    analyze_resolved_if_control_v1, FunctionIfControlUseErrorV1, IfControlCoverageUseErrorV1,
+    ResolvedIfControlErrorV1, ResolvedIfElsePortV1, ResolvedIfFallthroughPortV1,
+    VerifiedResolvedFunctionIfControlV1,
 };
 use super::source_coverage::CoveredSourceSiteV1;
 
@@ -84,6 +86,21 @@ fn analyze(
     let input = unit.root_function_input().unwrap();
     let completion = verify_function_completion_v1(input).unwrap();
     analyze_resolved_if_control_v1(input, &completion)
+}
+
+fn analyze_with_unit(
+    body: Vec<ASTNode>,
+) -> (
+    VerifiedResolvedSourceUnitV1,
+    VerifiedResolvedFunctionIfControlV1,
+) {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(body)).unwrap();
+    let product = {
+        let input = unit.root_function_input().unwrap();
+        let completion = verify_function_completion_v1(input).unwrap();
+        analyze_resolved_if_control_v1(input, &completion).unwrap()
+    };
+    (unit, product)
 }
 
 #[test]
@@ -175,6 +192,93 @@ fn each_row_co_seals_one_exact_outer_statement_range() {
     assert_eq!(product.rows()[1].outer_range().start(), 2);
     assert_eq!(product.rows()[0].outer_range().count().get(), 1);
     assert_eq!(product.rows()[1].outer_range().count().get(), 1);
+}
+
+#[test]
+fn function_row_use_requires_exact_preorder_and_completion() {
+    let body = vec![
+        if_stmt(literal(1), vec![], None),
+        if_stmt(literal(2), vec![], None),
+        if_stmt(literal(3), vec![], Some(vec![])),
+    ];
+    let (unit, product) = analyze_with_unit(body.clone());
+    assert_eq!(product.row_count(), 3);
+    assert_eq!(product.explicit_else_count(), 1);
+
+    let input = unit.root_function_input().unwrap();
+    let root = input.source().root_body().unwrap();
+    let statements = (0..3)
+        .map(|index| input.source().body_stmt(&root, index).unwrap())
+        .collect::<Vec<_>>();
+    let mut success = product.into_use_ledger();
+    for statement in &statements {
+        assert_eq!(success.claim(statement).unwrap().site(), statement.site());
+    }
+    assert_eq!(success.finish(), Ok(()));
+
+    let (unit, product) = analyze_with_unit(body.clone());
+    let input = unit.root_function_input().unwrap();
+    let root = input.source().root_body().unwrap();
+    let statements = (0..3)
+        .map(|index| input.source().body_stmt(&root, index).unwrap())
+        .collect::<Vec<_>>();
+    let mut duplicate = product.into_use_ledger();
+    duplicate.claim(&statements[0]).unwrap();
+    assert!(matches!(
+        duplicate.claim(&statements[0]),
+        Err(FunctionIfControlUseErrorV1::Duplicate)
+    ));
+
+    let (unit, product) = analyze_with_unit(body.clone());
+    let input = unit.root_function_input().unwrap();
+    let root = input.source().root_body().unwrap();
+    let statements = (0..3)
+        .map(|index| input.source().body_stmt(&root, index).unwrap())
+        .collect::<Vec<_>>();
+    let mut wrong_order = product.into_use_ledger();
+    assert!(matches!(
+        wrong_order.claim(&statements[1]),
+        Err(FunctionIfControlUseErrorV1::WrongOrder)
+    ));
+
+    let (unit, product) = analyze_with_unit(body);
+    let input = unit.root_function_input().unwrap();
+    let root = input.source().root_body().unwrap();
+    let statements = (0..3)
+        .map(|index| input.source().body_stmt(&root, index).unwrap())
+        .collect::<Vec<_>>();
+    let mut missing = product.into_use_ledger();
+    missing.claim(&statements[0]).unwrap();
+    assert_eq!(missing.finish(), Err(FunctionIfControlUseErrorV1::Missing));
+}
+
+#[test]
+fn owned_materialization_row_consumes_coverage_through_located_facades() {
+    let (unit, product) = analyze_with_unit(vec![if_stmt(literal(1), vec![], Some(vec![]))]);
+    let input = unit.root_function_input().unwrap();
+    let body = input.source().root_body().unwrap();
+    let statement = input.source().body_stmt(&body, 0).unwrap();
+    let condition = input
+        .source()
+        .child_expr_from_stmt(&statement, ExprChildRoleV1::IfCondition)
+        .unwrap();
+    let then_body = input
+        .source()
+        .child_body_from_stmt(&statement, BodyChildRoleV1::IfThen)
+        .unwrap();
+    let else_body = input
+        .source()
+        .child_body_from_stmt(&statement, BodyChildRoleV1::IfElse)
+        .unwrap();
+
+    let mut use_ledger = product.into_use_ledger();
+    let mut row = use_ledger.claim(&statement).unwrap();
+    row.claim_statement(&statement).unwrap();
+    row.claim_expression(&condition).unwrap();
+    row.claim_body(&then_body).unwrap();
+    row.claim_body(&else_body).unwrap();
+    assert_eq!(row.finish_coverage(), Ok(()));
+    assert_eq!(use_ledger.finish(), Ok(()));
 }
 
 #[test]

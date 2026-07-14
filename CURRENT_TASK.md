@@ -31,10 +31,11 @@ function-wide Binding SSA will own every canonical local BindingRef value
 merge. Existing If must cut over to that owner before Loop production; no
 Loop-only SSA bridge, carrier rows, map diff, or legacy retry is authorized.
 
-B0-L4-S2′, the guarded 92-row SSA-P0 inventory, the behavior-neutral SSA-L0
-PHI-helper split, and disconnected SSA-C1 CFG/seal substrate are closed.
-Continue only the `current_blocker_token` named by `CURRENT_STATE.toml`; all
-pre-I1 prerequisites keep production Binding SSA and Loop activation at zero.
+B0-L4-S2′ through SSA-I0-PROFILE and the atomic SSA-I1-T trivial-owner cutover
+are closed. One admitted whole owner now uses production Binding SSA; Ownership
+SSA and Loop activation remain zero. Continue only the `current_blocker_token`
+named by `CURRENT_STATE.toml`. If it names the SSA-I1-COMPAT row-selection
+design stop, select one representation/ABI row before implementation.
 ProgramV0, REPL, Lambda capture/layout, default-route cutover, and durable
 RegionId materialization remain parked. Keep every new or modified
 source/check file below 800 lines.

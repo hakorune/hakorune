@@ -24,13 +24,14 @@ that was already patched is part of the poisoned unpublished draft and is not
 individually undone; the enclosing function transaction discards the whole
 draft.
 
-SSA-M0 adds one borrowed real-MIR adapter over `MirBuilder` and `PhiTxn`.
+SSA-M0 added one borrowed real-MIR adapter over `MirBuilder` and `PhiTxn`.
 It is mechanical only: allocation, provisional definition, exact input patch,
 dominance/reachability verification, and pending rollback. Open and patched
 PHIs both retain `MirType::Unknown`; the accepted fact-refinement set is empty.
 Every predecessor set comes from `CanonicalCfgSessionV1`, including Return
-blocks. The adapter has no production caller.
+blocks.
 
-SSA-S1 keeps this module disconnected from production. Production activation
-must be one whole-function owner cutover; no old-map synchronization bridge is
-allowed.
+SSA-I1-T connects the adapter to one admitted trivial whole-function route.
+That route has exactly one `BindingSsaBuilderV1`; no old-map synchronization
+bridge is allowed. Non-admitted current canonical owners remain a separately
+selected whole-unit A+ route and never retry after a Binding-SSA failure.

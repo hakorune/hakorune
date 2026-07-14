@@ -3,7 +3,7 @@
 //! SSA-S2 physically separates the two owners while preserving the existing
 //! canonical Lower API. Binding SSA remains disconnected until SSA-I1.
 
-mod ledger;
+pub(super) mod ledger;
 mod value_environment;
 
 use crate::mir::resolved_semantics::{
@@ -14,6 +14,7 @@ use crate::mir::ValueId;
 
 use super::branch_transaction::{AuthorizedBranchRebindV1, BranchValueStoreV1};
 use super::if_materialization::{DefinedJoinPublishV1, DefinedJoinValueStoreV1};
+use super::semantic_stack::ResolvedScopeRetirementV1;
 use ledger::ResolvedIdentityLedgerV2;
 use value_environment::PreSsaValueEnvironmentV1;
 
@@ -165,5 +166,15 @@ impl DefinedJoinValueStoreV1 for ResolvedIdentityStateV1<'_> {
             self.values.rebind(publish.binding(), publish.value())?;
         }
         Ok(())
+    }
+}
+
+impl ResolvedScopeRetirementV1 for ResolvedIdentityStateV1<'_> {
+    fn retire_scope_success(&mut self, declarations: &[BindingRefV1]) -> Result<(), String> {
+        ResolvedIdentityStateV1::retire_scope_success(self, declarations)
+    }
+
+    fn retire_scope_error(&mut self, declarations: &[BindingRefV1]) {
+        ResolvedIdentityStateV1::retire_scope_error(self, declarations)
     }
 }

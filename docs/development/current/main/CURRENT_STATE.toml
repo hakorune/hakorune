@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ SSA-I0-PROFILE closed; SSA-I1-T atomic trivial-profile cutover next"
+status = "D′ SSA-I1-T closed; SSA-I1-COMPAT row selection design stop next"
 date = "2026-07-15"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -43,16 +43,19 @@ SSA-RC0 closes a disconnected pure local-binding ownership-transition planner:
 exact BindingRef self-assignment, next-before-previous replacement, BlockExpr
 tail transfer/copy, reverse-order scope/function close, terminal Return ABI,
 and draft discard are sealed with zero MIR/materialization authority. A′ is
-accepted and SSA-I0-PROFILE is closed: one disconnected exact whole-owner
+accepted and SSA-I0-PROFILE is closed: one exact whole-owner
 trivial profile is co-sealed with completion and carrier-free If control,
 admits only InlineI64/InlineBool/InlineF64 value propagation, records If merge
 profiles without deciding PHIs, and gives explicit no-value dispositions to
 `return;` and implicit fallthrough. Parameters, receiver, Outbox, String,
 Void values, Null values, and mixed merges reject before Builder effects.
-Production Binding SSA and Ownership SSA activation remain zero. SSA-I1-T is
-the next whole-unit atomic cutover; temporary A+ is allowed only as a
-once-selected whole-unit owner, never as a mixed route or failure retry; the
-selected Binding-SSA route must skip legacy `insert_rc_instructions`.
+SSA-I1-T is closed: an admitted trivial whole owner now uses one function-owned
+Binding SSA, carrier-free If control, exact coverage, C1 CFG sealing, and
+demand-driven PHIs. The selected route skips legacy `insert_rc_instructions`;
+temporary A+ remains a once-selected non-admitted whole-unit owner with no
+mixing or failure retry. Production Ownership SSA remains zero. The next
+frontier is the SSA-I1-COMPAT row-selection design stop: parameter/receiver,
+Outbox/Void, BorrowedText, and Null remain separate rows.
 Historical
 lane chronology follows and is non-authoritative.
 Explicit user priority change on 2026-07-12 reopens
@@ -170,21 +173,20 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/binding-ssa-first-control-lowering-ssot.md"
 
-latest_card = "mirbuilder-ssa-i0-trivial-owner-profile-2026-07-15"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-ssa-i0-trivial-owner-profile-2026-07-15.md"
-latest_card_summary = """SSA-I0-PROFILE closes one disconnected executable
-whole-owner trivial representation witness under `src/mir/resolved_value_profile`.
-It is co-sealed with exact function completion and carrier-free If control,
-accounts exact values/definitions/merge profiles/terminal dispositions once,
-and admits only InlineI64/InlineBool/InlineF64 propagation. `return;` and
-implicit fallthrough are explicit no-value dispositions; parameters, receiver,
-Outbox, String, Void values, Null values, and mixed merge profiles reject.
-Focused fixtures are 10/10 and the private validator is green. Production
-Binding SSA, Ownership SSA, ownership opcodes, route behavior, and grammar
-deltas remain zero. SSA-I1-T is next: one whole-unit atomic Binding-SSA
-cutover with temporary A+ allowed only as a once-selected non-admitted
-whole-unit owner, never as a mixed route or failure retry; the selected route
-must skip legacy `insert_rc_instructions`. Historical D′ context follows.
+latest_card = "mirbuilder-ssa-i1-t-trivial-binding-ssa-cutover-2026-07-15"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-ssa-i1-t-trivial-binding-ssa-cutover-2026-07-15.md"
+latest_card_summary = """SSA-I1-T closes one whole-unit atomic production
+cutover for admitted trivial canonical owners. Preflight selects exactly one
+TrivialBindingSsa or temporary CurrentCanonicalAPlus route before Builder
+effects. The admitted route uses one function-owned BindingSsaBuilderV1,
+carrier-free If control, exact profile/control coverage, C1 CFG witnesses, and
+demand-driven PHIs; it skips legacy RC insertion and never retries A+. Function
+and post-transform module verification both precede publication. Focused
+located/capability/schedule/profile/control/VM fixtures are green at
+75/5/2/10/11/6. Exact Float typing is green and selected-route ReleaseStrong
+is zero. Production Ownership SSA and CopyOwned/DestroyOwned remain
+zero, Loop stays inactive, and grammar delta is zero. SSA-I1-COMPAT row
+selection is the next design stop. Historical D′ context follows.
 D′ is accepted and taskized through the final canonical
 source form. Exact source coverage, ScopeId/RegionId topology, typed ports,
 exact targets, cleanup obligations, and unsupported preflight remain
@@ -602,7 +604,7 @@ SSA-I1-T blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-T-TRIVIAL-PROFILE-ATOMIC-CUTOVER-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-ROW-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -611,6 +613,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-15: D′ SSA-I1-T atomically connects one admitted trivial whole owner to one function-owned Binding SSA: preflight selects BindingSsa or temporary A+ once before Builder effects; carrier-free If control, exact profile/control coverage, C1 CFG witnesses, demand-driven PHIs, and function/module publication barriers are active; the selected route skips legacy RC insertion and never retries A+; located/capability/schedule/profile/control/VM fixtures are 75/5/2/10/11/6 green, exact Float typing is green, and selected-route ReleaseStrong is zero; production Ownership SSA/opcodes and Loop activation remain zero; grammar delta is zero; SSA-I1-COMPAT row selection is the next design stop.",
   "2026-07-15: D′ SSA-I0-PROFILE closes one disconnected exact whole-owner trivial representation proof under src/mir/resolved_value_profile: eight manifest files co-seal exact completion and carrier-free If control with InlineI64/InlineBool/InlineF64 value, definition, merge-profile, and terminal coverage; return; and implicit fallthrough are distinct no-value dispositions; unsealed parameters/receiver, Outbox, String, Void/Null values, missing initializers, unsupported forms, and mixed merges reject before Builder effects; 10/10 focused fixtures, private validator, public authority guard, release build, quick 66/66, pointer guard, and cargo check are green; largest profile/check files are 610/468 lines; production profile/Binding SSA/Ownership SSA/opcode callers, grammar delta, route delta, and current A+ behavior delta remain zero; SSA-I1-T is selected and must skip legacy insert_rc_instructions.",
   "2026-07-14: D′ SSA-RC0 closes one disconnected pure local-binding ownership-transition planner: Receiver/Parameter/Local/Outbox and Trivial/Owned/BorrowedStrong form closed vocabularies; exact BindingRef self-assignment, next-before-previous replacement, BlockExpr tail transfer/copy, reverse-order scope/function close, terminal Return ABI, and draft discard are sealed; MirBuilder/MirInstruction/BasicBlockId imports, BindingRef-to-ValueId planner maps, ValueId allocation, MIR emission, production callers, grammar delta, and runtime activation are zero; 18/18 focused, 74/74 resolved-lowering, authority guard, release build, quick 66/66, and <=500-line source/check files are green; SSA-I1 is selected.",
   "2026-07-14: D′ SSA-RC-RET-P0 closes a separate behavior-neutral legacy ReleaseStrong retirement ledger: 118 tracked surfaces and 266 exact occurrences are classified into canonical caller-zero delete 1, legacy builder isolate 4, optional RC isolate 3, optimizer/CFG isolate 11, backend/JSON isolate 31, and retirement-only 68; the historical 92-row inventory is unchanged, one private helper is connected beneath the bounded authority guard, all new/modified source/check files are <=217 lines, release build, authority guard, pointer guard, and quick 66/66 are green, and semantic/backend/opcode/JSON/caller deltas remain zero; SSA-RC0 is selected.",
@@ -622,5 +625,4 @@ landed_tail = [
   "2026-07-14: D′ SSA-RC-P0 closes a machine-checked 17-row canonical ownership production profile: 3 exact trivial, 7 derived-trivial-only, 4 typed reject, and 3 absent rows; exact BoxRef source producers and generic BoxRef representation facts are zero; StorageClass remains inventory-only and JSON v0 ingress is not an ownership authority; the first SSA-I1 cutover is trivial-only until SSA-I1-O1; authority guard, release build, and quick 66/66 are green; ownership activation remains zero and SSA-RC-A0 is selected.",
   "2026-07-14: D′ SSA-RC-L1 closes one closure-scoped Rust MirInterpreter function-frame transaction: caller registers, fast slots, aliases/caches, current function, call state, and diagnostics restore on success and every typed error; PHI/step/missing-block fixtures and primary-plus-restoration error retention are green; all touched source files stay below 800 lines; release build and quick 66/66 are green; opcode/grammar/accepted-success/ownership deltas are zero and SSA-RC-P0 is selected.",
   "2026-07-14: D′ SSA-RC-L0 closes the behavior-neutral ownership transport seam split: backend_core_ops is an 8-line facade over 178-line vocabulary, 235-line allowlists, and 364-line tests; mir_json_v0 keeps a 742-line facade with a 34-line lifecycle parser; focused 20/20 + 10/10 + feature-gated 3/3, release build, authority guard, and quick 66/66 are green; API/opcode counts/JSON/backend/grammar/behavior are unchanged and SSA-RC-L1 is selected.",
-  "2026-07-14: Design Registry V1 deterministic 16-shard storage is accepted-for-tasking as a parked BoxShape series: the 7,000-line INDEX becomes a concise charter after full normalized V0/V1 parity and atomic no-fallback cutover; implementation must begin with CLEAN0, preserve or named-stash SSA-RC-L0 WIP, and close with V0 retirement plus RETURN0; production activation is 0 and SSA-RC-L0 remains selected.",
 ]

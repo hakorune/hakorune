@@ -26,13 +26,50 @@ mod capability_tests;
 #[cfg(test)]
 mod source_view_tests;
 
-use capability::CanonicalLoweringPreflightV1;
+use capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
 pub use lowering_input::{
     CanonicalLoweringErrorV1, LegacyModuleLoweringInputV1, ResolvedModuleLoweringInputV1,
     VerifiedResolvedSourceUnitV1,
 };
 use lowering_input::{MirLoweringRequestErrorV1, MirLoweringRequestV1};
 use module_session::CanonicalModuleLoweringSessionV1;
+
+/// Closed post-build schedule selected with the canonical lowering owner.
+///
+/// The schedule is carried separately from the MIR module so a selected
+/// Binding-SSA owner cannot accidentally enter legacy RC insertion.  Route
+/// selection remains pre-Builder; this value only materializes that sealed
+/// decision after the candidate module has been built.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum CanonicalFinishScheduleV1 {
+    TrivialBindingSsa,
+    CurrentCanonicalAPlus,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum MirFinishScheduleV1 {
+    Canonical(CanonicalFinishScheduleV1),
+    Legacy,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum LegacyRcInsertionScheduleV1 {
+    Skip,
+    Run,
+}
+
+impl MirFinishScheduleV1 {
+    fn legacy_rc_insertion(self) -> LegacyRcInsertionScheduleV1 {
+        match self {
+            Self::Canonical(CanonicalFinishScheduleV1::TrivialBindingSsa) => {
+                LegacyRcInsertionScheduleV1::Skip
+            }
+            Self::Canonical(CanonicalFinishScheduleV1::CurrentCanonicalAPlus) | Self::Legacy => {
+                LegacyRcInsertionScheduleV1::Run
+            }
+        }
+    }
+}
 
 fn require_canonical_verification(
     verification_result: Result<(), Vec<VerificationError>>,
@@ -44,6 +81,24 @@ fn require_canonical_verification(
             .collect::<Vec<_>>()
             .into_boxed_slice(),
     })
+}
+
+fn map_canonical_build_error(error: CanonicalResolvedBuildErrorV1) -> CanonicalLoweringErrorV1 {
+    match error {
+        CanonicalResolvedBuildErrorV1::BuilderContract(detail) => {
+            CanonicalLoweringErrorV1::BuilderContract { detail }
+        }
+        CanonicalResolvedBuildErrorV1::DuplicateFunctionPublication { function_name } => {
+            CanonicalLoweringErrorV1::DuplicateFunctionPublication { function_name }
+        }
+    }
+}
+
+fn set_candidate_source_hint(candidate: &mut MirBuilder, source_file: Option<&str>) {
+    match source_file {
+        Some(source) => candidate.set_source_file_hint(source.to_string()),
+        None => candidate.clear_source_file_hint(),
+    }
 }
 
 /// MIR compilation result
@@ -170,30 +225,41 @@ impl MirCompiler {
         }
         let plan = CanonicalLoweringPreflightV1::verify(input.source_unit())?;
 
-        // The candidate Builder is the canonical module transaction. Preflight
-        // has already succeeded, and any later error discards this candidate,
-        // leaving the compiler's prior Builder state untouched.
-        let mut module_session = CanonicalModuleLoweringSessionV1::open(&self.builder);
-        let candidate = module_session.builder_mut();
-        if let Some(source) = source_file {
-            candidate.set_source_file_hint(source.to_string());
-        } else {
-            candidate.clear_source_file_hint();
-        }
         let stage_start = Instant::now();
-        let module =
-            candidate
-                .build_resolved_function_module(plan)
-                .map_err(|error| match error {
-                    CanonicalResolvedBuildErrorV1::BuilderContract(detail) => {
-                        CanonicalLoweringErrorV1::BuilderContract { detail }
-                    }
-                    CanonicalResolvedBuildErrorV1::DuplicateFunctionPublication {
-                        function_name,
-                    } => CanonicalLoweringErrorV1::DuplicateFunctionPublication { function_name },
-                })?;
+        // The sealed whole-unit plan is matched exactly once after preflight
+        // and before the candidate session is opened. Each owner carries its
+        // matching finish schedule through publication; a lowering error
+        // returns directly and is never retried through the other owner.
+        let (module_session, module, finish_schedule) = match plan {
+            CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => {
+                let mut session = CanonicalModuleLoweringSessionV1::open(&self.builder);
+                set_candidate_source_hint(session.builder_mut(), source_file);
+                let module = session
+                    .builder_mut()
+                    .build_resolved_trivial_function_module(plan)
+                    .map_err(map_canonical_build_error)?;
+                (
+                    session,
+                    module,
+                    CanonicalFinishScheduleV1::TrivialBindingSsa,
+                )
+            }
+            CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) => {
+                let mut session = CanonicalModuleLoweringSessionV1::open(&self.builder);
+                set_candidate_source_hint(session.builder_mut(), source_file);
+                let module = session
+                    .builder_mut()
+                    .build_resolved_function_module(plan)
+                    .map_err(map_canonical_build_error)?;
+                (
+                    session,
+                    module,
+                    CanonicalFinishScheduleV1::CurrentCanonicalAPlus,
+                )
+            }
+        };
         super::compile_timing::trace_stage("build_resolved_module", stage_start.elapsed());
-        let result = self.finish_built_canonical_module(module)?;
+        let result = self.finish_built_canonical_module(module, finish_schedule)?;
         module_session.commit(&mut self.builder);
         Ok(result)
     }
@@ -201,18 +267,23 @@ impl MirCompiler {
     fn finish_built_canonical_module(
         &mut self,
         module: MirModule,
+        schedule: CanonicalFinishScheduleV1,
     ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
         let result = self
-            .finish_built_module(module)
+            .finish_built_module(module, MirFinishScheduleV1::Canonical(schedule))
             .map_err(|detail| CanonicalLoweringErrorV1::BuilderContract { detail })?;
 
-        // Legacy reports its historical pre-RC verifier result. Canonical
-        // publication has a stronger barrier: verify the fully transformed
-        // module after RC insertion and callsite canonicalization, and never
-        // let an Err cross the module-session commit.
+        // Legacy reports its historical pre-transform verifier result.
+        // Canonical publication has a stronger barrier: verify the fully
+        // transformed module after its selected finish schedule and callsite
+        // canonicalization, and never let an Err cross the module-session
+        // commit.
         let stage_start = Instant::now();
         let verification_result = self.verifier.verify_module(&result.module);
-        super::compile_timing::trace_stage("canonical_post_rc_verify", stage_start.elapsed());
+        super::compile_timing::trace_stage(
+            "canonical_post_transform_verify",
+            stage_start.elapsed(),
+        );
         require_canonical_verification(verification_result)?;
 
         Ok(MirCompileResult {
@@ -237,10 +308,14 @@ impl MirCompiler {
         let module = self.builder.build_module(ast)?;
         super::compile_timing::trace_stage("build_module", stage_start.elapsed());
 
-        self.finish_built_module(module)
+        self.finish_built_module(module, MirFinishScheduleV1::Legacy)
     }
 
-    fn finish_built_module(&mut self, mut module: MirModule) -> Result<MirCompileResult, String> {
+    fn finish_built_module(
+        &mut self,
+        mut module: MirModule,
+        schedule: MirFinishScheduleV1,
+    ) -> Result<MirCompileResult, String> {
         // Builder attaches declaration runes before each function body is fully
         // lowered. Refresh once after module build so optimizer consumers see
         // body-dependent rune facts such as verified required InlinePlan.
@@ -275,11 +350,17 @@ impl MirCompiler {
         let verification_result = self.verifier.verify_module(&module);
         super::compile_timing::trace_stage("verify", stage_start.elapsed());
 
-        // Phase 29y.1: RC insertion pass (skeleton - no-op for now)
-        // Runs after optimization and verification, before backend codegen
-        let stage_start = Instant::now();
-        let _rc_stats = insert_rc_instructions(&mut module);
-        super::compile_timing::trace_stage("rc_insert", stage_start.elapsed());
+        match schedule.legacy_rc_insertion() {
+            LegacyRcInsertionScheduleV1::Skip => {}
+            LegacyRcInsertionScheduleV1::Run => {
+                // Phase 29y.1 legacy RC insertion. The current A+ and legacy
+                // routes retain their historical behavior. A selected
+                // Binding-SSA route is forbidden from entering this pass.
+                let stage_start = Instant::now();
+                let _rc_stats = insert_rc_instructions(&mut module);
+                super::compile_timing::trace_stage("rc_insert", stage_start.elapsed());
+            }
+        }
         let stage_start = Instant::now();
         refresh_module_semantic_metadata(&mut module);
         super::compile_timing::trace_stage("semantic_refresh", stage_start.elapsed());

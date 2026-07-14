@@ -60,7 +60,7 @@ impl LoweringSourceCoverageV2 {
 /// This owner deliberately has no MIR value or block dependency. Reaching
 /// values remain in the temporary owner until the atomic cutover.
 #[derive(Debug)]
-pub(super) struct ResolvedIdentityLedgerV2<'a> {
+pub(in crate::mir::builder::resolved_lowering) struct ResolvedIdentityLedgerV2<'a> {
     product: &'a VerifiedResolvedFunctionV1,
     adoption: ResolvedIdentityAdoptionLedgerV2,
     coverage: LoweringSourceCoverageV2,
@@ -68,7 +68,9 @@ pub(super) struct ResolvedIdentityLedgerV2<'a> {
 }
 
 impl<'a> ResolvedIdentityLedgerV2<'a> {
-    pub(super) fn new(product: &'a VerifiedResolvedFunctionV1) -> Self {
+    pub(in crate::mir::builder::resolved_lowering) fn new(
+        product: &'a VerifiedResolvedFunctionV1,
+    ) -> Self {
         Self {
             product,
             adoption: ResolvedIdentityAdoptionLedgerV2::new(),
@@ -77,7 +79,7 @@ impl<'a> ResolvedIdentityLedgerV2<'a> {
         }
     }
 
-    pub(super) fn adopt_declaration(
+    pub(in crate::mir::builder::resolved_lowering) fn adopt_declaration(
         &mut self,
         site: &SourceBindingSiteV1,
         expected_kind: BindingKindV1,
@@ -91,12 +93,15 @@ impl<'a> ResolvedIdentityLedgerV2<'a> {
         Ok(binding)
     }
 
-    pub(super) fn mark_declaration(&mut self, site: &SourceBindingSiteV1) -> Result<(), String> {
+    pub(in crate::mir::builder::resolved_lowering) fn mark_declaration(
+        &mut self,
+        site: &SourceBindingSiteV1,
+    ) -> Result<(), String> {
         LoweringSourceCoverageV2::mark(&mut self.coverage.declarations, site, "declaration")?;
         Ok(())
     }
 
-    pub(super) fn claim_variable_use(
+    pub(in crate::mir::builder::resolved_lowering) fn claim_variable_use(
         &mut self,
         site: &SourceExprSiteV1,
         expected_name: &str,
@@ -114,7 +119,7 @@ impl<'a> ResolvedIdentityLedgerV2<'a> {
         Ok(binding)
     }
 
-    pub(super) fn resolve_assignment_binding(
+    pub(in crate::mir::builder::resolved_lowering) fn resolve_assignment_binding(
         &self,
         site: &SourceExprSiteV1,
         expected_name: &str,
@@ -131,7 +136,7 @@ impl<'a> ResolvedIdentityLedgerV2<'a> {
         Ok(*binding)
     }
 
-    pub(super) fn claim_assignment_binding(
+    pub(in crate::mir::builder::resolved_lowering) fn claim_assignment_binding(
         &mut self,
         site: &SourceExprSiteV1,
         binding: BindingRefV1,
@@ -151,7 +156,10 @@ impl<'a> ResolvedIdentityLedgerV2<'a> {
         )
     }
 
-    pub(super) fn mark_return(&mut self, site: ResolvedExitSiteV1) -> Result<(), String> {
+    pub(in crate::mir::builder::resolved_lowering) fn mark_return(
+        &mut self,
+        site: ResolvedExitSiteV1,
+    ) -> Result<(), String> {
         if self.product.resolved_exit(&site).is_none() {
             return Err(format!(
                 "[freeze:contract][canonical_coverage/return_missing] site={site:?}"
@@ -160,7 +168,10 @@ impl<'a> ResolvedIdentityLedgerV2<'a> {
         LoweringSourceCoverageV2::mark(&mut self.coverage.exits, &site, "return")
     }
 
-    pub(super) fn verify_scope_active(&self, binding: BindingRefV1) -> Result<(), String> {
+    pub(in crate::mir::builder::resolved_lowering) fn verify_scope_active(
+        &self,
+        binding: BindingRefV1,
+    ) -> Result<(), String> {
         if !self.adoption.adopted.contains(&binding) || self.retired.contains(&binding) {
             return Err(format!(
                 "[freeze:contract][canonical_scope/declaration_not_active] binding={binding:?}"
@@ -169,15 +180,24 @@ impl<'a> ResolvedIdentityLedgerV2<'a> {
         Ok(())
     }
 
-    pub(super) fn retire_scope_success(&mut self, declarations: &[BindingRefV1]) {
+    pub(in crate::mir::builder::resolved_lowering) fn retire_scope_success(
+        &mut self,
+        declarations: &[BindingRefV1],
+    ) {
         self.retired.extend(declarations.iter().copied());
     }
 
-    pub(super) fn retire_materialized(&mut self, binding: BindingRefV1) {
+    pub(in crate::mir::builder::resolved_lowering) fn retire_materialized(
+        &mut self,
+        binding: BindingRefV1,
+    ) {
         self.retired.insert(binding);
     }
 
-    pub(super) fn finish(self, active_bindings: BTreeSet<BindingRefV1>) -> Result<(), String> {
+    pub(in crate::mir::builder::resolved_lowering) fn finish(
+        self,
+        active_bindings: BTreeSet<BindingRefV1>,
+    ) -> Result<(), String> {
         let expected_declarations = self
             .product
             .declaration_sites()

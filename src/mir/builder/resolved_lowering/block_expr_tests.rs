@@ -92,9 +92,17 @@ fn returning(name: &str, expression: ASTNode) -> ASTNode {
 fn build(root: ASTNode) -> crate::mir::MirModule {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
     let plan = CanonicalLoweringPreflightV1::verify(&unit).unwrap();
-    MirBuilder::new()
-        .build_resolved_function_module(plan)
-        .unwrap()
+    let mut builder = MirBuilder::new();
+    match plan {
+        crate::mir::compiler::capability::CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => {
+            builder
+                .build_resolved_trivial_function_module(plan)
+                .unwrap()
+        }
+        crate::mir::compiler::capability::CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(
+            plan,
+        ) => builder.build_resolved_function_module(plan).unwrap(),
+    }
 }
 
 #[cfg(feature = "vm-reference")]

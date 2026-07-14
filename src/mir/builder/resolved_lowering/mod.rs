@@ -14,6 +14,7 @@ mod located_if;
 mod lowerer;
 mod ownership;
 mod semantic_stack;
+mod trivial_ssa;
 
 #[cfg(test)]
 mod block_expr_tests;
@@ -32,14 +33,19 @@ mod semantic_stack_tests;
 #[cfg(test)]
 mod tests;
 
-use crate::mir::compiler::capability::CanonicalFirstFamilyPlanV1;
+use crate::mir::compiler::capability::{
+    CanonicalCurrentAPlusPlanV1, CanonicalTrivialBindingSsaPlanV1,
+};
 use crate::mir::function::MirParamDecl;
 use crate::mir::MirModule;
 
 use super::calls::CanonicalFunctionSessionErrorV1;
 use super::MirBuilder;
-use completion_consumption::finalize_ready_function_completion;
+use completion_consumption::{
+    finalize_preterminated_function_completion, finalize_ready_function_completion,
+};
 use lowerer::CanonicalFunctionLowererV1;
+use trivial_ssa::CanonicalTrivialSsaLowererV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum CanonicalResolvedBuildErrorV1 {
@@ -67,7 +73,7 @@ impl From<CanonicalFunctionSessionErrorV1> for CanonicalResolvedBuildErrorV1 {
 impl MirBuilder {
     pub(in crate::mir) fn build_resolved_function_module(
         &mut self,
-        plan: CanonicalFirstFamilyPlanV1<'_>,
+        plan: CanonicalCurrentAPlusPlanV1<'_>,
     ) -> Result<MirModule, CanonicalResolvedBuildErrorV1> {
         let (input, flow, completion, block_expr_count) = plan.into_parts();
         self.prepare_module()?;
@@ -111,6 +117,67 @@ impl MirBuilder {
             )?
             .lower()?;
             finalize_ready_function_completion(builder, ready)
+        })?;
+
+        let entry_result = crate::mir::builder::emission::constant::emit_void(self)?;
+        Ok(self.finalize_module(entry_result)?)
+    }
+
+    pub(in crate::mir) fn build_resolved_trivial_function_module(
+        &mut self,
+        plan: CanonicalTrivialBindingSsaPlanV1<'_>,
+    ) -> Result<MirModule, CanonicalResolvedBuildErrorV1> {
+        let (input, if_control, completion, profile, block_expr_count) = plan.into_parts();
+        self.prepare_module()?;
+        let crate::ast::ASTNode::FunctionDeclaration {
+            name,
+            params,
+            body,
+            return_type_name,
+            attrs,
+            uses,
+            ..
+        } = input.source().root()
+        else {
+            unreachable!("preflight seals one FunctionDeclaration root")
+        };
+        let function_name = format!("{}/{}", name, params.len());
+        let session_name = function_name.clone();
+        self.with_resolved_function_lowering_session(&session_name, |builder| {
+            builder.resolved_binding_state.install(input.function())?;
+            builder.create_function_skeleton(function_name, params, body)?;
+            builder.set_current_function_declared_signature(
+                params
+                    .iter()
+                    .map(|name| MirParamDecl {
+                        name: name.clone(),
+                        declared_type_name: None,
+                        implicit_receiver: false,
+                    })
+                    .collect(),
+                return_type_name.clone(),
+            );
+            builder.set_current_function_runes(attrs);
+            builder.set_current_function_declared_capability_uses(uses);
+
+            let ready = CanonicalTrivialSsaLowererV1::new(
+                builder,
+                input,
+                if_control,
+                completion,
+                profile,
+                block_expr_count,
+            )?
+            .lower()?;
+            let draft = finalize_preterminated_function_completion(builder, ready)?;
+            crate::mir::verification::MirVerifier::new()
+                .verify_function(&draft)
+                .map_err(|errors| {
+                    format!(
+                        "[freeze:contract][canonical_binding_ssa/function_verify] errors={errors:?}"
+                    )
+                })?;
+            Ok(draft)
         })?;
 
         let entry_result = crate::mir::builder::emission::constant::emit_void(self)?;

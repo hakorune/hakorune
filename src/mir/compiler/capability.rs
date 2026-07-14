@@ -1,6 +1,7 @@
 //! Whole-unit capability proof before the first Builder effect.
 
 use crate::ast::{ASTNode, BinaryOperator};
+use crate::mir::resolved_control_flow::if_control::verify_resolved_function_if_control_v1;
 use crate::mir::resolved_control_flow::{
     verify_function_completion_v1, VerifiedFunctionCompletionV1,
 };
@@ -11,6 +12,10 @@ use crate::mir::resolved_semantics::{
     BindingKindV1, RegionKindV1, ResolvedAssignmentTargetV1, ResolvedExitOriginV1,
     ResolvedLexicalRefV1, ScopeKindV1, SourceBindingSiteV1,
 };
+use crate::mir::resolved_value_profile::{
+    analyze_trivial_canonical_owner_v1, product::VerifiedTrivialCanonicalOwnerV1,
+    TrivialCanonicalOwnerAnalysisV1,
+};
 
 use super::function_input::ResolvedFunctionLoweringInputV1;
 use super::located::{LocatedBodyV1, LocatedExprV1, LocatedStmtV1};
@@ -18,14 +23,14 @@ use super::lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnit
 use super::source_view::{BodyChildRoleV1, ExprChildRoleV1};
 
 #[derive(Debug)]
-pub(crate) struct CanonicalFirstFamilyPlanV1<'a> {
+pub(crate) struct CanonicalCurrentAPlusPlanV1<'a> {
     function: ResolvedFunctionLoweringInputV1<'a>,
     flow: VerifiedResolvedFunctionFlowV1,
     completion: VerifiedFunctionCompletionV1,
     block_expr_count: usize,
 }
 
-impl<'a> CanonicalFirstFamilyPlanV1<'a> {
+impl<'a> CanonicalCurrentAPlusPlanV1<'a> {
     pub(crate) fn into_parts(
         self,
     ) -> (
@@ -41,6 +46,45 @@ impl<'a> CanonicalFirstFamilyPlanV1<'a> {
             self.block_expr_count,
         )
     }
+}
+
+#[derive(Debug)]
+pub(crate) struct CanonicalTrivialBindingSsaPlanV1<'a> {
+    function: ResolvedFunctionLoweringInputV1<'a>,
+    if_control: crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1,
+    completion: VerifiedFunctionCompletionV1,
+    profile: VerifiedTrivialCanonicalOwnerV1,
+    block_expr_count: usize,
+}
+
+impl<'a> CanonicalTrivialBindingSsaPlanV1<'a> {
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        ResolvedFunctionLoweringInputV1<'a>,
+        crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1,
+        VerifiedFunctionCompletionV1,
+        VerifiedTrivialCanonicalOwnerV1,
+        usize,
+    ) {
+        (
+            self.function,
+            self.if_control,
+            self.completion,
+            self.profile,
+            self.block_expr_count,
+        )
+    }
+}
+
+/// One whole-unit canonical value-authority selection.
+///
+/// The variant is sealed before the module candidate is opened. A later
+/// lowering failure cannot be reclassified as the temporary A+ route.
+#[derive(Debug)]
+pub(crate) enum CanonicalFirstFamilyPlanV1<'a> {
+    TrivialBindingSsa(CanonicalTrivialBindingSsaPlanV1<'a>),
+    CurrentCanonicalAPlus(CanonicalCurrentAPlusPlanV1<'a>),
 }
 
 pub(crate) struct CanonicalLoweringPreflightV1;
@@ -109,18 +153,55 @@ impl CanonicalLoweringPreflightV1 {
                 detail: format!("{error:?}"),
             }
         })?;
+        let if_control =
+            verify_resolved_function_if_control_v1(function, &completion).map_err(|error| {
+                CanonicalLoweringErrorV1::ResolvedRegionFlow {
+                    detail: format!("if_control_contract={error:?}"),
+                }
+            })?;
+        verify_product_shape(
+            function,
+            if_control.row_count(),
+            if_control.explicit_else_count(),
+            block_expr_count,
+        )?;
+
+        let profile = analyze_trivial_canonical_owner_v1(function, &completion, &if_control)
+            .map_err(|error| CanonicalLoweringErrorV1::ResolvedRegionFlow {
+                detail: format!("trivial_profile_contract={error:?}"),
+            })?;
+        match profile {
+            TrivialCanonicalOwnerAnalysisV1::Admitted(profile) => {
+                return Ok(CanonicalFirstFamilyPlanV1::TrivialBindingSsa(
+                    CanonicalTrivialBindingSsaPlanV1 {
+                        function,
+                        if_control,
+                        completion,
+                        profile,
+                        block_expr_count,
+                    },
+                ));
+            }
+            TrivialCanonicalOwnerAnalysisV1::NotAdmitted(_) => {}
+        }
+
+        // Temporary A+ is selected only from an explicit whole-owner profile
+        // stop. Contract failures above are canonical errors and never reach
+        // this branch. The legacy RegionFlow analysis is therefore absent
+        // from every admitted Binding-SSA route.
         let flow = analyze_resolved_function_flow_v1(function, &completion).map_err(|error| {
             CanonicalLoweringErrorV1::ResolvedRegionFlow {
                 detail: format!("{error:?}"),
             }
         })?;
-        verify_product_shape(function, &flow, block_expr_count)?;
-        Ok(CanonicalFirstFamilyPlanV1 {
-            function,
-            flow,
-            completion,
-            block_expr_count,
-        })
+        Ok(CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(
+            CanonicalCurrentAPlusPlanV1 {
+                function,
+                flow,
+                completion,
+                block_expr_count,
+            },
+        ))
     }
 }
 
@@ -299,7 +380,8 @@ fn verify_expression(
 
 fn verify_product_shape(
     input: ResolvedFunctionLoweringInputV1<'_>,
-    flow: &VerifiedResolvedFunctionFlowV1,
+    if_count: usize,
+    explicit_else_count: usize,
     block_expr_count: usize,
 ) -> Result<(), CanonicalLoweringErrorV1> {
     let product = input.function();
@@ -332,12 +414,6 @@ fn verify_product_shape(
     let product_block_expr_regions = product
         .regions()
         .filter(|(_, region)| region.kind() == RegionKindV1::BlockExpr)
-        .count();
-    let if_count = flow.if_flows().len();
-    let explicit_else_count = flow
-        .if_flows()
-        .iter()
-        .filter(|row| row.regions().else_pair().is_some())
         .count();
     let expected_scope_count = 2 + block_expr_count + if_count + explicit_else_count;
     let expected_region_count = 2 + block_expr_count + (2 * if_count) + explicit_else_count;

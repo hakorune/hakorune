@@ -1,8 +1,7 @@
 //! Function-owned sealed-block SSA construction for canonical bindings.
 //!
-//! SSA-S1 is deliberately disconnected from production lowering.
-
-#![allow(dead_code)]
+//! SSA-I1-T connects this box to exactly one admitted trivial whole-owner
+//! lowering route. Other canonical families remain outside this authority.
 
 mod adapter;
 mod error;
@@ -15,7 +14,6 @@ mod tests;
 
 pub(in crate::mir::builder) use adapter::BindingSsaIrV1;
 pub(in crate::mir::builder) use error::BindingSsaErrorV1;
-#[cfg(test)]
 pub(in crate::mir::builder) use mir_adapter::MirBindingSsaAdapterV1;
 
 use crate::mir::builder::resolved_lowering::canonical_cfg::VerifiedPredecessorsV1;

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the disconnected D-prime SSA-M0 real-MIR adapter."""
+"""Validate the D-prime SSA-M0 adapter and its bounded SSA-I1-T caller."""
 
 from __future__ import annotations
 
@@ -105,8 +105,15 @@ def main() -> None:
         source = path.read_text()
         if "MirBindingSsaAdapterV1" in source or "BindingSsaBuilderV1::new" in source:
             callers.append(str(path.relative_to(root)))
-    if callers:
-        fail(f"production Binding SSA/adapter callers must remain zero: {callers}")
+    callers.sort()
+    expected_callers = [
+        "src/mir/builder/resolved_lowering/trivial_ssa/identity.rs",
+    ]
+    if callers != expected_callers:
+        fail(
+            "production Binding SSA/adapter caller set drifted: "
+            f"expected={expected_callers} actual={callers}"
+        )
 
     for anchor in (
         "### SSA-M0 — disconnected real-MIR Binding SSA adapter — closed",
@@ -127,7 +134,7 @@ def main() -> None:
     print("canonical_ssa_m0_open_phi_fact=conservative-unknown")
     print("canonical_ssa_m0_fact_refinements=0")
     print(f"canonical_ssa_m0_focused_fixtures={test_count}")
-    print("canonical_ssa_m0_production_callers=0")
+    print("canonical_ssa_m0_production_callers=1")
     print("canonical_ssa_m0_accepted_grammar_delta=0")
 
 

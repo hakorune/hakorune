@@ -2,12 +2,19 @@ use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::resolved_region_flow::ResolvedElseFallthroughV1;
 use crate::mir::resolved_semantics::SourcePathSegmentV1;
 
-use super::capability::CanonicalLoweringPreflightV1;
+use super::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
 use super::{CanonicalLoweringErrorV1, MirCompiler, VerifiedResolvedSourceUnitV1};
 
 fn literal(value: i64) -> ASTNode {
     ASTNode::Literal {
         value: LiteralValue::Integer(value),
+        span: Span::unknown(),
+    }
+}
+
+fn bool_literal(value: bool) -> ASTNode {
+    ASTNode::Literal {
+        value: LiteralValue::Bool(value),
         span: Span::unknown(),
     }
 }
@@ -92,7 +99,11 @@ fn preflight_owns_nested_if_flow_with_blockexpr_condition_and_optional_else() {
     ]))
     .unwrap();
 
-    let plan = CanonicalLoweringPreflightV1::verify(&unit).unwrap();
+    let CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) =
+        CanonicalLoweringPreflightV1::verify(&unit).unwrap()
+    else {
+        panic!("non-Bool If condition must select the temporary A+ whole-unit route")
+    };
     let (input, flow, completion, block_expr_count) = plan.into_parts();
     let [outer, inner] = flow.if_flows() else {
         panic!("expected exact outer and nested If rows")
@@ -120,6 +131,37 @@ fn preflight_owns_nested_if_flow_with_blockexpr_condition_and_optional_else() {
         inner.else_port(),
         ResolvedElseFallthroughV1::ImplicitIdentity
     ));
+}
+
+#[test]
+fn preflight_selects_trivial_binding_ssa_with_carrier_free_if_control() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(vec![
+        local("x", literal(0)),
+        if_stmt(
+            bool_literal(true),
+            vec![assignment("x", 1)],
+            Some(vec![assignment("x", 2)]),
+        ),
+        ASTNode::Return {
+            value: Some(Box::new(variable("x"))),
+            span: Span::unknown(),
+        },
+    ]))
+    .unwrap();
+
+    let CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) =
+        CanonicalLoweringPreflightV1::verify(&unit).unwrap()
+    else {
+        panic!("exact homogeneous trivial owner must select Binding SSA")
+    };
+    let (input, if_control, completion, profile, block_expr_count) = plan.into_parts();
+
+    assert_eq!(profile.owner(), input.owner());
+    assert_eq!(if_control.owner(), input.owner());
+    assert_eq!(if_control.row_count(), 1);
+    assert_eq!(if_control.explicit_else_count(), 1);
+    assert!(completion.returns_value());
+    assert_eq!(block_expr_count, 0);
 }
 
 #[test]

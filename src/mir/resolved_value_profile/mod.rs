@@ -3,6 +3,7 @@
 //! See `README.md` before adding a producer or consumer connection.
 
 mod analyzer;
+mod consumption;
 mod coverage;
 pub(crate) mod error;
 mod operator;
@@ -24,3 +25,5 @@ pub(crate) fn analyze_trivial_canonical_owner_v1(
 ) -> Result<TrivialCanonicalOwnerAnalysisV1, error::TrivialProfileContractErrorV1> {
     analyzer::analyze_trivial_canonical_owner_impl_v1(input, completion, if_control)
 }
+
+pub(crate) use consumption::TrivialProfileConsumptionV1;

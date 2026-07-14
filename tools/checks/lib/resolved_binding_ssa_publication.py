@@ -39,15 +39,17 @@ def main() -> None:
 
     for anchor in (
         "fn finish_built_canonical_module(",
-        '"canonical_post_rc_verify"',
+        '"canonical_post_transform_verify"',
         "require_canonical_verification(verification_result)?;",
         "verification_result: Ok(())",
     ):
-        require(text["compiler"], anchor, "post-RC verifier barrier")
+        require(text["compiler"], anchor, "post-transform verifier barrier")
 
     resolved_body = text["compiler"].split("fn compile_resolved_first_family(", 1)[1]
     resolved_body = resolved_body.split("fn finish_built_canonical_module(", 1)[0]
-    finish_index = resolved_body.find("finish_built_canonical_module(module)?")
+    finish_index = resolved_body.find(
+        "finish_built_canonical_module(module, finish_schedule)?"
+    )
     commit_index = resolved_body.find("module_session.commit(&mut self.builder)")
     if finish_index < 0 or commit_index < 0 or finish_index >= commit_index:
         fail("canonical module commit is not structurally after strict finalization")
@@ -109,12 +111,12 @@ def main() -> None:
         if lines >= 800:
             fail(f"source/check reached the 800-line stop boundary: {path} ({lines})")
 
-    print("canonical_ssa_v0_post_rc_verifier_failure=typed-compile-error")
+    print("canonical_ssa_v0_post_transform_verifier_failure=typed-compile-error")
     print("canonical_ssa_v0_commit_after_verifier_failure=0")
     print("canonical_ssa_v0_duplicate_function_publication=typed-reject")
     print("canonical_ssa_v0_duplicate_overwrite=0")
     print("canonical_ssa_v0_legacy_reporting=explicitly-preserved")
-    print("canonical_ssa_v0_binding_ssa_production_callers=0")
+    print("canonical_ssa_v0_binding_ssa_production_callers=1")
     print("canonical_ssa_v0_accepted_grammar_delta=0")
 
 

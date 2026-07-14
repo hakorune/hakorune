@@ -18,6 +18,7 @@ guard_resolved_binding_ssa_contract() {
   local builder_validator="$root/tools/checks/lib/resolved_binding_ssa_builder.py"
   local identity_validator="$root/tools/checks/lib/resolved_binding_ssa_identity.py"
   local mir_adapter_validator="$root/tools/checks/lib/resolved_binding_ssa_mir_adapter.py"
+  local i1_t_validator="$root/tools/checks/lib/resolved_binding_ssa_i1_t.py"
   local ownership_profile="$root/tools/checks/fixtures/canonical_ownership_production_profile_v1.json"
   local ownership_validator="$root/tools/checks/lib/resolved_ownership_production_profile.py"
   local helper="${BASH_SOURCE[0]}"
@@ -32,6 +33,7 @@ guard_resolved_binding_ssa_contract() {
     "$builder_validator" \
     "$identity_validator" \
     "$mir_adapter_validator" \
+    "$i1_t_validator" \
     "$ownership_profile" \
     "$ownership_validator" \
     "$helper"
@@ -42,6 +44,7 @@ guard_resolved_binding_ssa_contract() {
   python3 "$builder_validator" "$root"
   python3 "$identity_validator" "$root"
   python3 "$mir_adapter_validator" "$root"
+  python3 "$i1_t_validator" "$root"
   python3 "$ownership_validator" "$root" "$ownership_profile"
   guard_resolved_ownership_legacy_release_contract "$tag" "$root"
   guard_resolved_ownership_transition_planner_contract "$tag" "$root"
@@ -57,6 +60,7 @@ guard_resolved_binding_ssa_contract() {
     "$builder_validator" \
     "$identity_validator" \
     "$mir_adapter_validator" \
+    "$i1_t_validator" \
     "$ownership_profile" \
     "$ownership_validator" \
     "$helper"; do

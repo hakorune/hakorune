@@ -1,6 +1,7 @@
 use super::{
     module_session::CanonicalModuleLoweringSessionV1, require_canonical_verification,
-    CanonicalLoweringErrorV1, MirCompiler,
+    CanonicalFinishScheduleV1, CanonicalLoweringErrorV1, LegacyRcInsertionScheduleV1, MirCompiler,
+    MirFinishScheduleV1,
 };
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::exact_numeric_value_facts::{ExactNumericReturnFact, ExactNumericValueFactSource};
@@ -9,6 +10,28 @@ use crate::mir::string_corridor::StringCorridorOp;
 use crate::mir::string_corridor_placement::StringCorridorCandidateKind;
 use crate::mir::{MirInstruction, MirPrinter, MirType};
 use crate::parser::NyashParser;
+
+#[test]
+fn trivial_binding_ssa_finish_schedule_skips_legacy_rc() {
+    assert_eq!(
+        MirFinishScheduleV1::Canonical(CanonicalFinishScheduleV1::TrivialBindingSsa)
+            .legacy_rc_insertion(),
+        LegacyRcInsertionScheduleV1::Skip
+    );
+}
+
+#[test]
+fn current_canonical_and_legacy_finish_schedules_keep_legacy_rc() {
+    assert_eq!(
+        MirFinishScheduleV1::Canonical(CanonicalFinishScheduleV1::CurrentCanonicalAPlus)
+            .legacy_rc_insertion(),
+        LegacyRcInsertionScheduleV1::Run
+    );
+    assert_eq!(
+        MirFinishScheduleV1::Legacy.legacy_rc_insertion(),
+        LegacyRcInsertionScheduleV1::Run
+    );
+}
 
 #[test]
 fn test_basic_mir_compilation() {

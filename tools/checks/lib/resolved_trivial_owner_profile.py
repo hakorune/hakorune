@@ -12,19 +12,19 @@ import sys
 
 SCHEMA = "VerifiedTrivialCanonicalOwnerProfileContractV1"
 HISTORICAL_SHA256 = (
-    "ef08015d4adaeff9aa0258efd3e23ea863d1a31098d48f40720708f9fdafe109"
+    "0c8395ce8f893ee0e7faf427490f77f8da6a5f3f7a729aae06d2a2cd382927b4"
 )
 EXPECTED_CLAIMS = {
-    "profile_manifest_entries": 8,
-    "profile_production_rust_files": 6,
+    "profile_manifest_entries": 9,
+    "profile_production_rust_files": 7,
     "profile_test_rust_files": 1,
     "profile_entry_definitions": 1,
     "sealed_product_definitions": 1,
     "focused_profile_fixtures": 10,
-    "profile_production_callers": 0,
-    "production_route_delta": 0,
+    "profile_production_callers": 1,
+    "production_route_delta": 1,
     "accepted_grammar_delta": 0,
-    "binding_ssa_production_callers": 0,
+    "binding_ssa_production_callers": 1,
     "ownership_ssa_production_callers": 0,
     "ownership_ssa_witness_installers": 0,
     "production_ownership_opcode_callers": 0,
@@ -38,6 +38,7 @@ EXPECTED_SYMBOLS = {
 EXPECTED_MANIFEST = {
     "README.md",
     "analyzer.rs",
+    "consumption.rs",
     "coverage.rs",
     "error.rs",
     "mod.rs",
@@ -47,6 +48,7 @@ EXPECTED_MANIFEST = {
 }
 EXPECTED_PRODUCTION_RUST = {
     "analyzer.rs",
+    "consumption.rs",
     "coverage.rs",
     "error.rs",
     "mod.rs",
@@ -393,16 +395,23 @@ def main() -> None:
             external_profile_references.append(str(path.relative_to(root)))
         if path != root / "src/mir/mod.rs" and "resolved_value_profile" in text:
             external_module_references.append(str(path.relative_to(root)))
-    if external_profile_callers:
-        fail(f"profile analyzer gained production callers: {external_profile_callers}")
-    if external_profile_references:
+    if external_profile_callers != ["src/mir/compiler/capability.rs"]:
+        fail(f"profile analyzer caller set drifted: {external_profile_callers}")
+    if set(external_profile_references) != {
+        "src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs",
+        "src/mir/compiler/capability.rs",
+    }:
         fail(
-            "sealed profile escaped its disconnected physical owner: "
+            "sealed profile production consumer set drifted: "
             f"{external_profile_references}"
         )
-    if external_module_references:
+    if set(external_module_references) != {
+        "src/mir/builder/resolved_lowering/trivial_ssa/operation.rs",
+        "src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs",
+        "src/mir/compiler/capability.rs",
+    }:
         fail(
-            "resolved_value_profile gained an external production reference: "
+            "resolved_value_profile production reference set drifted: "
             f"{external_module_references}"
         )
 
@@ -414,8 +423,10 @@ def main() -> None:
         text = production_text(path)
         if "BindingSsaBuilderV1" in text or "MirBindingSsaAdapterV1" in text:
             binding_callers.append(str(path.relative_to(root)))
-    if binding_callers:
-        fail(f"Binding SSA gained production callers: {binding_callers}")
+    if binding_callers != [
+        "src/mir/builder/resolved_lowering/trivial_ssa/identity.rs"
+    ]:
+        fail(f"Binding SSA production caller set drifted: {binding_callers}")
 
     ownership_dir = root / "src/mir/ownership_ssa"
     ownership_callers = 0
@@ -448,14 +459,14 @@ def main() -> None:
         fail(f"default/non-test resolved caller activated: {resolved_callers}")
 
     print("canonical_ssa_i0_profile_owner=src/mir/resolved_value_profile")
-    print("canonical_ssa_i0_profile_manifest_entries=8")
-    print("canonical_ssa_i0_profile_production_rust_files=6")
+    print("canonical_ssa_i0_profile_manifest_entries=9")
+    print("canonical_ssa_i0_profile_production_rust_files=7")
     print("canonical_ssa_i0_profile_test_rust_files=1")
     print("canonical_ssa_i0_profile_entry_definitions=1")
     print("canonical_ssa_i0_profile_sealed_product_definitions=1")
     print("canonical_ssa_i0_profile_focused_fixtures=10")
-    print("canonical_ssa_i0_profile_production_callers=0")
-    print("canonical_ssa_i0_profile_binding_ssa_callers=0")
+    print("canonical_ssa_i0_profile_production_callers=1")
+    print("canonical_ssa_i0_profile_binding_ssa_callers=1")
     print("canonical_ssa_i0_profile_ownership_ssa_callers=0")
     print("canonical_ssa_i0_profile_ownership_witness_installers=0")
     print("canonical_ssa_i0_profile_ownership_opcode_callers=0")

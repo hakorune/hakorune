@@ -136,6 +136,34 @@ pub(super) fn finalize_ready_function_completion(
     Ok(draft)
 }
 
+/// Finalizes the SSA-I1-T draft after its return block and whole CFG were
+/// already emitted and sealed by the function-owned SSA transaction.
+pub(super) fn finalize_preterminated_function_completion(
+    builder: &mut MirBuilder,
+    ready: ReadyFunctionCompletionV1,
+) -> Result<MirFunction, String> {
+    verify_canonical_return_state(builder)?;
+    let current_block = builder.current_block.ok_or_else(|| {
+        "[freeze:contract][canonical_completion/current_block_missing]".to_string()
+    })?;
+    if !current_terminator_is_return(builder, current_block)? {
+        return Err(
+            "[freeze:contract][canonical_completion/preterminated_return_missing]".to_string(),
+        );
+    }
+    let returns_value = ready.completion.returns_value();
+    let draft = builder.finalize_function_draft(returns_value)?;
+    if !matches!(
+        draft
+            .get_block(current_block)
+            .and_then(|block| block.terminator.as_ref()),
+        Some(MirInstruction::Return { .. })
+    ) {
+        return Err("[freeze:contract][canonical_completion/final_return_missing]".to_string());
+    }
+    Ok(draft)
+}
+
 fn verify_canonical_return_state(builder: &MirBuilder) -> Result<(), String> {
     if builder.return_defer_active
         || builder.return_defer_slot.is_some()

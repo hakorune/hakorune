@@ -19,13 +19,13 @@ Related:
 - blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
 - language-v1 workstream:
   `docs/development/current/main/workstreams/language-v1-convergence-current.md`
-- priority: D′ is taskized through the final canonical-source form. S2′
-  generic located coverage and the guarded 92-row SSA-P0 seam inventory are
-  closed, SSA-L0 has split the oversized PHI helper without behavior change,
-  and disconnected SSA-C1 CFG/seal is closed. Read `current_blocker_token` for
-  the active prerequisite. Existing If remains runtime-green on its old owner; Loop production,
-  carrier rows, legacy fallback, default source, Lambda/capture, ProgramV0
-  authority, and durable RegionId materialization remain inactive
+- priority: D′ SSA-I1-T is closed. One admitted trivial whole owner now uses
+  one production Binding SSA plus carrier-free If control and skips legacy RC;
+  non-admitted current owners remain whole-unit A+ only. Read
+  `current_blocker_token`: SSA-I1-COMPAT row selection is a design stop.
+  Ownership SSA, Loop production, legacy fallback, default source,
+  Lambda/capture, ProgramV0 authority, and durable RegionId materialization
+  remain inactive
 - parked language work: LANGV1 conformance closeout remains parked; no
   language behavior is changed by the reprioritization
 

@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-I0-PROFILE closed; SSA-I1-T next
+Status: Active — SSA-I1-T closed; SSA-I1-COMPAT row selection next
 Date: 2026-07-15
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-T-TRIVIAL-PROFILE-ATOMIC-CUTOVER-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-ROW-SELECTION-DESIGN-STOP-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -1227,7 +1227,7 @@ largest private check helper = 468 lines
 Evidence card:
 `mirbuilder-ssa-i0-trivial-owner-profile-2026-07-15.md`.
 
-### SSA-I1-T — atomic trivial-profile owner cutover
+### SSA-I1-T — atomic trivial-profile owner cutover — closed
 
 In one production commit, select one whole source unit whose executable
 `VerifiedTrivialCanonicalOwnerV1` is admitted and move that entire owner to
@@ -1286,6 +1286,28 @@ production CopyOwned / DestroyOwned callers = 0
 ```
 
 No Loop syntax or ownership-managed value is activated in this commit.
+
+Closed evidence:
+
+```text
+pre-Builder whole-unit route match = exactly one
+production BindingSsaBuilderV1 caller files = 1
+production MirBindingSsaAdapterV1 caller files = 1
+production CanonicalCfgSessionV1 caller files = 1
+located resolved-lowering fixtures = 75/75 green
+capability / finish schedule = 5/5 / 2/2 green
+trivial profile / carrier-free If control = 10/10 / 11/11 green
+VM-reference nested/fallthrough If = 6/6 green
+exact Float BinOp / selected-route ReleaseStrong = green / 0
+selected Binding-SSA route legacy RC insertion = 0
+production Ownership SSA / CopyOwned / DestroyOwned activation = 0
+accepted grammar delta = 0
+largest new production source file = 605 lines
+private SSA-I1-T authority validator = green
+```
+
+Evidence card:
+`mirbuilder-ssa-i1-t-trivial-binding-ssa-cutover-2026-07-15.md`.
 
 ### SSA-I1-COMPAT — representation/ABI compatibility rows
 
@@ -2229,25 +2251,26 @@ state.
 
 ## Immediate next action
 
-Implement **SSA-I1-T** as one whole-unit atomic cutover using the closed
-`VerifiedTrivialCanonicalOwnerV1`:
+Select exactly one **SSA-I1-COMPAT** representation/ABI row before
+implementation:
 
 ```text
-route selection before Builder effects
-admitted whole owner -> one BindingSsaBuilderV1
-non-admitted current whole unit -> temporary A+ owner
-no function/body/site-level mixing
-no failure retry
-selected Binding-SSA route skips legacy insert_rc_instructions
-coverage / CFG / SSA / verifier finish before publication
+parameter/receiver ABI
+or Outbox/Void disposition
+or BorrowedText
+or Null
 ```
 
-Until the atomic SSA-I1-T commit lands:
+Selection must name the representation authority, exact ABI/disposition law,
+unsupported fail-fast boundary, and one bounded runtime fixture. Do not bundle
+two compatibility rows or use A+/Binding-SSA body-level mixing.
+
+Until one SSA-I1-COMPAT row is selected:
 
 ```text
-production Binding SSA sessions = 0
+production Binding SSA sessions = exactly one admitted trivial route
 production Ownership SSA witness/install/verifier calls = 0
 production CopyOwned / DestroyOwned callers = 0
-canonical accepted behavior delta = 0
 temporary A+ production behavior = unchanged
+Loop production activation = 0
 ```

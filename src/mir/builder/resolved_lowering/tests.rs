@@ -2,6 +2,7 @@ use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::compiler::capability::CanonicalLoweringPreflightV1;
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::resolved_semantics::{BindingKindV1, SourceBindingSiteV1};
+use crate::mir::{MirInstruction, MirType};
 
 use super::identity::ResolvedIdentityStateV1;
 use super::*;
@@ -66,11 +67,35 @@ fn fixture() -> ASTNode {
     }
 }
 
+fn trivial_returning(name: &str, value: ASTNode) -> ASTNode {
+    ASTNode::FunctionDeclaration {
+        name: name.into(),
+        params: Vec::new(),
+        param_decls: Vec::new(),
+        return_type_name: None,
+        body: vec![ASTNode::Return {
+            value: Some(Box::new(value)),
+            span: Span::unknown(),
+        }],
+        uses: Vec::new(),
+        contracts: Vec::new(),
+        is_static: true,
+        is_override: false,
+        attrs: DeclarationAttrs::default(),
+        span: Span::unknown(),
+    }
+}
+
 #[test]
 fn closed_family_uses_resolver_bindings_without_legacy_allocation() {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(fixture()).unwrap();
     let plan = CanonicalLoweringPreflightV1::verify(&unit).unwrap();
     let mut builder = MirBuilder::new();
+    let crate::mir::compiler::capability::CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) =
+        plan
+    else {
+        panic!("parameter/outbox fixture must remain on temporary A+")
+    };
     let module = builder.build_resolved_function_module(plan).unwrap();
 
     assert!(module.functions.contains_key("canonical_fixture/1"));
@@ -95,6 +120,50 @@ fn public_resolved_route_produces_verifier_clean_mir() {
         result.verification_result
     );
     assert!(result.module.functions.contains_key("canonical_fixture/1"));
+}
+
+#[test]
+fn trivial_float_route_keeps_exact_type_and_emits_no_legacy_release() {
+    let expression = ASTNode::BinaryOp {
+        operator: BinaryOperator::Add,
+        left: Box::new(ASTNode::Literal {
+            value: LiteralValue::Float(1.5),
+            span: Span::unknown(),
+        }),
+        right: Box::new(ASTNode::Literal {
+            value: LiteralValue::Float(2.5),
+            span: Span::unknown(),
+        }),
+        span: Span::unknown(),
+    };
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(trivial_returning(
+        "trivial_float",
+        expression,
+    ))
+    .unwrap();
+    let result = crate::mir::MirCompiler::with_options(false)
+        .compile_resolved(unit.lowering_input(), Some("trivial_float.hako"))
+        .unwrap();
+    let function = &result.module.functions["trivial_float/0"];
+    let binop_dst = function
+        .blocks
+        .values()
+        .flat_map(|block| &block.instructions)
+        .find_map(|instruction| match instruction {
+            MirInstruction::BinOp { dst, .. } => Some(*dst),
+            _ => None,
+        })
+        .expect("direct trivial Float BinOp must be materialized");
+
+    assert_eq!(
+        function.metadata.value_types.get(&binop_dst),
+        Some(&MirType::Float)
+    );
+    assert!(function.blocks.values().all(|block| block
+        .instructions
+        .iter()
+        .all(|instruction| !matches!(instruction, MirInstruction::ReleaseStrong { .. }))));
+    assert!(result.verification_result.is_ok());
 }
 
 #[test]
@@ -157,6 +226,11 @@ fn duplicate_exact_declaration_materialization_is_rejected() {
 fn function_error_discards_unpublished_canonical_draft() {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(fixture()).unwrap();
     let plan = CanonicalLoweringPreflightV1::verify(&unit).unwrap();
+    let crate::mir::compiler::capability::CanonicalFirstFamilyPlanV1::CurrentCanonicalAPlus(plan) =
+        plan
+    else {
+        panic!("parameter/outbox fixture must remain on temporary A+")
+    };
     let (input, _flow, _completion, _block_expr_count) = plan.into_parts();
 
     let mut missing_authority = MirBuilder::new();

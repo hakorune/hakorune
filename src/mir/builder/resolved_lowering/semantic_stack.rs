@@ -11,7 +11,12 @@ use crate::mir::resolved_semantics::{
     ResolvedScopeRegionPairV1, ScopeId, ScopeKindV1, VerifiedResolvedFunctionV1,
 };
 
-use super::identity::ResolvedIdentityStateV1;
+/// Minimal scope-lifetime seam shared by the legacy A+ value map and the
+/// function-owned Binding SSA route. The semantic stack never owns values.
+pub(super) trait ResolvedScopeRetirementV1 {
+    fn retire_scope_success(&mut self, declarations: &[BindingRefV1]) -> Result<(), String>;
+    fn retire_scope_error(&mut self, declarations: &[BindingRefV1]);
+}
 
 #[derive(Debug)]
 pub(super) struct ResolvedRegionSessionV1 {
@@ -215,19 +220,19 @@ impl ResolvedSemanticStackV1 {
         Ok(ResolvedScopeRegionSessionV1 { pair, declarations })
     }
 
-    pub(super) fn close_scope_region_success(
+    pub(super) fn close_scope_region_success<R: ResolvedScopeRetirementV1>(
         &mut self,
         session: ResolvedScopeRegionSessionV1,
-        identity: &mut ResolvedIdentityStateV1<'_>,
+        identity: &mut R,
     ) -> Result<(), String> {
         self.pop_pair(session.pair)?;
         identity.retire_scope_success(&session.declarations)
     }
 
-    pub(super) fn close_scope_region_error(
+    pub(super) fn close_scope_region_error<R: ResolvedScopeRetirementV1>(
         &mut self,
         session: ResolvedScopeRegionSessionV1,
-        identity: &mut ResolvedIdentityStateV1<'_>,
+        identity: &mut R,
     ) -> Result<(), String> {
         self.pop_pair(session.pair)?;
         identity.retire_scope_error(&session.declarations);

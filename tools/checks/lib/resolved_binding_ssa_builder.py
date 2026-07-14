@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the disconnected D-prime SSA-S1 Binding SSA box."""
+"""Validate the D-prime SSA-S1 box and its bounded SSA-I1-T connection."""
 
 from __future__ import annotations
 
@@ -121,8 +121,15 @@ def main() -> None:
             continue
         if "BindingSsaBuilderV1" in path.read_text():
             callers.append(str(path.relative_to(root)))
-    if callers:
-        fail(f"production/disconnected external callers must remain zero: {callers}")
+    callers.sort()
+    expected_callers = [
+        "src/mir/builder/resolved_lowering/trivial_ssa/identity.rs",
+    ]
+    if callers != expected_callers:
+        fail(
+            "production caller set must be the one trivial-owner identity box: "
+            f"expected={expected_callers} actual={callers}"
+        )
 
     taskboard = (
         root
@@ -149,7 +156,7 @@ def main() -> None:
     print("canonical_ssa_s1_self-phi=retained")
     print("canonical_ssa_s1_phi-failure=rollback-all-and-poison")
     print(f"canonical_ssa_s1_focused_fixtures={test_count}")
-    print("canonical_ssa_s1_production_callers=0")
+    print("canonical_ssa_s1_production_callers=1")
     print("canonical_ssa_s1_accepted_grammar_delta=0")
 
 
