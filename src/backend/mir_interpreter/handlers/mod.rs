@@ -42,6 +42,8 @@ mod weak; // Phase 285A0: WeakRef handlers
 
 #[cfg(test)]
 mod async_contract_tests;
+#[cfg(test)]
+mod ownership_contract_tests;
 
 impl MirInterpreter {
     pub(super) fn execute_instruction(&mut self, inst: &MirInstruction) -> Result<(), VMError> {
@@ -65,6 +67,8 @@ impl MirInterpreter {
                 self.handle_type_op(*dst, *op, *value, ty)?
             }
             MirInstruction::Copy { dst, src } => self.handle_copy(*dst, *src)?,
+            MirInstruction::CopyOwned { dst, src } => self.copy_owned(*dst, *src)?,
+            MirInstruction::DestroyOwned { value } => self.destroy_owned(*value)?,
             MirInstruction::Load { dst, ptr } => self.handle_load(*dst, *ptr)?,
             MirInstruction::StaticDataLoad {
                 dst,

@@ -101,6 +101,8 @@ pub fn is_supported_vm_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::StaticDataLoad { .. }
             | MirInstruction::TypeOp { .. }
             | MirInstruction::Copy { .. }
+            | MirInstruction::CopyOwned { .. }
+            | MirInstruction::DestroyOwned { .. }
             | MirInstruction::LocalContractWrite { .. }
             | MirInstruction::RecordFieldContractCheck { .. }
             | MirInstruction::RecordValuePublish { .. }

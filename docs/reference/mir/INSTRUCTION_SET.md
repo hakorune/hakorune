@@ -47,6 +47,9 @@ Transition Note
 - SSA-RC-A0: ownership-neutral `Copy` と legacy `ReleaseStrong` から分離した
   passive `CopyOwned` / `DestroyOwned` transport vocabulary を追加。A0では
   executor semantics と production caller は 0 のまま。
+- SSA-RC-A1a: Rust MIR interpreter だけが `CopyOwned` の exact `BoxRef`
+  clone と `DestroyOwned` の exact-register take を実行する。他backendと
+  canonical production callerは引き続き0。
 - Phase 163x: canonical variant op lane のため `VariantMake` / `VariantTag` / `VariantProject` を追加（Core profile とは別の kept vocabulary）。
 - MIR-FMEM-002..005: FastMemory dialect vocabulary のため `MemOp` を追加。
   `MemOp` は kept instruction vocabulary。FastMemRegion metadata and
@@ -66,7 +69,7 @@ Transition Note
 - VariantTag
 - VariantProject
 
-## Current Kept Vocabulary（39）
+## Current Kept Vocabulary（43）
 
 This is the current executable kept vocabulary from
 `src/mir/contracts/backend_core_ops.rs::MIR_INSTRUCTION_KEPT_TAGS`.

@@ -124,6 +124,12 @@ def main() -> None:
     ownership_json = (
         root / "src/runner/mir_json/ownership_witness.rs"
     ).read_text()
+    rust_lifecycle = (
+        root / "src/backend/mir_interpreter/handlers/lifecycle.rs"
+    ).read_text()
+    vm_dispatch = (
+        root / "src/backend/mir_interpreter/handlers/mod.rs"
+    ).read_text()
     json_v0_files = [
         root / "src/runner/mir_json_v0.rs",
         *(root / "src/runner/mir_json_v0").glob("*.rs"),
@@ -164,6 +170,21 @@ def main() -> None:
     for anchor in ('"copy_owned"', '"destroy_owned"'):
         if anchor not in json_v0_parse:
             fail(f"JSON v0 passive transport lost {anchor}")
+    for anchor in (
+        "pub(super) fn copy_owned",
+        "VMValue::BoxRef(value.clone())",
+        "vm/ownership:dst_already_defined",
+        "pub(super) fn destroy_owned",
+        "self.take_reg(value)",
+    ):
+        if anchor not in rust_lifecycle:
+            fail(f"Rust ownership handler lost {anchor!r}")
+    for anchor in (
+        "MirInstruction::CopyOwned",
+        "MirInstruction::DestroyOwned",
+    ):
+        if anchor not in vm_dispatch:
+            fail(f"Rust ownership dispatch lost {anchor!r}")
 
     counts = {profile: 0 for profile in EXPECTED_PROFILES}
     for row in rows:
@@ -178,8 +199,8 @@ def main() -> None:
         fail(f"profile counts drifted: expected={expected_counts} actual={counts}")
 
     print(
-        "SSA-RC-A0 ownership profile: 17/17 rows, passive transport=2, "
-        "BoxRef producers=0, activation=0, trivial-only first cutover"
+        "SSA-RC-A1a ownership profile: 17/17 rows, Rust handlers=2, "
+        "BoxRef producers=0, production activation=0, trivial-only first cutover"
     )
 
 

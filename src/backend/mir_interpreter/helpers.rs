@@ -85,7 +85,7 @@ impl MirInterpreter {
     }
 
     #[inline(always)]
-    fn reg_peek_raw(&self, id: ValueId) -> Option<&VMValue> {
+    pub(super) fn reg_peek_raw(&self, id: ValueId) -> Option<&VMValue> {
         if let Some(idx) = self.vm_fast_reg_slot_index(id) {
             if idx < self.reg_fast_slots.len() {
                 if let Some(v) = self.reg_fast_slots[idx].as_ref() {

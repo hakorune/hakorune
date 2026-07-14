@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-RC-A1a Rust ownership-op handlers are next
+Status: Active — SSA-RC-V0 Ownership SSA verifier and forwarding are next
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-A1A-RUST-HANDLERS-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-V0-OWNERSHIP-VERIFIER-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -841,6 +841,28 @@ This row implements only explicit opcode handlers over the closed L1 frame
 transaction. Ordinary Phi, Return, and parameter/result ABI behavior remains
 unchanged until the verified ownership classification exists. Production
 canonical callers remain zero.
+
+Closed evidence:
+
+```text
+Rust MIR interpreter ownership handlers = 2
+CopyOwned = exact BoxRef Arc clone into an undefined destination register
+DestroyOwned = exact named-register take; same-object aliases remain live
+non-BoxRef CopyOwned / DestroyOwned = typed error
+already-defined CopyOwned destination = contract error before write
+focused vm-reference fixtures = 5/5 green
+backend contract fixtures = 21/21 green
+ownership production profile = 17/17 green
+production CopyOwned / DestroyOwned callers = 0 / 0
+LLVM / Wasm / Hako interpreter ownership execution = 0 / 0 / 0
+all new or modified source/check files below 800 lines
+resolved authority guard = green
+cargo build --release --bin hakorune = green
+dev_gate quick = 66/66 green
+```
+
+Evidence card:
+`mirbuilder-ssa-rc-a1a-rust-ownership-handlers-2026-07-14.md`.
 
 #### SSA-RC-V0 — Ownership SSA verifier and forwarding
 
@@ -2001,14 +2023,15 @@ state.
 
 ## Immediate next action
 
-Implement SSA-RC-A1a only. Keep production ownership callers at zero:
+Implement SSA-RC-V0 only. Keep production ownership callers at zero:
 
 ```text
-add Rust MirInterpreter handlers over the closed L1 frame transaction
-CopyOwned clones one BoxRef into a fresh destination register
-DestroyOwned takes exactly the named register and never scans aliases
-reject non-BoxRef input and an already-defined CopyOwned destination
-add no canonical production caller and do not change Phi/Return forwarding
-change no accepted grammar, backend behavior, or ownership activation
+add verifier-owned MirOwnershipKindV1 and sealed VerifiedOwnershipSsaV1
+derive edge-branded Owned Phi forwarding from verified CFG plus Phi.inputs
+verify path-sensitive consuming/forwarding closure, not global use counts
+reject duplicate consume, use-after-consume, and reachable missing disposition
+keep canonical edge arguments absent and Borrowed escape forbidden in V1
+add no interpreter forwarding or canonical production caller
+change no accepted grammar, backend execution, or ownership activation
 keep every new or modified source/check file below 800 lines
 ```
