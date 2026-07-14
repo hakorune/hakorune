@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ SSA-I1 atomic current-owner cutover is active"
+status = "D′ SSA-I1 trivial-profile/atomic-cutover design consultation stop"
 date = "2026-07-14"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -42,8 +42,11 @@ ReleaseStrong retirement ledger with one private authority-guard helper.
 SSA-RC0 closes a disconnected pure local-binding ownership-transition planner:
 exact BindingRef self-assignment, next-before-previous replacement, BlockExpr
 tail transfer/copy, reverse-order scope/function close, terminal Return ABI,
-and draft discard are sealed with zero MIR/materialization authority. The
-active row is SSA-I1: atomic current-owner Binding SSA cutover.
+and draft discard are sealed with zero MIR/materialization authority. SSA-I1
+is now at a design consultation stop: the trivial-only P0 profile and the
+currently accepted canonical surface do not yet name one no-regression atomic
+cutover boundary. Production Binding SSA and Ownership SSA activation remain
+zero until that decision is returned.
 Historical
 lane chronology follows and is non-authoritative.
 Explicit user priority change on 2026-07-12 reopens
@@ -161,9 +164,17 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/binding-ssa-first-control-lowering-ssot.md"
 
-latest_card = "mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
-latest_card_summary = """D′ is accepted and taskized through the final canonical
+latest_card = "mirbuilder-ssa-i1-trivial-profile-atomic-cutover-design-stop-2026-07-14"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-ssa-i1-trivial-profile-atomic-cutover-design-stop-2026-07-14.md"
+latest_card_summary = """SSA-I1 is paused at a design consultation boundary:
+the closed P0 inventory classifies untyped parameter, Outbox, String, and
+Void/Null as typed rejects for the first trivial-only cutover, while the
+current canonical A+ route accepts those shapes. P0 is not an executable
+per-function trivial witness. The consultation must select whole-owner
+profile routing, closure of every current representation before one atomic
+cutover, or an explicit compatibility-narrowing Decision. Production Binding
+SSA and Ownership SSA activation remain zero. Historical D′ context follows.
+D′ is accepted and taskized through the final canonical
 source form. Exact source coverage, ScopeId/RegionId topology, typed ports,
 exact targets, cleanup obligations, and unsupported preflight remain
 pre-Builder authority. One per-function BindingSsaBuilderV1 will become the
@@ -580,7 +591,7 @@ SSA-I1 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-ATOMIC-CURRENT-OWNER-CUTOVER-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-TRIVIAL-PROFILE-ATOMIC-CUTOVER-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

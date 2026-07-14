@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-I1 atomic current-owner cutover is next
+Status: Design Stop — SSA-I1 trivial-profile/atomic-cutover boundary requires consultation
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-ATOMIC-CURRENT-OWNER-CUTOVER-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-TRIVIAL-PROFILE-ATOMIC-CUTOVER-DESIGN-STOP-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -16,6 +16,7 @@ Related:
   - mirbuilder-b0-l3b-a-plus-implementation-task-2026-07-13.md
   - mirbuilder-resolved-semantic-owner-forest-design-stop-2026-07-13.md
   - mirbuilder-ssa-rc0-owned-alias-materialization-design-stop-2026-07-14.md
+  - mirbuilder-ssa-i1-trivial-profile-atomic-cutover-design-stop-2026-07-14.md
   - ../design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md
   - box-lifecycle-bprime-tombstone-adaptive-ownership-task-2026-07-14.md
 ---
@@ -2144,17 +2145,20 @@ state.
 
 ## Immediate next action
 
-Implement atomic SSA-I1 only. Do not land a partially mixed canonical owner:
+Do not implement SSA-I1. Read and externally consult:
 
 ```text
-install exactly one function-owned Binding SSA session
-route every accepted declaration/read/rebind through that session
-materialize SSA-RC0 plans for assignment, BlockExpr tail, scope close, and Return
-derive If PHIs from sealed CFG predecessors and BindingRef reads only
-remove canonical effect/write-set/join-source/manual snapshot value authority
-emit canonical legacy lifecycle calls 0 and prevent optional-RC double destroy
-verify coverage, CFG, Binding SSA, Ownership SSA, and MIR before publication
-reject the whole canonical source unit before Builder effects when its profile is unsupported
-allow no canonical failure retry into the legacy route
-keep every new or modified source/check file below 800 lines
+mirbuilder-ssa-i1-trivial-profile-atomic-cutover-design-stop-2026-07-14.md
+```
+
+The consultation must resolve whether the first cutover is a whole-owner
+trivial profile with temporary whole-unit A+ isolation, or whether every
+currently accepted representation/ABI must close before one atomic cutover.
+Until then:
+
+```text
+production Binding SSA sessions = 0
+production Ownership SSA witness/install/verifier calls = 0
+canonical accepted behavior delta = 0
+no implementation or guard cutover
 ```
