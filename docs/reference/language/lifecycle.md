@@ -2,12 +2,21 @@
 
 Status: SSOT (language-level), with implementation status notes.
 
+Decision: B′ eager-fini tombstone semantics accepted on 2026-07-14.
+
+Implementation status: transitional. Current `InstanceBox`, global
+finalization tracking, plugin Drop-fini routes, and generation-0 host/weak
+tables do not yet implement the full decision. Unsupported B′ profiles must
+remain unclaimed/fail-fast until their taskboard rows close.
+
 Design note:
 - For normative exit-order, canonical `cleanup`, legacy DropScope
   (`fini {}` / `local ... fini {}`), `catch/cleanup` routing, and
   ownership-transfer terminology, see
   `docs/reference/language/scope-exit-semantics.md` (SSOT).
 - This file remains authoritative for object states (Alive/Dead/Freed), weak refs, and memory policy.
+- Runtime/Ownership SSA implementation order is owned by
+  `docs/development/current/main/design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md`.
 
 This document defines the Nyash object lifecycle model: lexical scope, ownership (strong/weak), finalization (`fini()`), and what is (and is not) guaranteed across backends.
 
@@ -24,6 +33,8 @@ Construction SSOT:
 - **Strong reference**: an owning reference that contributes to keeping the object alive.
 - **Weak reference**: a non-owning reference; it does not keep the object alive and may become dead.
 - **Finalization (`fini`)**: a logical end-of-life hook. It is not “physical deallocation”.
+- **Structural drop**: runtime payload/field-token teardown needed for memory
+  safety. It is not user `fini()`.
 
 ## Construction lifecycle (`new` / field initializers / `birth`)
 
@@ -125,6 +136,9 @@ This is the “variable lifetime” rule. Object lifetime is defined below.
 - A strong reference keeps the object alive.
 - When the last strong reference to an object disappears, the object becomes eligible for physical destruction by the runtime.
   - In typical implementations this is immediate (reference-counted drop) for acyclic graphs, but the language does not require immediacy.
+- Last-strong structural drop never calls user-defined `fini()`.
+- Assignment, parameter/return transport, and ordinary strong fields share Box
+  identity; they do not imply an exclusive resource-finalization authority.
 
 ### Weak references
 
@@ -147,34 +161,53 @@ Observable operations (surface-level; exact API depends on the box type):
 - After `fini()` has executed successfully for an object, the object must be treated as unusable (use-after-fini is an error).
 - `fini()` must be **idempotent** (calling it multiple times is allowed and must not double-free resources).
   - This supports “external force fini” and best-effort cleanup paths safely.
+  - A later call after Dead is a no-op. Recursive `fini()` from the winning
+    finalizer transaction is a fail-fast reentrancy error; it is not a second
+    completed call. Concurrent callers do not execute a second hook and wait
+    for the terminal transaction result.
+- Calling `fini()` does not consume the caller's strong ownership token.
+  Teardown may still destroy ownership tokens stored in the object's fields.
+- Source/runtime `fini()` must enter the object lifecycle transaction. It must
+  not dispatch the user hook directly.
 
 ### Fail-fast after `fini`
 
 After an object is finalized, operations must fail fast (use-after-fini).
 Permitted exceptions (optional, per type) are strictly observational operations such as identity / debug string.
 
-### Object states (Alive / Dead / Freed)
+### Object states (Alive / Finalizing / Dead / Freed)
 
 Nyash distinguishes:
 
 - **Alive**: normal state; methods/fields are usable.
+- **Finalizing**: runtime-internal transaction state. New ordinary payload
+  access is rejected while the winning finalizer drains existing access.
 - **Dead**: finalized by `fini()`; object identity may still exist but is not usable.
-- **Freed**: physically destroyed by the runtime (implementation detail).
+- **Freed**: strong count is zero and structural payload reclamation is
+  complete. A generation-bearing weak tombstone/control cell may remain until
+  the last weak token disappears.
 
 State transitions (conceptual):
 
-- `Alive --fini()--> Dead --(runtime)--> Freed`
+- `Alive --fini()--> Finalizing --> Dead --(last strong)--> Freed`
 - `Alive --(runtime)--> Freed`
 
 SSOT rule:
 - `fini()` is the only operation that creates the **Dead** state.
 - Runtime reclamation does not imply `fini()` was executed.
+- `Dead` with a remaining strong token is not `Freed`, even though its payload
+  is already absent.
+- The control cell is reclaimable only when strong and weak counts are both
+  zero; generation wrap permanently retires that slot.
 
 ### Dead: allowed vs forbidden operations
 
 Allowed on **Dead** (minimal set):
-- Debug/observation: `toString`, `typeName`, `id` (if provided)
+- Debug/observation from immutable tombstone metadata: `typeName`, `id`, and a
+  runtime-provided debug representation (if provided)
 - Identity checks: `==` (identity only), and identity-based hashing if the type supports hashing
+- Strong identity aliasing/forwarding is allowed; it does not resurrect the
+  payload. A completed Dead alias can still be destroyed normally.
 
 Forbidden on **Dead** (Fail-Fast, UseAfterFini):
 - Field read/write
@@ -186,41 +219,58 @@ Forbidden on **Dead** (Fail-Fast, UseAfterFini):
 
 ### Finalization precedence
 
-When finalization is triggered (by explicit call or by an owning context; see below):
+When explicit object finalization is requested:
 1) If the object is already finalized, do nothing (idempotent).
-2) Run user-defined `fini()` if present.
-3) Run automatic cascade finalization for remaining **strong-owned fields** (weak fields are skipped).
-4) Clear fields / invalidate internal state.
+2) Atomically enter Finalizing and reject new ordinary payload access.
+3) Drain existing ordinary access; the winner receives a privileged,
+   non-escapable finalizer self-access capability.
+4) Run user-defined `fini()` once if present.
+5) Release and clear ordinary strong-field ownership tokens in reverse
+   declaration order. Do **not** implicitly call child user `fini()`.
+6) Destroy stored weak tokens without upgrading, traversing, or finalizing
+   their targets.
+7) Tear down native payload/storage, publish payload absence, then publish Dead.
+
+A parent that semantically owns a child resource calls `child.fini()`
+explicitly inside its user hook. Exclusive `owned field` syntax remains
+reserved until exclusivity and transfer can be enforced.
 
 ### Weak references are non-owning
 
 Weak references are values (`WeakRef`) that can be stored in locals or fields:
 - They are **not** part of ownership.
-- Automatic cascade finalization must not follow weak references.
+- Object finalization must not follow or upgrade weak references. The weak
+  token itself still has a copy/drop discipline so its control-cell weak count
+  can be reclaimed safely.
 - Calling `fini()` “through” a weak reference is invalid (non-owning references cannot decide the target’s lifetime).
 
 ## 4) Ownership and “escaping” out of a scope
 
 Nyash distinguishes “dropping a binding” from “finalizing an object”.
 
-Finalization is tied to **ownership**, not merely being in scope.
+Ownership tokens keep identity/storage alive. Object finalization is an
+explicit object-wide transition that any valid strong alias may request; it is
+not automatically inferred from scope end or last ownership. Calling it does
+not consume the caller token, and all aliases observe the same Dead identity.
 
 ### Owning contexts
 
-An object is considered owned by one of these contexts:
+An object may have a strong owner/root token in any of these contexts:
 - A local binding (typical case).
-- A strong-owned field of another object.
+- An ordinary shared-strong field of another object.
 - A module/global registry entry (e.g., `env.modules`).
 - A runtime host handle / singleton registry (typical for plugins).
 
 ### Escapes (ownership transfer)
 
-If a value is transferred into a longer-lived owning context before the current scope ends, then the current scope must not finalize it.
+If a value is transferred or copied into a longer-lived owning context before
+the current scope ends, that owner token keeps the identity alive. This does
+not grant implicit authority to call user `fini()`.
 
 Common escape paths:
 - Assigning into an enclosing-scope binding (updates the owner).
 - Returning via `outbox` (ownership transfers to the caller).
-- Storing into a strong-owned field of an object that outlives the scope.
+- Storing into a shared-strong field of an object that outlives the scope.
 - Publishing into global/module registries.
 
 This rule is what keeps “scope finalization” from breaking shared references.
@@ -244,6 +294,8 @@ Recommended SSOT surface:
 Non-guarantees:
 - “Leaving a block” does not by itself guarantee `fini()` execution for an object, because aliasing/escaping is allowed.
 - GC must not call `fini()` as part of meaning.
+- `DestroyOwned`, last-strong reclamation, and native `Drop` must not call user
+  `fini()` as part of meaning.
 
 ### `cleanup` / legacy `fini` — DropScope cleanup
 
@@ -293,6 +345,16 @@ SSOT operations:
   - It returns `null` if the target is **Dead** (finalized) or **Freed** (collected).
   - Note: `null` and `void` are equivalent at runtime (SSOT: `docs/reference/language/types.md`).
 
+Upgrade is one linearizable runtime operation: it validates slot generation,
+requires Alive with a positive strong count, and acquires the new strong token
+before reclamation can win. Separate unguarded “check then increment” steps are
+not conforming. Finalizing, Dead, weak-only, stale, and reclaimed targets fail.
+
+WeakRef values also have an exact copy/drop discipline for the control-cell
+weak count. A backend must not implement a counted WeakRef as an ordinary
+bit-copy followed by multiple drops. The current first Ownership SSA profile
+rejects WeakRef until its co-sealed weak-token representation is activated.
+
 WeakRef in fields:
 - Reading a field that stores a `WeakRef` yields a `WeakRef`. It does not auto-upgrade.
 
@@ -305,7 +367,8 @@ if x != null {
 ```
 
 WeakRef equality:
-- `WeakRef` carries a stable target token (conceptually: `WeakToken`).
+- `WeakRef` carries a stable generation-aware target token (conceptually:
+  `BoxIdentity(slot, generation)`).
 - `w1 == w2` compares tokens. This is independent of Alive/Dead/Freed.
   - "dead==dead" is true only when both weakrefs point to the same original target token.
 

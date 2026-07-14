@@ -118,8 +118,8 @@ failure vocabulary:
   2026-07-10 null migration baseline = 764 .hako files under lang/src + apps
 
 ownership:
-  ordinary shared strong fields and strong-owned cascade fini have no source
-  distinction
+  B′ now selects ordinary shared-strong fields with no implicit child fini;
+  production/runtime convergence remains pending
 
 capabilities:
   EffectSummary is metadata-only; CapabilityPlan starts verified=false;
@@ -589,7 +589,10 @@ Next: `LANGV1-OWNERSHIP-IDENTITY-001`.
 
 ### 5. LANGV1-OWNERSHIP-IDENTITY-001
 
-Status: design decision required after Coercion/Equality compatibility.
+Status: B′ decision accepted 2026-07-14; implementation/fixtures remain queued.
+
+Decision owner:
+`docs/development/current/main/design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md`
 
 Target laws:
 
@@ -600,6 +603,8 @@ weak = non-owning BoxIdentity handle
 ordinary field = shared strong
 weak field = non-owning
 owned field = reserved until exclusive lifecycle authority is enforceable
+fini = explicit eager payload teardown; receiver token is not consumed
+last strong / DestroyOwned / native Drop = structural drop only, user fini 0
 ```
 
 Deliverables:

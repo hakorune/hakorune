@@ -171,6 +171,14 @@ profile, transport, supported backends, path-sensitive ownership forwarding,
 and legacy retirement inventory. If no exact BoxRef source producer exists,
 SSA-I1 is a trivial-only Binding SSA cutover and production Ownership SSA waits
 for the separate SSA-I1-O1 producer/ABI witness.
+B′ is accepted and taskized as a parked runtime/substrate continuation:
+explicit `fini()` owns eager tombstone teardown, DestroyOwned/last-strong own
+structural drop only, ObjectIdentity is separate from owner/root tokens, the
+first ObjectCell strategy is atomic SharedRc, and Unique/LocalRc are later
+derived optimizations. The taskboard covers current-authority inventory,
+passive cell/lease/weak contracts, one-family atomic activation, plugin ABI
+split, backend/family rollout, global legacy retirement, and final closeout.
+It does not change the active SSA-RC-L0 blocker.
 Rust `MirInterpreter` retirement is now an explicit later selfhost branch:
 after the ownership MIR vocabulary stabilizes, a sealed `.hako` MIR
 interpreter subset gains normalized parity, becomes the no-fallback semantic
@@ -512,7 +520,7 @@ the accepted first activation slice is 3511 hako_mem_free Unit/no-result;
 S0-S5 are complete: hako_mem_free semantic activation is narrow and
 backend-independent, LLVM/object support is the sole consumer, and VM/Wasm/
 PyVM remain fail-fast. Global Unit activation remains zero.
-The design registry has 653 rows
+The design registry has 656 rows
 and 119 owned sidecars; 77 files remain
 warning-unregistered for focused consultation. C3 supersession movement is
 not started. 3511 now owns the narrow semantic activation claim and its
@@ -528,6 +536,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-14: B′ accepts explicit eager-fini tombstones plus derived adaptive ownership: fini is a non-receiver-consuming lifecycle transaction, DestroyOwned/last strong/native Drop never call user fini, ordinary strong fields release tokens without implicit child fini, identity is slot+generation distinct from roots, atomic SharedRc is the correctness baseline, and the full ObjectCell/weak/plugin/backend/family/global-retirement DAG is parked behind current D′ work; SSA-RC-L0 remains selected.",
   "2026-07-14: D′ SSA-RC-L0b closes the static-const-table load guard false-green introduced when its module became vm-reference gated: the dedicated guard now enables that feature and executes all 3 existing tests; shared helper, production code, source grammar, MIR, and backend behavior are unchanged; SSA-RC-L0 is selected.",
   "2026-07-14: D′ SSA-RC-L0a repairs stale instruction-diet test/reference literals from 40/16/56 to the unchanged implementation truth 41/16/57 after ArrayStateContractClaim joined the kept vocabulary; focused ledger tests are 2/2 green and enum/cohort/allowlist/schema/runtime/grammar/backend behavior is unchanged; SSA-RC-L0 is selected.",
   "2026-07-14: A′ accepts explicit CopyOwned/DestroyOwned Ownership SSA, keeps Copy ownership-neutral, isolates legacy ReleaseStrong, and taskizes L0/L1/P0/A0/A1a/V0/A1b/A1c/RET-P0/RC0/I1/I1-O1 plus caller-zero retirement; local verification corrects the stale VM pointer-sweep claim, and SSA-RC-L0 is selected as the first behavior-neutral code row.",
@@ -539,5 +548,4 @@ landed_tail = [
   "2026-07-14: D′ SSA-S1 closes one disconnected function-owned sealed-block Binding SSA with immutable C1 predecessor witnesses, on-demand provisional PHIs, exact input verification, rollback-and-poison errors, twelve focused fixtures, zero production callers, and zero grammar delta; SSA-S2 is selected.",
   "2026-07-14: D′ SSA-V0 closes the canonical publication barrier with typed post-RC MIR verification failure, commit-after-failure zero, typed same-name function rejection without overwrite, three focused fixtures, explicit legacy reporting preservation, zero Binding SSA production callers, and zero grammar delta; SSA-S1 is selected.",
   "2026-07-14: D′ SSA-P1 closes all-attempt PHI transaction rollback, typed primary-plus-all-cleanup error retention, missing-provisional detection, failed-commit rollback, six focused fixtures, zero Binding SSA production callers, and zero grammar delta; SSA-V0 is selected.",
-  "2026-07-14: D′ SSA-C1 closes one disconnected fallible canonical CFG session with terminator-derived predecessor truth, checked-not-repaired successor/predecessor caches, immutable seal witnesses, typed late-edge/duplicate/seal errors, fifteen focused fixtures, zero production callers, and zero grammar delta; SSA-P1 is selected.",
 ]

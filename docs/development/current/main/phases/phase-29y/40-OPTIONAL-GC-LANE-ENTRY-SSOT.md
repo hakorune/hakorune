@@ -37,8 +37,11 @@ Scope: optional GC 実装レーンへ進むための入口条件・順序・非�
    - Runtime/Kernel = ownership truth
 2. Keep ABI contract:
    - args borrowed / return owned
-3. Keep RC insertion SSOT:
-   - retain/release/weak_drop insertion points stay single-source
+3. Keep Ownership SSA SSOT:
+   - canonical strong event placement stays in verified
+     `CopyOwned`/`DestroyOwned`/edge forwarding
+   - the legacy post-CFG pass cannot become a second authority
+   - weak copy/drop waits for the co-sealed B′ weak-token contract
 4. Keep observability root surface:
    - locals/temps/heap_fields/handles/singletons
 5. Optional GC implementation tasks (future phase):
@@ -93,8 +96,10 @@ Execution unit: `1 min task = 1 commit = fixture/gate pin`
    - `NYASH_GC_MODE=rc+cycle|off` でプログラム意味論を変えない。
 2. ABI fixed:
    - function ABI は `args borrowed / return owned` のまま固定する。
-3. RC insertion single-source:
-   - retain/release/weak_drop の挿入責務は 1 箇所（RC insertion pass）から分散させない。
+3. Ownership event single-source:
+   - canonical strong ownership eventはVerified Ownership SSA一つが決める。
+   - backend/runtimeはmaterializeするだけで、旧RC insertion passは
+     compatibility以外のdrop点を再発見しない。
 
 ### 8.2 Queue (fixed order)
 

@@ -1,20 +1,48 @@
-# Phase 29y: RC insertion SSOT（1箇所で決める）
+# Phase 29y: RC insertion historical compatibility contract
 
-Status: Ready (docs-first, post self-host)  
-Scope: retain/release/weak_drop の発火点を “分散実装しない” ための SSOT を固定する。  
+Status: Historical/legacy after A′ Ownership SSA (2026-07-14)
+Scope: 旧post-CFG passの互換境界と退役条件を記録する。canonical event
+placement authorityは本書ではない。
+
+Current authority:
+
+```text
+strong ownership event placement:
+  Verified Ownership SSA
+  CopyOwned / DestroyOwned / exact edge forwarding
+
+physical materialization:
+  selected backend/runtime ObjectCell adapter
+
+this post-CFG pass:
+  legacy/optional compatibility only
+  canonical caller zeroを経てretire
+
+weak copy/drop:
+  B′ weak-token contractとのco-seal待ち
+```
+
+Authority SSOT:
+- `docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md`
+- `docs/development/current/main/design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md`
 
 ## 0. 目的
+
+Historical objective (not current authority):
 
 - RCイベント（retain/release/weak_drop）を **1箇所**で挿入し、backend差と hidden root を減らす
 - 「SSA last-use = 寿命」にならないよう、drop点を **binding scope / explicit drop / 上書き**に限定する
 
 ## 1. 置き場所（SSOT）
 
-推奨: `emit_frag()` で CFG が確定した後、codegen直前に **1回だけ**走る “RC insertion pass”
+Historical proposal: `emit_frag()` で CFG が確定した後、codegen直前に
+**1回だけ**走る “RC insertion pass”
 
 - ここなら PHI/loop/early-exit/cleanup を全部見た状態で挿入できる
 - lowering 各所に retain/release を散らさない（SSOTを壊さない）
-- 実装規約: lowerer / codegen / runtime helper から retain/release/weak_drop を直接発火させない
+- 現行規約: legacy passはcanonical `CopyOwned`/`DestroyOwned`を追加・削除・
+  再分類しない。lowerer/backend/runtimeはverified Ownership SSA以外から
+  implicit ownership eventを発火させない。
 
 ## 2. 入力と出力（概念）
 

@@ -160,13 +160,14 @@ Canonical ordering for explicit `task_scope` exit is:
 1. child failure/cancel handling owned by the task scope
 2. bounded join for owned children
 3. lexical cleanup handlers for the exiting scope
-4. local binding drop
-5. object fini() if ownership actually ends
+4. local binding ownership-token destruction
+5. last-strong structural drop if reached; user object fini() is not implied
 6. failure/cancellation propagation
 ```
 
-The task scope owns child futures. DropScope owns lexical cleanup. Object
-ownership owns `fini()`. These owners must not be merged.
+The task scope owns child futures. DropScope owns lexical cleanup. The explicit
+FinalizeObject transaction owns user `fini()`, and runtime ownership-token
+destruction owns structural drop. These owners must not be merged.
 
 ## Implementation Order
 

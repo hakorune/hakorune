@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/design/box-callable-registry-ssot.md
   - docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md
   - docs/development/current/main/workstreams/arc-retirement-current.md
+  - docs/development/current/main/design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md
   - src/runtime/box_object_model.rs
   - src/backend/vm_types.rs
 ---
@@ -120,6 +121,17 @@ leak tracker diagnostics
 
 Future gates may move storage behind object handles, but the plugin ABI and
 fini owner must remain explicit before the carrier changes.
+
+B′ requires two distinct plugin owners before adoption:
+
+```text
+explicit logical user fini route
+structural plugin-instance destroy/drop glue
+```
+
+The current `PluginHandleInner::drop`/`finalize_now` overlap is a legacy gap,
+not the final lifecycle contract. Plugin remains outside the first ObjectCell
+family gate.
 
 ### VMValue Carrier
 

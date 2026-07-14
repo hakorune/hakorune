@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Decision: accepted
-Date: 2026-02-13
+Date: 2026-07-14
 Scope: GC 方針（意味論上の位置づけ）と runtime 実装順序を 1 枚で固定し、selfhost/compiler lane と runtime lane の混線を防ぐ。
 Related:
   - docs/development/current/main/design/de-rust-post-g1-runtime-plan-ssot.md
@@ -11,6 +11,8 @@ Related:
   - docs/development/current/main/phases/phase-29y/20-RC-INSERTION-SSOT.md
   - docs/development/current/main/phases/phase-29y/30-OBSERVABILITY-SSOT.md
   - docs/reference/language/lifecycle.md
+  - docs/development/current/main/design/binding-ssa-first-control-lowering-ssot.md
+  - docs/development/current/main/design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md
 ---
 
 # Runtime GC Policy and Order (SSOT)
@@ -18,14 +20,15 @@ Related:
 ## 0. Summary
 
 - GC 本体（cycle collector / tracing）は **最後** に回す。
-- 先に固定するのは `MIR-first` 境界、ABI、RC insertion、観測契約。
+- 先に固定するのは `MIR-first` 境界、ABI、Ownership SSA、観測契約。
 - lifecycle の意味論は **GC必須ではない**。
 
 ## 1. Fixed Execution Order
 
 1. `.hako` mirbuilder は failure-driven 維持（先回り拡張をしない）。
 2. runtime route は MIR-first を維持（Program JSON は strict/dev で fail-fast）。
-3. Phase 29y.1 を順序固定で実施（ABI shim -> RC insertion minimal -> observability）。
+3. Phase 29y.1 のABI/observability証跡を維持し、旧RC insertionを
+   canonical Ownership SSAから隔離する。
 4. `.hako VM` dual-run parity を段階拡張（subset + fail-fast 契約）。
 5. VM/LLVM 最適化（verify 可能な局所最適化）。
 6. 最後に optional で GC/cycle collector（意味論非変更の範囲）。
@@ -44,8 +47,15 @@ Related:
 
 ## 4. RC Insertion Contract
 
-- `retain/release/weak_drop` の発火点は 1 箇所（RC insertion pass）に固定。
-- lowering 各所への分散実装を禁止し、hidden root の温床を作らない。
+- canonical strong ownership eventのsource authorityは、verified
+  `CopyOwned` / `DestroyOwned` / edge forwardingを持つOwnership SSA一つ。
+- backend/runtimeはそのverified eventをObjectCell retain/releaseへ
+  materializeするだけで、drop点やaliasを再発見しない。
+- 旧post-CFG RC insertion passはlegacy/optional compatibilityとして隔離し、
+  canonical event placement authorityにはしない。exact caller zero後に退役する。
+- WeakRefのcopy/drop eventはB′ weak-token decisionとco-sealされるまで
+  canonical activationしない。
+- lowering/backend/runtimeへ暗黙retain/releaseを分散させることは引き続き禁止。
 
 ## 5. Observability Contract
 

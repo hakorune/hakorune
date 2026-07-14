@@ -7418,6 +7418,17 @@ sidecars = []
 supersedes = []
 superseded_by = ""
 retire_when = "canonical control lowering adopts an explicitly accepted replacement authority"
+
+[[documents]]
+path = "box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "docs/reference/language/lifecycle.md"
+classification_basis = "README:現役の設計図（入口）; B′ Box lifecycle, Ownership SSA/ObjectCell boundary, and adaptive runtime strategy"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "Box lifecycle and ownership substrate adopt an explicitly accepted replacement constitution"
 ```
 <!-- design-registry-v0:end -->
 

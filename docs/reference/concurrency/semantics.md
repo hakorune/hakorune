@@ -166,12 +166,14 @@ Current reference runtime:
 - current scope exit is structured shutdown for the popped explicit scope:
   - cancel pending child futures as `scope-exit-cancelled`
   - then bounded-join that same scope
-- after child cancellation/join, lexical cleanup handlers run, then local drops,
-  then object `fini()` only if ownership actually ends
+- after child cancellation/join, lexical cleanup handlers run, then local
+  ownership tokens are destroyed; last-strong structural drop never implies
+  user object `fini()`
 - current explicit scope-exit path now also surfaces that scope's latched `first_failure`
 - current `joinAll(timeout_ms)` path now surfaces that same latched first failure as `ResultBox::Err(first_failure_payload)`
-- object `fini()` aggregate surfacing remains later-phase work; cleanup
-  ordering is defined by `docs/reference/language/scope-exit-semantics.md`.
+- explicit object `fini()` aggregation remains later-phase work; cleanup and
+  token-destruction ordering is defined by
+  `docs/reference/language/scope-exit-semantics.md`.
 - bare `nowait` is not detached.
 - `nowait` inside explicit `co` / compatibility `task_scope` belongs to that scope.
 - `nowait` outside explicit `co` / compatibility `task_scope` falls back to an implicit root scope owned by the runtime hooks registry.

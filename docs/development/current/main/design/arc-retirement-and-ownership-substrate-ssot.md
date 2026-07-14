@@ -14,6 +14,8 @@ Related:
   - docs/development/current/main/design/box-object-model-replacement-map-ssot.md
   - docs/development/current/main/design/arc-retirement-family-gate-and-first-family-ssot.md
   - docs/development/current/main/workstreams/arc-retirement-current.md
+  - docs/development/current/main/design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md
+  - docs/development/current/main/investigations/box-lifecycle-bprime-tombstone-adaptive-ownership-task-2026-07-14.md
 ---
 
 # Arc Retirement And Ownership Substrate (SSOT)
@@ -283,6 +285,26 @@ do not add a cycle collector as a prerequisite for Arc retirement
 do not reopen startup optimization from Arc retirement evidence
 do not alter active exact-AOT optimization fronts
 ```
+
+## B′ identity-bearing continuation
+
+ARC-RETIRE-006..018 proved a narrow Arc-free stable-text handle family. That
+family has no Box identity/fini/weak lifecycle and therefore is not the
+identity-bearing ObjectCell completion.
+
+The accepted continuation is B′:
+
+```text
+correctness-first ObjectCell strategy = atomic SharedRc
+explicit fini = eager payload teardown to Dead
+last strong / DestroyOwned = structural drop only
+identity = slot + generation
+owner/root token != identity
+Unique / LocalRc = later derived optimizations
+```
+
+Detailed order and family/global retirement gates live in the B′ taskboard.
+It does not reopen or invalidate the closed stable-text family claim.
 
 ## Task Ladder
 

@@ -1,6 +1,6 @@
 # Scope Exit Semantics (SSOT)
 
-Status: Normative (2026-02).
+Status: Normative (2026-07; B′ lifecycle decision applied).
 
 This page defines the scope-exit lifecycle model around canonical `cleanup`,
 legacy DropScope `fini`, postfix `catch/cleanup`, and object-level `box.fini()`.
@@ -29,8 +29,8 @@ This SSOT fixes:
 - Postfix `cleanup { ... }`: always-run handler attached to a protected
   expression/block/member handler.
 - `catch (...) { ... }`: failure handler.
-- `box.fini()`: object-level finalization hook when ownership ends. This is not
-  a scope-exit handler.
+- `box.fini()`: explicit object-level logical finalization. This is not a
+  scope-exit handler and is not implied by ownership ending.
 
 Constraints:
 
@@ -60,9 +60,15 @@ On normal exit, `return`, `break`, `continue`, or failure:
 
 1. evaluate the scope body and route failures to nearest `catch` in lexical context
 2. run scope-exit handlers (`cleanup`, including legacy `fini` aliases) for the exiting scope
-3. drop local bindings of that scope
-4. apply `box.fini()` when ownership actually ends
+3. destroy the ownership tokens held by local bindings of that scope
+4. if the last strong token disappeared, run structural payload drop/reclaim;
+   this does not call user `box.fini()`
 5. propagate unhandled failure outward (fatal at top level)
+
+A cleanup handler that needs deterministic resource finalization must call
+`box.fini()` explicitly before its binding token is destroyed. Scope exit,
+`DestroyOwned`, last-strong reclamation, GC, and native `Drop` do not imply a
+successful user finalization.
 
 Lexical nesting determines inner/outer handler order.
 
@@ -87,6 +93,9 @@ If cleanup/finalization itself fails:
 
 1. complete remaining release steps in the current scope (best effort)
 2. then fail-fast as fatal runtime error
+
+Object finalization runs through the lifecycle transaction defined by
+`lifecycle.md`; source/runtime routes must not call the user hook directly.
 
 ## 6) `birth` Partial-Failure Rules
 

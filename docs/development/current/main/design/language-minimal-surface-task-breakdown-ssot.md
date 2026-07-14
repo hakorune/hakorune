@@ -455,16 +455,15 @@ meaning before restricting `null` and legacy catch behavior to explicit
 
 ### LANGV1-OWNERSHIP-IDENTITY-001 field ownership and identity decision
 
-The accepted `BoxIdentity` contract is representation-only. The language
-lifecycle text still says strong-owned fields cascade `fini()`, but ordinary
-strong fields can share the same object and no source distinction currently
-identifies an exclusive owner.
+The accepted `BoxIdentity` contract remains representation-only. B′ resolves
+the previous lifecycle contradiction: ordinary strong fields can share the
+same object, so their automatic token cleanup cannot imply child user
+`fini()` without an enforceable exclusive-owner surface.
 
-Required decision:
+Accepted B′ decision (2026-07-14):
 
-1. Choose whether v1 ordinary strong fields are shared and never implicitly
-   cascade child `fini()`, or introduce an explicit owned-field category whose
-   exclusivity and transfer rules justify cascade finalization.
+1. V1 ordinary strong fields are shared and never implicitly cascade child
+   `fini()`. Exclusive owned-field syntax remains reserved.
 2. Define overwrite, parent `fini()`, alias escape, cycle, partial `birth`
    failure, and repeated-finalization behavior for every field ownership kind.
 3. Use one identity relation for strong Box values, WeakRef tokens, host
@@ -476,13 +475,18 @@ Required decision:
 5. Add VM/runtime fixtures and backend fail-fast coverage before changing
    cascade behavior or adding syntax.
 
-Provisional v1-safe candidate, not yet a decision:
+Accepted v1 law:
 
 ```text
 ordinary strong field = shared
 implicit cascade fini through ordinary strong field = forbidden
 explicit owned field syntax = reserved until exclusivity can be enforced
+DestroyOwned / last strong / native Drop invokes user fini = forbidden
+explicit fini consumes receiver token = 0
 ```
+
+Runtime/Ownership SSA implementation order is taskized in:
+`docs/development/current/main/investigations/box-lifecycle-bprime-tombstone-adaptive-ownership-task-2026-07-14.md`.
 
 Acceptance:
 

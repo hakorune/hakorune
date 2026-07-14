@@ -16,6 +16,8 @@ Related:
   - mirbuilder-b0-l3b-a-plus-implementation-task-2026-07-13.md
   - mirbuilder-resolved-semantic-owner-forest-design-stop-2026-07-13.md
   - mirbuilder-ssa-rc0-owned-alias-materialization-design-stop-2026-07-14.md
+  - ../design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md
+  - box-lifecycle-bprime-tombstone-adaptive-ownership-task-2026-07-14.md
 ---
 
 # D′ Binding SSA Final-Form Taskboard
@@ -115,6 +117,9 @@ SSA-I1 -> SSA-RC-RET-R1
 {SSA-I1, exact BoxRef source producer} -> SSA-I1-O1
 repository-wide ReleaseStrong caller zero -> SSA-RC-RET-R2
 
+{SSA-I1-O1, B′ first-family ObjectCell carrier cutover}
+  -> B′ first canonical ObjectCell BoxRef materialization
+
 SSA-I1 -> Loop-S3′ -> Loop-I1′ -> Loop-I2′
 Loop-I2′ -> {N1, N2, N3} -> N4
 
@@ -138,6 +143,13 @@ repository-wide Rust MirInterpreter caller zero -> HMI-R2
 Owner-family expansion may proceed independently of Loop/exit expansion when
 its closed grammar does not widen. A source unit still cuts over all-or-
 nothing; parent canonical / child legacy is never permitted.
+
+B′ is the accepted later runtime constitution: explicit `fini()` is an eager
+tombstone transaction, while `DestroyOwned`/last strong perform structural
+drop and never user fini. Its ObjectCell, weak/generation, family rollout,
+adaptive RC, plugin split, backend parity, and global Arc retirement order are
+owned by the related B′ taskboard. This does not change SSA-RC-L0 or make B′ a
+prerequisite for passive Ownership SSA analysis/verifier rows.
 
 ## Normative design reference
 

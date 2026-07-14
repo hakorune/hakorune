@@ -1,6 +1,6 @@
 # Plugin Lifecycle and Box RAII
 
-最終更新: 2025-08-22
+最終更新: 2026-07-14
 
 ## 概要
 NyashのBoxには「ユーザー定義Box」「ビルトインBox」「プラグインBox」があります。いずれもRAII（取得した資源は所有者の寿命で解放）に従いますが、プラグインBoxは共有やシングルトン運用があるため、追加ルールがあります。
@@ -13,7 +13,9 @@ NyashのBoxには「ユーザー定義Box」「ビルトインBox」「プラグ
 
 補足:
 - 言語レベルの SSOT は `docs/reference/language/lifecycle.md` を参照してください（スコープ/所有/weak/`fini`/GC）。
-- `fini()` の中で「strong-owned フィールドを順に `fini()`」するカスケード設計は有用ですが、最終的な順序や禁止事項は SSOT に従います。
+- 通常fieldはshared-strongです。子resourceをfinalizeする必要がある場合は
+  親のuser hookから明示的に`child.fini()`を呼びます。stored field tokenの
+  自動dropは子のuser finiを意味しません。
 
 ## プラグインBoxの特則（シングルトン）
 - シングルトン（`nyash.toml`）
@@ -52,3 +54,6 @@ singleton = true
 ## 実装参照
 - スコープ終了専用 owner としての自動 `fini` は持たない設計です。
 - プラグインローダ: `src/runtime/plugin_loader_v2.rs`（シングルトン生成・保持・シャットダウン、`PluginHandleInner::drop` / `finalize_now()` の `fini`）
+- 現行 `PluginHandleInner::drop` / `GenericPluginBox::drop` がuser `fini`
+  routeを呼ぶ挙動はB′最終契約と不一致です。plugin familyは論理finiと
+  structural instance-destroy ABIを分離するまでObjectCell cutover対象外です。

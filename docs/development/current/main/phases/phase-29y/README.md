@@ -103,6 +103,12 @@ Scope: self-host 後に "脱Rustランタイム（NyRT/.hako）" を進める前
 
 ## Policy lock (2026-02-13)
 
+2026-07-14 authority update: the historical post-CFG RC insertion proposal is
+no longer canonical ownership-event placement authority. A′ Verified
+Ownership SSA owns `CopyOwned`/`DestroyOwned`/edge forwarding; backend/runtime
+materializes those events, and the old pass remains legacy/optional until
+caller-zero retirement.
+
 - 実行順序は `D4 docs同期 -> D5-min1(MIR-first) -> 29y.1(ABI->RC->observability) -> vm-hako parity -> optimization -> optional GC` に固定する。
 - lifecycle 意味論は GC 必須ではない（`fini` は決定的、物理解放タイミングは意味論外）。
 - cycle collector は意味論要件ではなく、診断/最適化寄りの optional 機能として扱う。
@@ -112,7 +118,8 @@ Scope: self-host 後に "脱Rustランタイム（NyRT/.hako）" を進める前
 Phase 29y を “締める” 条件は実装ではなく、次フェーズへ切れること。
 
 1. **ABI SSOT**: NyRT ABI（最小セット）+ 関数 ABI（args borrowed / return owned など）を docs に固定
-2. **RC insertion SSOT**: retain/release/weak_drop の発火点を “1箇所” に寄せる設計（Frag 前後）を docs に固定
+2. **Historical RC insertion contract**: 旧post-CFG passのcompat境界を記録。
+   current authorityはVerified Ownership SSA
 3. **Observability SSOT**: hidden root を追える観測点（root面の定義、診断API、smokeは exit code SSOT）を docs に固定
 
 Docs（Phase 29y 内の SSOT - ✅ P0 complete, all Ready）:
@@ -203,7 +210,7 @@ Y3（optional GC implementation queue docs-first 起票）は完了。実装は�
 Non-negotiable:
 - semantics invariance（`NYASH_GC_MODE=rc+cycle|off`）
 - ABI fixed（`args borrowed / return owned`）
-- RC insertion single-source
+- Ownership SSA event placement single-source; legacy RC pass is non-authority
 
 SSOT:
 - `docs/development/current/main/phases/phase-29y/40-OPTIONAL-GC-LANE-ENTRY-SSOT.md`（Section 8）

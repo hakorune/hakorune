@@ -148,6 +148,11 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
   - Arc retirement parent map; keeps RC insertion, ownership substrate,
     Box object model, TypeAbiCatalog, BoxCallableRegistry, and optional GC
     recipe responsibilities separated before any Arc replacement implementation
+- `design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md`
+  - B′ Box lifecycle constitution; separates explicit eager `fini`, Ownership
+    SSA tokens, generation-tagged ObjectCell materialization, and later
+    Unique/LocalRc/SharedRc optimization, with the detailed parked execution
+    DAG in the paired investigations taskboard
 - `design/object-handle-box-identity-contract-ssot.md`
   - ARC-RETIRE-003 contract owner for `ObjectHandle`, `BoxIdentity`,
     generation, weak handles, root visibility, plugin instance mapping, and

@@ -1,6 +1,6 @@
 # 🧠 Nyash メモリ管理 & finiシステム
 
-**最終更新: 2025年8月19日 - 統合仕様書**
+**最終更新: 2026年7月14日 - B′設計ノート同期**
 
 注: 言語レベルの SSOT は `docs/reference/language/lifecycle.md`。本書は設計ノートであり、SSOT と矛盾する記述があれば SSOT を優先する。
 
@@ -10,14 +10,16 @@ Nyashは「Everything is Box」哲学のもと、統一的なメモリ管理と�
 
 ## 🏗️ 基本アーキテクチャ
 
-### Arc<Mutex>一元管理
+### 現行 Arc 系実装（移行対象）
 
 ```rust
 // インタープリターレベルでの統一管理
 type NyashObject = Arc<Mutex<dyn NyashBox>>;
 ```
 
-すべてのBoxは、インタープリターレベルで`Arc<Mutex>`によって管理されます。
+現行の多くのBoxは、インタープリターレベルで`Arc`/`Mutex`系の
+carrierによって管理されます。これは現在の実装説明であり、最終の
+言語意味論やB′ ObjectCell構造ではありません。
 
 #### 利点
 - **スレッドセーフティ**: 自動的に保証
@@ -79,7 +81,7 @@ box MyResource {
 最終的な順序・禁止事項の SSOT は `docs/reference/language/lifecycle.md` に集約する。
 本セクションの箇条書きは “目標像/設計メモ” として読む。
 
-#### 自動カスケード解放
+#### 明示的な子resource finalizationとstored-token cleanup
 ```nyash
 box Pipeline {
     init { r1, r2, r3, monitor_weak }
@@ -89,19 +91,25 @@ box Pipeline {
         me.r3.fini()  // 依存関係でr3→r2の順
         me.r2.fini()
         
-        // 2) 自動カスケード: 残りのr1が自動解放（weak参照は対象外）
-        // 3) weak参照は weak_to_strong() で観測し、失効時は null（=void/none）を返す
+        // r1をresourceとしてfinalizeする必要があるなら、ここで明示的に呼ぶ
+        me.r1.fini()
     }
 }
 ```
 
+通常fieldはshared-strongです。親の`fini()`はuser hookの後、fieldに格納
+されたstrong tokenを宣言逆順でrelease/clearしますが、子のuser `fini()`
+を暗黙には呼びません。weak fieldはtargetを辿らず、weak token自身だけを
+dropします。
+
 #### 決定的な解放順序
 1. **finalized チェック** - 既に解放済みなら何もしない（idempotent）
-2. **再入防止** - `in_finalization`フラグで再帰呼び出し防止
-3. **ユーザー定義fini()実行** - カスタムクリーンアップ処理
-4. **自動カスケード** - strong-owned フィールドを決定的順序で解放（weakはスキップ）
-5. **フィールドクリア** - 全フィールドを無効化
-6. **finalized設定** - 以後の使用を禁止
+2. **Finalizing取得** - 新規通常accessを停止し、既存accessをdrain
+3. **FinalizerLease** - user hookだけがself payloadへ触れるprivileged accessを取得
+4. **ユーザー定義fini()実行** - カスタムクリーンアップ処理（at most once）
+5. **stored-token cleanup** - strong/weak field tokenを宣言逆順でdrop（子finiは暗黙に呼ばない）
+6. **payload破棄** - field/native payloadをAbsentへ
+7. **Dead設定** - 以後のpayload使用を禁止
 
 ### weak参照による循環参照回避
 
@@ -120,13 +128,13 @@ node1.next_weak = weak(node2)
 #### weak参照の特性
 - **所有権なし**: オブジェクトの生存期間に影響しない
 - **観測はweak_to_strong**: 参照先が Dead/Freed の場合、`weak_to_strong()` は `null` を返す
-- **fini()対象外**: 弱参照フィールドはfini()カスケードでスキップ
+- **target fini()対象外**: 弱参照fieldはtargetをfinalizeしない。weak token自身はdropする
 
 ### 不変条件（重要）
 
 - **weak参照**: `weak`フィールドに対して`fini()`を直接呼ぶことはできません
 - **finalized後禁止**: `fini()`呼び出し後は、そのオブジェクトの使用はすべて禁止
-- **カスケード順序**: strong-owned フィールドに対して決定的に実行し、`weak`フィールドはスキップ（順序のSSOTは `docs/reference/language/lifecycle.md`）。
+- **field cleanup順序**: ordinary strong/weak tokenを宣言逆順でdropする。子resourceのuser finiは親hookから明示する（順序のSSOTは `docs/reference/language/lifecycle.md`）。
 
 ## 🌟 実用例
 
@@ -141,7 +149,7 @@ box FileHandler {
             me.file.close()
             console.log("File closed automatically")
         }
-        // bufferは自動カスケードで解放
+        // bufferがresourceなら必要なfiniをここで明示する
     }
 }
 ```

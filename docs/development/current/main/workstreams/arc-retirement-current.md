@@ -7,6 +7,8 @@ Related:
   - docs/development/current/main/design/runtime-gc-policy-and-order-ssot.md
   - docs/development/current/main/design/box-callable-registry-ssot.md
   - docs/development/current/main/design/type-abi-catalog-planning-spine-ssot.md
+  - docs/development/current/main/design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md
+  - docs/development/current/main/investigations/box-lifecycle-bprime-tombstone-adaptive-ownership-task-2026-07-14.md
 ---
 
 # Arc Retirement Current Taskboard
@@ -29,6 +31,11 @@ work now. ARC-RETIRE-006..018 additionally defines the first family gate, cuts
 over host-handle text payloads from Arc-backed payloads to direct `String`
 payloads, and adopts that direct text carrier from the owned-text producer
 boundary. Global Arc replacement has not started.
+
+The next identity-bearing object-substrate series is B′ and remains parked
+behind the active D′/Ownership SSA dependencies. It starts with a machine
+inventory and atomic SharedRc ObjectCell model; it does not treat the closed
+stable-text carrier as proof of fini/weak/global BoxRef replacement.
 
 ## Task Order
 

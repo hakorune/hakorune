@@ -6,6 +6,7 @@ Scope: ObjectHandle / BoxIdentity contract for ARC-RETIRE-003.
 Related:
   - docs/development/current/main/design/arc-retirement-and-ownership-substrate-ssot.md
   - docs/development/current/main/workstreams/arc-retirement-current.md
+  - docs/development/current/main/design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md
   - src/runtime/object_identity.rs
 ---
 
@@ -89,13 +90,32 @@ RootVisibility:
   Borrowed
   Unrooted
 
-FiniOwner:
+FiniOwner (current compatibility route/provenance metadata):
   None
   Scope
   ObjectDrop
   Plugin { type_id, instance_id, fini_method_id }
   Host
 ```
+
+B′ correction:
+
+```text
+logical transition / once / ordering owner:
+  ObjectCell FinalizeObject transaction
+
+structural drop owner:
+  ObjectCell/runtime drop glue
+
+FiniOwner:
+  current route/provenance inventory only
+  must not authorize user fini from last strong or native Drop
+  rename/demotion waits for exact caller inventory and family cutover
+```
+
+`FiniOwner::ObjectDrop` is therefore not a normative claim that object drop
+calls user `fini()`. Current implementations that do so are legacy migration
+rows in the B′ taskboard.
 
 ## Plugin Mapping
 
