@@ -52,7 +52,7 @@ pub(super) fn build_exit_phi(
 
     match result {
         Ok(exit_phi_result_id) => {
-            txn.commit()?;
+            txn.commit(builder).map_err(|error| error.to_string())?;
             if debug {
                 trace.stderr_if(
                     &format!(
@@ -65,10 +65,7 @@ pub(super) fn build_exit_phi(
             }
             Ok((exit_phi_result_id, carrier_phis))
         }
-        Err(err) => match txn.abort_on_err(builder, err) {
-            Err(abort_err) => Err(abort_err),
-            Ok(()) => unreachable!("PhiTxn::abort_on_err returns Err"),
-        },
+        Err(err) => Err(txn.abort_on_err(builder, err).to_string()),
     }
 }
 

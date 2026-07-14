@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-C1 closed; SSA-P1 selected
+Status: Active — SSA-P1 closed; SSA-V0 selected
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-P1-PHI-TRANSACTION-CLEANUP-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-V0-CANONICAL-PUBLICATION-VERIFIER-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -271,7 +271,7 @@ production If/Loop/Binding SSA callers = 0
 accepted grammar delta = 0
 ```
 
-### SSA-P1 — PHI transaction cleanup prerequisite
+### SSA-P1 — PHI transaction cleanup prerequisite — closed
 
 Close the reusable failure lifecycle independently of SSA acceptance:
 
@@ -284,6 +284,20 @@ success commits exactly once
 ```
 
 No accepted syntax or production Binding SSA call is added.
+
+Closed evidence:
+
+```text
+PhiTxn abort attempts every pending rollback
+one rollback failure does not stop later cleanup
+primary plus every cleanup failure retained in PhiTxnAbortErrorV1
+missing provisional PHI is a cleanup failure, not a silent success
+commit with pending PHIs routes through the same rollback owner
+successful commit consumes the transaction exactly once
+focused fixtures = 6/6 green
+production Binding SSA callers = 0
+accepted grammar delta = 0
+```
 
 ### SSA-V0 — canonical publication/verifier prerequisite
 
@@ -1050,14 +1064,14 @@ of this final form.
 
 ## Immediate next action
 
-Close SSA-P1 only:
+Close SSA-V0 only:
 
 ```text
-make PhiTxn abort attempt every pending rollback
-continue cleanup after an individual rollback failure
-retain both the primary failure and every cleanup failure
-publish no partial PHI or function state
-commit a successful transaction exactly once
+turn canonical post-RC MIR verifier failure into a typed compile failure
+make canonical module commit unreachable after verifier failure
+reject duplicate same-name canonical function publication with a typed error
+publish no function/module before seal and SSA completion witnesses
+preserve explicit legacy result-reporting only behind legacy provenance
 connect no production Binding SSA caller
 preserve accepted grammar and existing A+ If behavior
 ```

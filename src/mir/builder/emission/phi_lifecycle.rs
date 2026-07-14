@@ -46,6 +46,77 @@ pub(in crate::mir::builder) struct PhiToken {
     dst: ValueId,
 }
 
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub(in crate::mir::builder) struct PhiRollbackFailureV1 {
+    token: PhiToken,
+    error: String,
+}
+
+#[cfg(test)]
+impl PhiRollbackFailureV1 {
+    pub(in crate::mir::builder) fn block(&self) -> BasicBlockId {
+        self.token.block
+    }
+
+    pub(in crate::mir::builder) fn dst(&self) -> ValueId {
+        self.token.dst
+    }
+
+    pub(in crate::mir::builder) fn error(&self) -> &str {
+        &self.error
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub(in crate::mir::builder) struct PhiTxnAbortErrorV1 {
+    tag: String,
+    pending_count: usize,
+    primary: String,
+    cleanup_failures: Box<[PhiRollbackFailureV1]>,
+}
+
+#[cfg(test)]
+impl PhiTxnAbortErrorV1 {
+    pub(in crate::mir::builder) fn primary(&self) -> &str {
+        &self.primary
+    }
+
+    pub(in crate::mir::builder) fn pending_count(&self) -> usize {
+        self.pending_count
+    }
+
+    pub(in crate::mir::builder) fn cleanup_failures(&self) -> &[PhiRollbackFailureV1] {
+        &self.cleanup_failures
+    }
+}
+
+impl std::fmt::Display for PhiTxnAbortErrorV1 {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let cleanup = self
+            .cleanup_failures
+            .iter()
+            .map(|failure| {
+                format!(
+                    "bb={:?}:dst=%{}:<{}>",
+                    failure.token.block, failure.token.dst.0, failure.error
+                )
+            })
+            .collect::<Vec<_>>()
+            .join("|");
+        write!(
+            f,
+            "[freeze:contract][phi_lifecycle/txn_abort] tag={} pending_count={} source_error=<{}> cleanup_failure_count={} cleanup_failures=[{}]",
+            self.tag,
+            self.pending_count,
+            self.primary,
+            self.cleanup_failures.len(),
+            cleanup
+        )
+    }
+}
+
+impl std::error::Error for PhiTxnAbortErrorV1 {}
+
 /// Transaction wrapper for provisional PHI lifecycle operations.
 ///
 /// This is a structural guard over the existing low-level lifecycle helpers.
@@ -91,45 +162,58 @@ impl PhiTxn {
         Ok(())
     }
 
-    pub(in crate::mir::builder) fn commit(self) -> Result<(), String> {
+    pub(in crate::mir::builder) fn commit(
+        self,
+        builder: &mut MirBuilder,
+    ) -> Result<(), PhiTxnAbortErrorV1> {
         if self.pending.is_empty() {
             return Ok(());
         }
 
-        let preview = self
-            .pending
-            .iter()
-            .take(3)
-            .map(|token| format!("bb={:?}:dst=%{}", token.block, token.dst.0))
-            .collect::<Vec<_>>()
-            .join(",");
-        Err(format!(
+        let err = format!(
             "[freeze:contract][phi_lifecycle/provisional_left_unpatched] tag={} pending_count={} pending={}",
             self.tag,
             self.pending.len(),
-            preview
-        ))
+            self.pending
+                .iter()
+                .map(|token| format!("bb={:?}:dst=%{}", token.block, token.dst.0))
+                .collect::<Vec<_>>()
+                .join(",")
+        );
+        Err(self.abort_on_err(builder, err))
     }
 
     pub(in crate::mir::builder) fn abort_on_err(
         self,
         builder: &mut MirBuilder,
         err: String,
-    ) -> Result<(), String> {
+    ) -> PhiTxnAbortErrorV1 {
+        let mut cleanup_failures = Vec::new();
         for token in &self.pending {
-            rollback_provisional_phi(
+            let rollback = rollback_provisional_phi(
                 builder,
                 token.block,
                 token.dst,
                 &format!("{}:abort", self.tag),
-            )?;
+            );
+            match rollback {
+                Ok(true) => {}
+                Ok(false) => cleanup_failures.push(PhiRollbackFailureV1 {
+                    token: *token,
+                    error: "provisional PHI was not found during rollback".to_string(),
+                }),
+                Err(error) => cleanup_failures.push(PhiRollbackFailureV1 {
+                    token: *token,
+                    error,
+                }),
+            }
         }
-        Err(format!(
-            "[freeze:contract][phi_lifecycle/txn_abort] tag={} pending_count={} source_error={}",
-            self.tag,
-            self.pending.len(),
-            err
-        ))
+        PhiTxnAbortErrorV1 {
+            tag: self.tag,
+            pending_count: self.pending.len(),
+            primary: err,
+            cleanup_failures: cleanup_failures.into_boxed_slice(),
+        }
     }
 }
 

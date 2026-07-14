@@ -13,4 +13,6 @@ pub mod constant;
 pub(crate) mod copy_emitter;
 pub(in crate::mir::builder) mod phi; // Phase 272 P0.2 Refactoring
 pub(in crate::mir) mod phi_lifecycle; // PHI lifecycle SSOT
+#[cfg(test)]
+mod phi_lifecycle_tests;
 pub(in crate::mir::builder) mod value_lifecycle; // Value lifecycle contract (typed → defined)
