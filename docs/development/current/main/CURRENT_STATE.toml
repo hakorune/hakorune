@@ -157,6 +157,10 @@ adapter, conservative Unknown PHI facts, exact C1 witnesses, pending-only
 rollback, and five focused fixtures. The active SSA-RC0-D0 consultation must
 choose an explicit owned-alias acquire instruction or a repository-wide Copy
 ownership contract before RC0 or SSA-I1 code begins.
+Rust `MirInterpreter` retirement is now an explicit later selfhost branch:
+after the ownership MIR vocabulary stabilizes, a sealed `.hako` MIR
+interpreter subset gains normalized parity, becomes the no-fallback semantic
+reference owner, and retires Rust code only after repository caller zero.
 Old A+A2′ carrier-bearing
 S3/I1/I2 and effect-bearing V2 extraction are superseded. Everything below is
 historical evidence and is not current implementation authority. Historical
@@ -510,6 +514,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-14: Rust MirInterpreter retirement is taskized as a separate required selfhost branch: stable MIR ownership vocabulary -> sealed ingress/opcode/event contract -> disconnected `.hako` MIR interpreter -> independent normalized parity -> no-fallback semantic-reference cutover -> consumer-driven expansion -> exact caller-zero Rust physical retirement; EXE/AOT remains the product route and RC0 remains at its design stop.",
   "2026-07-14: D′ SSA-RC0 audit stops before code at the owned-alias materialization boundary: VM Copy clones BoxRef, Wasm Copy is a plain local copy, no general MIR retain/acquire instruction owns cross-backend semantics, and the final order is corrected to acquire decision/vocabulary/backend proof -> pure RC0 -> atomic SSA-I1 -> Loop/nesting/exits/families/retirement/publication with production callers zero.",
   "2026-07-14: D′ SSA-M0 closes one borrowed real-MIR Binding SSA adapter over MirBuilder/PhiTxn, exact CanonicalCfgSessionV1 predecessor witnesses, conservative Unknown open/patched PHI facts, explicit unreachable/non-dominance rejection, pending-only rollback with poisoned-draft discard, five focused fixtures, zero production callers, and zero grammar/behavior delta; SSA-RC0 is selected.",
   "2026-07-14: D′ SSA-S3 closes one disconnected carrier-free statement-If control product with exact source-preorder rows, sealed If/IfThen/optional IfElse topology, distinct implicit/explicit-empty else ports, exclusive nested coverage partition, nine focused fixtures, one internal coverage consumer, zero new production analyzer callers, zero binding-effect rows, and zero grammar/behavior delta; SSA-M0 is selected.",
@@ -521,5 +526,4 @@ landed_tail = [
   "2026-07-14: D′ SSA-C1 closes one disconnected fallible canonical CFG session with terminator-derived predecessor truth, checked-not-repaired successor/predecessor caches, immutable seal witnesses, typed late-edge/duplicate/seal errors, fifteen focused fixtures, zero production callers, and zero grammar delta; SSA-P1 is selected.",
   "2026-07-14: D′ SSA-L0 behavior-neutrally splits the 807-line PHI input helper into an 18-line facade, 331-line edge rematerialization, 166-line legacy whole-function repair, and responsibility-specific tests; API, callers, grammar, and production behavior remain unchanged, and SSA-C1 is selected.",
   "2026-07-14: D′ SSA-P0 closes a guarded 92-row inventory across canonical binding/value, CFG/predecessor, PHI lifecycle, RC/lifetime, publication, terminal Return, and old If authority seams; it adds SSA-V0 publication safety, explicit scope/tail/self-assignment RC gaps, and selects behavior-neutral SSA-L0.",
-  "2026-07-14: D′ B0-L4-S2′ closes checked owner/body/start/nonzero range navigation and a private owner-branded ordered coverage schema under resolved_control_flow, with ten focused tests, production consumers zero, existing A+ If unchanged, and Binding SSA/Loop activation zero.",
 ]

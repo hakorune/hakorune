@@ -124,6 +124,10 @@ capture-cell authority + F0 -> F1d
 {F0, required F1x, RET-I1, RET-I2} -> F2-S0 -> F2-I1
 F2-I1 + canonical caller zero -> RET-R1 -> PUB-F0
 repository-wide caller zero -> RET-R2
+
+SSA-RC-A1 -> HMI-P0 -> HMI-S0 -> HMI-S1 -> HMI-I0 -> HMI-P1
+{SSA-I1, HMI-P1} -> HMI-C0 -> HMI-X0 -> HMI-R1
+repository-wide Rust MirInterpreter caller zero -> HMI-R2
 ```
 
 Owner-family expansion may proceed independently of Loop/exit expansion when
@@ -1117,6 +1121,51 @@ The result is invalidated by MIR/CFG changes and never becomes source or
 Lower route authority. Structured `LoopRegionSignature` is a separate IR
 decision and cannot coexist as a second generic-baseline truth.
 
+### HMI — Rust VM to `.hako` MIR interpreter migration
+
+This is a required selfhost retirement branch, not a new product VM route and
+not part of the active SSA-RC0 design decision. Its durable policy and detailed
+acceptance live in:
+
+```text
+../design/vm-active-lane-retirement-ssot.md
+```
+
+The execution order is:
+
+```text
+HMI-P0:
+  inventory Rust handlers/callers and choose one sealed MIR ingress
+
+HMI-S0/S1:
+  seal the minimal portable opcode subset and normalized observation contract
+
+HMI-I0:
+  implement a disconnected `.hako` MIR interpreter in small boxes
+
+HMI-P1:
+  prove independent Rust/`.hako` normalized parity
+
+HMI-C0:
+  switch the closed semantic-reference subset to `.hako` without fallback
+
+HMI-X0:
+  expand one named MIR instruction family per slice
+
+HMI-R1/R2:
+  isolate remaining Rust callers, then delete only after repository caller zero
+```
+
+The first closed subset is intended to cover `Const`, `Copy`, the accepted
+owned-alias acquire instruction, `ReleaseStrong`, `BinOp`, `Jump`, `Branch`,
+`Phi`, and `Return`. Exact spelling waits for SSA-RC0-D0. EXE/AOT remains the
+production route throughout.
+
+HMI-C0 requires the first canonical Binding-SSA owner so parity includes a
+real canonical control/ownership fixture. HMI-P0 through HMI-P1 may otherwise
+proceed as disconnected work after SSA-RC-A1. Hako interpreter parity is not
+Hako compiler-Lower parity.
+
 ## Production activation table
 
 | Milestone | Binding SSA production | If production owner | Loop production | Source grammar delta |
@@ -1321,6 +1370,11 @@ Add focused unit/runtime commands named by each milestone before committing.
 | F2-I1 | F0-required ordinary canonical source owners use the no-retry SSA route |
 | RET-R1/R2 | only repository-wide caller-zero mechanisms are physically removed |
 | PUB-F0 | every supported canonical and synthetic function crosses one typed final publication barrier |
+| HMI-P0/S0/S1/I0 | one disconnected portable `.hako` MIR-interpreter subset exists; Rust remains the temporary reference |
+| HMI-P1 | the closed subset has independent normalized Rust/`.hako` parity |
+| HMI-C0 | `.hako` is the sole semantic-reference owner for the closed subset; product execution remains EXE/AOT |
+| HMI-X0 | only the selected named MIR instruction family joins the `.hako` subset |
+| HMI-R1/R2 | Rust interpreter callers are isolated, then physically removed only at repository caller zero |
 
 ## Must not claim
 
@@ -1334,6 +1388,8 @@ durable RegionId materialization or SA4 completion
 ProgramV0 source authority
 REPL owner lifetime completion
 Hako Lower parity
+product VM parity from `.hako` semantic-reference parity
+Rust MirInterpreter physical retirement before HMI-R2 caller zero
 current CorePlan retirement before its final callers close
 post-MIR recurrence authority without a production consumer
 ordinary-source compatibility before F0 and F2-I1 close
@@ -1373,6 +1429,10 @@ inherits a newly landed expression kind without updating the row's closed gramma
 adds a universal optional-field control product before three-family evidence
 adds DerivedLoopAnalysis without a named consumer
 lets a new or modified source/check file reach 800 lines
+translates the Rust VM file-for-file instead of a sealed MIR subset
+uses AST or ProgramV0 as the `.hako` MIR-interpreter authority
+falls back to Rust after `.hako` semantic-reference cutover
+deletes Rust interpreter code before exact repository caller zero
 ```
 
 ## Final completion definition
@@ -1395,7 +1455,10 @@ optimizer loop facts are derived from completed MIR only when consumed
 
 ProgramV0, REPL lifetime, Hako Lower parity, and structured-loop IR remain
 independent decisions. They are not hidden prerequisites or accidental claims
-of this final form.
+of this final form. The `.hako` MIR-interpreter migration is a separate required
+selfhost retirement branch: it does not redefine D-prime compiler completion,
+but Rust semantic-reference ownership is not the repository's selfhost final
+state.
 
 ## Immediate next action
 
