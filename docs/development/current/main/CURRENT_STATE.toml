@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ SSA-RC-L0 ownership transport seam split is active"
+status = "D′ SSA-RC-L1 interpreter frame transaction is active"
 date = "2026-07-14"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -14,10 +14,13 @@ A′ accepts explicit CopyOwned/DestroyOwned Ownership SSA, keeps Copy neutral,
 and isolates legacy ReleaseStrong. SSA-RC-L0a repairs stale instruction-diet
 test/reference literals to the unchanged 41/16/57 implementation vocabulary.
 SSA-RC-L0b closes the static-const-table load guard false-green by explicitly
-enabling `vm-reference`; all three existing module tests now execute. The
-active behavior-neutral row is SSA-RC-L0: restore the stashed transport seam
-split, update only move-sensitive guard paths, and keep every source file below
-800 lines.
+enabling `vm-reference`; all three existing module tests now execute.
+SSA-RC-L0 closes the ownership transport seam split: backend opcode
+vocabulary/allowlists/tests and MIR JSON v0 lifecycle parsing now live behind
+thin facades, all touched source/check files remain below 800 lines, and
+behavior/API/grammar deltas are zero. The active behavior-neutral row is
+SSA-RC-L1: close the Rust interpreter function-frame lifecycle transaction
+before passive ownership opcodes are introduced.
 Historical
 lane chronology follows and is non-authoritative.
 Explicit user priority change on 2026-07-12 reopens
@@ -171,6 +174,10 @@ profile, transport, supported backends, path-sensitive ownership forwarding,
 and legacy retirement inventory. If no exact BoxRef source producer exists,
 SSA-I1 is a trivial-only Binding SSA cutover and production Ownership SSA waits
 for the separate SSA-I1-O1 producer/ABI witness.
+SSA-RC-L0 is closed with thin 8-line backend contract and 742-line JSON v0
+facades, isolated vocabulary/allowlist/test/lifecycle boxes, 20/20 and 10/10
+focused fixtures, release build, authority guard, and quick 66/66 green. The
+active prerequisite is SSA-RC-L1; ownership opcode production remains zero.
 B′ is accepted and taskized as a parked runtime/substrate continuation:
 explicit `fini()` owns eager tombstone teardown, DestroyOwned/last-strong own
 structural drop only, ObjectIdentity is separate from owner/root tokens, the
@@ -182,7 +189,7 @@ Decisions. The taskboard covers current-authority inventory,
 passive cell/lease/weak contracts, one-family atomic activation, plugin ABI
 split, backend/family rollout, global legacy retirement, StaticUnique
 proof/materialization/parity, and final closeout.
-It does not change the active SSA-RC-L0 blocker.
+It does not change the active SSA-RC-L1 blocker.
 Rust `MirInterpreter` retirement is now an explicit later selfhost branch:
 after the ownership MIR vocabulary stabilizes, a sealed `.hako` MIR
 interpreter subset gains normalized parity, becomes the no-fallback semantic
@@ -531,11 +538,11 @@ not started. Design Registry V1 sharding is accepted-for-tasking as a parked
 BoxShape series with production activation 0; its first implementation row is
 mandatory CLEAN0, followed by explicit SELECT0, full normalized V0/V1 parity,
 atomic cutover, V0 retirement, and RETURN0. It does not replace the active
-SSA-RC-L0 blocker. 3511 now owns the narrow semantic activation claim and its
+SSA-RC-L1 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-L0-OWNERSHIP-SEAM-SPLIT-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-L1-FRAME-TRANSACTION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -544,6 +551,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-14: D′ SSA-RC-L0 closes the behavior-neutral ownership transport seam split: backend_core_ops is an 8-line facade over 178-line vocabulary, 235-line allowlists, and 364-line tests; mir_json_v0 keeps a 742-line facade with a 34-line lifecycle parser; focused 20/20 + 10/10 + feature-gated 3/3, release build, authority guard, and quick 66/66 are green; API/opcode counts/JSON/backend/grammar/behavior are unchanged and SSA-RC-L1 is selected.",
   "2026-07-14: Design Registry V1 deterministic 16-shard storage is accepted-for-tasking as a parked BoxShape series: the 7,000-line INDEX becomes a concise charter after full normalized V0/V1 parity and atomic no-fallback cutover; implementation must begin with CLEAN0, preserve or named-stash SSA-RC-L0 WIP, and close with V0 retirement plus RETURN0; production activation is 0 and SSA-RC-L0 remains selected.",
   "2026-07-14: B′ accepts explicit eager-fini tombstones plus derived adaptive ownership: fini is a non-receiver-consuming lifecycle transaction, DestroyOwned/last strong/native Drop never call user fini, ordinary strong fields release tokens without implicit child fini, identity is slot+generation distinct from roots, normal Box exposes no manual physical-free surface, atomic SharedRc is the correctness baseline, StaticUnique is a proof-derived plan, lazy PromotableUnique/source reclaim stay parked, and the full ObjectCell/weak/plugin/backend/family/global-retirement DAG remains behind current D′ work; SSA-RC-L0 remains selected.",
   "2026-07-14: D′ SSA-RC-L0b closes the static-const-table load guard false-green introduced when its module became vm-reference gated: the dedicated guard now enables that feature and executes all 3 existing tests; shared helper, production code, source grammar, MIR, and backend behavior are unchanged; SSA-RC-L0 is selected.",
@@ -555,5 +563,4 @@ landed_tail = [
   "2026-07-14: D′ SSA-E0 closes exact explicit root-Return and implicit Void completion products, exact site/body/end/function-target consumption, explicit empty cleanup, direct canonical Return emission, post-Lower ready-witness finalization, eleven focused fixtures, zero Binding SSA production callers, and zero grammar delta; SSA-S3 is selected.",
   "2026-07-14: D′ SSA-S2 splits ResolvedIdentityLedgerV2 from the single temporary pre-SSA value environment without changing declaration/retirement/finish ordering, keeps old If as sole production value owner, adds two equivalence fixtures and a structural guard, and selects SSA-E0 with zero Binding SSA production callers or grammar delta.",
   "2026-07-14: D′ SSA-S1 closes one disconnected function-owned sealed-block Binding SSA with immutable C1 predecessor witnesses, on-demand provisional PHIs, exact input verification, rollback-and-poison errors, twelve focused fixtures, zero production callers, and zero grammar delta; SSA-S2 is selected.",
-  "2026-07-14: D′ SSA-V0 closes the canonical publication barrier with typed post-RC MIR verification failure, commit-after-failure zero, typed same-name function rejection without overwrite, three focused fixtures, explicit legacy reporting preservation, zero Binding SSA production callers, and zero grammar delta; SSA-S1 is selected.",
 ]

@@ -16,7 +16,7 @@ cd "$ROOT_DIR"
 DISALLOWED_VARIANTS="ArrayGet|ArraySet|RefGet|RefSet"
 
 # Known fixture files that intentionally construct lowered-away ops for contract tests.
-ALLOWLIST_RE='^(src/mir/optimizer.rs|src/mir/instruction/tests.rs|src/backend/mir_interpreter/exec/diagnostics.rs|src/mir/contracts/backend_core_ops.rs):'
+ALLOWLIST_RE='^(src/mir/optimizer.rs|src/mir/instruction/tests.rs|src/backend/mir_interpreter/exec/diagnostics.rs|src/mir/contracts/backend_core_ops/tests.rs):'
 
 collect_hits() {
   local pattern="$1"

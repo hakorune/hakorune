@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-RC-L0 seam split is next
+Status: Active — SSA-RC-L1 interpreter frame transaction is next
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-L0-OWNERSHIP-SEAM-SPLIT-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-L1-FRAME-TRANSACTION-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -655,7 +655,7 @@ bash tools/checks/k2_wide_static_const_table_load_guard.sh
 production/source/MIR/backend delta = 0
 ```
 
-#### SSA-RC-L0 — ownership transport seam split — active
+#### SSA-RC-L0 — ownership transport seam split — closed
 
 Before adding opcodes, split two near-stop files by existing responsibility in
 one behavior-neutral BoxShape commit:
@@ -677,6 +677,23 @@ Every resulting source file remains below 800 lines. Public APIs, kept/removed
 counts, JSON behavior, backend support, accepted grammar, and production
 behavior remain unchanged. Do not touch the 796-line public
 `resolved_region_flow_authority_guard.sh`.
+
+Closed evidence:
+
+```text
+backend_core_ops facade / vocabulary / allowlists / tests = 8 / 178 / 235 / 364 lines
+mir_json_v0 facade / lifecycle parser = 742 / 34 lines
+backend_core_ops focused fixtures = 20/20 green
+mir_json_v0 focused fixtures = 10/10 green
+static-table feature-gated fixtures = 3/3 green
+resolved authority guard = green
+cargo fmt --check = green
+cargo build --release --bin hakorune = green
+dev_gate quick = 66/66 green
+public API / kept-removed counts / JSON / backend / grammar / behavior delta = 0
+production Binding SSA / ownership opcode callers = 0
+all new or modified source/check files below 800 lines
+```
 
 #### SSA-RC-L1 — Rust interpreter frame transaction
 
@@ -1925,17 +1942,14 @@ state.
 
 ## Immediate next action
 
-Implement SSA-RC-L0 only. Do not add ownership opcodes in the same commit:
+Implement SSA-RC-L1 only. Do not add ownership opcodes in the same commit:
 
 ```text
-restore the newest named L0 WIP after the L0b prerequisite lands
-split backend_core_ops.rs by existing vocabulary/allowlist/test responsibility
-split mir_json_v0.rs lifecycle parsing behind the existing facade
-update guard paths only where the physical move requires it
-keep every resulting source file below 800 lines
-keep opcode counts, JSON behavior, backend behavior, grammar, and API unchanged
-do not touch the 796-line public authority guard
-keep production Binding SSA callers at zero
-keep old A+ If as the sole production If authority
-keep accepted grammar and production behavior unchanged
+inventory the Rust MirInterpreter function-frame save/restore owner
+introduce one closure-scoped frame transaction
+restore caller registers and current function on success and every typed error
+cover fast slots, alias/cache state, and step/PHI failures
+retain the primary execution error if restoration also fails
+change no opcode, grammar, accepted success behavior, or ownership activation
+keep every new or modified source/check file below 800 lines
 ```

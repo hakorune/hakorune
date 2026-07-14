@@ -11,6 +11,8 @@ mod array_write;
 mod call;
 #[path = "mir_json_v0/helpers.rs"]
 mod helpers;
+#[path = "mir_json_v0/lifecycle.rs"]
+mod lifecycle;
 #[cfg(test)]
 #[path = "mir_json_v0/tests.rs"]
 mod tests;
@@ -18,6 +20,7 @@ mod tests;
 use array_write::parse_array_element_write;
 use call::*;
 use helpers::*;
+use lifecycle::parse_value_transport_or_lifecycle;
 
 /// Parse minimal MIR JSON v0 (no schema_version, root has `functions` and each function has `blocks`).
 /// Supported ops (minimal): const, copy, load, static_data_load, array_get, array_set, store, binop, compare, typeop, ref_new, weak_new, weak_load, future_new, future_set, await, branch, jump, phi, ret, newbox, boxcall, call, mir_call, externcall, safepoint, keepalive, release_strong, debug, select, barrier.
@@ -123,14 +126,12 @@ pub fn parse_mir_v0_to_module(json: &str) -> Result<MirModule, String> {
                         });
                         max_value_id = max_value_id.max(dst + 1);
                     }
-                    "copy" => {
-                        let dst = require_u64(inst, "dst", "copy dst")? as u32;
-                        let src = require_u64(inst, "src", "copy src")? as u32;
-                        block_ref.add_instruction(MirInstruction::Copy {
-                            dst: ValueId::new(dst),
-                            src: ValueId::new(src),
-                        });
-                        max_value_id = max_value_id.max(dst + 1);
+                    "copy" | "keepalive" | "release_strong" => {
+                        let instruction = parse_value_transport_or_lifecycle(op, inst)?;
+                        if let Some(dst) = instruction.dst_value() {
+                            max_value_id = max_value_id.max(dst.as_u32() + 1);
+                        }
+                        block_ref.add_instruction(instruction);
                     }
                     "load" => {
                         let dst = require_u64(inst, "dst", "load dst")? as u32;
@@ -533,14 +534,6 @@ pub fn parse_mir_v0_to_module(json: &str) -> Result<MirModule, String> {
                     "nop" => {}
                     "safepoint" => {
                         block_ref.add_instruction(MirInstruction::Safepoint);
-                    }
-                    "keepalive" => {
-                        let values = parse_value_id_array(inst, "values", "keepalive value")?;
-                        block_ref.add_instruction(MirInstruction::KeepAlive { values });
-                    }
-                    "release_strong" => {
-                        let values = parse_value_id_array(inst, "values", "release_strong value")?;
-                        block_ref.add_instruction(MirInstruction::ReleaseStrong { values });
                     }
                     "debug" => {
                         let value = require_u64(inst, "value", "debug value")? as u32;
