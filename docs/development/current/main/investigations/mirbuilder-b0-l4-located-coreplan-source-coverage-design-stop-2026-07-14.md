@@ -1,8 +1,13 @@
-Status: Closed — A + A2′ accepted; implementation task opened at S1
+Status: Superseded by D′ after the closed S1 identity slice
 Date: 2026-07-14
 Blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-L4-LOCATED-COREPLAN-SOURCE-COVERAGE-DESIGN-STOP-001
+Successor: mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
 
 # B0-L4 Located CorePlan Source Coverage Design Stop
+
+Reading rule: P0 inventory and landed S1 identity evidence remain valid. The
+A+A2′ carrier/effect flow and its old implementation authorization are
+historical; only the D′ successor card authorizes future work.
 
 ## Current boundary
 
@@ -22,15 +27,15 @@ docs/development/current/main/investigations/
   mirbuilder-b0-l4-located-coreplan-source-coverage-consultation-2026-07-14.md
 ```
 
-The consultation accepts A + A2′. Production implementation is authorized
-only through the bounded task card:
+Historically, the consultation accepted A + A2′ and opened the bounded task
+card below. That forward implementation authority is now superseded by D′:
 
 ```text
 docs/development/current/main/investigations/
   mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md
 
-current slice:
-  B0-L4-S1 passive exact Loop bundle
+retained closed slice:
+  B0-L4-S1 passive exact Loop bundle only
 ```
 
 ## Why this is a new boundary
@@ -163,5 +168,5 @@ atomic landing order
 required fixtures, gates, may-claim, must-not-claim, stop conditions
 ```
 
-This design-stop card is closed. The implementation task authorizes S1 only;
-later slices open only after the preceding slice is green and published.
+This design-stop card is superseded. S1 is closed evidence; the old task does
+not authorize S2/S3/I1/I2. Continue only through the D′ successor taskboard.

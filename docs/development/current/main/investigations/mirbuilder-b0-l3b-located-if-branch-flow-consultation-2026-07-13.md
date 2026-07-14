@@ -3,6 +3,8 @@ Status: Accepted — A+ pre-Builder verified flow contract
 Date: 2026-07-13
 Scope: B0-L3b canonical located statement-If branch-state authority
 Work kind: BoxShape decision closed; implementation series opened
+Successor:
+  - mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
 Related:
   - docs/development/current/main/investigations/mirbuilder-resolved-semantic-owner-forest-design-stop-2026-07-13.md
   - docs/development/current/main/investigations/mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
@@ -11,6 +13,11 @@ Related:
 ---
 
 # B0-L3b Located If Branch Flow Consultation
+
+Reading rule: this is the closed evidence for the currently landed A+ If
+runtime. Do not extend its effect/join authority. D′ is the only future
+implementation owner and retires the old authority after atomic function-wide
+Binding SSA cutover.
 
 ## Accepted decision
 

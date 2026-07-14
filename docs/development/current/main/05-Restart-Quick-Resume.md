@@ -40,13 +40,17 @@ cargo check -q
 
 - handoff frontier: read `current_blocker_token` in `CURRENT_STATE.toml`
 - read `latest_card_path` before editing
-- owner-scoped arena through B0-L3b-I1b is closed (B0-C was skipped); exact If
-  flow and canonical fallthrough statement-If runtime are green. The active
-  frontier is the B0-L4 located CorePlan source-coverage design stop named by
-  `current_blocker_token` and `latest_card_path`; do not implement before the
-  carrier/coverage consultation is accepted
-- keep RegionFlow R1, parser/source-carrier P1, and all parked source-projection
-  stashes disconnected until the semantic-arena prerequisite series closes
+- D′ is accepted: exact coverage/topology/ports/cleanup stays pre-Builder and
+  one function-wide Binding SSA becomes canonical local value/PHI authority
+- the active blocker is B0-L4-S2′ generic located coverage; its new production
+  consumers and Binding SSA/Loop activation stay zero, while existing A+ If
+  production remains unchanged
+- recover `wip/b0-l4-s2 before ssa-first consultation` by resolving its stash
+  message and using `stash apply`; never document a positional stash ref, and
+  do not pop/drop it before the green S2′ commit
+- old A+A2′ carrier S3/I1/I2 and effect-bearing V2 extraction are superseded;
+  do not revive them from historical cards
+- keep parser/source-carrier and unrelated parked stashes disconnected
 - LANGV1 conformance closeout and Failure/Outcome global migration remain
   parked and must not be inferred complete
 

@@ -1,9 +1,10 @@
 ---
-Status: Active — B0-L4-S1 closed; B0-L4-S2 selected
+Status: Superseded by D′ after closed B0-L4-S1; S2 intent retained as S2′
 Date: 2026-07-14
-Decision: new pre-Builder canonical Loop contract with inseparable generic coverage sidecar
-Work mode: Refactor Series Mode; one authority boundary, five code milestones
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-L4-S2-GENERIC-LOCATED-COVERAGE-CARRIER-001
+Decision: Historical A + A2′; carrier-bearing S3/I1/I2 are not authorized
+Current authority: none
+Superseded by:
+  - mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
 Parent:
   - mirbuilder-b0-l4-located-coreplan-source-coverage-consultation-2026-07-14.md
 Related:
@@ -14,6 +15,13 @@ Related:
 ---
 
 # B0-L4 A + A2′ Implementation Task
+
+## Supersession rule
+
+The landed S1 exact Loop/LoopBody identity bundle remains valid. The generic
+located range/coverage intent and saved S2 WIP move to D′ S2′. The carrier,
+`may_rebind`, Loop-flow, and materialization design in S3/I1/I2 below is
+historical evidence only and must not be implemented.
 
 ## Objective
 
@@ -972,9 +980,9 @@ It remains outside this series. Its eventual independent task is:
 
 Do not fix or claim the defect from static inspection alone during B0-L4.
 
-## Immediate next action
+## Superseded next action
 
-Implement B0-L4-S2 only:
+Follow the D′ taskboard and implement B0-L4-S2′ only:
 
 ```text
 typed nonempty consumed source range
@@ -982,4 +990,5 @@ FunctionSourceViewV1-owned suffix navigation
 generic structural coverage schema/verifier
 foreign/gap/overlap/duplicate fixtures
 Loop flow and production activation remain zero
+no carrier or Plan-source authority
 ```

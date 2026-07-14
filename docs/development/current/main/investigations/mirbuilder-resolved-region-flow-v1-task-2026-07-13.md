@@ -1,10 +1,17 @@
 # Resolved Region Flow V1 — Taskboard
 
-Status: Owner Forest V1 through B0-L3b-I1a closed; I1b atomic canonical statement If activation is active.
+Status: Historical through closed B0-L3b; forward effect/carrier roadmap superseded by D′.
 Date: 2026-07-13
 Decision: `function_semantic_resolver_v1_owner_scoped_arena` followed by
 `recursive_structured_region_flow`.
 Final retirement target: legacy mandatory single-`loop_var` family = 0 callers.
+Successor:
+`mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md`.
+
+Reading rule: landed owner-forest, exact control identity, source coverage, and
+B0-L3b runtime evidence remain valid. Forward `RegionFlowSummary`,
+`LoopStateContract`, carrier, and effect-driven PHI authority is historical and
+does not authorize new implementation.
 
 ## Purpose
 

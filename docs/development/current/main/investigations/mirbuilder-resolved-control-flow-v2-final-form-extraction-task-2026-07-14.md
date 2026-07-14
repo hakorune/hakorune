@@ -1,9 +1,9 @@
 ---
-Status: Parked — extraction trigger not yet satisfied
+Status: Superseded — effect-bearing final form replaced by D′
 Date: 2026-07-14
-Decision: reserve a three-family evidence-driven final-form extraction task
-Activation: only after If, Loop, and one third control-flow family are independently production-closed
-Current authority: none; B0-L4-S1 remains the active blocker
+Decision: Historical three-family extraction sketch; current authority is zero
+Superseded by:
+  - mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
 Related:
   - mirbuilder-b0-l3b-a-plus-implementation-task-2026-07-13.md
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md
@@ -11,6 +11,14 @@ Related:
 ---
 
 # Resolved Control Flow V2 Final-Form Extraction Task
+
+## Supersession rule
+
+D′ supersedes every effect-ordering, carrier, join-state, and family PHI
+lifecycle candidate below. A future extraction may reopen only the common
+control-only envelope—coverage, owner/source closure, topology, typed ports,
+and cleanup lifecycle—after three production-closed families provide evidence.
+Binding value merge remains owned by function-wide Binding SSA.
 
 ## Purpose
 
@@ -419,7 +427,7 @@ changes accepted source shapes before the final migration commit
 fails to delete a duplicated truth source or lifecycle owner
 ```
 
-## Reopen procedure
+## Historical reopen procedure
 
 When the third family lands:
 
@@ -434,8 +442,8 @@ When the third family lands:
 Until then:
 
 ```text
-status = parked
-current pointer = unchanged
+status = superseded
+current pointer = D′ final-form taskboard
 implementation authority = 0
-B0-L4-S1 remains next
+future extraction = control-only and three-family evidence-gated
 ```

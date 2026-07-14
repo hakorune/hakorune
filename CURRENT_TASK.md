@@ -25,33 +25,17 @@ When `current_blocker_token` contains `DESIGN-STOP`, do not invent a new executa
 
 ## Handoff
 
-Read `latest_card_path` in `CURRENT_STATE.toml` before editing. Resolved Region
-Flow V1 now has an accepted prerequisite: one owner-scoped
-`VerifiedResolvedFunctionV1` semantic arena built before Planner and Lower.
-SA0, the disconnected SA1 shadow resolver, the bounded SA2 seal hardening,
-and OF0 owner forest plus UP0/UP1 structural Upvar observations and B0-F are
-closed (B0-C was skipped at zero callers). Owner brands are unique across independent compilation issuers,
-control ancestry uses RegionId parentage plus exact source containment, and
-normalized parity ignores arena ordering. Lambda children own independent
-sealed owner-local products under one verified single-root forest; strict
-ancestor reads/rebinds are exact structural observations. The schema-test
-bypass is gone and Facts/Planner/Recipe/RegionFlow remain disconnected.
-Canonical Lower is limited to one closed owner family; canonical BlockExpr is
-lexical and resolver-backed but not yet lowered. ProgramV0 remains
-non-authoritative and unwidened. Decision A′ closes
-B0-L0/B0-L1/B0-L2a/B0-L2b/B0-L2c and the
-atomic SA3-B first family. One explicit resolved route now lowers a preflighted
-non-main static/free straight-line owner with exact BindingRef authority,
-legacy allocator veto, and coverage-before-publication. The default source
-route is still legacy. B0-L3a BlockExpr Lower and B0-L3b-S1/S2/I1a/I1b
-canonical fallthrough statement If are closed. The active frontier is the
-B0-L4 located CorePlan source-coverage design stop named by
-`current_blocker_token`; no production code edit is authorized until the
-exact carrier/coverage owner and first closed runtime grammar are selected.
-Loop/CorePlan/Lambda and capture mode/layout remain otherwise zero. The first
-SA3-B owner cutover is complete;
-later families, exact RegionId target cutover, and duplicate-owner retirement
-remain bounded follow-ups. Never let resolver and Lower allocate independent
-BindingIds for the same declaration. R1
-ResolvedRegionView starts only after SA5. R9 legacy loop_var retirement remains
-Epic completion. Keep every source file below 800 lines.
+Read `latest_card_path` and `latest_workstream_card` before editing. D′ is the
+accepted final form: pre-Builder owns exact control/coverage/cleanup, and one
+function-wide Binding SSA will own every canonical local BindingRef value
+merge. Existing If must cut over to that owner before Loop production; no
+Loop-only SSA bridge, carrier rows, map diff, or legacy retry is authorized.
+
+The current code-facing blocker is B0-L4-S2′ generic located coverage with
+production activation zero. Recover only the named stash
+`wip/b0-l4-s2 before ssa-first consultation` using `stash apply`; retain the
+checked range/navigation/coverage work, remove carrier-oriented naming, and do
+not pop/drop the stash until the green S2′ commit lands. ProgramV0, REPL,
+Lambda capture/layout, default-route cutover, and durable RegionId
+materialization remain parked. Keep every new or modified source/check file
+below 800 lines.

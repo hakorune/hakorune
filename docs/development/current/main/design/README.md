@@ -58,6 +58,7 @@ navigation-only viewであり、文書を掲載してもauthorityには昇格さ
 - JoinIR 拡張の固定順序（dual-route 契約 SSOT）: `docs/development/current/main/design/joinir-extension-dual-route-contract-ssot.md`
 - Join-Explicit CFG Construction（north star）: `docs/development/current/main/design/join-explicit-cfg-construction.md`
 - Compiler Pipeline（north star; 箱の責務/入口の最終形SSOT）: `docs/development/current/main/design/compiler-pipeline-ssot.md`
+- Binding-SSA-first canonical control Lowering（exact control/coverage/cleanup と function-wide Binding SSA の最終authority境界SSOT）: `docs/development/current/main/design/binding-ssa-first-control-lowering-ssot.md`
 - Compiler Pipeline Thinning（semantic_refresh / optimizer / verifier / JoinIR の薄層化実行順SSOT）: `docs/development/current/main/design/compiler-pipeline-thinning-ssot.md`
 - JoinIR target lowerer thinning（target-specific lowerer の共通 seam / LowerOnly observation / route-specific behavior 境界SSOT）: `docs/development/current/main/design/joinir-target-lowerer-thinning-ssot.md`
 - Loop update analyzer thinning（carrier update observation owner の BoxShape-only cleanup SSOT）: `docs/development/current/main/design/loop-update-analyzer-thinning-ssot.md`

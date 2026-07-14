@@ -7407,6 +7407,17 @@ sidecars = []
 supersedes = []
 superseded_by = ""
 retire_when = "this ledger/inventory row is replaced by an explicit durable owner; owned sidecars retire with it"
+
+[[documents]]
+path = "binding-ssa-first-control-lowering-ssot.md"
+role = "authority"
+owner = "INDEX.md"
+precedence_parent = "compiler-pipeline-ssot.md"
+classification_basis = "README:現役の設計図（入口）; canonical resolved-source local-value/control lowering authority"
+sidecars = []
+supersedes = []
+superseded_by = ""
+retire_when = "canonical control lowering adopts an explicitly accepted replacement authority"
 ```
 <!-- design-registry-v0:end -->
 

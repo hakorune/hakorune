@@ -19,16 +19,12 @@ Related:
 - blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
 - language-v1 workstream:
   `docs/development/current/main/workstreams/language-v1-convergence-current.md`
-- priority: read `active_lane` and `current_blocker_token`; owner-forest
-  P0/E0/OF0/UP0/UP1/B0-D/B0-P/B0-S/B0-F are closed, B0-C was skipped, and
-  B0-L0/B0-L1/B0-L2a/B0-L2b/B0-L2c/SA3-B are closed; one explicit non-main
-  static/free straight-line resolved route and B0-L3a BlockExpr Lower are
-  landed with exact BindingRef/ScopeId/RegionId authority. B0-L3b-S1/S2 exact
-  If identity, verified pre-Builder flow, disconnected materialization, and
-  I1b fallthrough statement-If runtime activation are closed. The B0-L4
-  located CorePlan source-coverage boundary is now a design stop; its carrier,
-  coverage owner, and first runtime grammar remain unselected. Default source,
-  Loop/CorePlan/Lambda, and parser/source-carrier P1 remain disconnected
+- priority: D′ is taskized through the final canonical-source form. The active
+  code-facing blocker is B0-L4-S2′ generic located coverage with production
+  activation zero. Existing If remains runtime-green on its old owner until
+  the later whole-function SSA cutover; Loop production, carrier rows, legacy
+  fallback, default source, Lambda/capture, ProgramV0 authority, and durable
+  RegionId materialization remain inactive
 - parked language work: LANGV1 conformance closeout remains parked; no
   language behavior is changed by the reprioritization
 

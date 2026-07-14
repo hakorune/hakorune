@@ -1,8 +1,10 @@
 ---
-Status: Accepted — A + A2′ pre-Builder canonical Loop contract
+Status: Superseded by D′ after closed S1; generic S2 intent retained as S2′
 Date: 2026-07-14
 Scope: B0-L4 exact located Loop/CorePlan source coverage boundary
 Work kind: BoxShape decision stop
+Successor:
+  - mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
 Parent:
   - mirbuilder-b0-l4-located-coreplan-source-coverage-design-stop-2026-07-14.md
 Related:
@@ -15,7 +17,11 @@ Related:
 
 # B0-L4 Located CorePlan Source Coverage Consultation
 
-## Accepted decision
+Reading rule: the inventory, S1 exact identity decision, and generic located
+coverage intent remain evidence. Carrier rows, effect summaries, and the old
+S3/I1/I2 order below are historical and do not authorize implementation.
+
+## Historical accepted decision
 
 A + A2′ is accepted:
 

@@ -8,9 +8,15 @@ Parent:
 Related:
   - mirbuilder-resolved-semantic-owner-forest-design-stop-2026-07-13.md
   - mirbuilder-resolved-region-flow-v1-task-2026-07-13.md
+Successor:
+  - mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
 ---
 
 # B0-L3b A+ Implementation Task
+
+This card remains the closed runtime/evidence oracle for the existing If
+family. Its effect/join authority is superseded for future canonical Lowering
+by D′ and retires only after the atomic function-owner SSA cutover.
 
 ## Objective
 

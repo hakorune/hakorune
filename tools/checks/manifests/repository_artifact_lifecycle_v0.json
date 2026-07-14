@@ -1,22 +1,22 @@
 {
   "counts": {
-    "checks": 3263,
-    "design_direct": 849,
-    "docs": 12286,
+    "checks": 3318,
+    "design_direct": 851,
+    "docs": 12331,
     "docs_development_archive": 2589,
-    "docs_development_current": 8280,
+    "docs_development_current": 8325,
     "main_direct": 168,
     "phase_296x_archive": 2517,
-    "phase_296x_direct": 1032,
+    "phase_296x_direct": 1039,
     "private": 0,
-    "src": 3046,
-    "tools": 6828
+    "src": 3167,
+    "tools": 6900
   },
   "design_registry": {
     "authority_registry_decided": true,
     "c1_review": {
       "basis": "explicit README section evidence",
-      "row_count": 112,
+      "row_count": 113,
       "rows": [
         {
           "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
@@ -36,6 +36,11 @@
         {
           "classification_basis": "README:Diagnostics / Contracts\uff08\u5165\u53e3\uff09",
           "path": "auto-specialize-box-ssot.md",
+          "role": "authority"
+        },
+        {
+          "classification_basis": "README:\u73fe\u5f79\u306e\u8a2d\u8a08\u56f3\uff08\u5165\u53e3\uff09; canonical resolved-source local-value/control lowering authority",
+          "path": "binding-ssa-first-control-lowering-ssot.md",
           "role": "authority"
         },
         {
@@ -829,22 +834,22 @@
       "role_assignment": "none",
       "singleton_family_count": 35
     },
-    "direct_files": 849,
-    "markdown_files": 828,
+    "direct_files": 851,
+    "markdown_files": 830,
     "non_markdown_files": 21,
     "owned_sidecar_count": 119,
-    "registered_count": 653,
+    "registered_count": 655,
     "registry_mode": "warning",
     "seed_reference_counts": {
       "AGENTS.md": 14,
-      "docs/development/current/main/CURRENT_STATE.toml": 2,
-      "docs/development/current/main/DOCS_LAYOUT.md": 52,
-      "docs/development/current/main/design/README.md": 123
+      "docs/development/current/main/CURRENT_STATE.toml": 3,
+      "docs/development/current/main/DOCS_LAYOUT.md": 53,
+      "docs/development/current/main/design/README.md": 124
     },
-    "seed_union_count": 161,
+    "seed_union_count": 163,
     "status_counts": {
-      "active_like": 127,
-      "closed": 11,
+      "active_like": 128,
+      "closed": 12,
       "other_or_missing": 690
     },
     "unregistered": [
@@ -934,7 +939,7 @@
   "document_reachability": {
     "ambiguous_basename_count": 15,
     "archived_in_place_count": 1597,
-    "document_count": 8280,
+    "document_count": 8325,
     "partial_phase_unreachable": {
       "archive_target_collision_count": 0,
       "cluster_count": 0,
@@ -1375,8 +1380,8 @@
       },
       {
         "phase": "phase-296x",
-        "reachable_files": 1952,
-        "total_files": 3549,
+        "reachable_files": 1959,
+        "total_files": 3556,
         "unreachable_files": 1597,
         "whole_phase_unreachable": false
       },
@@ -1696,27 +1701,29 @@
         "whole_phase_unreachable": false
       }
     ],
-    "reachable_count": 4940,
-    "root_count": 3664,
+    "reachable_count": 4963,
+    "root_count": 3676,
     "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
     "root_seed_counts": {
-      "active_phase_296x_direct": 1032,
+      "active_phase_296x_direct": 1039,
       "current_pointer": 4,
-      "design_authority": 257,
+      "design_authority": 259,
       "fixed_current_entry": 4,
-      "reference_src_tools": 3042
+      "reference_src_tools": 3047
     },
-    "unreachable_count": 3340,
-    "unreachable_pending_count": 1743,
+    "unreachable_count": 3362,
+    "unreachable_pending_count": 1765,
     "whole_phase_unreachable": [],
     "whole_phase_unreachable_count": 0,
     "whole_phase_unreachable_files": 0
   },
   "inventory": "repository-artifact-lifecycle-v0",
   "phase_296x": {
-    "archive_candidate_count": 0,
-    "archive_candidates": [],
-    "card_count": 1029,
+    "archive_candidate_count": 1,
+    "archive_candidates": [
+      "docs/development/current/main/phases/phase-296x/3455-MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPSTORE-I64-CALLER-ORIENTATION-PILOT-DESIGN-STOP-001.md"
+    ],
+    "card_count": 1036,
     "externally_referenced": [
       "docs/development/current/main/phases/phase-296x/1770-MIRBUILDER-CONTEXT-HAKO-NATIVE-SOURCE-OWNER-001.md",
       "docs/development/current/main/phases/phase-296x/1771-MIRBUILDER-CONTEXT-HAKO-ADOPTION-DECISION-001.md",
@@ -2563,14 +2570,19 @@
       "docs/development/current/main/phases/phase-296x/3454-MIRBUILDER-SCALAR-KNOWN-FASTPATH-MAPSTORE-I64-CALLER-ORIENTATION-AUTHORITY-PILOT-001.md",
       "docs/development/current/main/phases/phase-296x/3456-MIRBUILDER-MAPSTORE-ROUTE-POLICY-KEY-VALUE-DOMAIN-BOXSHAPE-001.md",
       "docs/development/current/main/phases/phase-296x/3457-LANGV1-CONSTITUTION-001.md",
+      "docs/development/current/main/phases/phase-296x/3457-MIRBUILDER-MAPSTORE-I64-FACT-PLAN-BOUNDARY-INVENTORY-001.md",
       "docs/development/current/main/phases/phase-296x/3458-LANGV1-SEMANTIC-KERNEL-DESIGN-STOP-001.md",
       "docs/development/current/main/phases/phase-296x/3459-LANGV1-EVALUATED-PLACE-COMPOUND-ASSIGN-001.md",
       "docs/development/current/main/phases/phase-296x/3460-LANGV1-GRAMMAR-DESIGN-STOP-001.md",
       "docs/development/current/main/phases/phase-296x/3461-LANGV1-GRAMMAR-CONTRACT-SUBSTRATE-001.md",
       "docs/development/current/main/phases/phase-296x/3505-LANGV1-FAILURE-OUTCOME-RELATION-INVENTORY-001.md",
+      "docs/development/current/main/phases/phase-296x/3506-LANGV1-FAILURE-OUTCOME-SEMANTIC-UNIFICATION-001.md",
+      "docs/development/current/main/phases/phase-296x/3507-LANGV1-FAILURE-OUTCOME-S2-PROJECTION-BINDING-001.md",
+      "docs/development/current/main/phases/phase-296x/3510-LANGV1-FAILURE-OUTCOME-S5-CONFLICT-LEDGER-CLOSEOUT-001.md",
+      "docs/development/current/main/phases/phase-296x/3511-LANGV1-FAILURE-OUTCOME-UNIT-NORESULT-HAKO-MEM-FREE-001.md",
       "docs/development/current/main/phases/phase-296x/array-receiver-residence-proof-chain.md"
     ],
-    "externally_referenced_count": 851,
+    "externally_referenced_count": 856,
     "needs_review": [
       "docs/development/current/main/phases/phase-296x/1778-MIRBUILDER-SLOT-REGISTRY-RELEASE-HAKO-SHADOW-PROMOTION-DECISION-001.md",
       "docs/development/current/main/phases/phase-296x/2098-SOURCE-SELFHOST-RUST-TO-HAKO-CONVERTER-ROLE-PIVOT-001.md",
@@ -2742,19 +2754,20 @@
       "docs/development/current/main/phases/phase-296x/3314-MIRBUILDER-COMPARE-RHS-SYMBOLREF-LOOKUP-BRIDGE-001.md",
       "docs/development/current/main/phases/phase-296x/3343-MIRBUILDER-ARTIFACT-REACHABILITY-CLASSIFICATION-TASKIZATION-001.md",
       "docs/development/current/main/phases/phase-296x/3346-MIRBUILDER-COMPARE-PROOF-BRIDGE-PARK-OR-CONNECT-DESIGN-STOP-001.md",
-      "docs/development/current/main/phases/phase-296x/3455-MIRBUILDER-SCALAR-KNOWN-FASTPATH-POST-MAPSTORE-I64-CALLER-ORIENTATION-PILOT-DESIGN-STOP-001.md",
       "docs/development/current/main/phases/phase-296x/3467-LANGV1-HAKO-GRAMMAR-PROFILE-WITNESS-DESIGN-STOP-001.md",
       "docs/development/current/main/phases/phase-296x/3481-LANGV1-TYPE-GUARANTEE-PARAMETER-ENTRY-DESIGN-STOP-001.md",
       "docs/development/current/main/phases/phase-296x/3483-LANGV1-TYPE-GUARANTEE-RETURN-EXIT-DESIGN-STOP-001.md",
       "docs/development/current/main/phases/phase-296x/3491-LANGV1-NEXT-TYPE-FAMILY-SELECTION-DESIGN-STOP-001.md",
       "docs/development/current/main/phases/phase-296x/3500-LANGV1-WEAK-FIELD-CONTRACT-DESIGN-STOP-001.md",
       "docs/development/current/main/phases/phase-296x/3501-LANGV1-WEAKREF-VALUE-LAW-CORRECTIVE-001.md",
-      "docs/development/current/main/phases/phase-296x/3504-LANGV1-FAILURE-OUTCOME-DESIGN-STOP-001.md"
+      "docs/development/current/main/phases/phase-296x/3504-LANGV1-FAILURE-OUTCOME-DESIGN-STOP-001.md",
+      "docs/development/current/main/phases/phase-296x/3508-LANGV1-FAILURE-OUTCOME-S3-CONTROL-FLOW-INVENTORY-001.md",
+      "docs/development/current/main/phases/phase-296x/3509-LANGV1-FAILURE-OUTCOME-S4-EXHAUSTIVENESS-CHECKER-001.md"
     ],
-    "review_count": 178,
+    "review_count": 179,
     "status_counts": {
-      "active_like": 116,
-      "closed": 238,
+      "active_like": 120,
+      "closed": 241,
       "other_or_missing": 675
     }
   },
@@ -3376,14 +3389,14 @@
         "total_files": 159
       },
       {
-        "current_pointer": true,
-        "direct_files": 1032,
+        "current_pointer": false,
+        "direct_files": 1039,
         "eligible_for_whole_phase_archive": false,
-        "external_reference_count": 1377,
+        "external_reference_count": 1384,
         "phase": "phase-296x",
         "status": "other_or_missing",
         "status_source": "docs/development/current/main/phases/phase-296x/STATUS.md",
-        "total_files": 3549
+        "total_files": 3556
       },
       {
         "current_pointer": false,

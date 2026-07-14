@@ -1,11 +1,16 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "B0-L4-S1 exact Loop region bundle is closed; S2 generic located coverage carrier is active"
+status = "D′ SSA-first final form is taskized; B0-L4-S2′ generic located coverage is active"
 date = "2026-07-14"
 
-active_lane = "MIRBUILDER Hako SourceBodyAnalysisSnapshotV1"
-active_lane_status = """Explicit user priority change on 2026-07-12 reopens
+active_lane = "MIRBUILDER D′ Binding SSA Final Form"
+active_lane_status = """D′ is the current canonical control-lowering authority:
+pre-Builder products retain exact coverage/topology/ports/cleanup, while one
+function-owned Binding SSA becomes the only BindingRef-to-ValueId/PHI merge
+owner. The active code-facing slice is behavior-neutral B0-L4-S2′ generic
+located coverage. Historical lane chronology follows and is non-authoritative.
+Explicit user priority change on 2026-07-12 reopens
 the parked Source Selfhost/MirBuilder lane before LANGV1 conformance closeout.
 Language-v1 behavior remains unchanged and its closeout stays parked. 3456,
 3454, 3455, and the focused 3457 inventory are closed. The active slice
@@ -114,28 +119,28 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/mirbuilder-resolved-region-flow-v1-task-2026-07-13.md"
-phase_status = "docs/development/current/main/investigations/mirbuilder-resolved-region-flow-v1-task-2026-07-13.md"
+active_phase = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
+phase_status = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 method_anchor = "docs/development/current/main/design/current-docs-archive-policy-ssot.md"
-taskboard = "docs/development/current/main/investigations/mirbuilder-resolved-region-flow-v1-task-2026-07-13.md"
-latest_workstream_card = "docs/development/current/main/investigations/mirbuilder-hako-typed-source-carrier-v1-2026-07-12.md"
+taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
+latest_workstream_card = "docs/development/current/main/design/binding-ssa-first-control-lowering-ssot.md"
 
-latest_card = "mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md"
-latest_card_summary = """B0-L3b is closed with one pre-Builder verified function
-flow as the only fallthrough statement-If branch-effect authority. Canonical
-Lower consumes exact located sites, RegionId/ScopeId identities, ordered
-effects, and sealed join-source rows without map diff or legacy IfForm. The
-condition closes before both branches snapshot one post-condition baseline;
-actual CFG predecessors feed final PHIs before one authorized batch publish.
-Durable RegionId-to-block publication remains zero until SA4. B0-L4 accepts
-A + A2′: one new ID-free pre-Builder canonical Loop contract, reusable generic
-coverage co-sealed in an inseparable Loop wrapper, disconnected S1/S2/S3 then
-I1 and atomic I2, condition-false-only V1, and transaction-local role blocks.
-S1 is closed with one private seal-derived exact Loop/LoopBody pair index,
-self-relative query, full record accounting, and zero RegionFlow/Builder/Lower/
-runtime activation. The active slice is S2 generic located coverage carrier.
-Historical owner-forest context follows. Resolved Semantic Owner Forest V1
+latest_card = "mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
+latest_card_summary = """D′ is accepted and taskized through the final canonical
+source form. Exact source coverage, ScopeId/RegionId topology, typed ports,
+exact targets, cleanup obligations, and unsupported preflight remain
+pre-Builder authority. One per-function BindingSsaBuilderV1 will become the
+only canonical BindingRef-to-ValueId merge/PHI authority. Existing canonical
+If moves to that same owner before Loop production activation; family-specific
+CFG boxes remain separate. Closed B0-L4-S1 Loop identity is retained. The
+active slice is B0-L4-S2′ generic located coverage with zero new coverage
+product consumers and zero Binding SSA/Loop activation; existing A+ If
+production remains unchanged. The saved S2 WIP is recovered by its stash message with
+`stash apply`, never a positional stash ref or `pop`. Old A+A2′ carrier-bearing
+S3/I1/I2 and effect-bearing V2 extraction are superseded. Everything below is
+historical evidence and is not current implementation authority. Historical
+owner-forest context follows. Resolved Semantic Owner Forest V1
 accepts A-double-prime `sealed_owner_forest_with_structural_upvar_edges`. One recursive forest
 resolver session reuses the existing function-owner issuer, builds owner-local
 sealed products, and publishes only a forest-verified cross-owner authority.
@@ -476,7 +481,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-B0-L4-S2-GENERIC-LOCATED-COVERAGE-CARRIER-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-B0-L4-S2PRIME-GENERIC-LOCATED-COVERAGE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -485,6 +490,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-14: D′ taskization supersedes forward carrier/effect PHI authority with one function-owned Binding SSA final form; exact control/coverage/cleanup stays pre-Builder, closed B0-L4-S1 and generic S2 intent are retained, and S2′ is the active zero-production slice.",
   "2026-07-14: B0-L4-S1 closes one private seal-derived exact Loop/LoopBody pair index with self-relative point lookup, exact origin/parent/reciprocal validation, full LoopBody record accounting, nine focused fixtures, and zero RegionFlow/Builder/Lower/runtime activation.",
   "2026-07-14: B0-L4 accepts A + A2′: a new ID-free canonical Loop flow, reusable coverage sidecar inseparably co-sealed with each Loop row, disconnected S1/S2/S3 then I1 and atomic I2, condition-false-only V1, and transaction-local role blocks until SA4.",
   "2026-07-14: B0-L3b-I1b closes atomic canonical fallthrough statement-If activation with one pre-Builder flow analysis, source-preorder exact coverage, shared post-condition branch baseline, sealed join-source PHIs, six VM/reference fixtures, and zero durable RegionId materialization.",
@@ -496,5 +502,4 @@ landed_tail = [
   "2026-07-13: B0-L2c closes CanonicalFunctionLoweringSessionV1 with complete caller snapshot/restore, one static/instance lifecycle entry, unpublished drafts, post-cleanup commit, five injected failure checkpoints, panic backstop, and zero semantic activation.",
   "2026-07-13: B0-L2b closes immutable exact source navigation with shared SourcePathV1 grammar, a sealed syntax/forest projection, unforgeable located carriers, exact nested BlockExpr/Lambda navigation, and zero Builder/Planner consumers or production activation.",
   "2026-07-13: B0-L2a closes constructor-bounded typed resolved/legacy compiler ingress, one pre-Builder request match, explicit ProgramV0/REPL legacy provenance, typed canonical stop, and zero production resolved callers or semantic activation.",
-  "2026-07-12: LocalContractWrite exact-i64 Fact bridge closes with canonical contract-id/fresh-identity matching, dst-only publication, Copy/same-slot PHI propagation, and the existing MapStore inventory guard.",
 ]
