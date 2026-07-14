@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-RC-V0 Ownership SSA verifier and forwarding are next
+Status: Active — SSA-RC-A1b Rust Owned forwarding and ABI are next
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-V0-OWNERSHIP-VERIFIER-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-A1B-RUST-OWNED-FORWARDING-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -988,6 +988,31 @@ missing consume. Unreachable ownership blocks are rejected in V1.
 
 Generic DCE/CSE/copy propagation/CFG rewrites preserve ownership effects and
 may not merge `CopyOwned`, rewrite it to `Copy`, or duplicate consuming uses.
+
+Closed evidence:
+
+```text
+physical owner = src/mir/ownership_ssa/
+MirOwnershipKindV1 = None / Borrowed / Owned
+sealed product = owner-branded VerifiedOwnershipSsaV1
+path state = exact live-Owned ValueId set per reachable block entry
+Owned Phi = exact predecessor-edge parallel consume/forward
+global consume-count authority = 0
+second BindingRef -> ValueId map = 0
+canonical edge arguments = typed reject
+unreachable blocks = typed reject
+unwitnessed managed call ownership = typed reject
+focused fixtures = 17/17 green
+production verifier callers = 0
+interpreter Phi/Return/ABI forwarding delta = 0
+all new or modified source/check files below 800 lines
+resolved authority guard = green
+cargo build --release --bin hakorune = green
+dev_gate quick = 66/66 green
+```
+
+Evidence card:
+`mirbuilder-ssa-rc-v0-ownership-verifier-2026-07-14.md`.
 
 #### SSA-RC-A1b — Rust Owned forwarding and ABI
 
@@ -2023,15 +2048,15 @@ state.
 
 ## Immediate next action
 
-Implement SSA-RC-V0 only. Keep production ownership callers at zero:
+Implement SSA-RC-A1b only. Keep canonical production ownership callers at zero:
 
 ```text
-add verifier-owned MirOwnershipKindV1 and sealed VerifiedOwnershipSsaV1
-derive edge-branded Owned Phi forwarding from verified CFG plus Phi.inputs
-verify path-sensitive consuming/forwarding closure, not global use counts
-reject duplicate consume, use-after-consume, and reachable missing disposition
-keep canonical edge arguments absent and Borrowed escape forbidden in V1
-add no interpreter forwarding or canonical production caller
-change no accepted grammar, backend execution, or ownership activation
+Rust interpreter consumes a sealed VerifiedOwnershipSsaV1 witness
+Owned Phi collects selected sources, takes them, then publishes all destinations
+Owned Return and parameter/result transport move rather than clone
+Borrowed roots cannot escape without CopyOwned
+ordinary non-owned Phi/Return behavior remains unchanged
+add no canonical production caller or unsupported backend fallback
+change no accepted grammar or canonical ownership activation
 keep every new or modified source/check file below 800 lines
 ```

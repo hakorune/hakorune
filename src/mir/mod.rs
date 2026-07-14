@@ -119,6 +119,7 @@ pub mod loop_form; // ControlForm::LoopShape の薄いエイリアス
 pub mod loop_route_detection; // Active module surface for loop route-shape detection
 pub mod optimizer_passes; // optimizer passes (normalize/diagnostics)
 pub mod optimizer_stats; // extracted stats struct
+pub(crate) mod ownership_ssa; // verified per-function Ownership SSA discipline
 pub mod passes;
 pub mod phi_core; // Phase 1 scaffold: unified PHI entry (re-exports only)
 pub(crate) mod phi_query; // generic PHI base-relation seam for later relation consumers

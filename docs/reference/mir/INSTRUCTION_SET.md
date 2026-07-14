@@ -50,6 +50,10 @@ Transition Note
 - SSA-RC-A1a: Rust MIR interpreter だけが `CopyOwned` の exact `BoxRef`
   clone と `DestroyOwned` の exact-register take を実行する。他backendと
   canonical production callerは引き続き0。
+- SSA-RC-V0: `None` / `Borrowed` / `Owned` を分類する function-owned
+  verifierを追加。Owned Phi inputはmerge命令上の一括consumeではなく、
+  selected predecessor edge上のparallel forwardingとして検証する。
+  production verifier callerとinterpreter forwardingは引き続き0。
 - Phase 163x: canonical variant op lane のため `VariantMake` / `VariantTag` / `VariantProject` を追加（Core profile とは別の kept vocabulary）。
 - MIR-FMEM-002..005: FastMemory dialect vocabulary のため `MemOp` を追加。
   `MemOp` は kept instruction vocabulary。FastMemRegion metadata and

@@ -130,6 +130,12 @@ def main() -> None:
     vm_dispatch = (
         root / "src/backend/mir_interpreter/handlers/mod.rs"
     ).read_text()
+    ownership_dir = root / "src/mir/ownership_ssa"
+    ownership_sources = "\n".join(
+        path.read_text()
+        for path in sorted(ownership_dir.glob("*.rs"))
+        if path.name != "tests.rs"
+    )
     json_v0_files = [
         root / "src/runner/mir_json_v0.rs",
         *(root / "src/runner/mir_json_v0").glob("*.rs"),
@@ -185,6 +191,32 @@ def main() -> None:
     ):
         if anchor not in vm_dispatch:
             fail(f"Rust ownership dispatch lost {anchor!r}")
+    for anchor in (
+        "enum MirOwnershipKindV1",
+        "struct VerifiedOwnershipSsaV1",
+        "OwnershipDispositionV1::PhiEdge",
+        "transfer_phi_edge",
+        "DuplicateConsumeOnEdge",
+        "MissingDispositionAtExit",
+        "BorrowedPhiForbidden",
+        "ManagedCallOwnershipUnsupported",
+        "EdgeArgumentsForbidden",
+        "UnreachableBlock",
+    ):
+        if anchor not in ownership_sources:
+            fail(f"Ownership SSA verifier lost {anchor!r}")
+    production_verifier_callers = 0
+    for path in (root / "src").rglob("*.rs"):
+        if ownership_dir in path.parents:
+            continue
+        production_verifier_callers += path.read_text(errors="ignore").count(
+            "verify_ownership_ssa_v1("
+        )
+    if production_verifier_callers != 0:
+        fail(
+            "Ownership SSA production callers appeared before A1b/SSA-I1: "
+            f"{production_verifier_callers}"
+        )
 
     counts = {profile: 0 for profile in EXPECTED_PROFILES}
     for row in rows:
@@ -199,8 +231,9 @@ def main() -> None:
         fail(f"profile counts drifted: expected={expected_counts} actual={counts}")
 
     print(
-        "SSA-RC-A1a ownership profile: 17/17 rows, Rust handlers=2, "
-        "BoxRef producers=0, production activation=0, trivial-only first cutover"
+        "SSA-RC-V0 ownership profile: 17/17 rows, Rust handlers=2, "
+        "path-sensitive verifier=1, production callers=0, BoxRef producers=0, "
+        "production activation=0, trivial-only first cutover"
     )
 
 
