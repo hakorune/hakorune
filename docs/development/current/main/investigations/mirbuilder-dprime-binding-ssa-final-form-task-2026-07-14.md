@@ -778,6 +778,73 @@ duplicate consume / use after consume / reachable path without disposition:
   reject
 ```
 
+##### Owned Phi is an edge-indexed forwarding consume
+
+Do not verify an Owned Phi by counting all of its incoming operands as if they
+execute together in the merge block. Each incoming is a consuming forwarding
+use on one exact CFG edge:
+
+```rust
+struct OwnedPhiEdgeTransferV1 {
+    predecessor: BasicBlockId,
+    successor: BasicBlockId,
+    source: ValueId,
+    destination: ValueId,
+}
+```
+
+The verifier derives this private transfer view from the already-verified CFG
+and `Phi.inputs`; it is not a second public edge-argument vocabulary. For an
+executed `predecessor -> successor` edge, all matching Phi sources are consumed
+in parallel and all Phi destinations become Owned at successor entry. Inputs
+for unselected predecessor edges do not execute. They belong to different
+source lifetimes whose definitions and forwarding consumes are checked on
+their own reachable paths.
+
+This gives the following laws:
+
+```text
+one executed incoming edge:
+  exactly its Phi source is forwarded; retain 0
+
+unselected incoming edge:
+  no runtime token and no runtime consume on this execution
+
+one pre-branch Owned source forwarded on two alternative edges:
+  legal when the two consumes are mutually exclusive and jointly close every
+  reachable path from that source
+
+two consumes on the same executed edge:
+  reject
+
+source live on an edge with neither forwarding nor DestroyOwned/Return:
+  reject as a missing disposition
+
+Phi destination:
+  one new Owned SSA lifetime begins at merge entry and must itself be consumed
+  or forwarded exactly once on every finite reachable exit path
+```
+
+`VerifiedOwnershipSsaV1` therefore records edge-branded forwarding
+dispositions. Verification uses path-sensitive linear-lifetime closure:
+consuming uses must not be reachable from one another and must jointly
+post-dominate the definition and every non-consuming use. A raw global
+`ValueId -> consume_count` ledger is insufficient and forbidden.
+
+Required focused fixtures:
+
+```text
+then-owned / else-owned -> one Owned Phi result
+pre-branch Owned source forwarded by two mutually-exclusive incoming edges
+one branch forwards while the other destroys
+one branch has no disposition -> reject
+same source forwarded twice on one edge -> reject
+Phi source used after its forwarding edge -> reject
+loop header Phi with entry/backedge forwarding
+multiple Owned Phis that swap values -> parallel transfer, no sequential take
+unreachable predecessor or non-CFG predecessor -> reject
+```
+
 At every finite reachable function exit, every Owned token is consumed or
 forwarded exactly once. An infinite path may keep a live token; this is not a
 missing consume. Unreachable ownership blocks are rejected in V1.
@@ -1768,6 +1835,8 @@ lets DestroyOwned inspect or remove a same-object alias
 infers BoxRef ownership from Unknown/Opaque runtime data
 lowers ownership ops as an unsupported-backend no-op
 publishes an Owned Phi by cloning without a verified forwarding law
+treats every Owned Phi incoming as a merge-block consume instead of an exact edge use
+checks Ownership SSA with a global consume count instead of path-sensitive lifetime closure
 changes legacy ReleaseStrong meaning during migration
 discovers unsupported control after Builder effects
 lets PHI/cleanup failure overwrite the primary error
