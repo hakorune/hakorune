@@ -14,6 +14,8 @@ guard_resolved_binding_ssa_contract() {
   local builder_validator="$root/tools/checks/lib/resolved_binding_ssa_builder.py"
   local identity_validator="$root/tools/checks/lib/resolved_binding_ssa_identity.py"
   local mir_adapter_validator="$root/tools/checks/lib/resolved_binding_ssa_mir_adapter.py"
+  local ownership_profile="$root/tools/checks/fixtures/canonical_ownership_production_profile_v1.json"
+  local ownership_validator="$root/tools/checks/lib/resolved_ownership_production_profile.py"
   local helper="${BASH_SOURCE[0]}"
 
   guard_require_files \
@@ -26,6 +28,8 @@ guard_resolved_binding_ssa_contract() {
     "$builder_validator" \
     "$identity_validator" \
     "$mir_adapter_validator" \
+    "$ownership_profile" \
+    "$ownership_validator" \
     "$helper"
   python3 "$validator" "$root" "$inventory"
   python3 "$cfg_validator" "$root"
@@ -34,6 +38,7 @@ guard_resolved_binding_ssa_contract() {
   python3 "$builder_validator" "$root"
   python3 "$identity_validator" "$root"
   python3 "$mir_adapter_validator" "$root"
+  python3 "$ownership_validator" "$root" "$ownership_profile"
 
   local file lines
   for file in \
@@ -45,6 +50,8 @@ guard_resolved_binding_ssa_contract() {
     "$builder_validator" \
     "$identity_validator" \
     "$mir_adapter_validator" \
+    "$ownership_profile" \
+    "$ownership_validator" \
     "$helper"; do
     lines="$(wc -l < "$file" | tr -d '[:space:]')"
     if (( lines >= 800 )); then

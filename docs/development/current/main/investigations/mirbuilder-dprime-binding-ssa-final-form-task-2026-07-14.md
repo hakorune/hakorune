@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-RC-P0 exact ownership production profile is next
+Status: Active — SSA-RC-A0 passive Ownership SSA vocabulary is next
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-P0-OWNERSHIP-PROFILE-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-A0-PASSIVE-VOCABULARY-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -726,7 +726,7 @@ opcode / grammar / accepted success behavior / ownership activation delta = 0
 all new or modified source/check files below 800 lines
 ```
 
-#### SSA-RC-P0 — exact ownership production profile
+#### SSA-RC-P0 — exact ownership production profile — closed
 
 Seal a machine-checked value-origin/storage matrix before passive vocabulary:
 
@@ -752,6 +752,28 @@ JSON/backend path. P0 must promote or derive one sealed ownership
 representation witness and require it at direct JSON ingress too. Its schema,
 v0/v1 parse, round-trip, and type/storage mismatch rejection land with A0.
 This row activates no ownership instruction and changes no grammar.
+
+Closed evidence:
+
+```text
+machine profile rows = 17/17
+trivial exact / derived trivial-only / typed reject / absent = 3 / 7 / 4 / 3
+exact BoxRef source producers = 0
+StorageClass::BoxRef remains inventory-only
+generic BoxRef representation facts = 0
+JSON storage inventory emitter / verified v0 ingress = 1 / 0
+production CopyOwned / DestroyOwned callers = 0 / 0
+production ownership activation = 0
+first SSA-I1 cutover profile = trivial-only until SSA-I1-O1
+resolved authority guard = green
+cargo fmt --check = green
+cargo build --release --bin hakorune = green
+dev_gate quick = 66/66 green
+all new or modified source/check files below 800 lines
+```
+
+Evidence card:
+`mirbuilder-canonical-ownership-production-profile-2026-07-14.md`.
 
 #### SSA-RC-A0 — passive Ownership SSA MIR vocabulary
 
@@ -1957,14 +1979,14 @@ state.
 
 ## Immediate next action
 
-Implement SSA-RC-P0 only. Do not add ownership opcodes in the same commit:
+Implement SSA-RC-A0 only. Keep production ownership callers at zero:
 
 ```text
-inventory every currently accepted receiver, parameter, local, Outbox,
-literal, PHI, BlockExpr-tail, call argument, and call result origin
-seal the exact BoxRef / trivial / typed-reject production profile
-do not infer BoxRef authority from MirType::Box or StorageClass alone
-require an independently sealed representation and ABI witness where needed
-change no opcode, grammar, backend behavior, or ownership activation
+add passive CopyOwned { dst, src } and DestroyOwned { value } vocabulary
+use conservative WRITE effects; do not spend the final effect bit
+cover printer, tags, dst/used-values, remapping, and transport schema
+update kept/removed/vocabulary ledger to 43/16/59
+add no executor semantics or production caller
+change no accepted grammar, backend behavior, or ownership activation
 keep every new or modified source/check file below 800 lines
 ```

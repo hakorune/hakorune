@@ -1,0 +1,188 @@
+{
+  "schema": "CanonicalOwnershipProductionProfileV1",
+  "decision": "exact_boxref_or_trivial_only",
+  "claims": {
+    "exact_boxref_source_producers": 0,
+    "production_ownership_opcode_callers": 0,
+    "production_activation": 0,
+    "first_atomic_cutover": "trivial_only_until_exact_boxref_witness"
+  },
+  "profiles": [
+    "trivial_exact",
+    "derived_trivial_only",
+    "typed_preflight_reject",
+    "not_in_first_family"
+  ],
+  "rows": [
+    {
+      "id": "origin.receiver",
+      "origin": "receiver",
+      "current_path": "src/mir/compiler/capability.rs",
+      "anchors": ["owner_kind_not_first_family", "SourceBindingSiteV1::Receiver"],
+      "current_status": "not_in_first_family",
+      "profile": "not_in_first_family",
+      "storage_authority": "none",
+      "reason": "the first family is static and rejects a receiver binding"
+    },
+    {
+      "id": "origin.parameter",
+      "origin": "parameter",
+      "current_path": "src/mir/compiler/capability.rs",
+      "anchors": ["typed_signature_not_activated", "BindingKindV1::Parameter"],
+      "current_status": "accepted_untyped",
+      "profile": "typed_preflight_reject",
+      "storage_authority": "untyped_parameter",
+      "reason": "an untyped parameter does not prove a storage representation or caller ABI"
+    },
+    {
+      "id": "origin.local",
+      "origin": "local declaration",
+      "current_path": "src/mir/builder/resolved_lowering/lowerer.rs",
+      "anchors": ["fn lower_local(", "ExprChildRoleV1::LocalInitializer"],
+      "current_status": "accepted_derived",
+      "profile": "derived_trivial_only",
+      "storage_authority": "initializer_profile",
+      "reason": "a local declaration forwards its exact initializer profile and creates no representation fact"
+    },
+    {
+      "id": "origin.outbox",
+      "origin": "Outbox declaration",
+      "current_path": "src/mir/builder/resolved_lowering/lowerer.rs",
+      "anchors": ["fn lower_outbox(", "emit_void(self.builder)"],
+      "current_status": "accepted_void",
+      "profile": "typed_preflight_reject",
+      "storage_authority": "void",
+      "reason": "the first-family Outbox seed is Void and is not ownership-managed"
+    },
+    {
+      "id": "origin.literal.inline_i64",
+      "origin": "integer or typed-integer literal",
+      "current_path": "src/mir/builder/builder_build.rs",
+      "anchors": ["LiteralValue::Integer(_) => Some(super::MirType::Integer)", "LiteralValue::TypedInteger { .. } => Some(super::MirType::Integer)"],
+      "current_status": "accepted_exact",
+      "profile": "trivial_exact",
+      "storage_authority": "literal_shape_inline_i64",
+      "reason": "the literal emitter and type annotation agree on the inline integer representation"
+    },
+    {
+      "id": "origin.literal.inline_bool",
+      "origin": "boolean literal",
+      "current_path": "src/mir/builder/builder_build.rs",
+      "anchors": ["LiteralValue::Bool(_) => Some(super::MirType::Bool)", "emit_bool(self, b)"],
+      "current_status": "accepted_exact",
+      "profile": "trivial_exact",
+      "storage_authority": "literal_shape_inline_bool",
+      "reason": "the literal emitter and type annotation agree on the inline boolean representation"
+    },
+    {
+      "id": "origin.literal.inline_f64",
+      "origin": "float literal",
+      "current_path": "src/mir/builder/builder_build.rs",
+      "anchors": ["LiteralValue::Float(_) => Some(super::MirType::Float)", "emit_float(self, f)"],
+      "current_status": "accepted_exact",
+      "profile": "trivial_exact",
+      "storage_authority": "literal_shape_inline_f64",
+      "reason": "the literal emitter and type annotation agree on the inline floating representation"
+    },
+    {
+      "id": "origin.literal.borrowed_text",
+      "origin": "string literal",
+      "current_path": "src/mir/builder/builder_build.rs",
+      "anchors": ["LiteralValue::String(_) => Some(super::MirType::String)", "emit_string(self, s)"],
+      "current_status": "accepted_borrowed_text",
+      "profile": "typed_preflight_reject",
+      "storage_authority": "borrowed_text",
+      "reason": "BorrowedText has no closed CopyOwned or scope-escape law in the first slice"
+    },
+    {
+      "id": "origin.literal.void_null",
+      "origin": "Void or Null literal",
+      "current_path": "src/mir/builder/resolved_lowering/lowerer.rs",
+      "anchors": ["LiteralValue::Void | LiteralValue::Null", "MirType::Void"],
+      "current_status": "accepted_nonowning_opaque",
+      "profile": "typed_preflight_reject",
+      "storage_authority": "void_or_null",
+      "reason": "Void and Null are outside the first exact trivial and BoxRef ownership profile"
+    },
+    {
+      "id": "origin.phi",
+      "origin": "conditional PHI",
+      "current_path": "src/mir/builder/resolved_lowering/if_materialization.rs",
+      "anchors": ["define_phi_final", "canonical_if:final_join"],
+      "current_status": "accepted_derived",
+      "profile": "derived_trivial_only",
+      "storage_authority": "all_incoming_profiles",
+      "reason": "a PHI may forward only one exact homogeneous trivial profile until Owned forwarding lands"
+    },
+    {
+      "id": "origin.blockexpr_tail",
+      "origin": "BlockExpr tail",
+      "current_path": "src/mir/builder/resolved_lowering/lowerer.rs",
+      "anchors": ["ExprChildRoleV1::BlockExprTail", "self.lower_expr(&tail)"],
+      "current_status": "accepted_forwarded",
+      "profile": "derived_trivial_only",
+      "storage_authority": "tail_profile",
+      "reason": "BlockExpr forwards the exact tail profile and has no independent representation authority"
+    },
+    {
+      "id": "origin.call_argument",
+      "origin": "call argument",
+      "current_path": "src/mir/compiler/capability.rs",
+      "anchors": ["expression_not_in_first_family", "ASTNode::BlockExpr"],
+      "current_status": "not_in_first_family",
+      "profile": "not_in_first_family",
+      "storage_authority": "none",
+      "reason": "Call is not in the first-family expression grammar"
+    },
+    {
+      "id": "origin.call_result",
+      "origin": "call result",
+      "current_path": "src/mir/compiler/capability.rs",
+      "anchors": ["expression_not_in_first_family", "fn verify_expression("],
+      "current_status": "not_in_first_family",
+      "profile": "not_in_first_family",
+      "storage_authority": "none",
+      "reason": "no caller/callee ownership ABI witness exists in the first family"
+    },
+    {
+      "id": "origin.binary_result",
+      "origin": "binary result",
+      "current_path": "src/mir/compiler/capability.rs",
+      "anchors": ["ASTNode::BinaryOp { operator, .. }", "BinaryOperator::And | BinaryOperator::Or"],
+      "current_status": "accepted_derived",
+      "profile": "derived_trivial_only",
+      "storage_authority": "operator_and_operand_profiles",
+      "reason": "the first ownership slice accepts only binary results proven trivial from exact operands"
+    },
+    {
+      "id": "origin.binding_read",
+      "origin": "variable read",
+      "current_path": "src/mir/builder/resolved_lowering/lowerer.rs",
+      "anchors": ["self.identity.variable_value(expression.site(), name)", "ASTNode::Variable"],
+      "current_status": "accepted_forwarded",
+      "profile": "derived_trivial_only",
+      "storage_authority": "current_binding_definition_profile",
+      "reason": "a read forwards the sealed current definition and creates no new owner"
+    },
+    {
+      "id": "origin.assignment_value",
+      "origin": "assignment value",
+      "current_path": "src/mir/builder/resolved_lowering/lowerer.rs",
+      "anchors": ["ExprChildRoleV1::AssignmentValue", "fn lower_assignment("],
+      "current_status": "accepted_forwarded",
+      "profile": "derived_trivial_only",
+      "storage_authority": "rhs_profile",
+      "reason": "P0 records the RHS profile but does not activate ownership replacement semantics"
+    },
+    {
+      "id": "origin.function_return",
+      "origin": "function return value",
+      "current_path": "src/mir/builder/resolved_lowering/lowerer.rs",
+      "anchors": ["ExprChildRoleV1::ReturnValue", "emit_canonical_explicit_return"],
+      "current_status": "accepted_forwarded",
+      "profile": "derived_trivial_only",
+      "storage_authority": "return_expression_profile",
+      "reason": "the untyped first-family signature has no owned return ABI witness"
+    }
+  ]
+}

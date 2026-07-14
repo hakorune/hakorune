@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ SSA-RC-P0 exact ownership production profile is active"
+status = "D′ SSA-RC-A0 passive Ownership SSA vocabulary is active"
 date = "2026-07-14"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -21,8 +21,11 @@ thin facades, all touched source/check files remain below 800 lines, and
 behavior/API/grammar deltas are zero. SSA-RC-L1 closes one closure-scoped Rust
 interpreter function-frame transaction across success and every typed error,
 including PHI/step failures and primary-plus-restoration error retention. The
-active behavior-neutral row is SSA-RC-P0: seal the exact ownership production
-profile before passive ownership opcodes are introduced.
+SSA-RC-P0 closes a guarded 17-row origin/storage matrix: exact BoxRef source
+producers are zero, StorageClass remains inventory-only, direct JSON v0 lacks
+an authoritative representation ingress, and the first SSA-I1 cutover is
+trivial-only until SSA-I1-O1. The active behavior-neutral row is SSA-RC-A0:
+add passive Ownership SSA vocabulary with production callers still zero.
 Historical
 lane chronology follows and is non-authoritative.
 Explicit user priority change on 2026-07-12 reopens
@@ -181,8 +184,9 @@ facades, isolated vocabulary/allowlist/test/lifecycle boxes, 20/20 and 10/10
 focused fixtures, release build, authority guard, and quick 66/66 green. The
 SSA-RC-L1 frame transaction is also closed with 6/6 focused restoration
 fixtures, 12/12 return-contract fixtures, release build, and quick 66/66
-green. The active prerequisite is SSA-RC-P0; ownership opcode production
-remains zero.
+green. SSA-RC-P0 is closed with 17/17 guarded origin/storage rows, zero exact
+BoxRef producers, and a trivial-only first cutover. The active prerequisite is
+SSA-RC-A0; ownership opcode production remains zero.
 B′ is accepted and taskized as a parked runtime/substrate continuation:
 explicit `fini()` owns eager tombstone teardown, DestroyOwned/last-strong own
 structural drop only, ObjectIdentity is separate from owner/root tokens, the
@@ -543,11 +547,11 @@ not started. Design Registry V1 sharding is accepted-for-tasking as a parked
 BoxShape series with production activation 0; its first implementation row is
 mandatory CLEAN0, followed by explicit SELECT0, full normalized V0/V1 parity,
 atomic cutover, V0 retirement, and RETURN0. It does not replace the active
-SSA-RC-P0 blocker. 3511 now owns the narrow semantic activation claim and its
+SSA-RC-A0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-P0-OWNERSHIP-PROFILE-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-A0-PASSIVE-VOCABULARY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -556,6 +560,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-14: D′ SSA-RC-P0 closes a machine-checked 17-row canonical ownership production profile: 3 exact trivial, 7 derived-trivial-only, 4 typed reject, and 3 absent rows; exact BoxRef source producers and generic BoxRef representation facts are zero; StorageClass remains inventory-only and JSON v0 ingress is not an ownership authority; the first SSA-I1 cutover is trivial-only until SSA-I1-O1; authority guard, release build, and quick 66/66 are green; ownership activation remains zero and SSA-RC-A0 is selected.",
   "2026-07-14: D′ SSA-RC-L1 closes one closure-scoped Rust MirInterpreter function-frame transaction: caller registers, fast slots, aliases/caches, current function, call state, and diagnostics restore on success and every typed error; PHI/step/missing-block fixtures and primary-plus-restoration error retention are green; all touched source files stay below 800 lines; release build and quick 66/66 are green; opcode/grammar/accepted-success/ownership deltas are zero and SSA-RC-P0 is selected.",
   "2026-07-14: D′ SSA-RC-L0 closes the behavior-neutral ownership transport seam split: backend_core_ops is an 8-line facade over 178-line vocabulary, 235-line allowlists, and 364-line tests; mir_json_v0 keeps a 742-line facade with a 34-line lifecycle parser; focused 20/20 + 10/10 + feature-gated 3/3, release build, authority guard, and quick 66/66 are green; API/opcode counts/JSON/backend/grammar/behavior are unchanged and SSA-RC-L1 is selected.",
   "2026-07-14: Design Registry V1 deterministic 16-shard storage is accepted-for-tasking as a parked BoxShape series: the 7,000-line INDEX becomes a concise charter after full normalized V0/V1 parity and atomic no-fallback cutover; implementation must begin with CLEAN0, preserve or named-stash SSA-RC-L0 WIP, and close with V0 retirement plus RETURN0; production activation is 0 and SSA-RC-L0 remains selected.",
@@ -567,5 +572,4 @@ landed_tail = [
   "2026-07-14: D′ SSA-M0 closes one borrowed real-MIR Binding SSA adapter over MirBuilder/PhiTxn, exact CanonicalCfgSessionV1 predecessor witnesses, conservative Unknown open/patched PHI facts, explicit unreachable/non-dominance rejection, pending-only rollback with poisoned-draft discard, five focused fixtures, zero production callers, and zero grammar/behavior delta; SSA-RC0 is selected.",
   "2026-07-14: D′ SSA-S3 closes one disconnected carrier-free statement-If control product with exact source-preorder rows, sealed If/IfThen/optional IfElse topology, distinct implicit/explicit-empty else ports, exclusive nested coverage partition, nine focused fixtures, one internal coverage consumer, zero new production analyzer callers, zero binding-effect rows, and zero grammar/behavior delta; SSA-M0 is selected.",
   "2026-07-14: D′ SSA-E0 closes exact explicit root-Return and implicit Void completion products, exact site/body/end/function-target consumption, explicit empty cleanup, direct canonical Return emission, post-Lower ready-witness finalization, eleven focused fixtures, zero Binding SSA production callers, and zero grammar delta; SSA-S3 is selected.",
-  "2026-07-14: D′ SSA-S2 splits ResolvedIdentityLedgerV2 from the single temporary pre-SSA value environment without changing declaration/retirement/finish ordering, keeps old If as sole production value owner, adds two equivalence fixtures and a structural guard, and selects SSA-E0 with zero Binding SSA production callers or grammar delta.",
 ]
