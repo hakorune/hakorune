@@ -25,7 +25,6 @@ pub(crate) enum TrivialProfileStopReasonV1 {
     OutboxRepresentationUnavailable,
     MissingLocalInitializer,
     StringRepresentationUnavailable,
-    VoidRepresentationUnavailable,
     NullRepresentationUnavailable,
     StatementOutsideProfile,
     ExpressionOutsideProfile,

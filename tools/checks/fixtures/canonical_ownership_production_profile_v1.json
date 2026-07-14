@@ -98,11 +98,11 @@
       "id": "origin.literal.void",
       "origin": "Void literal",
       "current_path": "src/mir/resolved_value_profile/operator.rs",
-      "anchors": ["LiteralValue::Void => Err(TrivialLiteralProfileStopV1::Void)"],
-      "current_status": "accepted_nonowning_opaque",
-      "profile": "typed_preflight_reject",
-      "storage_authority": "void_disposition_pending",
-      "reason": "source Void value remains separate from no-value completion and NullSentinel"
+      "anchors": ["LiteralValue::Void => Ok(TrivialRepresentationV1::ExplicitVoidValue)"],
+      "current_status": "accepted_exact",
+      "profile": "trivial_exact",
+      "storage_authority": "literal_shape_explicit_void_value",
+      "reason": "exact source Void value remains distinct from completion while reusing the MIR/runtime no-value representation"
     },
     {
       "id": "origin.literal.null",

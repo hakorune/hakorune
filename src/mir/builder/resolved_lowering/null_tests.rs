@@ -17,10 +17,6 @@ fn null() -> ASTNode {
     literal(LiteralValue::Null)
 }
 
-fn void() -> ASTNode {
-    literal(LiteralValue::Void)
-}
-
 fn boolean(value: bool) -> ASTNode {
     literal(LiteralValue::Bool(value))
 }
@@ -211,10 +207,9 @@ fn one_sided_and_nested_null_flows_remain_binding_ssa() {
 }
 
 #[test]
-fn null_return_void_outbox_and_mixed_merge_stay_whole_unit_a_plus() {
+fn null_return_outbox_and_mixed_merge_stay_whole_unit_a_plus() {
     let fixtures = [
         function("null_return", Vec::new(), null()),
-        function("void_return", Vec::new(), void()),
         function(
             "mixed_null",
             vec![

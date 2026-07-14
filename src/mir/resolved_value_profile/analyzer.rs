@@ -479,12 +479,6 @@ impl<'a> AnalyzerV1<'a> {
                         TrivialProfileStopReasonV1::StringRepresentationUnavailable,
                     )
                 }
-                Err(TrivialLiteralProfileStopV1::Void) => {
-                    return stop_expression(
-                        expression,
-                        TrivialProfileStopReasonV1::VoidRepresentationUnavailable,
-                    )
-                }
             },
             ASTNode::Variable { .. } => {
                 let binding = self

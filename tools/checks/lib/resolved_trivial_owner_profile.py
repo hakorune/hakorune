@@ -20,7 +20,7 @@ EXPECTED_CLAIMS = {
     "profile_test_rust_files": 1,
     "profile_entry_definitions": 1,
     "sealed_product_definitions": 1,
-    "focused_profile_fixtures": 12,
+    "focused_profile_fixtures": 13,
     "profile_production_callers": 1,
     "production_route_delta": 1,
     "accepted_grammar_delta": 0,
@@ -79,6 +79,7 @@ EXPECTED_VALUES = {
     "literal.inline_i64": ("origin.literal.inline_i64", "exact_trivial"),
     "literal.inline_bool": ("origin.literal.inline_bool", "exact_trivial"),
     "literal.inline_f64": ("origin.literal.inline_f64", "exact_trivial"),
+    "literal.explicit_void_value": ("origin.literal.void", "exact_trivial"),
     "literal.null_sentinel": ("origin.literal.null", "exact_trivial"),
     "local.initializer": ("origin.local", "forward_exact_trivial"),
     "binding.read": ("origin.binding_read", "forward_exact_trivial"),
@@ -101,10 +102,6 @@ EXPECTED_REJECTIONS = {
     "string_literal": (
         "origin.literal.borrowed_text",
         "borrowed_text_not_admitted",
-    ),
-    "void_literal": (
-        "origin.literal.void",
-        "void_is_a_disposition_not_a_value",
     ),
     "local_without_initializer": ("origin.local", "definition_profile_missing"),
     "mixed_if_merge": ("origin.phi", "incoming_profiles_not_homogeneous"),
@@ -358,17 +355,18 @@ def main() -> None:
     if owner_production_text.count(result_definition) != 1:
         fail("analysis result definition count must remain exactly one")
     test_text = "\n".join(path.read_text() for path in test_files)
-    if test_text.count("#[test]") != 12:
-        fail("focused profile fixture count must remain exactly 12")
+    if test_text.count("#[test]") != 13:
+        fail("focused profile fixture count must remain exactly 13")
     for fixture in (
         "exact_literals_binary_and_value_return_seal",
         "local_assignment_and_blockexpr_tail_preserve_exact_profile",
         "homogeneous_if_merge_seals_and_mixed_merge_rejects",
         "null_sentinel_flows_locally_and_compares_to_bool",
+        "explicit_void_value_flows_and_terminal_stays_distinct",
         "if_condition_must_be_exact_bool",
         "explicit_empty_return_and_implicit_fallthrough_are_distinct",
         "parameter_outbox_and_missing_initializer_are_typed_stops",
-        "string_and_void_values_are_typed_stops",
+        "string_value_remains_a_typed_stop",
         "null_terminal_and_mixed_merge_remain_typed_stops",
         "mixed_binary_and_short_circuit_are_typed_stops",
         "duplicate_coverage_and_foreign_if_control_cannot_seal",
@@ -463,7 +461,7 @@ def main() -> None:
     print("canonical_ssa_i0_profile_test_rust_files=1")
     print("canonical_ssa_i0_profile_entry_definitions=1")
     print("canonical_ssa_i0_profile_sealed_product_definitions=1")
-    print("canonical_ssa_i0_profile_focused_fixtures=12")
+    print("canonical_ssa_i0_profile_focused_fixtures=13")
     print("canonical_ssa_i0_profile_production_callers=1")
     print("canonical_ssa_i0_profile_binding_ssa_callers=1")
     print("canonical_ssa_i0_profile_ownership_ssa_callers=0")

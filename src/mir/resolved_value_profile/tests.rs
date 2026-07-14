@@ -34,6 +34,10 @@ fn null() -> ASTNode {
     literal(LiteralValue::Null)
 }
 
+fn void() -> ASTNode {
+    literal(LiteralValue::Void)
+}
+
 fn variable(name: &str) -> ASTNode {
     ASTNode::Variable {
         name: name.into(),
@@ -251,6 +255,65 @@ fn null_sentinel_flows_locally_and_compares_to_bool() {
 }
 
 #[test]
+fn explicit_void_value_flows_and_terminal_stays_distinct() {
+    let product = admitted(function(vec![
+        local("x", Some(void())),
+        if_(
+            bool_(true),
+            vec![assignment("x", void())],
+            Some(vec![assignment("x", void())]),
+        ),
+        return_(Some(variable("x"))),
+    ]));
+
+    assert!(product
+        .values()
+        .iter()
+        .any(|row| { row.representation() == TrivialRepresentationV1::ExplicitVoidValue }));
+    assert!(product
+        .definitions()
+        .iter()
+        .any(|row| { row.representation() == TrivialRepresentationV1::ExplicitVoidValue }));
+    assert_eq!(
+        product.merge_profiles()[0].representation(),
+        TrivialRepresentationV1::ExplicitVoidValue
+    );
+    assert!(matches!(
+        product.terminal(),
+        TrivialTerminalProfileV1::ExplicitValue {
+            representation: TrivialRepresentationV1::ExplicitVoidValue,
+            ..
+        }
+    ));
+
+    let comparison = admitted(function(vec![return_(Some(binary(
+        BinaryOperator::NotEqual,
+        void(),
+        void(),
+    )))]));
+    assert!(matches!(
+        comparison.terminal(),
+        TrivialTerminalProfileV1::ExplicitValue {
+            representation: TrivialRepresentationV1::InlineBool,
+            ..
+        }
+    ));
+
+    assert_stop(
+        function(vec![
+            local("x", Some(void())),
+            if_(
+                bool_(true),
+                vec![assignment("x", null())],
+                Some(vec![assignment("x", void())]),
+            ),
+            return_(Some(variable("x"))),
+        ]),
+        TrivialProfileStopReasonV1::IfMergeProfileNotHomogeneous,
+    );
+}
+
+#[test]
 fn if_condition_must_be_exact_bool() {
     assert_stop(
         function(vec![if_(int(1), Vec::new(), None)]),
@@ -294,19 +357,13 @@ fn parameter_outbox_and_missing_initializer_are_typed_stops() {
 }
 
 #[test]
-fn string_and_void_values_are_typed_stops() {
-    for (value, reason) in [
-        (
-            LiteralValue::String("text".into()),
-            TrivialProfileStopReasonV1::StringRepresentationUnavailable,
-        ),
-        (
-            LiteralValue::Void,
-            TrivialProfileStopReasonV1::VoidRepresentationUnavailable,
-        ),
-    ] {
-        assert_stop(function(vec![return_(Some(literal(value)))]), reason);
-    }
+fn string_value_remains_a_typed_stop() {
+    assert_stop(
+        function(vec![return_(Some(literal(LiteralValue::String(
+            "text".into(),
+        ))))]),
+        TrivialProfileStopReasonV1::StringRepresentationUnavailable,
+    );
 }
 
 #[test]

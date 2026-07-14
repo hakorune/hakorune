@@ -387,16 +387,16 @@ def main() -> None:
     for row in rows:
         counts[row["profile"]] += 1
     expected_counts = {
-        "trivial_exact": 4,
+        "trivial_exact": 5,
         "derived_trivial_only": 7,
-        "typed_preflight_reject": 4,
+        "typed_preflight_reject": 3,
         "not_in_first_family": 3,
     }
     if counts != expected_counts:
         fail(f"profile counts drifted: expected={expected_counts} actual={counts}")
 
     print(
-        "SSA-RC-A1c ownership profile: 18/18 rows, Rust handlers=2, llvm_py handlers=2, "
+        "SSA-RC-A1c ownership profile: 18/18 rows, exact trivial=5, Rust handlers=2, llvm_py handlers=2, "
         "path-sensitive verifier=1, Rust witness consumer=1, Rust witness transport=1, "
         "production witness installers=0, "
         "production callers=0, BoxRef producers=0, "

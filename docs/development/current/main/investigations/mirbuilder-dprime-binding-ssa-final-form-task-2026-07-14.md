@@ -1,5 +1,5 @@
 ---
-Status: Active — SSA-I1-COMPAT-V0a ExplicitVoidValue selected; implementation next
+Status: Active — P0 exact typed parameter ABI selection design stop
 Date: 2026-07-15
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
 Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-V0A-EXPLICIT-VOID-VALUE-IMPLEMENTATION-001
@@ -1359,6 +1359,14 @@ SSA-I1-COMPAT-V0a:
 Selection card:
 `mirbuilder-ssa-i1-compat-explicit-void-selection-2026-07-15.md`.
 
+Implementation evidence:
+`mirbuilder-ssa-i1-compat-explicit-void-implementation-2026-07-15.md`.
+
+V0a is closed with 13/13 profile fixtures, 3/3 focused VM/reference fixtures,
+89/89 full resolved-lowering fixtures, 18/18 production-profile inventory
+rows, ownership operations zero, release build, authority guard, and quick
+66/66 green.
+
 The remaining rows stay separate: exact typed parameters do not include the
 receiver owner family; Void disposition does not imply Outbox identity;
 BorrowedText requires its own lifetime/ABI decision.
@@ -2290,19 +2298,19 @@ state.
 
 ## Immediate next action
 
-Implement **SSA-I1-COMPAT-V0a** only. The exact contract and negative boundary
-are fixed in
-`mirbuilder-ssa-i1-compat-explicit-void-selection-2026-07-15.md`.
+Stop at the **P0 exact typed parameter ABI selection boundary**. Before any
+implementation, lock one narrow static-function parameter family and its
+entry contract:
 
 ```text
-production Binding SSA sessions = one admitted trivial route
-production Ownership SSA witness/install/verifier calls = 0
-production ownership opcode callers = 0
-temporary A+ production behavior = unchanged
-Loop production activation = 0
-Outbox / BorrowedText / parameter / receiver activation = 0
+parameter source/type authority
+reserved entry ValueId seeding
+declared parameter metadata preservation
+accepted exact trivial types
+whole-unit unsupported preflight
+receiver/untyped/Box parameter rejection
 ```
 
-After V0a closes, exact typed parameter ABI is the recommended next row.
 Receiver remains a separate owner-family decision and must not be bundled with
-that parameter row.
+this parameter row. Production behavior remains unchanged until a P0 selection
+card is accepted.

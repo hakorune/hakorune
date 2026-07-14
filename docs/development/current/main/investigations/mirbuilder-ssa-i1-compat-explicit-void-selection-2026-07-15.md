@@ -1,11 +1,12 @@
 ---
-Status: Accepted — implementation next
+Status: Closed
 Date: 2026-07-15
 Decision: SSA-I1-COMPAT-V0a — exact ExplicitVoidValue disposition row
 Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-V0A-EXPLICIT-VOID-VALUE-IMPLEMENTATION-001
 Related:
   - mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
   - mirbuilder-ssa-i1-compat-null-sentinel-implementation-2026-07-15.md
+  - mirbuilder-ssa-i1-compat-explicit-void-implementation-2026-07-15.md
   - ../design/binding-ssa-first-control-lowering-ssot.md
   - ../../../../reference/language/types.md
 ---
@@ -215,8 +216,9 @@ Loop activation
 SSA-I1-FULL
 ```
 
-## Next action
+## Closeout
 
-Implement V0a only inside the existing resolved-value-profile and trivial
-Binding-SSA route. Do not start Outbox or parameter ABI work until V0a's
-positive and negative boundaries are green.
+V0a is closed by
+`mirbuilder-ssa-i1-compat-explicit-void-implementation-2026-07-15.md`.
+The next frontier is the P0 exact typed parameter ABI design-selection stop;
+receiver remains a separate owner-family decision.

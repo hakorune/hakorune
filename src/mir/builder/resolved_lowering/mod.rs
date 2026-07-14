@@ -34,6 +34,8 @@ mod null_tests;
 mod semantic_stack_tests;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod void_tests;
 
 use crate::mir::compiler::capability::{
     CanonicalCurrentAPlusPlanV1, CanonicalTrivialBindingSsaPlanV1,

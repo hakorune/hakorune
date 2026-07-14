@@ -247,6 +247,19 @@
       "retirement_owner": "canonical-null-sentinel-tests"
     },
     {
+      "producer_id": "test-canonical-explicit-void-blockexpr",
+      "producer_path": "src/mir/builder/resolved_lowering/void_tests.rs",
+      "producer_status": "TestOnly",
+      "output_family": "test ASTNode::BlockExpr",
+      "consumer_entry": "SSA-I1-COMPAT-V0a ExplicitVoidValue lowering tests",
+      "classification": "TestOnly",
+      "required_scope_semantics": "TestOnlyExactResolvedPair",
+      "live_caller_evidence": [
+        "src/mir/builder/resolved_lowering/void_tests.rs#fn block_expr(prelude: Vec<ASTNode>, tail: ASTNode) -> ASTNode"
+      ],
+      "retirement_owner": "canonical-explicit-void-tests"
+    },
+    {
       "producer_id": "test-canonical-semantic-stack-blockexpr",
       "producer_path": "src/mir/builder/resolved_lowering/semantic_stack_tests.rs",
       "producer_status": "TestOnly",

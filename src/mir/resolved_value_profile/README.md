@@ -20,11 +20,14 @@ names. It decides no CFG layout and emits no MIR.
 
 `VerifiedTrivialCanonicalOwnerV1` is a pre-Builder whole-owner proof. It
 admits exact `InlineI64`, `InlineBool`, `InlineF64`, and local-flow
-`NullSentinel` values and proves their propagation through locals, reads,
-rebinds, binary expressions, BlockExpr results, fallthrough If merge profiles,
-and terminal disposition. `NullSentinel` preserves exact source Null identity
-while materializing through the existing MIR/runtime no-value representation;
-it is not an ownership-managed value. Null itself is not yet a return ABI.
+`ExplicitVoidValue`, and local-flow `NullSentinel` values and proves their
+propagation through locals, reads, rebinds, binary expressions, BlockExpr
+results, fallthrough If merge profiles, and terminal disposition.
+`ExplicitVoidValue` preserves exact source `void` as a value and remains
+distinct from `return;` and implicit completion. `NullSentinel` preserves exact
+source Null identity. Both reuse the existing MIR/runtime no-value
+representation and are not ownership-managed values. Null itself is not yet a
+return ABI.
 Merge-profile rows prove representation homogeneity only; they never decide
 whether a PHI is needed or placed. Function-owned Binding SSA retains that
 authority.

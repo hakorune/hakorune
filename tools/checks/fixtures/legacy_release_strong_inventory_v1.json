@@ -95,6 +95,7 @@
     {"path":"src/mir/builder/resolved_lowering/lowerer.rs","occurrences":1,"surface_kind":"producer","disposition":"canonical_caller_zero_delete"},
     {"path":"src/mir/builder/resolved_lowering/null_tests.rs","occurrences":1,"surface_kind":"fixture","disposition":"dead_after_repository_caller_zero"},
     {"path":"src/mir/builder/resolved_lowering/tests.rs","occurrences":1,"surface_kind":"fixture","disposition":"dead_after_repository_caller_zero"},
+    {"path":"src/mir/builder/resolved_lowering/void_tests.rs","occurrences":1,"surface_kind":"fixture","disposition":"dead_after_repository_caller_zero"},
     {"path":"src/mir/builder/ssa/analysis.rs","occurrences":2,"surface_kind":"pass","disposition":"optimizer_cfg_rewrite_isolate"},
     {"path":"src/mir/builder/ssa/local/finalize.rs","occurrences":2,"surface_kind":"pass","disposition":"optimizer_cfg_rewrite_isolate"},
     {"path":"src/mir/contracts/backend_core_ops/allowlists.rs","occurrences":5,"surface_kind":"opcode_surface","disposition":"backend_json_compatibility_isolate"},
