@@ -1,0 +1,203 @@
+{
+  "schema": "VerifiedTrivialCanonicalOwnerProfileContractV1",
+  "decision": "a_prime_executable_sealed_whole_owner_profile",
+  "physical_owner": "src/mir/resolved_value_profile",
+  "implementation": {
+    "manifest": [
+      "README.md",
+      "analyzer.rs",
+      "coverage.rs",
+      "error.rs",
+      "mod.rs",
+      "operator.rs",
+      "product.rs",
+      "tests.rs"
+    ],
+    "production_rust": [
+      "analyzer.rs",
+      "coverage.rs",
+      "error.rs",
+      "mod.rs",
+      "operator.rs",
+      "product.rs"
+    ],
+    "test_rust": [
+      "tests.rs"
+    ],
+    "entry_symbol": "analyze_trivial_canonical_owner_v1",
+    "entry_inputs": [
+      "ResolvedFunctionLoweringInputV1",
+      "VerifiedFunctionCompletionV1",
+      "VerifiedResolvedFunctionIfControlV1"
+    ],
+    "sealed_product": "VerifiedTrivialCanonicalOwnerV1",
+    "analysis_result": "TrivialCanonicalOwnerAnalysisV1"
+  },
+  "historical_ssa_seam": {
+    "path": "tools/checks/fixtures/canonical_ssa_seam_inventory_v1.json",
+    "schema": "CanonicalSsaSeamInventoryV1",
+    "rows": 92,
+    "sha256": "ef08015d4adaeff9aa0258efd3e23ea863d1a31098d48f40720708f9fdafe109"
+  },
+  "ownership_inventory": {
+    "path": "tools/checks/fixtures/canonical_ownership_production_profile_v1.json",
+    "schema": "CanonicalOwnershipProductionProfileV1",
+    "rows": 17
+  },
+  "claims": {
+    "profile_manifest_entries": 8,
+    "profile_production_rust_files": 6,
+    "profile_test_rust_files": 1,
+    "profile_entry_definitions": 1,
+    "sealed_product_definitions": 1,
+    "focused_profile_fixtures": 10,
+    "profile_production_callers": 0,
+    "production_route_delta": 0,
+    "accepted_grammar_delta": 0,
+    "binding_ssa_production_callers": 0,
+    "ownership_ssa_production_callers": 0,
+    "ownership_ssa_witness_installers": 0,
+    "production_ownership_opcode_callers": 0,
+    "exact_boxref_source_producers": 0
+  },
+  "profile_symbols": [
+    "VerifiedTrivialCanonicalOwnerV1",
+    "TrivialCanonicalOwnerAnalysisV1",
+    "analyze_trivial_canonical_owner_v1"
+  ],
+  "value_rows": [
+    {
+      "id": "literal.inline_i64",
+      "source_row": "origin.literal.inline_i64",
+      "disposition": "exact_trivial"
+    },
+    {
+      "id": "literal.inline_bool",
+      "source_row": "origin.literal.inline_bool",
+      "disposition": "exact_trivial"
+    },
+    {
+      "id": "literal.inline_f64",
+      "source_row": "origin.literal.inline_f64",
+      "disposition": "exact_trivial"
+    },
+    {
+      "id": "local.initializer",
+      "source_row": "origin.local",
+      "disposition": "forward_exact_trivial"
+    },
+    {
+      "id": "binding.read",
+      "source_row": "origin.binding_read",
+      "disposition": "forward_exact_trivial"
+    },
+    {
+      "id": "assignment.value",
+      "source_row": "origin.assignment_value",
+      "disposition": "forward_exact_trivial"
+    },
+    {
+      "id": "binary.result",
+      "source_row": "origin.binary_result",
+      "disposition": "derive_homogeneous_trivial"
+    },
+    {
+      "id": "blockexpr.tail",
+      "source_row": "origin.blockexpr_tail",
+      "disposition": "forward_exact_trivial"
+    },
+    {
+      "id": "if.merge.homogeneous",
+      "source_row": "origin.phi",
+      "disposition": "derive_homogeneous_trivial"
+    },
+    {
+      "id": "return.value",
+      "source_row": "origin.function_return",
+      "disposition": "forward_exact_trivial"
+    }
+  ],
+  "terminal_rows": [
+    {
+      "id": "explicit_trivial_value_return",
+      "disposition": "value",
+      "profile": "exact_trivial"
+    },
+    {
+      "id": "explicit_empty_return",
+      "disposition": "no_value",
+      "profile": "none"
+    },
+    {
+      "id": "implicit_fallthrough",
+      "disposition": "no_value",
+      "profile": "none"
+    },
+    {
+      "id": "nested_or_nonterminal_return",
+      "disposition": "typed_reject",
+      "profile": "none"
+    }
+  ],
+  "rejection_rows": [
+    {
+      "id": "receiver",
+      "source_row": "origin.receiver",
+      "reason": "owner_family_not_admitted"
+    },
+    {
+      "id": "parameter",
+      "source_row": "origin.parameter",
+      "reason": "parameter_abi_not_sealed"
+    },
+    {
+      "id": "outbox",
+      "source_row": "origin.outbox",
+      "reason": "outbox_void_seed_is_not_a_value"
+    },
+    {
+      "id": "string_literal",
+      "source_row": "origin.literal.borrowed_text",
+      "reason": "borrowed_text_not_admitted"
+    },
+    {
+      "id": "void_literal",
+      "source_row": "origin.literal.void_null",
+      "reason": "void_is_a_disposition_not_a_value"
+    },
+    {
+      "id": "null_literal",
+      "source_row": "origin.literal.void_null",
+      "reason": "null_representation_not_sealed"
+    },
+    {
+      "id": "local_without_initializer",
+      "source_row": "origin.local",
+      "reason": "definition_profile_missing"
+    },
+    {
+      "id": "mixed_if_merge",
+      "source_row": "origin.phi",
+      "reason": "incoming_profiles_not_homogeneous"
+    }
+  ],
+  "forbidden_authorities": [
+    "BasicBlockId",
+    "BindingSsaBuilderV1",
+    "CopyOwned",
+    "DestroyOwned",
+    "IfJoin",
+    "MirBindingSsaAdapterV1",
+    "MirBuilder",
+    "MirInstruction",
+    "MirType",
+    "Span",
+    "StorageClass",
+    "VMValue",
+    "ValueId",
+    "may_rebind",
+    "name_lookup",
+    "pointer_identity",
+    "variable_map"
+  ]
+}

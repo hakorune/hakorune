@@ -5,6 +5,7 @@
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/resolved_ownership_legacy_release_contract.sh"
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/resolved_ownership_transition_planner_contract.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/resolved_trivial_owner_profile_contract.sh"
 
 guard_resolved_binding_ssa_contract() {
   local tag="$1"
@@ -44,6 +45,7 @@ guard_resolved_binding_ssa_contract() {
   python3 "$ownership_validator" "$root" "$ownership_profile"
   guard_resolved_ownership_legacy_release_contract "$tag" "$root"
   guard_resolved_ownership_transition_planner_contract "$tag" "$root"
+  guard_resolved_trivial_owner_profile_contract "$tag" "$root"
 
   local file lines
   for file in \

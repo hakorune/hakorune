@@ -1,9 +1,10 @@
 ---
-Status: Design consultation stop
+Status: Decision accepted — A′ whole-unit profile routing
 Date: 2026-07-14
 Blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-TRIVIAL-PROFILE-ATOMIC-CUTOVER-DESIGN-STOP-001
 Parent taskboard: mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
-Decision requested: choose the no-regression production boundary for SSA-I1
+Decision: A′ — seal an exact whole-owner trivial profile before Builder effects
+Resolved: 2026-07-15
 ---
 
 # SSA-I1 Trivial Profile / Atomic Cutover Design Stop
@@ -35,10 +36,52 @@ C. narrow current canonical acceptance
    compatibility Decision.
 ```
 
-Preliminary recommendation: **A′**, provided route selection happens once for
-the whole source unit before Builder effects, never retries after failure, and
-the old A+ owner has an explicit bounded retirement sequence. B is the purest
-single-cutover form but makes SSA-I1 substantially larger. C is not recommended.
+Accepted decision: **A′**. Route selection happens once for the whole source
+unit before Builder effects, never retries after failure, and the old A+ owner
+has an explicit bounded retirement sequence. B remains a larger future
+compatibility closure; C is rejected because it would narrow accepted behavior.
+
+## Returned decision
+
+```text
+executable witness owner:
+  src/mir/resolved_value_profile
+  VerifiedTrivialCanonicalOwnerV1
+
+route selection:
+  whole source unit only
+  before prepare_module / Builder effects
+  TrivialBindingSsa or CurrentCanonicalAPlus
+  no function/body/site-level mixing
+  no retry after a selected-route failure
+
+SSA-I1-T ownership boundary:
+  production Ownership SSA witness/install/verifier = 0
+  CopyOwned / DestroyOwned production activation = 0
+  first production Ownership SSA activation remains SSA-I1-O1
+
+terminal law:
+  return trivial-value = exact value disposition
+  return; = explicit no-value disposition
+  implicit fallthrough = implicit no-value disposition
+
+typed profile rejects:
+  unsealed parameter/receiver ABI
+  Outbox as a value producer
+  String / BorrowedText
+  Void or Null as a value producer
+  mixed-representation If merge profile
+
+temporary A+ law:
+  allowed only as the once-selected whole-unit owner for a non-admitted unit
+  never synchronized with Binding SSA
+  never used as a fallback or retry
+  caller-zero retirement is required at SSA-I1-FULL
+```
+
+`Void` remains usable here only as a completion disposition. This decision
+does not assign it a value representation, and it does not turn Outbox's
+Void seed into an admitted value.
 
 ## Evidence
 
@@ -85,7 +128,8 @@ cargo test -q preflight_owns_nested_if_flow_with_blockexpr_condition_and_optiona
 
 P0 is a guarded inventory. It does not publish a
 `VerifiedTrivialCanonicalOwnerV1` (or equivalent) proving every located value,
-PHI input, result, and terminal disposition in one exact source owner.
+binding definition, representation-only If merge profile, and terminal
+disposition in one exact source owner. PHI placement remains Binding SSA.
 
 ### Ownership activation ambiguity
 
@@ -163,10 +207,11 @@ It proves:
 ```text
 every admitted literal has exact InlineI64/InlineBool/InlineF64 representation
 every local/read/assignment/binary/BlockExpr result preserves one exact profile
-every If PHI has homogeneous exact trivial inputs
+every If merge profile has homogeneous exact trivial predecessor profiles
+PHI existence, placement, and result ValueId remain Binding SSA authority
 `return;` and implicit fallthrough are explicit None/no-value dispositions
 every located value and terminal is accounted exactly once
-parameters, Outbox, String, Void/Null values, and mixed PHIs are absent
+parameters, Outbox, String, Void/Null values, and mixed merge profiles are absent
 ```
 
 Route selection law:
@@ -240,7 +285,7 @@ resolved_if_lowering_contract.sh:
 
 resolved_ownership_legacy_release_inventory.py:
   keep the canonical lowerer row as an exact zero-occurrence retirement row
-  make this the sole live canonical ReleaseStrong caller-zero owner
+  make this the sole live canonical legacy-release caller-zero owner
 
 canonical compile finalization:
   use an explicit schedule policy so the Binding-SSA canonical route skips
@@ -250,24 +295,28 @@ canonical compile finalization:
 The public guard facade stays below 800 lines; new checks remain in bounded
 private helpers.
 
-## Required decision output
+## Resolved decision output
 
-Please return:
+The returned decision fixes:
 
-1. A′, B, or C;
-2. the exact owner and type of the executable per-function profile witness;
-3. whether SSA-I1 installs an all-None Ownership SSA witness or keeps
-   production Ownership SSA at zero until O1;
-4. the law for `return;`, implicit fallthrough, Outbox, Void, and Null;
-5. whether transitional whole-unit A+/Binding-SSA routing is allowed and how
-   its caller counters and retirement boundary are stated;
-6. the revised atomic task order;
-7. required fixtures, guards, may-claims, must-not-claims, and stop conditions.
+1. **A′** is accepted;
+2. `VerifiedTrivialCanonicalOwnerV1` under
+   `src/mir/resolved_value_profile` owns the executable per-function proof;
+3. production Ownership SSA remains zero through SSA-I1-T and first activates
+   only at SSA-I1-O1;
+4. explicit empty Return and implicit fallthrough are distinct no-value
+   dispositions, while Outbox, Void values, and Null values reject;
+5. temporary A+ is permitted only through pre-Builder whole-unit selection,
+   with no unit-internal mixing or failure retry;
+6. the order is SSA-I0-PROFILE -> SSA-I1-T -> compatibility rows ->
+   SSA-I1-FULL -> SSA-R1, with SSA-I1-O1 independently gated by one exact
+   BoxRef producer and ABI witness;
+7. fixtures and guards must preserve the authority and stop conditions below.
 
 ## Nonclaims
 
 ```text
-SSA-I1 production activation
+SSA-I1-T production activation
 current canonical acceptance narrowing
 parameter/return ownership ABI closure
 String/Null ownership closure
@@ -280,7 +329,7 @@ ProgramV0, Lambda/capture, REPL, or Hako Lower parity
 
 ## Stop conditions
 
-Do not implement or publish SSA-I1 if a proposal:
+Do not implement or publish SSA-I1-T if a proposal:
 
 ```text
 uses the P0 inventory as an executable proof
@@ -299,5 +348,17 @@ ownership verification all finish
 
 ## Next action
 
-External design consultation only. Keep the worktree clean and production
-Binding SSA/Ownership SSA activation at zero until the decision is returned.
+The consultation stop is resolved and the disconnected SSA-I0-PROFILE product
+is closed by
+`mirbuilder-ssa-i0-trivial-owner-profile-2026-07-15.md`. Proceed to SSA-I1-T
+as one atomic trivial-profile production cutover. Until SSA-I1-T lands:
+
+```text
+production Binding SSA sessions = 0
+production Ownership SSA witness/install/verifier calls = 0
+CopyOwned / DestroyOwned production callers = 0
+current A+ production behavior = unchanged
+```
+
+SSA-I1-T must preserve whole-unit route selection, no mixing, no retry, and
+must skip legacy `insert_rc_instructions` on the selected Binding-SSA route.

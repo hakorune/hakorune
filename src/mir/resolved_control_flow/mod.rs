@@ -6,7 +6,7 @@
 
 mod cleanup;
 mod function_control;
-mod if_control;
+pub(crate) mod if_control;
 mod source_coverage;
 
 #[cfg(test)]

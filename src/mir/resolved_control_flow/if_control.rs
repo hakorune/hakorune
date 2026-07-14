@@ -83,14 +83,14 @@ struct IfControlCoverageClaimV1 {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub(super) struct VerifiedResolvedFunctionIfControlV1 {
+pub(crate) struct VerifiedResolvedFunctionIfControlV1 {
     owner: FunctionOwnerIdV1,
     rows: Box<[VerifiedLocatedIfControlV1]>,
     coverage_partition: Box<[IfControlCoverageClaimV1]>,
 }
 
 impl VerifiedResolvedFunctionIfControlV1 {
-    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
+    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
     }
 
@@ -107,6 +107,10 @@ impl VerifiedResolvedFunctionIfControlV1 {
 
     pub(super) const fn coverage_partition_len(&self) -> usize {
         self.coverage_partition.len()
+    }
+
+    pub(crate) fn exact_if_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
+        self.rows.iter().map(VerifiedLocatedIfControlV1::site)
     }
 }
 
@@ -187,6 +191,14 @@ pub(super) fn analyze_resolved_if_control_v1(
     completion: &VerifiedFunctionCompletionV1,
 ) -> Result<VerifiedResolvedFunctionIfControlV1, ResolvedIfControlErrorV1> {
     IfControlAnalyzerV1::new(input, completion)?.analyze()
+}
+
+#[cfg(test)]
+pub(crate) fn verify_resolved_function_if_control_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    completion: &VerifiedFunctionCompletionV1,
+) -> Result<VerifiedResolvedFunctionIfControlV1, String> {
+    analyze_resolved_if_control_v1(input, completion).map_err(|error| format!("{error:?}"))
 }
 
 struct IfControlRowDraftV1<'source> {

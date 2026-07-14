@@ -136,6 +136,8 @@ pub mod region; // Phase 25.1l: Region/GC観測レイヤ（LoopForm v2 × RefKin
 pub(crate) mod resolved_control_flow; // carrier-free exact coverage/topology contracts
 pub(crate) mod resolved_region_flow; // pre-Builder owner-closed control-flow products
 pub(crate) mod resolved_semantics; // pre-plan owner-scoped binding/scope/region semantic arena
+#[allow(dead_code)]
+pub(crate) mod resolved_value_profile; // pre-Builder executable representation proofs
 pub(crate) mod route_dependency_graph; // typed shadow graph for route-family convergence
 pub mod route_fixpoint; // module-level route convergence owner
 pub mod route_value_type_publication;

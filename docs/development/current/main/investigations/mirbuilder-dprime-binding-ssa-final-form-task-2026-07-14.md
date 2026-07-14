@@ -1,8 +1,8 @@
 ---
-Status: Design Stop — SSA-I1 trivial-profile/atomic-cutover boundary requires consultation
-Date: 2026-07-14
+Status: Active — SSA-I0-PROFILE closed; SSA-I1-T next
+Date: 2026-07-15
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-TRIVIAL-PROFILE-ATOMIC-CUTOVER-DESIGN-STOP-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-T-TRIVIAL-PROFILE-ATOMIC-CUTOVER-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -113,24 +113,25 @@ dependency SSOT; optional X0/O0/O1 work is not on the blocking path.
 SSA-E0 -> SSA-S3 -> SSA-M0 -> SSA-RC0-D0
 SSA-RC0-D0 -> SSA-RC-L0a -> SSA-RC-L0b -> SSA-RC-L0 -> SSA-RC-L1 -> SSA-RC-P0 -> SSA-RC-A0 -> SSA-RC-A1a
 SSA-RC-A1a -> SSA-RC-V0 -> SSA-RC-A1b -> SSA-RC-A1c
-SSA-RC-A1c -> SSA-RC-RET-P0 -> SSA-RC0 -> SSA-I1 -> SSA-R1
-SSA-I1 -> SSA-RC-RET-R1
-{SSA-I1, exact BoxRef source producer} -> SSA-I1-O1
+SSA-RC-A1c -> SSA-RC-RET-P0 -> SSA-RC0 -> SSA-I0-PROFILE -> SSA-I1-T
+SSA-I1-T -> SSA-I1-COMPAT -> SSA-I1-FULL -> SSA-R1
+SSA-I1-FULL -> SSA-RC-RET-R1
+{SSA-I1-T, exact BoxRef source producer} -> SSA-I1-O1
 repository-wide ReleaseStrong caller zero -> SSA-RC-RET-R2
 
 {SSA-I1-O1, B′ first-family ObjectCell carrier cutover}
   -> B′ first canonical ObjectCell BoxRef materialization
 
-SSA-I1 -> Loop-S3′ -> Loop-I1′ -> Loop-I2′
+SSA-I1-T -> Loop-S3′ -> Loop-I1′ -> Loop-I2′
 Loop-I2′ -> {N1, N2, N3} -> N4
 
 {SSA-E0, N4} -> EXIT-S0 -> EXIT-S1 -> EXIT-S2
 {Loop-I2′, EXIT-S2} -> EXIT-I1 / EXIT-I3 / EXIT-I6
 {N1, EXIT-I1, EXIT-I3} -> EXIT-I2 / EXIT-I4
-{SSA-I1, EXIT-S2} -> EXIT-I5
+{SSA-I1-T, EXIT-S2} -> EXIT-I5
 {EXIT-I1..I6, N4} -> EXIT-I7
 
-SSA-I1 -> F0 -> F1a / F1b / F1c
+SSA-I1-T -> F0 -> F1a / F1b / F1c
 capture-cell authority + F0 -> F1d
 {F0, required F1x, RET-I1, RET-I2} -> F2-S0 -> F2-I1
 F2-I1 + canonical caller zero -> RET-R1 -> PUB-F0
@@ -514,7 +515,7 @@ typed unsupported control errors
 no effects, may_rebind, join-source rows, ValueId, or BasicBlockId
 ```
 
-The historical A+ product remains the sole production If path until SSA-I1.
+The historical A+ product remains the sole production If path until SSA-I1-T.
 Do not run both analyzers as production authorities for one function.
 
 Closed evidence:
@@ -553,7 +554,7 @@ production Binding SSA and adapter callers = 0
 accepted grammar delta = 0
 ```
 
-This card prevents SSA-I1 from mixing a new physical MIR adapter with the
+This card prevents SSA-I1-T from mixing a new physical MIR adapter with the
 whole-owner authority cutover.
 
 Closed evidence:
@@ -745,7 +746,7 @@ BorrowedText / Array / Future / WeakRef / Void / Opaque / Unknown:
 Inventory every currently accepted receiver, parameter, local, Outbox,
 literal, PHI, BlockExpr-tail, call argument, and call result origin. The
 current untyped parameter/call path is not silently treated as `BoxRef`;
-SSA-I1 either excludes it from the first closed profile or waits for an
+SSA-I1-T excludes it from the first closed profile until an
 independently sealed representation and caller/callee ABI witness.
 `StorageClass` is currently an inventory, not an execution proof, and
 `MirType::Box` metadata does not by itself prove the same ABI class on every
@@ -765,7 +766,7 @@ generic BoxRef representation facts = 0
 JSON storage inventory emitter / verified v0 ingress = 1 / 0
 production CopyOwned / DestroyOwned callers = 0 / 0
 production ownership activation = 0
-first SSA-I1 cutover profile = trivial-only until SSA-I1-O1
+first SSA-I1-T cutover profile = trivial-only until SSA-I1-O1
 resolved authority guard = green
 cargo fmt --check = green
 cargo build --release --bin hakorune = green
@@ -1184,40 +1185,93 @@ largest source/check file = 500 lines
 Evidence card:
 `mirbuilder-ssa-rc0-ownership-transition-planner-2026-07-14.md`.
 
-### SSA-I1 — atomic current-owner cutover
+### SSA-I0-PROFILE — disconnected exact trivial owner profile
 
-In one production commit, move the entire currently accepted canonical owner
-grammar admitted by the closed SSA-RC-P0 ownership profile to Binding SSA:
+Status: closed
+
+Seal one executable whole-owner proof before any production Binding SSA
+effect. `src/mir/resolved_value_profile` owns the closed
+`InlineI64`/`InlineBool`/`InlineF64` vocabulary, exact value and definition
+coverage, homogeneous If merge profiles, and explicit terminal dispositions.
+
+The analyzer is co-sealed with:
 
 ```text
-only receiver/parameter/local/Outbox origins with a sealed representation
+ResolvedFunctionLoweringInputV1
+VerifiedFunctionCompletionV1
+VerifiedResolvedFunctionIfControlV1
+```
+
+The carrier-free If product contributes only exact control topology and
+coverage. The trivial profile records homogeneous representation at the
+merge, but never decides whether a PHI exists or where Binding SSA places it.
+
+Closed evidence:
+
+```text
+profile manifest files = 8
+focused profile fixtures = 10/10 green
+carrier-free If control / compiler capability fixtures = 9/9 / 4/4 green
+private profile validator = green
+public authority guard / release build / quick 66/66 = green
+literal authority = AST LiteralValue tag only
+return; / implicit fallthrough = distinct no-value dispositions
+parameters / receiver / Outbox / String / Void value / Null value = typed reject
+profile / Binding SSA / Ownership SSA production callers = 0
+CopyOwned / DestroyOwned production callers = 0
+current A+ behavior and accepted grammar delta = 0
+largest profile source file = 610 lines
+largest private check helper = 468 lines
+```
+
+Evidence card:
+`mirbuilder-ssa-i0-trivial-owner-profile-2026-07-15.md`.
+
+### SSA-I1-T — atomic trivial-profile owner cutover
+
+In one production commit, select one whole source unit whose executable
+`VerifiedTrivialCanonicalOwnerV1` is admitted and move that entire owner to
+Binding SSA:
+
+```text
+zero receiver / parameter / Outbox value origins
+initialized local declarations with an exact trivial profile
 variable reads
-binding assignments using CopyOwned/DestroyOwned plans
+binding assignments with exact trivial propagation
 straight-line statements
 BlockExpr
 fallthrough statement If, including nested If
-only the SSA-E0-sealed function-body terminal Return
+homogeneous trivial merge profiles, without precomputed PHI rows
+exact trivial Return value, explicit return;, or implicit fallthrough
 ```
 
 If remains a family-specific CFG/semantic box. It stops querying effect sets
 or join-source rows. Both branches use block-local definitions, merge closes
 after every predecessor is known, and later `read` creates only required PHIs.
 
+Route selection happens once before Builder effects:
+
+```text
+TrivialBindingSsa profile or temporary CurrentCanonicalAPlus profile
+one source unit / one owner / one selected value authority
+no body/site-level mixing
+no retry to A+ after a Binding-SSA failure
+Binding-SSA canonical finalization skips legacy insert_rc_instructions
+```
+
 Atomic acceptance:
 
 ```text
-SSA-M0 and SSA-RC0 are closed
-all current canonical If/BlockExpr runtime fixtures green
+SSA-M0, SSA-RC0, and SSA-I0-PROFILE are closed
+all admitted trivial If/BlockExpr runtime fixtures green
 all canonical declaration/read/rebind operations use Binding SSA
-all ownership-managed definitions use Ownership SSA
 then definitions do not leak into else compilation state
 scope leave retires identity without deleting historical SSA definitions
-assignment DestroyOwned reads the previous value through Binding SSA
-scope-exit cleanup reads the current merged value through Binding SSA
 self-assignment uses exact BindingRef provenance, not raw ValueId equality
-self-assignment and BlockExpr tail/alias ownership fixtures are green
-canonical ReleaseStrong calls = 0
-optional RC insertion double-destroy paths = 0
+trivial BlockExpr tail forwarding fixtures are green
+selected Binding-SSA route legacy ReleaseStrong calls = 0
+selected Binding-SSA route optional RC double-destroy paths = 0
+legacy insert_rc_instructions calls on the selected route = 0
 flat value-map merge authority calls = 0
 canonical If may_rebind/join-source queries = 0
 manual branch snapshot/restore = 0
@@ -1227,14 +1281,41 @@ coverage finish before candidate function publication
 Return and every touched block seal through the C1 witness
 function verifier green before publication
 canonical failure legacy retry = 0
+production Ownership SSA witness/install/verifier calls = 0
+production CopyOwned / DestroyOwned callers = 0
 ```
 
-No Loop syntax is activated in this commit.
+No Loop syntax or ownership-managed value is activated in this commit.
 
-If SSA-RC-P0 proves that the current source producer set contains no exact
-`BoxRef` origin, SSA-I1 may claim only a trivial-value Binding SSA cutover.
-`CopyOwned`/`DestroyOwned` production activation remains zero; disconnected
-MIR/backend fixtures do not count as a source producer.
+### SSA-I1-COMPAT — representation/ABI compatibility rows
+
+Close one currently accepted representation family per bounded row:
+
+```text
+parameter and receiver ABI
+Outbox / Void disposition
+BorrowedText
+Null
+```
+
+Each row either seals an executable representation/ABI witness or remains a
+typed whole-unit profile rejection. It may not add a body-level bridge between
+A+ and Binding SSA.
+
+### SSA-I1-FULL — current canonical A+ caller-zero cutover
+
+After every currently accepted canonical source unit has an admitted
+Binding-SSA profile, route the whole family through Binding SSA and prove:
+
+```text
+temporary A+ production callers = 0
+unit-internal profile mixing = 0
+canonical retry/fallback = 0
+one BindingRef -> ValueId authority for the whole current family
+```
+
+Physical retirement of old A+ value/effect authority remains SSA-R1 and may
+start only after this caller-zero proof.
 
 ### SSA-I1-O1 — first exact BoxRef Ownership SSA activation
 
@@ -1254,7 +1335,7 @@ new source syntax and does not broaden beyond the exact producer/profile.
 
 ### SSA-RC-RET-R1 — canonical legacy ownership isolation
 
-After SSA-I1, prove `ReleaseStrong` canonical callers are exactly zero. Keep
+After SSA-I1-FULL, prove `ReleaseStrong` canonical callers are exactly zero. Keep
 remaining legacy builder, optional RC insertion, JSON compatibility, and
 backend callers behind explicit legacy provenance. Do not change opcode
 meaning or delete repository vocabulary in this row.
@@ -1276,7 +1357,7 @@ This row is not implied by canonical caller zero.
 
 ### SSA-R1 — retire old If value-flow authority
 
-After SSA-I1 is green and exact production caller counts are zero, physically
+After SSA-I1-FULL is green and exact production caller counts are zero, physically
 delete the old canonical If effect/join products and branch snapshot
 transaction: condition/whole-effect summaries, `may_rebind_outer`, join-source
 rows, and the effect-driven PHI materializer. Temporary isolation is not a
@@ -1809,8 +1890,9 @@ SSA-RC-RET-P0. Hako interpreter parity is not Hako compiler-Lower parity.
 
 | Milestone | Binding SSA production | If production owner | Loop production | Source grammar delta |
 | --- | ---: | --- | ---: | ---: |
-| D0 / S2′ / SSA-P0 / SSA-L0 / SSA-C1 / SSA-P1 / SSA-V0 / SSA-S1 / SSA-S2 / SSA-E0 / SSA-S3 / SSA-M0 / SSA-RC0-D0 / SSA-RC-L0a / SSA-RC-L0b / SSA-RC-L0 / SSA-RC-L1 / SSA-RC-P0 / SSA-RC-A0 / SSA-RC-A1a / SSA-RC-V0 / SSA-RC-A1b / SSA-RC-A1c / SSA-RC-RET-P0 / SSA-RC0 | 0 | current A+ path | 0 | 0 |
-| SSA-I1 | 1 whole owner | Binding SSA + If CFG box | 0 | 0; ownership activation may remain 0 |
+| D0 / S2′ / SSA-P0 / SSA-L0 / SSA-C1 / SSA-P1 / SSA-V0 / SSA-S1 / SSA-S2 / SSA-E0 / SSA-S3 / SSA-M0 / SSA-RC0-D0 / SSA-RC-L0a / SSA-RC-L0b / SSA-RC-L0 / SSA-RC-L1 / SSA-RC-P0 / SSA-RC-A0 / SSA-RC-A1a / SSA-RC-V0 / SSA-RC-A1b / SSA-RC-A1c / SSA-RC-RET-P0 / SSA-RC0 / SSA-I0-PROFILE | 0 | current A+ path | 0 | 0 |
+| SSA-I1-T | admitted trivial whole unit | Binding SSA + If CFG box; temporary A+ remains whole-unit only | 0 | 0; ownership activation = 0 |
+| SSA-I1-FULL | all current canonical whole units | Binding SSA + If CFG box | 0 | 0 |
 | SSA-I1-O1 | 1 exact BoxRef owner | Binding SSA + Ownership SSA | 0 | 0 |
 | SSA-R1 / S3′ / I1′ | 1 whole owner | Binding SSA | 0 | 0 |
 | I2′ | 1 whole owner | Binding SSA | 1 closed Loop family | +1 family |
@@ -1821,7 +1903,7 @@ SSA-RC-RET-P0. Hako interpreter parity is not Hako compiler-Lower parity.
 
 ## Required counters
 
-Before SSA-I1:
+Before SSA-I1-T:
 
 ```text
 BindingSsaBuilder production sessions = 0
@@ -1829,7 +1911,7 @@ carrier-free If/Loop control production consumers = 0
 canonical accepted grammar delta = 0
 ```
 
-At SSA-I1 and thereafter on the canonical route:
+At SSA-I1-T and thereafter on an admitted trivial canonical route:
 
 ```text
 BindingRef value merge authorities = 1
@@ -1837,7 +1919,7 @@ variable reads bypassing Binding SSA = 0
 binding definitions bypassing Binding SSA = 0
 flat map branch snapshots = 0
 If may_rebind queries = 0
-If join-source queries = 0
+old A+ If join-source queries = 0
 Lower full-map diff = 0
 String/name binding lookup = 0
 Reserve-only PHI publication = 0
@@ -1969,7 +2051,7 @@ SSA-RC-RET-P0:
   add a separate ReleaseStrong producer/consumer retirement ledger
   forbid canonical ownership aliases to the legacy opcode
 
-SSA-I1 atomic commit:
+SSA-I1-T atomic commit:
   replace production If effect/join assertions with Binding SSA/control-only assertions
   require exactly one function Binding SSA production session
   require flat value owner and old adapters to have zero production callers
@@ -2025,7 +2107,9 @@ Add focused unit/runtime commands named by each milestone before committing.
 | SSA-RC-A1a/V0/A1b/A1c | supported backends and path-sensitive Ownership SSA verification implement the closed BoxRef profile; canonical callers are zero |
 | SSA-RC-RET-P0 | every legacy ReleaseStrong surface is classified without changing its meaning |
 | SSA-M0/RC0 | the real-MIR adapter and bounded pure ownership plans are sealed; production Binding SSA calls remain zero |
-| SSA-I1 | the current closed canonical owner has one BindingRef value/PHI authority |
+| SSA-I0-PROFILE | one executable whole-owner trivial profile is co-sealed with completion and carrier-free If control; all production callers remain zero |
+| SSA-I1-T | every admitted trivial whole unit has one BindingRef value/PHI authority; non-admitted current units remain whole-unit A+ only |
+| SSA-I1-FULL | the whole current canonical family uses Binding SSA and temporary A+ production callers are zero |
 | SSA-I1-O1 | one exact BoxRef source profile uses production CopyOwned/DestroyOwned with verified forwarding |
 | SSA-RC-RET-R1/R2 | canonical legacy ownership callers are isolated, then repository-wide caller-zero vocabulary is physically retired |
 | SSA-R1 | old canonical If value authority and the temporary flat environment are caller-zero; explicit legacy mechanisms may remain |
@@ -2145,20 +2229,25 @@ state.
 
 ## Immediate next action
 
-Do not implement SSA-I1. Read and externally consult:
+Implement **SSA-I1-T** as one whole-unit atomic cutover using the closed
+`VerifiedTrivialCanonicalOwnerV1`:
 
 ```text
-mirbuilder-ssa-i1-trivial-profile-atomic-cutover-design-stop-2026-07-14.md
+route selection before Builder effects
+admitted whole owner -> one BindingSsaBuilderV1
+non-admitted current whole unit -> temporary A+ owner
+no function/body/site-level mixing
+no failure retry
+selected Binding-SSA route skips legacy insert_rc_instructions
+coverage / CFG / SSA / verifier finish before publication
 ```
 
-The consultation must resolve whether the first cutover is a whole-owner
-trivial profile with temporary whole-unit A+ isolation, or whether every
-currently accepted representation/ABI must close before one atomic cutover.
-Until then:
+Until the atomic SSA-I1-T commit lands:
 
 ```text
 production Binding SSA sessions = 0
 production Ownership SSA witness/install/verifier calls = 0
+production CopyOwned / DestroyOwned callers = 0
 canonical accepted behavior delta = 0
-no implementation or guard cutover
+temporary A+ production behavior = unchanged
 ```

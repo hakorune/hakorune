@@ -284,6 +284,8 @@ def main() -> None:
         root / "src/mir/resolved_control_flow/source_coverage_tests.rs",
         root / "src/mir/resolved_control_flow/if_control.rs",
         root / "src/mir/resolved_region_flow/analyzer.rs",
+        root / "src/mir/resolved_value_profile/analyzer.rs",
+        root / "src/mir/resolved_value_profile/error.rs",
     } | set(resolved_lowering_dir.glob("*.rs"))
     external_view_consumers = []
     view_tokens = (
