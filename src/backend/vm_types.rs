@@ -23,6 +23,13 @@ pub enum VMError {
     TypeError(String),
     TaskFailed(String),
     TaskCancelled(String),
+    FrameRestoreFailed {
+        detail: String,
+    },
+    DuringFrameRestore {
+        primary: Box<VMError>,
+        restore: String,
+    },
     StepBudgetExceeded {
         max_steps: u64,
         steps: u64,
@@ -51,6 +58,12 @@ impl std::fmt::Display for VMError {
             VMError::TypeError(msg) => write!(f, "Type error: {}", msg),
             VMError::TaskFailed(msg) => write!(f, "Task failed: {}", msg),
             VMError::TaskCancelled(msg) => write!(f, "Task cancelled: {}", msg),
+            VMError::FrameRestoreFailed { detail } => write!(f, "{}", detail),
+            VMError::DuringFrameRestore { primary, restore } => write!(
+                f,
+                "[vm/frame_transaction/during_restore] primary={} restore={}",
+                primary, restore
+            ),
             VMError::StepBudgetExceeded {
                 max_steps,
                 steps,

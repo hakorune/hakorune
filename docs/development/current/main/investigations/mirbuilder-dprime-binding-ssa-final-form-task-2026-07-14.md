@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-RC-L1 interpreter frame transaction is next
+Status: Active — SSA-RC-P0 exact ownership production profile is next
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-L1-FRAME-TRANSACTION-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-P0-OWNERSHIP-PROFILE-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -695,7 +695,7 @@ production Binding SSA / ownership opcode callers = 0
 all new or modified source/check files below 800 lines
 ```
 
-#### SSA-RC-L1 — Rust interpreter frame transaction
+#### SSA-RC-L1 — Rust interpreter frame transaction — closed
 
 Before ownership opcodes introduce new typed executor failures, close the
 existing function-frame lifecycle in a separate BoxShape row:
@@ -710,6 +710,21 @@ no opcode, grammar, or accepted success-path behavior change
 
 This row does not add `CopyOwned`/`DestroyOwned` and is not backend ownership
 activation.
+
+Closed evidence:
+
+```text
+exec facade / frame transaction / function loop / focused tests = 40 / 291 / 189 / 230 lines
+closure-scoped transaction fixtures = 6/6 green
+existing return-contract fixtures = 12/12 green
+success / instruction / PHI / step-budget / missing-block restoration = green
+primary execution plus restoration failure retention = green
+cargo fmt --check = green
+cargo build --release --bin hakorune = green
+dev_gate quick = 66/66 green
+opcode / grammar / accepted success behavior / ownership activation delta = 0
+all new or modified source/check files below 800 lines
+```
 
 #### SSA-RC-P0 — exact ownership production profile
 
@@ -1942,14 +1957,14 @@ state.
 
 ## Immediate next action
 
-Implement SSA-RC-L1 only. Do not add ownership opcodes in the same commit:
+Implement SSA-RC-P0 only. Do not add ownership opcodes in the same commit:
 
 ```text
-inventory the Rust MirInterpreter function-frame save/restore owner
-introduce one closure-scoped frame transaction
-restore caller registers and current function on success and every typed error
-cover fast slots, alias/cache state, and step/PHI failures
-retain the primary execution error if restoration also fails
-change no opcode, grammar, accepted success behavior, or ownership activation
+inventory every currently accepted receiver, parameter, local, Outbox,
+literal, PHI, BlockExpr-tail, call argument, and call result origin
+seal the exact BoxRef / trivial / typed-reject production profile
+do not infer BoxRef authority from MirType::Box or StorageClass alone
+require an independently sealed representation and ABI witness where needed
+change no opcode, grammar, backend behavior, or ownership activation
 keep every new or modified source/check file below 800 lines
 ```
