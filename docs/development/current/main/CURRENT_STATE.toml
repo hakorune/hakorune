@@ -13,8 +13,11 @@ SSA-C1, SSA-P1, SSA-V0, SSA-S1, SSA-S2, SSA-E0, SSA-S3, and SSA-M0 are closed.
 A′ accepts explicit CopyOwned/DestroyOwned Ownership SSA, keeps Copy neutral,
 and isolates legacy ReleaseStrong. SSA-RC-L0a repairs stale instruction-diet
 test/reference literals to the unchanged 41/16/57 implementation vocabulary.
-The active behavior-neutral row is SSA-RC-L0: split ownership transport seams
-by existing responsibility while keeping every source file below 800 lines.
+SSA-RC-L0b closes the static-const-table load guard false-green by explicitly
+enabling `vm-reference`; all three existing module tests now execute. The
+active behavior-neutral row is SSA-RC-L0: restore the stashed transport seam
+split, update only move-sensitive guard paths, and keep every source file below
+800 lines.
 Historical
 lane chronology follows and is non-authoritative.
 Explicit user priority change on 2026-07-12 reopens
@@ -163,7 +166,7 @@ adapter, conservative Unknown PHI facts, exact C1 witnesses, pending-only
 rollback, and five focused fixtures. SSA-RC0-D0 is closed by A′: CopyOwned
 creates a fresh independent Owned token, DestroyOwned consumes exactly the
 named token, Copy stays neutral, and ReleaseStrong remains legacy. Before RC0
-or SSA-I1, L0a/L0/L1/P0/A0/A1a/V0/A1b/A1c/RET-P0 close physical seams, the exact BoxRef
+or SSA-I1, L0a/L0b/L0/L1/P0/A0/A1a/V0/A1b/A1c/RET-P0 close physical seams, the exact BoxRef
 profile, transport, supported backends, path-sensitive ownership forwarding,
 and legacy retirement inventory. If no exact BoxRef source producer exists,
 SSA-I1 is a trivial-only Binding SSA cutover and production Ownership SSA waits
@@ -525,6 +528,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-14: D′ SSA-RC-L0b closes the static-const-table load guard false-green introduced when its module became vm-reference gated: the dedicated guard now enables that feature and executes all 3 existing tests; shared helper, production code, source grammar, MIR, and backend behavior are unchanged; SSA-RC-L0 is selected.",
   "2026-07-14: D′ SSA-RC-L0a repairs stale instruction-diet test/reference literals from 40/16/56 to the unchanged implementation truth 41/16/57 after ArrayStateContractClaim joined the kept vocabulary; focused ledger tests are 2/2 green and enum/cohort/allowlist/schema/runtime/grammar/backend behavior is unchanged; SSA-RC-L0 is selected.",
   "2026-07-14: A′ accepts explicit CopyOwned/DestroyOwned Ownership SSA, keeps Copy ownership-neutral, isolates legacy ReleaseStrong, and taskizes L0/L1/P0/A0/A1a/V0/A1b/A1c/RET-P0/RC0/I1/I1-O1 plus caller-zero retirement; local verification corrects the stale VM pointer-sweep claim, and SSA-RC-L0 is selected as the first behavior-neutral code row.",
   "2026-07-14: Rust MirInterpreter retirement is taskized as a separate required selfhost branch: stable MIR ownership vocabulary -> sealed ingress/opcode/event contract -> disconnected `.hako` MIR interpreter -> independent normalized parity -> no-fallback semantic-reference cutover -> consumer-driven expansion -> exact caller-zero Rust physical retirement; EXE/AOT remains the product route and RC0 remains at its design stop.",
@@ -536,5 +540,4 @@ landed_tail = [
   "2026-07-14: D′ SSA-V0 closes the canonical publication barrier with typed post-RC MIR verification failure, commit-after-failure zero, typed same-name function rejection without overwrite, three focused fixtures, explicit legacy reporting preservation, zero Binding SSA production callers, and zero grammar delta; SSA-S1 is selected.",
   "2026-07-14: D′ SSA-P1 closes all-attempt PHI transaction rollback, typed primary-plus-all-cleanup error retention, missing-provisional detection, failed-commit rollback, six focused fixtures, zero Binding SSA production callers, and zero grammar delta; SSA-V0 is selected.",
   "2026-07-14: D′ SSA-C1 closes one disconnected fallible canonical CFG session with terminator-derived predecessor truth, checked-not-repaired successor/predecessor caches, immutable seal witnesses, typed late-edge/duplicate/seal errors, fifteen focused fixtures, zero production callers, and zero grammar delta; SSA-P1 is selected.",
-  "2026-07-14: D′ SSA-L0 behavior-neutrally splits the 807-line PHI input helper into an 18-line facade, 331-line edge rematerialization, 166-line legacy whole-function repair, and responsibility-specific tests; API, callers, grammar, and production behavior remain unchanged, and SSA-C1 is selected.",
 ]

@@ -108,7 +108,7 @@ dependency SSOT; optional X0/O0/O1 work is not on the blocking path.
 
 ```text
 SSA-E0 -> SSA-S3 -> SSA-M0 -> SSA-RC0-D0
-SSA-RC0-D0 -> SSA-RC-L0a -> SSA-RC-L0 -> SSA-RC-L1 -> SSA-RC-P0 -> SSA-RC-A0 -> SSA-RC-A1a
+SSA-RC0-D0 -> SSA-RC-L0a -> SSA-RC-L0b -> SSA-RC-L0 -> SSA-RC-L1 -> SSA-RC-P0 -> SSA-RC-A0 -> SSA-RC-A1a
 SSA-RC-A1a -> SSA-RC-V0 -> SSA-RC-A1b -> SSA-RC-A1c
 SSA-RC-A1c -> SSA-RC-RET-P0 -> SSA-RC0 -> SSA-I1 -> SSA-R1
 SSA-I1 -> SSA-RC-RET-R1
@@ -614,6 +614,33 @@ implementation/test/reference ledger = 41 / 16 / 57
 cargo test -q --lib mir::contracts::backend_core_ops::tests::instruction_diet_ledger_counts_match -- --nocapture
   2 passed
 enum/cohort/allowlist/schema/runtime/grammar/backend delta = 0
+```
+
+#### SSA-RC-L0b — VM-reference guard feature alignment — closed
+
+The L0 quick gate exposed a pre-existing false-green in the static-const-table
+load guard. Its two owned tests moved behind `feature = "vm-reference"` in
+`9111364a11`, but the guard still invokes the filter without that feature:
+
+```text
+cargo test -q --lib static_const_table_load
+  running 0 tests
+  exit 0
+```
+
+Repair only the dedicated guard invocation so it explicitly enables
+`vm-reference` and runs the three existing module tests. Do not change source grammar,
+MIR behavior, backend capability, the shared test helper, or production code.
+This prerequisite lands separately while the physical L0 split remains in a
+named stash.
+
+Closed evidence:
+
+```text
+bash tools/checks/k2_wide_static_const_table_load_guard.sh
+  running 3 tests
+  3 passed
+production/source/MIR/backend delta = 0
 ```
 
 #### SSA-RC-L0 — ownership transport seam split — active
@@ -1550,7 +1577,7 @@ SSA-RC-RET-P0. Hako interpreter parity is not Hako compiler-Lower parity.
 
 | Milestone | Binding SSA production | If production owner | Loop production | Source grammar delta |
 | --- | ---: | --- | ---: | ---: |
-| D0 / S2′ / SSA-P0 / SSA-L0 / SSA-C1 / SSA-P1 / SSA-V0 / SSA-S1 / SSA-S2 / SSA-E0 / SSA-S3 / SSA-M0 / SSA-RC0-D0 / SSA-RC-L0a / SSA-RC-L0 / SSA-RC-L1 / SSA-RC-P0 / SSA-RC-A0 / SSA-RC-A1a / SSA-RC-V0 / SSA-RC-A1b / SSA-RC-A1c / SSA-RC-RET-P0 / SSA-RC0 | 0 | current A+ path | 0 | 0 |
+| D0 / S2′ / SSA-P0 / SSA-L0 / SSA-C1 / SSA-P1 / SSA-V0 / SSA-S1 / SSA-S2 / SSA-E0 / SSA-S3 / SSA-M0 / SSA-RC0-D0 / SSA-RC-L0a / SSA-RC-L0b / SSA-RC-L0 / SSA-RC-L1 / SSA-RC-P0 / SSA-RC-A0 / SSA-RC-A1a / SSA-RC-V0 / SSA-RC-A1b / SSA-RC-A1c / SSA-RC-RET-P0 / SSA-RC0 | 0 | current A+ path | 0 | 0 |
 | SSA-I1 | 1 whole owner | Binding SSA + If CFG box | 0 | 0; ownership activation may remain 0 |
 | SSA-I1-O1 | 1 exact BoxRef owner | Binding SSA + Ownership SSA | 0 | 0 |
 | SSA-R1 / S3′ / I1′ | 1 whole owner | Binding SSA | 0 | 0 |
@@ -1692,6 +1719,9 @@ SSA-S3:
 SSA-RC-L0a:
   require implementation/test/reference ledger equality at 41/16/57
 
+SSA-RC-L0b:
+  require the dedicated static-const-table load guard to execute 3 tests under vm-reference
+
 SSA-RC-L0:
   assert both split facades preserve public behavior and every file is <800
 
@@ -1757,6 +1787,7 @@ Add focused unit/runtime commands named by each milestone before committing.
 | SSA-E0 | the already accepted terminal Return has an exact preservation contract; grammar delta is zero |
 | SSA-S3 | one carrier-free If control product is sealed; production If still uses A+ |
 | SSA-RC-L0a | stale instruction-diet literals are repaired to the unchanged 41/16/57 implementation vocabulary |
+| SSA-RC-L0b | the static-const-table load guard executes its three feature-gated VM-reference module tests instead of accepting zero tests |
 | SSA-RC-L0/L1/P0 | ownership transport/frame seams are closed and the exact BoxRef/trivial/reject profile is sealed; production ownership is unchanged |
 | SSA-RC-A0 | passive CopyOwned/DestroyOwned transport exists; production callers and backend execution are zero |
 | SSA-RC-A1a/V0/A1b/A1c | supported backends and path-sensitive Ownership SSA verification implement the closed BoxRef profile; canonical callers are zero |
@@ -1885,9 +1916,10 @@ state.
 Implement SSA-RC-L0 only. Do not add ownership opcodes in the same commit:
 
 ```text
-restore the named L0 WIP after the L0a prerequisite lands
+restore the newest named L0 WIP after the L0b prerequisite lands
 split backend_core_ops.rs by existing vocabulary/allowlist/test responsibility
 split mir_json_v0.rs lifecycle parsing behind the existing facade
+update guard paths only where the physical move requires it
 keep every resulting source file below 800 lines
 keep opcode counts, JSON behavior, backend behavior, grammar, and API unchanged
 do not touch the 796-line public authority guard
