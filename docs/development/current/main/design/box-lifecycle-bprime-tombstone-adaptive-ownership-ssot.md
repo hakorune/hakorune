@@ -43,12 +43,19 @@ last weak token:
 
 physical strategy:
   correctness-first SharedRc (atomic)
-  later derived Unique / LocalRc / SharedRc / Immortal plans
+  later derived StaticUnique / LocalRc / SharedRc plans
 ```
 
 The core B′ semantics are accepted. Adaptive modes, concurrent promotion,
 direct-pointer projections, and global Box carrier replacement remain gated
 implementation branches. They are not implied by this decision.
+
+A normal source-level Box API does not expose physical `free`, `reclaim`, or
+the selected RC strategy. Deterministic resource shutdown is `fini()`, an
+ownership lifetime ends through scope/forwarding/`DestroyOwned`, and physical
+reclamation remains a runtime materialization decision. A future exclusive
+source capability or raw-memory API would require a separate language
+Decision; it is not part of B′ and is not a prerequisite for B′ closeout.
 
 ## Why this is one constitution, not one implementation box
 
@@ -59,11 +66,11 @@ Four truths must remain separate:
 | language lifecycle | logical `fini`, Alive/Dead behavior, explicit cleanup order | RC counters, MIR values, pointer layout |
 | Ownership SSA | Owned/Borrowed/None token discipline and forwarding | Alive/Dead, physical RC mode, object identity |
 | runtime ObjectCell substrate | physical counts, payload slot, generation, leases, reclamation | BindingRef reaching values, source cleanup policy |
-| optimizer / representation planner | proven Unique/LocalRc/SharedRc/Immortal strategy | source-visible ownership semantics |
+| optimizer / representation planner | proven StaticUnique/LocalRc/SharedRc strategy | source-visible ownership semantics |
 
 Binding SSA remains the only `BindingRef -> ValueId` reaching-value authority.
 `MirOwnershipKindV1` remains the only MIR token classification. Neither may
-contain `Unique`, `LocalRc`, `SharedRc`, lifecycle state, or runtime counts.
+contain `StaticUnique`, `LocalRc`, `SharedRc`, lifecycle state, or runtime counts.
 
 ## Normative laws
 
@@ -224,10 +231,9 @@ atomic representation:
 
 ```rust
 enum RcStrategyV1 {
-    Unique,
+    StaticUnique,
     LocalRc,
     SharedRc,
-    Immortal,
 }
 ```
 
@@ -235,17 +241,44 @@ The concrete counter storage belongs to the selected variant. Parallel
 `local_strong` and `shared_strong` fields are forbidden because they create
 two lifetime truths.
 
+`Immortal` is not an alias-count strategy. It is a separate explicit
+process/runtime-root residency class with its own shutdown, fini, weak,
+identity, and observability questions. It remains parked until a concrete
+singleton/type-descriptor consumer gets a separate Decision and proof ladder.
+
 The first identity-bearing ObjectCell implementation is `SharedRc` only, and
 `SharedRc` uses atomic counts. `LocalRc` is the non-atomic strategy.
-Adaptive modes are optimization rows after correctness and parity are green:
+`StaticUnique` means that a closed proof has shown that no independent alias
+can be created over the object's full lifetime. It is not a source type and it
+does not contain a dormant first-alias promotion mechanism.
+
+A function-local proof does not survive a generic Return, outbox, or unknown
+call merely because the Owned token is forwarded. Interprocedural
+StaticUnique requires a separately sealed parameter/result/call-edge
+capability whose caller continuation is included through the terminal consume;
+otherwise the representation selector chooses LocalRc/SharedRc.
+
+The baseline representation selector is conservative:
 
 ```text
-Unique -> LocalRc -> SharedRc
+no possible independent alias:
+  StaticUnique
+
+possible same-thread alias:
+  LocalRc
+
+possible cross-thread share or unknown publication:
+  SharedRc
 ```
 
-There is no downgrade. `CopyOwned` alone does not perform thread promotion.
-Cross-thread publication requires an explicit capability/representation plan
-and one linearization point.
+These strategies form a monotone selection lattice, not an implicit runtime
+state machine. There is no downgrade after publication or aliasing. A later
+`PromotableUnique` optimization may add a first-alias
+`PromotableUnique -> LocalRc`
+transaction, but it must be a separate evidence-gated row and is not required
+for B′. `CopyOwned` alone does not perform thread promotion. Cross-thread
+publication requires an explicit capability/representation plan and one
+linearization point.
 
 ### 7. Direct pointers are private leased projections
 
@@ -263,6 +296,9 @@ pointer cache that secretly owns an Arc root = legacy, not proof
 Before any direct-pointer fast path, the substrate must prove non-moving
 storage plus reclamation safety through a strong root, pin, lease, hazard,
 epoch, or equally explicit mechanism.
+
+StaticUnique proves strong-alias absence only. It does not by itself prove a
+stable address, absence of borrows, or permission to elide a pointer lease.
 
 An `ObjectLease` pins the payload/cell for its lexical extent. Last-strong
 structural reclamation cannot free or reuse storage while any valid lease
@@ -296,9 +332,22 @@ plugins, unknown FFI ownership, weak handles, and cross-thread sharing.
 Base strong cycles may leak. Back-pointers should use weak references. A later
 cycle detector/collector is optional and never runs user `fini()`.
 
-Unique reclaim, stack allocation, header elision, LocalRc, ARC pair removal,
-and recurrence/escape analyses are derived optimizations. They do not alter
-the source-level shareable Box model.
+Static-unique direct reclaim, stack allocation, header elision, LocalRc, ARC
+pair removal, and recurrence/escape analyses are derived optimizations. They
+do not alter the source-level shareable Box model.
+
+The derived reclaim form is always:
+
+```text
+terminal DestroyOwned
++ verified StaticUnique object plan
++ backend materialization
+  -> immediate structural drop/reclamation when legal
+```
+
+There is no second `ReclaimUnique` MIR consume authority. An unchecked raw
+pointer free is outside the normal Box/ObjectCell contract; double-free or
+use-after-free cannot be claimed to remain local to one Box.
 
 Header/control-cell elision requires proof that all of these are unobservable:
 
@@ -334,7 +383,7 @@ generation-tagged stable storage
         │
         ▼
 optional derived representation plan
-  Unique / LocalRc / SharedRc / Immortal
+  StaticUnique / LocalRc / SharedRc
 ```
 
 The long-term runtime API should expose semantic operations rather than Arc
@@ -401,6 +450,7 @@ B′ is the accepted long-term lifecycle/ownership constitution
 fini and ownership-token destruction are semantically separate
 adaptive RC is an optimizer/runtime strategy, not a source type
 ObjectIdentity and owner/root tokens must be separate
+normal Box source/API exposes no manual physical-free operation
 production runtime behavior has not changed
 ```
 
@@ -412,7 +462,8 @@ all Box families use generation-tagged identity
 current plugin Drop obeys B′
 current weak/host registries are ABA-safe
 all-atomic baseline proves adaptive ownership
-Unique or LocalRc is production-safe
+StaticUnique or LocalRc is production-safe
+source-level unique/reclaim or a general unsafe raw-Box lane exists
 direct pointers are safe without a typed lease and stable storage
 global Arc retirement
 cross-thread share/promotion safety
@@ -429,9 +480,16 @@ calls user fini from DestroyOwned, last-strong drop, or generic Rust Drop
 puts physical RC mode or lifecycle state in VerifiedOwnershipSsaV1
 creates a second BindingRef -> ValueId or alias authority
 keeps local and shared counters as independent truths
+places Immortal root residency in the alias-count strategy enum
+conflates StaticUnique selection with a lazy PromotableUnique transaction
+reconstructs StaticUnique from strong_count == 1 after aliasing or publication
 uses CopyOwned as an implicit thread-publication operation
 checks weak generation/state before a separate unguarded strong increment
 uses raw pointer identity or dereferences a stale pointer before validation
+exposes manual physical free/reclaim as an ordinary Box operation
+adds a second ownership consume opcode for derived unique reclamation
+uses a source annotation as the proof of a physical RC strategy
+confuses two distinct owner tokens of one identity with one token consumed twice
 places a production ObjectCell refcount beneath Arc refcounting
 cuts over generic BoxRef or plugin as the first identity-bearing family
 reuses a slot on generation wrap
@@ -459,3 +517,5 @@ claims adaptive performance before the SharedRc baseline is correct
 8. Physical RC mode is derived, one-way, and non-observable.
 9. Strong cycles may leak in the base profile.
 10. Family activation is atomic and unsupported families fail fast.
+11. Normal Box source/API has no manual physical-free operation; verified
+    terminal ownership consumption is the sole input to derived reclamation.

@@ -483,7 +483,14 @@ implicit cascade fini through ordinary strong field = forbidden
 explicit owned field syntax = reserved until exclusivity can be enforced
 DestroyOwned / last strong / native Drop invokes user fini = forbidden
 explicit fini consumes receiver token = 0
+normal Box manual physical free/reclaim surface = forbidden
+StaticUnique / LocalRc / SharedRc source visibility = 0
+derived StaticUnique terminal reclaim uses DestroyOwned, not a new consume op
 ```
+
+A future source-exclusive capability or raw-memory facility must reopen a
+separate language Decision. It is not an implementation detail of
+LANGV1-OWNERSHIP-IDENTITY-001 and is not a dependency of B′ closeout.
 
 Runtime/Ownership SSA implementation order is taskized in:
 `docs/development/current/main/investigations/box-lifecycle-bprime-tombstone-adaptive-ownership-task-2026-07-14.md`.

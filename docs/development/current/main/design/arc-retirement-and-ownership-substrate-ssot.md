@@ -300,7 +300,8 @@ explicit fini = eager payload teardown to Dead
 last strong / DestroyOwned = structural drop only
 identity = slot + generation
 owner/root token != identity
-Unique / LocalRc = later derived optimizations
+StaticUnique / LocalRc = later derived optimizations
+normal Box manual physical-free surface = none
 ```
 
 Detailed order and family/global retirement gates live in the B′ taskboard.

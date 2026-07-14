@@ -121,6 +121,32 @@ This split lets Nyash keep “箱理論” simple:
 - Programs must use `fini()` (or sugar that guarantees it) to deterministically release external resources (fd/socket/native handles).
 - Programs must not rely on GC timing for correctness.
 
+### No manual physical free on normal Box
+
+The normal source-level Box API does not expose raw `free`, physical
+`reclaim`, or the runtime's selected RC strategy.
+
+```text
+deterministic resource shutdown:
+  explicit fini() / cleanup
+
+end one ownership lifetime:
+  scope exit, transfer, or verified DestroyOwned materialization
+
+physical backing-allocation/control-cell memory reclamation:
+  runtime/backend strategy; not a source timing guarantee
+```
+
+`fini()` does guarantee logical payload teardown and publication of payload
+absence. It does not guarantee when the backing allocation or control-cell
+memory is returned to an allocator.
+
+An optimizer may prove a Box statically unique and materialize its terminal
+ownership consume as immediate structural drop/reclamation. That does not add
+a source `unique` type or a second reclaim operation. A future exclusive
+source capability or raw-memory API requires a separate language Decision and
+pointer/provenance model; it is outside the normal Box lifecycle contract.
+
 ## 1) Scope model (locals)
 
 - `local` is block-scoped: the binding exists from its declaration to the end of the lexical block (`{ ... }`).
@@ -139,6 +165,10 @@ This is the “variable lifetime” rule. Object lifetime is defined below.
 - Last-strong structural drop never calls user-defined `fini()`.
 - Assignment, parameter/return transport, and ordinary strong fields share Box
   identity; they do not imply an exclusive resource-finalization authority.
+- One object identity may have multiple independently consumable strong
+  ownership tokens. Destroying each distinct token once is legal; consuming
+  the same token twice is a verifier/checked-carrier error, not an idempotent
+  object operation.
 
 ### Weak references
 
