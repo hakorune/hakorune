@@ -44,9 +44,9 @@ EXPECTED_SURFACE_COUNTS = {
     "consumer": 24,
     "opcode_surface": 7,
     "pass": 14,
-    "fixture": 20,
-    "document": 45,
-    "guard": 3,
+    "fixture": 22,
+    "document": 48,
+    "guard": 4,
 }
 EXPECTED_DISPOSITION_COUNTS = {
     "canonical_caller_zero_delete": 1,
@@ -54,7 +54,7 @@ EXPECTED_DISPOSITION_COUNTS = {
     "optional_rc_insertion_isolate": 3,
     "optimizer_cfg_rewrite_isolate": 11,
     "backend_json_compatibility_isolate": 31,
-    "dead_after_repository_caller_zero": 68,
+    "dead_after_repository_caller_zero": 74,
 }
 EXPECTED_CANONICAL = {"src/mir/builder/resolved_lowering/lowerer.rs"}
 EXPECTED_LEGACY_BUILDERS = {
@@ -209,7 +209,7 @@ def main() -> None:
         "SSA-RC-RET-P0 legacy ReleaseStrong inventory: "
         f"rows={len(rows)} occurrences={sum(row['occurrences'] for row in rows)} "
         "canonical=1 legacy-builders=4 optional-rc=3 optimizer-cfg=11 "
-        "backend-json=31 retirement-only=68 semantic-delta=0"
+        "backend-json=31 retirement-only=74 semantic-delta=0"
     )
 
 

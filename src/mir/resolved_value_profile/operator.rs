@@ -14,7 +14,6 @@ pub(super) enum TrivialBinaryProfileStopV1 {
 pub(super) enum TrivialLiteralProfileStopV1 {
     String,
     Void,
-    Null,
 }
 
 pub(super) fn derive_trivial_literal_profile_v1(
@@ -28,7 +27,7 @@ pub(super) fn derive_trivial_literal_profile_v1(
         LiteralValue::Float(_) => Ok(TrivialRepresentationV1::InlineF64),
         LiteralValue::String(_) => Err(TrivialLiteralProfileStopV1::String),
         LiteralValue::Void => Err(TrivialLiteralProfileStopV1::Void),
-        LiteralValue::Null => Err(TrivialLiteralProfileStopV1::Null),
+        LiteralValue::Null => Ok(TrivialRepresentationV1::NullSentinel),
     }
 }
 

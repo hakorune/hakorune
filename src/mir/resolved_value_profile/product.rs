@@ -10,6 +10,8 @@ pub(crate) enum TrivialRepresentationV1 {
     InlineI64,
     InlineBool,
     InlineF64,
+    /// Exact source `null`; runtime representation remains the no-value lane.
+    NullSentinel,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

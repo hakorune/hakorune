@@ -18,7 +18,8 @@ origin.literal.inline_i64
 origin.literal.inline_bool
 origin.literal.inline_f64
 origin.literal.borrowed_text
-origin.literal.void_null
+origin.literal.void
+origin.literal.null
 origin.phi
 origin.blockexpr_tail
 origin.call_argument
@@ -386,7 +387,7 @@ def main() -> None:
     for row in rows:
         counts[row["profile"]] += 1
     expected_counts = {
-        "trivial_exact": 3,
+        "trivial_exact": 4,
         "derived_trivial_only": 7,
         "typed_preflight_reject": 4,
         "not_in_first_family": 3,
@@ -395,7 +396,7 @@ def main() -> None:
         fail(f"profile counts drifted: expected={expected_counts} actual={counts}")
 
     print(
-        "SSA-RC-A1c ownership profile: 17/17 rows, Rust handlers=2, llvm_py handlers=2, "
+        "SSA-RC-A1c ownership profile: 18/18 rows, Rust handlers=2, llvm_py handlers=2, "
         "path-sensitive verifier=1, Rust witness consumer=1, Rust witness transport=1, "
         "production witness installers=0, "
         "production callers=0, BoxRef producers=0, "

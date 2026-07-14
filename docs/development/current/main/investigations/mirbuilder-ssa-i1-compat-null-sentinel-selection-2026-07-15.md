@@ -1,11 +1,12 @@
 ---
-Status: Accepted — implementation next
+Status: Closed — implemented by the linked evidence card
 Date: 2026-07-15
 Decision: SSA-I1-COMPAT-N0a — exact NullSentinel local-flow row
 Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-N0A-NULL-SENTINEL-IMPLEMENTATION-001
 Related:
   - mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
   - mirbuilder-ssa-i1-t-trivial-binding-ssa-cutover-2026-07-15.md
+  - mirbuilder-ssa-i1-compat-null-sentinel-implementation-2026-07-15.md
   - ../design/binding-ssa-first-control-lowering-ssot.md
   - ../../../../reference/language/types.md
 ---
@@ -161,9 +162,8 @@ Loop activation
 SSA-I1-FULL
 ```
 
-## Next action
+## Closure
 
-Implement N0a inside the existing resolved-value-profile and trivial SSA
-route, keeping the row below the same whole-owner preflight and publication
-barriers. Do not start another compatibility row until N0a's claim and
-negative boundaries are green.
+N0a is implemented inside the existing resolved-value-profile and trivial SSA
+route. Its positive and negative boundaries are fixed by
+`mirbuilder-ssa-i1-compat-null-sentinel-implementation-2026-07-15.md`.

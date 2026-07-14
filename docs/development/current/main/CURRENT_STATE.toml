@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ SSA-I1-COMPAT-N0a NullSentinel selected; implementation next"
+status = "D′ SSA-I1-COMPAT-N0a closed; next compatibility row selection stop"
 date = "2026-07-15"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -54,9 +54,10 @@ Binding SSA, carrier-free If control, exact coverage, C1 CFG sealing, and
 demand-driven PHIs. The selected route skips legacy `insert_rc_instructions`;
 temporary A+ remains a once-selected non-admitted whole-unit owner with no
 mixing or failure retry. Production Ownership SSA remains zero.
-SSA-I1-COMPAT-N0a is selected: exact source Null gains one NullSentinel profile
+SSA-I1-COMPAT-N0a is closed: exact source Null gains one NullSentinel profile
 over the existing ConstValue::Null / MirType::Void / runtime no-value
-representation. The first implementation is local-flow only. Null return,
+representation. Local/read/assignment/BlockExpr, homogeneous If, and Bool
+comparison are production green with zero ownership operations. Null return,
 Void, Outbox, BorrowedText, parameters, and receiver remain separate rows.
 Historical
 lane chronology follows and is non-authoritative.
@@ -175,16 +176,18 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/binding-ssa-first-control-lowering-ssot.md"
 
-latest_card = "mirbuilder-ssa-i1-compat-null-sentinel-selection-2026-07-15"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-ssa-i1-compat-null-sentinel-selection-2026-07-15.md"
-latest_card_summary = """SSA-I1-COMPAT-N0a selects one exact NullSentinel
-compatibility row. LiteralValue::Null remains source authority and uses the
-existing ConstValue::Null, MirType::Void, and runtime no-value representation.
-The implementation scope is local/read/assignment/BlockExpr, homogeneous If,
-and Null equality producing Bool. Null return, Void, Outbox, BorrowedText,
+latest_card = "mirbuilder-ssa-i1-compat-null-sentinel-implementation-2026-07-15"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-ssa-i1-compat-null-sentinel-implementation-2026-07-15.md"
+latest_card_summary = """SSA-I1-COMPAT-N0a closes one exact local-flow
+NullSentinel compatibility row. LiteralValue::Null remains source authority
+over the existing ConstValue::Null, MirType::Void, and runtime no-value
+representation. Local/read/assignment/BlockExpr, homogeneous one-sided,
+two-sided, and nested If, and Null comparison are production green through the
+same whole-owner Binding SSA. Null return, Void, Outbox, BorrowedText,
 parameters, receiver, Ownership SSA, new opcodes, and backend vocabulary remain
-inactive. Parameter/receiver and Void/Outbox were explicitly split by the
-candidate audit. The next card must be code-facing and may implement N0a only.
+inactive. Profile 12/12, focused VM/reference 3/3, ownership inventory 18/18,
+authority guard, release build, and quick 66/66 are green. The next action is a
+design stop that selects exactly one remaining compatibility row.
 Historical D′ context follows.
 D′ is accepted and taskized through the final canonical
 source form. Exact source coverage, ScopeId/RegionId topology, typed ports,
@@ -603,7 +606,7 @@ SSA-I1-T blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-N0A-NULL-SENTINEL-IMPLEMENTATION-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-NEXT-ROW-SELECTION-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -612,6 +615,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-15: D′ SSA-I1-COMPAT-N0a closes one exact NullSentinel local-flow row: LiteralValue::Null is exact profile authority over existing ConstValue::Null / MirType::Void / runtime no-value representation; local/read/assignment/BlockExpr, homogeneous one-sided/two-sided/nested If, and Bool comparison use the same production Binding SSA; Null return, Void, Outbox, BorrowedText, parameters, receiver, Ownership SSA/opcodes, and Loop activation remain inactive; profile 12/12, focused VM/reference 3/3, resolved-lowering 86/86, capability 5/5, production inventory 18/18, legacy ledger 124/275, authority guard, release build, and quick 66/66 are green; ownership operations and legacy RC insertion on the selected route remain zero; the next compatibility row returns to a design-selection stop.",
   "2026-07-15: D′ SSA-I1-COMPAT-N0a selects one exact NullSentinel implementation row after a four-candidate audit: LiteralValue::Null remains exact source authority over existing ConstValue::Null / MirType::Void / runtime no-value representation; only local/read/assignment/BlockExpr, homogeneous If, and Bool comparison results are in scope; Null return, Void, Outbox, BorrowedText, parameters, receiver, Ownership SSA, opcodes, and backend vocabulary remain inactive; the next card must contain code or artifact delta.",
   "2026-07-15: D′ SSA-I1-T atomically connects one admitted trivial whole owner to one function-owned Binding SSA: preflight selects BindingSsa or temporary A+ once before Builder effects; carrier-free If control, exact profile/control coverage, C1 CFG witnesses, demand-driven PHIs, and function/module publication barriers are active; the selected route skips legacy RC insertion and never retries A+; located/capability/schedule/profile/control/VM fixtures are 75/5/2/10/11/6 green, exact Float typing is green, and selected-route ReleaseStrong is zero; production Ownership SSA/opcodes and Loop activation remain zero; grammar delta is zero; SSA-I1-COMPAT row selection is the next design stop.",
   "2026-07-15: D′ SSA-I0-PROFILE closes one disconnected exact whole-owner trivial representation proof under src/mir/resolved_value_profile: eight manifest files co-seal exact completion and carrier-free If control with InlineI64/InlineBool/InlineF64 value, definition, merge-profile, and terminal coverage; return; and implicit fallthrough are distinct no-value dispositions; unsealed parameters/receiver, Outbox, String, Void/Null values, missing initializers, unsupported forms, and mixed merges reject before Builder effects; 10/10 focused fixtures, private validator, public authority guard, release build, quick 66/66, pointer guard, and cargo check are green; largest profile/check files are 610/468 lines; production profile/Binding SSA/Ownership SSA/opcode callers, grammar delta, route delta, and current A+ behavior delta remain zero; SSA-I1-T is selected and must skip legacy insert_rc_instructions.",
@@ -623,5 +627,4 @@ landed_tail = [
   "2026-07-14: D′ SSA-RC-A1a closes the temporary Rust ownership-op semantic oracle: CopyOwned clones an exact BoxRef into an undefined register, DestroyOwned takes only the named BoxRef register without alias scanning, invalid operands fail explicitly, 5/5 vm-reference fixtures, 21/21 backend-contract fixtures, 17/17 production-profile rows, release build, authority guard, and quick 66/66 are green; production callers and Phi/Return/ABI ownership activation remain zero; SSA-RC-V0 is selected.",
   "2026-07-14: D′ SSA-RC-A0 closes passive CopyOwned/DestroyOwned MIR vocabulary with conservative WRITE effects, exact printer/query/remap/JSON transport, a direct-JSON MirType::Box plus StorageClass::BoxRef witness, storage/type mismatch rejection, 43/16/59 opcode ledger, 6/6 transport fixtures, 21/21 backend-contract fixtures, release build, authority guard, and quick 66/66 green; production callers, backend execution, grammar, and canonical behavior remain zero; SSA-RC-A1a is selected.",
   "2026-07-14: D′ SSA-RC-P0 closes a machine-checked 17-row canonical ownership production profile: 3 exact trivial, 7 derived-trivial-only, 4 typed reject, and 3 absent rows; exact BoxRef source producers and generic BoxRef representation facts are zero; StorageClass remains inventory-only and JSON v0 ingress is not an ownership authority; the first SSA-I1 cutover is trivial-only until SSA-I1-O1; authority guard, release build, and quick 66/66 are green; ownership activation remains zero and SSA-RC-A0 is selected.",
-  "2026-07-14: D′ SSA-RC-L1 closes one closure-scoped Rust MirInterpreter function-frame transaction: caller registers, fast slots, aliases/caches, current function, call state, and diagnostics restore on success and every typed error; PHI/step/missing-block fixtures and primary-plus-restoration error retention are green; all touched source files stay below 800 lines; release build and quick 66/66 are green; opcode/grammar/accepted-success/ownership deltas are zero and SSA-RC-P0 is selected.",
 ]

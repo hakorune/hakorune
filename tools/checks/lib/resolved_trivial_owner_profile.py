@@ -20,7 +20,7 @@ EXPECTED_CLAIMS = {
     "profile_test_rust_files": 1,
     "profile_entry_definitions": 1,
     "sealed_product_definitions": 1,
-    "focused_profile_fixtures": 10,
+    "focused_profile_fixtures": 12,
     "profile_production_callers": 1,
     "production_route_delta": 1,
     "accepted_grammar_delta": 0,
@@ -79,6 +79,7 @@ EXPECTED_VALUES = {
     "literal.inline_i64": ("origin.literal.inline_i64", "exact_trivial"),
     "literal.inline_bool": ("origin.literal.inline_bool", "exact_trivial"),
     "literal.inline_f64": ("origin.literal.inline_f64", "exact_trivial"),
+    "literal.null_sentinel": ("origin.literal.null", "exact_trivial"),
     "local.initializer": ("origin.local", "forward_exact_trivial"),
     "binding.read": ("origin.binding_read", "forward_exact_trivial"),
     "assignment.value": ("origin.assignment_value", "forward_exact_trivial"),
@@ -102,12 +103,8 @@ EXPECTED_REJECTIONS = {
         "borrowed_text_not_admitted",
     ),
     "void_literal": (
-        "origin.literal.void_null",
+        "origin.literal.void",
         "void_is_a_disposition_not_a_value",
-    ),
-    "null_literal": (
-        "origin.literal.void_null",
-        "null_representation_not_sealed",
     ),
     "local_without_initializer": ("origin.local", "definition_profile_missing"),
     "mixed_if_merge": ("origin.phi", "incoming_profiles_not_homogeneous"),
@@ -248,15 +245,15 @@ def main() -> None:
     if inventory != {
         "path": "tools/checks/fixtures/canonical_ownership_production_profile_v1.json",
         "schema": "CanonicalOwnershipProductionProfileV1",
-        "rows": 17,
+        "rows": 18,
     }:
         fail("ownership inventory declaration drifted")
     inventory_data = json.loads((root / inventory["path"]).read_text())
     if inventory_data.get("schema") != inventory["schema"]:
         fail("ownership inventory schema drifted")
     inventory_rows = inventory_data.get("rows")
-    if not isinstance(inventory_rows, list) or len(inventory_rows) != 17:
-        fail("ownership inventory must remain exactly 17 rows")
+    if not isinstance(inventory_rows, list) or len(inventory_rows) != 18:
+        fail("ownership inventory must remain exactly 18 rows")
     inventory_by_id = {row.get("id"): row for row in inventory_rows}
 
     values = checked_rows(
@@ -361,16 +358,18 @@ def main() -> None:
     if owner_production_text.count(result_definition) != 1:
         fail("analysis result definition count must remain exactly one")
     test_text = "\n".join(path.read_text() for path in test_files)
-    if test_text.count("#[test]") != 10:
-        fail("focused profile fixture count must remain exactly 10")
+    if test_text.count("#[test]") != 12:
+        fail("focused profile fixture count must remain exactly 12")
     for fixture in (
         "exact_literals_binary_and_value_return_seal",
         "local_assignment_and_blockexpr_tail_preserve_exact_profile",
         "homogeneous_if_merge_seals_and_mixed_merge_rejects",
+        "null_sentinel_flows_locally_and_compares_to_bool",
         "if_condition_must_be_exact_bool",
         "explicit_empty_return_and_implicit_fallthrough_are_distinct",
         "parameter_outbox_and_missing_initializer_are_typed_stops",
-        "string_void_and_null_values_are_typed_stops",
+        "string_and_void_values_are_typed_stops",
+        "null_terminal_and_mixed_merge_remain_typed_stops",
         "mixed_binary_and_short_circuit_are_typed_stops",
         "duplicate_coverage_and_foreign_if_control_cannot_seal",
         "current_a_plus_acceptance_is_not_narrowed_by_disconnected_profile",
@@ -464,7 +463,7 @@ def main() -> None:
     print("canonical_ssa_i0_profile_test_rust_files=1")
     print("canonical_ssa_i0_profile_entry_definitions=1")
     print("canonical_ssa_i0_profile_sealed_product_definitions=1")
-    print("canonical_ssa_i0_profile_focused_fixtures=10")
+    print("canonical_ssa_i0_profile_focused_fixtures=12")
     print("canonical_ssa_i0_profile_production_callers=1")
     print("canonical_ssa_i0_profile_binding_ssa_callers=1")
     print("canonical_ssa_i0_profile_ownership_ssa_callers=0")

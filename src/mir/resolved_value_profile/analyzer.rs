@@ -399,6 +399,12 @@ impl<'a> AnalyzerV1<'a> {
                         .child_expr_from_stmt(statement, ExprChildRoleV1::ReturnValue)
                         .map_err(|error| self.source_navigation(error))?;
                     let representation = self.analyze_expr(&value, environment, writes)?;
+                    if representation == TrivialRepresentationV1::NullSentinel {
+                        return stop_expression(
+                            &value,
+                            TrivialProfileStopReasonV1::NullRepresentationUnavailable,
+                        );
+                    }
                     self.draft.record_subject(
                         TrivialProfileCoverageSubjectV1::ExplicitValueTerminal(
                             statement.site().clone(),
@@ -477,12 +483,6 @@ impl<'a> AnalyzerV1<'a> {
                     return stop_expression(
                         expression,
                         TrivialProfileStopReasonV1::VoidRepresentationUnavailable,
-                    )
-                }
-                Err(TrivialLiteralProfileStopV1::Null) => {
-                    return stop_expression(
-                        expression,
-                        TrivialProfileStopReasonV1::NullRepresentationUnavailable,
                     )
                 }
             },

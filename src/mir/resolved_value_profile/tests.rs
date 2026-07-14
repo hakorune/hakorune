@@ -30,6 +30,10 @@ fn float(value: f64) -> ASTNode {
     literal(LiteralValue::Float(value))
 }
 
+fn null() -> ASTNode {
+    literal(LiteralValue::Null)
+}
+
 fn variable(name: &str) -> ASTNode {
     ASTNode::Variable {
         name: name.into(),
@@ -210,6 +214,43 @@ fn homogeneous_if_merge_seals_and_mixed_merge_rejects() {
 }
 
 #[test]
+fn null_sentinel_flows_locally_and_compares_to_bool() {
+    let product = admitted(function(vec![
+        local("x", Some(null())),
+        if_(
+            bool_(true),
+            vec![assignment("x", null())],
+            Some(vec![assignment("x", null())]),
+        ),
+        local(
+            "same",
+            Some(binary(BinaryOperator::Equal, variable("x"), null())),
+        ),
+        return_(Some(variable("same"))),
+    ]));
+
+    assert!(product
+        .values()
+        .iter()
+        .any(|row| row.representation() == TrivialRepresentationV1::NullSentinel));
+    assert!(product
+        .definitions()
+        .iter()
+        .any(|row| row.representation() == TrivialRepresentationV1::NullSentinel));
+    assert_eq!(
+        product.merge_profiles()[0].representation(),
+        TrivialRepresentationV1::NullSentinel
+    );
+    assert!(matches!(
+        product.terminal(),
+        TrivialTerminalProfileV1::ExplicitValue {
+            representation: TrivialRepresentationV1::InlineBool,
+            ..
+        }
+    ));
+}
+
+#[test]
 fn if_condition_must_be_exact_bool() {
     assert_stop(
         function(vec![if_(int(1), Vec::new(), None)]),
@@ -253,7 +294,7 @@ fn parameter_outbox_and_missing_initializer_are_typed_stops() {
 }
 
 #[test]
-fn string_void_and_null_values_are_typed_stops() {
+fn string_and_void_values_are_typed_stops() {
     for (value, reason) in [
         (
             LiteralValue::String("text".into()),
@@ -263,13 +304,29 @@ fn string_void_and_null_values_are_typed_stops() {
             LiteralValue::Void,
             TrivialProfileStopReasonV1::VoidRepresentationUnavailable,
         ),
-        (
-            LiteralValue::Null,
-            TrivialProfileStopReasonV1::NullRepresentationUnavailable,
-        ),
     ] {
         assert_stop(function(vec![return_(Some(literal(value)))]), reason);
     }
+}
+
+#[test]
+fn null_terminal_and_mixed_merge_remain_typed_stops() {
+    assert_stop(
+        function(vec![return_(Some(null()))]),
+        TrivialProfileStopReasonV1::NullRepresentationUnavailable,
+    );
+    assert_stop(
+        function(vec![
+            local("x", Some(null())),
+            if_(
+                bool_(true),
+                vec![assignment("x", int(1))],
+                Some(vec![assignment("x", null())]),
+            ),
+            return_(Some(binary(BinaryOperator::Equal, variable("x"), null()))),
+        ]),
+        TrivialProfileStopReasonV1::IfMergeProfileNotHomogeneous,
+    );
 }
 
 #[test]

@@ -29,6 +29,8 @@ mod if_materialization_tests;
 #[cfg(test)]
 mod if_tests;
 #[cfg(test)]
+mod null_tests;
+#[cfg(test)]
 mod semantic_stack_tests;
 #[cfg(test)]
 mod tests;

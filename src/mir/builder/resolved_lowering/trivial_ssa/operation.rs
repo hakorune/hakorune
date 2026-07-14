@@ -48,6 +48,7 @@ pub(super) const fn mir_type(representation: TrivialRepresentationV1) -> MirType
         TrivialRepresentationV1::InlineI64 => MirType::Integer,
         TrivialRepresentationV1::InlineBool => MirType::Bool,
         TrivialRepresentationV1::InlineF64 => MirType::Float,
+        TrivialRepresentationV1::NullSentinel => MirType::Void,
     }
 }
 

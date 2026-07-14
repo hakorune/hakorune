@@ -93,8 +93,8 @@ impl VerifiedLocatedIfControlV1 {
 
 /// Owned exact row handed to one canonical If materializer.
 ///
-/// It contains control identity and source coverage only. Binding effects,
-/// ValueIds, BasicBlockIds, and PHI placement remain outside this product.
+/// It contains control identity and source coverage only. Binding effects and
+/// MIR value/block materialization remain outside this product.
 #[derive(Debug)]
 pub(crate) struct ResolvedIfControlMaterializationV1 {
     site: SourceStmtSiteV1,

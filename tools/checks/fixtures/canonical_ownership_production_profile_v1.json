@@ -95,14 +95,24 @@
       "reason": "BorrowedText has no closed CopyOwned or scope-escape law in the first slice"
     },
     {
-      "id": "origin.literal.void_null",
-      "origin": "Void or Null literal",
-      "current_path": "src/mir/builder/resolved_lowering/lowerer.rs",
-      "anchors": ["LiteralValue::Void | LiteralValue::Null", "MirType::Void"],
+      "id": "origin.literal.void",
+      "origin": "Void literal",
+      "current_path": "src/mir/resolved_value_profile/operator.rs",
+      "anchors": ["LiteralValue::Void => Err(TrivialLiteralProfileStopV1::Void)"],
       "current_status": "accepted_nonowning_opaque",
       "profile": "typed_preflight_reject",
-      "storage_authority": "void_or_null",
-      "reason": "Void and Null are outside the first exact trivial and BoxRef ownership profile"
+      "storage_authority": "void_disposition_pending",
+      "reason": "source Void value remains separate from no-value completion and NullSentinel"
+    },
+    {
+      "id": "origin.literal.null",
+      "origin": "Null literal",
+      "current_path": "src/mir/resolved_value_profile/operator.rs",
+      "anchors": ["LiteralValue::Null => Ok(TrivialRepresentationV1::NullSentinel)"],
+      "current_status": "accepted_exact",
+      "profile": "trivial_exact",
+      "storage_authority": "literal_shape_null_sentinel",
+      "reason": "exact source Null uses the existing MIR/runtime no-value representation without ownership"
     },
     {
       "id": "origin.phi",
