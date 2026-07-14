@@ -1,8 +1,8 @@
 ---
-Status: Active — P0 exact typed parameter ABI selection design stop
+Status: Active — P0a static exact-i64 parameter implementation next
 Date: 2026-07-15
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-V0A-EXPLICIT-VOID-VALUE-IMPLEMENTATION-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0A-STATIC-EXACT-I64-PARAMETER-IMPLEMENTATION-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -1367,6 +1367,29 @@ V0a is closed with 13/13 profile fixtures, 3/3 focused VM/reference fixtures,
 rows, ownership operations zero, release build, authority guard, and quick
 66/66 green.
 
+Selected third row:
+
+```text
+SSA-I1-COMPAT-P0a:
+  non-main static function owner only
+  one or more parameters, all exact source spelling i64
+  reserved formal ValueId %0..%N-1 becomes the Binding SSA entry definition
+  existing exact-numeric final-callee contract and Rust MIR interpreter only
+  typed return / source Call / receiver / Box ownership remain inactive
+```
+
+Selection card:
+`mirbuilder-ssa-i1-compat-static-i64-parameter-selection-2026-07-15.md`.
+
+The strict corpus census found zero current P0a candidates: the seven static
+i64 occurrences under `lang/src` are mixed with untyped or `usize`
+parameters, and all 228 all-i64 static lines under `apps` also have a
+nontrivial typed return. P0a is therefore an ingress/entry-contract proof, not
+a selfhost coverage claim. Implement it as one Refactor Series Mode objective:
+behavior-neutral P0a-L0, disconnected P0a-S0, then atomic P0a-I1 activation.
+Receiver, broader exact numeric types, typed return, and source calls remain
+separate selection rows.
+
 The remaining rows stay separate: exact typed parameters do not include the
 receiver owner family; Void disposition does not imply Outbox identity;
 BorrowedText requires its own lifetime/ABI decision.
@@ -2298,19 +2321,20 @@ state.
 
 ## Immediate next action
 
-Stop at the **P0 exact typed parameter ABI selection boundary**. Before any
-implementation, lock one narrow static-function parameter family and its
-entry contract:
+Implement **SSA-I1-COMPAT-P0a** only, in this order:
 
 ```text
-parameter source/type authority
-reserved entry ValueId seeding
-declared parameter metadata preservation
-accepted exact trivial types
-whole-unit unsupported preflight
-receiver/untyped/Box parameter rejection
+P0a-L0:
+  behavior-neutral exact i64 ABI facade and passive row installer
+
+P0a-S0:
+  disconnected VerifiedTrivialParameterEntryV1 profile and coverage
+
+P0a-I1:
+  whole-owner selection, exact MirParamDecl transport, reserved ValueId seed,
+  existing entry-contract proof, VM/reference execution, backend fail-fast
 ```
 
-Receiver remains a separate owner-family decision and must not be bundled with
-this parameter row. Production behavior remains unchanged until a P0 selection
-card is accepted.
+Activation occurs only in I1. Do not add source Call/MethodCall, typed return,
+receiver, bool/f64/usize expansion, Box ownership, or A+ retry. After I1,
+return to a selection stop before choosing a follow-on row.
