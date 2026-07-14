@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-I1-COMPAT-N0a closed; next compatibility row selection stop
+Status: Active — SSA-I1-COMPAT-V0a ExplicitVoidValue selected; implementation next
 Date: 2026-07-15
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-NEXT-ROW-SELECTION-DESIGN-STOP-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-V0A-EXPLICIT-VOID-VALUE-IMPLEMENTATION-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -1345,6 +1345,20 @@ N0a is closed with 12/12 profile fixtures, 3/3 focused VM/reference fixtures,
 18/18 production-profile inventory rows, ownership operations zero, release
 build, authority guard, and quick 66/66 green.
 
+Selected second row:
+
+```text
+SSA-I1-COMPAT-V0a:
+  exact LiteralValue::Void -> ExplicitVoidValue profile
+  existing ConstValue::Void / MirType::Void / runtime no-value representation
+  local/read/assignment/BlockExpr/homogeneous If/Bool comparison
+  explicit return void remains distinct from return; and implicit completion
+  ownership/call ABI/backend vocabulary delta = 0
+```
+
+Selection card:
+`mirbuilder-ssa-i1-compat-explicit-void-selection-2026-07-15.md`.
+
 The remaining rows stay separate: exact typed parameters do not include the
 receiver owner family; Void disposition does not imply Outbox identity;
 BorrowedText requires its own lifetime/ABI decision.
@@ -2276,16 +2290,19 @@ state.
 
 ## Immediate next action
 
-Stop at **SSA-I1-COMPAT next-row selection**. Select exactly one remaining row
-before another implementation card:
+Implement **SSA-I1-COMPAT-V0a** only. The exact contract and negative boundary
+are fixed in
+`mirbuilder-ssa-i1-compat-explicit-void-selection-2026-07-15.md`.
 
 ```text
-exact typed parameter ABI
-explicit Void value disposition
-Outbox identity after Void is decided
-BorrowedText lifetime / ABI
+production Binding SSA sessions = one admitted trivial route
+production Ownership SSA witness/install/verifier calls = 0
+production ownership opcode callers = 0
+temporary A+ production behavior = unchanged
+Loop production activation = 0
+Outbox / BorrowedText / parameter / receiver activation = 0
 ```
 
+After V0a closes, exact typed parameter ABI is the recommended next row.
 Receiver remains a separate owner-family decision and must not be bundled with
-the parameter row. Production Ownership SSA, Loop activation, and whole-unit
-fallback behavior remain unchanged until a later card explicitly selects them.
+that parameter row.
