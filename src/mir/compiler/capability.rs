@@ -1,6 +1,9 @@
 //! Whole-unit capability proof before the first Builder effect.
 
 use crate::ast::{ASTNode, BinaryOperator};
+use crate::mir::resolved_control_flow::{
+    verify_function_completion_v1, VerifiedFunctionCompletionV1,
+};
 use crate::mir::resolved_region_flow::{
     analyze_resolved_function_flow_v1, VerifiedResolvedFunctionFlowV1,
 };
@@ -18,7 +21,7 @@ use super::source_view::{BodyChildRoleV1, ExprChildRoleV1};
 pub(crate) struct CanonicalFirstFamilyPlanV1<'a> {
     function: ResolvedFunctionLoweringInputV1<'a>,
     flow: VerifiedResolvedFunctionFlowV1,
-    returns_value: bool,
+    completion: VerifiedFunctionCompletionV1,
     block_expr_count: usize,
 }
 
@@ -28,13 +31,13 @@ impl<'a> CanonicalFirstFamilyPlanV1<'a> {
     ) -> (
         ResolvedFunctionLoweringInputV1<'a>,
         VerifiedResolvedFunctionFlowV1,
-        bool,
+        VerifiedFunctionCompletionV1,
         usize,
     ) {
         (
             self.function,
             self.flow,
-            self.returns_value,
+            self.completion,
             self.block_expr_count,
         )
     }
@@ -100,9 +103,13 @@ impl CanonicalLoweringPreflightV1 {
 
         let located_body = function.source().root_body().map_err(source_navigation)?;
         debug_assert_eq!(body.len(), located_body.statements().len());
-        let (returns_value, block_expr_count) =
-            verify_body(function, &located_body, ReturnPolicyV1::FinalOnly)?;
-        let flow = analyze_resolved_function_flow_v1(function).map_err(|error| {
+        let block_expr_count = verify_body(function, &located_body, ReturnPolicyV1::FinalOnly)?;
+        let completion = verify_function_completion_v1(function).map_err(|error| {
+            CanonicalLoweringErrorV1::ResolvedFunctionCompletion {
+                detail: format!("{error:?}"),
+            }
+        })?;
+        let flow = analyze_resolved_function_flow_v1(function, &completion).map_err(|error| {
             CanonicalLoweringErrorV1::ResolvedRegionFlow {
                 detail: format!("{error:?}"),
             }
@@ -111,7 +118,7 @@ impl CanonicalLoweringPreflightV1 {
         Ok(CanonicalFirstFamilyPlanV1 {
             function,
             flow,
-            returns_value,
+            completion,
             block_expr_count,
         })
     }
@@ -127,8 +134,7 @@ fn verify_body(
     input: ResolvedFunctionLoweringInputV1<'_>,
     body: &LocatedBodyV1<'_>,
     return_policy: ReturnPolicyV1,
-) -> Result<(bool, usize), CanonicalLoweringErrorV1> {
-    let mut returns_value = false;
+) -> Result<usize, CanonicalLoweringErrorV1> {
     let mut block_expr_count = 0;
     for index in 0..body.statements().len() {
         let statement = input
@@ -136,12 +142,9 @@ fn verify_body(
             .body_stmt(body, index)
             .map_err(source_navigation)?;
         let is_last = index + 1 == body.statements().len();
-        let (statement_returns, nested_count) =
-            verify_statement(input, &statement, return_policy, is_last)?;
-        returns_value |= statement_returns;
-        block_expr_count += nested_count;
+        block_expr_count += verify_statement(input, &statement, return_policy, is_last)?;
     }
-    Ok((returns_value, block_expr_count))
+    Ok(block_expr_count)
 }
 
 fn verify_statement(
@@ -149,7 +152,7 @@ fn verify_statement(
     statement: &LocatedStmtV1<'_>,
     return_policy: ReturnPolicyV1,
     is_last: bool,
-) -> Result<(bool, usize), CanonicalLoweringErrorV1> {
+) -> Result<usize, CanonicalLoweringErrorV1> {
     let site = format!("{:?}", statement.site());
     match statement.node() {
         ASTNode::Local {
@@ -178,7 +181,7 @@ fn verify_statement(
                     block_expr_count += verify_expression(input, &initial)?;
                 }
             }
-            Ok((false, block_expr_count))
+            Ok(block_expr_count)
         }
         ASTNode::Outbox {
             variables,
@@ -191,7 +194,7 @@ fn verify_statement(
             {
                 return unsupported(site, statement.node(), "outbox_shape_not_closed");
             }
-            Ok((false, 0))
+            Ok(0)
         }
         ASTNode::Assignment { target, .. } => {
             if !matches!(target.as_ref(), ASTNode::Variable { .. }) {
@@ -201,7 +204,7 @@ fn verify_statement(
                 .source()
                 .child_expr_from_stmt(statement, ExprChildRoleV1::AssignmentValue)
                 .map_err(source_navigation)?;
-            Ok((false, verify_expression(input, &value)?))
+            verify_expression(input, &value)
         }
         ASTNode::If { else_body, .. } => {
             let condition = input
@@ -213,17 +216,15 @@ fn verify_statement(
                 .source()
                 .child_body_from_stmt(statement, BodyChildRoleV1::IfThen)
                 .map_err(source_navigation)?;
-            let (_, then_count) = verify_body(input, &then_body, ReturnPolicyV1::Forbidden)?;
-            block_expr_count += then_count;
+            block_expr_count += verify_body(input, &then_body, ReturnPolicyV1::Forbidden)?;
             if else_body.is_some() {
                 let else_body = input
                     .source()
                     .child_body_from_stmt(statement, BodyChildRoleV1::IfElse)
                     .map_err(source_navigation)?;
-                let (_, else_count) = verify_body(input, &else_body, ReturnPolicyV1::Forbidden)?;
-                block_expr_count += else_count;
+                block_expr_count += verify_body(input, &else_body, ReturnPolicyV1::Forbidden)?;
             }
-            Ok((false, block_expr_count))
+            Ok(block_expr_count)
         }
         ASTNode::Return { value, .. } => {
             if return_policy == ReturnPolicyV1::Forbidden || !is_last {
@@ -234,9 +235,9 @@ fn verify_statement(
                     .source()
                     .child_expr_from_stmt(statement, ExprChildRoleV1::ReturnValue)
                     .map_err(source_navigation)?;
-                return Ok((true, verify_expression(input, &value)?));
+                return verify_expression(input, &value);
             }
-            Ok((false, 0))
+            Ok(0)
         }
         ASTNode::Literal { .. }
         | ASTNode::Variable { .. }
@@ -246,7 +247,7 @@ fn verify_statement(
                 .source()
                 .statement_expression(statement)
                 .map_err(source_navigation)?;
-            Ok((false, verify_expression(input, &expression)?))
+            verify_expression(input, &expression)
         }
         _ => unsupported(site, statement.node(), "statement_not_in_first_family"),
     }
@@ -285,7 +286,7 @@ fn verify_expression(
                 .source()
                 .child_body_from_expr(expression, BodyChildRoleV1::BlockExprPrelude)
                 .map_err(source_navigation)?;
-            let (_, prelude_count) = verify_body(input, &prelude, ReturnPolicyV1::Forbidden)?;
+            let prelude_count = verify_body(input, &prelude, ReturnPolicyV1::Forbidden)?;
             let tail = input
                 .source()
                 .child_expr_from_expr(expression, ExprChildRoleV1::BlockExprTail)

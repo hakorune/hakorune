@@ -93,13 +93,13 @@ fn preflight_owns_nested_if_flow_with_blockexpr_condition_and_optional_else() {
     .unwrap();
 
     let plan = CanonicalLoweringPreflightV1::verify(&unit).unwrap();
-    let (input, flow, returns_value, block_expr_count) = plan.into_parts();
+    let (input, flow, completion, block_expr_count) = plan.into_parts();
     let [outer, inner] = flow.if_flows() else {
         panic!("expected exact outer and nested If rows")
     };
 
     assert_eq!(flow.owner(), input.owner());
-    assert!(!returns_value);
+    assert!(completion.is_implicit_void());
     assert_eq!(block_expr_count, 1);
     assert_eq!(
         outer.site().node().segments(),
@@ -143,6 +143,40 @@ fn preflight_rejects_nonfallthrough_branch_routes() {
     ));
     assert!(matches!(
         CanonicalLoweringPreflightV1::verify(&loop_unit),
+        Err(CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape {
+            reason: "statement_not_in_first_family",
+            ..
+        })
+    ));
+}
+
+#[test]
+fn preflight_preserves_root_return_error_priority_and_rejects_outer_loop() {
+    let nonterminal_return = VerifiedResolvedSourceUnitV1::resolve_function(function(vec![
+        ASTNode::Return {
+            value: Some(Box::new(literal(1))),
+            span: Span::unknown(),
+        },
+        literal(2),
+    ]))
+    .unwrap();
+    let outer_loop =
+        VerifiedResolvedSourceUnitV1::resolve_function(function(vec![ASTNode::Loop {
+            condition: Box::new(literal(1)),
+            body: Vec::new(),
+            span: Span::unknown(),
+        }]))
+        .unwrap();
+
+    assert!(matches!(
+        CanonicalLoweringPreflightV1::verify(&nonterminal_return),
+        Err(CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape {
+            reason: "return_not_allowed_here",
+            ..
+        })
+    ));
+    assert!(matches!(
+        CanonicalLoweringPreflightV1::verify(&outer_loop),
         Err(CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape {
             reason: "statement_not_in_first_family",
             ..

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# D′ B0-L4-S2′ generic exact-source coverage. This helper owns the new
-# carrier-free module manifest so the bounded public authority guard stays flat.
+# D′ pre-Builder control-only products. This helper owns the bounded module
+# manifest so exact source coverage and completion transport cannot drift.
 
 guard_resolved_control_flow_contract() {
   local tag="$1"
@@ -9,11 +9,17 @@ guard_resolved_control_flow_contract() {
   local flow="$root/src/mir/resolved_control_flow"
   local compiler="$root/src/mir/compiler"
   local coverage="$flow/source_coverage.rs"
+  local completion="$flow/function_control.rs"
+  local cleanup="$flow/cleanup.rs"
+  local lowering="$root/src/mir/builder/resolved_lowering"
   local helper="${BASH_SOURCE[0]}"
   local authority_guard="$root/tools/checks/resolved_region_flow_authority_guard.sh"
 
   guard_require_files "$tag" \
     "$flow/README.md" \
+    "$cleanup" \
+    "$completion" \
+    "$flow/function_control_tests.rs" \
     "$flow/mod.rs" \
     "$coverage" \
     "$flow/source_coverage_tests.rs" \
@@ -25,7 +31,7 @@ guard_resolved_control_flow_contract() {
     "$root/src/mir/mod.rs"
 
   local expected_manifest actual_manifest
-  expected_manifest="$(printf '%s\n' README.md mod.rs source_coverage.rs source_coverage_tests.rs)"
+  expected_manifest="$(printf '%s\n' README.md cleanup.rs function_control.rs function_control_tests.rs mod.rs source_coverage.rs source_coverage_tests.rs)"
   actual_manifest="$(find "$flow" -mindepth 1 -maxdepth 1 -printf '%f\n' | LC_ALL=C sort)"
   if [[ "$actual_manifest" != "$expected_manifest" ]]; then
     printf '%s\n' "$actual_manifest" >&2
@@ -117,9 +123,53 @@ if re.search(r"pub(?:\(crate\))?\s+fn verify_located_source_coverage_v1", covera
 for carrier in ("LocatedBodyV1", "LocatedStmtV1", "LocatedExprV1"):
     if carrier not in coverage:
         raise SystemExit(f"owner-branded coverage constructor missing {carrier}")
-if "pub(crate) use" in module or "pub use" in module:
-    raise SystemExit("disconnected coverage module must not re-export its product")
+if "VerifiedLocatedSourceCoverageV1" in module:
+    raise SystemExit("disconnected coverage product must not be re-exported")
 PY
+
+  for spec in \
+    'cleanup.rs:ResolvedCleanupObligationsV1' \
+    'cleanup.rs:explicit_empty' \
+    'function_control.rs:VerifiedFunctionCompletionV1' \
+    'function_control.rs:VerifiedTerminalReturnV1' \
+    'function_control.rs:VerifiedImplicitVoidCompletionV1' \
+    'function_control.rs:unreachable_suffix_count' \
+    'function_control.rs:SourceBodySiteV1' \
+    'function_control.rs:ResolvedControlTransferV1::Return' \
+    'README.md:SSA-E0 function completion'; do
+    local file="${spec%%:*}"
+    local anchor="${spec#*:}"
+    guard_expect_fixed_in_file "$tag" "$anchor" "$flow/$file" \
+      "D′ SSA-E0 completion contract drifted: $file:$anchor"
+  done
+  for spec in \
+    'completion_consumption.rs:ReadyFunctionCompletionV1' \
+    'completion_consumption.rs:claim_explicit_return' \
+    'completion_consumption.rs:implicit_body_end()' \
+    'completion_consumption.rs:implicit_body_mismatch' \
+    'completion_consumption.rs:legacy_return_state_active' \
+    'completion_consumption.rs:finalize_ready_function_completion' \
+    'lowerer.rs:canonical_completion/body_length_overflow' \
+    'mod.rs:finalize_ready_function_completion(builder, ready)'; do
+    local file="${spec%%:*}"
+    local anchor="${spec#*:}"
+    guard_expect_fixed_in_file "$tag" "$anchor" "$lowering/$file" \
+      "D′ SSA-E0 completion consumption drifted: $file:$anchor"
+  done
+  if rg -n 'ValueId|BasicBlockId|MirBuilder|BindingRefV1|may_rebind|carrier|\bPHI\b' \
+    "$completion" "$cleanup"; then
+    guard_fail "$tag" "D′ SSA-E0 pre-Builder completion crossed the materialization/effect boundary"
+  fi
+  if rg -n 'BodyReturnPolicyV1|RootFinalOnly|allow_return' \
+    "$root/src/mir/resolved_region_flow/analyzer.rs"; then
+    guard_fail "$tag" "D′ SSA-E0 RegionFlow retained a duplicate Return policy"
+  fi
+  if rg -n 'emit_return_from_value' "$lowering/lowerer.rs"; then
+    guard_fail "$tag" "D′ SSA-E0 canonical Return reached the legacy defer-capable emitter"
+  fi
+  if rg -n 'returns_value:\s*bool' "$compiler/capability.rs"; then
+    guard_fail "$tag" "D′ SSA-E0 raw returns_value plan authority returned"
+  fi
 
   local file lines
   for file in \
@@ -129,6 +179,11 @@ PY
     "$compiler/source_view_tests.rs" \
     "$coverage" \
     "$flow/source_coverage_tests.rs" \
+    "$cleanup" \
+    "$completion" \
+    "$flow/function_control_tests.rs" \
+    "$lowering/completion_consumption.rs" \
+    "$lowering/completion_tests.rs" \
     "$helper"; do
     lines="$(wc -l < "$file" | tr -d '[:space:]')"
     if (( lines >= 800 )); then
@@ -144,6 +199,10 @@ PY
     mir::compiler::source_view_tests
   cargo test -q --manifest-path "$root/Cargo.toml" --lib \
     mir::resolved_control_flow::source_coverage_tests
+  cargo test -q --manifest-path "$root/Cargo.toml" --lib \
+    mir::resolved_control_flow::function_control_tests
+  cargo test -q --manifest-path "$root/Cargo.toml" --lib \
+    mir::builder::resolved_lowering::completion_tests
 
   echo "resolved_control_flow_s2prime_range=owner-body-start-nonzero-count"
   echo "resolved_control_flow_s2prime_site_identity=located-carriers-only"
@@ -151,4 +210,7 @@ PY
   echo "resolved_control_flow_s2prime_effect_rows=0"
   echo "resolved_control_flow_s2prime_production_consumers=0"
   echo "resolved_control_flow_s2prime_runtime_activation=0"
+  echo "resolved_control_flow_ssa_e0_exact_completion=explicit-or-implicit"
+  echo "resolved_control_flow_ssa_e0_cleanup=explicit-empty-only"
+  echo "resolved_control_flow_ssa_e0_grammar_delta=0"
 }

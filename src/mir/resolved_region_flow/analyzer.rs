@@ -4,8 +4,10 @@ use crate::ast::{ASTNode, BinaryOperator};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::located::{LocatedBodyV1, LocatedExprV1, LocatedStmtV1};
 use crate::mir::compiler::source_view::{BodyChildRoleV1, ExprChildRoleV1};
+use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, ResolvedAssignmentTargetV1, ScopeId, SourceExprSiteV1,
+    SourceStmtSiteV1,
 };
 
 use super::coverage::IfFlowCoverageDraftV1;
@@ -20,6 +22,10 @@ pub(crate) enum ResolvedRegionFlowErrorV1 {
         input: FunctionOwnerIdV1,
         source: FunctionOwnerIdV1,
         function: FunctionOwnerIdV1,
+    },
+    CompletionOwnerMismatch {
+        input: FunctionOwnerIdV1,
+        completion: FunctionOwnerIdV1,
     },
     SourceNavigation {
         detail: String,
@@ -48,8 +54,9 @@ impl From<ResolvedRegionFlowVerificationErrorV1> for ResolvedRegionFlowErrorV1 {
 
 pub(crate) fn analyze_resolved_function_flow_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
+    completion: &VerifiedFunctionCompletionV1,
 ) -> Result<VerifiedResolvedFunctionFlowV1, ResolvedRegionFlowErrorV1> {
-    AnalyzerV1::new(input)?.analyze()
+    AnalyzerV1::new(input, completion)?.analyze()
 }
 
 #[derive(Debug, Default)]
@@ -58,20 +65,16 @@ struct AnalysisSummaryV1 {
     direct_assignments: Vec<SourceExprSiteV1>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum BodyReturnPolicyV1 {
-    RootFinalOnly,
-    Forbidden,
-}
-
 struct AnalyzerV1<'source> {
     input: ResolvedFunctionLoweringInputV1<'source>,
     draft: ResolvedFunctionFlowDraftV1,
+    authorized_return_site: Option<SourceStmtSiteV1>,
 }
 
 impl<'source> AnalyzerV1<'source> {
     fn new(
         input: ResolvedFunctionLoweringInputV1<'source>,
+        completion: &VerifiedFunctionCompletionV1,
     ) -> Result<Self, ResolvedRegionFlowErrorV1> {
         let owner = input.owner();
         let source = input.source().owner();
@@ -83,15 +86,22 @@ impl<'source> AnalyzerV1<'source> {
                 function,
             });
         }
+        if completion.owner() != owner {
+            return Err(ResolvedRegionFlowErrorV1::CompletionOwnerMismatch {
+                input: owner,
+                completion: completion.owner(),
+            });
+        }
         Ok(Self {
             input,
             draft: ResolvedFunctionFlowDraftV1::new(owner),
+            authorized_return_site: completion.explicit_site().cloned(),
         })
     }
 
     fn analyze(mut self) -> Result<VerifiedResolvedFunctionFlowV1, ResolvedRegionFlowErrorV1> {
         let body = self.input.source().root_body().map_err(source_navigation)?;
-        let summary = self.analyze_body(&body, BodyReturnPolicyV1::RootFinalOnly)?;
+        let summary = self.analyze_body(&body)?;
         for site in summary.direct_assignments {
             self.draft.coverage_mut().record_direct(site);
         }
@@ -101,7 +111,6 @@ impl<'source> AnalyzerV1<'source> {
     fn analyze_body(
         &mut self,
         body: &LocatedBodyV1<'source>,
-        return_policy: BodyReturnPolicyV1,
     ) -> Result<AnalysisSummaryV1, ResolvedRegionFlowErrorV1> {
         let mut summary = AnalysisSummaryV1::default();
         for index in 0..body.statements().len() {
@@ -110,9 +119,7 @@ impl<'source> AnalyzerV1<'source> {
                 .source()
                 .body_stmt(body, index)
                 .map_err(source_navigation)?;
-            let allow_return = return_policy == BodyReturnPolicyV1::RootFinalOnly
-                && index + 1 == body.statements().len();
-            summary.merge(self.analyze_statement(&statement, allow_return)?);
+            summary.merge(self.analyze_statement(&statement)?);
         }
         Ok(summary)
     }
@@ -120,7 +127,6 @@ impl<'source> AnalyzerV1<'source> {
     fn analyze_statement(
         &mut self,
         statement: &LocatedStmtV1<'source>,
-        allow_return: bool,
     ) -> Result<AnalysisSummaryV1, ResolvedRegionFlowErrorV1> {
         match statement.node() {
             ASTNode::Local {
@@ -169,7 +175,7 @@ impl<'source> AnalyzerV1<'source> {
             ASTNode::Assignment { .. } => self.analyze_assignment(statement),
             ASTNode::If { .. } => self.analyze_if(statement),
             ASTNode::Return { value, .. } => {
-                if !allow_return {
+                if self.authorized_return_site.as_ref() != Some(statement.site()) {
                     return Err(self.unsupported_statement(
                         statement,
                         "return_not_fallthrough_or_not_root_final",
@@ -241,7 +247,7 @@ impl<'source> AnalyzerV1<'source> {
                     .source()
                     .child_expr_from_expr(expression, ExprChildRoleV1::BlockExprTail)
                     .map_err(source_navigation)?;
-                let mut summary = self.analyze_body(&prelude, BodyReturnPolicyV1::Forbidden)?;
+                let mut summary = self.analyze_body(&prelude)?;
                 summary.merge(self.analyze_expression(&tail)?);
                 summary.effects =
                     self.effects_visible_outside_scope(summary.effects, pair.scope())?;
@@ -318,7 +324,7 @@ impl<'source> AnalyzerV1<'source> {
             .source()
             .child_body_from_stmt(statement, BodyChildRoleV1::IfThen)
             .map_err(source_navigation)?;
-        let then_summary = self.analyze_body(&then_body, BodyReturnPolicyV1::Forbidden)?;
+        let then_summary = self.analyze_body(&then_body)?;
 
         let else_summary = if else_body.is_some() {
             let else_body = self
@@ -326,7 +332,7 @@ impl<'source> AnalyzerV1<'source> {
                 .source()
                 .child_body_from_stmt(statement, BodyChildRoleV1::IfElse)
                 .map_err(source_navigation)?;
-            Some(self.analyze_body(&else_body, BodyReturnPolicyV1::Forbidden)?)
+            Some(self.analyze_body(&else_body)?)
         } else {
             None
         };

@@ -6,6 +6,7 @@
 
 mod branch_transaction;
 pub(in crate::mir::builder) mod canonical_cfg;
+mod completion_consumption;
 mod flow_consumption;
 mod identity;
 mod if_materialization;
@@ -15,6 +16,8 @@ mod semantic_stack;
 
 #[cfg(test)]
 mod block_expr_tests;
+#[cfg(test)]
+mod completion_tests;
 #[cfg(test)]
 mod flow_consumption_tests;
 #[cfg(test)]
@@ -34,6 +37,7 @@ use crate::mir::MirModule;
 
 use super::calls::CanonicalFunctionSessionErrorV1;
 use super::MirBuilder;
+use completion_consumption::finalize_ready_function_completion;
 use lowerer::CanonicalFunctionLowererV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -64,7 +68,7 @@ impl MirBuilder {
         &mut self,
         plan: CanonicalFirstFamilyPlanV1<'_>,
     ) -> Result<MirModule, CanonicalResolvedBuildErrorV1> {
-        let (input, flow, returns_value, block_expr_count) = plan.into_parts();
+        let (input, flow, completion, block_expr_count) = plan.into_parts();
         self.prepare_module()?;
         let crate::ast::ASTNode::FunctionDeclaration {
             name,
@@ -97,8 +101,15 @@ impl MirBuilder {
             builder.set_current_function_runes(attrs);
             builder.set_current_function_declared_capability_uses(uses);
 
-            CanonicalFunctionLowererV1::new(builder, input, flow, block_expr_count)?.lower()?;
-            builder.finalize_function_draft(returns_value)
+            let ready = CanonicalFunctionLowererV1::new(
+                builder,
+                input,
+                flow,
+                completion,
+                block_expr_count,
+            )?
+            .lower()?;
+            finalize_ready_function_completion(builder, ready)
         })?;
 
         let entry_result = crate::mir::builder::emission::constant::emit_void(self)?;

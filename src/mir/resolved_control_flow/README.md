@@ -42,3 +42,22 @@ S2′ proves owner closure, exact checked range transport, nonempty ordered
 claims, and duplicate rejection. Exact Loop/If subtree completeness remains a
 later family-product obligation. Planner, Builder, Lower, and runtime
 activation remain disconnected.
+
+## SSA-E0 function completion
+
+`function_control.rs` seals the two already-accepted function completion
+forms before Builder effects:
+
+- one exact function-root terminal `Return`; or
+- implicit Void fallthrough.
+
+The explicit form carries its exact statement site, exact function-region
+target, zero unreachable suffix, and an explicit ordered cleanup contract.
+The E0 cleanup set is empty by design; nested exits remain rejected by the
+existing capability boundary. `cleanup.rs` owns only the ordered crossed-scope
+vocabulary and no runtime cleanup or value state.
+
+Production Lower consumes the explicit site and target exactly once. Implicit
+completion remains a separate variant and is finalized only after the
+canonical function Lower session has finished. This slice adds no Return
+shape, nested exit, `ValueId`, `BasicBlockId`, or Binding SSA connection.

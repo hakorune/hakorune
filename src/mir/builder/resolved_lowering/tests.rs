@@ -157,7 +157,7 @@ fn duplicate_exact_declaration_materialization_is_rejected() {
 fn function_error_discards_unpublished_canonical_draft() {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(fixture()).unwrap();
     let plan = CanonicalLoweringPreflightV1::verify(&unit).unwrap();
-    let (input, _flow, _returns_value, _block_expr_count) = plan.into_parts();
+    let (input, _flow, _completion, _block_expr_count) = plan.into_parts();
 
     let mut missing_authority = MirBuilder::new();
     missing_authority.prepare_module().unwrap();

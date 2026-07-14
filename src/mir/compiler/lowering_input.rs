@@ -167,6 +167,9 @@ pub enum CanonicalLoweringErrorV1 {
     ResolvedRegionFlow {
         detail: String,
     },
+    ResolvedFunctionCompletion {
+        detail: String,
+    },
     MirVerificationFailed {
         errors: Box<[String]>,
     },
@@ -223,6 +226,10 @@ impl fmt::Display for CanonicalLoweringErrorV1 {
             Self::ResolvedRegionFlow { detail } => write!(
                 formatter,
                 "[freeze:contract][canonical_lowering/resolved_region_flow] detail={detail}"
+            ),
+            Self::ResolvedFunctionCompletion { detail } => write!(
+                formatter,
+                "[freeze:contract][canonical_lowering/resolved_function_completion] detail={detail}"
             ),
             Self::MirVerificationFailed { errors } => write!(
                 formatter,

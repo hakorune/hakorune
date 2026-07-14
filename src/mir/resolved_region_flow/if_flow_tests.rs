@@ -1,8 +1,9 @@
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
+use crate::mir::resolved_control_flow::verify_function_completion_v1;
 use crate::mir::resolved_semantics::{SourcePathSegmentV1, SourcePathV1};
 
-use super::analyzer::{analyze_resolved_function_flow_v1, ResolvedRegionFlowErrorV1};
+use super::analyzer::analyze_resolved_function_flow_v1;
 use super::coverage::IfFlowCoverageDraftV1;
 use super::if_flow::{
     ResolvedFunctionFlowDraftV1, ResolvedIfFlowDraftV1, VerifiedResolvedFunctionFlowV1,
@@ -73,7 +74,9 @@ fn function(body: Vec<ASTNode>) -> ASTNode {
 /// The returned product outlives every borrowed source carrier in this helper.
 fn analyze_owned(body: Vec<ASTNode>) -> VerifiedResolvedFunctionFlowV1 {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(body)).unwrap();
-    analyze_resolved_function_flow_v1(unit.root_function_input().unwrap()).unwrap()
+    let input = unit.root_function_input().unwrap();
+    let completion = verify_function_completion_v1(input).unwrap();
+    analyze_resolved_function_flow_v1(input, &completion).unwrap()
 }
 
 fn branch(rebind: bool, value: i64) -> Vec<ASTNode> {
@@ -295,20 +298,15 @@ fn missing_and_duplicate_assignment_coverage_publish_no_product() {
 }
 
 #[test]
-fn unsupported_branch_exit_returns_error_without_partial_product() {
-    let ast = function(vec![if_stmt(
-        literal(1),
-        vec![ASTNode::Return {
-            value: Some(Box::new(literal(1))),
-            span: Span::unknown(),
-        }],
-        None,
-    )]);
+fn root_terminal_return_is_authorized_by_the_completion_product() {
+    let ast = function(vec![ASTNode::Return {
+        value: Some(Box::new(literal(1))),
+        span: Span::unknown(),
+    }]);
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(ast).unwrap();
-    let result = analyze_resolved_function_flow_v1(unit.root_function_input().unwrap());
+    let input = unit.root_function_input().unwrap();
+    let completion = verify_function_completion_v1(input).unwrap();
+    let result = analyze_resolved_function_flow_v1(input, &completion).unwrap();
 
-    assert!(matches!(
-        result,
-        Err(ResolvedRegionFlowErrorV1::UnsupportedStatement { .. })
-    ));
+    assert!(result.if_flows().is_empty());
 }

@@ -4,7 +4,13 @@
 
 #![allow(dead_code)]
 
+mod cleanup;
+mod function_control;
 mod source_coverage;
 
 #[cfg(test)]
+mod function_control_tests;
+#[cfg(test)]
 mod source_coverage_tests;
+
+pub(crate) use function_control::{verify_function_completion_v1, VerifiedFunctionCompletionV1};

@@ -41,8 +41,8 @@ row cannot disappear merely by deleting it from the data file.
 | --- | ---: |
 | move to Binding SSA | 21 |
 | control-only retain | 28 |
-| legacy isolate | 24 |
-| caller-zero delete | 19 |
+| legacy isolate | 25 |
+| caller-zero delete | 18 |
 
 Production behavior and accepted grammar change are both zero.
 

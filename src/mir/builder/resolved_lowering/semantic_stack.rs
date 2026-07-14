@@ -62,6 +62,10 @@ pub(super) struct ResolvedSemanticStackV1 {
 }
 
 impl ResolvedSemanticStackV1 {
+    pub(super) const fn function_region(&self) -> RegionId {
+        self.root_regions[0]
+    }
+
     pub(super) fn new(
         product: &VerifiedResolvedFunctionV1,
         roots: ResolvedFunctionLoweringRootsV1,

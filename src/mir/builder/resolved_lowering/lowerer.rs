@@ -4,12 +4,17 @@ use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::located::{LocatedBodyV1, LocatedExprV1, LocatedStmtV1};
 use crate::mir::compiler::source_view::{BodyChildRoleV1, ExprChildRoleV1};
+use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_region_flow::VerifiedResolvedFunctionFlowV1;
 use crate::mir::resolved_semantics::{BindingKindV1, ResolvedExitSiteV1, SourceBindingSiteV1};
 use crate::mir::{MirInstruction, MirType, ValueId};
 
 use super::super::MirBuilder;
 use super::branch_transaction::{ResolvedActiveEffectStackV1, ResolvedEffectBindingClassV1};
+use super::completion_consumption::{
+    emit_canonical_explicit_return, ReadyFunctionCompletionV1,
+    ResolvedFunctionCompletionConsumptionV1,
+};
 use super::flow_consumption::ResolvedFlowConsumptionV1;
 use super::identity::ResolvedIdentityStateV1;
 use super::semantic_stack::{ResolvedSemanticExpectedCountsV1, ResolvedSemanticStackV1};
@@ -21,6 +26,7 @@ pub(super) struct CanonicalFunctionLowererV1<'builder, 'source> {
     pub(super) semantics: ResolvedSemanticStackV1,
     pub(super) flow: ResolvedFlowConsumptionV1,
     pub(super) effects: ResolvedActiveEffectStackV1,
+    pub(super) completion: ResolvedFunctionCompletionConsumptionV1,
 }
 
 impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
@@ -28,6 +34,7 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
         builder: &'builder mut MirBuilder,
         input: ResolvedFunctionLoweringInputV1<'source>,
         function_flow: VerifiedResolvedFunctionFlowV1,
+        completion: VerifiedFunctionCompletionV1,
         block_expr_count: usize,
     ) -> Result<Self, String> {
         if !builder
@@ -49,6 +56,7 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
                 flow.expected_if_branch_pairs(),
             ),
         )?;
+        let completion = ResolvedFunctionCompletionConsumptionV1::new(input.owner(), completion)?;
         Ok(Self {
             builder,
             input,
@@ -56,10 +64,11 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
             semantics,
             flow,
             effects: ResolvedActiveEffectStackV1::new(),
+            completion,
         })
     }
 
-    pub(super) fn lower(mut self) -> Result<(), String> {
+    pub(super) fn lower(mut self) -> Result<ReadyFunctionCompletionV1, String> {
         self.publish_parameters()?;
         let body = self
             .input
@@ -75,7 +84,12 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
         self.identity.finish()?;
         self.builder
             .resolved_binding_state
-            .finish(self.input.owner())
+            .finish(self.input.owner())?;
+        let body_end = u32::try_from(body.statements().len()).map_err(|_| {
+            "[freeze:contract][canonical_completion/body_length_overflow]".to_string()
+        })?;
+        self.completion
+            .finish(body.site(), body_end, self.semantics.function_region())
     }
 
     fn publish_parameters(&mut self) -> Result<(), String> {
@@ -166,12 +180,11 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
                 } else {
                     crate::mir::builder::emission::constant::emit_void(self.builder)?
                 };
+                self.completion
+                    .claim_explicit_return(statement.site(), self.semantics.function_region())?;
                 self.identity
                     .mark_return(ResolvedExitSiteV1::Statement(statement.site().clone()))?;
-                crate::mir::builder::stmts::return_stmt::emit_return_from_value(
-                    self.builder,
-                    return_value,
-                )?;
+                emit_canonical_explicit_return(self.builder, return_value)?;
                 Ok(())
             }
             _ => {

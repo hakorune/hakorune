@@ -460,7 +460,7 @@ capability, lowerer, located = (Path(path).read_text() for path in sys.argv[1:])
 header = re.search(r"#\[derive\((?P<derive>[^)]*)\)\]\s*pub\(crate\) struct CanonicalFirstFamilyPlanV1", capability)
 if header is None or "Copy" in header.group("derive") or "Clone" in header.group("derive"):
     raise SystemExit("canonical plan must remain owned and one-shot")
-if capability.count("analyze_resolved_function_flow_v1(function)") != 1:
+if capability.count("analyze_resolved_function_flow_v1(function, &completion)") != 1:
     raise SystemExit("capability must own exactly one production RegionFlow analysis")
 
 resolve = lowerer.find("resolve_assignment_binding")

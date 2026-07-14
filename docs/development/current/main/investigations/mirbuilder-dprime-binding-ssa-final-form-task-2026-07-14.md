@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-S2 closed; SSA-E0 selected
+Status: Active — SSA-E0 closed; SSA-S3 selected
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-E0-TERMINAL-RETURN-CONTRACT-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-S3-CARRIER-FREE-IF-CONTROL-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -99,6 +99,34 @@ The former A + A2′ plan was internally coherent while RegionFlow owned every
 effect and PHI-source decision. It is superseded because a generic CFG SSA
 baseline would otherwise make RegionFlow and Lower independently decide the
 same PHI domain.
+
+## Dependency DAG
+
+The headings below remain the detailed cards. This graph is the short
+dependency SSOT; optional X0/O0/O1 work is not on the blocking path.
+
+```text
+SSA-E0 -> SSA-S3 -> {SSA-M0, SSA-RC0} -> SSA-I1 -> SSA-R1
+
+SSA-I1 -> Loop-S3′ -> Loop-I1′ -> Loop-I2′
+Loop-I2′ -> {N1, N2, N3} -> N4
+
+{SSA-E0, N4} -> EXIT-S0 -> EXIT-S1 -> EXIT-S2
+{Loop-I2′, EXIT-S2} -> EXIT-I1 / EXIT-I3 / EXIT-I6
+{N1, EXIT-I1, EXIT-I3} -> EXIT-I2 / EXIT-I4
+{SSA-I1, EXIT-S2} -> EXIT-I5
+{EXIT-I1..I6, N4} -> EXIT-I7
+
+SSA-I1 -> F0 -> F1a / F1b / F1c
+capture-cell authority + F0 -> F1d
+{F0, required F1x, RET-I1, RET-I2} -> F2-S0 -> F2-I1
+F2-I1 + canonical caller zero -> RET-R1 -> PUB-F0
+repository-wide caller zero -> RET-R2
+```
+
+Owner-family expansion may proceed independently of Loop/exit expansion when
+its closed grammar does not widen. A source unit still cuts over all-or-
+nothing; parent canonical / child legacy is never permitted.
 
 ## Normative design reference
 
@@ -409,7 +437,7 @@ all resolved_lowering focused fixtures = 50/50 green
 accepted grammar delta = 0
 ```
 
-### SSA-E0 — preserved terminal Return contract
+### SSA-E0 — preserved terminal Return contract — closed
 
 Before the owner cutover, seal only the already accepted function-body
 terminal Return and implicit fallthrough completion cases:
@@ -427,6 +455,26 @@ accepted source grammar delta = 0
 This row preserves existing behavior; it does not authorize a new Return port.
 General Return through If/Loop waits for the later EXIT rows.
 
+Closed evidence:
+
+```text
+explicit root Return seals exact statement site and exact function target
+explicit Value / explicit Void / implicit Void remain distinct forms
+implicit completion seals and consumes exact root body/end/target
+ordered crossed-scope cleanup is explicit and E0-empty-only
+unreachable suffix count = 0
+canonical Return bypasses the legacy defer-capable emitter
+post-Lower ReadyFunctionCompletionV1 is required before finalization
+explicit/implicit MIR Return terminators are exactly once
+root nonterminal and nested If/Loop Return remain preflight rejects
+completion product fixtures = 5/5 green
+production completion fixtures = 6/6 green
+all resolved_lowering focused fixtures = 56/56 green
+92-row seam inventory and authority guard = green
+production Binding SSA callers = 0
+accepted grammar delta = 0
+```
+
 ### SSA-S3 — disconnected carrier-free If control product
 
 Seal the future If-side control contract without changing production:
@@ -436,12 +484,49 @@ exact If/IfThen/optional IfElse topology
 else=None versus else=Some(empty)
 fallthrough-only V1 ports
 inseparable exact source coverage
+one private exact-once coverage-use vocabulary
+missing, duplicate, foreign, and wrong-order claims are typed errors
 typed unsupported control errors
 no effects, may_rebind, join-source rows, ValueId, or BasicBlockId
 ```
 
 The historical A+ product remains the sole production If path until SSA-I1.
 Do not run both analyzers as production authorities for one function.
+
+### SSA-M0 — disconnected real-MIR Binding SSA adapter
+
+Connect the closed SSA-S1 algorithm to real MIR/PHI lifecycle types without a
+production canonical caller:
+
+```text
+BindingSsaIrV1 -> MirBuilder/PhiTxn adapter
+CanonicalCfgSessionV1 VerifiedPredecessorsV1 -> Binding SSA seal
+provisional PHI facts remain conservative unknown while open
+patched inputs trigger only the accepted fact join/refinement
+Return and every other touched block can be sealed by the same facade
+production Binding SSA callers = 0
+accepted grammar delta = 0
+```
+
+This card prevents SSA-I1 from mixing a new physical MIR adapter with the
+whole-owner authority cutover.
+
+### SSA-RC0 — ownership and scope-escape law
+
+Seal the bounded ownership contract before production Binding SSA activation:
+
+```text
+assignment reads old value before installing the new definition
+self-assignment retain/release behavior is explicit
+successful scope exit reads and releases the current reaching value
+BlockExpr tail/current aliases transfer or retain ownership exactly once
+outer-binding and scope-local tail cases remain distinct
+unpublished draft discard emits no duplicate runtime cleanup
+local/parameter/receiver versus Upvar/cell/place storage stays separated
+```
+
+Disconnected fixtures own these laws. This row activates neither Binding SSA
+nor new source grammar and does not claim a general whole-language RC verifier.
 
 ### SSA-I1 — atomic current-owner cutover
 
@@ -465,6 +550,7 @@ after every predecessor is known, and later `read` creates only required PHIs.
 Atomic acceptance:
 
 ```text
+SSA-M0 and SSA-RC0 are closed
 all current canonical If/BlockExpr runtime fixtures green
 all canonical declaration/read/rebind operations use Binding SSA
 then definitions do not leak into else compilation state
@@ -476,6 +562,9 @@ flat value-map merge authority calls = 0
 canonical If may_rebind/join-source queries = 0
 manual branch snapshot/restore = 0
 canonical materialize_all_phi_inputs repair calls = 0
+co-sealed control coverage is consumed exactly once before finish
+coverage finish before candidate function publication
+Return and every touched block seal through the C1 witness
 function verifier green before publication
 canonical failure legacy retry = 0
 ```
@@ -490,6 +579,17 @@ transaction: condition/whole-effect summaries, `may_rebind_outer`, join-source
 rows, and the effect-driven PHI materializer. Temporary isolation is not a
 completion state. Keep exact If topology, source coverage, semantic stacks,
 predecessor checks, and the runtime fixtures.
+
+Also require exact caller/definition zero for:
+
+```text
+PreSsaValueEnvironmentV1
+BranchValueStoreV1 / DefinedJoinValueStoreV1 adapters
+old active-effect stack
+old manual join publication
+old resolved_region_flow value/effect transport shell
+every old-environment / Binding SSA synchronization bridge
+```
 
 Production behavior delta: zero; authority count decreases.
 
@@ -667,6 +767,24 @@ It may hold materialized block roles because it is Lower-owned. It never
 becomes resolver/RegionFlow authority and is discarded with the function
 transaction.
 
+### EXIT-S2 — multi-completion and family-port upgrade
+
+General exits cannot reuse the single root-terminal E0 enum. Before an EXIT-Ix
+activation, co-seal a disconnected product that can represent:
+
+```text
+zero or more explicit exact exits plus optional implicit fallthrough
+If fallthrough / Return reachable port variants
+Loop false / Continue / Break / Return reachable port variants
+family topology + exact cleanup + unreachable disposition as one product
+zero / one / two reachable predecessor contracts without fabricated values
+ValueId / BasicBlockId / materialized target roles = 0
+```
+
+Each EXIT-Ix atomically connects only the needed closed port variant and its
+Lower behavior. Partial bools and independently recombined exit sidecars are
+forbidden.
+
 ### EXIT-I1 — Continue from the current Loop body
 
 Activate one shape: straight-line Continue in the current Loop body, targeting
@@ -763,6 +881,26 @@ Effect ordering, may-rebind sets, carriers, and family PHI lifecycles are not
 extraction candidates. If the three families do not prove a smaller useful
 envelope, keep the family wrappers separate.
 
+### F0 — whole-unit canonical capability closure matrix
+
+Before broad owner expansion or the default route switch, inventory every
+ordinary-source capability against an explicit disposition:
+
+```text
+source owner kind and child-owner worklist closure
+statement / expression / control family
+required resolver, control, cleanup, SSA, RC, and backend capability
+canonical supported
+explicit legacy-only: ProgramV0 / REPL
+separate language or design decision
+typed unsupported before Builder effects
+```
+
+The matrix is exhaustive and guarded. It defines the compatibility threshold
+for ordinary-source cutover; “whatever current preflight accepts” is not a
+self-justifying completion condition. Any missing capability becomes one
+bounded `G1x` row rather than silently widening an F1/F2 commit.
+
 ### F1a — instance method and constructor owner family
 
 Cut over one closed receiver-bearing owner capability set. Receiver,
@@ -787,6 +925,10 @@ Upvar storage authority are independently accepted. Cut over the complete
 parent/child source unit atomically; parent canonical / child legacy is
 forbidden.
 
+F0 must explicitly classify whether F1d is required by the selected F2
+compatibility threshold or remains a typed unsupported capability. It cannot
+silently block the roadmap or be silently omitted from an all-source claim.
+
 Every later function owner family gets its own `F1x` row. REPL and ProgramV0
 remain explicit legacy inputs until their separate lifetime/source-authority
 decisions.
@@ -802,10 +944,17 @@ manual If/Loop carrier classification
 name-keyed final_values
 raw &[ASTNode] + consumed usize source protocol
 route-specific PHI materializers
+PreSsaValueEnvironmentV1 and old join-value adapters
+resolved_region_flow imports/re-exports and effect transport
+canonical materialize_all_phi_inputs repair
+raw canonical Branch/Jump/predecessor mutations
+unchecked canonical add_function paths
+ordinary compile entrypoints that still select BareAst legacy provenance
 ```
 
-Classify callers by canonical source, explicit legacy source, ProgramV0, REPL,
-or dead. This row changes no production behavior.
+Create a new retirement inventory rather than mutating the frozen 92-row SSA-P0
+evidence. Classify callers as canonical source, explicit BareAst legacy,
+ProgramV0, REPL, test-only, or dead. This row changes no production behavior.
 
 ### RET-I1 — canonical legacy-call veto
 
@@ -819,11 +968,35 @@ Confine remaining legacy control routes behind explicit
 `LegacyModuleLoweringInputV1` provenance. Canonical failure never enters this
 boundary.
 
-### F2 — default canonical source route
+### F2-S0 — disconnected default-route producer
 
-Switch the ordinary canonical source frontend only after whole-unit preflight
-proves every owner and control family supported. Failure never retries the
-legacy source route.
+Connect the ordinary source frontend to `VerifiedResolvedSourceUnitV1`, build
+the complete owner worklist, and run whole-unit capability preflight. Route
+selection remains unchanged and production canonical calls do not increase.
+
+### F2-I1 — default canonical source route
+
+Switch the ordinary canonical source frontend atomically only after F0's
+compatibility threshold and whole-unit preflight prove every required owner
+and control family supported. Failure never retries the legacy source route.
+
+### PUB-F0 — typed final publication closure
+
+Close the final external publication protocol after the default route and
+canonical caller-zero retirement boundary:
+
+```text
+only coverage/seal/SSA-complete function witnesses enter the candidate module
+synthetic entry/thunk/stub publication uses the same checked boundary
+canonical materialize_all_phi_inputs repair calls = 0
+optimizer / RC / canonicalize complete before final verification
+MIR mutation after final verification = 0
+CanonicalModuleLoweringSessionV1::commit consumes an unforgeable ready witness
+or is closure-scoped so an unverified commit is unrepresentable
+```
+
+SSA-V0 remains the early fail-fast prerequisite. PUB-F0 is the final temporal
+API proof across every now-supported owner and synthetic function family.
 
 ### RET-R1 — caller-zero manual authority retirement
 
@@ -844,6 +1017,19 @@ REPL, or another explicit legacy input still calls them, keep the isolated
 implementation and claim only that canonical source has zero legacy authority.
 
 ProgramV0 compatibility is never silently promoted or deleted by this series.
+
+### PARK-LEGACY-SUFFIX-001 — independent normalization suffix defect
+
+Keep `LEGACY-NORMALIZATION-SUFFIX-CONSUMED-INDEX-001` outside the D′ authority
+series. Its own bounded task is:
+
+```text
+focused final-Loop suffix reproducer
+0 < consumed <= remaining.len() validation
+explicit continue after suffix advance
+exact-once lowering proof
+separate commit from canonical Loop/SSA work
+```
 
 ### O0 — optional durable RegionId materialization
 
@@ -959,7 +1145,7 @@ Per-block seal order:
 5. incomplete PHIs for the block are patched
 ```
 
-Success publication order after every block seal:
+Success and publication order after every block seal:
 
 ```text
 1. all control coverage consumed
@@ -968,11 +1154,17 @@ Success publication order after every block seal:
 4. every touched block sealed
 5. incomplete PHIs = 0
 6. PhiTxn committed
-7. final post-RC CFG/SSA/dominance/RC/MIR reverify green
-8. resolved authority finished
+7. accepted ownership/ReleaseStrong contract checks green
+8. resolved authority finished and function draft finalized
 9. function session restores caller state
-10. sealed function draft commits to the module
+10. sealed function draft enters the unpublished candidate module
+11. candidate module finalization and RC insertion complete
+12. final CFG/SSA/dominance/accepted-RC/MIR reverify green
+13. canonical module session commits externally
 ```
+
+Step 10 is internal candidate publication, not externally visible commit.
+Verifier failure between steps 10 and 13 discards the candidate module.
 
 ## Guard plan
 
@@ -1009,10 +1201,25 @@ SSA-S3:
 
 SSA-I1 atomic commit:
   replace production If effect/join assertions with Binding SSA/control-only assertions
+  require exactly one function Binding SSA production session
+  require flat value owner and old adapters to have zero production callers
 
 SSA-R1:
   assert exact old symbol and caller counts are zero
   physically remove old effect/join files and their allowlist
+
+Loop-I2′:
+  require canonical CorePlan / LoopRouteContext / raw suffix callers to stay zero
+
+EXIT-Ix:
+  require exact port + cleanup + disposition + target-role consumption
+
+RET-I1/I2 and F2-I1:
+  require canonical legacy imports/calls/retry zero and explicit legacy provenance only
+
+PUB-F0:
+  require two-stage publication witness, canonical repair zero,
+  and zero MIR mutation after final verification
 ```
 
 Common per-code-slice gates:
@@ -1035,16 +1242,25 @@ Add focused unit/runtime commands named by each milestone before committing.
 | SSA-P0/L0/P1/C1 | the inventory, physical split, CFG seal, and PHI cleanup prerequisites are closed; production SSA calls are zero |
 | SSA-V0 | canonical verifier failure and duplicate function publication cannot commit; grammar delta is zero |
 | SSA-S1 | disconnected Binding SSA handles tested CFG shapes; production calls are zero |
+| SSA-S2 | identity and temporary value ownership are separated; production Binding SSA calls remain zero |
 | SSA-E0 | the already accepted terminal Return has an exact preservation contract; grammar delta is zero |
 | SSA-S3 | one carrier-free If control product is sealed; production If still uses A+ |
+| SSA-M0/RC0 | the real-MIR adapter and bounded ownership laws are sealed; production Binding SSA calls remain zero |
 | SSA-I1 | the current closed canonical owner has one BindingRef value/PHI authority |
+| SSA-R1 | old canonical If value authority and the temporary flat environment are caller-zero; explicit legacy mechanisms may remain |
 | S3′ | one carrier-free Loop control contract is sealed; Builder connection is zero |
+| I1′ | one disconnected Loop CFG transaction exists; production Loop activation is zero |
 | I2′ | the first closed canonical Loop uses exact control plus generic Binding SSA |
 | N1/N2/N3 | the selected single nesting shape uses one function SSA authority |
 | N4 | the supported If/Loop grammar has bounded depth-independent nesting evidence |
 | EXIT-I1-I6 | the selected single Continue/Break/Return source shape is production-supported |
 | EXIT-I7 | accepted nested exit cleanup and predecessor closure are proven without a new shape |
-| F2 | every preflight-supported canonical source owner uses the no-retry SSA route |
+| EXIT-S0/S1/S2 | exit semantics, Lower roles, and multi-port contracts are sealed; new exit runtime activation is zero |
+| F1x | only the selected closed owner family is cut over atomically |
+| RET-I1/I2 | canonical legacy calls are zero and remaining explicit legacy provenance is isolated |
+| F2-I1 | F0-required ordinary canonical source owners use the no-retry SSA route |
+| RET-R1/R2 | only repository-wide caller-zero mechanisms are physically removed |
+| PUB-F0 | every supported canonical and synthetic function crosses one typed final publication barrier |
 
 ## Must not claim
 
@@ -1060,6 +1276,10 @@ REPL owner lifetime completion
 Hako Lower parity
 current CorePlan retirement before its final callers close
 post-MIR recurrence authority without a production consumer
+ordinary-source compatibility before F0 and F2-I1 close
+ownership correctness beyond the bounded SSA-RC0/I1 contract
+global legacy deletion from canonical caller-zero evidence alone
+narrow preflight acceptance as proof of ordinary-source compatibility
 ```
 
 ## Stop conditions
@@ -1109,6 +1329,7 @@ old canonical effect/carrier/manual-PHI callers are zero
 remaining legacy mechanisms are isolated behind LegacyModuleLoweringInputV1
 repository-wide physical deletion occurs only after global caller zero
 function publication is gated by exact coverage, seal, SSA, CFG, RC, and MIR verification
+F0's whole-unit capability matrix and compatibility threshold are closed
 optimizer loop facts are derived from completed MIR only when consumed
 ```
 
@@ -1118,14 +1339,14 @@ of this final form.
 
 ## Immediate next action
 
-Close SSA-E0 only:
+Close SSA-S3 only:
 
 ```text
-seal the already accepted root-terminal Return and implicit fallthrough forms
-consume the exact function target and exact terminal source site
-represent ordered crossed-scope cleanup obligations explicitly, including empty
-fix unreachable suffix count at zero for this preserved grammar
-keep nested If/Loop Return activation at zero
+seal exact If/IfThen/optional IfElse control-only topology and coverage
+represent else=None and else=Some(empty) distinctly
+keep fallthrough-only typed V1 ports
+add no effect, may_rebind, join-source, ValueId, or BasicBlockId rows
+keep historical A+ as the sole production If authority
 keep Binding SSA production callers at zero
-preserve accepted grammar and runtime behavior
+keep accepted grammar and production behavior unchanged
 ```
