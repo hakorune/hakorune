@@ -300,6 +300,12 @@ class PyVM:
                     i += 1
                     continue
 
+                if op in ("copy_owned", "destroy_owned"):
+                    raise RuntimeError(
+                        "[freeze:contract][pyvm/ownership:missing_capability] "
+                        f"op={op} requires owned-value-lifecycle-v1"
+                    )
+
                 if op == "field_get":
                     recv = self._read(regs, inst.get("box"))
                     field = str(inst.get("field") or "")
@@ -354,7 +360,7 @@ class PyVM:
                     i += 1
                     continue
 
-                # Unhandled op -> skip
+                # Legacy unknown operations remain outside the A1c ownership boundary.
                 i += 1
 
             else:

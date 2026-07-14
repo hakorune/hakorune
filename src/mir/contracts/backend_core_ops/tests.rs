@@ -288,7 +288,7 @@ fn instruction_diet_ledger_counts_match_ssot() {
 }
 
 #[test]
-fn ownership_ssa_vocabulary_has_only_rust_interpreter_handler_support() {
+fn ownership_ssa_vocabulary_has_rust_and_exact_llvm_py_handler_support() {
     let copy = MirInstruction::CopyOwned {
         dst: ValueId::new(2),
         src: ValueId::new(1),
@@ -308,9 +308,9 @@ fn ownership_ssa_vocabulary_has_only_rust_interpreter_handler_support() {
         );
         assert!(is_supported_mir_json_instruction(&instruction));
         assert!(is_supported_vm_instruction(&instruction));
-        assert_eq!(llvm_json_ops_for_instruction(&instruction), &[] as &[&str]);
-        assert!(MIR_JSON_TRANSPORT_ONLY_OPS.contains(&op));
-        assert!(!is_supported_llvm_json_op(op));
+        assert_eq!(llvm_json_ops_for_instruction(&instruction), &[op]);
+        assert!(!MIR_JSON_TRANSPORT_ONLY_OPS.contains(&op));
+        assert!(is_supported_llvm_json_op(op));
     }
 }
 

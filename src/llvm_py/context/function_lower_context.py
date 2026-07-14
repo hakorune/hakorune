@@ -146,6 +146,9 @@ class FunctionLowerContext:
         # Emitted once per function when NYASH_LLVM_HOT_TRACE=1.
         self.hot_trace_counts: Dict[str, int] = {}
 
+        # Installed only after exact A1c ownership metadata preflight.
+        self.ownership_ssa_v1: Any = None
+
     def get_block_snapshot(self, block_id: int) -> Dict[int, ir.Value]:
         """Get end-of-block value snapshot for a block.
 

@@ -27,6 +27,7 @@ from instructions.controlflow.while_ import lower_while_regular
 from instructions.mir_call import lower_mir_call  # New unified handler
 from instructions.weak import lower_weak_new, lower_weak_load  # Phase 285LLVM-1: WeakRef
 from instructions.lifecycle import lower_keepalive, lower_release_strong  # Phase 287: Lifecycle
+from instructions.ownership import lower_copy_owned, lower_destroy_owned
 from instructions.memop import lower_memop
 
 _SAFE_INSTRUCTION_LOWER_EXC = (AttributeError, KeyError, RuntimeError, TypeError, ValueError)
@@ -36,6 +37,8 @@ SUPPORTED_OPS = {
     "binop",
     "jump",
     "copy",
+    "copy_owned",
+    "destroy_owned",
     "field_get",
     "field_set",
     "branch",
@@ -105,6 +108,12 @@ def lower_instruction(owner, builder: ir.IRBuilder, inst: Dict[str, Any], func: 
         dst = inst.get("dst")
         src = inst.get("src")
         lower_copy(builder, dst, src, vmap_ctx, ctx.resolver, builder.block, ctx.preds, ctx.block_end_values, ctx.bb_map, ctx.lower_ctx)
+
+    elif op == "copy_owned":
+        lower_copy_owned(owner, builder, inst)
+
+    elif op == "destroy_owned":
+        lower_destroy_owned(owner, builder, inst)
 
     elif op == "field_get":
         lower_field_get(

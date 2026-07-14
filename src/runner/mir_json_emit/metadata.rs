@@ -10,6 +10,7 @@ use super::metadata_seed::{
     build_substring_views_micro_seed_route_json, build_sum_variant_project_seed_route_json,
     build_sum_variant_tag_seed_route_json, build_userbox_local_scalar_seed_route_json,
 };
+use super::ownership_ssa::build_ownership_ssa_json;
 use super::parameter_contracts::insert_parameter_contract_metadata_json;
 use super::placement_effect::build_placement_effect_routes_json;
 use super::plan_metadata::insert_plan_metadata_json;
@@ -468,6 +469,9 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
             &metadata.placement_effect_routes,
         ),
     });
+    if let Some(ownership) = build_ownership_ssa_json(f) {
+        metadata_json["ownership_ssa_v1"] = ownership;
+    }
     if let serde_json::Value::Object(obj) = &mut metadata_json {
         insert_core_metadata_json(obj, metadata);
         insert_array_metadata_json(obj, metadata);

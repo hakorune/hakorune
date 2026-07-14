@@ -25,6 +25,7 @@ from .loopform import LoopFormContext, lower_while_loopform
 
 # Phase 287: Lifecycle management
 from .lifecycle import lower_keepalive, lower_release_strong
+from .ownership import lower_copy_owned, lower_destroy_owned
 
 __all__ = [
     'lower_const', 'lower_binop', 'lower_compare',
@@ -33,5 +34,6 @@ __all__ = [
     'lower_externcall', 'lower_typeop', 'lower_safepoint',
     'lower_barrier', 'lower_newbox',
     'LoopFormContext', 'lower_while_loopform',
-    'lower_keepalive', 'lower_release_strong'
+    'lower_keepalive', 'lower_release_strong',
+    'lower_copy_owned', 'lower_destroy_owned'
 ]

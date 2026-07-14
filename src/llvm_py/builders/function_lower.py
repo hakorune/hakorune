@@ -39,6 +39,7 @@ from phi_wiring import (
 )
 from context import FunctionLowerContext
 from phi_manager import PhiManager
+from ownership_lowering import verify_ownership_lowering_v1
 
 
 
@@ -99,6 +100,10 @@ def lower_function(builder, func_data: Dict[str, Any]):
     params = func_data.get("params", [])
     blocks = func_data.get("blocks", [])
 
+    # Ownership effects require a complete exact witness before any function-
+    # local builder state or LLVM IR is created.
+    ownership_ssa_v1 = verify_ownership_lowering_v1(func_data)
+
     # Determine function signature
     func_ty = _build_function_type(builder, name, params)
 
@@ -108,6 +113,8 @@ def lower_function(builder, func_data: Dict[str, Any]):
     # Phase 132-P1: Create function-local context Box
     # This automatically isolates all function-scoped state
     context = _create_function_context(builder, name)
+
+    context.ownership_ssa_v1 = ownership_ssa_v1
 
     # Phase 131-15-P1: Load value_types metadata from JSON into resolver
     _load_value_types_metadata(builder, func_data)
@@ -192,6 +199,8 @@ def lower_function(builder, func_data: Dict[str, Any]):
     # Finalize PHIs, lower deferred terminators, verify PHI ordering,
     # then synthesize missing terminators / hot summary as non-fatal tail work.
     _run_finalize_tail(builder, func, block_by_id, context)
+    if context.ownership_ssa_v1 is not None:
+        context.ownership_ssa_v1.finish()
     _merge_ipo_contracts_into_builder(builder, context)
 
 

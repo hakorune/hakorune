@@ -15,6 +15,7 @@ fn enforce_refreshed_mir_backend_supported(
     module: &MirModule,
     backend: &str,
 ) -> Result<(), String> {
+    crate::mir::ownership_backend_capability::enforce(module, backend)?;
     crate::mir::exact_numeric_backend_capability::enforce_exact_numeric_backend_supported(
         module, backend,
     )?;

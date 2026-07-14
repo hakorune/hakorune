@@ -159,7 +159,8 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
         MirInstruction::NewBox { .. } => &["newbox"],
         MirInstruction::TypeOp { .. } => &["typeop"],
         MirInstruction::Copy { .. } => &["copy"],
-        MirInstruction::CopyOwned { .. } | MirInstruction::DestroyOwned { .. } => &[],
+        MirInstruction::CopyOwned { .. } => &["copy_owned"],
+        MirInstruction::DestroyOwned { .. } => &["destroy_owned"],
         MirInstruction::LocalContractWrite { .. } => &[],
         MirInstruction::RecordFieldContractCheck { .. }
         | MirInstruction::RecordValuePublish { .. } => &[],
@@ -199,6 +200,8 @@ pub const LLVM_SUPPORTED_JSON_OPS: &[&str] = &[
     "binop",
     "jump",
     "copy",
+    "copy_owned",
+    "destroy_owned",
     "branch",
     "ret",
     "phi",
@@ -232,8 +235,6 @@ pub const MIR_JSON_TRANSPORT_ONLY_OPS: &[&str] = &[
     "local_contract_write",
     "record_field_contract_check",
     "record_value_publish",
-    "copy_owned",
-    "destroy_owned",
 ];
 
 /// Canonical LLVM JSON opcode allowlist (Python lowerer frontend contract).

@@ -58,6 +58,11 @@ Transition Note
   sealed witnessをconsumeする。Owned Phiは選択edgeのsourceをすべてtakeしてから
   destinationをpublishし、Owned parameter/result/Returnはcloneせずmoveする。
   canonical production callerと他backendのactivationは引き続き0。
+- SSA-RC-A1c: llvmlite object laneだけがRustでsealされたownership witnessを
+  consumeし、exact `BoxRef` handleの`CopyOwned`を`nyrt_handle_retain_h`、
+  `DestroyOwned`を`nyrt_handle_release_h`へmaterializeする。providerは
+  `nyash_kernel`に固定し、PyVM/Wasm/native llvmcなど未証明backendはsilent
+  no-opせずpreflight rejectする。canonical production callerは引き続き0。
 - Phase 163x: canonical variant op lane のため `VariantMake` / `VariantTag` / `VariantProject` を追加（Core profile とは別の kept vocabulary）。
 - MIR-FMEM-002..005: FastMemory dialect vocabulary のため `MemOp` を追加。
   `MemOp` は kept instruction vocabulary。FastMemRegion metadata and

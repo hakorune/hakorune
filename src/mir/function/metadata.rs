@@ -113,6 +113,10 @@ pub struct FunctionMetadata {
     // Phase 25.1: HashMap -> BTreeMap（決定性確保）
     pub value_types: BTreeMap<ValueId, MirType>,
 
+    /// Sealed function-owned lifetime witness. It is installed only by the
+    /// canonical ownership verifier and remains absent before SSA-I1.
+    pub(crate) ownership_ssa_v1: Option<crate::mir::ownership_ssa::VerifiedOwnershipSsaV1>,
+
     /// Optional per-value origin caller map (diagnostic only)
     pub value_origin_callers: BTreeMap<ValueId, String>,
 

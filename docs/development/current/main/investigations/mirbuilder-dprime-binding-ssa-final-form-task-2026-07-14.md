@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-RC-A1c exact llvm_py + nyash_kernel materialization is next
+Status: Active — SSA-RC-RET-P0 legacy ReleaseStrong inventory is next
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-A1C-LLVM-PY-OWNERSHIP-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-RET-P0-LEGACY-RELEASE-INVENTORY-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -1062,6 +1062,32 @@ the PyVM unknown-op skip must not hide either opcode. No backend may lower an
 ownership opcode as a no-op or silently map old `release_strong` JSON to
 `destroy_owned`. Production canonical callers remain zero.
 
+Closed evidence:
+
+```text
+strict transported VerifiedOwnershipSsaV1 preflight = before LLVM effects
+Rust ownership witness transport emitters = 1
+sealed ABI/operation inventory = witness-owned, not emitter-reconstructed
+post-seal CFG/Phi/Return/ownership-op mutation = full-product preflight reject
+llvm_py CopyOwned = nyrt_handle_retain_h fresh result
+llvm_py DestroyOwned = exact nyrt_handle_release_h
+accepted provider = nyash_kernel only
+PyVM ownership unknown-op skip = 0
+unsupported backend capability rejection = explicit
+Python focused fixtures = 4/4 green
+Rust backend preflight fixtures = 3/3 green
+Rust JSON transport fixture = 1/1 green
+backend core-op fixtures = 21/21 green
+nyash_kernel handle lifecycle fixtures = 3/3 green
+canonical production callers = 0
+all touched source/check files <= 672 lines
+release build = green
+dev_gate quick = 66/66 green
+```
+
+Evidence card:
+`mirbuilder-ssa-rc-a1c-llvm-py-ownership-2026-07-14.md`.
+
 #### SSA-RC-RET-P0 — legacy ReleaseStrong inventory and isolation
 
 Create a separate machine ledger for every `ReleaseStrong` producer, consumer,
@@ -2068,15 +2094,16 @@ state.
 
 ## Immediate next action
 
-Implement SSA-RC-A1c only. Keep canonical production ownership callers at zero:
+Implement SSA-RC-RET-P0 only. Keep legacy meaning and canonical production
+ownership callers unchanged:
 
 ```text
-llvm_py object lane consumes strict BoxRef plus sealed ownership witness
-CopyOwned calls nyrt_handle_retain_h and publishes the fresh returned handle
-DestroyOwned calls nyrt_handle_release_h for the exact handle
-nyash_kernel is the only accepted provider in this row
-PyVM/Wasm/Hako VM/native llvmc/archived JIT fail capability preflight
-add no canonical production caller, silent no-op, or legacy opcode remap
-change no accepted grammar or canonical ownership activation
+inventory every ReleaseStrong producer, consumer, transport, pass, fixture, and document
+classify every row by the closed RET-P0 retirement vocabulary
+use a separate machine ledger; do not mutate the historical 92-row SSA seam inventory
+add the private helper beneath resolved_binding_ssa_contract.sh
+grow neither the public authority guard nor accepted grammar
+change no ReleaseStrong semantics, opcode surface, backend behavior, or caller
+record exact caller-zero deletion prerequisites for later RET-R1/RET-R2
 keep every new or modified source/check file below 800 lines
 ```

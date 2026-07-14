@@ -1,8 +1,8 @@
 use super::classify::classify;
 use super::error::OwnershipSsaErrorV1;
 use super::model::{
-    FunctionResultOwnershipV1, MirOwnershipKindV1, OwnershipDispositionV1, OwnershipFunctionAbiV1,
-    VerifiedOwnershipSsaV1,
+    collect_ownership_operations, FunctionResultOwnershipV1, MirOwnershipKindV1,
+    OwnershipDispositionV1, OwnershipFunctionAbiV1, VerifiedOwnershipSsaV1,
 };
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
@@ -69,10 +69,12 @@ pub(super) fn verify(
     }
 
     let dispositions = collect_dispositions(function, &kinds);
+    let operations = collect_ownership_operations(function);
     Ok(VerifiedOwnershipSsaV1::new(
-        abi.owner(),
+        abi.clone(),
         kinds,
         dispositions,
+        operations,
     ))
 }
 

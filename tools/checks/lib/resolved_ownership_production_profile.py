@@ -121,6 +121,12 @@ def main() -> None:
     instruction = (root / "src/mir/instruction.rs").read_text()
     lowerer = (root / "src/mir/builder/resolved_lowering/lowerer.rs").read_text()
     json_emit = (root / "src/runner/mir_json_emit/metadata.rs").read_text()
+    ownership_json_emit = (
+        root / "src/runner/mir_json_emit/ownership_ssa.rs"
+    ).read_text()
+    ownership_backend_capability = (
+        root / "src/mir/ownership_backend_capability.rs"
+    ).read_text()
     ownership_json = (
         root / "src/runner/mir_json/ownership_witness.rs"
     ).read_text()
@@ -142,6 +148,22 @@ def main() -> None:
     rust_block = (
         root / "src/backend/mir_interpreter/exec/block.rs"
     ).read_text()
+    backend_allowlists = (
+        root / "src/mir/contracts/backend_core_ops/allowlists.rs"
+    ).read_text()
+    llvm_ownership_transport = (
+        root / "src/llvm_py/ownership_lowering.py"
+    ).read_text()
+    llvm_ownership_handler = (
+        root / "src/llvm_py/instructions/ownership.py"
+    ).read_text()
+    llvm_dispatch = (
+        root / "src/llvm_py/builders/instruction_lower.py"
+    ).read_text()
+    llvm_function_lower = (
+        root / "src/llvm_py/builders/function_lower.py"
+    ).read_text()
+    pyvm = (root / "src/llvm_py/pyvm/vm.py").read_text()
     ownership_dir = root / "src/mir/ownership_ssa"
     ownership_sources = "\n".join(
         path.read_text()
@@ -206,6 +228,9 @@ def main() -> None:
     for anchor in (
         "enum MirOwnershipKindV1",
         "struct VerifiedOwnershipSsaV1",
+        "abi: OwnershipFunctionAbiV1",
+        "collect_ownership_operations",
+        "matches_function",
         "OwnershipDispositionV1::PhiEdge",
         "transfer_phi_edge",
         "DuplicateConsumeOnEdge",
@@ -246,23 +271,115 @@ def main() -> None:
             ("Owned Return value is undefined", "self.take_reg(*v)"),
             "Rust Owned Return forwarding",
         ),
+        (
+            backend_allowlists,
+            (
+                'MirInstruction::CopyOwned { .. } => &["copy_owned"]',
+                'MirInstruction::DestroyOwned { .. } => &["destroy_owned"]',
+            ),
+            "llvm_py ownership allowlist",
+        ),
+        (
+            llvm_ownership_transport,
+            (
+                '"VerifiedOwnershipSsaV1"',
+                '"rust_ownership_ssa_verifier_v1"',
+                '"nyash_kernel"',
+                "VerifiedOwnershipLoweringSessionV1",
+                "legacy_mix",
+                "missing_boxref",
+                "incomplete_coverage",
+            ),
+            "llvm_py ownership transport",
+        ),
+        (
+            llvm_ownership_handler,
+            (
+                '"nyrt_handle_retain_h"',
+                '"nyrt_handle_release_h"',
+                "resolve_i64_strict",
+                "session.claim",
+            ),
+            "llvm_py ownership materializer",
+        ),
+        (
+            llvm_dispatch,
+            ('"copy_owned"', '"destroy_owned"', "lower_copy_owned", "lower_destroy_owned"),
+            "llvm_py ownership dispatch",
+        ),
+        (
+            llvm_function_lower,
+            ("verify_ownership_lowering_v1", "context.ownership_ssa_v1.finish()"),
+            "llvm_py ownership session boundary",
+        ),
+        (
+            pyvm,
+            ("pyvm/ownership:missing_capability", 'op in ("copy_owned", "destroy_owned")'),
+            "PyVM ownership fail-fast",
+        ),
+        (
+            ownership_json_emit,
+            (
+                "build_ownership_ssa_json",
+                '"VerifiedOwnershipSsaV1"',
+                '"rust_ownership_ssa_verifier_v1"',
+                '"llvm_py"',
+                '"nyash_kernel"',
+                ".operations()",
+            ),
+            "Rust ownership witness transport",
+        ),
+        (
+            ownership_backend_capability,
+            (
+                "backend-missing-capability:owned-value-lifecycle-v1",
+                'backend != "llvmlite-obj"',
+                "ownership-backend:missing-witness",
+                "ownership-backend:stale-witness",
+                "witness.matches_function(function)",
+            ),
+            "ownership backend preflight",
+        ),
     ):
         for anchor in anchors:
             if anchor not in text:
                 fail(f"{label} lost {anchor!r}")
+    def without_cfg_tests(text: str) -> str:
+        return text.split("#[cfg(test)]", 1)[0]
+
     production_verifier_callers = 0
     for path in (root / "src").rglob("*.rs"):
+        if "tests" in path.parts:
+            continue
         if ownership_dir in path.parents:
             continue
         if path.name == "ownership_forwarding_tests.rs":
             continue
-        production_verifier_callers += path.read_text(errors="ignore").count(
+        production_verifier_callers += without_cfg_tests(
+            path.read_text(errors="ignore")
+        ).count(
             "verify_ownership_ssa_v1("
         )
     if production_verifier_callers != 0:
         fail(
-            "Ownership SSA production callers appeared before A1b/SSA-I1: "
+            "Ownership SSA production callers appeared before A1c/SSA-I1: "
             f"{production_verifier_callers}"
+        )
+
+    rust_witness_emitters = 0
+    production_witness_installers = 0
+    for path in (root / "src").rglob("*.rs"):
+        if "tests" in path.parts:
+            continue
+        production_text = without_cfg_tests(path.read_text(errors="ignore"))
+        rust_witness_emitters += production_text.count('metadata_json["ownership_ssa_v1"]')
+        production_witness_installers += production_text.count(".ownership_ssa_v1 = Some(")
+    if rust_witness_emitters != 1:
+        fail(f"Rust ownership witness transport emitter drifted: {rust_witness_emitters}")
+    if production_witness_installers != 0:
+        fail(
+            "canonical Rust ownership witness installer appeared before SSA-I1: "
+            f"{production_witness_installers}"
         )
 
     counts = {profile: 0 for profile in EXPECTED_PROFILES}
@@ -278,8 +395,10 @@ def main() -> None:
         fail(f"profile counts drifted: expected={expected_counts} actual={counts}")
 
     print(
-        "SSA-RC-A1b ownership profile: 17/17 rows, Rust handlers=2, "
-        "path-sensitive verifier=1, Rust witness consumer=1, production callers=0, BoxRef producers=0, "
+        "SSA-RC-A1c ownership profile: 17/17 rows, Rust handlers=2, llvm_py handlers=2, "
+        "path-sensitive verifier=1, Rust witness consumer=1, Rust witness transport=1, "
+        "production witness installers=0, "
+        "production callers=0, BoxRef producers=0, "
         "production activation=0, trivial-only first cutover"
     )
 

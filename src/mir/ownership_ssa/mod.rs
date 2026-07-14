@@ -15,7 +15,8 @@ mod tests;
 pub(crate) use error::OwnershipSsaErrorV1;
 pub(crate) use model::{
     FunctionResultOwnershipV1, MirOwnershipKindV1, OwnershipDispositionV1, OwnershipFunctionAbiV1,
-    OwnershipFunctionOwnerV1, VerifiedOwnershipSsaV1,
+    OwnershipFunctionOwnerV1, OwnershipOperationKindV1, OwnershipOperationV1,
+    VerifiedOwnershipSsaV1,
 };
 
 use crate::mir::MirFunction;
