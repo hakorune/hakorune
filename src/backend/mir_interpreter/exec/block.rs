@@ -299,7 +299,24 @@ impl MirInterpreter {
         match &block.terminator {
             Some(MirInstruction::Return { value }) => {
                 let result = if let Some(v) = value {
-                    self.reg_load(*v)?
+                    if self
+                        .active_ownership_ssa
+                        .as_ref()
+                        .and_then(|witness| witness.kind(*v))
+                        == Some(crate::mir::ownership_ssa::MirOwnershipKindV1::Owned)
+                    {
+                        let value = self.take_reg(*v).ok_or_else(|| {
+                            VMError::InvalidValue(format!("Owned Return value is undefined: {v}"))
+                        })?;
+                        if !matches!(value, VMValue::BoxRef(_)) {
+                            return Err(VMError::TypeError(format!(
+                                "Owned Return expects BoxRef at {v}, got {value:?}"
+                            )));
+                        }
+                        value
+                    } else {
+                        self.reg_load(*v)?
+                    }
                 } else {
                     VMValue::Void
                 };

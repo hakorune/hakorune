@@ -130,6 +130,18 @@ def main() -> None:
     vm_dispatch = (
         root / "src/backend/mir_interpreter/handlers/mod.rs"
     ).read_text()
+    rust_interpreter = (
+        root / "src/backend/mir_interpreter/mod.rs"
+    ).read_text()
+    rust_frame = (
+        root / "src/backend/mir_interpreter/exec/frame_transaction.rs"
+    ).read_text()
+    rust_phi = (
+        root / "src/backend/mir_interpreter/exec/phi.rs"
+    ).read_text()
+    rust_block = (
+        root / "src/backend/mir_interpreter/exec/block.rs"
+    ).read_text()
     ownership_dir = root / "src/mir/ownership_ssa"
     ownership_sources = "\n".join(
         path.read_text()
@@ -205,9 +217,44 @@ def main() -> None:
     ):
         if anchor not in ownership_sources:
             fail(f"Ownership SSA verifier lost {anchor!r}")
+    for text, anchors, label in (
+        (
+            rust_interpreter,
+            ("active_ownership_ssa",),
+            "Rust ownership session",
+        ),
+        (
+            rust_frame,
+            (
+                "with_verified_ownership_function_frame",
+                "seed_parameters_owned",
+                "active_ownership_ssa = Some(witness)",
+            ),
+            "Rust ownership ABI forwarding",
+        ),
+        (
+            rust_phi,
+            (
+                "apply_owned_phi_nodes",
+                "self.take_reg(*source)",
+                "for (destination, value) in values",
+            ),
+            "Rust Owned Phi forwarding",
+        ),
+        (
+            rust_block,
+            ("Owned Return value is undefined", "self.take_reg(*v)"),
+            "Rust Owned Return forwarding",
+        ),
+    ):
+        for anchor in anchors:
+            if anchor not in text:
+                fail(f"{label} lost {anchor!r}")
     production_verifier_callers = 0
     for path in (root / "src").rglob("*.rs"):
         if ownership_dir in path.parents:
+            continue
+        if path.name == "ownership_forwarding_tests.rs":
             continue
         production_verifier_callers += path.read_text(errors="ignore").count(
             "verify_ownership_ssa_v1("
@@ -231,8 +278,8 @@ def main() -> None:
         fail(f"profile counts drifted: expected={expected_counts} actual={counts}")
 
     print(
-        "SSA-RC-V0 ownership profile: 17/17 rows, Rust handlers=2, "
-        "path-sensitive verifier=1, production callers=0, BoxRef producers=0, "
+        "SSA-RC-A1b ownership profile: 17/17 rows, Rust handlers=2, "
+        "path-sensitive verifier=1, Rust witness consumer=1, production callers=0, BoxRef producers=0, "
         "production activation=0, trivial-only first cutover"
     )
 

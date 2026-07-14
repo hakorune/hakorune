@@ -54,6 +54,10 @@ Transition Note
   verifierを追加。Owned Phi inputはmerge命令上の一括consumeではなく、
   selected predecessor edge上のparallel forwardingとして検証する。
   production verifier callerとinterpreter forwardingは引き続き0。
+- SSA-RC-A1b: Rust MIR interpreter の明示的verified function sessionだけが
+  sealed witnessをconsumeする。Owned Phiは選択edgeのsourceをすべてtakeしてから
+  destinationをpublishし、Owned parameter/result/Returnはcloneせずmoveする。
+  canonical production callerと他backendのactivationは引き続き0。
 - Phase 163x: canonical variant op lane のため `VariantMake` / `VariantTag` / `VariantProject` を追加（Core profile とは別の kept vocabulary）。
 - MIR-FMEM-002..005: FastMemory dialect vocabulary のため `MemOp` を追加。
   `MemOp` は kept instruction vocabulary。FastMemRegion metadata and

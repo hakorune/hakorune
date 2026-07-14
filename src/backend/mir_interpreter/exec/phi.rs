@@ -2,42 +2,30 @@ use super::super::{MirInterpreter, VMError, VMValue};
 use crate::mir::BasicBlock;
 use crate::mir::{BasicBlockId, MirInstruction};
 
+#[inline]
+fn select_phi_input(
+    inputs: &[(BasicBlockId, crate::mir::ValueId)],
+    pred: BasicBlockId,
+) -> Option<crate::mir::ValueId> {
+    match inputs {
+        [(bb0, v0)] if *bb0 == pred => Some(*v0),
+        [(bb0, v0), (_, _)] if *bb0 == pred => Some(*v0),
+        [(_, _), (bb1, v1)] if *bb1 == pred => Some(*v1),
+        _ => inputs.iter().find(|(bb, _)| *bb == pred).map(|(_, v)| *v),
+    }
+}
+
 impl MirInterpreter {
     pub(crate) fn apply_phi_nodes(
         &mut self,
         block: &BasicBlock,
         last_pred: Option<BasicBlockId>,
     ) -> Result<(), VMError> {
+        self.apply_owned_phi_nodes(block, last_pred)?;
         let trace_phi = self.vm_trace_phi_enabled;
         let tolerate_undefined = self.vm_phi_tolerate_undefined_enabled;
         let strict = self.vm_phi_strict_enabled;
         let trace_exec = self.trace_enabled();
-
-        #[inline]
-        fn select_phi_input(
-            inputs: &[(BasicBlockId, crate::mir::ValueId)],
-            pred: BasicBlockId,
-        ) -> Option<crate::mir::ValueId> {
-            match inputs {
-                [(bb0, v0)] => {
-                    if *bb0 == pred {
-                        Some(*v0)
-                    } else {
-                        None
-                    }
-                }
-                [(bb0, v0), (bb1, v1)] => {
-                    if *bb0 == pred {
-                        Some(*v0)
-                    } else if *bb1 == pred {
-                        Some(*v1)
-                    } else {
-                        None
-                    }
-                }
-                _ => inputs.iter().find(|(bb, _)| *bb == pred).map(|(_, v)| *v),
-            }
-        }
 
         #[inline]
         fn load_phi_value(
@@ -76,6 +64,9 @@ impl MirInterpreter {
         {
             for inst in block.phi_instructions() {
                 if let MirInstruction::Phi { dst, inputs, .. } = inst {
+                    if self.is_active_owned_value(*dst) {
+                        continue;
+                    }
                     let dst_id = *dst;
                     let selected = if let Some(pred) = last_pred {
                         select_phi_input(inputs, pred).ok_or_else(|| {
@@ -117,6 +108,9 @@ impl MirInterpreter {
                 self.last_inst = Some(inst.clone());
             }
             if let MirInstruction::Phi { dst, inputs, .. } = inst {
+                if self.is_active_owned_value(*dst) {
+                    continue;
+                }
                 let dst_id = *dst;
                 if trace_phi {
                     let in_preds: Vec<_> = inputs.iter().map(|(bb, _)| *bb).collect();
@@ -222,6 +216,65 @@ impl MirInterpreter {
                     }
                 }
             }
+        }
+        Ok(())
+    }
+
+    fn is_active_owned_value(&self, value: crate::mir::ValueId) -> bool {
+        self.active_ownership_ssa
+            .as_ref()
+            .and_then(|witness| witness.kind(value))
+            == Some(crate::mir::ownership_ssa::MirOwnershipKindV1::Owned)
+    }
+
+    fn apply_owned_phi_nodes(
+        &mut self,
+        block: &BasicBlock,
+        last_pred: Option<BasicBlockId>,
+    ) -> Result<(), VMError> {
+        if self.active_ownership_ssa.is_none() {
+            return Ok(());
+        }
+        let mut transfers = Vec::new();
+        for instruction in block.phi_instructions() {
+            let MirInstruction::Phi { dst, inputs, .. } = instruction else {
+                continue;
+            };
+            if !self.is_active_owned_value(*dst) {
+                continue;
+            }
+            let predecessor = last_pred.ok_or_else(|| {
+                VMError::InvalidInstruction(format!(
+                    "[freeze:contract][vm/ownership:owned_phi_without_predecessor] dst={dst}"
+                ))
+            })?;
+            let source = select_phi_input(inputs, predecessor).ok_or_else(|| {
+                VMError::InvalidInstruction(format!(
+                    "[freeze:contract][vm/ownership:owned_phi_input_missing] dst={dst} pred={predecessor}"
+                ))
+            })?;
+            if transfers.iter().any(|(_, existing)| *existing == source) {
+                return Err(VMError::InvalidInstruction(format!(
+                    "[freeze:contract][vm/ownership:duplicate_phi_source] source={source} pred={predecessor}"
+                )));
+            }
+            transfers.push((*dst, source));
+        }
+
+        let mut values = Vec::with_capacity(transfers.len());
+        for (destination, source) in &transfers {
+            let value = self.take_reg(*source).ok_or_else(|| {
+                VMError::InvalidValue(format!("Owned Phi source is undefined: {source}"))
+            })?;
+            if !matches!(value, VMValue::BoxRef(_)) {
+                return Err(VMError::TypeError(format!(
+                    "Owned Phi expects BoxRef at {source}, got {value:?}"
+                )));
+            }
+            values.push((*destination, value));
+        }
+        for (destination, value) in values {
+            self.write_reg(destination, value);
         }
         Ok(())
     }

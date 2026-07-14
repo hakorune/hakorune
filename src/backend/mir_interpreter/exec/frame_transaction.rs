@@ -21,6 +21,7 @@ struct RegisterFrameSnapshotV1 {
     i64_cache: Vec<Option<i64>>,
     bool_cache: Vec<Option<bool>>,
     current_function: Option<String>,
+    ownership_ssa: Option<crate::mir::ownership_ssa::VerifiedOwnershipSsaV1>,
 }
 
 #[derive(Clone)]
@@ -72,6 +73,25 @@ pub(super) fn with_function_frame(
     FunctionFrameTransactionV1::open(interpreter, function).run(function, arguments, operation)
 }
 
+// SSA-RC-A1b is intentionally disconnected from production until SSA-I1.
+#[allow(dead_code)]
+pub(super) fn with_verified_ownership_function_frame(
+    interpreter: &mut MirInterpreter,
+    function: &MirFunction,
+    arguments: Vec<VMValue>,
+    expected_owner: crate::mir::ownership_ssa::OwnershipFunctionOwnerV1,
+    witness: crate::mir::ownership_ssa::VerifiedOwnershipSsaV1,
+    operation: impl FnOnce(&mut MirInterpreter) -> Result<VMValue, VMError>,
+) -> Result<VMValue, VMError> {
+    if witness.owner() != expected_owner {
+        return Err(VMError::InvalidInstruction(
+            "[freeze:contract][vm/ownership:foreign_function_owner]".to_string(),
+        ));
+    }
+    FunctionFrameTransactionV1::open(interpreter, function)
+        .run_verified(function, arguments, witness, operation)
+}
+
 impl<'interpreter> FunctionFrameTransactionV1<'interpreter> {
     fn open(interpreter: &'interpreter mut MirInterpreter, function: &MirFunction) -> Self {
         let trace_stack =
@@ -115,6 +135,18 @@ impl<'interpreter> FunctionFrameTransactionV1<'interpreter> {
         self.finish(outcome)
     }
 
+    #[allow(dead_code)]
+    fn run_verified(
+        mut self,
+        function: &MirFunction,
+        arguments: Vec<VMValue>,
+        witness: crate::mir::ownership_ssa::VerifiedOwnershipSsaV1,
+        operation: impl FnOnce(&mut MirInterpreter) -> Result<VMValue, VMError>,
+    ) -> Result<VMValue, VMError> {
+        let outcome = self.execute_verified(function, arguments, witness, operation);
+        self.finish(outcome)
+    }
+
     fn execute(
         &mut self,
         function: &MirFunction,
@@ -153,6 +185,40 @@ impl<'interpreter> FunctionFrameTransactionV1<'interpreter> {
         operation(self.interpreter)
     }
 
+    #[allow(dead_code)]
+    fn execute_verified(
+        &mut self,
+        function: &MirFunction,
+        arguments: Vec<VMValue>,
+        witness: crate::mir::ownership_ssa::VerifiedOwnershipSsaV1,
+        operation: impl FnOnce(&mut MirInterpreter) -> Result<VMValue, VMError>,
+    ) -> Result<VMValue, VMError> {
+        if self.interpreter.call_depth > MAX_CALL_DEPTH {
+            self.log_call_depth_overflow();
+            return Err(VMError::InvalidInstruction(format!(
+                "vm call stack depth exceeded (max_depth={}, fn={})",
+                MAX_CALL_DEPTH, self.function_name
+            )));
+        }
+        self.interpreter
+            .validate_function_entry_contracts(function, Some(&arguments))
+            .and_then(|_| {
+                crate::mir::verification::return_outcome::check_return_outcomes(function)
+                    .map_err(|error| self.interpreter.err_invalid(error))
+            })
+            .and_then(|_| {
+                crate::mir::type_contracts::local_slot::validate_local_slot_contracts(function)
+                    .map_err(|error| self.interpreter.err_invalid(error))
+            })?;
+
+        self.install_register_frame(function);
+        self.interpreter.active_ownership_ssa = Some(witness);
+        self.interpreter
+            .preflight_fail_fast_phi_undefined_if_enabled(function)?;
+        self.seed_parameters_owned(function, arguments)?;
+        operation(self.interpreter)
+    }
+
     fn install_register_frame(&mut self, function: &MirFunction) {
         debug_assert!(self.register_frame.is_none());
         self.register_frame = Some(RegisterFrameSnapshotV1 {
@@ -162,6 +228,7 @@ impl<'interpreter> FunctionFrameTransactionV1<'interpreter> {
             i64_cache: mem::take(&mut self.interpreter.reg_i64_cache),
             bool_cache: mem::take(&mut self.interpreter.reg_bool_cache),
             current_function: self.interpreter.cur_fn.take(),
+            ownership_ssa: self.interpreter.active_ownership_ssa.take(),
         });
         self.interpreter.cur_fn = Some(self.function_name.clone());
         if !self.interpreter.vm_capture_last_inst_enabled {
@@ -179,6 +246,25 @@ impl<'interpreter> FunctionFrameTransactionV1<'interpreter> {
                 .unwrap_or(VMValue::Void);
             self.interpreter.write_reg(*parameter, value);
         }
+    }
+
+    #[allow(dead_code)]
+    fn seed_parameters_owned(
+        &mut self,
+        function: &MirFunction,
+        arguments: Vec<VMValue>,
+    ) -> Result<(), VMError> {
+        if arguments.len() != function.params.len() {
+            return Err(VMError::InvalidInstruction(format!(
+                "verified ownership argument arity mismatch: expected={} actual={}",
+                function.params.len(),
+                arguments.len()
+            )));
+        }
+        for (parameter, value) in function.params.iter().copied().zip(arguments) {
+            self.interpreter.write_reg(parameter, value);
+        }
+        Ok(())
     }
 
     fn log_call_depth_overflow(&self) {
@@ -266,6 +352,7 @@ impl<'interpreter> FunctionFrameTransactionV1<'interpreter> {
             self.interpreter.reg_i64_cache = snapshot.i64_cache;
             self.interpreter.reg_bool_cache = snapshot.bool_cache;
             self.interpreter.cur_fn = snapshot.current_function;
+            self.interpreter.active_ownership_ssa = snapshot.ownership_ssa;
         }
         if let Some(snapshot) = self.saved_diagnostics.take() {
             self.interpreter.last_block = snapshot.last_block;

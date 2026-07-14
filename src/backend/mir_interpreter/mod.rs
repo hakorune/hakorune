@@ -102,6 +102,8 @@ pub struct MirInterpreter {
     /// is intentionally not stored here.
     pub(super) strict_json_session: Option<strict_json_session::StrictJsonSessionV0>,
     pub(super) strict_json_generation: u64,
+    /// Installed only by the explicit verified-ownership function session.
+    pub(super) active_ownership_ssa: Option<crate::mir::ownership_ssa::VerifiedOwnershipSsaV1>,
 }
 
 const VM_RECENT_STEP_LIMIT: usize = 32;
@@ -177,6 +179,7 @@ impl MirInterpreter {
             preflight_checked_fns: FxHashSet::default(),
             strict_json_session: None,
             strict_json_generation: 0,
+            active_ownership_ssa: None,
         }
     }
 

@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-RC-A1b Rust Owned forwarding and ABI are next
+Status: Active — SSA-RC-A1c exact llvm_py + nyash_kernel materialization is next
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-A1B-RUST-OWNED-FORWARDING-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-A1C-LLVM-PY-OWNERSHIP-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -1020,6 +1020,26 @@ Consume `VerifiedOwnershipSsaV1` in the Rust interpreter. Owned Phi is a
 parallel move: collect selected inputs, take consumed source registers, then
 publish destinations. Return and Owned parameter/result transport move rather
 than clone. Borrowed roots obey V0 and cannot escape without `CopyOwned`.
+
+Closed evidence:
+
+```text
+explicit verified function session = 1
+sealed witness install/restore = success and typed error
+Owned parameter transport = move from owned argument vector
+Owned Phi = selected sources collected/taken before destination publication
+Owned Return = exact register take
+ordinary Phi/Return path = unchanged without installed witness
+foreign owner = rejected before function-frame effects
+focused fixtures = 3/3 green
+existing function-frame fixtures = 6/6 green
+canonical production callers = 0
+unsupported backend activation = 0
+all modified source/check files below 800 lines
+```
+
+Evidence card:
+`mirbuilder-ssa-rc-a1b-rust-owned-forwarding-2026-07-14.md`.
 
 #### SSA-RC-A1c — exact llvm_py + nyash_kernel materialization
 
@@ -2048,15 +2068,15 @@ state.
 
 ## Immediate next action
 
-Implement SSA-RC-A1b only. Keep canonical production ownership callers at zero:
+Implement SSA-RC-A1c only. Keep canonical production ownership callers at zero:
 
 ```text
-Rust interpreter consumes a sealed VerifiedOwnershipSsaV1 witness
-Owned Phi collects selected sources, takes them, then publishes all destinations
-Owned Return and parameter/result transport move rather than clone
-Borrowed roots cannot escape without CopyOwned
-ordinary non-owned Phi/Return behavior remains unchanged
-add no canonical production caller or unsupported backend fallback
+llvm_py object lane consumes strict BoxRef plus sealed ownership witness
+CopyOwned calls nyrt_handle_retain_h and publishes the fresh returned handle
+DestroyOwned calls nyrt_handle_release_h for the exact handle
+nyash_kernel is the only accepted provider in this row
+PyVM/Wasm/Hako VM/native llvmc/archived JIT fail capability preflight
+add no canonical production caller, silent no-op, or legacy opcode remap
 change no accepted grammar or canonical ownership activation
 keep every new or modified source/check file below 800 lines
 ```

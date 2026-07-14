@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ SSA-RC-A1b Rust Owned forwarding and ABI are active"
+status = "D′ SSA-RC-A1c exact llvm_py + nyash_kernel ownership materialization is active"
 date = "2026-07-14"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -32,9 +32,11 @@ DestroyOwned takes only the named BoxRef register, and invalid operands fail
 explicitly. SSA-RC-V0 closes one disconnected, owner-branded Ownership SSA
 verifier: exact live-Owned block-entry sets, edge-indexed parallel Phi
 forwarding, finite-exit closure, Borrowed/edge-argument/unwitnessed-call
-rejection, and zero production callers. The active row is SSA-RC-A1b: make the
-Rust semantic oracle consume that sealed witness for Owned Phi/Return/ABI
-forwarding without activating canonical ownership production.
+rejection, and zero production callers. SSA-RC-A1b closes one explicit Rust
+verified-function session: sealed witness install/restore, owned argument move,
+selected-edge parallel Phi take-before-publish, and exact Owned Return take,
+with ordinary execution and canonical production callers unchanged. The active
+row is SSA-RC-A1c: exact llvm_py plus nyash_kernel ownership materialization.
 Historical
 lane chronology follows and is non-authoritative.
 Explicit user priority change on 2026-07-12 reopens
@@ -200,8 +202,10 @@ two passive WRITE-effect opcodes, exact JSON BoxRef witness validation, and a
 interpreter handlers, 5/5 focused vm-reference fixtures, 21/21 backend
 contract fixtures, and no alias scan. SSA-RC-V0 is closed with one separated
 Ownership SSA box, 17/17 path-sensitive fixtures, exact parallel Phi-edge
-transfers, and zero production callers. The active prerequisite is SSA-RC-A1b;
-canonical ownership opcode production remains zero.
+transfers, and zero production callers. SSA-RC-A1b is closed with one explicit
+verified Rust function session, 3/3 focused forwarding fixtures, and 6/6 frame
+restoration fixtures. The active prerequisite is SSA-RC-A1c; canonical
+ownership opcode production remains zero.
 B′ is accepted and taskized as a parked runtime/substrate continuation:
 explicit `fini()` owns eager tombstone teardown, DestroyOwned/last-strong own
 structural drop only, ObjectIdentity is separate from owner/root tokens, the
@@ -213,7 +217,7 @@ Decisions. The taskboard covers current-authority inventory,
 passive cell/lease/weak contracts, one-family atomic activation, plugin ABI
 split, backend/family rollout, global legacy retirement, StaticUnique
 proof/materialization/parity, and final closeout.
-It does not change the active SSA-RC-A1b blocker.
+It does not change the active SSA-RC-A1c blocker.
 Rust `MirInterpreter` retirement is now an explicit later selfhost branch:
 after the ownership MIR vocabulary stabilizes, a sealed `.hako` MIR
 interpreter subset gains normalized parity, becomes the no-fallback semantic
@@ -562,11 +566,11 @@ not started. Design Registry V1 sharding is accepted-for-tasking as a parked
 BoxShape series with production activation 0; its first implementation row is
 mandatory CLEAN0, followed by explicit SELECT0, full normalized V0/V1 parity,
 atomic cutover, V0 retirement, and RETURN0. It does not replace the active
-SSA-RC-A1b blocker. 3511 now owns the narrow semantic activation claim and its
+SSA-RC-A1c blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-A1B-RUST-OWNED-FORWARDING-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-A1C-LLVM-PY-OWNERSHIP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -575,6 +579,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-14: D′ SSA-RC-A1b closes one explicit Rust verified-ownership function session: owner-branded witness preflight, move-seeded arguments, selected-edge Owned Phi parallel take-before-publish, exact Owned Return take, success/error restoration, 3/3 focused and 6/6 frame fixtures, authority guard, release build, and quick 66/66 are green; ordinary execution, canonical production callers, and unsupported backend activation remain unchanged; SSA-RC-A1c is selected.",
   "2026-07-14: D′ SSA-RC-V0 closes one disconnected owner-branded Ownership SSA verifier: None/Borrowed/Owned classification, exact live-Owned block-entry sets, selected-edge parallel Phi forwarding, finite-exit closure, Borrowed/edge-argument/unwitnessed-call/unreachable rejection, 17/17 focused fixtures, release build, authority guard, and quick 66/66 are green; global consume counts, second BindingRef maps, interpreter forwarding, and production callers remain zero; SSA-RC-A1b is selected.",
   "2026-07-14: D′ SSA-RC-A1a closes the temporary Rust ownership-op semantic oracle: CopyOwned clones an exact BoxRef into an undefined register, DestroyOwned takes only the named BoxRef register without alias scanning, invalid operands fail explicitly, 5/5 vm-reference fixtures, 21/21 backend-contract fixtures, 17/17 production-profile rows, release build, authority guard, and quick 66/66 are green; production callers and Phi/Return/ABI ownership activation remain zero; SSA-RC-V0 is selected.",
   "2026-07-14: D′ SSA-RC-A0 closes passive CopyOwned/DestroyOwned MIR vocabulary with conservative WRITE effects, exact printer/query/remap/JSON transport, a direct-JSON MirType::Box plus StorageClass::BoxRef witness, storage/type mismatch rejection, 43/16/59 opcode ledger, 6/6 transport fixtures, 21/21 backend-contract fixtures, release build, authority guard, and quick 66/66 green; production callers, backend execution, grammar, and canonical behavior remain zero; SSA-RC-A1a is selected.",
@@ -586,5 +591,4 @@ landed_tail = [
   "2026-07-14: D′ SSA-RC-L0b closes the static-const-table load guard false-green introduced when its module became vm-reference gated: the dedicated guard now enables that feature and executes all 3 existing tests; shared helper, production code, source grammar, MIR, and backend behavior are unchanged; SSA-RC-L0 is selected.",
   "2026-07-14: D′ SSA-RC-L0a repairs stale instruction-diet test/reference literals from 40/16/56 to the unchanged implementation truth 41/16/57 after ArrayStateContractClaim joined the kept vocabulary; focused ledger tests are 2/2 green and enum/cohort/allowlist/schema/runtime/grammar/backend behavior is unchanged; SSA-RC-L0 is selected.",
   "2026-07-14: A′ accepts explicit CopyOwned/DestroyOwned Ownership SSA, keeps Copy ownership-neutral, isolates legacy ReleaseStrong, and taskizes L0/L1/P0/A0/A1a/V0/A1b/A1c/RET-P0/RC0/I1/I1-O1 plus caller-zero retirement; local verification corrects the stale VM pointer-sweep claim, and SSA-RC-L0 is selected as the first behavior-neutral code row.",
-  "2026-07-14: Rust MirInterpreter retirement is taskized as a separate required selfhost branch: stable MIR ownership vocabulary -> sealed ingress/opcode/event contract -> disconnected `.hako` MIR interpreter -> independent normalized parity -> no-fallback semantic-reference cutover -> consumer-driven expansion -> exact caller-zero Rust physical retirement; EXE/AOT remains the product route and RC0 remains at its design stop.",
 ]
