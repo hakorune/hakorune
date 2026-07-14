@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the executable but production-disconnected SSA-I0-PROFILE."""
+"""Validate the sealed trivial profile and its bounded production consumers."""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ EXPECTED_CLAIMS = {
     "focused_profile_fixtures": 18,
     "profile_production_callers": 1,
     "production_route_delta": 1,
-    "accepted_grammar_delta": 0,
+    "accepted_grammar_delta": 1,
     "binding_ssa_production_callers": 1,
     "ownership_ssa_production_callers": 0,
     "ownership_ssa_witness_installers": 0,
@@ -117,7 +117,7 @@ EXPECTED_PARAMETER_ROWS = {
         "i64",
         "InlineI64",
         "definition",
-        "disconnected",
+        "canonical_binding_ssa",
     )
 }
 
@@ -413,7 +413,7 @@ def main() -> None:
         "parameter_profile_consumption_uses_one_global_ordered_ledger",
         "parameter_rebind_and_if_merge_reuse_the_existing_profile_environment",
         "unsupported_parameter_types_and_untyped_parameters_do_not_admit",
-        "exact_parameter_profile_remains_disconnected_from_production_preflight",
+        "exact_parameter_profile_selects_production_binding_ssa_route",
     ):
         if f"fn {fixture}(" not in test_text:
             fail(f"focused profile fixture missing: {fixture}")
@@ -448,6 +448,7 @@ def main() -> None:
     if set(external_module_references) != {
         "src/mir/builder/resolved_lowering/trivial_ssa/operation.rs",
         "src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs",
+        "src/mir/builder/resolved_lowering/trivial_ssa/parameter_entry.rs",
         "src/mir/compiler/capability.rs",
     }:
         fail(
@@ -511,7 +512,7 @@ def main() -> None:
     print("canonical_ssa_i0_profile_ownership_ssa_callers=0")
     print("canonical_ssa_i0_profile_ownership_witness_installers=0")
     print("canonical_ssa_i0_profile_ownership_opcode_callers=0")
-    print("canonical_ssa_i0_profile_accepted_grammar_delta=0")
+    print("canonical_ssa_i0_profile_accepted_grammar_delta=1")
     print("canonical_ssa_i0_profile_historical_seam_rows=92")
     print(f"canonical_ssa_i0_profile_historical_seam_sha256={actual_sha}")
 

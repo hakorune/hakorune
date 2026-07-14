@@ -59,7 +59,7 @@
     "focused_profile_fixtures": 18,
     "profile_production_callers": 1,
     "production_route_delta": 1,
-    "accepted_grammar_delta": 0,
+    "accepted_grammar_delta": 1,
     "binding_ssa_production_callers": 1,
     "ownership_ssa_production_callers": 0,
     "ownership_ssa_witness_installers": 0,
@@ -77,7 +77,7 @@
       "source_spelling": "i64",
       "representation": "InlineI64",
       "coverage_authority": "definition",
-      "production_route": "disconnected"
+      "production_route": "canonical_binding_ssa"
     }
   ],
   "value_rows": [

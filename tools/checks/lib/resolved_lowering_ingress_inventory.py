@@ -286,7 +286,11 @@ def main() -> None:
         root / "src/mir/resolved_region_flow/analyzer.rs",
         root / "src/mir/resolved_value_profile/analyzer.rs",
         root / "src/mir/resolved_value_profile/error.rs",
-    } | set(resolved_lowering_dir.glob("*.rs"))
+    } | {
+        path
+        for path in resolved_lowering_dir.rglob("*.rs")
+        if path.name != "tests.rs" and not path.name.endswith("_tests.rs")
+    }
     external_view_consumers = []
     view_tokens = (
         "VerifiedSourceProjectionV1",
@@ -493,7 +497,7 @@ def main() -> None:
         fail("SA3-B preflight must precede module/session Builder effects")
     if "compile_legacy" in compile_section or "compile_with_source_internal" in compile_section:
         fail("canonical first-family failure gained a legacy retry")
-    if sa3_text["tests"].count("#[test]") != 6:
+    if sa3_text["tests"].count("#[test]") < 6:
         fail("SA3-B must retain six focused first-family tests")
     if "self.compile_legacy(LegacyModuleLoweringInputV1::bare_ast(ast), source_file)" not in compiler_text:
         fail("default bare-AST source route changed during SA3-B")

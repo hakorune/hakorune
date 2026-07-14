@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# Private SSA-I0-PROFILE helper. The sealed Rust product is executable in
-# focused fixtures while production routing remains disconnected.
+# Private SSA-I0-PROFILE helper. The sealed Rust product owns representation
+# acceptance; bounded production consumers may materialize only its rows.
 
 guard_resolved_trivial_owner_profile_contract() {
   local tag="$1"

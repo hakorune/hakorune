@@ -7,7 +7,14 @@ from pathlib import Path
 import sys
 
 
-EXPECTED_BOX = {"README.md", "identity.rs", "lowerer.rs", "mod.rs", "operation.rs"}
+EXPECTED_BOX = {
+    "README.md",
+    "identity.rs",
+    "lowerer.rs",
+    "mod.rs",
+    "operation.rs",
+    "parameter_entry.rs",
+}
 
 
 def fail(message: str) -> None:
@@ -52,6 +59,7 @@ def main() -> None:
         "identity": box / "identity.rs",
         "lowerer": box / "lowerer.rs",
         "operation": box / "operation.rs",
+        "parameter": box / "parameter_entry.rs",
         "readme": box / "README.md",
     }
     text = {name: path.read_text() for name, path in paths.items()}
@@ -79,6 +87,7 @@ def main() -> None:
         "fn build_resolved_trivial_function_module(",
         "CanonicalTrivialSsaLowererV1::new(",
         "finalize_preterminated_function_completion",
+        "refresh_function_parameter_entry_contracts",
         ".verify_function(&draft)",
     ):
         require(text["builder"], anchor, "function draft publication")
@@ -105,6 +114,20 @@ def main() -> None:
         "self.identity.finish()?",
     ):
         require(text["lowerer"], anchor, "trivial whole-owner lowerer")
+
+    for anchor in (
+        "profile.claim_parameter_entry(formal_index)",
+        "ValueId::new(formal_index)",
+        "row.abi().mir_type()",
+        "identity.publish_declaration(",
+        "MirValueKind::Parameter(formal_index)",
+    ):
+        require(text["parameter"], anchor, "exact parameter adoption")
+    for forbidden in ("next_value_id", "variable_map", "binding_ctx"):
+        if forbidden in text["parameter"]:
+            fail(f"parameter adoption regained forbidden authority token: {forbidden}")
+    if '"i64"' in text["capability"]:
+        fail("pre-Builder route reclassified exact i64 outside the sealed profile")
 
     combined_box = "\n".join(path.read_text() for path in box.iterdir() if path.is_file())
     for forbidden in (
@@ -157,7 +180,7 @@ def main() -> None:
     print("canonical_ssa_i1_t_cfg_callers=1")
     print("canonical_ssa_i1_t_legacy_rc_on_selected_route=0")
     print("canonical_ssa_i1_t_ownership_opcode_callers=0")
-    print("canonical_ssa_i1_t_accepted_grammar_delta=0")
+    print("canonical_ssa_i1_t_accepted_grammar_delta=exact-static-i64-parameters")
 
 
 if __name__ == "__main__":

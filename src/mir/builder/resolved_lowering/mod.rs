@@ -31,6 +31,8 @@ mod if_tests;
 #[cfg(test)]
 mod null_tests;
 #[cfg(test)]
+mod parameter_tests;
+#[cfg(test)]
 mod semantic_stack_tests;
 #[cfg(test)]
 mod tests;
@@ -132,6 +134,11 @@ impl MirBuilder {
         plan: CanonicalTrivialBindingSsaPlanV1<'_>,
     ) -> Result<MirModule, CanonicalResolvedBuildErrorV1> {
         let (input, if_control, completion, profile, block_expr_count) = plan.into_parts();
+        let declared_param_decls = profile
+            .parameter_entries()
+            .iter()
+            .map(|row| row.abi().mir_param_decl(row.source_name()))
+            .collect();
         self.prepare_module()?;
         let crate::ast::ASTNode::FunctionDeclaration {
             name,
@@ -151,14 +158,7 @@ impl MirBuilder {
             builder.resolved_binding_state.install(input.function())?;
             builder.create_function_skeleton(function_name, params, body)?;
             builder.set_current_function_declared_signature(
-                params
-                    .iter()
-                    .map(|name| MirParamDecl {
-                        name: name.clone(),
-                        declared_type_name: None,
-                        implicit_receiver: false,
-                    })
-                    .collect(),
+                declared_param_decls,
                 return_type_name.clone(),
             );
             builder.set_current_function_runes(attrs);
@@ -173,7 +173,10 @@ impl MirBuilder {
                 block_expr_count,
             )?
             .lower()?;
-            let draft = finalize_preterminated_function_completion(builder, ready)?;
+            let mut draft = finalize_preterminated_function_completion(builder, ready)?;
+            crate::mir::type_contracts::parameter_entry::refresh_function_parameter_entry_contracts(
+                &mut draft,
+            );
             crate::mir::verification::MirVerifier::new()
                 .verify_function(&draft)
                 .map_err(|errors| {

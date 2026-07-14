@@ -128,9 +128,6 @@ impl CanonicalLoweringPreflightV1 {
             );
         }
         if return_type_name.is_some()
-            || param_decls
-                .iter()
-                .any(|decl| decl.declared_type_name.is_some())
             || (!param_decls.is_empty() && param_decls.len() != params.len())
             || (!param_decls.is_empty()
                 && param_decls
@@ -182,7 +179,18 @@ impl CanonicalLoweringPreflightV1 {
                     },
                 ));
             }
-            TrivialCanonicalOwnerAnalysisV1::NotAdmitted(_) => {}
+            TrivialCanonicalOwnerAnalysisV1::NotAdmitted(_) => {
+                if param_decls
+                    .iter()
+                    .any(|declaration| declaration.declared_type_name.is_some())
+                {
+                    return unsupported(
+                        "root",
+                        function.source().root(),
+                        "typed_parameter_profile_not_activated",
+                    );
+                }
+            }
         }
 
         // Temporary A+ is selected only from an explicit whole-owner profile

@@ -1,8 +1,8 @@
 ---
-Status: Accepted — implementation next
+Status: Closed
 Date: 2026-07-15
 Decision: SSA-I1-COMPAT-P0a — static exact-i64 parameter ingress
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0A-STATIC-EXACT-I64-PARAMETER-IMPLEMENTATION-001
+Next blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-NEXT-ROW-SELECTION-DESIGN-STOP-001
 Related:
   - mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
   - mirbuilder-ssa-i1-compat-explicit-void-implementation-2026-07-15.md
@@ -258,7 +258,7 @@ capability production activation = 0
 Builder connection = 0
 ```
 
-The current capability gate still rejects typed signatures during S0.
+S0 retained the typed-signature capability veto until the atomic I1 commit.
 
 ### P0a-I1 — atomic production activation
 
@@ -274,6 +274,57 @@ function publication gate
 ```
 
 Only I1 changes production routing.
+
+## Implementation result
+
+P0a-I1 is closed as one atomic production activation:
+
+```text
+pre-Builder:
+  exact typed parameters reach the sealed trivial profile
+  unsupported/mixed typed parameters reject before Builder effects
+  all-untyped owners retain the current whole-unit A+ disposition
+
+Builder:
+  sealed parameter rows install exact MirParamDecl metadata
+  reserved formal ValueIds %0..%N-1 are adopted without allocation
+  each exact Parameter BindingRef becomes an entry Binding SSA definition
+  parameter reassignment and If merge use the same Binding SSA owner
+
+runtime/backend:
+  existing ParameterEntryContract rows refresh before draft verification
+  final-callee i64 type and exact-arity checks run in the Rust interpreter
+  non-VM backends fail through the existing shared capability gate
+```
+
+Production counters are fixed at:
+
+```text
+parameter fresh ValueId allocation = 0
+canonical parameter legacy-name lookup = 0
+typed unsupported A+ fallback = 0
+source Call/MethodCall activation = 0
+receiver activation = 0
+Ownership SSA/opcode activation = 0
+selected-route legacy RC insertion = 0
+```
+
+Focused evidence is green:
+
+```text
+resolved-lowering family:              94/94
+P0a production/runtime fixtures:         5/5
+resolved value profile:                 18/18
+final-callee parameter contracts:         8/8
+parameter backend capability:             2/2
+parameter-entry filtered fixtures:        9/9
+authority guard:                         green
+```
+
+The public guard also received three behavior-neutral repairs for already
+landed structure: the canonical plan is an enum, nested resolved-lowering
+boxes are legitimate located-carrier consumers, and historical fixture counts
+are lower bounds rather than an exact ban on later tests.
 
 ## First runtime claim
 

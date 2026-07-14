@@ -3,5 +3,6 @@
 mod identity;
 mod lowerer;
 mod operation;
+mod parameter_entry;
 
 pub(super) use lowerer::CanonicalTrivialSsaLowererV1;

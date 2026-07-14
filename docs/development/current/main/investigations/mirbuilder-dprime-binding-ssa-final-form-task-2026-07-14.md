@@ -1390,6 +1390,12 @@ behavior-neutral P0a-L0, disconnected P0a-S0, then atomic P0a-I1 activation.
 Receiver, broader exact numeric types, typed return, and source calls remain
 separate selection rows.
 
+P0a-L0, P0a-S0, and atomic P0a-I1 are closed. Exact static `i64`
+parameters now adopt reserved formal ValueIds into the existing function-owned
+Binding SSA, preserve the existing final-callee entry contract, and reject
+unsupported typed signatures without A+ retry. Source calls, typed returns,
+receiver ownership, broader numeric rows, and Box ownership remain inactive.
+
 The remaining rows stay separate: exact typed parameters do not include the
 receiver owner family; Void disposition does not imply Outbox identity;
 BorrowedText requires its own lifetime/ABI decision.
@@ -2321,20 +2327,7 @@ state.
 
 ## Immediate next action
 
-Implement **SSA-I1-COMPAT-P0a** only, in this order:
-
-```text
-P0a-L0:
-  behavior-neutral exact i64 ABI facade and passive row installer
-
-P0a-S0:
-  disconnected VerifiedTrivialParameterEntryV1 profile and coverage
-
-P0a-I1:
-  whole-owner selection, exact MirParamDecl transport, reserved ValueId seed,
-  existing entry-contract proof, VM/reference execution, backend fail-fast
-```
-
-Activation occurs only in I1. Do not add source Call/MethodCall, typed return,
-receiver, bool/f64/usize expansion, Box ownership, or A+ retry. After I1,
-return to a selection stop before choosing a follow-on row.
+P0a is closed. Return to **SSA-I1-COMPAT next-row selection** and stop before
+implementation. The selection must compare P0n/P0b/P0f/P0r/P0c/R0 using exact
+source and runtime-contract evidence. Do not infer receiver, source Call,
+typed return, broader numeric types, or Box ownership from P0a being green.

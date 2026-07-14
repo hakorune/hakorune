@@ -28,6 +28,7 @@ use super::super::semantic_stack::{ResolvedSemanticExpectedCountsV1, ResolvedSem
 use super::super::MirBuilder;
 use super::identity::ResolvedSsaIdentityStateV2;
 use super::operation::{emit_binary, mir_type};
+use super::parameter_entry::publish_parameter_entries_v1;
 
 pub(in crate::mir::builder::resolved_lowering) struct CanonicalTrivialSsaLowererV1<
     'builder,
@@ -91,7 +92,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
     pub(in crate::mir::builder::resolved_lowering) fn lower(
         mut self,
     ) -> Result<ReadyFunctionCompletionV1, String> {
-        self.require_no_parameters()?;
+        publish_parameter_entries_v1(self.builder, &mut self.identity, &mut self.profile)?;
         let body = self
             .input
             .source()
@@ -124,17 +125,6 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             .finish(self.input.owner())?;
         self.completion
             .finish(body.site(), body_end, self.semantics.function_region())
-    }
-
-    fn require_no_parameters(&self) -> Result<(), String> {
-        let ASTNode::FunctionDeclaration { params, .. } = self.input.source().root() else {
-            unreachable!("preflight seals one function root")
-        };
-        if params.is_empty() {
-            Ok(())
-        } else {
-            Err("[freeze:contract][canonical_binding_ssa/parameter_profile_missing]".to_string())
-        }
     }
 
     fn completion_is_implicit(&self) -> bool {

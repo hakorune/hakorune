@@ -1,5 +1,5 @@
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl, Span};
-use crate::mir::compiler::capability::CanonicalLoweringPreflightV1;
+use crate::mir::compiler::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::resolved_control_flow::if_control::verify_resolved_function_if_control_v1;
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
@@ -238,12 +238,15 @@ fn unsupported_parameter_types_and_untyped_parameters_do_not_admit() {
 }
 
 #[test]
-fn exact_parameter_profile_remains_disconnected_from_production_preflight() {
+fn exact_parameter_profile_selects_production_binding_ssa_route() {
     let root = typed_function(&[Some("i64")], vec![return_value(variable("p0"))]);
     assert!(matches!(
         analyze(root.clone()),
         TrivialCanonicalOwnerAnalysisV1::Admitted(_)
     ));
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
-    assert!(CanonicalLoweringPreflightV1::verify(&unit).is_err());
+    assert!(matches!(
+        CanonicalLoweringPreflightV1::verify(&unit).unwrap(),
+        CanonicalFirstFamilyPlanV1::TrivialBindingSsa(_)
+    ));
 }
