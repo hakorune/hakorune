@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-I1-T closed; SSA-I1-COMPAT row selection next
+Status: Active — SSA-I1-COMPAT-N0a NullSentinel selected; implementation next
 Date: 2026-07-15
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-ROW-SELECTION-DESIGN-STOP-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-N0A-NULL-SENTINEL-IMPLEMENTATION-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -1324,6 +1324,24 @@ Each row either seals an executable representation/ABI witness or remains a
 typed whole-unit profile rejection. It may not add a body-level bridge between
 A+ and Binding SSA.
 
+Selected first row:
+
+```text
+SSA-I1-COMPAT-N0a:
+  exact LiteralValue::Null -> NullSentinel profile
+  existing ConstValue::Null / MirType::Void / runtime no-value representation
+  local/read/assignment/BlockExpr/homogeneous If only
+  terminal result remains InlineBool or existing no-value completion
+  ownership/call ABI/backend vocabulary delta = 0
+```
+
+Selection card:
+`mirbuilder-ssa-i1-compat-null-sentinel-selection-2026-07-15.md`.
+
+The remaining rows stay separate: exact typed parameters do not include the
+receiver owner family; Void disposition does not imply Outbox identity;
+BorrowedText requires its own lifetime/ABI decision.
+
 ### SSA-I1-FULL — current canonical A+ caller-zero cutover
 
 After every currently accepted canonical source unit has an admitted
@@ -2251,21 +2269,11 @@ state.
 
 ## Immediate next action
 
-Select exactly one **SSA-I1-COMPAT** representation/ABI row before
-implementation:
+Implement **SSA-I1-COMPAT-N0a** only. The exact contract and negative boundary
+are fixed in
+`mirbuilder-ssa-i1-compat-null-sentinel-selection-2026-07-15.md`.
 
-```text
-parameter/receiver ABI
-or Outbox/Void disposition
-or BorrowedText
-or Null
-```
-
-Selection must name the representation authority, exact ABI/disposition law,
-unsupported fail-fast boundary, and one bounded runtime fixture. Do not bundle
-two compatibility rows or use A+/Binding-SSA body-level mixing.
-
-Until one SSA-I1-COMPAT row is selected:
+Until N0a is green:
 
 ```text
 production Binding SSA sessions = exactly one admitted trivial route
@@ -2273,4 +2281,5 @@ production Ownership SSA witness/install/verifier calls = 0
 production CopyOwned / DestroyOwned callers = 0
 temporary A+ production behavior = unchanged
 Loop production activation = 0
+Void / Outbox / BorrowedText / parameter / receiver activation = 0
 ```
