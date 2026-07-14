@@ -696,10 +696,10 @@ mod tests {
 
     #[test]
     fn instruction_diet_ledger_counts_match_ssot() {
-        assert_eq!(MIR_INSTRUCTION_KEPT_TAGS.len(), 40);
+        assert_eq!(MIR_INSTRUCTION_KEPT_TAGS.len(), 41);
         assert_eq!(MIR_INSTRUCTION_LOWERED_AWAY_TAGS.len(), 0);
         assert_eq!(MIR_INSTRUCTION_REMOVED_TAGS.len(), 16);
-        assert_eq!(MIR_INSTRUCTION_VOCABULARY_COUNT, 56);
+        assert_eq!(MIR_INSTRUCTION_VOCABULARY_COUNT, 57);
     }
 
     #[test]

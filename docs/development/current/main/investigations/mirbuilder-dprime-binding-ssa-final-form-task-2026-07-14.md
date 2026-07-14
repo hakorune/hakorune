@@ -1,5 +1,5 @@
 ---
-Status: Active — A′ accepted; SSA-RC-L0 ownership seam split is next
+Status: Active — SSA-RC-L0 seam split is next
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
 Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC-L0-OWNERSHIP-SEAM-SPLIT-001
@@ -108,7 +108,7 @@ dependency SSOT; optional X0/O0/O1 work is not on the blocking path.
 
 ```text
 SSA-E0 -> SSA-S3 -> SSA-M0 -> SSA-RC0-D0
-SSA-RC0-D0 -> SSA-RC-L0 -> SSA-RC-L1 -> SSA-RC-P0 -> SSA-RC-A0 -> SSA-RC-A1a
+SSA-RC0-D0 -> SSA-RC-L0a -> SSA-RC-L0 -> SSA-RC-L1 -> SSA-RC-P0 -> SSA-RC-A0 -> SSA-RC-A1a
 SSA-RC-A1a -> SSA-RC-V0 -> SSA-RC-A1b -> SSA-RC-A1c
 SSA-RC-A1c -> SSA-RC-RET-P0 -> SSA-RC0 -> SSA-I1 -> SSA-R1
 SSA-I1 -> SSA-RC-RET-R1
@@ -590,6 +590,32 @@ The accepted decision and local correction are fixed in
 `mirbuilder-ssa-rc0-owned-alias-materialization-design-stop-2026-07-14.md`.
 Production Binding SSA and ownership-op callers remain zero.
 
+#### SSA-RC-L0a — instruction-diet ledger repair — closed
+
+The L0 focused-test baseline exposed a pre-existing contract drift introduced
+when `ArrayStateContractClaim` joined the kept vocabulary:
+
+```text
+actual kept tags = 41
+actual removed tags = 16
+actual vocabulary = 57
+stale test/docs literals = 40 / 16 / 56
+```
+
+Repair only the test and machine-readable MIR reference counts. The enum,
+cohorts, allowlists, schema, runtime behavior, grammar, and backend support do
+not change. This is a separate prerequisite commit; do not mix it with the
+physical L0 split.
+
+Closed evidence:
+
+```text
+implementation/test/reference ledger = 41 / 16 / 57
+cargo test -q --lib mir::contracts::backend_core_ops::tests::instruction_diet_ledger_counts_match -- --nocapture
+  2 passed
+enum/cohort/allowlist/schema/runtime/grammar/backend delta = 0
+```
+
 #### SSA-RC-L0 — ownership transport seam split — active
 
 Before adding opcodes, split two near-stop files by existing responsibility in
@@ -677,9 +703,9 @@ matches the current lifecycle safety boundary. A dedicated effect remains a
 separate future decision. Expected opcode ledger after A0:
 
 ```text
-kept = 42
+kept = 43
 removed = 16
-vocabulary = 58
+vocabulary = 59
 ```
 
 Production callers, VM execution, and canonical behavior remain zero. The
@@ -915,9 +941,9 @@ reference docs, and opcode diets. Expected final ledger if no replacement op
 is removed:
 
 ```text
-kept = 41
+kept = 42
 removed = 17
-vocabulary = 58
+vocabulary = 59
 ```
 
 This row is not implied by canonical caller zero.
@@ -1457,7 +1483,7 @@ SSA-RC-RET-P0. Hako interpreter parity is not Hako compiler-Lower parity.
 
 | Milestone | Binding SSA production | If production owner | Loop production | Source grammar delta |
 | --- | ---: | --- | ---: | ---: |
-| D0 / S2′ / SSA-P0 / SSA-L0 / SSA-C1 / SSA-P1 / SSA-V0 / SSA-S1 / SSA-S2 / SSA-E0 / SSA-S3 / SSA-M0 / SSA-RC0-D0 / SSA-RC-L0 / SSA-RC-L1 / SSA-RC-P0 / SSA-RC-A0 / SSA-RC-A1a / SSA-RC-V0 / SSA-RC-A1b / SSA-RC-A1c / SSA-RC-RET-P0 / SSA-RC0 | 0 | current A+ path | 0 | 0 |
+| D0 / S2′ / SSA-P0 / SSA-L0 / SSA-C1 / SSA-P1 / SSA-V0 / SSA-S1 / SSA-S2 / SSA-E0 / SSA-S3 / SSA-M0 / SSA-RC0-D0 / SSA-RC-L0a / SSA-RC-L0 / SSA-RC-L1 / SSA-RC-P0 / SSA-RC-A0 / SSA-RC-A1a / SSA-RC-V0 / SSA-RC-A1b / SSA-RC-A1c / SSA-RC-RET-P0 / SSA-RC0 | 0 | current A+ path | 0 | 0 |
 | SSA-I1 | 1 whole owner | Binding SSA + If CFG box | 0 | 0; ownership activation may remain 0 |
 | SSA-I1-O1 | 1 exact BoxRef owner | Binding SSA + Ownership SSA | 0 | 0 |
 | SSA-R1 / S3′ / I1′ | 1 whole owner | Binding SSA | 0 | 0 |
@@ -1596,6 +1622,9 @@ SSA-S3:
   line-neutrally admit resolved_control_flow as a disconnected consumer
   keep old production If S2/I1 checks
 
+SSA-RC-L0a:
+  require implementation/test/reference ledger equality at 41/16/57
+
 SSA-RC-L0:
   assert both split facades preserve public behavior and every file is <800
 
@@ -1660,6 +1689,7 @@ Add focused unit/runtime commands named by each milestone before committing.
 | SSA-S2 | identity and temporary value ownership are separated; production Binding SSA calls remain zero |
 | SSA-E0 | the already accepted terminal Return has an exact preservation contract; grammar delta is zero |
 | SSA-S3 | one carrier-free If control product is sealed; production If still uses A+ |
+| SSA-RC-L0a | stale instruction-diet literals are repaired to the unchanged 41/16/57 implementation vocabulary |
 | SSA-RC-L0/L1/P0 | ownership transport/frame seams are closed and the exact BoxRef/trivial/reject profile is sealed; production ownership is unchanged |
 | SSA-RC-A0 | passive CopyOwned/DestroyOwned transport exists; production callers and backend execution are zero |
 | SSA-RC-A1a/V0/A1b/A1c | supported backends and path-sensitive Ownership SSA verification implement the closed BoxRef profile; canonical callers are zero |
@@ -1786,6 +1816,7 @@ state.
 Implement SSA-RC-L0 only. Do not add ownership opcodes in the same commit:
 
 ```text
+restore the named L0 WIP after the L0a prerequisite lands
 split backend_core_ops.rs by existing vocabulary/allowlist/test responsibility
 split mir_json_v0.rs lifecycle parsing behind the existing facade
 keep every resulting source file below 800 lines

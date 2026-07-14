@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ A′ Ownership SSA accepted; SSA-RC-L0 seam split is active"
+status = "D′ SSA-RC-L0 ownership transport seam split is active"
 date = "2026-07-14"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -11,9 +11,11 @@ function-owned Binding SSA becomes the only BindingRef-to-ValueId/PHI merge
 owner. B0-L4-S2′, SSA-P0's guarded 92-row inventory, behavior-neutral SSA-L0,
 SSA-C1, SSA-P1, SSA-V0, SSA-S1, SSA-S2, SSA-E0, SSA-S3, and SSA-M0 are closed.
 A′ accepts explicit CopyOwned/DestroyOwned Ownership SSA, keeps Copy neutral,
-and isolates legacy ReleaseStrong. The active code row is behavior-neutral
-SSA-RC-L0: split the near-800-line backend opcode and MIR JSON seams before
-adding passive vocabulary. Historical
+and isolates legacy ReleaseStrong. SSA-RC-L0a repairs stale instruction-diet
+test/reference literals to the unchanged 41/16/57 implementation vocabulary.
+The active behavior-neutral row is SSA-RC-L0: split ownership transport seams
+by existing responsibility while keeping every source file below 800 lines.
+Historical
 lane chronology follows and is non-authoritative.
 Explicit user priority change on 2026-07-12 reopens
 the parked Source Selfhost/MirBuilder lane before LANGV1 conformance closeout.
@@ -161,7 +163,7 @@ adapter, conservative Unknown PHI facts, exact C1 witnesses, pending-only
 rollback, and five focused fixtures. SSA-RC0-D0 is closed by A′: CopyOwned
 creates a fresh independent Owned token, DestroyOwned consumes exactly the
 named token, Copy stays neutral, and ReleaseStrong remains legacy. Before RC0
-or SSA-I1, L0/L1/P0/A0/A1a/V0/A1b/A1c/RET-P0 close physical seams, the exact BoxRef
+or SSA-I1, L0a/L0/L1/P0/A0/A1a/V0/A1b/A1c/RET-P0 close physical seams, the exact BoxRef
 profile, transport, supported backends, path-sensitive ownership forwarding,
 and legacy retirement inventory. If no exact BoxRef source producer exists,
 SSA-I1 is a trivial-only Binding SSA cutover and production Ownership SSA waits
@@ -523,6 +525,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-14: D′ SSA-RC-L0a repairs stale instruction-diet test/reference literals from 40/16/56 to the unchanged implementation truth 41/16/57 after ArrayStateContractClaim joined the kept vocabulary; focused ledger tests are 2/2 green and enum/cohort/allowlist/schema/runtime/grammar/backend behavior is unchanged; SSA-RC-L0 is selected.",
   "2026-07-14: A′ accepts explicit CopyOwned/DestroyOwned Ownership SSA, keeps Copy ownership-neutral, isolates legacy ReleaseStrong, and taskizes L0/L1/P0/A0/A1a/V0/A1b/A1c/RET-P0/RC0/I1/I1-O1 plus caller-zero retirement; local verification corrects the stale VM pointer-sweep claim, and SSA-RC-L0 is selected as the first behavior-neutral code row.",
   "2026-07-14: Rust MirInterpreter retirement is taskized as a separate required selfhost branch: stable MIR ownership vocabulary -> sealed ingress/opcode/event contract -> disconnected `.hako` MIR interpreter -> independent normalized parity -> no-fallback semantic-reference cutover -> consumer-driven expansion -> exact caller-zero Rust physical retirement; EXE/AOT remains the product route and RC0 remains at its design stop.",
   "2026-07-14: D′ SSA-M0 closes one borrowed real-MIR Binding SSA adapter over MirBuilder/PhiTxn, exact CanonicalCfgSessionV1 predecessor witnesses, conservative Unknown open/patched PHI facts, explicit unreachable/non-dominance rejection, pending-only rollback with poisoned-draft discard, five focused fixtures, zero production callers, and zero grammar/behavior delta; SSA-RC0 is selected.",
@@ -534,5 +537,4 @@ landed_tail = [
   "2026-07-14: D′ SSA-P1 closes all-attempt PHI transaction rollback, typed primary-plus-all-cleanup error retention, missing-provisional detection, failed-commit rollback, six focused fixtures, zero Binding SSA production callers, and zero grammar delta; SSA-V0 is selected.",
   "2026-07-14: D′ SSA-C1 closes one disconnected fallible canonical CFG session with terminator-derived predecessor truth, checked-not-repaired successor/predecessor caches, immutable seal witnesses, typed late-edge/duplicate/seal errors, fifteen focused fixtures, zero production callers, and zero grammar delta; SSA-P1 is selected.",
   "2026-07-14: D′ SSA-L0 behavior-neutrally splits the 807-line PHI input helper into an 18-line facade, 331-line edge rematerialization, 166-line legacy whole-function repair, and responsibility-specific tests; API, callers, grammar, and production behavior remain unchanged, and SSA-C1 is selected.",
-  "2026-07-14: D′ SSA-P0 closes a guarded 92-row inventory across canonical binding/value, CFG/predecessor, PHI lifecycle, RC/lifetime, publication, terminal Return, and old If authority seams; it adds SSA-V0 publication safety, explicit scope/tail/self-assignment RC gaps, and selects behavior-neutral SSA-L0.",
 ]
