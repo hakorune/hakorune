@@ -12,6 +12,7 @@ mod identity;
 mod if_materialization;
 mod located_if;
 mod lowerer;
+mod ownership;
 mod semantic_stack;
 
 #[cfg(test)]

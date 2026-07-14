@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-RC0 disconnected ownership-transition planner is next
+Status: Active — SSA-I1 atomic current-owner cutover is next
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-RC0-OWNERSHIP-TRANSITION-PLANNER-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-ATOMIC-CURRENT-OWNER-CUTOVER-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -1135,6 +1135,8 @@ Evidence card:
 
 #### SSA-RC0 — disconnected ownership transition planner
 
+Status: closed
+
 Seal the bounded ownership contract before production Binding SSA activation:
 
 ```text
@@ -1158,6 +1160,28 @@ The disconnected pure planner emits typed plans, not `MirInstruction`, and
 allocates no `ValueId`. It distinguishes `Trivial`, `Owned`, and
 `BorrowedStrong` provenance. This row activates neither Binding SSA nor new
 source grammar and does not claim a whole-language ownership solution.
+
+Closed evidence:
+
+```text
+closed local-binding classes = Receiver / Parameter / Local / Outbox
+closed value provenance = Trivial / Owned / BorrowedStrong
+exact BindingRef self-assignment authority = 1
+raw ValueId self-assignment authority = 0
+materialization order = next -> commit -> previous destroy
+scope/function destroy order = reverse source declaration order
+MirBuilder / MirInstruction / BasicBlockId imports = 0
+BindingRef-to-ValueId planner maps = 0
+ValueId allocation / MIR emission = 0
+production callers / grammar / runtime activation = 0
+focused fixtures = 18/18 green
+resolved-lowering group = 74/74 green
+authority guard / release build / quick 66/66 = green
+largest source/check file = 500 lines
+```
+
+Evidence card:
+`mirbuilder-ssa-rc0-ownership-transition-planner-2026-07-14.md`.
 
 ### SSA-I1 — atomic current-owner cutover
 
@@ -2120,16 +2144,17 @@ state.
 
 ## Immediate next action
 
-Implement disconnected SSA-RC0 only. Keep production Binding SSA and
-ownership callers unchanged:
+Implement atomic SSA-I1 only. Do not land a partially mixed canonical owner:
 
 ```text
-introduce one pure typed ownership-transition planner
-model Trivial, Owned, and BorrowedStrong provenance without a second BindingRef value map
-materialize replacement before destroying the previous owned value
-use exact BindingRef identity for self-assignment
-seal scope-close and terminal Return disposition in reverse declaration order
-emit no MirInstruction and allocate no ValueId or BasicBlockId
-connect no production canonical caller
+install exactly one function-owned Binding SSA session
+route every accepted declaration/read/rebind through that session
+materialize SSA-RC0 plans for assignment, BlockExpr tail, scope close, and Return
+derive If PHIs from sealed CFG predecessors and BindingRef reads only
+remove canonical effect/write-set/join-source/manual snapshot value authority
+emit canonical legacy lifecycle calls 0 and prevent optional-RC double destroy
+verify coverage, CFG, Binding SSA, Ownership SSA, and MIR before publication
+reject the whole canonical source unit before Builder effects when its profile is unsupported
+allow no canonical failure retry into the legacy route
 keep every new or modified source/check file below 800 lines
 ```
