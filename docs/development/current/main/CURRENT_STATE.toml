@@ -1,15 +1,15 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ S2′ generic located coverage is closed; SSA-P0 seam inventory is active"
+status = "D′ SSA-P0 seam inventory is closed; SSA-L0 PHI-helper split is active"
 date = "2026-07-14"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
 active_lane_status = """D′ is the current canonical control-lowering authority:
 pre-Builder products retain exact coverage/topology/ports/cleanup, while one
 function-owned Binding SSA becomes the only BindingRef-to-ValueId/PHI merge
-owner. B0-L4-S2′ generic located coverage is closed with production consumers
-zero; the active slice is behavior-neutral SSA-P0 seam inventory. Historical
+owner. B0-L4-S2′ generic located coverage and SSA-P0's guarded 92-row seam
+inventory are closed; the active slice is behavior-neutral SSA-L0. Historical
 lane chronology follows and is non-authoritative.
 Explicit user priority change on 2026-07-12 reopens
 the parked Source Selfhost/MirBuilder lane before LANGV1 conformance closeout.
@@ -137,8 +137,9 @@ If moves to that same owner before Loop production activation; family-specific
 CFG boxes remain separate. Closed B0-L4-S1 Loop identity is retained. The
 S2′ is closed with checked exact suffix ranges, owner-branded ordered coverage,
 zero production consumers, and zero Binding SSA/Loop activation; existing A+
-If production remains unchanged. The active slice is SSA-P0 exhaustive seam
-inventory before any value-authority cutover. Old A+A2′ carrier-bearing
+If production remains unchanged. SSA-P0 closes the exhaustive guarded seam
+inventory and selects the mandatory oversized PHI-helper split as SSA-L0.
+Old A+A2′ carrier-bearing
 S3/I1/I2 and effect-bearing V2 extraction are superseded. Everything below is
 historical evidence and is not current implementation authority. Historical
 owner-forest context follows. Resolved Semantic Owner Forest V1
@@ -482,7 +483,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-P0-CANONICAL-SSA-SEAM-INVENTORY-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-L0-PHI-INPUT-MATERIALIZER-SPLIT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -491,6 +492,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-14: D′ SSA-P0 closes a guarded 92-row inventory across canonical binding/value, CFG/predecessor, PHI lifecycle, RC/lifetime, publication, terminal Return, and old If authority seams; it adds SSA-V0 publication safety, explicit scope/tail/self-assignment RC gaps, and selects behavior-neutral SSA-L0.",
   "2026-07-14: D′ B0-L4-S2′ closes checked owner/body/start/nonzero range navigation and a private owner-branded ordered coverage schema under resolved_control_flow, with ten focused tests, production consumers zero, existing A+ If unchanged, and Binding SSA/Loop activation zero.",
   "2026-07-14: D′ taskization supersedes forward carrier/effect PHI authority with one function-owned Binding SSA final form; exact control/coverage/cleanup stays pre-Builder, closed B0-L4-S1 and generic S2 intent are retained, and S2′ was selected as the next zero-production slice.",
   "2026-07-14: B0-L4-S1 closes one private seal-derived exact Loop/LoopBody pair index with self-relative point lookup, exact origin/parent/reciprocal validation, full LoopBody record accounting, nine focused fixtures, and zero RegionFlow/Builder/Lower/runtime activation.",
@@ -502,5 +504,4 @@ landed_tail = [
   "2026-07-13: B0-L3a closes straight-line canonical BlockExpr Lower with exact sealed ScopeId/RegionId pair consumption, explicit scope transactions, active/retired BindingRef dispositions, nested/shadow/rebind fixtures, and VM-reference results.",
   "2026-07-13: SA3-B closes the first canonical function family atomically with one verified source-unit constructor, pre-Builder capability check, exact located carriers, BindingRef-keyed values, legacy allocator veto, complete coverage, transactional publication, and six focused tests.",
   "2026-07-13: B0-L2c closes CanonicalFunctionLoweringSessionV1 with complete caller snapshot/restore, one static/instance lifecycle entry, unpublished drafts, post-cleanup commit, five injected failure checkpoints, panic backstop, and zero semantic activation.",
-  "2026-07-13: B0-L2b closes immutable exact source navigation with shared SourcePathV1 grammar, a sealed syntax/forest projection, unforgeable located carriers, exact nested BlockExpr/Lambda navigation, and zero Builder/Planner consumers or production activation.",
 ]

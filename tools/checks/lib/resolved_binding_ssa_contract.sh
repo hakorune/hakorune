@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+# D′ SSA-P0: behavior-neutral inventory of every canonical value/CFG/PHI/RC/
+# publication/Return/old-If seam that must move, remain, isolate, or disappear.
+
+guard_resolved_binding_ssa_contract() {
+  local tag="$1"
+  local root="$2"
+  local inventory="$root/tools/checks/fixtures/canonical_ssa_seam_inventory_v1.json"
+  local validator="$root/tools/checks/lib/resolved_binding_ssa_inventory.py"
+  local helper="${BASH_SOURCE[0]}"
+
+  guard_require_files "$tag" "$inventory" "$validator" "$helper"
+  python3 "$validator" "$root" "$inventory"
+
+  local file lines
+  for file in "$inventory" "$validator" "$helper"; do
+    lines="$(wc -l < "$file" | tr -d '[:space:]')"
+    if (( lines >= 800 )); then
+      guard_fail "$tag" "D′ SSA-P0 source/check reached the 800-line stop boundary: $file ($lines)"
+    fi
+  done
+}

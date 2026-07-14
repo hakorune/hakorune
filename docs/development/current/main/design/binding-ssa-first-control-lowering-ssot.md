@@ -128,6 +128,11 @@ after seal:
   adding a predecessor is a typed error
 ```
 
+`compute_predecessors()` over cached successors is not a terminator-truth
+witness. Canonical seal derives the set directly from terminators. PHI
+analysis and input materialization must not call `update_cfg()` or otherwise
+repair the graph as a side effect.
+
 ### Binding SSA
 
 Own:
@@ -225,6 +230,11 @@ Same-name shadows need no value-map snapshot or restoration because their
 Assignment ownership cleanup reads the old value through Binding SSA before
 the new definition is installed. Scope-exit cleanup also reads the current
 SSA value. RC behavior is part of each atomic production gate.
+
+Before scope-exit release is activated, ownership law must distinguish
+self-assignment and a BlockExpr tail/current value that escapes the closing
+scope. Error cleanup of an unpublished draft restores compiler state but does
+not emit duplicate runtime cleanup for discarded code.
 
 ## Open PHI facts
 
@@ -332,6 +342,35 @@ canonical failure followed by legacy If/Loop/CorePlan retry
 The old If effect/join products may remain a temporary production oracle until
 the atomic owner cutover. After the cutover they have zero production callers
 and are physically retired in a separate behavior-neutral slice.
+
+## Finish and publication law
+
+Whole-function PHI repair is not SSA completion. A canonical function cannot
+depend on post-publication missing-input fabrication, CFG repair, or unused-PHI
+pruning to become valid.
+
+Publication order is strict:
+
+```text
+source/control/identity coverage complete
+all blocks sealed from terminator-derived predecessors
+Binding SSA finish with incomplete PHIs = 0
+typed values and semantic stacks verified
+function draft finalized and caller context restored
+candidate module finalized
+RC insertion/validation complete
+CFG + SSA + dominance + RC + MIR verification green
+module session commit
+```
+
+A verifier failure is a typed compilation failure, not a successful compile
+result carrying `verification_result = Err`. Duplicate same-name canonical
+function publication is also a typed failure; silent replacement is forbidden.
+
+The currently accepted completion contract includes both a function-root
+final explicit Return and implicit fallthrough completion. Exact target,
+cleanup obligations (including an explicit empty set), and unreachable-source
+disposition are sealed before either form participates in an SSA cutover.
 
 ## Physical boundary
 

@@ -42,11 +42,11 @@ cargo check -q
 - read `latest_card_path` before editing
 - D′ is accepted: exact coverage/topology/ports/cleanup stays pre-Builder and
   one function-wide Binding SSA becomes canonical local value/PHI authority
-- B0-L4-S2′ is closed with production consumers and Binding SSA/Loop
-  activation zero; existing A+ If production remains unchanged
-- the active blocker is SSA-P0 exhaustive seam inventory; classify current
-  BindingRef value, CFG/predecessor, PHI lifecycle, RC, and publication paths
-  without changing production ownership or accepted grammar
+- B0-L4-S2′ and the guarded 92-row SSA-P0 seam inventory are closed with
+  production Binding SSA/Loop activation zero; existing A+ If is unchanged
+- the active blocker is SSA-L0: behavior-neutrally split the oversized PHI
+  input helper by edge-rematerialization versus whole-function repair, with
+  all public/private APIs and callers unchanged
 - old A+A2′ carrier S3/I1/I2 and effect-bearing V2 extraction are superseded;
   do not revive them from historical cards
 - keep parser/source-carrier and unrelated parked stashes disconnected

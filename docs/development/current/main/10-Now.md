@@ -20,9 +20,9 @@ Related:
 - language-v1 workstream:
   `docs/development/current/main/workstreams/language-v1-convergence-current.md`
 - priority: D′ is taskized through the final canonical-source form. S2′
-  generic located coverage is closed with production consumers zero. The
-  active blocker is SSA-P0 exhaustive seam inventory before any value-owner
-  cutover. Existing If remains runtime-green on its old owner; Loop production,
+  generic located coverage and the guarded 92-row SSA-P0 seam inventory are
+  closed. The active blocker is behavior-neutral SSA-L0 PHI-helper splitting.
+  Existing If remains runtime-green on its old owner; Loop production,
   carrier rows, legacy fallback, default source, Lambda/capture, ProgramV0
   authority, and durable RegionId materialization remain inactive
 - parked language work: LANGV1 conformance closeout remains parked; no

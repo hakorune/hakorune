@@ -31,9 +31,9 @@ function-wide Binding SSA will own every canonical local BindingRef value
 merge. Existing If must cut over to that owner before Loop production; no
 Loop-only SSA bridge, carrier rows, map diff, or legacy retry is authorized.
 
-B0-L4-S2′ is closed with production consumers zero. The current blocker is
-SSA-P0: inventory every canonical BindingRef value access, CFG/predecessor
-writer, PHI lifecycle path, RC read/release, and publication barrier, then
-classify each row without changing behavior. ProgramV0, REPL, Lambda
+B0-L4-S2′ and the guarded 92-row SSA-P0 seam inventory are closed. The current
+blocker is SSA-L0: split the existing oversized PHI input helper into a thin
+facade, edge rematerialization, function repair, and focused test modules with
+no API, behavior, grammar, CFG, or SSA activation change. ProgramV0, REPL, Lambda
 capture/layout, default-route cutover, and durable RegionId materialization
 remain parked. Keep every new or modified source/check file below 800 lines.

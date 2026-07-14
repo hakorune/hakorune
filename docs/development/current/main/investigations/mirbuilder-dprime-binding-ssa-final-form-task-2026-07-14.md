@@ -1,8 +1,8 @@
 ---
-Status: Active — D0 and B0-L4-S2′ closed; SSA-P0 selected
+Status: Active — D0, B0-L4-S2′, and SSA-P0 closed; SSA-L0 selected
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-P0-CANONICAL-SSA-SEAM-INVENTORY-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-L0-PHI-INPUT-MATERIALIZER-SPLIT-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -188,6 +188,24 @@ Classify each row as `move to Binding SSA`, `control-only retain`, `legacy
 isolate`, or `caller-zero delete`. This is evidence only: production behavior
 and accepted grammar remain unchanged.
 
+Closed evidence:
+
+```text
+machine rows = 92
+binding/value = 18
+CFG/predecessor = 12
+PHI lifecycle = 23
+RC/lifetime = 7
+finish/publication = 10
+terminal Return = 10
+old A+ If authority = 12
+production behavior delta = 0
+accepted grammar delta = 0
+```
+
+Evidence card:
+`mirbuilder-canonical-ssa-seam-inventory-2026-07-14.md`.
+
 ### SSA-L0 — mandatory oversized PHI-helper split
 
 `src/mir/builder/ssa/phi_input_materializer.rs` is already above 800 lines.
@@ -195,6 +213,12 @@ Before SSA-C1, SSA-P1, or SSA-S1 edits, split it by existing responsibility in
 one behavior-neutral commit:
 
 ```text
+facade
+edge_rematerialization:
+  analysis, diagnostics, recursive rematerialization, for_pred
+function_repair:
+  whole-function repair, pruning, missing-input completion
+separate focused test modules
 no API/semantic/grammar change
 all existing PHI lifecycle tests green
 each resulting source file below 800 lines
@@ -208,6 +232,8 @@ one canonical edge facade
 late predecessor veto
 computed/cached predecessor equality
 seal-twice and edge-after-seal errors
+terminator-derived predecessor truth; cached-successor recompute is not proof
+PHI analysis/update_cfg side-effect repair forbidden on canonical edges
 ```
 
 Production activation remains zero. Existing If continues on its old path.
@@ -225,6 +251,23 @@ success commits exactly once
 ```
 
 No accepted syntax or production Binding SSA call is added.
+
+### SSA-V0 — canonical publication/verifier prerequisite
+
+Close the invalid-publication boundary before Binding SSA production work:
+
+```text
+post-RC MIR verifier failure is a typed compile failure
+candidate module commit after verifier failure = 0
+duplicate same-name canonical function publication is a typed failure
+function/module publication before seal/SSA completion = 0
+verification_result = Err cannot cross CanonicalModuleLoweringSessionV1::commit
+```
+
+This row changes no accepted source grammar. It must land before SSA-S1 is
+connected to production. Legacy result-reporting behavior, if still required,
+stays behind explicit legacy provenance rather than weakening the canonical
+barrier.
 
 ### SSA-S1 — disconnected Binding SSA
 
@@ -268,13 +311,14 @@ This is Refactor Series Mode and adds no source grammar.
 ### SSA-E0 — preserved terminal Return contract
 
 Before the owner cutover, seal only the already accepted function-body
-terminal Return case:
+terminal Return and implicit fallthrough completion cases:
 
 ```text
 exact function target
 exact terminal statement site
 unreachable suffix count = 0
 ordered crossed-scope cleanup obligations are explicit, including empty
+implicit Void completion is represented separately and closes after SSA finish
 nested If/Loop Return activation = 0
 accepted source grammar delta = 0
 ```
@@ -326,9 +370,11 @@ then definitions do not leak into else compilation state
 scope leave retires identity without deleting historical SSA definitions
 assignment ReleaseStrong reads the previous value through Binding SSA
 scope-exit cleanup reads the current merged value through Binding SSA
+self-assignment and BlockExpr tail/alias ownership fixtures are green
 flat value-map merge authority calls = 0
 canonical If may_rebind/join-source queries = 0
 manual branch snapshot/restore = 0
+canonical materialize_all_phi_inputs repair calls = 0
 function verifier green before publication
 canonical failure legacy retry = 0
 ```
@@ -728,7 +774,7 @@ decision and cannot coexist as a second generic-baseline truth.
 
 | Milestone | Binding SSA production | If production owner | Loop production | Source grammar delta |
 | --- | ---: | --- | ---: | ---: |
-| D0 / S2′ / SSA-P0 / SSA-L0 / SSA-C1 / SSA-P1 / SSA-S1 / SSA-S2 / SSA-E0 / SSA-S3 | 0 | current A+ path | 0 | 0 |
+| D0 / S2′ / SSA-P0 / SSA-L0 / SSA-C1 / SSA-P1 / SSA-V0 / SSA-S1 / SSA-S2 / SSA-E0 / SSA-S3 | 0 | current A+ path | 0 | 0 |
 | SSA-I1 | 1 whole owner | Binding SSA + If CFG box | 0 | 0 |
 | SSA-R1 / S3′ / I1′ | 1 whole owner | Binding SSA | 0 | 0 |
 | I2′ | 1 whole owner | Binding SSA | 1 closed Loop family | +1 family |
@@ -821,7 +867,7 @@ Success publication order after every block seal:
 4. every touched block sealed
 5. incomplete PHIs = 0
 6. PhiTxn committed
-7. final global CFG/SSA/dominance/RC/MIR reverify green
+7. final post-RC CFG/SSA/dominance/RC/MIR reverify green
 8. resolved authority finished
 9. function session restores caller state
 10. sealed function draft commits to the module
@@ -886,6 +932,7 @@ Add focused unit/runtime commands named by each milestone before committing.
 | --- | --- |
 | S2′ | exact located range/coverage schema exists; its production consumers are zero and existing A+ If is unchanged |
 | SSA-P0/L0/P1/C1 | the inventory, physical split, CFG seal, and PHI cleanup prerequisites are closed; production SSA calls are zero |
+| SSA-V0 | canonical verifier failure and duplicate function publication cannot commit; grammar delta is zero |
 | SSA-S1 | disconnected Binding SSA handles tested CFG shapes; production calls are zero |
 | SSA-E0 | the already accepted terminal Return has an exact preservation contract; grammar delta is zero |
 | SSA-S3 | one carrier-free If control product is sealed; production If still uses A+ |
@@ -928,6 +975,8 @@ puts ValueId, BasicBlockId, or materialized target roles in a pre-Builder produc
 adds an independently mutable third predecessor truth
 emits an edge and registers its predecessor through unguarded separate calls
 adds a predecessor after seal
+uses cached successors as the terminator-truth predecessor proof
+repairs canonical CFG or missing PHI inputs during post-Lower materialization
 exposes a Reserve-only PHI dst
 infers a concrete open-PHI fact from only the entry input
 erases historical SSA definitions on lexical scope leave
@@ -935,6 +984,8 @@ routes Upvar/field/index writes through local Binding SSA
 discovers unsupported control after Builder effects
 lets PHI/cleanup failure overwrite the primary error
 publishes before SSA/coverage/stack/function verification finishes
+commits a canonical module while verification_result is Err
+silently overwrites a same-name canonical function
 retries legacy If/Loop/CorePlan after canonical failure
 lets one activation row accept more than one source/control shape
 inherits a newly landed expression kind without updating the row's closed grammar
@@ -966,14 +1017,12 @@ of this final form.
 
 ## Immediate next action
 
-Close SSA-P0 inventory only:
+Close SSA-L0 only:
 
 ```text
-enumerate every canonical declaration/read/rebind/scope-exit value access
-enumerate every canonical CFG edge and predecessor writer
-enumerate every PHI reserve/define/expose/patch/rollback path
-enumerate assignment and scope-exit RC read/release paths
-enumerate function finish/publication barriers and terminal Return shape
-classify each row as move-to-SSA, control-only retain, legacy isolate, or caller-zero delete
-production behavior and accepted grammar remain unchanged
+split phi_input_materializer by existing responsibility
+facade + edge_rematerialization + function_repair + focused test modules
+preserve every current API/caller and runtime behavior
+add no Binding SSA, CFG seal, PHI cleanup, or grammar acceptance code
+keep every resulting source/check file below 800 lines
 ```
