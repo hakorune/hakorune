@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ SSA-V0 publication barrier is closed; SSA-S1 disconnected Binding SSA is active"
+status = "D′ SSA-S1 disconnected Binding SSA is closed; SSA-S2 identity/value separation is active"
 date = "2026-07-14"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -9,7 +9,7 @@ active_lane_status = """D′ is the current canonical control-lowering authority
 pre-Builder products retain exact coverage/topology/ports/cleanup, while one
 function-owned Binding SSA becomes the only BindingRef-to-ValueId/PHI merge
 owner. B0-L4-S2′, SSA-P0's guarded 92-row inventory, behavior-neutral SSA-L0,
-SSA-C1, SSA-P1, and SSA-V0 are closed; the active slice is SSA-S1. Historical
+SSA-C1, SSA-P1, SSA-V0, and SSA-S1 are closed; the active slice is SSA-S2. Historical
 lane chronology follows and is non-authoritative.
 Explicit user priority change on 2026-07-12 reopens
 the parked Source Selfhost/MirBuilder lane before LANGV1 conformance closeout.
@@ -144,7 +144,10 @@ fixtures and zero production callers. SSA-P1 closes all-attempt PHI rollback,
 typed primary-plus-cleanup error retention, and failed-commit cleanup with six
 focused fixtures. SSA-V0 closes typed post-RC verifier failure, commit-before-
 verification exclusion, and checked same-name canonical function publication.
-SSA-S1 is the next disconnected Binding SSA prerequisite.
+SSA-S1 closes one disconnected function-owned sealed-block Binding SSA with
+twelve focused fixtures, immutable C1 predecessor witnesses, rollback-and-
+poison failure handling, zero production callers, and zero grammar delta.
+SSA-S2 is the next identity/value separation prerequisite.
 Old A+A2′ carrier-bearing
 S3/I1/I2 and effect-bearing V2 extraction are superseded. Everything below is
 historical evidence and is not current implementation authority. Historical
@@ -489,7 +492,7 @@ not started. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-S1-DISCONNECTED-BINDING-SSA-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-S2-IDENTITY-VALUE-SEPARATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -498,6 +501,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-14: D′ SSA-S1 closes one disconnected function-owned sealed-block Binding SSA with immutable C1 predecessor witnesses, on-demand provisional PHIs, exact input verification, rollback-and-poison errors, twelve focused fixtures, zero production callers, and zero grammar delta; SSA-S2 is selected.",
   "2026-07-14: D′ SSA-V0 closes the canonical publication barrier with typed post-RC MIR verification failure, commit-after-failure zero, typed same-name function rejection without overwrite, three focused fixtures, explicit legacy reporting preservation, zero Binding SSA production callers, and zero grammar delta; SSA-S1 is selected.",
   "2026-07-14: D′ SSA-P1 closes all-attempt PHI transaction rollback, typed primary-plus-all-cleanup error retention, missing-provisional detection, failed-commit rollback, six focused fixtures, zero Binding SSA production callers, and zero grammar delta; SSA-V0 is selected.",
   "2026-07-14: D′ SSA-C1 closes one disconnected fallible canonical CFG session with terminator-derived predecessor truth, checked-not-repaired successor/predecessor caches, immutable seal witnesses, typed late-edge/duplicate/seal errors, fifteen focused fixtures, zero production callers, and zero grammar delta; SSA-P1 is selected.",
@@ -509,5 +513,4 @@ landed_tail = [
   "2026-07-14: B0-L4 accepts A + A2′: a new ID-free canonical Loop flow, reusable coverage sidecar inseparably co-sealed with each Loop row, disconnected S1/S2/S3 then I1 and atomic I2, condition-false-only V1, and transaction-local role blocks until SA4.",
   "2026-07-14: B0-L3b-I1b closes atomic canonical fallthrough statement-If activation with one pre-Builder flow analysis, source-preorder exact coverage, shared post-condition branch baseline, sealed join-source PHIs, six VM/reference fixtures, and zero durable RegionId materialization.",
   "2026-07-14: B0-L3b-I1a closes seal-derived function/body roots, separate RegionId/ScopeId stacks, join-domain-only branch transactions, exact conditional predecessors, final PHIs before one batch publication, and zero production If activation.",
-  "2026-07-13: B0-L3b-S2 closes one owner-closed lifetime-free function If flow with typed fallthrough ports, separate condition effects, exact join-source rows, source-preorder publication, nested child-summary composition, exact coverage/bundle bijection, ten focused fixtures, and zero Builder/Lower/runtime activation.",
 ]

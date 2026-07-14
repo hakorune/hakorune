@@ -101,7 +101,6 @@ def main() -> None:
         "### SSA-V0 — canonical publication/verifier prerequisite — closed",
         "CanonicalModuleLoweringSessionV1 commit after that Err = unreachable",
         "production Binding SSA callers = 0",
-        "Close SSA-S1 only:",
     ):
         require(taskboard, anchor, "taskboard")
 

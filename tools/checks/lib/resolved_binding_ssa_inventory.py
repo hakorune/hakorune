@@ -250,8 +250,11 @@ def main() -> None:
         fail("module PHI repair seam disappeared without SSA-I1 reclassification")
 
     production = list(production_rs(root))
-    if count_in(production, "struct BindingSsaBuilderV1") != 0:
-        fail("BindingSsaBuilderV1 activated before SSA-S1")
+    binding_ssa_path = root / "src/mir/builder/ssa/binding/mod.rs"
+    if binding_ssa_path not in production:
+        fail("SSA-S1 disconnected BindingSsaBuilderV1 owner is missing")
+    if count_in(production, "struct BindingSsaBuilderV1") != 1:
+        fail("SSA-S1 must retain exactly one BindingSsaBuilderV1 declaration")
     non_test_resolved_callers = [
         path
         for path in production

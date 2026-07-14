@@ -17,6 +17,19 @@ impl VerifiedPredecessorsV1 {
     pub(in crate::mir::builder) fn predecessors(&self) -> &[BasicBlockId] {
         &self.predecessors
     }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn from_test_parts(
+        block: BasicBlockId,
+        mut predecessors: Vec<BasicBlockId>,
+    ) -> Self {
+        predecessors.sort_unstable();
+        predecessors.dedup();
+        Self {
+            block,
+            predecessors: predecessors.into_boxed_slice(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

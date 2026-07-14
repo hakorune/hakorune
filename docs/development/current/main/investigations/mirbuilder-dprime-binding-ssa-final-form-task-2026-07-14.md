@@ -1,8 +1,8 @@
 ---
-Status: Active — SSA-V0 closed; SSA-S1 selected
+Status: Active — SSA-S1 closed; SSA-S2 selected
 Date: 2026-07-14
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-S1-DISCONNECTED-BINDING-SSA-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-S2-IDENTITY-VALUE-SEPARATION-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -334,7 +334,7 @@ SSA-V0 does not fabricate a Binding SSA completion witness before the owner
 exists. SSA-S1 remains disconnected; the final function-publication witness
 connection is made atomically with the later production cutover.
 
-### SSA-S1 — disconnected Binding SSA
+### SSA-S1 — disconnected Binding SSA — closed
 
 Implement `builder/ssa/binding/` with a fake/narrow IR test adapter and no AST,
 source, RegionFlow, or name dependency.
@@ -359,6 +359,24 @@ all inputs are exact actual predecessors and dominate their edges
 ```
 
 Production activation remains zero.
+
+Closed evidence:
+
+```text
+one function-branded BindingSsaBuilderV1
+define/read/seal/finish minimal API
+immutable VerifiedPredecessorsV1 input; CFG rediscovery/repair = 0
+open-block provisional PHI before recursive exposure
+same-input and self PHIs retained
+exact predecessor input order plus adapter-side dominance verification
+typed missing/foreign/mismatch/double-seal/unfinished failures
+PHI failure attempts owned rollback and poisons the instance
+entry/single/diamond/nested/Loop/multi-backedge/error fixtures = 12/12 green
+C1 duplicate-edge and late-edge fixtures remain green
+AST/source/name/ScopeId/RegionId/RegionFlow dependencies = 0
+production Binding SSA callers = 0
+accepted grammar delta = 0
+```
 
 ### SSA-S2 — identity/value separation
 
@@ -1082,14 +1100,13 @@ of this final form.
 
 ## Immediate next action
 
-Close SSA-S1 only:
+Close SSA-S2 only:
 
 ```text
-create builder/ssa/binding/ with a responsibility README
-implement one disconnected sealed-block BindingSsaBuilderV1
-use a fake/narrow IR adapter with no AST, source, RegionFlow, or name dependency
-cover entry/single-pred/diamond/nested/loop/multi-backedge/error fixtures
-retain same-input and self PHIs in the baseline
-connect zero production caller
-preserve accepted grammar and existing A+ If behavior
+split ResolvedIdentityLedgerV2 from the old identity/value state
+keep exact declaration/use/assignment/source coverage claims in the identity owner
+keep the old If value path as the sole production value owner
+connect zero BindingSsaBuilderV1 production caller
+add no old-map/SSA synchronization bridge
+preserve current canonical fixtures, accepted grammar, and A+ If behavior
 ```
