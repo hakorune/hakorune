@@ -1,8 +1,8 @@
 ---
-Status: P0c-MR-R0 Candidate B accepted; S0 next
+Status: P0c-MR-R0-S0 closed; P0 next
 Date: 2026-07-16
 Decision: C-prime accepted with bounded implementation refinements
-Current row: P0c-MR-R0-S0 disconnected singleton admission
+Current row: P0c-MR-R0-P0 normalized authority parity
 Production baseline: 4bed234ceb
 Consultation: mirbuilder-p0c-mr-scc-consultation-question-2026-07-16.md
 R0 consultation: mirbuilder-p0c-mr-r0-self-call-retirement-consultation-question-2026-07-16.md
@@ -24,9 +24,9 @@ P0c-MR-R0  later one-function self-call authority retirement
 ```
 
 G0 through I1 and the runtime frame-restoration proof tail are landed. R0 has
-selected Program-only authority with `S0 -> P0 -> CUT0 -> G0`; S0 is the sole
-next code-facing row and production singleton activation remains zero through
-S0/P0.
+selected Program-only authority with `S0 -> P0 -> CUT0 -> G0`. S0 is closed;
+P0 is the sole next code-facing row and production singleton activation
+remains zero through P0.
 
 Candidate A's two-function even/odd shape is a fixture, not a semantic
 authority. Candidate B's general finite SCC module is the activation target,
@@ -593,9 +593,29 @@ Stop if implementation requires:
 15. recursive host-stack traversal over an unbounded accepted graph;
 16. a touched source/check file reaching 800 lines.
 
+## R0-S0 closeout evidence
+
+The private temporary `ExistingTwoOrMore | OneOrMoreForR0` selector is sealed.
+Production `verify()` still selects `ExistingTwoOrMore`; only disconnected
+tests can select `OneOrMoreForR0`. One-function self, repeated, and nested call
+fixtures pass, zero-call and acyclic/no-recursive-component fixtures reject,
+and the production singleton path still rejects `FunctionCardinality`.
+
+```text
+debug recursive plan: 5/5
+release recursive plan: 5/5
+retained SCC: 4/4
+retained recursive activation: 7/7
+resolved-callable authority guard: green
+cargo check: green
+quick gate: 66/66
+production behavior delta: 0
+```
+
 ## Immediate next action
 
-Implement `P0c-MR-R0-S0` only: add the disconnected one-or-more admission
-selector and singleton self-recursive fixtures while the production recursive
-ingress continues to reject function count one. Do not begin parity, CUT0,
-symbol retirement, marker changes, or production activation in S0.
+Implement `P0c-MR-R0-P0` only: add test-only normalized parity between the old
+exact-one bare-function route and the disconnected singleton Program route.
+Exclude invocation-local identity/source-site fields and require the recursive
+module marker as the sole intentional difference. Do not begin CUT0, symbol
+retirement, production singleton activation, or marker changes in P0.

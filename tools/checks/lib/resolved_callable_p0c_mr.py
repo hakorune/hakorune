@@ -128,8 +128,8 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
     if compiler_mod.read_text().count("mod callable_scc_partition;") != 1:
         fail("P0c-MR-S0 callable SCC module declaration drift")
 
-    if recursive_plan_tests.read_text().count("#[test]") != 3:
-        fail("P0c-MR-V0 focused recursive-plan fixture count must remain exactly three")
+    if recursive_plan_tests.read_text().count("#[test]") != 5:
+        fail("P0c-MR-R0-S0 focused recursive-plan fixture count must remain exactly five")
     actual_plan_callers = {
         path
         for path in (root / "src").rglob("*.rs")
@@ -145,6 +145,8 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
         "VerifiedRecursiveCallableModulePlanV1",
         "VerifiedCallableSccPartitionV1",
         "CanonicalTrivialBindingSsaPlanV1",
+        "RecursiveFunctionCardinalityV1",
+        "verify_one_or_more_for_r0",
         "recursive_component_count() == 0",
         "FunctionCallSiteCountMismatch",
         "CardinalityMismatch",
@@ -165,6 +167,8 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
     ]:
         if forbidden in recursive_plan_text:
             fail(f"P0c-MR-V0 plan owns a forbidden authority: {forbidden}")
+    if "verify_one_or_more_for_r0" in compiler_mod.read_text():
+        fail("P0c-MR-R0-S0 disconnected singleton admission reached production compiler")
     if compiler_mod.read_text().count("mod recursive_callable_module_plan;") != 1:
         fail("P0c-MR-V0 recursive module plan declaration drift")
 
