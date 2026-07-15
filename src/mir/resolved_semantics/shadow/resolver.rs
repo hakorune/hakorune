@@ -14,9 +14,9 @@ use super::owner_boundary::ShadowLambdaSyntaxV0;
 use super::path::ShadowSourcePathV0;
 use super::product::{
     ShadowAssignmentTargetV0, ShadowBindingKindV0, ShadowBindingRecordV0, ShadowControlExitV0,
-    ShadowExitOriginV0, ShadowExitRecordV0, ShadowLexicalRefV0, ShadowRegionKindV0,
-    ShadowRegionRecordV0, ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowResolvedOwnerV0,
-    ShadowScopeKindV0, ShadowScopeRecordV0,
+    ShadowDirectCallUseV0, ShadowExitOriginV0, ShadowExitRecordV0, ShadowLexicalRefV0,
+    ShadowRegionKindV0, ShadowRegionRecordV0, ShadowResolveErrorV0, ShadowResolvedFunctionV0,
+    ShadowResolvedOwnerV0, ShadowScopeKindV0, ShadowScopeRecordV0,
 };
 
 #[derive(Debug)]
@@ -48,6 +48,7 @@ pub(super) struct ShadowResolverV0<'ast> {
     declarations: BTreeMap<SourceBindingSiteV1, ShadowBindingOrdinalV0>,
     variable_uses: BTreeMap<SourceExprSiteV1, ShadowLexicalRefV0>,
     assignment_targets: BTreeMap<SourceExprSiteV1, ShadowAssignmentTargetV0>,
+    direct_calls: BTreeMap<SourceExprSiteV1, ShadowDirectCallUseV0>,
     resolved_exits: BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>,
     lambda_mode: ShadowLambdaModeV0,
     lambdas: Vec<ShadowLambdaSyntaxV0<'ast>>,
@@ -189,6 +190,7 @@ impl<'ast> ShadowResolverV0<'ast> {
             declarations: BTreeMap::new(),
             variable_uses: BTreeMap::new(),
             assignment_targets: BTreeMap::new(),
+            direct_calls: BTreeMap::new(),
             resolved_exits: BTreeMap::new(),
             lambda_mode,
             lambdas: Vec::new(),
@@ -208,6 +210,7 @@ impl<'ast> ShadowResolverV0<'ast> {
                 declarations: self.declarations,
                 variable_uses: self.variable_uses,
                 assignment_targets: self.assignment_targets,
+                direct_calls: self.direct_calls,
                 resolved_exits: self.resolved_exits,
             },
             lambdas: self.lambdas.into_boxed_slice(),
@@ -281,6 +284,24 @@ impl<'ast> ShadowResolverV0<'ast> {
         target: ShadowAssignmentTargetV0,
     ) {
         self.assignment_targets.insert(site, target);
+    }
+
+    pub(super) fn record_direct_call(
+        &mut self,
+        site: SourceExprSiteV1,
+        name: &str,
+        arity: usize,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        let arity = u32::try_from(arity)
+            .map_err(|_| ShadowResolveErrorV0::FunctionCallArityOverflow { site: site.clone() })?;
+        let record = ShadowDirectCallUseV0 {
+            name: name.into(),
+            arity,
+        };
+        if self.direct_calls.insert(site.clone(), record).is_some() {
+            return Err(ShadowResolveErrorV0::DuplicateDirectCallSite { site });
+        }
+        Ok(())
     }
 
     pub(super) fn record_exit(

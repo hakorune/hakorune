@@ -4,6 +4,7 @@ use std::collections::BTreeMap;
 
 use hakorune_mir_core::BindingId;
 
+use super::direct_call::ResolvedDirectCallTargetV1;
 use super::function_root::ResolvedFunctionLoweringRootsV1;
 use super::ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
 use super::if_region::ResolvedIfRegionIndexV1;
@@ -32,6 +33,7 @@ pub(crate) struct ResolvedFunctionDataV1 {
     pub(crate) declarations: BTreeMap<SourceBindingSiteV1, BindingRefV1>,
     pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, ResolvedLexicalRefV1>,
     pub(crate) assignment_targets: BTreeMap<SourceExprSiteV1, ResolvedAssignmentTargetV1>,
+    pub(crate) direct_call_targets: BTreeMap<SourceExprSiteV1, ResolvedDirectCallTargetV1>,
     pub(crate) resolved_exits: BTreeMap<ResolvedExitSiteV1, ResolvedExitRecordV1>,
 }
 
@@ -192,6 +194,22 @@ impl VerifiedResolvedFunctionV1 {
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, &ResolvedAssignmentTargetV1)> {
         self.data.assignment_targets.iter()
+    }
+
+    pub(crate) fn direct_call_target(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<ResolvedDirectCallTargetV1> {
+        self.data.direct_call_targets.get(site).copied()
+    }
+
+    pub(crate) fn direct_call_targets(
+        &self,
+    ) -> impl Iterator<Item = (&SourceExprSiteV1, ResolvedDirectCallTargetV1)> {
+        self.data
+            .direct_call_targets
+            .iter()
+            .map(|(site, target)| (site, *target))
     }
 
     pub fn resolved_exit(&self, site: &ResolvedExitSiteV1) -> Option<&ResolvedExitRecordV1> {

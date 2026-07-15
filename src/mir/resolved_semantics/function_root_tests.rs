@@ -81,6 +81,7 @@ fn data(body_segment: SourcePathSegmentV1) -> ResolvedFunctionDataV1 {
         declarations: BTreeMap::new(),
         variable_uses: BTreeMap::new(),
         assignment_targets: BTreeMap::new(),
+        direct_call_targets: BTreeMap::new(),
         resolved_exits: BTreeMap::new(),
     }
 }

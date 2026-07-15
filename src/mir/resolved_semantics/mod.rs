@@ -8,6 +8,8 @@
 
 mod callable_header_view;
 mod callable_index;
+mod direct_call;
+mod direct_call_verifier;
 mod function_root;
 mod function_view;
 mod ids;
@@ -18,17 +20,19 @@ mod owner_forest;
 mod owner_resolver;
 mod product;
 mod records;
+mod resolved_callable_forest;
 mod resolver;
 mod shadow;
 mod source_site;
 mod verifier;
 
-pub(crate) use callable_header_view::CallableHeaderSyntaxViewV1;
+pub(crate) use callable_header_view::{CallableFunctionSyntaxViewV1, CallableHeaderSyntaxViewV1};
 pub(crate) use callable_index::{
-    CallableIndexSealErrorV1, CallableNamespaceV1, CanonicalCallableKeyV1,
+    CallableIndexSealErrorV1, CallableLookupErrorV1, CallableNamespaceV1, CanonicalCallableKeyV1,
     CanonicalCallableSymbolV1, ExactTrivialCallableSignatureV1, ResolvedCallableRefV1,
     VerifiedCallableHeaderV1, VerifiedCallableIndexV1,
 };
+pub(crate) use direct_call::{ResolvedDirectCallTargetV1, ResolvedDirectCallVerificationErrorV1};
 pub(crate) use function_root::{
     ResolvedFunctionLoweringRootsV1, ResolvedFunctionRootVerificationErrorV1,
 };
@@ -62,6 +66,9 @@ pub use records::{
     ResolvedLexicalRefV1, ResolvedRegionRecordV1, ResolvedScopeRecordV1, ScopeKindV1,
     ScopeOriginV1, SyntheticBindingKindV1,
 };
+pub(crate) use resolved_callable_forest::{
+    ResolvedCallableForestVerificationErrorV1, VerifiedResolvedCallableForestV1,
+};
 pub(crate) use resolver::{FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1};
 pub(crate) use source_site::SourcePathV1;
 pub use source_site::{
@@ -72,6 +79,8 @@ pub use verifier::ResolvedFunctionVerificationErrorV1;
 
 #[cfg(test)]
 mod block_expr_tests;
+#[cfg(test)]
+mod direct_call_tests;
 #[cfg(test)]
 mod function_root_tests;
 #[cfg(test)]

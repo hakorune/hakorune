@@ -26,7 +26,7 @@ guard_require_files "$TAG" \
   "$MODULE/ids.rs" \
   "$MODULE/function_root.rs" \
   "$MODULE/function_root_tests.rs" \
-  "$MODULE/function_view.rs" "$MODULE/callable_header_view.rs" "$MODULE/callable_index.rs" "$MODULE/callable_index_tests.rs" \
+  "$MODULE/function_view.rs" "$MODULE/callable_header_view.rs" "$MODULE/callable_index.rs" "$MODULE/callable_index_tests.rs" "$MODULE/direct_call.rs" "$MODULE/direct_call_tests.rs" "$MODULE/direct_call_verifier.rs" "$MODULE/resolved_callable_forest.rs" \
   "$MODULE/source_site.rs" \
   "$MODULE/records.rs" \
   "$MODULE/resolver.rs" \
@@ -64,7 +64,7 @@ guard_require_files "$TAG" \
   "$ROOT/src/mir/join_ir/ownership/ast_analyzer/core.rs"
 
 expected_manifest="$(printf '%s\n' \
-  block_expr_tests.rs callable_header_view.rs callable_index.rs callable_index_tests.rs \
+  block_expr_tests.rs callable_header_view.rs callable_index.rs callable_index_tests.rs direct_call.rs direct_call_tests.rs direct_call_verifier.rs \
   function_root.rs function_root_tests.rs \
   function_view.rs \
   ids.rs if_region.rs if_region_tests.rs loop_region.rs loop_region_tests.rs \
@@ -74,7 +74,7 @@ expected_manifest="$(printf '%s\n' \
   owner_forest_tests.rs \
   owner_resolver.rs \
   product.rs \
-  records.rs \
+  records.rs resolved_callable_forest.rs \
   resolver.rs \
   resolver_tests.rs \
   shadow/assignment_traversal_tests.rs \
@@ -679,7 +679,7 @@ allowed = {
     "variable_ref",
     "variable_refs",
     "assignment_target",
-    "assignment_targets",
+    "assignment_targets", "direct_call_target", "direct_call_targets",
     "resolved_exit", "resolved_exits",
     "binding_count",
     "scope_count",

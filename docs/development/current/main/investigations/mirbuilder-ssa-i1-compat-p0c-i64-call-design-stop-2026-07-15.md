@@ -1,8 +1,8 @@
 ---
-Status: Active — P0c-L0 closed; disconnected P0c-S0a next
+Status: Active — P0c-S0a closed; disconnected P0c-S0b next
 Date: 2026-07-15
 Decision: A′ — exact current-owner self call over a generic one-entry callable index
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-S0A-TARGET-IMPLEMENTATION-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-S0B-PROFILE-IMPLEMENTATION-001
 Related:
   - mirbuilder-ssa-i1-compat-static-i64-parameter-selection-2026-07-15.md
   - mirbuilder-ssa-i1-compat-static-i64-return-selection-2026-07-15.md
@@ -570,6 +570,8 @@ lines.
 
 ### P0c-S0a — disconnected resolved self-call target
 
+Status: closed.
+
 Add and seal:
 
 ```text
@@ -607,6 +609,24 @@ physical name/arity source spelling rejects
 fabricated, duplicate, wrong-kind, or foreign call site rejects
 foreign callable-index/forest pairing rejects
 resolved fact coverage missing/extra rejects
+```
+
+Closeout evidence:
+
+```text
+CallableFunctionSyntaxViewV1 derives header/body from one AST = 1
+VerifiedResolvedCallableForestV1 source-unit sidecar = 1
+root owner issue per sidecar = 1
+callable index copies in VerifiedResolvedFunctionV1 = 0
+exact FunctionCall site -> ResolvedCallableRefV1 target rows = 1 in fixture
+body-only production resolver target rows = 0
+CurrentFunction-specific target variants = 0
+Builder/value-profile/Lower/production connections = 0
+focused direct-call target fixtures = 5/5 green
+resolved semantics fixtures = 128/128 green
+callable/full authority guards = green
+release build / quick gate = green
+all touched source/check files < 800 lines
 ```
 
 ### P0c-S0b — disconnected co-sealed direct-call profile

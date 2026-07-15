@@ -170,6 +170,7 @@ fn loop_data(owner: FunctionOwnerIdV1) -> ResolvedFunctionDataV1 {
         declarations: BTreeMap::new(),
         variable_uses: BTreeMap::new(),
         assignment_targets: BTreeMap::new(),
+        direct_call_targets: BTreeMap::new(),
         resolved_exits: BTreeMap::new(),
     }
 }

@@ -6,6 +6,35 @@
 
 use crate::ast::{ASTNode, ParamDecl};
 
+use super::function_view::FunctionSyntaxViewV1;
+
+/// Header/body pair borrowed from one exact function AST.
+///
+/// The pair prevents callers from combining a header from one declaration
+/// with the body of another without widening either bounded view.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct CallableFunctionSyntaxViewV1<'a> {
+    header: CallableHeaderSyntaxViewV1<'a>,
+    function: FunctionSyntaxViewV1<'a>,
+}
+
+impl<'a> CallableFunctionSyntaxViewV1<'a> {
+    pub(crate) fn from_function_ast(function: &'a ASTNode) -> Option<Self> {
+        Some(Self {
+            header: CallableHeaderSyntaxViewV1::from_function_ast(function)?,
+            function: FunctionSyntaxViewV1::from_ast(function)?,
+        })
+    }
+
+    pub(crate) const fn header(self) -> CallableHeaderSyntaxViewV1<'a> {
+        self.header
+    }
+
+    pub(crate) const fn function(self) -> FunctionSyntaxViewV1<'a> {
+        self.function
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct CallableHeaderSyntaxViewV1<'a> {
     name: &'a str,

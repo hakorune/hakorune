@@ -2,23 +2,33 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
+use super::callable_header_view::CallableFunctionSyntaxViewV1;
+use super::callable_index::{CallableIndexSealErrorV1, VerifiedCallableIndexV1};
 use super::function_view::FunctionSyntaxViewV1;
 use super::ids::{BindingRefV1, FunctionOwnerIdV1, ScopeId};
 use super::owner_forest::{
     OwnerParentEdgeV1, SemanticOwnerForestDraftV1, SemanticOwnerForestVerificationErrorV1,
     VerifiedSemanticOwnerForestV1,
 };
+use super::resolved_callable_forest::{
+    ResolvedCallableForestVerificationErrorV1, VerifiedResolvedCallableForestV1,
+};
 use super::resolver::{
     AncestorBindingV1, FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1,
     SealedOwnerConstructionV1,
 };
-use super::shadow::{resolve_owner_shadow_view_v0, ShadowLambdaSyntaxV0, ShadowResolvedOwnerV0};
+use super::shadow::{
+    resolve_function_shadow_view_v0, resolve_owner_shadow_view_v0, ShadowLambdaSyntaxV0,
+    ShadowResolvedOwnerV0,
+};
 use super::OwnedExprSiteV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ResolveOwnerForestErrorV1 {
     Function(ResolveFunctionErrorV1),
     Verification(SemanticOwnerForestVerificationErrorV1),
+    CallableIndex(CallableIndexSealErrorV1),
+    CallableForest(ResolvedCallableForestVerificationErrorV1),
 }
 
 #[derive(Debug, Clone)]
@@ -29,6 +39,33 @@ struct PendingParentV1 {
 }
 
 impl FunctionSemanticResolverSessionV1 {
+    pub(crate) fn resolve_forest_with_root_callable(
+        &mut self,
+        views: CallableFunctionSyntaxViewV1<'_>,
+    ) -> Result<VerifiedResolvedCallableForestV1, ResolveOwnerForestErrorV1> {
+        let (origin, owner) = self
+            .issue_owner()
+            .map_err(ResolveOwnerForestErrorV1::Function)?;
+        let callable_index = VerifiedCallableIndexV1::seal_one(owner, views.header())
+            .map_err(ResolveOwnerForestErrorV1::CallableIndex)?;
+        let shadow = resolve_function_shadow_view_v0(origin, views.function())
+            .map_err(ResolveFunctionErrorV1::Syntax)
+            .map_err(ResolveOwnerForestErrorV1::Function)?;
+        let product = self
+            .seal_owner_with_callable_index(owner, shadow, &callable_index)
+            .map_err(ResolveOwnerForestErrorV1::Function)?
+            .product;
+        let mut draft = SemanticOwnerForestDraftV1::new();
+        draft
+            .insert_owner(owner, product)
+            .map_err(ResolveOwnerForestErrorV1::Verification)?;
+        let forest = draft
+            .seal()
+            .map_err(ResolveOwnerForestErrorV1::Verification)?;
+        VerifiedResolvedCallableForestV1::seal(forest, callable_index)
+            .map_err(ResolveOwnerForestErrorV1::CallableForest)
+    }
+
     pub(crate) fn resolve_forest(
         &mut self,
         root: FunctionSyntaxViewV1<'_>,

@@ -4,6 +4,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use hakorune_mir_core::BindingId;
 
+use super::direct_call_verifier::verify_direct_call_targets;
 use super::function_root::{
     build_verified_function_lowering_roots_v1, ResolvedFunctionLoweringRootsV1,
     ResolvedFunctionRootVerificationErrorV1,
@@ -28,6 +29,7 @@ use super::source_site::{
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ResolvedFunctionVerificationErrorV1 {
+    DirectCall(super::ResolvedDirectCallVerificationErrorV1),
     IfRegion(ResolvedIfRegionVerificationErrorV1),
     LoopRegion(ResolvedLoopRegionVerificationErrorV1),
     FunctionRoot(ResolvedFunctionRootVerificationErrorV1),
@@ -94,6 +96,7 @@ pub(super) fn verify_resolved_function(
     verify_kind_origin_contracts(data)?;
     verify_normalized_key_uniqueness(data)?;
     verify_control_targets(data)?;
+    verify_direct_call_targets(data).map_err(ResolvedFunctionVerificationErrorV1::DirectCall)?;
     let lowering_roots = build_verified_function_lowering_roots_v1(data)
         .map_err(ResolvedFunctionVerificationErrorV1::FunctionRoot)?;
     let if_regions = build_verified_if_region_index_v1(data)

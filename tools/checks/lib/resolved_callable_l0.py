@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""P0c-L0 behavior-neutral callable authority guard."""
+"""P0c-L0/S0a disconnected callable authority guard."""
 
 from __future__ import annotations
 
@@ -20,6 +20,9 @@ capability = root / "src/mir/canonical_direct_static_call_capability.rs"
 backend_gate = root / "src/mir/canonical_direct_static_call_backend_capability.rs"
 metadata = root / "src/mir/function/metadata.rs"
 shared_gate = root / "src/mir/backend_capability.rs"
+owner_resolver = root / "src/mir/resolved_semantics/owner_resolver.rs"
+resolved_target = root / "src/mir/resolved_semantics/direct_call.rs"
+resolved_unit = root / "src/mir/resolved_semantics/resolved_callable_forest.rs"
 
 required = {
     callable_index: [
@@ -30,7 +33,18 @@ required = {
         "VerifiedCallableIndexV1",
         "pub(crate) fn seal_one(",
     ],
-    header_view: ["CallableHeaderSyntaxViewV1", "from_function_ast"],
+    header_view: [
+        "CallableHeaderSyntaxViewV1",
+        "CallableFunctionSyntaxViewV1",
+        "from_function_ast",
+    ],
+    owner_resolver: ["resolve_forest_with_root_callable"],
+    resolved_target: ["ResolvedDirectCallTargetV1", "ResolvedCallableRefV1"],
+    resolved_unit: [
+        "VerifiedResolvedCallableForestV1",
+        "VerifiedCallableIndexV1",
+        "VerifiedSemanticOwnerForestV1",
+    ],
     direct_call: [
         "VerifiedTrivialDirectCallTargetV1",
         "VerifiedDirectCallEffectV1",
@@ -90,6 +104,11 @@ allowed_by_pattern = {
     r"VerifiedCallableIndexV1::seal_one": {
         root / "src/mir/canonical_direct_call_tests.rs",
         root / "src/mir/resolved_semantics/callable_index_tests.rs",
+        owner_resolver,
+    },
+    r"resolve_forest_with_root_callable": {
+        owner_resolver,
+        root / "src/mir/resolved_semantics/direct_call_tests.rs",
     },
     r"VerifiedCanonicalDirectCallEmissionV1::conservative_from_header": {
         root / "src/mir/canonical_direct_call_tests.rs",

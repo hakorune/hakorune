@@ -1,8 +1,8 @@
 ---
-Status: Active — P0c-L0 closed; disconnected P0c-S0a next
+Status: Active — P0c-S0a closed; disconnected P0c-S0b next
 Date: 2026-07-15
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-S0A-TARGET-IMPLEMENTATION-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-S0B-PROFILE-IMPLEMENTATION-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -1466,6 +1466,14 @@ durable direct-static-call capability remains producer-zero and VM-only when
 explicitly present; grammar, route, runtime behavior, and source-call
 activation remain unchanged.
 
+P0c-S0a is closed. One header/body co-view derived from the same root AST now
+issues the root owner once, seals the one-entry callable index, records exact
+FunctionCall-site target identity in the function product, and co-seals the
+index with the semantic owner forest as one source-unit sidecar. The body-only
+production resolver remains unchanged and emits zero target rows; callable
+headers are not duplicated per function, and Builder/value-profile/Lower/
+runtime connections remain zero.
+
 The remaining rows stay separate: exact typed parameters do not include the
 receiver owner family; Void disposition does not imply Outbox identity;
 BorrowedText requires its own lifetime/ABI decision.
@@ -2397,17 +2405,10 @@ state.
 
 ## Immediate next action
 
-Implement **P0c-S0a — disconnected resolved self-call target**. Derive one
-header/body co-view from the same root AST, issue the root owner once, seal the
-one-entry `VerifiedCallableIndexV1`, resolve one exact FunctionCall site to a
-generic `ResolvedCallableRefV1`, and publish forest plus index as one
-source-unit sidecar. `VerifiedResolvedFunctionV1` receives only its exact
-call-site target map; it must not own a duplicate callable index/header.
-Builder, value-profile, Lower, and production connections remain zero.
-
-After S0a is green and committed, implement **P0c-S0b** as a separate commit:
-co-seal one Lower-ready `VerifiedTrivialDirectCallV1` with the exact
+Implement **P0c-S0b — disconnected co-sealed direct-call profile**. Co-seal
+one Lower-ready `VerifiedTrivialDirectCallV1` with the exact
 target/header projection, ordered InlineI64 argument sites, InlineI64 result,
 conservative effect, and exact source coverage. Do not add raw name lookup,
 target/ABI late pairing, sibling calls, MethodCall/receiver, ownership
-operations, or backend widening in either S0 row.
+operations, or backend widening. Builder/Lower connection and production
+activation remain zero.

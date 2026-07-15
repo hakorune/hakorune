@@ -143,6 +143,13 @@ pub(crate) enum CallableIndexSealErrorV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum CallableLookupErrorV1 {
+    PhysicalSymbolSpellingInSource,
+    MissingExactSourceKey,
+    MissingCallableIdentity,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct VerifiedCallableIndexV1 {
     by_source_key: BTreeMap<CanonicalCallableKeyV1, VerifiedCallableHeaderV1>,
 }
@@ -160,6 +167,28 @@ impl VerifiedCallableIndexV1 {
 
     pub(crate) fn lookup(&self, key: &CanonicalCallableKeyV1) -> Option<&VerifiedCallableHeaderV1> {
         self.by_source_key.get(key)
+    }
+
+    pub(crate) fn resolve_free_static_source_call(
+        &self,
+        name: &str,
+        arity: u32,
+    ) -> Result<&VerifiedCallableHeaderV1, CallableLookupErrorV1> {
+        if name.contains('/') {
+            return Err(CallableLookupErrorV1::PhysicalSymbolSpellingInSource);
+        }
+        self.lookup(&CanonicalCallableKeyV1::free_static(name, arity))
+            .ok_or(CallableLookupErrorV1::MissingExactSourceKey)
+    }
+
+    pub(crate) fn header_for_callable(
+        &self,
+        callable: ResolvedCallableRefV1,
+    ) -> Result<&VerifiedCallableHeaderV1, CallableLookupErrorV1> {
+        self.by_source_key
+            .values()
+            .find(|header| header.callable() == callable)
+            .ok_or(CallableLookupErrorV1::MissingCallableIdentity)
     }
 
     pub(crate) fn only_header(&self) -> &VerifiedCallableHeaderV1 {

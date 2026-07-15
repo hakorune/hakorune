@@ -96,7 +96,12 @@ impl<'ast> ShadowResolverV0<'ast> {
                 self.resolve_expr(target, &path.child(SourcePathSegmentV1::Target))?;
                 self.resolve_expr(index, &path.child(SourcePathSegmentV1::Argument(0)))
             }
-            ASTNode::FunctionCall { arguments, .. } => self.resolve_arguments(arguments, path),
+            ASTNode::FunctionCall {
+                name, arguments, ..
+            } => {
+                self.record_direct_call(path.expr(), name, arguments.len())?;
+                self.resolve_arguments(arguments, path)
+            }
             ASTNode::FromCall { arguments, .. } => self.resolve_arguments(arguments, path),
             ASTNode::Call {
                 callee, arguments, ..

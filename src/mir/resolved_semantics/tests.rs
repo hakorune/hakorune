@@ -119,6 +119,7 @@ fn sample_data(owner: FunctionOwnerIdV1, binding: BindingId) -> ResolvedFunction
             assignment_site,
             ResolvedAssignmentTargetV1::BindingRebind(binding_ref),
         )]),
+        direct_call_targets: BTreeMap::new(),
         resolved_exits: BTreeMap::from([(
             ResolvedExitSiteV1::Statement(exit_site),
             ResolvedExitRecordV1::new(

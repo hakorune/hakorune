@@ -99,6 +99,12 @@ pub(crate) struct ShadowExitRecordV0 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ShadowDirectCallUseV0 {
+    pub(crate) name: Box<str>,
+    pub(crate) arity: u32,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ShadowResolveErrorV0 {
     ExpectedFunctionDeclaration,
     SameScopeRedeclaration {
@@ -126,6 +132,12 @@ pub(crate) enum ShadowResolveErrorV0 {
     DuplicateExitSite {
         site: SourceStmtSiteV1,
     },
+    DuplicateDirectCallSite {
+        site: SourceExprSiteV1,
+    },
+    FunctionCallArityOverflow {
+        site: SourceExprSiteV1,
+    },
     BlockExprNonLocalExit {
         site: ResolvedExitSiteV1,
     },
@@ -142,6 +154,7 @@ pub(crate) struct ShadowResolvedFunctionV0 {
     pub(crate) declarations: BTreeMap<SourceBindingSiteV1, ShadowBindingOrdinalV0>,
     pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, ShadowLexicalRefV0>,
     pub(crate) assignment_targets: BTreeMap<SourceExprSiteV1, ShadowAssignmentTargetV0>,
+    pub(crate) direct_calls: BTreeMap<SourceExprSiteV1, ShadowDirectCallUseV0>,
     pub(crate) resolved_exits: BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>,
 }
 

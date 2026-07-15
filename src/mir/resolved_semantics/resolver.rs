@@ -5,6 +5,8 @@ use std::sync::Arc;
 
 use hakorune_mir_core::BindingId;
 
+use super::callable_index::{CallableLookupErrorV1, VerifiedCallableIndexV1};
+use super::direct_call::ResolvedDirectCallTargetV1;
 use super::function_view::FunctionSyntaxViewV1;
 use super::ids::{
     BindingRefV1, FunctionOwnerIssueExhaustedV1, FunctionOwnerIssuerV1, RegionId, ScopeId,
@@ -32,6 +34,7 @@ pub(crate) enum ResolveFunctionErrorV1 {
     Syntax(ShadowResolveErrorV0),
     DraftInvariant(&'static str),
     Verification(ResolvedFunctionVerificationErrorV1),
+    CallableLookup(CallableLookupErrorV1),
 }
 
 /// One resolver session per compilation input.
@@ -117,7 +120,24 @@ impl FunctionSemanticResolverSessionV1 {
         draft: ShadowResolvedFunctionV0,
         ancestors: &BTreeMap<Box<str>, AncestorBindingV1>,
     ) -> Result<SealedOwnerConstructionV1, ResolveFunctionErrorV1> {
-        let canonical = canonicalize_draft(owner, draft, ancestors)?;
+        let canonical = canonicalize_draft(owner, draft, ancestors, None)?;
+        self.seal_canonical_owner(canonical)
+    }
+
+    pub(super) fn seal_owner_with_callable_index(
+        &mut self,
+        owner: super::FunctionOwnerIdV1,
+        draft: ShadowResolvedFunctionV0,
+        callable_index: &VerifiedCallableIndexV1,
+    ) -> Result<SealedOwnerConstructionV1, ResolveFunctionErrorV1> {
+        let canonical = canonicalize_draft(owner, draft, &BTreeMap::new(), Some(callable_index))?;
+        self.seal_canonical_owner(canonical)
+    }
+
+    fn seal_canonical_owner(
+        &mut self,
+        canonical: CanonicalizedDraftV1,
+    ) -> Result<SealedOwnerConstructionV1, ResolveFunctionErrorV1> {
         let product = ResolvedFunctionDraftV1 {
             data: canonical.data,
         }
@@ -135,6 +155,7 @@ fn canonicalize_draft(
     owner: super::FunctionOwnerIdV1,
     draft: ShadowResolvedFunctionV0,
     ancestors: &BTreeMap<Box<str>, AncestorBindingV1>,
+    callable_index: Option<&VerifiedCallableIndexV1>,
 ) -> Result<CanonicalizedDraftV1, ResolveFunctionErrorV1> {
     let binding_ids = draft
         .bindings
@@ -319,6 +340,23 @@ fn canonicalize_draft(
         })
         .collect();
 
+    let direct_call_targets = match callable_index {
+        Some(index) => draft
+            .direct_calls
+            .iter()
+            .map(|(site, call)| {
+                let header = index
+                    .resolve_free_static_source_call(&call.name, call.arity)
+                    .map_err(ResolveFunctionErrorV1::CallableLookup)?;
+                Ok((
+                    site.clone(),
+                    ResolvedDirectCallTargetV1::from_resolved(header.callable()),
+                ))
+            })
+            .collect::<Result<BTreeMap<_, _>, ResolveFunctionErrorV1>>()?,
+        None => BTreeMap::new(),
+    };
+
     let data = ResolvedFunctionDataV1 {
         owner,
         function_origin: draft.function_origin,
@@ -330,6 +368,7 @@ fn canonicalize_draft(
         declarations,
         variable_uses,
         assignment_targets,
+        direct_call_targets,
         resolved_exits,
     };
     let binding_refs = binding_ids

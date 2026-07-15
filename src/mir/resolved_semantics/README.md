@@ -213,8 +213,16 @@ the body-oriented `FunctionSyntaxViewV1` or teaching Lower to read raw names.
 
 `VerifiedCallableIndexV1` is the sole callable-header authority. P0c-L0 seals
 exactly one static, non-main, all-`i64` header into a deterministic one-entry
-index and leaves it disconnected from production resolution and Lower. The
-first consumer connection belongs to P0c-S0.
+index. P0c-S0a keeps it disconnected from production while co-sealing it with
+one semantic owner forest in `VerifiedResolvedCallableForestV1`.
+
+`CallableFunctionSyntaxViewV1` derives the header and body views from the same
+function AST. The source-unit sidecar owns the index once; each
+`VerifiedResolvedFunctionV1` stores only exact
+`SourceExprSiteV1 -> ResolvedDirectCallTargetV1` identity rows. Full headers,
+symbols, and signatures are never copied into the function product. The
+body-only production resolver remains unchanged and produces zero direct-call
+target rows until atomic P0c-I1.
 
 ```text
 CanonicalCallableKeyV1:
