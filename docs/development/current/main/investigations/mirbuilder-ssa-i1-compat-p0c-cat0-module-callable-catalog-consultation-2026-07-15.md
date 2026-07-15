@@ -1,36 +1,46 @@
 ---
-Status: Consultation packet — answer pending
+Status: Accepted and taskized — A′+; CAT0-D0 closed, CAT0-L0 next
 Date: 2026-07-15
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-CAT0-MODULE-CALLABLE-CATALOG-DESIGN-STOP-001
+Decision: A′+ — Program/catalog co-seal + single-use resolver continuation + canonical-key module identity
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-CAT0-L0-CALLABLE-INDEX-STORAGE-CLEANUP-001
 Parent taskboard: mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
 Previous closed card: mirbuilder-ssa-i1-compat-p0c-i64-call-design-stop-2026-07-15.md
 Public baseline commit: ec570ea696
-Decision requested: select the exact CAT0 source/catalog authority and CAT0/MP0 boundary
+Next code-facing row: CAT0-L0
 ---
 
-# ChatGPT Pro Consultation: P0c-CAT0 Module Callable Catalog
+# P0c-CAT0 Module Callable Catalog — A′+ Decision and Taskboard
 
-## Executive question
+## Decision lock
 
 P0c-I1 now executes one exact static current-owner self call. Its target is a
 generic `ResolvedCallableRefV1`, resolved before Builder effects through a
 source-unit-owned one-entry `VerifiedCallableIndexV1`. Lower consumes one
 co-sealed direct-call row and performs no source-name lookup or fallback.
 
-The next step is the catalog prerequisite for sibling calls. Please select the
-cleanest CAT0 design without pulling body resolution, sibling-call execution,
-or multi-function publication into the same row.
+The catalog prerequisite for sibling calls is fixed as **A′+**:
 
-Our working hypothesis is:
+> Seal one immutable multi-header callable catalog together with its exact
+> function-only `ASTNode::Program`; keep every top-level function as its own
+> single-root owner forest; return one opaque single-use resolver continuation
+> for MP0; key the normalized resolved module by `CanonicalCallableKeyV1`; and
+> defer all body resolution and unpublished MIR draft publication to MP0.
 
-> **A′ — seal one immutable, module-owned, multi-header callable catalog from
-> an exact function-only `ASTNode::Program`; keep every top-level function as
-> its own single-root owner forest; defer body resolution and unpublished MIR
-> draft publication to MP0.**
+A′+ adds three contracts to the former A′ working hypothesis:
 
-Please validate or reject A′. If it is wrong, identify the exact authority
-conflict and select one alternative. Do not widen the answer into MethodCall,
-receiver, Box ownership, imports, separate compilation, or backend support.
+1. Program syntax and catalog are co-sealed so foreign source/catalog pairing
+   is unrepresentable.
+2. CAT0 returns a non-cloneable, single-use continuation containing both the
+   next `FunctionOriginV1` ordinal and the same-branded owner issuer. MP0
+   consumes it when nested lambda owners are issued.
+3. `CanonicalCallableKeyV1` is the normalized module map key;
+   `ResolvedCallableRefV1` remains invocation-local callable membership and
+   call-target identity.
+
+CAT0-D0 is closed by this decision. The next row is the behavior-neutral
+CAT0-L0 index storage cleanup. MethodCall, receiver, Box ownership, imports,
+separate compilation, backend widening, and sibling execution remain outside
+CAT0.
 
 ## Current closed boundary
 
@@ -174,7 +184,7 @@ pub struct CallableModuleHeaderSyntaxViewV1<'a> {
 It yields located declaration rows only when every Program statement is a
 `FunctionDeclaration`. It never traverses function bodies.
 
-### Catalog
+### Program/catalog co-seal
 
 ```rust
 pub struct VerifiedCallableDeclarationV1 {
@@ -189,11 +199,19 @@ pub struct VerifiedCallableCatalogV1 {
         BTreeMap<SourceCallableDeclarationSiteV1,
                  VerifiedCallableDeclarationV1>,
 }
+
+pub struct VerifiedCallableCatalogSourceUnitV1 {
+    syntax: CanonicalProgramSyntaxOwnerV1,
+    catalog: VerifiedCallableCatalogV1,
+    _seal: CallableCatalogSourceUnitSealV1,
+}
 ```
 
 The index remains the sole header/name-resolution authority. Declaration rows
 prove exact source membership only; they do not duplicate the signature or
-symbol.
+symbol. `VerifiedCallableCatalogSourceUnitV1` owns the exact Program and
+catalog together; CAT0 must not expose a constructor that accepts those two
+products independently.
 
 The index should own each `VerifiedCallableHeaderV1` once. Derived reverse maps
 may store only a key/index foreign reference:
@@ -208,15 +226,47 @@ Do not copy complete headers into three maps. Replace the current O(n)
 `header_for_callable` scan with an exact reverse index, and replace the
 panic-based `only_header()` with a checked P0c sole-header facade.
 
+### Single-use resolver continuation
+
+The current resolver session owns two pieces of issuance state:
+
+```text
+next FunctionOriginV1 function ordinal
+same-compilation-brand FunctionOwnerIssuerV1 and its next slot
+```
+
+Both must survive catalog sealing because MP0 may discover nested lambdas in
+function bodies. Preserving only the owner slot/brand is insufficient: the
+lambda also needs a correctly issued `FunctionOriginV1`.
+
+```rust
+pub(crate) struct CatalogSealedResolverContinuationV1 {
+    next_function_ordinal: u32,
+    owner_issuer: FunctionOwnerIssuerV1,
+}
+
+pub(crate) struct CallableCatalogSealOutcomeV1 {
+    source_unit: VerifiedCallableCatalogSourceUnitV1,
+    continuation: CatalogSealedResolverContinuationV1,
+}
+```
+
+The continuation is opaque, non-`Clone`, single-use, and consumed only by
+MP0. The catalog itself remains immutable. A typestate resolver session may be
+used instead if it enforces the same contract.
+
 ### Seal order
 
 ```text
-1. validate the exact function-only Program surface
-2. issue one invocation-local owner per declaration
-3. seal every exact header into one immutable catalog
-4. verify all source keys, owner refs, sites, and symbols are bijective
-5. publish the catalog
-6. only later, in MP0, analyze any function body
+1. validate the complete exact function-only Program surface
+2. validate every owner-free header candidate
+3. reject duplicate keys/profile failures and deterministic symbol conflicts
+4. issue every top-level `(FunctionOriginV1, FunctionOwnerIdV1)` from one session
+5. attach owners and build primary headers plus foreign-key reverse indexes
+6. verify key/ref/site/symbol cardinality, bijection, and compilation brand
+7. co-seal the immutable Program/catalog source unit
+8. return the single-use resolver continuation
+9. only later, in MP0, analyze any function body
 ```
 
 Raw owner slots may change when declarations are reordered; they are
@@ -249,20 +299,32 @@ physical slash spelling in source:
   reject
 ```
 
-Required typed seal errors include:
+Source-reachable typed seal errors include:
 
 ```text
 EmptyCatalog
+StatementIndexOverflow
 UnsupportedProgramStatement { site, actual }
 DuplicateSourceKey { key, first_site, second_site }
-DuplicateCallableIdentity { callable, first_key, second_key }
-DuplicateDeclarationSite { site }
-PhysicalSymbolCollision { symbol, first_key, second_key }
-MixedCompilationBrand
-HeaderOutsideExactI64Profile
+HeaderOutsideExactI64Profile { site, reason }
+OwnerIssueExhausted { site, reason }
 ```
 
-Any error publishes no partial catalog.
+Malformed-draft invariant tests own errors that exact source construction
+cannot normally reach:
+
+```text
+DuplicateCallableIdentity
+DuplicateDeclarationSite
+PhysicalSymbolCollision
+MixedCompilationBrand
+CatalogCardinalityMismatch
+```
+
+Any error publishes no partial catalog. In the initial `FreeStatic` namespace,
+the exact `name/arity` symbol law normally turns a physical symbol collision
+into `DuplicateSourceKey` first; the dedicated collision error remains an
+internal invariant for future namespace/symbol policies.
 
 ## CAT0/MP0 responsibility boundary
 
@@ -299,17 +361,29 @@ The likely MP0 product is:
 
 ```rust
 pub struct VerifiedResolvedCallableModuleV1 {
-    catalog: VerifiedCallableCatalogV1,
-    functions:
-        BTreeMap<ResolvedCallableRefV1,
+    source: VerifiedCallableCatalogSourceUnitV1,
+    functions_by_key:
+        BTreeMap<CanonicalCallableKeyV1,
                  VerifiedResolvedFunctionUnitV1>,
 }
 
 pub struct VerifiedResolvedFunctionUnitV1 {
+    declaration_site: SourceCallableDeclarationSiteV1,
     forest: VerifiedSemanticOwnerForestV1,
     projection: VerifiedSourceProjectionV1,
 }
 ```
+
+At seal time, MP0 proves:
+
+```text
+catalog[key].callable.owner
+  ==
+functions_by_key[key].forest.root
+```
+
+`ResolvedCallableRefV1` remains the exact invocation-local target recorded at
+call sites. It is not promoted into normalized source identity.
 
 MP0 would use two passes:
 
@@ -328,12 +402,13 @@ function drafts and batch-publish them after catalog/body/draft cardinality is
 sealed. The existing outer module candidate remains the external rollback
 boundary.
 
-## Alternatives to judge
+## Alternatives considered
 
 ### A′ — function-only Program catalog, body-free CAT0
 
-Recommended working hypothesis. It creates the missing source authority while
-preserving one-root function forests and leaving publication to MP0.
+Accepted only with the three A′+ contracts above. It creates the missing source
+authority while preserving one-root function forests and leaving publication
+to MP0.
 
 ### B — generic explicit header list, Program decision deferred
 
@@ -359,65 +434,136 @@ recommend rejecting C as too broad.
 This proves execution sooner, but mixes CAT0, MP0, sibling-call activation,
 and publication transactions. We recommend rejecting D.
 
-## Requested decisions
+## Closed decisions
 
-Please answer all six:
+1. A′+ is selected.
+2. Exact function-only `ASTNode::Program` is the first CAT0 free-static source
+   authority; unsupported statements reject the whole surface.
+3. `VerifiedSemanticOwnerForestV1` remains single-root. The resolved module
+   owns one forest per top-level function.
+4. All owner-free headers are validated first; every top-level origin/owner is
+   then reserved before any body is read.
+5. CAT0 remains header-only. Body resolution and source projection belong to
+   MP0.
+6. MP0 must collect, verify, and batch-insert unpublished function drafts
+   before internal declaration-order independence may be claimed.
 
-1. Select A′, B, C, D, or a precisely bounded alternative.
-2. Is function-only `ASTNode::Program` the correct first free-static module
-   source authority?
-3. Should `VerifiedSemanticOwnerForestV1` remain single-root, with the module
-   owning one forest per top-level function?
-4. Should owner IDs be pre-issued for every header before any body resolution?
-5. Should CAT0 remain header-only, with body resolution and exact source
-   projections deferred to MP0?
-6. Must MP0 batch unpublished function drafts before insertion into the
-   candidate module to claim internal declaration-order independence?
-
-## Proposed task order if A′ is accepted
+## Canonical task order
 
 ```text
 CAT0-D0:
-  decision lock and exact non-claims
+  CLOSED
+  A′+ decision lock and exact claims/non-claims
 
 CAT0-L0:
+  NEXT — behavior-neutral code row
   behavior-neutral index storage cleanup
   one primary header store + reverse foreign-key indexes
   checked sole-header P0c facade
+  add ordering only where required for exact map keys
 
 CAT0-S0:
+  code row
   CallableModuleHeaderSyntaxViewV1
   SourceCallableDeclarationSiteV1
-  function-only Program coverage
+  Program-owned VerifiedCallableCatalogSourceUnitV1 shell
+  function-only whole-surface coverage; body reads = 0
 
-CAT0-C0:
-  disconnected VerifiedCallableCatalogV1 seal
-  all owner/header rows complete before body access
+CAT0-C0a:
+  code row
+  owner-free header candidate validation
+  duplicate/profile/symbol rejection before identity issuance
+
+CAT0-C0b:
+  code row
+  reserve all top-level origin/owner pairs from one session
+  immutable Program/catalog co-seal
+  opaque non-Clone single-use continuation preserving
+  next function ordinal + same-branded owner issuer
 
 CAT0-G0:
+  fixture/generated-guard row
   fixtures, normalized reorder parity, authority/caller-zero guards
+  foreign Program/catalog pairing impossible
+  source errors separated from malformed-draft invariant tests
+  body/MIR/production activation = 0
 
 MP0-S0:
+  code row
   exact multi-function source-unit carrier
+  primary functions_by_key map
 
 MP0-R0:
+  code row
   two-pass per-function body/forest resolution against complete catalog
+  consume resolver continuation for same-brand lambda owners
 
 MP0-P0:
+  code/fixture row
   whole-module preflight before Builder effects
 
 MP0-TX0:
+  code row
   unpublished function draft set and batch publication
+  exact catalog/draft key, symbol, and cardinality verification
 
 P0c-B1:
+  first production sibling-call activation
   exactly two static exact-i64 functions and one sibling edge
 
 P0c-MR:
+  separate later decision
   mutual recursion / callable SCC as a separate row
 ```
 
 Each implementation row must contain code or generated artifact delta. CAT0
-does not activate sibling calls merely because multiple headers exist.
+does not activate sibling calls merely because multiple headers exist. Do not
+open MP0 until CAT0-G0 is green; do not open P0c-B1 until MP0-TX0 is green.
+
+### CAT0-L0 exit gate
+
+```text
+structure:
+  one headers_by_key primary store
+  callable/symbol reverse maps store keys only
+  header_for_callable is indexed, not O(n)
+  sole_header returns Result and never panics
+
+compatibility:
+  seal_one behavior and one-entry P0c fixtures unchanged
+  resolved callable forest uses the checked facade
+
+non-delta:
+  Program grammar 0
+  multi-header seal 0
+  body authority 0
+  production sibling calls 0
+  runtime/backend/ownership delta 0
+
+verification:
+  focused resolved_semantics callable-index tests
+  resolved callable authority guard
+  cargo build --release --bin hakorune
+  bash tools/checks/dev_gate.sh quick
+  all touched source/check files < 800 lines
+```
+
+### Task-lane separation
+
+```text
+active now:
+  CAT0 -> MP0 -> P0c-B1
+
+parked and independent:
+  Ownership V2 / move-share parser-resolver-MIR work
+  .hako selfhost parser/MIR-builder migration
+  MethodCall/receiver/Box return ABI
+```
+
+CAT0 consumes the existing Rust AST `Program`; it does not add `.hako`
+ownership grammar. Ownership parser and MIR-builder work remains visible in
+its own parked taskboard and must not be interleaved with this callable-catalog
+series.
 
 ## Required CAT0 fixtures
 
@@ -482,12 +628,12 @@ Stop CAT0 if any implementation requires:
 12. MethodCall/receiver/import/plugin/Box ownership/backend widening;
 13. any modified source/check file exceeding 800 lines.
 
-## Final question
+## Final lock
 
-Is A′ the cleanest next row?
-
-> Seal all free-static headers from one exact function-only Program before any
-> body is read; keep the catalog module-owned and immutable; keep each function
-> forest single-root; defer body resolution and unpublished draft publication
-> to MP0.
-
+> CAT0 consumes and owns one exact function-only `ASTNode::Program`, validates
+> every top-level header without body authority, reserves every top-level
+> origin/owner in one compilation session, and co-seals one immutable catalog
+> plus a single-use resolver continuation. Each function keeps one single-root
+> semantic owner forest. MP0 resolves every body against the complete catalog,
+> verifies the whole module, collects all MIR drafts unpublished, and
+> batch-publishes only after exact catalog/draft correspondence is sealed.

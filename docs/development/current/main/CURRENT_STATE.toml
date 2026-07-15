@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ P0c-CAT0 module callable catalog consultation ready; answer pending"
+status = "D′ CAT0 A′+ accepted and taskized; CAT0-L0 callable index storage cleanup next"
 date = "2026-07-15"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -216,19 +216,27 @@ latest_workstream_card = "docs/development/current/main/design/binding-ssa-first
 
 latest_card = "mirbuilder-ssa-i1-compat-p0c-cat0-module-callable-catalog-consultation-2026-07-15"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-ssa-i1-compat-p0c-cat0-module-callable-catalog-consultation-2026-07-15.md"
-latest_card_summary = """P0c-CAT0 is an explicit design stop after the green
-P0c-I1 current-owner self call. Three read-only audits show that CAT0 should
-seal only one immutable source-unit multi-header catalog before any body
-analysis. The working A′ hypothesis uses an exact FunctionDeclaration-only
-ASTNode::Program, module-relative declaration sites, pre-issued invocation-
-local callable owners, exact key/ref/symbol reverse membership, and no partial
-catalog publication. VerifiedSemanticOwnerForestV1 remains single-root; MP0
-later owns one forest/projection per top-level function, two-pass body
-resolution against the complete catalog, whole-module preflight, and an
-unpublished function-draft batch before candidate-module insertion. CAT0
-activates no sibling calls, MIR, backend rows, runtime behavior, ownership
-operations, MethodCall/receiver, imports, or fallback. Consultation must select
-A′ or a precisely bounded alternative before CAT0 implementation begins.
+latest_card_summary = """P0c-CAT0 selects A′+ after the green P0c-I1
+current-owner self call. CAT0 owns and co-seals one exact FunctionDeclaration-
+only ASTNode::Program with one immutable multi-header catalog before any body
+analysis. Owner-free headers and duplicate/profile laws are validated first;
+all top-level origin/owner pairs are then reserved from one resolver session.
+CAT0 returns one opaque, non-Clone, single-use continuation preserving both
+the next FunctionOrigin ordinal and the same-branded owner issuer, so MP0 may
+issue lambda owners without mutating the catalog. VerifiedSemanticOwnerForestV1
+remains single-root; the normalized module is keyed by
+CanonicalCallableKeyV1, while ResolvedCallableRefV1 remains invocation-local
+call membership. MP0 resolves one forest/projection per declaration against
+the complete catalog, performs whole-module preflight, verifies all unpublished
+function drafts, and batch-inserts them only after exact catalog/draft
+correspondence is sealed. The active order is CAT0 L0/S0/C0a/C0b/G0, then MP0
+S0/R0/P0/TX0, then P0c-B1 with exactly two functions and one sibling edge.
+CAT0-L0 is the next code-facing row and changes only callable-index storage:
+one primary header store, reverse foreign-key indexes, and a checked sole-
+header facade. CAT0 activates no body authority, sibling calls, MIR/backend/
+runtime behavior, ownership operations, MethodCall/receiver, imports, or
+fallback. Ownership V2 and .hako selfhost parser/MIR-builder work remain
+separate parked lanes.
 Historical D′ context follows.
 D′ is accepted and taskized through the final canonical
 source form. Exact source coverage, ScopeId/RegionId topology, typed ports,
@@ -647,7 +655,7 @@ SSA-I1-T blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-CAT0-MODULE-CALLABLE-CATALOG-DESIGN-STOP-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-CAT0-L0-CALLABLE-INDEX-STORAGE-CLEANUP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -656,6 +664,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-15: D′ P0c-CAT0 selects and taskizes A′+: one exact function-only Program is co-sealed with one immutable multi-header catalog; owner-free candidates and duplicates are validated before all top-level origin/owner pairs are reserved from one session; CAT0 returns an opaque single-use continuation preserving both the next function ordinal and same-branded owner issuer; per-function owner forests remain single-root; normalized module identity is CanonicalCallableKeyV1 while ResolvedCallableRefV1 stays invocation-local; MP0 owns complete-catalog body resolution, whole-module preflight, unpublished verified draft batching, and atomic candidate insertion; CAT0-L0 behavior-neutral primary-header/reverse-index cleanup is next; Ownership V2 and .hako parser/MIR-builder migration remain parked and separate.",
   "2026-07-15: D′ P0c-I1 atomically activates one exact static current-owner self call: the explicit call-enabled source-unit ingress resolves a generic callable target before Builder effects; preflight admits one exact i64 call; trivial Binding SSA consumes the whole co-sealed row, emits one conservative Callee::Global result, and attaches the explicit VM-only capability; recursion, post-If PHI arguments, result uses, per-frame contracts, pre-Builder rejection, backend fail-fast, authority guards, release build, quick gate, and <800-line touched source/check files are green; raw Lower name lookup, legacy recovery, fallback, ownership ops, sibling/multiple calls, MethodCall/receiver, and backend widening remain zero; P0c-CAT0 module callable catalog design stop is next.",
   "2026-07-15: D′ P0c-S0b closes one disconnected co-sealed direct-call profile: a neutral target contract is separated from MIR materialization, one exact self-call row binds the resolved callable projection to ordered InlineI64 arguments/result and ConservativeBarrier, coverage owns one DirectCall subject without a duplicate generic Value subject, and whole-row claims preserve source order/exact-once consumption; only the disconnected If-control verifier admits FunctionCall coverage while production analysis/Builder/Lower/runtime callers remain zero; profile 27/27, resolved semantics 128/128, resolved control flow, direct-call 2/2, authority guards, release build, quick 66/66, and <800-line touched source/check files are green; atomic P0c-I1 activation is next.",
   "2026-07-15: D′ P0c-S0a closes one disconnected resolved self-call target product: CallableFunctionSyntaxViewV1 derives header/body from one AST, the root owner is issued once, a one-entry VerifiedCallableIndexV1 and VerifiedSemanticOwnerForestV1 are co-sealed as one source-unit sidecar, and VerifiedResolvedFunctionV1 stores only exact SourceExprSiteV1-to-ResolvedCallableRefV1 target identity; body-only production resolution still produces zero call targets, callable headers are not duplicated per function, Builder/value-profile/Lower/runtime connections remain zero, focused 5/5, resolved semantics 128/128, callable/full authority guards, release build, quick gate, and <800-line touched source/check files are green; disconnected P0c-S0b profile sealing is next.",
@@ -667,5 +676,4 @@ landed_tail = [
   "2026-07-15: D′ SSA-I1-COMPAT-R0a selects static exact-i64 typed return as the next row: exact :i64 is co-sealed with the existing final explicit InlineI64 terminal; the terminal remains return-value authority and a new function-level witness owns only callable-boundary ABI; resolved Lower must consume sealed metadata without raw annotation reclassification; ReturnExitContract with FunctionReturnContract owner remains runtime authority; typed-return NotAdmitted never retries A+, non-VM backends fail before effects, and source Call/receiver/Box/Ownership SSA remain inactive; R0a-L0 behavior-neutral implementation is next and another docs-only closeout is forbidden.",
   "2026-07-15: D′ SSA-I1-COMPAT-P0a closes atomic static exact-i64 parameter ingress: sealed parameter rows install exact MirParamDecl metadata and adopt reserved formal ValueIds into the one function-owned Binding SSA without allocation or legacy name maps; parameter reassignment and If PHIs share that authority; existing final-callee exact type/arity validation and shared non-VM backend fail-fast are preserved; unsupported typed signatures reject before Builder effects and never retry A+; resolved-lowering 94/94, P0a 5/5, profile 18/18, final-callee 8/8, backend capability 2/2, parameter-entry 9/9, and authority guard are green; source calls, typed returns, receiver, broader numeric/Box rows, Ownership SSA/opcodes, and backend widening remain inactive; next-row selection is the design-stop frontier.",
   "2026-07-15: D′ SSA-I1-COMPAT-P0a selects one static exact-i64 parameter ingress proof: one or more exact i64 parameters, no typed return, and the existing SSA-I1-T body grammar; sealed parameter-entry rows adopt reserved formal ValueIds into the function-owned Binding SSA and reuse the existing exact-numeric final-callee contract; strict corpus candidates are zero, so this is infrastructure rather than selfhost coverage; implement behavior-neutral L0, disconnected S0, then atomic I1 only; source Call/MethodCall, receiver, bool/f64/usize, typed return, Box ownership, backend widening, and A+ fallback remain inactive.",
-  "2026-07-15: D′ SSA-I1-COMPAT-V0a closes one exact ExplicitVoidValue production row: LiteralValue::Void is exact source/profile authority over existing ConstValue::Void / MirType::Void / runtime no-value representation; local/read/assignment/BlockExpr, homogeneous one-sided/two-sided/nested If, Bool comparison, explicit return void, and Void expression completion use the existing Binding SSA; return void / return; / implicit completion remain distinct profile dispositions; Outbox, Null return, mixed Null/Void, BorrowedText, parameters, receiver, Ownership SSA/opcodes, backend vocabulary, and Loop remain inactive; profile 13/13, focused Void 3/3, resolved-lowering 89/89, capability 5/5, production inventory 18/18, legacy lifecycle ledger 125/276, authority guard, release build, and quick 66/66 are green; P0 exact typed parameter ABI is the next design-selection stop and receiver stays separate.",
 ]

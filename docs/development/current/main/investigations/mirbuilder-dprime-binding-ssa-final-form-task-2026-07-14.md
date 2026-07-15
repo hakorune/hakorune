@@ -1,8 +1,8 @@
 ---
-Status: Active — P0c-I1 closed; P0c-CAT0 module callable catalog design stop next
+Status: Active — P0c-I1 closed; CAT0 A′+ accepted; CAT0-L0 next
 Date: 2026-07-15
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-I1-ATOMIC-ACTIVATION-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-CAT0-L0-CALLABLE-INDEX-STORAGE-CLEANUP-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -2412,15 +2412,45 @@ state.
 
 ## Immediate next action
 
-Stop at **P0c-CAT0 — module callable catalog design boundary**. P0c-I1 now
-admits exactly one current-owner FunctionCall with exact-i64 arguments/result
-through the generic co-sealed call row, without raw-name lookup, legacy
-recovery, fallback, or ownership operations.
+Implement **CAT0-L0 — behavior-neutral callable index storage cleanup**.
+P0c-I1 already admits exactly one current-owner FunctionCall with exact-i64
+arguments/result through the generic co-sealed call row, without raw-name
+lookup, legacy recovery, fallback, or ownership operations. The CAT0 design
+stop is now closed as A′+.
 
-Consultation packet:
+Decision/task card:
 `mirbuilder-ssa-i1-compat-p0c-cat0-module-callable-catalog-consultation-2026-07-15.md`.
 
-Before CAT0 implementation, fix the module/header source authority, duplicate
-and ambiguity law, declaration-order independence, body-analysis seal order,
-and its boundary with the later all-or-nothing multi-function publication row.
-Do not infer this catalog from MIR module symbols or legacy global-call lookup.
+The active macro order is fixed and must not be interleaved:
+
+```text
+CAT0:
+  L0 -> S0 -> C0a -> C0b -> G0
+
+MP0:
+  S0 -> R0 -> P0 -> TX0
+
+first execution:
+  P0c-B1 exactly two functions + one sibling edge
+
+later decision:
+  P0c-MR mutual recursion / callable SCC
+```
+
+CAT0 co-seals an exact function-only Program with one immutable header catalog
+and returns one opaque single-use resolver continuation. That continuation
+preserves both the next function-origin ordinal and the same-branded owner
+issuer for MP0 lambda discovery. Every top-level function keeps a separate
+single-root semantic owner forest. MP0 is keyed by canonical callable key,
+resolves bodies only after the complete catalog exists, and batch-publishes
+verified drafts only after exact catalog/draft correspondence is sealed.
+
+CAT0-L0 changes only index storage: one primary header map, foreign-key reverse
+indexes, and a checked sole-header compatibility facade. Grammar, route,
+runtime, sibling-call activation, body authority, MIR publication, and
+ownership operations remain unchanged. Do not infer the catalog from MIR
+module symbols or legacy global-call lookup.
+
+Ownership V2 parser/resolver/MIR work and `.hako` selfhost parser/MIR-builder
+migration remain separate parked lanes. They are not hidden CAT0 prerequisites
+and must not be folded into this series.
