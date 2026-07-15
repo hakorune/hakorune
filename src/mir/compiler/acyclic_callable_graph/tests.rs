@@ -146,31 +146,3 @@ fn self_edge_and_recursive_cycles_reject_with_source_witnesses() {
     assert_eq!(key_names(&residual_nodes), ["a", "b", "c"]);
     assert_eq!(witness_sites.len(), 3);
 }
-
-#[test]
-fn synthetic_inventory_rejects_foreign_target_and_duplicate_site() {
-    let source = program(vec![function("a", call("b")), leaf("b")]);
-    let graph = VerifiedAcyclicCallableGraphV1::verify(source.module()).unwrap();
-    let foreign = program(vec![leaf("foreign")]);
-    let foreign_key = foreign
-        .module()
-        .functions_by_key()
-        .keys()
-        .next()
-        .unwrap()
-        .clone();
-
-    let mut foreign_sites = graph.call_sites().to_vec();
-    foreign_sites[0].target = foreign_key;
-    assert!(matches!(
-        seal_inventory(graph.nodes().to_vec(), foreign_sites),
-        Err(AcyclicCallableGraphErrorV1::TargetOutsideNodeSet { .. })
-    ));
-
-    let mut duplicate_sites = graph.call_sites().to_vec();
-    duplicate_sites.push(duplicate_sites[0].clone());
-    assert!(matches!(
-        seal_inventory(graph.nodes().to_vec(), duplicate_sites),
-        Err(AcyclicCallableGraphErrorV1::DuplicateGraphSite { .. })
-    ));
-}

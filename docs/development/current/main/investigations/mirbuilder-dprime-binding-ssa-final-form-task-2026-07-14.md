@@ -2412,11 +2412,10 @@ state.
 
 ## Immediate next action
 
-Implement **P0c-MR-G0 — shared callable graph inventory extraction**.
-P0c-F is closed through atomic acyclic-module activation. The SCC consultation
-selected C-prime: extract one non-Clone topology inventory first, preserve the
-existing acyclic proof and behavior exactly, then add disconnected SCC and
-recursive-plan products before a separate VM-only activation row.
+Implement **P0c-MR-S0 — disconnected deterministic SCC partition**.
+P0c-MR-G0 is closed: one non-Clone topology inventory now owns canonical-key
+nodes, exact call sites, unique edges, target projection, and inventory errors;
+the existing acyclic proof consumes it by value and preserves P0c-F behavior.
 
 Decision/task card:
 `mirbuilder-p0c-mr-callable-scc-task-2026-07-16.md`.
@@ -2428,12 +2427,11 @@ P0c-MR:
   G0 -> S0 -> V0 -> C0 -> I1 -> R0
 ```
 
-G0 moves only canonical-key nodes, exact function-relative call sites, unique
-edges, target projection, and node/site validation into one focused inventory
-product. Self-edge rejection, Kahn order, and cycle proof stay in the acyclic
-product. The sealed inventory is consumed by value, is not Clone/Arc/shared,
-and has no SCC production consumer in G0. Grammar, recursion, runtime, backend,
-MIR publication, effect, and ownership behavior remain unchanged.
+S0 adds only deterministic SCC membership, stable minimum-key component IDs,
+recursion classification, and condensation edges/order. It must use an explicit
+work stack, retain one inventory by value, and remain disconnected with zero
+production callers. Grammar, recursion execution, runtime, backend, MIR,
+publication, effect, and ownership behavior remain unchanged.
 
 Ownership V2 parser/resolver/MIR work and `.hako` selfhost parser/MIR-builder
 migration remain separate parked lanes. They are not hidden P0c-MR prerequisites

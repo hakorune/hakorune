@@ -36,6 +36,10 @@ module_preflight_tests = (
 compiler_mod = root / "src/mir/compiler/mod.rs"
 compiler_capability = root / "src/mir/compiler/capability.rs"
 finite_call_tests = root / "src/mir/compiler/finite_direct_call_tests.rs"
+callable_graph_inventory = root / "src/mir/compiler/callable_graph_inventory.rs"
+callable_graph_inventory_tests = (
+    root / "src/mir/compiler/callable_graph_inventory/tests.rs"
+)
 acyclic_graph = root / "src/mir/compiler/acyclic_callable_graph.rs"
 acyclic_graph_tests = root / "src/mir/compiler/acyclic_callable_graph/tests.rs"
 acyclic_plan = root / "src/mir/compiler/acyclic_callable_module_plan.rs"
@@ -444,6 +448,8 @@ for path in (root / "src").rglob("*.rs"):
         module_transaction,
         module_transaction_tests,
         callable_module_input,
+        callable_graph_inventory,
+        callable_graph_inventory_tests,
         acyclic_graph,
         acyclic_graph_tests,
         acyclic_plan,
@@ -646,6 +652,8 @@ for path in [
     direct_call_lower_tests,
     compiler_capability,
     finite_call_tests,
+    callable_graph_inventory,
+    callable_graph_inventory_tests,
     acyclic_graph,
     acyclic_graph_tests,
     acyclic_plan,

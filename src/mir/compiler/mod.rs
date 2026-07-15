@@ -14,6 +14,8 @@ use std::time::Instant;
 pub(in crate::mir) mod acyclic_callable_graph;
 #[allow(dead_code)]
 pub(in crate::mir) mod acyclic_callable_module_plan;
+#[allow(dead_code)]
+pub(in crate::mir) mod callable_graph_inventory;
 pub(in crate::mir) mod capability;
 pub(in crate::mir) mod function_input;
 #[allow(dead_code)]

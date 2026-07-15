@@ -13,6 +13,8 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
     profile_mod = root / "src/mir/resolved_value_profile/mod.rs"
     profile_analyzer = root / "src/mir/resolved_value_profile/analyzer.rs"
     profile_tests = root / "src/mir/resolved_value_profile/direct_call_tests.rs"
+    inventory = root / "src/mir/compiler/callable_graph_inventory.rs"
+    inventory_tests = root / "src/mir/compiler/callable_graph_inventory/tests.rs"
     graph = root / "src/mir/compiler/acyclic_callable_graph.rs"
     graph_tests = root / "src/mir/compiler/acyclic_callable_graph/tests.rs"
     plan = root / "src/mir/compiler/acyclic_callable_module_plan.rs"
@@ -35,6 +37,7 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
             plan,
         },
         r"VerifiedAcyclicCallableGraphV1::verify": {graph_tests, plan},
+        r"VerifiedCallableGraphInventoryV1::verify": {inventory_tests, graph},
         r"VerifiedAcyclicCallableModulePlanV1::verify": {
             plan_tests,
             compiler_mod,
@@ -67,6 +70,8 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
         profile_mod,
         profile_analyzer,
         profile_tests,
+        inventory,
+        inventory_tests,
         graph,
         graph_tests,
         plan,
@@ -84,7 +89,8 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
     expected_tests = {
         profile_tests: 7,
         finite_call_tests: 2,
-        graph_tests: 4,
+        inventory_tests: 2,
+        graph_tests: 3,
         plan_tests: 3,
         activation_tests: 4,
     }
@@ -107,25 +113,60 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
     if "DirectCallPolicyV1::OneOrMoreExact" not in profile_analyzer.read_text():
         fail("P0c-F-DX0a finite profile policy missing")
 
-    graph_text = graph.read_text()
+    inventory_text = inventory.read_text()
     for marker in [
-        "VerifiedAcyclicCallableGraphV1",
+        "VerifiedCallableGraphInventoryV1",
         "VerifiedCallableGraphSiteV1",
         "VerifiedCallableGraphEdgeV1",
         "header_for_callable(target.callable())",
-        "Deterministic Kahn",
+        "TargetOutsideNodeSet",
+        "DuplicateGraphSite",
     ]:
-        if marker not in graph_text:
-            fail(f"P0c-F-S0 graph contract missing: {marker}")
+        if marker not in inventory_text:
+            fail(f"P0c-MR-G0 inventory contract missing: {marker}")
     for forbidden in [
         "VerifiedTrivialDirectCallV1",
         "MirInstruction",
         "CanonicalCallableSymbolV1",
         "ConservativeBarrier",
         "VerifiedCallableModulePreflightV1",
+        "Topological",
+        "Cycle",
+        "Scc",
+    ]:
+        if forbidden in inventory_text:
+            fail(f"P0c-MR-G0 inventory owns a forbidden authority: {forbidden}")
+    if re.search(
+        r"#\[derive\([^]]*Clone[^]]*\)\]\s*pub\(crate\) struct "
+        r"VerifiedCallableGraphInventoryV1",
+        inventory_text,
+    ):
+        fail("P0c-MR-G0 sealed inventory must remain non-Clone")
+    for forbidden in ["Arc<", "Rc<", "Mutex<", "RwLock<"]:
+        if forbidden in inventory_text:
+            fail(f"P0c-MR-G0 sealed inventory gained shared state: {forbidden}")
+
+    graph_text = graph.read_text()
+    for marker in [
+        "VerifiedAcyclicCallableGraphV1",
+        "VerifiedCallableGraphInventoryV1::verify",
+        "AcyclicCallableGraphErrorV1::Inventory",
+        "Deterministic Kahn",
+        "SelfEdge",
+        "Cycle",
+    ]:
+        if marker not in graph_text:
+            fail(f"P0c-MR-G0 acyclic consumer contract missing: {marker}")
+    for forbidden in [
+        "header_for_callable(target.callable())",
+        "ResolvedCallableRefV1",
+        "TargetOutsideNodeSet",
+        "DuplicateGraphSite",
+        "MirInstruction",
+        "ConservativeBarrier",
     ]:
         if forbidden in graph_text:
-            fail(f"P0c-F-S0 topology product owns a forbidden authority: {forbidden}")
+            fail(f"P0c-MR-G0 acyclic proof retained inventory/other authority: {forbidden}")
 
     plan_text = plan.read_text()
     for marker in [

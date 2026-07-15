@@ -158,18 +158,20 @@ emission and never mutates metadata. The capability type owns the only row
 installation facade; missing, duplicate, preexisting, or schema-drifted rows
 fail explicitly.
 
-## P0c-F-S0 topology-only DAG proof
+## P0c-MR-G0 shared topology inventory and P0c-F DAG proof
 
-`VerifiedAcyclicCallableGraphV1` is derived only from the complete resolved
+`VerifiedCallableGraphInventoryV1` is derived only from the complete resolved
 callable module. It projects already-resolved callable identities through the
-catalog reverse index, preserves every function-relative call site, collapses
-only caller/target topology edges, rejects self edges, and seals a deterministic
-canonical-key Kahn witness.
+catalog reverse index once, preserves every function-relative call site, and
+collapses only caller/target topology edges. The sealed inventory is non-Clone
+and owns no acyclic/SCC proof, source-name lookup, call ABI,
+argument/evaluation order, effect, symbol, MIR, draft, publication, or backend
+policy.
 
-This product owns no source-name lookup, call ABI, argument/evaluation order,
-effect, symbol, MIR, draft, publication, or SCC partition. Its `verify` entry
-remains disconnected through S0; the first typed activation consumer belongs
-to P0c-F-V0.
+`VerifiedAcyclicCallableGraphV1` consumes and retains that inventory by value.
+It adds only self-edge rejection and a deterministic canonical-key Kahn
+witness. G0 preserves the existing P0c-F behavior exactly and adds no SCC
+production consumer or recursion activation.
 
 ## P0c-F-V0 typed acyclic module plan
 
@@ -202,5 +204,5 @@ number of call sites.
 
 P0c-F-I1 adds no ownership operation, raw-name lookup, fallback, incremental
 publication, or backend widening. Self edges, mutual recursion, and SCC
-authority remain rejected. The next callable task is the separate P0c-MR-D0
-design consultation.
+authority remain rejected. The next callable task is the behavior-neutral
+P0c-MR-G0 inventory extraction.

@@ -1,8 +1,8 @@
 ---
-Status: Accepted and taskized; P0c-MR-G0 implementation ready
+Status: P0c-MR-G0 closed; P0c-MR-S0 implementation ready
 Date: 2026-07-16
 Decision: C-prime accepted with bounded implementation refinements
-Current row: P0c-MR-G0
+Current row: P0c-MR-S0
 Production baseline: 4bed234ceb
 Consultation: mirbuilder-p0c-mr-scc-consultation-question-2026-07-16.md
 ---
@@ -148,6 +148,35 @@ effect precision. `MAX_CALL_DEPTH` is a runtime resource boundary only.
 | publication | unpublished drafts plus atomic candidate publish | SCC order |
 
 ## P0c-MR-G0 — shared inventory extraction
+
+State: closed on 2026-07-16.
+
+Landed result:
+
+```text
+one non-Clone VerifiedCallableGraphInventoryV1
+one inventory-specific error owner
+one production inventory consumer: existing acyclic proof
+inventory accepts self/cyclic topology
+acyclic proof preserves prior self/cycle rejection
+SCC production consumers = 0
+production behavior delta = 0
+```
+
+Evidence:
+
+```text
+debug inventory fixtures 2/2
+debug acyclic fixtures 3/3
+debug typed-plan fixtures 3/3
+release inventory fixtures 2/2
+release acyclic fixtures 3/3
+release typed-plan fixtures 3/3
+resolved callable authority guard green
+cargo check green
+quick gate 66/66
+all touched source/check files below 800 lines
+```
 
 ```text
 production behavior delta: 0
@@ -307,6 +336,7 @@ Stop if implementation requires:
 
 ## Immediate next action
 
-Implement only `P0c-MR-G0` as one behavior-neutral commit. Do not begin S0
-until P0c-F parity, inventory ownership/error boundaries, non-Clone guards,
-and caller counts are green.
+Implement only `P0c-MR-S0` as a disconnected deterministic SCC partition.
+Use an explicit work stack, keep production callers at zero, consume and retain
+one inventory by value, and do not add grammar, MIR, backend, runtime, effect,
+or recursion activation.

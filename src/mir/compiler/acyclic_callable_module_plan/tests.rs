@@ -104,7 +104,10 @@ fn declaration_reorder_preserves_graph_and_typed_plan_keys() {
         let source = program(functions);
         let plan = VerifiedAcyclicCallableModulePlanV1::verify(source.module()).unwrap();
         observed.push((
-            plan.graph().clone(),
+            plan.graph().nodes().to_vec(),
+            plan.graph().call_sites().to_vec(),
+            plan.graph().unique_edges().to_vec(),
+            plan.graph().topological_order().to_vec(),
             plan.plans_by_key().keys().cloned().collect::<Vec<_>>(),
         ));
     }
