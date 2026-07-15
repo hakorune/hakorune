@@ -1,8 +1,8 @@
 ---
-Status: Active — R0a-L0 closed; disconnected R0a-S0 return witness next
+Status: Active — R0a-S0 closed; atomic R0a-I1 activation next
 Date: 2026-07-15
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-R0A-S0-IMPLEMENTATION-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-R0A-I1-IMPLEMENTATION-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -1417,12 +1417,12 @@ disconnected R0a-S0, then atomic R0a-I1. Source Call, receiver, broader numeric
 types, Box/View/Shared return ABI, Ownership SSA/opcodes, and backend widening
 remain inactive.
 
-R0a-L0 is closed. Exact `i64` physical ABI now has one site-neutral scalar
-SSOT, the parameter ABI delegates to it, and the trivial route installs
-completed parameter metadata plus no typed result through one route-local
-callable ABI facade. Parameter then return contract refresh is centralized on
-the unpublished draft. Production grammar, route selection, typed return, and
-runtime behavior remain unchanged.
+R0a-S0 is closed. Exact `i64` return spelling now has one ABI wrapper over the
+site-neutral scalar SSOT and one co-sealed function witness over the existing
+terminal/completion/coverage authority. The witness has zero external
+consumers and production typed-return admission remains inactive. The strict
+corpus census found 34 zero/all-exact-i64-parameter return signatures, all on
+instance owners, so static R0a candidates remain zero.
 
 The remaining rows stay separate: exact typed parameters do not include the
 receiver owner family; Void disposition does not imply Outbox identity;
@@ -2355,8 +2355,8 @@ state.
 
 ## Immediate next action
 
-R0a-L0 is closed. Implement **R0a-S0 — disconnected sealed exact-i64 return
-witness** next. Co-seal the exact annotation with the existing final
-InlineI64 terminal and completion/coverage identity. Builder connection and
-production activation must remain zero; atomic R0a-I1 follows only after S0
-closes.
+R0a-S0 is closed. Implement **R0a-I1 — atomic exact-i64 typed-return
+activation** next. Only the sealed R0a row may enter Binding SSA; callable
+metadata and boundary contracts must be installed/refreshed before draft
+verification and publication. Unsupported backends remain fail-fast and no
+route retry is allowed.

@@ -18,11 +18,13 @@ guard_resolved_trivial_owner_profile_contract() {
     "$owner/consumption.rs"
     "$owner/coverage.rs"
     "$owner/error.rs"
+    "$owner/function_return.rs"
     "$owner/mod.rs"
     "$owner/operator.rs"
     "$owner/parameter_entry.rs"
     "$owner/parameter_tests.rs"
     "$owner/product.rs"
+    "$owner/return_tests.rs"
     "$owner/tests.rs"
     "$helper"
   )

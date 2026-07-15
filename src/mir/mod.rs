@@ -60,6 +60,7 @@ pub(crate) mod exact_numeric_unification; // exact numeric PHI/Select merge poli
 pub mod exact_numeric_value_facts; // exact numeric per-value facts derived from MIR metadata
 pub mod exact_seed_backend_route; // function-level backend route tags for exact seed bridges
 pub(crate) mod exact_trivial_parameter_abi; // exact source spelling for first Binding-SSA parameter row
+pub(crate) mod exact_trivial_return_abi; // exact source spelling for first Binding-SSA return row
 pub(crate) mod exact_trivial_scalar_abi; // site-neutral exact scalar ABI for trivial callable rows
 pub mod extern_call_route_plan; // MIR-owned extern call route policy plans
 pub mod fastmem_access_plan; // MIR-owned FastMemory layout/table access plans

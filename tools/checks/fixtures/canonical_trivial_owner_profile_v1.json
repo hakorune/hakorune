@@ -9,11 +9,13 @@
       "consumption.rs",
       "coverage.rs",
       "error.rs",
+      "function_return.rs",
       "mod.rs",
       "operator.rs",
       "parameter_entry.rs",
       "parameter_tests.rs",
       "product.rs",
+      "return_tests.rs",
       "tests.rs"
     ],
     "production_rust": [
@@ -21,6 +23,7 @@
       "consumption.rs",
       "coverage.rs",
       "error.rs",
+      "function_return.rs",
       "mod.rs",
       "operator.rs",
       "parameter_entry.rs",
@@ -28,6 +31,7 @@
     ],
     "test_rust": [
       "parameter_tests.rs",
+      "return_tests.rs",
       "tests.rs"
     ],
     "entry_symbol": "analyze_trivial_canonical_owner_v1",
@@ -51,12 +55,13 @@
     "rows": 18
   },
   "claims": {
-    "profile_manifest_entries": 11,
-    "profile_production_rust_files": 8,
-    "profile_test_rust_files": 2,
+    "profile_manifest_entries": 13,
+    "profile_production_rust_files": 9,
+    "profile_test_rust_files": 3,
     "profile_entry_definitions": 1,
     "sealed_product_definitions": 1,
-    "focused_profile_fixtures": 18,
+    "sealed_return_witness_definitions": 1,
+    "focused_profile_fixtures": 22,
     "profile_production_callers": 1,
     "production_route_delta": 1,
     "accepted_grammar_delta": 1,
@@ -68,6 +73,7 @@
   },
   "profile_symbols": [
     "VerifiedTrivialCanonicalOwnerV1",
+    "VerifiedTrivialFunctionReturnV1",
     "TrivialCanonicalOwnerAnalysisV1",
     "analyze_trivial_canonical_owner_v1"
   ],
@@ -78,6 +84,15 @@
       "representation": "InlineI64",
       "coverage_authority": "definition",
       "production_route": "canonical_binding_ssa"
+    }
+  ],
+  "return_rows": [
+    {
+      "id": "return.inline_i64",
+      "source_spelling": "i64",
+      "representation": "InlineI64",
+      "terminal_authority": "existing_explicit_value_terminal",
+      "production_route": "disconnected"
     }
   ],
   "value_rows": [

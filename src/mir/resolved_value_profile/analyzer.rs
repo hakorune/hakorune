@@ -6,6 +6,7 @@ use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::located::{LocatedBodyV1, LocatedExprV1, LocatedStmtV1};
 use crate::mir::compiler::source_view::{BodyChildRoleV1, ExprChildRoleV1};
+use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
 use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1;
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::{BindingRefV1, SourceBindingSiteV1, SourceStmtSiteV1};
@@ -17,6 +18,7 @@ use super::error::{
     stop, stop_expression, stop_statement, AnalysisFailureV1, AnalysisResultV1,
     TrivialProfileContractErrorV1, TrivialProfileStopReasonV1, TrivialProfileStopSiteV1,
 };
+use super::function_return::seal_function_return_v1;
 use super::operator::{
     derive_trivial_binary_profile_v1, derive_trivial_literal_profile_v1,
     TrivialBinaryProfileStopV1, TrivialLiteralProfileStopV1,
@@ -81,7 +83,7 @@ impl<'a> AnalyzerV1<'a> {
         completion: &VerifiedFunctionCompletionV1,
     ) -> AnalysisResultV1<VerifiedTrivialCanonicalOwnerV1> {
         self.verify_owner_transport()?;
-        self.verify_root_profile()?;
+        let requested_return = self.verify_root_profile()?;
 
         let body = self
             .input
@@ -124,6 +126,12 @@ impl<'a> AnalyzerV1<'a> {
         self.verify_if_control_coverage()?;
         self.fact_coverage.verify(self.input.function())?;
         let parts = self.draft.finish();
+        let function_return = seal_function_return_v1(
+            self.input.owner(),
+            requested_return,
+            &terminal,
+            &parts.coverage,
+        )?;
         Ok(VerifiedTrivialCanonicalOwnerV1::from_verified_parts(
             self.input.owner(),
             parts.parameter_entries,
@@ -131,6 +139,7 @@ impl<'a> AnalyzerV1<'a> {
             parts.definitions,
             parts.merge_profiles,
             terminal,
+            function_return,
             parts.coverage,
         ))
     }
@@ -145,7 +154,7 @@ impl<'a> AnalyzerV1<'a> {
         Ok(())
     }
 
-    fn verify_root_profile(&self) -> AnalysisResultV1<()> {
+    fn verify_root_profile(&self) -> AnalysisResultV1<Option<ExactTrivialReturnAbiV1>> {
         let ASTNode::FunctionDeclaration {
             name,
             return_type_name,
@@ -172,13 +181,17 @@ impl<'a> AnalyzerV1<'a> {
                 TrivialProfileStopReasonV1::FunctionMetadataOutsideProfile,
             );
         }
-        if return_type_name.is_some() {
-            return stop(
-                owner_site,
-                TrivialProfileStopReasonV1::TypedSignatureOutsideProfile,
-            );
+        match return_type_name.as_deref() {
+            None => Ok(None),
+            Some(source_type_name) => ExactTrivialReturnAbiV1::classify(source_type_name)
+                .map(Some)
+                .ok_or_else(|| {
+                    AnalysisFailureV1::Stop(super::error::TrivialProfileStopV1::new(
+                        owner_site,
+                        TrivialProfileStopReasonV1::TypedSignatureOutsideProfile,
+                    ))
+                }),
         }
-        Ok(())
     }
 
     fn analyze_body(

@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ SSA-I1-COMPAT-R0a L0 closed; disconnected R0a-S0 return witness active"
+status = "D′ SSA-I1-COMPAT-R0a S0 closed; atomic R0a-I1 activation active"
 date = "2026-07-15"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -76,10 +76,10 @@ MirParamDecl transport, and reuse the existing exact-numeric final-callee
 contract. Parameter reassignment and If PHIs use the same Binding SSA owner;
 unsupported typed signatures reject before Builder effects and never retry
 A+. Strict corpus candidates remain zero, so this is an ingress proof rather
-than a selfhost coverage claim. Source calls, typed returns, receiver, broader
-numeric types, Box ownership, Ownership SSA/opcodes, and backend widening
-remain inactive. R0a is now selected as the exact static `i64` return row;
-behavior-neutral R0a-L0 is closed and disconnected R0a-S0 is active.
+than a selfhost coverage claim. Source calls, receiver, broader numeric types,
+Box ownership, Ownership SSA/opcodes, and backend widening remain inactive.
+R0a is the selected exact static `i64` return row; behavior-neutral R0a-L0 and
+disconnected R0a-S0 are closed, and atomic R0a-I1 is active.
 Historical
 lane chronology follows and is non-authoritative.
 Explicit user priority change on 2026-07-12 reopens
@@ -199,19 +199,19 @@ latest_workstream_card = "docs/development/current/main/design/binding-ssa-first
 
 latest_card = "mirbuilder-ssa-i1-compat-static-i64-return-selection-2026-07-15"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-ssa-i1-compat-static-i64-return-selection-2026-07-15.md"
-latest_card_summary = """SSA-I1-COMPAT-R0a-L0 closes the behavior-neutral
-callable ABI seam. Exact `i64` spelling and MirType projection now live in one
-site-neutral ExactTrivialScalarAbiV1 substrate; the existing parameter ABI
-delegates to it. The trivial Binding SSA route installs completed sealed
-parameter declarations with no typed result through one route-local
-callable_abi facade, so that route no longer rereads raw return_type_name.
-Parameter then return contract refresh is centralized on the unpublished
-function draft. Production typed-return admission, grammar, routing, runtime,
-backend, Ownership SSA/opcodes, and source Call/receiver behavior remain
-unchanged. Focused parameter 5/5, resolved-lowering 94/94, profile 18/18,
-authority guard, release build, and quick 66/66 are green. The next blocker is
-disconnected R0a-S0: seal the exact-i64 return witness with Builder connection
-and production activation still zero.
+latest_card_summary = """SSA-I1-COMPAT-R0a-S0 closes one disconnected exact
+`i64` return witness. ExactTrivialReturnAbiV1 delegates spelling and physical
+projection to the existing scalar ABI substrate. The resolved value analyzer
+co-seals exact `: i64` only with the existing final explicit InlineI64
+terminal, completion, and exact terminal coverage row; the witness owns no
+second terminal/value authority. The authority guard proves one return row,
+one witness definition, and zero external witness consumers. Production
+typed-return admission remains fail-fast, so Builder, routing, runtime,
+backend, Ownership SSA/opcodes, source Call, and receiver behavior remain
+unchanged. Read-only corpus evidence found 34 exact-i64-return signatures with
+zero/all-exact-i64 parameters, all instance owners; strict static R0a
+candidates remain zero. Return ABI 2/2, profile 22/22, and the full authority
+guard are green. The next blocker is atomic R0a-I1 production activation.
 Historical D′ context follows.
 D′ is accepted and taskized through the final canonical
 source form. Exact source coverage, ScopeId/RegionId topology, typed ports,
@@ -630,7 +630,7 @@ SSA-I1-T blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-R0A-S0-IMPLEMENTATION-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-R0A-I1-IMPLEMENTATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

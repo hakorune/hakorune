@@ -6,12 +6,15 @@ mod analyzer;
 mod consumption;
 mod coverage;
 pub(crate) mod error;
+mod function_return;
 mod operator;
 mod parameter_entry;
 pub(crate) mod product;
 
 #[cfg(test)]
 mod parameter_tests;
+#[cfg(test)]
+mod return_tests;
 #[cfg(test)]
 mod tests;
 

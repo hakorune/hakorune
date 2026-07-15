@@ -67,6 +67,7 @@ pub(crate) enum TrivialProfileContractErrorV1 {
     ParameterEntryContractMismatch {
         formal_index: u32,
     },
+    FunctionReturnCoverageMismatch,
     IfControlOwnerMismatch,
     SourceNavigation {
         detail: String,

@@ -12,6 +12,8 @@ product. Outputs may contain only:
 - closed representation vocabulary owned by this directory;
 - sealed parameter ABI rows whose source names are transport/diagnostic data,
   never lookup or binding identity authority;
+- a sealed return ABI witness that refers to the existing exact terminal and
+  never owns another return value or terminal analysis;
 - exact value/definition/join/terminal coverage.
 
 This layer must not import or infer from `MirBuilder`, `ValueId`,
@@ -38,6 +40,11 @@ Exact parameter rows are ABI sidecars. Their declaration `Definition` row is
 the sole exact-once coverage subject, and parameter names never replace
 `BindingRefV1` identity. The first row accepts only exact source `i64`; it
 allocates no `ValueId` and has no production Builder connection until P0a-I1.
+
+The first return witness accepts only exact source `i64` co-sealed with the
+existing final explicit `InlineI64` terminal, completion, and coverage row.
+R0a-S0 keeps this witness disconnected: no Builder consumer or production
+typed-return admission exists until the atomic R0a-I1 slice.
 
 Profile rejection is data, not fallback. A later compiler route may select the
 existing canonical A+ path from a sealed rejection before Builder effects, but

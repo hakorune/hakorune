@@ -15,12 +15,13 @@ HISTORICAL_SHA256 = (
     "0c8395ce8f893ee0e7faf427490f77f8da6a5f3f7a729aae06d2a2cd382927b4"
 )
 EXPECTED_CLAIMS = {
-    "profile_manifest_entries": 11,
-    "profile_production_rust_files": 8,
-    "profile_test_rust_files": 2,
+    "profile_manifest_entries": 13,
+    "profile_production_rust_files": 9,
+    "profile_test_rust_files": 3,
     "profile_entry_definitions": 1,
     "sealed_product_definitions": 1,
-    "focused_profile_fixtures": 18,
+    "sealed_return_witness_definitions": 1,
+    "focused_profile_fixtures": 22,
     "profile_production_callers": 1,
     "production_route_delta": 1,
     "accepted_grammar_delta": 1,
@@ -32,6 +33,7 @@ EXPECTED_CLAIMS = {
 }
 EXPECTED_SYMBOLS = {
     "VerifiedTrivialCanonicalOwnerV1",
+    "VerifiedTrivialFunctionReturnV1",
     "TrivialCanonicalOwnerAnalysisV1",
     "analyze_trivial_canonical_owner_v1",
 }
@@ -41,11 +43,13 @@ EXPECTED_MANIFEST = {
     "consumption.rs",
     "coverage.rs",
     "error.rs",
+    "function_return.rs",
     "mod.rs",
     "operator.rs",
     "parameter_entry.rs",
     "parameter_tests.rs",
     "product.rs",
+    "return_tests.rs",
     "tests.rs",
 }
 EXPECTED_PRODUCTION_RUST = {
@@ -53,12 +57,13 @@ EXPECTED_PRODUCTION_RUST = {
     "consumption.rs",
     "coverage.rs",
     "error.rs",
+    "function_return.rs",
     "mod.rs",
     "operator.rs",
     "parameter_entry.rs",
     "product.rs",
 }
-EXPECTED_TEST_RUST = {"parameter_tests.rs", "tests.rs"}
+EXPECTED_TEST_RUST = {"parameter_tests.rs", "return_tests.rs", "tests.rs"}
 EXPECTED_FORBIDDEN = {
     "BasicBlockId",
     "BindingSsaBuilderV1",
@@ -118,6 +123,14 @@ EXPECTED_PARAMETER_ROWS = {
         "InlineI64",
         "definition",
         "canonical_binding_ssa",
+    )
+}
+EXPECTED_RETURN_ROWS = {
+    "return.inline_i64": (
+        "i64",
+        "InlineI64",
+        "existing_explicit_value_terminal",
+        "disconnected",
     )
 }
 
@@ -180,6 +193,7 @@ def main() -> None:
         "claims",
         "profile_symbols",
         "parameter_rows",
+        "return_rows",
         "value_rows",
         "terminal_rows",
         "rejection_rows",
@@ -219,6 +233,28 @@ def main() -> None:
     }
     if actual_parameter_rows != EXPECTED_PARAMETER_ROWS:
         fail("exact parameter profile matrix drifted")
+    return_rows = checked_rows(
+        data["return_rows"],
+        {
+            "id",
+            "source_spelling",
+            "representation",
+            "terminal_authority",
+            "production_route",
+        },
+        "return_rows",
+    )
+    actual_return_rows = {
+        row["id"]: (
+            row["source_spelling"],
+            row["representation"],
+            row["terminal_authority"],
+            row["production_route"],
+        )
+        for row in return_rows
+    }
+    if actual_return_rows != EXPECTED_RETURN_ROWS:
+        fail("exact return profile matrix drifted")
     if set(data["forbidden_authorities"]) != EXPECTED_FORBIDDEN:
         fail("forbidden authority vocabulary drifted")
 
@@ -337,6 +373,7 @@ def main() -> None:
         {
             "claims": data["claims"],
             "parameter_rows": parameter_rows,
+            "return_rows": return_rows,
             "value_rows": values,
             "terminal_rows": terminals,
             "rejection_rows": rejections,
@@ -389,12 +426,15 @@ def main() -> None:
     sealed_definition = "pub(crate) struct VerifiedTrivialCanonicalOwnerV1"
     if owner_production_text.count(sealed_definition) != 1:
         fail("sealed product definition count must remain exactly one")
+    return_witness_definition = "pub(crate) struct VerifiedTrivialFunctionReturnV1"
+    if owner_production_text.count(return_witness_definition) != 1:
+        fail("sealed return witness definition count must remain exactly one")
     result_definition = "pub(crate) enum TrivialCanonicalOwnerAnalysisV1"
     if owner_production_text.count(result_definition) != 1:
         fail("analysis result definition count must remain exactly one")
     test_text = "\n".join(path.read_text() for path in test_files)
-    if test_text.count("#[test]") != 18:
-        fail("focused profile fixture count must remain exactly 18")
+    if test_text.count("#[test]") != 22:
+        fail("focused profile fixture count must remain exactly 22")
     for fixture in (
         "exact_literals_binary_and_value_return_seal",
         "local_assignment_and_blockexpr_tail_preserve_exact_profile",
@@ -414,6 +454,10 @@ def main() -> None:
         "parameter_rebind_and_if_merge_reuse_the_existing_profile_environment",
         "unsupported_parameter_types_and_untyped_parameters_do_not_admit",
         "exact_parameter_profile_selects_production_binding_ssa_route",
+        "exact_i64_return_witness_co_seals_with_existing_terminal",
+        "exact_i64_parameter_and_return_share_one_profile",
+        "typed_return_requires_exact_spelling_and_inline_i64_terminal",
+        "exact_i64_return_remains_disconnected_from_production_preflight",
     ):
         if f"fn {fixture}(" not in test_text:
             fail(f"focused profile fixture missing: {fixture}")
@@ -456,6 +500,14 @@ def main() -> None:
             "resolved_value_profile production reference set drifted: "
             f"{external_module_references}"
         )
+    external_return_consumers = []
+    for path in production:
+        if physical_owner in path.parents:
+            continue
+        if ".function_return()" in production_text(path):
+            external_return_consumers.append(str(path.relative_to(root)))
+    if external_return_consumers:
+        fail(f"disconnected return witness gained consumers: {external_return_consumers}")
 
     binding_box = root / "src/mir/builder/ssa/binding"
     binding_callers = []
@@ -501,13 +553,15 @@ def main() -> None:
         fail(f"default/non-test resolved caller activated: {resolved_callers}")
 
     print("canonical_ssa_i0_profile_owner=src/mir/resolved_value_profile")
-    print("canonical_ssa_i0_profile_manifest_entries=11")
-    print("canonical_ssa_i0_profile_production_rust_files=8")
-    print("canonical_ssa_i0_profile_test_rust_files=2")
+    print("canonical_ssa_i0_profile_manifest_entries=13")
+    print("canonical_ssa_i0_profile_production_rust_files=9")
+    print("canonical_ssa_i0_profile_test_rust_files=3")
     print("canonical_ssa_i0_profile_entry_definitions=1")
     print("canonical_ssa_i0_profile_sealed_product_definitions=1")
-    print("canonical_ssa_i0_profile_focused_fixtures=18")
+    print("canonical_ssa_i0_profile_sealed_return_witness_definitions=1")
+    print("canonical_ssa_i0_profile_focused_fixtures=22")
     print("canonical_ssa_i0_profile_parameter_rows=1")
+    print("canonical_ssa_i0_profile_return_rows=1")
     print("canonical_ssa_i0_profile_production_callers=1")
     print("canonical_ssa_i0_profile_binding_ssa_callers=1")
     print("canonical_ssa_i0_profile_ownership_ssa_callers=0")

@@ -1,8 +1,8 @@
 ---
-Status: Active; R0a-L0 closed, disconnected R0a-S0 next
+Status: Active; R0a-S0 closed, atomic R0a-I1 next
 Date: 2026-07-15
 Decision: SSA-I1-COMPAT-R0a — static exact-i64 typed return
-Next blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-R0A-S0-IMPLEMENTATION-001
+Next blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-R0A-I1-IMPLEMENTATION-001
 Related:
   - mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
   - mirbuilder-ssa-i1-compat-static-i64-parameter-selection-2026-07-15.md
@@ -391,6 +391,53 @@ production activation = 0
 Run a read-only strict corpus census here. Candidate counts are evidence, not
 activation authority.
 
+R0a-S0 is closed. Landed evidence:
+
+```text
+return source ABI:
+  ExactTrivialReturnAbiV1
+  exact spelling = i64 only
+  physical projection delegates to ExactTrivialScalarAbiV1
+
+function witness:
+  VerifiedTrivialFunctionReturnV1
+  co-sealed only after existing terminal/completion verification
+  exact ExplicitValueTerminal coverage foreign-key count = 1
+
+terminal/value authority added:
+  0
+
+external function_return consumers:
+  0
+
+Builder / production activation:
+  0 / 0
+```
+
+Read-only parser-evidence census over `lang/src`, `apps`, `tests`,
+`tools/smokes`, and `examples`:
+
+```text
+files containing an exact-i64 return with zero/all-exact-i64 parameters: 10
+matching function signatures:                                           34
+instance-owner signatures:                                              34
+static-owner R0a signature candidates:                                   0
+parse failures:                                                          0
+```
+
+The body grammar did not need further classification because the exact root
+owner-family boundary already reduces the strict candidate set to zero. This
+is evidence only and does not change admission authority.
+
+Verification:
+
+```text
+exact return ABI fixtures: 2/2
+resolved-value-profile fixtures: 22/22
+resolved-region-flow authority guard: green
+all touched source/check files: < 800 lines
+```
+
 ### R0a-I1 — atomic production activation
 
 ```text
@@ -544,5 +591,7 @@ P0r
   receiver / BoxRef / method routing / ownership witness
 ```
 
-The next action is disconnected R0a-S0. Add the sealed return witness and
-co-seal tests without connecting Builder or changing production admission.
+The next action is atomic R0a-I1. Admit only the exact sealed R0a row, install
+callable metadata from the parameter and return witnesses before body effects,
+refresh both boundary contracts before verification/publication, and retain
+Rust-interpreter-only backend fail-fast with no retry.

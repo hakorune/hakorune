@@ -2,6 +2,7 @@
 
 use crate::mir::compiler::located::SourceBodySiteV1;
 use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
+use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
@@ -191,6 +192,21 @@ pub(crate) enum TrivialTerminalProfileV1 {
     },
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct VerifiedTrivialFunctionReturnV1 {
+    abi: ExactTrivialReturnAbiV1,
+}
+
+impl VerifiedTrivialFunctionReturnV1 {
+    pub(super) const fn new(abi: ExactTrivialReturnAbiV1) -> Self {
+        Self { abi }
+    }
+
+    pub(crate) const fn abi(&self) -> ExactTrivialReturnAbiV1 {
+        self.abi
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum TrivialProfileCoverageSubjectV1 {
     Value(SourceExprSiteV1),
@@ -240,6 +256,7 @@ pub(crate) struct VerifiedTrivialCanonicalOwnerV1 {
     definitions: Box<[VerifiedTrivialBindingDefinitionV1]>,
     merge_profiles: Box<[VerifiedTrivialIfMergeProfileV1]>,
     terminal: TrivialTerminalProfileV1,
+    function_return: Option<VerifiedTrivialFunctionReturnV1>,
     coverage: VerifiedTrivialProfileCoverageV1,
     _seal: TrivialCanonicalOwnerSealV1,
 }
@@ -252,6 +269,7 @@ impl VerifiedTrivialCanonicalOwnerV1 {
         definitions: Vec<VerifiedTrivialBindingDefinitionV1>,
         merge_profiles: Vec<VerifiedTrivialIfMergeProfileV1>,
         terminal: TrivialTerminalProfileV1,
+        function_return: Option<VerifiedTrivialFunctionReturnV1>,
         coverage: VerifiedTrivialProfileCoverageV1,
     ) -> Self {
         Self {
@@ -261,6 +279,7 @@ impl VerifiedTrivialCanonicalOwnerV1 {
             definitions: definitions.into_boxed_slice(),
             merge_profiles: merge_profiles.into_boxed_slice(),
             terminal,
+            function_return,
             coverage,
             _seal: TrivialCanonicalOwnerSealV1,
         }
@@ -292,6 +311,10 @@ impl VerifiedTrivialCanonicalOwnerV1 {
 
     pub(crate) const fn terminal(&self) -> &TrivialTerminalProfileV1 {
         &self.terminal
+    }
+
+    pub(crate) const fn function_return(&self) -> Option<&VerifiedTrivialFunctionReturnV1> {
+        self.function_return.as_ref()
     }
 
     pub(crate) const fn coverage(&self) -> &VerifiedTrivialProfileCoverageV1 {
