@@ -1,8 +1,8 @@
 ---
-Status: P0c-MR-R0-CUT0 closed; G0 closeout next
+Status: P0c-MR-R0-G0 closed; post-P0c design stop next
 Date: 2026-07-16
 Decision: C-prime accepted with bounded implementation refinements
-Current row: P0c-MR-R0-G0 guards and closeout
+Current row: closed
 Production baseline: 4bed234ceb
 Consultation: mirbuilder-p0c-mr-scc-consultation-question-2026-07-16.md
 R0 consultation: mirbuilder-p0c-mr-r0-self-call-retirement-consultation-question-2026-07-16.md
@@ -667,8 +667,40 @@ all modified source/check files below 800 lines
 
 ## Immediate next action
 
-Close `P0c-MR-R0-G0` without semantic widening: retain the old-symbol/caller,
-single-ingress, no-retry, marker, ownership-op, atomic-publication, and
-under-800-line guards; synchronize the final Program-only authority pointers;
-and record the next design consultation. Do not add a compatibility adapter or
-reintroduce a singleton-specific product.
+P0c-MR-R0-G0 is closed. Continue only through
+`mirbuilder-post-p0c-selfhost-next-owner-consultation-2026-07-16.md`. Do not
+infer the next implementation row from the historical ABI order, add a
+compatibility adapter, or reintroduce a singleton-specific product.
+
+## R0-G0 closeout evidence
+
+The existing resolved-callable structural guard now owns the durable R0
+closeout. It proves the retired constructor/type/facade/analyzer vocabulary is
+zero, the explicit recursive Program ingress is singular, body-only lowering
+remains call-disabled, and no route retry or fallback exists. Singleton
+production fixtures prove one catalog/function/inventory/SCC/plan/draft/
+published-function row, one direct-static marker, one recursive module marker,
+and exact resolved/profile/emitted-call correspondence.
+
+```text
+old callable authority symbols/callers: 0
+explicit recursive Program ingress: 1
+bare-function self-call adapters: 0
+call policy: Forbidden | FiniteOneOrMore
+route retry/fallback: 0
+CopyOwned / DestroyOwned / ReleaseStrong: 0
+partial function/module-marker publication: 0
+resolved-callable authority guard: green
+current-state pointer guard: green
+vm-reference singleton Program production fixtures: 2/2
+all modified source/check files below 800 lines
+production behavior delta from CUT0: 0
+```
+
+The singleton activation fixtures are feature-gated. Closeout commands must
+include `--features vm-reference`; a featureless filtered run proving zero
+tests is not evidence.
+
+`CallableFunctionSyntaxViewV1` remains intentionally: it is the exact
+declaration/body pairing view used by canonical CAT0/MP0 resolution, not the
+retired one-entry authority.

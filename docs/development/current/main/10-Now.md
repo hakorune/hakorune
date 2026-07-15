@@ -17,13 +17,12 @@ Related:
 - workstream card: read `latest_workstream_card` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
-- priority: read the exact row from `current_blocker_token`. CAT0 through G0,
-  MP0 `S0 -> R0 -> P0 -> TX0`, and the bounded P0c-B1 sibling-call slice are
-  closed. P0c-F is selected with P0c-N absorbed. Follow the active card order
-  `DX0a -> DX0b -> S0 -> V0 -> census evidence -> I1`; all rows are closed.
-  The census found zero exact P0c-F candidates in `lang/src`, so I1 is an
-  ingress proof rather than a corpus coverage claim. The exact current blocker
-  is P0c-MR-R0-G0 Program-authority guard closeout.
+- priority: read the exact row from `current_blocker_token`. CAT0, MP0, P0c-F,
+  P0c-MR, and Program-only R0 retirement through G0 are closed. The exact
+  current blocker is the HMI-P0 MIR ingress/opcode/caller inventory design
+  stop. This is the first unselected row of the required `.hako` MIR semantic-
+  reference retirement branch; it changes no execution owner and activates no
+  opcode.
   C-prime is
   taskized as `G0 -> S0 -> V0 -> C0 -> I1 -> R0`; G0 through I1 are closed. The
   deterministic SCC partition is non-Clone, uses a host-stack-safe traversal,
@@ -35,11 +34,14 @@ Related:
   contract failure fixtures now prove caller restoration and interpreter
   reuse; the reference VM depth guard is a resource boundary, not a language
   recursion limit. R0 selected Program-only authority with
-  `S0 -> P0 -> CUT0 -> G0`; S0 and P0 are closed. CUT0 is also closed:
+  `S0 -> P0 -> CUT0 -> G0`; all rows are closed:
   singleton self recursion now uses the Program/catalog/SCC/atomic-publication
   authority, while RootCallable, one-entry facades, and exact-one call policy
-  are deleted in the same atomic change. G0 is the final guard/pointer
-  closeout; no compatibility adapter or second singleton authority is allowed.
+  are deleted in the same atomic change. G0 fixes the old-symbol/caller zero,
+  one explicit Program ingress, and no-retry guards. The next implementation
+  row must select one existing sealed MIR transport for HMI-P0; no compatibility
+  adapter or second singleton authority is allowed. The 29bq parser/MirBuilder
+  lane remains failure-driven with no current blocker.
   Production Ownership SSA,
   Loop production,
   SCC-aware optimization, legacy

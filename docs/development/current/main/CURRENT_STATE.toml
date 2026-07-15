@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ P0c-MR-R0-CUT0 closed; R0-G0 closeout next"
+status = "D′ P0c-MR-R0-G0 closed; HMI-P0 ingress/inventory design stop"
 date = "2026-07-16"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -178,7 +178,7 @@ ownership-op, and compiler-reuse parity; the Program route's one recursive
 module marker is the sole intentional difference. CUT0 is also closed:
 singleton production uses the Program authority and the old RootCallable,
 one-entry, temporary selector, and exact-one authorities are deleted. R0-G0 is
-the next code-facing guard/pointer closeout.
+closed with old-symbol/caller zero, one explicit Program ingress, and no retry.
 Historical
 lane chronology follows and is non-authoritative.
 Explicit user priority change on 2026-07-12 reopens
@@ -294,18 +294,18 @@ active_phase = "docs/development/current/main/investigations/mirbuilder-dprime-b
 phase_status = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 method_anchor = "docs/development/current/main/design/current-docs-archive-policy-ssot.md"
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
-latest_workstream_card = "docs/development/current/main/design/binding-ssa-first-control-lowering-ssot.md"
+latest_workstream_card = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 
-latest_card = "mirbuilder-p0c-mr-callable-scc-task-2026-07-16"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-p0c-mr-callable-scc-task-2026-07-16.md"
-latest_card_summary = """P0c-MR-R0 accepted Candidate B and is taskized as
+latest_card = "mirbuilder-post-p0c-selfhost-next-owner-consultation-2026-07-16"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-post-p0c-selfhost-next-owner-consultation-2026-07-16.md"
+latest_card_summary = """P0c-MR-R0 accepted Candidate B and is closed as
 `R0-S0 -> R0-P0 -> R0-CUT0 -> R0-G0`. The sole final callable authority is the
 owned function-only Program/catalog/SCC route. S0 and P0 are closed. CUT0 is
 also closed: singleton self recursion now uses the same catalog, graph, SCC,
 finite call profile, and atomic transaction as multi-function recursion, with
 one direct-static marker and one recursive module marker. RootCallable, the
 callable-forest sidecar, one-entry index facades, the temporary singleton
-selector, and exact-one call policy were deleted atomically. G0 now closes the
+selector, and exact-one call policy were deleted atomically. G0 closes the
 caller/symbol/retry guards and final pointers. CallableFunctionSyntaxViewV1 is retained
 because canonical CAT0/MP0 body resolution uses it. Final call policy is
 explicit `Forbidden | FiniteOneOrMore`. Source compatibility with the removed
@@ -343,9 +343,13 @@ contract restoration/reuse, VM-only fail-fast, ownership-op zero, authority
 guard, cargo check, quick 66/66, pointer/format guards, and touched source/check
 files below 800 lines are green. The Rust reference interpreter uses a
 host-stack-safe depth boundary of 16; this is a VM resource fail-fast contract,
-not a language recursion limit or termination claim. Atomic R0-CUT0 is closed;
-R0-G0 is the exact guard/pointer closeout row and no second self-call authority
-may be reintroduced.
+not a language recursion limit or termination claim. Atomic R0-CUT0 and R0-G0
+are closed; no second self-call authority may be reintroduced. The active
+design stop is HMI-P0: inventory Rust MirInterpreter handlers, callers, sealed
+MIR transports/lossiness, and VMValue-hidden representation, then select one
+sole `.hako` interpreter ingress. HMI-P0 changes no execution owner and
+activates no opcode. Parser/MirBuilder migration remains failure-driven with
+no current blocker; Ownership V2 grammar remains parked.
 partition whose ID is the minimum canonical key; V0 then adds general finite
 exact-i64 recursive admission; C0 adds one passive module-level recursive
 capability; I1 uses an explicit VM-only ingress plus the existing unpublished-
@@ -772,7 +776,7 @@ MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-MR-R0-G0-PROGRAM-AUTHORITY-GUARD-CLOSEOUT-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-HMI-P0-MIR-INGRESS-INVENTORY-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -781,6 +785,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-16: D′ P0c-MR-R0-G0 closes Program-only callable authority retirement without semantic widening. The resolved-callable guard proves old RootCallable/one-entry/exact-one symbols and callers zero, one explicit recursive Program ingress, body-only compile_resolved call-disabled, no retry/fallback, singleton cardinality and marker correspondence, ownership-op zero, atomic publication, and all source/check files below 800 lines. Current pointers now stop at the HMI-P0 MIR ingress/opcode/caller inventory consultation; no implementation row is inferred from historical order.",
   "2026-07-16: D′ P0c-MR-R0-CUT0 atomically makes the owned function-only Program route the sole callable authority for singleton and multi-function recursion: singleton SelfRecursive SCCs use CAT0/catalog, shared graph inventory, deterministic SCC partition, finite call profiles, unpublished drafts, and atomic publication; one direct-static function marker and one recursive module marker are exact. The same change deletes RootCallable, resolve_function_with_root_callable, the one-function callable-forest sidecar, one-entry index facades, the temporary singleton selector, exact-one admission/profile policy, and old high-level fixtures. Body-only compile_resolved remains call-disabled; old source symbols/callers and route retry are zero. Debug/release recursive activation 9/9, recursive plan 5/5, profile 6/6, index 6/6, authority guard, cargo check, quick 66/66, diff/format checks, ownership-op zero, and all modified source/check files below 800 lines are green; R0-G0 final guard/pointer closeout is next.",
   "2026-07-16: D′ P0c-MR-R0-P0 closes normalized old/new self-call authority parity with production behavior unchanged: one test-only module compares exact header, semantic kind/cardinality, parameter/call/profile rows, normalized block/ValueId MIR relations, parameter/return contracts, optimized and unoptimized runtime results, non-VM fail-fast/no-fallback, ownership-op zero, and compiler reuse; the singleton Program route's one recursive module marker is the sole intended difference. Focused debug/release parity 4/4, retained old self-call 5/5, recursive activation 7/7, plan 5/5, SCC 4/4, authority/pointer/format/diff guards, cargo check, quick 66/66, and all touched source/check files below 800 lines are green; atomic R0-CUT0 is next.",
   "2026-07-16: D′ P0c-MR-R0-S0 closes one disconnected singleton-recursive admission proof: production verify remains ExistingTwoOrMore, while one test-only OneOrMoreForR0 selector accepts a one-function SelfRecursive SCC with repeated and nested self-call sites and rejects zero-call or acyclic/no-recursive-component modules. No singleton/SCC authority, grammar, route, marker, runtime, backend, ownership, or production activation is added; focused debug/release plan 5/5, retained SCC 4/4, recursive activation 7/7, resolved-callable authority guard, cargo check, quick 66/66, pointer/format/diff checks, and all touched source/check files below 800 lines are green; R0-P0 normalized parity proof is next.",
@@ -792,5 +797,4 @@ landed_tail = [
   "2026-07-16: D′ P0c-MR-V0 closes one disconnected recursive exact-i64 module admission product: VerifiedRecursiveCallableModulePlanV1 consumes one deterministic SCC partition, requires at least two functions, one call site, and one recursive component, stores one existing finite trivial Binding-SSA plan per canonical key, and seals exact inventory/function/component/plan cardinality plus per-function inventory/profile call-row correspondence. It owns no target, ABI, effect, MIR, publication, backend, runtime, or ownership authority and has production callers and behavior delta zero; debug/release recursive-plan 3/3, retained SCC 4/4, resolved-callable authority guard, cargo check, quick 66/66, pointer/format guards, and all touched source/check files below 800 lines are green; P0c-MR-C0 passive recursive-module capability is next.",
   "2026-07-16: D′ P0c-MR-S0 closes one disconnected deterministic SCC authority: non-Clone VerifiedCallableSccPartitionV1 consumes and retains exactly one VerifiedCallableGraphInventoryV1 by value; iterative explicit-stack Kosaraju computes components without host recursion, each CallableSccIdV1 is the minimum canonical key, members/components are canonically sorted, recursion is classified as NonRecursive/SelfRecursive/MutualRecursive, and sorted unique condensation edges receive deterministic Kahn order. The partition remains target/ABI/effect/MIR/publication/backend/runtime non-authority with production callers and behavior delta zero; debug/release SCC 4/4, retained inventory 2/2 and acyclic 3/3, resolved-callable authority guard, cargo check, quick 66/66, pointer/format guards, and all touched source/check files below 800 lines are green; P0c-MR-V0 disconnected recursive module plan is next.",
   "2026-07-16: D′ P0c-MR-G0 closes one behavior-neutral shared callable-graph inventory: VerifiedCallableGraphInventoryV1 non-clonably owns sorted canonical-key nodes, exact function-relative call sites, unique caller/target edges, target projection, and inventory-specific errors; it accepts self/cyclic topology and has exactly one production consumer, while VerifiedAcyclicCallableGraphV1 consumes it by value and retains prior self-edge/cycle rejection plus deterministic Kahn order. SCC production callers, grammar, runtime, backend, MIR, publication, effect, ownership, and recursion activation remain zero; debug/release inventory 2/2, acyclic 3/3, typed-plan 3/3, resolved-callable authority guard, cargo check, quick 66/66, pointer guard, formatting/diff checks, and all touched source/check files below 800 lines are green; P0c-MR-S0 disconnected deterministic SCC partition is next.",
-  "2026-07-16: D′ P0c-MR-D0 accepts and taskizes C-prime: G0 first extracts one non-Clone callable graph inventory and preserves P0c-F behavior; S0 later consumes that shape into a deterministic SCC partition keyed by each component's minimum canonical key; V0 admits general finite exact-i64 recursive modules; C0 adds one passive module-level recursive capability; I1 explicitly activates VM-only recursion through the existing unpublished-draft atomic transaction; and R0 separately retires the old one-function self-call authority. Inventory/SCC products remain target/ABI/effect/MIR/runtime non-authorities, ConservativeBarrier remains unchanged, iterative host-stack-safe SCC traversal is required, serialized transport stays inactive, and G0 is the sole next code-facing row with SCC production callers zero.",
 ]
