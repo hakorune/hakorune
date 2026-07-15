@@ -123,5 +123,20 @@ signature arity, and cardinality before one atomic candidate-module insertion.
 
 No successful earlier function is visible while a later function is lowering.
 Any lowering, verification, identity, or publication failure returns without a
-partially published callable set. Sibling-call source admission and the public
-multi-function compiler ingress remain the following P0c-B1 row.
+partially published callable set.
+
+## P0c-B1 exact sibling-call ingress
+
+`VerifiedResolvedCallableProgramV1` owns the complete exact Program through
+catalog and body resolution. Its borrowed lowering input is accepted only when
+the module has exactly two static exact-`i64` functions and exactly one direct
+call edge whose target differs from its caller. Zero calls, self-only calls,
+multiple edges, mutual recursion, and wider function cardinality reject before
+the candidate Builder session opens.
+
+The caller header travels with each `ResolvedFunctionLoweringInputV1`; the
+co-sealed direct-call row separately owns the target header. Lower checks the
+current draft against the caller header and materializes the target only from
+the verified row. It performs no raw-name or module-table lookup. All drafts
+still publish through the MP0 atomic batch, and the first executable backend
+remains the Rust MIR interpreter.

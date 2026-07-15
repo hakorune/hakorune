@@ -18,8 +18,10 @@ mod lowering_input;
 mod module_session;
 #[allow(dead_code)]
 pub(in crate::mir) mod resolved_callable_module;
+mod resolved_callable_module_input;
 #[allow(dead_code)]
 pub(in crate::mir) mod resolved_callable_module_preflight;
+mod sibling_call_activation;
 #[allow(dead_code)]
 mod source_projection;
 #[allow(dead_code)]
@@ -32,6 +34,8 @@ mod resolved_callable_module_preflight_tests;
 #[cfg(test)]
 mod resolved_callable_module_tests;
 #[cfg(test)]
+mod sibling_call_tests;
+#[cfg(test)]
 mod source_view_tests;
 
 use capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
@@ -41,6 +45,9 @@ pub use lowering_input::{
 };
 use lowering_input::{MirLoweringRequestErrorV1, MirLoweringRequestV1};
 use module_session::CanonicalModuleLoweringSessionV1;
+pub use resolved_callable_module_input::{
+    ResolvedCallableModuleLoweringInputV1, VerifiedResolvedCallableProgramV1,
+};
 
 /// Closed post-build schedule selected with the canonical lowering owner.
 ///
@@ -184,6 +191,40 @@ impl MirCompiler {
     ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
         self.compile_request(MirLoweringRequestV1::Resolved(input), source_file)
             .map_err(MirLoweringRequestErrorV1::into_canonical)
+    }
+
+    /// Compile the exact P0c-B1 two-function Program with one sibling edge.
+    ///
+    /// This is an explicit canonical ingress. It never retries the legacy
+    /// route, and every header/body/plan/draft is sealed before the caller's
+    /// Builder is mutated.
+    pub fn compile_resolved_callable_module(
+        &mut self,
+        input: ResolvedCallableModuleLoweringInputV1<'_>,
+        source_file: Option<&str>,
+    ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
+        if self.builder.repl_mode {
+            return Err(CanonicalLoweringErrorV1::UnsupportedCanonicalOwnerKind);
+        }
+        let plan = sibling_call_activation::VerifiedSiblingCallModulePlanV1::verify(
+            input.program().module(),
+        )
+        .map_err(|error| callable_program_stage_error("sibling_activation", error))?;
+
+        let stage_start = Instant::now();
+        let mut module_session = CanonicalModuleLoweringSessionV1::open(&self.builder);
+        set_candidate_source_hint(module_session.builder_mut(), source_file);
+        let candidate = module_session
+            .builder_mut()
+            .build_resolved_callable_module_candidate(plan.into_preflight())
+            .map_err(|error| callable_program_stage_error("module_transaction", error))?;
+        super::compile_timing::trace_stage("build_resolved_callable_module", stage_start.elapsed());
+        let result = self.finish_built_canonical_module(
+            candidate,
+            CanonicalFinishScheduleV1::TrivialBindingSsa,
+        )?;
+        module_session.commit(&mut self.builder);
+        Ok(result)
     }
 
     /// Compile an explicitly non-canonical AST input.
@@ -401,6 +442,15 @@ impl MirCompiler {
     /// Dump MIR to string for debugging
     pub fn dump_mir(&self, module: &MirModule) -> String {
         MirPrinter::new().print_module(module)
+    }
+}
+
+fn callable_program_stage_error(
+    stage: &'static str,
+    error: impl std::fmt::Debug,
+) -> CanonicalLoweringErrorV1 {
+    CanonicalLoweringErrorV1::SourceUnitResolution {
+        detail: format!("[freeze:contract][canonical_sibling_call/{stage}] {error:?}"),
     }
 }
 

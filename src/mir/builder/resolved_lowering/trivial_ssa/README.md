@@ -21,9 +21,10 @@ return annotations and broad compatibility type mapping must not cross this
 facade. R0a-I1 installs an exact typed result only from the co-sealed return
 witness; raw annotation reads remain forbidden in resolved lowering.
 
-`direct_call.rs` is the P0c-I1 materialization boundary. It consumes one whole
-`VerifiedTrivialDirectCallV1`, cross-checks its generic target owner and sealed
-physical symbol against the current unpublished draft, emits one conservative
-direct call, and publishes the explicit VM-only capability row. Raw call names,
-legacy call builders/resolvers, fallback, and ownership operations are
+`direct_call.rs` is the P0c-I1/P0c-B1 materialization boundary. It consumes one
+whole `VerifiedTrivialDirectCallV1`. The function input transports the caller
+header and the row transports the target header; Lower checks the current
+unpublished draft only against the caller, then emits the target from the row.
+It publishes one explicit VM-only capability. Raw call names, module-table
+lookup, legacy call builders/resolvers, fallback, and ownership operations are
 forbidden here.

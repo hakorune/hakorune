@@ -39,10 +39,8 @@ impl VerifiedTrivialDirectCallV1 {
             .map_err(
                 |_| TrivialProfileContractErrorV1::DirectCallHeaderMismatch { site: site.clone() },
             )?;
-        if index.len() != 1
-            || resolved.owner() != owner
+        if resolved.owner() != owner
             || header.callable() != target.callable()
-            || header.callable().owner() != owner
             || header.signature().arity() != arguments.len()
         {
             return Err(TrivialProfileContractErrorV1::DirectCallTargetMismatch { site });

@@ -55,12 +55,14 @@ existing canonical A+ path from a sealed rejection before Builder effects, but
 it must never retry A+ after a trivial-profile lowering failure or mix the two
 authorities inside one source unit.
 
-P0c-S0b introduced the row disconnected. P0c-I1 now activates exactly one
-current-owner self call through an explicit call-enabled source-unit ingress.
-Its call result is represented only by `DirectCall(site)`, never by a duplicate
-generic `Value(site)` row. The consumption API returns the whole row so Lower
-cannot pair target and ABI from separate authorities. Multiple calls, sibling
-targets, and non-VM execution remain rejected before effects.
+P0c-S0b introduced the row disconnected. P0c-I1 first activated exactly one
+current-owner self call. P0c-B1 reuses the same generic row for exactly one
+sibling edge in an exact two-function module; the profile no longer assumes a
+one-entry index or target-equals-caller identity. Its call result is represented
+only by `DirectCall(site)`, never by a duplicate generic `Value(site)` row. The
+consumption API returns the whole row so Lower cannot pair target and ABI from
+separate authorities. Multiple calls, mutual recursion, wider module families,
+and non-VM execution remain rejected before effects.
 
 SSA-I1-T consumes an admitted profile exactly once in the dedicated trivial
 Binding-SSA lowerer. A non-admitted profile selects the whole-unit A+ route

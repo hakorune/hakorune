@@ -1,8 +1,9 @@
 //! Owner-closed input derived only from a verified resolved source unit.
 
 use crate::mir::resolved_semantics::{
-    locate_catalog_function_v1, CanonicalCallableKeyV1, FunctionOwnerIdV1, VerifiedCallableIndexV1,
-    VerifiedResolvedFunctionV1, VerifiedSemanticOwnerForestV1,
+    locate_catalog_function_v1, CanonicalCallableKeyV1, FunctionOwnerIdV1,
+    VerifiedCallableHeaderV1, VerifiedCallableIndexV1, VerifiedResolvedFunctionV1,
+    VerifiedSemanticOwnerForestV1,
 };
 
 use super::lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1};
@@ -16,6 +17,7 @@ pub(crate) struct ResolvedFunctionLoweringInputV1<'a> {
     function: &'a VerifiedResolvedFunctionV1,
     forest: &'a VerifiedSemanticOwnerForestV1,
     callable_index: Option<&'a VerifiedCallableIndexV1>,
+    callable_header: Option<&'a VerifiedCallableHeaderV1>,
 }
 
 impl VerifiedResolvedSourceUnitV1 {
@@ -37,12 +39,22 @@ impl VerifiedResolvedSourceUnitV1 {
                 detail: error.to_string(),
             }
         })?;
+        let callable_index = self.callable_index();
+        let callable_header = match callable_index {
+            Some(index) => Some(index.sole_header().map_err(|error| {
+                CanonicalLoweringErrorV1::SourceUnitResolution {
+                    detail: format!("root_callable_header_cardinality={}", error.actual()),
+                }
+            })?),
+            None => None,
+        };
         Ok(ResolvedFunctionLoweringInputV1 {
             owner: *owner,
             source,
             function,
             forest: self.forest(),
-            callable_index: self.callable_index(),
+            callable_index,
+            callable_header,
         })
     }
 }
@@ -87,6 +99,7 @@ impl VerifiedResolvedCallableModuleV1 {
             function,
             forest: unit.forest(),
             callable_index: Some(self.source().catalog().index()),
+            callable_header: Some(header),
         })
     }
 }
@@ -110,5 +123,9 @@ impl<'a> ResolvedFunctionLoweringInputV1<'a> {
 
     pub(crate) const fn callable_index(self) -> Option<&'a VerifiedCallableIndexV1> {
         self.callable_index
+    }
+
+    pub(crate) const fn callable_header(self) -> Option<&'a VerifiedCallableHeaderV1> {
+        self.callable_header
     }
 }

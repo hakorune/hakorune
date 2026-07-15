@@ -1,12 +1,12 @@
 ---
-Status: Accepted and taskized — A′+; MP0-TX0 closed, P0c-B1 next
+Status: Closed through P0c-B1; next callable widening is a design stop
 Date: 2026-07-15
 Decision: A′+ — Program/catalog co-seal + single-use resolver continuation + canonical-key module identity
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-B1-EXACT-SIBLING-CALL-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-NEXT-DESIGN-STOP-001
 Parent taskboard: mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
 Previous closed card: mirbuilder-ssa-i1-compat-p0c-i64-call-design-stop-2026-07-15.md
 Decision-input baseline commit: ec570ea696
-Next code-facing row: P0c-B1
+Next code-facing row: not selected; callable-widening consultation required
 ---
 
 # P0c-CAT0 Module Callable Catalog — A′+ Decision and Taskboard
@@ -886,6 +886,86 @@ non-claims:
   MethodCall/receiver = 0
   ownership operations = 0
   fallback/retry = 0
+```
+
+State: closed on 2026-07-15.
+
+Closeout evidence:
+
+```text
+source:
+  exactly two static exact-i64 functions
+  exactly one direct sibling edge
+
+authority:
+  caller header travels with ResolvedFunctionLoweringInputV1
+  target header remains in the co-sealed direct-call row
+  Lower performs no raw-name or module-table target lookup
+
+publication:
+  all drafts still pass the MP0 unpublished-set and atomic batch transaction
+  rejected activation leaves the reusable compiler ingress unpoisoned
+
+runtime/backend:
+  forward/backward declaration order parity = green
+  Rust MIR interpreter result 41 -> 42 = green
+  direct-call VM-only capability and unsupported-backend fail-fast = green
+
+non-delta:
+  multiple/nested calls = 0
+  mutual recursion = 0
+  MethodCall/receiver = 0
+  ownership operations = 0
+  fallback/retry = 0
+
+verification:
+  P0c-B1 debug fixtures = 3/3
+  P0c-B1 release fixtures = 3/3
+  existing direct-call fixtures = 15/15
+  resolved callable module fixtures = 9/9
+  atomic transaction fixtures = 4/4
+  resolved-callable authority guard = green
+  release hakorune build = green
+  quick gate = 66/66
+  all touched source/check files < 800 lines
+```
+
+### Callable widening design stop
+
+P0c-B1 completes the executable row selected by this card. The card does not
+mechanically choose the next semantic widening.
+
+```text
+source authority:
+  CAT0 Program/catalog co-seal
+  one single-root forest/projection per callable
+  MP0 whole-module preflight and atomic draft transaction
+  P0c-B1 exact two-function/one-sibling-edge activation witness
+
+non-authority:
+  raw FunctionCall names in Lower
+  MIR module-table source resolution
+  physical symbol strings as callable identity
+  runtime result tags
+  legacy call recovery or route retry
+
+fail-fast boundary:
+  function cardinality != 2 rejects
+  direct-call edge cardinality != 1 rejects
+  self-only edge rejects
+
+candidate next slices:
+  P0c-N — multiple or nested exact calls without mutual recursion
+  P0c-MR — mutual recursion and callable-SCC/effect closure
+  P0c-F — broader acyclic function/edge cardinality
+
+recommended consultation starting point:
+  compare P0c-N and P0c-F before P0c-MR; both reuse the current generic
+  callable row without first requiring an SCC effect fixed point
+
+explicit non-claims:
+  no next row is selected by this closeout
+  no ownership, MethodCall, receiver, backend, or selfhost-source widening
 ```
 
 ### Task-lane separation

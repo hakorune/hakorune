@@ -130,3 +130,12 @@ B0-L2a adds only the compiler facade inputs
 legacy provenance and sealed semantic-owner vocabulary are not root exports.
 The resolved bundle has no production constructor in B0-L2a, so this facade
 change activates neither semantic resolution nor canonical Lower.
+
+P0c-B1 adds the compiler-facade pair
+`VerifiedResolvedCallableProgramV1` and
+`ResolvedCallableModuleLoweringInputV1`. The former is the opaque owned exact
+Program carrier; the latter is its borrowed compiler input. Catalogs, callable
+headers, resolved function units, activation witnesses, and transaction plans
+remain private to their owner modules. This pair exposes one explicit
+multi-function compiler ingress without turning the MIR root into a callable
+semantic-vocabulary catalog.

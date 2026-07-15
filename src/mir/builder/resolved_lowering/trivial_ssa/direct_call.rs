@@ -16,8 +16,11 @@ pub(super) fn emit(
     row: &VerifiedTrivialDirectCallV1,
     arguments: Vec<ValueId>,
 ) -> Result<(ValueId, TrivialRepresentationV1), String> {
-    if row.target().callable().owner() != input.owner() {
-        return Err("[freeze:contract][canonical_direct_call/target_owner_mismatch]".to_string());
+    let current_header = input.callable_header().ok_or_else(|| {
+        "[freeze:contract][canonical_direct_call/current_header_missing]".to_string()
+    })?;
+    if current_header.callable().owner() != input.owner() {
+        return Err("[freeze:contract][canonical_direct_call/current_header_drift]".to_string());
     }
     let current_symbol = builder
         .scope_ctx
@@ -25,10 +28,10 @@ pub(super) fn emit(
         .as_ref()
         .map(|function| function.signature.name.as_str())
         .ok_or_else(|| "[freeze:contract][canonical_direct_call/function_missing]".to_string())?;
-    if current_symbol != row.target().symbol().as_mir_name() {
+    if current_symbol != current_header.symbol().as_mir_name() {
         return Err(format!(
             "[freeze:contract][canonical_direct_call/symbol_drift] expected={} actual={current_symbol}",
-            row.target().symbol().as_mir_name()
+            current_header.symbol().as_mir_name()
         ));
     }
 

@@ -17,12 +17,13 @@ Related:
 - workstream card: read `latest_workstream_card` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
-- priority: read the exact row from `current_blocker_token`. The active macro
-  order is CAT0 `L0 -> S0 -> C0a -> C0b -> G0`, then MP0
-  `S0 -> R0 -> P0 -> TX0`, then the bounded P0c-B1 sibling-call slice.
-  Production Ownership SSA, Loop production, legacy fallback, default source,
-  Lambda/capture, ProgramV0 authority, and durable RegionId materialization
-  remain inactive
+- priority: read the exact row from `current_blocker_token`. CAT0 through G0,
+  MP0 `S0 -> R0 -> P0 -> TX0`, and the bounded P0c-B1 sibling-call slice are
+  closed. The next callable widening is a design stop; do not select among
+  multiple/nested calls, broader acyclic modules, or mutual recursion from
+  this mirror. Production Ownership SSA, Loop production, legacy fallback,
+  default source, Lambda/capture, ProgramV0 authority, and durable RegionId
+  materialization remain inactive
 - parked language work: LANGV1 conformance closeout remains parked; no
   language behavior is changed by the reprioritization
 

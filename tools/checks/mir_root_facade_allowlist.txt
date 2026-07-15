@@ -38,6 +38,7 @@ MirPrinter
 MirType
 MirVerifier
 LocalSlotId
+ResolvedCallableModuleLoweringInputV1
 ResolvedModuleLoweringInputV1
 SpannedInstruction
 TypeOpKind
@@ -45,6 +46,7 @@ UnaryOp
 UserBoxFieldDecl
 ValueId
 VerificationError
+VerifiedResolvedCallableProgramV1
 VerifiedResolvedSourceUnitV1
 WeakFieldWriteSiteId
 WeakRefOp

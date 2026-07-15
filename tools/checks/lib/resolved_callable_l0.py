@@ -31,7 +31,11 @@ module_preflight = root / "src/mir/compiler/resolved_callable_module_preflight.r
 module_preflight_tests = (
     root / "src/mir/compiler/resolved_callable_module_preflight_tests.rs"
 )
+compiler_mod = root / "src/mir/compiler/mod.rs"
 function_input = root / "src/mir/compiler/function_input.rs"
+callable_module_input = root / "src/mir/compiler/resolved_callable_module_input.rs"
+sibling_activation = root / "src/mir/compiler/sibling_call_activation.rs"
+sibling_tests = root / "src/mir/compiler/sibling_call_tests.rs"
 module_transaction = (
     root / "src/mir/builder/resolved_lowering/callable_module_transaction.rs"
 )
@@ -163,6 +167,29 @@ required = {
         "seals_every_function_plan_before_publishing_the_module_preflight",
         "declaration_order_does_not_change_the_canonical_preflight_key_set",
         "one_late_function_failure_publishes_no_partial_preflight_product",
+    ],
+    callable_module_input: [
+        "VerifiedResolvedCallableProgramV1",
+        "ResolvedCallableModuleLoweringInputV1",
+        "VerifiedResolvedCallableModuleV1::resolve",
+        "lowering_input",
+    ],
+    sibling_activation: [
+        "VerifiedSiblingCallModulePlanV1",
+        "FunctionCardinality",
+        "DirectCallCardinality",
+        "SelfCallOnly",
+        "VerifiedCallableModulePreflightV1::verify",
+    ],
+    sibling_tests: [
+        "exact_sibling_call_is_order_independent_and_executes",
+        "activation_rejects_zero_self_or_multiple_edges_without_poisoning_compiler",
+        "sibling_call_keeps_the_vm_only_backend_capability",
+    ],
+    compiler_mod: [
+        "compile_resolved_callable_module",
+        "VerifiedSiblingCallModulePlanV1::verify",
+        "build_resolved_callable_module_candidate",
     ],
     module_transaction: [
         "VerifiedUnpublishedCallableDraftSetV1",
@@ -353,6 +380,7 @@ for path in (root / "src").rglob("*.rs"):
         root / "src/mir/resolved_semantics/callable_catalog_candidate_tests.rs",
         catalog_tests,
         resolved_module_tests,
+        callable_module_input,
         module_preflight_tests,
         module_transaction_tests,
         root / "src/mir/resolved_semantics/mod.rs",
@@ -371,6 +399,7 @@ for path in (root / "src").rglob("*.rs"):
         root / "src/mir/resolved_semantics/callable_catalog_candidate_tests.rs",
         catalog_tests,
         resolved_module_tests,
+        callable_module_input,
         module_preflight_tests,
         module_transaction_tests,
         root / "src/mir/resolved_semantics/mod.rs",
@@ -409,7 +438,9 @@ for path in (root / "src").rglob("*.rs"):
         module_preflight_tests,
         module_transaction,
         module_transaction_tests,
-        root / "src/mir/compiler/mod.rs",
+        callable_module_input,
+        sibling_activation,
+        compiler_mod,
     }:
         continue
     text = path.read_text()
@@ -427,8 +458,11 @@ for path in (root / "src").rglob("*.rs"):
         continue
     if "build_resolved_callable_module_candidate" in path.read_text():
         transaction_callers.append(str(path.relative_to(root)))
-if transaction_callers:
-    fail(f"MP0-TX0 transaction gained production callers: {transaction_callers}")
+if transaction_callers != ["src/mir/compiler/mod.rs"]:
+    fail(
+        "P0c-B1 transaction caller must be the sole compiler ingress: "
+        f"{transaction_callers}"
+    )
 
 resolution_source_users = []
 for path in (root / "src").rglob("*.rs"):
@@ -500,6 +534,32 @@ for forbidden in [
 ]:
     if forbidden in lowering_text:
         fail(f"canonical P0c Lower imports forbidden authority: {forbidden}")
+
+profile_text = direct_call_profile.read_text()
+for forbidden in [
+    "index.len() != 1",
+    "header.callable().owner() != owner",
+]:
+    if forbidden in profile_text:
+        fail(f"P0c-B1 profile retains self-only authority: {forbidden}")
+
+direct_lower_text = direct_call_lower.read_text()
+for forbidden in [
+    "target_owner_mismatch",
+    "row.target().callable().owner() != input.owner()",
+]:
+    if forbidden in direct_lower_text:
+        fail(f"P0c-B1 Lower retains self-only authority: {forbidden}")
+for required_caller_authority in [
+    "input.callable_header()",
+    "current_header.callable().owner() != input.owner()",
+    "current_header.symbol().as_mir_name()",
+]:
+    if required_caller_authority not in direct_lower_text:
+        fail(
+            "P0c-B1 Lower lost caller-header authority: "
+            f"{required_caller_authority}"
+        )
 
 for path in [callable_index, direct_call_contract, direct_call_profile]:
     for forbidden in ["CurrentFunction", "CurrentFunctionCall"]:
@@ -574,6 +634,10 @@ for path in [
     function_input,
     module_preflight,
     module_preflight_tests,
+    callable_module_input,
+    sibling_activation,
+    sibling_tests,
+    compiler_mod,
     module_transaction,
     module_transaction_tests,
     function_session,
