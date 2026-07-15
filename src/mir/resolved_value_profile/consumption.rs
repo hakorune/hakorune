@@ -11,6 +11,7 @@ use super::product::{
     TrivialBindingDefinitionOriginV1, TrivialProfileCoverageSubjectV1, TrivialRepresentationV1,
     TrivialTerminalProfileV1, VerifiedTrivialCanonicalOwnerV1, VerifiedTrivialParameterEntryV1,
 };
+use super::VerifiedTrivialDirectCallV1;
 
 #[derive(Debug)]
 pub(crate) struct TrivialProfileConsumptionV1 {
@@ -62,6 +63,23 @@ impl TrivialProfileConsumptionV1 {
         })?;
         self.claim(TrivialProfileCoverageSubjectV1::Value(site.clone()))?;
         Ok(representation)
+    }
+
+    pub(crate) fn claim_direct_call(
+        &mut self,
+        site: &SourceExprSiteV1,
+    ) -> Result<VerifiedTrivialDirectCallV1, String> {
+        let row = self
+            .product
+            .direct_calls()
+            .iter()
+            .find(|row| row.site() == site)
+            .cloned()
+            .ok_or_else(|| {
+                format!("[freeze:contract][trivial_profile/direct_call_missing] site={site:?}")
+            })?;
+        self.claim(TrivialProfileCoverageSubjectV1::DirectCall(site.clone()))?;
+        Ok(row)
     }
 
     pub(crate) fn claim_declaration(

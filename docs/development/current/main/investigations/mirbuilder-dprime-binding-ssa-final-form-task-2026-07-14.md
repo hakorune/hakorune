@@ -1,8 +1,8 @@
 ---
-Status: Active — P0c-S0a closed; disconnected P0c-S0b next
+Status: Active — P0c-S0b closed; atomic P0c-I1 next
 Date: 2026-07-15
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-S0B-PROFILE-IMPLEMENTATION-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-I1-ATOMIC-ACTIVATION-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -1474,6 +1474,13 @@ production resolver remains unchanged and emits zero target rows; callable
 headers are not duplicated per function, and Builder/value-profile/Lower/
 runtime connections remain zero.
 
+P0c-S0b is closed. One disconnected call-enabled source-unit/profile ingress
+now co-seals the generic callable projection, ordered exact-i64 argument sites,
+exact-i64 result, conservative effect, and one DirectCall coverage subject.
+The call result has no duplicate generic Value row, passive consumption claims
+the whole row, and production profile/materializer/backend activation remains
+zero.
+
 The remaining rows stay separate: exact typed parameters do not include the
 receiver owner family; Void disposition does not imply Outbox identity;
 BorrowedText requires its own lifetime/ABI decision.
@@ -2405,10 +2412,10 @@ state.
 
 ## Immediate next action
 
-Implement **P0c-S0b — disconnected co-sealed direct-call profile**. Co-seal
-one Lower-ready `VerifiedTrivialDirectCallV1` with the exact
-target/header projection, ordered InlineI64 argument sites, InlineI64 result,
-conservative effect, and exact source coverage. Do not add raw name lookup,
-target/ABI late pairing, sibling calls, MethodCall/receiver, ownership
-operations, or backend widening. Builder/Lower connection and production
-activation remain zero.
+Implement **P0c-I1 — atomic first source-call activation**. Admit exactly one
+current-owner FunctionCall with exact-i64 arguments/result, consume the sealed
+direct-call row in canonical Lower, materialize one ordinary result ValueId and
+exact Callee::Global with the conservative effect, publish only after profile/
+SSA/CFG/MIR verification, and activate the explicit Rust-interpreter backend
+capability. Keep raw name lookup, legacy call recovery, retry/fallback, sibling
+calls, MethodCall/receiver, ownership operations, and backend widening at zero.

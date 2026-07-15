@@ -1,7 +1,8 @@
 //! Owner-closed input derived only from a verified resolved source unit.
 
 use crate::mir::resolved_semantics::{
-    FunctionOwnerIdV1, VerifiedResolvedFunctionV1, VerifiedSemanticOwnerForestV1,
+    FunctionOwnerIdV1, VerifiedCallableIndexV1, VerifiedResolvedFunctionV1,
+    VerifiedSemanticOwnerForestV1,
 };
 
 use super::lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1};
@@ -13,6 +14,7 @@ pub(crate) struct ResolvedFunctionLoweringInputV1<'a> {
     source: FunctionSourceViewV1<'a>,
     function: &'a VerifiedResolvedFunctionV1,
     forest: &'a VerifiedSemanticOwnerForestV1,
+    callable_index: Option<&'a VerifiedCallableIndexV1>,
 }
 
 impl VerifiedResolvedSourceUnitV1 {
@@ -39,6 +41,7 @@ impl VerifiedResolvedSourceUnitV1 {
             source,
             function,
             forest: self.forest(),
+            callable_index: self.callable_index(),
         })
     }
 }
@@ -58,5 +61,9 @@ impl<'a> ResolvedFunctionLoweringInputV1<'a> {
 
     pub(crate) const fn forest(self) -> &'a VerifiedSemanticOwnerForestV1 {
         self.forest
+    }
+
+    pub(crate) const fn callable_index(self) -> Option<&'a VerifiedCallableIndexV1> {
+        self.callable_index
     }
 }

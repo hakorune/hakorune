@@ -1,8 +1,8 @@
 ---
-Status: Active — P0c-S0a closed; disconnected P0c-S0b next
+Status: Active — P0c-S0b closed; atomic P0c-I1 next
 Date: 2026-07-15
 Decision: A′ — exact current-owner self call over a generic one-entry callable index
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-S0B-PROFILE-IMPLEMENTATION-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-I1-ATOMIC-ACTIVATION-001
 Related:
   - mirbuilder-ssa-i1-compat-static-i64-parameter-selection-2026-07-15.md
   - mirbuilder-ssa-i1-compat-static-i64-return-selection-2026-07-15.md
@@ -631,6 +631,8 @@ all touched source/check files < 800 lines
 
 ### P0c-S0b — disconnected co-sealed direct-call profile
 
+Status: closed.
+
 Add and seal:
 
 ```text
@@ -674,6 +676,25 @@ DirectCall coverage is exact once and correctly ordered
 duplicate generic Value(call_site) coverage is zero
 profile consumption duplicate/wrong-order/unfinished rejects
 production canonical emission callers remain zero
+```
+
+Closeout evidence:
+
+```text
+VerifiedTrivialDirectCallV1 rows in the focused fixture = 1
+argument source order / exact InlineI64 result = sealed
+DirectCall(call_site) coverage subjects = 1
+generic Value(call_site) duplicate subjects = 0
+passive whole-row claim_direct_call consumption = green
+call-enabled If coverage ingress = disconnected only
+production source-call/profile/materializer callers = 0
+focused profile fixtures = 27/27 green
+resolved semantics fixtures = 128/128 green
+resolved control-flow fixtures = green
+canonical direct-call fixtures = 2/2 green
+callable/profile/full authority guards = green
+release build / quick 66/66 = green
+all touched source/check files < 800 lines
 ```
 
 ### P0c-I1 — atomic first source-call activation

@@ -7,6 +7,8 @@ use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
 
+use super::direct_call::VerifiedTrivialDirectCallV1;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) enum TrivialRepresentationV1 {
     InlineI64,
@@ -210,6 +212,7 @@ impl VerifiedTrivialFunctionReturnV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum TrivialProfileCoverageSubjectV1 {
     Value(SourceExprSiteV1),
+    DirectCall(SourceExprSiteV1),
     Definition {
         binding: BindingRefV1,
         origin: TrivialBindingDefinitionOriginV1,
@@ -253,6 +256,7 @@ pub(crate) struct VerifiedTrivialCanonicalOwnerV1 {
     owner: FunctionOwnerIdV1,
     parameter_entries: Box<[VerifiedTrivialParameterEntryV1]>,
     values: Box<[VerifiedLocatedTrivialValueV1]>,
+    direct_calls: Box<[VerifiedTrivialDirectCallV1]>,
     definitions: Box<[VerifiedTrivialBindingDefinitionV1]>,
     merge_profiles: Box<[VerifiedTrivialIfMergeProfileV1]>,
     terminal: TrivialTerminalProfileV1,
@@ -266,6 +270,7 @@ impl VerifiedTrivialCanonicalOwnerV1 {
         owner: FunctionOwnerIdV1,
         parameter_entries: Vec<VerifiedTrivialParameterEntryV1>,
         values: Vec<VerifiedLocatedTrivialValueV1>,
+        direct_calls: Vec<VerifiedTrivialDirectCallV1>,
         definitions: Vec<VerifiedTrivialBindingDefinitionV1>,
         merge_profiles: Vec<VerifiedTrivialIfMergeProfileV1>,
         terminal: TrivialTerminalProfileV1,
@@ -276,6 +281,7 @@ impl VerifiedTrivialCanonicalOwnerV1 {
             owner,
             parameter_entries: parameter_entries.into_boxed_slice(),
             values: values.into_boxed_slice(),
+            direct_calls: direct_calls.into_boxed_slice(),
             definitions: definitions.into_boxed_slice(),
             merge_profiles: merge_profiles.into_boxed_slice(),
             terminal,
@@ -295,6 +301,10 @@ impl VerifiedTrivialCanonicalOwnerV1 {
 
     pub(crate) fn values(&self) -> &[VerifiedLocatedTrivialValueV1] {
         &self.values
+    }
+
+    pub(crate) fn direct_calls(&self) -> &[VerifiedTrivialDirectCallV1] {
+        &self.direct_calls
     }
 
     pub(crate) fn definitions(&self) -> &[VerifiedTrivialBindingDefinitionV1] {
@@ -329,5 +339,11 @@ impl VerifiedTrivialCanonicalOwnerV1 {
             .iter()
             .find(|row| row.site() == site)
             .map(VerifiedLocatedTrivialValueV1::representation)
+            .or_else(|| {
+                self.direct_calls
+                    .iter()
+                    .find(|row| row.site() == site)
+                    .map(VerifiedTrivialDirectCallV1::result)
+            })
     }
 }

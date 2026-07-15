@@ -16,6 +16,9 @@ root = pathlib.Path(sys.argv[1]).resolve()
 callable_index = root / "src/mir/resolved_semantics/callable_index.rs"
 header_view = root / "src/mir/resolved_semantics/callable_header_view.rs"
 direct_call = root / "src/mir/canonical_direct_call.rs"
+direct_call_contract = root / "src/mir/canonical_direct_call_contract.rs"
+direct_call_profile = root / "src/mir/resolved_value_profile/direct_call.rs"
+direct_call_profile_tests = root / "src/mir/resolved_value_profile/direct_call_tests.rs"
 capability = root / "src/mir/canonical_direct_static_call_capability.rs"
 backend_gate = root / "src/mir/canonical_direct_static_call_backend_capability.rs"
 metadata = root / "src/mir/function/metadata.rs"
@@ -45,11 +48,18 @@ required = {
         "VerifiedCallableIndexV1",
         "VerifiedSemanticOwnerForestV1",
     ],
-    direct_call: [
+    direct_call_contract: [
         "VerifiedTrivialDirectCallTargetV1",
         "VerifiedDirectCallEffectV1",
+    ],
+    direct_call: [
         "VerifiedCanonicalDirectCallEmissionV1",
         "Callee::Global",
+    ],
+    direct_call_profile: [
+        "VerifiedTrivialDirectCallV1",
+        "VerifiedTrivialDirectCallTargetV1",
+        "VerifiedDirectCallEffectV1",
     ],
     capability: ["canonical_direct_static_call_v1"],
     backend_gate: [
@@ -88,7 +98,7 @@ for forbidden in [
     if forbidden in direct_text:
         fail(f"canonical emission facade imports legacy authority: {forbidden}")
 
-for path in [callable_index, direct_call]:
+for path in [callable_index, direct_call_contract, direct_call_profile]:
     for forbidden in ["CurrentFunction", "CurrentFunctionCall"]:
         if forbidden in path.read_text():
             fail(
@@ -108,11 +118,17 @@ allowed_by_pattern = {
     },
     r"resolve_forest_with_root_callable": {
         owner_resolver,
+        root / "src/mir/compiler/lowering_input.rs",
         root / "src/mir/resolved_semantics/direct_call_tests.rs",
     },
     r"VerifiedCanonicalDirectCallEmissionV1::conservative_from_header": {
         root / "src/mir/canonical_direct_call_tests.rs",
     },
+    r"analyze_trivial_canonical_owner_with_direct_call_v1": {
+        root / "src/mir/resolved_value_profile/mod.rs",
+        direct_call_profile_tests,
+    },
+    r"\.claim_direct_call\(": {direct_call_profile_tests},
     r"canonical_direct_static_call_capabilities\s*\.push": {
         root / "src/mir/backend_capability.rs",
         root / "src/mir/canonical_direct_static_call_backend_capability_tests.rs",
@@ -136,6 +152,7 @@ for path in [
     *required,
     root / "src/mir/resolved_semantics/callable_index_tests.rs",
     root / "src/mir/canonical_direct_call_tests.rs",
+    direct_call_profile_tests,
     root / "src/mir/canonical_direct_static_call_backend_capability_tests.rs",
 ]:
     lines = len(path.read_text().splitlines())

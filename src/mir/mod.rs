@@ -37,6 +37,7 @@ pub mod basic_block;
 pub mod boxed_sum_abi_plan; // boxed runtime ABI plans for native enum transport
 pub mod builder;
 pub(crate) mod canonical_direct_call;
+pub(crate) mod canonical_direct_call_contract;
 pub(crate) mod canonical_direct_static_call_backend_capability;
 pub(crate) mod canonical_direct_static_call_capability;
 pub(crate) mod compile_timing;

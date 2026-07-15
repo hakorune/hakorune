@@ -15,13 +15,13 @@ HISTORICAL_SHA256 = (
     "0c8395ce8f893ee0e7faf427490f77f8da6a5f3f7a729aae06d2a2cd382927b4"
 )
 EXPECTED_CLAIMS = {
-    "profile_manifest_entries": 13,
-    "profile_production_rust_files": 9,
-    "profile_test_rust_files": 3,
+    "profile_manifest_entries": 15,
+    "profile_production_rust_files": 10,
+    "profile_test_rust_files": 4,
     "profile_entry_definitions": 1,
     "sealed_product_definitions": 1,
     "sealed_return_witness_definitions": 1,
-    "focused_profile_fixtures": 22,
+    "focused_profile_fixtures": 27,
     "profile_production_callers": 1,
     "production_route_delta": 1,
     "accepted_grammar_delta": 1,
@@ -42,6 +42,8 @@ EXPECTED_MANIFEST = {
     "analyzer.rs",
     "consumption.rs",
     "coverage.rs",
+    "direct_call.rs",
+    "direct_call_tests.rs",
     "error.rs",
     "function_return.rs",
     "mod.rs",
@@ -56,6 +58,7 @@ EXPECTED_PRODUCTION_RUST = {
     "analyzer.rs",
     "consumption.rs",
     "coverage.rs",
+    "direct_call.rs",
     "error.rs",
     "function_return.rs",
     "mod.rs",
@@ -63,7 +66,12 @@ EXPECTED_PRODUCTION_RUST = {
     "parameter_entry.rs",
     "product.rs",
 }
-EXPECTED_TEST_RUST = {"parameter_tests.rs", "return_tests.rs", "tests.rs"}
+EXPECTED_TEST_RUST = {
+    "direct_call_tests.rs",
+    "parameter_tests.rs",
+    "return_tests.rs",
+    "tests.rs",
+}
 EXPECTED_FORBIDDEN = {
     "BasicBlockId",
     "BindingSsaBuilderV1",
@@ -433,8 +441,8 @@ def main() -> None:
     if owner_production_text.count(result_definition) != 1:
         fail("analysis result definition count must remain exactly one")
     test_text = "\n".join(path.read_text() for path in test_files)
-    if test_text.count("#[test]") != 22:
-        fail("focused profile fixture count must remain exactly 22")
+    if test_text.count("#[test]") != 27:
+        fail("focused profile fixture count must remain exactly 27")
     for fixture in (
         "exact_literals_binary_and_value_return_seal",
         "local_assignment_and_blockexpr_tail_preserve_exact_profile",
@@ -458,6 +466,11 @@ def main() -> None:
         "exact_i64_parameter_and_return_share_one_profile",
         "typed_return_requires_exact_spelling_and_inline_i64_terminal",
         "exact_i64_return_selects_production_binding_ssa_route",
+        "co_seals_target_ordered_i64_arguments_result_effect_and_coverage",
+        "consumption_claims_arguments_then_one_whole_direct_call_row",
+        "rejects_non_i64_nested_and_second_calls_before_profile_publication",
+        "call_enabled_entry_requires_exactly_one_row",
+        "production_analyzer_remains_call_disabled",
     ):
         if f"fn {fixture}(" not in test_text:
             fail(f"focused profile fixture missing: {fixture}")
@@ -556,13 +569,13 @@ def main() -> None:
         fail(f"default/non-test resolved caller activated: {resolved_callers}")
 
     print("canonical_ssa_i0_profile_owner=src/mir/resolved_value_profile")
-    print("canonical_ssa_i0_profile_manifest_entries=13")
-    print("canonical_ssa_i0_profile_production_rust_files=9")
-    print("canonical_ssa_i0_profile_test_rust_files=3")
+    print("canonical_ssa_i0_profile_manifest_entries=15")
+    print("canonical_ssa_i0_profile_production_rust_files=10")
+    print("canonical_ssa_i0_profile_test_rust_files=4")
     print("canonical_ssa_i0_profile_entry_definitions=1")
     print("canonical_ssa_i0_profile_sealed_product_definitions=1")
     print("canonical_ssa_i0_profile_sealed_return_witness_definitions=1")
-    print("canonical_ssa_i0_profile_focused_fixtures=22")
+    print("canonical_ssa_i0_profile_focused_fixtures=27")
     print("canonical_ssa_i0_profile_parameter_rows=1")
     print("canonical_ssa_i0_profile_return_rows=1")
     print("canonical_ssa_i0_profile_production_callers=1")

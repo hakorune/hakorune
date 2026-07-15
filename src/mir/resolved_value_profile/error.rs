@@ -111,6 +111,23 @@ pub(crate) enum TrivialProfileContractErrorV1 {
         missing: Box<[SourceExprSiteV1]>,
         extra: Box<[SourceExprSiteV1]>,
     },
+    MissingDirectCallResolution {
+        site: SourceExprSiteV1,
+    },
+    MissingCallableIndex,
+    DirectCallCardinality {
+        actual: u32,
+    },
+    DirectCallHeaderMismatch {
+        site: SourceExprSiteV1,
+    },
+    DirectCallTargetMismatch {
+        site: SourceExprSiteV1,
+    },
+    DirectCallFactCoverageMismatch {
+        missing: Box<[SourceExprSiteV1]>,
+        extra: Box<[SourceExprSiteV1]>,
+    },
     IfControlCoverageMismatch {
         missing: Box<[SourceStmtSiteV1]>,
         extra: Box<[SourceStmtSiteV1]>,

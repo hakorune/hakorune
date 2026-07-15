@@ -17,6 +17,8 @@ guard_resolved_trivial_owner_profile_contract() {
     "$owner/analyzer.rs"
     "$owner/consumption.rs"
     "$owner/coverage.rs"
+    "$owner/direct_call.rs"
+    "$owner/direct_call_tests.rs"
     "$owner/error.rs"
     "$owner/function_return.rs"
     "$owner/mod.rs"

@@ -9,6 +9,7 @@ use crate::mir::resolved_semantics::{
     SourceBindingSiteV1, SourceExprSiteV1, VerifiedResolvedFunctionV1,
 };
 
+use super::direct_call::VerifiedTrivialDirectCallV1;
 use super::error::TrivialProfileContractErrorV1;
 use super::product::{
     TrivialBindingDefinitionOriginV1, TrivialProfileCoverageSubjectV1, TrivialRepresentationV1,
@@ -21,6 +22,7 @@ pub(super) struct TrivialProfileDraftV1 {
     owner: FunctionOwnerIdV1,
     parameter_entries: Vec<VerifiedTrivialParameterEntryV1>,
     values: Vec<VerifiedLocatedTrivialValueV1>,
+    direct_calls: Vec<VerifiedTrivialDirectCallV1>,
     definitions: Vec<VerifiedTrivialBindingDefinitionV1>,
     merge_profiles: Vec<VerifiedTrivialIfMergeProfileV1>,
     ordered_subjects: Vec<TrivialProfileCoverageSubjectV1>,
@@ -29,6 +31,7 @@ pub(super) struct TrivialProfileDraftV1 {
 pub(super) struct TrivialProfilePartsV1 {
     pub(super) parameter_entries: Vec<VerifiedTrivialParameterEntryV1>,
     pub(super) values: Vec<VerifiedLocatedTrivialValueV1>,
+    pub(super) direct_calls: Vec<VerifiedTrivialDirectCallV1>,
     pub(super) definitions: Vec<VerifiedTrivialBindingDefinitionV1>,
     pub(super) merge_profiles: Vec<VerifiedTrivialIfMergeProfileV1>,
     pub(super) coverage: VerifiedTrivialProfileCoverageV1,
@@ -39,6 +42,7 @@ pub(super) struct ResolvedFactCoverageDraftV1 {
     declarations: BTreeSet<SourceBindingSiteV1>,
     variable_uses: BTreeSet<SourceExprSiteV1>,
     assignments: BTreeSet<SourceExprSiteV1>,
+    direct_calls: BTreeSet<SourceExprSiteV1>,
 }
 
 impl ResolvedFactCoverageDraftV1 {
@@ -48,6 +52,7 @@ impl ResolvedFactCoverageDraftV1 {
             declarations: BTreeSet::new(),
             variable_uses: BTreeSet::new(),
             assignments: BTreeSet::new(),
+            direct_calls: BTreeSet::new(),
         }
     }
 
@@ -102,6 +107,18 @@ impl ResolvedFactCoverageDraftV1 {
         Ok(*binding)
     }
 
+    pub(super) fn direct_call_target(
+        &mut self,
+        product: &VerifiedResolvedFunctionV1,
+        site: &SourceExprSiteV1,
+    ) -> Result<(), TrivialProfileContractErrorV1> {
+        product.direct_call_target(site).ok_or_else(|| {
+            TrivialProfileContractErrorV1::MissingDirectCallResolution { site: site.clone() }
+        })?;
+        self.direct_calls.insert(site.clone());
+        Ok(())
+    }
+
     pub(super) fn verify(
         &self,
         product: &VerifiedResolvedFunctionV1,
@@ -111,6 +128,7 @@ impl ResolvedFactCoverageDraftV1 {
             &self.declarations,
             &self.variable_uses,
             &self.assignments,
+            &self.direct_calls,
         )
     }
 
@@ -128,6 +146,7 @@ impl TrivialProfileDraftV1 {
             owner,
             parameter_entries: Vec::new(),
             values: Vec::new(),
+            direct_calls: Vec::new(),
             definitions: Vec::new(),
             merge_profiles: Vec::new(),
             ordered_subjects: Vec::new(),
@@ -179,6 +198,17 @@ impl TrivialProfileDraftV1 {
         self.record_subject(TrivialProfileCoverageSubjectV1::Value(site.clone()))?;
         self.values
             .push(VerifiedLocatedTrivialValueV1::new(site, representation));
+        Ok(())
+    }
+
+    pub(super) fn record_direct_call(
+        &mut self,
+        row: VerifiedTrivialDirectCallV1,
+    ) -> Result<(), TrivialProfileContractErrorV1> {
+        self.record_subject(TrivialProfileCoverageSubjectV1::DirectCall(
+            row.site().clone(),
+        ))?;
+        self.direct_calls.push(row);
         Ok(())
     }
 
@@ -237,6 +267,7 @@ impl TrivialProfileDraftV1 {
         TrivialProfilePartsV1 {
             parameter_entries: self.parameter_entries,
             values: self.values,
+            direct_calls: self.direct_calls,
             definitions: self.definitions,
             merge_profiles: self.merge_profiles,
             coverage: VerifiedTrivialProfileCoverageV1::from_verified_order(self.ordered_subjects),
@@ -280,6 +311,7 @@ pub(super) fn verify_resolved_fact_coverage_v1(
     declarations: &BTreeSet<SourceBindingSiteV1>,
     variable_uses: &BTreeSet<SourceExprSiteV1>,
     assignments: &BTreeSet<SourceExprSiteV1>,
+    direct_calls: &BTreeSet<SourceExprSiteV1>,
 ) -> Result<(), TrivialProfileContractErrorV1> {
     let expected_declarations = product
         .declaration_sites()
@@ -309,6 +341,16 @@ pub(super) fn verify_resolved_fact_coverage_v1(
         let (missing, extra) = set_difference(&expected_assignments, assignments);
         return Err(
             TrivialProfileContractErrorV1::AssignmentFactCoverageMismatch { missing, extra },
+        );
+    }
+    let expected_calls = product
+        .direct_call_targets()
+        .map(|(site, _)| site.clone())
+        .collect::<BTreeSet<_>>();
+    if expected_calls != *direct_calls {
+        let (missing, extra) = set_difference(&expected_calls, direct_calls);
+        return Err(
+            TrivialProfileContractErrorV1::DirectCallFactCoverageMismatch { missing, extra },
         );
     }
     Ok(())

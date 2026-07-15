@@ -14,6 +14,9 @@ product. Outputs may contain only:
   never lookup or binding identity authority;
 - a sealed return ABI witness that refers to the existing exact terminal and
   never owns another return value or terminal analysis;
+- a disconnected direct-call row co-sealed from the source-unit callable
+  index, with exact target projection, ordered argument sites, result, effect,
+  and one `DirectCall(site)` coverage subject;
 - exact value/definition/join/terminal coverage.
 
 This layer must not import or infer from `MirBuilder`, `ValueId`,
@@ -51,6 +54,12 @@ Profile rejection is data, not fallback. A later compiler route may select the
 existing canonical A+ path from a sealed rejection before Builder effects, but
 it must never retry A+ after a trivial-profile lowering failure or mix the two
 authorities inside one source unit.
+
+P0c-S0b keeps source calls disconnected from production. Its call result is
+represented only by `DirectCall(site)`, never by a duplicate generic
+`Value(site)` row. The passive consumption API returns the whole row so Lower
+cannot pair target and ABI from separate authorities. P0c-I1 is the only card
+allowed to connect this row to Builder and backend execution.
 
 SSA-I1-T consumes an admitted profile exactly once in the dedicated trivial
 Binding-SSA lowerer. A non-admitted profile selects the whole-unit A+ route

@@ -14,6 +14,7 @@ use crate::mir::resolved_semantics::{BindingRefV1, SourceBindingSiteV1, SourceSt
 use super::coverage::{
     verify_terminal_completion_co_seal_v1, ResolvedFactCoverageDraftV1, TrivialProfileDraftV1,
 };
+use super::direct_call::VerifiedTrivialDirectCallV1;
 use super::error::{
     stop, stop_expression, stop_statement, AnalysisFailureV1, AnalysisResultV1,
     TrivialProfileContractErrorV1, TrivialProfileStopReasonV1, TrivialProfileStopSiteV1,
@@ -35,7 +36,31 @@ pub(super) fn analyze_trivial_canonical_owner_impl_v1(
     completion: &VerifiedFunctionCompletionV1,
     if_control: &VerifiedResolvedFunctionIfControlV1,
 ) -> Result<TrivialCanonicalOwnerAnalysisV1, TrivialProfileContractErrorV1> {
-    match AnalyzerV1::new(input, if_control).and_then(|analyzer| analyzer.analyze(completion)) {
+    analyze_with_call_policy(input, completion, if_control, DirectCallPolicyV1::Forbidden)
+}
+
+pub(super) fn analyze_trivial_canonical_owner_with_direct_call_impl_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    completion: &VerifiedFunctionCompletionV1,
+    if_control: &VerifiedResolvedFunctionIfControlV1,
+) -> Result<TrivialCanonicalOwnerAnalysisV1, TrivialProfileContractErrorV1> {
+    analyze_with_call_policy(
+        input,
+        completion,
+        if_control,
+        DirectCallPolicyV1::ExactlyOne,
+    )
+}
+
+fn analyze_with_call_policy(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    completion: &VerifiedFunctionCompletionV1,
+    if_control: &VerifiedResolvedFunctionIfControlV1,
+    direct_call_policy: DirectCallPolicyV1,
+) -> Result<TrivialCanonicalOwnerAnalysisV1, TrivialProfileContractErrorV1> {
+    match AnalyzerV1::new(input, if_control, direct_call_policy)
+        .and_then(|analyzer| analyzer.analyze(completion))
+    {
         Ok(product) => Ok(TrivialCanonicalOwnerAnalysisV1::Admitted(product)),
         Err(AnalysisFailureV1::Stop(stop)) => {
             Ok(TrivialCanonicalOwnerAnalysisV1::NotAdmitted(stop))
@@ -51,6 +76,12 @@ enum ReturnPolicyV1 {
     Forbidden,
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum DirectCallPolicyV1 {
+    Forbidden,
+    ExactlyOne,
+}
+
 struct AnalyzerV1<'a> {
     input: ResolvedFunctionLoweringInputV1<'a>,
     draft: TrivialProfileDraftV1,
@@ -58,12 +89,15 @@ struct AnalyzerV1<'a> {
     fact_coverage: ResolvedFactCoverageDraftV1,
     expected_if_sites: BTreeSet<SourceStmtSiteV1>,
     visited_if_sites: BTreeSet<SourceStmtSiteV1>,
+    direct_call_policy: DirectCallPolicyV1,
+    direct_call_count: u32,
 }
 
 impl<'a> AnalyzerV1<'a> {
     fn new(
         input: ResolvedFunctionLoweringInputV1<'a>,
         if_control: &VerifiedResolvedFunctionIfControlV1,
+        direct_call_policy: DirectCallPolicyV1,
     ) -> AnalysisResultV1<Self> {
         if if_control.owner() != input.owner() {
             return Err(TrivialProfileContractErrorV1::IfControlOwnerMismatch.into());
@@ -75,6 +109,8 @@ impl<'a> AnalyzerV1<'a> {
             fact_coverage: ResolvedFactCoverageDraftV1::new(input.owner()),
             expected_if_sites: if_control.exact_if_sites().cloned().collect(),
             visited_if_sites: BTreeSet::new(),
+            direct_call_policy,
+            direct_call_count: 0,
         })
     }
 
@@ -103,6 +139,14 @@ impl<'a> AnalyzerV1<'a> {
             &mut writes,
             ReturnPolicyV1::RootFinalOnly,
         )?;
+
+        if self.direct_call_policy == DirectCallPolicyV1::ExactlyOne && self.direct_call_count != 1
+        {
+            return Err(TrivialProfileContractErrorV1::DirectCallCardinality {
+                actual: self.direct_call_count,
+            }
+            .into());
+        }
 
         if self.terminal.is_none() {
             let body_end = u32::try_from(body.statements().len())
@@ -136,6 +180,7 @@ impl<'a> AnalyzerV1<'a> {
             self.input.owner(),
             parts.parameter_entries,
             parts.values,
+            parts.direct_calls,
             parts.definitions,
             parts.merge_profiles,
             terminal,
@@ -555,6 +600,56 @@ impl<'a> AnalyzerV1<'a> {
                 inner_writes.retain(|binding| baseline.contains_key(binding));
                 writes.extend(inner_writes);
                 result
+            }
+            ASTNode::FunctionCall {
+                name, arguments, ..
+            } => {
+                if self.direct_call_policy != DirectCallPolicyV1::ExactlyOne
+                    || self.direct_call_count != 0
+                {
+                    return stop_expression(
+                        expression,
+                        TrivialProfileStopReasonV1::ExpressionOutsideProfile,
+                    );
+                }
+                self.direct_call_count = 1;
+                let mut argument_sites = Vec::with_capacity(arguments.len());
+                for index in 0..arguments.len() {
+                    let ordinal = u32::try_from(index).map_err(|_| {
+                        TrivialProfileContractErrorV1::DirectCallHeaderMismatch {
+                            site: expression.site().clone(),
+                        }
+                    })?;
+                    let argument = self
+                        .input
+                        .source()
+                        .child_expr_from_expr(expression, ExprChildRoleV1::CallArgument(ordinal))
+                        .map_err(|error| self.source_navigation(error))?;
+                    let representation = self.analyze_expr(&argument, environment, writes)?;
+                    if representation != TrivialRepresentationV1::InlineI64 {
+                        return stop_expression(
+                            &argument,
+                            TrivialProfileStopReasonV1::BinaryOperandsNotExact,
+                        );
+                    }
+                    argument_sites.push(argument.site().clone());
+                }
+                self.fact_coverage
+                    .direct_call_target(self.input.function(), expression.site())?;
+                let index = self
+                    .input
+                    .callable_index()
+                    .ok_or(TrivialProfileContractErrorV1::MissingCallableIndex)?;
+                let row = VerifiedTrivialDirectCallV1::seal(
+                    self.input.owner(),
+                    expression.site().clone(),
+                    name,
+                    argument_sites,
+                    self.input.function(),
+                    index,
+                )?;
+                self.draft.record_direct_call(row)?;
+                return Ok(TrivialRepresentationV1::InlineI64);
             }
             _ => {
                 return stop_expression(

@@ -8,6 +8,8 @@
       "analyzer.rs",
       "consumption.rs",
       "coverage.rs",
+      "direct_call.rs",
+      "direct_call_tests.rs",
       "error.rs",
       "function_return.rs",
       "mod.rs",
@@ -22,6 +24,7 @@
       "analyzer.rs",
       "consumption.rs",
       "coverage.rs",
+      "direct_call.rs",
       "error.rs",
       "function_return.rs",
       "mod.rs",
@@ -30,6 +33,7 @@
       "product.rs"
     ],
     "test_rust": [
+      "direct_call_tests.rs",
       "parameter_tests.rs",
       "return_tests.rs",
       "tests.rs"
@@ -55,13 +59,13 @@
     "rows": 18
   },
   "claims": {
-    "profile_manifest_entries": 13,
-    "profile_production_rust_files": 9,
-    "profile_test_rust_files": 3,
+    "profile_manifest_entries": 15,
+    "profile_production_rust_files": 10,
+    "profile_test_rust_files": 4,
     "profile_entry_definitions": 1,
     "sealed_product_definitions": 1,
     "sealed_return_witness_definitions": 1,
-    "focused_profile_fixtures": 22,
+    "focused_profile_fixtures": 27,
     "profile_production_callers": 1,
     "production_route_delta": 1,
     "accepted_grammar_delta": 1,

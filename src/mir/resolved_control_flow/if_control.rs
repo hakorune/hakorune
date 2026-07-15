@@ -354,7 +354,7 @@ pub(super) fn analyze_resolved_if_control_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     completion: &VerifiedFunctionCompletionV1,
 ) -> Result<VerifiedResolvedFunctionIfControlV1, ResolvedIfControlErrorV1> {
-    IfControlAnalyzerV1::new(input, completion)?.analyze()
+    IfControlAnalyzerV1::new(input, completion, ExpressionPolicyV1::Closed)?.analyze()
 }
 
 /// Typed production boundary for the sealed If-control analyzer.
@@ -378,6 +378,25 @@ pub(crate) fn verify_resolved_function_if_control_v1(
     })
 }
 
+/// Disconnected P0c-S0b coverage ingress. The ordinary production verifier
+/// remains call-closed until the atomic P0c-I1 route activation.
+pub(crate) fn verify_resolved_function_if_control_with_direct_call_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    completion: &VerifiedFunctionCompletionV1,
+) -> Result<VerifiedResolvedFunctionIfControlV1, ResolvedFunctionIfControlContractErrorV1> {
+    IfControlAnalyzerV1::new(input, completion, ExpressionPolicyV1::DirectCall)
+        .and_then(IfControlAnalyzerV1::analyze)
+        .map_err(|error| ResolvedFunctionIfControlContractErrorV1 {
+            detail: format!("{error:?}"),
+        })
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum ExpressionPolicyV1 {
+    Closed,
+    DirectCall,
+}
+
 struct IfControlRowDraftV1<'source> {
     site: SourceStmtSiteV1,
     body: LocatedBodyV1<'source>,
@@ -392,12 +411,14 @@ struct IfControlAnalyzerV1<'source> {
     authorized_return_site: Option<SourceStmtSiteV1>,
     rows: Vec<Option<IfControlRowDraftV1<'source>>>,
     partition: Vec<IfControlCoverageClaimV1>,
+    expression_policy: ExpressionPolicyV1,
 }
 
 impl<'source> IfControlAnalyzerV1<'source> {
     fn new(
         input: ResolvedFunctionLoweringInputV1<'source>,
         completion: &VerifiedFunctionCompletionV1,
+        expression_policy: ExpressionPolicyV1,
     ) -> Result<Self, ResolvedIfControlErrorV1> {
         if input.owner() != input.source().owner()
             || input.owner() != input.function().owner()
@@ -413,6 +434,7 @@ impl<'source> IfControlAnalyzerV1<'source> {
             authorized_return_site: completion.explicit_site().cloned(),
             rows: Vec::new(),
             partition: Vec::new(),
+            expression_policy,
         })
     }
 
@@ -628,6 +650,22 @@ impl<'source> IfControlAnalyzerV1<'source> {
                     .child_expr_from_expr(expression, ExprChildRoleV1::BlockExprTail)
                     .map_err(source_navigation)?;
                 self.visit_expression(&tail, owner_row)
+            }
+            ASTNode::FunctionCall { arguments, .. }
+                if self.expression_policy == ExpressionPolicyV1::DirectCall =>
+            {
+                for index in 0..arguments.len() {
+                    let child = self
+                        .input
+                        .source()
+                        .child_expr_from_expr(
+                            expression,
+                            ExprChildRoleV1::CallArgument(checked_index(index)?),
+                        )
+                        .map_err(source_navigation)?;
+                    self.visit_expression(&child, owner_row)?;
+                }
+                Ok(())
             }
             _ => Err(ResolvedIfControlErrorV1::UnsupportedExpression(
                 expression.site().clone(),

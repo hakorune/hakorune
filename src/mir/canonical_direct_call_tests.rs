@@ -5,6 +5,7 @@ use crate::mir::resolved_semantics::{
 };
 
 use super::*;
+use crate::mir::canonical_direct_call_contract::VerifiedDirectCallEffectV1;
 
 fn header() -> VerifiedCallableHeaderV1 {
     let tree = ASTNode::FunctionDeclaration {
@@ -46,7 +47,7 @@ fn materializes_exact_callee_without_legacy_resolution() {
         VerifiedDirectCallEffectV1::ConservativeBarrier
     );
 
-    let expected_effects = VerifiedDirectCallEffectV1::ConservativeBarrier.mir_effects();
+    let expected_effects = materialize_effect(VerifiedDirectCallEffectV1::ConservativeBarrier);
     let instruction = emission
         .materialize(ValueId::new(9), vec![ValueId::new(3)])
         .unwrap();
