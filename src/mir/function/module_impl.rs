@@ -2,7 +2,7 @@ use super::{
     ClosureBodyId, FunctionPublicationErrorV1, MirFunction, MirModule, ModuleMetadata, ModuleStats,
 };
 use crate::mir::ConstValue;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 impl MirModule {
     /// Create a new MIR module
@@ -33,6 +33,28 @@ impl MirModule {
             });
         }
         self.functions.insert(name, function);
+        Ok(())
+    }
+
+    /// Publish a closed draft batch only after every function name is proven
+    /// unique against both the module and the batch itself.
+    pub(in crate::mir) fn try_add_functions_atomic(
+        &mut self,
+        functions: Vec<MirFunction>,
+    ) -> Result<(), FunctionPublicationErrorV1> {
+        let mut names = BTreeSet::new();
+        for function in &functions {
+            let name = function.signature.name.clone();
+            if self.functions.contains_key(&name) || !names.insert(name.clone()) {
+                return Err(FunctionPublicationErrorV1 {
+                    function_name: name,
+                });
+            }
+        }
+        for function in functions {
+            let name = function.signature.name.clone();
+            self.functions.insert(name, function);
+        }
         Ok(())
     }
 

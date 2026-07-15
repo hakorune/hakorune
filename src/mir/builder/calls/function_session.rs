@@ -146,25 +146,34 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
     }
 
     fn run(
-        self,
+        mut self,
         operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
     ) -> Result<(), CanonicalFunctionSessionErrorV1> {
         let outcome = operation(self.builder);
-        self.finish(outcome)
+        let draft = self.close_unpublished(outcome)?;
+        publish_function_draft(
+            self.builder.current_module.as_mut(),
+            draft,
+            self.requires_resolved_authority,
+        )
+        .map_err(CanonicalFunctionSessionErrorV1::Publication)
     }
 
-    fn finish(
+    fn capture(
         mut self,
+        operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
+    ) -> Result<MirFunction, CanonicalFunctionSessionErrorV1> {
+        let outcome = operation(self.builder);
+        self.close_unpublished(outcome)
+    }
+
+    fn close_unpublished(
+        &mut self,
         outcome: Result<MirFunction, String>,
-    ) -> Result<(), CanonicalFunctionSessionErrorV1> {
+    ) -> Result<MirFunction, CanonicalFunctionSessionErrorV1> {
         let cleanup = self.cleanup(outcome.is_ok());
         match (outcome, cleanup) {
-            (Ok(draft), Ok(())) => publish_function_draft(
-                self.builder.current_module.as_mut(),
-                draft,
-                self.requires_resolved_authority,
-            )
-            .map_err(CanonicalFunctionSessionErrorV1::Publication),
+            (Ok(draft), Ok(())) => Ok(draft),
             (Err(primary), Ok(())) => Err(CanonicalFunctionSessionErrorV1::Primary(primary)),
             (Ok(_draft), Err(cleanup)) => Err(CanonicalFunctionSessionErrorV1::Cleanup(
                 cleanup.to_string(),
@@ -293,5 +302,19 @@ impl MirBuilder {
             FunctionBodyCaptureV1::CanonicalClosedFamily,
         )
         .run(operation)
+    }
+
+    /// Return one restored canonical function draft without module publication.
+    pub(in crate::mir::builder) fn with_resolved_function_draft_session(
+        &mut self,
+        function_name: &str,
+        operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
+    ) -> Result<MirFunction, CanonicalFunctionSessionErrorV1> {
+        CanonicalFunctionLoweringSessionV1::open(
+            self,
+            function_name,
+            FunctionBodyCaptureV1::CanonicalClosedFamily,
+        )
+        .capture(operation)
     }
 }

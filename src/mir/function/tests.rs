@@ -61,6 +61,26 @@ fn checked_function_publication_rejects_duplicate_without_replacement() {
     );
 }
 
+#[test]
+fn atomic_function_batch_rejects_before_any_function_is_inserted() {
+    let mut module = MirModule::new("atomic-publication".to_string());
+    let signature = FunctionSignature {
+        name: "same/0".to_string(),
+        params: vec![],
+        return_type: MirType::Void,
+        effects: EffectMask::PURE,
+    };
+    let first = MirFunction::new(signature.clone(), BasicBlockId::new(1));
+    let duplicate = MirFunction::new(signature, BasicBlockId::new(2));
+
+    let error = module
+        .try_add_functions_atomic(vec![first, duplicate])
+        .unwrap_err();
+
+    assert_eq!(error.function_name, "same/0");
+    assert!(module.functions.is_empty());
+}
+
 // Legacy ValueId 割り当て仕様（LoopForm v2 導入前の想定）.
 #[test]
 #[ignore]
