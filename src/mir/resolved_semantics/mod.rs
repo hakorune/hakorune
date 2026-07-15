@@ -6,6 +6,8 @@
 // gives the schema its first shadow-only producer/consumer.
 #![allow(dead_code, unused_imports)]
 
+mod callable_header_view;
+mod callable_index;
 mod function_root;
 mod function_view;
 mod ids;
@@ -21,6 +23,12 @@ mod shadow;
 mod source_site;
 mod verifier;
 
+pub(crate) use callable_header_view::CallableHeaderSyntaxViewV1;
+pub(crate) use callable_index::{
+    CallableIndexSealErrorV1, CallableNamespaceV1, CanonicalCallableKeyV1,
+    CanonicalCallableSymbolV1, ExactTrivialCallableSignatureV1, ResolvedCallableRefV1,
+    VerifiedCallableHeaderV1, VerifiedCallableIndexV1,
+};
 pub(crate) use function_root::{
     ResolvedFunctionLoweringRootsV1, ResolvedFunctionRootVerificationErrorV1,
 };

@@ -1,8 +1,8 @@
 ---
-Status: Accepted for tasking — P0c-L0 next
+Status: Active — P0c-L0 closed; disconnected P0c-S0 next
 Date: 2026-07-15
 Decision: A′ — exact current-owner self call over a generic one-entry callable index
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-L0-IMPLEMENTATION-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-S0-IMPLEMENTATION-001
 Related:
   - mirbuilder-ssa-i1-compat-static-i64-parameter-selection-2026-07-15.md
   - mirbuilder-ssa-i1-compat-static-i64-return-selection-2026-07-15.md
@@ -474,6 +474,8 @@ No partially verified function is published.
 
 ### P0c-L0 — behavior-neutral callable facade
 
+Status: closed.
+
 Add, with production callers zero:
 
 ```text
@@ -499,6 +501,27 @@ production source-call callers = 0
 CurrentFunction-specific target variants = 0
 legacy call resolver callers from the facade = 0
 ```
+
+Closeout evidence:
+
+```text
+bounded body-free CallableHeaderSyntaxViewV1 = 1
+one-entry exact-i64 VerifiedCallableIndexV1 = 1
+generic ResolvedCallableRefV1 identity wrapper = 1
+CurrentFunction-specific target variants = 0
+physical name/arity spelling admitted from source = 0
+exact lookup fallback/tail matching = 0
+verified emission arity mismatch = typed reject
+conservative effect mask = exact known non-Pure barrier set
+production source-call callers = 0
+production capability producers = 0
+grammar / route / runtime behavior delta = 0
+```
+
+Focused callable-index, emission, and backend-capability tests, the dedicated
+P0c-L0 caller-zero guard, the full resolved authority guard, release build,
+and quick gate are green. Every touched source/check file remains below 800
+lines.
 
 ### P0c-S0 — disconnected resolved self-call product
 

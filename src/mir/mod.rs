@@ -36,6 +36,9 @@ pub(crate) mod backend_capability; // shared MIR backend capability gate
 pub mod basic_block;
 pub mod boxed_sum_abi_plan; // boxed runtime ABI plans for native enum transport
 pub mod builder;
+pub(crate) mod canonical_direct_call;
+pub(crate) mod canonical_direct_static_call_backend_capability;
+pub(crate) mod canonical_direct_static_call_capability;
 pub(crate) mod compile_timing;
 mod compiler;
 pub mod concat_const_suffix_micro_seed_plan; // MIR-owned route plan for temporary concat const-suffix micro seed bridge

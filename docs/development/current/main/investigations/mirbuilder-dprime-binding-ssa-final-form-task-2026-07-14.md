@@ -1,8 +1,8 @@
 ---
-Status: Active — P0c-i64 A′ accepted; behavior-neutral P0c-L0 next
+Status: Active — P0c-L0 closed; disconnected P0c-S0 next
 Date: 2026-07-15
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-L0-IMPLEMENTATION-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-S0-IMPLEMENTATION-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -1457,6 +1457,14 @@ forbidden. Sibling calls, multi-function publication, mutual recursion,
 MethodCall/receiver, Box/View/Shared results, and Ownership SSA remain later
 rows.
 
+P0c-L0 is closed. One bounded body-free callable-header view now seals one
+exact static-i64 row into generic key/reference/symbol vocabulary. The passive
+direct-call facade rejects arity drift before materialization, uses an exact
+conservative non-Pure barrier mask, and never enters legacy resolution. The
+durable direct-static-call capability remains producer-zero and VM-only when
+explicitly present; grammar, route, runtime behavior, and source-call
+activation remain unchanged.
+
 The remaining rows stay separate: exact typed parameters do not include the
 receiver owner family; Void disposition does not imply Outbox identity;
 BorrowedText requires its own lifetime/ABI decision.
@@ -2388,11 +2396,12 @@ state.
 
 ## Immediate next action
 
-Implement **P0c-L0 — behavior-neutral generic callable facade**. Add one bounded
-callable-header view, generic callable key/reference/symbol vocabulary, the
-one-entry callable-index builder/sealer, the verified canonical direct-call
-emission facade, the conservative effect mapper, and passive
-`canonical_direct_static_call_v1` capability vocabulary. Production callers,
-grammar, route, and runtime behavior remain unchanged. Do not begin disconnected
-P0c-S0 until L0 guards are green; do not activate FunctionCall, MethodCall,
-receiver, sibling calls, ownership operations, or backend widening in L0.
+Implement **P0c-S0 — disconnected resolved self-call product**. Resolve one
+exact FunctionCall site through the already-sealed one-entry callable index,
+record only generic `ResolvedCallableRefV1` target identity in resolved
+semantics, and co-seal one Lower-ready `VerifiedTrivialDirectCallV1` carrying
+the exact target/header projection, ordered argument sites, InlineI64 result,
+conservative effect, and exact source coverage. Builder/Lower connection and
+production activation remain zero. Do not add raw name lookup, target/ABI late
+pairing, sibling calls, MethodCall/receiver, ownership operations, or backend
+widening in S0.

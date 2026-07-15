@@ -26,7 +26,7 @@ guard_require_files "$TAG" \
   "$MODULE/ids.rs" \
   "$MODULE/function_root.rs" \
   "$MODULE/function_root_tests.rs" \
-  "$MODULE/function_view.rs" \
+  "$MODULE/function_view.rs" "$MODULE/callable_header_view.rs" "$MODULE/callable_index.rs" "$MODULE/callable_index_tests.rs" \
   "$MODULE/source_site.rs" \
   "$MODULE/records.rs" \
   "$MODULE/resolver.rs" \
@@ -64,7 +64,7 @@ guard_require_files "$TAG" \
   "$ROOT/src/mir/join_ir/ownership/ast_analyzer/core.rs"
 
 expected_manifest="$(printf '%s\n' \
-  block_expr_tests.rs \
+  block_expr_tests.rs callable_header_view.rs callable_index.rs callable_index_tests.rs \
   function_root.rs function_root_tests.rs \
   function_view.rs \
   ids.rs if_region.rs if_region_tests.rs loop_region.rs loop_region_tests.rs \
@@ -113,7 +113,7 @@ mapfile -t CANONICAL_NON_RESOLVER_FILES < <(
 )
 mapfile -t CANONICAL_ARENA_FILES < <(
   find "$MODULE" -maxdepth 1 -type f -name '*.rs' ! -name '*_tests.rs' ! -name 'tests.rs' \
-    ! -name 'function_view.rs' -print | LC_ALL=C sort
+    ! -name 'function_view.rs' ! -name 'callable_header_view.rs' ! -name 'callable_index.rs' -print | LC_ALL=C sort
 )
 mapfile -t SHADOW_FILES < <(
   find "$MODULE/shadow" -type f -name '*.rs' ! -name 'tests.rs' -print | LC_ALL=C sort
@@ -713,7 +713,7 @@ fi
 while IFS= read -r consumer; do
   [[ -z "$consumer" ]] && continue
   case "$consumer" in
-    "$MIR_MOD"|"$MODULE"/*|"$LOWER_STATE"|"$LOWER_LOCAL"|"$LOWER_PARAM"|"$LOWERING_INPUT"|"$ROOT/src/mir/compiler/located.rs"|"$ROOT/src/mir/compiler/source_projection.rs"|"$ROOT/src/mir/compiler/source_view.rs"|"$ROOT/src/mir/compiler/source_view_tests.rs"|"$ROOT/src/mir/compiler/capability.rs"|"$ROOT/src/mir/compiler/capability_tests.rs"|"$ROOT/src/mir/compiler/function_input.rs"|"$ROOT/src/mir/resolved_control_flow"/*|"$ROOT/src/mir/resolved_region_flow"/*|"$ROOT/src/mir/resolved_value_profile"/*|"$RESOLVED_LOWER"/*|"$ROOT/src/mir/builder/ssa/binding"/*)
+    "$MIR_MOD"|"$MODULE"/*|"$ROOT/src/mir/canonical_direct_call.rs"|"$ROOT/src/mir/canonical_direct_call_tests.rs"|"$LOWER_STATE"|"$LOWER_LOCAL"|"$LOWER_PARAM"|"$LOWERING_INPUT"|"$ROOT/src/mir/compiler/located.rs"|"$ROOT/src/mir/compiler/source_projection.rs"|"$ROOT/src/mir/compiler/source_view.rs"|"$ROOT/src/mir/compiler/source_view_tests.rs"|"$ROOT/src/mir/compiler/capability.rs"|"$ROOT/src/mir/compiler/capability_tests.rs"|"$ROOT/src/mir/compiler/function_input.rs"|"$ROOT/src/mir/resolved_control_flow"/*|"$ROOT/src/mir/resolved_region_flow"/*|"$ROOT/src/mir/resolved_value_profile"/*|"$RESOLVED_LOWER"/*|"$ROOT/src/mir/builder/ssa/binding"/*)
       ;;
     *)
       guard_fail "$TAG" "resolved semantic product escaped its bounded resolver/compiler/lower files: $consumer"

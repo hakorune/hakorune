@@ -29,6 +29,7 @@ use crate::mir::{
     array_text_observer_plan::ArrayTextObserverRoute,
     array_text_residence_session_plan::ArrayTextResidenceSessionRoute,
     array_text_state_residence_plan::ArrayTextStateResidenceRoute,
+    canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1,
     concat_const_suffix_micro_seed_plan::ConcatConstSuffixMicroSeedRoute,
     constructor_call_route_plan::ConstructorCallRoute,
     direct_array_access_plan::DirectArrayAccessPlan,
@@ -591,6 +592,11 @@ pub struct FunctionMetadata {
     /// Executable return-exit semantic contract rebuilt from declaration
     /// evidence during semantic refresh.
     pub return_exit_contract: Option<ReturnExitContract>,
+
+    /// Explicit canonical direct-static-call backend capability witnesses.
+    /// Generic Call instructions never synthesize this metadata.
+    pub(crate) canonical_direct_static_call_capabilities:
+        Vec<CanonicalDirectStaticCallCapabilityV1>,
 
     /// Executable exact-numeric contracts keyed by lexical LocalSlotId.
     pub local_slot_contracts: Vec<LocalSlotContract>,

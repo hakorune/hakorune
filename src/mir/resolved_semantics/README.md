@@ -204,6 +204,33 @@ never enter Lower or the normalized parity graph. Production installation
 remains zero until the accepted syntax inventory and all declaration callers
 can switch together.
 
+## P0c callable-header boundary
+
+`CallableHeaderSyntaxViewV1` is a separate body-free view over one
+`FunctionDeclaration`. It exists so source callable name, arity, exact scalar
+signature, and physical symbol projection are observed once without widening
+the body-oriented `FunctionSyntaxViewV1` or teaching Lower to read raw names.
+
+`VerifiedCallableIndexV1` is the sole callable-header authority. P0c-L0 seals
+exactly one static, non-main, all-`i64` header into a deterministic one-entry
+index and leaves it disconnected from production resolution and Lower. The
+first consumer connection belongs to P0c-S0.
+
+```text
+CanonicalCallableKeyV1:
+  source lookup key
+
+ResolvedCallableRefV1:
+  typed reference to the existing FunctionOwnerIdV1 identity
+
+CanonicalCallableSymbolV1:
+  one-way physical MIR/backend projection
+```
+
+The symbol is never parsed back into source identity. The runtime/plugin
+Box-callable registry, MIR module function table, legacy global resolver, and
+Lower name comparisons are not callable-index authorities.
+
 ## Authority
 
 - The canonical AST owns syntax and source execution order.
