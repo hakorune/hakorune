@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ P0c-MR-I1 closed; P0c-MR-R0 self-call retirement design stop"
+status = "D′ P0c-MR-I1 activation landed; I1 runtime frame proof tail required"
 date = "2026-07-16"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -168,9 +168,9 @@ and adds one explicit atomic recursive-module ingress. Recursion production
 producers remain zero before I1. I1 is closed: one explicit recursive compiler
 ingress consumes the typed plan, reuses unpublished draft collection, atomically
 publishes the complete function set, installs one module marker, and commits
-only the finished isolated candidate. R0 is now a design stop; no code is
-authorized until one-function Program parity and old self-call retirement are
-decision-locked.
+only the finished isolated candidate. Before R0, I1 still requires MR-specific
+MAX_CALL_DEPTH and inner parameter/return contract failure fixtures proving
+caller-frame restoration and interpreter reuse.
 Historical
 lane chronology follows and is non-authoritative.
 Explicit user priority change on 2026-07-12 reopens
@@ -748,7 +748,7 @@ MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-MR-R0-D0-ONE-FUNCTION-SELF-CALL-AUTHORITY-RETIREMENT-DESIGN-STOP-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-MR-I1-RUNTIME-FRAME-RESTORATION-PROOF-TAIL-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

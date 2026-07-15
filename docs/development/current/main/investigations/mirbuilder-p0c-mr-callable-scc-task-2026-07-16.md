@@ -1,8 +1,8 @@
 ---
-Status: P0c-MR-I1 closed; P0c-MR-R0 design consultation required
+Status: P0c-MR-I1 activation landed; runtime frame proof tail required
 Date: 2026-07-16
 Decision: C-prime accepted with bounded implementation refinements
-Current row: P0c-MR-R0-D0 design stop
+Current row: P0c-MR-I1 runtime frame-restoration proof tail
 Production baseline: 4bed234ceb
 Consultation: mirbuilder-p0c-mr-scc-consultation-question-2026-07-16.md
 ---
@@ -22,7 +22,9 @@ P0c-MR-I1  explicit atomic VM-only activation
 P0c-MR-R0  later one-function self-call authority retirement
 ```
 
-G0 through I1 are closed. No further code-facing row is authorized until
+G0 through I1 activation are landed. Before R0, add MR-specific depth overflow
+and inner parameter/return contract failure fixtures proving caller-frame
+restoration and interpreter reuse. No further widening is authorized until
 `P0c-MR-R0-D0` decides one-function Program parity and old self-call authority
 retirement.
 
@@ -451,7 +453,9 @@ Stop if implementation requires:
 
 ## Immediate next action
 
-Stop for `P0c-MR-R0-D0` design consultation. Decide whether the old bare
+First close the I1 runtime frame-restoration proof tail: MAX_CALL_DEPTH, inner
+parameter contract failure, inner return contract failure, and post-error
+interpreter reuse. Then stop for `P0c-MR-R0-D0` design consultation. Decide whether the old bare
 one-function self-call route becomes a compatibility facade or is retired after
 one-function Program parity. Fix source authority, exact parity fixtures,
 backend-marker policy, removal counters, and no-retry boundaries before code.
