@@ -155,16 +155,21 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
     Box object model, TypeAbiCatalog, BoxCallableRegistry, and optional GC
     recipe responsibilities separated before any Arc replacement implementation
 - `design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md`
-  - B′ Box lifecycle constitution; separates explicit eager `fini`, Ownership
-    SSA tokens, generation-tagged ObjectCell materialization, and later
-    StaticUnique/LocalRc/SharedRc optimization; normal Box exposes no manual
-    physical-free operation, and lazy PromotableUnique/source reclaim stay
-    parked in the paired investigations taskboard
+  - B′ Shared/resource Box lifecycle constitution; separates explicit eager
+    `fini`, Ownership SSA tokens, generation-tagged ObjectCell materialization,
+    and later StaticUnique/LocalRc/SharedRc strategies; source owner/alias/share
+    selection belongs to `docs/reference/language/ownership.md`
+- `docs/reference/language/ownership.md`
+  - normative source owner/ScopedAlias/AnchoredView/Shared contract; ordinary
+    source stays sparse and only explicit `share` enters independent lifetime
+- `investigations/hakorune-sparse-ownership-surface-task-2026-07-15.md`
+  - parked bounded implementation board for evidence -> grammar -> Loan Flow
+    -> first Box -> callable ABI/View -> explicit Shared; current D-prime lane
+    remains unchanged and the next selected O2 row must be a generated artifact
 - `investigations/hakorune-ownership-v2-root-anchored-alias-task-2026-07-14.md`
-  - parked Ownership V2 source-ergonomics taskboard; owns evidence-first
-    P0a/P0r/P0b1/P0c -> D0 order, zero-RC scoped aliases, explicit owner
-    movement versus paid sharing, diagnostics/LoanTrace boundaries, and the
-    future LoanPhi branch without replacing the current SSA-I1 blocker
+  - superseded detailed evidence/archive for root aliases, corpus censuses,
+    fixtures, and historical alternatives; no longer an execution or source
+    semantics authority
 - `investigations/hakorune-ownership-v2-anchored-view-return-abi-task-2026-07-15.md`
   - parked P1 call-result-view subtask; keeps result type and ownership axes
     separate, seals explicit receiver/parameter anchors and conservative

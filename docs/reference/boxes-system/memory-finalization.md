@@ -1,8 +1,11 @@
 # 🧠 Nyash メモリ管理 & finiシステム
 
-**最終更新: 2026年7月14日 - B′設計ノート同期**
+**最終更新: 2026年7月15日 - B′/sparse ownership境界同期**
 
-注: 言語レベルの SSOT は `docs/reference/language/lifecycle.md`。本書は設計ノートであり、SSOT と矛盾する記述があれば SSOT を優先する。
+注: object lifecycle の SSOT は `docs/reference/language/lifecycle.md`、
+source ownership/alias/share の SSOT は
+`docs/reference/language/ownership.md`。本書は実装設計ノートであり、
+矛盾する記述があれば両SSOTを優先する。
 
 ## 📋 概要
 
@@ -97,10 +100,11 @@ box Pipeline {
 }
 ```
 
-通常fieldはshared-strongです。親の`fini()`はuser hookの後、fieldに格納
-されたstrong tokenを宣言逆順でrelease/clearしますが、子のuser `fini()`
-を暗黙には呼びません。weak fieldはtargetを辿らず、weak token自身だけを
-dropします。
+verified storage contract が owning または Shared のfieldだけがowner
+tokenを保持します。親の`fini()`はuser hookの後、格納されたtokenを宣言
+逆順でrelease/clearしますが、子のuser `fini()`を暗黙には呼びません。
+Unique owning fieldはowner forwardでよく、fieldという理由だけでRCには
+なりません。weak fieldはtargetを辿らず、weak token自身だけをdropします。
 
 #### 決定的な解放順序
 1. **finalized チェック** - 既に解放済みなら何もしない（idempotent）
@@ -115,13 +119,13 @@ dropします。
 
 ```nyash
 box Node {
-    init { id, next_weak } // 弱参照は値として保持する（`weak(x)`）
+    init { id, next_weak } // 弱参照は値として保持する（`weak x`）
 }
 
 local node1 = new Node("A", null)
 local node2 = new Node("B", null)
-node2.next_weak = weak(node1)
-node1.next_weak = weak(node2)
+node2.next_weak = weak node1
+node1.next_weak = weak node2
 // 循環参照を回避し、安全に解放される
 ```
 

@@ -2,7 +2,8 @@
 
 Status: SSOT (language-level), with implementation status notes.
 
-Decision: B′ eager-fini tombstone semantics accepted on 2026-07-14.
+Decision: B′ eager-fini tombstone semantics accepted on 2026-07-14; sparse
+source ownership boundary accepted on 2026-07-15.
 
 Implementation status: transitional. Current `InstanceBox`, global
 finalization tracking, plugin Drop-fini routes, and generation-0 host/weak
@@ -10,6 +11,8 @@ tables do not yet implement the full decision. Unsupported B′ profiles must
 remain unclaimed/fail-fast until their taskboard rows close.
 
 Design note:
+- Source-level owner forwarding, scoped aliases, anchored views, and explicit
+  Shared entry are owned by `docs/reference/language/ownership.md` (SSOT).
 - For normative exit-order, canonical `cleanup`, legacy DropScope
   (`fini {}` / `local ... fini {}`), `catch/cleanup` routing, and
   ownership-transfer terminology, see
@@ -18,7 +21,10 @@ Design note:
 - Runtime/Ownership SSA implementation order is owned by
   `docs/development/current/main/design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md`.
 
-This document defines the Nyash object lifecycle model: lexical scope, ownership (strong/weak), finalization (`fini()`), and what is (and is not) guaranteed across backends.
+This document defines the Hakorune/Nyash object lifecycle model: logical
+finalization (`fini()`), strong/weak object residency, and what is (and is not)
+guaranteed across backends. It does not decide whether a source binding is an
+owner, scoped alias, or anchored view.
 
 Construction SSOT:
 - Source-level construction order and the `birth` direct-call policy are fixed
@@ -30,7 +36,10 @@ Construction SSOT:
 
 - **Binding**: a local variable slot (created by `local`) that points to a value.
 - **Box value**: an object reference (user-defined / builtin / plugin).
-- **Strong reference**: an owning reference that contributes to keeping the object alive.
+- **Strong owner token**: an independently consumable owner that contributes
+  to keeping the object alive.
+- **Scoped alias / anchored view**: a non-owning source capability governed by
+  `ownership.md`; it does not add a strong token.
 - **Weak reference**: a non-owning reference; it does not keep the object alive and may become dead.
 - **Finalization (`fini`)**: a logical end-of-life hook. It is not “physical deallocation”.
 - **Structural drop**: runtime payload/field-token teardown needed for memory
@@ -150,8 +159,11 @@ pointer/provenance model; it is outside the normal Box lifecycle contract.
 ## 1) Scope model (locals)
 
 - `local` is block-scoped: the binding exists from its declaration to the end of the lexical block (`{ ... }`).
-- Leaving a block drops its bindings immediately (including inner `{}` blocks).
-- Dropping a binding reduces strong ownership held by that binding. It may or may not physically deallocate the object (depends on other strong references).
+- Leaving a block ends its bindings immediately (including inner `{}` blocks).
+- Ending an owning binding consumes/forwards its token according to the sealed
+  exit plan. Ending a scoped alias/view adds no ownership destroy.
+- Consuming the last owner may or may not immediately return backing memory;
+  that depends on the verified representation and remaining strong/weak roots.
 
 This is the “variable lifetime” rule. Object lifetime is defined below.
 
@@ -163,8 +175,9 @@ This is the “variable lifetime” rule. Object lifetime is defined below.
 - When the last strong reference to an object disappears, the object becomes eligible for physical destruction by the runtime.
   - In typical implementations this is immediate (reference-counted drop) for acyclic graphs, but the language does not require immediacy.
 - Last-strong structural drop never calls user-defined `fini()`.
-- Assignment, parameter/return transport, and ordinary strong fields share Box
-  identity; they do not imply an exclusive resource-finalization authority.
+- Shared-lane assignment, parameter/result transport, and Shared owning fields
+  may preserve Box identity while carrying independent owner tokens. Ordinary
+  local aliases/parameters are not independent strong owners.
 - One object identity may have multiple independently consumable strong
   ownership tokens. Destroying each distinct token once is legal; consuming
   the same token twice is a verifier/checked-carrier error, not an idempotent
@@ -175,7 +188,9 @@ This is the “variable lifetime” rule. Object lifetime is defined below.
 Weak references exist to avoid cycles and to represent back-pointers safely.
 
 Language-level guidance:
-- Locals and return values are typically strong.
+- Ordinary results and owning destinations carry/forward owners.
+- Ordinary local aliases and parameters do not add owners.
+- Independent lifetime enters the Shared lane through `share`.
 - Back-pointers / caches / parent links that would create cycles should be weak.
 
 Required property:
@@ -255,8 +270,8 @@ When explicit object finalization is requested:
 3) Drain existing ordinary access; the winner receives a privileged,
    non-escapable finalizer self-access capability.
 4) Run user-defined `fini()` once if present.
-5) Release and clear ordinary strong-field ownership tokens in reverse
-   declaration order. Do **not** implicitly call child user `fini()`.
+5) Release and clear stored owning/Shared field tokens in reverse declaration
+   order. Do **not** implicitly call child user `fini()`.
 6) Destroy stored weak tokens without upgrading, traversing, or finalizing
    their targets.
 7) Tear down native payload/storage, publish payload absence, then publish Dead.
@@ -279,28 +294,32 @@ Weak references are values (`WeakRef`) that can be stored in locals or fields:
 Nyash distinguishes “dropping a binding” from “finalizing an object”.
 
 Ownership tokens keep identity/storage alive. Object finalization is an
-explicit object-wide transition that any valid strong alias may request; it is
-not automatically inferred from scope end or last ownership. Calling it does
-not consume the caller token, and all aliases observe the same Dead identity.
+explicit object-wide transition, not something inferred from scope end or last
+ownership. Calling it does not consume the caller token. Source Loan Flow
+forbids `fini()` while a scoped alias/view remains live; independent Shared
+owners observe the same Dead identity after finalization.
 
 ### Owning contexts
 
 An object may have a strong owner/root token in any of these contexts:
 - A local binding (typical case).
-- An ordinary shared-strong field of another object.
+- An owning field or a Shared field of another object.
 - A module/global registry entry (e.g., `env.modules`).
 - A runtime host handle / singleton registry (typical for plugins).
 
 ### Escapes (ownership transfer)
 
-If a value is transferred or copied into a longer-lived owning context before
-the current scope ends, that owner token keeps the identity alive. This does
-not grant implicit authority to call user `fini()`.
+If one owner is forwarded into a longer-lived owning context before the
+current scope ends, that token keeps the identity alive without requiring RC.
+If independent lifetimes are required, `ownership.md` requires explicit
+Shared entry. Neither case grants implicit authority to call user `fini()`.
 
 Common escape paths:
 - Assigning into an enclosing-scope binding (updates the owner).
-- Returning via `outbox` (ownership transfers to the caller).
-- Storing into a shared-strong field of an object that outlives the scope.
+- Returning one owner to the caller (historical `outbox` is a compatibility
+  surface).
+- Forwarding into an owning field, or storing a Shared owner into a Shared
+  field.
 - Publishing into global/module registries.
 
 This rule is what keeps “scope finalization” from breaking shared references.
@@ -534,13 +553,15 @@ This section documents current backend reality so we can detect drift as bugs.
 
 ### Notes
 
-- **Block-scoped locals** are the language model (`local` drops at `}`), but the *observable* effects depend on where the last strong reference is held.
+- **Block-scoped locals** are the language model (`local` ends at `}`), but
+  only owning bindings carry a token to destroy. Scoped aliases/views do not.
 - **WeakRef** (Phase 285A0+): VM backend fully supports `weak <expr>` and `weak_to_strong()`. LLVM harness also supports this surface as of Phase 285LLVM-1.4.
 - **WASM backend** currently treats MIR `WeakNew/WeakLoad` as plain copies (weak behaves like strong). This does not satisfy the SSOT weak semantics yet (see also: `docs/guides/wasm-guide/planning/unsupported_features.md`).
 - **Leak Report** (Phase 285): `NYASH_LEAK_LOG={1|2}` prints exit-time diagnostics showing global roots still held (modules, host_handles, plugin_boxes). See `docs/reference/environment-variables.md`.
 - Conformance gaps (any backend differences from this document) must be treated as bugs and tracked explicitly; do not "paper over" differences by changing this SSOT without a decision.
 
 See also:
+- `docs/reference/language/ownership.md` (owner/alias/View/Shared source contract)
 - `docs/reference/language/variables-and-scope.md` (binding scoping and assignment resolution)
 - `docs/reference/boxes-system/memory-finalization.md` (design notes; must not contradict this SSOT)
 
@@ -574,14 +595,15 @@ static box Main {
 }
 ```
 
-## 10) RC responsibility split and retirement policy (normative)
+## 10) Ownership materialization responsibility (normative)
 
 This section fixes the ownership/lifecycle contract boundary to prevent drift across MIR/VM/LLVM.
 
 ### Role split (SSOT)
 
 - MIR does not own or maintain numeric reference counts.
-- MIR expresses lifecycle intent only, through instructions such as `keepalive` and `release_strong`.
+- Ownership-managed MIR expresses exact token operations through
+  `CopyOwned`/`DestroyOwned`; ordinary `Copy` is ownership-neutral.
 - Backends lower lifecycle intent to runtime ABI calls.
 - Runtime/Kernel is the only layer that performs retain/release count transitions and final drop.
 
@@ -591,9 +613,11 @@ Normative implications:
 - LLVM lowering must not invent count policy; it must call runtime ABI for lifecycle operations.
 - VM interpreter lifecycle handling must be contract-equivalent to runtime ABI semantics.
 
-### Current behavior contract (2026-02-13 snapshot)
+### Transitional behavior contract
 
-- `release_strong` is a valid MIR lifecycle op used for overwrite/cleanup timing.
+- `ReleaseStrong`/`release_strong` is a legacy alias-group lifecycle operation,
+  not the canonical per-owner counterpart of `CopyOwned`.
+- Canonical ownership uses singular `DestroyOwned` for one exact owner token.
 - `keepalive` is analysis/liveness intent and may be a no-op at execution backends.
 - Legacy symbol `ny_release_strong` is compatibility-only; preferred ABI naming is `nyrt_handle_release_h`.
 
@@ -612,4 +636,6 @@ Retirement gate (all required):
 
 Until all gates pass:
 - RC-backed lifecycle remains the production contract.
-- Application authors should not count references manually; they should design ownership boundaries (strong/weak/explicit drop) only.
+- Application authors should not count references manually. They express only
+  the source boundary (`share`, weak, cleanup/fini); compiler/runtime products
+  own physical token/count materialization.

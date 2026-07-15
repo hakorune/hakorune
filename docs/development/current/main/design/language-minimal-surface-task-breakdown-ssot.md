@@ -5,6 +5,7 @@ Date: 2026-07-10
 Scope: Task-sized backlog for the minimal Hakorune language surface.
 Related:
   - docs/development/current/main/design/language-minimal-surface-ssot.md
+  - docs/reference/language/ownership.md
   - docs/development/current/main/design/delegation-no-inheritance-ssot.md
   - docs/development/current/main/design/stage0-stage1-feature-responsibility-split-ssot.md
   - docs/development/current/main/design/language-feature-implementation-order-ssot.md
@@ -455,15 +456,16 @@ meaning before restricting `null` and legacy catch behavior to explicit
 
 ### LANGV1-OWNERSHIP-IDENTITY-001 field ownership and identity decision
 
-The accepted `BoxIdentity` contract remains representation-only. B′ resolves
-the previous lifecycle contradiction: ordinary strong fields can share the
-same object, so their automatic token cleanup cannot imply child user
-`fini()` without an enforceable exclusive-owner surface.
+The accepted `BoxIdentity` contract remains representation-only. The 2026-07-15
+sparse ownership Decision supersedes the earlier assumption that every ordinary
+field is Shared: an owning field may receive one forwarded Unique owner, while
+only a verified Shared field carries an independent Shared token. Neither
+stored-token form may imply child user `fini()`.
 
-Accepted B′ decision (2026-07-14):
+Accepted B′ plus sparse-ownership decision (2026-07-14/15):
 
-1. V1 ordinary strong fields are shared and never implicitly cascade child
-   `fini()`. Exclusive owned-field syntax remains reserved.
+1. A verified owning field forwards one owner; a verified Shared field stores
+   a Shared owner. Neither implicitly cascades child `fini()`.
 2. Define overwrite, parent `fini()`, alias escape, cycle, partial `birth`
    failure, and repeated-finalization behavior for every field ownership kind.
 3. Use one identity relation for strong Box values, WeakRef tokens, host
@@ -478,9 +480,9 @@ Accepted B′ decision (2026-07-14):
 Accepted v1 law:
 
 ```text
-ordinary strong field = shared
-implicit cascade fini through ordinary strong field = forbidden
-explicit owned field syntax = reserved until exclusivity can be enforced
+ordinary owning field = one forwarded owner
+Shared field = independent Shared owner
+implicit cascade fini through either field kind = forbidden
 DestroyOwned / last strong / native Drop invokes user fini = forbidden
 explicit fini consumes receiver token = 0
 normal Box manual physical free/reclaim surface = forbidden

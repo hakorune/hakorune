@@ -2,10 +2,12 @@
 Status: Accepted for parked tasking; production activation 0
 Date: 2026-07-15
 Decision: Anchored View Return ABI, modified-and-adopted
-Parent taskboard: hakorune-ownership-v2-root-anchored-alias-task-2026-07-14.md
-Current blocker remains: SSA-I1 trivial-profile/atomic-cutover design stop
+Parent taskboard: hakorune-sparse-ownership-surface-task-2026-07-15.md
+Current blocker remains: D-prime Binding SSA next-row selection design stop
 First evidence prerequisite: O2-P0b1 exact final-callee/current-signature census
 Related:
+  - ../../../../reference/language/ownership.md
+  - hakorune-sparse-ownership-surface-task-2026-07-15.md
   - ../design/binding-ssa-first-control-lowering-ssot.md
   - hakorune-ownership-v2-root-anchored-alias-task-2026-07-14.md
   - hakorune-ownership-v2-scoped-mutable-alias-consultation-2026-07-14.md
@@ -17,26 +19,27 @@ Related:
 ## Authority and status
 
 This document owns the parked projection/call-result-view subtask only. It does
-not replace the parent Ownership V2 task order, the current SSA-I1 card, or a
-future reference-language specification.
+not replace the sparse ownership task order, the current D-prime Binding SSA
+frontier, or the normative `docs/reference/language/ownership.md` contract.
 
 ```text
 current executable frontier:
-  SSA-I1 trivial-profile/atomic-cutover design stop
+  CURRENT_STATE.toml D-prime Binding SSA next-row selection design stop
 
 evidence/selection owner:
-  parent O2-P0b1 -> O2-D0
+  parent O2-P0a -> {O2-P0r, O2-P0b1} -> O2-P0c -> ABI0
 
 parked view-return task owner:
-  this document after O2-D0 selects the branch
+  this document after the sparse board reaches VIEW0
 
 production View activation:
   0
 ```
 
-Source spelling remains provisional until `PROJ-D0`. No SharedV1 or MoveV2
-route may infer a View from a method name, runtime tag, pointer identity, or
-observed reference count.
+Source spelling remains parser-inactive until the parent `GRAM-RESULT0` row
+lands. This subtask consumes that grammar carrier and does not define a second
+spelling. No SharedV1 or sparse-ownership route may infer a View from a method
+name, runtime tag, pointer identity, or observed reference count.
 
 ## Decision summary
 
@@ -61,12 +64,12 @@ next(): Token {
 
 ```text
 unannotated/ordinary result capability:
-  Owned by default in the MoveV2 edition
+  Owned by default in the sparse ownership profile
 
 explicit view result:
   non-owning, anchored, task-local, noescape
 
-explicit shared result:
+explicit `share` result:
   independent Shared owner, paid shared lane
 
 runtime/method-name inference:
@@ -91,9 +94,11 @@ Current `ASTNode::FunctionDeclaration` already has:
 return_type_name: Option<String>
 ```
 
-Instance/static parsers already preserve the optional return type. `PROJ-S0`
-therefore adds a separate ownership/anchor syntax carrier; it does not invent
-return typing and does not encode ownership grammar inside `return_type_name`.
+Instance/static parsers already preserve the optional return type. The parent
+`GRAM-RESULT0` row adds the separate ownership/anchor syntax carrier;
+`PROJ-S0` only verifies and transports that admitted carrier into the View ABI.
+It does not invent return typing, change parser spelling, or encode ownership
+grammar inside `return_type_name`.
 
 Candidate passive shape:
 
@@ -140,9 +145,9 @@ view Service anchored to a Shared field:
 ```
 
 The first View profile has no acquisition capability. A later separately
-verified row may allow explicit `clone` from a View anchored to exact Shared
-storage. Plain View never silently promotes Unique storage or creates a Shared
-owner.
+verified row may add an exact Shared acquisition API for a View anchored to
+Shared storage. Mandatory caller-side `clone` is not baseline syntax. Plain
+View never silently promotes Unique storage or creates a Shared owner.
 
 ### 4. V1 anchor/domain vocabulary stays closed
 
@@ -392,10 +397,11 @@ a later ABI row and still cannot use runtime type to choose ownership mode.
 
 ```text
 parent evidence/selection:
-  O2-P0b1 -> O2-P0c -> O2-D0
+  O2-P0a -> {O2-P0r, O2-P0b1} -> O2-P0c
+    -> grammar/Loan Flow/first Box/ABI0
 
 passive callable contract:
-  O2-D0 selects branch
+  parent VIEW0 selects branch
     -> PROJ-D0
     -> PROJ-S0
     -> PROJ-ABI0
@@ -420,8 +426,8 @@ post-ABI corpus proof:
   selected implemented ABI rows -> O2-P0b2
 ```
 
-No PROJ row changes the active SSA-I1 pointer until the parent taskboard
-explicitly selects and un-parks this branch.
+No PROJ row changes the active pointer selected by `CURRENT_STATE.toml` until
+the parent taskboard explicitly selects and un-parks this branch.
 
 ## Claim-unit task order
 
@@ -429,15 +435,16 @@ explicitly selects and un-parks this branch.
 
 Freeze Owned default capability, explicit View/Shared spelling, anchor elision,
 WholeObject V1, view-forwarding exception, no runtime/name inference, and the
-versioned later-domain boundary. Reference docs remain unchanged before this
-row.
+versioned later-domain boundary. This row is closed by the accepted ownership
+reference and this parked subtask; it changes no parser or production behavior.
 
-### PROJ-S0 — passive syntax and transport
+### PROJ-S0 — passive View schema transport
 
-Add a return-ownership syntax carrier orthogonal to `return_type_name`. Update
-all Rust/Hako parser, AST constructor, macro/JSON, delegate/property synthesis,
-interface, and ProgramV0 transport surfaces from one generated producer/
-consumer ledger.
+Consume the return-ownership syntax carrier admitted by parent
+`GRAM-RESULT0`, keeping it orthogonal to `return_type_name`. Update the resolved
+ABI constructor, macro/JSON, delegate/property synthesis, interface, and
+ProgramV0 transport surfaces from one generated producer/consumer ledger.
+Parser acceptance remains owned and tested by the parent grammar row.
 
 Acceptance:
 
@@ -616,11 +623,13 @@ Stop the slice if any implementation:
 10. introduces Static/NamedDomain/ViewPhi as optional unsupported V1 states;
 11. activates production before provenance, loan, diagnostics, and backend
     fail-fast contracts are complete;
-12. changes the current SSA-I1 pointer or retries a SharedV1 route.
+12. changes the current pointer selected by `CURRENT_STATE.toml` or retries a
+    SharedV1 route.
 
 ## Next action
 
-Do not implement PROJ code now. Keep the current SSA-I1 frontier. When the
-parent Ownership V2 branch is unparked, run O2-P0b1 first; only O2-D0 may select
-this subtask. The first code-facing task after `PROJ-D0` is the passive,
-ledger-backed `PROJ-S0` syntax/transport slice.
+Do not implement PROJ code now. Keep the current D-prime frontier. When the
+sparse ownership board is explicitly unparked, run O2-P0b1 first; the parent
+board selects this subtask only after its evidence prerequisites. The first
+code-facing View task is the passive, ledger-backed `PROJ-S0` schema-transport
+slice after parent `GRAM-RESULT0` has admitted the syntax.

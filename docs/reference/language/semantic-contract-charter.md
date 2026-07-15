@@ -14,6 +14,7 @@ Related:
 - `docs/development/current/main/design/selfhost-language-v1-freeze-ssot.md`
 - `docs/reference/language/EBNF.md`
 - `docs/reference/language/types.md`
+- `docs/reference/language/ownership.md`
 - `docs/reference/language/lifecycle.md`
 - `docs/reference/language/scope-exit-semantics.md`
 
@@ -68,8 +69,9 @@ The following order resolves conflicts.
    conformance. `EBNF.md` remains the canonical production view until generated
    from the admitted registry rows. Registry generation never generates parser
    implementations.
-4. Topic SSOTs own their declared semantics: `types.md`, `lifecycle.md`,
-   `scope-exit-semantics.md`, `option.md`, and other named topic owners.
+4. Topic SSOTs own their declared semantics: `types.md`, `ownership.md`,
+   `lifecycle.md`, `scope-exit-semantics.md`, `option.md`, and other named
+   topic owners.
 5. Stage profiles and generated support views report acceptance/support; they
    never create semantics or override grammar/topic owners.
 6. Parser, verifier, runtime, and backend code are evidence of implementation.
@@ -124,7 +126,8 @@ semantic kernel = accepted; evaluated-Place implementation active
 grammar contract = accepted; substrate implementation active
 type contract activation = queued
 failure/null migration = queued
-ownership/lifecycle behavior change = queued
+ownership source contract = accepted; grammar/runtime activation queued
+lifecycle behavior change = queued
 capability verifier activation = queued
 selfhost migration = parked
 ```

@@ -11,6 +11,8 @@ Current canonical surface:
 - Grammar and accepted rows: reference/language/EBNF.md
 - Bootstrap / phase-1 usable surface profiles: see the profile manual below.
 - Practical syntax summary: reference/language/quick-reference.md
+- Ownership / aliasing / explicit Shared boundary:
+  reference/language/ownership.md
 - Type and enum surface: reference/language/types.md
 - Record vs Box / Object Storage: reference/language/types.md “Record vs Box”,
   development/current/main/design/record-box-two-surface-one-substrate-ssot.md,
@@ -49,8 +51,14 @@ Imports and namespaces
 - See: reference/language/using.md — `using` syntax, runner resolution, and style guidance.
 
 Variables and scope
-- See: reference/language/variables-and-scope.md — Block-scoped locals, assignment resolution, and strong/weak reference guidance.
-- See: reference/language/lifecycle.md — Box lifetime, ownership (strong/weak), and finalization (`fini`) SSOT.
+- See: reference/language/variables-and-scope.md — Block-scoped locals,
+  assignment resolution, and owner/alias/weak binding guidance.
+- See: reference/language/ownership.md — SSOT for ordinary scoped aliases,
+  owner forwarding, anchored `view` results, explicit `share`, and callable
+  ownership ABI. Its target spellings are phased and become parser-live only
+  when EBNF/registry rows land.
+- See: reference/language/lifecycle.md — Box object residency (strong/weak),
+  Alive/Dead/Freed, and finalization (`fini`) SSOT.
 - See: development/current/main/design/constructor-birth-new-lifecycle-ssot.md — `new` / field initializer / `birth` construction order, direct `birth` call rejection, and explicit reuse method policy.
 - See: reference/language/scope-exit-semantics.md — SSOT for DropScope (`fini {}` / `local ... fini {}`), `catch`/`cleanup` exit ordering, and ownership-transfer terminology (no `move` keyword).
 - See: reference/language/repl.md — REPL mode semantics (file mode vs REPL binding rules).

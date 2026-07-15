@@ -1,11 +1,12 @@
 ---
-Status: Historical consultation; modify-and-adopt decision returned
+Status: Historical consultation; non-normative and superseded in source details
 Date: 2026-07-14
 Scope: Hakorune Ownership V2 source ergonomics and the zero-RC local-alias law
 Decision requested: close the smallest sound scoped-mutable-alias profile
-Decision returned: Root-Anchored ScopedBoxAlias direction, with taskboard corrections
+Decision returned: Root-Anchored ScopedBoxAlias direction; later refined by the sparse ownership Decision
 Execution authority:
-  - hakorune-ownership-v2-root-anchored-alias-task-2026-07-14.md
+  - ../../../../reference/language/ownership.md
+  - hakorune-sparse-ownership-surface-task-2026-07-15.md
 Related:
   - ../design/binding-ssa-first-control-lowering-ssot.md
   - ../design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md
@@ -16,9 +17,9 @@ Non-authority: this consultation does not change the current language or activat
 
 # Hakorune Ownership V2: Scoped Mutable Alias Final Consultation
 
-## Consultation closeout
+## Historical consultation closeout
 
-The core proposal is accepted for tasking:
+The following was the intermediate proposal accepted on 2026-07-14:
 
 ```text
 mutable task-local whole-root alias
@@ -28,6 +29,12 @@ C0 no alias reassignment/PHI
 F0 live alias forbids fini
 explicit take/share/clone/raw lanes
 ```
+
+The 2026-07-15 source contract supersedes the routine `take`/`clone`/`raw`
+surface in that block. Current exact law is: ordinary whole-root local reuse is
+a scoped alias, ordinary owner movement is compiler-verified forwarding, and
+only explicit `share` enters independent lifetime. Use the authorities named
+in the header; do not execute rows or spellings from the historical body.
 
 The taskboard applies these required corrections:
 

@@ -286,16 +286,25 @@ backend must fail before code emission.
 - WeakRef（WeakNew/WeakLoad統合）
 - Barrier（Read/Write統合）
 
-## Lifecycle (実命令; Core-14/15 のカウント外)
+## Ownership / Lifecycle (実命令; Core-14/15 のカウント外)
 
-これらは “最適化のための寿命” ではなく、言語の binding scope / explicit drop と weak 観測（`weak_to_strong()`）の整合を保つための命令。
+source ownership の正本は `docs/reference/language/ownership.md`。MIRはsealed
+token/lifecycle contractをmaterializeし、sourceのalias/share判断を再発見しない。
 
 - KeepAlive（PURE）
   - Meaning: 指定された値を、そのスコープ終端まで “生存しているものとして扱う” ための指示（liveness/DCE対策）。
   - Backend: 実行時の処理は no-op でも良いが、解析上は used-values として扱う必要がある。
-- ReleaseStrong（WRITE）
-  - Meaning: 指定された値が保持している strong root を明示的に落とす（典型: 変数上書き）。
-  - Backend: 同一 object を参照する alias（SSA copy 等）も含めて解放対象にできる（実装都合）。
+- CopyOwned（OWNERSHIP）
+  - Meaning: Shared/ownership-managed source tokenから、独立して一回consume
+    できるfresh Owned tokenを作る。ordinary `Copy`はownership-neutral。
+- DestroyOwned（OWNERSHIP）
+  - Meaning: 指定された一つのOwned tokenだけをconsumeする。同一objectを
+    指す他token/SSA registerを探索・破壊してはならない。
+- ReleaseStrong（legacy WRITE）
+  - Meaning: historical alias-group lifecycle operation。canonical ownership
+    routeでは使用せず、caller zero後にretireする。
+  - Backend: historical実装のsame-object alias sweepは互換挙動であり、
+    `DestroyOwned`のsemantic contractではない。
 
 ## Core-15（Target; 移行中の最小コア）
 - 基本演算(5): Const, UnaryOp, BinOp, Compare, TypeOp

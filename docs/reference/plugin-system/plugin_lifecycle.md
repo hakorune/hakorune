@@ -1,21 +1,24 @@
 # Plugin Lifecycle and Box RAII
 
-最終更新: 2026-07-14
+最終更新: 2026-07-15
 
 ## 概要
 NyashのBoxには「ユーザー定義Box」「ビルトインBox」「プラグインBox」があります。いずれもRAII（取得した資源は所有者の寿命で解放）に従いますが、プラグインBoxは共有やシングルトン運用があるため、追加ルールがあります。
 
 ## 共通ライフサイクル（ユーザー/ビルトイン/プラグイン）
 - `fini()` は論理的な終了（use-after-fini禁止）であり、外部資源（fd/socket/native handle など）を決定的に解放するための SSOT です。
-- `local` のスコープを抜けると、その binding は drop されます（= その binding が保持していた strong 参照が 1 つ減る）。
-  - その時点で「最後の strong 参照」になれば物理的な解放が起きますが、タイミングは実装依存です。
+- `local` のスコープを抜けると、その binding は終了します。owning/Shared
+  bindingならtokenを消費し、ScopedAlias/Viewならowner countは変わりません。
+  最後のownerなら物理的な解放が起こり得ますが、タイミングは実装依存です。
 - 共有・循環参照がありうるため、スコープ終了“だけ”に `fini()` を期待しないでください。必要な資源は `fini()` / `cleanup` / `shutdown_plugins_v2()` で明示的に閉じます。
 
 補足:
-- 言語レベルの SSOT は `docs/reference/language/lifecycle.md` を参照してください（スコープ/所有/weak/`fini`/GC）。
-- 通常fieldはshared-strongです。子resourceをfinalizeする必要がある場合は
-  親のuser hookから明示的に`child.fini()`を呼びます。stored field tokenの
-  自動dropは子のuser finiを意味しません。
+- source ownership/alias/share の SSOT は
+  `docs/reference/language/ownership.md`、object lifecycle/weak/`fini`/GC は
+  `docs/reference/language/lifecycle.md` です。
+- verified owning/Shared fieldはtokenを保持します。子resourceをfinalizeする
+  必要がある場合は親のuser hookから明示的に`child.fini()`を呼びます。
+  stored field tokenの自動dropは子のuser finiを意味しません。
 
 ## プラグインBoxの特則（シングルトン）
 - シングルトン（`nyash.toml`）
@@ -24,7 +27,9 @@ NyashのBoxには「ユーザー定義Box」「ビルトインBox」「プラグ
   - シャットダウン時（`shutdown_plugins_v2()` など）に一括 `fini()` されます
 
 補足:
-- Nyashの実装は Box 値を参照（共有）として扱います。物理的な生存は strong 参照の有無に依存しうる一方、`fini()` は論理的な終了（use-after-fini禁止）です。
+- 現行互換実装には Box 値を広く共有参照として扱う経路があります。これは
+  SharedV1の移行状態であり、最終source defaultではありません。`fini()` が
+  論理的な終了（use-after-fini禁止）である点は両profileで共通です。
 - プラグインBoxも同じルールです。`fini` 後の利用はエラー（Use after fini）。
 - 長寿命が必要なケースは「シングルトン」で運用してください（個別のBoxに特例は設けない）。
 

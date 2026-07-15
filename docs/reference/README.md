@@ -7,6 +7,8 @@
 ### language/
 - 言語仕様（構文、型システム、Box仕様、デリゲーション）
 - 正式な言語リファレンス
+- ownership / alias / `share` の正本:
+  `docs/reference/language/ownership.md`
 - bootstrap / phase-1 で使える `.hako` surface profile:
   `docs/reference/language/stage-profiles.md`
 
@@ -67,5 +69,8 @@ Language stage profile note:
   `docs/reference/language/stage-profiles.md`
 - practical current syntax summary は
   `docs/reference/language/quick-reference.md`
+- accepted target ownership semantics は
+  `docs/reference/language/ownership.md`。構文の parser-live 状態は EBNF と
+  grammar registry を優先する
 - old guide / cheat-sheet files outside `docs/reference/language/` may be
   historical stubs. Do not treat them as canonical language surface.

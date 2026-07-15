@@ -2,6 +2,13 @@
 
 本書は、プラグインBox（PluginBoxV2）の生成（birth）と終了（fini）の流れ、`singleton` オプション、ならびに nyash.toml v2 における `methods` 定義の役割をまとめたものです。
 
+Status: current implementation snapshot; non-normative and transitional.
+
+Source ownership/alias/share の正本は
+`docs/reference/language/ownership.md`、object lifecycle/`fini()` の正本は
+`docs/reference/language/lifecycle.md`です。以下のArc/Drop/fini挙動は現行実装の
+棚卸しであり、最終言語仕様ではありません。
+
 ---
 
 ## 1. 用語
@@ -23,14 +30,20 @@
 
 ---
 
-## 3. 終了（fini）の流れ（現在）
+## 3. 終了（fini）の流れ（現行互換実装）
 - フィールド差し替え時（代入で旧値を置き換えるとき）:
   - 旧値が `InstanceBox` の場合: インタプリタが `fini()` を呼び、finalized としてマーキングします。
   - 旧値が `PluginBoxV2` の場合: `fini_method_id` が設定されていれば `invoke_fn(type_id, fini_method_id, instance_id, ...)` を呼びます。
 - プラグインBox（PluginBoxV2）:
   - すべての参照（Arc）がDropされ「最後の参照が解放」された時、`Drop`で一度だけ `fini` を呼ぶ（RAII、二重呼び出し防止）。
   - 明示finiが必要な場合は `PluginBoxV2::finalize_now()` を使える（内部的に一度だけfini実行）。
-  - 代入/フィールド代入/Map.get/Array.get/slice/退避などは「PluginBoxV2は共有（share）、それ以外は複製（clone）」で統一。
+  - 代入/フィールド代入/Map.get/Array.get/slice/退避には、runtime familyごとの
+    clone/share判断が残っています。これはSharedV1互換実装であり、source
+    ownership authorityではありません。
+
+上記のoverwrite時finiとlast-Arc Drop時user finiは、accepted lifecycle contract
+ではretirement対象です。最終形ではexplicit `fini()`とstructural dropを分離し、
+runtime typeからsourceのalias/share意味を推論しません。
 
 ---
 
@@ -85,7 +98,10 @@ fini = { method_id = 4294967295 }
 ---
 
 ## 6. 将来拡張の方向
-- ローカル変数のスコープ終了時（関数/メソッド呼び出しの戻りなど）に、InstanceBox/PluginBoxV2 の fini を安全に呼び出す仕組み（順序・例外耐性・二重呼び出し防止を含む）。
+- implicit scope/overwrite/last-strong user finiを撤去し、explicit `fini()`と
+  runtime structural dropを正本どおり分離する。
+- PluginBoxV2のowner materializationを、verified Shared/host/plugin ABIと
+  ObjectCell migrationへ接続する。
 - `nyash.toml` にクラス名→プラグインBox型の `overrides` を加え、ユーザー定義Boxの外部置換を許可する設計（任意）。
 
 以上。

@@ -1,9 +1,10 @@
 # Scope Exit Semantics (SSOT)
 
-Status: Normative (2026-07; B′ lifecycle decision applied).
+Status: Normative (2026-07; B′ lifecycle and sparse-ownership decisions applied).
 
 This page defines the scope-exit lifecycle model around canonical `cleanup`,
 legacy DropScope `fini`, postfix `catch/cleanup`, and object-level `box.fini()`.
+Source ownership/alias rules are owned by `ownership.md`.
 
 ## 0) Scope
 
@@ -60,7 +61,8 @@ On normal exit, `return`, `break`, `continue`, or failure:
 
 1. evaluate the scope body and route failures to nearest `catch` in lexical context
 2. run scope-exit handlers (`cleanup`, including legacy `fini` aliases) for the exiting scope
-3. destroy the ownership tokens held by local bindings of that scope
+3. destroy the ownership tokens held by owning local bindings of that scope;
+   scoped aliases and anchored views carry no token and add no destroy
 4. if the last strong token disappeared, run structural payload drop/reclaim;
    this does not call user `box.fini()`
 5. propagate unhandled failure outward (fatal at top level)
@@ -108,14 +110,21 @@ If constructor (`birth`) fails:
    across the full initialized field set. New delegation code should use
    explicit field composition and `delegate field exposes`.
 
-## 7) Ownership Terminology (No `move` Keyword)
+## 7) Ownership Terminology (No Routine `move` Keyword)
 
-Core language has no dedicated `move` keyword.
+Ordinary Hakorune code has no dedicated `move` keyword and does not annotate
+every local as owned/borrowed.
 
-Use **ownership transfer** only as terminology.
+Use **ownership transfer** or **owner forwarding** as terminology.
 
-- `outbox` is the explicit transfer surface in user syntax.
-- Rust-style moved-state rules are not part of the current surface-language contract.
+- An ordinary Owned return, owning destination, or verified consuming call may
+  forward one owner without RC.
+- `take` is a non-default callable-declaration contract for a consuming
+  parameter; an ordinary call site does not repeat a move marker.
+- `share` is not a move synonym. It explicitly enters the independent-lifetime
+  Shared lane.
+- Historical `outbox` remains a compatibility transfer surface until its
+  owning task retires it.
 
 ## 8) SSOT Priority
 
@@ -132,5 +141,11 @@ Use **ownership transfer** only as terminology.
 - object states (Alive/Dead/Freed)
 - weak-reference semantics
 - memory policy (GC/non-GC)
+
+`ownership.md` is authoritative for:
+
+- owner forwarding and Shared entry
+- scoped aliases and anchored views
+- parameter/result ownership ABI
 
 When texts conflict, use this file for scope-exit behavior and transfer terminology.

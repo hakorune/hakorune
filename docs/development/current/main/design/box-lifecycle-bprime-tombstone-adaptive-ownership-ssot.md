@@ -2,9 +2,10 @@
 Status: SSOT
 Decision: accepted-for-tasking — B′ eager-fini tombstone with adaptive ownership
 Date: 2026-07-14
-Scope: Box lifecycle, Ownership SSA, ObjectCell, weak identity, Arc retirement,
-  and adaptive runtime ownership boundary.
+Scope: Shared/resource Box lifecycle, Ownership SSA materialization,
+  ObjectCell, weak identity, Arc retirement, and adaptive runtime ownership.
 Related:
+  - ../../../../reference/language/ownership.md
   - ../../../../reference/language/lifecycle.md
   - ../../../../reference/language/scope-exit-semantics.md
   - binding-ssa-first-control-lowering-ssot.md
@@ -18,11 +19,14 @@ Related:
 
 ## Decision
 
-Hakorune adopts B′ as the long-term Box lifecycle model:
+Hakorune adopts B′ as the long-term Shared/resource Box lifecycle model.
+Source-level owner/alias/View/Shared selection is owned by
+`docs/reference/language/ownership.md` and supersedes the older
+“every Box is shareable by default” wording in this document.
 
 ```text
-source-level box:
-  shareable by default
+source boundary:
+  only an explicit verified share boundary enters this Shared lane
 
 MIR ownership:
   CopyOwned creates one independently consumable strong token
@@ -41,7 +45,7 @@ last strong token:
 last weak token:
   permits control-cell reclamation and slot-generation advance
 
-physical strategy:
+Shared physical strategy:
   correctness-first SharedRc (atomic)
   later derived StaticUnique / LocalRc / SharedRc plans
 ```
@@ -52,10 +56,10 @@ implementation branches. They are not implied by this decision.
 
 A normal source-level Box API does not expose physical `free`, `reclaim`, or
 the selected RC strategy. Deterministic resource shutdown is `fini()`, an
-ownership lifetime ends through scope/forwarding/`DestroyOwned`, and physical
-reclamation remains a runtime materialization decision. A future exclusive
-source capability or raw-memory API would require a separate language
-Decision; it is not part of B′ and is not a prerequisite for B′ closeout.
+ownership lifetime ends through verified forwarding/`DestroyOwned`, and
+physical reclamation remains a runtime materialization decision. Unique local
+ownership may bypass this Shared representation entirely. A future raw-memory
+API requires a separate language Decision; it is not part of B′.
 
 ## Why this is one constitution, not one implementation box
 
@@ -82,7 +86,7 @@ fini():
   user hook and deterministic stored-token cleanup
   eager payload teardown
   receiver/caller token is not consumed
-  external aliases are not implicitly retained or destroyed
+  other independent owner tokens are not implicitly retained or destroyed
 
 DestroyOwned(value):
   one MIR token consume
@@ -99,12 +103,12 @@ Scope exit runs registered `cleanup` bodies first. A cleanup body may call
 `box.fini()` explicitly. Scope-owned tokens are destroyed afterward. Merely
 ending ownership never implies `box.fini()`.
 
-Ordinary Box fields are shared-strong aliases. Parent finalization releases
-and clears the ownership tokens stored in those fields in deterministic reverse
-declaration order; it does not implicitly call child user `fini()`. A parent
-that owns a child resource semantically must call `child.fini()` explicitly in
-its user hook. An exclusive `owned field` source category remains reserved
-until its exclusivity and transfer laws can be enforced.
+Fields whose verified storage contract is Shared carry Shared owner tokens.
+Owning Unique fields instead receive a forwarded owner and need no RC solely
+because they are fields. Parent finalization releases and clears whichever
+stored owner tokens exist in deterministic reverse declaration order; it does
+not implicitly call child user `fini()`. A parent that owns a child resource
+semantically must call `child.fini()` explicitly in its user hook.
 
 Stored-token teardown may reduce the same object's physical count through a
 self-field. The invariant is specifically that the `fini()` invocation does
@@ -241,16 +245,18 @@ The concrete counter storage belongs to the selected variant. Parallel
 `local_strong` and `shared_strong` fields are forbidden because they create
 two lifetime truths.
 
-`Immortal` is not an alias-count strategy. It is a separate explicit
+`Immortal` is not an owner-count strategy. It is a separate explicit
 process/runtime-root residency class with its own shutdown, fini, weak,
 identity, and observability questions. It remains parked until a concrete
 singleton/type-descriptor consumer gets a separate Decision and proof ladder.
 
 The first identity-bearing ObjectCell implementation is `SharedRc` only, and
 `SharedRc` uses atomic counts. `LocalRc` is the non-atomic strategy.
-`StaticUnique` means that a closed proof has shown that no independent alias
-can be created over the object's full lifetime. It is not a source type and it
-does not contain a dormant first-alias promotion mechanism.
+`StaticUnique` means that a closed proof has shown that no independent owner
+token can be created over the object's full lifetime. ScopedAlias/View loans
+do not violate this property because they add no owner. `StaticUnique` is not a
+source type and does not contain a dormant first-owner-copy promotion
+mechanism.
 
 A function-local proof does not survive a generic Return, outbox, or unknown
 call merely because the Owned token is forwarded. Interprocedural
@@ -261,10 +267,10 @@ otherwise the representation selector chooses LocalRc/SharedRc.
 The baseline representation selector is conservative:
 
 ```text
-no possible independent alias:
+no possible independent owner:
   StaticUnique
 
-possible same-thread alias:
+possible same-thread independent Shared owner / CopyOwned:
   LocalRc
 
 possible cross-thread share or unknown publication:
@@ -272,8 +278,8 @@ possible cross-thread share or unknown publication:
 ```
 
 These strategies form a monotone selection lattice, not an implicit runtime
-state machine. There is no downgrade after publication or aliasing. A later
-`PromotableUnique` optimization may add a first-alias
+state machine. There is no downgrade after publication or owner duplication. A
+later `PromotableUnique` optimization may add a first-independent-owner
 `PromotableUnique -> LocalRc`
 transaction, but it must be a separate evidence-gated row and is not required
 for B′. `CopyOwned` alone does not perform thread promotion. Cross-thread
@@ -297,8 +303,9 @@ Before any direct-pointer fast path, the substrate must prove non-moving
 storage plus reclamation safety through a strong root, pin, lease, hazard,
 epoch, or equally explicit mechanism.
 
-StaticUnique proves strong-alias absence only. It does not by itself prove a
-stable address, absence of borrows, or permission to elide a pointer lease.
+StaticUnique proves absence of independent strong-owner duplication only. It
+does not by itself prove a stable address, absence of ScopedAlias/View loans,
+or permission to elide a pointer lease.
 
 An `ObjectLease` pins the payload/cell for its lexical extent. Last-strong
 structural reclamation cannot free or reuse storage while any valid lease
@@ -333,8 +340,8 @@ Base strong cycles may leak. Back-pointers should use weak references. A later
 cycle detector/collector is optional and never runs user `fini()`.
 
 Static-unique direct reclaim, stack allocation, header elision, LocalRc, ARC
-pair removal, and recurrence/escape analyses are derived optimizations. They
-do not alter the source-level shareable Box model.
+pair removal, and recurrence/escape analyses are derived materialization
+strategies. They do not decide the source-level owner/alias/share contract.
 
 The derived reclaim form is always:
 
@@ -446,9 +453,9 @@ is owned by the related B′ taskboard.
 After this decision only:
 
 ```text
-B′ is the accepted long-term lifecycle/ownership constitution
+B′ is the accepted long-term Shared/resource lifecycle constitution
 fini and ownership-token destruction are semantically separate
-adaptive RC is an optimizer/runtime strategy, not a source type
+adaptive RC is a Shared-lane optimizer/runtime strategy, not source authority
 ObjectIdentity and owner/root tokens must be separate
 normal Box source/API exposes no manual physical-free operation
 production runtime behavior has not changed
@@ -480,9 +487,9 @@ calls user fini from DestroyOwned, last-strong drop, or generic Rust Drop
 puts physical RC mode or lifecycle state in VerifiedOwnershipSsaV1
 creates a second BindingRef -> ValueId or alias authority
 keeps local and shared counters as independent truths
-places Immortal root residency in the alias-count strategy enum
+places Immortal root residency in the owner-count strategy enum
 conflates StaticUnique selection with a lazy PromotableUnique transaction
-reconstructs StaticUnique from strong_count == 1 after aliasing or publication
+reconstructs StaticUnique from strong_count == 1 after owner duplication or publication
 uses CopyOwned as an implicit thread-publication operation
 checks weak generation/state before a separate unguarded strong increment
 uses raw pointer identity or dereferences a stale pointer before validation
@@ -507,7 +514,8 @@ claims adaptive performance before the SharedRc baseline is correct
 ## Durable constitution
 
 1. `record` remains an identity-free structural value.
-2. A normal `box` is source-level shareable.
+2. A normal `box` enters the Shared/ObjectCell lane only through a verified
+   explicit source/ABI boundary; local scoped aliases do not imply Shared.
 3. Binding SSA owns current values; Ownership SSA owns token discipline.
 4. In ownership-managed MIR, `CopyOwned` alone duplicates a strong owner;
    `DestroyOwned` consumes one.

@@ -4,6 +4,13 @@ Purpose
 - One-page practical summary for writing and implementing current Hakorune.
 - Keep grammar minimal; clarify rules that often cause confusion.
 
+Ownership note
+- Accepted target semantics live in `ownership.md`: ordinary locals/parameters
+  stay lightweight, while independent lifetime enters through `share`.
+- `share`/callable `take`/result `view` are not added to this current-syntax
+  sheet until their EBNF and grammar-registry rows land. Do not infer parser
+  support from the target reference alone.
+
 Keywords (reserved)
 - control: `if`, `else`, `guard`, `loop`, `match`, `break`, `continue`, `return`
 - decl: `static`, `box`, `record`, `enum`, `brand`, `type`, `local`, `using`, `delegate`, `uses`, `as`

@@ -59,6 +59,10 @@ box:
   mutable state / ownership / lifecycle boundary
 ```
 
+The Box type surface does not imply that every local name is a strong owner.
+Owner forwarding, scoped aliases, anchored views, and explicit Shared entry are
+defined independently in `docs/reference/language/ownership.md`.
+
 Use the short rule:
 
 ```text

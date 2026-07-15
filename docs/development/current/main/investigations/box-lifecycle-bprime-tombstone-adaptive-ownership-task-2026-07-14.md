@@ -3,8 +3,9 @@ Status: Parked dependency branch — taskized through final adaptive form
 Date: 2026-07-14
 Decision: B′ — eager-fini tombstone plus derived adaptive ownership
 Current activation: 0
-Does not replace current blocker: SSA-RC-L0
+Does not replace current blocker: CURRENT_STATE.toml D-prime next-row selection
 Related:
+  - ../../../../reference/language/ownership.md
   - ../design/box-lifecycle-bprime-tombstone-adaptive-ownership-ssot.md
   - ../design/arc-retirement-and-ownership-substrate-ssot.md
   - ../design/object-handle-box-identity-contract-ssot.md
@@ -13,6 +14,12 @@ Related:
 ---
 
 # B′ Tombstone / ObjectCell / Adaptive Ownership Taskboard
+
+Scope correction (2026-07-15): this board implements the explicit Shared,
+resource, weak, and ObjectCell lanes selected by `ownership.md`. It no longer
+owns a “normal Box is implicitly shareable” source default. Unique/scoped
+alias source semantics and their activation order are owned by the sparse
+ownership reference/taskboard.
 
 ## Objective
 
@@ -35,9 +42,9 @@ optimizer:
   StaticUnique / LocalRc / SharedRc representation choice
 ```
 
-This is a later runtime/substrate branch. It does not authorize edits to the
-active behavior-neutral SSA-RC-L0 row and does not block passive Ownership SSA
-vocabulary/verifier work.
+This is a later runtime/substrate branch. It does not authorize switching the
+current D-prime lane and does not block passive Ownership SSA vocabulary or
+verifier work selected by that lane.
 
 ## Verified starting evidence
 
@@ -83,7 +90,8 @@ BFIN-D0
 
 BCELL-R0 -> BCELL-F0
 BCELL-R0 -> BCELL-W0
-{BCELL-F0, BCELL-W0} -> BCELL-V0 -> BCELL-ABI0 -> BCELL-P1 -> BCELL-I0
+{BCELL-F0, BCELL-W0} -> BCELL-V0 -> BCELL-ABI0 -> BCELL-P1
+{BCELL-P1, sparse SHARE-I0} -> BCELL-I0
 
 {BCELL-I0, SSA-RC-A0, SSA-RC-V0, SSA-RC0, SSA-I1-O1}
   -> BCELL-SSA-I0
@@ -119,15 +127,18 @@ BADAPT-S0-P -> BADAPT-S0-I -> BADAPT-S0-VR
 {BADAPT-U0-VR, BADAPT-L0-VR, BADAPT-S0-VR, BADAPT-MOVE0-VR}
   -> BADAPT-P0
 
-{BADAPT-P0, concrete first-alias performance evidence}
+{BADAPT-P0, concrete first-independent-owner performance evidence}
   -> optional BADAPT-UP0 -> optional BADAPT-UP0-VR
 
 {BADAPT-U0-VR, exact closed call-edge consumer}
   -> optional BADAPT-U0-ABI
 ```
 
-The first Arc-based Rust interpreter handler remains a temporary semantic
-oracle. It is not ObjectCell parity or Arc retirement proof.
+`sparse SHARE-I0` is the parent sparse-ownership taskboard's verified explicit
+Shared boundary. B′ inventory/schema work may remain disconnected before it,
+but no ObjectCell production carrier activates without it. The first Arc-based
+Rust interpreter handler remains a temporary semantic oracle; it is not
+ObjectCell parity or Arc retirement proof.
 
 ## Task order
 
@@ -138,14 +149,15 @@ Close the durable policy only:
 ```text
 B′ core accepted
 explicit fini != ownership destruction
-ordinary strong fields are shared and do not implicitly fini children
+explicit Shared-lane fields carry Shared owners; owning Unique fields forward
+one owner; neither implicitly fini children
 ObjectIdentity != owner/root token
 correctness-first physical strategy = SharedRc (atomic)
 adaptive modes are later derived plans
 normal Box source/API has no manual physical-free operation
 source-level unique/reclaim and raw unsafe memory are separate future Decisions
 production code/behavior delta = 0
-current blocker remains SSA-RC-L0
+current blocker remains the CURRENT_STATE.toml D-prime next-row selection
 ```
 
 Docs-only closeout is allowed for this durable policy decision. The next B′
@@ -306,7 +318,7 @@ Required fixtures:
 
 ```text
 one strong / no weak
-two strong aliases; destroy one leaves the other usable
+two independent owner tokens; destroy one leaves the other usable
 last strong removes payload once
 weak tombstone survives strong zero
 last weak reclaims cell
@@ -547,7 +559,7 @@ BoxCallable/route truth selects the exact hook
 cleanup may call explicit fini before local token destruction
 fini consumes no receiver token
 ordinary child field release calls no child fini
-Dead aliases preserve identity-only observation
+Dead Shared owners preserve identity-only observation
 last strong after Dead performs no second payload teardown
 ```
 
@@ -731,13 +743,13 @@ Plugins are not a prerequisite for the first non-plugin family.
 
 After production SharedRc correctness and real performance evidence, seal a
 machine-readable forcing matrix. The B′ baseline is conservative static
-selection, not lazy first-alias fallback:
+selection, not lazy first-independent-owner fallback:
 
 ```text
-no possible independent alias over the full lifetime:
+no possible independent owner over the full lifetime:
   StaticUnique candidate
 
-possible same-thread alias / local CopyOwned:
+possible same-thread independent Shared owner / local CopyOwned:
   LocalRc from allocation
 
 weak, host, registry, unknown FFI, or unknown publication:
@@ -751,7 +763,7 @@ cross-thread move:
 ```
 
 `StaticUnique` and a possible future `PromotableUnique` are distinct
-representations. `strong_count == 1` after prior aliasing never reconstructs
+representations. `strong_count == 1` after prior owner duplication never reconstructs
 either exclusivity proof, and no representation downgrades after publication.
 
 ### BADAPT-U0-P — disconnected StaticUnique proof
@@ -776,7 +788,7 @@ error/cleanup/early-exit paths consume exactly once
 Identity/hash/tombstone observation, explicit fini, generation, or host
 visibility may independently prevent header/cell elision even when the strong
 root is statically unique. The proof must keep those observability axes
-separate from alias count.
+separate from owner count.
 
 Required control fixtures:
 
@@ -849,7 +861,7 @@ is an ABI sidecar; it is not a new `MirOwnershipKindV1` value.
 ### BADAPT-L0-P — disconnected LocalRc proof
 
 For one closed allocation profile, prove whole-lifetime thread confinement and
-possible same-thread aliasing. Unknown external calls, host/registry
+possible same-thread independent Shared ownership. Unknown external calls, host/registry
 publication, or unknown thread escape select SharedRc before allocation rather
 than a heuristic LocalRc path. Production remains zero.
 
@@ -857,7 +869,7 @@ than a heuristic LocalRc path. Production remains zero.
 
 Use one non-atomic count authority for the selected profile only. Unsupported
 or invalidated proofs select the SharedRc oracle before effects; failure after
-LocalRc selection does not retry through Arc or an uncounted alias.
+LocalRc selection does not retry through Arc or an unaccounted owner.
 
 ### BADAPT-L0-VR — LocalRc parity and selected-profile retirement
 
@@ -905,7 +917,7 @@ payload has explicit move/Send capability
 no thread-affine finalizer/provider/TLS residency
 publication happens-before
 one owner-thread/root-registry transfer point
-destination receives no independent alias
+destination receives no second independent owner
 ```
 
 This proof may preserve StaticUnique/LocalRc only when their full invariants
@@ -940,11 +952,11 @@ cross-thread ownership move where admitted
 The plan is invalidated when ownership/escape/thread facts change. It is never
 source syntax or Ownership SSA truth.
 
-### Optional BADAPT-UP0 — lazy first-alias PromotableUnique
+### Optional BADAPT-UP0 — lazy first-independent-owner PromotableUnique
 
 This row is parked and is not required for B′ closeout. Open it only after
 BADAPT-P0 and concrete evidence that allocating LocalRc for a merely possible
-alias is a hot cost.
+independent owner is a hot cost.
 
 It must define one promotion transaction:
 
@@ -962,7 +974,7 @@ claim StaticUnique header/cell elision. A normal `CopyOwned` may request this
 transaction only through the sealed representation plan; it does not infer or
 perform thread publication.
 
-### Optional BADAPT-UP0-VR — first-alias promotion closeout
+### Optional BADAPT-UP0-VR — first-independent-owner promotion closeout
 
 Compare normalized result/lifecycle/count traces with the SharedRc oracle.
 Inject failure before and after each promotion phase and require:
@@ -1095,7 +1107,7 @@ cycle reclamation
 all backend lifecycle parity
 source-level move-only or explicit reclaim semantics
 normal Box manual physical-free API
-lazy first-alias promotion from the StaticUnique proof
+lazy first-independent-owner promotion from the StaticUnique proof
 Immortal residency selected as an RcStrategy or before BIMMORTAL proof rows
 ```
 
@@ -1104,14 +1116,14 @@ Immortal residency selected as an RcStrategy or before BIMMORTAL proof rows
 Stop the active B′ row if it:
 
 ```text
-changes the current SSA-RC-L0 behavior-neutral slice
+changes the current lane selected by CURRENT_STATE.toml
 creates a second production count beneath Arc
 lets ordinary Rust Drop call user fini in an admitted family
 lets parent ordinary fields implicitly fini shared children
 uses one enum value to conflate lifecycle, payload, and residency axes
 stores concurrent local/shared counts as parallel truths
 conflates StaticUnique with a promotion-capable UniqueCell
-reconstructs StaticUnique from strong_count == 1 after prior aliasing
+reconstructs StaticUnique from strong_count == 1 after prior owner duplication
 exposes raw pointers as identity or across a lease boundary
 uses StaticUnique proof alone to authorize raw dereference, stable address, or lease elision
 exposes raw/manual physical free through the normal Box API
@@ -1128,13 +1140,14 @@ holds a cell/slab/method lock while invoking a user hook or drop callback
 allows unknown FFI/thread escape into StaticUnique or LocalRc
 activates generic BoxRef, plugin, weak, and concurrency in one commit
 activates user fini or WeakRef in BCELL-I0 before BFIN-I0/BWEAK-I0
-lets a selected promotion failure retry through Arc or an uncounted alias
+lets a selected promotion failure retry through Arc or an unaccounted owner
 silently retries a legacy Arc carrier
 deletes legacy state before exact caller zero
 ```
 
 ## Immediate next action
 
-None in this parked branch. Continue the current D′ taskboard at SSA-RC-L0.
-When the B′ branch is selected, run BFIN-P0 first; do not start ObjectCell code
-from this design card alone.
+None in this parked branch. Continue the exact lane selected by
+`CURRENT_STATE.toml`. When the B′ branch is selected after the parent sparse
+Shared boundary, run BFIN-P0 first; do not start ObjectCell code from this
+design card alone.
