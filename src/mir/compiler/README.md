@@ -185,6 +185,18 @@ MIR, publication, backend capability, runtime discovery, or recursive
 execution. Malformed private drafts verify membership completeness, stable IDs,
 strong connectivity, and condensation acyclicity before a partition exists.
 
+## P0c-MR-V0 disconnected recursive module plan
+
+`VerifiedRecursiveCallableModulePlanV1` combines one verified SCC partition
+with one existing finite trivial Binding-SSA plan per canonical callable key.
+It admits only modules with at least two functions, at least one call site, and
+at least one recursive component, then seals exact inventory/function/SCC
+membership/typed-plan cardinality and per-function call-row correspondence.
+
+V0 remains disconnected. It adds no compiler ingress, MIR, publication,
+backend capability, runtime recursion, effect precision, termination claim, or
+ownership operation.
+
 ## P0c-F-V0 typed acyclic module plan
 
 `VerifiedAcyclicCallableModulePlanV1` is the disconnected pre-Builder witness

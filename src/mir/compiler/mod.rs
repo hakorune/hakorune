@@ -25,6 +25,8 @@ pub(in crate::mir) mod located;
 mod lowering_input;
 mod module_session;
 #[allow(dead_code)]
+pub(in crate::mir) mod recursive_callable_module_plan;
+#[allow(dead_code)]
 pub(in crate::mir) mod resolved_callable_module;
 mod resolved_callable_module_input;
 #[allow(dead_code)]

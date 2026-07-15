@@ -13,6 +13,10 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
     scc = root / "src/mir/compiler/callable_scc_partition.rs"
     scc_algorithm = root / "src/mir/compiler/callable_scc_partition/algorithm.rs"
     scc_tests = root / "src/mir/compiler/callable_scc_partition/tests.rs"
+    recursive_plan = root / "src/mir/compiler/recursive_callable_module_plan.rs"
+    recursive_plan_tests = (
+        root / "src/mir/compiler/recursive_callable_module_plan/tests.rs"
+    )
     compiler_mod = root / "src/mir/compiler/mod.rs"
     this_guard = root / "tools/checks/lib/resolved_callable_p0c_mr.py"
 
@@ -23,6 +27,8 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
         scc,
         scc_algorithm,
         scc_tests,
+        recursive_plan,
+        recursive_plan_tests,
         compiler_mod,
         this_guard,
     ]:
@@ -41,9 +47,9 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
         for path in (root / "src").rglob("*.rs")
         if "VerifiedCallableSccPartitionV1::verify" in path.read_text()
     }
-    if actual_scc_callers != {scc_tests}:
+    if actual_scc_callers != {scc_tests, recursive_plan}:
         fail(
-            "P0c-MR-S0 production caller drift: "
+            "P0c-MR-S0/V0 SCC consumer drift: "
             f"{sorted(path.relative_to(root) for path in actual_scc_callers)}"
         )
 
@@ -105,3 +111,43 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
 
     if compiler_mod.read_text().count("mod callable_scc_partition;") != 1:
         fail("P0c-MR-S0 callable SCC module declaration drift")
+
+    if recursive_plan_tests.read_text().count("#[test]") != 3:
+        fail("P0c-MR-V0 focused recursive-plan fixture count must remain exactly three")
+    actual_plan_callers = {
+        path
+        for path in (root / "src").rglob("*.rs")
+        if "VerifiedRecursiveCallableModulePlanV1::verify" in path.read_text()
+    }
+    if actual_plan_callers != {recursive_plan_tests}:
+        fail(
+            "P0c-MR-V0 production caller drift: "
+            f"{sorted(path.relative_to(root) for path in actual_plan_callers)}"
+        )
+    recursive_plan_text = recursive_plan.read_text()
+    for marker in [
+        "VerifiedRecursiveCallableModulePlanV1",
+        "VerifiedCallableSccPartitionV1",
+        "CanonicalTrivialBindingSsaPlanV1",
+        "recursive_component_count() == 0",
+        "FunctionCallSiteCountMismatch",
+        "CardinalityMismatch",
+    ]:
+        if marker not in recursive_plan_text:
+            fail(f"P0c-MR-V0 recursive plan contract missing: {marker}")
+    for forbidden in [
+        "MirInstruction",
+        "MirBuilder",
+        "MirFunction",
+        "MirModule",
+        "FunctionReturnContract",
+        "ConservativeBarrier",
+        "Backend",
+        "Runtime",
+        "CopyOwned",
+        "DestroyOwned",
+    ]:
+        if forbidden in recursive_plan_text:
+            fail(f"P0c-MR-V0 plan owns a forbidden authority: {forbidden}")
+    if compiler_mod.read_text().count("mod recursive_callable_module_plan;") != 1:
+        fail("P0c-MR-V0 recursive module plan declaration drift")

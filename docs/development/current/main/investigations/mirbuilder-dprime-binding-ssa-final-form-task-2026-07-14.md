@@ -2412,10 +2412,10 @@ state.
 
 ## Immediate next action
 
-Implement **P0c-MR-V0 — disconnected recursive exact-i64 module plan**.
-P0c-MR-G0 and S0 are closed: one non-Clone topology inventory is consumed into
-one deterministic SCC partition whose stable component identity is its minimum
-canonical key. Production callers and behavior remain zero.
+Implement **P0c-MR-C0 — passive recursive-module backend capability**.
+P0c-MR-G0 through V0 are closed: one non-Clone topology inventory is consumed
+into one deterministic SCC partition and one exact recursive module admission
+plan. Production callers and behavior remain zero.
 
 Decision/task card:
 `mirbuilder-p0c-mr-callable-scc-task-2026-07-16.md`.
@@ -2427,11 +2427,10 @@ P0c-MR:
   G0 -> S0 -> V0 -> C0 -> I1 -> R0
 ```
 
-V0 adds only admission: function count at least two, at least one recursive
-component, exact module/partition/typed-plan key equality, and exact call-site
-to direct-call-row correspondence. It remains disconnected with zero production
-callers. Grammar, recursion execution, runtime, backend, MIR, publication,
-effect, and ownership behavior remain unchanged.
+C0 adds only one module-level recursive capability schema and synthetic
+validation. Production producers stay zero. Grammar, recursion execution,
+runtime, MIR lowering, publication, effect, ownership behavior, and fallback
+remain unchanged.
 
 Ownership V2 parser/resolver/MIR work and `.hako` selfhost parser/MIR-builder
 migration remain separate parked lanes. They are not hidden P0c-MR prerequisites

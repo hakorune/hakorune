@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ P0c-MR-S0 closed; P0c-MR-V0 recursive module plan ready"
+status = "D′ P0c-MR-V0 closed; P0c-MR-C0 passive recursive capability ready"
 date = "2026-07-16"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -158,9 +158,11 @@ inventory errors; the existing acyclic proof consumes it by value and retains
 the prior P0c-F behavior. S0 is closed: one non-Clone deterministic SCC
 partition consumes and retains that inventory by value, uses iterative
 host-stack-safe traversal, assigns each component its minimum canonical key,
-classifies recursion, and seals canonical condensation edges/order. V0 is the
-sole next code-facing row and adds only disconnected recursive-module admission.
-Recursion production callers remain zero through V0.
+classifies recursion, and seals canonical condensation edges/order. V0 is
+closed: one disconnected plan seals recursive-module admission plus exact
+inventory/function/component/typed-plan/call-row correspondence. C0 is the sole
+next code-facing row and adds only a passive module capability schema.
+Recursion production producers remain zero through C0.
 Historical
 lane chronology follows and is non-authoritative.
 Explicit user priority change on 2026-07-12 reopens
@@ -293,7 +295,13 @@ recursion classes, condensation edges, and deterministic Kahn order through an
 iterative Kosaraju implementation. Debug/release SCC 4/4, retained inventory
 2/2 and acyclic 3/3, resolved-callable authority guard, cargo check, quick
 66/66, pointer/format guards, and touched source/check files below 800 lines are
-green. V0 is next and adds the disconnected recursive exact-i64 module plan.
+green. V0 is also closed: VerifiedRecursiveCallableModulePlanV1 consumes one
+partition, requires at least two functions, one call site, and one recursive
+component, stores only canonical-keyed finite trivial Binding-SSA plans, and
+seals exact inventory/function/component/plan cardinality plus per-function
+call-row correspondence. Debug/release plan 3/3, retained SCC 4/4, authority
+guard, cargo check, quick 66/66, pointer/format guards, and touched source/check
+files below 800 lines are green. C0 passive recursive capability is next.
 partition whose ID is the minimum canonical key; V0 then adds general finite
 exact-i64 recursive admission; C0 adds one passive module-level recursive
 capability; I1 uses an explicit VM-only ingress plus the existing unpublished-
@@ -720,7 +728,7 @@ MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-MR-V0-RECURSIVE-CALLABLE-MODULE-PLAN-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-MR-C0-PASSIVE-RECURSIVE-MODULE-CAPABILITY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -729,6 +737,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-16: D′ P0c-MR-V0 closes one disconnected recursive exact-i64 module admission product: VerifiedRecursiveCallableModulePlanV1 consumes one deterministic SCC partition, requires at least two functions, one call site, and one recursive component, stores one existing finite trivial Binding-SSA plan per canonical key, and seals exact inventory/function/component/plan cardinality plus per-function inventory/profile call-row correspondence. It owns no target, ABI, effect, MIR, publication, backend, runtime, or ownership authority and has production callers and behavior delta zero; debug/release recursive-plan 3/3, retained SCC 4/4, resolved-callable authority guard, cargo check, quick 66/66, pointer/format guards, and all touched source/check files below 800 lines are green; P0c-MR-C0 passive recursive-module capability is next.",
   "2026-07-16: D′ P0c-MR-S0 closes one disconnected deterministic SCC authority: non-Clone VerifiedCallableSccPartitionV1 consumes and retains exactly one VerifiedCallableGraphInventoryV1 by value; iterative explicit-stack Kosaraju computes components without host recursion, each CallableSccIdV1 is the minimum canonical key, members/components are canonically sorted, recursion is classified as NonRecursive/SelfRecursive/MutualRecursive, and sorted unique condensation edges receive deterministic Kahn order. The partition remains target/ABI/effect/MIR/publication/backend/runtime non-authority with production callers and behavior delta zero; debug/release SCC 4/4, retained inventory 2/2 and acyclic 3/3, resolved-callable authority guard, cargo check, quick 66/66, pointer/format guards, and all touched source/check files below 800 lines are green; P0c-MR-V0 disconnected recursive module plan is next.",
   "2026-07-16: D′ P0c-MR-G0 closes one behavior-neutral shared callable-graph inventory: VerifiedCallableGraphInventoryV1 non-clonably owns sorted canonical-key nodes, exact function-relative call sites, unique caller/target edges, target projection, and inventory-specific errors; it accepts self/cyclic topology and has exactly one production consumer, while VerifiedAcyclicCallableGraphV1 consumes it by value and retains prior self-edge/cycle rejection plus deterministic Kahn order. SCC production callers, grammar, runtime, backend, MIR, publication, effect, ownership, and recursion activation remain zero; debug/release inventory 2/2, acyclic 3/3, typed-plan 3/3, resolved-callable authority guard, cargo check, quick 66/66, pointer guard, formatting/diff checks, and all touched source/check files below 800 lines are green; P0c-MR-S0 disconnected deterministic SCC partition is next.",
   "2026-07-16: D′ P0c-MR-D0 accepts and taskizes C-prime: G0 first extracts one non-Clone callable graph inventory and preserves P0c-F behavior; S0 later consumes that shape into a deterministic SCC partition keyed by each component's minimum canonical key; V0 admits general finite exact-i64 recursive modules; C0 adds one passive module-level recursive capability; I1 explicitly activates VM-only recursion through the existing unpublished-draft atomic transaction; and R0 separately retires the old one-function self-call authority. Inventory/SCC products remain target/ABI/effect/MIR/runtime non-authorities, ConservativeBarrier remains unchanged, iterative host-stack-safe SCC traversal is required, serialized transport stays inactive, and G0 is the sole next code-facing row with SCC production callers zero.",
@@ -740,5 +749,4 @@ landed_tail = [
   "2026-07-15: D′ MP0-TX0 closes unpublished verified callable-draft batching and atomic candidate publication: each canonical-keyed function plan lowers through a restored function session into a MirFunction absent from the candidate module; one verified draft set checks exact catalog/header lookup, symbol, signature arity, unique draft key/symbol, and catalog/function/plan/draft cardinality before the sole try_add_functions_atomic site; existing-module and within-batch collisions precheck before mutation; actual two-function lowering, declaration reorder, injected late-draft failure, symbol drift, duplicate batch, and late existing-module collision prove no partial publication; production transaction callers, sibling-call activation, ownership ops, backend widening, and fallback remain zero; resolved-lowering debug 79/79, transaction release 4/4, authority guard, release build, quick gate, and <800-line touched source/check files are green; P0c-B1 exact two-function one-sibling-edge activation is next.",
   "2026-07-15: D′ MP0-P0 closes whole-module preflight before Builder effects: every CanonicalCallableKeyV1 obtains one exact ResolvedFunctionLoweringInputV1 from the same Program/catalog-owned resolved module; the existing function-level CanonicalLoweringPreflightV1 remains the sole capability/profile authority; all plans accumulate in a temporary canonical-keyed map and publish only after exact cardinality match; declaration reorder preserves the plan key set and a late function failure returns no partial module product; Builder/MIR draft/MirFunction/MirModule publication, runtime/backend/ownership deltas, and production sibling-call activation remain zero; focused preflight 3/3, resolved callable module 9/9, capability 5/5, debug resolved semantics 144/144, authority guard, release build, quick 66/66, and <800-line touched source/check files are green; MP0-TX0 unpublished verified draft batching and atomic publication is next.",
   "2026-07-15: D′ MP0-R0 closes complete-catalog multi-function body resolution: one consuming CallableCatalogResolutionSourceV1 physically separates body opening from CAT0 header seal while keeping Program syntax and immutable catalog inseparable; every top-level function reuses its pre-reserved FunctionOriginV1/FunctionOwnerIdV1, every body resolves self/forward/backward direct calls against the complete index, nested Lambda owners consume the same single-use continuation and compilation brand, and each CanonicalCallableKeyV1 owns one single-root forest plus exact source projection; unknown targets and late function errors publish no resolved module; Builder/Lower/MIR/module insertion/runtime/backend/ownership and production sibling-call activation remain zero; focused 6/6, resolved semantics 144/144, authority guard, release build, quick 66/66, and <800-line touched source/check files are green; MP0-P0 whole-module preflight is next.",
-  "2026-07-15: D′ MP0-S0 closes one passive compiler-layer resolved callable module carrier: VerifiedResolvedCallableModuleV1 owns the exact CAT0 Program/catalog source unit once and one CanonicalCallableKeyV1-keyed functions_by_key primary map; each VerifiedResolvedFunctionUnitV1 keeps its declaration site, single-root VerifiedSemanticOwnerForestV1, and exact VerifiedSourceProjectionV1 together; resolved semantics does not import compiler projection authority; constructors, resolver continuation consumption, body traversal, call-target resolution, Builder/Lower/MIR/runtime/backend/ownership activation, and production producers/consumers remain zero; compile fixtures 2/2, resolved semantics 144/144, authority guard, release build, quick 66/66, and <800-line touched source/check files are green; MP0-R0 complete-catalog body resolution is next.",
 ]

@@ -1,8 +1,8 @@
 ---
-Status: P0c-MR-S0 closed; P0c-MR-V0 implementation ready
+Status: P0c-MR-V0 closed; P0c-MR-C0 implementation ready
 Date: 2026-07-16
 Decision: C-prime accepted with bounded implementation refinements
-Current row: P0c-MR-V0
+Current row: P0c-MR-C0
 Production baseline: 4bed234ceb
 Consultation: mirbuilder-p0c-mr-scc-consultation-question-2026-07-16.md
 ---
@@ -22,7 +22,7 @@ P0c-MR-I1  explicit atomic VM-only activation
 P0c-MR-R0  later one-function self-call authority retirement
 ```
 
-G0 and S0 are closed. The next and only code-facing row is `P0c-MR-V0`.
+G0 through V0 are closed. The next and only code-facing row is `P0c-MR-C0`.
 
 Candidate A's two-function even/odd shape is a fixture, not a semantic
 authority. Candidate B's general finite SCC module is the activation target,
@@ -265,7 +265,37 @@ DFS/Kosaraju discovery, owner slots, or physical symbols.
 
 ## P0c-MR-V0 — recursive module plan
 
-Disconnected only; production callers remain zero. It requires:
+State: closed on 2026-07-16.
+
+Landed result:
+
+```text
+one VerifiedRecursiveCallableModulePlanV1
+one consumed deterministic SCC partition
+one finite trivial Binding-SSA plan per canonical key
+function count >= 2
+call-site count >= 1
+recursive component count >= 1
+exact inventory/function/component/plan cardinality
+exact per-function inventory/profile call-row correspondence
+production callers = 0
+production behavior delta = 0
+```
+
+Evidence:
+
+```text
+debug recursive-plan fixtures 3/3
+release recursive-plan fixtures 3/3
+retained SCC fixtures 4/4
+resolved callable authority guard green
+cargo check green
+quick gate 66/66
+pointer and format guards green
+all touched source/check files below 800 lines
+```
+
+It requires:
 
 ```text
 function count >= 2
@@ -364,8 +394,7 @@ Stop if implementation requires:
 
 ## Immediate next action
 
-Implement only `P0c-MR-V0` as a disconnected recursive exact-i64 module plan.
-Consume one verified SCC partition, require at least two functions and one
-recursive component, seal exact module/partition/typed-plan/call-row
-correspondence, and keep production callers at zero. Do not add grammar, MIR,
-backend, runtime, effect, publication, or recursion activation.
+Implement only `P0c-MR-C0` as a passive recursive-module backend capability.
+Add one module-level schema marker and synthetic capability validation only.
+Keep production producers, compiler ingress, graph/SCC discovery, grammar,
+MIR lowering, publication, runtime recursion, effects, and fallback at zero.

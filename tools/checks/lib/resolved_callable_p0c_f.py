@@ -16,6 +16,7 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
     inventory = root / "src/mir/compiler/callable_graph_inventory.rs"
     inventory_tests = root / "src/mir/compiler/callable_graph_inventory/tests.rs"
     scc_tests = root / "src/mir/compiler/callable_scc_partition/tests.rs"
+    recursive_plan = root / "src/mir/compiler/recursive_callable_module_plan.rs"
     graph = root / "src/mir/compiler/acyclic_callable_graph.rs"
     graph_tests = root / "src/mir/compiler/acyclic_callable_graph/tests.rs"
     plan = root / "src/mir/compiler/acyclic_callable_module_plan.rs"
@@ -36,9 +37,15 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
             compiler_capability,
             finite_call_tests,
             plan,
+            recursive_plan,
         },
         r"VerifiedAcyclicCallableGraphV1::verify": {graph_tests, plan},
-        r"VerifiedCallableGraphInventoryV1::verify": {inventory_tests, graph, scc_tests},
+        r"VerifiedCallableGraphInventoryV1::verify": {
+            inventory_tests,
+            graph,
+            scc_tests,
+            recursive_plan,
+        },
         r"VerifiedAcyclicCallableModulePlanV1::verify": {
             plan_tests,
             compiler_mod,
