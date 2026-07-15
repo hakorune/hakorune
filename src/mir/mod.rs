@@ -40,6 +40,8 @@ pub(crate) mod canonical_direct_call;
 pub(crate) mod canonical_direct_call_contract;
 pub(crate) mod canonical_direct_static_call_backend_capability;
 pub(crate) mod canonical_direct_static_call_capability;
+pub(crate) mod canonical_recursive_callable_module_backend_capability;
+pub(crate) mod canonical_recursive_callable_module_capability;
 pub(crate) mod compile_timing;
 mod compiler;
 pub mod concat_const_suffix_micro_seed_plan; // MIR-owned route plan for temporary concat const-suffix micro seed bridge

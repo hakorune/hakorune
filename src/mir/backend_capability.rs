@@ -29,6 +29,7 @@ fn enforce_refreshed_mir_backend_supported(
         module, backend,
     )?;
     crate::mir::canonical_direct_static_call_backend_capability::enforce(module, backend)?;
+    crate::mir::canonical_recursive_callable_module_backend_capability::enforce(module, backend)?;
     crate::mir::local_slot_backend_capability::enforce_local_slot_backend_supported(
         module, backend,
     )?;

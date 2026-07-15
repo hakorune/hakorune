@@ -197,6 +197,17 @@ V0 remains disconnected. It adds no compiler ingress, MIR, publication,
 backend capability, runtime recursion, effect precision, termination claim, or
 ownership operation.
 
+## P0c-MR-C0 passive recursive backend capability
+
+`CanonicalRecursiveCallableModuleCapabilityV1` is one module-level schema
+marker stored as an `Option` in `ModuleMetadata`. The shared backend preflight
+accepts the exact marker only for `mir-interpreter` and rejects every other
+backend with a stable no-fallback tag.
+
+C0 has no production marker producer. Missing, duplicate installation, and
+schema drift are exercised only by synthetic fixtures; graph/SCC scanning never
+infers the marker.
+
 ## P0c-F-V0 typed acyclic module plan
 
 `VerifiedAcyclicCallableModulePlanV1` is the disconnected pre-Builder witness

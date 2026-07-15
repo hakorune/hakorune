@@ -1,8 +1,8 @@
 ---
-Status: P0c-MR-V0 closed; P0c-MR-C0 implementation ready
+Status: P0c-MR-C0 closed; P0c-MR-I1 implementation ready
 Date: 2026-07-16
 Decision: C-prime accepted with bounded implementation refinements
-Current row: P0c-MR-C0
+Current row: P0c-MR-I1
 Production baseline: 4bed234ceb
 Consultation: mirbuilder-p0c-mr-scc-consultation-question-2026-07-16.md
 ---
@@ -22,7 +22,7 @@ P0c-MR-I1  explicit atomic VM-only activation
 P0c-MR-R0  later one-function self-call authority retirement
 ```
 
-G0 through V0 are closed. The next and only code-facing row is `P0c-MR-C0`.
+G0 through C0 are closed. The next and only code-facing row is `P0c-MR-I1`.
 
 Candidate A's two-function even/odd shape is a fixture, not a semantic
 authority. Candidate B's general finite SCC module is the activation target,
@@ -311,10 +311,34 @@ execution, or runtime SCC discovery.
 
 ## P0c-MR-C0 — passive backend capability
 
-Add one module-level `canonical_recursive_callable_module_v1` marker. Its
-production producer count remains zero through C0. Synthetic tests prove
-missing, duplicate, and schema-drift rejection. It carries no SCC IDs,
-members, edges, or counts.
+State: closed on 2026-07-16.
+
+Landed result:
+
+```text
+one module-level canonical_recursive_callable_module_v1 marker
+ModuleMetadata storage = Option<marker>
+exact schema validation
+duplicate installation rejection
+mir-interpreter acceptance
+all other backends fail-fast with stable no-fallback tag
+graph/SCC/runtime discovery = 0
+production marker producers = 0
+```
+
+Evidence:
+
+```text
+debug capability/backend fixtures 4/4
+release capability/backend fixtures 4/4
+resolved callable authority guard green
+cargo check green
+quick gate 66/66
+pointer and format guards green
+all touched source/check files below 800 lines
+```
+
+It carries no SCC IDs, members, edges, or counts.
 
 ## P0c-MR-I1 — explicit VM-only activation
 
@@ -394,7 +418,8 @@ Stop if implementation requires:
 
 ## Immediate next action
 
-Implement only `P0c-MR-C0` as a passive recursive-module backend capability.
-Add one module-level schema marker and synthetic capability validation only.
-Keep production producers, compiler ingress, graph/SCC discovery, grammar,
-MIR lowering, publication, runtime recursion, effects, and fallback at zero.
+Implement only `P0c-MR-I1` as one explicit atomic VM-only recursive-module
+ingress. Consume `VerifiedRecursiveCallableModulePlanV1`, reuse the existing
+unpublished-draft batch transaction, install exactly one recursive module
+marker only after all prechecks, and reject every non-VM backend before effects.
+Do not alter acyclic/self/legacy ingress or add retry/fallback.

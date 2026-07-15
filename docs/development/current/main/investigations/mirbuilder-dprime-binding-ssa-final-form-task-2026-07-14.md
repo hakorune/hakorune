@@ -2412,10 +2412,10 @@ state.
 
 ## Immediate next action
 
-Implement **P0c-MR-C0 — passive recursive-module backend capability**.
-P0c-MR-G0 through V0 are closed: one non-Clone topology inventory is consumed
-into one deterministic SCC partition and one exact recursive module admission
-plan. Production callers and behavior remain zero.
+Implement **P0c-MR-I1 — explicit atomic VM-only recursive-module activation**.
+P0c-MR-G0 through C0 are closed: topology, SCC partition, exact admission, and
+one passive module-level capability schema are sealed. Production recursive
+ingress and marker producer remain zero before I1.
 
 Decision/task card:
 `mirbuilder-p0c-mr-callable-scc-task-2026-07-16.md`.
@@ -2427,10 +2427,10 @@ P0c-MR:
   G0 -> S0 -> V0 -> C0 -> I1 -> R0
 ```
 
-C0 adds only one module-level recursive capability schema and synthetic
-validation. Production producers stay zero. Grammar, recursion execution,
-runtime, MIR lowering, publication, effect, ownership behavior, and fallback
-remain unchanged.
+I1 consumes only the typed recursive plan, reuses unpublished draft collection
+and atomic module insertion, installs exactly one module marker, and exposes one
+explicit VM-only compiler ingress. It must not change acyclic/self/legacy
+routes, infer SCCs at runtime, or add retry/fallback.
 
 Ownership V2 parser/resolver/MIR work and `.hako` selfhost parser/MIR-builder
 migration remain separate parked lanes. They are not hidden P0c-MR prerequisites

@@ -17,6 +17,12 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
     recursive_plan_tests = (
         root / "src/mir/compiler/recursive_callable_module_plan/tests.rs"
     )
+    recursive_capability = (
+        root / "src/mir/canonical_recursive_callable_module_capability.rs"
+    )
+    recursive_backend_gate = (
+        root / "src/mir/canonical_recursive_callable_module_backend_capability.rs"
+    )
     compiler_mod = root / "src/mir/compiler/mod.rs"
     this_guard = root / "tools/checks/lib/resolved_callable_p0c_mr.py"
 
@@ -29,6 +35,8 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
         scc_tests,
         recursive_plan,
         recursive_plan_tests,
+        recursive_capability,
+        recursive_backend_gate,
         compiler_mod,
         this_guard,
     ]:
@@ -151,3 +159,42 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
             fail(f"P0c-MR-V0 plan owns a forbidden authority: {forbidden}")
     if compiler_mod.read_text().count("mod recursive_callable_module_plan;") != 1:
         fail("P0c-MR-V0 recursive module plan declaration drift")
+
+    install_callers = {
+        path
+        for path in (root / "src").rglob("*.rs")
+        if "CanonicalRecursiveCallableModuleCapabilityV1::install_for_module" in path.read_text()
+    }
+    if install_callers != {recursive_backend_gate}:
+        fail(
+            "P0c-MR-C0 production capability producer drift: "
+            f"{sorted(path.relative_to(root) for path in install_callers)}"
+        )
+    capability_text = recursive_capability.read_text()
+    for marker in [
+        "canonical_recursive_callable_module_v1",
+        "schema_version: u8",
+        "install_for_module",
+        "verify_required",
+        "capability_missing",
+        "capability_preexisting",
+        "capability_schema_drift",
+    ]:
+        if marker not in capability_text:
+            fail(f"P0c-MR-C0 capability contract missing: {marker}")
+    backend_text = recursive_backend_gate.read_text()
+    for marker in [
+        "[backend/canonical_recursive_callable_module_v1_unsupported]",
+        'backend == "mir-interpreter"',
+        "silent_fallback_allowed=false",
+    ]:
+        if marker not in backend_text:
+            fail(f"P0c-MR-C0 backend fail-fast contract missing: {marker}")
+    for forbidden in [
+        "VerifiedCallableSccPartitionV1",
+        "VerifiedCallableGraphInventoryV1",
+        "MirInstruction",
+        "FunctionCall",
+    ]:
+        if forbidden in backend_text:
+            fail(f"P0c-MR-C0 backend gate infers topology: {forbidden}")

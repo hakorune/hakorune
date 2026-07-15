@@ -395,6 +395,12 @@ pub struct ModuleMetadata {
 
     /// NCL-1: Next stable id for `closure_bodies`.
     pub next_closure_body_id: ClosureBodyId,
+
+    /// Explicit module-level canonical-recursion backend capability witness.
+    /// P0c-MR-C0 defines the passive slot; only a later recursive-module
+    /// transaction may install it.
+    pub(crate) canonical_recursive_callable_module_capability:
+        Option<crate::mir::canonical_recursive_callable_module_capability::CanonicalRecursiveCallableModuleCapabilityV1>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

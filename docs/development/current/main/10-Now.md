@@ -23,13 +23,14 @@ Related:
   `DX0a -> DX0b -> S0 -> V0 -> census evidence -> I1`; all rows are closed.
   The census found zero exact P0c-F candidates in `lang/src`, so I1 is an
   ingress proof rather than a corpus coverage claim. The exact current blocker
-  is P0c-MR-C0, the passive recursive-module backend capability. C-prime is
-  taskized as `G0 -> S0 -> V0 -> C0 -> I1 -> R0`; G0 through V0 are closed. The
+  is P0c-MR-I1, the explicit atomic VM-only recursive-module activation. C-prime is
+  taskized as `G0 -> S0 -> V0 -> C0 -> I1 -> R0`; G0 through C0 are closed. The
   deterministic SCC partition is non-Clone, uses a host-stack-safe traversal,
   and keeps production callers at zero. V0 seals recursive-module admission and
-  exact module/partition/typed-plan/call-row correspondence. C0 adds only one
-  passive module-level capability schema with production producers zero; it
-  must not add recursive execution, effects, MIR, publication, or fallback. Production Ownership SSA,
+  exact module/partition/typed-plan/call-row correspondence. C0 adds one passive
+  module-level capability schema with production producers zero. I1 must add
+  exactly one explicit VM-only ingress using unpublished drafts and atomic
+  publication, without changing other routes or adding fallback. Production Ownership SSA,
   Loop production,
   mutual recursion/SCC, legacy
   fallback, default source, Lambda/capture, ProgramV0 authority, and durable
