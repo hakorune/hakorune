@@ -8,6 +8,7 @@ Previous closed card: mirbuilder-ssa-i1-compat-p0c-i64-call-design-stop-2026-07-
 Decision-input baseline commit: ec570ea696
 Next code-facing row: not selected; callable-widening consultation required
 Consultation prompt: mirbuilder-p0c-next-callable-widening-consultation-question-2026-07-15.md
+Selected follow-on: mirbuilder-p0c-f-acyclic-callable-module-task-2026-07-15.md
 ---
 
 # P0c-CAT0 Module Callable Catalog — A′+ Decision and Taskboard

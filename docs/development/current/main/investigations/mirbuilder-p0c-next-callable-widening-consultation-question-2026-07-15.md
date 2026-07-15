@@ -1,12 +1,13 @@
 ---
-Status: Consultation input
+Status: Answered; decision taskized in P0c-F taskboard
 Date: 2026-07-15
-Decision: pending
+Decision: P0c-F absorbs P0c-N; P0c-F-DX0a selected next
 Scope: select the callable-widening order after the closed P0c-B1 slice
 Current baseline: 315747061e
 Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-NEXT-DESIGN-STOP-001
 Parent card: mirbuilder-ssa-i1-compat-p0c-cat0-module-callable-catalog-consultation-2026-07-15.md
 Implementation authority: none; this document is a question packet only
+Decision taskboard: mirbuilder-p0c-f-acyclic-callable-module-task-2026-07-15.md
 ---
 
 # Consultation: What Is the Correct Callable-Widening Order after P0c-B1?
