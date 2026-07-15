@@ -26,6 +26,9 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
     recursive_activation_tests = (
         root / "src/mir/compiler/recursive_callable_module_activation_tests.rs"
     )
+    self_call_parity_tests = (
+        root / "src/mir/compiler/self_call_authority_parity_tests.rs"
+    )
     transaction = (
         root / "src/mir/builder/resolved_lowering/callable_module_transaction.rs"
     )
@@ -44,6 +47,7 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
         recursive_capability,
         recursive_backend_gate,
         recursive_activation_tests,
+        self_call_parity_tests,
         transaction,
         compiler_mod,
         this_guard,
@@ -130,10 +134,13 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
 
     if recursive_plan_tests.read_text().count("#[test]") != 5:
         fail("P0c-MR-R0-S0 focused recursive-plan fixture count must remain exactly five")
+    exact_plan_verify = re.compile(
+        r"VerifiedRecursiveCallableModulePlanV1::verify\s*\("
+    )
     actual_plan_callers = {
         path
         for path in (root / "src").rglob("*.rs")
-        if "VerifiedRecursiveCallableModulePlanV1::verify" in path.read_text()
+        if exact_plan_verify.search(path.read_text())
     }
     if actual_plan_callers != {recursive_plan_tests, compiler_mod}:
         fail(
@@ -169,6 +176,41 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
             fail(f"P0c-MR-V0 plan owns a forbidden authority: {forbidden}")
     if "verify_one_or_more_for_r0" in compiler_mod.read_text():
         fail("P0c-MR-R0-S0 disconnected singleton admission reached production compiler")
+    disconnected_plan_callers = {
+        path
+        for path in (root / "src").rglob("*.rs")
+        if "VerifiedRecursiveCallableModulePlanV1::verify_one_or_more_for_r0("
+        in path.read_text()
+    }
+    if disconnected_plan_callers != {recursive_plan_tests, self_call_parity_tests}:
+        fail(
+            "P0c-MR-R0-P0 disconnected singleton consumer drift: "
+            f"{sorted(path.relative_to(root) for path in disconnected_plan_callers)}"
+        )
+    parity_text = self_call_parity_tests.read_text()
+    if parity_text.count("#[test]") != 4:
+        fail("P0c-MR-R0-P0 normalized parity fixture count must remain exactly four")
+    for marker in [
+        "AuthoritySnapshot",
+        "MirSnapshot",
+        "compile_singleton_program_for_r0_p0",
+        "silent_fallback_allowed=false",
+        "canonical_recursive_callable_module_capability",
+    ]:
+        if marker not in parity_text:
+            fail(f"P0c-MR-R0-P0 parity contract missing: {marker}")
+    if compiler_mod.read_text().count("mod self_call_authority_parity_tests;") != 1:
+        fail("P0c-MR-R0-P0 test-only parity module declaration drift")
+    test_ingress_callers = {
+        path
+        for path in (root / "src").rglob("*.rs")
+        if "compile_singleton_program_for_r0_p0" in path.read_text()
+    }
+    if test_ingress_callers != {self_call_parity_tests}:
+        fail(
+            "P0c-MR-R0-P0 test-only singleton ingress escaped parity module: "
+            f"{sorted(path.relative_to(root) for path in test_ingress_callers)}"
+        )
     if compiler_mod.read_text().count("mod recursive_callable_module_plan;") != 1:
         fail("P0c-MR-V0 recursive module plan declaration drift")
 

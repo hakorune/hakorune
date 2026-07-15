@@ -1,8 +1,8 @@
 ---
-Status: P0c-MR-R0-S0 closed; P0 next
+Status: P0c-MR-R0-P0 closed; atomic CUT0 next
 Date: 2026-07-16
 Decision: C-prime accepted with bounded implementation refinements
-Current row: P0c-MR-R0-P0 normalized authority parity
+Current row: P0c-MR-R0-CUT0 atomic Program-authority cutover
 Production baseline: 4bed234ceb
 Consultation: mirbuilder-p0c-mr-scc-consultation-question-2026-07-16.md
 R0 consultation: mirbuilder-p0c-mr-r0-self-call-retirement-consultation-question-2026-07-16.md
@@ -24,9 +24,9 @@ P0c-MR-R0  later one-function self-call authority retirement
 ```
 
 G0 through I1 and the runtime frame-restoration proof tail are landed. R0 has
-selected Program-only authority with `S0 -> P0 -> CUT0 -> G0`. S0 is closed;
-P0 is the sole next code-facing row and production singleton activation
-remains zero through P0.
+selected Program-only authority with `S0 -> P0 -> CUT0 -> G0`. S0 and P0 are
+closed. CUT0 is the sole next code-facing row and must atomically activate the
+singleton Program route while deleting the old authority.
 
 Candidate A's two-function even/odd shape is a fixture, not a semantic
 authority. Candidate B's general finite SCC module is the activation target,
@@ -612,10 +612,33 @@ quick gate: 66/66
 production behavior delta: 0
 ```
 
+## R0-P0 closeout evidence
+
+One `#[cfg(test)]` parity module owns both normalized snapshots and the only
+test-only singleton compiler connection. It excludes invocation-local IDs,
+origins, and source sites, renumbers block/ValueId identities, and compares
+semantic/profile/MIR/contract/runtime/backend/ownership relations. The old
+module has no recursive marker; the Program module has exactly one. All other
+observed rows are equal.
+
+```text
+debug parity: 4/4
+release parity: 4/4
+retained old self-call: 5/5
+retained recursive activation: 7/7
+retained recursive plan: 5/5
+retained SCC: 4/4
+resolved-callable authority guard: green
+cargo check: green
+quick gate: 66/66
+production behavior delta: 0
+```
+
 ## Immediate next action
 
-Implement `P0c-MR-R0-P0` only: add test-only normalized parity between the old
-exact-one bare-function route and the disconnected singleton Program route.
-Exclude invocation-local identity/source-site fields and require the recursive
-module marker as the sole intentional difference. Do not begin CUT0, symbol
-retirement, production singleton activation, or marker changes in P0.
+Implement `P0c-MR-R0-CUT0` as one atomic commit: remove the recursive plan's
+two-function floor, activate singleton Programs through the existing explicit
+recursive ingress, migrate every high-level self-call fixture, delete the old
+RootCallable/one-entry/exact-one authorities, and prove old symbol/caller and
+route-retry counts are zero. Do not split production cutover from retirement,
+add a compatibility adapter, or begin G0 cleanup as a separate semantic row.
