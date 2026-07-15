@@ -294,6 +294,10 @@ impl VerifiedCallableIndexV1 {
     pub(crate) fn len(&self) -> usize {
         self.headers_by_key.len()
     }
+
+    pub(super) fn headers(&self) -> impl Iterator<Item = &VerifiedCallableHeaderV1> {
+        self.headers_by_key.values()
+    }
 }
 
 #[derive(Debug, Default)]

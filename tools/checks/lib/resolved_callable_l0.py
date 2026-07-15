@@ -19,6 +19,9 @@ module_header_view = root / "src/mir/resolved_semantics/callable_module_header_v
 header_source_unit = root / "src/mir/resolved_semantics/callable_header_source_unit.rs"
 catalog_candidate = root / "src/mir/resolved_semantics/callable_catalog_candidate.rs"
 catalog = root / "src/mir/resolved_semantics/callable_catalog.rs"
+normalized_catalog = root / "src/mir/resolved_semantics/normalized_callable_catalog.rs"
+catalog_tests = root / "src/mir/resolved_semantics/callable_catalog_tests.rs"
+callable_index_tests = root / "src/mir/resolved_semantics/callable_index_tests.rs"
 direct_call = root / "src/mir/canonical_direct_call.rs"
 direct_call_contract = root / "src/mir/canonical_direct_call_contract.rs"
 direct_call_profile = root / "src/mir/resolved_value_profile/direct_call.rs"
@@ -86,6 +89,23 @@ required = {
         "VerifiedCallableIndexV1::seal_many",
         "resolver.issue_owner()",
         "into_resolver(self)",
+    ],
+    normalized_catalog: [
+        "NormalizedCallableCatalogV1",
+        "NormalizedCallableCatalogRowV1",
+        "from_catalog",
+        "header.source_key().namespace()",
+        "header.signature().params()",
+        "header.symbol().as_mir_name()",
+    ],
+    catalog_tests: [
+        "normalized_catalog_is_independent_of_declaration_order_and_owner_brand",
+        "declaration_reorder_preserves_exact_lookup_results",
+    ],
+    callable_index_tests: [
+        "malformed_private_draft_rejects_duplicate_identity_and_symbol",
+        "DuplicateCallableIdentity",
+        "DuplicatePhysicalSymbol",
     ],
     owner_resolver: ["resolve_forest_with_root_callable"],
     resolved_target: ["ResolvedDirectCallTargetV1", "ResolvedCallableRefV1"],
@@ -168,6 +188,20 @@ if re.search(
     catalog_text,
 ):
     fail("CAT0-C0b catalog must remain attached to its owned Program source unit")
+if catalog_text.count("VerifiedCallableCatalogSourceUnitV1 {") != 3:
+    fail("CAT0-G0 final Program/catalog product gained a foreign pairing seam")
+
+normalized_text = normalized_catalog.read_text()
+for forbidden in [
+    "FunctionOriginV1",
+    "FunctionOwnerIdV1",
+    "SourceCallableDeclarationSiteV1",
+    "ResolvedCallableRefV1",
+    "compilation_brand",
+    "owner.slot",
+]:
+    if forbidden in normalized_text:
+        fail(f"CAT0-G0 normalized parity includes invocation-local identity: {forbidden!r}")
 
 source_unit_users = []
 for path in (root / "src").rglob("*.rs"):
@@ -177,7 +211,7 @@ for path in (root / "src").rglob("*.rs"):
         catalog,
         root / "src/mir/resolved_semantics/callable_header_source_unit_tests.rs",
         root / "src/mir/resolved_semantics/callable_catalog_candidate_tests.rs",
-        root / "src/mir/resolved_semantics/callable_catalog_tests.rs",
+        catalog_tests,
         root / "src/mir/resolved_semantics/mod.rs",
     }:
         continue
@@ -192,7 +226,7 @@ for path in (root / "src").rglob("*.rs"):
         catalog_candidate,
         catalog,
         root / "src/mir/resolved_semantics/callable_catalog_candidate_tests.rs",
-        root / "src/mir/resolved_semantics/callable_catalog_tests.rs",
+        catalog_tests,
         root / "src/mir/resolved_semantics/mod.rs",
     }:
         continue
@@ -205,7 +239,7 @@ catalog_users = []
 for path in (root / "src").rglob("*.rs"):
     if path in {
         catalog,
-        root / "src/mir/resolved_semantics/callable_catalog_tests.rs",
+        catalog_tests,
         root / "src/mir/resolved_semantics/mod.rs",
     }:
         continue
@@ -213,6 +247,19 @@ for path in (root / "src").rglob("*.rs"):
         catalog_users.append(str(path.relative_to(root)))
 if catalog_users:
     fail(f"CAT0-C0b final catalog has production callers: {catalog_users}")
+
+normalized_users = []
+for path in (root / "src").rglob("*.rs"):
+    if path in {
+        normalized_catalog,
+        catalog_tests,
+        root / "src/mir/resolved_semantics/mod.rs",
+    }:
+        continue
+    if "NormalizedCallableCatalogV1" in path.read_text():
+        normalized_users.append(str(path.relative_to(root)))
+if normalized_users:
+    fail(f"CAT0-G0 normalized product has production callers: {normalized_users}")
 
 callable_index_text = callable_index.read_text()
 for forbidden in ["only_header(", ".values().find", ".values()\n            .find"]:
@@ -320,8 +367,8 @@ for pattern, allowed in allowed_by_pattern.items():
 
 for path in [
     *required,
-    root / "src/mir/resolved_semantics/callable_index_tests.rs",
-    root / "src/mir/resolved_semantics/callable_catalog_tests.rs",
+    callable_index_tests,
+    catalog_tests,
     root / "src/mir/canonical_direct_call_tests.rs",
     direct_call_profile_tests,
     direct_call_lower,

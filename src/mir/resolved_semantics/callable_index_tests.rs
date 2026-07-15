@@ -238,3 +238,38 @@ fn private_draft_rejects_zero_and_duplicate_rows() {
         Err(CallableIndexSealErrorV1::IndexCardinality { actual: 2 })
     );
 }
+
+#[test]
+fn malformed_private_draft_rejects_duplicate_identity_and_symbol() {
+    let shared_owner = owner();
+    let first_tree = function("first", &[("x", Some("i64"))], Some("i64"));
+    let second_tree = function("second", &[("x", Some("i64"))], Some("i64"));
+    let first = seal_exact_i64_header(
+        shared_owner,
+        CallableHeaderSyntaxViewV1::from_function_ast(&first_tree).unwrap(),
+    )
+    .unwrap();
+    let second = seal_exact_i64_header(
+        shared_owner,
+        CallableHeaderSyntaxViewV1::from_function_ast(&second_tree).unwrap(),
+    )
+    .unwrap();
+    let mut duplicate_identity = CallableIndexDraftV1::default();
+    duplicate_identity.insert(first.clone()).unwrap();
+    duplicate_identity.insert(second.clone()).unwrap();
+    assert_eq!(
+        duplicate_identity.seal(),
+        Err(CallableIndexSealErrorV1::DuplicateCallableIdentity)
+    );
+
+    let mut colliding_symbol = second;
+    colliding_symbol.callable = ResolvedCallableRefV1::new(owner());
+    colliding_symbol.symbol = first.symbol().clone();
+    let mut duplicate_symbol = CallableIndexDraftV1::default();
+    duplicate_symbol.insert(first).unwrap();
+    duplicate_symbol.insert(colliding_symbol).unwrap();
+    assert_eq!(
+        duplicate_symbol.seal(),
+        Err(CallableIndexSealErrorV1::DuplicatePhysicalSymbol)
+    );
+}

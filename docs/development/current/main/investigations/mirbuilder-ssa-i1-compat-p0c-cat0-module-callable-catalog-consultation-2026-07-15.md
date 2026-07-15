@@ -1,12 +1,12 @@
 ---
-Status: Accepted and taskized — A′+; CAT0-D0/L0/S0/C0a/C0b closed, CAT0-G0 next
+Status: Accepted and taskized — A′+; CAT0 closed through G0, MP0-S0 next
 Date: 2026-07-15
 Decision: A′+ — Program/catalog co-seal + single-use resolver continuation + canonical-key module identity
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-CAT0-G0-CATALOG-PARITY-GUARDS-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-MP0-S0-RESOLVED-MODULE-CARRIER-001
 Parent taskboard: mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
 Previous closed card: mirbuilder-ssa-i1-compat-p0c-i64-call-design-stop-2026-07-15.md
 Decision-input baseline commit: ec570ea696
-Next code-facing row: CAT0-G0
+Next code-facing row: MP0-S0
 ---
 
 # P0c-CAT0 Module Callable Catalog — A′+ Decision and Taskboard
@@ -482,6 +482,7 @@ CAT0-C0b:
   next function ordinal + same-branded owner issuer
 
 CAT0-G0:
+  CLOSED — fixture/generated-guard row
   fixture/generated-guard row
   fixtures, normalized reorder parity, authority/caller-zero guards
   foreign Program/catalog pairing impossible
@@ -662,7 +663,43 @@ verification:
   all touched source/check files < 800 lines
 ```
 
-State: closed on 2026-07-15. The next code-facing row is `CAT0-G0`.
+State: closed on 2026-07-15. The next code-facing row was `CAT0-G0`, which is
+closed by the following exit gate.
+
+### CAT0-G0 exit gate
+
+```text
+normalization:
+  NormalizedCallableCatalogV1 contains only
+  namespace / exact name / arity / exact signature / physical symbol
+  declaration site / FunctionOriginV1 / FunctionOwnerIdV1 / owner slot /
+  compilation brand / ResolvedCallableRefV1 are excluded
+
+parity:
+  declaration reorder and a different compilation brand normalize equally
+  exact source lookup returns the same key/signature/symbol meaning
+
+invariants:
+  source-reachable duplicate/profile errors stay in C0a fixtures
+  duplicate callable identity and symbol collision use malformed private draft
+  foreign Program/catalog construction remains unavailable
+  normalized product production callers = 0
+
+non-delta:
+  body authority / owner forest / source projection = 0
+  Builder / Lower / MIR / runtime / backend / ownership delta = 0
+
+verification:
+  focused G0 fixtures = 3/3
+  resolved semantics = 144/144
+  resolved callable authority guard = green
+  release build = green
+  quick gate = 66/66
+  all touched source/check files < 800 lines
+```
+
+State: closed on 2026-07-15. CAT0 is green through G0; the next code-facing
+row is `MP0-S0`.
 
 ### MP0-TX0 exit gate
 

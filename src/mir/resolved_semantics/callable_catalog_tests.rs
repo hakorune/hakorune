@@ -132,3 +132,65 @@ fn co_sealed_unit_retains_exact_program_header_membership() {
         assert!(unit.catalog().declaration(site).is_some());
     }
 }
+
+#[test]
+fn normalized_catalog_is_independent_of_declaration_order_and_owner_brand() {
+    let first = CallableCatalogSealOutcomeV1::seal(
+        owner_free(vec![function("zeta", 2), function("alpha", 1)]),
+        3,
+    )
+    .unwrap();
+    let second = CallableCatalogSealOutcomeV1::seal(
+        owner_free(vec![function("alpha", 1), function("zeta", 2)]),
+        91,
+    )
+    .unwrap();
+    let (first, _) = first.into_parts();
+    let (second, _) = second.into_parts();
+    let first_normalized = NormalizedCallableCatalogV1::from_catalog(first.catalog());
+    let second_normalized = NormalizedCallableCatalogV1::from_catalog(second.catalog());
+
+    assert_eq!(first_normalized, second_normalized);
+    assert_eq!(first_normalized.rows().len(), 2);
+    assert_eq!(first_normalized.rows()[0].name(), "alpha");
+    assert_eq!(first_normalized.rows()[1].name(), "zeta");
+    assert_eq!(first_normalized.rows()[0].arity(), 1);
+    assert_eq!(first_normalized.rows()[1].arity(), 2);
+    assert_eq!(first_normalized.rows()[0].symbol(), "alpha/1");
+    assert_eq!(first_normalized.rows()[1].symbol(), "zeta/2");
+    assert_eq!(
+        first_normalized.rows()[0].namespace(),
+        CallableNamespaceV1::FreeStatic
+    );
+    assert_eq!(
+        first_normalized.rows()[0].params(),
+        &[ExactTrivialScalarAbiV1::I64]
+    );
+    assert_eq!(
+        first_normalized.rows()[0].result(),
+        ExactTrivialScalarAbiV1::I64
+    );
+}
+
+#[test]
+fn declaration_reorder_preserves_exact_lookup_results() {
+    for functions in [
+        vec![function("left", 1), function("right", 2)],
+        vec![function("right", 2), function("left", 1)],
+    ] {
+        let outcome = CallableCatalogSealOutcomeV1::seal(owner_free(functions), 0).unwrap();
+        let (unit, _) = outcome.into_parts();
+        let left = unit
+            .catalog()
+            .index()
+            .resolve_free_static_source_call("left", 1)
+            .unwrap();
+        let right = unit
+            .catalog()
+            .index()
+            .resolve_free_static_source_call("right", 2)
+            .unwrap();
+        assert_eq!(left.symbol().as_mir_name(), "left/1");
+        assert_eq!(right.symbol().as_mir_name(), "right/2");
+    }
+}

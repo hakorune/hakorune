@@ -20,6 +20,7 @@ mod ids;
 mod if_region;
 mod loop_region;
 mod normalized;
+mod normalized_callable_catalog;
 mod owner_forest;
 mod owner_resolver;
 mod product;
@@ -68,6 +69,9 @@ pub use normalized::{
     NormalizedExitV1, NormalizedRegionKeyV1, NormalizedRegionRecordV1,
     NormalizedResolvedFunctionGraphV1, NormalizedScopeKeyV1, NormalizedScopeRecordV1,
     NormalizedVariableUseV1,
+};
+pub(crate) use normalized_callable_catalog::{
+    NormalizedCallableCatalogRowV1, NormalizedCallableCatalogV1,
 };
 pub use owner_forest::{
     NormalizedOwnerKeyV1, NormalizedOwnerRecordV1, NormalizedSemanticOwnerForestGraphV1,
