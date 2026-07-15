@@ -2,6 +2,7 @@ name: min-gate
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
   workflow_dispatch:
 
 concurrency:
@@ -17,6 +18,9 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+
+      - name: CI feedback tier policy guard
+        run: bash tools/checks/ci_feedback_tier_policy_guard.sh
 
       - name: Setup Rust (stable)
         uses: dtolnay/rust-toolchain@stable
@@ -37,7 +41,7 @@ jobs:
         run: python3 tools/docs/failure_outcome_semantic_site_graph.py --check
 
       - name: Language v1 sensitive-change FULL gate
-        if: ${{ github.event_name == 'pull_request' }}
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.draft == false }}
         run: >-
           bash tools/checks/language_v1_full_gate_for_changes.sh
           --base ${{ github.event.pull_request.base.sha }}

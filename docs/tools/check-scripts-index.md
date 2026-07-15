@@ -399,6 +399,7 @@ phase-1 compatibility Program(JSON) compat execution helper.
 
 | Script | Purpose |
 | --- | --- |
+| `tools/checks/ci_feedback_tier_policy_guard.sh` | Keeps Draft PRs on fast feedback while requiring ready/non-draft Language v1 FULL and portability validation. |
 | `tools/checks/env_dead_accessors_report.sh` | CSV inventory for dead or doc-only env accessors in `src/config/env/*.rs`. |
 | `tools/checks/route_env_probe.sh` | Env / route display probe immediately before emit routing. |
 | `tools/checks/route_no_fallback_guard.sh` | Fail-fast guard that route fallback/helper toggles are absent from daily route. |

@@ -2,6 +2,7 @@ name: portability-ci
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
   workflow_dispatch:
 
 concurrency:
@@ -10,6 +11,7 @@ concurrency:
 
 jobs:
   macos-build:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
     name: macOS build (release)
     runs-on: macos-latest
     timeout-minutes: 20
@@ -23,6 +25,7 @@ jobs:
         run: cargo build --release --bin hakorune -q
 
   windows-check:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
     name: Windows check
     runs-on: windows-latest
     timeout-minutes: 20
@@ -38,6 +41,7 @@ jobs:
         run: cargo check --bin hakorune -q
 
   plugin-recovery-check:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false }}
     name: Plugin recovery check (${{ matrix.os }} / ${{ matrix.plugin.name }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
