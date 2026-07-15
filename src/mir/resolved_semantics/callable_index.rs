@@ -141,7 +141,7 @@ impl VerifiedOwnerFreeCallableHeaderV1 {
         &self.signature
     }
 
-    fn attach_owner(self, owner: FunctionOwnerIdV1) -> VerifiedCallableHeaderV1 {
+    pub(super) fn attach_owner(self, owner: FunctionOwnerIdV1) -> VerifiedCallableHeaderV1 {
         VerifiedCallableHeaderV1 {
             callable: ResolvedCallableRefV1::new(owner),
             source_key: self.source_key,
@@ -223,6 +223,16 @@ impl VerifiedCallableIndexV1 {
         let mut draft = CallableIndexDraftV1::default();
         draft.insert(header)?;
         draft.seal_one()
+    }
+
+    pub(super) fn seal_many(
+        headers: impl IntoIterator<Item = VerifiedCallableHeaderV1>,
+    ) -> Result<Self, CallableIndexSealErrorV1> {
+        let mut draft = CallableIndexDraftV1::default();
+        for header in headers {
+            draft.insert(header)?;
+        }
+        draft.seal()
     }
 
     pub(crate) fn lookup(&self, key: &CanonicalCallableKeyV1) -> Option<&VerifiedCallableHeaderV1> {
@@ -308,6 +318,13 @@ impl CallableIndexDraftV1 {
             return Err(CallableIndexSealErrorV1::IndexCardinality {
                 actual: self.by_source_key.len(),
             });
+        }
+        self.seal()
+    }
+
+    fn seal(self) -> Result<VerifiedCallableIndexV1, CallableIndexSealErrorV1> {
+        if self.by_source_key.is_empty() {
+            return Err(CallableIndexSealErrorV1::IndexCardinality { actual: 0 });
         }
         let mut key_by_callable = BTreeMap::new();
         let mut key_by_symbol = BTreeMap::new();

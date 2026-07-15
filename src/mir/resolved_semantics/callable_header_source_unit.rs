@@ -17,12 +17,12 @@ struct CanonicalProgramSyntaxOwnerV1 {
 }
 
 #[derive(Debug)]
-pub(crate) struct VerifiedCallableCatalogSourceUnitV1 {
+pub(crate) struct VerifiedCallableHeaderSourceUnitV1 {
     syntax: CanonicalProgramSyntaxOwnerV1,
     declaration_sites: Box<[SourceCallableDeclarationSiteV1]>,
 }
 
-impl VerifiedCallableCatalogSourceUnitV1 {
+impl VerifiedCallableHeaderSourceUnitV1 {
     pub(crate) fn seal_header_surface(
         program: ASTNode,
     ) -> Result<Self, CallableModuleHeaderSyntaxErrorV1> {

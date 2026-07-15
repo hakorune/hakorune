@@ -6,8 +6,9 @@
 // gives the schema its first shadow-only producer/consumer.
 #![allow(dead_code, unused_imports)]
 
+mod callable_catalog;
 mod callable_catalog_candidate;
-mod callable_catalog_source_unit;
+mod callable_header_source_unit;
 mod callable_header_view;
 mod callable_index;
 mod callable_module_header_view;
@@ -29,10 +30,15 @@ mod shadow;
 mod source_site;
 mod verifier;
 
+pub(crate) use callable_catalog::{
+    CallableCatalogOwnerSealErrorV1, CallableCatalogSealOutcomeV1,
+    CatalogSealedResolverContinuationV1, VerifiedCallableCatalogSourceUnitV1,
+    VerifiedCallableCatalogV1, VerifiedCallableDeclarationV1,
+};
 pub(crate) use callable_catalog_candidate::{
     CallableCatalogCandidateSealErrorV1, VerifiedOwnerFreeCallableCatalogSourceUnitV1,
 };
-pub(crate) use callable_catalog_source_unit::VerifiedCallableCatalogSourceUnitV1;
+pub(crate) use callable_header_source_unit::VerifiedCallableHeaderSourceUnitV1;
 pub(crate) use callable_header_view::{CallableFunctionSyntaxViewV1, CallableHeaderSyntaxViewV1};
 pub(crate) use callable_index::{
     CallableCatalogCardinalityErrorV1, CallableIndexSealErrorV1, CallableLookupErrorV1,
@@ -94,7 +100,9 @@ mod block_expr_tests;
 #[cfg(test)]
 mod callable_catalog_candidate_tests;
 #[cfg(test)]
-mod callable_catalog_source_unit_tests;
+mod callable_catalog_tests;
+#[cfg(test)]
+mod callable_header_source_unit_tests;
 #[cfg(test)]
 mod direct_call_tests;
 #[cfg(test)]

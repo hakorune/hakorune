@@ -27,8 +27,8 @@ fn function(name: &str, parameter_count: usize) -> ASTNode {
     }
 }
 
-fn source(statements: Vec<ASTNode>) -> VerifiedCallableCatalogSourceUnitV1 {
-    VerifiedCallableCatalogSourceUnitV1::seal_header_surface(ASTNode::Program {
+fn source(statements: Vec<ASTNode>) -> VerifiedCallableHeaderSourceUnitV1 {
+    VerifiedCallableHeaderSourceUnitV1::seal_header_surface(ASTNode::Program {
         statements,
         span: Span::unknown(),
     })

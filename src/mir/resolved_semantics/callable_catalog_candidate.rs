@@ -8,7 +8,7 @@ use std::collections::BTreeMap;
 
 use super::{
     CallableIndexSealErrorV1, CanonicalCallableKeyV1, CanonicalCallableSymbolV1,
-    SourceCallableDeclarationSiteV1, VerifiedCallableCatalogSourceUnitV1,
+    SourceCallableDeclarationSiteV1, VerifiedCallableHeaderSourceUnitV1,
     VerifiedOwnerFreeCallableHeaderV1,
 };
 
@@ -38,7 +38,7 @@ pub(crate) enum CallableCatalogCandidateSealErrorV1 {
 
 #[derive(Debug)]
 pub(crate) struct VerifiedOwnerFreeCallableCatalogSourceUnitV1 {
-    source: VerifiedCallableCatalogSourceUnitV1,
+    source: VerifiedCallableHeaderSourceUnitV1,
     candidates_by_site:
         BTreeMap<SourceCallableDeclarationSiteV1, VerifiedOwnerFreeCallableHeaderV1>,
     site_by_key: BTreeMap<CanonicalCallableKeyV1, SourceCallableDeclarationSiteV1>,
@@ -47,7 +47,7 @@ pub(crate) struct VerifiedOwnerFreeCallableCatalogSourceUnitV1 {
 
 impl VerifiedOwnerFreeCallableCatalogSourceUnitV1 {
     pub(crate) fn seal(
-        source: VerifiedCallableCatalogSourceUnitV1,
+        source: VerifiedCallableHeaderSourceUnitV1,
     ) -> Result<Self, CallableCatalogCandidateSealErrorV1> {
         let mut candidates_by_site = BTreeMap::new();
         let mut site_by_key = BTreeMap::new();
@@ -105,8 +105,17 @@ impl VerifiedOwnerFreeCallableCatalogSourceUnitV1 {
         self.candidates_by_site.get(&site)
     }
 
-    pub(crate) fn source(&self) -> &VerifiedCallableCatalogSourceUnitV1 {
+    pub(crate) fn source(&self) -> &VerifiedCallableHeaderSourceUnitV1 {
         &self.source
+    }
+
+    pub(super) fn into_parts(
+        self,
+    ) -> (
+        VerifiedCallableHeaderSourceUnitV1,
+        BTreeMap<SourceCallableDeclarationSiteV1, VerifiedOwnerFreeCallableHeaderV1>,
+    ) {
+        (self.source, self.candidates_by_site)
     }
 
     pub(crate) fn source_site_for_key(

@@ -34,7 +34,7 @@ fn owns_one_function_only_program_and_exposes_located_headers() {
         function("first", Vec::new()),
         function("second", Vec::new()),
     ]);
-    let unit = VerifiedCallableCatalogSourceUnitV1::seal_header_surface(source).unwrap();
+    let unit = VerifiedCallableHeaderSourceUnitV1::seal_header_surface(source).unwrap();
 
     assert_eq!(unit.declaration_sites().len(), 2);
     let first = unit.located_header(unit.declaration_sites()[0]).unwrap();
@@ -52,7 +52,7 @@ fn validates_only_the_top_level_surface_and_does_not_read_bodies() {
         span: Span::unknown(),
     }];
     let source = program(vec![function("f", unsupported_body)]);
-    let unit = VerifiedCallableCatalogSourceUnitV1::seal_header_surface(source).unwrap();
+    let unit = VerifiedCallableHeaderSourceUnitV1::seal_header_surface(source).unwrap();
 
     assert_eq!(unit.declaration_sites().len(), 1);
     assert_eq!(
@@ -68,14 +68,14 @@ fn validates_only_the_top_level_surface_and_does_not_read_bodies() {
 fn rejects_non_program_empty_and_mixed_top_level_surfaces() {
     let bare = function("f", Vec::new());
     assert_eq!(
-        VerifiedCallableCatalogSourceUnitV1::seal_header_surface(bare).unwrap_err(),
+        VerifiedCallableHeaderSourceUnitV1::seal_header_surface(bare).unwrap_err(),
         CallableModuleHeaderSyntaxErrorV1::RootMustBeProgram {
             actual: "FunctionDeclaration"
         }
     );
 
     assert_eq!(
-        VerifiedCallableCatalogSourceUnitV1::seal_header_surface(program(Vec::new())).unwrap_err(),
+        VerifiedCallableHeaderSourceUnitV1::seal_header_surface(program(Vec::new())).unwrap_err(),
         CallableModuleHeaderSyntaxErrorV1::EmptyCatalog
     );
 
@@ -86,7 +86,7 @@ fn rejects_non_program_empty_and_mixed_top_level_surfaces() {
             span: Span::unknown(),
         },
     ]);
-    let error = VerifiedCallableCatalogSourceUnitV1::seal_header_surface(mixed).unwrap_err();
+    let error = VerifiedCallableHeaderSourceUnitV1::seal_header_surface(mixed).unwrap_err();
     let CallableModuleHeaderSyntaxErrorV1::UnsupportedProgramStatement { site, actual } = error
     else {
         panic!("expected unsupported Program statement")
@@ -110,7 +110,7 @@ fn does_not_validate_callable_profile_or_issue_owners_in_s0() {
     param_decls[0].declared_type_name = None;
 
     let unit =
-        VerifiedCallableCatalogSourceUnitV1::seal_header_surface(program(vec![instance])).unwrap();
+        VerifiedCallableHeaderSourceUnitV1::seal_header_surface(program(vec![instance])).unwrap();
     let header = unit.located_header(unit.declaration_sites()[0]).unwrap();
     assert_eq!(header.header().name(), "main");
     assert!(!header.header().is_static());

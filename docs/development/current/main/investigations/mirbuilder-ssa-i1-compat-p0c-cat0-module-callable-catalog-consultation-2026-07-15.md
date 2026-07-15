@@ -1,12 +1,12 @@
 ---
-Status: Accepted and taskized — A′+; CAT0-D0/L0/S0/C0a closed, CAT0-C0b next
+Status: Accepted and taskized — A′+; CAT0-D0/L0/S0/C0a/C0b closed, CAT0-G0 next
 Date: 2026-07-15
 Decision: A′+ — Program/catalog co-seal + single-use resolver continuation + canonical-key module identity
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-CAT0-C0B-CATALOG-OWNER-RESERVATION-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-CAT0-G0-CATALOG-PARITY-GUARDS-001
 Parent taskboard: mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
 Previous closed card: mirbuilder-ssa-i1-compat-p0c-i64-call-design-stop-2026-07-15.md
 Decision-input baseline commit: ec570ea696
-Next code-facing row: CAT0-C0b
+Next code-facing row: CAT0-G0
 ---
 
 # P0c-CAT0 Module Callable Catalog — A′+ Decision and Taskboard
@@ -466,7 +466,7 @@ CAT0-S0:
   CLOSED — code row
   CallableModuleHeaderSyntaxViewV1
   SourceCallableDeclarationSiteV1
-  Program-owned VerifiedCallableCatalogSourceUnitV1 shell
+  Program-owned VerifiedCallableHeaderSourceUnitV1 shell
   function-only whole-surface coverage; body reads = 0
 
 CAT0-C0a:
@@ -475,7 +475,7 @@ CAT0-C0a:
   duplicate/profile/symbol rejection before identity issuance
 
 CAT0-C0b:
-  code row
+  CLOSED — code row
   reserve all top-level origin/owner pairs from one session
   immutable Program/catalog co-seal
   opaque non-Clone single-use continuation preserving
@@ -629,6 +629,40 @@ verification:
 ```
 
 State: closed on 2026-07-15. The next code-facing row is `CAT0-C0b`.
+
+### CAT0-C0b exit gate
+
+```text
+owner reservation:
+  every top-level FunctionOriginV1 / FunctionOwnerIdV1 pair is issued in
+  declaration order from one FunctionSemanticResolverSessionV1
+  all top-level owners share one compilation brand
+
+co-seal:
+  the S0 shell is named VerifiedCallableHeaderSourceUnitV1
+  VerifiedCallableCatalogSourceUnitV1 owns that exact Program plus catalog
+  the detached VerifiedCallableCatalogV1 is non-Clone
+  key/callable/symbol cardinality and reverse lookup are exact
+
+continuation:
+  CatalogSealedResolverContinuationV1 is opaque and non-Clone
+  consuming it resumes at the next function ordinal and same-branded owner slot
+
+non-delta:
+  body traversal / owner forest / source projection = 0
+  production catalog callers / sibling calls = 0
+  Builder / Lower / MIR / runtime / backend / ownership delta = 0
+
+verification:
+  focused C0b fixtures = 4/4
+  resolved semantics = 141/141
+  resolved callable authority guard = green
+  release build = green
+  quick gate = 66/66
+  all touched source/check files < 800 lines
+```
+
+State: closed on 2026-07-15. The next code-facing row is `CAT0-G0`.
 
 ### MP0-TX0 exit gate
 

@@ -16,8 +16,9 @@ root = pathlib.Path(sys.argv[1]).resolve()
 callable_index = root / "src/mir/resolved_semantics/callable_index.rs"
 header_view = root / "src/mir/resolved_semantics/callable_header_view.rs"
 module_header_view = root / "src/mir/resolved_semantics/callable_module_header_view.rs"
-catalog_source_unit = root / "src/mir/resolved_semantics/callable_catalog_source_unit.rs"
+header_source_unit = root / "src/mir/resolved_semantics/callable_header_source_unit.rs"
 catalog_candidate = root / "src/mir/resolved_semantics/callable_catalog_candidate.rs"
+catalog = root / "src/mir/resolved_semantics/callable_catalog.rs"
 direct_call = root / "src/mir/canonical_direct_call.rs"
 direct_call_contract = root / "src/mir/canonical_direct_call_contract.rs"
 direct_call_profile = root / "src/mir/resolved_value_profile/direct_call.rs"
@@ -59,9 +60,9 @@ required = {
         "UnsupportedProgramStatement",
         "CallableHeaderSyntaxViewV1::from_function_ast",
     ],
-    catalog_source_unit: [
+    header_source_unit: [
         "CanonicalProgramSyntaxOwnerV1",
-        "VerifiedCallableCatalogSourceUnitV1",
+        "VerifiedCallableHeaderSourceUnitV1",
         "seal_header_surface",
         "declaration_sites",
         "located_header",
@@ -75,6 +76,16 @@ required = {
         "HeaderOutsideExactI64Profile",
         "DuplicateSourceKey",
         "PhysicalSymbolCollision",
+    ],
+    catalog: [
+        "VerifiedCallableCatalogSourceUnitV1",
+        "VerifiedCallableCatalogV1",
+        "VerifiedCallableDeclarationV1",
+        "CatalogSealedResolverContinuationV1",
+        "CallableCatalogSealOutcomeV1",
+        "VerifiedCallableIndexV1::seal_many",
+        "resolver.issue_owner()",
+        "into_resolver(self)",
     ],
     owner_resolver: ["resolve_forest_with_root_callable"],
     resolved_target: ["ResolvedDirectCallTargetV1", "ResolvedCallableRefV1"],
@@ -112,7 +123,7 @@ for path, needles in required.items():
         if needle not in text:
             fail(f"missing contract {needle!r} in {path.relative_to(root)}")
 
-for path in [module_header_view, catalog_source_unit]:
+for path in [module_header_view, header_source_unit]:
     text = path.read_text()
     for forbidden in [
         "FunctionSyntaxViewV1",
@@ -135,17 +146,42 @@ for forbidden in [
     if forbidden in candidate_text:
         fail(f"CAT0-C0a owner-free candidate owns forbidden authority {forbidden!r}")
 
+catalog_text = catalog.read_text()
+for forbidden in [
+    "FunctionSyntaxViewV1",
+    "resolve_function_shadow",
+    "VerifiedSemanticOwnerForestV1",
+    "MirInstruction",
+    "MirBuilder",
+]:
+    if forbidden in catalog_text:
+        fail(f"CAT0-C0b catalog seal owns forbidden body/runtime authority {forbidden!r}")
+if re.search(
+    r"#\[derive\([^]]*Clone[^]]*\)\]\s*pub\(crate\) struct "
+    r"CatalogSealedResolverContinuationV1",
+    catalog_text,
+):
+    fail("CAT0-C0b resolver continuation must remain non-Clone and single-use")
+if re.search(
+    r"#\[derive\([^]]*Clone[^]]*\)\]\s*pub\(crate\) struct "
+    r"VerifiedCallableCatalogV1",
+    catalog_text,
+):
+    fail("CAT0-C0b catalog must remain attached to its owned Program source unit")
+
 source_unit_users = []
 for path in (root / "src").rglob("*.rs"):
     if path in {
-        catalog_source_unit,
+        header_source_unit,
         catalog_candidate,
-        root / "src/mir/resolved_semantics/callable_catalog_source_unit_tests.rs",
+        catalog,
+        root / "src/mir/resolved_semantics/callable_header_source_unit_tests.rs",
         root / "src/mir/resolved_semantics/callable_catalog_candidate_tests.rs",
+        root / "src/mir/resolved_semantics/callable_catalog_tests.rs",
         root / "src/mir/resolved_semantics/mod.rs",
     }:
         continue
-    if "VerifiedCallableCatalogSourceUnitV1" in path.read_text():
+    if "VerifiedCallableHeaderSourceUnitV1" in path.read_text():
         source_unit_users.append(str(path.relative_to(root)))
 if source_unit_users:
     fail(f"CAT0-S0 source unit has production callers: {source_unit_users}")
@@ -154,7 +190,9 @@ candidate_users = []
 for path in (root / "src").rglob("*.rs"):
     if path in {
         catalog_candidate,
+        catalog,
         root / "src/mir/resolved_semantics/callable_catalog_candidate_tests.rs",
+        root / "src/mir/resolved_semantics/callable_catalog_tests.rs",
         root / "src/mir/resolved_semantics/mod.rs",
     }:
         continue
@@ -162,6 +200,19 @@ for path in (root / "src").rglob("*.rs"):
         candidate_users.append(str(path.relative_to(root)))
 if candidate_users:
     fail(f"CAT0-C0a candidate product has production callers: {candidate_users}")
+
+catalog_users = []
+for path in (root / "src").rglob("*.rs"):
+    if path in {
+        catalog,
+        root / "src/mir/resolved_semantics/callable_catalog_tests.rs",
+        root / "src/mir/resolved_semantics/mod.rs",
+    }:
+        continue
+    if "VerifiedCallableCatalogSourceUnitV1" in path.read_text():
+        catalog_users.append(str(path.relative_to(root)))
+if catalog_users:
+    fail(f"CAT0-C0b final catalog has production callers: {catalog_users}")
 
 callable_index_text = callable_index.read_text()
 for forbidden in ["only_header(", ".values().find", ".values()\n            .find"]:
@@ -270,6 +321,7 @@ for pattern, allowed in allowed_by_pattern.items():
 for path in [
     *required,
     root / "src/mir/resolved_semantics/callable_index_tests.rs",
+    root / "src/mir/resolved_semantics/callable_catalog_tests.rs",
     root / "src/mir/canonical_direct_call_tests.rs",
     direct_call_profile_tests,
     direct_call_lower,
