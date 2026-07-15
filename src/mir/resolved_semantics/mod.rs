@@ -6,8 +6,10 @@
 // gives the schema its first shadow-only producer/consumer.
 #![allow(dead_code, unused_imports)]
 
+mod callable_catalog_source_unit;
 mod callable_header_view;
 mod callable_index;
+mod callable_module_header_view;
 mod direct_call;
 mod direct_call_verifier;
 mod function_root;
@@ -26,12 +28,17 @@ mod shadow;
 mod source_site;
 mod verifier;
 
+pub(crate) use callable_catalog_source_unit::VerifiedCallableCatalogSourceUnitV1;
 pub(crate) use callable_header_view::{CallableFunctionSyntaxViewV1, CallableHeaderSyntaxViewV1};
 pub(crate) use callable_index::{
     CallableCatalogCardinalityErrorV1, CallableIndexSealErrorV1, CallableLookupErrorV1,
     CallableNamespaceV1, CanonicalCallableKeyV1, CanonicalCallableSymbolV1,
     ExactTrivialCallableSignatureV1, ResolvedCallableRefV1, VerifiedCallableHeaderV1,
     VerifiedCallableIndexV1,
+};
+pub(crate) use callable_module_header_view::{
+    CallableModuleHeaderSyntaxErrorV1, CallableModuleHeaderSyntaxViewV1,
+    LocatedCallableHeaderSyntaxViewV1, SourceCallableDeclarationSiteV1,
 };
 pub(crate) use direct_call::{ResolvedDirectCallTargetV1, ResolvedDirectCallVerificationErrorV1};
 pub(crate) use function_root::{
@@ -80,6 +87,8 @@ pub use verifier::ResolvedFunctionVerificationErrorV1;
 
 #[cfg(test)]
 mod block_expr_tests;
+#[cfg(test)]
+mod callable_catalog_source_unit_tests;
 #[cfg(test)]
 mod direct_call_tests;
 #[cfg(test)]

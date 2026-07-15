@@ -15,6 +15,8 @@ def fail(message: str) -> None:
 root = pathlib.Path(sys.argv[1]).resolve()
 callable_index = root / "src/mir/resolved_semantics/callable_index.rs"
 header_view = root / "src/mir/resolved_semantics/callable_header_view.rs"
+module_header_view = root / "src/mir/resolved_semantics/callable_module_header_view.rs"
+catalog_source_unit = root / "src/mir/resolved_semantics/callable_catalog_source_unit.rs"
 direct_call = root / "src/mir/canonical_direct_call.rs"
 direct_call_contract = root / "src/mir/canonical_direct_call_contract.rs"
 direct_call_profile = root / "src/mir/resolved_value_profile/direct_call.rs"
@@ -48,6 +50,20 @@ required = {
         "CallableHeaderSyntaxViewV1",
         "CallableFunctionSyntaxViewV1",
         "from_function_ast",
+    ],
+    module_header_view: [
+        "SourceCallableDeclarationSiteV1",
+        "CallableModuleHeaderSyntaxViewV1",
+        "LocatedCallableHeaderSyntaxViewV1",
+        "UnsupportedProgramStatement",
+        "CallableHeaderSyntaxViewV1::from_function_ast",
+    ],
+    catalog_source_unit: [
+        "CanonicalProgramSyntaxOwnerV1",
+        "VerifiedCallableCatalogSourceUnitV1",
+        "seal_header_surface",
+        "declaration_sites",
+        "located_header",
     ],
     owner_resolver: ["resolve_forest_with_root_callable"],
     resolved_target: ["ResolvedDirectCallTargetV1", "ResolvedCallableRefV1"],
@@ -84,6 +100,30 @@ for path, needles in required.items():
     for needle in needles:
         if needle not in text:
             fail(f"missing contract {needle!r} in {path.relative_to(root)}")
+
+for path in [module_header_view, catalog_source_unit]:
+    text = path.read_text()
+    for forbidden in [
+        "FunctionSyntaxViewV1",
+        "VerifiedCallableIndexV1",
+        "FunctionOwnerIssuerV1",
+        "MirInstruction",
+    ]:
+        if forbidden in text:
+            fail(f"CAT0-S0 header-only surface owns forbidden authority {forbidden!r}")
+
+source_unit_users = []
+for path in (root / "src").rglob("*.rs"):
+    if path in {
+        catalog_source_unit,
+        root / "src/mir/resolved_semantics/callable_catalog_source_unit_tests.rs",
+        root / "src/mir/resolved_semantics/mod.rs",
+    }:
+        continue
+    if "VerifiedCallableCatalogSourceUnitV1" in path.read_text():
+        source_unit_users.append(str(path.relative_to(root)))
+if source_unit_users:
+    fail(f"CAT0-S0 source unit has production callers: {source_unit_users}")
 
 callable_index_text = callable_index.read_text()
 for forbidden in ["only_header(", ".values().find", ".values()\n            .find"]:

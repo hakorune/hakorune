@@ -1,12 +1,12 @@
 ---
-Status: Accepted and taskized — A′+; CAT0-D0/L0 closed, CAT0-S0 next
+Status: Accepted and taskized — A′+; CAT0-D0/L0/S0 closed, CAT0-C0a next
 Date: 2026-07-15
 Decision: A′+ — Program/catalog co-seal + single-use resolver continuation + canonical-key module identity
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-CAT0-S0-PROGRAM-HEADER-SOURCE-UNIT-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-CAT0-C0A-OWNER-FREE-HEADER-CANDIDATES-001
 Parent taskboard: mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
 Previous closed card: mirbuilder-ssa-i1-compat-p0c-i64-call-design-stop-2026-07-15.md
 Decision-input baseline commit: ec570ea696
-Next code-facing row: CAT0-S0
+Next code-facing row: CAT0-C0a
 ---
 
 # P0c-CAT0 Module Callable Catalog — A′+ Decision and Taskboard
@@ -463,7 +463,7 @@ CAT0-L0:
   add ordering only where required for exact map keys
 
 CAT0-S0:
-  code row
+  CLOSED — code row
   CallableModuleHeaderSyntaxViewV1
   SourceCallableDeclarationSiteV1
   Program-owned VerifiedCallableCatalogSourceUnitV1 shell
@@ -567,7 +567,38 @@ all touched source/check files < 800 lines
 
 Grammar, Program admission, multi-header sealing, body authority, sibling-call
 activation, runtime/backend behavior, and ownership operations remain zero.
-The next code-facing row is `CAT0-S0`.
+The next code-facing row is `CAT0-C0a`.
+
+### CAT0-S0 exit gate
+
+```text
+source ownership:
+  one owned non-empty ASTNode::Program
+  opaque u32 declaration sites derived from statement order
+  callers cannot supply Program and site inventory independently
+
+surface:
+  every top-level statement is FunctionDeclaration
+  unsupported top-level statements reject the whole source unit
+  only body-free CallableHeaderSyntaxViewV1 rows are exposed
+  function bodies remain unread, even when they contain unsupported nodes
+
+non-delta:
+  exact-i64 header/profile validation = 0
+  owner/origin issuance = 0
+  multi-header callable index seal = 0
+  body resolution / sibling call / Builder / Lower / runtime = 0
+
+verification:
+  focused source-unit fixtures = 4/4
+  resolved semantics = 133/133
+  callable authority guard = green
+  release build = green
+  quick gate = 66/66
+  all touched source/check files < 800 lines
+```
+
+State: closed on 2026-07-15. The next code-facing row is `CAT0-C0a`.
 
 ### MP0-TX0 exit gate
 

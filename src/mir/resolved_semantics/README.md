@@ -239,6 +239,16 @@ The symbol is never parsed back into source identity. The runtime/plugin
 Box-callable registry, MIR module function table, legacy global resolver, and
 Lower name comparisons are not callable-index authorities.
 
+CAT0-S0 adds a separate Program-owned header source-unit shell. It validates
+the complete top-level surface as one non-empty function-only Program before
+exposing opaque `SourceCallableDeclarationSiteV1` rows. Callers can borrow
+only `CallableHeaderSyntaxViewV1` through those sites; the owned Program, raw
+statement list, function bodies, and a constructor that pairs independent
+Program/catalog products remain hidden. S0 does not validate exact-i64 header
+profiles, issue owners, build a multi-header index, resolve bodies, or connect
+Builder/Lower/runtime behavior. Those responsibilities begin at CAT0-C0a and
+later rows.
+
 ## Authority
 
 - The canonical AST owns syntax and source execution order.

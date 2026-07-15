@@ -2412,12 +2412,13 @@ state.
 
 ## Immediate next action
 
-Implement **CAT0-S0 — function-only Program header source unit**.
+Implement **CAT0-C0a — owner-free header candidate validation**.
 P0c-I1 already admits exactly one current-owner FunctionCall with exact-i64
 arguments/result through the generic co-sealed call row, without raw-name
 lookup, legacy recovery, fallback, or ownership operations. The CAT0 design
-stop is closed as A′+, and CAT0-L0 has closed the behavior-neutral primary
-header/reverse-index substrate.
+stop is closed as A′+, CAT0-L0 has closed the behavior-neutral primary
+header/reverse-index substrate, and CAT0-S0 now owns one exact function-only
+Program surface without body authority.
 
 Decision/task card:
 `mirbuilder-ssa-i1-compat-p0c-cat0-module-callable-catalog-consultation-2026-07-15.md`.
@@ -2446,12 +2447,13 @@ single-root semantic owner forest. MP0 is keyed by canonical callable key,
 resolves bodies only after the complete catalog exists, and batch-publishes
 verified drafts only after exact catalog/draft correspondence is sealed.
 
-CAT0-S0 adds only the owned exact function-only Program header source-unit
-shell, opaque declaration sites, and whole-surface coverage. It must not read
-function bodies, issue owners, seal multiple headers, activate sibling calls,
-or infer the catalog from MIR module symbols or legacy global-call lookup.
-Grammar, route, runtime, MIR publication, and ownership operations remain
-unchanged.
+CAT0-C0a must consume only the S0 body-free located headers, validate every
+owner-free exact-i64 candidate, and reject duplicate source keys/profile drift
+before any FunctionOriginV1 or FunctionOwnerIdV1 is issued. It must not add a
+second Program surface, inspect bodies, build the final owned catalog, create
+the resolver continuation, activate sibling calls, or infer targets from MIR
+module symbols or legacy global-call lookup. Grammar, route, runtime, MIR
+publication, and ownership operations remain unchanged.
 
 Ownership V2 parser/resolver/MIR work and `.hako` selfhost parser/MIR-builder
 migration remain separate parked lanes. They are not hidden CAT0 prerequisites
