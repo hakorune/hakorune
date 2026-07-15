@@ -1,8 +1,8 @@
 ---
-Status: Active — R0a-I1 closed; P0c-i64 source Call design stop next
+Status: Active — P0c-i64 A′ accepted; behavior-neutral P0c-L0 next
 Date: 2026-07-15
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-DESIGN-STOP-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-L0-IMPLEMENTATION-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -1431,6 +1431,32 @@ existing ReturnExitContract remains final-callee runtime authority. Unsupported
 typed returns do not retry A+, unsupported backends fail before effects, and
 return-specific ValueIds or ownership operations remain zero.
 
+Selected fifth row:
+
+```text
+SSA-I1-COMPAT-P0c-i64 A′:
+  exact current-owner static self call first
+  generic ResolvedCallableRefV1 target
+  source-unit-owned one-entry VerifiedCallableIndexV1
+  exactly one FunctionCall site
+  exact i64 arguments -> exact i64 result
+  conservative call barrier
+  explicit canonical_direct_static_call_v1 backend capability
+  Rust MIR interpreter only
+```
+
+Task card:
+`mirbuilder-ssa-i1-compat-p0c-i64-call-design-stop-2026-07-15.md`.
+
+Implement it as one Refactor Series Mode objective: behavior-neutral P0c-L0,
+disconnected P0c-S0, then atomic P0c-I1. The callable index remains the sole
+header authority; the direct-call row contains only a co-sealed Lower-ready
+projection. A current-function-specific target variant, raw name lookup in
+Lower, legacy call recovery, generic-call backend inference, and fallback are
+forbidden. Sibling calls, multi-function publication, mutual recursion,
+MethodCall/receiver, Box/View/Shared results, and Ownership SSA remain later
+rows.
+
 The remaining rows stay separate: exact typed parameters do not include the
 receiver owner family; Void disposition does not imply Outbox identity;
 BorrowedText requires its own lifetime/ABI decision.
@@ -2362,8 +2388,11 @@ state.
 
 ## Immediate next action
 
-Stop at **P0c-i64 — exact known-static source Call design selection**. Before
-implementation, fix one source/callee signature authority, one call-site
-argument/result ABI carrier, backend fail-fast, and no retry/fallback. Reuse
-P0a parameter ingress and R0a return egress; do not activate MethodCall,
-receiver, Box/View/Shared returns, broader numeric rows, or Ownership SSA.
+Implement **P0c-L0 — behavior-neutral generic callable facade**. Add one bounded
+callable-header view, generic callable key/reference/symbol vocabulary, the
+one-entry callable-index builder/sealer, the verified canonical direct-call
+emission facade, the conservative effect mapper, and passive
+`canonical_direct_static_call_v1` capability vocabulary. Production callers,
+grammar, route, and runtime behavior remain unchanged. Do not begin disconnected
+P0c-S0 until L0 guards are green; do not activate FunctionCall, MethodCall,
+receiver, sibling calls, ownership operations, or backend widening in L0.
