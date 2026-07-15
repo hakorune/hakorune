@@ -18,5 +18,5 @@ replacement value or reconstruct source type/name authority.
 callable declarations from sealed rows before body effects and refreshes
 parameter then return boundary carriers on the unpublished draft. Raw source
 return annotations and broad compatibility type mapping must not cross this
-facade. R0a-L0 intentionally installs no typed return; the later sealed return
-witness extends this same entrance.
+facade. R0a-I1 installs an exact typed result only from the co-sealed return
+witness; raw annotation reads remain forbidden in resolved lowering.

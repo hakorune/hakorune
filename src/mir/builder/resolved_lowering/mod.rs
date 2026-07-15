@@ -33,6 +33,8 @@ mod null_tests;
 #[cfg(test)]
 mod parameter_tests;
 #[cfg(test)]
+mod return_tests;
+#[cfg(test)]
 mod semantic_stack_tests;
 #[cfg(test)]
 mod tests;
@@ -154,7 +156,7 @@ impl MirBuilder {
         self.with_resolved_function_lowering_session(&session_name, |builder| {
             builder.resolved_binding_state.install(input.function())?;
             builder.create_function_skeleton(function_name, params, body)?;
-            install_trivial_callable_abi_v1(builder, profile.parameter_entries());
+            install_trivial_callable_abi_v1(builder, &profile);
             builder.set_current_function_runes(attrs);
             builder.set_current_function_declared_capability_uses(uses);
 

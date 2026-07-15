@@ -1,8 +1,8 @@
 ---
-Status: Active — R0a-S0 closed; atomic R0a-I1 activation next
+Status: Active — R0a-I1 closed; P0c-i64 source Call design stop next
 Date: 2026-07-15
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-R0A-I1-IMPLEMENTATION-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-DESIGN-STOP-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -1424,6 +1424,13 @@ consumers and production typed-return admission remains inactive. The strict
 corpus census found 34 zero/all-exact-i64-parameter return signatures, all on
 instance owners, so static R0a candidates remain zero.
 
+Atomic R0a-I1 is closed. Only the sealed static exact-`i64` return row enters
+Binding SSA; callable metadata comes from the sealed parameter/return profile,
+the existing terminal and Binding SSA remain returned-value authority, and the
+existing ReturnExitContract remains final-callee runtime authority. Unsupported
+typed returns do not retry A+, unsupported backends fail before effects, and
+return-specific ValueIds or ownership operations remain zero.
+
 The remaining rows stay separate: exact typed parameters do not include the
 receiver owner family; Void disposition does not imply Outbox identity;
 BorrowedText requires its own lifetime/ABI decision.
@@ -2355,8 +2362,8 @@ state.
 
 ## Immediate next action
 
-R0a-S0 is closed. Implement **R0a-I1 — atomic exact-i64 typed-return
-activation** next. Only the sealed R0a row may enter Binding SSA; callable
-metadata and boundary contracts must be installed/refreshed before draft
-verification and publication. Unsupported backends remain fail-fast and no
-route retry is allowed.
+Stop at **P0c-i64 — exact known-static source Call design selection**. Before
+implementation, fix one source/callee signature authority, one call-site
+argument/result ABI carrier, backend fail-fast, and no retry/fallback. Reuse
+P0a parameter ingress and R0a return egress; do not activate MethodCall,
+receiver, Box/View/Shared returns, broader numeric rows, or Ownership SSA.

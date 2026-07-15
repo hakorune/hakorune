@@ -1,5 +1,5 @@
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl, Span};
-use crate::mir::compiler::capability::CanonicalLoweringPreflightV1;
+use crate::mir::compiler::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
 use crate::mir::resolved_control_flow::if_control::verify_resolved_function_if_control_v1;
@@ -141,12 +141,15 @@ fn typed_return_requires_exact_spelling_and_inline_i64_terminal() {
 }
 
 #[test]
-fn exact_i64_return_remains_disconnected_from_production_preflight() {
+fn exact_i64_return_selects_production_binding_ssa_route() {
     let root = function(
         &[],
         Some("i64"),
         vec![return_(Some(literal(LiteralValue::Integer(42))))],
     );
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
-    assert!(CanonicalLoweringPreflightV1::verify(&unit).is_err());
+    assert!(matches!(
+        CanonicalLoweringPreflightV1::verify(&unit).unwrap(),
+        CanonicalFirstFamilyPlanV1::TrivialBindingSsa(_)
+    ));
 }

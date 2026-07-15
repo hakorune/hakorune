@@ -43,8 +43,9 @@ allocates no `ValueId` and has no production Builder connection until P0a-I1.
 
 The first return witness accepts only exact source `i64` co-sealed with the
 existing final explicit `InlineI64` terminal, completion, and coverage row.
-R0a-S0 keeps this witness disconnected: no Builder consumer or production
-typed-return admission exists until the atomic R0a-I1 slice.
+R0a-I1 connects this witness through the route-local callable-ABI facade. Only
+the co-sealed exact `i64` row reaches production; the terminal remains return-
+value authority and resolved Lower does not reread the raw annotation.
 
 Profile rejection is data, not fallback. A later compiler route may select the
 existing canonical A+ path from a sealed rejection before Builder effects, but

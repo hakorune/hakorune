@@ -92,7 +92,7 @@
       "source_spelling": "i64",
       "representation": "InlineI64",
       "terminal_authority": "existing_explicit_value_terminal",
-      "production_route": "disconnected"
+      "production_route": "canonical_binding_ssa"
     }
   ],
   "value_rows": [

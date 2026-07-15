@@ -130,7 +130,7 @@ EXPECTED_RETURN_ROWS = {
         "i64",
         "InlineI64",
         "existing_explicit_value_terminal",
-        "disconnected",
+        "canonical_binding_ssa",
     )
 }
 
@@ -457,7 +457,7 @@ def main() -> None:
         "exact_i64_return_witness_co_seals_with_existing_terminal",
         "exact_i64_parameter_and_return_share_one_profile",
         "typed_return_requires_exact_spelling_and_inline_i64_terminal",
-        "exact_i64_return_remains_disconnected_from_production_preflight",
+        "exact_i64_return_selects_production_binding_ssa_route",
     ):
         if f"fn {fixture}(" not in test_text:
             fail(f"focused profile fixture missing: {fixture}")
@@ -482,6 +482,7 @@ def main() -> None:
     if external_profile_callers != ["src/mir/compiler/capability.rs"]:
         fail(f"profile analyzer caller set drifted: {external_profile_callers}")
     if set(external_profile_references) != {
+        "src/mir/builder/resolved_lowering/trivial_ssa/callable_abi.rs",
         "src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs",
         "src/mir/compiler/capability.rs",
     }:
@@ -506,8 +507,10 @@ def main() -> None:
             continue
         if ".function_return()" in production_text(path):
             external_return_consumers.append(str(path.relative_to(root)))
-    if external_return_consumers:
-        fail(f"disconnected return witness gained consumers: {external_return_consumers}")
+    if external_return_consumers != [
+        "src/mir/builder/resolved_lowering/trivial_ssa/callable_abi.rs"
+    ]:
+        fail(f"return witness consumer set drifted: {external_return_consumers}")
 
     binding_box = root / "src/mir/builder/ssa/binding"
     binding_callers = []

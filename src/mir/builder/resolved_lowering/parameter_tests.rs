@@ -234,21 +234,6 @@ fn unsupported_typed_parameter_shapes_fail_before_lowering() {
             })
         ));
     }
-
-    let typed_return = VerifiedResolvedSourceUnitV1::resolve_function(typed_function(
-        "typed_return",
-        &[Some("i64")],
-        Some("i64"),
-        vec![return_(variable("p0"))],
-    ))
-    .unwrap();
-    assert!(matches!(
-        CanonicalLoweringPreflightV1::verify(&typed_return),
-        Err(CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape {
-            reason: "typed_signature_not_activated",
-            ..
-        })
-    ));
 }
 
 #[test]

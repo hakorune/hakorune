@@ -127,8 +127,7 @@ impl CanonicalLoweringPreflightV1 {
                 "function_metadata_not_activated",
             );
         }
-        if return_type_name.is_some()
-            || (!param_decls.is_empty() && param_decls.len() != params.len())
+        if (!param_decls.is_empty() && param_decls.len() != params.len())
             || (!param_decls.is_empty()
                 && param_decls
                     .iter()
@@ -180,6 +179,13 @@ impl CanonicalLoweringPreflightV1 {
                 ));
             }
             TrivialCanonicalOwnerAnalysisV1::NotAdmitted(_) => {
+                if return_type_name.is_some() {
+                    return unsupported(
+                        "root",
+                        function.source().root(),
+                        "typed_return_profile_not_activated",
+                    );
+                }
                 if param_decls
                     .iter()
                     .any(|declaration| declaration.declared_type_name.is_some())

@@ -1,8 +1,8 @@
 ---
-Status: Active; R0a-S0 closed, atomic R0a-I1 next
+Status: Closed; R0a-I1 production activation green
 Date: 2026-07-15
 Decision: SSA-I1-COMPAT-R0a — static exact-i64 typed return
-Next blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-R0A-I1-IMPLEMENTATION-001
+Next blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-DESIGN-STOP-001
 Related:
   - mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
   - mirbuilder-ssa-i1-compat-static-i64-parameter-selection-2026-07-15.md
@@ -452,6 +452,44 @@ fallback/retry = 0
 
 Only I1 may change production routing.
 
+R0a-I1 is closed. Landed evidence:
+
+```text
+preflight:
+  exact sealed R0a enters TrivialBindingSsa
+  every other typed return fails as typed_return_profile_not_activated
+  typed-return A+ retry = 0
+
+callable ABI:
+  parameter and result declarations come only from the sealed profile
+  raw return_type_name reads in resolved Lower = 0
+
+value authority:
+  returned parameter/local/If PHI uses the existing Binding SSA ValueId
+  fresh return ValueId = 0
+  CopyOwned / DestroyOwned / ReleaseStrong = 0
+
+publication/runtime:
+  parameter and return boundary contracts refresh on the unpublished draft
+  MirVerifier runs before module publication
+  Rust MIR interpreter validates the final result before caller observation
+  unsupported backends fail through the existing capability gate
+```
+
+Verification:
+
+```text
+R0a focused runtime/transport fixtures: 5/5
+P0a parameter fixtures: 5/5
+resolved-value-profile fixtures: 22/22
+resolved Binding SSA guard: green
+resolved-region-flow authority guard: green
+release build: green
+quick gate: green
+current-state pointer guard: green
+all touched source/check files: < 800 lines
+```
+
 ## Required fixtures
 
 Positive:
@@ -591,7 +629,8 @@ P0r
   receiver / BoxRef / method routing / ownership witness
 ```
 
-The next action is atomic R0a-I1. Admit only the exact sealed R0a row, install
-callable metadata from the parameter and return witnesses before body effects,
-refresh both boundary contracts before verification/publication, and retain
-Rust-interpreter-only backend fail-fast with no retry.
+R0a is closed. The next task is the **P0c-i64 source Call design stop**. It must
+name the exact known-static callee-signature authority, call-site argument and
+result ABI carrier, backend fail-fast boundary, and no-fallback rule before any
+Call grammar or Lowering activation. P0c must reuse P0a + R0a rather than add a
+second parameter/result/value authority.

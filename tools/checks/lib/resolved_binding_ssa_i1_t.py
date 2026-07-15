@@ -89,7 +89,7 @@ def main() -> None:
         "fn build_resolved_trivial_function_module(",
         "CanonicalTrivialSsaLowererV1::new(",
         "finalize_preterminated_function_completion",
-        "install_trivial_callable_abi_v1(builder, profile.parameter_entries())",
+        "install_trivial_callable_abi_v1(builder, &profile)",
         "refresh_trivial_callable_boundary_contracts_v1(&mut draft)",
         ".verify_function(&draft)",
     ):
@@ -97,7 +97,9 @@ def main() -> None:
 
     for anchor in (
         "row.abi().mir_param_decl(row.source_name())",
-        "set_current_function_declared_signature(declared_parameters, None)",
+        ".function_return()",
+        "row.abi().source_type_name().to_string()",
+        "set_current_function_declared_signature(declared_parameters, declared_result)",
         "refresh_function_parameter_entry_contracts",
         "refresh_function_return_exit_contract",
     ):
@@ -196,7 +198,10 @@ def main() -> None:
     print("canonical_ssa_i1_t_cfg_callers=1")
     print("canonical_ssa_i1_t_legacy_rc_on_selected_route=0")
     print("canonical_ssa_i1_t_ownership_opcode_callers=0")
-    print("canonical_ssa_i1_t_accepted_grammar_delta=exact-static-i64-parameters")
+    print(
+        "canonical_ssa_i1_t_accepted_grammar_delta="
+        "exact-static-i64-parameters-and-return"
+    )
 
 
 if __name__ == "__main__":

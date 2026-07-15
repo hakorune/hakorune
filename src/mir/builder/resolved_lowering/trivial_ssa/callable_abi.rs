@@ -5,24 +5,24 @@
 //! admission do not belong in this box.
 
 use crate::mir::builder::MirBuilder;
-use crate::mir::resolved_value_profile::product::VerifiedTrivialParameterEntryV1;
+use crate::mir::resolved_value_profile::product::VerifiedTrivialCanonicalOwnerV1;
 use crate::mir::MirFunction;
 
 /// Install the currently sealed callable ABI before body effects.
 ///
-/// R0a-L0 remains behavior-neutral: the closed profile has parameter rows but
-/// no typed-return witness yet, so the declared result is intentionally None.
-/// R0a-S0 will extend this facade with the sealed return witness rather than
-/// restoring a raw AST read in resolved lowering.
 pub(in crate::mir::builder::resolved_lowering) fn install_trivial_callable_abi_v1(
     builder: &mut MirBuilder,
-    parameter_entries: &[VerifiedTrivialParameterEntryV1],
+    profile: &VerifiedTrivialCanonicalOwnerV1,
 ) {
-    let declared_parameters = parameter_entries
+    let declared_parameters = profile
+        .parameter_entries()
         .iter()
         .map(|row| row.abi().mir_param_decl(row.source_name()))
         .collect();
-    builder.set_current_function_declared_signature(declared_parameters, None);
+    let declared_result = profile
+        .function_return()
+        .map(|row| row.abi().source_type_name().to_string());
+    builder.set_current_function_declared_signature(declared_parameters, declared_result);
 }
 
 /// Refresh callable-boundary carriers in their canonical order on the
