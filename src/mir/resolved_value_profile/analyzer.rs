@@ -52,6 +52,19 @@ pub(super) fn analyze_trivial_canonical_owner_with_direct_call_impl_v1(
     )
 }
 
+pub(super) fn analyze_trivial_canonical_owner_with_finite_direct_calls_impl_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    completion: &VerifiedFunctionCompletionV1,
+    if_control: &VerifiedResolvedFunctionIfControlV1,
+) -> Result<TrivialCanonicalOwnerAnalysisV1, TrivialProfileContractErrorV1> {
+    analyze_with_call_policy(
+        input,
+        completion,
+        if_control,
+        DirectCallPolicyV1::OneOrMoreExact,
+    )
+}
+
 fn analyze_with_call_policy(
     input: ResolvedFunctionLoweringInputV1<'_>,
     completion: &VerifiedFunctionCompletionV1,
@@ -80,6 +93,7 @@ enum ReturnPolicyV1 {
 enum DirectCallPolicyV1 {
     Forbidden,
     ExactlyOne,
+    OneOrMoreExact,
 }
 
 struct AnalyzerV1<'a> {
@@ -140,12 +154,19 @@ impl<'a> AnalyzerV1<'a> {
             ReturnPolicyV1::RootFinalOnly,
         )?;
 
-        if self.direct_call_policy == DirectCallPolicyV1::ExactlyOne && self.direct_call_count != 1
-        {
-            return Err(TrivialProfileContractErrorV1::DirectCallCardinality {
-                actual: self.direct_call_count,
+        match self.direct_call_policy {
+            DirectCallPolicyV1::ExactlyOne if self.direct_call_count != 1 => {
+                return Err(TrivialProfileContractErrorV1::DirectCallCardinality {
+                    actual: self.direct_call_count,
+                }
+                .into())
             }
-            .into());
+            DirectCallPolicyV1::OneOrMoreExact if self.direct_call_count == 0 => {
+                return Err(
+                    TrivialProfileContractErrorV1::DirectCallCardinality { actual: 0 }.into(),
+                )
+            }
+            _ => {}
         }
 
         if self.terminal.is_none() {
@@ -604,15 +625,26 @@ impl<'a> AnalyzerV1<'a> {
             ASTNode::FunctionCall {
                 name, arguments, ..
             } => {
-                if self.direct_call_policy != DirectCallPolicyV1::ExactlyOne
-                    || self.direct_call_count != 0
-                {
-                    return stop_expression(
-                        expression,
-                        TrivialProfileStopReasonV1::ExpressionOutsideProfile,
-                    );
+                match self.direct_call_policy {
+                    DirectCallPolicyV1::Forbidden => {
+                        return stop_expression(
+                            expression,
+                            TrivialProfileStopReasonV1::ExpressionOutsideProfile,
+                        )
+                    }
+                    DirectCallPolicyV1::ExactlyOne => {
+                        if self.direct_call_count != 0 {
+                            return stop_expression(
+                                expression,
+                                TrivialProfileStopReasonV1::ExpressionOutsideProfile,
+                            );
+                        }
+                        // Preserve the exact-one route's current rejection
+                        // point for nested or later calls.
+                        self.direct_call_count = 1;
+                    }
+                    DirectCallPolicyV1::OneOrMoreExact => {}
                 }
-                self.direct_call_count = 1;
                 let mut argument_sites = Vec::with_capacity(arguments.len());
                 for index in 0..arguments.len() {
                     let ordinal = u32::try_from(index).map_err(|_| {
@@ -633,6 +665,14 @@ impl<'a> AnalyzerV1<'a> {
                         );
                     }
                     argument_sites.push(argument.site().clone());
+                }
+                if self.direct_call_policy == DirectCallPolicyV1::OneOrMoreExact {
+                    self.direct_call_count =
+                        self.direct_call_count.checked_add(1).ok_or_else(|| {
+                            TrivialProfileContractErrorV1::DirectCallCardinalityOverflow {
+                                site: expression.site().clone(),
+                            }
+                        })?;
                 }
                 self.fact_coverage
                     .direct_call_target(self.input.function(), expression.site())?;

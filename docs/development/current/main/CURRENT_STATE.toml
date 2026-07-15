@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ P0c-F selected; DX0a finite direct-call analysis next"
+status = "D′ P0c-F-DX0a closed; DX0b function-level capability next"
 date = "2026-07-15"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -133,9 +133,11 @@ separate sealed authorities; declaration order is stable; MIR interpreter
 execution and VM-only backend fail-fast are green; ownership operations and
 fallback remain zero. P0c-F is now selected and absorbs P0c-N: multiple and
 nested calls are fixtures inside one exact acyclic-module row. P0c-F-DX0a is
-next and adds only a disconnected one-or-more exact-call analysis/preflight
-request; the existing exact-one self-call ingress remains unchanged. DX0b
-moves direct-call capability installation to once per calling function, then
+closed: one disconnected one-or-more exact-call analysis/preflight request
+records nested calls child-before-parent with checked cardinality while the
+existing exact-one self-call ingress remains unchanged and generalized
+production callers stay zero. DX0b is next and moves direct-call capability
+installation to once per calling function, then
 S0 seals a topology-only DAG witness, V0 seals a typed module plan plus one
 read-only census, and I1 activates the existing atomic module ingress. Mutual
 recursion/SCC remains parked for a separate post-F decision.
@@ -261,10 +263,12 @@ latest_card_path = "docs/development/current/main/investigations/mirbuilder-p0c-
 latest_card_summary = """P0c-F is accepted and absorbs P0c-N. The durable next
 family is one exact function-only, static exact-i64 acyclic callable module;
 multiple, nested, argument-position, repeated-edge, and multi-target calls are
-fixtures inside that family rather than separate production rows. DX0a adds a
-disconnected one-or-more exact-call analyzer/preflight request while retaining
-the current exact-one self-call route; DX0b installs one backend capability per
-calling function before expression lowering. S0 derives a topology-only
+fixtures inside that family rather than separate production rows. DX0a is
+closed with a disconnected one-or-more exact-call analyzer/preflight request,
+child-before-parent nested call rows, checked cardinality, the current exact-one
+self-call route retained, and generalized production callers zero. DX0b is
+next and installs one backend capability per calling function before expression
+lowering. S0 derives a topology-only
 canonical-key site/unique-edge inventory and deterministic DAG witness solely
 from the resolved module. V0 combines that graph with a complete typed trivial
 plan set and records one non-authoritative selfhost census. I1 replaces the B1
@@ -690,7 +694,7 @@ MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-F-DX0A-FINITE-DIRECT-CALL-ANALYSIS-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-F-DX0B-FUNCTION-CALL-CAPABILITY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -699,7 +703,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-07-15: D′ callable-widening consultation selects and taskizes P0c-F with P0c-N absorbed: the next row is disconnected P0c-F-DX0a, which adds an explicit one-or-more exact-call analysis/preflight request while preserving the current exact-one self-call ingress; DX0b separately moves direct-call capability installation from per-call emission to one sealed marker per calling function; S0 owns only canonical-key site/unique-edge inventory and deterministic DAG proof; V0 owns a complete typed trivial plan plus one evidence-only selfhost census; I1 reuses the existing unpublished-draft atomic module transaction; multiple/nested/argument calls are F fixtures, all effects remain ConservativeBarrier, and self/mutual recursion, SCC, ownership, MethodCall/receiver, backend widening, fallback, and files over 800 lines remain rejected.",
+  "2026-07-15: D′ P0c-F-DX0a closes the behavior-neutral finite direct-call analysis substrate: the existing call-disabled and exact-one production facades remain unchanged; one disconnected one-or-more analyzer/preflight request recursively verifies call arguments, records nested calls child-before-parent, uses checked cardinality, and preserves the co-sealed target/ABI/effect row plus exact-once coverage authority; generalized production callers, module admission, capability metadata changes, MIR publication, runtime/backend widening, fallback, and ownership operations remain zero; focused profile 7/7, finite preflight 2/2, sibling-call 3/3, module-preflight 3/3, release finite preflight 2/2, authority guard, release build, quick 66/66, and <800-line touched source/check files are green; P0c-F-DX0b function-level capability installation is next.",
   "2026-07-15: D′ P0c-B1 closes one exact production sibling-call ingress: VerifiedResolvedCallableProgramV1 owns the complete function-only Program through CAT0 catalog seal and MP0 body resolution; a narrow activation witness accepts exactly two static exact-i64 functions and exactly one non-self direct-call edge before Builder effects; each function input transports its caller header while the co-sealed direct-call row retains target authority, so Lower checks the current draft against the caller and emits only the verified target without raw-name or module-table lookup; all drafts retain MP0 atomic batch publication; forward/backward declaration order, interpreter result 41->42, rejection/reuse, VM-only backend fail-fast, self-call/profile/module/transaction regressions, authority guard, release build, quick 66/66, and <800-line touched source/check files are green; CopyOwned/DestroyOwned/ReleaseStrong, MethodCall/receiver, fallback, multiple calls, and mutual recursion remain zero; the next callable widening is a design stop among multiple/nested calls, broader acyclic modules, and mutual recursion/SCC closure.",
   "2026-07-15: D′ MP0-TX0 closes unpublished verified callable-draft batching and atomic candidate publication: each canonical-keyed function plan lowers through a restored function session into a MirFunction absent from the candidate module; one verified draft set checks exact catalog/header lookup, symbol, signature arity, unique draft key/symbol, and catalog/function/plan/draft cardinality before the sole try_add_functions_atomic site; existing-module and within-batch collisions precheck before mutation; actual two-function lowering, declaration reorder, injected late-draft failure, symbol drift, duplicate batch, and late existing-module collision prove no partial publication; production transaction callers, sibling-call activation, ownership ops, backend widening, and fallback remain zero; resolved-lowering debug 79/79, transaction release 4/4, authority guard, release build, quick gate, and <800-line touched source/check files are green; P0c-B1 exact two-function one-sibling-edge activation is next.",
   "2026-07-15: D′ MP0-P0 closes whole-module preflight before Builder effects: every CanonicalCallableKeyV1 obtains one exact ResolvedFunctionLoweringInputV1 from the same Program/catalog-owned resolved module; the existing function-level CanonicalLoweringPreflightV1 remains the sole capability/profile authority; all plans accumulate in a temporary canonical-keyed map and publish only after exact cardinality match; declaration reorder preserves the plan key set and a late function failure returns no partial module product; Builder/MIR draft/MirFunction/MirModule publication, runtime/backend/ownership deltas, and production sibling-call activation remain zero; focused preflight 3/3, resolved callable module 9/9, capability 5/5, debug resolved semantics 144/144, authority guard, release build, quick 66/66, and <800-line touched source/check files are green; MP0-TX0 unpublished verified draft batching and atomic publication is next.",

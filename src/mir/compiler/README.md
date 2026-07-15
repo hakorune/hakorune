@@ -140,3 +140,15 @@ current draft against the caller header and materializes the target only from
 the verified row. It performs no raw-name or module-table lookup. All drafts
 still publish through the MP0 atomic batch, and the first executable backend
 remains the Rust MIR interpreter.
+
+## P0c-F-DX0a finite direct-call preflight
+
+`verify_function_with_finite_direct_calls_v1` is a disconnected preflight
+facade for one-or-more exact direct-call sites, including nested calls in
+argument position. It reuses the existing function-owned Binding SSA and
+co-sealed direct-call rows; it creates no second call, ABI, or value authority.
+
+The production `verify_function` entry remains on its exact-one admission law.
+No module ingress calls the finite facade through DX0a. Capability installation
+is also unchanged here; moving it from per-call emission to exactly once per
+calling function is the separate P0c-F-DX0b row.

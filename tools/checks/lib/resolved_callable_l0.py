@@ -32,6 +32,8 @@ module_preflight_tests = (
     root / "src/mir/compiler/resolved_callable_module_preflight_tests.rs"
 )
 compiler_mod = root / "src/mir/compiler/mod.rs"
+compiler_capability = root / "src/mir/compiler/capability.rs"
+finite_call_tests = root / "src/mir/compiler/finite_direct_call_tests.rs"
 function_input = root / "src/mir/compiler/function_input.rs"
 callable_module_input = root / "src/mir/compiler/resolved_callable_module_input.rs"
 sibling_activation = root / "src/mir/compiler/sibling_call_activation.rs"
@@ -49,6 +51,9 @@ direct_call = root / "src/mir/canonical_direct_call.rs"
 direct_call_contract = root / "src/mir/canonical_direct_call_contract.rs"
 direct_call_profile = root / "src/mir/resolved_value_profile/direct_call.rs"
 direct_call_profile_tests = root / "src/mir/resolved_value_profile/direct_call_tests.rs"
+profile_analyzer = root / "src/mir/resolved_value_profile/analyzer.rs"
+profile_error = root / "src/mir/resolved_value_profile/error.rs"
+profile_mod = root / "src/mir/resolved_value_profile/mod.rs"
 direct_call_lower = root / "src/mir/builder/resolved_lowering/trivial_ssa/direct_call.rs"
 direct_call_lower_tests = root / "src/mir/builder/resolved_lowering/direct_call_tests.rs"
 capability = root / "src/mir/canonical_direct_static_call_capability.rs"
@@ -596,6 +601,15 @@ allowed_by_pattern = {
         root / "src/mir/resolved_value_profile/mod.rs",
         direct_call_profile_tests,
     },
+    r"analyze_trivial_canonical_owner_with_finite_direct_calls_v1": {
+        compiler_capability,
+        profile_mod,
+        direct_call_profile_tests,
+    },
+    r"verify_function_with_finite_direct_calls_v1": {
+        compiler_capability,
+        finite_call_tests,
+    },
     r"\.claim_direct_call\(": {
         direct_call_profile_tests,
         root / "src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs",
@@ -627,8 +641,13 @@ for path in [
     catalog_tests,
     root / "src/mir/canonical_direct_call_tests.rs",
     direct_call_profile_tests,
+    profile_analyzer,
+    profile_error,
+    profile_mod,
     direct_call_lower,
     direct_call_lower_tests,
+    compiler_capability,
+    finite_call_tests,
     resolved_module,
     resolved_module_tests,
     function_input,
@@ -652,5 +671,23 @@ for path in [
 
 if direct_call_lower_tests.read_text().count("#[test]") != 5:
     fail("P0c-I1 focused runtime fixture count must remain exactly five")
+
+if direct_call_profile_tests.read_text().count("#[test]") != 7:
+    fail("P0c-F-DX0a profile fixture count must remain exactly seven")
+
+if finite_call_tests.read_text().count("#[test]") != 2:
+    fail("P0c-F-DX0a preflight fixture count must remain exactly two")
+
+compiler_capability_text = compiler_capability.read_text()
+for marker in [
+    "DirectCallAdmissionV1::ExistingExactOne",
+    "DirectCallAdmissionV1::FiniteOneOrMore",
+    "verify_expression(input, &argument, expression_policy)",
+]:
+    if marker not in compiler_capability_text:
+        fail(f"P0c-F-DX0a preflight boundary missing: {marker}")
+
+if "DirectCallPolicyV1::OneOrMoreExact" not in profile_analyzer.read_text():
+    fail("P0c-F-DX0a finite profile policy missing")
 
 print("[resolved-callable-l0] ok")

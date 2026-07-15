@@ -61,8 +61,15 @@ sibling edge in an exact two-function module; the profile no longer assumes a
 one-entry index or target-equals-caller identity. Its call result is represented
 only by `DirectCall(site)`, never by a duplicate generic `Value(site)` row. The
 consumption API returns the whole row so Lower cannot pair target and ABI from
-separate authorities. Multiple calls, mutual recursion, wider module families,
-and non-VM execution remain rejected before effects.
+separate authorities.
+
+P0c-F-DX0a adds a disconnected finite one-or-more request over the same row
+schema. It records nested calls in execution postorder (argument calls before
+their enclosing call), uses checked cardinality, and leaves the existing
+call-disabled and exact-one production facades unchanged. Its generalized
+preflight facade has production callers zero until the later atomic P0c-F-I1
+activation. Mutual recursion, wider production module admission, and non-VM
+execution remain rejected before effects.
 
 SSA-I1-T consumes an admitted profile exactly once in the dedicated trivial
 Binding-SSA lowerer. A non-admitted profile selects the whole-unit A+ route

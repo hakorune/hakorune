@@ -12,7 +12,8 @@ use super::product::{
 };
 use super::{
     analyze_trivial_canonical_owner_v1, analyze_trivial_canonical_owner_with_direct_call_v1,
-    TrivialCanonicalOwnerAnalysisV1, TrivialProfileConsumptionV1,
+    analyze_trivial_canonical_owner_with_finite_direct_calls_v1, TrivialCanonicalOwnerAnalysisV1,
+    TrivialProfileConsumptionV1,
 };
 
 fn variable(name: &str) -> ASTNode {
@@ -85,6 +86,25 @@ fn analyze(
 fn admitted(root: ASTNode) -> VerifiedTrivialCanonicalOwnerV1 {
     let TrivialCanonicalOwnerAnalysisV1::Admitted(product) = analyze(root, true).unwrap() else {
         panic!("expected disconnected direct-call profile")
+    };
+    product
+}
+
+fn admitted_finite(root: ASTNode) -> VerifiedTrivialCanonicalOwnerV1 {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function_with_root_callable(root).unwrap();
+    let input = unit.root_function_input().unwrap();
+    let completion = verify_function_completion_v1(input).unwrap();
+    let if_control =
+        verify_resolved_function_if_control_with_direct_call_v1(input, &completion).unwrap();
+    let TrivialCanonicalOwnerAnalysisV1::Admitted(product) =
+        analyze_trivial_canonical_owner_with_finite_direct_calls_v1(
+            input,
+            &completion,
+            &if_control,
+        )
+        .unwrap()
+    else {
+        panic!("expected finite direct-call profile")
     };
     product
 }
@@ -213,4 +233,47 @@ fn production_analyzer_remains_call_disabled() {
         stop.reason(),
         TrivialProfileStopReasonV1::ExpressionOutsideProfile
     );
+}
+
+#[test]
+fn finite_profile_records_sequential_calls_without_widening_exact_one() {
+    let two_calls = ASTNode::BinaryOp {
+        operator: crate::ast::BinaryOperator::Add,
+        left: Box::new(call(vec![variable("p0")])),
+        right: Box::new(call(vec![variable("p0")])),
+        span: Span::unknown(),
+    };
+    let product = admitted_finite(function(1, two_calls));
+    assert_eq!(product.direct_calls().len(), 2);
+
+    let exact_one = analyze(
+        function(
+            1,
+            ASTNode::BinaryOp {
+                operator: crate::ast::BinaryOperator::Add,
+                left: Box::new(call(vec![variable("p0")])),
+                right: Box::new(call(vec![variable("p0")])),
+                span: Span::unknown(),
+            },
+        ),
+        true,
+    )
+    .unwrap();
+    assert!(matches!(
+        exact_one,
+        TrivialCanonicalOwnerAnalysisV1::NotAdmitted(_)
+    ));
+}
+
+#[test]
+fn finite_profile_records_nested_call_child_before_parent() {
+    let product = admitted_finite(function(1, call(vec![call(vec![variable("p0")])])));
+    let [inner, outer] = product.direct_calls() else {
+        panic!("expected inner and outer call rows")
+    };
+    assert_eq!(outer.arguments(), [inner.site().clone()]);
+    assert!(matches!(
+        inner.site().node().segments().last(),
+        Some(SourcePathSegmentV1::Argument(0))
+    ));
 }

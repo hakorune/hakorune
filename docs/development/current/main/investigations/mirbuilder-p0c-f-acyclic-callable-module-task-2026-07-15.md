@@ -1,8 +1,8 @@
 ---
-Status: Accepted and taskized; P0c-F-DX0a next
+Status: Closed through P0c-F-DX0a; P0c-F-DX0b next
 Date: 2026-07-15
 Decision: P0c-F absorbs P0c-N; P0c-MR remains parked
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-F-DX0A-FINITE-DIRECT-CALL-ANALYSIS-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-F-DX0B-FUNCTION-CALL-CAPABILITY-001
 Production baseline: 315747061e
 Consultation packet: mirbuilder-p0c-next-callable-widening-consultation-question-2026-07-15.md
 Previous card: mirbuilder-ssa-i1-compat-p0c-cat0-module-callable-catalog-consultation-2026-07-15.md
@@ -28,7 +28,7 @@ then, only after a new decision:
   P0c-MR-D0 -> P0c-MR-S0 -> P0c-MR-I1
 ```
 
-The next code-facing row is `P0c-F-DX0a`.
+The next code-facing row is `P0c-F-DX0b`.
 
 P0c-F means:
 
@@ -288,6 +288,8 @@ candidate Builder, so `UnsupportedPlan` is not first discovered after effects.
 
 ### P0c-F-DX0a — finite exact-call analysis, disconnected
 
+Status: Closed.
+
 ```text
 production behavior delta = 0
 new authority = 0
@@ -323,6 +325,27 @@ resolved-value analyzer exact-one/count gate
 function capability preflight 0-or-1 count gate
 call-argument verification using Closed instead of exact-call recursion
 ```
+
+Closeout:
+
+```text
+finite one-or-more analyzer/preflight facade = sealed
+generalized production callers = 0
+existing call-disabled/exact-one facades = unchanged
+nested row order = child before parent
+checked finite cardinality = sealed
+focused profile fixtures = 7/7
+focused finite-preflight fixtures = 2/2
+existing sibling-call regression = 3/3
+existing module-preflight regression = 3/3
+release finite-preflight fixtures = 2/2
+quick gate = 66/66
+```
+
+The authority guard fixes the finite facade caller set and keeps every touched
+source/check file below 800 lines. DX0a does not change capability metadata,
+module admission, MIR publication, runtime behavior, backend support, or
+ownership operations.
 
 ### P0c-F-DX0b — function-level capability installation
 

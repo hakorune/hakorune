@@ -16,6 +16,7 @@ use crate::mir::resolved_semantics::{
 };
 use crate::mir::resolved_value_profile::{
     analyze_trivial_canonical_owner_v1, analyze_trivial_canonical_owner_with_direct_call_v1,
+    analyze_trivial_canonical_owner_with_finite_direct_calls_v1,
     product::VerifiedTrivialCanonicalOwnerV1, TrivialCanonicalOwnerAnalysisV1,
 };
 
@@ -102,6 +103,21 @@ impl CanonicalLoweringPreflightV1 {
     pub(crate) fn verify_function<'a>(
         function: ResolvedFunctionLoweringInputV1<'a>,
     ) -> Result<CanonicalFirstFamilyPlanV1<'a>, CanonicalLoweringErrorV1> {
+        Self::verify_function_with_call_admission(function, DirectCallAdmissionV1::ExistingExactOne)
+    }
+
+    /// Disconnected P0c-F-DX0a facade. Production module admission remains on
+    /// `verify_function` until the later atomic P0c-F-I1 cutover.
+    pub(crate) fn verify_function_with_finite_direct_calls_v1<'a>(
+        function: ResolvedFunctionLoweringInputV1<'a>,
+    ) -> Result<CanonicalFirstFamilyPlanV1<'a>, CanonicalLoweringErrorV1> {
+        Self::verify_function_with_call_admission(function, DirectCallAdmissionV1::FiniteOneOrMore)
+    }
+
+    fn verify_function_with_call_admission<'a>(
+        function: ResolvedFunctionLoweringInputV1<'a>,
+        direct_call_admission: DirectCallAdmissionV1,
+    ) -> Result<CanonicalFirstFamilyPlanV1<'a>, CanonicalLoweringErrorV1> {
         if function.forest().owner_count() != 1 || !function.forest().upvars().is_empty() {
             return unsupported(
                 "source_unit",
@@ -154,9 +170,12 @@ impl CanonicalLoweringPreflightV1 {
         }
 
         let direct_call_count = function.function().direct_call_targets().count();
-        let expression_policy = match direct_call_count {
-            0 => FirstFamilyExpressionPolicyV1::Closed,
-            1 if function.callable_index().is_some() => {
+        let expression_policy = match (direct_call_admission, direct_call_count) {
+            (_, 0) => FirstFamilyExpressionPolicyV1::Closed,
+            (DirectCallAdmissionV1::ExistingExactOne, 1)
+            | (DirectCallAdmissionV1::FiniteOneOrMore, 1..)
+                if function.callable_index().is_some() =>
+            {
                 FirstFamilyExpressionPolicyV1::ExactDirectCall
             }
             _ => {
@@ -211,13 +230,22 @@ impl CanonicalLoweringPreflightV1 {
             FirstFamilyExpressionPolicyV1::Closed => {
                 analyze_trivial_canonical_owner_v1(function, &completion, &if_control)
             }
-            FirstFamilyExpressionPolicyV1::ExactDirectCall => {
-                analyze_trivial_canonical_owner_with_direct_call_v1(
-                    function,
-                    &completion,
-                    &if_control,
-                )
-            }
+            FirstFamilyExpressionPolicyV1::ExactDirectCall => match direct_call_admission {
+                DirectCallAdmissionV1::ExistingExactOne => {
+                    analyze_trivial_canonical_owner_with_direct_call_v1(
+                        function,
+                        &completion,
+                        &if_control,
+                    )
+                }
+                DirectCallAdmissionV1::FiniteOneOrMore => {
+                    analyze_trivial_canonical_owner_with_finite_direct_calls_v1(
+                        function,
+                        &completion,
+                        &if_control,
+                    )
+                }
+            },
         }
         .map_err(|error| CanonicalLoweringErrorV1::ResolvedRegionFlow {
             detail: format!("trivial_profile_contract={error:?}"),
@@ -285,6 +313,12 @@ enum ReturnPolicyV1 {
 enum FirstFamilyExpressionPolicyV1 {
     Closed,
     ExactDirectCall,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum DirectCallAdmissionV1 {
+    ExistingExactOne,
+    FiniteOneOrMore,
 }
 
 fn verify_body(
@@ -490,8 +524,7 @@ fn verify_expression(
                     .source()
                     .child_expr_from_expr(expression, ExprChildRoleV1::CallArgument(index))
                     .map_err(source_navigation)?;
-                block_expr_count +=
-                    verify_expression(input, &argument, FirstFamilyExpressionPolicyV1::Closed)?;
+                block_expr_count += verify_expression(input, &argument, expression_policy)?;
             }
             Ok(block_expr_count)
         }

@@ -30,6 +30,8 @@ pub(in crate::mir) mod source_view;
 #[cfg(test)]
 mod capability_tests;
 #[cfg(test)]
+mod finite_direct_call_tests;
+#[cfg(test)]
 mod resolved_callable_module_preflight_tests;
 #[cfg(test)]
 mod resolved_callable_module_tests;
