@@ -5,6 +5,7 @@
 //! statement/expression dispatch is intentionally not reachable from it.
 
 mod branch_transaction;
+mod callable_module_transaction;
 pub(in crate::mir::builder) mod canonical_cfg;
 mod completion_consumption;
 mod flow_consumption;
@@ -18,6 +19,8 @@ mod trivial_ssa;
 
 #[cfg(test)]
 mod block_expr_tests;
+#[cfg(test)]
+mod callable_module_transaction_tests;
 #[cfg(test)]
 mod completion_tests;
 #[cfg(test)]
@@ -47,7 +50,7 @@ use crate::mir::compiler::capability::{
     CanonicalCurrentAPlusPlanV1, CanonicalTrivialBindingSsaPlanV1,
 };
 use crate::mir::function::MirParamDecl;
-use crate::mir::MirModule;
+use crate::mir::{MirFunction, MirModule};
 
 use super::calls::CanonicalFunctionSessionErrorV1;
 use super::MirBuilder;
@@ -140,8 +143,27 @@ impl MirBuilder {
         &mut self,
         plan: CanonicalTrivialBindingSsaPlanV1<'_>,
     ) -> Result<MirModule, CanonicalResolvedBuildErrorV1> {
-        let (input, if_control, completion, profile, block_expr_count) = plan.into_parts();
         self.prepare_module()?;
+        let draft = self.lower_resolved_trivial_function_draft(plan)?;
+        self.current_module
+            .as_mut()
+            .expect("prepare_module installs the candidate module")
+            .try_add_function(draft)
+            .map_err(
+                |error| CanonicalResolvedBuildErrorV1::DuplicateFunctionPublication {
+                    function_name: error.function_name,
+                },
+            )?;
+
+        let entry_result = crate::mir::builder::emission::constant::emit_void(self)?;
+        Ok(self.finalize_module(entry_result)?)
+    }
+
+    pub(super) fn lower_resolved_trivial_function_draft(
+        &mut self,
+        plan: CanonicalTrivialBindingSsaPlanV1<'_>,
+    ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
+        let (input, if_control, completion, profile, block_expr_count) = plan.into_parts();
         let crate::ast::ASTNode::FunctionDeclaration {
             name,
             params,
@@ -155,7 +177,7 @@ impl MirBuilder {
         };
         let function_name = format!("{}/{}", name, params.len());
         let session_name = function_name.clone();
-        self.with_resolved_function_lowering_session(&session_name, |builder| {
+        let draft = self.with_resolved_function_draft_session(&session_name, |builder| {
             builder.resolved_binding_state.install(input.function())?;
             builder.create_function_skeleton(function_name, params, body)?;
             install_trivial_callable_abi_v1(builder, &profile);
@@ -182,8 +204,6 @@ impl MirBuilder {
                 })?;
             Ok(draft)
         })?;
-
-        let entry_result = crate::mir::builder::emission::constant::emit_void(self)?;
-        Ok(self.finalize_module(entry_result)?)
+        Ok(draft)
     }
 }

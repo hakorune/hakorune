@@ -76,4 +76,13 @@ impl<'a> VerifiedCallableModulePreflightV1<'a> {
     ) -> &BTreeMap<CanonicalCallableKeyV1, CanonicalFirstFamilyPlanV1<'a>> {
         &self.plans_by_key
     }
+
+    pub(in crate::mir) fn into_parts(
+        self,
+    ) -> (
+        &'a VerifiedResolvedCallableModuleV1,
+        BTreeMap<CanonicalCallableKeyV1, CanonicalFirstFamilyPlanV1<'a>>,
+    ) {
+        (self.module, self.plans_by_key)
+    }
 }

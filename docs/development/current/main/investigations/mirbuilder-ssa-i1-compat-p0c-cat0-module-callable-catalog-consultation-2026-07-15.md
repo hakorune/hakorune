@@ -1,12 +1,12 @@
 ---
-Status: Accepted and taskized — A′+; MP0-P0 closed, MP0-TX0 next
+Status: Accepted and taskized — A′+; MP0-TX0 closed, P0c-B1 next
 Date: 2026-07-15
 Decision: A′+ — Program/catalog co-seal + single-use resolver continuation + canonical-key module identity
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-MP0-TX0-ATOMIC-DRAFT-PUBLICATION-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-B1-EXACT-SIBLING-CALL-001
 Parent taskboard: mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
 Previous closed card: mirbuilder-ssa-i1-compat-p0c-i64-call-design-stop-2026-07-15.md
 Decision-input baseline commit: ec570ea696
-Next code-facing row: MP0-TX0
+Next code-facing row: P0c-B1
 ---
 
 # P0c-CAT0 Module Callable Catalog — A′+ Decision and Taskboard
@@ -831,6 +831,40 @@ proof:
   legacy lookup and fallback callers = 0
   generated atomic-publication guard is mandatory in TX0
 ```
+
+State: closed on 2026-07-15. Every function now lowers through a restored
+function session into an unpublished `MirFunction`; no earlier successful
+draft is inserted while a later draft is lowering. One canonical-keyed draft
+set verifies catalog/header lookup, physical symbol, signature arity, unique
+draft key/symbol, and exact catalog/function/plan/draft cardinality before one
+`MirModule::try_add_functions_atomic` call. Batch publication prechecks both
+existing-module and within-batch collisions before mutation.
+
+```text
+proof:
+  actual two-function call-free module publication = pass
+  declaration reorder preserves published symbol set
+  injected late second-draft failure leaves function publication at 0
+  injected symbol drift leaves function publication at 0
+  batch duplicate and late existing-module collision preserve prior module
+  resolved-lowering debug suite = 79/79
+  transaction release fixtures = 4/4
+  generated resolved-callable authority guard = green
+  production transaction callers = 0
+  incremental transaction publication sites = 0
+  atomic batch publication sites = 1
+  all touched source/check files < 800 lines
+
+non-delta:
+  sibling source-call admission = 0
+  MethodCall / receiver / ownership operations = 0
+  runtime / backend capability widening = 0
+  fallback / retry = 0
+```
+
+The next code-facing row is `P0c-B1`: exactly two static exact-i64 functions
+and one sibling edge, consuming this already-closed transaction without
+widening the module or ownership model.
 
 ### P0c-B1 exit gate
 

@@ -112,3 +112,16 @@ The body-reading source view consumes the CAT0 source unit and keeps Program
 syntax and catalog inseparable until resolution finishes. MP0-R0 creates no
 Builder, MIR draft, backend capability, runtime effect, or module publication;
 whole-module preflight and publication remain MP0-P0/TX0 responsibilities.
+
+## MP0-P0/TX0 module transaction
+
+`VerifiedCallableModulePreflightV1` seals one canonical-keyed plan for every
+resolved top-level function before any Builder effect. MP0-TX0 then lowers each
+plan through a restored function session which returns an unpublished
+`MirFunction`. The complete draft set checks catalog key, physical symbol,
+signature arity, and cardinality before one atomic candidate-module insertion.
+
+No successful earlier function is visible while a later function is lowering.
+Any lowering, verification, identity, or publication failure returns without a
+partially published callable set. Sibling-call source admission and the public
+multi-function compiler ingress remain the following P0c-B1 row.

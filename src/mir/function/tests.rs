@@ -81,6 +81,35 @@ fn atomic_function_batch_rejects_before_any_function_is_inserted() {
     assert!(module.functions.is_empty());
 }
 
+#[test]
+fn atomic_function_batch_preserves_existing_module_on_late_collision() {
+    let mut module = MirModule::new("atomic-existing".to_string());
+    let signature = |name: &str| FunctionSignature {
+        name: name.to_string(),
+        params: vec![],
+        return_type: MirType::Void,
+        effects: EffectMask::PURE,
+    };
+    module.add_function(MirFunction::new(
+        signature("existing/0"),
+        BasicBlockId::new(1),
+    ));
+    let fresh = MirFunction::new(signature("fresh/0"), BasicBlockId::new(2));
+    let collision = MirFunction::new(signature("existing/0"), BasicBlockId::new(3));
+
+    let error = module
+        .try_add_functions_atomic(vec![fresh, collision])
+        .unwrap_err();
+
+    assert_eq!(error.function_name, "existing/0");
+    assert_eq!(module.functions.len(), 1);
+    assert!(module.get_function("fresh/0").is_none());
+    assert_eq!(
+        module.get_function("existing/0").unwrap().entry_block,
+        BasicBlockId::new(1)
+    );
+}
+
 // Legacy ValueId 割り当て仕様（LoopForm v2 導入前の想定）.
 #[test]
 #[ignore]

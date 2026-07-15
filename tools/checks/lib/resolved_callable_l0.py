@@ -32,6 +32,15 @@ module_preflight_tests = (
     root / "src/mir/compiler/resolved_callable_module_preflight_tests.rs"
 )
 function_input = root / "src/mir/compiler/function_input.rs"
+module_transaction = (
+    root / "src/mir/builder/resolved_lowering/callable_module_transaction.rs"
+)
+module_transaction_tests = (
+    root / "src/mir/builder/resolved_lowering/callable_module_transaction_tests.rs"
+)
+function_session = root / "src/mir/builder/calls/function_session.rs"
+function_module_impl = root / "src/mir/function/module_impl.rs"
+function_module_tests = root / "src/mir/function/tests.rs"
 direct_call = root / "src/mir/canonical_direct_call.rs"
 direct_call_contract = root / "src/mir/canonical_direct_call_contract.rs"
 direct_call_profile = root / "src/mir/resolved_value_profile/direct_call.rs"
@@ -154,6 +163,29 @@ required = {
         "seals_every_function_plan_before_publishing_the_module_preflight",
         "declaration_order_does_not_change_the_canonical_preflight_key_set",
         "one_late_function_failure_publishes_no_partial_preflight_product",
+    ],
+    module_transaction: [
+        "VerifiedUnpublishedCallableDraftSetV1",
+        "build_resolved_callable_module_candidate",
+        "try_add_functions_atomic",
+        "SymbolMismatch",
+        "SignatureArityMismatch",
+        "CardinalityMismatch",
+    ],
+    module_transaction_tests: [
+        "lowers_all_drafts_before_atomic_candidate_publication",
+        "declaration_reorder_preserves_the_published_callable_symbol_set",
+        "late_draft_failure_leaves_candidate_function_publication_at_zero",
+        "symbol_drift_rejects_before_candidate_publication",
+    ],
+    function_session: [
+        "with_resolved_function_draft_session",
+        "close_unpublished",
+    ],
+    function_module_impl: ["try_add_functions_atomic"],
+    function_module_tests: [
+        "atomic_function_batch_rejects_before_any_function_is_inserted",
+        "atomic_function_batch_preserves_existing_module_on_late_collision",
     ],
     owner_resolver: [
         "resolve_forest_with_root_callable",
@@ -295,6 +327,21 @@ for forbidden in [
     if forbidden in module_preflight_text:
         fail(f"MP0-P0 preflight owns forbidden effect authority {forbidden!r}")
 
+module_transaction_text = module_transaction.read_text()
+for forbidden in [
+    "FunctionCall",
+    "MethodCall",
+    "build_function_call",
+    "build_legacy_function_call",
+    "with_resolved_function_lowering_session",
+]:
+    if forbidden in module_transaction_text:
+        fail(f"MP0-TX0 transaction owns forbidden lookup/publication seam {forbidden!r}")
+if "try_add_function(" in module_transaction_text:
+    fail("MP0-TX0 transaction performs incremental function publication")
+if module_transaction_text.count("try_add_functions_atomic") != 1:
+    fail("MP0-TX0 must have exactly one atomic batch publication site")
+
 source_unit_users = []
 for path in (root / "src").rglob("*.rs"):
     if path in {
@@ -307,6 +354,7 @@ for path in (root / "src").rglob("*.rs"):
         catalog_tests,
         resolved_module_tests,
         module_preflight_tests,
+        module_transaction_tests,
         root / "src/mir/resolved_semantics/mod.rs",
     }:
         continue
@@ -324,6 +372,7 @@ for path in (root / "src").rglob("*.rs"):
         catalog_tests,
         resolved_module_tests,
         module_preflight_tests,
+        module_transaction_tests,
         root / "src/mir/resolved_semantics/mod.rs",
     }:
         continue
@@ -341,6 +390,7 @@ for path in (root / "src").rglob("*.rs"):
         resolved_module,
         resolved_module_tests,
         module_preflight_tests,
+        module_transaction_tests,
         root / "src/mir/resolved_semantics/mod.rs",
     }:
         continue
@@ -357,6 +407,8 @@ for path in (root / "src").rglob("*.rs"):
         function_input,
         module_preflight,
         module_preflight_tests,
+        module_transaction,
+        module_transaction_tests,
         root / "src/mir/compiler/mod.rs",
     }:
         continue
@@ -368,6 +420,15 @@ for path in (root / "src").rglob("*.rs"):
         resolved_module_users.append(str(path.relative_to(root)))
 if resolved_module_users:
     fail(f"MP0-S0 passive carrier has production producers/consumers: {resolved_module_users}")
+
+transaction_callers = []
+for path in (root / "src").rglob("*.rs"):
+    if path in {module_transaction, module_transaction_tests}:
+        continue
+    if "build_resolved_callable_module_candidate" in path.read_text():
+        transaction_callers.append(str(path.relative_to(root)))
+if transaction_callers:
+    fail(f"MP0-TX0 transaction gained production callers: {transaction_callers}")
 
 resolution_source_users = []
 for path in (root / "src").rglob("*.rs"):
@@ -513,6 +574,11 @@ for path in [
     function_input,
     module_preflight,
     module_preflight_tests,
+    module_transaction,
+    module_transaction_tests,
+    function_session,
+    function_module_impl,
+    function_module_tests,
     catalog_resolution_source,
     root / "src/mir/canonical_direct_static_call_backend_capability_tests.rs",
 ]:
