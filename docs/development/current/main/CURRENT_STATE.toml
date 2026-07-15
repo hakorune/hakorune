@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ P0c-L0 closed; disconnected resolved self-call P0c-S0 next"
+status = "D′ P0c-L0 closed; disconnected resolved self-call P0c-S0a next"
 date = "2026-07-15"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -90,7 +90,8 @@ has no fallback, physical symbol spelling is rejected at source, direct-call
 arity drift is a typed pre-materialization error, and the conservative effect
 plus passive backend capability are guarded. Production callable/capability
 callers, source Call activation, grammar, route, and runtime behavior remain
-zero. Disconnected P0c-S0 is next.
+zero. P0c-S0 is split into disconnected S0a target resolution and S0b profile
+seal; S0a is next.
 Historical
 lane chronology follows and is non-authoritative.
 Explicit user priority change on 2026-07-12 reopens
@@ -218,8 +219,9 @@ call row co-seals only a Lower-ready target/signature/symbol projection with
 exact i64 arguments/result, exact coverage, and a conservative effect. P0c-L0
 is closed with behavior-neutral callable vocabulary/facades, exact caller-zero
 guards, and a passive durable canonical_direct_static_call_v1 backend
-capability. P0c-S0 seals the
-disconnected product; P0c-I1 atomically activates exactly one FunctionCall for
+capability. P0c-S0a co-seals a source-unit-owned callable-index/forest sidecar
+and records only call-site target identity per function; P0c-S0b seals the
+Lower-ready direct-call profile. P0c-I1 atomically activates one FunctionCall for
 the Rust MIR interpreter. CurrentFunction-specific target variants, raw name
 lookup in Lower, legacy recovery, generic backend inference, fallback, sibling
 calls, MethodCall/receiver, ownership operations, and backend widening are
@@ -642,7 +644,7 @@ SSA-I1-T blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-S0-IMPLEMENTATION-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-S0A-TARGET-IMPLEMENTATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

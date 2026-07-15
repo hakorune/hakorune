@@ -1,8 +1,8 @@
 ---
-Status: Active — P0c-L0 closed; disconnected P0c-S0 next
+Status: Active — P0c-L0 closed; disconnected P0c-S0a next
 Date: 2026-07-15
 Decision: A′ — exact current-owner self call over a generic one-entry callable index
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-S0-IMPLEMENTATION-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-S0A-TARGET-IMPLEMENTATION-001
 Related:
   - mirbuilder-ssa-i1-compat-static-i64-parameter-selection-2026-07-15.md
   - mirbuilder-ssa-i1-compat-static-i64-return-selection-2026-07-15.md
@@ -191,6 +191,51 @@ name, parameter, and return reads across resolver, analyzer, and Lower.
 
 Future sibling-call work grows the index cardinality; it does not replace the
 key, header, semantic reference, call-site row, or materializer.
+
+### Source-unit ownership and co-view law
+
+`VerifiedCallableIndexV1` is source-unit authority. It is not copied into each
+`VerifiedResolvedFunctionV1`, because future sibling owners must resolve
+through the same catalog rather than pair independently duplicated headers.
+
+The header and body views used to build the first source unit must come from
+one AST owner. Keep that fact structural with one borrowed co-view:
+
+```rust
+pub(crate) struct CallableFunctionSyntaxViewV1<'a> {
+    header: CallableHeaderSyntaxViewV1<'a>,
+    function: FunctionSyntaxViewV1<'a>,
+}
+```
+
+This co-view is syntax transport only. It is not semantic authority and does
+not widen `FunctionSyntaxViewV1` with callable-catalog responsibility.
+
+The disconnected resolver publishes one co-sealed source-unit result:
+
+```rust
+pub(crate) struct VerifiedResolvedCallableForestV1 {
+    forest: VerifiedSemanticOwnerForestV1,
+    callable_index: VerifiedCallableIndexV1,
+}
+```
+
+Seal order is fixed:
+
+```text
+issue the root owner once
+  -> seal the one-entry index with that exact owner
+  -> resolve the function body with a borrowed index
+  -> seal exact call-site target rows
+  -> verify index sole owner == forest sole root
+  -> publish forest + index together
+```
+
+`VerifiedResolvedFunctionV1` owns only its function-relative
+`SourceExprSiteV1 -> ResolvedDirectCallTargetV1` map. The callable index and
+full headers remain source-unit-owned. At P0c-I1, the resolved source unit and
+its lowering input borrow this same sidecar; neither analyzer nor Lower may
+rebuild it.
 
 ## Resolved target product
 
@@ -523,17 +568,71 @@ P0c-L0 caller-zero guard, the full resolved authority guard, release build,
 and quick gate are green. Every touched source/check file remains below 800
 lines.
 
-### P0c-S0 — disconnected resolved self-call product
+### P0c-S0a — disconnected resolved self-call target
 
 Add and seal:
 
 ```text
-one-entry callable index
+CallableFunctionSyntaxViewV1 from one exact AST owner
+VerifiedResolvedCallableForestV1 source-unit sidecar
+one root owner issued exactly once
+one-entry callable index sealed with that owner
 SourceExprSiteV1 -> generic ResolvedCallableRefV1 target
+index sole owner == forest sole root verification
+```
+
+The existing production body-only resolver remains behavior-neutral during
+this disconnected slice. Do not store an optional index in resolver-global
+state or add header fields to the body-only function view.
+
+Acceptance:
+
+```text
+Builder connection = 0
+value-profile connection = 0
+production activation = 0
+per-function callable-index copies = 0
+CurrentFunction-specific target variants = 0
+source key fallback = 0
+```
+
+Focused S0a fixtures:
+
+```text
+exact recursive self-call site -> root callable owner
+FunctionCall argument variable use remains independently resolved
+nested BlockExpr/If source paths remain exact
+unknown/different name and wrong arity reject
+physical name/arity source spelling rejects
+fabricated, duplicate, wrong-kind, or foreign call site rejects
+foreign callable-index/forest pairing rejects
+resolved fact coverage missing/extra rejects
+```
+
+### P0c-S0b — disconnected co-sealed direct-call profile
+
+Add and seal:
+
+```text
 co-sealed VerifiedTrivialDirectCallV1
 exact target/symbol/arguments/result/effect/coverage
 header projection drift checks
+exactly one call row in the disconnected admission profile
 ```
+
+The call expression has one value-profile and coverage authority:
+
+```text
+argument value subjects in source order
+  -> DirectCall(call_site)
+  -> enclosing definition/terminal subject
+
+generic Value(call_site) duplicate subject = 0
+```
+
+`representation_at(call_site)` may project `InlineI64` from the direct-call
+row. A passive `claim_direct_call(call_site)` returns the whole row. Do not
+record both `DirectCall(site)` and `Value(site)` for the same call result.
 
 Acceptance:
 
@@ -542,6 +641,19 @@ Builder connection = 0
 production activation = 0
 Lower raw name reads = 0
 target and ABI late pairing = 0
+```
+
+Focused S0b fixtures:
+
+```text
+semantic target == index header target == current owner
+source name/arity, symbol, signature, and header fingerprint agree
+argument sites preserve source order and are all InlineI64
+Bool/Float/nested-call arguments reject
+DirectCall coverage is exact once and correctly ordered
+duplicate generic Value(call_site) coverage is zero
+profile consumption duplicate/wrong-order/unfinished rejects
+production canonical emission callers remain zero
 ```
 
 ### P0c-I1 — atomic first source-call activation
@@ -558,7 +670,9 @@ explicit direct-call backend capability gate
 fallback/retry = 0
 ```
 
-Do not begin P0c-S0 before P0c-L0 is green, or P0c-I1 before P0c-S0 is green.
+Do not begin P0c-S0b before P0c-S0a is green, or P0c-I1 before both S0 rows
+are green. S0a and S0b are separate commits under one Refactor Series Mode
+objective; neither changes production grammar, routing, or runtime behavior.
 
 ## Required fixtures
 

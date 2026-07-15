@@ -1,8 +1,8 @@
 ---
-Status: Active — P0c-L0 closed; disconnected P0c-S0 next
+Status: Active — P0c-L0 closed; disconnected P0c-S0a next
 Date: 2026-07-15
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-S0-IMPLEMENTATION-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-S0A-TARGET-IMPLEMENTATION-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -1449,8 +1449,9 @@ Task card:
 `mirbuilder-ssa-i1-compat-p0c-i64-call-design-stop-2026-07-15.md`.
 
 Implement it as one Refactor Series Mode objective: behavior-neutral P0c-L0,
-disconnected P0c-S0, then atomic P0c-I1. The callable index remains the sole
-header authority; the direct-call row contains only a co-sealed Lower-ready
+disconnected P0c-S0a target resolution, disconnected P0c-S0b profile seal,
+then atomic P0c-I1. The callable index remains the sole source-unit header
+authority; the direct-call row contains only a co-sealed Lower-ready
 projection. A current-function-specific target variant, raw name lookup in
 Lower, legacy call recovery, generic-call backend inference, and fallback are
 forbidden. Sibling calls, multi-function publication, mutual recursion,
@@ -2396,12 +2397,17 @@ state.
 
 ## Immediate next action
 
-Implement **P0c-S0 — disconnected resolved self-call product**. Resolve one
-exact FunctionCall site through the already-sealed one-entry callable index,
-record only generic `ResolvedCallableRefV1` target identity in resolved
-semantics, and co-seal one Lower-ready `VerifiedTrivialDirectCallV1` carrying
-the exact target/header projection, ordered argument sites, InlineI64 result,
-conservative effect, and exact source coverage. Builder/Lower connection and
-production activation remain zero. Do not add raw name lookup, target/ABI late
-pairing, sibling calls, MethodCall/receiver, ownership operations, or backend
-widening in S0.
+Implement **P0c-S0a — disconnected resolved self-call target**. Derive one
+header/body co-view from the same root AST, issue the root owner once, seal the
+one-entry `VerifiedCallableIndexV1`, resolve one exact FunctionCall site to a
+generic `ResolvedCallableRefV1`, and publish forest plus index as one
+source-unit sidecar. `VerifiedResolvedFunctionV1` receives only its exact
+call-site target map; it must not own a duplicate callable index/header.
+Builder, value-profile, Lower, and production connections remain zero.
+
+After S0a is green and committed, implement **P0c-S0b** as a separate commit:
+co-seal one Lower-ready `VerifiedTrivialDirectCallV1` with the exact
+target/header projection, ordered InlineI64 argument sites, InlineI64 result,
+conservative effect, and exact source coverage. Do not add raw name lookup,
+target/ABI late pairing, sibling calls, MethodCall/receiver, ownership
+operations, or backend widening in either S0 row.
