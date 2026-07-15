@@ -1,8 +1,8 @@
 ---
-Status: Closed through P0c-F-S0; P0c-F-V0 next
+Status: Closed through P0c-F-V0; read-only census evidence next
 Date: 2026-07-15
 Decision: P0c-F absorbs P0c-N; P0c-MR remains parked
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-F-V0-TYPED-ACYCLIC-MODULE-PLAN-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-F-CENSUS0-SELFHOST-EVIDENCE-001
 Production baseline: 315747061e
 Consultation packet: mirbuilder-p0c-next-callable-widening-consultation-question-2026-07-15.md
 Previous card: mirbuilder-ssa-i1-compat-p0c-cat0-module-callable-catalog-consultation-2026-07-15.md
@@ -28,7 +28,8 @@ then, only after a new decision:
   P0c-MR-D0 -> P0c-MR-S0 -> P0c-MR-I1
 ```
 
-The next code-facing row is `P0c-F-V0`.
+The next task is the read-only `P0c-F-CENSUS0` evidence pass. The next
+code-facing production row remains `P0c-F-I1`.
 
 P0c-F means:
 
@@ -428,6 +429,8 @@ fixtures, and guard below 800 lines.
 
 ### P0c-F-V0 — disconnected typed activation plan
 
+Status: Closed.
+
 Seal:
 
 ```text
@@ -439,10 +442,30 @@ all plans are CanonicalTrivialBindingSsaPlanV1
 self/cycle rows absent
 ```
 
-V0 also records one read-only selfhost census for I1 fixture selection:
-function/call/edge counts, nesting, DAG depth, SCC size, and the first
-MethodCall/non-i64/Loop/early-Return/Lambda/ownership boundary. It is evidence
-only and not a new semantic row.
+Closeout:
+
+```text
+graph/function/typed-plan canonical key sets = exact
+function count >= 2 = sealed
+total graph call-site count >= 1 = sealed
+per-function graph-site count == verified direct-call rows = sealed
+all plans = CanonicalTrivialBindingSsaPlanV1
+Builder / MIR / effect / symbol / publication authority = 0
+production callers = 0
+focused typed-plan fixtures = 3/3
+graph / finite-call / module-preflight / sibling-call regressions = green
+release typed-plan fixtures = 3/3
+release build = green
+quick gate = 66/66
+authority guard = green
+```
+
+### P0c-F-CENSUS0 — read-only selfhost evidence
+
+Record function/call/edge counts, nesting, DAG depth, SCC size, and the first
+MethodCall/non-i64/Loop/early-Return/Lambda/ownership boundary for I1 fixture
+selection. The census is evidence only: it must not become source, catalog,
+resolver, graph, preflight, route, or activation authority.
 
 ### P0c-F-I1 — atomic production activation
 

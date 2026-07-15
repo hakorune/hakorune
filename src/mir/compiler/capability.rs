@@ -61,6 +61,10 @@ pub(crate) struct CanonicalTrivialBindingSsaPlanV1<'a> {
 }
 
 impl<'a> CanonicalTrivialBindingSsaPlanV1<'a> {
+    pub(crate) fn direct_call_count(&self) -> usize {
+        self.profile.direct_calls().len()
+    }
+
     pub(crate) fn into_parts(
         self,
     ) -> (

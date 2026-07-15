@@ -36,6 +36,8 @@ compiler_capability = root / "src/mir/compiler/capability.rs"
 finite_call_tests = root / "src/mir/compiler/finite_direct_call_tests.rs"
 acyclic_graph = root / "src/mir/compiler/acyclic_callable_graph.rs"
 acyclic_graph_tests = root / "src/mir/compiler/acyclic_callable_graph/tests.rs"
+acyclic_plan = root / "src/mir/compiler/acyclic_callable_module_plan.rs"
+acyclic_plan_tests = root / "src/mir/compiler/acyclic_callable_module_plan/tests.rs"
 function_input = root / "src/mir/compiler/function_input.rs"
 callable_module_input = root / "src/mir/compiler/resolved_callable_module_input.rs"
 sibling_activation = root / "src/mir/compiler/sibling_call_activation.rs"
@@ -450,6 +452,8 @@ for path in (root / "src").rglob("*.rs"):
         sibling_activation,
         acyclic_graph,
         acyclic_graph_tests,
+        acyclic_plan,
+        acyclic_plan_tests,
         compiler_mod,
     }:
         continue
@@ -614,6 +618,7 @@ allowed_by_pattern = {
     r"verify_function_with_finite_direct_calls_v1": {
         compiler_capability,
         finite_call_tests,
+        acyclic_plan,
     },
     r"\.claim_direct_call\(": {
         direct_call_profile_tests,
@@ -635,6 +640,10 @@ allowed_by_pattern = {
     },
     r"VerifiedAcyclicCallableGraphV1::verify": {
         acyclic_graph_tests,
+        acyclic_plan,
+    },
+    r"VerifiedAcyclicCallableModulePlanV1::verify": {
+        acyclic_plan_tests,
     },
 }
 for pattern, allowed in allowed_by_pattern.items():
@@ -662,6 +671,8 @@ for path in [
     finite_call_tests,
     acyclic_graph,
     acyclic_graph_tests,
+    acyclic_plan,
+    acyclic_plan_tests,
     resolved_module,
     resolved_module_tests,
     function_input,
@@ -694,6 +705,9 @@ if finite_call_tests.read_text().count("#[test]") != 2:
 
 if acyclic_graph_tests.read_text().count("#[test]") != 4:
     fail("P0c-F-S0 graph fixture count must remain exactly four")
+
+if acyclic_plan_tests.read_text().count("#[test]") != 3:
+    fail("P0c-F-V0 plan fixture count must remain exactly three")
 
 compiler_capability_text = compiler_capability.read_text()
 for marker in [
@@ -740,5 +754,27 @@ for forbidden in [
 ]:
     if forbidden in acyclic_graph_text:
         fail(f"P0c-F-S0 topology product owns a forbidden authority: {forbidden}")
+
+acyclic_plan_text = acyclic_plan.read_text()
+for marker in [
+    "VerifiedAcyclicCallableModulePlanV1",
+    "CanonicalTrivialBindingSsaPlanV1",
+    "verify_function_with_finite_direct_calls_v1",
+    "FunctionCallSiteCountMismatch",
+]:
+    if marker not in acyclic_plan_text:
+        fail(f"P0c-F-V0 typed plan contract missing: {marker}")
+for forbidden in [
+    "MirBuilder",
+    "MirInstruction",
+    "MirFunction",
+    "MirModule",
+    "CanonicalCallableSymbolV1",
+    "ConservativeBarrier",
+    "build_resolved_callable_module_candidate",
+    "try_add_functions_atomic",
+]:
+    if forbidden in acyclic_plan_text:
+        fail(f"P0c-F-V0 typed plan owns a forbidden effect authority: {forbidden}")
 
 print("[resolved-callable-l0] ok")

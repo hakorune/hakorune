@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ P0c-F-S0 closed; V0 typed acyclic module plan next"
+status = "D′ P0c-F-V0 closed; read-only selfhost census evidence next"
 date = "2026-07-15"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -140,9 +140,12 @@ production callers stay zero. DX0b is closed: the sealed profile installs one
 capability per calling function before expression lowering, and call emitters
 only verify it. S0 is closed: resolved call sites project to canonical keys,
 retain multiplicity, collapse only unique topology edges, and seal a
-deterministic DAG witness with self/cycle rejection. V0 is next and seals a
-typed module plan plus one
-read-only census, and I1 activates the existing atomic module ingress. Mutual
+deterministic DAG witness with self/cycle rejection. V0 is closed: it combines
+that topology proof with canonical-keyed finite trivial plans, seals exact
+graph/function/plan cardinality and per-function call-row correspondence, and
+keeps Builder/MIR/effect/symbol/publication authority and production callers
+zero. One read-only census is next, then I1 activates the existing atomic
+module ingress. Mutual
 recursion/SCC remains parked for a separate post-F decision.
 Historical
 lane chronology follows and is non-authoritative.
@@ -274,9 +277,11 @@ closed: the sealed profile installs zero-or-one function-level capability rows
 before expression lowering, the capability type is the sole producer, and each
 call emitter verifies without metadata mutation. S0 is closed with a topology-
 only canonical-key site/unique-edge inventory, self/cycle rejection, and
-deterministic DAG witness solely from the resolved module. V0 is next and
-combines that graph with a complete typed trivial
-plan set and records one non-authoritative selfhost census. I1 replaces the B1
+deterministic DAG witness solely from the resolved module. V0 is closed with a
+complete canonical-keyed typed trivial plan set, exact graph/function/plan and
+per-function call-row correspondence, zero production callers, and no
+Builder/MIR/effect/symbol/publication authority. One non-authoritative selfhost
+census is next. I1 replaces the B1
 activation witness at the existing explicit compiler ingress and reuses the
 unpublished-draft atomic transaction. Every call remains ConservativeBarrier;
 raw-name lookup, fallback, ownership operations, MethodCall/receiver, other
@@ -699,7 +704,7 @@ MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-F-V0-TYPED-ACYCLIC-MODULE-PLAN-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-F-CENSUS0-SELFHOST-EVIDENCE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -708,6 +713,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-15: D′ P0c-F-V0 closes one disconnected typed acyclic callable-module plan: VerifiedAcyclicCallableModulePlanV1 combines only the complete resolved module, the S0 canonical-key DAG witness, and the existing finite direct-call preflight; it requires at least two functions and one call site, seals exact graph/function/typed-plan keys and cardinality, and checks each function's graph-site count against its verified direct-call profile rows; all stored plans are CanonicalTrivialBindingSsaPlanV1; focused and release typed-plan fixtures 3/3, graph/finite-call/module-preflight/sibling-call regressions, release build, quick 66/66, authority/pointer guards, formatting, diff checks, and <800-line touched source/check files are green; production callers, Builder/MIR/effect/symbol/draft/publication/backend/ownership authority remain zero; one read-only selfhost census is next before P0c-F-I1.",
   "2026-07-15: D′ P0c-F-S0 closes one disconnected topology-only acyclic callable graph: VerifiedAcyclicCallableGraphV1 derives solely from the complete resolved module, projects already-resolved callable identities through the catalog reverse index, preserves function-relative call-site multiplicity, derives sorted unique caller/target edges, rejects self edges, and seals a deterministic canonical-key Kahn witness; two- and three-node cycles retain residual canonical keys plus exact source-site witnesses; reorder, repeated-edge, multi-target, multi-hop, isolated-node, foreign-target, and duplicate-site fixtures 4/4, resolved-module 6/6, sibling-call 3/3, release graph 4/4, release build, quick 66/66, authority/pointer guards, and <800-line touched source/check files are green; graph production callers, source-name/symbol lookup, ABI, argument/evaluation order, effect, MIR, draft/publication, backend, ownership, and SCC authority remain zero; P0c-F-V0 typed acyclic module plan is next.",
   "2026-07-15: D′ P0c-B1 closes one exact production sibling-call ingress: VerifiedResolvedCallableProgramV1 owns the complete function-only Program through CAT0 catalog seal and MP0 body resolution; a narrow activation witness accepts exactly two static exact-i64 functions and exactly one non-self direct-call edge before Builder effects; each function input transports its caller header while the co-sealed direct-call row retains target authority, so Lower checks the current draft against the caller and emits only the verified target without raw-name or module-table lookup; all drafts retain MP0 atomic batch publication; forward/backward declaration order, interpreter result 41->42, rejection/reuse, VM-only backend fail-fast, self-call/profile/module/transaction regressions, authority guard, release build, quick 66/66, and <800-line touched source/check files are green; CopyOwned/DestroyOwned/ReleaseStrong, MethodCall/receiver, fallback, multiple calls, and mutual recursion remain zero; the next callable widening is a design stop among multiple/nested calls, broader acyclic modules, and mutual recursion/SCC closure.",
   "2026-07-15: D′ MP0-TX0 closes unpublished verified callable-draft batching and atomic candidate publication: each canonical-keyed function plan lowers through a restored function session into a MirFunction absent from the candidate module; one verified draft set checks exact catalog/header lookup, symbol, signature arity, unique draft key/symbol, and catalog/function/plan/draft cardinality before the sole try_add_functions_atomic site; existing-module and within-batch collisions precheck before mutation; actual two-function lowering, declaration reorder, injected late-draft failure, symbol drift, duplicate batch, and late existing-module collision prove no partial publication; production transaction callers, sibling-call activation, ownership ops, backend widening, and fallback remain zero; resolved-lowering debug 79/79, transaction release 4/4, authority guard, release build, quick gate, and <800-line touched source/check files are green; P0c-B1 exact two-function one-sibling-edge activation is next.",
@@ -719,5 +725,4 @@ landed_tail = [
   "2026-07-15: D′ CAT0-C0a closes one owner-free exact callable candidate product: the S0 Program source unit is consumed into one declaration-site-keyed primary candidate store; callable key and physical symbol reverse indexes store sites only; exact static non-main all-i64 profile validation and duplicate name/arity/symbol rejection finish before any FunctionOriginV1 or FunctionOwnerIdV1 issuance; same name with different arity remains legal and duplicate exact keys report both sites; immutable owned catalog, resolver continuation, body resolution, sibling calls, Builder/Lower/runtime, grammar, backend, and ownership deltas remain zero; focused 4/4, resolved semantics 137/137, authority guard, release build, quick 66/66, and <800-line touched source/check files are green; CAT0-C0b catalog owner reservation/co-seal is next.",
   "2026-07-15: D′ CAT0-S0 closes one Program-owned header source-unit shell: one non-empty exact ASTNode::Program is consumed by value; every top-level statement must be FunctionDeclaration before opaque u32 declaration sites are exposed; located access returns only body-free CallableHeaderSyntaxViewV1; an unsupported node inside a function body is deliberately ignored while the same node at top level rejects the whole unit; Program/site inventory cannot be supplied independently; exact-i64 profile validation, owner/origin issuance, multi-header index seal, body resolution, sibling calls, Builder/Lower/runtime, grammar, backend, and ownership deltas remain zero; focused 4/4, resolved semantics 133/133, authority guard, release build, quick 66/66, and <800-line touched source/check files are green; CAT0-C0a owner-free header candidates are next.",
   "2026-07-15: D′ CAT0-L0 closes the behavior-neutral callable-index storage cleanup: VerifiedCallableIndexV1 owns one headers_by_key primary store; callable/symbol reverse indexes store CanonicalCallableKeyV1 foreign keys only; both reverse lookups are indexed; sole_header returns a typed cardinality error without panic; the resolved callable forest consumes the checked facade; only_header and linear header scan callers are zero; one-entry P0c behavior, grammar, Program admission, multi-header seal, body authority, sibling-call activation, runtime/backend behavior, and ownership operations remain unchanged; resolved semantics 129/129, focused callable/direct-call tests, authority guard, release build, quick 66/66, and <800-line touched source/check files are green; CAT0-S0 Program header source unit is next.",
-  "2026-07-15: D′ P0c-CAT0 selects and taskizes A′+: one exact function-only Program is co-sealed with one immutable multi-header catalog; owner-free candidates and duplicates are validated before all top-level origin/owner pairs are reserved from one session; CAT0 returns an opaque single-use continuation preserving both the next function ordinal and same-branded owner issuer; per-function owner forests remain single-root; normalized module identity is CanonicalCallableKeyV1 while ResolvedCallableRefV1 stays invocation-local; MP0 owns complete-catalog body resolution, whole-module preflight, unpublished verified draft batching, and atomic candidate insertion; CAT0-L0 behavior-neutral primary-header/reverse-index cleanup is next; Ownership V2 and .hako parser/MIR-builder migration remain parked and separate.",
 ]

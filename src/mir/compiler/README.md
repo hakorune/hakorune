@@ -170,3 +170,16 @@ This product owns no source-name lookup, call ABI, argument/evaluation order,
 effect, symbol, MIR, draft, publication, or SCC partition. Its `verify` entry
 remains disconnected through S0; the first typed activation consumer belongs
 to P0c-F-V0.
+
+## P0c-F-V0 typed acyclic module plan
+
+`VerifiedAcyclicCallableModulePlanV1` is the disconnected pre-Builder witness
+that combines the S0 topology proof with the existing finite direct-call
+function preflight. It stores only a canonical-keyed map of
+`CanonicalTrivialBindingSsaPlanV1` rows.
+
+The seal requires at least two functions and one resolved call site, exact
+graph/function/plan key and cardinality correspondence, and equality between
+each function's graph-site count and its verified direct-call profile rows.
+It does not own Builder, MIR, callable symbols, effects, draft publication, or
+backend activation. Production callers remain zero through V0.
