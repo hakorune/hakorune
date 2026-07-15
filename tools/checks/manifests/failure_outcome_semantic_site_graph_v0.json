@@ -18,17 +18,9 @@
     },
     {
       "evidence": "- **\u89b3\u6e2c\u306fweak_to_strong**: \u53c2\u7167\u5148\u304c Dead/Freed \u306e\u5834\u5408\u3001`weak_to_strong()` \u306f `null` \u3092\u8fd4\u3059",
-      "evidence_id": "docs/reference/boxes-system/memory-finalization.md:122:weak_to_strong",
+      "evidence_id": "docs/reference/boxes-system/memory-finalization.md:134:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 122,
-      "source_path": "docs/reference/boxes-system/memory-finalization.md",
-      "token": "weak_to_strong"
-    },
-    {
-      "evidence": "// 3) weak\u53c2\u7167\u306f weak_to_strong() \u3067\u89b3\u6e2c\u3057\u3001\u5931\u52b9\u6642\u306f null\uff08=void/none\uff09\u3092\u8fd4\u3059",
-      "evidence_id": "docs/reference/boxes-system/memory-finalization.md:93:weak_to_strong",
-      "evidence_kind": "weak_upgrade_surface",
-      "line": 93,
+      "line": 134,
       "source_path": "docs/reference/boxes-system/memory-finalization.md",
       "token": "weak_to_strong"
     },
@@ -42,41 +34,41 @@
     },
     {
       "evidence": "RESULT-001. They use qualified constructors such as `Option::None` and",
-      "evidence_id": "docs/reference/language/EBNF.md:258:Option::None",
+      "evidence_id": "docs/reference/language/EBNF.md:277:Option::None",
       "evidence_kind": "option_constructor",
-      "line": 258,
+      "line": 277,
       "source_path": "docs/reference/language/EBNF.md",
       "token": "Option::None"
     },
     {
       "evidence": "local r: Result<Handle, AllocError> = Result::Err(AllocError::ZeroSize)",
-      "evidence_id": "docs/reference/language/EBNF.md:678:Result::Err",
+      "evidence_id": "docs/reference/language/EBNF.md:697:Result::Err",
       "evidence_kind": "result_constructor",
-      "line": 678,
+      "line": 697,
       "source_path": "docs/reference/language/EBNF.md",
       "token": "Result::Err"
     },
     {
       "evidence": "Option::None",
-      "evidence_id": "docs/reference/language/EBNF.md:711:Option::None",
+      "evidence_id": "docs/reference/language/EBNF.md:730:Option::None",
       "evidence_kind": "option_constructor",
-      "line": 711,
+      "line": 730,
       "source_path": "docs/reference/language/EBNF.md",
       "token": "Option::None"
     },
     {
       "evidence": "Result::Err(reason)",
-      "evidence_id": "docs/reference/language/EBNF.md:713:Result::Err",
+      "evidence_id": "docs/reference/language/EBNF.md:732:Result::Err",
       "evidence_kind": "result_constructor",
-      "line": 713,
+      "line": 732,
       "source_path": "docs/reference/language/EBNF.md",
       "token": "Result::Err"
     },
     {
       "evidence": "postfix_catch      := primary_expr 'catch' ( '(' ( IDENT IDENT | IDENT )? ')' )? block",
-      "evidence_id": "docs/reference/language/EBNF.md:819:postfix_catch",
+      "evidence_id": "docs/reference/language/EBNF.md:838:postfix_catch",
       "evidence_kind": "catch_profile_surface",
-      "line": 819,
+      "line": 838,
       "source_path": "docs/reference/language/EBNF.md",
       "token": "postfix_catch"
     },
@@ -322,65 +314,65 @@
     },
     {
       "evidence": "- Weak-to-strong conversion (may fail): `weak_to_strong()`.",
-      "evidence_id": "docs/reference/language/lifecycle.md:142:weak_to_strong",
+      "evidence_id": "docs/reference/language/lifecycle.md:204:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 142,
+      "line": 204,
       "source_path": "docs/reference/language/lifecycle.md",
       "token": "weak_to_strong"
     },
     {
       "evidence": "- `weakRef.weak_to_strong()` returns the target box if it is usable, otherwise `null` (none).",
-      "evidence_id": "docs/reference/language/lifecycle.md:292:weak_to_strong",
+      "evidence_id": "docs/reference/language/lifecycle.md:399:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 292,
+      "line": 399,
       "source_path": "docs/reference/language/lifecycle.md",
       "token": "weak_to_strong"
     },
     {
       "evidence": "local x = w.weak_to_strong()",
-      "evidence_id": "docs/reference/language/lifecycle.md:301:weak_to_strong",
+      "evidence_id": "docs/reference/language/lifecycle.md:418:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 301,
+      "line": 418,
       "source_path": "docs/reference/language/lifecycle.md",
       "token": "weak_to_strong"
     },
     {
       "evidence": "- They require a runtime liveness mechanism (e.g., an `Rc/Weak`-style control block) so that \u201cweak_to_strong\u201d can succeed/fail safely.",
-      "evidence_id": "docs/reference/language/lifecycle.md:379:weak_to_strong",
+      "evidence_id": "docs/reference/language/lifecycle.md:497:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 379,
+      "line": 497,
       "source_path": "docs/reference/language/lifecycle.md",
       "token": "weak_to_strong"
     },
     {
       "evidence": "| WeakRef (`weak <expr>`, `weak_to_strong()`) | \u2705 | \u2705 LLVM harness (Phase 285LLVM-1.4) | \u274c unsupported |",
-      "evidence_id": "docs/reference/language/lifecycle.md:433:weak_to_strong",
+      "evidence_id": "docs/reference/language/lifecycle.md:551:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 433,
+      "line": 551,
       "source_path": "docs/reference/language/lifecycle.md",
       "token": "weak_to_strong"
     },
     {
       "evidence": "- **WeakRef** (Phase 285A0+): VM backend fully supports `weak <expr>` and `weak_to_strong()`. LLVM harness also supports this surface as of Phase 285LLVM-1.4.",
-      "evidence_id": "docs/reference/language/lifecycle.md:445:weak_to_strong",
+      "evidence_id": "docs/reference/language/lifecycle.md:564:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 445,
+      "line": 564,
       "source_path": "docs/reference/language/lifecycle.md",
       "token": "weak_to_strong"
     },
     {
       "evidence": "WeakRef behavior (weak_to_strong must fail safely):",
-      "evidence_id": "docs/reference/language/lifecycle.md:456:weak_to_strong",
+      "evidence_id": "docs/reference/language/lifecycle.md:576:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 456,
+      "line": 576,
       "source_path": "docs/reference/language/lifecycle.md",
       "token": "weak_to_strong"
     },
     {
       "evidence": "local y = w.weak_to_strong()",
-      "evidence_id": "docs/reference/language/lifecycle.md:464:weak_to_strong",
+      "evidence_id": "docs/reference/language/lifecycle.md:584:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 464,
+      "line": 584,
       "source_path": "docs/reference/language/lifecycle.md",
       "token": "weak_to_strong"
     },
@@ -482,59 +474,51 @@
     },
     {
       "evidence": "- `local opt: Option<T> = Option::Some(v)` / `Option::None`",
-      "evidence_id": "docs/reference/language/quick-reference.md:92:Option::None",
+      "evidence_id": "docs/reference/language/quick-reference.md:108:Option::None",
       "evidence_kind": "option_constructor",
-      "line": 92,
+      "line": 108,
       "source_path": "docs/reference/language/quick-reference.md",
       "token": "Option::None"
     },
     {
       "evidence": "- `local res: Result<T,E> = Result::Ok(v)` / `Result::Err(e)`",
-      "evidence_id": "docs/reference/language/quick-reference.md:93:Result::Err",
+      "evidence_id": "docs/reference/language/quick-reference.md:109:Result::Err",
       "evidence_kind": "result_constructor",
-      "line": 93,
+      "line": 109,
       "source_path": "docs/reference/language/quick-reference.md",
       "token": "Result::Err"
     },
     {
       "evidence": "- `WeakRef.weak_to_strong()` returns `null` on failure (i.e., `void` / none).",
-      "evidence_id": "docs/reference/language/types.md:293:weak_to_strong",
+      "evidence_id": "docs/reference/language/types.md:297:weak_to_strong",
       "evidence_kind": "weak_upgrade_surface",
-      "line": 293,
+      "line": 297,
       "source_path": "docs/reference/language/types.md",
       "token": "weak_to_strong"
     },
     {
       "evidence": "- constructors use `Type::Variant`, for example `Option::None` and",
-      "evidence_id": "docs/reference/language/types.md:317:Option::None",
+      "evidence_id": "docs/reference/language/types.md:321:Option::None",
       "evidence_kind": "option_constructor",
-      "line": 317,
+      "line": 321,
       "source_path": "docs/reference/language/types.md",
       "token": "Option::None"
     },
     {
       "evidence": "- `Option::None` is not `null`.",
-      "evidence_id": "docs/reference/language/types.md:322:Option::None",
+      "evidence_id": "docs/reference/language/types.md:326:Option::None",
       "evidence_kind": "option_constructor",
-      "line": 322,
+      "line": 326,
       "source_path": "docs/reference/language/types.md",
       "token": "Option::None"
     },
     {
       "evidence": "- `Void` is treated as equal to `BoxRef(VoidBox)` and `BoxRef(MissingBox)` for backward compatibility.",
-      "evidence_id": "docs/reference/language/types.md:416:MissingBox",
+      "evidence_id": "docs/reference/language/types.md:420:MissingBox",
       "evidence_kind": "null_like_box",
-      "line": 416,
+      "line": 420,
       "source_path": "docs/reference/language/types.md",
       "token": "MissingBox"
-    },
-    {
-      "evidence": "\u3053\u308c\u3089\u306f \u201c\u6700\u9069\u5316\u306e\u305f\u3081\u306e\u5bff\u547d\u201d \u3067\u306f\u306a\u304f\u3001\u8a00\u8a9e\u306e binding scope / explicit drop \u3068 weak \u89b3\u6e2c\uff08`weak_to_strong()`\uff09\u306e\u6574\u5408\u3092\u4fdd\u3064\u305f\u3081\u306e\u547d\u4ee4\u3002",
-      "evidence_id": "docs/reference/mir/INSTRUCTION_SET.md:270:weak_to_strong",
-      "evidence_kind": "weak_upgrade_surface",
-      "line": 270,
-      "source_path": "docs/reference/mir/INSTRUCTION_SET.md",
-      "token": "weak_to_strong"
     },
     {
       "evidence": "local c = parent.child_weak.weak_to_strong()",
@@ -586,26 +570,18 @@
     },
     {
       "evidence": "VMValue::Void",
-      "evidence_id": "src/backend/mir_interpreter/exec/block.rs:304:VMValue::Void",
+      "evidence_id": "src/backend/mir_interpreter/exec/block.rs:321:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 304,
+      "line": 321,
       "source_path": "src/backend/mir_interpreter/exec/block.rs",
       "token": "VMValue::Void"
     },
     {
-      "evidence": "let v = args.get(i).cloned().unwrap_or(VMValue::Void);",
-      "evidence_id": "src/backend/mir_interpreter/exec/mod.rs:136:VMValue::Void",
+      "evidence": ".unwrap_or(VMValue::Void);",
+      "evidence_id": "src/backend/mir_interpreter/exec/frame_transaction.rs:246:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 136,
-      "source_path": "src/backend/mir_interpreter/exec/mod.rs",
-      "token": "VMValue::Void"
-    },
-    {
-      "evidence": "self.write_reg(*pid, VMValue::Void);",
-      "evidence_id": "src/backend/mir_interpreter/exec/mod.rs:143:VMValue::Void",
-      "evidence_kind": "runtime_value_carrier",
-      "line": 143,
-      "source_path": "src/backend/mir_interpreter/exec/mod.rs",
+      "line": 246,
+      "source_path": "src/backend/mir_interpreter/exec/frame_transaction.rs",
       "token": "VMValue::Void"
     },
     {
@@ -618,17 +594,17 @@
     },
     {
       "evidence": "let v = VMValue::Void;",
-      "evidence_id": "src/backend/mir_interpreter/exec/phi.rs:192:VMValue::Void",
+      "evidence_id": "src/backend/mir_interpreter/exec/phi.rs:186:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 192,
+      "line": 186,
       "source_path": "src/backend/mir_interpreter/exec/phi.rs",
       "token": "VMValue::Void"
     },
     {
       "evidence": "Ok(VMValue::Void)",
-      "evidence_id": "src/backend/mir_interpreter/exec/phi.rs:62:VMValue::Void",
+      "evidence_id": "src/backend/mir_interpreter/exec/phi.rs:50:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 62,
+      "line": 50,
       "source_path": "src/backend/mir_interpreter/exec/phi.rs",
       "token": "VMValue::Void"
     },
@@ -1289,26 +1265,26 @@
       "token": "env.now_ms"
     },
     {
-      "evidence": "VMValue::Void => String::new(),",
-      "evidence_id": "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:157:VMValue::Void",
+      "evidence": "VMValue::Void => println!(\"null\"),",
+      "evidence_id": "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:16:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 157,
+      "line": 16,
+      "source_path": "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs",
+      "token": "VMValue::Void"
+    },
+    {
+      "evidence": "VMValue::Void => String::new(),",
+      "evidence_id": "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:196:VMValue::Void",
+      "evidence_kind": "runtime_value_carrier",
+      "line": 196,
       "source_path": "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs",
       "token": "VMValue::Void"
     },
     {
       "evidence": "Ok(VMValue::Void)",
-      "evidence_id": "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:161:VMValue::Void",
+      "evidence_id": "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:200:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 161,
-      "source_path": "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs",
-      "token": "VMValue::Void"
-    },
-    {
-      "evidence": "VMValue::Void => println!(\"null\"),",
-      "evidence_id": "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:16:VMValue::Void",
-      "evidence_kind": "runtime_value_carrier",
-      "line": 16,
+      "line": 200,
       "source_path": "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs",
       "token": "VMValue::Void"
     },
@@ -1346,17 +1322,17 @@
     },
     {
       "evidence": "\"env.get\",",
-      "evidence_id": "src/backend/mir_interpreter/handlers/extern_provider/tests.rs:10:env.get",
+      "evidence_id": "src/backend/mir_interpreter/handlers/extern_provider/tests.rs:15:env.get",
       "evidence_kind": "provider_optional_or_missing",
-      "line": 10,
+      "line": 15,
       "source_path": "src/backend/mir_interpreter/handlers/extern_provider/tests.rs",
       "token": "env.get"
     },
     {
       "evidence": "\"env.now_ms\",",
-      "evidence_id": "src/backend/mir_interpreter/handlers/extern_provider/tests.rs:11:env.now_ms",
+      "evidence_id": "src/backend/mir_interpreter/handlers/extern_provider/tests.rs:16:env.now_ms",
       "evidence_kind": "provider_failure_surface",
-      "line": 11,
+      "line": 16,
       "source_path": "src/backend/mir_interpreter/handlers/extern_provider/tests.rs",
       "token": "env.now_ms"
     },
@@ -1722,17 +1698,17 @@
     },
     {
       "evidence": "let result = self.take_reg(dst_id).unwrap_or(VMValue::Void);",
-      "evidence_id": "src/backend/mir_interpreter/mod.rs:303:VMValue::Void",
+      "evidence_id": "src/backend/mir_interpreter/mod.rs:313:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 303,
+      "line": 313,
       "source_path": "src/backend/mir_interpreter/mod.rs",
       "token": "VMValue::Void"
     },
     {
       "evidence": "vm_args.push(super::vm_types::VMValue::Void);",
-      "evidence_id": "src/backend/mir_interpreter/mod.rs:479:VMValue::Void",
+      "evidence_id": "src/backend/mir_interpreter/mod.rs:489:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 479,
+      "line": 489,
       "source_path": "src/backend/mir_interpreter/mod.rs",
       "token": "VMValue::Void"
     },
@@ -1826,89 +1802,89 @@
     },
     {
       "evidence": "VMValue::Void => write!(f, \"Void\"),",
-      "evidence_id": "src/backend/vm_types.rs:169:VMValue::Void",
+      "evidence_id": "src/backend/vm_types.rs:182:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 169,
+      "line": 182,
       "source_path": "src/backend/vm_types.rs",
       "token": "VMValue::Void"
     },
     {
       "evidence": "(VMValue::Void, VMValue::Void) => true,",
-      "evidence_id": "src/backend/vm_types.rs:191:VMValue::Void",
+      "evidence_id": "src/backend/vm_types.rs:204:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 191,
+      "line": 204,
       "source_path": "src/backend/vm_types.rs",
       "token": "VMValue::Void"
     },
     {
       "evidence": "VMValue::Void => Box::new(VoidBox::new()),",
-      "evidence_id": "src/backend/vm_types.rs:224:VMValue::Void",
+      "evidence_id": "src/backend/vm_types.rs:237:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 224,
+      "line": 237,
       "source_path": "src/backend/vm_types.rs",
       "token": "VMValue::Void"
     },
     {
       "evidence": "VMValue::Void => \"void\".to_string(),",
-      "evidence_id": "src/backend/vm_types.rs:245:VMValue::Void",
+      "evidence_id": "src/backend/vm_types.rs:258:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 245,
+      "line": 258,
       "source_path": "src/backend/vm_types.rs",
       "token": "VMValue::Void"
     },
     {
       "evidence": "VMValue::Void => Some(VMValue::Void),",
-      "evidence_id": "src/backend/vm_types.rs:274:VMValue::Void",
+      "evidence_id": "src/backend/vm_types.rs:287:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 274,
+      "line": 287,
       "source_path": "src/backend/vm_types.rs",
       "token": "VMValue::Void"
     },
     {
       "evidence": "VMValue::Void => Ok(false),",
-      "evidence_id": "src/backend/vm_types.rs:322:VMValue::Void",
+      "evidence_id": "src/backend/vm_types.rs:335:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 322,
+      "line": 335,
       "source_path": "src/backend/vm_types.rs",
       "token": "VMValue::Void"
     },
     {
       "evidence": "VMValue::Void",
-      "evidence_id": "src/backend/vm_types.rs:341:VMValue::Void",
+      "evidence_id": "src/backend/vm_types.rs:354:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 341,
+      "line": 354,
       "source_path": "src/backend/vm_types.rs",
       "token": "VMValue::Void"
     },
     {
       "evidence": "ConstValue::Null => VMValue::Void,",
-      "evidence_id": "src/backend/vm_types.rs:366:ConstValue::Null",
+      "evidence_id": "src/backend/vm_types.rs:379:ConstValue::Null",
       "evidence_kind": "mir_constant_carrier",
-      "line": 366,
+      "line": 379,
       "source_path": "src/backend/vm_types.rs",
       "token": "ConstValue::Null"
     },
     {
       "evidence": "ConstValue::Null => VMValue::Void,",
-      "evidence_id": "src/backend/vm_types.rs:366:VMValue::Void",
+      "evidence_id": "src/backend/vm_types.rs:379:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 366,
+      "line": 379,
       "source_path": "src/backend/vm_types.rs",
       "token": "VMValue::Void"
     },
     {
       "evidence": "ConstValue::Void => VMValue::Void,",
-      "evidence_id": "src/backend/vm_types.rs:367:ConstValue::Void",
+      "evidence_id": "src/backend/vm_types.rs:380:ConstValue::Void",
       "evidence_kind": "mir_constant_carrier",
-      "line": 367,
+      "line": 380,
       "source_path": "src/backend/vm_types.rs",
       "token": "ConstValue::Void"
     },
     {
       "evidence": "ConstValue::Void => VMValue::Void,",
-      "evidence_id": "src/backend/vm_types.rs:367:VMValue::Void",
+      "evidence_id": "src/backend/vm_types.rs:380:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 367,
+      "line": 380,
       "source_path": "src/backend/vm_types.rs",
       "token": "VMValue::Void"
     },
@@ -2345,6 +2321,54 @@
       "token": "weak_to_strong"
     },
     {
+      "evidence": "value: ConstValue::Null,",
+      "evidence_id": "src/mir/builder/resolved_lowering/null_tests.rs:153:ConstValue::Null",
+      "evidence_kind": "mir_constant_carrier",
+      "line": 153,
+      "source_path": "src/mir/builder/resolved_lowering/null_tests.rs",
+      "token": "ConstValue::Null"
+    },
+    {
+      "evidence": "assert!(matches!(value, VMValue::Void));",
+      "evidence_id": "src/mir/builder/resolved_lowering/void_tests.rs:149:VMValue::Void",
+      "evidence_kind": "runtime_value_carrier",
+      "line": 149,
+      "source_path": "src/mir/builder/resolved_lowering/void_tests.rs",
+      "token": "VMValue::Void"
+    },
+    {
+      "evidence": "value: ConstValue::Void,",
+      "evidence_id": "src/mir/builder/resolved_lowering/void_tests.rs:163:ConstValue::Void",
+      "evidence_kind": "mir_constant_carrier",
+      "line": 163,
+      "source_path": "src/mir/builder/resolved_lowering/void_tests.rs",
+      "token": "ConstValue::Void"
+    },
+    {
+      "evidence": "VMValue::Void,",
+      "evidence_id": "src/mir/builder/resolved_lowering/void_tests.rs:219:VMValue::Void",
+      "evidence_kind": "runtime_value_carrier",
+      "line": 219,
+      "source_path": "src/mir/builder/resolved_lowering/void_tests.rs",
+      "token": "VMValue::Void"
+    },
+    {
+      "evidence": "VMValue::Void,",
+      "evidence_id": "src/mir/builder/resolved_lowering/void_tests.rs:230:VMValue::Void",
+      "evidence_kind": "runtime_value_carrier",
+      "line": 230,
+      "source_path": "src/mir/builder/resolved_lowering/void_tests.rs",
+      "token": "VMValue::Void"
+    },
+    {
+      "evidence": "VMValue::Void,",
+      "evidence_id": "src/mir/builder/resolved_lowering/void_tests.rs:235:VMValue::Void",
+      "evidence_kind": "runtime_value_carrier",
+      "line": 235,
+      "source_path": "src/mir/builder/resolved_lowering/void_tests.rs",
+      "token": "VMValue::Void"
+    },
+    {
       "evidence": "AstLit::Void => ConstValue::Null, // JoinIR uses Null instead of Void",
       "evidence_id": "src/mir/control_tree/normalized_shadow/anf/execute_box.rs:289:ConstValue::Null",
       "evidence_kind": "mir_constant_carrier",
@@ -2442,57 +2466,57 @@
     },
     {
       "evidence": "function_with_extern_call(\"env.get/1\", vec![ValueId::new(1)], Some(ValueId::new(2)));",
-      "evidence_id": "src/mir/extern_call_route_plan/route.rs:294:env.get",
+      "evidence_id": "src/mir/extern_call_route_plan/route.rs:297:env.get",
       "evidence_kind": "provider_optional_or_missing",
-      "line": 294,
+      "line": 297,
       "source_path": "src/mir/extern_call_route_plan/route.rs",
       "token": "env.get"
     },
     {
       "evidence": "route_id: \"extern.env.get\",",
-      "evidence_id": "src/mir/extern_call_route_plan/route_spec.rs:105:env.get",
+      "evidence_id": "src/mir/extern_call_route_plan/route_spec.rs:136:env.get",
       "evidence_kind": "provider_optional_or_missing",
-      "line": 105,
+      "line": 136,
       "source_path": "src/mir/extern_call_route_plan/route_spec.rs",
       "token": "env.get"
     },
     {
       "evidence": "symbol: \"nyash.env.get\",",
-      "evidence_id": "src/mir/extern_call_route_plan/route_spec.rs:107:env.get",
+      "evidence_id": "src/mir/extern_call_route_plan/route_spec.rs:138:env.get",
       "evidence_kind": "provider_optional_or_missing",
-      "line": 107,
+      "line": 138,
       "source_path": "src/mir/extern_call_route_plan/route_spec.rs",
       "token": "env.get"
     },
     {
       "evidence": "aliases: &[\"env.get\"],",
-      "evidence_id": "src/mir/extern_call_route_plan/route_spec.rs:108:env.get",
+      "evidence_id": "src/mir/extern_call_route_plan/route_spec.rs:139:env.get",
       "evidence_kind": "provider_optional_or_missing",
-      "line": 108,
+      "line": 139,
       "source_path": "src/mir/extern_call_route_plan/route_spec.rs",
       "token": "env.get"
     },
     {
       "evidence": "route_id: \"extern.env.now_ms\",",
-      "evidence_id": "src/mir/extern_call_route_plan/route_spec.rs:133:env.now_ms",
+      "evidence_id": "src/mir/extern_call_route_plan/route_spec.rs:164:env.now_ms",
       "evidence_kind": "provider_failure_surface",
-      "line": 133,
+      "line": 164,
       "source_path": "src/mir/extern_call_route_plan/route_spec.rs",
       "token": "env.now_ms"
     },
     {
       "evidence": "symbol: \"nyash.env.now_ms\",",
-      "evidence_id": "src/mir/extern_call_route_plan/route_spec.rs:135:env.now_ms",
+      "evidence_id": "src/mir/extern_call_route_plan/route_spec.rs:166:env.now_ms",
       "evidence_kind": "provider_failure_surface",
-      "line": 135,
+      "line": 166,
       "source_path": "src/mir/extern_call_route_plan/route_spec.rs",
       "token": "env.now_ms"
     },
     {
       "evidence": "aliases: &[\"env.now_ms\"],",
-      "evidence_id": "src/mir/extern_call_route_plan/route_spec.rs:136:env.now_ms",
+      "evidence_id": "src/mir/extern_call_route_plan/route_spec.rs:167:env.now_ms",
       "evidence_kind": "provider_failure_surface",
-      "line": 136,
+      "line": 167,
       "source_path": "src/mir/extern_call_route_plan/route_spec.rs",
       "token": "env.now_ms"
     },
@@ -4490,17 +4514,17 @@
     },
     {
       "evidence": "VMValue::Void => String::new(), // Void \u306f\u8868\u793a\u3057\u306a\u3044",
-      "evidence_id": "src/runner/repl/repl_runner.rs:161:VMValue::Void",
+      "evidence_id": "src/runner/repl/repl_runner.rs:164:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 161,
+      "line": 164,
       "source_path": "src/runner/repl/repl_runner.rs",
       "token": "VMValue::Void"
     },
     {
       "evidence": "VMValue::Void => String::new(),",
-      "evidence_id": "src/runner/repl/repl_runner.rs:198:VMValue::Void",
+      "evidence_id": "src/runner/repl/repl_runner.rs:201:VMValue::Void",
       "evidence_kind": "runtime_value_carrier",
-      "line": 198,
+      "line": 201,
       "source_path": "src/runner/repl/repl_runner.rs",
       "token": "VMValue::Void"
     },
@@ -4833,8 +4857,8 @@
       "backend_policy": "",
       "current_carrier": "VMValue::Void",
       "evidence_refs": [
-        "src/runner/repl/repl_runner.rs:161:VMValue::Void",
-        "src/runner/repl/repl_runner.rs:198:VMValue::Void",
+        "src/runner/repl/repl_runner.rs:164:VMValue::Void",
+        "src/runner/repl/repl_runner.rs:201:VMValue::Void",
         "src/runtime/host_api/host_box_ops.rs:40:VMValue::Void",
         "src/semantics/vm_impl.rs:39:VMValue::Void"
       ],
@@ -5296,10 +5320,10 @@
         "src/mir/control_tree/normalized_shadow/post_if_post_k.rs:416:env.get",
         "src/mir/control_tree/normalized_shadow/support/expr_lowering.rs:107:env.get",
         "src/mir/control_tree/normalized_shadow/support/expr_lowering.rs:46:env.get",
-        "src/mir/extern_call_route_plan/route.rs:294:env.get",
-        "src/mir/extern_call_route_plan/route_spec.rs:105:env.get",
-        "src/mir/extern_call_route_plan/route_spec.rs:107:env.get",
-        "src/mir/extern_call_route_plan/route_spec.rs:108:env.get",
+        "src/mir/extern_call_route_plan/route.rs:297:env.get",
+        "src/mir/extern_call_route_plan/route_spec.rs:136:env.get",
+        "src/mir/extern_call_route_plan/route_spec.rs:138:env.get",
+        "src/mir/extern_call_route_plan/route_spec.rs:139:env.get",
         "src/mir/join_ir/lowering/condition_env.rs:110:env.get",
         "src/mir/join_ir/lowering/condition_env.rs:121:env.get",
         "src/mir/join_ir/lowering/condition_env.rs:122:env.get",
@@ -5359,9 +5383,9 @@
       "backend_policy": "",
       "current_carrier": "env.now_ms",
       "evidence_refs": [
-        "src/mir/extern_call_route_plan/route_spec.rs:133:env.now_ms",
-        "src/mir/extern_call_route_plan/route_spec.rs:135:env.now_ms",
-        "src/mir/extern_call_route_plan/route_spec.rs:136:env.now_ms"
+        "src/mir/extern_call_route_plan/route_spec.rs:164:env.now_ms",
+        "src/mir/extern_call_route_plan/route_spec.rs:166:env.now_ms",
+        "src/mir/extern_call_route_plan/route_spec.rs:167:env.now_ms"
       ],
       "layer": "mir",
       "migration_action": "",
@@ -5486,7 +5510,7 @@
       "current_carrier": "postfix_catch",
       "evidence_refs": [
         "docs/reference/constraints.md:46:postfix_catch",
-        "docs/reference/language/EBNF.md:819:postfix_catch"
+        "docs/reference/language/EBNF.md:838:postfix_catch"
       ],
       "layer": "reference",
       "migration_action": "",
@@ -5505,7 +5529,7 @@
       "backend_policy": "",
       "current_carrier": "BoxRef(MissingBox)",
       "evidence_refs": [
-        "docs/reference/language/types.md:416:MissingBox"
+        "docs/reference/language/types.md:420:MissingBox"
       ],
       "layer": "reference",
       "migration_action": "",
@@ -5524,8 +5548,8 @@
       "backend_policy": "reference_only",
       "current_carrier": "Option::None",
       "evidence_refs": [
-        "docs/reference/language/EBNF.md:258:Option::None",
-        "docs/reference/language/EBNF.md:711:Option::None",
+        "docs/reference/language/EBNF.md:277:Option::None",
+        "docs/reference/language/EBNF.md:730:Option::None",
         "docs/reference/language/failure-outcome-relations.md:115:Option::None",
         "docs/reference/language/failure-outcome-relations.md:140:Option::None",
         "docs/reference/language/failure-outcome-relations.md:141:Option::None",
@@ -5550,9 +5574,9 @@
         "docs/reference/language/option.md:163:Option::None",
         "docs/reference/language/option.md:62:Option::None",
         "docs/reference/language/option.md:99:Option::None",
-        "docs/reference/language/quick-reference.md:92:Option::None",
-        "docs/reference/language/types.md:317:Option::None",
-        "docs/reference/language/types.md:322:Option::None"
+        "docs/reference/language/quick-reference.md:108:Option::None",
+        "docs/reference/language/types.md:321:Option::None",
+        "docs/reference/language/types.md:326:Option::None"
       ],
       "layer": "reference",
       "migration_action": "relation_only",
@@ -5571,8 +5595,8 @@
       "backend_policy": "reference_only",
       "current_carrier": "Result::Err",
       "evidence_refs": [
-        "docs/reference/language/EBNF.md:678:Result::Err",
-        "docs/reference/language/EBNF.md:713:Result::Err",
+        "docs/reference/language/EBNF.md:697:Result::Err",
+        "docs/reference/language/EBNF.md:732:Result::Err",
         "docs/reference/language/LANGUAGE_REFERENCE_2025.md:392:Result::Err",
         "docs/reference/language/LANGUAGE_REFERENCE_2025.md:928:Result::Err",
         "docs/reference/language/failure-outcome-relations.md:115:Result::Err",
@@ -5591,7 +5615,7 @@
         "docs/reference/language/option.md:64:Result::Err",
         "docs/reference/language/option.md:89:Result::Err",
         "docs/reference/language/option.md:99:Result::Err",
-        "docs/reference/language/quick-reference.md:93:Result::Err"
+        "docs/reference/language/quick-reference.md:109:Result::Err"
       ],
       "layer": "reference",
       "migration_action": "relation_only",
@@ -5610,13 +5634,12 @@
       "backend_policy": "",
       "current_carrier": "weak_to_strong",
       "evidence_refs": [
-        "docs/reference/boxes-system/memory-finalization.md:122:weak_to_strong",
-        "docs/reference/boxes-system/memory-finalization.md:93:weak_to_strong",
-        "docs/reference/language/lifecycle.md:142:weak_to_strong",
-        "docs/reference/language/lifecycle.md:292:weak_to_strong",
-        "docs/reference/language/lifecycle.md:379:weak_to_strong",
-        "docs/reference/language/lifecycle.md:456:weak_to_strong",
-        "docs/reference/language/types.md:293:weak_to_strong"
+        "docs/reference/boxes-system/memory-finalization.md:134:weak_to_strong",
+        "docs/reference/language/lifecycle.md:204:weak_to_strong",
+        "docs/reference/language/lifecycle.md:399:weak_to_strong",
+        "docs/reference/language/lifecycle.md:497:weak_to_strong",
+        "docs/reference/language/lifecycle.md:576:weak_to_strong",
+        "docs/reference/language/types.md:297:weak_to_strong"
       ],
       "layer": "reference",
       "migration_action": "",
@@ -5636,11 +5659,10 @@
       "current_carrier": "weak_to_strong",
       "evidence_refs": [
         "docs/reference/boxes-system/everything-is-box.md:123:weak_to_strong",
-        "docs/reference/language/lifecycle.md:301:weak_to_strong",
-        "docs/reference/language/lifecycle.md:433:weak_to_strong",
-        "docs/reference/language/lifecycle.md:445:weak_to_strong",
-        "docs/reference/language/lifecycle.md:464:weak_to_strong",
-        "docs/reference/mir/INSTRUCTION_SET.md:270:weak_to_strong",
+        "docs/reference/language/lifecycle.md:418:weak_to_strong",
+        "docs/reference/language/lifecycle.md:551:weak_to_strong",
+        "docs/reference/language/lifecycle.md:564:weak_to_strong",
+        "docs/reference/language/lifecycle.md:584:weak_to_strong",
         "docs/reference/testing-quality/golden-dump-testing.md:99:weak_to_strong"
       ],
       "layer": "reference",
@@ -5666,7 +5688,7 @@
         "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:48:VMValue::Void",
         "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:84:VMValue::Void",
         "src/backend/runtime_type_spec.rs:118:VMValue::Void",
-        "src/backend/vm_types.rs:366:VMValue::Void"
+        "src/backend/vm_types.rs:379:VMValue::Void"
       ],
       "layer": "runtime_backend",
       "migration_action": "",
@@ -5692,7 +5714,7 @@
         "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:48:VMValue::Void",
         "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:84:VMValue::Void",
         "src/backend/runtime_type_spec.rs:118:VMValue::Void",
-        "src/backend/vm_types.rs:366:VMValue::Void"
+        "src/backend/vm_types.rs:379:VMValue::Void"
       ],
       "layer": "runtime_backend",
       "migration_action": "",
@@ -5713,10 +5735,9 @@
       "evidence_refs": [
         "src/backend/abi_util.rs:128:VMValue::Void",
         "src/backend/abi_util.rs:21:VMValue::Void",
-        "src/backend/mir_interpreter/exec/block.rs:304:VMValue::Void",
-        "src/backend/mir_interpreter/exec/mod.rs:143:VMValue::Void",
+        "src/backend/mir_interpreter/exec/block.rs:321:VMValue::Void",
         "src/backend/mir_interpreter/exec/parameter_contracts/tests.rs:196:VMValue::Void",
-        "src/backend/mir_interpreter/exec/phi.rs:192:VMValue::Void",
+        "src/backend/mir_interpreter/exec/phi.rs:186:VMValue::Void",
         "src/backend/mir_interpreter/exec/record_contracts.rs:66:VMValue::Void",
         "src/backend/mir_interpreter/exec/return_contracts.rs:24:VMValue::Void",
         "src/backend/mir_interpreter/exec/return_contracts/tests.rs:38:VMValue::Void",
@@ -5746,7 +5767,7 @@
         "src/backend/mir_interpreter/handlers/extern_provider/codegen.rs:256:VMValue::Void",
         "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:119:VMValue::Void",
         "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:133:VMValue::Void",
-        "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:157:VMValue::Void",
+        "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:196:VMValue::Void",
         "src/backend/mir_interpreter/handlers/externals.rs:48:VMValue::Void",
         "src/backend/mir_interpreter/handlers/externals.rs:80:VMValue::Void",
         "src/backend/mir_interpreter/handlers/sum_ops.rs:212:VMValue::Void",
@@ -5776,20 +5797,20 @@
         "src/backend/mir_interpreter/helpers.rs:441:VMValue::Void",
         "src/backend/mir_interpreter/helpers.rs:442:VMValue::Void",
         "src/backend/mir_interpreter/helpers.rs:443:VMValue::Void",
-        "src/backend/mir_interpreter/mod.rs:479:VMValue::Void",
+        "src/backend/mir_interpreter/mod.rs:489:VMValue::Void",
         "src/backend/mir_interpreter/trace.rs:92:VMValue::Void",
         "src/backend/mir_interpreter/utils/conversion_helpers.rs:55:VMValue::Void",
         "src/backend/mir_interpreter/utils/conversion_helpers.rs:93:VMValue::Void",
         "src/backend/mir_interpreter/utils/destination_helpers.rs:34:VMValue::Void",
         "src/backend/runtime_type_spec.rs:31:VMValue::Void",
         "src/backend/runtime_type_tag.rs:28:VMValue::Void",
-        "src/backend/vm_types.rs:169:VMValue::Void",
-        "src/backend/vm_types.rs:191:VMValue::Void",
-        "src/backend/vm_types.rs:245:VMValue::Void",
-        "src/backend/vm_types.rs:274:VMValue::Void",
-        "src/backend/vm_types.rs:322:VMValue::Void",
-        "src/backend/vm_types.rs:341:VMValue::Void",
-        "src/backend/vm_types.rs:367:VMValue::Void"
+        "src/backend/vm_types.rs:182:VMValue::Void",
+        "src/backend/vm_types.rs:204:VMValue::Void",
+        "src/backend/vm_types.rs:258:VMValue::Void",
+        "src/backend/vm_types.rs:287:VMValue::Void",
+        "src/backend/vm_types.rs:335:VMValue::Void",
+        "src/backend/vm_types.rs:354:VMValue::Void",
+        "src/backend/vm_types.rs:380:VMValue::Void"
       ],
       "layer": "runtime_backend",
       "migration_action": "",
@@ -5853,7 +5874,7 @@
       "evidence_refs": [
         "src/backend/mir_interpreter/helpers.rs:302:VMValue::Void",
         "src/backend/mir_interpreter/helpers.rs:404:VMValue::Void",
-        "src/backend/vm_types.rs:224:VMValue::Void"
+        "src/backend/vm_types.rs:237:VMValue::Void"
       ],
       "layer": "runtime_backend",
       "migration_action": "",
@@ -5873,7 +5894,7 @@
       "current_carrier": "ConstValue::Null",
       "evidence_refs": [
         "src/backend/mir_interpreter/handlers/arithmetic.rs:51:ConstValue::Null",
-        "src/backend/vm_types.rs:366:ConstValue::Null",
+        "src/backend/vm_types.rs:379:ConstValue::Null",
         "src/backend/wasm/codegen/instructions.rs:265:ConstValue::Null",
         "src/backend/wasm/codegen/tests.rs:49:ConstValue::Null"
       ],
@@ -5898,8 +5919,8 @@
         "src/backend/mir_interpreter/exec/weak_field_contracts.rs:116:ConstValue::Void",
         "src/backend/mir_interpreter/handlers/arithmetic.rs:51:ConstValue::Null",
         "src/backend/mir_interpreter/handlers/arithmetic.rs:51:ConstValue::Void",
-        "src/backend/vm_types.rs:366:ConstValue::Null",
-        "src/backend/vm_types.rs:367:ConstValue::Void",
+        "src/backend/vm_types.rs:379:ConstValue::Null",
+        "src/backend/vm_types.rs:380:ConstValue::Void",
         "src/backend/wasm/codegen/instructions.rs:265:ConstValue::Null",
         "src/backend/wasm/codegen/instructions.rs:265:ConstValue::Void",
         "src/backend/wasm/codegen/tests.rs:49:ConstValue::Null"
@@ -5923,7 +5944,7 @@
       "evidence_refs": [
         "src/backend/mir_interpreter/exec/weak_field_contracts.rs:116:ConstValue::Void",
         "src/backend/mir_interpreter/handlers/arithmetic.rs:51:ConstValue::Void",
-        "src/backend/vm_types.rs:367:ConstValue::Void",
+        "src/backend/vm_types.rs:380:ConstValue::Void",
         "src/backend/wasm/codegen/instructions.rs:265:ConstValue::Void"
       ],
       "layer": "runtime_backend",
@@ -6015,7 +6036,7 @@
         "src/backend/mir_interpreter/handlers/extern_provider/lane.rs:22:env.get",
         "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:111:env.get",
         "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:113:env.get",
-        "src/backend/mir_interpreter/handlers/extern_provider/tests.rs:10:env.get",
+        "src/backend/mir_interpreter/handlers/extern_provider/tests.rs:15:env.get",
         "src/backend/mir_interpreter/utils/naming.rs:5:env.get"
       ],
       "layer": "runtime_backend",
@@ -6041,7 +6062,7 @@
         "src/backend/mir_interpreter/handlers/extern_provider/lane.rs:24:env.now_ms",
         "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:136:env.now_ms",
         "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:139:env.now_ms",
-        "src/backend/mir_interpreter/handlers/extern_provider/tests.rs:11:env.now_ms"
+        "src/backend/mir_interpreter/handlers/extern_provider/tests.rs:16:env.now_ms"
       ],
       "layer": "runtime_backend",
       "migration_action": "",
@@ -6060,7 +6081,7 @@
       "backend_policy": "",
       "current_carrier": "VMValue::Void",
       "evidence_refs": [
-        "src/backend/mir_interpreter/exec/mod.rs:136:VMValue::Void",
+        "src/backend/mir_interpreter/exec/frame_transaction.rs:246:VMValue::Void",
         "src/backend/mir_interpreter/handlers/boxcall_dispatch.rs:113:VMValue::Void",
         "src/backend/mir_interpreter/handlers/boxcall_prelude.rs:18:VMValue::Void",
         "src/backend/mir_interpreter/handlers/boxcall_prelude.rs:56:VMValue::Void",
@@ -6080,7 +6101,7 @@
         "src/backend/mir_interpreter/handlers/externals.rs:57:VMValue::Void",
         "src/backend/mir_interpreter/handlers/memory.rs:5:VMValue::Void",
         "src/backend/mir_interpreter/handlers/temp_dispatch.rs:56:VMValue::Void",
-        "src/backend/mir_interpreter/mod.rs:303:VMValue::Void"
+        "src/backend/mir_interpreter/mod.rs:313:VMValue::Void"
       ],
       "layer": "runtime_backend",
       "migration_action": "",
@@ -6099,7 +6120,7 @@
       "backend_policy": "",
       "current_carrier": "VMValue::Void",
       "evidence_refs": [
-        "src/backend/mir_interpreter/exec/phi.rs:62:VMValue::Void",
+        "src/backend/mir_interpreter/exec/phi.rs:50:VMValue::Void",
         "src/backend/mir_interpreter/handlers/boxes_object_fields.rs:105:VMValue::Void",
         "src/backend/mir_interpreter/handlers/calls/externs.rs:373:VMValue::Void",
         "src/backend/mir_interpreter/handlers/calls/externs.rs:73:VMValue::Void",
@@ -6116,7 +6137,7 @@
         "src/backend/mir_interpreter/handlers/extern_provider/hostbridge.rs:60:VMValue::Void",
         "src/backend/mir_interpreter/handlers/extern_provider/loader_cold.rs:62:VMValue::Void",
         "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:109:VMValue::Void",
-        "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:161:VMValue::Void",
+        "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:200:VMValue::Void",
         "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:41:VMValue::Void",
         "src/backend/mir_interpreter/handlers/extern_provider/runtime_direct.rs:73:VMValue::Void",
         "src/backend/mir_interpreter/helpers.rs:272:VMValue::Void"
@@ -6174,6 +6195,28 @@
     },
     {
       "backend_policy": "",
+      "current_carrier": "VMValue::Void",
+      "evidence_refs": [
+        "src/mir/builder/resolved_lowering/void_tests.rs:149:VMValue::Void",
+        "src/mir/builder/resolved_lowering/void_tests.rs:219:VMValue::Void",
+        "src/mir/builder/resolved_lowering/void_tests.rs:230:VMValue::Void",
+        "src/mir/builder/resolved_lowering/void_tests.rs:235:VMValue::Void"
+      ],
+      "layer": "test",
+      "migration_action": "",
+      "operation": "vmvalue_void",
+      "outcome_branch": "current_carrier_observation",
+      "owner": "",
+      "owner_domain": "carrier",
+      "profile": "implementation",
+      "review_status": "pending",
+      "semantic_class": "",
+      "site_id": "test.carrier.vmvalue_void.current_carrier_observation",
+      "site_kind": "internal_sentinel",
+      "target_carrier": ""
+    },
+    {
+      "backend_policy": "",
       "current_carrier": "postfix_catch",
       "evidence_refs": [
         "src/tests/parser/mod.rs:33:postfix_catch",
@@ -6201,6 +6244,7 @@
       "backend_policy": "",
       "current_carrier": "ConstValue::Null",
       "evidence_refs": [
+        "src/mir/builder/resolved_lowering/null_tests.rs:153:ConstValue::Null",
         "src/mir/global_call_route_plan/tests/jsonfrag_normalizer.rs:47:ConstValue::Null",
         "src/mir/global_call_route_plan/tests/pattern_util_local_value_probe.rs:71:ConstValue::Null",
         "src/mir/user_box_method_route_plan/tests/object_handles.rs:116:ConstValue::Null",
@@ -6227,6 +6271,8 @@
       "backend_policy": "",
       "current_carrier": "mixed",
       "evidence_refs": [
+        "src/mir/builder/resolved_lowering/null_tests.rs:153:ConstValue::Null",
+        "src/mir/builder/resolved_lowering/void_tests.rs:163:ConstValue::Void",
         "src/mir/global_call_route_plan/tests/blockers.rs:123:ConstValue::Void",
         "src/mir/global_call_route_plan/tests/blockers.rs:43:ConstValue::Void",
         "src/mir/global_call_route_plan/tests/blockers.rs:607:ConstValue::Void",
@@ -6338,6 +6384,7 @@
       "backend_policy": "",
       "current_carrier": "ConstValue::Void",
       "evidence_refs": [
+        "src/mir/builder/resolved_lowering/void_tests.rs:163:ConstValue::Void",
         "src/mir/global_call_route_plan/tests/blockers.rs:123:ConstValue::Void",
         "src/mir/global_call_route_plan/tests/blockers.rs:43:ConstValue::Void",
         "src/mir/global_call_route_plan/tests/blockers.rs:607:ConstValue::Void",
