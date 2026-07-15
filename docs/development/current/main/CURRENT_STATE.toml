@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ SSA-I1-COMPAT-R0a I1 closed; P0c-i64 source Call design stop active"
+status = "D′ P0c-i64 source Call consultation prepared; target-family decision pending"
 date = "2026-07-15"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -199,20 +199,19 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/binding-ssa-first-control-lowering-ssot.md"
 
-latest_card = "mirbuilder-ssa-i1-compat-static-i64-return-selection-2026-07-15"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-ssa-i1-compat-static-i64-return-selection-2026-07-15.md"
-latest_card_summary = """SSA-I1-COMPAT-R0a-I1 closes atomic exact static `i64`
-typed-return activation. Exact R0a alone enters Binding SSA; unsupported typed
-returns fail before Builder effects and never retry A+. Resolved Lower installs
-parameter and result declarations only from the sealed profile, while the
-existing terminal and function-owned Binding SSA remain returned-value and PHI
-authority. Boundary contracts refresh on the unpublished draft, MirVerifier
-runs before publication, and the Rust MIR interpreter validates the final
-result before caller observation. Return-specific ValueIds, CopyOwned,
-DestroyOwned, ReleaseStrong, source Call, receiver, and backend widening remain
-zero. Focused R0a 5/5, P0a 5/5, profile 22/22, authority guards, release build,
-quick gate, and pointer guard are green. The next blocker is the P0c-i64 exact
-known-static source Call design stop.
+latest_card = "mirbuilder-ssa-i1-compat-p0c-i64-call-design-stop-2026-07-15"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-ssa-i1-compat-p0c-i64-call-design-stop-2026-07-15.md"
+latest_card_summary = """P0c-i64 source Call is fixed as an explicit design
+stop. Current canonical ingress owns one FunctionDeclaration and no sibling
+callable catalog; resolved semantics traverses FunctionCall arguments but owns
+no exact callee target. Existing MIR Call, P0a/R0a callable contracts, recursive
+VM frame enforcement, and backend fail-fast are reusable substrate only. The
+consultation must choose between A, an exact current-owner self-call slice that
+proves a reusable call-site carrier/materializer, and B, a module callable
+catalog plus atomic multi-function publication before arbitrary sibling calls.
+Legacy global name lookup, unique-static/tail recovery, callee=None, raw type or
+name rediscovery, MethodCall/receiver, ownership operations, and backend
+widening are rejected. Source FunctionCall production activation remains zero.
 Historical D′ context follows.
 D′ is accepted and taskized through the final canonical
 source form. Exact source coverage, ScopeId/RegionId topology, typed ports,
@@ -640,6 +639,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-15: D′ P0c-i64 design stop proves that canonical ingress currently owns one function and no sibling callable catalog; MIR Call, P0a/R0a contracts, recursive VM enforcement, and backend gates are reusable but source callee identity/call-site ABI are absent; consultation must choose exact reusable self-call first or module callable catalog plus atomic multi-function publication first; legacy global-name recovery, callee=None, raw Lower rediscovery, MethodCall/receiver, ownership operations, backend widening, and source FunctionCall activation remain zero.",
   "2026-07-15: D′ SSA-I1-COMPAT-R0a-I1 closes atomic static exact-i64 typed returns: only the co-sealed R0a row enters Binding SSA; resolved Lower installs callable metadata only from sealed parameter/return witnesses; existing terminal/Binding SSA/ReturnExitContract authorities are preserved; unsupported typed returns never retry A+ and non-VM backends fail before effects; return-specific ValueIds and ownership operations remain zero; R0a 5/5, P0a 5/5, profile 22/22, authority guards, release build, quick gate, pointer guard, and <800-line touched source/check files are green; P0c-i64 source Call is the next design stop.",
   "2026-07-15: D′ SSA-I1-COMPAT-R0a-L0 closes one behavior-neutral callable ABI seam: ExactTrivialScalarAbiV1 is site-neutral exact i64 physical ABI authority; parameter ABI delegates to it; one route-local callable_abi facade installs sealed parameter metadata with no typed result and refreshes parameter then return contracts on the unpublished draft; resolved trivial raw return annotation reads are zero; grammar/route/runtime/typed-return/Ownership SSA deltas remain zero; parameter 5/5, resolved-lowering 94/94, profile 18/18, authority guard, release build, quick 66/66, and <800-line touched source/check files are green; disconnected R0a-S0 is next.",
   "2026-07-15: D′ SSA-I1-COMPAT-R0a selects static exact-i64 typed return as the next row: exact :i64 is co-sealed with the existing final explicit InlineI64 terminal; the terminal remains return-value authority and a new function-level witness owns only callable-boundary ABI; resolved Lower must consume sealed metadata without raw annotation reclassification; ReturnExitContract with FunctionReturnContract owner remains runtime authority; typed-return NotAdmitted never retries A+, non-VM backends fail before effects, and source Call/receiver/Box/Ownership SSA remain inactive; R0a-L0 behavior-neutral implementation is next and another docs-only closeout is forbidden.",
@@ -651,5 +651,4 @@ landed_tail = [
   "2026-07-15: D′ SSA-I1-COMPAT-N0a selects one exact NullSentinel implementation row after a four-candidate audit: LiteralValue::Null remains exact source authority over existing ConstValue::Null / MirType::Void / runtime no-value representation; only local/read/assignment/BlockExpr, homogeneous If, and Bool comparison results are in scope; Null return, Void, Outbox, BorrowedText, parameters, receiver, Ownership SSA, opcodes, and backend vocabulary remain inactive; the next card must contain code or artifact delta.",
   "2026-07-15: D′ SSA-I1-T atomically connects one admitted trivial whole owner to one function-owned Binding SSA: preflight selects BindingSsa or temporary A+ once before Builder effects; carrier-free If control, exact profile/control coverage, C1 CFG witnesses, demand-driven PHIs, and function/module publication barriers are active; the selected route skips legacy RC insertion and never retries A+; located/capability/schedule/profile/control/VM fixtures are 75/5/2/10/11/6 green, exact Float typing is green, and selected-route ReleaseStrong is zero; production Ownership SSA/opcodes and Loop activation remain zero; grammar delta is zero; SSA-I1-COMPAT row selection is the next design stop.",
   "2026-07-15: D′ SSA-I0-PROFILE closes one disconnected exact whole-owner trivial representation proof under src/mir/resolved_value_profile: eight manifest files co-seal exact completion and carrier-free If control with InlineI64/InlineBool/InlineF64 value, definition, merge-profile, and terminal coverage; return; and implicit fallthrough are distinct no-value dispositions; unsealed parameters/receiver, Outbox, String, Void/Null values, missing initializers, unsupported forms, and mixed merges reject before Builder effects; 10/10 focused fixtures, private validator, public authority guard, release build, quick 66/66, pointer guard, and cargo check are green; largest profile/check files are 610/468 lines; production profile/Binding SSA/Ownership SSA/opcode callers, grammar delta, route delta, and current A+ behavior delta remain zero; SSA-I1-T is selected and must skip legacy insert_rc_instructions.",
-  "2026-07-14: D′ SSA-RC0 closes one disconnected pure local-binding ownership-transition planner: Receiver/Parameter/Local/Outbox and Trivial/Owned/BorrowedStrong form closed vocabularies; exact BindingRef self-assignment, next-before-previous replacement, BlockExpr tail transfer/copy, reverse-order scope/function close, terminal Return ABI, and draft discard are sealed; MirBuilder/MirInstruction/BasicBlockId imports, BindingRef-to-ValueId planner maps, ValueId allocation, MIR emission, production callers, grammar delta, and runtime activation are zero; 18/18 focused, 74/74 resolved-lowering, authority guard, release build, quick 66/66, and <=500-line source/check files are green; SSA-I1 is selected.",
 ]
