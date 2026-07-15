@@ -1,12 +1,12 @@
 ---
-Status: Accepted and taskized — A′+; CAT0 closed through G0, MP0-S0 next
+Status: Accepted and taskized — A′+; MP0-S0 closed, MP0-R0 next
 Date: 2026-07-15
 Decision: A′+ — Program/catalog co-seal + single-use resolver continuation + canonical-key module identity
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-MP0-S0-RESOLVED-MODULE-CARRIER-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-MP0-R0-COMPLETE-CATALOG-BODY-RESOLUTION-001
 Parent taskboard: mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
 Previous closed card: mirbuilder-ssa-i1-compat-p0c-i64-call-design-stop-2026-07-15.md
 Decision-input baseline commit: ec570ea696
-Next code-facing row: MP0-S0
+Next code-facing row: MP0-R0
 ---
 
 # P0c-CAT0 Module Callable Catalog — A′+ Decision and Taskboard
@@ -490,7 +490,7 @@ CAT0-G0:
   body/MIR/production activation = 0
 
 MP0-S0:
-  code row
+  CLOSED — passive code/guard row
   exact multi-function source-unit carrier
   primary functions_by_key map
 
@@ -700,6 +700,40 @@ verification:
 
 State: closed on 2026-07-15. CAT0 is green through G0; the next code-facing
 row is `MP0-S0`.
+
+### MP0-S0 exit gate
+
+```text
+structure:
+  VerifiedResolvedCallableModuleV1 owns the exact CAT0 source unit once
+  functions_by_key is the sole primary function-unit map
+  the map key is CanonicalCallableKeyV1
+  each VerifiedResolvedFunctionUnitV1 keeps declaration site, one single-root
+  semantic forest, and one exact source projection together
+
+authority:
+  the carrier lives in the compiler/source-projection layer
+  resolved_semantics does not import compiler projection authority
+  ResolvedCallableRefV1 is not a normalized/module primary key
+
+passive boundary:
+  constructor / resolver continuation consumption = 0
+  body traversal / direct-call target resolution = 0
+  Builder / Lower / MIR draft / module publication = 0
+  production producer / consumer = 0
+
+verification:
+  passive compile fixtures = 2/2
+  resolved semantics = 144/144
+  resolved callable authority guard = green
+  release build = green
+  quick gate = 66/66
+  all touched source/check files < 800 lines
+```
+
+State: closed on 2026-07-15. The passive carrier cannot be assembled through
+foreign parts; `MP0-R0` is the sole next producer and must consume the CAT0
+resolver continuation while resolving every body against the complete catalog.
 
 ### MP0-TX0 exit gate
 

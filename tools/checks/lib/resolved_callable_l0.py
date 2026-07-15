@@ -22,6 +22,8 @@ catalog = root / "src/mir/resolved_semantics/callable_catalog.rs"
 normalized_catalog = root / "src/mir/resolved_semantics/normalized_callable_catalog.rs"
 catalog_tests = root / "src/mir/resolved_semantics/callable_catalog_tests.rs"
 callable_index_tests = root / "src/mir/resolved_semantics/callable_index_tests.rs"
+resolved_module = root / "src/mir/compiler/resolved_callable_module.rs"
+resolved_module_tests = root / "src/mir/compiler/resolved_callable_module_tests.rs"
 direct_call = root / "src/mir/canonical_direct_call.rs"
 direct_call_contract = root / "src/mir/canonical_direct_call_contract.rs"
 direct_call_profile = root / "src/mir/resolved_value_profile/direct_call.rs"
@@ -106,6 +108,20 @@ required = {
         "malformed_private_draft_rejects_duplicate_identity_and_symbol",
         "DuplicateCallableIdentity",
         "DuplicatePhysicalSymbol",
+    ],
+    resolved_module: [
+        "VerifiedResolvedCallableModuleV1",
+        "VerifiedResolvedFunctionUnitV1",
+        "VerifiedCallableCatalogSourceUnitV1",
+        "BTreeMap<CanonicalCallableKeyV1, VerifiedResolvedFunctionUnitV1>",
+        "SourceCallableDeclarationSiteV1",
+        "VerifiedSemanticOwnerForestV1",
+        "VerifiedSourceProjectionV1",
+        "functions_by_key",
+    ],
+    resolved_module_tests: [
+        "passive_module_carrier_exposes_only_the_canonical_keyed_primary_map",
+        "passive_function_unit_keeps_site_forest_and_projection_together",
     ],
     owner_resolver: ["resolve_forest_with_root_callable"],
     resolved_target: ["ResolvedDirectCallTargetV1", "ResolvedCallableRefV1"],
@@ -203,6 +219,30 @@ for forbidden in [
     if forbidden in normalized_text:
         fail(f"CAT0-G0 normalized parity includes invocation-local identity: {forbidden!r}")
 
+resolved_module_text = resolved_module.read_text()
+for forbidden in [
+    "ASTNode",
+    "CatalogSealedResolverContinuationV1",
+    "FunctionSemanticResolverSessionV1",
+    "MirBuilder",
+    "MirInstruction",
+    "resolve_forest",
+    "lower",
+]:
+    if forbidden in resolved_module_text:
+        fail(f"MP0-S0 passive carrier owns forbidden producer/runtime authority {forbidden!r}")
+for forbidden_pattern in [
+    r"impl\s+Clone\s+for\s+VerifiedResolvedCallableModuleV1",
+    r"impl\s+Clone\s+for\s+VerifiedResolvedFunctionUnitV1",
+    r"fn\s+(new|seal|resolve|from_parts)\s*\(",
+]:
+    if re.search(forbidden_pattern, resolved_module_text):
+        fail(f"MP0-S0 passive carrier gained a construction seam: {forbidden_pattern!r}")
+if resolved_module_text.count("VerifiedResolvedCallableModuleV1 {") != 2:
+    fail("MP0-S0 module carrier must have one definition and one accessor impl only")
+if resolved_module_text.count("VerifiedResolvedFunctionUnitV1 {") != 2:
+    fail("MP0-S0 function unit must have one definition and one accessor impl only")
+
 source_unit_users = []
 for path in (root / "src").rglob("*.rs"):
     if path in {
@@ -240,13 +280,32 @@ for path in (root / "src").rglob("*.rs"):
     if path in {
         catalog,
         catalog_tests,
+        resolved_module,
+        resolved_module_tests,
         root / "src/mir/resolved_semantics/mod.rs",
     }:
         continue
     if "VerifiedCallableCatalogSourceUnitV1" in path.read_text():
         catalog_users.append(str(path.relative_to(root)))
 if catalog_users:
-    fail(f"CAT0-C0b final catalog has production callers: {catalog_users}")
+    fail(f"CAT0-C0b final catalog escaped its passive MP0-S0 carrier: {catalog_users}")
+
+resolved_module_users = []
+for path in (root / "src").rglob("*.rs"):
+    if path in {
+        resolved_module,
+        resolved_module_tests,
+        root / "src/mir/compiler/mod.rs",
+    }:
+        continue
+    text = path.read_text()
+    if (
+        "VerifiedResolvedCallableModuleV1" in text
+        or "VerifiedResolvedFunctionUnitV1" in text
+    ):
+        resolved_module_users.append(str(path.relative_to(root)))
+if resolved_module_users:
+    fail(f"MP0-S0 passive carrier has production producers/consumers: {resolved_module_users}")
 
 normalized_users = []
 for path in (root / "src").rglob("*.rs"):
@@ -373,6 +432,8 @@ for path in [
     direct_call_profile_tests,
     direct_call_lower,
     direct_call_lower_tests,
+    resolved_module,
+    resolved_module_tests,
     root / "src/mir/canonical_direct_static_call_backend_capability_tests.rs",
 ]:
     lines = len(path.read_text().splitlines())

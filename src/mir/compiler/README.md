@@ -93,3 +93,17 @@ The materializer emits one ordinary call-result `ValueId`, one conservative
 barrier call, and one explicit VM-only direct-call capability. It performs no
 legacy call resolution, name heuristic, fallback, or ownership operation.
 Sibling calls and a multi-entry callable catalog remain outside this ingress.
+
+## MP0-S0 passive resolved-module carrier
+
+`VerifiedResolvedCallableModuleV1` is the disconnected multi-function carrier.
+It owns the exact CAT0 Program/catalog source unit once and indexes
+`VerifiedResolvedFunctionUnitV1` rows only by `CanonicalCallableKeyV1`. Each
+function row keeps its declaration site, single-root semantic owner forest,
+and exact source projection together.
+
+MP0-S0 deliberately provides no constructor. It does not read a body, consume
+the resolver continuation, resolve a call target, create a Builder, or publish
+MIR. MP0-R0 is the sole future producer: it must consume the same CAT0 resolver
+continuation, resolve every declaration against the complete catalog, and
+verify exact key/site/root correspondence before constructing this carrier.
