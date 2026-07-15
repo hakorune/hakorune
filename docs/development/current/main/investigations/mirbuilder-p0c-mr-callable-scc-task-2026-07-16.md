@@ -5,6 +5,7 @@ Decision: C-prime accepted with bounded implementation refinements
 Current row: P0c-MR-R0-D0 one-function self-call authority retirement design stop
 Production baseline: 4bed234ceb
 Consultation: mirbuilder-p0c-mr-scc-consultation-question-2026-07-16.md
+R0 consultation: mirbuilder-p0c-mr-r0-self-call-retirement-consultation-question-2026-07-16.md
 ---
 
 # P0c-MR Callable SCC Task
