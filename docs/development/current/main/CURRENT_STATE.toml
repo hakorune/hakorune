@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ P0c-I1 closed; P0c-CAT0 module callable catalog design stop next"
+status = "D′ P0c-CAT0 module callable catalog consultation ready; answer pending"
 date = "2026-07-15"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -214,24 +214,21 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/binding-ssa-first-control-lowering-ssot.md"
 
-latest_card = "mirbuilder-ssa-i1-compat-p0c-i64-call-design-stop-2026-07-15"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-ssa-i1-compat-p0c-i64-call-design-stop-2026-07-15.md"
-latest_card_summary = """P0c-i64 selects A′: exact current-owner self call is
-the first executable family, but its semantic target is generic
-ResolvedCallableRefV1 resolved through a source-unit-owned one-entry
-VerifiedCallableIndexV1. The index is the sole callable-header authority; each
-call row co-seals only a Lower-ready target/signature/symbol projection with
-exact i64 arguments/result, exact coverage, and a conservative effect. P0c-L0
-is closed with behavior-neutral callable vocabulary/facades, exact caller-zero
-guards, and a passive durable canonical_direct_static_call_v1 backend
-capability. P0c-S0a is closed: a source-unit-owned callable-index/forest
-sidecar records only call-site target identity per function. P0c-S0b closes the
-disconnected Lower-ready row. P0c-I1 atomically activates one current-owner
-FunctionCall for the Rust MIR interpreter through the generic callable identity
-and whole co-sealed row. CurrentFunction-specific target variants, raw name
-lookup in Lower, legacy recovery, generic backend inference, fallback, sibling
-calls, MethodCall/receiver, ownership operations, and backend widening remain
-rejected. P0c-CAT0 must define module callable catalog authority next.
+latest_card = "mirbuilder-ssa-i1-compat-p0c-cat0-module-callable-catalog-consultation-2026-07-15"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-ssa-i1-compat-p0c-cat0-module-callable-catalog-consultation-2026-07-15.md"
+latest_card_summary = """P0c-CAT0 is an explicit design stop after the green
+P0c-I1 current-owner self call. Three read-only audits show that CAT0 should
+seal only one immutable source-unit multi-header catalog before any body
+analysis. The working A′ hypothesis uses an exact FunctionDeclaration-only
+ASTNode::Program, module-relative declaration sites, pre-issued invocation-
+local callable owners, exact key/ref/symbol reverse membership, and no partial
+catalog publication. VerifiedSemanticOwnerForestV1 remains single-root; MP0
+later owns one forest/projection per top-level function, two-pass body
+resolution against the complete catalog, whole-module preflight, and an
+unpublished function-draft batch before candidate-module insertion. CAT0
+activates no sibling calls, MIR, backend rows, runtime behavior, ownership
+operations, MethodCall/receiver, imports, or fallback. Consultation must select
+A′ or a precisely bounded alternative before CAT0 implementation begins.
 Historical D′ context follows.
 D′ is accepted and taskized through the final canonical
 source form. Exact source coverage, ScopeId/RegionId topology, typed ports,

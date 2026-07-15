@@ -2417,6 +2417,9 @@ admits exactly one current-owner FunctionCall with exact-i64 arguments/result
 through the generic co-sealed call row, without raw-name lookup, legacy
 recovery, fallback, or ownership operations.
 
+Consultation packet:
+`mirbuilder-ssa-i1-compat-p0c-cat0-module-callable-catalog-consultation-2026-07-15.md`.
+
 Before CAT0 implementation, fix the module/header source authority, duplicate
 and ambiguity law, declaration-order independence, body-analysis seal order,
 and its boundary with the later all-or-nothing multi-function publication row.
