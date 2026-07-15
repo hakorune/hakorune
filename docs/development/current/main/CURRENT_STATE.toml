@@ -1,8 +1,8 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ P0c-F-I1 closed; P0c-MR-D0 SCC design consultation next"
-date = "2026-07-15"
+status = "D′ P0c-MR-D0 SCC consultation question ready; implementation stopped"
+date = "2026-07-16"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
 active_lane_status = """D′ is the current canonical control-lowering authority:
@@ -265,34 +265,24 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/binding-ssa-first-control-lowering-ssot.md"
 
-latest_card = "mirbuilder-p0c-f-acyclic-callable-module-task-2026-07-15"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-p0c-f-acyclic-callable-module-task-2026-07-15.md"
-latest_card_summary = """P0c-F is accepted and absorbs P0c-N. The durable next
-family is one exact function-only, static exact-i64 acyclic callable module;
-multiple, nested, argument-position, repeated-edge, and multi-target calls are
-fixtures inside that family rather than separate production rows. DX0a is
-closed with a disconnected one-or-more exact-call analyzer/preflight request,
-child-before-parent nested call rows, checked cardinality, the current exact-one
-self-call route retained, and generalized production callers zero. DX0b is
-closed: the sealed profile installs zero-or-one function-level capability rows
-before expression lowering, the capability type is the sole producer, and each
-call emitter verifies without metadata mutation. S0 is closed with a topology-
-only canonical-key site/unique-edge inventory, self/cycle rejection, and
-deterministic DAG witness solely from the resolved module. V0 is closed with a
-complete canonical-keyed typed trivial plan set, exact graph/function/plan and
-per-function call-row correspondence, zero production callers, and no
-Builder/MIR/effect/symbol/publication authority. The non-authoritative
-`lang/src` census is closed with zero exact P0c-F candidate Programs. I1 is
-closed: the V0 typed plan is the sole activation witness at the explicit
-compiler ingress; the retired B1 cardinality witness remains only a subset
-fixture; every typed function draft stays unpublished until one atomic module
-insertion; repeated, nested, argument-position, multi-target, multi-hop, and
-fallthrough-If-arm direct calls execute on the Rust MIR interpreter with one
-capability row per calling function. Every call remains ConservativeBarrier;
-raw-name lookup, generic plan-family reclassification after Builder effects,
-fallback, ownership operations, MethodCall/receiver, other backends, self
-edges, mutual recursion, and SCC authority remain inactive. P0c-MR-D0 is now
-the exact design-consultation blocker; no MR implementation is authorized.
+latest_card = "mirbuilder-p0c-mr-scc-consultation-question-2026-07-16"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-p0c-mr-scc-consultation-question-2026-07-16.md"
+latest_card_summary = """P0c-F is closed through I1. P0c-MR-D0 is the exact
+design-consultation blocker and the question packet is ready. Current evidence
+shows that the catalog, resolved direct-call rows, Binding SSA, unpublished
+draft transaction, Rust interpreter frame transaction, depth guard, and final-
+callee parameter/return checks already support the required substrate. The
+missing authority is a deterministic SCC partition that does not duplicate
+target or site/edge truth. The packet compares an arbitrary two-function
+witness, a general finite recursive module, and the recommended topology-
+inventory-first sequence `MR-G0 -> MR-S0 -> MR-V0 -> MR-I1`; it asks explicitly
+about SCC identity/order, singleton self edges, ConservativeBarrier effects,
+recursive backend capability, runtime proofs, transaction reuse, retirement of
+the old self-call witness, fixtures, counters, claims, and stop conditions.
+Implementation authority remains zero until the consultation is answered and
+taskized. Raw-name/symbol/MIR-table resolution, runtime SCC discovery, effect
+or termination inference, fallback, ownership, MethodCall/receiver, Loop,
+early Return, other backends, and files at or above 800 lines remain forbidden.
 Historical D′ context follows.
 D′ is accepted and taskized through the final canonical
 source form. Exact source coverage, ScopeId/RegionId topology, typed ports,

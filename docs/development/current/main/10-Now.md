@@ -23,8 +23,10 @@ Related:
   `DX0a -> DX0b -> S0 -> V0 -> census evidence -> I1`; all rows are closed.
   The census found zero exact P0c-F candidates in `lang/src`, so I1 is an
   ingress proof rather than a corpus coverage claim. The exact current blocker
-  is P0c-MR-D0, a design consultation for SCC and mutual recursion; no MR code
-  activation is authorized. Production Ownership SSA, Loop production,
+  is P0c-MR-D0, a design consultation for SCC and mutual recursion. The latest
+  card is the completed consultation question packet; no MR code activation is
+  authorized until it is answered and taskized. Production Ownership SSA,
+  Loop production,
   mutual recursion/SCC, legacy
   fallback, default source, Lambda/capture, ProgramV0 authority, and durable
   RegionId materialization remain inactive
