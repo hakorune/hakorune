@@ -2412,51 +2412,29 @@ state.
 
 ## Immediate next action
 
-Implement **CAT0-C0b — catalog owner reservation and co-seal**.
-P0c-I1 already admits exactly one current-owner FunctionCall with exact-i64
-arguments/result through the generic co-sealed call row, without raw-name
-lookup, legacy recovery, fallback, or ownership operations. The CAT0 design
-stop is closed as A′+, CAT0-L0 has closed the behavior-neutral primary
-header/reverse-index substrate, CAT0-S0 owns one exact function-only Program
-surface without body authority, and CAT0-C0a now seals every exact-i64 header
-candidate plus duplicate key/symbol laws before identity issuance.
+Implement **P0c-MR-G0 — shared callable graph inventory extraction**.
+P0c-F is closed through atomic acyclic-module activation. The SCC consultation
+selected C-prime: extract one non-Clone topology inventory first, preserve the
+existing acyclic proof and behavior exactly, then add disconnected SCC and
+recursive-plan products before a separate VM-only activation row.
 
 Decision/task card:
-`mirbuilder-ssa-i1-compat-p0c-cat0-module-callable-catalog-consultation-2026-07-15.md`.
+`mirbuilder-p0c-mr-callable-scc-task-2026-07-16.md`.
 
 The active macro order is fixed and must not be interleaved:
 
 ```text
-CAT0:
-  L0 -> S0 -> C0a -> C0b -> G0
-
-MP0:
-  S0 -> R0 -> P0 -> TX0
-
-first execution:
-  P0c-B1 exactly two functions + one sibling edge
-
-later decision:
-  P0c-MR mutual recursion / callable SCC
+P0c-MR:
+  G0 -> S0 -> V0 -> C0 -> I1 -> R0
 ```
 
-CAT0 co-seals an exact function-only Program with one immutable header catalog
-and returns one opaque single-use resolver continuation. That continuation
-preserves both the next function-origin ordinal and the same-branded owner
-issuer for MP0 lambda discovery. Every top-level function keeps a separate
-single-root semantic owner forest. MP0 is keyed by canonical callable key,
-resolves bodies only after the complete catalog exists, and batch-publishes
-verified drafts only after exact catalog/draft correspondence is sealed.
-
-CAT0-C0b must consume the co-owned C0a candidate product, reserve every
-top-level FunctionOriginV1/FunctionOwnerIdV1 from one resolver session, attach
-those owners to the immutable callable index and declaration rows, and return
-one opaque non-Clone continuation preserving both the next function ordinal
-and same-branded owner issuer. It must not inspect bodies, create per-function
-forests/projections, activate sibling calls, or infer targets from MIR module
-symbols or legacy global-call lookup. Grammar, route, runtime, MIR publication,
-and ownership operations remain unchanged.
+G0 moves only canonical-key nodes, exact function-relative call sites, unique
+edges, target projection, and node/site validation into one focused inventory
+product. Self-edge rejection, Kahn order, and cycle proof stay in the acyclic
+product. The sealed inventory is consumed by value, is not Clone/Arc/shared,
+and has no SCC production consumer in G0. Grammar, recursion, runtime, backend,
+MIR publication, effect, and ownership behavior remain unchanged.
 
 Ownership V2 parser/resolver/MIR work and `.hako` selfhost parser/MIR-builder
-migration remain separate parked lanes. They are not hidden CAT0 prerequisites
+migration remain separate parked lanes. They are not hidden P0c-MR prerequisites
 and must not be folded into this series.

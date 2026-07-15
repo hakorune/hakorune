@@ -23,9 +23,11 @@ Related:
   `DX0a -> DX0b -> S0 -> V0 -> census evidence -> I1`; all rows are closed.
   The census found zero exact P0c-F candidates in `lang/src`, so I1 is an
   ingress proof rather than a corpus coverage claim. The exact current blocker
-  is P0c-MR-D0, a design consultation for SCC and mutual recursion. The latest
-  card is the completed consultation question packet; no MR code activation is
-  authorized until it is answered and taskized. Production Ownership SSA,
+  is P0c-MR-G0, the behavior-neutral shared callable-graph inventory
+  extraction. C-prime is accepted and taskized as
+  `G0 -> S0 -> V0 -> C0 -> I1 -> R0`. G0 may only preserve P0c-F behavior and
+  feed the existing acyclic proof; SCC production callers and recursive
+  execution remain zero until their later rows. Production Ownership SSA,
   Loop production,
   mutual recursion/SCC, legacy
   fallback, default source, Lambda/capture, ProgramV0 authority, and durable

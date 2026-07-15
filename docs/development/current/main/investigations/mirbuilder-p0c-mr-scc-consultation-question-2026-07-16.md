@@ -1,13 +1,25 @@
 ---
-Status: Design consultation; implementation authority zero
+Status: Answered and taskized; P0c-MR-G0 implementation ready
 Date: 2026-07-16
-Decision: Pending
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-MR-D0-SCC-DESIGN-CONSULTATION-001
+Decision: C-prime accepted
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-MR-G0-SHARED-CALLABLE-GRAPH-INVENTORY-001
 Production baseline: 4bed234ceb
 Previous card: mirbuilder-p0c-f-acyclic-callable-module-task-2026-07-15.md
+Task card: mirbuilder-p0c-mr-callable-scc-task-2026-07-16.md
 ---
 
 # P0c-MR Callable SCC — Design Consultation Question
+
+## Resolution
+
+C-prime is accepted. The shared topology inventory is extracted first, the
+general deterministic SCC proof follows as a disconnected product, and only a
+later explicit VM-only row activates recursive modules. The task order,
+refinements, fixtures, counters, claims, and stop conditions are owned by:
+
+`mirbuilder-p0c-mr-callable-scc-task-2026-07-16.md`
+
+This question packet is no longer implementation authority.
 
 ## Request
 
