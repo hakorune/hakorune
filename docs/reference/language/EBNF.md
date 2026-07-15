@@ -15,6 +15,20 @@ Design SSOT note (Scope Exit Semantics):
   - `docs/development/current/main/design/rune-v0-contract-rollout-ssot.md`
   - `docs/development/current/main/design/rune-v1-metadata-unification-ssot.md`
 
+Ownership grammar status (2026-07-15):
+
+- `docs/reference/language/ownership.md` accepts contextual `move`/`share`
+  expressions, parameter `move`/`share`, and result `view`/`share` as the
+  target source contract.
+- Those productions are intentionally absent from the live EBNF below until
+  `GRAM-MOVE0`, `GRAM-SHARE0`, `GRAM-PARAM0`, and `GRAM-RESULT0` land with
+  registry rows and both parser witnesses.
+- Therefore current parsers must reject those ownership forms. They must not
+  reinterpret them through ordinary identifiers, method names, runtime tags,
+  or compatibility fallback.
+- The accepted inactive grammar capsule and disambiguation laws live in
+  `ownership.md`; support status is reported by `stage-profiles.md`.
+
 program   := (cfg_item | static_const_table_decl | brand_decl | type_alias_decl | record_decl | enum_decl | box_decl | function_decl | stmt)* EOF
 
 cfg_item  := 'gate' build_predicate '{' program_item* '}' ('else' cfg_else)?

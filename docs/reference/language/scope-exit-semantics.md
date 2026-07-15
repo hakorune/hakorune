@@ -2,6 +2,12 @@
 
 Status: Normative (2026-07; B′ lifecycle and sparse-ownership decisions applied).
 
+Decision/availability: cleanup/fini clauses apply according to their existing
+parser/runtime rows. Sparse owner-token, `move`, and `share` clauses describe
+the accepted target ownership contract; source ownership production remains 0
+and the spellings remain parser-inactive until their grammar/profile rows land.
+Unsupported ownership forms fail fast and never fall back to SharedV1.
+
 This page defines the scope-exit lifecycle model around canonical `cleanup`,
 legacy DropScope `fini`, postfix `catch/cleanup`, and object-level `box.fini()`.
 Source ownership/alias rules are owned by `ownership.md`.

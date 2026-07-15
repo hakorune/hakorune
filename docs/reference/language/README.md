@@ -60,7 +60,7 @@ Variables and scope
 - See: reference/language/lifecycle.md — Box object residency (strong/weak),
   Alive/Dead/Freed, and finalization (`fini`) SSOT.
 - See: development/current/main/design/constructor-birth-new-lifecycle-ssot.md — `new` / field initializer / `birth` construction order, direct `birth` call rejection, and explicit reuse method policy.
-- See: reference/language/scope-exit-semantics.md — SSOT for DropScope (`fini {}` / `local ... fini {}`), `catch`/`cleanup` exit ordering, and ownership-transfer terminology (no `move` keyword).
+- See: reference/language/scope-exit-semantics.md — SSOT for DropScope (`fini {}` / `local ... fini {}`), `catch`/`cleanup` exit ordering, and accepted `move`/`share` transfer terminology. Parser-live status remains owned by EBNF/grammar rows.
 - See: reference/language/repl.md — REPL mode semantics (file mode vs REPL binding rules).
   Current interactive implementation work is parked by
   development/current/main/design/vm-active-lane-retirement-ssot.md and

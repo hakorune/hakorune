@@ -17,13 +17,10 @@ Related:
 - workstream card: read `latest_workstream_card` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
-- language-v1 workstream:
-  `docs/development/current/main/workstreams/language-v1-convergence-current.md`
-- priority: D′ SSA-I1-T is closed. One admitted trivial whole owner now uses
-  one production Binding SSA plus carrier-free If control and skips legacy RC;
-  non-admitted current owners remain whole-unit A+ only. Read
-  `current_blocker_token`: SSA-I1-COMPAT row selection is a design stop.
-  Ownership SSA, Loop production, legacy fallback, default source,
+- priority: read the exact row from `current_blocker_token`. The active macro
+  order is CAT0 `L0 -> S0 -> C0a -> C0b -> G0`, then MP0
+  `S0 -> R0 -> P0 -> TX0`, then the bounded P0c-B1 sibling-call slice.
+  Production Ownership SSA, Loop production, legacy fallback, default source,
   Lambda/capture, ProgramV0 authority, and durable RegionId materialization
   remain inactive
 - parked language work: LANGV1 conformance closeout remains parked; no

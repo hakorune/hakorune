@@ -44,10 +44,10 @@ cargo check -q
   one function-wide Binding SSA becomes canonical local value/PHI authority
 - B0-L4-S2′ through SSA-I0-PROFILE and the atomic SSA-I1-T trivial-owner
   cutover are closed
-- one admitted whole owner uses production Binding SSA; Ownership SSA and Loop
-  activation remain zero
-- continue only the `current_blocker_token` from `CURRENT_STATE.toml`; an
-  SSA-I1-COMPAT row-selection token is a design stop, not implementation leave
+- one admitted whole owner uses production Binding SSA; production Ownership
+  SSA and Loop activation remain zero
+- continue only the exact `current_blocker_token` and `latest_card_path` from
+  `CURRENT_STATE.toml`; this mirror does not select or rename executable rows
 - old A+A2′ carrier S3/I1/I2 and effect-bearing V2 extraction are superseded;
   do not revive them from historical cards
 - keep parser/source-carrier and unrelated parked stashes disconnected
@@ -57,8 +57,8 @@ cargo check -q
 - do not paste landed chronology into restart docs
 - keep allocator-provider activation, hooks, host allocator replacement, and `#[global_allocator]` out of scope
 - the current lane is the `active_lane` in `CURRENT_STATE.toml`
-- language-v1 convergence has priority while its workstream is active;
-  selfhost/MirBuilder resumes only through the workstream closeout
+- language-v1 convergence and ownership grammar remain parked unless
+  `CURRENT_STATE.toml` explicitly selects those lanes
 - product/app validation now uses EXE/AOT as the primary route; VM work is a
   small semantic-reference subset only
 - if a future current blocker token names an explicit design-stop frontier,

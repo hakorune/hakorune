@@ -6,6 +6,11 @@
 NyashのBoxには「ユーザー定義Box」「ビルトインBox」「プラグインBox」があります。いずれもRAII（取得した資源は所有者の寿命で解放）に従いますが、プラグインBoxは共有やシングルトン運用があるため、追加ルールがあります。
 
 ## 共通ライフサイクル（ユーザー/ビルトイン/プラグイン）
+以下のowning/Shared/ScopedAlias/View token用語はaccepted target contractを
+説明します。現在のplugin source/runtimeはSharedV1移行状態であり、sparse
+ownershipのparser/resolver/Loan Flow/source Lowerはまだproduction-activeでは
+ありません。
+
 - `fini()` は論理的な終了（use-after-fini禁止）であり、外部資源（fd/socket/native handle など）を決定的に解放するための SSOT です。
 - `local` のスコープを抜けると、その binding は終了します。owning/Shared
   bindingならtokenを消費し、ScopedAlias/Viewならowner countは変わりません。

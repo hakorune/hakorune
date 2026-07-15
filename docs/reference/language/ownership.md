@@ -23,6 +23,62 @@ make a spelling parser-live. `EBNF.md` and the grammar registry remain the live
 syntax authorities; an unsupported ownership spelling must fail fast until its
 dedicated grammar row lands.
 
+### Availability matrix
+
+| Layer | Current state |
+| --- | --- |
+| target source semantics | accepted by this page |
+| Rust/Hako parser and AST ownership carriers | inactive / absent |
+| resolver, Loan Flow, callable ownership ABI, source lowering | inactive / absent |
+| `CopyOwned` / `DestroyOwned` MIR vocabulary and verifier | passive and implemented |
+| Rust MIR interpreter exact opcode execution | implemented semantic-test lane |
+| witnessed `llvmlite-obj` ownership lowering | implemented narrow object lane |
+| canonical source producers of ownership opcodes | 0 |
+| ordinary production `local b = a` | transitional SharedV1 behavior; not yet ScopedAlias V2 |
+
+MIR JSON transport knowing an opcode does not mean a source parser, resolver,
+Builder, or backend may produce/execute it. Unsupported codegen lanes fail
+their ownership capability preflight rather than silently dropping the
+operation.
+
+### Accepted target grammar capsule (not parser-live)
+
+The grammar rows will activate this contextual surface one durable slice at a
+time:
+
+```ebnf
+ownership_expr := ('move' | 'share') unary_expr
+
+parameter := IDENT (':' TYPE_REF)?
+           | 'move' IDENT ':' TYPE_REF
+           | 'share' IDENT ':' TYPE_REF
+
+result_spec := ':' TYPE_REF
+             | ':' 'view' TYPE_REF view_anchor?
+             | ':' 'share' TYPE_REF
+
+view_anchor := 'from' ('me' | IDENT)
+```
+
+`move`, `share`, and `view` are contextual forms, not global hard keywords.
+Disambiguation is fixed as follows:
+
+- prefix `move/share` is an ownership expression only when it is not followed
+  by `(`; `move(...)` and `share(...)` remain ordinary calls;
+- `move: T` and `share: T` remain ordinary parameter names, while
+  `move name: T` and `share name: T` are parameter modes;
+- in a result spec, `view/share` is a mode only when followed by another type
+  reference; a type literally named `view` or `share` remains distinguishable
+  by the following delimiter;
+- the first `view` anchor admits only a receiver or parameter WholeObject root.
+  Field paths, static anchors, named domains, projections, and View PHIs are
+  later rows.
+
+The live `EBNF.md` intentionally omits these productions until the grammar
+registry, Rust parser, Hako parser, AST/schema carriers, and shared witnesses
+land together. The target grammar above is semantic design authority, not
+evidence that current source accepts it.
+
 ## 1. Thirty-second rule
 
 Ordinary Hakorune code keeps its lightweight spelling:

@@ -5,7 +5,7 @@ Decision: A′+ — Program/catalog co-seal + single-use resolver continuation +
 Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-CAT0-L0-CALLABLE-INDEX-STORAGE-CLEANUP-001
 Parent taskboard: mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
 Previous closed card: mirbuilder-ssa-i1-compat-p0c-i64-call-design-stop-2026-07-15.md
-Public baseline commit: ec570ea696
+Decision-input baseline commit: ec570ea696
 Next code-facing row: CAT0-L0
 ---
 
@@ -546,6 +546,49 @@ verification:
   cargo build --release --bin hakorune
   bash tools/checks/dev_gate.sh quick
   all touched source/check files < 800 lines
+```
+
+### MP0-TX0 exit gate
+
+```text
+resolution:
+  every body resolves against the complete immutable catalog
+  every function has one canonical-keyed single-root forest/projection
+  same-session lambda issuance consumes the resolver continuation once
+
+transaction:
+  all function drafts remain unpublished through individual verification
+  catalog/draft key, symbol, and cardinality correspondence is exact
+  missing, extra, or duplicate drafts reject
+  any late draft failure leaves candidate-module function publication at 0
+  whole-module preflight completes before Builder effects
+
+proof:
+  declaration reorder parity
+  legacy lookup and fallback callers = 0
+  generated atomic-publication guard is mandatory in TX0
+```
+
+### P0c-B1 exit gate
+
+```text
+accepted source:
+  exactly two static exact-i64 functions
+  exactly one sibling FunctionCall edge
+
+proof:
+  forward/backward declaration order parity
+  exact target, argument, and result ABI
+  direct-call coverage claimed exactly once
+  Rust MIR interpreter capability only
+  unsupported backend effects = 0
+
+non-claims:
+  multiple/nested calls = 0
+  mutual recursion = 0
+  MethodCall/receiver = 0
+  ownership operations = 0
+  fallback/retry = 0
 ```
 
 ### Task-lane separation

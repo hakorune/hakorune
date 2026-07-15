@@ -32,10 +32,10 @@ merge. Existing If must cut over to that owner before Loop production; no
 Loop-only SSA bridge, carrier rows, map diff, or legacy retry is authorized.
 
 B0-L4-S2′ through SSA-I0-PROFILE and the atomic SSA-I1-T trivial-owner cutover
-are closed. One admitted whole owner now uses production Binding SSA; Ownership
-SSA and Loop activation remain zero. Continue only the `current_blocker_token`
-named by `CURRENT_STATE.toml`. If it names the SSA-I1-COMPAT row-selection
-design stop, select one representation/ABI row before implementation.
+are closed. One admitted whole owner now uses production Binding SSA;
+production Ownership SSA and Loop activation remain zero. Continue only the
+exact `current_blocker_token` and `latest_card_path` named by
+`CURRENT_STATE.toml`; do not restate the executable row in this thin mirror.
 ProgramV0, REPL, Lambda capture/layout, default-route cutover, and durable
 RegionId materialization remain parked. Keep every new or modified
 source/check file below 800 lines.

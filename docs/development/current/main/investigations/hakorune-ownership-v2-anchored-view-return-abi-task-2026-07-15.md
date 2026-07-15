@@ -3,7 +3,7 @@ Status: Accepted for parked tasking; production activation 0
 Date: 2026-07-15
 Decision: Anchored View Return ABI, modified-and-adopted
 Parent taskboard: hakorune-sparse-ownership-surface-task-2026-07-15.md
-Current blocker remains: D-prime Binding SSA next-row selection design stop
+Current blocker: read `CURRENT_STATE.toml`; this task remains parked
 First evidence prerequisite: O2-P0b1 exact final-callee/current-signature census
 Related:
   - ../../../../reference/language/ownership.md
@@ -24,7 +24,7 @@ frontier, or the normative `docs/reference/language/ownership.md` contract.
 
 ```text
 current executable frontier:
-  CURRENT_STATE.toml D-prime Binding SSA next-row selection design stop
+  exact current_blocker_token from CURRENT_STATE.toml
 
 evidence/selection owner:
   parent O2-P0a -> {O2-P0r, O2-P0b1} -> O2-P0c -> ABI0

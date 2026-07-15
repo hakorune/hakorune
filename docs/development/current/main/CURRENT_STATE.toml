@@ -96,7 +96,7 @@ current-owner FunctionCall; canonical Lower consumes the whole row without
 name lookup or fallback; recursion rechecks parameter/return contracts; and an
 explicit VM-only capability rejects unsupported backends. Ownership ops,
 sibling/multiple calls, MethodCall/receiver, and backend widening remain zero.
-P0c-CAT0 module callable catalog design is the next stop.
+P0c-CAT0 A′+ is accepted; CAT0-L0 callable-index storage cleanup is next.
 Historical
 lane chronology follows and is non-authoritative.
 Explicit user priority change on 2026-07-12 reopens
@@ -651,7 +651,7 @@ not started. Design Registry V1 sharding is accepted-for-tasking as a parked
 BoxShape series with production activation 0; its first implementation row is
 mandatory CLEAN0, followed by explicit SELECT0, full normalized V0/V1 parity,
 atomic cutover, V0 retirement, and RETURN0. It does not replace the active
-SSA-I1-T blocker. 3511 now owns the narrow semantic activation claim and its
+CAT0-L0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
