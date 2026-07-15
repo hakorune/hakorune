@@ -392,6 +392,27 @@ This row emits a hard ownership error, not a duplicate default warning. A
 future opt-in API-review lint is outside O2-DIAG0 and may use verified
 provenance only; callable names are never lint or ownership authority.
 
+Tasking decision:
+
+```text
+mandatory usability boundary:
+  O2-DIAG0 / PROJ-DIAG0 hard error + golden help text
+
+default missing-view warning:
+  0
+
+separate lint row now:
+  0
+```
+
+Do not create a mandatory warning task merely because a callable name looks
+getter-like. The verifier error already prevents the unsafe/default-Owned
+mismatch. If production and corpus evidence later show a remaining API-review
+problem, a separately selected `VIEW-API-LINT0` may add an opt-in warning only
+after `PROJ-DIAG0`; it must consume verified return provenance, must not infer
+from names such as `get`/`peek`/`current`, and must not change acceptance,
+ownership lowering, or runtime behavior.
+
 The debug oracle is non-owning. It may count loan records or poison/quarantine
 retired cells, but it must never retain the object or change reclamation time.
 
