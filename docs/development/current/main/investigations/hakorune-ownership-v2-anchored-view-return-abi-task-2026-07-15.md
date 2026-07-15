@@ -146,8 +146,9 @@ view Service anchored to a Shared field:
 
 The first View profile has no acquisition capability. A later separately
 verified row may add an exact Shared acquisition API for a View anchored to
-Shared storage. Mandatory caller-side `clone` is not baseline syntax. Plain
-View never silently promotes Unique storage or creates a Shared owner.
+Shared storage. `clone` has no ownership meaning; an independent owner uses
+the parent's explicit `share` boundary. Plain View never silently promotes
+Unique storage or creates a Shared owner.
 
 ### 4. V1 anchor/domain vocabulary stays closed
 
@@ -328,10 +329,10 @@ anchor operations after the View's last use
 Rejected while the View is live:
 
 ```text
-anchor/root take, rebind, destroy, fini, share, rehome
+anchor/root move, rebind, destroy, fini, share, rehome
 any anchor mutation in the WholeObject profile
 unknown-effect call on the anchor or its aliases
-View take/fini/share/clone
+View move/fini/share
 View store/return without exact View forwarding/capture/task/suspend
 ```
 
@@ -524,7 +525,7 @@ second BindingRef -> ValueId map = 0
 
 ```text
 PROJ-FIELD0:
-  exact static field-path anchor and overwrite/take exclusion
+  exact static field-path anchor and overwrite/move exclusion
 
 PROJ-EFFECT0:
   exact non-invalidating call effects while View is live
@@ -566,10 +567,10 @@ Reject:
 view return of callee-local owner or new temporary
 declared/actual anchor mismatch
 ambiguous multi-parameter elision
-anchor take/rebind/destroy/fini/share/rehome while View live
+anchor move/rebind/destroy/fini/share/rehome while View live
 anchor mutation or unknown-effect call while WholeObject View live
 View field/global/collection store, capture, task, await, or ordinary Owned return
-View take/fini/share/clone in the no-acquisition profile
+View move/fini/share in the no-acquisition profile
 branch-selected View without ViewPhi
 unknown dynamic/interface/plugin/FFI ABI
 method name used as ownership evidence
@@ -601,7 +602,7 @@ exact field or container-domain invalidation
 temporary receiver extension
 ViewPhi
 borrowed return without explicit View ABI
-View acquisition/clone
+View owner acquisition
 Any/dyn/plugin/FFI View support
 static/cross-task/suspending View
 all function families or default route cut over
@@ -619,7 +620,7 @@ Stop the slice if any implementation:
 6. gives View an ownership token, `CopyOwned`, or `DestroyOwned`;
 7. creates a second reaching-value map outside Binding SSA;
 8. allows ordinary View escape without exact view-to-view forwarding;
-9. silently promotes Unique storage so a View can escape or clone;
+9. silently promotes Unique storage so a View can escape or gain an owner;
 10. introduces Static/NamedDomain/ViewPhi as optional unsupported V1 states;
 11. activates production before provenance, loan, diagnostics, and backend
     fail-fast contracts are complete;

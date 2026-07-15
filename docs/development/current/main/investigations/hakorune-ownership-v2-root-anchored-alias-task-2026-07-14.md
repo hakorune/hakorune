@@ -32,9 +32,10 @@ current compiler lane:
   docs/development/current/main/CURRENT_STATE.toml
 ```
 
-The original long taskboard is preserved in git history. It proposed routine
-source `take` and one explicit `clone` for every added Shared owner. Those
-requirements are retired and must not be revived from history.
+The original long taskboard is preserved in git history. Its `take` spelling
+and `clone` ownership primitive are retired. The accepted replacement uses
+contextual `move` for one-owner transfer and `share` for same-identity owner
+acquisition.
 
 ## Accepted replacement law
 
@@ -43,7 +44,8 @@ ordinary whole-root local:
   mutable scoped alias; owner delta 0
 
 ordinary owner movement:
-  compiler-verified forwarding; no routine move/take call-site marker
+  explicit move at non-terminal existing-binding transfers
+  return remains an implicit terminal forward
 
 Unique -> Shared with independent owner:
   explicit share
@@ -51,13 +53,14 @@ Unique -> Shared with independent owner:
   expression result is an independent Shared owner
 
 inside verified Shared lane:
-  compiler manages required CopyOwned / DestroyOwned
+  every additional owner still requires explicit share
+  compiler manages DestroyOwned
 
-mandatory ordinary clone spelling:
-  none
+copy / clone methods:
+  no ownership authority
 ```
 
-`take`, `view`, and `share` remain non-default callable-definition contracts as
+`move`, `view`, and `share` are the non-default callable-definition contracts
 specified by the normative reference. Do not create the retired proposal
 `design/ownership-v2-root-anchored-alias-ssot.md`; it would be a second
 authority.
@@ -140,7 +143,7 @@ This evidence index does not claim:
 
 ```text
 current local assignment is a ScopedAlias
-share/take/view syntax is parser-live
+move/share/view syntax is parser-live
 Loan Flow or Ownership SSA is production-active for Box
 SharedV1 is retired
 projection aliases, alias PHIs, or cross-task aliases are supported

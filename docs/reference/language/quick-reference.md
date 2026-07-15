@@ -6,10 +6,11 @@ Purpose
 
 Ownership note
 - Accepted target semantics live in `ownership.md`: ordinary locals/parameters
-  stay lightweight, while independent lifetime enters through `share`.
-- `share`/callable `take`/result `view` are not added to this current-syntax
-  sheet until their EBNF and grammar-registry rows land. Do not infer parser
-  support from the target reference alone.
+  stay lightweight, `move` forwards one existing owner, and independent
+  lifetime enters through `share`.
+- `move/share` expressions and parameters plus result `view/share` are not
+  added to this current-syntax sheet until their EBNF and grammar-registry rows
+  land. Do not infer parser support from the target reference alone.
 
 Keywords (reserved)
 - control: `if`, `else`, `guard`, `loop`, `match`, `break`, `continue`, `return`

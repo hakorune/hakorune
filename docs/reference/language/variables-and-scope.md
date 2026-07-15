@@ -46,6 +46,8 @@ token.
 - The owner and alias may both read and mutate the same Box sequentially.
 - The owner cannot be moved, rebound, finalized, destroyed, or converted to
   Shared while the alias remains live.
+- After the alias ends, `move owner` explicitly forwards that owner to a
+  non-terminal owning destination without adding an owner.
 - Independent lifetime enters the Shared lane through explicit `share`.
 - `weak x` creates a generation-aware non-owner governed by `lifecycle.md`; it
   is not a scoped alias or call-result view.

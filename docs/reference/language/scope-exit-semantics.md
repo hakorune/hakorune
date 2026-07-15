@@ -110,19 +110,17 @@ If constructor (`birth`) fails:
    across the full initialized field set. New delegation code should use
    explicit field composition and `delegate field exposes`.
 
-## 7) Ownership Terminology (No Routine `move` Keyword)
+## 7) Ownership Terminology (`move` / `share`)
 
-Ordinary Hakorune code has no dedicated `move` keyword and does not annotate
-every local as owned/borrowed.
+Ordinary Hakorune code does not annotate every local as owned/borrowed.
 
 Use **ownership transfer** or **owner forwarding** as terminology.
 
-- An ordinary Owned return, owning destination, or verified consuming call may
-  forward one owner without RC.
-- `take` is a non-default callable-declaration contract for a consuming
-  parameter; an ordinary call site does not repeat a move marker.
-- `share` is not a move synonym. It explicitly enters the independent-lifetime
-  Shared lane.
+- `move source` forwards one existing owner into a non-terminal owning local,
+  field/store, or consuming call without RC.
+- An ordinary Owned `return` is already terminal and does not repeat `move`.
+- `share source` is not a move synonym. It adds a same-identity independent
+  owner and is the only ordinary source authority for owner acquisition.
 - Historical `outbox` remains a compatibility transfer surface until its
   owning task retires it.
 

@@ -58,7 +58,7 @@ aliases.
 
 Source-level parameter/result ownership is defined by
 `docs/reference/language/ownership.md`. `@rune Ownership(...)` must not replace
-the callable `take`/`view`/`share` contract, and `ReturnsOwned` is foreign/core
+the callable `move`/`view`/`share` contract, and `ReturnsOwned` is foreign/core
 ABI metadata rather than the default Hakorune source-return spelling.
 
 `@rune Capability(...)` is not accepted parser surface yet. Capability facts

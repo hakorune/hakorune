@@ -2,7 +2,7 @@
 
 Status: SSOT — accepted target language contract
 
-Decision: Explicit-share, owner-anchored ownership accepted on 2026-07-15
+Decision: Explicit-move/share, owner-anchored ownership accepted on 2026-07-15
 
 Implementation: staged; production activation is 0 until the rows named in the
 parked taskboard close. Current SharedV1 behavior remains transitional.
@@ -43,21 +43,22 @@ Only independent lifetime crosses an explicit paid boundary:
 
 ```hako
 local service = make_service()
-local registered = share service
-
-register(registered) // register declares a `share` parameter
+register(share service) // register declares a `share` parameter
 use(service)
 ```
 
-Here `service` remains usable and `registered` is an independent Shared owner.
-The explicit `share` line is the point where shared-lifetime bookkeeping is
-allowed.
+Here `service` remains usable and the callee receives an independent Shared
+owner. The explicit `share` expression is the point where shared-lifetime
+bookkeeping is allowed.
 
 The short law is:
 
 ```text
 ordinary local name reuse:
   scoped alias; no new owner
+
+existing owner transfer:
+  explicit move; owner count unchanged
 
 ordinary parameter / receiver:
   noescape alias
@@ -81,9 +82,18 @@ An owned rvalue, ordinary owning result, or owning destination carries one
 ownership token. Examples include `new`, a factory result, a returned owner,
 and a value removed from owning storage.
 
-The compiler may forward that one token through assignment, return, a verified
-consuming call, or owning storage. Forwarding does not require reference-count
-traffic. The old binding cannot be used after its owner has been forwarded.
+When an existing binding supplies that token to another owning local, owning
+store, or consuming call, source uses the contextual `move` form:
+
+```hako
+local moved = move owner
+adopt(move moved)
+```
+
+`move` forwards one token and leaves the source binding unavailable. It does
+not create an independent owner and does not require reference-count traffic.
+Returning a local owner is an inherently consuming terminal context, so
+`return owner` does not repeat `move`.
 
 ### Scoped alias
 
@@ -134,13 +144,23 @@ or `current` has no ownership meaning.
 ### Shared owner
 
 Shared is the explicit independent-lifetime lane. `share expr` is the only
-ordinary source boundary that authorizes Unique-to-Shared conversion.
+ordinary source operation that creates another owner for the same object
+identity.
 
-`share` preserves object identity. It authorizes the compiler/runtime to create
-the shared representation and the owner tokens required by the verified
-surrounding context. It is not specified as an unconditional “increment by
-one”: forwarding a last owner may avoid a redundant increment, while keeping
-two independent owners requires two tokens.
+`share` preserves object identity and leaves its source owner usable. The
+expression result is one additional, independently consumable Shared owner.
+The physical plan depends on the sealed representation:
+
+```text
+Unique source:
+  explicitly promote/rehome to Shared, then acquire the additional owner
+
+already-Shared source:
+  acquire one additional owner
+```
+
+This distinction belongs to a verified share-materialization plan. Lower and
+the runtime must not guess it from a tag, pointer, or observed reference count.
 
 For an owned root expression such as `share a`, the source law is exact:
 
@@ -148,21 +168,37 @@ For an owned root expression such as `share a`, the source law is exact:
 2. `a` is rehomed as a Shared owner and remains usable;
 3. the expression result is a second, independent Shared owner.
 
+For an already-Shared root, the same expression law holds without rehome:
+the source remains usable and the result is one additional Shared owner.
+
 For a fresh rvalue such as `share make_service()`, the temporary source owner
 has no later source use, so only the resulting Shared owner remains observable.
-The optimizer may remove redundant retain/release work in either form, but it
-may not change these availability semantics.
+The optimizer may remove redundant ownership traffic, but it may not change
+these availability semantics.
 
-The first profile rejects `share` applied to an already Shared value, a
-scoped-alias/view operand, a weak value, or a trivial value. Shared destinations
-already have compiler-managed owner-copy semantics; repeating `share` there
-would obscure rather than expose the Unique-to-Shared boundary.
+The first profile rejects `share` applied to a scoped-alias/view operand, a
+weak value, a trivial value, or an unsupported/unknown representation. It
+accepts both eligible Unique and already-Shared owners because `share` always
+marks the exact source site where owner count may increase.
 
-Once a value is in the Shared lane, the compiler may insert verified
-`CopyOwned` and `DestroyOwned` operations as owning destinations require. The
-programmer does not have to spell `clone` for each Shared assignment. A future
-explicit clone/cost-control surface, if useful, is a separate low-level row and
-is not part of the ordinary ownership vocabulary.
+Once a value is in the Shared lane, `DestroyOwned` consumes an owner at its
+verified terminal site. A new Shared owner still requires an explicit `share`;
+ordinary assignment does not silently insert `CopyOwned`. Every production
+`CopyOwned` must be traceable to an exact `share` site or to a separately
+verified boundary operation with equally explicit ownership ABI.
+
+### Copy and clone are outside ownership syntax
+
+`value.copy()` is an ordinary call returning an Owned result. It may be the
+conventional spelling of a type-specific semantic copy, but the compiler does
+not infer fresh identity, deep-copy behavior, or `noalias` merely from the
+method name. A future verified `Copyable` protocol may provide a
+`FreshIdentityWitness`; that is a separate feature row.
+
+`clone` has no language-level ownership meaning. A user method named `clone`
+is an ordinary method. Compilers and optimizers must not interpret it as
+sharing, copying, retaining, or producing fresh identity. A style lint may
+recommend `share value` or `value.copy()`, but it is not semantic authority.
 
 ## 3. Source defaults
 
@@ -171,27 +207,30 @@ is not part of the ordinary ownership vocabulary.
 | owned rvalue (`new`, Owned call) | one owner | none |
 | `local b = a`, eligible whole root | Scoped alias | none |
 | ordinary parameter / receiver | mutable noescape alias | none |
-| ordinary return | Owned | none |
-| ordinary owning field/store | owner forward when legal | none |
-| independent lifetime / Shared entry | Shared | `share` |
+| existing owner -> owning local/store/call | owner forward | `move` |
+| ordinary return | Owned terminal forward | none |
+| independent owner, same identity | Shared acquire | `share` |
 
-Hakorune does not require ordinary source code to repeat `owned`, `borrow`,
-`clone`, or `move` annotations. Ownership mode is not inferred from a runtime
-tag or reference count; it comes from the resolved source site and callable
-ABI.
+Hakorune does not require `owned`, `borrow`, or `clone` annotations. `move` and
+`share` appear only at the two operations that change owner availability:
+one-owner transfer and same-identity owner addition. Ownership mode is not
+inferred from a runtime tag or reference count; it comes from the resolved
+source site and callable ABI.
 
-For a known trivial value, reusing the same SSA value needs no owner token and
-the alias distinction is unobservable. Dynamic `Any` must never use a runtime
-copy/move branch. The first ownership-bearing `Any` profile is closed: it
-rejects before Builder effects. A later separately verified uniform-
-representation row may activate source-driven local aliases, but it cannot
-change the runtime-inference prohibition.
+Known primitive and record values keep their ordinary structural value
+semantics; reusing the same SSA value needs no owner token, and `local b = a`
+is not reclassified as a Box loan for them.
 
-An ordinary owning field/store consumes or forwards one owner. If the source
-owner or one of its aliases must remain usable afterward, compilation fails
-and points to the `share` boundary; the compiler does not silently retain the
-Unique object. Thus ownership transfer stays mostly invisible in source, while
-the only operation that can introduce independent lifetime stays visible.
+An ordinary owning field/store consumes or forwards one owner. An existing
+binding therefore uses `move source`; a fresh Owned rvalue can flow directly.
+If the source binding must remain usable afterward, compilation fails and
+points to the `share` boundary. The compiler does not silently retain the
+object.
+
+Dynamic or unknown representation never chooses alias/copy/move at runtime.
+The first ownership-bearing `Any` profile rejects before Builder effects. A
+later uniform-representation row may activate source-driven aliases, but it
+cannot change the runtime-inference prohibition.
 
 ## 4. Callable ownership ABI
 
@@ -200,12 +239,11 @@ contract. The semantic vocabulary is:
 
 | Position | Default | Non-default API contracts |
 | --- | --- | --- |
-| parameter / receiver | noescape alias | `take`, `share` |
+| parameter / receiver | noescape alias | `move`, `share` |
 | result | Owned (or Trivial after type resolution) | `view`, `share` |
 
-- `take` parameter: the callee receives the caller's one owner. The ordinary
-  call site need not repeat a move keyword; the verified signature and
-  last-use check make consumption explicit and diagnostic.
+- `move` parameter: the callee receives the caller's one owner. An existing
+  caller binding must use `move actual`; a fresh Owned rvalue may flow directly.
 - `share` parameter: the callee receives an independent Shared owner.
 - `view` result: the result is anchored and non-owning.
 - `share` result: the caller receives an independent Shared owner.
@@ -213,15 +251,18 @@ contract. The semantic vocabulary is:
 The conversion matrix is exact:
 
 ```text
-Unique actual -> take parameter:
-  normal call spelling; owner is consumed after the no-live-loan check
+Owned binding -> move parameter:
+  call site uses `move actual`; owner is consumed after the no-live-loan check
+
+fresh Owned rvalue -> move parameter:
+  normal expression spelling; its temporary owner is forwarded
 
 Unique actual -> share parameter:
   implicit conversion forbidden; caller supplies `share actual`
 
 Shared actual -> share parameter:
-  normal call spelling; compiler forwards/copies a Shared token as liveness
-  requires
+  caller supplies `share actual` when the original owner remains available,
+  or `move actual` to transfer an existing Shared owner
 
 ScopedAlias / View actual -> share parameter:
   reject; end the loan and share the owner root, or use a Shared-returning API
@@ -230,8 +271,11 @@ Unique return in a `share` result function:
   implicit conversion forbidden; the return expression must cross an explicit
   `share` boundary
 
-already-Shared return in a `share` result function:
-  compiler forwards/copies one Shared token
+already-Shared owned local return in a `share` result function:
+  compiler forwards the local token
+
+borrowed/field-backed Shared return in a `share` result function:
+  explicit `share source` is required to add the caller's owner
 ```
 
 These modifiers are API-definition vocabulary, not line-by-line local
@@ -242,12 +286,15 @@ Example target signatures:
 
 ```hako
 inspect(node: Node)                 // noescape alias parameter
-adopt(take node: Node)              // consumes one owner
+adopt(move node: Node)              // consumes one owner
 register(share service: Service)    // receives Shared ownership
 
 make(): Node                        // Owned result
 get(): view Node                    // receiver-anchored result
 service(): share Service            // Shared result
+
+adopt(move owner)
+register(share service)
 ```
 
 For an instance method, an elided `view` anchor is the receiver. For a static
@@ -303,8 +350,11 @@ terminal Unique owner:
 share boundary:
   Shared representation/control-cell work may occur
 
-Shared owner copy/drop:
+Shared owner acquisition at `share`:
   verified RC or equivalent shared-lifetime bookkeeping may occur
+
+Shared owner terminal drop:
+  compiler-managed shared-lifetime bookkeeping may occur
 ```
 
 “Zero instructions” is not the semantic claim. A pointer read, field access,
@@ -405,9 +455,11 @@ already changed.
 ## Durable laws
 
 1. Ordinary local aliases and parameters remain lightweight and non-owning.
-2. A Unique owner may move/forward without RC.
-3. Only explicit `share` enters the independent-lifetime Shared lane.
-4. Shared-lane owner bookkeeping may be compiler-managed after that boundary.
+2. `move` forwards one existing owner without RC; return is the implicit
+   terminal form.
+3. Only explicit `share` adds a same-identity independent owner.
+4. Shared destruction is compiler-managed, but owner acquisition remains
+   source-visible as `share`.
 5. Ordinary results are Owned; free call-result aliases require a verified
    anchored `view` ABI.
 6. No runtime tag, method name, map diff, or observed reference count decides
@@ -416,3 +468,5 @@ already changed.
    temporary permissions.
 8. Uncertainty fails fast; it never becomes hidden RC, raw memory, or another
    profile retry.
+9. `copy()` and `clone()` names are not ownership authority; verified ABI and
+   witnesses, never method spelling, decide their compiler meaning.
