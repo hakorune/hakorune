@@ -55,6 +55,7 @@ profile_analyzer = root / "src/mir/resolved_value_profile/analyzer.rs"
 profile_error = root / "src/mir/resolved_value_profile/error.rs"
 profile_mod = root / "src/mir/resolved_value_profile/mod.rs"
 direct_call_lower = root / "src/mir/builder/resolved_lowering/trivial_ssa/direct_call.rs"
+trivial_lowerer = root / "src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs"
 direct_call_lower_tests = root / "src/mir/builder/resolved_lowering/direct_call_tests.rs"
 capability = root / "src/mir/canonical_direct_static_call_capability.rs"
 backend_gate = root / "src/mir/canonical_direct_static_call_backend_capability.rs"
@@ -615,14 +616,18 @@ allowed_by_pattern = {
         root / "src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs",
     },
     r"canonical_direct_static_call_capabilities\s*\.push": {
-        root / "src/mir/backend_capability.rs",
-        direct_call_lower,
-        root / "src/mir/canonical_direct_static_call_backend_capability_tests.rs",
+        capability,
     },
     r"CanonicalDirectStaticCallCapabilityV1::v1": {
+        capability,
+    },
+    r"CanonicalDirectStaticCallCapabilityV1::install_for_function": {
         root / "src/mir/backend_capability.rs",
-        direct_call_lower,
         root / "src/mir/canonical_direct_static_call_backend_capability_tests.rs",
+        trivial_lowerer,
+    },
+    r"CanonicalDirectStaticCallCapabilityV1::verify_for_emission": {
+        direct_call_lower,
     },
 }
 for pattern, allowed in allowed_by_pattern.items():
@@ -689,5 +694,19 @@ for marker in [
 
 if "DirectCallPolicyV1::OneOrMoreExact" not in profile_analyzer.read_text():
     fail("P0c-F-DX0a finite profile policy missing")
+
+direct_call_lower_text = direct_call_lower.read_text()
+if "verify_for_emission(capability_rows)" not in direct_call_lower_text:
+    fail("P0c-F-DX0b call emitter must verify the function capability")
+if "canonical_direct_static_call_capabilities\n        .push" in direct_call_lower_text:
+    fail("P0c-F-DX0b call emitter must not append capability metadata")
+
+lowerer_text = trivial_lowerer.read_text()
+for marker in [
+    "requires_direct_call_capability = !profile.direct_calls().is_empty()",
+    "CanonicalDirectStaticCallCapabilityV1::install_for_function",
+]:
+    if marker not in lowerer_text:
+        fail(f"P0c-F-DX0b function-level capability install missing: {marker}")
 
 print("[resolved-callable-l0] ok")

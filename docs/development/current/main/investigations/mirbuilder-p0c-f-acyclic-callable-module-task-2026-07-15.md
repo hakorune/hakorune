@@ -1,8 +1,8 @@
 ---
-Status: Closed through P0c-F-DX0a; P0c-F-DX0b next
+Status: Closed through P0c-F-DX0b; P0c-F-S0 next
 Date: 2026-07-15
 Decision: P0c-F absorbs P0c-N; P0c-MR remains parked
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-F-DX0B-FUNCTION-CALL-CAPABILITY-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-F-S0-ACYCLIC-CALL-GRAPH-001
 Production baseline: 315747061e
 Consultation packet: mirbuilder-p0c-next-callable-widening-consultation-question-2026-07-15.md
 Previous card: mirbuilder-ssa-i1-compat-p0c-cat0-module-callable-catalog-consultation-2026-07-15.md
@@ -28,7 +28,7 @@ then, only after a new decision:
   P0c-MR-D0 -> P0c-MR-S0 -> P0c-MR-I1
 ```
 
-The next code-facing row is `P0c-F-DX0b`.
+The next code-facing row is `P0c-F-S0`.
 
 P0c-F means:
 
@@ -349,6 +349,8 @@ ownership operations.
 
 ### P0c-F-DX0b — function-level capability installation
 
+Status: Closed.
+
 ```text
 production grammar delta = 0
 new authority = 0
@@ -365,6 +367,28 @@ Work:
 
 Fixtures prove one marker per calling function, zero per non-caller, rejection
 when the marker is missing/drifted, and no second-call duplicate seam.
+
+Closeout:
+
+```text
+capability producer facade = exactly one
+call-free function capability rows = 0
+calling function capability rows = 1
+call emitter metadata mutation = 0
+missing / preexisting / duplicate / schema drift = fail-fast
+capability unit fixtures = 3/3
+backend capability fixtures = 3/3
+direct-call runtime regression = 5/5
+sibling-call regression = 3/3
+release capability fixtures = 3/3
+release build = green
+quick gate = 66/66
+```
+
+The lowerer derives the need only from the sealed profile before expression
+lowering. The emitter verifies the installed row before allocating or emitting
+the call result. DX0b changes no grammar, direct-call cardinality admission,
+module route, backend support, effect, transaction, or ownership operation.
 
 ### P0c-F-S0 — disconnected acyclic graph
 

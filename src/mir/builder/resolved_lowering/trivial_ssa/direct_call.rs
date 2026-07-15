@@ -35,6 +35,16 @@ pub(super) fn emit(
         ));
     }
 
+    let capability_rows = &builder
+        .scope_ctx
+        .current_function
+        .as_ref()
+        .ok_or_else(|| "[freeze:contract][canonical_direct_call/function_missing]".to_string())?
+        .metadata
+        .canonical_direct_static_call_capabilities;
+    CanonicalDirectStaticCallCapabilityV1::verify_for_emission(capability_rows)
+        .map_err(str::to_string)?;
+
     let result = builder.next_value_id();
     let instruction = VerifiedCanonicalDirectCallEmissionV1::from_verified_profile(row)
         .materialize(result, arguments)
@@ -47,20 +57,5 @@ pub(super) fn emit(
         .value_types
         .insert(result, mir_type(row.result()));
 
-    let function =
-        builder.scope_ctx.current_function.as_mut().ok_or_else(|| {
-            "[freeze:contract][canonical_direct_call/function_missing]".to_string()
-        })?;
-    if !function
-        .metadata
-        .canonical_direct_static_call_capabilities
-        .is_empty()
-    {
-        return Err("[freeze:contract][canonical_direct_call/capability_duplicate]".to_string());
-    }
-    function
-        .metadata
-        .canonical_direct_static_call_capabilities
-        .push(CanonicalDirectStaticCallCapabilityV1::v1());
     Ok((result, row.result()))
 }

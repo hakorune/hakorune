@@ -593,7 +593,9 @@ pub struct FunctionMetadata {
     /// evidence during semantic refresh.
     pub return_exit_contract: Option<ReturnExitContract>,
 
-    /// Explicit canonical direct-static-call backend capability witnesses.
+    /// Explicit canonical direct-static-call backend capability witness.
+    /// The canonical lowerer installs at most one row per calling function
+    /// before expression lowering; individual Call emitters only verify it.
     /// Generic Call instructions never synthesize this metadata.
     pub(crate) canonical_direct_static_call_capabilities:
         Vec<CanonicalDirectStaticCallCapabilityV1>,

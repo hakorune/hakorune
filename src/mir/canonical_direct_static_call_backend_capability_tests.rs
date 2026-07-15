@@ -35,10 +35,11 @@ fn empty_metadata_keeps_existing_backend_behavior() {
 #[test]
 fn explicit_witness_is_vm_only_in_the_first_slice() {
     let mut function = function();
-    function
-        .metadata
-        .canonical_direct_static_call_capabilities
-        .push(CanonicalDirectStaticCallCapabilityV1::v1());
+    CanonicalDirectStaticCallCapabilityV1::install_for_function(
+        &mut function.metadata.canonical_direct_static_call_capabilities,
+        true,
+    )
+    .unwrap();
     let module = module_with_function(function);
     assert_eq!(inspect(&module).capability_rows, 1);
     assert!(enforce(&module, "mir-interpreter").is_ok());

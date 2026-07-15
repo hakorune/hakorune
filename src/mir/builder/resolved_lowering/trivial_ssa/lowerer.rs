@@ -3,6 +3,7 @@
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
+use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::located::{LocatedBodyV1, LocatedExprV1, LocatedStmtV1};
 use crate::mir::compiler::source_view::{BodyChildRoleV1, ExprChildRoleV1};
@@ -66,6 +67,15 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         if if_control.owner() != input.owner() || profile.owner() != input.owner() {
             return Err("[freeze:contract][canonical_binding_ssa/owner_mismatch]".to_string());
         }
+        let requires_direct_call_capability = !profile.direct_calls().is_empty();
+        let function = builder.scope_ctx.current_function.as_mut().ok_or_else(|| {
+            "[freeze:contract][canonical_direct_call/function_missing]".to_string()
+        })?;
+        CanonicalDirectStaticCallCapabilityV1::install_for_function(
+            &mut function.metadata.canonical_direct_static_call_capabilities,
+            requires_direct_call_capability,
+        )
+        .map_err(str::to_string)?;
         let if_controls = if_control.row_count();
         let if_branches = if_controls + if_control.explicit_else_count();
         let semantics = ResolvedSemanticStackV1::new_with_expectations(

@@ -107,10 +107,11 @@ mod tests {
             },
             BasicBlockId::new(0),
         );
-        function
-            .metadata
-            .canonical_direct_static_call_capabilities
-            .push(CanonicalDirectStaticCallCapabilityV1::v1());
+        CanonicalDirectStaticCallCapabilityV1::install_for_function(
+            &mut function.metadata.canonical_direct_static_call_capabilities,
+            true,
+        )
+        .unwrap();
         let mut module = MirModule::new("direct-call-gate".to_string());
         module.add_function(function);
 
