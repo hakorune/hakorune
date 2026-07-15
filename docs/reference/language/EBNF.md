@@ -26,6 +26,11 @@ Ownership grammar status (2026-07-15):
 - Therefore current parsers must reject those ownership forms. They must not
   reinterpret them through ordinary identifiers, method names, runtime tags,
   or compatibility fallback.
+- Known conformance gap: return-type scanners may currently coalesce
+  `: view T` / `: share T` into ordinary type text. The parked
+  `OWN-GRAM-REJECT0` row must close exact Rust/Hako reject fixtures before any
+  ownership grammar activation; accidental acceptance is not supported
+  syntax.
 - The accepted inactive grammar capsule and disambiguation laws live in
   `ownership.md`; support status is reported by `stage-profiles.md`.
 

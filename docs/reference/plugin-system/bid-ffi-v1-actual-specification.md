@@ -7,6 +7,10 @@
 - plugin_loader_v2.rsの実装に基づく
 - 理想案ではなく、実際に動く仕様
 
+> Vocabulary boundary: `clone_box()` / `share_box()` はこのSharedV1/plugin
+> runtime ABIの名前であり、Hakorune source ownershipの意味を決めません。
+> source契約は `docs/reference/language/ownership.md` が正本です。
+
 ## 📋 プラグインAPI仕様
 
 ### 必須エクスポート関数

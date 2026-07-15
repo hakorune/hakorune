@@ -443,9 +443,11 @@ reference and this parked subtask; it changes no parser or production behavior.
 
 Consume the return-ownership syntax carrier admitted by parent
 `GRAM-RESULT0`, keeping it orthogonal to `return_type_name`. Update the resolved
-ABI constructor, macro/JSON, delegate/property synthesis, interface, and
-ProgramV0 transport surfaces from one generated producer/consumer ledger.
-Parser acceptance remains owned and tested by the parent grammar row.
+ABI constructor, frontend AST, macro AST JSON, exact source carrier,
+delegate/property synthesis, and interface surfaces from one generated
+producer/consumer ledger. Parser acceptance remains owned and tested by the
+parent grammar row. Program(JSON v0) is not widened by this row; adding an
+ownership carrier there requires a separate transport Decision.
 
 Acceptance:
 
@@ -495,6 +497,26 @@ Each carries exact callable/call site, formal/actual anchor when available,
 View creation, conflict, next-use frontier, and a context-specific remediation.
 No diagnostic suggests hidden retain, promotion, or unsafe raw by default.
 
+### UCALL-B0 — exact Box receiver-call substrate
+
+After parent `UBOX-I0` and `ABI0`, activate one exact instance-method receiver
+call whose receiver root, callable identity, argument/result ABI, and
+conservative effects are sealed before Builder effects. Its result remains an
+ordinary Owned/Trivial result; View materialization stays zero. This row keeps
+`PROJ-I0` focused on the anchored-result law instead of also inventing generic
+Box receiver routing.
+
+Acceptance:
+
+```text
+one exact concrete Box receiver call
+one verified callable ABI and conservative effect row
+ordinary Owned/Trivial result only
+View loan/result activation = 0
+dynamic/plugin/FFI/unknown receiver lookup = 0
+legacy name lookup and fallback = 0
+```
+
 ### PROJ-I0 — first production View
 
 Closed grammar:
@@ -542,6 +564,15 @@ PROJ-DOMAIN0:
 VIEW-PHI-D0/I0:
   separate same-root/domain join decision and implementation
 ```
+
+### O2-P0b2 — post-ABI callable census
+
+After selected callable ABI rows are implemented, rerun the generated
+callable-result census against sealed ABI metadata. Classify exact Owned,
+View, Shared, Trivial, and unresolved results; record input hashes and parser /
+profile identity; reconcile totals deterministically. This is evidence for
+later widening only and changes no grammar, resolver, Builder, runtime, or
+backend behavior.
 
 Static views, dynamic index, different-root ViewPhi, suspension, cross-task
 views, and generic Any remain outside these rows.
@@ -630,7 +661,8 @@ Stop the slice if any implementation:
 ## Next action
 
 Do not implement PROJ code now. Keep the current D-prime frontier. When the
-sparse ownership board is explicitly unparked, run O2-P0b1 first; the parent
-board selects this subtask only after its evidence prerequisites. The first
+sparse ownership board is explicitly unparked, start at parent
+`OWN-GRAM-REJECT0` and then `O2-P0a`; only after it reaches and closes the
+`O2-P0b1` prerequisite may the parent select this View branch. The first
 code-facing View task is the passive, ledger-backed `PROJ-S0` schema-transport
 slice after parent `GRAM-RESULT0` has admitted the syntax.

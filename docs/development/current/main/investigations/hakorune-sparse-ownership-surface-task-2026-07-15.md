@@ -4,7 +4,7 @@ Date: 2026-07-15
 Decision: Explicit-move/share, owner-anchored sparse ownership surface
 Source semantics SSOT: ../../../../reference/language/ownership.md
 Current lane: unchanged; follow CURRENT_STATE.toml
-First executable ownership row when selected: O2-P0a generated initializer census
+First executable ownership row when selected: OWN-GRAM-REJECT0 exact inactive-syntax fail-fast
 Related:
   - hakorune-ownership-v2-root-anchored-alias-task-2026-07-14.md
   - hakorune-ownership-v2-anchored-view-return-abi-task-2026-07-15.md
@@ -89,6 +89,9 @@ OWN-REF-D0  initial reference reconciliation
     |
     v
 OWN-REF-D1  move/share/copy vocabulary reconciliation
+    |
+    v
+OWN-GRAM-REJECT0  exact inactive ownership-result syntax fail-fast
     |
     v
 O2-P0a      generated initializer-shape census
@@ -176,8 +179,9 @@ EBNF/parser accepted-row delta = 0
 design/INDEX.md line delta = 0
 ```
 
-After OWN-REF-D1, the next O2 action must be the generated O2-P0a artifact,
-not another ownership consultation or docs-only card.
+After OWN-REF-D1, the next ownership action is the bounded
+`OWN-GRAM-REJECT0` conformance repair, followed by the generated O2-P0a
+artifact. Do not insert another ownership consultation or docs-only card.
 
 ## 4. Evidence prerequisite — O2-P0a/P0r/P0b1/P0c
 
@@ -205,6 +209,30 @@ and production routing are zero. Projection frequency decides whether a later
 explicit projection-view row is urgent; it does not widen `ScopedAliasV1`.
 
 ## 5. Grammar and passive transport — GRAM-MOVE0 / SHARE0 / PARAM0 / RESULT0
+
+### OWN-GRAM-REJECT0 — inactive syntax must not become a type name
+
+Before any ownership grammar is activated, both current parsers must reject
+exact lookalike result forms such as `: view Node` and `: share Service` with
+one stable contract tag. Today the return-type scanners may discard whitespace
+and coalesce these spellings into ordinary names such as `viewNode` or
+`shareService`; that is a known conformance gap, not compatibility behavior.
+
+Required closure:
+
+```text
+Rust parser exact reject fixtures
+Hako parser exact reject fixtures
+shared stable reason/tag
+ordinary type names `view` / `share` remain legal where unambiguous
+ordinary calls move(...) / share(...) remain unchanged
+grammar/AST/resolver/Builder/runtime activation = 0
+silent type-name coalescing = 0
+```
+
+This guard is the first executable ownership row when the parked lane is
+selected. It only makes the documented inactive-syntax failure boundary true;
+it does not make `move`, `share`, or `view` parser-live.
 
 Exact target grammar is activated as contextual keywords, one durable row at a
 time:
@@ -421,6 +449,11 @@ The existing Anchored View taskboard owns the detailed sub-DAG. The first
 production row is an instance-method receiver WholeObject anchor,
 straight-line, same-task, and noescape. Parameter anchors follow before field,
 static, named-domain, or temporary-anchor rows.
+
+`VIEW0` is a branch-selection umbrella, not a code-facing implementation row.
+Its code-facing sequence is `PROJ-S0` through `PROJ-I0` in the Anchored View
+taskboard. Selecting `VIEW0` must not skip the parent evidence, grammar,
+Loan-Flow, first-Box, or callable-ABI prerequisites.
 
 View requirements:
 

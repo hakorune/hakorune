@@ -79,6 +79,13 @@ registry, Rust parser, Hako parser, AST/schema carriers, and shared witnesses
 land together. The target grammar above is semantic design authority, not
 evidence that current source accepts it.
 
+Known conformance gap: the current Rust and Hako return-type scanners may
+discard whitespace and coalesce an inactive spelling such as `: view Node` or
+`: share Service` into the ordinary type text `viewNode` / `shareService`.
+`OWN-GRAM-REJECT0` in the parked implementation taskboard owns the exact
+dual-parser fail-fast witness. Until it lands, do not use these lookalike
+result forms and do not treat accidental parsing as ownership syntax.
+
 ## 1. Thirty-second rule
 
 Ordinary Hakorune code keeps its lightweight spelling:
@@ -348,7 +355,11 @@ register(share service: Service)    // receives Shared ownership
 make(): Node                        // Owned result
 get(): view Node                    // receiver-anchored result
 service(): share Service            // Shared result
+```
 
+Example call sites:
+
+```hako
 adopt(move owner)
 register(share service)
 ```

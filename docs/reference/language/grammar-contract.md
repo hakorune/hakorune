@@ -200,7 +200,8 @@ Do not create one card per spelling, fixture, adapter, or rerun.
 ## Current Non-Claims
 
 ```text
-grammar_registry_implemented = 0
+grammar_registry_substrate = 1
+ownership_grammar_rows = 0
 canonical_default_activated = 0
 compat2025_activated = 0
 live_parse_witness_conformance = 0

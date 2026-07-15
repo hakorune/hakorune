@@ -6,6 +6,10 @@ NyashのVMバックエンドとプラグインシステム（BID-FFI v1）の統
 
 > Status note: 初期案にあったスコープ終了専用の lifecycle tracker は現行実装から削除済みです。現在のプラグイン lifecycle owner は `PluginHandleInner` Drop / `finalize_now()` / `shutdown_plugins_v2()` です。
 
+> Vocabulary boundary: この実装資料の clone/share 表記はSharedV1/plugin
+> runtime snapshotです。Hakorune sourceのowner transfer/acquisition authority
+> は `docs/reference/language/ownership.md` の `move` / `share` 契約です。
+
 ## ⚠️ **現在のVM実装の重大な問題**
 
 1. **ユーザー定義Box未対応** - NewBoxで文字列を返すだけ

@@ -94,9 +94,10 @@ Member exceptions and handlers (Stage‑3)
 - Postfix `catch/cleanup` may be attached to computed/once/birth_once/method blocks when Stage‑3 is enabled. Stored members (`name` or `name: Type`) do not support handlers.
 
 Related implementation notes
-- Tokenizer: src/tokenizer.rs
-- Parser (expressions/statements): src/parser/expressions.rs, src/parser/statements.rs
-- MIR Lowering (expressions): src/mir/builder/exprs.rs and friends
+- Frontend AST schema: crates/hakorune_frontend_ast/src/
+- Tokenizer: src/tokenizer/
+- Parser (expressions/statements): src/parser/expressions/, src/parser/statements/
+- MIR Lowering (expressions): src/mir/builder/exprs.rs and related modules
 
 Navigation tips
 - Use EBNF + topic pages as the canonical reference.

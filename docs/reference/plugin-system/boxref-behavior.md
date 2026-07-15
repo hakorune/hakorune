@@ -2,6 +2,11 @@
 
 本書は、プラグインBoxの引数/返り値としてのBox参照（BoxRef/Handle）の扱いと、VM/インタプリタ/ローダ/プラグインにまたがる設計上の注意点をまとめます。
 
+> Vocabulary boundary: この文書の `clone_box()` / `share_box()` は
+> SharedV1/plugin runtime API 名です。Hakorune source の ownership authority
+> ではありません。source の `move` / `share` / copy-name law は
+> `docs/reference/language/ownership.md` を正本とします。
+
 ## 1. TLV仕様（BID-1）
 - ヘッダ: `ver:u16=1, argc:u16`
 - エントリ: `tag:u8, rsv:u8=0, size:u16, payload...`

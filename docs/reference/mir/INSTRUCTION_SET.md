@@ -48,14 +48,14 @@ Transition Note
   passive `CopyOwned` / `DestroyOwned` transport vocabulary を追加。A0では
   executor semantics と production caller は 0 のまま。
 - SSA-RC-A1a: Rust MIR interpreter だけが `CopyOwned` の exact `BoxRef`
-  clone と `DestroyOwned` の exact-register take を実行する。他backendと
+  clone と `DestroyOwned` の named-register consume/remove を実行する。他backendと
   canonical production callerは引き続き0。
 - SSA-RC-V0: `None` / `Borrowed` / `Owned` を分類する function-owned
   verifierを追加。Owned Phi inputはmerge命令上の一括consumeではなく、
   selected predecessor edge上のparallel forwardingとして検証する。
   production verifier callerとinterpreter forwardingは引き続き0。
 - SSA-RC-A1b: Rust MIR interpreter の明示的verified function sessionだけが
-  sealed witnessをconsumeする。Owned Phiは選択edgeのsourceをすべてtakeしてから
+  sealed witnessをconsumeする。Owned Phiは選択edgeのsourceをすべてremoveしてから
   destinationをpublishし、Owned parameter/result/Returnはcloneせずmoveする。
   canonical production callerと他backendのactivationは引き続き0。
 - SSA-RC-A1c: llvmlite object laneだけがRustでsealされたownership witnessを

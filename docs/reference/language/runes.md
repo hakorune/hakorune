@@ -48,7 +48,6 @@ aliases.
 | Family | Accepted values | Current meaning |
 | --- | --- | --- |
 | `Public` / `Internal` | no argument | Declaration visibility metadata. |
-| `Ownership(...)` | `borrowed`, `owned`, `shared` | Legacy/low-level metadata only; not source ownership authority. |
 | `Inline(...)` | `prefer`, `avoid`, `required` | Canonical inline request family. |
 | `Hint(...)` | `hot`, `cold` | Advisory tuning metadata. |
 | `Contract(...)` | `pure`, `readonly`, `no_alloc`, `no_safepoint` | Verifier-backed or reserved contract metadata. |
@@ -171,12 +170,17 @@ explicit `gate` syntax instead.
 These spellings remain accepted during the migration window:
 
 ```text
+@rune Ownership(borrowed|owned|shared) -> legacy/low-level metadata only
 @hint(inline)              -> @rune Hint(inline) -> Inline(prefer)
 @hint(noinline)            -> @rune Hint(noinline) -> Inline(avoid)
 @contract(no_alloc)        -> @rune Contract(no_alloc)
 @intrinsic_candidate("x")  -> @rune IntrinsicCandidate("x")
 @rune Lowering(inline_required) -> Inline(required)
 ```
+
+`@rune Ownership(...)` retires when all low-level/foreign metadata producers
+use exact callable or boundary ABI carriers. It never substitutes for source
+`move` / `view` / `share` contracts while the compatibility row remains.
 
 New code should use:
 

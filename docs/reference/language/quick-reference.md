@@ -11,11 +11,19 @@ Ownership note
 - `move/share` expressions and parameters plus result `view/share` are not
   added to this current-syntax sheet until their EBNF and grammar-registry rows
   land. Do not infer parser support from the target reference alone.
+- Do not write inactive lookalike results such as `: view T` or `: share T`;
+  the current scanners may coalesce them into ordinary type names until the
+  parked `OWN-GRAM-REJECT0` fail-fast row lands.
 
-Keywords (reserved)
+Selected current reserved keywords
 - control: `if`, `else`, `guard`, `loop`, `match`, `break`, `continue`, `return`
-- decl: `static`, `box`, `record`, `enum`, `brand`, `type`, `local`, `using`, `delegate`, `uses`, `as`
+- decl: `static`, `box`, `record`, `enum`, `brand`, `type`, `local`, `using`, `delegate`, `as`
 - lit: `true`, `false`, `null`, `void`
+
+Selected contextual forms
+- declaration header: `uses`
+- accepted-but-inactive ownership forms: `move`, `share`, `view` (see the
+  ownership note above; these are not current reserved keywords)
 
 Expressions and Calls
 - Function call: `f(a, b)`

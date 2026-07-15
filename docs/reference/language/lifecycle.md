@@ -178,6 +178,9 @@ This is the “variable lifetime” rule. Object lifetime is defined below.
 - Shared-lane assignment, parameter/result transport, and Shared owning fields
   may preserve Box identity while carrying independent owner tokens. Ordinary
   local aliases/parameters are not independent strong owners.
+- An existing owner forwarded into an owning destination uses `move source`.
+  If the source must remain usable with an independent lifetime, the boundary
+  uses `share source`. Ordinary assignment does not silently add an owner.
 - One object identity may have multiple independently consumable strong
   ownership tokens. Destroying each distinct token once is legal; consuming
   the same token twice is a verifier/checked-carrier error, not an idempotent
@@ -277,8 +280,9 @@ When explicit object finalization is requested:
 7) Tear down native payload/storage, publish payload absence, then publish Dead.
 
 A parent that semantically owns a child resource calls `child.fini()`
-explicitly inside its user hook. Exclusive `owned field` syntax remains
-reserved until exclusivity and transfer can be enforced.
+explicitly inside its user hook. Any future exclusive-field surface requires a
+separate language Decision after exclusivity and transfer can be enforced; no
+`owned field` spelling is reserved here.
 
 ### Weak references are non-owning
 
@@ -310,9 +314,11 @@ An object may have a strong owner/root token in any of these contexts:
 ### Escapes (ownership transfer)
 
 If one owner is forwarded into a longer-lived owning context before the
-current scope ends, that token keeps the identity alive without requiring RC.
-If independent lifetimes are required, `ownership.md` requires explicit
-Shared entry. Neither case grants implicit authority to call user `fini()`.
+current scope ends, `move source` forwards that token and keeps the identity
+alive without requiring RC. If the source must remain usable under an
+independent lifetime, `share source` explicitly enters/acquires the Shared
+lane. Ordinary assignment or escape does not infer either operation. Neither
+case grants implicit authority to call user `fini()`.
 
 Common escape paths:
 - Assigning into an enclosing-scope binding (updates the owner).
