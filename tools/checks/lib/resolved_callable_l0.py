@@ -71,14 +71,12 @@ profile_error = root / "src/mir/resolved_value_profile/error.rs"
 profile_mod = root / "src/mir/resolved_value_profile/mod.rs"
 direct_call_lower = root / "src/mir/builder/resolved_lowering/trivial_ssa/direct_call.rs"
 trivial_lowerer = root / "src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs"
-direct_call_lower_tests = root / "src/mir/builder/resolved_lowering/direct_call_tests.rs"
 capability = root / "src/mir/canonical_direct_static_call_capability.rs"
 backend_gate = root / "src/mir/canonical_direct_static_call_backend_capability.rs"
 metadata = root / "src/mir/function/metadata.rs"
 shared_gate = root / "src/mir/backend_capability.rs"
 owner_resolver = root / "src/mir/resolved_semantics/owner_resolver.rs"
 resolved_target = root / "src/mir/resolved_semantics/direct_call.rs"
-resolved_unit = root / "src/mir/resolved_semantics/resolved_callable_forest.rs"
 
 required = {
     callable_index: [
@@ -87,13 +85,11 @@ required = {
         "CanonicalCallableSymbolV1",
         "ExactTrivialCallableSignatureV1",
         "VerifiedCallableIndexV1",
-        "CallableCatalogCardinalityErrorV1",
         "headers_by_key",
         "key_by_callable",
         "key_by_symbol",
-        "pub(crate) fn sole_header(",
         "pub(crate) fn header_for_symbol(",
-        "pub(crate) fn seal_one(",
+        "pub(super) fn seal_many(",
     ],
     header_view: [
         "CallableHeaderSyntaxViewV1",
@@ -230,16 +226,10 @@ required = {
         "atomic_function_batch_preserves_existing_module_on_late_collision",
     ],
     owner_resolver: [
-        "resolve_forest_with_root_callable",
         "resolve_forest_with_reserved_root",
         "seal_owner_with_ancestors_and_callable_index",
     ],
     resolved_target: ["ResolvedDirectCallTargetV1", "ResolvedCallableRefV1"],
-    resolved_unit: [
-        "VerifiedResolvedCallableForestV1",
-        "VerifiedCallableIndexV1",
-        "VerifiedSemanticOwnerForestV1",
-    ],
     direct_call_contract: [
         "VerifiedTrivialDirectCallTargetV1",
         "VerifiedDirectCallEffectV1",
@@ -598,26 +588,11 @@ allowed_by_pattern = {
         direct_call_lower,
         root / "src/mir/canonical_direct_call_tests.rs",
     },
-    r"VerifiedCallableIndexV1::seal_one": {
-        root / "src/mir/canonical_direct_call_tests.rs",
-        root / "src/mir/resolved_semantics/callable_index_tests.rs",
-        owner_resolver,
-    },
-    r"resolve_forest_with_root_callable": {
-        owner_resolver,
-        root / "src/mir/compiler/lowering_input.rs",
-        root / "src/mir/resolved_semantics/direct_call_tests.rs",
-    },
     r"VerifiedCanonicalDirectCallEmissionV1::conservative_from_header": {
         root / "src/mir/canonical_direct_call_tests.rs",
     },
     r"VerifiedCanonicalDirectCallEmissionV1::from_verified_profile": {
         direct_call_lower,
-    },
-    r"analyze_trivial_canonical_owner_with_direct_call_v1": {
-        root / "src/mir/compiler/capability.rs",
-        root / "src/mir/resolved_value_profile/mod.rs",
-        direct_call_profile_tests,
     },
     r"\.claim_direct_call\(": {
         direct_call_profile_tests,
@@ -658,7 +633,6 @@ for path in [
     profile_error,
     profile_mod,
     direct_call_lower,
-    direct_call_lower_tests,
     compiler_capability,
     finite_call_tests,
     callable_graph_inventory,
@@ -687,8 +661,24 @@ for path in [
     if lines >= 800:
         fail(f"source/check reached 800-line stop boundary: {path.relative_to(root)} ({lines})")
 
-if direct_call_lower_tests.read_text().count("#[test]") != 5:
-    fail("P0c-I1 focused runtime fixture count must remain exactly five")
+retired_symbols = [
+    "ResolvedSourceUnitSemanticsV1::RootCallable",
+    "resolve_function_with_root_callable",
+    "resolve_forest_with_root_callable",
+    "VerifiedResolvedCallableForestV1",
+    "ResolvedCallableForestVerificationErrorV1",
+    "CallableCatalogCardinalityErrorV1",
+    "VerifiedCallableIndexV1::seal_one",
+    "CallableIndexDraftV1::seal_one",
+    ".sole_header()",
+    "DirectCallAdmissionV1::ExistingExactOne",
+    "DirectCallPolicyV1::ExactlyOne",
+    "analyze_trivial_canonical_owner_with_direct_call_v1",
+]
+source_text = "\n".join(path.read_text() for path in (root / "src").rglob("*.rs"))
+for symbol in retired_symbols:
+    if symbol in source_text:
+        fail(f"P0c-MR-R0-CUT0 retired authority remains: {symbol}")
 
 direct_call_lower_text = direct_call_lower.read_text()
 if "verify_for_emission(capability_rows)" not in direct_call_lower_text:

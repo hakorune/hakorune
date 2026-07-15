@@ -132,16 +132,14 @@ fn declaration_reorder_preserves_partition_and_typed_plan_keys() {
 }
 
 #[test]
-fn disconnected_r0_admission_seals_singleton_finite_self_calls() {
+fn seals_singleton_finite_self_calls_through_the_canonical_plan() {
     for (value, expected_calls) in [
         (call("only", variable()), 1),
         (add(call("only", variable()), call("only", variable())), 2),
         (call("only", call("only", variable())), 2),
     ] {
         let source = program(vec![function("only", value)]);
-        let plan =
-            VerifiedRecursiveCallableModulePlanV1::verify_one_or_more_for_r0(source.module())
-                .unwrap();
+        let plan = VerifiedRecursiveCallableModulePlanV1::verify(source.module()).unwrap();
 
         assert_eq!(plan.partition().inventory().nodes().len(), 1);
         assert_eq!(plan.partition().components().len(), 1);
@@ -152,19 +150,14 @@ fn disconnected_r0_admission_seals_singleton_finite_self_calls() {
         );
         assert_eq!(plan.plans_by_key().len(), 1);
         assert_eq!(plan_counts(&plan), [("only".to_string(), expected_calls)]);
-
-        assert!(matches!(
-            VerifiedRecursiveCallableModulePlanV1::verify(source.module()),
-            Err(RecursiveCallableModulePlanErrorV1::FunctionCardinality { actual: 1 })
-        ));
     }
 }
 
 #[test]
-fn disconnected_r0_admission_rejects_zero_call_and_acyclic_modules() {
+fn singleton_admission_rejects_zero_call_and_acyclic_modules() {
     let zero = program(vec![function("only", variable())]);
     assert!(matches!(
-        VerifiedRecursiveCallableModulePlanV1::verify_one_or_more_for_r0(zero.module()),
+        VerifiedRecursiveCallableModulePlanV1::verify(zero.module()),
         Err(RecursiveCallableModulePlanErrorV1::DirectCallCardinality { actual: 0 })
     ));
 
@@ -173,19 +166,13 @@ fn disconnected_r0_admission_rejects_zero_call_and_acyclic_modules() {
         function("b", variable()),
     ]);
     assert!(matches!(
-        VerifiedRecursiveCallableModulePlanV1::verify_one_or_more_for_r0(acyclic.module()),
+        VerifiedRecursiveCallableModulePlanV1::verify(acyclic.module()),
         Err(RecursiveCallableModulePlanErrorV1::NoRecursiveComponent)
     ));
 }
 
 #[test]
-fn rejects_one_function_zero_call_acyclic_and_nontrivial_profiles() {
-    let one = program(vec![function("only", call("only", variable()))]);
-    assert!(matches!(
-        VerifiedRecursiveCallableModulePlanV1::verify(one.module()),
-        Err(RecursiveCallableModulePlanErrorV1::FunctionCardinality { actual: 1 })
-    ));
-
+fn rejects_zero_call_acyclic_and_nontrivial_profiles() {
     let zero = program(vec![function("a", variable()), function("b", variable())]);
     assert!(matches!(
         VerifiedRecursiveCallableModulePlanV1::verify(zero.module()),

@@ -1,7 +1,5 @@
-use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl, Span};
-use std::collections::BTreeMap;
-
 use super::*;
+use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl, Span};
 use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
 
 fn owner() -> FunctionOwnerIdV1 {
@@ -32,24 +30,30 @@ fn function(name: &str, params: &[(&str, Option<&str>)], result: Option<&str>) -
 }
 
 fn seal(tree: &ASTNode) -> Result<VerifiedCallableIndexV1, CallableIndexSealErrorV1> {
-    VerifiedCallableIndexV1::seal_one(
-        owner(),
+    VerifiedCallableIndexV1::seal_many([owned_header(owner(), tree)?])
+}
+
+fn owned_header(
+    owner: FunctionOwnerIdV1,
+    tree: &ASTNode,
+) -> Result<VerifiedCallableHeaderV1, CallableIndexSealErrorV1> {
+    Ok(VerifiedOwnerFreeCallableHeaderV1::seal(
         CallableHeaderSyntaxViewV1::from_function_ast(tree).unwrap(),
-    )
+    )?
+    .attach_owner(owner))
 }
 
 #[test]
 fn seals_one_exact_static_i64_header_without_new_identity() {
     let tree = function("countdown", &[("n", Some("i64"))], Some("i64"));
     let owner_id = owner();
-    let index = VerifiedCallableIndexV1::seal_one(
-        owner_id,
-        CallableHeaderSyntaxViewV1::from_function_ast(&tree).unwrap(),
-    )
-    .unwrap();
+    let index =
+        VerifiedCallableIndexV1::seal_many([owned_header(owner_id, &tree).unwrap()]).unwrap();
 
     assert_eq!(index.len(), 1);
-    let header = index.sole_header().unwrap();
+    let header = index
+        .resolve_free_static_source_call("countdown", 1)
+        .unwrap();
     assert_eq!(header.callable().owner(), owner_id);
     assert_eq!(
         header.source_key().namespace(),
@@ -79,42 +83,6 @@ fn seals_one_exact_static_i64_header_without_new_identity() {
         index.header_for_symbol(&missing_symbol),
         Err(CallableLookupErrorV1::MissingPhysicalSymbol)
     );
-}
-
-#[test]
-fn sole_header_reports_cardinality_without_panicking() {
-    let empty = VerifiedCallableIndexV1 {
-        headers_by_key: BTreeMap::new(),
-        key_by_callable: BTreeMap::new(),
-        key_by_symbol: BTreeMap::new(),
-    };
-    assert_eq!(
-        empty.sole_header(),
-        Err(CallableCatalogCardinalityErrorV1 { actual: 0 })
-    );
-
-    let mut headers_by_key = BTreeMap::new();
-    let mut key_by_callable = BTreeMap::new();
-    let mut key_by_symbol = BTreeMap::new();
-    for name in ["f", "g"] {
-        let tree = function(name, &[("x", Some("i64"))], Some("i64"));
-        let header = seal_exact_i64_header(
-            owner(),
-            CallableHeaderSyntaxViewV1::from_function_ast(&tree).unwrap(),
-        )
-        .unwrap();
-        let key = header.source_key().clone();
-        key_by_callable.insert(header.callable(), key.clone());
-        key_by_symbol.insert(header.symbol().clone(), key.clone());
-        headers_by_key.insert(key, header);
-    }
-    let two = VerifiedCallableIndexV1 {
-        headers_by_key,
-        key_by_callable,
-        key_by_symbol,
-    };
-    let error = two.sole_header().unwrap_err();
-    assert_eq!(error.actual(), 2);
 }
 
 #[test]
@@ -205,37 +173,17 @@ fn rejects_owner_families_and_metadata_outside_first_profile() {
 #[test]
 fn private_draft_rejects_zero_and_duplicate_rows() {
     assert_eq!(
-        CallableIndexDraftV1::default().seal_one(),
+        CallableIndexDraftV1::default().seal(),
         Err(CallableIndexSealErrorV1::IndexCardinality { actual: 0 })
     );
 
     let tree = function("f", &[("x", Some("i64"))], Some("i64"));
-    let view = CallableHeaderSyntaxViewV1::from_function_ast(&tree).unwrap();
-    let header = seal_exact_i64_header(owner(), view).unwrap();
+    let header = owned_header(owner(), &tree).unwrap();
     let mut draft = CallableIndexDraftV1::default();
     draft.insert(header.clone()).unwrap();
     assert_eq!(
         draft.insert(header),
         Err(CallableIndexSealErrorV1::DuplicateSourceKey)
-    );
-
-    let first_tree = function("f", &[("x", Some("i64"))], Some("i64"));
-    let second_tree = function("g", &[("x", Some("i64"))], Some("i64"));
-    let mut two_rows = CallableIndexDraftV1::default();
-    for tree in [&first_tree, &second_tree] {
-        two_rows
-            .insert(
-                seal_exact_i64_header(
-                    owner(),
-                    CallableHeaderSyntaxViewV1::from_function_ast(tree).unwrap(),
-                )
-                .unwrap(),
-            )
-            .unwrap();
-    }
-    assert_eq!(
-        two_rows.seal_one(),
-        Err(CallableIndexSealErrorV1::IndexCardinality { actual: 2 })
     );
 }
 
@@ -244,16 +192,8 @@ fn malformed_private_draft_rejects_duplicate_identity_and_symbol() {
     let shared_owner = owner();
     let first_tree = function("first", &[("x", Some("i64"))], Some("i64"));
     let second_tree = function("second", &[("x", Some("i64"))], Some("i64"));
-    let first = seal_exact_i64_header(
-        shared_owner,
-        CallableHeaderSyntaxViewV1::from_function_ast(&first_tree).unwrap(),
-    )
-    .unwrap();
-    let second = seal_exact_i64_header(
-        shared_owner,
-        CallableHeaderSyntaxViewV1::from_function_ast(&second_tree).unwrap(),
-    )
-    .unwrap();
+    let first = owned_header(shared_owner, &first_tree).unwrap();
+    let second = owned_header(shared_owner, &second_tree).unwrap();
     let mut duplicate_identity = CallableIndexDraftV1::default();
     duplicate_identity.insert(first.clone()).unwrap();
     duplicate_identity.insert(second.clone()).unwrap();

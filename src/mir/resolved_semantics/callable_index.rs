@@ -1,8 +1,7 @@
 //! Source-unit callable header index for canonical direct calls.
 //!
-//! P0c-L0 exposes only a one-entry exact-i64 seal. The schema is cardinality
-//! independent so CAT0 can later grow the source-unit catalog without changing
-//! consumer identity, key, signature, or symbol vocabulary.
+//! CAT0 seals every exact-i64 callable header through the cardinality-independent
+//! `seal_many` path. Singleton Programs use the same catalog authority.
 
 use std::collections::BTreeMap;
 
@@ -196,17 +195,6 @@ pub(crate) enum CallableLookupErrorV1 {
     MissingPhysicalSymbol,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) struct CallableCatalogCardinalityErrorV1 {
-    actual: usize,
-}
-
-impl CallableCatalogCardinalityErrorV1 {
-    pub(crate) const fn actual(self) -> usize {
-        self.actual
-    }
-}
-
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct VerifiedCallableIndexV1 {
     headers_by_key: BTreeMap<CanonicalCallableKeyV1, VerifiedCallableHeaderV1>,
@@ -215,16 +203,6 @@ pub(crate) struct VerifiedCallableIndexV1 {
 }
 
 impl VerifiedCallableIndexV1 {
-    pub(crate) fn seal_one(
-        owner: FunctionOwnerIdV1,
-        view: CallableHeaderSyntaxViewV1<'_>,
-    ) -> Result<Self, CallableIndexSealErrorV1> {
-        let header = seal_exact_i64_header(owner, view)?;
-        let mut draft = CallableIndexDraftV1::default();
-        draft.insert(header)?;
-        draft.seal_one()
-    }
-
     pub(super) fn seal_many(
         headers: impl IntoIterator<Item = VerifiedCallableHeaderV1>,
     ) -> Result<Self, CallableIndexSealErrorV1> {
@@ -277,20 +255,6 @@ impl VerifiedCallableIndexV1 {
             .ok_or(CallableLookupErrorV1::MissingPhysicalSymbol)
     }
 
-    pub(crate) fn sole_header(
-        &self,
-    ) -> Result<&VerifiedCallableHeaderV1, CallableCatalogCardinalityErrorV1> {
-        if self.headers_by_key.len() != 1 {
-            return Err(CallableCatalogCardinalityErrorV1 {
-                actual: self.headers_by_key.len(),
-            });
-        }
-        match self.headers_by_key.first_key_value() {
-            Some((_, header)) => Ok(header),
-            None => Err(CallableCatalogCardinalityErrorV1 { actual: 0 }),
-        }
-    }
-
     pub(crate) fn len(&self) -> usize {
         self.headers_by_key.len()
     }
@@ -315,15 +279,6 @@ impl CallableIndexDraftV1 {
             return Err(CallableIndexSealErrorV1::DuplicateSourceKey);
         }
         Ok(())
-    }
-
-    fn seal_one(self) -> Result<VerifiedCallableIndexV1, CallableIndexSealErrorV1> {
-        if self.by_source_key.len() != 1 {
-            return Err(CallableIndexSealErrorV1::IndexCardinality {
-                actual: self.by_source_key.len(),
-            });
-        }
-        self.seal()
     }
 
     fn seal(self) -> Result<VerifiedCallableIndexV1, CallableIndexSealErrorV1> {
@@ -352,13 +307,6 @@ impl CallableIndexDraftV1 {
             key_by_symbol,
         })
     }
-}
-
-fn seal_exact_i64_header(
-    owner: FunctionOwnerIdV1,
-    view: CallableHeaderSyntaxViewV1<'_>,
-) -> Result<VerifiedCallableHeaderV1, CallableIndexSealErrorV1> {
-    Ok(VerifiedOwnerFreeCallableHeaderV1::seal(view)?.attach_owner(owner))
 }
 
 fn validate_exact_i64_header(

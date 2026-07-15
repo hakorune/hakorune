@@ -39,22 +39,13 @@ impl VerifiedResolvedSourceUnitV1 {
                 detail: error.to_string(),
             }
         })?;
-        let callable_index = self.callable_index();
-        let callable_header = match callable_index {
-            Some(index) => Some(index.sole_header().map_err(|error| {
-                CanonicalLoweringErrorV1::SourceUnitResolution {
-                    detail: format!("root_callable_header_cardinality={}", error.actual()),
-                }
-            })?),
-            None => None,
-        };
         Ok(ResolvedFunctionLoweringInputV1 {
             owner: *owner,
             source,
             function,
             forest: self.forest(),
-            callable_index,
-            callable_header,
+            callable_index: None,
+            callable_header: None,
         })
     }
 }

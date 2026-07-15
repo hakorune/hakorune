@@ -26,7 +26,6 @@ mod owner_forest;
 mod owner_resolver;
 mod product;
 mod records;
-mod resolved_callable_forest;
 mod resolver;
 mod shadow;
 mod source_site;
@@ -44,10 +43,9 @@ pub(in crate::mir) use callable_catalog_resolution_source::locate_catalog_functi
 pub(crate) use callable_header_source_unit::VerifiedCallableHeaderSourceUnitV1;
 pub(crate) use callable_header_view::{CallableFunctionSyntaxViewV1, CallableHeaderSyntaxViewV1};
 pub(crate) use callable_index::{
-    CallableCatalogCardinalityErrorV1, CallableIndexSealErrorV1, CallableLookupErrorV1,
-    CallableNamespaceV1, CanonicalCallableKeyV1, CanonicalCallableSymbolV1,
-    ExactTrivialCallableSignatureV1, ResolvedCallableRefV1, VerifiedCallableHeaderV1,
-    VerifiedCallableIndexV1, VerifiedOwnerFreeCallableHeaderV1,
+    CallableIndexSealErrorV1, CallableLookupErrorV1, CallableNamespaceV1, CanonicalCallableKeyV1,
+    CanonicalCallableSymbolV1, ExactTrivialCallableSignatureV1, ResolvedCallableRefV1,
+    VerifiedCallableHeaderV1, VerifiedCallableIndexV1, VerifiedOwnerFreeCallableHeaderV1,
 };
 pub(crate) use callable_module_header_view::{
     CallableModuleHeaderSyntaxErrorV1, CallableModuleHeaderSyntaxViewV1,
@@ -90,9 +88,6 @@ pub use records::{
     ResolvedLexicalRefV1, ResolvedRegionRecordV1, ResolvedScopeRecordV1, ScopeKindV1,
     ScopeOriginV1, SyntheticBindingKindV1,
 };
-pub(crate) use resolved_callable_forest::{
-    ResolvedCallableForestVerificationErrorV1, VerifiedResolvedCallableForestV1,
-};
 pub(crate) use resolver::{FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1};
 pub(crate) use source_site::SourcePathV1;
 pub use source_site::{
@@ -109,8 +104,6 @@ mod callable_catalog_candidate_tests;
 mod callable_catalog_tests;
 #[cfg(test)]
 mod callable_header_source_unit_tests;
-#[cfg(test)]
-mod direct_call_tests;
 #[cfg(test)]
 mod function_root_tests;
 #[cfg(test)]

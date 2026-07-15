@@ -21,9 +21,6 @@ use super::resolved_callable_module::VerifiedResolvedCallableModuleV1;
 
 #[derive(Debug)]
 pub(crate) enum RecursiveCallableModulePlanErrorV1 {
-    FunctionCardinality {
-        actual: usize,
-    },
     Inventory(CallableGraphInventoryErrorV1),
     Partition(CallableSccPartitionErrorV1),
     DirectCallCardinality {
@@ -61,46 +58,10 @@ pub(crate) struct VerifiedRecursiveCallableModulePlanV1<'a> {
     plans_by_key: BTreeMap<CanonicalCallableKeyV1, CanonicalTrivialBindingSsaPlanV1<'a>>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum RecursiveFunctionCardinalityV1 {
-    ExistingTwoOrMore,
-    OneOrMoreForR0,
-}
-
-impl RecursiveFunctionCardinalityV1 {
-    const fn minimum(self) -> usize {
-        match self {
-            Self::ExistingTwoOrMore => 2,
-            Self::OneOrMoreForR0 => 1,
-        }
-    }
-}
-
 impl<'a> VerifiedRecursiveCallableModulePlanV1<'a> {
     pub(crate) fn verify(
         module: &'a VerifiedResolvedCallableModuleV1,
     ) -> Result<Self, RecursiveCallableModulePlanErrorV1> {
-        Self::verify_with_admission(module, RecursiveFunctionCardinalityV1::ExistingTwoOrMore)
-    }
-
-    /// Disconnected R0-S0 admission. Production remains on `verify()` until
-    /// the later atomic CUT0 authority replacement.
-    #[cfg(test)]
-    pub(crate) fn verify_one_or_more_for_r0(
-        module: &'a VerifiedResolvedCallableModuleV1,
-    ) -> Result<Self, RecursiveCallableModulePlanErrorV1> {
-        Self::verify_with_admission(module, RecursiveFunctionCardinalityV1::OneOrMoreForR0)
-    }
-
-    fn verify_with_admission(
-        module: &'a VerifiedResolvedCallableModuleV1,
-        admission: RecursiveFunctionCardinalityV1,
-    ) -> Result<Self, RecursiveCallableModulePlanErrorV1> {
-        if module.functions_by_key().len() < admission.minimum() {
-            return Err(RecursiveCallableModulePlanErrorV1::FunctionCardinality {
-                actual: module.functions_by_key().len(),
-            });
-        }
         let inventory = VerifiedCallableGraphInventoryV1::verify(module)
             .map_err(RecursiveCallableModulePlanErrorV1::Inventory)?;
         if inventory.call_sites().is_empty() {

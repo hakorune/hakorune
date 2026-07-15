@@ -108,7 +108,11 @@ fn one_entry_catalog_preserves_exact_callable_header_contract() {
     let outcome =
         CallableCatalogSealOutcomeV1::seal(owner_free(vec![function("only", 1)]), 0).unwrap();
     let (unit, _) = outcome.into_parts();
-    let header = unit.catalog().index().sole_header().unwrap();
+    let header = unit
+        .catalog()
+        .index()
+        .resolve_free_static_source_call("only", 1)
+        .unwrap();
 
     assert_eq!(header.source_key().name(), "only");
     assert_eq!(header.source_key().arity(), 1);

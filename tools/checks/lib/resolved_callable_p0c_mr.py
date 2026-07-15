@@ -26,9 +26,6 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
     recursive_activation_tests = (
         root / "src/mir/compiler/recursive_callable_module_activation_tests.rs"
     )
-    self_call_parity_tests = (
-        root / "src/mir/compiler/self_call_authority_parity_tests.rs"
-    )
     transaction = (
         root / "src/mir/builder/resolved_lowering/callable_module_transaction.rs"
     )
@@ -47,7 +44,6 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
         recursive_capability,
         recursive_backend_gate,
         recursive_activation_tests,
-        self_call_parity_tests,
         transaction,
         compiler_mod,
         this_guard,
@@ -152,8 +148,6 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
         "VerifiedRecursiveCallableModulePlanV1",
         "VerifiedCallableSccPartitionV1",
         "CanonicalTrivialBindingSsaPlanV1",
-        "RecursiveFunctionCardinalityV1",
-        "verify_one_or_more_for_r0",
         "recursive_component_count() == 0",
         "FunctionCallSiteCountMismatch",
         "CardinalityMismatch",
@@ -174,43 +168,6 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
     ]:
         if forbidden in recursive_plan_text:
             fail(f"P0c-MR-V0 plan owns a forbidden authority: {forbidden}")
-    if "verify_one_or_more_for_r0" in compiler_mod.read_text():
-        fail("P0c-MR-R0-S0 disconnected singleton admission reached production compiler")
-    disconnected_plan_callers = {
-        path
-        for path in (root / "src").rglob("*.rs")
-        if "VerifiedRecursiveCallableModulePlanV1::verify_one_or_more_for_r0("
-        in path.read_text()
-    }
-    if disconnected_plan_callers != {recursive_plan_tests, self_call_parity_tests}:
-        fail(
-            "P0c-MR-R0-P0 disconnected singleton consumer drift: "
-            f"{sorted(path.relative_to(root) for path in disconnected_plan_callers)}"
-        )
-    parity_text = self_call_parity_tests.read_text()
-    if parity_text.count("#[test]") != 4:
-        fail("P0c-MR-R0-P0 normalized parity fixture count must remain exactly four")
-    for marker in [
-        "AuthoritySnapshot",
-        "MirSnapshot",
-        "compile_singleton_program_for_r0_p0",
-        "silent_fallback_allowed=false",
-        "canonical_recursive_callable_module_capability",
-    ]:
-        if marker not in parity_text:
-            fail(f"P0c-MR-R0-P0 parity contract missing: {marker}")
-    if compiler_mod.read_text().count("mod self_call_authority_parity_tests;") != 1:
-        fail("P0c-MR-R0-P0 test-only parity module declaration drift")
-    test_ingress_callers = {
-        path
-        for path in (root / "src").rglob("*.rs")
-        if "compile_singleton_program_for_r0_p0" in path.read_text()
-    }
-    if test_ingress_callers != {self_call_parity_tests}:
-        fail(
-            "P0c-MR-R0-P0 test-only singleton ingress escaped parity module: "
-            f"{sorted(path.relative_to(root) for path in test_ingress_callers)}"
-        )
     if compiler_mod.read_text().count("mod recursive_callable_module_plan;") != 1:
         fail("P0c-MR-V0 recursive module plan declaration drift")
 
@@ -253,8 +210,14 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
         if forbidden in backend_text:
             fail(f"P0c-MR-C0 backend gate infers topology: {forbidden}")
 
-    if recursive_activation_tests.read_text().count("#[test]") != 7:
-        fail("P0c-MR-I1 focused activation/proof fixture count must remain exactly seven")
+    if recursive_activation_tests.read_text().count("#[test]") != 9:
+        fail("P0c-MR-R0-CUT0 activation/proof fixture count must remain exactly nine")
+    for marker in [
+        "singleton_program_self_recursion_uses_program_authority_and_both_markers",
+        "singleton_program_accepts_finite_repeated_and_nested_self_calls",
+    ]:
+        if marker not in recursive_activation_tests.read_text():
+            fail(f"P0c-MR-R0-CUT0 singleton production proof missing: {marker}")
     compiler_text = compiler_mod.read_text()
     if len(re.findall(r"pub fn compile_resolved_recursive_callable_module\s*\(", compiler_text)) != 1:
         fail("P0c-MR-I1 explicit recursive compiler ingress count drift")

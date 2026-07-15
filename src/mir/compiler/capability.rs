@@ -15,7 +15,7 @@ use crate::mir::resolved_semantics::{
     ResolvedLexicalRefV1, ScopeKindV1, SourceBindingSiteV1,
 };
 use crate::mir::resolved_value_profile::{
-    analyze_trivial_canonical_owner_v1, analyze_trivial_canonical_owner_with_direct_call_v1,
+    analyze_trivial_canonical_owner_v1,
     analyze_trivial_canonical_owner_with_finite_direct_calls_v1,
     product::VerifiedTrivialCanonicalOwnerV1, TrivialCanonicalOwnerAnalysisV1,
 };
@@ -107,7 +107,7 @@ impl CanonicalLoweringPreflightV1 {
     pub(crate) fn verify_function<'a>(
         function: ResolvedFunctionLoweringInputV1<'a>,
     ) -> Result<CanonicalFirstFamilyPlanV1<'a>, CanonicalLoweringErrorV1> {
-        Self::verify_function_with_call_admission(function, DirectCallAdmissionV1::ExistingExactOne)
+        Self::verify_function_with_call_admission(function, DirectCallAdmissionV1::Forbidden)
     }
 
     /// Disconnected P0c-F-DX0a facade. Production module admission remains on
@@ -176,8 +176,7 @@ impl CanonicalLoweringPreflightV1 {
         let direct_call_count = function.function().direct_call_targets().count();
         let expression_policy = match (direct_call_admission, direct_call_count) {
             (_, 0) => FirstFamilyExpressionPolicyV1::Closed,
-            (DirectCallAdmissionV1::ExistingExactOne, 1)
-            | (DirectCallAdmissionV1::FiniteOneOrMore, 1..)
+            (DirectCallAdmissionV1::FiniteOneOrMore, 1..)
                 if function.callable_index().is_some() =>
             {
                 FirstFamilyExpressionPolicyV1::ExactDirectCall
@@ -234,22 +233,17 @@ impl CanonicalLoweringPreflightV1 {
             FirstFamilyExpressionPolicyV1::Closed => {
                 analyze_trivial_canonical_owner_v1(function, &completion, &if_control)
             }
-            FirstFamilyExpressionPolicyV1::ExactDirectCall => match direct_call_admission {
-                DirectCallAdmissionV1::ExistingExactOne => {
-                    analyze_trivial_canonical_owner_with_direct_call_v1(
-                        function,
-                        &completion,
-                        &if_control,
-                    )
-                }
-                DirectCallAdmissionV1::FiniteOneOrMore => {
-                    analyze_trivial_canonical_owner_with_finite_direct_calls_v1(
-                        function,
-                        &completion,
-                        &if_control,
-                    )
-                }
-            },
+            FirstFamilyExpressionPolicyV1::ExactDirectCall => {
+                debug_assert_eq!(
+                    direct_call_admission,
+                    DirectCallAdmissionV1::FiniteOneOrMore
+                );
+                analyze_trivial_canonical_owner_with_finite_direct_calls_v1(
+                    function,
+                    &completion,
+                    &if_control,
+                )
+            }
         }
         .map_err(|error| CanonicalLoweringErrorV1::ResolvedRegionFlow {
             detail: format!("trivial_profile_contract={error:?}"),
@@ -321,7 +315,7 @@ enum FirstFamilyExpressionPolicyV1 {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum DirectCallAdmissionV1 {
-    ExistingExactOne,
+    Forbidden,
     FiniteOneOrMore,
 }
 

@@ -211,18 +211,18 @@ can switch together.
 signature, and physical symbol projection are observed once without widening
 the body-oriented `FunctionSyntaxViewV1` or teaching Lower to read raw names.
 
-`VerifiedCallableIndexV1` is the sole callable-header authority. P0c-L0 seals
-exactly one static, non-main, all-`i64` header into a deterministic one-entry
-index. P0c-S0a keeps it disconnected from production while co-sealing it with
-one semantic owner forest in `VerifiedResolvedCallableForestV1`.
+`VerifiedCallableIndexV1` is the sole callable-header authority. CAT0 seals one
+or more static, non-main, all-`i64` headers through the same deterministic
+`seal_many` path. A singleton Program is ordinary catalog cardinality one; it
+has no separate one-entry seal, sole-header facade, or callable-forest sidecar.
 
 `CallableFunctionSyntaxViewV1` derives the header and body views from the same
-function AST. The source-unit sidecar owns the index once; each
+function AST for CAT0/MP0 resolution. The Program/catalog source unit owns the index once; each
 `VerifiedResolvedFunctionV1` stores only exact
 `SourceExprSiteV1 -> ResolvedDirectCallTargetV1` identity rows. Full headers,
 symbols, and signatures are never copied into the function product. The
-body-only production resolver remains unchanged and produces zero direct-call
-target rows until atomic P0c-I1.
+body-only resolver remains call-disabled and produces zero direct-call target
+rows.
 
 ```text
 CanonicalCallableKeyV1:

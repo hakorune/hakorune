@@ -1,6 +1,6 @@
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl, Span};
 use crate::mir::canonical_direct_call_contract::VerifiedDirectCallEffectV1;
-use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
+use crate::mir::compiler::{VerifiedResolvedCallableProgramV1, VerifiedResolvedSourceUnitV1};
 use crate::mir::resolved_control_flow::if_control::verify_resolved_function_if_control_with_direct_call_v1;
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
 use crate::mir::resolved_semantics::SourcePathSegmentV1;
@@ -11,7 +11,7 @@ use super::product::{
     VerifiedTrivialCanonicalOwnerV1,
 };
 use super::{
-    analyze_trivial_canonical_owner_v1, analyze_trivial_canonical_owner_with_direct_call_v1,
+    analyze_trivial_canonical_owner_v1,
     analyze_trivial_canonical_owner_with_finite_direct_calls_v1, TrivialCanonicalOwnerAnalysisV1,
     TrivialProfileConsumptionV1,
 };
@@ -71,14 +71,24 @@ fn analyze(
     root: ASTNode,
     allow_call: bool,
 ) -> Result<TrivialCanonicalOwnerAnalysisV1, TrivialProfileContractErrorV1> {
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function_with_root_callable(root).unwrap();
-    let input = unit.root_function_input().unwrap();
-    let completion = verify_function_completion_v1(input).unwrap();
-    let if_control =
-        verify_resolved_function_if_control_with_direct_call_v1(input, &completion).unwrap();
     if allow_call {
-        analyze_trivial_canonical_owner_with_direct_call_v1(input, &completion, &if_control)
+        let source = VerifiedResolvedCallableProgramV1::resolve(ASTNode::Program {
+            statements: vec![root],
+            span: Span::unknown(),
+        })
+        .unwrap();
+        let key = source.module().functions_by_key().keys().next().unwrap();
+        let input = source.module().function_input(key).unwrap();
+        let completion = verify_function_completion_v1(input).unwrap();
+        let if_control =
+            verify_resolved_function_if_control_with_direct_call_v1(input, &completion).unwrap();
+        analyze_trivial_canonical_owner_with_finite_direct_calls_v1(input, &completion, &if_control)
     } else {
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
+        let input = unit.root_function_input().unwrap();
+        let completion = verify_function_completion_v1(input).unwrap();
+        let if_control =
+            verify_resolved_function_if_control_with_direct_call_v1(input, &completion).unwrap();
         analyze_trivial_canonical_owner_v1(input, &completion, &if_control)
     }
 }
@@ -91,22 +101,7 @@ fn admitted(root: ASTNode) -> VerifiedTrivialCanonicalOwnerV1 {
 }
 
 fn admitted_finite(root: ASTNode) -> VerifiedTrivialCanonicalOwnerV1 {
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function_with_root_callable(root).unwrap();
-    let input = unit.root_function_input().unwrap();
-    let completion = verify_function_completion_v1(input).unwrap();
-    let if_control =
-        verify_resolved_function_if_control_with_direct_call_v1(input, &completion).unwrap();
-    let TrivialCanonicalOwnerAnalysisV1::Admitted(product) =
-        analyze_trivial_canonical_owner_with_finite_direct_calls_v1(
-            input,
-            &completion,
-            &if_control,
-        )
-        .unwrap()
-    else {
-        panic!("expected finite direct-call profile")
-    };
-    product
+    admitted(root)
 }
 
 #[test]
@@ -179,11 +174,10 @@ fn consumption_claims_arguments_then_one_whole_direct_call_row() {
 }
 
 #[test]
-fn rejects_non_i64_nested_and_second_calls_before_profile_publication() {
+fn rejects_non_i64_arguments_before_profile_publication() {
     for argument in [
         literal(LiteralValue::Bool(true)),
         literal(LiteralValue::Float(1.5)),
-        call(vec![variable("p0")]),
     ] {
         let TrivialCanonicalOwnerAnalysisV1::NotAdmitted(stop) =
             analyze(function(1, call(vec![argument])), true).unwrap()
@@ -196,30 +190,6 @@ fn rejects_non_i64_nested_and_second_calls_before_profile_publication() {
                 | TrivialProfileStopReasonV1::ExpressionOutsideProfile
         ));
     }
-
-    let two_calls = ASTNode::BinaryOp {
-        operator: crate::ast::BinaryOperator::Add,
-        left: Box::new(call(vec![variable("p0")])),
-        right: Box::new(call(vec![variable("p0")])),
-        span: Span::unknown(),
-    };
-    let TrivialCanonicalOwnerAnalysisV1::NotAdmitted(stop) =
-        analyze(function(1, two_calls), true).unwrap()
-    else {
-        panic!("second direct call must stop")
-    };
-    assert_eq!(
-        stop.reason(),
-        TrivialProfileStopReasonV1::ExpressionOutsideProfile
-    );
-}
-
-#[test]
-fn call_enabled_entry_requires_exactly_one_row() {
-    assert!(matches!(
-        analyze(function(1, variable("p0")), true),
-        Err(TrivialProfileContractErrorV1::DirectCallCardinality { actual: 0 })
-    ));
 }
 
 #[test]
@@ -227,7 +197,7 @@ fn production_analyzer_remains_call_disabled() {
     let TrivialCanonicalOwnerAnalysisV1::NotAdmitted(stop) =
         analyze(function(1, call(vec![variable("p0")])), false).unwrap()
     else {
-        panic!("production profile must remain call-disabled until P0c-I1")
+        panic!("body-only profile must remain call-disabled")
     };
     assert_eq!(
         stop.reason(),
@@ -236,7 +206,7 @@ fn production_analyzer_remains_call_disabled() {
 }
 
 #[test]
-fn finite_profile_records_sequential_calls_without_widening_exact_one() {
+fn finite_profile_records_sequential_calls() {
     let two_calls = ASTNode::BinaryOp {
         operator: crate::ast::BinaryOperator::Add,
         left: Box::new(call(vec![variable("p0")])),
@@ -245,24 +215,6 @@ fn finite_profile_records_sequential_calls_without_widening_exact_one() {
     };
     let product = admitted_finite(function(1, two_calls));
     assert_eq!(product.direct_calls().len(), 2);
-
-    let exact_one = analyze(
-        function(
-            1,
-            ASTNode::BinaryOp {
-                operator: crate::ast::BinaryOperator::Add,
-                left: Box::new(call(vec![variable("p0")])),
-                right: Box::new(call(vec![variable("p0")])),
-                span: Span::unknown(),
-            },
-        ),
-        true,
-    )
-    .unwrap();
-    assert!(matches!(
-        exact_one,
-        TrivialCanonicalOwnerAnalysisV1::NotAdmitted(_)
-    ));
 }
 
 #[test]

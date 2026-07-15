@@ -23,7 +23,7 @@ Related:
   `DX0a -> DX0b -> S0 -> V0 -> census evidence -> I1`; all rows are closed.
   The census found zero exact P0c-F candidates in `lang/src`, so I1 is an
   ingress proof rather than a corpus coverage claim. The exact current blocker
-  is P0c-MR-R0-CUT0 atomic Program-authority cutover and retirement.
+  is P0c-MR-R0-G0 Program-authority guard closeout.
   C-prime is
   taskized as `G0 -> S0 -> V0 -> C0 -> I1 -> R0`; G0 through I1 are closed. The
   deterministic SCC partition is non-Clone, uses a host-stack-safe traversal,
@@ -35,12 +35,11 @@ Related:
   contract failure fixtures now prove caller restoration and interpreter
   reuse; the reference VM depth guard is a resource boundary, not a language
   recursion limit. R0 selected Program-only authority with
-  `S0 -> P0 -> CUT0 -> G0`; S0 is closed with disconnected singleton,
-  repeated-call, and nested-call admission while production still rejects a
-  one-function recursive module. P0 normalized old/new authority parity is
-  closed with the recursive module marker as the sole intended difference.
-  CUT0 is next and must switch production plus delete the old authority
-  atomically; no landed production state may contain both authorities.
+  `S0 -> P0 -> CUT0 -> G0`; S0 and P0 are closed. CUT0 is also closed:
+  singleton self recursion now uses the Program/catalog/SCC/atomic-publication
+  authority, while RootCallable, one-entry facades, and exact-one call policy
+  are deleted in the same atomic change. G0 is the final guard/pointer
+  closeout; no compatibility adapter or second singleton authority is allowed.
   Production Ownership SSA,
   Loop production,
   SCC-aware optimization, legacy

@@ -1,8 +1,8 @@
 ---
-Status: P0c-MR-R0-P0 closed; atomic CUT0 next
+Status: P0c-MR-R0-CUT0 closed; G0 closeout next
 Date: 2026-07-16
 Decision: C-prime accepted with bounded implementation refinements
-Current row: P0c-MR-R0-CUT0 atomic Program-authority cutover
+Current row: P0c-MR-R0-G0 guards and closeout
 Production baseline: 4bed234ceb
 Consultation: mirbuilder-p0c-mr-scc-consultation-question-2026-07-16.md
 R0 consultation: mirbuilder-p0c-mr-r0-self-call-retirement-consultation-question-2026-07-16.md
@@ -24,9 +24,10 @@ P0c-MR-R0  later one-function self-call authority retirement
 ```
 
 G0 through I1 and the runtime frame-restoration proof tail are landed. R0 has
-selected Program-only authority with `S0 -> P0 -> CUT0 -> G0`. S0 and P0 are
-closed. CUT0 is the sole next code-facing row and must atomically activate the
-singleton Program route while deleting the old authority.
+selected Program-only authority with `S0 -> P0 -> CUT0 -> G0`. S0, P0, and
+CUT0 are closed. G0 is the sole next code-facing row and closes the retired-
+symbol/caller, single-ingress, no-retry, marker, and pointer guards without
+semantic widening.
 
 Candidate A's two-function even/odd shape is a fixture, not a semantic
 authority. Candidate B's general finite SCC module is the activation target,
@@ -634,11 +635,40 @@ quick gate: 66/66
 production behavior delta: 0
 ```
 
+## R0-CUT0 closeout evidence
+
+The explicit recursive Program ingress now admits singleton `SelfRecursive`
+SCCs through the same CAT0 catalog, shared graph inventory, SCC partition,
+finite call profile, unpublished-draft transaction, and atomic publication as
+multi-function recursion. The production singleton fixture proves one
+direct-static function marker plus one recursive module marker; repeated and
+nested self calls use the same finite exact-call rows.
+
+The same atomic change removes the bare-function `RootCallable` constructor,
+callable-forest sidecar, one-entry index facades, exact-one admission/profile
+policy, temporary R0 selector, and their high-level fixtures. Body-only
+`compile_resolved` remains explicitly call-disabled. The resolved-callable
+guard now rejects every retired source symbol and preserves one explicit
+recursive Program ingress with no route retry.
+
+```text
+debug recursive activation: 9/9
+release recursive activation: 9/9
+recursive plan: 5/5
+resolved value-profile direct calls: 6/6
+callable-index fixtures: 6/6
+resolved-callable authority guard: green
+cargo check: green
+quick gate: 66/66
+old callable authority symbols/callers: 0
+CopyOwned / DestroyOwned / ReleaseStrong: 0
+all modified source/check files below 800 lines
+```
+
 ## Immediate next action
 
-Implement `P0c-MR-R0-CUT0` as one atomic commit: remove the recursive plan's
-two-function floor, activate singleton Programs through the existing explicit
-recursive ingress, migrate every high-level self-call fixture, delete the old
-RootCallable/one-entry/exact-one authorities, and prove old symbol/caller and
-route-retry counts are zero. Do not split production cutover from retirement,
-add a compatibility adapter, or begin G0 cleanup as a separate semantic row.
+Close `P0c-MR-R0-G0` without semantic widening: retain the old-symbol/caller,
+single-ingress, no-retry, marker, ownership-op, atomic-publication, and
+under-800-line guards; synchronize the final Program-only authority pointers;
+and record the next design consultation. Do not add a compatibility adapter or
+reintroduce a singleton-specific product.

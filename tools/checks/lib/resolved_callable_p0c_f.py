@@ -95,7 +95,7 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
             fail(f"source/check reached 800-line stop boundary: {path.relative_to(root)} ({lines})")
 
     expected_tests = {
-        profile_tests: 7,
+        profile_tests: 6,
         finite_call_tests: 2,
         inventory_tests: 2,
         graph_tests: 3,
@@ -112,13 +112,13 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
 
     capability_text = compiler_capability.read_text()
     for marker in [
-        "DirectCallAdmissionV1::ExistingExactOne",
+        "DirectCallAdmissionV1::Forbidden",
         "DirectCallAdmissionV1::FiniteOneOrMore",
         "verify_expression(input, &argument, expression_policy)",
     ]:
         if marker not in capability_text:
             fail(f"P0c-F-DX0a preflight boundary missing: {marker}")
-    if "DirectCallPolicyV1::OneOrMoreExact" not in profile_analyzer.read_text():
+    if "DirectCallPolicyV1::FiniteOneOrMore" not in profile_analyzer.read_text():
         fail("P0c-F-DX0a finite profile policy missing")
 
     inventory_text = inventory.read_text()

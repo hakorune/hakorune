@@ -14,9 +14,9 @@ module, entry-block, or FunctionRegion state.
   recursive Lower.
 - Canonical failure never retries through the legacy route.
 - Production ingress is explicit by owner family. `resolve_function` owns the
-  body-only family; `resolve_function_with_root_callable` owns the exact P0c
-  current-owner self-call family. Both own one AST and co-seal its forest and
-  exact source projection. Neither retries through the other.
+  call-disabled body-only family. `VerifiedResolvedCallableProgramV1` owns all
+  exact callable modules, including singleton self recursion. Neither retries
+  through the other.
 
 Exact child-site navigation belongs to B0-L2b. Function transaction cleanup
 belongs to B0-L2c. BindingId adoption and production semantic activation belong
@@ -81,18 +81,21 @@ bare-AST route, ProgramV0, REPL, Main, instance methods, Lambda,
 If/Loop/CorePlan, and Planner remain outside it. Canonical failure never
 retries legacy.
 
-## P0c-I1 exact direct-call ingress
+## P0c callable Program ingress
 
-`resolve_function_with_root_callable` first seals the root callable header and
-one-entry `VerifiedCallableIndexV1`, then resolves the body against that same
-index before any Builder effect. Production preflight accepts exactly one
-current-owner `FunctionCall` with exact `i64` arguments/result. A co-sealed
-direct-call row, not the raw call name, is the only Lower input.
+`VerifiedResolvedCallableProgramV1` owns the function-only Program, complete
+immutable callable catalog, canonical-keyed function map, and one single-root
+forest/projection per declaration. The same authority handles singleton self
+calls, sibling calls, acyclic graphs, and recursive SCCs. Finite direct-call
+rows are resolved and sealed before Builder effects; raw call names never reach
+Lower.
 
-The materializer emits one ordinary call-result `ValueId`, one conservative
-barrier call, and one explicit VM-only direct-call capability. It performs no
-legacy call resolution, name heuristic, fallback, or ownership operation.
-Sibling calls and a multi-entry callable catalog remain outside this ingress.
+The materializer emits ordinary call-result `ValueId`s and conservative
+barrier calls. Each calling function receives one VM-only direct-call
+capability; recursive topology additionally receives one module capability.
+There is no legacy callable resolver, one-entry facade, exact-one policy,
+fallback, or ownership operation. The ordinary `compile_resolved` ingress
+remains explicitly call-disabled.
 
 ## MP0-S0/R0 resolved callable module
 

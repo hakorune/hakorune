@@ -49,8 +49,6 @@ mod resolved_callable_module_preflight_tests;
 #[cfg(test)]
 mod resolved_callable_module_tests;
 #[cfg(test)]
-mod self_call_authority_parity_tests;
-#[cfg(test)]
 mod sibling_call_tests;
 #[cfg(test)]
 mod source_view_tests;

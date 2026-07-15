@@ -39,19 +39,6 @@ pub(super) fn analyze_trivial_canonical_owner_impl_v1(
     analyze_with_call_policy(input, completion, if_control, DirectCallPolicyV1::Forbidden)
 }
 
-pub(super) fn analyze_trivial_canonical_owner_with_direct_call_impl_v1(
-    input: ResolvedFunctionLoweringInputV1<'_>,
-    completion: &VerifiedFunctionCompletionV1,
-    if_control: &VerifiedResolvedFunctionIfControlV1,
-) -> Result<TrivialCanonicalOwnerAnalysisV1, TrivialProfileContractErrorV1> {
-    analyze_with_call_policy(
-        input,
-        completion,
-        if_control,
-        DirectCallPolicyV1::ExactlyOne,
-    )
-}
-
 pub(super) fn analyze_trivial_canonical_owner_with_finite_direct_calls_impl_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     completion: &VerifiedFunctionCompletionV1,
@@ -61,7 +48,7 @@ pub(super) fn analyze_trivial_canonical_owner_with_finite_direct_calls_impl_v1(
         input,
         completion,
         if_control,
-        DirectCallPolicyV1::OneOrMoreExact,
+        DirectCallPolicyV1::FiniteOneOrMore,
     )
 }
 
@@ -92,8 +79,7 @@ enum ReturnPolicyV1 {
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum DirectCallPolicyV1 {
     Forbidden,
-    ExactlyOne,
-    OneOrMoreExact,
+    FiniteOneOrMore,
 }
 
 struct AnalyzerV1<'a> {
@@ -155,13 +141,7 @@ impl<'a> AnalyzerV1<'a> {
         )?;
 
         match self.direct_call_policy {
-            DirectCallPolicyV1::ExactlyOne if self.direct_call_count != 1 => {
-                return Err(TrivialProfileContractErrorV1::DirectCallCardinality {
-                    actual: self.direct_call_count,
-                }
-                .into())
-            }
-            DirectCallPolicyV1::OneOrMoreExact if self.direct_call_count == 0 => {
+            DirectCallPolicyV1::FiniteOneOrMore if self.direct_call_count == 0 => {
                 return Err(
                     TrivialProfileContractErrorV1::DirectCallCardinality { actual: 0 }.into(),
                 )
@@ -632,18 +612,7 @@ impl<'a> AnalyzerV1<'a> {
                             TrivialProfileStopReasonV1::ExpressionOutsideProfile,
                         )
                     }
-                    DirectCallPolicyV1::ExactlyOne => {
-                        if self.direct_call_count != 0 {
-                            return stop_expression(
-                                expression,
-                                TrivialProfileStopReasonV1::ExpressionOutsideProfile,
-                            );
-                        }
-                        // Preserve the exact-one route's current rejection
-                        // point for nested or later calls.
-                        self.direct_call_count = 1;
-                    }
-                    DirectCallPolicyV1::OneOrMoreExact => {}
+                    DirectCallPolicyV1::FiniteOneOrMore => {}
                 }
                 let mut argument_sites = Vec::with_capacity(arguments.len());
                 for index in 0..arguments.len() {
@@ -666,7 +635,7 @@ impl<'a> AnalyzerV1<'a> {
                     }
                     argument_sites.push(argument.site().clone());
                 }
-                if self.direct_call_policy == DirectCallPolicyV1::OneOrMoreExact {
+                if self.direct_call_policy == DirectCallPolicyV1::FiniteOneOrMore {
                     self.direct_call_count =
                         self.direct_call_count.checked_add(1).ok_or_else(|| {
                             TrivialProfileContractErrorV1::DirectCallCardinalityOverflow {

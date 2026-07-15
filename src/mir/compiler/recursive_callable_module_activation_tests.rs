@@ -133,6 +133,52 @@ fn execute(result: &super::MirCompileResult, name: &str, input: i64) -> VMValue 
 }
 
 #[test]
+fn singleton_program_self_recursion_uses_program_authority_and_both_markers() {
+    let result = compile(vec![recursive_branch("countdown", 0, "countdown")]);
+    assert_eq!(execute(&result, "countdown", 0), VMValue::Integer(0));
+    assert_eq!(execute(&result, "countdown", 7), VMValue::Integer(0));
+
+    let function = &result.module.functions["countdown/1"];
+    assert_eq!(
+        function
+            .metadata
+            .canonical_direct_static_call_capabilities
+            .len(),
+        1
+    );
+    assert!(result
+        .module
+        .metadata
+        .canonical_recursive_callable_module_capability
+        .is_some());
+}
+
+#[test]
+fn singleton_program_accepts_finite_repeated_and_nested_self_calls() {
+    let repeated = returning(
+        "repeated",
+        binary(
+            BinaryOperator::Add,
+            call("repeated", variable("n")),
+            call("repeated", variable("n")),
+        ),
+    );
+    let nested = returning("nested", call("nested", call("nested", variable("n"))));
+
+    for (function, symbol, expected_calls) in [(repeated, "repeated/1", 2), (nested, "nested/1", 2)]
+    {
+        let result = compile(vec![function]);
+        let call_count = result.module.functions[symbol]
+            .blocks
+            .values()
+            .flat_map(|block| &block.instructions)
+            .filter(|instruction| matches!(instruction, MirInstruction::Call { .. }))
+            .count();
+        assert_eq!(call_count, expected_calls);
+    }
+}
+
+#[test]
 fn even_odd_and_declaration_reorder_execute_with_one_module_marker() {
     let mut observed = Vec::new();
     for functions in [

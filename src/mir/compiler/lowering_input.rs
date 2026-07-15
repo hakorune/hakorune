@@ -7,9 +7,7 @@
 use std::fmt;
 
 use crate::ast::ASTNode;
-use crate::mir::resolved_semantics::{
-    VerifiedCallableIndexV1, VerifiedResolvedCallableForestV1, VerifiedSemanticOwnerForestV1,
-};
+use crate::mir::resolved_semantics::VerifiedSemanticOwnerForestV1;
 
 use super::source_projection::VerifiedSourceProjectionV1;
 
@@ -21,28 +19,6 @@ struct CanonicalSyntaxOwnerV1 {
 #[derive(Debug)]
 struct ResolvedSourceUnitSealV1;
 
-#[derive(Debug)]
-enum ResolvedSourceUnitSemanticsV1 {
-    BodyOnly(VerifiedSemanticOwnerForestV1),
-    RootCallable(VerifiedResolvedCallableForestV1),
-}
-
-impl ResolvedSourceUnitSemanticsV1 {
-    const fn forest(&self) -> &VerifiedSemanticOwnerForestV1 {
-        match self {
-            Self::BodyOnly(forest) => forest,
-            Self::RootCallable(sidecar) => sidecar.forest(),
-        }
-    }
-
-    const fn callable_index(&self) -> Option<&VerifiedCallableIndexV1> {
-        match self {
-            Self::BodyOnly(_) => None,
-            Self::RootCallable(sidecar) => Some(sidecar.callable_index()),
-        }
-    }
-}
-
 /// Immutable canonical syntax bundled with the forest sealed for that syntax.
 ///
 /// Syntax, forest, and projection cannot be supplied independently. The sole
@@ -50,7 +26,7 @@ impl ResolvedSourceUnitSemanticsV1 {
 #[derive(Debug)]
 pub struct VerifiedResolvedSourceUnitV1 {
     syntax: CanonicalSyntaxOwnerV1,
-    semantics: ResolvedSourceUnitSemanticsV1,
+    forest: VerifiedSemanticOwnerForestV1,
     projection: VerifiedSourceProjectionV1,
     _seal: ResolvedSourceUnitSealV1,
 }
@@ -85,47 +61,7 @@ impl VerifiedResolvedSourceUnitV1 {
         })?;
         Ok(Self {
             syntax: CanonicalSyntaxOwnerV1 { root },
-            semantics: ResolvedSourceUnitSemanticsV1::BodyOnly(forest),
-            projection,
-            _seal: ResolvedSourceUnitSealV1,
-        })
-    }
-
-    /// Exact P0c ingress carrying the root callable index together with the
-    /// semantic forest.  Call target resolution is completed here, before
-    /// Builder effects; the ordinary `resolve_function` ingress remains
-    /// call-disabled and never retries through this constructor.
-    pub fn resolve_function_with_root_callable(
-        root: ASTNode,
-    ) -> Result<Self, CanonicalLoweringErrorV1> {
-        use crate::mir::resolved_semantics::{
-            CallableFunctionSyntaxViewV1, FunctionSemanticResolverSessionV1,
-        };
-
-        let views = CallableFunctionSyntaxViewV1::from_function_ast(&root).ok_or_else(|| {
-            CanonicalLoweringErrorV1::SourceUnitResolution {
-                detail: "root_is_not_function_declaration".to_string(),
-            }
-        })?;
-        let mut session = FunctionSemanticResolverSessionV1::new(0).map_err(|error| {
-            CanonicalLoweringErrorV1::SourceUnitResolution {
-                detail: format!("{error:?}"),
-            }
-        })?;
-        let sidecar = session
-            .resolve_forest_with_root_callable(views)
-            .map_err(|error| CanonicalLoweringErrorV1::SourceUnitResolution {
-                detail: format!("{error:?}"),
-            })?;
-        let projection =
-            VerifiedSourceProjectionV1::seal(&root, sidecar.forest()).map_err(|error| {
-                CanonicalLoweringErrorV1::SourceNavigation {
-                    detail: error.to_string(),
-                }
-            })?;
-        Ok(Self {
-            syntax: CanonicalSyntaxOwnerV1 { root },
-            semantics: ResolvedSourceUnitSemanticsV1::RootCallable(sidecar),
+            forest,
             projection,
             _seal: ResolvedSourceUnitSealV1,
         })
@@ -136,11 +72,7 @@ impl VerifiedResolvedSourceUnitV1 {
     }
 
     pub(crate) fn forest(&self) -> &VerifiedSemanticOwnerForestV1 {
-        self.semantics.forest()
-    }
-
-    pub(crate) fn callable_index(&self) -> Option<&VerifiedCallableIndexV1> {
-        self.semantics.callable_index()
+        &self.forest
     }
 
     pub(crate) fn projection(&self) -> &VerifiedSourceProjectionV1 {

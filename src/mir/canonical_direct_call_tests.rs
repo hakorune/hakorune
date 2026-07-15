@@ -1,8 +1,6 @@
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl, Span};
-use crate::mir::resolved_semantics::{
-    CallableHeaderSyntaxViewV1, FunctionOwnerIssuerV1, VerifiedCallableHeaderV1,
-    VerifiedCallableIndexV1,
-};
+use crate::mir::compiler::VerifiedResolvedCallableProgramV1;
+use crate::mir::resolved_semantics::VerifiedCallableHeaderV1;
 
 use super::*;
 use crate::mir::canonical_direct_call_contract::VerifiedDirectCallEffectV1;
@@ -24,16 +22,19 @@ fn header() -> VerifiedCallableHeaderV1 {
         attrs: DeclarationAttrs::default(),
         span: Span::unknown(),
     };
-    let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
-    let owner = issuer.issue().unwrap();
-    VerifiedCallableIndexV1::seal_one(
-        owner,
-        CallableHeaderSyntaxViewV1::from_function_ast(&tree).unwrap(),
-    )
-    .unwrap()
-    .sole_header()
-    .unwrap()
-    .clone()
+    let source = VerifiedResolvedCallableProgramV1::resolve(ASTNode::Program {
+        statements: vec![tree],
+        span: Span::unknown(),
+    })
+    .unwrap();
+    source
+        .module()
+        .source()
+        .catalog()
+        .index()
+        .resolve_free_static_source_call("countdown", 1)
+        .unwrap()
+        .clone()
 }
 
 #[test]
