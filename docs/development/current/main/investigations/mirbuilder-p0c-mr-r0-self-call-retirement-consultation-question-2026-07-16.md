@@ -1,13 +1,44 @@
 ---
-Status: external design consultation requested
+Status: answered and accepted with bounded implementation refinements
 Date: 2026-07-16
-Decision: pending
+Decision: Candidate B; S0 -> P0 -> atomic CUT0 -> G0
 Baseline: f07af7070d
 Parent: mirbuilder-p0c-mr-callable-scc-task-2026-07-16.md
 Current blocker: P0c-MR-R0-D0 one-function self-call authority retirement
 ---
 
 # P0c-MR-R0 One-Function Self-Call Retirement Consultation
+
+## Accepted answer
+
+Candidate B is accepted. The sole final callable authority is the owned
+function-only Program route. Production cutover and old semantic-authority
+deletion land atomically in one `CUT0` commit:
+
+```text
+P0c-MR-R0-S0
+  -> P0c-MR-R0-P0
+  -> P0c-MR-R0-CUT0
+  -> P0c-MR-R0-G0
+```
+
+The next code-facing row is `P0c-MR-R0-S0`.
+
+Two implementation refinements are required by current source evidence:
+
+1. `CallableFunctionSyntaxViewV1` is retained. It is not an old one-entry
+   authority: `CallableCatalogResolutionSourceV1::located_function` and
+   `locate_catalog_function_v1` use it in the canonical CAT0/MP0 Program route
+   to keep one declaration's header/body pairing exact. Removing it would add
+   unrelated module-route churn. Only the old RootCallable constructor,
+   sidecar, one-entry index facades, and exact-one admission authority retire.
+2. After exact-one removal, ordinary body-only `compile_resolved` must select
+   an explicit call-forbidden admission. The final policy vocabulary is
+   `Forbidden | FiniteOneOrMore`, not an implicit default. A call-free body
+   uses `Forbidden`; callable Program plans use `FiniteOneOrMore`.
+
+These refinements do not change Candidate B, CUT0 atomicity, marker law,
+fixtures, non-claims, or source-breaking removal decision.
 
 ## Question
 

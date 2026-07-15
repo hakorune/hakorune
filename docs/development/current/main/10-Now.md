@@ -23,7 +23,7 @@ Related:
   `DX0a -> DX0b -> S0 -> V0 -> census evidence -> I1`; all rows are closed.
   The census found zero exact P0c-F candidates in `lang/src`, so I1 is an
   ingress proof rather than a corpus coverage claim. The exact current blocker
-  is the P0c-MR-R0-D0 one-function self-call authority retirement design stop.
+  is P0c-MR-R0-S0 disconnected singleton-recursive admission.
   C-prime is
   taskized as `G0 -> S0 -> V0 -> C0 -> I1 -> R0`; G0 through I1 are closed. The
   deterministic SCC partition is non-Clone, uses a host-stack-safe traversal,
@@ -34,7 +34,10 @@ Related:
   or adding fallback. The MR-specific MAX_CALL_DEPTH and inner parameter/return
   contract failure fixtures now prove caller restoration and interpreter
   reuse; the reference VM depth guard is a resource boundary, not a language
-  recursion limit. Production Ownership SSA,
+  recursion limit. R0 selected Program-only authority with
+  `S0 -> P0 -> CUT0 -> G0`; S0/P0 keep production singleton activation zero,
+  and CUT0 must switch production plus delete the old authority atomically.
+  Production Ownership SSA,
   Loop production,
   SCC-aware optimization, legacy
   fallback, default source, Lambda/capture, ProgramV0 authority, and durable

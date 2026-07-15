@@ -2412,8 +2412,9 @@ state.
 
 ## Immediate next action
 
-The **P0c-MR-I1 runtime frame-restoration proof tail** is closed. Stop at
-**P0c-MR-R0-D0** before retirement code.
+The **P0c-MR-I1 runtime frame-restoration proof tail** is closed and R0 selected
+Candidate B. Implement **P0c-MR-R0-S0** as a disconnected singleton-recursive
+admission proof; production remains two-or-more through S0/P0.
 P0c-MR-G0 through I1 are closed: general multi-function recursive exact-i64
 Programs execute through one explicit VM-only atomic ingress with one module
 marker and no route retry.
@@ -2429,10 +2430,11 @@ P0c-MR:
 ```
 
 The MAX_CALL_DEPTH and inner parameter/return contract failure fixtures plus
-post-error interpreter reuse are closed. Before R0 code, decide one-function Program parity, whether the old bare-function
-self-call route becomes a compatibility facade or is removed, marker parity,
-removal counters, and exact no-retry/non-claim boundaries. Keep the worktree
-clean at this design stop.
+post-error interpreter reuse are closed. R0 order is
+`S0 -> P0 -> CUT0 -> G0`: disconnected singleton admission, normalized parity,
+one atomic production cutover plus old-authority deletion, then guards and
+closeout. CUT0 must not land a state containing both production self-call
+authorities.
 
 Ownership V2 parser/resolver/MIR work and `.hako` selfhost parser/MIR-builder
 migration remain separate parked lanes. They are not hidden P0c-MR prerequisites

@@ -1,8 +1,8 @@
 ---
-Status: P0c-MR-I1 fully closed; P0c-MR-R0-D0 design stop
+Status: P0c-MR-R0 Candidate B accepted; S0 next
 Date: 2026-07-16
 Decision: C-prime accepted with bounded implementation refinements
-Current row: P0c-MR-R0-D0 one-function self-call authority retirement design stop
+Current row: P0c-MR-R0-S0 disconnected singleton admission
 Production baseline: 4bed234ceb
 Consultation: mirbuilder-p0c-mr-scc-consultation-question-2026-07-16.md
 R0 consultation: mirbuilder-p0c-mr-r0-self-call-retirement-consultation-question-2026-07-16.md
@@ -23,10 +23,10 @@ P0c-MR-I1  explicit atomic VM-only activation
 P0c-MR-R0  later one-function self-call authority retirement
 ```
 
-G0 through I1 and the runtime frame-restoration proof tail are landed. No
-further widening is authorized until
-`P0c-MR-R0-D0` decides one-function Program parity and old self-call authority
-retirement.
+G0 through I1 and the runtime frame-restoration proof tail are landed. R0 has
+selected Program-only authority with `S0 -> P0 -> CUT0 -> G0`; S0 is the sole
+next code-facing row and production singleton activation remains zero through
+S0/P0.
 
 Candidate A's two-function even/odd shape is a fixture, not a semantic
 authority. Candidate B's general finite SCC module is the activation target,
@@ -408,63 +408,139 @@ not initialized and never initializes global runtime state. Deeper reference-
 interpreter recursion requires a separate iterative call-frame/trampoline
 design row and is not part of P0c-MR-I1.
 
-## P0c-MR-R0 — later self-call authority retirement
+## P0c-MR-R0 — Program-only self-call authority
 
-State: design consultation stop. No code row is selected yet.
-
-Source authorities to compare:
+State: Candidate B accepted and taskized.
 
 ```text
-old route:
-  one bare FunctionDeclaration
-  one-entry callable index
-  exact current-owner self-call activation
-
-module route:
-  one function-only Program/catalog source unit
-  one resolved graph inventory
-  one SCC partition and recursive module plan
+P0c-MR-R0-S0
+  -> P0c-MR-R0-P0
+  -> P0c-MR-R0-CUT0
+  -> P0c-MR-R0-G0
 ```
 
-Non-authorities remain raw call names, physical symbols, MIR module lookup,
-declaration order, runtime graph discovery, and failure-driven route probing.
+The sole final callable source authority is one owned function-only Program,
+its immutable catalog, canonical-keyed resolved function map, shared graph
+inventory, deterministic SCC partition, recursive typed plan, and unpublished-
+draft atomic transaction. Top-level functions retain separate single-root
+semantic owner forests.
 
-The consultation must select exactly one of these durable shapes:
+Repository evidence shows seven non-definition
+`resolve_function_with_root_callable` callers, all in tests, and zero non-test
+production callers. Source compatibility with that public constructor is not
+claimed. No adapter is added unless a separately versioned external contract
+is discovered before CUT0.
+
+### R0-S0 — disconnected singleton admission
+
+Production behavior delta is zero. Refactor the recursive-plan verifier behind
+one private temporary admission selector:
 
 ```text
-A. compatibility facade
-   preserve the bare-function source entry, normalize it before Builder into
-   the one-function Program/module authority, and retire the old activation
-   witness after exact parity
-
-B. Program-only retirement
-   require the function-only Program source unit and remove the bare-function
-   production entry after an explicit source-compatibility decision
-
-C. permanent dual authority
-   keep both semantic activation owners (not recommended unless a distinct
-   non-overlapping source contract is proved)
+ExistingTwoOrMore
+OneOrMoreForR0
 ```
 
-The consultation must also lock one-function admission (`function count >= 1`
-only for recursive singleton SCCs), recursive module marker parity, exact
-success/error/reorder fixtures, removal counters, and zero retry/fallback.
-R0 may remove duplicate authority but must not widen signatures, expressions,
-backends, effects, ownership operations, or runtime semantics.
+The production `verify()` remains `ExistingTwoOrMore`. Only disconnected R0
+fixtures use `OneOrMoreForR0`. The new path must accept a one-function self
+edge, repeated/nested self-call sites, and the existing `SelfRecursive` SCC
+classification while rejecting zero calls, no recursive component, and
+inventory/profile drift. No new SCC or singleton witness type is allowed.
 
-Fail-fast boundary:
+### R0-P0 — normalized parity proof
+
+Production behavior delta is zero. Test-only normalization compares the old
+exact-one bare-function route and disconnected singleton Program route:
 
 ```text
-bare self-call ingress failure -> no module/legacy retry
-module ingress failure -> no bare/acyclic/legacy retry
-parity drift -> stop before Builder effects
-old authority deletion -> only after repository producer/caller zero
+header key/signature/symbol
+binding/scope/region kind and cardinality
+verified call target/ABI/argument/result/effect rows
+normalized MIR control/value/call/return relation
+parameter and return contracts
+terminating runtime results
+non-VM fail-fast and no fallback
+CopyOwned/DestroyOwned/ReleaseStrong = 0
 ```
 
-Recommended consultation question: whether A is a temporary source facade
-over one canonical Program/module authority, or whether source compatibility
-permits B immediately. Do not implement either until that source-authority and
-marker policy is accepted.
+Invocation-local owner IDs, compilation brands, origins, source sites, and
+source-file hints are excluded. The intentional difference is exactly one
+recursive module marker on the Program route. P0 also migrates high-level
+self-call fixtures for execution, post-If PHI arguments, local/assignment/
+final-return call results, backend fail-fast, and compiler reuse.
+
+### R0-CUT0 — atomic production cutover and retirement
+
+CUT0 is one commit. No landed production state may contain both self-call
+authorities.
+
+```text
+1. remove the recursive plan's minimum-function policy
+2. admit every non-empty module with >=1 call site and >=1 recursive component
+3. activate singleton Program through the existing explicit recursive ingress
+4. require one direct-static function marker and one recursive module marker
+5. migrate high-level fixtures to singleton Program
+6. delete RootCallable source-unit/forest/index activation authority
+7. replace exact-one admission/profile policy with explicit call-forbidden
+   body-only policy plus finite one-or-more Program policy
+8. prove old symbols/callers and every route retry are zero
+```
+
+CUT0 deletes:
+
+```text
+VerifiedResolvedSourceUnitV1::resolve_function_with_root_callable
+ResolvedSourceUnitSemanticsV1::RootCallable and the enum wrapper
+VerifiedResolvedSourceUnitV1::callable_index
+VerifiedResolvedCallableForestV1 and its verification error/file
+FunctionSemanticResolverSessionV1::resolve_forest_with_root_callable
+old callable-forest resolver error variants
+VerifiedCallableIndexV1::seal_one / sole_header
+CallableIndexDraftV1::seal_one
+CallableCatalogCardinalityErrorV1
+one-entry-only seal_exact_i64_header helper
+DirectCallAdmissionV1::ExistingExactOne
+DirectCallPolicyV1::ExactlyOne
+exact-one analyzer facade/implementation and cardinality-only fixtures
+```
+
+`CallableFunctionSyntaxViewV1` is explicitly retained: CAT0/MP0 catalog body
+resolution uses it to keep one declaration's header/body pairing exact, so it
+is not old one-entry authority. `CallableHeaderSyntaxViewV1`, `seal_many`, the
+module carriers, finite analyzer, exact call rows, capabilities, SCC products,
+and atomic transaction are also retained.
+
+After CUT0 the only call-admission policies are:
+
+```text
+body-only compile_resolved: Forbidden
+callable Program plans: FiniteOneOrMore
+```
+
+### R0-G0 — guards and closeout
+
+Production behavior delta is zero. Update the existing resolved-callable
+guards rather than adding a per-row shell script. Prove old type/constructor/
+facade/analyzer symbols and callers are zero, explicit recursive Program
+ingress remains exactly one, route retries remain zero, singleton product
+cardinalities are all one, both marker counts are one, emitted call counts
+match resolved/profile rows, ownership operations remain zero, and every
+modified source/check file stays below 800 lines.
+
+### R0 fail-fast and non-claims
+
+```text
+body-only compile_resolved + FunctionCall -> reject before Builder
+recursive singleton with zero calls/no recursive component -> reject
+recursive failure -> no bare/acyclic/legacy retry
+unsupported backend -> reject before backend effects
+old authority deletion -> same CUT0 commit as singleton production cutover
+```
+
+R0 does not claim source compatibility, general callables, termination, deep
+or constant-stack recursion, tail calls, effect precision, MethodCall,
+receiver, Lambda, Loop, early Return, ownership/Box/View/Shared ABI, imports,
+plugins, FFI, or another backend.
 
 ## Required counters and guards
 
@@ -519,8 +595,7 @@ Stop if implementation requires:
 
 ## Immediate next action
 
-The I1 runtime frame-restoration proof tail is closed. Stop for
-`P0c-MR-R0-D0` design consultation. Decide whether the old bare
-one-function self-call route becomes a compatibility facade or is retired after
-one-function Program parity. Fix source authority, exact parity fixtures,
-backend-marker policy, removal counters, and no-retry boundaries before code.
+Implement `P0c-MR-R0-S0` only: add the disconnected one-or-more admission
+selector and singleton self-recursive fixtures while the production recursive
+ingress continues to reject function count one. Do not begin parity, CUT0,
+symbol retirement, marker changes, or production activation in S0.
