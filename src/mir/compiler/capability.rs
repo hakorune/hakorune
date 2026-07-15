@@ -1,7 +1,9 @@
 //! Whole-unit capability proof before the first Builder effect.
 
 use crate::ast::{ASTNode, BinaryOperator};
-use crate::mir::resolved_control_flow::if_control::verify_resolved_function_if_control_v1;
+use crate::mir::resolved_control_flow::if_control::{
+    verify_resolved_function_if_control_v1, verify_resolved_function_if_control_with_direct_call_v1,
+};
 use crate::mir::resolved_control_flow::{
     verify_function_completion_v1, VerifiedFunctionCompletionV1,
 };
@@ -13,8 +15,8 @@ use crate::mir::resolved_semantics::{
     ResolvedLexicalRefV1, ScopeKindV1, SourceBindingSiteV1,
 };
 use crate::mir::resolved_value_profile::{
-    analyze_trivial_canonical_owner_v1, product::VerifiedTrivialCanonicalOwnerV1,
-    TrivialCanonicalOwnerAnalysisV1,
+    analyze_trivial_canonical_owner_v1, analyze_trivial_canonical_owner_with_direct_call_v1,
+    product::VerifiedTrivialCanonicalOwnerV1, TrivialCanonicalOwnerAnalysisV1,
 };
 
 use super::function_input::ResolvedFunctionLoweringInputV1;
@@ -141,20 +143,53 @@ impl CanonicalLoweringPreflightV1 {
             );
         }
 
+        let direct_call_count = function.function().direct_call_targets().count();
+        let expression_policy = match direct_call_count {
+            0 => FirstFamilyExpressionPolicyV1::Closed,
+            1 if function.callable_index().is_some() => {
+                FirstFamilyExpressionPolicyV1::ExactDirectCall
+            }
+            _ => {
+                return unsupported(
+                    "root",
+                    function.source().root(),
+                    "direct_call_cardinality_not_activated",
+                )
+            }
+        };
+        if expression_policy == FirstFamilyExpressionPolicyV1::ExactDirectCall && params.is_empty()
+        {
+            return unsupported(
+                "root",
+                function.source().root(),
+                "zero_parameter_direct_call_not_activated",
+            );
+        }
+
         let located_body = function.source().root_body().map_err(source_navigation)?;
         debug_assert_eq!(body.len(), located_body.statements().len());
-        let block_expr_count = verify_body(function, &located_body, ReturnPolicyV1::FinalOnly)?;
+        let block_expr_count = verify_body(
+            function,
+            &located_body,
+            ReturnPolicyV1::FinalOnly,
+            expression_policy,
+        )?;
         let completion = verify_function_completion_v1(function).map_err(|error| {
             CanonicalLoweringErrorV1::ResolvedFunctionCompletion {
                 detail: format!("{error:?}"),
             }
         })?;
-        let if_control =
-            verify_resolved_function_if_control_v1(function, &completion).map_err(|error| {
-                CanonicalLoweringErrorV1::ResolvedRegionFlow {
-                    detail: format!("if_control_contract={error:?}"),
-                }
-            })?;
+        let if_control = match expression_policy {
+            FirstFamilyExpressionPolicyV1::Closed => {
+                verify_resolved_function_if_control_v1(function, &completion)
+            }
+            FirstFamilyExpressionPolicyV1::ExactDirectCall => {
+                verify_resolved_function_if_control_with_direct_call_v1(function, &completion)
+            }
+        }
+        .map_err(|error| CanonicalLoweringErrorV1::ResolvedRegionFlow {
+            detail: format!("if_control_contract={error:?}"),
+        })?;
         verify_product_shape(
             function,
             if_control.row_count(),
@@ -162,10 +197,21 @@ impl CanonicalLoweringPreflightV1 {
             block_expr_count,
         )?;
 
-        let profile = analyze_trivial_canonical_owner_v1(function, &completion, &if_control)
-            .map_err(|error| CanonicalLoweringErrorV1::ResolvedRegionFlow {
-                detail: format!("trivial_profile_contract={error:?}"),
-            })?;
+        let profile = match expression_policy {
+            FirstFamilyExpressionPolicyV1::Closed => {
+                analyze_trivial_canonical_owner_v1(function, &completion, &if_control)
+            }
+            FirstFamilyExpressionPolicyV1::ExactDirectCall => {
+                analyze_trivial_canonical_owner_with_direct_call_v1(
+                    function,
+                    &completion,
+                    &if_control,
+                )
+            }
+        }
+        .map_err(|error| CanonicalLoweringErrorV1::ResolvedRegionFlow {
+            detail: format!("trivial_profile_contract={error:?}"),
+        })?;
         match profile {
             TrivialCanonicalOwnerAnalysisV1::Admitted(profile) => {
                 return Ok(CanonicalFirstFamilyPlanV1::TrivialBindingSsa(
@@ -225,10 +271,17 @@ enum ReturnPolicyV1 {
     Forbidden,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum FirstFamilyExpressionPolicyV1 {
+    Closed,
+    ExactDirectCall,
+}
+
 fn verify_body(
     input: ResolvedFunctionLoweringInputV1<'_>,
     body: &LocatedBodyV1<'_>,
     return_policy: ReturnPolicyV1,
+    expression_policy: FirstFamilyExpressionPolicyV1,
 ) -> Result<usize, CanonicalLoweringErrorV1> {
     let mut block_expr_count = 0;
     for index in 0..body.statements().len() {
@@ -237,7 +290,8 @@ fn verify_body(
             .body_stmt(body, index)
             .map_err(source_navigation)?;
         let is_last = index + 1 == body.statements().len();
-        block_expr_count += verify_statement(input, &statement, return_policy, is_last)?;
+        block_expr_count +=
+            verify_statement(input, &statement, return_policy, is_last, expression_policy)?;
     }
     Ok(block_expr_count)
 }
@@ -247,6 +301,7 @@ fn verify_statement(
     statement: &LocatedStmtV1<'_>,
     return_policy: ReturnPolicyV1,
     is_last: bool,
+    expression_policy: FirstFamilyExpressionPolicyV1,
 ) -> Result<usize, CanonicalLoweringErrorV1> {
     let site = format!("{:?}", statement.site());
     match statement.node() {
@@ -273,7 +328,7 @@ fn verify_statement(
                             ExprChildRoleV1::LocalInitializer(index as u32),
                         )
                         .map_err(source_navigation)?;
-                    block_expr_count += verify_expression(input, &initial)?;
+                    block_expr_count += verify_expression(input, &initial, expression_policy)?;
                 }
             }
             Ok(block_expr_count)
@@ -299,25 +354,35 @@ fn verify_statement(
                 .source()
                 .child_expr_from_stmt(statement, ExprChildRoleV1::AssignmentValue)
                 .map_err(source_navigation)?;
-            verify_expression(input, &value)
+            verify_expression(input, &value, expression_policy)
         }
         ASTNode::If { else_body, .. } => {
             let condition = input
                 .source()
                 .child_expr_from_stmt(statement, ExprChildRoleV1::IfCondition)
                 .map_err(source_navigation)?;
-            let mut block_expr_count = verify_expression(input, &condition)?;
+            let mut block_expr_count = verify_expression(input, &condition, expression_policy)?;
             let then_body = input
                 .source()
                 .child_body_from_stmt(statement, BodyChildRoleV1::IfThen)
                 .map_err(source_navigation)?;
-            block_expr_count += verify_body(input, &then_body, ReturnPolicyV1::Forbidden)?;
+            block_expr_count += verify_body(
+                input,
+                &then_body,
+                ReturnPolicyV1::Forbidden,
+                expression_policy,
+            )?;
             if else_body.is_some() {
                 let else_body = input
                     .source()
                     .child_body_from_stmt(statement, BodyChildRoleV1::IfElse)
                     .map_err(source_navigation)?;
-                block_expr_count += verify_body(input, &else_body, ReturnPolicyV1::Forbidden)?;
+                block_expr_count += verify_body(
+                    input,
+                    &else_body,
+                    ReturnPolicyV1::Forbidden,
+                    expression_policy,
+                )?;
             }
             Ok(block_expr_count)
         }
@@ -330,7 +395,7 @@ fn verify_statement(
                     .source()
                     .child_expr_from_stmt(statement, ExprChildRoleV1::ReturnValue)
                     .map_err(source_navigation)?;
-                return verify_expression(input, &value);
+                return verify_expression(input, &value, expression_policy);
             }
             Ok(0)
         }
@@ -342,7 +407,7 @@ fn verify_statement(
                 .source()
                 .statement_expression(statement)
                 .map_err(source_navigation)?;
-            verify_expression(input, &expression)
+            verify_expression(input, &expression, expression_policy)
         }
         _ => unsupported(site, statement.node(), "statement_not_in_first_family"),
     }
@@ -351,6 +416,7 @@ fn verify_statement(
 fn verify_expression(
     input: ResolvedFunctionLoweringInputV1<'_>,
     expression: &LocatedExprV1<'_>,
+    expression_policy: FirstFamilyExpressionPolicyV1,
 ) -> Result<usize, CanonicalLoweringErrorV1> {
     let site = format!("{:?}", expression.site());
     match expression.node() {
@@ -366,7 +432,8 @@ fn verify_expression(
                 .source()
                 .child_expr_from_expr(expression, ExprChildRoleV1::BinaryRight)
                 .map_err(source_navigation)?;
-            Ok(verify_expression(input, &left)? + verify_expression(input, &right)?)
+            Ok(verify_expression(input, &left, expression_policy)?
+                + verify_expression(input, &right, expression_policy)?)
         }
         ASTNode::BlockExpr { .. } => {
             input
@@ -381,12 +448,42 @@ fn verify_expression(
                 .source()
                 .child_body_from_expr(expression, BodyChildRoleV1::BlockExprPrelude)
                 .map_err(source_navigation)?;
-            let prelude_count = verify_body(input, &prelude, ReturnPolicyV1::Forbidden)?;
+            let prelude_count = verify_body(
+                input,
+                &prelude,
+                ReturnPolicyV1::Forbidden,
+                expression_policy,
+            )?;
             let tail = input
                 .source()
                 .child_expr_from_expr(expression, ExprChildRoleV1::BlockExprTail)
                 .map_err(source_navigation)?;
-            Ok(1 + prelude_count + verify_expression(input, &tail)?)
+            Ok(1 + prelude_count + verify_expression(input, &tail, expression_policy)?)
+        }
+        ASTNode::FunctionCall { arguments, .. }
+            if expression_policy == FirstFamilyExpressionPolicyV1::ExactDirectCall
+                && input
+                    .function()
+                    .direct_call_target(expression.site())
+                    .is_some() =>
+        {
+            let mut block_expr_count = 0;
+            for index in 0..arguments.len() {
+                let index = u32::try_from(index).map_err(|_| {
+                    CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape {
+                        site: site.clone(),
+                        actual: expression.node().node_type(),
+                        reason: "direct_call_argument_index_overflow",
+                    }
+                })?;
+                let argument = input
+                    .source()
+                    .child_expr_from_expr(expression, ExprChildRoleV1::CallArgument(index))
+                    .map_err(source_navigation)?;
+                block_expr_count +=
+                    verify_expression(input, &argument, FirstFamilyExpressionPolicyV1::Closed)?;
+            }
+            Ok(block_expr_count)
         }
         _ => unsupported(site, expression.node(), "expression_not_in_first_family"),
     }

@@ -21,6 +21,8 @@ mod block_expr_tests;
 #[cfg(test)]
 mod completion_tests;
 #[cfg(test)]
+mod direct_call_tests;
+#[cfg(test)]
 mod flow_consumption_tests;
 #[cfg(test)]
 mod identity_separation_tests;

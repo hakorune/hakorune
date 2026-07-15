@@ -4,8 +4,6 @@
 //! scanning generic `MirInstruction::Call` instructions, source names, or
 //! parameter/return contracts.
 
-#![allow(dead_code)] // Passive until P0c-I1 installs the first production row.
-
 pub(crate) const CANONICAL_DIRECT_STATIC_CALL_CAPABILITY_V1: &str =
     "canonical_direct_static_call_v1";
 

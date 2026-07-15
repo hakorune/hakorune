@@ -1,6 +1,7 @@
 //! Function-owned Binding SSA lowering for the closed trivial profile.
 
 mod callable_abi;
+mod direct_call;
 mod identity;
 mod lowerer;
 mod operation;

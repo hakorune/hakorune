@@ -332,6 +332,37 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
                 let result = self.lower_block_expr(expression, coverage.as_deref_mut())?;
                 (result.0, Some(result.1))
             }
+            ASTNode::FunctionCall { arguments, .. } => {
+                let mut argument_values = Vec::with_capacity(arguments.len());
+                let mut argument_sites = Vec::with_capacity(arguments.len());
+                for index in 0..arguments.len() {
+                    let index = u32::try_from(index).map_err(|_| {
+                        "[freeze:contract][canonical_direct_call/argument_index_overflow]"
+                            .to_string()
+                    })?;
+                    let argument = self
+                        .input
+                        .source()
+                        .child_expr_from_expr(expression, ExprChildRoleV1::CallArgument(index))
+                        .map_err(|error| error.to_string())?;
+                    let (value, representation) =
+                        self.lower_expr(&argument, coverage.as_deref_mut())?;
+                    require_representation(
+                        representation,
+                        TrivialRepresentationV1::InlineI64,
+                        "direct_call_argument",
+                    )?;
+                    argument_sites.push(argument.site().clone());
+                    argument_values.push(value);
+                }
+                let row = self.profile.claim_direct_call(expression.site())?;
+                if row.arguments() != argument_sites {
+                    return Err(
+                        "[freeze:contract][canonical_direct_call/argument_site_drift]".to_string(),
+                    );
+                }
+                return super::direct_call::emit(self.builder, self.input, &row, argument_values);
+            }
             _ => unreachable!("preflight seals trivial expression grammar"),
         };
         let expected = self.profile.claim_value(expression.site())?;

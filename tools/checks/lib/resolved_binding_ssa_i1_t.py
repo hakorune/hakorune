@@ -10,6 +10,7 @@ import sys
 EXPECTED_BOX = {
     "README.md",
     "callable_abi.rs",
+    "direct_call.rs",
     "identity.rs",
     "lowerer.rs",
     "mod.rs",
@@ -58,6 +59,7 @@ def main() -> None:
         "compiler": root / "src/mir/compiler/mod.rs",
         "builder": root / "src/mir/builder/resolved_lowering/mod.rs",
         "callable_abi": box / "callable_abi.rs",
+        "direct_call": box / "direct_call.rs",
         "identity": box / "identity.rs",
         "lowerer": box / "lowerer.rs",
         "operation": box / "operation.rs",
@@ -130,8 +132,17 @@ def main() -> None:
         ".finish(function)",
         ".commit(self.builder)",
         "self.identity.finish()?",
+        "self.profile.claim_direct_call(expression.site())?",
     ):
         require(text["lowerer"], anchor, "trivial whole-owner lowerer")
+
+    for anchor in (
+        "VerifiedCanonicalDirectCallEmissionV1::from_verified_profile(row)",
+        "row.target().callable().owner() != input.owner()",
+        "row.target().symbol().as_mir_name()",
+        "CanonicalDirectStaticCallCapabilityV1::v1()",
+    ):
+        require(text["direct_call"], anchor, "exact direct-call materializer")
 
     for anchor in (
         "profile.claim_parameter_entry(formal_index)",
@@ -200,7 +211,7 @@ def main() -> None:
     print("canonical_ssa_i1_t_ownership_opcode_callers=0")
     print(
         "canonical_ssa_i1_t_accepted_grammar_delta="
-        "exact-static-i64-parameters-and-return"
+        "exact-static-i64-parameters-return-and-one-self-call"
     )
 
 

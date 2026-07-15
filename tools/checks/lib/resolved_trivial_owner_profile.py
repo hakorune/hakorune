@@ -504,7 +504,9 @@ def main() -> None:
             f"{external_profile_references}"
         )
     if set(external_module_references) != {
+        "src/mir/canonical_direct_call.rs",
         "src/mir/builder/resolved_lowering/trivial_ssa/callable_abi.rs",
+        "src/mir/builder/resolved_lowering/trivial_ssa/direct_call.rs",
         "src/mir/builder/resolved_lowering/trivial_ssa/operation.rs",
         "src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs",
         "src/mir/builder/resolved_lowering/trivial_ssa/parameter_entry.rs",

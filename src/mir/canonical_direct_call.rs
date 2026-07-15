@@ -4,12 +4,11 @@
 //! box never resolves source names, consults the MIR module table, or invokes
 //! legacy call recovery.
 
-#![allow(dead_code)] // Passive until P0c-S0 supplies the first sealed call row.
-
 use crate::mir::canonical_direct_call_contract::{
     VerifiedDirectCallEffectV1, VerifiedTrivialDirectCallTargetV1,
 };
 use crate::mir::resolved_semantics::VerifiedCallableHeaderV1;
+use crate::mir::resolved_value_profile::VerifiedTrivialDirectCallV1;
 use crate::mir::{Callee, Effect, EffectMask, MirInstruction, ValueId};
 
 fn materialize_effect(effect: VerifiedDirectCallEffectV1) -> EffectMask {
@@ -46,6 +45,13 @@ impl VerifiedCanonicalDirectCallEmissionV1 {
         Self {
             target: VerifiedTrivialDirectCallTargetV1::from_header(header),
             effect: VerifiedDirectCallEffectV1::ConservativeBarrier,
+        }
+    }
+
+    pub(crate) fn from_verified_profile(row: &VerifiedTrivialDirectCallV1) -> Self {
+        Self {
+            target: row.target().clone(),
+            effect: row.effect(),
         }
     }
 

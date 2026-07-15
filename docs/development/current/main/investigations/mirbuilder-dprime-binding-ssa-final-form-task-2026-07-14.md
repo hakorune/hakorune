@@ -1,5 +1,5 @@
 ---
-Status: Active — P0c-S0b closed; atomic P0c-I1 next
+Status: Active — P0c-I1 closed; P0c-CAT0 module callable catalog design stop next
 Date: 2026-07-15
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
 Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-I1-ATOMIC-ACTIVATION-001
@@ -2412,10 +2412,12 @@ state.
 
 ## Immediate next action
 
-Implement **P0c-I1 — atomic first source-call activation**. Admit exactly one
-current-owner FunctionCall with exact-i64 arguments/result, consume the sealed
-direct-call row in canonical Lower, materialize one ordinary result ValueId and
-exact Callee::Global with the conservative effect, publish only after profile/
-SSA/CFG/MIR verification, and activate the explicit Rust-interpreter backend
-capability. Keep raw name lookup, legacy call recovery, retry/fallback, sibling
-calls, MethodCall/receiver, ownership operations, and backend widening at zero.
+Stop at **P0c-CAT0 — module callable catalog design boundary**. P0c-I1 now
+admits exactly one current-owner FunctionCall with exact-i64 arguments/result
+through the generic co-sealed call row, without raw-name lookup, legacy
+recovery, fallback, or ownership operations.
+
+Before CAT0 implementation, fix the module/header source authority, duplicate
+and ambiguity law, declaration-order independence, body-analysis seal order,
+and its boundary with the later all-or-nothing multi-function publication row.
+Do not infer this catalog from MIR module symbols or legacy global-call lookup.

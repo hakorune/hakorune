@@ -4,8 +4,6 @@
 //! projection is derived once from the source-unit callable index and can be
 //! consumed by both the disconnected value profile and the later materializer.
 
-#![allow(dead_code)] // Passive until P0c-I1 activates source calls.
-
 use crate::mir::resolved_semantics::{
     CanonicalCallableSymbolV1, ExactTrivialCallableSignatureV1, ResolvedCallableRefV1,
     VerifiedCallableHeaderV1,

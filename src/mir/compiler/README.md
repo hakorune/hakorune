@@ -13,9 +13,10 @@ module, entry-block, or FunctionRegion state.
 - A private request enum is matched once in `MirCompiler` and never reaches
   recursive Lower.
 - Canonical failure never retries through the legacy route.
-- `VerifiedResolvedSourceUnitV1::resolve_function` is the sole production
-  constructor. It owns one AST and resolves/seals its forest and exact source
-  projection in the same call.
+- Production ingress is explicit by owner family. `resolve_function` owns the
+  body-only family; `resolve_function_with_root_callable` owns the exact P0c
+  current-owner self-call family. Both own one AST and co-seal its forest and
+  exact source projection. Neither retries through the other.
 
 Exact child-site navigation belongs to B0-L2b. Function transaction cleanup
 belongs to B0-L2c. BindingId adoption and production semantic activation belong
@@ -79,3 +80,16 @@ BindingRefs, and returns the tail ValueId after balanced leave. The default
 bare-AST route, ProgramV0, REPL, Main, instance methods, Lambda,
 If/Loop/CorePlan, and Planner remain outside it. Canonical failure never
 retries legacy.
+
+## P0c-I1 exact direct-call ingress
+
+`resolve_function_with_root_callable` first seals the root callable header and
+one-entry `VerifiedCallableIndexV1`, then resolves the body against that same
+index before any Builder effect. Production preflight accepts exactly one
+current-owner `FunctionCall` with exact `i64` arguments/result. A co-sealed
+direct-call row, not the raw call name, is the only Lower input.
+
+The materializer emits one ordinary call-result `ValueId`, one conservative
+barrier call, and one explicit VM-only direct-call capability. It performs no
+legacy call resolution, name heuristic, fallback, or ownership operation.
+Sibling calls and a multi-entry callable catalog remain outside this ingress.

@@ -1,8 +1,8 @@
 ---
-Status: Active — P0c-S0b closed; atomic P0c-I1 next
+Status: Closed — P0c-I1 production activation green; P0c-CAT0 design stop next
 Date: 2026-07-15
 Decision: A′ — exact current-owner self call over a generic one-entry callable index
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-I64-I1-ATOMIC-ACTIVATION-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-CAT0-MODULE-CALLABLE-CATALOG-DESIGN-STOP-001
 Related:
   - mirbuilder-ssa-i1-compat-static-i64-parameter-selection-2026-07-15.md
   - mirbuilder-ssa-i1-compat-static-i64-return-selection-2026-07-15.md
@@ -711,9 +711,19 @@ explicit direct-call backend capability gate
 fallback/retry = 0
 ```
 
-Do not begin P0c-S0b before P0c-S0a is green, or P0c-I1 before both S0 rows
-are green. S0a and S0b are separate commits under one Refactor Series Mode
-objective; neither changes production grammar, routing, or runtime behavior.
+Closed on 2026-07-15. The explicit call-enabled source-unit ingress resolves
+the target before Builder effects; production preflight admits one exact call;
+the trivial Binding-SSA lowerer consumes the whole co-sealed row and emits one
+conservative `Callee::Global` call plus the explicit VM-only capability.
+
+Focused evidence covers recursion depth 0/1/multiple, argument arithmetic and
+post-If PHI input, local/assignment/final-return result use, per-frame entry and
+return contracts, pre-Builder rejection, body-only ingress isolation, backend
+fail-fast, zero ownership operations, and zero legacy/name/fallback calls.
+
+S0a and S0b landed as separate behavior-neutral commits before the atomic I1
+activation. The next row must not widen I1; P0c-CAT0 starts at the module
+callable-catalog design boundary.
 
 ## Required fixtures
 

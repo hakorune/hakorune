@@ -91,10 +91,11 @@ impl VerifiedResolvedSourceUnitV1 {
         })
     }
 
-    /// Disconnected P0c ingress carrying the root callable index together
-    /// with the exact semantic forest. Production routing remains on
-    /// `resolve_function` until the atomic P0c-I1 activation.
-    pub(crate) fn resolve_function_with_root_callable(
+    /// Exact P0c ingress carrying the root callable index together with the
+    /// semantic forest.  Call target resolution is completed here, before
+    /// Builder effects; the ordinary `resolve_function` ingress remains
+    /// call-disabled and never retries through this constructor.
+    pub fn resolve_function_with_root_callable(
         root: ASTNode,
     ) -> Result<Self, CanonicalLoweringErrorV1> {
         use crate::mir::resolved_semantics::{
