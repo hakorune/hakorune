@@ -1,12 +1,12 @@
 ---
-Status: Accepted and taskized — A′+; CAT0-D0/L0/S0 closed, CAT0-C0a next
+Status: Accepted and taskized — A′+; CAT0-D0/L0/S0/C0a closed, CAT0-C0b next
 Date: 2026-07-15
 Decision: A′+ — Program/catalog co-seal + single-use resolver continuation + canonical-key module identity
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-CAT0-C0A-OWNER-FREE-HEADER-CANDIDATES-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-CAT0-C0B-CATALOG-OWNER-RESERVATION-001
 Parent taskboard: mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
 Previous closed card: mirbuilder-ssa-i1-compat-p0c-i64-call-design-stop-2026-07-15.md
 Decision-input baseline commit: ec570ea696
-Next code-facing row: CAT0-C0a
+Next code-facing row: CAT0-C0b
 ---
 
 # P0c-CAT0 Module Callable Catalog — A′+ Decision and Taskboard
@@ -470,7 +470,7 @@ CAT0-S0:
   function-only whole-surface coverage; body reads = 0
 
 CAT0-C0a:
-  code row
+  CLOSED — code row
   owner-free header candidate validation
   duplicate/profile/symbol rejection before identity issuance
 
@@ -599,6 +599,36 @@ verification:
 ```
 
 State: closed on 2026-07-15. The next code-facing row is `CAT0-C0a`.
+
+### CAT0-C0a exit gate
+
+```text
+candidate authority:
+  one declaration-site-keyed owner-free candidate primary store
+  callable key and physical symbol reverse maps store declaration sites only
+  exact static non-main all-i64 profile is validated before owner issuance
+
+duplicate law:
+  same exact name/arity rejects with first and second declaration sites
+  same name with different arity remains legal
+  deterministic symbol collisions reject before publication
+
+non-delta:
+  FunctionOriginV1 / FunctionOwnerIdV1 issuance = 0
+  immutable owned callable catalog = 0
+  resolver continuation / body resolution / sibling call = 0
+  Builder / Lower / runtime / grammar / ownership behavior = 0
+
+verification:
+  focused owner-free candidate fixtures = 4/4
+  resolved semantics = 137/137
+  callable authority guard = green
+  release build = green
+  quick gate = 66/66
+  all touched source/check files < 800 lines
+```
+
+State: closed on 2026-07-15. The next code-facing row is `CAT0-C0b`.
 
 ### MP0-TX0 exit gate
 

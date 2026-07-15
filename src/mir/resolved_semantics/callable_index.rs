@@ -107,6 +107,50 @@ pub(crate) struct VerifiedCallableHeaderV1 {
     signature: ExactTrivialCallableSignatureV1,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct VerifiedOwnerFreeCallableHeaderV1 {
+    source_key: CanonicalCallableKeyV1,
+    symbol: CanonicalCallableSymbolV1,
+    signature: ExactTrivialCallableSignatureV1,
+}
+
+impl VerifiedOwnerFreeCallableHeaderV1 {
+    pub(super) fn seal(
+        view: CallableHeaderSyntaxViewV1<'_>,
+    ) -> Result<Self, CallableIndexSealErrorV1> {
+        validate_exact_i64_header(view)?;
+        let arity = u32::try_from(view.params().len())
+            .map_err(|_| CallableIndexSealErrorV1::ArityOverflow)?;
+        let source_key = CanonicalCallableKeyV1::free_static(view.name(), arity);
+        Ok(Self {
+            symbol: CanonicalCallableSymbolV1::from_key(&source_key),
+            signature: ExactTrivialCallableSignatureV1::exact_i64(view.params().len()),
+            source_key,
+        })
+    }
+
+    pub(crate) const fn source_key(&self) -> &CanonicalCallableKeyV1 {
+        &self.source_key
+    }
+
+    pub(crate) const fn symbol(&self) -> &CanonicalCallableSymbolV1 {
+        &self.symbol
+    }
+
+    pub(crate) const fn signature(&self) -> &ExactTrivialCallableSignatureV1 {
+        &self.signature
+    }
+
+    fn attach_owner(self, owner: FunctionOwnerIdV1) -> VerifiedCallableHeaderV1 {
+        VerifiedCallableHeaderV1 {
+            callable: ResolvedCallableRefV1::new(owner),
+            source_key: self.source_key,
+            symbol: self.symbol,
+            signature: self.signature,
+        }
+    }
+}
+
 impl VerifiedCallableHeaderV1 {
     pub(crate) const fn callable(&self) -> ResolvedCallableRefV1 {
         self.callable
@@ -293,6 +337,12 @@ fn seal_exact_i64_header(
     owner: FunctionOwnerIdV1,
     view: CallableHeaderSyntaxViewV1<'_>,
 ) -> Result<VerifiedCallableHeaderV1, CallableIndexSealErrorV1> {
+    Ok(VerifiedOwnerFreeCallableHeaderV1::seal(view)?.attach_owner(owner))
+}
+
+fn validate_exact_i64_header(
+    view: CallableHeaderSyntaxViewV1<'_>,
+) -> Result<(), CallableIndexSealErrorV1> {
     if !view.is_static() {
         return Err(CallableIndexSealErrorV1::StaticRequired);
     }
@@ -335,15 +385,7 @@ fn seal_exact_i64_header(
         return Err(CallableIndexSealErrorV1::ReturnTypeOutsideProfile);
     }
 
-    let arity =
-        u32::try_from(view.params().len()).map_err(|_| CallableIndexSealErrorV1::ArityOverflow)?;
-    let source_key = CanonicalCallableKeyV1::free_static(view.name(), arity);
-    Ok(VerifiedCallableHeaderV1 {
-        callable: ResolvedCallableRefV1::new(owner),
-        symbol: CanonicalCallableSymbolV1::from_key(&source_key),
-        signature: ExactTrivialCallableSignatureV1::exact_i64(view.params().len()),
-        source_key,
-    })
+    Ok(())
 }
 
 #[cfg(test)]

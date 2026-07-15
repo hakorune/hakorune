@@ -17,6 +17,7 @@ callable_index = root / "src/mir/resolved_semantics/callable_index.rs"
 header_view = root / "src/mir/resolved_semantics/callable_header_view.rs"
 module_header_view = root / "src/mir/resolved_semantics/callable_module_header_view.rs"
 catalog_source_unit = root / "src/mir/resolved_semantics/callable_catalog_source_unit.rs"
+catalog_candidate = root / "src/mir/resolved_semantics/callable_catalog_candidate.rs"
 direct_call = root / "src/mir/canonical_direct_call.rs"
 direct_call_contract = root / "src/mir/canonical_direct_call_contract.rs"
 direct_call_profile = root / "src/mir/resolved_value_profile/direct_call.rs"
@@ -65,6 +66,16 @@ required = {
         "declaration_sites",
         "located_header",
     ],
+    catalog_candidate: [
+        "VerifiedOwnerFreeCallableCatalogSourceUnitV1",
+        "VerifiedOwnerFreeCallableHeaderV1",
+        "candidates_by_site",
+        "site_by_key",
+        "site_by_symbol",
+        "HeaderOutsideExactI64Profile",
+        "DuplicateSourceKey",
+        "PhysicalSymbolCollision",
+    ],
     owner_resolver: ["resolve_forest_with_root_callable"],
     resolved_target: ["ResolvedDirectCallTargetV1", "ResolvedCallableRefV1"],
     resolved_unit: [
@@ -112,11 +123,25 @@ for path in [module_header_view, catalog_source_unit]:
         if forbidden in text:
             fail(f"CAT0-S0 header-only surface owns forbidden authority {forbidden!r}")
 
+candidate_text = catalog_candidate.read_text()
+for forbidden in [
+    "FunctionOwnerIdV1",
+    "FunctionOwnerIssuerV1",
+    "FunctionOriginV1",
+    "VerifiedCallableIndexV1",
+    "MirInstruction",
+    "MirBuilder",
+]:
+    if forbidden in candidate_text:
+        fail(f"CAT0-C0a owner-free candidate owns forbidden authority {forbidden!r}")
+
 source_unit_users = []
 for path in (root / "src").rglob("*.rs"):
     if path in {
         catalog_source_unit,
+        catalog_candidate,
         root / "src/mir/resolved_semantics/callable_catalog_source_unit_tests.rs",
+        root / "src/mir/resolved_semantics/callable_catalog_candidate_tests.rs",
         root / "src/mir/resolved_semantics/mod.rs",
     }:
         continue
@@ -124,6 +149,19 @@ for path in (root / "src").rglob("*.rs"):
         source_unit_users.append(str(path.relative_to(root)))
 if source_unit_users:
     fail(f"CAT0-S0 source unit has production callers: {source_unit_users}")
+
+candidate_users = []
+for path in (root / "src").rglob("*.rs"):
+    if path in {
+        catalog_candidate,
+        root / "src/mir/resolved_semantics/callable_catalog_candidate_tests.rs",
+        root / "src/mir/resolved_semantics/mod.rs",
+    }:
+        continue
+    if "VerifiedOwnerFreeCallableCatalogSourceUnitV1" in path.read_text():
+        candidate_users.append(str(path.relative_to(root)))
+if candidate_users:
+    fail(f"CAT0-C0a candidate product has production callers: {candidate_users}")
 
 callable_index_text = callable_index.read_text()
 for forbidden in ["only_header(", ".values().find", ".values()\n            .find"]:

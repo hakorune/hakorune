@@ -2412,13 +2412,14 @@ state.
 
 ## Immediate next action
 
-Implement **CAT0-C0a — owner-free header candidate validation**.
+Implement **CAT0-C0b — catalog owner reservation and co-seal**.
 P0c-I1 already admits exactly one current-owner FunctionCall with exact-i64
 arguments/result through the generic co-sealed call row, without raw-name
 lookup, legacy recovery, fallback, or ownership operations. The CAT0 design
 stop is closed as A′+, CAT0-L0 has closed the behavior-neutral primary
-header/reverse-index substrate, and CAT0-S0 now owns one exact function-only
-Program surface without body authority.
+header/reverse-index substrate, CAT0-S0 owns one exact function-only Program
+surface without body authority, and CAT0-C0a now seals every exact-i64 header
+candidate plus duplicate key/symbol laws before identity issuance.
 
 Decision/task card:
 `mirbuilder-ssa-i1-compat-p0c-cat0-module-callable-catalog-consultation-2026-07-15.md`.
@@ -2447,13 +2448,14 @@ single-root semantic owner forest. MP0 is keyed by canonical callable key,
 resolves bodies only after the complete catalog exists, and batch-publishes
 verified drafts only after exact catalog/draft correspondence is sealed.
 
-CAT0-C0a must consume only the S0 body-free located headers, validate every
-owner-free exact-i64 candidate, and reject duplicate source keys/profile drift
-before any FunctionOriginV1 or FunctionOwnerIdV1 is issued. It must not add a
-second Program surface, inspect bodies, build the final owned catalog, create
-the resolver continuation, activate sibling calls, or infer targets from MIR
-module symbols or legacy global-call lookup. Grammar, route, runtime, MIR
-publication, and ownership operations remain unchanged.
+CAT0-C0b must consume the co-owned C0a candidate product, reserve every
+top-level FunctionOriginV1/FunctionOwnerIdV1 from one resolver session, attach
+those owners to the immutable callable index and declaration rows, and return
+one opaque non-Clone continuation preserving both the next function ordinal
+and same-branded owner issuer. It must not inspect bodies, create per-function
+forests/projections, activate sibling calls, or infer targets from MIR module
+symbols or legacy global-call lookup. Grammar, route, runtime, MIR publication,
+and ownership operations remain unchanged.
 
 Ownership V2 parser/resolver/MIR work and `.hako` selfhost parser/MIR-builder
 migration remain separate parked lanes. They are not hidden CAT0 prerequisites

@@ -249,6 +249,15 @@ profiles, issue owners, build a multi-header index, resolve bodies, or connect
 Builder/Lower/runtime behavior. Those responsibilities begin at CAT0-C0a and
 later rows.
 
+CAT0-C0a consumes that S0 source unit into one owner-free candidate product.
+The primary candidate store is declaration-site keyed; exact callable key and
+physical symbol indexes point back to those sites and do not duplicate a
+candidate. Every header must satisfy the exact static non-main all-`i64`
+profile, and duplicate keys reject with both source sites before any
+`FunctionOriginV1` or `FunctionOwnerIdV1` is issued. Candidate sealing still
+does not resolve bodies, create the immutable owned catalog, or connect a
+production caller.
+
 ## Authority
 
 - The canonical AST owns syntax and source execution order.
