@@ -95,10 +95,20 @@ impl CanonicalLoweringPreflightV1 {
     pub(crate) fn verify(
         unit: &VerifiedResolvedSourceUnitV1,
     ) -> Result<CanonicalFirstFamilyPlanV1<'_>, CanonicalLoweringErrorV1> {
-        if unit.forest().owner_count() != 1 || !unit.forest().upvars().is_empty() {
-            return unsupported("source_unit", unit.syntax_root(), "owner_family_not_closed");
-        }
         let function = unit.root_function_input()?;
+        Self::verify_function(function)
+    }
+
+    pub(crate) fn verify_function<'a>(
+        function: ResolvedFunctionLoweringInputV1<'a>,
+    ) -> Result<CanonicalFirstFamilyPlanV1<'a>, CanonicalLoweringErrorV1> {
+        if function.forest().owner_count() != 1 || !function.forest().upvars().is_empty() {
+            return unsupported(
+                "source_unit",
+                function.source().root(),
+                "owner_family_not_closed",
+            );
+        }
         let ASTNode::FunctionDeclaration {
             name,
             params,

@@ -40,6 +40,7 @@ pub(crate) use callable_catalog::{
 pub(crate) use callable_catalog_candidate::{
     CallableCatalogCandidateSealErrorV1, VerifiedOwnerFreeCallableCatalogSourceUnitV1,
 };
+pub(in crate::mir) use callable_catalog_resolution_source::locate_catalog_function_v1;
 pub(crate) use callable_header_source_unit::VerifiedCallableHeaderSourceUnitV1;
 pub(crate) use callable_header_view::{CallableFunctionSyntaxViewV1, CallableHeaderSyntaxViewV1};
 pub(crate) use callable_index::{

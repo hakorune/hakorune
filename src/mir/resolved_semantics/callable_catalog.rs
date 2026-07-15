@@ -101,6 +101,10 @@ impl VerifiedCallableCatalogSourceUnitV1 {
         &self.catalog
     }
 
+    pub(super) const fn resolution_syntax(&self) -> &VerifiedCallableHeaderSourceUnitV1 {
+        &self.source
+    }
+
     pub(in crate::mir) fn into_resolution_source(self) -> CallableCatalogResolutionSourceV1 {
         CallableCatalogResolutionSourceV1::begin(self)
     }

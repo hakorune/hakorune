@@ -67,3 +67,16 @@ impl CallableCatalogResolutionSourceV1 {
         VerifiedCallableCatalogSourceUnitV1::restore_after_resolution(self.source, self.catalog)
     }
 }
+
+pub(in crate::mir) fn locate_catalog_function_v1(
+    source: &VerifiedCallableCatalogSourceUnitV1,
+    site: SourceCallableDeclarationSiteV1,
+) -> Option<LocatedCallableResolutionViewV1<'_>> {
+    let root = source.resolution_syntax().function_ast(site)?;
+    let views = CallableFunctionSyntaxViewV1::from_function_ast(root)?;
+    Some(LocatedCallableResolutionViewV1 {
+        site,
+        root,
+        function: views.function(),
+    })
+}

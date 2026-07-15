@@ -1,11 +1,12 @@
 //! Owner-closed input derived only from a verified resolved source unit.
 
 use crate::mir::resolved_semantics::{
-    FunctionOwnerIdV1, VerifiedCallableIndexV1, VerifiedResolvedFunctionV1,
-    VerifiedSemanticOwnerForestV1,
+    locate_catalog_function_v1, CanonicalCallableKeyV1, FunctionOwnerIdV1, VerifiedCallableIndexV1,
+    VerifiedResolvedFunctionV1, VerifiedSemanticOwnerForestV1,
 };
 
 use super::lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1};
+use super::resolved_callable_module::VerifiedResolvedCallableModuleV1;
 use super::source_view::FunctionSourceViewV1;
 
 #[derive(Debug, Clone, Copy)]
@@ -42,6 +43,50 @@ impl VerifiedResolvedSourceUnitV1 {
             function,
             forest: self.forest(),
             callable_index: self.callable_index(),
+        })
+    }
+}
+
+impl VerifiedResolvedCallableModuleV1 {
+    pub(crate) fn function_input(
+        &self,
+        key: &CanonicalCallableKeyV1,
+    ) -> Result<ResolvedFunctionLoweringInputV1<'_>, CanonicalLoweringErrorV1> {
+        let unit =
+            self.function(key)
+                .ok_or_else(|| CanonicalLoweringErrorV1::SourceUnitResolution {
+                    detail: "resolved_callable_module_function_missing".to_string(),
+                })?;
+        let header = self.source().catalog().index().lookup(key).ok_or_else(|| {
+            CanonicalLoweringErrorV1::SourceUnitResolution {
+                detail: "resolved_callable_module_header_missing".to_string(),
+            }
+        })?;
+        let located = locate_catalog_function_v1(self.source(), unit.declaration_site())
+            .ok_or_else(|| CanonicalLoweringErrorV1::SourceNavigation {
+                detail: "resolved_callable_module_function_syntax_missing".to_string(),
+            })?;
+        let owner = header.callable().owner();
+        let function = unit.forest().owner(owner).ok_or_else(|| {
+            CanonicalLoweringErrorV1::SourceUnitResolution {
+                detail: "resolved_callable_module_root_product_missing".to_string(),
+            }
+        })?;
+        let source = FunctionSourceViewV1::from_exact_parts(
+            located.root(),
+            owner,
+            unit.forest(),
+            unit.projection(),
+        )
+        .map_err(|error| CanonicalLoweringErrorV1::SourceNavigation {
+            detail: error.to_string(),
+        })?;
+        Ok(ResolvedFunctionLoweringInputV1 {
+            owner,
+            source,
+            function,
+            forest: unit.forest(),
+            callable_index: Some(self.source().catalog().index()),
         })
     }
 }

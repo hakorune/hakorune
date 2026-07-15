@@ -27,6 +27,11 @@ catalog_tests = root / "src/mir/resolved_semantics/callable_catalog_tests.rs"
 callable_index_tests = root / "src/mir/resolved_semantics/callable_index_tests.rs"
 resolved_module = root / "src/mir/compiler/resolved_callable_module.rs"
 resolved_module_tests = root / "src/mir/compiler/resolved_callable_module_tests.rs"
+module_preflight = root / "src/mir/compiler/resolved_callable_module_preflight.rs"
+module_preflight_tests = (
+    root / "src/mir/compiler/resolved_callable_module_preflight_tests.rs"
+)
+function_input = root / "src/mir/compiler/function_input.rs"
 direct_call = root / "src/mir/canonical_direct_call.rs"
 direct_call_contract = root / "src/mir/canonical_direct_call_contract.rs"
 direct_call_profile = root / "src/mir/resolved_value_profile/direct_call.rs"
@@ -137,6 +142,18 @@ required = {
     resolved_module_tests: [
         "passive_module_carrier_exposes_only_the_canonical_keyed_primary_map",
         "passive_function_unit_keeps_site_forest_and_projection_together",
+    ],
+    module_preflight: [
+        "VerifiedCallableModulePreflightV1",
+        "CallableModulePreflightErrorV1",
+        "BTreeMap<CanonicalCallableKeyV1, CanonicalFirstFamilyPlanV1<'a>>",
+        "CanonicalLoweringPreflightV1::verify_function",
+        "CardinalityMismatch",
+    ],
+    module_preflight_tests: [
+        "seals_every_function_plan_before_publishing_the_module_preflight",
+        "declaration_order_does_not_change_the_canonical_preflight_key_set",
+        "one_late_function_failure_publishes_no_partial_preflight_product",
     ],
     owner_resolver: [
         "resolve_forest_with_root_callable",
@@ -268,6 +285,16 @@ for forbidden in ["MirBuilder", "MirInstruction", "ValueId", "BasicBlockId"]:
 if resolution_source_text.count("CallableCatalogResolutionSourceV1 {") != 2:
     fail("MP0-R0 consuming source view gained a second construction authority")
 
+module_preflight_text = module_preflight.read_text()
+for forbidden in [
+    "MirBuilder",
+    "MirInstruction",
+    "MirFunction",
+    "MirModule",
+]:
+    if forbidden in module_preflight_text:
+        fail(f"MP0-P0 preflight owns forbidden effect authority {forbidden!r}")
+
 source_unit_users = []
 for path in (root / "src").rglob("*.rs"):
     if path in {
@@ -279,6 +306,7 @@ for path in (root / "src").rglob("*.rs"):
         root / "src/mir/resolved_semantics/callable_catalog_candidate_tests.rs",
         catalog_tests,
         resolved_module_tests,
+        module_preflight_tests,
         root / "src/mir/resolved_semantics/mod.rs",
     }:
         continue
@@ -295,6 +323,7 @@ for path in (root / "src").rglob("*.rs"):
         root / "src/mir/resolved_semantics/callable_catalog_candidate_tests.rs",
         catalog_tests,
         resolved_module_tests,
+        module_preflight_tests,
         root / "src/mir/resolved_semantics/mod.rs",
     }:
         continue
@@ -311,6 +340,7 @@ for path in (root / "src").rglob("*.rs"):
         catalog_resolution_source,
         resolved_module,
         resolved_module_tests,
+        module_preflight_tests,
         root / "src/mir/resolved_semantics/mod.rs",
     }:
         continue
@@ -324,6 +354,9 @@ for path in (root / "src").rglob("*.rs"):
     if path in {
         resolved_module,
         resolved_module_tests,
+        function_input,
+        module_preflight,
+        module_preflight_tests,
         root / "src/mir/compiler/mod.rs",
     }:
         continue
@@ -477,6 +510,9 @@ for path in [
     direct_call_lower_tests,
     resolved_module,
     resolved_module_tests,
+    function_input,
+    module_preflight,
+    module_preflight_tests,
     catalog_resolution_source,
     root / "src/mir/canonical_direct_static_call_backend_capability_tests.rs",
 ]:

@@ -19,12 +19,16 @@ mod module_session;
 #[allow(dead_code)]
 pub(in crate::mir) mod resolved_callable_module;
 #[allow(dead_code)]
+pub(in crate::mir) mod resolved_callable_module_preflight;
+#[allow(dead_code)]
 mod source_projection;
 #[allow(dead_code)]
 pub(in crate::mir) mod source_view;
 
 #[cfg(test)]
 mod capability_tests;
+#[cfg(test)]
+mod resolved_callable_module_preflight_tests;
 #[cfg(test)]
 mod resolved_callable_module_tests;
 #[cfg(test)]

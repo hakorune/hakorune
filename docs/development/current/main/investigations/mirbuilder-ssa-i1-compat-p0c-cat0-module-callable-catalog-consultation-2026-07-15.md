@@ -1,12 +1,12 @@
 ---
-Status: Accepted and taskized — A′+; MP0-R0 closed, MP0-P0 next
+Status: Accepted and taskized — A′+; MP0-P0 closed, MP0-TX0 next
 Date: 2026-07-15
 Decision: A′+ — Program/catalog co-seal + single-use resolver continuation + canonical-key module identity
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-MP0-P0-WHOLE-MODULE-PREFLIGHT-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-MP0-TX0-ATOMIC-DRAFT-PUBLICATION-001
 Parent taskboard: mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
 Previous closed card: mirbuilder-ssa-i1-compat-p0c-i64-call-design-stop-2026-07-15.md
 Decision-input baseline commit: ec570ea696
-Next code-facing row: MP0-P0
+Next code-facing row: MP0-TX0
 ---
 
 # P0c-CAT0 Module Callable Catalog — A′+ Decision and Taskboard
@@ -500,7 +500,7 @@ MP0-R0:
   consume resolver continuation for same-brand lambda owners
 
 MP0-P0:
-  code/fixture row
+  CLOSED — code/fixture/guard row
   whole-module preflight before Builder effects
 
 MP0-TX0:
@@ -770,6 +770,46 @@ verification:
 State: closed on 2026-07-15. The next code-facing row is `MP0-P0`, which must
 run whole-module capability/profile preflight over this resolved carrier before
 any Builder effect.
+
+### MP0-P0 exit gate
+
+```text
+input:
+  every CanonicalCallableKeyV1 obtains one exact function input from the same
+  Program/catalog-owned VerifiedResolvedCallableModuleV1
+  FunctionSourceViewV1 is assembled from the already sealed header/body parts
+  complete immutable callable index is reused for every function
+
+preflight:
+  existing function-level CanonicalLoweringPreflightV1 remains the sole
+  capability/profile admission authority
+  every function plan is accumulated in a temporary canonical-keyed map
+  the module preflight product is returned only after exact cardinality match
+  a late function failure returns no partial module preflight product
+
+proof:
+  all-function exact-i64 call-free module = pass
+  declaration reorder preserves the canonical plan key set
+  invalid later function leaves module product publication at 0
+  focused preflight fixtures = 3/3
+  resolved callable module fixtures including preflight = 9/9
+  capability fixtures = 5/5
+  resolved semantics debug suite = 144/144
+  generated resolved-callable authority guard = green
+  release build = green
+  quick gate = 66/66
+  all touched source/check files < 800 lines
+
+non-delta:
+  Builder / MIR draft / MirFunction / MirModule publication = 0
+  runtime / backend / ownership operation delta = 0
+  production sibling-call activation = 0
+  direct-call profile remains the existing exact one-entry self-call profile
+```
+
+State: closed on 2026-07-15. The next code-facing row is `MP0-TX0`, which must
+keep every function draft unpublished through individual verification and
+batch-publish only after exact catalog/draft correspondence is sealed.
 
 ### MP0-TX0 exit gate
 

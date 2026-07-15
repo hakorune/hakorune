@@ -191,16 +191,25 @@ impl<'a> FunctionSourceViewV1<'a> {
         unit: &'a VerifiedResolvedSourceUnitV1,
         owner: FunctionOwnerIdV1,
     ) -> Result<Self, SourceNavigationErrorV1> {
-        if unit.forest().owner(owner).is_none() {
+        Self::from_exact_parts(unit.syntax_root(), owner, unit.forest(), unit.projection())
+    }
+
+    pub(super) fn from_exact_parts(
+        unit_syntax_root: &'a ASTNode,
+        owner: FunctionOwnerIdV1,
+        forest: &'a VerifiedSemanticOwnerForestV1,
+        projection: &'a VerifiedSourceProjectionV1,
+    ) -> Result<Self, SourceNavigationErrorV1> {
+        if forest.owner(owner).is_none() {
             return Err(SourceNavigationErrorV1::UnknownOwner(owner));
         }
-        let owner_root = unit.projection().owner_root(unit.syntax_root(), owner)?;
+        let owner_root = projection.owner_root(unit_syntax_root, owner)?;
         Ok(Self {
             owner,
-            unit_syntax_root: unit.syntax_root(),
+            unit_syntax_root,
             owner_root,
-            forest: unit.forest(),
-            projection: unit.projection(),
+            forest,
+            projection,
         })
     }
 
