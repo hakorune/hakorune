@@ -1,8 +1,8 @@
 ---
-Status: Closed through P0c-F-V0; read-only census evidence next
+Status: Closed through P0c-F-CENSUS0; P0c-F-I1 next
 Date: 2026-07-15
 Decision: P0c-F absorbs P0c-N; P0c-MR remains parked
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-F-CENSUS0-SELFHOST-EVIDENCE-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-F-I1-ATOMIC-ACYCLIC-MODULE-ACTIVATION-001
 Production baseline: 315747061e
 Consultation packet: mirbuilder-p0c-next-callable-widening-consultation-question-2026-07-15.md
 Previous card: mirbuilder-ssa-i1-compat-p0c-cat0-module-callable-catalog-consultation-2026-07-15.md
@@ -28,8 +28,7 @@ then, only after a new decision:
   P0c-MR-D0 -> P0c-MR-S0 -> P0c-MR-I1
 ```
 
-The next task is the read-only `P0c-F-CENSUS0` evidence pass. The next
-code-facing production row remains `P0c-F-I1`.
+The next code-facing production row is `P0c-F-I1`.
 
 P0c-F means:
 
@@ -462,10 +461,36 @@ authority guard = green
 
 ### P0c-F-CENSUS0 — read-only selfhost evidence
 
+Status: Closed.
+
 Record function/call/edge counts, nesting, DAG depth, SCC size, and the first
 MethodCall/non-i64/Loop/early-Return/Lambda/ownership boundary for I1 fixture
 selection. The census is evidence only: it must not become source, catalog,
 resolver, graph, preflight, route, or activation authority.
+
+Read-only exact-source census over `lang/src/**/*.hako`:
+
+```text
+source files = 1173
+top-level `static function` declarations = 0
+top-level ordinary `function` declarations = 1
+ordinary declaration name = main
+function-only Programs = 0
+exact P0c-F candidate Programs = 0
+
+candidate call sites / unique edges / DAG depth / SCC rows = 0
+
+dominant earlier source boundary:
+  `using` declarations = 1950
+  `static box` declarations = 1184
+  ordinary `box` declarations = 543
+```
+
+The sole ordinary function lives in `lang/src/vm/mini_vm_if_branch.hako`, is
+named `main`, and shares its Program with static boxes. It therefore cannot
+enter the static non-main function-only P0c-F profile. Architecture does not
+depend on this zero count; I1 remains a synthetic ingress proof and must not
+claim current selfhost corpus coverage.
 
 ### P0c-F-I1 — atomic production activation
 

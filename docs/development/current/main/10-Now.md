@@ -21,9 +21,9 @@ Related:
   MP0 `S0 -> R0 -> P0 -> TX0`, and the bounded P0c-B1 sibling-call slice are
   closed. P0c-F is selected with P0c-N absorbed. Follow the active card order
   `DX0a -> DX0b -> S0 -> V0 -> census evidence -> I1`; DX0a, DX0b, S0, and V0
-  are closed with generalized production callers zero. The read-only census is
-  the exact current blocker. It selects I1 fixtures only and must not become
-  source, catalog, resolver, graph, preflight, route, or activation authority.
+  and the read-only census are closed. The census found zero exact P0c-F
+  candidates in `lang/src`, so I1 is an ingress proof rather than a corpus
+  coverage claim. P0c-F-I1 atomic activation is the exact current blocker.
   Production Ownership SSA, Loop production, mutual recursion/SCC, legacy
   fallback, default source, Lambda/capture, ProgramV0 authority, and durable
   RegionId materialization remain inactive
