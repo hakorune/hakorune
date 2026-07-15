@@ -1,8 +1,8 @@
 ---
-Status: Closed through P0c-F-CENSUS0; P0c-F-I1 next
+Status: P0c-F closed through I1; P0c-MR-D0 design consultation next
 Date: 2026-07-15
 Decision: P0c-F absorbs P0c-N; P0c-MR remains parked
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-F-I1-ATOMIC-ACYCLIC-MODULE-ACTIVATION-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-MR-D0-SCC-DESIGN-CONSULTATION-001
 Production baseline: 315747061e
 Consultation packet: mirbuilder-p0c-next-callable-widening-consultation-question-2026-07-15.md
 Previous card: mirbuilder-ssa-i1-compat-p0c-cat0-module-callable-catalog-consultation-2026-07-15.md
@@ -28,7 +28,8 @@ then, only after a new decision:
   P0c-MR-D0 -> P0c-MR-S0 -> P0c-MR-I1
 ```
 
-The next code-facing production row is `P0c-F-I1`.
+P0c-F is closed. The next row is the non-code-facing `P0c-MR-D0` design
+consultation; no SCC or mutual-recursion implementation is authorized yet.
 
 P0c-F means:
 
@@ -494,6 +495,8 @@ claim current selfhost corpus coverage.
 
 ### P0c-F-I1 — atomic production activation
 
+Status: Closed.
+
 Replace the B1 witness at the existing explicit compiler ingress with the
 verified P0c-F plan. Reuse the unpublished draft transaction and atomic
 insertion. P0c-B1 becomes a positive subset fixture, not a second module route.
@@ -503,6 +506,42 @@ production caller = exactly one compiler ingress
 backend = Rust MIR interpreter only
 fallback/retry = 0
 ```
+
+Closeout:
+
+```text
+activation authority:
+  VerifiedAcyclicCallableModulePlanV1 only
+
+retired parallel authority:
+  exact-two-function B1 activation witness
+
+post-Builder plan-family reclassification:
+  0
+
+supported exact call shapes:
+  repeated / nested / argument-position
+  multiple targets / multi-hop DAG
+  both fallthrough If arms
+
+publication:
+  all drafts unpublished until one atomic insertion
+  injected late lowering failure leaves publication count 0
+
+capability:
+  exactly one row per calling function
+
+backend / ownership:
+  Rust MIR interpreter only
+  CopyOwned / DestroyOwned / selected ReleaseStrong = 0
+  fallback = 0
+```
+
+Focused activation fixtures are 4/4, the retained B1 subset is 3/3, typed
+transaction fixtures are 4/4, V0 plan fixtures are 3/3, and graph fixtures are
+4/4. Release activation fixtures are also 4/4. The final release build, quick
+gate, authority guard, pointer guard, formatting, diff check, and under-800
+source/check-file boundary are the closeout gates for the landing commit.
 
 ## I1 pass/reject matrix
 
@@ -606,7 +645,8 @@ Stop if any step requires:
 
 ## Post-F order
 
-P0c-MR remains parked until P0c-F-I1 is green. Its first task is a new design
-decision for SCC partition, recursive target-set closure, conservative
-recursive-call effects, and mutually recursive frame execution. It inherits
-no SCC authority from the acyclic graph product.
+P0c-MR is now the explicit design stop. Its first task is a new decision for
+SCC partition, recursive target-set closure, conservative recursive-call
+effects, and mutually recursive frame execution. It inherits no SCC authority
+from the acyclic graph product. No P0c-MR code row may start before that
+decision is accepted and taskized.

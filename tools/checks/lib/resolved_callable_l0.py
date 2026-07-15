@@ -7,6 +7,8 @@ import pathlib
 import re
 import sys
 
+from resolved_callable_p0c_f import check_p0c_f
+
 
 def fail(message: str) -> None:
     raise SystemExit(f"[resolved-callable-l0] {message}")
@@ -40,7 +42,6 @@ acyclic_plan = root / "src/mir/compiler/acyclic_callable_module_plan.rs"
 acyclic_plan_tests = root / "src/mir/compiler/acyclic_callable_module_plan/tests.rs"
 function_input = root / "src/mir/compiler/function_input.rs"
 callable_module_input = root / "src/mir/compiler/resolved_callable_module_input.rs"
-sibling_activation = root / "src/mir/compiler/sibling_call_activation.rs"
 sibling_tests = root / "src/mir/compiler/sibling_call_tests.rs"
 module_transaction = (
     root / "src/mir/builder/resolved_lowering/callable_module_transaction.rs"
@@ -184,26 +185,20 @@ required = {
         "VerifiedResolvedCallableModuleV1::resolve",
         "lowering_input",
     ],
-    sibling_activation: [
-        "VerifiedSiblingCallModulePlanV1",
-        "FunctionCardinality",
-        "DirectCallCardinality",
-        "SelfCallOnly",
-        "VerifiedCallableModulePreflightV1::verify",
-    ],
     sibling_tests: [
         "exact_sibling_call_is_order_independent_and_executes",
-        "activation_rejects_zero_self_or_multiple_edges_without_poisoning_compiler",
+        "activation_rejects_zero_self_or_recursive_edges_without_poisoning_compiler",
         "sibling_call_keeps_the_vm_only_backend_capability",
     ],
     compiler_mod: [
         "compile_resolved_callable_module",
-        "VerifiedSiblingCallModulePlanV1::verify",
-        "build_resolved_callable_module_candidate",
+        "VerifiedAcyclicCallableModulePlanV1::verify",
+        "build_acyclic_callable_module_candidate",
     ],
     module_transaction: [
         "VerifiedUnpublishedCallableDraftSetV1",
-        "build_resolved_callable_module_candidate",
+        "build_acyclic_callable_module_candidate",
+        "collect_typed_with",
         "try_add_functions_atomic",
         "SymbolMismatch",
         "SignatureArityMismatch",
@@ -212,7 +207,7 @@ required = {
     module_transaction_tests: [
         "lowers_all_drafts_before_atomic_candidate_publication",
         "declaration_reorder_preserves_the_published_callable_symbol_set",
-        "late_draft_failure_leaves_candidate_function_publication_at_zero",
+        "typed_acyclic_plan_late_failure_keeps_atomic_publication_at_zero",
         "symbol_drift_rejects_before_candidate_publication",
     ],
     function_session: [
@@ -449,7 +444,6 @@ for path in (root / "src").rglob("*.rs"):
         module_transaction,
         module_transaction_tests,
         callable_module_input,
-        sibling_activation,
         acyclic_graph,
         acyclic_graph_tests,
         acyclic_plan,
@@ -472,9 +466,9 @@ for path in (root / "src").rglob("*.rs"):
         continue
     if "build_resolved_callable_module_candidate" in path.read_text():
         transaction_callers.append(str(path.relative_to(root)))
-if transaction_callers != ["src/mir/compiler/mod.rs"]:
+if transaction_callers:
     fail(
-        "P0c-B1 transaction caller must be the sole compiler ingress: "
+        "the generic MP0 transaction must have no production caller after P0c-F-I1: "
         f"{transaction_callers}"
     )
 
@@ -610,16 +604,6 @@ allowed_by_pattern = {
         root / "src/mir/resolved_value_profile/mod.rs",
         direct_call_profile_tests,
     },
-    r"analyze_trivial_canonical_owner_with_finite_direct_calls_v1": {
-        compiler_capability,
-        profile_mod,
-        direct_call_profile_tests,
-    },
-    r"verify_function_with_finite_direct_calls_v1": {
-        compiler_capability,
-        finite_call_tests,
-        acyclic_plan,
-    },
     r"\.claim_direct_call\(": {
         direct_call_profile_tests,
         root / "src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs",
@@ -637,13 +621,6 @@ allowed_by_pattern = {
     },
     r"CanonicalDirectStaticCallCapabilityV1::verify_for_emission": {
         direct_call_lower,
-    },
-    r"VerifiedAcyclicCallableGraphV1::verify": {
-        acyclic_graph_tests,
-        acyclic_plan,
-    },
-    r"VerifiedAcyclicCallableModulePlanV1::verify": {
-        acyclic_plan_tests,
     },
 }
 for pattern, allowed in allowed_by_pattern.items():
@@ -679,7 +656,6 @@ for path in [
     module_preflight,
     module_preflight_tests,
     callable_module_input,
-    sibling_activation,
     sibling_tests,
     compiler_mod,
     module_transaction,
@@ -697,30 +673,6 @@ for path in [
 if direct_call_lower_tests.read_text().count("#[test]") != 5:
     fail("P0c-I1 focused runtime fixture count must remain exactly five")
 
-if direct_call_profile_tests.read_text().count("#[test]") != 7:
-    fail("P0c-F-DX0a profile fixture count must remain exactly seven")
-
-if finite_call_tests.read_text().count("#[test]") != 2:
-    fail("P0c-F-DX0a preflight fixture count must remain exactly two")
-
-if acyclic_graph_tests.read_text().count("#[test]") != 4:
-    fail("P0c-F-S0 graph fixture count must remain exactly four")
-
-if acyclic_plan_tests.read_text().count("#[test]") != 3:
-    fail("P0c-F-V0 plan fixture count must remain exactly three")
-
-compiler_capability_text = compiler_capability.read_text()
-for marker in [
-    "DirectCallAdmissionV1::ExistingExactOne",
-    "DirectCallAdmissionV1::FiniteOneOrMore",
-    "verify_expression(input, &argument, expression_policy)",
-]:
-    if marker not in compiler_capability_text:
-        fail(f"P0c-F-DX0a preflight boundary missing: {marker}")
-
-if "DirectCallPolicyV1::OneOrMoreExact" not in profile_analyzer.read_text():
-    fail("P0c-F-DX0a finite profile policy missing")
-
 direct_call_lower_text = direct_call_lower.read_text()
 if "verify_for_emission(capability_rows)" not in direct_call_lower_text:
     fail("P0c-F-DX0b call emitter must verify the function capability")
@@ -735,46 +687,5 @@ for marker in [
     if marker not in lowerer_text:
         fail(f"P0c-F-DX0b function-level capability install missing: {marker}")
 
-acyclic_graph_text = acyclic_graph.read_text()
-for marker in [
-    "VerifiedAcyclicCallableGraphV1",
-    "VerifiedCallableGraphSiteV1",
-    "VerifiedCallableGraphEdgeV1",
-    "header_for_callable(target.callable())",
-    "Deterministic Kahn",
-]:
-    if marker not in acyclic_graph_text:
-        fail(f"P0c-F-S0 graph contract missing: {marker}")
-for forbidden in [
-    "VerifiedTrivialDirectCallV1",
-    "MirInstruction",
-    "CanonicalCallableSymbolV1",
-    "ConservativeBarrier",
-    "VerifiedCallableModulePreflightV1",
-]:
-    if forbidden in acyclic_graph_text:
-        fail(f"P0c-F-S0 topology product owns a forbidden authority: {forbidden}")
-
-acyclic_plan_text = acyclic_plan.read_text()
-for marker in [
-    "VerifiedAcyclicCallableModulePlanV1",
-    "CanonicalTrivialBindingSsaPlanV1",
-    "verify_function_with_finite_direct_calls_v1",
-    "FunctionCallSiteCountMismatch",
-]:
-    if marker not in acyclic_plan_text:
-        fail(f"P0c-F-V0 typed plan contract missing: {marker}")
-for forbidden in [
-    "MirBuilder",
-    "MirInstruction",
-    "MirFunction",
-    "MirModule",
-    "CanonicalCallableSymbolV1",
-    "ConservativeBarrier",
-    "build_resolved_callable_module_candidate",
-    "try_add_functions_atomic",
-]:
-    if forbidden in acyclic_plan_text:
-        fail(f"P0c-F-V0 typed plan owns a forbidden effect authority: {forbidden}")
-
+check_p0c_f(root, fail)
 print("[resolved-callable-l0] ok")

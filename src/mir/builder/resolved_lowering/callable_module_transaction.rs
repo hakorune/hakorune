@@ -6,11 +6,9 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::mir::compiler::capability::{
-    CanonicalFirstFamilyPlanV1, CanonicalTrivialBindingSsaPlanV1,
-};
+use crate::mir::compiler::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1;
+use crate::mir::compiler::capability::CanonicalTrivialBindingSsaPlanV1;
 use crate::mir::compiler::resolved_callable_module::VerifiedResolvedCallableModuleV1;
-use crate::mir::compiler::resolved_callable_module_preflight::VerifiedCallableModulePreflightV1;
 use crate::mir::function::{FunctionPublicationErrorV1, MirFunction, MirModule};
 use crate::mir::resolved_semantics::CanonicalCallableKeyV1;
 
@@ -18,7 +16,6 @@ use super::{CanonicalResolvedBuildErrorV1, MirBuilder};
 
 #[derive(Debug)]
 pub(in crate::mir) enum CallableModuleTransactionErrorV1 {
-    UnsupportedPlan(CanonicalCallableKeyV1),
     FunctionDraft {
         key: CanonicalCallableKeyV1,
         source: CanonicalResolvedBuildErrorV1,
@@ -53,22 +50,30 @@ pub(super) struct VerifiedUnpublishedCallableDraftSetV1<'a> {
 }
 
 impl<'a> VerifiedUnpublishedCallableDraftSetV1<'a> {
-    pub(super) fn collect_with(
-        preflight: VerifiedCallableModulePreflightV1<'a>,
+    fn collect_acyclic_with(
+        plan: VerifiedAcyclicCallableModulePlanV1<'a>,
+        lower: impl FnMut(
+            &CanonicalCallableKeyV1,
+            CanonicalTrivialBindingSsaPlanV1<'a>,
+        ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1>,
+    ) -> Result<Self, CallableModuleTransactionErrorV1> {
+        let (source, _graph, plans) = plan.into_parts();
+        Self::collect_typed_with(source, plans, lower)
+    }
+
+    fn collect_typed_with(
+        source: &'a VerifiedResolvedCallableModuleV1,
+        plans: BTreeMap<CanonicalCallableKeyV1, CanonicalTrivialBindingSsaPlanV1<'a>>,
         mut lower: impl FnMut(
             &CanonicalCallableKeyV1,
             CanonicalTrivialBindingSsaPlanV1<'a>,
         ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1>,
     ) -> Result<Self, CallableModuleTransactionErrorV1> {
-        let (source, plans) = preflight.into_parts();
         let plan_count = plans.len();
         let mut drafts_by_key = BTreeMap::new();
         let mut symbols = BTreeSet::new();
 
         for (key, plan) in plans {
-            let CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) = plan else {
-                return Err(CallableModuleTransactionErrorV1::UnsupportedPlan(key));
-            };
             let draft = lower(&key, plan).map_err(|source| {
                 CallableModuleTransactionErrorV1::FunctionDraft {
                     key: key.clone(),
@@ -136,18 +141,18 @@ impl<'a> VerifiedUnpublishedCallableDraftSetV1<'a> {
 }
 
 impl MirBuilder {
-    pub(in crate::mir) fn build_resolved_callable_module_candidate(
+    pub(in crate::mir) fn build_acyclic_callable_module_candidate(
         &mut self,
-        preflight: VerifiedCallableModulePreflightV1<'_>,
+        plan: VerifiedAcyclicCallableModulePlanV1<'_>,
     ) -> Result<MirModule, CallableModuleTransactionErrorV1> {
-        self.build_resolved_callable_module_candidate_with(preflight, |builder, _key, plan| {
+        self.build_acyclic_callable_module_candidate_with(plan, |builder, _key, plan| {
             builder.lower_resolved_trivial_function_draft(plan)
         })
     }
 
-    pub(super) fn build_resolved_callable_module_candidate_with<'a>(
+    pub(super) fn build_acyclic_callable_module_candidate_with<'a>(
         &mut self,
-        preflight: VerifiedCallableModulePreflightV1<'a>,
+        plan: VerifiedAcyclicCallableModulePlanV1<'a>,
         mut lower: impl FnMut(
             &mut MirBuilder,
             &CanonicalCallableKeyV1,
@@ -157,9 +162,16 @@ impl MirBuilder {
         self.prepare_module()
             .map_err(CallableModuleTransactionErrorV1::BuilderContract)?;
         let drafts =
-            VerifiedUnpublishedCallableDraftSetV1::collect_with(preflight, |key, plan| {
+            VerifiedUnpublishedCallableDraftSetV1::collect_acyclic_with(plan, |key, plan| {
                 lower(self, key, plan)
             })?;
+        self.publish_callable_drafts(drafts)
+    }
+
+    fn publish_callable_drafts(
+        &mut self,
+        drafts: VerifiedUnpublishedCallableDraftSetV1<'_>,
+    ) -> Result<MirModule, CallableModuleTransactionErrorV1> {
         let module = self.current_module.as_mut().ok_or_else(|| {
             CallableModuleTransactionErrorV1::BuilderContract(
                 "[freeze:contract][callable_module_transaction/module_missing]".to_string(),

@@ -25,12 +25,13 @@ pub(in crate::mir) mod resolved_callable_module;
 mod resolved_callable_module_input;
 #[allow(dead_code)]
 pub(in crate::mir) mod resolved_callable_module_preflight;
-mod sibling_call_activation;
 #[allow(dead_code)]
 mod source_projection;
 #[allow(dead_code)]
 pub(in crate::mir) mod source_view;
 
+#[cfg(test)]
+mod acyclic_callable_module_activation_tests;
 #[cfg(test)]
 mod capability_tests;
 #[cfg(test)]
@@ -199,7 +200,7 @@ impl MirCompiler {
             .map_err(MirLoweringRequestErrorV1::into_canonical)
     }
 
-    /// Compile the exact P0c-B1 two-function Program with one sibling edge.
+    /// Compile one exact P0c-F acyclic callable Program.
     ///
     /// This is an explicit canonical ingress. It never retries the legacy
     /// route, and every header/body/plan/draft is sealed before the caller's
@@ -212,17 +213,17 @@ impl MirCompiler {
         if self.builder.repl_mode {
             return Err(CanonicalLoweringErrorV1::UnsupportedCanonicalOwnerKind);
         }
-        let plan = sibling_call_activation::VerifiedSiblingCallModulePlanV1::verify(
+        let plan = acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
             input.program().module(),
         )
-        .map_err(|error| callable_program_stage_error("sibling_activation", error))?;
+        .map_err(|error| callable_program_stage_error("acyclic_activation", error))?;
 
         let stage_start = Instant::now();
         let mut module_session = CanonicalModuleLoweringSessionV1::open(&self.builder);
         set_candidate_source_hint(module_session.builder_mut(), source_file);
         let candidate = module_session
             .builder_mut()
-            .build_resolved_callable_module_candidate(plan.into_preflight())
+            .build_acyclic_callable_module_candidate(plan)
             .map_err(|error| callable_program_stage_error("module_transaction", error))?;
         super::compile_timing::trace_stage("build_resolved_callable_module", stage_start.elapsed());
         let result = self.finish_built_canonical_module(
@@ -456,7 +457,7 @@ fn callable_program_stage_error(
     error: impl std::fmt::Debug,
 ) -> CanonicalLoweringErrorV1 {
     CanonicalLoweringErrorV1::SourceUnitResolution {
-        detail: format!("[freeze:contract][canonical_sibling_call/{stage}] {error:?}"),
+        detail: format!("[freeze:contract][canonical_callable_module/{stage}] {error:?}"),
     }
 }
 

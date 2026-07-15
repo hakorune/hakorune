@@ -160,7 +160,7 @@ fn exact_sibling_call_is_order_independent_and_executes() {
 }
 
 #[test]
-fn activation_rejects_zero_self_or_multiple_edges_without_poisoning_compiler() {
+fn activation_rejects_zero_self_or_recursive_edges_without_poisoning_compiler() {
     for rejected in [
         program(vec![
             function("first", variable("n")),
@@ -181,7 +181,7 @@ fn activation_rejects_zero_self_or_multiple_edges_without_poisoning_compiler() {
             .compile_resolved_callable_module(source.lowering_input(), None)
             .unwrap_err()
             .to_string();
-        assert!(error.contains("[freeze:contract][canonical_sibling_call/sibling_activation]"));
+        assert!(error.contains("[freeze:contract][canonical_callable_module/acyclic_activation]"));
 
         let valid = VerifiedResolvedCallableProgramV1::resolve(valid_program(true)).unwrap();
         assert!(compiler

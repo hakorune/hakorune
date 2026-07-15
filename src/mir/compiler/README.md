@@ -183,3 +183,24 @@ graph/function/plan key and cardinality correspondence, and equality between
 each function's graph-site count and its verified direct-call profile rows.
 It does not own Builder, MIR, callable symbols, effects, draft publication, or
 backend activation. Production callers remain zero through V0.
+
+## P0c-F-I1 atomic acyclic-module ingress
+
+`compile_resolved_callable_module` consumes
+`VerifiedAcyclicCallableModulePlanV1` directly. The V0 typed plan is the sole
+activation witness: the compiler does not re-match a generic function-plan
+enum after Builder effects, and the retired exact-two-function B1 activation
+witness is no longer a parallel authority.
+
+The transaction lowers every canonical-keyed typed function plan to an
+unpublished draft, verifies the complete draft set, and performs one atomic
+module insertion. Repeated calls, nested/argument-position calls, multiple
+targets, multi-hop DAGs, and calls in both fallthrough If arms use the same
+co-sealed direct-call rows and exact-once consumption ledger. A calling
+function owns exactly one VM-only direct-call capability row regardless of its
+number of call sites.
+
+P0c-F-I1 adds no ownership operation, raw-name lookup, fallback, incremental
+publication, or backend widening. Self edges, mutual recursion, and SCC
+authority remain rejected. The next callable task is the separate P0c-MR-D0
+design consultation.

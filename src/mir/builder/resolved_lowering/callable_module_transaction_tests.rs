@@ -1,6 +1,6 @@
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl, Span};
+use crate::mir::compiler::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1;
 use crate::mir::compiler::resolved_callable_module::VerifiedResolvedCallableModuleV1;
-use crate::mir::compiler::resolved_callable_module_preflight::VerifiedCallableModulePreflightV1;
 use crate::mir::function::{FunctionSignature, MirFunction};
 use crate::mir::resolved_semantics::{
     CallableCatalogSealOutcomeV1, VerifiedCallableHeaderSourceUnitV1,
@@ -40,6 +40,22 @@ fn function(name: &str) -> ASTNode {
     }
 }
 
+fn calling_function(name: &str, target: &str) -> ASTNode {
+    let mut function = function(name);
+    let ASTNode::FunctionDeclaration { body, .. } = &mut function else {
+        unreachable!()
+    };
+    *body = vec![ASTNode::Return {
+        value: Some(Box::new(ASTNode::FunctionCall {
+            name: target.into(),
+            arguments: vec![variable("n")],
+            span: Span::unknown(),
+        })),
+        span: Span::unknown(),
+    }];
+    function
+}
+
 fn resolve(functions: Vec<ASTNode>) -> VerifiedResolvedCallableModuleV1 {
     let source = VerifiedCallableHeaderSourceUnitV1::seal_header_surface(ASTNode::Program {
         statements: functions,
@@ -65,12 +81,15 @@ fn fake_draft(symbol: String, arity: usize) -> MirFunction {
 
 #[test]
 fn lowers_all_drafts_before_atomic_candidate_publication() {
-    let resolved = resolve(vec![function("first"), function("second")]);
-    let preflight = VerifiedCallableModulePreflightV1::verify(&resolved).unwrap();
+    let resolved = resolve(vec![
+        calling_function("first", "second"),
+        function("second"),
+    ]);
+    let plan = VerifiedAcyclicCallableModulePlanV1::verify(&resolved).unwrap();
     let mut builder = MirBuilder::new();
 
     let module = builder
-        .build_resolved_callable_module_candidate(preflight)
+        .build_acyclic_callable_module_candidate(plan)
         .unwrap();
 
     assert!(module.get_function("first/1").is_some());
@@ -81,14 +100,14 @@ fn lowers_all_drafts_before_atomic_candidate_publication() {
 fn declaration_reorder_preserves_the_published_callable_symbol_set() {
     let mut observed = Vec::new();
     for functions in [
-        vec![function("first"), function("second")],
-        vec![function("second"), function("first")],
+        vec![calling_function("first", "second"), function("second")],
+        vec![function("second"), calling_function("first", "second")],
     ] {
         let resolved = resolve(functions);
-        let preflight = VerifiedCallableModulePreflightV1::verify(&resolved).unwrap();
+        let plan = VerifiedAcyclicCallableModulePlanV1::verify(&resolved).unwrap();
         let mut builder = MirBuilder::new();
         let module = builder
-            .build_resolved_callable_module_candidate(preflight)
+            .build_acyclic_callable_module_candidate(plan)
             .unwrap();
         observed.push(
             module
@@ -103,13 +122,16 @@ fn declaration_reorder_preserves_the_published_callable_symbol_set() {
 }
 
 #[test]
-fn late_draft_failure_leaves_candidate_function_publication_at_zero() {
-    let resolved = resolve(vec![function("first"), function("second")]);
-    let preflight = VerifiedCallableModulePreflightV1::verify(&resolved).unwrap();
+fn typed_acyclic_plan_late_failure_keeps_atomic_publication_at_zero() {
+    let resolved = resolve(vec![
+        calling_function("first", "second"),
+        function("second"),
+    ]);
+    let plan = VerifiedAcyclicCallableModulePlanV1::verify(&resolved).unwrap();
     let mut builder = MirBuilder::new();
 
     let error = builder
-        .build_resolved_callable_module_candidate_with(preflight, |_builder, key, _plan| {
+        .build_acyclic_callable_module_candidate_with(plan, |_builder, key, _plan| {
             if key.name() == "second" {
                 return Err(CanonicalResolvedBuildErrorV1::BuilderContract(
                     "injected late draft failure".to_string(),
@@ -138,12 +160,15 @@ fn late_draft_failure_leaves_candidate_function_publication_at_zero() {
 
 #[test]
 fn symbol_drift_rejects_before_candidate_publication() {
-    let resolved = resolve(vec![function("first"), function("second")]);
-    let preflight = VerifiedCallableModulePreflightV1::verify(&resolved).unwrap();
+    let resolved = resolve(vec![
+        calling_function("first", "second"),
+        function("second"),
+    ]);
+    let plan = VerifiedAcyclicCallableModulePlanV1::verify(&resolved).unwrap();
     let mut builder = MirBuilder::new();
 
     let error = builder
-        .build_resolved_callable_module_candidate_with(preflight, |_builder, key, _plan| {
+        .build_acyclic_callable_module_candidate_with(plan, |_builder, key, _plan| {
             Ok(fake_draft("wrong/1".to_string(), key.arity() as usize))
         })
         .err()
