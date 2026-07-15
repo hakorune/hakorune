@@ -23,6 +23,12 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
     recursive_backend_gate = (
         root / "src/mir/canonical_recursive_callable_module_backend_capability.rs"
     )
+    recursive_activation_tests = (
+        root / "src/mir/compiler/recursive_callable_module_activation_tests.rs"
+    )
+    transaction = (
+        root / "src/mir/builder/resolved_lowering/callable_module_transaction.rs"
+    )
     compiler_mod = root / "src/mir/compiler/mod.rs"
     this_guard = root / "tools/checks/lib/resolved_callable_p0c_mr.py"
 
@@ -37,6 +43,8 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
         recursive_plan_tests,
         recursive_capability,
         recursive_backend_gate,
+        recursive_activation_tests,
+        transaction,
         compiler_mod,
         this_guard,
     ]:
@@ -127,7 +135,7 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
         for path in (root / "src").rglob("*.rs")
         if "VerifiedRecursiveCallableModulePlanV1::verify" in path.read_text()
     }
-    if actual_plan_callers != {recursive_plan_tests}:
+    if actual_plan_callers != {recursive_plan_tests, compiler_mod}:
         fail(
             "P0c-MR-V0 production caller drift: "
             f"{sorted(path.relative_to(root) for path in actual_plan_callers)}"
@@ -165,7 +173,7 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
         for path in (root / "src").rglob("*.rs")
         if "CanonicalRecursiveCallableModuleCapabilityV1::install_for_module" in path.read_text()
     }
-    if install_callers != {recursive_backend_gate}:
+    if install_callers != {recursive_backend_gate, transaction}:
         fail(
             "P0c-MR-C0 production capability producer drift: "
             f"{sorted(path.relative_to(root) for path in install_callers)}"
@@ -198,3 +206,30 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
     ]:
         if forbidden in backend_text:
             fail(f"P0c-MR-C0 backend gate infers topology: {forbidden}")
+
+    if recursive_activation_tests.read_text().count("#[test]") != 4:
+        fail("P0c-MR-I1 focused activation fixture count must remain exactly four")
+    compiler_text = compiler_mod.read_text()
+    if len(re.findall(r"pub fn compile_resolved_recursive_callable_module\s*\(", compiler_text)) != 1:
+        fail("P0c-MR-I1 explicit recursive compiler ingress count drift")
+    transaction_text = transaction.read_text()
+    for marker in [
+        "collect_recursive_with",
+        "build_recursive_callable_module_candidate",
+        "publish_recursive_callable_drafts",
+        "drafts.publish_into(module)?",
+        "canonical_recursive_callable_module_capability",
+    ]:
+        if marker not in transaction_text:
+            fail(f"P0c-MR-I1 atomic transaction contract missing: {marker}")
+    for forbidden in [
+        "compile_resolved_callable_module(",
+        "compile_resolved(",
+        "compile_legacy(",
+        "retry",
+        "fallback",
+    ]:
+        method_start = compiler_text.index("pub fn compile_resolved_recursive_callable_module")
+        method_end = compiler_text.index("/// Compile an explicitly non-canonical", method_start)
+        if forbidden in compiler_text[method_start:method_end]:
+            fail(f"P0c-MR-I1 recursive ingress route retry drift: {forbidden}")

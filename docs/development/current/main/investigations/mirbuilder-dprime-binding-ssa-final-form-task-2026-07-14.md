@@ -2412,10 +2412,10 @@ state.
 
 ## Immediate next action
 
-Implement **P0c-MR-I1 — explicit atomic VM-only recursive-module activation**.
-P0c-MR-G0 through C0 are closed: topology, SCC partition, exact admission, and
-one passive module-level capability schema are sealed. Production recursive
-ingress and marker producer remain zero before I1.
+Stop for **P0c-MR-R0-D0 — one-function self-call authority retirement design**.
+P0c-MR-G0 through I1 are closed: general multi-function recursive exact-i64
+Programs execute through one explicit VM-only atomic ingress with one module
+marker and no route retry.
 
 Decision/task card:
 `mirbuilder-p0c-mr-callable-scc-task-2026-07-16.md`.
@@ -2427,10 +2427,10 @@ P0c-MR:
   G0 -> S0 -> V0 -> C0 -> I1 -> R0
 ```
 
-I1 consumes only the typed recursive plan, reuses unpublished draft collection
-and atomic module insertion, installs exactly one module marker, and exposes one
-explicit VM-only compiler ingress. It must not change acyclic/self/legacy
-routes, infer SCCs at runtime, or add retry/fallback.
+Before R0 code, decide one-function Program parity, whether the old bare-function
+self-call route becomes a compatibility facade or is removed, marker parity,
+removal counters, and exact no-retry/non-claim boundaries. Keep the worktree
+clean at this design stop.
 
 Ownership V2 parser/resolver/MIR work and `.hako` selfhost parser/MIR-builder
 migration remain separate parked lanes. They are not hidden P0c-MR prerequisites

@@ -47,6 +47,9 @@ acyclic_plan = root / "src/mir/compiler/acyclic_callable_module_plan.rs"
 acyclic_plan_tests = root / "src/mir/compiler/acyclic_callable_module_plan/tests.rs"
 recursive_plan = root / "src/mir/compiler/recursive_callable_module_plan.rs"
 recursive_plan_tests = root / "src/mir/compiler/recursive_callable_module_plan/tests.rs"
+recursive_activation_tests = (
+    root / "src/mir/compiler/recursive_callable_module_activation_tests.rs"
+)
 function_input = root / "src/mir/compiler/function_input.rs"
 callable_module_input = root / "src/mir/compiler/resolved_callable_module_input.rs"
 sibling_tests = root / "src/mir/compiler/sibling_call_tests.rs"
@@ -459,6 +462,7 @@ for path in (root / "src").rglob("*.rs"):
         acyclic_plan_tests,
         recursive_plan,
         recursive_plan_tests,
+        recursive_activation_tests,
         compiler_mod,
     }:
         continue

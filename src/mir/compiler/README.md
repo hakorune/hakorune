@@ -208,6 +208,18 @@ C0 has no production marker producer. Missing, duplicate installation, and
 schema drift are exercised only by synthetic fixtures; graph/SCC scanning never
 infers the marker.
 
+## P0c-MR-I1 explicit recursive module activation
+
+`MirCompiler::compile_resolved_recursive_callable_module` is the sole explicit
+recursive ingress. It consumes the V0 typed plan, lowers every function into an
+unpublished draft, atomically inserts the complete draft set, installs exactly
+one module marker, and commits the isolated candidate only after canonical
+finish succeeds.
+
+The ingress never probes the acyclic, one-function self-call, or legacy routes.
+All call effects remain conservative, only `mir-interpreter` is admitted, and
+the selected route emits no ownership operations.
+
 ## P0c-F-V0 typed acyclic module plan
 
 `VerifiedAcyclicCallableModulePlanV1` is the disconnected pre-Builder witness

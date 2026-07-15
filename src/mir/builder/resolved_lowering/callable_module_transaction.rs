@@ -8,6 +8,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::compiler::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1;
 use crate::mir::compiler::capability::CanonicalTrivialBindingSsaPlanV1;
+use crate::mir::compiler::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1;
 use crate::mir::compiler::resolved_callable_module::VerifiedResolvedCallableModuleV1;
 use crate::mir::function::{FunctionPublicationErrorV1, MirFunction, MirModule};
 use crate::mir::resolved_semantics::CanonicalCallableKeyV1;
@@ -58,6 +59,17 @@ impl<'a> VerifiedUnpublishedCallableDraftSetV1<'a> {
         ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1>,
     ) -> Result<Self, CallableModuleTransactionErrorV1> {
         let (source, _graph, plans) = plan.into_parts();
+        Self::collect_typed_with(source, plans, lower)
+    }
+
+    fn collect_recursive_with(
+        plan: VerifiedRecursiveCallableModulePlanV1<'a>,
+        lower: impl FnMut(
+            &CanonicalCallableKeyV1,
+            CanonicalTrivialBindingSsaPlanV1<'a>,
+        ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1>,
+    ) -> Result<Self, CallableModuleTransactionErrorV1> {
+        let (source, _partition, plans) = plan.into_parts();
         Self::collect_typed_with(source, plans, lower)
     }
 
@@ -166,6 +178,50 @@ impl MirBuilder {
                 lower(self, key, plan)
             })?;
         self.publish_callable_drafts(drafts)
+    }
+
+    pub(in crate::mir) fn build_recursive_callable_module_candidate(
+        &mut self,
+        plan: VerifiedRecursiveCallableModulePlanV1<'_>,
+    ) -> Result<MirModule, CallableModuleTransactionErrorV1> {
+        self.prepare_module()
+            .map_err(CallableModuleTransactionErrorV1::BuilderContract)?;
+        let drafts =
+            VerifiedUnpublishedCallableDraftSetV1::collect_recursive_with(plan, |_key, plan| {
+                self.lower_resolved_trivial_function_draft(plan)
+            })?;
+        self.publish_recursive_callable_drafts(drafts)
+    }
+
+    fn publish_recursive_callable_drafts(
+        &mut self,
+        drafts: VerifiedUnpublishedCallableDraftSetV1<'_>,
+    ) -> Result<MirModule, CallableModuleTransactionErrorV1> {
+        let module = self.current_module.as_mut().ok_or_else(|| {
+            CallableModuleTransactionErrorV1::BuilderContract(
+                "[freeze:contract][callable_module_transaction/module_missing]".to_string(),
+            )
+        })?;
+        if module
+            .metadata
+            .canonical_recursive_callable_module_capability
+            .is_some()
+        {
+            return Err(CallableModuleTransactionErrorV1::BuilderContract(
+                "[freeze:contract][canonical_recursive_module/capability_preexisting]".to_string(),
+            ));
+        }
+        drafts.publish_into(module)?;
+        crate::mir::canonical_recursive_callable_module_capability::CanonicalRecursiveCallableModuleCapabilityV1::install_for_module(
+            &mut module.metadata.canonical_recursive_callable_module_capability,
+            true,
+        )
+        .map_err(|error| CallableModuleTransactionErrorV1::BuilderContract(error.to_string()))?;
+
+        let entry = crate::mir::builder::emission::constant::emit_void(self)
+            .map_err(CallableModuleTransactionErrorV1::BuilderContract)?;
+        self.finalize_module(entry)
+            .map_err(CallableModuleTransactionErrorV1::BuilderContract)
     }
 
     fn publish_callable_drafts(
