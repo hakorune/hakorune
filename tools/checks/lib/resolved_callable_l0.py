@@ -34,6 +34,8 @@ module_preflight_tests = (
 compiler_mod = root / "src/mir/compiler/mod.rs"
 compiler_capability = root / "src/mir/compiler/capability.rs"
 finite_call_tests = root / "src/mir/compiler/finite_direct_call_tests.rs"
+acyclic_graph = root / "src/mir/compiler/acyclic_callable_graph.rs"
+acyclic_graph_tests = root / "src/mir/compiler/acyclic_callable_graph/tests.rs"
 function_input = root / "src/mir/compiler/function_input.rs"
 callable_module_input = root / "src/mir/compiler/resolved_callable_module_input.rs"
 sibling_activation = root / "src/mir/compiler/sibling_call_activation.rs"
@@ -446,6 +448,8 @@ for path in (root / "src").rglob("*.rs"):
         module_transaction_tests,
         callable_module_input,
         sibling_activation,
+        acyclic_graph,
+        acyclic_graph_tests,
         compiler_mod,
     }:
         continue
@@ -629,6 +633,9 @@ allowed_by_pattern = {
     r"CanonicalDirectStaticCallCapabilityV1::verify_for_emission": {
         direct_call_lower,
     },
+    r"VerifiedAcyclicCallableGraphV1::verify": {
+        acyclic_graph_tests,
+    },
 }
 for pattern, allowed in allowed_by_pattern.items():
     actual = {
@@ -653,6 +660,8 @@ for path in [
     direct_call_lower_tests,
     compiler_capability,
     finite_call_tests,
+    acyclic_graph,
+    acyclic_graph_tests,
     resolved_module,
     resolved_module_tests,
     function_input,
@@ -683,6 +692,9 @@ if direct_call_profile_tests.read_text().count("#[test]") != 7:
 if finite_call_tests.read_text().count("#[test]") != 2:
     fail("P0c-F-DX0a preflight fixture count must remain exactly two")
 
+if acyclic_graph_tests.read_text().count("#[test]") != 4:
+    fail("P0c-F-S0 graph fixture count must remain exactly four")
+
 compiler_capability_text = compiler_capability.read_text()
 for marker in [
     "DirectCallAdmissionV1::ExistingExactOne",
@@ -708,5 +720,25 @@ for marker in [
 ]:
     if marker not in lowerer_text:
         fail(f"P0c-F-DX0b function-level capability install missing: {marker}")
+
+acyclic_graph_text = acyclic_graph.read_text()
+for marker in [
+    "VerifiedAcyclicCallableGraphV1",
+    "VerifiedCallableGraphSiteV1",
+    "VerifiedCallableGraphEdgeV1",
+    "header_for_callable(target.callable())",
+    "Deterministic Kahn",
+]:
+    if marker not in acyclic_graph_text:
+        fail(f"P0c-F-S0 graph contract missing: {marker}")
+for forbidden in [
+    "VerifiedTrivialDirectCallV1",
+    "MirInstruction",
+    "CanonicalCallableSymbolV1",
+    "ConservativeBarrier",
+    "VerifiedCallableModulePreflightV1",
+]:
+    if forbidden in acyclic_graph_text:
+        fail(f"P0c-F-S0 topology product owns a forbidden authority: {forbidden}")
 
 print("[resolved-callable-l0] ok")

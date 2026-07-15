@@ -10,6 +10,8 @@ use super::verification::MirVerifier;
 use super::verification_types::VerificationError;
 use std::time::Instant;
 
+#[allow(dead_code)]
+pub(in crate::mir) mod acyclic_callable_graph;
 pub(in crate::mir) mod capability;
 pub(in crate::mir) mod function_input;
 #[allow(dead_code)]

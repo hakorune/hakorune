@@ -157,3 +157,16 @@ exactly one. Each call emitter verifies that exact V1 row before instruction
 emission and never mutates metadata. The capability type owns the only row
 installation facade; missing, duplicate, preexisting, or schema-drifted rows
 fail explicitly.
+
+## P0c-F-S0 topology-only DAG proof
+
+`VerifiedAcyclicCallableGraphV1` is derived only from the complete resolved
+callable module. It projects already-resolved callable identities through the
+catalog reverse index, preserves every function-relative call site, collapses
+only caller/target topology edges, rejects self edges, and seals a deterministic
+canonical-key Kahn witness.
+
+This product owns no source-name lookup, call ABI, argument/evaluation order,
+effect, symbol, MIR, draft, publication, or SCC partition. Its `verify` entry
+remains disconnected through S0; the first typed activation consumer belongs
+to P0c-F-V0.

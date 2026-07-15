@@ -20,11 +20,10 @@ Related:
 - priority: read the exact row from `current_blocker_token`. CAT0 through G0,
   MP0 `S0 -> R0 -> P0 -> TX0`, and the bounded P0c-B1 sibling-call slice are
   closed. P0c-F is selected with P0c-N absorbed. Follow the active card order
-  `DX0a -> DX0b -> S0 -> V0 -> census evidence -> I1`; DX0a and DX0b are
-  closed with generalized production callers zero. S0 is the exact current
-  blocker and may add only the disconnected topology-only canonical-key DAG
-  proof; it must not own ABI, evaluation order, effect, MIR, publication, or
-  SCC policy.
+  `DX0a -> DX0b -> S0 -> V0 -> census evidence -> I1`; DX0a, DX0b, and S0 are
+  closed with generalized production callers zero. V0 is the exact current
+  blocker and may only combine the topology proof with a complete canonical-
+  keyed set of existing finite trivial plans before Builder effects.
   Production Ownership SSA, Loop production, mutual recursion/SCC, legacy
   fallback, default source, Lambda/capture, ProgramV0 authority, and durable
   RegionId materialization remain inactive

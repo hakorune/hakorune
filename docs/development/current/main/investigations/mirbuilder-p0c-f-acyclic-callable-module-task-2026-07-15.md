@@ -1,8 +1,8 @@
 ---
-Status: Closed through P0c-F-DX0b; P0c-F-S0 next
+Status: Closed through P0c-F-S0; P0c-F-V0 next
 Date: 2026-07-15
 Decision: P0c-F absorbs P0c-N; P0c-MR remains parked
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-F-S0-ACYCLIC-CALL-GRAPH-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-F-V0-TYPED-ACYCLIC-MODULE-PLAN-001
 Production baseline: 315747061e
 Consultation packet: mirbuilder-p0c-next-callable-widening-consultation-question-2026-07-15.md
 Previous card: mirbuilder-ssa-i1-compat-p0c-cat0-module-callable-catalog-consultation-2026-07-15.md
@@ -28,7 +28,7 @@ then, only after a new decision:
   P0c-MR-D0 -> P0c-MR-S0 -> P0c-MR-I1
 ```
 
-The next code-facing row is `P0c-F-S0`.
+The next code-facing row is `P0c-F-V0`.
 
 P0c-F means:
 
@@ -392,6 +392,8 @@ module route, backend support, effect, transaction, or ownership operation.
 
 ### P0c-F-S0 — disconnected acyclic graph
 
+Status: Closed.
+
 ```text
 production behavior delta = 0
 production callers = 0
@@ -400,6 +402,29 @@ production callers = 0
 Fixtures cover declaration reorder, repeated sites, multiple targets,
 multi-hop chains, isolated nodes, self/cycle rejection, foreign-target
 invariants, and deterministic residual errors.
+
+Closeout:
+
+```text
+graph production callers = 0
+source-name / symbol target resolution = 0
+call-site multiplicity = preserved
+unique-edge topology = sealed separately
+self edge = rejected
+2-node / 3-node cycles = rejected with source witnesses
+topological ready order = canonical-key deterministic
+graph fixtures = 4/4
+resolved-module regression = 6/6
+sibling-call regression = 3/3
+release graph fixtures = 4/4
+release build = green
+quick gate = 66/66
+```
+
+The graph source imports no direct-call ABI row, effect vocabulary, MIR
+instruction, callable symbol, module preflight, draft, publication, or SCC
+product. The authority guard fixes those non-authorities and keeps the graph,
+fixtures, and guard below 800 lines.
 
 ### P0c-F-V0 — disconnected typed activation plan
 
