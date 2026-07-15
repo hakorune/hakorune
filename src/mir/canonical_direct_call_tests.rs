@@ -31,7 +31,8 @@ fn header() -> VerifiedCallableHeaderV1 {
         CallableHeaderSyntaxViewV1::from_function_ast(&tree).unwrap(),
     )
     .unwrap()
-    .only_header()
+    .sole_header()
+    .unwrap()
     .clone()
 }
 

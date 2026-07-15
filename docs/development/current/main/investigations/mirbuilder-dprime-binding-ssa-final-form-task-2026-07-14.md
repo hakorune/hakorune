@@ -2412,11 +2412,12 @@ state.
 
 ## Immediate next action
 
-Implement **CAT0-L0 — behavior-neutral callable index storage cleanup**.
+Implement **CAT0-S0 — function-only Program header source unit**.
 P0c-I1 already admits exactly one current-owner FunctionCall with exact-i64
 arguments/result through the generic co-sealed call row, without raw-name
 lookup, legacy recovery, fallback, or ownership operations. The CAT0 design
-stop is now closed as A′+.
+stop is closed as A′+, and CAT0-L0 has closed the behavior-neutral primary
+header/reverse-index substrate.
 
 Decision/task card:
 `mirbuilder-ssa-i1-compat-p0c-cat0-module-callable-catalog-consultation-2026-07-15.md`.
@@ -2445,11 +2446,12 @@ single-root semantic owner forest. MP0 is keyed by canonical callable key,
 resolves bodies only after the complete catalog exists, and batch-publishes
 verified drafts only after exact catalog/draft correspondence is sealed.
 
-CAT0-L0 changes only index storage: one primary header map, foreign-key reverse
-indexes, and a checked sole-header compatibility facade. Grammar, route,
-runtime, sibling-call activation, body authority, MIR publication, and
-ownership operations remain unchanged. Do not infer the catalog from MIR
-module symbols or legacy global-call lookup.
+CAT0-S0 adds only the owned exact function-only Program header source-unit
+shell, opaque declaration sites, and whole-surface coverage. It must not read
+function bodies, issue owners, seal multiple headers, activate sibling calls,
+or infer the catalog from MIR module symbols or legacy global-call lookup.
+Grammar, route, runtime, MIR publication, and ownership operations remain
+unchanged.
 
 Ownership V2 parser/resolver/MIR work and `.hako` selfhost parser/MIR-builder
 migration remain separate parked lanes. They are not hidden CAT0 prerequisites

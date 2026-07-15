@@ -1,12 +1,12 @@
 ---
-Status: Accepted and taskized — A′+; CAT0-D0 closed, CAT0-L0 next
+Status: Accepted and taskized — A′+; CAT0-D0/L0 closed, CAT0-S0 next
 Date: 2026-07-15
 Decision: A′+ — Program/catalog co-seal + single-use resolver continuation + canonical-key module identity
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-CAT0-L0-CALLABLE-INDEX-STORAGE-CLEANUP-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-CAT0-S0-PROGRAM-HEADER-SOURCE-UNIT-001
 Parent taskboard: mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
 Previous closed card: mirbuilder-ssa-i1-compat-p0c-i64-call-design-stop-2026-07-15.md
 Decision-input baseline commit: ec570ea696
-Next code-facing row: CAT0-L0
+Next code-facing row: CAT0-S0
 ---
 
 # P0c-CAT0 Module Callable Catalog — A′+ Decision and Taskboard
@@ -456,7 +456,7 @@ CAT0-D0:
   A′+ decision lock and exact claims/non-claims
 
 CAT0-L0:
-  NEXT — behavior-neutral code row
+  CLOSED — behavior-neutral code row
   behavior-neutral index storage cleanup
   one primary header store + reverse foreign-key indexes
   checked sole-header P0c facade
@@ -547,6 +547,27 @@ verification:
   bash tools/checks/dev_gate.sh quick
   all touched source/check files < 800 lines
 ```
+
+State: closed on 2026-07-15.
+
+Closeout evidence:
+
+```text
+VerifiedCallableIndexV1 owns one headers_by_key primary store
+key_by_callable / key_by_symbol store canonical keys only
+callable and symbol reverse lookups are indexed
+sole_header returns typed cardinality error and never panics
+resolved callable forest consumes the checked facade
+legacy only_header and linear header scan callers = 0
+resolved semantics = 129/129
+release build = green
+quick gate = 66/66
+all touched source/check files < 800 lines
+```
+
+Grammar, Program admission, multi-header sealing, body authority, sibling-call
+activation, runtime/backend behavior, and ownership operations remain zero.
+The next code-facing row is `CAT0-S0`.
 
 ### MP0-TX0 exit gate
 

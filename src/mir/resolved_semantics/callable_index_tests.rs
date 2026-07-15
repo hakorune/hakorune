@@ -1,4 +1,5 @@
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl, Span};
+use std::collections::BTreeMap;
 
 use super::*;
 use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
@@ -40,16 +41,16 @@ fn seal(tree: &ASTNode) -> Result<VerifiedCallableIndexV1, CallableIndexSealErro
 #[test]
 fn seals_one_exact_static_i64_header_without_new_identity() {
     let tree = function("countdown", &[("n", Some("i64"))], Some("i64"));
-    let owner = owner();
+    let owner_id = owner();
     let index = VerifiedCallableIndexV1::seal_one(
-        owner,
+        owner_id,
         CallableHeaderSyntaxViewV1::from_function_ast(&tree).unwrap(),
     )
     .unwrap();
 
     assert_eq!(index.len(), 1);
-    let header = index.only_header();
-    assert_eq!(header.callable().owner(), owner);
+    let header = index.sole_header().unwrap();
+    assert_eq!(header.callable().owner(), owner_id);
     assert_eq!(
         header.source_key().namespace(),
         CallableNamespaceV1::FreeStatic
@@ -61,11 +62,59 @@ fn seals_one_exact_static_i64_header_without_new_identity() {
     assert_eq!(header.signature().params(), &[ExactTrivialScalarAbiV1::I64]);
     assert_eq!(header.signature().result(), ExactTrivialScalarAbiV1::I64);
     assert_eq!(index.lookup(header.source_key()), Some(header));
+    assert_eq!(index.header_for_callable(header.callable()), Ok(header));
+    assert_eq!(index.header_for_symbol(header.symbol()), Ok(header));
 
     let wrong_name = CanonicalCallableKeyV1::free_static("countup", 1);
     let wrong_arity = CanonicalCallableKeyV1::free_static("countdown", 2);
     assert_eq!(index.lookup(&wrong_name), None);
     assert_eq!(index.lookup(&wrong_arity), None);
+    let missing_callable = ResolvedCallableRefV1::new(owner());
+    assert_eq!(
+        index.header_for_callable(missing_callable),
+        Err(CallableLookupErrorV1::MissingCallableIdentity)
+    );
+    let missing_symbol = CanonicalCallableSymbolV1::from_key(&wrong_name);
+    assert_eq!(
+        index.header_for_symbol(&missing_symbol),
+        Err(CallableLookupErrorV1::MissingPhysicalSymbol)
+    );
+}
+
+#[test]
+fn sole_header_reports_cardinality_without_panicking() {
+    let empty = VerifiedCallableIndexV1 {
+        headers_by_key: BTreeMap::new(),
+        key_by_callable: BTreeMap::new(),
+        key_by_symbol: BTreeMap::new(),
+    };
+    assert_eq!(
+        empty.sole_header(),
+        Err(CallableCatalogCardinalityErrorV1 { actual: 0 })
+    );
+
+    let mut headers_by_key = BTreeMap::new();
+    let mut key_by_callable = BTreeMap::new();
+    let mut key_by_symbol = BTreeMap::new();
+    for name in ["f", "g"] {
+        let tree = function(name, &[("x", Some("i64"))], Some("i64"));
+        let header = seal_exact_i64_header(
+            owner(),
+            CallableHeaderSyntaxViewV1::from_function_ast(&tree).unwrap(),
+        )
+        .unwrap();
+        let key = header.source_key().clone();
+        key_by_callable.insert(header.callable(), key.clone());
+        key_by_symbol.insert(header.symbol().clone(), key.clone());
+        headers_by_key.insert(key, header);
+    }
+    let two = VerifiedCallableIndexV1 {
+        headers_by_key,
+        key_by_callable,
+        key_by_symbol,
+    };
+    let error = two.sole_header().unwrap_err();
+    assert_eq!(error.actual(), 2);
 }
 
 #[test]

@@ -36,6 +36,12 @@ required = {
         "CanonicalCallableSymbolV1",
         "ExactTrivialCallableSignatureV1",
         "VerifiedCallableIndexV1",
+        "CallableCatalogCardinalityErrorV1",
+        "headers_by_key",
+        "key_by_callable",
+        "key_by_symbol",
+        "pub(crate) fn sole_header(",
+        "pub(crate) fn header_for_symbol(",
         "pub(crate) fn seal_one(",
     ],
     header_view: [
@@ -78,6 +84,11 @@ for path, needles in required.items():
     for needle in needles:
         if needle not in text:
             fail(f"missing contract {needle!r} in {path.relative_to(root)}")
+
+callable_index_text = callable_index.read_text()
+for forbidden in ["only_header(", ".values().find", ".values()\n            .find"]:
+    if forbidden in callable_index_text:
+        fail(f"callable index retains linear/panicking compatibility seam: {forbidden}")
 
 backend_text = backend_gate.read_text()
 for forbidden in ["MirInstruction", "parameter_entry_contracts", "return_exit_contract"]:

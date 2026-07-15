@@ -80,7 +80,7 @@ fn seals_exact_self_call_target_and_argument_use() {
 
     assert_eq!(target.callable().owner(), root);
     assert_eq!(
-        unit.callable_index().only_header().callable(),
+        unit.callable_index().sole_header().unwrap().callable(),
         target.callable()
     );
     assert!(matches!(

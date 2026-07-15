@@ -1,9 +1,13 @@
 //! Co-sealed source-unit callable catalog and semantic owner forest.
 
-use super::{FunctionOwnerIdV1, VerifiedCallableIndexV1, VerifiedSemanticOwnerForestV1};
+use super::{
+    CallableCatalogCardinalityErrorV1, FunctionOwnerIdV1, VerifiedCallableIndexV1,
+    VerifiedSemanticOwnerForestV1,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ResolvedCallableForestVerificationErrorV1 {
+    CallableCatalogCardinality(CallableCatalogCardinalityErrorV1),
     IndexOwnerIsNotSoleRoot {
         index_owner: FunctionOwnerIdV1,
         root: FunctionOwnerIdV1,
@@ -27,7 +31,11 @@ impl VerifiedResolvedCallableForestV1 {
         callable_index: VerifiedCallableIndexV1,
     ) -> Result<Self, ResolvedCallableForestVerificationErrorV1> {
         let root = forest.roots()[0];
-        let index_owner = callable_index.only_header().callable().owner();
+        let index_owner = callable_index
+            .sole_header()
+            .map_err(ResolvedCallableForestVerificationErrorV1::CallableCatalogCardinality)?
+            .callable()
+            .owner();
         if forest.owner_count() != 1 || index_owner != root {
             return Err(
                 ResolvedCallableForestVerificationErrorV1::IndexOwnerIsNotSoleRoot {

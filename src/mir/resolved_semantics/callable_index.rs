@@ -44,7 +44,7 @@ impl CanonicalCallableKeyV1 {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) struct ResolvedCallableRefV1 {
     owner: FunctionOwnerIdV1,
 }
@@ -59,7 +59,7 @@ impl ResolvedCallableRefV1 {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) struct CanonicalCallableSymbolV1(Box<str>);
 
 impl CanonicalCallableSymbolV1 {
@@ -139,6 +139,8 @@ pub(crate) enum CallableIndexSealErrorV1 {
     ReturnTypeOutsideProfile,
     ArityOverflow,
     DuplicateSourceKey,
+    DuplicateCallableIdentity,
+    DuplicatePhysicalSymbol,
     IndexCardinality { actual: usize },
 }
 
@@ -147,11 +149,25 @@ pub(crate) enum CallableLookupErrorV1 {
     PhysicalSymbolSpellingInSource,
     MissingExactSourceKey,
     MissingCallableIdentity,
+    MissingPhysicalSymbol,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct CallableCatalogCardinalityErrorV1 {
+    actual: usize,
+}
+
+impl CallableCatalogCardinalityErrorV1 {
+    pub(crate) const fn actual(self) -> usize {
+        self.actual
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct VerifiedCallableIndexV1 {
-    by_source_key: BTreeMap<CanonicalCallableKeyV1, VerifiedCallableHeaderV1>,
+    headers_by_key: BTreeMap<CanonicalCallableKeyV1, VerifiedCallableHeaderV1>,
+    key_by_callable: BTreeMap<ResolvedCallableRefV1, CanonicalCallableKeyV1>,
+    key_by_symbol: BTreeMap<CanonicalCallableSymbolV1, CanonicalCallableKeyV1>,
 }
 
 impl VerifiedCallableIndexV1 {
@@ -166,7 +182,7 @@ impl VerifiedCallableIndexV1 {
     }
 
     pub(crate) fn lookup(&self, key: &CanonicalCallableKeyV1) -> Option<&VerifiedCallableHeaderV1> {
-        self.by_source_key.get(key)
+        self.headers_by_key.get(key)
     }
 
     pub(crate) fn resolve_free_static_source_call(
@@ -185,21 +201,44 @@ impl VerifiedCallableIndexV1 {
         &self,
         callable: ResolvedCallableRefV1,
     ) -> Result<&VerifiedCallableHeaderV1, CallableLookupErrorV1> {
-        self.by_source_key
-            .values()
-            .find(|header| header.callable() == callable)
+        let key = self
+            .key_by_callable
+            .get(&callable)
+            .ok_or(CallableLookupErrorV1::MissingCallableIdentity)?;
+        self.headers_by_key
+            .get(key)
             .ok_or(CallableLookupErrorV1::MissingCallableIdentity)
     }
 
-    pub(crate) fn only_header(&self) -> &VerifiedCallableHeaderV1 {
-        self.by_source_key
-            .first_key_value()
-            .map(|(_, header)| header)
-            .expect("VerifiedCallableIndexV1 seals exactly one row in P0c-L0")
+    pub(crate) fn header_for_symbol(
+        &self,
+        symbol: &CanonicalCallableSymbolV1,
+    ) -> Result<&VerifiedCallableHeaderV1, CallableLookupErrorV1> {
+        let key = self
+            .key_by_symbol
+            .get(symbol)
+            .ok_or(CallableLookupErrorV1::MissingPhysicalSymbol)?;
+        self.headers_by_key
+            .get(key)
+            .ok_or(CallableLookupErrorV1::MissingPhysicalSymbol)
+    }
+
+    pub(crate) fn sole_header(
+        &self,
+    ) -> Result<&VerifiedCallableHeaderV1, CallableCatalogCardinalityErrorV1> {
+        if self.headers_by_key.len() != 1 {
+            return Err(CallableCatalogCardinalityErrorV1 {
+                actual: self.headers_by_key.len(),
+            });
+        }
+        match self.headers_by_key.first_key_value() {
+            Some((_, header)) => Ok(header),
+            None => Err(CallableCatalogCardinalityErrorV1 { actual: 0 }),
+        }
     }
 
     pub(crate) fn len(&self) -> usize {
-        self.by_source_key.len()
+        self.headers_by_key.len()
     }
 }
 
@@ -226,8 +265,26 @@ impl CallableIndexDraftV1 {
                 actual: self.by_source_key.len(),
             });
         }
+        let mut key_by_callable = BTreeMap::new();
+        let mut key_by_symbol = BTreeMap::new();
+        for (key, header) in &self.by_source_key {
+            if key_by_callable
+                .insert(header.callable(), key.clone())
+                .is_some()
+            {
+                return Err(CallableIndexSealErrorV1::DuplicateCallableIdentity);
+            }
+            if key_by_symbol
+                .insert(header.symbol().clone(), key.clone())
+                .is_some()
+            {
+                return Err(CallableIndexSealErrorV1::DuplicatePhysicalSymbol);
+            }
+        }
         Ok(VerifiedCallableIndexV1 {
-            by_source_key: self.by_source_key,
+            headers_by_key: self.by_source_key,
+            key_by_callable,
+            key_by_symbol,
         })
     }
 }

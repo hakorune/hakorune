@@ -28,9 +28,10 @@ mod verifier;
 
 pub(crate) use callable_header_view::{CallableFunctionSyntaxViewV1, CallableHeaderSyntaxViewV1};
 pub(crate) use callable_index::{
-    CallableIndexSealErrorV1, CallableLookupErrorV1, CallableNamespaceV1, CanonicalCallableKeyV1,
-    CanonicalCallableSymbolV1, ExactTrivialCallableSignatureV1, ResolvedCallableRefV1,
-    VerifiedCallableHeaderV1, VerifiedCallableIndexV1,
+    CallableCatalogCardinalityErrorV1, CallableIndexSealErrorV1, CallableLookupErrorV1,
+    CallableNamespaceV1, CanonicalCallableKeyV1, CanonicalCallableSymbolV1,
+    ExactTrivialCallableSignatureV1, ResolvedCallableRefV1, VerifiedCallableHeaderV1,
+    VerifiedCallableIndexV1,
 };
 pub(crate) use direct_call::{ResolvedDirectCallTargetV1, ResolvedDirectCallVerificationErrorV1};
 pub(crate) use function_root::{
