@@ -1,8 +1,8 @@
 ---
-Status: Active — P0a static exact-i64 parameter implementation next
+Status: Active — R0a-L0 behavior-neutral exact-i64 return ABI facade next
 Date: 2026-07-15
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0A-STATIC-EXACT-I64-PARAMETER-IMPLEMENTATION-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-R0A-L0-IMPLEMENTATION-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -1396,6 +1396,27 @@ Binding SSA, preserve the existing final-callee entry contract, and reject
 unsupported typed signatures without A+ retry. Source calls, typed returns,
 receiver ownership, broader numeric rows, and Box ownership remain inactive.
 
+Selected fourth row:
+
+```text
+SSA-I1-COMPAT-R0a:
+  non-main static function owner only
+  zero or all-exact-i64 parameters
+  exact source return spelling :i64
+  final explicit InlineI64 terminal
+  existing terminal remains return-value authority
+  one co-sealed function-level return ABI witness
+  existing ReturnExitContract / Rust MIR interpreter only
+```
+
+Selection card:
+`mirbuilder-ssa-i1-compat-static-i64-return-selection-2026-07-15.md`.
+
+Implement it as one Refactor Series Mode objective: behavior-neutral R0a-L0,
+disconnected R0a-S0, then atomic R0a-I1. Source Call, receiver, broader numeric
+types, Box/View/Shared return ABI, Ownership SSA/opcodes, and backend widening
+remain inactive.
+
 The remaining rows stay separate: exact typed parameters do not include the
 receiver owner family; Void disposition does not imply Outbox identity;
 BorrowedText requires its own lifetime/ABI decision.
@@ -2327,7 +2348,8 @@ state.
 
 ## Immediate next action
 
-P0a is closed. Return to **SSA-I1-COMPAT next-row selection** and stop before
-implementation. The selection must compare P0n/P0b/P0f/P0r/P0c/R0 using exact
-source and runtime-contract evidence. Do not infer receiver, source Call,
-typed return, broader numeric types, or Box ownership from P0a being green.
+R0a is selected. Implement **R0a-L0 — behavior-neutral exact scalar/callable
+ABI facade** next. Preserve production grammar and routing, keep typed return
+inactive, and prove existing P0a behavior remains green. The following card
+must contain code or generated artifact delta; do not open another docs-only
+selection card. R0a-S0 and atomic R0a-I1 follow only after L0 closes.

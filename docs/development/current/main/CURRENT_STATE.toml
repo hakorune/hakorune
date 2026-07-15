@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ SSA-I1-COMPAT-P0a static exact-i64 parameter closed; next-row selection stop"
+status = "D′ SSA-I1-COMPAT-R0a static exact-i64 return selected; R0a-L0 implementation active"
 date = "2026-07-15"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -78,7 +78,8 @@ unsupported typed signatures reject before Builder effects and never retry
 A+. Strict corpus candidates remain zero, so this is an ingress proof rather
 than a selfhost coverage claim. Source calls, typed returns, receiver, broader
 numeric types, Box ownership, Ownership SSA/opcodes, and backend widening
-remain inactive. The next row is a design-selection stop.
+remain inactive. R0a is now selected as the exact static `i64` return row;
+behavior-neutral R0a-L0 is the active implementation blocker.
 Historical
 lane chronology follows and is non-authoritative.
 Explicit user priority change on 2026-07-12 reopens
@@ -196,19 +197,21 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/binding-ssa-first-control-lowering-ssot.md"
 
-latest_card = "mirbuilder-ssa-i1-compat-static-i64-parameter-selection-2026-07-15"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-ssa-i1-compat-static-i64-parameter-selection-2026-07-15.md"
-latest_card_summary = """SSA-I1-COMPAT-P0a closes the smallest exact parameter
-ingress proof: one non-main static owner, one or more exact `i64` parameters,
-no typed return, and only the current SSA-I1-T body grammar. Sealed parameter
-rows transport exact MirParamDecl metadata and adopt reserved formal ValueIds
-into the existing function-owned Binding SSA without allocation or legacy name
-maps. Parameter reassignment and If PHIs use that same authority. Existing
-final-callee type/arity checks and non-VM fail-fast remain the runtime/backend
-owners. Strict corpus candidates are zero, so P0a is infrastructure rather
-than a selfhost coverage claim. Source calls, typed returns, receiver,
-bool/f64/usize, Box ownership, backend widening, Ownership SSA, and A+ retry
-remain outside the row; the frontier returns to a next-row selection stop.
+latest_card = "mirbuilder-ssa-i1-compat-static-i64-return-selection-2026-07-15"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-ssa-i1-compat-static-i64-return-selection-2026-07-15.md"
+latest_card_summary = """SSA-I1-COMPAT-R0a selects the smallest typed-return
+row: one non-main static owner, zero or all-exact-i64 parameters, exact `: i64`,
+the unchanged SSA-I1-T body grammar, and one final explicit InlineI64 terminal.
+The existing terminal profile remains the sole returned source/value authority;
+a new co-sealed function-level witness owns only exact callable-boundary ABI.
+Resolved lowering must consume that witness through a route-local callable ABI
+facade and stop rereading raw return annotations. ReturnExitContract remains
+the final-callee runtime carrier, with FunctionReturnContract as its owner tag;
+runtime mismatch rejects before caller observation, while carrier drift rejects
+before function publication. Typed-return NotAdmitted never reaches A+ and
+non-VM backends remain fail-fast. Source Call, receiver, broader numeric/Box
+returns, Ownership SSA/opcodes, and backend widening remain inactive. The next
+blocker is behavior-neutral R0a-L0; another docs-only closeout is forbidden.
 Historical D′ context follows.
 D′ is accepted and taskized through the final canonical
 source form. Exact source coverage, ScopeId/RegionId topology, typed ports,
@@ -627,7 +630,7 @@ SSA-I1-T blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-NEXT-ROW-SELECTION-DESIGN-STOP-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-R0A-L0-IMPLEMENTATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -636,6 +639,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-15: D′ SSA-I1-COMPAT-R0a selects static exact-i64 typed return as the next row: exact :i64 is co-sealed with the existing final explicit InlineI64 terminal; the terminal remains return-value authority and a new function-level witness owns only callable-boundary ABI; resolved Lower must consume sealed metadata without raw annotation reclassification; ReturnExitContract with FunctionReturnContract owner remains runtime authority; typed-return NotAdmitted never retries A+, non-VM backends fail before effects, and source Call/receiver/Box/Ownership SSA remain inactive; R0a-L0 behavior-neutral implementation is next and another docs-only closeout is forbidden.",
   "2026-07-15: D′ SSA-I1-COMPAT-P0a closes atomic static exact-i64 parameter ingress: sealed parameter rows install exact MirParamDecl metadata and adopt reserved formal ValueIds into the one function-owned Binding SSA without allocation or legacy name maps; parameter reassignment and If PHIs share that authority; existing final-callee exact type/arity validation and shared non-VM backend fail-fast are preserved; unsupported typed signatures reject before Builder effects and never retry A+; resolved-lowering 94/94, P0a 5/5, profile 18/18, final-callee 8/8, backend capability 2/2, parameter-entry 9/9, and authority guard are green; source calls, typed returns, receiver, broader numeric/Box rows, Ownership SSA/opcodes, and backend widening remain inactive; next-row selection is the design-stop frontier.",
   "2026-07-15: D′ SSA-I1-COMPAT-P0a selects one static exact-i64 parameter ingress proof: one or more exact i64 parameters, no typed return, and the existing SSA-I1-T body grammar; sealed parameter-entry rows adopt reserved formal ValueIds into the function-owned Binding SSA and reuse the existing exact-numeric final-callee contract; strict corpus candidates are zero, so this is infrastructure rather than selfhost coverage; implement behavior-neutral L0, disconnected S0, then atomic I1 only; source Call/MethodCall, receiver, bool/f64/usize, typed return, Box ownership, backend widening, and A+ fallback remain inactive.",
   "2026-07-15: D′ SSA-I1-COMPAT-V0a closes one exact ExplicitVoidValue production row: LiteralValue::Void is exact source/profile authority over existing ConstValue::Void / MirType::Void / runtime no-value representation; local/read/assignment/BlockExpr, homogeneous one-sided/two-sided/nested If, Bool comparison, explicit return void, and Void expression completion use the existing Binding SSA; return void / return; / implicit completion remain distinct profile dispositions; Outbox, Null return, mixed Null/Void, BorrowedText, parameters, receiver, Ownership SSA/opcodes, backend vocabulary, and Loop remain inactive; profile 13/13, focused Void 3/3, resolved-lowering 89/89, capability 5/5, production inventory 18/18, legacy lifecycle ledger 125/276, authority guard, release build, and quick 66/66 are green; P0 exact typed parameter ABI is the next design-selection stop and receiver stays separate.",
@@ -647,5 +651,4 @@ landed_tail = [
   "2026-07-14: D′ SSA-RC0 closes one disconnected pure local-binding ownership-transition planner: Receiver/Parameter/Local/Outbox and Trivial/Owned/BorrowedStrong form closed vocabularies; exact BindingRef self-assignment, next-before-previous replacement, BlockExpr tail transfer/copy, reverse-order scope/function close, terminal Return ABI, and draft discard are sealed; MirBuilder/MirInstruction/BasicBlockId imports, BindingRef-to-ValueId planner maps, ValueId allocation, MIR emission, production callers, grammar delta, and runtime activation are zero; 18/18 focused, 74/74 resolved-lowering, authority guard, release build, quick 66/66, and <=500-line source/check files are green; SSA-I1 is selected.",
   "2026-07-14: D′ SSA-RC-RET-P0 closes a separate behavior-neutral legacy ReleaseStrong retirement ledger: 118 tracked surfaces and 266 exact occurrences are classified into canonical caller-zero delete 1, legacy builder isolate 4, optional RC isolate 3, optimizer/CFG isolate 11, backend/JSON isolate 31, and retirement-only 68; the historical 92-row inventory is unchanged, one private helper is connected beneath the bounded authority guard, all new/modified source/check files are <=217 lines, release build, authority guard, pointer guard, and quick 66/66 are green, and semantic/backend/opcode/JSON/caller deltas remain zero; SSA-RC0 is selected.",
   "2026-07-14: D′ SSA-RC-A1c closes exact llvmlite-object Ownership SSA materialization: witness-owned ABI/operation inventory, one Rust sealed-witness JSON transport, full-product stale-witness rejection, strict BoxRef/provider/site verification before LLVM effects, CopyOwned retain-to-fresh-handle, DestroyOwned exact release, explicit PyVM and unsupported-backend fail-fast, 4/4 Python, 3/3 backend preflight, 1/1 JSON transport, 21/21 backend-contract, 3/3 nyash_kernel lifecycle fixtures, authority guard, release build, quick 66/66, and <=672-line touched source/check files are green; canonical production callers remain zero and SSA-RC-RET-P0 is selected.",
-  "2026-07-14: D′ SSA-RC-A1b closes one explicit Rust verified-ownership function session: owner-branded witness preflight, move-seeded arguments, selected-edge Owned Phi parallel take-before-publish, exact Owned Return take, success/error restoration, 3/3 focused and 6/6 frame fixtures, authority guard, release build, and quick 66/66 are green; ordinary execution, canonical production callers, and unsupported backend activation remain unchanged; SSA-RC-A1c is selected.",
 ]
