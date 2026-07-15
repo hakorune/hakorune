@@ -82,6 +82,25 @@ safety.
 
 ## Recommended Task Order
 
+### 2026-07-15 conformance cleanup order
+
+Before opening any new `sync box` execution route, close the audited surface
+drift in this order:
+
+```text
+CONC-GUARD-AST-CRATE0
+  -> CONC-GRAM-SYNC0
+  -> CONC-GRAM-CO0
+  -> CONC-GRAM-CONTEXT0
+  -> CONC-SYNCBOX-VIEW-D0
+  -> CONC-SYNCBOX-EFFECT0 / CONC-SYNCBOX-TRANSFER-D0
+  -> later Program JSON / MIR / Rust VM execution row
+```
+
+`OWN-GRAM-REJECT0` is owned by the sparse ownership taskboard and precedes
+ownership grammar activation; it is not duplicated here. The cleanup rows are
+parked work and do not replace the current `CURRENT_STATE.toml` blocker.
+
 Use this order when the language-surface cleanup is prioritized before
 returning to the mimalloc lane:
 
@@ -162,6 +181,13 @@ compat/archive lane and let canonical smokes cover the live behavior.
 | `CONC-SYNCBOX-001` | landed-parser-json | Add `sync box` parser/AST capsule and canonical docs. | parse/AST JSON roundtrip guard + lowering fail-fast | no serialized runtime yet |
 | `CONC-SYNCBOX-002` | landed-verifier | Add verifier rule: no `await` / `nowait` / channel wait inside `sync box` method. | parser-side fail-fast diagnostics guard | no lock-order inference |
 | `CONC-SYNCBOX-003` | landed-code | Add reference-only serialized method-entry behavior. | `src/runtime/sync_box.rs` + `293x-1003-CONC-SYNCBOX-003-REFERENCE-SERIALIZED-ENTRY.md` | Program JSON / MIR / LLVM fail-fast continue |
+| `CONC-GUARD-AST-CRATE0` | pending-clean-first | Repair three stale concurrency guards after AST ownership moved to `crates/hakorune_frontend_ast`. | current-path guards + green guard fixtures | behavior/grammar delta 0; wait guard remains unchanged |
+| `CONC-GRAM-SYNC0` | pending | Register the already parser-live `sync box` capsule in Language-v1 grammar SSOT and EBNF. | registry + EBNF + Rust/Hako witness | no Program JSON/MIR/runtime activation |
+| `CONC-GRAM-CO0` | pending | Register canonical `co` and compatibility `task_scope` as one exact grammar row. | registry + EBNF + Rust/Hako witness | no scheduler/runtime widening |
+| `CONC-GRAM-CONTEXT0` | pending | Register canonical `context` and compatibility `scoped` as one exact grammar row. | registry + EBNF + Rust/Hako witness | no propagation widening |
+| `CONC-SYNCBOX-VIEW-D0` | pending-design | Forbid sync-method View results and sync-field escaping Views in the first profile. | Decision + fail-fast fixtures + reference-only example label | no synchronized-view token or hidden snapshot |
+| `CONC-SYNCBOX-EFFECT0` | pending-design | Seal callable effects for blocking calls, nested sync calls, and lock-order-sensitive operations. | verified effect ABI + conservative rejection fixtures | parser node scan is not the final authority |
+| `CONC-SYNCBOX-TRANSFER-D0` | pending-design | Decide Move/Share/Send/Sync capability for `co`, `nowait`, and Channel transfer. | explicit transfer contract | no runtime-behavior inference |
 | `CONC-CONTEXT-001` | landed-parser-json | Add `context` surface as canonical name and quarantine `scoped` as compat. | parser/AST JSON guard + scoped compat audit | no propagation runtime yet |
 | `CONC-CONTEXT-002` | landed-code | Implement context snapshot on `nowait` child creation inside explicit `co` / compatibility `task_scope`. | `src/runtime/context_snapshot.rs` + `293x-1006-CONC-CONTEXT-002-CONTEXT-SNAPSHOT-REFERENCE.md` | implicit root is not detached propagation |
 | `CONC-WORKERLOCAL-001` | pending | Keep `worker_local` source syntax closed while allocator substrate remains internal. | no-source-worker-local guard | no mimalloc behavior change |
@@ -498,6 +524,42 @@ compatibility or archive-only coverage. The canonical direction stays
 
 This keeps syntax acceptance separate from semantic enforcement and backend
 lowering.
+
+### CONC-GUARD-AST-CRATE0 / CONC-GRAM-*
+
+`CONC-GUARD-AST-CRATE0` is a behavior-neutral prerequisite. Update only these
+stale guards to read the current frontend AST crate:
+
+```text
+concurrency_sync_box_surface_guard.sh
+concurrency_boundary_surface_guard.sh
+concurrency_context_surface_guard.sh
+```
+
+`concurrency_sync_box_wait_guard.sh` is already green and must not be rewritten
+as part of this row. After the guard seam is current, add grammar SSOT one
+durable row at a time: `sync box`, then `co`/`task_scope`, then
+`context`/`scoped`. Every grammar row closes registry, EBNF, Rust parser
+witness, Hako parser witness, and negative fixtures together without opening
+Program JSON, MIR, or runtime execution.
+
+### CONC-SYNCBOX-VIEW-D0 / EFFECT0 / TRANSFER-D0
+
+Initial View safety boundary (`Decision: provisional` until D0 closes):
+
+```text
+sync box method -> View result: reject
+sync box field -> escaping View: reject
+snapshot/Owned/Share result: requires an exact declared ABI
+synchronized-view token: later independent Decision
+```
+
+A method-entry lock cannot silently anchor a View after the guard is released.
+`EFFECT0` separately replaces the current explicit `await`/`nowait` node scan
+with an exact callable-effect contract for blocking and nested sync operations.
+`TRANSFER-D0` separately decides task/channel movement; current runtime behavior
+is never permission authority. Fairness is not an open question in these rows:
+the Phase-0 contract deliberately provides no fairness or starvation guarantee.
 
 ### CONC-CONTEXT-001 / 002
 

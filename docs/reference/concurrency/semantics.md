@@ -286,6 +286,12 @@ report the effective route and reason.
   waits out of sync methods in the current surface.
 - Program JSON, MIR lowering, and LLVM lowering still fail-fast rather than
   treating `sync box` as an ordinary `box`.
+- The examples in this section are reference-only until a dedicated Program
+  JSON -> MIR -> Rust VM execution row lands.
+- `Decision: provisional` — the initial View profile rejects `sync box` method
+  View results and Views escaping from internal sync fields. The serialized
+  method guard does not outlive the call, so it cannot be used as an implicit
+  lifetime token.
 - Reference runtime fields:
   - `sync_box_reference_runtime_enabled=1`
   - `sync_box_mir_lowering_enabled=0`

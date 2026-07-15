@@ -223,9 +223,20 @@ Required closure:
 ```text
 Rust parser exact reject fixtures
 Hako parser exact reject fixtures
-shared stable reason/tag
-ordinary type names `view` / `share` remain legal where unambiguous
-ordinary calls move(...) / share(...) remain unchanged
+shared stable tag:
+  [freeze:contract][parser/ownership_syntax_inactive]
+
+exact rejects:
+  static and instance result `: view T`
+  static and instance result `: share T`
+
+must remain accepted:
+  view(...)
+  share(...)
+  local view = 1
+  local share = 1
+  literal type names `view` / `share` where unambiguous
+
 grammar/AST/resolver/Builder/runtime activation = 0
 silent type-name coalescing = 0
 ```
@@ -264,11 +275,19 @@ Constraints:
 - The first anchor grammar admits only receiver/parameter WholeObject roots.
   Field paths, static anchors, and named domains are later rows.
 - return type and return ownership are distinct AST/schema fields.
+- `ParameterOwnershipSyntaxV1` is orthogonal to the existing parameter name
+  and declared-type carrier; `GRAM-PARAM0` must not replace `ParamDecl` with a
+  second competing parameter authority.
+- `ReturnOwnershipSyntaxV1` is orthogonal to the existing return-type carrier;
+  `GRAM-RESULT0` must not encode ownership into `return_type_name`.
 - `MoveExpression` and `ShareExpression` are separate dedicated
   AST/source-carrier rows. Resolver/Lower string matching is forbidden.
 - `@rune Ownership(...)` is not used as source ownership authority.
 - Rust parser, Hako parser, grammar registry, AST JSON, macro/source carrier,
   and corpus fixtures close together.
+- Macro AST JSON transport closes with each grammar row. Program JSON v0 is a
+  separate semantic/lowering Decision and must remain fail-fast until its own
+  row is activated.
 - unsupported backends/routes fail before effects.
 
 Existing bindings passed to consuming/owning destinations use `move`; fresh

@@ -244,6 +244,9 @@ queues are allocator-owned structures over atomic/TLS substrate.
 
 Example:
 
+> Reference-only example: parser/AST transport and verifier checks are active,
+> but Program JSON, MIR, Rust VM execution, and LLVM lowering remain fail-fast.
+
 ```hako
 sync box Counter {
     value: i64 = 0
@@ -280,6 +283,11 @@ Initial rule:
 - Calling another `sync box` method while inside a serialized `sync box` method
   should be rejected unless a later verifier row introduces an explicit,
   acyclic lock-order contract.
+- `Decision: provisional` — the first View profile rejects a `view` result from
+  a `sync box` method and any escaping View into a `sync box` field. A method
+  guard ends at return, so it cannot silently keep such a View synchronized.
+  APIs must return a snapshot, Owned result, or explicitly Shared result until
+  a separate synchronized-view token is designed.
 
 This is stricter than exposing `lock<T>` directly, but it gives the compiler a
 clear boundary for verifier facts, effect checks, and backend lowering.
@@ -392,6 +400,9 @@ Summary rows:
 | `CONC-CHANNEL-001` | Update channel API docs so `send` / `recv` / `close` are await-visible and `try_*` APIs are non-blocking. |
 | `CONC-SYNCBOX-001` | Keep raw `lock<T>` non-canonical; add `sync box` as the shared-mutable surface. |
 | `CONC-SYNCBOX-002` | Reject `await` / `nowait` / channel waits inside serialized `sync box` methods. |
+| `CONC-GUARD-AST-CRATE0` | Repair stale guard paths without changing language behavior. |
+| `CONC-GRAM-SYNC0/CO0/CONTEXT0` | Add the already-live concurrency capsules to grammar registry and EBNF one row at a time. |
+| `CONC-SYNCBOX-VIEW-D0` | Seal the initial no-escaping-View boundary for serialized methods. |
 | `CONC-CONTEXT-001` | Rename/design `scoped` as `context` and pin structured child inheritance. |
 
 Implementation must remain separate from mimalloc substrate rows. Mimalloc may
