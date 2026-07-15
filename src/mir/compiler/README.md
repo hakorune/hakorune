@@ -173,6 +173,18 @@ It adds only self-edge rejection and a deterministic canonical-key Kahn
 witness. G0 preserves the existing P0c-F behavior exactly and adds no SCC
 production consumer or recursion activation.
 
+## P0c-MR-S0 disconnected SCC partition
+
+`VerifiedCallableSccPartitionV1` consumes one graph inventory by value and
+seals SCC membership, minimum-canonical-key component IDs, recursion class,
+and the condensation DAG/order. Its deterministic Kosaraju implementation uses
+explicit work stacks; declaration and discovery order never become identity.
+
+S0 is disconnected. It adds no compiler ingress, call ABI/effect authority,
+MIR, publication, backend capability, runtime discovery, or recursive
+execution. Malformed private drafts verify membership completeness, stable IDs,
+strong connectivity, and condensation acyclicity before a partition exists.
+
 ## P0c-F-V0 typed acyclic module plan
 
 `VerifiedAcyclicCallableModulePlanV1` is the disconnected pre-Builder witness

@@ -23,11 +23,12 @@ Related:
   `DX0a -> DX0b -> S0 -> V0 -> census evidence -> I1`; all rows are closed.
   The census found zero exact P0c-F candidates in `lang/src`, so I1 is an
   ingress proof rather than a corpus coverage claim. The exact current blocker
-  is P0c-MR-S0, the disconnected deterministic SCC partition. C-prime is
-  taskized as `G0 -> S0 -> V0 -> C0 -> I1 -> R0`; G0 is closed with one
-  non-Clone inventory and unchanged P0c-F behavior. S0 must use a host-stack-
-  safe traversal, consume one inventory by value, and keep production callers,
-  recursive execution, effects, MIR, and backend changes at zero. Production Ownership SSA,
+  is P0c-MR-V0, the disconnected recursive exact-i64 module plan. C-prime is
+  taskized as `G0 -> S0 -> V0 -> C0 -> I1 -> R0`; G0 and S0 are closed. The
+  deterministic SCC partition is non-Clone, uses a host-stack-safe traversal,
+  and keeps production callers at zero. V0 must seal recursive-module admission
+  and exact module/partition/typed-plan/call-row correspondence without adding
+  recursive execution, effects, MIR, publication, or backend behavior. Production Ownership SSA,
   Loop production,
   mutual recursion/SCC, legacy
   fallback, default source, Lambda/capture, ProgramV0 authority, and durable

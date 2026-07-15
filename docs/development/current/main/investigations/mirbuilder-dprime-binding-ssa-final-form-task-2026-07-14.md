@@ -2412,10 +2412,10 @@ state.
 
 ## Immediate next action
 
-Implement **P0c-MR-S0 — disconnected deterministic SCC partition**.
-P0c-MR-G0 is closed: one non-Clone topology inventory now owns canonical-key
-nodes, exact call sites, unique edges, target projection, and inventory errors;
-the existing acyclic proof consumes it by value and preserves P0c-F behavior.
+Implement **P0c-MR-V0 — disconnected recursive exact-i64 module plan**.
+P0c-MR-G0 and S0 are closed: one non-Clone topology inventory is consumed into
+one deterministic SCC partition whose stable component identity is its minimum
+canonical key. Production callers and behavior remain zero.
 
 Decision/task card:
 `mirbuilder-p0c-mr-callable-scc-task-2026-07-16.md`.
@@ -2427,11 +2427,11 @@ P0c-MR:
   G0 -> S0 -> V0 -> C0 -> I1 -> R0
 ```
 
-S0 adds only deterministic SCC membership, stable minimum-key component IDs,
-recursion classification, and condensation edges/order. It must use an explicit
-work stack, retain one inventory by value, and remain disconnected with zero
-production callers. Grammar, recursion execution, runtime, backend, MIR,
-publication, effect, and ownership behavior remain unchanged.
+V0 adds only admission: function count at least two, at least one recursive
+component, exact module/partition/typed-plan key equality, and exact call-site
+to direct-call-row correspondence. It remains disconnected with zero production
+callers. Grammar, recursion execution, runtime, backend, MIR, publication,
+effect, and ownership behavior remain unchanged.
 
 Ownership V2 parser/resolver/MIR work and `.hako` selfhost parser/MIR-builder
 migration remain separate parked lanes. They are not hidden P0c-MR prerequisites

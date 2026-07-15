@@ -1,8 +1,8 @@
 ---
-Status: P0c-MR-G0 closed; P0c-MR-S0 implementation ready
+Status: P0c-MR-S0 closed; P0c-MR-V0 implementation ready
 Date: 2026-07-16
 Decision: C-prime accepted with bounded implementation refinements
-Current row: P0c-MR-S0
+Current row: P0c-MR-V0
 Production baseline: 4bed234ceb
 Consultation: mirbuilder-p0c-mr-scc-consultation-question-2026-07-16.md
 ---
@@ -22,7 +22,7 @@ P0c-MR-I1  explicit atomic VM-only activation
 P0c-MR-R0  later one-function self-call authority retirement
 ```
 
-The next and only code-facing row is `P0c-MR-G0`.
+G0 and S0 are closed. The next and only code-facing row is `P0c-MR-V0`.
 
 Candidate A's two-function even/odd shape is a fixture, not a semantic
 authority. Candidate B's general finite SCC module is the activation target,
@@ -220,7 +220,35 @@ all touched source/check files < 800 lines
 
 ## P0c-MR-S0 — deterministic SCC partition
 
-Disconnected only; production callers remain zero.
+State: closed on 2026-07-16.
+
+Landed result:
+
+```text
+one non-Clone VerifiedCallableSccPartitionV1
+one iterative deterministic Kosaraju implementation
+SCC ID = minimum CanonicalCallableKeyV1
+canonical member/component ordering
+exact recursion classification
+sorted unique condensation edges
+deterministic Kahn condensation order
+production callers = 0
+production behavior delta = 0
+```
+
+Evidence:
+
+```text
+debug SCC fixtures 4/4
+release SCC fixtures 4/4
+retained inventory fixtures 2/2
+retained acyclic fixtures 3/3
+resolved callable authority guard green
+cargo check green
+quick gate 66/66
+pointer and format guards green
+all touched source/check files below 800 lines
+```
 
 ```text
 SCC ID: minimum CanonicalCallableKeyV1 in component
@@ -336,7 +364,8 @@ Stop if implementation requires:
 
 ## Immediate next action
 
-Implement only `P0c-MR-S0` as a disconnected deterministic SCC partition.
-Use an explicit work stack, keep production callers at zero, consume and retain
-one inventory by value, and do not add grammar, MIR, backend, runtime, effect,
-or recursion activation.
+Implement only `P0c-MR-V0` as a disconnected recursive exact-i64 module plan.
+Consume one verified SCC partition, require at least two functions and one
+recursive component, seal exact module/partition/typed-plan/call-row
+correspondence, and keep production callers at zero. Do not add grammar, MIR,
+backend, runtime, effect, publication, or recursion activation.
