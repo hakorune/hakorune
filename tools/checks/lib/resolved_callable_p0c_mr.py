@@ -207,8 +207,8 @@ def check_p0c_mr(root: pathlib.Path, fail) -> None:
         if forbidden in backend_text:
             fail(f"P0c-MR-C0 backend gate infers topology: {forbidden}")
 
-    if recursive_activation_tests.read_text().count("#[test]") != 4:
-        fail("P0c-MR-I1 focused activation fixture count must remain exactly four")
+    if recursive_activation_tests.read_text().count("#[test]") != 7:
+        fail("P0c-MR-I1 focused activation/proof fixture count must remain exactly seven")
     compiler_text = compiler_mod.read_text()
     if len(re.findall(r"pub fn compile_resolved_recursive_callable_module\s*\(", compiler_text)) != 1:
         fail("P0c-MR-I1 explicit recursive compiler ingress count drift")

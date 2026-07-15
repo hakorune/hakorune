@@ -220,6 +220,14 @@ The ingress never probes the acyclic, one-function self-call, or legacy routes.
 All call effects remain conservative, only `mir-interpreter` is admitted, and
 the selected route emits no ownership operations.
 
+MR-specific failure fixtures also prove that call-depth overflow and inner
+parameter/return contract failures restore the caller frame and leave the same
+interpreter reusable. The Rust reference interpreter's call-depth guard is a
+host-stack-safe resource boundary, not a language recursion or termination
+contract. Its diagnostic is optional when Ring0 is absent and must not
+initialize global runtime state. Supporting materially deeper recursion in the
+reference interpreter requires a separate iterative call-frame design.
+
 ## P0c-F-V0 typed acyclic module plan
 
 `VerifiedAcyclicCallableModulePlanV1` is the disconnected pre-Builder witness

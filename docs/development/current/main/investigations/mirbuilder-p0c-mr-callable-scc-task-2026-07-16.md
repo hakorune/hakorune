@@ -1,8 +1,8 @@
 ---
-Status: P0c-MR-I1 activation landed; runtime frame proof tail required
+Status: P0c-MR-I1 fully closed; P0c-MR-R0-D0 design stop
 Date: 2026-07-16
 Decision: C-prime accepted with bounded implementation refinements
-Current row: P0c-MR-I1 runtime frame-restoration proof tail
+Current row: P0c-MR-R0-D0 one-function self-call authority retirement design stop
 Production baseline: 4bed234ceb
 Consultation: mirbuilder-p0c-mr-scc-consultation-question-2026-07-16.md
 ---
@@ -22,9 +22,8 @@ P0c-MR-I1  explicit atomic VM-only activation
 P0c-MR-R0  later one-function self-call authority retirement
 ```
 
-G0 through I1 activation are landed. Before R0, add MR-specific depth overflow
-and inner parameter/return contract failure fixtures proving caller-frame
-restoration and interpreter reuse. No further widening is authorized until
+G0 through I1 and the runtime frame-restoration proof tail are landed. No
+further widening is authorized until
 `P0c-MR-R0-D0` decides one-function Program parity and old self-call authority
 retirement.
 
@@ -364,11 +363,15 @@ ownership operations = 0
 Evidence:
 
 ```text
-debug activation fixtures 4/4
-release activation fixtures 4/4
+debug activation/proof fixtures 7/7
+release activation/proof fixtures 7/7
+retained complete-frame transaction fixtures 6/6
 even/odd and three-function SCC execution green
 outer DAG caller into SCC green
 rejection then compiler reuse green
+MAX_CALL_DEPTH failure then interpreter reuse green
+inner parameter-contract failure then interpreter reuse green
+inner return-contract failure then interpreter reuse green
 VM-only backend fail-fast green
 resolved callable authority guard green
 cargo check green
@@ -390,15 +393,77 @@ other backend effects before fail-fast: 0
 ```
 
 Runtime fixtures include terminating even/odd, a terminating three-function
-SCC, DAG caller into SCC, two recursive SCCs, inner parameter/return contract
+SCC, DAG caller into SCC, inner parameter/return contract
 failure with frame restoration, MAX_CALL_DEPTH restoration, compiler reuse
 after rejection, and declaration reorder parity.
 
+The Rust reference interpreter keeps `MAX_CALL_DEPTH = 16`. This is a
+host-stack-safe resource/fail-fast boundary verified in both debug and release,
+not a language recursion limit, termination proof, or backend-wide ABI. The
+previous value `1024` allowed Rust host-stack overflow before the VM could
+publish its typed error; values `128` and `32` reproduced that ordering in the
+focused debug fixture. The depth-error diagnostic is optional when Ring0 is
+not initialized and never initializes global runtime state. Deeper reference-
+interpreter recursion requires a separate iterative call-frame/trampoline
+design row and is not part of P0c-MR-I1.
+
 ## P0c-MR-R0 — later self-call authority retirement
 
-R0 begins only after I1 is green. It proves one-function Program parity and
-then retires or reduces the older bare-function self-call activation authority.
-It must not be folded into I1 or widen semantics.
+State: design consultation stop. No code row is selected yet.
+
+Source authorities to compare:
+
+```text
+old route:
+  one bare FunctionDeclaration
+  one-entry callable index
+  exact current-owner self-call activation
+
+module route:
+  one function-only Program/catalog source unit
+  one resolved graph inventory
+  one SCC partition and recursive module plan
+```
+
+Non-authorities remain raw call names, physical symbols, MIR module lookup,
+declaration order, runtime graph discovery, and failure-driven route probing.
+
+The consultation must select exactly one of these durable shapes:
+
+```text
+A. compatibility facade
+   preserve the bare-function source entry, normalize it before Builder into
+   the one-function Program/module authority, and retire the old activation
+   witness after exact parity
+
+B. Program-only retirement
+   require the function-only Program source unit and remove the bare-function
+   production entry after an explicit source-compatibility decision
+
+C. permanent dual authority
+   keep both semantic activation owners (not recommended unless a distinct
+   non-overlapping source contract is proved)
+```
+
+The consultation must also lock one-function admission (`function count >= 1`
+only for recursive singleton SCCs), recursive module marker parity, exact
+success/error/reorder fixtures, removal counters, and zero retry/fallback.
+R0 may remove duplicate authority but must not widen signatures, expressions,
+backends, effects, ownership operations, or runtime semantics.
+
+Fail-fast boundary:
+
+```text
+bare self-call ingress failure -> no module/legacy retry
+module ingress failure -> no bare/acyclic/legacy retry
+parity drift -> stop before Builder effects
+old authority deletion -> only after repository producer/caller zero
+```
+
+Recommended consultation question: whether A is a temporary source facade
+over one canonical Program/module authority, or whether source compatibility
+permits B immediately. Do not implement either until that source-authority and
+marker policy is accepted.
 
 ## Required counters and guards
 
@@ -453,9 +518,8 @@ Stop if implementation requires:
 
 ## Immediate next action
 
-First close the I1 runtime frame-restoration proof tail: MAX_CALL_DEPTH, inner
-parameter contract failure, inner return contract failure, and post-error
-interpreter reuse. Then stop for `P0c-MR-R0-D0` design consultation. Decide whether the old bare
+The I1 runtime frame-restoration proof tail is closed. Stop for
+`P0c-MR-R0-D0` design consultation. Decide whether the old bare
 one-function self-call route becomes a compatibility facade or is retired after
 one-function Program parity. Fix source authority, exact parity fixtures,
 backend-marker policy, removal counters, and no-retry boundaries before code.

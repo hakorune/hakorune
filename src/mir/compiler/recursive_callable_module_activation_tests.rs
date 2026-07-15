@@ -222,9 +222,130 @@ fn recursive_module_is_vm_only_and_emits_zero_ownership_operations() {
         "mir-interpreter",
     )
     .unwrap();
-    let error =
+    let aggregate_error =
         crate::mir::backend_capability::enforce_mir_backend_supported(&result.module, "wasm")
             .unwrap_err();
-    assert!(error.contains("[backend/canonical_recursive_callable_module_v1_unsupported]"));
+    assert!(
+        aggregate_error.contains("backend=wasm"),
+        "{aggregate_error}"
+    );
+    let error = crate::mir::canonical_recursive_callable_module_backend_capability::enforce(
+        &result.module,
+        "wasm",
+    )
+    .unwrap_err();
+    assert!(
+        error.contains("[backend/canonical_recursive_callable_module_v1_unsupported]"),
+        "{error}"
+    );
     assert!(error.contains("silent_fallback_allowed=false"));
+}
+
+fn recursive_module_with_safe_leaf() -> super::MirCompileResult {
+    compile(vec![
+        recursive_branch("even", 1, "odd"),
+        recursive_branch("odd", 0, "even"),
+        returning("safe", variable("n")),
+    ])
+}
+
+fn assert_reusable_after_error(interpreter: &mut MirInterpreter, module: &crate::mir::MirModule) {
+    assert_eq!(
+        interpreter
+            .execute_function_with_args(module, "safe/1", &[VMValue::Integer(77)])
+            .unwrap(),
+        VMValue::Integer(77)
+    );
+}
+
+#[test]
+fn max_call_depth_restores_frames_and_interpreter_reuse() {
+    let result = compile(vec![
+        returning("a", call("b", variable("n"))),
+        returning("b", call("a", variable("n"))),
+        returning("safe", variable("n")),
+    ]);
+    let mut interpreter = MirInterpreter::new();
+    let error = interpreter
+        .execute_function_with_args(&result.module, "a/1", &[VMValue::Integer(1)])
+        .unwrap_err()
+        .to_string();
+    assert!(error.contains("vm call stack depth exceeded"), "{error}");
+    assert_reusable_after_error(&mut interpreter, &result.module);
+}
+
+#[test]
+fn inner_parameter_contract_failure_restores_frames_and_interpreter_reuse() {
+    let mut result = recursive_module_with_safe_leaf();
+    let function = result.module.functions.get_mut("even/1").unwrap();
+    let instruction = function
+        .blocks
+        .values_mut()
+        .flat_map(|block| block.instructions.iter_mut())
+        .find(|instruction| {
+            matches!(
+                instruction,
+                MirInstruction::BinOp {
+                    op: crate::mir::BinaryOp::Sub,
+                    ..
+                }
+            )
+        })
+        .unwrap();
+    let MirInstruction::BinOp { dst, .. } = instruction else {
+        unreachable!()
+    };
+    *instruction = MirInstruction::Const {
+        dst: *dst,
+        value: crate::mir::ConstValue::String("bad-argument".to_string()),
+    };
+
+    let mut interpreter = MirInterpreter::new();
+    let error = interpreter
+        .execute_function_with_args(&result.module, "even/1", &[VMValue::Integer(1)])
+        .unwrap_err()
+        .to_string();
+    assert!(
+        error.contains("[type/parameter_contract_violation]"),
+        "{error}"
+    );
+    assert_reusable_after_error(&mut interpreter, &result.module);
+}
+
+#[test]
+fn inner_return_contract_failure_restores_frames_and_interpreter_reuse() {
+    let mut result = recursive_module_with_safe_leaf();
+    let function = result.module.functions.get_mut("odd/1").unwrap();
+    let instruction = function
+        .blocks
+        .values_mut()
+        .flat_map(|block| block.instructions.iter_mut())
+        .find(|instruction| {
+            matches!(
+                instruction,
+                MirInstruction::Const {
+                    value: crate::mir::ConstValue::Integer(0),
+                    ..
+                }
+            )
+        })
+        .unwrap();
+    let MirInstruction::Const { dst, .. } = instruction else {
+        unreachable!()
+    };
+    *instruction = MirInstruction::Const {
+        dst: *dst,
+        value: crate::mir::ConstValue::String("bad-return".to_string()),
+    };
+
+    let mut interpreter = MirInterpreter::new();
+    let error = interpreter
+        .execute_function_with_args(&result.module, "even/1", &[VMValue::Integer(1)])
+        .unwrap_err()
+        .to_string();
+    assert!(
+        error.contains("[type/return_contract_violation]"),
+        "{error}"
+    );
+    assert_reusable_after_error(&mut interpreter, &result.module);
 }

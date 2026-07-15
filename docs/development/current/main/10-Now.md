@@ -23,18 +23,20 @@ Related:
   `DX0a -> DX0b -> S0 -> V0 -> census evidence -> I1`; all rows are closed.
   The census found zero exact P0c-F candidates in `lang/src`, so I1 is an
   ingress proof rather than a corpus coverage claim. The exact current blocker
-  is P0c-MR-I1 runtime frame-restoration proof tail. C-prime is
+  is the P0c-MR-R0-D0 one-function self-call authority retirement design stop.
+  C-prime is
   taskized as `G0 -> S0 -> V0 -> C0 -> I1 -> R0`; G0 through I1 are closed. The
   deterministic SCC partition is non-Clone, uses a host-stack-safe traversal,
   and keeps production callers at zero. V0 seals recursive-module admission and
   exact module/partition/typed-plan/call-row correspondence. C0 adds one passive
   module-level capability schema. I1 adds exactly one explicit VM-only ingress
   using unpublished drafts and atomic publication without changing other routes
-  or adding fallback. Before R0, add MR-specific MAX_CALL_DEPTH and inner
-  parameter/return contract failure fixtures proving caller restoration and
-  interpreter reuse. Production Ownership SSA,
+  or adding fallback. The MR-specific MAX_CALL_DEPTH and inner parameter/return
+  contract failure fixtures now prove caller restoration and interpreter
+  reuse; the reference VM depth guard is a resource boundary, not a language
+  recursion limit. Production Ownership SSA,
   Loop production,
-  mutual recursion/SCC, legacy
+  SCC-aware optimization, legacy
   fallback, default source, Lambda/capture, ProgramV0 authority, and durable
   RegionId materialization remain inactive
 - parked language work: LANGV1 conformance closeout remains parked; no

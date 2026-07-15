@@ -12,7 +12,9 @@ use rustc_hash::FxHashMap;
 use super::super::{MirInterpreter, StepTrace, VMError, VMValue};
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 
-const MAX_CALL_DEPTH: usize = 1024;
+// Keep this below the ordinary Rust test/runtime thread stack limit. The VM
+// must raise its stable resource error before host recursion can overflow.
+const MAX_CALL_DEPTH: usize = 16;
 
 struct RegisterFrameSnapshotV1 {
     regs: FxHashMap<ValueId, VMValue>,
@@ -268,7 +270,11 @@ impl<'interpreter> FunctionFrameTransactionV1<'interpreter> {
     }
 
     fn log_call_depth_overflow(&self) {
-        let ring0 = crate::runtime::get_global_ring0();
+        // Diagnostic logging is optional; resource fail-fast must not depend
+        // on runner-owned Ring0 setup or initialize global runtime state.
+        let Some(ring0) = crate::runtime::ring0::GLOBAL_RING0.get() else {
+            return;
+        };
         ring0.log.debug(&format!(
             "[vm-call-depth] exceeded {} in fn={} (depth={})",
             MAX_CALL_DEPTH, self.function_name, self.interpreter.call_depth

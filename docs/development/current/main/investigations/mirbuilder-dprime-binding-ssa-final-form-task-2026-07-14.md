@@ -2412,7 +2412,8 @@ state.
 
 ## Immediate next action
 
-Close **P0c-MR-I1 runtime frame-restoration proof tail** before R0.
+The **P0c-MR-I1 runtime frame-restoration proof tail** is closed. Stop at
+**P0c-MR-R0-D0** before retirement code.
 P0c-MR-G0 through I1 are closed: general multi-function recursive exact-i64
 Programs execute through one explicit VM-only atomic ingress with one module
 marker and no route retry.
@@ -2427,8 +2428,8 @@ P0c-MR:
   G0 -> S0 -> V0 -> C0 -> I1 -> R0
 ```
 
-Add MAX_CALL_DEPTH and inner parameter/return contract failure fixtures plus
-post-error interpreter reuse. Then, before R0 code, decide one-function Program parity, whether the old bare-function
+The MAX_CALL_DEPTH and inner parameter/return contract failure fixtures plus
+post-error interpreter reuse are closed. Before R0 code, decide one-function Program parity, whether the old bare-function
 self-call route becomes a compatibility facade or is removed, marker parity,
 removal counters, and exact no-retry/non-claim boundaries. Keep the worktree
 clean at this design stop.
