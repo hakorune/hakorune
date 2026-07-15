@@ -114,6 +114,8 @@ fn exact_i64_parameter_adopts_reserved_value_and_executes() {
         Some("i64")
     );
     assert_eq!(function.metadata.parameter_entry_contracts.len(), 1);
+    assert_eq!(function.metadata.declared_return_type_name, None);
+    assert_eq!(function.metadata.return_exit_contract, None);
     assert_eq!(
         function.metadata.parameter_entry_contracts[0].parameter_value_id,
         ValueId::new(0)

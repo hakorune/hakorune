@@ -9,6 +9,7 @@ import sys
 
 EXPECTED_BOX = {
     "README.md",
+    "callable_abi.rs",
     "identity.rs",
     "lowerer.rs",
     "mod.rs",
@@ -56,6 +57,7 @@ def main() -> None:
         "capability": root / "src/mir/compiler/capability.rs",
         "compiler": root / "src/mir/compiler/mod.rs",
         "builder": root / "src/mir/builder/resolved_lowering/mod.rs",
+        "callable_abi": box / "callable_abi.rs",
         "identity": box / "identity.rs",
         "lowerer": box / "lowerer.rs",
         "operation": box / "operation.rs",
@@ -87,10 +89,24 @@ def main() -> None:
         "fn build_resolved_trivial_function_module(",
         "CanonicalTrivialSsaLowererV1::new(",
         "finalize_preterminated_function_completion",
-        "refresh_function_parameter_entry_contracts",
+        "install_trivial_callable_abi_v1(builder, profile.parameter_entries())",
+        "refresh_trivial_callable_boundary_contracts_v1(&mut draft)",
         ".verify_function(&draft)",
     ):
         require(text["builder"], anchor, "function draft publication")
+
+    for anchor in (
+        "row.abi().mir_param_decl(row.source_name())",
+        "set_current_function_declared_signature(declared_parameters, None)",
+        "refresh_function_parameter_entry_contracts",
+        "refresh_function_return_exit_contract",
+    ):
+        require(text["callable_abi"], anchor, "trivial callable ABI facade")
+    trivial_builder = text["builder"].split(
+        "fn build_resolved_trivial_function_module(", 1
+    )[1]
+    if "return_type_name" in trivial_builder:
+        fail("resolved trivial route still reads the raw return annotation")
 
     for anchor in (
         "BindingSsaBuilderV1<PhiToken>",

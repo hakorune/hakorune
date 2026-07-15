@@ -3,32 +3,33 @@
 //! This module classifies source declarations only. It does not admit a
 //! function, allocate parameter values, or validate runtime arguments.
 
+use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
 use crate::mir::function::MirParamDecl;
 use crate::mir::MirType;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum ExactTrivialParameterAbiV1 {
-    I64,
+pub(crate) struct ExactTrivialParameterAbiV1 {
+    scalar: ExactTrivialScalarAbiV1,
 }
 
 impl ExactTrivialParameterAbiV1 {
+    pub(crate) const I64: Self = Self {
+        scalar: ExactTrivialScalarAbiV1::I64,
+    };
+
     pub(crate) const fn classify(source_type_name: &str) -> Option<Self> {
-        match source_type_name.as_bytes() {
-            b"i64" => Some(Self::I64),
+        match ExactTrivialScalarAbiV1::classify(source_type_name) {
+            Some(scalar) => Some(Self { scalar }),
             _ => None,
         }
     }
 
     pub(crate) const fn mir_type(self) -> MirType {
-        match self {
-            Self::I64 => MirType::Integer,
-        }
+        self.scalar.mir_type()
     }
 
     pub(crate) const fn source_type_name(self) -> &'static str {
-        match self {
-            Self::I64 => "i64",
-        }
+        self.scalar.source_type_name()
     }
 
     pub(crate) fn mir_param_decl(self, source_name: &str) -> MirParamDecl {

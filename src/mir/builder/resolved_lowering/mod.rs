@@ -51,7 +51,10 @@ use completion_consumption::{
     finalize_preterminated_function_completion, finalize_ready_function_completion,
 };
 use lowerer::CanonicalFunctionLowererV1;
-use trivial_ssa::CanonicalTrivialSsaLowererV1;
+use trivial_ssa::{
+    install_trivial_callable_abi_v1, refresh_trivial_callable_boundary_contracts_v1,
+    CanonicalTrivialSsaLowererV1,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum CanonicalResolvedBuildErrorV1 {
@@ -134,17 +137,11 @@ impl MirBuilder {
         plan: CanonicalTrivialBindingSsaPlanV1<'_>,
     ) -> Result<MirModule, CanonicalResolvedBuildErrorV1> {
         let (input, if_control, completion, profile, block_expr_count) = plan.into_parts();
-        let declared_param_decls = profile
-            .parameter_entries()
-            .iter()
-            .map(|row| row.abi().mir_param_decl(row.source_name()))
-            .collect();
         self.prepare_module()?;
         let crate::ast::ASTNode::FunctionDeclaration {
             name,
             params,
             body,
-            return_type_name,
             attrs,
             uses,
             ..
@@ -157,10 +154,7 @@ impl MirBuilder {
         self.with_resolved_function_lowering_session(&session_name, |builder| {
             builder.resolved_binding_state.install(input.function())?;
             builder.create_function_skeleton(function_name, params, body)?;
-            builder.set_current_function_declared_signature(
-                declared_param_decls,
-                return_type_name.clone(),
-            );
+            install_trivial_callable_abi_v1(builder, profile.parameter_entries());
             builder.set_current_function_runes(attrs);
             builder.set_current_function_declared_capability_uses(uses);
 
@@ -174,9 +168,7 @@ impl MirBuilder {
             )?
             .lower()?;
             let mut draft = finalize_preterminated_function_completion(builder, ready)?;
-            crate::mir::type_contracts::parameter_entry::refresh_function_parameter_entry_contracts(
-                &mut draft,
-            );
+            refresh_trivial_callable_boundary_contracts_v1(&mut draft);
             crate::mir::verification::MirVerifier::new()
                 .verify_function(&draft)
                 .map_err(|errors| {

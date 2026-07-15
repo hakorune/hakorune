@@ -1,8 +1,8 @@
 ---
-Status: Active — R0a-L0 behavior-neutral exact-i64 return ABI facade next
+Status: Active — R0a-L0 closed; disconnected R0a-S0 return witness next
 Date: 2026-07-15
 Decision: D′ — SSA-first, control-contract-preserving, function-owner-atomic
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-R0A-L0-IMPLEMENTATION-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-R0A-S0-IMPLEMENTATION-001
 Work mode: Refactor Series Mode followed by bounded capability slices
 Supersedes:
   - mirbuilder-b0-l4-a-a2prime-implementation-task-2026-07-14.md after its closed S1 slice
@@ -1417,6 +1417,13 @@ disconnected R0a-S0, then atomic R0a-I1. Source Call, receiver, broader numeric
 types, Box/View/Shared return ABI, Ownership SSA/opcodes, and backend widening
 remain inactive.
 
+R0a-L0 is closed. Exact `i64` physical ABI now has one site-neutral scalar
+SSOT, the parameter ABI delegates to it, and the trivial route installs
+completed parameter metadata plus no typed result through one route-local
+callable ABI facade. Parameter then return contract refresh is centralized on
+the unpublished draft. Production grammar, route selection, typed return, and
+runtime behavior remain unchanged.
+
 The remaining rows stay separate: exact typed parameters do not include the
 receiver owner family; Void disposition does not imply Outbox identity;
 BorrowedText requires its own lifetime/ABI decision.
@@ -2348,8 +2355,8 @@ state.
 
 ## Immediate next action
 
-R0a is selected. Implement **R0a-L0 — behavior-neutral exact scalar/callable
-ABI facade** next. Preserve production grammar and routing, keep typed return
-inactive, and prove existing P0a behavior remains green. The following card
-must contain code or generated artifact delta; do not open another docs-only
-selection card. R0a-S0 and atomic R0a-I1 follow only after L0 closes.
+R0a-L0 is closed. Implement **R0a-S0 — disconnected sealed exact-i64 return
+witness** next. Co-seal the exact annotation with the existing final
+InlineI64 terminal and completion/coverage identity. Builder connection and
+production activation must remain zero; atomic R0a-I1 follows only after S0
+closes.

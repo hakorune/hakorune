@@ -13,3 +13,10 @@ Exact static `i64` parameters enter through `parameter_entry.rs`. It consumes
 the sealed profile row, checks the reserved formal `ValueId` and exact MIR
 signature, then publishes that value into Binding SSA. It must not allocate a
 replacement value or reconstruct source type/name authority.
+
+`callable_abi.rs` is the route-local metadata boundary. It installs completed
+callable declarations from sealed rows before body effects and refreshes
+parameter then return boundary carriers on the unpublished draft. Raw source
+return annotations and broad compatibility type mapping must not cross this
+facade. R0a-L0 intentionally installs no typed return; the later sealed return
+witness extends this same entrance.

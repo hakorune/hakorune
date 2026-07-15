@@ -1,8 +1,8 @@
 ---
-Status: Selected; implementation not started
+Status: Active; R0a-L0 closed, disconnected R0a-S0 next
 Date: 2026-07-15
 Decision: SSA-I1-COMPAT-R0a — static exact-i64 typed return
-Next blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-R0A-L0-IMPLEMENTATION-001
+Next blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-R0A-S0-IMPLEMENTATION-001
 Related:
   - mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
   - mirbuilder-ssa-i1-compat-static-i64-parameter-selection-2026-07-15.md
@@ -339,6 +339,43 @@ typed return remains production-inactive
 raw return annotation has one bounded route-local transition seam
 ```
 
+R0a-L0 is closed. Landed evidence:
+
+```text
+site-neutral scalar SSOT:
+  ExactTrivialScalarAbiV1::I64
+
+parameter ABI:
+  delegates exact spelling / MirType projection to the scalar SSOT
+
+route-local facade:
+  trivial_ssa/callable_abi.rs
+  installs sealed parameter declarations with result = None
+  refreshes parameter then return boundary carriers on the unpublished draft
+
+resolved trivial raw return_type_name reads:
+  0
+
+production typed-return activation:
+  0
+
+grammar / route delta:
+  0
+```
+
+Verification:
+
+```text
+exact scalar/parameter focused tests: green
+resolved-lowering parameter fixtures: 5/5
+resolved-lowering full fixtures: 94/94
+resolved-value-profile fixtures: 18/18
+resolved-region-flow authority guard: green
+release build: green
+quick gate: 66/66
+all touched source/check files: < 800 lines
+```
+
 ### R0a-S0 — disconnected sealed return witness
 
 ```text
@@ -507,5 +544,5 @@ P0r
   receiver / BoxRef / method routing / ownership witness
 ```
 
-The next action is R0a-L0. Do not open another design consultation before that
-behavior-neutral code/artifact seam is attempted.
+The next action is disconnected R0a-S0. Add the sealed return witness and
+co-seal tests without connecting Builder or changing production admission.
