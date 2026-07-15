@@ -94,7 +94,7 @@ barrier call, and one explicit VM-only direct-call capability. It performs no
 legacy call resolution, name heuristic, fallback, or ownership operation.
 Sibling calls and a multi-entry callable catalog remain outside this ingress.
 
-## MP0-S0 passive resolved-module carrier
+## MP0-S0/R0 resolved callable module
 
 `VerifiedResolvedCallableModuleV1` is the disconnected multi-function carrier.
 It owns the exact CAT0 Program/catalog source unit once and indexes
@@ -102,8 +102,13 @@ It owns the exact CAT0 Program/catalog source unit once and indexes
 function row keeps its declaration site, single-root semantic owner forest,
 and exact source projection together.
 
-MP0-S0 deliberately provides no constructor. It does not read a body, consume
-the resolver continuation, resolve a call target, create a Builder, or publish
-MIR. MP0-R0 is the sole future producer: it must consume the same CAT0 resolver
-continuation, resolve every declaration against the complete catalog, and
-verify exact key/site/root correspondence before constructing this carrier.
+MP0-S0 provides only the carrier shape. MP0-R0 adds its sole constructor. That
+constructor consumes the same CAT0 resolver continuation, reuses every
+pre-reserved top-level owner, resolves self/forward/backward direct-call targets
+against the complete immutable catalog, issues nested Lambda owners from the
+same compilation brand, and seals one exact source projection per function.
+
+The body-reading source view consumes the CAT0 source unit and keeps Program
+syntax and catalog inseparable until resolution finishes. MP0-R0 creates no
+Builder, MIR draft, backend capability, runtime effect, or module publication;
+whole-module preflight and publication remain MP0-P0/TX0 responsibilities.

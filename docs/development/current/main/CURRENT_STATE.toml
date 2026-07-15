@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "D′ MP0-S0 passive resolved module carrier closed; MP0-R0 complete-catalog body resolution next"
+status = "D′ MP0-R0 complete-catalog body resolution closed; MP0-P0 whole-module preflight next"
 date = "2026-07-15"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -115,7 +115,12 @@ closed: one passive compiler-layer carrier owns the CAT0 source unit and one
 CanonicalCallableKeyV1-keyed primary function map; each function row keeps its
 declaration site, single-root forest, and exact projection together. It has no
 constructor, body authority, resolver continuation consumer, production caller,
-Builder, MIR, runtime, backend, or ownership delta. MP0-R0 is next.
+Builder, MIR, runtime, backend, or ownership delta. MP0-R0 is also closed: one
+consuming body-resolution view keeps Program/catalog inseparable, every root
+reuses its CAT0-reserved identity, every body sees the complete index, nested
+Lambda owners consume the same continuation/brand, and each canonical key owns
+one exact forest/projection pair. Self/forward/backward calls resolve without
+Builder/MIR/runtime activation. MP0-P0 is next.
 Historical
 lane chronology follows and is non-authoritative.
 Explicit user priority change on 2026-07-12 reopens
@@ -248,14 +253,13 @@ CanonicalCallableKeyV1, while ResolvedCallableRefV1 remains invocation-local
 call membership. MP0 resolves one forest/projection per declaration against
 the complete catalog, performs whole-module preflight, verifies all unpublished
 function drafts, and batch-inserts them only after exact catalog/draft
-correspondence is sealed. CAT0 is closed through G0 and MP0-S0 is closed; the
-active order continues with MP0 R0/P0/TX0, then P0c-B1 with exactly two
-functions and one sibling edge. MP0-R0 is the next code-facing row and is the
-sole producer of the passive canonical-keyed multi-function carrier. CAT0 and
-MP0-S0 activate no body
-authority, sibling calls, MIR/backend/
-runtime behavior, ownership operations, MethodCall/receiver, imports, or
-fallback. Ownership V2 and .hako selfhost parser/MIR-builder work remain
+correspondence is sealed. CAT0 is closed through G0 and MP0-S0/R0 are closed;
+the active order continues with MP0 P0/TX0, then P0c-B1 with exactly two
+functions and one sibling edge. MP0-P0 is the next code-facing row and must
+preflight the complete resolved module before any Builder effect. CAT0 and
+MP0-S0/R0 activate no production sibling calls, MIR/backend/runtime behavior,
+ownership operations, MethodCall/receiver, imports, or fallback. Ownership V2
+and .hako selfhost parser/MIR-builder work remain
 separate parked lanes.
 Historical D′ context follows.
 D′ is accepted and taskized through the final canonical
@@ -671,11 +675,11 @@ not started. Design Registry V1 sharding is accepted-for-tasking as a parked
 BoxShape series with production activation 0; its first implementation row is
 mandatory CLEAN0, followed by explicit SELECT0, full normalized V0/V1 parity,
 atomic cutover, V0 retirement, and RETURN0. It does not replace the active
-MP0-R0 blocker. 3511 now owns the narrow semantic activation claim and its
+MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-MP0-R0-COMPLETE-CATALOG-BODY-RESOLUTION-001"
+current_blocker_token = "RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-MP0-P0-WHOLE-MODULE-PREFLIGHT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -684,6 +688,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-15: D′ MP0-R0 closes complete-catalog multi-function body resolution: one consuming CallableCatalogResolutionSourceV1 physically separates body opening from CAT0 header seal while keeping Program syntax and immutable catalog inseparable; every top-level function reuses its pre-reserved FunctionOriginV1/FunctionOwnerIdV1, every body resolves self/forward/backward direct calls against the complete index, nested Lambda owners consume the same single-use continuation and compilation brand, and each CanonicalCallableKeyV1 owns one single-root forest plus exact source projection; unknown targets and late function errors publish no resolved module; Builder/Lower/MIR/module insertion/runtime/backend/ownership and production sibling-call activation remain zero; focused 6/6, resolved semantics 144/144, authority guard, release build, quick 66/66, and <800-line touched source/check files are green; MP0-P0 whole-module preflight is next.",
   "2026-07-15: D′ MP0-S0 closes one passive compiler-layer resolved callable module carrier: VerifiedResolvedCallableModuleV1 owns the exact CAT0 Program/catalog source unit once and one CanonicalCallableKeyV1-keyed functions_by_key primary map; each VerifiedResolvedFunctionUnitV1 keeps its declaration site, single-root VerifiedSemanticOwnerForestV1, and exact VerifiedSourceProjectionV1 together; resolved semantics does not import compiler projection authority; constructors, resolver continuation consumption, body traversal, call-target resolution, Builder/Lower/MIR/runtime/backend/ownership activation, and production producers/consumers remain zero; compile fixtures 2/2, resolved semantics 144/144, authority guard, release build, quick 66/66, and <800-line touched source/check files are green; MP0-R0 complete-catalog body resolution is next.",
   "2026-07-15: D′ CAT0-G0 closes the module callable catalog proof boundary: NormalizedCallableCatalogV1 retains only namespace/name/arity/exact signature/physical symbol in canonical key order and excludes declaration sites, FunctionOriginV1, FunctionOwnerIdV1, owner slots, compilation brands, and ResolvedCallableRefV1; declaration reorder under a different compilation brand preserves normalized rows and exact lookup meaning; source-reachable duplicate/profile failures remain C0a fixtures while duplicate callable identity and symbol collision are exercised only through malformed private drafts; foreign Program/catalog construction and normalized production callers remain zero; focused 3/3, resolved semantics 144/144, authority guard, release build, quick 66/66, and <800-line touched source/check files are green; CAT0 is closed through G0 and MP0-S0 canonical-keyed resolved module carrier is next.",
   "2026-07-15: D′ CAT0-C0b closes one immutable Program/catalog co-seal: the S0 header shell is clarified as VerifiedCallableHeaderSourceUnitV1; one FunctionSemanticResolverSessionV1 reserves every top-level FunctionOriginV1/FunctionOwnerIdV1 pair in declaration order under one compilation brand; VerifiedCallableCatalogSourceUnitV1 owns that exact Program plus the non-Clone immutable catalog; callable/symbol reverse lookup stays exact; and an opaque non-Clone continuation consumes the same resolver session so the next origin ordinal and owner slot remain aligned for MP0 lambda issuance. Body traversal, owner forests, production catalog callers, sibling calls, Builder/Lower/MIR/runtime/backend/ownership deltas remain zero; focused 4/4, resolved semantics 141/141, authority guard, release build, quick 66/66, and <800-line touched source/check files are green; CAT0-G0 normalized parity and generated guards are next.",
@@ -695,5 +700,4 @@ landed_tail = [
   "2026-07-15: D′ P0c-S0b closes one disconnected co-sealed direct-call profile: a neutral target contract is separated from MIR materialization, one exact self-call row binds the resolved callable projection to ordered InlineI64 arguments/result and ConservativeBarrier, coverage owns one DirectCall subject without a duplicate generic Value subject, and whole-row claims preserve source order/exact-once consumption; only the disconnected If-control verifier admits FunctionCall coverage while production analysis/Builder/Lower/runtime callers remain zero; profile 27/27, resolved semantics 128/128, resolved control flow, direct-call 2/2, authority guards, release build, quick 66/66, and <800-line touched source/check files are green; atomic P0c-I1 activation is next.",
   "2026-07-15: D′ P0c-S0a closes one disconnected resolved self-call target product: CallableFunctionSyntaxViewV1 derives header/body from one AST, the root owner is issued once, a one-entry VerifiedCallableIndexV1 and VerifiedSemanticOwnerForestV1 are co-sealed as one source-unit sidecar, and VerifiedResolvedFunctionV1 stores only exact SourceExprSiteV1-to-ResolvedCallableRefV1 target identity; body-only production resolution still produces zero call targets, callable headers are not duplicated per function, Builder/value-profile/Lower/runtime connections remain zero, focused 5/5, resolved semantics 128/128, callable/full authority guards, release build, quick gate, and <800-line touched source/check files are green; disconnected P0c-S0b profile sealing is next.",
   "2026-07-15: D′ P0c-L0 closes one behavior-neutral generic callable substrate: a bounded body-free header view seals one exact static-i64 header into CanonicalCallableKeyV1, ResolvedCallableRefV1, CanonicalCallableSymbolV1, and a one-entry VerifiedCallableIndexV1; exact lookup has no fallback, physical symbol spelling is rejected from source, emission arity mismatch fails before materialization, the effect is an exact conservative known non-Pure barrier mask, and passive canonical_direct_static_call_v1 capability metadata is VM-only when explicitly present; production callers/producers, grammar, route, runtime behavior, and source Call activation remain zero; focused tests, caller-zero guard, full authority guard, release build, quick gate, and <800-line touched source/check files are green; disconnected P0c-S0 is next.",
-  "2026-07-15: D′ P0c-i64 selects A′ exact current-owner self call as the first executable source-call family while keeping generic ResolvedCallableRefV1 identity, a source-unit-owned one-entry VerifiedCallableIndexV1, and a reusable co-sealed direct-call projection/materializer; P0c-L0 is behavior-neutral and must add an explicit passive canonical_direct_static_call_v1 backend capability, P0c-S0 remains disconnected, and only atomic P0c-I1 may activate exactly one FunctionCall for the Rust MIR interpreter; current-function target variants, duplicated header authority, raw Lower name lookup, legacy recovery, generic backend inference, fallback, sibling calls, MethodCall/receiver, ownership operations, and backend widening remain zero.",
 ]

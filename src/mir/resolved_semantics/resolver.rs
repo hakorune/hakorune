@@ -124,6 +124,17 @@ impl FunctionSemanticResolverSessionV1 {
         self.seal_canonical_owner(canonical)
     }
 
+    pub(super) fn seal_owner_with_ancestors_and_callable_index(
+        &mut self,
+        owner: super::FunctionOwnerIdV1,
+        draft: ShadowResolvedFunctionV0,
+        ancestors: &BTreeMap<Box<str>, AncestorBindingV1>,
+        callable_index: &VerifiedCallableIndexV1,
+    ) -> Result<SealedOwnerConstructionV1, ResolveFunctionErrorV1> {
+        let canonical = canonicalize_draft(owner, draft, ancestors, Some(callable_index))?;
+        self.seal_canonical_owner(canonical)
+    }
+
     pub(super) fn seal_owner_with_callable_index(
         &mut self,
         owner: super::FunctionOwnerIdV1,

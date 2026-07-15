@@ -19,6 +19,9 @@ module_header_view = root / "src/mir/resolved_semantics/callable_module_header_v
 header_source_unit = root / "src/mir/resolved_semantics/callable_header_source_unit.rs"
 catalog_candidate = root / "src/mir/resolved_semantics/callable_catalog_candidate.rs"
 catalog = root / "src/mir/resolved_semantics/callable_catalog.rs"
+catalog_resolution_source = (
+    root / "src/mir/resolved_semantics/callable_catalog_resolution_source.rs"
+)
 normalized_catalog = root / "src/mir/resolved_semantics/normalized_callable_catalog.rs"
 catalog_tests = root / "src/mir/resolved_semantics/callable_catalog_tests.rs"
 callable_index_tests = root / "src/mir/resolved_semantics/callable_index_tests.rs"
@@ -92,6 +95,13 @@ required = {
         "resolver.issue_owner()",
         "into_resolver(self)",
     ],
+    catalog_resolution_source: [
+        "CallableCatalogResolutionSourceV1",
+        "LocatedCallableResolutionViewV1",
+        "into_resolution_parts",
+        "restore_after_resolution",
+        "CallableFunctionSyntaxViewV1::from_function_ast",
+    ],
     normalized_catalog: [
         "NormalizedCallableCatalogV1",
         "NormalizedCallableCatalogRowV1",
@@ -110,6 +120,8 @@ required = {
         "DuplicatePhysicalSymbol",
     ],
     resolved_module: [
+        "ResolveCallableModuleErrorV1",
+        "CallableCatalogSealOutcomeV1",
         "VerifiedResolvedCallableModuleV1",
         "VerifiedResolvedFunctionUnitV1",
         "VerifiedCallableCatalogSourceUnitV1",
@@ -118,12 +130,19 @@ required = {
         "VerifiedSemanticOwnerForestV1",
         "VerifiedSourceProjectionV1",
         "functions_by_key",
+        "pub(crate) fn resolve(",
+        "resolve_forest_with_reserved_root",
+        "VerifiedSourceProjectionV1::seal",
     ],
     resolved_module_tests: [
         "passive_module_carrier_exposes_only_the_canonical_keyed_primary_map",
         "passive_function_unit_keeps_site_forest_and_projection_together",
     ],
-    owner_resolver: ["resolve_forest_with_root_callable"],
+    owner_resolver: [
+        "resolve_forest_with_root_callable",
+        "resolve_forest_with_reserved_root",
+        "seal_owner_with_ancestors_and_callable_index",
+    ],
     resolved_target: ["ResolvedDirectCallTargetV1", "ResolvedCallableRefV1"],
     resolved_unit: [
         "VerifiedResolvedCallableForestV1",
@@ -222,11 +241,8 @@ for forbidden in [
 resolved_module_text = resolved_module.read_text()
 for forbidden in [
     "ASTNode",
-    "CatalogSealedResolverContinuationV1",
-    "FunctionSemanticResolverSessionV1",
     "MirBuilder",
     "MirInstruction",
-    "resolve_forest",
     "lower",
 ]:
     if forbidden in resolved_module_text:
@@ -234,7 +250,7 @@ for forbidden in [
 for forbidden_pattern in [
     r"impl\s+Clone\s+for\s+VerifiedResolvedCallableModuleV1",
     r"impl\s+Clone\s+for\s+VerifiedResolvedFunctionUnitV1",
-    r"fn\s+(new|seal|resolve|from_parts)\s*\(",
+    r"fn\s+(seal|from_parts)\s*\(",
 ]:
     if re.search(forbidden_pattern, resolved_module_text):
         fail(f"MP0-S0 passive carrier gained a construction seam: {forbidden_pattern!r}")
@@ -242,6 +258,15 @@ if resolved_module_text.count("VerifiedResolvedCallableModuleV1 {") != 2:
     fail("MP0-S0 module carrier must have one definition and one accessor impl only")
 if resolved_module_text.count("VerifiedResolvedFunctionUnitV1 {") != 2:
     fail("MP0-S0 function unit must have one definition and one accessor impl only")
+if resolved_module_text.count("pub(crate) fn resolve(") != 1:
+    fail("MP0-R0 must have exactly one resolved-module construction entry")
+
+resolution_source_text = catalog_resolution_source.read_text()
+for forbidden in ["MirBuilder", "MirInstruction", "ValueId", "BasicBlockId"]:
+    if forbidden in resolution_source_text:
+        fail(f"MP0-R0 consuming source view owns runtime authority {forbidden!r}")
+if resolution_source_text.count("CallableCatalogResolutionSourceV1 {") != 2:
+    fail("MP0-R0 consuming source view gained a second construction authority")
 
 source_unit_users = []
 for path in (root / "src").rglob("*.rs"):
@@ -249,9 +274,11 @@ for path in (root / "src").rglob("*.rs"):
         header_source_unit,
         catalog_candidate,
         catalog,
+        catalog_resolution_source,
         root / "src/mir/resolved_semantics/callable_header_source_unit_tests.rs",
         root / "src/mir/resolved_semantics/callable_catalog_candidate_tests.rs",
         catalog_tests,
+        resolved_module_tests,
         root / "src/mir/resolved_semantics/mod.rs",
     }:
         continue
@@ -267,6 +294,7 @@ for path in (root / "src").rglob("*.rs"):
         catalog,
         root / "src/mir/resolved_semantics/callable_catalog_candidate_tests.rs",
         catalog_tests,
+        resolved_module_tests,
         root / "src/mir/resolved_semantics/mod.rs",
     }:
         continue
@@ -280,6 +308,7 @@ for path in (root / "src").rglob("*.rs"):
     if path in {
         catalog,
         catalog_tests,
+        catalog_resolution_source,
         resolved_module,
         resolved_module_tests,
         root / "src/mir/resolved_semantics/mod.rs",
@@ -306,6 +335,20 @@ for path in (root / "src").rglob("*.rs"):
         resolved_module_users.append(str(path.relative_to(root)))
 if resolved_module_users:
     fail(f"MP0-S0 passive carrier has production producers/consumers: {resolved_module_users}")
+
+resolution_source_users = []
+for path in (root / "src").rglob("*.rs"):
+    if path in {
+        catalog,
+        catalog_resolution_source,
+        resolved_module,
+        root / "src/mir/resolved_semantics/mod.rs",
+    }:
+        continue
+    if "CallableCatalogResolutionSourceV1" in path.read_text():
+        resolution_source_users.append(str(path.relative_to(root)))
+if resolution_source_users:
+    fail(f"MP0-R0 consuming source view escaped exact producer path: {resolution_source_users}")
 
 normalized_users = []
 for path in (root / "src").rglob("*.rs"):
@@ -434,6 +477,7 @@ for path in [
     direct_call_lower_tests,
     resolved_module,
     resolved_module_tests,
+    catalog_resolution_source,
     root / "src/mir/canonical_direct_static_call_backend_capability_tests.rs",
 ]:
     lines = len(path.read_text().splitlines())

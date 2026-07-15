@@ -51,4 +51,12 @@ impl VerifiedCallableHeaderSourceUnitV1 {
         let statement = statements.get(site.statement_index() as usize)?;
         LocatedCallableHeaderSyntaxViewV1::from_statement(site, statement)
     }
+
+    pub(super) fn function_ast(&self, site: SourceCallableDeclarationSiteV1) -> Option<&ASTNode> {
+        let ASTNode::Program { statements, .. } = &self.syntax.program else {
+            return None;
+        };
+        let statement = statements.get(site.statement_index() as usize)?;
+        matches!(statement, ASTNode::FunctionDeclaration { .. }).then_some(statement)
+    }
 }

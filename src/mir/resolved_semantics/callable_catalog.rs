@@ -13,6 +13,8 @@ use super::{
     VerifiedOwnerFreeCallableCatalogSourceUnitV1,
 };
 
+use super::callable_catalog_resolution_source::CallableCatalogResolutionSourceV1;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum CallableCatalogOwnerSealErrorV1 {
     OwnerIssueExhausted {
@@ -98,6 +100,26 @@ impl VerifiedCallableCatalogSourceUnitV1 {
     pub(crate) const fn catalog(&self) -> &VerifiedCallableCatalogV1 {
         &self.catalog
     }
+
+    pub(in crate::mir) fn into_resolution_source(self) -> CallableCatalogResolutionSourceV1 {
+        CallableCatalogResolutionSourceV1::begin(self)
+    }
+
+    pub(super) fn into_resolution_parts(
+        self,
+    ) -> (
+        VerifiedCallableHeaderSourceUnitV1,
+        VerifiedCallableCatalogV1,
+    ) {
+        (self.source, self.catalog)
+    }
+
+    pub(super) fn restore_after_resolution(
+        source: VerifiedCallableHeaderSourceUnitV1,
+        catalog: VerifiedCallableCatalogV1,
+    ) -> Self {
+        Self { source, catalog }
+    }
 }
 
 #[derive(Debug)]
@@ -106,7 +128,7 @@ pub(crate) struct CatalogSealedResolverContinuationV1 {
 }
 
 impl CatalogSealedResolverContinuationV1 {
-    pub(super) fn into_resolver(self) -> FunctionSemanticResolverSessionV1 {
+    pub(in crate::mir) fn into_resolver(self) -> FunctionSemanticResolverSessionV1 {
         self.resolver
     }
 }

@@ -8,6 +8,7 @@
 
 mod callable_catalog;
 mod callable_catalog_candidate;
+mod callable_catalog_resolution_source;
 mod callable_header_source_unit;
 mod callable_header_view;
 mod callable_index;

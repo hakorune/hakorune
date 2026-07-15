@@ -1,12 +1,12 @@
 ---
-Status: Accepted and taskized — A′+; MP0-S0 closed, MP0-R0 next
+Status: Accepted and taskized — A′+; MP0-R0 closed, MP0-P0 next
 Date: 2026-07-15
 Decision: A′+ — Program/catalog co-seal + single-use resolver continuation + canonical-key module identity
-Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-MP0-R0-COMPLETE-CATALOG-BODY-RESOLUTION-001
+Current blocker: RESOLVED-SEMANTIC-OWNER-FOREST-V1-DPRIME-SSA-I1-COMPAT-P0C-MP0-P0-WHOLE-MODULE-PREFLIGHT-001
 Parent taskboard: mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md
 Previous closed card: mirbuilder-ssa-i1-compat-p0c-i64-call-design-stop-2026-07-15.md
 Decision-input baseline commit: ec570ea696
-Next code-facing row: MP0-R0
+Next code-facing row: MP0-P0
 ---
 
 # P0c-CAT0 Module Callable Catalog — A′+ Decision and Taskboard
@@ -495,7 +495,7 @@ MP0-S0:
   primary functions_by_key map
 
 MP0-R0:
-  code row
+  CLOSED — code/fixture row
   two-pass per-function body/forest resolution against complete catalog
   consume resolver continuation for same-brand lambda owners
 
@@ -734,6 +734,42 @@ verification:
 State: closed on 2026-07-15. The passive carrier cannot be assembled through
 foreign parts; `MP0-R0` is the sole next producer and must consume the CAT0
 resolver continuation while resolving every body against the complete catalog.
+
+### MP0-R0 exit gate
+
+```text
+source boundary:
+  CAT0 source unit is consumed into one bounded body-resolution view
+  Program syntax and immutable catalog remain inseparable through finish
+  CAT0 callable_catalog.rs remains header-only; body opening is physically
+  isolated in callable_catalog_resolution_source.rs
+
+resolution:
+  every top-level function reuses its CAT0-reserved origin and owner
+  every body resolves against the complete immutable callable index
+  self / forward / backward target rows carry exact ResolvedCallableRefV1
+  nested Lambda owners consume the single continuation and keep the catalog
+  compilation brand
+  one exact source projection is sealed beside each single-root forest
+
+publication boundary:
+  VerifiedResolvedCallableModuleV1::resolve is the sole carrier constructor
+  unknown target or any late function error returns no resolved module
+  Builder / Lower / MIR draft / module insertion = 0
+  production sibling-call activation = 0
+
+verification:
+  focused module-resolution fixtures = 6/6
+  resolved semantics = 144/144
+  resolved callable authority guard = green
+  release build = green
+  quick gate = 66/66
+  all touched source/check files < 800 lines
+```
+
+State: closed on 2026-07-15. The next code-facing row is `MP0-P0`, which must
+run whole-module capability/profile preflight over this resolved carrier before
+any Builder effect.
 
 ### MP0-TX0 exit gate
 
