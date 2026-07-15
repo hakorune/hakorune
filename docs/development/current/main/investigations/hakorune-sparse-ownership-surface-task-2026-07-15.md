@@ -368,6 +368,30 @@ O2-DIAG0 golden-tests:
   independent owner with `share owner` after last-use;
 - stable machine-readable reason/fix identifiers.
 
+For an Anchored value returned through the default Owned result ABI, the exact
+reason/fix contract is:
+
+```text
+reason:
+  owned-return-from-anchored-value
+
+ordered fixes:
+  change_result_to_view
+  change_result_to_share_and_acquire
+  move_from_storage
+```
+
+The emitted list is a capability-filtered subsequence in that order. Human
+help may offer the Shared result edit only when the exact acquisition witness
+exists; then it explains the paired change to `: share T` plus explicit Shared
+acquisition. It must not imply that plain View can promote or that `share
+value` alone satisfies an Owned result ABI. `move_from_storage` is offered only
+when the sealed storage contract permits a field move.
+
+This row emits a hard ownership error, not a duplicate default warning. A
+future opt-in API-review lint is outside O2-DIAG0 and may use verified
+provenance only; callable names are never lint or ownership authority.
+
 The debug oracle is non-owning. It may count loan records or poison/quarantine
 retired cells, but it must never retain the object or change reclamation time.
 

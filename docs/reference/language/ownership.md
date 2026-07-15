@@ -204,6 +204,69 @@ local child = node.get()
 An ordinary, unannotated result is Owned. A method name such as `get`, `peek`,
 or `current` has no ownership meaning.
 
+### View omission is a typed ownership error
+
+Decision: accepted target contract; production activation remains gated by
+`GRAM-RESULT0` and the Anchored View taskboard.
+
+Forgetting `view` does not silently retain the receiver field and does not
+reach runtime as a leak:
+
+```hako
+get(): Node {
+    return me.child
+}
+```
+
+The unannotated result requires Owned, while `me.child` is anchored storage.
+The ownership verifier rejects this mismatch. It is not a grammar error and it
+must not be repaired by hidden Share promotion.
+
+Required human diagnostic shape:
+
+```text
+cannot return `me.child` as Owned
+
+source is anchored to receiver `me`
+return type `Node` requires an independent owner
+
+help:
+  - use `: view Node` while the result may depend on `me`
+  - when Shared acquisition is verified, use `: share Node` and an explicit
+    Shared acquisition for independent lifetime
+  - when field move-out is verified, use `move me.child` only when ownership
+    should leave receiver storage
+```
+
+The Share alternative is emitted only when the exact field/result ABI carries
+a Shared acquisition witness; plain View never silently promotes to Shared.
+The `move` alternative is emitted only when the exact object-storage contract
+admits moving out of that field. It means that subsequent use of the moved
+storage is forbidden; this reference does not promise a particular empty-slot
+representation.
+
+The corresponding machine-readable reason is
+`owned-return-from-anchored-value`, with this ordered remediation vocabulary:
+
+```text
+change_result_to_view
+change_result_to_share_and_acquire
+move_from_storage
+```
+
+The emitted fix list is a capability-filtered subsequence. It must never offer
+Share acquisition or field move-out without the matching sealed witness.
+
+This mismatch is a hard error, not a warning. An explicit `move` already
+records user intent and receives no default warning. A future opt-in API-review
+lint may inspect verified return provenance, but method names such as `get` or
+`peek` are never warning or ownership authority.
+
+Under the target contract, omission of `view` cannot itself create an
+ownership leak. The principal specified leak hazards are strong Shared cycles
+and explicit `unsafe raw` code. Compiler/runtime defects and plugin/FFI
+ownership-contract mismatches remain separate verification concerns.
+
 ### Shared owner
 
 Shared is the explicit independent-lifetime lane. `share expr` is the only

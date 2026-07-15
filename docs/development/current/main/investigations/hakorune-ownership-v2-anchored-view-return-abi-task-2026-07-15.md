@@ -483,6 +483,7 @@ Land stable machine-readable errors and human golden messages before runtime
 activation:
 
 ```text
+OwnedReturnFromAnchoredValue
 AmbiguousViewAnchor
 ViewReturnProvenanceMismatch
 UnknownViewCallableAbi
@@ -496,6 +497,41 @@ JoinRequiresViewPhi
 Each carries exact callable/call site, formal/actual anchor when available,
 View creation, conflict, next-use frontier, and a context-specific remediation.
 No diagnostic suggests hidden retain, promotion, or unsafe raw by default.
+
+`OwnedReturnFromAnchoredValue` is the missing-`view` usability boundary. Its
+stable machine-readable spelling and ordered fixes are:
+
+```text
+reason = owned-return-from-anchored-value
+fix_vocabulary_in_order = [
+  change_result_to_view,
+  change_result_to_share_and_acquire,
+  move_from_storage,
+]
+```
+
+The emitted fix list is a capability-filtered subsequence. Share is offered
+only with an exact Shared acquisition witness; move-out is offered only with
+an exact storage witness. Plain View never gains either capability from the
+diagnostic layer.
+
+The human golden message must distinguish all three meanings:
+
+```text
+: view T
+  non-owning result anchored to the declared receiver/parameter
+
+: share T + share value
+  independently owned Shared result when exact acquisition is verified
+
+move value
+  transfer from storage, only when the storage contract admits it
+```
+
+This is an ownership verifier error, not parser rejection. Default warning
+count is zero: the hard error already catches omission, and explicit `move`
+records intent. Any later API-review lint is opt-in, provenance-based, and may
+not infer from names such as `get`, `peek`, or `current`.
 
 ### UCALL-B0 — exact Box receiver-call substrate
 
@@ -605,9 +641,11 @@ View move/fini/share in the no-acquisition profile
 branch-selected View without ViewPhi
 unknown dynamic/interface/plugin/FFI ABI
 method name used as ownership evidence
+anchored field returned through default Owned ABI
 ```
 
-Diagnostics are golden-tested through both human and machine-readable output.
+Diagnostics are golden-tested through both human and machine-readable output,
+including ordered help/fix identifiers for the Owned/View/Share choice.
 LoanTrace may observe creation/use/end/conflict only; it cannot retain an object
 or delay reclamation.
 
