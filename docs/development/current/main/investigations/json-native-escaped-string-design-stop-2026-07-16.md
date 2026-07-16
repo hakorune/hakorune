@@ -1,5 +1,5 @@
 ---
-Status: design stop; user selection required
+Status: resolved; worker-refined Candidate A1 selected
 Date: 2026-07-16
 Parent: json-native-iterative-parser-task-2026-07-16.md
 Blocked row: JSON-NATIVE-ITER0-P0
@@ -7,6 +7,23 @@ WIP: stash `wip/json-native-iter0-p0 (blocked on escaped-key policy)`
 ---
 
 # JSON native escaped-string design stop
+
+## Resolution
+
+Candidate A is accepted with a worker-audited correction. The exact first
+Unicode set is not all `\u00XX` and not all ASCII. It is:
+
+```text
+U+0008 U+0009 U+000A U+000C U+000D
+U+0020..U+007E
+```
+
+The executable task is:
+
+`json-native-exact-escape-task-2026-07-16.md`
+
+NUL, remaining controls, DEL, non-ASCII, and surrogate composition stay typed
+fail-fast until their exact string/code-point owner is selected.
 
 ## Question
 
@@ -62,7 +79,7 @@ depth 24 / 128 / 129 and ordinary MIR carrier:
 No production parser selector changed. The prototype is stashed rather than
 committed with a weakened corpus.
 
-## Candidate A — exact ASCII escape prerequisite (recommended)
+## Candidate A — exact representable escape prerequisite (selected as A1)
 
 Insert one separate code-facing row before P0:
 
@@ -79,7 +96,8 @@ simple JSON escapes:
   \" \\ \/ \b \f \n \r \t
 
 Unicode escape first slice:
-  exact `\u00XX` ASCII code points
+  U+0008 U+0009 U+000A U+000C U+000D
+  U+0020..U+007E
 
 non-ASCII `\uXXXX` and surrogate pairs:
   typed fail-fast until a UTF-8/code-point owner is selected

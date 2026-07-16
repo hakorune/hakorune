@@ -1,5 +1,5 @@
 ---
-Status: accepted; JSON-NATIVE-ITER0-P0 stopped at escaped-string policy
+Status: accepted; P0 parked behind selected JSON-NATIVE-ESC0
 Date: 2026-07-16
 Decision: B-prime one iterative grammar engine and one text-to-tree owner
 Parent stop: hmi-s0-t0-json-parser-depth-consultation-question-2026-07-16.md
@@ -348,7 +348,7 @@ VM MAX_CALL_DEPTH:
 
 ### JSON-NATIVE-ITER0-P0 — normalized parity proof
 
-Design stop. No production behavior changed.
+Parked prerequisite. No production behavior changed.
 
 Prove existing compatibility behavior, J0 strict behavior, valid generated
 trees, shallow malformed first-error parity, ordinary MIR JSON, and exact depth
@@ -372,7 +372,7 @@ Therefore `"a"` versus `"\u0061"` never reaches either parser. Adding escape
 admission here would mix BoxCount with this BoxShape parity row. Selection is
 parked at:
 
-`json-native-escaped-string-design-stop-2026-07-16.md`
+`json-native-exact-escape-task-2026-07-16.md`
 
 The repository fixture audit also found that only L0, S0, and J0 strict tests
 are active green authorities. Seven legacy json_native files fail before their
