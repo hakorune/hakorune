@@ -5,7 +5,7 @@
   "owner": "match_return_facts",
   "rust_source": {
     "path": "src/mir/builder/control_flow/plan/facts/match_return_facts.rs",
-    "hash": "sha256:a3cf668ccf03f6edde6d95a1dcf742baa79267ac3c93a6cde4db90d234c3e5d2",
+    "hash": "sha256:f3f04a4ad3f1c8419c05a219860c0aa197e5588c9f26c576567dc3442ddd9bd9",
     "oracle_surface": "try_extract_match_return_facts"
   },
   "input_contract": "BackendSafeMatchReturnTokenSnapshotV1",
@@ -25,7 +25,7 @@
       ],
       "else_kind": "Int",
       "expected_accept": true,
-      "expected_summary": "accepted=1;scrutinee=Var;arms=2;labels=Int,Int;returns=Int,Int;else=Int"
+      "expected_summary": "accepted=1;profile=legacy_integer_bool;scrutinee=Var;arms=2;labels=Int,Int;returns=Int,Int;else=Int"
     },
     {
       "case_id": "accept_int_bool_returns",
@@ -42,7 +42,24 @@
       ],
       "else_kind": "Bool",
       "expected_accept": true,
-      "expected_summary": "accepted=1;scrutinee=Int;arms=2;labels=Bool,Bool;returns=Bool,Int;else=Bool"
+      "expected_summary": "accepted=1;profile=legacy_integer_bool;scrutinee=Int;arms=2;labels=Bool,Bool;returns=Bool,Int;else=Bool"
+    },
+    {
+      "case_id": "accept_string_dispatch",
+      "expr_kind": "MatchExpr",
+      "scrutinee_kind": "Var",
+      "arm_count": 2,
+      "label_kinds": [
+        "String",
+        "String"
+      ],
+      "return_kinds": [
+        "String",
+        "String"
+      ],
+      "else_kind": "Null",
+      "expected_accept": true,
+      "expected_summary": "accepted=1;profile=string_dispatch;scrutinee=Var;arms=2;labels=String,String;returns=String,String;else=Null"
     },
     {
       "case_id": "skip_not_match_expr",
@@ -133,6 +150,78 @@
       "expected_accept": false,
       "expected_reason": "else_not_literal",
       "expected_summary": "accepted=0;reason=else_not_literal"
+    },
+    {
+      "case_id": "reject_else_literal_type_unsupported",
+      "expr_kind": "MatchExpr",
+      "scrutinee_kind": "Var",
+      "arm_count": 2,
+      "label_kinds": [
+        "Int",
+        "Int"
+      ],
+      "return_kinds": [
+        "Int",
+        "Int"
+      ],
+      "else_kind": "Float",
+      "expected_accept": false,
+      "expected_reason": "else_literal_type_unsupported",
+      "expected_summary": "accepted=0;reason=else_literal_type_unsupported"
+    },
+    {
+      "case_id": "reject_arm_literal_type_unsupported",
+      "expr_kind": "MatchExpr",
+      "scrutinee_kind": "Var",
+      "arm_count": 2,
+      "label_kinds": [
+        "Int",
+        "Int"
+      ],
+      "return_kinds": [
+        "Float",
+        "Int"
+      ],
+      "else_kind": "Int",
+      "expected_accept": false,
+      "expected_reason": "arm_literal_type_unsupported",
+      "expected_summary": "accepted=0;reason=arm_literal_type_unsupported"
+    },
+    {
+      "case_id": "reject_integer_to_string_before_is0",
+      "expr_kind": "MatchExpr",
+      "scrutinee_kind": "Var",
+      "arm_count": 2,
+      "label_kinds": [
+        "Int",
+        "Int"
+      ],
+      "return_kinds": [
+        "String",
+        "String"
+      ],
+      "else_kind": "String",
+      "expected_accept": false,
+      "expected_reason": "literal_profile_mismatch",
+      "expected_summary": "accepted=0;reason=literal_profile_mismatch"
+    },
+    {
+      "case_id": "reject_string_dispatch_with_string_else",
+      "expr_kind": "MatchExpr",
+      "scrutinee_kind": "Var",
+      "arm_count": 2,
+      "label_kinds": [
+        "String",
+        "String"
+      ],
+      "return_kinds": [
+        "String",
+        "String"
+      ],
+      "else_kind": "String",
+      "expected_accept": false,
+      "expected_reason": "literal_profile_mismatch",
+      "expected_summary": "accepted=0;reason=literal_profile_mismatch"
     }
   ],
   "non_claims": {

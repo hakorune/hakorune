@@ -4,11 +4,11 @@
   "token": "MIRBUILDER-MATCH-RETURN-FACTS-TOKEN-SNAPSHOT-HAKOADOPTED-DECISION-001",
   "input_state": {
     "hako_source": "lang/src/compiler/lib/match_return_facts.hako",
-    "hako_source_hash": "sha256:9f354fbb92bb3780ec19311aa5810ed47bad329b14343bd6d7085e2b81c3421c",
+    "hako_source_hash": "sha256:7508781ed97bcdc7ac02f3392cec72748315c29f5d867bb299f1a60f5dd20363",
     "rust_oracle_fixture": "docs/development/current/main/design/fixtures/rust-lifecycle/mirbuilder-match-return-facts-rust-oracle-v0.json",
-    "rust_oracle_fixture_hash": "sha256:e791540c328f43bb696c9c1d1d8a6e87d0a4b2ae04546491e044e2e9fdb6ff88",
+    "rust_oracle_fixture_hash": "sha256:11083026ac6a6350a2a6cbf5bc8622bed4515649d6f4899dc49ba80432adaf55",
     "parity_gate": "tools/checks/rust_lifecycle_mirbuilder_match_return_facts_parity_gate.sh",
-    "parity_gate_hash": "sha256:f0c029c2e538ff3a4aef136f7fd1d1716390ac5f9601d9d1f2ee2ea5d395779e"
+    "parity_gate_hash": "sha256:b8dc4fdb625b6f81af12607b48f8bf15510aaa7aa3cd730f11708971e366f54b"
   },
   "adoption_scope": {
     "adopted_owner": "match_return_facts.backend_safe_token_snapshot_reducer",
@@ -39,9 +39,10 @@
   },
   "parity": {
     "gate_status": "Green",
-    "oracle_row_count": 7,
+    "oracle_row_count": 12,
     "required_contract_fields": [
       "accepted",
+      "profile",
       "scrutinee",
       "arms",
       "labels",
@@ -52,11 +53,16 @@
     "required_rows": [
       "accept_var_int_returns",
       "accept_int_bool_returns",
+      "accept_string_dispatch",
       "skip_not_match_expr",
       "reject_scrutinee_unsupported",
       "reject_too_few_arms",
       "reject_non_literal_arm",
-      "reject_nonliteral_else"
+      "reject_nonliteral_else",
+      "reject_else_literal_type_unsupported",
+      "reject_arm_literal_type_unsupported",
+      "reject_integer_to_string_before_is0",
+      "reject_string_dispatch_with_string_else"
     ]
   },
   "decision": {

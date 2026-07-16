@@ -1,5 +1,5 @@
 ---
-Status: accepted; next code-facing row is MR-SD0-I1
+Status: accepted; MR-SD0-I1 closed; next code-facing row is MR-IS0-I1
 Date: 2026-07-16
 Decision: exact whole-match literal profiles, not an open literal allow-list
 Parent blocker: JSON-NATIVE-ITER0-CUT0
@@ -170,6 +170,8 @@ return lowering, backend lowering, route selection, or Source Selfhost.
 
 ## MR-SD0-I1 — exact String dispatch
 
+Status: closed.
+
 ### Accepted grammar
 
 ```text
@@ -250,6 +252,39 @@ non-literal arm
 non-literal else
 one arm
 Integer label + String result remains rejected until IS0
+```
+
+### MR-SD0-I1 closeout
+
+```text
+whole-match witness:
+  LegacyIntegerBool
+  StringDispatch
+
+Hako/Rust parity:
+  12/12
+
+StringDispatch:
+  String labels
+  String arms
+  exact Null else
+
+IntegerToString before IS0:
+  strict reject
+  match_return_literal_profile_mismatch
+
+focused source:
+  phase29at_match_return_string_dispatch_min.hako
+
+explicit MIR reference:
+  legacy strict/release green
+  StringDispatch strict/release green
+
+quick:
+  66/66
+
+source/check files at or above 800 lines:
+  0
 ```
 
 ## MR-IS0-I1 — exact Integer-to-String lookup
@@ -362,13 +397,22 @@ Minimum focused gates:
 cargo test -q match_return_facts
 bash tools/checks/rust_lifecycle_mirbuilder_match_return_facts_parity_gate.sh
 bash tools/checks/rust_lifecycle_mirbuilder_match_return_facts_token_snapshot_hako_adoption_decision_guard.sh
-bash tools/smokes/v2/profiles/integration/joinir/match_return_strict_shadow_vm.sh
-bash tools/smokes/v2/profiles/integration/joinir/match_return_release_adopt_vm.sh
-focused StringDispatch or IntegerToString source execution
+cargo build --release --features vm-reference --bin hakorune
+strict/release `target/release/hakorune --backend mir` execution:
+  existing legacy fixture
+  focused StringDispatch or IntegerToString fixture
 bash tools/checks/current_state_pointer_guard.sh
 tools/checks/dev_gate.sh quick
 git diff --check
 ```
+
+The historical `match_return_*_vm.sh` scripts currently select the explicit
+VM-Hako lane. That lane independently freezes while compiling
+`RecipeFactsV0Box.analyze_root` and is not an MR-SD0/IS0 acceptance authority.
+Do not hide that failure or reinterpret it as a MatchReturn regression. The
+exact compiler-row execution authority is the feature-gated Rust MIR reference
+backend named above. CUT0's later actual-consumer validation must inventory the
+VM-Hako blocker separately if it remains after IS0.
 
 Before CUT0 resumes, additionally prove the actual consumers compile without
 the old Freeze:

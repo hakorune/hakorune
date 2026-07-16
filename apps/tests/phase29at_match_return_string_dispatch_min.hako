@@ -1,0 +1,12 @@
+// MR-SD0-I1: exact String-label -> String-result / Null-else MatchReturn profile.
+
+static box Main {
+    main() {
+        local keyword = "true"
+        return match keyword {
+            "true" => "TRUE",
+            "false" => "FALSE",
+            _ => null
+        }
+    }
+}

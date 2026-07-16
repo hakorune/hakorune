@@ -105,26 +105,52 @@ for field in [
 
 parity = decision.get("parity") or {}
 need(parity.get("gate_status") == "Green", "parity status must be Green")
-need(parity.get("oracle_row_count") == 7, "oracle row count must be 7")
+need(parity.get("oracle_row_count") == 12, "oracle row count must be 12")
 required_rows = set(parity.get("required_rows") or [])
 for row in [
     "accept_var_int_returns",
     "accept_int_bool_returns",
+    "accept_string_dispatch",
     "skip_not_match_expr",
     "reject_scrutinee_unsupported",
     "reject_too_few_arms",
     "reject_non_literal_arm",
     "reject_nonliteral_else",
+    "reject_else_literal_type_unsupported",
+    "reject_arm_literal_type_unsupported",
+    "reject_integer_to_string_before_is0",
+    "reject_string_dispatch_with_string_else",
 ]:
     need(row in required_rows, f"missing required row: {row}")
 
 oracle_rows = {row.get("case_id"): row for row in oracle.get("rows") or []}
 need(oracle_rows["accept_var_int_returns"]["expected_accept"] is True, "var accept drift")
 need(oracle_rows["accept_int_bool_returns"]["expected_accept"] is True, "int/bool accept drift")
+need(oracle_rows["accept_string_dispatch"]["expected_accept"] is True, "string dispatch accept drift")
 need(oracle_rows["reject_scrutinee_unsupported"]["expected_reason"] == "scrutinee_not_supported", "scrutinee reason drift")
 need(oracle_rows["reject_too_few_arms"]["expected_reason"] == "too_few_arms", "too few reason drift")
 need(oracle_rows["reject_non_literal_arm"]["expected_reason"] == "arm_not_literal", "arm reason drift")
 need(oracle_rows["reject_nonliteral_else"]["expected_reason"] == "else_not_literal", "else reason drift")
+need(
+    oracle_rows["reject_else_literal_type_unsupported"]["expected_reason"]
+    == "else_literal_type_unsupported",
+    "else literal type reason drift",
+)
+need(
+    oracle_rows["reject_arm_literal_type_unsupported"]["expected_reason"]
+    == "arm_literal_type_unsupported",
+    "arm literal type reason drift",
+)
+need(
+    oracle_rows["reject_integer_to_string_before_is0"]["expected_reason"]
+    == "literal_profile_mismatch",
+    "integer-to-string pre-IS0 reason drift",
+)
+need(
+    oracle_rows["reject_string_dispatch_with_string_else"]["expected_reason"]
+    == "literal_profile_mismatch",
+    "string dispatch else reason drift",
+)
 
 decision_row = decision.get("decision") or {}
 need(decision_row.get("kind") == "HakoAdoptedScoped", "bad decision kind")
@@ -167,7 +193,7 @@ token=MIRBUILDER-MATCH-RETURN-FACTS-TOKEN-SNAPSHOT-HAKOADOPTED-DECISION-001
 owner=match_return_facts.backend_safe_token_snapshot_reducer
 decision=HakoAdoptedScoped
 parity_gate=green
-oracle_rows=7
+oracle_rows=12
 source_selfhost_claim=0
 full_ast_traversal_adopted=0
 strict_release_policy_adopted=0

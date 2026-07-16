@@ -19,6 +19,7 @@ pub(in crate::mir::builder) fn compose_match_return_branchn(
     builder: &mut MirBuilder,
     facts: &MatchReturnFacts,
 ) -> Result<MatchReturnPlan, String> {
+    let _sealed_literal_profile = facts.literal_profile;
     let mut effects = Vec::new();
 
     let scrutinee_id = match &facts.scrutinee {

@@ -123,9 +123,11 @@ pub mod handoff_tables {
 | MatchReturnScrutineeNotSupported | "match return scrutinee must be var or int literal" |
 | MatchReturnTooFewArms | "match return requires >= 2 arms" |
 | MatchReturnElseNotLiteral | "match return else must be literal" |
-| MatchReturnArmLabelNotSupported | "match return arm label must be int/bool literal" |
+| MatchReturnElseLiteralTypeUnsupported | "match return else literal type unsupported" |
+| MatchReturnArmLabelNotSupported | "match return arm label must be int/bool/string literal" |
 | MatchReturnArmNotLiteral | "match return arm must be literal" |
 | MatchReturnArmLiteralTypeUnsupported | "match return arm literal type unsupported" |
+| MatchReturnLiteralProfileMismatch | "match return literal profile is not supported" |
 
 **注**: NoValidLoopVarCandidates は現在 `Ok(None)` 経路のため未使用。将来の strict freeze 化に備えた登録。
 
