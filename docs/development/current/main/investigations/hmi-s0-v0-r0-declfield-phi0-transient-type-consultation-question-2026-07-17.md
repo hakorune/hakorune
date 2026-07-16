@@ -8,6 +8,60 @@ Scope: transient receiver Copy/Phi type authority before declared FieldGet
 
 # R0-DECLFIELD-PHI0 transient type consultation
 
+## Late response classification
+
+An external response received after `R0-DECLFIELD-PHI0-P0` selected the same
+Candidate A-prime contract already implemented by S0/P0:
+
+```text
+one bounded use-site Copy/Phi proof
+finite acyclic non-loop nested PHIs
+every terminal root = exact current implicit receiver parameter 0
+persistent provenance/type/origin publication = 0
+```
+
+That response is accepted as confirmation of the existing proof authority,
+fixture matrix, claims, non-claims, and stop conditions. It does not create a
+new task row because:
+
+```text
+R0-DECLFIELD-PHI0-S0:
+  already closed
+
+R0-DECLFIELD-PHI0-P0:
+  already closed
+
+R0-DECLFIELD-PHI0-I0:
+  attempted and stopped before landing
+
+stop reason:
+  SeedTypeMissing at the exact transient FieldGet use site
+```
+
+The response does not select the transient type-publication authority, define
+the PHI destination/type-hint conflict law, or identify the exact
+finalization-stage publisher of the downstream Copy type. Therefore it does
+not authorize resuming `R0-DECLFIELD-PHI0-I0`.
+
+Current task classification remains:
+
+```text
+accepted and closed:
+  R0-DECLFIELD-PHI0-S0
+  R0-DECLFIELD-PHI0-P0
+
+blocked:
+  R0-DECLFIELD-PHI0-I0
+
+parked behind I0:
+  R0-DECLFIELD0-G0
+  clean HMI-S0-V0-R0-I0 rewrite
+
+next action:
+  answer this consultation's Questions for decision
+  then task-fix the selected transient type row
+```
+
 ## Why implementation is stopped
 
 `R0-DECLFIELD-PHI0-S0/P0` proved the accepted receiver identity grammar:
