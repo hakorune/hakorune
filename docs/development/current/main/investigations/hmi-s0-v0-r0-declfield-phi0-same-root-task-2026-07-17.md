@@ -1,5 +1,5 @@
 ---
-Status: Active implementation task
+Status: S0 closed; P0 next
 Date: 2026-07-17
 Decision: Candidate A′ accepted
 Baseline: e741e1bbca
@@ -124,6 +124,7 @@ src/mir/builder/field_receiver_provenance/
   mod.rs
   analysis.rs
   cfg.rs
+  definitions.rs
   tests.rs
 ```
 
@@ -139,7 +140,6 @@ mod.rs:
   public(crate) verification facade
 
 analysis.rs:
-  exact definition index
   explicit value worklist
   visiting/proven memo
   Copy/Phi grammar
@@ -148,6 +148,11 @@ cfg.rs:
   predecessor/reachability/dominance views
   PHI edge availability
   CFG cycle/backedge rejection
+
+definitions.rs:
+  exact parameter/instruction definition index
+  instruction-position lookup without cloned instruction truth
+  traversal budget
 
 tests.rs:
   synthetic functions
@@ -162,6 +167,7 @@ README.md <= 120 lines
 mod.rs <= 280 lines
 analysis.rs <= 420 lines
 cfg.rs <= 320 lines
+definitions.rs <= 220 lines
 tests.rs <= 700 lines
 field_facts.rs after I0 <= 160 lines
 every source/check file < 800 lines
@@ -431,10 +437,14 @@ pub(crate) enum SameRootReceiverProofErrorV1 {
     ReceiverOwnerMismatch,
     ReceiverRegistryMissing,
 
+    MissingUseSite,
+    SeedUnavailable,
     SeedTypeMissing,
     SeedTypeMismatch,
     ForeignOrigin,
 
+    CfgSuccessorCacheMismatch,
+    MissingCfgBlock,
     MissingDefinition,
     MultipleDefinition,
     UnsupportedDefinitionKind,
@@ -526,6 +536,74 @@ FieldGet type delta
 Known method route delta
 HMI execution
 ```
+
+### S0 closeout
+
+`R0-DECLFIELD-PHI0-S0` is closed.
+
+Implemented structure:
+
+```text
+README.md       34 lines
+mod.rs         159 lines
+analysis.rs    291 lines
+cfg.rs         115 lines
+definitions.rs 147 lines
+tests.rs       570 lines
+```
+
+The disconnected implementation adds:
+
+```text
+one sealed current-receiver identity
+one sealed same-root receiver value proof
+one exact definition-position index
+one validated ephemeral normal-CFG view
+one explicit Copy/Phi worklist
+one typed failure vocabulary
+one normalized test-only fingerprint
+```
+
+Three mechanical safety refinements were required without changing the
+accepted semantic grammar:
+
+```text
+definition truth:
+  store instruction positions and read the current MirFunction
+  never clone instructions into a second definition authority
+
+use-site availability:
+  the selected seed must already be available at the current instruction site
+
+CFG substrate:
+  cached successors must exactly match terminator-derived successors before
+  predecessor/reachability/dominance utilities are used
+```
+
+Validation:
+
+```text
+cargo test -q field_receiver_provenance
+  11 passed
+
+cargo check -q
+  pass (existing warnings only)
+
+python3 tools/checks/lib/current_receiver_declared_field_proof.py .
+  PHI-ROOT-DESIGN-REQUIRED
+  selected base = Copy(Phi(current_receiver))
+  selected declared/result type = Unknown
+  ownership operation counts = 0
+
+bash tools/checks/current_state_pointer_guard.sh
+  pass
+```
+
+Production consumers remain zero. `declared_field_type_for_value`,
+`FieldGet`, PHI metadata publication, method routing, runtime behavior, HMI
+source, ownership operations, fallback, and retry are unchanged.
+
+The next row is `R0-DECLFIELD-PHI0-P0`.
 
 ## R0-DECLFIELD-PHI0-P0
 
