@@ -29,8 +29,8 @@ runtime ownership operation:
   0
 ```
 
-`R0-DELTA0-S0` and `R0-DELTA0-M0` are closed. The next code-facing row is
-`R0-DELTA0-V0`.
+`R0-DELTA0-S0`, `R0-DELTA0-M0`, and `R0-DELTA0-V0` are closed. The next
+code-facing row is `R0-DELTA0-G0`.
 
 Exact order:
 
@@ -190,6 +190,22 @@ names.
 
 M0 does not classify the result. V0 applies the already fixed exclusive
 classifier without changing compiler or HMI behavior.
+
+## R0-DELTA0-V0 closeout
+
+The fixed classifier selects exactly:
+
+```text
+A-PRIME-AUTHORIZED
+```
+
+All ten cases are true, so no earlier `STOP-*`, `STATIC-FORMAL-*`, or
+`FIELD-STATIC-*` row matches. The checker remains below the repository
+800-line boundary at 469 lines.
+
+This selection authorizes the later clean HMI-S0-V0-R0 implementation task. It
+does not restore the old register stash, activate ownership syntax, or claim a
+production borrowed ABI. G0 must first register and close the generic proof.
 
 ## Durable artifacts
 

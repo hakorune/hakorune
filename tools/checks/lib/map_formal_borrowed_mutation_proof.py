@@ -402,6 +402,24 @@ def normalize_mir(path: Path) -> dict[str, Any]:
         "totals": totals,
     }
 
+def classify(cases: dict[str, int]) -> str:
+    if not cases["local_direct_baseline"] or not cases["field_direct_baseline"]:
+        return "STOP-BASELINE0"
+    if not cases["local_formal_literal_direct"]:
+        return "STATIC-FORMAL-MUTATION0"
+    if not cases["local_formal_dynamic_direct"] or not cases["local_formal_dynamic_helper"]:
+        return "STATIC-FORMAL-KEY-OR-OBSERVE0"
+    if not cases["field_formal_literal_direct"]:
+        return "FIELD-STATIC-FORMAL-MUTATION0"
+    if not cases["field_formal_dynamic_direct"]:
+        return "FIELD-STATIC-DYNAMIC0"
+    if not cases["field_formal_dynamic_helper"]:
+        return "FIELD-STATIC-OBSERVATION0"
+    if not cases["repeated_mutation"]:
+        return "STATIC-FORMAL-REPEAT0"
+    if not cases["instance_isolation"]:
+        return "STATIC-FORMAL-ISOLATION0"
+    return "A-PRIME-AUTHORIZED"
 
 def main() -> int:
     root = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
@@ -418,12 +436,13 @@ def main() -> int:
     if mir_by_mode["debug"] != mir_by_mode["release"]:
         raise ProofFailure("debug/release normalized MIR evidence drift")
 
+    selection = classify(runtime_by_mode["debug"])
     report = {
         "schema_version": 1,
         "proof_id": PROOF_ID,
         "runtime": runtime_by_mode["debug"],
         "mir": mir_by_mode["debug"],
-        "selection": "UNCLASSIFIED-M0",
+        "selection": selection,
     }
     report_path = root / ARTIFACT_DIR / "report.json"
     report_path.write_text(
@@ -436,7 +455,7 @@ def main() -> int:
     print(f"mir.copy_owned={report['mir']['totals']['copy_owned']}")
     print(f"mir.destroy_owned={report['mir']['totals']['destroy_owned']}")
     print(f"mir.release_strong={report['mir']['totals']['release_strong']}")
-    print("selection=UNCLASSIFIED-M0")
+    print(f"selection={selection}")
     print(f"report={report_path.relative_to(root)}")
     print("summary=observed")
     return 0
