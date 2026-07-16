@@ -1,6 +1,7 @@
 // JsonNode基本動作テスト - 80%の動く基盤を確認
 
 using "apps/lib/json_native/core/node.hako" as JsonNode
+using "apps/lib/json_native/parser/parser.hako" as JsonParserUtils
 
 // ===== 基本値テスト =====
 
@@ -55,25 +56,25 @@ print("nested test: " + nested_object.stringify())
 
 print("\n🔍 簡易パーステスト")
 
-local parsed_null = JsonNode.parse("null")
+local parsed_null = JsonParserUtils.parse_json("null")
 print("parse null: " + parsed_null.stringify())
 
-local parsed_true = JsonNode.parse("true")
+local parsed_true = JsonParserUtils.parse_json("true")
 print("parse true: " + parsed_true.stringify())
 
-local parsed_false = JsonNode.parse("false")
+local parsed_false = JsonParserUtils.parse_json("false")
 print("parse false: " + parsed_false.stringify())
 
-local parsed_int = JsonNode.parse("42")
+local parsed_int = JsonParserUtils.parse_json("42")
 print("parse int: " + parsed_int.stringify())
 
-local parsed_string = JsonNode.parse("\"hello\"")
+local parsed_string = JsonParserUtils.parse_json("\"hello\"")
 print("parse string: " + parsed_string.stringify())
 
-local parsed_array = JsonNode.parse("[]")
+local parsed_array = JsonParserUtils.parse_json("[]")
 print("parse empty array: " + parsed_array.stringify())
 
-local parsed_object = JsonNode.parse("{}")
+local parsed_object = JsonParserUtils.parse_json("{}")
 print("parse empty object: " + parsed_object.stringify())
 
 print("\n✅ JsonNode基本動作テスト完了！")

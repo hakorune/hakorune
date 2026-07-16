@@ -1,6 +1,6 @@
 // json_parser_source_span_number_probe.hako
 //
-// Probe whether JsonParser.source_text keeps substring/parse_integer semantics.
+// Probe whether the selected parser preserves a source numeric value.
 
 using apps.lib.json_native.parser.parser as JsonParserUtils
 using apps.lib.json_native.utils.string as StringUtils
@@ -9,20 +9,18 @@ static box Main {
     main() {
         local text = "{\"value\":123}"
         local parser = new JsonParser()
-        parser.parse(text)
+        local parsed = parser.parse(text)
 
         local literal_span = text.substring(9, 12)
-        local parser_span = parser.source_text.substring(9, 12)
 
         print("literal_span=" + literal_span + ":" + StringUtils.parse_integer(literal_span))
-        print("parser_span=" + parser_span + ":" + StringUtils.parse_integer(parser_span))
 
         if StringUtils.parse_integer(literal_span) != 123 {
             print("json.parser.source.span=bad-literal")
             return 2
         }
-        if StringUtils.parse_integer(parser_span) != 123 {
-            print("json.parser.source.span=bad-parser-field")
+        if parser.has_errors() or parsed.object_get("value").as_int() != 123 {
+            print("json.parser.source.span=bad-parser-value")
             return 3
         }
 

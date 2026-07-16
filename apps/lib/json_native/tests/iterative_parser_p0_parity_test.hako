@@ -67,15 +67,15 @@ static box Main {
     }
 
     compatibility_tree(text) {
-        local old_parser = new JsonParser()
-        local new_parser = new JsonIterativeParserEngineV1()
-        local old_value = old_parser.parse(text)
-        local new_value = new_parser.parse(text)
-        if old_parser.has_errors() or new_parser.has_errors() {
+        local facade = new JsonParser()
+        local engine = new JsonIterativeParserEngineV1()
+        local facade_value = facade.parse(text)
+        local engine_value = engine.parse(text)
+        if facade.has_errors() or engine.has_errors() {
             print("[json-native/iter0-p0:compat-parse] " + text)
             return 1
         }
-        if not JsonTreePairWalkerV1.equivalent(old_value, new_value) {
+        if not JsonTreePairWalkerV1.equivalent(facade_value, engine_value) {
             print("[json-native/iter0-p0:compat-tree] " + text)
             return 1
         }
@@ -92,12 +92,12 @@ static box Main {
 
     strict_tree(text) {
         local policy = StrictJsonPolicyV1.exact_i64_document()
-        local old_parser = new JsonParser()
-        local new_parser = new JsonIterativeParserEngineV1()
-        local old_value = old_parser.parse_with_policy(text, policy)
-        local new_value = new_parser.parse_with_policy(text, policy)
-        if old_parser.has_errors() or new_parser.has_errors() { return 1 }
-        if not JsonTreePairWalkerV1.equivalent(old_value, new_value) { return 1 }
+        local facade = new JsonParser()
+        local engine = new JsonIterativeParserEngineV1()
+        local facade_value = facade.parse_with_policy(text, policy)
+        local engine_value = engine.parse_with_policy(text, policy)
+        if facade.has_errors() or engine.has_errors() { return 1 }
+        if not JsonTreePairWalkerV1.equivalent(facade_value, engine_value) { return 1 }
         return 0
     }
 
@@ -112,55 +112,47 @@ static box Main {
         local policy = StrictJsonPolicyV1.exact_i64_document()
         if not JsonErrorParityV1.strict(
             plain_first, policy,
-            "duplicate-key", "[json_native/strict/duplicate-key]",
-            "[json_native/strict/duplicate-key]", "COLON(:)", "COLON"
+            "duplicate-key", "[json_native/strict/duplicate-key]"
         ) { return 1 }
         if not JsonErrorParityV1.strict(
             escaped_first, policy,
-            "duplicate-key", "[json_native/strict/duplicate-key]",
-            "[json_native/strict/duplicate-key]", "COLON(:)", "COLON"
+            "duplicate-key", "[json_native/strict/duplicate-key]"
         ) { return 1 }
         return 0
     }
 
     compatibility_decoded_key(text) {
-        local old_parser = new JsonParser()
-        local new_parser = new JsonIterativeParserEngineV1()
-        local old_value = old_parser.parse(text)
-        local new_value = new_parser.parse(text)
-        if old_parser.has_errors() or new_parser.has_errors() { return false }
-        if not JsonTreePairWalkerV1.equivalent(old_value, new_value) { return false }
-        if old_value.object_keys().length() != 1 { return false }
-        if old_value.object_keys().get(0) != "a" { return false }
-        if old_value.object_get("a").as_int() != 2 { return false }
+        local facade = new JsonParser()
+        local engine = new JsonIterativeParserEngineV1()
+        local facade_value = facade.parse(text)
+        local engine_value = engine.parse(text)
+        if facade.has_errors() or engine.has_errors() { return false }
+        if not JsonTreePairWalkerV1.equivalent(facade_value, engine_value) { return false }
+        if facade_value.object_keys().length() != 1 { return false }
+        if facade_value.object_keys().get(0) != "a" { return false }
+        if facade_value.object_get("a").as_int() != 2 { return false }
         return true
     }
 
     test_grammar_errors() {
         local failures = 0
         if not JsonErrorParityV1.compatibility(
-            "[1,]", "expected-value", "[json_native/parser/expected-value-v1]",
-            "Expected JSON value", "RBRACKET(])", "RBRACKET"
+            "[1,]", "expected-value", "[json_native/parser/expected-value-v1]"
         ) { failures = failures + 1 }
         if not JsonErrorParityV1.compatibility(
-            "{\"a\":1,}", "expected-object-key", "[json_native/parser/object-key-v1]",
-            "Expected STRING (object key)", "RBRACE(})", "RBRACE"
+            "{\"a\":1,}", "expected-object-key", "[json_native/parser/object-key-v1]"
         ) { failures = failures + 1 }
         if not JsonErrorParityV1.compatibility(
-            "{\"a\" 1}", "expected-object-colon", "[json_native/parser/object-colon-v1]",
-            "Expected COLON", "NUMBER(1)", "NUMBER"
+            "{\"a\" 1}", "expected-object-colon", "[json_native/parser/object-colon-v1]"
         ) { failures = failures + 1 }
         if not JsonErrorParityV1.compatibility(
-            "[1}", "expected-array-separator", "[json_native/parser/array-separator-v1]",
-            "Expected ',' or ']'", "RBRACE(})", "RBRACE"
+            "[1}", "expected-array-separator", "[json_native/parser/array-separator-v1]"
         ) { failures = failures + 1 }
         if not JsonErrorParityV1.compatibility(
-            "{} []", "trailing-root", "[json_native/parser/trailing-root-v1]",
-            "Unexpected tokens after JSON value", "LBRACKET([)", "LBRACKET"
+            "{} []", "trailing-root", "[json_native/parser/trailing-root-v1]"
         ) { failures = failures + 1 }
         if not JsonErrorParityV1.compatibility(
-            "[", "unexpected-eof", "[json_native/parser/unexpected-eof-v1]",
-            "Unexpected end of input", "EOF()", "EOF"
+            "[", "unexpected-eof", "[json_native/parser/unexpected-eof-v1]"
         ) { failures = failures + 1 }
         return failures
     }
@@ -170,18 +162,15 @@ static box Main {
         local policy = StrictJsonPolicyV1.exact_i64_document()
         if not JsonErrorParityV1.strict(
             "9223372036854775808", policy,
-            "integer-range", "[json_native/strict/integer-range]",
-            "[json_native/strict/integer-range]", "NUMBER(9223372036854775808)", "NUMBER"
+            "integer-range", "[json_native/strict/integer-range]"
         ) { print("[json-native/iter0-p0:strict-error] integer-range") failures = failures + 1 }
         if not JsonErrorParityV1.strict(
             "{\"a\":1,\"a\":2}", policy,
-            "duplicate-key", "[json_native/strict/duplicate-key]",
-            "[json_native/strict/duplicate-key]", "COLON(:)", "COLON"
+            "duplicate-key", "[json_native/strict/duplicate-key]"
         ) { print("[json-native/iter0-p0:strict-error] duplicate") failures = failures + 1 }
         if not JsonErrorParityV1.strict(
             "{\"a\":1,\"a\" 2}", policy,
-            "duplicate-key", "[json_native/strict/duplicate-key]",
-            "[json_native/strict/duplicate-key]", "NUMBER(2)", "NUMBER"
+            "duplicate-key", "[json_native/strict/duplicate-key]"
         ) { print("[json-native/iter0-p0:strict-error] duplicate-priority") failures = failures + 1 }
         return failures
     }

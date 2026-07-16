@@ -1,0 +1,14 @@
+// Compatibility-facing MapBox projection from the typed parser error owner.
+// This file owns no grammar, token traversal, recovery, or error classification.
+
+static box JsonParserFacadeErrorProjectionV1 {
+    project_all(typed_errors) {
+        local projected = new ArrayBox()
+        local i = 0
+        loop(i < typed_errors.length()) {
+            projected.push(typed_errors.get(i).to_map())
+            i = i + 1
+        }
+        return projected
+    }
+}

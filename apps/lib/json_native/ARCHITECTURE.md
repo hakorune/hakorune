@@ -34,9 +34,10 @@ apps/lib/json_native/
 │   └── scanner.hako   # 文字スキャナー
 │
 ├── parser/             # 🏗️ 構文解析層
-│   ├── parser.hako    # メインパーサー
-│   ├── recursive.hako # 再帰下降パーサー
-│   └── validator.hako # JSON妥当性検証
+│   ├── parser.hako              # 公開facade（文法判断なし）
+│   ├── iterative_engine_v1.hako # 唯一のtext-to-tree文法owner
+│   ├── frame_v1.hako            # explicit stack frame
+│   └── error_v1.hako            # typed error owner
 │
 ├── utils/              # 🛠️ ユーティリティ
 │   ├── string.hako    # 文字列処理ヘルパー
@@ -98,18 +99,16 @@ box JsonTokenizer {
 
 ### Parser層 - トークンをASTに変換
 ```nyash
-// parser/parser.hako - メインパーサー
+// parser/parser.hako - 公開facade
 box JsonParser {
-    tokenizer: JsonTokenizer  // 字句解析器
-    current: IntegerBox       // 現在のトークン位置
-    // parse() -> JsonNode
+    engine: JsonIterativeParserEngineV1
+    // parse()/parse_with_policy() delegate to the same engine without retry
 }
 
-// parser/recursive.hako - 再帰下降実装
-static box RecursiveParser {
-    parse_value(tokens, pos)    // 値をパース
-    parse_object(tokens, pos)   // オブジェクトをパース
-    parse_array(tokens, pos)    // 配列をパース
+// parser/iterative_engine_v1.hako - 唯一の文法実装
+box JsonIterativeParserEngineV1 {
+    frames: ArrayBox            // open container stack
+    // one monotonic token cursor -> existing JsonNode factories
 }
 ```
 
@@ -161,9 +160,10 @@ Utils ────┴─────────┴─ (共通ユーティリテ
 - [ ] JsonTokenizer実装
 
 ### Phase 4: Parser実装
-- [ ] RecursiveParser実装
-- [ ] JsonParser統合
-- [ ] エラーハンドリング
+- [x] Explicit-stack parser実装
+- [x] JsonParser facade統合
+- [x] typed error + compatibility projection
+- [x] recursive grammar / JsonNode.parse retirement
 
 ### Phase 5: 統合＆テスト
 - [ ] 全モジュール統合

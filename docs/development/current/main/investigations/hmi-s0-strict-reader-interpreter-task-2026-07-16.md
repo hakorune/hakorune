@@ -1,5 +1,5 @@
 ---
-Status: HMI-S0-T0 parked behind accepted JSON-NATIVE-ITER0; P0 next
+Status: JSON-NATIVE-ITER0-CUT0 closed; HMI-S0-T0 resumed and next
 Date: 2026-07-16
 Decision: B-prime json_native strict policy plus exact-none CFG witness
 Previous row: HMI-P0-G0 closed at `dec4769b18`
@@ -352,7 +352,7 @@ HMI execution callers / fallback:
 
 ### HMI-S0-T0 — whole-document MIR profile seal
 
-State: parked at parser substrate design stop.
+State: resumed; next code-facing row.
 
 The first disconnected T0 probe built an ordinary nested MIR JSON document but
 `JsonParser.parse_with_policy` exceeded the Rust reference VM's proven
@@ -379,6 +379,22 @@ docs/development/current/main/investigations/
 
 HMI-only parser duplication, schema-aware special cases, VM-depth widening,
 route retry, and restoring the T0 WIP before ITER0-CUT0 are forbidden.
+
+The parser prerequisite is now closed:
+
+```text
+one iterative json_native grammar engine
+one JsonNode text-to-tree owner
+compatibility/strict parser parity green
+depth 128/129 resource law green
+recursive parser and JsonNode.parse retired
+VM MAX_CALL_DEPTH unchanged at 16
+```
+
+The parked prototype is identified by immutable stash commit
+`66725ad4ddd5d52a50acc03dc7c5a0e470d8bcc0`. Do not apply it wholesale. Reuse
+only the T0 seal pieces after checking them against the final parser facade,
+typed errors, and bounded-view contract.
 
 ```text
 production behavior delta: 0

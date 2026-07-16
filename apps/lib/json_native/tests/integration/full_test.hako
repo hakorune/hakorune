@@ -1,6 +1,7 @@
 // 完全統合テスト - 美しいモジュラー設計の動作確認
 
 using "apps/lib/json_native/core/node.hako" as JsonNode
+using "apps/lib/json_native/parser/parser.hako" as JsonParserUtils
 
 print("🎨 Nyash JSON Native 統合テスト開始")
 print("美しいモジュラー設計 vs yyjson巨大ファイル")
@@ -54,7 +55,7 @@ test_cases.push("{}")
 local i = 0
 loop(i < test_cases.length()) {
     local input = test_cases.get(i)
-    local parsed = JsonNode.parse(input)
+    local parsed = JsonParserUtils.parse_json(input)
     local output = parsed.stringify()
     
     print("Input:  " + input)
@@ -172,9 +173,9 @@ print("生成テスト完了: " + iterations + " iterations")
 // パーステスト
 k = 0
 loop(k < iterations) {
-    JsonNode.parse("42")
-    JsonNode.parse("\"test\"")
-    JsonNode.parse("true")
+    JsonParserUtils.parse_json("42")
+    JsonParserUtils.parse_json("\"test\"")
+    JsonParserUtils.parse_json("true")
     k = k + 1
 }
 

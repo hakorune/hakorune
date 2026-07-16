@@ -5,9 +5,9 @@ static box Main {
         local parser = new JsonParser()
         local errors0 = parser.get_errors()
         print("errors.initial=" + errors0.length())
-        parser.add_error("manual")
+        parser.parse("[1,]")
         local errors1 = parser.get_errors()
-        print("errors.after_manual=" + errors1.length())
+        print("errors.after_invalid=" + errors1.length())
         return 0
     }
 }

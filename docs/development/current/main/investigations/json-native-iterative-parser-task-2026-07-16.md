@@ -1,5 +1,5 @@
 ---
-Status: accepted; P0 closed; MatchReturn prerequisites closed; CUT0 next
+Status: closed through CUT0; HMI-S0-T0 resume next
 Date: 2026-07-16
 Decision: B-prime one iterative grammar engine and one text-to-tree owner
 Parent stop: hmi-s0-t0-json-parser-depth-consultation-question-2026-07-16.md
@@ -423,6 +423,8 @@ touched source/check files at or above 800 lines:
 
 ### JSON-NATIVE-ITER0-CUT0 — atomic cutover and retirement
 
+Status: closed.
+
 Both exact MatchReturn compiler rows are green:
 
 ```text
@@ -461,11 +463,59 @@ No landed production state may probe between engines. Rollback is a Git revert,
 not runtime fallback. CUT0 includes closeout guards/docs; no separate G0 row is
 added.
 
+CUT0 closeout:
+
+```text
+selected tokenizer:
+  1
+
+selected grammar/text-to-tree engine:
+  JsonIterativeParserEngineV1
+
+JsonParser:
+  thin stateful facade
+  compatibility and strict share the same engine
+
+recursive parse_value/object/array:
+  definitions/callers 0
+
+JsonNode.parse:
+  definition/callers 0
+
+typed error authority:
+  JsonParseErrorV1
+  facade MapBox rows are one-way projections
+
+release/debug:
+  P0 / S0 / L0 / strict / ESC0 all green
+
+authority guard:
+  json-native-parser-authority green
+
+quick:
+  66/66
+
+VM MAX_CALL_DEPTH:
+  unchanged at 16
+
+source/check files at or above 800 lines:
+  0
+```
+
+The `json_pp_vm_llvm` consumer now passes the former MatchReturn compiler
+boundary and stops on independent backend availability: the explicit VM-Hako
+lane reports unsupported `array_element_write`, while the current binary lacks
+the LLVM feature. The two historical AST error smokes similarly select
+VM-Hako/LLVM-specific incomplete routes and print `[FAIL]` while returning
+zero. CUT0 does not rewrite their expected output or treat that false-green as
+acceptance evidence.
+
 ### Resume — HMI-S0-T0
 
-Only after CUT0 is green. The existing WIP stash is not authority and must not
-be restored wholesale. Reapply only pieces compatible with the final parser
-and typed-error contracts.
+CUT0 is green. Resume HMI-S0-T0 from immutable WIP stash commit
+`66725ad4ddd5d52a50acc03dc7c5a0e470d8bcc0`, not from a mutable stash ordinal.
+The stash is not authority and must not be restored wholesale. Reapply only
+pieces compatible with the final iterative parser and typed-error contracts.
 
 ## Required fixtures
 

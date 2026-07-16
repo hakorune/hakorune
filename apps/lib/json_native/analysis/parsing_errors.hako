@@ -2,6 +2,7 @@
 // yyjsonが必要になった理由と最小限の解決要件
 
 using "apps/lib/json_native/core/node.hako" as JsonNode
+using "apps/lib/json_native/parser/parser.hako" as JsonParserUtils
 
 static box ParsingErrorAnalysis {
     
@@ -51,7 +52,7 @@ static box ParsingErrorAnalysis {
             print("Simple parse: " + simple_result)
             
             // Nyash Native解析
-            local native_result = JsonNode.parse(json_text)
+            local native_result = JsonParserUtils.parse_json(json_text)
             print("Native parse: " + native_result.stringify())
             
             print("---")
@@ -103,7 +104,7 @@ static box ParsingErrorAnalysis {
             print("Number case: " + json_text)
             
             // 現在のNyash Nativeでテスト
-            local result = JsonNode.parse(json_text)
+            local result = JsonParserUtils.parse_json(json_text)
             print("Parse result: " + result.stringify())
             
             print("---")
@@ -150,7 +151,7 @@ static box ParsingErrorAnalysis {
             print("Whitespace case: '" + json_text + "'")
             
             // 現在のNyash Nativeでテスト
-            local result = JsonNode.parse(json_text)
+            local result = JsonParserUtils.parse_json(json_text)
             print("Parse result: " + result.stringify())
             
             print("---")

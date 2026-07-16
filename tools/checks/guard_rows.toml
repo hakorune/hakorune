@@ -51,6 +51,12 @@ cmd = [
 ]
 
 [[rows]]
+id = "json-native-parser-authority"
+label = "json_native single iterative parser authority guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["tools/checks/lib/json_native_parser_authority.py", "."]
+
+[[rows]]
 id = "proof-app-manifest-test-entry"
 label = "proof app manifest test entry guard"
 profiles = ["pilot", "quick-static"]

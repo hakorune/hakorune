@@ -44,6 +44,7 @@ Do not add a dedicated shell guard for every inventory or selection row.
 | `tools/checks/dev_gate.sh` | Integrated daily gate. `quick` is summary-only on success (group PASS plus profile result), failures emit a bounded tail plus a retained full-log path, and `DEV_GATE_VERBOSE=1` restores streamed child output. Heavier profiles remain explicit. |
 | `tools/checks/current_state_pointer_guard.sh` | Compact current-state pointer consistency guard. Run on restart and before docs/current pointer commits. |
 | `tools/checks/run_row_guard.sh --only hmi-semantic-reference-inventory` | HMI MIR semantic-reference inventory: exact kept-instruction, caller, fixture, transport, VMValue, source-anchor, and normalized-report drift guard. |
+| `tools/checks/run_row_guard.sh --only json-native-parser-authority` | json_native parser-family authority: one iterative facade selector, recursive helper and `JsonNode.parse` retirement, unchanged VM depth 16, and the 800-line boundary. |
 | `tools/checks/naming_charter_guard.sh` | Hakorune naming charter guard for binary/env/docs naming drift. |
 | `tools/checks/run_row_guard.sh` | Manifest-backed row guard runner using `tools/checks/guard_rows.toml` and `tools/checks/lib/manifest_runner.py`. |
 | `tools/checks/run_proof_app.sh` | Manifest-backed proof app runner using `tools/checks/proof_apps.toml` and `tools/checks/lib/manifest_runner.py`. |

@@ -1,5 +1,5 @@
-// Ensure JsonNode symbol via SSOT alias (nyash.toml)
-using JsonNode as JsonNode
+// Canonical json_native package entry from this app's nyash.toml.
+using json as JsonParserUtils
 
 static box Main {
   main() {
@@ -24,9 +24,7 @@ static box Main {
     local i = 0
     loop(i < samples.length()) {
       local s = samples.get(i)
-      // Use JsonNode.parse for compact pretty-printing in MVP path
-      // (JsonParserModule/full tokenizer is exercised in integration smokes)
-      local r = JsonNode.parse(s)
+      local r = JsonParserUtils.parse_json(s)
       if (r == null) { print("null") } else { print(r.toString()) }
       i = i + 1
     }

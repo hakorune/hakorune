@@ -1,4 +1,5 @@
 using "apps/lib/json_native/core/node.hako" as JsonNode
+using "apps/lib/json_native/parser/parser.hako" as JsonParserUtils
 using "apps/lib/json_native/utils/string.hako" as StringUtils
 
 // シンプルなJSONテスト
@@ -7,16 +8,16 @@ static box SimpleTest {
         print("🧪 Simple JSON Test")
 
         // 基本的なテスト
-        local json_null = JsonNode.parse("null")
+        local json_null = JsonParserUtils.parse_json("null")
         print("null parse: " + json_null.stringify())
 
-        local json_bool = JsonNode.parse("true")
+        local json_bool = JsonParserUtils.parse_json("true")
         print("true parse: " + json_bool.stringify())
 
-        local json_int = JsonNode.parse("42")
+        local json_int = JsonParserUtils.parse_json("42")
         print("integer parse: " + json_int.stringify())
 
-        local json_str = JsonNode.parse("\"hello\"")
+        local json_str = JsonParserUtils.parse_json("\"hello\"")
         print("string parse: " + json_str.stringify())
 
         // StringUtils テスト
