@@ -262,6 +262,39 @@ minimize exactly one structural difference between:
 then return to design consultation before compiler or register-storage edits
 ```
 
+## PURE-FIRST-VM-FEATURE-HYGIENE0 closeout
+
+G0 validation exposed an independent false-red in the neighboring exact-
+numeric field-mutation guard. The shared pure-first helper rebuilt the selected
+VM binary without `vm-reference`, then immediately requested `--backend vm`.
+
+The behavior-neutral repair is:
+
+```text
+pure_first_guard_build_hakorune_debug:
+  build with --features vm-reference
+
+pure_first_guard_hakorune_bin_for_mode:
+  debug and release build with --features vm-reference
+```
+
+It changes no source language, compiler route, runtime semantics, backend
+selection, or product caller. It only makes the explicitly requested reference
+VM lane present in the guard binary.
+
+Green evidence:
+
+```text
+k2_wide_vm_exact_numeric_helper_field_mutation_guard.sh:
+  VM
+  MIR
+  EXE
+  ok
+```
+
+The unfinished G0 manifest registration remained stashed while this hygiene
+commit landed.
+
 ## Decision lock
 
 `R0-STOP0` is a generic compiler diagnostic proof.

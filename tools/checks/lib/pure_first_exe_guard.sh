@@ -15,7 +15,7 @@ pure_first_guard_build_toolchain() {
 }
 
 pure_first_guard_build_hakorune_debug() {
-  cargo build -q --bin hakorune
+  cargo build -q --features vm-reference --bin hakorune
 }
 
 pure_first_guard_hakorune_bin_for_mode() {
@@ -26,14 +26,14 @@ pure_first_guard_hakorune_bin_for_mode() {
 
   case "$mode" in
     release)
-      cargo build --release -q --bin hakorune || {
+      cargo build --release -q --features vm-reference --bin hakorune || {
         rc=$?
         return "$rc"
       }
       bin="$root_dir/target/release/hakorune"
       ;;
     debug)
-      cargo build -q --bin hakorune || {
+      cargo build -q --features vm-reference --bin hakorune || {
         rc=$?
         return "$rc"
       }
