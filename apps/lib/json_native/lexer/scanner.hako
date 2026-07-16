@@ -2,6 +2,7 @@
 // 責務: 文字単位での読み取り・位置管理・先読み機能
 
 // StringUtils dependency removed - using internal methods
+using "./string_scan_result_v1.hako" as JsonStringScanResultV1
 
 // 🔍 JSON文字スキャナー（Everything is Box）
 static box JsonScannerModule {
@@ -333,6 +334,88 @@ box JsonScanner {
             return null
         }
         return me.text.substring(body_start, me._tmp_pos)
+    }
+
+    // Disconnected V1 string-boundary scan. Escape grammar is deliberately
+    // deferred to JsonStringEscapeDecoderV1; this method only protects quoted
+    // boundaries and records exact raw-control/termination sites.
+    scan_string_literal_v1() {
+        local opening_position = me.position
+        local opening_line = me.line
+        local opening_column = me.column
+        if me.current() != "\"" {
+            return JsonStringScanResultV1.failure(
+                "expected-opening-quote",
+                "[json_native/lexer/expected-opening-quote-v1]",
+                me.position,
+                me.line,
+                me.column,
+                "opening quote",
+                me.current()
+            )
+        }
+
+        me.advance()
+        local body_start = me.position
+        loop(not me.is_eof()) {
+            local ch = me.current()
+            if ch == "\"" {
+                local body_end = me.position
+                local raw_body = me.text.substring(body_start, body_end)
+                me.advance()
+                return JsonStringScanResultV1.success(
+                    raw_body,
+                    body_start,
+                    body_end,
+                    opening_position,
+                    opening_line,
+                    opening_column
+                )
+            }
+
+            if ch == "\\" {
+                local escape_position = me.position
+                local escape_line = me.line
+                local escape_column = me.column
+                me.advance()
+                if me.is_eof() {
+                    return JsonStringScanResultV1.failure(
+                        "trailing-escape",
+                        "[json_native/lexer/trailing-escape-v1]",
+                        escape_position,
+                        escape_line,
+                        escape_column,
+                        "escaped character and closing quote",
+                        "EOF"
+                    )
+                }
+                me.advance()
+                continue
+            }
+
+            if ch < " " {
+                return JsonStringScanResultV1.failure(
+                    "raw-control",
+                    "[json_native/lexer/raw-control-v1]",
+                    me.position,
+                    me.line,
+                    me.column,
+                    "escaped control character",
+                    "raw control"
+                )
+            }
+            me.advance()
+        }
+
+        return JsonStringScanResultV1.failure(
+            "unterminated-string",
+            "[json_native/lexer/unterminated-string-v1]",
+            opening_position,
+            opening_line,
+            opening_column,
+            "closing quote",
+            "EOF"
+        )
     }
     
     // ===== プライベートメソッド =====

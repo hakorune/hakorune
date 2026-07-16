@@ -1,0 +1,245 @@
+// Exact first-slice JSON escape decoder.
+// Selected set: eight simple escapes, U+0008/9/A/C/D, and U+0020..U+007E.
+
+using "../utils/escape.hako" as EscapeUtils
+using "../utils/string.hako" as StringUtils
+
+static box JsonStringEscapeDecoderV1 {
+    decode_body(raw_body) {
+        local decoded = ""
+        local i = 0
+        loop(i < raw_body.length()) {
+            local ch = raw_body.substring(i, i + 1)
+            if ch != "\\" {
+                decoded = decoded + ch
+                i = i + 1
+                continue
+            }
+
+            local step = this.decode_escape_at(raw_body, i)
+            if not step.is_admitted() {
+                return JsonStringDecodeResultV1.failure(
+                    step.get_error_kind(),
+                    step.get_error_code(),
+                    i,
+                    step.get_error_expected(),
+                    step.get_error_actual()
+                )
+            }
+            decoded = decoded + step.get_decoded_value()
+            i = i + step.get_width()
+        }
+        return JsonStringDecodeResultV1.success(decoded)
+    }
+
+    decode_escape_at(raw_body, offset) {
+        if offset + 1 >= raw_body.length() {
+            return JsonStringEscapeStepV1.failure(
+                "trailing-escape",
+                "[json_native/lexer/trailing-escape-v1]",
+                "escape character after backslash",
+                "EOF"
+            )
+        }
+
+        local tag = raw_body.substring(offset + 1, offset + 2)
+        if tag == "\"" { return JsonStringEscapeStepV1.success("\"", 2) }
+        if tag == "\\" { return JsonStringEscapeStepV1.success("\\", 2) }
+        if tag == "/" { return JsonStringEscapeStepV1.success("/", 2) }
+        if tag == "b" { return JsonStringEscapeStepV1.success("\b", 2) }
+        if tag == "f" { return JsonStringEscapeStepV1.success("\f", 2) }
+        if tag == "n" { return JsonStringEscapeStepV1.success("\n", 2) }
+        if tag == "r" { return JsonStringEscapeStepV1.success("\r", 2) }
+        if tag == "t" { return JsonStringEscapeStepV1.success("\t", 2) }
+        if tag == "u" { return this.decode_unicode_at(raw_body, offset) }
+
+        return JsonStringEscapeStepV1.failure(
+            "invalid-simple-escape",
+            "[json_native/lexer/invalid-simple-escape-v1]",
+            "one of quote, backslash, slash, b, f, n, r, t, u",
+            tag
+        )
+    }
+
+    decode_unicode_at(raw_body, offset) {
+        if offset + 6 > raw_body.length() {
+            return JsonStringEscapeStepV1.failure(
+                "incomplete-unicode-escape",
+                "[json_native/lexer/incomplete-unicode-escape-v1]",
+                "four hexadecimal digits",
+                raw_body.substring(offset + 2, raw_body.length())
+            )
+        }
+
+        local hex = raw_body.substring(offset + 2, offset + 6)
+        if not this.is_hex4(hex) {
+            return JsonStringEscapeStepV1.failure(
+                "invalid-unicode-hex",
+                "[json_native/lexer/invalid-unicode-hex-v1]",
+                "four hexadecimal digits",
+                hex
+            )
+        }
+
+        local upper = StringUtils.to_upper(hex)
+        if upper >= "D800" and upper <= "DFFF" {
+            return JsonStringEscapeStepV1.failure(
+                "unsupported-surrogate",
+                "[json_native/lexer/unsupported-surrogate-v1]",
+                "non-surrogate selected code point",
+                upper
+            )
+        }
+        if this.is_selected_control(upper) or
+            (upper >= "0020" and upper <= "007E") {
+            return JsonStringEscapeStepV1.success(
+                EscapeUtils.hex_to_char(upper), 6
+            )
+        }
+        if upper <= "007F" {
+            return JsonStringEscapeStepV1.failure(
+                "unsupported-ascii-control",
+                "[json_native/lexer/unsupported-ascii-control-v1]",
+                "U+0008/9/A/C/D or U+0020..U+007E",
+                upper
+            )
+        }
+        return JsonStringEscapeStepV1.failure(
+            "unsupported-unicode",
+            "[json_native/lexer/unsupported-unicode-v1]",
+            "selected representable ASCII code point",
+            upper
+        )
+    }
+
+    is_selected_control(hex) {
+        return hex == "0008" or hex == "0009" or hex == "000A" or
+            hex == "000C" or hex == "000D"
+    }
+
+    is_hex4(hex) {
+        if hex.length() != 4 { return false }
+        local i = 0
+        loop(i < 4) {
+            local ch = hex.substring(i, i + 1)
+            local digit = ch >= "0" and ch <= "9"
+            local lower = ch >= "a" and ch <= "f"
+            local upper = ch >= "A" and ch <= "F"
+            if not digit and not lower and not upper { return false }
+            i = i + 1
+        }
+        return true
+    }
+}
+
+static box JsonStringDecodeResultV1 {
+    success(value) {
+        local result = new JsonStringDecodeResultV1Instance()
+        result.publish_success(value)
+        return result
+    }
+
+    failure(kind, code, offset, expected, actual) {
+        local result = new JsonStringDecodeResultV1Instance()
+        result.publish_failure(kind, code, offset, expected, actual)
+        return result
+    }
+}
+
+box JsonStringDecodeResultV1Instance {
+    admitted: BoolBox
+    value: StringBox
+    error_kind: StringBox
+    error_code: StringBox
+    error_offset: IntegerBox
+    error_expected: StringBox
+    error_actual: StringBox
+
+    birth() {
+        me.admitted = false
+        me.value = ""
+        me.error_kind = ""
+        me.error_code = ""
+        me.error_offset = 0
+        me.error_expected = ""
+        me.error_actual = ""
+    }
+
+    publish_success(value) {
+        me.admitted = true
+        me.value = value
+    }
+
+    publish_failure(kind, code, offset, expected, actual) {
+        me.admitted = false
+        me.error_kind = kind
+        me.error_code = code
+        me.error_offset = offset
+        me.error_expected = expected
+        me.error_actual = actual
+    }
+
+    is_admitted() { return me.admitted }
+    get_value() { return me.value }
+    get_error_kind() { return me.error_kind }
+    get_error_code() { return me.error_code }
+    get_error_offset() { return me.error_offset }
+    get_error_expected() { return me.error_expected }
+    get_error_actual() { return me.error_actual }
+}
+
+static box JsonStringEscapeStepV1 {
+    success(value, width) {
+        local step = new JsonStringEscapeStepV1Instance()
+        step.publish_success(value, width)
+        return step
+    }
+
+    failure(kind, code, expected, actual) {
+        local step = new JsonStringEscapeStepV1Instance()
+        step.publish_failure(kind, code, expected, actual)
+        return step
+    }
+}
+
+box JsonStringEscapeStepV1Instance {
+    admitted: BoolBox
+    decoded_value: StringBox
+    width: IntegerBox
+    error_kind: StringBox
+    error_code: StringBox
+    error_expected: StringBox
+    error_actual: StringBox
+
+    birth() {
+        me.admitted = false
+        me.decoded_value = ""
+        me.width = 0
+        me.error_kind = ""
+        me.error_code = ""
+        me.error_expected = ""
+        me.error_actual = ""
+    }
+
+    publish_success(value, width) {
+        me.admitted = true
+        me.decoded_value = value
+        me.width = width
+    }
+
+    publish_failure(kind, code, expected, actual) {
+        me.admitted = false
+        me.error_kind = kind
+        me.error_code = code
+        me.error_expected = expected
+        me.error_actual = actual
+    }
+
+    is_admitted() { return me.admitted }
+    get_decoded_value() { return me.decoded_value }
+    get_width() { return me.width }
+    get_error_kind() { return me.error_kind }
+    get_error_code() { return me.error_code }
+    get_error_expected() { return me.error_expected }
+    get_error_actual() { return me.error_actual }
+}

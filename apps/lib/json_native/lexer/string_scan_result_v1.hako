@@ -1,0 +1,95 @@
+// Passive result for one JSON quoted-string span scan.
+// It owns boundary evidence only; escape grammar belongs to the exact decoder.
+
+static box JsonStringScanResultV1 {
+    success(raw_body, body_start, body_end, opening_position, opening_line, opening_column) {
+        local result = new JsonStringScanResultV1Instance()
+        result.publish_success(
+            raw_body,
+            body_start,
+            body_end,
+            opening_position,
+            opening_line,
+            opening_column
+        )
+        return result
+    }
+
+    failure(kind, code, position, line, column, expected, actual) {
+        local result = new JsonStringScanResultV1Instance()
+        result.publish_failure(
+            kind, code, position, line, column, expected, actual
+        )
+        return result
+    }
+}
+
+box JsonStringScanResultV1Instance {
+    admitted: BoolBox
+    raw_body: StringBox
+    body_start: IntegerBox
+    body_end: IntegerBox
+    opening_position: IntegerBox
+    opening_line: IntegerBox
+    opening_column: IntegerBox
+    error_kind: StringBox
+    error_code: StringBox
+    error_position: IntegerBox
+    error_line: IntegerBox
+    error_column: IntegerBox
+    error_expected: StringBox
+    error_actual: StringBox
+
+    birth() {
+        me.admitted = false
+        me.raw_body = ""
+        me.body_start = 0
+        me.body_end = 0
+        me.opening_position = 0
+        me.opening_line = 1
+        me.opening_column = 1
+        me.error_kind = ""
+        me.error_code = ""
+        me.error_position = 0
+        me.error_line = 1
+        me.error_column = 1
+        me.error_expected = ""
+        me.error_actual = ""
+    }
+
+    publish_success(raw_body, body_start, body_end, opening_position, opening_line, opening_column) {
+        me.admitted = true
+        me.raw_body = raw_body
+        me.body_start = body_start
+        me.body_end = body_end
+        me.opening_position = opening_position
+        me.opening_line = opening_line
+        me.opening_column = opening_column
+    }
+
+    publish_failure(kind, code, position, line, column, expected, actual) {
+        me.admitted = false
+        me.error_kind = kind
+        me.error_code = code
+        me.error_position = position
+        me.error_line = line
+        me.error_column = column
+        me.error_expected = expected
+        me.error_actual = actual
+    }
+
+    is_admitted() { return me.admitted }
+    get_raw_body() { return me.raw_body }
+    get_body_start() { return me.body_start }
+    get_body_end() { return me.body_end }
+    get_opening_position() { return me.opening_position }
+    get_opening_line() { return me.opening_line }
+    get_opening_column() { return me.opening_column }
+    get_error_kind() { return me.error_kind }
+    get_error_code() { return me.error_code }
+    get_error_position() { return me.error_position }
+    get_error_line() { return me.error_line }
+    get_error_column() { return me.error_column }
+    get_error_expected() { return me.error_expected }
+    get_error_actual() { return me.error_actual }
+}

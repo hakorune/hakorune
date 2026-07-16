@@ -1,5 +1,5 @@
 ---
-Status: accepted; D0 closed; S0 next
+Status: accepted; D0 and S0 closed; I1 next
 Date: 2026-07-16
 Decision: A1 exact representable JSON escape profile
 Parent: json-native-escaped-string-design-stop-2026-07-16.md
@@ -274,7 +274,7 @@ P0 stash remains parked
 
 ### JSON-NATIVE-ESC0-S0 — disconnected exact products
 
-Next code-facing row. Production behavior delta is zero.
+Status: closed. Production behavior delta is zero.
 
 Add the typed scan result and exact decoder. Add a disconnected scanner entry
 and direct fixtures. Existing `JsonTokenizer.tokenize_string` remains selected
@@ -291,9 +291,43 @@ scanner publishes no partial body on failure
 selected production tokenizer callers = 0
 ```
 
+Closeout evidence:
+
+```text
+typed scan result:
+  apps/lib/json_native/lexer/string_scan_result_v1.hako
+
+exact decoder:
+  apps/lib/json_native/lexer/string_escape_decoder_v1.hako
+
+disconnected scanner entry:
+  JsonScanner.scan_string_literal_v1
+
+production tokenizer callers:
+  0
+
+focused release/debug VM fixture:
+  green
+
+retained iterative L0/S0 and strict release/debug fixtures:
+  green
+
+quick gate:
+  66/66
+
+touched source/check files at or above 800 lines:
+  0
+```
+
+The selected decoder calls the legacy character table only after exact
+admission has proved the code point belongs to the representable subset.
+Unsupported controls, DEL, non-ASCII values, and surrogate values return a
+typed failure before that table is reached; the tolerant `?` result is not an
+admitted decoder outcome.
+
 ### JSON-NATIVE-ESC0-I1 — atomic lexical activation
 
-One BoxCount behavior commit:
+Next code-facing row. One BoxCount behavior commit:
 
 ```text
 JsonTokenizer selects scan_string_literal_v1

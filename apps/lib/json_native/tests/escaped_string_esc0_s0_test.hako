@@ -1,0 +1,126 @@
+using "apps/lib/json_native/lexer/scanner.hako" as JsonScanner
+using "apps/lib/json_native/lexer/string_escape_decoder_v1.hako" as JsonStringEscapeDecoderV1
+
+static box Main {
+    main() {
+        local failures = 0
+        failures = failures + this.test_scanner_boundaries()
+        failures = failures + this.test_simple_escapes()
+        failures = failures + this.test_unicode_subset()
+        failures = failures + this.test_rejections()
+
+        if failures == 0 {
+            print("[json-native/esc0-s0] ok")
+            return 0
+        }
+        print("[json-native/esc0-s0] failed=" + failures)
+        return 1
+    }
+
+    test_scanner_boundaries() {
+        local slash = "\\"
+        local quote = "\""
+        local raw = "say " + slash + quote + "hi" + slash + quote
+        local text = quote + raw + quote
+
+        local scanner = new JsonScanner("")
+        scanner.reset_text(text)
+        local scanned = scanner.scan_string_literal_v1()
+        if not scanned.is_admitted() { return 1 }
+        if scanned.get_raw_body() != raw { return 1 }
+        if scanned.get_body_start() != 1 { return 1 }
+        if scanned.get_body_end() != text.length() - 1 { return 1 }
+        if not scanner.is_eof() { return 1 }
+
+        local legacy = new JsonScanner("")
+        legacy.reset_text(text)
+        if legacy.read_string_literal() != null { return 1 }
+
+        local raw_control = new JsonScanner("")
+        raw_control.reset_text(quote + "a\nb" + quote)
+        local control_error = raw_control.scan_string_literal_v1()
+        if control_error.is_admitted() { return 1 }
+        if control_error.get_error_kind() != "raw-control" { return 1 }
+        if control_error.get_error_position() != 2 { return 1 }
+        if control_error.get_error_line() != 1 { return 1 }
+        if control_error.get_error_column() != 3 { return 1 }
+
+        local trailing = new JsonScanner("")
+        trailing.reset_text(quote + "a" + slash)
+        local trailing_error = trailing.scan_string_literal_v1()
+        if trailing_error.get_error_kind() != "trailing-escape" { return 1 }
+        if trailing_error.get_error_position() != 2 { return 1 }
+
+        local unterminated = new JsonScanner("")
+        unterminated.reset_text(quote + "abc")
+        local unterminated_error = unterminated.scan_string_literal_v1()
+        if unterminated_error.get_error_kind() != "unterminated-string" { return 1 }
+        if unterminated_error.get_error_position() != 0 { return 1 }
+        return 0
+    }
+
+    test_simple_escapes() {
+        local slash = "\\"
+        local raw = slash + "\"" + slash + "\\" + slash + "/" +
+            slash + "b" + slash + "f" + slash + "n" + slash + "r" + slash + "t"
+        local expected = "\"" + "\\" + "/" + "\b" + "\f" + "\n" + "\r" + "\t"
+        local decoded = JsonStringEscapeDecoderV1.decode_body(raw)
+        if not decoded.is_admitted() { return 1 }
+        if decoded.get_value() != expected { return 1 }
+
+        local ordinary = JsonStringEscapeDecoderV1.decode_body("prefix" + slash + "n" + "suffix")
+        if not ordinary.is_admitted() { return 1 }
+        if ordinary.get_value() != "prefix\nsuffix" { return 1 }
+        return 0
+    }
+
+    test_unicode_subset() {
+        local slash = "\\"
+        if not this.expect_decode(slash + "u0008", "\b") { return 1 }
+        if not this.expect_decode(slash + "u0009", "\t") { return 1 }
+        if not this.expect_decode(slash + "u000A", "\n") { return 1 }
+        if not this.expect_decode(slash + "u000a", "\n") { return 1 }
+        if not this.expect_decode(slash + "u000C", "\f") { return 1 }
+        if not this.expect_decode(slash + "u000D", "\r") { return 1 }
+        if not this.expect_decode(slash + "u0020", " ") { return 1 }
+        if not this.expect_decode(slash + "u0041", "A") { return 1 }
+        if not this.expect_decode(slash + "u0061", "a") { return 1 }
+        if not this.expect_decode(slash + "u006A", "j") { return 1 }
+        if not this.expect_decode(slash + "u006a", "j") { return 1 }
+        if not this.expect_decode(slash + "u007E", "~") { return 1 }
+        return 0
+    }
+
+    expect_decode(raw, expected) {
+        local decoded = JsonStringEscapeDecoderV1.decode_body(raw)
+        return decoded.is_admitted() and decoded.get_value() == expected
+    }
+
+    test_rejections() {
+        local slash = "\\"
+        if not this.expect_reject(slash, "trailing-escape") { return 1 }
+        if not this.expect_reject(slash + "x", "invalid-simple-escape") { return 1 }
+        if not this.expect_reject(slash + "q", "invalid-simple-escape") { return 1 }
+        if not this.expect_reject(slash + "u", "incomplete-unicode-escape") { return 1 }
+        if not this.expect_reject(slash + "u000", "incomplete-unicode-escape") { return 1 }
+        if not this.expect_reject(slash + "u00G1", "invalid-unicode-hex") { return 1 }
+        if not this.expect_reject(slash + "u0000", "unsupported-ascii-control") { return 1 }
+        if not this.expect_reject(slash + "u0001", "unsupported-ascii-control") { return 1 }
+        if not this.expect_reject(slash + "u000B", "unsupported-ascii-control") { return 1 }
+        if not this.expect_reject(slash + "u001F", "unsupported-ascii-control") { return 1 }
+        if not this.expect_reject(slash + "u007F", "unsupported-ascii-control") { return 1 }
+        if not this.expect_reject(slash + "u0080", "unsupported-unicode") { return 1 }
+        if not this.expect_reject(slash + "u00FF", "unsupported-unicode") { return 1 }
+        if not this.expect_reject(slash + "uD800", "unsupported-surrogate") { return 1 }
+        if not this.expect_reject(slash + "uDFFF", "unsupported-surrogate") { return 1 }
+        return 0
+    }
+
+    expect_reject(raw, kind) {
+        local decoded = JsonStringEscapeDecoderV1.decode_body(raw)
+        if decoded.is_admitted() { return false }
+        if decoded.get_error_kind() != kind { return false }
+        if decoded.get_error_offset() != 0 { return false }
+        return true
+    }
+}
