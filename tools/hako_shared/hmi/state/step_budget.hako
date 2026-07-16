@@ -1,0 +1,76 @@
+using tools.hako_shared.hmi.state.error as HmiStateErrorV1
+
+// Harness-only resource boundary. This is not a termination proof.
+
+static box HmiStepBudgetV1 {
+    open(max_steps) {
+        local result = new HmiStepBudgetOpenResultV1()
+        if max_steps < 0 {
+            return result.set_budget_failure(HmiStateErrorV1.invalid_argument(
+                "max_steps >= 0",
+                "" + max_steps,
+                "negative harness step budget"
+            ))
+        }
+        local budget = new HmiStepBudgetV1Instance()
+        budget.initialize(max_steps)
+        return result.set_budget_success(budget)
+    }
+}
+
+box HmiStepBudgetV1Instance {
+    max_steps_value
+    used_steps_value
+
+    birth() {
+        me.max_steps_value = 0
+        me.used_steps_value = 0
+    }
+
+    initialize(max_steps) {
+        me.max_steps_value = max_steps
+        me.used_steps_value = 0
+        return me
+    }
+
+    max_steps() { return me.max_steps_value }
+    used_steps() { return me.used_steps_value }
+
+    prepare() {
+        local attempted = me.used_steps_value + 1
+        if attempted > me.max_steps_value {
+            return HmiStateErrorV1.step_bound(
+                me.max_steps_value,
+                attempted
+            )
+        }
+        me.used_steps_value = attempted
+        return null
+    }
+}
+
+box HmiStepBudgetOpenResultV1 {
+    budget
+    error
+
+    birth() {
+        me.budget = null
+        me.error = null
+    }
+
+    accepted() { return me.error == null }
+    step_budget() { return me.budget }
+    failure() { return me.error }
+
+    set_budget_success(budget) {
+        me.budget = budget
+        me.error = null
+        return me
+    }
+
+    set_budget_failure(error) {
+        me.budget = null
+        me.error = error
+        return me
+    }
+}

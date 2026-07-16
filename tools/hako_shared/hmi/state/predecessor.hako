@@ -1,0 +1,38 @@
+// Entry is an explicit state, never null or a numeric sentinel.
+
+static box HmiPredecessorV1 {
+    entry() {
+        return this.make("entry", 0)
+    }
+
+    block(block_id) {
+        return this.make("block", block_id)
+    }
+
+    make(kind, block_id) {
+        local predecessor = new HmiPredecessorV1Instance()
+        predecessor.initialize(kind, block_id)
+        return predecessor
+    }
+}
+
+box HmiPredecessorV1Instance {
+    kind_value
+    block_id_value
+
+    birth() {
+        me.kind_value = null
+        me.block_id_value = 0
+    }
+
+    initialize(kind, block_id) {
+        me.kind_value = kind
+        me.block_id_value = block_id
+        return me
+    }
+
+    kind() { return me.kind_value }
+    is_entry() { return me.kind_value == "entry" }
+    is_block() { return me.kind_value == "block" }
+    block_id() { return me.block_id_value }
+}

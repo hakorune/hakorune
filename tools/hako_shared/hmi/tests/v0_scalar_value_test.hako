@@ -1,0 +1,123 @@
+using tools.hako_shared.hmi.state.error as HmiStateErrorV1
+using tools.hako_shared.hmi.state.scalar_value as HmiScalarValuesV1
+using tools.hako_shared.hmi.state.outcome as HmiExecutionOutcomeV1
+using tools.hako_shared.hmi.state.predecessor as HmiPredecessorV1
+using tools.hako_shared.hmi.state.step_budget as HmiStepBudgetV1
+
+static box Main {
+    main() {
+        local failures = 0
+
+        local i64_result = HmiScalarValuesV1.i64(-42)
+        if not i64_result.accepted() {
+            failures = failures + 1
+        } else {
+            if not i64_result.scalar().is_i64() {
+                failures = failures + 1
+            }
+            if i64_result.scalar().payload() != -42 {
+                failures = failures + 1
+            }
+        }
+
+        local false_result = HmiScalarValuesV1.i1(0)
+        local true_result = HmiScalarValuesV1.i1(1)
+        if not false_result.accepted() or not true_result.accepted() {
+            failures = failures + 1
+        } else {
+            if not false_result.scalar().is_i1() {
+                failures = failures + 1
+            }
+            if false_result.scalar().payload() != 0 {
+                failures = failures + 1
+            }
+            if true_result.scalar().payload() != 1 {
+                failures = failures + 1
+            }
+        }
+
+        local bad_low = HmiScalarValuesV1.i1(-1)
+        local bad_high = HmiScalarValuesV1.i1(2)
+        if bad_low.accepted() or bad_high.accepted() {
+            failures = failures + 1
+        } else {
+            if bad_low.failure().kind() != "invalid-scalar" {
+                failures = failures + 1
+            }
+            if bad_high.failure().code() !=
+               "[freeze:contract][hmi/state/invalid-scalar]" {
+                failures = failures + 1
+            }
+        }
+
+        local entry = HmiPredecessorV1.entry()
+        local block = HmiPredecessorV1.block(7)
+        if not entry.is_entry() or entry.is_block() {
+            failures = failures + 1
+        }
+        if not block.is_block() or block.block_id() != 7 {
+            failures = failures + 1
+        }
+
+        local running = HmiExecutionOutcomeV1.running()
+        local returned = HmiExecutionOutcomeV1.returned_value(
+            i64_result.scalar()
+        )
+        local no_value = HmiExecutionOutcomeV1.returned_no_value()
+        local sample_error = HmiStateErrorV1.invalid_transition(
+            "running", "returned", "fixture"
+        )
+        local failed = HmiExecutionOutcomeV1.failed(sample_error)
+        if not running.is_running() {
+            failures = failures + 1
+        }
+        if not returned.is_returned_value() or
+           returned.returned_value().payload() != -42 {
+            failures = failures + 1
+        }
+        if not no_value.is_returned_no_value() {
+            failures = failures + 1
+        }
+        if not failed.is_failed() or failed.failure() != sample_error {
+            failures = failures + 1
+        }
+
+        local zero_open = HmiStepBudgetV1.open(0)
+        local two_open = HmiStepBudgetV1.open(2)
+        local bad_open = HmiStepBudgetV1.open(-1)
+        if not zero_open.accepted() or not two_open.accepted() {
+            failures = failures + 1
+        }
+        if bad_open.accepted() or
+           bad_open.failure().kind() != "invalid-argument" {
+            failures = failures + 1
+        }
+
+        local zero_error = zero_open.step_budget().prepare()
+        if zero_error == null or zero_error.kind() != "step-bound" {
+            failures = failures + 1
+        }
+        if zero_open.step_budget().used_steps() != 0 {
+            failures = failures + 1
+        }
+
+        local two = two_open.step_budget()
+        if two.prepare() != null or two.prepare() != null {
+            failures = failures + 1
+        }
+        local third_error = two.prepare()
+        if third_error == null or third_error.kind() != "step-bound" {
+            failures = failures + 1
+        }
+        if two.used_steps() != 2 {
+            failures = failures + 1
+        }
+
+        if failures != 0 {
+            print("[hmi/s0-v0-l0] failures=" + failures)
+            return 1
+        }
+        print("[hmi/s0-v0-l0] ok")
+        return 0
+    }
+}

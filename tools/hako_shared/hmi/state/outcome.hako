@@ -1,0 +1,52 @@
+// Terminal state is explicit. ReturnedNoValue never enters the register file.
+
+static box HmiExecutionOutcomeV1 {
+    running() {
+        return this.make("running", null, null)
+    }
+
+    returned_value(value) {
+        return this.make("returned-value", value, null)
+    }
+
+    returned_no_value() {
+        return this.make("returned-no-value", null, null)
+    }
+
+    failed(error) {
+        return this.make("failed", null, error)
+    }
+
+    make(kind, value, error) {
+        local outcome = new HmiExecutionOutcomeV1Instance()
+        outcome.initialize(kind, value, error)
+        return outcome
+    }
+}
+
+box HmiExecutionOutcomeV1Instance {
+    kind_value
+    returned_value_payload
+    error_payload
+
+    birth() {
+        me.kind_value = null
+        me.returned_value_payload = null
+        me.error_payload = null
+    }
+
+    initialize(kind, value, error) {
+        me.kind_value = kind
+        me.returned_value_payload = value
+        me.error_payload = error
+        return me
+    }
+
+    kind() { return me.kind_value }
+    is_running() { return me.kind_value == "running" }
+    is_returned_value() { return me.kind_value == "returned-value" }
+    is_returned_no_value() { return me.kind_value == "returned-no-value" }
+    is_failed() { return me.kind_value == "failed" }
+    returned_value() { return me.returned_value_payload }
+    failure() { return me.error_payload }
+}

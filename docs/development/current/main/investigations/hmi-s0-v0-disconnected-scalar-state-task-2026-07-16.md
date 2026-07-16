@@ -755,3 +755,67 @@ general scalar or MIR JSON support
 > zero, and HMI-S0-I0 cannot begin until release/debug focused fixtures,
 > retained T0 proofs, existing guards, quick 66/66, and the source/check
 > 800-line boundary are green.
+
+## V0-L0 closeout
+
+V0-L0 is closed with one passive, disconnected vocabulary:
+
+```text
+state/error.hako
+  typed [freeze:contract][hmi/state/*] failures
+
+state/scalar_value.hako
+  tagged i64/i1 value
+  i1 payload 0/1 only
+  NoValue unrepresentable
+
+state/outcome.hako
+  Running / ReturnedValue / ReturnedNoValue / Failed
+
+state/predecessor.hako
+  explicit Entry / Block(id)
+
+state/step_budget.hako
+  max_steps >= 0
+  N successes / N+1 pre-effect failure
+```
+
+Result mutators use owner-specific names instead of repeated generic
+`set_success` / `set_failure` spellings. This keeps each result box as its own
+initializer authority under the current `.hako` resolver.
+
+Validation:
+
+```text
+release/debug focused execution:
+  [hmi/s0-v0-l0] ok
+
+MIR verification:
+  green
+
+hmi / inventory / json authority guards:
+  green
+
+current pointer / diff:
+  green
+
+quick:
+  66/66
+
+largest V0-L0 source:
+  123 lines
+
+production callers / opcode handlers / fallback:
+  0
+```
+
+V0-R0 then reached a storage BoxShape boundary. Its failing prototype is
+preserved as:
+
+```text
+stash:
+  wip/hmi-s0-v0-r0 register storage fails field mutation
+```
+
+Do not restore it as authority. Worker audit and a dedicated consultation must
+select the register-storage owner before R0 resumes.

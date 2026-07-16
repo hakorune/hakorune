@@ -1,0 +1,86 @@
+// Typed disconnected-state failure. Rendered text is only a projection.
+
+static box HmiStateErrorV1 {
+    invalid_scalar(expected, actual, detail) {
+        return this.make("invalid-scalar", expected, actual, detail)
+    }
+
+    invalid_argument(expected, actual, detail) {
+        return this.make("invalid-argument", expected, actual, detail)
+    }
+
+    undefined_register(value_id) {
+        return this.make(
+            "undefined-register",
+            "defined scalar register",
+            "value_id=" + value_id,
+            "register reads never synthesize a default"
+        )
+    }
+
+    duplicate_register(value_id) {
+        return this.make(
+            "duplicate-register",
+            "undefined destination",
+            "value_id=" + value_id,
+            "SSA register definitions are single-publication"
+        )
+    }
+
+    invalid_transition(expected, actual, detail) {
+        return this.make("invalid-transition", expected, actual, detail)
+    }
+
+    step_bound(max_steps, attempted_step) {
+        return this.make(
+            "step-bound",
+            "attempted_step <= " + max_steps,
+            "attempted_step=" + attempted_step,
+            "harness step budget exhausted before effects"
+        )
+    }
+
+    make(kind, expected, actual, detail) {
+        local error = new HmiStateErrorV1Instance()
+        error.initialize(kind, expected, actual, detail)
+        return error
+    }
+}
+
+box HmiStateErrorV1Instance {
+    kind_value
+    expected_value
+    actual_value
+    detail_value
+
+    birth() {
+        me.kind_value = null
+        me.expected_value = null
+        me.actual_value = null
+        me.detail_value = null
+    }
+
+    initialize(kind, expected, actual, detail) {
+        me.kind_value = kind
+        me.expected_value = expected
+        me.actual_value = actual
+        me.detail_value = detail
+        return me
+    }
+
+    kind() { return me.kind_value }
+    expected() { return me.expected_value }
+    actual() { return me.actual_value }
+    detail() { return me.detail_value }
+
+    code() {
+        return "[freeze:contract][hmi/state/" + me.kind_value + "]"
+    }
+
+    render() {
+        return me.code() +
+            " expected=" + me.expected_value +
+            " actual=" + me.actual_value +
+            " detail=" + me.detail_value
+    }
+}

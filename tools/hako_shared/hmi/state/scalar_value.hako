@@ -1,0 +1,91 @@
+using tools.hako_shared.hmi.state.error as HmiStateErrorV1
+
+// Immutable tagged scalar value. NoValue is intentionally not representable.
+
+static box HmiScalarValuesV1 {
+    i64(value) {
+        return this.success("i64", value)
+    }
+
+    i1(payload) {
+        if payload != 0 and payload != 1 {
+            return this.failure(HmiStateErrorV1.invalid_scalar(
+                "i1 payload 0 or 1",
+                "" + payload,
+                "Bool transport uses an exact integer payload"
+            ))
+        }
+        return this.success("i1", payload)
+    }
+
+    copy_proven(value) {
+        return this.from_proven_parts(value.kind(), value.payload())
+    }
+
+    from_proven_parts(kind, payload) {
+        local value = new HmiScalarValueV1()
+        value.initialize(kind, payload)
+        return value
+    }
+
+    success(kind, payload) {
+        local value = new HmiScalarValueV1()
+        value.initialize(kind, payload)
+        local result = new HmiScalarValueBuildResultV1()
+        result.set_scalar_success(value)
+        return result
+    }
+
+    failure(error) {
+        local result = new HmiScalarValueBuildResultV1()
+        result.set_scalar_failure(error)
+        return result
+    }
+}
+
+box HmiScalarValueV1 {
+    kind_value
+    payload_value
+
+    birth() {
+        me.kind_value = null
+        me.payload_value = 0
+    }
+
+    initialize(kind, payload) {
+        me.kind_value = kind
+        me.payload_value = payload
+        return me
+    }
+
+    kind() { return me.kind_value }
+    payload() { return me.payload_value }
+    is_i64() { return me.kind_value == "i64" }
+    is_i1() { return me.kind_value == "i1" }
+}
+
+box HmiScalarValueBuildResultV1 {
+    value
+    error
+
+    birth() {
+        me.value = null
+        me.error = null
+    }
+
+    accepted() { return me.error == null }
+    scalar() { return me.value }
+    failure() { return me.error }
+
+    set_scalar_success(value) {
+        me.value = value
+        me.error = null
+        return me
+    }
+
+    set_scalar_failure(error) {
+        me.value = null
+        me.error = error
+        return me
+    }
+}
