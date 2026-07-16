@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "HMI-S0-T0 closed; V0 disconnected scalar state is next"
+status = "HMI-S0-V0 worker-audited task is ready; passive state vocabulary is next"
 date = "2026-07-16"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -296,19 +296,18 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 
-latest_card = "hmi-s0-t0-s0-worker-audited-execution-task-2026-07-16"
-latest_card_path = "docs/development/current/main/investigations/hmi-s0-t0-s0-worker-audited-execution-task-2026-07-16.md"
-latest_card_summary = """HMI-S0-T0 is closed through producer-backed P0.
-Current Rust build_mir_json_root output exactly matches checked-in scalar and
-ownership documents, and the .hako seal reads those same bytes. The six-function
-scalar suite covers i64/Bool Const, all five admitted BinOps, Branch/Jump/Phi,
-non-lowest entry, unreachable CFG, repeated-target deduplication, Copy,
-cross-block parameter use, and i64/Bool/no-value returns. The ownership suite
-covers borrowed WidgetBox -> CopyOwned -> DestroyOwned with an exact witness
-while execution remains blocked. Thirty-seven .hako mutations reject without a
-document view. Rust equality tests, release/debug L0/S0, inventory/HMI/json
-guards, current pointer, and quick 66/66 are green; modified source/check files
-remain below 800 lines. HMI-S0-V0 disconnected scalar state is next.
+latest_card = "hmi-s0-v0-disconnected-scalar-state-task-2026-07-16"
+latest_card_path = "docs/development/current/main/investigations/hmi-s0-v0-disconnected-scalar-state-task-2026-07-16.md"
+latest_card_summary = """HMI-S0-V0 is worker-audited and ready for
+implementation. One opcode-neutral disconnected state will retain the sealed
+document and selected function view, own one tagged i64/i1 register file, one
+immutable block-entry snapshot for later parallel PHI execution, one current
+block/instruction cursor, one explicit Entry/Block predecessor, terminal/failure
+outcomes, and one harness-only step budget. V0 reads no raw JsonNode fields,
+compares no opcode names, imports no VMValue/MirModule, executes no handler or
+ownership operation, and has zero production callers/fallback. Internal
+checkpoints are V0-L0 passive vocabulary, V0-R0 register/snapshot, V0-S0
+session state, and V0-G0 closeout under the existing hmi-t0-authority guard.
 JSON-NATIVE-ITER0-CUT0 is closed. One thin JsonParser
 facade selects one JsonIterativeParserEngineV1 for compatibility and strict
 parsing; recursive parse_value/object/array and the independent JsonNode.parse
@@ -876,7 +875,7 @@ MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "DPRIME-HMI-S0-V0-DISCONNECTED-STATE-001"
+current_blocker_token = "DPRIME-HMI-S0-V0-L0-PASSIVE-STATE-VOCABULARY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
