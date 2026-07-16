@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "HMI-P0-I0 closed; HMI-P0-G0 guard and report next"
+status = "HMI-P0-G0 closed; HMI-S0-D0 implementation packet next"
 date = "2026-07-16"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,7 +298,16 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 
 latest_card = "hmi-p0-mir-json-v1-strict-ingress-inventory-task-2026-07-16"
 latest_card_path = "docs/development/current/main/investigations/hmi-p0-mir-json-v1-strict-ingress-inventory-task-2026-07-16.md"
-latest_card_summary = """HMI-P0-I0 is closed. One checked-in classification
+latest_card_summary = """HMI-P0-G0 is closed. The existing manifest runner now
+owns one public `hmi-semantic-reference-inventory` row in pilot and quick-
+static profiles, with no shell-wrapper growth. The same source-derived checker
+validates the checked-in normalized Markdown coverage/lossiness report against
+the JSON classification authority. Report, vocabulary, emitter, VMValue,
+source-anchor, caller-count, and 800-line drift fail through one public entry.
+HMI-P0 is closed with execution-owner/opcode activation and production caller
+delta zero. HMI-S0-D0 is next: freeze the strict reader/seal, disconnected
+state machine, exact handler matrix, and Rust-oracle parity packet before code.
+HMI-P0-I0 is closed. One checked-in classification
 authority inventories all 43 kept MIR instructions, 9 non-test or typed
 MirInterpreter caller surfaces, 6 fixture families, 9 transport rows, and all
 9 VMValue variants. Its disconnected Python verifier derives the current kept
@@ -370,13 +379,13 @@ guard, cargo check, quick 66/66, pointer/format guards, and touched source/check
 files below 800 lines are green. The Rust reference interpreter uses a
 host-stack-safe depth boundary of 16; this is a VM resource fail-fast contract,
 not a language recursion limit or termination claim. Atomic R0-CUT0 and R0-G0
-are closed; no second self-call authority may be reintroduced. HMI-P0-I0 is
-closed and HMI-P0-G0 is active: register the reusable manifest guard and
-normalized coverage/lossiness report over the checked-in machine inventory.
-The sole future `.hako` ingress is the Rust-emitted exact V1 document, but its
-strict seal remains an HMI-S0 task. HMI-P0 changes no execution owner and
-activates no opcode. Parser/MirBuilder migration remains failure-driven with
-no current blocker; Ownership V2 grammar remains parked.
+are closed; no second self-call authority may be reintroduced. HMI-P0 is closed
+through G0 and HMI-S0-D0 is active: freeze the implementation packet before
+adding the direct strict reader/seal, disconnected state machine, exact handler
+matrix, or Rust-oracle parity fixtures. The sole future `.hako` ingress is the
+Rust-emitted exact V1 document, but its strict seal does not exist yet. HMI-P0
+changed no execution owner and activated no opcode. Parser/MirBuilder migration
+remains failure-driven with no current blocker; Ownership V2 grammar is parked.
 partition whose ID is the minimum canonical key; V0 then adds general finite
 exact-i64 recursive admission; C0 adds one passive module-level recursive
 capability; I1 uses an explicit VM-only ingress plus the existing unpublished-
@@ -803,7 +812,7 @@ MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "DPRIME-HMI-P0-G0-SEMANTIC-REFERENCE-INVENTORY-GUARD-REPORT-001"
+current_blocker_token = "DPRIME-HMI-S0-D0-STRICT-READER-INTERPRETER-PACKET-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -812,6 +821,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-16: HMI-P0-G0 closes one public freshness/coverage/lossiness guard without semantic widening: guard_rows.toml registers hmi-semantic-reference-inventory for pilot and quick-static without a shell wrapper, the same checker validates a checked-in normalized Markdown report derived only from the JSON authority, and the check-scripts index exposes the stable command. Public guard 43/9/6/9/9, report parity, manifest dry-run, pointer/diff checks, execution-owner/opcode/production-caller delta zero, and checker/inventory/report files below 800 lines are green. HMI-P0 is closed; HMI-S0-D0 strict reader/state/handler/parity packet is next.",
   "2026-07-16: HMI-P0-I0 closes one behavior-neutral semantic-reference machine inventory: one checked-in JSON classifies all 43 kept MIR instructions, 9 non-test or typed MirInterpreter caller surfaces, 6 fixture families, 9 transport rows, and all 9 VMValue variants; one disconnected checker re-derives kept tags, emitter coverage, VMValue variants, source anchors, and non-test constructor caller counts from current Rust. It records BinOp wire collisions, dropped edge args, owned Phi/Return metadata dependence, NewClosure loss, unsupported interpreter rows, and generic Void deferral. Checker 43/9/6/9/9, pointer/diff checks, production behavior delta zero, and both source/check files below 800 lines are green; HMI-P0-G0 public manifest guard and normalized report is next.",
   "2026-07-16: HMI-P0-D0 selects serialized Rust-emitted MirJsonExportDocument / MirJsonExportSchema::V1 with exact schema_version 1.0 as the sole future .hako semantic-reference carrier, conditionally admitted only by a future HMI-MIR-JSON-V1-STRICT whole-document profile over the existing bytes. Current-source audit corrects the producer to the semantic-refresh public facade, forbids env-selected v0, every lossy V1/v0/compact/AST/ProgramV0 bridge, and a second MIR schema, and fixes Bool, Null/Void, CFG entry, ownership provenance, duplicate-key, and bounded-view seams. Task order is P0-I0 machine inventory -> P0-G0 guards/report -> S0-D0 packet; execution-owner/opcode activation remains zero.",
   "2026-07-16: D′ P0c-MR-R0-G0 closes Program-only callable authority retirement without semantic widening. The resolved-callable guard proves old RootCallable/one-entry/exact-one symbols and callers zero, one explicit recursive Program ingress, body-only compile_resolved call-disabled, no retry/fallback, singleton cardinality and marker correspondence, ownership-op zero, atomic publication, and all source/check files below 800 lines. Current pointers now stop at the HMI-P0 MIR ingress/opcode/caller inventory consultation; no implementation row is inferred from historical order.",
@@ -823,5 +833,4 @@ landed_tail = [
   "2026-07-16: D′ P0c-MR-I1 runtime proof tail closes MAX_CALL_DEPTH and inner parameter/return contract failure restoration through the real recursive module ingress: focused debug/release activation/proof fixtures are 7/7, retained complete-frame transaction fixtures are 6/6, and every failure leaves the same interpreter reusable. The Rust reference interpreter depth boundary is 16 so its stable typed resource error precedes host-stack overflow; it is not a language recursion limit or termination claim, and optional overflow diagnostics neither require nor initialize Ring0. The resolved-callable guard, formatting/diff checks, cargo check, quick gate, and all touched source/check files below 800 lines are green; P0c-MR-R0-D0 is now the explicit one-function self-call authority retirement design stop.",
   "2026-07-16: D′ P0c-MR-I1 closes one explicit atomic VM-only recursive callable-module ingress: compile_resolved_recursive_callable_module consumes VerifiedRecursiveCallableModulePlanV1 without probing acyclic/self/legacy routes, reuses the shared unpublished-draft collector, atomically inserts the complete verified function set, installs exactly one module recursive capability, finishes the isolated candidate, and commits only on success. Even/odd, a three-function SCC, an outer DAG caller into an SCC, declaration reorder, rejection/compiler reuse, VM-only backend fail-fast, and zero CopyOwned/DestroyOwned/ReleaseStrong are green; debug/release activation 4/4, resolved-callable authority guard, cargo check, quick 66/66, pointer/format guards, and all touched source/check files below 800 lines are green; P0c-MR-R0 one-function self-call authority retirement is now a design stop.",
   "2026-07-16: D′ P0c-MR-C0 closes one passive module-level recursive backend capability: CanonicalRecursiveCallableModuleCapabilityV1 stores only schema version 1 in one ModuleMetadata Option, rejects missing required markers, duplicate installation, and schema drift, and carries no SCC identity/member/edge/count authority; the shared backend preflight accepts the exact marker only for mir-interpreter and rejects every other backend with [backend/canonical_recursive_callable_module_v1_unsupported] and silent_fallback_allowed=false. Graph/SCC/runtime discovery and production marker producers remain zero; debug/release capability/backend 4/4, resolved-callable authority guard, cargo check, quick 66/66, pointer/format guards, and all touched source/check files below 800 lines are green; P0c-MR-I1 explicit atomic VM-only activation is next.",
-  "2026-07-16: D′ P0c-MR-V0 closes one disconnected recursive exact-i64 module admission product: VerifiedRecursiveCallableModulePlanV1 consumes one deterministic SCC partition, requires at least two functions, one call site, and one recursive component, stores one existing finite trivial Binding-SSA plan per canonical key, and seals exact inventory/function/component/plan cardinality plus per-function inventory/profile call-row correspondence. It owns no target, ABI, effect, MIR, publication, backend, runtime, or ownership authority and has production callers and behavior delta zero; debug/release recursive-plan 3/3, retained SCC 4/4, resolved-callable authority guard, cargo check, quick 66/66, pointer/format guards, and all touched source/check files below 800 lines are green; P0c-MR-C0 passive recursive-module capability is next.",
 ]

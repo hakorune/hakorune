@@ -40,6 +40,17 @@ profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/current_state_pointer_guard.sh"]
 
 [[rows]]
+id = "hmi-semantic-reference-inventory"
+label = "HMI semantic-reference inventory guard"
+profiles = ["pilot", "quick-static"]
+cmd = [
+  "tools/checks/lib/hmi_semantic_reference_inventory.py",
+  ".",
+  "tools/checks/fixtures/hmi_semantic_reference_inventory_v1.json",
+  "tools/checks/fixtures/hmi_semantic_reference_inventory_v1.md",
+]
+
+[[rows]]
 id = "proof-app-manifest-test-entry"
 label = "proof app manifest test entry guard"
 profiles = ["pilot", "quick-static"]

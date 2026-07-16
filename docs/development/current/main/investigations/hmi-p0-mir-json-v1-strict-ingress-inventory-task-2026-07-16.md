@@ -1,5 +1,5 @@
 ---
-Status: HMI-P0-I0 closed; HMI-P0-G0 next
+Status: HMI-P0-G0 closed; HMI-S0-D0 next
 Date: 2026-07-16
 Decision: accepted with current-source corrections
 Previous row: P0c-MR-R0-G0 closed
@@ -110,8 +110,8 @@ blocked on SSA-I1-O1.
 ```text
 HMI-P0-D0  decision lock and exact current-source naming          CLOSED
 HMI-P0-I0  checked-in normalized machine inventory                CLOSED
-HMI-P0-G0  freshness/coverage/lossiness report and guards          NEXT
-HMI-S0-D0  strict reader/seal and interpreter implementation packet
+HMI-P0-G0  freshness/coverage/lossiness report and guards          CLOSED
+HMI-S0-D0  strict reader/seal and interpreter implementation packet NEXT
 ```
 
 P0 remains inventory and ingress selection only. It changes no execution
@@ -288,6 +288,32 @@ source/check files at or above 800 lines = 0
 
 G0 generates a normalized human report and a transport-lossiness matrix. It
 does not implement or claim the strict document seal.
+
+### G0 closeout
+
+The reusable public entry is:
+
+```text
+tools/checks/run_row_guard.sh --only hmi-semantic-reference-inventory
+```
+
+It is registered in `guard_rows.toml` for both `pilot` and `quick-static`
+without adding a shell wrapper. The same checker validates the checked-in
+normalized report:
+
+```text
+tools/checks/fixtures/hmi_semantic_reference_inventory_v1.md
+```
+
+The report is derived solely from the JSON authority and covers all 43 kept
+instructions, the exact first-subset loss seams, caller classes and retirement
+conditions, transport lossiness, and all `VMValue` classifications. Report
+drift, source-anchor drift, vocabulary drift, emitter coverage drift, caller
+count drift, and files reaching 800 lines all fail the same public guard.
+
+HMI-P0 is now closed. It selected and inventoried the future carrier but did
+not implement the strict seal, allocate interpreter state, execute an opcode,
+connect a production caller, or retire a Rust handler.
 
 ## HMI-S0-D0 packet boundary
 

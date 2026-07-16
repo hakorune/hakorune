@@ -253,9 +253,107 @@ def verify_values(root: Path, rows: list[dict]) -> set[str]:
     return set(ids)
 
 
+def render_report(data: dict) -> str:
+    lines = [
+        "# HMI Semantic Reference Inventory V1",
+        "",
+        f"Baseline: `{data['baseline']}`",
+        "Production behavior delta: `0`",
+        "",
+        "## Summary",
+        "",
+        "| Inventory | Rows |",
+        "| --- | ---: |",
+        f"| Kept MIR instructions | {len(data['instructions'])} |",
+        f"| Caller surfaces | {len(data['callers'])} |",
+        f"| Fixture families | {len(data['fixtures'])} |",
+        f"| Transports | {len(data['transports'])} |",
+        f"| VMValue classes | {len(data['value_classes'])} |",
+        "",
+        "## Instruction coverage",
+        "",
+        "| Instruction | Family | First subset | V1 op | Lossiness |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for row in data["instructions"]:
+        transport = row["transport_op"] or "—"
+        first = "yes" if row["first_subset"] else "no"
+        lines.append(
+            f"| {row['instruction_id']} | {row['execution_family']} | "
+            f"{first} | {transport} | {row['lossiness']} |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## First-subset loss seams",
+            "",
+            "| Instruction | Required metadata | Loss reasons |",
+            "| --- | --- | --- |",
+        ]
+    )
+    for row in data["instructions"]:
+        if not row["first_subset"]:
+            continue
+        metadata = ", ".join(row["required_metadata"]) or "—"
+        reasons = "; ".join(row["loss_reasons"])
+        lines.append(f"| {row['instruction_id']} | {metadata} | {reasons} |")
+
+    lines.extend(
+        [
+            "",
+            "## Caller classes",
+            "",
+            "| Caller | Class | Retirement condition |",
+            "| --- | --- | --- |",
+        ]
+    )
+    for row in data["callers"]:
+        lines.append(
+            f"| {row['caller_id']} | {row['class']} | {row['retirement_condition']} |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## Transport lossiness",
+            "",
+            "| Transport | Classification | Lossiness | Reason |",
+            "| --- | --- | --- | --- |",
+        ]
+    )
+    for row in data["transports"]:
+        lines.append(
+            f"| {row['transport_id']} | {row['classification']} | "
+            f"{row['lossiness']} | {row['reason']} |"
+        )
+
+    lines.extend(
+        [
+            "",
+            "## VMValue classes",
+            "",
+            "| Class | Status | Reason |",
+            "| --- | --- | --- |",
+        ]
+    )
+    for row in data["value_classes"]:
+        lines.append(
+            f"| {row['value_class_id']} | {row['status']} | {row['reason']} |"
+        )
+    lines.extend(
+        [
+            "",
+            "Generated from `hmi_semantic_reference_inventory_v1.json`; do not edit by hand.",
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
+
 def main() -> None:
-    if len(sys.argv) != 3:
-        fail("usage: hmi_semantic_reference_inventory.py ROOT INVENTORY")
+    if len(sys.argv) not in {3, 4}:
+        fail("usage: hmi_semantic_reference_inventory.py ROOT INVENTORY [REPORT]")
     root = Path(sys.argv[1]).resolve()
     inventory = Path(sys.argv[2]).resolve()
     data = json.loads(read(inventory))
@@ -287,7 +385,19 @@ def main() -> None:
     value_ids = verify_values(root, data["value_classes"])
     verify_instructions(root, data, fixture_ids, caller_ids, value_ids)
 
-    for path in (Path(__file__), inventory):
+    report_text = render_report(data)
+    if len(sys.argv) == 4:
+        if sys.argv[3] == "--print-report":
+            print(report_text, end="")
+            return
+        report = Path(sys.argv[3]).resolve()
+        if read(report) != report_text:
+            fail(f"normalized report drifted: {report}")
+
+    checked_paths = [Path(__file__), inventory]
+    if len(sys.argv) == 4:
+        checked_paths.append(Path(sys.argv[3]).resolve())
+    for path in checked_paths:
         lines = len(path.read_text().splitlines())
         if lines >= 800:
             fail(f"source/check file reached 800 lines: {path} lines={lines}")

@@ -23,9 +23,11 @@ Related:
   whole-document profile as the sole `.hako` semantic-reference carrier. The
   HMI-P0-I0 is closed with one checked-in 43-instruction/9-caller/6-fixture-
   family/9-transport/9-VMValue-class inventory and one source-derived checker.
-  The current blocker is HMI-P0-G0: register the reusable manifest guard and
-  produce the normalized coverage/lossiness report. It changes no execution
-  owner and activates no opcode.
+  HMI-P0-G0 is closed: one manifest-backed public guard validates source drift
+  and a checked-in normalized coverage/lossiness report. HMI-P0 is therefore
+  closed with no execution-owner or opcode activation. The current blocker is
+  HMI-S0-D0: freeze the direct strict-reader/seal, state-machine, exact-handler,
+  and Rust-oracle parity implementation packet before code begins.
   C-prime is
   taskized as `G0 -> S0 -> V0 -> C0 -> I1 -> R0`; G0 through I1 are closed. The
   deterministic SCC partition is non-Clone, uses a host-stack-safe traversal,
