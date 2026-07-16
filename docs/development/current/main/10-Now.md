@@ -26,8 +26,11 @@ Related:
   HMI-P0-G0 is closed: one manifest-backed public guard validates source drift
   and a checked-in normalized coverage/lossiness report. HMI-P0 is therefore
   closed with no execution-owner or opcode activation. The current blocker is
-  HMI-S0-D0: freeze the direct strict-reader/seal, state-machine, exact-handler,
-  and Rust-oracle parity implementation packet before code begins.
+  HMI-S0-D0 is now an explicit design consultation stop. Current-source audit
+  found that the tolerant `.hako` JSON parser loses duplicate keys, Rust i64
+  overflow is build-mode-dependent, and V1 drops CFG edge arguments. Lock the
+  direct strict-reader boundary, portable overflow law, and exact empty-edge
+  witness in the active consultation card before any interpreter code begins.
   C-prime is
   taskized as `G0 -> S0 -> V0 -> C0 -> I1 -> R0`; G0 through I1 are closed. The
   deterministic SCC partition is non-Clone, uses a host-stack-safe traversal,

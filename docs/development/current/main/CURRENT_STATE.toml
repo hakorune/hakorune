@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "HMI-P0-G0 closed; HMI-S0-D0 implementation packet next"
+status = "HMI-S0-D0 design consultation; implementation stopped"
 date = "2026-07-16"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -296,9 +296,18 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 
-latest_card = "hmi-p0-mir-json-v1-strict-ingress-inventory-task-2026-07-16"
-latest_card_path = "docs/development/current/main/investigations/hmi-p0-mir-json-v1-strict-ingress-inventory-task-2026-07-16.md"
-latest_card_summary = """HMI-P0-G0 is closed. The existing manifest runner now
+latest_card = "hmi-s0-strict-reader-interpreter-implementation-consultation-2026-07-16"
+latest_card_path = "docs/development/current/main/investigations/hmi-s0-strict-reader-interpreter-implementation-consultation-2026-07-16.md"
+latest_card_summary = """HMI-S0-D0 is an explicit design stop. Current-source
+audit proves the tolerant JsonParserBox loses duplicate object keys before a
+strict verifier can see them, Rust i64 overflow is not build-mode-independent,
+and V1 drops Jump/Branch edge arguments. The recommended packet is one direct
+HMI-specific .hako strict reader over the selected V1 bytes, one opaque whole-
+document seal with bounded views over the same tree, one disconnected scalar
+state machine, exact scalar handlers, and Rust-oracle parity with production
+callers zero. Before code, consultation must lock checked-vs-wrapping i64
+overflow and an exact empty-edge-argument witness in existing V1 metadata.
+HMI-P0-G0 is closed. The existing manifest runner now
 owns one public `hmi-semantic-reference-inventory` row in pilot and quick-
 static profiles, with no shell-wrapper growth. The same source-derived checker
 validates the checked-in normalized Markdown coverage/lossiness report against
@@ -812,7 +821,7 @@ MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "DPRIME-HMI-S0-D0-STRICT-READER-INTERPRETER-PACKET-001"
+current_blocker_token = "DPRIME-HMI-S0-D0-STRICT-READER-PORTABLE-SEMANTICS-CONSULTATION-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

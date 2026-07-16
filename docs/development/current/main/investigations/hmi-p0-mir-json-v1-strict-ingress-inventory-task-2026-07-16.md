@@ -1,5 +1,5 @@
 ---
-Status: HMI-P0-G0 closed; HMI-S0-D0 next
+Status: HMI-P0-G0 closed; HMI-S0-D0 consultation delegated
 Date: 2026-07-16
 Decision: accepted with current-source corrections
 Previous row: P0c-MR-R0-G0 closed
@@ -111,7 +111,7 @@ blocked on SSA-I1-O1.
 HMI-P0-D0  decision lock and exact current-source naming          CLOSED
 HMI-P0-I0  checked-in normalized machine inventory                CLOSED
 HMI-P0-G0  freshness/coverage/lossiness report and guards          CLOSED
-HMI-S0-D0  strict reader/seal and interpreter implementation packet NEXT
+HMI-S0-D0  strict reader/seal and interpreter implementation packet CONSULT
 ```
 
 P0 remains inventory and ingress selection only. It changes no execution
@@ -316,6 +316,11 @@ not implement the strict seal, allocate interpreter state, execute an opcode,
 connect a production caller, or retire a Rust handler.
 
 ## HMI-S0-D0 packet boundary
+
+The active design-stop card is
+`hmi-s0-strict-reader-interpreter-implementation-consultation-2026-07-16.md`.
+It records the current-source duplicate-key, arithmetic-overflow, and dropped-
+edge-argument seams and must be decision-locked before implementation.
 
 HMI-S0-D0 will taskize, but not yet implement:
 

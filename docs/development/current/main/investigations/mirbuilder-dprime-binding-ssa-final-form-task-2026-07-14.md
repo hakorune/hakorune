@@ -2420,9 +2420,10 @@ strict whole-document profile is selected as the sole `.hako` semantic-
 reference carrier, and one checked-in 43-instruction/9-caller/6-fixture-
 family/9-transport/9-VMValue-class inventory plus normalized report is guarded
 through the public manifest runner. Continue only with HMI-S0-D0 from
-`hmi-p0-mir-json-v1-strict-ingress-inventory-task-2026-07-16.md`: freeze the
-strict reader/seal, disconnected state machine, exact handler matrix, and Rust-
-oracle parity packet before implementation. Production callers remain zero.
+`hmi-s0-strict-reader-interpreter-implementation-consultation-2026-07-16.md`.
+The direct strict-reader boundary, portable i64 overflow law, and exact empty-
+edge witness must be decision-locked before implementation. Production callers
+remain zero.
 
 Decision/task card:
 `mirbuilder-p0c-mr-callable-scc-task-2026-07-16.md`.
