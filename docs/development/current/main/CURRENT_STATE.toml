@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "HMI-S0-T0-S0 closed; P0 producer-backed proof is next"
+status = "HMI-S0-T0 closed; V0 disconnected scalar state is next"
 date = "2026-07-16"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,17 +298,17 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 
 latest_card = "hmi-s0-t0-s0-worker-audited-execution-task-2026-07-16"
 latest_card_path = "docs/development/current/main/investigations/hmi-s0-t0-s0-worker-audited-execution-task-2026-07-16.md"
-latest_card_summary = """HMI-S0-T0-S0 is closed. One typed function context,
-split instruction contract/facts/inventory owners, and one post-finish view
-publisher replace the overloaded prototype. The first value-use profile admits
-parameters across blocks, admits ordinary instruction results only after a
-same-block definition, and admits PHI inputs only from their named predecessor.
-Focused MIR verify, release/debug L0 and S0 execution, both authority guards,
-current-pointer checks, and quick 66/66 are green; every source/check file is
-below 800 lines. Production callers, state, handlers, fallback, and V0
-conversion remain zero. P0-EMIT0 is next and must replace handwritten positive
-authority with exact current-Rust-emitter-backed fixtures before mutation and
-drift-guard closeout.
+latest_card_summary = """HMI-S0-T0 is closed through producer-backed P0.
+Current Rust build_mir_json_root output exactly matches checked-in scalar and
+ownership documents, and the .hako seal reads those same bytes. The six-function
+scalar suite covers i64/Bool Const, all five admitted BinOps, Branch/Jump/Phi,
+non-lowest entry, unreachable CFG, repeated-target deduplication, Copy,
+cross-block parameter use, and i64/Bool/no-value returns. The ownership suite
+covers borrowed WidgetBox -> CopyOwned -> DestroyOwned with an exact witness
+while execution remains blocked. Thirty-seven .hako mutations reject without a
+document view. Rust equality tests, release/debug L0/S0, inventory/HMI/json
+guards, current pointer, and quick 66/66 are green; modified source/check files
+remain below 800 lines. HMI-S0-V0 disconnected scalar state is next.
 JSON-NATIVE-ITER0-CUT0 is closed. One thin JsonParser
 facade selects one JsonIterativeParserEngineV1 for compatibility and strict
 parsing; recursive parse_value/object/array and the independent JsonNode.parse
@@ -876,7 +876,7 @@ MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "DPRIME-HMI-S0-T0-P0-EMITTER-FIXTURE-001"
+current_blocker_token = "DPRIME-HMI-S0-V0-DISCONNECTED-STATE-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -885,6 +885,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-16: HMI-S0-T0-P0 closes producer-backed carrier proof. One 312-line Rust fixture owner constructs minimal scalar and ownership MirModules, serializes them through build_mir_json_root, and exactly matches two checked-in JSON V1 documents consumed unchanged by the .hako strict seal. The six-function scalar suite covers i64/Bool Const, all five admitted BinOps, Branch/Jump/Phi, non-lowest entry, unreachable CFG, repeated-target deduplication, Copy, cross-block parameter use, and i64/Bool/no-value returns; the ownership suite covers borrowed WidgetBox -> CopyOwned -> DestroyOwned without execution. A 37-case .hako mutation matrix rejects with no document view. Rust equality, release/debug L0/S0, semantic inventory/HMI/json guards, current pointer, quick 66/66, zero product callers/state/handlers/fallback, and files below 800 lines are green; disconnected HMI-S0-V0 state is next.",
   "2026-07-16: HMI-S0-T0-S0 closes one disconnected strict whole-document seal. A typed function context and split instruction contract/facts/inventory remove the overloaded scanner; exact instruction summaries feed CFG without reparsing, value/type and ownership transport correspond exactly, and conservative cross-block use admits parameters plus predecessor-bound PHI values while rejecting ordinary foreign-block instruction results. All functions seal before the sole view/publication owner constructs any Verified view. Focused MIR verify, release/debug L0/S0 execution, HMI/json authority guards, current pointer, quick 66/66, zero production callers/state/handlers/fallback, and files below 800 lines are green; P0 producer-backed fixture parity is next.",
   "2026-07-16: JSON-NATIVE-ITER0-P0 closes normalized recursive/iterative parity with production selection unchanged. Exactly three test-only files are selectively recovered: an explicit-stack pair walker proves kind/value/array order/object insertion order and compatibility overwrite parity; a first-error helper proves kind/code/token/site parity; and the focused fixture covers generated trees, shallow grammar errors, strict bounds/duplicates, typed lexical errors, decoded a versus Unicode-escaped-a identity, ordinary MIR JSON, alternating depth 24, depths 128/129, root-publication failure, and parser reuse. Focused and retained release/debug fixtures, quick 66/66, recursive fixture walking/stringify zero, diff checks, and files below 800 lines are green; atomic CUT0 is next.",
   "2026-07-16: JSON-NATIVE-ESC0-I1 atomically activates one exact escaped-string lexical path. JsonTokenizer now consumes scan_string_literal_v1 plus the exact decoder, selected EscapeUtils.unescape_string callers are zero, legacy read_string_literal delegates to the same scanner, and existing ERROR tokens carry typed lexical kind/code/site/expected/actual projected unchanged by the iterative parser. The focused release/debug fixture covers all eight escapes in values and keys, case-insensitive selected Unicode, every named reject class, multiline sites, strict decoded-duplicate-before-colon priority, compatibility last-write-wins, and reuse. Retained release/debug fixtures, quick 66/66, unchanged parser selector/HMI/MAX_CALL_DEPTH, diff checks, and files below 800 lines are green; ITER0-P0 resumes.",
@@ -896,5 +897,4 @@ landed_tail = [
   "2026-07-16: JSON-NATIVE-ITER0-D0 accepts B-prime and taskizes L0 -> S0 -> P0 -> atomic CUT0 -> HMI-S0-T0. One existing tokenizer feeds one explicit-stack grammar/tree engine shared by compatibility and strict policies; policy callbacks cannot control tokens, frames, delimiters, node construction, limits, recovery, or retry. Parser V1 accepts at most 128 open containers and rejects attempted depth 129 before node allocation with a typed site-bearing error. CUT0 also physically retires the independent JsonNode.parse mini grammar, currently used at 19 call sites in five .hako files, so selected grammar/text-to-tree owner counts are truly one. VM MAX_CALL_DEPTH stays 16; HMI seal/opcode/product callers/fallback remain zero; L0 passive cursor/frame/error/limit vocabulary is next.",
   "2026-07-16: HMI-S0-T0 stops at a parser-substrate design boundary before semantic activation. A disconnected ordinary MIR JSON fixture exceeds the Rust reference VM's proven host-stack-safe MAX_CALL_DEPTH=16 inside json_native recursive descent before returning a JsonNode; disabling operator-box add adoption still fails in JsonNodeInstance.birth, confirming container recursion as owner. No seal, view, opcode, production caller, or fallback was published. Raising the VM limit is forbidden because 32/128/1024 previously allowed host-stack overflow before the typed guard. The uncommitted T0 prototype is stashed, and hmi-s0-t0-json-parser-depth-consultation-question-2026-07-16.md recommends JSON-NATIVE-ITER0: one explicit-stack json_native grammar/tree engine shared by compatibility and strict policies; HMI-only parser duplication, schema special-casing, and route retry remain zero.",
   "2026-07-16: HMI-S0-E0 closes one reusable exact-none control-edge witness over the final MirFunction before witness insertion: every Jump.edge_args and Branch then/else edge_args must be Option::None, including rejection of Some(empty), and success emits one function metadata.control_edge_args_v1 {schema_version:1, mode:exact_none} witness. Non-admitted compatibility JSON remains publishable without the witness, while T0 will require it for strict HMI admission; the emitter never infers, erases, or translates edge arguments. Focused 3/3, retained mir_json_emit 117/117, quick 66/66, and production HMI execution callers/fallback zero are green; HMI-S0-T0 whole-document strict profile seal is next.",
-  "2026-07-16: HMI-S0-J0 closes one opt-in strict policy over the existing json_native grammar/tree authority: literal duplicate keys reject before compatibility overwrite, exact signed-i64 lexemes include proven MIN/MAX conversion, whole-input consumption stays exact, and typed policy-owned strict errors render into the existing parser error array. Default JsonParser.parse behavior remains unchanged and its duplicate last-write-wins fixture stays green; escaped decoded-key identity remains unproven until ESC0. HMI execution callers/fallback remain zero. strict_policy_test, pointer/diff checks, and all touched source files below 800 lines are green; HMI-S0-E0 exact-none control-edge witness is next.",
 ]

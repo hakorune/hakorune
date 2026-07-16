@@ -17,6 +17,7 @@ mod fastmem_metadata;
 mod function_attrs;
 mod generic_method_routes;
 mod global_call_routes;
+mod hmi_t0_fixtures;
 mod local_contracts;
 mod map_lookup_fusion_routes;
 mod map_repr_plans;

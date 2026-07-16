@@ -1,0 +1,250 @@
+using tools.hako_shared.hmi.document_seal as HmiDocumentSealV1
+
+static box Main {
+    main() {
+        local failures = 0
+        failures = failures + this.root_mutations()
+        failures = failures + this.cfg_mutations()
+        failures = failures + this.value_mutations()
+        failures = failures + this.ownership_mutations()
+        if failures == 0 {
+            print("[hmi/s0-t0-p0-mutations] ok")
+            return 0
+        }
+        print("[hmi/s0-t0-p0-mutations] failed=" + failures)
+        return 1
+    }
+
+    root_mutations() {
+        local text = this.scalar()
+        local failures = 0
+        failures = failures + this.reject("schema", this.replace_once(
+            text, "\"schema_version\":\"1.0\"",
+            "\"schema_version\":\"2.0\""
+        ))
+        failures = failures + this.reject("unknown-root", this.replace_once(
+            text, "\"schema_version\":\"1.0\"",
+            "\"schema_version\":\"1.0\",\"unknown_root\":0"
+        ))
+        failures = failures + this.reject("opaque-nonempty", this.replace_once(
+            text, "\"boxed_sum_abi_plans\":[]",
+            "\"boxed_sum_abi_plans\":[0]"
+        ))
+        failures = failures + this.reject("capability-drift", this.replace_once(
+            text, "\"capabilities\":[\"unified_call\"",
+            "\"capabilities\":[\"other\""
+        ))
+        failures = failures + this.reject("missing-metadata", this.replace_once(
+            text, "\"metadata\":{\"build_time\"",
+            "\"removed_metadata\":{\"build_time\""
+        ))
+        failures = failures + this.reject("duplicate-function", this.replace_once(
+            text, "\"name\":\"no_value\"",
+            "\"name\":\"bool_return\""
+        ))
+        return failures
+    }
+
+    cfg_mutations() {
+        local text = this.scalar()
+        local failures = 0
+        failures = failures + this.reject("duplicate-block", this.replace_once(
+            text, "{\"id\":6,\"instructions\"",
+            "{\"id\":7,\"instructions\""
+        ))
+        failures = failures + this.reject("foreign-entry", this.replace_once(
+            text, "\"entry_block\":0",
+            "\"entry_block\":99"
+        ))
+        failures = failures + this.reject("foreign-target", this.replace_once(
+            text, "{\"op\":\"jump\",\"target\":4}",
+            "{\"op\":\"jump\",\"target\":99}"
+        ))
+        failures = failures + this.reject("missing-terminator", this.replace_once(
+            text, "{\"op\":\"ret\",\"value\":8}",
+            "{\"dst\":8,\"op\":\"copy\",\"src\":8}"
+        ))
+        failures = failures + this.reject("nonfinal-terminator", this.replace_once(
+            text, "{\"dst\":7,\"op\":\"copy\",\"src\":6}",
+            "{\"op\":\"ret\",\"value\":6},{\"dst\":7,\"op\":\"copy\",\"src\":6}"
+        ))
+        failures = failures + this.reject("cfg-terminator", this.replace_once(
+            text, "\"terminator\":\"Return\"",
+            "\"terminator\":\"Jump\""
+        ))
+        failures = failures + this.reject("cfg-extra-successor", this.replace_once(
+            text, "\"successors\":[8,9]",
+            "\"successors\":[8,9,10]"
+        ))
+        return failures
+    }
+
+    value_mutations() {
+        local text = this.scalar()
+        local failures = 0
+        failures = failures + this.reject("missing-src", this.replace_once(
+            text, "{\"dst\":7,\"op\":\"copy\",\"src\":6}",
+            "{\"dst\":7,\"op\":\"copy\"}"
+        ))
+        failures = failures + this.reject("unsupported-opcode", this.replace_once(
+            text, "{\"dst\":7,\"op\":\"copy\",\"src\":6}",
+            "{\"dst\":7,\"op\":\"mystery\",\"src\":6}"
+        ))
+        failures = failures + this.reject("unsupported-binop", this.replace_once(
+            text, "\"op\":\"binop\",\"operation\":\"+\"",
+            "\"op\":\"binop\",\"operation\":\"&\""
+        ))
+        failures = failures + this.reject("duplicate-definition", this.replace_once(
+            text, "{\"dst\":7,\"op\":\"copy\",\"src\":6}",
+            "{\"dst\":6,\"op\":\"copy\",\"src\":6}"
+        ))
+        failures = failures + this.reject("parameter-collision", this.replace_once(
+            text, "{\"dst\":1,\"op\":\"copy\",\"src\":0}",
+            "{\"dst\":0,\"op\":\"copy\",\"src\":0}"
+        ))
+        failures = failures + this.reject("undefined-use", this.replace_once(
+            text, "{\"dst\":7,\"op\":\"copy\",\"src\":6}",
+            "{\"dst\":7,\"op\":\"copy\",\"src\":99}"
+        ))
+        failures = failures + this.reject("missing-value-type", this.replace_once(
+            text, "\"value_types\":{\"0\":\"i1\"}",
+            "\"value_types\":{}"
+        ))
+        failures = failures + this.reject("extra-value-type", this.replace_once(
+            text, "\"value_types\":{\"0\":\"i1\"}",
+            "\"value_types\":{\"0\":\"i1\",\"99\":\"i64\"}"
+        ))
+        failures = failures + this.reject("unsupported-value-type",
+            this.replace_once(
+                text, "\"value_types\":{\"0\":\"i1\"}",
+                "\"value_types\":{\"0\":\"f64\"}"
+            )
+        )
+        failures = failures + this.reject("phi-not-prefix", this.replace_once(
+            text,
+            "{\"dst\":4,\"dst_type\":\"i64\",\"incoming\":[[2,8],[3,9]]," +
+                "\"op\":\"phi\"},{\"dst\":5,\"op\":\"const\"",
+            "{\"dst\":5,\"op\":\"const\"},{\"dst\":4,\"dst_type\":\"i64\"," +
+                "\"incoming\":[[2,8],[3,9]],\"op\":\"phi\""
+        ))
+        failures = failures + this.reject("phi-missing-predecessor",
+            this.replace_once(
+                text, "\"incoming\":[[2,8],[3,9]]",
+                "\"incoming\":[[2,8]]"
+            )
+        )
+        failures = failures + this.reject("phi-duplicate-predecessor",
+            this.replace_once(
+                text, "\"incoming\":[[2,8],[3,9]]",
+                "\"incoming\":[[2,8],[3,8]]"
+            )
+        )
+        failures = failures + this.reject("phi-type-mismatch", this.replace_once(
+            text, "\"4\":\"i64\"",
+            "\"4\":\"i1\""
+        ))
+        failures = failures + this.reject("edge-schema", this.replace_once(
+            text, "\"mode\":\"exact_none\",\"schema_version\":1",
+            "\"mode\":\"exact_none\",\"schema_version\":2"
+        ))
+        failures = failures + this.reject("edge-mode", this.replace_once(
+            text, "\"mode\":\"exact_none\",\"schema_version\":1",
+            "\"mode\":\"other\",\"schema_version\":1"
+        ))
+        return failures
+    }
+
+    ownership_mutations() {
+        local text = this.ownership()
+        local failures = 0
+        failures = failures + this.reject("operation-duplicate",
+            this.replace_once(
+                text,
+                "\"operations\":[{\"block\":0,\"dst\":1," +
+                    "\"instruction_index\":0,\"op\":\"copy_owned\",\"src\":0}",
+                "\"operations\":[{\"block\":0,\"dst\":1," +
+                    "\"instruction_index\":0,\"op\":\"copy_owned\",\"src\":0}," +
+                    "{\"block\":0,\"dst\":1,\"instruction_index\":0," +
+                    "\"op\":\"copy_owned\",\"src\":0}"
+            )
+        )
+        failures = failures + this.reject("operation-operand", this.replace_once(
+            text,
+            "{\"block\":0,\"dst\":1,\"instruction_index\":0," +
+                "\"op\":\"copy_owned\",\"src\":0}",
+            "{\"block\":0,\"dst\":9,\"instruction_index\":0," +
+                "\"op\":\"copy_owned\",\"src\":0}"
+        ))
+        failures = failures + this.reject("copy-destination-borrowed",
+            this.replace_once(
+                text, "\"1\":\"owned\"",
+                "\"1\":\"borrowed\""
+            )
+        )
+        failures = failures + this.reject("ownership-schema", this.replace_once(
+            text, "\"schema\":\"VerifiedOwnershipSsaV1\"",
+            "\"schema\":\"Other\""
+        ))
+        failures = failures + this.reject("ownership-producer",
+            this.replace_once(
+                text, "\"producer\":\"rust_ownership_ssa_verifier_v1\"",
+                "\"producer\":\"other\""
+            )
+        )
+        failures = failures + this.reject("ownership-backend", this.replace_once(
+            text, "\"backend\":\"llvm_py\"",
+            "\"backend\":\"other\""
+        ))
+        failures = failures + this.reject("ownership-provider",
+            this.replace_once(
+                text, "\"provider\":\"nyash_kernel\"",
+                "\"provider\":\"other\""
+            )
+        )
+        failures = failures + this.reject("owner-range", this.replace_once(
+            text, "\"owner\":41",
+            "\"owner\":9223372036854775808"
+        ))
+        failures = failures + this.reject("release-strong", this.replace_once(
+            text, "\"op\":\"destroy_owned\",\"value\":1",
+            "\"op\":\"release_strong\",\"value\":1"
+        ))
+        return failures
+    }
+
+    reject(name, text) {
+        local result = HmiDocumentSealV1.read(text)
+        if result.accepted() or result.document() != null {
+            print("[hmi/s0-t0-p0-mutations] unexpected-accept=" + name)
+            return 1
+        }
+        return 0
+    }
+
+    scalar() {
+        return this.read_fixture(
+            "tools/hako_shared/hmi/tests/fixtures/scalar_suite_v1.json"
+        )
+    }
+
+    ownership() {
+        return this.read_fixture(
+            "tools/hako_shared/hmi/tests/fixtures/ownership_transport_v1.json"
+        )
+    }
+
+    read_fixture(path) {
+        local file = new FileBox()
+        if file.open(path) == 0 { return "" }
+        local text = file.read()
+        file.close()
+        return text
+    }
+
+    replace_once(text, needle, replacement) {
+        local index = text.indexOf(needle)
+        if index < 0 { return text }
+        return text.substring(0, index) + replacement +
+            text.substring(index + needle.length(), text.length())
+    }
+}

@@ -32,5 +32,5 @@ Layer rules:
 - Production execution callers remain zero through HMI-S0.
 - Every source/check file stays below 800 lines.
 
-`T0-L0` and `T0-S0` are closed. Current order:
-`T0-P0 -> V0 -> I0 -> P0 parity`.
+`T0-L0`, `T0-S0`, and producer-backed `T0-P0` are closed. Current order:
+`V0 -> I0 -> P0 parity`.

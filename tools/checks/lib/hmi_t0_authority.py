@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import pathlib
+import json
 import re
 import sys
 
@@ -123,7 +124,83 @@ for family in ("document", "cfg", "value_type", "ownership"):
     if f'"{family}"' not in error_source:
         fail(f"stable error family missing: {family}")
 
+inventory_path = (
+    ROOT / "tools/checks/fixtures/hmi_semantic_reference_inventory_v1.json"
+)
+inventory = json.loads(read(inventory_path))
+inventory_ops = {
+    row["transport_op"]
+    for row in inventory["instructions"]
+    if row.get("first_subset")
+}
+contract_source = read(HMI / "seal/instruction_contract.hako")
+inventory_source = read(HMI / "seal/instruction_inventory.hako")
+hako_ops = set(
+    re.findall(r'\bop\s*==\s*"([^"]+)"', contract_source + inventory_source)
+)
+if hako_ops != inventory_ops:
+    fail(
+        "HMI opcode subset drift: "
+        f"hako={sorted(hako_ops)} inventory={sorted(inventory_ops)}"
+    )
+
+root_source = read(HMI / "seal/root.hako")
+hako_root_surfaces = set(
+    re.findall(r'fields\.push\("([^"]+)"\)', root_source)
+)
+emitter_root_source = read(ROOT / "src/runner/mir_json_emit/root.rs")
+marker = "let root_metadata = vec!["
+start = emitter_root_source.find(marker)
+end = emitter_root_source.find("\n    ];", start)
+if start < 0 or end < 0:
+    fail("cannot locate Rust MIR JSON root metadata owner")
+rust_root_surfaces = set(
+    re.findall(
+        r'\(\s*"([^"]+)"\s*,',
+        emitter_root_source[start:end],
+        flags=re.MULTILINE,
+    )
+)
+rust_root_surfaces.discard("cfg")
+if hako_root_surfaces != rust_root_surfaces:
+    fail(
+        "opaque root surface drift: "
+        f"hako={sorted(hako_root_surfaces)} "
+        f"rust={sorted(rust_root_surfaces)}"
+    )
+
+fixture_test = (
+    ROOT / "src/runner/mir_json_emit/tests/hmi_t0_fixtures.rs"
+)
+fixture_test_source = read(fixture_test)
+for required in (
+    "build_mir_json_root",
+    "scalar_suite_v1.json",
+    "ownership_transport_v1.json",
+    "scalar_suite_matches_checked_in_hmi_t0_fixture",
+    "ownership_transport_matches_checked_in_hmi_t0_fixture",
+):
+    if required not in fixture_test_source:
+        fail(f"Rust emitter fixture authority missing: {required}")
+if len(fixture_test_source.splitlines()) >= 800:
+    fail("Rust emitter fixture source reaches 800 lines")
+
+s0_test_source = read(HMI / "tests/s0_document_seal_test.hako")
+for fixture_name in (
+    "scalar_suite_v1.json",
+    "ownership_transport_v1.json",
+):
+    fixture_path = HMI / "tests/fixtures" / fixture_name
+    if not fixture_path.is_file() or fixture_path.stat().st_size <= 3:
+        fail(f"missing generated HMI fixture: {fixture_name}")
+    if fixture_name not in s0_test_source:
+        fail(f".hako S0 test does not consume fixture: {fixture_name}")
+for forbidden in ("plan_names()", "local root ="):
+    if forbidden in s0_test_source:
+        fail(f"handwritten positive fixture authority remains: {forbidden}")
+
 print(
     "[hmi/t0-authority] ok "
-    f"hako_files={len(hako_files)} external_callers=0"
+    f"hako_files={len(hako_files)} external_callers=0 "
+    f"opcodes={len(hako_ops)} opaque_surfaces={len(hako_root_surfaces)}"
 )

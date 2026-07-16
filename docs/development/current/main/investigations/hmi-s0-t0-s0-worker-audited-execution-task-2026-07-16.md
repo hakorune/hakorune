@@ -1,5 +1,5 @@
 ---
-Status: S0 closed; P0-EMIT0 is next
+Status: S0 and P0 closed; HMI-S0-V0 is next
 Date: 2026-07-16
 Decision: finish S0 through BoxShape cleanup, one post-finish publisher, and a conservative value-use law
 Parent: hmi-s0-t0-whole-document-seal-hardening-task-2026-07-16.md
@@ -498,3 +498,111 @@ production callers / state / handlers / fallback:
 
 The checked-in positive JSON remains handwritten in S0 and is not producer
 parity authority. `P0-EMIT0` is therefore the exact next blocker.
+
+## P0 closeout
+
+P0 replaces every handwritten positive carrier with current-emitter evidence.
+
+```text
+Rust fixture owner:
+  src/runner/mir_json_emit/tests/hmi_t0_fixtures.rs
+
+producer:
+  build_mir_json_root
+
+checked-in scalar suite:
+  tools/hako_shared/hmi/tests/fixtures/scalar_suite_v1.json
+
+checked-in ownership suite:
+  tools/hako_shared/hmi/tests/fixtures/ownership_transport_v1.json
+
+.hako positive authority:
+  reads the same checked-in bytes with FileBox
+
+handwritten root/plan builder:
+  0
+```
+
+Scalar producer coverage:
+
+```text
+functions:
+  6
+
+Const:
+  i64 and Bool
+
+BinOp:
+  Add / Sub / Mul / Div / Mod
+
+CFG:
+  non-lowest entry
+  Branch
+  repeated branch target deduplication
+  Jump
+  unreachable block
+  predecessor-sensitive Phi
+
+values:
+  Copy
+  cross-block parameter use
+  Bool return
+  i64 return
+  no-value return
+```
+
+Ownership producer coverage:
+
+```text
+borrowed WidgetBox parameter
+CopyOwned -> owned WidgetBox
+DestroyOwned
+exact ownership_ssa_v1 witness
+no-value return
+execution admission remains 0
+```
+
+P0 proof:
+
+```text
+Rust emitter fixture equality:
+  2 passed
+  1 explicit ignored regeneration owner
+
+.hako mutation matrix:
+  37 reject cases
+  release green
+
+release HMI seal:
+  L0 green
+  S0 producer fixtures green
+
+debug HMI seal:
+  L0 green
+  S0 producer fixtures green
+
+inventory guard:
+  43 instructions / 9 callers / 6 fixture families /
+  9 transports / 9 VMValue classes
+
+HMI T0 authority guard:
+  9 admitted opcodes
+  21 opaque root surfaces
+  producer fixtures and constructor boundary green
+
+json_native authority guard:
+  green
+
+quick:
+  66/66
+
+largest modified source/check file:
+  312 lines
+
+production callers / state / handlers / fallback:
+  0
+```
+
+`HMI-S0-T0` is closed. The exact next blocker is the disconnected scalar state
+machine `HMI-S0-V0`; it consumes bounded views and must not acquire MIR
+semantic ownership.

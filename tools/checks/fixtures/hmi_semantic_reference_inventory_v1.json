@@ -62,8 +62,8 @@
     {"caller_id":"strict_json_session_api","path":"src/backend/mir_interpreter/strict_json_session.rs","symbol":"execute_module_with_strict_json_session","class":"vm_only_compatibility","constructor_occurrences":0,"retirement_condition":"strict-json VM fixture/API family receives an exact replacement owner"}
   ],
   "fixtures": [
-    {"fixture_id":"hmi_ownership_transport_family","path":"src/runner/mir_json_emit/tests/ownership_transport.rs","purpose":"CopyOwned/DestroyOwned payload and witness transport"},
-    {"fixture_id":"hmi_scalar_transport_family","path":"src/runner/mir_json_emit/tests.rs","purpose":"Const/Copy/BinOp/control/Phi MIR JSON transport"},
+    {"fixture_id":"hmi_ownership_transport_family","path":"src/runner/mir_json_emit/tests/hmi_t0_fixtures.rs","purpose":"Rust-emitter-backed CopyOwned/DestroyOwned payload and witness transport fixture equality"},
+    {"fixture_id":"hmi_scalar_transport_family","path":"src/runner/mir_json_emit/tests/hmi_t0_fixtures.rs","purpose":"Rust-emitter-backed Const/Copy/BinOp/control/Phi fixture equality"},
     {"fixture_id":"resolved_lowering_reference_family","path":"src/mir/builder/resolved_lowering","purpose":"canonical Binding-SSA result parity through MirInterpreter"},
     {"fixture_id":"resolved_module_reference_family","path":"src/mir/compiler","purpose":"direct-call and recursive module runtime oracle"},
     {"fixture_id":"rust_interpreter_unit_family","path":"src/backend/mir_interpreter","purpose":"Rust semantic oracle handlers, typed failures, and frame transactions"},
