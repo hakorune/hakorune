@@ -1,6 +1,6 @@
 # HMI-S0-T0 strict JSON parser depth consultation
 
-Status: design stop; implementation forbidden until selection
+Status: accepted; B-prime taskized, HMI-S0-T0 remains parked
 
 Date: 2026-07-16
 
@@ -12,14 +12,29 @@ HMI-S0-E0 exact-none edge witness: 9a4e849b7a
 next accepted row before probe: HMI-S0-T0
 ```
 
-## Decision needed
+## Decision
 
-Select the one durable parser/runtime shape that lets the future `.hako` HMI
-consume ordinary Rust-emitted MIR JSON V1 without creating another JSON grammar
-authority or weakening the Rust reference VM's host-stack safety boundary.
+The selected durable parser/runtime shape is **B-prime**:
 
-The recommended selection is **B — refactor `json_native` to one iterative
-parser substrate consumed by compatibility and strict policies**.
+```text
+existing JsonTokenizer
+  -> one iterative JsonParser engine
+  -> one JsonNode construction path
+       |-> compatibility policy
+       `-> StrictJsonPolicyV1
+```
+
+Compared with candidate B, CUT0 also physically retires the independent
+`JsonNode.parse()` mini grammar. Current-source audit found 19 call sites in
+five `.hako` files, so retaining it would violate both the one-grammar and
+one-text-to-tree-owner laws.
+
+Accepted implementation card:
+
+```text
+docs/development/current/main/investigations/
+  json-native-iterative-parser-task-2026-07-16.md
+```
 
 ## Exact observed blocker
 
@@ -134,7 +149,7 @@ Problems:
 
 Recommendation: reject unless B proves structurally impossible.
 
-### B — one iterative json_native parser substrate (recommended)
+### B-prime — one iterative json_native parser substrate (selected)
 
 Refactor `apps/lib/json_native/parser` so both existing compatibility parsing
 and `StrictJsonPolicyV1` consume one explicit-stack parser engine.
@@ -207,18 +222,20 @@ Recommendation: reject.
 This either contradicts the proven host-stack boundary or introduces
 schema/name-specific parser behavior and a hidden safety regression.
 
-## Exact questions
+## Resolved questions
 
-1. Select A, B, C, or another explicit candidate.
-2. If B, confirm that compatibility and strict entries must share the same
-   iterative grammar/tree engine and may differ only through policy callbacks.
-3. Select the first explicit JSON nesting resource limit and typed stable error.
-4. Decide whether normalized parity must include error kind/site as well as
-   successful JsonNode kind/value/order.
-5. Confirm the atomic cutover rule: no landed production state with both
-   recursive and iterative parser engines selected by probing/retry.
-6. Confirm that T0 seal work remains parked and production callers stay zero
-   until JSON-NATIVE-ITER0-CUT0 is green.
+1. B-prime is selected; A and D are rejected and C is parked.
+2. Compatibility and strict entries share one iterative grammar/tree engine;
+   only bounded policy decisions may differ.
+3. The V1 parser resource limit is 128 open containers. Attempt 129 fails
+   before node allocation with `[json_native/parser/nesting-limit-v1]`.
+4. Normalized parity includes successful tree kind/value/order and typed first
+   error kind/site/priority. English message bytes and allocation identity are
+   not parity authorities.
+5. CUT0 atomically selects the iterative engine and deletes both recursive
+   full-parser grammar and `JsonNode.parse()` mini grammar. Probe/retry is zero.
+6. T0 seal work remains parked and production callers stay zero until
+   JSON-NATIVE-ITER0-CUT0 is green.
 
 ## Required fixtures for recommended B
 

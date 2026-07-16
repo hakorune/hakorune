@@ -1,0 +1,399 @@
+---
+Status: accepted; JSON-NATIVE-ITER0-D0 closed; L0 next
+Date: 2026-07-16
+Decision: B-prime one iterative grammar engine and one text-to-tree owner
+Parent stop: hmi-s0-t0-json-parser-depth-consultation-question-2026-07-16.md
+Resume target: HMI-S0-T0
+Scope: BoxShape prerequisite; HMI execution callers remain zero
+---
+
+# JSON Native iterative parser task
+
+## Decision lock
+
+`apps/lib/json_native` will keep one tokenizer, one explicit-stack grammar
+engine, and one `JsonNode` construction path for compatibility and strict
+parsing.
+
+```text
+JsonTokenizer
+  -> JsonTokenCursorV1
+  -> JsonIterativeParserEngineV1
+       stack: JsonParseFrameV1[]
+       policy: compatibility | StrictJsonPolicyV1
+  -> existing JsonNode factories and mutation API
+```
+
+CUT0 also removes the independent `JsonNode.parse()` text grammar. `JsonNode`
+remains the JSON value/tree owner; text-to-tree grammar belongs only to the
+iterative parser.
+
+```text
+selected tokenizer count: 1
+selected grammar-engine count: 1
+selected text-to-JsonNode owner count: 1
+intermediate JSON AST count: 0
+```
+
+This series is a BoxShape prerequisite. It does not seal MIR JSON, execute an
+HMI opcode, change VM call depth, or add a product caller.
+
+## Current-source audit
+
+The selected repair is grounded in the current tree:
+
+```text
+full recursive grammar:
+  apps/lib/json_native/parser/parser.hako
+  parse_value -> parse_object/parse_array -> parse_value
+
+second mini grammar:
+  apps/lib/json_native/core/node.hako::JsonNode.parse
+
+JsonNode.parse current repository surface:
+  19 call sites
+  5 .hako files
+
+VM resource boundary:
+  src/backend/mir_interpreter/exec/frame_transaction.rs
+  MAX_CALL_DEPTH = 16
+```
+
+The tokenizer already emits one flat token sequence. Existing `JsonNode`
+factories and object insertion-order arrays remain the value/tree substrate.
+
+The current parser error array primarily exposes rendered strings. L0 adds one
+typed parser-error authority and keeps the existing compatibility rendering as
+a projection. Existing string messages do not become kind/site authority.
+
+## Authority split
+
+| Concern | Authority | Non-authority |
+| --- | --- | --- |
+| lexical tokens | existing `JsonTokenizer` | iterative engine policy |
+| token position | `JsonTokenCursorV1` | policy callbacks |
+| delimiter/state grammar | `JsonIterativeParserEngineV1` | HMI seal |
+| open-container state | `JsonParseFrameV1` stack | VM call stack |
+| parser resource limit | `JSON_NATIVE_MAX_CONTAINER_DEPTH_V1` | env/backend/policy |
+| JSON value/tree | existing `JsonNode` factories/API | temporary parser frames |
+| duplicate/i64 admission | selected policy | delimiter engine |
+| typed parser failure | `JsonParseErrorV1` | rendered compatibility string |
+| MIR semantic admission | later HMI-S0-T0 seal | JSON parser |
+
+Policies may decide only decoded duplicate-key and integer-lexeme admission and
+their typed policy failures. They may not consume/rewind tokens, push/pop
+frames, choose delimiters, construct containers, attach children, change the
+depth limit, recover, retry, or inspect HMI field names.
+
+## Frame and publication law
+
+Each frame owns:
+
+```text
+container_kind: array | object
+phase:
+  array.first-or-end
+  array.value
+  array.comma-or-end
+  object.first-key-or-end
+  object.key
+  object.colon
+  object.value
+  object.comma-or-end
+node
+pending_key
+open token site
+```
+
+Root state is separate:
+
+```text
+root.expect-value
+root.expect-eof
+```
+
+All completed values pass through one publication operation:
+
+```text
+empty stack:
+  publish root exactly once
+
+array parent waiting for value:
+  array_push(value)
+
+object parent waiting for value:
+  object_set(pending_key, value)
+
+any other state:
+  internal parser-state invariant failure
+```
+
+A child container is frame-local until its closing delimiter is verified. It
+is popped before its completed node is attached to its parent. Failed parsing
+therefore publishes neither a root nor a partial child into its parent.
+
+```text
+token cursor rewind: 0
+recursive container-parser calls: 0
+root publication on success: exactly 1
+root publication on error: 0
+```
+
+## Resource law
+
+```text
+JSON_NATIVE_MAX_CONTAINER_DEPTH_V1 = 128
+
+top-level scalar depth: 0
+top-level array/object depth: 1
+new open container attempted depth: frame_stack.length + 1
+attempted depth <= 128: accept
+attempted depth == 129: reject before node allocation/frame push
+```
+
+Stable failure:
+
+```text
+code: [json_native/parser/nesting-limit-v1]
+kind: nesting-limit
+fields:
+  max_depth = 128
+  attempted_depth = 129
+  position
+  line
+  column
+  token = LBRACE | LBRACKET
+```
+
+This is a versioned json_native parser resource limit, not a JSON language
+limit, HMI semantic limit, or VM recursion limit. Compatibility and strict
+entries use the same limit. No environment/backend override is allowed.
+
+## Normalized parity law
+
+Successful old/new parity uses a test-only iterative event walk:
+
+```text
+Scalar(kind, exact value)
+ArrayStart(length) / children in order / ArrayEnd
+ObjectStart(key_count) / Key(decoded key) in insertion order / value / ObjectEnd
+```
+
+It compares exact scalar values, array order, decoded object-key insertion
+order, compatibility duplicate final value, root cardinality, and whole-input
+consumption. It does not compare Box identity, allocation count, helper call
+count, or temporary frames.
+
+`stringify()` is not parity authority: object stringify may reorder keys and a
+deep recursive stringify would reintroduce the unrelated VM-depth problem.
+
+Malformed parity compares the first typed error's:
+
+```text
+kind/code
+offending token type and start site
+line/column
+expected/actual token class
+first-error priority
+strict policy kind when applicable
+```
+
+English message bytes are presentation only. Old recursive-parser VM-depth
+failures are outside semantic parity; they are the resource failure being
+replaced.
+
+## Exact task order
+
+### JSON-NATIVE-ITER0-D0 — decision lock
+
+Status: closed by this card. Production behavior delta is zero.
+
+```text
+B-prime selected
+depth 128 and typed error selected
+policy-port limits selected
+normalized success/error parity selected
+JsonNode.parse physical retirement selected
+HMI-S0-T0 remains parked
+```
+
+### JSON-NATIVE-ITER0-L0 — passive vocabulary
+
+Next code-facing row. Production behavior delta is zero.
+
+Add small files under `apps/lib/json_native/parser/`:
+
+```text
+token_cursor_v1.hako
+frame_v1.hako
+error_v1.hako
+resource_limits_v1.hako
+```
+
+L0 owns monotonic cursor vocabulary, frame phases, typed parser errors, and the
+single depth constant. Production parser callers and iterative engine callers
+remain zero.
+
+### JSON-NATIVE-ITER0-S0 — disconnected iterative engine
+
+Add `iterative_engine_v1.hako`. Direct fixtures exercise compatibility and
+strict policies, ordinary T0 MIR JSON, mixed/empty containers, and deep inputs.
+
+```text
+production JsonParser selection: recursive engine remains 1
+iterative production selectors: 0
+HMI callers: 0
+```
+
+### JSON-NATIVE-ITER0-P0 — normalized parity proof
+
+Prove existing compatibility behavior, J0 strict behavior, valid generated
+trees, shallow malformed first-error parity, ordinary MIR JSON, and exact depth
+boundaries. Production selection remains unchanged.
+
+### JSON-NATIVE-ITER0-CUT0 — atomic cutover and retirement
+
+One commit must:
+
+```text
+JsonParser.parse -> iterative engine only
+JsonParser.parse_with_policy -> same iterative engine only
+delete recursive parse_value/object/array grammar
+delete JsonNode.parse mini grammar
+migrate all retained JsonNode.parse callers to one parser facade
+migrate old fixtures to normalized expectations
+install guards proving selector/retry/old-authority zero
+```
+
+No landed production state may probe between engines. Rollback is a Git revert,
+not runtime fallback. CUT0 includes closeout guards/docs; no separate G0 row is
+added.
+
+### Resume — HMI-S0-T0
+
+Only after CUT0 is green. The existing WIP stash is not authority and must not
+be restored wholesale. Reapply only pieces compatible with the final parser
+and typed-error contracts.
+
+## Required fixtures
+
+Pass:
+
+```text
+all existing json_native compatibility fixtures
+J0 exact i64 MIN/MAX
+J0 decoded duplicate split:
+  strict reject / compatibility first-position plus last-value
+trailing whitespace
+ordinary T0 MIR JSON carrier without VM-depth failure
+top-level scalar depth 0
+empty object/array
+mixed object/array
+alternating 24 containers
+exactly 128 containers
+decoded Unicode keys
+parse failure followed by valid parse on same parser
+parser reuse after depth error
+```
+
+Reject:
+
+```text
+129 containers -> nesting-limit-v1
+strict duplicate -> duplicate-key
+strict out-of-range integer -> integer-range
+second root -> trailing-root
+missing object colon
+trailing object comma
+trailing array comma
+mismatched closing delimiter
+unexpected EOF
+invalid lexer token
+```
+
+Deep fixture builders and inspectors must be loop-based:
+
+```text
+deep fixture JsonNode.stringify calls = 0
+deep fixture recursive tree walkers = 0
+```
+
+## Counters and guards
+
+```text
+selected JSON tokenizers = 1
+selected JSON grammar engines after CUT0 = 1
+selected text-to-JsonNode engines after CUT0 = 1
+selected JsonNode factory modules = 1
+
+recursive parse_value/object/array definitions after CUT0 = 0
+recursive parser production callers after CUT0 = 0
+JsonNode.parse definitions/callers after CUT0 = 0
+
+iterative production selectors after CUT0 = 1
+JSON_NATIVE_MAX_CONTAINER_DEPTH_V1 definitions = 1
+policy cursor/frame/container operations = 0
+
+strict-to-compat retry = 0
+iterative-to-recursive retry = 0
+parser-selection env toggles/payload probes = 0
+HMI field names in parser = 0
+intermediate JSON AST products = 0
+
+VM MAX_CALL_DEPTH delta = 0
+HMI production execution callers = 0
+HMI seal/opcode activation during ITER0 = 0
+V1-to-v0/compact translation = 0
+HMI-to-Rust fallback = 0
+
+error kind/site parity failures = 0
+frame stack after successful parse = 0
+root publication on failed parse = 0
+source/check files at or above 800 lines = 0
+```
+
+## Implementation may claim after CUT0
+
+```text
+one iterative json_native JSON grammar engine
+one shared compatibility/strict tokenizer, grammar, tree builder, limit, and site law
+policy differences limited to bounded duplicate/integer decisions
+ordinary MIR JSON parses without recursive container calls
+container depths 0..128 obey the parser resource law
+attempted depth 129 fails before child allocation
+normalized compatibility and strict parity on the admitted domain
+recursive full parser and JsonNode.parse mini grammar are physically retired
+VM MAX_CALL_DEPTH remains 16
+HMI production callers/fallback remain zero
+```
+
+## Implementation must not claim
+
+```text
+unlimited JSON nesting or a language-level depth limit
+general stack-safe .hako recursion or VM trampoline support
+deep stringify/all-JsonNode-operation stack safety
+HMI whole-document seal/opcode/cutover completion
+performance improvement without measurement
+byte-for-byte diagnostic prose parity
+source compatibility for removed JsonNode.parse
+V1/v0/compact authority
+```
+
+## Stop conditions
+
+Stop if implementation requires:
+
+1. a second tokenizer, token vocabulary, JSON tree product, or grammar owner;
+2. retaining the `JsonNode.parse()` mini grammar after CUT0;
+3. HMI field names or MIR shapes in parser state;
+4. policy control over tokens, frames, delimiters, node construction, limits,
+   recovery, or retry;
+5. an intermediate JSON AST or incomplete-child publication;
+6. strict-to-compat or iterative-to-recursive retry/probing/toggle selection;
+7. changing VM `MAX_CALL_DEPTH` or making a VM trampoline prerequisite;
+8. recursive stringify/tree walking in deep fixtures;
+9. HMI seal/opcode/product activation in ITER0;
+10. keeping old recursive grammar as a hidden test fallback after CUT0;
+11. deleting `JsonNode.parse` after discovering a versioned external contract;
+12. a source/check file at or above 800 lines.

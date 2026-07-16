@@ -1,5 +1,5 @@
 ---
-Status: HMI-S0-T0 design stop; json_native parser-depth consultation required
+Status: HMI-S0-T0 parked behind accepted JSON-NATIVE-ITER0; L0 next
 Date: 2026-07-16
 Decision: B-prime json_native strict policy plus exact-none CFG witness
 Previous row: HMI-P0-G0 closed at `dec4769b18`
@@ -367,10 +367,18 @@ docs/development/current/main/investigations/
   hmi-s0-t0-json-parser-depth-consultation-question-2026-07-16.md
 ```
 
-Recommended prerequisite is one iterative `json_native` parser substrate shared
-by compatibility and strict policies. HMI-only parser duplication, schema-aware
-special cases, VM-depth widening, route retry, and restoring the T0 WIP before
-selection are forbidden.
+The accepted B-prime prerequisite is one iterative `json_native` parser
+substrate shared by compatibility and strict policies. CUT0 also retires the
+independent `JsonNode.parse()` mini grammar, which current-source audit found at
+19 call sites in five `.hako` files. The exact task order is owned by:
+
+```text
+docs/development/current/main/investigations/
+  json-native-iterative-parser-task-2026-07-16.md
+```
+
+HMI-only parser duplication, schema-aware special cases, VM-depth widening,
+route retry, and restoring the T0 WIP before ITER0-CUT0 are forbidden.
 
 ```text
 production behavior delta: 0
