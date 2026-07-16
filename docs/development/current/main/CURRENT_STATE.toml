@@ -296,9 +296,17 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 
-latest_card = "hmi-s0-t0-whole-document-seal-hardening-task-2026-07-16"
-latest_card_path = "docs/development/current/main/investigations/hmi-s0-t0-whole-document-seal-hardening-task-2026-07-16.md"
-latest_card_summary = """JSON-NATIVE-ITER0-CUT0 is closed. One thin JsonParser
+latest_card = "hmi-s0-t0-s0-worker-audited-execution-task-2026-07-16"
+latest_card_path = "docs/development/current/main/investigations/hmi-s0-t0-s0-worker-audited-execution-task-2026-07-16.md"
+latest_card_summary = """The worker-audited HMI-S0-T0-S0 execution card is
+locked. The current WIP is executable but not landable: S0 must first split
+the overloaded instruction/context owner, defer every Verified view
+construction until whole-document finish, and adopt the conservative
+parameter-or-same-block non-PHI use law. The exact implementation order is
+S0-BS0 -> S0-PUB0 -> S0-VALUE0 -> S0-I1 -> push, followed by producer-backed
+P0-EMIT0 -> P0-MUT0 -> P0-G0 -> push. Production callers, execution handlers,
+fallback, V0 conversion, and files at or above 800 lines remain zero.
+JSON-NATIVE-ITER0-CUT0 is closed. One thin JsonParser
 facade selects one JsonIterativeParserEngineV1 for compatibility and strict
 parsing; recursive parse_value/object/array and the independent JsonNode.parse
 grammar are physically retired. JsonParseErrorV1 remains the typed owner and

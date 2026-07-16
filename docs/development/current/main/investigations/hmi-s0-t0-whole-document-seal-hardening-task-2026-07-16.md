@@ -1,5 +1,5 @@
 ---
-Status: HMI-S0-T0-L0 closed; S0 is next
+Status: HMI-S0-T0-L0 closed; worker-audited S0 execution packet locked
 Date: 2026-07-16
 Decision: harden the T0 prototype into one producer-backed bounded seal
 Parent: hmi-s0-strict-reader-interpreter-task-2026-07-16.md
@@ -32,6 +32,461 @@ P0:
 
 All three rows are disconnected from product execution. No state machine,
 opcode handler, Rust fallback, V0 adapter, or product caller is activated.
+
+## Worker re-audit and recommended execution order
+
+Three independent read-only workers re-audited the live S0 worktree after the
+first seal pipeline reached a green focused execution. The result is:
+
+```text
+semantic direction:
+  accepted
+
+current WIP:
+  useful and executable
+  not yet landable
+
+first remaining owner:
+  BoxShape cleanup inside the existing S0 row
+```
+
+The following are implementation checkpoints, not new durable semantic rows.
+The public task order remains `L0 -> S0 -> P0`.
+
+```text
+S0-BS0
+  split overloaded instruction/context responsibilities
+
+S0-PUB0
+  make whole-document finish precede every Verified view construction
+
+S0-VALUE0
+  seal the first exact cross-block value-use admission law
+
+S0-I1
+  close the disconnected whole-document seal and push one milestone
+
+P0-EMIT0
+  replace handwritten positive authority with Rust-emitter-backed fixtures
+
+P0-MUT0
+  complete the mutation matrix and zero-publication failures
+
+P0-G0
+  close producer/inventory/constructor guards and push one milestone
+```
+
+Do not create separate current-state rows for these checkpoints. They are the
+exact implementation order inside the active S0/P0 card.
+
+### Why the current WIP is not landable
+
+The focused S0 program currently reaches all semantic checks and exits green,
+but the following authority defects remain:
+
+```text
+unconditional source debug prints:
+  3
+
+temporary stale constructor probe:
+  present and failing
+
+Verified function-view construction:
+  occurs after each function seal
+  before whole-document correspondence finish
+
+constructor guard:
+  contradicts the current nested constructor locations
+
+instruction_shape.hako:
+  646 lines
+  owns DTOs, opcode field law, block scan, PHI placement,
+  terminators, definitions, uses, and ownership sites
+
+cross-block non-PHI use:
+  global definition existence is checked
+  dominance is not proved
+
+producer drift guards still missing:
+  opcode first subset
+  21 opaque root arrays
+```
+
+Passing the focused test does not override these structural blockers.
+
+## S0-BS0 — BoxShape prerequisite
+
+Behavior and accepted T0 grammar delta: zero.
+
+Recommended physical owners:
+
+```text
+seal/results.hako
+  document/function seal result products
+
+seal/function_context.hako
+  typed HmiFunctionSealContextV1
+  no MapBox string-key context authority
+
+seal/instruction_facts.hako
+  terminator summary
+  value definition/use facts
+  ownership instruction site facts
+
+seal/instruction_contract.hako
+  accepted opcode vocabulary
+  exact required/allowed field and field-kind law
+
+seal/instruction_inventory.hako
+  block scan
+  PHI-prefix law
+  terminator-final law
+  fact aggregation
+```
+
+`instruction_shape.hako` may remain as a thin facade during the split, but it
+must stop owning all five responsibilities. No accepted opcode, field, CFG,
+value, or ownership behavior changes in this checkpoint.
+
+Targets:
+
+```text
+document coordinator:
+  <= 180 lines
+
+each instruction/context owner:
+  <= 350 lines
+
+hard source/check boundary:
+  < 800 lines
+```
+
+Do not add another generic MapBox context or another handwritten opcode list.
+
+## S0-PUB0 — one post-finish view publisher
+
+Verified view construction is publication for this card. Therefore no
+`VerifiedHmi*View` object may be constructed until every function and every
+whole-document correspondence check has succeeded.
+
+Add one physical constructor owner:
+
+```text
+view/publication.hako
+  VerifiedHmiDocumentView construction
+  VerifiedHmiFunctionView construction
+  VerifiedHmiBlockView construction
+  VerifiedHmiInstructionView construction
+```
+
+The coordinator first retains only sealed facts/products:
+
+```text
+strict root
+sealed root envelope
+sealed function envelopes
+instruction inventories
+CFG facts
+value facts
+scalar/PHI proof
+ownership transport proof
+whole-document correspondence finish
+```
+
+Only then may it call the publisher once.
+
+View classes may own their storage and expose exact read-only accessors, but
+they must not construct nested Verified views themselves. Replace nested
+constructor helpers with exact attachment methods:
+
+```text
+document.add_function_view(...)
+function.add_block_view(...)
+block.add_instruction_view(...)
+```
+
+The no-argument `birth()` plus explicit `initialize(...)` pattern is retained
+for these views. It avoids high-arity constructor instability and lets each
+published view own its MapBox/ArrayBox storage. Each view module must directly
+import the view types it names; it must not depend on import order from the
+coordinator or tests.
+
+Remove:
+
+```text
+tools/hako_shared/hmi/tests/view_constructor_probe.hako
+all [hmi/s0-debug] prints
+all progress-only success prints in the S0 test
+```
+
+The authority guard must enforce:
+
+```text
+Verified view constructor source files:
+  view/publication.hako only
+
+constructor occurrence:
+  one textual site per Verified view type
+
+direct constructor calls from tests/other modules:
+  0
+
+failed document seal:
+  Verified view constructions = 0
+```
+
+## S0-VALUE0 — first cross-block use law
+
+The first T0 profile does not introduce a dominator authority.
+
+Seal this conservative law:
+
+```text
+ordinary non-PHI use:
+  parameter definition
+  OR same-block earlier instruction definition
+
+ordinary non-PHI use of another block's instruction result:
+  reject
+
+PHI incoming:
+  parameter definition
+  OR value defined in the named predecessor block before its terminator
+
+PHI incoming from an unrelated/foreign block:
+  reject
+```
+
+This is intentionally narrower than general SSA dominance. A future dominator
+product may widen the profile in a separate row. S0 must not claim general
+cross-block defined-before-use.
+
+Required focused fixtures:
+
+```text
+same-block prior definition:
+  pass
+
+same-block use before definition:
+  reject
+
+parameter used in a later block:
+  pass
+
+non-PHI use of predecessor-local result:
+  reject
+
+PHI value defined in its named predecessor:
+  pass
+
+PHI value defined in a different block:
+  reject
+```
+
+## S0-I1 — disconnected seal closeout
+
+The live handwritten document remains only a focused implementation fixture in
+S0. It is not producer parity authority.
+
+S0 closeout requires:
+
+```text
+root -> function envelope -> instruction inventory
+  -> CFG -> value inventory -> scalar/PHI -> ownership
+  -> whole-document finish -> one view publisher
+
+unconditional source print:
+  0
+
+temporary probes:
+  0
+
+Verified view construction before whole finish:
+  0
+
+production/external HMI callers:
+  0
+
+execution state/handler files:
+  0
+
+fallback/retry/V0 conversion:
+  0
+
+source/check files >= 800 lines:
+  0
+```
+
+Additional focused fixtures:
+
+```text
+two functions where the second fails:
+  no document/function/block/instruction view is constructed
+
+entry block not equal to first/lowest block:
+  pass
+
+unreachable block with reachable=false:
+  pass
+
+transported reachable drift:
+  reject
+
+branch then == else:
+  successor set is deduplicated exactly as producer evidence requires
+```
+
+Milestone:
+
+```text
+commit:
+  feat(hmi): seal bounded MIR JSON V1 profile
+
+push:
+  required before P0 work
+```
+
+## P0 execution packet
+
+### P0-EMIT0 — producer-backed fixtures
+
+Create checked-in fixtures only through the current Rust emitter:
+
+```text
+Rust builds minimal MirModule
+  -> build_mir_json_root
+  -> exact serialized bytes
+  -> checked-in fixture equality test
+  -> .hako strict ingress reads the same bytes
+```
+
+Required producer-backed documents:
+
+```text
+scalar CFG:
+  Const i64
+  Const Bool
+  Branch
+  Jump
+  Phi
+  Add
+  Copy
+  Return
+
+scalar supplements:
+  Sub / Mul / Div / Mod
+  Bool return
+  no-value return
+  multiple functions
+
+ownership transport:
+  borrowed WidgetBox parameter
+  CopyOwned to owned WidgetBox
+  DestroyOwned
+  no-value return
+```
+
+The handwritten `root()` and `plan_names()` helpers must stop being positive
+authority. Mutation tests operate on checked-in producer bytes.
+
+### P0-MUT0 — exact rejection matrix
+
+Complete the mutation matrix already listed below and assert for every failure:
+
+```text
+result.accepted():
+  false
+
+result.document():
+  null
+
+Verified view constructions:
+  0
+
+execution/register/heap effects:
+  0
+
+Rust fallback and route retry:
+  0
+```
+
+Add explicit cases for:
+
+```text
+foreign/missing/extra function and block
+duplicate value definition
+parameter/dst collision
+missing/extra/stale value type
+cross-block use outside S0-VALUE0
+ownership value_kinds cardinality drift
+ownership operation duplicate/site/operand drift
+owner outside signed-i64 portable range
+```
+
+### P0-G0 — drift guards and closeout
+
+The reusable `hmi-t0-authority` guard owns:
+
+```text
+strict parser selector count
+no compatibility/fallback/retry/conversion
+constructor owner and caller zeros
+root_for_seal consumer count
+opcode first subset == HmiSemanticReferenceInventoryV1 projection
+21 opaque root arrays == current Rust emitter projection
+handwritten positive fixture authority = 0
+Rust emitter fixture freshness owner = 1
+production/external callers = 0
+runtime state/handler files = 0
+unconditional prints/probes = 0
+source/check files < 800
+```
+
+Do not add a second shell guard. Extend the existing manifest-backed row guard.
+
+Milestone:
+
+```text
+commit:
+  test(hmi): prove producer-backed T0 seal parity
+
+push:
+  required before selecting HMI-S0-V0
+```
+
+## Exact validation order
+
+Use cache-disabled focused runs so import changes cannot reuse stale EXE
+artifacts:
+
+```bash
+HAKO_EMIT_EXE_CACHE=0 tools/bin/hako --backend mir --verify \
+  tools/hako_shared/hmi/tests/l0_contract_test.hako
+
+HAKO_EMIT_EXE_CACHE=0 tools/bin/hako --backend mir --verify \
+  tools/hako_shared/hmi/tests/s0_document_seal_test.hako
+
+HAKO_EMIT_EXE_CACHE=0 target/release/hakorune --backend mir \
+  tools/hako_shared/hmi/tests/l0_contract_test.hako
+
+HAKO_EMIT_EXE_CACHE=0 target/release/hakorune --backend mir \
+  tools/hako_shared/hmi/tests/s0_document_seal_test.hako
+
+HAKO_EMIT_EXE_CACHE=0 target/debug/hakorune --backend mir \
+  tools/hako_shared/hmi/tests/l0_contract_test.hako
+
+HAKO_EMIT_EXE_CACHE=0 target/debug/hakorune --backend mir \
+  tools/hako_shared/hmi/tests/s0_document_seal_test.hako
+
+bash tools/checks/run_row_guard.sh --only hmi-t0-authority
+bash tools/checks/run_row_guard.sh --only json-native-parser-authority
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+tools/checks/dev_gate.sh quick
+```
+
+P0 additionally runs the exact Rust emitter fixture equality tests and the
+complete mutation harness before the final quick gate.
 
 ## Evidence that forced the refinement
 
