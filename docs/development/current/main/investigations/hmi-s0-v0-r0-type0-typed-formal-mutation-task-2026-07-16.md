@@ -556,6 +556,42 @@ ownership/release boundary zero
 
 Selection remains `UNCLASSIFIED-M0`.
 
+Status: closed on 2026-07-16.
+
+The 487-line checker:
+
+```text
+tools/checks/lib/map_typed_formal_mutation_proof.py
+```
+
+proves debug/release equality for the ten runtime observations and normalized
+MIR evidence. The imported helper retains the exact source declaration row:
+
+```text
+name:
+  storage
+
+declared_type_name:
+  MapBox
+
+parameter ValueId 0:
+  handle:MapBox
+
+put receiver:
+  param:0
+
+put route:
+  MapBox / Known
+```
+
+The late owner method has one post-validation `storage` field_get and passes
+the same field-rooted value into the typed helper. Its observed result type is
+recorded (`handle:MapBox` in the current artifact) but is not an authorization
+prerequisite. Birth owns the sole storage field publication; `CopyOwned`,
+`DestroyOwned`, and selected-route `ReleaseStrong` remain zero. Existing
+STOP0 and DELTA0 proof families remain green. Selection is still
+`UNCLASSIFIED-M0`.
+
 ### R0-TYPE0-V0
 
 Apply the fixed exclusive classifier and record the immutable token in this
