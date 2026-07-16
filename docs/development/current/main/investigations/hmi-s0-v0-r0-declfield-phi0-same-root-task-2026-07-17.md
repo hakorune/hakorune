@@ -1,5 +1,5 @@
 ---
-Status: S0 closed; P0 next
+Status: P0 closed; I0 next
 Date: 2026-07-17
 Decision: Candidate A′ accepted
 Baseline: e741e1bbca
@@ -125,7 +125,10 @@ src/mir/builder/field_receiver_provenance/
   analysis.rs
   cfg.rs
   definitions.rs
-  tests.rs
+  tests/
+    mod.rs
+    p0.rs
+    real_fixture.rs
 ```
 
 Responsibilities:
@@ -154,10 +157,18 @@ definitions.rs:
   instruction-position lookup without cloned instruction truth
   traversal budget
 
-tests.rs:
+tests/mod.rs:
   synthetic functions
-  normalized fingerprints
-  accepted/rejected matrix
+  S0 normalized fingerprints
+  shared test fixture
+
+tests/p0.rs:
+  complete synthetic P1-P9/R1-R24 matrix
+  final verifier parity
+
+tests/real_fixture.rs:
+  exact-site final-MIR test adapter
+  A1-A4 normalized proof
 ```
 
 Target budgets:
@@ -168,7 +179,9 @@ mod.rs <= 280 lines
 analysis.rs <= 420 lines
 cfg.rs <= 320 lines
 definitions.rs <= 220 lines
-tests.rs <= 700 lines
+tests/mod.rs <= 700 lines
+tests/p0.rs <= 420 lines
+tests/real_fixture.rs <= 260 lines
 field_facts.rs after I0 <= 160 lines
 every source/check file < 800 lines
 ```
@@ -663,6 +676,77 @@ A4 = R
 ```
 
 Final `MirVerifier` parity is required for every accepted synthetic function.
+
+### P0 closeout
+
+`R0-DECLFIELD-PHI0-P0` is closed.
+
+The test surface is split without changing production selection:
+
+```text
+tests/mod.rs          616 lines
+tests/p0.rs           257 lines
+tests/real_fixture.rs 138 lines
+```
+
+The exact P1-P9 and R1-R24 matrix is covered. Accepted synthetic functions
+use exact Bool branch conditions, terminate with the proven receiver value,
+and pass the final `MirVerifier`. Rejected fixtures retain exact typed proof
+reasons or, for missing/untyped fields, an exact test-only composition:
+
+```text
+same-root proof
+  -> existing declared_field_type_name
+  -> None
+```
+
+The real DECLFIELD0 app is parsed and compiled through the normal Rust
+frontend/compiler. Each selected final `MirFunction` passes `MirVerifier`.
+A test-only adapter then reconstructs only:
+
+```text
+final function
+function metadata value_types
+parameter value kinds
+receiver parameter origin
+module user-box field declarations
+exact FieldGet block/instruction site
+```
+
+It does not reconstruct Copy/Phi origins. The same proof implementation is
+called at the exact FieldGet instruction ordinal, proving both `items`
+FieldGets in every selected function:
+
+```text
+A1 = R
+A2 = P[R,R]
+A3 = R
+A4 = R
+```
+
+This adapter is final-MIR test evidence, not a second transient Builder
+authority. MIR JSON, the Python root scanner, `FieldGet.declared_type`, and
+downstream method routes are not proof inputs.
+
+Validation:
+
+```text
+cargo test -q field_receiver_provenance
+  18 passed
+
+cargo check -q
+  pass (existing warnings only)
+
+python3 tools/checks/lib/current_receiver_declared_field_proof.py .
+  PHI-ROOT-DESIGN-REQUIRED
+  ownership operation counts = 0
+
+bash tools/checks/current_state_pointer_guard.sh
+  pass
+```
+
+Production same-root proof consumers remain zero. The next row is
+`R0-DECLFIELD-PHI0-I0`.
 
 ## R0-DECLFIELD-PHI0-I0
 

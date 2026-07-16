@@ -4,10 +4,14 @@ use super::{
 use crate::ast::FieldDecl;
 use crate::mir::builder::MirBuilder;
 use crate::mir::function::{FunctionSignature, MirFunction, MirParamDecl};
+use crate::mir::verification::MirVerifier;
 use crate::mir::{
     BasicBlock, BasicBlockId, ConstValue, EffectMask, MirInstruction, MirType, ValueId,
 };
 use hakorune_mir_core::MirValueKind;
+
+mod p0;
+mod real_fixture;
 
 const OWNER: &str = "DeclaredFieldOwnerV1";
 
@@ -159,7 +163,15 @@ impl FixtureV1 {
     }
 
     fn branch(&mut self, from: u32, then_block: u32, else_block: u32) {
-        let condition = self.receiver();
+        let condition = self.function_mut().next_value_id();
+        self.set_value_type(condition, MirType::Bool);
+        self.add_instruction(
+            from,
+            MirInstruction::Const {
+                dst: condition,
+                value: ConstValue::Bool(true),
+            },
+        );
         self.function_mut()
             .get_block_mut(block(from))
             .expect("branch source")
@@ -197,6 +209,35 @@ impl FixtureV1 {
         verify_with_normalized_test_view(&self.builder, seed).map(|(_, shape)| shape)
     }
 
+    fn declared_field_type_after_proof(&self, seed: ValueId, field: &str) -> Option<&str> {
+        let proof = self.verify(seed).ok()?;
+        self.builder
+            .comp_ctx
+            .declared_field_type_name(proof.receiver().owner_box(), field)
+    }
+
+    fn assert_final_verifier_accepts(&self, returned: ValueId) {
+        let mut function = self
+            .builder
+            .scope_ctx
+            .current_function
+            .clone()
+            .expect("synthetic function");
+        function.signature.return_type = MirType::Box(OWNER.to_string());
+        let block_ids: Vec<_> = function.blocks.keys().copied().collect();
+        for block_id in block_ids {
+            let block = function.get_block_mut(block_id).expect("synthetic block");
+            if block.terminator.is_none() {
+                block.set_terminator(MirInstruction::Return {
+                    value: Some(returned),
+                });
+            }
+        }
+        if let Err(errors) = MirVerifier::new().verify_function(&function) {
+            panic!("accepted same-root fixture must pass final verifier: {errors:?}");
+        }
+    }
+
     fn diamond(&mut self) -> ValueId {
         for id in 1..=3 {
             self.add_block(id);
@@ -223,6 +264,7 @@ fn accepts_receiver_and_copy_chain_without_persistent_metadata() {
     let mut fixture = FixtureV1::new();
     let receiver = fixture.receiver();
     assert_eq!(fixture.normalized(receiver).unwrap(), "R");
+    fixture.assert_final_verifier_accepts(receiver);
 
     let first = fixture.add_copy(0, receiver);
     let second = fixture.add_copy(0, first);
@@ -236,6 +278,7 @@ fn accepts_receiver_and_copy_chain_without_persistent_metadata() {
         .type_ctx
         .value_origin_newbox
         .contains_key(&second));
+    fixture.assert_final_verifier_accepts(second);
 }
 
 #[test]
@@ -243,6 +286,7 @@ fn accepts_one_and_nested_acyclic_phi_with_deterministic_shape() {
     let mut fixture = FixtureV1::new();
     let first = fixture.diamond();
     assert_eq!(fixture.normalized(first).unwrap(), "P[R,R]");
+    fixture.assert_final_verifier_accepts(first);
 
     for id in 4..=6 {
         fixture.add_block(id);
@@ -254,6 +298,7 @@ fn accepts_one_and_nested_acyclic_phi_with_deterministic_shape() {
     let nested = fixture.add_phi(6, vec![(4, first), (5, receiver)]);
     fixture.use_in(6);
     assert_eq!(fixture.normalized(nested).unwrap(), "P[P[R,R],R]");
+    fixture.assert_final_verifier_accepts(nested);
 }
 
 #[test]
@@ -269,6 +314,7 @@ fn shared_phi_subgraph_is_memoized_and_preserves_multiplicity() {
     let shared = fixture.add_phi(6, vec![(4, first), (5, first)]);
     fixture.use_in(6);
     assert_eq!(fixture.normalized(shared).unwrap(), "P[P[R,R],P[R,R]]");
+    fixture.assert_final_verifier_accepts(shared);
 }
 
 #[test]

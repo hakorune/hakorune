@@ -37,14 +37,11 @@ pub(super) fn verify(
     seed: ValueId,
     capture_normalized: bool,
 ) -> Result<ConstructionResultV1, SameRootReceiverProofErrorV1> {
-    let receiver = VerifiedCurrentReceiverIdentityV1::verify(builder)?;
     let function = builder
         .scope_ctx
         .current_function
         .as_ref()
         .ok_or(SameRootReceiverProofErrorV1::NoCurrentFunction)?;
-    let definitions = ExactDefinitionIndexV1::build(function)?;
-    let cfg = EphemeralReceiverCfgV1::new(function)?;
     let use_block = builder
         .current_block
         .ok_or(SameRootReceiverProofErrorV1::MissingUseSite)?;
@@ -54,6 +51,24 @@ pub(super) fn verify(
         .ok_or(SameRootReceiverProofErrorV1::MissingCfgBlock)?
         .instructions
         .len();
+    verify_at(builder, seed, capture_normalized, use_block, use_order)
+}
+
+pub(super) fn verify_at(
+    builder: &MirBuilder,
+    seed: ValueId,
+    capture_normalized: bool,
+    use_block: BasicBlockId,
+    use_order: usize,
+) -> Result<ConstructionResultV1, SameRootReceiverProofErrorV1> {
+    let receiver = VerifiedCurrentReceiverIdentityV1::verify(builder)?;
+    let function = builder
+        .scope_ctx
+        .current_function
+        .as_ref()
+        .ok_or(SameRootReceiverProofErrorV1::NoCurrentFunction)?;
+    let definitions = ExactDefinitionIndexV1::build(function)?;
+    let cfg = EphemeralReceiverCfgV1::new(function)?;
     if !available_at_instruction(&definitions, &cfg, seed, use_block, Some(use_order))? {
         return Err(SameRootReceiverProofErrorV1::SeedUnavailable);
     }

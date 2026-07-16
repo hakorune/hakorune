@@ -3,6 +3,8 @@
 //! This module is disconnected in R0-DECLFIELD-PHI0-S0. It must not publish
 //! origin/type metadata or become a general receiver-equivalence registry.
 
+#[cfg(test)]
+use super::BasicBlockId;
 use super::{MirBuilder, ValueId};
 use hakorune_mir_core::MirValueKind;
 
@@ -117,6 +119,22 @@ fn verify_with_normalized_test_view(
     value: ValueId,
 ) -> Result<(VerifiedSameRootReceiverValueV1, String), SameRootReceiverProofErrorV1> {
     let result = analysis::verify(builder, value, true)?;
+    Ok((
+        result.proof,
+        result
+            .normalized
+            .ok_or(SameRootReceiverProofErrorV1::TraversalBudgetExceeded)?,
+    ))
+}
+
+#[cfg(test)]
+fn verify_with_normalized_test_view_at(
+    builder: &MirBuilder,
+    value: ValueId,
+    block: BasicBlockId,
+    instruction_index: usize,
+) -> Result<(VerifiedSameRootReceiverValueV1, String), SameRootReceiverProofErrorV1> {
+    let result = analysis::verify_at(builder, value, true, block, instruction_index)?;
     Ok((
         result.proof,
         result
