@@ -6,6 +6,7 @@ use crate::mir::{
 mod array_routes;
 mod array_write;
 mod constructor_call_routes;
+mod control_edge_args;
 mod debug;
 mod decl_values;
 mod direct_array_access_plans;

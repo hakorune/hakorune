@@ -4,6 +4,7 @@ use std::io::Write;
 mod agg_local;
 mod array_metadata;
 mod array_write;
+pub(crate) mod control_edge_args;
 mod core_metadata;
 mod decls;
 mod emitters;

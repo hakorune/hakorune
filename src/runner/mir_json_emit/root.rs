@@ -1,3 +1,4 @@
+use super::control_edge_args::VerifiedExactNoneControlEdgeArgsV1;
 use super::decls::{
     collect_array_record_autouse_eligibility_plan_values,
     collect_array_record_materialization_boundary_plan_values,
@@ -53,6 +54,7 @@ pub(super) fn build_mir_json_root(
     let mut funs = Vec::new();
     let mut export_functions = Vec::new();
     for (name, f) in ordered_harness_functions(module) {
+        let control_edge_args = VerifiedExactNoneControlEdgeArgsV1::verify(f);
         crate::mir::type_contracts::parameter_entry::validate_parameter_entry_contracts(f)?;
         crate::mir::type_contracts::return_exit::validate_return_exit_contract(f)?;
         crate::mir::type_contracts::local_slot::validate_local_slot_contracts(f)?;
@@ -106,7 +108,10 @@ pub(super) fn build_mir_json_root(
         let params: Vec<_> = f.params.iter().map(|v| v.as_u32()).collect();
 
         // Phase 131-11-F: Build metadata JSON from MIR metadata (SSOT)
-        let metadata_json = build_function_metadata_json(f);
+        let mut metadata_json = build_function_metadata_json(f);
+        if let Ok(control_edge_args) = control_edge_args {
+            metadata_json["control_edge_args_v1"] = control_edge_args.to_json();
+        }
         let metadata_entry_count = metadata_json.as_object().map(|obj| obj.len()).unwrap_or(0);
         let function_export_summary = mir_json_export_model::summarize_function(
             name.clone(),

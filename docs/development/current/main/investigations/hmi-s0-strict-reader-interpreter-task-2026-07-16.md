@@ -1,5 +1,5 @@
 ---
-Status: accepted; HMI-S0-J0 closed; HMI-S0-E0 next
+Status: accepted; HMI-S0-E0 closed; HMI-S0-T0 next
 Date: 2026-07-16
 Decision: B-prime json_native strict policy plus exact-none CFG witness
 Previous row: HMI-P0-G0 closed at `dec4769b18`
@@ -288,7 +288,7 @@ production execution delta: 0
 JSON artifact metadata delta: one function witness
 HMI execution callers: 0
 
-verify before function JSON publication:
+verify before exact-none witness publication:
   Jump.edge_args == None
   Branch.then_edge_args == None
   Branch.else_edge_args == None
@@ -297,9 +297,58 @@ emit:
   function.metadata.control_edge_args_v1.mode = exact_none
 ```
 
+The generic compatibility emitter remains behavior-neutral in E0. A function
+that fails this verifier receives no `control_edge_args_v1` witness; it is not
+rewritten or rejected by the generic emitter. T0 makes this witness mandatory
+for HMI strict admission and rejects a whole document before HMI effects.
+
 The same verifier is required before Rust-oracle parity execution. Current
 Rust terminator execution ignores edge args and is not a valid oracle for
 functions with `Some(...)` edge arguments.
+
+E0 closeout:
+
+```text
+status:
+  closed
+
+verifier:
+  one reusable VerifiedExactNoneControlEdgeArgsV1 over final MirFunction
+
+admission:
+  Jump.edge_args == None
+  Branch.then_edge_args == None
+  Branch.else_edge_args == None
+
+reject:
+  Some(empty)
+  Some(non-empty)
+
+publication order:
+  verify before exact-none witness insertion
+
+generic compatibility publication:
+  non-admitted function remains publishable without the witness
+  edge args are never erased or translated
+
+future T0 strict admission:
+  missing witness rejects the whole document before HMI effects
+
+emitted function witness:
+  metadata.control_edge_args_v1 = {
+    schema_version: 1,
+    mode: exact_none
+  }
+
+focused tests:
+  3/3
+
+retained mir_json_emit tests:
+  117/117
+
+HMI execution callers / fallback:
+  0 / 0
+```
 
 ### HMI-S0-T0 — whole-document MIR profile seal
 
