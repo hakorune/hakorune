@@ -1,5 +1,5 @@
 ---
-Status: accepted; MR-SD0-I1 closed; next code-facing row is MR-IS0-I1
+Status: accepted; MR-SD0-I1 and MR-IS0-I1 closed; CUT0 resume next
 Date: 2026-07-16
 Decision: exact whole-match literal profiles, not an open literal allow-list
 Parent blocker: JSON-NATIVE-ITER0-CUT0
@@ -289,7 +289,7 @@ source/check files at or above 800 lines:
 
 ## MR-IS0-I1 — exact Integer-to-String lookup
 
-This row begins only after SD0 is committed, pushed, and green.
+Status: closed.
 
 ### Accepted grammar
 
@@ -342,6 +342,38 @@ Integer label + mixed String/Bool arms
 Bool label + String result
 Float/Void/TypedInteger label or result
 arbitrary expression result
+```
+
+### MR-IS0-I1 closeout
+
+```text
+whole-match witness:
+  LegacyIntegerBool
+  StringDispatch
+  IntegerToString
+
+Hako/Rust parity:
+  12/12
+  emit-exe cache disabled inside parity authority
+
+IntegerToString:
+  Integer labels
+  String arms
+  String else
+
+focused source:
+  16-arm phase29at_match_return_int_to_string_min.hako
+
+actual consumers:
+  strict EscapeUtils verify green
+  strict JsonTokenizer verify green
+
+explicit MIR reference:
+  StringDispatch strict/release green
+  IntegerToString strict/release green
+
+source/check files at or above 800 lines:
+  0
 ```
 
 ## Hako/Rust parity update law

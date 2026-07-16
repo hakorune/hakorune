@@ -1,5 +1,5 @@
 ---
-Status: accepted; P0 closed; CUT0 parked on MatchReturn compiler prerequisite
+Status: accepted; P0 closed; MatchReturn prerequisites closed; CUT0 next
 Date: 2026-07-16
 Decision: B-prime one iterative grammar engine and one text-to-tree owner
 Parent stop: hmi-s0-t0-json-parser-depth-consultation-question-2026-07-16.md
@@ -423,12 +423,12 @@ touched source/check files at or above 800 lines:
 
 ### JSON-NATIVE-ITER0-CUT0 — atomic cutover and retirement
 
-Parked until both exact MatchReturn compiler rows are green:
+Both exact MatchReturn compiler rows are green:
 
 ```text
-MR-SD0-I1
-  -> MR-IS0-I1
-  -> CUT0 resume
+MR-SD0-I1: closed
+MR-IS0-I1: closed
+CUT0 resume: next
 ```
 
 Task owner:
@@ -438,11 +438,12 @@ docs/development/current/main/investigations/
   mirbuilder-match-return-json-literal-profiles-task-2026-07-16.md
 ```
 
-The CUT0 WIP is parked at immutable stash commit
+The CUT0 WIP remains parked at immutable stash commit
 `c0cfc7bddda8b4ca3b7bc4bd68a096440fbb9df4`, based on
 `a4901f3cc783d4a8172ec1862a3ebdd44e1621a1`. Compiler rows must not touch the
-parked parser/JsonNode surface. CUT0 may apply the stash by hash only after the
-compiler prerequisite commits are pushed and the worktree is clean.
+parked parser/JsonNode surface. Both compiler prerequisite commits are now
+green; after the MR-IS0-I1 commit is pushed and the worktree is clean, CUT0
+applies the stash by immutable hash.
 
 When resumed, one commit must:
 

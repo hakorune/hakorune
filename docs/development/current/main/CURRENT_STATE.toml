@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "MatchReturn StringDispatch closed; exact IntegerToString row next"
+status = "MatchReturn JSON literal profiles closed; CUT0 resume next"
 date = "2026-07-16"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -306,9 +306,12 @@ String labels with String arms and Null else, followed by Integer labels with
 String arms and String else. MR-SD0-I1 is closed with one exact whole-match
 StringDispatch witness, 12-row adopted Hako/Rust parity, precise unsupported
 literal/profile diagnostics, focused strict/release MIR-reference execution,
-legacy-profile preservation, and quick 66/66. IntegerToString remains a strict
-profile mismatch and is the sole next code-facing row. Only after MR-IS0-I1 is
-pushed may the isolated CUT0 BoxShape stash be applied by immutable hash.
+legacy-profile preservation, and quick 66/66. MR-IS0-I1 is also closed with an
+exact IntegerToString witness, a 16-arm focused fixture, strict/release MIR
+reference execution, strict EscapeUtils/JsonTokenizer verification, and parity
+that disables emit-exe cache so imported Hako source drift cannot false-green.
+The isolated CUT0 BoxShape stash is the sole next code-facing row and may be
+applied by immutable hash after this compiler commit is pushed.
 JSON-NATIVE-ITER0-S0 is closed with production selection unchanged.
 JSON-NATIVE-ITER0-L0 is closed with production
 behavior unchanged. Five small .hako files add one monotonic typed token cursor,
@@ -864,7 +867,7 @@ MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "DPRIME-MATCH-RETURN-INT-TO-STRING-I1-001"
+current_blocker_token = "DPRIME-JSON-NATIVE-ITER0-CUT0-ATOMIC-CUTOVER-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

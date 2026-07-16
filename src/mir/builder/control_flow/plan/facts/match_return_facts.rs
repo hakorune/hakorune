@@ -16,6 +16,7 @@ pub(in crate::mir::builder) enum MatchReturnScrutinee {
 pub(in crate::mir::builder) enum MatchReturnLiteralProfileV1 {
     LegacyIntegerBool,
     StringDispatch,
+    IntegerToString,
 }
 
 #[derive(Debug, Clone)]
@@ -177,6 +178,16 @@ fn select_literal_profile(
         return Ok(MatchReturnLiteralProfileV1::StringDispatch);
     }
 
+    if matches!(scrutinee, MatchReturnScrutinee::Var(_))
+        && arms.iter().all(|arm| {
+            matches!(arm.label, LiteralValue::Integer(_))
+                && matches!(arm.return_value, LiteralValue::String(_))
+        })
+        && matches!(else_value, LiteralValue::String(_))
+    {
+        return Ok(MatchReturnLiteralProfileV1::IntegerToString);
+    }
+
     Err(RejectReason::MatchReturnLiteralProfileMismatch)
 }
 
@@ -290,7 +301,7 @@ mod tests {
     }
 
     #[test]
-    fn match_return_facts_rejects_integer_to_string_before_is0() {
+    fn match_return_facts_accepts_exact_integer_to_string_profile() {
         let match_expr = ASTNode::MatchExpr {
             scrutinee: Box::new(ASTNode::Variable {
                 name: "digit".to_string(),
@@ -304,8 +315,13 @@ mod tests {
             span: Span::unknown(),
         };
 
-        let err = try_extract_match_return_facts(&match_expr, true).unwrap_err();
-        assert!(err.to_string().contains("literal profile"));
+        let facts = try_extract_match_return_facts(&match_expr, true)
+            .expect("Ok")
+            .expect("Some");
+        assert_eq!(
+            facts.literal_profile,
+            MatchReturnLiteralProfileV1::IntegerToString
+        );
     }
 
     #[test]

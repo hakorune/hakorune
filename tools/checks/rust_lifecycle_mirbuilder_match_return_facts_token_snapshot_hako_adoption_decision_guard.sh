@@ -118,7 +118,7 @@ for row in [
     "reject_nonliteral_else",
     "reject_else_literal_type_unsupported",
     "reject_arm_literal_type_unsupported",
-    "reject_integer_to_string_before_is0",
+    "accept_integer_to_string",
     "reject_string_dispatch_with_string_else",
 ]:
     need(row in required_rows, f"missing required row: {row}")
@@ -141,11 +141,7 @@ need(
     == "arm_literal_type_unsupported",
     "arm literal type reason drift",
 )
-need(
-    oracle_rows["reject_integer_to_string_before_is0"]["expected_reason"]
-    == "literal_profile_mismatch",
-    "integer-to-string pre-IS0 reason drift",
-)
+need(oracle_rows["accept_integer_to_string"]["expected_accept"] is True, "integer-to-string accept drift")
 need(
     oracle_rows["reject_string_dispatch_with_string_else"]["expected_reason"]
     == "literal_profile_mismatch",

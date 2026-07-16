@@ -91,6 +91,15 @@ static box MatchReturnFactsBox {
   }
 
   _select_profile(scrutinee_kind, label0_kind, return0_kind, label1_kind, return1_kind, else_kind) {
+    if scrutinee_kind == "Var"
+      and label0_kind == "Int"
+      and label1_kind == "Int"
+      and return0_kind == "String"
+      and return1_kind == "String"
+      and else_kind == "String" {
+      return "integer_to_string"
+    }
+
     local legacy_labels = me._legacy_label(label0_kind) and me._legacy_label(label1_kind)
     local legacy_returns = me._legacy_return(return0_kind)
       and me._legacy_return(return1_kind)
@@ -107,6 +116,7 @@ static box MatchReturnFactsBox {
       and else_kind == "Null" {
       return "string_dispatch"
     }
+
     return null
   }
 

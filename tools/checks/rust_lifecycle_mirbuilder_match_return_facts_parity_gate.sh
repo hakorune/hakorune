@@ -80,7 +80,7 @@ PY
 
 bash "$HAKO_BIN" --backend mir --verify "$HAKO_IMPL" >/dev/null
 
-if ! bash "$HAKO_BIN" --backend mir --emit-exe "$EXE" "$APP" >"$EMIT_LOG" 2>&1; then
+if ! HAKO_EMIT_EXE_CACHE=0 bash "$HAKO_BIN" --backend mir --emit-exe "$EXE" "$APP" >"$EMIT_LOG" 2>&1; then
   tail -n 120 "$EMIT_LOG" || true
   guard_fail "$TAG" "failed to emit parity executable"
 fi

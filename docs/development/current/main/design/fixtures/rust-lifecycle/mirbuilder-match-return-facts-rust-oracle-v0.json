@@ -5,7 +5,7 @@
   "owner": "match_return_facts",
   "rust_source": {
     "path": "src/mir/builder/control_flow/plan/facts/match_return_facts.rs",
-    "hash": "sha256:f3f04a4ad3f1c8419c05a219860c0aa197e5588c9f26c576567dc3442ddd9bd9",
+    "hash": "sha256:71441bda3b9c3f32dfce1c471b7a0a7d97a4dadbf2b8028662a6c7db2b8b4d1a",
     "oracle_surface": "try_extract_match_return_facts"
   },
   "input_contract": "BackendSafeMatchReturnTokenSnapshotV1",
@@ -188,7 +188,7 @@
       "expected_summary": "accepted=0;reason=arm_literal_type_unsupported"
     },
     {
-      "case_id": "reject_integer_to_string_before_is0",
+      "case_id": "accept_integer_to_string",
       "expr_kind": "MatchExpr",
       "scrutinee_kind": "Var",
       "arm_count": 2,
@@ -201,9 +201,8 @@
         "String"
       ],
       "else_kind": "String",
-      "expected_accept": false,
-      "expected_reason": "literal_profile_mismatch",
-      "expected_summary": "accepted=0;reason=literal_profile_mismatch"
+      "expected_accept": true,
+      "expected_summary": "accepted=1;profile=integer_to_string;scrutinee=Var;arms=2;labels=Int,Int;returns=String,String;else=String"
     },
     {
       "case_id": "reject_string_dispatch_with_string_else",
