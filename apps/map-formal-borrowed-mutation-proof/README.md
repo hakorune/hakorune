@@ -15,6 +15,9 @@ The current language has no active borrow/noescape annotation. This app proves
 only non-escaping source-shape mutation visibility; it is not a production
 borrowed-ABI proof.
 
+The owner declares `storage: MapBox` so the MIR proof can require exact field
+type metadata instead of inferring ownership or representation from runtime
+values.
+
 The app-local `test.sh` remains dormant until `MAPFIELD-R0-DELTA0` is
 registered at G0.
-

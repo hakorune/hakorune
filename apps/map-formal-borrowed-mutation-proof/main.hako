@@ -23,7 +23,7 @@ static box MapFormalMutationCommandV1 {
 }
 
 box MapFormalFieldOwnerV1 {
-    init { storage }
+    storage: MapBox
 
     birth() {
         me.storage = new MapBox()
@@ -194,4 +194,3 @@ static box Main {
         return 0
     }
 }
-

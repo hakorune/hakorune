@@ -29,7 +29,8 @@ runtime ownership operation:
   0
 ```
 
-`R0-DELTA0-S0` is closed. The next code-facing row is `R0-DELTA0-M0`.
+`R0-DELTA0-S0` and `R0-DELTA0-M0` are closed. The next code-facing row is
+`R0-DELTA0-V0`.
 
 Exact order:
 
@@ -121,6 +122,75 @@ result MapBox/ArrayBox ledger:
 This does not yet authorize A-prime. M0 must prove debug/release parity and the
 helper-vs-caller normalized MIR contract.
 
+## R0-DELTA0-M0 closeout
+
+The 450-line checker now owns:
+
+```text
+tools/checks/lib/map_formal_borrowed_mutation_proof.py
+```
+
+It proves:
+
+```text
+debug/release runtime matrix:
+  equal
+
+debug/release normalized MIR:
+  equal
+
+all ten runtime cases:
+  1
+
+helper receiver route:
+  RuntimeDataBox / Union
+
+helper storage root:
+  param:0
+
+local helper-call storage:
+  handle:MapBox / newbox:MapBox
+
+field helper-call storage:
+  handle:MapBox / field:storage<param:0>
+
+direct MapBox/Known has/get observations:
+  6
+
+birth storage field_set:
+  1
+
+all other storage field_set:
+  0
+
+CopyOwned:
+  0
+
+DestroyOwned:
+  0
+
+ReleaseStrong:
+  0
+
+selection:
+  UNCLASSIFIED-M0
+```
+
+The field declaration is intentionally written as:
+
+```hako
+storage: MapBox
+```
+
+The initial untyped `init { storage }` observation preserved runtime mutation
+visibility but left the `field_get` value type unknown. The accepted typed
+stored-field syntax supplies declared metadata to the existing MIR type-flow
+authority. The checker does not infer `MapBox` from runtime values or method
+names.
+
+M0 does not classify the result. V0 applies the already fixed exclusive
+classifier without changing compiler or HMI behavior.
+
 ## Durable artifacts
 
 ```text
@@ -205,7 +275,7 @@ Use one field owner:
 
 ```hako
 box MapFormalFieldOwnerV1 {
-    init { storage }
+    storage: MapBox
 
     birth() {
         me.storage = new MapBox()
