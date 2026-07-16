@@ -154,12 +154,7 @@ box JsonIterativeParserEngineV1 {
             return
         }
         if token.is_error() {
-            me.fail_expected(
-                "lexer-error",
-                "[json_native/parser/lexer-error-v1]",
-                "valid JSON token",
-                token.get_value()
-            )
+            me.fail(JsonParseErrorV1.from_lexer_token(token))
             return
         }
 
@@ -509,14 +504,7 @@ box JsonIterativeParserEngineV1 {
         local i = 0
         loop(i < me.cursor.lexer_error_count()) {
             local token = me.cursor.lexer_error_at(i)
-            me.errors.push(JsonParseErrorV1.expected(
-                "lexer-error",
-                "[json_native/parser/lexer-error-v1]",
-                token.get_value(),
-                token,
-                "valid JSON token",
-                token.get_type()
-            ))
+            me.errors.push(JsonParseErrorV1.from_lexer_token(token))
             i = i + 1
         }
         me.failed = true

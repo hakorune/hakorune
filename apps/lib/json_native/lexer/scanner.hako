@@ -293,47 +293,11 @@ box JsonScanner {
     
     // 文字列リテラルを読み取り（クォートを除いた body を返す）
     read_string_literal() {
-        local start_pos = me.position
-        
-        // 開始クォート
-        if me.current() != "\"" {
+        local result = me.scan_string_literal_v1()
+        if not result.is_admitted() {
             return null
         }
-        me.advance()
-        local body_start = me.position
-        me._tmp_pos = -1
-        
-        // 文字列内容
-        loop(not me.is_eof()) {
-            local ch = me.current()
-            
-            if ch == "\"" {
-                // 終了クォート
-                me._tmp_pos = me.position
-                me.advance()
-                break
-            } else {
-                if ch == "\\" {
-                    // v0 EXE/AOT path: escaped JSON strings require a string-builder
-                    // shape that is not accepted yet. Fail fast instead of corrupting
-                    // the token value.
-                    return null
-                } else {
-                    if ch == "\n" or ch == "\r" {
-                        return null  // 文字列内の生の改行は無効
-                    }
-                    me.advance()
-                }
-            }
-        }
-        
-        if me._tmp_pos == -1 {
-            return null  // 終了クォートが見つからない
-        }
-        if me.position - start_pos < 2 {
-            return null
-        }
-        return me.text.substring(body_start, me._tmp_pos)
+        return result.get_raw_body()
     }
 
     // Disconnected V1 string-boundary scan. Escape grammar is deliberately
@@ -387,6 +351,17 @@ box JsonScanner {
                         escape_column,
                         "escaped character and closing quote",
                         "EOF"
+                    )
+                }
+                if me.current() < " " {
+                    return JsonStringScanResultV1.failure(
+                        "raw-control",
+                        "[json_native/lexer/raw-control-v1]",
+                        me.position,
+                        me.line,
+                        me.column,
+                        "escaped control character",
+                        "raw control"
                     )
                 }
                 me.advance()

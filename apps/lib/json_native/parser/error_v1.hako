@@ -2,6 +2,30 @@
 // from this product; they are not independent error-kind authorities.
 
 static box JsonParseErrorV1 {
+    from_lexer_token(token) {
+        if token.has_lexical_error_metadata() {
+            return new JsonParseErrorV1Instance(
+                token.get_error_kind(),
+                token.get_error_code(),
+                token.get_value(),
+                token.get_start(),
+                token.get_line(),
+                token.get_column(),
+                token.get_type(),
+                token.get_error_expected(),
+                token.get_error_actual()
+            )
+        }
+        return this.expected(
+            "lexer-error",
+            "[json_native/parser/lexer-error-v1]",
+            token.get_value(),
+            token,
+            "valid JSON token",
+            token.get_type()
+        )
+    }
+
     nesting_limit(max_depth, attempted_depth, token) {
         local detail = "max=" + max_depth +
             " attempted=" + attempted_depth +

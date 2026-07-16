@@ -4,7 +4,7 @@
 // NOTE: relative paths to support alias packaging (nyash.toml)
 using "./scanner.hako" as JsonScanner
 using "./token.hako" as JsonToken
-using "../utils/escape.hako" as EscapeUtils
+using "./string_escape_decoder_v1.hako" as JsonStringEscapeDecoderV1
 // Removed other dependencies - using self-contained methods
 
 // 🎯 高精度JSONトークナイザー（Everything is Box）
@@ -90,7 +90,7 @@ box JsonTokenizer {
         // print("DBG ch=" + ch)
         if ch == "\"" {
             // print("BR string")
-            return me.tokenize_string().set_line_column(start_line, start_col)
+            return me.tokenize_string()
         }
         
         // 数値リテラル
@@ -123,22 +123,67 @@ box JsonTokenizer {
     
     // 文字列トークン化
     tokenize_string() {
-        local start_pos = me.scanner.get_position()
-        local string_body = me.scanner.read_string_literal()
-        
-        if string_body == null {
-            return new JsonToken("ERROR", "Unterminated string literal", start_pos, me.scanner.get_position())
+        local scanned = me.scanner.scan_string_literal_v1()
+        if not scanned.is_admitted() {
+            return me.create_lexical_error_token(
+                scanned.get_error_kind(),
+                scanned.get_error_code(),
+                scanned.get_error_position(),
+                scanned.get_error_line(),
+                scanned.get_error_column(),
+                scanned.get_error_expected(),
+                scanned.get_error_actual()
+            )
         }
-        
-        // エスケープ解除して値を取得（厳密版）
-        local unescaped = EscapeUtils.unescape_string(string_body)
-        
+
+        local decoded = JsonStringEscapeDecoderV1.decode_body(
+            scanned.get_raw_body()
+        )
+        if not decoded.is_admitted() {
+            local error_position = scanned.get_body_start() +
+                decoded.get_error_offset()
+            local error_column = scanned.get_opening_column() + 1 +
+                decoded.get_error_offset()
+            return me.create_lexical_error_token(
+                decoded.get_error_kind(),
+                decoded.get_error_code(),
+                error_position,
+                scanned.get_opening_line(),
+                error_column,
+                decoded.get_error_expected(),
+                decoded.get_error_actual()
+            )
+        }
+
+        local unescaped = decoded.get_value()
         // 文字列妥当性検証
         if not me.validate_string(unescaped) {
-            return new JsonToken("ERROR", "Invalid string content", start_pos, me.scanner.get_position())
+            return me.create_lexical_error_token(
+                "invalid-string-content",
+                "[json_native/lexer/invalid-string-content-v1]",
+                scanned.get_opening_position(),
+                scanned.get_opening_line(),
+                scanned.get_opening_column(),
+                "valid decoded string",
+                "invalid decoded string"
+            )
         }
-        
-        return new JsonToken("STRING", unescaped, start_pos, me.scanner.get_position())
+
+        return new JsonToken(
+            "STRING",
+            unescaped,
+            scanned.get_opening_position(),
+            me.scanner.get_position()
+        ).set_line_column(
+            scanned.get_opening_line(), scanned.get_opening_column()
+        )
+    }
+
+    create_lexical_error_token(kind, code, position, line, column, expected, actual) {
+        local message = code + " expected=" + expected + " actual=" + actual
+        return new JsonToken("ERROR", message, position, position + 1)
+            .set_line_column(line, column)
+            .set_lexical_error(kind, code, expected, actual)
     }
     
     // 数値トークン化

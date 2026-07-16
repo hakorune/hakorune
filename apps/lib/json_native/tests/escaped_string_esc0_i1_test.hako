@@ -1,0 +1,193 @@
+using "apps/lib/json_native/lexer/tokenizer.hako" as JsonTokenizer
+using "apps/lib/json_native/parser/parser.hako" as JsonParser
+using "apps/lib/json_native/parser/strict_policy.hako" as StrictJsonPolicyV1
+using "apps/lib/json_native/parser/iterative_engine_v1.hako" as JsonIterativeParserEngineV1
+
+static box Main {
+    main() {
+        local failures = 0
+        failures = failures + this.test_selected_token_stream()
+        failures = failures + this.test_decoded_duplicate_identity()
+        failures = failures + this.test_typed_lexer_projection()
+        failures = failures + this.test_reuse()
+
+        if failures == 0 {
+            print("[json-native/esc0-i1] ok")
+            return 0
+        }
+        print("[json-native/esc0-i1] failed=" + failures)
+        return 1
+    }
+
+    tokenize(text) {
+        local tokenizer = new JsonTokenizer(text)
+        tokenizer.set_input(text)
+        tokenizer.tokenize()
+        return tokenizer
+    }
+
+    test_selected_token_stream() {
+        local slash = "\\"
+        local quote = "\""
+        local raw = slash + "\"" + slash + "\\" + slash + "/" +
+            slash + "b" + slash + "f" + slash + "n" + slash + "r" + slash + "t"
+        local expected = "\"" + "\\" + "/" + "\b" + "\f" + "\n" + "\r" + "\t"
+        local tokenizer = this.tokenize(quote + raw + quote)
+        if tokenizer.has_errors() { return 1 }
+        local tokens = tokenizer.get_tokens()
+        if tokens.length() != 2 { return 1 }
+        if tokens.get(0).get_type() != "STRING" { return 1 }
+        if tokens.get(0).get_value() != expected { return 1 }
+
+        local key_parser = new JsonParser()
+        local keyed = key_parser.parse("{" + quote + raw + quote + ":1}")
+        if key_parser.has_errors() { return 1 }
+        if not keyed.object_has(expected) { return 1 }
+
+        local closing_backslash = this.tokenize(
+            quote + slash + slash + quote
+        )
+        if closing_backslash.has_errors() { return 1 }
+        if closing_backslash.get_tokens().get(0).get_value() != slash { return 1 }
+
+        local unicode = this.tokenize(
+            quote + slash + "u0041" + slash + "u006a" + slash + "u007E" + quote
+        )
+        if unicode.has_errors() { return 1 }
+        if unicode.get_tokens().get(0).get_value() != "Aj~" { return 1 }
+        return 0
+    }
+
+    strict_parse(text) {
+        local parser = new JsonParser()
+        local value = parser.parse_with_policy(
+            text, StrictJsonPolicyV1.exact_i64_document()
+        )
+        local result = new MapBox()
+        result.set("parser", parser)
+        result.set("value", value)
+        return result
+    }
+
+    test_decoded_duplicate_identity() {
+        local slash = "\\"
+        local first_plain = "{\"a\":1,\"" + slash + "u0061\":2}"
+        local first_escape = "{\"" + slash + "u0061\":1,\"a\":2}"
+
+        local strict_a = this.strict_parse(first_plain)
+        local strict_b = this.strict_parse(first_escape)
+        if not strict_a.get("parser").has_errors() { return 1 }
+        if not strict_b.get("parser").has_errors() { return 1 }
+
+        local compatibility_a = new JsonParser()
+        local value_a = compatibility_a.parse(first_plain)
+        if compatibility_a.has_errors() { return 1 }
+        if value_a.length() != 1 { return 1 }
+        if value_a.object_get("a").as_int() != 2 { return 1 }
+
+        local compatibility_b = new JsonParser()
+        local value_b = compatibility_b.parse(first_escape)
+        if compatibility_b.has_errors() { return 1 }
+        if value_b.length() != 1 { return 1 }
+        if value_b.object_get("a").as_int() != 2 { return 1 }
+
+        local before_colon = this.strict_parse(
+            "{\"a\":1,\"" + slash + "u0061\" 2}"
+        )
+        if not before_colon.get("parser").has_errors() { return 1 }
+        local error = before_colon.get("parser").get_errors().get(0)
+        if not error.get("message").contains("duplicate-key") { return 1 }
+        return 0
+    }
+
+    test_typed_lexer_projection() {
+        local slash = "\\"
+        local invalid = "{\"a\":\"" + slash + "q\"}"
+        local tokenizer = this.tokenize(invalid)
+        if not tokenizer.has_errors() { return 1 }
+        local token = tokenizer.get_errors().get(0)
+        if token.get_error_kind() != "invalid-simple-escape" { return 1 }
+        if token.get_error_code() != "[json_native/lexer/invalid-simple-escape-v1]" { return 1 }
+        if token.get_start() != 6 { return 1 }
+        if token.get_line() != 1 or token.get_column() != 7 { return 1 }
+
+        local iterative = new JsonIterativeParserEngineV1()
+        if iterative.parse(invalid) != null { return 1 }
+        if not iterative.has_errors() { return 1 }
+        local projected = iterative.get_errors().get(0)
+        if projected.get_kind() != "invalid-simple-escape" { return 1 }
+        if projected.get_code() != token.get_error_code() { return 1 }
+        if projected.get_position() != token.get_start() { return 1 }
+
+        if not this.expect_token_error(slash + "x", "invalid-simple-escape") { return 1 }
+        if not this.expect_token_error(slash + "q", "invalid-simple-escape") { return 1 }
+        if not this.expect_token_error(slash + "u", "incomplete-unicode-escape") { return 1 }
+        if not this.expect_token_error(slash + "u0", "incomplete-unicode-escape") { return 1 }
+        if not this.expect_token_error(slash + "u00", "incomplete-unicode-escape") { return 1 }
+        if not this.expect_token_error(slash + "u000", "incomplete-unicode-escape") { return 1 }
+        if not this.expect_token_error(slash + "u0G00", "invalid-unicode-hex") { return 1 }
+        if not this.expect_token_error(slash + "u0000", "unsupported-ascii-control") { return 1 }
+        if not this.expect_token_error(slash + "u0001", "unsupported-ascii-control") { return 1 }
+        if not this.expect_token_error(slash + "u000B", "unsupported-ascii-control") { return 1 }
+        if not this.expect_token_error(slash + "u001F", "unsupported-ascii-control") { return 1 }
+        if not this.expect_token_error(slash + "u007F", "unsupported-ascii-control") { return 1 }
+        if not this.expect_token_error(slash + "u0080", "unsupported-unicode") { return 1 }
+        if not this.expect_token_error(slash + "u00FF", "unsupported-unicode") { return 1 }
+        if not this.expect_token_error(slash + "uD800", "unsupported-surrogate") { return 1 }
+        if not this.expect_token_error(slash + "uDFFF", "unsupported-surrogate") { return 1 }
+        if not this.expect_token_error(slash + "uD800" + slash + "uDC00", "unsupported-surrogate") { return 1 }
+        if not this.expect_token_error(slash + "u00G1", "invalid-unicode-hex") { return 1 }
+
+        if not this.expect_raw_control("\t") { return 1 }
+        if not this.expect_raw_control("\n") { return 1 }
+        if not this.expect_raw_control("\r") { return 1 }
+        if not this.expect_unclosed("\"abc" + slash, "trailing-escape") { return 1 }
+        if not this.expect_unclosed("\"abc" + slash + "n", "unterminated-string") { return 1 }
+
+        local multiline = this.tokenize("{\n  \"a\": \"" + slash + "q\"}")
+        if not multiline.has_errors() { return 1 }
+        local multiline_error = multiline.get_errors().get(0)
+        if multiline_error.get_line() != 2 { return 1 }
+        if multiline_error.get_column() != 9 { return 1 }
+        return 0
+    }
+
+    expect_token_error(raw, kind) {
+        local quote = "\""
+        local tokenizer = this.tokenize(quote + raw + quote)
+        if not tokenizer.has_errors() { return false }
+        return tokenizer.get_errors().get(0).get_error_kind() == kind
+    }
+
+    expect_raw_control(control) {
+        local tokenizer = this.tokenize("\"a" + control + "b\"")
+        if not tokenizer.has_errors() { return false }
+        return tokenizer.get_errors().get(0).get_error_kind() == "raw-control"
+    }
+
+    expect_unclosed(text, kind) {
+        local tokenizer = this.tokenize(text)
+        if not tokenizer.has_errors() { return false }
+        return tokenizer.get_errors().get(0).get_error_kind() == kind
+    }
+
+    test_reuse() {
+        local slash = "\\"
+        local tokenizer = new JsonTokenizer("")
+        tokenizer.set_input("\"" + slash + "q\"")
+        tokenizer.tokenize()
+        if not tokenizer.has_errors() { return 1 }
+        tokenizer.set_input("\"ok\"")
+        tokenizer.tokenize()
+        if tokenizer.has_errors() { return 1 }
+        if tokenizer.get_tokens().get(0).get_value() != "ok" { return 1 }
+
+        local strict = this.strict_parse("{\"a\":1,\"a\":2}")
+        if not strict.get("parser").has_errors() { return 1 }
+        local compatibility = new JsonParser()
+        local value = compatibility.parse("{\"a\":1}")
+        if compatibility.has_errors() { return 1 }
+        if value.object_get("a").as_int() != 1 { return 1 }
+        return 0
+    }
+}

@@ -1,5 +1,5 @@
 ---
-Status: accepted; D0 and S0 closed; I1 next
+Status: closed; D0, S0, and I1 complete
 Date: 2026-07-16
 Decision: A1 exact representable JSON escape profile
 Parent: json-native-escaped-string-design-stop-2026-07-16.md
@@ -327,7 +327,7 @@ admitted decoder outcome.
 
 ### JSON-NATIVE-ESC0-I1 — atomic lexical activation
 
-Next code-facing row. One BoxCount behavior commit:
+Status: closed. One BoxCount behavior commit:
 
 ```text
 JsonTokenizer selects scan_string_literal_v1
@@ -341,10 +341,48 @@ tolerant EscapeUtils selected-tokenizer callers = 0
 I1 does not switch recursive/iterative parser selection, perform CUT0, or
 activate HMI.
 
+Closeout evidence:
+
+```text
+selected tokenizer scan/decode route:
+  exactly one
+
+tolerant EscapeUtils.unescape_string selected-tokenizer callers:
+  0
+
+legacy read_string_literal:
+  delegates to scan_string_literal_v1
+
+default/strict tokenizer implementation:
+  identical
+
+typed lexical metadata:
+  existing JsonToken ERROR row
+
+iterative projection:
+  JsonParseErrorV1.from_lexer_token
+
+focused release/debug fixture:
+  green
+
+retained release/debug fixtures:
+  iterative L0, iterative S0, strict policy all green
+
+quick gate:
+  66/66
+
+VM MAX_CALL_DEPTH / parser selector / HMI caller delta:
+  0
+
+touched source/check files at or above 800 lines:
+  0
+```
+
 ### Resume JSON-NATIVE-ITER0-P0
 
-Only after I1 is committed/pushed and the worktree is clean. Do not apply the
-entire old stash. Recover and re-review only:
+I1 is closed; this is now the next row. After the I1 commit is pushed and the
+worktree is clean, do not apply the entire old stash. Recover and re-review
+only:
 
 ```text
 apps/lib/json_native/tests/iterative_parser_p0_parity_test.hako

@@ -1,5 +1,5 @@
 ---
-Status: accepted; P0 parked behind selected JSON-NATIVE-ESC0
+Status: accepted; ESC0 closed; P0 resumed
 Date: 2026-07-16
 Decision: B-prime one iterative grammar engine and one text-to-tree owner
 Parent stop: hmi-s0-t0-json-parser-depth-consultation-question-2026-07-16.md
@@ -348,7 +348,7 @@ VM MAX_CALL_DEPTH:
 
 ### JSON-NATIVE-ITER0-P0 — normalized parity proof
 
-Parked prerequisite. No production behavior changed.
+Current code-facing row. Production behavior remains unchanged.
 
 Prove existing compatibility behavior, J0 strict behavior, valid generated
 trees, shallow malformed first-error parity, ordinary MIR JSON, and exact depth
@@ -368,11 +368,11 @@ JsonTokenizer:
   ERROR("Unterminated string literal")
 ```
 
-Therefore `"a"` versus `"\u0061"` never reaches either parser. Adding escape
-admission here would mix BoxCount with this BoxShape parity row. Selection is
-parked at:
-
-`json-native-exact-escape-task-2026-07-16.md`
+ESC0 is now closed independently. The shared tokenizer decodes the exact
+selected escape subset before either parser, preserves typed lexical metadata,
+and proves `"a"` versus `"\u0061"` duplicate identity for compatibility and
+strict parsing. P0 may now restore only its three test-only parity files and
+rebase their lexical expectations onto that final ESC0 contract.
 
 The repository fixture audit also found that only L0, S0, and J0 strict tests
 are active green authorities. Seven legacy json_native files fail before their

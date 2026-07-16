@@ -34,7 +34,7 @@ static box Main {
 
         local legacy = new JsonScanner("")
         legacy.reset_text(text)
-        if legacy.read_string_literal() != null { return 1 }
+        if legacy.read_string_literal() != raw { return 1 }
 
         local raw_control = new JsonScanner("")
         raw_control.reset_text(quote + "a\nb" + quote)

@@ -35,6 +35,10 @@ box JsonToken {
     end: IntegerBox        // 終了位置
     line: IntegerBox       // 行番号（エラー報告用）
     column: IntegerBox     // 列番号（エラー報告用）
+    error_kind: StringBox
+    error_code: StringBox
+    error_expected: StringBox
+    error_actual: StringBox
     
     birth(token_type, token_value, start_pos, end_pos) {
         me.token_type = token_type
@@ -44,6 +48,10 @@ box JsonToken {
         me.end = end_pos
         me.line = 1
         me.column = start_pos + 1
+        me.error_kind = ""
+        me.error_code = ""
+        me.error_expected = ""
+        me.error_actual = ""
     }
     
     // ===== アクセッサーメソッド =====
@@ -54,11 +62,24 @@ box JsonToken {
     get_end() { return me.end }
     get_line() { return me.line }
     get_column() { return me.column }
+    get_error_kind() { return me.error_kind }
+    get_error_code() { return me.error_code }
+    get_error_expected() { return me.error_expected }
+    get_error_actual() { return me.error_actual }
+    has_lexical_error_metadata() { return me.error_code != "" }
     
     // 位置情報の設定（トークナイザーから付与）
     set_line_column(line, column) {
         me.line = line
         me.column = column
+        return me
+    }
+
+    set_lexical_error(kind, code, expected, actual) {
+        me.error_kind = kind
+        me.error_code = code
+        me.error_expected = expected
+        me.error_actual = actual
         return me
     }
     
