@@ -373,6 +373,35 @@ def normalize_mir(path: Path) -> dict[str, Any]:
     }
 
 
+def classify(cases: dict[str, int]) -> str:
+    c1 = cases["local_map"] == 1
+    c2 = cases["field_literal"] == 1
+    c3 = cases["field_formal_concat"] == 1
+    c4 = cases["field_formal_key"] == 1
+    c5 = cases["same_method_direct"] == 1
+    c6 = cases["same_method_self"] == 1
+    c7a = cases["control_merge_one"] == 1
+    c7b = cases["control_merge_two"] == 1
+    c8 = cases["receiver_alias"] == 1
+    c9 = cases["instance_isolation"] == 1
+
+    if not (c1 and c2 and c9):
+        return "STOP-REAUDIT-FIELD0"
+    if not c3 and c4:
+        return "KEY0"
+    if not c3 and not c4:
+        return "STOP-KEY-BOUNDARY0"
+    if c3 and not c4:
+        return "STOP-CALLER-KEY0"
+    if c5 != c6:
+        return "STOP-METHOD-BOUNDARY0"
+    if c3 and c4 and c5 and c6 and (not c7a or not c7b or not c8):
+        return "RECV0"
+    if c1 and c2 and c3 and c4 and c5 and c6 and c7a and c7b and c8 and c9:
+        return "NONE-HMI-DELTA0"
+    return "STOP-UNCLASSIFIED0"
+
+
 def main() -> int:
     root = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
     app_path = root / APP
@@ -393,12 +422,13 @@ def main() -> int:
     if mir_by_mode["debug"] != mir_by_mode["release"]:
         raise ProofFailure("debug/release normalized MIR evidence drift")
 
+    selection = classify(runtime_by_mode["debug"])
     report = {
         "schema_version": 1,
         "proof_id": PROOF_ID,
         "runtime": runtime_by_mode["debug"],
         "mir": mir_by_mode["debug"],
-        "selection": "UNCLASSIFIED-M0",
+        "selection": selection,
     }
     report_path = root / ARTIFACT_DIR / "report.json"
     report_path.write_text(
@@ -415,9 +445,11 @@ def main() -> int:
     print(f"mir.copy_owned={totals['copy_owned']}")
     print(f"mir.destroy_owned={totals['destroy_owned']}")
     print(f"mir.release_strong={totals['release_strong']}")
-    print("selection=UNCLASSIFIED-M0")
+    print(f"selection={selection}")
     print(f"report={report_path.relative_to(root)}")
     print("summary=observed")
+    if selection.startswith("STOP-"):
+        raise ProofFailure(f"exclusive classifier selected {selection}")
     return 0
 
 

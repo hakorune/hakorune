@@ -27,8 +27,8 @@ PROOF-MANIFEST-HYGIENE0
   -> clean HMI-S0-V0-R0 reimplementation
 ```
 
-`PROOF-MANIFEST-HYGIENE0`, `R0-STOP0-S0`, and `R0-STOP0-M0` are closed. The
-next code-facing row is `R0-STOP0-V0`.
+`PROOF-MANIFEST-HYGIENE0`, `R0-STOP0-S0`, `R0-STOP0-M0`, and `R0-STOP0-V0`
+are closed. The next code-facing row is `R0-STOP0-G0`.
 
 This prerequisite is behavior-neutral and must land separately from the
 generic compiler proof. The proof-manifest runner is currently unusable:
@@ -214,6 +214,53 @@ control-merge route:
 M0 does not name a compiler fix. V0 must apply the frozen exclusive runtime
 classifier and must retain the MIR observations as evidence rather than
 silently rewriting `Unknown` or `Union`.
+
+## R0-STOP0-V0 closeout
+
+The checker now implements the frozen classifier in the exact documented
+order. The selected token is:
+
+```text
+selection=NONE-HMI-DELTA0
+```
+
+Reason:
+
+```text
+base controls C1/C2/C9:
+  pass
+
+C3 formal concat:
+  pass
+
+C4 caller-built formal key:
+  pass
+
+C5/C6 direct versus self method:
+  both pass
+
+C7a/C7b control merges:
+  both pass
+
+C8 receiver alias:
+  pass
+```
+
+Therefore neither `KEY0` nor `RECV0` is authorized.
+
+The two `RuntimeDataBox/Union` control-merge calls remain exact MIR evidence,
+but they do not cause an observable failure in this generic matrix. V0 does
+not silently promote that observation into a compiler fix.
+
+Required follow-up after G0:
+
+```text
+minimize exactly one structural difference between:
+  the green generic matrix
+  and the previously failing typed register shape
+
+then return to design consultation before compiler or register-storage edits
+```
 
 ## Decision lock
 
