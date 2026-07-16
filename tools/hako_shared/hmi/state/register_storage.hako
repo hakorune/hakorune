@@ -1,0 +1,16 @@
+// A-prime storage command. The caller retains the MapBox owner.
+
+static box HmiScalarRegisterStorageV1 {
+    contains(storage, value_id) {
+        return storage.has("" + value_id)
+    }
+
+    put_proven(storage, value_id, payload) {
+        storage.set("" + value_id, payload)
+        return
+    }
+
+    read_present(storage, value_id) {
+        return storage.get("" + value_id)
+    }
+}

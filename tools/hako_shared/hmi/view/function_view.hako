@@ -68,6 +68,9 @@ box VerifiedHmiFunctionView {
     value_type_kind(value_id) {
         return me.value_type_kinds.get("" + value_id)
     }
+    has_value_type(value_id) {
+        return me.value_type_kinds.has("" + value_id)
+    }
     value_box_type(value_id) {
         return me.value_box_types.get("" + value_id)
     }

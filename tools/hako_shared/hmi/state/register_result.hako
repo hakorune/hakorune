@@ -1,0 +1,78 @@
+using tools.hako_shared.hmi.state.scalar_value as HmiScalarValuesV1
+
+// Register results expose typed scalars or failures, never raw storage.
+
+box HmiScalarRegisterResultV1 {
+    has_value
+    kind_value
+    payload_value
+    error
+
+    birth() {
+        me.has_value = false
+        me.kind_value = null
+        me.payload_value = 0
+        me.error = null
+    }
+
+    accepted() { return me.error == null }
+    has_scalar() { return me.has_value }
+    failure() { return me.error }
+
+    scalar() {
+        return HmiScalarValuesV1.from_proven_parts(
+            me.kind_value,
+            me.payload_value
+        )
+    }
+
+    set_register_empty_success() {
+        me.has_value = false
+        me.kind_value = null
+        me.payload_value = 0
+        me.error = null
+        return me
+    }
+
+    set_register_scalar_success(kind, payload) {
+        me.has_value = true
+        me.kind_value = kind
+        me.payload_value = payload
+        me.error = null
+        return me
+    }
+
+    set_register_failure(error) {
+        me.has_value = false
+        me.kind_value = null
+        me.payload_value = 0
+        me.error = error
+        return me
+    }
+}
+
+box HmiScalarSnapshotBuildResultV1 {
+    snapshot_value
+    error
+
+    birth() {
+        me.snapshot_value = null
+        me.error = null
+    }
+
+    accepted() { return me.error == null }
+    snapshot() { return me.snapshot_value }
+    failure() { return me.error }
+
+    set_snapshot_success(snapshot_value) {
+        me.snapshot_value = snapshot_value
+        me.error = null
+        return me
+    }
+
+    set_snapshot_failure(error) {
+        me.snapshot_value = null
+        me.error = error
+        return me
+    }
+}

@@ -51,7 +51,8 @@ HMI-S0-V0-R0-S0
   -> HMI-S0-V0-R0-G0
 ```
 
-The next code-facing checkpoint is `HMI-S0-V0-R0-S0`.
+`HMI-S0-V0-R0-S0` is closed. The next code-facing checkpoint is
+`HMI-S0-V0-R0-I0`.
 
 After G0, the distinct `HMI-S0-V0-S0` row may add execution state and a
 session factory. R0 does not implement either.
@@ -447,6 +448,51 @@ register owner:
 
 production callers:
   0
+```
+
+#### R0-S0 closeout
+
+Added:
+
+```text
+state/register_storage.hako:
+  16 lines
+
+state/register_result.hako:
+  78 lines
+
+tests/v0_register_test.hako:
+  53-line substrate fixture
+```
+
+Modified:
+
+```text
+view/function_view.hako:
+  has_value_type(value_id)
+
+state/README.md:
+  A-prime storage boundary
+```
+
+Release/debug:
+
+```text
+[hmi/s0-v0-r0-s0] ok
+[hmi/s0-v0-l0] ok
+```
+
+Retained:
+
+```text
+MAPFIELD-R0-DELTA0:
+  A-PRIME-AUTHORIZED
+
+hmi-t0-authority:
+  green
+
+register owner / production callers:
+  0 / 0
 ```
 
 ### R0-I0
