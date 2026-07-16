@@ -1,0 +1,200 @@
+box HmiTerminatorSummaryV1 {
+    kind_value
+    successor_ids
+
+    birth(kind_value, successor_ids) {
+        me.kind_value = kind_value
+        me.successor_ids = successor_ids
+    }
+
+    kind() { return me.kind_value }
+    successors() { return me.successor_ids }
+}
+
+box HmiValueDefinitionV1 {
+    value_id
+    block_id
+    instruction_index
+    op_value
+
+    birth(value_id, block_id, instruction_index, op_value) {
+        me.value_id = value_id
+        me.block_id = block_id
+        me.instruction_index = instruction_index
+        me.op_value = op_value
+    }
+
+    id() { return me.value_id }
+    block() { return me.block_id }
+    index() { return me.instruction_index }
+    op() { return me.op_value }
+}
+
+box HmiValueUseV1 {
+    value_id
+    block_id
+    instruction_index
+    op_value
+    role_value
+    phi_input
+    predecessor_id
+
+    birth() {
+        me.value_id = null
+        me.block_id = null
+        me.instruction_index = null
+        me.op_value = null
+        me.role_value = null
+        me.phi_input = false
+        me.predecessor_id = null
+    }
+
+    set_position(value_id, block_id, instruction_index) {
+        me.value_id = value_id
+        me.block_id = block_id
+        me.instruction_index = instruction_index
+        return me
+    }
+
+    set_role(op_value, role_value) {
+        me.op_value = op_value
+        me.role_value = role_value
+        return me
+    }
+
+    set_phi_predecessor(predecessor_id) {
+        me.phi_input = true
+        me.predecessor_id = predecessor_id
+        return me
+    }
+
+    id() { return me.value_id }
+    block() { return me.block_id }
+    index() { return me.instruction_index }
+    op() { return me.op_value }
+    role() { return me.role_value }
+    is_phi_input() { return me.phi_input }
+    predecessor() { return me.predecessor_id }
+}
+
+box HmiOwnershipSiteV1 {
+    op_value
+    block_id
+    instruction_index
+    dst_value
+    src_value
+    consumed_value
+
+    birth() {
+        me.op_value = null
+        me.block_id = null
+        me.instruction_index = null
+        me.dst_value = null
+        me.src_value = null
+        me.consumed_value = null
+    }
+
+    set_site(op_value, block_id, instruction_index) {
+        me.op_value = op_value
+        me.block_id = block_id
+        me.instruction_index = instruction_index
+        return me
+    }
+
+    set_copy(dst_value, src_value) {
+        me.dst_value = dst_value
+        me.src_value = src_value
+        return me
+    }
+
+    set_destroy(consumed_value) {
+        me.consumed_value = consumed_value
+        return me
+    }
+
+    op() { return me.op_value }
+    block() { return me.block_id }
+    index() { return me.instruction_index }
+    dst() { return me.dst_value }
+    src() { return me.src_value }
+    value() { return me.consumed_value }
+    key() {
+        return "" + me.block_id + ":" + me.instruction_index +
+            ":" + me.op_value
+    }
+}
+
+box HmiInstructionShapeV1 {
+    terminators
+    definitions
+    uses
+    ownership_sites
+
+    birth(terminators, definitions, uses, ownership_sites) {
+        me.terminators = terminators
+        me.definitions = definitions
+        me.uses = uses
+        me.ownership_sites = ownership_sites
+    }
+
+    terminator_summaries() { return me.terminators }
+    value_definitions() { return me.definitions }
+    value_uses() { return me.uses }
+    ownership_operation_sites() { return me.ownership_sites }
+}
+
+box HmiInstructionShapeResultV1 {
+    shape
+    error
+
+    birth(shape, error) {
+        me.shape = shape
+        me.error = error
+    }
+
+    accepted() { return me.error == null }
+    verified_shape() { return me.shape }
+    failure() { return me.error }
+}
+
+box HmiInstructionRowShapeV1 {
+    op_value
+    definition_rows
+    use_rows
+    ownership_rows
+    terminator_summary
+
+    birth(
+        op_value,
+        definition_rows,
+        use_rows,
+        ownership_rows,
+        terminator_summary
+    ) {
+        me.op_value = op_value
+        me.definition_rows = definition_rows
+        me.use_rows = use_rows
+        me.ownership_rows = ownership_rows
+        me.terminator_summary = terminator_summary
+    }
+
+    op() { return me.op_value }
+    definitions() { return me.definition_rows }
+    uses() { return me.use_rows }
+    ownership_sites() { return me.ownership_rows }
+    terminator() { return me.terminator_summary }
+}
+
+box HmiInstructionRowResultV1 {
+    row
+    error
+
+    birth(row, error) {
+        me.row = row
+        me.error = error
+    }
+
+    accepted() { return me.error == null }
+    verified_row() { return me.row }
+    failure() { return me.error }
+}

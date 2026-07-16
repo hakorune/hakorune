@@ -1,0 +1,221 @@
+using tools.hako_shared.hmi.seal.object_contract as HmiObjectContractV1
+
+box HmiCfgFactsV1 {
+    predecessors
+
+    birth(predecessors) {
+        me.predecessors = predecessors
+    }
+
+    predecessor_map() { return me.predecessors }
+    storage_ready() {
+        return me.predecessors != null and me.predecessors != void
+    }
+}
+
+box HmiCfgSealResultV1 {
+    facts
+    error
+
+    birth(facts, error) {
+        me.facts = facts
+        me.error = error
+    }
+
+    accepted() { return me.error == null }
+    verified_facts() { return me.facts }
+    failure() { return me.error }
+}
+
+// CFG consumes instruction-shape terminator summaries. It never reparses raw
+// terminator operand fields.
+static box HmiCfgSealV1 {
+    verify(context, instruction_shape, path) {
+        local block_nodes = context.block_nodes()
+        local block_order = context.ordered_block_ids()
+        local cfg_rows = context.cfg_block_rows()
+        local terminators = instruction_shape.terminator_summaries()
+        local predecessors = new MapBox()
+
+        local i = 0
+        loop(i < block_order.length()) {
+            predecessors.set("" + block_order.get(i), new ArrayBox())
+            i = i + 1
+        }
+
+        i = 0
+        loop(i < block_order.length()) {
+            local block_id = block_order.get(i)
+            local key = "" + block_id
+            local row = cfg_rows.get(key)
+            local summary = terminators.get(key)
+            if summary == null {
+                return this.reject(
+                    path + ".blocks[id=" + block_id + "]",
+                    "one terminator summary",
+                    "missing",
+                    "instruction shape lacks a terminator summary"
+                )
+            }
+
+            local expected_kind = summary.kind()
+            local actual_kind = row.object_get("terminator").as_string()
+            if actual_kind != expected_kind {
+                return this.reject(
+                    path + ".cfg.blocks[id=" + block_id + "].terminator",
+                    expected_kind,
+                    actual_kind,
+                    "CFG terminator disagrees with instruction shape"
+                )
+            }
+
+            local error = this.verify_successors(
+                block_id,
+                summary.successors(),
+                row.object_get("successors"),
+                block_nodes,
+                predecessors,
+                path + ".cfg.blocks[id=" + block_id + "].successors"
+            )
+            if error != null {
+                return new HmiCfgSealResultV1(null, error)
+            }
+            i = i + 1
+        }
+
+        local reachable = this.compute_reachable(
+            context.entry_block(), terminators
+        )
+        i = 0
+        loop(i < block_order.length()) {
+            local block_id = block_order.get(i)
+            local row = cfg_rows.get("" + block_id)
+            local expected = reachable.has("" + block_id)
+            local actual = row.object_get("reachable").as_bool()
+            if expected != actual {
+                return this.reject(
+                    path + ".cfg.blocks[id=" + block_id + "].reachable",
+                    "" + expected,
+                    "" + actual,
+                    "transported reachability differs from entry traversal"
+                )
+            }
+            i = i + 1
+        }
+
+        return new HmiCfgSealResultV1(
+            new HmiCfgFactsV1(predecessors),
+            null
+        )
+    }
+
+    verify_successors(
+        source_block,
+        expected,
+        actual,
+        block_nodes,
+        predecessors,
+        path
+    ) {
+        if actual.array_size() != expected.length() {
+            return HmiObjectContractV1.error(
+                "cfg", "successor-cardinality", path,
+                "size=" + expected.length(),
+                "size=" + actual.array_size(),
+                "CFG successor cardinality differs"
+            )
+        }
+
+        local seen = new MapBox()
+        local i = 0
+        loop(i < actual.array_size()) {
+            local node = actual.array_get(i)
+            local error = HmiObjectContractV1.non_negative_id(
+                node, "cfg", path + "[" + i + "]"
+            )
+            if error != null { return error }
+            local id = node.as_int()
+            local key = "" + id
+            if not block_nodes.has(key) {
+                return HmiObjectContractV1.error(
+                    "cfg", "foreign-successor", path + "[" + i + "]",
+                    "block id inside function", key,
+                    "CFG successor is foreign"
+                )
+            }
+            if seen.has(key) {
+                return HmiObjectContractV1.error(
+                    "cfg", "duplicate-successor", path + "[" + i + "]",
+                    "unique successor", key,
+                    "CFG successor is duplicated"
+                )
+            }
+            if not this.contains_int(expected, id) {
+                return HmiObjectContractV1.error(
+                    "cfg", "successor-mismatch", path + "[" + i + "]",
+                    this.join_ints(expected), key,
+                    "CFG successor differs from terminator summary"
+                )
+            }
+            seen.set(key, true)
+            predecessors.get(key).push(source_block)
+            i = i + 1
+        }
+        return null
+    }
+
+    compute_reachable(entry_block, terminators) {
+        local reachable = new MapBox()
+        local queue = new ArrayBox()
+        queue.push(entry_block)
+        reachable.set("" + entry_block, true)
+        local cursor = 0
+        loop(cursor < queue.length()) {
+            local block_id = queue.get(cursor)
+            local summary = terminators.get("" + block_id)
+            local successors = summary.successors()
+            local i = 0
+            loop(i < successors.length()) {
+                local successor = successors.get(i)
+                local key = "" + successor
+                if not reachable.has(key) {
+                    reachable.set(key, true)
+                    queue.push(successor)
+                }
+                i = i + 1
+            }
+            cursor = cursor + 1
+        }
+        return reachable
+    }
+
+    contains_int(values, expected) {
+        local i = 0
+        loop(i < values.length()) {
+            if values.get(i) == expected { return true }
+            i = i + 1
+        }
+        return false
+    }
+
+    join_ints(values) {
+        local text = ""
+        local i = 0
+        loop(i < values.length()) {
+            if i > 0 { text = text + "," }
+            text = text + values.get(i)
+            i = i + 1
+        }
+        return text
+    }
+
+    reject(path, expected, actual, detail) {
+        return new HmiCfgSealResultV1(
+            null,
+            HmiObjectContractV1.error(
+                "cfg", "cfg-contract", path,
+                expected, actual, detail
+            )
+        )
+    }
+}

@@ -1,0 +1,303 @@
+using tools.hako_shared.hmi.seal.object_contract as HmiObjectContractV1
+
+// Scalar/PHI semantic profile over instruction-shape-admitted nodes.
+static box HmiScalarProfileSealV1 {
+    verify(context, cfg_facts, value_facts, path) {
+        local error = this.verify_edge_witness(
+            context.metadata_node(),
+            path + ".metadata.control_edge_args_v1"
+        )
+        if error != null { return error }
+
+        local block_order = context.ordered_block_ids()
+        local block_nodes = context.block_nodes()
+        local predecessors = cfg_facts.predecessor_map()
+        local b = 0
+        loop(b < block_order.length()) {
+            local block_id = block_order.get(b)
+            local instructions = block_nodes.get("" + block_id)
+                .object_get("instructions")
+            local i = 0
+            loop(i < instructions.array_size()) {
+                local node = instructions.array_get(i)
+                local op = node.object_get("op").as_string()
+                local instruction_path = path + ".blocks[id=" + block_id +
+                    "].instructions[" + i + "]"
+                if op == "const" {
+                    error = this.verify_const(
+                        node, value_facts, instruction_path
+                    )
+                } else if op == "copy" {
+                    error = this.verify_copy(
+                        node, value_facts, instruction_path
+                    )
+                } else if op == "binop" {
+                    error = this.verify_binop(
+                        node, value_facts, instruction_path
+                    )
+                } else if op == "branch" {
+                    error = this.require_kind(
+                        value_facts,
+                        node.object_get("cond").as_int(),
+                        "i1",
+                        instruction_path + ".cond"
+                    )
+                } else if op == "phi" {
+                    error = this.verify_phi(
+                        node,
+                        predecessors.get("" + block_id),
+                        value_facts,
+                        instruction_path
+                    )
+                } else if op == "ret" {
+                    error = this.verify_return(
+                        node, value_facts, instruction_path
+                    )
+                }
+                if error != null { return error }
+                i = i + 1
+            }
+            b = b + 1
+        }
+        return null
+    }
+
+    verify_edge_witness(metadata, path) {
+        if not metadata.object_has("control_edge_args_v1") {
+            return HmiObjectContractV1.error(
+                "cfg", "missing-edge-witness", path,
+                "control_edge_args_v1", "missing",
+                "exact-none edge witness is required"
+            )
+        }
+        local witness = metadata.object_get("control_edge_args_v1")
+        local fields = HmiObjectContractV1.fields2(
+            "schema_version", "mode"
+        )
+        local error = HmiObjectContractV1.exact_fields(
+            witness, fields, fields, "cfg", path
+        )
+        if error != null { return error }
+        error = HmiObjectContractV1.kind(
+            witness.object_get("schema_version"),
+            "int",
+            "cfg",
+            path + ".schema_version"
+        )
+        if error != null { return error }
+        if witness.object_get("schema_version").as_int() != 1 {
+            return HmiObjectContractV1.error(
+                "cfg", "edge-witness-schema", path + ".schema_version",
+                "1", "" + witness.object_get("schema_version").as_int(),
+                "edge witness schema differs"
+            )
+        }
+        return HmiObjectContractV1.exact_string(
+            witness.object_get("mode"),
+            "exact_none",
+            "cfg",
+            path + ".mode"
+        )
+    }
+
+    verify_const(node, value_facts, path) {
+        local payload = node.object_get("value")
+        local error = HmiObjectContractV1.exact_string(
+            payload.object_get("type"),
+            "i64",
+            "value_type",
+            path + ".value.type"
+        )
+        if error != null { return error }
+        error = HmiObjectContractV1.kind(
+            payload.object_get("value"),
+            "int",
+            "value_type",
+            path + ".value.value"
+        )
+        if error != null { return error }
+
+        local dst = node.object_get("dst").as_int()
+        local kind = value_facts.kind(dst)
+        if kind == "i64" { return null }
+        if kind == "i1" {
+            local value = payload.object_get("value").as_int()
+            if value == 0 or value == 1 { return null }
+            return HmiObjectContractV1.error(
+                "value_type", "bool-payload", path + ".value.value",
+                "0 or 1", "" + value,
+                "Bool Const payload is not portable"
+            )
+        }
+        return HmiObjectContractV1.error(
+            "value_type", "const-type", path + ".dst",
+            "i64 or i1", "" + kind,
+            "Const destination type is outside scalar profile"
+        )
+    }
+
+    verify_copy(node, value_facts, path) {
+        local dst = node.object_get("dst").as_int()
+        local src = node.object_get("src").as_int()
+        local dst_kind = value_facts.kind(dst)
+        local src_kind = value_facts.kind(src)
+        if dst_kind == src_kind and
+           (dst_kind == "i64" or dst_kind == "i1") {
+            return null
+        }
+        return HmiObjectContractV1.error(
+            "value_type", "copy-type", path,
+            "matching i64/i1", "" + src_kind + " -> " + dst_kind,
+            "Copy type contract differs"
+        )
+    }
+
+    verify_binop(node, value_facts, path) {
+        local operation = node.object_get("operation").as_string()
+        if operation != "+" and
+           operation != "-" and
+           operation != "*" and
+           operation != "/" and
+           operation != "%" {
+            return HmiObjectContractV1.error(
+                "value_type", "unsupported-binop", path + ".operation",
+                "+,-,*,/,%", operation,
+                "BinOp is outside the checked i64 profile"
+            )
+        }
+        local error = this.require_kind(
+            value_facts,
+            node.object_get("dst").as_int(),
+            "i64",
+            path + ".dst"
+        )
+        if error != null { return error }
+        error = this.require_kind(
+            value_facts,
+            node.object_get("lhs").as_int(),
+            "i64",
+            path + ".lhs"
+        )
+        if error != null { return error }
+        error = this.require_kind(
+            value_facts,
+            node.object_get("rhs").as_int(),
+            "i64",
+            path + ".rhs"
+        )
+        if error != null { return error }
+        if node.object_has("dst_type") {
+            return HmiObjectContractV1.exact_string(
+                node.object_get("dst_type"),
+                "i64",
+                "value_type",
+                path + ".dst_type"
+            )
+        }
+        return null
+    }
+
+    verify_phi(node, predecessor_ids, value_facts, path) {
+        if predecessor_ids == null { predecessor_ids = new ArrayBox() }
+        local incoming = node.object_get("incoming")
+        if incoming.array_size() != predecessor_ids.length() {
+            return HmiObjectContractV1.error(
+                "cfg", "phi-predecessor-cardinality", path + ".incoming",
+                "size=" + predecessor_ids.length(),
+                "size=" + incoming.array_size(),
+                "PHI inputs do not cover every predecessor"
+            )
+        }
+
+        local dst = node.object_get("dst").as_int()
+        local dst_kind = value_facts.kind(dst)
+        if dst_kind != "i64" and dst_kind != "i1" {
+            return HmiObjectContractV1.error(
+                "value_type", "phi-destination-type", path + ".dst",
+                "i64 or i1", "" + dst_kind,
+                "PHI destination type is outside scalar profile"
+            )
+        }
+        if node.object_has("dst_type") {
+            local error = HmiObjectContractV1.exact_string(
+                node.object_get("dst_type"),
+                dst_kind,
+                "value_type",
+                path + ".dst_type"
+            )
+            if error != null { return error }
+        }
+
+        local seen = new MapBox()
+        local i = 0
+        loop(i < incoming.array_size()) {
+            local pair = incoming.array_get(i)
+            local value_id = pair.array_get(0).as_int()
+            local block_id = pair.array_get(1).as_int()
+            if value_facts.kind(value_id) != dst_kind {
+                return HmiObjectContractV1.error(
+                    "value_type", "phi-input-type",
+                    path + ".incoming[" + i + "][0]",
+                    dst_kind, "" + value_facts.kind(value_id),
+                    "PHI input type differs from destination"
+                )
+            }
+            local key = "" + block_id
+            if not this.contains_int(predecessor_ids, block_id) or
+               seen.has(key) {
+                return HmiObjectContractV1.error(
+                    "cfg", "phi-predecessor",
+                    path + ".incoming[" + i + "][1]",
+                    this.join_ints(predecessor_ids), key,
+                    "PHI predecessor is foreign, missing, or duplicated"
+                )
+            }
+            seen.set(key, true)
+            i = i + 1
+        }
+        return null
+    }
+
+    verify_return(node, value_facts, path) {
+        local value = node.object_get("value")
+        if value.get_kind() == "null" { return null }
+        local value_id = value.as_int()
+        local kind = value_facts.kind(value_id)
+        if kind == "i64" or kind == "i1" { return null }
+        return HmiObjectContractV1.error(
+            "value_type", "return-type", path + ".value",
+            "i64/i1/no-value", "" + kind,
+            "Return value type is outside scalar profile"
+        )
+    }
+
+    require_kind(value_facts, value_id, expected, path) {
+        local actual = value_facts.kind(value_id)
+        if actual == expected { return null }
+        return HmiObjectContractV1.error(
+            "value_type", "value-kind", path,
+            expected, "" + actual,
+            "value type differs"
+        )
+    }
+
+    contains_int(values, expected) {
+        local i = 0
+        loop(i < values.length()) {
+            if values.get(i) == expected { return true }
+            i = i + 1
+        }
+        return false
+    }
+
+    join_ints(values) {
+        local text = ""
+        local i = 0
+        loop(i < values.length()) {
+            if i > 0 { text = text + "," }
+            text = text + values.get(i)
+            i = i + 1
+        }
+        return text
+    }
+}

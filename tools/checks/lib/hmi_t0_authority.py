@@ -63,8 +63,48 @@ source_without_tests = "\n".join(
 if re.search(r"\bprint\s*\(", source_without_tests):
     fail("unconditional HMI source print is forbidden")
 
-if "new VerifiedHmi" in all_hmi:
-    fail("L0 must not publish or construct verified views")
+publication_path = HMI / "view/publication.hako"
+publication_source = read(publication_path) if publication_path.exists() else ""
+constructor_sources = []
+for path in hako_files:
+    if path == publication_path:
+        continue
+    if "new VerifiedHmi" in read(path):
+        constructor_sources.append(path.relative_to(ROOT).as_posix())
+if constructor_sources:
+    fail(f"verified view constructors escaped publication owner: {constructor_sources}")
+if publication_source:
+    for name in (
+        "VerifiedHmiDocumentView",
+        "VerifiedHmiFunctionView",
+        "VerifiedHmiBlockView",
+        "VerifiedHmiInstructionView",
+    ):
+        if publication_source.count(f"new {name}") != 1:
+            fail(f"{name} constructor site count must be exactly one")
+else:
+    fail("missing sole Verified view publication owner")
+
+publisher_calls = []
+publisher_selector = "HmiVerifiedViewPublisherV1.publish("
+for path in hako_files:
+    count = read(path).count(publisher_selector)
+    if count:
+        publisher_calls.extend(
+            [path.relative_to(ROOT).as_posix()] * count
+        )
+if publisher_calls != ["tools/hako_shared/hmi/document_seal.hako"]:
+    fail(
+        "whole-document publisher selector must occur exactly once in "
+        f"document_seal: {publisher_calls}"
+    )
+
+root_handoff_users = []
+for path in hako_files:
+    if ".root_for_seal()" in read(path) and path.name != "document_seal.hako":
+        root_handoff_users.append(path.relative_to(ROOT).as_posix())
+if root_handoff_users:
+    fail(f"raw parse root escaped whole-document seal: {root_handoff_users}")
 
 external_callers = []
 for path in ROOT.rglob("*.hako"):

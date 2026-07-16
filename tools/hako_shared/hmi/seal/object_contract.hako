@@ -1,0 +1,172 @@
+using tools.hako_shared.hmi.seal.error as HmiSealErrorV1
+
+// Shared JsonNode structure helpers for the bounded MIR JSON V1 profile.
+// JSON grammar remains owned by json_native.
+static box HmiObjectContractV1 {
+    error(family, kind, path, expected, actual, detail) {
+        if family == "cfg" {
+            return HmiSealErrorV1.cfg(
+                kind, path, expected, actual, detail
+            )
+        }
+        if family == "value_type" {
+            return HmiSealErrorV1.value_type(
+                kind, path, expected, actual, detail
+            )
+        }
+        if family == "ownership" {
+            return HmiSealErrorV1.ownership(
+                kind, path, expected, actual, detail
+            )
+        }
+        return HmiSealErrorV1.document(
+            kind, path, expected, actual, detail
+        )
+    }
+
+    kind(node, expected, family, path) {
+        if node == null {
+            return this.error(
+                family, "missing-value", path, expected, "missing",
+                "required value is absent"
+            )
+        }
+        local actual = node.get_kind()
+        if actual != expected {
+            return this.error(
+                family, "kind-mismatch", path, expected, actual,
+                "JSON value kind differs"
+            )
+        }
+        return null
+    }
+
+    exact_fields(node, allowed, required, family, path) {
+        local error = this.kind(node, "object", family, path)
+        if error != null { return error }
+
+        local keys = node.object_keys()
+        local i = 0
+        loop(i < keys.length()) {
+            local key = keys.get(i)
+            if not this.array_contains(allowed, key) {
+                return this.error(
+                    family, "unknown-field", path,
+                    this.join_fields(allowed), key,
+                    "object contains an unrecognized field"
+                )
+            }
+            i = i + 1
+        }
+
+        i = 0
+        loop(i < required.length()) {
+            local key = required.get(i)
+            if not node.object_has(key) {
+                return this.error(
+                    family, "missing-field", path,
+                    key, "missing",
+                    "object lacks a required field"
+                )
+            }
+            i = i + 1
+        }
+        return null
+    }
+
+    non_negative_id(node, family, path) {
+        local error = this.kind(node, "int", family, path)
+        if error != null { return error }
+        if node.as_int() < 0 {
+            return this.error(
+                family, "negative-id", path,
+                "non-negative integer", "" + node.as_int(),
+                "identifier is negative"
+            )
+        }
+        return null
+    }
+
+    exact_string(node, expected, family, path) {
+        local error = this.kind(node, "string", family, path)
+        if error != null { return error }
+        local actual = node.as_string()
+        if actual != expected {
+            return this.error(
+                family, "string-mismatch", path,
+                expected, actual,
+                "string contract differs"
+            )
+        }
+        return null
+    }
+
+    exact_empty_array(node, family, path) {
+        local error = this.kind(node, "array", family, path)
+        if error != null { return error }
+        if node.array_size() != 0 {
+            return this.error(
+                family, "opaque-surface-not-empty", path,
+                "empty array", "size=" + node.array_size(),
+                "T0 does not admit non-empty opaque producer metadata"
+            )
+        }
+        return null
+    }
+
+    array_contains(values, expected) {
+        local i = 0
+        loop(i < values.length()) {
+            if values.get(i) == expected { return true }
+            i = i + 1
+        }
+        return false
+    }
+
+    join_fields(values) {
+        local text = ""
+        local i = 0
+        loop(i < values.length()) {
+            if i > 0 { text = text + "," }
+            text = text + values.get(i)
+            i = i + 1
+        }
+        return text
+    }
+
+    fields1(a) {
+        local fields = new ArrayBox()
+        fields.push(a)
+        return fields
+    }
+    fields2(a, b) {
+        local fields = this.fields1(a)
+        fields.push(b)
+        return fields
+    }
+    fields3(a, b, c) {
+        local fields = this.fields2(a, b)
+        fields.push(c)
+        return fields
+    }
+    fields4(a, b, c, d) {
+        local fields = this.fields3(a, b, c)
+        fields.push(d)
+        return fields
+    }
+    fields5(a, b, c, d, e) {
+        local fields = this.fields4(a, b, c, d)
+        fields.push(e)
+        return fields
+    }
+    fields6(a, b, c, d, e, f) {
+        local fields = this.fields5(a, b, c, d, e)
+        fields.push(f)
+        return fields
+    }
+    fields7(a, b, c, d, e, f, g) {
+        local fields = this.fields6(a, b, c, d, e, f)
+        fields.push(g)
+        return fields
+    }
+}

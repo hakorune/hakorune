@@ -1,0 +1,337 @@
+using tools.hako_shared.hmi.seal.object_contract as HmiObjectContractV1
+using tools.hako_shared.hmi.seal.instruction_contract as HmiInstructionContractV1
+using tools.hako_shared.hmi.seal.instruction_facts as HmiTerminatorSummaryV1
+
+box HmiInstructionSiteV1 {
+    block_id
+    instruction_index
+    path_value
+    phi_prefix_value
+    last_value
+
+    birth() {
+        me.block_id = null
+        me.instruction_index = null
+        me.path_value = null
+        me.phi_prefix_value = false
+        me.last_value = false
+    }
+
+    initialize(
+        block_id,
+        instruction_index,
+        path_value,
+        phi_prefix_value,
+        last_value
+    ) {
+        me.block_id = block_id
+        me.instruction_index = instruction_index
+        me.path_value = path_value
+        me.phi_prefix_value = phi_prefix_value
+        me.last_value = last_value
+        return me
+    }
+
+    block() { return me.block_id }
+    index() { return me.instruction_index }
+    path() { return me.path_value }
+    phi_prefix() { return me.phi_prefix_value }
+    is_last() { return me.last_value }
+}
+
+// Sole block traversal and instruction-fact aggregation authority.
+static box HmiInstructionInventorySealV1 {
+    verify_function(context, path) {
+        local terminators = new MapBox()
+        local definitions = new ArrayBox()
+        local uses = new ArrayBox()
+        local ownership_sites = new ArrayBox()
+        local block_order = context.ordered_block_ids()
+        local b = 0
+        loop(b < block_order.length()) {
+            local block_id = block_order.get(b)
+            local instructions = context.block_node(block_id)
+                .object_get("instructions")
+            local phi_prefix = true
+            local i = 0
+            loop(i < instructions.array_size()) {
+                local site = new HmiInstructionSiteV1()
+                site.initialize(
+                    block_id,
+                    i,
+                    path + ".blocks[id=" + block_id +
+                        "].instructions[" + i + "]",
+                    phi_prefix,
+                    i + 1 == instructions.array_size()
+                )
+                local result = this.verify_instruction(
+                    instructions.array_get(i), site
+                )
+                if not result.accepted() {
+                    return new HmiInstructionShapeResultV1(
+                        null, result.failure()
+                    )
+                }
+                local row = result.verified_row()
+                if row.op() != "phi" { phi_prefix = false }
+                this.append_all(definitions, row.definitions())
+                this.append_all(uses, row.uses())
+                this.append_all(ownership_sites, row.ownership_sites())
+                if row.terminator() != null {
+                    terminators.set("" + block_id, row.terminator())
+                }
+                i = i + 1
+            }
+            if not terminators.has("" + block_id) {
+                return this.reject(
+                    path + ".blocks[id=" + block_id + "]",
+                    "final jump/branch/ret",
+                    "missing",
+                    "block has no admitted terminator"
+                )
+            }
+            b = b + 1
+        }
+        return new HmiInstructionShapeResultV1(
+            new HmiInstructionShapeV1(
+                terminators, definitions, uses, ownership_sites
+            ),
+            null
+        )
+    }
+
+    verify_instruction(node, site) {
+        local path = site.path()
+        local error = HmiObjectContractV1.kind(
+            node, "object", "document", path
+        )
+        if error != null { return new HmiInstructionRowResultV1(null, error) }
+        error = HmiObjectContractV1.kind(
+            node.object_get("op"), "string", "document", path + ".op"
+        )
+        if error != null { return new HmiInstructionRowResultV1(null, error) }
+
+        local op = node.object_get("op").as_string()
+        error = this.verify_contract(op, node, path)
+        if error != null { return new HmiInstructionRowResultV1(null, error) }
+        if op == "phi" and not site.phi_prefix() {
+            return this.row_reject(
+                path, "PHI prefix", "PHI after ordinary instruction",
+                "PHI must remain at block start"
+            )
+        }
+
+        local definitions = new ArrayBox()
+        local uses = new ArrayBox()
+        local ownership_sites = new ArrayBox()
+        local terminator = null
+        local block_id = site.block()
+        local instruction_index = site.index()
+
+        if op == "const" {
+            definitions.push(this.definition(
+                node, block_id, instruction_index, op
+            ))
+        } else if op == "copy" or op == "copy_owned" {
+            definitions.push(this.definition(
+                node, block_id, instruction_index, op
+            ))
+            uses.push(this.use(
+                node.object_get("src").as_int(),
+                block_id,
+                instruction_index,
+                op,
+                "src"
+            ))
+            if op == "copy_owned" {
+                local copy_site = new HmiOwnershipSiteV1()
+                copy_site.set_site(op, block_id, instruction_index)
+                copy_site.set_copy(
+                    node.object_get("dst").as_int(),
+                    node.object_get("src").as_int()
+                )
+                ownership_sites.push(copy_site)
+            }
+        } else if op == "destroy_owned" {
+            uses.push(this.use(
+                node.object_get("value").as_int(),
+                block_id,
+                instruction_index,
+                op,
+                "value"
+            ))
+            local destroy_site = new HmiOwnershipSiteV1()
+            destroy_site.set_site(op, block_id, instruction_index)
+            destroy_site.set_destroy(node.object_get("value").as_int())
+            ownership_sites.push(destroy_site)
+        } else if op == "binop" {
+            definitions.push(this.definition(
+                node, block_id, instruction_index, op
+            ))
+            uses.push(this.use(
+                node.object_get("lhs").as_int(),
+                block_id,
+                instruction_index,
+                op,
+                "lhs"
+            ))
+            uses.push(this.use(
+                node.object_get("rhs").as_int(),
+                block_id,
+                instruction_index,
+                op,
+                "rhs"
+            ))
+        } else if op == "jump" {
+            local successors = new ArrayBox()
+            successors.push(node.object_get("target").as_int())
+            terminator = new HmiTerminatorSummaryV1("Jump", successors)
+        } else if op == "branch" {
+            uses.push(this.use(
+                node.object_get("cond").as_int(),
+                block_id,
+                instruction_index,
+                op,
+                "cond"
+            ))
+            local successors = new ArrayBox()
+            local then_id = node.object_get("then").as_int()
+            local else_id = node.object_get("else").as_int()
+            successors.push(then_id)
+            if else_id != then_id { successors.push(else_id) }
+            terminator = new HmiTerminatorSummaryV1("Branch", successors)
+        } else if op == "phi" {
+            definitions.push(this.definition(
+                node, block_id, instruction_index, op
+            ))
+            local incoming = node.object_get("incoming")
+            local i = 0
+            loop(i < incoming.array_size()) {
+                local pair = incoming.array_get(i)
+                local use = this.use(
+                    pair.array_get(0).as_int(),
+                    block_id,
+                    instruction_index,
+                    op,
+                    "incoming[" + i + "]"
+                )
+                use.set_phi_predecessor(pair.array_get(1).as_int())
+                uses.push(use)
+                i = i + 1
+            }
+        } else if op == "ret" {
+            local value = node.object_get("value")
+            if value.get_kind() != "null" {
+                uses.push(this.use(
+                    value.as_int(),
+                    block_id,
+                    instruction_index,
+                    op,
+                    "value"
+                ))
+            }
+            terminator = new HmiTerminatorSummaryV1(
+                "Return", new ArrayBox()
+            )
+        }
+
+        local is_terminator = terminator != null
+        if is_terminator and not site.is_last() {
+            return this.row_reject(
+                path, "terminator at final index", "terminator before final",
+                "terminator must be final"
+            )
+        }
+        if site.is_last() and not is_terminator {
+            return this.row_reject(
+                path, "jump/branch/ret", op,
+                "final instruction is not a terminator"
+            )
+        }
+
+        return new HmiInstructionRowResultV1(
+            new HmiInstructionRowShapeV1(
+                op, definitions, uses, ownership_sites, terminator
+            ),
+            null
+        )
+    }
+
+    definition(node, block_id, instruction_index, op) {
+        return new HmiValueDefinitionV1(
+            node.object_get("dst").as_int(),
+            block_id,
+            instruction_index,
+            op
+        )
+    }
+
+    verify_contract(op, node, path) {
+        if op == "const" {
+            return HmiInstructionContractV1.verify_const(node, path)
+        }
+        if op == "copy" or op == "copy_owned" {
+            return HmiInstructionContractV1.verify_ids2(
+                node, "dst", "src", path
+            )
+        }
+        if op == "destroy_owned" {
+            return HmiInstructionContractV1.verify_destroy_owned(node, path)
+        }
+        if op == "binop" {
+            return HmiInstructionContractV1.verify_binop(node, path)
+        }
+        if op == "jump" {
+            return HmiInstructionContractV1.verify_jump(node, path)
+        }
+        if op == "branch" {
+            return HmiInstructionContractV1.verify_branch(node, path)
+        }
+        if op == "phi" {
+            return HmiInstructionContractV1.verify_phi(node, path)
+        }
+        if op == "ret" {
+            return HmiInstructionContractV1.verify_return(node, path)
+        }
+        return HmiObjectContractV1.error(
+            "document", "unsupported-opcode", path + ".op",
+            "const/copy/copy_owned/destroy_owned/binop/jump/branch/phi/ret",
+            op,
+            "opcode is outside HMI-S0-T0"
+        )
+    }
+
+    use(value_id, block_id, instruction_index, op, role) {
+        local use = new HmiValueUseV1()
+        use.set_position(value_id, block_id, instruction_index)
+        return use.set_role(op, role)
+    }
+
+    append_all(target, source) {
+        local i = 0
+        loop(i < source.length()) {
+            target.push(source.get(i))
+            i = i + 1
+        }
+    }
+
+    reject(path, expected, actual, detail) {
+        return new HmiInstructionShapeResultV1(
+            null,
+            HmiObjectContractV1.error(
+                "document", "instruction-shape", path,
+                expected, actual, detail
+            )
+        )
+    }
+
+    row_reject(path, expected, actual, detail) {
+        return new HmiInstructionRowResultV1(
+            null,
+            HmiObjectContractV1.error(
+                "document", "instruction-position", path,
+                expected, actual, detail
+            )
+        )
+    }
+}

@@ -1,0 +1,78 @@
+using tools.hako_shared.hmi.view.document_view as VerifiedHmiDocumentView
+using tools.hako_shared.hmi.view.function_view as VerifiedHmiFunctionView
+using tools.hako_shared.hmi.view.block_view as VerifiedHmiBlockView
+using tools.hako_shared.hmi.view.instruction_view as VerifiedHmiInstructionView
+
+// Sole Verified view constructor owner. The document seal calls this only
+// after every function and whole-document correspondence check succeeds.
+static box HmiVerifiedViewPublisherV1 {
+    publish(root_anchor, function_order, sealed_functions) {
+        local document_view = new VerifiedHmiDocumentView()
+        document_view.initialize(root_anchor)
+
+        local i = 0
+        loop(i < function_order.length()) {
+            local name = function_order.get(i)
+            local sealed = sealed_functions.get(name)
+            local function_view = this.publish_function(sealed)
+            document_view.add_function_view(name, function_view)
+            i = i + 1
+        }
+        return document_view
+    }
+
+    publish_function(sealed) {
+        local context = sealed.context()
+        local value_facts = sealed.value_facts()
+        local path = sealed.source_path()
+        local function_view = new VerifiedHmiFunctionView()
+        function_view.initialize(
+            context.name(),
+            context.entry_block(),
+            path
+        )
+
+        local parameters = context.parameter_nodes()
+        local p = 0
+        loop(p < parameters.array_size()) {
+            function_view.add_parameter(parameters.array_get(p).as_int())
+            p = p + 1
+        }
+
+        local value_ids = value_facts.value_ids()
+        local v = 0
+        loop(v < value_ids.length()) {
+            local value_id = value_ids.get(v)
+            function_view.add_value_type(
+                value_id,
+                value_facts.kind(value_id),
+                value_facts.box_type(value_id)
+            )
+            v = v + 1
+        }
+
+        local block_order = context.ordered_block_ids()
+        local b = 0
+        loop(b < block_order.length()) {
+            local block_id = block_order.get(b)
+            local block_path = path + ".blocks[id=" + block_id + "]"
+            local block_view = new VerifiedHmiBlockView()
+            block_view.initialize(block_id, block_path)
+            local instructions = context.block_node(block_id)
+                .object_get("instructions")
+            local j = 0
+            loop(j < instructions.array_size()) {
+                local instruction_view = new VerifiedHmiInstructionView()
+                instruction_view.initialize(
+                    instructions.array_get(j),
+                    block_path + ".instructions[" + j + "]"
+                )
+                block_view.add_instruction_view(instruction_view)
+                j = j + 1
+            }
+            function_view.add_block_view(block_id, block_view)
+            b = b + 1
+        }
+        return function_view
+    }
+}

@@ -1,0 +1,305 @@
+using tools.hako_shared.hmi.seal.object_contract as HmiObjectContractV1
+
+box HmiRootEnvelopeV1 {
+    functions
+    function_order
+    cfg_functions
+
+    birth(functions, function_order, cfg_functions) {
+        me.functions = functions
+        me.function_order = function_order
+        me.cfg_functions = cfg_functions
+    }
+
+    function_nodes() { return me.functions }
+    ordered_function_names() { return me.function_order }
+    cfg_function_nodes() { return me.cfg_functions }
+}
+
+box HmiRootSealResultV1 {
+    envelope
+    error
+
+    birth(envelope, error) {
+        me.envelope = envelope
+        me.error = error
+    }
+
+    accepted() { return me.error == null }
+    verified_envelope() { return me.envelope }
+    failure() { return me.error }
+}
+
+static box HmiRootSealV1 {
+    verify(root) {
+        local fields = this.root_fields()
+        local error = HmiObjectContractV1.exact_fields(
+            root, fields, fields, "document", "$"
+        )
+        if error != null { return new HmiRootSealResultV1(null, error) }
+
+        error = HmiObjectContractV1.exact_string(
+            root.object_get("schema_version"),
+            "1.0",
+            "document",
+            "$.schema_version"
+        )
+        if error != null { return new HmiRootSealResultV1(null, error) }
+        error = this.verify_capabilities(root.object_get("capabilities"))
+        if error != null { return new HmiRootSealResultV1(null, error) }
+        error = this.verify_metadata(root.object_get("metadata"))
+        if error != null { return new HmiRootSealResultV1(null, error) }
+        error = this.verify_opaque_surfaces(root)
+        if error != null { return new HmiRootSealResultV1(null, error) }
+
+        local functions_node = root.object_get("functions")
+        error = HmiObjectContractV1.kind(
+            functions_node, "array", "document", "$.functions"
+        )
+        if error != null { return new HmiRootSealResultV1(null, error) }
+        if functions_node.array_size() == 0 {
+            return this.reject(
+                "$.functions", "one or more functions", "size=0",
+                "document contains no function"
+            )
+        }
+
+        local cfg = root.object_get("cfg")
+        local cfg_fields = HmiObjectContractV1.fields1("functions")
+        error = HmiObjectContractV1.exact_fields(
+            cfg, cfg_fields, cfg_fields, "cfg", "$.cfg"
+        )
+        if error != null { return new HmiRootSealResultV1(null, error) }
+        local cfg_functions_node = cfg.object_get("functions")
+        error = HmiObjectContractV1.kind(
+            cfg_functions_node, "array", "cfg", "$.cfg.functions"
+        )
+        if error != null { return new HmiRootSealResultV1(null, error) }
+        if cfg_functions_node.array_size() != functions_node.array_size() {
+            return this.reject_cfg(
+                "$.cfg.functions",
+                "same cardinality as functions",
+                "functions=" + functions_node.array_size() +
+                    " cfg=" + cfg_functions_node.array_size(),
+                "function/CFG cardinality differs"
+            )
+        }
+
+        local functions = new MapBox()
+        local function_order = new ArrayBox()
+        local i = 0
+        loop(i < functions_node.array_size()) {
+            local node = functions_node.array_get(i)
+            local path = "$.functions[" + i + "]"
+            error = HmiObjectContractV1.kind(
+                node, "object", "document", path
+            )
+            if error != null { return new HmiRootSealResultV1(null, error) }
+            error = HmiObjectContractV1.kind(
+                node.object_get("name"), "string", "document", path + ".name"
+            )
+            if error != null { return new HmiRootSealResultV1(null, error) }
+            local name = node.object_get("name").as_string()
+            if name == "" or functions.has(name) {
+                return this.reject(
+                    path + ".name", "unique non-empty function name", name,
+                    "function name is empty or duplicated"
+                )
+            }
+            functions.set(name, node)
+            function_order.push(name)
+            i = i + 1
+        }
+
+        local cfg_functions = new MapBox()
+        i = 0
+        loop(i < cfg_functions_node.array_size()) {
+            local node = cfg_functions_node.array_get(i)
+            local path = "$.cfg.functions[" + i + "]"
+            error = HmiObjectContractV1.kind(
+                node, "object", "cfg", path
+            )
+            if error != null { return new HmiRootSealResultV1(null, error) }
+            error = HmiObjectContractV1.kind(
+                node.object_get("name"), "string", "cfg", path + ".name"
+            )
+            if error != null { return new HmiRootSealResultV1(null, error) }
+            local name = node.object_get("name").as_string()
+            if not functions.has(name) or cfg_functions.has(name) {
+                return this.reject_cfg(
+                    path + ".name", "one exact function name", name,
+                    "CFG function is foreign or duplicated"
+                )
+            }
+            cfg_functions.set(name, node)
+            i = i + 1
+        }
+
+        return new HmiRootSealResultV1(
+            new HmiRootEnvelopeV1(
+                functions, function_order, cfg_functions
+            ),
+            null
+        )
+    }
+
+    verify_capabilities(node) {
+        local error = HmiObjectContractV1.kind(
+            node, "array", "document", "$.capabilities"
+        )
+        if error != null { return error }
+        local expected = HmiObjectContractV1.fields4(
+            "unified_call", "phi", "effects", "callee_typing"
+        )
+        if node.array_size() != expected.length() {
+            return HmiObjectContractV1.error(
+                "document", "capability-mismatch", "$.capabilities",
+                HmiObjectContractV1.join_fields(expected),
+                "size=" + node.array_size(),
+                "capability cardinality differs"
+            )
+        }
+        local i = 0
+        loop(i < expected.length()) {
+            error = HmiObjectContractV1.exact_string(
+                node.array_get(i),
+                expected.get(i),
+                "document",
+                "$.capabilities[" + i + "]"
+            )
+            if error != null { return error }
+            i = i + 1
+        }
+        return null
+    }
+
+    verify_metadata(node) {
+        local fields = HmiObjectContractV1.fields4(
+            "generator", "phase", "build_time", "features"
+        )
+        local error = HmiObjectContractV1.exact_fields(
+            node, fields, fields, "document", "$.metadata"
+        )
+        if error != null { return error }
+        error = HmiObjectContractV1.exact_string(
+            node.object_get("generator"),
+            "nyash-rust",
+            "document",
+            "$.metadata.generator"
+        )
+        if error != null { return error }
+        error = HmiObjectContractV1.kind(
+            node.object_get("phase"), "string", "document", "$.metadata.phase"
+        )
+        if error != null { return error }
+        error = HmiObjectContractV1.kind(
+            node.object_get("build_time"),
+            "string",
+            "document",
+            "$.metadata.build_time"
+        )
+        if error != null { return error }
+
+        local features = node.object_get("features")
+        error = HmiObjectContractV1.kind(
+            features, "array", "document", "$.metadata.features"
+        )
+        if error != null { return error }
+        local expected = HmiObjectContractV1.fields2(
+            "mir_call_unification", "json_v1_schema"
+        )
+        if features.array_size() != expected.length() {
+            return HmiObjectContractV1.error(
+                "document", "feature-mismatch", "$.metadata.features",
+                HmiObjectContractV1.join_fields(expected),
+                "size=" + features.array_size(),
+                "feature cardinality differs"
+            )
+        }
+        local i = 0
+        loop(i < expected.length()) {
+            error = HmiObjectContractV1.exact_string(
+                features.array_get(i),
+                expected.get(i),
+                "document",
+                "$.metadata.features[" + i + "]"
+            )
+            if error != null { return error }
+            i = i + 1
+        }
+        return null
+    }
+
+    verify_opaque_surfaces(root) {
+        local names = this.opaque_surface_names()
+        local i = 0
+        loop(i < names.length()) {
+            local name = names.get(i)
+            local error = HmiObjectContractV1.exact_empty_array(
+                root.object_get(name), "document", "$." + name
+            )
+            if error != null { return error }
+            i = i + 1
+        }
+        return null
+    }
+
+    root_fields() {
+        local fields = HmiObjectContractV1.fields5(
+            "schema_version", "capabilities", "metadata", "functions", "cfg"
+        )
+        local opaque = this.opaque_surface_names()
+        local i = 0
+        loop(i < opaque.length()) {
+            fields.push(opaque.get(i))
+            i = i + 1
+        }
+        return fields
+    }
+
+    opaque_surface_names() {
+        local fields = new ArrayBox()
+        fields.push("user_box_decls")
+        fields.push("weak_field_contract_specs")
+        fields.push("record_decls")
+        fields.push("typed_object_plans")
+        fields.push("object_storage_plans")
+        fields.push("direct_state_plans")
+        fields.push("record_state_residence_plans")
+        fields.push("record_layout_plans")
+        fields.push("array_record_storage_plans")
+        fields.push("array_record_autouse_eligibility_plans")
+        fields.push("array_record_materialization_boundary_plans")
+        fields.push("array_record_packed_autouse_pilot_plans")
+        fields.push("source_packed_array_autouse_pilot_plans")
+        fields.push("source_packed_array_direct_read_consumption_plans")
+        fields.push("hako_alloc_aligned_small_packed_store_pilot_plans")
+        fields.push("hako_alloc_huge_page_packed_store_pilot_plans")
+        fields.push("static_table_contract_specs")
+        fields.push("static_data_plans")
+        fields.push("verified_static_table_contracts")
+        fields.push("enum_decls")
+        fields.push("boxed_sum_abi_plans")
+        return fields
+    }
+
+    reject(path, expected, actual, detail) {
+        return new HmiRootSealResultV1(
+            null,
+            HmiObjectContractV1.error(
+                "document", "root-contract", path,
+                expected, actual, detail
+            )
+        )
+    }
+
+    reject_cfg(path, expected, actual, detail) {
+        return new HmiRootSealResultV1(
+            null,
+            HmiObjectContractV1.error(
+                "cfg", "root-cfg-contract", path,
+                expected, actual, detail
+            )
+        )
+    }
+}

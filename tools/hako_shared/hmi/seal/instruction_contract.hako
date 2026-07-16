@@ -1,0 +1,188 @@
+using tools.hako_shared.hmi.seal.object_contract as HmiObjectContractV1
+
+// Exact opcode field and field-kind authority. It does not scan blocks or
+// publish instruction facts.
+static box HmiInstructionContractV1 {
+    verify(op, node, path) {
+        if op == "const" { return this.verify_const(node, path) }
+        if op == "copy" or op == "copy_owned" {
+            return this.verify_ids2(node, "dst", "src", path)
+        }
+        if op == "destroy_owned" {
+            return this.verify_destroy_owned(node, path)
+        }
+        if op == "binop" { return this.verify_binop(node, path) }
+        if op == "jump" { return this.verify_jump(node, path) }
+        if op == "branch" { return this.verify_branch(node, path) }
+        if op == "phi" { return this.verify_phi(node, path) }
+        if op == "ret" { return this.verify_return(node, path) }
+        return HmiObjectContractV1.error(
+            "document", "unsupported-opcode", path + ".op",
+            "const/copy/copy_owned/destroy_owned/binop/jump/branch/phi/ret",
+            op,
+            "opcode is outside HMI-S0-T0"
+        )
+    }
+
+    verify_const(node, path) {
+        local fields = HmiObjectContractV1.fields3("op", "dst", "value")
+        local error = HmiObjectContractV1.exact_fields(
+            node, fields, fields, "document", path
+        )
+        if error != null { return error }
+        error = HmiObjectContractV1.non_negative_id(
+            node.object_get("dst"), "value_type", path + ".dst"
+        )
+        if error != null { return error }
+        local payload = node.object_get("value")
+        local payload_fields = HmiObjectContractV1.fields2("type", "value")
+        return HmiObjectContractV1.exact_fields(
+            payload, payload_fields, payload_fields,
+            "value_type", path + ".value"
+        )
+    }
+
+    verify_ids2(node, first, second, path) {
+        local fields = HmiObjectContractV1.fields3("op", first, second)
+        local error = HmiObjectContractV1.exact_fields(
+            node, fields, fields, "document", path
+        )
+        if error != null { return error }
+        error = HmiObjectContractV1.non_negative_id(
+            node.object_get(first), "value_type", path + "." + first
+        )
+        if error != null { return error }
+        return HmiObjectContractV1.non_negative_id(
+            node.object_get(second), "value_type", path + "." + second
+        )
+    }
+
+    verify_destroy_owned(node, path) {
+        local fields = HmiObjectContractV1.fields2("op", "value")
+        local error = HmiObjectContractV1.exact_fields(
+            node, fields, fields, "document", path
+        )
+        if error != null { return error }
+        return HmiObjectContractV1.non_negative_id(
+            node.object_get("value"), "value_type", path + ".value"
+        )
+    }
+
+    verify_binop(node, path) {
+        local allowed = HmiObjectContractV1.fields6(
+            "op", "dst", "lhs", "rhs", "operation", "dst_type"
+        )
+        local required = HmiObjectContractV1.fields5(
+            "op", "dst", "lhs", "rhs", "operation"
+        )
+        local error = HmiObjectContractV1.exact_fields(
+            node, allowed, required, "document", path
+        )
+        if error != null { return error }
+        error = this.require_ids3(node, "dst", "lhs", "rhs", path)
+        if error != null { return error }
+        return HmiObjectContractV1.kind(
+            node.object_get("operation"),
+            "string",
+            "document",
+            path + ".operation"
+        )
+    }
+
+    verify_jump(node, path) {
+        local fields = HmiObjectContractV1.fields2("op", "target")
+        local error = HmiObjectContractV1.exact_fields(
+            node, fields, fields, "document", path
+        )
+        if error != null { return error }
+        return HmiObjectContractV1.non_negative_id(
+            node.object_get("target"), "cfg", path + ".target"
+        )
+    }
+
+    verify_branch(node, path) {
+        local fields = HmiObjectContractV1.fields4(
+            "op", "cond", "then", "else"
+        )
+        local error = HmiObjectContractV1.exact_fields(
+            node, fields, fields, "document", path
+        )
+        if error != null { return error }
+        return this.require_ids3(node, "cond", "then", "else", path)
+    }
+
+    verify_phi(node, path) {
+        local allowed = HmiObjectContractV1.fields4(
+            "op", "dst", "incoming", "dst_type"
+        )
+        local required = HmiObjectContractV1.fields3(
+            "op", "dst", "incoming"
+        )
+        local error = HmiObjectContractV1.exact_fields(
+            node, allowed, required, "document", path
+        )
+        if error != null { return error }
+        error = HmiObjectContractV1.non_negative_id(
+            node.object_get("dst"), "value_type", path + ".dst"
+        )
+        if error != null { return error }
+        local incoming = node.object_get("incoming")
+        error = HmiObjectContractV1.kind(
+            incoming, "array", "cfg", path + ".incoming"
+        )
+        if error != null { return error }
+        local i = 0
+        loop(i < incoming.array_size()) {
+            local pair = incoming.array_get(i)
+            local pair_path = path + ".incoming[" + i + "]"
+            error = HmiObjectContractV1.kind(
+                pair, "array", "cfg", pair_path
+            )
+            if error != null { return error }
+            if pair.array_size() != 2 {
+                return HmiObjectContractV1.error(
+                    "cfg", "phi-pair-shape", pair_path,
+                    "[value, predecessor]", "size=" + pair.array_size(),
+                    "PHI input pair cardinality differs"
+                )
+            }
+            error = HmiObjectContractV1.non_negative_id(
+                pair.array_get(0), "value_type", pair_path + "[0]"
+            )
+            if error != null { return error }
+            error = HmiObjectContractV1.non_negative_id(
+                pair.array_get(1), "cfg", pair_path + "[1]"
+            )
+            if error != null { return error }
+            i = i + 1
+        }
+        return null
+    }
+
+    verify_return(node, path) {
+        local fields = HmiObjectContractV1.fields2("op", "value")
+        local error = HmiObjectContractV1.exact_fields(
+            node, fields, fields, "document", path
+        )
+        if error != null { return error }
+        local value = node.object_get("value")
+        if value.get_kind() == "null" { return null }
+        return HmiObjectContractV1.non_negative_id(
+            value, "value_type", path + ".value"
+        )
+    }
+
+    require_ids3(node, a, b, c, path) {
+        local error = HmiObjectContractV1.non_negative_id(
+            node.object_get(a), "value_type", path + "." + a
+        )
+        if error != null { return error }
+        error = HmiObjectContractV1.non_negative_id(
+            node.object_get(b), "value_type", path + "." + b
+        )
+        if error != null { return error }
+        return HmiObjectContractV1.non_negative_id(
+            node.object_get(c), "value_type", path + "." + c
+        )
+    }
+}

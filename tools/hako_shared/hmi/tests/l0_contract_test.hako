@@ -1,9 +1,5 @@
 using tools.hako_shared.hmi.strict_ingress as HmiStrictIngressV1
 using tools.hako_shared.hmi.seal.error as HmiSealErrorV1
-using tools.hako_shared.hmi.view.document_view as VerifiedHmiDocumentView
-using tools.hako_shared.hmi.view.function_view as VerifiedHmiFunctionView
-using tools.hako_shared.hmi.view.block_view as VerifiedHmiBlockView
-using tools.hako_shared.hmi.view.instruction_view as VerifiedHmiInstructionView
 
 static box Main {
     main() {
@@ -11,7 +7,6 @@ static box Main {
             "{\"schema_version\":\"1.0\",\"functions\":[]}"
         )
         if not accepted.accepted() { return 1 }
-        if accepted.root_for_seal().get_kind() != "object" { return 1 }
 
         local rejected = HmiStrictIngressV1.read_for_seal(
             "{\"x\":1,\"x\":2}"

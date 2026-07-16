@@ -10,24 +10,44 @@ box VerifiedHmiFunctionView {
     value_box_types
     path
 
-    birth(
-        name_value,
-        entry_block_value,
-        parameter_ids,
-        block_views,
-        block_order,
-        value_type_kinds,
-        value_box_types,
-        path
-    ) {
+    birth() {
+        me.name_value = null
+        me.entry_block_value = null
+        me.parameter_ids = null
+        me.block_views = null
+        me.block_order = null
+        me.value_type_kinds = null
+        me.value_box_types = null
+        me.path = null
+    }
+
+    initialize(name_value, entry_block_value, path) {
         me.name_value = name_value
         me.entry_block_value = entry_block_value
-        me.parameter_ids = parameter_ids
-        me.block_views = block_views
-        me.block_order = block_order
-        me.value_type_kinds = value_type_kinds
-        me.value_box_types = value_box_types
+        me.parameter_ids = new ArrayBox()
+        me.block_views = new MapBox()
+        me.block_order = new ArrayBox()
+        me.value_type_kinds = new MapBox()
+        me.value_box_types = new MapBox()
         me.path = path
+        return me
+    }
+
+    add_parameter(value_id) {
+        me.parameter_ids.push(value_id)
+    }
+
+    add_block_view(block_id, block_view) {
+        me.block_views.set("" + block_id, block_view)
+        me.block_order.push(block_id)
+    }
+
+    add_value_type(value_id, kind, box_type) {
+        local key = "" + value_id
+        me.value_type_kinds.set(key, kind)
+        if box_type != null and box_type != void {
+            me.value_box_types.set(key, box_type)
+        }
     }
 
     source_path() { return me.path }
@@ -39,7 +59,11 @@ box VerifiedHmiFunctionView {
 
     block_count() { return me.block_order.length() }
     block_id(index) { return me.block_order.get(index) }
-    block(id) { return me.block_views.get("" + id) }
+    block(id) {
+        local key = "" + id
+        if not me.block_views.has(key) { return null }
+        return me.block_views.get(key)
+    }
 
     value_type_kind(value_id) {
         return me.value_type_kinds.get("" + value_id)

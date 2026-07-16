@@ -1,5 +1,5 @@
 ---
-Status: Active execution card
+Status: S0 closed; P0-EMIT0 is next
 Date: 2026-07-16
 Decision: finish S0 through BoxShape cleanup, one post-finish publisher, and a conservative value-use law
 Parent: hmi-s0-t0-whole-document-seal-hardening-task-2026-07-16.md
@@ -423,3 +423,78 @@ the complete mutation matrix publishes no partial view or execution state
 
 Do not claim all MIR JSON V1, general SSA dominance, ownership execution,
 interpreter cutover, or backend replacement.
+
+## S0 closeout
+
+S0 landed with the worker-selected structure:
+
+```text
+typed function context:
+  one exact accessor owner
+
+instruction responsibilities:
+  contract / facts / inventory split
+
+Verified view construction:
+  view/publication.hako only
+
+publication order:
+  all function seals
+  -> whole-document finish
+  -> one publisher call
+
+ordinary non-PHI cross-block instruction result use:
+  rejected
+
+parameter cross-block use:
+  admitted
+
+PHI cross-block use:
+  exact named-predecessor provenance only
+```
+
+Closeout evidence:
+
+```text
+focused MIR verify:
+  L0 green
+  S0 green
+
+release MIR interpreter:
+  L0 green
+  S0 green
+
+debug MIR interpreter:
+  L0 green
+  S0 green
+
+S0 fixtures:
+  non-lowest entry
+  unreachable=false
+  duplicate branch target deduplication
+  second-function failure with null document
+  conservative value-use matrix
+  scalar/PHI/ownership transport matrix
+
+hmi-t0-authority:
+  green
+
+json-native-parser-authority:
+  green
+
+current-state pointer:
+  green
+
+quick:
+  66/66
+
+largest source/check file:
+  ownership.hako = 366
+  all files < 800
+
+production callers / state / handlers / fallback:
+  0
+```
+
+The checked-in positive JSON remains handwritten in S0 and is not producer
+parity authority. `P0-EMIT0` is therefore the exact next blocker.

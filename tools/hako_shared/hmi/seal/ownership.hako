@@ -1,0 +1,366 @@
+using tools.hako_shared.hmi.seal.object_contract as HmiObjectContractV1
+
+// Passive CopyOwned/DestroyOwned transport proof. No Box operation executes.
+static box HmiOwnershipSealV1 {
+    verify(context, instruction_shape, value_facts, path) {
+        local sites = instruction_shape.ownership_operation_sites()
+        local metadata = context.metadata_node()
+        local has_witness = metadata.object_has("ownership_ssa_v1")
+        if sites.length() == 0 {
+            if has_witness {
+                return HmiObjectContractV1.error(
+                    "ownership", "unexpected-witness",
+                    path + ".metadata.ownership_ssa_v1",
+                    "no ownership witness", "present",
+                    "T0 does not admit witness-only ownership metadata"
+                )
+            }
+            return null
+        }
+        if not has_witness {
+            return HmiObjectContractV1.error(
+                "ownership", "missing-witness",
+                path + ".metadata.ownership_ssa_v1",
+                "ownership_ssa_v1", "missing",
+                "ownership instructions require a witness"
+            )
+        }
+
+        local witness = metadata.object_get("ownership_ssa_v1")
+        local fields = HmiObjectContractV1.fields7(
+            "schema",
+            "producer",
+            "owner",
+            "backend",
+            "provider",
+            "value_kinds",
+            "operations"
+        )
+        local error = HmiObjectContractV1.exact_fields(
+            witness, fields, fields,
+            "ownership", path + ".metadata.ownership_ssa_v1"
+        )
+        if error != null { return error }
+        error = this.verify_header(
+            witness, path + ".metadata.ownership_ssa_v1"
+        )
+        if error != null { return error }
+
+        local value_kinds = witness.object_get("value_kinds")
+        error = this.verify_value_kinds(
+            value_kinds,
+            value_facts,
+            path + ".metadata.ownership_ssa_v1.value_kinds"
+        )
+        if error != null { return error }
+
+        local operations = witness.object_get("operations")
+        error = HmiObjectContractV1.kind(
+            operations,
+            "array",
+            "ownership",
+            path + ".metadata.ownership_ssa_v1.operations"
+        )
+        if error != null { return error }
+        if operations.array_size() != sites.length() {
+            return HmiObjectContractV1.error(
+                "ownership", "operation-cardinality",
+                path + ".metadata.ownership_ssa_v1.operations",
+                "size=" + sites.length(),
+                "size=" + operations.array_size(),
+                "instruction/witness operation cardinality differs"
+            )
+        }
+
+        local site_map = new MapBox()
+        local i = 0
+        loop(i < sites.length()) {
+            local site = sites.get(i)
+            site_map.set(site.key(), site)
+            i = i + 1
+        }
+        local seen = new MapBox()
+        i = 0
+        loop(i < operations.array_size()) {
+            local operation = operations.array_get(i)
+            error = this.verify_operation(
+                operation,
+                site_map,
+                seen,
+                value_kinds,
+                value_facts,
+                path + ".metadata.ownership_ssa_v1.operations[" + i + "]"
+            )
+            if error != null { return error }
+            i = i + 1
+        }
+        if seen.keys().length() != sites.length() {
+            return HmiObjectContractV1.error(
+                "ownership", "operation-coverage",
+                path + ".metadata.ownership_ssa_v1.operations",
+                "every ownership instruction site", "incomplete",
+                "witness does not cover every ownership operation"
+            )
+        }
+        return null
+    }
+
+    verify_header(witness, path) {
+        local error = HmiObjectContractV1.exact_string(
+            witness.object_get("schema"),
+            "VerifiedOwnershipSsaV1",
+            "ownership",
+            path + ".schema"
+        )
+        if error != null { return error }
+        error = HmiObjectContractV1.exact_string(
+            witness.object_get("producer"),
+            "rust_ownership_ssa_verifier_v1",
+            "ownership",
+            path + ".producer"
+        )
+        if error != null { return error }
+        error = HmiObjectContractV1.non_negative_id(
+            witness.object_get("owner"), "ownership", path + ".owner"
+        )
+        if error != null { return error }
+        error = HmiObjectContractV1.exact_string(
+            witness.object_get("backend"),
+            "llvm_py",
+            "ownership",
+            path + ".backend"
+        )
+        if error != null { return error }
+        return HmiObjectContractV1.exact_string(
+            witness.object_get("provider"),
+            "nyash_kernel",
+            "ownership",
+            path + ".provider"
+        )
+    }
+
+    verify_value_kinds(node, value_facts, path) {
+        local error = HmiObjectContractV1.kind(
+            node, "object", "ownership", path
+        )
+        if error != null { return error }
+        local keys = node.object_keys()
+        local value_ids = value_facts.value_ids()
+        if keys.length() != value_ids.length() {
+            return HmiObjectContractV1.error(
+                "ownership", "value-kind-cardinality", path,
+                "size=" + value_ids.length(),
+                "size=" + keys.length(),
+                "ownership kind inventory differs from value inventory"
+            )
+        }
+        local i = 0
+        loop(i < value_ids.length()) {
+            local key = value_ids.get(i)
+            if not node.object_has(key) {
+                return HmiObjectContractV1.error(
+                    "ownership", "missing-value-kind", path + "." + key,
+                    "ownership kind", "missing",
+                    "defined value lacks ownership kind"
+                )
+            }
+            i = i + 1
+        }
+        i = 0
+        loop(i < keys.length()) {
+            local key = keys.get(i)
+            local kind_node = node.object_get(key)
+            error = HmiObjectContractV1.kind(
+                kind_node, "string", "ownership", path + "." + key
+            )
+            if error != null { return error }
+            local kind = kind_node.as_string()
+            if kind != "none" and kind != "borrowed" and kind != "owned" {
+                return HmiObjectContractV1.error(
+                    "ownership", "unknown-value-kind", path + "." + key,
+                    "none/borrowed/owned", kind,
+                    "ownership kind is unknown"
+                )
+            }
+            i = i + 1
+        }
+        return null
+    }
+
+    verify_operation(
+        operation,
+        site_map,
+        seen,
+        value_kinds,
+        value_facts,
+        path
+    ) {
+        local error = HmiObjectContractV1.kind(
+            operation, "object", "ownership", path
+        )
+        if error != null { return error }
+        local base = HmiObjectContractV1.fields3(
+            "block", "instruction_index", "op"
+        )
+        local i = 0
+        loop(i < base.length()) {
+            if not operation.object_has(base.get(i)) {
+                return HmiObjectContractV1.error(
+                    "ownership", "missing-operation-field", path,
+                    base.get(i), "missing",
+                    "ownership operation lacks a required field"
+                )
+            }
+            i = i + 1
+        }
+        error = HmiObjectContractV1.non_negative_id(
+            operation.object_get("block"), "ownership", path + ".block"
+        )
+        if error != null { return error }
+        error = HmiObjectContractV1.non_negative_id(
+            operation.object_get("instruction_index"),
+            "ownership",
+            path + ".instruction_index"
+        )
+        if error != null { return error }
+        error = HmiObjectContractV1.kind(
+            operation.object_get("op"),
+            "string",
+            "ownership",
+            path + ".op"
+        )
+        if error != null { return error }
+
+        local op = operation.object_get("op").as_string()
+        local allowed = null
+        if op == "copy_owned" {
+            allowed = HmiObjectContractV1.fields5(
+                "block", "instruction_index", "op", "dst", "src"
+            )
+        } else if op == "destroy_owned" {
+            allowed = HmiObjectContractV1.fields4(
+                "block", "instruction_index", "op", "value"
+            )
+        } else {
+            return HmiObjectContractV1.error(
+                "ownership", "unsupported-operation", path + ".op",
+                "copy_owned/destroy_owned", op,
+                "ownership witness operation is unsupported"
+            )
+        }
+        error = HmiObjectContractV1.exact_fields(
+            operation, allowed, allowed, "ownership", path
+        )
+        if error != null { return error }
+
+        local key = "" + operation.object_get("block").as_int() +
+            ":" + operation.object_get("instruction_index").as_int() +
+            ":" + op
+        if not site_map.has(key) or seen.has(key) {
+            return HmiObjectContractV1.error(
+                "ownership", "operation-site", path,
+                "one exact instruction site", key,
+                "ownership site is missing or duplicated"
+            )
+        }
+        local site = site_map.get(key)
+
+        if op == "copy_owned" {
+            error = this.verify_copy_owned(
+                operation, site, value_kinds, value_facts, path
+            )
+        } else {
+            error = this.verify_destroy_owned(
+                operation, site, value_kinds, value_facts, path
+            )
+        }
+        if error != null { return error }
+        seen.set(key, true)
+        return null
+    }
+
+    verify_copy_owned(operation, site, value_kinds, value_facts, path) {
+        local error = this.same_id(
+            operation.object_get("dst").as_int(),
+            site.dst(),
+            path + ".dst"
+        )
+        if error != null { return error }
+        error = this.same_id(
+            operation.object_get("src").as_int(),
+            site.src(),
+            path + ".src"
+        )
+        if error != null { return error }
+
+        local dst = site.dst()
+        local src = site.src()
+        local dst_kind = value_kinds.object_get("" + dst).as_string()
+        local src_kind = value_kinds.object_get("" + src).as_string()
+        if dst_kind != "owned" {
+            return HmiObjectContractV1.error(
+                "ownership", "copy-destination-kind", path + ".dst",
+                "owned", dst_kind,
+                "CopyOwned destination is not owned"
+            )
+        }
+        if src_kind != "borrowed" and src_kind != "owned" {
+            return HmiObjectContractV1.error(
+                "ownership", "copy-source-kind", path + ".src",
+                "borrowed or owned", src_kind,
+                "CopyOwned source has no transferable ownership"
+            )
+        }
+        error = this.require_handle(value_facts, src, path + ".src")
+        if error != null { return error }
+        error = this.require_handle(value_facts, dst, path + ".dst")
+        if error != null { return error }
+        local src_box = value_facts.box_type(src)
+        local dst_box = value_facts.box_type(dst)
+        if src_box != dst_box {
+            return HmiObjectContractV1.error(
+                "ownership", "copy-box-type", path,
+                src_box, dst_box,
+                "CopyOwned handle box types differ"
+            )
+        }
+        return null
+    }
+
+    verify_destroy_owned(operation, site, value_kinds, value_facts, path) {
+        local value = operation.object_get("value").as_int()
+        local error = this.same_id(value, site.value(), path + ".value")
+        if error != null { return error }
+        local kind = value_kinds.object_get("" + value).as_string()
+        if kind != "owned" {
+            return HmiObjectContractV1.error(
+                "ownership", "destroy-kind", path + ".value",
+                "owned", kind,
+                "DestroyOwned operand is not owned"
+            )
+        }
+        return this.require_handle(value_facts, value, path + ".value")
+    }
+
+    require_handle(value_facts, value, path) {
+        local kind = value_facts.kind(value)
+        local box_type = value_facts.box_type(value)
+        if kind == "handle" and box_type != null and box_type != "" {
+            return null
+        }
+        return HmiObjectContractV1.error(
+            "ownership", "handle-type", path,
+            "exact non-empty handle type", "" + kind,
+            "ownership operand is not an admitted handle"
+        )
+    }
+
+    same_id(actual, expected, path) {
+        if actual == expected { return null }
+        return HmiObjectContractV1.error(
+            "ownership", "operand-mismatch", path,
+            "" + expected, "" + actual,
+            "ownership witness operand differs from instruction"
+        )
+    }
+}

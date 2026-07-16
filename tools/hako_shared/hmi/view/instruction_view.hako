@@ -5,9 +5,15 @@ box VerifiedHmiInstructionView {
     node
     path
 
-    birth(node, path) {
+    birth() {
+        me.node = null
+        me.path = null
+    }
+
+    initialize(node, path) {
         me.node = node
         me.path = path
+        return me
     }
 
     source_path() { return me.path }

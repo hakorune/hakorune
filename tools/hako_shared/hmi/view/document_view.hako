@@ -2,15 +2,32 @@
 // authority; no root JsonNode is exposed.
 
 box VerifiedHmiDocumentView {
+    root_anchor
     function_views
     function_order
 
-    birth(function_views, function_order) {
-        me.function_views = function_views
-        me.function_order = function_order
+    birth() {
+        me.root_anchor = null
+        me.function_views = null
+        me.function_order = null
+    }
+
+    initialize(root_anchor) {
+        me.root_anchor = root_anchor
+        me.function_views = new MapBox()
+        me.function_order = new ArrayBox()
+        return me
+    }
+
+    add_function_view(name, function_view) {
+        me.function_views.set(name, function_view)
+        me.function_order.push(name)
     }
 
     function_count() { return me.function_order.length() }
     function_name(index) { return me.function_order.get(index) }
-    function_view(name) { return me.function_views.get(name) }
+    function_view(name) {
+        if not me.function_views.has(name) { return null }
+        return me.function_views.get(name)
+    }
 }

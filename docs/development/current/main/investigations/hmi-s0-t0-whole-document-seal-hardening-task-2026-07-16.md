@@ -1,5 +1,5 @@
 ---
-Status: HMI-S0-T0-L0 closed; worker-audited S0 execution packet locked
+Status: HMI-S0-T0-S0 closed; P0 producer-backed proof is next
 Date: 2026-07-16
 Decision: harden the T0 prototype into one producer-backed bounded seal
 Parent: hmi-s0-strict-reader-interpreter-task-2026-07-16.md

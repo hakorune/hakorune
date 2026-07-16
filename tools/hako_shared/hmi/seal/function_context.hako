@@ -1,0 +1,47 @@
+// Typed internal handoff for the function seal pipeline. The MapBox storage is
+// private to this product; downstream stages use exact accessors only.
+box HmiFunctionSealContextV1 {
+    storage
+
+    birth() {
+        me.storage = new MapBox()
+    }
+
+    initialize(
+        name_value,
+        parameter_nodes,
+        metadata_node,
+        value_types_node,
+        block_nodes,
+        block_order,
+        cfg_rows,
+        entry_block_value
+    ) {
+        me.storage.set("name", name_value)
+        me.storage.set("parameters", parameter_nodes)
+        me.storage.set("metadata", metadata_node)
+        me.storage.set("value_types", value_types_node)
+        me.storage.set("blocks", block_nodes)
+        me.storage.set("block_order", block_order)
+        me.storage.set("cfg_rows", cfg_rows)
+        me.storage.set("entry_block", entry_block_value)
+        return me
+    }
+
+    name() { return me.storage.get("name") }
+    parameter_nodes() { return me.storage.get("parameters") }
+    metadata_node() { return me.storage.get("metadata") }
+    value_types_node() { return me.storage.get("value_types") }
+    block_nodes() { return me.storage.get("blocks") }
+    ordered_block_ids() { return me.storage.get("block_order") }
+    cfg_block_rows() { return me.storage.get("cfg_rows") }
+    entry_block() { return me.storage.get("entry_block") }
+
+    block_node(block_id) {
+        return me.storage.get("blocks").get("" + block_id)
+    }
+
+    cfg_block_row(block_id) {
+        return me.storage.get("cfg_rows").get("" + block_id)
+    }
+}

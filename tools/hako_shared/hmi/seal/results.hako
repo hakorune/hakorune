@@ -1,0 +1,70 @@
+box HmiSealedFunctionV1 {
+    storage
+
+    birth() {
+        me.storage = new MapBox()
+    }
+
+    initialize(context, value_facts, path) {
+        me.storage.set("context", context)
+        me.storage.set("value_facts", value_facts)
+        me.storage.set("path", path)
+        return me
+    }
+
+    context() { return me.storage.get("context") }
+    value_facts() { return me.storage.get("value_facts") }
+    source_path() { return me.storage.get("path") }
+}
+
+box HmiFunctionSealResultV1 {
+    sealed_function
+    error
+
+    birth() {
+        me.sealed_function = null
+        me.error = null
+    }
+
+    accepted() { return me.error == null }
+    verified_function() { return me.sealed_function }
+    failure() { return me.error }
+
+    set_success(sealed_function) {
+        me.sealed_function = sealed_function
+        me.error = null
+        return me
+    }
+
+    set_failure(error) {
+        me.sealed_function = null
+        me.error = error
+        return me
+    }
+}
+
+box HmiDocumentSealResultV1 {
+    view
+    error
+
+    birth() {
+        me.view = null
+        me.error = null
+    }
+
+    accepted() { return me.error == null }
+    document() { return me.view }
+    failure() { return me.error }
+
+    set_success(view) {
+        me.view = view
+        me.error = null
+        return me
+    }
+
+    set_failure(error) {
+        me.view = null
+        me.error = error
+        return me
+    }
+}

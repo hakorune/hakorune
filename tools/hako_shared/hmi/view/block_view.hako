@@ -4,10 +4,21 @@ box VerifiedHmiBlockView {
     instruction_views
     path
 
-    birth(id_value, instruction_views, path) {
+    birth() {
+        me.id_value = null
+        me.instruction_views = null
+        me.path = null
+    }
+
+    initialize(id_value, path) {
         me.id_value = id_value
-        me.instruction_views = instruction_views
+        me.instruction_views = new ArrayBox()
         me.path = path
+        return me
+    }
+
+    add_instruction_view(instruction_view) {
+        me.instruction_views.push(instruction_view)
     }
 
     source_path() { return me.path }

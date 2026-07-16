@@ -1,0 +1,336 @@
+using tools.hako_shared.hmi.seal.object_contract as HmiObjectContractV1
+
+box HmiValueFactsV1 {
+    type_kinds
+    box_types
+
+    birth(type_kinds, box_types) {
+        me.type_kinds = type_kinds
+        me.box_types = box_types
+    }
+
+    value_type_kinds() { return me.type_kinds }
+    value_box_types() { return me.box_types }
+    value_ids() { return me.type_kinds.keys() }
+    storage_ready() {
+        return me.type_kinds != null and me.type_kinds != void and
+            me.box_types != null and me.box_types != void
+    }
+    kind(value_id) { return me.type_kinds.get("" + value_id) }
+    box_type(value_id) { return me.box_types.get("" + value_id) }
+}
+
+box HmiValueInventoryResultV1 {
+    facts
+    error
+
+    birth(facts, error) {
+        me.facts = facts
+        me.error = error
+    }
+
+    accepted() { return me.error == null }
+    verified_facts() { return me.facts }
+    failure() { return me.error }
+}
+
+// Exact function-local definition/use/value-type inventory.
+static box HmiValueInventorySealV1 {
+    verify(context, instruction_shape, path) {
+        local definitions = new MapBox()
+        local definition_blocks = new MapBox()
+        local definition_indexes = new MapBox()
+        local parameters = context.parameter_nodes()
+        local error = this.collect_parameters(
+            parameters,
+            definitions,
+            definition_blocks,
+            definition_indexes,
+            path
+        )
+        if error != null {
+            return new HmiValueInventoryResultV1(null, error)
+        }
+
+        local rows = instruction_shape.value_definitions()
+        local i = 0
+        loop(i < rows.length()) {
+            local row = rows.get(i)
+            local key = "" + row.id()
+            if definitions.has(key) {
+                return this.reject(
+                    path + ".blocks[id=" + row.block() +
+                        "].instructions[" + row.index() + "].dst",
+                    "one definition per value id",
+                    key,
+                    "value id is defined more than once"
+                )
+            }
+            definitions.set(key, row.op())
+            definition_blocks.set(key, row.block())
+            definition_indexes.set(key, row.index())
+            i = i + 1
+        }
+
+        local uses = instruction_shape.value_uses()
+        i = 0
+        loop(i < uses.length()) {
+            local use = uses.get(i)
+            if use == null or use == void or
+               use.id() == null or use.id() == void or
+               use.block() == null or use.block() == void or
+               use.index() == null or use.index() == void or
+               use.role() == null or use.role() == void {
+                return this.reject(
+                    path,
+                    "complete sealed value-use row",
+                    "id=" + use.id() +
+                        " block=" + use.block() +
+                        " index=" + use.index() +
+                        " role=" + use.role(),
+                    "instruction shape published an incomplete use"
+                )
+            }
+            local key = "" + use.id()
+            if not definitions.has(key) {
+                return this.reject(
+                    path + ".blocks[id=" + use.block() +
+                        "].instructions[" + use.index() + "]." + use.role(),
+                    "defined value id",
+                    key,
+                    "instruction uses an undefined value"
+                )
+            }
+            local definition_kind = definitions.get(key)
+            if definition_kind != "parameter" {
+                if use.is_phi_input() {
+                    if use.predecessor() == null or
+                       use.predecessor() == void or
+                       definition_blocks.get(key) != use.predecessor() {
+                        return this.reject(
+                            path + ".blocks[id=" + use.block() +
+                                "].instructions[" + use.index() + "]." +
+                                use.role(),
+                            "parameter or value defined in named predecessor " +
+                                use.predecessor(),
+                            "definition_block=" + definition_blocks.get(key),
+                            "PHI input provenance differs from predecessor"
+                        )
+                    }
+                } else if definition_blocks.get(key) != use.block() {
+                    return this.reject(
+                        path + ".blocks[id=" + use.block() +
+                            "].instructions[" + use.index() + "]." + use.role(),
+                        "parameter or same-block earlier definition",
+                        "definition_block=" + definition_blocks.get(key),
+                        "cross-block non-PHI use is outside T0"
+                    )
+                } else if definition_indexes.get(key) >= use.index() {
+                    return this.reject(
+                        path + ".blocks[id=" + use.block() +
+                            "].instructions[" + use.index() + "]." + use.role(),
+                        "earlier same-block definition",
+                        "definition_index=" + definition_indexes.get(key),
+                        "same-block use precedes its definition"
+                    )
+                }
+            }
+            i = i + 1
+        }
+
+        local type_result = this.verify_value_types(
+            context.value_types_node(),
+            definitions,
+            path + ".metadata.value_types"
+        )
+        if not type_result.accepted() {
+            return new HmiValueInventoryResultV1(
+                null, type_result.failure()
+            )
+        }
+        return new HmiValueInventoryResultV1(
+            type_result.verified_facts(), null
+        )
+    }
+
+    collect_parameters(
+        parameters,
+        definitions,
+        definition_blocks,
+        definition_indexes,
+        path
+    ) {
+        local i = 0
+        loop(i < parameters.array_size()) {
+            local node = parameters.array_get(i)
+            local error = HmiObjectContractV1.non_negative_id(
+                node, "value_type", path + ".params[" + i + "]"
+            )
+            if error != null { return error }
+            local key = "" + node.as_int()
+            if definitions.has(key) {
+                return HmiObjectContractV1.error(
+                    "value_type", "duplicate-parameter",
+                    path + ".params[" + i + "]",
+                    "unique parameter value id", key,
+                    "parameter value id is duplicated"
+                )
+            }
+            definitions.set(key, "parameter")
+            definition_blocks.set(key, -1)
+            definition_indexes.set(key, -1)
+            i = i + 1
+        }
+        return null
+    }
+
+    verify_value_types(value_types, definitions, path) {
+        local keys = value_types.object_keys()
+        local definition_keys = definitions.keys()
+        if keys.length() != definition_keys.length() {
+            return this.type_reject(
+                path,
+                "one value_types row per definition",
+                "types=" + keys.length() +
+                    " definitions=" + definition_keys.length(),
+                "value type cardinality differs"
+            )
+        }
+
+        local type_kinds = new MapBox()
+        local box_types = new MapBox()
+        local i = 0
+        loop(i < definition_keys.length()) {
+            local key = definition_keys.get(i)
+            if not value_types.object_has(key) {
+                return this.type_reject(
+                    path + "." + key,
+                    "type row for every defined value",
+                    "missing",
+                    "defined value lacks value_types metadata"
+                )
+            }
+            i = i + 1
+        }
+
+        i = 0
+        loop(i < keys.length()) {
+            local key = keys.get(i)
+            if not definitions.has(key) {
+                return this.type_reject(
+                    path + "." + key,
+                    "defined value id",
+                    key,
+                    "value_types contains a stale or foreign id"
+                )
+            }
+            local error = this.verify_type_row(
+                value_types.object_get(key),
+                key,
+                type_kinds,
+                box_types,
+                path + "." + key
+            )
+            if error != null {
+                return new HmiValueTypeRowsResultV1(null, error)
+            }
+            i = i + 1
+        }
+
+        return new HmiValueTypeRowsResultV1(
+            new HmiValueFactsV1(type_kinds, box_types),
+            null
+        )
+    }
+
+    verify_type_row(node, key, type_kinds, box_types, path) {
+        if node == null {
+            return HmiObjectContractV1.error(
+                "value_type", "unknown-value-type", path,
+                "i64/i1/exact handle", "null",
+                "Unknown value type is not portable"
+            )
+        }
+        if node.get_kind() == "string" {
+            local name = node.as_string()
+            if name != "i64" and name != "i1" {
+                return HmiObjectContractV1.error(
+                    "value_type", "unsupported-value-type", path,
+                    "i64 or i1", name,
+                    "scalar value type is outside T0"
+                )
+            }
+            type_kinds.set(key, name)
+            return null
+        }
+        if node.get_kind() != "object" {
+            return HmiObjectContractV1.error(
+                "value_type", "value-type-shape", path,
+                "string or exact handle object", node.get_kind(),
+                "value type row shape differs"
+            )
+        }
+
+        local fields = HmiObjectContractV1.fields2("kind", "box_type")
+        local error = HmiObjectContractV1.exact_fields(
+            node, fields, fields, "value_type", path
+        )
+        if error != null { return error }
+        error = HmiObjectContractV1.exact_string(
+            node.object_get("kind"), "handle", "value_type", path + ".kind"
+        )
+        if error != null { return error }
+        error = HmiObjectContractV1.kind(
+            node.object_get("box_type"),
+            "string",
+            "value_type",
+            path + ".box_type"
+        )
+        if error != null { return error }
+        local box_type = node.object_get("box_type").as_string()
+        if box_type == "" {
+            return HmiObjectContractV1.error(
+                "value_type", "empty-box-type", path + ".box_type",
+                "non-empty box type", "",
+                "handle box type is empty"
+            )
+        }
+        type_kinds.set(key, "handle")
+        box_types.set(key, box_type)
+        return null
+    }
+
+    reject(path, expected, actual, detail) {
+        return new HmiValueInventoryResultV1(
+            null,
+            HmiObjectContractV1.error(
+                "value_type", "value-inventory", path,
+                expected, actual, detail
+            )
+        )
+    }
+
+    type_reject(path, expected, actual, detail) {
+        return new HmiValueTypeRowsResultV1(
+            null,
+            HmiObjectContractV1.error(
+                "value_type", "value-type-inventory", path,
+                expected, actual, detail
+            )
+        )
+    }
+}
+
+box HmiValueTypeRowsResultV1 {
+    facts
+    error
+
+    birth(facts, error) {
+        me.facts = facts
+        me.error = error
+    }
+
+    accepted() { return me.error == null }
+    verified_facts() { return me.facts }
+    failure() { return me.error }
+}

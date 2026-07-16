@@ -1,0 +1,212 @@
+using tools.hako_shared.hmi.strict_ingress as HmiStrictIngressV1
+using tools.hako_shared.hmi.seal.error as HmiSealErrorV1
+using tools.hako_shared.hmi.seal.root as HmiRootSealV1
+using tools.hako_shared.hmi.seal.function_envelope as HmiFunctionEnvelopeSealV1
+using tools.hako_shared.hmi.seal.instruction_inventory as HmiInstructionShapeSealV1
+using tools.hako_shared.hmi.seal.cfg as HmiCfgSealV1
+using tools.hako_shared.hmi.seal.value_inventory as HmiValueInventorySealV1
+using tools.hako_shared.hmi.seal.scalar_profile as HmiScalarProfileSealV1
+using tools.hako_shared.hmi.seal.ownership as HmiOwnershipSealV1
+using tools.hako_shared.hmi.seal.results as HmiSealedFunctionV1
+using tools.hako_shared.hmi.view.publication as HmiVerifiedViewPublisherV1
+
+// Sole whole-document T0 coordinator. It publishes no verified view until all
+// function rows and all cross-row correspondence checks have passed.
+static box HmiDocumentSealV1 {
+    read(json_text) {
+        local parsed = HmiStrictIngressV1.read_for_seal(json_text)
+        if not parsed.accepted() {
+            return this.document_failure(parsed.failure())
+        }
+        return this.verify_root(parsed.root_for_seal())
+    }
+
+    verify_root(root) {
+        local root_result = HmiRootSealV1.verify(root)
+        if not root_result.accepted() {
+            return this.document_failure(root_result.failure())
+        }
+
+        local root_envelope = root_result.verified_envelope()
+        if root_envelope == null or root_envelope == void {
+            return this.invalid_product("$", "root envelope")
+        }
+        local function_nodes = root_envelope.function_nodes()
+        local cfg_nodes = root_envelope.cfg_function_nodes()
+        local function_order = root_envelope.ordered_function_names()
+        local sealed_functions = new MapBox()
+        local i = 0
+        loop(i < function_order.length()) {
+            local name = function_order.get(i)
+            local path = "$.functions[name=" + name + "]"
+            local result = this.verify_function(
+                function_nodes.get(name),
+                cfg_nodes.get(name),
+                path
+            )
+            if not result.accepted() {
+                return this.document_failure(result.failure())
+            }
+            sealed_functions.set(name, result.verified_function())
+            i = i + 1
+        }
+
+        local document_view = HmiVerifiedViewPublisherV1.publish(
+            root, function_order, sealed_functions
+        )
+        if document_view == null {
+            return this.document_failure(
+                HmiSealErrorV1.document(
+                    "view-publication",
+                    "$",
+                    "verified document view",
+                    "null",
+                    "document view publication failed"
+                )
+            )
+        }
+        return this.document_success(document_view)
+    }
+
+    verify_function(function_node, cfg_node, path) {
+        local envelope_result = HmiFunctionEnvelopeSealV1.verify(
+            function_node, cfg_node, path
+        )
+        if not envelope_result.accepted() {
+            return this.function_failure(envelope_result.failure())
+        }
+        local envelope = envelope_result.verified_envelope()
+        if envelope == null or envelope == void {
+            return this.function_failure(
+                HmiSealErrorV1.document(
+                    "invalid-sealed-product", path,
+                    "function envelope", "null/void",
+                    "function envelope publication failed"
+                )
+            )
+        }
+        local context = envelope.seal_context()
+        if context == null or context == void {
+            return this.function_failure(
+                HmiSealErrorV1.document(
+                    "invalid-sealed-product", path,
+                    "function seal context", "null/void",
+                    "function context publication failed"
+                )
+            )
+        }
+
+        local shape_result = HmiInstructionShapeSealV1.verify_function(
+            context, path
+        )
+        if not shape_result.accepted() {
+            return this.function_failure(shape_result.failure())
+        }
+        local shape = shape_result.verified_shape()
+        if shape == null or shape == void {
+            return this.function_failure(
+                HmiSealErrorV1.document(
+                    "invalid-sealed-product", path,
+                    "instruction shape", "null/void",
+                    "instruction shape publication failed"
+                )
+            )
+        }
+
+        local cfg_result = HmiCfgSealV1.verify(context, shape, path)
+        if not cfg_result.accepted() {
+            return this.function_failure(cfg_result.failure())
+        }
+        local cfg_facts = cfg_result.verified_facts()
+        if cfg_facts == null or cfg_facts == void {
+            return this.function_failure(
+                HmiSealErrorV1.cfg(
+                    "invalid-sealed-product", path,
+                    "CFG facts", "null/void",
+                    "CFG fact publication failed"
+                )
+            )
+        }
+        if not cfg_facts.storage_ready() {
+            return this.function_failure(
+                HmiSealErrorV1.cfg(
+                    "invalid-sealed-product", path,
+                    "predecessor map", "null/void",
+                    "CFG fact storage publication failed"
+                )
+            )
+        }
+
+        local value_result = HmiValueInventorySealV1.verify(
+            context, shape, path
+        )
+        if not value_result.accepted() {
+            return this.function_failure(value_result.failure())
+        }
+        local value_facts = value_result.verified_facts()
+        if value_facts == null or value_facts == void {
+            return this.function_failure(
+                HmiSealErrorV1.value_type(
+                    "invalid-sealed-product", path,
+                    "value facts", "null/void",
+                    "value fact publication failed"
+                )
+            )
+        }
+        if not value_facts.storage_ready() {
+            return this.function_failure(
+                HmiSealErrorV1.value_type(
+                    "invalid-sealed-product", path,
+                    "value fact maps", "null/void",
+                    "value fact storage publication failed"
+                )
+            )
+        }
+
+        local error = HmiScalarProfileSealV1.verify(
+            context, cfg_facts, value_facts, path
+        )
+        if error != null {
+            return this.function_failure(error)
+        }
+        error = HmiOwnershipSealV1.verify(
+            context, shape, value_facts, path
+        )
+        if error != null {
+            return this.function_failure(error)
+        }
+        local sealed = new HmiSealedFunctionV1()
+        sealed.initialize(context, value_facts, path)
+        return this.function_success(sealed)
+    }
+
+    invalid_product(path, expected) {
+        return this.document_failure(
+            HmiSealErrorV1.document(
+                "invalid-sealed-product", path,
+                expected, "null/void",
+                "sealed product publication failed"
+            )
+        )
+    }
+
+    document_success(view) {
+        local result = new HmiDocumentSealResultV1()
+        return result.set_success(view)
+    }
+
+    document_failure(error) {
+        local result = new HmiDocumentSealResultV1()
+        return result.set_failure(error)
+    }
+
+    function_success(view) {
+        local result = new HmiFunctionSealResultV1()
+        return result.set_success(view)
+    }
+
+    function_failure(error) {
+        local result = new HmiFunctionSealResultV1()
+        return result.set_failure(error)
+    }
+}

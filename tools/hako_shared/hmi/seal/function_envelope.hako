@@ -1,0 +1,330 @@
+using tools.hako_shared.hmi.seal.object_contract as HmiObjectContractV1
+using tools.hako_shared.hmi.seal.function_context as HmiFunctionSealContextV1
+
+box HmiFunctionEnvelopeV1 {
+    name_value
+    parameter_nodes
+    metadata_node
+    value_types_node
+    block_nodes
+    block_order
+    cfg_rows
+    entry_block_value
+
+    birth(
+        name_value,
+        parameter_nodes,
+        metadata_node,
+        value_types_node,
+        block_nodes,
+        block_order,
+        cfg_rows,
+        entry_block_value
+    ) {
+        me.name_value = name_value
+        me.parameter_nodes = parameter_nodes
+        me.metadata_node = metadata_node
+        me.value_types_node = value_types_node
+        me.block_nodes = block_nodes
+        me.block_order = block_order
+        me.cfg_rows = cfg_rows
+        me.entry_block_value = entry_block_value
+    }
+
+    name() { return me.name_value }
+    parameters() { return me.parameter_nodes }
+    metadata() { return me.metadata_node }
+    value_types() { return me.value_types_node }
+    blocks() { return me.block_nodes }
+    ordered_block_ids() { return me.block_order }
+    cfg_block_rows() { return me.cfg_rows }
+    entry_block() { return me.entry_block_value }
+
+    seal_context() {
+        local context = new HmiFunctionSealContextV1()
+        return context.initialize(
+            me.name_value,
+            me.parameter_nodes,
+            me.metadata_node,
+            me.value_types_node,
+            me.block_nodes,
+            me.block_order,
+            me.cfg_rows,
+            me.entry_block_value
+        )
+    }
+}
+
+box HmiFunctionEnvelopeResultV1 {
+    envelope
+    error
+
+    birth(envelope, error) {
+        me.envelope = envelope
+        me.error = error
+    }
+
+    accepted() { return me.error == null }
+    verified_envelope() { return me.envelope }
+    failure() { return me.error }
+}
+
+static box HmiFunctionEnvelopeSealV1 {
+    verify(function_node, cfg_node, path) {
+        local error = this.verify_function_shape(function_node, path)
+        if error != null {
+            return new HmiFunctionEnvelopeResultV1(null, error)
+        }
+        error = this.verify_cfg_shape(cfg_node, path + ".cfg")
+        if error != null {
+            return new HmiFunctionEnvelopeResultV1(null, error)
+        }
+
+        local name = function_node.object_get("name").as_string()
+        local cfg_name = cfg_node.object_get("name").as_string()
+        if name != cfg_name {
+            return this.reject(
+                path + ".cfg.name", name, cfg_name,
+                "function and CFG names differ"
+            )
+        }
+
+        local blocks = function_node.object_get("blocks")
+        local block_nodes = new MapBox()
+        local block_order = new ArrayBox()
+        local i = 0
+        loop(i < blocks.array_size()) {
+            local block = blocks.array_get(i)
+            local block_path = path + ".blocks[" + i + "]"
+            local fields = HmiObjectContractV1.fields2(
+                "id", "instructions"
+            )
+            error = HmiObjectContractV1.exact_fields(
+                block, fields, fields, "cfg", block_path
+            )
+            if error != null {
+                return new HmiFunctionEnvelopeResultV1(null, error)
+            }
+            error = HmiObjectContractV1.non_negative_id(
+                block.object_get("id"), "cfg", block_path + ".id"
+            )
+            if error != null {
+                return new HmiFunctionEnvelopeResultV1(null, error)
+            }
+            error = HmiObjectContractV1.kind(
+                block.object_get("instructions"),
+                "array",
+                "cfg",
+                block_path + ".instructions"
+            )
+            if error != null {
+                return new HmiFunctionEnvelopeResultV1(null, error)
+            }
+            if block.object_get("instructions").array_size() == 0 {
+                return this.reject(
+                    block_path + ".instructions",
+                    "one or more instructions",
+                    "size=0",
+                    "block lacks a terminator"
+                )
+            }
+            local id = block.object_get("id").as_int()
+            local key = "" + id
+            if block_nodes.has(key) {
+                return this.reject(
+                    block_path + ".id", "unique block id", key,
+                    "block id is duplicated"
+                )
+            }
+            block_nodes.set(key, block)
+            block_order.push(id)
+            i = i + 1
+        }
+
+        local cfg_blocks = cfg_node.object_get("blocks")
+        if cfg_blocks.array_size() != block_order.length() {
+            return this.reject(
+                path + ".cfg.blocks",
+                "same cardinality as function blocks",
+                "function=" + block_order.length() +
+                    " cfg=" + cfg_blocks.array_size(),
+                "function/CFG block cardinality differs"
+            )
+        }
+        local cfg_rows = new MapBox()
+        i = 0
+        loop(i < cfg_blocks.array_size()) {
+            local row = cfg_blocks.array_get(i)
+            local row_path = path + ".cfg.blocks[" + i + "]"
+            local fields = HmiObjectContractV1.fields4(
+                "id", "reachable", "successors", "terminator"
+            )
+            error = HmiObjectContractV1.exact_fields(
+                row, fields, fields, "cfg", row_path
+            )
+            if error != null {
+                return new HmiFunctionEnvelopeResultV1(null, error)
+            }
+            error = HmiObjectContractV1.non_negative_id(
+                row.object_get("id"), "cfg", row_path + ".id"
+            )
+            if error != null {
+                return new HmiFunctionEnvelopeResultV1(null, error)
+            }
+            error = HmiObjectContractV1.kind(
+                row.object_get("reachable"),
+                "bool",
+                "cfg",
+                row_path + ".reachable"
+            )
+            if error != null {
+                return new HmiFunctionEnvelopeResultV1(null, error)
+            }
+            error = HmiObjectContractV1.kind(
+                row.object_get("successors"),
+                "array",
+                "cfg",
+                row_path + ".successors"
+            )
+            if error != null {
+                return new HmiFunctionEnvelopeResultV1(null, error)
+            }
+            error = HmiObjectContractV1.kind(
+                row.object_get("terminator"),
+                "string",
+                "cfg",
+                row_path + ".terminator"
+            )
+            if error != null {
+                return new HmiFunctionEnvelopeResultV1(null, error)
+            }
+            local id = row.object_get("id").as_int()
+            local key = "" + id
+            if not block_nodes.has(key) or cfg_rows.has(key) {
+                return this.reject(
+                    row_path + ".id", "one exact function block id", key,
+                    "CFG block is foreign or duplicated"
+                )
+            }
+            cfg_rows.set(key, row)
+            i = i + 1
+        }
+
+        local entry_node = cfg_node.object_get("entry_block")
+        error = HmiObjectContractV1.non_negative_id(
+            entry_node, "cfg", path + ".cfg.entry_block"
+        )
+        if error != null {
+            return new HmiFunctionEnvelopeResultV1(null, error)
+        }
+        local entry = entry_node.as_int()
+        if not block_nodes.has("" + entry) {
+            return this.reject(
+                path + ".cfg.entry_block",
+                "block id inside function",
+                "" + entry,
+                "entry block is foreign"
+            )
+        }
+
+        return new HmiFunctionEnvelopeResultV1(
+            new HmiFunctionEnvelopeV1(
+                name,
+                function_node.object_get("params"),
+                function_node.object_get("metadata"),
+                function_node.object_get("metadata").object_get("value_types"),
+                block_nodes,
+                block_order,
+                cfg_rows,
+                entry
+            ),
+            null
+        )
+    }
+
+    verify_function_shape(node, path) {
+        local fields = HmiObjectContractV1.fields5(
+            "name", "params", "blocks", "metadata", "attrs"
+        )
+        local error = HmiObjectContractV1.exact_fields(
+            node, fields, fields, "document", path
+        )
+        if error != null { return error }
+        error = HmiObjectContractV1.kind(
+            node.object_get("name"), "string", "document", path + ".name"
+        )
+        if error != null { return error }
+        error = HmiObjectContractV1.kind(
+            node.object_get("params"), "array", "document", path + ".params"
+        )
+        if error != null { return error }
+        error = HmiObjectContractV1.kind(
+            node.object_get("blocks"), "array", "cfg", path + ".blocks"
+        )
+        if error != null { return error }
+        if node.object_get("blocks").array_size() == 0 {
+            return HmiObjectContractV1.error(
+                "cfg", "empty-function", path + ".blocks",
+                "one or more blocks", "size=0",
+                "function contains no block"
+            )
+        }
+        error = HmiObjectContractV1.kind(
+            node.object_get("metadata"),
+            "object",
+            "document",
+            path + ".metadata"
+        )
+        if error != null { return error }
+        error = HmiObjectContractV1.kind(
+            node.object_get("metadata").object_get("value_types"),
+            "object",
+            "value_type",
+            path + ".metadata.value_types"
+        )
+        if error != null { return error }
+
+        local attrs_fields = HmiObjectContractV1.fields1("runes")
+        error = HmiObjectContractV1.exact_fields(
+            node.object_get("attrs"),
+            attrs_fields,
+            attrs_fields,
+            "document",
+            path + ".attrs"
+        )
+        if error != null { return error }
+        return HmiObjectContractV1.kind(
+            node.object_get("attrs").object_get("runes"),
+            "array",
+            "document",
+            path + ".attrs.runes"
+        )
+    }
+
+    verify_cfg_shape(node, path) {
+        local fields = HmiObjectContractV1.fields3(
+            "name", "entry_block", "blocks"
+        )
+        local error = HmiObjectContractV1.exact_fields(
+            node, fields, fields, "cfg", path
+        )
+        if error != null { return error }
+        error = HmiObjectContractV1.kind(
+            node.object_get("name"), "string", "cfg", path + ".name"
+        )
+        if error != null { return error }
+        return HmiObjectContractV1.kind(
+            node.object_get("blocks"), "array", "cfg", path + ".blocks"
+        )
+    }
+
+    reject(path, expected, actual, detail) {
+        return new HmiFunctionEnvelopeResultV1(
+            null,
+            HmiObjectContractV1.error(
+                "cfg", "function-envelope", path,
+                expected, actual, detail
+            )
+        )
+    }
+}
