@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "R0-STOP0 closed with NONE-HMI-DELTA0; storage-helper ownership is at a design stop"
+status = "A-prime accepted and R0-DELTA0 task-fixed; generic source proof is next"
 date = "2026-07-16"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -296,21 +296,26 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 
-latest_card = "hmi-s0-v0-r0-storage-helper-ownership-consultation-question-2026-07-16"
-latest_card_path = "docs/development/current/main/investigations/hmi-s0-v0-r0-storage-helper-ownership-consultation-question-2026-07-16.md"
-latest_card_summary = """R0-STOP0 is closed and registered as
+latest_card = "hmi-s0-v0-r0-delta0-map-formal-mutation-task-2026-07-16"
+latest_card_path = "docs/development/current/main/investigations/hmi-s0-v0-r0-delta0-map-formal-mutation-task-2026-07-16.md"
+latest_card_summary = """A-prime is accepted after three read-only worker
+audits. R0-DELTA0 proves only that an ordinary static formal can mutate a
+MapBox without returning it, reassigning the owner field, or adding ownership
+operations; current borrow/noescape syntax and verified borrowed ABI remain
+inactive. The exact B1/B2 plus D1-D8 matrix, exclusive classifier, helper-vs-
+caller normalized MIR contract, one existing manifest family, no new shell
+guard, four-row S0/M0/V0/G0 order, separation counters, and stop laws are
+fixed. R0-DELTA0-S0 is the next code-facing row. The register stash remains
+evidence only; HMI source changes stay zero until DELTA0 is public and green.
+Historical task context follows. R0-STOP0 is closed and registered as
 MAPFIELD-R0-STOP0. Debug/release runtime and normalized MIR agree; all ten
 generic cases pass and the exclusive selection is NONE-HMI-DELTA0, so KEY0
 and RECV0 are not authorized. Manifest/test-entry/pilot guards, HMI authority
 and inventory isolation, neighboring exact-numeric VM/MIR/EXE, and quick 66/66
 are green. Read-only comparison with the unrestored register WIP isolates one
 missing shape: a field-held MapBox crosses an untyped static helper formal,
-is mutated, returned as the same object, and reassigned to the field. The new
-design consultation recommends A-prime: make the helper a borrowed/noescape
-mutation command with no MapBox return or field reassignment, preceded by one
-generic R0-DELTA0 MapBox-formal mutation proof. Owner-roundtrip compiler
-widening and direct-field fallback remain parked.
-Historical task context follows. HMI-S0-V0-R0 was task-fixed after three worker audits.
+is mutated, returned as the same object, and reassigned to the field.
+Earlier task context follows. HMI-S0-V0-R0 was task-fixed after three worker audits.
 PROOF-MANIFEST-HYGIENE0 is closed: the root proof manifest is again a thin
 include owner, all 208 proof ids are unique, five stale/missing app-local test
 entries use the shared manifest runner, and the pilot guard no longer has a
@@ -902,7 +907,7 @@ MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "DPRIME-HMI-S0-V0-R0-STORAGE-HELPER-OWNERSHIP-DESIGN-STOP-001"
+current_blocker_token = "DPRIME-HMI-S0-V0-R0-DELTA0-S0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -911,6 +916,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-16: A-prime is accepted and R0-DELTA0 is task-fixed after three read-only worker audits. One generic source proof will test ordinary static-formal MapBox mutation visibility with no MapBox return, owner-field reassignment, ownership operation, HMI dependency, runtime special case, fallback, or backend widening. The exact B1/B2+D1-D8 matrix, exclusive result tokens, helper-vs-caller normalized MIR evidence, existing compiler proof manifest family, S0/M0/V0/G0 order, and <800-line boundary are fixed. This is not a production borrowed-ABI claim; R0-DELTA0-S0 is next.",
   "2026-07-16: R0-STOP0-G0 closes the generic MapFieldOwner selection proof as manifest entry MAPFIELD-R0-STOP0. It deterministically selects NONE-HMI-DELTA0; 209-entry wrapper and manifest pilot guards, HMI T0/inventory isolation, neighboring exact-numeric VM/MIR/EXE, current pointer, and quick 66/66 are green. The register WIP remains stashed. Read-only comparison isolates one missing field-MapBox -> static helper formal -> mutate -> return same MapBox -> field reassign chain; a new design stop recommends borrowed mutation command A-prime and one generic R0-DELTA0 proof.",
   "2026-07-16: PURE-FIRST-VM-FEATURE-HYGIENE0 closes an independent guard false-red found during R0-STOP0-G0. The shared pure-first helper now builds debug/release hakorune binaries with the vm-reference feature before explicitly requesting --backend vm. The neighboring exact-numeric helper field-mutation VM/MIR/EXE guard is green. Source language, compiler route, runtime semantics, product backend selection, and HMI behavior remain unchanged; the G0 WIP stayed stashed.",
   "2026-07-16: R0-STOP0-V0 implements the frozen exclusive classifier and selects NONE-HMI-DELTA0. All base, formal-key, direct/self method, one/two control-merge, receiver-alias, and instance-isolation cases pass, so KEY0 and RECV0 are not authorized. The two RuntimeDataBox/Union control-merge calls remain evidence but are not promoted into a compiler fix. G0 manifest registration is next, followed by minimization of exactly one failing HMI-derived structural delta and a new design consultation.",
@@ -922,5 +928,4 @@ landed_tail = [
   "2026-07-16: HMI-S0-T0-P0 closes producer-backed carrier proof. One 312-line Rust fixture owner constructs minimal scalar and ownership MirModules, serializes them through build_mir_json_root, and exactly matches two checked-in JSON V1 documents consumed unchanged by the .hako strict seal. The six-function scalar suite covers i64/Bool Const, all five admitted BinOps, Branch/Jump/Phi, non-lowest entry, unreachable CFG, repeated-target deduplication, Copy, cross-block parameter use, and i64/Bool/no-value returns; the ownership suite covers borrowed WidgetBox -> CopyOwned -> DestroyOwned without execution. A 37-case .hako mutation matrix rejects with no document view. Rust equality, release/debug L0/S0, semantic inventory/HMI/json guards, current pointer, quick 66/66, zero product callers/state/handlers/fallback, and files below 800 lines are green; disconnected HMI-S0-V0 state is next.",
   "2026-07-16: HMI-S0-T0-S0 closes one disconnected strict whole-document seal. A typed function context and split instruction contract/facts/inventory remove the overloaded scanner; exact instruction summaries feed CFG without reparsing, value/type and ownership transport correspond exactly, and conservative cross-block use admits parameters plus predecessor-bound PHI values while rejecting ordinary foreign-block instruction results. All functions seal before the sole view/publication owner constructs any Verified view. Focused MIR verify, release/debug L0/S0 execution, HMI/json authority guards, current pointer, quick 66/66, zero production callers/state/handlers/fallback, and files below 800 lines are green; P0 producer-backed fixture parity is next.",
   "2026-07-16: JSON-NATIVE-ITER0-P0 closes normalized recursive/iterative parity with production selection unchanged. Exactly three test-only files are selectively recovered: an explicit-stack pair walker proves kind/value/array order/object insertion order and compatibility overwrite parity; a first-error helper proves kind/code/token/site parity; and the focused fixture covers generated trees, shallow grammar errors, strict bounds/duplicates, typed lexical errors, decoded a versus Unicode-escaped-a identity, ordinary MIR JSON, alternating depth 24, depths 128/129, root-publication failure, and parser reuse. Focused and retained release/debug fixtures, quick 66/66, recursive fixture walking/stringify zero, diff checks, and files below 800 lines are green; atomic CUT0 is next.",
-  "2026-07-16: JSON-NATIVE-ESC0-I1 atomically activates one exact escaped-string lexical path. JsonTokenizer now consumes scan_string_literal_v1 plus the exact decoder, selected EscapeUtils.unescape_string callers are zero, legacy read_string_literal delegates to the same scanner, and existing ERROR tokens carry typed lexical kind/code/site/expected/actual projected unchanged by the iterative parser. The focused release/debug fixture covers all eight escapes in values and keys, case-insensitive selected Unicode, every named reject class, multiline sites, strict decoded-duplicate-before-colon priority, compatibility last-write-wins, and reuse. Retained release/debug fixtures, quick 66/66, unchanged parser selector/HMI/MAX_CALL_DEPTH, diff checks, and files below 800 lines are green; ITER0-P0 resumes.",
 ]
