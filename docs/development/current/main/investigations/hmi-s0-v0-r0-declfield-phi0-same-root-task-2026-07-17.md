@@ -1,5 +1,5 @@
 ---
-Status: P0 closed; I0 next
+Status: P0 closed; I0 paused at transient type design stop
 Date: 2026-07-17
 Decision: Candidate A′ accepted
 Baseline: e741e1bbca
@@ -746,7 +746,44 @@ bash tools/checks/current_state_pointer_guard.sh
 ```
 
 Production same-root proof consumers remain zero. The next row is
-`R0-DECLFIELD-PHI0-I0`.
+the design consultation:
+
+```text
+hmi-s0-v0-r0-declfield-phi0-transient-type-consultation-question-2026-07-17.md
+```
+
+### I0 attempted connection result
+
+The clean one-consumer connection was attempted and rejected before landing.
+
+```text
+selected transient function:
+  DeclaredFieldOwnerV1.declfield_probe_v1_after_validation/2
+
+selected base:
+  %37 = Copy(%19)
+
+proof result:
+  SeedTypeMissing
+
+final MIR:
+  type(%19) = Box(current owner)
+  type(%37) = Box(current owner)
+```
+
+Finalization-stage propagation eventually yields the type, but the documented
+pipeline ends with PHI and does not by itself explain the downstream Copy.
+The exact late publisher remains part of the consultation. Candidate A-prime
+requires every traversed value to already carry `Box(current owner)`, so I0
+cannot weaken that law without a new decision.
+
+The failed WIP is evidence-only at:
+
+```text
+49bafef37c6a110b1fd98338bd3f95a38ebd6891
+```
+
+No I0 compiler/checker/test delta is landed.
 
 ## R0-DECLFIELD-PHI0-I0
 
