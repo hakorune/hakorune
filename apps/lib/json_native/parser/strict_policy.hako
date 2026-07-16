@@ -1,0 +1,85 @@
+// Opt-in strict policy for the existing json_native parser.
+//
+// Default JsonParser behavior stays compatibility-owned. HMI and other strict
+// consumers must pass an explicit policy and must never retry the default path.
+
+using "./integer_span.hako" as JsonI64IntegerSpanV1
+
+static box StrictJsonPolicyV1 {
+    exact_i64_document() {
+        local policy = new StrictJsonPolicyV1Instance()
+        policy.enable_duplicate_rejection()
+        policy.enable_exact_i64_range()
+        return policy
+    }
+}
+
+// Typed strict-policy error product. JsonParser keeps its compatibility error
+// array shape and stores only the rendered message; strict kind/tag ownership
+// remains here instead of being duplicated in parser branches.
+box StrictJsonParseErrorV1 {
+    kind
+    detail
+
+    birth(kind, detail) {
+        me.kind = kind
+        me.detail = detail
+    }
+
+    message() {
+        return "[json_native/strict/" + me.kind + "] " + me.detail
+    }
+}
+
+box StrictJsonPolicyV1Instance {
+    reject_duplicate_keys_enabled
+    exact_i64_range_enabled
+
+    birth() {
+        me.reject_duplicate_keys_enabled = false
+        me.exact_i64_range_enabled = false
+    }
+
+    enable_duplicate_rejection() {
+        me.reject_duplicate_keys_enabled = true
+        return me
+    }
+
+    enable_exact_i64_range() {
+        me.exact_i64_range_enabled = true
+        return me
+    }
+
+    rejects_duplicate_keys() {
+        return me.reject_duplicate_keys_enabled
+    }
+
+    requires_exact_i64_range() {
+        return me.exact_i64_range_enabled
+    }
+
+    integer_lexeme_is_admitted(text) {
+        if not me.exact_i64_range_enabled {
+            return true
+        }
+        return JsonI64IntegerSpanV1.is_in_range(text)
+    }
+
+    parse_admitted_integer(text) {
+        return JsonI64IntegerSpanV1.parse_proven(text)
+    }
+
+    integer_range_error(text) {
+        return new StrictJsonParseErrorV1(
+            "integer-range",
+            "signed i64 lexeme is out of range: " + text
+        )
+    }
+
+    duplicate_key_error(key) {
+        return new StrictJsonParseErrorV1(
+            "duplicate-key",
+            "duplicate object key: " + key
+        )
+    }
+}

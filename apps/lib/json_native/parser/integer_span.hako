@@ -1,0 +1,84 @@
+// Exact signed-i64 JSON integer lexeme helper.
+//
+// This layer owns no MIR vocabulary. It proves the decimal lexeme is inside
+// the signed-i64 range before host integer arithmetic is used.
+
+static box JsonI64IntegerSpanV1 {
+    is_in_range(text) {
+        if text == null or text.length() == 0 {
+            return false
+        }
+
+        local negative = text.substring(0, 1) == "-"
+        local start = 0
+        if negative {
+            start = 1
+        }
+        if start >= text.length() {
+            return false
+        }
+
+        local digits = text.substring(start, text.length())
+        if not this.all_digits(digits) {
+            return false
+        }
+        if digits.length() < 19 {
+            return true
+        }
+        if digits.length() > 19 {
+            return false
+        }
+
+        if negative {
+            return digits <= "9223372036854775808"
+        }
+        return digits <= "9223372036854775807"
+    }
+
+    // Caller must prove is_in_range(text) first. Negative accumulation avoids
+    // constructing the positive magnitude of i64::MIN.
+    parse_proven(text) {
+        local negative = text.substring(0, 1) == "-"
+        local i = 0
+        if negative {
+            i = 1
+        }
+
+        local value = 0
+        loop(i < text.length()) {
+            local digit = this.digit_value(text.substring(i, i + 1))
+            if negative {
+                value = value * 10 - digit
+            } else {
+                value = value * 10 + digit
+            }
+            i = i + 1
+        }
+        return value
+    }
+
+    all_digits(text) {
+        local i = 0
+        loop(i < text.length()) {
+            if this.digit_value(text.substring(i, i + 1)) < 0 {
+                return false
+            }
+            i = i + 1
+        }
+        return true
+    }
+
+    digit_value(ch) {
+        if ch == "0" { return 0 }
+        if ch == "1" { return 1 }
+        if ch == "2" { return 2 }
+        if ch == "3" { return 3 }
+        if ch == "4" { return 4 }
+        if ch == "5" { return 5 }
+        if ch == "6" { return 6 }
+        if ch == "7" { return 7 }
+        if ch == "8" { return 8 }
+        if ch == "9" { return 9 }
+        return -1
+    }
+}

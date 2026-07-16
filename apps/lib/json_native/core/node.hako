@@ -252,6 +252,16 @@ box JsonNodeInstance {
         }
     }
 
+    // Read-only membership check. Strict parsers use this before object_set so
+    // duplicate evidence cannot be erased by compatibility overwrite behavior.
+    object_has(key) {
+        if me.kind != "object" {
+            return false
+        }
+        local object_key = me.object_key_materialize(key)
+        return me.object_key_index(object_key) >= 0
+    }
+
     // インスタンスメソッドとして静的メソッドを呼び出し
     get_kind(): StringBox { return me.kind }
     as_bool() { 

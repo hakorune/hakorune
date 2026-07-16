@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "HMI-S0-J0 active; RF0 closed and strict json_native policy resumes"
+status = "HMI-S0-J0 closed; HMI-S0-E0 exact-none control-edge witness next"
 date = "2026-07-16"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -307,7 +307,8 @@ proves every Jump/Branch edge argument is exact None; Some(empty) also rejects,
 because the Rust JSON emitter and reference interpreter currently ignore edge
 arguments. Task order is J0 strict json_native policy -> E0 exact-none witness
 -> T0 whole-document seal -> V0 state -> I0 handlers -> P0 parity, with HMI
-production callers and fallback zero throughout. HMI-S0-J0 is next.
+production callers and fallback zero throughout. HMI-S0-J0 is closed and
+HMI-S0-E0 exact-none control-edge witness is next.
 HMI-P0-G0 is closed. The existing manifest runner now
 owns one public `hmi-semantic-reference-inventory` row in pilot and quick-
 static profiles, with no shell-wrapper growth. The same source-derived checker
@@ -822,7 +823,7 @@ MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "DPRIME-HMI-S0-J0-STRICT-JSON-NATIVE-POLICY-001"
+current_blocker_token = "DPRIME-HMI-S0-E0-EXACT-NONE-CONTROL-EDGE-WITNESS-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -831,6 +832,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-16: HMI-S0-J0 closes one opt-in strict policy over the existing json_native grammar/tree authority: decoded duplicate keys reject before compatibility overwrite, exact signed-i64 lexemes include proven MIN/MAX conversion, whole-input consumption stays exact, and typed policy-owned strict errors render into the existing parser error array. Default JsonParser.parse behavior remains unchanged and its duplicate last-write-wins fixture stays green; HMI execution callers/fallback remain zero. strict_policy_test, pointer/diff checks, and all touched source files below 800 lines are green; HMI-S0-E0 exact-none control-edge witness is next.",
   "2026-07-16: HMI-S0-J0-RF0 closes one compiler-expressivity prerequisite without a new route or Lower authority: shared value-expression Facts now admit Me/This roots and recursively lowerable FieldAccess operands, allowing the existing exit-allowed LoopTrueBreakContinue recipe to own the strict json_native duplicate guard. Focused Facts 5/5, recipe 1/1, default/planner-required fixture, phase29bq fast gate, and the executing strict-policy consumer are green; dynamic Index, AST rewrite, fallback, and field-name policy remain zero. HMI-S0-J0 strict json_native policy resumes.",
   "2026-07-16: HMI-S0-D0 closes the strict-ingress/scalar-interpreter design consultation after current-source and worker audit. B-prime keeps apps/lib/json_native as the sole native JSON grammar/tree authority and adds an opt-in strict policy; the tolerant tools parser stays outside HMI. Plain i64 Add/Sub/Mul/Div/Mod are checked with stable overflow/zero errors, wrapping remains future explicit vocabulary, and final Rust MIR must prove every Jump/Branch edge arg is exact None through one function metadata witness; Some(empty) rejects. Accepted order is J0 -> E0 -> T0 -> V0 -> I0 -> P0 with production callers/fallback zero and every source/check file below 800 lines; J0 is next.",
   "2026-07-16: HMI-P0-G0 closes one public freshness/coverage/lossiness guard without semantic widening: guard_rows.toml registers hmi-semantic-reference-inventory for pilot and quick-static without a shell wrapper, the same checker validates a checked-in normalized Markdown report derived only from the JSON authority, and the check-scripts index exposes the stable command. Public guard 43/9/6/9/9, report parity, manifest dry-run, pointer/diff checks, execution-owner/opcode/production-caller delta zero, and checker/inventory/report files below 800 lines are green. HMI-P0 is closed; HMI-S0-D0 strict reader/state/handler/parity packet is next.",
@@ -842,5 +844,4 @@ landed_tail = [
   "2026-07-16: D′ P0c-MR-R0-S0 closes one disconnected singleton-recursive admission proof: production verify remains ExistingTwoOrMore, while one test-only OneOrMoreForR0 selector accepts a one-function SelfRecursive SCC with repeated and nested self-call sites and rejects zero-call or acyclic/no-recursive-component modules. No singleton/SCC authority, grammar, route, marker, runtime, backend, ownership, or production activation is added; focused debug/release plan 5/5, retained SCC 4/4, recursive activation 7/7, resolved-callable authority guard, cargo check, quick 66/66, pointer/format/diff checks, and all touched source/check files below 800 lines are green; R0-P0 normalized parity proof is next.",
   "2026-07-16: D′ P0c-MR-R0 accepts Candidate B and taskizes Program-only self-call authority as S0 -> P0 -> atomic CUT0 -> G0. S0 adds a disconnected one-or-more singleton admission path while production remains two-or-more; P0 proves normalized target/ABI/MIR/runtime/backend/ownership parity; CUT0 atomically activates singleton Program and deletes RootCallable, one-entry index, and exact-one call admission/profile authority in the same commit; G0 closes symbol/caller/retry guards. Current-source audit retains CallableFunctionSyntaxViewV1 because canonical CAT0/MP0 body resolution uses it, and fixes the final call policy to explicit Forbidden | FiniteOneOrMore. Source compatibility is not claimed; R0-S0 is the sole next code-facing row.",
   "2026-07-16: D′ P0c-MR-R0-D0 external consultation brief is ready at mirbuilder-p0c-mr-r0-self-call-retirement-consultation-question-2026-07-16.md. It fixes the old bare-function RootCallable route versus canonical Program/catalog/SCC authority, records seven test-only and zero non-test root-callable constructor callers, recommends Program-only authority after one-function parity, and asks for the source-compatibility, singleton-admission, marker, type-retirement, task-order, fixture, guard, non-claim, and stop-condition decision. R0 implementation remains forbidden until that decision; route retry/fallback and dual semantic authority remain zero.",
-  "2026-07-16: D′ P0c-MR-I1 runtime proof tail closes MAX_CALL_DEPTH and inner parameter/return contract failure restoration through the real recursive module ingress: focused debug/release activation/proof fixtures are 7/7, retained complete-frame transaction fixtures are 6/6, and every failure leaves the same interpreter reusable. The Rust reference interpreter depth boundary is 16 so its stable typed resource error precedes host-stack overflow; it is not a language recursion limit or termination claim, and optional overflow diagnostics neither require nor initialize Ring0. The resolved-callable guard, formatting/diff checks, cargo check, quick gate, and all touched source/check files below 800 lines are green; P0c-MR-R0-D0 is now the explicit one-function self-call authority retirement design stop.",
 ]

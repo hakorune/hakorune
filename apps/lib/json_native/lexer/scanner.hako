@@ -48,7 +48,7 @@ box JsonScanner {
     }
     
     // 次の文字を先読み（位置は移動しない）
-    peek() {
+    peek_next() {
         if me.position + 1 >= me.length {
             return ""  // EOF
         }

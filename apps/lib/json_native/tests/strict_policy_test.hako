@@ -1,0 +1,72 @@
+using "apps/lib/json_native/parser/parser.hako" as JsonParser
+using "apps/lib/json_native/parser/strict_policy.hako" as StrictJsonPolicyV1
+
+static box Main {
+    main() {
+        local failures = 0
+        failures = failures + this.test_scalar_kinds_and_bounds()
+        failures = failures + this.test_duplicate_policy_split()
+        failures = failures + this.test_exact_end()
+
+        if failures == 0 {
+            print("[json-native/strict-policy] ok")
+            return 0
+        }
+        print("[json-native/strict-policy] failed=" + failures)
+        return 1
+    }
+
+    strict_parse(text) {
+        local parser = new JsonParser()
+        local policy = StrictJsonPolicyV1.exact_i64_document()
+        local value = parser.parse_with_policy(text, policy)
+        local result = new MapBox()
+        result.set("value", value)
+        result.set("failed", parser.has_errors())
+        return result
+    }
+
+    test_scalar_kinds_and_bounds() {
+        local failures = 0
+        local max = this.strict_parse("9223372036854775807")
+        local min = this.strict_parse("-9223372036854775808")
+        local too_high = this.strict_parse("9223372036854775808")
+        local too_low = this.strict_parse("-9223372036854775809")
+        local bool_value = this.strict_parse("true")
+        local null_value = this.strict_parse("null")
+
+        if max.get("failed") { failures = failures + 1 }
+        if min.get("failed") { failures = failures + 1 }
+        if max.get("value").as_int() != 9223372036854775807 { failures = failures + 1 }
+        local expected_min = 0 - 9223372036854775807 - 1
+        if min.get("value").as_int() != expected_min { failures = failures + 1 }
+        if not too_high.get("failed") { failures = failures + 1 }
+        if not too_low.get("failed") { failures = failures + 1 }
+        if bool_value.get("value").get_kind() != "bool" { failures = failures + 1 }
+        if null_value.get("value").get_kind() != "null" { failures = failures + 1 }
+        return failures
+    }
+
+    test_duplicate_policy_split() {
+        local text = "{\"a\":1,\"a\":2}"
+
+        local strict = this.strict_parse(text)
+        if not strict.get("failed") {
+            return 1
+        }
+
+        local compatibility_parser = new JsonParser()
+        local compatibility = compatibility_parser.parse(text)
+        if compatibility_parser.has_errors() { return 1 }
+        if compatibility.object_get("a").as_int() != 2 { return 1 }
+        return 0
+    }
+
+    test_exact_end() {
+        local trailing_ws = this.strict_parse("{\"a\":1}  \n")
+        local second_value = this.strict_parse("{\"a\":1} {}")
+        if trailing_ws.get("failed") { return 1 }
+        if not second_value.get("failed") { return 1 }
+        return 0
+    }
+}

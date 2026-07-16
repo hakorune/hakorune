@@ -1,5 +1,5 @@
 ---
-Status: accepted; HMI-S0-J0 next
+Status: accepted; HMI-S0-J0 closed; HMI-S0-E0 next
 Date: 2026-07-16
 Decision: B-prime json_native strict policy plus exact-none CFG witness
 Previous row: HMI-P0-G0 closed at `dec4769b18`
@@ -246,7 +246,40 @@ consumer proof:
   json_native strict_policy_test -> [json-native/strict-policy] ok
 ```
 
-J0 remains open for the strict json_native policy itself.
+J0 strict-policy closeout:
+
+```text
+status:
+  closed
+
+strict entry:
+  JsonParser.parse_with_policy + StrictJsonPolicyV1
+
+default compatibility:
+  JsonParser.parse unchanged
+  duplicate object keys retain last-write-wins behavior
+
+strict proof:
+  decoded duplicate key rejected before object_set
+  exact signed-i64 lexeme bounds
+  signed-negative i64::MIN conversion
+  exact whole-input consumption
+  typed policy-owned strict errors rendered into the existing parser error array
+
+fixtures:
+  strict_policy_test -> [json-native/strict-policy] ok
+  exact i64 MIN/MAX values checked
+  out-of-range values rejected
+  strict/default duplicate split checked
+  trailing whitespace accepted; second root rejected
+
+source hygiene:
+  unused parser-keyword-colliding scanner peek methods renamed to peek_next
+  caller count before rename = 0
+
+HMI execution callers / fallback:
+  0 / 0
+```
 
 ### HMI-S0-E0 — exact-none control-edge witness
 

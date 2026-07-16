@@ -25,18 +25,32 @@ box JsonParser {
     position: IntegerBox   // 現在のトークン位置
     errors: ArrayBox       // 構文エラー配列
     source_text: StringBox // original input for diagnostics
+    policy                 // optional strict policy; null keeps compatibility
     
     birth() {
         me.tokens = new ArrayBox()
         me.position = 0
         me.errors = new ArrayBox()
         me.source_text = ""
+        me.policy = null
     }
     
     // ===== メイン解析メソッド =====
     
     // JSON文字列を完全解析
     parse(json_text) {
+        me.policy = null
+        return me.parse_with_current_policy(json_text)
+    }
+
+    // Opt-in strict entry. This does not retry the compatibility parser when
+    // the supplied policy rejects the document.
+    parse_with_policy(json_text, policy) {
+        me.policy = policy
+        return me.parse_with_current_policy(json_text)
+    }
+
+    parse_with_current_policy(json_text) {
         // 初期化
         me.position = 0
         me.errors = new ArrayBox()
@@ -143,12 +157,20 @@ box JsonParser {
             me.add_error("NUMBER token span is empty")
             return null
         }
-        me.advance()
-        
         // 数値変換（MVP）: 整数は i64、浮動小数点/指数表記は文字列保持。
         if me.number_span_is_integer(start_pos, end_pos) {
+            if me.policy != null and me.policy.requires_exact_i64_range() {
+                if not me.policy.integer_lexeme_is_admitted(number_str) {
+                    me.add_error(me.policy.integer_range_error(number_str).message())
+                    return null
+                }
+                me.advance()
+                return JsonNode.create_int(me.policy.parse_admitted_integer(number_str))
+            }
+            me.advance()
             return JsonNode.create_int(me.parse_integer_span(start_pos, end_pos))
         }
+        me.advance()
         if StringUtils.contains(number_str, ".") or StringUtils.contains(number_str, "e") or StringUtils.contains(number_str, "E") {
             return JsonNode.create_float(number_str)
         }
@@ -249,6 +271,13 @@ box JsonParser {
             }
             local key = key_token.get_value()
             me.advance()
+
+            if me.policy != null and me.policy.rejects_duplicate_keys() {
+                if object_node.object_has(key) {
+                    me.add_error(me.policy.duplicate_key_error(key).message())
+                    return null
+                }
+            }
 
             // コロン
             if not me.match_token("COLON") {
