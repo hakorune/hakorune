@@ -1,5 +1,5 @@
 ---
-Status: accepted; HMI-S0-E0 closed; HMI-S0-T0 next
+Status: HMI-S0-T0 design stop; json_native parser-depth consultation required
 Date: 2026-07-16
 Decision: B-prime json_native strict policy plus exact-none CFG witness
 Previous row: HMI-P0-G0 closed at `dec4769b18`
@@ -351,6 +351,26 @@ HMI execution callers / fallback:
 ```
 
 ### HMI-S0-T0 — whole-document MIR profile seal
+
+State: parked at parser substrate design stop.
+
+The first disconnected T0 probe built an ordinary nested MIR JSON document but
+`JsonParser.parse_with_policy` exceeded the Rust reference VM's proven
+host-stack-safe `MAX_CALL_DEPTH=16` before returning a JsonNode. The seal itself
+did not run and no view/effect was published. Raising the VM limit is forbidden:
+32, 128, and 1024 previously allowed host-stack overflow before the typed guard.
+
+Consultation SSOT:
+
+```text
+docs/development/current/main/investigations/
+  hmi-s0-t0-json-parser-depth-consultation-question-2026-07-16.md
+```
+
+Recommended prerequisite is one iterative `json_native` parser substrate shared
+by compatibility and strict policies. HMI-only parser duplication, schema-aware
+special cases, VM-depth widening, route retry, and restoring the T0 WIP before
+selection are forbidden.
 
 ```text
 production behavior delta: 0
