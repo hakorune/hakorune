@@ -142,7 +142,7 @@ box MapFieldOwnerProbeV1 {
 }
 
 static box Main {
-    main(args) {
+    map_field_probe_v1_case_local_map() {
         local local_map = new MapBox()
         local local_id = 2
         local local_key = "" + local_id
@@ -153,7 +153,26 @@ static box Main {
                 c1 = 1
             }
         }
+        return c1
+    }
 
+    map_field_probe_v1_case_instance_isolation() {
+        local isolated_a = new MapFieldOwnerProbeV1()
+        local isolated_b = new MapFieldOwnerProbeV1()
+        isolated_a.map_field_probe_v1_put_literal(10)
+        local c9 = 0
+        if isolated_a.map_field_probe_v1_has_literal() == 1 {
+            if isolated_a.map_field_probe_v1_load_literal_present() == 10 {
+                if isolated_b.map_field_probe_v1_has_literal() == 0 {
+                    c9 = 1
+                }
+            }
+        }
+        return c9
+    }
+
+    main(args) {
+        local c1 = Main.map_field_probe_v1_case_local_map()
         local literal_owner = new MapFieldOwnerProbeV1()
         literal_owner.map_field_probe_v1_put_literal(10)
         local c2 = 0
@@ -222,17 +241,7 @@ static box Main {
             }
         }
 
-        local isolated_a = new MapFieldOwnerProbeV1()
-        local isolated_b = new MapFieldOwnerProbeV1()
-        isolated_a.map_field_probe_v1_put_literal(10)
-        local c9 = 0
-        if isolated_a.map_field_probe_v1_has_literal() == 1 {
-            if isolated_a.map_field_probe_v1_load_literal_present() == 10 {
-                if isolated_b.map_field_probe_v1_has_literal() == 0 {
-                    c9 = 1
-                }
-            }
-        }
+        local c9 = Main.map_field_probe_v1_case_instance_isolation()
 
         print("map-field-owner-boxshape-proof")
         print("case.local_map=" + c1)

@@ -27,8 +27,8 @@ PROOF-MANIFEST-HYGIENE0
   -> clean HMI-S0-V0-R0 reimplementation
 ```
 
-`PROOF-MANIFEST-HYGIENE0` and `R0-STOP0-S0` are closed. The next code-facing
-row is `R0-STOP0-M0`.
+`PROOF-MANIFEST-HYGIENE0`, `R0-STOP0-S0`, and `R0-STOP0-M0` are closed. The
+next code-facing row is `R0-STOP0-V0`.
 
 This prerequisite is behavior-neutral and must land separately from the
 generic compiler proof. The proof-manifest runner is currently unusable:
@@ -140,6 +140,80 @@ classifier.
 
 S0 changes no manifest row, compiler semantic, MapBox runtime, HMI source,
 grammar, backend, ownership operation, or fallback.
+
+## R0-STOP0-M0 closeout
+
+One 429-line Python checker now owns reproducible observation:
+
+```text
+tools/checks/lib/map_field_owner_boxshape_proof.py
+```
+
+It builds explicit `vm-reference` debug/release binaries, runs the same source,
+emits both MIR JSON documents, normalizes function-relative evidence, and
+requires runtime and normalized MIR equality before publishing:
+
+```text
+target/checks/map-field-owner-boxshape-proof/report.json
+```
+
+The source gained only two owner-specific static case methods so local-map and
+instance-isolation evidence are not inferred from the combined `main`.
+
+Exact M0 result:
+
+```text
+runtime cases:
+  10 / 10 pass
+
+MapBox / Known set-has-get calls:
+  22
+
+RuntimeDataBox / Union calls:
+  2
+
+Union sites:
+  control_merge_one set
+  control_merge_two set
+
+receiver PHIs:
+  every MapFieldOwnerProbeV1 input normalizes to param:0
+
+CopyOwned:
+  0
+
+DestroyOwned:
+  0
+
+legacy ReleaseStrong instructions:
+  8
+```
+
+The `ReleaseStrong` rows are observed baseline output from accepted branch
+lowering. STOP0 added no compiler ownership operation or ownership authority.
+
+Important interpretation:
+
+```text
+formal concat key type:
+  Unknown
+  but MapBox / Known and runtime pass
+
+passed formal key type:
+  Unknown
+  but MapBox / Known and runtime pass
+
+control-merge receiver root:
+  field:storage<param:0>
+
+control-merge route:
+  RuntimeDataBox / Union
+  but runtime pass
+```
+
+M0 does not name a compiler fix. V0 must apply the frozen exclusive runtime
+classifier and must retain the MIR observations as evidence rather than
+silently rewriting `Unknown` or `Union`.
 
 ## Decision lock
 
