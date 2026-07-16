@@ -3,7 +3,7 @@ Status: resolved; worker-refined Candidate A1 selected
 Date: 2026-07-16
 Parent: json-native-iterative-parser-task-2026-07-16.md
 Blocked row: JSON-NATIVE-ITER0-P0
-WIP: stash `wip/json-native-iter0-p0 (blocked on escaped-key policy)`
+Historical WIP: "wip/json-native-iter0-p0; dropped 2026-07-16 after CUT0 supersession"
 ---
 
 # JSON native escaped-string design stop

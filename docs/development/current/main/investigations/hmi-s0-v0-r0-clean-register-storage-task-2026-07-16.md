@@ -63,10 +63,9 @@ session factory. R0 does not implement either.
 
 ## Old stash law
 
-The retained stash:
+The retained stash label:
 
 ```text
-stash@{0}
 wip/hmi-s0-v0-r0 register storage fails field mutation
 ```
 

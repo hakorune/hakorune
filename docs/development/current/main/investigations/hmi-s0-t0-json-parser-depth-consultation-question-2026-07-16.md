@@ -295,8 +295,9 @@ Stop the selected prerequisite if it requires:
 The disconnected T0 seal prototype was not committed. It is preserved only as:
 
 ```text
-stash@{0}: wip/hmi-s0-t0 (blocked by json parser call depth)
+historical WIP label: wip/hmi-s0-t0 (blocked by json parser call depth)
+status: dropped 2026-07-16 after iterative parser and current T0 supersession
 ```
 
-It must not be restored until the selected parser prerequisite is green. Its
-structure may be reused or discarded after review; the stash is not authority.
+It no longer exists as a stash. The landed iterative parser and current T0
+sources are the only implementation authority.

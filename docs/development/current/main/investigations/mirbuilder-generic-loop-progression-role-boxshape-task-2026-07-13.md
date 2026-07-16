@@ -494,7 +494,7 @@ After A is committed and pushed:
 
 ```text
 restore:
-  stash@{0}: wip/hako-source-carrier-p1
+  stash label: wip/hako-source-carrier-p1
 
 required before P1 commit:
   P0 carrier gate GREEN
