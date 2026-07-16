@@ -296,8 +296,8 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 
-latest_card = "hmi-s0-v0-disconnected-scalar-state-task-2026-07-16"
-latest_card_path = "docs/development/current/main/investigations/hmi-s0-v0-disconnected-scalar-state-task-2026-07-16.md"
+latest_card = "hmi-s0-v0-r0-register-storage-boxshape-consultation-question-2026-07-16"
+latest_card_path = "docs/development/current/main/investigations/hmi-s0-v0-r0-register-storage-boxshape-consultation-question-2026-07-16.md"
 latest_card_summary = """HMI-S0-V0-L0 is closed. Small passive files own typed
 state errors, tagged i64/i1 values, explicit Running/ReturnedValue/
 ReturnedNoValue/Failed outcomes, explicit Entry/Block predecessors, and an
@@ -309,7 +309,12 @@ a BoxShape design stop: the minimal direct MapBox owner is green, while the
 typed register prototype loses storage persistence across the larger method
 shape despite Known MapBox MIR calls. The failing R0 prototype is stashed and
 worker audit must select a compiler prerequisite or structurally exact storage
-owner before restoration.
+owner before restoration. The worker-audited consultation recommends R0-STOP0
+as the sole next code-facing slice: one generic HMI-independent MapFieldOwner
+proof matrix distinguishes untyped-formal dynamic String key provenance from
+receiver/field mutation visibility after control-flow merge. Only the first
+failing structural delta may select KEY0 or RECV0; HMI storage workarounds,
+MapBox runtime changes, fallback, and ownership/backend widening are forbidden.
 JSON-NATIVE-ITER0-CUT0 is closed. One thin JsonParser
 facade selects one JsonIterativeParserEngineV1 for compatibility and strict
 parsing; recursive parse_value/object/array and the independent JsonNode.parse
