@@ -27,8 +27,8 @@ PROOF-MANIFEST-HYGIENE0
   -> clean HMI-S0-V0-R0 reimplementation
 ```
 
-`PROOF-MANIFEST-HYGIENE0`, `R0-STOP0-S0`, `R0-STOP0-M0`, and `R0-STOP0-V0`
-are closed. The next code-facing row is `R0-STOP0-G0`.
+`PROOF-MANIFEST-HYGIENE0` and all `R0-STOP0` rows are closed. The lane is now
+at the storage-helper ownership design consultation.
 
 This prerequisite is behavior-neutral and must land separately from the
 generic compiler proof. The proof-manifest runner is currently unusable:
@@ -294,6 +294,65 @@ k2_wide_vm_exact_numeric_helper_field_mutation_guard.sh:
 
 The unfinished G0 manifest registration remained stashed while this hygiene
 commit landed.
+
+## R0-STOP0-G0 closeout
+
+The proof is now a stable manifest-backed entry:
+
+```bash
+bash tools/checks/run_proof_app.sh --only MAPFIELD-R0-STOP0
+```
+
+Artifacts:
+
+```text
+tools/checks/manifests/proof_apps/compiler_map_field_owner.toml
+tools/checks/proof_apps.toml include
+docs/tools/check-scripts-index.md public entry
+```
+
+Green closeout:
+
+```text
+focused MAPFIELD-R0-STOP0:
+  NONE-HMI-DELTA0
+
+proof app test-entry guard:
+  209 entries
+
+manifest runner pilot:
+  green
+
+HMI T0 authority:
+  external callers 0
+
+HMI semantic-reference inventory:
+  behavior delta 0
+
+neighbor exact-numeric field mutation:
+  VM / MIR / EXE green
+
+dev gate quick:
+  66 / 66
+```
+
+The stashed register source remains unrestored.
+
+Read-only comparison isolates one untested ownership chain:
+
+```text
+field MapBox
+  -> static helper formal
+  -> mutation
+  -> same MapBox return
+  -> field reassignment
+```
+
+That boundary is owned by the new consultation:
+
+```text
+hmi-s0-v0-r0-storage-helper-ownership-consultation-question-2026-07-16.md
+```
 
 ## Decision lock
 
