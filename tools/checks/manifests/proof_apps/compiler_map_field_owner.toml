@@ -10,3 +10,14 @@ validation_profile = "scalar-mir"
 first_pattern = false
 exe = "auto"
 cmd = ["tools/checks/lib/map_field_owner_boxshape_proof.py", "."]
+
+[[proof_apps]]
+id = "MAPFIELD-R0-DELTA0"
+app = "apps/map-formal-borrowed-mutation-proof"
+label = "generic MapBox-formal mutation visibility proof"
+profiles = ["pilot"]
+row_kind = "diagnostic"
+validation_profile = "scalar-mir"
+first_pattern = false
+exe = "auto"
+cmd = ["tools/checks/lib/map_formal_borrowed_mutation_proof.py", "."]

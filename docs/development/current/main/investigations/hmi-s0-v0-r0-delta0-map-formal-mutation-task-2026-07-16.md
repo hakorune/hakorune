@@ -29,8 +29,8 @@ runtime ownership operation:
   0
 ```
 
-`R0-DELTA0-S0`, `R0-DELTA0-M0`, and `R0-DELTA0-V0` are closed. The next
-code-facing row is `R0-DELTA0-G0`.
+`R0-DELTA0-S0`, `R0-DELTA0-M0`, `R0-DELTA0-V0`, and `R0-DELTA0-G0` are
+closed.
 
 Exact order:
 
@@ -205,7 +205,65 @@ All ten cases are true, so no earlier `STOP-*`, `STATIC-FORMAL-*`, or
 
 This selection authorizes the later clean HMI-S0-V0-R0 implementation task. It
 does not restore the old register stash, activate ownership syntax, or claim a
-production borrowed ABI. G0 must first register and close the generic proof.
+production borrowed ABI. G0 registers and closes the generic proof below.
+
+## R0-DELTA0-G0 closeout
+
+The proof is now public as:
+
+```text
+MAPFIELD-R0-DELTA0
+```
+
+in the existing:
+
+```text
+tools/checks/manifests/proof_apps/compiler_map_field_owner.toml
+```
+
+Closeout:
+
+```text
+proof manifest entries:
+  210
+
+proof-app manifest/test-entry guard:
+  green
+
+manifest runner pilot guard:
+  green
+
+MAPFIELD-R0-STOP0:
+  NONE-HMI-DELTA0
+
+MAPFIELD-R0-DELTA0:
+  A-PRIME-AUTHORIZED
+
+app-local test entry:
+  green
+
+neighboring exact-numeric helper field mutation:
+  green
+
+HMI semantic inventory:
+  green
+
+HMI T0 disconnected authority:
+  green
+
+json_native parser authority:
+  green
+
+current pointer:
+  green
+
+quick:
+  66/66
+```
+
+The next task is a clean HMI-S0-V0-R0 implementation packet derived from this
+public proof. The old stash remains evidence only and must not be restored as
+implementation authority.
 
 ## Durable artifacts
 

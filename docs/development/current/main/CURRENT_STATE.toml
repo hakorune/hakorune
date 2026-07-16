@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "R0-DELTA0-V0 selects A-PRIME-AUTHORIZED; public proof registration is next"
+status = "R0-DELTA0 is public and selects A-PRIME-AUTHORIZED; clean HMI R0 tasking is next"
 date = "2026-07-16"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -310,9 +310,11 @@ matrix and normalized MIR agree. Helpers use RuntimeDataBox/Union rooted at
 param:0; local and typed-field callers pass handle:MapBox rooted at
 newbox:MapBox or field:storage<param:0>. Birth publishes storage once, all
 other field_set and all CopyOwned/DestroyOwned/ReleaseStrong counts are zero.
-V0 applies the fixed exclusive classifier and selects A-PRIME-AUTHORIZED.
-G0 public registration and closeout are next. The register stash remains
-evidence only; HMI source changes stay zero until DELTA0 is public and green.
+V0 applies the fixed exclusive classifier and selects A-PRIME-AUTHORIZED. G0
+registers MAPFIELD-R0-DELTA0 in the existing proof family; 210-entry manifest
+health, old/new MapField proofs, neighboring exact-numeric mutation, HMI/JSON
+isolation, app-local entry, current pointer, and quick 66/66 are green. The
+register stash remains evidence only. A clean HMI-S0-V0-R0 task packet is next.
 Historical task context follows. R0-STOP0 is closed and registered as
 MAPFIELD-R0-STOP0. Debug/release runtime and normalized MIR agree; all ten
 generic cases pass and the exclusive selection is NONE-HMI-DELTA0, so KEY0
@@ -913,7 +915,7 @@ MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "DPRIME-HMI-S0-V0-R0-DELTA0-G0-001"
+current_blocker_token = "DPRIME-HMI-S0-V0-R0-CLEAN-TASK0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -922,6 +924,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-16: R0-DELTA0-G0 publishes MAPFIELD-R0-DELTA0 in the existing compiler MapFieldOwner proof manifest and closes the A-prime prerequisite. The manifest/test-entry inventory is 210 and green; old STOP0 remains NONE-HMI-DELTA0; new DELTA0 is A-PRIME-AUTHORIZED; app-local entry, neighboring exact-numeric helper field mutation, HMI semantic inventory, HMI T0 authority, json_native parser authority, current pointer, and quick 66/66 are green. No HMI source, runtime, ownership, backend, fallback, or stash-restore delta lands. A clean HMI-S0-V0-R0 task packet is next.",
   "2026-07-16: R0-DELTA0-V0 applies the fixed exclusive classifier to the green ten-case runtime matrix and selects exactly A-PRIME-AUTHORIZED. No earlier baseline, static-formal, field-static, repetition, or isolation blocker matches. The 469-line checker remains below the repository limit; compiler/HMI/runtime/ownership behavior is unchanged, the old register stash remains evidence only, and public manifest registration is still zero until G0.",
   "2026-07-16: R0-DELTA0-M0 closes one 450-line normalized proof checker. The ten-case debug/release VM matrices and normalized MIR evidence agree. Generic helpers use RuntimeDataBox/Union rooted at param:0; local and typed-field call sites carry handle:MapBox rooted at newbox:MapBox or field:storage<param:0>; direct MapBox/Known observation is preserved. Birth owns the sole storage field_set and CopyOwned/DestroyOwned/ReleaseStrong remain zero. The typed stored-field declaration supplies existing MIR metadata rather than runtime inference. Selection stays UNCLASSIFIED-M0; V0 is next.",
   "2026-07-16: R0-DELTA0-S0 closes one 197-line domain-neutral B1/B2+D1-D8 fixture. Local and field direct controls, local/field static-formal literal/dynamic/helper observation, repeated mutation, and instance isolation are all green in the initial debug VM run. The helper returns no MapBox, callers assign no mutator result, the storage field is assigned only in birth, and HMI/import/result-ledger/ownership/fallback deltas remain zero. Selection stays UNCLASSIFIED-S0 until normalized debug/release MIR evidence.",
@@ -933,5 +936,4 @@ landed_tail = [
   "2026-07-16: R0-STOP0-S0 closes one 253-line import-free generic MapFieldOwner fixture with local dynamic-key, literal field, formal concat/key, direct/self method, one/two fallthrough merge, receiver alias, and instance-isolation cases. Owner-specific method names, fresh owners, scalar result locals, raw storage return zero, HMI imports/names zero, and behavior delta zero are fixed. Initial debug VM observation is 10/10 semantic pass with selection still UNCLASSIFIED-S0; release/debug plus normalized MIR evidence is required before classification.",
   "2026-07-16: PROOF-MANIFEST-HYGIENE0 closes behavior-neutrally. A complete recursive inventory removes 41 stale root/shard duplicate proof rows while retaining the included shards as authority; 208 proof ids are unique. M216/M217/M218/M191/MIMAP-019A app-local test entries now use the shared proof runner, and the pilot guard avoids pipefail plus early rg exit false-reds. List, pilot/L2 dry-run, 208-entry wrapper guard, manifest pilot, current pointer, and quick 66/66 are green. No new proof row or compiler/HMI/runtime behavior was added; R0-STOP0-S0 is next.",
   "2026-07-16: HMI-S0-V0-R0 task selection is fixed after three read-only worker audits. A behavior-neutral proof-manifest hygiene prerequisite must first remove one duplicate id and repair five stale/missing test entries. Then one generic HMI-independent MapFieldOwner matrix records debug/release runtime bits plus normalized MIR key/receiver roots and emits exactly one KEY0, RECV0, NONE-HMI-DELTA0, or design-stop token. STOP0 changes no compiler semantics, MapBox runtime, HMI source, grammar, backend, ownership, or fallback; the stashed HMI register prototype remains evidence only.",
-  "2026-07-16: HMI-S0-V0-L0 closes one passive disconnected state vocabulary. Small files own typed state errors, tagged exact i64/i1 values with Bool payload 0/1, explicit Running/ReturnedValue/ReturnedNoValue/Failed outcomes, explicit Entry/Block predecessors, and a harness-only max_steps>=0 N/N+1 pre-effect budget law. Owner-specific result mutator names prevent cross-box initializer resolution. Release/debug focused execution, MIR verification, existing HMI/inventory/json guards, current pointer, quick 66/66, production callers/handlers/fallback zero, and files below 124 lines are green. R0 storage is a BoxShape design stop and its failing prototype is stashed.",
 ]
