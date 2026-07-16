@@ -1,5 +1,5 @@
 ---
-Status: accepted; JSON-NATIVE-ITER0-S0 closed; P0 next
+Status: accepted; JSON-NATIVE-ITER0-P0 stopped at escaped-string policy
 Date: 2026-07-16
 Decision: B-prime one iterative grammar engine and one text-to-tree owner
 Parent stop: hmi-s0-t0-json-parser-depth-consultation-question-2026-07-16.md
@@ -348,11 +348,37 @@ VM MAX_CALL_DEPTH:
 
 ### JSON-NATIVE-ITER0-P0 — normalized parity proof
 
-Next code-facing row.
+Design stop. No production behavior changed.
 
 Prove existing compatibility behavior, J0 strict behavior, valid generated
 trees, shallow malformed first-error parity, ordinary MIR JSON, and exact depth
 boundaries. Production selection remains unchanged.
+
+The test-only non-recursive pair walker and fixture-owned error parity
+prototype is green for the admitted unescaped-string domain, strict literal
+duplicates, grammar/lexer errors, and resource fixtures. It is stashed rather
+than committed because the required decoded Unicode-key fixture exposes a
+pre-existing tokenizer boundary:
+
+```text
+JsonScanner.read_string_literal:
+  any backslash -> null
+
+JsonTokenizer:
+  ERROR("Unterminated string literal")
+```
+
+Therefore `"a"` versus `"\u0061"` never reaches either parser. Adding escape
+admission here would mix BoxCount with this BoxShape parity row. Selection is
+parked at:
+
+`json-native-escaped-string-design-stop-2026-07-16.md`
+
+The repository fixture audit also found that only L0, S0, and J0 strict tests
+are active green authorities. Seven legacy json_native files fail before their
+intended assertions or are print/demo fixtures. They are not counted as P0
+proof and must receive a separate fixture repair/retirement decision; P0 does
+not patch them opportunistically.
 
 ### JSON-NATIVE-ITER0-CUT0 — atomic cutover and retirement
 
