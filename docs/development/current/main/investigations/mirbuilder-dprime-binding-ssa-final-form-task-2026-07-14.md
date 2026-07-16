@@ -2420,10 +2420,9 @@ strict whole-document profile is selected as the sole `.hako` semantic-
 reference carrier, and one checked-in 43-instruction/9-caller/6-fixture-
 family/9-transport/9-VMValue-class inventory plus normalized report is guarded
 through the public manifest runner. Continue only with HMI-S0-D0 from
-`hmi-s0-strict-reader-interpreter-implementation-consultation-2026-07-16.md`.
-The direct strict-reader boundary, portable i64 overflow law, and exact empty-
-edge witness must be decision-locked before implementation. Production callers
-remain zero.
+`hmi-s0-strict-reader-interpreter-task-2026-07-16.md`. D0 selected an opt-in
+strict json_native policy, checked i64 semantics, and an exact-None control-edge
+witness. J0 is next; production callers remain zero.
 
 Decision/task card:
 `mirbuilder-p0c-mr-callable-scc-task-2026-07-16.md`.

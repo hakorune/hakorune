@@ -1,12 +1,24 @@
 ---
-Status: design consultation; implementation stopped
+Status: resolved by current-source and worker audit
 Date: 2026-07-16
-Decision: pending exact portable arithmetic and strict-reader ownership lock
+Decision: B-prime selected; see accepted task card
 Previous row: HMI-P0-G0 closed at `dec4769b18`
 Scope: HMI-S0 only; production callers remain zero
 ---
 
 # HMI-S0 strict reader and disconnected interpreter consultation
+
+## Resolution
+
+This consultation is closed by
+`hmi-s0-strict-reader-interpreter-task-2026-07-16.md`.
+
+The initial direct-reader recommendation was corrected after auditing
+`apps/lib/json_native`: that existing substrate already preserves scalar kinds,
+ordered members, source spans, and exact end-of-input. HMI therefore adds an
+opt-in strict policy there instead of creating a third JSON parser authority.
+Checked i64 semantics and a function-level exact-none control-edge witness are
+also locked in the accepted task card.
 
 ## Question
 

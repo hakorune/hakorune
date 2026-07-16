@@ -1,5 +1,5 @@
 ---
-Status: HMI-P0-G0 closed; HMI-S0-D0 consultation delegated
+Status: HMI-P0-G0 closed; HMI-S0-D0 accepted and delegated
 Date: 2026-07-16
 Decision: accepted with current-source corrections
 Previous row: P0c-MR-R0-G0 closed
@@ -317,10 +317,9 @@ connect a production caller, or retire a Rust handler.
 
 ## HMI-S0-D0 packet boundary
 
-The active design-stop card is
-`hmi-s0-strict-reader-interpreter-implementation-consultation-2026-07-16.md`.
-It records the current-source duplicate-key, arithmetic-overflow, and dropped-
-edge-argument seams and must be decision-locked before implementation.
+The accepted implementation card is
+`hmi-s0-strict-reader-interpreter-task-2026-07-16.md`. It resolves the JSON
+authority, arithmetic, and dropped-edge-argument seams and starts with J0.
 
 HMI-S0-D0 will taskize, but not yet implement:
 

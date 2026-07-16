@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "HMI-S0-D0 design consultation; implementation stopped"
+status = "HMI-S0-D0 locked; HMI-S0-J0 strict json_native policy next"
 date = "2026-07-16"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -296,17 +296,18 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 
-latest_card = "hmi-s0-strict-reader-interpreter-implementation-consultation-2026-07-16"
-latest_card_path = "docs/development/current/main/investigations/hmi-s0-strict-reader-interpreter-implementation-consultation-2026-07-16.md"
-latest_card_summary = """HMI-S0-D0 is an explicit design stop. Current-source
-audit proves the tolerant JsonParserBox loses duplicate object keys before a
-strict verifier can see them, Rust i64 overflow is not build-mode-independent,
-and V1 drops Jump/Branch edge arguments. The recommended packet is one direct
-HMI-specific .hako strict reader over the selected V1 bytes, one opaque whole-
-document seal with bounded views over the same tree, one disconnected scalar
-state machine, exact scalar handlers, and Rust-oracle parity with production
-callers zero. Before code, consultation must lock checked-vs-wrapping i64
-overflow and an exact empty-edge-argument witness in existing V1 metadata.
+latest_card = "hmi-s0-strict-reader-interpreter-task-2026-07-16"
+latest_card_path = "docs/development/current/main/investigations/hmi-s0-strict-reader-interpreter-task-2026-07-16.md"
+latest_card_summary = """HMI-S0-D0 is accepted after current-source and worker
+audit. B-prime reuses apps/lib/json_native as the sole native JSON grammar/tree
+authority and adds an opt-in strict policy; no HMI recursive JSON parser is
+created. Plain i64 Add/Sub/Mul/Div/Mod use checked, build-independent semantics
+and wrapping remains future explicit vocabulary. A final-MIR function witness
+proves every Jump/Branch edge argument is exact None; Some(empty) also rejects,
+because the Rust JSON emitter and reference interpreter currently ignore edge
+arguments. Task order is J0 strict json_native policy -> E0 exact-none witness
+-> T0 whole-document seal -> V0 state -> I0 handlers -> P0 parity, with HMI
+production callers and fallback zero throughout. HMI-S0-J0 is next.
 HMI-P0-G0 is closed. The existing manifest runner now
 owns one public `hmi-semantic-reference-inventory` row in pilot and quick-
 static profiles, with no shell-wrapper growth. The same source-derived checker
@@ -821,7 +822,7 @@ MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "DPRIME-HMI-S0-D0-STRICT-READER-PORTABLE-SEMANTICS-CONSULTATION-001"
+current_blocker_token = "DPRIME-HMI-S0-J0-STRICT-JSON-NATIVE-POLICY-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -830,6 +831,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-16: HMI-S0-D0 closes the strict-ingress/scalar-interpreter design consultation after current-source and worker audit. B-prime keeps apps/lib/json_native as the sole native JSON grammar/tree authority and adds an opt-in strict policy; the tolerant tools parser stays outside HMI. Plain i64 Add/Sub/Mul/Div/Mod are checked with stable overflow/zero errors, wrapping remains future explicit vocabulary, and final Rust MIR must prove every Jump/Branch edge arg is exact None through one function metadata witness; Some(empty) rejects. Accepted order is J0 -> E0 -> T0 -> V0 -> I0 -> P0 with production callers/fallback zero and every source/check file below 800 lines; J0 is next.",
   "2026-07-16: HMI-P0-G0 closes one public freshness/coverage/lossiness guard without semantic widening: guard_rows.toml registers hmi-semantic-reference-inventory for pilot and quick-static without a shell wrapper, the same checker validates a checked-in normalized Markdown report derived only from the JSON authority, and the check-scripts index exposes the stable command. Public guard 43/9/6/9/9, report parity, manifest dry-run, pointer/diff checks, execution-owner/opcode/production-caller delta zero, and checker/inventory/report files below 800 lines are green. HMI-P0 is closed; HMI-S0-D0 strict reader/state/handler/parity packet is next.",
   "2026-07-16: HMI-P0-I0 closes one behavior-neutral semantic-reference machine inventory: one checked-in JSON classifies all 43 kept MIR instructions, 9 non-test or typed MirInterpreter caller surfaces, 6 fixture families, 9 transport rows, and all 9 VMValue variants; one disconnected checker re-derives kept tags, emitter coverage, VMValue variants, source anchors, and non-test constructor caller counts from current Rust. It records BinOp wire collisions, dropped edge args, owned Phi/Return metadata dependence, NewClosure loss, unsupported interpreter rows, and generic Void deferral. Checker 43/9/6/9/9, pointer/diff checks, production behavior delta zero, and both source/check files below 800 lines are green; HMI-P0-G0 public manifest guard and normalized report is next.",
   "2026-07-16: HMI-P0-D0 selects serialized Rust-emitted MirJsonExportDocument / MirJsonExportSchema::V1 with exact schema_version 1.0 as the sole future .hako semantic-reference carrier, conditionally admitted only by a future HMI-MIR-JSON-V1-STRICT whole-document profile over the existing bytes. Current-source audit corrects the producer to the semantic-refresh public facade, forbids env-selected v0, every lossy V1/v0/compact/AST/ProgramV0 bridge, and a second MIR schema, and fixes Bool, Null/Void, CFG entry, ownership provenance, duplicate-key, and bounded-view seams. Task order is P0-I0 machine inventory -> P0-G0 guards/report -> S0-D0 packet; execution-owner/opcode activation remains zero.",
@@ -841,5 +843,4 @@ landed_tail = [
   "2026-07-16: D′ P0c-MR-R0-D0 external consultation brief is ready at mirbuilder-p0c-mr-r0-self-call-retirement-consultation-question-2026-07-16.md. It fixes the old bare-function RootCallable route versus canonical Program/catalog/SCC authority, records seven test-only and zero non-test root-callable constructor callers, recommends Program-only authority after one-function parity, and asks for the source-compatibility, singleton-admission, marker, type-retirement, task-order, fixture, guard, non-claim, and stop-condition decision. R0 implementation remains forbidden until that decision; route retry/fallback and dual semantic authority remain zero.",
   "2026-07-16: D′ P0c-MR-I1 runtime proof tail closes MAX_CALL_DEPTH and inner parameter/return contract failure restoration through the real recursive module ingress: focused debug/release activation/proof fixtures are 7/7, retained complete-frame transaction fixtures are 6/6, and every failure leaves the same interpreter reusable. The Rust reference interpreter depth boundary is 16 so its stable typed resource error precedes host-stack overflow; it is not a language recursion limit or termination claim, and optional overflow diagnostics neither require nor initialize Ring0. The resolved-callable guard, formatting/diff checks, cargo check, quick gate, and all touched source/check files below 800 lines are green; P0c-MR-R0-D0 is now the explicit one-function self-call authority retirement design stop.",
   "2026-07-16: D′ P0c-MR-I1 closes one explicit atomic VM-only recursive callable-module ingress: compile_resolved_recursive_callable_module consumes VerifiedRecursiveCallableModulePlanV1 without probing acyclic/self/legacy routes, reuses the shared unpublished-draft collector, atomically inserts the complete verified function set, installs exactly one module recursive capability, finishes the isolated candidate, and commits only on success. Even/odd, a three-function SCC, an outer DAG caller into an SCC, declaration reorder, rejection/compiler reuse, VM-only backend fail-fast, and zero CopyOwned/DestroyOwned/ReleaseStrong are green; debug/release activation 4/4, resolved-callable authority guard, cargo check, quick 66/66, pointer/format guards, and all touched source/check files below 800 lines are green; P0c-MR-R0 one-function self-call authority retirement is now a design stop.",
-  "2026-07-16: D′ P0c-MR-C0 closes one passive module-level recursive backend capability: CanonicalRecursiveCallableModuleCapabilityV1 stores only schema version 1 in one ModuleMetadata Option, rejects missing required markers, duplicate installation, and schema drift, and carries no SCC identity/member/edge/count authority; the shared backend preflight accepts the exact marker only for mir-interpreter and rejects every other backend with [backend/canonical_recursive_callable_module_v1_unsupported] and silent_fallback_allowed=false. Graph/SCC/runtime discovery and production marker producers remain zero; debug/release capability/backend 4/4, resolved-callable authority guard, cargo check, quick 66/66, pointer/format guards, and all touched source/check files below 800 lines are green; P0c-MR-I1 explicit atomic VM-only activation is next.",
 ]
