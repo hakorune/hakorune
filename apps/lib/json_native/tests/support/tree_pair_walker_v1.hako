@@ -1,0 +1,98 @@
+// Test-only normalized JsonNode parity.
+// This walker owns no tree product and never recurses or stringifies containers.
+
+static box JsonTreePairWalkerV1 {
+    equivalent(left_root, right_root) {
+        local walker = new JsonTreePairWalkerV1Instance()
+        return walker.compare(left_root, right_root)
+    }
+}
+
+box JsonTreePairWalkerV1Instance {
+    left_stack: ArrayBox
+    right_stack: ArrayBox
+
+    birth() {
+        me.left_stack = new ArrayBox()
+        me.right_stack = new ArrayBox()
+    }
+
+    compare(left_root, right_root) {
+        if left_root == null or right_root == null {
+            return left_root == null and right_root == null
+        }
+
+        me.left_stack = new ArrayBox()
+        me.right_stack = new ArrayBox()
+        me.left_stack.push(left_root)
+        me.right_stack.push(right_root)
+
+        loop(true) {
+            if me.left_stack.length() == 0 {
+                break
+            }
+            if me.left_stack.length() != me.right_stack.length() {
+                return false
+            }
+
+            local last = me.left_stack.length() - 1
+            local left = me.left_stack.get(last)
+            local right = me.right_stack.get(last)
+            me.left_stack.remove(last)
+            me.right_stack.remove(last)
+
+            local kind = left.get_kind()
+            if kind != right.get_kind() {
+                return false
+            }
+
+            if kind == "null" {
+                continue
+            }
+            if kind == "bool" or kind == "int" or kind == "float" or kind == "string" {
+                if left.value != right.value {
+                    return false
+                }
+                continue
+            }
+            if kind == "array" {
+                if not me.enqueue_array_children(left, right) { return false }
+                continue
+            }
+            if kind == "object" {
+                if not me.enqueue_object_children(left, right) { return false }
+                continue
+            }
+            return false
+        }
+
+        return me.right_stack.length() == 0
+    }
+
+    enqueue_array_children(left, right) {
+        if left.array_size() != right.array_size() { return false }
+        local i = left.array_size() - 1
+        loop(i >= 0) {
+            me.left_stack.push(left.array_get(i))
+            me.right_stack.push(right.array_get(i))
+            i = i - 1
+        }
+        return true
+    }
+
+    enqueue_object_children(left, right) {
+        local left_keys = left.object_keys()
+        local right_keys = right.object_keys()
+        if left_keys.length() != right_keys.length() { return false }
+        local i = left_keys.length() - 1
+        loop(i >= 0) {
+            local left_key = left_keys.get(i)
+            local right_key = right_keys.get(i)
+            if left_key != right_key { return false }
+            me.left_stack.push(left.object_get(left_key))
+            me.right_stack.push(right.object_get(right_key))
+            i = i - 1
+        }
+        return true
+    }
+}

@@ -1,5 +1,5 @@
 ---
-Status: accepted; ESC0 closed; P0 resumed
+Status: accepted; P0 closed; CUT0 next
 Date: 2026-07-16
 Decision: B-prime one iterative grammar engine and one text-to-tree owner
 Parent stop: hmi-s0-t0-json-parser-depth-consultation-question-2026-07-16.md
@@ -348,7 +348,7 @@ VM MAX_CALL_DEPTH:
 
 ### JSON-NATIVE-ITER0-P0 — normalized parity proof
 
-Current code-facing row. Production behavior remains unchanged.
+Status: closed. Production behavior remains unchanged.
 
 Prove existing compatibility behavior, J0 strict behavior, valid generated
 trees, shallow malformed first-error parity, ordinary MIR JSON, and exact depth
@@ -380,9 +380,50 @@ intended assertions or are print/demo fixtures. They are not counted as P0
 proof and must receive a separate fixture repair/retirement decision; P0 does
 not patch them opportunistically.
 
+Closeout evidence:
+
+```text
+selectively restored test-only files:
+  iterative_parser_p0_parity_test.hako
+  support/error_parity_v1.hako
+  support/tree_pair_walker_v1.hako
+
+production parser selector delta:
+  0
+
+normalized tree parity:
+  scalar / container / value / key order / compatibility overwrite
+
+normalized first-error parity:
+  kind / code / token / position / line / column
+
+decoded key identity:
+  a == \\u0061
+
+resource law:
+  alternating depth 24 pass
+  depth 128 pass
+  depth 129 reject before root publication
+
+reuse after grammar/depth failure:
+  green
+
+focused and retained release/debug fixtures:
+  green
+
+quick gate:
+  66/66
+
+recursive fixture walker / deep stringify:
+  0
+
+touched source/check files at or above 800 lines:
+  0
+```
+
 ### JSON-NATIVE-ITER0-CUT0 — atomic cutover and retirement
 
-One commit must:
+Next code-facing row. One commit must:
 
 ```text
 JsonParser.parse -> iterative engine only

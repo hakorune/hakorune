@@ -1,0 +1,287 @@
+using "apps/lib/json_native/parser/parser.hako" as JsonParser
+using "apps/lib/json_native/parser/iterative_engine_v1.hako" as JsonIterativeParserEngineV1
+using "apps/lib/json_native/parser/strict_policy.hako" as StrictJsonPolicyV1
+using "apps/lib/json_native/tests/support/tree_pair_walker_v1.hako" as JsonTreePairWalkerV1
+using "apps/lib/json_native/tests/support/error_parity_v1.hako" as JsonErrorParityV1
+
+static box Main {
+    main() {
+        local failures = 0
+        failures = failures + this.report("compatibility-trees", this.test_compatibility_trees())
+        failures = failures + this.report("strict-trees", this.test_strict_trees())
+        failures = failures + this.report("decoded-keys", this.test_decoded_keys())
+        failures = failures + this.report("grammar-errors", this.test_grammar_errors())
+        failures = failures + this.report("strict-errors", this.test_strict_errors())
+        failures = failures + this.report("lexer-errors", this.test_lexer_errors())
+        failures = failures + this.report("resource-delta", this.test_resource_delta())
+
+        if failures == 0 {
+            print("[json-native/iter0-p0] ok")
+            return 0
+        }
+        print("[json-native/iter0-p0] failed=" + failures)
+        return 1
+    }
+
+    report(name, failures) {
+        if failures > 0 {
+            print("[json-native/iter0-p0:" + name + "] failed=" + failures)
+        }
+        return failures
+    }
+
+    test_compatibility_trees() {
+        local failures = 0
+        failures = failures + this.compatibility_tree("null")
+        failures = failures + this.compatibility_tree("true")
+        failures = failures + this.compatibility_tree("false")
+        failures = failures + this.compatibility_tree("0")
+        failures = failures + this.compatibility_tree("-42")
+        failures = failures + this.compatibility_tree("1.25e2")
+        failures = failures + this.compatibility_tree("\"hello\"")
+        failures = failures + this.compatibility_tree("[]")
+        failures = failures + this.compatibility_tree("{}")
+        failures = failures + this.compatibility_tree(
+            "{\"a\":[1,true,null,{\"b\":\"x\"}],\"z\":2}"
+        )
+        failures = failures + this.compatibility_tree(
+            "{\"a\":1,\"a\":2,\"b\":3}"
+        )
+        failures = failures + this.compatibility_tree("[0,1,2,3]")
+        failures = failures + this.compatibility_tree("{\"a\":1}  \n")
+        local slash = "\\"
+        failures = failures + this.compatibility_tree(
+            "{\"a\":1,\"" + slash + "u0061\":2}"
+        )
+        failures = failures + this.compatibility_tree(
+            "{\"" + slash + "u0061\":1,\"a\":2}"
+        )
+
+        local i = 0
+        loop(i < 12) {
+            local generated = "{\"k\" : [" + i + "," + (i + 1) + "]}"
+            failures = failures + this.compatibility_tree(generated)
+            i = i + 1
+        }
+        return failures
+    }
+
+    compatibility_tree(text) {
+        local old_parser = new JsonParser()
+        local new_parser = new JsonIterativeParserEngineV1()
+        local old_value = old_parser.parse(text)
+        local new_value = new_parser.parse(text)
+        if old_parser.has_errors() or new_parser.has_errors() {
+            print("[json-native/iter0-p0:compat-parse] " + text)
+            return 1
+        }
+        if not JsonTreePairWalkerV1.equivalent(old_value, new_value) {
+            print("[json-native/iter0-p0:compat-tree] " + text)
+            return 1
+        }
+        return 0
+    }
+
+    test_strict_trees() {
+        local failures = 0
+        failures = failures + this.strict_tree("9223372036854775807")
+        failures = failures + this.strict_tree("-9223372036854775808")
+        failures = failures + this.strict_tree("{\"a\":1,\"b\":[true,2]}")
+        return failures
+    }
+
+    strict_tree(text) {
+        local policy = StrictJsonPolicyV1.exact_i64_document()
+        local old_parser = new JsonParser()
+        local new_parser = new JsonIterativeParserEngineV1()
+        local old_value = old_parser.parse_with_policy(text, policy)
+        local new_value = new_parser.parse_with_policy(text, policy)
+        if old_parser.has_errors() or new_parser.has_errors() { return 1 }
+        if not JsonTreePairWalkerV1.equivalent(old_value, new_value) { return 1 }
+        return 0
+    }
+
+    test_decoded_keys() {
+        local slash = "\\"
+        local plain_first = "{\"a\":1,\"" + slash + "u0061\":2}"
+        local escaped_first = "{\"" + slash + "u0061\":1,\"a\":2}"
+
+        if not this.compatibility_decoded_key(plain_first) { return 1 }
+        if not this.compatibility_decoded_key(escaped_first) { return 1 }
+
+        local policy = StrictJsonPolicyV1.exact_i64_document()
+        if not JsonErrorParityV1.strict(
+            plain_first, policy,
+            "duplicate-key", "[json_native/strict/duplicate-key]",
+            "[json_native/strict/duplicate-key]", "COLON(:)", "COLON"
+        ) { return 1 }
+        if not JsonErrorParityV1.strict(
+            escaped_first, policy,
+            "duplicate-key", "[json_native/strict/duplicate-key]",
+            "[json_native/strict/duplicate-key]", "COLON(:)", "COLON"
+        ) { return 1 }
+        return 0
+    }
+
+    compatibility_decoded_key(text) {
+        local old_parser = new JsonParser()
+        local new_parser = new JsonIterativeParserEngineV1()
+        local old_value = old_parser.parse(text)
+        local new_value = new_parser.parse(text)
+        if old_parser.has_errors() or new_parser.has_errors() { return false }
+        if not JsonTreePairWalkerV1.equivalent(old_value, new_value) { return false }
+        if old_value.object_keys().length() != 1 { return false }
+        if old_value.object_keys().get(0) != "a" { return false }
+        if old_value.object_get("a").as_int() != 2 { return false }
+        return true
+    }
+
+    test_grammar_errors() {
+        local failures = 0
+        if not JsonErrorParityV1.compatibility(
+            "[1,]", "expected-value", "[json_native/parser/expected-value-v1]",
+            "Expected JSON value", "RBRACKET(])", "RBRACKET"
+        ) { failures = failures + 1 }
+        if not JsonErrorParityV1.compatibility(
+            "{\"a\":1,}", "expected-object-key", "[json_native/parser/object-key-v1]",
+            "Expected STRING (object key)", "RBRACE(})", "RBRACE"
+        ) { failures = failures + 1 }
+        if not JsonErrorParityV1.compatibility(
+            "{\"a\" 1}", "expected-object-colon", "[json_native/parser/object-colon-v1]",
+            "Expected COLON", "NUMBER(1)", "NUMBER"
+        ) { failures = failures + 1 }
+        if not JsonErrorParityV1.compatibility(
+            "[1}", "expected-array-separator", "[json_native/parser/array-separator-v1]",
+            "Expected ',' or ']'", "RBRACE(})", "RBRACE"
+        ) { failures = failures + 1 }
+        if not JsonErrorParityV1.compatibility(
+            "{} []", "trailing-root", "[json_native/parser/trailing-root-v1]",
+            "Unexpected tokens after JSON value", "LBRACKET([)", "LBRACKET"
+        ) { failures = failures + 1 }
+        if not JsonErrorParityV1.compatibility(
+            "[", "unexpected-eof", "[json_native/parser/unexpected-eof-v1]",
+            "Unexpected end of input", "EOF()", "EOF"
+        ) { failures = failures + 1 }
+        return failures
+    }
+
+    test_strict_errors() {
+        local failures = 0
+        local policy = StrictJsonPolicyV1.exact_i64_document()
+        if not JsonErrorParityV1.strict(
+            "9223372036854775808", policy,
+            "integer-range", "[json_native/strict/integer-range]",
+            "[json_native/strict/integer-range]", "NUMBER(9223372036854775808)", "NUMBER"
+        ) { print("[json-native/iter0-p0:strict-error] integer-range") failures = failures + 1 }
+        if not JsonErrorParityV1.strict(
+            "{\"a\":1,\"a\":2}", policy,
+            "duplicate-key", "[json_native/strict/duplicate-key]",
+            "[json_native/strict/duplicate-key]", "COLON(:)", "COLON"
+        ) { print("[json-native/iter0-p0:strict-error] duplicate") failures = failures + 1 }
+        if not JsonErrorParityV1.strict(
+            "{\"a\":1,\"a\" 2}", policy,
+            "duplicate-key", "[json_native/strict/duplicate-key]",
+            "[json_native/strict/duplicate-key]", "NUMBER(2)", "NUMBER"
+        ) { print("[json-native/iter0-p0:strict-error] duplicate-priority") failures = failures + 1 }
+        return failures
+    }
+
+    test_lexer_errors() {
+        if not JsonErrorParityV1.lexer("@ #") { return 1 }
+        local slash = "\\"
+        if not JsonErrorParityV1.typed_lexer(
+            "\"" + slash + "q\"",
+            "invalid-simple-escape",
+            "[json_native/lexer/invalid-simple-escape-v1]"
+        ) { return 1 }
+        return 0
+    }
+
+    test_resource_delta() {
+        local parser = new JsonIterativeParserEngineV1()
+        local mir = "{\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":1}},{\"op\":\"ret\",\"value\":1}]}]}]}"
+        if parser.parse(mir) == null or parser.has_errors() { return 1 }
+
+        local depth24 = this.nested_array_text(24)
+        local value24 = parser.parse(depth24)
+        if value24 == null or this.array_depth(value24) != 24 { return 1 }
+
+        local alternating24 = parser.parse(this.alternating_text(24))
+        if alternating24 == null or this.container_depth(alternating24) != 24 {
+            return 1
+        }
+
+        local depth128 = this.nested_array_text(128)
+        local value128 = parser.parse(depth128)
+        if value128 == null or this.array_depth(value128) != 128 { return 1 }
+
+        if parser.parse(this.nested_array_text(129)) != null { return 1 }
+        if parser.first_error().get_kind() != "nesting-limit" { return 1 }
+        if parser.root_was_published() { return 1 }
+
+        local after_depth = parser.parse("0")
+        if after_depth == null or parser.has_errors() { return 1 }
+        if parser.open_frame_count() != 0 { return 1 }
+        if not parser.root_was_published() { return 1 }
+
+        if parser.parse("[1,]") != null { return 1 }
+        if not parser.has_errors() or parser.root_was_published() { return 1 }
+        local after_failure = parser.parse("{\"ok\":1}")
+        if after_failure == null or parser.has_errors() { return 1 }
+        if after_failure.object_get("ok").as_int() != 1 { return 1 }
+        return 0
+    }
+
+    nested_array_text(depth) {
+        local text = "0"
+        local i = 0
+        loop(i < depth) {
+            text = "[" + text + "]"
+            i = i + 1
+        }
+        return text
+    }
+
+    alternating_text(depth) {
+        local text = "0"
+        local i = 0
+        loop(i < depth) {
+            if i % 2 == 0 {
+                text = "[" + text + "]"
+            } else {
+                text = "{\"v\":" + text + "}"
+            }
+            i = i + 1
+        }
+        return text
+    }
+
+    array_depth(root) {
+        local depth = 0
+        local current = root
+        loop(current != null and current.get_kind() == "array") {
+            depth = depth + 1
+            current = current.array_get(0)
+        }
+        return depth
+    }
+
+    container_depth(root) {
+        local depth = 0
+        local current = root
+        loop(current != null) {
+            if current.get_kind() == "array" {
+                depth = depth + 1
+                current = current.array_get(0)
+                continue
+            }
+            if current.get_kind() == "object" {
+                depth = depth + 1
+                current = current.object_get("v")
+                continue
+            }
+            break
+        }
+        return depth
+    }
+}

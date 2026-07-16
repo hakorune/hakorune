@@ -1,0 +1,100 @@
+// Test-only first-error parity. Expected kinds are fixture-owned; this helper
+// never derives a semantic kind by parsing the recursive parser's prose.
+
+using "apps/lib/json_native/parser/parser.hako" as JsonParser
+using "apps/lib/json_native/parser/iterative_engine_v1.hako" as JsonIterativeParserEngineV1
+using "apps/lib/json_native/utils/string.hako" as StringUtils
+
+static box JsonErrorParityV1 {
+    compatibility(text, kind, code, old_prefix, old_token, new_token) {
+        return this.with_policy(
+            text, null, kind, code, old_prefix, old_token, new_token
+        )
+    }
+
+    strict(text, policy, kind, code, old_prefix, old_token, new_token) {
+        return this.with_policy(
+            text, policy, kind, code, old_prefix, old_token, new_token
+        )
+    }
+
+    with_policy(text, policy, kind, code, old_prefix, old_token, new_token) {
+        local old_parser = new JsonParser()
+        local new_parser = new JsonIterativeParserEngineV1()
+        local old_value
+        local new_value
+
+        if policy == null {
+            old_value = old_parser.parse(text)
+            new_value = new_parser.parse(text)
+        } else {
+            old_value = old_parser.parse_with_policy(text, policy)
+            new_value = new_parser.parse_with_policy(text, policy)
+        }
+
+        if old_value != null or new_value != null { return false }
+        if old_parser.get_errors().length() != 1 { return false }
+        if new_parser.get_errors().length() != 1 { return false }
+
+        local old_error = old_parser.get_errors().get(0)
+        local new_error = new_parser.first_error()
+        if not StringUtils.starts_with(old_error.get("message"), old_prefix) {
+            return false
+        }
+        if old_error.get("token") != old_token { return false }
+        if new_error.get_kind() != kind { return false }
+        if new_error.get_code() != code { return false }
+        if new_error.get_token() != new_token { return false }
+        if old_error.get("position") != new_error.get_position() { return false }
+        if old_error.get("line") != new_error.get_line() { return false }
+        if old_error.get("column") != new_error.get_column() { return false }
+        return true
+    }
+
+    lexer(text) {
+        local old_parser = new JsonParser()
+        local new_parser = new JsonIterativeParserEngineV1()
+        if old_parser.parse(text) != null { return false }
+        if new_parser.parse(text) != null { return false }
+
+        local old_errors = old_parser.get_errors()
+        local new_errors = new_parser.get_errors()
+        if old_errors.length() != new_errors.length() { return false }
+
+        local i = 0
+        loop(i < old_errors.length()) {
+            local old_error = old_errors.get(i)
+            local new_error = new_errors.get(i)
+            if old_error.get_type() != new_error.get_token() { return false }
+            if old_error.get_start() != new_error.get_position() { return false }
+            if old_error.get_line() != new_error.get_line() { return false }
+            if old_error.get_column() != new_error.get_column() { return false }
+            if new_error.get_kind() != "lexer-error" { return false }
+            if new_error.get_code() != "[json_native/parser/lexer-error-v1]" {
+                return false
+            }
+            i = i + 1
+        }
+        return true
+    }
+
+    typed_lexer(text, kind, code) {
+        local old_parser = new JsonParser()
+        local new_parser = new JsonIterativeParserEngineV1()
+        if old_parser.parse(text) != null { return false }
+        if new_parser.parse(text) != null { return false }
+        if old_parser.get_errors().length() != 1 { return false }
+        if new_parser.get_errors().length() != 1 { return false }
+
+        local old_error = old_parser.get_errors().get(0)
+        local new_error = new_parser.first_error()
+        if old_error.get_error_kind() != kind { return false }
+        if old_error.get_error_code() != code { return false }
+        if new_error.get_kind() != kind { return false }
+        if new_error.get_code() != code { return false }
+        if old_error.get_start() != new_error.get_position() { return false }
+        if old_error.get_line() != new_error.get_line() { return false }
+        if old_error.get_column() != new_error.get_column() { return false }
+        return true
+    }
+}

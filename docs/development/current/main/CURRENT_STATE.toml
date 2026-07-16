@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JSON-NATIVE-ESC0 closed; ITER0-P0 normalized parity resumed"
+status = "JSON-NATIVE-ITER0-P0 closed; CUT0 atomic cutover next"
 date = "2026-07-16"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,16 +298,17 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 
 latest_card = "json-native-iterative-parser-task-2026-07-16"
 latest_card_path = "docs/development/current/main/investigations/json-native-iterative-parser-task-2026-07-16.md"
-latest_card_summary = """JSON-NATIVE-ESC0 is closed as an independent lexical
-BoxCount prerequisite. One selected tokenizer path now uses the shared boundary
-scanner and exact decoder for all eight simple escapes plus case-insensitive
-Unicode escapes for U+0008/9/A/C/D and U+0020..U+007E. Unsupported controls,
-DEL, non-ASCII, and surrogates fail typed before publication; tolerant
-EscapeUtils and silent ? are absent from the selected path. Default and strict
-parsers share that token stream, iterative errors preserve lexical kind/code/
-site, legacy read_string_literal delegates to the same scanner, and parser
-selection/HMI/MAX_CALL_DEPTH remain unchanged. ITER0-P0 normalized parity is
-resumed; only its three test-only stash files may be selectively recovered.
+latest_card_summary = """JSON-NATIVE-ITER0-P0 is closed with production parser
+selection unchanged. Exactly three test-only files were selectively recovered;
+one non-recursive pair walker proves normalized scalar/container/value/key-order
+parity, and one first-error helper proves kind/code/token/site parity. The
+fixture covers generated trees, malformed grammar, strict integer/duplicate
+errors, typed lexical errors, decoded a versus Unicode-escaped-a identity,
+ordinary MIR JSON, alternating depth 24, depth 128, depth-129 fail-fast before
+root publication, and parser reuse after grammar/depth failures. Release/debug
+P0 plus retained ESC0-I1/L0/S0/strict fixtures and quick 66/66 are green.
+CUT0 next atomically selects the iterative engine and physically retires both
+the recursive full grammar and JsonNode.parse mini grammar without retry.
 JSON-NATIVE-ITER0-S0 is closed with production selection unchanged.
 JSON-NATIVE-ITER0-L0 is closed with production
 behavior unchanged. Five small .hako files add one monotonic typed token cursor,
@@ -863,7 +864,7 @@ MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "DPRIME-JSON-NATIVE-ITER0-P0-NORMALIZED-PARITY-001"
+current_blocker_token = "DPRIME-JSON-NATIVE-ITER0-CUT0-ATOMIC-CUTOVER-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -872,6 +873,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-16: JSON-NATIVE-ITER0-P0 closes normalized recursive/iterative parity with production selection unchanged. Exactly three test-only files are selectively recovered: an explicit-stack pair walker proves kind/value/array order/object insertion order and compatibility overwrite parity; a first-error helper proves kind/code/token/site parity; and the focused fixture covers generated trees, shallow grammar errors, strict bounds/duplicates, typed lexical errors, decoded a versus Unicode-escaped-a identity, ordinary MIR JSON, alternating depth 24, depths 128/129, root-publication failure, and parser reuse. Focused and retained release/debug fixtures, quick 66/66, recursive fixture walking/stringify zero, diff checks, and files below 800 lines are green; atomic CUT0 is next.",
   "2026-07-16: JSON-NATIVE-ESC0-I1 atomically activates one exact escaped-string lexical path. JsonTokenizer now consumes scan_string_literal_v1 plus the exact decoder, selected EscapeUtils.unescape_string callers are zero, legacy read_string_literal delegates to the same scanner, and existing ERROR tokens carry typed lexical kind/code/site/expected/actual projected unchanged by the iterative parser. The focused release/debug fixture covers all eight escapes in values and keys, case-insensitive selected Unicode, every named reject class, multiline sites, strict decoded-duplicate-before-colon priority, compatibility last-write-wins, and reuse. Retained release/debug fixtures, quick 66/66, unchanged parser selector/HMI/MAX_CALL_DEPTH, diff checks, and files below 800 lines are green; ITER0-P0 resumes.",
   "2026-07-16: JSON-NATIVE-ESC0-S0 closes disconnected exact escaped-string products with production behavior unchanged. One typed scan result owns raw body/opening/error sites, JsonScanner.scan_string_literal_v1 shields escaped quotes and rejects raw controls/termination failures, and one exact decoder admits all eight simple escapes plus the selected case-insensitive Unicode subset while rejecting unsupported controls, DEL, non-ASCII, and surrogates before the legacy character table can yield ?. The focused release/debug fixture, retained iterative L0/S0 and strict release/debug fixtures, quick 66/66, production tokenizer callers zero, diff check, and all touched source/check files below 800 lines are green; I1 atomic lexical activation is next.",
   "2026-07-16: JSON-NATIVE-ESC0-D0 resolves the escaped-string stop with worker-refined A1. One exact token path will admit all eight simple escapes plus case-insensitive Unicode escapes for selected controls U+0008/9/A/C/D and printable ASCII U+0020..U+007E; NUL, remaining controls, DEL, non-ASCII, and surrogates fail typed before token/tree publication. Scanner owns span traversal, one exact decoder owns admission/materialization, and JsonTokenizer remains the sole publisher. D0 -> disconnected S0 -> atomic I1 -> selective ITER0-P0 resume is fixed; tolerant preservation, silent ?, parser/HMI grammar, retry, MAX_CALL_DEPTH changes, stale-fixture repair, and files >=800 lines are forbidden.",
@@ -883,5 +885,4 @@ landed_tail = [
   "2026-07-16: HMI-S0-E0 closes one reusable exact-none control-edge witness over the final MirFunction before witness insertion: every Jump.edge_args and Branch then/else edge_args must be Option::None, including rejection of Some(empty), and success emits one function metadata.control_edge_args_v1 {schema_version:1, mode:exact_none} witness. Non-admitted compatibility JSON remains publishable without the witness, while T0 will require it for strict HMI admission; the emitter never infers, erases, or translates edge arguments. Focused 3/3, retained mir_json_emit 117/117, quick 66/66, and production HMI execution callers/fallback zero are green; HMI-S0-T0 whole-document strict profile seal is next.",
   "2026-07-16: HMI-S0-J0 closes one opt-in strict policy over the existing json_native grammar/tree authority: literal duplicate keys reject before compatibility overwrite, exact signed-i64 lexemes include proven MIN/MAX conversion, whole-input consumption stays exact, and typed policy-owned strict errors render into the existing parser error array. Default JsonParser.parse behavior remains unchanged and its duplicate last-write-wins fixture stays green; escaped decoded-key identity remains unproven until ESC0. HMI execution callers/fallback remain zero. strict_policy_test, pointer/diff checks, and all touched source files below 800 lines are green; HMI-S0-E0 exact-none control-edge witness is next.",
   "2026-07-16: HMI-S0-J0-RF0 closes one compiler-expressivity prerequisite without a new route or Lower authority: shared value-expression Facts now admit Me/This roots and recursively lowerable FieldAccess operands, allowing the existing exit-allowed LoopTrueBreakContinue recipe to own the strict json_native duplicate guard. Focused Facts 5/5, recipe 1/1, default/planner-required fixture, phase29bq fast gate, and the executing strict-policy consumer are green; dynamic Index, AST rewrite, fallback, and field-name policy remain zero. HMI-S0-J0 strict json_native policy resumes.",
-  "2026-07-16: HMI-S0-D0 closes the strict-ingress/scalar-interpreter design consultation after current-source and worker audit. B-prime keeps apps/lib/json_native as the sole native JSON grammar/tree authority and adds an opt-in strict policy; the tolerant tools parser stays outside HMI. Plain i64 Add/Sub/Mul/Div/Mod are checked with stable overflow/zero errors, wrapping remains future explicit vocabulary, and final Rust MIR must prove every Jump/Branch edge arg is exact None through one function metadata witness; Some(empty) rejects. Accepted order is J0 -> E0 -> T0 -> V0 -> I0 -> P0 with production callers/fallback zero and every source/check file below 800 lines; J0 is next.",
 ]
