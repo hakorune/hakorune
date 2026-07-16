@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "R0-TYPE0-M0 seals typed formal and MapBox/Known MIR evidence; exclusive classification is next"
+status = "R0-TYPE0-V0 selects TYPED-FORMAL-AUTHORIZED; existing proof-family registration is next"
 date = "2026-07-16"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -934,7 +934,7 @@ MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "DPRIME-HMI-S0-V0-R0-TYPE0-V0-001"
+current_blocker_token = "DPRIME-HMI-S0-V0-R0-TYPE0-G0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -943,6 +943,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-16: R0-TYPE0-V0 applies the fixed exclusive classifier and selects exactly TYPED-FORMAL-AUTHORIZED. Exact source declaration transport, handle:MapBox parameter projection, MapBox/Known param:0 set routing, local and validation-heavy late-field runtime transport, and ownership-zero checks all precede authorization. No compiler/runtime/HMI/backend behavior changes, fallback, or ownership widening lands. G0 publication in the existing MapFieldOwner proof family is next.",
   "2026-07-16: R0-TYPE0-M0 closes one 487-line normalized source/runtime/MIR checker. Debug/release P1-P10 and normalized evidence agree. The imported helper preserves the exact storage: MapBox ParamDecl, publishes parameter ValueId zero as handle:MapBox before body lowering, and emits one MapBox/Known set rooted at param:0. Local newbox and field:storage caller roots reach the same helper; late field_get metadata is recorded but not an authorization prerequisite. Birth owns the sole field publication and CopyOwned/DestroyOwned/selected ReleaseStrong remain zero. STOP0 and DELTA0 regressions stay green; selection remains UNCLASSIFIED-M0 and V0 is next.",
   "2026-07-16: R0-TYPE0-S0 closes one HMI-independent two-file typed-formal fixture. The existing named-module/text-merge authority imports storage_command.hako; that file alone declares storage: MapBox for the no-result put and integer observer. Debug/release VM runs report P1-P10 all green across local, field, validation/early-return late-field, repeated, isolation, cross-file, and negative-then-fresh cases. No classifier, manifest row, HMI source, compiler/runtime behavior, MapBox return, mutator-result binding, post-birth field replacement, ownership form/opcode, fallback, or backend widening lands. M0 normalized source/MIR proof is next.",
   "2026-07-16: Candidate A is accepted and R0-TYPE0 is task-fixed. An explicit `storage: MapBox` source formal owns only the callable value type; ordinary no-result/non-publication source shape remains the A-prime ownership intent, with no verified borrow ABI claim. One HMI-independent two-file proof will cover local/field/late-field/repeated/isolation cases, declared ParamDecl -> signature -> parameter ValueId -> MapBox/Known helper routing, caller-field-type independence, ownership-op zero, exclusive TYPE0 classifier tokens, and G0 registration in the existing MapFieldOwner proof family. HMI source and both evidence stashes remain unchanged; TYPE0-S0 is next.",
@@ -954,5 +955,4 @@ landed_tail = [
   "2026-07-16: R0-DELTA0-M0 closes one 450-line normalized proof checker. The ten-case debug/release VM matrices and normalized MIR evidence agree. Generic helpers use RuntimeDataBox/Union rooted at param:0; local and typed-field call sites carry handle:MapBox rooted at newbox:MapBox or field:storage<param:0>; direct MapBox/Known observation is preserved. Birth owns the sole storage field_set and CopyOwned/DestroyOwned/ReleaseStrong remain zero. The typed stored-field declaration supplies existing MIR metadata rather than runtime inference. Selection stays UNCLASSIFIED-M0; V0 is next.",
   "2026-07-16: R0-DELTA0-S0 closes one 197-line domain-neutral B1/B2+D1-D8 fixture. Local and field direct controls, local/field static-formal literal/dynamic/helper observation, repeated mutation, and instance isolation are all green in the initial debug VM run. The helper returns no MapBox, callers assign no mutator result, the storage field is assigned only in birth, and HMI/import/result-ledger/ownership/fallback deltas remain zero. Selection stays UNCLASSIFIED-S0 until normalized debug/release MIR evidence.",
   "2026-07-16: A-prime is accepted and R0-DELTA0 is task-fixed after three read-only worker audits. One generic source proof will test ordinary static-formal MapBox mutation visibility with no MapBox return, owner-field reassignment, ownership operation, HMI dependency, runtime special case, fallback, or backend widening. The exact B1/B2+D1-D8 matrix, exclusive result tokens, helper-vs-caller normalized MIR evidence, existing compiler proof manifest family, S0/M0/V0/G0 order, and <800-line boundary are fixed. This is not a production borrowed-ABI claim; R0-DELTA0-S0 is next.",
-  "2026-07-16: R0-STOP0-G0 closes the generic MapFieldOwner selection proof as manifest entry MAPFIELD-R0-STOP0. It deterministically selects NONE-HMI-DELTA0; 209-entry wrapper and manifest pilot guards, HMI T0/inventory isolation, neighboring exact-numeric VM/MIR/EXE, current pointer, and quick 66/66 are green. The register WIP remains stashed. Read-only comparison isolates one missing field-MapBox -> static helper formal -> mutate -> return same MapBox -> field reassign chain; a new design stop recommends borrowed mutation command A-prime and one generic R0-DELTA0 proof.",
 ]

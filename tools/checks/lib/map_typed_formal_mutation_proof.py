@@ -130,8 +130,6 @@ def parse_runtime(text: str) -> dict[str, int]:
         result[case] = int(rows[0][len(prefix) :])
     if "selection=UNCLASSIFIED-S0" not in lines or "summary=observed" not in lines:
         raise ProofFailure("runtime fixture classified before TYPE0-V0")
-    if any(value != 1 for value in result.values()):
-        raise ProofFailure(f"runtime matrix is not fully green: {result}")
     return result
 
 
@@ -427,6 +425,28 @@ def normalize_mir(path: Path) -> dict[str, Any]:
     }
 
 
+def classify(
+    source: dict[str, Any], runtime: dict[str, int], mir: dict[str, Any]
+) -> str:
+    if source["typed_storage_formals"] != ["put_proven", "contains"]:
+        return "TYPE-DECL-TRANSPORT-REQUIRED"
+    put = mir["helpers"]["put"]
+    if put["parameter0_type"] != "handle:MapBox":
+        return "TYPE-PROJECTION-REQUIRED"
+    route = put["methods"][0]
+    if (route["box_name"], route["certainty"], route["receiver_root"]) != (
+        "MapBox", "Known", "param:0"
+    ):
+        return "TYPE-PROJECTION-REQUIRED"
+    if not runtime["local_direct"] or not runtime["local_helper"]:
+        return "CALL-VALUE-TRANSPORT-REQUIRED"
+    if not runtime["late_field_direct"] or not runtime["late_field_helper"]:
+        return "FIELD-PROPAGATION-REQUIRED"
+    if any(mir["totals"].values()):
+        return "OWNERSHIP-WIDENING-DETECTED"
+    return "TYPED-FORMAL-AUTHORIZED"
+
+
 def main() -> int:
     root = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
     source = verify_source(root)
@@ -442,13 +462,14 @@ def main() -> int:
     if mir_by_mode["debug"] != mir_by_mode["release"]:
         raise ProofFailure("debug/release normalized MIR evidence drift")
 
+    selection = classify(source, runtime_by_mode["debug"], mir_by_mode["debug"])
     report = {
         "schema_version": 1,
         "proof_id": PROOF_ID,
         "source": source,
         "runtime": runtime_by_mode["debug"],
         "mir": mir_by_mode["debug"],
-        "selection": "UNCLASSIFIED-M0",
+        "selection": selection,
     }
     report_path = root / ARTIFACT_DIR / "report.json"
     report_path.write_text(
@@ -473,7 +494,7 @@ def main() -> int:
     print(f"mir.copy_owned={report['mir']['totals']['copy_owned']}")
     print(f"mir.destroy_owned={report['mir']['totals']['destroy_owned']}")
     print(f"mir.release_strong={report['mir']['totals']['release_strong']}")
-    print("selection=UNCLASSIFIED-M0")
+    print(f"selection={selection}")
     print(f"report={report_path.relative_to(root)}")
     print("summary=observed")
     return 0

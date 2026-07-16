@@ -605,6 +605,18 @@ HMI behavior delta:
   0
 ```
 
+Status: closed on 2026-07-16.
+
+The fixed classifier selects exactly:
+
+```text
+TYPED-FORMAL-AUTHORIZED
+```
+
+Declaration transport, parameter projection, MapBox/Known routing, local and
+late-field runtime transport, and ownership-zero checks all precede that
+token. No rejected proof can publish the authorization token.
+
 ### R0-TYPE0-G0
 
 Add:
