@@ -527,6 +527,36 @@ put_proven helper formal:
 The I0 WIP is stashed by label and is not implementation authority. Do not
 resume I0 until the typed-formal consultation is closed.
 
+#### I0 second stop evidence
+
+TYPE0 is closed and the typed MapBox command now reaches its postcondition.
+The next clean prototype stops at the separate `definition_order: ArrayBox`
+field boundary.
+
+```text
+stash evidence:
+  wip/hmi-s0-v0-r0-i0 ArrayBox late field receiver is Void
+
+simple size field_get:
+  handle:ArrayBox
+  ArrayBox.length / Known
+
+late define field_get:
+  declared type absent
+  result Unknown
+  RuntimeDataBox.push / Union
+
+runtime:
+  Unknown method `length` on Void
+```
+
+The worktree was cleaned without landing I0 source. Implementation is paused
+at:
+
+```text
+hmi-s0-v0-r0-array-field-propagation-consultation-question-2026-07-16.md
+```
+
 ### R0-P0
 
 Add immutable snapshot storage and complete the fixture. Re-run
