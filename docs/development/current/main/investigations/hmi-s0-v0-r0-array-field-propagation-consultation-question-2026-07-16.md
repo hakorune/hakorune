@@ -1,13 +1,27 @@
 ---
-Status: Open design consultation
+Status: Candidate B′ accepted; implementation task issued
 Date: 2026-07-16
-Decision: pending
+Decision: current receiver + Copy-only declared-field recovery
 Baseline: 1248fc0fcd
 Parent: hmi-s0-v0-r0-clean-register-storage-task-2026-07-16.md
 Scope: current-method receiver -> declared ArrayBox field after control flow
 ---
 
 # HMI R0-I0 declared ArrayBox field consultation
+
+## Resolution
+
+Candidate B′ is accepted. Implementation is owned by:
+
+```text
+hmi-s0-v0-r0-declfield0-current-receiver-task-2026-07-16.md
+```
+
+The sole next code-facing row is `R0-DECLFIELD0-S0`.
+
+`M0` is a hard authorization gate. If the selected late field base reaches a
+`Phi` after removing zero or more ordinary `Copy` instructions, `I0` is
+forbidden and a separate same-root-PHI provenance consultation must open.
 
 ## Question
 
