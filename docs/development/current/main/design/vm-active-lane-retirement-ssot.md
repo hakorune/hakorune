@@ -138,10 +138,22 @@ ReleaseStrong:
 helper names are implementation details. They cannot appear in the portable
 MIR semantic contract or normalized parity authority.
 
-The `.hako` interpreter input transport is not selected by this policy. The
-HMI-P0 inventory below must choose one sealed MIR transport. Raw Rust
-`MirModule` access, source AST, reconstructed ProgramV0, and a second semantic
-MIR schema are forbidden.
+HMI-P0 selects the serialized Rust-emitted `MirJsonExportDocument` with
+`MirJsonExportSchema::V1` and exact root `schema_version: "1.0"` as the sole
+future `.hako` semantic-reference ingress. Authority begins only after the
+future `HMI-MIR-JSON-V1-STRICT` whole-document profile seals the existing V1
+bytes. The profile is an acceptance verifier, not a second MIR schema. Raw
+Rust `MirModule` access, source AST, reconstructed ProgramV0, MIR JSON v0,
+compact compatibility payloads, and JSON-to-Rust-MirModule reconstruction are
+forbidden HMI authorities.
+
+The public producer boundary must include semantic refresh and force exact V1;
+it must not expose the private root builder or inherit environment-controlled
+legacy-v0 selection. Detailed task order and exact lossiness seams live in:
+
+```text
+../investigations/hmi-p0-mir-json-v1-strict-ingress-inventory-task-2026-07-16.md
+```
 
 ## Allowed VM Work
 
@@ -188,6 +200,18 @@ backend-specific values hidden behind VMValue
 ```
 
 Select one sealed input transport. The inventory changes no execution owner.
+
+Selected order:
+
+```text
+HMI-P0-D0  exact V1 carrier/strict-profile decision lock
+HMI-P0-I0  checked-in handler/caller/fixture/transport/value inventory
+HMI-P0-G0  freshness, coverage, lossiness report and guards
+HMI-S0-D0  strict-seal/interpreter implementation packet
+```
+
+The strict seal does not exist at P0-D0. P0 specifies and inventories it;
+HMI-S0 begins with the direct whole-document reader/seal implementation.
 
 ### HMI-S0 — closed portable semantic subset
 

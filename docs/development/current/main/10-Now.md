@@ -19,10 +19,11 @@ Related:
 - blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
 - priority: read the exact row from `current_blocker_token`. CAT0, MP0, P0c-F,
   P0c-MR, and Program-only R0 retirement through G0 are closed. The exact
-  current blocker is the HMI-P0 MIR ingress/opcode/caller inventory design
-  stop. This is the first unselected row of the required `.hako` MIR semantic-
-  reference retirement branch; it changes no execution owner and activates no
-  opcode.
+  HMI-P0-D0 selected serialized Rust-emitted MIR JSON V1 plus a future strict
+  whole-document profile as the sole `.hako` semantic-reference carrier. The
+  current blocker is HMI-P0-I0: one checked-in handler/caller/fixture/
+  transport/value-class machine inventory. It changes no execution owner and
+  activates no opcode.
   C-prime is
   taskized as `G0 -> S0 -> V0 -> C0 -> I1 -> R0`; G0 through I1 are closed. The
   deterministic SCC partition is non-Clone, uses a host-stack-safe traversal,
@@ -39,9 +40,9 @@ Related:
   authority, while RootCallable, one-entry facades, and exact-one call policy
   are deleted in the same atomic change. G0 fixes the old-symbol/caller zero,
   one explicit Program ingress, and no-retry guards. The next implementation
-  row must select one existing sealed MIR transport for HMI-P0; no compatibility
-  adapter or second singleton authority is allowed. The 29bq parser/MirBuilder
-  lane remains failure-driven with no current blocker.
+  carrier must remain the same V1 JSON tree without v0/compact conversion or a
+  second schema. The 29bq parser/MirBuilder lane remains failure-driven with no
+  current blocker.
   Production Ownership SSA,
   Loop production,
   SCC-aware optimization, legacy

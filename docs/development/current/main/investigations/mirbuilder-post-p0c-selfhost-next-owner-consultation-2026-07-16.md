@@ -1,12 +1,30 @@
 ---
-Status: design stop; implementation forbidden until selection
+Status: accepted; taskized in HMI-P0 task card
 Date: 2026-07-16
-Decision: pending
+Decision: serialized Rust MIR JSON V1 plus future strict whole-document profile
 Previous row: P0c-MR-R0-G0 closed
-Recommended next row: HMI-P0 inventory and ingress selection
+Next row: HMI-P0-I0 checked-in normalized machine inventory
 ---
 
 # HMI-P0 MIR Semantic-Reference Migration Consultation
+
+## Decision result
+
+Accepted with current-source naming corrections. The existing carrier is
+`MirJsonExportDocument` with `MirJsonExportSchema::V1` and root
+`schema_version: "1.0"`; `rust.mir-json-v1.schema-1.0` is not an existing
+repository identifier. `HMI-MIR-JSON-V1-STRICT` is a new acceptance profile
+over those bytes, not a second schema, and its implementation belongs to the
+HMI-S0 packet.
+
+Task card:
+
+```text
+hmi-p0-mir-json-v1-strict-ingress-inventory-task-2026-07-16.md
+```
+
+The docs-only D0 row is closed. HMI-P0-I0 is the sole next code/artifact-facing
+row; no interpreter or strict-seal implementation is authorized yet.
 
 ## Outcome already closed
 

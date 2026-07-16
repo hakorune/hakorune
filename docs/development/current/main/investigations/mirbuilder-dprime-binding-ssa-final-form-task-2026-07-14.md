@@ -2415,10 +2415,12 @@ state.
 P0c-MR through R0-G0 is closed. Singleton and multi-function recursion now use
 one Program/catalog/graph/SCC/finite-profile/atomic-publication authority; the
 old RootCallable, one-entry, and exact-one authorities are physically retired.
-Continue only through
-`mirbuilder-post-p0c-selfhost-next-owner-consultation-2026-07-16.md`. The next
-genuine selfhost design stop is HMI-P0 ingress/opcode/caller inventory; no new
-code-facing row is selected until its sealed MIR transport is chosen.
+HMI-P0-D0 is closed. Serialized Rust MIR JSON V1 with a future strict
+whole-document profile is selected as the sole `.hako` semantic-reference
+carrier. Implement only HMI-P0-I0 from
+`hmi-p0-mir-json-v1-strict-ingress-inventory-task-2026-07-16.md`: one
+checked-in handler/caller/fixture/transport/value-class inventory with
+execution-owner and opcode-activation delta zero.
 
 Decision/task card:
 `mirbuilder-p0c-mr-callable-scc-task-2026-07-16.md`.
