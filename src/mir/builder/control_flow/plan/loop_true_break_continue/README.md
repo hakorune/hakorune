@@ -4,6 +4,8 @@ Scope: planner-required only, strict/dev gate for loop(true) bodies with
 multiple `if(cond) break/continue` and effect statements.
 
 - Facts: conservative extraction, no AST rewrite
+  - boolean value operands may include structurally lowerable field reads
+    such as `me.policy`; field names never participate in route selection
   - `return(value)` is allowed as:
     - `ExitIf` tail exit (no prelude, no else), or
     - unconditional tail `return(value)` as the final stmt in the loop body (`TailReturn` recipe item)

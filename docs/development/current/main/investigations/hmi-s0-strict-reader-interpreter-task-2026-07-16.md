@@ -148,6 +148,106 @@ whole-input consumption
 
 It does not know MIR field names or schemas.
 
+#### J0 compiler prerequisite — receiver-field predicate read
+
+The first J0 execution probe found one existing Facts/Lower contract gap in
+`JsonParser.parse_object`. The strict duplicate guard contains:
+
+```hako
+if me.policy != null and me.policy.rejects_duplicate_keys() {
+    if object_node.object_has(key) {
+        me.add_error(...)
+        return null
+    }
+}
+```
+
+`me.policy` is parsed as a `FieldAccess` rooted at `Me`. Canonical value
+lowering already supports this read, but the shared boolean/value-expression
+Facts vocabulary rejects it. That prevents the existing exit-allowed
+`loop(true)` recipe from being sealed and incorrectly hands the loop to the
+generic induction-variable route, which then reports zero candidates.
+
+The exact prerequisite row is:
+
+```text
+HMI-S0-J0-RF0
+
+accept in shared value-expression Facts:
+  Me | This value roots
+  recursively lowerable FieldAccess over an admitted value root
+
+use:
+  comparison operand inside an already-supported boolean condition
+
+materialization:
+  existing PlanNormalizer FieldAccess lowering only
+
+new control recipe:
+  0
+
+new lowering path:
+  0
+
+AST rewrite / source workaround / fallback:
+  0
+```
+
+RF0 does not admit field assignment, dynamic indexing, ownership/view
+semantics, or a second condition classifier. FieldAccess is structural rather
+than field-name-specific and is admitted only when its base is already an
+admitted value expression. The shared Facts helper remains the only admission
+owner and Lower does not reclassify the predicate.
+
+Required proof:
+
+```text
+minimal fixture:
+  loop(true)
+  receiver field != null in an and-condition
+  nested conditional return
+  continue/break tail
+
+route:
+  loop_true_break_continue / exit-allowed recipe
+
+reject regression:
+  unsupported projection roots remain unsupported
+
+full consumer:
+  json_native strict_policy_test reaches execution
+```
+
+This is a compiler-expressivity prerequisite, not an HMI semantic widening.
+
+Closeout evidence:
+
+```text
+status:
+  closed
+
+shared Facts:
+  Me / This roots and recursive FieldAccess admitted
+
+lowering:
+  existing PlanNormalizer only
+
+focused unit tests:
+  expr_value 5/5
+  receiver-field nested-exit recipe 1/1
+
+fixture:
+  phase29bq_loop_true_receiver_field_nested_exit_min.hako
+
+fast gate:
+  loop_true_receiver_field_nested_exit PASS
+
+consumer proof:
+  json_native strict_policy_test -> [json-native/strict-policy] ok
+```
+
+J0 remains open for the strict json_native policy itself.
+
 ### HMI-S0-E0 — exact-none control-edge witness
 
 ```text

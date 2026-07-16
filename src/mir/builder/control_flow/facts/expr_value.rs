@@ -7,8 +7,9 @@ pub(in crate::mir::builder) fn is_supported_value_expr(
     allow_extended: bool,
 ) -> bool {
     match ast {
-        ASTNode::Variable { .. } => true,
+        ASTNode::Variable { .. } | ASTNode::Me { .. } | ASTNode::This { .. } => true,
         ASTNode::Literal { .. } => true,
+        ASTNode::FieldAccess { object, .. } => is_supported_value_expr(object, allow_extended),
         ASTNode::MethodCall { .. } => true,
         ASTNode::FunctionCall { .. } | ASTNode::Call { .. } => allow_extended,
         ASTNode::UnaryOp {
@@ -79,6 +80,28 @@ mod tests {
             span: Span::unknown(),
         };
         assert!(!is_supported_value_expr(&expr, false));
+    }
+
+    #[test]
+    fn receiver_field_read_is_supported() {
+        let expr = ASTNode::FieldAccess {
+            object: Box::new(ASTNode::Me {
+                span: Span::unknown(),
+            }),
+            field: "policy".to_string(),
+            span: Span::unknown(),
+        };
+        assert!(is_supported_value_expr(&expr, false));
+    }
+
+    #[test]
+    fn dynamic_index_is_not_admitted_as_field_read() {
+        let expr = ASTNode::Index {
+            target: Box::new(v("items")),
+            index: Box::new(lit_int(0)),
+            span: Span::unknown(),
+        };
+        assert!(!is_supported_value_expr(&expr, true));
     }
 
     #[test]

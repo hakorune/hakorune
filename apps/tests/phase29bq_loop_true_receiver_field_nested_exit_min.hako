@@ -1,0 +1,44 @@
+// HMI-S0-J0-RF0: receiver field read in a loop(true) predicate.
+// Expected: stdout="", RC=0.
+
+box ReceiverFieldPredicateProbe {
+    policy
+
+    birth() {
+        me.policy = 1
+    }
+
+    policy_enabled() {
+        return true
+    }
+
+    run() {
+        local iteration = 0
+
+        loop(true) {
+            if me.policy != null and me.policy_enabled() {
+                if iteration == 1 {
+                    return 7
+                }
+            }
+
+            iteration = iteration + 1
+            if iteration < 2 {
+                continue
+            }
+            break
+        }
+
+        return 9
+    }
+}
+
+static box Main {
+    main() {
+        local probe = new ReceiverFieldPredicateProbe()
+        if probe.run() == 7 {
+            return 0
+        }
+        return 1
+    }
+}

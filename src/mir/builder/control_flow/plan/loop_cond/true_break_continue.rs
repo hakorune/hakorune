@@ -471,6 +471,16 @@ mod tests {
         }
     }
 
+    fn me_field(field: &str) -> ASTNode {
+        ASTNode::FieldAccess {
+            object: Box::new(ASTNode::Me {
+                span: Span::unknown(),
+            }),
+            field: field.to_string(),
+            span: Span::unknown(),
+        }
+    }
+
     fn receiver_call(receiver: &str, method: &str, arguments: Vec<ASTNode>) -> ASTNode {
         ASTNode::MethodCall {
             object: Box::new(var(receiver)),
@@ -605,6 +615,40 @@ mod tests {
                         ]),
                     )]),
                 ),
+            ];
+
+            let facts = try_extract_loop_true_break_continue_facts(&condition, &body)
+                .expect("no freeze")
+                .expect("facts");
+
+            assert!(matches!(
+                facts.lowering,
+                LoopTrueBreakContinueLowering::ExitAllowed(_)
+            ));
+        });
+    }
+
+    #[test]
+    fn policy_exit_allowed_accepts_receiver_field_nested_exit() {
+        with_loop_true_break_continue_env(|| {
+            std::env::remove_var("NYASH_JOINIR_DEV");
+            std::env::remove_var("HAKO_JOINIR_PLANNER_REQUIRED");
+
+            let condition = bool_lit(true);
+            let policy_is_present = binop(BinaryOperator::NotEqual, me_field("policy"), null_lit());
+            let body = vec![
+                if_stmt(
+                    binop(
+                        BinaryOperator::And,
+                        policy_is_present,
+                        me_call("policy_enabled", vec![]),
+                    ),
+                    vec![if_stmt(bool_lit(true), vec![ret(null_lit())], None)],
+                    None,
+                ),
+                ASTNode::Break {
+                    span: Span::unknown(),
+                },
             ];
 
             let facts = try_extract_loop_true_break_continue_facts(&condition, &body)
