@@ -1,0 +1,19 @@
+// TYPE0 typed-formal command owner.
+// Text-to-tree import authority stays in the ordinary runner using path.
+
+static box TypedMapMutationCommandV1 {
+    put_proven(storage: MapBox, value_id, payload) {
+        storage.set("" + value_id, payload)
+        return
+    }
+
+    contains(storage: MapBox, value_id, expected) {
+        local key = "" + value_id
+        if storage.has(key) {
+            if storage.get(key) == expected {
+                return 1
+            }
+        }
+        return 0
+    }
+}

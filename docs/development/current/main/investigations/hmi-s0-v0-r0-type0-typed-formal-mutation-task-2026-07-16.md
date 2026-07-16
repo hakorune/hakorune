@@ -509,6 +509,33 @@ manifest connection:
   0
 ```
 
+Status: closed on 2026-07-16.
+
+Landed shape:
+
+```text
+apps/map-typed-formal-mutation-proof/
+  README.md
+  main.hako
+  storage_command.hako
+  test.sh
+```
+
+The helper file is resolved through the existing named-module/text-merge
+authority:
+
+```text
+apps.proofs.map_typed_formal_mutation_storage_command
+  -> apps/map-typed-formal-mutation-proof/storage_command.hako
+```
+
+Both debug and release VM runs report every P1-P10 observation as `1`.
+`storage_command.hako` is the sole owner of the typed storage formals.
+The late-field cases perform validation and early returns before reading
+`me.storage`; the app contains no HMI name, mutator-result binding, storage
+return, post-birth field replacement, or ownership form. Classification and
+manifest publication remain zero.
+
 ### R0-TYPE0-M0
 
 Add:

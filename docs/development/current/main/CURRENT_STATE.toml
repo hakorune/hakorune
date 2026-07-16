@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Candidate A typed MapBox formal is accepted and TYPE0-tasked; generic S0 is next"
+status = "R0-TYPE0-S0 generic typed MapBox formal fixture is green; normalized MIR proof is next"
 date = "2026-07-16"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -934,7 +934,7 @@ MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "DPRIME-HMI-S0-V0-R0-TYPE0-S0-001"
+current_blocker_token = "DPRIME-HMI-S0-V0-R0-TYPE0-M0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -943,6 +943,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-16: R0-TYPE0-S0 closes one HMI-independent two-file typed-formal fixture. The existing named-module/text-merge authority imports storage_command.hako; that file alone declares storage: MapBox for the no-result put and integer observer. Debug/release VM runs report P1-P10 all green across local, field, validation/early-return late-field, repeated, isolation, cross-file, and negative-then-fresh cases. No classifier, manifest row, HMI source, compiler/runtime behavior, MapBox return, mutator-result binding, post-birth field replacement, ownership form/opcode, fallback, or backend widening lands. M0 normalized source/MIR proof is next.",
   "2026-07-16: Candidate A is accepted and R0-TYPE0 is task-fixed. An explicit `storage: MapBox` source formal owns only the callable value type; ordinary no-result/non-publication source shape remains the A-prime ownership intent, with no verified borrow ABI claim. One HMI-independent two-file proof will cover local/field/late-field/repeated/isolation cases, declared ParamDecl -> signature -> parameter ValueId -> MapBox/Known helper routing, caller-field-type independence, ownership-op zero, exclusive TYPE0 classifier tokens, and G0 registration in the existing MapFieldOwner proof family. HMI source and both evidence stashes remain unchanged; TYPE0-S0 is next.",
   "2026-07-16: HMI-S0-V0-R0-I0 stops before landing code on a typed-formal design boundary. The clean no-return/no-reassign prototype reaches put_proven but its mutation is not visible. MIR shows the simple has() storage field_get carries declared/result handle:MapBox and types the contains formal, while the late define() storage field_get has no declared/result type and the void put_proven formal remains Unknown. The WIP is stashed by label. A new consultation recommends explicit `storage: MapBox` value typing with unchanged implicit noescape ownership and a generic HMI-independent R0-TYPE0 proof before HMI resumes.",
   "2026-07-16: HMI-S0-V0-R0-S0 closes the passive storage/result substrate. A 16-line HmiScalarRegisterStorageV1 owns one no-result ordinary-formal mutation command; a 78-line result vocabulary reconstructs typed scalars without raw storage exposure; VerifiedHmiFunctionView gains one bounded has_value_type query; and a 53-line fixture is green in release/debug. Existing V0-L0, public A-PRIME-AUTHORIZED DELTA0, and HMI authority remain green. Register/snapshot owners, production callers, opcodes, ownership operations, fallback, and stash restore remain zero; R0-I0 is next.",
@@ -954,5 +955,4 @@ landed_tail = [
   "2026-07-16: A-prime is accepted and R0-DELTA0 is task-fixed after three read-only worker audits. One generic source proof will test ordinary static-formal MapBox mutation visibility with no MapBox return, owner-field reassignment, ownership operation, HMI dependency, runtime special case, fallback, or backend widening. The exact B1/B2+D1-D8 matrix, exclusive result tokens, helper-vs-caller normalized MIR evidence, existing compiler proof manifest family, S0/M0/V0/G0 order, and <800-line boundary are fixed. This is not a production borrowed-ABI claim; R0-DELTA0-S0 is next.",
   "2026-07-16: R0-STOP0-G0 closes the generic MapFieldOwner selection proof as manifest entry MAPFIELD-R0-STOP0. It deterministically selects NONE-HMI-DELTA0; 209-entry wrapper and manifest pilot guards, HMI T0/inventory isolation, neighboring exact-numeric VM/MIR/EXE, current pointer, and quick 66/66 are green. The register WIP remains stashed. Read-only comparison isolates one missing field-MapBox -> static helper formal -> mutate -> return same MapBox -> field reassign chain; a new design stop recommends borrowed mutation command A-prime and one generic R0-DELTA0 proof.",
   "2026-07-16: PURE-FIRST-VM-FEATURE-HYGIENE0 closes an independent guard false-red found during R0-STOP0-G0. The shared pure-first helper now builds debug/release hakorune binaries with the vm-reference feature before explicitly requesting --backend vm. The neighboring exact-numeric helper field-mutation VM/MIR/EXE guard is green. Source language, compiler route, runtime semantics, product backend selection, and HMI behavior remain unchanged; the G0 WIP stayed stashed.",
-  "2026-07-16: R0-STOP0-V0 implements the frozen exclusive classifier and selects NONE-HMI-DELTA0. All base, formal-key, direct/self method, one/two control-merge, receiver-alias, and instance-isolation cases pass, so KEY0 and RECV0 are not authorized. The two RuntimeDataBox/Union control-merge calls remain evidence but are not promoted into a compiler fix. G0 manifest registration is next, followed by minimization of exactly one failing HMI-derived structural delta and a new design consultation.",
 ]
