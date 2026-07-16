@@ -51,6 +51,7 @@ Do not add a dedicated shell guard for every inventory or selection row.
 | `tools/checks/run_proof_app.sh` | Manifest-backed proof app runner using `tools/checks/proof_apps.toml` and `tools/checks/lib/manifest_runner.py`. |
 | `tools/checks/run_proof_app.sh --only MAPFIELD-R0-STOP0` | Generic MapFieldOwner BoxShape proof: debug/release runtime parity, normalized MIR key/receiver evidence, and exclusive `NONE-HMI-DELTA0` or compiler-selection result. |
 | `tools/checks/run_proof_app.sh --only MAPFIELD-R0-DELTA0` | Generic MapBox-formal mutation proof: ten-case debug/release runtime parity, helper/caller normalized MIR ownership evidence, and exclusive `A-PRIME-AUTHORIZED` or narrow compiler-blocker selection. |
+| `tools/checks/run_proof_app.sh --only MAPFIELD-R0-TYPE0` | Generic typed-MapBox-formal proof: two-file source transport, ten-case debug/release runtime parity, normalized ParamDecl/parameter/MapBox-Known evidence, ownership-zero checks, and exclusive `TYPED-FORMAL-AUTHORIZED` classification. |
 | `tools/checks/k2_wide_allocator_gate.sh` | Reusable allocator/mimalloc/provider proof group entry for allocator-wide checks. |
 | `tools/checks/language_v1_grammar_contract_substrate_guard.sh` | Language v1 grammar-contract substrate: one registry, typed projection, shared corpus, and strict witness comparator. |
 | `tools/checks/language_v1_full_gate_for_changes.sh` | Changed-path entry that reads one sensitive-path manifest and requires the FULL Rust/Hako grammar gate for MIR binding/type-contract, Hako compiler, projection, or registry changes. |

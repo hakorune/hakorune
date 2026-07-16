@@ -21,3 +21,14 @@ validation_profile = "scalar-mir"
 first_pattern = false
 exe = "auto"
 cmd = ["tools/checks/lib/map_formal_borrowed_mutation_proof.py", "."]
+
+[[proof_apps]]
+id = "MAPFIELD-R0-TYPE0"
+app = "apps/map-typed-formal-mutation-proof"
+label = "generic typed MapBox formal mutation proof"
+profiles = ["pilot"]
+row_kind = "validation"
+validation_profile = "scalar-mir"
+first_pattern = false
+exe = "auto"
+cmd = ["tools/checks/lib/map_typed_formal_mutation_proof.py", "."]

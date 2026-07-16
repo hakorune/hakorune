@@ -649,6 +649,12 @@ cmd = ["tools/checks/lib/map_typed_formal_mutation_proof.py", "."]
 Update the public check index and use the standard app-local proof entry. Do
 not create a shell guard.
 
+Status: closed on 2026-07-16.
+
+`MAPFIELD-R0-TYPE0` is registered in the existing MapFieldOwner manifest and
+the public check index. The app-local entry and manifest pilot both publish
+`TYPED-FORMAL-AUTHORIZED`. TYPE0 is complete; clean HMI R0-I0 resumes next.
+
 ## Required pass fixtures
 
 ```text
