@@ -6,9 +6,11 @@ Purpose: track stash items for keep/drop/hold decisions. This is a triage log; S
 
 ## Current audit
 
-Three read-only worker audits classified all 48 entries present before this
-cleanup. Fifteen entries were dropped only after they were proven landed,
-superseded, explicitly regressive, or effect-free. Thirty-three remain.
+The first three-worker audit classified 48 entries and dropped 15 proven
+landed/superseded/rejected rows. A second three-worker audit then classified
+all 34 remaining entries after the new HMI I0 stop. Twenty-three more were
+dropped by exact hash only after landed/rejected evidence was confirmed.
+Eleven remain.
 
 Use stash labels and hashes, never mutable `stash@{n}` ordinals.
 
@@ -16,7 +18,8 @@ Use stash labels and hashes, never mutable `stash@{n}` ordinals.
 
 | Hash | Label | Law |
 | --- | --- | --- |
-| `da77002211` | `wip/hmi-s0-v0-r0-i0 cross-file static formal loses MapBox type` | Current typed-formal consultation evidence. Never apply as implementation authority. Drop after TYPE0 and clean I0 close. |
+| `dcc241c9db` | `wip/hmi-s0-v0-r0-i0 ArrayBox late field receiver is Void` | Current declared-field consultation evidence. Never apply as implementation authority. Drop after R0-DECLFIELD0 and clean HMI I0 close. |
+| `da77002211` | `wip/hmi-s0-v0-r0-i0 cross-file static formal loses MapBox type` | Prior typed-formal failure evidence retained until clean I0 closes. Never apply as implementation authority. |
 | `58a8b63798` | `wip/hmi-s0-v0-r0 register storage fails field mutation` | Rejected owner-roundtrip evidence. Never apply. Drop after HMI R0-G0. |
 
 ### Project-parked evidence — keep
@@ -31,6 +34,46 @@ wip/s3-hako-snapshot-reader before rust-algebra-design-stop
 
 The first three permit selective recovery only. The last two are evidence-only
 and must not be applied or partially cherry-picked.
+
+### Forensic archives — keep
+
+These are mixed/non-atomic Codex batches. They are not current implementation
+authority and must never be applied wholesale. Keep them only for selective
+manual diff extraction.
+
+```text
+77fba33026  string-lane docs cleanup
+63bdeefd86  phase29cg mixed worker review
+1e7dc7b601  pre-restart mixed runtime/perf batch
+```
+
+### 2026-07-16 second cleanup dropped
+
+```text
+bce351e86a  obsolete concat slot/store C-shim probe
+37bac105ec  non-authoritative formatting spill
+ac88557c63  incomplete string-lane code cleanup
+05076587e3  tagged-stdout caller split already landed
+6799d3958e  import-alias bridge already landed
+d566e44fee  Program JSON import owner already landed
+122d4db023  fast-gate work split into landed commits
+7f30ba7cd1  port-signature fixes/tests already landed
+f9e2857d60  JoinIR entry/Recipe SSOT work already landed
+c703285b79  rejected direct ArrayBox handle bypass
+9b52405f91  rejected archive-doc deletion batch
+32151c0292  obsolete AOT untracked fallback bundle
+76244f209b  phase33 AOT changes already split/landed
+57384b8575  rejected Phase31 runtime experiment
+a4294dedd3  broken legacy branch snapshot
+ed65469692  PHI loop JSON change already landed
+7f36fd7bea  PHI values/spec change already landed
+79d5e70c82  mixed PHI/entry/strict changes already landed
+0098df3504  rejected by-name ModuleFunction experiment
+c28ee3e4f6  PHI handler/context changes already landed
+56719d187b  retired inkwell LLVM compiler experiment
+976aa434d6  obsolete PR investigation task text
+44736bf9a3  filter-rewrite/SSA debug debris
+```
 
 ### 2026-07-16 dropped
 
@@ -52,11 +95,12 @@ be0a9a216b  region-observer metadata WIP
 718da6b1f2  exit predecessor snapshot with no effect
 ```
 
-### Remaining legacy policy
+### Remaining policy
 
-Old branch recovery archives, large AOT/Phase31 batches, and entries explicitly
-marked `hold` below remain untouched. Ambiguous probes and paired cleanup
-stashes also remain until a dedicated diff extraction proves a drop decision.
+No old master/selfhosting/AOT/Phase31 recovery stash remains after the second
+audit. The only remaining rows are five explicit design/failure evidence
+items, three selectively recoverable parked tasks, and three forensic mixed
+archives listed above.
 
 ---
 
