@@ -1,0 +1,252 @@
+// map-field-owner-boxshape-proof
+// Generic compiler proof: no application imports or storage workaround.
+
+box MapFieldOwnerProbeV1 {
+    init { storage }
+
+    birth() {
+        me.storage = new MapBox()
+    }
+
+    map_field_probe_v1_put_literal(value) {
+        me.storage.set("2", value)
+    }
+
+    map_field_probe_v1_has_literal() {
+        if me.storage.has("2") {
+            return 1
+        }
+        return 0
+    }
+
+    map_field_probe_v1_load_literal_present() {
+        if me.storage.has("2") {
+            return me.storage.get("2")
+        }
+        return -1
+    }
+
+    map_field_probe_v1_put_id(id, value) {
+        local key = "" + id
+        me.storage.set(key, value)
+    }
+
+    map_field_probe_v1_has_id(id) {
+        local key = "" + id
+        if me.storage.has(key) {
+            return 1
+        }
+        return 0
+    }
+
+    map_field_probe_v1_load_id_present(id) {
+        local key = "" + id
+        if me.storage.has(key) {
+            return me.storage.get(key)
+        }
+        return -1
+    }
+
+    map_field_probe_v1_put_key(key, value) {
+        me.storage.set(key, value)
+    }
+
+    map_field_probe_v1_has_key(key) {
+        if me.storage.has(key) {
+            return 1
+        }
+        return 0
+    }
+
+    map_field_probe_v1_load_key_present(key) {
+        if me.storage.has(key) {
+            return me.storage.get(key)
+        }
+        return -1
+    }
+
+    map_field_probe_v1_put_then_has_direct(id, value) {
+        local key = "" + id
+        me.storage.set(key, value)
+        if me.storage.has(key) {
+            if me.storage.get(key) == value {
+                return 1
+            }
+        }
+        return 0
+    }
+
+    map_field_probe_v1_contains_id_internal(id, value) {
+        local key = "" + id
+        if me.storage.has(key) {
+            if me.storage.get(key) == value {
+                return 1
+            }
+        }
+        return 0
+    }
+
+    map_field_probe_v1_put_then_has_self(id, value) {
+        local key = "" + id
+        me.storage.set(key, value)
+        return me.map_field_probe_v1_contains_id_internal(id, value)
+    }
+
+    map_field_probe_v1_put_after_fallthrough_one(
+        flag,
+        left_id,
+        right_id,
+        value
+    ) {
+        local selected = left_id
+        if flag == 1 {
+            selected = right_id
+        } else {
+            selected = left_id
+        }
+
+        local key = "" + selected
+        me.storage.set(key, value)
+        return me.map_field_probe_v1_contains_id_internal(selected, value)
+    }
+
+    map_field_probe_v1_put_after_fallthrough_two(
+        first,
+        second,
+        left_id,
+        right_id,
+        value
+    ) {
+        local selected = left_id
+        if first == 1 {
+            selected = right_id
+        } else {
+            selected = left_id
+        }
+
+        if second == 1 {
+            selected = selected
+        } else {
+            selected = left_id
+        }
+
+        local key = "" + selected
+        me.storage.set(key, value)
+        return me.map_field_probe_v1_contains_id_internal(selected, value)
+    }
+
+    map_field_probe_v1_alias_put(id, value) {
+        local key = "" + id
+        me.storage.set(key, value)
+    }
+}
+
+static box Main {
+    main(args) {
+        local local_map = new MapBox()
+        local local_id = 2
+        local local_key = "" + local_id
+        local_map.set(local_key, 10)
+        local c1 = 0
+        if local_map.has(local_key) {
+            if local_map.get(local_key) == 10 {
+                c1 = 1
+            }
+        }
+
+        local literal_owner = new MapFieldOwnerProbeV1()
+        literal_owner.map_field_probe_v1_put_literal(10)
+        local c2 = 0
+        if literal_owner.map_field_probe_v1_has_literal() == 1 {
+            if literal_owner.map_field_probe_v1_load_literal_present() == 10 {
+                c2 = 1
+            }
+        }
+
+        local formal_concat_owner = new MapFieldOwnerProbeV1()
+        formal_concat_owner.map_field_probe_v1_put_id(3, 10)
+        local c3 = 0
+        if formal_concat_owner.map_field_probe_v1_has_id(3) == 1 {
+            if formal_concat_owner.map_field_probe_v1_load_id_present(3) == 10 {
+                c3 = 1
+            }
+        }
+
+        local formal_key_owner = new MapFieldOwnerProbeV1()
+        local caller_id = 4
+        local caller_key = "" + caller_id
+        formal_key_owner.map_field_probe_v1_put_key(caller_key, 10)
+        local c4 = 0
+        if formal_key_owner.map_field_probe_v1_has_key(caller_key) == 1 {
+            if formal_key_owner.map_field_probe_v1_load_key_present(caller_key) == 10 {
+                c4 = 1
+            }
+        }
+
+        local direct_owner = new MapFieldOwnerProbeV1()
+        local c5 = direct_owner.map_field_probe_v1_put_then_has_direct(5, 10)
+
+        local self_owner = new MapFieldOwnerProbeV1()
+        local c6 = self_owner.map_field_probe_v1_put_then_has_self(6, 10)
+
+        local merge_one_owner = new MapFieldOwnerProbeV1()
+        local c7a = merge_one_owner.map_field_probe_v1_put_after_fallthrough_one(
+            1,
+            70,
+            71,
+            10
+        )
+        if merge_one_owner.map_field_probe_v1_has_id(70) == 1 {
+            c7a = 0
+        }
+
+        local merge_two_owner = new MapFieldOwnerProbeV1()
+        local c7b = merge_two_owner.map_field_probe_v1_put_after_fallthrough_two(
+            1,
+            1,
+            80,
+            81,
+            10
+        )
+        if merge_two_owner.map_field_probe_v1_has_id(80) == 1 {
+            c7b = 0
+        }
+
+        local alias_owner = new MapFieldOwnerProbeV1()
+        local alias = alias_owner
+        alias.map_field_probe_v1_alias_put(9, 10)
+        local c8 = 0
+        if alias_owner.map_field_probe_v1_has_id(9) == 1 {
+            if alias_owner.map_field_probe_v1_load_id_present(9) == 10 {
+                c8 = 1
+            }
+        }
+
+        local isolated_a = new MapFieldOwnerProbeV1()
+        local isolated_b = new MapFieldOwnerProbeV1()
+        isolated_a.map_field_probe_v1_put_literal(10)
+        local c9 = 0
+        if isolated_a.map_field_probe_v1_has_literal() == 1 {
+            if isolated_a.map_field_probe_v1_load_literal_present() == 10 {
+                if isolated_b.map_field_probe_v1_has_literal() == 0 {
+                    c9 = 1
+                }
+            }
+        }
+
+        print("map-field-owner-boxshape-proof")
+        print("case.local_map=" + c1)
+        print("case.field_literal=" + c2)
+        print("case.field_formal_concat=" + c3)
+        print("case.field_formal_key=" + c4)
+        print("case.same_method_direct=" + c5)
+        print("case.same_method_self=" + c6)
+        print("case.control_merge_one=" + c7a)
+        print("case.control_merge_two=" + c7b)
+        print("case.receiver_alias=" + c8)
+        print("case.instance_isolation=" + c9)
+        print("selection=UNCLASSIFIED-S0")
+        print("summary=observed")
+        return 0
+    }
+}

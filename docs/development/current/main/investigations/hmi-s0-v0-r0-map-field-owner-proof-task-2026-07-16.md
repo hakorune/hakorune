@@ -27,8 +27,8 @@ PROOF-MANIFEST-HYGIENE0
   -> clean HMI-S0-V0-R0 reimplementation
 ```
 
-`PROOF-MANIFEST-HYGIENE0` is closed. The next code-facing row is
-`R0-STOP0-S0`.
+`PROOF-MANIFEST-HYGIENE0` and `R0-STOP0-S0` are closed. The next code-facing
+row is `R0-STOP0-M0`.
 
 This prerequisite is behavior-neutral and must land separately from the
 generic compiler proof. The proof-manifest runner is currently unusable:
@@ -102,6 +102,44 @@ dev_gate.sh quick:
 ```
 
 No new proof row was registered in the hygiene commit.
+
+## R0-STOP0-S0 closeout
+
+One 253-line import-free fixture now owns the exact semantic matrix:
+
+```text
+apps/map-field-owner-boxshape-proof/
+  README.md
+  main.hako
+  test.sh
+```
+
+It uses one `MapFieldOwnerProbeV1`, owner-specific method spellings, fresh
+owners per independent case, scalar result locals, and no raw storage return.
+
+The initial debug VM observation is:
+
+```text
+case.local_map=1
+case.field_literal=1
+case.field_formal_concat=1
+case.field_formal_key=1
+case.same_method_direct=1
+case.same_method_self=1
+case.control_merge_one=1
+case.control_merge_two=1
+case.receiver_alias=1
+case.instance_isolation=1
+selection=UNCLASSIFIED-S0
+summary=observed
+```
+
+This is not yet a `NONE-HMI-DELTA0` claim. M0 must prove release/debug parity
+and inspect normalized MIR key/receiver roots before V0 applies the exclusive
+classifier.
+
+S0 changes no manifest row, compiler semantic, MapBox runtime, HMI source,
+grammar, backend, ownership operation, or fallback.
 
 ## Decision lock
 
