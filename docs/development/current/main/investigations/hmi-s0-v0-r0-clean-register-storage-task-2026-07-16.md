@@ -51,8 +51,12 @@ HMI-S0-V0-R0-S0
   -> HMI-S0-V0-R0-G0
 ```
 
-`HMI-S0-V0-R0-S0` is closed. The next code-facing checkpoint is
-`HMI-S0-V0-R0-I0`.
+`HMI-S0-V0-R0-S0` is closed. I0 reached a design consultation stop before any
+I0 source landed. See:
+
+```text
+hmi-s0-v0-r0-typed-formal-consultation-question-2026-07-16.md
+```
 
 After G0, the distinct `HMI-S0-V0-S0` row may add execution state and a
 session factory. R0 does not implement either.
@@ -500,6 +504,29 @@ register owner / production callers:
 Add the live register file and producer-backed fixture. Activate typed
 define/read, exact failures, and instance isolation. Snapshot may remain
 unconnected.
+
+#### I0 stop evidence
+
+The clean WIP uses no MapBox return or field reassignment, but the first valid
+define is not visible after the static mutation command.
+
+```text
+simple has() field_get:
+  declared/result handle:MapBox
+
+late define() field_get:
+  declared type absent
+  result Unknown
+
+contains helper formal:
+  handle:MapBox
+
+put_proven helper formal:
+  Unknown
+```
+
+The I0 WIP is stashed by label and is not implementation authority. Do not
+resume I0 until the typed-formal consultation is closed.
 
 ### R0-P0
 
