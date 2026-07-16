@@ -1,8 +1,8 @@
 ---
-Status: S0 closed; M0 active
+Status: M0 closed at PHI design stop
 Date: 2026-07-16
 Decision: Candidate B′ accepted
-Baseline: b572f82f95
+Baseline: 584e1f8829
 Parent: hmi-s0-v0-r0-array-field-propagation-consultation-question-2026-07-16.md
 Scope: current instance receiver -> Copy-only -> explicit declared field
 ---
@@ -472,6 +472,71 @@ CopyOwned / DestroyOwned / selected ReleaseStrong:
   0
 ```
 
+### M0 closeout
+
+The 479-line normalized checker is:
+
+```text
+tools/checks/lib/current_receiver_declared_field_proof.py
+```
+
+Debug/release runtime and normalized MIR agree. A1-A7, M1, C1, N1, and N2
+all report `1`. The selected A2 fallthrough-validation field base is:
+
+```text
+FieldGet(items)
+  base_type = handle:DeclaredFieldOwnerV1
+  root = Copy(Phi(current_receiver))
+  declared_type = Unknown
+  result_type = Unknown
+  push = RuntimeDataBox / Union
+  length = RuntimeDataBox / Union
+```
+
+The PHI has two inputs and both are the exact implicit receiver parameter.
+Nevertheless, the fixed B-prime admission rejects every PHI before considering
+same-root equivalence. The exclusive result is therefore:
+
+```text
+PHI-ROOT-DESIGN-REQUIRED
+```
+
+Controls remain separated:
+
+```text
+A1:
+  Copy(current_receiver)
+  declared ArrayBox / Known
+
+A3:
+  Copy(current_receiver)
+  declared ArrayBox / Known
+
+A4:
+  Copy*(current_receiver)
+  declared ArrayBox / Known
+
+M1:
+  declared MapBox / Known
+
+C1:
+  typed ArrayBox helper / Known
+
+N1:
+  untyped field declaration
+
+N2:
+  foreign explicit parameter
+```
+
+`CopyOwned`, `DestroyOwned`, and selected-route `ReleaseStrong` remain zero.
+M0 changes no compiler/runtime/HMI/backend behavior and does not authorize I0.
+The new design-stop owner is:
+
+```text
+hmi-s0-v0-r0-declfield-phi0-consultation-question-2026-07-16.md
+```
+
 ## R0-DECLFIELD0-I0
 
 Allowed only after M0 publishes:
@@ -479,6 +544,10 @@ Allowed only after M0 publishes:
 ```text
 COPY-ROOT-DECLFIELD-AUTHORIZED
 ```
+
+Current M0 did not publish that token. This row is parked until a separate PHI
+provenance decision either supersedes its admission law or rejects the
+selected source shape.
 
 Production behavior delta:
 
