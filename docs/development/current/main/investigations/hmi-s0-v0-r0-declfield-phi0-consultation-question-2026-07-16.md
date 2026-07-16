@@ -1,13 +1,42 @@
 ---
-Status: Design consultation stop
+Status: Resolved
 Date: 2026-07-16
-Decision: pending
+Resolved: 2026-07-17
+Decision: Candidate A′ accepted
 Baseline: 584e1f8829
 Parent: hmi-s0-v0-r0-declfield0-current-receiver-task-2026-07-16.md
 Scope: same-root receiver PHI provenance for declared-field lookup
 ---
 
 # R0-DECLFIELD-PHI0 consultation
+
+## Resolution
+
+Candidate A′ is accepted.
+
+```text
+one bounded use-site Copy/Phi proof
+finite acyclic nested PHIs accepted
+every terminal root = exact implicit receiver parameter 0
+every CFG loop/backedge PHI rejected
+persistent provenance table = 0
+value_origin_newbox backfill = 0
+```
+
+The implementation owner is:
+
+```text
+hmi-s0-v0-r0-declfield-phi0-same-root-task-2026-07-17.md
+```
+
+The next code-facing row is:
+
+```text
+R0-DECLFIELD-PHI0-S0
+```
+
+The candidate discussion below remains as the design record. Where it differs
+from the accepted resolution, the A′ task card is authoritative.
 
 ## Why work is stopped
 
