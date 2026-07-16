@@ -1,13 +1,24 @@
 ---
-Status: Design consultation stop
+Status: Candidate A accepted; implementation task issued
 Date: 2026-07-16
-Decision needed: choose explicit typed formal or declared-field propagation repair
+Decision: explicit `storage: MapBox` value type with unchanged A-prime ownership
 Baseline: 178776e410
 Parent: hmi-s0-v0-r0-clean-register-storage-task-2026-07-16.md
 Scope: one field-held MapBox -> no-result static mutation command boundary
 ---
 
 # HMI-S0-V0-R0 typed-formal consultation
+
+## Resolution
+
+Candidate A is accepted. Implementation is owned by:
+
+```text
+hmi-s0-v0-r0-type0-typed-formal-mutation-task-2026-07-16.md
+```
+
+The first code-facing row is `R0-TYPE0-S0`. Candidate B remains parked unless
+the exact V0 classifier selects `FIELD-PROPAGATION-REQUIRED`.
 
 ## Question
 
