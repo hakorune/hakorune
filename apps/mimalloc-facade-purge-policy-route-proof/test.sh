@@ -2,4 +2,4 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
-exec bash "$ROOT_DIR/tools/checks/lib/proof_app_test_entry.sh" M216 "$@"
+exec bash "$ROOT_DIR/tools/checks/lib/proof_app_test_entry.sh" MIMAP-019A "$@"

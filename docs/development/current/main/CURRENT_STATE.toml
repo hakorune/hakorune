@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "HMI-S0-V0-R0 generic MapFieldOwner proof is task-fixed; proof-manifest hygiene is next"
+status = "PROOF-MANIFEST-HYGIENE0 closed; R0-STOP0 generic MapFieldOwner source proof is next"
 date = "2026-07-16"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -299,9 +299,12 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 latest_card = "hmi-s0-v0-r0-map-field-owner-proof-task-2026-07-16"
 latest_card_path = "docs/development/current/main/investigations/hmi-s0-v0-r0-map-field-owner-proof-task-2026-07-16.md"
 latest_card_summary = """HMI-S0-V0-R0 is task-fixed after three worker audits.
-The next code-facing prerequisite is behavior-neutral
-PROOF-MANIFEST-HYGIENE0 because the existing proof manifest has one duplicate
-id and five stale or missing test entries. After that, one generic import-free
+PROOF-MANIFEST-HYGIENE0 is closed: the root proof manifest is again a thin
+include owner, all 208 proof ids are unique, five stale/missing app-local test
+entries use the shared manifest runner, and the pilot guard no longer has a
+pipefail/rg early-exit false-red. Manifest list/dry-run, wrapper, pilot,
+current-pointer, and quick 66/66 gates are green with behavior delta zero.
+R0-STOP0-S0 is next. One generic import-free
 MapFieldOwner proof records local/field/formal-key/method-boundary/control-
 merge/receiver-alias/instance-isolation cases in debug and release, normalizes
 MIR key and receiver roots, and emits exactly one exclusive KEY0, RECV0,
@@ -875,7 +878,7 @@ MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "DPRIME-PROOF-MANIFEST-HYGIENE0-001"
+current_blocker_token = "DPRIME-HMI-S0-V0-R0-STOP0-S0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -884,6 +887,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-16: PROOF-MANIFEST-HYGIENE0 closes behavior-neutrally. A complete recursive inventory removes 41 stale root/shard duplicate proof rows while retaining the included shards as authority; 208 proof ids are unique. M216/M217/M218/M191/MIMAP-019A app-local test entries now use the shared proof runner, and the pilot guard avoids pipefail plus early rg exit false-reds. List, pilot/L2 dry-run, 208-entry wrapper guard, manifest pilot, current pointer, and quick 66/66 are green. No new proof row or compiler/HMI/runtime behavior was added; R0-STOP0-S0 is next.",
   "2026-07-16: HMI-S0-V0-R0 task selection is fixed after three read-only worker audits. A behavior-neutral proof-manifest hygiene prerequisite must first remove one duplicate id and repair five stale/missing test entries. Then one generic HMI-independent MapFieldOwner matrix records debug/release runtime bits plus normalized MIR key/receiver roots and emits exactly one KEY0, RECV0, NONE-HMI-DELTA0, or design-stop token. STOP0 changes no compiler semantics, MapBox runtime, HMI source, grammar, backend, ownership, or fallback; the stashed HMI register prototype remains evidence only.",
   "2026-07-16: HMI-S0-V0-L0 closes one passive disconnected state vocabulary. Small files own typed state errors, tagged exact i64/i1 values with Bool payload 0/1, explicit Running/ReturnedValue/ReturnedNoValue/Failed outcomes, explicit Entry/Block predecessors, and a harness-only max_steps>=0 N/N+1 pre-effect budget law. Owner-specific result mutator names prevent cross-box initializer resolution. Release/debug focused execution, MIR verification, existing HMI/inventory/json guards, current pointer, quick 66/66, production callers/handlers/fallback zero, and files below 124 lines are green. R0 storage is a BoxShape design stop and its failing prototype is stashed.",
   "2026-07-16: HMI-S0-T0-P0 closes producer-backed carrier proof. One 312-line Rust fixture owner constructs minimal scalar and ownership MirModules, serializes them through build_mir_json_root, and exactly matches two checked-in JSON V1 documents consumed unchanged by the .hako strict seal. The six-function scalar suite covers i64/Bool Const, all five admitted BinOps, Branch/Jump/Phi, non-lowest entry, unreachable CFG, repeated-target deduplication, Copy, cross-block parameter use, and i64/Bool/no-value returns; the ownership suite covers borrowed WidgetBox -> CopyOwned -> DestroyOwned without execution. A 37-case .hako mutation matrix rejects with no document view. Rust equality, release/debug L0/S0, semantic inventory/HMI/json guards, current pointer, quick 66/66, zero product callers/state/handlers/fallback, and files below 800 lines are green; disconnected HMI-S0-V0 state is next.",
@@ -895,5 +899,4 @@ landed_tail = [
   "2026-07-16: JSON-NATIVE-ITER0-P0 stops at an escaped-string policy boundary. Its required decoded duplicate fixture (`a` versus `u0061`) cannot reach either parser because the shared JsonScanner intentionally rejects every backslash as an unterminated-string lexer error. The remaining test-only non-recursive tree/error parity prototype is green and stashed; production selection is unchanged. A consultation card recommends a separate exact ASCII escape prerequisite before P0, with narrow-first-profile and full-Unicode alternatives. BoxCount escape admission must not be mixed into the BoxShape parity row; tokenizer duplication, retry, MAX_CALL_DEPTH changes, and weakened parity claims remain forbidden.",
   "2026-07-16: JSON-NATIVE-ITER0-S0 closes one disconnected explicit-stack parser engine with production selection unchanged. A 542-line engine uses one ArrayBox frame stack, preflights all existing tokenizer errors before grammar/node effects, retains duplicate-before-colon site priority, publishes the root only after EOF, closes frames as get-before-remove, and rejects depth 129 before child allocation/push. Its loop-built fixture covers scalar/empty/mixed values, strict i64 bounds, duplicate policy split, malformed delimiters, trailing roots, depths 24/128/129, parser reuse, ordinary MIR JSON, and lexer preflight. Release/debug fixtures, retained L0/strict fixtures, quick 66/66, production iterative selectors/HMI callers/fallback zero, unchanged MAX_CALL_DEPTH=16, and source files below 800 lines are green; P0 normalized parser parity is next.",
   "2026-07-16: JSON-NATIVE-ITER0-L0 closes the passive parser vocabulary with production behavior unchanged: five small .hako files add a one-shot monotonic typed token cursor over the existing tokenizer, exact array/object frame phases and opening-site state, one typed parser error authority with Map/text projections, the single depth-128 resource owner, and a disconnected fixture. Production JsonParser references to all L0 products remain zero. The focused fixture and retained strict/default policy fixture are green, quick passes 66/66, and every new source/fixture file is below 140 lines. A stale compat_smoke fixture still fails at its pre-existing undeclared doc assignment and is deferred to a separate fixture-only repair or retirement decision before P0; S0 disconnected iterative engine is next.",
-  "2026-07-16: JSON-NATIVE-ITER0-D0 accepts B-prime and taskizes L0 -> S0 -> P0 -> atomic CUT0 -> HMI-S0-T0. One existing tokenizer feeds one explicit-stack grammar/tree engine shared by compatibility and strict policies; policy callbacks cannot control tokens, frames, delimiters, node construction, limits, recovery, or retry. Parser V1 accepts at most 128 open containers and rejects attempted depth 129 before node allocation with a typed site-bearing error. CUT0 also physically retires the independent JsonNode.parse mini grammar, currently used at 19 call sites in five .hako files, so selected grammar/text-to-tree owner counts are truly one. VM MAX_CALL_DEPTH stays 16; HMI seal/opcode/product callers/fallback remain zero; L0 passive cursor/frame/error/limit vocabulary is next.",
 ]

@@ -97,18 +97,18 @@ if rg -n "run_row_guard|run_proof_app|manifest_runner_pilot_guard" "$DEV_GATE" "
 fi
 
 row_list="$("$ROW_RUNNER" --list)"
-if ! printf '%s\n' "$row_list" | rg -Fq "current-state-pointer"; then
+if ! rg -Fq "current-state-pointer" <<<"$row_list"; then
   guard_fail "$TAG" "row runner list must expose current-state-pointer"
 fi
-if ! printf '%s\n' "$row_list" | rg -Fq "proof-app-manifest-test-entry"; then
+if ! rg -Fq "proof-app-manifest-test-entry" <<<"$row_list"; then
   guard_fail "$TAG" "row runner list must expose proof-app-manifest-test-entry"
 fi
-if ! printf '%s\n' "$row_list" | rg -Fq "k2-wide-manifest-wrapper"; then
+if ! rg -Fq "k2-wide-manifest-wrapper" <<<"$row_list"; then
   guard_fail "$TAG" "row runner list must expose k2-wide-manifest-wrapper"
 fi
 proof_list="$("$PROOF_RUNNER" --list)"
 for proof_id in M200 M214 M215; do
-  if ! printf '%s\n' "$proof_list" | rg -q "^${proof_id}\\b"; then
+  if ! rg -q "^${proof_id}\\b" <<<"$proof_list"; then
     guard_fail "$TAG" "proof app runner list must expose ${proof_id}"
   fi
 done

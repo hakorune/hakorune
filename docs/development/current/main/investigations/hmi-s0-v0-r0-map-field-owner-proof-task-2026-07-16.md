@@ -27,7 +27,8 @@ PROOF-MANIFEST-HYGIENE0
   -> clean HMI-S0-V0-R0 reimplementation
 ```
 
-The next code-facing row is `PROOF-MANIFEST-HYGIENE0`.
+`PROOF-MANIFEST-HYGIENE0` is closed. The next code-facing row is
+`R0-STOP0-S0`.
 
 This prerequisite is behavior-neutral and must land separately from the
 generic compiler proof. The proof-manifest runner is currently unusable:
@@ -44,6 +45,63 @@ proof_app_manifest_test_entry_guard.sh:
 
 Do not register a new proof in a broken manifest and do not mix allocator
 manifest repair with the later compiler semantic fix.
+
+## PROOF-MANIFEST-HYGIENE0 closeout
+
+Landed behavior:
+
+```text
+production/compiler/runtime behavior delta:
+  0
+
+root proof manifest:
+  thin include owner
+
+unique proof ids:
+  208
+
+duplicate proof ids:
+  0
+
+app-local test entries checked:
+  208
+```
+
+The first-error audit initially exposed `MIMAP-085A`. A complete recursive
+inventory then found 41 root/shard duplicates. The included shards already
+owned those migrated rows, so the stale root copies were removed instead of
+adding deduplication or first-wins policy to the runner.
+
+Five stale app-local entries now use the one standard wrapper:
+
+```text
+M216
+M217
+M218
+M191
+MIMAP-019A
+```
+
+The manifest pilot guard also stopped using `printf | rg -q` under
+`pipefail`; a long valid list could otherwise terminate the producer with
+SIGPIPE and falsely report a present id as missing.
+
+Green evidence:
+
+```text
+run_proof_app.sh --list
+run_proof_app.sh --profile pilot --dry-run
+run_proof_app.sh --validation-profile scalar-mir --level L2 --dry-run
+proof_app_manifest_test_entry_guard.sh
+run_row_guard.sh --only proof-app-manifest-test-entry
+manifest_runner_pilot_guard.sh
+five app-local test.sh --dry-run entries
+current_state_pointer_guard.sh
+dev_gate.sh quick:
+  66/66
+```
+
+No new proof row was registered in the hygiene commit.
 
 ## Decision lock
 
@@ -639,4 +697,3 @@ ownership/view/shared support
 backend widening
 parser/MIRBuilder migration completion
 ```
-
