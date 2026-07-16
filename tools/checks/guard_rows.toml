@@ -57,6 +57,12 @@ profiles = ["pilot", "quick-static"]
 cmd = ["tools/checks/lib/json_native_parser_authority.py", "."]
 
 [[rows]]
+id = "hmi-t0-authority"
+label = "HMI T0 disconnected authority guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["tools/checks/lib/hmi_t0_authority.py", "."]
+
+[[rows]]
 id = "proof-app-manifest-test-entry"
 label = "proof app manifest test entry guard"
 profiles = ["pilot", "quick-static"]

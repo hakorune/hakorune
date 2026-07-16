@@ -1,0 +1,53 @@
+using apps.lib.json_native.parser.parser as JsonParser
+using apps.lib.json_native.parser.strict_policy as StrictJsonPolicyV1
+using tools.hako_shared.hmi.seal.error as HmiSealErrorV1
+
+// One-way strict JSON entry for the later MIR seal.
+// The JsonNode root is an unpublished intermediate and may only flow into the
+// T0 whole-document seal. There is no compatibility retry or Rust fallback.
+static box HmiStrictIngressV1 {
+    read_for_seal(json_text) {
+        local parser = new JsonParser()
+        local root = parser.parse_with_policy(
+            json_text,
+            StrictJsonPolicyV1.exact_i64_document()
+        )
+        if not parser.has_errors() {
+            return new HmiStrictJsonReadResultV1(root, null)
+        }
+
+        local kind = "strict-json"
+        local expected = "valid exact-i64 JSON document"
+        local actual = "parser rejection"
+        local detail = "strict JSON parser rejected document"
+        local errors = parser.get_errors()
+        if errors.length() > 0 {
+            local first = errors.get(0)
+            kind = first.get("kind")
+            expected = first.get("expected")
+            actual = first.get("actual")
+            detail = first.get("message")
+        }
+        return new HmiStrictJsonReadResultV1(
+            null,
+            HmiSealErrorV1.document(
+                kind, "$", expected, actual, detail
+            )
+        )
+    }
+}
+
+// Internal parse-to-seal handoff. This is not a verified MIR document view.
+box HmiStrictJsonReadResultV1 {
+    root
+    error
+
+    birth(root, error) {
+        me.root = root
+        me.error = error
+    }
+
+    accepted() { return me.error == null }
+    root_for_seal() { return me.root }
+    failure() { return me.error }
+}

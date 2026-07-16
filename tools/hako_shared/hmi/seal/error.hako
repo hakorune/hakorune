@@ -1,0 +1,66 @@
+// Stable HMI MIR JSON V1 ingress/seal failure vocabulary.
+// Rendered text is a projection; these fields remain the diagnostic authority.
+
+static box HmiSealErrorV1 {
+    document(kind, path, expected, actual, detail) {
+        return new HmiSealErrorV1Instance(
+            "document", kind, path, expected, actual, detail
+        )
+    }
+
+    cfg(kind, path, expected, actual, detail) {
+        return new HmiSealErrorV1Instance(
+            "cfg", kind, path, expected, actual, detail
+        )
+    }
+
+    value_type(kind, path, expected, actual, detail) {
+        return new HmiSealErrorV1Instance(
+            "value_type", kind, path, expected, actual, detail
+        )
+    }
+
+    ownership(kind, path, expected, actual, detail) {
+        return new HmiSealErrorV1Instance(
+            "ownership", kind, path, expected, actual, detail
+        )
+    }
+}
+
+box HmiSealErrorV1Instance {
+    family
+    kind
+    path
+    expected
+    actual
+    detail
+
+    birth(family, kind, path, expected, actual, detail) {
+        me.family = family
+        me.kind = kind
+        me.path = path
+        me.expected = expected
+        me.actual = actual
+        me.detail = detail
+    }
+
+    get_family() { return me.family }
+    get_kind() { return me.kind }
+    get_path() { return me.path }
+    get_expected() { return me.expected }
+    get_actual() { return me.actual }
+    get_detail() { return me.detail }
+
+    code() {
+        return "[freeze:contract][hmi/mir_json_v1/" + me.family + "]"
+    }
+
+    render() {
+        return me.code() +
+            " kind=" + me.kind +
+            " path=" + me.path +
+            " expected=" + me.expected +
+            " actual=" + me.actual +
+            " detail=" + me.detail
+    }
+}

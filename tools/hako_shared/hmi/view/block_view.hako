@@ -1,0 +1,17 @@
+// Bounded block view over exact instruction views built by the seal.
+box VerifiedHmiBlockView {
+    id_value
+    instruction_views
+    path
+
+    birth(id_value, instruction_views, path) {
+        me.id_value = id_value
+        me.instruction_views = instruction_views
+        me.path = path
+    }
+
+    source_path() { return me.path }
+    id() { return me.id_value }
+    instruction_count() { return me.instruction_views.length() }
+    instruction(index) { return me.instruction_views.get(index) }
+}

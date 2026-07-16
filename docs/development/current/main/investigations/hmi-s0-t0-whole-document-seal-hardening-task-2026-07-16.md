@@ -1,5 +1,5 @@
 ---
-Status: accepted; next code-facing row is HMI-S0-T0-L0
+Status: HMI-S0-T0-L0 closed; S0 is next
 Date: 2026-07-16
 Decision: harden the T0 prototype into one producer-backed bounded seal
 Parent: hmi-s0-strict-reader-interpreter-task-2026-07-16.md
@@ -171,6 +171,8 @@ source/check hard limit:
 
 Production behavior delta: zero.
 
+Status: closed.
+
 Add:
 
 ```text
@@ -256,9 +258,50 @@ Rust-emitter fixture parity
 opcode execution
 ```
 
+### L0 closeout
+
+```text
+strict JSON ingress selectors:
+  1
+
+compatibility parser / fallback / retry:
+  0
+
+stable HMI error families:
+  document / cfg / value_type / ownership
+
+published bounded views:
+  exact accessors only
+  raw/generic JsonNode accessors = 0
+
+VerifiedHmi view constructor calls:
+  0
+
+production/external HMI callers:
+  0
+
+focused MIR verify:
+  green
+
+release/debug Rust MIR interpreter:
+  [hmi/s0-t0-l0] ok
+
+authority guards:
+  hmi-t0-authority green
+  json-native-parser-authority green
+
+quick gate:
+  66/66
+
+largest L0 source/check file:
+  below 100 lines
+```
+
 ## HMI-S0-T0-S0 — sealed whole-document products
 
 Production behavior delta: zero.
+
+Status: next code-facing row.
 
 ### Instruction shape authority
 

@@ -1,0 +1,50 @@
+// Bounded function view. Exact indexes and value-type facts are supplied only
+// after the whole-document seal has finished.
+box VerifiedHmiFunctionView {
+    name_value
+    entry_block_value
+    parameter_ids
+    block_views
+    block_order
+    value_type_kinds
+    value_box_types
+    path
+
+    birth(
+        name_value,
+        entry_block_value,
+        parameter_ids,
+        block_views,
+        block_order,
+        value_type_kinds,
+        value_box_types,
+        path
+    ) {
+        me.name_value = name_value
+        me.entry_block_value = entry_block_value
+        me.parameter_ids = parameter_ids
+        me.block_views = block_views
+        me.block_order = block_order
+        me.value_type_kinds = value_type_kinds
+        me.value_box_types = value_box_types
+        me.path = path
+    }
+
+    source_path() { return me.path }
+    name() { return me.name_value }
+    entry_block() { return me.entry_block_value }
+
+    parameter_count() { return me.parameter_ids.length() }
+    parameter_id(index) { return me.parameter_ids.get(index) }
+
+    block_count() { return me.block_order.length() }
+    block_id(index) { return me.block_order.get(index) }
+    block(id) { return me.block_views.get("" + id) }
+
+    value_type_kind(value_id) {
+        return me.value_type_kinds.get("" + value_id)
+    }
+    value_box_type(value_id) {
+        return me.value_box_types.get("" + value_id)
+    }
+}

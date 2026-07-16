@@ -1,0 +1,51 @@
+// Exact operand accessors for the T0 opcode vocabulary.
+// The whole-document seal is the only constructor authority.
+
+box VerifiedHmiInstructionView {
+    node
+    path
+
+    birth(node, path) {
+        me.node = node
+        me.path = path
+    }
+
+    source_path() { return me.path }
+    op() { return me.node.object_get("op").as_string() }
+
+    destination_id() { return me.node.object_get("dst").as_int() }
+    source_id() { return me.node.object_get("src").as_int() }
+    left_id() { return me.node.object_get("lhs").as_int() }
+    right_id() { return me.node.object_get("rhs").as_int() }
+    operation() { return me.node.object_get("operation").as_string() }
+
+    const_payload_type() {
+        return me.node.object_get("value").object_get("type").as_string()
+    }
+    const_payload_int() {
+        return me.node.object_get("value").object_get("value").as_int()
+    }
+
+    target_block() { return me.node.object_get("target").as_int() }
+    condition_id() { return me.node.object_get("cond").as_int() }
+    then_block() { return me.node.object_get("then").as_int() }
+    else_block() { return me.node.object_get("else").as_int() }
+
+    phi_input_count() {
+        return me.node.object_get("incoming").array_size()
+    }
+    phi_input_value(index) {
+        return me.node.object_get("incoming").array_get(index)
+            .array_get(0).as_int()
+    }
+    phi_input_block(index) {
+        return me.node.object_get("incoming").array_get(index)
+            .array_get(1).as_int()
+    }
+
+    destroy_value_id() { return me.node.object_get("value").as_int() }
+    return_has_value() {
+        return me.node.object_get("value").get_kind() != "null"
+    }
+    return_value_id() { return me.node.object_get("value").as_int() }
+}

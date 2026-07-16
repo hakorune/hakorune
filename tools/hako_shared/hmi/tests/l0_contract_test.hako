@@ -1,0 +1,39 @@
+using tools.hako_shared.hmi.strict_ingress as HmiStrictIngressV1
+using tools.hako_shared.hmi.seal.error as HmiSealErrorV1
+using tools.hako_shared.hmi.view.document_view as VerifiedHmiDocumentView
+using tools.hako_shared.hmi.view.function_view as VerifiedHmiFunctionView
+using tools.hako_shared.hmi.view.block_view as VerifiedHmiBlockView
+using tools.hako_shared.hmi.view.instruction_view as VerifiedHmiInstructionView
+
+static box Main {
+    main() {
+        local accepted = HmiStrictIngressV1.read_for_seal(
+            "{\"schema_version\":\"1.0\",\"functions\":[]}"
+        )
+        if not accepted.accepted() { return 1 }
+        if accepted.root_for_seal().get_kind() != "object" { return 1 }
+
+        local rejected = HmiStrictIngressV1.read_for_seal(
+            "{\"x\":1,\"x\":2}"
+        )
+        if rejected.accepted() { return 1 }
+        if rejected.failure().get_family() != "document" { return 1 }
+        if rejected.failure().get_kind() != "duplicate-key" { return 1 }
+
+        local cfg_error = HmiSealErrorV1.cfg(
+            "successor-mismatch",
+            "$.cfg.functions[0]",
+            "successors=[1]",
+            "successors=[]",
+            "fixture"
+        )
+        if cfg_error.get_family() != "cfg" { return 1 }
+        if cfg_error.code() !=
+           "[freeze:contract][hmi/mir_json_v1/cfg]" {
+            return 1
+        }
+
+        print("[hmi/s0-t0-l0] ok")
+        return 0
+    }
+}
