@@ -1,0 +1,95 @@
+using "apps/lib/json_native/lexer/token.hako" as JsonToken
+using "apps/lib/json_native/core/node.hako" as JsonNode
+using "apps/lib/json_native/parser/token_cursor_v1.hako" as JsonTokenCursorV1
+using "apps/lib/json_native/parser/frame_v1.hako" as JsonParseFrameV1
+using "apps/lib/json_native/parser/error_v1.hako" as JsonParseErrorV1
+using "apps/lib/json_native/parser/resource_limits_v1.hako" as JsonParserResourceLimitsV1
+
+static box Main {
+    main() {
+        local failures = 0
+        local cursor_failures = this.test_cursor()
+        local frame_failures = this.test_frames()
+        local error_failures = this.test_resource_error()
+        if cursor_failures != 0 { print("[json-native/iter0-l0] cursor failed") }
+        if frame_failures != 0 { print("[json-native/iter0-l0] frame failed") }
+        if error_failures != 0 { print("[json-native/iter0-l0] error failed") }
+        failures = cursor_failures + frame_failures + error_failures
+
+        if failures == 0 {
+            print("[json-native/iter0-l0] ok")
+            return 0
+        }
+        print("[json-native/iter0-l0] failed=" + failures)
+        return 1
+    }
+
+    test_cursor() {
+        local cursor = new JsonTokenCursorV1()
+        if not cursor.initialize_text_once("{}") { return 1 }
+        if cursor.initialize_text_once("[]") { return 1 }
+        if cursor.get_position() != 0 { print("cursor position0"); return 1 }
+        if cursor.length() != 3 { print("cursor length=" + cursor.length()); return 1 }
+        if cursor.current().get_type() != "LBRACE" { print("cursor current"); return 1 }
+        if cursor.peek_next().get_type() != "RBRACE" { print("cursor peek"); return 1 }
+        if cursor.advance().get_type() != "LBRACE" { print("cursor advance"); return 1 }
+        if cursor.get_position() != 1 { print("cursor position1"); return 1 }
+        if cursor.is_at_end() { print("cursor early end"); return 1 }
+        cursor.advance()
+        if not cursor.is_at_end() { print("cursor end"); return 1 }
+        return 0
+    }
+
+    test_frames() {
+        local open_array = new JsonToken("LBRACKET", "[", 4, 5)
+        open_array.set_line_column(2, 3)
+        local array_frame = JsonParseFrameV1.open_array(
+            JsonNode.create_array(),
+            open_array
+        )
+
+        if array_frame.get_container_kind() != "array" { return 1 }
+        if array_frame.get_phase() != "array.first-or-end" { return 1 }
+        if array_frame.get_open_position() != 4 { return 1 }
+        if array_frame.get_open_line() != 2 { return 1 }
+        if array_frame.get_open_column() != 3 { return 1 }
+        array_frame.transition_to(JsonParseFrameV1.array_value_phase())
+        if array_frame.get_phase() != "array.value" { return 1 }
+
+        local open_object = new JsonToken("LBRACE", "{", 8, 9)
+        local object_frame = JsonParseFrameV1.open_object(
+            JsonNode.create_object(),
+            open_object
+        )
+        object_frame.remember_key("name")
+        if object_frame.get_container_kind() != "object" { return 1 }
+        if object_frame.get_pending_key() != "name" { return 1 }
+        object_frame.clear_pending_key()
+        if object_frame.get_pending_key() != null { return 1 }
+        return 0
+    }
+
+    test_resource_error() {
+        local max_depth = JsonParserResourceLimitsV1.max_container_depth()
+        if max_depth != 128 { return 1 }
+        if not JsonParserResourceLimitsV1.admits_attempted_depth(128) { return 1 }
+        if JsonParserResourceLimitsV1.admits_attempted_depth(129) { return 1 }
+        if JsonParserResourceLimitsV1.attempted_depth(128) != 129 { return 1 }
+
+        local token = new JsonToken("LBRACKET", "[", 20, 21)
+        token.set_line_column(3, 7)
+        local error = JsonParseErrorV1.nesting_limit(128, 129, token)
+        if error.get_kind() != "nesting-limit" { return 1 }
+        if error.get_code() != "[json_native/parser/nesting-limit-v1]" { return 1 }
+        if error.get_position() != 20 { return 1 }
+        if error.get_line() != 3 { return 1 }
+        if error.get_column() != 7 { return 1 }
+
+        local row = error.to_map()
+        if row.get("kind") != "nesting-limit" { return 1 }
+        if row.get("token") != "LBRACKET" { return 1 }
+        if row.get("expected") != "container depth <= 128" { return 1 }
+        if row.get("actual") != "container depth 129" { return 1 }
+        return 0
+    }
+}

@@ -1,0 +1,67 @@
+// Monotonic token cursor for the future iterative JSON parser.
+// L0 is passive: the production JsonParser does not consume this facade yet.
+
+using "../lexer/tokenizer.hako" as JsonTokenizer
+
+box JsonTokenCursorV1 {
+    tokens: ArrayBox
+    position: IntegerBox
+    initialized: BoolBox
+
+    birth() {
+        me.tokens = new ArrayBox()
+        me.position = 0
+        me.initialized = false
+    }
+
+    initialize_text_once(json_text) {
+        if me.initialized {
+            return false
+        }
+        local tokenizer = new JsonTokenizer(json_text)
+        tokenizer.set_input(json_text)
+        me.tokens = tokenizer.tokenize()
+        if me.tokens == null {
+            me.tokens = new ArrayBox()
+        }
+        me.position = 0
+        me.initialized = true
+        return true
+    }
+
+    current() {
+        if me.position >= me.tokens.length() {
+            return null
+        }
+        return me.tokens.get(me.position)
+    }
+
+    peek_next() {
+        local next_position = me.position + 1
+        if next_position >= me.tokens.length() {
+            return null
+        }
+        return me.tokens.get(next_position)
+    }
+
+    advance() {
+        local token = me.current()
+        if token != null {
+            me.position = me.position + 1
+        }
+        return token
+    }
+
+    is_at_end() {
+        local token = me.current()
+        return token == null or token.is_eof()
+    }
+
+    get_position() {
+        return me.position
+    }
+
+    length() {
+        return me.tokens.length()
+    }
+}

@@ -1,0 +1,90 @@
+// Typed parser-substrate error. Rendered strings and MapBox rows are projections
+// from this product; they are not independent error-kind authorities.
+
+static box JsonParseErrorV1 {
+    nesting_limit(max_depth, attempted_depth, token) {
+        local detail = "max=" + max_depth +
+            " attempted=" + attempted_depth +
+            " token=" + token.get_type()
+        return new JsonParseErrorV1Instance(
+            "nesting-limit",
+            "[json_native/parser/nesting-limit-v1]",
+            detail,
+            token.get_start(),
+            token.get_line(),
+            token.get_column(),
+            token.get_type(),
+            "container depth <= " + max_depth,
+            "container depth " + attempted_depth
+        )
+    }
+
+    expected(kind, code, message, token, expected, actual) {
+        return new JsonParseErrorV1Instance(
+            kind,
+            code,
+            message,
+            token.get_start(),
+            token.get_line(),
+            token.get_column(),
+            token.get_type(),
+            expected,
+            actual
+        )
+    }
+}
+
+box JsonParseErrorV1Instance {
+    kind
+    code
+    detail
+    position
+    line
+    column
+    token
+    expected
+    actual
+
+    birth(kind, code, detail, position, line, column, token, expected, actual) {
+        me.kind = kind
+        me.code = code
+        me.detail = detail
+        me.position = position
+        me.line = line
+        me.column = column
+        me.token = token
+        me.expected = expected
+        me.actual = actual
+    }
+
+    get_kind() { return me.kind }
+    get_code() { return me.code }
+    get_detail() { return me.detail }
+    get_position() { return me.position }
+    get_line() { return me.line }
+    get_column() { return me.column }
+    get_token() { return me.token }
+    get_expected() { return me.expected }
+    get_actual() { return me.actual }
+
+    render() {
+        return me.code + " " + me.detail +
+            " position=" + me.position +
+            " line=" + me.line +
+            " column=" + me.column
+    }
+
+    to_map() {
+        local row = new MapBox()
+        row.set("kind", me.kind)
+        row.set("code", me.code)
+        row.set("message", me.render())
+        row.set("position", me.position)
+        row.set("line", me.line)
+        row.set("column", me.column)
+        row.set("token", me.token)
+        row.set("expected", me.expected)
+        row.set("actual", me.actual)
+        return row
+    }
+}

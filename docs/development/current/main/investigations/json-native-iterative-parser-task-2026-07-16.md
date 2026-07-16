@@ -1,5 +1,5 @@
 ---
-Status: accepted; JSON-NATIVE-ITER0-D0 closed; L0 next
+Status: accepted; JSON-NATIVE-ITER0-L0 closed; S0 next
 Date: 2026-07-16
 Decision: B-prime one iterative grammar engine and one text-to-tree owner
 Parent stop: hmi-s0-t0-json-parser-depth-consultation-question-2026-07-16.md
@@ -219,7 +219,7 @@ HMI-S0-T0 remains parked
 
 ### JSON-NATIVE-ITER0-L0 — passive vocabulary
 
-Next code-facing row. Production behavior delta is zero.
+Status: closed. Production behavior delta is zero.
 
 Add small files under `apps/lib/json_native/parser/`:
 
@@ -234,7 +234,60 @@ L0 owns monotonic cursor vocabulary, frame phases, typed parser errors, and the
 single depth constant. Production parser callers and iterative engine callers
 remain zero.
 
+L0 closeout:
+
+```text
+cursor:
+  JsonTokenCursorV1
+  one-shot text initialization through the existing JsonTokenizer
+  typed ArrayBox/IntegerBox/BoolBox storage
+  current/peek/advance only; rewind/reset = 0
+
+frame:
+  JsonParseFrameV1
+  exact array/object phase vocabulary
+  frame-local node, pending key, and opening token site
+
+error:
+  JsonParseErrorV1
+  typed kind/code/site/expected/actual owner
+  MapBox and rendered text are one-way projections
+
+resource law:
+  JsonParserResourceLimitsV1.max_container_depth() = 128
+  one physical definition
+
+production JsonParser references to L0 products:
+  0
+
+fixture:
+  iterative_parser_l0_test -> [json-native/iter0-l0] ok
+
+retained strict/default proof:
+  strict_policy_test -> [json-native/strict-policy] ok
+
+quick gate:
+  66/66
+
+file sizes:
+  all five new source/fixture files below 140 lines
+```
+
+The one-shot cursor initializes from source text rather than accepting an
+`ArrayBox` parameter. The current reference-VM route drops an untyped
+collection when it crosses that method boundary; the cursor therefore owns a
+typed `ArrayBox` field and invokes the existing tokenizer directly. Token
+grammar and construction remain owned by `JsonTokenizer`.
+
+`apps/lib/json_native/tests/compat_smoke.hako` is not a current green baseline:
+it fails at the pre-existing undeclared `doc` assignment before exercising L0.
+L0 does not repair or use that unrelated fixture. P0 must inventory the active
+compatibility fixture set and either repair this stale fixture in a separate
+fixture-only slice or exclude it with a documented retirement decision.
+
 ### JSON-NATIVE-ITER0-S0 — disconnected iterative engine
+
+Next code-facing row.
 
 Add `iterative_engine_v1.hako`. Direct fixtures exercise compatibility and
 strict policies, ordinary T0 MIR JSON, mixed/empty containers, and deep inputs.

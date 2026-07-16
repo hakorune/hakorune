@@ -1,0 +1,78 @@
+// Open-container state for the future iterative JSON parser.
+// Root state stays outside this product; every frame is one open container.
+
+static box JsonParseFrameV1 {
+    array_kind() { return "array" }
+    object_kind() { return "object" }
+
+    array_first_or_end_phase() { return "array.first-or-end" }
+    array_value_phase() { return "array.value" }
+    array_comma_or_end_phase() { return "array.comma-or-end" }
+
+    object_first_key_or_end_phase() { return "object.first-key-or-end" }
+    object_key_phase() { return "object.key" }
+    object_colon_phase() { return "object.colon" }
+    object_value_phase() { return "object.value" }
+    object_comma_or_end_phase() { return "object.comma-or-end" }
+
+    open_array(node, token) {
+        return new JsonParseFrameV1Instance(
+            this.array_kind(),
+            this.array_first_or_end_phase(),
+            node,
+            token
+        )
+    }
+
+    open_object(node, token) {
+        return new JsonParseFrameV1Instance(
+            this.object_kind(),
+            this.object_first_key_or_end_phase(),
+            node,
+            token
+        )
+    }
+}
+
+box JsonParseFrameV1Instance {
+    container_kind
+    phase
+    node
+    pending_key
+    open_position
+    open_line
+    open_column
+
+    birth(container_kind, phase, node, token) {
+        me.container_kind = container_kind
+        me.phase = phase
+        me.node = node
+        me.pending_key = null
+        me.open_position = token.get_start()
+        me.open_line = token.get_line()
+        me.open_column = token.get_column()
+    }
+
+    get_container_kind() { return me.container_kind }
+    get_phase() { return me.phase }
+    get_node() { return me.node }
+    get_pending_key() { return me.pending_key }
+    get_open_position() { return me.open_position }
+    get_open_line() { return me.open_line }
+    get_open_column() { return me.open_column }
+
+    transition_to(next_phase) {
+        me.phase = next_phase
+        return me
+    }
+
+    remember_key(key) {
+        me.pending_key = key
+        return me
+    }
+
+    clear_pending_key() {
+        me.pending_key = null
+        return me
+    }
+}

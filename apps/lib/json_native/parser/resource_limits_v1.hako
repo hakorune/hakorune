@@ -1,0 +1,16 @@
+// Versioned json_native parser resource law.
+// This is not a JSON-language, HMI, or VM recursion limit.
+
+static box JsonParserResourceLimitsV1 {
+    max_container_depth() {
+        return 128
+    }
+
+    attempted_depth(open_frame_count) {
+        return open_frame_count + 1
+    }
+
+    admits_attempted_depth(attempted_depth) {
+        return attempted_depth <= this.max_container_depth()
+    }
+}
