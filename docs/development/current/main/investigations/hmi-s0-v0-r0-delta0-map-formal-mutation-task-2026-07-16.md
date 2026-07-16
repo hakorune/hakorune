@@ -29,7 +29,7 @@ runtime ownership operation:
   0
 ```
 
-The next code-facing row is `R0-DELTA0-S0`.
+`R0-DELTA0-S0` is closed. The next code-facing row is `R0-DELTA0-M0`.
 
 Exact order:
 
@@ -69,6 +69,57 @@ all object formals preserve identity
 ```
 
 It is a source-shape proof aligned with the future A-prime ownership law.
+
+## R0-DELTA0-S0 closeout
+
+One 197-line domain-neutral fixture now owns the exact B1/B2 plus D1-D8
+matrix:
+
+```text
+apps/map-formal-borrowed-mutation-proof/
+  README.md
+  main.hako
+  test.sh
+```
+
+Initial debug VM observation:
+
+```text
+case.local_direct_baseline=1
+case.field_direct_baseline=1
+case.local_formal_literal_direct=1
+case.local_formal_dynamic_direct=1
+case.local_formal_dynamic_helper=1
+case.field_formal_literal_direct=1
+case.field_formal_dynamic_direct=1
+case.field_formal_dynamic_helper=1
+case.repeated_mutation=1
+case.instance_isolation=1
+selection=UNCLASSIFIED-S0
+summary=observed
+```
+
+Source structure:
+
+```text
+MapBox return:
+  0
+
+mutator result assignment:
+  0
+
+storage field reassignment after birth:
+  0
+
+application imports:
+  0
+
+result MapBox/ArrayBox ledger:
+  0
+```
+
+This does not yet authorize A-prime. M0 must prove debug/release parity and the
+helper-vs-caller normalized MIR contract.
 
 ## Durable artifacts
 
@@ -523,4 +574,3 @@ The central law is:
 
 > DELTA0 proves in-place mutation visibility through a non-escaping ordinary
 > static formal. It does not implement or claim a borrowed ABI.
-

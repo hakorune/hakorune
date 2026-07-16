@@ -1,0 +1,197 @@
+// map-formal-borrowed-mutation-proof
+// Generic ordinary-static-formal mutation visibility.
+
+static box MapFormalMutationCommandV1 {
+    map_formal_mutation_v1_put(storage, key, value) {
+        storage.set(key, value)
+        return
+    }
+
+    map_formal_mutation_v1_has(storage, key) {
+        if storage.has(key) {
+            return 1
+        }
+        return 0
+    }
+
+    map_formal_mutation_v1_load_present(storage, key) {
+        if storage.has(key) {
+            return storage.get(key)
+        }
+        return -1
+    }
+}
+
+box MapFormalFieldOwnerV1 {
+    init { storage }
+
+    birth() {
+        me.storage = new MapBox()
+    }
+
+    map_formal_mutation_v1_direct_put_id(id, value) {
+        me.storage.set("" + id, value)
+        return
+    }
+
+    map_formal_mutation_v1_command_put_id(id, value) {
+        local key = "" + id
+        MapFormalMutationCommandV1.map_formal_mutation_v1_put(
+            me.storage,
+            key,
+            value
+        )
+        return
+    }
+
+    map_formal_mutation_v1_direct_contains_id(id, expected) {
+        local key = "" + id
+        if me.storage.has(key) {
+            if me.storage.get(key) == expected {
+                return 1
+            }
+        }
+        return 0
+    }
+
+    map_formal_mutation_v1_helper_contains_id(id, expected) {
+        local key = "" + id
+        if MapFormalMutationCommandV1.map_formal_mutation_v1_has(
+            me.storage,
+            key
+        ) == 1 {
+            if MapFormalMutationCommandV1.map_formal_mutation_v1_load_present(
+                me.storage,
+                key
+            ) == expected {
+                return 1
+            }
+        }
+        return 0
+    }
+}
+
+static box Main {
+    map_formal_mutation_v1_case_local_direct_baseline() {
+        local storage = new MapBox()
+        storage.set("1", 10)
+        if storage.has("1") {
+            if storage.get("1") == 10 { return 1 }
+        }
+        return 0
+    }
+
+    map_formal_mutation_v1_case_field_direct_baseline() {
+        local owner = new MapFormalFieldOwnerV1()
+        owner.map_formal_mutation_v1_direct_put_id(2, 10)
+        return owner.map_formal_mutation_v1_direct_contains_id(2, 10)
+    }
+
+    map_formal_mutation_v1_case_local_formal_literal_direct() {
+        local storage = new MapBox()
+        MapFormalMutationCommandV1.map_formal_mutation_v1_put(
+            storage, "3", 10
+        )
+        if storage.has("3") {
+            if storage.get("3") == 10 { return 1 }
+        }
+        return 0
+    }
+
+    map_formal_mutation_v1_case_local_formal_dynamic_direct() {
+        local storage = new MapBox()
+        local id = 4
+        local key = "" + id
+        MapFormalMutationCommandV1.map_formal_mutation_v1_put(storage, key, 10)
+        if storage.has(key) {
+            if storage.get(key) == 10 { return 1 }
+        }
+        return 0
+    }
+
+    map_formal_mutation_v1_case_local_formal_dynamic_helper() {
+        local storage = new MapBox()
+        local id = 5
+        local key = "" + id
+        MapFormalMutationCommandV1.map_formal_mutation_v1_put(storage, key, 10)
+        if MapFormalMutationCommandV1.map_formal_mutation_v1_has(
+            storage, key
+        ) == 1 {
+            if MapFormalMutationCommandV1.map_formal_mutation_v1_load_present(
+                storage, key
+            ) == 10 {
+                return 1
+            }
+        }
+        return 0
+    }
+
+    map_formal_mutation_v1_case_field_formal_literal_direct() {
+        local owner = new MapFormalFieldOwnerV1()
+        owner.map_formal_mutation_v1_command_put_id(6, 10)
+        return owner.map_formal_mutation_v1_direct_contains_id(6, 10)
+    }
+
+    map_formal_mutation_v1_case_field_formal_dynamic_direct() {
+        local owner = new MapFormalFieldOwnerV1()
+        local id = 7
+        owner.map_formal_mutation_v1_command_put_id(id, 10)
+        return owner.map_formal_mutation_v1_direct_contains_id(id, 10)
+    }
+
+    map_formal_mutation_v1_case_field_formal_dynamic_helper() {
+        local owner = new MapFormalFieldOwnerV1()
+        local id = 8
+        owner.map_formal_mutation_v1_command_put_id(id, 10)
+        return owner.map_formal_mutation_v1_helper_contains_id(id, 10)
+    }
+
+    map_formal_mutation_v1_case_repeated_mutation() {
+        local owner = new MapFormalFieldOwnerV1()
+        owner.map_formal_mutation_v1_command_put_id(9, 10)
+        owner.map_formal_mutation_v1_command_put_id(9, 20)
+        if owner.map_formal_mutation_v1_direct_contains_id(9, 20) == 1 {
+            return owner.map_formal_mutation_v1_helper_contains_id(9, 20)
+        }
+        return 0
+    }
+
+    map_formal_mutation_v1_case_instance_isolation() {
+        local owner_a = new MapFormalFieldOwnerV1()
+        local owner_b = new MapFormalFieldOwnerV1()
+        owner_a.map_formal_mutation_v1_command_put_id(10, 10)
+        if owner_a.map_formal_mutation_v1_helper_contains_id(10, 10) == 1 {
+            return 1 - owner_b.map_formal_mutation_v1_direct_contains_id(10, 10)
+        }
+        return 0
+    }
+
+    main(args) {
+        local b1 = Main.map_formal_mutation_v1_case_local_direct_baseline()
+        local b2 = Main.map_formal_mutation_v1_case_field_direct_baseline()
+        local d1 = Main.map_formal_mutation_v1_case_local_formal_literal_direct()
+        local d2 = Main.map_formal_mutation_v1_case_local_formal_dynamic_direct()
+        local d3 = Main.map_formal_mutation_v1_case_local_formal_dynamic_helper()
+        local d4 = Main.map_formal_mutation_v1_case_field_formal_literal_direct()
+        local d5 = Main.map_formal_mutation_v1_case_field_formal_dynamic_direct()
+        local d6 = Main.map_formal_mutation_v1_case_field_formal_dynamic_helper()
+        local d7 = Main.map_formal_mutation_v1_case_repeated_mutation()
+        local d8 = Main.map_formal_mutation_v1_case_instance_isolation()
+
+        print("map-formal-borrowed-mutation-proof")
+        print("case.local_direct_baseline=" + b1)
+        print("case.field_direct_baseline=" + b2)
+        print("case.local_formal_literal_direct=" + d1)
+        print("case.local_formal_dynamic_direct=" + d2)
+        print("case.local_formal_dynamic_helper=" + d3)
+        print("case.field_formal_literal_direct=" + d4)
+        print("case.field_formal_dynamic_direct=" + d5)
+        print("case.field_formal_dynamic_helper=" + d6)
+        print("case.repeated_mutation=" + d7)
+        print("case.instance_isolation=" + d8)
+        print("selection=UNCLASSIFIED-S0")
+        print("summary=observed")
+        return 0
+    }
+}
+
