@@ -21,9 +21,11 @@ Related:
   P0c-MR, and Program-only R0 retirement through G0 are closed. The exact
   HMI-P0-D0 selected serialized Rust-emitted MIR JSON V1 plus a future strict
   whole-document profile as the sole `.hako` semantic-reference carrier. The
-  current blocker is HMI-P0-I0: one checked-in handler/caller/fixture/
-  transport/value-class machine inventory. It changes no execution owner and
-  activates no opcode.
+  HMI-P0-I0 is closed with one checked-in 43-instruction/9-caller/6-fixture-
+  family/9-transport/9-VMValue-class inventory and one source-derived checker.
+  The current blocker is HMI-P0-G0: register the reusable manifest guard and
+  produce the normalized coverage/lossiness report. It changes no execution
+  owner and activates no opcode.
   C-prime is
   taskized as `G0 -> S0 -> V0 -> C0 -> I1 -> R0`; G0 through I1 are closed. The
   deterministic SCC partition is non-Clone, uses a host-stack-safe traversal,

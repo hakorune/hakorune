@@ -1,5 +1,5 @@
 ---
-Status: HMI-P0-D0 closed; HMI-P0-I0 next
+Status: HMI-P0-I0 closed; HMI-P0-G0 next
 Date: 2026-07-16
 Decision: accepted with current-source corrections
 Previous row: P0c-MR-R0-G0 closed
@@ -109,8 +109,8 @@ blocked on SSA-I1-O1.
 
 ```text
 HMI-P0-D0  decision lock and exact current-source naming          CLOSED
-HMI-P0-I0  checked-in normalized machine inventory                NEXT
-HMI-P0-G0  freshness/coverage/lossiness report and guards
+HMI-P0-I0  checked-in normalized machine inventory                CLOSED
+HMI-P0-G0  freshness/coverage/lossiness report and guards          NEXT
 HMI-S0-D0  strict reader/seal and interpreter implementation packet
 ```
 
@@ -209,6 +209,63 @@ product
 Every row has an exact retirement condition. HMI-P1 parity does not itself
 delete Rust handlers; HMI-R1/R2 still require the selected cutover and exact
 repository caller zero.
+
+### I0 closeout
+
+The checked-in authority is now:
+
+```text
+tools/checks/fixtures/hmi_semantic_reference_inventory_v1.json
+```
+
+Its disconnected verifier is:
+
+```text
+python3 tools/checks/lib/hmi_semantic_reference_inventory.py \
+  "$PWD" \
+  tools/checks/fixtures/hmi_semantic_reference_inventory_v1.json
+```
+
+The inventory seals current evidence without changing production behavior:
+
+```text
+kept instruction rows: 43
+non-test/typed MirInterpreter caller rows: 9
+fixture families: 6
+transport rows: 9
+VMValue classes: 9
+production behavior delta: 0
+```
+
+The verifier derives the kept instruction set, MIR JSON emitter coverage,
+`VMValue` variants, and non-test `MirInterpreter::new` caller counts from the
+current Rust source. The JSON owns classification only. Neither file owns a
+second opcode vocabulary or execution route.
+
+The audit also fixed these explicit loss seams in the inventory:
+
+```text
+BinOp:
+  BitAnd/And and BitOr/Or wire-spelling collisions
+
+Jump/Branch:
+  edge arguments are not transported
+
+Phi/Return:
+  owned semantics require ownership_ssa_v1 co-sealing
+
+NewClosure:
+  V1 rewrites it to mir_call and omits body authority
+
+unsupported Rust interpreter rows:
+  Catch / Throw / MemOp / NewClosure
+
+generic VMValue::Void:
+  deferred; only no-value Return is a portable terminator outcome
+```
+
+HMI-P0-I0 adds no manifest/public guard. That registration and the normalized
+human lossiness report remain exactly HMI-P0-G0.
 
 ## HMI-P0-G0 — drift guards and report
 

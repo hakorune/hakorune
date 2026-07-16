@@ -2415,11 +2415,13 @@ state.
 P0c-MR through R0-G0 is closed. Singleton and multi-function recursion now use
 one Program/catalog/graph/SCC/finite-profile/atomic-publication authority; the
 old RootCallable, one-entry, and exact-one authorities are physically retired.
-HMI-P0-D0 is closed. Serialized Rust MIR JSON V1 with a future strict
-whole-document profile is selected as the sole `.hako` semantic-reference
-carrier. Implement only HMI-P0-I0 from
-`hmi-p0-mir-json-v1-strict-ingress-inventory-task-2026-07-16.md`: one
-checked-in handler/caller/fixture/transport/value-class inventory with
+HMI-P0-D0 and HMI-P0-I0 are closed. Serialized Rust MIR JSON V1 with a future
+strict whole-document profile is selected as the sole `.hako` semantic-
+reference carrier, and one checked-in 43-instruction/9-caller/6-fixture-
+family/9-transport/9-VMValue-class inventory is source-verified. Continue only
+with HMI-P0-G0 from
+`hmi-p0-mir-json-v1-strict-ingress-inventory-task-2026-07-16.md`: register the
+reusable manifest guard and normalized coverage/lossiness report while keeping
 execution-owner and opcode-activation delta zero.
 
 Decision/task card:
