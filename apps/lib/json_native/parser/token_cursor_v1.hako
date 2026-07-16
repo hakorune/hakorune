@@ -5,11 +5,13 @@ using "../lexer/tokenizer.hako" as JsonTokenizer
 
 box JsonTokenCursorV1 {
     tokens: ArrayBox
+    lexer_errors: ArrayBox
     position: IntegerBox
     initialized: BoolBox
 
     birth() {
         me.tokens = new ArrayBox()
+        me.lexer_errors = new ArrayBox()
         me.position = 0
         me.initialized = false
     }
@@ -21,6 +23,7 @@ box JsonTokenCursorV1 {
         local tokenizer = new JsonTokenizer(json_text)
         tokenizer.set_input(json_text)
         me.tokens = tokenizer.tokenize()
+        me.lexer_errors = tokenizer.get_errors()
         if me.tokens == null {
             me.tokens = new ArrayBox()
         }
@@ -63,5 +66,24 @@ box JsonTokenCursorV1 {
 
     length() {
         return me.tokens.length()
+    }
+
+    has_lexer_errors() {
+        return me.lexer_errors.length() > 0
+    }
+
+    first_lexer_error() {
+        if me.lexer_errors.length() == 0 {
+            return null
+        }
+        return me.lexer_errors.get(0)
+    }
+
+    lexer_error_count() {
+        return me.lexer_errors.length()
+    }
+
+    lexer_error_at(index) {
+        return me.lexer_errors.get(index)
     }
 }

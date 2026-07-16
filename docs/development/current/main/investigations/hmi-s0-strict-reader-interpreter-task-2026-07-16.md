@@ -1,5 +1,5 @@
 ---
-Status: HMI-S0-T0 parked behind accepted JSON-NATIVE-ITER0; S0 next
+Status: HMI-S0-T0 parked behind accepted JSON-NATIVE-ITER0; P0 next
 Date: 2026-07-16
 Decision: B-prime json_native strict policy plus exact-none CFG witness
 Previous row: HMI-P0-G0 closed at `dec4769b18`

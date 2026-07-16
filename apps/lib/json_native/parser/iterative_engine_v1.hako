@@ -1,0 +1,542 @@
+// Disconnected explicit-stack JSON grammar engine.
+// S0 fixtures call this directly; production JsonParser selection remains unchanged.
+
+using "../core/node.hako" as JsonNode
+using "../utils/string.hako" as StringUtils
+using "./token_cursor_v1.hako" as JsonTokenCursorV1
+using "./frame_v1.hako" as JsonParseFrameV1
+using "./error_v1.hako" as JsonParseErrorV1
+using "./resource_limits_v1.hako" as JsonParserResourceLimitsV1
+
+box JsonIterativeParserEngineV1 {
+    cursor
+    frames: ArrayBox
+    errors: ArrayBox
+    source_text: StringBox
+    policy
+    root
+    root_candidate
+    root_candidate_ready: BoolBox
+    root_published: BoolBox
+    failed: BoolBox
+    done: BoolBox
+
+    birth() {
+        me.cursor = null
+        me.frames = new ArrayBox()
+        me.errors = new ArrayBox()
+        me.source_text = ""
+        me.policy = null
+        me.root = null
+        me.root_candidate = null
+        me.root_candidate_ready = false
+        me.root_published = false
+        me.failed = false
+        me.done = false
+    }
+
+    parse(text) {
+        return me.parse_with_policy(text, null)
+    }
+
+    parse_with_policy(text, policy) {
+        me.reset_for_parse(text, policy)
+        loop(true) {
+            if me.failed or me.done {
+                break
+            }
+            me.step()
+        }
+        if me.failed {
+            return null
+        }
+        return me.root
+    }
+
+    reset_for_parse(text, policy) {
+        me.frames = new ArrayBox()
+        me.errors = new ArrayBox()
+        me.source_text = text
+        me.policy = policy
+        me.root = null
+        me.root_candidate = null
+        me.root_candidate_ready = false
+        me.root_published = false
+        me.failed = false
+        me.done = false
+
+        me.cursor = new JsonTokenCursorV1()
+        me.cursor.initialize_text_once(text)
+        if me.cursor.has_lexer_errors() {
+            me.record_lexer_errors()
+        }
+    }
+
+    step() {
+        if me.frames.length() == 0 {
+            if not me.root_candidate_ready {
+                me.process_value()
+                return
+            }
+            me.finish_root()
+            return
+        }
+
+        local frame = me.top_frame()
+        local phase = frame.get_phase()
+
+        if phase == JsonParseFrameV1.array_first_or_end_phase() {
+            me.step_array_first_or_end(frame)
+            return
+        }
+        if phase == JsonParseFrameV1.array_value_phase() {
+            me.process_value()
+            return
+        }
+        if phase == JsonParseFrameV1.array_comma_or_end_phase() {
+            me.step_array_comma_or_end(frame)
+            return
+        }
+        if phase == JsonParseFrameV1.object_first_key_or_end_phase() {
+            me.step_object_first_key_or_end(frame)
+            return
+        }
+        if phase == JsonParseFrameV1.object_key_phase() {
+            me.step_object_key(frame)
+            return
+        }
+        if phase == JsonParseFrameV1.object_colon_phase() {
+            me.step_object_colon(frame)
+            return
+        }
+        if phase == JsonParseFrameV1.object_value_phase() {
+            me.process_value()
+            return
+        }
+        if phase == JsonParseFrameV1.object_comma_or_end_phase() {
+            me.step_object_comma_or_end(frame)
+            return
+        }
+
+        me.fail_expected(
+            "parser-state",
+            "[json_native/parser/state-v1]",
+            "known parser frame phase",
+            phase
+        )
+    }
+
+    finish_root() {
+        local token = me.cursor.current()
+        if token == null or token.is_eof() {
+            me.root = me.root_candidate
+            me.root_published = true
+            me.done = true
+            return
+        }
+        me.fail_expected(
+            "trailing-root",
+            "[json_native/parser/trailing-root-v1]",
+            "EOF after one JSON root",
+            token.get_type()
+        )
+    }
+
+    process_value() {
+        local token = me.cursor.current()
+        if token == null or token.is_eof() {
+            me.fail_expected(
+                "unexpected-eof",
+                "[json_native/parser/unexpected-eof-v1]",
+                "JSON value",
+                "EOF"
+            )
+            return
+        }
+        if token.is_error() {
+            me.fail_expected(
+                "lexer-error",
+                "[json_native/parser/lexer-error-v1]",
+                "valid JSON token",
+                token.get_value()
+            )
+            return
+        }
+
+        local token_type = token.get_type()
+        if token_type == "NULL" {
+            me.cursor.advance()
+            me.publish_completed_value(JsonNode.create_null())
+            return
+        }
+        if token_type == "TRUE" {
+            me.cursor.advance()
+            me.publish_completed_value(JsonNode.create_bool(true))
+            return
+        }
+        if token_type == "FALSE" {
+            me.cursor.advance()
+            me.publish_completed_value(JsonNode.create_bool(false))
+            return
+        }
+        if token_type == "STRING" {
+            me.cursor.advance()
+            me.publish_completed_value(JsonNode.create_string(token.get_value()))
+            return
+        }
+        if token_type == "NUMBER" {
+            me.publish_completed_value(me.decode_number(token))
+            return
+        }
+        if token_type == "LBRACKET" {
+            me.open_array(token)
+            return
+        }
+        if token_type == "LBRACE" {
+            me.open_object(token)
+            return
+        }
+
+        me.fail_expected(
+            "expected-value",
+            "[json_native/parser/expected-value-v1]",
+            "JSON value",
+            token_type
+        )
+    }
+
+    open_array(token) {
+        local attempted_depth = JsonParserResourceLimitsV1.attempted_depth(
+            me.frames.length()
+        )
+        if not JsonParserResourceLimitsV1.admits_attempted_depth(attempted_depth) {
+            me.fail(JsonParseErrorV1.nesting_limit(
+                JsonParserResourceLimitsV1.max_container_depth(),
+                attempted_depth,
+                token
+            ))
+            return
+        }
+
+        local frame = JsonParseFrameV1.open_array(
+            JsonNode.create_array(),
+            token
+        )
+        me.cursor.advance()
+        me.frames.push(frame)
+    }
+
+    open_object(token) {
+        local attempted_depth = JsonParserResourceLimitsV1.attempted_depth(
+            me.frames.length()
+        )
+        if not JsonParserResourceLimitsV1.admits_attempted_depth(attempted_depth) {
+            me.fail(JsonParseErrorV1.nesting_limit(
+                JsonParserResourceLimitsV1.max_container_depth(),
+                attempted_depth,
+                token
+            ))
+            return
+        }
+
+        local frame = JsonParseFrameV1.open_object(
+            JsonNode.create_object(),
+            token
+        )
+        me.cursor.advance()
+        me.frames.push(frame)
+    }
+
+    step_array_first_or_end(frame) {
+        local token = me.cursor.current()
+        if token != null and token.get_type() == "RBRACKET" {
+            me.close_container()
+            return
+        }
+        frame.transition_to(JsonParseFrameV1.array_value_phase())
+    }
+
+    step_array_comma_or_end(frame) {
+        local token = me.cursor.current()
+        if token != null and token.get_type() == "COMMA" {
+            me.cursor.advance()
+            frame.transition_to(JsonParseFrameV1.array_value_phase())
+            return
+        }
+        if token != null and token.get_type() == "RBRACKET" {
+            me.close_container()
+            return
+        }
+        me.fail_expected(
+            "expected-array-separator",
+            "[json_native/parser/array-separator-v1]",
+            "COMMA or RBRACKET",
+            me.actual_token_type(token)
+        )
+    }
+
+    step_object_first_key_or_end(frame) {
+        local token = me.cursor.current()
+        if token != null and token.get_type() == "RBRACE" {
+            me.close_container()
+            return
+        }
+        frame.transition_to(JsonParseFrameV1.object_key_phase())
+    }
+
+    step_object_key(frame) {
+        local token = me.cursor.current()
+        if token == null or token.get_type() != "STRING" {
+            me.fail_expected(
+                "expected-object-key",
+                "[json_native/parser/object-key-v1]",
+                "STRING object key",
+                me.actual_token_type(token)
+            )
+            return
+        }
+
+        local key = token.get_value()
+        me.cursor.advance()
+        if me.policy != null and me.policy.rejects_duplicate_keys() {
+            if frame.get_node().object_has(key) {
+                local error_token = me.cursor.current()
+                me.fail(JsonParseErrorV1.expected(
+                    "duplicate-key",
+                    "[json_native/strict/duplicate-key]",
+                    me.policy.duplicate_key_error(key).message(),
+                    error_token,
+                    "unique decoded object key",
+                    key
+                ))
+                return
+            }
+        }
+        frame.remember_key(key)
+        frame.transition_to(JsonParseFrameV1.object_colon_phase())
+    }
+
+    step_object_colon(frame) {
+        local token = me.cursor.current()
+        if token == null or token.get_type() != "COLON" {
+            me.fail_expected(
+                "expected-object-colon",
+                "[json_native/parser/object-colon-v1]",
+                "COLON after object key",
+                me.actual_token_type(token)
+            )
+            return
+        }
+        me.cursor.advance()
+        frame.transition_to(JsonParseFrameV1.object_value_phase())
+    }
+
+    step_object_comma_or_end(frame) {
+        local token = me.cursor.current()
+        if token != null and token.get_type() == "COMMA" {
+            me.cursor.advance()
+            frame.transition_to(JsonParseFrameV1.object_key_phase())
+            return
+        }
+        if token != null and token.get_type() == "RBRACE" {
+            me.close_container()
+            return
+        }
+        me.fail_expected(
+            "expected-object-separator",
+            "[json_native/parser/object-separator-v1]",
+            "COMMA or RBRACE",
+            me.actual_token_type(token)
+        )
+    }
+
+    close_container() {
+        me.cursor.advance()
+        local last = me.frames.length() - 1
+        local frame = me.frames.get(last)
+        me.frames.remove(last)
+        me.publish_completed_value(frame.get_node())
+    }
+
+    publish_completed_value(value) {
+        if value == null {
+            return
+        }
+        if me.frames.length() == 0 {
+            if me.root_candidate_ready {
+                me.fail_expected(
+                    "parser-state",
+                    "[json_native/parser/state-v1]",
+                    "one root publication",
+                    "second root publication"
+                )
+                return
+            }
+            me.root_candidate = value
+            me.root_candidate_ready = true
+            return
+        }
+
+        local parent = me.top_frame()
+        local phase = parent.get_phase()
+        if parent.get_container_kind() == JsonParseFrameV1.array_kind() and
+            phase == JsonParseFrameV1.array_value_phase() {
+            parent.get_node().array_push(value)
+            parent.transition_to(JsonParseFrameV1.array_comma_or_end_phase())
+            return
+        }
+        if parent.get_container_kind() == JsonParseFrameV1.object_kind() and
+            phase == JsonParseFrameV1.object_value_phase() {
+            parent.get_node().object_set(parent.get_pending_key(), value)
+            parent.clear_pending_key()
+            parent.transition_to(JsonParseFrameV1.object_comma_or_end_phase())
+            return
+        }
+
+        me.fail_expected(
+            "parser-state",
+            "[json_native/parser/state-v1]",
+            "parent waiting for completed value",
+            phase
+        )
+    }
+
+    decode_number(token) {
+        local text = me.source_text.substring(token.get_start(), token.get_end())
+        if me.number_text_is_integer(text) {
+            if me.policy != null and me.policy.requires_exact_i64_range() {
+                if not me.policy.integer_lexeme_is_admitted(text) {
+                    me.fail(JsonParseErrorV1.expected(
+                        "integer-range",
+                        "[json_native/strict/integer-range]",
+                        me.policy.integer_range_error(text).message(),
+                        token,
+                        "signed i64 lexeme",
+                        text
+                    ))
+                    return null
+                }
+                me.cursor.advance()
+                return JsonNode.create_int(me.policy.parse_admitted_integer(text))
+            }
+            me.cursor.advance()
+            return JsonNode.create_int(me.parse_compat_integer(text))
+        }
+
+        me.cursor.advance()
+        if StringUtils.contains(text, ".") or StringUtils.contains(text, "e") or StringUtils.contains(text, "E") {
+            return JsonNode.create_float(text)
+        }
+        return JsonNode.create_int(0)
+    }
+
+    number_text_is_integer(text) {
+        return not StringUtils.contains(text, ".") and
+            not StringUtils.contains(text, "e") and
+            not StringUtils.contains(text, "E")
+    }
+
+    parse_compat_integer(text) {
+        local negative = false
+        local i = 0
+        if text.substring(0, 1) == "-" {
+            negative = true
+            i = 1
+        }
+        local value = 0
+        loop(i < text.length()) {
+            value = value * 10 + me.digit_value(text.substring(i, i + 1))
+            i = i + 1
+        }
+        if negative {
+            return 0 - value
+        }
+        return value
+    }
+
+    digit_value(ch) {
+        if ch == "0" { return 0 }
+        if ch == "1" { return 1 }
+        if ch == "2" { return 2 }
+        if ch == "3" { return 3 }
+        if ch == "4" { return 4 }
+        if ch == "5" { return 5 }
+        if ch == "6" { return 6 }
+        if ch == "7" { return 7 }
+        if ch == "8" { return 8 }
+        if ch == "9" { return 9 }
+        return 0
+    }
+
+    fail_expected(kind, code, expected, actual) {
+        local token = me.cursor.current()
+        if token == null {
+            me.fail_without_token(kind, code, expected, actual)
+            return
+        }
+        me.fail(JsonParseErrorV1.expected(
+            kind,
+            code,
+            expected + ", got " + actual,
+            token,
+            expected,
+            actual
+        ))
+    }
+
+    fail_without_token(kind, code, expected, actual) {
+        me.fail(JsonParseErrorV1.at_site(
+            kind,
+            code,
+            expected + ", got " + actual,
+            me.source_text.length(),
+            1,
+            me.source_text.length() + 1,
+            "EOF",
+            expected,
+            actual
+        ))
+    }
+
+    fail(error) {
+        if not me.failed {
+            me.errors.push(error)
+        }
+        me.failed = true
+    }
+
+    record_lexer_errors() {
+        local i = 0
+        loop(i < me.cursor.lexer_error_count()) {
+            local token = me.cursor.lexer_error_at(i)
+            me.errors.push(JsonParseErrorV1.expected(
+                "lexer-error",
+                "[json_native/parser/lexer-error-v1]",
+                token.get_value(),
+                token,
+                "valid JSON token",
+                token.get_type()
+            ))
+            i = i + 1
+        }
+        me.failed = true
+    }
+
+    actual_token_type(token) {
+        if token == null { return "EOF" }
+        return token.get_type()
+    }
+
+    top_frame() {
+        return me.frames.get(me.frames.length() - 1)
+    }
+
+    has_errors() { return me.errors.length() > 0 }
+    get_errors() { return me.errors }
+    first_error() {
+        if me.errors.length() == 0 { return null }
+        return me.errors.get(0)
+    }
+    open_frame_count() { return me.frames.length() }
+    root_was_published() { return me.root_published }
+}

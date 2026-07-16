@@ -1,5 +1,5 @@
 ---
-Status: accepted; JSON-NATIVE-ITER0-L0 closed; S0 next
+Status: accepted; JSON-NATIVE-ITER0-S0 closed; P0 next
 Date: 2026-07-16
 Decision: B-prime one iterative grammar engine and one text-to-tree owner
 Parent stop: hmi-s0-t0-json-parser-depth-consultation-question-2026-07-16.md
@@ -287,7 +287,7 @@ fixture-only slice or exclude it with a documented retirement decision.
 
 ### JSON-NATIVE-ITER0-S0 — disconnected iterative engine
 
-Next code-facing row.
+Status: closed. Production selection remains unchanged.
 
 Add `iterative_engine_v1.hako`. Direct fixtures exercise compatibility and
 strict policies, ordinary T0 MIR JSON, mixed/empty containers, and deep inputs.
@@ -298,7 +298,57 @@ iterative production selectors: 0
 HMI callers: 0
 ```
 
+S0 closeout:
+
+```text
+engine:
+  apps/lib/json_native/parser/iterative_engine_v1.hako
+  542 lines
+  one explicit ArrayBox frame stack
+  no recursive container-parser calls
+
+direct fixture:
+  scalar kinds and empty/mixed containers
+  strict i64 MIN/MAX/range rejection
+  strict/compat decoded duplicate split
+  duplicate-before-colon error priority
+  trailing comma/missing colon/mismatched closer/trailing root
+  alternating depth 24 and exact depth 128
+  depth 129 typed rejection and parser reuse
+  ordinary nested MIR carrier
+  all lexer errors preflighted before grammar effects
+
+before-effects law:
+  lexer errors come from the existing tokenizer before frames/nodes
+  failed/trailing roots are never externally published
+  depth 129 rejects before child-node allocation/frame push
+
+representation laws:
+  frame close = get(last) -> remove(last) -> publish
+  ArrayBox remove/pop return value is not an authority
+  EOF is never consumed for diagnostics
+  duplicate error site remains the post-key current token
+
+production JsonParser/JsonNode iterative selectors:
+  0
+
+release/debug vm-reference fixtures:
+  [json-native/iter0-s0] ok
+
+retained fixtures:
+  [json-native/iter0-l0] ok
+  [json-native/strict-policy] ok
+
+quick gate:
+  66/66
+
+VM MAX_CALL_DEPTH:
+  unchanged at 16
+```
+
 ### JSON-NATIVE-ITER0-P0 — normalized parity proof
+
+Next code-facing row.
 
 Prove existing compatibility behavior, J0 strict behavior, valid generated
 trees, shallow malformed first-error parity, ordinary MIR JSON, and exact depth

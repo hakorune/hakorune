@@ -1,0 +1,187 @@
+using "apps/lib/json_native/parser/iterative_engine_v1.hako" as JsonIterativeParserEngineV1
+using "apps/lib/json_native/parser/strict_policy.hako" as StrictJsonPolicyV1
+
+static box Main {
+    main() {
+        local failures = 0
+        failures = failures + this.test_scalars()
+        failures = failures + this.test_containers()
+        failures = failures + this.test_policy_split()
+        failures = failures + this.test_malformed_and_reuse()
+        failures = failures + this.test_depth_law()
+        failures = failures + this.test_mir_carrier()
+        failures = failures + this.test_lexer_preflight()
+
+        if failures == 0 {
+            print("[json-native/iter0-s0] ok")
+            return 0
+        }
+        print("[json-native/iter0-s0] failed=" + failures)
+        return 1
+    }
+
+    test_scalars() {
+        local parser = new JsonIterativeParserEngineV1()
+        local integer = parser.parse("42")
+        if parser.has_errors() or integer.as_int() != 42 { return 1 }
+
+        local boolean = parser.parse("true")
+        if parser.has_errors() or not boolean.as_bool() { return 1 }
+
+        local null_value = parser.parse("null")
+        if parser.has_errors() or null_value.get_kind() != "null" { return 1 }
+
+        local string_value = parser.parse("\"hello\"")
+        if parser.has_errors() or string_value.as_string() != "hello" { return 1 }
+
+        local float_value = parser.parse("1.5")
+        if parser.has_errors() or float_value.get_kind() != "float" { return 1 }
+        if not parser.root_was_published() { return 1 }
+        if parser.open_frame_count() != 0 { return 1 }
+        return 0
+    }
+
+    test_containers() {
+        local parser = new JsonIterativeParserEngineV1()
+        local empty_array = parser.parse("[]")
+        if parser.has_errors() or empty_array.array_size() != 0 { return 1 }
+        local empty_object = parser.parse("{}")
+        if parser.has_errors() or empty_object.get_kind() != "object" { return 1 }
+
+        local mixed = parser.parse("{\"a\":[1,true,{\"b\":\"x\"}]}")
+        if parser.has_errors() { return 1 }
+        local values = mixed.object_get("a")
+        if values.array_size() != 3 { return 1 }
+        if values.array_get(0).as_int() != 1 { return 1 }
+        if not values.array_get(1).as_bool() { return 1 }
+        if values.array_get(2).object_get("b").as_string() != "x" { return 1 }
+        if parser.open_frame_count() != 0 { return 1 }
+        return 0
+    }
+
+    test_policy_split() {
+        local text = "{\"a\":1,\"a\":2}"
+        local policy = StrictJsonPolicyV1.exact_i64_document()
+
+        local integer_parser = new JsonIterativeParserEngineV1()
+        local max = integer_parser.parse_with_policy("9223372036854775807", policy)
+        if integer_parser.has_errors() or max.as_int() != 9223372036854775807 { return 1 }
+        local min = integer_parser.parse_with_policy("-9223372036854775808", policy)
+        local expected_min = 0 - 9223372036854775807 - 1
+        if integer_parser.has_errors() or min.as_int() != expected_min { return 1 }
+        if integer_parser.parse_with_policy("9223372036854775808", policy) != null { return 1 }
+        if integer_parser.first_error().get_kind() != "integer-range" { return 1 }
+
+        local compatibility = new JsonIterativeParserEngineV1()
+        local value = compatibility.parse(text)
+        if compatibility.has_errors() { return 1 }
+        if value.object_get("a").as_int() != 2 { return 1 }
+
+        local strict = new JsonIterativeParserEngineV1()
+        if strict.parse_with_policy(text, policy) != null { return 1 }
+        if strict.first_error().get_kind() != "duplicate-key" { return 1 }
+        if strict.first_error().get_token() != "COLON" { return 1 }
+        if strict.root_was_published() { return 1 }
+
+        local competing = new JsonIterativeParserEngineV1()
+        if competing.parse_with_policy("{\"a\":1,\"a\" 2}", policy) != null { return 1 }
+        if competing.first_error().get_kind() != "duplicate-key" { return 1 }
+        return 0
+    }
+
+    test_malformed_and_reuse() {
+        local parser = new JsonIterativeParserEngineV1()
+        if parser.parse("[1,]") != null { return 1 }
+        if parser.first_error().get_kind() != "expected-value" { return 1 }
+        if parser.first_error().get_token() != "RBRACKET" { return 1 }
+        if parser.root_was_published() { return 1 }
+
+        if parser.parse("{\"a\":1,}") != null { return 1 }
+        if parser.first_error().get_kind() != "expected-object-key" { return 1 }
+
+        if parser.parse("{\"a\" 1}") != null { return 1 }
+        if parser.first_error().get_kind() != "expected-object-colon" { return 1 }
+
+        if parser.parse("[1}") != null { return 1 }
+        if parser.first_error().get_kind() != "expected-array-separator" { return 1 }
+
+        if parser.parse("{} []") != null { return 1 }
+        if parser.first_error().get_kind() != "trailing-root" { return 1 }
+        if parser.root_was_published() { return 1 }
+
+        local recovered = parser.parse("{\"ok\":7}")
+        if parser.has_errors() or recovered.object_get("ok").as_int() != 7 { return 1 }
+        return 0
+    }
+
+    test_depth_law() {
+        local parser = new JsonIterativeParserEngineV1()
+
+        local depth24 = this.nested_array_text(24)
+        local value24 = parser.parse(depth24)
+        if parser.has_errors() { return 1 }
+        if this.array_depth(value24) != 24 { return 1 }
+
+        local depth128 = this.nested_array_text(128)
+        local value128 = parser.parse(depth128)
+        if parser.has_errors() { return 1 }
+        if this.array_depth(value128) != 128 { return 1 }
+        if parser.open_frame_count() != 0 { return 1 }
+
+        local depth129 = this.nested_array_text(129)
+        if parser.parse(depth129) != null { return 1 }
+        local error = parser.first_error()
+        if error.get_kind() != "nesting-limit" { return 1 }
+        if error.get_code() != "[json_native/parser/nesting-limit-v1]" { return 1 }
+        if parser.open_frame_count() != 128 { return 1 }
+        if parser.root_was_published() { return 1 }
+
+        local recovered = parser.parse("[9]")
+        if parser.has_errors() or recovered.array_get(0).as_int() != 9 { return 1 }
+        return 0
+    }
+
+    test_mir_carrier() {
+        local text = "{\"functions\":[{\"name\":\"main\",\"blocks\":[{\"id\":0,\"instructions\":[{\"op\":\"const\",\"dst\":1,\"value\":{\"type\":\"i64\",\"value\":1}},{\"op\":\"ret\",\"value\":1}]}]}]}"
+        local parser = new JsonIterativeParserEngineV1()
+        local root = parser.parse(text)
+        if parser.has_errors() { return 1 }
+        local functions = root.object_get("functions")
+        if functions.array_size() != 1 { return 1 }
+        local instructions = functions.array_get(0).object_get("blocks").array_get(0).object_get("instructions")
+        if instructions.array_size() != 2 { return 1 }
+        if instructions.array_get(0).object_get("value").object_get("value").as_int() != 1 { return 1 }
+        return 0
+    }
+
+    test_lexer_preflight() {
+        local parser = new JsonIterativeParserEngineV1()
+        if parser.parse("@ #") != null { return 1 }
+        if not parser.has_errors() { return 1 }
+        if parser.get_errors().length() != 2 { return 1 }
+        if parser.first_error().get_kind() != "lexer-error" { return 1 }
+        if parser.open_frame_count() != 0 { return 1 }
+        if parser.root_was_published() { return 1 }
+        return 0
+    }
+
+    nested_array_text(depth) {
+        local text = "0"
+        local i = 0
+        loop(i < depth) {
+            text = "[" + text + "]"
+            i = i + 1
+        }
+        return text
+    }
+
+    array_depth(root) {
+        local depth = 0
+        local current = root
+        loop(current != null and current.get_kind() == "array") {
+            depth = depth + 1
+            current = current.array_get(0)
+        }
+        return depth
+    }
+}
