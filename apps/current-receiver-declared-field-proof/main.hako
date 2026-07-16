@@ -1,0 +1,244 @@
+// R0-DECLFIELD0 source observation fixture.
+// The source is intentionally domain-independent.
+
+static box TypedArrayFieldControlV1 {
+    push_and_length(items: ArrayBox, value) {
+        items.push(value)
+        return items.length()
+    }
+}
+
+static box ExplicitOwnerParamControlV1 {
+    declfield_probe_v1_push_and_length(owner: DeclaredFieldOwnerV1, value) {
+        owner.items.push(value)
+        return owner.items.length()
+    }
+}
+
+box DeclaredFieldOwnerV1 {
+    items: ArrayBox
+    map: MapBox
+
+    birth() {
+        me.items = new ArrayBox()
+        me.map = new MapBox()
+    }
+
+    declfield_probe_v1_direct_array(value) {
+        me.items.push(value)
+        return me.items.length()
+    }
+
+    declfield_probe_v1_after_validation(value, enabled) {
+        local accepted = 0
+        if enabled == 1 {
+            accepted = 1
+        } else {
+            accepted = 0
+        }
+        if accepted == 0 {
+            return 0
+        }
+
+        me.items.push(value)
+        return me.items.length()
+    }
+
+    declfield_probe_v1_after_nested_validation(value, enabled) {
+        if enabled == 0 {
+            return 0
+        }
+        if value < 0 {
+            return 0
+        }
+
+        me.items.push(value)
+        return me.items.length()
+    }
+
+    declfield_probe_v1_through_receiver_alias(value) {
+        local first = me
+        local second = first
+        second.items.push(value)
+        return second.items.length()
+    }
+
+    declfield_probe_v1_reject_without_mutation(value) {
+        if value < 0 {
+            return me.items.length()
+        }
+
+        me.items.push(value)
+        return me.items.length()
+    }
+
+    declfield_probe_v1_repeated_array() {
+        me.items.push(10)
+        me.items.push(20)
+        return me.items.length()
+    }
+
+    declfield_probe_v1_map_roundtrip(key, value, enabled) {
+        if enabled == 0 {
+            return 0
+        }
+        me.map.set(key, value)
+        if me.map.has(key) {
+            if me.map.get(key) == value {
+                return 1
+            }
+        }
+        return 0
+    }
+
+    declfield_probe_v1_typed_helper(value) {
+        return TypedArrayFieldControlV1.push_and_length(me.items, value)
+    }
+}
+
+box UntypedFieldOwnerV1 {
+    init { items }
+
+    birth() {
+        me.items = new ArrayBox()
+    }
+
+    declfield_probe_v1_untyped_field(value) {
+        me.items.push(value)
+        return me.items.length()
+    }
+}
+
+static box Main {
+    declfield_probe_v1_bool(value) {
+        if value {
+            return 1
+        }
+        return 0
+    }
+
+    declfield_probe_v1_case_a1() {
+        local owner = new DeclaredFieldOwnerV1()
+        return Main.declfield_probe_v1_bool(
+            owner.declfield_probe_v1_direct_array(10) == 1
+        )
+    }
+
+    declfield_probe_v1_case_a2() {
+        local owner = new DeclaredFieldOwnerV1()
+        return Main.declfield_probe_v1_bool(
+            owner.declfield_probe_v1_after_validation(10, 1) == 1
+        )
+    }
+
+    declfield_probe_v1_case_a3() {
+        local owner = new DeclaredFieldOwnerV1()
+        return Main.declfield_probe_v1_bool(
+            owner.declfield_probe_v1_after_nested_validation(10, 1) == 1
+        )
+    }
+
+    declfield_probe_v1_case_a4() {
+        local owner = new DeclaredFieldOwnerV1()
+        return Main.declfield_probe_v1_bool(
+            owner.declfield_probe_v1_through_receiver_alias(10) == 1
+        )
+    }
+
+    declfield_probe_v1_case_a5() {
+        local owner = new DeclaredFieldOwnerV1()
+        if owner.declfield_probe_v1_reject_without_mutation(-1) != 0 {
+            return 0
+        }
+        return Main.declfield_probe_v1_bool(
+            owner.declfield_probe_v1_direct_array(10) == 1
+        )
+    }
+
+    declfield_probe_v1_case_a6() {
+        local owner = new DeclaredFieldOwnerV1()
+        return Main.declfield_probe_v1_bool(
+            owner.declfield_probe_v1_repeated_array() == 2
+        )
+    }
+
+    declfield_probe_v1_case_a7() {
+        local left = new DeclaredFieldOwnerV1()
+        local right = new DeclaredFieldOwnerV1()
+        if left.declfield_probe_v1_direct_array(10) != 1 {
+            return 0
+        }
+        return Main.declfield_probe_v1_bool(
+            right.declfield_probe_v1_direct_array(20) == 1
+        )
+    }
+
+    declfield_probe_v1_case_m1() {
+        local owner = new DeclaredFieldOwnerV1()
+        return owner.declfield_probe_v1_map_roundtrip("key", 10, 1)
+    }
+
+    declfield_probe_v1_case_c1() {
+        local owner = new DeclaredFieldOwnerV1()
+        return Main.declfield_probe_v1_bool(
+            owner.declfield_probe_v1_typed_helper(10) == 1
+        )
+    }
+
+    declfield_probe_v1_case_n1() {
+        local owner = new UntypedFieldOwnerV1()
+        return Main.declfield_probe_v1_bool(
+            owner.declfield_probe_v1_untyped_field(10) == 1
+        )
+    }
+
+    declfield_probe_v1_case_n2() {
+        local owner = new DeclaredFieldOwnerV1()
+        return Main.declfield_probe_v1_bool(
+            ExplicitOwnerParamControlV1.declfield_probe_v1_push_and_length(
+                owner,
+                10
+            ) == 1
+        )
+    }
+
+    declfield_probe_v1_run_case(selected) {
+        if selected == "A1" { return Main.declfield_probe_v1_case_a1() }
+        if selected == "A2" { return Main.declfield_probe_v1_case_a2() }
+        if selected == "A3" { return Main.declfield_probe_v1_case_a3() }
+        if selected == "A4" { return Main.declfield_probe_v1_case_a4() }
+        if selected == "A5" { return Main.declfield_probe_v1_case_a5() }
+        if selected == "A6" { return Main.declfield_probe_v1_case_a6() }
+        if selected == "A7" { return Main.declfield_probe_v1_case_a7() }
+        if selected == "M1" { return Main.declfield_probe_v1_case_m1() }
+        if selected == "C1" { return Main.declfield_probe_v1_case_c1() }
+        if selected == "N1" { return Main.declfield_probe_v1_case_n1() }
+        if selected == "N2" { return Main.declfield_probe_v1_case_n2() }
+        return -1
+    }
+
+    main(args) {
+        if args.size() != 2 {
+            print("error=expected --case <A1..N2>")
+            return 2
+        }
+        if args.get(0) != "--case" {
+            print("error=expected --case <A1..N2>")
+            return 2
+        }
+
+        local selected = args.get(1)
+        local observed = Main.declfield_probe_v1_run_case(selected)
+        if observed < 0 {
+            print("error=unknown case " + selected)
+            return 2
+        }
+
+        print("current-receiver-declared-field-proof")
+        print("case=" + selected)
+        print("observed=" + observed)
+        print("selection=UNCLASSIFIED-S0")
+        print("summary=observed")
+        return 0
+    }
+}

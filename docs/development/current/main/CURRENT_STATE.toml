@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Candidate B′ is accepted; R0-DECLFIELD0-S0 generic current-receiver field proof is next"
+status = "R0-DECLFIELD0-S0 is closed; normalized Copy/Phi provenance M0 is next"
 date = "2026-07-16"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -348,7 +348,11 @@ subject and MapBox as regression. M0 is a hard authorization gate: any Phi in
 the actual selected root chain forbids I0 and opens a separate provenance
 consultation. No name inference, runtime tag, downstream-plan backfeed,
 origin backfill, typed-helper production detour, fallback, or stash restore is
-allowed. S0 is next.
+allowed. S0 is closed with one 244-line HMI-independent, independently
+selectable A1-A7/M1/C1/N1/N2 fixture. Every debug reference observation is
+currently 1, missing/unknown selectors fail explicitly, and MIR verification
+is green. No checker, manifest row, compiler behavior, or classification
+lands in S0. M0 normalized runtime/MIR provenance classification is next.
 Historical task context follows. R0-STOP0 is closed and registered as
 MAPFIELD-R0-STOP0. Debug/release runtime and normalized MIR agree; all ten
 generic cases pass and the exclusive selection is NONE-HMI-DELTA0, so KEY0
@@ -949,7 +953,7 @@ MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "DPRIME-HMI-S0-V0-R0-DECLFIELD0-S0-001"
+current_blocker_token = "DPRIME-HMI-S0-V0-R0-DECLFIELD0-M0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -958,7 +962,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
-  "2026-07-16: Candidate B-prime is accepted and R0-DECLFIELD0 is task-fixed. The sole admitted compiler shape is an exact current instance receiver or a zero-or-more ordinary Copy chain ending at its verified implicit receiver parameter; existing user-box declarations remain field truth and existing FieldGet/value_types remain publication channels. ArrayBox is the positive fixture and MapBox the regression. M0 is a hard gate: any Phi in the selected chain forbids I0 and opens a separate provenance consultation. Typed-helper/source workarounds, name/runtime inference, downstream-plan backfeed, second maps, origin backfill, ownership/backend widening, fallback, and stash restore remain forbidden. S0 is next.",
+  "2026-07-16: R0-DECLFIELD0-S0 closes one 244-line HMI-independent current-receiver declared-field fixture. A1-A7, M1, C1, N1, and N2 are separately selectable through an exact --case argument, all debug reference observations are currently 1, missing/unknown selectors fail with status 2, and MIR verification plus S0 JSON emission are green. ArrayBox remains the positive subject, MapBox the regression, typed helper comparison-only, and untyped/ordinary-parameter cases negative controls. No checker, manifest row, app-local test entry, compiler/runtime behavior, classification, ownership form/opcode, fallback, or stash restoration lands. M0 normalized runtime/MIR Copy-versus-Phi authorization is next.",
   "2026-07-16: A second three-worker stash audit classifies all 34 Codex-owned entries after the ArrayBox design stop. Twenty-three exact hashes proven landed, superseded, or rejected are dropped; no user-authored work is involved. Eleven remain: five explicit failure/design evidence rows, three selectively recoverable parked tasks, and three mixed forensic archives that must never be applied wholesale. The current ArrayBox HMI evidence is retained at hash dcc241c9db; stash ordinals remain non-authoritative. The worktree and active design-stop pointer remain unchanged.",
   "2026-07-16: Clean HMI R0-I0 stops before landing source on a second declared-field design boundary. TYPE0 makes the MapBox command visible, but validation-heavy access to declared `definition_order: ArrayBox` emits FieldGet without declared/result type and RuntimeDataBox.push/Union; runtime later reports Unknown length on Void. Simple size() remains ArrayBox/Known, the receiver owner is still exact, and birth publishes ArrayBox correctly. The WIP is stashed by label. Two read-only worker audits reject a typed ArrayBox helper workaround and recommend a generic HMI-free current-method-receiver Copy-chain declared-field proof before one narrow Builder field-fact connection. A consultation question is now the active card.",
   "2026-07-16: R0-TYPE0-G0 publishes MAPFIELD-R0-TYPE0 in the existing compiler MapFieldOwner proof manifest and public check index. The app-local entry, manifest/test-entry health, manifest-runner pilot, current pointer, STOP0, DELTA0, HMI/JSON isolation, neighboring exact-numeric mutation, and quick 66/66 are green; the exclusive result is TYPED-FORMAL-AUTHORIZED. TYPE0 added no compiler/runtime/HMI/backend behavior, ownership syntax/opcode, fallback, or new manifest family. The active card returns to the clean HMI register-storage task and R0-I0 is next.",

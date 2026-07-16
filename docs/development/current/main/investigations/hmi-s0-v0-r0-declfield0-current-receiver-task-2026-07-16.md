@@ -1,8 +1,8 @@
 ---
-Status: Active implementation task
+Status: S0 closed; M0 active
 Date: 2026-07-16
 Decision: Candidate B′ accepted
-Baseline: 8c970a64b0
+Baseline: b572f82f95
 Parent: hmi-s0-v0-r0-array-field-propagation-consultation-question-2026-07-16.md
 Scope: current instance receiver -> Copy-only -> explicit declared field
 ---
@@ -347,6 +347,31 @@ runtime special cases:
 
 The typed ArrayBox helper exists only as a disconnected comparison control.
 The eventual HMI implementation must not call it.
+
+### S0 closeout
+
+Landed source artifact:
+
+```text
+apps/current-receiver-declared-field-proof/
+  README.md
+  main.hako
+```
+
+The 244-line source keeps every case in a separately named function and
+requires one explicit selector:
+
+```text
+-- --case A1
+```
+
+Missing or unknown selectors fail with process status 2. A1-A7, M1, C1, N1,
+and N2 execute independently and currently report `observed=1` in the debug
+reference VM. MIR verification and one S0 MIR JSON emission are green.
+
+S0 adds no checker, manifest row, app-local test entry, compiler behavior,
+HMI source, ownership form, fallback, or classification. Those artifacts stay
+with M0/G0 according to their owners.
 
 ## R0-DECLFIELD0-M0
 
