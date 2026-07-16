@@ -1,5 +1,5 @@
 ---
-Status: JSON-NATIVE-ITER0-CUT0 closed; HMI-S0-T0 resumed and next
+Status: HMI-S0-T0 refined by the whole-document seal hardening card
 Date: 2026-07-16
 Decision: B-prime json_native strict policy plus exact-none CFG witness
 Previous row: HMI-P0-G0 closed at `dec4769b18`
@@ -352,7 +352,16 @@ HMI execution callers / fallback:
 
 ### HMI-S0-T0 — whole-document MIR profile seal
 
-State: resumed; next code-facing row.
+State: refined. The next code-facing row is `HMI-S0-T0-L0`.
+
+The prototype audit found authority gaps in bounded views, instruction/CFG
+ordering, exact value inventory, Ownership SSA transport, and fixture
+provenance. The exact landing series is now owned by:
+
+```text
+docs/development/current/main/investigations/
+  hmi-s0-t0-whole-document-seal-hardening-task-2026-07-16.md
+```
 
 The first disconnected T0 probe built an ordinary nested MIR JSON document but
 `JsonParser.parse_with_policy` exceeded the Rust reference VM's proven

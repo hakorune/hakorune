@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "JSON-NATIVE-ITER0-CUT0 closed; HMI-S0-T0 resumed"
+status = "HMI-S0-T0 hardening accepted; L0 is next"
 date = "2026-07-16"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -296,8 +296,8 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 
-latest_card = "hmi-s0-strict-reader-interpreter-task-2026-07-16"
-latest_card_path = "docs/development/current/main/investigations/hmi-s0-strict-reader-interpreter-task-2026-07-16.md"
+latest_card = "hmi-s0-t0-whole-document-seal-hardening-task-2026-07-16"
+latest_card_path = "docs/development/current/main/investigations/hmi-s0-t0-whole-document-seal-hardening-task-2026-07-16.md"
 latest_card_summary = """JSON-NATIVE-ITER0-CUT0 is closed. One thin JsonParser
 facade selects one JsonIterativeParserEngineV1 for compatibility and strict
 parsing; recursive parse_value/object/array and the independent JsonNode.parse
@@ -865,7 +865,7 @@ MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "DPRIME-HMI-S0-T0-WHOLE-DOCUMENT-SEAL-001"
+current_blocker_token = "DPRIME-HMI-S0-T0-L0-BOUNDED-CONTRACTS-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
