@@ -1,8 +1,8 @@
-//! Real-MIR adapter for the disconnected Binding SSA algorithm.
+//! Real-MIR adapter for the function-owned Binding SSA algorithm.
 //!
-//! This box owns only mechanical PHI lifecycle access. It deliberately keeps
-//! every provisional and patched PHI fact at `MirType::Unknown`; a future
-//! concrete fact refinement requires its own accepted owner and proof.
+//! This box owns only mechanical PHI lifecycle access. Provisional PHIs start
+//! as `Unknown`; successful patch completion delegates exact type publication
+//! to the canonical PHI lifecycle owner.
 
 use super::BindingSsaIrV1;
 use crate::mir::builder::emission::phi_lifecycle::{PhiToken, PhiTxn};
@@ -50,10 +50,6 @@ impl BindingSsaIrV1 for MirBindingSsaAdapterV1<'_> {
     ) -> Result<(), String> {
         self.phis
             .patch_phi_inputs(self.builder, token, inputs.to_vec(), "binding-ssa-patch")?;
-        self.builder
-            .type_ctx
-            .value_types
-            .insert(token.dst(), MirType::Unknown);
         Ok(())
     }
 

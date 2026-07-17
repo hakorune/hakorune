@@ -182,6 +182,7 @@ from pathlib import Path
 
 allowed_low_level_phi_call_prefixes = (
     "src/mir/builder/emission/phi_lifecycle.rs:",
+    "src/mir/builder/emission/phi_lifecycle/",
 )
 
 low_level_patterns = (
@@ -219,6 +220,7 @@ if violations:
 allowed_prefixes = (
     "src/mir/ssot/cf_common.rs:",
     "src/mir/builder/emission/phi_lifecycle.rs:",
+    "src/mir/builder/emission/phi_lifecycle/",
     "src/mir/builder/ssa/phi_input_materializer/function_repair_tests.rs:",
     "src/mir/builder/record_helper_args.rs:",
     "src/runner/json_v1_bridge/parse/instruction.rs:",

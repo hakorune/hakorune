@@ -34,6 +34,22 @@ impl MirBuilder {
                 .field("err", e)
                 .build());
         }
+        let prepared_phi_type = match &instruction {
+            MirInstruction::Phi {
+                dst,
+                inputs,
+                type_hint,
+            } => Some((
+                *dst,
+                super::phi_type_publication::prepare_for_builder(
+                    self,
+                    *dst,
+                    inputs,
+                    type_hint.as_ref(),
+                )?,
+            )),
+            _ => None,
+        };
         if let MirInstruction::Phi { inputs, .. } = &mut instruction {
             let func = self.scope_ctx.current_function.as_mut().ok_or_else(|| {
                 FreezeContract::new("builder/phi_without_function")
@@ -50,11 +66,12 @@ impl MirBuilder {
                 )?;
             }
         }
-        // P0: PHI の軽量補強と観測は、関数ブロック取得前に実施して借用競合を避ける
-        if let MirInstruction::Phi { dst, inputs, .. } = &instruction {
-            origin::phi::propagate_phi_meta(self, *dst, inputs);
-            observe::ssa::emit_phi(self, *dst, inputs);
-        }
+        let prepared_phi_origin = match &instruction {
+            MirInstruction::Phi { dst, inputs, .. } => {
+                Some((*dst, origin::phi::prepare_unanimous_origin(self, inputs)))
+            }
+            _ => None,
+        };
 
         // CRITICAL: Final receiver materialization for MethodCall
         // This ensures the receiver has an in-block definition in the same block as the Call.
@@ -120,7 +137,7 @@ impl MirBuilder {
             None
         };
 
-        if let Some(ref mut function) = self.scope_ctx.current_function {
+        let emit_result = if let Some(ref mut function) = self.scope_ctx.current_function {
             // Fail-fast: non-dominating Copy should not be emitted (strict/dev+planner_required only).
             if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
                 if let MirInstruction::Copy { src, .. } = &instruction {
@@ -366,7 +383,19 @@ impl MirBuilder {
             Ok(())
         } else {
             Err(format!("Basic block {} does not exist", block_id))
+        };
+        emit_result?;
+
+        if let Some((dst, prepared)) = prepared_phi_type {
+            super::phi_type_publication::commit_for_builder(self, dst, prepared);
         }
+        if let Some((dst, prepared)) = prepared_phi_origin {
+            origin::phi::commit_unanimous_origin(self, dst, prepared);
+        }
+        if let MirInstruction::Phi { dst, inputs, .. } = &instruction {
+            observe::ssa::emit_phi(self, *dst, inputs);
+        }
+        Ok(())
     }
 
     /// Emit an ExternCall instruction with custom effects

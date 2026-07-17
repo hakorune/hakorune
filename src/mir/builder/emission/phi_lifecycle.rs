@@ -36,9 +36,10 @@ use crate::ast::Span;
 use crate::mir::builder::MirBuilder;
 use crate::mir::ssot::cf_common::{
     insert_phi_at_head_spanned, insert_phi_at_head_spanned_with_type_hint,
-    insert_phi_batch_prepend_spanned_with_type_hint,
 };
 use crate::mir::{BasicBlockId, MirType, ValueId};
+
+mod batch_type_publication;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(in crate::mir::builder) struct PhiToken {
@@ -382,50 +383,59 @@ pub(in crate::mir::builder) fn define_phi_final_with_type_hint(
     type_hint: Option<crate::mir::MirType>,
     tag: &str,
 ) -> Result<(), String> {
-    let func = builder.scope_ctx.current_function.as_mut().ok_or_else(|| {
-        format!(
-            "[freeze:contract][phi_lifecycle/define_no_function] tag={} No current function",
-            tag
-        )
-    })?;
+    let prepared_type = crate::mir::builder::phi_type_publication::prepare_for_builder(
+        builder,
+        dst,
+        &inputs,
+        type_hint.as_ref(),
+    )?;
 
     let span = builder.metadata_ctx.current_span();
+    {
+        let func = builder.scope_ctx.current_function.as_mut().ok_or_else(|| {
+            format!(
+                "[freeze:contract][phi_lifecycle/define_no_function] tag={} No current function",
+                tag
+            )
+        })?;
 
-    for (pred, incoming) in &mut inputs {
-        *incoming = crate::mir::builder::ssa::phi_input_materializer::for_pred(
-            func, *pred, *incoming, tag, "phi",
-        )?;
-    }
-
-    if crate::config::env::joinir_dev::debug_enabled() {
-        builder
-            .metadata_ctx
-            .record_value_caller(dst, std::panic::Location::caller());
-        if let Some(loc) = builder
-            .metadata_ctx
-            .value_origin_callers()
-            .get(&dst)
-            .cloned()
-        {
-            func.metadata.value_origin_callers.insert(dst, loc);
+        for (pred, incoming) in &mut inputs {
+            *incoming = crate::mir::builder::ssa::phi_input_materializer::for_pred(
+                func, *pred, *incoming, tag, "phi",
+            )?;
         }
+
+        if crate::config::env::joinir_dev::debug_enabled() {
+            builder
+                .metadata_ctx
+                .record_value_caller(dst, std::panic::Location::caller());
+            if let Some(loc) = builder
+                .metadata_ctx
+                .value_origin_callers()
+                .get(&dst)
+                .cloned()
+            {
+                func.metadata.value_origin_callers.insert(dst, loc);
+            }
+        }
+
+        // Sort inputs by block ID (SSA invariant)
+        inputs.sort_by_key(|(bb, _)| bb.0);
+
+        if crate::config::env::joinir_dev::debug_enabled() {
+            let ring0 = crate::runtime::get_global_ring0();
+            ring0.log.debug(&format!(
+                "[phi_lifecycle/define] fn={} bb={:?} dst=%{} tag={}",
+                func.signature.name, block, dst.0, tag
+            ));
+        }
+
+        // Insert PHI with complete inputs (single-step)
+        insert_phi_at_head_spanned_with_type_hint(func, block, dst, inputs, type_hint, span)
+            .map_err(|e| format!("{e} op=define_phi_final tag={tag}"))?;
     }
 
-    // Sort inputs by block ID (SSA invariant)
-    inputs.sort_by_key(|(bb, _)| bb.0);
-
-    if crate::config::env::joinir_dev::debug_enabled() {
-        let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!(
-            "[phi_lifecycle/define] fn={} bb={:?} dst=%{} tag={}",
-            func.signature.name, block, dst.0, tag
-        ));
-    }
-
-    // Insert PHI with complete inputs (single-step)
-    insert_phi_at_head_spanned_with_type_hint(func, block, dst, inputs, type_hint, span)
-        .map_err(|e| format!("{e} op=define_phi_final tag={tag}"))?;
-
+    crate::mir::builder::phi_type_publication::commit_for_builder(builder, dst, prepared_type);
     Ok(())
 }
 
@@ -451,58 +461,7 @@ pub(in crate::mir::builder) fn define_phi_batch_prepend(
     items: Vec<PhiBatchItem>,
     tag: &str,
 ) -> Result<(), String> {
-    let func = builder.scope_ctx.current_function.as_mut().ok_or_else(|| {
-        format!(
-            "[freeze:contract][phi_lifecycle/batch_prepend_no_function] tag={} No current function",
-            tag
-        )
-    })?;
-
-    let mut prepared = Vec::with_capacity(items.len());
-    for mut item in items {
-        for (pred, incoming) in &mut item.inputs {
-            *incoming = crate::mir::builder::ssa::phi_input_materializer::for_pred(
-                func,
-                *pred,
-                *incoming,
-                &item.item_tag,
-                "phi_batch",
-            )?;
-        }
-        item.inputs.sort_by_key(|(bb, _)| bb.0);
-
-        if crate::config::env::joinir_dev::debug_enabled() {
-            builder
-                .metadata_ctx
-                .record_value_caller(item.dst, std::panic::Location::caller());
-            if let Some(loc) = builder
-                .metadata_ctx
-                .value_origin_callers()
-                .get(&item.dst)
-                .cloned()
-            {
-                func.metadata.value_origin_callers.insert(item.dst, loc);
-            }
-        }
-
-        prepared.push((item.dst, item.inputs, item.type_hint, item.span));
-    }
-
-    if crate::config::env::joinir_dev::debug_enabled() {
-        let ring0 = crate::runtime::get_global_ring0();
-        ring0.log.debug(&format!(
-            "[phi_lifecycle/batch_prepend] fn={} bb={:?} count={} tag={}",
-            func.signature.name,
-            block,
-            prepared.len(),
-            tag
-        ));
-    }
-
-    insert_phi_batch_prepend_spanned_with_type_hint(func, block, prepared)
-        .map_err(|e| format!("{e} op=define_phi_batch_prepend tag={tag}"))?;
-
-    Ok(())
+    batch_type_publication::define_phi_batch_prepend(builder, block, items, tag)
 }
 
 /// Define a final PHI with all inputs (function-level API).
@@ -643,6 +602,13 @@ pub(in crate::mir::builder) fn patch_phi_inputs(
 ) -> Result<(), String> {
     // Sort inputs by block ID (SSA invariant)
     inputs.sort_by_key(|(bb, _)| bb.0);
+    let type_hint = phi_type_hint_for_patch(builder, block, dst, tag)?;
+    let prepared_type = crate::mir::builder::phi_type_publication::prepare_for_builder(
+        builder,
+        dst,
+        &inputs,
+        type_hint.as_ref(),
+    )?;
 
     if crate::config::env::joinir_dev::debug_enabled() {
         let mut detail = format!(" inputs={}", inputs.len());
@@ -669,7 +635,41 @@ pub(in crate::mir::builder) fn patch_phi_inputs(
 
     builder
         .update_phi_instruction(block, dst, inputs)
-        .map_err(|e| format!("{e} op=patch_phi_inputs tag={tag}"))
+        .map_err(|e| format!("{e} op=patch_phi_inputs tag={tag}"))?;
+    crate::mir::builder::phi_type_publication::commit_for_builder(builder, dst, prepared_type);
+    Ok(())
+}
+
+fn phi_type_hint_for_patch(
+    builder: &MirBuilder,
+    block: BasicBlockId,
+    dst: ValueId,
+    tag: &str,
+) -> Result<Option<MirType>, String> {
+    let function =
+        builder.scope_ctx.current_function.as_ref().ok_or_else(|| {
+            format!("[freeze:contract][phi_lifecycle/patch_no_function] tag={tag}")
+        })?;
+    let block_data = function.get_block(block).ok_or_else(|| {
+        format!("[freeze:contract][phi_lifecycle/patch_missing_block] bb={block} tag={tag}")
+    })?;
+    block_data
+        .instructions
+        .iter()
+        .find_map(|instruction| match instruction {
+            crate::mir::MirInstruction::Phi {
+                dst: phi_dst,
+                type_hint,
+                ..
+            } if *phi_dst == dst => Some(type_hint.clone()),
+            _ => None,
+        })
+        .ok_or_else(|| {
+            format!(
+                "[freeze:contract][phi_lifecycle/patch_missing_phi] bb={block} dst=%{} tag={tag}",
+                dst.0
+            )
+        })
 }
 
 /// Rollback a provisional PHI (empty inputs) if it still exists.

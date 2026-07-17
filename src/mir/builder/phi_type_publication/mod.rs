@@ -1,17 +1,18 @@
 //! Pure lowering-time PHI destination-type decision.
 //!
 //! This module owns no PHI insertion or Builder lifecycle entry. It prepares
-//! one type-only decision from logical incoming values; lifecycle producers
-//! may consume that decision only in the later TYPE-PUBLISH0-I0 row.
+//! one type-only decision from logical incoming values. The four authorized
+//! Builder completion entries consume it and commit only after PHI mutation.
 
 mod commit;
+mod connection;
 mod decision;
 
 use crate::mir::{BasicBlockId, MirType, ValueId};
 
-// Disconnected through S0; the later I0 row connects this prepared commit.
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use commit::commit_prepared_phi_type;
+pub(in crate::mir::builder) use connection::{commit_for_builder, prepare_for_builder};
 
 /// Sole Builder-lowering owner for the pure PHI type decision.
 #[derive(Debug)]

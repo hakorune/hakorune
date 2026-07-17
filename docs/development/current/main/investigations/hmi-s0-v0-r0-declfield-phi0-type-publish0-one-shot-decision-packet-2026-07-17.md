@@ -580,6 +580,46 @@ fails. If preserving its current ordering is required, explain the exact
 transaction boundary rather than copying its pre-emission side effect into
 new entries.
 
+## I0 closeout
+
+`R0-DECLFIELD-PHI0-TYPE-PUBLISH0-I0` is closed with exactly four production
+consumers of the single pure decision owner.
+
+```text
+raw emit:
+  logical decision -> rematerialization -> append -> type commit -> raw-origin commit
+
+complete final:
+  logical decision -> rematerialization -> insert -> type commit
+
+patch:
+  sorted logical decision -> exact PHI replacement -> type commit
+
+batch:
+  preflight and predecide all rows
+  -> ephemeral candidate-function rematerialization/insertion
+  -> one current-function replacement
+  -> destination-sorted type commits
+```
+
+Provisional define and function-level PHI APIs remain non-consumers. Raw
+origin publication is a separate success-committed owner and lifecycle origin
+publication remains zero. Binding SSA no longer replaces a successfully
+patched exact destination type with `Unknown`.
+
+Focused type-publication tests are 13/13, lifecycle tests are 6/6, same-root
+receiver tests are 18/18, and exact single-entry conflict plus whole-batch
+instruction/type atomicity fixtures are green. The machine inventory now
+reports four authorized consumers and zero post-patch Unknown writers.
+Binding-SSA, CorePlan PHI boundary, current pointer, declared-field proof,
+`cargo check`, formatting, diff, and file-size guards are green.
+
+The next checkpoint is:
+
+```text
+R0-DECLFIELD-PHI0-TYPE-PUBLISH0-G0
+```
+
 ## Requested answer format
 
 Please return only these four coordinated outputs:

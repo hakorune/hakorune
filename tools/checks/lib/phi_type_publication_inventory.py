@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the behavior-neutral TYPE-PUBLISH0-M0 producer/timing inventory."""
+"""Validate the TYPE-PUBLISH0-I0 four-entry publication boundary."""
 
 from __future__ import annotations
 
@@ -73,6 +73,10 @@ def main() -> None:
 
     builder_emit = read(root, "src/mir/builder/builder_emit.rs")
     lifecycle = read(root, "src/mir/builder/emission/phi_lifecycle.rs")
+    batch = read(
+        root,
+        "src/mir/builder/emission/phi_lifecycle/batch_type_publication.rs",
+    )
     origin = read(root, "src/mir/builder/origin/phi.rs")
     binding = read(root, "src/mir/builder/ssa/binding/mir_adapter.rs")
     local_ssa = read(root, "src/mir/builder/ssa/local.rs")
@@ -123,8 +127,9 @@ def main() -> None:
             "src/mir/builder/emission/phi_lifecycle.rs": 2,
         },
         "define_phi_batch_prepend(": {
-            "src/mir/builder/emission/phi_lifecycle.rs": 1,
+            "src/mir/builder/emission/phi_lifecycle.rs": 2,
             "src/mir/builder/control_flow/joinir/merge/loop_header_phi_builder.rs": 1,
+            "src/mir/builder/emission/phi_lifecycle/batch_type_publication.rs": 1,
         },
         "define_provisional_phi(": {
             "src/mir/builder/emission/phi_lifecycle.rs": 3,
@@ -164,66 +169,81 @@ def main() -> None:
     ):
         count = occurrence_count(production, symbol)
         if count != 0:
-            fail(f"M0 production consumer count for {symbol!r} must be 0, got {count}")
-    for label, text in (
-        ("raw", builder_emit),
-        ("lifecycle", lifecycle),
-        ("origin", origin),
-    ):
-        if "phi_type_publication" in code_only(text):
-            fail(f"M0 connected the decision owner to {label}")
+            fail(f"direct production consumer count for {symbol!r} must be 0, got {count}")
+    for symbol in ("prepare_for_builder(", "commit_for_builder("):
+        count = occurrence_count(production, symbol)
+        if count != 4:
+            fail(f"I0 wrapper consumer count for {symbol!r} must be 4, got {count}")
 
-    # Raw currently rematerializes, writes combined type+origin, then appends.
+    # Raw prepares from logical inputs, rematerializes, appends, then commits
+    # type and the independently prepared legacy origin fact.
     require_order(
         builder_emit,
         [
+            "phi_type_publication::prepare_for_builder",
             "phi_input_materializer::for_pred",
-            "origin::phi::propagate_phi_meta",
+            "origin::phi::prepare_unanimous_origin",
             "block.add_instruction_with_span(",
+            "phi_type_publication::commit_for_builder",
+            "origin::phi::commit_unanimous_origin",
         ],
-        "raw pre-I0 timing",
+        "raw I0 timing",
     )
-    require(origin, "value_types.insert(dst, ct)", "raw type publication")
-    require(origin, "value_origin_newbox.insert(dst, cc)", "raw origin publication")
+    if "value_types" in code_only(origin):
+        fail("raw origin owner still writes type facts")
+    require(origin, "value_origin_newbox.insert(dst, origin)", "raw origin publication")
 
-    # Complete and batch rematerialize logical rows. Patch is sorted identity today.
+    # Complete and batch decide from logical rows before rematerialization and
+    # commit only after successful PHI mutation. Patch remains sorted identity.
     require_order(
         lifecycle,
         [
             "fn define_phi_final_with_type_hint(",
+            "phi_type_publication::prepare_for_builder",
             "phi_input_materializer::for_pred",
             "insert_phi_at_head_spanned_with_type_hint(",
+            "phi_type_publication::commit_for_builder",
         ],
         "complete lifecycle",
     )
     require_order(
-        lifecycle,
+        batch,
         [
             "fn define_phi_batch_prepend(",
+            "preflight(builder, block, &items, tag)",
+            "phi_type_publication::prepare_for_builder",
+            ".clone()",
             "phi_input_materializer::for_pred",
             "insert_phi_batch_prepend_spanned_with_type_hint(",
+            "= candidate",
+            "phi_type_publication::commit_for_builder",
         ],
-        "batch lifecycle",
+        "atomic batch lifecycle",
     )
     patch_body = lifecycle.rsplit("pub(in crate::mir::builder) fn patch_phi_inputs(", 1)[1].split(
         "fn rollback_provisional_phi(", 1
     )[0]
     require(patch_body, "inputs.sort_by_key", "patch normalization")
+    require_order(
+        patch_body,
+        [
+            "phi_type_publication::prepare_for_builder",
+            ".update_phi_instruction",
+            "phi_type_publication::commit_for_builder",
+        ],
+        "patch lifecycle",
+    )
     require(patch_body, ".update_phi_instruction", "patch mutation")
     if "phi_input_materializer::for_pred" in patch_body:
-        fail("patch unexpectedly gained rematerialization during M0")
+        fail("patch unexpectedly gained rematerialization during I0")
 
-    # One existing post-patch Unknown writer is the explicit I0 retirement seam.
+    # I0 retires the post-patch Unknown overwrite; the provisional seed remains
+    # the only Binding SSA Unknown publication before completion.
     binding_patch = binding.split("fn patch_phi_inputs(", 1)[1].split(
         "fn verify_phi_input(", 1
     )[0]
-    require_order(
-        binding_patch,
-        [".patch_phi_inputs(", ".value_types", ".insert(token.dst(), MirType::Unknown)"],
-        "Binding SSA post-patch Unknown writer",
-    )
-    if binding_patch.count("MirType::Unknown") != 1:
-        fail("Binding SSA post-patch Unknown writer count must remain exactly 1 in M0")
+    if "MirType::Unknown" in binding_patch:
+        fail("Binding SSA post-patch Unknown writer must be retired in I0")
 
     # The selected structural timing is Phi(param0,param0) -> LocalSSA Copy.
     require_order(
@@ -261,32 +281,33 @@ def main() -> None:
         "late publisher timing test",
     )
 
-    # Report the fixed M0 matrix without creating a second checked-in authority.
+    # Report the fixed I0 matrix without creating a second checked-in authority.
     report = {
-        "schema": "phi-type-publication-m0-inventory-v1",
+        "schema": "phi-type-publication-i0-inventory-v1",
         "authorized_entries": [row[0] for row in authorized],
         "explicit_nonconsumers": [row[0] for row in nonconsumers],
         "caller_families": {
             needle: counts_by_path(root, production, needle)
             for needle in sorted(expected_calls)
         },
-        "production_decision_consumers": 0,
+        "production_decision_consumers": 4,
         "raw_direct_phi_emit_call_sites": occurrence_count(
             production, "emit_instruction(MirInstruction::Phi"
         ),
-        "post_patch_unknown_writers": 1,
-        "raw_pre_append_combined_writers": 1,
+        "post_patch_unknown_writers": 0,
+        "raw_pre_append_combined_writers": 0,
+        "raw_success_committed_origin_writers": 1,
         "late_copy_publisher": "user_box_route_fixpoint_copy_phi_fixed_point",
         "patch_physical_carrier": "sorted_logical_identity",
     }
     if report["raw_direct_phi_emit_call_sites"] != 0:
-        fail("raw direct Phi emit call sites must remain 0 in M0")
+        fail("raw direct Phi emit call sites must remain 0 in I0")
     artifact = root / "target/checks/phi-type-publication-inventory/report.json"
     artifact.parent.mkdir(parents=True, exist_ok=True)
     artifact.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(
         "[phi-type-publication-inventory] ok "
-        "authorized=4 consumers=0 post_patch_unknown=1 "
+        "authorized=4 consumers=4 post_patch_unknown=0 "
         "late_publisher=user_box_route_fixpoint_copy_phi_fixed_point"
     )
 
