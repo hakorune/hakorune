@@ -61,6 +61,21 @@ impl<'plan> LegacyStmtInputV1<'plan> {
             Self::Unlocated(unlocated) => unlocated.node,
         }
     }
+
+    pub(super) fn activation_prefix_parts(
+        &self,
+    ) -> Result<LegacyActivationPrefixPartsV1<'_>, CallableResultLegacyLocationErrorV1> {
+        match self {
+            Self::Located(located) => Ok(LegacyActivationPrefixPartsV1 {
+                plan_identity: located.plan_identity,
+                caller: located.caller,
+                prefix: Some(located.site.node()),
+            }),
+            Self::Unlocated(_) => {
+                Err(CallableResultLegacyLocationErrorV1::UnlocatedCannotProveInactive)
+            }
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -105,6 +120,65 @@ impl<'plan> LegacyExprInputV1<'plan> {
             Self::Unlocated(unlocated) => unlocated.node,
         }
     }
+
+    pub(super) fn activation_claim_parts(
+        &self,
+    ) -> Result<LegacyActivationClaimPartsV1<'_>, CallableResultLegacyLocationErrorV1> {
+        match self {
+            Self::Located(located) => Ok(LegacyActivationClaimPartsV1 {
+                plan_identity: located.plan_identity,
+                caller: located.caller,
+                site: &located.site,
+            }),
+            Self::Unlocated(_) => {
+                Err(CallableResultLegacyLocationErrorV1::UnlocatedCannotClaimActivation)
+            }
+        }
+    }
+
+    pub(super) fn activation_prefix_parts(
+        &self,
+    ) -> Result<LegacyActivationPrefixPartsV1<'_>, CallableResultLegacyLocationErrorV1> {
+        match self {
+            Self::Located(located) => Ok(LegacyActivationPrefixPartsV1 {
+                plan_identity: located.plan_identity,
+                caller: located.caller,
+                prefix: Some(located.site.node()),
+            }),
+            Self::Unlocated(_) => {
+                Err(CallableResultLegacyLocationErrorV1::UnlocatedCannotProveInactive)
+            }
+        }
+    }
+}
+
+impl LegacyBodyInputV1<'_> {
+    pub(super) fn activation_prefix_parts(
+        &self,
+    ) -> Result<LegacyActivationPrefixPartsV1<'_>, CallableResultLegacyLocationErrorV1> {
+        match self {
+            Self::Located(located) => Ok(LegacyActivationPrefixPartsV1 {
+                plan_identity: located.plan_identity,
+                caller: located.caller,
+                prefix: located.parent.as_ref(),
+            }),
+            Self::Unlocated(_) => {
+                Err(CallableResultLegacyLocationErrorV1::UnlocatedCannotProveInactive)
+            }
+        }
+    }
+}
+
+pub(super) struct LegacyActivationClaimPartsV1<'a> {
+    pub(super) plan_identity: usize,
+    pub(super) caller: &'a CanonicalSameModuleCallableKeyV1,
+    pub(super) site: &'a SourceExprSiteV1,
+}
+
+pub(super) struct LegacyActivationPrefixPartsV1<'a> {
+    pub(super) plan_identity: usize,
+    pub(super) caller: &'a CanonicalSameModuleCallableKeyV1,
+    pub(super) prefix: Option<&'a SourceNodeSiteV1>,
 }
 
 #[derive(Debug)]

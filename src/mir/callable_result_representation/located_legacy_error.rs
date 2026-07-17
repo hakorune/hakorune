@@ -22,4 +22,5 @@ pub(crate) enum CallableResultLegacyLocationErrorV1 {
     BodyRoleParentMismatch(SourceNodeSiteV1),
     RootBodyRequestedAsChild(SourceNodeSiteV1),
     UnlocatedCannotClaimActivation,
+    UnlocatedCannotProveInactive,
 }

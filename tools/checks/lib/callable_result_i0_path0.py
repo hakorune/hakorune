@@ -36,6 +36,7 @@ def main() -> None:
     shadow_block = read(root, "src/mir/resolved_semantics/shadow/block_expr.rs")
     result_expr = read(root, "src/mir/callable_result_representation/expression_proof.rs")
     result_function = read(root, "src/mir/callable_result_representation/function_proof.rs")
+    activation = read(root, "src/mir/callable_result_representation/activation.rs")
 
     require_count(policy, "enum ExprChildRoleV1", 1, "expression role owner")
     require_count(policy, "enum BodyChildRoleV1", 1, "body role owner")
@@ -67,15 +68,25 @@ def main() -> None:
         "all-observation selection and query",
     )
 
-    production_consumers = 0
+    require_count(
+        activation,
+        "observe_method_calls_shadow_view_v0(",
+        1,
+        "A0 disconnected observer consumer",
+    )
+    unexpected_consumers = 0
     for path in (root / "src").rglob("*.rs"):
-        if path.name.endswith("tests.rs") or path == root / "src/mir/resolved_semantics/shadow/resolver.rs":
+        if (
+            path.name.endswith("tests.rs")
+            or path == root / "src/mir/resolved_semantics/shadow/resolver.rs"
+            or path == root / "src/mir/callable_result_representation/activation.rs"
+        ):
             continue
-        production_consumers += path.read_text(encoding="utf-8").count(
+        unexpected_consumers += path.read_text(encoding="utf-8").count(
             "observe_method_calls_shadow_view_v0("
         )
-    if production_consumers != 0:
-        fail(f"production observer consumers: expected=0 actual={production_consumers}")
+    if unexpected_consumers != 0:
+        fail(f"unexpected observer consumers: expected=0 actual={unexpected_consumers}")
 
     parser = read(root, "lang/src/compiler/parser/parser_box.hako")
     start = parser.index("\n  static_const_parse_add(text, pos) {")
@@ -104,7 +115,10 @@ def main() -> None:
     if oversized:
         fail(f"source/check files reached 800 lines: {oversized}")
 
-    print("[callable-result-i0-path0] ok: policy=1 walker=1 calls=15 consumers=0")
+    print(
+        "[callable-result-i0-path0] ok: policy=1 walker=1 calls=15 "
+        "a0_consumers=1 runtime_consumers=0"
+    )
 
 
 if __name__ == "__main__":

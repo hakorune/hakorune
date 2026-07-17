@@ -250,6 +250,40 @@ Raw legacy subtree delegation is allowed only for a prefix with zero active
 rows. Wrong, duplicate, missing, foreign, and drifting rows reject typed. This
 row changes no accepted program or result publication.
 
+The behavior-neutral series is fixed before implementation:
+
+```text
+SITE0-R0-LDG0
+  disconnected caller ledger
+  exact source-order claim + prefix-zero proof + exact finish
+  production consumers = 0
+
+SITE0-R0-BLK0
+  located body/statement descent adapter
+  raw subtree delegation requires the L0 prefix-zero proof
+  production result publication = 0
+
+SITE0-R0-EXPR0
+  located expression descent through the legacy lowering surface
+  every MethodCall reaches the one caller ledger
+  production result publication = 0
+
+SITE0-R0-P0
+  exact caller-row coverage and behavior-parity closeout
+  accepted grammar/result publication delta = 0
+```
+
+`SITE0-R0-LDG0` is the sole next code-facing slice. Its ledger borrows one
+catalog-owned caller row slice from the A0 plan and is non-Clone. It may expose
+a disposition only after an exact located expression claim. Claims are
+source-order exact: an already consumed row is `Duplicate`, a later known row
+is `WrongOrder`, a row outside the caller inventory is `Unexpected`, and
+`finish` rejects the first missing row. A located body/statement/expression
+prefix may additionally receive one immutable proof that its complete subtree
+contains zero activation rows; unlocated or foreign-plan inputs cannot receive
+that proof. The LDG0 slice has no Builder, MIR, runtime, backend, or production
+lowering consumer.
+
 ### SITE0-C0 — preserve location through call planning
 
 Carry the exact site token through any `CoreEffectPlan`/immediate MethodCall
@@ -406,6 +440,26 @@ Root/local/nested argument/If-body/reorder/foreign/wrong-role/unlocated fixtures
 the existing source-view suite, A0 and SITE0-L0 guards, cargo check, and line
 caps are green. Production constructors/consumers, Builder/MIR/runtime/backend
 behavior, and result publication remain zero. `SITE0-R0` is next.
+
+## SITE0-R0-LDG0 closeout
+
+`I0-SITE0-R0-LDG0` is closed. One non-Clone caller ledger borrows exactly one
+catalog-owned caller row slice from the A0 plan. Located MethodCall inputs must
+carry the same private plan brand and caller pointer before an exact row may be
+claimed. Selected and explicit Unselected rows share one source-order law;
+duplicate, wrong-order, wrong-node, foreign-plan, missing, and prefix-active
+cases reject typed. The ledger retains only a claimed-site set and creates no
+second target, result, or source-path authority.
+
+A located body, statement, or expression can receive one immutable inactive-
+prefix proof only when every A0 row lies outside its exact structural prefix.
+Both Selected and Unselected rows count, root-body means the empty prefix, and
+unlocated inputs cannot prove raw delegation safe. The PATH0 guard now
+classifies A0's one intended disconnected observer separately from unexpected
+runtime consumers. Focused ledger 4/4, callable-result 43/43, PATH0/A0/L0/LDG0
+guards, cargo check, pointer and line guards are green. Production ledger
+consumers, Builder/MIR/runtime/backend behavior, accepted grammar, and result
+publication remain zero. `SITE0-R0-BLK0` is next.
 
 ## Required fixtures
 

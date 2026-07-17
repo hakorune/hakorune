@@ -39,7 +39,7 @@ def main() -> None:
         require_count(located, f"enum Legacy{carrier}InputV1", 1, f"{carrier} input")
 
     require_count(located, "VerifiedCallableResultActivationPlanV1", 2, "activation plan boundary")
-    require_count(located, "UnlocatedCannotClaimActivation", 1, "unlocated claim rejection")
+    require_count(located, "UnlocatedCannotClaimActivation", 2, "unlocated claim rejection")
     require_count(errors, "UnlocatedCannotClaimActivation", 1, "typed unlocated error")
     require_count(policy, "pub(crate) fn resolve<'source>", 2, "neutral child resolvers")
     require_count(
@@ -68,7 +68,10 @@ def main() -> None:
     production_consumers = 0
     for path in (root / "src").rglob("*.rs"):
         relative = path.relative_to(root).as_posix()
-        if relative.endswith("/tests/located_legacy.rs") or relative.endswith("/located_legacy.rs"):
+        if (
+            "/callable_result_representation/tests/" in relative
+            or relative.endswith("/located_legacy.rs")
+        ):
             continue
         production_consumers += path.read_text(encoding="utf-8").count(
             "VerifiedCallableResultLegacySourceViewV1::verify("

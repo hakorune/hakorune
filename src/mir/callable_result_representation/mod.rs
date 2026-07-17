@@ -5,6 +5,8 @@ mod activation_error;
 mod call_proof;
 mod call_row;
 mod call_substitution;
+mod caller_ledger;
+mod caller_ledger_error;
 mod disposition;
 mod error;
 mod expression_proof;
@@ -30,6 +32,12 @@ pub(crate) use activation::{
     VerifiedCallableResultActivationRowsV1,
 };
 pub(crate) use activation_error::CallableResultActivationErrorV1;
+#[allow(unused_imports)]
+pub(crate) use caller_ledger::{
+    ClaimedCallableResultActivationSiteV1, VerifiedCallableResultCallerLedgerV1,
+    VerifiedCallableResultInactivePrefixV1,
+};
+pub(crate) use caller_ledger_error::CallableResultCallerLedgerErrorV1;
 #[allow(unused_imports)]
 pub(crate) use located_legacy::{
     LegacyBodyInputV1, LegacyExprInputV1, LegacyStmtInputV1,
