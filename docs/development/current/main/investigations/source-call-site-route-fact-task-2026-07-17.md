@@ -1,7 +1,7 @@
 # Source Call Exact-Site / Route-Fact Taskboard
 
 Date: 2026-07-17  
-Status: **P0 and S0 closed; L0 lexical disposition next**
+Status: **P0, S0, and L0 closed; R0 reserved-route SSOT/co-seal next**
 Baseline: `0988dbed31`  
 Supersedes: `source-call-site-route-fact-authority-design-stop-2026-07-17.md`
 
@@ -29,7 +29,7 @@ second resolver or a second reserved-route policy.
 The next code-facing row is:
 
 ```text
-R0-SOURCE-CALL-TARGET0-AST-BIND0-L0
+R0-SOURCE-CALL-TARGET0-AST-BIND0-R0
 ```
 
 Production source-target consumers and behavior widening remain zero through
@@ -92,7 +92,8 @@ A qualified-receiver observation mode is added to that traversal:
 
 ```text
 pre-verified receiver site + lookup succeeds:
-  Bound(exact lexical reference)
+  Bound
+  (the exact shadow reference remains construction-local)
 
 pre-verified receiver site + lookup/ancestor lookup both fail:
   ProvenUnbound
@@ -275,7 +276,7 @@ src/mir/source_call_target/source_method_call_site_tests.rs
 
 Disconnected lexical disposition product using the existing shadow traversal.
 
-Status: **sole next code-facing row**.
+Status: **closed**.
 
 ```text
 new authority:
@@ -292,9 +293,37 @@ The declaration catalog supplies a borrowed neutral function lexical view
 (parameters, body, receiver policy) to the existing traversal. It does not
 reconstruct an AST FunctionDeclaration or introduce a second Binding identity.
 
+Closeout evidence:
+
+```text
+VerifiedQualifiedReceiverLexicalDispositionsV1 definitions = 1
+Clone implementations = 0
+lexical scope traversal engines = 1
+shadow observation entries = 1
+synthetic FunctionOriginV1 = 0
+published shadow Binding ordinals / BindingRefV1 = 0
+production consumers = 0
+focused lexical tests = 9/9
+shadow traversal regressions = 35/35
+```
+
+One non-empty set of S0 products for the same catalog declaration supplies
+the exact receiver request set. The existing ShadowResolver traversal runs
+once. A requested Variable with a local/parameter binding publishes `Bound`;
+lookup failure publishes positive `ProvenUnbound`. Missing rows are never
+interpreted as unbound, and an unresolved Variable outside the request set
+keeps the existing `UnresolvedName` failure. Mixed callers, same keys from
+different catalog declarations, duplicate receiver sites, and `me` reject
+typed. Nested argument and Loop-initializer sites, lexical branch shadowing,
+declaration reorder, and the actual ParserStringUtilsBox receiver are green.
+Import aliases, reserved policy, target identity, ABI/effect/result, Builder,
+MIR, runtime, and backend remain outside L0.
+
 ### `R0-SOURCE-CALL-TARGET0-AST-BIND0-R0`
 
 Behavior-neutral reserved-policy extraction plus disconnected route co-seal.
+
+Status: **sole next code-facing row**.
 
 ```text
 new policy owners:

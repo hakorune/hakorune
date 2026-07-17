@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "source call exact MethodCall site S0 is closed; lexical disposition L0 is next"
+status = "source call lexical disposition L0 is closed; reserved-route SSOT/co-seal R0 is next"
 date = "2026-07-17"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -299,18 +299,18 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 latest_card = "source-call-site-route-fact-task-2026-07-17"
 latest_card_path = "docs/development/current/main/investigations/source-call-site-route-fact-task-2026-07-17.md"
 latest_card_summary = """Candidate A-prime-SSOT remains selected without
-narrowing Q0. P0 and S0 are closed. One neutral resolved-semantics projector
-owns structural traversal, and one lifetime-bound non-Clone exact-site product
-co-seals the catalog caller declaration/body/site with its borrowed MethodCall.
-Receiver expression/site, method, arguments, and checked arity are derived only
-from that AST. Foreign callers, missing/non-MethodCall sites, arity overflow,
-and nested callable-boundary crossings reject typed. Owned AST/body rows and
-production consumers remain zero. L0 next extends the existing ShadowResolver
-traversal with exact receiver-site Bound/ProvenUnbound observations; R0 then
-extracts the one shared reserved-route policy before CUT0 retires raw candidate
-inputs. ABI/effect/result, runtime, backend, fallback, and files at or above 800
-lines remain zero."""
-current_blocker_token = "DPRIME-SOURCE-CALL-AST-BIND0-L0-001"
+narrowing Q0. P0, S0, and L0 are closed. One neutral structural projector and
+one exact-site product co-seal catalog caller/body/site/MethodCall identity.
+The existing ShadowResolver traversal now has one disconnected observation
+entry: requested receiver Variables publish Bound or positive ProvenUnbound,
+while every ordinary unresolved Variable retains UnresolvedName. Requested
+and published site sets match exactly. No synthetic FunctionOrigin, shadow
+ordinal, BindingRef, second walker, owned AST/body, or production consumer is
+published. R0 next extracts the one shared FastMem/__mir__/__repl__ reserved
+policy and co-seals route facts before CUT0 retires raw candidate inputs.
+Target identity, ABI/effect/result, Builder/MIR/runtime/backend, fallback, and
+files at or above 800 lines remain zero."""
+current_blocker_token = "DPRIME-SOURCE-CALL-AST-BIND0-R0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -319,6 +319,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-17: R0-SOURCE-CALL-TARGET0-AST-BIND0-L0 closes one caller-local non-Clone lexical disposition product over the existing ShadowResolver traversal. Exact pre-verified receiver request sites publish Bound or positive ProvenUnbound; ordinary unresolved Variables retain UnresolvedName, and requested/published coverage is exact. Mixed callers/catalog declarations, duplicates, and me reject typed. No synthetic FunctionOrigin, shadow ordinal, BindingRef, second walker, import/reserved/target authority, or production consumer is published. Focused 9/9, shadow 35/35, the extended family guard, cargo check, pointer guard, and quick gate are green. R0 reserved-route SSOT/co-seal is next.",
   "2026-07-17: R0-SOURCE-CALL-TARGET0-AST-BIND0-S0 closes one lifetime-bound non-Clone exact source MethodCall site. One catalog caller lookup plus the shared catalog-body projector co-seals caller declaration/body/site/expression; receiver expression/site, method, arguments, and checked arity derive only from borrowed AST. Foreign caller, missing/non-MethodCall site, arity overflow, and nested callable-boundary crossings reject typed. Actual ParserStringUtilsBox.skip_ws and StringHelpers.to_i64 fixtures, focused 9/9, the extended family guard, cargo check, pointer guard, and quick gate are green. Lexical/route/target/ABI/effect/result/Builder/runtime/backend and production-consumer deltas remain zero. L0 lexical disposition is next.",
   "2026-07-17: R0-SOURCE-CALL-TARGET0-AST-BIND0-P0 closes the compiler-private structural projection seam without behavior delta. One crate::mir-scoped resolved-semantics projector owns all admitted SourcePathSegment traversal; compiler projection is a single thin typed-error consumer. Borrowed Node/Body/SyntheticName views create no AST inventory. Six neutral tests cover all admitted segment kinds, shared AST alternatives, malformed optional children, and all 15 explicitly parked segment kinds; compiler source-view 7/7, resolved callable-module 6/6, the extended family guard, cargo check, pointer guard, and quick gate are green. S0 exact MethodCall site co-seal is next.",
   "2026-07-17: Three read-only worker audits and local source review select Candidate A-prime-SSOT for the source-call false-seal prerequisite. The existing structural projector becomes neutral and shared; one lifetime-bound exact caller/body/site MethodCall view feeds the existing ShadowResolver traversal in qualified-receiver observation mode, yielding positive Bound or ProvenUnbound without absence inference or a second resolver. Builder FastMem/__mir__/__repl__ precedence becomes one shared neutral policy before route facts co-seal. Task order is P0 -> S0 -> L0 -> R0 -> CUT0 -> S0b resume; Candidate B remains parked and production source-target consumers stay zero.",
@@ -330,5 +331,4 @@ landed_tail = [
   "2026-07-17: Three read-only worker audits plus a local route/source audit select Candidate A-prime for the callable-result frontier. Source-call target and Core result-kind remain separate durable authorities and are co-sealed only in the callable-result proof. One site-indexed target catalog uses route-disjoint qualified/current-owner producers; bare recovery stays parked. CoreMethodContractBox gains the neutral generated result-kind view, while ExactStringOnSuccess remains outside the i64 domain. R0-SOURCE-CALL-TARGET0-Q0 is the sole next code-facing row with zero production consumers and behavior delta; docs-only closeout and further consultation churn are forbidden absent an explicit stop condition.",
   "2026-07-17: R0-CALLABLE-RESULT-I64-CATALOG0-S0a closes one disconnected local-body exact-i64 result substrate. It emits one row per static declaration, proves literal/parameter/local/arithmetic/If/Return/finite-Loop requirements, and fixes actual StringHelpers.skip_ws/2 as ExactI64 {1}. All FunctionCall/MethodCall results fail closed as StaticCallTargetAuthorityUnavailable, including builtin collision and actual wrapper fixtures; to_i64 remains parked on a neutral Core result-kind authority. Production consumers and behavior delta are zero. Focused tests 12/12, structural guard, cargo check, and line cap are green. The combined source-call target/Core-result design stop is next.",
   "2026-07-17: R0-CALLABLE-CATALOG-L0B-G0 closes the canonical callable catalog cutover without production behavior delta. The existing proof entry now fixes one catalog definition/producer/per-root install, one static-only candidate index, two recovery consumers, typed missing/duplicate session failures, and the explicit NoCandidate/Ambiguous tail boundary. Retired stores, result-representation consumers, GenericLoop consumers, record-helper physical-symbol reconstruction, and 800-line files are zero. Catalog 15/15, helper 5/5, compiler reuse 1/1, production 11 pass/3 reject, result inventory/proof, cargo check, pointer guard, and quick 66/66 are green. Exact-i64 result catalog S0 is next.",
-  "2026-07-17: R0-CALLABLE-CATALOG-L0B-CUT0 atomically replaces lowering-order callable recovery with one complete per-root catalog installed before remaining declaration-index effects. Exactly two bare-static consumers use the canonical decision; ambiguity never falls into the dev tail resolver. Structured record-helper lookup replaces the old lowered-body store, and static_method_index, lowered_method_asts, their accessors/writers, and duplicate registrations are zero. Fifteen sources yield 11 pass and 3 reject debug/release executions with one intended provider-first behavior delta. Catalog session 8/8, helper 5/5, compiler reuse 1/1, result inventory/proof, cargo check, pointer guard, and quick 66/66 are green; all source/check files remain below 800 lines. G0 is next.",
 ]

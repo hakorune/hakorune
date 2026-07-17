@@ -77,6 +77,16 @@ pub(crate) enum ShadowLexicalRefV0 {
     Ancestor(Box<str>),
 }
 
+/// Positive lexical disposition for one pre-verified qualified receiver site.
+///
+/// Shadow binding ordinals are intentionally erased: source-call routing needs
+/// only the proven presence or proven absence of a lexical binding.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) enum ShadowQualifiedReceiverDispositionV0 {
+    Bound,
+    ProvenUnbound,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ShadowControlExitV0 {
     Continue { target_loop: ShadowRegionIdV0 },
@@ -112,6 +122,13 @@ pub(crate) enum ShadowResolveErrorV0 {
     },
     UnresolvedName {
         name: Box<str>,
+        site: SourceExprSiteV1,
+    },
+    QualifiedReceiverObservationCoverageMismatch {
+        missing: Box<[SourceExprSiteV1]>,
+        extra: Box<[SourceExprSiteV1]>,
+    },
+    DuplicateQualifiedReceiverObservation {
         site: SourceExprSiteV1,
     },
     ExitOutsideLoop {

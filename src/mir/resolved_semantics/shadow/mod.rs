@@ -20,8 +20,10 @@ pub(super) use owner_boundary::ShadowLambdaSyntaxV0;
 pub(super) use product::{
     ShadowAssignmentTargetV0, ShadowBindingKindV0, ShadowControlExitV0, ShadowDirectCallUseV0,
     ShadowExitOriginV0, ShadowExitRecordV0, ShadowLexicalRefV0, ShadowRegionKindV0,
-    ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowResolvedOwnerV0, ShadowScopeKindV0,
+    ShadowResolvedFunctionV0, ShadowResolvedOwnerV0, ShadowScopeKindV0,
 };
+pub(in crate::mir) use product::{ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0};
+pub(in crate::mir) use resolver::observe_qualified_receiver_shadow_view_v0;
 use resolver::resolve_function_shadow_v0;
 pub(super) use resolver::{resolve_function_shadow_view_v0, resolve_owner_shadow_view_v0};
 

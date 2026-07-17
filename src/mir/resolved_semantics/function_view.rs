@@ -9,7 +9,7 @@ pub(crate) enum FunctionBodyOriginV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum ReceiverPolicyV1 {
+pub(in crate::mir) enum ReceiverPolicyV1 {
     DeclaredInstance,
     Absent,
 }
@@ -55,6 +55,23 @@ impl<'a> FunctionSyntaxViewV1<'a> {
             receiver_policy: ReceiverPolicyV1::Absent,
             body_origin: FunctionBodyOriginV1::Lambda,
         })
+    }
+
+    /// Borrows the canonical function view from a catalog-owned declaration.
+    ///
+    /// The caller supplies an already-classified receiver policy. This view
+    /// performs no namespace, name, or callable-identity inference.
+    pub(in crate::mir) const fn from_borrowed_function_parts(
+        params: &'a [String],
+        body: &'a [ASTNode],
+        receiver_policy: ReceiverPolicyV1,
+    ) -> Self {
+        Self {
+            params,
+            body,
+            receiver_policy,
+            body_origin: FunctionBodyOriginV1::Function,
+        }
     }
 
     pub(crate) const fn params(self) -> &'a [String] {

@@ -1,5 +1,5 @@
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
-use crate::mir::resolved_semantics::SourceExprSiteV1;
+use crate::mir::resolved_semantics::{ShadowResolveErrorV0, SourceExprSiteV1};
 
 use super::ReservedQualifiedReceiverRouteV1;
 
@@ -25,6 +25,28 @@ pub(crate) enum SourceMethodCallSiteErrorV1 {
         site: SourceExprSiteV1,
         method: Box<str>,
     },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum QualifiedReceiverLexicalDispositionErrorV1 {
+    EmptyRequestSet,
+    MixedCaller {
+        expected: CanonicalSameModuleCallableKeyV1,
+        actual: CanonicalSameModuleCallableKeyV1,
+    },
+    MixedCallerDeclaration {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+    },
+    QualifiedReceiverVariableRequired {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+    },
+    DuplicateReceiverSite {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+    },
+    ShadowTraversal(ShadowResolveErrorV0),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

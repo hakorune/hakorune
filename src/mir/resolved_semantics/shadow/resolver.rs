@@ -15,8 +15,9 @@ use super::path::ShadowSourcePathV0;
 use super::product::{
     ShadowAssignmentTargetV0, ShadowBindingKindV0, ShadowBindingRecordV0, ShadowControlExitV0,
     ShadowDirectCallUseV0, ShadowExitOriginV0, ShadowExitRecordV0, ShadowLexicalRefV0,
-    ShadowRegionKindV0, ShadowRegionRecordV0, ShadowResolveErrorV0, ShadowResolvedFunctionV0,
-    ShadowResolvedOwnerV0, ShadowScopeKindV0, ShadowScopeRecordV0,
+    ShadowQualifiedReceiverDispositionV0, ShadowRegionKindV0, ShadowRegionRecordV0,
+    ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowResolvedOwnerV0, ShadowScopeKindV0,
+    ShadowScopeRecordV0,
 };
 
 #[derive(Debug)]
@@ -32,7 +33,6 @@ enum ShadowLambdaModeV0 {
 }
 
 pub(super) struct ShadowResolverV0<'ast> {
-    function_origin: FunctionOriginV1,
     function_scope: ShadowScopeIdV0,
     function_region: ShadowRegionIdV0,
     next_binding: u32,
@@ -53,6 +53,9 @@ pub(super) struct ShadowResolverV0<'ast> {
     lambda_mode: ShadowLambdaModeV0,
     lambdas: Vec<ShadowLambdaSyntaxV0<'ast>>,
     ancestor_names: BTreeSet<Box<str>>,
+    qualified_receiver_requests: BTreeSet<SourceExprSiteV1>,
+    qualified_receiver_dispositions:
+        BTreeMap<SourceExprSiteV1, ShadowQualifiedReceiverDispositionV0>,
 }
 
 pub(super) fn resolve_function_shadow_v0(
@@ -97,10 +100,39 @@ fn resolve_shadow_view<'ast>(
     lambda_mode: ShadowLambdaModeV0,
     ancestor_names: BTreeSet<Box<str>>,
 ) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
+    traverse_shadow_view(view, lambda_mode, ancestor_names, BTreeSet::new())
+        .map(|resolver| resolver.finish_owner(function_origin))
+}
+
+/// Reuses the one shadow lexical traversal for exact qualified receivers.
+///
+/// This entry deliberately has no `FunctionOriginV1`: it publishes only
+/// Bound/ProvenUnbound observations and never constructs a semantic owner.
+pub(in crate::mir) fn observe_qualified_receiver_shadow_view_v0(
+    view: FunctionSyntaxViewV1<'_>,
+    requested_sites: BTreeSet<SourceExprSiteV1>,
+) -> Result<BTreeMap<SourceExprSiteV1, ShadowQualifiedReceiverDispositionV0>, ShadowResolveErrorV0>
+{
+    traverse_shadow_view(
+        view,
+        ShadowLambdaModeV0::Reject,
+        BTreeSet::new(),
+        requested_sites,
+    )?
+    .finish_qualified_receiver_observations()
+}
+
+fn traverse_shadow_view<'ast>(
+    view: FunctionSyntaxViewV1<'ast>,
+    lambda_mode: ShadowLambdaModeV0,
+    ancestor_names: BTreeSet<Box<str>>,
+    qualified_receiver_requests: BTreeSet<SourceExprSiteV1>,
+) -> Result<ShadowResolverV0<'ast>, ShadowResolveErrorV0> {
     let params = view.params();
     let body = view.body();
 
-    let mut resolver = ShadowResolverV0::new(function_origin, lambda_mode, ancestor_names);
+    let mut resolver =
+        ShadowResolverV0::new(lambda_mode, ancestor_names, qualified_receiver_requests);
     if view.receiver_policy() == ReceiverPolicyV1::DeclaredInstance {
         resolver.declare_binding(
             "me",
@@ -139,14 +171,14 @@ fn resolve_shadow_view<'ast>(
     };
     resolver.leave_region_scope(body_region);
     body_result?;
-    Ok(resolver.finish_owner())
+    Ok(resolver)
 }
 
 impl<'ast> ShadowResolverV0<'ast> {
     fn new(
-        function_origin: FunctionOriginV1,
         lambda_mode: ShadowLambdaModeV0,
         ancestor_names: BTreeSet<Box<str>>,
+        qualified_receiver_requests: BTreeSet<SourceExprSiteV1>,
     ) -> Self {
         let function_scope = ShadowScopeIdV0::new(0);
         let function_region = ShadowRegionIdV0::new(0);
@@ -171,7 +203,6 @@ impl<'ast> ShadowResolverV0<'ast> {
             },
         );
         Self {
-            function_origin,
             function_scope,
             function_region,
             next_binding: 0,
@@ -195,13 +226,15 @@ impl<'ast> ShadowResolverV0<'ast> {
             lambda_mode,
             lambdas: Vec::new(),
             ancestor_names,
+            qualified_receiver_requests,
+            qualified_receiver_dispositions: BTreeMap::new(),
         }
     }
 
-    fn finish_owner(self) -> ShadowResolvedOwnerV0<'ast> {
+    fn finish_owner(self, function_origin: FunctionOriginV1) -> ShadowResolvedOwnerV0<'ast> {
         ShadowResolvedOwnerV0 {
             function: ShadowResolvedFunctionV0 {
-                function_origin: self.function_origin,
+                function_origin,
                 function_scope: self.function_scope,
                 function_region: self.function_region,
                 bindings: self.bindings,
@@ -215,6 +248,35 @@ impl<'ast> ShadowResolverV0<'ast> {
             },
             lambdas: self.lambdas.into_boxed_slice(),
         }
+    }
+
+    fn finish_qualified_receiver_observations(
+        self,
+    ) -> Result<
+        BTreeMap<SourceExprSiteV1, ShadowQualifiedReceiverDispositionV0>,
+        ShadowResolveErrorV0,
+    > {
+        let missing = self
+            .qualified_receiver_requests
+            .iter()
+            .filter(|site| !self.qualified_receiver_dispositions.contains_key(*site))
+            .cloned()
+            .collect::<Vec<_>>();
+        let extra = self
+            .qualified_receiver_dispositions
+            .keys()
+            .filter(|site| !self.qualified_receiver_requests.contains(*site))
+            .cloned()
+            .collect::<Vec<_>>();
+        if !missing.is_empty() || !extra.is_empty() {
+            return Err(
+                ShadowResolveErrorV0::QualifiedReceiverObservationCoverageMismatch {
+                    missing: missing.into_boxed_slice(),
+                    extra: extra.into_boxed_slice(),
+                },
+            );
+        }
+        Ok(self.qualified_receiver_dispositions)
     }
 
     pub(super) fn record_lambda(
@@ -276,6 +338,25 @@ impl<'ast> ShadowResolverV0<'ast> {
 
     pub(super) fn record_use(&mut self, site: SourceExprSiteV1, lexical_ref: ShadowLexicalRefV0) {
         self.variable_uses.insert(site, lexical_ref);
+    }
+
+    pub(super) fn qualified_receiver_is_requested(&self, site: &SourceExprSiteV1) -> bool {
+        self.qualified_receiver_requests.contains(site)
+    }
+
+    pub(super) fn record_qualified_receiver_disposition(
+        &mut self,
+        site: SourceExprSiteV1,
+        disposition: ShadowQualifiedReceiverDispositionV0,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        if self
+            .qualified_receiver_dispositions
+            .insert(site.clone(), disposition)
+            .is_some()
+        {
+            return Err(ShadowResolveErrorV0::DuplicateQualifiedReceiverObservation { site });
+        }
+        Ok(())
     }
 
     pub(super) fn record_assignment(

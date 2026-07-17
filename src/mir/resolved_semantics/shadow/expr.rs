@@ -4,7 +4,10 @@ use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::source_site::SourcePathSegmentV1;
 
 use super::path::ShadowSourcePathV0;
-use super::product::{ShadowAssignmentTargetV0, ShadowLexicalRefV0, ShadowResolveErrorV0};
+use super::product::{
+    ShadowAssignmentTargetV0, ShadowLexicalRefV0, ShadowQualifiedReceiverDispositionV0,
+    ShadowResolveErrorV0,
+};
 use super::resolver::ShadowResolverV0;
 
 impl<'ast> ShadowResolverV0<'ast> {
@@ -223,12 +226,24 @@ impl<'ast> ShadowResolverV0<'ast> {
             ShadowLexicalRefV0::Local(binding)
         } else if self.ancestor_is_visible(name) {
             ShadowLexicalRefV0::Ancestor(name.into())
+        } else if self.qualified_receiver_is_requested(&site) {
+            self.record_qualified_receiver_disposition(
+                site,
+                ShadowQualifiedReceiverDispositionV0::ProvenUnbound,
+            )?;
+            return Ok(());
         } else {
             return Err(ShadowResolveErrorV0::UnresolvedName {
                 name: name.into(),
                 site,
             });
         };
+        if self.qualified_receiver_is_requested(&site) {
+            self.record_qualified_receiver_disposition(
+                site.clone(),
+                ShadowQualifiedReceiverDispositionV0::Bound,
+            )?;
+        }
         self.record_use(site, lexical_ref);
         Ok(())
     }

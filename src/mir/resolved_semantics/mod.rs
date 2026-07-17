@@ -57,6 +57,7 @@ pub(crate) use function_root::{
     ResolvedFunctionLoweringRootsV1, ResolvedFunctionRootVerificationErrorV1,
 };
 pub(crate) use function_view::FunctionSyntaxViewV1;
+pub(in crate::mir) use function_view::ReceiverPolicyV1;
 #[cfg(test)]
 pub(crate) use ids::FunctionOwnerIssuerV1;
 pub use ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId, UpvarRefV1};
@@ -90,6 +91,10 @@ pub use records::{
     ScopeOriginV1, SyntheticBindingKindV1,
 };
 pub(crate) use resolver::{FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1};
+pub(in crate::mir) use shadow::{
+    observe_qualified_receiver_shadow_view_v0, ShadowQualifiedReceiverDispositionV0,
+    ShadowResolveErrorV0,
+};
 pub(in crate::mir) use source_projection::{
     project_source_body_node_v1, project_source_node_v1, ProjectedSourceNodeV1,
 };

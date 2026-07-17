@@ -14,6 +14,7 @@ TARGET_MODULE = Path("src/mir/source_call_target")
 TARGET_PRODUCT = "VerifiedSourceStaticCallTargetCatalogV1"
 CURRENT_OWNER_PRODUCT = "VerifiedCurrentOwnerStaticCallTargetV1"
 SOURCE_METHOD_CALL_SITE_PRODUCT = "VerifiedSourceMethodCallSiteV1"
+QUALIFIED_RECEIVER_LEXICAL_PRODUCT = "VerifiedQualifiedReceiverLexicalDispositionsV1"
 IMPORT_VIEW = "VerifiedStaticImportAliasViewV1"
 RECEIVER_MODULE = Path("src/mir/source_core_receiver")
 RECEIVER_PRODUCT = "VerifiedSourceCoreReceiverV1"
@@ -90,6 +91,14 @@ def verify(root: Path) -> dict[str, int]:
     require(
         mir_code.count("enum SourcePathSegmentV1") == 1,
         "SourcePath vocabulary definition count drift",
+    )
+    require(
+        mir_code.count("fn traverse_shadow_view") == 1,
+        "lexical scope traversal engine count drift",
+    )
+    require(
+        mir_code.count("fn observe_qualified_receiver_shadow_view_v0") == 1,
+        "qualified receiver shadow observation entry count drift",
     )
 
     module_root = root / MODULE
@@ -170,10 +179,18 @@ def verify(root: Path) -> dict[str, int]:
     target_qualified = target_sources[target_root / "qualified.rs"]
     target_current_owner = target_sources[target_root / "current_owner.rs"]
     target_source_site = target_sources[target_root / "source_method_call_site.rs"]
-    target_internal_production = "\n".join(
+    target_lexical = target_sources[target_root / "qualified_receiver_lexical.rs"]
+    target_internal_non_site = "\n".join(
         code_only(text)
         for path, text in target_sources.items()
         if path.name not in {"mod.rs", "source_method_call_site.rs"}
+        and "tests" not in path.parts
+        and not path.name.endswith("_tests.rs")
+    )
+    target_internal_non_lexical = "\n".join(
+        code_only(text)
+        for path, text in target_sources.items()
+        if path.name not in {"mod.rs", "qualified_receiver_lexical.rs"}
         and "tests" not in path.parts
         and not path.name.endswith("_tests.rs")
     )
@@ -194,6 +211,10 @@ def verify(root: Path) -> dict[str, int]:
         "exact source MethodCall site product definition count drift",
     )
     require(
+        target_code.count(f"struct {QUALIFIED_RECEIVER_LEXICAL_PRODUCT}") == 1,
+        "qualified receiver lexical product definition count drift",
+    )
+    require(
         not re.search(
             r"#\[derive\([^]]*Clone[^]]*\)\]\s*pub\(crate\) struct "
             + f"(?:{TARGET_PRODUCT}|{IMPORT_VIEW})",
@@ -210,14 +231,31 @@ def verify(root: Path) -> dict[str, int]:
         "exact source MethodCall site product must remain non-Clone",
     )
     require(
+        not re.search(
+            r"#\[derive\([^]]*Clone[^]]*\)\]\s*pub\(crate\) struct "
+            + QUALIFIED_RECEIVER_LEXICAL_PRODUCT,
+            target_lexical,
+        ),
+        "qualified receiver lexical product must remain non-Clone",
+    )
+    require(
         production.count(TARGET_PRODUCT) == 0,
         "Q0 source target catalog gained a production producer or consumer",
     )
     require(
-        production.count(SOURCE_METHOD_CALL_SITE_PRODUCT)
-        + target_internal_production.count(SOURCE_METHOD_CALL_SITE_PRODUCT)
+        production.count(SOURCE_METHOD_CALL_SITE_PRODUCT) == 0,
+        "S0 exact source MethodCall site gained an external production consumer",
+    )
+    require(
+        target_internal_non_site.count(SOURCE_METHOD_CALL_SITE_PRODUCT)
+        == code_only(target_lexical).count(SOURCE_METHOD_CALL_SITE_PRODUCT),
+        "exact source site must have only the disconnected L0 consumer",
+    )
+    require(
+        production.count(QUALIFIED_RECEIVER_LEXICAL_PRODUCT)
+        + target_internal_non_lexical.count(QUALIFIED_RECEIVER_LEXICAL_PRODUCT)
         == 0,
-        "S0 exact source MethodCall site gained a production consumer",
+        "L0 qualified receiver lexical product gained a production consumer",
     )
     require(
         target_source_site.count("catalog.declaration(caller)") == 1,
@@ -238,6 +276,23 @@ def verify(root: Path) -> dict[str, int]:
         and "reserved_route" not in code_only(target_source_site)
         and "target:" not in code_only(target_source_site),
         "lexical/route/target authority entered exact source site product",
+    )
+    require(
+        target_lexical.count("observe_qualified_receiver_shadow_view_v0(") == 1,
+        "L0 must consume the existing shadow observation entry exactly once",
+    )
+    require(
+        "FunctionOriginV1" not in code_only(target_lexical)
+        and "BindingRefV1" not in code_only(target_lexical)
+        and "ShadowBindingOrdinalV0" not in code_only(target_lexical),
+        "synthetic function/binding identity entered L0 lexical product",
+    )
+    require(
+        "variable_ref(" not in code_only(target_lexical)
+        and "reserved_route" not in code_only(target_lexical)
+        and "import" not in code_only(target_lexical)
+        and "target:" not in code_only(target_lexical),
+        "absence/route/import/target authority entered L0 lexical product",
     )
     require(
         target_qualified.count(".declaration_for(") == 1,
@@ -301,6 +356,18 @@ def verify(root: Path) -> dict[str, int]:
     require(
         "rejects_a_nested_lambda_call_as_the_outer_catalog_caller" in target_code,
         "nested callable false-seal rejection fixture is missing",
+    )
+    require(
+        "classifies_parameter_bound_and_direct_owner_proven_unbound" in target_code,
+        "L0 Bound/ProvenUnbound fixture is missing",
+    )
+    require(
+        "ordinary_unresolved_variable_outside_the_request_still_rejects" in target_code,
+        "L0 ordinary unresolved-name regression fixture is missing",
+    )
+    require(
+        "actual_parser_string_utils_receiver_is_positive_proven_unbound" in target_code,
+        "actual ParserStringUtils lexical disposition fixture is missing",
     )
 
     receiver_root = root / RECEIVER_MODULE
@@ -376,6 +443,9 @@ def verify(root: Path) -> dict[str, int]:
         "source_target_forbidden_authority_occurrences": 0,
         "source_method_call_site_product_definitions": 1,
         "source_method_call_site_production_consumers": 0,
+        "qualified_receiver_lexical_product_definitions": 1,
+        "qualified_receiver_lexical_production_consumers": 0,
+        "lexical_scope_traversal_engines": 1,
         "source_receiver_product_definitions": 1,
         "source_receiver_production_producers_consumers": 0,
         "source_receiver_forbidden_authority_occurrences": 0,

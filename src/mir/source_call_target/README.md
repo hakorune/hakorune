@@ -22,6 +22,23 @@ representation, MIR, or runtime authority. S0 remains disconnected with zero
 production consumers. Lexical Bound/ProvenUnbound observation belongs to the
 following L0 row.
 
+## AST-BIND0-L0 lexical disposition
+
+`VerifiedQualifiedReceiverLexicalDispositionsV1` accepts a non-empty set of
+S0 products for one exact catalog declaration. Every receiver must be the
+pre-verified Variable at that MethodCall's derived receiver site. The product
+runs the existing shadow lexical traversal once and publishes exactly one
+`Bound` or `ProvenUnbound` row per requested site.
+
+`Bound` deliberately carries no shadow ordinal or new Binding identity.
+`ProvenUnbound` is emitted only when lookup and ancestor lookup both fail at a
+requested receiver site; missing rows are never interpreted as unbound. An
+ordinary unresolved Variable outside the request set keeps the existing
+`UnresolvedName` failure. Mixed callers, equal keys from different catalog
+declarations, duplicate receiver sites, and current-owner `me` requests reject
+typed. Import aliases, reserved routes, targets, ABI/effect/result, Builder,
+MIR, and runtime remain outside this disconnected product.
+
 Q0 and M0 admit two route-disjoint source shapes:
 
 ```text

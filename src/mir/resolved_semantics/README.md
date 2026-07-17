@@ -204,6 +204,22 @@ never enter Lower or the normalized parity graph. Production installation
 remains zero until the accepted syntax inventory and all declaration callers
 can switch together.
 
+## AST-BIND0-L0 qualified-receiver observation
+
+The source-call lane may ask the existing shadow traversal to classify an
+exact pre-verified `MethodCall` receiver site as `Bound` or `ProvenUnbound`.
+This is an observation mode of the same lexical walker, not a second resolver.
+Only requested receiver sites may convert an otherwise unresolved Variable
+into positive `ProvenUnbound`; every other unresolved Variable keeps the
+existing `UnresolvedName` failure. Requested and published site sets must
+match exactly before the observation is returned.
+
+Catalog-owned declarations enter through `FunctionSyntaxViewV1` over their
+borrowed parameter/body parts and an explicit receiver policy. The observation
+allocates no `FunctionOriginV1`, canonical Binding identity, scope product, or
+MIR state. Shadow binding ordinals stay construction-local and are collapsed
+to the disposition `Bound`; they never enter the source-call product.
+
 ## P0c callable-header boundary
 
 `CallableHeaderSyntaxViewV1` is a separate body-free view over one

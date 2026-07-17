@@ -88,11 +88,11 @@ impl<'catalog> VerifiedSourceMethodCallSiteV1<'catalog> {
         })
     }
 
-    pub(crate) const fn caller(&self) -> &CanonicalSameModuleCallableKeyV1 {
+    pub(crate) const fn caller(&self) -> &'catalog CanonicalSameModuleCallableKeyV1 {
         self.caller
     }
 
-    pub(crate) const fn declaration(&self) -> &VerifiedSameModuleCallableDeclarationV1 {
+    pub(crate) const fn declaration(&self) -> &'catalog VerifiedSameModuleCallableDeclarationV1 {
         self.declaration
     }
 
@@ -104,19 +104,19 @@ impl<'catalog> VerifiedSourceMethodCallSiteV1<'catalog> {
         &self.receiver_site
     }
 
-    pub(crate) const fn expression(&self) -> &ASTNode {
+    pub(crate) const fn expression(&self) -> &'catalog ASTNode {
         self.expression
     }
 
-    pub(crate) fn receiver(&self) -> &ASTNode {
+    pub(crate) fn receiver(&self) -> &'catalog ASTNode {
         self.receiver
     }
 
-    pub(crate) fn method(&self) -> &str {
+    pub(crate) fn method(&self) -> &'catalog str {
         self.method
     }
 
-    pub(crate) fn arguments(&self) -> &[ASTNode] {
+    pub(crate) fn arguments(&self) -> &'catalog [ASTNode] {
         self.arguments
     }
 
