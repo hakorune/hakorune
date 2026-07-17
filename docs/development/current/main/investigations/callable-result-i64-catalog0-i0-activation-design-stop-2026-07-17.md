@@ -1,8 +1,8 @@
 ---
-Status: PATH0 closed; A0 is the next code-facing row
+Status: SITE0-R0-BLK0 closed; SITE0-R0-EXPR0-E0 is the next code-facing row
 Date: 2026-07-18
 Decision: Candidate A owned single-use activation plan plus located legacy input
-Baseline: 611049a62f
+Baseline: fe2d61baa0
 Parent: callable-result-i64-catalog0-task-2026-07-17.md
 Scope: exact-site same-module exact-i64 call-result activation before Builder effects
 ---
@@ -264,17 +264,54 @@ SITE0-R0-BLK0
   located/ledger imports and production consumers remain zero
   production result publication = 0
 
-SITE0-R0-EXPR0
-  located expression descent through the legacy lowering surface
-  every MethodCall reaches the one caller ledger
-  production result publication = 0
+SITE0-R0-EXPR0-E0
+  one behavior-neutral body/statement/expression child-lowering port
+  raw legacy port remains the sole selected implementation
+  located/ledger imports and production consumers remain zero
+
+SITE0-R0-EXPR0-M0
+  split MethodCall route selection from pre-lowered receiver/argument emission
+  preserve reserved/special/ordinary route behavior
+  located/ledger imports and production consumers remain zero
+
+SITE0-R0-EXPR0-L0
+  disconnected stack-scoped located lowering session
+  claim MethodCall rows at entry and descend receiver/arguments in PATH0 order
+  raw delegation requires an exact inactive-prefix proof
+  production callers and result publication remain zero
+
+SITE0-R0-EXPR0-C0
+  connect the located session to the BLK0 driver port
+  preserve location through active If/body/statement recursion
+  consume the caller ledger only after successful body completion
+  production callers and result publication remain zero
 
 SITE0-R0-P0
   exact caller-row coverage and behavior-parity closeout
   accepted grammar/result publication delta = 0
 ```
 
-`SITE0-R0-LDG0` is the sole next code-facing slice. Its ledger borrows one
+`SITE0-R0-EXPR0-E0` is the sole next code-facing slice. A read-only worker
+audit plus local source review found that a located wrapper around the current
+`build_expression` entry cannot preserve the exact site law: legacy child
+lowering is distributed across body, statement, and expression helpers, and
+the current MethodCall entry re-lowers receiver and arguments from AST. E0
+therefore introduces one neutral recursive child-lowering port while retaining
+the raw legacy implementation as the sole selected port. It changes no
+accepted grammar, route, MIR, runtime behavior, or result publication, and it
+imports no located or ledger authority.
+
+The EXPR0 series is fixed as E0 -> M0 -> L0 -> C0. M0 first creates one
+behavior-neutral pre-lowered MethodCall emission seam. L0 may then create a
+stack-scoped located session separate from `MirBuilder`; the activation plan,
+source view, and ledger must never be stored in Builder state, cloned, shared,
+or reconstructed by a second AST walk. L0 claims a MethodCall before lowering
+its receiver and arguments in PATH0 order, and raw delegation is legal only
+after an inactive-prefix proof. C0 connects this session through the BLK0 port
+and finishes the ledger after the complete caller body succeeds. CUT0 remains
+the only production activation point.
+
+The existing LDG0 ledger borrows one
 catalog-owned caller row slice from the A0 plan and is non-Clone. It may expose
 a disposition only after an exact located expression claim. Claims are
 source-order exact: an already consumed row is `Duplicate`, a later known row

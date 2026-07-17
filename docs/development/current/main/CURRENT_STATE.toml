@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result I0 SITE0-R0-BLK0 is closed; SITE0-R0-EXPR0 is next"
+status = "callable-result I0 SITE0-R0-BLK0 is closed; SITE0-R0-EXPR0-E0 is next"
 date = "2026-07-18"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -299,14 +299,13 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 latest_card = "callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17"
 latest_card_path = "docs/development/current/main/investigations/callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md"
 latest_card_summary = """PATH0, A0, SITE0-L0, SITE0-R0-LDG0, and SITE0-R0-BLK0
-are closed. One private legacy block driver owns scope lifetime, suffix-router
-sequencing, last-value/empty-Void publication, and termination observations;
-one raw Vec port remains the sole selected implementation. Located inputs,
-caller-ledger activation, retry/fallback, accepted grammar, and callable-result
-publication remain absent. Five focused fixtures and the callable-result plus
-PATH0/A0/L0/LDG0/BLK0 guards are green. SITE0-R0-EXPR0 is next, followed by P0,
-SITE0-C0, CUT0, and G0."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-001"
+are closed. A worker audit plus local source review split located descent into
+EXPR0-E0 raw child-lowering port, M0 pre-lowered MethodCall seam, L0 stack-
+scoped located session, and C0 BLK0/body connection. The activation plan,
+source view, and ledger never enter Builder state; raw delegation requires an
+inactive-prefix proof, and CUT0 remains the sole production activation point.
+EXPR0-E0 is next, followed by M0, L0, C0, P0, SITE0-C0, CUT0, and G0."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-E0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
