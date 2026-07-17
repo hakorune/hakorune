@@ -89,8 +89,13 @@ if [ "$pin_rc" -eq 124 ]; then
 fi
 rg -q "ParserBox\.esc_json/1" "$LOG" \
   || guard_fail "$TAG" "pre-TYPE0 terminal owner changed"
-rg -q "phi_type_publication/concrete_fact_conflict.*first_type=Integer.*second_type=String" "$LOG" \
-  || guard_fail "$TAG" "pre-TYPE0 carrier conflict changed"
+if rg -q "phi_type_publication/concrete_fact_conflict.*first_type=Integer.*second_type=String" "$LOG"; then
+  guard_fail "$TAG" "retired CorePlan String Add conflict reappeared"
+fi
+rg -q "ParserBox\.static_const_parse_add/2" "$LOG" \
+  || guard_fail "$TAG" "post-REP0 terminal function changed"
+rg -qF "GenericLoop carrier representation failed: MissingTransientType { init:" "$LOG" \
+  || guard_fail "$TAG" "post-REP0 GenericLoop transient-type frontier changed"
 
 python3 - "$ROOT" <<'PY'
 import pathlib

@@ -1,5 +1,5 @@
 ---
-Status: S0/M0/I0 closed; G0 is next
+Status: closed through G0
 Date: 2026-07-17
 Decision: Candidate A-prime — one CorePlan Add-result representation owner
 Baseline: 66c5eca052
@@ -84,6 +84,14 @@ MissingTransientType { init: ValueId(28) }
 
 G0 records that frontier and updates the historical negative canary without
 changing the GenericLoop numeric-role assertions.
+
+G0 is closed. The source-derived inventory now owns one closeout row for the
+retired-conflict rejection plus the exact next function/error guards. The
+existing GenericLoop progression-role guard remains green at 18/18 and keeps
+all numeric-role assertions unchanged. The three planner-required TSV rows are
+left unchanged because the hermetic runner still emits and satisfies their
+current `LoopSimpleWhile` tag while StringUtils itself returns `a,b,c`; G0 does
+not rename a tag by inference from a separate debug trace.
 
 ## Decision
 
@@ -347,7 +355,7 @@ loop step/backedge result carrier = String
 concrete-fact conflict = 0
 ```
 
-### G0 — closeout
+### G0 — closeout (closed)
 
 Use the existing integration smoke and guard families; do not add a per-row
 shell guard unless the existing entries cannot express the structural count.

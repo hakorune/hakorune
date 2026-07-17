@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 FIXTURE = Path(
-    "tools/checks/fixtures/coreplan_add_result_representation_i0_inventory_v1.json"
+    "tools/checks/fixtures/coreplan_add_result_representation_g0_inventory_v1.json"
 )
 
 
@@ -93,6 +93,7 @@ def build(root: Path) -> dict[str, object]:
         "tools/smokes/v2/profiles/integration/joinir/"
         "loop_simple_while_stringutils_join_vm.sh"
     )
+    generic_loop_guard_path = "tools/checks/generic_loop_progression_role_v0_guard.sh"
 
     decision = read(root, decision_path)
     normalizer = read(root, normalizer_path)
@@ -104,6 +105,7 @@ def build(root: Path) -> dict[str, object]:
     frame = read(root, frame_path)
     runtime = read(root, runtime_path)
     smoke = read(root, smoke_path)
+    generic_loop_guard = read(root, generic_loop_guard_path)
 
     require_order(
         normalizer,
@@ -146,7 +148,7 @@ def build(root: Path) -> dict[str, object]:
 
     return {
         "schema_version": 1,
-        "stage": "i0_activation",
+        "stage": "g0_closeout",
         "decision": {
             "definition_count": count(
                 decision, "fn prepare_coreplan_add_result_representation_v1("
@@ -220,6 +222,20 @@ def build(root: Path) -> dict[str, object]:
                 "LoopSimpleWhile" in row["row"] for row in tsv_rows
             ),
             "post_i0_expected_result": "a,b,c",
+        },
+        "closeout_guard": {
+            "path": generic_loop_guard_path,
+            "retired_conflict_reappearance_guards": count(
+                generic_loop_guard,
+                "retired CorePlan String Add conflict reappeared",
+            ),
+            "next_function_guards": count(
+                generic_loop_guard, "ParserBox\\.static_const_parse_add/2"
+            ),
+            "next_error_guards": count(
+                generic_loop_guard,
+                "GenericLoop carrier representation failed: MissingTransientType { init:",
+            ),
         },
         "nonauthority": {
             "generic_loop_mentions_in_decision": count(decision, "GenericLoop"),
