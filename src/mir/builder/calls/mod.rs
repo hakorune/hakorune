@@ -44,6 +44,9 @@ pub mod materializer;
 pub mod member_route; // Member call route plan + emit handoff
 pub mod parameter_setup; // Step 3: Parameter setup and binding (static/instance methods)
 pub mod receiver_binding; // Step 4: Receiver ('me'/'this') normalization and binding
+mod reserved_method_route; // shared reserved-route policy adapter + selected dispatch
+#[cfg(test)]
+mod reserved_method_route_tests;
 pub mod resolver; // Phase 25.1d: Callee resolution (CallTarget → Callee)
 pub mod skeleton_builder; // Step 5: Function/method skeleton creation
 pub mod special_method_handlers; // Special method handlers (TypeOp, math, str normalization)

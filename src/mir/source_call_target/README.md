@@ -39,6 +39,24 @@ declarations, duplicate receiver sites, and current-owner `me` requests reject
 typed. Import aliases, reserved routes, targets, ABI/effect/result, Builder,
 MIR, and runtime remain outside this disconnected product.
 
+## AST-BIND0-R0 qualified route facts
+
+`VerifiedQualifiedCallRouteFactsV1` accepts only one exact S0 call product,
+its matching L0 lexical product, and one catalog-branded immutable import
+view. The shared neutral reserved-route policy runs before alias lookup; alias
+lookup runs before direct-receiver `Bound` rejection. A direct canonical owner
+therefore requires positive `ProvenUnbound`, while a verified imported alias
+keeps its existing precedence over a same-spelled lexical binding.
+
+The source FastMem context is derived only from the exact call site's
+`SourcePathSegmentV1` ancestry. No raw context flag, receiver, method, arity,
+lexical enum, or reserved decision can be supplied separately. Alias views
+retain their exact declaration catalog, and cross-catalog call/alias pairings
+reject by declaration identity.
+
+R0 remains disconnected. It owns neither target lookup nor ABI, effect,
+result representation, Builder emission, runtime, or backend behavior.
+
 Q0 and M0 admit two route-disjoint source shapes:
 
 ```text

@@ -1,6 +1,9 @@
 use std::collections::BTreeMap;
 
-use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
+use crate::mir::builder::{
+    CanonicalSameModuleCallableKeyV1, VerifiedSameModuleCallableDeclarationCatalogV1,
+    VerifiedSameModuleCallableDeclarationV1,
+};
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 
 use super::QualifiedStaticCallTargetErrorV1;
@@ -208,17 +211,34 @@ pub(crate) enum VerifiedSourceStaticCallTargetV1 {
 }
 
 #[derive(Debug)]
-pub(crate) struct VerifiedStaticImportAliasViewV1 {
+pub(crate) struct VerifiedStaticImportAliasViewV1<'catalog> {
+    pub(super) catalog: &'catalog VerifiedSameModuleCallableDeclarationCatalogV1,
     pub(super) aliases: BTreeMap<Box<str>, Box<str>>,
 }
 
-impl VerifiedStaticImportAliasViewV1 {
+impl VerifiedStaticImportAliasViewV1<'_> {
     pub(crate) fn canonical_owner(&self, alias: &str) -> Option<&str> {
         self.aliases.get(alias).map(Box::as_ref)
     }
 
     pub(crate) fn len(&self) -> usize {
         self.aliases.len()
+    }
+
+    pub(super) fn matches_declaration(
+        &self,
+        declaration: &VerifiedSameModuleCallableDeclarationV1,
+    ) -> bool {
+        self.catalog
+            .declaration(declaration.key())
+            .is_some_and(|candidate| std::ptr::eq(candidate, declaration))
+    }
+
+    pub(super) fn matches_catalog(
+        &self,
+        catalog: &VerifiedSameModuleCallableDeclarationCatalogV1,
+    ) -> bool {
+        std::ptr::eq(self.catalog, catalog)
     }
 }
 

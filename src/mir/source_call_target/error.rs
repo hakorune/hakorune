@@ -2,6 +2,9 @@ use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::resolved_semantics::{ShadowResolveErrorV0, SourceExprSiteV1};
 
 use super::ReservedQualifiedReceiverRouteV1;
+use crate::mir::policies::source_method_reserved_route::{
+    SourceMethodReservedRouteDispositionV1, SourceMethodReservedRouteFailureV1,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum SourceMethodCallSiteErrorV1 {
@@ -66,6 +69,7 @@ pub(crate) enum StaticImportAliasViewErrorV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum QualifiedStaticCallTargetErrorV1 {
+    ImportCatalogMismatch,
     ArityOverflow {
         receiver: Box<str>,
         method: Box<str>,
@@ -93,6 +97,32 @@ pub(crate) enum QualifiedStaticCallTargetErrorV1 {
         canonical_owner: Box<str>,
         method: Box<str>,
         arity: u32,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum QualifiedCallRouteFactsErrorV1 {
+    LexicalDispositionUnavailable {
+        caller: CanonicalSameModuleCallableKeyV1,
+        receiver_site: SourceExprSiteV1,
+    },
+    ImportCatalogMismatch {
+        caller: CanonicalSameModuleCallableKeyV1,
+    },
+    ReservedRouteSelected {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+        disposition: SourceMethodReservedRouteDispositionV1,
+    },
+    ReservedRouteRejected {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+        reason: SourceMethodReservedRouteFailureV1,
+    },
+    DirectReceiverLexicallyBound {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+        receiver: Box<str>,
     },
 }
 

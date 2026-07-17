@@ -234,22 +234,9 @@ fn lower_fastmem_intrinsic(
 pub(crate) fn lower_fastmem_method_call(
     builder: &mut MirBuilder,
     _region: FastMemRegionId,
-    object: ASTNode,
     method: String,
     arguments: Vec<ASTNode>,
 ) -> Result<ValueId, String> {
-    let ASTNode::Variable { name, .. } = object else {
-        return Err(format!(
-            "[freeze:contract][fastmem/forbidden_method_receiver] method={}",
-            method
-        ));
-    };
-    if name != "mem" {
-        return Err(format!(
-            "[freeze:contract][fastmem/forbidden_method_receiver] receiver={} method={}",
-            name, method
-        ));
-    }
     lower_fastmem_function_call(builder, _region, format!("mem.{}", method), arguments)
 }
 

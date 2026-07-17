@@ -15,7 +15,14 @@ TARGET_PRODUCT = "VerifiedSourceStaticCallTargetCatalogV1"
 CURRENT_OWNER_PRODUCT = "VerifiedCurrentOwnerStaticCallTargetV1"
 SOURCE_METHOD_CALL_SITE_PRODUCT = "VerifiedSourceMethodCallSiteV1"
 QUALIFIED_RECEIVER_LEXICAL_PRODUCT = "VerifiedQualifiedReceiverLexicalDispositionsV1"
+QUALIFIED_ROUTE_FACT_PRODUCT = "VerifiedQualifiedCallRouteFactsV1"
 IMPORT_VIEW = "VerifiedStaticImportAliasViewV1"
+RESERVED_ROUTE_POLICY = Path("src/mir/policies/source_method_reserved_route.rs")
+RESERVED_ROUTE_CLASSIFIER = "classify_source_method_reserved_route_v1"
+BUILDER_RESERVED_ADAPTER = Path("src/mir/builder/calls/reserved_method_route.rs")
+BUILDER_METHOD_ORCHESTRATOR = Path("src/mir/builder/calls/build.rs")
+BUILDER_RESERVED_EMITTER = Path("src/mir/builder/calls/debug_method_routing.rs")
+BUILDER_RESERVED_TESTS = Path("src/mir/builder/calls/reserved_method_route_tests.rs")
 RECEIVER_MODULE = Path("src/mir/source_core_receiver")
 RECEIVER_PRODUCT = "VerifiedSourceCoreReceiverV1"
 SOURCE_PROJECTOR = Path("src/mir/resolved_semantics/source_projection.rs")
@@ -180,6 +187,7 @@ def verify(root: Path) -> dict[str, int]:
     target_current_owner = target_sources[target_root / "current_owner.rs"]
     target_source_site = target_sources[target_root / "source_method_call_site.rs"]
     target_lexical = target_sources[target_root / "qualified_receiver_lexical.rs"]
+    target_route_facts = target_sources[target_root / "qualified_route_facts.rs"]
     target_internal_non_site = "\n".join(
         code_only(text)
         for path, text in target_sources.items()
@@ -191,6 +199,13 @@ def verify(root: Path) -> dict[str, int]:
         code_only(text)
         for path, text in target_sources.items()
         if path.name not in {"mod.rs", "qualified_receiver_lexical.rs"}
+        and "tests" not in path.parts
+        and not path.name.endswith("_tests.rs")
+    )
+    target_internal_non_route_facts = "\n".join(
+        code_only(text)
+        for path, text in target_sources.items()
+        if path.name not in {"mod.rs", "qualified_route_facts.rs"}
         and "tests" not in path.parts
         and not path.name.endswith("_tests.rs")
     )
@@ -213,6 +228,10 @@ def verify(root: Path) -> dict[str, int]:
     require(
         target_code.count(f"struct {QUALIFIED_RECEIVER_LEXICAL_PRODUCT}") == 1,
         "qualified receiver lexical product definition count drift",
+    )
+    require(
+        target_code.count(f"struct {QUALIFIED_ROUTE_FACT_PRODUCT}") == 1,
+        "qualified route fact product definition count drift",
     )
     require(
         not re.search(
@@ -239,6 +258,14 @@ def verify(root: Path) -> dict[str, int]:
         "qualified receiver lexical product must remain non-Clone",
     )
     require(
+        not re.search(
+            r"#\[derive\([^]]*Clone[^]]*\)\]\s*pub\(crate\) struct "
+            + QUALIFIED_ROUTE_FACT_PRODUCT,
+            target_route_facts,
+        ),
+        "qualified route fact product must remain non-Clone",
+    )
+    require(
         production.count(TARGET_PRODUCT) == 0,
         "Q0 source target catalog gained a production producer or consumer",
     )
@@ -248,14 +275,21 @@ def verify(root: Path) -> dict[str, int]:
     )
     require(
         target_internal_non_site.count(SOURCE_METHOD_CALL_SITE_PRODUCT)
-        == code_only(target_lexical).count(SOURCE_METHOD_CALL_SITE_PRODUCT),
-        "exact source site must have only the disconnected L0 consumer",
+        == code_only(target_lexical).count(SOURCE_METHOD_CALL_SITE_PRODUCT)
+        + code_only(target_route_facts).count(SOURCE_METHOD_CALL_SITE_PRODUCT),
+        "exact source site must have only disconnected L0/R0 consumers",
     )
     require(
         production.count(QUALIFIED_RECEIVER_LEXICAL_PRODUCT)
         + target_internal_non_lexical.count(QUALIFIED_RECEIVER_LEXICAL_PRODUCT)
+        == code_only(target_route_facts).count(QUALIFIED_RECEIVER_LEXICAL_PRODUCT),
+        "L0 lexical product must have only the disconnected R0 consumer",
+    )
+    require(
+        production.count(QUALIFIED_ROUTE_FACT_PRODUCT)
+        + target_internal_non_route_facts.count(QUALIFIED_ROUTE_FACT_PRODUCT)
         == 0,
-        "L0 qualified receiver lexical product gained a production consumer",
+        "R0 qualified route facts gained a production consumer",
     )
     require(
         target_source_site.count("catalog.declaration(caller)") == 1,
@@ -293,6 +327,44 @@ def verify(root: Path) -> dict[str, int]:
         and "import" not in code_only(target_lexical)
         and "target:" not in code_only(target_lexical),
         "absence/route/import/target authority entered L0 lexical product",
+    )
+    require(
+        target_route_facts.count(f"{RESERVED_ROUTE_CLASSIFIER}(") == 1,
+        "R0 route facts must consume the shared reserved classifier once",
+    )
+    require(
+        "imports.matches_declaration(call.declaration())" in target_route_facts,
+        "R0 route facts must co-seal the catalog-branded import view",
+    )
+    require(
+        target_route_facts.index("match decision")
+        < target_route_facts.index("imports.canonical_owner(receiver)"),
+        "reserved decision must precede alias lookup",
+    )
+    require(
+        target_route_facts.index("imports.canonical_owner(receiver)")
+        < target_route_facts.index(
+            "lexical_disposition == QualifiedReceiverLexicalDispositionV1::Bound"
+        ),
+        "import alias must precede direct-receiver Bound rejection",
+    )
+    for forbidden in (
+        "MirBuilder",
+        "variable_map",
+        "current_static_box",
+        "declaration_for(",
+        "VerifiedSourceStaticCallTargetV1",
+        "MirType",
+        "ValueId",
+        "EffectMask",
+    ):
+        require(
+            forbidden not in code_only(target_route_facts),
+            f"forbidden target/Builder authority entered R0 route facts: {forbidden}",
+        )
+    require(
+        "catalog: &'catalog VerifiedSameModuleCallableDeclarationCatalogV1" in target_model,
+        "verified import alias view lost its exact catalog brand",
     )
     require(
         target_qualified.count(".declaration_for(") == 1,
@@ -368,6 +440,86 @@ def verify(root: Path) -> dict[str, int]:
     require(
         "actual_parser_string_utils_receiver_is_positive_proven_unbound" in target_code,
         "actual ParserStringUtils lexical disposition fixture is missing",
+    )
+    for fixture in (
+        "direct_unbound_and_bound_import_alias_follow_exact_precedence",
+        "reserved_route_rejects_before_matching_import_alias",
+        "source_site_alone_derives_fastmem_context",
+        "rejects_missing_lexical_row_and_foreign_catalog_alias_view",
+        "declaration_reorder_preserves_normalized_route_facts",
+    ):
+        require(fixture in target_code, f"missing R0 route fact fixture: {fixture}")
+
+    policy = (root / RESERVED_ROUTE_POLICY).read_text(encoding="utf-8")
+    policy_code = code_only(policy)
+    builder_adapter = (root / BUILDER_RESERVED_ADAPTER).read_text(encoding="utf-8")
+    builder_orchestrator = (root / BUILDER_METHOD_ORCHESTRATOR).read_text(
+        encoding="utf-8"
+    )
+    builder_emitter = (root / BUILDER_RESERVED_EMITTER).read_text(encoding="utf-8")
+    builder_reserved_tests = (root / BUILDER_RESERVED_TESTS).read_text(encoding="utf-8")
+    require(
+        policy_code.count(f"fn {RESERVED_ROUTE_CLASSIFIER}") == 1,
+        "reserved-route classifier owner count drift",
+    )
+    require(
+        code_only(builder_adapter).count(f"{RESERVED_ROUTE_CLASSIFIER}(") == 1,
+        "Builder must consume the shared reserved classifier once",
+    )
+    require(
+        code_only(target_route_facts).count(f"{RESERVED_ROUTE_CLASSIFIER}(") == 1,
+        "source route facts must consume the shared reserved classifier once",
+    )
+    require(
+        mir_code.count(f"{RESERVED_ROUTE_CLASSIFIER}(") == 3,
+        "reserved classifier must have one owner and exactly two consumers",
+    )
+    for forbidden in (
+        "MirBuilder",
+        "current_fastmem_region",
+        "SourcePathSegmentV1",
+        "variable_map",
+        "VerifiedStaticImportAliasViewV1",
+        "declaration_for(",
+        "ValueId",
+    ):
+        require(
+            forbidden not in policy_code,
+            f"non-neutral authority entered reserved route policy: {forbidden}",
+        )
+    require(
+        'if name == "mem"' not in builder_orchestrator
+        and 'if obj_name != "__mir__"' not in builder_orchestrator
+        and 'if obj_name != "__repl"' not in builder_orchestrator,
+        "Builder orchestrator regained a by-name reserved decision",
+    )
+    for old_owner in (
+        "try_build_mir_debug_method_call",
+        "try_build_repl_method_call",
+        "try_build_mir_debug_call",
+    ):
+        require(
+            old_owner not in mir_code,
+            f"retired reserved-route decision owner remains: {old_owner}",
+        )
+    for forbidden in (
+        'obj_name != "__mir__"',
+        'obj_name != "__repl"',
+        'method != "log"',
+        'method != "get"',
+        "arguments.is_empty()",
+        "LiteralValue::String",
+    ):
+        require(
+            forbidden not in builder_emitter,
+            f"execution emitter regained reserved-route admission: {forbidden}",
+        )
+    require(
+        "selected_mir_debug_route_preserves_debug_payload" in builder_reserved_tests
+        and "selected_repl_route_preserves_extern_call" in builder_reserved_tests
+        and "selected_fastmem_method_route_preserves_memop_lowering"
+        in builder_reserved_tests,
+        "Builder reserved-route parity fixtures are missing",
     )
 
     receiver_root = root / RECEIVER_MODULE
@@ -446,6 +598,12 @@ def verify(root: Path) -> dict[str, int]:
         "qualified_receiver_lexical_product_definitions": 1,
         "qualified_receiver_lexical_production_consumers": 0,
         "lexical_scope_traversal_engines": 1,
+        "qualified_route_fact_product_definitions": 1,
+        "qualified_route_fact_production_consumers": 0,
+        "reserved_route_policy_definitions": 1,
+        "reserved_route_builder_consumers": 1,
+        "reserved_route_source_consumers": 1,
+        "old_builder_route_decision_owners": 0,
         "source_receiver_product_definitions": 1,
         "source_receiver_production_producers_consumers": 0,
         "source_receiver_forbidden_authority_occurrences": 0,

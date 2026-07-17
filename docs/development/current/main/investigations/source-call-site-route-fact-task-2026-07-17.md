@@ -1,7 +1,7 @@
 # Source Call Exact-Site / Route-Fact Taskboard
 
 Date: 2026-07-17  
-Status: **P0, S0, and L0 closed; R0 reserved-route SSOT/co-seal next**
+Status: **P0, S0, L0, and R0 closed; CUT0 atomic candidate cutover next**
 Baseline: `0988dbed31`  
 Supersedes: `source-call-site-route-fact-authority-design-stop-2026-07-17.md`
 
@@ -29,7 +29,7 @@ second resolver or a second reserved-route policy.
 The next code-facing row is:
 
 ```text
-R0-SOURCE-CALL-TARGET0-AST-BIND0-R0
+R0-SOURCE-CALL-TARGET0-AST-BIND0-CUT0
 ```
 
 Production source-target consumers and behavior widening remain zero through
@@ -323,7 +323,7 @@ MIR, runtime, and backend remain outside L0.
 
 Behavior-neutral reserved-policy extraction plus disconnected route co-seal.
 
-Status: **sole next code-facing row**.
+Status: **closed**.
 
 ```text
 new policy owners:
@@ -342,9 +342,34 @@ source-target production consumers:
 Builder special handlers and source-call observation must share the same
 classifier before the row closes. There is no temporary duplicated policy.
 
+Closeout evidence:
+
+```text
+neutral reserved-route classifier owners = 1
+classifier consumers = Builder 1 + source route facts 1
+old Builder by-name decision owners = 0
+VerifiedQualifiedCallRouteFactsV1 definitions = 1
+route-fact production consumers = 0
+catalog-branded import views = 1
+policy matrix = 5/5
+route co-seal matrix = 6/6
+Builder behavior parity = 5/5
+full source-call target family = 40/40
+```
+
+The policy returns verified MIR-debug and REPL payloads, so execution adapters
+do not repeat receiver/method/argument admission. Source FastMem context comes
+only from the exact S0 call path. Reserved routes reject before alias lookup;
+aliases precede lexical `Bound`; direct owners require positive
+`ProvenUnbound`. Cross-catalog alias/call pairing now rejects by retained
+declaration identity. Target, ABI/effect/result, runtime/backend, and source
+target production-consumer deltas remain zero.
+
 ### `R0-SOURCE-CALL-TARGET0-AST-BIND0-CUT0`
 
 Atomic disconnected authority cutover.
+
+Status: **sole next code-facing row**.
 
 ```text
 qualified factory input:

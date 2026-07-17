@@ -12,9 +12,9 @@ use super::{
     VerifiedStaticImportAliasViewV1,
 };
 
-impl VerifiedStaticImportAliasViewV1 {
+impl<'catalog> VerifiedStaticImportAliasViewV1<'catalog> {
     pub(crate) fn seal(
-        declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
+        declarations: &'catalog VerifiedSameModuleCallableDeclarationCatalogV1,
         rows: impl IntoIterator<Item = (String, String)>,
     ) -> Result<Self, StaticImportAliasViewErrorV1> {
         let mut rows = rows.into_iter().collect::<Vec<_>>();
@@ -47,16 +47,22 @@ impl VerifiedStaticImportAliasViewV1 {
             }
             aliases.insert(alias.into_boxed_str(), canonical_owner.into_boxed_str());
         }
-        Ok(Self { aliases })
+        Ok(Self {
+            catalog: declarations,
+            aliases,
+        })
     }
 }
 
 impl VerifiedSourceStaticCallTargetCatalogV1 {
     pub(crate) fn seal_qualified(
         declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
-        imports: &VerifiedStaticImportAliasViewV1,
+        imports: &VerifiedStaticImportAliasViewV1<'_>,
         candidates: impl IntoIterator<Item = QualifiedStaticCallCandidateV1>,
     ) -> Result<Self, QualifiedStaticCallTargetErrorV1> {
+        if !imports.matches_catalog(declarations) {
+            return Err(QualifiedStaticCallTargetErrorV1::ImportCatalogMismatch);
+        }
         let mut candidates = candidates.into_iter().collect::<Vec<_>>();
         candidates.sort_by(|left, right| {
             (left.caller(), left.site()).cmp(&(right.caller(), right.site()))

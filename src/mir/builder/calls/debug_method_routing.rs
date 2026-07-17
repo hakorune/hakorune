@@ -3,12 +3,12 @@
 //! 責務: 開発専用・診断用のメソッド呼び出し処理
 //! - trace_method_call_if_enabled: メソッド呼び出しトレース
 //! - trace_receiver_if_enabled: レシーバートレース
-//! - try_build_mir_debug_method_call: __mir__.log/__mir__.mark 処理
-//! - try_build_repl_method_call: __repl.get/__repl.set 処理
-//! - try_build_mir_debug_call: MIR デバッグ命令生成
+//! Reserved-route admission is owned by `mir::policies`. This module only
+//! emits already-selected MIR debug and REPL operations.
 
 use super::super::{EffectMask, MirBuilder, MirInstruction, ValueId};
-use crate::ast::{ASTNode, LiteralValue};
+use crate::ast::ASTNode;
+use crate::mir::policies::source_method_reserved_route::{MirDebugMethodV1, ReplIntrinsicMethodV1};
 
 impl MirBuilder {
     /// Trace method call if NYASH_STATIC_CALL_TRACE=1
@@ -29,45 +29,12 @@ impl MirBuilder {
         ));
     }
 
-    /// Try to build __mir__.log() or __mir__.mark() method call
-    pub(super) fn try_build_mir_debug_method_call(
+    /// Emit one already-selected REPL intrinsic.
+    pub(super) fn build_selected_repl_method_call(
         &mut self,
-        object: &ASTNode,
-        method: &str,
+        method: ReplIntrinsicMethodV1,
         arguments: &[ASTNode],
-    ) -> Result<Option<ValueId>, String> {
-        let ASTNode::Variable { name: obj_name, .. } = object else {
-            return Ok(None);
-        };
-        if obj_name != "__mir__" {
-            return Ok(None);
-        }
-        self.try_build_mir_debug_call(method, arguments)
-    }
-
-    /// Phase 288.1: REPL session variable bridge
-    /// Transform __repl.get/set → ExternCall("__repl", "get/set", args)
-    pub(super) fn try_build_repl_method_call(
-        &mut self,
-        object: &ASTNode,
-        method: &str,
-        arguments: &[ASTNode],
-    ) -> Result<Option<ValueId>, String> {
-        let ASTNode::Variable { name: obj_name, .. } = object else {
-            return Ok(None);
-        };
-        if obj_name != "__repl" {
-            return Ok(None);
-        }
-
-        // Only handle get/set methods
-        if method != "get" && method != "set" {
-            return Err(format!(
-                "__repl.{} is not supported. Only __repl.get and __repl.set are allowed.",
-                method
-            ));
-        }
-
+    ) -> Result<ValueId, String> {
         // Build argument values
         let arg_values = self.build_call_args(arguments)?;
 
@@ -75,13 +42,13 @@ impl MirBuilder {
         let dst = self.next_value_id();
         self.emit_extern_call_with_effects(
             "__repl",
-            method,
+            method.spelling(),
             arg_values,
             Some(dst),
             EffectMask::PURE, // get/set are pure from MIR perspective
         )?;
 
-        Ok(Some(dst))
+        Ok(dst)
     }
 
     /// Dev-only: __mir__.log / __mir__.mark → MirInstruction::Debug 列への変換
@@ -92,34 +59,15 @@ impl MirBuilder {
     ///
     /// - 第一引数は String リテラル想定（それ以外はこのハンドラをスキップして通常の解決に回す）。
     /// - 戻り値は Void 定数の ValueId（式コンテキストでも型破綻しないようにするため）。
-    pub(super) fn try_build_mir_debug_call(
+    pub(super) fn build_selected_mir_debug_call(
         &mut self,
-        method: &str,
+        method: MirDebugMethodV1,
+        label: &str,
         arguments: &[ASTNode],
-    ) -> Result<Option<ValueId>, String> {
-        if method != "log" && method != "mark" {
-            return Ok(None);
-        }
-
-        if arguments.is_empty() {
-            return Err("__mir__.log/__mir__.mark requires at least a label argument".to_string());
-        }
-
-        // 第一引数は String リテラルのみ対応（それ以外は通常経路にフォールバック）
-        let label = match &arguments[0] {
-            ASTNode::Literal {
-                value: LiteralValue::String(s),
-                ..
-            } => s.clone(),
-            _ => {
-                // ラベルがリテラルでない場合はこのハンドラをスキップし、通常の static box 解決に任せる
-                return Ok(None);
-            }
-        };
-
+    ) -> Result<ValueId, String> {
         // 残りの引数を評価して ValueId を集める
         let mut values: Vec<ValueId> = Vec::new();
-        if method == "log" {
+        if method == MirDebugMethodV1::Log {
             for (arg_idx, arg) in arguments[1..].iter().enumerate() {
                 let v = self.build_expression(arg.clone())?;
 
@@ -151,24 +99,24 @@ impl MirBuilder {
         let void_value = crate::mir::builder::emission::constant::emit_void(self)?;
 
         // RDN-0: DebugLog retire。label/value は Debug 列へ正規化する。
-        if method == "mark" || values.is_empty() {
+        if method == MirDebugMethodV1::Mark || values.is_empty() {
             self.emit_instruction(MirInstruction::Debug {
                 value: void_value,
-                message: label,
+                message: label.into(),
             })?;
-            return Ok(Some(void_value));
+            return Ok(void_value);
         }
 
         for (idx, value) in values.iter().copied().enumerate() {
             let message = if values.len() <= 1 {
-                label.clone()
+                label.into()
             } else {
                 format!("{}[{}]", label, idx)
             };
             self.emit_instruction(MirInstruction::Debug { value, message })?;
         }
 
-        Ok(Some(void_value))
+        Ok(void_value)
     }
 
     /// Debug trace for receiver (if enabled)

@@ -75,7 +75,7 @@ fn candidate(
 
 fn empty_imports(
     declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
-) -> VerifiedStaticImportAliasViewV1 {
+) -> VerifiedStaticImportAliasViewV1<'_> {
     VerifiedStaticImportAliasViewV1::seal(declarations, []).unwrap()
 }
 

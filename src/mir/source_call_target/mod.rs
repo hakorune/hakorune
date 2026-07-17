@@ -10,12 +10,14 @@ mod error;
 mod model;
 mod qualified;
 mod qualified_receiver_lexical;
+mod qualified_route_facts;
 mod source_method_call_site;
 
 #[allow(unused_imports)]
 pub(crate) use error::{
-    CurrentOwnerStaticCallTargetErrorV1, QualifiedReceiverLexicalDispositionErrorV1,
-    QualifiedStaticCallTargetErrorV1, SourceMethodCallSiteErrorV1, StaticImportAliasViewErrorV1,
+    CurrentOwnerStaticCallTargetErrorV1, QualifiedCallRouteFactsErrorV1,
+    QualifiedReceiverLexicalDispositionErrorV1, QualifiedStaticCallTargetErrorV1,
+    SourceMethodCallSiteErrorV1, StaticImportAliasViewErrorV1,
 };
 #[allow(unused_imports)]
 pub(crate) use model::{
@@ -30,12 +32,18 @@ pub(crate) use qualified_receiver_lexical::{
     QualifiedReceiverLexicalDispositionV1, VerifiedQualifiedReceiverLexicalDispositionsV1,
 };
 #[allow(unused_imports)]
+pub(crate) use qualified_route_facts::{
+    QualifiedReceiverAdmissionV1, VerifiedQualifiedCallRouteFactsV1,
+};
+#[allow(unused_imports)]
 pub(crate) use source_method_call_site::VerifiedSourceMethodCallSiteV1;
 
 #[cfg(test)]
 mod current_owner_tests;
 #[cfg(test)]
 mod qualified_receiver_lexical_tests;
+#[cfg(test)]
+mod qualified_route_facts_tests;
 #[cfg(test)]
 mod source_method_call_site_tests;
 #[cfg(test)]

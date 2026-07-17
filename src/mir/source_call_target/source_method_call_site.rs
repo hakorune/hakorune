@@ -14,6 +14,7 @@ use super::SourceMethodCallSiteErrorV1;
 
 #[derive(Debug)]
 pub(crate) struct VerifiedSourceMethodCallSiteV1<'catalog> {
+    catalog: &'catalog VerifiedSameModuleCallableDeclarationCatalogV1,
     caller: &'catalog CanonicalSameModuleCallableKeyV1,
     declaration: &'catalog VerifiedSameModuleCallableDeclarationV1,
     site: SourceExprSiteV1,
@@ -76,6 +77,7 @@ impl<'catalog> VerifiedSourceMethodCallSiteV1<'catalog> {
         let receiver_site =
             SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(receiver_segments));
         Ok(Self {
+            catalog,
             caller: declaration.key(),
             declaration,
             site,
@@ -90,6 +92,10 @@ impl<'catalog> VerifiedSourceMethodCallSiteV1<'catalog> {
 
     pub(crate) const fn caller(&self) -> &'catalog CanonicalSameModuleCallableKeyV1 {
         self.caller
+    }
+
+    pub(crate) const fn catalog(&self) -> &'catalog VerifiedSameModuleCallableDeclarationCatalogV1 {
+        self.catalog
     }
 
     pub(crate) const fn declaration(&self) -> &'catalog VerifiedSameModuleCallableDeclarationV1 {

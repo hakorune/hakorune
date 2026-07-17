@@ -129,24 +129,11 @@ impl MirBuilder {
         // Section 2: Special Method Handlers (special_method_handlers module)
         // ========================================
 
-        if let Some(region) = self.current_fastmem_region() {
-            if let ASTNode::Variable { name, .. } = &object {
-                if name == "mem" {
-                    return crate::mir::builder::fastmem::calls::lower_fastmem_method_call(
-                        self, region, object, method, arguments,
-                    );
-                }
+        match self.build_reserved_method_call(&object, &method, &arguments)? {
+            super::reserved_method_route::ReservedMethodCallOutcomeV1::Ordinary => {}
+            super::reserved_method_route::ReservedMethodCallOutcomeV1::Emitted(value) => {
+                return Ok(value)
             }
-        }
-
-        // 0. Dev-only: __mir__.log / __mir__.mark → MirInstruction::Debug 列へ lowering
-        if let Some(result) = self.try_build_mir_debug_method_call(&object, &method, &arguments)? {
-            return Ok(result);
-        }
-
-        // Phase 288.1: REPL session variable bridge: __repl.get/set → ExternCall
-        if let Some(result) = self.try_build_repl_method_call(&object, &method, &arguments)? {
-            return Ok(result);
         }
 
         let route_plan = self.plan_member_call_route(&object, &method)?;
