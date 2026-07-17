@@ -632,6 +632,26 @@ copy:
 wip/hmi-s0-v0-r0-i0 ArrayBox late field receiver is Void
 ```
 
+### G0 closeout
+
+`R0-DECLFIELD0-G0` is closed on 2026-07-17.
+
+```text
+public proof id = MAPFIELD-R0-DECLFIELD0
+selection = SAME-ROOT-DECLFIELD-AUTHORIZED
+manifest family = compiler_map_field_owner
+app-local entry = apps/current-receiver-declared-field-proof/test.sh
+manifest/test-entry health = 212 entries
+```
+
+All four MapFieldOwner rows are green. Neighboring exact-numeric field
+mutation, HMI semantic inventory/T0 isolation, json_native authority,
+pointer/diff/file-size checks, and quick 66/66 are green. No new compiler,
+runtime, backend, ownership, or HMI behavior lands in G0.
+
+The clean HMI register rewrite is now authorized. Both retained WIP stashes
+remain evidence-only; apply/pop/restore and wholesale copying remain forbidden.
+
 ## Required pass fixtures
 
 ```text

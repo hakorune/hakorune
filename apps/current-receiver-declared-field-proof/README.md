@@ -21,10 +21,15 @@ The source matrix covers:
 - a typed `ArrayBox` helper comparison control;
 - untyped-field and ordinary explicit-parameter controls.
 
-This app only prints observations and
-`selection=UNCLASSIFIED-S0`. It does not classify receiver provenance, repair
-field types, activate HMI code, or define a borrow/ownership ABI.
+The source app only prints observations and `selection=UNCLASSIFIED-S0`; the
+normalized checker owns the post-compile classification. It does not activate
+HMI code or define a borrow/ownership ABI.
 
-The normalized checker belongs to `R0-DECLFIELD0-M0`. The app-local `test.sh`
-and `MAPFIELD-R0-DECLFIELD0` manifest row are intentionally deferred until
-`R0-DECLFIELD0-G0`.
+Public proof entry:
+
+```bash
+bash apps/current-receiver-declared-field-proof/test.sh
+```
+
+The entry resolves `MAPFIELD-R0-DECLFIELD0` through the shared proof manifest
+runner; it does not duplicate compiler or checker policy.

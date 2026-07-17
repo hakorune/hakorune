@@ -11,11 +11,14 @@ Scope: one disconnected typed scalar register and immutable snapshot owner
 
 ## Decision
 
-Consume the public:
+Consume the public proofs:
 
 ```text
-MAPFIELD-R0-DELTA0
-selection = A-PRIME-AUTHORIZED
+MAPFIELD-R0-TYPE0
+selection = TYPED-FORMAL-AUTHORIZED
+
+MAPFIELD-R0-DECLFIELD0
+selection = SAME-ROOT-DECLFIELD-AUTHORIZED
 ```
 
 and implement HMI register storage from a clean tree.
@@ -25,7 +28,7 @@ register/snapshot:
   owns one private typed MapBox field
 
 static storage helper:
-  ordinary untyped storage formal
+  explicit storage: MapBox formal
   in-place mutation
   no MapBox return
 
@@ -51,8 +54,10 @@ HMI-S0-V0-R0-S0
   -> HMI-S0-V0-R0-G0
 ```
 
-`HMI-S0-V0-R0-S0` is closed. I0 reached a design consultation stop before any
-I0 source landed. See:
+`HMI-S0-V0-R0-S0` is closed. I0 reached two compiler-expressivity stops before
+any I0 source landed. TYPE0 and DECLFIELD0 now close both prerequisites; clean
+I0 reimplementation is authorized without restoring either WIP stash. The
+historical stops remain documented in:
 
 ```text
 hmi-s0-v0-r0-typed-formal-consultation-question-2026-07-16.md
@@ -118,6 +123,12 @@ Do not create a second HMI-specific MapBox MIR authority.
 MAPFIELD-R0-DELTA0:
   generic ordinary-formal mutation runtime/MIR law
 
+MAPFIELD-R0-TYPE0:
+  explicit MapBox formal -> parameter type and MapBox/Known route
+
+MAPFIELD-R0-DECLFIELD0:
+  late current-receiver ArrayBox field -> declared type and Known route
+
 hmi-t0-authority:
   exact HMI source/boundary law
 
@@ -129,7 +140,7 @@ The composed proof requires:
 
 ```text
 generic helper MIR:
-  RuntimeDataBox / Union
+  MapBox / Known
   receiver root = param:0
 
 HMI caller field:
@@ -229,16 +240,16 @@ second type authority:
 
 ```hako
 static box HmiScalarRegisterStorageV1 {
-    contains(storage, value_id)
-    put_proven(storage, value_id, payload)
-    read_present(storage, value_id)
+    contains(storage: MapBox, value_id)
+    put_proven(storage: MapBox, value_id, payload)
+    read_present(storage: MapBox, value_id)
 }
 ```
 
 Exact mutation:
 
 ```hako
-put_proven(storage, value_id, payload) {
+put_proven(storage: MapBox, value_id, payload) {
     storage.set("" + value_id, payload)
     return
 }
@@ -248,7 +259,7 @@ Laws:
 
 ```text
 storage formal:
-  ordinary untyped formal
+  explicit MapBox formal
 
 put result:
   no-value
@@ -550,12 +561,18 @@ runtime:
   Unknown method `length` on Void
 ```
 
-The worktree was cleaned without landing I0 source. Implementation is paused
+The worktree was cleaned without landing I0 source. Implementation was paused
 at:
 
 ```text
 hmi-s0-v0-r0-array-field-propagation-consultation-question-2026-07-16.md
 ```
+
+#### I0 resume authorization
+
+TYPE0 and DECLFIELD0 are closed. Reimplement I0 from the clean tree using the
+typed storage helper and ordinary declared `definition_order: ArrayBox` field.
+Do not restore, apply, pop, or copy either evidence stash.
 
 ### R0-P0
 

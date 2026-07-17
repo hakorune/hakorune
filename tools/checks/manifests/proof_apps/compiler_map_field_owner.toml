@@ -32,3 +32,14 @@ validation_profile = "scalar-mir"
 first_pattern = false
 exe = "auto"
 cmd = ["tools/checks/lib/map_typed_formal_mutation_proof.py", "."]
+
+[[proof_apps]]
+id = "MAPFIELD-R0-DECLFIELD0"
+app = "apps/current-receiver-declared-field-proof"
+label = "current-receiver declared ArrayBox/MapBox field proof"
+profiles = ["pilot"]
+row_kind = "validation"
+validation_profile = "scalar-mir"
+first_pattern = false
+exe = "auto"
+cmd = ["tools/checks/lib/current_receiver_declared_field_proof.py", "."]
