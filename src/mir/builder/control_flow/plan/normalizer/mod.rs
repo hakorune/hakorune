@@ -15,6 +15,7 @@
 //! Composer/entry runtime paths should prefer semantic helpers or feature lowerers,
 //! and Lowerer processes CorePlan without route-specific knowledge.
 
+pub(in crate::mir::builder) mod add_result_representation;
 pub(in crate::mir::builder) mod common;
 pub(in crate::mir::builder) mod helpers;
 pub(in crate::mir::builder) mod helpers_layout;

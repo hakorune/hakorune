@@ -16,6 +16,8 @@ Forbidden:
   skeletons/features/parts/recipe_tree and update REGISTRY instead.
 
 Modules:
+- add_result_representation.rs: pure, route-neutral CorePlan Add result
+  representation decision; it owns no allocation or production connection.
 - helpers.rs: shared block layouts, phi bindings, AST-to-ValueId lowering helpers.
 - common.rs: small normalizer helpers shared across loop-cond pipelines.
 - cond_lowering_*.rs: header/body/value condition lowering entry points.

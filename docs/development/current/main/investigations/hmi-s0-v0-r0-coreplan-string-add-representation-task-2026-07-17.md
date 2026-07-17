@@ -1,5 +1,5 @@
 ---
-Status: taskized; S0 is the sole next code-facing row
+Status: S0 closed; M0 is the sole next row
 Date: 2026-07-17
 Decision: Candidate A-prime — one CorePlan Add-result representation owner
 Baseline: 66c5eca052
@@ -8,6 +8,34 @@ Scope: repair the first false Add result fact exposed by loop_array_join
 ---
 
 # HMI R0 CorePlan String Add representation task
+
+## Current progress
+
+`R0-COREPLAN-STRING-ADD-REP0-S0` is closed with production behavior and
+production consumers both zero.
+
+```text
+module:
+  normalizer/add_result_representation.rs
+
+pure input:
+  lhs/rhs Option<&MirType>
+
+prepared output:
+  exact MirType
+  non-Clone
+
+production calls:
+  0
+```
+
+The disconnected decision classifies exact `String` and `Box("StringBox")`
+first, exact Float second, and every remaining pair as the existing Integer
+default. String therefore wins over Float, Unknown, missing, and other Box
+facts without consulting route, function, variable, method, field, HMI, or
+runtime identity. Focused 2/2, library check, formatting, pointer, diff, and
+line budgets are green. M0 exact consumer/timing/differential inventory is
+next; `helpers_value.rs` remains unchanged through S0.
 
 ## Decision
 
