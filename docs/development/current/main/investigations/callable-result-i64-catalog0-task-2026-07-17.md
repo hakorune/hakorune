@@ -1,5 +1,5 @@
 ---
-Status: L0a closed; L0b bare-static recovery design stop
+Status: L0a closed; Candidate A selected for L0b
 Date: 2026-07-17
 Decision: B-prime exact-i64 conditional callable-result catalog
 Baseline: 06a49e5aa6
@@ -22,10 +22,10 @@ Production producers and consumers remain zero. Existing
 `static_method_index` and `lowered_method_asts` behavior is unchanged. Focused
 catalog tests are 4/4, the current-state pointer guard is green, `cargo check`
 is green, and quick is 66/66. Every added source file remains below 800 lines.
-L0b was the next code-facing row until the bare-static recovery design stop
-below was observed.
+Candidate A now defines the L0b cutover; `R0-CALLABLE-CATALOG-L0B-S0` is the
+next code-facing row.
 
-### L0b design stop
+### L0b recovery decision
 
 The complete catalog cutover exposes an existing lowering-order-dependent
 bare-static recovery split. Baseline rejects a provider-first bare call after
@@ -33,10 +33,11 @@ the provider has been lowered and duplicated in `static_method_index`, while
 the canonical unique catalog accepts it. Caller-first succeeds in both.
 
 This is a real semantic delta, so L0b may not retain its behavior-neutral
-claim. The exact evidence, candidates, recommendation, and consultation
-question are fixed in
-`callable-catalog-l0b-bare-static-recovery-design-stop-2026-07-17.md`.
-Production cutover remains stopped until Candidate A or B is selected.
+claim. Candidate A is selected: the complete immutable catalog makes exact-one
+bare-static recovery declaration-order independent. The durable authority,
+task order, fixtures, atomic cutover, guards, stash law, and stop conditions
+are fixed in
+`callable-catalog-l0b-canonical-unique-recovery-task-2026-07-17.md`.
 
 ## Decision
 
@@ -345,18 +346,19 @@ src/mir/builder/callable_declaration_catalog/
   tests.rs
 ```
 
-### L0b — behavior-neutral declaration-index cutover
+### L0b — canonical declaration-index/recovery cutover
 
 ```text
-production behavior delta: 0
+production behavior delta:
+  provider-first unique bare-static recovery is newly accepted
 catalog producers: 1
 ```
 
-Build the catalog once in declaration indexing, migrate existing static method
-resolution and narrow body-inspection consumers to borrowed queries, and
-retire `static_method_index` plus `lowered_method_asts` as primary stores.
-
-This cutover is parked at the linked bare-static recovery design stop.
+The accepted task is split into disconnected S0/P0 proofs followed by one
+atomic CUT0. CUT0 builds and installs the catalog once before declaration-index
+side effects, migrates both static recovery consumers and structured body
+inspection, and retires `static_method_index` plus `lowered_method_asts` as
+primary stores. Exact boundaries live in the linked canonical recovery task.
 
 ### S0 — disconnected result-contract catalog
 

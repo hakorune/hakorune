@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Callable catalog L0b is stopped at bare-static recovery semantics"
+status = "Callable catalog L0b Candidate A is selected; S0 is next"
 date = "2026-07-17"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -296,21 +296,20 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 
-latest_card = "callable-catalog-l0b-bare-static-recovery-design-stop-2026-07-17"
-latest_card_path = "docs/development/current/main/investigations/callable-catalog-l0b-bare-static-recovery-design-stop-2026-07-17.md"
-latest_card_summary = """L0a remains closed. Two worker audits confirm that
-one catalog may locally add InstanceBoxMethod and replace both old declaration
-stores without a second authority. Production cutover is stopped because exact
-baseline/WIP comparison found a real semantic delta: baseline rejects a
-provider-first bare static call after lowering-time duplicate registration,
-while the canonical unique catalog accepts it; caller-first succeeds in both.
-Candidate A is recommended: define unique bare-static recovery from the
-complete immutable StaticBoxMethod inventory and explicitly authorize the
-missing symmetric case. Candidate B retires bare-static recovery and would
-reject currently accepted caller-first source. Lowering-order multiplicity,
-fallback, source rewrite, reverse symbol parsing, and dual stores are rejected.
-No production cutover or result-catalog work proceeds before selection."""
-current_blocker_token = "DPRIME-CALLABLE-CATALOG-L0B-BARE-STATIC-RECOVERY-DESIGN-STOP-001"
+latest_card = "callable-catalog-l0b-canonical-unique-recovery-task-2026-07-17"
+latest_card_path = "docs/development/current/main/investigations/callable-catalog-l0b-canonical-unique-recovery-task-2026-07-17.md"
+latest_card_summary = """Candidate A is selected. One complete immutable
+same-module callable catalog owns exact StaticBoxMethod and InstanceBoxMethod
+declaration rows, while one pure recovery decision sees only static candidates
+and selects a canonical key only for an exact source-name plus checked-arity
+singleton. This intentionally makes provider-first and caller-first unique
+bare-static calls equivalent and removes accidental lowering-order duplicate
+count as semantic authority. S0 extends the disconnected catalog namespace,
+P0 seals the zero/unique/ambiguous decision, CUT0 atomically connects both
+recovery consumers and structured record-helper lookup while deleting both old
+partial stores, and G0 guards the cutover before callable-result work resumes.
+The pre-decision stash remains read-only evidence and is never restored."""
+current_blocker_token = "DPRIME-CALLABLE-CATALOG-L0B-S0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
