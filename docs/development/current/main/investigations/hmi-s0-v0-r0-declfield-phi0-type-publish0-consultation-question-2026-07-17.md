@@ -1,5 +1,5 @@
 ---
-Status: External consultation required
+Status: Evidence complete; question entry superseded by one-shot D0 packet
 Date: 2026-07-17
 Baseline: d3c4473728
 Parent: hmi-s0-v0-r0-declfield-phi0-transient-type-consultation-question-2026-07-17.md

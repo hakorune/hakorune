@@ -1,5 +1,5 @@
 ---
-Status: Design consultation stop
+Status: Resolved; superseded by MapFieldOwner proof task
 Date: 2026-07-16
 Decision needed: select the generic compiler proof that precedes HMI-S0-V0-R0
 Baseline: 188edc601c

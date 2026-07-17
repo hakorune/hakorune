@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "A-prime-TV is classified; TYPE-PUBLISH0-D0 is the active PHI transient-type producer design stop"
+status = "TYPE-PUBLISH0 one-shot D0 packet is the sole open selfhost consultation"
 date = "2026-07-17"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -296,8 +296,8 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 
-latest_card = "hmi-s0-v0-r0-declfield-phi0-type-publish0-consultation-question-2026-07-17"
-latest_card_path = "docs/development/current/main/investigations/hmi-s0-v0-r0-declfield-phi0-type-publish0-consultation-question-2026-07-17.md"
+latest_card = "hmi-s0-v0-r0-declfield-phi0-type-publish0-one-shot-decision-packet-2026-07-17"
+latest_card_path = "docs/development/current/main/investigations/hmi-s0-v0-r0-declfield-phi0-type-publish0-one-shot-decision-packet-2026-07-17.md"
 latest_card_summary = """A-prime is accepted after three read-only worker
 audits. R0-DELTA0 proves only that an ordinary static formal can mutate a
 MapBox without returning it, reassigning the owner field, or adding ownership
@@ -370,10 +370,14 @@ publication already owned by raw emit_instruction(Phi). No I0 code lands.
 The A-prime-TV response preserves the existing proof law but its proposed
 view only encapsulates reads the proof already performs. Its own producer-bug
 stop condition is already met by the exact transient SeedTypeMissing evidence.
-TYPE-PUBLISH0-D0 is therefore the active design stop: it must select one
-type-only unanimous-PHI publication/conflict law and the complete canonical
-lifecycle producer set before code. Origin backfill, mid-lowering final
-pipeline, runtime/name inference, fallback, and stash restore remain forbidden.
+TYPE-PUBLISH0-D0 is therefore the sole open selfhost consultation. Three
+worker audits compress it into one one-shot packet with four coordinated
+decisions: candidate formation, destination/hint constraints, authorized
+Builder producers, and prevalidate-mutate-publish atomicity. The answer
+pre-authorizes the fixed S0/M0/I0/G0 -> PHI0-I0 -> DECLFIELD0-G0 -> clean HMI
+R0 runway, so checkpoints do not reopen consultation unless an exact stop
+condition appears. Origin backfill, mid-lowering final pipeline, runtime/name
+inference, fallback, and stash restore remain forbidden.
 Historical task context follows. R0-STOP0 is closed and registered as
 MAPFIELD-R0-STOP0. Debug/release runtime and normalized MIR agree; all ten
 generic cases pass and the exclusive selection is NONE-HMI-DELTA0, so KEY0
@@ -974,7 +978,7 @@ MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "DPRIME-HMI-S0-V0-R0-DECLFIELD-PHI0-TYPE-PUBLISH0-DESIGN-STOP-001"
+current_blocker_token = "DPRIME-HMI-S0-V0-R0-DECLFIELD-PHI0-TYPE-PUBLISH0-ONE-SHOT-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -983,6 +987,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-17: Three read-only worker audits reduce the apparent consultation backlog to one real open question. Old HMI Design-stop/External-consultation headers are answered or superseded status drift; unrelated and evidence-gated future families are excluded. TYPE-PUBLISH0 now has one one-shot D0 packet combining four coordinated decisions: concrete candidate/NoPublication law, destination/type_hint constraints and typed conflicts, exact Builder producer/non-consumer set, and prevalidate-mutate-publish single/batch atomicity. A fixed S0/M0/I0/G0 -> existing PHI0-I0 -> DECLFIELD0-G0 -> clean HMI R0 runway is pre-authorized without checkpoint-by-checkpoint reconsultation unless an explicit stop condition appears. Future HMI-S1/O1/C0/X0/R1/R2 and parser acceptance choices remain evidence-gated, not bundled speculation.",
   "2026-07-17: The A-prime-TV response is classified against landed S0/P0 and exact transient evidence. Its lifetime-bounded view is a possible encapsulation cleanup, but the existing proof already reads live type_ctx facts and exact current-function definitions; it adds no missing fact. The response's producer-bug stop condition is already triggered by selected %37 SeedTypeMissing. Closed PHI0-S0/P0 rows are not replayed. TYPE-PUBLISH0-D0 is task-fixed as the next design stop, requiring one neutral type-only unanimous-PHI decision, exact destination/type-hint/missing/Unknown/heterogeneous conflict law, complete raw/final/provisional/patched/batch lifecycle inventory, and publication-before-Copy timing. Only after S0/M0/I0/G0 may existing PHI0-I0 resume. Origin writes, eager final metadata, mid-lowering final pipeline, receiver-proof inference, fallback, and files at or above 800 lines remain forbidden.",
   "2026-07-17: R0-DECLFIELD-PHI0-I0 stops before landing on a transient type-authority boundary. The sole fallback consumer reaches selected base %37 but the sealed proof rejects SeedTypeMissing at the exact FieldGet use site. Final MIR later contains a Phi(receiver,receiver) carrier and its downstream Copy both typed Box(current owner), while the transient values are missing the type. Worker audit finds a concrete lifecycle bypass: raw emit_instruction(Phi) invokes unanimous metadata publication, but define_phi_final_with_type_hint inserts directly and skips it; LocalSSA then cannot copy a missing source type. Candidate A-prime requires every traversed value typed already, so identity cannot silently become type inference. The failed WIP is evidence-only at stash hash 49bafef37c6a110b1fd98338bd3f95a38ebd6891; no compiler/checker/test behavior lands. Consultation now prefers a shared type-only unanimous PHI lifecycle helper, while exact conflict law and the final downstream-Copy publisher remain open. Implementation is stopped.",
   "2026-07-17: R0-DECLFIELD-PHI0-P0 closes the full disconnected matrix with production consumers zero. P1-P9 cover direct/Copy, Copy-wrapped PHI, two/three-level nested PHI, three predecessors, shared subgraphs, and reorder-stable normalization; every accepted synthetic function directly passes final MirVerifier. R1-R24 cover unsupported definitions, nested/foreign/mixed roots, static/non-receiver parameters, type drift, malformed predecessor/availability rows, definition and CFG cycles, and missing/untyped field composition. A final-MIR test adapter compiles the existing DECLFIELD0 app, verifies each selected function, reconstructs only parameter/type/receiver/catalog facts, and calls the same proof at exact FieldGet ordinals: A1=R, A2=P[R,R], A3=R, A4=R. No Copy/Phi origin backfill, MIR JSON/Python authority, production field consumer, runtime/HMI/backend delta, fallback, or retry lands. Focused 18/18, cargo check, existing PHI-ROOT-DESIGN-REQUIRED proof, pointer guard, and line budgets are green. PHI0-I0 is next.",
@@ -994,5 +999,4 @@ landed_tail = [
   "2026-07-16: R0-TYPE0-G0 publishes MAPFIELD-R0-TYPE0 in the existing compiler MapFieldOwner proof manifest and public check index. The app-local entry, manifest/test-entry health, manifest-runner pilot, current pointer, STOP0, DELTA0, HMI/JSON isolation, neighboring exact-numeric mutation, and quick 66/66 are green; the exclusive result is TYPED-FORMAL-AUTHORIZED. TYPE0 added no compiler/runtime/HMI/backend behavior, ownership syntax/opcode, fallback, or new manifest family. The active card returns to the clean HMI register-storage task and R0-I0 is next.",
   "2026-07-16: R0-TYPE0-V0 applies the fixed exclusive classifier and selects exactly TYPED-FORMAL-AUTHORIZED. Exact source declaration transport, handle:MapBox parameter projection, MapBox/Known param:0 set routing, local and validation-heavy late-field runtime transport, and ownership-zero checks all precede authorization. No compiler/runtime/HMI/backend behavior changes, fallback, or ownership widening lands. G0 publication in the existing MapFieldOwner proof family is next.",
   "2026-07-16: R0-TYPE0-M0 closes one 487-line normalized source/runtime/MIR checker. Debug/release P1-P10 and normalized evidence agree. The imported helper preserves the exact storage: MapBox ParamDecl, publishes parameter ValueId zero as handle:MapBox before body lowering, and emits one MapBox/Known set rooted at param:0. Local newbox and field:storage caller roots reach the same helper; late field_get metadata is recorded but not an authorization prerequisite. Birth owns the sole field publication and CopyOwned/DestroyOwned/selected ReleaseStrong remain zero. STOP0 and DELTA0 regressions stay green; selection remains UNCLASSIFIED-M0 and V0 is next.",
-  "2026-07-16: R0-TYPE0-S0 closes one HMI-independent two-file typed-formal fixture. The existing named-module/text-merge authority imports storage_command.hako; that file alone declares storage: MapBox for the no-result put and integer observer. Debug/release VM runs report P1-P10 all green across local, field, validation/early-return late-field, repeated, isolation, cross-file, and negative-then-fresh cases. No classifier, manifest row, HMI source, compiler/runtime behavior, MapBox return, mutator-result binding, post-birth field replacement, ownership form/opcode, fallback, or backend widening lands. M0 normalized source/MIR proof is next.",
 ]

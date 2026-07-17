@@ -1,5 +1,5 @@
 ---
-Status: External consultation required
+Status: Answered; handed off to TYPE-PUBLISH0
 Date: 2026-07-17
 Baseline: ad49cf77d0
 Parent: hmi-s0-v0-r0-declfield-phi0-same-root-task-2026-07-17.md

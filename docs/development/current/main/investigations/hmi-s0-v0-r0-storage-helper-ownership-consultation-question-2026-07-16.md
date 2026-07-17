@@ -1,5 +1,5 @@
 ---
-Status: Design consultation stop
+Status: Resolved; superseded by DELTA0/TYPE0 proof chain
 Date: 2026-07-16
 Decision needed: select the storage-helper ownership contract before HMI-S0-V0-R0 resumes
 Baseline: eff120b77c
