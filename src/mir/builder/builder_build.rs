@@ -48,7 +48,7 @@ impl MirBuilder {
             ));
         }
 
-        let result = self.build_expression_impl(ast);
+        let result = super::recursive_child_lowering::drive_raw_legacy_expression_v1(self, ast);
         self.recursion_depth -= 1;
         result
     }

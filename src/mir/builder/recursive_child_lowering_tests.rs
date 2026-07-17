@@ -1,0 +1,178 @@
+use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
+use crate::mir::{MirBuilder, MirInstruction, ValueId};
+
+use super::recursive_child_lowering::{
+    drive_legacy_body_v1, drive_legacy_expression_v1, drive_legacy_statement_v1,
+    RecursiveChildLoweringPortV1,
+};
+
+struct BodyTokenV1(i64);
+struct StatementTokenV1(i64);
+struct ExpressionTokenV1(i64);
+
+#[derive(Default)]
+struct CountingPortV1 {
+    body_calls: usize,
+    statement_calls: usize,
+    expression_calls: usize,
+    fail_expression: bool,
+}
+
+impl RecursiveChildLoweringPortV1 for CountingPortV1 {
+    type BodyInput = BodyTokenV1;
+    type StatementInput = StatementTokenV1;
+    type ExpressionInput = ExpressionTokenV1;
+
+    fn lower_body(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: Self::BodyInput,
+    ) -> Result<ValueId, String> {
+        self.body_calls += 1;
+        crate::mir::builder::emission::constant::emit_integer(builder, input.0)
+    }
+
+    fn lower_statement(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: Self::StatementInput,
+    ) -> Result<ValueId, String> {
+        self.statement_calls += 1;
+        crate::mir::builder::emission::constant::emit_integer(builder, input.0)
+    }
+
+    fn lower_expression(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: Self::ExpressionInput,
+    ) -> Result<ValueId, String> {
+        self.expression_calls += 1;
+        if self.fail_expression {
+            return Err("counting-expression-failure".to_string());
+        }
+        crate::mir::builder::emission::constant::emit_integer(builder, input.0)
+    }
+}
+
+fn integer(value: i64) -> ASTNode {
+    ASTNode::Literal {
+        value: LiteralValue::Integer(value),
+        span: Span::unknown(),
+    }
+}
+
+fn add(left: ASTNode, right: ASTNode) -> ASTNode {
+    ASTNode::BinaryOp {
+        operator: BinaryOperator::Add,
+        left: Box::new(left),
+        right: Box::new(right),
+        span: Span::unknown(),
+    }
+}
+
+fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
+    let function = builder
+        .scope_ctx
+        .current_function
+        .as_ref()
+        .expect("current test function");
+    function
+        .blocks
+        .values()
+        .flat_map(|block| block.instructions.iter().cloned())
+        .collect()
+}
+
+#[test]
+fn associated_inputs_dispatch_each_child_kind_exactly_once() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("recursive_child_inputs/0".to_string());
+    let mut port = CountingPortV1::default();
+
+    drive_legacy_body_v1(&mut builder, &mut port, BodyTokenV1(1)).unwrap();
+    drive_legacy_statement_v1(&mut builder, &mut port, StatementTokenV1(2)).unwrap();
+    drive_legacy_expression_v1(&mut builder, &mut port, ExpressionTokenV1(3)).unwrap();
+
+    assert_eq!(port.body_calls, 1);
+    assert_eq!(port.statement_calls, 1);
+    assert_eq!(port.expression_calls, 1);
+}
+
+#[test]
+fn child_driver_propagates_failure_without_retry() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("recursive_child_failure/0".to_string());
+    let mut port = CountingPortV1 {
+        fail_expression: true,
+        ..CountingPortV1::default()
+    };
+
+    assert_eq!(
+        drive_legacy_expression_v1(&mut builder, &mut port, ExpressionTokenV1(3)).unwrap_err(),
+        "counting-expression-failure"
+    );
+    assert_eq!(port.expression_calls, 1);
+}
+
+#[test]
+fn selected_raw_expression_port_preserves_nested_mir() {
+    let expression = add(integer(1), add(integer(2), integer(3)));
+    let mut selected = MirBuilder::new();
+    selected.enter_function_for_test("recursive_child_nested/0".to_string());
+    let selected_output = selected.build_expression(expression.clone()).unwrap();
+
+    let mut raw_leaf = MirBuilder::new();
+    raw_leaf.enter_function_for_test("recursive_child_nested/0".to_string());
+    let raw_output = raw_leaf.build_expression_impl(expression).unwrap();
+
+    assert_eq!(selected_output, raw_output);
+    assert_eq!(instructions(&selected), instructions(&raw_leaf));
+}
+
+#[test]
+fn selected_raw_body_and_statement_ports_preserve_order_and_last_value() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("recursive_child_body/0".to_string());
+
+    let output = builder.build_block(vec![integer(4), integer(5)]).unwrap();
+    let integer_rows = instructions(&builder)
+        .into_iter()
+        .filter_map(|instruction| match instruction {
+            MirInstruction::Const {
+                dst,
+                value: crate::mir::ConstValue::Integer(value),
+            } => Some((dst, value)),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+
+    assert_eq!(integer_rows.len(), 2);
+    assert_eq!(integer_rows[0].1, 4);
+    assert_eq!(integer_rows[1].1, 5);
+    assert_eq!(output, integer_rows[1].0);
+
+    let statement_output = builder.build_statement(integer(6)).unwrap();
+    assert!(instructions(&builder).iter().any(|instruction| matches!(
+        instruction,
+        MirInstruction::Const {
+            dst,
+            value: crate::mir::ConstValue::Integer(6),
+        } if *dst == statement_output
+    )));
+}
+
+#[test]
+fn expression_failure_restores_recursion_depth_for_reuse() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("recursive_child_reuse/0".to_string());
+
+    assert!(builder
+        .build_expression(ASTNode::Variable {
+            name: "missing".to_string(),
+            span: Span::unknown(),
+        })
+        .is_err());
+    assert_eq!(builder.recursion_depth, 0);
+    builder.build_expression(integer(9)).unwrap();
+    assert_eq!(builder.recursion_depth, 0);
+}

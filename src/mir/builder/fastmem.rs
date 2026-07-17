@@ -20,7 +20,7 @@ pub(in crate::mir::builder) fn build_fastmem_region(
 ) -> Result<ValueId, String> {
     let region = builder.register_fastmem_region(contract, span, body.len())?;
     builder.push_fastmem_region(region);
-    let result = crate::mir::builder::stmts::block_stmt::build_block(builder, body);
+    let result = builder.build_block(body);
     let _ = builder.pop_fastmem_region();
     result
 }

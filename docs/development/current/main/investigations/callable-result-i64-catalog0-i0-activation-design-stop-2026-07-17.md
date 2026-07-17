@@ -1,5 +1,5 @@
 ---
-Status: SITE0-R0-BLK0 closed; SITE0-R0-EXPR0-E0 is the next code-facing row
+Status: SITE0-R0-EXPR0-E0 closed; SITE0-R0-EXPR0-M0 is the next code-facing row
 Date: 2026-07-18
 Decision: Candidate A owned single-use activation plan plus located legacy input
 Baseline: fe2d61baa0
@@ -291,8 +291,8 @@ SITE0-R0-P0
   accepted grammar/result publication delta = 0
 ```
 
-`SITE0-R0-EXPR0-E0` is the sole next code-facing slice. A read-only worker
-audit plus local source review found that a located wrapper around the current
+The EXPR0 split follows a read-only worker audit plus local source review which
+found that a located wrapper around the current
 `build_expression` entry cannot preserve the exact site law: legacy child
 lowering is distributed across body, statement, and expression helpers, and
 the current MethodCall entry re-lowers receiver and arguments from AST. E0
@@ -522,6 +522,25 @@ the exact same failure occurs on baseline `61d40b26d2`, so it is recorded as a
 pre-existing non-gate rather than a BLK0 regression. Builder/MIR/runtime/backend
 behavior, accepted grammar, and result publication remain unchanged.
 `SITE0-R0-EXPR0` is next.
+
+## SITE0-R0-EXPR0-E0 closeout
+
+`I0-SITE0-R0-EXPR0-E0` is closed. One associated-input
+`RecursiveChildLoweringPortV1` owns the neutral body, statement, and expression
+entry boundary. One private raw implementation is selected synchronously by
+exactly three legacy facades and is never stored in `MirBuilder`, cloned,
+shared, retried, or selected by input probing. FastMem now enters through the
+same body facade; the existing BLK0 driver remains the raw body leaf.
+
+Existing helper recursion, including direct `build_expression_impl` calls,
+remains an explicit inactive raw leaf. E0 imports no located carrier,
+activation plan, caller ledger, MethodCall route, or result authority. Five
+focused associated-input/exact-once/raw-parity/reuse fixtures, BLK0 5/5,
+callable-result 43/43, E0/BLK0/LDG0 guards, release check, formatting, and line
+caps are green. The broad FastMem filter retains two pre-existing assertion
+drifts; both reproduce with the old direct block leaf and are not E0
+regressions. Accepted grammar, MIR/runtime behavior, and result publication
+remain unchanged. `SITE0-R0-EXPR0-M0` is next.
 
 ## Required fixtures
 

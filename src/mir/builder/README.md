@@ -93,6 +93,14 @@ reach into route-specific plan internals. The current boundary SSOT is
 - AST → MIR の基本道
   - `src/mir/builder/stmts.rs`
   - `src/mir/builder/exprs.rs`
+- recursive child-lowering boundary
+  - `src/mir/builder/recursive_child_lowering.rs` owns one associated-input
+    port across body, statement, and expression entries.
+  - E0 selects one fresh raw port synchronously at each legacy facade. The
+    port is never stored in `MirBuilder`, shared, cloned, or retried.
+  - Existing helper recursion remains an explicit raw leaf. Located inputs,
+    caller ledgers, MethodCall route splitting, and result publication remain
+    disconnected until their later SITE0-R0 rows.
 - legacy block descent boundary
   - `src/mir/builder/stmts/block_driver.rs` alone owns scope lifetime, the
     existing suffix-router call, termination checks, last-value selection, and

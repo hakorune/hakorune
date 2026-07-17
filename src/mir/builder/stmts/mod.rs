@@ -122,7 +122,7 @@ impl super::MirBuilder {
     /// This is the main entry point for block execution, which integrates
     /// with the Phase 142 JoinIR suffix router for pattern detection.
     pub(super) fn build_block(&mut self, statements: Vec<ASTNode>) -> Result<ValueId, String> {
-        block_stmt::build_block(self, statements)
+        super::recursive_child_lowering::drive_raw_legacy_body_v1(self, statements)
     }
 
     /// Build a single statement node
@@ -132,7 +132,7 @@ impl super::MirBuilder {
     /// Handles statement-level If, While, LoopRange, and delegates other
     /// expressions to build_expression.
     pub(super) fn build_statement(&mut self, node: ASTNode) -> Result<ValueId, String> {
-        block_stmt::build_statement(self, node)
+        super::recursive_child_lowering::drive_raw_legacy_statement_v1(self, node)
     }
 
     /// Phase 212.5: Statement としての If 処理（副作用のみ）

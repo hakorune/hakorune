@@ -42,6 +42,9 @@ mod metadata_context; // Phase 136 follow-up (Step 6/7): MetadataContext extract
 mod method_call_handlers;
 #[cfg(test)]
 mod phi_observation_tests;
+mod recursive_child_lowering;
+#[cfg(test)]
+mod recursive_child_lowering_tests;
 mod variable_context; // Phase 136 follow-up (Step 5/7): VariableContext extraction // Method call handler separation (Phase 3) // call(expr)
                       // include lowering removed (using is handled in runner)
 mod control_flow; // thin wrappers to centralize control-flow entrypoints
