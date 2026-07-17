@@ -98,6 +98,72 @@ LocalSSA Copy:
 
 This is producer-entry drift. The receiver proof is correctly failing fast.
 
+## Exact current entry inventory
+
+Read-only code inventory identifies five lifecycle shapes, but only four have
+access to the current Builder transient type authority.
+
+| Entry | Mutation | Current type publication | Classification |
+| --- | --- | --- | --- |
+| `MirBuilder::emit_instruction(Phi)` | append raw Phi | combined type+origin before append | existing Builder producer |
+| `define_phi_final_with_type_hint` | insert complete Phi at head | none | missing Builder completion producer |
+| `define_phi_batch_prepend` | prepend complete Phi batch | none | missing Builder completion producer |
+| `define_provisional_phi` then `patch_phi_inputs` | insert empty Phi, later replace inputs | none | patch is missing Builder completion producer |
+| `define_phi_final_fn_with_type_hint_and_tag` | mutate a supplied `MirFunction` | no access to `MirBuilder.type_ctx` | function-level non-consumer |
+
+Thin aliases do not create additional policy owners:
+
+```text
+define_phi_final:
+  define_phi_final_with_type_hint(..., None)
+
+define_current_block_phi_final:
+  block-selection facade over define_phi_final
+
+define_current_block_phi_final_with_type_hint:
+  block-selection facade over define_phi_final_with_type_hint
+
+define_phi_final_fn:
+  function-level facade over define_phi_final_fn_with_type_hint_and_tag
+
+PhiTxn:
+  transaction facade over provisional define / patch / rollback
+```
+
+Observed production caller families:
+
+```text
+complete Builder final:
+  If/Binding join
+  effect emission
+  ordinary if/peek/loop APIs
+  resolved lowering
+
+Builder provisional + patch:
+  function-owned Binding SSA
+  CorePlan loop lowering
+  JoinIR exit PHIs
+
+Builder batch:
+  JoinIR loop-header PHIs
+
+function-level final:
+  EdgeCFG emission
+  JoinIR VM bridge conversion
+```
+
+`ssa::phi_input_materializer::function_repair` and JoinIR instruction
+rewriters may rewrite already-created PHI input/block structure. They are not
+new destination-type producer authorities in this row; M0 must verify that
+their rewrites preserve the selected type decision's premises or stop.
+
+The function-level final API cannot borrow or publish the current Builder
+`type_ctx` because it receives only `&mut MirFunction`. D0 must classify it as
+an explicit non-consumer for this lowering-time row. Eager writes to
+`function.metadata.value_types` are still forbidden. If function-level PHI
+typing later becomes necessary, it requires a separate authority rather than
+smuggling Builder state through this API.
+
 ## Selected architectural direction
 
 The provisional direction is one neutral type-only unanimous-PHI policy and
@@ -124,6 +190,64 @@ non-publication:
 ```
 
 The helper must be a producer policy, not a declared-field special case.
+
+The existing raw route currently combines type and origin publication in
+`origin::phi::propagate_phi_meta`. The minimal structural split is:
+
+```text
+neutral unanimous type decision:
+  one owner
+
+raw Builder Phi:
+  consume type decision
+  retain existing unanimous origin behavior through a separate owner
+
+lifecycle final / patch / batch:
+  consume type decision only
+  new origin publication = 0
+```
+
+This preserves raw origin behavior without granting lifecycle PHIs a new
+origin authority.
+
+## Publication transaction law to decide
+
+Type publication must not survive a failed PHI mutation. The provisional
+transaction shape is:
+
+```text
+complete final:
+  materialize/normalize inputs
+  compute type decision and validate conflicts
+  insert complete Phi
+  publish prevalidated type non-fallibly
+
+provisional define:
+  insert empty Phi
+  publish no unanimous input type
+
+patch:
+  normalize inputs
+  compute type decision and validate conflicts
+  patch existing Phi inputs
+  publish prevalidated type non-fallibly
+
+batch:
+  normalize every item
+  compute every decision and validate every conflict
+  atomically insert the complete batch
+  publish all prevalidated types non-fallibly
+
+raw emission:
+  compute/validate before instruction mutation
+  emit instruction
+  publish prevalidated type after successful emission
+  preserve existing origin behavior without partial metadata on failure
+```
+
+D0 must accept or replace this ordering. In particular, no entry may mutate
+one PHI or publish one type before a later item in the same batch reports a
+conflict.
 
 ## Required task order
 
@@ -232,6 +356,29 @@ Copy destination type published:
 
 Final `TypePropagationPipeline` remains only the completed-function backstop.
 
+### 6. Failure atomicity
+
+Lock the exact transaction boundary:
+
+```text
+conflict discovered before PHI mutation:
+  instruction delta = 0
+  transient type delta = 0
+
+low-level insertion/patch failure:
+  transient type delta = 0
+
+successful insertion/patch:
+  selected type publication is non-fallible
+
+batch conflict/failure:
+  instruction delta = 0
+  transient type delta = 0
+```
+
+The existing raw route's pre-emission metadata write must not be copied into
+new lifecycle entries without this decision.
+
 ## Required producer proof matrix
 
 Pass/decision fixtures:
@@ -286,7 +433,8 @@ existing final MirVerifier parity
 ```text
 unanimous PHI type decision owners = 1
 canonical PHI completion entries inventoried = exact expected count
-authorized publication consumers = exact D0 count
+authorized Builder publication consumers = exact D0 count
+function-level transient publication consumers = 0
 
 receiver proof type inference rules = 0
 receiver proof type_ctx writes = 0
@@ -298,6 +446,8 @@ runtime tag reads = 0
 current_static_box inference = 0
 final metadata fallback during lowering = 0
 mid-lowering TypePropagationPipeline calls = 0
+partial type publication after failed PHI mutation = 0
+partial batch instruction/type publication = 0
 
 new persistent ValueId -> type/owner maps = 0
 fallback / retry / legacy probing = 0
@@ -363,7 +513,7 @@ Unknown input type
 heterogeneous input types
 canonical PHI completion producer set
 publication timing and typed failure boundary
+failure atomicity for raw/final/patch/batch entries
 ```
 
 No compiler implementation is authorized until those decisions are locked.
-
