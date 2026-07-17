@@ -164,6 +164,86 @@ an explicit non-consumer for this lowering-time row. Eager writes to
 typing later becomes necessary, it requires a separate authority rather than
 smuggling Builder state through this API.
 
+## Existing type semantics are not a strict conflict authority
+
+The current raw and finalization paths have different permissive policies.
+Neither owns the strict D0 conflict law requested by this row.
+
+### Raw `origin::phi::propagate_phi_meta`
+
+Current type behavior:
+
+```text
+all input map entries present and exactly equal:
+  publish that MirType
+
+one input missing or concrete inputs differ:
+  no publication
+
+all inputs Unknown:
+  publish Unknown
+
+all inputs Void:
+  publish Void
+
+existing destination type:
+  overwritten without conflict check
+
+instruction type_hint:
+  not read
+
+typed failure:
+  none
+```
+
+The helper also owns a separate unanimous-origin write and currently runs
+before the raw instruction append completes.
+
+### Final `TypePropagationPipeline` PHI step
+
+`PhiTypeResolver` traverses Copy/Phi definitions to base values. Its policy is:
+
+```text
+type_hint:
+  not read
+
+missing base type:
+  ignored
+
+Unknown / Void base type:
+  ignored
+
+remaining distinct concrete base types = 1:
+  infer that type
+
+remaining distinct concrete base types = 0 or >= 2:
+  no inference
+
+existing destination type differs:
+  overwrite as a final correction
+```
+
+Therefore finalization is not exact unanimous-input validation. It is a
+completed-function recovery/correction pass, and cannot be reused as the
+lowering-time producer decision.
+
+### Consequence for D0
+
+There is no existing strict owner for:
+
+```text
+destination concrete type conflict
+type_hint conflict
+unanimous Unknown/Void admission
+missing input admission
+heterogeneous input failure timing
+mutation/publication atomicity
+```
+
+D0 must select these laws explicitly. It must not describe the new helper as
+mere behavior-neutral extraction of either current raw semantics or final
+pipeline semantics.
+
 ## Selected architectural direction
 
 The provisional direction is one neutral type-only unanimous-PHI policy and
@@ -400,7 +480,11 @@ pretyped destination + matching inputs/hint:
   exact selected idempotence law
 
 early transient type vs final propagation result:
-  exact parity
+  exact parity for D0-admitted unanimous concrete cases
+
+conflict/missing/Unknown/Void cases:
+  exact D0 result
+  final pipeline behavior is observation only, not parity authority
 
 selected A2:
   same-root proof changes only SeedTypeMissing -> accepted
@@ -448,6 +532,8 @@ final metadata fallback during lowering = 0
 mid-lowering TypePropagationPipeline calls = 0
 partial type publication after failed PHI mutation = 0
 partial batch instruction/type publication = 0
+type_hint reads in final pipeline as D0 authority = 0
+final PhiTypeResolver conflict decisions reused by D0 = 0
 
 new persistent ValueId -> type/owner maps = 0
 fallback / retry / legacy probing = 0
