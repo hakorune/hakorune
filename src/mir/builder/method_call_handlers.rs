@@ -4,6 +4,7 @@
 //! following the Single Responsibility Principle.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::callable_declaration_catalog::SameModuleCallableNamespaceV1;
 use crate::mir::builder::calls::function_lowering;
 use crate::mir::builder::CallTarget;
 use crate::mir::builder::{MirBuilder, ValueId};
@@ -43,13 +44,18 @@ impl MeCallPolicyBox {
             let arity = arguments.len();
             let fname = function_lowering::generate_method_function_name(cls, method, arity);
             if let Some(me_id) = me_value {
-                if let Some(result) =
-                    builder.try_inline_record_helper_call(&fname, arguments, Some(me_id))?
-                {
+                if let Some(result) = builder.try_inline_record_helper_call(
+                    SameModuleCallableNamespaceV1::InstanceBoxMethod,
+                    cls,
+                    method,
+                    arguments,
+                    Some(me_id),
+                )? {
                     return Ok(Some(result));
                 }
                 if let Some(result) = builder.try_inline_same_module_helper_setter_call(
-                    &fname,
+                    cls,
+                    method,
                     arguments,
                     Some(me_id),
                 )? {
@@ -170,7 +176,13 @@ impl MirBuilder {
                 );
             }
         }
-        if let Some(result) = self.try_inline_record_helper_call(&func_name, arguments, None)? {
+        if let Some(result) = self.try_inline_record_helper_call(
+            SameModuleCallableNamespaceV1::StaticBoxMethod,
+            box_name,
+            method,
+            arguments,
+            None,
+        )? {
             return Ok(result);
         }
 
@@ -271,14 +283,13 @@ impl MirBuilder {
             .is_some_and(|me| me == object_value)
         {
             if let Some(cls) = current_enclosing_box_name(self) {
-                let func_name = function_lowering::generate_method_function_name(
+                if let Some(result) = self.try_inline_record_helper_call(
+                    SameModuleCallableNamespaceV1::InstanceBoxMethod,
                     &cls,
                     &method,
-                    arguments.len(),
-                );
-                if let Some(result) =
-                    self.try_inline_record_helper_call(&func_name, arguments, Some(object_value))?
-                {
+                    arguments,
+                    Some(object_value),
+                )? {
                     return Ok(result);
                 }
             }

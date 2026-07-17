@@ -93,19 +93,6 @@ fn test_field_origin_tracking() {
 }
 
 #[test]
-fn test_static_method_index() {
-    let mut ctx = CompilationContext::new();
-
-    ctx.register_static_method("parse".to_string(), "JsonBox".to_string(), 1);
-    ctx.register_static_method("parse".to_string(), "XmlBox".to_string(), 1);
-
-    let candidates = ctx.get_static_method_candidates("parse").unwrap();
-    assert_eq!(candidates.len(), 2);
-    assert!(candidates.contains(&("JsonBox".to_string(), 1)));
-    assert!(candidates.contains(&("XmlBox".to_string(), 1)));
-}
-
-#[test]
 fn test_method_tail_index() {
     let mut ctx = CompilationContext::new();
 

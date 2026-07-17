@@ -1,4 +1,4 @@
-static box Alpha {
+static box Provider {
     m_seed(x) {
         return x + 1
     }
@@ -6,13 +6,7 @@ static box Alpha {
 
 static box Consumer {
     use(x) {
-        return m_seed(x)
-    }
-}
-
-static box Zeta {
-    m_seed(x) {
-        return x + 2
+        return Provider.m_seed(x)
     }
 }
 

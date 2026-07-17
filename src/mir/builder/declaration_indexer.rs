@@ -1,11 +1,11 @@
 //! Declaration Indexer - Pre-indexing symbols before lowering
 //!
-//! Purpose: Collect user-defined boxes and static methods for additional resolution
+//! Purpose: Collect non-callable declaration facts before lowering
 //!
 //! Responsibilities:
 //! - Detect static box Main with main() method (app vs script mode)
-//! - Index user-defined boxes and static methods before AST lowering
-//! - Enable safe bare-call recovery in using-prepended code
+//! - Index user-defined boxes before AST lowering
+//! - Record narrow verified static scalar facts
 //!
 //! Called by: `lower_root()` in module_lifecycle.rs
 
@@ -46,7 +46,8 @@ pub(super) fn has_main_static(ast: &ASTNode) -> bool {
 ///
 /// Pre-indexes:
 /// - user_defined_boxes: non-static Box names (for NewBox birth() skip)
-/// - static_method_index: name -> [(BoxName, arity)] (for bare-call recovery)
+/// Callable membership and method bodies belong to the complete immutable
+/// callable declaration catalog installed by `lower_root` before this pass.
 ///
 /// # Arguments
 /// - `builder`: MirBuilder with comp_ctx for registration
@@ -112,52 +113,13 @@ pub(super) fn index_declarations(builder: &mut MirBuilder, node: &ASTNode) {
                     init_fields,
                     weak_fields,
                 );
-                for (mname, mast) in sorted_method_entries(methods) {
-                    if let ASTNode::FunctionDeclaration {
-                        params,
-                        param_decls,
-                        body,
-                        is_static,
-                        ..
-                    } = mast
-                    {
-                        if !*is_static {
-                            let func_name =
-                                format!("{}.{}{}", name, mname, format!("/{}", params.len()));
-                            builder.comp_ctx.register_lowered_method_ast(
-                                func_name,
-                                params.clone(),
-                                param_decls.clone(),
-                                body.clone(),
-                            );
-                        }
-                    }
-                }
             } else {
                 // Static box: no fields
                 builder.comp_ctx.register_user_box(name.clone());
                 for (mname, mast) in sorted_method_entries(methods) {
-                    if let ASTNode::FunctionDeclaration {
-                        params,
-                        param_decls,
-                        body,
-                        ..
-                    } = mast
-                    {
-                        builder
-                            .comp_ctx
-                            .static_method_index
-                            .entry(mname.to_string())
-                            .or_insert_with(Vec::new)
-                            .push((name.clone(), params.len()));
+                    if let ASTNode::FunctionDeclaration { params, body, .. } = mast {
                         let func_name =
                             format!("{}.{}{}", name, mname, format!("/{}", params.len()));
-                        builder.comp_ctx.register_lowered_method_ast(
-                            func_name.clone(),
-                            params.clone(),
-                            param_decls.clone(),
-                            body.clone(),
-                        );
                         if name == "HakoAllocObjectLifecycleFacadeReason" {
                             builder
                                 .comp_ctx

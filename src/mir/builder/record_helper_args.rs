@@ -9,18 +9,41 @@
 //! same-module setter helpers may inline, and wrapper helpers stay as calls.
 
 use crate::ast::{ASTNode, ParamDecl};
-use crate::mir::builder::calls::function_lowering;
+use crate::mir::builder::callable_declaration_catalog::SameModuleCallableNamespaceV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::value_origin::{build_value_def_map, resolve_value_origin};
 use crate::mir::MirInstruction;
 use crate::mir::{MirType, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
 
-const INLINEABLE_SAME_MODULE_HELPER_SETTERS: &[&str] = &[
-    "HakoAllocObjectLifecycleAllocResult.recordAttempt/0",
-    "HakoAllocObjectLifecycleAllocResult.recordSelectedPage/1",
-    "HakoAllocObjectLifecycleAllocResult.recordBlock/1",
-    "HakoAllocObjectLifecycleFacade.recordLastAllocPage/3",
+#[derive(Clone, Copy)]
+struct InlineableSameModuleHelperSetterKeyV1 {
+    owner: &'static str,
+    method: &'static str,
+    arity: usize,
+}
+
+const INLINEABLE_SAME_MODULE_HELPER_SETTERS: &[InlineableSameModuleHelperSetterKeyV1] = &[
+    InlineableSameModuleHelperSetterKeyV1 {
+        owner: "HakoAllocObjectLifecycleAllocResult",
+        method: "recordAttempt",
+        arity: 0,
+    },
+    InlineableSameModuleHelperSetterKeyV1 {
+        owner: "HakoAllocObjectLifecycleAllocResult",
+        method: "recordSelectedPage",
+        arity: 1,
+    },
+    InlineableSameModuleHelperSetterKeyV1 {
+        owner: "HakoAllocObjectLifecycleAllocResult",
+        method: "recordBlock",
+        arity: 1,
+    },
+    InlineableSameModuleHelperSetterKeyV1 {
+        owner: "HakoAllocObjectLifecycleFacade",
+        method: "recordLastAllocPage",
+        arity: 3,
+    },
 ];
 
 #[derive(Clone)]
@@ -29,14 +52,28 @@ struct HelperArgBinding {
     value: ValueId,
 }
 
+/// Consumer-local snapshot used only to end the immutable catalog borrow
+/// before expression lowering mutates the Builder. It is not a declaration
+/// store and is never retained in Builder state.
+struct PreparedHelperDeclarationV1 {
+    function_name: String,
+    params: Vec<String>,
+    param_decls: Vec<ParamDecl>,
+    body: Vec<ASTNode>,
+}
+
 impl MirBuilder {
     pub(in crate::mir::builder) fn try_inline_record_helper_call(
         &mut self,
-        func_name: &str,
+        namespace: SameModuleCallableNamespaceV1,
+        owner: &str,
+        method: &str,
         args: &[ASTNode],
         receiver: Option<ValueId>,
     ) -> Result<Option<ValueId>, String> {
-        let Some(helper) = self.comp_ctx.lowered_method_ast(func_name).cloned() else {
+        let Some(helper) =
+            self.prepare_same_module_helper_declaration(namespace, owner, method, args.len())?
+        else {
             return Ok(None);
         };
         if helper.params.len() != args.len() {
@@ -49,38 +86,49 @@ impl MirBuilder {
         }
 
         let bindings = self.build_record_helper_arg_bindings(
-            func_name,
+            &helper.function_name,
             args,
             &helper.params,
             &helper.param_decls,
             &record_args,
         )?;
 
-        self.inline_record_helper_body(func_name, receiver, bindings, &helper.body)
+        self.inline_record_helper_body(&helper.function_name, receiver, bindings, &helper.body)
             .map(Some)
     }
 
     pub(in crate::mir::builder) fn try_inline_same_module_helper_setter_call(
         &mut self,
-        func_name: &str,
+        owner: &str,
+        method: &str,
         args: &[ASTNode],
         receiver: Option<ValueId>,
     ) -> Result<Option<ValueId>, String> {
-        if !INLINEABLE_SAME_MODULE_HELPER_SETTERS.contains(&func_name) {
+        if !is_inlineable_same_module_helper_key(owner, method, args.len()) {
             if crate::config::env::builder_static_call_trace() {
                 crate::runtime::get_global_ring0().log.info(&format!(
-                    "[same-module-helper-inline] reject allowlist func={}",
-                    func_name
+                    "[same-module-helper-inline] reject allowlist owner={} method={} arity={}",
+                    owner,
+                    method,
+                    args.len()
                 ));
             }
             return Ok(None);
         }
 
-        let Some(helper) = self.comp_ctx.lowered_method_ast(func_name).cloned() else {
+        let Some(helper) = self.prepare_same_module_helper_declaration(
+            SameModuleCallableNamespaceV1::InstanceBoxMethod,
+            owner,
+            method,
+            args.len(),
+        )?
+        else {
             if crate::config::env::builder_static_call_trace() {
                 crate::runtime::get_global_ring0().log.info(&format!(
-                    "[same-module-helper-inline] reject missing-ast func={}",
-                    func_name
+                    "[same-module-helper-inline] reject missing-declaration owner={} method={} arity={}",
+                    owner,
+                    method,
+                    args.len()
                 ));
             }
             return Ok(None);
@@ -89,18 +137,18 @@ impl MirBuilder {
             if crate::config::env::builder_static_call_trace() {
                 crate::runtime::get_global_ring0().log.info(&format!(
                     "[same-module-helper-inline] reject arity-mismatch func={} helper_params={} args={}",
-                    func_name,
+                    helper.function_name,
                     helper.params.len(),
                     args.len()
                 ));
             }
             return Ok(None);
         }
-        if !is_inlineable_same_module_helper_body(func_name, &helper.body) {
+        if !is_inlineable_same_module_helper_body(&helper.body) {
             if crate::config::env::builder_static_call_trace() {
                 crate::runtime::get_global_ring0().log.info(&format!(
                     "[same-module-helper-inline] reject body-shape func={}",
-                    func_name
+                    helper.function_name
                 ));
             }
             return Ok(None);
@@ -118,12 +166,12 @@ impl MirBuilder {
         if crate::config::env::builder_static_call_trace() {
             crate::runtime::get_global_ring0().log.info(&format!(
                 "[same-module-helper-inline] accept func={} receiver={:?} args={}",
-                func_name,
+                helper.function_name,
                 receiver.map(|v| v.0),
                 args.len()
             ));
         }
-        self.inline_record_helper_body(func_name, receiver, bindings, &helper.body)
+        self.inline_record_helper_body(&helper.function_name, receiver, bindings, &helper.body)
             .map(Some)
     }
 
@@ -142,15 +190,35 @@ impl MirBuilder {
             }
             return Ok(None);
         };
-        let func_name =
-            function_lowering::generate_method_function_name(&box_name, method, args.len());
         if crate::config::env::builder_static_call_trace() {
             crate::runtime::get_global_ring0().log.info(&format!(
-                "[same-module-helper-inline] candidate receiver=%{} box={} method={} func={}",
-                object_value.0, box_name, method, func_name
+                "[same-module-helper-inline] candidate receiver=%{} box={} method={} arity={}",
+                object_value.0,
+                box_name,
+                method,
+                args.len()
             ));
         }
-        self.try_inline_same_module_helper_setter_call(&func_name, args, Some(object_value))
+        self.try_inline_same_module_helper_setter_call(&box_name, method, args, Some(object_value))
+    }
+
+    fn prepare_same_module_helper_declaration(
+        &self,
+        namespace: SameModuleCallableNamespaceV1,
+        owner: &str,
+        method: &str,
+        arity: usize,
+    ) -> Result<Option<PreparedHelperDeclarationV1>, String> {
+        let declaration = self
+            .comp_ctx
+            .callable_declaration(namespace, owner, method, arity)
+            .map_err(|error| error.to_string())?;
+        Ok(declaration.map(|declaration| PreparedHelperDeclarationV1 {
+            function_name: declaration.key().mir_symbol_projection(),
+            params: declaration.params().to_vec(),
+            param_decls: declaration.param_decls().to_vec(),
+            body: declaration.body().to_vec(),
+        }))
     }
 
     fn collect_record_helper_arg_indices(&self, args: &[ASTNode]) -> Vec<usize> {
@@ -411,10 +479,13 @@ impl MirBuilder {
     }
 }
 
-fn is_inlineable_same_module_helper_body(func_name: &str, body: &[ASTNode]) -> bool {
-    if !INLINEABLE_SAME_MODULE_HELPER_SETTERS.contains(&func_name) {
-        return false;
-    }
+fn is_inlineable_same_module_helper_key(owner: &str, method: &str, arity: usize) -> bool {
+    INLINEABLE_SAME_MODULE_HELPER_SETTERS
+        .iter()
+        .any(|key| key.owner == owner && key.method == method && key.arity == arity)
+}
+
+fn is_inlineable_same_module_helper_body(body: &[ASTNode]) -> bool {
     let Some((last_stmt, prefix)) = body.split_last() else {
         return false;
     };
@@ -468,7 +539,9 @@ fn is_inlineable_same_module_helper_expr(node: &ASTNode) -> bool {
 mod tests {
     use super::*;
     use crate::ast::LiteralValue;
+    use crate::mir::builder::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
     use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction};
+    use crate::parser::NyashParser;
 
     fn span() -> crate::ast::Span {
         crate::ast::Span::unknown()
@@ -515,10 +588,12 @@ mod tests {
             },
         ];
 
-        assert!(is_inlineable_same_module_helper_body(
-            "HakoAllocObjectLifecycleAllocResult.recordAttempt/0",
-            &body
+        assert!(is_inlineable_same_module_helper_key(
+            "HakoAllocObjectLifecycleAllocResult",
+            "recordAttempt",
+            0
         ));
+        assert!(is_inlineable_same_module_helper_body(&body));
     }
 
     #[test]
@@ -532,10 +607,66 @@ mod tests {
             span: span(),
         }];
 
-        assert!(!is_inlineable_same_module_helper_body(
-            "HakoAllocObjectLifecycleFacade.recordSmallAllocFailure/1",
-            &body
+        assert!(!is_inlineable_same_module_helper_key(
+            "HakoAllocObjectLifecycleFacade",
+            "recordSmallAllocFailure",
+            1
         ));
+        assert!(!is_inlineable_same_module_helper_body(&body));
+    }
+
+    #[test]
+    fn structured_catalog_lookup_preserves_static_and_instance_namespaces() {
+        let source = r#"
+            static box StaticHelpers {
+                read(value) { return value }
+            }
+            box InstanceHelpers {
+                read(value) { return value }
+            }
+        "#;
+        let root = NyashParser::parse_from_string(source).unwrap();
+        let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&root).unwrap();
+        let mut builder = MirBuilder::new();
+        builder
+            .comp_ctx
+            .install_callable_declaration_catalog(catalog)
+            .unwrap();
+
+        let static_helper = builder
+            .prepare_same_module_helper_declaration(
+                SameModuleCallableNamespaceV1::StaticBoxMethod,
+                "StaticHelpers",
+                "read",
+                1,
+            )
+            .unwrap()
+            .unwrap();
+        assert_eq!(static_helper.function_name, "StaticHelpers.read/1");
+        assert_eq!(static_helper.params, ["value"]);
+
+        let instance_helper = builder
+            .prepare_same_module_helper_declaration(
+                SameModuleCallableNamespaceV1::InstanceBoxMethod,
+                "InstanceHelpers",
+                "read",
+                1,
+            )
+            .unwrap()
+            .unwrap();
+        assert_eq!(instance_helper.function_name, "InstanceHelpers.read/1");
+        assert_eq!(instance_helper.params, ["value"]);
+    }
+
+    #[test]
+    fn setter_allowlist_rejects_before_catalog_query() {
+        let mut builder = MirBuilder::new();
+        assert_eq!(
+            builder
+                .try_inline_same_module_helper_setter_call("NotAllowed", "write", &[], None,)
+                .unwrap(),
+            None
+        );
     }
 
     #[test]

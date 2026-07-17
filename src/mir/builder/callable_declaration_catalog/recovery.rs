@@ -1,4 +1,5 @@
 use super::{CanonicalSameModuleCallableKeyV1, VerifiedSameModuleCallableDeclarationCatalogV1};
+use std::fmt;
 
 /// Pure, disconnected selection for bare static-call recovery.
 ///
@@ -21,6 +22,19 @@ pub(crate) enum BareStaticRecoveryNoRecoveryReasonV1 {
 pub(crate) enum BareStaticRecoveryDecisionErrorV1 {
     ArityOverflow { arity: usize },
 }
+
+impl fmt::Display for BareStaticRecoveryDecisionErrorV1 {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::ArityOverflow { arity } => write!(
+                formatter,
+                "[mir/bare-static-recovery/arity-overflow] arity={arity}"
+            ),
+        }
+    }
+}
+
+impl std::error::Error for BareStaticRecoveryDecisionErrorV1 {}
 
 impl BareStaticRecoveryDecisionV1 {
     pub(crate) fn decide(

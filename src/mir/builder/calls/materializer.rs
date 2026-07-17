@@ -12,6 +12,7 @@
  * - Call発行前の準備処理全般
  */
 
+use crate::mir::builder::callable_declaration_catalog::BareStaticRecoveryDecisionV1;
 use crate::mir::builder::{EffectMask, MirBuilder, MirInstruction, ValueId};
 use crate::mir::definitions::call_unified::Callee;
 
@@ -77,31 +78,31 @@ impl CallMaterializerBox {
             }
         }
 
-        // 2) Unique static-method resolver: name+arity → Box.name/Arity
-        if let Some(cands) = builder.comp_ctx.static_method_index.get(name) {
-            let mut matches: Vec<(String, usize)> = cands
-                .iter()
-                .cloned()
-                .filter(|(_, ar)| *ar == args.len())
-                .collect();
-            if matches.len() == 1 {
-                let (bx, _arity) = matches.remove(0);
-                let func_name = format!("{}.{}{}", bx, name, format!("/{}", args.len()));
-                // Emit the resolved global call directly.
-                let dstv = dst.unwrap_or_else(|| builder.next_value_id());
-                let name_const =
-                    crate::mir::builder::name_const::make_name_const_result(builder, &func_name)?;
-                builder.emit_instruction(MirInstruction::Call {
-                    dst: Some(dstv),
-                    func: name_const,
-                    callee: Some(Callee::Global(func_name.clone())),
-                    args: args.to_vec(),
-                    effects: EffectMask::IO,
-                })?;
-                // annotate
-                builder.annotate_call_result_from_func_name(dstv, func_name);
-                return Ok(Some(()));
-            }
+        // 2) Unique static-method resolver: name+arity → canonical key → MIR symbol.
+        let recovery = {
+            let catalog = builder
+                .comp_ctx
+                .callable_declaration_catalog()
+                .map_err(|error| error.to_string())?;
+            BareStaticRecoveryDecisionV1::decide(catalog, name, args.len())
+                .map_err(|error| error.to_string())?
+        };
+        if let BareStaticRecoveryDecisionV1::Unique(key) = recovery {
+            let func_name = key.mir_symbol_projection();
+            // Emit the resolved global call directly.
+            let dstv = dst.unwrap_or_else(|| builder.next_value_id());
+            let name_const =
+                crate::mir::builder::name_const::make_name_const_result(builder, &func_name)?;
+            builder.emit_instruction(MirInstruction::Call {
+                dst: Some(dstv),
+                func: name_const,
+                callee: Some(Callee::Global(func_name.clone())),
+                args: args.to_vec(),
+                effects: EffectMask::IO,
+            })?;
+            // annotate
+            builder.annotate_call_result_from_func_name(dstv, func_name);
+            return Ok(Some(()));
         }
 
         Ok(None)

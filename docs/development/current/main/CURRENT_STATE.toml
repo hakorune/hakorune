@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Callable catalog L0b-S0/P0 are closed; atomic CUT0 is next"
+status = "Callable catalog L0b-CUT0 is closed; G0 is next"
 date = "2026-07-17"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,18 +298,20 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 
 latest_card = "callable-catalog-l0b-canonical-unique-recovery-task-2026-07-17"
 latest_card_path = "docs/development/current/main/investigations/callable-catalog-l0b-canonical-unique-recovery-task-2026-07-17.md"
-latest_card_summary = """Candidate A remains selected. L0b-S0 and P0 are
-closed: one disconnected non-Clone catalog seals namespace-disjoint static and
-instance declaration rows, and one pure decision maps the static-only exact
-name plus checked-arity cardinality to Unique, NoCandidate, or Ambiguous.
-Fourteen tracked HMI-independent sources cover app/script, same-box/cross-box
-order, zero/unique/ambiguous, arity, instance non-contamination, and text merge.
-Recovery tests are 7/7, the catalog module is 14/14, the proof checker, cargo
-check, and quick 66/66 are green, production consumers remain zero, and every
-source/check file stays below 800 lines. CUT0 next atomically installs the
-catalog, connects both recovery consumers and structured helper lookup, and
-deletes both old partial authorities. The evidence stash stays read-only."""
-current_blocker_token = "DPRIME-CALLABLE-CATALOG-L0B-CUT0-001"
+latest_card_summary = """Candidate A remains selected. L0b-CUT0 is closed:
+every Builder root seals and installs one complete callable catalog before
+remaining declaration-index effects; exactly two bare-static recovery
+consumers use the canonical zero/unique/ambiguous decision, and ambiguous
+resolution cannot leak into the dev tail resolver. Record-helper lookup uses
+structured static/instance catalog keys after its allowlist. The old
+static_method_index, lowered_method_asts, their types/accessors/writers, and
+duplicate registrations are zero. Fifteen HMI-independent sources produce 11
+pass and 3 reject executions in debug/release with one intended behavior delta.
+Catalog session 8/8, helper 5/5, compiler reuse 1/1, the cutover proof, result
+representation inventory/proof, cargo check, pointer guard, and quick 66/66 are
+green; every source/check file stays below 800 lines. G0 closeout is next and
+the evidence stash remains read-only."""
+current_blocker_token = "DPRIME-CALLABLE-CATALOG-L0B-G0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -318,6 +320,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-17: R0-CALLABLE-CATALOG-L0B-CUT0 atomically replaces lowering-order callable recovery with one complete per-root catalog installed before remaining declaration-index effects. Exactly two bare-static consumers use the canonical decision; ambiguity never falls into the dev tail resolver. Structured record-helper lookup replaces the old lowered-body store, and static_method_index, lowered_method_asts, their accessors/writers, and duplicate registrations are zero. Fifteen sources yield 11 pass and 3 reject debug/release executions with one intended provider-first behavior delta. Catalog session 8/8, helper 5/5, compiler reuse 1/1, result inventory/proof, cargo check, pointer guard, and quick 66/66 are green; all source/check files remain below 800 lines. G0 is next.",
   "2026-07-17: R0-BARE-STATIC-RECOVERY0-P0 closes one disconnected canonical recovery decision. Static-only exact name plus checked arity yields Unique only at cardinality one, while zero and 2+ yield NoCandidate/Ambiguous and overflow is typed before effects. Fourteen HMI-independent sources cover app/script, same-box/cross-box provider/caller order, exact/zero/wrong arity, ambiguity, instance non-contamination, and text merge. Recovery tests are 7/7, the catalog module is 14/14, the proof checker, cargo check, and quick 66/66 are green; production consumers and behavior delta remain zero and all source/check files stay below 800 lines. Atomic CUT0 is next.",
   "2026-07-17: R0-CALLABLE-CATALOG-L0B-S0 closes the disconnected complete same-module declaration inventory. StaticBoxMethod and InstanceBoxMethod rows share one non-Clone catalog while static candidates remain a separate static-only index; Program, singleton BoxDeclaration, and verified-empty roots preserve the existing Builder surface. Constructors, top-level functions, ordinary-box static methods, records, sync boxes, production producers/consumers, recovery policy, result representation, runtime, and backend behavior remain zero. Focused catalog tests are 7/7, cargo check and quick 66/66 are green, and every touched source/check file remains below 800 lines. Bare-static recovery P0 is next.",
   "2026-07-17: R0-SAME-MODULE-CALL-RESULT-REP0-S0 closes one generic HMI-independent timing reproduction with production behavior and type publishers zero. Forward untyped direct and Copy-carried call results are Missing; a forward explicit i64 return annotation is also Missing. Reversing the same untyped provider/caller declaration order yields Exact and returns 6, as does the independent numeric control. Debug/release agree, and final reverse-order call/Copy/PHI i64 metadata is diagnostic-only. The direct checker, GenericLoop guard, cargo check, and quick 66/66 are green. M0 exact producer/timing inventory is next.",
@@ -328,6 +331,5 @@ landed_tail = [
   "2026-07-17: R0-COREPLAN-STRING-ADD-REP0-S0 closes one disconnected pure normalizer decision with production behavior and consumer counts zero. Exact String and StringBox have priority, Float is second, and every remaining pair preserves the current Integer default. One non-Clone prepared exact representation owns no Builder, allocation, route, recipe, join, PHI, runtime, or backend authority. Focused 2/2, library check, formatting, pointer, diff, and line budgets are green. M0 exact consumer/timing/differential inventory is next.",
   "2026-07-17: Three read-only worker audits close the loop_array_join carrier diagnosis and select Candidate A-prime. LoopV0 correctly carries i as Integer and result as String; the first false fact is PlanNormalizer arithmetic_result_type, which makes every non-Float Add Integer and therefore turns String plus Unknown into an Integer before the nested If join. Existing join and TYPE-PUBLISH0 behavior is correct. One pure CorePlan Add-result decision will give exact String/StringBox priority, preserve remaining first-row behavior, and connect exactly one normalizer consumer after disconnected S0/M0 proof. LoopArrayJoin facts, GenericLoop, join/PHI, direct Builder arithmetic, final propagation, runtime/backend, fallback, retry, and stashes remain unchanged. S0 is next.",
   "2026-07-17: R0-GENERICLOOP-CARRIER-TYPE0-I0 seals V0 NumericProgression and the V1 StepResolution role once, passes the role through all three skeleton callers, and consumes one non-Clone prepared init/type row before block allocation. Current, next, and selected V1 step-PHI use the same exact representation; the independent carrier fallback remains unchanged. Nested `.ok()` and two top-level matched-facts compose swallows are zero, while post-compose verifier/lowerer fallback stays outside the row. Focused 6/6 plus progression 18/18, inventory, cargo check, V0/V1 debug/release 4/3, and the existing GenericLoop guard are green. HMI advances past the JsonScanner Box conflict and stops at the independent loop_array_join StringUtils.join/2 Integer-vs-String PHI blocker; G0 is paused for that owner inventory.",
-  "2026-07-17: R0-GENERICLOOP-CARRIER-TYPE0-M0 closes one behavior-neutral machine inventory. It fixes V0/V1 role producers at one each, three direct skeleton callers, current hardcoded Integer slots, V1 Unknown defaults, and production representation consumers zero. One nested `.ok()` and two top-level matched-facts composer-error swallowing seams must become exact error transport in I0; broader post-compose verifier/lowerer fallback remains recorded non-authority. Fresh isolated debug/release builds agree, explicit numeric V0/V1 fixtures route and return 4/3, and a 182-row census finds 89 GenericLoop sources with no authoritative legitimate missing/Unknown numeric transient fact. The existing 18-row GenericLoop guard, inventory reference, route pins, and current body-managed Box/String conflict evidence are green. I0 is next.",
-  "2026-07-17: R0-GENERICLOOP-CARRIER-TYPE0-S0 closes one disconnected role/representation boundary with production consumers zero. Facts gain only the closed NumericProgression/BodyManagedState vocabulary; one Builder-private pure preparation product retains init ValueId plus exact MirType without Clone, Builder access, allocation, metadata publication, type inference, or defaulting. Numeric accepts exact Integer only; body-managed preserves exact Integer/Bool/Box; missing init, missing/Unknown type, and Float/Box numeric inputs reject. Focused 6/6, existing progression-role 18/18, cargo check, formatting, pointer, diff, and line budgets are green. M0 caller/slot/census/nested-error inventory is next."
+  "2026-07-17: R0-GENERICLOOP-CARRIER-TYPE0-M0 closes one behavior-neutral machine inventory. It fixes V0/V1 role producers at one each, three direct skeleton callers, current hardcoded Integer slots, V1 Unknown defaults, and production representation consumers zero. One nested `.ok()` and two top-level matched-facts composer-error swallowing seams must become exact error transport in I0; broader post-compose verifier/lowerer fallback remains recorded non-authority. Fresh isolated debug/release builds agree, explicit numeric V0/V1 fixtures route and return 4/3, and a 182-row census finds 89 GenericLoop sources with no authoritative legitimate missing/Unknown numeric transient fact. The existing 18-row GenericLoop guard, inventory reference, route pins, and current body-managed Box/String conflict evidence are green. I0 is next."
 ]

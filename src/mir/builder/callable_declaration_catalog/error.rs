@@ -1,5 +1,7 @@
 use super::CanonicalSameModuleCallableKeyV1;
 
+use std::fmt;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum SameModuleCallableDeclarationCatalogErrorV1 {
     ProgramRequired,
@@ -30,3 +32,26 @@ pub(crate) enum SameModuleCallableDeclarationCatalogErrorV1 {
     },
     DuplicateCanonicalKey(CanonicalSameModuleCallableKeyV1),
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum SameModuleCallableDeclarationCatalogSessionErrorV1 {
+    QueryBeforeInstall,
+    DuplicateInstall,
+}
+
+impl fmt::Display for SameModuleCallableDeclarationCatalogSessionErrorV1 {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::QueryBeforeInstall => write!(
+                formatter,
+                "[mir/callable-catalog/session/query-before-install]"
+            ),
+            Self::DuplicateInstall => write!(
+                formatter,
+                "[mir/callable-catalog/session/duplicate-install]"
+            ),
+        }
+    }
+}
+
+impl std::error::Error for SameModuleCallableDeclarationCatalogSessionErrorV1 {}

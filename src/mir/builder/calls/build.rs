@@ -21,8 +21,10 @@
 use super::super::{Effect, EffectMask, MirBuilder, MirInstruction, ValueId};
 #[allow(unused_imports)]
 use super::debug_method_routing::*;
+use super::static_resolution::BareStaticRecoveryEmissionV1;
 use super::CallTarget;
 use crate::ast::ASTNode;
+use crate::mir::builder::callable_declaration_catalog::BareStaticRecoveryNoRecoveryReasonV1;
 use std::collections::BTreeMap;
 
 impl MirBuilder {
@@ -277,12 +279,23 @@ impl MirBuilder {
             Ok(c) => c,
             Err(_e) => {
                 // Additional resolver: unique static method
-                if let Some(result) = self.try_unique_static_method_recovery(&name, &arg_values)? {
-                    return Ok(result);
-                }
+                let tail_recovery_allowed =
+                    match self.try_unique_static_method_recovery(&name, &arg_values)? {
+                        BareStaticRecoveryEmissionV1::Emitted(result) => {
+                            return Ok(result);
+                        }
+                        BareStaticRecoveryEmissionV1::NoRecovery(
+                            BareStaticRecoveryNoRecoveryReasonV1::NoCandidate,
+                        ) => true,
+                        BareStaticRecoveryEmissionV1::NoRecovery(
+                            BareStaticRecoveryNoRecoveryReasonV1::Ambiguous { .. },
+                        ) => false,
+                    };
                 // Dev-only additional resolver: suffix match
-                if let Some(result) = self.try_tail_based_resolver(&name, &arg_values)? {
-                    return Ok(result);
+                if tail_recovery_allowed {
+                    if let Some(result) = self.try_tail_based_resolver(&name, &arg_values)? {
+                        return Ok(result);
+                    }
                 }
                 return Err(format!(
                     "Unresolved function: '{}'. {}",

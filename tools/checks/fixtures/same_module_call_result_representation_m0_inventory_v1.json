@@ -11,14 +11,22 @@
   },
   "classification": "CALLEE-REPRESENTATION-AUTHORITY-ABSENT",
   "declaration_index": {
-    "generic_result_representation_owner_count": 0,
-    "lowered_method_body_fields": {
+    "callable_declaration_body_fields": {
       "body": 1,
       "param_decls": 1,
       "params": 1
     },
+    "callable_declaration_return_spelling_count": 1,
+    "catalog_install_calls": 1,
+    "catalog_seal_root_calls": 1,
+    "generic_result_representation_owner_count": 0,
+    "old_store_occurrences": {
+      "LoweredMethodAst": 0,
+      "lowered_method_asts": 0,
+      "static_method_index": 0
+    },
     "source_order_static_lowering_count": 1,
-    "static_registration_count": 2
+    "static_registration_count": 0
   },
   "late_complete_module_publication": {
     "global_result_publisher_calls": 1,

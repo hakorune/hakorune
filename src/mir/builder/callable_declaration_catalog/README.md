@@ -29,10 +29,10 @@ It does not own:
 - runtime/backend behavior;
 - fallback resolution.
 
-`R0-CALLABLE-CATALOG-L0B-S0` and `R0-BARE-STATIC-RECOVERY0-P0` keep this module
-disconnected. CUT0 later installs the catalog once per Builder root and
-atomically retires `static_method_index` plus `lowered_method_asts`; this module
-provides no compatibility fallback.
+CUT0 installs the catalog exactly once per legacy Builder root before the
+remaining declaration-index effects. Query-before-install and duplicate
+install are typed session failures. The old lowering-order static index and
+body snapshot store have been retired without a compatibility fallback.
 
 `BareStaticRecoveryDecisionV1` is the sole P0 selection owner:
 
@@ -43,5 +43,6 @@ provides no compatibility fallback.
 ```
 
 It owns no resolver priority, caller context, argument evaluation, call
-emission, retry, or result representation. P0 keeps its production consumers
-at zero.
+emission, retry, or result representation. Exactly two unresolved-global
+entrypoints consume this decision. `Ambiguous` never falls through to the
+legacy dev tail resolver; `NoCandidate` preserves that pre-existing priority.

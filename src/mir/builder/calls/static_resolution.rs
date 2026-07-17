@@ -13,6 +13,15 @@
 use super::super::{MirBuilder, ValueId};
 use super::CallTarget;
 use crate::ast::ASTNode;
+use crate::mir::builder::callable_declaration_catalog::{
+    BareStaticRecoveryDecisionV1, BareStaticRecoveryNoRecoveryReasonV1,
+};
+
+#[derive(Debug, PartialEq, Eq)]
+pub(super) enum BareStaticRecoveryEmissionV1 {
+    Emitted(ValueId),
+    NoRecovery(BareStaticRecoveryNoRecoveryReasonV1),
+}
 
 impl MirBuilder {
     pub(in crate::mir::builder) fn resolve_static_receiver_box_name(
@@ -51,34 +60,39 @@ impl MirBuilder {
     /// Try unique static method recovery (name+arity).
     ///
     /// When a function call fails to resolve, attempt to find a unique static method
-    /// with matching name and arity in comp_ctx.static_method_index.
+    /// with matching name and arity in the complete declaration catalog.
     ///
     /// Example: foo(x, y) → BoxName.foo/2 if only one static method matches
     pub(super) fn try_unique_static_method_recovery(
         &mut self,
         name: &str,
         arg_values: &[ValueId],
-    ) -> Result<Option<ValueId>, String> {
-        if let Some(cands) = self.comp_ctx.static_method_index.get(name) {
-            let mut matches: Vec<(String, usize)> = cands
-                .iter()
-                .cloned()
-                .filter(|(_, ar)| *ar == arg_values.len())
-                .collect();
-            if matches.len() == 1 {
-                let (bx, _arity) = matches.remove(0);
+    ) -> Result<BareStaticRecoveryEmissionV1, String> {
+        let decision = {
+            let catalog = self
+                .comp_ctx
+                .callable_declaration_catalog()
+                .map_err(|error| error.to_string())?;
+            BareStaticRecoveryDecisionV1::decide(catalog, name, arg_values.len())
+                .map_err(|error| error.to_string())?
+        };
+
+        match decision {
+            BareStaticRecoveryDecisionV1::Unique(key) => {
                 let dst = self.next_value_id();
-                let func_name = format!("{}.{}{}", bx, name, format!("/{}", arg_values.len()));
+                let func_name = key.mir_symbol_projection();
                 // Emit unified global call to the lowered static method function
                 self.emit_unified_call(
                     Some(dst),
                     CallTarget::Global(func_name),
                     arg_values.to_vec(),
                 )?;
-                return Ok(Some(dst));
+                Ok(BareStaticRecoveryEmissionV1::Emitted(dst))
+            }
+            BareStaticRecoveryDecisionV1::NoRecovery(reason) => {
+                Ok(BareStaticRecoveryEmissionV1::NoRecovery(reason))
             }
         }
-        Ok(None)
     }
 
     /// Try the dev-only tail resolver.

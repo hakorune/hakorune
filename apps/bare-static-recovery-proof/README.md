@@ -1,17 +1,18 @@
 # Bare static recovery proof
 
-This is the HMI-independent source matrix for
-`R0-BARE-STATIC-RECOVERY0-P0`.
+This is the HMI-independent source and production matrix for
+`R0-CALLABLE-CATALOG-L0B-CUT0`.
 
-P0 parses these sources into the disconnected complete declaration catalog and
-applies the pure zero/unique/ambiguous decision. It does not connect that
-decision to production call resolution.
+The checker keeps the disconnected pure decision tests, builds debug and
+release VM-reference binaries, executes the pass/reject matrix, and verifies
+that every accepted source emits its canonical target exactly once.
 
 ```bash
 bash apps/bare-static-recovery-proof/test.sh
 ```
 
-The provider-first fixtures intentionally place `m_seed` before `z_use` in
-the current sorted lowering order. Caller-first fixtures place `a_use` before
-the same `m_seed` target. Both must normalize to the same canonical target in
-the P0 decision.
+Provider-first and caller-first fixtures must compile to the same target. The
+ambiguous fixture intentionally places its consumer between two providers so
+even a forced dev tail resolver cannot turn the already-ambiguous catalog into
+a lowering-order-dependent unique match. Qualified calls retain their earlier
+route, and instance rows never contaminate static recovery.

@@ -22,8 +22,7 @@ mod builder_method_index;
 mod builder_test_api;
 mod builder_value_kind;
 mod call_resolution; // ChatGPT5 Pro: Type-safe call resolution utilities
-#[allow(dead_code)]
-mod callable_declaration_catalog; // L0a: disconnected complete static-callable declaration authority
+mod callable_declaration_catalog; // Complete same-module callable declaration authority
 mod calls; // Call system modules (refactored from builder_calls)
 mod collection_literals; // ArrayLiteral / MapLiteral lowering
 mod compilation_context; // Phase 136 follow-up (Step 7/7): CompilationContext extraction
@@ -180,8 +179,9 @@ pub struct MirBuilder {
 
     /// Phase 136 follow-up (Step 7/7): Compilation context
     /// Consolidates compilation_context, current_static_box, user_defined_boxes, reserved_value_ids,
-    /// fn_body_ast, weak_fields_by_box, property_registry, field_origin_class, field_origin_by_box,
-    /// static_method_index, method_tail_index, type_registry, current_slot_registry, plugin_method_sigs.
+    /// fn_body_ast, callable declaration catalog, weak_fields_by_box, property_registry,
+    /// field_origin_class, field_origin_by_box, method_tail_index, type_registry,
+    /// current_slot_registry, plugin_method_sigs.
     /// Direct field access for backward compatibility (migration in progress).
     pub(super) comp_ctx: compilation_context::CompilationContext,
 

@@ -351,3 +351,41 @@ fn rejects_parameter_declaration_name_and_cardinality_drift() {
         }
     ));
 }
+
+#[test]
+fn catalog_session_rejects_missing_and_duplicate_install_without_replacing_first() {
+    use crate::mir::builder::compilation_context::CompilationContext;
+
+    let mut context = CompilationContext::new();
+    assert!(matches!(
+        context.callable_declaration_catalog(),
+        Err(SameModuleCallableDeclarationCatalogSessionErrorV1::QueryBeforeInstall)
+    ));
+
+    let first =
+        VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&program(vec![static_box(
+            "Helpers",
+            vec![static_function("run", &[], None)],
+        )]))
+        .unwrap();
+    context.install_callable_declaration_catalog(first).unwrap();
+    assert_eq!(context.callable_declaration_catalog().unwrap().len(), 1);
+
+    let duplicate = VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&scalar()).unwrap();
+    assert_eq!(
+        context
+            .install_callable_declaration_catalog(duplicate)
+            .unwrap_err(),
+        SameModuleCallableDeclarationCatalogSessionErrorV1::DuplicateInstall
+    );
+    assert_eq!(context.callable_declaration_catalog().unwrap().len(), 1);
+
+    context.clear_callable_declaration_catalog();
+    assert!(matches!(
+        context.callable_declaration_catalog(),
+        Err(SameModuleCallableDeclarationCatalogSessionErrorV1::QueryBeforeInstall)
+    ));
+    let empty = VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&scalar()).unwrap();
+    context.install_callable_declaration_catalog(empty).unwrap();
+    assert!(context.callable_declaration_catalog().unwrap().is_empty());
+}

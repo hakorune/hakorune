@@ -1,7 +1,7 @@
 //! Complete same-module callable declaration catalog.
 //!
-//! L0b-S0 remains disconnected: the existing declaration index and lowering
-//! behavior stay unchanged until the atomic CUT0.
+//! The catalog is sealed once from the complete root before declaration-index
+//! effects. CUT0 makes it the sole same-module callable declaration authority.
 
 mod catalog;
 mod error;
@@ -14,7 +14,9 @@ mod recovery;
 pub(crate) use catalog::{
     VerifiedSameModuleCallableDeclarationCatalogV1, VerifiedSameModuleCallableDeclarationV1,
 };
-pub(crate) use error::SameModuleCallableDeclarationCatalogErrorV1;
+pub(crate) use error::{
+    SameModuleCallableDeclarationCatalogErrorV1, SameModuleCallableDeclarationCatalogSessionErrorV1,
+};
 #[allow(unused_imports)]
 pub(crate) use key::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
 #[allow(unused_imports)]

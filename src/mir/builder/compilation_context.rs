@@ -14,7 +14,7 @@
  * - property_registry: Property getter registry
  * - field_origin_class: Field origin tracking
  * - field_origin_by_box: Class-level field origin
- * - static_method_index: Static method index
+ * - callable_declaration_catalog: Complete same-module callable declarations
  * - method_tail_index: Method tail index
  * - method_tail_index_source_len: Source length snapshot
  * - type_registry: Type registry box
@@ -23,7 +23,7 @@
  */
 
 use crate::ast::FieldDecl;
-use crate::ast::{ASTNode, EnumVariantDecl, ParamDecl};
+use crate::ast::{ASTNode, EnumVariantDecl};
 use crate::mir::function::{MirEnumDecl, MirEnumVariantDecl, RecordDecl};
 use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
 use crate::mir::{MirType, UserBoxFieldDecl, ValueId};
@@ -43,13 +43,6 @@ pub(crate) struct RecordLocalValue {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) struct LoweredMethodAst {
-    pub params: Vec<String>,
-    pub param_decls: Vec<ParamDecl>,
-    pub body: Vec<ASTNode>,
-}
-
-#[derive(Debug, Clone)]
 pub(crate) struct EnumDeclLocal {
     pub type_parameters: Vec<String>,
     pub variants: Vec<EnumVariantDecl>,
@@ -61,6 +54,10 @@ pub(crate) struct ResolvedEnumVariant<'a> {
     pub decl: &'a EnumVariantDecl,
 }
 
+use super::callable_declaration_catalog::{
+    SameModuleCallableDeclarationCatalogSessionErrorV1, SameModuleCallableNamespaceV1,
+    VerifiedSameModuleCallableDeclarationCatalogV1, VerifiedSameModuleCallableDeclarationV1,
+};
 use super::properties::PropertyRegistry;
 use super::static_scalar_facts::{infer_static_scalar_method_fact, StaticScalarMethodFact};
 use super::type_registry::TypeRegistry;
@@ -135,10 +132,12 @@ pub(crate) struct CompilationContext {
     /// None when not lowering a function, or when fn_body is not available.
     pub fn_body_ast: Option<Vec<ASTNode>>,
 
-    /// Same-module method bodies keyed by lowered function name (`Box.method/N`).
-    /// This stays compiler-internal and is used only by narrow scalarization
-    /// rows that must inspect a helper body before emitting a runtime call.
-    pub lowered_method_asts: HashMap<String, LoweredMethodAst>,
+    /// Complete immutable same-module callable declarations for this root.
+    ///
+    /// The slot is cleared at module preparation and installed exactly once
+    /// before declaration-index effects. Missing or duplicate installation is
+    /// a typed session error, never an empty-candidate fallback.
+    callable_declaration_catalog: Option<VerifiedSameModuleCallableDeclarationCatalogV1>,
 
     /// Verified static scalar method facts keyed by lowered function name.
     ///
@@ -158,9 +157,6 @@ pub(crate) struct CompilationContext {
 
     /// Class-level field origin (cross-function heuristic): (BaseBoxName, field) -> FieldBoxName
     pub field_origin_by_box: HashMap<(String, String), String>,
-
-    /// Index of static methods seen during lowering: name -> [(BoxName, arity)]
-    pub static_method_index: HashMap<String, Vec<(String, usize)>>,
 
     /// Explicit imported static-box bindings: alias -> concrete static box name.
     ///
@@ -211,13 +207,12 @@ impl CompilationContext {
             record_local_values: HashMap::new(),
             reserved_value_ids: HashSet::new(),
             fn_body_ast: None,
-            lowered_method_asts: HashMap::new(),
+            callable_declaration_catalog: None,
             static_scalar_method_facts: HashMap::new(),
             weak_fields_by_box: HashMap::new(),
             property_registry: PropertyRegistry::new(),
             field_origin_class: HashMap::new(),
             field_origin_by_box: HashMap::new(),
-            static_method_index: HashMap::new(),
             using_import_boxes: HashMap::new(),
             method_tail_index: HashMap::new(),
             method_tail_index_source_len: 0,
@@ -241,25 +236,45 @@ impl CompilationContext {
         self.user_defined_boxes.contains_key(name) // Phase 285LLVM-1.1: HashMap check
     }
 
-    pub fn register_lowered_method_ast(
-        &mut self,
-        func_name: String,
-        params: Vec<String>,
-        param_decls: Vec<ParamDecl>,
-        body: Vec<ASTNode>,
-    ) {
-        self.lowered_method_asts.insert(
-            func_name,
-            LoweredMethodAst {
-                params,
-                param_decls,
-                body,
-            },
-        );
+    pub(crate) fn clear_callable_declaration_catalog(&mut self) {
+        self.callable_declaration_catalog = None;
     }
 
-    pub fn lowered_method_ast(&self, func_name: &str) -> Option<&LoweredMethodAst> {
-        self.lowered_method_asts.get(func_name)
+    pub(crate) fn install_callable_declaration_catalog(
+        &mut self,
+        catalog: VerifiedSameModuleCallableDeclarationCatalogV1,
+    ) -> Result<(), SameModuleCallableDeclarationCatalogSessionErrorV1> {
+        if self.callable_declaration_catalog.is_some() {
+            return Err(SameModuleCallableDeclarationCatalogSessionErrorV1::DuplicateInstall);
+        }
+        self.callable_declaration_catalog = Some(catalog);
+        Ok(())
+    }
+
+    pub(crate) fn callable_declaration_catalog(
+        &self,
+    ) -> Result<
+        &VerifiedSameModuleCallableDeclarationCatalogV1,
+        SameModuleCallableDeclarationCatalogSessionErrorV1,
+    > {
+        self.callable_declaration_catalog
+            .as_ref()
+            .ok_or(SameModuleCallableDeclarationCatalogSessionErrorV1::QueryBeforeInstall)
+    }
+
+    pub(crate) fn callable_declaration(
+        &self,
+        namespace: SameModuleCallableNamespaceV1,
+        owner: &str,
+        method: &str,
+        arity: usize,
+    ) -> Result<
+        Option<&VerifiedSameModuleCallableDeclarationV1>,
+        SameModuleCallableDeclarationCatalogSessionErrorV1,
+    > {
+        Ok(self
+            .callable_declaration_catalog()?
+            .declaration_for(namespace, owner, method, arity))
     }
 
     pub fn register_static_scalar_method_fact_if_verified(
@@ -391,21 +406,6 @@ impl CompilationContext {
     /// Set field origin by box (class-level)
     pub fn set_field_origin_by_box(&mut self, base_box: String, field: String, origin: String) {
         self.field_origin_by_box.insert((base_box, field), origin);
-    }
-
-    /// Register a static method
-    pub fn register_static_method(&mut self, method_name: String, box_name: String, arity: usize) {
-        self.static_method_index
-            .entry(method_name)
-            .or_insert_with(Vec::new)
-            .push((box_name, arity));
-    }
-
-    /// Get static method candidates
-    pub fn get_static_method_candidates(&self, method_name: &str) -> Option<&[(String, usize)]> {
-        self.static_method_index
-            .get(method_name)
-            .map(|v| v.as_slice())
     }
 
     /// Replace imported static-box alias bindings for the next compilation.

@@ -1,5 +1,5 @@
 ---
-Status: S0 and P0 closed; CUT0 is next
+Status: CUT0 closed; G0 is next
 Date: 2026-07-17
 Decision: canonical declaration-order-independent unique bare-static recovery
 Baseline: 4524c9675f
@@ -39,10 +39,30 @@ are 7/7, the complete catalog module is 14/14, the proof checker is green,
 `cargo check` and quick 66/66 are green, production decision consumers remain
 zero, and every source/check file remains below 800 lines.
 
+`R0-CALLABLE-CATALOG-L0B-CUT0` is now closed. Every root first clears the
+previous Builder session, seals the complete callable catalog, and installs it
+exactly once before remaining declaration-index effects. Exactly two
+bare-static recovery consumers use the canonical decision. Ambiguous recovery
+cannot fall through to the dev tail resolver, while `NoCandidate` preserves
+that pre-existing diagnostic-only lane. Record-helper static and instance
+lookups now use structured catalog keys after the consumer-local setter
+allowlist; the old `static_method_index`, `lowered_method_asts`, their types,
+accessors, writers, and duplicate post-lowering registrations are absent from
+production code.
+
+Fifteen HMI-independent production sources now cover provider/caller order,
+cross-box parity, app/script roots, zero/unique/ambiguous and arity cases,
+qualified-call and instance-method controls, text merge, and canonical target
+emission. The cutover proof is green with 11 pass and 3 reject executions in
+debug/release, one decision owner, two production consumers, and one intended
+behavior delta. Catalog session 8/8, helper 5/5, compiler-reuse 1/1, result
+representation inventory/proof, `cargo check`, pointer guard, and quick 66/66
+are green. Every touched source/check file remains below 800 lines.
+
 The next code-facing row is:
 
 ```text
-R0-CALLABLE-CATALOG-L0B-CUT0
+R0-CALLABLE-CATALOG-L0B-G0
 ```
 
 ## Decision

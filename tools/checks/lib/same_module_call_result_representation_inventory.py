@@ -44,7 +44,7 @@ def require_order(text: str, anchors: list[str], label: str) -> None:
 
 def build(root: Path) -> dict[str, object]:
     index_path = "src/mir/builder/declaration_indexer.rs"
-    context_path = "src/mir/builder/compilation_context.rs"
+    catalog_path = "src/mir/builder/callable_declaration_catalog/catalog.rs"
     lifecycle_path = "src/mir/builder/module_lifecycle.rs"
     static_call_path = "src/mir/builder/method_call_handlers.rs"
     emitter_path = "src/mir/builder/calls/unified_emitter.rs"
@@ -61,7 +61,7 @@ def build(root: Path) -> dict[str, object]:
     callee_path = "lang/src/compiler/parser/scan/parser_string_utils_box.hako"
 
     index = read(root, index_path)
-    context = read(root, context_path)
+    catalog = read(root, catalog_path)
     lifecycle = read(root, lifecycle_path)
     static_call = read(root, static_call_path)
     emitter = read(root, emitter_path)
@@ -80,11 +80,13 @@ def build(root: Path) -> dict[str, object]:
     require_order(
         lifecycle,
         [
+            "VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&snapshot)",
+            "install_callable_declaration_catalog(callable_catalog)",
             "declaration_indexer::index_declarations(self, &snapshot)",
             "deferred_static_boxes.push((name.clone(), methods.clone()))",
             "for (name, methods) in deferred_static_boxes",
         ],
-        "declaration index before source-order static lowering",
+        "catalog seal/install before declaration index and static lowering",
     )
     require_order(
         static_call,
@@ -129,16 +131,22 @@ def build(root: Path) -> dict[str, object]:
         "whole-module refresh after build verification",
     )
 
-    lowered_method_body_fields = {
-        field: count(context, f"pub {field}:")
-        for field in ("params", "param_decls", "body")
+    callable_declaration_fields = {
+        "params": count(catalog, "params: Box<[String]>,"),
+        "param_decls": count(catalog, "param_decls: Box<[ParamDecl]>,"),
+        "body": count(catalog, "body: Box<[ASTNode]>,"),
     }
-    declaration_has_generic_result_representation = (
-        "return_type_name" in context[
-            context.index("pub(crate) struct LoweredMethodAst") :
-            context.index("pub(crate) struct EnumDeclLocal")
-        ]
+    callable_declaration_return_spelling_count = count(
+        catalog, "return_type_name: Option<Box<str>>"
     )
+    builder_sources = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in (root / "src/mir/builder").rglob("*.rs")
+    )
+    old_store_occurrences = {
+        symbol: builder_sources.count(symbol)
+        for symbol in ("static_method_index", "LoweredMethodAst", "lowered_method_asts")
+    }
     source_rows = {
         "forward_direct": (1, "missing"),
         "forward_copy": (1, "missing"),
@@ -167,8 +175,8 @@ def build(root: Path) -> dict[str, object]:
         "loop(pos < text.length()", maxsplit=1
     )
 
-    lowering_time_exact_owner_count = int(
-        declaration_has_generic_result_representation
+    lowering_time_exact_owner_count = builder_sources.count(
+        "pub(crate) struct VerifiedSameModuleCallableResultCatalogV1"
     )
     classification = (
         "CANONICAL-PRODUCER-PUBLICATION-REQUIRED"
@@ -210,7 +218,16 @@ def build(root: Path) -> dict[str, object]:
             ),
         },
         "declaration_index": {
-            "lowered_method_body_fields": lowered_method_body_fields,
+            "callable_declaration_body_fields": callable_declaration_fields,
+            "callable_declaration_return_spelling_count": callable_declaration_return_spelling_count,
+            "catalog_seal_root_calls": count(
+                lifecycle,
+                "VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&snapshot)",
+            ),
+            "catalog_install_calls": count(
+                lifecycle, "install_callable_declaration_catalog(callable_catalog)"
+            ),
+            "old_store_occurrences": old_store_occurrences,
             "static_registration_count": count(
                 index, "builder.comp_ctx.register_lowered_method_ast("
             ),

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Validate the disconnected canonical bare-static recovery P0 matrix."""
+"""Validate the canonical bare-static recovery CUT0 matrix."""
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -28,6 +29,7 @@ REQUIRED = {
     "zero_arg.hako",
     "wrong_arity.hako",
     "no_candidate.hako",
+    "qualified_control.hako",
     "text_merged_helper.hako",
     "text_merged_main.hako",
 }
@@ -75,6 +77,12 @@ def verify_source_matrix(sources: dict[str, str]) -> dict[str, Any]:
 
     ambiguous = sources["ambiguous.hako"]
     require(len(re.findall(r"(?m)^\s{4}m_seed\(x\)", ambiguous)) == 2, "ambiguous fixture must own two static candidates")
+    require(
+        ambiguous.index("static box Alpha")
+        < ambiguous.index("static box Consumer")
+        < ambiguous.index("static box Zeta"),
+        "ambiguous fixture must expose one lowered suffix before the second candidate",
+    )
     instance = sources["instance_control.hako"]
     require("box InstanceProvider" in instance, "instance control lost ordinary box")
     require("static box StaticProvider" in instance, "instance control lost static candidate")
@@ -86,6 +94,10 @@ def verify_source_matrix(sources: dict[str, str]) -> dict[str, Any]:
     require("m_seed(x, y)" in sources["wrong_arity.hako"], "wrong-arity provider drift")
     require("return m_seed(x)" in sources["wrong_arity.hako"], "wrong-arity call drift")
     require("return missing_seed(x)" in sources["no_candidate.hako"], "no-candidate call drift")
+    require(
+        "return Provider.m_seed(x)" in sources["qualified_control.hako"],
+        "qualified static control drift",
+    )
 
     using = sources["text_merged_main.hako"].splitlines()[0]
     require(using == 'using "apps/bare-static-recovery-proof/text_merged_helper.hako" as TextMergedHelpers', "text-merge using row drift")
@@ -101,17 +113,161 @@ def verify_source_matrix(sources: dict[str, str]) -> dict[str, Any]:
     }
 
 
-def verify_disconnected_owner(root: Path) -> dict[str, int]:
+def verify_cutover_owner(root: Path) -> dict[str, int]:
     catalog_root = root / CATALOG_DIR
     owner = (catalog_root / "recovery.rs").read_text(encoding="utf-8")
     require(owner.count("pub(crate) enum BareStaticRecoveryDecisionV1") == 1, "decision owner count drift")
-    external = 0
-    for path in (root / "src").rglob("*.rs"):
-        if catalog_root in path.parents:
-            continue
-        external += path.read_text(encoding="utf-8").count("BareStaticRecoveryDecisionV1")
-    require(external == 0, f"P0 production consumer count must remain zero, got {external}")
-    return {"decision_owners": 1, "production_consumers": external}
+    consumer_paths = [
+        root / "src/mir/builder/calls/static_resolution.rs",
+        root / "src/mir/builder/calls/materializer.rs",
+    ]
+    consumers = sum(
+        path.read_text(encoding="utf-8").count("BareStaticRecoveryDecisionV1::decide(")
+        for path in consumer_paths
+    )
+    require(consumers == 2, f"CUT0 production consumer count must be two, got {consumers}")
+
+    builder_sources = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in (root / "src/mir/builder").rglob("*.rs")
+    )
+    for retired in (
+        "static_method_index",
+        "LoweredMethodAst",
+        "lowered_method_asts",
+        "register_lowered_method_ast",
+        "lowered_method_ast",
+    ):
+        require(retired not in builder_sources, f"retired authority remains in Rust: {retired}")
+
+    lifecycle = (root / "src/mir/builder/module_lifecycle.rs").read_text(encoding="utf-8")
+    require(
+        lifecycle.count(".clear_callable_declaration_catalog()") == 1,
+        "catalog clear production caller count drift",
+    )
+    require(
+        lifecycle.count(".install_callable_declaration_catalog(callable_catalog)") == 1,
+        "catalog install production caller count drift",
+    )
+    lower_root = lifecycle[lifecycle.index("pub(super) fn lower_root") :]
+    require(
+        lower_root.index("VerifiedSameModuleCallableDeclarationCatalogV1::seal_root")
+        < lower_root.index("install_callable_declaration_catalog(callable_catalog)")
+        < lower_root.index("declaration_indexer::index_declarations"),
+        "catalog seal/install must precede declaration indexing",
+    )
+    return {"decision_owners": 1, "production_consumers": consumers}
+
+
+def run(
+    argv: list[str], root: Path, env: dict[str, str] | None = None
+) -> subprocess.CompletedProcess[str]:
+    merged = os.environ.copy()
+    if env:
+        merged.update(env)
+    return subprocess.run(
+        argv, cwd=root, env=merged, text=True, capture_output=True, check=False
+    )
+
+
+def build_bins(root: Path) -> dict[str, Path]:
+    common = ["cargo", "build", "-q", "--features", "vm-reference", "--bin", "hakorune"]
+    for label, command in (
+        ("debug", common),
+        ("release", common[:2] + ["--release"] + common[2:]),
+    ):
+        completed = run(command, root)
+        require(
+            completed.returncode == 0,
+            f"{label} build failed\nstdout:\n{completed.stdout}\nstderr:\n{completed.stderr}",
+        )
+    return {
+        "debug": root / "target/debug/hakorune",
+        "release": root / "target/release/hakorune",
+    }
+
+
+def iter_mir_calls(document: dict[str, Any]):
+    for function in document.get("functions", []):
+        for block in function.get("blocks", []):
+            for instruction in block.get("instructions", []):
+                call = instruction.get("mir_call")
+                if call is not None:
+                    yield function.get("name"), call
+
+
+def verify_production_matrix(root: Path, bins: dict[str, Path]) -> dict[str, int]:
+    pass_cases = {
+        "provider_first_script": (2, "2", "Helpers.m_seed/1"),
+        "caller_first_script": (2, "2", "Helpers.m_seed/1"),
+        "provider_first_app": (2, "", "Helpers.m_seed/1"),
+        "caller_first_app": (2, "", "Helpers.m_seed/1"),
+        "cross_provider_first": (2, "2", "Provider.m_seed/1"),
+        "cross_caller_first": (2, "2", "Provider.m_seed/1"),
+        "arity_overload": (2, "2", "UnaryProvider.m_seed/1"),
+        "zero_arg": (1, "1", "Helpers.m_seed/0"),
+        "instance_control": (2, "2", "StaticProvider.m_seed/1"),
+        "qualified_control": (2, "2", "Provider.m_seed/1"),
+        "text_merged_main": (2, "", "TextMergedHelpers.m_seed/1"),
+    }
+    reject_cases = ("ambiguous", "wrong_arity", "no_candidate")
+    text_merge_env = {
+        "NYASH_USING_PROFILE": "dev",
+        "NYASH_ENABLE_USING": "1",
+        "HAKO_ENABLE_USING": "1",
+        "NYASH_ALLOW_USING_FILE": "1",
+        "HAKO_ALLOW_USING_FILE": "1",
+        "NYASH_PREINCLUDE": "1",
+        "HAKO_PREINCLUDE": "1",
+    }
+
+    for profile, binary in bins.items():
+        for case, (expected_rc, expected_stdout, expected_target) in pass_cases.items():
+            source = root / APP_DIR / f"{case}.hako"
+            env = text_merge_env if case == "text_merged_main" else None
+            runtime = run([str(binary), "--backend", "vm", str(source)], root, env)
+            require(
+                runtime.returncode == expected_rc and runtime.stdout.strip() == expected_stdout,
+                f"{profile}/{case} runtime mismatch rc={runtime.returncode} "
+                f"stdout={runtime.stdout!r} stderr={runtime.stderr!r}",
+            )
+
+            mir_path = root / ARTIFACT_DIR / f"{profile}_{case}.json"
+            mir_path.parent.mkdir(parents=True, exist_ok=True)
+            if mir_path.exists():
+                mir_path.unlink()
+            emitted = run(
+                [str(binary), "--emit-mir-json", str(mir_path), str(source)], root, env
+            )
+            require(
+                emitted.returncode == 0 and mir_path.is_file(),
+                f"{profile}/{case} MIR emission failed: {emitted.stderr}",
+            )
+            document = json.loads(mir_path.read_text(encoding="utf-8"))
+            selected = [
+                (owner, call)
+                for owner, call in iter_mir_calls(document)
+                if call.get("callee", {}).get("name") == expected_target
+            ]
+            require(
+                len(selected) == 1,
+                f"{profile}/{case} expected one canonical target {expected_target}, got {len(selected)}",
+            )
+
+        for case in reject_cases:
+            source = root / APP_DIR / f"{case}.hako"
+            env = {"NYASH_BUILDER_TAIL_RESOLVE": "1"} if case == "ambiguous" else None
+            rejected = run([str(binary), "--backend", "vm", str(source)], root, env)
+            require(
+                rejected.returncode == 1 and "Unresolved function:" in rejected.stderr,
+                f"{profile}/{case} must reject without fallback: {rejected.stderr!r}",
+            )
+
+    return {
+        "profiles": len(bins),
+        "pass_cases": len(pass_cases),
+        "reject_cases": len(reject_cases),
+    }
 
 
 def run_focused_tests(root: Path) -> None:
@@ -143,27 +299,31 @@ def main() -> int:
 
     sources = read_sources(root)
     source_report = verify_source_matrix(sources)
-    owner_report = verify_disconnected_owner(root)
+    owner_report = verify_cutover_owner(root)
     run_focused_tests(root)
+    production_report = verify_production_matrix(root, build_bins(root))
 
     report = {
         "schema_version": 1,
-        "row": "R0-BARE-STATIC-RECOVERY0-P0",
-        "selection": "CANONICAL-UNIQUE-BARE-STATIC-RECOVERY-SEALED",
-        "production_behavior_delta": 0,
+        "row": "R0-CALLABLE-CATALOG-L0B-CUT0",
+        "selection": "CANONICAL-CALLABLE-CATALOG-CUTOVER-GREEN",
+        "production_behavior_delta": 1,
         "source": source_report,
         "owner": owner_report,
+        "production": production_report,
     }
     artifact = root / ARTIFACT_DIR
     artifact.mkdir(parents=True, exist_ok=True)
     (artifact / "p0_observation.json").write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
-    print("selection=CANONICAL-UNIQUE-BARE-STATIC-RECOVERY-SEALED")
+    print("selection=CANONICAL-CALLABLE-CATALOG-CUTOVER-GREEN")
     print("decision_owner_count=1")
-    print("production_consumer_count=0")
+    print("production_consumer_count=2")
     print(f"fixture_count={source_report['fixture_count']}")
-    print("production_behavior_delta=0")
+    print(f"production_pass_cases={production_report['pass_cases']}")
+    print(f"production_reject_cases={production_report['reject_cases']}")
+    print("production_behavior_delta=1")
     print("summary=observed")
     return 0
 

@@ -6,14 +6,15 @@
 //!
 //! Orchestrates the complete MIR module construction pipeline:
 //! 1. prepare_module() - Module setup and entry point creation
-//! 2. lower_root() - AST lowering with declaration indexing
+//! 2. lower_root() - Catalog sealing, remaining declaration indexing, and AST lowering
 //! 3. finalize_module() - Type propagation, PHI inference, module sealing
 //!
 //! # Architecture
 //!
 //! This orchestrator delegates to specialized modules:
 //!
-//! - **declaration_indexer** - Pre-indexes user boxes and static methods
+//! - **callable_declaration_catalog** - Seals the complete callable declarations once
+//! - **declaration_indexer** - Pre-indexes remaining non-callable declaration facts
 //! - **type_hint_providers** - Annotates Call/BoxCall/Await result types
 //! - **phi_type_inference** - Multi-phase PHI return type resolution
 //!
@@ -23,7 +24,8 @@
 //! prepare_module()
 //!   ↓
 //! lower_root()
-//!   ├→ declaration_indexer::index_declarations()  (Phase A: symbol indexing)
+//!   ├→ callable catalog seal + install            (Complete callable authority)
+//!   ├→ declaration_indexer::index_declarations()  (Remaining declaration facts)
 //!   ├→ declaration_indexer::has_main_static()      (App vs Script mode)
 //!   └→ AST lowering (build_expression, etc.)
 //!   ↓
@@ -45,6 +47,7 @@
 //!
 //! - `builder_build.rs::build_module()` - Main entry point
 
+use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::declaration_order::{sorted_constructor_entries, sorted_method_entries};
 use super::{
     BasicBlockId, EffectMask, FunctionSignature, MirInstruction, MirModule, MirType, ValueId,
@@ -62,6 +65,8 @@ use super::type_hint_providers;
 
 impl super::MirBuilder {
     pub(super) fn prepare_module(&mut self) -> Result<(), String> {
+        self.comp_ctx.clear_callable_declaration_catalog();
+
         let mut module = MirModule::new("main".to_string());
         module.metadata.source_file = self.current_source_file();
         let main_signature = FunctionSignature {
@@ -104,14 +109,23 @@ impl super::MirBuilder {
     /// Lower root AST to MIR (Orchestrator Step 2)
     ///
     /// Execution flow:
-    /// 1. Declaration indexing (delegation to declaration_indexer)
-    /// 2. App vs Script mode detection
-    /// 3. AST lowering (build_expression, etc.)
+    /// 1. Complete callable catalog seal and install
+    /// 2. Remaining declaration indexing (delegation to declaration_indexer)
+    /// 3. App vs Script mode detection
+    /// 4. AST lowering (build_expression, etc.)
     pub(super) fn lower_root(&mut self, ast: ASTNode) -> Result<ValueId, String> {
-        // ===== Step 1: Declaration Indexing (delegation to declaration_indexer) =====
-        // Pre-index static methods to enable safe bare-call recovery in using-prepended code.
         let snapshot = ast.clone();
-        // Phase A: collect declarations in one pass (symbols available to lowering)
+
+        // Seal the complete declaration authority before any legacy indexing
+        // or body-lowering effect. Every root, including a scalar root, owns
+        // exactly one installed catalog for this Builder session.
+        let callable_catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&snapshot)
+            .map_err(|error| format!("[mir/callable-catalog/seal] {error:?}"))?;
+        self.comp_ctx
+            .install_callable_declaration_catalog(callable_catalog)
+            .map_err(|error| error.to_string())?;
+
+        // Phase A: collect the remaining non-callable declaration facts.
         declaration_indexer::index_declarations(self, &snapshot);
         if let Some(module) = self.current_module.as_mut() {
             let specs = crate::mir::static_data_plan::collect_static_table_specs_from_ast(
@@ -303,11 +317,6 @@ impl super::MirBuilder {
                                     uses.clone(),
                                     attrs.clone(),
                                 )?;
-                                self.comp_ctx
-                                    .static_method_index
-                                    .entry(mname.to_string())
-                                    .or_insert_with(Vec::new)
-                                    .push((name.clone(), params.len()));
                             }
                         }
                     }

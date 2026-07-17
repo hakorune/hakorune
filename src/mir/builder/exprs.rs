@@ -364,12 +364,6 @@ impl super::MirBuilder {
                                     uses.clone(),
                                     attrs.clone(),
                                 )?;
-                                // Index static method for fallback resolution of bare calls
-                                self.comp_ctx
-                                    .static_method_index
-                                    .entry(method_name.to_string())
-                                    .or_insert_with(Vec::new)
-                                    .push((name.clone(), params.len()));
                             }
                         }
                         self.comp_ctx.compilation_context = saved_comp_ctx;
