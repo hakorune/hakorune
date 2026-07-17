@@ -37,6 +37,12 @@ static box CoreMethodContractBox {
   op_string_lastindexof() { return "StringLastIndexOf" }
   op_string_contains() { return "StringContains" }
 
+  result_i64_value() { return "I64Value" }
+  result_bool_value() { return "BoolValue" }
+  result_string_value() { return "StringValue" }
+  result_no_value() { return "NoValue" }
+  result_dynamic() { return "Dynamic" }
+
   schema_fields() {
     local out = new ArrayBox()
     out.push("box")
@@ -45,6 +51,7 @@ static box CoreMethodContractBox {
     out.push("arity")
     out.push("effect")
     out.push("core_op")
+    out.push("result_kind")
     out.push("lowering_tier")
     out.push("cold_lowering")
     out.push("runtime_owner")
@@ -74,7 +81,7 @@ static box CoreMethodContractBox {
     return new ArrayBox()
   }
 
-  _row(box_name, canonical, aliases, arity, effect, core_op, lowering_tier, cold_lowering, runtime_owner) {
+  _row(box_name, canonical, aliases, arity, effect, core_op, result_kind, lowering_tier, cold_lowering, runtime_owner) {
     local row = new MapBox()
     row.set("box", box_name)
     row.set("canonical", canonical)
@@ -82,6 +89,7 @@ static box CoreMethodContractBox {
     row.set("arity", arity)
     row.set("effect", effect)
     row.set("core_op", core_op)
+    row.set("result_kind", result_kind)
     row.set("lowering_tier", lowering_tier)
     row.set("cold_lowering", cold_lowering)
     row.set("runtime_owner", runtime_owner)
@@ -102,6 +110,7 @@ static box CoreMethodContractBox {
       "0",
       me.effect_pure_read(),
       me.op_array_len(),
+      me.result_i64_value(),
       me.tier_warm_direct_abi(),
       "nyash.array.slot_len_h",
       me._runtime_owner_array()
@@ -116,6 +125,7 @@ static box CoreMethodContractBox {
       "1",
       me.effect_pure_read(),
       me.op_array_get(),
+      me.result_dynamic(),
       me.tier_warm_direct_abi(),
       "nyash.array.slot_load_hi",
       me._runtime_owner_array()
@@ -130,6 +140,7 @@ static box CoreMethodContractBox {
       "1",
       me.effect_pure_read(),
       me.op_array_has(),
+      me.result_bool_value(),
       me.tier_warm_direct_abi(),
       "nyash.array.has_hh",
       me._runtime_owner_array()
@@ -144,6 +155,7 @@ static box CoreMethodContractBox {
       "2",
       me.effect_mutates_slot(),
       me.op_array_set(),
+      me.result_no_value(),
       me.tier_cold_fallback(),
       "nyash.array.slot_store_*",
       me._runtime_owner_array()
@@ -158,6 +170,7 @@ static box CoreMethodContractBox {
       "1",
       me.effect_mutates_shape(),
       me.op_array_push(),
+      me.result_no_value(),
       me.tier_cold_fallback(),
       "nyash.array.slot_append_hh",
       me._runtime_owner_array()
@@ -172,6 +185,7 @@ static box CoreMethodContractBox {
       "1",
       me.effect_pure_read(),
       me.op_map_get(),
+      me.result_dynamic(),
       me.tier_warm_direct_abi(),
       "nyash.map.slot_load_hh",
       me._runtime_owner_map()
@@ -186,6 +200,7 @@ static box CoreMethodContractBox {
       "2",
       me.effect_mutates_slot(),
       me.op_map_set(),
+      me.result_dynamic(),
       me.tier_cold_fallback(),
       "nyash.map.slot_store_hhh",
       me._runtime_owner_map()
@@ -200,6 +215,7 @@ static box CoreMethodContractBox {
       "1",
       me.effect_pure_read(),
       me.op_map_has(),
+      me.result_bool_value(),
       me.tier_warm_direct_abi(),
       "nyash.map.probe_hh",
       me._runtime_owner_map()
@@ -214,6 +230,7 @@ static box CoreMethodContractBox {
       "1",
       me.effect_mutates_shape(),
       me.op_map_delete(),
+      me.result_dynamic(),
       me.tier_cold_fallback(),
       "nyash.map.delete_hh",
       me._runtime_owner_map()
@@ -228,6 +245,7 @@ static box CoreMethodContractBox {
       "0",
       me.effect_pure_read(),
       me.op_map_keys(),
+      me.result_dynamic(),
       me.tier_warm_direct_abi(),
       "nyash.map.keys_h",
       me._runtime_owner_map()
@@ -242,6 +260,7 @@ static box CoreMethodContractBox {
       "0",
       me.effect_pure_read(),
       me.op_map_len(),
+      me.result_i64_value(),
       me.tier_warm_direct_abi(),
       "nyash.map.entry_count_i64",
       me._runtime_owner_map()
@@ -256,6 +275,7 @@ static box CoreMethodContractBox {
       "0",
       me.effect_pure_read(),
       me.op_string_len(),
+      me.result_i64_value(),
       me.tier_warm_direct_abi(),
       "nyash.string.len_fast_h",
       me._runtime_owner_string()
@@ -270,6 +290,7 @@ static box CoreMethodContractBox {
       "1|2",
       me.effect_pure_read(),
       me.op_string_substring(),
+      me.result_string_value(),
       me.tier_warm_direct_abi(),
       "nyash.string.substring_hii",
       me._runtime_owner_string()
@@ -284,6 +305,7 @@ static box CoreMethodContractBox {
       "1|2",
       me.effect_pure_read(),
       me.op_string_indexof(),
+      me.result_i64_value(),
       me.tier_warm_direct_abi(),
       "nyash.string.indexOf_hh",
       me._runtime_owner_string()
@@ -298,6 +320,7 @@ static box CoreMethodContractBox {
       "1",
       me.effect_pure_read(),
       me.op_string_lastindexof(),
+      me.result_i64_value(),
       me.tier_warm_direct_abi(),
       "nyash.string.lastIndexOf_hh",
       me._runtime_owner_string()
@@ -312,6 +335,7 @@ static box CoreMethodContractBox {
       "1",
       me.effect_pure_read(),
       me.op_string_contains(),
+      me.result_bool_value(),
       me.tier_warm_direct_abi(),
       "nyash.string.contains_hh",
       me._runtime_owner_string()
@@ -389,5 +413,11 @@ static box CoreMethodContractBox {
     local row = me.find(box_name, method_name, arity)
     if row == null { return "unknown" }
     return row.get("effect")
+  }
+
+  result_kind_for(box_name, method_name, arity) {
+    local row = me.find(box_name, method_name, arity)
+    if row == null { return "unknown" }
+    return row.get("result_kind")
   }
 }

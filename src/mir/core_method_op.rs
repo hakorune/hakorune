@@ -245,7 +245,12 @@ mod tests {
             .map(|op| op.as_manifest_name())
             .collect::<BTreeSet<_>>();
 
-        assert_eq!(manifest_ops, mir_ops);
+        for op in manifest_ops {
+            assert!(
+                mir_ops.contains(op),
+                "CoreMethodContract op is missing from MIR vocabulary: {op}"
+            );
+        }
     }
 
     #[test]

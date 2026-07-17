@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Qualified source-call target Q0 is closed; Core result-kind S0 is next"
+status = "Core result-kind S0 is closed; String receiver S0 is next"
 date = "2026-07-17"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,18 +298,17 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 
 latest_card = "source-call-target-and-core-result-authority-design-stop-2026-07-17"
 latest_card_path = "docs/development/current/main/investigations/source-call-target-and-core-result-authority-design-stop-2026-07-17.md"
-latest_card_summary = """Candidate A-prime remains selected and qualified
-source-call target Q0 is closed. One disconnected non-Clone import-alias view
-and one site-indexed target catalog project direct or imported qualified calls
-to structured canonical keys. Import aliases preserve the existing precedence
-over same-spelled locals; direct receiver spellings require an unbound lexical
-fact; reserved routes, wrong arity, foreign caller/owner, duplicate site, and
-missing target fail typed. The actual StringHelpers/ParserStringUtilsBox source
-fixture is included directly. Focused target 10/10, prior result 12/12, family
-guard, cargo check, pointer guard, and quick 66/66 are green. Production
-producers/consumers and behavior delta remain zero; all source/check files stay
-below 800 lines. CoreMethodContract result-kind S0 is next."""
-current_blocker_token = "DPRIME-CORE-METHOD-RESULT-KIND0-S0-001"
+latest_card_summary = """Candidate A-prime remains selected. Qualified target
+Q0 and Core result-kind S0 are closed. The existing CoreMethodContractBox is
+the sole semantic owner for 16 explicit neutral result rows. One generator now
+emits schema-v1 JSON and one static Rust table from the same validated rows;
+expanded receiver/spelling/arity collisions fail before artifact publication.
+StringBox length/len/size selects one I64Value row, while unresolved Map/Array
+result shapes remain Dynamic. Malformed generator 9/9 and Rust lookup/parity
+5/5 are green. Runtime JSON parsing, production consumers, and behavior delta
+remain zero; all source/check files stay below 800 lines. The disconnected
+ExactStringOnSuccess receiver view is next."""
+current_blocker_token = "DPRIME-SOURCE-STRING-RECEIVER0-S0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -318,6 +317,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-17: R0-CORE-METHOD-RESULT-KIND0-S0 closes one disconnected neutral Core result view. CoreMethodContractBox remains the sole semantic owner for all 16 explicit rows; one generator emits schema-v1 JSON and one static Rust table from the same validated source. Receiver plus canonical/alias spelling plus expanded exact arity is the only lookup key, and generation rejects unknown kinds and all overlapping spelling collisions. StringBox.length/len/size/0 selects one I64Value row; ambiguous collection results remain Dynamic. Malformed generator 9/9, Rust lookup/parity 5/5, manifest/no-growth guards, CoreMethodOp regression, cargo check, and quick gate are green. Runtime JSON parsing, production consumers, and behavior delta remain zero; String receiver S0 is next.",
   "2026-07-17: R0-SOURCE-CALL-TARGET0-Q0 closes one disconnected qualified-static target authority. A non-Clone verified import-alias view and one caller-key plus SourceExprSite-indexed catalog project direct/imported receivers to structured canonical keys. Alias-before-local parity is explicit; direct shadow, reserved routes, wrong arity, foreign caller/owner, duplicate site, and missing target reject typed. Actual StringHelpers and ParserStringUtilsBox sources are compile-time fixtures. Target 10/10, result 12/12, family guard, cargo check, pointer guard, and quick 66/66 are green. Production producers/consumers and behavior delta remain zero; Core result-kind S0 is next.",
   "2026-07-17: Three read-only worker audits plus a local route/source audit select Candidate A-prime for the callable-result frontier. Source-call target and Core result-kind remain separate durable authorities and are co-sealed only in the callable-result proof. One site-indexed target catalog uses route-disjoint qualified/current-owner producers; bare recovery stays parked. CoreMethodContractBox gains the neutral generated result-kind view, while ExactStringOnSuccess remains outside the i64 domain. R0-SOURCE-CALL-TARGET0-Q0 is the sole next code-facing row with zero production consumers and behavior delta; docs-only closeout and further consultation churn are forbidden absent an explicit stop condition.",
   "2026-07-17: R0-CALLABLE-RESULT-I64-CATALOG0-S0a closes one disconnected local-body exact-i64 result substrate. It emits one row per static declaration, proves literal/parameter/local/arithmetic/If/Return/finite-Loop requirements, and fixes actual StringHelpers.skip_ws/2 as ExactI64 {1}. All FunctionCall/MethodCall results fail closed as StaticCallTargetAuthorityUnavailable, including builtin collision and actual wrapper fixtures; to_i64 remains parked on a neutral Core result-kind authority. Production consumers and behavior delta are zero. Focused tests 12/12, structural guard, cargo check, and line cap are green. The combined source-call target/Core-result design stop is next.",
@@ -328,6 +328,5 @@ landed_tail = [
   "2026-07-17: R0-SAME-MODULE-CALL-RESULT-REP0-S0 closes one generic HMI-independent timing reproduction with production behavior and type publishers zero. Forward untyped direct and Copy-carried call results are Missing; a forward explicit i64 return annotation is also Missing. Reversing the same untyped provider/caller declaration order yields Exact and returns 6, as does the independent numeric control. Debug/release agree, and final reverse-order call/Copy/PHI i64 metadata is diagnostic-only. The direct checker, GenericLoop guard, cargo check, and quick 66/66 are green. M0 exact producer/timing inventory is next.",
   "2026-07-17: Three read-only worker audits taskize the GenericLoop MissingTransientType frontier without selecting a speculative I0. The selected init is a forward same-module call result from ParserStringUtilsBox.skip_ws/2: lowering-time type_ctx is missing, while the final Integer fact appears only after later whole-module refresh. GenericLoop role/default/use-site inference is rejected. R0-SAME-MODULE-CALL-RESULT-REP0-S0 adds one generic behavior-neutral reproduction, M0 machine-classifies the first producer/timing seam, and only an exactly-one existing generic producer with an already-owned exact fact may authorize local implementation; all other outcomes return to design consultation.",
   "2026-07-17: R0-COREPLAN-STRING-ADD-REP0-G0 closes the CorePlan String Add representation row. The source-derived inventory fixes one prepared Add consumer, one non-Add legacy consumer, zero direct Builder/final propagation consumers, and one closeout guard row. The GenericLoop progression-role guard rejects recurrence of the retired Integer/String PHI conflict and pins ParserBox.static_const_parse_add/2 plus MissingTransientType init as the next independent frontier while retaining numeric 18/18. Hermetic StringUtils remains a,b,c; existing TSV tags stay unchanged because they still match actual gate output. No behavior delta lands in G0.",
-  "2026-07-17: R0-COREPLAN-STRING-ADD-REP0-I0 connects exactly one normalizer Add consumer to the prepared String-priority representation before destination allocation. Subtract, Multiply, Divide, and Modulo retain one renamed Float-else-Integer helper; the legacy general decision is zero. Direct Builder, final propagation, facts, recipes, carriers, joins, PHIs, runtime, and backends remain unchanged. Focused 3/3, I0 inventory, CorePlan legoization, fresh debug/release, and StringUtils smoke are green with a,b,c. The HMI canary advances to ParserBox.static_const_parse_add/2 GenericLoop MissingTransientType init; G0 is next.",
-  "2026-07-17: R0-COREPLAN-STRING-ADD-REP0-M0 closes one behavior-neutral source-derived machine inventory. It seals prepared consumers zero, one legacy normalizer decision consumer, three direct Builder classification sites, one final propagation Add matrix, LoopArrayJoin facts MirType mentions zero, runtime String-left/right concat rows one each, and three stale StringUtils TSV route expectations. Operand -> allocation and then -> else -> Unknown join timing are structurally fixed. Debug/release reproduce the same destination Integer versus incoming String PHI conflict, authorizing one normalizer-only I0 consumer."
+  "2026-07-17: R0-COREPLAN-STRING-ADD-REP0-I0 connects exactly one normalizer Add consumer to the prepared String-priority representation before destination allocation. Subtract, Multiply, Divide, and Modulo retain one renamed Float-else-Integer helper; the legacy general decision is zero. Direct Builder, final propagation, facts, recipes, carriers, joins, PHIs, runtime, and backends remain unchanged. Focused 3/3, I0 inventory, CorePlan legoization, fresh debug/release, and StringUtils smoke are green with a,b,c. The HMI canary advances to ParserBox.static_const_parse_add/2 GenericLoop MissingTransientType init; G0 is next."
 ]

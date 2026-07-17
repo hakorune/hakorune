@@ -1,5 +1,5 @@
 ---
-Status: active taskboard; Q0 closed
+Status: active taskboard; Q0 and Core result S0 closed
 Date: 2026-07-17
 Baseline: 040d2906a35b367d39f1377b8159cef020203b78
 Parent: callable-result-i64-catalog0-task-2026-07-17.md
@@ -178,7 +178,7 @@ i64 domain or adding a fallback.
 
 ```text
 R0-SOURCE-CALL-TARGET0-Q0 [closed]
-  -> R0-CORE-METHOD-RESULT-KIND0-S0
+  -> R0-CORE-METHOD-RESULT-KIND0-S0 [closed]
   -> R0-SOURCE-STRING-RECEIVER0-S0
   -> R0-SOURCE-CALL-TARGET0-M0
   -> R0-CALLABLE-RESULT-I64-CATALOG0-S0b
@@ -274,6 +274,47 @@ production consumers = 0
 Add `result_kind` to the existing `.hako` rows, generate JSON schema v1 and a
 static Rust table, and prove canonical/alias/arity/receiver collision laws.
 `String.length/len/size` is the first required `I64Value` row.
+
+Core result S0 closeout evidence:
+
+```text
+semantic owner:
+  lang/src/runtime/meta/core_method_contract_box.hako
+
+neutral vocabulary:
+  I64Value | BoolValue | StringValue | NoValue | Dynamic
+
+generated artifacts:
+  core_method_contract_manifest/v1 JSON
+  src/mir/generated/core_method_contract_rows.rs
+
+lookup key:
+  receiver + exact canonical/alias spelling + exact expanded arity
+
+StringBox.length/len/size/0:
+  one canonical row, I64Value
+
+malformed generator fixtures:
+  9/9 green
+
+Rust normalized lookup/parity fixtures:
+  5/5 green
+
+production consumers / behavior delta:
+  0 / 0
+
+runtime JSON parsing:
+  0
+
+largest modified source/check file:
+  core_method_contract_box.hako, 423 lines
+```
+
+Rows whose source-visible result is not represented uniquely by the first
+neutral vocabulary remain `Dynamic`. In particular, Map mutator presentation
+and raw-helper return carriers are not promoted into semantic result facts.
+The generator rejects unknown kinds and canonical/alias collisions after
+expanding arity patterns; receiver-disjoint equal spellings remain valid.
 
 ### String receiver S0 — disconnected source view
 

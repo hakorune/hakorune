@@ -49,6 +49,7 @@ pub mod concat_const_suffix_micro_seed_plan; // MIR-owned route plan for tempora
 pub mod constructor_call_route_plan; // MIR-owned constructor call route plans
 pub mod contracts; // backend-core instruction contracts (SSOT)
 pub mod core_method_op; // MIR-side CoreMethodOp carrier vocabulary
+pub(crate) mod core_method_result_kind; // generated neutral Core result-kind view
 pub(crate) mod declared_type_storage; // shared declared type-name -> storage classification
 pub(crate) mod decoded_utf8_byte_len_backend_capability; // SnapshotV0 internal byte capability preflight
 pub mod definitions; // Unified MIR definitions (MirCall, Callee, etc.)
