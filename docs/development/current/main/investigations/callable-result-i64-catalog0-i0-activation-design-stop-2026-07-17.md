@@ -1,8 +1,8 @@
 ---
-Status: design consultation required before production activation
-Date: 2026-07-17
-Decision: pending; Candidate A owned single-use activation plan is recommended
-Baseline: fd20feedbd
+Status: locally selected and taskized; PATH0 is the next code-facing row
+Date: 2026-07-18
+Decision: Candidate A owned single-use activation plan plus located legacy input
+Baseline: 611049a62f
 Parent: callable-result-i64-catalog0-task-2026-07-17.md
 Scope: exact-site same-module exact-i64 call-result activation before Builder effects
 ---
@@ -34,8 +34,46 @@ The exact gaps are:
 5. Generic call-result annotation uses function-name/module lookup after
    emission. It is not the sealed exact-site authority.
 
-This is a new authority/lifetime contradiction discovered after P0. One
-design-stop consultation is therefore permitted by the docs loop-breaker.
+This was a new authority/lifetime contradiction discovered after P0. A second
+three-worker audit has now selected one mechanically unique implementation
+shape under `LocalMechanicalSelectorAuthorityV1`; external consultation is no
+longer required.
+
+## Local selection evidence
+
+All three worker audits converge on these facts:
+
+```text
+Candidate A:
+  selected
+
+Candidate B stack-borrowed Builder session:
+  rejected
+
+exact site producer:
+  existing resolved_semantics::shadow traversal
+
+exact lowering carrier:
+  located body/statement/expression input
+
+mutable path cursor or encounter-order ledger:
+  rejected
+```
+
+`MirBuilder` and `CompilationContext` are lifetime-free owned state, and the
+existing `CanonicalModuleLoweringSessionV1` already isolates an owned
+candidate. Candidate B would require lifetime-parameterizing the Builder or
+threading borrowed catalogs across nearly every legacy lowering API. Candidate
+A instead normalizes the borrowed proofs in one lexical preflight, drops them,
+then moves the sole declaration catalog and owned rows into the candidate.
+
+The existing shadow resolver is the sole complete owner-local structural
+traversal that already produces `SourcePathSegmentV1` and lexical qualified-
+receiver facts. It can observe all MethodCall sites without a second walker.
+Legacy lowering currently has 81 expression-entry calls across 33 files and
+also creates synthetic nodes, so a mutable push/pop cursor would be fragile.
+Located inputs co-seal caller, exact path, and the actual moved/borrowed node;
+synthetic nodes remain explicitly unlocated and cannot claim activation rows.
 
 ## Source authority
 
@@ -68,7 +106,7 @@ runtime tags or GenericLoop inference
 retry or fallback
 ```
 
-## Candidate A — owned single-use activation plan (recommended)
+## Candidate A — owned single-use activation plan (selected)
 
 Preflight borrows declaration/target/result products only while deriving one
 non-Clone owned plan. The borrowed proofs are dropped before the plan and
@@ -93,8 +131,9 @@ pub(crate) struct VerifiedCallableResultActivationSiteV1 {
 }
 ```
 
-The final fields are consultation-owned. The plan owns no AST body, import
-map, target/result catalog clone, ABI/effect table, or second callable index.
+The exact private fields are implementation-owned under the laws below. The
+plan owns no duplicate AST body, import map, target/result catalog clone,
+ABI/effect table, or second callable index.
 It is a normalized consumption product, not another semantic solver.
 
 Advantages:
@@ -106,11 +145,10 @@ candidate Builder owns one non-Clone plan
 failure-before-live-effects boundary is explicit
 ```
 
-Remaining design point: recursive AST lowering must receive the exact current
-`SourceExprSiteV1` and caller key. A caller-scoped ledger may consume each row
-once, but the site cursor must use the same structural-path law as the existing
-projector. It may not be reconstructed from names, spans, AST equality, or
-call order.
+Recursive AST lowering receives located body/statement/expression inputs that
+carry the caller key, exact `SourceExprSiteV1`, and syntax node. Child inputs
+are constructed only through one shared child-role-to-path-segment law. A
+caller-scoped ledger consumes rows by exact site, never by execution ordinal.
 
 ## Candidate B — stack-scoped borrowed lowering session
 
@@ -120,8 +158,8 @@ runs. Thread the caller key and exact source path through recursive expression
 and statement lowering.
 
 This retains the original proofs directly, but introduces wide lifetime/API
-threading and still needs candidate/live Builder isolation. It is parked unless
-consultation rejects Candidate A's owned projection.
+threading and still needs candidate/live Builder isolation. Existing ownership
+and transaction structure mechanically reject it for this row.
 
 ## Rejected shapes
 
@@ -135,35 +173,47 @@ publish through legacy name/module result annotation
 lower callee first or retry a failed route
 ```
 
-## Consultation questions
+## Resolved local decisions
 
-1. Is Candidate A the correct owner: consume the borrowed proof chain into one
-   owned, non-Clone, single-use activation plan before opening the candidate
-   Builder session?
-2. If A is selected, should legacy lowering receive an explicit
-   `SourceExprSiteV1` cursor through its recursive APIs, or should a presealed
-   located-node/body view become its only input? The result must preserve one
-   structural-path authority and exact repeated-site identity.
-3. May the activation inventory admit an `InstanceBoxMethod` caller while
-   retaining static-only target result contracts, or should caller ownership
-   use a separate source-owner key product?
-4. Is the atomic boundary correctly placed before live Builder mutation:
-   preflight every product, open a candidate Builder, lower once, and commit
-   the completed candidate only?
-
-Recommendation: select Candidate A, keep static-only result inference, admit
-instance identity only as exact-site caller ownership, and thread one explicit
-site-aware lowering context.
+1. Consume the borrowed proof chain into one owned, non-Clone, single-use
+   activation plan before opening the candidate Builder.
+2. Reuse the existing shadow traversal for complete MethodCall inventory and
+   lexical facts. Share one neutral child-role-to-`SourcePathSegmentV1` policy
+   with compiler source views and located legacy lowering.
+3. Use located legacy inputs, not a mutable cursor. Raw legacy subtree
+   delegation is allowed only when the ledger proves that no activation row
+   exists under the subtree prefix.
+4. Admit `InstanceBoxMethod` only as exact caller/site ownership. Targets and
+   result inference remain `StaticBoxMethod`; no ParserBox result is inferred.
+5. Preflight the root plus explicit imports before live mutation, lower once in
+   `CanonicalModuleLoweringSessionV1`, and commit the completed candidate once.
 
 ## Task order after the decision
 
 ```text
 R0-CALLABLE-RESULT-I64-CATALOG0-I0-ACTIVATION-D0
+  -> R0-CALLABLE-RESULT-I64-CATALOG0-I0-PATH0
   -> R0-CALLABLE-RESULT-I64-CATALOG0-I0-A0
-  -> R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0
+  -> R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-L0
+  -> R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0
+  -> R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-C0
   -> R0-CALLABLE-RESULT-I64-CATALOG0-I0-CUT0
   -> R0-CALLABLE-RESULT-I64-CATALOG0-I0-G0
 ```
+
+### PATH0 — one structural path policy and MethodCall inventory
+
+```text
+production behavior delta: 0
+production result consumers: 0
+```
+
+Extract one neutral child-role-to-`SourcePathSegmentV1` policy from the
+existing compiler source-view/shadow rules. Extend the sole shadow traversal
+with a read-only all-MethodCall observation mode that emits exact caller/site
+rows plus existing Bound/ProvenUnbound lexical dispositions. It must cover the
+actual ParserBox syntax, nested/repeated calls, current-owner calls, qualified
+calls, and dynamic/bound exclusions. No second AST walker is added.
 
 ### A0 — disconnected owned activation product
 
@@ -175,18 +225,36 @@ production consumers: 0
 Consume the borrowed proof chain into one owned non-Clone plan. Prove
 brand correspondence, instance-caller/static-target separation, site
 multiplicity, required-argument bounds, and reorder parity. Retain no AST and
-no duplicate target/result authority.
+no duplicate target/result authority. Every observed MethodCall receives an
+explicit `SelectedExactI64` or `Unselected` disposition so missing rows never
+mean legacy fallback. Borrowed target/result products are dropped before the
+declaration catalog moves into the plan.
 
-### SITE0 — exact legacy lowering site ledger
+### SITE0-L0 — located legacy carrier vocabulary
 
 ```text
 production behavior delta: 0
 production result consumers: 0
 ```
 
-Add one caller-scoped site cursor and monotonic exact-once ledger. Repeated and
-nested calls remain distinct. Wrong, duplicate, missing, foreign, or drifting
-rows reject typed. Name/span/AST/order reconstruction remains zero.
+Add privately constructed located body/statement/expression inputs carrying
+caller key, exact structural site, and syntax node. Child construction consumes
+only the neutral PATH0 role policy. Synthetic nodes are `Unlocated` and cannot
+claim rows.
+
+### SITE0-R0 — behavior-neutral located recursive descent
+
+Use Refactor Series Mode. Begin one caller ledger from the activation plan,
+lower the caller body through located inputs, and finish with exact coverage.
+Raw legacy subtree delegation is allowed only for a prefix with zero active
+rows. Wrong, duplicate, missing, foreign, and drifting rows reject typed. This
+row changes no accepted program or result publication.
+
+### SITE0-C0 — preserve location through call planning
+
+Carry the exact site token through any `CoreEffectPlan`/immediate MethodCall
+normalization that consumes a located call. Provenance must never be recovered
+after plan creation. Production result publication remains zero.
 
 ### CUT0 — atomic production activation
 
@@ -201,7 +269,7 @@ Required order:
 ```text
 1. preflight root plus explicit imports before live Builder mutation
 2. seal declaration, site/target, result, and activation products once
-3. open an isolated candidate Builder session
+3. open the existing isolated candidate Builder session
 4. install declaration catalog plus activation plan once
 5. lower each body once with its caller/site ledger
 6. claim the exact row before selected call-route mutation
@@ -223,17 +291,21 @@ not extend the roughly 765-line S0 checker.
 ```text
 declaration catalog preflight producer/install = 1
 immutable import view = 1
+structural AST traversal owner = 1
+child-role path policy owner = 1
 exact source-site inventory = 1
 source target producer = 1
 result solver = 1
 activation plan producer = 1
-site-ledger consumer = 1
+located caller ledger consumer = 1
 same-module result publisher = 1
+candidate commit = 1
+instance result inference = 0
 
 bare target lookup on selected path = 0
 legacy result annotation on selected path = 0
 final metadata reads = 0
-physical/name/span/AST inference = 0
+physical/name/span/AST/encounter-order inference = 0
 retry/re-lowering/fallback = 0
 second catalog/type/owner map = 0
 source/check files >= 800 lines = 0
@@ -323,8 +395,8 @@ fallback or retry
 
 ## Decision lock
 
-P0 remains closed and production behavior remains unchanged. I0 code is not
-authorized until consultation selects the owned-plan versus scoped-session
-shape and exact source-site carrier. Candidate A is recommended. The next
-code-facing owner after selection is `I0-A0`; no emitter patch may bypass A0
-and SITE0.
+P0 remains closed and production behavior remains unchanged. Candidate A plus
+located legacy input is locally selected under
+`LocalMechanicalSelectorAuthorityV1`; external consultation is no longer
+required. `I0-PATH0` is the next code-facing row. No emitter patch may bypass
+PATH0, A0, or the SITE0 refactor series.

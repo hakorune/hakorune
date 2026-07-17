@@ -1,5 +1,5 @@
 ---
-Status: P0 normalized proof closed; I0 activation is at one design stop
+Status: P0 closed; I0 Candidate A is selected and PATH0 is next
 Date: 2026-07-17
 Decision: B-prime exact-i64 conditional callable-result catalog
 Baseline: 06a49e5aa6
@@ -489,20 +489,25 @@ connection. Legacy lowering carries no canonical caller plus
 `SourceExprSiteV1`, and the declaration/target/result products cannot be
 stored together in `CompilationContext` without self-reference or cloned
 authority. The selected fixture also has an instance-method caller and a
-static target contract. I0 is therefore split, pending one design decision:
+static target contract. The local selector closes that decision and splits I0:
 
 ```text
 I0-ACTIVATION-D0
+  -> I0-PATH0 shared path policy and MethodCall inventory
   -> I0-A0 owned single-use activation product
-  -> I0-SITE0 exact legacy site ledger
+  -> I0-SITE0-L0 located legacy carriers
+  -> I0-SITE0-R0 behavior-neutral recursive threading
+  -> I0-SITE0-C0 located call-plan preservation
   -> I0-CUT0 atomic candidate-Builder activation
   -> I0-G0
 ```
 
-Candidate A, an owned non-Clone activation plan derived while the borrowed
-proofs are live, is recommended. Candidate B, a stack-scoped borrowed lowering
-session, remains the alternative. Exact questions, failure laws, fixtures,
-and stop conditions are fixed in the linked design-stop card.
+The follow-up worker audit mechanically selects Candidate A under
+`LocalMechanicalSelectorAuthorityV1`. Candidate B would require lifetime-
+threading the lifetime-free legacy Builder and is rejected. The sole shadow
+traversal supplies MethodCall inventory; located legacy inputs, not a mutable
+cursor, retain exact sites through lowering. The executable order is PATH0,
+A0, SITE0-L0/R0/C0, CUT0, and G0. Exact laws are in the linked task card.
 
 ### G0 — guards and closeout
 
@@ -583,7 +588,7 @@ required-argument substitution, bounded String Core composition, and
 deterministic acyclic wrapper solver are the sole disconnected result
 authority. The P0 snapshot is test-only and adds no production API. Bare
 FunctionCall, general non-i64 typing, recursive/SCC inference, callee-first
-lowering, retry, and fallback remain rejected. I0 code may proceed only after
-the owned-plan versus scoped-session choice and exact source-site carrier are
-decision-locked. The implementation must still retain one pre-body producer,
-one successful-emission consumer, and failure-before-effects ordering.
+lowering, retry, and fallback remain rejected. Candidate A plus located legacy
+input is decision-locked. PATH0 is the next code-facing row; the implementation
+must retain one pre-body producer, one successful-emission consumer, and
+failure-before-effects ordering.
