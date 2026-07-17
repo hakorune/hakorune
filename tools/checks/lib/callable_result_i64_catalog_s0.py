@@ -10,6 +10,9 @@ import re
 
 MODULE = Path("src/mir/callable_result_representation")
 PRODUCT = "VerifiedSameModuleCallableResultCatalogV1"
+TARGET_MODULE = Path("src/mir/source_call_target")
+TARGET_PRODUCT = "VerifiedSourceStaticCallTargetCatalogV1"
+IMPORT_VIEW = "VerifiedStaticImportAliasViewV1"
 
 
 class GuardFailure(RuntimeError):
@@ -30,7 +33,8 @@ def code_only(text: str) -> str:
 def production_rust(root: Path) -> str:
     rows: list[str] = []
     for path in (root / "src").rglob("*.rs"):
-        if MODULE in path.relative_to(root).parents:
+        relative = path.relative_to(root)
+        if MODULE in relative.parents or TARGET_MODULE in relative.parents:
             continue
         if "tests" in path.parts or path.name.endswith("_tests.rs"):
             continue
@@ -105,7 +109,71 @@ def verify(root: Path) -> dict[str, int]:
         "actual_string_helpers_keeps_skip_ws_exact_and_records_to_i64_design_boundary" in module_code,
         "actual StringHelpers boundary fixture is missing",
     )
+
+    target_root = root / TARGET_MODULE
+    require(target_root.is_dir(), f"missing module: {TARGET_MODULE}")
+    target_files = sorted(target_root.rglob("*.rs"))
+    target_sources = {
+        path: path.read_text(encoding="utf-8") for path in target_files
+    }
+    target_code = "\n".join(code_only(text) for text in target_sources.values())
+    target_model = target_sources[target_root / "model.rs"]
+    target_qualified = target_sources[target_root / "qualified.rs"]
+    require(
+        target_code.count(f"struct {TARGET_PRODUCT}") == 1,
+        "source target catalog product definition count drift",
+    )
+    require(
+        target_code.count(f"struct {IMPORT_VIEW}") == 1,
+        "verified import alias view definition count drift",
+    )
+    require(
+        not re.search(
+            r"#\[derive\([^]]*Clone[^]]*\)\]\s*pub\(crate\) struct "
+            + f"(?:{TARGET_PRODUCT}|{IMPORT_VIEW})",
+            target_model,
+        ),
+        "sealed source target catalog/import view must remain non-Clone",
+    )
+    require(
+        production.count(TARGET_PRODUCT) == 0,
+        "Q0 source target catalog gained a production producer or consumer",
+    )
+    require(
+        target_qualified.count(".declaration_for(") == 1,
+        "qualified target must project through one exact catalog lookup",
+    )
+    require(
+        "imports.canonical_owner(candidate.receiver())" in target_qualified,
+        "qualified target lost verified import-alias precedence",
+    )
+    for forbidden in (
+        "MirBuilder",
+        "MirFunction",
+        "MirType",
+        "ValueId",
+        "type_ctx",
+        "current_module",
+        "current_static_box",
+        "mir_symbol_projection",
+        "variable_map",
+    ):
+        require(
+            forbidden not in target_code,
+            f"forbidden Q0 authority entered source target module: {forbidden}",
+        )
+    require(
+        "actual_parser_wrapper_projects_import_alias_to_string_helpers" in target_code,
+        "actual ParserStringUtilsBox wrapper target fixture is missing",
+    )
+    require(
+        "imported_alias_precedes_same_spelled_lexical_binding" in target_code,
+        "import-alias/local-binding precedence fixture is missing",
+    )
     for path, text in sources.items():
+        lines = len(text.splitlines())
+        require(lines < 800, f"source reached 800 lines: {path.relative_to(root)} ({lines})")
+    for path, text in target_sources.items():
         lines = len(text.splitlines())
         require(lines < 800, f"source reached 800 lines: {path.relative_to(root)} ({lines})")
     self_path = root / "tools/checks/lib/callable_result_i64_catalog_s0.py"
@@ -121,6 +189,10 @@ def verify(root: Path) -> dict[str, int]:
         "bare_static_policy_consumers": 0,
         "forbidden_authority_occurrences": 0,
         "line_cap_violations": 0,
+        "source_target_product_definitions": 1,
+        "source_target_production_producers_consumers": 0,
+        "verified_import_alias_views": 1,
+        "source_target_forbidden_authority_occurrences": 0,
     }
 
 

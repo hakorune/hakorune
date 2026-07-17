@@ -1,5 +1,5 @@
 ---
-Status: accepted taskboard
+Status: active taskboard; Q0 closed
 Date: 2026-07-17
 Baseline: 040d2906a35b367d39f1377b8159cef020203b78
 Parent: callable-result-i64-catalog0-task-2026-07-17.md
@@ -177,7 +177,7 @@ i64 domain or adding a fallback.
 ## Exact task order
 
 ```text
-R0-SOURCE-CALL-TARGET0-Q0
+R0-SOURCE-CALL-TARGET0-Q0 [closed]
   -> R0-CORE-METHOD-RESULT-KIND0-S0
   -> R0-SOURCE-STRING-RECEIVER0-S0
   -> R0-SOURCE-CALL-TARGET0-M0
@@ -188,7 +188,7 @@ R0-SOURCE-CALL-TARGET0-Q0
   -> clean HMI-S0-V0-R0-I0 resume
 ```
 
-`R0-SOURCE-CALL-TARGET0-Q0` is the sole next code-facing row.
+`R0-CORE-METHOD-RESULT-KIND0-S0` is the sole next code-facing row.
 
 ### Q0 — disconnected qualified target
 
@@ -225,6 +225,44 @@ Required fixtures include direct canonical spelling, an imported alias,
 `ParserStringUtilsBox.skip_ws/2 -> StringHelpers.skip_ws/2`, alias/local-name
 collision parity, wrong arity, missing target, reserved receiver decline, and
 declaration reorder parity.
+
+Q0 closeout evidence:
+
+```text
+module:
+  src/mir/source_call_target/
+
+sealed products:
+  VerifiedStaticImportAliasViewV1
+  VerifiedSourceStaticCallTargetCatalogV1
+
+focused target tests:
+  10/10
+
+existing callable-result tests:
+  12/12
+
+family structural guard:
+  green
+
+quick gate:
+  66/66
+
+production producers/consumers:
+  0/0
+
+Builder/MIR/runtime behavior delta:
+  0
+
+largest new source/check file:
+  tests.rs, below 800 lines
+```
+
+The actual fixture reads the repository `StringHelpers` and
+`ParserStringUtilsBox` sources at compile time. Imported alias resolution keeps
+the existing alias-before-local precedence, while direct canonical spelling
+requires an unbound lexical fact. The sealed target remains a structured key;
+no MIR symbol is parsed or retained.
 
 ### Core result S0 — generated neutral result kinds
 
