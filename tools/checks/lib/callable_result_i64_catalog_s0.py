@@ -13,6 +13,8 @@ PRODUCT = "VerifiedSameModuleCallableResultCatalogV1"
 TARGET_MODULE = Path("src/mir/source_call_target")
 TARGET_PRODUCT = "VerifiedSourceStaticCallTargetCatalogV1"
 IMPORT_VIEW = "VerifiedStaticImportAliasViewV1"
+RECEIVER_MODULE = Path("src/mir/source_core_receiver")
+RECEIVER_PRODUCT = "VerifiedSourceCoreReceiverV1"
 
 
 class GuardFailure(RuntimeError):
@@ -34,7 +36,11 @@ def production_rust(root: Path) -> str:
     rows: list[str] = []
     for path in (root / "src").rglob("*.rs"):
         relative = path.relative_to(root)
-        if MODULE in relative.parents or TARGET_MODULE in relative.parents:
+        if (
+            MODULE in relative.parents
+            or TARGET_MODULE in relative.parents
+            or RECEIVER_MODULE in relative.parents
+        ):
             continue
         if "tests" in path.parts or path.name.endswith("_tests.rs"):
             continue
@@ -170,10 +176,58 @@ def verify(root: Path) -> dict[str, int]:
         "imported_alias_precedes_same_spelled_lexical_binding" in target_code,
         "import-alias/local-binding precedence fixture is missing",
     )
+
+    receiver_root = root / RECEIVER_MODULE
+    require(receiver_root.is_dir(), f"missing module: {RECEIVER_MODULE}")
+    receiver_files = sorted(receiver_root.rglob("*.rs"))
+    receiver_sources = {
+        path: path.read_text(encoding="utf-8") for path in receiver_files
+    }
+    receiver_code = "\n".join(code_only(text) for text in receiver_sources.values())
+    require(
+        receiver_code.count(f"struct {RECEIVER_PRODUCT}") == 1,
+        "source receiver proof product definition count drift",
+    )
+    require(
+        production.count(RECEIVER_PRODUCT) == 0,
+        "String receiver S0 gained a production producer or consumer",
+    )
+    require(
+        "SourceCoreReceiverFactV1::ExactStringOnSuccess" in receiver_code,
+        "exact String-on-success fact is missing",
+    )
+    require(
+        "let mut cursor = expression" in receiver_code and "cursor = left" in receiver_code,
+        "source receiver proof must remain an iterative left-spine walk",
+    )
+    require(
+        "actual_string_helpers_to_i64_initializer_is_exact_string_on_success"
+        in receiver_code,
+        "actual StringHelpers.to_i64 receiver fixture is missing",
+    )
+    for forbidden in (
+        "I64ExpressionFactV1",
+        "MirBuilder",
+        "MirFunction",
+        "MirType",
+        "ValueId",
+        "type_ctx",
+        "value_origin_newbox",
+        "current_module",
+        "current_static_box",
+        "runtime tag",
+    ):
+        require(
+            forbidden not in receiver_code,
+            f"forbidden String receiver authority entered module: {forbidden}",
+        )
     for path, text in sources.items():
         lines = len(text.splitlines())
         require(lines < 800, f"source reached 800 lines: {path.relative_to(root)} ({lines})")
     for path, text in target_sources.items():
+        lines = len(text.splitlines())
+        require(lines < 800, f"source reached 800 lines: {path.relative_to(root)} ({lines})")
+    for path, text in receiver_sources.items():
         lines = len(text.splitlines())
         require(lines < 800, f"source reached 800 lines: {path.relative_to(root)} ({lines})")
     self_path = root / "tools/checks/lib/callable_result_i64_catalog_s0.py"
@@ -193,6 +247,9 @@ def verify(root: Path) -> dict[str, int]:
         "source_target_production_producers_consumers": 0,
         "verified_import_alias_views": 1,
         "source_target_forbidden_authority_occurrences": 0,
+        "source_receiver_product_definitions": 1,
+        "source_receiver_production_producers_consumers": 0,
+        "source_receiver_forbidden_authority_occurrences": 0,
     }
 
 

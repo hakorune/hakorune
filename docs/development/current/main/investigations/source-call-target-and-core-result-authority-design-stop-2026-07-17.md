@@ -1,5 +1,5 @@
 ---
-Status: active taskboard; Q0 and Core result S0 closed
+Status: active taskboard; Q0, Core result S0, and String receiver S0 closed
 Date: 2026-07-17
 Baseline: 040d2906a35b367d39f1377b8159cef020203b78
 Parent: callable-result-i64-catalog0-task-2026-07-17.md
@@ -188,7 +188,7 @@ R0-SOURCE-CALL-TARGET0-Q0 [closed]
   -> clean HMI-S0-V0-R0-I0 resume
 ```
 
-`R0-CORE-METHOD-RESULT-KIND0-S0` is the sole next code-facing row.
+`R0-SOURCE-CALL-TARGET0-M0` is the sole next code-facing row.
 
 ### Q0 — disconnected qualified target
 
@@ -326,6 +326,40 @@ production consumers = 0
 Seal only String literal and String-left Add `ExactStringOnSuccess`. No general
 String value domain, dynamic truthiness, result totality, or Builder type
 backfeed is admitted.
+
+String receiver S0 closeout evidence:
+
+```text
+module:
+  src/mir/source_core_receiver/
+
+sealed product:
+  VerifiedSourceCoreReceiverV1
+
+proof grammar:
+  String literal
+  iterative String-left Add spine with arbitrary uninspected RHS
+
+focused source receiver tests:
+  5/5 green
+
+actual source fixture:
+  StringHelpers.to_i64/1 local s = "" + x
+
+production producers/consumers:
+  0/0
+
+i64-domain / Builder / MIR / runtime behavior delta:
+  0 / 0 / 0 / 0
+
+largest new source/check file:
+  callable_result_i64_catalog_s0.py, below 800 lines
+```
+
+The lifetime-bound proof retains only a private borrow of the exact inspected
+source expression plus `ExactStringOnSuccess`. It walks no right operand and
+therefore owns no evaluation-order, effect, totality, NonVoid, or error-absence
+claim. String-right Add, variables, call results, and BlockExpr remain parked.
 
 ### M0 — current-owner target
 
