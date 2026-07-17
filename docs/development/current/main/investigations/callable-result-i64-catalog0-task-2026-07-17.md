@@ -1,5 +1,5 @@
 ---
-Status: P0 normalized proof closed; I0 production activation task audit is next
+Status: P0 normalized proof closed; I0 activation is at one design stop
 Date: 2026-07-17
 Decision: B-prime exact-i64 conditional callable-result catalog
 Baseline: 06a49e5aa6
@@ -28,8 +28,10 @@ keys or generated Core contract identity. It excludes catalog pointers,
 borrowed AST identity, route-product addresses, and declaration order. Fresh
 catalog/reorder parity, site multiplicity, unavailable/recursive rows, and the
 actual StringHelpers/Parser wrapper chain are green. Production API, producer,
-consumer, Builder, MIR, runtime, and backend deltas remain zero. I0 production
-activation is next, after its producer/consumer transaction audit is fixed.
+consumer, Builder, MIR, runtime, and backend deltas remain zero. The I0 audit
+found a missing exact-site carrier and a borrowed-product lifetime cycle. The
+durable brief is
+`callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md`.
 
 `R0-CALLABLE-RESULT-I64-CATALOG0-L0a` is closed. One disconnected Builder
 module now seals the complete static-box declaration inventory into structured
@@ -482,6 +484,26 @@ The forward/reverse S0 fixtures must both execute through the same normalized
 result row. The actual `ParserBox.static_const_parse_add/2` selected init must
 be exact Integer before GenericLoop skeleton verification.
 
+Three worker audits found that this cannot be implemented as a direct emitter
+connection. Legacy lowering carries no canonical caller plus
+`SourceExprSiteV1`, and the declaration/target/result products cannot be
+stored together in `CompilationContext` without self-reference or cloned
+authority. The selected fixture also has an instance-method caller and a
+static target contract. I0 is therefore split, pending one design decision:
+
+```text
+I0-ACTIVATION-D0
+  -> I0-A0 owned single-use activation product
+  -> I0-SITE0 exact legacy site ledger
+  -> I0-CUT0 atomic candidate-Builder activation
+  -> I0-G0
+```
+
+Candidate A, an owned non-Clone activation plan derived while the borrowed
+proofs are live, is recommended. Candidate B, a stack-scoped borrowed lowering
+session, remains the alternative. Exact questions, failure laws, fixtures,
+and stop conditions are fixed in the linked design-stop card.
+
 ### G0 — guards and closeout
 
 ```text
@@ -561,6 +583,7 @@ required-argument substitution, bounded String Core composition, and
 deterministic acyclic wrapper solver are the sole disconnected result
 authority. The P0 snapshot is test-only and adds no production API. Bare
 FunctionCall, general non-i64 typing, recursive/SCC inference, callee-first
-lowering, retry, and fallback remain rejected. I0 may proceed only after one
-pre-body producer, one successful-emission consumer, and failure-before-effects
-ordering are task-locked.
+lowering, retry, and fallback remain rejected. I0 code may proceed only after
+the owned-plan versus scoped-session choice and exact source-site carrier are
+decision-locked. The implementation must still retain one pre-body producer,
+one successful-emission consumer, and failure-before-effects ordering.

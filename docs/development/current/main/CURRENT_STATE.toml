@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result P0 normalized proof is closed; I0 production activation task audit is next"
+status = "callable-result P0 is closed; I0 activation is at an exact-site/lifetime design stop"
 date = "2026-07-17"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -296,19 +296,20 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 
-latest_card = "callable-result-i64-catalog0-task-2026-07-17"
-latest_card_path = "docs/development/current/main/investigations/callable-result-i64-catalog0-task-2026-07-17.md"
-latest_card_summary = """R0-CALLABLE-RESULT-I64-CATALOG0-P0 is closed. One
-test-only normalized snapshot projects result rows and exact source-site call
-rows to canonical callable keys or generated Core contract identity while
-excluding catalog pointers, AST identity, route-product addresses, and
-declaration order. Fresh-catalog reorder parity, repeated-site multiplicity,
-unavailable/recursive rows, and the actual StringHelpers/Parser chain are
-fixed. Result 27/27, source target 42/42, Core 5/5, malformed manifest 9/9,
-quick 66/66, structural guards, cargo check, pointer guard, and line cap are
-green. Production/API/Builder/MIR/runtime/backend deltas remain zero. I0
-producer/consumer transaction audit is next."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-TASK-001"
+latest_card = "callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17"
+latest_card_path = "docs/development/current/main/investigations/callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md"
+latest_card_summary = """Three worker audits and local source review found a
+real I0 activation boundary. Legacy Builder lowering carries neither canonical
+caller identity nor SourceExprSiteV1, while the declaration/target/result
+products borrow one another and cannot be stored beside their owned catalog
+without self-reference or cloned authority. The selected caller is an instance
+method targeting a static exact-i64 contract. Candidate A is recommended:
+consume the borrowed proofs into one owned non-Clone single-use activation
+plan, then add one exact-site ledger and one atomic candidate-Builder cutover.
+Candidate B is a stack-scoped borrowed lowering session. I0 code is not
+authorized until this one design choice and site-carrier law are locked;
+production behavior remains unchanged."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
