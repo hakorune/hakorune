@@ -1,12 +1,237 @@
 ---
-Status: External consultation required; one-shot packet
+Status: Answered; implementation task fixed
 Date: 2026-07-17
-Baseline: dfe1fc9ca8
+Baseline: d3c4473728fa665f6154eea09a0ce382aa58321d
 Evidence: hmi-s0-v0-r0-declfield-phi0-type-publish0-consultation-question-2026-07-17.md
 Scope: one coherent lowering-time PHI type-publication decision
 ---
 
 # TYPE-PUBLISH0 one-shot D0 decision packet
+
+## Accepted resolution
+
+Candidate A-prime, canonical PHI producer repair, is accepted. The answer
+closes all four questions in this packet and supersedes the recommendation
+tables below wherever they differ. In particular:
+
+```text
+Void:
+  exact type
+
+Unknown or missing:
+  non-fact
+
+decision input:
+  logical incoming values before rematerialization
+
+conflict timing:
+  before Phi/rematerialization mutation
+
+publication timing:
+  only after successful Phi mutation
+```
+
+The receiver-equivalence proof remains unchanged and observation-only. The
+repair belongs to the canonical lowering-time PHI destination-type producer.
+
+### Accepted decision owner
+
+One pure owner decides among:
+
+```text
+PreparedPhiTypePublicationV1:
+  Publish(MirType)
+  Idempotent(MirType)
+  PreserveExisting {
+    existing,
+    reason: PhiTypeNoPublicationReasonV1
+  }
+  NoPublication(PhiTypeNoPublicationReasonV1)
+```
+
+`commit_prepared_phi_type` is non-fallible. It inserts only `Publish(T)`;
+every other variant is a no-op.
+
+The decision law is:
+
+| Logical input facts | Result |
+| --- | --- |
+| empty | `NoPublication(EmptyInputs)` |
+| one or more missing | `NoPublication(MissingInputType)` |
+| one or more `Unknown` | `NoPublication(UnknownInputType)` |
+| all the same exact `T`, including `Void` | candidate `T` |
+| multiple exact input types | `NoPublication(HeterogeneousInputTypes)` when unconstrained |
+
+Concrete destination and hint facts are equal-rank constraints. Neither has
+first-wins or last-wins precedence, and a hint never manufactures a candidate.
+Known concrete facts are checked in deterministic order:
+
+```text
+ExistingDestination
+-> ExplicitTypeHint
+-> Incoming sorted by (predecessor, ValueId)
+```
+
+Any unequal concrete pair is one typed pre-mutation failure:
+
+```text
+[freeze:contract][phi_type_publication/concrete_fact_conflict]
+```
+
+This includes a concrete destination or hint conflicting with one known input
+inside an otherwise heterogeneous or incomplete input set. Existing concrete
+destination types are never overwritten.
+
+### Authorized producer set
+
+Exactly four Builder completion entries consume the decision:
+
+| Entry | Classification |
+| --- | --- |
+| raw `MirBuilder::emit_instruction(Phi)` | authorized type consumer |
+| `define_phi_final_with_type_hint` | authorized type consumer |
+| `patch_phi_inputs` | authorized type consumer |
+| `define_phi_batch_prepend` | authorized type consumer |
+
+Explicit non-consumers:
+
+```text
+define_provisional_phi
+function-level define_phi_final_fn* APIs
+thin aliases and PhiTxn facades
+post-create input/block rewriters
+```
+
+Raw unanimous-origin publication remains a separate existing owner. New
+lifecycle consumers publish no `value_origin_newbox` fact and write no eager
+`MirFunction.metadata.value_types` fact.
+
+### Accepted transaction law
+
+Single-PHI entries use:
+
+```text
+1. preflight target/current function and logical inputs
+2. decide and validate all concrete type facts from logical inputs
+3. stop with instruction/type delta zero on conflict
+4. rematerialize physical edge inputs
+5. mutate/insert/patch the Phi
+6. commit the prepared transient type non-fallibly
+7. return success
+```
+
+Raw PHI origin publication is split from type publication and success-committed
+after append. Provisional define publishes no type; patch owns publication.
+
+Batch uses one ephemeral candidate `MirFunction`:
+
+```text
+1. preflight every row and destination
+2. decide every logical-input type row
+3. reject every conflict before current-function mutation
+4. rematerialize and insert the complete batch on the candidate function
+5. replace the current function once
+6. commit prepared type rows in destination order
+```
+
+Failure drops the candidate and leaves current instructions and transient types
+unchanged. The candidate is transaction state, not a persistent second
+authority.
+
+## Active implementation task
+
+The docs-only D0 is closed. The sole next code-facing row is:
+
+```text
+R0-DECLFIELD-PHI0-TYPE-PUBLISH0-S0
+```
+
+### S0 — disconnected pure decision product
+
+Production behavior delta and production consumers remain zero.
+
+Implement one neutral module owning:
+
+```text
+PhiTransientTypeDecisionV1
+PreparedPhiTypePublicationV1
+PhiTypeNoPublicationReasonV1
+PhiConcreteTypeConflictV1
+PhiTypeFactSiteV1
+pure decision tests
+```
+
+S0 must cover:
+
+```text
+publish/idempotent:
+  unanimous exact scalar, Box, and Void
+  destination absent, Unknown, or equal
+  hint absent, Unknown, or equal
+
+no-publication:
+  empty
+  missing
+  Unknown
+  unconstrained heterogeneous
+  concrete hint alone with incomplete inputs
+
+typed failure:
+  destination vs hint
+  destination vs incoming
+  hint vs incoming
+  deterministic first witness under input reorder
+
+commit:
+  Publish writes exactly once
+  every other prepared variant is a no-op
+```
+
+S0 must not connect raw/final/patch/batch producers or alter origin, final
+metadata, receiver proof, FieldGet, HMI, runtime, backend, or ownership
+behavior.
+
+### Fixed continuation
+
+```text
+R0-DECLFIELD-PHI0-TYPE-PUBLISH0-S0
+  -> R0-DECLFIELD-PHI0-TYPE-PUBLISH0-M0
+  -> R0-DECLFIELD-PHI0-TYPE-PUBLISH0-I0
+  -> R0-DECLFIELD-PHI0-TYPE-PUBLISH0-G0
+  -> existing R0-DECLFIELD-PHI0-I0
+  -> existing R0-DECLFIELD0-G0
+  -> clean HMI-S0-V0-R0-I0 rewrite
+```
+
+M0 inventories the exact four entries, rematerialization representation
+parity, and `%19 -> Copy %37` timing. I0 connects exactly those four Builder
+consumers and implements candidate-function batch atomicity. G0 fixes consumer,
+conflict, origin-zero, final-metadata-zero, and partial-publication counters.
+No checkpoint reopens consultation unless an explicit stop condition below is
+observed.
+
+### Immediate stop laws
+
+Stop before I0 if any of these is required or observed:
+
+```text
+hint-only publication
+concrete destination overwrite
+conflict fallback to no-publication
+logical/physical rematerialized representation mismatch
+pre-decision mutation
+partial batch publication
+lifecycle origin publication
+function-level Builder-state injection
+lowering-time final-metadata read or TypePropagationPipeline run
+receiver-proof type inference
+name/runtime/HMI special case
+fallback, retry, or stash restoration
+source/check file reaching 800 lines
+```
+
+The remaining text records the original one-shot question. This accepted
+resolution is the implementation authority.
 
 ## Why this packet exists
 
@@ -300,4 +525,3 @@ Stop the implementation runway only if it requires:
 > atomicity. Once selected, authorize the fixed S0/M0/I0/G0 runway and the
 > already-decided PHI0-I0/DECLFIELD0/HMI-R0 continuation without repeated
 > consultation, unless an explicit stop condition is observed.
-
