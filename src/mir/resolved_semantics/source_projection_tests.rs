@@ -2,7 +2,10 @@ use crate::ast::{
     ASTNode, BinaryOperator, CheckItem, DeclarationAttrs, LiteralValue, Span, UnaryOperator,
 };
 
-use super::{project_source_node_v1, ProjectedSourceNodeV1, SourceNodeSiteV1, SourcePathSegmentV1};
+use super::{
+    project_source_body_node_v1, project_source_node_v1, ProjectedSourceNodeV1, SourceNodeSiteV1,
+    SourcePathSegmentV1,
+};
 
 fn literal(value: i64) -> ASTNode {
     ASTNode::Literal {
@@ -598,4 +601,37 @@ fn keeps_the_parked_segment_vocabulary_explicitly_rejected() {
         assert!(!projector_admits_segment_kind(&segment));
         assert!(project_source_node_v1(&root, &site(vec![segment])).is_none());
     }
+}
+
+#[test]
+fn projects_catalog_owned_function_bodies_without_reconstructing_a_declaration() {
+    let body = vec![local(ASTNode::MethodCall {
+        object: Box::new(variable("Helpers")),
+        method: "run".into(),
+        arguments: vec![literal(70)],
+        span: Span::unknown(),
+    })];
+    let call_site = site(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::Initializer(0),
+    ]);
+    assert!(matches!(
+        project_source_body_node_v1(&body, &call_site),
+        Some(ProjectedSourceNodeV1::Node(ASTNode::MethodCall { method, .. }))
+            if method == "run"
+    ));
+    assert_literal(
+        &function(body.clone()),
+        vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::Initializer(0),
+            SourcePathSegmentV1::Argument(0),
+        ],
+        70,
+    );
+    assert!(
+        project_source_body_node_v1(&body, &site(vec![SourcePathSegmentV1::FunctionBody]))
+            .is_none()
+    );
+    assert!(project_source_body_node_v1(&body, &site(Vec::new())).is_none());
 }

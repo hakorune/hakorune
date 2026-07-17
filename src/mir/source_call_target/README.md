@@ -2,6 +2,26 @@
 
 This module owns disconnected, pre-Builder source-call target proofs.
 
+## AST-BIND0-S0 exact source site
+
+`VerifiedSourceMethodCallSiteV1` is the sole exact caller/body/site co-seal.
+Its constructor accepts only the complete declaration catalog, one canonical
+caller key, and one function-relative `SourceExprSiteV1`. The catalog supplies
+the body; the shared resolved-semantics projector supplies the exact borrowed
+node; only `ASTNode::MethodCall` is admitted. Receiver, method, arguments,
+receiver site, and checked arity are derived from that node and can never be
+supplied independently.
+
+Sites that cross a nested `FunctionDeclaration` or `Lambda` callable boundary
+reject before projection. The top-level catalog key must never be paired with
+a nested callable body that has its own semantic owner.
+
+The product is lifetime-bound and non-Clone. It owns no AST, body, lexical
+fact, import alias, reserved-route decision, target, ABI, effect, result
+representation, MIR, or runtime authority. S0 remains disconnected with zero
+production consumers. Lexical Bound/ProvenUnbound observation belongs to the
+following L0 row.
+
 Q0 and M0 admit two route-disjoint source shapes:
 
 ```text

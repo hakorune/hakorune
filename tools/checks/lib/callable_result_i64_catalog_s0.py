@@ -13,6 +13,7 @@ PRODUCT = "VerifiedSameModuleCallableResultCatalogV1"
 TARGET_MODULE = Path("src/mir/source_call_target")
 TARGET_PRODUCT = "VerifiedSourceStaticCallTargetCatalogV1"
 CURRENT_OWNER_PRODUCT = "VerifiedCurrentOwnerStaticCallTargetV1"
+SOURCE_METHOD_CALL_SITE_PRODUCT = "VerifiedSourceMethodCallSiteV1"
 IMPORT_VIEW = "VerifiedStaticImportAliasViewV1"
 RECEIVER_MODULE = Path("src/mir/source_core_receiver")
 RECEIVER_PRODUCT = "VerifiedSourceCoreReceiverV1"
@@ -168,6 +169,14 @@ def verify(root: Path) -> dict[str, int]:
     target_model = target_sources[target_root / "model.rs"]
     target_qualified = target_sources[target_root / "qualified.rs"]
     target_current_owner = target_sources[target_root / "current_owner.rs"]
+    target_source_site = target_sources[target_root / "source_method_call_site.rs"]
+    target_internal_production = "\n".join(
+        code_only(text)
+        for path, text in target_sources.items()
+        if path.name not in {"mod.rs", "source_method_call_site.rs"}
+        and "tests" not in path.parts
+        and not path.name.endswith("_tests.rs")
+    )
     require(
         target_code.count(f"struct {TARGET_PRODUCT}") == 1,
         "source target catalog product definition count drift",
@@ -181,6 +190,10 @@ def verify(root: Path) -> dict[str, int]:
         "current-owner source target product definition count drift",
     )
     require(
+        target_code.count(f"struct {SOURCE_METHOD_CALL_SITE_PRODUCT}") == 1,
+        "exact source MethodCall site product definition count drift",
+    )
+    require(
         not re.search(
             r"#\[derive\([^]]*Clone[^]]*\)\]\s*pub\(crate\) struct "
             + f"(?:{TARGET_PRODUCT}|{IMPORT_VIEW})",
@@ -189,8 +202,42 @@ def verify(root: Path) -> dict[str, int]:
         "sealed source target catalog/import view must remain non-Clone",
     )
     require(
+        not re.search(
+            r"#\[derive\([^]]*Clone[^]]*\)\]\s*pub\(crate\) struct "
+            + SOURCE_METHOD_CALL_SITE_PRODUCT,
+            target_source_site,
+        ),
+        "exact source MethodCall site product must remain non-Clone",
+    )
+    require(
         production.count(TARGET_PRODUCT) == 0,
         "Q0 source target catalog gained a production producer or consumer",
+    )
+    require(
+        production.count(SOURCE_METHOD_CALL_SITE_PRODUCT)
+        + target_internal_production.count(SOURCE_METHOD_CALL_SITE_PRODUCT)
+        == 0,
+        "S0 exact source MethodCall site gained a production consumer",
+    )
+    require(
+        target_source_site.count("catalog.declaration(caller)") == 1,
+        "exact source site must start from one catalog caller lookup",
+    )
+    require(
+        target_source_site.count("project_source_body_node_v1(") == 1,
+        "exact source site must use the one neutral body projector",
+    )
+    require(
+        "expression: &'catalog ASTNode" in target_source_site
+        and "receiver: &'catalog ASTNode" in target_source_site
+        and "body: Box<[ASTNode]>" not in target_source_site,
+        "exact source site must borrow AST identity without owning a body",
+    )
+    require(
+        "lexical" not in code_only(target_source_site)
+        and "reserved_route" not in code_only(target_source_site)
+        and "target:" not in code_only(target_source_site),
+        "lexical/route/target authority entered exact source site product",
     )
     require(
         target_qualified.count(".declaration_for(") == 1,
@@ -238,6 +285,22 @@ def verify(root: Path) -> dict[str, int]:
     require(
         "actual_string_helpers_projects_digit_value_to_caller_owner" in target_code,
         "actual StringHelpers current-owner target fixture is missing",
+    )
+    require(
+        "actual_string_helpers_accepts_only_the_exact_digit_value_site" in target_code,
+        "actual StringHelpers exact-site false-seal fixture is missing",
+    )
+    require(
+        "actual_parser_string_utils_binds_skip_ws_to_its_catalog_body" in target_code,
+        "actual ParserStringUtils exact-site fixture is missing",
+    )
+    require(
+        "same_relative_site_is_bound_to_each_catalog_caller_body" in target_code,
+        "exact source site caller/body binding fixture is missing",
+    )
+    require(
+        "rejects_a_nested_lambda_call_as_the_outer_catalog_caller" in target_code,
+        "nested callable false-seal rejection fixture is missing",
     )
 
     receiver_root = root / RECEIVER_MODULE
@@ -311,6 +374,8 @@ def verify(root: Path) -> dict[str, int]:
         "verified_import_alias_views": 1,
         "current_owner_target_product_definitions": 1,
         "source_target_forbidden_authority_occurrences": 0,
+        "source_method_call_site_product_definitions": 1,
+        "source_method_call_site_production_consumers": 0,
         "source_receiver_product_definitions": 1,
         "source_receiver_production_producers_consumers": 0,
         "source_receiver_forbidden_authority_occurrences": 0,

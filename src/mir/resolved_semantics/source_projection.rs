@@ -25,6 +25,27 @@ pub(in crate::mir) fn project_source_node_v1<'source>(
     Some(projected)
 }
 
+/// Projects a function-relative site from a catalog-owned callable body.
+///
+/// Callable declaration catalogs intentionally retain the body without
+/// reconstructing an `ASTNode::FunctionDeclaration`. Expression sites for a
+/// top-level callable begin with `Body(index)`, so this entry consumes that
+/// first step and then shares the one physical segment projector below.
+pub(in crate::mir) fn project_source_body_node_v1<'source>(
+    body: &'source [ASTNode],
+    site: &SourceNodeSiteV1,
+) -> Option<ProjectedSourceNodeV1<'source>> {
+    let (first, remaining) = site.segments().split_first()?;
+    let SourcePathSegmentV1::Body(index) = first else {
+        return None;
+    };
+    let mut projected = ProjectedSourceNodeV1::Node(body.get(*index as usize)?);
+    for segment in remaining {
+        projected = project_segment(projected, segment)?;
+    }
+    Some(projected)
+}
+
 #[allow(clippy::match_same_arms)]
 fn project_segment<'source>(
     parent: ProjectedSourceNodeV1<'source>,

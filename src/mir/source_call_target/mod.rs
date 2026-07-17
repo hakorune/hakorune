@@ -9,11 +9,12 @@ mod current_owner;
 mod error;
 mod model;
 mod qualified;
+mod source_method_call_site;
 
 #[allow(unused_imports)]
 pub(crate) use error::{
     CurrentOwnerStaticCallTargetErrorV1, QualifiedStaticCallTargetErrorV1,
-    StaticImportAliasViewErrorV1,
+    SourceMethodCallSiteErrorV1, StaticImportAliasViewErrorV1,
 };
 #[allow(unused_imports)]
 pub(crate) use model::{
@@ -23,8 +24,12 @@ pub(crate) use model::{
     VerifiedQualifiedStaticCallTargetV1, VerifiedSourceStaticCallTargetCatalogV1,
     VerifiedSourceStaticCallTargetV1, VerifiedStaticImportAliasViewV1,
 };
+#[allow(unused_imports)]
+pub(crate) use source_method_call_site::VerifiedSourceMethodCallSiteV1;
 
 #[cfg(test)]
 mod current_owner_tests;
+#[cfg(test)]
+mod source_method_call_site_tests;
 #[cfg(test)]
 mod tests;

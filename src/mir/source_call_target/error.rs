@@ -4,6 +4,30 @@ use crate::mir::resolved_semantics::SourceExprSiteV1;
 use super::ReservedQualifiedReceiverRouteV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum SourceMethodCallSiteErrorV1 {
+    CallerOutsideCatalog {
+        caller: CanonicalSameModuleCallableKeyV1,
+    },
+    SiteOutsideCallerBody {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+    },
+    SiteCrossesNestedCallableBoundary {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+    },
+    MethodCallRequired {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+    },
+    ArityOverflow {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+        method: Box<str>,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum StaticImportAliasViewErrorV1 {
     EmptyAlias,
     EmptyCanonicalOwner {

@@ -1,7 +1,7 @@
 # Source Call Exact-Site / Route-Fact Taskboard
 
 Date: 2026-07-17  
-Status: **P0 closed; S0 exact-site product next**
+Status: **P0 and S0 closed; L0 lexical disposition next**
 Baseline: `0988dbed31`  
 Supersedes: `source-call-site-route-fact-authority-design-stop-2026-07-17.md`
 
@@ -29,7 +29,7 @@ second resolver or a second reserved-route policy.
 The next code-facing row is:
 
 ```text
-R0-SOURCE-CALL-TARGET0-AST-BIND0-S0
+R0-SOURCE-CALL-TARGET0-AST-BIND0-L0
 ```
 
 Production source-target consumers and behavior widening remain zero through
@@ -231,6 +231,8 @@ inside `crate::mir`.
 
 Disconnected exact-site product.
 
+Status: **closed**.
+
 ```text
 new authority:
   exact caller declaration/body/site/MethodCall identity
@@ -238,6 +240,29 @@ new authority:
 production consumers:
   0
 ```
+
+Closeout evidence:
+
+```text
+VerifiedSourceMethodCallSiteV1 definitions = 1
+Clone implementations = 0
+owned AST/body rows = 0
+catalog caller lookups = 1
+neutral catalog-body projector consumers = 1
+production consumers = 0
+focused exact-site tests = 9/9
+```
+
+One catalog caller key selects the only body that may satisfy the site. The
+product derives the borrowed MethodCall expression, receiver expression/site,
+method, arguments, and checked arity from that body. Two callers with the same
+relative site remain bound to their own catalog bodies. Sites crossing a
+nested FunctionDeclaration or Lambda owner boundary reject typed instead of
+being attributed to the outer callable. Actual ParserStringUtilsBox.skip_ws
+and StringHelpers.to_i64 sites are green, while the old handwritten
+StringHelpers site rejects. The family guard also counts same-module consumers
+so a future disconnected-to-production drift cannot hide inside
+`source_call_target`.
 
 Suggested files:
 
@@ -249,6 +274,8 @@ src/mir/source_call_target/source_method_call_site_tests.rs
 ### `R0-SOURCE-CALL-TARGET0-AST-BIND0-L0`
 
 Disconnected lexical disposition product using the existing shadow traversal.
+
+Status: **sole next code-facing row**.
 
 ```text
 new authority:
