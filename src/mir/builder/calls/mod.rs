@@ -45,6 +45,9 @@ pub mod guard; // Phase 25.1d: Structural guard (static/runtime box separation)
 pub mod lowering;
 pub mod materializer;
 pub mod member_route; // Member call route plan + emit handoff
+mod method_call_descent;
+#[cfg(test)]
+mod method_call_descent_tests;
 pub mod parameter_setup; // Step 3: Parameter setup and binding (static/instance methods)
 pub mod receiver_binding; // Step 4: Receiver ('me'/'this') normalization and binding
 mod reserved_method_route; // shared reserved-route policy adapter + selected dispatch

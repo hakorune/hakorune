@@ -1,5 +1,5 @@
 ---
-Status: SITE0-R0-EXPR0-M0-ARG0 closed; SITE0-R0-EXPR0-M0-ROUTE0 is the next code-facing row
+Status: SITE0-R0-EXPR0-M0-ROUTE0-S0 closed; SITE0-R0-EXPR0-M0-GUARD0 is the next code-facing row
 Date: 2026-07-18
 Decision: Candidate A owned single-use activation plan plus located legacy input
 Baseline: fe2d61baa0
@@ -276,9 +276,13 @@ SITE0-R0-EXPR0-M0-ARG0
   located/ledger imports and production result publication remain zero
 
 SITE0-R0-EXPR0-M0-ROUTE0
-  route-owned receiver/argument materialization through the shared child port
-  preserve reserved/static/env/me/standard evaluation and special-preflight order
-  raw port remains the sole selected implementation
+  S0: one disconnected associated-input MethodCall child port
+      raw port remains the sole implementation; production consumers = 0
+  GUARD0: restore one exact recursion-depth guard around every raw expression descent
+      public and nested child entries share one guard owner without double counting
+  R0: thread exact reserved-route child demand
+  M0: thread TypeOp/static/env/me/standard child demand
+      preserve evaluation and special-preflight order
 
 SITE0-R0-EXPR0-M0-V0
   split value-level terminal emission after route-specific syntax preflight
@@ -312,7 +316,8 @@ the raw legacy implementation as the sole selected port. It changes no
 accepted grammar, route, MIR, runtime behavior, or result publication, and it
 imports no located or ledger authority.
 
-The EXPR0 series is fixed as E0 -> M0-ARG0 -> M0-ROUTE0 -> M0-V0 -> L0 -> C0.
+The EXPR0 series is fixed as E0 -> M0-ARG0 -> M0-ROUTE0-S0 -> M0-GUARD0 ->
+M0-ROUTE0-R0 -> M0-ROUTE0-M0 -> M0-V0 -> L0 -> C0.
 ARG0 first centralizes argument preflight, exact left-to-right child descent,
 and the existing undefined-value observation behind one associated-input port.
 ROUTE0 then lets each existing route request only the children it evaluates:
@@ -579,6 +584,31 @@ failure/reuse/raw-MIR fixtures, the existing moved-state 3/3 and E0 5/5
 regressions, callable-result 43/43, PATH0/A0/L0/LDG0/BLK0/E0/ARG0 guards, and
 the release check are green. Accepted grammar, MIR/runtime/backend behavior,
 and result publication remain unchanged. `SITE0-R0-EXPR0-M0-ROUTE0` is next.
+
+## SITE0-R0-EXPR0-M0-ROUTE0-S0 closeout
+
+`I0-SITE0-R0-EXPR0-M0-ROUTE0-S0` is closed. One private
+`MethodCallDescentPortV1` adds an associated MethodCall input above the existing
+E0 expression and ARG0 argument ports. It exposes one borrowed syntax view and
+separate receiver-only and arguments-only descent primitives. A distinct-input
+fixture proves that either primitive descends only the child family it requests;
+the raw AST implementation remains the sole implementation and production
+consumers remain zero.
+
+S0 deliberately publishes no speculative route-demand or completed-value
+product. Route classification, syntax-only operands, reserved preflight,
+terminal emission, effects, types, results, located inputs, and the caller
+ledger remain outside this port. Inactive raw terminal delegation will still
+require the existing ledger's inactive-prefix proof in located lowering.
+
+The closeout audit found one earlier ARG0 substrate drift before any ROUTE0
+production wiring: nested raw expression descent now reaches
+`build_expression_impl` without the legacy recursion-depth guard. R0 is
+therefore not authorized yet. `SITE0-R0-EXPR0-M0-GUARD0` must first centralize
+one exact guard owner shared by the public and nested raw expression entries,
+preserving maximum depth, diagnostic, restoration, and failure order without
+double counting. This is behavior restoration only; it may add no route,
+grammar, result, located, or ledger authority.
 
 ## Required fixtures
 
