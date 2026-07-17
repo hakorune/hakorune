@@ -1,5 +1,5 @@
 ---
-Status: Answered; implementation task fixed
+Status: S0 closed; M0 next
 Date: 2026-07-17
 Baseline: d3c4473728fa665f6154eea09a0ce382aa58321d
 Evidence: hmi-s0-v0-r0-declfield-phi0-type-publish0-consultation-question-2026-07-17.md
@@ -229,6 +229,68 @@ name/runtime/HMI special case
 fallback, retry, or stash restoration
 source/check file reaching 800 lines
 ```
+
+## S0 closeout
+
+`R0-DECLFIELD-PHI0-TYPE-PUBLISH0-S0` is closed.
+
+The Builder-private product is physically separated as:
+
+```text
+src/mir/builder/phi_type_publication/
+  README.md
+  mod.rs
+  decision.rs
+  commit.rs
+  tests.rs
+```
+
+It owns one explicit `PhiTransientTypeDecisionV1`, the prepared publication
+and no-publication vocabulary, deterministic concrete-conflict witnesses, and
+one non-fallible commit. It imports no `MirBuilder`, `MirFunction`, PHI
+instruction, CFG, receiver, field, HMI, runtime, backend, or final-metadata
+authority.
+
+S0 evidence:
+
+```text
+focused pure decision tests:
+  9/9 green
+
+existing PHI lifecycle tests:
+  6/6 green
+
+same-root receiver proof tests:
+  18/18 green
+
+production decision/commit consumers:
+  0
+
+existing raw/lifecycle/origin producer source delta:
+  0
+
+current receiver declared-field proof:
+  PHI-ROOT-DESIGN-REQUIRED
+
+new/modified source files >= 800 lines:
+  0
+```
+
+`cargo check`, the existing Binding-SSA PHI transaction checker, the CorePlan
+PHI boundary guard, current-state pointer guard, formatting, and diff checks
+are green. Existing unrelated compiler warnings remain warnings and are not
+part of this row.
+
+The next row is:
+
+```text
+R0-DECLFIELD-PHI0-TYPE-PUBLISH0-M0
+```
+
+M0 remains behavior-neutral and keeps production consumers zero. It must
+inventory the four authorized entries plus explicit non-consumers, prove the
+logical-to-physical rematerialization representation law, and identify the
+exact `%19 -> Copy %37` publication timing before I0 wiring begins.
 
 The remaining text records the original one-shot question. This accepted
 resolution is the implementation authority.

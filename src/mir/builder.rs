@@ -95,6 +95,8 @@ mod ops;
 mod phi;
 mod phi_merge;
 mod phi_type_inference; // Phase 29bq+: PHI type inference (multi-phase fallback chain)
+#[allow(dead_code)]
+mod phi_type_publication;
 mod type_hint_providers; // Phase 29bq+: Type hint provision (call results, method signatures) // Phase 25.1q: Unified PHI merge helper // prepare/lower_root/finalize split
                          // legacy large-match remains inline for now (planned extraction)
 pub(in crate::mir) mod emission; // emission::*（Const/Compare/Branch の薄い発行箱）
