@@ -25,7 +25,6 @@ use super::static_resolution::BareStaticRecoveryEmissionV1;
 use super::CallTarget;
 use crate::ast::ASTNode;
 use crate::mir::builder::callable_declaration_catalog::BareStaticRecoveryNoRecoveryReasonV1;
-use std::collections::BTreeMap;
 
 impl MirBuilder {
     // Build function call: name(args)
@@ -193,64 +192,7 @@ impl MirBuilder {
         &mut self,
         args: &[ASTNode],
     ) -> Result<Vec<ValueId>, String> {
-        self.enforce_moved_same_call_args_contract(args)?;
-        let mut arg_values = Vec::new();
-
-        for (arg_idx, arg_ast) in args.iter().enumerate() {
-            if let ASTNode::Variable { name, .. } = arg_ast {
-                if let Some(value) = self.variable_ctx.variable_map.get(name).copied() {
-                    self.fail_if_record_value_call_arg_by_name(name, value)?;
-                }
-            }
-            let v = self.build_expression(arg_ast.clone())?;
-
-            // Debug-only observation: check for undefined ValueId immediately after build
-            if crate::config::env::joinir_dev::debug_enabled() {
-                if let Some(func) = self.scope_ctx.current_function.as_ref() {
-                    let def_blocks = crate::mir::verification::utils::compute_def_blocks(func);
-
-                    if !def_blocks.contains_key(&v) {
-                        // Found undefined ValueId - log AST type and span
-                        let ring0 = crate::runtime::get_global_ring0();
-                        ring0.log.debug(&format!("[call/arg_build:undefined_value] fn={} bb={:?} arg_idx={} v=%{} ast={} span={:?} next={}",
-                            func.signature.name,
-                            self.current_block,
-                            arg_idx,
-                            v.0,
-                            arg_ast.node_type(),
-                            arg_ast.span(),
-                            func.next_value_id
-                        ));
-                    }
-                }
-            }
-
-            arg_values.push(v);
-        }
-
-        Ok(arg_values)
-    }
-
-    /// S8 minimal moved-state contract:
-    /// in strict+planner_required mode, reusing the same variable in one call arg list
-    /// (`f(x, x)`) is treated as use-after-move and fails fast.
-    fn enforce_moved_same_call_args_contract(&self, args: &[ASTNode]) -> Result<(), String> {
-        if !crate::config::env::joinir_dev::strict_planner_required_enabled() {
-            return Ok(());
-        }
-        let mut first_seen: BTreeMap<&str, usize> = BTreeMap::new();
-        for (idx, arg) in args.iter().enumerate() {
-            let ASTNode::Variable { name, .. } = arg else {
-                continue;
-            };
-            if let Some(prev) = first_seen.insert(name.as_str(), idx) {
-                return Err(format!(
-                    "[freeze:contract][moved/use_after_move_same_call] var={} first_arg={} reused_arg={}",
-                    name, prev, idx
-                ));
-            }
-        }
-        Ok(())
+        super::call_argument_descent::drive_raw_call_arguments_v1(self, args)
     }
 
     /// Build a resolved global function call.

@@ -13,3 +13,10 @@ admission by name.
 
 Function-form `mem.*` calls are a separate existing route and are outside the
 source-MethodCall policy.
+
+`call_argument_descent.rs` owns one behavior-neutral argument boundary:
+moved-state preflight happens before effects, then each associated argument
+input is checked and lowered exactly once in source order. Its selected raw
+facade preserves the existing AST lowering. It owns no receiver or route
+decision, result publication, callable-result location/ledger, retry, or
+fallback policy. The port is never stored in `MirBuilder`.

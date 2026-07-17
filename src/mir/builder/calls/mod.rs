@@ -18,6 +18,9 @@
 
 // Existing modules (already implemented elsewhere)
 pub mod annotation;
+mod call_argument_descent;
+#[cfg(test)]
+mod call_argument_descent_tests;
 pub mod call_target;
 pub mod call_unified;
 pub mod extern_calls;

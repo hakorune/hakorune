@@ -64,7 +64,7 @@ where
     port.lower_expression(builder, input)
 }
 
-struct RawLegacyChildLoweringPortV1;
+pub(in crate::mir::builder) struct RawLegacyChildLoweringPortV1;
 
 impl RecursiveChildLoweringPortV1 for RawLegacyChildLoweringPortV1 {
     type BodyInput = Vec<ASTNode>;

@@ -1,5 +1,5 @@
 ---
-Status: SITE0-R0-EXPR0-E0 closed; SITE0-R0-EXPR0-M0 is the next code-facing row
+Status: SITE0-R0-EXPR0-M0-ARG0 closed; SITE0-R0-EXPR0-M0-ROUTE0 is the next code-facing row
 Date: 2026-07-18
 Decision: Candidate A owned single-use activation plan plus located legacy input
 Baseline: fe2d61baa0
@@ -269,9 +269,20 @@ SITE0-R0-EXPR0-E0
   raw legacy port remains the sole selected implementation
   located/ledger imports and production consumers remain zero
 
-SITE0-R0-EXPR0-M0
-  split MethodCall route selection from pre-lowered receiver/argument emission
-  preserve reserved/special/ordinary route behavior
+SITE0-R0-EXPR0-M0-ARG0
+  one behavior-neutral associated-input call-argument descent port
+  preserve preflight, left-to-right lowering, diagnostics, and failure order
+  raw AST port remains the sole selected implementation
+  located/ledger imports and production result publication remain zero
+
+SITE0-R0-EXPR0-M0-ROUTE0
+  route-owned receiver/argument materialization through the shared child port
+  preserve reserved/static/env/me/standard evaluation and special-preflight order
+  raw port remains the sole selected implementation
+
+SITE0-R0-EXPR0-M0-V0
+  split value-level terminal emission after route-specific syntax preflight
+  preserve effects, destination allocation, type publication, and diagnostics
   located/ledger imports and production consumers remain zero
 
 SITE0-R0-EXPR0-L0
@@ -301,8 +312,14 @@ the raw legacy implementation as the sole selected port. It changes no
 accepted grammar, route, MIR, runtime behavior, or result publication, and it
 imports no located or ledger authority.
 
-The EXPR0 series is fixed as E0 -> M0 -> L0 -> C0. M0 first creates one
-behavior-neutral pre-lowered MethodCall emission seam. L0 may then create a
+The EXPR0 series is fixed as E0 -> M0-ARG0 -> M0-ROUTE0 -> M0-V0 -> L0 -> C0.
+ARG0 first centralizes argument preflight, exact left-to-right child descent,
+and the existing undefined-value observation behind one associated-input port.
+ROUTE0 then lets each existing route request only the children it evaluates:
+static/env/me/reserved receiver syntax remains unevaluated, `__mir__` labels
+and TypeOp type strings remain syntax-only, and standard receiver evaluation
+remains before its arguments. V0 finally extracts only post-preflight
+value-level terminal emission. L0 may then create a
 stack-scoped located session separate from `MirBuilder`; the activation plan,
 source view, and ledger must never be stored in Builder state, cloned, shared,
 or reconstructed by a second AST walk. L0 claims a MethodCall before lowering
@@ -540,7 +557,28 @@ callable-result 43/43, E0/BLK0/LDG0 guards, release check, formatting, and line
 caps are green. The broad FastMem filter retains two pre-existing assertion
 drifts; both reproduce with the old direct block leaf and are not E0
 regressions. Accepted grammar, MIR/runtime behavior, and result publication
-remain unchanged. `SITE0-R0-EXPR0-M0` is next.
+remain unchanged. `SITE0-R0-EXPR0-M0-ARG0` is next.
+
+## SITE0-R0-EXPR0-M0-ARG0 closeout
+
+`I0-SITE0-R0-EXPR0-M0-ARG0` is closed. One associated-input
+`CallArgumentDescentPortV1` extends the existing E0 recursive child port, so
+there is still one expression-lowering authority. The driver owns the exact
+legacy order: whole-list moved-state preflight before child effects, then
+per-index record-value precheck, associated expression input construction,
+one left-to-right E0 descent, and the existing undefined-value observation
+immediately after each successful child. The first failure preserves earlier
+effects, lowers no later argument, and never retries.
+
+One raw AST implementation remains selected by the existing
+`build_call_args` facade; its ten production callers are unchanged. Receiver
+evaluation, reserved/static/env/me/standard route policy, TypeOp strings,
+`__mir__` labels, target/effect/result publication, located inputs, and the
+caller ledger remain outside ARG0. Five focused associated-input/order/empty/
+failure/reuse/raw-MIR fixtures, the existing moved-state 3/3 and E0 5/5
+regressions, callable-result 43/43, PATH0/A0/L0/LDG0/BLK0/E0/ARG0 guards, and
+the release check are green. Accepted grammar, MIR/runtime/backend behavior,
+and result publication remain unchanged. `SITE0-R0-EXPR0-M0-ROUTE0` is next.
 
 ## Required fixtures
 
