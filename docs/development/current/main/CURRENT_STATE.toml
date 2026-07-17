@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "TYPE-PUBLISH0-G0 is closed; the existing PHI0-I0 connection is next"
+status = "R0-DECLFIELD-PHI0-I0 is closed; existing DECLFIELD0-G0 is next"
 date = "2026-07-17"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -296,8 +296,8 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 
-latest_card = "hmi-s0-v0-r0-declfield-phi0-type-publish0-one-shot-decision-packet-2026-07-17"
-latest_card_path = "docs/development/current/main/investigations/hmi-s0-v0-r0-declfield-phi0-type-publish0-one-shot-decision-packet-2026-07-17.md"
+latest_card = "hmi-s0-v0-r0-declfield-phi0-same-root-task-2026-07-17"
+latest_card_path = "docs/development/current/main/investigations/hmi-s0-v0-r0-declfield-phi0-same-root-task-2026-07-17.md"
 latest_card_summary = """A-prime is accepted after three read-only worker
 audits. R0-DELTA0 proves only that an ordinary static formal can mutate a
 MapBox without returning it, reassigning the owner field, or adding ownership
@@ -386,8 +386,11 @@ completion entries prepare one logical-input type decision and publish only
 after successful mutation; raw origin remains separately success-committed,
 patch no longer overwrites the exact result with Unknown, and batch uses one
 ephemeral candidate-function transaction. G0 closes the row with exact
-consumer/origin/atomicity guards. The existing PHI0-I0 -> DECLFIELD0-G0 ->
-clean HMI R0 runway needs no
+consumer/origin/atomicity guards. PHI0-I0 is also closed: one fallback in
+declared_field_type_for_value consumes the bounded same-root proof after the
+existing origin route, A2 publishes ArrayBox and selects Known push/length,
+MapBox stays Known, N1/N2 stay unrecovered, and ownership operations remain
+zero. Existing DECLFIELD0-G0 -> clean HMI R0 is next and needs no
 checkpoint reconsultation unless an exact stop condition appears. Origin
 backfill, mid-lowering final pipeline, runtime/name inference, fallback, and
 stash restore remain forbidden.
@@ -991,7 +994,7 @@ MP0-P0 blocker. 3511 now owns the narrow semantic activation claim and its
 LLVM/object support row; global Unit, VM/Wasm support, and unrelated Void/Null
 sites remain inactive."""
 
-current_blocker_token = "DPRIME-HMI-S0-V0-R0-DECLFIELD-PHI0-I0-001"
+current_blocker_token = "DPRIME-HMI-S0-V0-R0-DECLFIELD0-G0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -1000,6 +1003,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-17: R0-DECLFIELD-PHI0-I0 connects the sealed finite acyclic Copy/Phi same-root receiver proof to exactly one fallback in declared_field_type_for_value, after the unchanged value_origin route. The real A2 base remains Copy(Phi(current_receiver)); its FieldGet rows carry declared ArrayBox, observable result typing is ArrayBox, and push/length use existing ArrayBox/Known routes. MapBox remains Known, untyped and foreign-parameter N1/N2 controls remain unrecovered, runtime A1-A7/M1/C1/N1/N2 is 11/11 in debug/release, and CopyOwned/DestroyOwned/selected ReleaseStrong stay zero. The checker seals one production proof consumer and zero property/field-contract consumers. Focused proof 19/19, PHI publication 13/13, lifecycle 6/6, Binding-SSA/CorePlan/inventory guards, cargo check, formatting, diff, and line budgets are green. Existing DECLFIELD0-G0 is next.",
   "2026-07-17: TYPE-PUBLISH0-G0 closes the canonical lowering-time PHI type producer row. One machine guard fixes exactly four wrapper consumers, four authorized entry families, zero direct decision bypasses, zero post-patch Unknown writers, zero combined raw type/origin writers, raw-only success-committed origin, lifecycle origin zero, and the unchanged final late-publisher inventory. Focused 13/13, lifecycle 6/6, same-root 18/18, Binding-SSA/CorePlan/inventory/pointer guards, declared-field proof, cargo check, formatting, diff, and line budgets are green. No new semantic authority or behavior lands in G0. The existing PHI0-I0 one-consumer declared-field fallback is next.",
   "2026-07-17: TYPE-PUBLISH0-I0 connects exactly the four canonical Builder PHI completion entries to the pure decision owner. Raw emit, complete final, patch, and batch decide from logical inputs before mutation and commit transient type only after successful PHI completion. Raw unanimous origin is split into a separate prepare/commit path and remains raw-only; lifecycle origin publication stays zero. Binding SSA no longer overwrites a successful patch with Unknown. Batch predecides every row, rematerializes and inserts on one ephemeral candidate MirFunction, replaces the current function once, and commits type rows only after whole-batch success. Focused 13/13, lifecycle 6/6, same-root 18/18, exact conflict and batch atomicity fixtures, Binding-SSA/CorePlan/inventory/pointer guards, declared-field proof, cargo check, formatting, diff, and line budgets are green. G0 is next.",
   "2026-07-17: TYPE-PUBLISH0-M0 closes a behavior-neutral four-entry producer/nonconsumer/rewriter/timing inventory with production decision consumers still zero. Test-only Builder evidence records the pre-I0 split: raw emit publishes unanimous type+origin, while complete final, patch, and batch publish no transient type; a disconnected prepare-mutate-commit adapter proves logical receiver inputs remain identical after rematerialization and the committed PHI type is immediately copied by LocalSSA before final metadata. The exact late final-metadata publisher is user-box route convergence's Copy/Phi fixed-point, not the one-shot final TypePropagationPipeline. The inventory also fixes two I0 seams: raw metadata currently mutates before append, and Binding SSA writes Unknown after a successful patch. Focused 11/11 plus late-publisher 1/1 and the machine inventory checker are green; production behavior and producer wiring remain unchanged. I0 is next.",
@@ -1011,5 +1015,4 @@ landed_tail = [
   "2026-07-17: R0-DECLFIELD-PHI0-P0 closes the full disconnected matrix with production consumers zero. P1-P9 cover direct/Copy, Copy-wrapped PHI, two/three-level nested PHI, three predecessors, shared subgraphs, and reorder-stable normalization; every accepted synthetic function directly passes final MirVerifier. R1-R24 cover unsupported definitions, nested/foreign/mixed roots, static/non-receiver parameters, type drift, malformed predecessor/availability rows, definition and CFG cycles, and missing/untyped field composition. A final-MIR test adapter compiles the existing DECLFIELD0 app, verifies each selected function, reconstructs only parameter/type/receiver/catalog facts, and calls the same proof at exact FieldGet ordinals: A1=R, A2=P[R,R], A3=R, A4=R. No Copy/Phi origin backfill, MIR JSON/Python authority, production field consumer, runtime/HMI/backend delta, fallback, or retry lands. Focused 18/18, cargo check, existing PHI-ROOT-DESIGN-REQUIRED proof, pointer guard, and line budgets are green. PHI0-I0 is next.",
   "2026-07-17: R0-DECLFIELD-PHI0-S0 closes one disconnected bounded use-site proof with production consumers zero. Exact receiver identity co-validates implicit parameter zero metadata/kind/signature/type/origin/registry; one position-only definition index, validated normal-CFG view, explicit Copy/Phi worklist, and typed rejection vocabulary prove finite acyclic non-loop same-root receiver values. Definition truth is never cloned, the seed must be available at the current use site, and cached successors must match terminator truth before CFG analysis. Focused 11/11, cargo check, existing DECLFIELD0 PHI-ROOT-DESIGN-REQUIRED evidence, pointer guard, ownership-op zero, and every touched source/check file below 800 lines are green. Field lookup, FieldGet, PHI metadata, method routing, runtime, HMI, fallback, and retry remain unchanged. PHI0-P0 is next.",
   "2026-07-17: Candidate A-prime is accepted and R0-DECLFIELD-PHI0 is task-fixed. One bounded use-site proof admits the finite acyclic non-loop closure of ordinary Copy and Phi values whose every terminal root is exact implicit receiver parameter zero. Nested acyclic PHIs are included; value-definition cycles and every CFG loop/backedge reject. Exact receiver identity co-validates parameter metadata, kind, signature/type/origin, and user-box registry. Construction uses only ephemeral exact definition/CFG/worklist state; persistent equivalence maps, origin/PHI metadata writes, name/runtime inference, ownership widening, fallback, and stash restore remain zero. S0/P0 stay disconnected, I0 adds one field-type lookup consumer, and existing MAPFIELD-R0-DECLFIELD0 G0 closes the row. PHI0-S0 is next.",
-  "2026-07-16: R0-DECLFIELD0-M0 closes one 479-line normalized source/runtime/MIR checker and selects PHI-ROOT-DESIGN-REQUIRED. Debug/release A1-A7/M1/C1/N1/N2 and normalized evidence agree. A1/A3 are Copy(receiver), A4 is Copy*(receiver), but selected A2 is Copy(Phi(receiver,receiver)); its base type is exact current owner while FieldGet declared/result types are Unknown and push/length route RuntimeDataBox/Union. Registry, typed helper, MapBox, untyped-field, and foreign-parameter controls remain separated. CopyOwned, DestroyOwned, and selected ReleaseStrong are zero. No compiler/runtime/HMI/backend behavior or fallback lands. I0 is forbidden and a same-root receiver PHI authority consultation is now the design stop.",
 ]

@@ -87,6 +87,48 @@ def verify_source(root: Path) -> dict[str, Any]:
     }
 
 
+def verify_compiler_boundary(root: Path) -> dict[str, int]:
+    field_facts = (root / "src/mir/builder/field_facts.rs").read_text(
+        encoding="utf-8"
+    )
+    body = field_facts.split("fn declared_field_type_for_value(", 1)[1].split(
+        "fn inferred_field_result_class(", 1
+    )[0]
+    anchors = (
+        "value_origin_newbox",
+        "VerifiedSameRootReceiverValueV1::verify",
+        "proof.receiver().owner_box()",
+    )
+    positions = [body.find(anchor) for anchor in anchors]
+    if any(position < 0 for position in positions) or positions != sorted(positions):
+        raise ProofFailure("declared-field fallback order drift")
+
+    consumers: list[str] = []
+    for path in (root / "src").rglob("*.rs"):
+        relative = path.relative_to(root).as_posix()
+        if "/tests/" in relative or relative.endswith("_tests.rs"):
+            continue
+        count = path.read_text(encoding="utf-8").count(
+            "VerifiedSameRootReceiverValueV1::verify("
+        )
+        consumers.extend([relative] * count)
+    if consumers != ["src/mir/builder/field_facts.rs"]:
+        raise ProofFailure(f"same-root production consumer drift: {consumers}")
+    if "field_receiver_provenance" in field_facts.split(
+        "fn declared_field_contract_identity(", 1
+    )[1].split("fn declared_field_type_for_value(", 1)[0]:
+        raise ProofFailure("field contract identity became a proof consumer")
+    if "field_receiver_provenance" in field_facts.split(
+        "fn resolve_property_getter_name(", 1
+    )[1]:
+        raise ProofFailure("property getter became a proof consumer")
+    return {
+        "same_root_production_consumers": 1,
+        "field_contract_consumers": 0,
+        "property_getter_consumers": 0,
+    }
+
+
 def parse_runtime(text: str, case_id: str) -> int:
     lines = [line.strip() for line in text.splitlines() if line.strip()]
     required = {
@@ -375,6 +417,14 @@ def classify(runtime: dict[str, int], mir: dict[str, Any]) -> str:
     if any(row["base_type"] != f"handle:{OWNER}" for row in selected_fields):
         return "BASE-TYPE-MISMATCH"
     roots = [row["base_root"] for row in selected_fields]
+    selected_typed = (
+        all(row["declared_type"] == "handle:ArrayBox" for row in selected_fields)
+        and any(row["result_type"] == "handle:ArrayBox" for row in selected_fields)
+        and has_method(mir, FALLTHROUGH, "push", "ArrayBox", "Known")
+        and has_method(mir, FALLTHROUGH, "length", "ArrayBox", "Known")
+    )
+    if any("Phi(" in root for root in roots) and selected_typed:
+        return "SAME-ROOT-DECLFIELD-AUTHORIZED"
     if any("Phi(" in root for root in roots):
         return "PHI-ROOT-DESIGN-REQUIRED"
     if all(
@@ -410,13 +460,17 @@ def verify_controls(mir: dict[str, Any]) -> None:
         raise ProofFailure("ordinary typed parameter control became current receiver")
 
     late_fields = field_rows(mir, FALLTHROUGH, "items")
-    if any(row["declared_type"] != "Unknown" for row in late_fields):
-        raise ProofFailure("fallthrough late field unexpectedly gained declared type")
-    if any(row["result_type"] != "Unknown" for row in late_fields):
-        raise ProofFailure("fallthrough late field unexpectedly gained result type")
+    if not late_fields or any(
+        row["declared_type"] != "handle:ArrayBox" for row in late_fields
+    ):
+        raise ProofFailure("fallthrough late field lost declared ArrayBox type")
+    if not any(row["result_type"] == "handle:ArrayBox" for row in late_fields):
+        raise ProofFailure("fallthrough late field lost observable ArrayBox result type")
     for method in ("push", "length"):
-        if not has_method(mir, FALLTHROUGH, method, "RuntimeDataBox", "Union"):
-            raise ProofFailure(f"fallthrough control lost RuntimeDataBox/Union {method}")
+        if not has_method(mir, FALLTHROUGH, method, "ArrayBox", "Known"):
+            raise ProofFailure(f"fallthrough control lost ArrayBox/Known {method}")
+        if has_method(mir, FALLTHROUGH, method, "RuntimeDataBox", "Union"):
+            raise ProofFailure(f"fallthrough control retained RuntimeDataBox/Union {method}")
     if mir["totals"]["copy_owned"] or mir["totals"]["destroy_owned"]:
         raise ProofFailure("DECLFIELD0 emitted CopyOwned or DestroyOwned")
     if mir["selected_releases"]:
@@ -426,6 +480,7 @@ def verify_controls(mir: dict[str, Any]) -> None:
 def main() -> int:
     root = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
     source = verify_source(root)
+    architecture = verify_compiler_boundary(root)
     (root / ARTIFACT_DIR).mkdir(parents=True, exist_ok=True)
     runtime_by_mode: dict[str, dict[str, int]] = {}
     mir_by_mode: dict[str, dict[str, Any]] = {}
@@ -446,6 +501,7 @@ def main() -> int:
         "schema_version": 1,
         "proof_id": PROOF_ID,
         "source": source,
+        "architecture": architecture,
         "runtime": runtime,
         "mir": mir,
         "selection": selection,
@@ -461,10 +517,22 @@ def main() -> int:
     print(f"mir.selected.base_root={selected_fields[0]['base_root']}")
     print(f"mir.selected.base_type={selected_fields[0]['base_type']}")
     print(f"mir.selected.declared_type={selected_fields[0]['declared_type']}")
-    print(f"mir.selected.result_type={selected_fields[0]['result_type']}")
+    selected_result_type = next(
+        (
+            row["result_type"]
+            for row in selected_fields
+            if row["result_type"] == "handle:ArrayBox"
+        ),
+        selected_fields[0]["result_type"],
+    )
+    print(f"mir.selected.result_type={selected_result_type}")
     print(f"mir.copy_owned={mir['totals']['copy_owned']}")
     print(f"mir.destroy_owned={mir['totals']['destroy_owned']}")
     print(f"mir.selected_release_strong={len(mir['selected_releases'])}")
+    print(
+        "architecture.same_root_production_consumers="
+        f"{architecture['same_root_production_consumers']}"
+    )
     print(f"selection={selection}")
     print(f"report={report_path.relative_to(root)}")
     print("summary=observed")

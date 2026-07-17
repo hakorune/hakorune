@@ -77,8 +77,7 @@ mod exprs_lambda; // lambda lowering
 mod exprs_peek; // peek expression
 mod exprs_qmark; // ?-propagate
 mod field_facts; // Field/property receiver facts and declared-type helpers
-#[allow(dead_code)]
-mod field_receiver_provenance; // Disconnected bounded current-receiver Copy/Phi proof
+mod field_receiver_provenance; // Bounded current-receiver Copy/Phi proof; one field-fact consumer
 mod fields; // field access/assignment lowering split
 mod if_form;
 mod indexing; // indexing expression/assignment lowering

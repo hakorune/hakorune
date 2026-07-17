@@ -1,6 +1,7 @@
 //! Bounded use-site proof for current-receiver Copy/Phi provenance.
 //!
-//! This module is disconnected in R0-DECLFIELD-PHI0-S0. It must not publish
+//! Exactly one production consumer in `field_facts` uses the sealed proof to
+//! recover an existing declared field type. This module must not publish
 //! origin/type metadata or become a general receiver-equivalence registry.
 
 #[cfg(test)]

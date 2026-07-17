@@ -34,10 +34,22 @@ impl super::MirBuilder {
         object_value: ValueId,
         field: &str,
     ) -> Option<crate::mir::MirType> {
-        self.type_ctx
+        if let Some(declared_type) = self
+            .type_ctx
             .value_origin_newbox
             .get(&object_value)
             .and_then(|box_name| self.comp_ctx.declared_field_type_name(box_name, field))
+        {
+            return Some(Self::parse_type_name_to_mir(declared_type));
+        }
+
+        let proof = super::field_receiver_provenance::VerifiedSameRootReceiverValueV1::verify(
+            self,
+            object_value,
+        )
+        .ok()?;
+        self.comp_ctx
+            .declared_field_type_name(proof.receiver().owner_box(), field)
             .map(Self::parse_type_name_to_mir)
     }
 

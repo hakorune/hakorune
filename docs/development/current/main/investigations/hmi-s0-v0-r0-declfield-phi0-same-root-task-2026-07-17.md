@@ -839,6 +839,45 @@ N1/N2 remain unrecovered
 new MIR instructions = 0
 ```
 
+### I0 closeout
+
+`R0-DECLFIELD-PHI0-I0` is closed. The sole production connection is:
+
+```text
+declared_field_type_for_value
+  -> existing value_origin_newbox route first
+  -> VerifiedSameRootReceiverValueV1::verify fallback
+  -> existing user_box_field_decls lookup
+  -> existing parse_type_name_to_mir
+```
+
+The normalized debug/release result is:
+
+```text
+selection = SAME-ROOT-DECLFIELD-AUTHORIZED
+A2 base = Copy(Phi(current_receiver))
+A2 base type = handle:DeclaredFieldOwnerV1
+A2 FieldGet declared type = handle:ArrayBox
+A2 observable result type = handle:ArrayBox
+A2 push / length = ArrayBox / Known
+production same-root proof consumers = 1
+property getter consumers = 0
+field contract consumers = 0
+runtime A1-A7/M1/C1/N1/N2 = 11/11
+CopyOwned = 0
+DestroyOwned = 0
+selected ReleaseStrong = 0
+```
+
+The untyped-field and foreign-parameter N1/N2 controls remain unrecovered.
+No origin/type backfill, persistent equivalence map, property/contract/method
+planner consumer, new MIR instruction, runtime tag, fallback, retry, backend,
+ownership, or HMI source delta is introduced.
+
+Focused same-root tests are 19/19. TYPE-PUBLISH0 remains 13/13, lifecycle is
+6/6, and Binding-SSA, CorePlan, producer inventory, `cargo check`, formatting,
+diff, and file-size guards are green.
+
 ## Existing R0-DECLFIELD0-G0
 
 Do not add a second public proof ID.

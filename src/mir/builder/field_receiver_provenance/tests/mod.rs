@@ -216,6 +216,14 @@ impl FixtureV1 {
             .declared_field_type_name(proof.receiver().owner_box(), field)
     }
 
+    fn declared_field_type_via_production_lookup(
+        &self,
+        seed: ValueId,
+        field: &str,
+    ) -> Option<MirType> {
+        self.builder.declared_field_type_for_value(seed, field)
+    }
+
     fn assert_final_verifier_accepts(&self, returned: ValueId) {
         let mut function = self
             .builder
@@ -279,6 +287,35 @@ fn accepts_receiver_and_copy_chain_without_persistent_metadata() {
         .value_origin_newbox
         .contains_key(&second));
     fixture.assert_final_verifier_accepts(second);
+}
+
+#[test]
+fn production_field_lookup_has_one_same_root_phi_fallback() {
+    let mut fixture = FixtureV1::new();
+    let receiver = fixture.receiver();
+    assert_eq!(
+        fixture.declared_field_type_via_production_lookup(receiver, "items"),
+        Some(MirType::Box("ArrayBox".to_string()))
+    );
+
+    let phi = fixture.diamond();
+    assert!(!fixture
+        .builder
+        .type_ctx
+        .value_origin_newbox
+        .contains_key(&phi));
+    assert_eq!(
+        fixture.declared_field_type_via_production_lookup(phi, "items"),
+        Some(MirType::Box("ArrayBox".to_string()))
+    );
+    assert_eq!(
+        fixture.declared_field_type_via_production_lookup(phi, "missing"),
+        None
+    );
+    assert_eq!(
+        fixture.declared_field_type_via_production_lookup(fixture.foreign_parameter(), "items"),
+        None
+    );
 }
 
 #[test]
