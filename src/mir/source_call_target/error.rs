@@ -49,3 +49,28 @@ pub(crate) enum QualifiedStaticCallTargetErrorV1 {
         arity: u32,
     },
 }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum CurrentOwnerStaticCallTargetErrorV1 {
+    SourceMethodCallRequired,
+    CanonicalMeReceiverRequired,
+    EmptyMethod,
+    ArityOverflow {
+        method: Box<str>,
+    },
+    CallerOutsideCatalog {
+        caller: CanonicalSameModuleCallableKeyV1,
+    },
+    CallerNotStaticBoxMethod {
+        caller: CanonicalSameModuleCallableKeyV1,
+    },
+    DuplicateCallSite {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+    },
+    TargetOutsideCatalog {
+        owner: Box<str>,
+        method: Box<str>,
+        arity: u32,
+    },
+}

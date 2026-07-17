@@ -12,6 +12,7 @@ MODULE = Path("src/mir/callable_result_representation")
 PRODUCT = "VerifiedSameModuleCallableResultCatalogV1"
 TARGET_MODULE = Path("src/mir/source_call_target")
 TARGET_PRODUCT = "VerifiedSourceStaticCallTargetCatalogV1"
+CURRENT_OWNER_PRODUCT = "VerifiedCurrentOwnerStaticCallTargetV1"
 IMPORT_VIEW = "VerifiedStaticImportAliasViewV1"
 RECEIVER_MODULE = Path("src/mir/source_core_receiver")
 RECEIVER_PRODUCT = "VerifiedSourceCoreReceiverV1"
@@ -125,6 +126,7 @@ def verify(root: Path) -> dict[str, int]:
     target_code = "\n".join(code_only(text) for text in target_sources.values())
     target_model = target_sources[target_root / "model.rs"]
     target_qualified = target_sources[target_root / "qualified.rs"]
+    target_current_owner = target_sources[target_root / "current_owner.rs"]
     require(
         target_code.count(f"struct {TARGET_PRODUCT}") == 1,
         "source target catalog product definition count drift",
@@ -132,6 +134,10 @@ def verify(root: Path) -> dict[str, int]:
     require(
         target_code.count(f"struct {IMPORT_VIEW}") == 1,
         "verified import alias view definition count drift",
+    )
+    require(
+        target_code.count(f"struct {CURRENT_OWNER_PRODUCT}") == 1,
+        "current-owner source target product definition count drift",
     )
     require(
         not re.search(
@@ -148,6 +154,18 @@ def verify(root: Path) -> dict[str, int]:
     require(
         target_qualified.count(".declaration_for(") == 1,
         "qualified target must project through one exact catalog lookup",
+    )
+    require(
+        target_current_owner.count(".declaration_for(") == 1,
+        "current-owner target must project through one exact catalog lookup",
+    )
+    require(
+        "caller.key().owner()" in target_current_owner,
+        "current-owner target must derive its owner from the caller catalog key",
+    )
+    require(
+        "VerifiedSourceStaticCallTargetV1::CurrentOwnerStatic" in target_current_owner,
+        "current-owner route must extend the shared target catalog",
     )
     require(
         "imports.canonical_owner(candidate.receiver())" in target_qualified,
@@ -175,6 +193,10 @@ def verify(root: Path) -> dict[str, int]:
     require(
         "imported_alias_precedes_same_spelled_lexical_binding" in target_code,
         "import-alias/local-binding precedence fixture is missing",
+    )
+    require(
+        "actual_string_helpers_projects_digit_value_to_caller_owner" in target_code,
+        "actual StringHelpers current-owner target fixture is missing",
     )
 
     receiver_root = root / RECEIVER_MODULE
@@ -246,6 +268,7 @@ def verify(root: Path) -> dict[str, int]:
         "source_target_product_definitions": 1,
         "source_target_production_producers_consumers": 0,
         "verified_import_alias_views": 1,
+        "current_owner_target_product_definitions": 1,
         "source_target_forbidden_authority_occurrences": 0,
         "source_receiver_product_definitions": 1,
         "source_receiver_production_producers_consumers": 0,

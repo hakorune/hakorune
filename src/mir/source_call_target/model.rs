@@ -121,6 +121,69 @@ pub(crate) struct VerifiedQualifiedStaticCallTargetV1 {
     target: CanonicalSameModuleCallableKeyV1,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum CurrentOwnerStaticReceiverV1 {
+    /// The parser's semantic `ASTNode::Me` receiver.
+    ///
+    /// Canonical source `me` and deprecated `this` normalize to this same AST
+    /// shape; original token spelling is intentionally not an authority here.
+    CanonicalMe,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct CurrentOwnerStaticCallCandidateV1 {
+    pub(super) caller: CanonicalSameModuleCallableKeyV1,
+    pub(super) site: SourceExprSiteV1,
+    pub(super) receiver: CurrentOwnerStaticReceiverV1,
+    pub(super) method: Box<str>,
+    pub(super) arity: u32,
+}
+
+impl CurrentOwnerStaticCallCandidateV1 {
+    pub(crate) const fn caller(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        &self.caller
+    }
+
+    pub(crate) const fn site(&self) -> &SourceExprSiteV1 {
+        &self.site
+    }
+
+    pub(crate) const fn receiver(&self) -> CurrentOwnerStaticReceiverV1 {
+        self.receiver
+    }
+
+    pub(crate) fn method(&self) -> &str {
+        &self.method
+    }
+
+    pub(crate) const fn arity(&self) -> u32 {
+        self.arity
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct VerifiedCurrentOwnerStaticCallTargetV1 {
+    receiver: CurrentOwnerStaticReceiverV1,
+    target: CanonicalSameModuleCallableKeyV1,
+}
+
+impl VerifiedCurrentOwnerStaticCallTargetV1 {
+    pub(super) const fn new(
+        receiver: CurrentOwnerStaticReceiverV1,
+        target: CanonicalSameModuleCallableKeyV1,
+    ) -> Self {
+        Self { receiver, target }
+    }
+
+    pub(crate) const fn receiver(&self) -> CurrentOwnerStaticReceiverV1 {
+        self.receiver
+    }
+
+    pub(crate) const fn target(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        &self.target
+    }
+}
+
 impl VerifiedQualifiedStaticCallTargetV1 {
     pub(super) const fn new(
         receiver: QualifiedStaticReceiverV1,
@@ -141,6 +204,7 @@ impl VerifiedQualifiedStaticCallTargetV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum VerifiedSourceStaticCallTargetV1 {
     QualifiedStatic(VerifiedQualifiedStaticCallTargetV1),
+    CurrentOwnerStatic(VerifiedCurrentOwnerStaticCallTargetV1),
 }
 
 #[derive(Debug)]

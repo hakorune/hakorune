@@ -1,5 +1,5 @@
 ---
-Status: active taskboard; Q0, Core result S0, and String receiver S0 closed
+Status: active taskboard; Q0, Core result S0, String receiver S0, and M0 closed
 Date: 2026-07-17
 Baseline: 040d2906a35b367d39f1377b8159cef020203b78
 Parent: callable-result-i64-catalog0-task-2026-07-17.md
@@ -179,8 +179,8 @@ i64 domain or adding a fallback.
 ```text
 R0-SOURCE-CALL-TARGET0-Q0 [closed]
   -> R0-CORE-METHOD-RESULT-KIND0-S0 [closed]
-  -> R0-SOURCE-STRING-RECEIVER0-S0
-  -> R0-SOURCE-CALL-TARGET0-M0
+  -> R0-SOURCE-STRING-RECEIVER0-S0 [closed]
+  -> R0-SOURCE-CALL-TARGET0-M0 [closed]
   -> R0-CALLABLE-RESULT-I64-CATALOG0-S0b
   -> R0-CALLABLE-RESULT-I64-CATALOG0-P0
   -> R0-CALLABLE-RESULT-I64-CATALOG0-I0
@@ -188,7 +188,7 @@ R0-SOURCE-CALL-TARGET0-Q0 [closed]
   -> clean HMI-S0-V0-R0-I0 resume
 ```
 
-`R0-SOURCE-CALL-TARGET0-M0` is the sole next code-facing row.
+`R0-CALLABLE-RESULT-I64-CATALOG0-S0b` is the sole next code-facing row.
 
 ### Q0 — disconnected qualified target
 
@@ -372,6 +372,42 @@ Seal the current-owner variant from canonical source declaration identity.
 The actual `StringHelpers.to_i64/1 -> me._digit_value/1` fixture is required.
 Function-name splitting, `current_static_box`, `current_module`, lowering order,
 and `variable_map["me"]` are forbidden target authorities.
+
+M0 closeout evidence:
+
+```text
+module:
+  src/mir/source_call_target/
+
+sealed variant:
+  VerifiedCurrentOwnerStaticCallTargetV1
+
+source receiver:
+  exact ASTNode::Me semantic receiver
+  (`me` and deprecated `this` parser spellings are intentionally normalized)
+
+owner authority:
+  caller canonical catalog key owner
+
+actual source fixture:
+  StringHelpers.to_i64/1 -> me._digit_value/1
+
+focused source-target tests:
+  16/16 green
+
+production producers/consumers:
+  0/0
+
+Builder / MIR / runtime behavior delta:
+  0 / 0 / 0
+
+largest source/check file:
+  tests.rs, below 800 lines
+```
+
+The M0 sealer consumes the existing source-target catalog by value and adds
+one route-disjoint row. It creates no second target catalog and owns no ABI,
+effect, result, argument-evaluation, emission, or runtime fact.
 
 ### S0b — complete disconnected callable result
 

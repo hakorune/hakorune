@@ -86,6 +86,9 @@ fn qualified<'a>(
 ) -> &'a VerifiedQualifiedStaticCallTargetV1 {
     match targets.target(caller, site).expect("target row") {
         VerifiedSourceStaticCallTargetV1::QualifiedStatic(row) => row,
+        VerifiedSourceStaticCallTargetV1::CurrentOwnerStatic(_) => {
+            panic!("expected qualified target row")
+        }
     }
 }
 
@@ -406,6 +409,9 @@ static box Helpers {
                 row.target().name().to_string(),
                 row.target().arity(),
             ),
+            VerifiedSourceStaticCallTargetV1::CurrentOwnerStatic(_) => {
+                panic!("qualified-only fixture gained a current-owner row")
+            }
         })
         .collect()
     }

@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "String receiver S0 is closed; current-owner target M0 is next"
+status = "current-owner target M0 is closed; callable-result S0b is next"
 date = "2026-07-17"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -299,16 +299,17 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 latest_card = "source-call-target-and-core-result-authority-design-stop-2026-07-17"
 latest_card_path = "docs/development/current/main/investigations/source-call-target-and-core-result-authority-design-stop-2026-07-17.md"
 latest_card_summary = """Candidate A-prime remains selected. Qualified target
-Q0, Core result-kind S0, and String receiver S0 are closed. One independent
-lifetime-bound source proof seals only String literals and the iterative
-String-left Add spine as ExactStringOnSuccess. It does not inspect the right
-operand and claims no totality, NonVoid, purity, evaluation order, or error
-absence. The actual StringHelpers.to_i64/1 local s initializer is green;
-right-String Add, variables, calls, BlockExpr, i64-domain widening, Builder
-facts, runtime tags, and production consumers remain zero. Focused tests are
-5/5 and the family structural guard is green; all source/check files remain
-below 800 lines. Current-owner target M0 is next."""
-current_blocker_token = "DPRIME-SOURCE-CALL-TARGET0-M0-001"
+Q0, Core result-kind S0, String receiver S0, and current-owner target M0 are
+closed. M0 consumes the existing site-indexed target catalog by value and
+adds one route-disjoint CurrentOwnerStatic row. Exact ASTNode::Me plus the
+caller's canonical static-box catalog key is the only authority; the owner is
+projected from that caller key and target lookup uses exact method and checked
+arity. Function-name splitting, current_static_box, current_module, Builder,
+MIR symbols, runtime tags, ABI/effect/result authority, and production
+consumers remain zero. The actual StringHelpers.to_i64/1 -> me._digit_value/1
+fixture is green; source-target tests are 16/16 and the family guard is green.
+Callable-result S0b is next."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-S0B-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -317,6 +318,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-17: R0-SOURCE-CALL-TARGET0-M0 closes one disconnected current-owner static target authority. Exact ASTNode::Me plus a caller canonical catalog key in the StaticBoxMethod namespace selects the target under caller.owner() with exact method and checked arity. The existing non-Clone site-indexed target catalog is consumed by value and extended; cross-route duplicate sites reject. The actual StringHelpers.to_i64/1 -> me._digit_value/1 fixture is green. Source-target tests 16/16 and the extended family guard are green; Builder, MIR, ABI/effect/result, runtime, backend, and production-consumer deltas remain zero. Callable-result S0b is next.",
   "2026-07-17: R0-SOURCE-STRING-RECEIVER0-S0 closes one disconnected source-only Core receiver proof. A lifetime-bound non-Clone product recognizes only String literals and an iterative String-left Add spine, retains the exact inspected expression privately, and publishes ExactStringOnSuccess. Arbitrary right operands are intentionally uninspected, so totality, NonVoid, purity, evaluation order, and error absence remain non-claims. The actual StringHelpers.to_i64/1 local s initializer is green. Focused tests 5/5 and the extended callable-result family guard are green; i64-domain, Builder, MIR, runtime, backend, and production-consumer deltas remain zero. Current-owner target M0 is next.",
   "2026-07-17: R0-CORE-METHOD-RESULT-KIND0-S0 closes one disconnected neutral Core result view. CoreMethodContractBox remains the sole semantic owner for all 16 explicit rows; one generator emits schema-v1 JSON and one static Rust table from the same validated source. Receiver plus canonical/alias spelling plus expanded exact arity is the only lookup key, and generation rejects unknown kinds and all overlapping spelling collisions. StringBox.length/len/size/0 selects one I64Value row; ambiguous collection results remain Dynamic. Malformed generator 9/9, Rust lookup/parity 5/5, manifest/no-growth guards, CoreMethodOp regression, cargo check, and quick gate are green. Runtime JSON parsing, production consumers, and behavior delta remain zero; String receiver S0 is next.",
   "2026-07-17: R0-SOURCE-CALL-TARGET0-Q0 closes one disconnected qualified-static target authority. A non-Clone verified import-alias view and one caller-key plus SourceExprSite-indexed catalog project direct/imported receivers to structured canonical keys. Alias-before-local parity is explicit; direct shadow, reserved routes, wrong arity, foreign caller/owner, duplicate site, and missing target reject typed. Actual StringHelpers and ParserStringUtilsBox sources are compile-time fixtures. Target 10/10, result 12/12, family guard, cargo check, pointer guard, and quick 66/66 are green. Production producers/consumers and behavior delta remain zero; Core result-kind S0 is next.",
@@ -328,5 +330,4 @@ landed_tail = [
   "2026-07-17: R0-CALLABLE-CATALOG-L0B-S0 closes the disconnected complete same-module declaration inventory. StaticBoxMethod and InstanceBoxMethod rows share one non-Clone catalog while static candidates remain a separate static-only index; Program, singleton BoxDeclaration, and verified-empty roots preserve the existing Builder surface. Constructors, top-level functions, ordinary-box static methods, records, sync boxes, production producers/consumers, recovery policy, result representation, runtime, and backend behavior remain zero. Focused catalog tests are 7/7, cargo check and quick 66/66 are green, and every touched source/check file remains below 800 lines. Bare-static recovery P0 is next.",
   "2026-07-17: R0-SAME-MODULE-CALL-RESULT-REP0-S0 closes one generic HMI-independent timing reproduction with production behavior and type publishers zero. Forward untyped direct and Copy-carried call results are Missing; a forward explicit i64 return annotation is also Missing. Reversing the same untyped provider/caller declaration order yields Exact and returns 6, as does the independent numeric control. Debug/release agree, and final reverse-order call/Copy/PHI i64 metadata is diagnostic-only. The direct checker, GenericLoop guard, cargo check, and quick 66/66 are green. M0 exact producer/timing inventory is next.",
   "2026-07-17: Three read-only worker audits taskize the GenericLoop MissingTransientType frontier without selecting a speculative I0. The selected init is a forward same-module call result from ParserStringUtilsBox.skip_ws/2: lowering-time type_ctx is missing, while the final Integer fact appears only after later whole-module refresh. GenericLoop role/default/use-site inference is rejected. R0-SAME-MODULE-CALL-RESULT-REP0-S0 adds one generic behavior-neutral reproduction, M0 machine-classifies the first producer/timing seam, and only an exactly-one existing generic producer with an already-owned exact fact may authorize local implementation; all other outcomes return to design consultation.",
-  "2026-07-17: R0-COREPLAN-STRING-ADD-REP0-G0 closes the CorePlan String Add representation row. The source-derived inventory fixes one prepared Add consumer, one non-Add legacy consumer, zero direct Builder/final propagation consumers, and one closeout guard row. The GenericLoop progression-role guard rejects recurrence of the retired Integer/String PHI conflict and pins ParserBox.static_const_parse_add/2 plus MissingTransientType init as the next independent frontier while retaining numeric 18/18. Hermetic StringUtils remains a,b,c; existing TSV tags stay unchanged because they still match actual gate output. No behavior delta lands in G0."
 ]
