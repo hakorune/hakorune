@@ -1,5 +1,5 @@
 ---
-Status: S0b disconnected call-result composition closed; P0 is next
+Status: P0 normalized proof closed; I0 production activation task audit is next
 Date: 2026-07-17
 Decision: B-prime exact-i64 conditional callable-result catalog
 Baseline: 06a49e5aa6
@@ -22,8 +22,14 @@ tests are 23/23; source-target 42/42, Core 5/5, malformed manifest 9/9, quick
 66/66, structural guards, cargo check, and pointer guard are green. Production
 producers/consumers and Builder/MIR/runtime/backend deltas remain zero.
 
-The next row is `R0-CALLABLE-RESULT-I64-CATALOG0-P0`. It normalizes the closed
-proof matrix only; production publication remains parked until I0.
+`R0-CALLABLE-RESULT-I64-CATALOG0-P0` is also closed. One test-only normalized
+snapshot projects result rows and exact-site call rows to canonical callable
+keys or generated Core contract identity. It excludes catalog pointers,
+borrowed AST identity, route-product addresses, and declaration order. Fresh
+catalog/reorder parity, site multiplicity, unavailable/recursive rows, and the
+actual StringHelpers/Parser wrapper chain are green. Production API, producer,
+consumer, Builder, MIR, runtime, and backend deltas remain zero. I0 production
+activation is next, after its producer/consumer transaction audit is fixed.
 
 `R0-CALLABLE-RESULT-I64-CATALOG0-L0a` is closed. One disconnected Builder
 module now seals the complete static-box declaration inventory into structured
@@ -415,6 +421,26 @@ plus the actual `to_i64`/wrapper rows without production publication.
 
 ### P0 — normalized proof
 
+Closed evidence:
+
+```text
+test-only normalized snapshot definitions = 1
+production snapshot definitions/consumers = 0
+normalized proof tests = 4/4
+callable-result focused tests = 27/27
+source-target focused tests = 42/42
+Core result-kind focused tests = 5/5
+Core manifest malformed tests = 9/9
+quick gate = 66/66
+structural guards / cargo check / pointer guard = green
+modified source/check files >= 800 lines = 0
+```
+
+The snapshot retains structured source-site multiplicity and semantic evidence
+but never stores or compares pointer identity. Core evidence normalizes the
+bounded receiver fact plus generated receiver/canonical/admitted-arity/result
+row. It is `#[cfg(test)]` only and creates no new production authority.
+
 Required positive fixtures:
 
 ```text
@@ -529,10 +555,12 @@ Stop and reopen design if any is required:
 
 ## Current decision lock
 
-Candidate B-prime S0b is closed. The exact declaration/target/result identity
-chain, exact-site call rows, required-argument substitution, bounded String
-Core composition, and deterministic acyclic wrapper solver are now the sole
-disconnected result authority. Bare FunctionCall, general non-i64 typing,
-recursive/SCC inference, Builder/MIR/runtime publication, callee-first
-lowering, retry, and fallback remain rejected. P0 is authorized only as the
-normalized proof row; production activation remains an I0 decision.
+Candidate B-prime S0b and its P0 normalized proof are closed. The exact
+declaration/target/result identity chain, exact-site call rows,
+required-argument substitution, bounded String Core composition, and
+deterministic acyclic wrapper solver are the sole disconnected result
+authority. The P0 snapshot is test-only and adds no production API. Bare
+FunctionCall, general non-i64 typing, recursive/SCC inference, callee-first
+lowering, retry, and fallback remain rejected. I0 may proceed only after one
+pre-body producer, one successful-emission consumer, and failure-before-effects
+ordering are task-locked.

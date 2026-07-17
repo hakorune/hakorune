@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result S0b is closed; disconnected normalized P0 proof is next"
+status = "callable-result P0 normalized proof is closed; I0 production activation task audit is next"
 date = "2026-07-17"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,16 +298,17 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 
 latest_card = "callable-result-i64-catalog0-task-2026-07-17"
 latest_card_path = "docs/development/current/main/investigations/callable-result-i64-catalog0-task-2026-07-17.md"
-latest_card_summary = """R0-CALLABLE-RESULT-I64-CATALOG0-S0b is closed. One
-lifetime-bound non-Clone result catalog co-validates exact declaration and
-source-target identity, borrows exact target rows, substitutes required
-argument facts, composes bounded String/Core result rows, and deterministically
-closes acyclic wrappers while classifying unresolved recursion without SCC
-inference. Focused result 23/23, source target 42/42, Core 5/5, malformed
-manifest 9/9, quick 66/66, structural guards, cargo check, pointer guard, and
-line caps are green. Production producers/consumers and Builder/MIR/runtime/
-backend deltas remain zero. P0 normalized proof is next."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-P0-001"
+latest_card_summary = """R0-CALLABLE-RESULT-I64-CATALOG0-P0 is closed. One
+test-only normalized snapshot projects result rows and exact source-site call
+rows to canonical callable keys or generated Core contract identity while
+excluding catalog pointers, AST identity, route-product addresses, and
+declaration order. Fresh-catalog reorder parity, repeated-site multiplicity,
+unavailable/recursive rows, and the actual StringHelpers/Parser chain are
+fixed. Result 27/27, source target 42/42, Core 5/5, malformed manifest 9/9,
+quick 66/66, structural guards, cargo check, pointer guard, and line cap are
+green. Production/API/Builder/MIR/runtime/backend deltas remain zero. I0
+producer/consumer transaction audit is next."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-TASK-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -316,6 +317,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-17: R0-CALLABLE-RESULT-I64-CATALOG0-P0 closes one test-only normalized result/call-site snapshot. Canonical callable keys, structured source sites, required argument rows, borrowed target meaning, and generated Core receiver/canonical/arity/result identity are retained; catalog pointers, AST identity, route-product addresses, and declaration order are excluded. Fresh-catalog reorder parity, site multiplicity, unavailable/recursive rows, and the actual StringHelpers/Parser chain are green. Result 27/27, source-target 42/42, Core 5/5, malformed manifest 9/9, quick 66/66, guards, cargo check, pointer guard, and line cap are green. Production/API/Builder/MIR/runtime/backend deltas remain zero; I0 task audit is next.",
   "2026-07-17: R0-CALLABLE-RESULT-I64-CATALOG0-S0b closes one lifetime-bound non-Clone exact-i64 result catalog over the exact declaration and source-target brands. Exact-site rows borrow CUT0 target evidence or bounded String/Core result rows; required argument substitution and a deterministic construction-only solver close actual skip_ws/to_i64/_digit_value and acyclic wrappers independent of declaration order. Exact-target direct/mutual recursion closes to RecursiveDependency without SCC inference. Result 23/23, source-target 42/42, Core 5/5, malformed manifest 9/9, quick 66/66, structural guards, cargo check, pointer guard, and line caps are green. Production producers/consumers and Builder/MIR/runtime/backend deltas remain zero; P0 is next.",
   "2026-07-17: R0-SOURCE-CALL-TARGET0-AST-BIND0-CUT0 atomically retires both raw source-target candidate structs, raw lexical/reserved enums, and every independent caller/site/AST/spelling/fact constructor. Qualified target construction consumes one exact import-view instance plus co-sealed route facts; current-owner construction consumes only exact S0 products. The final target catalog retains its declaration-catalog brand, so equal-key cross-source composition and conflicting same-catalog import views reject typed. Source target 42/42, the extended guard, cargo check, pointer guard, and line cap are green. Production consumers and behavior delta remain zero. Callable-result S0b resumes next.",
   "2026-07-17: R0-SOURCE-CALL-TARGET0-AST-BIND0-R0 closes one neutral pure FastMem/__mir__/__repl__ source-MethodCall classifier with exactly two consumers: Builder dispatch and disconnected source route facts. Typed decisions carry verified MIR-debug/REPL payloads, so old by-name admission owners are zero. VerifiedQualifiedCallRouteFactsV1 co-seals exact S0/L0 facts, site-derived FastMem context, and a newly catalog-branded immutable import view; reserved-before-alias, alias-before-Bound, positive ProvenUnbound, and cross-catalog rejection are fixed. Policy 5/5, route facts 6/6, Builder parity 5/5, source target 40/40, the extended guard, cargo check, and line cap are green. Production source-target consumers and behavior delta remain zero. CUT0 is next.",
@@ -327,5 +329,4 @@ landed_tail = [
   "2026-07-17: R0-SOURCE-CALL-TARGET0-M0 closes one disconnected current-owner static target authority. Exact ASTNode::Me plus a caller canonical catalog key in the StaticBoxMethod namespace selects the target under caller.owner() with exact method and checked arity. The existing non-Clone site-indexed target catalog is consumed by value and extended; cross-route duplicate sites reject. The actual StringHelpers.to_i64/1 -> me._digit_value/1 fixture is green. Source-target tests 16/16 and the extended family guard are green; Builder, MIR, ABI/effect/result, runtime, backend, and production-consumer deltas remain zero. Callable-result S0b is next.",
   "2026-07-17: R0-SOURCE-STRING-RECEIVER0-S0 closes one disconnected source-only Core receiver proof. A lifetime-bound non-Clone product recognizes only String literals and an iterative String-left Add spine, retains the exact inspected expression privately, and publishes ExactStringOnSuccess. Arbitrary right operands are intentionally uninspected, so totality, NonVoid, purity, evaluation order, and error absence remain non-claims. The actual StringHelpers.to_i64/1 local s initializer is green. Focused tests 5/5 and the extended callable-result family guard are green; i64-domain, Builder, MIR, runtime, backend, and production-consumer deltas remain zero. Current-owner target M0 is next.",
   "2026-07-17: R0-CORE-METHOD-RESULT-KIND0-S0 closes one disconnected neutral Core result view. CoreMethodContractBox remains the sole semantic owner for all 16 explicit rows; one generator emits schema-v1 JSON and one static Rust table from the same validated source. Receiver plus canonical/alias spelling plus expanded exact arity is the only lookup key, and generation rejects unknown kinds and all overlapping spelling collisions. StringBox.length/len/size/0 selects one I64Value row; ambiguous collection results remain Dynamic. Malformed generator 9/9, Rust lookup/parity 5/5, manifest/no-growth guards, CoreMethodOp regression, cargo check, and quick gate are green. Runtime JSON parsing, production consumers, and behavior delta remain zero; String receiver S0 is next.",
-  "2026-07-17: R0-SOURCE-CALL-TARGET0-Q0 closes one disconnected qualified-static target authority. A non-Clone verified import-alias view and one caller-key plus SourceExprSite-indexed catalog project direct/imported receivers to structured canonical keys. Alias-before-local parity is explicit; direct shadow, reserved routes, wrong arity, foreign caller/owner, duplicate site, and missing target reject typed. Actual StringHelpers and ParserStringUtilsBox sources are compile-time fixtures. Target 10/10, result 12/12, family guard, cargo check, pointer guard, and quick 66/66 are green. Production producers/consumers and behavior delta remain zero; Core result-kind S0 is next.",
 ]
