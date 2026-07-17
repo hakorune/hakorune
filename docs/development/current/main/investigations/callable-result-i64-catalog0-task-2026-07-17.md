@@ -1,5 +1,5 @@
 ---
-Status: decision locked; L0a is next
+Status: L0a closed; L0b is next
 Date: 2026-07-17
 Decision: B-prime exact-i64 conditional callable-result catalog
 Baseline: 06a49e5aa6
@@ -8,6 +8,21 @@ Scope: declaration-order-independent pre-body result representation for same-mod
 ---
 
 # Callable result exact-i64 catalog task
+
+## Current progress
+
+`R0-CALLABLE-RESULT-I64-CATALOG0-L0a` is closed. One disconnected Builder
+module now seals the complete static-box declaration inventory into structured
+canonical keys, owned declaration rows, and deterministic method/arity
+candidate lookup. The seal validates duplicate owners and keys, method-map
+pairing, checked arity, and parameter/`ParamDecl` correspondence while
+preserving optional return spelling and the paired source body.
+
+Production producers and consumers remain zero. Existing
+`static_method_index` and `lowered_method_asts` behavior is unchanged. Focused
+catalog tests are 4/4, the current-state pointer guard is green, `cargo check`
+is green, and quick is 66/66. Every added source file remains below 800 lines.
+L0b is the sole next code-facing row.
 
 ## Decision
 
@@ -302,6 +317,8 @@ production consumers: 0
 Add the structured key, immutable declaration rows, catalog seal errors, and
 source-independent tests. Do not touch existing partial maps yet.
 
+Closed at L0a with production producers/consumers zero.
+
 Suggested structure:
 
 ```text
@@ -324,6 +341,8 @@ catalog producers: 1
 Build the catalog once in declaration indexing, migrate existing static method
 resolution and narrow body-inspection consumers to borrowed queries, and
 retire `static_method_index` plus `lowered_method_asts` as primary stores.
+
+This is the sole next code-facing row.
 
 ### S0 — disconnected result-contract catalog
 
@@ -472,5 +491,5 @@ target contract with current ordered argument representations and publishes the
 existing call-result `ValueId` type only after successful Call emission.
 Declared-only migration, general return inference, final metadata, name rules,
 callee-first lowering, re-lowering, GenericLoop inference, and fallback remain
-rejected. `R0-CALLABLE-RESULT-I64-CATALOG0-L0a` is the sole next code-facing
-row.
+rejected. L0a is closed with one disconnected complete declaration catalog;
+`R0-CALLABLE-RESULT-I64-CATALOG0-L0b` is the sole next code-facing row.

@@ -22,6 +22,8 @@ mod builder_method_index;
 mod builder_test_api;
 mod builder_value_kind;
 mod call_resolution; // ChatGPT5 Pro: Type-safe call resolution utilities
+#[allow(dead_code)]
+mod callable_declaration_catalog; // L0a: disconnected complete static-callable declaration authority
 mod calls; // Call system modules (refactored from builder_calls)
 mod collection_literals; // ArrayLiteral / MapLiteral lowering
 mod compilation_context; // Phase 136 follow-up (Step 7/7): CompilationContext extraction

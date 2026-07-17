@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Callable-result B-prime is selected; declaration catalog L0a is next"
+status = "Callable-result declaration catalog L0a is closed; L0b is next"
 date = "2026-07-17"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -310,10 +310,12 @@ representations, then publishes type_ctx[dst]=Integer only after successful
 Call emission. Declared-only source migration, general return inference,
 Float/String/Box/union/SCC widening, current-module/final-metadata authority,
 name rules, callee-first or re-lowering, GenericLoop inference, and fallback
-remain rejected. L0a first adds a disconnected complete declaration catalog;
-L0b performs a behavior-neutral cutover from the two partial mutable indexes,
-then S0/P0/I0/G0 add and activate the conditional result catalog."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-L0A-001"
+remain rejected. L0a is closed with one disconnected structured catalog,
+deterministic candidate lookup, exact declaration pairing, four focused tests,
+zero production consumers, and quick 66/66. L0b next performs a behavior-
+neutral cutover from the two partial mutable indexes; S0/P0/I0/G0 then add and
+activate the conditional result catalog."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-L0B-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
