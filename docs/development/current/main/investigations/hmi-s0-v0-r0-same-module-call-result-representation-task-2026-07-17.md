@@ -1,5 +1,5 @@
 ---
-Status: closed through M0; DESIGN-STOP is active
+Status: closed through M0; B-prime selected in child card
 Date: 2026-07-17
 Decision: inventory-first; production representation owner remains a design stop
 Baseline: 446e8782e6
@@ -10,6 +10,17 @@ Scope: identify the lowering-time representation owner for a forward same-module
 # HMI R0 same-module call-result representation task
 
 ## Current progress
+
+The design stop is now resolved by:
+
+```text
+docs/development/current/main/investigations/
+  callable-result-i64-catalog0-task-2026-07-17.md
+```
+
+Three worker audits selected a narrow conditional exact-i64 result catalog.
+The next code-facing row is `R0-CALLABLE-RESULT-I64-CATALOG0-L0a`; this parent
+card remains the evidence source for the original timing failure.
 
 `R0-SAME-MODULE-CALL-RESULT-REP0-M0` is closed with the exclusive
 classification:

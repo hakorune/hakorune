@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Same-module call-result M0 is closed; callable result authority is at DESIGN-STOP"
+status = "Callable-result B-prime is selected; declaration catalog L0a is next"
 date = "2026-07-17"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -296,22 +296,24 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 
-latest_card = "hmi-s0-v0-r0-same-module-call-result-representation-task-2026-07-17"
-latest_card_path = "docs/development/current/main/investigations/hmi-s0-v0-r0-same-module-call-result-representation-task-2026-07-17.md"
-latest_card_summary = """R0-SAME-MODULE-CALL-RESULT-REP0-S0 and M0 are closed.
-The five-case debug/release proof fixes the declaration-order timing split, and
-one source-derived machine inventory returns the exclusive classification
-CALLEE-REPRESENTATION-AUTHORITY-ABSENT. Declaration indexing owns name/arity
-and body but no generic result representation. Caller-local annotation can use
-only an already-published current-module signature or narrow known-name rules;
-forward finalization therefore records Unknown. The exact Integer fact appears
-only after complete-module route convergence publishes finalized
-MirFunction.metadata.value_types, which is diagnostic-only for lowering-time
-admission. GenericLoop defaults, name inference, source rewrites, fallback,
-production type publishers, HMI source, and stash delta remain zero. No local
-I0 is authorized; the next frontier is one design consultation for a complete,
-declaration-order-independent callable result-representation authority."""
-current_blocker_token = "DPRIME-SAME-MODULE-CALL-RESULT-REP0-DESIGN-STOP-001"
+latest_card = "callable-result-i64-catalog0-task-2026-07-17"
+latest_card_path = "docs/development/current/main/investigations/callable-result-i64-catalog0-task-2026-07-17.md"
+latest_card_summary = """Three worker audits select Candidate B-prime. One
+complete immutable structured same-module static-callable declaration catalog
+is sealed before body lowering. A separate non-Clone result catalog owns only
+ExactI64 rows with sorted required-i64 argument ordinals or explicit
+Unavailable reasons. This models untyped skip_ws/2 as argument-1 conditional,
+not a false monomorphic Integer ABI, and composes finite non-recursive wrappers
+with canonical-key-sorted declaration-order-independent analysis. One prepared
+same-module call row combines target contract and current ordered argument
+representations, then publishes type_ctx[dst]=Integer only after successful
+Call emission. Declared-only source migration, general return inference,
+Float/String/Box/union/SCC widening, current-module/final-metadata authority,
+name rules, callee-first or re-lowering, GenericLoop inference, and fallback
+remain rejected. L0a first adds a disconnected complete declaration catalog;
+L0b performs a behavior-neutral cutover from the two partial mutable indexes,
+then S0/P0/I0/G0 add and activate the conditional result catalog."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-L0A-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
