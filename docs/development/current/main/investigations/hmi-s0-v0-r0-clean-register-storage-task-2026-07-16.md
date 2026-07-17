@@ -574,6 +574,39 @@ TYPE0 and DECLFIELD0 are closed. Reimplement I0 from the clean tree using the
 typed storage helper and ordinary declared `definition_order: ArrayBox` field.
 Do not restore, apply, pop, or copy either evidence stash.
 
+#### I0 third stop evidence
+
+The clean producer-backed I0 rewrite exposed a pre-existing GenericLoop
+carrier representation bug before any HMI source could land.
+
+```text
+JsonScanner.read_identifier receiver carrier:
+  init = Box(JsonScanner)
+
+GenericLoop skeleton current/next slots:
+  Integer
+
+TYPE-PUBLISH0:
+  concrete-fact conflict before PHI mutation
+```
+
+The new WIP stash is evidence only:
+
+```text
+wip/hmi-s0-v0-r0-i0 producer-backed seal hits generic-loop carrier type conflict
+```
+
+I0 is paused at:
+
+```text
+hmi-s0-v0-r0-generic-loop-carrier-type-consultation-question-2026-07-17.md
+```
+
+Do not weaken TYPE-PUBLISH0, fake a function view, rewrite JsonScanner, or
+restore any HMI stash. Resume with another clean I0 rewrite only after the
+GenericLoop carrier prerequisite and a fresh-binary document-seal regression
+are green.
+
 ### R0-P0
 
 Add immutable snapshot storage and complete the fixture. Re-run
