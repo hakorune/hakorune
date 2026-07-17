@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "CorePlan String Add representation is closed; GenericLoop missing transient type selection is next"
+status = "CorePlan String Add is closed; same-module call-result representation S0 is next"
 date = "2026-07-17"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -296,21 +296,21 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 
-latest_card = "hmi-s0-v0-r0-coreplan-string-add-representation-task-2026-07-17"
-latest_card_path = "docs/development/current/main/investigations/hmi-s0-v0-r0-coreplan-string-add-representation-task-2026-07-17.md"
-latest_card_summary = """Candidate A-prime CorePlan String Add representation
-S0/M0/I0/G0 are closed. The grouped normalizer arithmetic arm consumes one
-prepared String-priority result only for BinaryOp Add; one renamed non-Add
-helper preserves Float-else-Integer for Subtract, Multiply, Divide, and Modulo.
-The I0 inventory fixes prepared consumers one, legacy general consumers zero,
-non-Add consumers one, and direct Builder/final propagation consumers zero.
-Fresh debug/release plus the existing StringUtils smoke return a,b,c. The HMI
-canary advances to the independent ParserBox.static_const_parse_add/2
-GenericLoop MissingTransientType init frontier. G0 rejects recurrence of the
-retired PHI conflict, guards that exact frontier, and preserves the 18/18
-numeric progression-role proof. GenericLoop transient-type owner selection is
-next; PHI, runtime, backend, fallback, and stash authority remain unchanged."""
-current_blocker_token = "DPRIME-GENERICLOOP-MISSING-TRANSIENT-TYPE-SELECT-001"
+latest_card = "hmi-s0-v0-r0-same-module-call-result-representation-task-2026-07-17"
+latest_card_path = "docs/development/current/main/investigations/hmi-s0-v0-r0-same-module-call-result-representation-task-2026-07-17.md"
+latest_card_summary = """Three read-only worker audits select an inventory-first
+boundary for the GenericLoop MissingTransientType frontier. The selected init
+is a forward same-module call result from ParserStringUtilsBox.skip_ws/2. Its
+lowering-time type fact is missing because the callee is not yet present and
+has no source return annotation; the final Integer fact appears only after a
+later whole-module refresh and is diagnostic-only. GenericLoop keeps its role,
+current type_ctx authority, and Missing/Unknown stop law. S0 adds one generic
+HMI-independent reproduction and M0 classifies the first missing producer and
+timing seam. Production repair is authorized only for exactly one existing
+generic producer with an already-owned exact fact; otherwise the lane returns
+to design consultation. Name/default/final-metadata inference, compile-order
+authority, fallback, HMI source changes, and stash restoration remain zero."""
+current_blocker_token = "DPRIME-SAME-MODULE-CALL-RESULT-REP0-S0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -319,6 +319,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-17: Three read-only worker audits taskize the GenericLoop MissingTransientType frontier without selecting a speculative I0. The selected init is a forward same-module call result from ParserStringUtilsBox.skip_ws/2: lowering-time type_ctx is missing, while the final Integer fact appears only after later whole-module refresh. GenericLoop role/default/use-site inference is rejected. R0-SAME-MODULE-CALL-RESULT-REP0-S0 adds one generic behavior-neutral reproduction, M0 machine-classifies the first producer/timing seam, and only an exactly-one existing generic producer with an already-owned exact fact may authorize local implementation; all other outcomes return to design consultation.",
   "2026-07-17: R0-COREPLAN-STRING-ADD-REP0-G0 closes the CorePlan String Add representation row. The source-derived inventory fixes one prepared Add consumer, one non-Add legacy consumer, zero direct Builder/final propagation consumers, and one closeout guard row. The GenericLoop progression-role guard rejects recurrence of the retired Integer/String PHI conflict and pins ParserBox.static_const_parse_add/2 plus MissingTransientType init as the next independent frontier while retaining numeric 18/18. Hermetic StringUtils remains a,b,c; existing TSV tags stay unchanged because they still match actual gate output. No behavior delta lands in G0.",
   "2026-07-17: R0-COREPLAN-STRING-ADD-REP0-I0 connects exactly one normalizer Add consumer to the prepared String-priority representation before destination allocation. Subtract, Multiply, Divide, and Modulo retain one renamed Float-else-Integer helper; the legacy general decision is zero. Direct Builder, final propagation, facts, recipes, carriers, joins, PHIs, runtime, and backends remain unchanged. Focused 3/3, I0 inventory, CorePlan legoization, fresh debug/release, and StringUtils smoke are green with a,b,c. The HMI canary advances to ParserBox.static_const_parse_add/2 GenericLoop MissingTransientType init; G0 is next.",
   "2026-07-17: R0-COREPLAN-STRING-ADD-REP0-M0 closes one behavior-neutral source-derived machine inventory. It seals prepared consumers zero, one legacy normalizer decision consumer, three direct Builder classification sites, one final propagation Add matrix, LoopArrayJoin facts MirType mentions zero, runtime String-left/right concat rows one each, and three stale StringUtils TSV route expectations. Operand -> allocation and then -> else -> Unknown join timing are structurally fixed. Debug/release reproduce the same destination Integer versus incoming String PHI conflict, authorizing one normalizer-only I0 consumer.",
@@ -329,6 +330,5 @@ landed_tail = [
   "2026-07-17: R0-GENERICLOOP-CARRIER-TYPE0-S0 closes one disconnected role/representation boundary with production consumers zero. Facts gain only the closed NumericProgression/BodyManagedState vocabulary; one Builder-private pure preparation product retains init ValueId plus exact MirType without Clone, Builder access, allocation, metadata publication, type inference, or defaulting. Numeric accepts exact Integer only; body-managed preserves exact Integer/Bool/Box; missing init, missing/Unknown type, and Float/Box numeric inputs reject. Focused 6/6, existing progression-role 18/18, cargo check, formatting, pointer, diff, and line budgets are green. M0 caller/slot/census/nested-error inventory is next.",
   "2026-07-17: Three independent worker audits close the GenericLoop carrier consultation with Candidate B-prime. Existing V1 extraction already makes a real body-managed decision that controls recipe filtering and next-state semantics, while V0/canonical numeric progression retains its existing Integer boundary. Facts now task-seal only the closed role; Builder projection will require Integer for NumericProgression and exact non-Unknown init representation for BodyManagedState, shared across current/next/step-PHI/header-PHI. C is rejected because receiver-managed loops are intentionally admitted and occur nine times in json_native; A is rejected because it would widen canonical numeric representation without a separate language decision. S0/M0/I0/G0 is fixed, with M0 required to close the nested `.ok()` error-swallowing seam and G0 required to use genuinely fresh debug/release vm-reference binaries. No code, PHI-law, scanner/HMI source, ownership, runtime, backend, fallback, retry, or stash delta lands in this decision.",
   "2026-07-17: R0-DECLFIELD0-G0 closes and registers MAPFIELD-R0-DECLFIELD0 in the existing MapFieldOwner proof family. The app-local test entry uses the shared manifest runner and publishes SAME-ROOT-DECLFIELD-AUTHORIZED. STOP0, DELTA0, TYPE0, and DECLFIELD0 are all green; manifest/test-entry health covers 212 entries. Neighboring exact-numeric field mutation, HMI semantic inventory/T0 isolation, json_native authority, pointer/diff/line budgets, and quick 66/66 are green. G0 adds no compiler/runtime/backend/HMI behavior. Clean HMI-S0-V0-R0-I0 is now unparked; both WIP stashes remain evidence-only and must not be restored.",
-  "2026-07-17: R0-DECLFIELD-PHI0-I0 connects the sealed finite acyclic Copy/Phi same-root receiver proof to exactly one fallback in declared_field_type_for_value, after the unchanged value_origin route. The real A2 base remains Copy(Phi(current_receiver)); its FieldGet rows carry declared ArrayBox, observable result typing is ArrayBox, and push/length use existing ArrayBox/Known routes. MapBox remains Known, untyped and foreign-parameter N1/N2 controls remain unrecovered, runtime A1-A7/M1/C1/N1/N2 is 11/11 in debug/release, and CopyOwned/DestroyOwned/selected ReleaseStrong stay zero. The checker seals one production proof consumer and zero property/field-contract consumers. Focused proof 19/19, PHI publication 13/13, lifecycle 6/6, Binding-SSA/CorePlan/inventory guards, cargo check, formatting, diff, and line budgets are green. Existing DECLFIELD0-G0 is next.",
-  "2026-07-17: TYPE-PUBLISH0-G0 closes the canonical lowering-time PHI type producer row. One machine guard fixes exactly four wrapper consumers, four authorized entry families, zero direct decision bypasses, zero post-patch Unknown writers, zero combined raw type/origin writers, raw-only success-committed origin, lifecycle origin zero, and the unchanged final late-publisher inventory. Focused 13/13, lifecycle 6/6, same-root 18/18, Binding-SSA/CorePlan/inventory/pointer guards, declared-field proof, cargo check, formatting, diff, and line budgets are green. No new semantic authority or behavior lands in G0. The existing PHI0-I0 one-consumer declared-field fallback is next.",
+  "2026-07-17: R0-DECLFIELD-PHI0-I0 connects the sealed finite acyclic Copy/Phi same-root receiver proof to exactly one fallback in declared_field_type_for_value, after the unchanged value_origin route. The real A2 base remains Copy(Phi(current_receiver)); its FieldGet rows carry declared ArrayBox, observable result typing is ArrayBox, and push/length use existing ArrayBox/Known routes. MapBox remains Known, untyped and foreign-parameter N1/N2 controls remain unrecovered, runtime A1-A7/M1/C1/N1/N2 is 11/11 in debug/release, and CopyOwned/DestroyOwned/selected ReleaseStrong stay zero. The checker seals one production proof consumer and zero property/field-contract consumers. Focused proof 19/19, PHI publication 13/13, lifecycle 6/6, Binding-SSA/CorePlan/inventory guards, cargo check, formatting, diff, and line budgets are green. Existing DECLFIELD0-G0 is next."
 ]
