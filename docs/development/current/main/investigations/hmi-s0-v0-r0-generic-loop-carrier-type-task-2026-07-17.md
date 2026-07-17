@@ -1,5 +1,5 @@
 ---
-Status: S0 closed; M0 active
+Status: S0/M0 closed; I0 active
 Date: 2026-07-17
 Decision: Candidate B-prime
 Baseline: 7424548356
@@ -11,7 +11,8 @@ Scope: GenericLoop carrier role and lowering-time representation projection
 
 ## Current progress
 
-`R0-GENERICLOOP-CARRIER-TYPE0-S0` is closed with production consumers zero.
+`R0-GENERICLOOP-CARRIER-TYPE0-S0` and the behavior-neutral M0 inventory are
+closed with production representation consumers zero.
 
 ```text
 facts-side role:
@@ -34,8 +35,42 @@ not receive `MirBuilder`, so decision failure cannot allocate blocks/values or
 publish metadata. README and module boundaries name the facts/representation
 split before code wiring.
 
-Focused 6/6, existing progression-role 18/18, `cargo check --lib`, formatting,
-pointer, diff, and line-budget checks are green. The next row is M0 only.
+M0 seals one machine-readable pre-activation inventory and extends the existing
+GenericLoop guard. The exact production boundary is:
+
+```text
+role producers:
+  V0 constructor = 1
+  V1 StepResolution mapping point = 1
+
+skeleton direct callers:
+  normalizer = 1
+  recipe composer V0/V1 = 2
+
+pre-I0 representation consumer:
+  0
+```
+
+The inventory also fixes two matched-facts error-transport seams: one nested
+`.ok()` conversion and two top-level non-strict composer-error conversions.
+After facts match, a carrier representation failure is an admitted-route
+contract error; it must propagate and must not become `Ok(None)` or probe a
+later route. The two post-compose verifier fallbacks and two post-compose
+lowerer fallbacks are recorded as pre-existing broader debt, but I0 does not
+authorize changing their policy. TYPE0 preparation happens before allocation,
+so only its exact pre-allocation error transport is in scope.
+
+Fresh isolated debug/release `vm-reference` builds agree. Numeric V1 routes and
+returns 3; a new minimal numeric V0 route returns 4. The 182-row fast-gate
+census finds 89 GenericLoop sources and no authoritative legitimate
+missing/Unknown numeric transient fact. Final MIR alone is explicitly not used
+to infer lowering-time absence. Current body-managed evidence instead shows
+the hardcoded skeleton conflict against exact `Box(JsonScanner)` and exact
+`String` carriers.
+
+Focused 6/6, existing progression-role 18/18, the extended GenericLoop guard,
+inventory reference, V0/V1 route pins, fresh-build census, formatting, pointer,
+diff, and line-budget checks are green. The next row is I0 only.
 
 ## Decision
 
@@ -192,7 +227,7 @@ missing/Unknown transient type -> reject
 decision failure allocates no block or ValueId
 ```
 
-### M0 — exact producer/consumer and fallback inventory
+### M0 — exact producer/consumer and fallback inventory (closed)
 
 Production behavior delta is zero.
 
@@ -221,6 +256,26 @@ matched-facts lowering error into `None` through `.ok()`. A representation
 contract failure after facts match must propagate as an error and must never
 probe a later route. If no narrow no-match/error split is possible, stop I0.
 
+The narrow split is confirmed implementable:
+
+```text
+no GenericLoop facts match:
+  Ok(None)
+
+facts matched and normalization/representation fails:
+  Err(exact failure)
+```
+
+The same law applies at the two top-level composer selections. The I0 change
+must carry the prepared representation failure through those existing entry
+points without widening unrelated post-compose fallback policy.
+
+The V1 selected loop-variable step-PHI and the independent carrier family are
+counted separately. I0 retires only the selected loop-variable `Unknown`
+fallback; the independent carrier fallback remains one unchanged row outside
+this slice. Body-managed String is an exact pass case alongside Integer, Bool,
+and Box; neither String nor Box is special-cased.
+
 Record normalized pre-change evidence for:
 
 ```text
@@ -239,7 +294,8 @@ This row has the narrow compiler behavior delta.
 3. Store one prepared exact representation in the skeleton.
 4. Allocate current and next from that row.
 5. Allocate/verify the V1 loop-variable step-PHI from the same row.
-6. Propagate matched-facts representation failures through nested routes.
+6. Propagate matched-facts representation failures through the nested and
+   top-level matched GenericLoop entries; no-match alone may return `None`.
 
 TYPE-PUBLISH0, PHI origin publication, receiver same-root proof, scanner/HMI
 source, runtime, ownership, and backends remain unchanged.
@@ -283,6 +339,7 @@ V0 numeric Integer progression: unchanged MIR/runtime
 V1 numeric Integer progression: unchanged MIR/runtime
 V1 body-managed receiver: exact Box(owner) on all selected slots
 body-managed Integer state: exact Integer
+body-managed String state: exact String
 receiver-managed scanner tests: accepted
 JsonScanner.read_identifier: no concrete PHI fact conflict
 fresh debug/release document seal: green
@@ -388,5 +445,7 @@ Stop before I0 if any implementation requires:
 > Unknown, mismatch, and matched-route lowering failures reject before effects
 > without default, retry, or fallback. S0 is the sole next code-facing row;
 > M0 must prove the complete caller/slot inventory and close the nested `.ok()`
-> swallowing seam before I0. TYPE-PUBLISH0, receiver proof, scanner/HMI source,
+> swallowing seams before I0. M0 is now closed with an exact machine inventory,
+> three direct callers, two role-producer points, V0/V1 route pins, and a narrow
+> no-match/error transport law. TYPE-PUBLISH0, receiver proof, scanner/HMI source,
 > ownership, runtime, and backend authorities remain unchanged.

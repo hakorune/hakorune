@@ -1,0 +1,14 @@
+// TYPE0-M0: exact GenericLoop V0 numeric carrier fixture.
+// The add-expression condition keeps this shape on V0; result must be 4.
+
+static box Main {
+    main() {
+        local j = 0
+        local m = 0
+        local n = 3
+        loop(j + m <= n) {
+            j = j + 1
+        }
+        return j
+    }
+}

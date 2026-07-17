@@ -7,7 +7,13 @@ ROLE_TEST="progression_role"
 CONTRACT_PIN="tools/smokes/v2/profiles/integration/joinir/phase29bq_hako_program_json_contract_pin_vm.sh"
 REPORT_FIXTURE="tools/checks/fixtures/generic_loop_a2_c0_record_candidate_report.txt"
 PROOF_FIXTURE="tools/checks/fixtures/generic_loop_a2_c1_record_proof_report.txt"
+TYPE0_V0_FIXTURE="apps/tests/generic_loop_carrier_type_v0_numeric_min.hako"
+TYPE0_V1_FIXTURE="apps/tests/phase29cb_generic_loop_in_body_step_min.hako"
 LOG="/tmp/${TAG}.contract-pin.log"
+TYPE0_V0_LOG="/tmp/${TAG}.type0-v0.log"
+TYPE0_V1_LOG="/tmp/${TAG}.type0-v1.log"
+TYPE0_V0_DEBUG_LOG="/tmp/${TAG}.type0-v0-debug.log"
+TYPE0_V1_DEBUG_LOG="/tmp/${TAG}.type0-v1-debug.log"
 source "$ROOT/tools/checks/lib/guard_common.sh"
 
 guard_require_command "$TAG" cargo
@@ -20,11 +26,54 @@ guard_require_files "$TAG" \
   "$ROOT/src/mir/builder/control_flow/plan/generic_loop/facts/progression_role/coverage_inventory.rs" \
   "$ROOT/$REPORT_FIXTURE" \
   "$ROOT/$PROOF_FIXTURE" \
+  "$ROOT/tools/checks/fixtures/generic_loop_carrier_type_m0_inventory_v1.json" \
+  "$ROOT/tools/checks/lib/generic_loop_carrier_type_inventory.py" \
+  "$ROOT/$TYPE0_V0_FIXTURE" \
+  "$ROOT/$TYPE0_V1_FIXTURE" \
   "$ROOT/$CONTRACT_PIN"
 
 cd "$ROOT"
 cargo test -q "$ROLE_TEST" --lib
+python3 "$ROOT/tools/checks/lib/generic_loop_carrier_type_inventory.py" \
+  "$ROOT" --check-reference
+cargo build -q --features vm-reference --bin hakorune
 cargo build -q --release --features vm-reference --bin hakorune
+
+set +e
+HAKO_EMIT_EXE_CACHE=0 HAKO_JOINIR_DEBUG=1 \
+  "$ROOT/target/debug/hakorune" --backend mir "$ROOT/$TYPE0_V0_FIXTURE" \
+  >"$TYPE0_V0_DEBUG_LOG" 2>&1
+type0_v0_debug_rc=$?
+HAKO_EMIT_EXE_CACHE=0 HAKO_JOINIR_DEBUG=1 \
+  "$ROOT/target/debug/hakorune" --backend mir "$ROOT/$TYPE0_V1_FIXTURE" \
+  >"$TYPE0_V1_DEBUG_LOG" 2>&1
+type0_v1_debug_rc=$?
+HAKO_EMIT_EXE_CACHE=0 HAKO_JOINIR_DEBUG=1 \
+  "$ROOT/target/release/hakorune" --backend mir "$ROOT/$TYPE0_V0_FIXTURE" \
+  >"$TYPE0_V0_LOG" 2>&1
+type0_v0_rc=$?
+HAKO_EMIT_EXE_CACHE=0 HAKO_JOINIR_DEBUG=1 \
+  "$ROOT/target/release/hakorune" --backend mir "$ROOT/$TYPE0_V1_FIXTURE" \
+  >"$TYPE0_V1_LOG" 2>&1
+type0_v1_rc=$?
+set -e
+
+[[ "$type0_v0_debug_rc" -eq 4 ]] \
+  || guard_fail "$TAG" "TYPE0 numeric V0 debug result drift: rc=$type0_v0_debug_rc"
+[[ "$type0_v1_debug_rc" -eq 3 ]] \
+  || guard_fail "$TAG" "TYPE0 numeric V1 debug result drift: rc=$type0_v1_debug_rc"
+[[ "$type0_v0_rc" -eq 4 ]] \
+  || guard_fail "$TAG" "TYPE0 numeric V0 result drift: rc=$type0_v0_rc"
+[[ "$type0_v1_rc" -eq 3 ]] \
+  || guard_fail "$TAG" "TYPE0 numeric V1 result drift: rc=$type0_v1_rc"
+rg -q "route=generic_loop_v0" "$TYPE0_V0_LOG" \
+  || guard_fail "$TAG" "TYPE0 numeric V0 route drift"
+rg -q "route=generic_loop_v1" "$TYPE0_V1_LOG" \
+  || guard_fail "$TAG" "TYPE0 numeric V1 route drift"
+rg -q "route=generic_loop_v0" "$TYPE0_V0_DEBUG_LOG" \
+  || guard_fail "$TAG" "TYPE0 numeric V0 debug route drift"
+rg -q "route=generic_loop_v1" "$TYPE0_V1_DEBUG_LOG" \
+  || guard_fail "$TAG" "TYPE0 numeric V1 debug route drift"
 
 set +e
 timeout 240s bash "$CONTRACT_PIN" >"$LOG" 2>&1
@@ -38,10 +87,10 @@ if [ "$pin_rc" -eq 124 ]; then
   tail -n 120 "$LOG" >&2
   guard_fail "$TAG" "contract pin exceeded 240 seconds"
 fi
-rg -q "ParserDelegateExposesBox\._parse_delegate/3|FuncScannerBox\._scan_methods/4" "$LOG" \
-  || guard_fail "$TAG" "pre-C0 terminal owner changed"
-rg -q "loop var used after in-body step|no valid loop_var candidates found" "$LOG" \
-  || guard_fail "$TAG" "pre-C0 terminal reason changed"
+rg -q "ParserBox\.esc_json/1" "$LOG" \
+  || guard_fail "$TAG" "pre-TYPE0 terminal owner changed"
+rg -q "phi_type_publication/concrete_fact_conflict.*first_type=Integer.*second_type=String" "$LOG" \
+  || guard_fail "$TAG" "pre-TYPE0 carrier conflict changed"
 
 python3 - "$ROOT" <<'PY'
 import pathlib
