@@ -8,6 +8,7 @@ pub(in crate::mir::builder) mod body_check_extractors;
 pub(in crate::mir::builder) mod body_check_shape_detectors;
 #[cfg(test)]
 pub(in crate::mir::builder) mod body_check_tests;
+pub(in crate::mir::builder) mod carrier_representation;
 pub(in crate::mir::builder) mod facts;
 pub(in crate::mir::builder) mod facts_helpers;
 pub(in crate::mir::builder) mod facts_types;

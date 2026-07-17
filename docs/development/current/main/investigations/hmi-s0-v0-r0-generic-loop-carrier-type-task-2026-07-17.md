@@ -1,5 +1,5 @@
 ---
-Status: Accepted task
+Status: S0 closed; M0 active
 Date: 2026-07-17
 Decision: Candidate B-prime
 Baseline: 7424548356
@@ -8,6 +8,34 @@ Scope: GenericLoop carrier role and lowering-time representation projection
 ---
 
 # HMI R0-I0 GenericLoop carrier type task
+
+## Current progress
+
+`R0-GENERICLOOP-CARRIER-TYPE0-S0` is closed with production consumers zero.
+
+```text
+facts-side role:
+  GenericLoopCarrierRoleV1
+  - NumericProgression
+  - BodyManagedState
+
+Builder-private pure decision:
+  prepare_generic_loop_carrier_representation_v1
+
+prepared product:
+  init ValueId + exact MirType
+  non-Clone
+```
+
+The decision accepts exact Integer for numeric progression, preserves exact
+Integer/Bool/Box representations for body-managed state, and rejects missing
+init, missing type, `Unknown`, Float numeric, and Box numeric inputs. It does
+not receive `MirBuilder`, so decision failure cannot allocate blocks/values or
+publish metadata. README and module boundaries name the facts/representation
+split before code wiring.
+
+Focused 6/6, existing progression-role 18/18, `cargo check --lib`, formatting,
+pointer, diff, and line-budget checks are green. The next row is M0 only.
 
 ## Decision
 

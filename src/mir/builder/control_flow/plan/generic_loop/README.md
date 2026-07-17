@@ -3,11 +3,21 @@
 Responsibility:
 - Recognize a minimal loop body subset (facts)
 - Normalize to CorePlan using only Loop + leaf effects + ExitIf/IfEffect
+- Keep the closed numeric/body-managed carrier-role vocabulary separate from
+  Builder-side MIR representation preparation
 
 Non-goals:
-- No carriers/value-join
+- No role inference from AST spelling after facts extraction
+- No MIR type storage in facts
+- No carrier type default, coercion, or PHI conflict repair
 - No nested control-flow or else-branches
 - No route-specific semantics beyond the subset
+
+Carrier representation boundary:
+- `facts_types::GenericLoopCarrierRoleV1` owns only the semantic role
+- `carrier_representation` prepares one exact lowering-time MIR representation
+- S0 keeps the preparation product disconnected from production allocation
+- Slot publication and V0/V1 producer wiring belong to later TYPE0 rows
 
 SSOT:
 - Condition canon (analysis-only view): `plan/canon/generic_loop/condition.rs`

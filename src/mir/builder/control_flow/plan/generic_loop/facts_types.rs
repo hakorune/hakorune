@@ -6,6 +6,16 @@ use crate::mir::builder::control_flow::plan::facts::exit_only_block::ExitAllowed
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 use crate::mir::policies::BodyLoweringPolicy;
 
+/// Closed semantic role for the selected GenericLoop carrier.
+///
+/// Facts own this role only. MIR representation remains a Builder-side
+/// lowering-time decision.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::builder) enum GenericLoopCarrierRoleV1 {
+    NumericProgression,
+    BodyManagedState,
+}
+
 /// Facts extracted for generic loop v0 (ExitIf-capable, no carriers)
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct GenericLoopV0Facts {
