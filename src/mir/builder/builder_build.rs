@@ -19,38 +19,7 @@ impl MirBuilder {
 
     /// Build an expression and return its value ID
     pub(in crate::mir) fn build_expression(&mut self, ast: ASTNode) -> Result<ValueId, String> {
-        // Delegated to exprs.rs to keep this file lean
-        // Debug: Track recursion depth to detect infinite loops
-        const MAX_RECURSION_DEPTH: usize = 200;
-        self.recursion_depth += 1;
-        if self.recursion_depth > MAX_RECURSION_DEPTH {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0
-                .log
-                .error("\n[FATAL] ============================================");
-            ring0.log.error(&format!(
-                "[FATAL] Recursion depth exceeded {} in build_expression",
-                MAX_RECURSION_DEPTH
-            ));
-            ring0
-                .log
-                .error(&format!("[FATAL] Current depth: {}", self.recursion_depth));
-            ring0.log.error(&format!(
-                "[FATAL] AST node type: {:?}",
-                std::mem::discriminant(&ast)
-            ));
-            ring0
-                .log
-                .error("[FATAL] ============================================\n");
-            return Err(format!(
-                "Recursion depth exceeded: {} (possible infinite loop)",
-                self.recursion_depth
-            ));
-        }
-
-        let result = super::recursive_child_lowering::drive_raw_legacy_expression_v1(self, ast);
-        self.recursion_depth -= 1;
-        result
+        super::recursive_child_lowering::drive_raw_legacy_expression_v1(self, ast)
     }
 
     /// Build a literal value

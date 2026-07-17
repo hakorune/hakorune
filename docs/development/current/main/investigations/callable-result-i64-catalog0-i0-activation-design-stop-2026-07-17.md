@@ -1,5 +1,5 @@
 ---
-Status: SITE0-R0-EXPR0-M0-ROUTE0-S0 closed; SITE0-R0-EXPR0-M0-GUARD0 is the next code-facing row
+Status: SITE0-R0-EXPR0-M0-GUARD0 closed; SITE0-R0-EXPR0-M0-ROUTE0-R0 is the next code-facing row
 Date: 2026-07-18
 Decision: Candidate A owned single-use activation plan plus located legacy input
 Baseline: fe2d61baa0
@@ -609,6 +609,22 @@ one exact guard owner shared by the public and nested raw expression entries,
 preserving maximum depth, diagnostic, restoration, and failure order without
 double counting. This is behavior restoration only; it may add no route,
 grammar, result, located, or ledger authority.
+
+## SITE0-R0-EXPR0-M0-GUARD0 closeout
+
+`I0-SITE0-R0-EXPR0-M0-GUARD0` is closed. The raw implementation of the
+existing `RecursiveChildLoweringPortV1` is now the sole recursion-depth guard
+owner for raw expression descent. The public `build_expression` facade only
+selects that raw port, so public and nested ARG0/MethodCall child descent reach
+the same guard exactly once. The limit remains 200 and the existing fatal
+diagnostic fields and error text remain unchanged.
+
+Ordinary lowering failure and limit failure both restore the entry depth before
+the Builder is reused. The overflow fixture fixes the prior leaked-depth bug;
+no later child effects occur. E0, ARG0, and ROUTE0 focused regressions plus the
+callable-result suite remain green. No route, accepted grammar, MIR result,
+located input, ledger, runtime, backend, or ownership authority is added.
+`SITE0-R0-EXPR0-M0-ROUTE0-R0` is next.
 
 ## Required fixtures
 

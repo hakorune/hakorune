@@ -114,7 +114,7 @@ def main() -> None:
         "never stored in `MirBuilder`",
         "S0 adds this disconnected port",
         "S0 production consumers = 0",
-        "Exact route demand remains owned by the later R0/M0 rows",
+        "Exact route demand remains owned by the later",
     ):
         if phrase not in readme:
             fail(f"missing README boundary: {phrase}")

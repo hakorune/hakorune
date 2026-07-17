@@ -25,9 +25,9 @@ fallback policy. The port is never stored in `MirBuilder`.
 It exposes one borrowed syntax view plus reusable E0 receiver and ARG0 argument
 descent primitives. It does not select routes or emit calls, effects, types,
 or results, and it is never stored in `MirBuilder`.
-S0 production consumers = 0. Exact route demand remains owned by the later R0/M0 rows; inactive
-raw terminals will require the existing ledger's inactive-prefix proof before
-located lowering may delegate to them.
+S0 production consumers = 0. Exact route demand remains owned by the later
+R0/M0 rows; inactive raw terminals will require the existing ledger's
+inactive-prefix proof before located lowering may delegate to them.
 
 ROUTE0 is one behavior-neutral Refactor Series: S0 adds this disconnected port,
 GUARD0 restores one exact recursion-depth guard around raw expression descent,
@@ -35,3 +35,8 @@ R0 threads exact reserved-route child demand, and M0 threads TypeOp and the
 static/env/me/standard routes. Syntax-only TypeOp strings and MIR-debug labels
 must never become evaluated arguments; static/env/me/reserved receivers must
 never become evaluated receivers.
+
+The GUARD0 owner lives at the raw expression port implementation. Public and
+nested raw expression descent both reach that owner exactly once; the public
+facade owns no second depth counter. Limit failure and ordinary lowering
+failure both restore the entry depth before the same Builder session is reused.

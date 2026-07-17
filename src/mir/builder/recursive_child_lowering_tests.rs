@@ -176,3 +176,21 @@ fn expression_failure_restores_recursion_depth_for_reuse() {
     builder.build_expression(integer(9)).unwrap();
     assert_eq!(builder.recursion_depth, 0);
 }
+
+#[test]
+fn raw_expression_depth_limit_rejects_without_poisoning_the_session() {
+    let _ = std::panic::catch_unwind(|| {
+        crate::runtime::ring0::init_global_ring0(crate::runtime::ring0::default_ring0())
+    });
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("recursive_child_depth_limit/0".to_string());
+    builder.recursion_depth = 200;
+
+    let error = builder.build_expression(integer(8)).unwrap_err();
+    assert!(error.contains("Recursion depth exceeded: 201"));
+    assert_eq!(builder.recursion_depth, 200);
+
+    builder.recursion_depth = 0;
+    builder.build_expression(integer(9)).unwrap();
+    assert_eq!(builder.recursion_depth, 0);
+}
