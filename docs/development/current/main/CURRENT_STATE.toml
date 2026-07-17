@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "HMI R0-I0 is paused at GenericLoop carrier type design consultation"
+status = "HMI R0-I0 is paused for GenericLoop carrier TYPE0-S0"
 date = "2026-07-17"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -296,18 +296,19 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 
-latest_card = "hmi-s0-v0-r0-generic-loop-carrier-type-consultation-question-2026-07-17"
-latest_card_path = "docs/development/current/main/investigations/hmi-s0-v0-r0-generic-loop-carrier-type-consultation-question-2026-07-17.md"
-latest_card_summary = """Clean HMI R0-I0 is paused before source landing. A
-fresh producer-backed document-seal run exposed a false GenericLoop skeleton
-fact: receiver-state init is `Box(JsonScanner)`, while current/next slots are
-unconditionally allocated as Integer. TYPE-PUBLISH0 correctly rejects the
-resulting concrete PHI conflict before mutation. Worker audits exclude ValueId
-reuse, Binding SSA mixing, HMI source, scanner source, and environment setup.
-The current design question selects exact-init, role-sealed, or Integer-only
-GenericLoop carrier representation. PHI conflict weakening, source workaround,
-fake verified views, fallback, retry, and stash restoration remain forbidden."""
-current_blocker_token = "DPRIME-GENERICLOOP-CARRIER-TYPE-DESIGN-STOP-001"
+latest_card = "hmi-s0-v0-r0-generic-loop-carrier-type-task-2026-07-17"
+latest_card_path = "docs/development/current/main/investigations/hmi-s0-v0-r0-generic-loop-carrier-type-task-2026-07-17.md"
+latest_card_summary = """Candidate B-prime is accepted for the GenericLoop
+carrier prerequisite. Facts seal only NumericProgression versus
+BodyManagedState; the skeleton combines that role with the selected init's
+current transient representation. Numeric remains exact Integer, while
+body-managed state preserves one exact non-Unknown type across current, next,
+step-PHI, and header-PHI destination. Missing/Unknown/mismatch rejects before
+allocation. S0 is the sole next code-facing row, followed by M0 inventory,
+one-consumer I0, fresh-binary G0, and a clean HMI register rewrite. PHI-law
+weakening, Lower-side role inference, source workaround, retry, fallback, and
+stash restoration remain forbidden."""
+current_blocker_token = "DPRIME-GENERICLOOP-CARRIER-TYPE0-S0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -316,6 +317,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-17: Three independent worker audits close the GenericLoop carrier consultation with Candidate B-prime. Existing V1 extraction already makes a real body-managed decision that controls recipe filtering and next-state semantics, while V0/canonical numeric progression retains its existing Integer boundary. Facts now task-seal only the closed role; Builder projection will require Integer for NumericProgression and exact non-Unknown init representation for BodyManagedState, shared across current/next/step-PHI/header-PHI. C is rejected because receiver-managed loops are intentionally admitted and occur nine times in json_native; A is rejected because it would widen canonical numeric representation without a separate language decision. S0/M0/I0/G0 is fixed, with M0 required to close the nested `.ok()` error-swallowing seam and G0 required to use genuinely fresh debug/release vm-reference binaries. No code, PHI-law, scanner/HMI source, ownership, runtime, backend, fallback, retry, or stash delta lands in this decision.",
   "2026-07-17: R0-DECLFIELD0-G0 closes and registers MAPFIELD-R0-DECLFIELD0 in the existing MapFieldOwner proof family. The app-local test entry uses the shared manifest runner and publishes SAME-ROOT-DECLFIELD-AUTHORIZED. STOP0, DELTA0, TYPE0, and DECLFIELD0 are all green; manifest/test-entry health covers 212 entries. Neighboring exact-numeric field mutation, HMI semantic inventory/T0 isolation, json_native authority, pointer/diff/line budgets, and quick 66/66 are green. G0 adds no compiler/runtime/backend/HMI behavior. Clean HMI-S0-V0-R0-I0 is now unparked; both WIP stashes remain evidence-only and must not be restored.",
   "2026-07-17: R0-DECLFIELD-PHI0-I0 connects the sealed finite acyclic Copy/Phi same-root receiver proof to exactly one fallback in declared_field_type_for_value, after the unchanged value_origin route. The real A2 base remains Copy(Phi(current_receiver)); its FieldGet rows carry declared ArrayBox, observable result typing is ArrayBox, and push/length use existing ArrayBox/Known routes. MapBox remains Known, untyped and foreign-parameter N1/N2 controls remain unrecovered, runtime A1-A7/M1/C1/N1/N2 is 11/11 in debug/release, and CopyOwned/DestroyOwned/selected ReleaseStrong stay zero. The checker seals one production proof consumer and zero property/field-contract consumers. Focused proof 19/19, PHI publication 13/13, lifecycle 6/6, Binding-SSA/CorePlan/inventory guards, cargo check, formatting, diff, and line budgets are green. Existing DECLFIELD0-G0 is next.",
   "2026-07-17: TYPE-PUBLISH0-G0 closes the canonical lowering-time PHI type producer row. One machine guard fixes exactly four wrapper consumers, four authorized entry families, zero direct decision bypasses, zero post-patch Unknown writers, zero combined raw type/origin writers, raw-only success-committed origin, lifecycle origin zero, and the unchanged final late-publisher inventory. Focused 13/13, lifecycle 6/6, same-root 18/18, Binding-SSA/CorePlan/inventory/pointer guards, declared-field proof, cargo check, formatting, diff, and line budgets are green. No new semantic authority or behavior lands in G0. The existing PHI0-I0 one-consumer declared-field fallback is next.",
@@ -327,5 +329,4 @@ landed_tail = [
   "2026-07-17: The A-prime-TV response is classified against landed S0/P0 and exact transient evidence. Its lifetime-bounded view is a possible encapsulation cleanup, but the existing proof already reads live type_ctx facts and exact current-function definitions; it adds no missing fact. The response's producer-bug stop condition is already triggered by selected %37 SeedTypeMissing. Closed PHI0-S0/P0 rows are not replayed. TYPE-PUBLISH0-D0 is task-fixed as the next design stop, requiring one neutral type-only unanimous-PHI decision, exact destination/type-hint/missing/Unknown/heterogeneous conflict law, complete raw/final/provisional/patched/batch lifecycle inventory, and publication-before-Copy timing. Only after S0/M0/I0/G0 may existing PHI0-I0 resume. Origin writes, eager final metadata, mid-lowering final pipeline, receiver-proof inference, fallback, and files at or above 800 lines remain forbidden.",
   "2026-07-17: R0-DECLFIELD-PHI0-I0 stops before landing on a transient type-authority boundary. The sole fallback consumer reaches selected base %37 but the sealed proof rejects SeedTypeMissing at the exact FieldGet use site. Final MIR later contains a Phi(receiver,receiver) carrier and its downstream Copy both typed Box(current owner), while the transient values are missing the type. Worker audit finds a concrete lifecycle bypass: raw emit_instruction(Phi) invokes unanimous metadata publication, but define_phi_final_with_type_hint inserts directly and skips it; LocalSSA then cannot copy a missing source type. Candidate A-prime requires every traversed value typed already, so identity cannot silently become type inference. The failed WIP is evidence-only at stash hash 49bafef37c6a110b1fd98338bd3f95a38ebd6891; no compiler/checker/test behavior lands. Consultation now prefers a shared type-only unanimous PHI lifecycle helper, while exact conflict law and the final downstream-Copy publisher remain open. Implementation is stopped.",
   "2026-07-17: R0-DECLFIELD-PHI0-P0 closes the full disconnected matrix with production consumers zero. P1-P9 cover direct/Copy, Copy-wrapped PHI, two/three-level nested PHI, three predecessors, shared subgraphs, and reorder-stable normalization; every accepted synthetic function directly passes final MirVerifier. R1-R24 cover unsupported definitions, nested/foreign/mixed roots, static/non-receiver parameters, type drift, malformed predecessor/availability rows, definition and CFG cycles, and missing/untyped field composition. A final-MIR test adapter compiles the existing DECLFIELD0 app, verifies each selected function, reconstructs only parameter/type/receiver/catalog facts, and calls the same proof at exact FieldGet ordinals: A1=R, A2=P[R,R], A3=R, A4=R. No Copy/Phi origin backfill, MIR JSON/Python authority, production field consumer, runtime/HMI/backend delta, fallback, or retry lands. Focused 18/18, cargo check, existing PHI-ROOT-DESIGN-REQUIRED proof, pointer guard, and line budgets are green. PHI0-I0 is next.",
-  "2026-07-17: R0-DECLFIELD-PHI0-S0 closes one disconnected bounded use-site proof with production consumers zero. Exact receiver identity co-validates implicit parameter zero metadata/kind/signature/type/origin/registry; one position-only definition index, validated normal-CFG view, explicit Copy/Phi worklist, and typed rejection vocabulary prove finite acyclic non-loop same-root receiver values. Definition truth is never cloned, the seed must be available at the current use site, and cached successors must match terminator truth before CFG analysis. Focused 11/11, cargo check, existing DECLFIELD0 PHI-ROOT-DESIGN-REQUIRED evidence, pointer guard, ownership-op zero, and every touched source/check file below 800 lines are green. Field lookup, FieldGet, PHI metadata, method routing, runtime, HMI, fallback, and retry remain unchanged. PHI0-P0 is next.",
 ]

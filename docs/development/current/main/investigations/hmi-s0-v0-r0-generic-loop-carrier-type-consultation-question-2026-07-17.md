@@ -1,7 +1,7 @@
 ---
-Status: Design consultation stop
+Status: Answered by Candidate B-prime
 Date: 2026-07-17
-Decision: pending
+Decision: accepted in hmi-s0-v0-r0-generic-loop-carrier-type-task-2026-07-17.md
 Baseline: c455853ac4
 Parent: hmi-s0-v0-r0-clean-register-storage-task-2026-07-16.md
 Scope: GenericLoop skeleton carrier representation before PHI completion
