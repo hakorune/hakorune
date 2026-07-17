@@ -1,5 +1,5 @@
 use super::PlanNormalizer;
-use crate::ast::{ASTNode, FieldDecl, Span};
+use crate::ast::{ASTNode, BinaryOperator, FieldDecl, Span};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{Effect, EffectMask, MirType, ValueId};
 use std::collections::BTreeMap;
@@ -17,6 +17,86 @@ fn method_call(object: ASTNode, method: &str, arguments: Vec<ASTNode>) -> ASTNod
         method: method.to_string(),
         arguments,
         span: Span::unknown(),
+    }
+}
+
+fn binary(operator: BinaryOperator, lhs: ASTNode, rhs: ASTNode) -> ASTNode {
+    ASTNode::BinaryOp {
+        operator,
+        left: Box::new(lhs),
+        right: Box::new(rhs),
+        span: Span::unknown(),
+    }
+}
+
+fn lower_binary_result_type(
+    operator: BinaryOperator,
+    lhs_type: MirType,
+    rhs_type: MirType,
+) -> MirType {
+    let mut builder = MirBuilder::new();
+    let lhs = builder.alloc_typed(lhs_type);
+    let rhs = builder.alloc_typed(rhs_type);
+    builder
+        .variable_ctx
+        .variable_map
+        .insert("lhs".to_string(), lhs);
+    builder
+        .variable_ctx
+        .variable_map
+        .insert("rhs".to_string(), rhs);
+
+    let (result, effects) = PlanNormalizer::lower_value_ast(
+        &binary(operator, var("lhs"), var("rhs")),
+        &mut builder,
+        &BTreeMap::new(),
+    )
+    .expect("binary expression should normalize");
+    assert!(
+        matches!(effects.last(), Some(super::CoreEffectPlan::BinOp { dst, .. }) if *dst == result)
+    );
+    builder
+        .type_ctx
+        .get_type(result)
+        .expect("result type must be published")
+        .clone()
+}
+
+#[test]
+fn coreplan_add_uses_prepared_string_result_without_widening_subtract() {
+    for (operator, lhs, rhs, expected) in [
+        (
+            BinaryOperator::Add,
+            MirType::String,
+            MirType::Unknown,
+            MirType::String,
+        ),
+        (
+            BinaryOperator::Add,
+            MirType::String,
+            MirType::Float,
+            MirType::String,
+        ),
+        (
+            BinaryOperator::Subtract,
+            MirType::String,
+            MirType::Float,
+            MirType::Float,
+        ),
+        (
+            BinaryOperator::Add,
+            MirType::Integer,
+            MirType::Integer,
+            MirType::Integer,
+        ),
+        (
+            BinaryOperator::Add,
+            MirType::Float,
+            MirType::Integer,
+            MirType::Float,
+        ),
+    ] {
+        assert_eq!(lower_binary_result_type(operator, lhs, rhs), expected);
     }
 }
 

@@ -1,0 +1,63 @@
+{
+  "decision": {
+    "all_symbol_rows": {
+      "src/mir/builder/control_flow/plan/normalizer/add_result_representation.rs": 2,
+      "src/mir/builder/control_flow/plan/normalizer/helpers_value.rs": 1
+    },
+    "clone_derives": 0,
+    "definition_count": 1,
+    "production_consumer_count": 1
+  },
+  "fixture": {
+    "historical_loop_simple_while_expectations": 3,
+    "path": "apps/tests/phase29ap_stringutils_join_min.hako",
+    "post_i0_expected_result": "a,b,c",
+    "smoke_mentions": 1,
+    "tsv_rows": [
+      {
+        "path": "tools/smokes/v2/profiles/integration/joinir/core_loop_routes_planner_required_cases.tsv",
+        "row": "apps/tests/phase29ap_stringutils_join_min.hako\ta,b,c\t0\t[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/joinir/phase29bl_planner_required_pattern1_4_5_cases.tsv",
+        "row": "apps/tests/phase29ap_stringutils_join_min.hako\ta,b,c\t0\t[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/joinir/planner_required_cases.tsv",
+        "row": "apps/tests/phase29ap_stringutils_join_min.hako\ta,b,c\t0\t[joinir/planner_first rule=LoopSimpleWhile] label=LoopSimpleWhile\tstringutils join"
+      }
+    ]
+  },
+  "loop_array_join": {
+    "coreloop_frame_init_type_reads": 1,
+    "facts_mir_type_mentions": 0,
+    "join_then_else_type_precedence_rows": 1,
+    "loop_v0_init_type_reads": 1,
+    "result_var_fields": 1
+  },
+  "nonauthority": {
+    "generic_loop_mentions_in_decision": 0,
+    "hmi_mentions_in_decision": 0,
+    "loop_array_join_mentions_in_decision": 0
+  },
+  "normalizer": {
+    "add_only_dispatch_count": 1,
+    "float_else_integer_branches": 1,
+    "legacy_general_decision_consumer_count": 0,
+    "legacy_general_decision_definition_count": 0,
+    "non_add_decision_consumer_count": 1,
+    "non_add_decision_definition_count": 1
+  },
+  "other_consumer_families": {
+    "direct_builder_classification_sites": 3,
+    "direct_builder_string_unknown_no_fact_rows": 2,
+    "final_pipeline_add_matrix_count": 1,
+    "final_pipeline_string_string_rows": 1
+  },
+  "runtime_reference": {
+    "string_left_concat_rows": 1,
+    "string_right_concat_rows": 1
+  },
+  "schema_version": 1,
+  "stage": "i0_activation"
+}

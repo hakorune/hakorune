@@ -1,3 +1,4 @@
+use super::add_result_representation::prepare_coreplan_add_result_representation_v1;
 use super::common::lower_me_this_method_effect;
 use super::cond_lowering_prelude::lower_blockexpr_value_prelude_stmts;
 use super::helpers_pure_value::is_pure_value_expr;
@@ -43,7 +44,7 @@ impl super::PlanNormalizer {
         }
     }
 
-    fn arithmetic_result_type(builder: &MirBuilder, lhs: ValueId, rhs: ValueId) -> MirType {
+    fn non_add_arithmetic_result_type(builder: &MirBuilder, lhs: ValueId, rhs: ValueId) -> MirType {
         let lhs_ty = builder.type_ctx.get_type(lhs);
         let rhs_ty = builder.type_ctx.get_type(rhs);
         if matches!(lhs_ty, Some(MirType::Float)) || matches!(rhs_ty, Some(MirType::Float)) {
@@ -622,7 +623,16 @@ impl super::PlanNormalizer {
                 | crate::ast::BinaryOperator::Modulo => {
                     let (lhs, op, rhs, mut consts) =
                         Self::lower_binop_ast(ast, builder, phi_bindings)?;
-                    let dst = builder.alloc_typed(Self::arithmetic_result_type(builder, lhs, rhs));
+                    let result_type = if op == BinaryOp::Add {
+                        prepare_coreplan_add_result_representation_v1(
+                            builder.type_ctx.get_type(lhs),
+                            builder.type_ctx.get_type(rhs),
+                        )
+                        .into_exact_type()
+                    } else {
+                        Self::non_add_arithmetic_result_type(builder, lhs, rhs)
+                    };
+                    let dst = builder.alloc_typed(result_type);
                     consts.push(CoreEffectPlan::BinOp { dst, lhs, op, rhs });
                     Ok((dst, consts))
                 }

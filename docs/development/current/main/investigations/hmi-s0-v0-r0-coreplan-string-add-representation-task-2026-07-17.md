@@ -1,5 +1,5 @@
 ---
-Status: S0/M0 closed; I0 is the sole next code-facing row
+Status: S0/M0/I0 closed; G0 is next
 Date: 2026-07-17
 Decision: Candidate A-prime — one CorePlan Add-result representation owner
 Baseline: 66c5eca052
@@ -63,6 +63,27 @@ No carrier-order, LoopV0 init-type, join, or PHI defect is present. I0 is
 authorized to replace only the normalizer's one legacy decision call with the
 prepared S0 result before allocation. The direct Builder and final pipeline
 matrices remain recorded non-consumers.
+
+I0 is closed. The grouped arithmetic arm now consumes the prepared decision
+only when the lowered operator is `BinaryOp::Add`; Subtract, Multiply, Divide,
+and Modulo retain one renamed Float-else-Integer helper. The prepared product
+is consumed into one destination allocation. The focused matrix is 3/3, the
+I0 machine inventory fixes one prepared consumer and one non-Add consumer, and
+direct Builder/final propagation consumers remain zero. Fresh debug and
+release binaries plus the existing StringUtils smoke return `a,b,c`.
+
+The HMI document-seal canary advances beyond the retired Integer-versus-String
+PHI conflict. Its next independent frontier is:
+
+```text
+ParserBox.static_const_parse_add/2
+[plan/freeze:contract] generic_loop_v1 skeleton failed
+GenericLoop carrier representation failed:
+MissingTransientType { init: ValueId(28) }
+```
+
+G0 records that frontier and updates the historical negative canary without
+changing the GenericLoop numeric-role assertions.
 
 ## Decision
 
@@ -267,7 +288,7 @@ Also census accepted CorePlan Add candidates in debug/release. Stop before I0
 if an existing legitimate non-string case depends on String classification not
 winning when the other operand is exact String.
 
-### I0 — one production consumer
+### I0 — one production consumer (closed)
 
 The current source arm groups `Add`, `Subtract`, `Multiply`, `Divide`, and
 `Modulo`. Do not replace its shared result decision unconditionally. Split the

@@ -23,8 +23,8 @@ pub(in crate::mir::builder) struct PreparedCorePlanAddResultRepresentationV1 {
 }
 
 impl PreparedCorePlanAddResultRepresentationV1 {
-    pub(in crate::mir::builder) fn exact_type(&self) -> &MirType {
-        &self.exact_type
+    pub(in crate::mir::builder) fn into_exact_type(self) -> MirType {
+        self.exact_type
     }
 }
 
@@ -63,9 +63,7 @@ mod tests {
     use super::*;
 
     fn prepared(lhs: Option<&MirType>, rhs: Option<&MirType>) -> MirType {
-        prepare_coreplan_add_result_representation_v1(lhs, rhs)
-            .exact_type()
-            .clone()
+        prepare_coreplan_add_result_representation_v1(lhs, rhs).into_exact_type()
     }
 
     #[test]

@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 FIXTURE = Path(
-    "tools/checks/fixtures/coreplan_add_result_representation_m0_inventory_v1.json"
+    "tools/checks/fixtures/coreplan_add_result_representation_i0_inventory_v1.json"
 )
 
 
@@ -108,22 +108,25 @@ def build(root: Path) -> dict[str, object]:
     require_order(
         normalizer,
         [
-            "fn arithmetic_result_type(",
+            "fn non_add_arithmetic_result_type(",
             "if matches!(lhs_ty, Some(MirType::Float))",
             "MirType::Float",
             "MirType::Integer",
         ],
-        "pre-I0 normalizer decision",
+        "non-Add normalizer decision",
     )
     require_order(
         normalizer,
         [
             "let (lhs, op, rhs, mut consts) =",
             "Self::lower_binop_ast(ast, builder, phi_bindings)?",
-            "let dst = builder.alloc_typed(Self::arithmetic_result_type(builder, lhs, rhs))",
+            "let result_type = if op == BinaryOp::Add",
+            "prepare_coreplan_add_result_representation_v1(",
+            "Self::non_add_arithmetic_result_type(builder, lhs, rhs)",
+            "let dst = builder.alloc_typed(result_type)",
             "CoreEffectPlan::BinOp",
         ],
-        "operand -> allocation -> effect timing",
+        "operand -> Add-only decision -> allocation -> effect timing",
     )
     require_order(
         join,
@@ -143,7 +146,7 @@ def build(root: Path) -> dict[str, object]:
 
     return {
         "schema_version": 1,
-        "stage": "m0_pre_activation",
+        "stage": "i0_activation",
         "decision": {
             "definition_count": count(
                 decision, "fn prepare_coreplan_add_result_representation_v1("
@@ -162,13 +165,22 @@ def build(root: Path) -> dict[str, object]:
             ),
         },
         "normalizer": {
-            "legacy_decision_definition_count": count(
+            "legacy_general_decision_definition_count": count(
                 normalizer, "fn arithmetic_result_type("
             ),
-            "legacy_decision_consumer_count": count(
+            "legacy_general_decision_consumer_count": count(
                 normalizer, "Self::arithmetic_result_type(builder, lhs, rhs)"
             ),
-            "string_type_branches": count(normalizer, "MirType::String"),
+            "non_add_decision_definition_count": count(
+                normalizer, "fn non_add_arithmetic_result_type("
+            ),
+            "non_add_decision_consumer_count": count(
+                normalizer,
+                "Self::non_add_arithmetic_result_type(builder, lhs, rhs)",
+            ),
+            "add_only_dispatch_count": count(
+                normalizer, "if op == BinaryOp::Add"
+            ),
             "float_else_integer_branches": count(
                 normalizer, "if matches!(lhs_ty, Some(MirType::Float))"
             ),
@@ -207,11 +219,7 @@ def build(root: Path) -> dict[str, object]:
             "historical_loop_simple_while_expectations": sum(
                 "LoopSimpleWhile" in row["row"] for row in tsv_rows
             ),
-            "pre_i0_expected_error_tag": (
-                "[freeze:contract][phi_type_publication/concrete_fact_conflict]"
-            ),
-            "pre_i0_expected_destination_type": "Integer",
-            "pre_i0_expected_incoming_type": "String",
+            "post_i0_expected_result": "a,b,c",
         },
         "nonauthority": {
             "generic_loop_mentions_in_decision": count(decision, "GenericLoop"),
