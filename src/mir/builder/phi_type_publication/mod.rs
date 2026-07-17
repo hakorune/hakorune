@@ -75,4 +75,6 @@ pub(in crate::mir::builder) enum PreparedPhiTypePublicationV1 {
 }
 
 #[cfg(test)]
+mod m0_tests;
+#[cfg(test)]
 mod tests;

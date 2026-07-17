@@ -1,5 +1,5 @@
 ---
-Status: S0 closed; M0 next
+Status: M0 closed; I0 next
 Date: 2026-07-17
 Baseline: d3c4473728fa665f6154eea09a0ce382aa58321d
 Evidence: hmi-s0-v0-r0-declfield-phi0-type-publish0-consultation-question-2026-07-17.md
@@ -291,6 +291,110 @@ M0 remains behavior-neutral and keeps production consumers zero. It must
 inventory the four authorized entries plus explicit non-consumers, prove the
 logical-to-physical rematerialization representation law, and identify the
 exact `%19 -> Copy %37` publication timing before I0 wiring begins.
+
+## M0 closeout
+
+`R0-DECLFIELD-PHI0-TYPE-PUBLISH0-M0` is closed with production decision
+consumers and production behavior delta still zero.
+
+The machine inventory entry is:
+
+```text
+python3 tools/checks/lib/phi_type_publication_inventory.py .
+```
+
+It generates only an untracked normalized report under `target/checks/` and
+fixes this producer matrix:
+
+| Entry | Current M0 behavior | I0 obligation |
+| --- | --- | --- |
+| raw emit | rematerialize, then pre-append type+origin write | decide logical inputs first; success-commit type and preserved origin after append |
+| complete final | rematerialize and insert; no transient type | decide logical inputs, insert, then commit type |
+| patch | sorted logical rows replace inputs; no rematerialization/type write | decide sorted logical rows, patch, then commit type |
+| batch | per-row rematerialize, then one prepend; no transient type | predecide all rows and use the accepted candidate-function transaction |
+
+Explicit nonconsumers remain provisional define, function-level final APIs,
+thin facades, transaction adapters, post-create input repair/remap, final type
+correction, and bridge metadata helpers.
+
+Two existing I0 seams are now exact inventory facts rather than hidden
+follow-up work:
+
+```text
+raw origin::phi::propagate_phi_meta:
+  writes type + origin before append
+
+MirBindingSsaAdapterV1::patch_phi_inputs:
+  writes Unknown after successful lifecycle patch
+```
+
+I0 must split the raw type/origin decisions and commit them after append. It
+must also remove or condition the post-patch `Unknown` write so a successful
+prepared publication cannot be erased. The provisional `Unknown` seed remains
+a separate nonpublication fact.
+
+Test-only Builder evidence proves the required lowering-time order without
+connecting a production consumer:
+
+```text
+logical Phi(receiver, receiver)
+  -> disconnected pure Prepare(Publish(Box(owner)))
+  -> existing complete lifecycle mutation
+  -> test-only non-fallible commit
+  -> immediate LocalSSA Copy
+  -> Copy destination already Box(owner)
+```
+
+For the selected receiver carrier, rematerialization is representation-stable
+identity: the physical rows equal the logical parameter rows after canonical
+predecessor ordering. Patch is explicitly classified as sorted logical
+identity in the current implementation; M0 does not add rematerialization or
+change CFG/SSA behavior.
+
+The final `%19 -> Copy %37` metadata transition is also identified exactly:
+
+```text
+final TypePropagationPipeline:
+  Copy -> BinOp/copy fixed point -> Copy -> Phi
+  can publish the Phi at the final step
+  cannot revisit the downstream Copy in that invocation
+
+exact later publisher:
+  user_box_method_route_plan::value_type_publish
+    ::propagate_user_box_box_value_types
+  called by user-box route convergence
+  finite Copy/Phi metadata fixed point publishes Phi then Copy
+```
+
+M0 evidence:
+
+```text
+phi_type_publication focused tests:
+  11/11 green
+
+exact late-publisher test:
+  1/1 green
+
+machine inventory:
+  authorized entries = 4
+  production decision consumers = 0
+  post-patch Unknown writers = 1
+  raw pre-append combined writers = 1
+
+new/modified source/check files >= 800 lines:
+  0
+```
+
+The next row is:
+
+```text
+R0-DECLFIELD-PHI0-TYPE-PUBLISH0-I0
+```
+
+I0 connects exactly the four authorized Builder completion entries and no
+others. It must preserve patch's existing sorted-identity carrier, keep
+function-level APIs and post-create rewriters nonconsuming, and satisfy the
+accepted conflict-before-mutation and batch atomicity laws.
 
 The remaining text records the original one-shot question. This accepted
 resolution is the implementation authority.

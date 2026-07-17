@@ -312,6 +312,52 @@ mod tests {
         );
         assert_eq!(function.metadata.value_types.get(&ValueId::new(4)), None);
     }
+
+    #[test]
+    fn type_publish0_m0_identifies_route_fixpoint_as_late_phi_copy_publisher() {
+        let owner = "CurrentReceiverTypePublishOwnerV1";
+        let mut module = MirModule::new("phi-copy-late-publisher-test".to_string());
+        let mut function = make_function();
+        let receiver = function.next_value_id();
+        let phi = function.next_value_id();
+        let copy = function.next_value_id();
+        function.params.push(receiver);
+        function.signature.params = vec![MirType::Box(owner.to_string())];
+        let entry = function.get_block_mut(BasicBlockId::new(0)).unwrap();
+        entry.add_instruction(MirInstruction::Phi {
+            dst: phi,
+            inputs: vec![
+                (BasicBlockId::new(1), receiver),
+                (BasicBlockId::new(2), receiver),
+            ],
+            type_hint: None,
+        });
+        entry.add_instruction(MirInstruction::Copy {
+            dst: copy,
+            src: phi,
+        });
+        function
+            .metadata
+            .value_types
+            .insert(receiver, MirType::Box(owner.to_string()));
+        module.add_function(function);
+
+        let before = module.get_function("main").unwrap();
+        assert_eq!(before.metadata.value_types.get(&phi), None);
+        assert_eq!(before.metadata.value_types.get(&copy), None);
+
+        assert!(propagate_user_box_box_value_types(&mut module));
+
+        let after = module.get_function("main").unwrap();
+        assert_eq!(
+            after.metadata.value_types.get(&phi),
+            Some(&MirType::Box(owner.to_string()))
+        );
+        assert_eq!(
+            after.metadata.value_types.get(&copy),
+            Some(&MirType::Box(owner.to_string()))
+        );
+    }
 }
 
 fn publish_value_type(function: &mut MirFunction, value: ValueId, ty: MirType) -> bool {
