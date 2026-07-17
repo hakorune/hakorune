@@ -620,6 +620,37 @@ The next checkpoint is:
 R0-DECLFIELD-PHI0-TYPE-PUBLISH0-G0
 ```
 
+## G0 closeout
+
+`R0-DECLFIELD-PHI0-TYPE-PUBLISH0-G0` is closed without a new production
+behavior change. The existing machine inventory is the structural guard for:
+
+```text
+authorized Builder completion entries = 4
+decision prepare wrappers = 4
+decision commit wrappers = 4
+direct decision/commit bypasses = 0
+provisional/function-level consumers = 0
+post-patch Unknown writers = 0
+combined raw type+origin writers = 0
+raw success-committed origin owners = 1
+lifecycle origin publications = 0
+partial conflict/batch publication = 0
+```
+
+The focused decision/lifecycle/receiver matrices, Binding-SSA transaction
+checker, CorePlan boundary guard, declared-field proof, current pointer,
+`cargo check`, formatting, diff, and line budgets remain green. TYPE-PUBLISH0
+adds no receiver proof, field lookup, final-metadata, runtime, backend, HMI,
+fallback, or retry authority.
+
+The producer prerequisite is complete. Resume the already-closed proof at its
+single authorized production connection:
+
+```text
+R0-DECLFIELD-PHI0-I0
+```
+
 ## Requested answer format
 
 Please return only these four coordinated outputs:
