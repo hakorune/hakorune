@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "Same-module call-result representation S0 is closed; M0 timing inventory is next"
+status = "Same-module call-result M0 is closed; callable result authority is at DESIGN-STOP"
 date = "2026-07-17"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,18 +298,20 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 
 latest_card = "hmi-s0-v0-r0-same-module-call-result-representation-task-2026-07-17"
 latest_card_path = "docs/development/current/main/investigations/hmi-s0-v0-r0-same-module-call-result-representation-task-2026-07-17.md"
-latest_card_summary = """R0-SAME-MODULE-CALL-RESULT-REP0-S0 is closed with one
-HMI-independent five-case proof and direct checker. Forward untyped direct and
-Copy-carried call results are Missing; a forward source i64 annotation is also
-Missing. The same untyped provider/caller with the provider declared first is
-Exact and returns 6, as does the independent numeric control. Debug/release
-observations agree. Final MIR shows exact i64 on the reverse-order call, Copy,
-and PHI but remains diagnostic-only. Production behavior/type publishers,
-GenericLoop defaults, name inference, source rewrites, fallback, and HMI/stash
-delta stay zero. M0 now inventories the exact current-module/signature/call-
-annotation/type_ctx/final-refresh timing and must return one exclusive token
-before any producer implementation is selected."""
-current_blocker_token = "DPRIME-SAME-MODULE-CALL-RESULT-REP0-M0-001"
+latest_card_summary = """R0-SAME-MODULE-CALL-RESULT-REP0-S0 and M0 are closed.
+The five-case debug/release proof fixes the declaration-order timing split, and
+one source-derived machine inventory returns the exclusive classification
+CALLEE-REPRESENTATION-AUTHORITY-ABSENT. Declaration indexing owns name/arity
+and body but no generic result representation. Caller-local annotation can use
+only an already-published current-module signature or narrow known-name rules;
+forward finalization therefore records Unknown. The exact Integer fact appears
+only after complete-module route convergence publishes finalized
+MirFunction.metadata.value_types, which is diagnostic-only for lowering-time
+admission. GenericLoop defaults, name inference, source rewrites, fallback,
+production type publishers, HMI source, and stash delta remain zero. No local
+I0 is authorized; the next frontier is one design consultation for a complete,
+declaration-order-independent callable result-representation authority."""
+current_blocker_token = "DPRIME-SAME-MODULE-CALL-RESULT-REP0-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

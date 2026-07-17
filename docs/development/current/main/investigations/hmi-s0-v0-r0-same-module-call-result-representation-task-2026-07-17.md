@@ -1,8 +1,8 @@
 ---
-Status: active through S0; M0 is next
+Status: closed through M0; DESIGN-STOP is active
 Date: 2026-07-17
 Decision: inventory-first; production representation owner remains a design stop
-Baseline: a0802ea5c6
+Baseline: 446e8782e6
 Parent: hmi-s0-v0-r0-generic-loop-carrier-type-task-2026-07-17.md
 Scope: identify the lowering-time representation owner for a forward same-module call result
 ---
@@ -10,6 +10,47 @@ Scope: identify the lowering-time representation owner for a forward same-module
 # HMI R0 same-module call-result representation task
 
 ## Current progress
+
+`R0-SAME-MODULE-CALL-RESULT-REP0-M0` is closed with the exclusive
+classification:
+
+```text
+CALLEE-REPRESENTATION-AUTHORITY-ABSENT
+```
+
+The checked-in machine inventory and source-derived drift checker are:
+
+```text
+tools/checks/fixtures/
+  same_module_call_result_representation_m0_inventory_v1.json
+
+tools/checks/lib/
+  same_module_call_result_representation_inventory.py
+```
+
+The declaration index publishes the complete static method name/arity and a
+body-bearing `LoweredMethodAst`, but that product contains only `params`,
+`param_decls`, and `body`; it owns no generic return-representation fact. The
+caller allocates a call-result `ValueId`, emits the call, and consults only an
+already-published current-module signature or narrow known-name heuristics.
+Function-local finalization repeats the same current-module lookup and records
+`Unknown` when the forward callee is still absent.
+
+The exact Integer fact later observed in final MIR is published only after the
+complete module exists, through:
+
+```text
+refresh_module_semantic_metadata
+  -> refresh_module_route_fixpoint
+  -> refresh_module_global_call_routes
+  -> publish_global_call_route_result_value_types
+  -> MirFunction.metadata.value_types
+```
+
+That is a finalized-module metadata publication surface, not a lowering-time
+authority. Consequently M0 does not authorize a local producer I0. The next
+work is one design consultation selecting a complete, declaration-order-
+independent callable result-representation authority.
 
 `R0-SAME-MODULE-CALL-RESULT-REP0-S0` is closed with production behavior and
 production type publishers both zero. One HMI-independent proof app owns five
@@ -70,15 +111,15 @@ R0-SAME-MODULE-CALL-RESULT-REP0-S0
   -> R0-GENERICLOOP-CARRIER-TYPE0-G0
 ```
 
-The next code-facing row is now:
+The completed code-facing row was:
 
 ```text
 R0-SAME-MODULE-CALL-RESULT-REP0-M0
 ```
 
-S0 and M0 may identify an existing canonical producer seam. They do not
+M0 found no existing generic pre-consumer producer seam. It therefore does not
 authorize a new interprocedural result-representation authority. Production
-I0 remains forbidden until M0 returns exactly one authorized producer token.
+I0 remains forbidden until a new design decision selects that authority.
 
 ## Current evidence
 
@@ -290,6 +331,59 @@ new persistent type/owner maps = 0
 The future producer row must be named from the identified owner, not from
 GenericLoop or HMI.
 
+## Active DESIGN-STOP consultation packet
+
+The consultation must select one source/body result-representation authority
+that is complete before any caller body consumes a forward same-module call.
+It must answer, in one decision:
+
+```text
+1. Which product owns callable result representation before caller lowering?
+2. Is the fact source-only, body-derived, or a co-seal of both?
+3. How are unannotated functions such as skip_ws/2 handled without declaration
+   order, name heuristics, or finalized metadata?
+4. What exact first grammar is admitted, and what remains Unknown/rejected?
+5. How is conflict between declared and body-derived representation rejected?
+6. Which pre-Builder phase seals the complete catalog/result correspondence?
+7. Which single lowering-time consumer publishes the call-result ValueId type?
+8. Which existing late metadata publishers remain diagnostic-only?
+```
+
+The selected architecture must preserve:
+
+```text
+complete immutable same-module callable catalog before body lowering
+declaration reorder parity
+one result-representation truth per callable key
+no GenericLoop/type-role inference
+no callee/function/HMI name rules
+no finalized metadata reads during lowering
+no source annotation added solely as a workaround
+no compile retry, fallback, or callee-first publication dependency
+```
+
+The first post-consultation task order must be named from the selected owner:
+
+```text
+<CALLABLE-RESULT-OWNER>-S0
+  disconnected product and conflict vocabulary; production consumers 0
+
+<CALLABLE-RESULT-OWNER>-P0
+  forward/backward, typed/untyped, conflict, and declaration-reorder proof
+
+<CALLABLE-RESULT-OWNER>-I0
+  exactly one pre-body producer and one call-result publication consumer
+
+<CALLABLE-RESULT-OWNER>-G0
+  producer/consumer counts, old order-dependent path classification, guards
+
+then:
+  R0-GENERICLOOP-CARRIER-TYPE0-G0
+```
+
+Until that consultation closes, code changes to declaration indexing, call
+annotation, final semantic refresh, or GenericLoop are forbidden.
+
 ## Required counters
 
 ```text
@@ -362,11 +456,11 @@ not a GenericLoop role or PHI defect: its selected init is a forward,
 same-module, untyped static/global call result whose exact Integer
 representation is published only after the lowering-time consumer has already
 failed. `R0-SAME-MODULE-CALL-RESULT-REP0-S0` has now closed the generic
-reproduction and typed observations with zero production delta;
-`R0-SAME-MODULE-CALL-RESULT-REP0-M0` is the sole next code-facing row and
-identifies the first missing producer/timing seam. GenericLoop keeps
-its exact current-type authority and Missing/Unknown stop law. A production
-repair is locally authorized only if M0 proves exactly one existing generic
-producer and an already-owned exact fact. Otherwise the lane returns to a
-single design consultation for a complete, declaration-order-independent
-callable result-representation authority.
+reproduction and typed observations with zero production delta. M0 is also
+closed and returns `CALLEE-REPRESENTATION-AUTHORITY-ABSENT`: declaration
+indexing owns no generic result representation, caller-local publication is
+current-module/order dependent, and the existing exact result publisher runs
+only on finalized whole-module metadata. GenericLoop keeps its exact current-
+type authority and Missing/Unknown stop law. No production repair is locally
+authorized. The lane is now stopped at one consultation for a complete,
+declaration-order-independent callable result-representation authority.

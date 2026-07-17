@@ -1,0 +1,84 @@
+{
+  "actual_blocker": {
+    "callee": "ParserStringUtilsBox.skip_ws/2",
+    "callee_definition_count": 1,
+    "callee_return_annotation_count": 0,
+    "caller": "ParserBox.static_const_parse_add/2",
+    "caller_following_loop_count": 1,
+    "loop_body_refresh_call_count": 1,
+    "selected_pre_loop_call_count": 1,
+    "selected_init": "ValueId(28)"
+  },
+  "classification": "CALLEE-REPRESENTATION-AUTHORITY-ABSENT",
+  "declaration_index": {
+    "generic_result_representation_owner_count": 0,
+    "lowered_method_body_fields": {
+      "body": 1,
+      "param_decls": 1,
+      "params": 1
+    },
+    "source_order_static_lowering_count": 1,
+    "static_registration_count": 2
+  },
+  "late_complete_module_publication": {
+    "global_result_publisher_calls": 1,
+    "lowering_time_authority": false,
+    "metadata_result_publisher_definitions": 1,
+    "publication_surface": "MirFunction.metadata.value_types",
+    "route_fixpoint_global_refresh_calls": 3,
+    "semantic_route_convergence_calls": 1
+  },
+  "lowering_time": {
+    "current_module_signature_lookups": 1,
+    "final_metadata_snapshots": 1,
+    "function_finalize_hint_provider_calls": 1,
+    "hint_provider_module_lookups": 1,
+    "hint_provider_unknown_fallbacks": 1,
+    "known_name_heuristic_branches": 4,
+    "post_emit_annotation_calls": 1,
+    "static_call_result_allocations": 3
+  },
+  "nonauthority": {
+    "fallback_or_retry": 0,
+    "final_metadata_lowering_time_reads": 0,
+    "generic_loop_representation_defaults": 0,
+    "new_persistent_value_type_maps": 0,
+    "source_reordering": 0,
+    "source_return_annotation_workarounds": 0
+  },
+  "production_behavior_delta": 0,
+  "production_type_publisher_delta": 0,
+  "row": "R0-SAME-MODULE-CALL-RESULT-REP0-M0",
+  "schema_version": 1,
+  "source_observation": {
+    "debug_release_parity_check_count": 1,
+    "final_metadata_authority": "diagnostic-only",
+    "rows": {
+      "forward_copy": {
+        "expected_returncode": 1,
+        "expected_transient_state": "Missing",
+        "proof_row_count": 1
+      },
+      "forward_direct": {
+        "expected_returncode": 1,
+        "expected_transient_state": "Missing",
+        "proof_row_count": 1
+      },
+      "reverse_direct": {
+        "expected_returncode": 6,
+        "expected_transient_state": "Exact",
+        "proof_row_count": 1
+      },
+      "typed_forward": {
+        "expected_returncode": 1,
+        "expected_transient_state": "Missing",
+        "proof_row_count": 1
+      },
+      "valid_numeric_control": {
+        "expected_returncode": 6,
+        "expected_transient_state": "Exact",
+        "proof_row_count": 1
+      }
+    }
+  }
+}
