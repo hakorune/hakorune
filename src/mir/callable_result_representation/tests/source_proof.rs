@@ -88,6 +88,25 @@ fn invalid_result_surfaces_close_to_explicit_unavailable_rows() {
 }
 
 #[test]
+fn heterogeneous_untyped_returns_do_not_select_an_arbitrary_representation() {
+    let source = r#"
+        static box HeterogeneousReturnV1 {
+            choose(flag) {
+                if flag == 0 { return 1 }
+                return "not i64"
+            }
+        }
+    "#;
+
+    assert_eq!(
+        disposition(source, "HeterogeneousReturnV1", "choose", 1),
+        VerifiedCallableResultDispositionV1::Unavailable(
+            CallableResultUnavailableReasonV1::ConflictingReturnRepresentations,
+        ),
+    );
+}
+
+#[test]
 fn loop_invariant_ignores_condition_only_unknown_values() {
     let source = r#"
         static box LoopProofV1 {

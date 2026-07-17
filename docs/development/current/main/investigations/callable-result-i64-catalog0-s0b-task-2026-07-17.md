@@ -1,5 +1,5 @@
 ---
-Status: active implementation card
+Status: closed
 Date: 2026-07-17
 Baseline: aedbef98417cbcc78cd912642c6a3ef56dadb764
 Parent: callable-result-i64-catalog0-task-2026-07-17.md
@@ -8,6 +8,81 @@ Scope: disconnected exact-site callable-result composition
 ---
 
 # Callable result exact-i64 catalog S0b task
+
+## Audited closeout task
+
+Three independent post-implementation worker audits classify the remaining
+work as a local closeout, not a new design consultation:
+
+```text
+DPRIME-CALLABLE-RESULT-I64-CATALOG0-S0B-CLOSEOUT-001
+```
+
+The implemented authority shape is accepted. The result catalog retains the
+exact declaration and target catalogs by lifetime, target evidence borrows the
+CUT0 row, Pending remains construction-only, and production producers and
+consumers remain zero. No stop condition has fired.
+
+Closeout order is fixed:
+
+1. Replace the unreachable `rows_by_key.len() > static_count` exhaustion check
+   with an explicit bounded-loop completion/stall result. A budget exhaustion
+   must be the only producer of `ResultWorklistDidNotConverge`.
+2. Remove the unused `require_target_catalog_brand` wrapper. The target
+   catalog's read-only brand query remains the single identity decision.
+3. Add exact-target direct and mutual recursion fixtures that close to
+   `Unavailable(RecursiveDependency)` without SCC inference.
+4. Add an equal-key foreign declaration/target catalog fixture that rejects
+   with `SourceTargetCatalogBrandMismatch`.
+5. Add a two-forwarding-wrapper chain and verify declaration reorder parity.
+6. Add result-layer Core fixtures for `length` / `len` / `size`, unsupported
+   receiver, wrong spelling/arity, and reachable String non-i64 results. Keep
+   unreachable Dynamic/non-String domains parked rather than synthesizing a
+   fake authority.
+7. Add missing/Unknown required-argument substitution and heterogeneous
+   untyped-return fixtures. Missing sealed arguments may be tested at the pure
+   substitution boundary when source construction makes the state unreachable.
+8. Rewrite the module README from the obsolete S0a contract to the S0b branded
+   catalog, exact-site row, bounded String/Core composition, deterministic
+   solver, bare-FunctionCall-unavailable, and production-zero contract.
+9. Run the complete required gate list, record exact counts here, and only then
+   close S0b and advance the pointer to
+   `DPRIME-CALLABLE-RESULT-I64-CATALOG0-P0-001`.
+
+Private malformed states such as duplicate call-site evidence and stable-final
+drift need a fixture only when a narrow private draft seam already exists.
+Do not add a production constructor merely to make those states injectable;
+retain them as typed invariant errors plus structural guards otherwise.
+
+The callable-result Python guard is already 765 lines. P0 must split or add a
+separate P0 checker before extending it; exceeding or weakening the 800-line
+limit is forbidden.
+
+## Closeout evidence
+
+S0b closed without opening any stop condition. The monotone solver now has an
+explicit completion/stall state and a typed budget-exhaustion branch; the
+redundant brand wrapper is removed. Exact-target direct and mutual recursion,
+foreign catalog identity, two forwarding wrappers, Core aliases and negative
+rows, required-argument missing/Unknown, and heterogeneous returns are fixed by
+the disconnected suite. The module README now describes the S0b authority.
+
+```text
+callable-result focused tests = 23/23
+source-target focused tests = 42/42
+Core result-kind focused tests = 5/5
+Core manifest malformed tests = 9/9
+quick gate = 66/66
+callable-result structural guard = green
+Core manifest guard = green
+cargo check = green
+current-state pointer guard = green
+git diff --check = green
+modified source/check files >= 800 lines = 0
+```
+
+Production producers and consumers remain zero. P0 is next; it may normalize
+the closed proof matrix but may not activate Builder/MIR/runtime publication.
 
 ## Selected next row
 
@@ -382,4 +457,3 @@ Stop before implementation broadening if any of these is required:
 12. A source/check file reaches 800 lines.
 
 If none occurs, implement locally without another consultation.
-

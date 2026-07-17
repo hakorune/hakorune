@@ -1,30 +1,44 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::ast::ASTNode;
-use crate::mir::builder::VerifiedSameModuleCallableDeclarationV1;
+use crate::mir::builder::{
+    CanonicalSameModuleCallableKeyV1, VerifiedSameModuleCallableDeclarationV1,
+};
 use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
+use crate::mir::resolved_semantics::{SourcePathSegmentV1, SourcePathV1};
+use crate::mir::source_call_target::VerifiedSourceStaticCallTargetCatalogV1;
 
-use super::expression_proof::{ExpressionProofContextV1, I64ExpressionFactV1};
+use super::call_row::CallableResultCallRowsV1;
+use super::expression_proof::{
+    ExpressionEnvironmentV1, ExpressionProofContextV1, I64ExpressionFactV1,
+};
 use super::requirements::{union_requirements, RequirementSetV1};
-use super::{CallableResultCatalogErrorV1, CallableResultUnavailableReasonV1};
+use super::{
+    CallableResultCatalogErrorV1, CallableResultUnavailableReasonV1,
+    VerifiedCallableResultDispositionV1,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum FunctionProofOutcomeV1 {
     Exact(RequirementSetV1),
     Unavailable(CallableResultUnavailableReasonV1),
+    PendingDependency,
 }
 
-type EnvironmentV1 = BTreeMap<String, I64ExpressionFactV1>;
+pub(super) struct FunctionProofProductV1<'targets> {
+    pub(super) outcome: FunctionProofOutcomeV1,
+    pub(super) call_rows: CallableResultCallRowsV1<'targets>,
+}
 
 #[derive(Debug)]
 struct FlowV1 {
-    fallthrough: Option<EnvironmentV1>,
-    breaks: Vec<EnvironmentV1>,
-    continues: Vec<EnvironmentV1>,
+    fallthrough: Option<ExpressionEnvironmentV1>,
+    breaks: Vec<ExpressionEnvironmentV1>,
+    continues: Vec<ExpressionEnvironmentV1>,
 }
 
 impl FlowV1 {
-    fn fallthrough(environment: EnvironmentV1) -> Self {
+    fn fallthrough(environment: ExpressionEnvironmentV1) -> Self {
         Self {
             fallthrough: Some(environment),
             breaks: Vec::new(),
@@ -33,44 +47,57 @@ impl FlowV1 {
     }
 }
 
-pub(super) fn prove_function(
-    declaration: &VerifiedSameModuleCallableDeclarationV1,
-) -> Result<FunctionProofOutcomeV1, CallableResultCatalogErrorV1> {
+pub(super) fn prove_function<'targets, 'catalog>(
+    declaration: &'catalog VerifiedSameModuleCallableDeclarationV1,
+    targets: &'targets VerifiedSourceStaticCallTargetCatalogV1<'catalog>,
+    result_rows: &BTreeMap<CanonicalSameModuleCallableKeyV1, VerifiedCallableResultDispositionV1>,
+) -> Result<FunctionProofProductV1<'targets>, CallableResultCatalogErrorV1> {
     let key = declaration.key();
     if let Some(result) = declaration.return_type_name() {
-        return Ok(if ExactTrivialScalarAbiV1::classify(result).is_some() {
-            FunctionProofOutcomeV1::Exact(BTreeSet::new())
-        } else {
-            FunctionProofOutcomeV1::Unavailable(
-                CallableResultUnavailableReasonV1::DeclaredNonI64Result,
-            )
+        return Ok(FunctionProofProductV1 {
+            outcome: if ExactTrivialScalarAbiV1::classify(result).is_some() {
+                FunctionProofOutcomeV1::Exact(BTreeSet::new())
+            } else {
+                FunctionProofOutcomeV1::Unavailable(
+                    CallableResultUnavailableReasonV1::DeclaredNonI64Result,
+                )
+            },
+            call_rows: BTreeMap::new(),
         });
     }
     if declaration.body().iter().any(contains_grouped_assignment) {
-        return Ok(FunctionProofOutcomeV1::Unavailable(
-            CallableResultUnavailableReasonV1::UnsupportedExpressionKind,
-        ));
+        return Ok(FunctionProofProductV1 {
+            outcome: FunctionProofOutcomeV1::Unavailable(
+                CallableResultUnavailableReasonV1::UnsupportedExpressionKind,
+            ),
+            call_rows: BTreeMap::new(),
+        });
     }
 
-    let mut context = ExpressionProofContextV1::new(key, declaration.params())?;
+    let mut context =
+        ExpressionProofContextV1::new(key, declaration.params(), targets, result_rows)?;
     let mut returns = Vec::new();
     let mut fatal = None;
+    let paths = root_body_paths(declaration.body().len());
     let flow = analyze_statements(
         &mut context,
         declaration.body(),
+        &paths,
         0,
         &mut returns,
         &mut fatal,
     )?;
-    if let Some(reason) = fatal {
-        return Ok(FunctionProofOutcomeV1::Unavailable(reason));
-    }
-    if flow.fallthrough.is_some() {
-        return Ok(FunctionProofOutcomeV1::Unavailable(
-            CallableResultUnavailableReasonV1::MissingReturn,
-        ));
-    }
-    summarize_returns(returns)
+    let outcome = if let Some(reason) = fatal {
+        FunctionProofOutcomeV1::Unavailable(reason)
+    } else if flow.fallthrough.is_some() {
+        FunctionProofOutcomeV1::Unavailable(CallableResultUnavailableReasonV1::MissingReturn)
+    } else {
+        summarize_returns(returns)
+    };
+    Ok(FunctionProofProductV1 {
+        outcome,
+        call_rows: context.into_call_rows(),
+    })
 }
 
 fn contains_grouped_assignment(root: &ASTNode) -> bool {
@@ -85,18 +112,20 @@ fn contains_grouped_assignment(root: &ASTNode) -> bool {
 }
 
 fn analyze_statements(
-    context: &mut ExpressionProofContextV1,
+    context: &mut ExpressionProofContextV1<'_, '_, '_>,
     statements: &[ASTNode],
+    paths: &[SourcePathV1],
     loop_depth: usize,
     returns: &mut Vec<I64ExpressionFactV1>,
     fatal: &mut Option<CallableResultUnavailableReasonV1>,
 ) -> Result<FlowV1, CallableResultCatalogErrorV1> {
-    let mut flow = FlowV1::fallthrough(context.bindings().clone());
-    for statement in statements {
+    debug_assert_eq!(statements.len(), paths.len());
+    let mut flow = FlowV1::fallthrough(context.environment().clone());
+    for (statement, path) in statements.iter().zip(paths) {
         let Some(environment) = flow.fallthrough.take() else {
             break;
         };
-        context.replace_bindings(environment);
+        context.replace_environment(environment);
         match statement {
             ASTNode::Local {
                 variables,
@@ -107,20 +136,27 @@ fn analyze_statements(
                     *fatal = Some(CallableResultUnavailableReasonV1::UnsupportedStatementKind);
                     break;
                 }
-                for (name, initial) in variables.iter().zip(initial_values) {
+                for (index, (name, initial)) in variables.iter().zip(initial_values).enumerate() {
                     if context.contains_binding(name) {
                         *fatal = Some(CallableResultUnavailableReasonV1::DuplicateLocal);
                         break;
                     }
+                    let receiver_fact = initial
+                        .as_ref()
+                        .and_then(|initial| context.core_receiver_fact(initial));
                     let fact = match initial {
-                        Some(initial) => context.prove_expression(initial)?,
+                        Some(initial) => context.prove_expression(
+                            initial,
+                            &path.child(SourcePathSegmentV1::Initializer(index as u32)),
+                        )?,
                         None => I64ExpressionFactV1::Unknown(
                             CallableResultUnavailableReasonV1::UnknownExpression,
                         ),
                     };
-                    context.publish_binding(name.clone(), fact);
+                    context.publish_binding(name, fact);
+                    context.publish_core_receiver_binding(name, receiver_fact);
                 }
-                flow.fallthrough = Some(context.bindings().clone());
+                flow.fallthrough = Some(context.environment().clone());
             }
             ASTNode::Assignment { target, value, .. } => {
                 let ASTNode::Variable { name, .. } = target.as_ref() else {
@@ -131,15 +167,17 @@ fn analyze_statements(
                     *fatal = Some(CallableResultUnavailableReasonV1::UnboundLocal);
                     break;
                 }
-                let fact = context.prove_expression(value)?;
-                context.publish_binding(name.clone(), fact);
-                flow.fallthrough = Some(context.bindings().clone());
+                let receiver_fact = context.core_receiver_fact(value);
+                let fact =
+                    context.prove_expression(value, &path.child(SourcePathSegmentV1::Value))?;
+                context.publish_binding(name, fact);
+                context.publish_core_receiver_binding(name, receiver_fact);
+                flow.fallthrough = Some(context.environment().clone());
             }
             ASTNode::Return {
                 value: Some(value), ..
-            } => {
-                returns.push(context.prove_expression(value)?);
-            }
+            } => returns
+                .push(context.prove_expression(value, &path.child(SourcePathSegmentV1::Value))?),
             ASTNode::Return { value: None, .. } => {
                 returns.push(I64ExpressionFactV1::Unknown(
                     CallableResultUnavailableReasonV1::NoValueReturn,
@@ -151,18 +189,29 @@ fn analyze_statements(
                 else_body,
                 ..
             } => {
-                let before_condition = context.bindings().clone();
-                let _ = context.prove_expression(condition)?;
-                if context.bindings() != &before_condition {
+                let before_condition = context.environment().clone();
+                let _ = context
+                    .prove_expression(condition, &path.child(SourcePathSegmentV1::IfCondition))?;
+                if context.environment() != &before_condition {
                     *fatal = Some(CallableResultUnavailableReasonV1::UnsupportedExpressionKind);
                     break;
                 }
-                let base = context.bindings().clone();
-                context.replace_bindings(base.clone());
-                let then_flow = analyze_statements(context, then_body, loop_depth, returns, fatal)?;
-                context.replace_bindings(base.clone());
+                let base = context.environment().clone();
+                context.replace_environment(base.clone());
+                let then_paths = child_paths(path, SourcePathSegmentV1::IfThen, then_body.len());
+                let then_flow = analyze_statements(
+                    context,
+                    then_body,
+                    &then_paths,
+                    loop_depth,
+                    returns,
+                    fatal,
+                )?;
+                context.replace_environment(base.clone());
                 let else_flow = if let Some(else_body) = else_body {
-                    analyze_statements(context, else_body, loop_depth, returns, fatal)?
+                    let else_paths =
+                        child_paths(path, SourcePathSegmentV1::IfElse, else_body.len());
+                    analyze_statements(context, else_body, &else_paths, loop_depth, returns, fatal)?
                 } else {
                     FlowV1::fallthrough(base)
                 };
@@ -180,26 +229,28 @@ fn analyze_statements(
                     *fatal = Some(CallableResultUnavailableReasonV1::NestedLoopUnsupported);
                     break;
                 }
-                let before_condition = context.bindings().clone();
-                let _ = context.prove_expression(condition)?;
-                if context.bindings() != &before_condition {
+                let before_condition = context.environment().clone();
+                let _ = context
+                    .prove_expression(condition, &path.child(SourcePathSegmentV1::LoopCondition))?;
+                if context.environment() != &before_condition {
                     *fatal = Some(CallableResultUnavailableReasonV1::UnsupportedExpressionKind);
                     break;
                 }
-                let loop_flow = analyze_loop(context, body, returns, fatal)?;
+                let body_paths = child_paths(path, SourcePathSegmentV1::LoopBody, body.len());
+                let loop_flow = analyze_loop(context, body, &body_paths, returns, fatal)?;
                 flow.fallthrough = loop_flow.fallthrough;
             }
             ASTNode::Break { .. } if loop_depth != 0 => {
-                flow.breaks.push(context.bindings().clone());
+                flow.breaks.push(context.environment().clone());
             }
             ASTNode::Continue { .. } if loop_depth != 0 => {
-                flow.continues.push(context.bindings().clone());
+                flow.continues.push(context.environment().clone());
             }
             ASTNode::FunctionCall { .. }
             | ASTNode::MethodCall { .. }
             | ASTNode::GroupedAssignmentExpr { .. } => {
-                let _ = context.prove_expression(statement)?;
-                flow.fallthrough = Some(context.bindings().clone());
+                let _ = context.prove_expression(statement, path)?;
+                flow.fallthrough = Some(context.environment().clone());
             }
             _ => {
                 *fatal = Some(CallableResultUnavailableReasonV1::UnsupportedStatementKind);
@@ -214,21 +265,24 @@ fn analyze_statements(
 }
 
 fn analyze_loop(
-    context: &mut ExpressionProofContextV1,
+    context: &mut ExpressionProofContextV1<'_, '_, '_>,
     body: &[ASTNode],
+    body_paths: &[SourcePathV1],
     returns: &mut Vec<I64ExpressionFactV1>,
     fatal: &mut Option<CallableResultUnavailableReasonV1>,
 ) -> Result<FlowV1, CallableResultCatalogErrorV1> {
-    let entry = context.bindings().clone();
+    let entry = context.environment().clone();
     let mut invariant = entry.clone();
     let budget = 32usize
-        .saturating_add(entry.len())
+        .saturating_add(entry.binding_count())
         .saturating_add(body.len() * 4);
     let mut final_breaks = Vec::new();
 
     for _ in 0..budget {
-        context.replace_bindings(invariant.clone());
-        let body_flow = analyze_statements(context, body, 1, returns, fatal)?;
+        let call_rows_before_iteration = context.call_row_state();
+        let returns_before_iteration = returns.len();
+        context.replace_environment(invariant.clone());
+        let body_flow = analyze_statements(context, body, body_paths, 1, returns, fatal)?;
         if fatal.is_some() {
             return Ok(FlowV1 {
                 fallthrough: None,
@@ -242,7 +296,7 @@ fn analyze_loop(
         }
         let mut next = entry.clone();
         for backedge in backedges {
-            next = merge_environments(&next, &backedge);
+            next = ExpressionEnvironmentV1::merge(&next, &backedge);
         }
         final_breaks = body_flow.breaks;
         if next == invariant {
@@ -250,10 +304,12 @@ fn analyze_loop(
             exits.extend(final_breaks);
             let exit = exits
                 .into_iter()
-                .reduce(|left, right| merge_environments(&left, &right))
+                .reduce(|left, right| ExpressionEnvironmentV1::merge(&left, &right))
                 .unwrap_or(entry);
             return Ok(FlowV1::fallthrough(exit));
         }
+        context.restore_call_row_state(call_rows_before_iteration);
+        returns.truncate(returns_before_iteration);
         invariant = next;
     }
 
@@ -266,36 +322,27 @@ fn analyze_loop(
 }
 
 fn merge_optional_environments(
-    left: Option<EnvironmentV1>,
-    right: Option<EnvironmentV1>,
-) -> Option<EnvironmentV1> {
+    left: Option<ExpressionEnvironmentV1>,
+    right: Option<ExpressionEnvironmentV1>,
+) -> Option<ExpressionEnvironmentV1> {
     match (left, right) {
-        (Some(left), Some(right)) => Some(merge_environments(&left, &right)),
+        (Some(left), Some(right)) => Some(ExpressionEnvironmentV1::merge(&left, &right)),
         (Some(environment), None) | (None, Some(environment)) => Some(environment),
         (None, None) => None,
     }
 }
 
-fn merge_environments(left: &EnvironmentV1, right: &EnvironmentV1) -> EnvironmentV1 {
-    left.iter()
-        .filter_map(|(name, left_fact)| {
-            right.get(name).map(|right_fact| {
-                (
-                    name.clone(),
-                    I64ExpressionFactV1::merge_paths(left_fact, right_fact),
-                )
-            })
-        })
-        .collect()
-}
-
-fn summarize_returns(
-    returns: Vec<I64ExpressionFactV1>,
-) -> Result<FunctionProofOutcomeV1, CallableResultCatalogErrorV1> {
+fn summarize_returns(returns: Vec<I64ExpressionFactV1>) -> FunctionProofOutcomeV1 {
     if returns.is_empty() {
-        return Ok(FunctionProofOutcomeV1::Unavailable(
+        return FunctionProofOutcomeV1::Unavailable(
             CallableResultUnavailableReasonV1::MissingReturn,
-        ));
+        );
+    }
+    if returns
+        .iter()
+        .any(|fact| matches!(fact, I64ExpressionFactV1::PendingDependency))
+    {
+        return FunctionProofOutcomeV1::PendingDependency;
     }
 
     let mut requirements = BTreeSet::new();
@@ -309,21 +356,36 @@ fn summarize_returns(
             }
             I64ExpressionFactV1::KnownNonI64 => saw_non_i64 = true,
             I64ExpressionFactV1::Unknown(reason) => {
-                return Ok(FunctionProofOutcomeV1::Unavailable(reason));
+                return FunctionProofOutcomeV1::Unavailable(reason);
             }
             I64ExpressionFactV1::Conflict => {
-                return Ok(FunctionProofOutcomeV1::Unavailable(
+                return FunctionProofOutcomeV1::Unavailable(
                     CallableResultUnavailableReasonV1::ConflictingReturnRepresentations,
-                ));
+                );
             }
+            I64ExpressionFactV1::PendingDependency => unreachable!("handled before reduction"),
         }
     }
     if saw_non_i64 {
-        return Ok(FunctionProofOutcomeV1::Unavailable(if saw_exact {
+        return FunctionProofOutcomeV1::Unavailable(if saw_exact {
             CallableResultUnavailableReasonV1::ConflictingReturnRepresentations
         } else {
             CallableResultUnavailableReasonV1::KnownNonI64Return
-        }));
+        });
     }
-    Ok(FunctionProofOutcomeV1::Exact(requirements))
+    FunctionProofOutcomeV1::Exact(requirements)
+}
+
+fn root_body_paths(len: usize) -> Vec<SourcePathV1> {
+    (0..len).map(SourcePathV1::root_body).collect()
+}
+
+fn child_paths(
+    parent: &SourcePathV1,
+    segment: fn(u32) -> SourcePathSegmentV1,
+    len: usize,
+) -> Vec<SourcePathV1> {
+    (0..len)
+        .map(|index| parent.child(segment(index as u32)))
+        .collect()
 }

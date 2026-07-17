@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Guard disconnected local-body exact-i64 callable result catalog S0a."""
+"""Guard disconnected exact-i64 callable result composition through S0b."""
 
 from __future__ import annotations
 
@@ -10,6 +10,11 @@ import re
 
 MODULE = Path("src/mir/callable_result_representation")
 PRODUCT = "VerifiedSameModuleCallableResultCatalogV1"
+CALL_SITE_PRODUCT = "VerifiedCallableResultCallSiteV1"
+CALL_EVIDENCE_PRODUCT = "VerifiedCallableResultEvidenceV1"
+CALL_PROOF_CONTEXT = "CallProofContextV1"
+CALL_SUBSTITUTION = "substitute_required_arguments"
+CORE_RESULT_LOOKUP = "lookup_core_method_result_row_v1"
 TARGET_MODULE = Path("src/mir/source_call_target")
 TARGET_PRODUCT = "VerifiedSourceStaticCallTargetCatalogV1"
 CURRENT_OWNER_PRODUCT = "VerifiedCurrentOwnerStaticCallTargetV1"
@@ -117,6 +122,7 @@ def verify(root: Path) -> dict[str, int]:
     production = production_rust(root)
     solver = sources[module_root / "solver.rs"]
     disposition = sources[module_root / "disposition.rs"]
+    expression_proof = sources[module_root / "expression_proof.rs"]
 
     require(
         module_code.count(f"struct {PRODUCT}") == 1,
@@ -174,6 +180,72 @@ def verify(root: Path) -> dict[str, int]:
         "actual_string_helpers_keeps_skip_ws_exact_and_records_to_i64_design_boundary" in module_code,
         "actual StringHelpers boundary fixture is missing",
     )
+    require(
+        re.search(
+            rf"struct\s+{PRODUCT}\s*<\s*'targets\s*,\s*'catalog\s*>",
+            code_only(solver),
+        )
+        is not None,
+        "result catalog must remain lifetime-bound to target and declaration catalogs",
+    )
+    require(
+        code_only(solver).count("is_branded_by(declarations)") == 1,
+        "result solver must co-seal the exact target and declaration catalogs once",
+    )
+    require(
+        module_code.count(f"struct {CALL_SITE_PRODUCT}") == 1,
+        "call-site result product definition count drift",
+    )
+    require(
+        module_code.count(f"enum {CALL_EVIDENCE_PRODUCT}") == 1,
+        "call-result evidence product definition count drift",
+    )
+    require(
+        module_code.count(f"struct {CALL_PROOF_CONTEXT}") == 1,
+        "call proof context definition count drift",
+    )
+    require(
+        module_code.count(f"fn {CALL_SUBSTITUTION}") == 1,
+        "required-argument substitution owner count drift",
+    )
+    require(
+        module_code.count(f"{CORE_RESULT_LOOKUP}(") == 1,
+        "Core result-kind lookup consumer count drift",
+    )
+    require(
+        module_code.count("VerifiedSourceCoreReceiverV1::verify(") == 1,
+        "bounded String receiver consumer count drift",
+    )
+    require(
+        module_code.count(".target()") >= 1,
+        "call-result proof must consume the verified source target product",
+    )
+    require(
+        "bare_qualified_and_shadowed_calls_never_guess_a_target" in module_code,
+        "bare FunctionCall unavailable-boundary fixture is missing",
+    )
+    require(
+        re.search(
+            r"ASTNode::FunctionCall\s*\{\s*arguments,\s*\.\.\s*\}\s*=>\s*\{.*?"
+            r"StaticCallTargetAuthorityUnavailable",
+            code_only(expression_proof),
+            flags=re.S,
+        )
+        is not None,
+        "bare FunctionCall must remain one explicitly unavailable proof branch",
+    )
+    for forbidden in (
+        "function.metadata",
+        "physical_symbol",
+        "runtime tag",
+        "legacy resolver",
+        "fallback",
+        "retry",
+    ):
+        require(
+            forbidden not in module_code,
+            f"forbidden S0b authority entered result composition: {forbidden}",
+        )
 
     target_root = root / TARGET_MODULE
     require(target_root.is_dir(), f"missing module: {TARGET_MODULE}")
@@ -663,6 +735,14 @@ def verify(root: Path) -> dict[str, int]:
         "structural_source_path_projector_owners": 1,
         "source_path_vocabularies": 1,
         "compiler_projector_consumers": 1,
+        "call_site_result_product_definitions": 1,
+        "call_result_evidence_product_definitions": 1,
+        "call_proof_context_definitions": 1,
+        "call_substitution_owners": 1,
+        "core_result_lookup_consumers": 1,
+        "bounded_string_receiver_consumers": 1,
+        "catalog_identity_co_seals": 1,
+        "bare_call_target_consumers": 0,
     }
 
 

@@ -1,5 +1,5 @@
 ---
-Status: S0a local-body substrate closed; full S0 remains open at design stop
+Status: S0b disconnected call-result composition closed; P0 is next
 Date: 2026-07-17
 Decision: B-prime exact-i64 conditional callable-result catalog
 Baseline: 06a49e5aa6
@@ -11,26 +11,19 @@ Scope: declaration-order-independent pre-body result representation for same-mod
 
 ## Current progress
 
-`R0-CALLABLE-RESULT-I64-CATALOG0-S0a` is closed as the honest disconnected
-local-body substrate. One non-Clone catalog emits one row for every static
-declaration and proves exact-i64 requirements through literals, parameters,
-locals, arithmetic, fallthrough `If`, early `Return`, and the finite first
-`Loop` invariant. The actual `StringHelpers.skip_ws/2` body seals
-`ExactI64 {1}`. Production producers/consumers and Builder/MIR/runtime/backend
-behavior deltas remain zero. Focused tests are 12/12, the structural guard is
-green, and the largest source/check file is 339 lines.
+`R0-CALLABLE-RESULT-I64-CATALOG0-S0b` is closed. One lifetime-bound non-Clone
+result catalog co-validates the exact declaration and source-target brands,
+borrows exact target rows, substitutes required argument facts, and composes a
+bounded String receiver with generated Core result rows. A deterministic
+construction-only solver closes acyclic wrappers independent of declaration
+order and classifies unresolved direct/mutual cycles without SCC inference.
+Actual `skip_ws`, `to_i64`, and `_digit_value` rows are exact. Focused result
+tests are 23/23; source-target 42/42, Core 5/5, malformed manifest 9/9, quick
+66/66, structural guards, cargo check, and pointer guard are green. Production
+producers/consumers and Builder/MIR/runtime/backend deltas remain zero.
 
-S0a does not infer call targets. A declaration catalog cannot prove that a
-bare, qualified, or current-owner spelling wins over all earlier Builder call
-routes. Every `FunctionCall` and `MethodCall` result therefore closes to
-`StaticCallTargetAuthorityUnavailable`. This includes a builtin `str(...)`
-collision counterexample and the actual `ParserStringUtilsBox.skip_ws/2`
-wrapper. `StringHelpers.to_i64/1` also remains unavailable because the current
-Core method catalog owns identity/arity/effect but not a neutral result
-representation for `String.length/0`.
-
-Full S0 remains open. The next step is the combined design stop in
-`source-call-target-and-core-result-authority-design-stop-2026-07-17.md`.
+The next row is `R0-CALLABLE-RESULT-I64-CATALOG0-P0`. It normalizes the closed
+proof matrix only; production publication remains parked until I0.
 
 `R0-CALLABLE-RESULT-I64-CATALOG0-L0a` is closed. One disconnected Builder
 module now seals the complete static-box declaration inventory into structured
@@ -416,9 +409,9 @@ src/mir/callable_result_representation/
 
 No file may reach 800 lines.
 
-Closed with all call results explicitly unavailable. S0b owns call
-composition and the actual `to_i64`/wrapper rows only after the design stop
-selects their missing neutral authorities.
+S0a closed with call results unavailable. S0b subsequently supplied the
+selected neutral target/Core authorities and now owns exact-site composition
+plus the actual `to_i64`/wrapper rows without production publication.
 
 ### P0 — normalized proof
 
@@ -536,12 +529,10 @@ Stop and reopen design if any is required:
 
 ## Current decision lock
 
-Candidate B-prime remains the full-S0 target, but S0a is the only closed result
-slice. It seals local-body exact-i64 facts and never treats declaration lookup
-as final call-target authority. All call results remain unavailable until one
-neutral product seals the selected source-call route and canonical target.
-`String.length/0` additionally needs one representation-neutral Core result
-kind owner before `to_i64` can close. Builder/MIR/runtime facts, names,
-callee-first lowering, re-lowering, GenericLoop inference, and fallback remain
-rejected. The active frontier is a hard design stop; no S0b, P0, or I0 code is
-authorized before that decision.
+Candidate B-prime S0b is closed. The exact declaration/target/result identity
+chain, exact-site call rows, required-argument substitution, bounded String
+Core composition, and deterministic acyclic wrapper solver are now the sole
+disconnected result authority. Bare FunctionCall, general non-i64 typing,
+recursive/SCC inference, Builder/MIR/runtime publication, callee-first
+lowering, retry, and fallback remain rejected. P0 is authorized only as the
+normalized proof row; production activation remains an I0 decision.

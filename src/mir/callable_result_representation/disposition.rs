@@ -15,6 +15,10 @@ pub(crate) enum CallableResultUnavailableReasonV1 {
     UnboundLocal,
     DuplicateLocal,
     StaticCallTargetAuthorityUnavailable,
+    StaticCallResultUnavailable,
+    RequiredArgumentRepresentationUnavailable,
+    CoreMethodResultUnavailable,
+    RecursiveDependency,
     LoopInvariantUnavailable,
     NestedLoopUnsupported,
 }

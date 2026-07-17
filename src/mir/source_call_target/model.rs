@@ -88,6 +88,19 @@ pub(crate) enum VerifiedSourceStaticCallTargetV1 {
     CurrentOwnerStatic(VerifiedCurrentOwnerStaticCallTargetV1),
 }
 
+impl VerifiedSourceStaticCallTargetV1 {
+    /// Returns the canonical callable selected by the already-sealed route.
+    ///
+    /// Consumers must not reopen receiver precedence from the variant.  This
+    /// projection is the sole route-neutral target identity view.
+    pub(crate) const fn target(&self) -> &CanonicalSameModuleCallableKeyV1 {
+        match self {
+            Self::QualifiedStatic(target) => target.target(),
+            Self::CurrentOwnerStatic(target) => target.target(),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub(crate) struct VerifiedStaticImportAliasViewV1<'catalog> {
     pub(super) catalog: &'catalog VerifiedSameModuleCallableDeclarationCatalogV1,
@@ -114,6 +127,17 @@ pub(crate) struct VerifiedSourceStaticCallTargetCatalogV1<'catalog> {
 }
 
 impl VerifiedSourceStaticCallTargetCatalogV1<'_> {
+    /// Tests whether this catalog retains the exact declaration authority.
+    ///
+    /// Key equality is insufficient: equal declarations from another source
+    /// unit must not be composed with these exact source-site rows.
+    pub(crate) fn is_branded_by(
+        &self,
+        declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
+    ) -> bool {
+        std::ptr::eq(self.declarations, declarations)
+    }
+
     pub(crate) fn target(
         &self,
         caller: &CanonicalSameModuleCallableKeyV1,
