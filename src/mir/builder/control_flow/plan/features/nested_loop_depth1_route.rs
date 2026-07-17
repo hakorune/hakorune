@@ -34,7 +34,7 @@ pub(in crate::mir::builder) fn dispatch_nested_loop_depth1_any(
     let return_only_nested = no_break_or_continue && counts.return_count > 0;
 
     if no_break_or_continue && !return_only_nested {
-        if let Some(plan) = try_lower_generic_loop_v1_nested(builder, condition, body) {
+        if let Some(plan) = try_lower_generic_loop_v1_nested(builder, condition, body)? {
             return Ok(plan);
         }
     }
@@ -72,7 +72,7 @@ pub(in crate::mir::builder) fn dispatch_nested_loop_depth1_any(
         Ok(Some(facts)) => facts,
         Ok(None) => {
             if !return_only_nested {
-                if let Some(plan) = try_lower_generic_loop_v1_nested(builder, condition, body) {
+                if let Some(plan) = try_lower_generic_loop_v1_nested(builder, condition, body)? {
                     return Ok(plan);
                 }
             }
@@ -122,12 +122,14 @@ fn try_lower_generic_loop_v1_nested(
     builder: &mut MirBuilder,
     condition: &ASTNode,
     body: &[ASTNode],
-) -> Option<LoweredRecipe> {
-    let Ok(Some(facts)) = try_extract_generic_loop_v1_facts(condition, body) else {
-        return None;
+) -> Result<Option<LoweredRecipe>, String> {
+    let facts = match try_extract_generic_loop_v1_facts(condition, body) {
+        Ok(Some(facts)) => facts,
+        Ok(None) => return Ok(None),
+        Err(error) => return Err(error.to_string()),
     };
     let ctx = LoopRouteContext::new(condition, body, "<nested>", false, false);
-    normalize_generic_loop_v1(builder, &facts, &ctx).ok()
+    normalize_generic_loop_v1(builder, &facts, &ctx).map(Some)
 }
 
 fn lower_nested_loop_single_planner(

@@ -14,7 +14,8 @@ pub(in crate::mir::builder) fn normalize_generic_loop_v1(
     ctx: &LoopRouteContext,
 ) -> Result<LoweredRecipe, String> {
     with_saved_variable_map(builder, |builder| {
-        let mut skeleton = alloc_generic_loop_v0_skeleton(builder, &facts.loop_var)?;
+        let mut skeleton =
+            alloc_generic_loop_v0_skeleton(builder, &facts.loop_var, facts.carrier_role)?;
         generic_loop_pipeline::apply_generic_loop_v1_pipeline(builder, facts, ctx, &mut skeleton)?;
 
         Ok(CorePlan::Loop(skeleton.plan))

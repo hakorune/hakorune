@@ -53,6 +53,7 @@ pub(in crate::mir::builder) fn apply_generic_loop_v1_pipeline(
         builder,
         facts,
         skeleton.loop_var_current,
+        &skeleton.carrier_representation,
         ctx,
     )?;
     skeleton.plan.body = carrier_orchestration.take_body_plans();

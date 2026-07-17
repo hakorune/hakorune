@@ -34,10 +34,12 @@ impl RecipeComposer {
         }
 
         with_saved_variable_map_typed(builder, |builder| {
-            let mut skeleton = alloc_generic_loop_v0_skeleton(builder, &generic_loop_v0.loop_var)
-                .map_err(|e| {
-                Freeze::contract(&format!("generic_loop_v0 skeleton failed: {}", e))
-            })?;
+            let mut skeleton = alloc_generic_loop_v0_skeleton(
+                builder,
+                &generic_loop_v0.loop_var,
+                generic_loop_v0.carrier_role,
+            )
+            .map_err(|e| Freeze::contract(&format!("generic_loop_v0 skeleton failed: {}", e)))?;
 
             generic_loop_pipeline::apply_generic_loop_v0_pipeline(
                 builder,
@@ -85,10 +87,12 @@ impl RecipeComposer {
         }
 
         with_saved_variable_map_typed(builder, |builder| {
-            let mut skeleton = alloc_generic_loop_v0_skeleton(builder, &generic_loop_v1.loop_var)
-                .map_err(|e| {
-                Freeze::contract(&format!("generic_loop_v1 skeleton failed: {}", e))
-            })?;
+            let mut skeleton = alloc_generic_loop_v0_skeleton(
+                builder,
+                &generic_loop_v1.loop_var,
+                generic_loop_v1.carrier_role,
+            )
+            .map_err(|e| Freeze::contract(&format!("generic_loop_v1 skeleton failed: {}", e)))?;
 
             generic_loop_pipeline::apply_generic_loop_v1_pipeline(
                 builder,

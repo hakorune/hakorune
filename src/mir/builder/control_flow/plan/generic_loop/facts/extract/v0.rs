@@ -19,7 +19,7 @@ use super::super::super::body_check::step_validation::{
     validate_in_body_step,
 };
 use super::super::super::facts_helpers::reject_or_none;
-use super::super::super::facts_types::GenericLoopV0Facts;
+use super::super::super::facts_types::{GenericLoopCarrierRoleV1, GenericLoopV0Facts};
 use super::collection::body_writes_non_loop_vars;
 
 /// Attempts to extract generic loop v0 facts from a loop condition and body
@@ -98,6 +98,7 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v0_facts(
         }
 
         matches.push(GenericLoopV0Facts {
+            carrier_role: GenericLoopCarrierRoleV1::NumericProgression,
             loop_var: loop_var.clone(),
             condition: condition.clone(),
             loop_increment,

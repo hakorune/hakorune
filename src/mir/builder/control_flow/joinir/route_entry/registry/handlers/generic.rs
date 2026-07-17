@@ -24,11 +24,8 @@ pub(crate) fn route_generic_loop_v1(
     if facts.facts.generic_loop_v1().is_none() {
         return Ok(None);
     }
-    let core_plan = match RecipeComposer::compose_generic_loop_v1_recipe(builder, facts, ctx) {
-        Ok(core_plan) => core_plan,
-        Err(_err) if !env.strict_or_dev => return Ok(None),
-        Err(err) => return Err(err.to_string()),
-    };
+    let core_plan = RecipeComposer::compose_generic_loop_v1_recipe(builder, facts, ctx)
+        .map_err(|error| error.to_string())?;
     if env.strict_or_dev {
         return lower_verified_core_plan(
             builder,
@@ -61,11 +58,8 @@ pub(crate) fn route_generic_loop_v0(
     if facts.facts.generic_loop_v0().is_none() {
         return Ok(None);
     }
-    let core_plan = match RecipeComposer::compose_generic_loop_v0_recipe(builder, facts, ctx) {
-        Ok(core_plan) => core_plan,
-        Err(_err) if !env.strict_or_dev => return Ok(None),
-        Err(err) => return Err(err.to_string()),
-    };
+    let core_plan = RecipeComposer::compose_generic_loop_v0_recipe(builder, facts, ctx)
+        .map_err(|error| error.to_string())?;
     if env.strict_or_dev {
         return lower_verified_core_plan(
             builder,

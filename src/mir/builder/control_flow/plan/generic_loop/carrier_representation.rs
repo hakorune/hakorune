@@ -113,6 +113,7 @@ mod tests {
         for ty in [
             MirType::Integer,
             MirType::Bool,
+            MirType::String,
             MirType::Box("JsonScanner".to_string()),
         ] {
             let prepared = prepare(GenericLoopCarrierRoleV1::BodyManagedState, &ty)

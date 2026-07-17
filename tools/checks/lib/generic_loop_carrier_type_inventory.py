@@ -90,12 +90,12 @@ def build(root: Path) -> dict[str, object]:
     require_order(
         skeleton,
         [
-            "let loop_var_init = builder",
+            "prepare_generic_loop_carrier_representation_v1(",
             "let blocks = LoopBlocksStandard5::allocate(builder)?",
-            "let loop_var_current = builder.alloc_typed(MirType::Integer)",
-            "let loop_var_next = builder.alloc_typed(MirType::Integer)",
+            "let loop_var_current = builder.alloc_typed(exact_type.clone())",
+            "let loop_var_next = builder.alloc_typed(exact_type)",
         ],
-        "pre-I0 skeleton timing",
+        "I0 skeleton timing",
     )
 
     rust_paths = all_rust(root)
@@ -106,7 +106,7 @@ def build(root: Path) -> dict[str, object]:
 
     return {
         "schema_version": 1,
-        "stage": "m0_pre_activation",
+        "stage": "i0_activation",
         "role": {
             "definition_count": count(facts, "enum GenericLoopCarrierRoleV1"),
             "facts_field_count": count(facts, "carrier_role:"),

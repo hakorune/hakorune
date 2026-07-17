@@ -2,6 +2,10 @@
 
 use crate::mir::builder::control_flow::edgecfg::api::Frag;
 use crate::mir::builder::control_flow::plan::features::edgecfg_stubs;
+use crate::mir::builder::control_flow::plan::generic_loop::carrier_representation::{
+    prepare_generic_loop_carrier_representation_v1, PreparedGenericLoopCarrierRepresentationV1,
+};
+use crate::mir::builder::control_flow::plan::generic_loop::facts_types::GenericLoopCarrierRoleV1;
 use crate::mir::builder::control_flow::plan::normalizer::helpers::{
     create_phi_bindings, LoopBlocksStandard5,
 };
@@ -15,6 +19,7 @@ use std::collections::BTreeMap;
 
 pub(in crate::mir::builder) struct GenericLoopSkeleton {
     pub plan: CoreLoopPlan,
+    pub carrier_representation: PreparedGenericLoopCarrierRepresentationV1,
     pub loop_var_init: ValueId,
     pub loop_var_current: ValueId,
     pub loop_var_next: ValueId,
@@ -24,14 +29,15 @@ pub(in crate::mir::builder) struct GenericLoopSkeleton {
 pub(in crate::mir::builder) fn alloc_generic_loop_v0_skeleton(
     builder: &mut MirBuilder,
     loop_var: &str,
+    carrier_role: GenericLoopCarrierRoleV1,
 ) -> Result<GenericLoopSkeleton, String> {
-    let loop_var_init = builder
-        .variable_ctx
-        .variable_map
-        .get(loop_var)
-        .copied()
-        .ok_or_else(|| format!("[normalizer] Loop variable {} not found", loop_var))?;
-
+    let loop_var_init = builder.variable_ctx.variable_map.get(loop_var).copied();
+    let transient_type = loop_var_init.and_then(|init| builder.type_ctx.get_type(init));
+    let carrier_representation =
+        prepare_generic_loop_carrier_representation_v1(carrier_role, loop_var_init, transient_type)
+            .map_err(|error| format!("GenericLoop carrier representation failed: {error:?}"))?;
+    let loop_var_init = carrier_representation.init();
+    let exact_type = carrier_representation.exact_type().clone();
     let blocks = LoopBlocksStandard5::allocate(builder)?;
     let LoopBlocksStandard5 {
         preheader_bb,
@@ -41,8 +47,8 @@ pub(in crate::mir::builder) fn alloc_generic_loop_v0_skeleton(
         after_bb,
     } = blocks;
 
-    let loop_var_current = builder.alloc_typed(MirType::Integer);
-    let loop_var_next = builder.alloc_typed(MirType::Integer);
+    let loop_var_current = builder.alloc_typed(exact_type.clone());
+    let loop_var_next = builder.alloc_typed(exact_type);
     let cond_loop = builder.alloc_typed(MirType::Bool);
 
     let phi_bindings = create_phi_bindings(&[(loop_var, loop_var_current)]);
@@ -106,6 +112,7 @@ pub(in crate::mir::builder) fn alloc_generic_loop_v0_skeleton(
 
     Ok(GenericLoopSkeleton {
         plan,
+        carrier_representation,
         loop_var_init,
         loop_var_current,
         loop_var_next,

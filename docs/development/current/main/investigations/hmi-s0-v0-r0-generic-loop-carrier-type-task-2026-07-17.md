@@ -1,5 +1,5 @@
 ---
-Status: S0/M0 closed; I0 active
+Status: S0/M0/I0 closed; G0 paused on the next independent loop-array-join carrier blocker
 Date: 2026-07-17
 Decision: Candidate B-prime
 Baseline: 7424548356
@@ -70,7 +70,45 @@ the hardcoded skeleton conflict against exact `Box(JsonScanner)` and exact
 
 Focused 6/6, existing progression-role 18/18, the extended GenericLoop guard,
 inventory reference, V0/V1 route pins, fresh-build census, formatting, pointer,
-diff, and line-budget checks are green. The next row is I0 only.
+diff, and line-budget checks are green. Those results authorized I0 only; I0 is
+now closed as recorded below.
+
+I0 is now closed. V0 facts seal `NumericProgression`; V1 maps the existing
+`use_body_managed_step` decision exactly once. All three skeleton callers pass
+the sealed role. The skeleton prepares the selected init/type before block
+allocation, retains the non-Clone prepared row, and allocates current/next plus
+the selected V1 step-PHI from its exact representation. The independent V1
+carrier family keeps its one existing init-derived fallback.
+
+Matched-facts error transport is also closed:
+
+```text
+nested normalize `.ok()` swallows = 0
+top-level GenericLoop compose swallows = 0
+post-compose verifier fallbacks = 2 unchanged
+post-compose lowerer fallbacks = 2 unchanged
+```
+
+Numeric V0/V1 debug/release routes still return 4/3. The HMI document-seal
+canary now passes the former `JsonScanner` body-managed Box carrier conflict
+and reaches a new independent failure:
+
+```text
+owner:
+  loop_array_join
+
+function:
+  StringUtils.join/2
+
+failure:
+  PHI destination Integer vs incoming String
+```
+
+This is not a selected GenericLoop slot and must not widen TYPE0. G0 remains
+paused until the loop-array-join carrier owner is inventoried and repaired or
+classified. Temporary diagnostic traces were removed; no source workaround,
+name special case, PHI weakening, ownership, runtime, backend, or fallback was
+added.
 
 ## Decision
 
@@ -285,7 +323,7 @@ current hardcoded Integer conflict
 current/next/step-PHI correspondence
 ```
 
-### I0 — one production projection
+### I0 — one production projection (closed)
 
 This row has the narrow compiler behavior delta.
 
@@ -320,8 +358,9 @@ zero selected slot mismatch
 zero PHI conflict weakening
 ```
 
-Build genuinely fresh debug and release `vm-reference` binaries with an
-isolated temporary `CARGO_TARGET_DIR`, then run both on:
+After the independent loop-array-join blocker closes, build genuinely fresh
+debug and release `vm-reference` binaries with an isolated temporary
+`CARGO_TARGET_DIR`, then run both on:
 
 ```text
 tools/hako_shared/hmi/tests/s0_document_seal_test.hako
@@ -443,9 +482,10 @@ Stop before I0 if any implementation requires:
 > selected init ValueId's exact non-Unknown transient type. One prepared row is
 > shared by current, next, V1 step-PHI, and the header PHI destination. Missing,
 > Unknown, mismatch, and matched-route lowering failures reject before effects
-> without default, retry, or fallback. S0 is the sole next code-facing row;
-> M0 must prove the complete caller/slot inventory and close the nested `.ok()`
-> swallowing seams before I0. M0 is now closed with an exact machine inventory,
-> three direct callers, two role-producer points, V0/V1 route pins, and a narrow
-> no-match/error transport law. TYPE-PUBLISH0, receiver proof, scanner/HMI source,
-> ownership, runtime, and backend authorities remain unchanged.
+> without default, retry, or fallback. S0, M0, and I0 are closed. M0 fixed the
+> complete caller/slot inventory and no-match/error transport law; I0 projects
+> the sealed role once before allocation and removes only the selected-slot
+> defaults and matched-route error swallowing. The fresh HMI canary now reaches
+> the independent `loop_array_join` String-carrier conflict, so G0 remains paused
+> while that owner is inventoried. TYPE-PUBLISH0, receiver proof, scanner/HMI
+> source, ownership, runtime, and backend authorities remain unchanged.

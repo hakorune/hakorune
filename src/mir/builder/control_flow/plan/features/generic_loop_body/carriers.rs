@@ -1,4 +1,5 @@
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
+use crate::mir::builder::control_flow::plan::generic_loop::carrier_representation::PreparedGenericLoopCarrierRepresentationV1;
 use crate::mir::builder::control_flow::plan::generic_loop::facts_types::GenericLoopV1Facts;
 use crate::mir::builder::control_flow::plan::parts::var_map_scope::publish_emission_cache;
 use crate::mir::builder::control_flow::plan::{CoreLoopPlan, CorePhiInfo};
@@ -24,18 +25,13 @@ pub(in crate::mir::builder) fn prepare_generic_loop_v1_carriers(
     builder: &mut MirBuilder,
     facts: &GenericLoopV1Facts,
     loop_var_current: crate::mir::ValueId,
+    carrier_representation: &PreparedGenericLoopCarrierRepresentationV1,
 ) -> GenericLoopV1CarrierState {
     let pre_loop_map = builder.variable_ctx.variable_map.clone();
     let carrier_vars = collect_loop_carriers(&facts.body.body, &pre_loop_map, &facts.loop_var);
     let mut phi_bindings =
         loop_carriers::build_loop_bindings(&[(&facts.loop_var, loop_var_current)]);
-    let loop_var_step_phi = builder.alloc_typed(
-        builder
-            .type_ctx
-            .get_type(loop_var_current)
-            .cloned()
-            .unwrap_or(MirType::Unknown),
-    );
+    let loop_var_step_phi = builder.alloc_typed(carrier_representation.exact_type().clone());
     let mut carrier_step_phis = BTreeMap::new();
     carrier_step_phis.insert(facts.loop_var.clone(), loop_var_step_phi);
     let mut carrier_infos = Vec::new();

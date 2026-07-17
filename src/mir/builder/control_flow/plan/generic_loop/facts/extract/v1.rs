@@ -26,7 +26,7 @@ use super::super::super::body_check::step_validation::{
     validate_in_body_step_v1,
 };
 use super::super::super::facts_helpers::reject_or_none;
-use super::super::super::facts_types::GenericLoopV1Facts;
+use super::super::super::facts_types::{GenericLoopCarrierRoleV1, GenericLoopV1Facts};
 use super::collection::{
     body_has_break_or_continue_stmt, collect_increment_loop_var_candidates_from_body,
     collect_loop_var_candidates_from_body,
@@ -200,6 +200,11 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v1_facts(
         }
 
         matches.push(GenericLoopV1Facts {
+            carrier_role: if use_body_managed_step {
+                GenericLoopCarrierRoleV1::BodyManagedState
+            } else {
+                GenericLoopCarrierRoleV1::NumericProgression
+            },
             loop_var: loop_var.clone(),
             condition: condition.clone(),
             loop_increment,

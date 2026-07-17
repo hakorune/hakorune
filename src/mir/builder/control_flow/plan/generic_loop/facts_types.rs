@@ -19,6 +19,7 @@ pub(in crate::mir::builder) enum GenericLoopCarrierRoleV1 {
 /// Facts extracted for generic loop v0 (ExitIf-capable, no carriers)
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct GenericLoopV0Facts {
+    pub carrier_role: GenericLoopCarrierRoleV1,
     pub loop_var: String,
     pub condition: ASTNode,
     pub loop_increment: ASTNode,
@@ -28,6 +29,7 @@ pub(in crate::mir::builder) struct GenericLoopV0Facts {
 /// Facts extracted for generic loop v1
 #[derive(Debug, Clone)]
 pub(in crate::mir::builder) struct GenericLoopV1Facts {
+    pub carrier_role: GenericLoopCarrierRoleV1,
     pub loop_var: String,
     pub condition: ASTNode,
     pub loop_increment: ASTNode,
