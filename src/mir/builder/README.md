@@ -93,6 +93,15 @@ reach into route-specific plan internals. The current boundary SSOT is
 - AST → MIR の基本道
   - `src/mir/builder/stmts.rs`
   - `src/mir/builder/exprs.rs`
+- legacy block descent boundary
+  - `src/mir/builder/stmts/block_driver.rs` alone owns scope lifetime, the
+    existing suffix-router call, termination checks, last-value selection, and
+    empty-block Void publication.
+  - `LegacyBlockDescentPortV1` owns only statement count, an optional raw suffix
+    view, and exact one-statement lowering. It must not decide suffix policy.
+  - `block_stmt.rs` owns the sole selected `Vec<ASTNode>` port. Located callable-
+    result descent remains disconnected until its later SITE0-R0 row; BLK0 may
+    not import activation plans, caller ledgers, or located carriers.
 - member call route selection / emission boundary
   - `src/mir/builder/calls/build.rs`
   - `src/mir/builder/calls/member_route.rs`

@@ -259,8 +259,9 @@ SITE0-R0-LDG0
   production consumers = 0
 
 SITE0-R0-BLK0
-  located body/statement descent adapter
-  raw subtree delegation requires the L0 prefix-zero proof
+  one behavior-neutral legacy block orchestration driver
+  raw Vec<ASTNode> port remains the sole selected implementation
+  located/ledger imports and production consumers remain zero
   production result publication = 0
 
 SITE0-R0-EXPR0
@@ -460,6 +461,30 @@ runtime consumers. Focused ledger 4/4, callable-result 43/43, PATH0/A0/L0/LDG0
 guards, cargo check, pointer and line guards are green. Production ledger
 consumers, Builder/MIR/runtime/backend behavior, accepted grammar, and result
 publication remain zero. `SITE0-R0-BLK0` is next.
+
+## SITE0-R0-BLK0 closeout
+
+`I0-SITE0-R0-BLK0` is closed. One private legacy block descent driver now
+owns scope lifetime, the existing suffix-router sequencing, last-value and
+empty-Block Void publication, and both fallible post-statement termination and
+scope-leave termination observations. One raw `Vec<ASTNode>` port remains the
+sole selected implementation. It owns source navigation and legacy statement
+lowering only; located inputs, the caller ledger, activation dispositions, and
+callable-result publication remain absent from the production boundary.
+
+The extraction deliberately preserves the legacy suffix behavior, including
+the separately tracked final-consumed-suffix index defect: after a suffix
+reports `consumed`, the same iteration still lowers the resulting index. BLK0
+adds no `continue`, bounds repair, retry, or fallback. Five focused fixtures
+fix empty-block exactly-one Void publication, source order and last value,
+termination before an invalid trailing statement, and lexical-scope restoration
+on success and failure. Focused driver 5/5, callable-result 43/43, and the
+PATH0/A0/L0/LDG0/BLK0 guards are green. The archived Phase-142 suffix smoke
+still stops before this driver at `MissingTransientType { init: ValueId(3) }`;
+the exact same failure occurs on baseline `61d40b26d2`, so it is recorded as a
+pre-existing non-gate rather than a BLK0 regression. Builder/MIR/runtime/backend
+behavior, accepted grammar, and result publication remain unchanged.
+`SITE0-R0-EXPR0` is next.
 
 ## Required fixtures
 

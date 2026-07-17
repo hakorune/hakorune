@@ -19,10 +19,10 @@
 //! - Calls: build_statement, build_expression, suffix router
 //! - Critical: Phase 142 JoinIR suffix router integration must be preserved
 
+use super::block_driver::{drive_legacy_block_v1, LegacyBlockDescentPortV1};
 use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
 use crate::mir::builder::ValueId;
-use crate::mir::utils::is_current_block_terminated;
 
 /// Build a block by sequentially processing statements
 ///
@@ -45,116 +45,30 @@ pub(in crate::mir::builder) fn build_block(
     builder: &mut MirBuilder,
     statements: Vec<ASTNode>,
 ) -> Result<ValueId, String> {
-    let trace = crate::mir::builder::control_flow::joinir::trace::trace();
-    // Scope hint for bare block (Program)
-    let scope_id = builder.current_block.map(|bb| bb.as_u32()).unwrap_or(0);
-    builder.hint_scope_enter(scope_id);
-    let _lex_scope = super::super::vars::lexical_scope::LexicalScopeGuard::new(builder);
+    let mut port = OwnedLegacyBlockPortV1 { statements };
+    drive_legacy_block_v1(builder, &mut port)
+}
 
-    let mut last_value = None;
-    let total = statements.len();
-    trace.emit_if(
-        "debug",
-        "build_block",
-        &format!("Processing {} statements", total),
-        trace.is_enabled(),
-    );
+struct OwnedLegacyBlockPortV1 {
+    statements: Vec<ASTNode>,
+}
 
-    // Phase 132 P0.5: Use while loop instead of for loop to support suffix skipping
-    let mut idx = 0;
-    while idx < statements.len() {
-        // Phase 132 P0.5: Try suffix router (dev-only)
-        if crate::config::env::joinir_dev_enabled() {
-            let remaining = &statements[idx..];
-            // Clone func_name to avoid borrow conflict
-            let func_name = builder
-                .scope_ctx
-                .current_function
-                .as_ref()
-                .map(|f| f.signature.name.clone())
-                .unwrap_or_else(|| "unknown".to_string());
-            let debug = trace.is_enabled();
-
-            use crate::mir::builder::control_flow::normalization::NormalizedShadowSuffixRouterBox;
-            // Phase 141 P1.5: Pass prefix variables for external env inputs
-            // Clone to avoid borrow checker conflict (self is borrowed mutably in try_lower_loop_suffix)
-            let prefix_var_map = builder.variable_ctx.variable_map.clone();
-            match NormalizedShadowSuffixRouterBox::try_lower_loop_suffix(
-                builder,
-                remaining,
-                &func_name,
-                debug,
-                Some(&prefix_var_map),
-            )? {
-                Some(consumed) => {
-                    trace.emit_if(
-                        "debug",
-                        "build_block/suffix_router",
-                        &format!("Phase 142 P0: Suffix router consumed {} statement(s), continuing to process subsequent statements", consumed),
-                        debug,
-                    );
-                    // Phase 142 P0: Normalization unit is now "statement (loop 1個)"
-                    // Loop normalization returns consumed=1, and subsequent statements
-                    // (return, assignments, etc.) are handled by normal MIR lowering
-                    idx += consumed;
-                    // No break - continue processing subsequent statements
-                }
-                None => {
-                    // No match, proceed with normal statement build
-                }
-            }
-        }
-
-        trace.emit_if(
-            "debug",
-            "build_block",
-            &format!(
-                "Statement {}/{}  current_block={:?}  current_function={}",
-                idx + 1,
-                total,
-                builder.current_block,
-                builder
-                    .scope_ctx
-                    .current_function
-                    .as_ref()
-                    .map(|f| f.signature.name.as_str())
-                    .unwrap_or("none")
-            ),
-            trace.is_enabled(),
-        );
-        last_value = Some(build_statement(builder, statements[idx].clone())?);
-        idx += 1;
-
-        // If the current block was terminated by this statement (e.g., return/throw),
-        // do not emit any further instructions for this block.
-        if is_current_block_terminated(builder)? {
-            trace.emit_if(
-                "debug",
-                "build_block",
-                &format!("Block terminated after statement {}", idx),
-                trace.is_enabled(),
-            );
-            break;
-        }
+impl LegacyBlockDescentPortV1 for OwnedLegacyBlockPortV1 {
+    fn len(&self) -> usize {
+        self.statements.len()
     }
-    let out = match last_value {
-        Some(v) => v,
-        None => {
-            // Use ConstantEmissionBox for Void
-            crate::mir::builder::emission::constant::emit_void(builder)?
-        }
-    };
-    // Scope leave only if block not already terminated
-    if !builder.is_current_block_terminated() {
-        builder.hint_scope_leave(scope_id);
+
+    fn suffix_route_input(&self, index: usize) -> Option<&[ASTNode]> {
+        Some(&self.statements[index..])
     }
-    trace.emit_if(
-        "debug",
-        "build_block",
-        &format!("Completed, returning value {:?}", out),
-        trace.is_enabled(),
-    );
-    Ok(out)
+
+    fn lower_statement(
+        &mut self,
+        builder: &mut MirBuilder,
+        index: usize,
+    ) -> Result<ValueId, String> {
+        build_statement(builder, self.statements[index].clone())
+    }
 }
 
 /// Build a single statement node

@@ -99,11 +99,15 @@
 //! - **Preserved**: All Phase comments, functionality, JoinIR integration
 
 pub(super) mod async_stmt;
+pub(in crate::mir::builder) mod block_driver;
 pub(super) mod block_stmt;
 pub(super) mod print_stmt;
 pub(super) mod return_stmt;
 pub(super) mod task_scope_stmt;
 pub(super) mod variable_stmt;
+
+#[cfg(test)]
+mod block_driver_tests;
 
 use super::ValueId;
 use crate::ast::ASTNode;

@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result I0 SITE0-R0-LDG0 is closed; SITE0-R0-BLK0 is next"
+status = "callable-result I0 SITE0-R0-BLK0 is closed; SITE0-R0-EXPR0 is next"
 date = "2026-07-18"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,16 +298,15 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 
 latest_card = "callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17"
 latest_card_path = "docs/development/current/main/investigations/callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md"
-latest_card_summary = """PATH0, A0, SITE0-L0, and SITE0-R0-LDG0 are closed.
-One non-Clone caller ledger borrows exact A0 rows, accepts only same-plan
-located MethodCall claims in source order, and rejects duplicate, wrong-order,
-wrong-node, foreign, missing, and active-prefix delegation. Located body,
-statement, and expression prefixes can prove raw delegation safe only when
-their complete subtree contains zero Selected or Unselected rows. Production
-ledger consumers, Builder/MIR/runtime/backend behavior, accepted grammar, and
-result publication remain zero. SITE0-R0-BLK0 is next, followed by EXPR0, P0,
+latest_card_summary = """PATH0, A0, SITE0-L0, SITE0-R0-LDG0, and SITE0-R0-BLK0
+are closed. One private legacy block driver owns scope lifetime, suffix-router
+sequencing, last-value/empty-Void publication, and termination observations;
+one raw Vec port remains the sole selected implementation. Located inputs,
+caller-ledger activation, retry/fallback, accepted grammar, and callable-result
+publication remain absent. Five focused fixtures and the callable-result plus
+PATH0/A0/L0/LDG0/BLK0 guards are green. SITE0-R0-EXPR0 is next, followed by P0,
 SITE0-C0, CUT0, and G0."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-BLK0-001"
+current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -316,6 +315,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-BLK0 closes one private behavior-neutral legacy block driver. One raw Vec port remains selected; scope lifetime, suffix sequencing, last value, exactly-one empty Void, and termination observations are centralized without located/ledger/result authority. Focused driver 5/5, callable-result 43/43, PATH0/A0/L0/LDG0/BLK0 guards and line caps are green. The archived Phase-142 smoke has the same pre-driver MissingTransientType failure on baseline 61d40b26d2 and is a recorded non-gate. SITE0-R0-EXPR0 is next.",
   "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-LDG0 closes one non-Clone caller ledger over borrowed A0 rows. Same-plan located MethodCalls claim Selected/Unselected rows in source order; duplicate, wrong-order, wrong-node, foreign, missing, and active-prefix cases reject typed. Located body/statement/expression prefixes prove raw delegation only when their complete subtree has zero rows. Focused ledger 4/4, callable-result 43/43, PATH0/A0/L0/LDG0 guards, cargo check, pointer/line guards are green. Production consumers and Builder/MIR/runtime/backend/grammar/result deltas remain zero; SITE0-R0-BLK0 is next.",
   "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-L0 closes one activation-plan-branded non-Clone located legacy source view. Body/statement/expression inputs retain exact caller/site/syntax, PATH0 co-resolves role segments with borrowed children once, and Unlocated descendants cannot expose activation sites. Foreign equal-plan carriers, wrong roles, bounds, nested arguments, If bodies, reorder parity, synthetic/missing vocabulary, source-view regression, A0/SITE0 guards, cargo check, pointer/line guards are green. Production consumers and Builder/MIR/runtime/backend/result deltas remain zero; SITE0-R0 is next.",
   "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-A0 closes one owned non-Clone single-use activation plan. A stable boxed declaration catalog lexically brands borrowed target/static-result proofs, then retains only opaque caller-keyed SelectedExactI64/Unselected rows. Instance declarations own caller/sites only; result solving remains static. The actual ParserBox add method seals 15 rows with two skip_ws selections requiring call argument [1] and 13 explicit unselected rows. A0 checker, result 32/32, source-target 42/42, cargo check, pointer/line guards are green. Production consumers and Builder/MIR/runtime/backend deltas remain zero; SITE0-L0 is next.",
@@ -327,5 +327,4 @@ landed_tail = [
   "2026-07-17: R0-SOURCE-CALL-TARGET0-AST-BIND0-L0 closes one caller-local non-Clone lexical disposition product over the existing ShadowResolver traversal. Exact pre-verified receiver request sites publish Bound or positive ProvenUnbound; ordinary unresolved Variables retain UnresolvedName, and requested/published coverage is exact. Mixed callers/catalog declarations, duplicates, and me reject typed. No synthetic FunctionOrigin, shadow ordinal, BindingRef, second walker, import/reserved/target authority, or production consumer is published. Focused 9/9, shadow 35/35, the extended family guard, cargo check, pointer guard, and quick gate are green. R0 reserved-route SSOT/co-seal is next.",
   "2026-07-17: R0-SOURCE-CALL-TARGET0-AST-BIND0-S0 closes one lifetime-bound non-Clone exact source MethodCall site. One catalog caller lookup plus the shared catalog-body projector co-seals caller declaration/body/site/expression; receiver expression/site, method, arguments, and checked arity derive only from borrowed AST. Foreign caller, missing/non-MethodCall site, arity overflow, and nested callable-boundary crossings reject typed. Actual ParserStringUtilsBox.skip_ws and StringHelpers.to_i64 fixtures, focused 9/9, the extended family guard, cargo check, pointer guard, and quick gate are green. Lexical/route/target/ABI/effect/result/Builder/runtime/backend and production-consumer deltas remain zero. L0 lexical disposition is next.",
   "2026-07-17: R0-SOURCE-CALL-TARGET0-AST-BIND0-P0 closes the compiler-private structural projection seam without behavior delta. One crate::mir-scoped resolved-semantics projector owns all admitted SourcePathSegment traversal; compiler projection is a single thin typed-error consumer. Borrowed Node/Body/SyntheticName views create no AST inventory. Six neutral tests cover all admitted segment kinds, shared AST alternatives, malformed optional children, and all 15 explicitly parked segment kinds; compiler source-view 7/7, resolved callable-module 6/6, the extended family guard, cargo check, pointer guard, and quick gate are green. S0 exact MethodCall site co-seal is next.",
-  "2026-07-17: Three read-only worker audits and local source review select Candidate A-prime-SSOT for the source-call false-seal prerequisite. The existing structural projector becomes neutral and shared; one lifetime-bound exact caller/body/site MethodCall view feeds the existing ShadowResolver traversal in qualified-receiver observation mode, yielding positive Bound or ProvenUnbound without absence inference or a second resolver. Builder FastMem/__mir__/__repl__ precedence becomes one shared neutral policy before route facts co-seal. Task order is P0 -> S0 -> L0 -> R0 -> CUT0 -> S0b resume; Candidate B remains parked and production source-target consumers stay zero.",
 ]
