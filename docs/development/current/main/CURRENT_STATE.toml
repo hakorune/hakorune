@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "source target AST/site and route-fact authority is at design stop"
+status = "source call exact-site and route-fact taskboard is selected; P0 is next"
 date = "2026-07-17"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -296,19 +296,20 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 
-latest_card = "source-call-site-route-fact-authority-design-stop-2026-07-17"
-latest_card_path = "docs/development/current/main/investigations/source-call-site-route-fact-authority-design-stop-2026-07-17.md"
-latest_card_summary = """Final S0b review found a false-seal path: raw target
-candidates can pair an arbitrary caller/site and route facts with a MethodCall
-expression not proven to be that exact site in that exact caller body. Three
-worker audits agree that constructor cleanup alone is insufficient. Candidate
-A-prime is recommended: one lifetime-bound exact caller/body/site MethodCall
-view plus one co-keyed lexical/reserved-route fact seal, followed by raw-input
-retirement. The green S0b implementation is saved as evidence-only stash
-`wip/callable-result-s0b (blocked by source-call AST/site co-seal)` and must not
-be applied before the prerequisite is green. No implementation authority is
-granted until the lexical and reserved-route fact owner is selected."""
-current_blocker_token = "DPRIME-SOURCE-CALL-SITE-ROUTE-FACT-DESIGN-STOP-001"
+latest_card = "source-call-site-route-fact-task-2026-07-17"
+latest_card_path = "docs/development/current/main/investigations/source-call-site-route-fact-task-2026-07-17.md"
+latest_card_summary = """Three read-only worker audits plus local code review
+select Candidate A-prime-SSOT without narrowing Q0. One shared structural
+projector first removes the compiler-private path seam. A lifetime-bound exact
+caller/body/site MethodCall view then feeds the existing ShadowResolver in a
+qualified-receiver observation mode, producing positive Bound or positive
+ProvenUnbound facts without treating absence as evidence or creating a second
+resolver. Builder special-route precedence is extracted into one neutral pure
+policy shared with source observation; exact route facts are co-sealed before
+raw candidate inputs retire. P0 -> S0 -> L0 -> R0 -> CUT0 precedes any S0b
+resume. Production source-target consumers, ABI/effect/result, runtime,
+backend, fallback, and files at or above 800 lines remain zero."""
+current_blocker_token = "DPRIME-SOURCE-CALL-AST-BIND0-P0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -317,6 +318,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-17: Three read-only worker audits and local source review select Candidate A-prime-SSOT for the source-call false-seal prerequisite. The existing structural projector becomes neutral and shared; one lifetime-bound exact caller/body/site MethodCall view feeds the existing ShadowResolver traversal in qualified-receiver observation mode, yielding positive Bound or ProvenUnbound without absence inference or a second resolver. Builder FastMem/__mir__/__repl__ precedence becomes one shared neutral policy before route facts co-seal. Task order is P0 -> S0 -> L0 -> R0 -> CUT0 -> S0b resume; Candidate B remains parked and production source-target consumers stay zero.",
   "2026-07-17: Final R0-CALLABLE-RESULT-I64-CATALOG0-S0b review stops before commit on a source-target false-seal path. Three worker audits agree that raw constructor retirement alone is insufficient: exact caller body, SourceExprSite, MethodCall AST, lexical Bound/Unbound, and reserved-route disposition must be co-keyed before target sealing. Candidate A-prime is recommended: one lifetime-bound exact-site MethodCall view plus one sealed route-fact product, with target/ABI/effect/result authorities remaining separate. Green S0b work is saved only as `wip/callable-result-s0b (blocked by source-call AST/site co-seal)`. Implementation authority is zero until consultation selects the route-fact owner.",
   "2026-07-17: R0-SOURCE-CALL-TARGET0-M0 closes one disconnected current-owner static target authority. Exact ASTNode::Me plus a caller canonical catalog key in the StaticBoxMethod namespace selects the target under caller.owner() with exact method and checked arity. The existing non-Clone site-indexed target catalog is consumed by value and extended; cross-route duplicate sites reject. The actual StringHelpers.to_i64/1 -> me._digit_value/1 fixture is green. Source-target tests 16/16 and the extended family guard are green; Builder, MIR, ABI/effect/result, runtime, backend, and production-consumer deltas remain zero. Callable-result S0b is next.",
   "2026-07-17: R0-SOURCE-STRING-RECEIVER0-S0 closes one disconnected source-only Core receiver proof. A lifetime-bound non-Clone product recognizes only String literals and an iterative String-left Add spine, retains the exact inspected expression privately, and publishes ExactStringOnSuccess. Arbitrary right operands are intentionally uninspected, so totality, NonVoid, purity, evaluation order, and error absence remain non-claims. The actual StringHelpers.to_i64/1 local s initializer is green. Focused tests 5/5 and the extended callable-result family guard are green; i64-domain, Builder, MIR, runtime, backend, and production-consumer deltas remain zero. Current-owner target M0 is next.",
@@ -328,5 +330,4 @@ landed_tail = [
   "2026-07-17: R0-CALLABLE-CATALOG-L0B-CUT0 atomically replaces lowering-order callable recovery with one complete per-root catalog installed before remaining declaration-index effects. Exactly two bare-static consumers use the canonical decision; ambiguity never falls into the dev tail resolver. Structured record-helper lookup replaces the old lowered-body store, and static_method_index, lowered_method_asts, their accessors/writers, and duplicate registrations are zero. Fifteen sources yield 11 pass and 3 reject debug/release executions with one intended provider-first behavior delta. Catalog session 8/8, helper 5/5, compiler reuse 1/1, result inventory/proof, cargo check, pointer guard, and quick 66/66 are green; all source/check files remain below 800 lines. G0 is next.",
   "2026-07-17: R0-BARE-STATIC-RECOVERY0-P0 closes one disconnected canonical recovery decision. Static-only exact name plus checked arity yields Unique only at cardinality one, while zero and 2+ yield NoCandidate/Ambiguous and overflow is typed before effects. Fourteen HMI-independent sources cover app/script, same-box/cross-box provider/caller order, exact/zero/wrong arity, ambiguity, instance non-contamination, and text merge. Recovery tests are 7/7, the catalog module is 14/14, the proof checker, cargo check, and quick 66/66 are green; production consumers and behavior delta remain zero and all source/check files stay below 800 lines. Atomic CUT0 is next.",
   "2026-07-17: R0-CALLABLE-CATALOG-L0B-S0 closes the disconnected complete same-module declaration inventory. StaticBoxMethod and InstanceBoxMethod rows share one non-Clone catalog while static candidates remain a separate static-only index; Program, singleton BoxDeclaration, and verified-empty roots preserve the existing Builder surface. Constructors, top-level functions, ordinary-box static methods, records, sync boxes, production producers/consumers, recovery policy, result representation, runtime, and backend behavior remain zero. Focused catalog tests are 7/7, cargo check and quick 66/66 are green, and every touched source/check file remains below 800 lines. Bare-static recovery P0 is next.",
-  "2026-07-17: R0-SAME-MODULE-CALL-RESULT-REP0-S0 closes one generic HMI-independent timing reproduction with production behavior and type publishers zero. Forward untyped direct and Copy-carried call results are Missing; a forward explicit i64 return annotation is also Missing. Reversing the same untyped provider/caller declaration order yields Exact and returns 6, as does the independent numeric control. Debug/release agree, and final reverse-order call/Copy/PHI i64 metadata is diagnostic-only. The direct checker, GenericLoop guard, cargo check, and quick 66/66 are green. M0 exact producer/timing inventory is next.",
 ]
