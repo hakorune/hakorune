@@ -16,6 +16,8 @@ CURRENT_OWNER_PRODUCT = "VerifiedCurrentOwnerStaticCallTargetV1"
 IMPORT_VIEW = "VerifiedStaticImportAliasViewV1"
 RECEIVER_MODULE = Path("src/mir/source_core_receiver")
 RECEIVER_PRODUCT = "VerifiedSourceCoreReceiverV1"
+SOURCE_PROJECTOR = Path("src/mir/resolved_semantics/source_projection.rs")
+COMPILER_PROJECTION = Path("src/mir/compiler/source_projection.rs")
 
 
 class GuardFailure(RuntimeError):
@@ -50,6 +52,45 @@ def production_rust(root: Path) -> str:
 
 
 def verify(root: Path) -> dict[str, int]:
+    projector = (root / SOURCE_PROJECTOR).read_text(encoding="utf-8")
+    compiler_projection = (root / COMPILER_PROJECTION).read_text(encoding="utf-8")
+    mir_code = "\n".join(
+        code_only(path.read_text(encoding="utf-8"))
+        for path in (root / "src/mir").rglob("*.rs")
+        if "tests" not in path.parts and not path.name.endswith("_tests.rs")
+    )
+    require(
+        mir_code.count("fn project_segment") == 1,
+        "structural SourcePath projector owner count drift",
+    )
+    require(
+        code_only(compiler_projection).count("fn project_segment") == 0,
+        "compiler regained a private SourcePath projector",
+    )
+    require(
+        code_only(compiler_projection).count("project_source_node_v1(root, site)") == 1,
+        "compiler must remain one thin neutral-projector consumer",
+    )
+    require(
+        code_only(projector).count("enum ProjectedSourceNodeV1") == 1,
+        "neutral projected-source view definition count drift",
+    )
+    for forbidden in (
+        "MirBuilder",
+        "current_static_box",
+        "variable_map",
+        "__mir__",
+        "__repl__",
+    ):
+        require(
+            forbidden not in code_only(projector),
+            f"Builder/route authority entered neutral projector: {forbidden}",
+        )
+    require(
+        mir_code.count("enum SourcePathSegmentV1") == 1,
+        "SourcePath vocabulary definition count drift",
+    )
+
     module_root = root / MODULE
     require(module_root.is_dir(), f"missing module: {MODULE}")
     rust_files = sorted(module_root.rglob("*.rs"))
@@ -273,6 +314,9 @@ def verify(root: Path) -> dict[str, int]:
         "source_receiver_product_definitions": 1,
         "source_receiver_production_producers_consumers": 0,
         "source_receiver_forbidden_authority_occurrences": 0,
+        "structural_source_path_projector_owners": 1,
+        "source_path_vocabularies": 1,
+        "compiler_projector_consumers": 1,
     }
 
 

@@ -33,8 +33,10 @@ projection and is the only factory for `LocatedBodyV1`, `LocatedStmtV1`, and
 
 Child navigation is parent-relative and immutable. Closed child-role enums
 select an AST field and the existing `SourcePathSegmentV1` together. The
-physical AST-field projection is implemented once in `source_projection.rs`;
-recursive Lower must consume located carriers instead of rebuilding paths.
+physical AST-field projection is implemented once in
+`resolved_semantics/source_projection.rs`; compiler `source_projection.rs` is
+only a thin typed-error consumer. Recursive Lower must consume located
+carriers instead of rebuilding paths.
 
 B0-L2b landed source views as disconnected transport. SA3-B now has exactly
 one production consumer under `builder/resolved_lowering/`; Planner suffix

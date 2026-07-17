@@ -28,6 +28,7 @@ mod product;
 mod records;
 mod resolver;
 mod shadow;
+mod source_projection;
 mod source_site;
 mod verifier;
 
@@ -89,6 +90,7 @@ pub use records::{
     ScopeOriginV1, SyntheticBindingKindV1,
 };
 pub(crate) use resolver::{FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1};
+pub(in crate::mir) use source_projection::{project_source_node_v1, ProjectedSourceNodeV1};
 pub(crate) use source_site::SourcePathV1;
 pub use source_site::{
     FunctionOriginV1, OwnedExprSiteV1, ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
@@ -114,5 +116,7 @@ mod loop_region_tests;
 mod owner_forest_tests;
 #[cfg(test)]
 mod resolver_tests;
+#[cfg(test)]
+mod source_projection_tests;
 #[cfg(test)]
 mod tests;

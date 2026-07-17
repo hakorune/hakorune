@@ -1,7 +1,7 @@
 # Source Call Exact-Site / Route-Fact Taskboard
 
 Date: 2026-07-17  
-Status: **Candidate A′-SSOT selected**  
+Status: **P0 closed; S0 exact-site product next**
 Baseline: `0988dbed31`  
 Supersedes: `source-call-site-route-fact-authority-design-stop-2026-07-17.md`
 
@@ -29,7 +29,7 @@ second resolver or a second reserved-route policy.
 The next code-facing row is:
 
 ```text
-R0-SOURCE-CALL-TARGET0-AST-BIND0-P0
+R0-SOURCE-CALL-TARGET0-AST-BIND0-S0
 ```
 
 Production source-target consumers and behavior widening remain zero through
@@ -189,6 +189,8 @@ Target identity remains owned only by the existing source target catalog.
 
 Behavior-neutral structural prerequisite.
 
+Status: **closed**.
+
 ```text
 new semantic authority:
   0
@@ -205,6 +207,25 @@ production behavior delta:
 Tests prove compiler projection parity for every admitted path segment,
 including MethodCall receiver/arguments, nested body roles, and malformed
 segments. No second path vocabulary or AST inventory is added.
+
+Closeout evidence:
+
+```text
+neutral structural projector owners = 1
+SourcePathSegmentV1 vocabularies = 1
+compiler projector consumers = 1
+parked segment kinds explicitly rejected = 15
+neutral projector tests = 6/6
+compiler source-view tests = 7/7
+resolved callable-module tests = 6/6
+production behavior delta = 0
+```
+
+The sole match owner now lives in
+`resolved_semantics/source_projection.rs`; compiler source projection only
+maps a failed projection to its existing typed navigation error. The shared
+view borrows nodes/bodies, creates no AST inventory, and is visible only
+inside `crate::mir`.
 
 ### `R0-SOURCE-CALL-TARGET0-AST-BIND0-S0`
 

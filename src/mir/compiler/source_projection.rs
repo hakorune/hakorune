@@ -6,9 +6,9 @@ use std::num::NonZeroU32;
 
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{
-    BindingOriginV1, FunctionOwnerIdV1, RegionOriginV1, ResolvedExitOriginV1, ResolvedExitSiteV1,
-    ScopeOriginV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1,
-    VerifiedResolvedFunctionV1, VerifiedSemanticOwnerForestV1,
+    project_source_node_v1, BindingOriginV1, FunctionOwnerIdV1, ProjectedSourceNodeV1,
+    RegionOriginV1, ResolvedExitOriginV1, ResolvedExitSiteV1, ScopeOriginV1, SourceBindingSiteV1,
+    SourceExprSiteV1, SourceNodeSiteV1, VerifiedResolvedFunctionV1, VerifiedSemanticOwnerForestV1,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -199,12 +199,7 @@ pub(crate) struct VerifiedSourceProjectionV1 {
     definition_chains: BTreeMap<FunctionOwnerIdV1, Box<[SourceExprSiteV1]>>,
 }
 
-#[derive(Debug, Clone, Copy)]
-pub(super) enum ProjectedSourceV1<'a> {
-    Node(&'a ASTNode),
-    Body(&'a [ASTNode]),
-    SyntheticName,
-}
+pub(super) type ProjectedSourceV1<'source> = ProjectedSourceNodeV1<'source>;
 
 impl VerifiedSourceProjectionV1 {
     pub(super) fn seal(
@@ -517,174 +512,9 @@ fn project_site<'a>(
     owner: FunctionOwnerIdV1,
     site: &SourceNodeSiteV1,
 ) -> Result<ProjectedSourceV1<'a>, SourceNavigationErrorV1> {
-    let mut projected = ProjectedSourceV1::Node(root);
-    for segment in site.segments() {
-        projected = project_segment(projected, segment).ok_or_else(|| {
-            SourceNavigationErrorV1::InvalidSite {
-                owner,
-                site: site.clone(),
-                reason: "segment_does_not_match_syntax",
-            }
-        })?;
-    }
-    Ok(projected)
-}
-
-#[allow(clippy::match_same_arms)]
-fn project_segment<'a>(
-    parent: ProjectedSourceV1<'a>,
-    segment: &SourcePathSegmentV1,
-) -> Option<ProjectedSourceV1<'a>> {
-    let ProjectedSourceV1::Node(parent) = parent else {
-        return None;
-    };
-    let projected = match (parent, segment) {
-        (ASTNode::FunctionDeclaration { body, .. }, SourcePathSegmentV1::FunctionBody) => {
-            ProjectedSourceV1::Body(body)
-        }
-        (ASTNode::FunctionDeclaration { body, .. }, SourcePathSegmentV1::Body(index)) => {
-            ProjectedSourceV1::Node(body.get(*index as usize)?)
-        }
-        (ASTNode::Lambda { body, .. }, SourcePathSegmentV1::LambdaBodyRoot) => {
-            ProjectedSourceV1::Body(body)
-        }
-        (ASTNode::Lambda { body, .. }, SourcePathSegmentV1::LambdaBody(index)) => {
-            ProjectedSourceV1::Node(body.get(*index as usize)?)
-        }
-        (ASTNode::Local { initial_values, .. }, SourcePathSegmentV1::Initializer(index))
-        | (ASTNode::Outbox { initial_values, .. }, SourcePathSegmentV1::Initializer(index)) => {
-            ProjectedSourceV1::Node(initial_values.get(*index as usize)?.as_deref()?)
-        }
-        (ASTNode::Assignment { target, .. }, SourcePathSegmentV1::Target)
-        | (ASTNode::CompoundAssignment { target, .. }, SourcePathSegmentV1::Target) => {
-            ProjectedSourceV1::Node(target)
-        }
-        (ASTNode::Assignment { value, .. }, SourcePathSegmentV1::Value)
-        | (ASTNode::CompoundAssignment { value, .. }, SourcePathSegmentV1::Value) => {
-            ProjectedSourceV1::Node(value)
-        }
-        (ASTNode::Print { expression, .. }, SourcePathSegmentV1::Value)
-        | (ASTNode::Nowait { expression, .. }, SourcePathSegmentV1::Value) => {
-            ProjectedSourceV1::Node(expression)
-        }
-        (ASTNode::Return { value, .. }, SourcePathSegmentV1::Value) => {
-            ProjectedSourceV1::Node(value.as_deref()?)
-        }
-        (ASTNode::ScopeBox { body, .. }, SourcePathSegmentV1::ScopeBodyRoot) => {
-            ProjectedSourceV1::Body(body)
-        }
-        (ASTNode::ScopeBox { body, .. }, SourcePathSegmentV1::ScopeBody(index)) => {
-            ProjectedSourceV1::Node(body.get(*index as usize)?)
-        }
-        (ASTNode::TaskScope { body, .. }, SourcePathSegmentV1::TaskScopeBodyRoot) => {
-            ProjectedSourceV1::Body(body)
-        }
-        (ASTNode::TaskScope { body, .. }, SourcePathSegmentV1::TaskScopeBody(index)) => {
-            ProjectedSourceV1::Node(body.get(*index as usize)?)
-        }
-        (ASTNode::FastMemRegion { body, .. }, SourcePathSegmentV1::FastMemBodyRoot) => {
-            ProjectedSourceV1::Body(body)
-        }
-        (ASTNode::FastMemRegion { body, .. }, SourcePathSegmentV1::FastMemBody(index)) => {
-            ProjectedSourceV1::Node(body.get(*index as usize)?)
-        }
-        (ASTNode::If { condition, .. }, SourcePathSegmentV1::IfCondition) => {
-            ProjectedSourceV1::Node(condition)
-        }
-        (ASTNode::If { then_body, .. }, SourcePathSegmentV1::IfThenBody) => {
-            ProjectedSourceV1::Body(then_body)
-        }
-        (ASTNode::If { then_body, .. }, SourcePathSegmentV1::IfThen(index)) => {
-            ProjectedSourceV1::Node(then_body.get(*index as usize)?)
-        }
-        (ASTNode::If { else_body, .. }, SourcePathSegmentV1::IfElseBody) => {
-            ProjectedSourceV1::Body(else_body.as_deref()?)
-        }
-        (ASTNode::If { else_body, .. }, SourcePathSegmentV1::IfElse(index)) => {
-            ProjectedSourceV1::Node(else_body.as_deref()?.get(*index as usize)?)
-        }
-        (ASTNode::Loop { condition, .. }, SourcePathSegmentV1::LoopCondition) => {
-            ProjectedSourceV1::Node(condition)
-        }
-        (ASTNode::Loop { body, .. }, SourcePathSegmentV1::LoopBodyRoot) => {
-            ProjectedSourceV1::Body(body)
-        }
-        (ASTNode::Loop { body, .. }, SourcePathSegmentV1::LoopBody(index)) => {
-            ProjectedSourceV1::Node(body.get(*index as usize)?)
-        }
-        (ASTNode::BlockExpr { prelude_stmts, .. }, SourcePathSegmentV1::BlockExprPreludeRoot) => {
-            ProjectedSourceV1::Body(prelude_stmts)
-        }
-        (
-            ASTNode::BlockExpr { prelude_stmts, .. },
-            SourcePathSegmentV1::BlockExprPrelude(index),
-        ) => ProjectedSourceV1::Node(prelude_stmts.get(*index as usize)?),
-        (ASTNode::BlockExpr { tail_expr, .. }, SourcePathSegmentV1::BlockExprTail) => {
-            ProjectedSourceV1::Node(tail_expr)
-        }
-        (ASTNode::UnaryOp { operand, .. }, SourcePathSegmentV1::Operand)
-        | (
-            ASTNode::AwaitExpression {
-                expression: operand,
-                ..
-            },
-            SourcePathSegmentV1::Operand,
-        ) => ProjectedSourceV1::Node(operand),
-        (ASTNode::BinaryOp { left, .. }, SourcePathSegmentV1::Lhs) => ProjectedSourceV1::Node(left),
-        (ASTNode::BinaryOp { right, .. }, SourcePathSegmentV1::Rhs) => {
-            ProjectedSourceV1::Node(right)
-        }
-        (ASTNode::ArrayLiteral { elements, .. }, SourcePathSegmentV1::Element(index)) => {
-            ProjectedSourceV1::Node(elements.get(*index as usize)?)
-        }
-        (ASTNode::MapLiteral { entries, .. }, SourcePathSegmentV1::EntryValue(index)) => {
-            ProjectedSourceV1::Node(&entries.get(*index as usize)?.1)
-        }
-        (ASTNode::RecordLiteral { fields, .. }, SourcePathSegmentV1::FieldValue(index)) => {
-            ProjectedSourceV1::Node(&fields.get(*index as usize)?.1)
-        }
-        (ASTNode::RecordUpdate { base, .. }, SourcePathSegmentV1::Base) => {
-            ProjectedSourceV1::Node(base)
-        }
-        (ASTNode::RecordUpdate { updates, .. }, SourcePathSegmentV1::UpdateValue(index)) => {
-            ProjectedSourceV1::Node(&updates.get(*index as usize)?.1)
-        }
-        (ASTNode::CheckExpr { items, .. }, SourcePathSegmentV1::CheckItem(index)) => {
-            ProjectedSourceV1::Node(&items.get(*index as usize)?.expression)
-        }
-        (ASTNode::GroupedAssignmentExpr { rhs, .. }, SourcePathSegmentV1::Value) => {
-            ProjectedSourceV1::Node(rhs)
-        }
-        (ASTNode::GroupedAssignmentExpr { .. }, SourcePathSegmentV1::Target) => {
-            ProjectedSourceV1::SyntheticName
-        }
-        (ASTNode::MethodCall { object, .. }, SourcePathSegmentV1::Receiver)
-        | (ASTNode::FieldAccess { object, .. }, SourcePathSegmentV1::Receiver) => {
-            ProjectedSourceV1::Node(object)
-        }
-        (ASTNode::Index { target, .. }, SourcePathSegmentV1::Target) => {
-            ProjectedSourceV1::Node(target)
-        }
-        (ASTNode::Index { index, .. }, SourcePathSegmentV1::Argument(0)) => {
-            ProjectedSourceV1::Node(index)
-        }
-        (ASTNode::Call { callee, .. }, SourcePathSegmentV1::Callee) => {
-            ProjectedSourceV1::Node(callee)
-        }
-        (ASTNode::MethodCall { arguments, .. }, SourcePathSegmentV1::Argument(index))
-        | (ASTNode::FunctionCall { arguments, .. }, SourcePathSegmentV1::Argument(index))
-        | (ASTNode::FromCall { arguments, .. }, SourcePathSegmentV1::Argument(index))
-        | (ASTNode::Call { arguments, .. }, SourcePathSegmentV1::Argument(index))
-        | (ASTNode::New { arguments, .. }, SourcePathSegmentV1::Argument(index)) => {
-            ProjectedSourceV1::Node(arguments.get(*index as usize)?)
-        }
-        (
-            ASTNode::New {
-                field_initializers, ..
-            },
-            SourcePathSegmentV1::Initializer(index),
-        ) => ProjectedSourceV1::Node(&field_initializers.get(*index as usize)?.1),
-        _ => return None,
-    };
-    Some(projected)
+    project_source_node_v1(root, site).ok_or_else(|| SourceNavigationErrorV1::InvalidSite {
+        owner,
+        site: site.clone(),
+        reason: "segment_does_not_match_syntax",
+    })
 }
