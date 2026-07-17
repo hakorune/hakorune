@@ -23,6 +23,10 @@ mod builder_test_api;
 mod builder_value_kind;
 mod call_resolution; // ChatGPT5 Pro: Type-safe call resolution utilities
 mod callable_declaration_catalog; // Complete same-module callable declaration authority
+pub(crate) use callable_declaration_catalog::{
+    CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1,
+    VerifiedSameModuleCallableDeclarationCatalogV1, VerifiedSameModuleCallableDeclarationV1,
+};
 mod calls; // Call system modules (refactored from builder_calls)
 mod collection_literals; // ArrayLiteral / MapLiteral lowering
 mod compilation_context; // Phase 136 follow-up (Step 7/7): CompilationContext extraction

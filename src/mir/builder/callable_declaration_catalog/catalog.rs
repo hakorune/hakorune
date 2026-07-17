@@ -213,6 +213,22 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
         self.rows_by_key.keys()
     }
 
+    /// Borrowed static-only declaration view for disconnected result proofs.
+    /// Instance rows stay in the primary catalog but never enter static result
+    /// solving or static candidate cardinality.
+    pub(crate) fn static_declarations(
+        &self,
+    ) -> impl Iterator<
+        Item = (
+            &CanonicalSameModuleCallableKeyV1,
+            &VerifiedSameModuleCallableDeclarationV1,
+        ),
+    > {
+        self.rows_by_key
+            .iter()
+            .filter(|(key, _)| key.namespace() == SameModuleCallableNamespaceV1::StaticBoxMethod)
+    }
+
     pub(crate) fn static_candidates(
         &self,
         method: &str,

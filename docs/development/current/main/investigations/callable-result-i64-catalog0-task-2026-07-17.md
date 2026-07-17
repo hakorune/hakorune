@@ -1,5 +1,5 @@
 ---
-Status: L0b G0 closed; result-contract S0 is next
+Status: S0a local-body substrate closed; full S0 remains open at design stop
 Date: 2026-07-17
 Decision: B-prime exact-i64 conditional callable-result catalog
 Baseline: 06a49e5aa6
@@ -10,6 +10,27 @@ Scope: declaration-order-independent pre-body result representation for same-mod
 # Callable result exact-i64 catalog task
 
 ## Current progress
+
+`R0-CALLABLE-RESULT-I64-CATALOG0-S0a` is closed as the honest disconnected
+local-body substrate. One non-Clone catalog emits one row for every static
+declaration and proves exact-i64 requirements through literals, parameters,
+locals, arithmetic, fallthrough `If`, early `Return`, and the finite first
+`Loop` invariant. The actual `StringHelpers.skip_ws/2` body seals
+`ExactI64 {1}`. Production producers/consumers and Builder/MIR/runtime/backend
+behavior deltas remain zero. Focused tests are 12/12, the structural guard is
+green, and the largest source/check file is 339 lines.
+
+S0a does not infer call targets. A declaration catalog cannot prove that a
+bare, qualified, or current-owner spelling wins over all earlier Builder call
+routes. Every `FunctionCall` and `MethodCall` result therefore closes to
+`StaticCallTargetAuthorityUnavailable`. This includes a builtin `str(...)`
+collision counterexample and the actual `ParserStringUtilsBox.skip_ws/2`
+wrapper. `StringHelpers.to_i64/1` also remains unavailable because the current
+Core method catalog owns identity/arity/effect but not a neutral result
+representation for `String.length/0`.
+
+Full S0 remains open. The next step is the combined design stop in
+`source-call-target-and-core-result-authority-design-stop-2026-07-17.md`.
 
 `R0-CALLABLE-RESULT-I64-CATALOG0-L0a` is closed. One disconnected Builder
 module now seals the complete static-box declaration inventory into structured
@@ -49,7 +70,7 @@ are fixed in
 ## Decision
 
 Three independent worker audits and a source-level feasibility review select
-Candidate B-prime:
+Candidate B-prime as the full-S0 target:
 
 ```text
 complete same-module static-callable declaration catalog
@@ -70,7 +91,7 @@ ExactI64 {
 Unavailable(reason)
 ```
 
-Examples:
+Target examples after the missing authorities are supplied:
 
 ```text
 declared `: i64` result:
@@ -216,7 +237,7 @@ Conflict
 `requirements` is a sorted set of parameter ordinals whose call-site values
 must already be exact Integer. Union means all listed conditions are required.
 
-### Accepted first source proof
+### Full-S0 accepted source proof target
 
 ```text
 integer literal
@@ -228,7 +249,7 @@ i64 +, -, *, /, % over proven i64 operands
 finite fallthrough If dataflow
 early Return collection
 Loop-carried local whose init and every update are proven i64
-same-catalog static call contract substitution
+canonical-target static call contract substitution
 all reachable Return values converge to exact i64
 ```
 
@@ -236,7 +257,7 @@ The proof is representation-only. It does not claim purity, termination,
 constant folding, numeric range, or ownership behavior. Loop analysis proves
 only an exact-i64 invariant; it does not prove that the loop terminates.
 
-### Call substitution
+### Parked full-S0 call substitution
 
 For a callee contract `ExactI64 {r0, ...}`, each required argument expression
 must itself have an exact-i64 requirement set. The caller result requirement is
@@ -253,7 +274,9 @@ callee ExactI64 {1}, caller argument1 = unconditional i64 expression:
   call result ExactI64 {}
 ```
 
-The solver uses a canonical-key-sorted monotone worklist. Declaration reorder
+This composition is not part of S0a. A future solver may use a
+canonical-key-sorted monotone worklist only after a canonical target product
+exists. Declaration reorder
 must produce the same normalized rows. Unsupported dependency cycles remain
 `Unavailable(RecursiveDependency)`; SCC result inference is not activated.
 
@@ -322,7 +345,10 @@ legacy rows and may not serve as this catalog's authority.
 ```text
 R0-CALLABLE-RESULT-I64-CATALOG0-L0a
   -> R0-CALLABLE-RESULT-I64-CATALOG0-L0b
-  -> R0-CALLABLE-RESULT-I64-CATALOG0-S0
+  -> R0-CALLABLE-RESULT-I64-CATALOG0-S0a
+  -> R0-SOURCE-CALL-TARGET-AND-CORE-RESULT-D0
+  -> canonical target/result authority implementation rows
+  -> R0-CALLABLE-RESULT-I64-CATALOG0-S0b
   -> R0-CALLABLE-RESULT-I64-CATALOG0-P0
   -> R0-CALLABLE-RESULT-I64-CATALOG0-I0
   -> R0-CALLABLE-RESULT-I64-CATALOG0-G0
@@ -367,7 +393,7 @@ side effects, migrates both static recovery consumers and structured body
 inspection, and retires `static_method_index` plus `lowered_method_asts` as
 primary stores. Exact boundaries live in the linked canonical recovery task.
 
-### S0 — disconnected result-contract catalog
+### S0a — disconnected local-body result catalog
 
 ```text
 production behavior delta: 0
@@ -389,6 +415,10 @@ src/mir/callable_result_representation/
 ```
 
 No file may reach 800 lines.
+
+Closed with all call results explicitly unavailable. S0b owns call
+composition and the actual `to_i64`/wrapper rows only after the design stop
+selects their missing neutral authorities.
 
 ### P0 — normalized proof
 
@@ -454,23 +484,27 @@ new persistent ValueId type/owner maps = 0
 source/check files >= 800 lines = 0
 ```
 
-## Implementation may claim
+## S0a implementation may claim
 
 ```text
 one complete immutable same-module static-callable declaration authority
-declaration-order-independent exact-i64 conditional result contracts
+declaration-order-independent local-body exact-i64 conditional result rows
 unconditional declared or body-proven i64 results
 argument-conditioned i64 results
-finite non-recursive wrapper composition
-call-result publication only when required arguments are exact i64
-one successful-emission publication consumer
+actual `StringHelpers.skip_ws/2 = ExactI64 {1}`
+all call results fail closed at one explicit target-authority boundary
+production result consumers = 0
 unsupported/dynamic source remains unavailable without guessing
 ```
 
-## Implementation must not claim
+## S0a implementation must not claim
 
 ```text
 general callable result typing
+source-call target projection
+same-catalog call substitution
+wrapper composition
+`StringHelpers.to_i64/1 = ExactI64 {}`
 general parameter inference
 Float/String/Box/union inference
 runtime type checking beyond existing contracts
@@ -500,19 +534,14 @@ Stop and reopen design if any is required:
     no exact result contract is available.
 11. A source/check file reaches 800 lines.
 
-## Decision lock
+## Current decision lock
 
-Candidate B-prime is selected. The durable authority is one non-Clone exact-
-i64 conditional result catalog sealed from one complete immutable structured
-same-module static-callable declaration catalog before body lowering. A row is
-either `ExactI64 { required_i64_arguments }` or explicitly unavailable. The
-selected `skip_ws` chain is represented as an argument-1 conditional contract,
-not a false monomorphic Integer signature. Canonical-key-sorted monotone
-composition is declaration-order independent; unsupported or recursive shapes
-publish nothing. One unified same-module call consumer combines the sealed
-target contract with current ordered argument representations and publishes the
-existing call-result `ValueId` type only after successful Call emission.
-Declared-only migration, general return inference, final metadata, name rules,
+Candidate B-prime remains the full-S0 target, but S0a is the only closed result
+slice. It seals local-body exact-i64 facts and never treats declaration lookup
+as final call-target authority. All call results remain unavailable until one
+neutral product seals the selected source-call route and canonical target.
+`String.length/0` additionally needs one representation-neutral Core result
+kind owner before `to_i64` can close. Builder/MIR/runtime facts, names,
 callee-first lowering, re-lowering, GenericLoop inference, and fallback remain
-rejected. L0a and the complete L0b production cutover/closeout are closed;
-`R0-CALLABLE-RESULT-I64-CATALOG0-S0` is the next disconnected row.
+rejected. The active frontier is a hard design stop; no S0b, P0, or I0 code is
+authorized before that decision.
