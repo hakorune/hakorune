@@ -1,0 +1,13 @@
+static box Consumer {
+    use(x) {
+        return m_seed(x)
+    }
+}
+
+static box Provider {
+    m_seed(x) {
+        return x + 1
+    }
+}
+
+print(Consumer.use(1))

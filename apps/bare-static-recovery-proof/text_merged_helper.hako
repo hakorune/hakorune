@@ -1,0 +1,9 @@
+static box TextMergedHelpers {
+    m_seed(x) {
+        return x + 1
+    }
+
+    z_use(x) {
+        return m_seed(x)
+    }
+}

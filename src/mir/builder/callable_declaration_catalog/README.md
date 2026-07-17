@@ -29,7 +29,19 @@ It does not own:
 - runtime/backend behavior;
 - fallback resolution.
 
-`R0-CALLABLE-CATALOG-L0B-S0` keeps this product disconnected. P0 next seals the
-canonical zero/unique/ambiguous recovery decision. CUT0 later installs the
-catalog once per Builder root and atomically retires `static_method_index` plus
-`lowered_method_asts`; this module provides no compatibility fallback.
+`R0-CALLABLE-CATALOG-L0B-S0` and `R0-BARE-STATIC-RECOVERY0-P0` keep this module
+disconnected. CUT0 later installs the catalog once per Builder root and
+atomically retires `static_method_index` plus `lowered_method_asts`; this module
+provides no compatibility fallback.
+
+`BareStaticRecoveryDecisionV1` is the sole P0 selection owner:
+
+```text
+0 static candidates -> NoCandidate
+1 static candidate  -> Unique(canonical key)
+2+ static candidates -> Ambiguous
+```
+
+It owns no resolver priority, caller context, argument evaluation, call
+emission, retry, or result representation. P0 keeps its production consumers
+at zero.

@@ -1,0 +1,11 @@
+static box Helpers {
+    m_seed() {
+        return 1
+    }
+
+    z_use() {
+        return m_seed()
+    }
+}
+
+print(Helpers.z_use())

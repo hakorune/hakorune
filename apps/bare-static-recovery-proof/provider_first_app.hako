@@ -1,0 +1,15 @@
+static box Helpers {
+    m_seed(x) {
+        return x + 1
+    }
+
+    z_use(x) {
+        return m_seed(x)
+    }
+}
+
+static box Main {
+    main(args) {
+        return Helpers.z_use(1)
+    }
+}

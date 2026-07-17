@@ -1,0 +1,7 @@
+using "apps/bare-static-recovery-proof/text_merged_helper.hako" as TextMergedHelpers
+
+static box Main {
+    main(args) {
+        return TextMergedHelpers.z_use(1)
+    }
+}

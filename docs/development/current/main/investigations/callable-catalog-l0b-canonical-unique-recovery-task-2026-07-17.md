@@ -1,5 +1,5 @@
 ---
-Status: S0 closed; P0 is next
+Status: S0 and P0 closed; CUT0 is next
 Date: 2026-07-17
 Decision: canonical declaration-order-independent unique bare-static recovery
 Baseline: 4524c9675f
@@ -25,10 +25,24 @@ recovery policy owners remain zero. Focused catalog tests are 7/7, `cargo
 check` and quick 66/66 are green, formatting and diff checks are clean, and
 every touched source/check file remains below 800 lines.
 
+`R0-BARE-STATIC-RECOVERY0-P0` is also closed. One pure non-Clone decision now
+maps the complete catalog's static-only name plus checked-arity cardinality to
+`Unique(canonical key)`, `NoCandidate`, or `Ambiguous`; checked arity overflow
+is a typed pre-effect error. The decision owns no resolver priority, caller
+context, argument evaluation, emission, result representation, or retry.
+
+Fourteen tracked HMI-independent sources cover app/script, same-box and
+cross-box provider/caller order, zero/unique/ambiguous candidates, exact arity,
+zero arity, InstanceBoxMethod non-contamination, and text merge. Rust parses
+those sources and applies the disconnected decision directly. Recovery tests
+are 7/7, the complete catalog module is 14/14, the proof checker is green,
+`cargo check` and quick 66/66 are green, production decision consumers remain
+zero, and every source/check file remains below 800 lines.
+
 The next code-facing row is:
 
 ```text
-R0-BARE-STATIC-RECOVERY0-P0
+R0-CALLABLE-CATALOG-L0B-CUT0
 ```
 
 ## Decision

@@ -1,0 +1,19 @@
+static box UnaryProvider {
+    m_seed(x) {
+        return x + 1
+    }
+}
+
+static box BinaryProvider {
+    m_seed(x, y) {
+        return x + y
+    }
+}
+
+static box Consumer {
+    use(x) {
+        return m_seed(x)
+    }
+}
+
+print(Consumer.use(1))

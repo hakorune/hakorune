@@ -1,0 +1,7 @@
+static box Consumer {
+    use(x) {
+        return missing_seed(x)
+    }
+}
+
+print(Consumer.use(1))
