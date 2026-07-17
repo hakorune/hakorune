@@ -1,5 +1,5 @@
 ---
-Status: S0 closed; M0 is the sole next row
+Status: S0/M0 closed; I0 is the sole next code-facing row
 Date: 2026-07-17
 Decision: Candidate A-prime — one CorePlan Add-result representation owner
 Baseline: 66c5eca052
@@ -34,8 +34,35 @@ first, exact Float second, and every remaining pair as the existing Integer
 default. String therefore wins over Float, Unknown, missing, and other Box
 facts without consulting route, function, variable, method, field, HMI, or
 runtime identity. Focused 2/2, library check, formatting, pointer, diff, and
-line budgets are green. M0 exact consumer/timing/differential inventory is
-next; `helpers_value.rs` remains unchanged through S0.
+line budgets are green. `helpers_value.rs` remains unchanged through S0/M0.
+
+M0 adds one checked-in machine inventory and source-derived checker. It seals:
+
+```text
+prepared decision production consumers = 0
+legacy normalizer decision definitions/consumers = 1 / 1
+direct arithmetic Builder classification sites = 3
+direct Builder String+Unknown no-fact rows = 2
+final propagation Add matrices = 1
+LoopArrayJoin facts MirType mentions = 0
+runtime String-left/String-right concat rows = 1 / 1
+historical StringUtils TSV route expectations = 3
+```
+
+The static timing proof fixes operand lowering before result allocation and
+records join destination propagation as `then -> else -> Unknown`. Debug and
+release execution both reproduce the same pre-I0 contract error:
+
+```text
+dst %15 existing Integer
+incoming %8 String
+[freeze:contract][phi_type_publication/concrete_fact_conflict]
+```
+
+No carrier-order, LoopV0 init-type, join, or PHI defect is present. I0 is
+authorized to replace only the normalizer's one legacy decision call with the
+prepared S0 result before allocation. The direct Builder and final pipeline
+matrices remain recorded non-consumers.
 
 ## Decision
 
@@ -212,7 +239,7 @@ Integer + Integer  -> Integer
 Unknown + Unknown  -> Integer (unchanged first-row behavior)
 ```
 
-### M0 — exact consumer and timing inventory
+### M0 — exact consumer and timing inventory (closed)
 
 Production behavior delta remains zero.
 
