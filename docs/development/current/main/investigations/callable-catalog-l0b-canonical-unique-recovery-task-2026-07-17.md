@@ -1,5 +1,5 @@
 ---
-Status: CUT0 closed; G0 is next
+Status: G0 closed; callable result catalog S0 is next
 Date: 2026-07-17
 Decision: canonical declaration-order-independent unique bare-static recovery
 Baseline: 4524c9675f
@@ -59,10 +59,19 @@ behavior delta. Catalog session 8/8, helper 5/5, compiler-reuse 1/1, result
 representation inventory/proof, `cargo check`, pointer guard, and quick 66/66
 are green. Every touched source/check file remains below 800 lines.
 
+`R0-CALLABLE-CATALOG-L0B-G0` is also closed. The existing production proof
+entry now machine-checks one catalog definition, one producer, one per-root
+install, one static-only candidate index, and two recovery consumers. It also
+pins query-before-install and duplicate-install rejection, the explicit
+NoCandidate/Ambiguous tail boundary, and zero retired authorities,
+result-representation consumers, GenericLoop consumers, physical-symbol
+reconstruction in record-helper lookup, or 800-line files. G0 changes no
+production behavior.
+
 The next code-facing row is:
 
 ```text
-R0-CALLABLE-CATALOG-L0B-G0
+R0-CALLABLE-RESULT-I64-CATALOG0-S0
 ```
 
 ## Decision

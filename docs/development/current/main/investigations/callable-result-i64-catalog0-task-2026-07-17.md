@@ -1,5 +1,5 @@
 ---
-Status: L0b-S0/P0 closed; atomic CUT0 next
+Status: L0b G0 closed; result-contract S0 is next
 Date: 2026-07-17
 Decision: B-prime exact-i64 conditional callable-result catalog
 Baseline: 06a49e5aa6
@@ -22,10 +22,15 @@ Production producers and consumers remain zero. Existing
 `static_method_index` and `lowered_method_asts` behavior is unchanged. Focused
 catalog tests are 4/4, the current-state pointer guard is green, `cargo check`
 is green, and quick is 66/66. Every added source file remains below 800 lines.
-Candidate A now defines the L0b cutover. `R0-CALLABLE-CATALOG-L0B-S0` and
-`R0-BARE-STATIC-RECOVERY0-P0` are closed with one disconnected Static/Instance
-declaration inventory, one pure zero/unique/ambiguous decision, a 14-source
-matrix, and zero production consumers. The atomic CUT0 is next.
+Candidate A defines the now-closed L0b cutover. One complete per-root
+Static/Instance declaration catalog is installed before remaining declaration
+indexing; two static recovery consumers share one zero/unique/ambiguous
+decision, structured helper lookup uses the same catalog, and both old partial
+stores are retired. Fifteen sources produce 11 pass and 3 reject executions in
+debug/release. G0 freezes one catalog definition/producer/install, two recovery
+consumers, one static-only candidate index, and zero retired authorities,
+result-representation consumers, or GenericLoop consumers. The next
+code-facing row is `R0-CALLABLE-RESULT-I64-CATALOG0-S0`.
 
 ### L0b recovery decision
 
@@ -509,6 +514,5 @@ target contract with current ordered argument representations and publishes the
 existing call-result `ValueId` type only after successful Call emission.
 Declared-only migration, general return inference, final metadata, name rules,
 callee-first lowering, re-lowering, GenericLoop inference, and fallback remain
-rejected. L0a is closed with one disconnected complete declaration catalog;
-L0b production cutover is parked until the bare-static recovery semantic
-choice in the latest design-stop card is locked.
+rejected. L0a and the complete L0b production cutover/closeout are closed;
+`R0-CALLABLE-RESULT-I64-CATALOG0-S0` is the next disconnected row.

@@ -159,6 +159,151 @@ def verify_cutover_owner(root: Path) -> dict[str, int]:
     return {"decision_owners": 1, "production_consumers": consumers}
 
 
+def verify_closeout_contract(root: Path) -> dict[str, int]:
+    builder_root = root / "src/mir/builder"
+    production_paths = [
+        path
+        for path in builder_root.rglob("*.rs")
+        if not path.name.endswith("_tests.rs") and path.name != "tests.rs"
+    ]
+    production = "\n".join(
+        path.read_text(encoding="utf-8") for path in production_paths
+    )
+    lifecycle = (builder_root / "module_lifecycle.rs").read_text(encoding="utf-8")
+    context = (builder_root / "compilation_context.rs").read_text(encoding="utf-8")
+    catalog = (CATALOG_DIR / "catalog.rs")
+    catalog_source = (root / catalog).read_text(encoding="utf-8")
+    recovery_source = (root / CATALOG_DIR / "recovery.rs").read_text(
+        encoding="utf-8"
+    )
+    session_errors = (root / CATALOG_DIR / "error.rs").read_text(encoding="utf-8")
+    session_tests = (root / CATALOG_DIR / "tests.rs").read_text(encoding="utf-8")
+    call_consumers = "\n".join(
+        (builder_root / relative).read_text(encoding="utf-8")
+        for relative in ("calls/static_resolution.rs", "calls/materializer.rs")
+    )
+    build_call = (builder_root / "calls/build.rs").read_text(encoding="utf-8")
+    helper = (builder_root / "record_helper_args.rs").read_text(encoding="utf-8")
+
+    require(
+        production.count("pub(crate) struct VerifiedSameModuleCallableDeclarationCatalogV1")
+        == 1,
+        "declaration catalog definition count drift",
+    )
+    require(
+        lifecycle.count("VerifiedSameModuleCallableDeclarationCatalogV1::seal_root(&snapshot)")
+        == 1,
+        "production catalog producer count drift",
+    )
+    require(
+        lifecycle.count(".install_callable_declaration_catalog(callable_catalog)") == 1,
+        "catalog install-per-root count drift",
+    )
+    require(
+        context.count("callable_declaration_catalog: Option<") == 1,
+        "catalog session slot count drift",
+    )
+    require(
+        session_errors.count("QueryBeforeInstall") == 2
+        and session_errors.count("DuplicateInstall") == 2,
+        "catalog session error vocabulary drift",
+    )
+    require(
+        "SameModuleCallableDeclarationCatalogSessionErrorV1::QueryBeforeInstall"
+        in session_tests
+        and "SameModuleCallableDeclarationCatalogSessionErrorV1::DuplicateInstall"
+        in session_tests,
+        "catalog session rejection fixtures missing",
+    )
+    require(
+        call_consumers.count(".callable_declaration_catalog()") == 2,
+        "catalog recovery query count drift",
+    )
+    require(
+        "callable_declaration_catalog().unwrap_or" not in call_consumers
+        and "callable_declaration_catalog().ok()" not in call_consumers,
+        "missing catalog must not become an ordinary no-candidate result",
+    )
+
+    require(
+        len(
+            re.findall(
+                r"(?m)^\s*static_keys_by_method_and_arity:\s*$", catalog_source
+            )
+        )
+        == 1,
+        "static candidate index owner count drift",
+    )
+    require(
+        "if namespace == SameModuleCallableNamespaceV1::StaticBoxMethod"
+        in catalog_source,
+        "static candidate insertion guard missing",
+    )
+    require(
+        "InstanceBoxMethod" not in recovery_source,
+        "instance declarations must not enter static recovery policy",
+    )
+    catalog_consumers = "\n".join((call_consumers, helper, lifecycle, context))
+    require(
+        catalog_consumers.count(".return_type_name()") == 0,
+        "call-result representation gained a production catalog consumer",
+    )
+
+    for retired in (
+        "static_method_index",
+        "register_static_method",
+        "get_static_method_candidates",
+        "lowered_method_asts",
+        "LoweredMethodAst",
+        "register_lowered_method_ast",
+        "lowered_method_ast",
+    ):
+        require(retired not in production, f"retired callable authority remains: {retired}")
+    require(
+        "generate_method_function_name" not in helper,
+        "record-helper lookup must not reconstruct a physical symbol",
+    )
+    require(
+        "BareStaticRecoveryNoRecoveryReasonV1::NoCandidate" in build_call
+        and "BareStaticRecoveryNoRecoveryReasonV1::Ambiguous" in build_call,
+        "tail-recovery boundary lost explicit zero/ambiguous split",
+    )
+    require(
+        "callable_declaration_catalog" not in "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in (builder_root / "control_flow/plan/generic_loop").rglob("*.rs")
+        ),
+        "GenericLoop must not consume callable catalog authority",
+    )
+
+    guarded_paths = [
+        root / CATALOG_DIR / "catalog.rs",
+        root / CATALOG_DIR / "error.rs",
+        root / CATALOG_DIR / "recovery.rs",
+        root / CATALOG_DIR / "tests.rs",
+        builder_root / "calls/build.rs",
+        builder_root / "calls/materializer.rs",
+        builder_root / "calls/static_resolution.rs",
+        builder_root / "compilation_context.rs",
+        builder_root / "module_lifecycle.rs",
+        builder_root / "record_helper_args.rs",
+        root / "tools/checks/lib/bare_static_recovery_proof.py",
+    ]
+    for path in guarded_paths:
+        line_count = len(path.read_text(encoding="utf-8").splitlines())
+        require(line_count < 800, f"closeout source/check file reached 800 lines: {path}")
+
+    return {
+        "catalog_definitions": 1,
+        "catalog_producers": 1,
+        "catalog_installs_per_root": 1,
+        "static_candidate_index_owners": 1,
+        "result_representation_consumers": 0,
+        "retired_authority_occurrences": 0,
+        "generic_loop_consumers": 0,
+    }
+
+
 def run(
     argv: list[str], root: Path, env: dict[str, str] | None = None
 ) -> subprocess.CompletedProcess[str]:
@@ -300,16 +445,18 @@ def main() -> int:
     sources = read_sources(root)
     source_report = verify_source_matrix(sources)
     owner_report = verify_cutover_owner(root)
+    closeout_report = verify_closeout_contract(root)
     run_focused_tests(root)
     production_report = verify_production_matrix(root, build_bins(root))
 
     report = {
         "schema_version": 1,
-        "row": "R0-CALLABLE-CATALOG-L0B-CUT0",
-        "selection": "CANONICAL-CALLABLE-CATALOG-CUTOVER-GREEN",
+        "row": "R0-CALLABLE-CATALOG-L0B-G0",
+        "selection": "CANONICAL-CALLABLE-CATALOG-CLOSEOUT-GREEN",
         "production_behavior_delta": 1,
         "source": source_report,
         "owner": owner_report,
+        "closeout": closeout_report,
         "production": production_report,
     }
     artifact = root / ARTIFACT_DIR
@@ -317,13 +464,21 @@ def main() -> int:
     (artifact / "p0_observation.json").write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
-    print("selection=CANONICAL-CALLABLE-CATALOG-CUTOVER-GREEN")
+    print("selection=CANONICAL-CALLABLE-CATALOG-CLOSEOUT-GREEN")
     print("decision_owner_count=1")
     print("production_consumer_count=2")
     print(f"fixture_count={source_report['fixture_count']}")
     print(f"production_pass_cases={production_report['pass_cases']}")
     print(f"production_reject_cases={production_report['reject_cases']}")
     print("production_behavior_delta=1")
+    print("g0_behavior_delta=0")
+    print("catalog_definitions=1")
+    print("catalog_producers=1")
+    print("catalog_installs_per_root=1")
+    print("static_candidate_index_owners=1")
+    print("retired_authority_occurrences=0")
+    print("call_result_representation_consumers=0")
+    print("generic_loop_consumers=0")
     print("summary=observed")
     return 0
 

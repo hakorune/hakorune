@@ -1,11 +1,14 @@
 # Bare static recovery proof
 
 This is the HMI-independent source and production matrix for
-`R0-CALLABLE-CATALOG-L0B-CUT0`.
+`R0-CALLABLE-CATALOG-L0B-G0`.
 
 The checker keeps the disconnected pure decision tests, builds debug and
 release VM-reference binaries, executes the pass/reject matrix, and verifies
-that every accepted source emits its canonical target exactly once.
+that every accepted source emits its canonical target exactly once. The same
+entry also freezes the closeout counters: one catalog definition/producer/
+install, two recovery consumers, one static-only candidate index, and zero old
+partial authorities, result-representation consumers, or GenericLoop users.
 
 ```bash
 bash apps/bare-static-recovery-proof/test.sh
