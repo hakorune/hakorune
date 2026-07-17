@@ -192,6 +192,7 @@ def verify(root: Path) -> dict[str, int]:
         code_only(text)
         for path, text in target_sources.items()
         if path.name not in {"mod.rs", "source_method_call_site.rs"}
+        and path.name not in {"tests.rs", "test_support.rs"}
         and "tests" not in path.parts
         and not path.name.endswith("_tests.rs")
     )
@@ -199,6 +200,7 @@ def verify(root: Path) -> dict[str, int]:
         code_only(text)
         for path, text in target_sources.items()
         if path.name not in {"mod.rs", "qualified_receiver_lexical.rs"}
+        and path.name not in {"tests.rs", "test_support.rs"}
         and "tests" not in path.parts
         and not path.name.endswith("_tests.rs")
     )
@@ -206,6 +208,7 @@ def verify(root: Path) -> dict[str, int]:
         code_only(text)
         for path, text in target_sources.items()
         if path.name not in {"mod.rs", "qualified_route_facts.rs"}
+        and path.name not in {"tests.rs", "test_support.rs"}
         and "tests" not in path.parts
         and not path.name.endswith("_tests.rs")
     )
@@ -276,8 +279,9 @@ def verify(root: Path) -> dict[str, int]:
     require(
         target_internal_non_site.count(SOURCE_METHOD_CALL_SITE_PRODUCT)
         == code_only(target_lexical).count(SOURCE_METHOD_CALL_SITE_PRODUCT)
-        + code_only(target_route_facts).count(SOURCE_METHOD_CALL_SITE_PRODUCT),
-        "exact source site must have only disconnected L0/R0 consumers",
+        + code_only(target_route_facts).count(SOURCE_METHOD_CALL_SITE_PRODUCT)
+        + code_only(target_current_owner).count(SOURCE_METHOD_CALL_SITE_PRODUCT),
+        "exact source site must have only disconnected L0/R0/current-owner consumers",
     )
     require(
         production.count(QUALIFIED_RECEIVER_LEXICAL_PRODUCT)
@@ -288,8 +292,8 @@ def verify(root: Path) -> dict[str, int]:
     require(
         production.count(QUALIFIED_ROUTE_FACT_PRODUCT)
         + target_internal_non_route_facts.count(QUALIFIED_ROUTE_FACT_PRODUCT)
-        == 0,
-        "R0 qualified route facts gained a production consumer",
+        == code_only(target_qualified).count(QUALIFIED_ROUTE_FACT_PRODUCT),
+        "R0 route facts must have only one disconnected qualified-target consumer",
     )
     require(
         target_source_site.count("catalog.declaration(caller)") == 1,
@@ -333,7 +337,7 @@ def verify(root: Path) -> dict[str, int]:
         "R0 route facts must consume the shared reserved classifier once",
     )
     require(
-        "imports.matches_declaration(call.declaration())" in target_route_facts,
+        "std::ptr::eq(imports.catalog, call.catalog())" in target_route_facts,
         "R0 route facts must co-seal the catalog-branded import view",
     )
     require(
@@ -367,6 +371,22 @@ def verify(root: Path) -> dict[str, int]:
         "verified import alias view lost its exact catalog brand",
     )
     require(
+        target_model.count(
+            "declarations: &'catalog VerifiedSameModuleCallableDeclarationCatalogV1"
+        )
+        == 1,
+        "final source target catalog lost its exact declaration-catalog brand",
+    )
+    for retired in (
+        "QualifiedStaticCallCandidateV1",
+        "CurrentOwnerStaticCallCandidateV1",
+        "QualifiedReceiverLexicalFactV1",
+        "ReservedQualifiedReceiverRouteV1",
+        "from_method_call",
+        "checked_explicit_arity",
+    ):
+        require(retired not in target_code, f"retired raw candidate surface remains: {retired}")
+    require(
         target_qualified.count(".declaration_for(") == 1,
         "qualified target must project through one exact catalog lookup",
     )
@@ -383,9 +403,30 @@ def verify(root: Path) -> dict[str, int]:
         "current-owner route must extend the shared target catalog",
     )
     require(
-        "imports.canonical_owner(candidate.receiver())" in target_qualified,
-        "qualified target lost verified import-alias precedence",
+        "facts.admission()" in target_qualified
+        and "facts.canonical_owner()" in target_qualified,
+        "qualified target must consume only co-sealed admission/owner facts",
     )
+    require(
+        "matches_import_view(imports)" in target_qualified
+        and "std::ptr::eq(call.catalog(), declarations)" in target_qualified,
+        "qualified target lost exact import-view/catalog identity checks",
+    )
+    require(
+        "calls: impl IntoIterator<Item = &'site VerifiedSourceMethodCallSiteV1"
+        in target_current_owner
+        and "declarations:" not in target_current_owner,
+        "current-owner target must accept only exact-site products",
+    )
+    for forbidden in (
+        RESERVED_ROUTE_CLASSIFIER,
+        "QualifiedReceiverLexicalDispositionV1",
+        "canonical_owner(candidate",
+    ):
+        require(
+            forbidden not in code_only(target_qualified),
+            f"qualified target replayed sealed route policy: {forbidden}",
+        )
     for forbidden in (
         "MirBuilder",
         "MirFunction",
@@ -410,9 +451,17 @@ def verify(root: Path) -> dict[str, int]:
         "import-alias/local-binding precedence fixture is missing",
     )
     require(
-        "actual_string_helpers_projects_digit_value_to_caller_owner" in target_code,
+        "actual_string_helpers_projects_exact_digit_value_site" in target_code,
         "actual StringHelpers current-owner target fixture is missing",
     )
+    for fixture in (
+        "exact_import_view_instance_is_part_of_qualified_seal",
+        "route_facts_from_equal_foreign_catalog_reject_by_identity",
+        "equal_foreign_catalog_call_rejects_before_target_lookup",
+        "duplicate_exact_route_fact_site_rejects",
+        "duplicate_exact_current_owner_site_rejects_atomically",
+    ):
+        require(fixture in target_code, f"missing CUT0 false-seal fixture: {fixture}")
     require(
         "actual_string_helpers_accepts_only_the_exact_digit_value_site" in target_code,
         "actual StringHelpers exact-site false-seal fixture is missing",
@@ -600,6 +649,10 @@ def verify(root: Path) -> dict[str, int]:
         "lexical_scope_traversal_engines": 1,
         "qualified_route_fact_product_definitions": 1,
         "qualified_route_fact_production_consumers": 0,
+        "qualified_route_fact_target_consumers": 1,
+        "current_owner_exact_site_target_consumers": 1,
+        "raw_source_target_candidate_surfaces": 0,
+        "source_target_catalog_brands": 1,
         "reserved_route_policy_definitions": 1,
         "reserved_route_builder_consumers": 1,
         "reserved_route_source_consumers": 1,

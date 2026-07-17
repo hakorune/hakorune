@@ -25,11 +25,13 @@ pub(crate) struct VerifiedQualifiedCallRouteFactsV1<'facts, 'catalog> {
     call: &'facts VerifiedSourceMethodCallSiteV1<'catalog>,
     lexical: &'facts VerifiedQualifiedReceiverLexicalDispositionsV1<'catalog>,
     imports: &'facts VerifiedStaticImportAliasViewV1<'catalog>,
+    receiver: &'facts str,
+    canonical_owner: &'facts str,
     lexical_disposition: QualifiedReceiverLexicalDispositionV1,
     admission: QualifiedReceiverAdmissionV1,
 }
 
-impl<'facts, 'catalog> VerifiedQualifiedCallRouteFactsV1<'facts, 'catalog> {
+impl<'facts, 'catalog: 'facts> VerifiedQualifiedCallRouteFactsV1<'facts, 'catalog> {
     pub(crate) fn verify(
         call: &'facts VerifiedSourceMethodCallSiteV1<'catalog>,
         lexical: &'facts VerifiedQualifiedReceiverLexicalDispositionsV1<'catalog>,
@@ -41,7 +43,7 @@ impl<'facts, 'catalog> VerifiedQualifiedCallRouteFactsV1<'facts, 'catalog> {
                 receiver_site: call.receiver_site().clone(),
             }
         })?;
-        if !imports.matches_declaration(call.declaration()) {
+        if !std::ptr::eq(imports.catalog, call.catalog()) {
             return Err(QualifiedCallRouteFactsErrorV1::ImportCatalogMismatch {
                 caller: call.caller().clone(),
             });
@@ -82,25 +84,28 @@ impl<'facts, 'catalog> VerifiedQualifiedCallRouteFactsV1<'facts, 'catalog> {
         }
 
         let receiver = variable_receiver(call);
-        let admission = if imports.canonical_owner(receiver).is_some() {
-            QualifiedReceiverAdmissionV1::ImportedAlias
-        } else {
-            if lexical_disposition == QualifiedReceiverLexicalDispositionV1::Bound {
-                return Err(
-                    QualifiedCallRouteFactsErrorV1::DirectReceiverLexicallyBound {
-                        caller: call.caller().clone(),
-                        site: call.site().clone(),
-                        receiver: receiver.into(),
-                    },
-                );
+        let (admission, canonical_owner) = match imports.canonical_owner(receiver) {
+            Some(canonical_owner) => (QualifiedReceiverAdmissionV1::ImportedAlias, canonical_owner),
+            None => {
+                if lexical_disposition == QualifiedReceiverLexicalDispositionV1::Bound {
+                    return Err(
+                        QualifiedCallRouteFactsErrorV1::DirectReceiverLexicallyBound {
+                            caller: call.caller().clone(),
+                            site: call.site().clone(),
+                            receiver: receiver.into(),
+                        },
+                    );
+                }
+                (QualifiedReceiverAdmissionV1::DirectCanonicalOwner, receiver)
             }
-            QualifiedReceiverAdmissionV1::DirectCanonicalOwner
         };
 
         Ok(Self {
             call,
             lexical,
             imports,
+            receiver,
+            canonical_owner,
             lexical_disposition,
             admission,
         })
@@ -119,20 +124,24 @@ impl<'facts, 'catalog> VerifiedQualifiedCallRouteFactsV1<'facts, 'catalog> {
     }
 
     pub(crate) fn canonical_owner(&self) -> &str {
-        let receiver = variable_receiver(self.call);
-        match self.admission {
-            QualifiedReceiverAdmissionV1::ImportedAlias => self
-                .imports
-                .canonical_owner(receiver)
-                .expect("verified imported alias must remain in immutable view"),
-            QualifiedReceiverAdmissionV1::DirectCanonicalOwner => receiver,
-        }
+        self.canonical_owner
+    }
+
+    pub(crate) const fn receiver(&self) -> &str {
+        self.receiver
     }
 
     pub(crate) const fn lexical_owner(
         &self,
     ) -> &VerifiedQualifiedReceiverLexicalDispositionsV1<'catalog> {
         self.lexical
+    }
+
+    pub(super) fn matches_import_view(
+        &self,
+        imports: &VerifiedStaticImportAliasViewV1<'catalog>,
+    ) -> bool {
+        std::ptr::eq(self.imports, imports)
     }
 }
 

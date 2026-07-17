@@ -1,7 +1,6 @@
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::resolved_semantics::{ShadowResolveErrorV0, SourceExprSiteV1};
 
-use super::ReservedQualifiedReceiverRouteV1;
 use crate::mir::policies::source_method_reserved_route::{
     SourceMethodReservedRouteDispositionV1, SourceMethodReservedRouteFailureV1,
 };
@@ -69,28 +68,17 @@ pub(crate) enum StaticImportAliasViewErrorV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum QualifiedStaticCallTargetErrorV1 {
-    ImportCatalogMismatch,
-    ArityOverflow {
-        receiver: Box<str>,
-        method: Box<str>,
-    },
-    EmptyReceiver,
-    EmptyMethod {
-        receiver: Box<str>,
-    },
-    CallerOutsideCatalog {
+    RouteFactCatalogMismatch {
         caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+    },
+    RouteFactImportViewMismatch {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
     },
     DuplicateCallSite {
         caller: CanonicalSameModuleCallableKeyV1,
         site: SourceExprSiteV1,
-    },
-    ReservedReceiverRoute {
-        receiver: Box<str>,
-        route: ReservedQualifiedReceiverRouteV1,
-    },
-    DirectReceiverLexicallyShadowed {
-        receiver: Box<str>,
     },
     TargetOutsideCatalog {
         receiver: Box<str>,
@@ -128,14 +116,13 @@ pub(crate) enum QualifiedCallRouteFactsErrorV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum CurrentOwnerStaticCallTargetErrorV1 {
-    SourceMethodCallRequired,
-    CanonicalMeReceiverRequired,
-    EmptyMethod,
-    ArityOverflow {
-        method: Box<str>,
-    },
-    CallerOutsideCatalog {
+    CallCatalogMismatch {
         caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+    },
+    CanonicalMeReceiverRequired {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
     },
     CallerNotStaticBoxMethod {
         caller: CanonicalSameModuleCallableKeyV1,

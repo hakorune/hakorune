@@ -5,11 +5,10 @@ use crate::mir::builder::{
 };
 
 use super::{
-    QualifiedReceiverLexicalFactV1, QualifiedStaticCallCandidateV1,
-    QualifiedStaticCallTargetErrorV1, QualifiedStaticReceiverV1, ReservedQualifiedReceiverRouteV1,
-    StaticImportAliasViewErrorV1, VerifiedQualifiedStaticCallTargetV1,
-    VerifiedSourceStaticCallTargetCatalogV1, VerifiedSourceStaticCallTargetV1,
-    VerifiedStaticImportAliasViewV1,
+    QualifiedReceiverAdmissionV1, QualifiedStaticCallTargetErrorV1, QualifiedStaticReceiverV1,
+    StaticImportAliasViewErrorV1, VerifiedQualifiedCallRouteFactsV1,
+    VerifiedQualifiedStaticCallTargetV1, VerifiedSourceStaticCallTargetCatalogV1,
+    VerifiedSourceStaticCallTargetV1, VerifiedStaticImportAliasViewV1,
 };
 
 impl<'catalog> VerifiedStaticImportAliasViewV1<'catalog> {
@@ -54,73 +53,72 @@ impl<'catalog> VerifiedStaticImportAliasViewV1<'catalog> {
     }
 }
 
-impl VerifiedSourceStaticCallTargetCatalogV1 {
-    pub(crate) fn seal_qualified(
-        declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
-        imports: &VerifiedStaticImportAliasViewV1<'_>,
-        candidates: impl IntoIterator<Item = QualifiedStaticCallCandidateV1>,
+impl<'catalog> VerifiedSourceStaticCallTargetCatalogV1<'catalog> {
+    pub(crate) fn seal_qualified<'facts>(
+        imports: &'facts VerifiedStaticImportAliasViewV1<'catalog>,
+        facts: impl IntoIterator<Item = VerifiedQualifiedCallRouteFactsV1<'facts, 'catalog>>,
     ) -> Result<Self, QualifiedStaticCallTargetErrorV1> {
-        if !imports.matches_catalog(declarations) {
-            return Err(QualifiedStaticCallTargetErrorV1::ImportCatalogMismatch);
-        }
-        let mut candidates = candidates.into_iter().collect::<Vec<_>>();
-        candidates.sort_by(|left, right| {
+        let declarations = imports.catalog;
+        let mut facts = facts.into_iter().collect::<Vec<_>>();
+        facts.sort_by(|left, right| {
+            let left = left.call();
+            let right = right.call();
             (left.caller(), left.site()).cmp(&(right.caller(), right.site()))
         });
 
         let mut rows = BTreeMap::new();
-        for candidate in candidates {
-            if declarations.declaration(candidate.caller()).is_none() {
-                return Err(QualifiedStaticCallTargetErrorV1::CallerOutsideCatalog {
-                    caller: candidate.caller().clone(),
+        for facts in facts {
+            let call = facts.call();
+            if !std::ptr::eq(call.catalog(), declarations) {
+                return Err(QualifiedStaticCallTargetErrorV1::RouteFactCatalogMismatch {
+                    caller: call.caller().clone(),
+                    site: call.site().clone(),
                 });
             }
-            let row_key = (candidate.caller().clone(), candidate.site().clone());
+            if !facts.matches_import_view(imports) {
+                return Err(
+                    QualifiedStaticCallTargetErrorV1::RouteFactImportViewMismatch {
+                        caller: call.caller().clone(),
+                        site: call.site().clone(),
+                    },
+                );
+            }
+
+            let row_key = (call.caller().clone(), call.site().clone());
             if rows.contains_key(&row_key) {
                 return Err(QualifiedStaticCallTargetErrorV1::DuplicateCallSite {
-                    caller: candidate.caller().clone(),
-                    site: candidate.site().clone(),
+                    caller: call.caller().clone(),
+                    site: call.site().clone(),
                 });
             }
 
-            if candidate.reserved_route() != ReservedQualifiedReceiverRouteV1::Ordinary {
-                return Err(QualifiedStaticCallTargetErrorV1::ReservedReceiverRoute {
-                    receiver: candidate.receiver().into(),
-                    route: candidate.reserved_route(),
-                });
-            }
-
-            let receiver =
-                if let Some(canonical_owner) = imports.canonical_owner(candidate.receiver()) {
+            let source_receiver = facts.receiver();
+            let receiver = match facts.admission() {
+                QualifiedReceiverAdmissionV1::ImportedAlias => {
                     QualifiedStaticReceiverV1::ImportedAlias {
-                        source_alias: candidate.receiver().into(),
-                        canonical_owner: canonical_owner.into(),
+                        source_alias: source_receiver.into(),
+                        canonical_owner: facts.canonical_owner().into(),
                     }
-                } else {
-                    if candidate.lexical_fact() == QualifiedReceiverLexicalFactV1::Bound {
-                        return Err(
-                            QualifiedStaticCallTargetErrorV1::DirectReceiverLexicallyShadowed {
-                                receiver: candidate.receiver().into(),
-                            },
-                        );
-                    }
+                }
+                QualifiedReceiverAdmissionV1::DirectCanonicalOwner => {
                     QualifiedStaticReceiverV1::UnshadowedCanonicalOwner {
-                        canonical_owner: candidate.receiver().into(),
+                        canonical_owner: facts.canonical_owner().into(),
                     }
-                };
+                }
+            };
 
             let canonical_owner = receiver.canonical_owner();
             let Some(target) = declarations.declaration_for(
                 SameModuleCallableNamespaceV1::StaticBoxMethod,
                 canonical_owner,
-                candidate.method(),
-                candidate.arity() as usize,
+                call.method(),
+                call.arity() as usize,
             ) else {
                 return Err(QualifiedStaticCallTargetErrorV1::TargetOutsideCatalog {
-                    receiver: candidate.receiver().into(),
+                    receiver: source_receiver.into(),
                     canonical_owner: canonical_owner.into(),
-                    method: candidate.method().into(),
-                    arity: candidate.arity(),
+                    method: call.method().into(),
+                    arity: call.arity(),
                 });
             };
 
@@ -131,6 +129,6 @@ impl VerifiedSourceStaticCallTargetCatalogV1 {
                 ),
             );
         }
-        Ok(Self { rows })
+        Ok(Self { declarations, rows })
     }
 }

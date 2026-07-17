@@ -57,27 +57,45 @@ reject by declaration identity.
 R0 remains disconnected. It owns neither target lookup nor ABI, effect,
 result representation, Builder emission, runtime, or backend behavior.
 
+## AST-BIND0-CUT0 target factories
+
+The qualified target factory consumes `VerifiedQualifiedCallRouteFactsV1`
+directly. One exact immutable import-view instance brands the batch, supplies
+the declaration catalog, and must be the same instance retained by every
+route-fact row. The target layer reads the exact call's caller/site/method/
+arity plus the sealed admission/canonical owner; it never repeats lexical,
+alias-precedence, or reserved-route policy.
+
+The current-owner factory consumes only borrowed
+`VerifiedSourceMethodCallSiteV1` products. It derives `me`, caller, site,
+method, and arity from each exact AST site and looks up the target under the
+catalog caller's owner. The final target catalog itself retains the exact
+declaration-catalog brand, so a catalog sealed from one source unit cannot be
+extended with an equal-key call from another source unit.
+
+Raw qualified/current-owner candidate structs, raw lexical/reserved enums,
+independently supplied caller/site/AST/spelling inputs, and candidate
+constructors are absent. Both factories build locally and publish only a
+complete target catalog; production consumers remain zero.
+
 Q0 and M0 admit two route-disjoint source shapes:
 
 ```text
 qualified receiver.method(arguments)
-  + verified import alias view
-  + exact lexical-binding observation
-  + reserved-route disposition
-  + complete same-module declaration catalog
+  + co-sealed qualified route facts
+  + the exact retained import-view instance
   -> canonical static callable key
 
-ASTNode::MethodCall { object: ASTNode::Me, method, arguments }
-  + caller canonical key in the complete declaration catalog
+VerifiedSourceMethodCallSiteV1 { receiver: ASTNode::Me, .. }
   + caller namespace = StaticBoxMethod
   + exact target lookup under caller.owner()
   -> canonical current-owner static callable key
 ```
 
 The final catalog is keyed by caller canonical key and function-relative
-`SourceExprSiteV1`. Import aliases are copied into one sorted immutable view
-and checked against the same declaration catalog before they may participate.
-The mutable Builder import map is never a sealed authority.
+`SourceExprSiteV1`, and retains the exact declaration catalog by reference.
+Import aliases live in one sorted immutable view over that same catalog. The
+mutable Builder import map is never a sealed authority.
 
 The current-owner route consumes the existing catalog by value and extends it;
 it never creates a second target catalog. The caller key is the sole owner
@@ -95,8 +113,9 @@ own:
 - MIR symbol parsing, emission, runtime behavior, or fallback.
 
 Imported aliases preserve the current Builder precedence over a same-spelled
-local binding. Direct canonical receiver spellings require an explicit
-`Unbound` lexical fact. Reserved fastmem/MIR/REPL receiver routes fail closed.
+local binding. Direct canonical receiver spellings require sealed positive
+`ProvenUnbound` evidence. Reserved fastmem/MIR/REPL receiver routes are
+rejected before target construction.
 
 Future route families may add variants to the final target vocabulary, but
 they must keep route-disjoint sealers and reject duplicate caller/site rows

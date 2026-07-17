@@ -1,11 +1,6 @@
-use crate::ast::ASTNode;
-use crate::mir::builder::{
-    CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1,
-    VerifiedSameModuleCallableDeclarationCatalogV1,
-};
-use crate::mir::resolved_semantics::{SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1};
-use crate::parser::NyashParser;
+use crate::mir::builder::SameModuleCallableNamespaceV1;
 
+use super::test_support::*;
 use super::*;
 
 const QUALIFIED_SOURCE: &str = r#"
@@ -13,140 +8,38 @@ static box Helpers {
   run(x) { return x }
   zero() { return 0 }
 }
-
+static box Other { run(x) { return x } }
 static box Caller {
-  invoke(x) { return Helpers.run(x) }
-  second() { return Helpers.zero() }
+  direct(x) { return Helpers.run(x) }
+  imported(Alias, x) { return Alias.run(x) }
+  wrong(x) { return Helpers.run(x, x) }
+  missing(x) { return Helpers.absent(x) }
 }
 "#;
 
-fn parse(source: &str) -> ASTNode {
-    NyashParser::parse_from_string(source).expect("qualified target fixture must parse")
-}
-
-fn catalog(source: &str) -> VerifiedSameModuleCallableDeclarationCatalogV1 {
-    VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&parse(source))
-        .expect("declaration catalog must seal")
-}
-
-fn key(
-    declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
+fn static_key(
+    declarations: &crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1,
     owner: &str,
     method: &str,
     arity: usize,
-) -> CanonicalSameModuleCallableKeyV1 {
-    declarations
-        .declaration_for(
-            SameModuleCallableNamespaceV1::StaticBoxMethod,
-            owner,
-            method,
-            arity,
-        )
-        .unwrap_or_else(|| panic!("missing declaration {owner}.{method}/{arity}"))
-        .key()
-        .clone()
-}
-
-fn site(index: u32) -> SourceExprSiteV1 {
-    SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
-        SourcePathSegmentV1::Body(index),
-        SourcePathSegmentV1::Value,
-    ]))
-}
-
-fn candidate(
-    caller: CanonicalSameModuleCallableKeyV1,
-    site: SourceExprSiteV1,
-    receiver: &str,
-    method: &str,
-    arity: usize,
-) -> QualifiedStaticCallCandidateV1 {
-    QualifiedStaticCallCandidateV1::new(
-        caller,
-        site,
-        receiver,
+) -> crate::mir::builder::CanonicalSameModuleCallableKeyV1 {
+    key(
+        declarations,
+        SameModuleCallableNamespaceV1::StaticBoxMethod,
+        owner,
         method,
         arity,
-        QualifiedReceiverLexicalFactV1::Unbound,
-        ReservedQualifiedReceiverRouteV1::Ordinary,
     )
-    .unwrap()
-}
-
-fn empty_imports(
-    declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
-) -> VerifiedStaticImportAliasViewV1<'_> {
-    VerifiedStaticImportAliasViewV1::seal(declarations, []).unwrap()
-}
-
-fn qualified<'a>(
-    targets: &'a VerifiedSourceStaticCallTargetCatalogV1,
-    caller: &CanonicalSameModuleCallableKeyV1,
-    site: &SourceExprSiteV1,
-) -> &'a VerifiedQualifiedStaticCallTargetV1 {
-    match targets.target(caller, site).expect("target row") {
-        VerifiedSourceStaticCallTargetV1::QualifiedStatic(row) => row,
-        VerifiedSourceStaticCallTargetV1::CurrentOwnerStatic(_) => {
-            panic!("expected qualified target row")
-        }
-    }
-}
-
-fn method_call_shape(root: &ASTNode, owner: &str, method: &str) -> (String, String, usize) {
-    let ASTNode::Program { statements, .. } = root else {
-        panic!("program")
-    };
-    let function = statements
-        .iter()
-        .find_map(|statement| match statement {
-            ASTNode::BoxDeclaration { name, methods, .. } if name == owner => methods.get(method),
-            _ => None,
-        })
-        .expect("caller method");
-    let ASTNode::FunctionDeclaration { body, .. } = function else {
-        panic!("function")
-    };
-    let ASTNode::Return {
-        value: Some(value), ..
-    } = &body[0]
-    else {
-        panic!("return value")
-    };
-    let ASTNode::MethodCall {
-        object,
-        method,
-        arguments,
-        ..
-    } = value.as_ref()
-    else {
-        panic!("method call")
-    };
-    let ASTNode::Variable { name: receiver, .. } = object.as_ref() else {
-        panic!("qualified variable receiver")
-    };
-    (receiver.clone(), method.clone(), arguments.len())
 }
 
 #[test]
-fn seals_direct_canonical_qualified_targets_by_exact_site() {
+fn seals_direct_canonical_qualified_target_from_exact_route_facts() {
     let declarations = catalog(QUALIFIED_SOURCE);
     let imports = empty_imports(&declarations);
-    let caller = key(&declarations, "Caller", "invoke", 1);
-    let call_site = site(0);
-    let targets = VerifiedSourceStaticCallTargetCatalogV1::seal_qualified(
-        &declarations,
-        &imports,
-        [candidate(
-            caller.clone(),
-            call_site.clone(),
-            "Helpers",
-            "run",
-            1,
-        )],
-    )
-    .unwrap();
+    let caller = static_key(&declarations, "Caller", "direct", 1);
+    let call_site = return_site();
+    let targets = seal_one_qualified(&declarations, &imports, &caller, call_site.clone());
 
-    assert_eq!(targets.len(), 1);
     let row = qualified(&targets, &caller, &call_site);
     assert_eq!(row.target().owner(), "Helpers");
     assert_eq!(row.target().name(), "run");
@@ -167,24 +60,9 @@ fn imported_alias_precedes_same_spelled_lexical_binding() {
         [("Alias".to_string(), "Helpers".to_string())],
     )
     .unwrap();
-    let caller = key(&declarations, "Caller", "invoke", 1);
-    let call_site = site(0);
-    let candidate = QualifiedStaticCallCandidateV1::new(
-        caller.clone(),
-        call_site.clone(),
-        "Alias",
-        "run",
-        1,
-        QualifiedReceiverLexicalFactV1::Bound,
-        ReservedQualifiedReceiverRouteV1::Ordinary,
-    )
-    .unwrap();
-    let targets = VerifiedSourceStaticCallTargetCatalogV1::seal_qualified(
-        &declarations,
-        &imports,
-        [candidate],
-    )
-    .unwrap();
+    let caller = static_key(&declarations, "Caller", "imported", 2);
+    let call_site = return_site();
+    let targets = seal_one_qualified(&declarations, &imports, &caller, call_site.clone());
 
     assert_eq!(imports.len(), 1);
     assert_eq!(
@@ -197,80 +75,18 @@ fn imported_alias_precedes_same_spelled_lexical_binding() {
 }
 
 #[test]
-fn rejects_shadowed_direct_receiver_without_import_binding() {
+fn exact_wrong_arity_and_missing_target_reject_at_target_lookup() {
     let declarations = catalog(QUALIFIED_SOURCE);
     let imports = empty_imports(&declarations);
-    let caller = key(&declarations, "Caller", "invoke", 1);
-    let candidate = QualifiedStaticCallCandidateV1::new(
-        caller,
-        site(0),
-        "Helpers",
-        "run",
-        1,
-        QualifiedReceiverLexicalFactV1::Bound,
-        ReservedQualifiedReceiverRouteV1::Ordinary,
-    )
-    .unwrap();
 
+    let wrong_caller = static_key(&declarations, "Caller", "wrong", 1);
+    let wrong_call = exact_call(&declarations, &wrong_caller, return_site());
+    let wrong_lexical =
+        VerifiedQualifiedReceiverLexicalDispositionsV1::verify(&[&wrong_call]).unwrap();
+    let wrong_facts =
+        VerifiedQualifiedCallRouteFactsV1::verify(&wrong_call, &wrong_lexical, &imports).unwrap();
     assert_eq!(
-        VerifiedSourceStaticCallTargetCatalogV1::seal_qualified(
-            &declarations,
-            &imports,
-            [candidate]
-        )
-        .unwrap_err(),
-        QualifiedStaticCallTargetErrorV1::DirectReceiverLexicallyShadowed {
-            receiver: "Helpers".into(),
-        }
-    );
-}
-
-#[test]
-fn reserved_receiver_routes_fail_before_catalog_lookup() {
-    let declarations = catalog(QUALIFIED_SOURCE);
-    let imports = empty_imports(&declarations);
-    let caller = key(&declarations, "Caller", "invoke", 1);
-    for (index, route) in [
-        ReservedQualifiedReceiverRouteV1::FastMem,
-        ReservedQualifiedReceiverRouteV1::MirIntrinsic,
-        ReservedQualifiedReceiverRouteV1::ReplIntrinsic,
-    ]
-    .into_iter()
-    .enumerate()
-    {
-        let candidate = QualifiedStaticCallCandidateV1::new(
-            caller.clone(),
-            site(index as u32),
-            "Helpers",
-            "run",
-            1,
-            QualifiedReceiverLexicalFactV1::Unbound,
-            route,
-        )
-        .unwrap();
-        assert_eq!(
-            VerifiedSourceStaticCallTargetCatalogV1::seal_qualified(
-                &declarations,
-                &imports,
-                [candidate]
-            )
-            .unwrap_err(),
-            QualifiedStaticCallTargetErrorV1::ReservedReceiverRoute {
-                receiver: "Helpers".into(),
-                route,
-            }
-        );
-    }
-}
-
-#[test]
-fn rejects_wrong_arity_missing_target_and_duplicate_site() {
-    let declarations = catalog(QUALIFIED_SOURCE);
-    let imports = empty_imports(&declarations);
-    let caller = key(&declarations, "Caller", "invoke", 1);
-    let wrong = candidate(caller.clone(), site(0), "Helpers", "run", 2);
-    assert_eq!(
-        VerifiedSourceStaticCallTargetCatalogV1::seal_qualified(&declarations, &imports, [wrong])
+        VerifiedSourceStaticCallTargetCatalogV1::seal_qualified(&imports, [wrong_facts])
             .unwrap_err(),
         QualifiedStaticCallTargetErrorV1::TargetOutsideCatalog {
             receiver: "Helpers".into(),
@@ -280,35 +96,85 @@ fn rejects_wrong_arity_missing_target_and_duplicate_site() {
         }
     );
 
-    let first = candidate(caller.clone(), site(0), "Helpers", "run", 1);
-    let duplicate = candidate(caller.clone(), site(0), "Helpers", "zero", 0);
+    let missing_caller = static_key(&declarations, "Caller", "missing", 1);
+    let missing_call = exact_call(&declarations, &missing_caller, return_site());
+    let missing_lexical =
+        VerifiedQualifiedReceiverLexicalDispositionsV1::verify(&[&missing_call]).unwrap();
+    let missing_facts =
+        VerifiedQualifiedCallRouteFactsV1::verify(&missing_call, &missing_lexical, &imports)
+            .unwrap();
+    assert!(matches!(
+        VerifiedSourceStaticCallTargetCatalogV1::seal_qualified(&imports, [missing_facts]),
+        Err(QualifiedStaticCallTargetErrorV1::TargetOutsideCatalog { method, .. })
+            if &*method == "absent"
+    ));
+}
+
+#[test]
+fn duplicate_exact_route_fact_site_rejects() {
+    let declarations = catalog(QUALIFIED_SOURCE);
+    let imports = empty_imports(&declarations);
+    let caller = static_key(&declarations, "Caller", "direct", 1);
+    let call = exact_call(&declarations, &caller, return_site());
+    let lexical = VerifiedQualifiedReceiverLexicalDispositionsV1::verify(&[&call]).unwrap();
+    let first = VerifiedQualifiedCallRouteFactsV1::verify(&call, &lexical, &imports).unwrap();
+    let second = VerifiedQualifiedCallRouteFactsV1::verify(&call, &lexical, &imports).unwrap();
+
     assert_eq!(
-        VerifiedSourceStaticCallTargetCatalogV1::seal_qualified(
-            &declarations,
-            &imports,
-            [first, duplicate]
-        )
-        .unwrap_err(),
+        VerifiedSourceStaticCallTargetCatalogV1::seal_qualified(&imports, [first, second])
+            .unwrap_err(),
         QualifiedStaticCallTargetErrorV1::DuplicateCallSite {
             caller,
-            site: site(0),
+            site: return_site(),
         }
     );
 }
 
 #[test]
-fn rejects_caller_key_from_a_foreign_catalog() {
+fn exact_import_view_instance_is_part_of_qualified_seal() {
     let declarations = catalog(QUALIFIED_SOURCE);
-    let imports = empty_imports(&declarations);
-    let foreign = catalog("static box Foreign { invoke(x) { return x } }");
-    let foreign_caller = key(&foreign, "Foreign", "invoke", 1);
-    let call = candidate(foreign_caller.clone(), site(0), "Helpers", "run", 1);
+    let first_imports = VerifiedStaticImportAliasViewV1::seal(
+        &declarations,
+        [("Alias".to_string(), "Helpers".to_string())],
+    )
+    .unwrap();
+    let second_imports = VerifiedStaticImportAliasViewV1::seal(
+        &declarations,
+        [("Alias".to_string(), "Other".to_string())],
+    )
+    .unwrap();
+    let caller = static_key(&declarations, "Caller", "imported", 2);
+    let call = exact_call(&declarations, &caller, return_site());
+    let lexical = VerifiedQualifiedReceiverLexicalDispositionsV1::verify(&[&call]).unwrap();
+    let facts = VerifiedQualifiedCallRouteFactsV1::verify(&call, &lexical, &first_imports).unwrap();
 
     assert_eq!(
-        VerifiedSourceStaticCallTargetCatalogV1::seal_qualified(&declarations, &imports, [call])
+        VerifiedSourceStaticCallTargetCatalogV1::seal_qualified(&second_imports, [facts])
             .unwrap_err(),
-        QualifiedStaticCallTargetErrorV1::CallerOutsideCatalog {
-            caller: foreign_caller,
+        QualifiedStaticCallTargetErrorV1::RouteFactImportViewMismatch {
+            caller,
+            site: return_site(),
+        }
+    );
+}
+
+#[test]
+fn route_facts_from_equal_foreign_catalog_reject_by_identity() {
+    let left = catalog(QUALIFIED_SOURCE);
+    let right = catalog(QUALIFIED_SOURCE);
+    let left_imports = empty_imports(&left);
+    let right_imports = empty_imports(&right);
+    let caller = static_key(&left, "Caller", "direct", 1);
+    let call = exact_call(&left, &caller, return_site());
+    let lexical = VerifiedQualifiedReceiverLexicalDispositionsV1::verify(&[&call]).unwrap();
+    let facts = VerifiedQualifiedCallRouteFactsV1::verify(&call, &lexical, &left_imports).unwrap();
+
+    assert_eq!(
+        VerifiedSourceStaticCallTargetCatalogV1::seal_qualified(&right_imports, [facts])
+            .unwrap_err(),
+        QualifiedStaticCallTargetErrorV1::RouteFactCatalogMismatch {
+            caller,
+            site: return_site(),
         }
     );
 }
@@ -316,30 +182,23 @@ fn rejects_caller_key_from_a_foreign_catalog() {
 #[test]
 fn import_view_rejects_duplicate_and_foreign_owners() {
     let declarations = catalog(QUALIFIED_SOURCE);
-    assert_eq!(
+    assert!(matches!(
         VerifiedStaticImportAliasViewV1::seal(
             &declarations,
             [
                 ("Alias".to_string(), "Helpers".to_string()),
                 ("Alias".to_string(), "Helpers".to_string()),
             ]
-        )
-        .unwrap_err(),
-        StaticImportAliasViewErrorV1::DuplicateAlias {
-            alias: "Alias".into(),
-        }
-    );
-    assert_eq!(
+        ),
+        Err(StaticImportAliasViewErrorV1::DuplicateAlias { .. })
+    ));
+    assert!(matches!(
         VerifiedStaticImportAliasViewV1::seal(
             &declarations,
-            [("Alias".to_string(), "Foreign".to_string())]
-        )
-        .unwrap_err(),
-        StaticImportAliasViewErrorV1::TargetOwnerOutsideCatalog {
-            alias: "Alias".into(),
-            canonical_owner: "Foreign".into(),
-        }
-    );
+            [("Alias".to_string(), "Missing".to_string())]
+        ),
+        Err(StaticImportAliasViewErrorV1::TargetOwnerOutsideCatalog { .. })
+    ));
 }
 
 #[test]
@@ -349,28 +208,15 @@ fn actual_parser_wrapper_projects_import_alias_to_string_helpers() {
         include_str!("../../../lang/src/shared/common/string_helpers.hako"),
         include_str!("../../../lang/src/compiler/parser/scan/parser_string_utils_box.hako"),
     );
-    let root = parse(&source);
-    let declarations = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&root).unwrap();
+    let declarations = catalog(&source);
     let imports = VerifiedStaticImportAliasViewV1::seal(
         &declarations,
         [("StringHelpers".to_string(), "StringHelpers".to_string())],
     )
     .unwrap();
-    let caller = key(&declarations, "ParserStringUtilsBox", "skip_ws", 2);
-    let (receiver, method, arity) = method_call_shape(&root, "ParserStringUtilsBox", "skip_ws");
-    let call_site = site(0);
-    let targets = VerifiedSourceStaticCallTargetCatalogV1::seal_qualified(
-        &declarations,
-        &imports,
-        [candidate(
-            caller.clone(),
-            call_site.clone(),
-            &receiver,
-            &method,
-            arity,
-        )],
-    )
-    .unwrap();
+    let caller = static_key(&declarations, "ParserStringUtilsBox", "skip_ws", 2);
+    let call_site = return_site();
+    let targets = seal_one_qualified(&declarations, &imports, &caller, call_site.clone());
 
     let row = qualified(&targets, &caller, &call_site);
     assert_eq!(row.target().owner(), "StringHelpers");
@@ -380,93 +226,28 @@ fn actual_parser_wrapper_projects_import_alias_to_string_helpers() {
 
 #[test]
 fn declaration_reorder_preserves_normalized_target_rows() {
-    let left = QUALIFIED_SOURCE;
-    let right = r#"
-static box Caller {
-  invoke(x) { return Helpers.run(x) }
-  second() { return Helpers.zero() }
-}
-static box Helpers {
-  zero() { return 0 }
-  run(x) { return x }
-}
-"#;
+    let reordered = QUALIFIED_SOURCE.replacen(
+        "static box Helpers {\n  run(x) { return x }\n  zero() { return 0 }\n}\n",
+        "",
+        1,
+    ) + "\nstatic box Helpers { run(x) { return x } zero() { return 0 } }\n";
 
     fn normalized(source: &str) -> Vec<(String, String, u32)> {
         let declarations = catalog(source);
         let imports = empty_imports(&declarations);
-        let caller = key(&declarations, "Caller", "invoke", 1);
-        VerifiedSourceStaticCallTargetCatalogV1::seal_qualified(
-            &declarations,
-            &imports,
-            [candidate(caller, site(0), "Helpers", "run", 1)],
-        )
-        .unwrap()
-        .rows()
-        .map(|(_, row)| match row {
-            VerifiedSourceStaticCallTargetV1::QualifiedStatic(row) => (
-                row.target().owner().to_string(),
-                row.target().name().to_string(),
-                row.target().arity(),
-            ),
-            VerifiedSourceStaticCallTargetV1::CurrentOwnerStatic(_) => {
-                panic!("qualified-only fixture gained a current-owner row")
-            }
-        })
-        .collect()
+        let caller = static_key(&declarations, "Caller", "direct", 1);
+        seal_one_qualified(&declarations, &imports, &caller, return_site())
+            .rows()
+            .map(|(_, row)| match row {
+                VerifiedSourceStaticCallTargetV1::QualifiedStatic(row) => (
+                    row.target().owner().to_string(),
+                    row.target().name().to_string(),
+                    row.target().arity(),
+                ),
+                VerifiedSourceStaticCallTargetV1::CurrentOwnerStatic(_) => unreachable!(),
+            })
+            .collect()
     }
 
-    assert_eq!(normalized(left), normalized(right));
-}
-
-#[test]
-fn candidate_constructor_rejects_empty_names_and_arity_overflow() {
-    let declarations = catalog(QUALIFIED_SOURCE);
-    let caller = key(&declarations, "Caller", "invoke", 1);
-    assert_eq!(
-        QualifiedStaticCallCandidateV1::new(
-            caller.clone(),
-            site(0),
-            "",
-            "run",
-            1,
-            QualifiedReceiverLexicalFactV1::Unbound,
-            ReservedQualifiedReceiverRouteV1::Ordinary,
-        )
-        .unwrap_err(),
-        QualifiedStaticCallTargetErrorV1::EmptyReceiver
-    );
-    assert_eq!(
-        QualifiedStaticCallCandidateV1::new(
-            caller.clone(),
-            site(0),
-            "Helpers",
-            "",
-            1,
-            QualifiedReceiverLexicalFactV1::Unbound,
-            ReservedQualifiedReceiverRouteV1::Ordinary,
-        )
-        .unwrap_err(),
-        QualifiedStaticCallTargetErrorV1::EmptyMethod {
-            receiver: "Helpers".into(),
-        }
-    );
-    if let Ok(overflow_arity) = usize::try_from(u64::from(u32::MAX) + 1) {
-        assert_eq!(
-            QualifiedStaticCallCandidateV1::new(
-                caller,
-                site(0),
-                "Helpers",
-                "run",
-                overflow_arity,
-                QualifiedReceiverLexicalFactV1::Unbound,
-                ReservedQualifiedReceiverRouteV1::Ordinary,
-            )
-            .unwrap_err(),
-            QualifiedStaticCallTargetErrorV1::ArityOverflow {
-                receiver: "Helpers".into(),
-                method: "run".into(),
-            }
-        );
-    }
+    assert_eq!(normalized(QUALIFIED_SOURCE), normalized(&reordered));
 }

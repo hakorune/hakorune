@@ -1,7 +1,7 @@
 # Source Call Exact-Site / Route-Fact Taskboard
 
 Date: 2026-07-17  
-Status: **P0, S0, L0, and R0 closed; CUT0 atomic candidate cutover next**
+Status: **P0 through CUT0 closed; callable-result S0b resumed next**
 Baseline: `0988dbed31`  
 Supersedes: `source-call-site-route-fact-authority-design-stop-2026-07-17.md`
 
@@ -369,7 +369,7 @@ target production-consumer deltas remain zero.
 
 Atomic disconnected authority cutover.
 
-Status: **sole next code-facing row**.
+Status: **closed**.
 
 ```text
 qualified factory input:
@@ -388,15 +388,46 @@ production consumers:
   0
 ```
 
-After CUT0, review the saved S0b diff against the new APIs and reapply only
-the needed patch. The stash is evidence, not authority; do not wholesale
-`stash apply` it.
+CUT0 removes both raw candidate structs, their raw lexical/reserved enums,
+and every constructor that accepted independent caller/site/AST/spelling/fact
+inputs. Qualified target construction consumes the co-sealed R0 facts plus
+the exact retained import-view instance. Current-owner construction consumes
+only exact S0 products.
+
+The final target catalog is now lifetime-bound to its exact declaration
+catalog. Equal keys/sites from another source unit reject by pointer identity,
+and same-catalog route facts sealed from a different import-view instance
+reject before target lookup. The qualified target factory does not replay
+reserved, alias-precedence, or lexical policy.
+
+Closeout evidence:
+
+```text
+raw candidate structs / constructors / raw fact enums = 0
+target catalog declaration brands = 1
+qualified route-fact target consumers = 1 disconnected
+current-owner exact-site target consumers = 1 disconnected
+exact import-view instance mismatches reject typed
+cross-catalog qualified/current-owner composition rejects typed
+source-call target family = 42/42
+extended structural guard = green
+cargo check / pointer guard = green
+production source-target consumers = 0
+source/check files >= 800 lines = 0
+```
+
+The saved S0b stash was reviewed by name/stat only. It remains evidence, not
+authority: its stale target-model, guard, and current-doc edits must not be
+applied. Only the callable-result implementation pieces may be rewritten onto
+the post-CUT0 APIs.
 
 ### Resume
 
 ```text
 R0-CALLABLE-RESULT-I64-CATALOG0-S0b
 ```
+
+Status: **sole next code-facing row**.
 
 ## Required fixtures
 
