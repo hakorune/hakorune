@@ -1,4 +1,5 @@
 use super::PlanNormalizer;
+use super::super::parts::var_map_scope::publish_emission_cache;
 use crate::ast::{ASTNode, BinaryOperator, FieldDecl, Span};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{Effect, EffectMask, MirType, ValueId};
@@ -37,14 +38,8 @@ fn lower_binary_result_type(
     let mut builder = MirBuilder::new();
     let lhs = builder.alloc_typed(lhs_type);
     let rhs = builder.alloc_typed(rhs_type);
-    builder
-        .variable_ctx
-        .variable_map
-        .insert("lhs".to_string(), lhs);
-    builder
-        .variable_ctx
-        .variable_map
-        .insert("rhs".to_string(), rhs);
+    publish_emission_cache(&mut builder, "lhs".to_string(), lhs);
+    publish_emission_cache(&mut builder, "rhs".to_string(), rhs);
 
     let (result, effects) = PlanNormalizer::lower_value_ast(
         &binary(operator, var("lhs"), var("rhs")),
