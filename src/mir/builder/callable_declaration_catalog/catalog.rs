@@ -213,6 +213,22 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
         self.rows_by_key.keys()
     }
 
+    /// Borrowed complete declaration inventory in canonical-key order.
+    ///
+    /// This is an observation surface only.  Static result inference remains
+    /// owned by `static_declarations`; instance rows may use this inventory as
+    /// exact caller/site owners without becoming result candidates.
+    pub(crate) fn declarations(
+        &self,
+    ) -> impl Iterator<
+        Item = (
+            &CanonicalSameModuleCallableKeyV1,
+            &VerifiedSameModuleCallableDeclarationV1,
+        ),
+    > {
+        self.rows_by_key.iter()
+    }
+
     /// Borrowed static-only declaration view for disconnected result proofs.
     /// Instance rows stay in the primary catalog but never enter static result
     /// solving or static candidate cardinality.

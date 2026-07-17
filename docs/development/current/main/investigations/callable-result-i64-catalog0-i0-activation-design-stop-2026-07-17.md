@@ -357,6 +357,33 @@ path bypass in the selected proof/traversal surfaces, and the 800-line cap.
 Production behavior, result publication, Builder, MIR, runtime, and backend
 deltas remain zero. A0 is next.
 
+## A0 closeout
+
+`I0-A0` is closed. One boxed declaration catalog remains at a stable private
+brand while borrowed source-target and static-result products are built and
+normalized. After those borrows are dropped, one non-Clone plan owns the
+catalog plus opaque caller-keyed activation rows. The plan retains no AST,
+import view, target catalog, result catalog, ABI/effect table, or second
+callable index.
+
+The result catalog now accepts an exact instance declaration key only as a
+source-target caller/site owner; target membership and result solving remain
+strictly static. No instance declaration enters `prove_function`. A0 joins
+each PATH0 MethodCall observation with its exact static target and that
+target's static result disposition. Exact-i64 selections retain the callee's
+required call-argument ordinals, checked against target arity. Every other
+observed MethodCall receives an explicit unit `Unselected` row, so absence is
+never a fallback signal.
+
+The actual `ParserBox.static_const_parse_add/2` body seals 15 rows: exactly two
+`ParserStringUtilsBox.skip_ws/2` selections with required argument `[1]`, and
+13 explicit unselected rows. Instance-caller/static-target separation,
+declaration reorder parity, foreign equal-catalog brand rejection, opaque
+single-use decomposition, result/source-target regression suites, one A0
+structural checker, cargo check, and the 800-line cap are green. Production
+consumers and Builder/MIR/runtime/backend behavior remain zero. `SITE0-L0` is
+next.
+
 ## Required fixtures
 
 ```text
@@ -420,5 +447,5 @@ fallback or retry
 P0 remains closed and production behavior remains unchanged. Candidate A plus
 located legacy input is locally selected under
 `LocalMechanicalSelectorAuthorityV1`; external consultation is no longer
-required. `I0-PATH0` is closed and `I0-A0` is the next code-facing row. No
-emitter patch may bypass A0 or the SITE0 refactor series.
+required. `I0-PATH0` and `I0-A0` are closed; `I0-SITE0-L0` is the next
+code-facing row. No emitter patch may bypass the SITE0 refactor series.

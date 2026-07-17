@@ -31,12 +31,17 @@ impl<'targets, 'catalog> VerifiedSameModuleCallableResultCatalogV1<'targets, 'ca
         }
 
         let static_declarations = declarations.static_declarations().collect::<Vec<_>>();
+        let all_declarations = declarations.declarations().collect::<Vec<_>>();
         let static_count = static_declarations.len();
         let static_keys = static_declarations
             .iter()
             .map(|(key, _)| ((*key).clone(), ()))
             .collect::<BTreeMap<_, _>>();
-        validate_target_pairing(targets, &static_keys)?;
+        let all_keys = all_declarations
+            .iter()
+            .map(|(key, _)| ((*key).clone(), ()))
+            .collect::<BTreeMap<_, _>>();
+        validate_target_pairing(targets, &all_keys, &static_keys)?;
 
         // Absence from this construction-only map means Pending. Public result
         // vocabulary is created only once a proof closes permanently.
@@ -182,10 +187,11 @@ fn disposition(
 
 fn validate_target_pairing(
     targets: &VerifiedSourceStaticCallTargetCatalogV1<'_>,
+    all_keys: &BTreeMap<CanonicalSameModuleCallableKeyV1, ()>,
     static_keys: &BTreeMap<CanonicalSameModuleCallableKeyV1, ()>,
 ) -> Result<(), CallableResultCatalogErrorV1> {
     for ((caller, site), row) in targets.rows() {
-        if !static_keys.contains_key(caller) {
+        if !all_keys.contains_key(caller) {
             return Err(
                 CallableResultCatalogErrorV1::SourceTargetCallerOutsideResultCatalog {
                     caller: caller.clone(),

@@ -1,5 +1,7 @@
 //! Disconnected exact-i64 result contracts for same-module static callables.
 
+mod activation;
+mod activation_error;
 mod call_proof;
 mod call_row;
 mod call_substitution;
@@ -20,3 +22,9 @@ pub(crate) use solver::VerifiedSameModuleCallableResultCatalogV1;
 
 #[cfg(test)]
 mod tests;
+#[allow(unused_imports)]
+pub(crate) use activation::{
+    CallableResultActivationDispositionV1, VerifiedCallableResultActivationPlanV1,
+    VerifiedCallableResultActivationRowsV1,
+};
+pub(crate) use activation_error::CallableResultActivationErrorV1;

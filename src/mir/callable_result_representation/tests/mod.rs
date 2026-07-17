@@ -1,3 +1,4 @@
+mod activation;
 mod actual_sources;
 mod call_substitution;
 mod core_composition;

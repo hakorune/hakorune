@@ -119,16 +119,51 @@ fn exact_call_sites<'catalog>(
     specs
         .iter()
         .map(|spec| {
-            let caller = key(
-                declarations,
-                spec.caller_owner,
-                spec.caller_name,
-                spec.caller_arity,
-            );
+            let caller = declarations
+                .declaration_for(
+                    SameModuleCallableNamespaceV1::StaticBoxMethod,
+                    spec.caller_owner,
+                    spec.caller_name,
+                    spec.caller_arity,
+                )
+                .or_else(|| {
+                    declarations.declaration_for(
+                        SameModuleCallableNamespaceV1::InstanceBoxMethod,
+                        spec.caller_owner,
+                        spec.caller_name,
+                        spec.caller_arity,
+                    )
+                })
+                .unwrap_or_else(|| {
+                    panic!(
+                        "missing caller declaration {}.{}/{}",
+                        spec.caller_owner, spec.caller_name, spec.caller_arity
+                    )
+                })
+                .key()
+                .clone();
             VerifiedSourceMethodCallSiteV1::verify(declarations, &caller, spec.site.clone())
                 .expect("exact source method-call site must seal")
         })
         .collect()
+}
+
+pub(super) fn instance_key(
+    declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
+    owner: &str,
+    name: &str,
+    arity: usize,
+) -> CanonicalSameModuleCallableKeyV1 {
+    declarations
+        .declaration_for(
+            SameModuleCallableNamespaceV1::InstanceBoxMethod,
+            owner,
+            name,
+            arity,
+        )
+        .unwrap_or_else(|| panic!("missing instance declaration {owner}.{name}/{arity}"))
+        .key()
+        .clone()
 }
 
 pub(super) fn key(
