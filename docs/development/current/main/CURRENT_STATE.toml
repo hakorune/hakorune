@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "GenericLoop carrier TYPE0-I0 is closed; G0 is paused on loop-array-join carrier typing"
+status = "CorePlan String Add representation is taskized; S0 is next"
 date = "2026-07-17"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -296,20 +296,20 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 
-latest_card = "hmi-s0-v0-r0-generic-loop-carrier-type-task-2026-07-17"
-latest_card_path = "docs/development/current/main/investigations/hmi-s0-v0-r0-generic-loop-carrier-type-task-2026-07-17.md"
-latest_card_summary = """Candidate B-prime GenericLoop carrier TYPE0 S0/M0/I0
-is closed. V0/V1 facts seal one role, three skeleton callers prepare one exact
-init representation before allocation, current/next/selected step-PHI share it,
-and nested plus top-level matched-facts compose errors no longer become
-no-match. Numeric V0/V1 debug/release routes remain 4/3. The former
-JsonScanner body-managed Box conflict is gone. The HMI canary now stops at the
-next independent owner: loop_array_join in StringUtils.join/2 has an Integer
-PHI destination against a String incoming value. GenericLoop G0 must not widen
-to repair that route; loop-array-join carrier authority is the next inventory
-and design boundary. PHI weakening, source workaround, name inference, retry,
-fallback, and stash restoration remain forbidden."""
-current_blocker_token = "DPRIME-LOOP-ARRAY-JOIN-CARRIER-TYPE0-D0-001"
+latest_card = "hmi-s0-v0-r0-coreplan-string-add-representation-task-2026-07-17"
+latest_card_path = "docs/development/current/main/investigations/hmi-s0-v0-r0-coreplan-string-add-representation-task-2026-07-17.md"
+latest_card_summary = """Three read-only worker audits identify the first
+loop_array_join false fact in the CorePlan normalizer, not in GenericLoop,
+LoopV0 carrier maps, join construction, or TYPE-PUBLISH0. The normalizer makes
+every non-Float Add result Integer, so String + Unknown becomes Integer before
+the nested If join and correctly conflicts with the String fallthrough. The
+existing runtime result is String whenever either Add operand is String.
+Candidate A-prime is selected: one disconnected pure CorePlan Add-result
+decision gives exact String/StringBox priority, preserves the remaining current
+Float-else-Integer behavior, and later connects exactly one normalizer consumer
+before allocation. Facts, recipes, joins, PHIs, direct Builder arithmetic,
+final propagation, runtime, backend, fallback, and stashes remain unchanged."""
+current_blocker_token = "DPRIME-COREPLAN-STRING-ADD-REP0-S0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -318,6 +318,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-17: Three read-only worker audits close the loop_array_join carrier diagnosis and select Candidate A-prime. LoopV0 correctly carries i as Integer and result as String; the first false fact is PlanNormalizer arithmetic_result_type, which makes every non-Float Add Integer and therefore turns String plus Unknown into an Integer before the nested If join. Existing join and TYPE-PUBLISH0 behavior is correct. One pure CorePlan Add-result decision will give exact String/StringBox priority, preserve remaining first-row behavior, and connect exactly one normalizer consumer after disconnected S0/M0 proof. LoopArrayJoin facts, GenericLoop, join/PHI, direct Builder arithmetic, final propagation, runtime/backend, fallback, retry, and stashes remain unchanged. S0 is next.",
   "2026-07-17: R0-GENERICLOOP-CARRIER-TYPE0-I0 seals V0 NumericProgression and the V1 StepResolution role once, passes the role through all three skeleton callers, and consumes one non-Clone prepared init/type row before block allocation. Current, next, and selected V1 step-PHI use the same exact representation; the independent carrier fallback remains unchanged. Nested `.ok()` and two top-level matched-facts compose swallows are zero, while post-compose verifier/lowerer fallback stays outside the row. Focused 6/6 plus progression 18/18, inventory, cargo check, V0/V1 debug/release 4/3, and the existing GenericLoop guard are green. HMI advances past the JsonScanner Box conflict and stops at the independent loop_array_join StringUtils.join/2 Integer-vs-String PHI blocker; G0 is paused for that owner inventory.",
   "2026-07-17: R0-GENERICLOOP-CARRIER-TYPE0-M0 closes one behavior-neutral machine inventory. It fixes V0/V1 role producers at one each, three direct skeleton callers, current hardcoded Integer slots, V1 Unknown defaults, and production representation consumers zero. One nested `.ok()` and two top-level matched-facts composer-error swallowing seams must become exact error transport in I0; broader post-compose verifier/lowerer fallback remains recorded non-authority. Fresh isolated debug/release builds agree, explicit numeric V0/V1 fixtures route and return 4/3, and a 182-row census finds 89 GenericLoop sources with no authoritative legitimate missing/Unknown numeric transient fact. The existing 18-row GenericLoop guard, inventory reference, route pins, and current body-managed Box/String conflict evidence are green. I0 is next.",
   "2026-07-17: R0-GENERICLOOP-CARRIER-TYPE0-S0 closes one disconnected role/representation boundary with production consumers zero. Facts gain only the closed NumericProgression/BodyManagedState vocabulary; one Builder-private pure preparation product retains init ValueId plus exact MirType without Clone, Builder access, allocation, metadata publication, type inference, or defaulting. Numeric accepts exact Integer only; body-managed preserves exact Integer/Bool/Box; missing init, missing/Unknown type, and Float/Box numeric inputs reject. Focused 6/6, existing progression-role 18/18, cargo check, formatting, pointer, diff, and line budgets are green. M0 caller/slot/census/nested-error inventory is next.",
@@ -329,5 +330,4 @@ landed_tail = [
   "2026-07-17: TYPE-PUBLISH0-M0 closes a behavior-neutral four-entry producer/nonconsumer/rewriter/timing inventory with production decision consumers still zero. Test-only Builder evidence records the pre-I0 split: raw emit publishes unanimous type+origin, while complete final, patch, and batch publish no transient type; a disconnected prepare-mutate-commit adapter proves logical receiver inputs remain identical after rematerialization and the committed PHI type is immediately copied by LocalSSA before final metadata. The exact late final-metadata publisher is user-box route convergence's Copy/Phi fixed-point, not the one-shot final TypePropagationPipeline. The inventory also fixes two I0 seams: raw metadata currently mutates before append, and Binding SSA writes Unknown after a successful patch. Focused 11/11 plus late-publisher 1/1 and the machine inventory checker are green; production behavior and producer wiring remain unchanged. I0 is next.",
   "2026-07-17: TYPE-PUBLISH0-S0 closes one Builder-private disconnected PHI type-publication product. PhiTransientTypeDecisionV1 treats missing/Unknown as non-facts and every other MirType, including Void, as exact; destination, hint, and logical incoming facts are equal-rank constraints with deterministic pre-mutation conflict witnesses. Prepared publication is single-use and only Publish mutates the supplied transient type map. Focused 9/9, lifecycle 6/6, same-root 18/18, Binding-SSA transaction, CorePlan PHI boundary, cargo check, pointer, formatting, and line budgets are green. Production consumers and existing producer source deltas remain zero; the declared-field proof remains PHI-ROOT-DESIGN-REQUIRED. M0 producer/rematerialization/timing inventory is next.",
   "2026-07-17: The TYPE-PUBLISH0 one-shot answer selects Candidate A-prime canonical producer repair and closes D0. One pure type-only decision treats missing and Unknown as non-facts and every other MirType, including Void, as exact. Existing destination, explicit hint, and logical incoming facts are equal-rank deterministic constraints; hints never publish alone, unconstrained heterogeneous inputs do not publish, and every unequal concrete pair fails before mutation. Exactly raw emit, complete final insert, patch, and batch consume the decision; provisional and function-level APIs remain non-consumers. Publication follows successful Phi mutation, raw origin remains separate, and batch uses one ephemeral candidate-function transaction. S0 is the sole next code-facing row with production consumers zero, followed without reconsultation by M0/I0/G0, existing PHI0-I0, DECLFIELD0-G0, and clean HMI R0 unless an explicit stop law fires.",
-  "2026-07-17: Three read-only worker audits reduce the apparent consultation backlog to one real open question. Old HMI Design-stop/External-consultation headers are answered or superseded status drift; unrelated and evidence-gated future families are excluded. TYPE-PUBLISH0 now has one one-shot D0 packet combining four coordinated decisions: concrete candidate/NoPublication law, destination/type_hint constraints and typed conflicts, exact Builder producer/non-consumer set, and prevalidate-mutate-publish single/batch atomicity. A fixed S0/M0/I0/G0 -> existing PHI0-I0 -> DECLFIELD0-G0 -> clean HMI R0 runway is pre-authorized without checkpoint-by-checkpoint reconsultation unless an explicit stop condition appears. Future HMI-S1/O1/C0/X0/R1/R2 and parser acceptance choices remain evidence-gated, not bundled speculation.",
 ]
