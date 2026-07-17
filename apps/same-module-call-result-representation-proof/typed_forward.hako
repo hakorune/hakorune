@@ -1,0 +1,26 @@
+// S0 source-signature control; not an authorized repair for the forward case.
+
+static box TypedForwardConsumerV1 {
+    run(limit) {
+        local pos = TypedForwardProviderV1.seed()
+        local total = 0
+        loop(pos < limit) {
+            total = total + pos
+            pos = pos + 1
+        }
+        return total
+    }
+}
+
+static box TypedForwardProviderV1 {
+    seed(): i64 {
+        return 1
+    }
+}
+
+static box Main {
+    main(args) {
+        return TypedForwardConsumerV1.run(4)
+    }
+}
+

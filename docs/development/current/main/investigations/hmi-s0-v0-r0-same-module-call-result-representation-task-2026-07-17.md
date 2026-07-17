@@ -1,5 +1,5 @@
 ---
-Status: active; S0 is next
+Status: active through S0; M0 is next
 Date: 2026-07-17
 Decision: inventory-first; production representation owner remains a design stop
 Baseline: a0802ea5c6
@@ -8,6 +8,53 @@ Scope: identify the lowering-time representation owner for a forward same-module
 ---
 
 # HMI R0 same-module call-result representation task
+
+## Current progress
+
+`R0-SAME-MODULE-CALL-RESULT-REP0-S0` is closed with production behavior and
+production type publishers both zero. One HMI-independent proof app owns five
+small source cases and one direct checker:
+
+```text
+forward untyped direct call result:
+  Missing
+
+forward untyped call result through one local Copy:
+  Missing
+
+forward explicitly i64-annotated callee:
+  Missing
+
+the same untyped provider/caller with provider declared first:
+  Exact; generic_loop_v1 returns 6
+
+independent literal-i64 control:
+  Exact; generic_loop_v1 returns 6
+```
+
+Debug and release produce the same normalized observation. The reverse-order
+MIR diagnostic has exact i64 on the call result, its Copy, and the carrier PHI,
+but the checker labels finalized metadata diagnostic-only. The typed-forward
+case proves that a source return annotation does not by itself make a callee
+fact available before that callee is lowered. No source rewrite, declaration
+reordering, name heuristic, GenericLoop default, final-metadata fallback, or
+new type publication is present.
+
+Validation:
+
+```text
+bash apps/same-module-call-result-representation-proof/test.sh
+python3 -m py_compile \
+  tools/checks/lib/same_module_call_result_representation_proof.py
+bash tools/checks/generic_loop_progression_role_v0_guard.sh
+cargo check -q
+tools/checks/dev_gate.sh quick
+```
+
+The quick gate exposed one older Add-result unit-test boundary leak: two test
+values were written by direct `variable_map.insert`. The test now uses the
+existing `publish_emission_cache` owner instead; the no-growth inventory is 47
+and quick is green at 66/66. This changes no production behavior.
 
 ## Selected next slice
 
@@ -23,10 +70,10 @@ R0-SAME-MODULE-CALL-RESULT-REP0-S0
   -> R0-GENERICLOOP-CARRIER-TYPE0-G0
 ```
 
-The next code-facing row is:
+The next code-facing row is now:
 
 ```text
-R0-SAME-MODULE-CALL-RESULT-REP0-S0
+R0-SAME-MODULE-CALL-RESULT-REP0-M0
 ```
 
 S0 and M0 may identify an existing canonical producer seam. They do not
@@ -314,9 +361,10 @@ Three worker audits select an inventory-first boundary. The current failure is
 not a GenericLoop role or PHI defect: its selected init is a forward,
 same-module, untyped static/global call result whose exact Integer
 representation is published only after the lowering-time consumer has already
-failed. `R0-SAME-MODULE-CALL-RESULT-REP0-S0` is therefore the sole next
-code-facing row and adds only a generic reproduction plus typed observations;
-M0 then identifies the first missing producer/timing seam. GenericLoop keeps
+failed. `R0-SAME-MODULE-CALL-RESULT-REP0-S0` has now closed the generic
+reproduction and typed observations with zero production delta;
+`R0-SAME-MODULE-CALL-RESULT-REP0-M0` is the sole next code-facing row and
+identifies the first missing producer/timing seam. GenericLoop keeps
 its exact current-type authority and Missing/Unknown stop law. A production
 repair is locally authorized only if M0 proves exactly one existing generic
 producer and an already-owned exact fact. Otherwise the lane returns to a

@@ -1,0 +1,14 @@
+// S0 compiler-reuse control with no same-module call-result dependency.
+
+static box Main {
+    main(args) {
+        local pos = 1
+        local total = 0
+        loop(pos < 4) {
+            total = total + pos
+            pos = pos + 1
+        }
+        return total
+    }
+}
+

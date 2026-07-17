@@ -1,0 +1,27 @@
+// S0 forward, untyped, one ordinary local copy before the carrier.
+
+static box ForwardCopyConsumerV1 {
+    run(limit) {
+        local initial = ForwardCopyProviderV1.seed()
+        local pos = initial
+        local total = 0
+        loop(pos < limit) {
+            total = total + pos
+            pos = pos + 1
+        }
+        return total
+    }
+}
+
+static box ForwardCopyProviderV1 {
+    seed() {
+        return 1
+    }
+}
+
+static box Main {
+    main(args) {
+        return ForwardCopyConsumerV1.run(4)
+    }
+}
+

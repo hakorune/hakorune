@@ -1,0 +1,25 @@
+// S0 declaration-order control: the same untyped provider precedes the caller.
+
+static box OrderProviderV1 {
+    seed() {
+        return 1
+    }
+}
+
+static box OrderConsumerV1 {
+    run(limit) {
+        local pos = OrderProviderV1.seed()
+        local total = 0
+        loop(pos < limit) {
+            total = total + pos
+            pos = pos + 1
+        }
+        return total
+    }
+}
+
+static box Main {
+    main(args) {
+        return OrderConsumerV1.run(4)
+    }
+}
