@@ -1,150 +1,372 @@
 ---
-Status: design consultation stop
+Status: accepted taskboard
 Date: 2026-07-17
-Baseline: ef4c26c50eebbda3192a5fd97878a2fe2996117d
+Baseline: 040d2906a35b367d39f1377b8159cef020203b78
 Parent: callable-result-i64-catalog0-task-2026-07-17.md
 Scope: canonical source-call target projection and neutral Core method result kind
+Decision: Candidate A-prime
 ---
 
-# Source-call target and Core-result authority design stop
+# Source-call target and Core-result authority taskboard
 
-## Current evidence
+## Decision
 
-`R0-CALLABLE-RESULT-I64-CATALOG0-S0a` proves local-body exact-i64 result
-requirements without production consumers. Two independent missing facts
-prevent full S0:
-
-1. the complete declaration catalog proves candidate existence, not the final
-   source-call route selected after builtin/direct-module/current-owner policy;
-2. the Core method vocabulary owns canonical identity, arity, and effect, but
-   not a representation-neutral result kind for `String.length/0`.
-
-A concrete counterexample is a same-module static declaration named `str/1`.
-Builder's builtin `str(...)` route precedes bare-static recovery, so unique
-declaration recovery cannot be used as final target authority. The actual
-wrapper `ParserStringUtilsBox.skip_ws/2` is therefore unavailable even though
-`StringHelpers.skip_ws/2` itself is `ExactI64 {1}`.
-
-The actual `StringHelpers.to_i64/1` first loses the proof at:
-
-```hako
-local s = "" + x
-local n = s.length()
-local zero_i64 = n - n
-```
-
-Using Builder `MirType`, runtime tags, or a method-name whitelist would create
-a second or downstream authority and is forbidden.
-
-## Decision required
-
-Select the smallest durable architecture answering all of these questions:
-
-1. Which product co-seals the final selected source-call route and canonical
-   callable key before Builder effects?
-2. Does one product cover bare, qualified static, and current-owner calls, or
-   must route-disjoint products be introduced in a fixed order?
-3. How does the product prove every higher-priority route declined without
-   replaying Builder policy or inspecting a physical MIR symbol?
-4. Which neutral owner states that canonical `String.length/0` returns exact
-   i64, while remaining reusable by Builder and source proof?
-5. Which owner proves `"" + x` has a String receiver representation without
-   introducing general non-i64 values into the exact-i64 abstract domain?
-6. Which owner canonicalizes `length` / `len` / `size` aliases, if aliases are
-   admitted at all?
-7. Is task order target projection first, Core result-kind first, or one
-   co-sealed product? The answer must allow disconnected tests before any
-   production consumer.
-
-## Candidate boundaries
-
-### Candidate A — selected-route witness plus neutral Core result-kind catalog
+Candidate A-prime is selected after three read-only worker audits and a local
+source/route audit authorized by the user.
 
 ```text
-complete declarations + existing route policies
-  -> VerifiedSourceStaticCallTargetV1
+source-call route facts
+  -> one site-indexed target catalog
+       route-disjoint qualified/current-owner variants
 
-CoreMethodContract canonical identity
-  -> CoreMethodResultRepresentationV1
+CoreMethodContractBox
+  -> one generated neutral result-kind view
 
-both borrowed by callable-result S0b
+bounded source receiver facts
+  -> ExactStringOnSuccess
+
+callable-result proof
+  -> borrows and co-seals only the rows required at each call site
 ```
 
-This is preferred if route selection can be centralized once rather than
-replayed. The target witness must retain a structured key, never a parsed MIR
-symbol. The Core result catalog must not depend on Builder `MirType`.
+The target and result-kind authorities remain separate because they own
+different truth. The accepted call-site proof co-seals them so no later loose
+target/result join is allowed.
 
-### Candidate B — one broader callable resolution product
+One universal source-call resolver is not selected. Bare, qualified-static,
+and current-owner calls have different precedence inputs. They share one final
+target vocabulary and catalog shape, but route-disjoint producers seal their
+variants in a fixed order.
 
-One product seals builtin/Core/user/static call identity and result
-representation together. This may reduce joins, but risks becoming a second
-whole callable/type authority. Select only if the existing callable registry
-can own it without duplicating declaration or Core-method truth.
+## Durable authority split
 
-### Candidate C — keep call results unavailable
+| Concern | Authority | Explicit non-authority |
+| --- | --- | --- |
+| same-module declarations | `VerifiedSameModuleCallableDeclarationCatalogV1` | lowering order, MIR table |
+| exact call site | `SourceExprSiteV1` under caller canonical key | span text, physical symbol |
+| imported static alias | verified sorted alias view co-sealed with catalog target | raw mutable `using_import_boxes` map |
+| qualified selected target | `VerifiedQualifiedStaticCallTargetV1` | declaration existence alone |
+| current-owner selected target | `VerifiedCurrentOwnerStaticCallTargetV1` | `current_static_box`, name split, `current_module` |
+| final target vocabulary | `VerifiedSourceStaticCallTargetV1` | Builder route replay |
+| final target rows | `VerifiedSourceStaticCallTargetCatalogV1` | runtime class/tag |
+| Core method identity/effect/result | `CoreMethodContractBox` source row | Builder `MirType`, runtime method table |
+| generated Core result view | generated JSON v1 plus generated Rust table | runtime JSON parsing in Builder |
+| source String receiver | bounded `SourceCoreReceiverFactV1` | `I64ExpressionFactV1` widening |
+| accepted call result | callable-result row co-sealing target and result evidence | method spelling heuristic |
 
-This preserves S0a but cannot close the selected wrapper/to_i64 blocker and
-does not advance HMI. It is a parking decision, not completion.
+## Source target product
 
-## Exact next code-facing owner requirement
+The final catalog is site-indexed and non-Clone.
 
-The consultation must name exactly one first disconnected owner:
+```rust
+pub(crate) struct VerifiedSourceStaticCallTargetCatalogV1 {
+    rows: BTreeMap<
+        (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
+        VerifiedSourceStaticCallTargetV1,
+    >,
+}
 
-```text
-R0-SOURCE-CALL-TARGET0-S0
-or
-R0-CORE-METHOD-RESULT-KIND0-S0
-or one explicitly co-sealed replacement
+pub(crate) enum VerifiedSourceStaticCallTargetV1 {
+    QualifiedStatic(VerifiedQualifiedStaticCallTargetV1),
+    CurrentOwnerStatic(VerifiedCurrentOwnerStaticCallTargetV1),
+    BareStaticRecovery(VerifiedBareStaticCallTargetV1),
+}
 ```
 
-The first row must have:
+The first row implements only `QualifiedStatic`. `BareStaticRecovery` remains
+parked because its final selection requires every higher-priority FunctionCall
+route to decline. A unique declaration candidate alone is not final route
+authority.
+
+### Qualified-static law
+
+```rust
+pub(crate) enum VerifiedQualifiedStaticReceiverV1 {
+    ImportedAlias {
+        source_alias: Box<str>,
+        canonical_owner: Box<str>,
+    },
+    UnshadowedCanonicalOwner {
+        canonical_owner: Box<str>,
+    },
+}
+```
+
+The sealer consumes:
 
 ```text
+caller canonical key
+function-relative SourceExprSiteV1
+receiver spelling
+verified import-alias binding, when present
+exact-site lexical binding fact
+reserved special-receiver decline
+complete same-module declaration catalog
+checked source arity
+```
+
+It produces one exact canonical target key or a typed unavailable reason. It
+does not emit MIR, choose a result representation, or parse a physical symbol.
+
+Current Builder behavior resolves imported aliases before the local-binding
+check. The disconnected parity matrix must either preserve that precedence
+explicitly or stop before activation; it must not silently choose conventional
+lexical precedence instead.
+
+Reserved `mem`, `__mir__`, and `__repl__` routes are not admitted as ordinary
+qualified static calls when their existing special route is active.
+
+## Core result-kind authority
+
+No second semantic catalog is created. The existing `.hako` SSOT remains:
+
+```text
+lang/src/runtime/meta/core_method_contract_box.hako
+```
+
+Each canonical row gains a neutral `result_kind`. The generated manifest moves
+to schema v1 and the generator also emits a static Rust data table. Builder and
+source proof may later consume the same generated rows without parsing JSON at
+runtime.
+
+First neutral vocabulary:
+
+```text
+I64Value
+BoolValue
+StringValue
+NoValue
+Dynamic
+```
+
+Canonical spelling and aliases remain one source row. For String length:
+
+```text
+receiver = StringBox
+canonical = length
+aliases = len, size
+arity = 0
+core_op = StringLen
+result_kind = I64Value
+```
+
+Receiver plus exact spelling plus exact arity selects a row. Duplicate alias
+or canonical collisions for one receiver and arity fail generation. Same
+spellings on Array/Map remain distinct receiver rows. Builder-only return-type
+matches may remain temporarily only as guarded migration mirrors, never as
+semantic authority.
+
+## Bounded String receiver fact
+
+String receiver representation does not enter the exact-i64 abstract domain.
+It receives a separate bounded view:
+
+```rust
+pub(crate) enum SourceCoreReceiverFactV1 {
+    ExactStringOnSuccess,
+}
+```
+
+The first admitted shapes are an exact String literal and String-left `Add`.
+`OnSuccess` is a result representation contract: it states the representation
+when evaluation returns a value. It does not claim totality, purity, absence of
+an error, or a new NonVoid fact. If implementation evidence shows this is not
+the repository's result-contract law, the row stops rather than broadening the
+i64 domain or adding a fallback.
+
+## Exact task order
+
+```text
+R0-SOURCE-CALL-TARGET0-Q0
+  -> R0-CORE-METHOD-RESULT-KIND0-S0
+  -> R0-SOURCE-STRING-RECEIVER0-S0
+  -> R0-SOURCE-CALL-TARGET0-M0
+  -> R0-CALLABLE-RESULT-I64-CATALOG0-S0b
+  -> R0-CALLABLE-RESULT-I64-CATALOG0-P0
+  -> R0-CALLABLE-RESULT-I64-CATALOG0-I0
+  -> R0-CALLABLE-RESULT-I64-CATALOG0-G0
+  -> clean HMI-S0-V0-R0-I0 resume
+```
+
+`R0-SOURCE-CALL-TARGET0-Q0` is the sole next code-facing row.
+
+### Q0 — disconnected qualified target
+
+```text
+production behavior delta = 0
+production producers = 0
 production consumers = 0
-Builder/MIR/runtime behavior delta = 0
-name heuristic count = 0
-physical-symbol parsing = 0
-fallback/retry = 0
-source/check files >= 800 lines = 0
 ```
 
-## Non-authorities
+Owns:
 
 ```text
-callable declaration existence alone
-bare-static recovery decision alone
-Builder infer_method_return_type
-generic_method_route_plan ScalarI64 rows
-MirType or type_ctx
-final MirFunction metadata
-runtime VMValue/class tags
-physical MIR symbol spelling
-function/method/HMI-name special cases
-callee-first lowering, retry, or re-lowering
+qualified receiver decision
+verified imported-alias view
+exact lexical-shadow observation
+reserved-route decline
+catalog-key projection
+caller-key + SourceExprSiteV1 row
+typed unavailable vocabulary
+```
+
+Does not own:
+
+```text
+current-owner calls
+bare calls
+builtin/Core calls
+result representation
+argument evaluation
+Builder emission
+```
+
+Required fixtures include direct canonical spelling, an imported alias,
+`ParserStringUtilsBox.skip_ws/2 -> StringHelpers.skip_ws/2`, alias/local-name
+collision parity, wrong arity, missing target, reserved receiver decline, and
+declaration reorder parity.
+
+### Core result S0 — generated neutral result kinds
+
+```text
+production behavior delta = 0
+production consumers = 0
+```
+
+Add `result_kind` to the existing `.hako` rows, generate JSON schema v1 and a
+static Rust table, and prove canonical/alias/arity/receiver collision laws.
+`String.length/len/size` is the first required `I64Value` row.
+
+### String receiver S0 — disconnected source view
+
+```text
+production behavior delta = 0
+production consumers = 0
+```
+
+Seal only String literal and String-left Add `ExactStringOnSuccess`. No general
+String value domain, dynamic truthiness, result totality, or Builder type
+backfeed is admitted.
+
+### M0 — current-owner target
+
+```text
+production behavior delta = 0
+production consumers = 0
+```
+
+Seal the current-owner variant from canonical source declaration identity.
+The actual `StringHelpers.to_i64/1 -> me._digit_value/1` fixture is required.
+Function-name splitting, `current_static_box`, `current_module`, lowering order,
+and `variable_map["me"]` are forbidden target authorities.
+
+### S0b — complete disconnected callable result
+
+Borrow the target catalog, Core result row, and bounded String receiver view.
+No production consumer is added.
+
+Required positive rows:
+
+```text
+StringHelpers.skip_ws/2 = ExactI64 {1}
+ParserStringUtilsBox.skip_ws/2 = ExactI64 {1}
+StringHelpers.to_i64/1 = ExactI64 {}
+StringHelpers._digit_value/1 current-owner target
+provider/caller declaration reorder parity
+```
+
+Bare FunctionCall remains explicitly unavailable in this row.
+
+### P0 / I0 / G0
+
+P0 fixes the normalized target/result/co-seal pass and reject matrix. I0 adds
+one pre-body catalog construction sequence, one selected-target emission
+consumer, and one result-publication consumer. G0 fixes producer/consumer
+counts, no-retry guards, line caps, and the HMI resume pointer.
+
+## Required counters
+
+```text
+source target final vocabulary definitions = 1
+qualified target producer families = 1
+current-owner target producer families after M0 = 1
+bare target production consumers through G0 = 0
+
+Core result semantic catalogs = 1
+Core result generated Rust tables = 1
+runtime JSON parsing for Core result lookup = 0
+
+raw Lower name reads on selected rows = 0
+physical-symbol parsing = 0
+current_module target identity = 0
+function-name target identity = 0
+runtime-tag target/result inference = 0
+
+result proof Builder MirType reads = 0
+final MirFunction metadata reads = 0
+I64ExpressionFact String variants = 0
+
+fallback / retry / re-lowering = 0
+production behavior delta before I0 = 0
+source/check files >= 800 lines = 0
 ```
 
 ## Stop conditions
 
-Stop implementation if any proposal requires:
+Stop before the affected row if any implementation requires:
 
-1. replaying route precedence independently in the result analyzer;
+1. one universal resolver replaying all Builder call precedence;
 2. a second callable declaration/body catalog;
-3. Builder or runtime representation facts flowing back into source proof;
-4. a method spelling whitelist as result-kind authority;
-5. non-i64 values entering the exact-i64 domain without a separate bounded
-   receiver view;
-6. physical-symbol parsing, declaration order, fallback, or retry;
-7. connecting a production consumer before disconnected target/result parity;
-8. a source/check file reaching 800 lines.
+3. raw mutable `using_import_boxes` as a sealed authority;
+4. current-owner identity from function names, `current_static_box`, or
+   `current_module` visibility;
+5. a new semantic Core-method catalog instead of extending
+   `CoreMethodContractBox`;
+6. Builder `MirType`, final metadata, runtime tags, or method-name whitelists
+   flowing back into source proof;
+7. String values entering `I64ExpressionFactV1`;
+8. a totality/NonVoid claim merely to classify a successful String-left Add;
+9. physical-symbol parsing, callee-first lowering, fallback, or retry;
+10. a production consumer before disconnected parity;
+11. a source/check file reaching 800 lines.
 
-## Implementation may not yet claim
+## Implementation may eventually claim
+
+After the full task order is green:
 
 ```text
-canonical call-target projection
-same-catalog call substitution
-String.length/0 exact-i64 result authority
-StringHelpers.to_i64/1 exact result
-ParserStringUtilsBox.skip_ws/2 exact wrapper
-call-result ValueId publication
-HMI register execution
+qualified and current-owner selected targets have canonical source identity
+Core method result kinds come from one existing semantic owner
+String length aliases share one receiver/arity/result row
+selected call sites co-seal target and result evidence
+the actual skip_ws wrapper and to_i64 chain have exact-i64 result rows
+one selected production route publishes the sealed call result without retry
 ```
+
+## Implementation must not claim
+
+```text
+general callable support
+bare-call final authority
+general String abstract interpretation
+call totality or purity
+general non-i64 source values
+runtime type inference
+physical MIR symbol identity
+callee-first publication
+fallback or route retry
+HMI register execution before the clean resume row
+```
+
+## Docs loop breaker
+
+```text
+worker_inventory = consumed
+worker_inventory_scope = read_only current source, routes, cards, and ledgers
+docs_only_closeout = forbidden
+next_commit_code_or_generated_artifact_delta_required = 1
+```
+
+No new consultation card is created. The next commit after this accepted
+taskboard must implement or generate an artifact for Q0. A new consultation is
+allowed only when an explicit stop condition is observed.
