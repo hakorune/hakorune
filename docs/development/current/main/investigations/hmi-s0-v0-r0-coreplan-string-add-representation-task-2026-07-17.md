@@ -269,8 +269,40 @@ winning when the other operand is exact String.
 
 ### I0 — one production consumer
 
-Replace only `PlanNormalizer::arithmetic_result_type` with the prepared
-decision before `alloc_typed`.
+The current source arm groups `Add`, `Subtract`, `Multiply`, `Divide`, and
+`Modulo`. Do not replace its shared result decision unconditionally. Split the
+result selection at the already-lowered `BinaryOp` value:
+
+```text
+BinaryOp::Add:
+  consume prepare_coreplan_add_result_representation_v1 exactly once
+
+Subtract / Multiply / Divide / Modulo:
+  preserve the existing Float-if-either, otherwise-Integer decision
+```
+
+The prepared Add result is consumed before the one `alloc_typed` call. A
+renamed private non-Add helper may retain the legacy arithmetic decision; it
+must not become a second Add policy owner.
+
+Required focused matrix:
+
+```text
+String + Unknown Add -> String
+String + Float Add -> String
+String - Float -> Float
+Integer + Integer -> Integer
+Float + Integer -> Float
+```
+
+Post-I0 structural counts:
+
+```text
+prepared Add decision production consumers = 1
+legacy general arithmetic decision consumers = 0
+non-Add legacy decision consumers = 1
+direct Builder and final propagation consumers = 0
+```
 
 Unchanged:
 
@@ -314,6 +346,13 @@ Three TSV expectations still use the historical `LoopSimpleWhile` label while
 the selected route is `loop_array_join`. M0 must classify those expectations;
 G0 may update stale route labels only when the runtime semantics are already
 green and the route identity is machine-proven.
+
+`tools/checks/generic_loop_progression_role_v0_guard.sh` also contains a
+historical negative canary that requires the pre-I0 Integer-versus-String PHI
+conflict. A successful I0 intentionally retires that expected failure. G0 must
+replace it with the exact newly observed HMI frontier (or a successful canary)
+without weakening the GenericLoop numeric-role assertions. It must not retain
+the old conflict through a fallback build or alternate route.
 
 ## Counters and guards
 
