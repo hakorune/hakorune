@@ -1,6 +1,7 @@
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) enum SameModuleCallableNamespaceV1 {
     StaticBoxMethod,
+    InstanceBoxMethod,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -15,6 +16,15 @@ impl CanonicalSameModuleCallableKeyV1 {
     pub(super) fn static_box_method(owner: &str, name: &str, arity: u32) -> Self {
         Self {
             namespace: SameModuleCallableNamespaceV1::StaticBoxMethod,
+            owner: owner.into(),
+            name: name.into(),
+            arity,
+        }
+    }
+
+    pub(super) fn instance_box_method(owner: &str, name: &str, arity: u32) -> Self {
+        Self {
+            namespace: SameModuleCallableNamespaceV1::InstanceBoxMethod,
             owner: owner.into(),
             name: name.into(),
             arity,

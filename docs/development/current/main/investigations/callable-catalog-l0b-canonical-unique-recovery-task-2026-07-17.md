@@ -1,5 +1,5 @@
 ---
-Status: Candidate A accepted; S0 is next
+Status: S0 closed; P0 is next
 Date: 2026-07-17
 Decision: canonical declaration-order-independent unique bare-static recovery
 Baseline: 4524c9675f
@@ -9,6 +9,27 @@ Scope: complete same-module callable catalog cutover and one narrow recovery wid
 ---
 
 # Callable catalog L0b canonical unique recovery task
+
+## Current progress
+
+`R0-CALLABLE-CATALOG-L0B-S0` is closed. The disconnected catalog now owns the
+exact legacy declaration-store union through namespace-disjoint
+`StaticBoxMethod` and `InstanceBoxMethod` rows. Static candidate lookup is a
+separate static-only index; exact structured declaration lookup can address
+either namespace. Program roots, singleton BoxDeclaration roots, and verified
+empty non-declaration roots are sealed without widening nested discovery.
+
+Constructors, top-level functions, ordinary-box static methods, records, and
+sync boxes remain excluded. Production catalog producers/consumers and
+recovery policy owners remain zero. Focused catalog tests are 7/7, `cargo
+check` and quick 66/66 are green, formatting and diff checks are clean, and
+every touched source/check file remains below 800 lines.
+
+The next code-facing row is:
+
+```text
+R0-BARE-STATIC-RECOVERY0-P0
+```
 
 ## Decision
 
@@ -33,12 +54,6 @@ meaning. This is an intentional narrow semantic widening: source that the old
 duplicate-registration map rejected after lowering the provider may now
 resolve to the same unique callable that already resolved in caller-first
 order.
-
-The next code-facing row is:
-
-```text
-R0-CALLABLE-CATALOG-L0B-S0
-```
 
 The exact task order is:
 

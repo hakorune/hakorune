@@ -2,9 +2,13 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use crate::ast::{ASTNode, ParamDecl};
 
-use super::{CanonicalSameModuleCallableKeyV1, SameModuleCallableDeclarationCatalogErrorV1};
+use super::{
+    CanonicalSameModuleCallableKeyV1, SameModuleCallableDeclarationCatalogErrorV1,
+    SameModuleCallableNamespaceV1,
+};
 
 #[derive(Debug)]
+#[cfg_attr(not(test), allow(dead_code))]
 pub(crate) struct VerifiedSameModuleCallableDeclarationV1 {
     key: CanonicalSameModuleCallableKeyV1,
     params: Box<[String]>,
@@ -13,6 +17,7 @@ pub(crate) struct VerifiedSameModuleCallableDeclarationV1 {
     body: Box<[ASTNode]>,
 }
 
+#[cfg_attr(not(test), allow(dead_code))]
 impl VerifiedSameModuleCallableDeclarationV1 {
     pub(crate) const fn key(&self) -> &CanonicalSameModuleCallableKeyV1 {
         &self.key
@@ -39,9 +44,11 @@ impl VerifiedSameModuleCallableDeclarationV1 {
 pub(crate) struct VerifiedSameModuleCallableDeclarationCatalogV1 {
     rows_by_key:
         BTreeMap<CanonicalSameModuleCallableKeyV1, VerifiedSameModuleCallableDeclarationV1>,
-    keys_by_method_and_arity: BTreeMap<(Box<str>, u32), Box<[CanonicalSameModuleCallableKeyV1]>>,
+    static_keys_by_method_and_arity:
+        BTreeMap<(Box<str>, u32), Box<[CanonicalSameModuleCallableKeyV1]>>,
 }
 
+#[cfg_attr(not(test), allow(dead_code))]
 impl VerifiedSameModuleCallableDeclarationCatalogV1 {
     pub(crate) fn seal_program(
         root: &ASTNode,
@@ -50,10 +57,28 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
             return Err(SameModuleCallableDeclarationCatalogErrorV1::ProgramRequired);
         };
 
+        Self::seal_statements(statements)
+    }
+
+    /// Seals the Builder's existing root surface without widening declaration
+    /// discovery. Non-container roots own a verified empty inventory.
+    pub(crate) fn seal_root(
+        root: &ASTNode,
+    ) -> Result<Self, SameModuleCallableDeclarationCatalogErrorV1> {
+        match root {
+            ASTNode::Program { statements, .. } => Self::seal_statements(statements),
+            ASTNode::BoxDeclaration { .. } => Self::seal_statements(std::slice::from_ref(root)),
+            _ => Self::seal_statements(&[]),
+        }
+    }
+
+    fn seal_statements(
+        statements: &[ASTNode],
+    ) -> Result<Self, SameModuleCallableDeclarationCatalogErrorV1> {
         let mut rows_by_key = BTreeMap::new();
-        let mut keys_by_method_and_arity =
+        let mut static_keys_by_method_and_arity =
             BTreeMap::<(Box<str>, u32), Vec<CanonicalSameModuleCallableKeyV1>>::new();
-        let mut static_box_owners = BTreeSet::new();
+        let mut box_owners = BTreeSet::new();
 
         for statement in statements {
             let ASTNode::BoxDeclaration {
@@ -67,12 +92,12 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
             else {
                 continue;
             };
-            if !*is_static || *is_sync || *is_record {
+            if *is_sync || *is_record {
                 continue;
             }
-            if !static_box_owners.insert(name.clone()) {
+            if !box_owners.insert(name.clone()) {
                 return Err(
-                    SameModuleCallableDeclarationCatalogErrorV1::DuplicateStaticBoxOwner {
+                    SameModuleCallableDeclarationCatalogErrorV1::DuplicateBoxOwner {
                         owner: name.clone(),
                     },
                 );
@@ -91,11 +116,25 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
                 } = declaration
                 else {
                     return Err(
-                        SameModuleCallableDeclarationCatalogErrorV1::StaticMethodMustBeFunction {
+                        SameModuleCallableDeclarationCatalogErrorV1::MethodMustBeFunction {
                             owner: name.clone(),
                             method: map_name.clone(),
                         },
                     );
+                };
+                let ASTNode::FunctionDeclaration {
+                    is_static: method_is_static,
+                    ..
+                } = declaration
+                else {
+                    unreachable!()
+                };
+                let namespace = if *is_static {
+                    SameModuleCallableNamespaceV1::StaticBoxMethod
+                } else if !*method_is_static {
+                    SameModuleCallableNamespaceV1::InstanceBoxMethod
+                } else {
+                    continue;
                 };
                 if map_name != declaration_name {
                     return Err(
@@ -112,8 +151,14 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
                         method: map_name.clone(),
                     }
                 })?;
-                let key =
-                    CanonicalSameModuleCallableKeyV1::static_box_method(name, map_name, arity);
+                let key = match namespace {
+                    SameModuleCallableNamespaceV1::StaticBoxMethod => {
+                        CanonicalSameModuleCallableKeyV1::static_box_method(name, map_name, arity)
+                    }
+                    SameModuleCallableNamespaceV1::InstanceBoxMethod => {
+                        CanonicalSameModuleCallableKeyV1::instance_box_method(name, map_name, arity)
+                    }
+                };
                 validate_parameters(&key, params, param_decls)?;
                 let row = VerifiedSameModuleCallableDeclarationV1 {
                     key: key.clone(),
@@ -127,14 +172,16 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
                         SameModuleCallableDeclarationCatalogErrorV1::DuplicateCanonicalKey(key),
                     );
                 }
-                keys_by_method_and_arity
-                    .entry((map_name.clone().into_boxed_str(), arity))
-                    .or_default()
-                    .push(key);
+                if namespace == SameModuleCallableNamespaceV1::StaticBoxMethod {
+                    static_keys_by_method_and_arity
+                        .entry((map_name.clone().into_boxed_str(), arity))
+                        .or_default()
+                        .push(key);
+                }
             }
         }
 
-        let keys_by_method_and_arity = keys_by_method_and_arity
+        let static_keys_by_method_and_arity = static_keys_by_method_and_arity
             .into_iter()
             .map(|(lookup, mut keys)| {
                 keys.sort();
@@ -143,7 +190,7 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
             .collect();
         Ok(Self {
             rows_by_key,
-            keys_by_method_and_arity,
+            static_keys_by_method_and_arity,
         })
     }
 
@@ -166,15 +213,34 @@ impl VerifiedSameModuleCallableDeclarationCatalogV1 {
         self.rows_by_key.keys()
     }
 
-    pub(crate) fn candidates(
+    pub(crate) fn static_candidates(
         &self,
         method: &str,
         arity: u32,
     ) -> &[CanonicalSameModuleCallableKeyV1] {
-        self.keys_by_method_and_arity
+        self.static_keys_by_method_and_arity
             .get(&(method.into(), arity))
             .map(Box::as_ref)
             .unwrap_or(&[])
+    }
+
+    pub(crate) fn declaration_for(
+        &self,
+        namespace: SameModuleCallableNamespaceV1,
+        owner: &str,
+        method: &str,
+        arity: usize,
+    ) -> Option<&VerifiedSameModuleCallableDeclarationV1> {
+        let arity = u32::try_from(arity).ok()?;
+        let key = match namespace {
+            SameModuleCallableNamespaceV1::StaticBoxMethod => {
+                CanonicalSameModuleCallableKeyV1::static_box_method(owner, method, arity)
+            }
+            SameModuleCallableNamespaceV1::InstanceBoxMethod => {
+                CanonicalSameModuleCallableKeyV1::instance_box_method(owner, method, arity)
+            }
+        };
+        self.declaration(&key)
     }
 }
 

@@ -3,10 +3,10 @@ use super::CanonicalSameModuleCallableKeyV1;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum SameModuleCallableDeclarationCatalogErrorV1 {
     ProgramRequired,
-    DuplicateStaticBoxOwner {
+    DuplicateBoxOwner {
         owner: String,
     },
-    StaticMethodMustBeFunction {
+    MethodMustBeFunction {
         owner: String,
         method: String,
     },

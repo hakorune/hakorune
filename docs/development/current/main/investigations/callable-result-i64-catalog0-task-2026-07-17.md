@@ -1,5 +1,5 @@
 ---
-Status: L0a closed; Candidate A selected for L0b
+Status: L0b-S0 closed; bare-static recovery P0 next
 Date: 2026-07-17
 Decision: B-prime exact-i64 conditional callable-result catalog
 Baseline: 06a49e5aa6
@@ -22,8 +22,9 @@ Production producers and consumers remain zero. Existing
 `static_method_index` and `lowered_method_asts` behavior is unchanged. Focused
 catalog tests are 4/4, the current-state pointer guard is green, `cargo check`
 is green, and quick is 66/66. Every added source file remains below 800 lines.
-Candidate A now defines the L0b cutover; `R0-CALLABLE-CATALOG-L0B-S0` is the
-next code-facing row.
+Candidate A now defines the L0b cutover. `R0-CALLABLE-CATALOG-L0B-S0` is
+closed with one disconnected Static/Instance declaration inventory and zero
+production consumers; `R0-BARE-STATIC-RECOVERY0-P0` is next.
 
 ### L0b recovery decision
 
