@@ -296,20 +296,20 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 
-latest_card = "source-call-site-route-fact-task-2026-07-17"
-latest_card_path = "docs/development/current/main/investigations/source-call-site-route-fact-task-2026-07-17.md"
-latest_card_summary = """Candidate A-prime-SSOT prerequisite is closed through
-CUT0. Raw qualified/current-owner candidate structs, independent
-caller/site/AST/spelling/fact constructors, and raw lexical/reserved enums are
-zero. Qualified target construction consumes one exact import-view instance
-plus co-sealed route facts; current-owner construction consumes only exact S0
-MethodCall products. The final target catalog is lifetime-bound to its exact
-declaration catalog, so equal-key cross-source composition and conflicting
-same-catalog import views reject typed. The target layer replays no reserved,
-alias-precedence, or lexical policy. Source-call target 42/42, the extended
-guard, cargo check, pointer guard, and line cap are green. Production
-source-target consumers, ABI/effect/result/runtime/backend delta, fallback,
-and stash restoration remain zero. Callable-result S0b resumes next."""
+latest_card = "callable-result-i64-catalog0-s0b-task-2026-07-17"
+latest_card_path = "docs/development/current/main/investigations/callable-result-i64-catalog0-s0b-task-2026-07-17.md"
+latest_card_summary = """Three read-only worker audits and local source review
+taskize the post-CUT0 S0b clean rewrite without external consultation. The
+non-Clone result catalog is lifetime-bound to the exact declaration and
+source-target catalogs; pointer identity rejects equal-key foreign catalogs.
+One site row borrows the exact target row or co-seals a bounded String receiver
+fact with the generated Core result row. Canonical SourcePath threading,
+required-argument substitution, a deterministic construction-only monotone
+solver, stable final call-row sealing, actual skip_ws/to_i64 fixtures, and
+compact existing-family guard updates form one disconnected commit. The stale
+stash remains evidence only. Production consumers and Builder/MIR/runtime/
+backend behavior delta remain zero; bare FunctionCall, non-i64 widening,
+recursion inference, fallback, retry, and stash restoration remain parked."""
 current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-S0B-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
