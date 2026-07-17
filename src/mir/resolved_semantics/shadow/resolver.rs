@@ -15,6 +15,7 @@ use super::path::ShadowSourcePathV0;
 use super::product::{
     ShadowAssignmentTargetV0, ShadowBindingKindV0, ShadowBindingRecordV0, ShadowControlExitV0,
     ShadowDirectCallUseV0, ShadowExitOriginV0, ShadowExitRecordV0, ShadowLexicalRefV0,
+    ShadowMethodCallObservationV0, ShadowMethodCallReceiverV0,
     ShadowQualifiedReceiverDispositionV0, ShadowRegionKindV0, ShadowRegionRecordV0,
     ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowResolvedOwnerV0, ShadowScopeKindV0,
     ShadowScopeRecordV0,
@@ -30,6 +31,12 @@ struct ResolverScopeFrameV0 {
 enum ShadowLambdaModeV0 {
     Reject,
     Inventory,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ShadowMethodCallObservationModeV0 {
+    Disabled,
+    All,
 }
 
 pub(super) struct ShadowResolverV0<'ast> {
@@ -56,6 +63,8 @@ pub(super) struct ShadowResolverV0<'ast> {
     qualified_receiver_requests: BTreeSet<SourceExprSiteV1>,
     qualified_receiver_dispositions:
         BTreeMap<SourceExprSiteV1, ShadowQualifiedReceiverDispositionV0>,
+    method_call_observation_mode: ShadowMethodCallObservationModeV0,
+    method_call_observations: BTreeMap<SourceExprSiteV1, ShadowMethodCallObservationV0>,
 }
 
 pub(super) fn resolve_function_shadow_v0(
@@ -77,6 +86,7 @@ pub(in crate::mir::resolved_semantics) fn resolve_function_shadow_view_v0(
         view,
         ShadowLambdaModeV0::Reject,
         BTreeSet::new(),
+        ShadowMethodCallObservationModeV0::Disabled,
     )
     .map(|owner| owner.function)
 }
@@ -91,6 +101,7 @@ pub(in crate::mir::resolved_semantics) fn resolve_owner_shadow_view_v0<'ast>(
         view,
         ShadowLambdaModeV0::Inventory,
         ancestor_names,
+        ShadowMethodCallObservationModeV0::Disabled,
     )
 }
 
@@ -99,9 +110,16 @@ fn resolve_shadow_view<'ast>(
     view: FunctionSyntaxViewV1<'ast>,
     lambda_mode: ShadowLambdaModeV0,
     ancestor_names: BTreeSet<Box<str>>,
+    method_call_observation_mode: ShadowMethodCallObservationModeV0,
 ) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
-    traverse_shadow_view(view, lambda_mode, ancestor_names, BTreeSet::new())
-        .map(|resolver| resolver.finish_owner(function_origin))
+    traverse_shadow_view(
+        view,
+        lambda_mode,
+        ancestor_names,
+        BTreeSet::new(),
+        method_call_observation_mode,
+    )
+    .map(|resolver| resolver.finish_owner(function_origin))
 }
 
 /// Reuses the one shadow lexical traversal for exact qualified receivers.
@@ -118,8 +136,23 @@ pub(in crate::mir) fn observe_qualified_receiver_shadow_view_v0(
         ShadowLambdaModeV0::Reject,
         BTreeSet::new(),
         requested_sites,
+        ShadowMethodCallObservationModeV0::Disabled,
     )?
     .finish_qualified_receiver_observations()
+}
+
+/// Reuses the sole shadow traversal to inventory every MethodCall site.
+pub(in crate::mir) fn observe_method_calls_shadow_view_v0(
+    view: FunctionSyntaxViewV1<'_>,
+) -> Result<BTreeMap<SourceExprSiteV1, ShadowMethodCallObservationV0>, ShadowResolveErrorV0> {
+    traverse_shadow_view(
+        view,
+        ShadowLambdaModeV0::Reject,
+        BTreeSet::new(),
+        BTreeSet::new(),
+        ShadowMethodCallObservationModeV0::All,
+    )?
+    .finish_method_call_observations()
 }
 
 fn traverse_shadow_view<'ast>(
@@ -127,12 +160,17 @@ fn traverse_shadow_view<'ast>(
     lambda_mode: ShadowLambdaModeV0,
     ancestor_names: BTreeSet<Box<str>>,
     qualified_receiver_requests: BTreeSet<SourceExprSiteV1>,
+    method_call_observation_mode: ShadowMethodCallObservationModeV0,
 ) -> Result<ShadowResolverV0<'ast>, ShadowResolveErrorV0> {
     let params = view.params();
     let body = view.body();
 
-    let mut resolver =
-        ShadowResolverV0::new(lambda_mode, ancestor_names, qualified_receiver_requests);
+    let mut resolver = ShadowResolverV0::new(
+        lambda_mode,
+        ancestor_names,
+        qualified_receiver_requests,
+        method_call_observation_mode,
+    );
     if view.receiver_policy() == ReceiverPolicyV1::DeclaredInstance {
         resolver.declare_binding(
             "me",
@@ -179,6 +217,7 @@ impl<'ast> ShadowResolverV0<'ast> {
         lambda_mode: ShadowLambdaModeV0,
         ancestor_names: BTreeSet<Box<str>>,
         qualified_receiver_requests: BTreeSet<SourceExprSiteV1>,
+        method_call_observation_mode: ShadowMethodCallObservationModeV0,
     ) -> Self {
         let function_scope = ShadowScopeIdV0::new(0);
         let function_region = ShadowRegionIdV0::new(0);
@@ -228,6 +267,8 @@ impl<'ast> ShadowResolverV0<'ast> {
             ancestor_names,
             qualified_receiver_requests,
             qualified_receiver_dispositions: BTreeMap::new(),
+            method_call_observation_mode,
+            method_call_observations: BTreeMap::new(),
         }
     }
 
@@ -277,6 +318,13 @@ impl<'ast> ShadowResolverV0<'ast> {
             );
         }
         Ok(self.qualified_receiver_dispositions)
+    }
+
+    fn finish_method_call_observations(
+        self,
+    ) -> Result<BTreeMap<SourceExprSiteV1, ShadowMethodCallObservationV0>, ShadowResolveErrorV0>
+    {
+        Ok(self.method_call_observations)
     }
 
     pub(super) fn record_lambda(
@@ -342,6 +390,38 @@ impl<'ast> ShadowResolverV0<'ast> {
 
     pub(super) fn qualified_receiver_is_requested(&self, site: &SourceExprSiteV1) -> bool {
         self.qualified_receiver_requests.contains(site)
+    }
+
+    pub(super) fn observes_all_method_calls(&self) -> bool {
+        self.method_call_observation_mode == ShadowMethodCallObservationModeV0::All
+    }
+
+    pub(super) fn request_qualified_receiver(&mut self, site: SourceExprSiteV1) {
+        self.qualified_receiver_requests.insert(site);
+    }
+
+    pub(super) fn qualified_receiver_disposition(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<ShadowQualifiedReceiverDispositionV0> {
+        self.qualified_receiver_dispositions.get(site).copied()
+    }
+
+    pub(super) fn record_method_call_observation(
+        &mut self,
+        site: SourceExprSiteV1,
+        receiver_site: SourceExprSiteV1,
+        receiver: ShadowMethodCallReceiverV0,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        let observation = ShadowMethodCallObservationV0::new(receiver_site, receiver);
+        if self
+            .method_call_observations
+            .insert(site.clone(), observation)
+            .is_some()
+        {
+            return Err(ShadowResolveErrorV0::DuplicateMethodCallObservation { site });
+        }
+        Ok(())
     }
 
     pub(super) fn record_qualified_receiver_disposition(

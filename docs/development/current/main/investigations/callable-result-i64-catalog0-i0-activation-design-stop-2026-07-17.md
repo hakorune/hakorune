@@ -1,5 +1,5 @@
 ---
-Status: locally selected and taskized; PATH0 is the next code-facing row
+Status: PATH0 closed; A0 is the next code-facing row
 Date: 2026-07-18
 Decision: Candidate A owned single-use activation plan plus located legacy input
 Baseline: 611049a62f
@@ -335,6 +335,28 @@ Argument-expression effects may precede a required-representation mismatch.
 CUT0 must not claim whole-call rollback; whole-compilation discard belongs to
 the isolated candidate session.
 
+## PATH0 closeout
+
+PATH0 now owns one neutral `ExprChildRoleV1` / `BodyChildRoleV1` /
+`SourceBodyKindV1` policy in `resolved_semantics`. Compiler located views,
+shadow traversal, and callable-result expression/function proof consume that
+one policy; their prior child-segment decision tables are gone.
+
+The existing shadow resolver traversal has one disconnected all-MethodCall
+observation mode. Exact call and receiver sites classify receivers as
+`CurrentOwner`, lexical `Bound`, positive `ProvenUnbound`, or `Dynamic`. The
+product carries no method spelling, arity, AST, target, ABI, or result fact.
+The existing requested qualified-receiver observer remains unchanged.
+
+The actual `ParserBox.static_const_parse_add/2` source is guarded at 15
+MethodCall receivers: nine current-owner `me`, four bound `text`, and two
+proven-unbound `ParserStringUtilsBox.skip_ws` sites. Focused shadow tests cover
+exact nested/repeated sites and every receiver class. The PATH0 checker fixes
+one policy owner, one traversal, zero production observers, no direct child
+path bypass in the selected proof/traversal surfaces, and the 800-line cap.
+Production behavior, result publication, Builder, MIR, runtime, and backend
+deltas remain zero. A0 is next.
+
 ## Required fixtures
 
 ```text
@@ -398,5 +420,5 @@ fallback or retry
 P0 remains closed and production behavior remains unchanged. Candidate A plus
 located legacy input is locally selected under
 `LocalMechanicalSelectorAuthorityV1`; external consultation is no longer
-required. `I0-PATH0` is the next code-facing row. No emitter patch may bypass
-PATH0, A0, or the SITE0 refactor series.
+required. `I0-PATH0` is closed and `I0-A0` is the next code-facing row. No
+emitter patch may bypass A0 or the SITE0 refactor series.

@@ -220,6 +220,20 @@ allocates no `FunctionOriginV1`, canonical Binding identity, scope product, or
 MIR state. Shadow binding ordinals stay construction-local and are collapsed
 to the disposition `Bound`; they never enter the source-call product.
 
+## Callable-result PATH0 structural observation
+
+Callable-result activation reuses this same shadow traversal to inventory all
+`MethodCall` sites.  Compiler located views, shadow resolution, and later
+located legacy lowering share one neutral child-role-to-`SourcePathSegmentV1`
+policy from `resolved_semantics`; a second AST walker or a second path table is
+not permitted.
+
+The all-call observation is read-only.  It may classify a receiver as the
+current owner, a lexically bound qualified value, a proven-unbound qualified
+owner spelling, or another dynamic expression.  It does not resolve targets,
+infer result types, allocate canonical bindings, or publish MIR state.
+Production callable-result consumers remain zero through PATH0.
+
 ## P0c callable-header boundary
 
 `CallableHeaderSyntaxViewV1` is a separate body-free view over one

@@ -5,7 +5,7 @@ use crate::mir::builder::{
     CanonicalSameModuleCallableKeyV1, VerifiedSameModuleCallableDeclarationV1,
 };
 use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
-use crate::mir::resolved_semantics::{SourcePathSegmentV1, SourcePathV1};
+use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1, SourcePathV1};
 use crate::mir::source_call_target::VerifiedSourceStaticCallTargetCatalogV1;
 
 use super::call_row::CallableResultCallRowsV1;
@@ -147,7 +147,11 @@ fn analyze_statements(
                     let fact = match initial {
                         Some(initial) => context.prove_expression(
                             initial,
-                            &path.child(SourcePathSegmentV1::Initializer(index as u32)),
+                            &expr_child_path(
+                                statement,
+                                path,
+                                ExprChildRoleV1::LocalInitializer(index as u32),
+                            ),
                         )?,
                         None => I64ExpressionFactV1::Unknown(
                             CallableResultUnavailableReasonV1::UnknownExpression,
@@ -168,16 +172,20 @@ fn analyze_statements(
                     break;
                 }
                 let receiver_fact = context.core_receiver_fact(value);
-                let fact =
-                    context.prove_expression(value, &path.child(SourcePathSegmentV1::Value))?;
+                let fact = context.prove_expression(
+                    value,
+                    &expr_child_path(statement, path, ExprChildRoleV1::AssignmentValue),
+                )?;
                 context.publish_binding(name, fact);
                 context.publish_core_receiver_binding(name, receiver_fact);
                 flow.fallthrough = Some(context.environment().clone());
             }
             ASTNode::Return {
                 value: Some(value), ..
-            } => returns
-                .push(context.prove_expression(value, &path.child(SourcePathSegmentV1::Value))?),
+            } => returns.push(context.prove_expression(
+                value,
+                &expr_child_path(statement, path, ExprChildRoleV1::ReturnValue),
+            )?),
             ASTNode::Return { value: None, .. } => {
                 returns.push(I64ExpressionFactV1::Unknown(
                     CallableResultUnavailableReasonV1::NoValueReturn,
@@ -190,15 +198,18 @@ fn analyze_statements(
                 ..
             } => {
                 let before_condition = context.environment().clone();
-                let _ = context
-                    .prove_expression(condition, &path.child(SourcePathSegmentV1::IfCondition))?;
+                let _ = context.prove_expression(
+                    condition,
+                    &expr_child_path(statement, path, ExprChildRoleV1::IfCondition),
+                )?;
                 if context.environment() != &before_condition {
                     *fatal = Some(CallableResultUnavailableReasonV1::UnsupportedExpressionKind);
                     break;
                 }
                 let base = context.environment().clone();
                 context.replace_environment(base.clone());
-                let then_paths = child_paths(path, SourcePathSegmentV1::IfThen, then_body.len());
+                let then_paths =
+                    body_child_paths(statement, path, BodyChildRoleV1::IfThen, then_body.len());
                 let then_flow = analyze_statements(
                     context,
                     then_body,
@@ -210,7 +221,7 @@ fn analyze_statements(
                 context.replace_environment(base.clone());
                 let else_flow = if let Some(else_body) = else_body {
                     let else_paths =
-                        child_paths(path, SourcePathSegmentV1::IfElse, else_body.len());
+                        body_child_paths(statement, path, BodyChildRoleV1::IfElse, else_body.len());
                     analyze_statements(context, else_body, &else_paths, loop_depth, returns, fatal)?
                 } else {
                     FlowV1::fallthrough(base)
@@ -230,13 +241,16 @@ fn analyze_statements(
                     break;
                 }
                 let before_condition = context.environment().clone();
-                let _ = context
-                    .prove_expression(condition, &path.child(SourcePathSegmentV1::LoopCondition))?;
+                let _ = context.prove_expression(
+                    condition,
+                    &expr_child_path(statement, path, ExprChildRoleV1::LoopCondition),
+                )?;
                 if context.environment() != &before_condition {
                     *fatal = Some(CallableResultUnavailableReasonV1::UnsupportedExpressionKind);
                     break;
                 }
-                let body_paths = child_paths(path, SourcePathSegmentV1::LoopBody, body.len());
+                let body_paths =
+                    body_child_paths(statement, path, BodyChildRoleV1::LoopBody, body.len());
                 let loop_flow = analyze_loop(context, body, &body_paths, returns, fatal)?;
                 flow.fallthrough = loop_flow.fallthrough;
             }
@@ -380,12 +394,23 @@ fn root_body_paths(len: usize) -> Vec<SourcePathV1> {
     (0..len).map(SourcePathV1::root_body).collect()
 }
 
-fn child_paths(
+fn expr_child_path(parent: &ASTNode, path: &SourcePathV1, role: ExprChildRoleV1) -> SourcePathV1 {
+    path.child(
+        role.segment_for(parent)
+            .expect("[freeze:contract][source_path/callable_result_stmt_expr_role]"),
+    )
+}
+
+fn body_child_paths(
+    statement: &ASTNode,
     parent: &SourcePathV1,
-    segment: fn(u32) -> SourcePathSegmentV1,
+    role: BodyChildRoleV1,
     len: usize,
 ) -> Vec<SourcePathV1> {
+    let kind = role
+        .kind_for(statement)
+        .expect("[freeze:contract][source_path/callable_result_stmt_body_role]");
     (0..len)
-        .map(|index| parent.child(segment(index as u32)))
+        .map(|index| parent.child(kind.item_segment(index as u32)))
         .collect()
 }

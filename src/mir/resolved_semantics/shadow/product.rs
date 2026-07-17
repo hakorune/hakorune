@@ -87,6 +87,40 @@ pub(in crate::mir) enum ShadowQualifiedReceiverDispositionV0 {
     ProvenUnbound,
 }
 
+/// Read-only classification of one exact MethodCall receiver.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) enum ShadowMethodCallReceiverV0 {
+    CurrentOwner,
+    Qualified(ShadowQualifiedReceiverDispositionV0),
+    Dynamic,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir) struct ShadowMethodCallObservationV0 {
+    receiver_site: SourceExprSiteV1,
+    receiver: ShadowMethodCallReceiverV0,
+}
+
+impl ShadowMethodCallObservationV0 {
+    pub(super) const fn new(
+        receiver_site: SourceExprSiteV1,
+        receiver: ShadowMethodCallReceiverV0,
+    ) -> Self {
+        Self {
+            receiver_site,
+            receiver,
+        }
+    }
+
+    pub(in crate::mir) const fn receiver_site(&self) -> &SourceExprSiteV1 {
+        &self.receiver_site
+    }
+
+    pub(in crate::mir) const fn receiver(&self) -> ShadowMethodCallReceiverV0 {
+        self.receiver
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ShadowControlExitV0 {
     Continue { target_loop: ShadowRegionIdV0 },
@@ -129,6 +163,9 @@ pub(crate) enum ShadowResolveErrorV0 {
         extra: Box<[SourceExprSiteV1]>,
     },
     DuplicateQualifiedReceiverObservation {
+        site: SourceExprSiteV1,
+    },
+    DuplicateMethodCallObservation {
         site: SourceExprSiteV1,
     },
     ExitOutsideLoop {

@@ -1,16 +1,27 @@
 //! Closed expression traversal for shadow name resolution.
 
 use crate::ast::ASTNode;
-use crate::mir::resolved_semantics::source_site::SourcePathSegmentV1;
+use crate::mir::resolved_semantics::ExprChildRoleV1;
 
 use super::path::ShadowSourcePathV0;
 use super::product::{
-    ShadowAssignmentTargetV0, ShadowLexicalRefV0, ShadowQualifiedReceiverDispositionV0,
-    ShadowResolveErrorV0,
+    ShadowAssignmentTargetV0, ShadowLexicalRefV0, ShadowMethodCallReceiverV0,
+    ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0,
 };
 use super::resolver::ShadowResolverV0;
 
 impl<'ast> ShadowResolverV0<'ast> {
+    fn expr_child_path(
+        parent: &ASTNode,
+        path: &ShadowSourcePathV0,
+        role: ExprChildRoleV1,
+    ) -> ShadowSourcePathV0 {
+        path.child(
+            role.segment_for(parent)
+                .expect("[freeze:contract][source_path/expr_child_role]"),
+        )
+    }
+
     pub(super) fn resolve_expr(
         &mut self,
         expr: &'ast ASTNode,
@@ -25,22 +36,34 @@ impl<'ast> ShadowResolverV0<'ast> {
                 prelude_stmts,
                 tail_expr,
                 ..
-            } => self.resolve_block_expr(prelude_stmts, tail_expr, path),
-            ASTNode::UnaryOp { operand, .. } => {
-                self.resolve_expr(operand, &path.child(SourcePathSegmentV1::Operand))
-            }
+            } => self.resolve_block_expr(expr, prelude_stmts, tail_expr, path),
+            ASTNode::UnaryOp { operand, .. } => self.resolve_expr(
+                operand,
+                &Self::expr_child_path(expr, path, ExprChildRoleV1::UnaryOperand),
+            ),
             ASTNode::BinaryOp { left, right, .. } => {
-                self.resolve_expr(left, &path.child(SourcePathSegmentV1::Lhs))?;
-                self.resolve_expr(right, &path.child(SourcePathSegmentV1::Rhs))
+                self.resolve_expr(
+                    left,
+                    &Self::expr_child_path(expr, path, ExprChildRoleV1::BinaryLeft),
+                )?;
+                self.resolve_expr(
+                    right,
+                    &Self::expr_child_path(expr, path, ExprChildRoleV1::BinaryRight),
+                )
             }
-            ASTNode::AwaitExpression { expression, .. } => {
-                self.resolve_expr(expression, &path.child(SourcePathSegmentV1::Operand))
-            }
+            ASTNode::AwaitExpression { expression, .. } => self.resolve_expr(
+                expression,
+                &Self::expr_child_path(expr, path, ExprChildRoleV1::AwaitOperand),
+            ),
             ASTNode::ArrayLiteral { elements, .. } => {
                 for (index, element) in elements.iter().enumerate() {
                     self.resolve_expr(
                         element,
-                        &path.child(SourcePathSegmentV1::Element(index as u32)),
+                        &Self::expr_child_path(
+                            expr,
+                            path,
+                            ExprChildRoleV1::ArrayElement(index as u32),
+                        ),
                     )?;
                 }
                 Ok(())
@@ -49,7 +72,11 @@ impl<'ast> ShadowResolverV0<'ast> {
                 for (index, (_, value)) in entries.iter().enumerate() {
                     self.resolve_expr(
                         value,
-                        &path.child(SourcePathSegmentV1::EntryValue(index as u32)),
+                        &Self::expr_child_path(
+                            expr,
+                            path,
+                            ExprChildRoleV1::MapEntryValue(index as u32),
+                        ),
                     )?;
                 }
                 Ok(())
@@ -58,17 +85,28 @@ impl<'ast> ShadowResolverV0<'ast> {
                 for (index, (_, value)) in fields.iter().enumerate() {
                     self.resolve_expr(
                         value,
-                        &path.child(SourcePathSegmentV1::FieldValue(index as u32)),
+                        &Self::expr_child_path(
+                            expr,
+                            path,
+                            ExprChildRoleV1::RecordFieldValue(index as u32),
+                        ),
                     )?;
                 }
                 Ok(())
             }
             ASTNode::RecordUpdate { base, updates, .. } => {
-                self.resolve_expr(base, &path.child(SourcePathSegmentV1::Base))?;
+                self.resolve_expr(
+                    base,
+                    &Self::expr_child_path(expr, path, ExprChildRoleV1::RecordUpdateBase),
+                )?;
                 for (index, (_, value)) in updates.iter().enumerate() {
                     self.resolve_expr(
                         value,
-                        &path.child(SourcePathSegmentV1::UpdateValue(index as u32)),
+                        &Self::expr_child_path(
+                            expr,
+                            path,
+                            ExprChildRoleV1::RecordUpdateValue(index as u32),
+                        ),
                     )?;
                 }
                 Ok(())
@@ -77,51 +115,76 @@ impl<'ast> ShadowResolverV0<'ast> {
                 for (index, item) in items.iter().enumerate() {
                     self.resolve_expr(
                         &item.expression,
-                        &path.child(SourcePathSegmentV1::CheckItem(index as u32)),
+                        &Self::expr_child_path(
+                            expr,
+                            path,
+                            ExprChildRoleV1::CheckItem(index as u32),
+                        ),
                     )?;
                 }
                 Ok(())
             }
             ASTNode::GroupedAssignmentExpr { lhs, rhs, .. } => {
-                self.resolve_expr(rhs, &path.child(SourcePathSegmentV1::Value))?;
-                self.resolve_named_assignment(lhs, &path.child(SourcePathSegmentV1::Target))
+                self.resolve_expr(
+                    rhs,
+                    &Self::expr_child_path(expr, path, ExprChildRoleV1::GroupedAssignmentValue),
+                )?;
+                self.resolve_named_assignment(
+                    lhs,
+                    &Self::expr_child_path(expr, path, ExprChildRoleV1::GroupedAssignmentTarget),
+                )
             }
             ASTNode::MethodCall {
                 object, arguments, ..
             } => {
-                self.resolve_expr(object, &path.child(SourcePathSegmentV1::Receiver))?;
-                self.resolve_arguments(arguments, path)
+                let receiver_path = Self::expr_child_path(expr, path, ExprChildRoleV1::Receiver);
+                self.resolve_method_call_receiver(path.expr(), object, &receiver_path)?;
+                self.resolve_arguments(expr, arguments, path)
             }
-            ASTNode::FieldAccess { object, .. } => {
-                self.resolve_expr(object, &path.child(SourcePathSegmentV1::Receiver))
-            }
+            ASTNode::FieldAccess { object, .. } => self.resolve_expr(
+                object,
+                &Self::expr_child_path(expr, path, ExprChildRoleV1::Receiver),
+            ),
             ASTNode::Index { target, index, .. } => {
-                self.resolve_expr(target, &path.child(SourcePathSegmentV1::Target))?;
-                self.resolve_expr(index, &path.child(SourcePathSegmentV1::Argument(0)))
+                self.resolve_expr(
+                    target,
+                    &Self::expr_child_path(expr, path, ExprChildRoleV1::IndexTarget),
+                )?;
+                self.resolve_expr(
+                    index,
+                    &Self::expr_child_path(expr, path, ExprChildRoleV1::IndexSubscript),
+                )
             }
             ASTNode::FunctionCall {
                 name, arguments, ..
             } => {
                 self.record_direct_call(path.expr(), name, arguments.len())?;
-                self.resolve_arguments(arguments, path)
+                self.resolve_arguments(expr, arguments, path)
             }
-            ASTNode::FromCall { arguments, .. } => self.resolve_arguments(arguments, path),
+            ASTNode::FromCall { arguments, .. } => self.resolve_arguments(expr, arguments, path),
             ASTNode::Call {
                 callee, arguments, ..
             } => {
-                self.resolve_expr(callee, &path.child(SourcePathSegmentV1::Callee))?;
-                self.resolve_arguments(arguments, path)
+                self.resolve_expr(
+                    callee,
+                    &Self::expr_child_path(expr, path, ExprChildRoleV1::CallCallee),
+                )?;
+                self.resolve_arguments(expr, arguments, path)
             }
             ASTNode::New {
                 arguments,
                 field_initializers,
                 ..
             } => {
-                self.resolve_arguments(arguments, path)?;
+                self.resolve_arguments(expr, arguments, path)?;
                 for (index, (_, value)) in field_initializers.iter().enumerate() {
                     self.resolve_expr(
                         value,
-                        &path.child(SourcePathSegmentV1::Initializer(index as u32)),
+                        &Self::expr_child_path(
+                            expr,
+                            path,
+                            ExprChildRoleV1::NewFieldInitializer(index as u32),
+                        ),
                     )?;
                 }
                 Ok(())
@@ -157,7 +220,7 @@ impl<'ast> ShadowResolverV0<'ast> {
                 ShadowAssignmentTargetV0::BindingRebind(binding)
             }
             ASTNode::FieldAccess { object, .. } => {
-                let receiver_path = path.child(SourcePathSegmentV1::Receiver);
+                let receiver_path = Self::expr_child_path(target, path, ExprChildRoleV1::Receiver);
                 self.resolve_expr(object, &receiver_path)?;
                 ShadowAssignmentTargetV0::FieldWrite {
                     receiver: receiver_path.expr(),
@@ -168,9 +231,13 @@ impl<'ast> ShadowResolverV0<'ast> {
                 index,
                 ..
             } => {
-                let receiver_path = path.child(SourcePathSegmentV1::Target);
+                let receiver_path =
+                    Self::expr_child_path(target, path, ExprChildRoleV1::IndexTarget);
                 self.resolve_expr(receiver, &receiver_path)?;
-                self.resolve_expr(index, &path.child(SourcePathSegmentV1::Argument(0)))?;
+                self.resolve_expr(
+                    index,
+                    &Self::expr_child_path(target, path, ExprChildRoleV1::IndexSubscript),
+                )?;
                 ShadowAssignmentTargetV0::IndexWrite {
                     receiver: receiver_path.expr(),
                 }
@@ -194,6 +261,38 @@ impl<'ast> ShadowResolverV0<'ast> {
             self.resolve_expr(target, path)?;
         }
         self.resolve_assignment_target(target, path)
+    }
+
+    fn resolve_method_call_receiver(
+        &mut self,
+        call_site: crate::mir::resolved_semantics::SourceExprSiteV1,
+        object: &'ast ASTNode,
+        receiver_path: &ShadowSourcePathV0,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        if !self.observes_all_method_calls() {
+            return self.resolve_expr(object, receiver_path);
+        }
+
+        let receiver_site = receiver_path.expr();
+        let receiver = match object {
+            ASTNode::Variable { .. } => {
+                self.request_qualified_receiver(receiver_site.clone());
+                self.resolve_expr(object, receiver_path)?;
+                ShadowMethodCallReceiverV0::Qualified(
+                    self.qualified_receiver_disposition(&receiver_site)
+                        .expect("[freeze:contract][shadow/method_call_qualified_observation]"),
+                )
+            }
+            ASTNode::Me { .. } => {
+                self.resolve_expr(object, receiver_path)?;
+                ShadowMethodCallReceiverV0::CurrentOwner
+            }
+            _ => {
+                self.resolve_expr(object, receiver_path)?;
+                ShadowMethodCallReceiverV0::Dynamic
+            }
+        };
+        self.record_method_call_observation(call_site, receiver_site, receiver)
     }
 
     fn resolve_named_assignment(
@@ -267,13 +366,14 @@ impl<'ast> ShadowResolverV0<'ast> {
 
     fn resolve_arguments(
         &mut self,
+        parent: &'ast ASTNode,
         arguments: &'ast [ASTNode],
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
         for (index, argument) in arguments.iter().enumerate() {
             self.resolve_expr(
                 argument,
-                &path.child(SourcePathSegmentV1::Argument(index as u32)),
+                &Self::expr_child_path(parent, path, ExprChildRoleV1::CallArgument(index as u32)),
             )?;
         }
         Ok(())

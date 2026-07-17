@@ -22,15 +22,20 @@ pub(super) use product::{
     ShadowExitOriginV0, ShadowExitRecordV0, ShadowLexicalRefV0, ShadowRegionKindV0,
     ShadowResolvedFunctionV0, ShadowResolvedOwnerV0, ShadowScopeKindV0,
 };
+pub(in crate::mir) use product::{ShadowMethodCallObservationV0, ShadowMethodCallReceiverV0};
 pub(in crate::mir) use product::{ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0};
-pub(in crate::mir) use resolver::observe_qualified_receiver_shadow_view_v0;
 use resolver::resolve_function_shadow_v0;
+pub(in crate::mir) use resolver::{
+    observe_method_calls_shadow_view_v0, observe_qualified_receiver_shadow_view_v0,
+};
 pub(super) use resolver::{resolve_function_shadow_view_v0, resolve_owner_shadow_view_v0};
 
 #[cfg(test)]
 mod assignment_traversal_tests;
 #[cfg(test)]
 mod leaf_traversal_tests;
+#[cfg(test)]
+mod method_call_observation_tests;
 #[cfg(test)]
 mod scope_container_tests;
 #[cfg(test)]

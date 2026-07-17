@@ -28,6 +28,7 @@ mod product;
 mod records;
 mod resolver;
 mod shadow;
+mod source_path_policy;
 mod source_projection;
 mod source_site;
 mod verifier;
@@ -92,9 +93,11 @@ pub use records::{
 };
 pub(crate) use resolver::{FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1};
 pub(in crate::mir) use shadow::{
-    observe_qualified_receiver_shadow_view_v0, ShadowQualifiedReceiverDispositionV0,
-    ShadowResolveErrorV0,
+    observe_method_calls_shadow_view_v0, observe_qualified_receiver_shadow_view_v0,
+    ShadowMethodCallObservationV0, ShadowMethodCallReceiverV0,
+    ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0,
 };
+pub(crate) use source_path_policy::{BodyChildRoleV1, ExprChildRoleV1, SourceBodyKindV1};
 pub(in crate::mir) use source_projection::{
     project_source_body_node_v1, project_source_node_v1, ProjectedSourceNodeV1,
 };

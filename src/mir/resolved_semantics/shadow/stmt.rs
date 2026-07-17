@@ -1,7 +1,7 @@
 //! Closed statement traversal with lexical scopes and exact control targets.
 
 use crate::ast::ASTNode;
-use crate::mir::resolved_semantics::source_site::{SourceBindingSiteV1, SourcePathSegmentV1};
+use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1, SourceBindingSiteV1};
 
 use super::path::ShadowSourcePathV0;
 use super::product::{
@@ -12,6 +12,43 @@ use super::resolver::ShadowResolverV0;
 use super::vocabulary::{classify_shadow_ast_disposition_v0, ShadowAstDispositionV0};
 
 impl<'ast> ShadowResolverV0<'ast> {
+    fn stmt_expr_path(
+        statement: &ASTNode,
+        path: &ShadowSourcePathV0,
+        role: ExprChildRoleV1,
+    ) -> ShadowSourcePathV0 {
+        path.child(
+            role.segment_for(statement)
+                .expect("[freeze:contract][source_path/stmt_expr_role]"),
+        )
+    }
+
+    fn stmt_body_root_path(
+        statement: &ASTNode,
+        path: &ShadowSourcePathV0,
+        role: BodyChildRoleV1,
+    ) -> ShadowSourcePathV0 {
+        let kind = role
+            .kind_for(statement)
+            .expect("[freeze:contract][source_path/stmt_body_role]");
+        path.child(
+            kind.root_segment()
+                .expect("[freeze:contract][source_path/stmt_body_root]"),
+        )
+    }
+
+    fn stmt_body_item_path(
+        statement: &ASTNode,
+        path: &ShadowSourcePathV0,
+        role: BodyChildRoleV1,
+        index: usize,
+    ) -> ShadowSourcePathV0 {
+        let kind = role
+            .kind_for(statement)
+            .expect("[freeze:contract][source_path/stmt_body_role]");
+        path.child(kind.item_segment(index as u32))
+    }
+
     pub(super) fn resolve_body<F>(
         &mut self,
         body: &'ast [ASTNode],
@@ -36,32 +73,53 @@ impl<'ast> ShadowResolverV0<'ast> {
                 variables,
                 initial_values,
                 ..
-            } => self.resolve_declaration(variables, initial_values, path, false, true),
+            } => self.resolve_declaration(statement, variables, initial_values, path, false, true),
             ASTNode::Outbox {
                 variables,
                 initial_values,
                 ..
-            } => self.resolve_declaration(variables, initial_values, path, true, false),
+            } => self.resolve_declaration(statement, variables, initial_values, path, true, false),
             ASTNode::Assignment { target, value, .. } => {
-                self.resolve_assignment_target(target, &path.child(SourcePathSegmentV1::Target))?;
-                self.resolve_expr(value, &path.child(SourcePathSegmentV1::Value))
+                self.resolve_assignment_target(
+                    target,
+                    &Self::stmt_expr_path(statement, path, ExprChildRoleV1::AssignmentTarget),
+                )?;
+                self.resolve_expr(
+                    value,
+                    &Self::stmt_expr_path(statement, path, ExprChildRoleV1::AssignmentValue),
+                )
             }
             ASTNode::CompoundAssignment { target, value, .. } => {
                 self.resolve_compound_assignment_target(
                     target,
-                    &path.child(SourcePathSegmentV1::Target),
+                    &Self::stmt_expr_path(
+                        statement,
+                        path,
+                        ExprChildRoleV1::CompoundAssignmentTarget,
+                    ),
                 )?;
-                self.resolve_expr(value, &path.child(SourcePathSegmentV1::Value))
+                self.resolve_expr(
+                    value,
+                    &Self::stmt_expr_path(
+                        statement,
+                        path,
+                        ExprChildRoleV1::CompoundAssignmentValue,
+                    ),
+                )
             }
-            ASTNode::Print { expression, .. } => {
-                self.resolve_expr(expression, &path.child(SourcePathSegmentV1::Value))
-            }
+            ASTNode::Print { expression, .. } => self.resolve_expr(
+                expression,
+                &Self::stmt_expr_path(statement, path, ExprChildRoleV1::PrintValue),
+            ),
             ASTNode::Nowait {
                 variable,
                 expression,
                 ..
             } => {
-                self.resolve_expr(expression, &path.child(SourcePathSegmentV1::Value))?;
+                self.resolve_expr(
+                    expression,
+                    &Self::stmt_expr_path(statement, path, ExprChildRoleV1::NowaitValue),
+                )?;
                 self.declare_binding(
                     variable,
                     ShadowBindingKindV0::Nowait,
@@ -71,23 +129,28 @@ impl<'ast> ShadowResolverV0<'ast> {
                 )?;
                 Ok(())
             }
-            ASTNode::ScopeBox { body, .. } => self.resolve_scope_box(body, path),
-            ASTNode::TaskScope { body, .. } => self.resolve_task_scope(body, path),
-            ASTNode::FastMemRegion { body, .. } => self.resolve_fastmem_scope(body, path),
+            ASTNode::ScopeBox { body, .. } => self.resolve_scope_box(statement, body, path),
+            ASTNode::TaskScope { body, .. } => self.resolve_task_scope(statement, body, path),
+            ASTNode::FastMemRegion { body, .. } => {
+                self.resolve_fastmem_scope(statement, body, path)
+            }
             ASTNode::If {
                 condition,
                 then_body,
                 else_body,
                 ..
-            } => self.resolve_if(condition, then_body, else_body.as_deref(), path),
+            } => self.resolve_if(statement, condition, then_body, else_body.as_deref(), path),
             ASTNode::Loop {
                 condition, body, ..
-            } => self.resolve_loop(condition, body, path),
+            } => self.resolve_loop(statement, condition, body, path),
             ASTNode::Break { .. } => self.resolve_loop_exit(path, false),
             ASTNode::Continue { .. } => self.resolve_loop_exit(path, true),
             ASTNode::Return { value, .. } => {
                 if let Some(value) = value {
-                    self.resolve_expr(value, &path.child(SourcePathSegmentV1::Value))?;
+                    self.resolve_expr(
+                        value,
+                        &Self::stmt_expr_path(statement, path, ExprChildRoleV1::ReturnValue),
+                    )?;
                 }
                 self.record_exit(
                     path.stmt(),
@@ -107,6 +170,7 @@ impl<'ast> ShadowResolverV0<'ast> {
 
     fn resolve_declaration(
         &mut self,
+        statement: &'ast ASTNode,
         variables: &[String],
         initial_values: &'ast [Option<Box<ASTNode>>],
         path: &ShadowSourcePathV0,
@@ -124,7 +188,11 @@ impl<'ast> ShadowResolverV0<'ast> {
                 };
                 self.resolve_expr(
                     initial,
-                    &path.child(SourcePathSegmentV1::Initializer(index as u32)),
+                    &Self::stmt_expr_path(
+                        statement,
+                        path,
+                        ExprChildRoleV1::LocalInitializer(index as u32),
+                    ),
                 )?;
             }
         }
@@ -153,17 +221,18 @@ impl<'ast> ShadowResolverV0<'ast> {
 
     fn resolve_scope_box(
         &mut self,
+        statement: &'ast ASTNode,
         body: &'ast [ASTNode],
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
-        let body_path = path.child(SourcePathSegmentV1::ScopeBodyRoot);
+        let body_path = Self::stmt_body_root_path(statement, path, BodyChildRoleV1::ScopeBody);
         let (region, _) = self.enter_region_scope(
             ShadowRegionKindV0::LexicalScope,
             ShadowScopeKindV0::LexicalBlock,
             &body_path,
         );
         let result = self.resolve_body(body, |index| {
-            path.child(SourcePathSegmentV1::ScopeBody(index as u32))
+            Self::stmt_body_item_path(statement, path, BodyChildRoleV1::ScopeBody, index)
         });
         self.leave_region_scope(region);
         result
@@ -171,17 +240,18 @@ impl<'ast> ShadowResolverV0<'ast> {
 
     fn resolve_task_scope(
         &mut self,
+        statement: &'ast ASTNode,
         body: &'ast [ASTNode],
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
-        let body_path = path.child(SourcePathSegmentV1::TaskScopeBodyRoot);
+        let body_path = Self::stmt_body_root_path(statement, path, BodyChildRoleV1::TaskScopeBody);
         let (region, _) = self.enter_region_scope(
             ShadowRegionKindV0::LexicalScope,
             ShadowScopeKindV0::LexicalBlock,
             &body_path,
         );
         let result = self.resolve_body(body, |index| {
-            path.child(SourcePathSegmentV1::TaskScopeBody(index as u32))
+            Self::stmt_body_item_path(statement, path, BodyChildRoleV1::TaskScopeBody, index)
         });
         self.leave_region_scope(region);
         result
@@ -189,17 +259,18 @@ impl<'ast> ShadowResolverV0<'ast> {
 
     fn resolve_fastmem_scope(
         &mut self,
+        statement: &'ast ASTNode,
         body: &'ast [ASTNode],
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
-        let body_path = path.child(SourcePathSegmentV1::FastMemBodyRoot);
+        let body_path = Self::stmt_body_root_path(statement, path, BodyChildRoleV1::FastMemBody);
         let (region, _) = self.enter_region_scope(
             ShadowRegionKindV0::LexicalScope,
             ShadowScopeKindV0::LexicalBlock,
             &body_path,
         );
         let result = self.resolve_body(body, |index| {
-            path.child(SourcePathSegmentV1::FastMemBody(index as u32))
+            Self::stmt_body_item_path(statement, path, BodyChildRoleV1::FastMemBody, index)
         });
         self.leave_region_scope(region);
         result
@@ -207,35 +278,39 @@ impl<'ast> ShadowResolverV0<'ast> {
 
     fn resolve_if(
         &mut self,
+        statement: &'ast ASTNode,
         condition: &'ast ASTNode,
         then_body: &'ast [ASTNode],
         else_body: Option<&'ast [ASTNode]>,
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
-        self.resolve_expr(condition, &path.child(SourcePathSegmentV1::IfCondition))?;
+        self.resolve_expr(
+            condition,
+            &Self::stmt_expr_path(statement, path, ExprChildRoleV1::IfCondition),
+        )?;
         let if_region = self.enter_control_region(ShadowRegionKindV0::If, path);
         let result = (|| {
-            let then_path = path.child(SourcePathSegmentV1::IfThenBody);
+            let then_path = Self::stmt_body_root_path(statement, path, BodyChildRoleV1::IfThen);
             let (then_region, _) = self.enter_region_scope(
                 ShadowRegionKindV0::IfThen,
                 ShadowScopeKindV0::IfThen,
                 &then_path,
             );
             let then_result = self.resolve_body(then_body, |index| {
-                path.child(SourcePathSegmentV1::IfThen(index as u32))
+                Self::stmt_body_item_path(statement, path, BodyChildRoleV1::IfThen, index)
             });
             self.leave_region_scope(then_region);
             then_result?;
 
             if let Some(else_body) = else_body {
-                let else_path = path.child(SourcePathSegmentV1::IfElseBody);
+                let else_path = Self::stmt_body_root_path(statement, path, BodyChildRoleV1::IfElse);
                 let (else_region, _) = self.enter_region_scope(
                     ShadowRegionKindV0::IfElse,
                     ShadowScopeKindV0::IfElse,
                     &else_path,
                 );
                 let else_result = self.resolve_body(else_body, |index| {
-                    path.child(SourcePathSegmentV1::IfElse(index as u32))
+                    Self::stmt_body_item_path(statement, path, BodyChildRoleV1::IfElse, index)
                 });
                 self.leave_region_scope(else_region);
                 else_result?;
@@ -248,12 +323,16 @@ impl<'ast> ShadowResolverV0<'ast> {
 
     fn resolve_loop(
         &mut self,
+        statement: &'ast ASTNode,
         condition: &'ast ASTNode,
         body: &'ast [ASTNode],
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
-        self.resolve_expr(condition, &path.child(SourcePathSegmentV1::LoopCondition))?;
-        let body_path = path.child(SourcePathSegmentV1::LoopBodyRoot);
+        self.resolve_expr(
+            condition,
+            &Self::stmt_expr_path(statement, path, ExprChildRoleV1::LoopCondition),
+        )?;
+        let body_path = Self::stmt_body_root_path(statement, path, BodyChildRoleV1::LoopBody);
         let (loop_region, _) = self.enter_region_scope_with_origins(
             ShadowRegionKindV0::Loop,
             ShadowScopeKindV0::LoopBody,
@@ -262,7 +341,7 @@ impl<'ast> ShadowResolverV0<'ast> {
         );
         self.push_loop(loop_region);
         let result = self.resolve_body(body, |index| {
-            path.child(SourcePathSegmentV1::LoopBody(index as u32))
+            Self::stmt_body_item_path(statement, path, BodyChildRoleV1::LoopBody, index)
         });
         self.pop_loop(loop_region);
         self.leave_region_scope(loop_region);

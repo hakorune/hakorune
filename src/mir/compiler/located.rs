@@ -3,54 +3,12 @@
 use std::num::NonZeroU32;
 
 use crate::ast::ASTNode;
+pub(crate) use crate::mir::resolved_semantics::SourceBodyKindV1;
 use crate::mir::resolved_semantics::{
-    FunctionOwnerIdV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1, SourcePathV1,
-    SourceStmtSiteV1,
+    FunctionOwnerIdV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathV1, SourceStmtSiteV1,
 };
 
 use super::source_view::SourceViewSealV1;
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum SourceBodyKindV1 {
-    Function,
-    Lambda,
-    Scope,
-    TaskScope,
-    FastMem,
-    IfThen,
-    IfElse,
-    Loop,
-    BlockExprPrelude,
-}
-
-impl SourceBodyKindV1 {
-    fn root_segment(self) -> Option<SourcePathSegmentV1> {
-        match self {
-            Self::Function | Self::Lambda => None,
-            Self::Scope => Some(SourcePathSegmentV1::ScopeBodyRoot),
-            Self::TaskScope => Some(SourcePathSegmentV1::TaskScopeBodyRoot),
-            Self::FastMem => Some(SourcePathSegmentV1::FastMemBodyRoot),
-            Self::IfThen => Some(SourcePathSegmentV1::IfThenBody),
-            Self::IfElse => Some(SourcePathSegmentV1::IfElseBody),
-            Self::Loop => Some(SourcePathSegmentV1::LoopBodyRoot),
-            Self::BlockExprPrelude => Some(SourcePathSegmentV1::BlockExprPreludeRoot),
-        }
-    }
-
-    fn item_segment(self, index: u32) -> SourcePathSegmentV1 {
-        match self {
-            Self::Function => SourcePathSegmentV1::Body(index),
-            Self::Lambda => SourcePathSegmentV1::LambdaBody(index),
-            Self::Scope => SourcePathSegmentV1::ScopeBody(index),
-            Self::TaskScope => SourcePathSegmentV1::TaskScopeBody(index),
-            Self::FastMem => SourcePathSegmentV1::FastMemBody(index),
-            Self::IfThen => SourcePathSegmentV1::IfThen(index),
-            Self::IfElse => SourcePathSegmentV1::IfElse(index),
-            Self::Loop => SourcePathSegmentV1::LoopBody(index),
-            Self::BlockExprPrelude => SourcePathSegmentV1::BlockExprPrelude(index),
-        }
-    }
-}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct SourceBodySiteV1 {

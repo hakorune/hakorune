@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result I0 Candidate A is locally selected; PATH0 is next"
+status = "callable-result I0 PATH0 is closed; A0 is next"
 date = "2026-07-18"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,19 +298,18 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 
 latest_card = "callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17"
 latest_card_path = "docs/development/current/main/investigations/callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md"
-latest_card_summary = """A second three-worker audit mechanically selects
-Candidate A under LocalMechanicalSelectorAuthorityV1. Borrowed declaration,
-target, and result proofs normalize into one owned non-Clone single-use
-activation plan before the existing candidate Builder session opens; Candidate
-B would require lifetime-threading the lifetime-free legacy Builder. The sole
-shadow traversal becomes the all-MethodCall inventory owner, and one neutral
-child-role path policy feeds presealed located legacy inputs. Mutable cursors,
-encounter order, names, spans, AST equality, self-reference, and cloned
-authority remain rejected. Instance methods are caller/site owners only;
-targets and result inference stay static. PATH0 is the next code-facing row,
-followed by A0, SITE0-L0/R0/C0, CUT0, and G0. Production behavior remains
-unchanged until CUT0."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-PATH0-001"
+latest_card_summary = """PATH0 is closed with one neutral source child-role
+policy shared by compiler located views, the sole shadow traversal, and the
+callable-result proof. One disconnected all-MethodCall observation mode emits
+exact call/receiver sites plus CurrentOwner, Bound, ProvenUnbound, or Dynamic
+receiver classification without owning spelling, arity, target, ABI, or
+result facts. The actual ParserBox method is guarded at 15 calls split 9/4/2,
+production observation consumers remain zero, and all touched source/check
+files remain below 800 lines. A0 is next and consumes the borrowed proof chain
+into one owned non-Clone single-use activation plan before the candidate
+Builder session opens. SITE0-L0/R0/C0, CUT0, and G0 follow; production
+behavior remains unchanged until CUT0."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-A0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -319,6 +318,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-PATH0 closes one neutral child-role structural path policy and one disconnected all-MethodCall observation mode on the existing shadow traversal. Compiler located views, shadow traversal, and callable-result proofs share the policy; exact receiver rows classify CurrentOwner, Bound, ProvenUnbound, or Dynamic without target/result authority. The actual ParserBox method is fixed at 15 calls split 9/4/2. Focused shadow 38/38, PATH0 checker, cargo check, pointer guard, and line caps are green. Production behavior/result/Builder/MIR/runtime/backend deltas remain zero; A0 is next.",
   "2026-07-17: R0-CALLABLE-RESULT-I64-CATALOG0-P0 closes one test-only normalized result/call-site snapshot. Canonical callable keys, structured source sites, required argument rows, borrowed target meaning, and generated Core receiver/canonical/arity/result identity are retained; catalog pointers, AST identity, route-product addresses, and declaration order are excluded. Fresh-catalog reorder parity, site multiplicity, unavailable/recursive rows, and the actual StringHelpers/Parser chain are green. Result 27/27, source-target 42/42, Core 5/5, malformed manifest 9/9, quick 66/66, guards, cargo check, pointer guard, and line cap are green. Production/API/Builder/MIR/runtime/backend deltas remain zero; I0 task audit is next.",
   "2026-07-17: R0-CALLABLE-RESULT-I64-CATALOG0-S0b closes one lifetime-bound non-Clone exact-i64 result catalog over the exact declaration and source-target brands. Exact-site rows borrow CUT0 target evidence or bounded String/Core result rows; required argument substitution and a deterministic construction-only solver close actual skip_ws/to_i64/_digit_value and acyclic wrappers independent of declaration order. Exact-target direct/mutual recursion closes to RecursiveDependency without SCC inference. Result 23/23, source-target 42/42, Core 5/5, malformed manifest 9/9, quick 66/66, structural guards, cargo check, pointer guard, and line caps are green. Production producers/consumers and Builder/MIR/runtime/backend deltas remain zero; P0 is next.",
   "2026-07-17: R0-SOURCE-CALL-TARGET0-AST-BIND0-CUT0 atomically retires both raw source-target candidate structs, raw lexical/reserved enums, and every independent caller/site/AST/spelling/fact constructor. Qualified target construction consumes one exact import-view instance plus co-sealed route facts; current-owner construction consumes only exact S0 products. The final target catalog retains its declaration-catalog brand, so equal-key cross-source composition and conflicting same-catalog import views reject typed. Source target 42/42, the extended guard, cargo check, pointer guard, and line cap are green. Production consumers and behavior delta remain zero. Callable-result S0b resumes next.",
@@ -330,5 +330,4 @@ landed_tail = [
   "2026-07-17: Final R0-CALLABLE-RESULT-I64-CATALOG0-S0b review stops before commit on a source-target false-seal path. Three worker audits agree that raw constructor retirement alone is insufficient: exact caller body, SourceExprSite, MethodCall AST, lexical Bound/Unbound, and reserved-route disposition must be co-keyed before target sealing. Candidate A-prime is recommended: one lifetime-bound exact-site MethodCall view plus one sealed route-fact product, with target/ABI/effect/result authorities remaining separate. Green S0b work is saved only as `wip/callable-result-s0b (blocked by source-call AST/site co-seal)`. Implementation authority is zero until consultation selects the route-fact owner.",
   "2026-07-17: R0-SOURCE-CALL-TARGET0-M0 closes one disconnected current-owner static target authority. Exact ASTNode::Me plus a caller canonical catalog key in the StaticBoxMethod namespace selects the target under caller.owner() with exact method and checked arity. The existing non-Clone site-indexed target catalog is consumed by value and extended; cross-route duplicate sites reject. The actual StringHelpers.to_i64/1 -> me._digit_value/1 fixture is green. Source-target tests 16/16 and the extended family guard are green; Builder, MIR, ABI/effect/result, runtime, backend, and production-consumer deltas remain zero. Callable-result S0b is next.",
   "2026-07-17: R0-SOURCE-STRING-RECEIVER0-S0 closes one disconnected source-only Core receiver proof. A lifetime-bound non-Clone product recognizes only String literals and an iterative String-left Add spine, retains the exact inspected expression privately, and publishes ExactStringOnSuccess. Arbitrary right operands are intentionally uninspected, so totality, NonVoid, purity, evaluation order, and error absence remain non-claims. The actual StringHelpers.to_i64/1 local s initializer is green. Focused tests 5/5 and the extended callable-result family guard are green; i64-domain, Builder, MIR, runtime, backend, and production-consumer deltas remain zero. Current-owner target M0 is next.",
-  "2026-07-17: R0-CORE-METHOD-RESULT-KIND0-S0 closes one disconnected neutral Core result view. CoreMethodContractBox remains the sole semantic owner for all 16 explicit rows; one generator emits schema-v1 JSON and one static Rust table from the same validated source. Receiver plus canonical/alias spelling plus expanded exact arity is the only lookup key, and generation rejects unknown kinds and all overlapping spelling collisions. StringBox.length/len/size/0 selects one I64Value row; ambiguous collection results remain Dynamic. Malformed generator 9/9, Rust lookup/parity 5/5, manifest/no-growth guards, CoreMethodOp regression, cargo check, and quick gate are green. Runtime JSON parsing, production consumers, and behavior delta remain zero; String receiver S0 is next.",
 ]

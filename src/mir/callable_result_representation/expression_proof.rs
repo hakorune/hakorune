@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, UnaryOperator};
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
-use crate::mir::resolved_semantics::{SourceExprSiteV1, SourcePathSegmentV1, SourcePathV1};
+use crate::mir::resolved_semantics::{ExprChildRoleV1, SourceExprSiteV1, SourcePathV1};
 use crate::mir::source_call_target::VerifiedSourceStaticCallTargetCatalogV1;
 use crate::mir::source_core_receiver::{SourceCoreReceiverFactV1, VerifiedSourceCoreReceiverV1};
 
@@ -100,6 +100,13 @@ pub(super) struct ExpressionProofContextV1<'targets, 'catalog, 'rows> {
 }
 
 impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'rows> {
+    fn child_path(parent: &ASTNode, path: &SourcePathV1, role: ExprChildRoleV1) -> SourcePathV1 {
+        path.child(
+            role.segment_for(parent)
+                .expect("[freeze:contract][source_path/callable_result_expr_role]"),
+        )
+    }
+
     pub(super) fn new(
         current_key: &'catalog CanonicalSameModuleCallableKeyV1,
         params: &[String],
@@ -230,7 +237,10 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
                 operator: UnaryOperator::Minus,
                 operand,
                 ..
-            } => self.prove_expression(operand, &path.child(SourcePathSegmentV1::Operand)),
+            } => self.prove_expression(
+                operand,
+                &Self::child_path(expression, path, ExprChildRoleV1::UnaryOperand),
+            ),
             ASTNode::UnaryOp { .. } => Ok(I64ExpressionFactV1::KnownNonI64),
             ASTNode::BinaryOp {
                 operator,
@@ -238,8 +248,14 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
                 right,
                 ..
             } => {
-                let left = self.prove_expression(left, &path.child(SourcePathSegmentV1::Lhs))?;
-                let right = self.prove_expression(right, &path.child(SourcePathSegmentV1::Rhs))?;
+                let left = self.prove_expression(
+                    left,
+                    &Self::child_path(expression, path, ExprChildRoleV1::BinaryLeft),
+                )?;
+                let right = self.prove_expression(
+                    right,
+                    &Self::child_path(expression, path, ExprChildRoleV1::BinaryRight),
+                )?;
                 if matches!(
                     operator,
                     BinaryOperator::Add
@@ -254,7 +270,7 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
                 }
             }
             ASTNode::FunctionCall { arguments, .. } => {
-                let _ = self.prove_arguments(arguments, path)?;
+                let _ = self.prove_arguments(expression, arguments, path)?;
                 Ok(I64ExpressionFactV1::Unknown(
                     CallableResultUnavailableReasonV1::StaticCallTargetAuthorityUnavailable,
                 ))
@@ -266,7 +282,7 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
                 ..
             } => {
                 let receiver_fact = self.core_receiver_fact(object);
-                let arguments = self.prove_arguments(arguments, path)?;
+                let arguments = self.prove_arguments(expression, arguments, path)?;
                 let outcome = self.call_proof.prove_method_call(
                     path.expr(),
                     method,
@@ -284,9 +300,10 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
                 prelude_stmts,
                 tail_expr,
                 ..
-            } if prelude_stmts.is_empty() => {
-                self.prove_expression(tail_expr, &path.child(SourcePathSegmentV1::BlockExprTail))
-            }
+            } if prelude_stmts.is_empty() => self.prove_expression(
+                tail_expr,
+                &Self::child_path(expression, path, ExprChildRoleV1::BlockExprTail),
+            ),
             ASTNode::New { .. }
             | ASTNode::ArrayLiteral { .. }
             | ASTNode::MapLiteral { .. }
@@ -300,6 +317,7 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
 
     fn prove_arguments(
         &mut self,
+        parent: &ASTNode,
         arguments: &[ASTNode],
         path: &SourcePathV1,
     ) -> Result<Vec<I64ExpressionFactV1>, CallableResultCatalogErrorV1> {
@@ -309,7 +327,7 @@ impl<'targets, 'catalog, 'rows> ExpressionProofContextV1<'targets, 'catalog, 'ro
             .map(|(index, argument)| {
                 self.prove_expression(
                     argument,
-                    &path.child(SourcePathSegmentV1::Argument(index as u32)),
+                    &Self::child_path(parent, path, ExprChildRoleV1::CallArgument(index as u32)),
                 )
             })
             .collect()
