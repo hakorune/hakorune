@@ -9,6 +9,8 @@ mod disposition;
 mod error;
 mod expression_proof;
 mod function_proof;
+mod located_legacy;
+mod located_legacy_error;
 mod requirements;
 mod solver;
 
@@ -28,3 +30,9 @@ pub(crate) use activation::{
     VerifiedCallableResultActivationRowsV1,
 };
 pub(crate) use activation_error::CallableResultActivationErrorV1;
+#[allow(unused_imports)]
+pub(crate) use located_legacy::{
+    LegacyBodyInputV1, LegacyExprInputV1, LegacyStmtInputV1,
+    VerifiedCallableResultLegacySourceViewV1,
+};
+pub(crate) use located_legacy_error::CallableResultLegacyLocationErrorV1;

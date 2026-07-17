@@ -94,7 +94,10 @@ def main() -> None:
     production_consumers = 0
     for path in (root / "src").rglob("*.rs"):
         relative = path.relative_to(root).as_posix()
-        if relative == "src/mir/callable_result_representation/tests/activation.rs":
+        if relative in (
+            "src/mir/callable_result_representation/tests/activation.rs",
+            "src/mir/callable_result_representation/tests/located_legacy.rs",
+        ):
             continue
         production_consumers += path.read_text(encoding="utf-8").count(
             "VerifiedCallableResultActivationPlanV1::seal("

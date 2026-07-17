@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result I0 A0 is closed; SITE0-L0 is next"
+status = "callable-result I0 SITE0-L0 is closed; SITE0-R0 is next"
 date = "2026-07-18"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,17 +298,15 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 
 latest_card = "callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17"
 latest_card_path = "docs/development/current/main/investigations/callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md"
-latest_card_summary = """PATH0 and A0 are closed. One neutral source-path
-policy feeds the sole shadow MethodCall inventory. One boxed declaration
-catalog is then co-sealed with borrowed target/static-result products and
-consumed into an owned non-Clone activation plan with opaque caller-keyed
-rows. Instance methods are caller/site owners only; target/result inference
-remains static. Every observed call is explicit SelectedExactI64 or
-Unselected. The actual ParserBox add method has 15 rows, exactly two skip_ws
-selections with required call argument [1], and 13 unselected rows. Borrowed
-products, AST/import authority, production consumers, and Builder/MIR/runtime
-deltas are zero. SITE0-L0 is next, followed by SITE0-R0/C0, CUT0, and G0."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-L0-001"
+latest_card_summary = """PATH0, A0, and SITE0-L0 are closed. One activation-
+plan-branded non-Clone view borrows the exact catalog caller/body and constructs
+located body, statement, and expression inputs. PATH0 co-resolves structural
+segments with borrowed child syntax once; missing and synthetic children stay
+explicit. Unlocated syntax and all descendants cannot expose an activation
+site, equal foreign-plan carriers reject, and production constructors,
+consumers, Builder/MIR/runtime/backend behavior, and result publication remain
+zero. SITE0-R0 is next, followed by SITE0-C0, CUT0, and G0."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -317,6 +315,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-L0 closes one activation-plan-branded non-Clone located legacy source view. Body/statement/expression inputs retain exact caller/site/syntax, PATH0 co-resolves role segments with borrowed children once, and Unlocated descendants cannot expose activation sites. Foreign equal-plan carriers, wrong roles, bounds, nested arguments, If bodies, reorder parity, synthetic/missing vocabulary, source-view regression, A0/SITE0 guards, cargo check, pointer/line guards are green. Production consumers and Builder/MIR/runtime/backend/result deltas remain zero; SITE0-R0 is next.",
   "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-A0 closes one owned non-Clone single-use activation plan. A stable boxed declaration catalog lexically brands borrowed target/static-result proofs, then retains only opaque caller-keyed SelectedExactI64/Unselected rows. Instance declarations own caller/sites only; result solving remains static. The actual ParserBox add method seals 15 rows with two skip_ws selections requiring call argument [1] and 13 explicit unselected rows. A0 checker, result 32/32, source-target 42/42, cargo check, pointer/line guards are green. Production consumers and Builder/MIR/runtime/backend deltas remain zero; SITE0-L0 is next.",
   "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-PATH0 closes one neutral child-role structural path policy and one disconnected all-MethodCall observation mode on the existing shadow traversal. Compiler located views, shadow traversal, and callable-result proofs share the policy; exact receiver rows classify CurrentOwner, Bound, ProvenUnbound, or Dynamic without target/result authority. The actual ParserBox method is fixed at 15 calls split 9/4/2. Focused shadow 38/38, PATH0 checker, cargo check, pointer guard, and line caps are green. Production behavior/result/Builder/MIR/runtime/backend deltas remain zero; A0 is next.",
   "2026-07-17: R0-CALLABLE-RESULT-I64-CATALOG0-P0 closes one test-only normalized result/call-site snapshot. Canonical callable keys, structured source sites, required argument rows, borrowed target meaning, and generated Core receiver/canonical/arity/result identity are retained; catalog pointers, AST identity, route-product addresses, and declaration order are excluded. Fresh-catalog reorder parity, site multiplicity, unavailable/recursive rows, and the actual StringHelpers/Parser chain are green. Result 27/27, source-target 42/42, Core 5/5, malformed manifest 9/9, quick 66/66, guards, cargo check, pointer guard, and line cap are green. Production/API/Builder/MIR/runtime/backend deltas remain zero; I0 task audit is next.",
@@ -327,6 +326,5 @@ landed_tail = [
   "2026-07-17: R0-SOURCE-CALL-TARGET0-AST-BIND0-S0 closes one lifetime-bound non-Clone exact source MethodCall site. One catalog caller lookup plus the shared catalog-body projector co-seals caller declaration/body/site/expression; receiver expression/site, method, arguments, and checked arity derive only from borrowed AST. Foreign caller, missing/non-MethodCall site, arity overflow, and nested callable-boundary crossings reject typed. Actual ParserStringUtilsBox.skip_ws and StringHelpers.to_i64 fixtures, focused 9/9, the extended family guard, cargo check, pointer guard, and quick gate are green. Lexical/route/target/ABI/effect/result/Builder/runtime/backend and production-consumer deltas remain zero. L0 lexical disposition is next.",
   "2026-07-17: R0-SOURCE-CALL-TARGET0-AST-BIND0-P0 closes the compiler-private structural projection seam without behavior delta. One crate::mir-scoped resolved-semantics projector owns all admitted SourcePathSegment traversal; compiler projection is a single thin typed-error consumer. Borrowed Node/Body/SyntheticName views create no AST inventory. Six neutral tests cover all admitted segment kinds, shared AST alternatives, malformed optional children, and all 15 explicitly parked segment kinds; compiler source-view 7/7, resolved callable-module 6/6, the extended family guard, cargo check, pointer guard, and quick gate are green. S0 exact MethodCall site co-seal is next.",
   "2026-07-17: Three read-only worker audits and local source review select Candidate A-prime-SSOT for the source-call false-seal prerequisite. The existing structural projector becomes neutral and shared; one lifetime-bound exact caller/body/site MethodCall view feeds the existing ShadowResolver traversal in qualified-receiver observation mode, yielding positive Bound or ProvenUnbound without absence inference or a second resolver. Builder FastMem/__mir__/__repl__ precedence becomes one shared neutral policy before route facts co-seal. Task order is P0 -> S0 -> L0 -> R0 -> CUT0 -> S0b resume; Candidate B remains parked and production source-target consumers stay zero.",
-  "2026-07-17: Final R0-CALLABLE-RESULT-I64-CATALOG0-S0b review stops before commit on a source-target false-seal path. Three worker audits agree that raw constructor retirement alone is insufficient: exact caller body, SourceExprSite, MethodCall AST, lexical Bound/Unbound, and reserved-route disposition must be co-keyed before target sealing. Candidate A-prime is recommended: one lifetime-bound exact-site MethodCall view plus one sealed route-fact product, with target/ABI/effect/result authorities remaining separate. Green S0b work is saved only as `wip/callable-result-s0b (blocked by source-call AST/site co-seal)`. Implementation authority is zero until consultation selects the route-fact owner.",
   "2026-07-17: R0-SOURCE-CALL-TARGET0-M0 closes one disconnected current-owner static target authority. Exact ASTNode::Me plus a caller canonical catalog key in the StaticBoxMethod namespace selects the target under caller.owner() with exact method and checked arity. The existing non-Clone site-indexed target catalog is consumed by value and extended; cross-route duplicate sites reject. The actual StringHelpers.to_i64/1 -> me._digit_value/1 fixture is green. Source-target tests 16/16 and the extended family guard are green; Builder, MIR, ABI/effect/result, runtime, backend, and production-consumer deltas remain zero. Callable-result S0b is next.",
 ]

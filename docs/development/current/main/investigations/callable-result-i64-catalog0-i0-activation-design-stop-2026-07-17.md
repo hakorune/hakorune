@@ -384,6 +384,29 @@ structural checker, cargo check, and the 800-line cap are green. Production
 consumers and Builder/MIR/runtime/backend behavior remain zero. `SITE0-L0` is
 next.
 
+## SITE0-L0 closeout
+
+`I0-SITE0-L0` is closed. One private non-Clone legacy source view can be
+constructed only from the sealed A0 activation plan plus one exact catalog
+caller. It borrows the catalog-owned declaration/key and constructs located
+body, statement, and expression inputs carrying exact function-relative sites.
+Equal-looking carriers from a foreign activation plan reject by private brand.
+
+PATH0 now resolves each child role into its structural segment/kind together
+with the borrowed child node/body in one neutral decision. Existing compiler
+navigation remains a thin consumer and preserves its prior missing-child error
+priority. Grouped-assignment targets are explicitly synthetic path-only
+children; missing optional/indexed children are distinct from role mismatch.
+No second AST walker or segment table was added.
+
+Body, statement, and expression inputs each preserve `Located` versus
+`Unlocated`. Children of unlocated syntax remain unlocated, and only a located
+expression exposes `(caller, SourceExprSiteV1)` for a future activation claim.
+Root/local/nested argument/If-body/reorder/foreign/wrong-role/unlocated fixtures,
+the existing source-view suite, A0 and SITE0-L0 guards, cargo check, and line
+caps are green. Production constructors/consumers, Builder/MIR/runtime/backend
+behavior, and result publication remain zero. `SITE0-R0` is next.
+
 ## Required fixtures
 
 ```text
@@ -447,5 +470,6 @@ fallback or retry
 P0 remains closed and production behavior remains unchanged. Candidate A plus
 located legacy input is locally selected under
 `LocalMechanicalSelectorAuthorityV1`; external consultation is no longer
-required. `I0-PATH0` and `I0-A0` are closed; `I0-SITE0-L0` is the next
-code-facing row. No emitter patch may bypass the SITE0 refactor series.
+required. `I0-PATH0`, `I0-A0`, and `I0-SITE0-L0` are closed;
+`I0-SITE0-R0` is the next code-facing row. No emitter patch may bypass the
+SITE0 refactor series.

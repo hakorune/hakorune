@@ -44,3 +44,14 @@ final MIR metadata, physical-symbol parsing, runtime tag, or HMI-specific fact.
 S0b remains disconnected: production producers, consumers, call-result
 publication, lowering behavior, runtime behavior, backend behavior, and
 ownership behavior all remain unchanged.
+
+## SITE0 located legacy inputs
+
+`located_legacy` borrows one canonical caller and its syntax only from a sealed
+activation plan. It carries exact function-relative sites through the neutral
+PATH0 role policy, but does not lower MIR, resolve targets, infer results, or
+claim activation rows.
+
+Located and unlocated syntax are distinct inputs. Synthetic syntax and every
+descendant constructed from it remain unlocated; only a located expression can
+expose an activation site. Production consumers remain zero through SITE0-L0.

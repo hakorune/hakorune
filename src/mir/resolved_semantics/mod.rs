@@ -97,7 +97,10 @@ pub(in crate::mir) use shadow::{
     ShadowMethodCallObservationV0, ShadowMethodCallReceiverV0,
     ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0,
 };
-pub(crate) use source_path_policy::{BodyChildRoleV1, ExprChildRoleV1, SourceBodyKindV1};
+pub(crate) use source_path_policy::{
+    is_statement_expression_surface_v1, BodyChildRoleV1, ExprChildRoleV1, ExprChildSyntaxV1,
+    ResolvedBodyChildV1, ResolvedExprChildV1, SourceBodyKindV1,
+};
 pub(in crate::mir) use source_projection::{
     project_source_body_node_v1, project_source_node_v1, ProjectedSourceNodeV1,
 };

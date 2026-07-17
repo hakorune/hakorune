@@ -143,25 +143,7 @@ impl<'a> FunctionSourceViewV1<'a> {
         statement: &LocatedStmtV1<'a>,
     ) -> Result<LocatedExprV1<'a>, SourceNavigationErrorV1> {
         self.require_owner(statement.owner())?;
-        if !matches!(
-            statement.node(),
-            ASTNode::Literal { .. }
-                | ASTNode::Variable { .. }
-                | ASTNode::BinaryOp { .. }
-                | ASTNode::UnaryOp { .. }
-                | ASTNode::MethodCall { .. }
-                | ASTNode::FunctionCall { .. }
-                | ASTNode::Call { .. }
-                | ASTNode::New { .. }
-                | ASTNode::ArrayLiteral { .. }
-                | ASTNode::MapLiteral { .. }
-                | ASTNode::RecordLiteral { .. }
-                | ASTNode::RecordUpdate { .. }
-                | ASTNode::FieldAccess { .. }
-                | ASTNode::Index { .. }
-                | ASTNode::BlockExpr { .. }
-                | ASTNode::Lambda { .. }
-        ) {
+        if !crate::mir::resolved_semantics::is_statement_expression_surface_v1(statement.node()) {
             return Err(SourceNavigationErrorV1::InvalidSite {
                 owner: self.owner,
                 site: statement.site().node().clone(),
