@@ -1,5 +1,5 @@
 ---
-Status: RET0-P0 closed; RET0-L0 is next
+Status: RET0-L0 closed; IF0-S0 is next
 Date: 2026-07-18
 Decision: expand located lowering by one structural child family per row
 Parent: callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md
@@ -62,16 +62,16 @@ SITE0-R0-EXPR0-SPINE0-BIN0-S0
 The sole next code-facing row is:
 
 ```text
-SITE0-R0-EXPR0-SPINE0-STMT0-RET0-L0
+SITE0-R0-EXPR0-SPINE0-IF0-S0
 ```
 
-`RET0-P0` is closed. One cfg(test)-only pre-I0 reference independently retains
-the former span, cleanup, Match, child-or-Void, and completion order. Five
-fixtures prove exact normalized selected/reference parity across MIR,
-transient facts, bindings/scopes, caches, allocator counters, cleanup/defer
-state, failures, and same-Builder reuse. Production raw selectors remain
-exactly one; the reference has no production caller, and located Return
-selectors plus callable-result publication remain zero. RET0-L0 is next.
+`RET0-L0` is closed. One disconnected mandatory-value Return carrier selects
+exact `Return { value: Some(_) }`, obtains its child only through the existing
+`ReturnValue` role, and reuses the shared Return driver. Six fixtures prove the
+actual final `Body(5).Value` row, nested child-before-parent order, ordinary and
+short-circuit Binary descent, poisoning/fresh-session behavior, and exact Void
+exclusion. Production located roots and callable-result publication remain
+zero. IF0-S0 is next.
 
 ## Why C0 is held
 
@@ -613,7 +613,7 @@ RET0:
   void Return remains outside the admitted row
 ```
 
-### RET0-S0 / I0 / P0 closeout
+### RET0-S0 / I0 / P0 / L0 closeout
 
 RET0-S0 adds one disconnected value-bearing Return driver without taking
 Match/CorePlan, defer, site, ledger, or direct Return authority. Cleanup runs
@@ -633,8 +633,22 @@ allocators, span, cleanup, and all defer state. Return 18/18, statement 63/63,
 recursive child 7/7, callable-result 55/55, the strengthened SPINE0 guard,
 cargo check, quick 66/66 in 61s, release, formatting, and line caps are green.
 The test reference has no production caller; production raw selectors remain
-one, while located selectors and result publication remain zero. RET0-L0 is
-next.
+one. L0 adds one disconnected mandatory-value Return carrier and exact selector
+after Assignment selection but before the statement inactive proof. PATH0 alone
+supplies `ReturnValue`; the existing located expression spine consumes nested
+rows child-before-parent; the shared driver retains cleanup, recursion, Match,
+defer, and completion authority. The actual caller fixture has one final
+`Body(5).Value` row with no nested argument, while a separate fixture proves
+nested argument ordering. Match remains structurally gated by exact shape,
+located `ReturnValue`, and inactive-prefix proof before the existing Match
+owner. A runtime located-Match fixture is intentionally absent because the
+current activation source proof rejects `MatchExpr` before a located plan can
+be sealed; widening that grammar is not part of RET0-L0. Located Return 6/6,
+legacy located 32/32, Return 19/19, statement 63/63, recursive child 7/7,
+callable-result 55/55, the strengthened guard, `cargo check --all-targets`,
+cached quick 66/66 in about 25s, release, formatting, and line caps are green.
+Production located roots and callable-result publication remain zero. IF0-S0
+is next.
 
 IF and Loop are not STMT0 variants.
 
@@ -798,8 +812,8 @@ Stop the current row if any of the following becomes necessary:
 > MethodCalls under Binary ancestors, so direct EXPR0-C0 wiring is held.
 > Ordinary Binary, short-circuit Binary, Local initializer descent, and the
 > exact Variable-target Assignment family is closed through ASN0-L0.
-> The sole current shape is
-> `SITE0-R0-EXPR0-SPINE0-STMT0-RET0-L0`; later value-bearing statements, If, raw suffix
+> Value-bearing Local, Assignment, and Return statement rows are now closed.
+> The sole current shape is `SITE0-R0-EXPR0-SPINE0-IF0-S0`; If, raw suffix
 > admission, and Loop site carriage remain separate owners. BIN0-L0 always
 > uses the located driver for an ordinary Binary and lets each associated child
 > prove inactivity or continue to an exact claim; it never selects a route by
@@ -814,5 +828,5 @@ Stop the current row if any of the following becomes necessary:
 Quick-gate latency is tracked separately in
 [`dev-gate-quick-latency-task-2026-07-18.md`](./dev-gate-quick-latency-task-2026-07-18.md).
 Its first row is `DEV-GATE-Q0-M0`; it does not change this card's active
-`SITE0-R0-EXPR0-SPINE0-STMT0-RET0-L0` blocker or share a commit with a
+`SITE0-R0-EXPR0-SPINE0-IF0-S0` blocker or share a commit with a
 compiler semantic row.

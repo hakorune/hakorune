@@ -149,3 +149,15 @@ result/error, MIR, transient types/kinds/origins/literals, exact facts,
 bindings/scopes, caches, allocator counters, span, cleanup state, defer state,
 partial failure effects, and same-Builder reuse. The reference owns no located
 source, callable-result ledger, Match/CorePlan policy, retry, or fallback.
+
+RET0-L0 adds one disconnected exact `Return { value: Some(_) }` adapter. It
+publishes the existing statement span and recursion shell, then gives the
+shared Return driver one mandatory syntax value and derives its child only
+through the existing `ReturnValue` source role. A Match-valued Return must
+first prove that exact located value subtree inactive before invoking the
+existing raw Match/CorePlan owner; an active row below Match fails closed
+before Match, child, or Return effects. Ordinary values continue through the
+located expression spine and its ledger claims. Void Return stays outside the
+adapter on the existing inactive legacy path. The adapter owns no site/path
+construction, call-row claim, cleanup/defer policy, completion, retry, or
+production located root.

@@ -12,9 +12,14 @@ mod assignment_tests;
 #[cfg(test)]
 #[path = "located_legacy_local_tests.rs"]
 mod local_tests;
+#[cfg(test)]
+#[path = "located_legacy_return_tests.rs"]
+mod return_tests;
 
 #[path = "located_legacy_assignment.rs"]
 mod assignment_adapter;
+#[path = "located_legacy_return.rs"]
+mod return_adapter;
 
 use crate::ast::ASTNode;
 use crate::mir::callable_result_representation::{
@@ -204,6 +209,13 @@ impl<'plan> LocatedLegacyLoweringSessionV1<'plan> {
                 return assignment_adapter::lower_selected_variable_assignment_v1(
                     self, builder, &selected,
                 );
+            }
+            Err(input) => input,
+        };
+
+        let input = match return_adapter::select_exact_value_return_v1(input) {
+            Ok(selected) => {
+                return return_adapter::lower_selected_value_return_v1(self, builder, &selected);
             }
             Err(input) => input,
         };

@@ -29,6 +29,9 @@ def check_ret0_s0(root: Path) -> str:
     tests_path = "src/mir/builder/stmts/return_statement_descent_tests.rs"
     raw_tests_path = "src/mir/builder/stmts/return_statement_raw_tests.rs"
     parity_tests_path = "src/mir/builder/stmts/return_statement_parity_tests.rs"
+    located_path = "src/mir/builder/located_legacy_return.rs"
+    located_tests_path = "src/mir/builder/located_legacy_return_tests.rs"
+    located_session_path = "src/mir/builder/located_legacy_lowering.rs"
     return_owner_path = "src/mir/builder/stmts/return_stmt.rs"
     expression_owner_path = "src/mir/builder/exprs.rs"
     stmts_root_path = "src/mir/builder/stmts/mod.rs"
@@ -42,6 +45,9 @@ def check_ret0_s0(root: Path) -> str:
     tests = _read(root, tests_path)
     raw_tests = _read(root, raw_tests_path)
     parity_tests = _read(root, parity_tests_path)
+    located = _read(root, located_path)
+    located_tests = _read(root, located_tests_path)
+    located_session = _read(root, located_session_path)
     return_owner = _read(root, return_owner_path)
     expression_owner = _read(root, expression_owner_path)
     stmts_root = _read(root, stmts_root_path)
@@ -236,6 +242,7 @@ def check_ret0_s0(root: Path) -> str:
         (root / descent_path).resolve(),
         (root / tests_path).resolve(),
         (root / raw_tests_path).resolve(),
+        (root / located_path).resolve(),
     }
     driver_callers = 0
     raw_callers = 0
@@ -327,6 +334,124 @@ def check_ret0_s0(root: Path) -> str:
         _fail(
             "RET0-P0 reference production callers must be zero: "
             f"actual={parity_reference_callers}"
+        )
+
+    _require_count(
+        located,
+        "struct LocatedValueReturnInputV1",
+        1,
+        "one located value-Return carrier",
+    )
+    _require_count(
+        located,
+        "fn select_exact_value_return_v1",
+        1,
+        "one exact located value-Return selector",
+    )
+    _require_count(
+        located,
+        "impl<'plan> ReturnStatementDescentPortV1 for LocatedLegacyLoweringSessionV1<'plan>",
+        1,
+        "one located Return port implementation",
+    )
+    _require_count(
+        located,
+        "drive_value_return_statement_v1(builder, session, selected)",
+        1,
+        "one located Return driver consumer",
+    )
+    _require_count(
+        located,
+        "ExprChildRoleV1::ReturnValue",
+        1,
+        "one canonical ReturnValue role consumer",
+    )
+    _require_count(
+        located,
+        ".prove_expr_inactive(&expression)",
+        1,
+        "one located Match inactive-subtree proof",
+    )
+    _require_count(
+        located,
+        "try_apply_match_return_optimization(builder, Some(value), true)",
+        1,
+        "one existing Match owner delegation",
+    )
+
+    carrier_start = located.index("struct LocatedValueReturnInputV1")
+    selector_start = located.index("fn select_exact_value_return_v1", carrier_start)
+    if "Option" in located[carrier_start:selector_start]:
+        _fail("RET0-L0 carrier must make one Return value structurally mandatory")
+    selector_end = located.index("fn lower_selected_value_return_v1", selector_start)
+    selector = located[selector_start:selector_end]
+    if not re.search(
+        r"ASTNode::Return\s*\{\s*value: Some\(value\), \.\.\s*\}",
+        selector,
+    ):
+        _fail("RET0-L0 selector must admit exact Return Some only")
+
+    match_start = located.index("fn try_match_return_optimization(")
+    child_start = located.index("fn return_value_expression_input(", match_start)
+    match_hook = located[match_start:child_start]
+    match_shape_at = match_hook.index("matches!(value, ASTNode::MatchExpr { .. })")
+    location_at = match_hook.index("self.return_value_expression_input(input)?")
+    inactive_at = match_hook.index(".prove_expr_inactive(&expression)")
+    match_owner_at = match_hook.index(
+        "try_apply_match_return_optimization(builder, Some(value), true)"
+    )
+    if not match_shape_at < location_at < inactive_at < match_owner_at:
+        _fail(
+            "RET0-L0 Match order must be shape -> exact location -> "
+            "inactive proof -> existing owner"
+        )
+
+    for forbidden in (
+        "SourceExprSiteV1",
+        "SourcePathSegmentV1",
+        "ledger.claim",
+        ".claim(",
+        "MirInstruction::Return",
+        "drive_raw_value_return_statement_v1",
+        "builder.build_expression(",
+        "emit_return_from_value",
+        "emit_void",
+        "RowsUnderPrefix",
+    ):
+        if forbidden in located:
+            _fail(f"RET0-L0 adapter owns forbidden authority: {forbidden}")
+
+    _require_count(
+        located_session,
+        "return_adapter::select_exact_value_return_v1(input)",
+        1,
+        "one located Return statement selector",
+    )
+    _require_count(
+        located_session,
+        "return_adapter::lower_selected_value_return_v1(",
+        1,
+        "one located Return selector consumer",
+    )
+    if not re.search(
+        r"#\[cfg\(test\)\]\s*#\[path = \"located_legacy_return_tests.rs\"\]\s*"
+        r"mod return_tests;",
+        located_session,
+    ):
+        _fail("RET0-L0 fixture module must remain cfg(test)-scoped")
+
+    production_session_callers = 0
+    for path in (root / "src").rglob("*.rs"):
+        relative = path.relative_to(root).as_posix()
+        if relative.endswith("_tests.rs") or "/tests/" in relative:
+            continue
+        production_session_callers += path.read_text(encoding="utf-8").count(
+            "LocatedLegacyLoweringSessionV1::verify("
+        )
+    if production_session_callers != 0:
+        _fail(
+            "RET0-L0 located production session callers must be zero: "
+            f"actual={production_session_callers}"
         )
 
     _require_count(
@@ -427,6 +552,52 @@ def check_ret0_s0(root: Path) -> str:
         if snapshot_field not in parity_tests:
             _fail(f"missing RET0-P0 snapshot surface: {snapshot_field}")
 
+    for fixture in (
+        "located_return_claims_actual_body_value_last_in_exact_order",
+        "located_return_claims_nested_argument_before_parent",
+        "located_return_reuses_binary_and_deferred_short_circuit_spines",
+        "located_return_wrong_order_poisons_without_call_or_completion",
+        "located_return_cleanup_and_child_failures_require_fresh_sessions",
+        "located_return_selector_excludes_void_and_non_return_statements",
+    ):
+        if fixture not in located_tests:
+            _fail(f"missing RET0-L0 located fixture: {fixture}")
+
+    actual_fixture_at = located_tests.index(
+        "fn located_return_claims_actual_body_value_last_in_exact_order()"
+    )
+    actual_fixture_end = located_tests.index("#[test]", actual_fixture_at)
+    actual_fixture = located_tests[actual_fixture_at:actual_fixture_end]
+    _require_count(
+        actual_fixture,
+        "SourcePathSegmentV1::Body(5)",
+        1,
+        "actual final Return Body(5) row",
+    )
+    _require_count(
+        actual_fixture,
+        "SourcePathSegmentV1::Value",
+        1,
+        "actual final Return Value row",
+    )
+    _require_count(
+        actual_fixture,
+        "SourcePathSegmentV1::Argument(",
+        0,
+        "actual final Return has no nested call row",
+    )
+
+    for required in (
+        "block.terminator.clone()",
+        "SourcePathSegmentV1::Body(5)",
+        "SourcePathSegmentV1::Value",
+        "WrongOrder",
+        "LocatedLegacyLoweringErrorV1::Poisoned",
+        "builder.recursion_depth",
+    ):
+        if required not in located_tests:
+            _fail(f"missing RET0-L0 fixture evidence: {required}")
+
     normalized_readme = " ".join(readme.split())
     for phrase in (
         "one disconnected orchestration boundary for",
@@ -441,6 +612,10 @@ def check_ret0_s0(root: Path) -> str:
         "one `cfg(test)` pre-I0 Return orchestration reference",
         "exact normalized parity",
         "has no production caller",
+        "one disconnected exact `Return { value: Some(_) }` adapter",
+        "existing `ReturnValue` source role",
+        "active row below Match fails closed",
+        "Void Return stays outside the adapter",
     ):
         if phrase not in normalized_readme:
             _fail(f"missing RET0-S0 README boundary: {phrase}")
@@ -450,6 +625,9 @@ def check_ret0_s0(root: Path) -> str:
         tests_path,
         raw_tests_path,
         parity_tests_path,
+        located_path,
+        located_tests_path,
+        located_session_path,
         return_owner_path,
         expression_owner_path,
         stmts_root_path,
@@ -466,5 +644,6 @@ def check_ret0_s0(root: Path) -> str:
 
     return (
         "ret_driver=1 ret_e0_descents=1 ret_match_hook=1 "
-        "ret_raw_selectors=1 ret_parity_reference=1 ret_located_selectors=0"
+        "ret_raw_selectors=1 ret_parity_reference=1 "
+        "ret_located_impl=1 ret_located_selectors=1"
     )
