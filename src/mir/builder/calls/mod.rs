@@ -48,9 +48,11 @@ pub mod member_route; // Member call route plan + emit handoff
 mod method_call_descent;
 mod method_call_terminal;
 pub(in crate::mir::builder) use method_call_descent::{
-    lower_method_call_argument_v1, LegacyMethodCallArgumentsV1, MethodCallArgumentDescentV1,
-    MethodCallDescentPortV1,
+    lower_method_call_argument_v1, AssociatedMethodCallArgumentsV1, LegacyMethodCallArgumentsV1,
+    MethodCallArgumentDescentV1, MethodCallDescentPortV1,
 };
+pub(in crate::mir::builder) use method_call_terminal::emit_standard_value_terminal_raw_v1;
+pub(in crate::mir::builder) use method_call_terminal::MethodCallValueTerminalPortV1;
 #[cfg(test)]
 mod member_route_descent_tests;
 #[cfg(test)]

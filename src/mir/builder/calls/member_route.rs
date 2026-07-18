@@ -7,8 +7,8 @@ use super::super::{MirBuilder, ValueId};
 use super::extern_calls::EnvMethodSpec;
 use super::method_call_descent::{
     lower_method_call_receiver_v1, AssociatedMethodCallArgumentsV1, MethodCallArgumentDescentV1,
-    MethodCallDescentPortV1,
 };
+use super::method_call_terminal::MethodCallValueTerminalPortV1;
 use super::receiver_binding::ReceiverNormalizationPlan;
 use crate::ast::ASTNode;
 
@@ -43,7 +43,7 @@ impl MirBuilder {
         input: &Port::MethodCallInput,
     ) -> Result<ValueId, String>
     where
-        Port: MethodCallDescentPortV1,
+        Port: MethodCallValueTerminalPortV1,
     {
         let (route_plan, method, arguments) = {
             let syntax = port.method_call_syntax(input)?;
@@ -67,7 +67,7 @@ impl MirBuilder {
             MemberCallRoutePlan::EnvMethod { spec } => {
                 let mut descent = AssociatedMethodCallArgumentsV1::new(port, input);
                 let arg_values = descent.lower_all(self)?;
-                self.emit_resolved_env_method_call(&spec, arg_values)
+                descent.finish_env_value_terminal(self, &spec, arg_values)
             }
             MemberCallRoutePlan::ReceiverNormalized { plan } => match plan {
                 ReceiverNormalizationPlan::MeCall => {
@@ -109,27 +109,6 @@ impl MirBuilder {
                     &mut descent,
                 )
             }
-        }
-    }
-
-    pub(in crate::mir::builder) fn emit_resolved_env_method_call(
-        &mut self,
-        spec: &EnvMethodSpec,
-        arg_values: Vec<ValueId>,
-    ) -> Result<ValueId, String> {
-        let result_id = self.next_value_id();
-        let dst = if spec.returns { Some(result_id) } else { None };
-        self.emit_extern_call_with_effects(
-            &spec.iface_name,
-            &spec.method_name,
-            arg_values,
-            dst,
-            spec.effects,
-        )?;
-        if spec.returns {
-            Ok(result_id)
-        } else {
-            crate::mir::builder::emission::constant::emit_void(self)
         }
     }
 }

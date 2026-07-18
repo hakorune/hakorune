@@ -131,6 +131,10 @@ where
     ) -> Self {
         Self { port, input }
     }
+
+    pub(super) fn terminal_parts(&mut self) -> (&mut Port, &Port::MethodCallInput) {
+        (self.port, self.input)
+    }
 }
 
 impl<Port> MethodCallArgumentDescentV1 for AssociatedMethodCallArgumentsV1<'_, '_, Port>

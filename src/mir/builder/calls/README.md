@@ -70,3 +70,11 @@ called. Its raw adapter preserves TypeOp, qualified-static global,
 current-owner lowered global, Env extern, and Standard method emission. It
 owns no route table, callable key, effect/result inference, located source,
 caller ledger, retry, or fallback. V0-S0 production consumers = 0.
+
+V0-I0 threads exactly the five ordinary source completions through the same
+associated MethodCall input: TypeOp, qualified static, current-owner lowered
+global, Env, and Standard. Early/custom scalar, record-helper, setter, weak,
+FastMem, MIR-debug, and REPL terminals remain outside this boundary. A
+materialized property keeps the shared Standard preflight and calls only the
+raw value-level Standard helper; it creates no MethodCall source carrier.
+Located source, caller-ledger, activation, and result authority remain absent.

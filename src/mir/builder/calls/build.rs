@@ -101,7 +101,7 @@ impl MirBuilder {
         input: &Port::MethodCallInput,
     ) -> Result<ValueId, String>
     where
-        Port: super::method_call_descent::MethodCallDescentPortV1,
+        Port: super::method_call_terminal::MethodCallValueTerminalPortV1,
     {
         let typeop = {
             let syntax = port.method_call_syntax(input)?;
@@ -111,7 +111,14 @@ impl MirBuilder {
         if let Some((method, type_name)) = typeop {
             let object_value =
                 super::method_call_descent::lower_method_call_receiver_v1(self, port, input)?;
-            return self.handle_typeop_method(object_value, &method, &type_name);
+            let mut completion =
+                super::method_call_descent::AssociatedMethodCallArgumentsV1::new(port, input);
+            return self.handle_typeop_method_with_terminal(
+                object_value,
+                &method,
+                &type_name,
+                &mut completion,
+            );
         }
 
         // Capture syntax before incrementing so syntax errors cannot alter entry depth.
@@ -147,7 +154,7 @@ impl MirBuilder {
         input: &Port::MethodCallInput,
     ) -> Result<ValueId, String>
     where
-        Port: super::method_call_descent::MethodCallDescentPortV1,
+        Port: super::method_call_terminal::MethodCallValueTerminalPortV1,
     {
         // ========================================
         // Section 1: Debug Tracing (debug_method_routing module)

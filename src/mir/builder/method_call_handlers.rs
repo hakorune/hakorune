@@ -6,10 +6,12 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::callable_declaration_catalog::SameModuleCallableNamespaceV1;
 use crate::mir::builder::calls::function_lowering;
-use crate::mir::builder::calls::{LegacyMethodCallArgumentsV1, MethodCallArgumentDescentV1};
-use crate::mir::builder::CallTarget;
+use crate::mir::builder::calls::{
+    emit_standard_value_terminal_raw_v1, AssociatedMethodCallArgumentsV1,
+    LegacyMethodCallArgumentsV1, MethodCallArgumentDescentV1, MethodCallValueTerminalPortV1,
+};
 use crate::mir::builder::{MirBuilder, ValueId};
-use crate::mir::{MirInstruction, MirType, TypeOpKind};
+use crate::mir::{MirType, TypeOpKind};
 
 /// Me-call 専用のポリシー箱。
 ///
@@ -32,12 +34,15 @@ fn current_enclosing_box_name(builder: &MirBuilder) -> Option<String> {
 }
 
 impl MeCallPolicyBox {
-    fn resolve_me_call(
+    fn resolve_me_call<Port>(
         builder: &mut MirBuilder,
         method: &str,
         arguments: &[ASTNode],
-        descent: &mut dyn MethodCallArgumentDescentV1,
-    ) -> Result<Option<ValueId>, String> {
+        descent: &mut AssociatedMethodCallArgumentsV1<'_, '_, Port>,
+    ) -> Result<Option<ValueId>, String>
+    where
+        Port: MethodCallValueTerminalPortV1,
+    {
         // Instance box: prefer enclosing box method (lowered function) if存在
         let enclosing_cls = current_enclosing_box_name(builder);
         let me_value = super::stmts::variable_stmt::build_me_expression(builder).ok();
@@ -128,15 +133,23 @@ impl MeCallPolicyBox {
                         arg_values
                     };
 
-                    let dst = builder.next_value_id();
-                    // Emit as unified global call to lowered function
-                    builder.emit_unified_call(
-                        Some(dst),
-                        CallTarget::Global(fname.clone()),
-                        call_args,
-                    )?;
-                    builder.annotate_call_result_from_func_name(dst, &fname);
-                    return Ok(Some(dst));
+                    let checked_source_arity = u32::try_from(arguments.len()).map_err(|_| {
+                        format!(
+                            "[me-call] source arity exceeds u32 for {}.{}: {}",
+                            cls,
+                            method,
+                            arguments.len()
+                        )
+                    })?;
+                    return descent
+                        .finish_me_lowered_global_value_terminal(
+                            builder,
+                            cls,
+                            method,
+                            checked_source_arity,
+                            call_args,
+                        )
+                        .map(Some);
                 }
             }
 
@@ -165,13 +178,16 @@ impl MeCallPolicyBox {
 
 impl MirBuilder {
     /// Handle source static calls after route selection.
-    pub(in crate::mir::builder) fn handle_static_method_call_with_descent(
+    pub(in crate::mir::builder) fn handle_static_method_call_with_descent<Port>(
         &mut self,
         box_name: &str,
         method: &str,
         arguments: &[ASTNode],
-        descent: &mut dyn MethodCallArgumentDescentV1,
-    ) -> Result<ValueId, String> {
+        descent: &mut AssociatedMethodCallArgumentsV1<'_, '_, Port>,
+    ) -> Result<ValueId, String>
+    where
+        Port: MethodCallValueTerminalPortV1,
+    {
         if crate::config::env::joinir_dev::debug_enabled() {
             crate::runtime::get_global_ring0().log.debug(&format!(
                 "[handle_static_method_call] ENTRY: box_name={} method={}",
@@ -201,51 +217,59 @@ impl MirBuilder {
 
         // Build argument values
         let arg_values = descent.lower_all(self)?;
-        let dst = self.next_value_id();
-
         if crate::config::env::builder_static_call_trace() {
             crate::runtime::get_global_ring0()
                 .log
                 .info(&format!("[builder] static-call {}", func_name));
         }
 
-        // Emit unified global call to the static-lowered function (module-local)
-        self.emit_unified_call(Some(dst), CallTarget::Global(func_name), arg_values)?;
-        Ok(dst)
+        let checked_source_arity = u32::try_from(arguments.len()).map_err(|_| {
+            format!(
+                "[static-call] source arity exceeds u32 for {}.{}: {}",
+                box_name,
+                method,
+                arguments.len()
+            )
+        })?;
+        descent.finish_static_global_value_terminal(
+            self,
+            box_name,
+            method,
+            checked_source_arity,
+            arg_values,
+        )
     }
 
     /// Handle TypeOp method calls: value.is("Type") and value.as("Type")
-    pub(super) fn handle_typeop_method(
+    pub(super) fn handle_typeop_method_with_terminal<Port>(
         &mut self,
         object_value: ValueId,
         method: &str,
         type_name: &str,
-    ) -> Result<ValueId, String> {
+        completion: &mut AssociatedMethodCallArgumentsV1<'_, '_, Port>,
+    ) -> Result<ValueId, String>
+    where
+        Port: MethodCallValueTerminalPortV1,
+    {
         let mir_ty = Self::parse_type_name_to_mir(type_name);
-        let dst = self.next_value_id();
         let op = if method == "is" {
             TypeOpKind::Check
         } else {
             TypeOpKind::Cast
         };
-
-        self.emit_instruction(MirInstruction::TypeOp {
-            dst,
-            op,
-            value: object_value,
-            ty: mir_ty,
-        })?;
-
-        Ok(dst)
+        completion.finish_typeop_value_terminal(self, object_value, op, mir_ty)
     }
 
     /// Handle source me.method() calls within static box context.
-    pub(in crate::mir::builder) fn handle_me_method_call_with_descent(
+    pub(in crate::mir::builder) fn handle_me_method_call_with_descent<Port>(
         &mut self,
         method: &str,
         arguments: &[ASTNode],
-        descent: &mut dyn MethodCallArgumentDescentV1,
-    ) -> Result<Option<ValueId>, String> {
+        descent: &mut AssociatedMethodCallArgumentsV1<'_, '_, Port>,
+    ) -> Result<Option<ValueId>, String>
+    where
+        Port: MethodCallValueTerminalPortV1,
+    {
         MeCallPolicyBox::resolve_me_call(self, method, arguments, descent)
     }
 
@@ -257,16 +281,44 @@ impl MirBuilder {
         arguments: &[ASTNode],
     ) -> Result<ValueId, String> {
         let mut descent = LegacyMethodCallArgumentsV1::new(arguments);
-        self.handle_standard_method_call_with_descent(object_value, method, arguments, &mut descent)
+        if let Some(result) = self.try_complete_standard_method_preflight(
+            object_value,
+            &method,
+            arguments,
+            &mut descent,
+        )? {
+            return Ok(result);
+        }
+        let arg_values = descent.lower_all(self)?;
+        emit_standard_value_terminal_raw_v1(self, object_value, method, arg_values)
     }
 
-    pub(in crate::mir::builder) fn handle_standard_method_call_with_descent(
+    pub(in crate::mir::builder) fn handle_standard_method_call_with_descent<Port>(
         &mut self,
         object_value: ValueId,
         method: String,
         arguments: &[ASTNode],
+        descent: &mut AssociatedMethodCallArgumentsV1<'_, '_, Port>,
+    ) -> Result<ValueId, String>
+    where
+        Port: MethodCallValueTerminalPortV1,
+    {
+        if let Some(result) =
+            self.try_complete_standard_method_preflight(object_value, &method, arguments, descent)?
+        {
+            return Ok(result);
+        }
+        let arg_values = descent.lower_all(self)?;
+        descent.finish_standard_value_terminal(self, object_value, method, arg_values)
+    }
+
+    fn try_complete_standard_method_preflight(
+        &mut self,
+        object_value: ValueId,
+        method: &str,
+        arguments: &[ASTNode],
         descent: &mut dyn MethodCallArgumentDescentV1,
-    ) -> Result<ValueId, String> {
+    ) -> Result<Option<ValueId>, String> {
         if crate::config::env::joinir_dev::debug_enabled() {
             crate::runtime::get_global_ring0().log.debug(&format!(
                 "[handle_standard_method_call] ENTRY: method={} object=%{}",
@@ -277,7 +329,7 @@ impl MirBuilder {
         // Phase 285A0.1: WeakRef.weak_to_strong() → WeakRef(Load)
         // SSOT: docs/reference/language/lifecycle.md:179 - weak_to_strong() returns Box | null
         if method == "weak_to_strong" && arguments.is_empty() {
-            return self.emit_weak_load(object_value);
+            return self.emit_weak_load(object_value).map(Some);
         }
 
         // Phase 285A0.1: upgrade() is deprecated - Fail-Fast
@@ -301,12 +353,12 @@ impl MirBuilder {
                 if let Some(result) = self.try_inline_record_helper_call_with_descent(
                     SameModuleCallableNamespaceV1::InstanceBoxMethod,
                     &cls,
-                    &method,
+                    method,
                     arguments,
                     Some(object_value),
                     descent,
                 )? {
-                    return Ok(result);
+                    return Ok(Some(result));
                 }
             }
         }
@@ -314,29 +366,13 @@ impl MirBuilder {
         if let Some(result) = self
             .try_inline_same_module_helper_setter_call_from_receiver_with_descent(
                 object_value,
-                &method,
+                method,
                 arguments,
                 descent,
             )?
         {
-            return Ok(result);
+            return Ok(Some(result));
         }
-
-        // Build argument values
-        let arg_values = descent.lower_all(self)?;
-
-        // Receiver class hintは emit_unified_call 側で起源/型から判断する（重複回避）
-        // 統一経路: emit_unified_call に委譲（RouterPolicy と rewrite::* で安定化）
-        let dst = self.next_value_id();
-        self.emit_unified_call(
-            Some(dst),
-            CallTarget::Method {
-                box_type: None,
-                method,
-                receiver: object_value,
-            },
-            arg_values,
-        )?;
-        Ok(dst)
+        Ok(None)
     }
 }

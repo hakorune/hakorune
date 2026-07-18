@@ -119,7 +119,12 @@ def main() -> None:
     require_count(member, "build_expression(object.clone())", 0, "raw receiver bypass")
     require_count(member, "AssociatedMethodCallArgumentsV1::new(", 5, "route argument adapters")
     require_count(handlers, "build_call_args(arguments)", 0, "handler ARG0 bypass")
-    require_count(handlers, "descent.lower_all(", 3, "static me standard ARG0 demand")
+    require_count(
+        handlers,
+        "descent.lower_all(",
+        4,
+        "static me source/property standard ARG0 demand",
+    )
     require_count(member, "descent.lower_all(self)?", 1, "env ARG0 demand")
     require_count(helpers, "let value = self.build_expression(arg.clone())?", 0, "helper arg E0 bypass")
     require_count(helpers, "descent.lower_index(self,", 2, "helper indexed E0 consumers")

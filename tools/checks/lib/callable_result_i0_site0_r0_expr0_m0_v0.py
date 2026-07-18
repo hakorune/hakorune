@@ -95,14 +95,32 @@ def main() -> None:
         if path.name not in {"method_call_terminal.rs", "method_call_terminal_tests.rs"}
         and not path.name.endswith("_tests.rs")
     )
-    for name in terminal_methods:
-        require_count(production, f".{name}(", 0, f"S0 production consumer {name}")
+    finish_methods = (
+        "finish_typeop_value_terminal",
+        "finish_static_global_value_terminal",
+        "finish_me_lowered_global_value_terminal",
+        "finish_env_value_terminal",
+        "finish_standard_value_terminal",
+    )
+    for name in finish_methods:
+        require_count(production, f".{name}(", 1, f"I0 production consumer {name}")
     require_count(
         production,
         "emit_standard_value_terminal_raw_v1(",
-        0,
-        "S0 materialized property consumer",
+        1,
+        "I0 materialized property consumer",
     )
+
+    build = read(root, "src/mir/builder/calls/build.rs")
+    member = read(root, "src/mir/builder/calls/member_route.rs")
+    handlers = read(root, "src/mir/builder/method_call_handlers.rs")
+    property_reads = read(root, "src/mir/builder/property_reads.rs")
+    require_count(handlers, "handle_typeop_method(", 0, "retired direct TypeOp handler")
+    require_count(member, "emit_resolved_env_method_call", 0, "retired direct Env helper")
+    require_count(handlers, "emit_unified_call(", 0, "ordinary direct call emission")
+    require_count(handlers, "MirInstruction::TypeOp", 0, "ordinary direct TypeOp emission")
+    require_count(property_reads, "RawLegacyMethodCallInputV1", 0, "property fake source input")
+    require_count(build, "MethodCallValueTerminalPortV1", 2, "source terminal port bounds")
 
     for forbidden in (
         "ASTNode",
@@ -138,12 +156,32 @@ def main() -> None:
         if evidence not in tests:
             fail(f"missing disconnected terminal fixture: {evidence}")
 
+    route_tests = read(root, "src/mir/builder/calls/member_route_descent_tests.rs")
+    for evidence in (
+        '"terminal:typeop"',
+        '"terminal:static"',
+        '"terminal:me"',
+        '"terminal:env"',
+        '"terminal:standard"',
+    ):
+        if evidence not in route_tests:
+            fail(f"missing I0 terminal-order evidence: {evidence}")
+    for evidence in (
+        "lowered_me_arguments_precede_terminal_and_keep_receiver_prefix",
+        "generic_terminal_failure_follows_children_without_retry_and_builder_reuses",
+    ):
+        if evidence not in route_tests:
+            fail(f"missing I0 terminal wiring fixture: {evidence}")
+
     for phrase in (
         "disconnected V0 value-only terminal port",
         "Route selection, syntax preflight, and child descent must finish",
         "owns no route table",
         "caller ledger, retry, or fallback",
         "V0-S0 production consumers = 0",
+        "V0-I0 threads exactly the five ordinary source completions",
+        "creates no MethodCall source carrier",
+        "Located source, caller-ledger, activation, and result authority remain absent",
     ):
         if phrase not in readme:
             fail(f"missing README boundary: {phrase}")
@@ -153,13 +191,18 @@ def main() -> None:
         "src/mir/builder/calls/mod.rs",
         "src/mir/builder/calls/method_call_terminal.rs",
         "src/mir/builder/calls/method_call_terminal_tests.rs",
+        "src/mir/builder/calls/method_call_descent.rs",
+        "src/mir/builder/calls/build.rs",
+        "src/mir/builder/calls/member_route.rs",
+        "src/mir/builder/calls/member_route_descent_tests.rs",
+        "src/mir/builder/method_call_handlers.rs",
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_m0_v0.py",
     )
     oversized = [relative for relative in touched if len(read(root, relative).splitlines()) >= 800]
     if oversized:
         fail(f"source/check files reached 800 lines: {oversized}")
 
-    print(f"{TAG} ok: terminal_owner=1 raw_impl=1 production_consumers=0")
+    print(f"{TAG} ok: terminal_owner=1 raw_impl=1 source_consumers=5 property_raw=1")
 
 
 if __name__ == "__main__":

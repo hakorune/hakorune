@@ -1,11 +1,19 @@
 use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::builder::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
-use crate::mir::{Callee, MirBuilder, MirInstruction, ValueId};
+use crate::mir::function::{FunctionSignature, MirFunction, MirModule};
+use crate::mir::{
+    BasicBlockId, Callee, EffectMask, MirBuilder, MirInstruction, MirType, TypeOpKind, ValueId,
+};
 use crate::parser::NyashParser;
 
+use super::super::recursive_child_lowering::RawLegacyChildLoweringPortV1;
 use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
 use super::call_argument_descent::CallArgumentDescentPortV1;
-use super::method_call_descent::{MethodCallDescentPortV1, MethodCallSyntaxViewV1};
+use super::extern_calls::EnvMethodSpec;
+use super::method_call_descent::{
+    MethodCallDescentPortV1, MethodCallSyntaxViewV1, RawLegacyMethodCallInputV1,
+};
+use super::method_call_terminal::MethodCallValueTerminalPortV1;
 
 fn integer(value: i64) -> ASTNode {
     ASTNode::Literal {
@@ -51,6 +59,7 @@ enum RouteExpression {
 struct RoutePort {
     events: Vec<String>,
     fail_receiver: bool,
+    fail_terminal: bool,
 }
 
 impl RecursiveChildLoweringPortV1 for RoutePort {
@@ -149,6 +158,101 @@ impl MethodCallDescentPortV1 for RoutePort {
     }
 }
 
+fn raw_terminal_input() -> RawLegacyMethodCallInputV1 {
+    RawLegacyMethodCallInputV1::new(integer(0), "terminal".to_string(), Vec::new())
+}
+
+impl MethodCallValueTerminalPortV1 for RoutePort {
+    fn emit_typeop_value_terminal(
+        &mut self,
+        builder: &mut MirBuilder,
+        _input: &Self::MethodCallInput,
+        value: ValueId,
+        op: TypeOpKind,
+        ty: MirType,
+    ) -> Result<ValueId, String> {
+        self.events.push("terminal:typeop".to_string());
+        let mut raw = RawLegacyChildLoweringPortV1;
+        raw.emit_typeop_value_terminal(builder, &raw_terminal_input(), value, op, ty)
+    }
+
+    fn emit_static_global_value_terminal(
+        &mut self,
+        builder: &mut MirBuilder,
+        _input: &Self::MethodCallInput,
+        owner: &str,
+        method: &str,
+        checked_source_arity: u32,
+        arguments: Vec<ValueId>,
+    ) -> Result<ValueId, String> {
+        self.events.push("terminal:static".to_string());
+        let mut raw = RawLegacyChildLoweringPortV1;
+        raw.emit_static_global_value_terminal(
+            builder,
+            &raw_terminal_input(),
+            owner,
+            method,
+            checked_source_arity,
+            arguments,
+        )
+    }
+
+    fn emit_me_lowered_global_value_terminal(
+        &mut self,
+        builder: &mut MirBuilder,
+        _input: &Self::MethodCallInput,
+        owner: &str,
+        method: &str,
+        checked_source_arity: u32,
+        arguments: Vec<ValueId>,
+    ) -> Result<ValueId, String> {
+        self.events.push("terminal:me".to_string());
+        let mut raw = RawLegacyChildLoweringPortV1;
+        raw.emit_me_lowered_global_value_terminal(
+            builder,
+            &raw_terminal_input(),
+            owner,
+            method,
+            checked_source_arity,
+            arguments,
+        )
+    }
+
+    fn emit_env_value_terminal(
+        &mut self,
+        builder: &mut MirBuilder,
+        _input: &Self::MethodCallInput,
+        spec: &EnvMethodSpec,
+        arguments: Vec<ValueId>,
+    ) -> Result<ValueId, String> {
+        self.events.push("terminal:env".to_string());
+        let mut raw = RawLegacyChildLoweringPortV1;
+        raw.emit_env_value_terminal(builder, &raw_terminal_input(), spec, arguments)
+    }
+
+    fn emit_standard_value_terminal(
+        &mut self,
+        builder: &mut MirBuilder,
+        _input: &Self::MethodCallInput,
+        receiver: ValueId,
+        method: String,
+        arguments: Vec<ValueId>,
+    ) -> Result<ValueId, String> {
+        self.events.push("terminal:standard".to_string());
+        if self.fail_terminal {
+            return Err("route fixture terminal failure".to_string());
+        }
+        let mut raw = RawLegacyChildLoweringPortV1;
+        raw.emit_standard_value_terminal(
+            builder,
+            &raw_terminal_input(),
+            receiver,
+            method,
+            arguments,
+        )
+    }
+}
+
 fn builder(name: &str) -> MirBuilder {
     let mut builder = MirBuilder::new();
     let root =
@@ -177,7 +281,7 @@ fn typeop_descends_receiver_once_and_keeps_type_string_syntax_only() {
         .build_method_call_from_input_v1(&mut port, &input)
         .unwrap();
 
-    assert_eq!(port.events, ["receiver"]);
+    assert_eq!(port.events, ["receiver", "terminal:typeop"]);
     assert!(builder
         .scope_ctx
         .current_function
@@ -203,7 +307,7 @@ fn static_route_skips_receiver_and_descends_arguments_left_to_right() {
         .build_method_call_from_input_v1(&mut port, &input)
         .unwrap();
 
-    assert_eq!(port.events, ["argument:0", "argument:1"]);
+    assert_eq!(port.events, ["argument:0", "argument:1", "terminal:static"]);
 }
 
 #[test]
@@ -220,7 +324,10 @@ fn standard_route_descends_receiver_before_arguments() {
         .build_method_call_from_input_v1(&mut port, &input)
         .unwrap();
 
-    assert_eq!(port.events, ["receiver", "argument:0", "argument:1"]);
+    assert_eq!(
+        port.events,
+        ["receiver", "argument:0", "argument:1", "terminal:standard"]
+    );
 }
 
 #[test]
@@ -251,7 +358,7 @@ fn standard_receiver_failure_descends_no_arguments_and_builder_is_reusable() {
     builder
         .build_method_call_from_input_v1(&mut port, &valid)
         .unwrap();
-    assert_eq!(port.events, ["receiver"]);
+    assert_eq!(port.events, ["receiver", "terminal:typeop"]);
 }
 
 #[test]
@@ -268,7 +375,7 @@ fn malformed_typeop_uses_standard_receiver_then_argument_demand() {
         .build_method_call_from_input_v1(&mut port, &input)
         .unwrap();
 
-    assert_eq!(port.events, ["receiver", "argument:0"]);
+    assert_eq!(port.events, ["receiver", "argument:0", "terminal:standard"]);
 }
 
 #[test]
@@ -285,7 +392,7 @@ fn env_route_keeps_receiver_syntax_only_and_descends_arguments() {
         .build_method_call_from_input_v1(&mut port, &input)
         .unwrap();
 
-    assert_eq!(port.events, ["argument:0", "argument:1"]);
+    assert_eq!(port.events, ["argument:0", "argument:1", "terminal:env"]);
 }
 
 #[test]
@@ -309,7 +416,99 @@ fn bound_me_route_keeps_source_receiver_syntax_only() {
         .build_method_call_from_input_v1(&mut port, &input)
         .unwrap();
 
-    assert_eq!(port.events, ["argument:0", "argument:1"]);
+    assert_eq!(
+        port.events,
+        ["argument:0", "argument:1", "terminal:standard"]
+    );
+}
+
+#[test]
+fn lowered_me_arguments_precede_terminal_and_keep_receiver_prefix() {
+    let input = RouteInput {
+        receiver: ASTNode::Me {
+            span: Span::unknown(),
+        },
+        method: "routeMethod".to_string(),
+        arguments: vec![integer(1), integer(2)],
+    };
+    let mut port = RoutePort::default();
+    let mut builder = builder("RouteOwner.caller/0");
+    let me = builder.build_expression(integer(9)).unwrap();
+    builder
+        .variable_ctx
+        .variable_map
+        .insert("me".to_string(), me);
+
+    let signature = FunctionSignature {
+        name: "RouteOwner.routeMethod/2".to_string(),
+        params: vec![
+            MirType::Box("RouteOwner".to_string()),
+            MirType::Integer,
+            MirType::Integer,
+        ],
+        return_type: MirType::Integer,
+        effects: EffectMask::PURE,
+    };
+    let mut module = MirModule::new("route-terminal-module".to_string());
+    module.add_function(MirFunction::new(signature, BasicBlockId::new(0)));
+    builder.current_module = Some(module);
+
+    builder
+        .build_method_call_from_input_v1(&mut port, &input)
+        .unwrap();
+
+    assert_eq!(port.events, ["argument:0", "argument:1", "terminal:me"]);
+    let call = builder
+        .scope_ctx
+        .current_function
+        .as_ref()
+        .unwrap()
+        .blocks
+        .values()
+        .flat_map(|block| &block.instructions)
+        .find_map(|instruction| match instruction {
+            MirInstruction::Call {
+                callee: Some(Callee::Global(name)),
+                args,
+                ..
+            } if name == "RouteOwner.routeMethod/2" => Some(args),
+            _ => None,
+        })
+        .expect("lowered me terminal must emit the module global");
+    assert_eq!(call.len(), 3);
+}
+
+#[test]
+fn generic_terminal_failure_follows_children_without_retry_and_builder_reuses() {
+    let input = RouteInput {
+        receiver: integer(7),
+        method: "routeMethod".to_string(),
+        arguments: vec![integer(1), integer(2)],
+    };
+    let mut port = RoutePort {
+        fail_terminal: true,
+        ..RoutePort::default()
+    };
+    let mut builder = builder("terminal_failure_route/0");
+
+    let error = builder
+        .build_method_call_from_input_v1(&mut port, &input)
+        .unwrap_err();
+    assert_eq!(error, "route fixture terminal failure");
+    assert_eq!(
+        port.events,
+        ["receiver", "argument:0", "argument:1", "terminal:standard"]
+    );
+
+    port.fail_terminal = false;
+    port.events.clear();
+    builder
+        .build_method_call_from_input_v1(&mut port, &input)
+        .unwrap();
+    assert_eq!(
+        port.events,
+        ["receiver", "argument:0", "argument:1", "terminal:standard"]
+    );
 }
 
 #[test]

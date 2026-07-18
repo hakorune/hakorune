@@ -1,5 +1,5 @@
 ---
-Status: SITE0-R0-EXPR0-M0-V0-S0 closed; V0-I0 is next
+Status: SITE0-R0-EXPR0-M0-V0-I0 closed; V0-P0 is next
 Date: 2026-07-18
 Decision: Candidate A owned single-use activation plan plus located legacy input
 Baseline: fe2d61baa0
@@ -844,6 +844,19 @@ rematerialization instead of treating raw `ValueId` equality as semantic
 identity. One dedicated structural guard fixes the port/raw-helper owners,
 forbids syntax/route/located/ledger/result authority, and proves production
 terminal consumers remain zero. V0-I0 is next.
+
+### V0-I0 closeout
+
+V0-I0 is closed with exactly five ordinary source completion sites. TypeOp,
+qualified static, current-owner lowered global, Env, and Standard all retain
+their existing route-specific preflight and child-effect order, then finish
+through the same per-call associated terminal adapter. Lowered `me` keeps its
+receiver-prefixed physical arguments and source arity. Materialized property
+shares the one Standard preflight owner and calls the raw value helper without
+constructing a MethodCall source input. Scalar facts, weak load, record/helper
+setter, FastMem, MIR-debug, and REPL remain explicit custom terminals. Route
+event fixtures prove children-before-terminal, lowered-Me receiver prefix,
+terminal failure exact-once/no-retry, and Builder reuse. V0-P0 is next.
 
 ### Exact terminal laws
 
