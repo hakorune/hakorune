@@ -1,5 +1,5 @@
 ---
-Status: ASN0-L0 closed; RET0-S0 is next
+Status: RET0-S0 closed; RET0-I0 is next
 Date: 2026-07-18
 Decision: expand located lowering by one structural child family per row
 Parent: callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md
@@ -62,18 +62,17 @@ SITE0-R0-EXPR0-SPINE0-BIN0-S0
 The sole next code-facing row is:
 
 ```text
-SITE0-R0-EXPR0-SPINE0-STMT0-RET0-S0
+SITE0-R0-EXPR0-SPINE0-STMT0-RET0-I0
 ```
 
-`ASN0-L0` is closed. One disconnected located adapter selects only an exact
-Variable-target Assignment, derives its RHS only through `AssignmentValue`,
-and reuses the existing assignment preflight, completion, expression descent,
-ledger, Binary, and short-circuit owners. Six fixtures close success/order,
-failure/no-publication, fresh-session reuse, and non-target/If/Loop fail-closed
-boundaries. The observed `LoopBodyRoot` versus canonical `LoopBody(index)`
-path seam remains parked for LOOP0 rather than being reconstructed here.
-Return is the next statement family; production located roots and
-callable-result publication remain zero.
+`RET0-S0` is closed. One disconnected value-bearing Return driver runs the
+existing cleanup prohibition, delegates the existing match-return probe,
+requests one associated `ReturnValue`, descends through E0, and reuses the
+existing completion owner. `return;` remains on the legacy facade. Eight
+fixtures cover order, selected Match bypass, MethodCall/Binary/short-circuit
+children, exact failure/defer terminators, and the Void boundary. Production
+raw/located Return selectors and callable-result publication remain zero;
+RET0-I0 is next.
 
 ## Why C0 is held
 
@@ -615,6 +614,17 @@ RET0:
   void Return remains outside the admitted row
 ```
 
+### RET0-S0 closeout
+
+RET0-S0 adds one disconnected value-bearing Return driver without taking
+Match/CorePlan, defer, site, ledger, or direct Return authority. Cleanup runs
+before value observation; the match hook either returns the existing selected
+result or declines before one `ReturnValue` E0 descent. Existing completion
+retains ordinary Return and defer Copy/Jump. Eight fixtures, statement 53/53,
+recursive child 7/7, callable-result 55/55, the SPINE0 guard, cargo check,
+quick 66/66 in 39s, release, formatting, and line caps are green. Production
+selectors and result publication remain zero; RET0-I0 is next.
+
 IF and Loop are not STMT0 variants.
 
 ## IF0 — associated-input If control
@@ -778,7 +788,7 @@ Stop the current row if any of the following becomes necessary:
 > Ordinary Binary, short-circuit Binary, Local initializer descent, and the
 > exact Variable-target Assignment family is closed through ASN0-L0.
 > The sole current shape is
-> `SITE0-R0-EXPR0-SPINE0-STMT0-RET0-S0`; later value-bearing statements, If, raw suffix
+> `SITE0-R0-EXPR0-SPINE0-STMT0-RET0-I0`; later value-bearing statements, If, raw suffix
 > admission, and Loop site carriage remain separate owners. BIN0-L0 always
 > uses the located driver for an ordinary Binary and lets each associated child
 > prove inactivity or continue to an exact claim; it never selects a route by
@@ -793,5 +803,5 @@ Stop the current row if any of the following becomes necessary:
 Quick-gate latency is tracked separately in
 [`dev-gate-quick-latency-task-2026-07-18.md`](./dev-gate-quick-latency-task-2026-07-18.md).
 Its first row is `DEV-GATE-Q0-M0`; it does not change this card's active
-`SITE0-R0-EXPR0-SPINE0-STMT0-RET0-S0` blocker or share a commit with a
+`SITE0-R0-EXPR0-SPINE0-STMT0-RET0-I0` blocker or share a commit with a
 compiler semantic row.

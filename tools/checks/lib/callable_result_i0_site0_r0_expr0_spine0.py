@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 from callable_result_i0_site0_r0_expr0_spine0_stmt0_assignment import check_asn0_s0
+from callable_result_i0_site0_r0_expr0_spine0_stmt0_return import check_ret0_s0
 from callable_result_i0_site0_r0_expr0_spine0_stmt0 import check_lcl0_s0
 
 
@@ -475,6 +476,7 @@ def main() -> None:
     try:
         lcl_summary = check_lcl0_s0(root, located)
         asn_summary = check_asn0_s0(root)
+        ret_summary = check_ret0_s0(root)
     except RuntimeError as error:
         fail(str(error))
     require_count(
@@ -536,7 +538,7 @@ def main() -> None:
         "raw_impl=1 parity_reference=1 located_impl=1 sc_driver=1 "
         "sc_raw_selector=1 sc_raw_impl=1 sc_located_impl=1 "
         "sc_parity_reference=1 logical_owner_preserved=1 "
-        f"{lcl_summary} {asn_summary}"
+        f"{lcl_summary} {asn_summary} {ret_summary}"
     )
 
 

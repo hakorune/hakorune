@@ -55,6 +55,15 @@ use crate::mir::builder::control_flow::verify::observability::flowbox_tags::{sel
 use crate::mir::builder::control_flow::verify::PlanVerifier;
 use crate::mir::{MirBuilder, MirInstruction, ValueId};
 
+/// Preserve the existing cleanup-block Return prohibition before any value
+/// observation or lowering effect.
+pub(in crate::mir::builder) fn ensure_return_allowed(builder: &MirBuilder) -> Result<(), String> {
+    if builder.in_cleanup_block && !builder.cleanup_allow_return {
+        return Err("return is not allowed inside cleanup block (enable NYASH_CLEANUP_ALLOW_RETURN=1 to permit)".to_string());
+    }
+    Ok(())
+}
+
 /// Adopt match-return CorePlan optimization
 ///
 /// **Private helper** - only called from `build_return_statement`.
@@ -228,10 +237,7 @@ pub(in crate::mir::builder) fn build_return_statement(
     builder: &mut MirBuilder,
     value: Option<Box<ASTNode>>,
 ) -> Result<ValueId, String> {
-    // Enforce cleanup policy
-    if builder.in_cleanup_block && !builder.cleanup_allow_return {
-        return Err("return is not allowed inside cleanup block (enable NYASH_CLEANUP_ALLOW_RETURN=1 to permit)".to_string());
-    }
+    ensure_return_allowed(builder)?;
 
     if let Some(return_value) =
         try_apply_match_return_optimization(builder, value.as_deref(), true)?

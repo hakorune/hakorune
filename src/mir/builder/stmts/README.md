@@ -108,3 +108,27 @@ path seam that does not match the actual callable-result ledger row. ASN0-L0
 records that mismatch as a no-effects negative fixture; it neither rebuilds
 the path nor claims Loop traversal. Exact Loop body carriage remains LOOP0
 authority.
+
+## Value-bearing Return associated-input descent
+
+`return_statement_descent.rs` owns one disconnected orchestration boundary for
+`return value` only. The driver runs the existing cleanup prohibition first,
+observes one required value syntax, delegates the existing match-return probe
+through the port, requests `ReturnValue` once only when that probe declines,
+lowers the child through the shared recursive expression port, and completes
+through the existing `emit_return_from_value` owner.
+
+The match hook is not a second Match/CorePlan authority. Raw lowering delegates
+to the existing `try_apply_match_return_optimization`; a future located port
+may invoke that owner only after proving a Match-valued subtree inactive. A
+selected match result bypasses ordinary child demand and completion exactly as
+before. Cleanup/defer policy, CorePlan composition, Return ABI/contracts,
+instruction emission, source location, and callable-result ledger ownership
+remain outside this driver.
+
+RET0-S0 does not admit `return;`: the input and syntax view both carry one
+non-optional value. Void emission remains on the existing legacy facade. A
+cleanup rejection happens before port observation, while match-hook, input,
+or child failure emits no Return completion. The driver must not reconstruct
+sites, inspect Match facts, emit Return directly, retry another route, or
+store its input/port in `MirBuilder`.
