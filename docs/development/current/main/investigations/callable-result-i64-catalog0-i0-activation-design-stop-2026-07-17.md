@@ -1,5 +1,5 @@
 ---
-Status: SITE0-R0-EXPR0-M0-ROUTE0-M0 closed; SITE0-R0-EXPR0-M0-V0 is the next code-facing row
+Status: SITE0-R0-EXPR0-M0-ROUTE0-M0 closed; SITE0-R0-EXPR0-M0-V0 is task-locked and next
 Date: 2026-07-18
 Decision: Candidate A owned single-use activation plan plus located legacy input
 Baseline: fe2d61baa0
@@ -777,6 +777,151 @@ structural guards, PHI boundary guard, release build, quick gate, pointer guard,
 formatting, and line caps are green. Result/type/effect publication, located
 input, caller-ledger authorization, accepted grammar, backend, and runtime
 authority remain unchanged. `SITE0-R0-EXPR0-M0-V0` is next.
+
+## SITE0-R0-EXPR0-M0-V0 task lock
+
+Three worker audits and local source review select one behavior-neutral
+BoxShape series. External design consultation is not required. V0 owns only
+the handoff from route-specific syntax/preflight plus completed child descent
+to the existing value-level emitters and their completed `ValueId`.
+
+The durable boundary is a private, stack-scoped terminal port associated with
+the existing `MethodCallDescentPortV1` input. It exposes distinct terminal
+methods for exactly these current ordinary paths:
+
+```text
+TypeOp
+qualified static global
+current-owner lowered global
+Env extern
+Standard method
+```
+
+It does not introduce a stored prepared-terminal enum or a second route table.
+`MemberCallRoutePlan` and `ReceiverNormalizationPlan` remain the only ordinary
+route decisions. `EnvMethodSpec`, `CallTarget`, `TypeOpKind`, `MirType`, and the
+existing emitters retain target/effect/representation/publication truth. A
+static/global terminal receives semantic owner, source method, checked arity,
+and already-lowered values; it must not issue a callable key or recover identity
+from a physical MIR symbol. The raw port is the only V0 implementation.
+
+Property read remains an already-materialized value-level compatibility
+consumer. It may reuse the same raw Standard terminal helper but must not
+fabricate a MethodCall input. Static scalar facts, weak-load, record-helper and
+setter scalarization, FastMem, MIR-debug, and REPL remain explicit early/custom
+terminal owners. V0 inventories them and proves they do not silently enter the
+generic ordinary terminal boundary.
+
+The series is fixed as:
+
+```text
+V0-S0
+  README boundary + private terminal port/raw adapter
+  disconnected exact terminal fixtures
+  selected production terminal consumers = 0
+
+V0-I0
+  thread TypeOp/static/me-lowered/env/standard ordinary completions
+  through the raw adapter after existing preflight and child descent
+  accepted grammar/MIR/effect/dst/type/diagnostic delta = 0
+
+V0-P0
+  normalized terminal parity and early/custom-terminal inventory
+  failure-before-publication, no retry, and Builder reuse
+
+V0-G0
+  one structural guard, docs/current closeout, line caps
+  -> SITE0-R0-EXPR0-L0
+```
+
+### Exact terminal laws
+
+```text
+TypeOp:
+  receiver already lowered
+  type spelling already sealed as syntax-only
+  preserve Check/Cast, parsed MirType, dst allocation, and diagnostic
+
+qualified static global:
+  scalar/record-helper preflight already complete
+  arguments already lowered in source order
+  preserve owner.method/arity projection, CallTarget::Global, dst, annotation
+
+current-owner lowered global:
+  helper/module/argument/arity processing already complete
+  preserve receiver prefix, global target, dst, and legacy annotation timing
+
+Env:
+  EnvMethodSpec already sealed and arguments already lowered
+  preserve exact iface/method/effects/returns law, including the current
+  no-result allocation and Void-result behavior
+
+Standard:
+  receiver already lowered; weak/helper/setter preflight already complete
+  arguments already lowered
+  preserve CallTarget::Method, rewrite/resolution behavior, dst, effects,
+  type/origin publication, and diagnostics
+```
+
+Destination allocation must not move before child effects. Existing concrete
+type/origin/result annotation remains owned by the emitters and existing
+annotation helpers; V0 neither infers nor publishes a new fact. A terminal
+error is returned once with no fallback or retry. Existing allocator burn
+behavior is normalized and fixed rather than opportunistically cleaned up.
+
+### Required V0 evidence
+
+Use a new `calls/method_call_terminal_tests.rs`; do not grow the 343-line
+child-demand fixture. The minimum normalized matrix is:
+
+```text
+TypeOp is/as:
+  op/value/type/returned-dst/allocation/type-origin parity
+
+qualified static global:
+  semantic owner/method/arity, argument order, target/dst/effects parity
+
+current-owner lowered global:
+  receiver prefix, target/dst, legacy annotation parity
+
+Env returning and no-result:
+  extern identity, exact effects, dst/None, Void result, allocation parity
+
+Standard and materialized property:
+  receiver/arguments/target/dst/effects/type-origin parity
+  property uses no source carrier
+
+controls:
+  weak-load, static scalar, record-helper/setter, reserved routes stay custom
+  receiver/argument/preflight failure enters no ordinary terminal
+  terminal failure preserves exact diagnostic, publishes no later fact,
+  and the Builder remains reusable
+```
+
+The V0 guard fixes one terminal-port owner, one raw implementation, exact raw
+consumers after I0, custom-terminal non-consumers, property fake-AST zero,
+located/ledger/activation/result-authority imports zero, route/name probing and
+retry zero, required fixtures, README boundary, and every touched source/check
+file below 800 lines. ROUTE0 and earlier guards remain independently green.
+
+### V0 stop conditions
+
+Stop before implementation broadening if any of the following is required:
+
+1. A terminal enum/table becomes a second route/target/effect/result owner.
+2. A callable key is issued in Builder or reconstructed from a MIR symbol.
+3. Destination allocation or terminal mutation must precede child success.
+4. Me arity moves before argument effects or legacy annotation timing changes.
+5. Record-helper/property requires full ARG0 or a fake MethodCall source.
+6. A selected activation row can exit through an early/custom terminal and
+   cannot be excluded or represented without widening V0 authority.
+7. Located source, caller ledger, activation disposition, or exact-result
+   publication must enter V0.
+8. Plan/view/ledger/claim state must be stored in `MirBuilder`, cloned, shared,
+   or kept as a mutable `current_claim` across nested calls.
+9. FastMem/debug/REPL preflight or terminal ownership changes.
+10. Fallback, retry, AST rewalk, runtime tag inference, or a touched
+    source/check file reaching 800 lines.
 
 ## Required fixtures
 
