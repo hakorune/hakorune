@@ -122,6 +122,8 @@ mod block_driver_tests;
 #[cfg(test)]
 mod if_statement_descent_tests;
 #[cfg(test)]
+mod if_statement_raw_tests;
+#[cfg(test)]
 mod local_statement_descent_tests;
 #[cfg(test)]
 mod local_statement_parity_tests;
@@ -188,48 +190,6 @@ impl super::MirBuilder {
         then_body: Vec<ASTNode>,
         else_body: Option<Vec<ASTNode>>,
     ) -> Result<(), String> {
-        use crate::ast::Span;
-
-        if let Some(region) = self.current_fastmem_region() {
-            let condition_value = self.build_expression(condition.clone())?;
-            let condition_debug = if_statement_descent::prepare_if_statement_condition_value_v1(
-                self,
-                condition_value,
-                &condition,
-            )?;
-            debug_assert_eq!(self.current_fastmem_region(), Some(region));
-
-            let then_node = ASTNode::Program {
-                statements: then_body,
-                span: Span::unknown(),
-            };
-            let else_node = else_body.map(|b| ASTNode::Program {
-                statements: b,
-                span: Span::unknown(),
-            });
-            let _ = self.lower_if_form_with_condition_value(
-                condition_value,
-                condition_debug,
-                then_node,
-                else_node,
-            )?;
-            return Ok(());
-        }
-
-        // then_body と else_body を ASTNode::Program に変換
-        let then_node = ASTNode::Program {
-            statements: then_body,
-            span: Span::unknown(),
-        };
-        let else_node = else_body.map(|b| ASTNode::Program {
-            statements: b,
-            span: Span::unknown(),
-        });
-
-        // 既存の If lowering を呼ぶ（cf_if は lower_if_form を呼ぶ）
-        // 戻り値は無視（Statement なので値は使わない）
-        let _result = self.cf_if(condition, then_node, else_node)?;
-
-        Ok(())
+        if_statement_descent::drive_raw_if_statement_v1(self, condition, then_body, else_body)
     }
 }

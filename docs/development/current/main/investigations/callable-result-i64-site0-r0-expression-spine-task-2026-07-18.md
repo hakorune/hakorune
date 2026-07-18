@@ -1,5 +1,5 @@
 ---
-Status: IF0-S0 closed; IF0-I0 is next
+Status: IF0-I0 closed; IF0-P0 is next
 Date: 2026-07-18
 Decision: expand located lowering by one structural child family per row
 Parent: callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md
@@ -62,18 +62,16 @@ SITE0-R0-EXPR0-SPINE0-BIN0-S0
 The sole next code-facing row is:
 
 ```text
-SITE0-R0-EXPR0-SPINE0-IF0-S0
+SITE0-R0-EXPR0-SPINE0-IF0-P0
 ```
 
-`IF0-S0` is closed. One disconnected statement-If driver obtains condition and
-branch bodies through associated inputs, keeps then and optional else demand at
-the existing IfForm execution points, and shares one FastMem post-condition
-helper with the legacy production facade. IfForm remains the sole CFG,
-termination, PHI, scope/debug, and JoinIR owner. Seven fixtures cover exact
-demand order, condition/FastMem failure, positive FastMem fact publication,
-branch partial state, implicit false, the termination matrix, and exact merge
-result/variable PHIs. Production generic/raw If driver callers remain zero.
-IF0-I0 is next.
+`IF0-I0` is closed. `build_if_statement` now selects the shared raw If driver
+exactly once; the old inline FastMem split and direct `cf_if` route are retired.
+One private raw port preserves the legacy branch `Program(span=unknown)` shell,
+including its recursion and empty-branch span boundary. Statement Void remains
+in `block_stmt`, expression-position If remains on `cf_if`, and resolved located
+If remains disconnected. Production raw selectors are one and generic direct
+production callers remain zero. IF0-P0 is next.
 
 ## Why C0 is held
 
@@ -716,6 +714,33 @@ guard, `cargo check --all-targets`, release build, formatting, diff checks, and
 all source/check line caps are green. The complete quick gate is 66/66; its
 137-second wall time is recorded by the separately parked developer-gate
 latency task and does not widen this semantic row. IF0-I0 is next.
+
+### IF0-I0 closeout
+
+`build_if_statement` now selects `drive_raw_if_statement_v1` exactly once.
+The retired facade no longer owns a FastMem branch, condition lowering,
+`Program` construction, or direct `cf_if` selection. A sole private production
+port wraps each demanded branch in the former `ASTNode::Program` unknown-span
+shell and lowers it through the existing raw expression recursion guard. This
+preserves the depth 198/199/200 boundary and empty/non-empty branch span
+behavior without adding span or recursion policy to the generic driver.
+
+`block_stmt::build_statement` still selects statement If and publishes one
+facade Void only after success. IfForm still owns CFG, termination, PHIs,
+scope/debug, EdgeCFG, and JoinIR; FastMem verification/fact publication remains
+one private helper in the shared driver. Expression-position If stays on
+`exprs.rs -> cf_if`, and resolved located If remains disconnected.
+
+Eight production-entry fixtures cover explicit/implicit else, exact merge
+result and variable PHIs, the four-way termination matrix, condition/then/else
+failure, same-Builder reuse, FastMem positive/negative admission, expression If
+separation, legacy recursion boundaries, and branch Program span behavior.
+Worker authority/code/test audits are GO after removing a dormant alternate raw
+port authority. Statement tests are 78/78, recursive-child tests 7/7,
+callable-result tests 55/55, the structural guard, `cargo check --all-targets`,
+release, formatting, diff checks, and all source/check line caps are green.
+Quick is 66/66 in 140 seconds; the run overlapped an already-running release
+link and is correctness evidence only, not latency evidence. IF0-P0 is next.
 
 ### IF0 staged activation
 

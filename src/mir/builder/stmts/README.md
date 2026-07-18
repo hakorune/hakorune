@@ -187,3 +187,17 @@ source paths or caller ledger. It owns no Match, Loop, suffix routing, PHI
 emission, retry, fallback, or Builder-stored port/input. A later located port
 may expose a raw branch only after the complete associated body prefix is
 proven inactive.
+
+IF0-I0 selects the raw driver exactly once from `build_if_statement`. The old
+inline FastMem split and direct `cf_if` selection are retired without a probe
+or retry. One production raw If port preserves the retired branch Program shell:
+each demanded branch is wrapped in `ASTNode::Program { span: Span::unknown() }`
+and lowered through the existing raw expression recursion guard. This keeps
+the former branch recursion boundary and empty-branch span behavior while the
+generic associated-input driver remains free of source-span policy.
+
+`block_stmt::build_statement` remains the sole statement-source selector and
+publishes its one facade Void only after If lowering succeeds. The raw driver
+and its production port publish no statement Void. Expression-position If
+continues through `exprs.rs` and `cf_if`; resolved located If remains a
+separate inactive authority.

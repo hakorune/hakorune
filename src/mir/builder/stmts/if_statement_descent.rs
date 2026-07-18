@@ -11,9 +11,53 @@ use crate::mir::builder::if_form::IfBranchKindV1;
 use crate::mir::{MirBuilder, ValueId};
 
 use super::super::recursive_child_lowering::{
-    drive_legacy_body_v1, drive_legacy_expression_v1, RawLegacyChildLoweringPortV1,
-    RecursiveChildLoweringPortV1,
+    drive_legacy_body_v1, drive_legacy_expression_v1, drive_raw_legacy_expression_v1,
+    drive_raw_legacy_statement_v1, RecursiveChildLoweringPortV1,
 };
+
+/// Production raw-If port preserving the retired facade's branch Program shell.
+///
+/// The shared raw child port lowers a body directly. Statement-position If
+/// historically lowered each branch as an expression-position `Program` with
+/// an unknown span. Keeping that shell here preserves its recursion boundary
+/// and span publication without making the generic If driver own either law.
+struct RawLegacyIfStatementPortV1;
+
+impl RecursiveChildLoweringPortV1 for RawLegacyIfStatementPortV1 {
+    type BodyInput = Vec<ASTNode>;
+    type StatementInput = ASTNode;
+    type ExpressionInput = ASTNode;
+
+    fn lower_body(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: Self::BodyInput,
+    ) -> Result<ValueId, String> {
+        drive_raw_legacy_expression_v1(
+            builder,
+            ASTNode::Program {
+                statements: input,
+                span: crate::ast::Span::unknown(),
+            },
+        )
+    }
+
+    fn lower_statement(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: Self::StatementInput,
+    ) -> Result<ValueId, String> {
+        drive_raw_legacy_statement_v1(builder, input)
+    }
+
+    fn lower_expression(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: Self::ExpressionInput,
+    ) -> Result<ValueId, String> {
+        drive_raw_legacy_expression_v1(builder, input)
+    }
+}
 
 pub(in crate::mir::builder) struct RawLegacyIfStatementInputV1 {
     condition: ASTNode,
@@ -102,7 +146,7 @@ pub(in crate::mir::builder) trait IfStatementDescentPortV1:
     fn if_else_body_input(&self, input: &Self::IfInput) -> Result<Self::BodyInput, String>;
 }
 
-impl IfStatementDescentPortV1 for RawLegacyChildLoweringPortV1 {
+impl IfStatementDescentPortV1 for RawLegacyIfStatementPortV1 {
     type IfInput = RawLegacyIfStatementInputV1;
 
     fn if_syntax<'input>(
@@ -189,11 +233,11 @@ pub(in crate::mir::builder) fn drive_raw_if_statement_v1(
     else_body: Option<Vec<ASTNode>>,
 ) -> Result<(), String> {
     let input = RawLegacyIfStatementInputV1::new(condition, then_body, else_body);
-    let mut port = RawLegacyChildLoweringPortV1;
+    let mut port = RawLegacyIfStatementPortV1;
     drive_if_statement_v1(builder, &mut port, &input)
 }
 
-pub(super) fn prepare_if_statement_condition_value_v1(
+fn prepare_if_statement_condition_value_v1(
     builder: &mut MirBuilder,
     condition_value: ValueId,
     condition: &ASTNode,

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Private IF0-S0 structural checks for the public EXPR0-SPINE0 guard."""
+"""Private IF0-S0/I0 structural checks for the public EXPR0-SPINE0 guard."""
 
 from __future__ import annotations
 
@@ -24,10 +24,33 @@ def _require_count(text: str, needle: str, expected: int, label: str) -> None:
         _fail(f"{label}: expected={expected} actual={actual}")
 
 
+def _function_slice(text: str, signature: str) -> str:
+    start = text.find(signature)
+    if start < 0:
+        _fail(f"missing function signature: {signature}")
+    brace = text.find("{", start)
+    if brace < 0:
+        _fail(f"missing function body: {signature}")
+    depth = 0
+    for index in range(brace, len(text)):
+        if text[index] == "{":
+            depth += 1
+        elif text[index] == "}":
+            depth -= 1
+            if depth == 0:
+                return text[start : index + 1]
+    _fail(f"unterminated function body: {signature}")
+    raise AssertionError("unreachable")
+
+
 def check_if0_s0(root: Path) -> str:
     driver_path = "src/mir/builder/stmts/if_statement_descent.rs"
     tests_path = "src/mir/builder/stmts/if_statement_descent_tests.rs"
+    raw_tests_path = "src/mir/builder/stmts/if_statement_raw_tests.rs"
     stmts_root_path = "src/mir/builder/stmts/mod.rs"
+    block_stmt_path = "src/mir/builder/stmts/block_stmt.rs"
+    exprs_path = "src/mir/builder/exprs.rs"
+    located_if_path = "src/mir/builder/resolved_lowering/located_if.rs"
     readme_path = "src/mir/builder/stmts/README.md"
     if_form_path = "src/mir/builder/if_form.rs"
     phi_path = "src/mir/builder/phi.rs"
@@ -38,7 +61,11 @@ def check_if0_s0(root: Path) -> str:
 
     driver = _read(root, driver_path)
     tests = _read(root, tests_path)
+    raw_tests = _read(root, raw_tests_path)
     stmts_root = _read(root, stmts_root_path)
+    block_stmt = _read(root, block_stmt_path)
+    exprs = _read(root, exprs_path)
+    located_if = _read(root, located_if_path)
     readme = _read(root, readme_path)
     if_form = _read(root, if_form_path)
     phi = _read(root, phi_path)
@@ -46,24 +73,24 @@ def check_if0_s0(root: Path) -> str:
     _require_count(driver, "trait IfStatementDescentPortV1", 1, "If port owner")
     _require_count(driver, "type IfInput;", 1, "associated If input")
     _require_count(driver, "struct IfStatementSyntaxViewV1", 1, "If syntax view")
-    _require_count(driver, "fn if_syntax", 2, "syntax declaration plus raw impl")
+    _require_count(driver, "fn if_syntax", 2, "syntax declaration plus sole raw port")
     _require_count(
         driver,
         "fn if_condition_expression_input",
         2,
-        "condition input declaration plus raw impl",
+        "condition input declaration plus sole raw port",
     )
     _require_count(
         driver,
         "fn if_then_body_input",
         2,
-        "then input declaration plus raw impl",
+        "then input declaration plus sole raw port",
     )
     _require_count(
         driver,
         "fn if_else_body_input",
         2,
-        "else input declaration plus raw impl",
+        "else input declaration plus sole raw port",
     )
     _require_count(driver, "fn drive_if_statement_v1", 1, "If driver")
     _require_count(
@@ -87,8 +114,8 @@ def check_if0_s0(root: Path) -> str:
     _require_count(
         driver + stmts_root,
         "prepare_if_statement_condition_value_v1",
-        3,
-        "one FastMem helper definition plus disconnected and legacy consumers",
+        2,
+        "one FastMem helper definition plus shared-driver consumer",
     )
     _require_count(
         driver,
@@ -111,6 +138,37 @@ def check_if0_s0(root: Path) -> str:
         "lower_if_form_with_condition_value_and_branch_lowerer(",
         1,
         "one existing IfForm completion consumer",
+    )
+    _require_count(
+        driver,
+        "struct RawLegacyIfStatementPortV1;",
+        1,
+        "one production raw If port",
+    )
+    _require_count(
+        driver,
+        "RawLegacyChildLoweringPortV1",
+        0,
+        "retired alternate raw If port",
+    )
+    _require_count(
+        driver,
+        "ASTNode::Program {",
+        1,
+        "one legacy branch Program shell",
+    )
+    _require_count(driver, "Span::unknown()", 1, "one unknown branch Program span")
+    _require_count(
+        driver,
+        "let mut port = RawLegacyIfStatementPortV1;",
+        1,
+        "raw wrapper selects production If port once",
+    )
+    _require_count(
+        driver,
+        "drive_if_statement_v1(builder, &mut port, &input)",
+        1,
+        "raw wrapper selects shared driver once",
     )
 
     driver_at = driver.index("fn drive_if_statement_v1<Port>")
@@ -209,6 +267,49 @@ def check_if0_s0(root: Path) -> str:
         1,
         "focused IF0 fixture module",
     )
+    _require_count(
+        stmts_root,
+        "mod if_statement_raw_tests;",
+        1,
+        "production IF0 fixture module",
+    )
+
+    raw_facade = _function_slice(stmts_root, "pub(super) fn build_if_statement(")
+    _require_count(
+        raw_facade,
+        "if_statement_descent::drive_raw_if_statement_v1(",
+        1,
+        "statement If raw selector",
+    )
+    for forbidden in (
+        "cf_if(",
+        "current_fastmem_region(",
+        "prepare_if_statement_condition_value_v1(",
+        "ASTNode::Program",
+        "build_expression(",
+        "retry",
+        "fallback",
+    ):
+        if forbidden in raw_facade:
+            _fail(f"statement If facade retains retired policy: {forbidden}")
+
+    statement_dispatch = _function_slice(block_stmt, "pub(in crate::mir::builder) fn build_statement(")
+    if_at = statement_dispatch.index("ASTNode::If {")
+    next_arm_at = statement_dispatch.index("ASTNode::StaticConstTable", if_at)
+    if_arm = statement_dispatch[if_at:next_arm_at]
+    _require_count(if_arm, "builder.build_if_statement(", 1, "one statement If selector")
+    _require_count(if_arm, "emit_void(builder)?", 1, "one facade Void publication")
+    if if_arm.index("builder.build_if_statement(") > if_arm.index("emit_void(builder)?"):
+        _fail("statement facade Void must follow successful If lowering")
+
+    expression_dispatch = _function_slice(
+        exprs, "fn try_build_statement_surface_expression("
+    )
+    _require_count(expression_dispatch, "self.cf_if(", 1, "expression If selector")
+    if "drive_raw_if_statement_v1" in expression_dispatch:
+        _fail("expression-position If selects statement raw driver")
+    if "drive_raw_if_statement_v1" in located_if:
+        _fail("resolved located If selects legacy raw statement driver")
 
     for fixture in (
         "if_driver_demands_condition_then_and_else_in_exact_order",
@@ -239,6 +340,38 @@ def check_if0_s0(root: Path) -> str:
         if evidence not in tests:
             _fail(f"missing IF0-S0 fixture evidence: {evidence}")
 
+    for fixture in (
+        "production_statement_if_explicit_else_publishes_merge_phis_then_facade_void",
+        "production_statement_if_implicit_else_keeps_internal_and_facade_void_distinct",
+        "production_statement_if_preserves_branch_termination_matrix",
+        "production_statement_if_failures_emit_no_facade_void_and_do_not_retry",
+        "production_statement_if_preserves_program_shell_recursion_boundary",
+        "production_statement_if_preserves_branch_program_span_shell",
+        "production_statement_if_fastmem_preserves_positive_and_negative_admission",
+        "expression_if_remains_cf_if_value_route_without_statement_void",
+    ):
+        if fixture not in raw_tests:
+            _fail(f"missing IF0-I0 fixture: {fixture}")
+    for evidence in (
+        "super::block_stmt::build_statement",
+        "block.terminator",
+        ".predecessors",
+        "MirInstruction::Phi",
+        "ConstValue::Void",
+        ".recursion_depth = 198",
+        ".recursion_depth = 199",
+        ".recursion_depth = 200",
+        "metadata_ctx.current_span()",
+        "Span::unknown()",
+        "FastMemBranchConditionProofKind::SourceAssumeOwnerEq",
+        ".build_expression(statement_if(",
+    ):
+        if evidence not in raw_tests:
+            _fail(f"missing IF0-I0 fixture evidence: {evidence}")
+    for forbidden in ("drive_if_statement_v1(", "drive_raw_if_statement_v1("):
+        if forbidden in raw_tests:
+            _fail(f"IF0-I0 fixture bypasses production facade: {forbidden}")
+
     production_driver_callers = 0
     raw_driver_callers = 0
     ignored = {(root / driver_path).resolve(), (root / tests_path).resolve()}
@@ -252,8 +385,8 @@ def check_if0_s0(root: Path) -> str:
         raw_driver_callers += len(raw_call.findall(text))
     if production_driver_callers != 0:
         _fail(f"IF0-S0 production generic driver callers: {production_driver_callers}")
-    if raw_driver_callers != 0:
-        _fail(f"IF0-S0 production raw driver callers: {raw_driver_callers}")
+    if raw_driver_callers != 1:
+        _fail(f"IF0-I0 production raw driver callers: {raw_driver_callers}")
 
     for phrase in (
         "disconnected statement-If child-demand",
@@ -263,6 +396,8 @@ def check_if0_s0(root: Path) -> str:
         "Statement Void publication remains",
         "source paths or caller ledger",
         "It owns no Match, Loop, suffix routing",
+        "production raw If port preserves the retired branch Program shell",
+        "IF0-I0 selects the raw driver exactly once",
     ):
         if phrase not in readme:
             _fail(f"missing IF0-S0 README boundary: {phrase}")
@@ -270,7 +405,11 @@ def check_if0_s0(root: Path) -> str:
     touched = (
         driver_path,
         tests_path,
+        raw_tests_path,
         stmts_root_path,
+        block_stmt_path,
+        exprs_path,
+        located_if_path,
         readme_path,
         if_form_path,
         phi_path,
@@ -280,4 +419,4 @@ def check_if0_s0(root: Path) -> str:
     if oversized:
         _fail(f"IF0-S0 source/check files reached 800 lines: {oversized}")
 
-    return "if_driver=1 if_branch_core=1 if_production_callers=0"
+    return "if_driver=1 if_branch_core=1 if_raw_selectors=1"
