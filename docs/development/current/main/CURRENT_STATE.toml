@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result LOOP0-D0 reached an external design stop"
+status = "callable-result LOOP0 B-prime is selected; LOOP0-S0a is next"
 date = "2026-07-18"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -296,16 +296,16 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 
-latest_card = "callable-result-i64-site0-r0-expression-spine-loop0-design-stop-2026-07-18"
-latest_card_path = "docs/development/current/main/investigations/callable-result-i64-site0-r0-expression-spine-loop0-design-stop-2026-07-18.md"
-latest_card_summary = """LOOP0-D0 is an external design stop. Three read-only
-worker audits found no unique existing Loop child-demand owner: the raw
-LoopRouteContext and PlanNormalizer erase exact source-site/call-row identity
-into CoreEffectPlan before selected emission, while speculative planning is
-too early for exact-once claims and generic_loop_v1 is body-first. A design
-decision must select the durable located carrier plus lifetime, remap,
-transaction, and source-order laws before any implementation."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-D0-DESIGN-001"
+latest_card = "callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18"
+latest_card_path = "docs/development/current/main/investigations/callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md"
+latest_card_summary = """LOOP0 selects B-prime. All four call-bearing
+CoreEffectPlan variants gain one uniform source-only provenance field. A
+non-Clone final-plan wrapper owns a caller/activation-branded canonical claim
+schedule; the ledger alone atomically commits it and returns a non-Clone batch
+for plan-order site consumption. Raw fallback stays unchanged, located routes
+never retry, and transformed bodies reject before compose. LOOP0-S0a is the
+first code-facing commit; production located consumers and claims stay zero."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-S0A-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -314,6 +314,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-18: SITE0-R0-EXPR0-SPINE0-LOOP0 selects B-prime after the external decision and three repository-ground audits. All four live call-bearing CoreEffectPlan variants receive one uniform source-only provenance field; one non-Clone statement-rooted final-plan wrapper co-seals exact occurrences with a caller/activation-branded canonical schedule; and the ledger alone prevalidates and atomically commits a non-Clone site-consumption batch. The task corrects the initial packet by preserving existing raw ordered fallback, forbidding located fallback, rejecting flattened/transformed bodies before compose, and separating preclaim schedule from post-claim batch. The 34 live constructors, Clone/remap route, actual 15-row order, and <800-line placement are inventoried. LOOP0-S0a is next; production located consumers, claims, grammar, runtime, backend, and ownership deltas remain zero.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-LOOP0-D0 closes a three-worker read-only audit with AMBIGUOUS and an external design stop. The raw LoopRouteContext and PlanNormalizer erase exact source-site/canonical call-row identity into source-site-free CoreEffectPlan rows before selected emission; speculative planning is too early for exact-once claims, while the selected generic_loop_v1 route is body-first and canonical claim order is condition rows 6-8 before body rows 9-14. A generic located PlanNormalizer port, site-bearing CoreEffectPlan, and non-Clone co-sealed located-plan wrapper remain competing authorities. Production located Loop consumers, claims, route changes, grammar, runtime, backend, and ownership deltas are zero. No S0 implementation owner is selected before the external lifetime/remap/transaction/source-order decision.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-SUFFIX0-I0 behavior-neutrally generalizes the legacy block port to one fallible associated borrowed suffix view. The sole production raw port remains the sole raw-slice constructor; the cfg(test) classified port carries the non-Clone inactive proof itself, and the driver performs one AsRef projection only at the existing router boundary. Selector failure returns before router and statement descent with instruction delta zero, lexical scope restored, and fresh valid reuse green. Route parity 4/4, callable-result 69/69, block-driver 5/5, BLK0 and public EXPR0-SPINE0 guards, cargo check --all-targets, release, pointer/format/diff/line guards, and quick 66/66 in 42s are green. Three worker audits are GO. Production located ports/roots, classifier consumers, grammar, runtime, backend, and ownership deltas remain zero; LOOP0-D0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-SUFFIX0-P0 closes one cfg(test)-only classified suffix reference through the existing production block driver/router. Only Inactive(proof) exposes proof.as_ref(); Active supplies no router input and continues statement descent. The inactive loop fixture has route demand [0], statement descent [1], and exact normalized MIR parity with the raw production block; the same source under always-none descends [0,1], fixing explicit route non-parity even though the legacy and normalized loop happen to emit equivalent MIR. Route parity 3/3, callable-result 68/68, block-driver 5/5, BLK0 and public EXPR0-SPINE0 guards, cargo check --all-targets, release, pointer/format/diff/line guards, and quick 66/66 in 208s are green. Three worker audits are GO. Production port/driver/router, located roots, grammar, runtime, and backend deltas remain zero; SUFFIX0-I0 is next.",
@@ -325,5 +326,4 @@ landed_tail = [
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-IF0-S0 closes one disconnected statement-If associated-input driver and one callback-based IfForm branch seam. Condition descent and the shared FastMem post-condition helper precede lazy then and optional else carrier demand; IfForm retains sole CFG, termination, PHI, scope/debug, EdgeCFG, and JoinIR authority. Seven fixtures cover exact demand order, condition and FastMem failure, positive FastMem fact publication, branch partial state, implicit false, the termination matrix, and exact merge result/variable PHIs. Worker authority/code/false-green audits are GO. Statement tests 70/70, recursive child 7/7, callable-result 55/55, structural guard, cargo check --all-targets, release, formatting, line caps, and quick 66/66 in 137s are green. Generic/raw driver production callers and callable-result publication remain zero; IF0-I0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-RET0-L0 closes one disconnected exact Some(value) Return adapter. PATH0 alone supplies ReturnValue; the shared located expression spine and Return driver retain exact call order, cleanup, recursion, Match/defer, and completion authority. The actual final Body(5).Value row and nested argument order are separate fixtures; active Match stays fail-closed behind located inactive-prefix proof because the current source proof does not admit MatchExpr plans. Located Return 6/6, legacy located 32/32, Return 19/19, stmt 63/63, recursive child 7/7, callable-result 55/55, strengthened guard, cargo check --all-targets, cached quick 66/66 in about 25s, release, formatting, and line caps are green. Production located roots/result publication remain zero; IF0-S0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-RET0-P0 closes one cfg(test)-only pre-I0 Return reference and exact selected/reference parity. Five fixtures cover literal/Binary/short-circuit/MethodCall, Void, selected Match, configured defer, cleanup/child failure, and same-Builder reuse. MIR, transient type/kind/origin/literal and exact facts, bindings/scopes, caches, allocators, span, cleanup, and defer state match exactly. Return 18/18, stmt 63/63, recursive child 7/7, callable-result 55/55, strengthened guard, cargo check, quick 66/66 in 61s, release, formatting, and line caps are green. The reference has no production caller; raw selectors remain one, located selectors and result publication remain zero; RET0-L0 is next.",
-  "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-RET0-I0 behavior-neutrally selects the S0 raw value driver exactly once inside the existing Return facade for Some(expr), before cleanup/Match work. None retains legacy cleanup, match(None), Void emission, and completion. Five production-entry fixtures cover MethodCall, actual Match CorePlan selection, defer Copy/Jump, Void, cleanup/child failure, and same-Builder reuse. Return 13/13, stmt 58/58, recursive child 7/7, callable-result 55/55, guard, cargo check, quick 66/66 in 55s, release, formatting, and line caps are green. Production raw selectors are one; located selectors and result publication remain zero; RET0-P0 is next.",
 ]
