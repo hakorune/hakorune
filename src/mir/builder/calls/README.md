@@ -78,3 +78,12 @@ FastMem, MIR-debug, and REPL terminals remain outside this boundary. A
 materialized property keeps the shared Standard preflight and calls only the
 raw value-level Standard helper; it creates no MethodCall source carrier.
 Located source, caller-ledger, activation, and result authority remain absent.
+
+V0-P0/G0 fixes normalized destination allocation, target/effects, argument
+order, Env returning/no-result behavior, and existing type/origin publication
+without adding a production snapshot product. Static-scalar, weak-load,
+record/helper-setter, FastMem, MIR-debug, and REPL remain explicit custom
+terminal owners. Receiver, argument, preflight, and terminal failures enter no
+later ordinary terminal, never retry, and leave the Builder reusable. The one
+V0 structural guard owns only source-consumer/custom-owner counts and evidence
+presence; it is not a route, result, type, or effect authority.

@@ -247,6 +247,10 @@ def main() -> None:
         "V0-I0 threads exactly the five ordinary source completions",
         "creates no MethodCall source carrier",
         "Located source, caller-ledger, activation, and result authority remain absent",
+        "V0-P0/G0 fixes normalized destination allocation",
+        "record/helper-setter, FastMem, MIR-debug, and REPL remain explicit custom",
+        "never retry, and leave the Builder reusable",
+        "is not a route, result, type, or effect authority",
     ):
         if phrase not in readme:
             fail(f"missing README boundary: {phrase}")

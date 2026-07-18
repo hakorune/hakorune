@@ -1,5 +1,5 @@
 ---
-Status: SITE0-R0-EXPR0-M0-V0-P0 closed; V0-G0 is next
+Status: SITE0-R0-EXPR0-M0-V0 closed; EXPR0-L0 is next
 Date: 2026-07-18
 Decision: Candidate A owned single-use activation plan plus located legacy input
 Baseline: fe2d61baa0
@@ -871,6 +871,15 @@ outside the generic terminal port. Receiver, argument, and terminal failures
 enter no later ordinary terminal publication, do not retry, and leave the
 Builder reusable. Production behavior and authority deltas remain zero. V0-G0
 is next.
+
+### V0-G0 closeout
+
+V0 is closed. The calls README and the one reusable V0 structural guard now
+fix the five ordinary source consumers, one materialized-property raw consumer,
+the explicit custom-terminal non-consumer inventory, required normalized and
+failure fixtures, forbidden authority imports, and every touched source/check
+file below 800 lines. No per-row shell guard or production evidence product was
+added. `SITE0-R0-EXPR0-L0` is next.
 
 ### Exact terminal laws
 

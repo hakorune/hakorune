@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result I0 SITE0-R0-EXPR0-M0-V0-P0 is closed; V0-G0 is next"
+status = "callable-result I0 SITE0-R0-EXPR0-M0-V0 is closed; EXPR0-L0 is next"
 date = "2026-07-18"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,15 +298,17 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 
 latest_card = "callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17"
 latest_card_path = "docs/development/current/main/investigations/callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md"
-latest_card_summary = """SITE0-R0-EXPR0-M0-V0-P0 is closed. Normalized
+latest_card_summary = """SITE0-R0-EXPR0-M0-V0 is closed. Normalized
 terminal evidence fixes destination allocation, target/effects, argument
 order, returning/no-result Env behavior, and existing type/origin publication.
 Static-scalar, weak-load, helper-setter, FastMem, MIR-debug, REPL, and property
 remain explicit custom/materialized owners. Receiver, argument, preflight, and
 terminal failures publish no ordinary terminal and never retry; the Builder
-remains reusable. Production behavior and authority deltas remain zero.
-V0-G0 is next, followed by L0, C0, P0, SITE0-C0, CUT0, and G0."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-M0-V0-G0-001"
+remains reusable. One structural guard fixes consumers, non-consumers,
+forbidden authorities, fixtures, and line caps. Production behavior and
+authority deltas remain zero. EXPR0-L0 is next, followed by C0, P0, SITE0-C0,
+CUT0, and G0."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-L0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -315,6 +317,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-M0-V0-G0 closes the behavior-neutral terminal series. The calls README and one reusable V0 structural guard fix five ordinary source consumers, one materialized-property raw consumer, explicit custom-terminal non-consumers, normalized/failure fixtures, forbidden authority imports, and source/check line caps. No production evidence product or per-row shell guard is added; EXPR0-L0 is next.",
   "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-M0-V0-P0 closes normalized value-terminal parity and the early/custom-terminal inventory. TypeOp, static/current-owner global, Env returning/no-result, Standard, and materialized property fix their existing destination, target/effect, argument, allocation, and type/origin laws. Static scalar, weak-load/upgrade, helper-setter, FastMem, MIR-debug, and REPL stay outside the generic terminal owner. Receiver/argument/terminal failure fixtures prove terminal publication zero, no retry, exact diagnostics, and Builder reuse. Production behavior/authority delta remains zero; V0-G0 is next.",
   "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-M0-V0-I0 threads exactly five ordinary source completions through the same per-call associated terminal adapter: TypeOp, static global, current-owner lowered global, Env, and Standard. Existing preflight and child-effect order remain first; lowered Me keeps receiver-prefixed physical arguments and source arity, while materialized property shares Standard preflight and the raw value helper without a fake source carrier. Route 10/10, terminal 4/4, property, record-helper, reserved, ARG0, callable-result 43/43, V0/ROUTE0 guards, and cargo check are green. Early/custom terminals, located/ledger/result authority, fallback, and behavior delta remain zero; V0-P0 is next.",
   "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-M0-V0-S0 closes one private stack-scoped value-terminal port associated with the existing MethodCall input. One raw adapter preserves disconnected TypeOp Check/Cast, qualified/current-owner global, Env returning/no-result, and Standard method emission after already-completed child descent. The dedicated fixtures normalize existing LocalSSA operand rematerialization; the V0 guard fixes one owner/implementation and production consumers zero. Located/ledger/result/route authority, fallback, behavior, and every touched source/check file below 800 lines remain unchanged; V0-I0 is next.",
@@ -326,5 +329,4 @@ landed_tail = [
   "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-M0-ROUTE0-S0 closes one private associated-input MethodCall child port over existing E0/ARG0 descent. Borrowed syntax plus receiver-only/arguments-only primitives are fixed by raw and distinct-input fixtures; production consumers remain zero. No route-demand/result product is published. Focused ROUTE0 3/3, E0/ARG0/callable-result regressions, structural guards, and release check are green. The closeout audit found an earlier nested raw-expression recursion-depth-guard bypass; behavior-restoring M0-GUARD0 is next before ROUTE0 wiring.",
   "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-M0-ARG0 closes one associated-input call-argument descent port over the existing E0 expression port. Whole-list moved-state preflight precedes effects; per-index record checks, exact left-to-right descent, debug observation, first-failure stop, and reuse remain unchanged. Focused ARG0 5/5, moved-state 3/3, E0 5/5, callable-result 43/43, PATH0/A0/L0/LDG0/BLK0/E0/ARG0 guards, and release check are green. Route/receiver/located/ledger/result authorities and behavior remain unchanged; M0-ROUTE0 is next.",
   "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-E0 closes one associated-input recursive child-lowering port across body, statement, and expression entries. One private raw implementation is selected synchronously by exactly three facades; FastMem uses the same body facade, while existing helper recursion remains an inactive raw leaf. Focused E0 5/5, BLK0 5/5, callable-result 43/43, E0/BLK0/LDG0 guards, release check, formatting, and line caps are green. Located/ledger/MethodCall/result authorities and behavior remain unchanged; EXPR0-M0 is next.",
-  "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-BLK0 closes one private behavior-neutral legacy block driver. One raw Vec port remains selected; scope lifetime, suffix sequencing, last value, exactly-one empty Void, and termination observations are centralized without located/ledger/result authority. Focused driver 5/5, callable-result 43/43, PATH0/A0/L0/LDG0/BLK0 guards and line caps are green. The archived Phase-142 smoke has the same pre-driver MissingTransientType failure on baseline 61d40b26d2 and is a recorded non-gate. SITE0-R0-EXPR0 is next.",
 ]
