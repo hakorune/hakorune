@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result I0 SC0-S0 is closed; SC0-I0 is next"
+status = "callable-result I0 SC0-I0 is closed; SC0-P0 is next"
 date = "2026-07-18"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,14 +298,13 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 
 latest_card = "callable-result-i64-site0-r0-expression-spine-task-2026-07-18"
 latest_card_path = "docs/development/current/main/investigations/callable-result-i64-site0-r0-expression-spine-task-2026-07-18.md"
-latest_card_summary = """SC0-S0 is closed. One disconnected short-circuit
-associated-input driver admits only And/Or, lowers lhs first, and lets the
-existing short-circuit CFG owner request and lower rhs only after entering the
-eval-RHS block. The existing owner retains CFG/PHI/result/type/variable-map
-authority. Raw and located SC0 adapters, production located callers, ledger
-consumers, and callable-result publication remain zero. SC0-I0 is next for one
-behavior-neutral raw adapter and selector."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-SPINE0-SC0-I0-001"
+latest_card_summary = """SC0-I0 is closed. One owned raw short-circuit input
+and one raw port carry the existing And/Or source entry through the generic
+driver. The existing selector still separates logical SC0 from ordinary BIN0;
+lhs-before-branch and rhs-only-inside-eval timing remain with the prior CFG
+owner. Located SC0 adapters, ledger consumers, and callable-result publication
+remain zero. SC0-P0 is next for exact selected-versus-pre-I0 parity."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-SPINE0-SC0-P0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -314,6 +313,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-18: SITE0-R0-EXPR0-SPINE0-SC0-I0 behavior-neutrally selects And/Or through one owned raw input and raw port. Lhs remains first, rhs input/lowering occurs only in eval-RHS, ordinary operators remain BIN0, and CFG/PHI/result/type authority stays unchanged. SC0 12/12, BIN0 16/16, located 8/8, callable-result 51/51, guard, quick 66/66, release, formatting, and line caps are green. Located SC0/result publication remain zero; SC0-P0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-SC0-S0 closes one disconnected associated-input short-circuit driver. And/Or lower lhs first and defer rhs input plus lowering until the existing CFG owner enters eval-RHS; that owner retains CFG/PHI/result/type/variable-map authority. SC0 6/6, BIN0 16/16, located 8/8, callable-result 51/51, staged guard, quick 66/66, release, formatting, and line caps are green. Raw/located SC0 adapters and production callers remain zero; SC0-I0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-BIN0-L0 closes one disconnected located ordinary-Binary port. PATH0 alone supplies BinaryLeft/Right; each child proves inactivity or continues to an exact claim, with no RowsUnderPrefix probing. And/Or remain SC0 fail-closed. Located 8/8, BIN0 16/16, recursive 7/7, callable-result 51/51, staged guard, quick 66/66, release, formatting, and line caps are green. Production located callers/result publication remain zero; SC0-S0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-BIN0-P0 closes exact selected-versus-pre-I0 parity. Four fixtures compare result/error, ordered MIR/terminators, transient types, value kinds, origins, next ValueId, and recursion depth across all 16 ordinary operators, MethodCall children, nested depth 2-4, failures, and reuse. The reference remains test-only; production/located/result authority delta is zero and BIN0-L0 is next.",
@@ -325,5 +325,4 @@ landed_tail = [
   "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-M0-V0-I0 threads exactly five ordinary source completions through the same per-call associated terminal adapter: TypeOp, static global, current-owner lowered global, Env, and Standard. Existing preflight and child-effect order remain first; lowered Me keeps receiver-prefixed physical arguments and source arity, while materialized property shares Standard preflight and the raw value helper without a fake source carrier. Route 10/10, terminal 4/4, property, record-helper, reserved, ARG0, callable-result 43/43, V0/ROUTE0 guards, and cargo check are green. Early/custom terminals, located/ledger/result authority, fallback, and behavior delta remain zero; V0-P0 is next.",
   "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-M0-V0-S0 closes one private stack-scoped value-terminal port associated with the existing MethodCall input. One raw adapter preserves disconnected TypeOp Check/Cast, qualified/current-owner global, Env returning/no-result, and Standard method emission after already-completed child descent. The dedicated fixtures normalize existing LocalSSA operand rematerialization; the V0 guard fixes one owner/implementation and production consumers zero. Located/ledger/result/route authority, fallback, behavior, and every touched source/check file below 800 lines remain unchanged; V0-I0 is next.",
   "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-M0-V0 task lock selects one behavior-neutral stack-scoped value-terminal port after existing route preflight and child descent. Existing route/spec/CallTarget/effect/type emitters remain authority; property, record/helper, weak, FastMem, debug, and REPL terminals stay explicit. V0-S0 -> I0 -> P0 -> G0 is fixed with located/ledger/result publication/fallback zero and every touched source/check file below 800 lines. External consultation is unnecessary; V0-S0 is next.",
-  "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-M0-ROUTE0-M0 closes one generic associated-input ordinary MethodCall driver. TypeOp/Standard descend receiver E0 once; Static/Env/Me keep receiver syntax-only; arguments preserve preflight then ARG0 order. Record-helper uses indexed E0 only for non-record slots, and property reads retain their materialized value facade. Route 8/8, record helper 5/5, method port 4/4, reserved 11/11, property 3/3, recursive 7/7, callable-result 43/43, actual Env single-eval, guards, release, quick, pointer, and line caps are green. Result/located/ledger authority remains zero; M0-V0 is next.",
 ]

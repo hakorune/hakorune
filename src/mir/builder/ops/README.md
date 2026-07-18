@@ -58,3 +58,10 @@ invokes the closure only after entering the eval-RHS block. Branch layout,
 variable snapshots, PHIs, result type, and diagnostics remain in the existing
 owner. Raw and located adapters, production selectors, and result publication
 are still zero through SC0-S0.
+
+SC0-I0 adds one owned raw short-circuit input and one implementation on the
+existing raw child-lowering port. The existing `MirBuilder::build_binary_op`
+selector still chooses only `And` / `Or`, then delegates once to the generic
+driver. Ordinary Binary remains on BIN0. The raw adapter adds no operator,
+recursion, CFG, PHI, type, result, location, ledger, or fallback authority;
+located adapters and callable-result publication remain zero.

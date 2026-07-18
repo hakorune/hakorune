@@ -143,6 +143,8 @@ pub(super) mod logical_shortcircuit;
 mod short_circuit_expression_descent;
 #[cfg(test)]
 mod short_circuit_expression_descent_tests;
+#[cfg(test)]
+mod short_circuit_expression_raw_tests;
 pub(super) mod unary;
 use converters::BinaryOpType;
 
@@ -167,7 +169,9 @@ impl super::MirBuilder {
     ) -> Result<ValueId, String> {
         // Short-circuit logical ops: lower to control-flow so RHS is evaluated conditionally
         if matches!(operator, BinaryOperator::And | BinaryOperator::Or) {
-            return logical_shortcircuit::build_logical_shortcircuit(self, left, operator, right);
+            return short_circuit_expression_descent::drive_raw_short_circuit_expression_v1(
+                self, left, operator, right,
+            );
         }
 
         binary_expression_descent::drive_raw_ordinary_binary_expression_v1(

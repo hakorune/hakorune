@@ -1,5 +1,5 @@
 ---
-Status: SC0-S0 closed; SC0-I0 is next
+Status: SC0-I0 closed; SC0-P0 is next
 Date: 2026-07-18
 Decision: expand located lowering by one structural child family per row
 Parent: callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md
@@ -62,14 +62,14 @@ SITE0-R0-EXPR0-SPINE0-BIN0-S0
 The sole next code-facing row is:
 
 ```text
-SITE0-R0-EXPR0-SPINE0-SC0-I0
+SITE0-R0-EXPR0-SPINE0-SC0-P0
 ```
 
-`SC0-S0` is closed. SC0-I0 may add only one raw adapter and behavior-neutral
-selection through the disconnected short-circuit driver. It must preserve
-lhs-before-branch timing and request the rhs input only inside the existing
-eval-RHS block. Production located callers and callable-result publication
-remain zero.
+`SC0-I0` is closed. SC0-P0 may add only test-owned normalized parity against
+the retired pre-I0 raw orchestration. It must compare CFG, PHI, transient
+facts, lhs-before-branch timing, conditional rhs placement, failures, and
+recursion restoration. Production located callers and callable-result
+publication remain zero.
 
 ## Why C0 is held
 
@@ -375,6 +375,25 @@ guard, current pointer, quick 66/66, release build, formatting, diff check,
 and line caps are green. Raw and located SC0 implementations and production
 callers remain zero. SC0-I0 is next.
 
+### SC0-I0 closeout
+
+SC0-I0 is closed. One owned `RawLegacyShortCircuitInputV1` and one raw port
+implementation now carry the existing `And` / `Or` source entry through the
+generic SC0 driver. `MirBuilder::build_binary_op` retains the sole selector:
+logical operators choose SC0 once, while every ordinary operator remains on
+BIN0. The adapter adds no operator, recursion, CFG, PHI, result, type,
+location, ledger, or fallback authority.
+
+Six raw fixtures prove And/Or completion, rhs materialization outside the
+entry block, lhs failure before CFG effects, rhs failure after entering the
+eval block, ordinary-Binary separation, recursion restoration, and fresh
+Builder independence. Combined SC0 12/12, BIN0 16/16, located lowering 8/8,
+callable-result 51/51, the SPINE0 guard, current pointer, quick 66/66, release
+build, formatting, diff check, and line caps are green. The old raw facade is
+no longer production-selected and remains only until SC0-P0 fixes exact
+parity. Located SC0 adapters and callable-result publication remain zero.
+SC0-P0 is next.
+
 ## STMT0 — value-bearing statement family
 
 The worker audit found that one shared STMT0 driver would have to duplicate or
@@ -584,7 +603,7 @@ Stop the current row if any of the following becomes necessary:
 > structural associated-input rows. The actual A0 caller proves five active
 > MethodCalls under Binary ancestors, so direct EXPR0-C0 wiring is held.
 > Ordinary Binary is closed through BIN0-L0. The sole current shape is
-> `SITE0-R0-EXPR0-SPINE0-SC0-I0`; value-bearing statements, If, raw suffix
+> `SITE0-R0-EXPR0-SPINE0-SC0-P0`; value-bearing statements, If, raw suffix
 > admission, and Loop site carriage remain separate owners. BIN0-L0 always
 > uses the located driver for an ordinary Binary and lets each associated child
 > prove inactivity or continue to an exact claim; it never selects a route by

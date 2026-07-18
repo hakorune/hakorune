@@ -44,6 +44,9 @@ def main() -> None:
     short_circuit_tests_path = (
         "src/mir/builder/ops/short_circuit_expression_descent_tests.rs"
     )
+    short_circuit_raw_tests_path = (
+        "src/mir/builder/ops/short_circuit_expression_raw_tests.rs"
+    )
     logical_owner_path = "src/mir/builder/ops/logical_shortcircuit.rs"
     module = read(root, module_path)
     tests = read(root, tests_path)
@@ -55,6 +58,7 @@ def main() -> None:
     located_tests = read(root, located_tests_path)
     short_circuit = read(root, short_circuit_path)
     short_circuit_tests = read(root, short_circuit_tests_path)
+    short_circuit_raw_tests = read(root, short_circuit_raw_tests_path)
     logical_owner = read(root, logical_owner_path)
 
     require_count(
@@ -228,17 +232,28 @@ def main() -> None:
     rhs_lower_at = logical_owner.index("let rhs_val = lower_rhs(builder)?;")
     if rhs_block_at >= rhs_lower_at:
         fail("RHS lowering must occur only after entering eval-RHS block")
-    for forbidden in (
+    require_count(
+        short_circuit,
         "impl ShortCircuitExpressionDescentPortV1 for RawLegacyChildLoweringPortV1",
-        "ShortCircuitExpressionDescentPortV1 for LocatedLegacyLoweringSessionV1",
+        1,
+        "SC0-I0 raw short-circuit adapter",
+    )
+    require_count(
+        ops_root,
+        "short_circuit_expression_descent::drive_raw_short_circuit_expression_v1(",
+        1,
+        "SC0-I0 raw selector",
+    )
+    if "ShortCircuitExpressionDescentPortV1 for LocatedLegacyLoweringSessionV1" in (
+        short_circuit + located
     ):
-        if forbidden in (short_circuit + located):
-            fail(f"SC0-S0 adapter must remain disconnected: {forbidden}")
+        fail("SC0-I0 located adapter must remain zero")
 
     short_circuit_callers = 0
     short_circuit_ignored = {
         (root / short_circuit_path).resolve(),
         (root / short_circuit_tests_path).resolve(),
+        (root / short_circuit_raw_tests_path).resolve(),
     }
     for path in (root / "src").rglob("*.rs"):
         if path.resolve() in short_circuit_ignored:
@@ -370,6 +385,17 @@ def main() -> None:
         if fixture not in short_circuit_tests:
             fail(f"missing SC0-S0 fixture: {fixture}")
 
+    for fixture in (
+        "raw_short_circuit_selector_preserves_and_or_completion",
+        "raw_rhs_is_materialized_only_inside_the_eval_block",
+        "raw_lhs_failure_stops_before_short_circuit_cfg",
+        "raw_rhs_failure_occurs_after_entering_eval_block",
+        "ordinary_binary_remains_on_bin0_after_short_circuit_cutover",
+        "failed_raw_short_circuit_allows_a_fresh_builder",
+    ):
+        if fixture not in short_circuit_raw_tests:
+            fail(f"missing SC0-I0 fixture: {fixture}")
+
     for snapshot_fact in (
         "blocks:",
         "value_types:",
@@ -402,6 +428,7 @@ def main() -> None:
         "never catches `RowsUnderPrefix`",
         "disconnected SC0-S0 child-demand",
         "one deferred RHS closure",
+        "SC0-I0 adds one owned raw short-circuit input",
         "production located callers remain zero",
     ):
         if phrase not in readme:
@@ -418,6 +445,7 @@ def main() -> None:
         located_tests_path,
         short_circuit_path,
         short_circuit_tests_path,
+        short_circuit_raw_tests_path,
         logical_owner_path,
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0.py",
     )
@@ -431,7 +459,8 @@ def main() -> None:
     print(
         f"{TAG} ok: driver=1 child_descents=2 raw_selector=1 "
         "raw_impl=1 parity_reference=1 located_impl=1 sc_driver=1 "
-        "sc_raw_impl=0 sc_located_impl=0 logical_owner_preserved=1"
+        "sc_raw_selector=1 sc_raw_impl=1 sc_located_impl=0 "
+        "logical_owner_preserved=1"
     )
 
 
