@@ -64,3 +64,17 @@ Type split (SSOT, no behavior change):
 Related docs:
 - `docs/development/current/main/design/coreloop-generic-loop-v0-ssot.md`
 - `docs/development/current/main/design/compiler-expressivity-first-policy.md`
+
+LOOP0-P0b-T0 associated-source boundary:
+- T0 is one semantic row implemented as `C0 -> B0 -> R0 -> L0` under
+  Refactor Series Mode.
+- C0 keeps `lower_loop_header_cond` as the raw `CondBlockView` prelude facade
+  and moves tail-expression CFG descent to one associated-input port core.
+- B0 threads the same borrowed port through direct body and cleanup lowering.
+- R0 adds one neutral Parts entry for O0-verified ExitAllowed recipe items and
+  `StmtWrappedJoinIf`; no GenericLoop-local statement/If dispatcher exists.
+- L0 consumes the non-Clone O0 representation in one same-call disconnected
+  located composer. Production located roots and ledger claims remain zero.
+- The located path never reads environment/body policy, `facts.body`,
+  `body_no_exit`, or `matches_loop_increment`, and never rebuilds a recipe or
+  pairs source through AST equality, spans, names, ValueIds, or side maps.

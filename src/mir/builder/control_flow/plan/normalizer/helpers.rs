@@ -19,17 +19,28 @@ impl super::PlanNormalizer {
         builder: &mut MirBuilder,
         phi_bindings: &BTreeMap<String, ValueId>,
     ) -> Result<(ValueId, CompareOp, ValueId, Vec<CoreEffectPlan>), String> {
-        // Ensure current_span points at the comparison expression (not the last lowered operand).
-        builder.metadata_ctx.set_current_span(ast.span());
+        let port = RawLoopPlanExpressionPortV1::new();
+        Self::lower_compare_input(&port, port.expr(ast), builder, phi_bindings)
+    }
+
+    /// Associated-input compare owner. Operator selection and child roles live
+    /// here once; raw and located callers differ only in their source port.
+    pub(in crate::mir::builder) fn lower_compare_input<'input, P>(
+        port: &P,
+        input: P::ExprInput<'input>,
+        builder: &mut MirBuilder,
+        phi_bindings: &BTreeMap<String, ValueId>,
+    ) -> Result<(ValueId, CompareOp, ValueId, Vec<CoreEffectPlan>), String>
+    where
+        P: LoopPlanExpressionPortV1 + 'input,
+    {
         use crate::ast::{ASTNode, BinaryOperator};
 
+        let ast = port.expr_syntax(&input);
+        // Ensure current_span points at the comparison expression (not the last lowered operand).
+        builder.metadata_ctx.set_current_span(ast.span());
         match ast {
-            ASTNode::BinaryOp {
-                operator,
-                left,
-                right,
-                ..
-            } => {
+            ASTNode::BinaryOp { operator, .. } => {
                 let op = match operator {
                     BinaryOperator::Less => CompareOp::Lt,
                     BinaryOperator::LessEqual => CompareOp::Le,
@@ -45,8 +56,16 @@ impl super::PlanNormalizer {
                     }
                 };
 
-                let (lhs, mut lhs_consts) = Self::lower_value_ast(left, builder, phi_bindings)?;
-                let (rhs, rhs_consts) = Self::lower_value_ast(right, builder, phi_bindings)?;
+                let left = port
+                    .child_expr(&input, ExprChildRoleV1::BinaryLeft)
+                    .map_err(|error| error.render())?;
+                let right = port
+                    .child_expr(&input, ExprChildRoleV1::BinaryRight)
+                    .map_err(|error| error.render())?;
+                let (lhs, mut lhs_consts) =
+                    Self::lower_value_input(port, left, builder, phi_bindings)?;
+                let (rhs, rhs_consts) =
+                    Self::lower_value_input(port, right, builder, phi_bindings)?;
 
                 lhs_consts.extend(rhs_consts);
 
