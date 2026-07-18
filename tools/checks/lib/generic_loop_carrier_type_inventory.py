@@ -111,9 +111,16 @@ def build(root: Path) -> dict[str, object]:
             "definition_count": count(facts, "enum GenericLoopCarrierRoleV1"),
             "facts_field_count": count(facts, "carrier_role:"),
             "v0_constructor_count": count(v0, "matches.push(GenericLoopV0Facts {"),
-            "v1_constructor_count": count(v1, "matches.push(GenericLoopV1Facts {"),
-            "v1_resolution_field_count": count(v1, "use_body_managed_step: bool"),
-            "v1_role_mapping_count": count(v1, "GenericLoopCarrierRoleV1::"),
+            "v1_extraction_constructor_count": count(
+                v1, "matches.push(GenericLoopV1ExtractionV1::new("
+            ),
+            "v1_resolution_disposition_field_count": count(
+                v1, "\n    disposition: GenericLoopV1StepDispositionV1,\n"
+            ),
+            "v1_successful_disposition_definition_count": count(
+                facts, "enum GenericLoopV1StepDispositionV1"
+            ),
+            "v1_role_mapping_count": count(facts, "GenericLoopCarrierRoleV1::"),
         },
         "representation": {
             "decision_definition_count": count(

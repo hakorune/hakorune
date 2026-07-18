@@ -2,12 +2,17 @@
 
 Responsibility:
 - Recognize a minimal loop body subset (facts)
+- Retain one successful GenericLoopV1 step disposition in the same canonical
+  extraction transaction that produces those facts
 - Normalize to CorePlan using only Loop + leaf effects + ExitIf/IfEffect
 - Keep the closed numeric/body-managed carrier-role vocabulary separate from
   Builder-side MIR representation preparation
 
 Non-goals:
 - No role inference from AST spelling after facts extraction
+- No second step-placement classification after canonical extraction
+- No located source/path, Builder, ledger, or CorePlan authority in the
+  successful extraction product
 - No MIR type storage in facts
 - No carrier type default, coercion, or PHI conflict repair
 - No nested control-flow or else-branches
@@ -15,6 +20,10 @@ Non-goals:
 
 Carrier representation boundary:
 - `facts_types::GenericLoopCarrierRoleV1` owns only the semantic role
+- `facts_types::GenericLoopV1ExtractionV1` privately co-seals the existing
+  facts with one final `GenericLoopV1StepDispositionV1`
+- `try_extract_generic_loop_v1` is the primary extraction owner;
+  `try_extract_generic_loop_v1_facts` is a consuming thin facade
 - `carrier_representation` prepares one exact lowering-time MIR representation
 - S0 keeps the preparation product disconnected from production allocation
 - Slot publication and V0/V1 producer wiring belong to later TYPE0 rows

@@ -1,5 +1,5 @@
 ---
-Status: Candidate A-prime-plus selected; O0-S0 is the sole next code-facing row
+Status: O0-S0 closed; O0-R0 is the sole next code-facing row
 Date: 2026-07-19
 Decision baseline: eef7c61d54085e8344608a7859420bd9e9a74887
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md
@@ -377,6 +377,25 @@ StepResolution truth = successful disposition only
 raw facts/reject/log/freeze parity = exact
 production behavior delta = 0
 ```
+
+Closeout (2026-07-19): closed. One canonical
+`GenericLoopV1ExtractionV1` now privately co-seals the existing facts with the
+final successful disposition. `StepResolution` retains only the increment and
+that disposition; NumericProgression keeps the validated `StepPlacement` plus
+the flattened `usize` body length, while both the initial receiver-managed
+route and the post-validation fallback retain BodyManagedState. The existing
+facts API consumes the product through `into_facts`, and the recipe hint asks
+the same primary owner only for `is_some()`. The primary has one passive
+builder-visible re-export and zero external production callers.
+
+Focused fixtures cover Last, InBody, ContinueIf, BreakElseIf, initial and
+fallback BodyManagedState, flattened-body length, and facts-facade parity.
+Focused extraction tests 22/22, the evolved carrier inventory, the consolidated
+public expression-spine guard, all-target check, release build, formatting,
+diff/line guards, and quick 66/66 in 236s are green. Worker reviews are GO.
+Production behavior, located execution callers, Builder, composer, skeleton,
+ledger, grammar, runtime, backend, ownership, fallback, and retry deltas are
+zero. O0-R0 is next.
 
 ### O0-R0 contract
 

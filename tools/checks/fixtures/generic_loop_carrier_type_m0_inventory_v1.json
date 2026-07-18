@@ -21,8 +21,9 @@
     "definition_count": 1,
     "facts_field_count": 2,
     "v0_constructor_count": 1,
-    "v1_constructor_count": 1,
-    "v1_resolution_field_count": 1,
+    "v1_extraction_constructor_count": 1,
+    "v1_resolution_disposition_field_count": 1,
+    "v1_successful_disposition_definition_count": 1,
     "v1_role_mapping_count": 2
   },
   "schema_version": 1,

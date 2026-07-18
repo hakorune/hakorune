@@ -26,7 +26,9 @@ use super::super::super::body_check::step_validation::{
     validate_in_body_step_v1,
 };
 use super::super::super::facts_helpers::reject_or_none;
-use super::super::super::facts_types::{GenericLoopCarrierRoleV1, GenericLoopV1Facts};
+use super::super::super::facts_types::{
+    GenericLoopV1ExtractionV1, GenericLoopV1Facts, GenericLoopV1StepDispositionV1,
+};
 use super::collection::{
     body_has_break_or_continue_stmt, collect_increment_loop_var_candidates_from_body,
     collect_loop_var_candidates_from_body,
@@ -44,7 +46,7 @@ struct V1RejectCounters {
 
 struct StepResolution {
     loop_increment: ASTNode,
-    use_body_managed_step: bool,
+    disposition: GenericLoopV1StepDispositionV1,
 }
 
 enum StepResolutionErr {
@@ -56,11 +58,11 @@ enum StepResolutionErr {
     Freeze(Freeze),
 }
 
-/// Attempts to extract generic loop v1 facts from a loop condition and body
-pub(in crate::mir::builder) fn try_extract_generic_loop_v1_facts(
+/// Canonical generic-loop-v1 extraction owner.
+pub(in crate::mir::builder) fn try_extract_generic_loop_v1(
     condition: &ASTNode,
     body: &[ASTNode],
-) -> Result<Option<GenericLoopV1Facts>, Freeze> {
+) -> Result<Option<GenericLoopV1ExtractionV1>, Freeze> {
     let flat_body = flatten_scope_boxes(body);
     let strict = crate::config::env::joinir_dev::strict_enabled();
     let strict_or_dev = strict || crate::config::env::joinir_dev_enabled();
@@ -108,7 +110,7 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v1_facts(
     for loop_var in &loop_var_candidates {
         let StepResolution {
             loop_increment,
-            use_body_managed_step,
+            disposition,
         } = match resolve_step_for_candidate(
             loop_var,
             preferred_loop_var.as_deref(),
@@ -142,6 +144,7 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v1_facts(
             }
         };
 
+        let use_body_managed_step = disposition.is_body_managed();
         let shape_id =
             detect_generic_loop_v1_shape(&flat_body, loop_var, &loop_increment, condition)?;
 
@@ -199,12 +202,8 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v1_facts(
             logged_planner_first = true;
         }
 
-        matches.push(GenericLoopV1Facts {
-            carrier_role: if use_body_managed_step {
-                GenericLoopCarrierRoleV1::BodyManagedState
-            } else {
-                GenericLoopCarrierRoleV1::NumericProgression
-            },
+        let facts = GenericLoopV1Facts {
+            carrier_role: disposition.carrier_role(),
             loop_var: loop_var.clone(),
             condition: condition.clone(),
             loop_increment,
@@ -212,7 +211,8 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v1_facts(
             body_lowering_policy,
             body_exit_allowed: body_exit_allowed.clone(),
             body_no_exit,
-        });
+        };
+        matches.push(GenericLoopV1ExtractionV1::new(facts, disposition));
     }
 
     if matches.is_empty() {
@@ -269,6 +269,14 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v1_facts(
     Ok(Some(matches.remove(0)))
 }
 
+/// Compatibility facade for existing raw facts consumers.
+pub(in crate::mir::builder) fn try_extract_generic_loop_v1_facts(
+    condition: &ASTNode,
+    body: &[ASTNode],
+) -> Result<Option<GenericLoopV1Facts>, Freeze> {
+    Ok(try_extract_generic_loop_v1(condition, body)?.map(GenericLoopV1ExtractionV1::into_facts))
+}
+
 fn resolve_step_for_candidate(
     loop_var: &str,
     preferred_loop_var: Option<&str>,
@@ -302,7 +310,7 @@ fn resolve_step_for_candidate(
     if use_body_managed_step {
         return Ok(StepResolution {
             loop_increment,
-            use_body_managed_step: true,
+            disposition: GenericLoopV1StepDispositionV1::BodyManagedState,
         });
     }
 
@@ -324,20 +332,20 @@ fn resolve_step_for_candidate(
     };
 
     if planner_required
-        && matches!(step_placement, StepPlacement::InBody(idx) if has_control_flow_after_step(flat_body, idx))
+        && matches!(&step_placement, StepPlacement::InBody(idx) if has_control_flow_after_step(flat_body, *idx))
     {
         return Err(StepResolutionErr::ControlFlowAfterStep);
     }
 
-    let step_ok = match step_placement {
+    let step_ok = match &step_placement {
         StepPlacement::InBody(idx) => {
-            validate_in_body_step_v1(flat_body, idx, loop_var, &loop_increment, strict)
+            validate_in_body_step_v1(flat_body, *idx, loop_var, &loop_increment, strict)
                 .map_err(StepResolutionErr::Freeze)?
         }
         StepPlacement::InContinueIf(idx) => {
-            validate_continue_if_step(flat_body, idx, strict).map_err(StepResolutionErr::Freeze)?
+            validate_continue_if_step(flat_body, *idx, strict).map_err(StepResolutionErr::Freeze)?
         }
-        StepPlacement::InBreakElseIf(idx) => validate_break_else_if_step(flat_body, idx, strict)
+        StepPlacement::InBreakElseIf(idx) => validate_break_else_if_step(flat_body, *idx, strict)
             .map_err(StepResolutionErr::Freeze)?,
         _ => true,
     };
@@ -354,9 +362,18 @@ fn resolve_step_for_candidate(
         }
     }
 
+    let disposition = if use_body_managed_step {
+        GenericLoopV1StepDispositionV1::BodyManagedState
+    } else {
+        GenericLoopV1StepDispositionV1::NumericProgression {
+            placement: step_placement,
+            canonical_body_len: flat_body.len(),
+        }
+    };
+
     Ok(StepResolution {
         loop_increment,
-        use_body_managed_step,
+        disposition,
     })
 }
 
@@ -365,7 +382,7 @@ pub(in crate::mir::builder) fn has_generic_loop_v1_recipe_hint(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Result<bool, Freeze> {
-    Ok(try_extract_generic_loop_v1_facts(condition, body)?.is_some())
+    Ok(try_extract_generic_loop_v1(condition, body)?.is_some())
 }
 
 fn preferred_loop_var_from_condition(condition: &ASTNode) -> Option<String> {
