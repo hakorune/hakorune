@@ -24,7 +24,9 @@ use super::calls::{
     MethodCallValueTerminalPortV1,
 };
 use super::ops::{
-    drive_ordinary_binary_expression_v1, BinaryExpressionDescentPortV1, BinarySyntaxViewV1,
+    drive_ordinary_binary_expression_v1, drive_short_circuit_expression_v1,
+    BinaryExpressionDescentPortV1, BinarySyntaxViewV1, ShortCircuitExpressionDescentPortV1,
+    ShortCircuitSyntaxViewV1,
 };
 use super::recursive_child_lowering::{
     drive_raw_legacy_body_v1, drive_raw_legacy_expression_v1, drive_raw_legacy_statement_v1,
@@ -143,8 +145,19 @@ impl<'plan> LocatedLegacyLoweringSessionV1<'plan> {
             .map_err(LocatedLegacyLoweringErrorV1::Lowering);
         }
 
-        if matches!(input.node(), ASTNode::BinaryOp { .. }) {
+        if let ASTNode::BinaryOp { operator, .. } = input.node() {
             let guarded_node_kind = std::mem::discriminant(input.node());
+            if matches!(
+                operator,
+                crate::ast::BinaryOperator::And | crate::ast::BinaryOperator::Or
+            ) {
+                return with_legacy_expression_recursion_guard_v1(
+                    builder,
+                    guarded_node_kind,
+                    |builder| drive_short_circuit_expression_v1(builder, self, &input),
+                )
+                .map_err(LocatedLegacyLoweringErrorV1::Lowering);
+            }
             return with_legacy_expression_recursion_guard_v1(
                 builder,
                 guarded_node_kind,
@@ -176,6 +189,38 @@ impl<'plan> LocatedLegacyLoweringSessionV1<'plan> {
             self.state = LocatedLegacyLoweringStateV1::Failed;
         }
         result
+    }
+}
+
+impl<'plan> ShortCircuitExpressionDescentPortV1 for LocatedLegacyLoweringSessionV1<'plan> {
+    type ShortCircuitInput = LegacyExprInputV1<'plan>;
+
+    fn short_circuit_syntax<'input>(
+        &self,
+        input: &'input Self::ShortCircuitInput,
+    ) -> Result<ShortCircuitSyntaxViewV1<'input>, String> {
+        match input.node() {
+            ASTNode::BinaryOp { operator, .. } => Ok(ShortCircuitSyntaxViewV1::new(operator)),
+            _ => Err("[located-lowering/short-circuit-input-mismatch]".to_string()),
+        }
+    }
+
+    fn short_circuit_left_input(
+        &self,
+        input: &Self::ShortCircuitInput,
+    ) -> Result<Self::ExpressionInput, String> {
+        self.source
+            .child_expr(input, ExprChildRoleV1::BinaryLeft)
+            .map_err(|error| format!("[located-lowering/location] {error:?}"))
+    }
+
+    fn short_circuit_right_input(
+        &self,
+        input: &Self::ShortCircuitInput,
+    ) -> Result<Self::ExpressionInput, String> {
+        self.source
+            .child_expr(input, ExprChildRoleV1::BinaryRight)
+            .map_err(|error| format!("[located-lowering/location] {error:?}"))
     }
 }
 

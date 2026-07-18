@@ -141,6 +141,10 @@ pub(super) mod comparison;
 pub(super) mod converters;
 pub(super) mod logical_shortcircuit;
 mod short_circuit_expression_descent;
+pub(in crate::mir::builder) use short_circuit_expression_descent::{
+    drive_short_circuit_expression_v1, ShortCircuitExpressionDescentPortV1,
+    ShortCircuitSyntaxViewV1,
+};
 #[cfg(test)]
 mod short_circuit_expression_descent_tests;
 #[cfg(test)]

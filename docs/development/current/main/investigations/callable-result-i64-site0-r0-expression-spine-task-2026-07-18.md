@@ -1,5 +1,5 @@
 ---
-Status: SC0-P0 closed; SC0-L0 is next
+Status: SC0-L0 closed; LCL0-S0 is next
 Date: 2026-07-18
 Decision: expand located lowering by one structural child family per row
 Parent: callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md
@@ -62,13 +62,13 @@ SITE0-R0-EXPR0-SPINE0-BIN0-S0
 The sole next code-facing row is:
 
 ```text
-SITE0-R0-EXPR0-SPINE0-SC0-L0
+SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-S0
 ```
 
-`SC0-P0` is closed. SC0-L0 may add only one disconnected located short-circuit
-port. PATH0 must supply the lhs and rhs locations, and the rhs location may be
-requested only inside the existing eval-RHS block. Production located root
-callers and callable-result publication remain zero.
+`SC0-L0` is closed. LCL0-S0 may add only the disconnected Local-initializer
+associated-input boundary after preserving the existing Local declaration and
+initializer preflight. Assignment, Return, If, Loop, production located root
+callers, and callable-result publication remain zero.
 
 ## Why C0 is held
 
@@ -409,6 +409,25 @@ diff check, and line caps are green. The old production raw facade is absent;
 the reference is not a selector or fallback. Located SC0 adapters and
 callable-result publication remain zero. SC0-L0 is next.
 
+### SC0-L0 closeout
+
+SC0-L0 is closed. `LocatedLegacyLoweringSessionV1` implements the short-circuit
+port once and selects it only for `And` / `Or`. PATH0 remains the sole source
+of `BinaryLeft` and `BinaryRight`. The lhs is located and claimed first; the
+rhs location is not requested until the existing CFG owner enters eval-RHS.
+Each child independently proves an inactive prefix or continues located
+descent to an exact claim. No site reconstruction or ledger-error probing is
+used.
+
+Four dedicated fixtures prove left/deferred-right block separation, nested
+And/Or/comparison descent, the actual Loop-condition surface, failure poisoning,
+and fresh-session independence. The previous logical-rejection fixture now
+proves located logical acceptance while preserving unlocated ordinary-Binary
+rejection. SC0 16/16, BIN0 16/16, located 12/12, callable-result 55/55, the
+SPINE0 guard, quick 66/66, release build, formatting, diff check, and line caps
+are green. Production located root callers and callable-result publication
+remain zero. LCL0-S0 is next.
+
 ## STMT0 — value-bearing statement family
 
 The worker audit found that one shared STMT0 driver would have to duplicate or
@@ -618,7 +637,7 @@ Stop the current row if any of the following becomes necessary:
 > structural associated-input rows. The actual A0 caller proves five active
 > MethodCalls under Binary ancestors, so direct EXPR0-C0 wiring is held.
 > Ordinary Binary is closed through BIN0-L0. The sole current shape is
-> `SITE0-R0-EXPR0-SPINE0-SC0-L0`; value-bearing statements, If, raw suffix
+> `SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-S0`; value-bearing statements, If, raw suffix
 > admission, and Loop site carriage remain separate owners. BIN0-L0 always
 > uses the located driver for an ordinary Binary and lets each associated child
 > prove inactivity or continue to an exact claim; it never selects a route by

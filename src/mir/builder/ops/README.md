@@ -72,3 +72,11 @@ blocks and terminators, transient types, value kinds and origins, variable and
 pin maps, current block, next ValueId, and recursion depth. The reference is
 not a production selector or fallback. Located adapters and result publication
 remain zero.
+
+SC0-L0 implements the same port once on the disconnected located lowering
+session. PATH0 remains the only `BinaryLeft` / `BinaryRight` source; the lhs
+is demanded first and the rhs location is requested only by the deferred
+closure inside the eval-RHS block. Each child independently proves inactivity
+or continues located descent to an exact claim. The adapter adds no source
+rewalk, ledger probing, CFG/PHI/result authority, production root caller, or
+fallback.

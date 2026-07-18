@@ -50,6 +50,10 @@ def main() -> None:
     short_circuit_parity_tests_path = (
         "src/mir/builder/ops/short_circuit_expression_parity_tests.rs"
     )
+    located_short_circuit_tests_path = (
+        "src/mir/callable_result_representation/tests/"
+        "located_short_circuit_lowering.rs"
+    )
     logical_owner_path = "src/mir/builder/ops/logical_shortcircuit.rs"
     module = read(root, module_path)
     tests = read(root, tests_path)
@@ -63,6 +67,7 @@ def main() -> None:
     short_circuit_tests = read(root, short_circuit_tests_path)
     short_circuit_raw_tests = read(root, short_circuit_raw_tests_path)
     short_circuit_parity_tests = read(root, short_circuit_parity_tests_path)
+    located_short_circuit_tests = read(root, located_short_circuit_tests_path)
     logical_owner = read(root, logical_owner_path)
 
     require_count(
@@ -153,14 +158,14 @@ def main() -> None:
     require_count(
         located,
         "ExprChildRoleV1::BinaryLeft",
-        1,
-        "PATH0 BinaryLeft consumer",
+        2,
+        "PATH0 BinaryLeft ordinary/short-circuit consumers",
     )
     require_count(
         located,
         "ExprChildRoleV1::BinaryRight",
-        1,
-        "PATH0 BinaryRight consumer",
+        2,
+        "PATH0 BinaryRight ordinary/short-circuit consumers",
     )
     require_count(
         located,
@@ -170,7 +175,7 @@ def main() -> None:
     )
     if "RowsUnderPrefix" in located:
         fail("located Binary must not select a route from RowsUnderPrefix")
-    binary_selector_at = located.index("if matches!(input.node(), ASTNode::BinaryOp { .. })")
+    binary_selector_at = located.index("if let ASTNode::BinaryOp { operator, .. } = input.node()")
     inactive_proof_at = located.index(".prove_expr_inactive(&input)")
     if binary_selector_at >= inactive_proof_at:
         fail("ordinary Binary must select located descent before whole-prefix proof")
@@ -262,10 +267,18 @@ def main() -> None:
         1,
         "SC0-I0 raw selector",
     )
-    if "ShortCircuitExpressionDescentPortV1 for LocatedLegacyLoweringSessionV1" in (
-        short_circuit + located
-    ):
-        fail("SC0-I0 located adapter must remain zero")
+    require_count(
+        located,
+        "ShortCircuitExpressionDescentPortV1 for LocatedLegacyLoweringSessionV1",
+        1,
+        "SC0-L0 located short-circuit adapter",
+    )
+    require_count(
+        located,
+        "drive_short_circuit_expression_v1(builder, self, &input)",
+        1,
+        "SC0-L0 located selector",
+    )
 
     short_circuit_callers = 0
     short_circuit_ignored = {
@@ -279,9 +292,9 @@ def main() -> None:
         short_circuit_callers += path.read_text(encoding="utf-8").count(
             "drive_short_circuit_expression_v1("
         )
-    if short_circuit_callers != 0:
+    if short_circuit_callers != 1:
         fail(
-            "SC0-S0 production driver callers must remain zero: "
+            "SC0-L0 must have exactly one disconnected located driver caller: "
             f"actual={short_circuit_callers}"
         )
 
@@ -387,7 +400,7 @@ def main() -> None:
         "active_row_under_ordinary_binary_claims_through_located_child",
         "located_binary_claims_left_then_right_and_accepts_nested_ordinary_children",
         "located_binary_accepts_actual_if_condition_shape",
-        "logical_binary_and_unlocated_binary_reject_before_child_effects",
+        "logical_binary_accepts_and_unlocated_binary_rejects_before_child_effects",
     ):
         if fixture not in located_tests:
             fail(f"missing BIN0-L0 fixture: {fixture}")
@@ -436,6 +449,15 @@ def main() -> None:
         if snapshot_fact not in short_circuit_parity_tests:
             fail(f"SC0-P0 snapshot misses {snapshot_fact}")
 
+    for fixture in (
+        "located_short_circuit_claims_left_before_deferred_right_inside_eval_block",
+        "located_short_circuit_accepts_nested_and_or_comparison_tree",
+        "located_short_circuit_accepts_actual_loop_condition_shape",
+        "located_short_circuit_route_failure_poisons_only_that_session",
+    ):
+        if fixture not in located_short_circuit_tests:
+            fail(f"missing SC0-L0 fixture: {fixture}")
+
     for snapshot_fact in (
         "blocks:",
         "value_types:",
@@ -470,6 +492,7 @@ def main() -> None:
         "one deferred RHS closure",
         "SC0-I0 adds one owned raw short-circuit input",
         "SC0-P0 retains the pre-I0 raw orchestration",
+        "SC0-L0 implements the same port once",
         "production located callers remain zero",
     ):
         if phrase not in readme:
@@ -488,6 +511,7 @@ def main() -> None:
         short_circuit_tests_path,
         short_circuit_raw_tests_path,
         short_circuit_parity_tests_path,
+        located_short_circuit_tests_path,
         logical_owner_path,
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0.py",
     )
@@ -501,7 +525,7 @@ def main() -> None:
     print(
         f"{TAG} ok: driver=1 child_descents=2 raw_selector=1 "
         "raw_impl=1 parity_reference=1 located_impl=1 sc_driver=1 "
-        "sc_raw_selector=1 sc_raw_impl=1 sc_located_impl=0 "
+        "sc_raw_selector=1 sc_raw_impl=1 sc_located_impl=1 "
         "sc_parity_reference=1 logical_owner_preserved=1"
     )
 

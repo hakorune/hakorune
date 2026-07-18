@@ -277,7 +277,7 @@ fn located_binary_accepts_actual_if_condition_shape() {
 }
 
 #[test]
-fn logical_binary_and_unlocated_binary_reject_before_child_effects() {
+fn logical_binary_accepts_and_unlocated_binary_rejects_before_child_effects() {
     const SOURCE: &str = r#"
         box ParserBox {
             parse(text, pos) {
@@ -306,16 +306,13 @@ fn logical_binary_and_unlocated_binary_reject_before_child_effects() {
     let logical = expression_at(&view, 0);
     let mut logical_session =
         LocatedLegacyLoweringSessionV1::verify(&plan, &logical_caller).unwrap();
-    let mut logical_builder = builder_for(SOURCE, "located_logical_reject/0");
+    let mut logical_builder = builder_for(SOURCE, "located_logical_accept/0");
 
-    let error = logical_session
+    logical_session
         .lower_expression(&mut logical_builder, logical)
-        .unwrap_err();
-    assert!(
-        matches!(error, LocatedLegacyLoweringErrorV1::Lowering(ref text)
-        if text.contains("logical-short-circuit-owned-by-sc0"))
-    );
-    assert!(instructions(&logical_builder).is_empty());
+        .unwrap();
+    logical_session.finish().unwrap();
+    assert_eq!(call_targets(&logical_builder).len(), 2);
     assert_eq!(logical_builder.recursion_depth, 0);
 
     const ORDINARY_SOURCE: &str = r#"
