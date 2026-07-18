@@ -1,5 +1,5 @@
 ---
-Status: BIN0-L0 closed; SC0-S0 is next
+Status: SC0-S0 closed; SC0-I0 is next
 Date: 2026-07-18
 Decision: expand located lowering by one structural child family per row
 Parent: callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md
@@ -62,13 +62,14 @@ SITE0-R0-EXPR0-SPINE0-BIN0-S0
 The sole next code-facing row is:
 
 ```text
-SITE0-R0-EXPR0-SPINE0-SC0-S0
+SITE0-R0-EXPR0-SPINE0-SC0-I0
 ```
 
-`BIN0-L0` is closed. SC0-S0 may add only the disconnected associated-input
-short-circuit boundary. It must preserve lhs-before-branch timing and request
-the rhs input only inside the existing eval-RHS block. Production located
-callers and callable-result publication remain zero.
+`SC0-S0` is closed. SC0-I0 may add only one raw adapter and behavior-neutral
+selection through the disconnected short-circuit driver. It must preserve
+lhs-before-branch timing and request the rhs input only inside the existing
+eval-RHS block. Production located callers and callable-result publication
+remain zero.
 
 ## Why C0 is held
 
@@ -352,6 +353,28 @@ AND/OR/comparison trees, normalized CFG/MIR parity, and fresh Builder reuse.
 SC0 adds no result, type, PHI, or control-flow policy. It only lets the
 existing short-circuit owner request associated child inputs.
 
+### SC0-S0 closeout
+
+SC0-S0 is closed. One private `ShortCircuitExpressionDescentPortV1` and one
+generic driver admit only `And` and `Or`, descend the lhs first, and hand one
+deferred rhs descent closure to the existing short-circuit CFG owner. The rhs
+input is requested and lowered only after that owner enters the eval-RHS
+block. Ordinary Binary rejects before child effects.
+
+The existing `build_logical_shortcircuit` raw facade now delegates its
+already-lowered lhs to one extracted after-lhs core. That core remains the
+sole CFG, PHI, constant-result, result-type, variable-map, and diagnostic
+owner. The disconnected driver adds no raw or located adapter, production
+selector, location, ledger, result, type, or control-flow authority.
+
+Six focused fixtures prove exact lhs/rhs timing, shared And/Or completion,
+ordinary-operator rejection, syntax/lhs failure before CFG effects, rhs
+failure only after entering the eval block, and fresh-driver reuse. SC0 6/6,
+BIN0 16/16, located lowering 8/8, callable-result 51/51, the staged SPINE0
+guard, current pointer, quick 66/66, release build, formatting, diff check,
+and line caps are green. Raw and located SC0 implementations and production
+callers remain zero. SC0-I0 is next.
+
 ## STMT0 — value-bearing statement family
 
 The worker audit found that one shared STMT0 driver would have to duplicate or
@@ -561,7 +584,7 @@ Stop the current row if any of the following becomes necessary:
 > structural associated-input rows. The actual A0 caller proves five active
 > MethodCalls under Binary ancestors, so direct EXPR0-C0 wiring is held.
 > Ordinary Binary is closed through BIN0-L0. The sole current shape is
-> `SITE0-R0-EXPR0-SPINE0-SC0-S0`; value-bearing statements, If, raw suffix
+> `SITE0-R0-EXPR0-SPINE0-SC0-I0`; value-bearing statements, If, raw suffix
 > admission, and Loop site carriage remain separate owners. BIN0-L0 always
 > uses the located driver for an ordinary Binary and lets each associated child
 > prove inactivity or continue to an exact claim; it never selects a route by

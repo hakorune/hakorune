@@ -140,6 +140,9 @@ mod binary_expression_raw_tests;
 pub(super) mod comparison;
 pub(super) mod converters;
 pub(super) mod logical_shortcircuit;
+mod short_circuit_expression_descent;
+#[cfg(test)]
+mod short_circuit_expression_descent_tests;
 pub(super) mod unary;
 use converters::BinaryOpType;
 

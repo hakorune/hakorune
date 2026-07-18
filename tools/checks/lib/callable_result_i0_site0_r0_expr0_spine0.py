@@ -40,6 +40,11 @@ def main() -> None:
     located_tests_path = (
         "src/mir/callable_result_representation/tests/located_legacy_lowering.rs"
     )
+    short_circuit_path = "src/mir/builder/ops/short_circuit_expression_descent.rs"
+    short_circuit_tests_path = (
+        "src/mir/builder/ops/short_circuit_expression_descent_tests.rs"
+    )
+    logical_owner_path = "src/mir/builder/ops/logical_shortcircuit.rs"
     module = read(root, module_path)
     tests = read(root, tests_path)
     parity_tests = read(root, parity_tests_path)
@@ -48,6 +53,9 @@ def main() -> None:
     ops_root = read(root, ops_root_path)
     located = read(root, located_path)
     located_tests = read(root, located_tests_path)
+    short_circuit = read(root, short_circuit_path)
+    short_circuit_tests = read(root, short_circuit_tests_path)
+    logical_owner = read(root, logical_owner_path)
 
     require_count(
         module,
@@ -159,6 +167,91 @@ def main() -> None:
     if binary_selector_at >= inactive_proof_at:
         fail("ordinary Binary must select located descent before whole-prefix proof")
 
+    require_count(
+        short_circuit,
+        "trait ShortCircuitExpressionDescentPortV1",
+        1,
+        "short-circuit child-demand port owner",
+    )
+    require_count(
+        short_circuit,
+        "type ShortCircuitInput;",
+        1,
+        "associated short-circuit input",
+    )
+    require_count(
+        short_circuit,
+        "fn drive_short_circuit_expression_v1",
+        1,
+        "short-circuit associated-input driver",
+    )
+    require_count(
+        short_circuit,
+        "drive_legacy_expression_v1(",
+        2,
+        "short-circuit lhs/rhs E0 descent",
+    )
+    logical_reject_at = short_circuit.index(
+        "if !matches!(operator, BinaryOperator::And | BinaryOperator::Or)"
+    )
+    left_input_at = short_circuit.index("port.short_circuit_left_input(input)?")
+    left_descent_at = short_circuit.index(
+        "drive_legacy_expression_v1(builder, port, left_input)?"
+    )
+    control_owner_at = short_circuit.index("build_logical_shortcircuit_after_lhs_v1(")
+    right_input_at = short_circuit.index("port.short_circuit_right_input(input)?")
+    right_descent_at = short_circuit.index(
+        "drive_legacy_expression_v1(builder, port, right_input)"
+    )
+    if not (
+        logical_reject_at
+        < left_input_at
+        < left_descent_at
+        < control_owner_at
+        < right_input_at
+        < right_descent_at
+    ):
+        fail("SC0 order must be logical admit -> lhs -> control owner -> deferred rhs")
+    require_count(
+        logical_owner,
+        "fn build_logical_shortcircuit_after_lhs_v1",
+        1,
+        "existing short-circuit control owner",
+    )
+    require_count(
+        logical_owner,
+        "let rhs_val = lower_rhs(builder)?;",
+        1,
+        "RHS closure invocation inside existing owner",
+    )
+    rhs_block_at = logical_owner.index("builder.start_new_block(eval_rhs_block)?")
+    rhs_lower_at = logical_owner.index("let rhs_val = lower_rhs(builder)?;")
+    if rhs_block_at >= rhs_lower_at:
+        fail("RHS lowering must occur only after entering eval-RHS block")
+    for forbidden in (
+        "impl ShortCircuitExpressionDescentPortV1 for RawLegacyChildLoweringPortV1",
+        "ShortCircuitExpressionDescentPortV1 for LocatedLegacyLoweringSessionV1",
+    ):
+        if forbidden in (short_circuit + located):
+            fail(f"SC0-S0 adapter must remain disconnected: {forbidden}")
+
+    short_circuit_callers = 0
+    short_circuit_ignored = {
+        (root / short_circuit_path).resolve(),
+        (root / short_circuit_tests_path).resolve(),
+    }
+    for path in (root / "src").rglob("*.rs"):
+        if path.resolve() in short_circuit_ignored:
+            continue
+        short_circuit_callers += path.read_text(encoding="utf-8").count(
+            "drive_short_circuit_expression_v1("
+        )
+    if short_circuit_callers != 0:
+        fail(
+            "SC0-S0 production driver callers must remain zero: "
+            f"actual={short_circuit_callers}"
+        )
+
     production_callers = 0
     ignored = {
         (root / module_path).resolve(),
@@ -266,6 +359,17 @@ def main() -> None:
         if fixture not in located_tests:
             fail(f"missing BIN0-L0 fixture: {fixture}")
 
+    for fixture in (
+        "logical_driver_requests_left_before_rhs_and_rhs_only_in_eval_block",
+        "and_and_or_share_the_existing_short_circuit_completion",
+        "ordinary_operator_rejects_before_child_input_or_cfg_effects",
+        "syntax_and_left_failures_stop_before_short_circuit_cfg",
+        "rhs_input_and_lowering_fail_only_after_entering_eval_block",
+        "failed_driver_does_not_poison_a_fresh_driver",
+    ):
+        if fixture not in short_circuit_tests:
+            fail(f"missing SC0-S0 fixture: {fixture}")
+
     for snapshot_fact in (
         "blocks:",
         "value_types:",
@@ -296,6 +400,8 @@ def main() -> None:
         "BIN0-I0 selects the ordinary raw source entry",
         "BIN0-L0 adds one disconnected located port",
         "never catches `RowsUnderPrefix`",
+        "disconnected SC0-S0 child-demand",
+        "one deferred RHS closure",
         "production located callers remain zero",
     ):
         if phrase not in readme:
@@ -310,6 +416,9 @@ def main() -> None:
         ops_root_path,
         located_path,
         located_tests_path,
+        short_circuit_path,
+        short_circuit_tests_path,
+        logical_owner_path,
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0.py",
     )
     oversized = [relative for relative in touched if len(read(root, relative).splitlines()) >= 800]
@@ -321,7 +430,8 @@ def main() -> None:
 
     print(
         f"{TAG} ok: driver=1 child_descents=2 raw_selector=1 "
-        "raw_impl=1 parity_reference=1 located_impl=1 logical_owner_preserved=1"
+        "raw_impl=1 parity_reference=1 located_impl=1 sc_driver=1 "
+        "sc_raw_impl=0 sc_located_impl=0 logical_owner_preserved=1"
     )
 
 

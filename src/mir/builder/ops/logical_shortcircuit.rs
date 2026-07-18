@@ -47,10 +47,29 @@ pub(in crate::mir::builder) fn build_logical_shortcircuit(
     operator: BinaryOperator,
     right: ASTNode,
 ) -> Result<ValueId, String> {
+    let lhs_val0 = builder.build_expression(left)?;
+    build_logical_shortcircuit_after_lhs_v1(builder, operator, lhs_val0, move |builder| {
+        builder.build_expression(right)
+    })
+}
+
+/// Existing short-circuit CFG/PHI owner after the LHS has been lowered.
+///
+/// `lower_rhs` is invoked only after entering the eval-RHS block. Associated
+/// input adapters may therefore defer both RHS location demand and lowering
+/// without acquiring any CFG, PHI, result, or type authority.
+pub(in crate::mir::builder) fn build_logical_shortcircuit_after_lhs_v1<LowerRhs>(
+    builder: &mut MirBuilder,
+    operator: BinaryOperator,
+    lhs_val0: ValueId,
+    lower_rhs: LowerRhs,
+) -> Result<ValueId, String>
+where
+    LowerRhs: FnOnce(&mut MirBuilder) -> Result<ValueId, String>,
+{
     let is_and = matches!(operator, BinaryOperator::And);
 
     // Evaluate LHS only once and pin to a slot so it can be reused safely across blocks
-    let lhs_val0 = builder.build_expression(left)?;
     let lhs_val = builder.pin_to_slot(lhs_val0, "@sc_lhs")?;
     let lhs_pin_slot = builder.pin_slot_names.get(&lhs_val).cloned();
 
@@ -115,7 +134,7 @@ pub(in crate::mir::builder) fn build_logical_shortcircuit(
         "shortcircuit/eval_rhs",
     )?;
     // Evaluate RHS and branch on its truthiness
-    let rhs_val = builder.build_expression(right)?;
+    let rhs_val = lower_rhs(builder)?;
     let mut rhs_cond = builder.local_cond(rhs_val);
     crate::mir::builder::ssa::local::finalize_branch_cond(builder, &mut rhs_cond)?;
     crate::mir::builder::emission::branch::emit_conditional(

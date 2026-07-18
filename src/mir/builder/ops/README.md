@@ -50,3 +50,11 @@ prefix for raw whole-child delegation or continues located descent to an exact
 claim. The port never catches `RowsUnderPrefix` to probe for another route.
 Logical operators still reject before child effects, and production located
 root callers and callable-result publishers remain zero.
+
+`short_circuit_expression_descent.rs` is the disconnected SC0-S0 child-demand
+boundary. It admits only `And` / `Or`, lowers the lhs first, and gives the
+existing `logical_shortcircuit.rs` owner one deferred RHS closure. That owner
+invokes the closure only after entering the eval-RHS block. Branch layout,
+variable snapshots, PHIs, result type, and diagnostics remain in the existing
+owner. Raw and located adapters, production selectors, and result publication
+are still zero through SC0-S0.
