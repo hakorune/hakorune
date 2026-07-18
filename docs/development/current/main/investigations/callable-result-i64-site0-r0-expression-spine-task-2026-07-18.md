@@ -1,5 +1,5 @@
 ---
-Status: RET0-I0 closed; RET0-P0 is next
+Status: RET0-P0 closed; RET0-L0 is next
 Date: 2026-07-18
 Decision: expand located lowering by one structural child family per row
 Parent: callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md
@@ -62,16 +62,16 @@ SITE0-R0-EXPR0-SPINE0-BIN0-S0
 The sole next code-facing row is:
 
 ```text
-SITE0-R0-EXPR0-SPINE0-STMT0-RET0-P0
+SITE0-R0-EXPR0-SPINE0-STMT0-RET0-L0
 ```
 
-`RET0-I0` is closed. The existing Return facade effect-freely selects the raw
-value driver exactly once for `Some(expr)` before any policy work; `None`
-retains the legacy cleanup, no-value Match observation, Void emission, and
-completion. Five production-entry fixtures cover MethodCall, actual Match,
-defer, Void, cleanup/child failure, and reuse. The expression dispatcher stays
-thin. Production raw selectors are exactly one; located Return selectors and
-callable-result publication remain zero. RET0-P0 is next.
+`RET0-P0` is closed. One cfg(test)-only pre-I0 reference independently retains
+the former span, cleanup, Match, child-or-Void, and completion order. Five
+fixtures prove exact normalized selected/reference parity across MIR,
+transient facts, bindings/scopes, caches, allocator counters, cleanup/defer
+state, failures, and same-Builder reuse. Production raw selectors remain
+exactly one; the reference has no production caller, and located Return
+selectors plus callable-result publication remain zero. RET0-L0 is next.
 
 ## Why C0 is held
 
@@ -613,7 +613,7 @@ RET0:
   void Return remains outside the admitted row
 ```
 
-### RET0-S0 / I0 closeout
+### RET0-S0 / I0 / P0 closeout
 
 RET0-S0 adds one disconnected value-bearing Return driver without taking
 Match/CorePlan, defer, site, ledger, or direct Return authority. Cleanup runs
@@ -625,7 +625,16 @@ legacy Void branch. Eight substrate plus five production-entry fixtures,
 statement 58/58, recursive child 7/7, callable-result 55/55, the SPINE0 guard,
 cargo check, quick 66/66 in 55s, release, formatting, and line caps are green.
 Production raw selectors are one; located selectors and result publication
-remain zero. RET0-P0 is next.
+remain zero. P0 adds one cfg(test)-only pre-I0 reference and five exact parity
+fixtures covering literal/Binary/short-circuit/MethodCall, Void, selected
+Match, configured defer, cleanup and child failure, plus same-Builder reuse.
+The snapshot includes MIR, transient facts, bindings/scopes, caches,
+allocators, span, cleanup, and all defer state. Return 18/18, statement 63/63,
+recursive child 7/7, callable-result 55/55, the strengthened SPINE0 guard,
+cargo check, quick 66/66 in 61s, release, formatting, and line caps are green.
+The test reference has no production caller; production raw selectors remain
+one, while located selectors and result publication remain zero. RET0-L0 is
+next.
 
 IF and Loop are not STMT0 variants.
 
@@ -790,7 +799,7 @@ Stop the current row if any of the following becomes necessary:
 > Ordinary Binary, short-circuit Binary, Local initializer descent, and the
 > exact Variable-target Assignment family is closed through ASN0-L0.
 > The sole current shape is
-> `SITE0-R0-EXPR0-SPINE0-STMT0-RET0-P0`; later value-bearing statements, If, raw suffix
+> `SITE0-R0-EXPR0-SPINE0-STMT0-RET0-L0`; later value-bearing statements, If, raw suffix
 > admission, and Loop site carriage remain separate owners. BIN0-L0 always
 > uses the located driver for an ordinary Binary and lets each associated child
 > prove inactivity or continue to an exact claim; it never selects a route by
@@ -805,5 +814,5 @@ Stop the current row if any of the following becomes necessary:
 Quick-gate latency is tracked separately in
 [`dev-gate-quick-latency-task-2026-07-18.md`](./dev-gate-quick-latency-task-2026-07-18.md).
 Its first row is `DEV-GATE-Q0-M0`; it does not change this card's active
-`SITE0-R0-EXPR0-SPINE0-STMT0-RET0-P0` blocker or share a commit with a
+`SITE0-R0-EXPR0-SPINE0-STMT0-RET0-L0` blocker or share a commit with a
 compiler semantic row.

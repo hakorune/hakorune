@@ -127,6 +127,8 @@ mod local_statement_raw_tests;
 #[cfg(test)]
 mod return_statement_descent_tests;
 #[cfg(test)]
+mod return_statement_parity_tests;
+#[cfg(test)]
 mod return_statement_raw_tests;
 #[cfg(test)]
 mod variable_assignment_descent_tests;

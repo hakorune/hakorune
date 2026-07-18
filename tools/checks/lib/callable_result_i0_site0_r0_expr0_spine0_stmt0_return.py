@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Private RET0-S0/I0 structural checks for the public EXPR0-SPINE0 guard."""
+"""Private RET0-S0/I0/P0 structural checks for the public EXPR0-SPINE0 guard."""
 
 from __future__ import annotations
 
@@ -28,6 +28,7 @@ def check_ret0_s0(root: Path) -> str:
     descent_path = "src/mir/builder/stmts/return_statement_descent.rs"
     tests_path = "src/mir/builder/stmts/return_statement_descent_tests.rs"
     raw_tests_path = "src/mir/builder/stmts/return_statement_raw_tests.rs"
+    parity_tests_path = "src/mir/builder/stmts/return_statement_parity_tests.rs"
     return_owner_path = "src/mir/builder/stmts/return_stmt.rs"
     expression_owner_path = "src/mir/builder/exprs.rs"
     stmts_root_path = "src/mir/builder/stmts/mod.rs"
@@ -40,6 +41,7 @@ def check_ret0_s0(root: Path) -> str:
     descent = _read(root, descent_path)
     tests = _read(root, tests_path)
     raw_tests = _read(root, raw_tests_path)
+    parity_tests = _read(root, parity_tests_path)
     return_owner = _read(root, return_owner_path)
     expression_owner = _read(root, expression_owner_path)
     stmts_root = _read(root, stmts_root_path)
@@ -249,6 +251,85 @@ def check_ret0_s0(root: Path) -> str:
         _fail(f"RET0-I0 raw production selectors must be one: actual={raw_callers}")
 
     _require_count(
+        parity_tests,
+        "fn lower_pre_i0_return_reference(",
+        1,
+        "one cfg(test) pre-I0 Return reference",
+    )
+    reference_start = parity_tests.index("fn lower_pre_i0_return_reference(")
+    reference_end = parity_tests.index("fn snapshot(", reference_start)
+    reference = parity_tests[reference_start:reference_end]
+    for required in (
+        "let span = expression.span();",
+        "let node_kind = std::mem::discriminant(&expression);",
+        "ASTNode::Return { value, .. }",
+        "with_legacy_expression_recursion_guard_v1(builder, node_kind, move |builder| {",
+        "builder.metadata_ctx.set_current_span(span);",
+        "ensure_return_allowed(builder)?;",
+        "try_apply_match_return_optimization(builder, value.as_deref(), true)?",
+        "builder.build_expression(*expr)?",
+        "emit_void(builder)?",
+        "emit_return_from_value(builder, return_value)",
+    ):
+        if required not in reference:
+            _fail(f"missing RET0-P0 reference step: {required}")
+
+    span_extract_at = reference.index("let span = expression.span();")
+    node_kind_at = reference.index(
+        "let node_kind = std::mem::discriminant(&expression);"
+    )
+    destructure_at = reference.index("ASTNode::Return { value, .. }")
+    guard_at = reference.index(
+        "with_legacy_expression_recursion_guard_v1(builder, node_kind, move |builder| {"
+    )
+    span_at = reference.index("builder.metadata_ctx.set_current_span(span);")
+    cleanup_at = reference.index("ensure_return_allowed(builder)?;")
+    match_at = reference.index(
+        "try_apply_match_return_optimization(builder, value.as_deref(), true)?"
+    )
+    child_at = reference.index("builder.build_expression(*expr)?")
+    void_at = reference.index("emit_void(builder)?")
+    completion_at = reference.index("emit_return_from_value(builder, return_value)")
+    prefix_order = (
+        span_extract_at < node_kind_at < destructure_at < guard_at < span_at < cleanup_at
+    )
+    if not prefix_order or not cleanup_at < match_at < child_at < completion_at:
+        _fail("RET0-P0 value reference order drifted")
+    if not prefix_order or not cleanup_at < match_at < void_at < completion_at:
+        _fail("RET0-P0 Void reference order drifted")
+
+    for forbidden in (
+        "build_return_statement(",
+        "drive_value_return_statement_v1",
+        "drive_raw_value_return_statement_v1",
+        "Located",
+        "CallableResult",
+        "SourcePath",
+        "ledger",
+        "MatchReturnFacts",
+        "compose_match_return",
+        "PlanVerifier",
+        "PlanLowerer",
+        "retry",
+        "fallback",
+    ):
+        if forbidden in reference:
+            _fail(f"RET0-P0 reference owns forbidden authority: {forbidden}")
+
+    parity_reference_callers = 0
+    for path in (root / "src").rglob("*.rs"):
+        if path.resolve() == (root / parity_tests_path).resolve():
+            continue
+        parity_reference_callers += path.read_text(encoding="utf-8").count(
+            "lower_pre_i0_return_reference("
+        )
+    if parity_reference_callers != 0:
+        _fail(
+            "RET0-P0 reference production callers must be zero: "
+            f"actual={parity_reference_callers}"
+        )
+
+    _require_count(
         expression_owner,
         "super::stmts::return_stmt::build_return_statement(self, stmt.value.clone())",
         1,
@@ -273,6 +354,11 @@ def check_ret0_s0(root: Path) -> str:
         stmts_root,
     ):
         _fail("RET0-I0 raw fixture module must remain cfg(test)-scoped")
+    if not re.search(
+        r"#\[cfg\(test\)\]\s*mod return_statement_parity_tests;",
+        stmts_root,
+    ):
+        _fail("RET0-P0 parity module must remain cfg(test)-scoped")
 
     for fixture in (
         "cleanup_precedes_match_child_and_return_effects",
@@ -297,6 +383,50 @@ def check_ret0_s0(root: Path) -> str:
         if fixture not in raw_tests:
             _fail(f"missing RET0-I0 raw fixture: {fixture}")
 
+    for fixture in (
+        "literal_binary_short_circuit_and_method_call_have_exact_pre_i0_parity",
+        "void_return_has_exact_pre_i0_parity",
+        "selected_match_return_has_exact_pre_i0_parity",
+        "configured_defer_has_exact_pre_i0_parity",
+        "cleanup_and_child_failures_plus_same_builder_reuse_have_exact_pre_i0_parity",
+    ):
+        if fixture not in parity_tests:
+            _fail(f"missing RET0-P0 parity fixture: {fixture}")
+
+    for snapshot_field in (
+        "result:",
+        "blocks:",
+        "locals:",
+        "value_types:",
+        "value_kinds:",
+        "value_origins:",
+        "string_literals:",
+        "exact_numeric_const_facts:",
+        "exact_numeric_value_facts:",
+        "variable_map:",
+        "bindings:",
+        "scope_frames:",
+        "pin_slots:",
+        "local_ssa_map:",
+        "schedule_mat_map:",
+        "current_block:",
+        "next_value_id:",
+        "next_core_value:",
+        "next_core_block:",
+        "next_binding_id:",
+        "temp_slot_counter:",
+        "recursion_depth:",
+        "current_span:",
+        "in_cleanup_block:",
+        "cleanup_allow_return:",
+        "return_defer_active:",
+        "return_defer_slot:",
+        "return_defer_target:",
+        "return_deferred_emitted:",
+    ):
+        if snapshot_field not in parity_tests:
+            _fail(f"missing RET0-P0 snapshot surface: {snapshot_field}")
+
     normalized_readme = " ".join(readme.split())
     for phrase in (
         "one disconnected orchestration boundary for",
@@ -308,6 +438,9 @@ def check_ret0_s0(root: Path) -> str:
         "must not reconstruct",
         "selects that driver exactly once inside the existing Return facade",
         "keeps the `None` branch on the legacy Void path",
+        "one `cfg(test)` pre-I0 Return orchestration reference",
+        "exact normalized parity",
+        "has no production caller",
     ):
         if phrase not in normalized_readme:
             _fail(f"missing RET0-S0 README boundary: {phrase}")
@@ -316,6 +449,7 @@ def check_ret0_s0(root: Path) -> str:
         descent_path,
         tests_path,
         raw_tests_path,
+        parity_tests_path,
         return_owner_path,
         expression_owner_path,
         stmts_root_path,
@@ -332,5 +466,5 @@ def check_ret0_s0(root: Path) -> str:
 
     return (
         "ret_driver=1 ret_e0_descents=1 ret_match_hook=1 "
-        "ret_raw_selectors=1 ret_located_selectors=0"
+        "ret_raw_selectors=1 ret_parity_reference=1 ret_located_selectors=0"
     )

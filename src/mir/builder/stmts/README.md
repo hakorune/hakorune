@@ -140,3 +140,12 @@ before selection; those remain ordered once inside the driver. It keeps the
 no-value Match observation, `emit_void`, and the existing completion owner.
 Expression dispatch remains a thin caller of the Return facade, and failure
 never retries the retired inline value-lowering route.
+
+RET0-P0 keeps one `cfg(test)` pre-I0 Return orchestration reference with no
+production caller. It preserves the former span, cleanup, Match probe,
+child-or-Void lowering, and completion order without calling either selected
+driver. Selected and reference paths require exact normalized parity across
+result/error, MIR, transient types/kinds/origins/literals, exact facts,
+bindings/scopes, caches, allocator counters, span, cleanup state, defer state,
+partial failure effects, and same-Builder reuse. The reference owns no located
+source, callable-result ledger, Match/CorePlan policy, retry, or fallback.
