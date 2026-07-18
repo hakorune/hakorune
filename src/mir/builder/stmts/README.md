@@ -76,6 +76,12 @@ ASN0-S0 must not inspect or reconstruct target AST, admit field, index,
 compound, or grouped assignment targets, inspect callable-result rows, or
 publish a binding itself. An undeclared target rejects before RHS input or
 effects, and an RHS failure leaves the previous assignment binding unchanged.
-The second completion-time declaration check is retained. Raw selection,
-parity reference, and located `AssignmentValue` navigation stay disconnected
-until ASN0-I0/P0/L0 respectively.
+The second completion-time declaration check is retained.
+
+ASN0-I0 selects this raw driver exactly once from the exact Variable branch of
+the existing `exprs.rs` target selector. Field/index targets and compound
+assignment retain their existing owners. `GroupedAssignmentExpr` remains
+parked on a dedicated legacy facade because sharing its old facade would widen
+ASN0 indirectly. The raw adapter does not inspect the target AST or add a
+second selector. The parity reference and located `AssignmentValue` navigation
+stay disconnected until ASN0-P0/L0 respectively.

@@ -109,6 +109,7 @@ pub(super) mod print_stmt;
 pub(super) mod return_stmt;
 pub(super) mod task_scope_stmt;
 mod variable_assignment_descent;
+pub(in crate::mir::builder) use variable_assignment_descent::drive_raw_variable_assignment_v1;
 pub(super) mod variable_stmt;
 
 #[cfg(test)]
@@ -121,6 +122,8 @@ mod local_statement_parity_tests;
 mod local_statement_raw_tests;
 #[cfg(test)]
 mod variable_assignment_descent_tests;
+#[cfg(test)]
+mod variable_assignment_raw_tests;
 
 use super::ValueId;
 use crate::ast::ASTNode;

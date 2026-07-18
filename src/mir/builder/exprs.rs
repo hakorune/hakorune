@@ -155,7 +155,7 @@ impl super::MirBuilder {
         } else if let ASTNode::Index { target, index, .. } = stmt.target.as_ref() {
             self.build_index_assignment(*target.clone(), *index.clone(), *stmt.value.clone())
         } else if let ASTNode::Variable { name, .. } = stmt.target.as_ref() {
-            self.build_assignment(name.clone(), *stmt.value.clone())
+            super::stmts::drive_raw_variable_assignment_v1(self, name.clone(), *stmt.value.clone())
         } else {
             Err("Complex assignment targets not yet supported".to_string())
         }
@@ -233,9 +233,9 @@ impl super::MirBuilder {
 
             // Phase 152-A: Grouped assignment expression (x = expr)
             // Stage-3 only. Value/type same as rhs, side effect assigns to lhs.
-            // Reuses existing build_assignment logic, returns the SSA ValueId.
+            // Remains outside ASN0 and returns the SSA ValueId.
             ASTNode::GroupedAssignmentExpr { lhs, rhs, .. } => {
-                self.build_assignment(lhs.clone(), *rhs.clone())
+                self.build_grouped_assignment(lhs.clone(), *rhs.clone())
             }
 
             ASTNode::Index { target, index, .. } => {

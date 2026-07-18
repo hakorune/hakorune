@@ -156,17 +156,17 @@ impl MirBuilder {
         msg
     }
 
-    /// Build assignment
-    pub(super) fn build_assignment(
+    /// Build a grouped assignment expression.
+    ///
+    /// Exact Variable-target Assignment statements are selected separately by
+    /// the statement-surface dispatcher. Grouped assignment remains parked on
+    /// this pre-ASN0 orchestration until its own acceptance row.
+    pub(super) fn build_grouped_assignment(
         &mut self,
         var_name: String,
         value: ASTNode,
     ) -> Result<ValueId, String> {
-        // SSOT (LANGUAGE_REFERENCE_2025 / syntax-cheatsheet):
-        // - Assignment to an undeclared name is an error.
-        // - Use `local name = ...` (or `local name; name = ...`) to declare.
         vars::assignment_resolver::AssignmentResolverBox::ensure_declared(self, &var_name)?;
-
         let value_id = self.build_expression(value)?;
         self.build_assignment_from_value(var_name, value_id)
     }
