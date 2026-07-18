@@ -127,10 +127,11 @@ use super::ValueId;
 use crate::ast::{ASTNode, BinaryOperator};
 
 pub(super) mod arithmetic;
-#[allow(dead_code)]
 mod binary_expression_descent;
 #[cfg(test)]
 mod binary_expression_descent_tests;
+#[cfg(test)]
+mod binary_expression_raw_tests;
 pub(super) mod comparison;
 pub(super) mod converters;
 pub(super) mod logical_shortcircuit;
@@ -161,9 +162,9 @@ impl super::MirBuilder {
             return logical_shortcircuit::build_logical_shortcircuit(self, left, operator, right);
         }
 
-        let lhs_raw = self.build_expression(left)?;
-        let rhs_raw = self.build_expression(right)?;
-        self.build_binary_op_from_values(operator, lhs_raw, rhs_raw)
+        binary_expression_descent::drive_raw_ordinary_binary_expression_v1(
+            self, left, operator, right,
+        )
     }
 
     pub(in crate::mir::builder) fn build_binary_op_from_values(

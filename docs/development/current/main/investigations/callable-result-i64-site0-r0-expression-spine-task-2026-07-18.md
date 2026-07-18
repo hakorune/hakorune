@@ -1,5 +1,5 @@
 ---
-Status: BIN0-S0 closed; BIN0-I0 is next
+Status: BIN0-I0 closed; BIN0-P0 is next
 Date: 2026-07-18
 Decision: expand located lowering by one structural child family per row
 Parent: callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md
@@ -62,12 +62,12 @@ SITE0-R0-EXPR0-SPINE0-BIN0-S0
 The sole next code-facing row is:
 
 ```text
-SITE0-R0-EXPR0-SPINE0-BIN0-I0
+SITE0-R0-EXPR0-SPINE0-BIN0-P0
 ```
 
-`BIN0-S0` is closed. `docs_only_closeout = forbidden` for BIN0-I0: it must
-select the ordinary raw Binary entry through the closed associated-input
-driver while keeping `And` / `Or` on the existing short-circuit owner.
+`BIN0-I0` is closed. BIN0-P0 must seal normalized raw parity for the ordinary
+operator matrix, nested trees, child failure order, recursion-depth
+restoration, and Builder reuse before any located implementation is added.
 
 ## Why C0 is held
 
@@ -218,6 +218,22 @@ located implementations, zero production callers, and no located/ledger/
 result authority. Callable-result 48/48, recursive child 7/7, existing
 short-circuit 1/1, every prior EXPR0 guard, quick, release build, formatting,
 and line caps are green. BIN0-I0 is next.
+
+### BIN0-I0 closeout
+
+BIN0-I0 is closed. One owned `RawLegacyBinaryInputV1` and one raw port
+implementation select only the existing non-logical `build_binary_op` branch
+through the generic driver. `And` / `Or` remain selected first by the existing
+short-circuit owner. The adapter adds no recursion guard, operator classifier,
+location, ledger, route, result, type, CFG, or PHI authority.
+
+Six raw fixtures prove source left-before-right materialization, MethodCall on
+both sides, nested depth and reuse, left/right failure stopping, existing
+short-circuit selection, and parent/child depth restoration. Generic BIN0
+6/6, raw BIN0 6/6, recursive child 7/7, short-circuit 1/1, callable-result
+48/48, every existing EXPR0 guard, cargo check, quick 66/66, and the release
+build are green. The SPINE0 guard now proves `raw selector = 1`, `raw impl = 1`,
+`located impl = 0`, and preserved short-circuit ownership. BIN0-P0 is next.
 
 ## SC0 — short-circuit Binary
 
@@ -448,8 +464,8 @@ Stop the current row if any of the following becomes necessary:
 > The acceptance boundary should now expand, but only as a sequence of
 > structural associated-input rows. The actual A0 caller proves five active
 > MethodCalls under Binary ancestors, so direct EXPR0-C0 wiring is held.
-> Ordinary Binary is the sole next shape and begins at
-> `SITE0-R0-EXPR0-SPINE0-BIN0-S0`; short-circuit Binary, value-bearing
+> Ordinary Binary is the sole current shape and continues at
+> `SITE0-R0-EXPR0-SPINE0-BIN0-P0`; short-circuit Binary, value-bearing
 > statements, If, raw suffix admission, and Loop site carriage remain separate
 > owners. Every prerequisite keeps production located callers and
 > callable-result publication at zero. C0 may resume only after the actual

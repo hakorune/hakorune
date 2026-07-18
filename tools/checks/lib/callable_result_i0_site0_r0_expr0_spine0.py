@@ -32,10 +32,12 @@ def main() -> None:
     root = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
     module_path = "src/mir/builder/ops/binary_expression_descent.rs"
     tests_path = "src/mir/builder/ops/binary_expression_descent_tests.rs"
+    raw_tests_path = "src/mir/builder/ops/binary_expression_raw_tests.rs"
     readme_path = "src/mir/builder/ops/README.md"
     ops_root_path = "src/mir/builder/ops/mod.rs"
     module = read(root, module_path)
     tests = read(root, tests_path)
+    raw_tests = read(root, raw_tests_path)
     readme = read(root, readme_path)
     ops_root = read(root, ops_root_path)
 
@@ -46,9 +48,9 @@ def main() -> None:
         "ordinary Binary port owner",
     )
     require_count(module, "type BinaryInput;", 1, "associated Binary input")
-    require_count(module, "fn binary_syntax", 1, "syntax query owner")
-    require_count(module, "fn binary_left_input", 1, "left query owner")
-    require_count(module, "fn binary_right_input", 1, "right query owner")
+    require_count(module, "fn binary_syntax", 2, "syntax query declaration plus raw impl")
+    require_count(module, "fn binary_left_input", 2, "left query declaration plus raw impl")
+    require_count(module, "fn binary_right_input", 2, "right query declaration plus raw impl")
     require_count(
         module,
         "fn drive_ordinary_binary_expression_v1",
@@ -105,8 +107,19 @@ def main() -> None:
         if forbidden in module:
             fail(f"BIN0 substrate owns forbidden authority: {forbidden}")
 
-    if "impl BinaryExpressionDescentPortV1 for RawLegacyChildLoweringPortV1" in module:
-        fail("BIN0-S0 raw implementation must remain zero")
+    require_count(
+        module,
+        "impl BinaryExpressionDescentPortV1 for RawLegacyChildLoweringPortV1",
+        1,
+        "BIN0-I0 raw implementation",
+    )
+    require_count(module, "struct RawLegacyBinaryInputV1", 1, "owned raw Binary input")
+    require_count(
+        module,
+        "fn drive_raw_ordinary_binary_expression_v1",
+        1,
+        "thin raw Binary facade",
+    )
     if "BinaryExpressionDescentPortV1 for LocatedLegacyLoweringSessionV1" in read(
         root, "src/mir/builder/located_legacy_lowering.rs"
     ):
@@ -124,7 +137,35 @@ def main() -> None:
             "drive_ordinary_binary_expression_v1("
         )
     if production_callers != 0:
-        fail(f"BIN0-S0 production driver callers: expected=0 actual={production_callers}")
+        fail(f"generic Binary driver must remain facade-private: actual={production_callers}")
+
+    raw_selectors = 0
+    for path in (root / "src").rglob("*.rs"):
+        if path.resolve() in {
+            (root / module_path).resolve(),
+            (root / raw_tests_path).resolve(),
+        }:
+            continue
+        raw_selectors += path.read_text(encoding="utf-8").count(
+            "drive_raw_ordinary_binary_expression_v1("
+        )
+    if raw_selectors != 1:
+        fail(f"BIN0-I0 raw production selectors: expected=1 actual={raw_selectors}")
+
+    logical_selector_at = ops_root.index(
+        "if matches!(operator, BinaryOperator::And | BinaryOperator::Or)"
+    )
+    raw_selector_at = ops_root.index(
+        "binary_expression_descent::drive_raw_ordinary_binary_expression_v1("
+    )
+    if logical_selector_at >= raw_selector_at:
+        fail("And/Or selection must precede the ordinary raw adapter")
+    for retired_direct_descent in (
+        "let lhs_raw = self.build_expression(left)?",
+        "let rhs_raw = self.build_expression(right)?",
+    ):
+        if retired_direct_descent in ops_root:
+            fail(f"old direct Binary descent remains selected: {retired_direct_descent}")
 
     require_count(
         ops_root,
@@ -138,6 +179,12 @@ def main() -> None:
         1,
         "focused Binary fixture module",
     )
+    require_count(
+        ops_root,
+        "mod binary_expression_raw_tests;",
+        1,
+        "focused raw Binary fixture module",
+    )
 
     for fixture in (
         "ordinary_arithmetic_descends_left_then_right_once_and_uses_existing_terminal",
@@ -150,12 +197,24 @@ def main() -> None:
         if fixture not in tests:
             fail(f"missing BIN0-S0 fixture: {fixture}")
 
+    for fixture in (
+        "raw_ordinary_binary_entry_preserves_left_right_and_existing_terminal",
+        "raw_ordinary_binary_accepts_method_calls_on_both_sides",
+        "nested_raw_ordinary_binary_restores_depth_and_allows_reuse",
+        "raw_ordinary_binary_failure_stops_later_child_or_terminal",
+        "logical_operators_remain_on_existing_short_circuit_owner",
+        "raw_binary_child_depth_failure_restores_parent_depth",
+    ):
+        if fixture not in raw_tests:
+            fail(f"missing BIN0-I0 fixture: {fixture}")
+
     for phrase in (
         "child-demand boundary",
         "reject `And` and `Or` before child effects",
         "existing `build_binary_op_from_values` owner",
         "never stored in `MirBuilder`",
-        "first BIN0-S0 slice is disconnected",
+        "BIN0-I0 selects the ordinary raw source entry",
+        "production located callers remain zero",
     ):
         if phrase not in readme:
             fail(f"missing BIN0 README boundary: {phrase}")
@@ -163,6 +222,7 @@ def main() -> None:
     touched = (
         module_path,
         tests_path,
+        raw_tests_path,
         readme_path,
         ops_root_path,
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0.py",
@@ -175,8 +235,8 @@ def main() -> None:
         fail("BIN0 substrate must remain stack-scoped and immutable")
 
     print(
-        f"{TAG} ok: driver=1 child_descents=2 production_callers=0 "
-        "raw_impl=0 located_impl=0 logical_consumers=0"
+        f"{TAG} ok: driver=1 child_descents=2 raw_selector=1 "
+        "raw_impl=1 located_impl=0 logical_owner_preserved=1"
     )
 
 

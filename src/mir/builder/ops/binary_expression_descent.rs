@@ -5,12 +5,32 @@
 //! allocation, and representation facts remain in the existing completion
 //! owner. Logical `And` / `Or` remain owned by SC0 and reject before children.
 
-use crate::ast::BinaryOperator;
+use crate::ast::{ASTNode, BinaryOperator};
 use crate::mir::{MirBuilder, ValueId};
 
 use super::super::recursive_child_lowering::{
-    drive_legacy_expression_v1, RecursiveChildLoweringPortV1,
+    drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
+
+pub(in crate::mir::builder) struct RawLegacyBinaryInputV1 {
+    left: ASTNode,
+    operator: BinaryOperator,
+    right: ASTNode,
+}
+
+impl RawLegacyBinaryInputV1 {
+    pub(in crate::mir::builder) const fn new(
+        left: ASTNode,
+        operator: BinaryOperator,
+        right: ASTNode,
+    ) -> Self {
+        Self {
+            left,
+            operator,
+            right,
+        }
+    }
+}
 
 pub(in crate::mir::builder) struct BinarySyntaxViewV1<'input> {
     operator: &'input BinaryOperator,
@@ -45,6 +65,31 @@ pub(in crate::mir::builder) trait BinaryExpressionDescentPortV1:
     ) -> Result<Self::ExpressionInput, String>;
 }
 
+impl BinaryExpressionDescentPortV1 for RawLegacyChildLoweringPortV1 {
+    type BinaryInput = RawLegacyBinaryInputV1;
+
+    fn binary_syntax<'input>(
+        &self,
+        input: &'input Self::BinaryInput,
+    ) -> Result<BinarySyntaxViewV1<'input>, String> {
+        Ok(BinarySyntaxViewV1::new(&input.operator))
+    }
+
+    fn binary_left_input(
+        &self,
+        input: &Self::BinaryInput,
+    ) -> Result<Self::ExpressionInput, String> {
+        Ok(input.left.clone())
+    }
+
+    fn binary_right_input(
+        &self,
+        input: &Self::BinaryInput,
+    ) -> Result<Self::ExpressionInput, String> {
+        Ok(input.right.clone())
+    }
+}
+
 pub(in crate::mir::builder) fn drive_ordinary_binary_expression_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
@@ -66,4 +111,15 @@ where
     let right = drive_legacy_expression_v1(builder, port, right_input)?;
 
     builder.build_binary_op_from_values(operator, left, right)
+}
+
+pub(in crate::mir::builder) fn drive_raw_ordinary_binary_expression_v1(
+    builder: &mut MirBuilder,
+    left: ASTNode,
+    operator: BinaryOperator,
+    right: ASTNode,
+) -> Result<ValueId, String> {
+    let input = RawLegacyBinaryInputV1::new(left, operator, right);
+    let mut port = RawLegacyChildLoweringPortV1;
+    drive_ordinary_binary_expression_v1(builder, &mut port, &input)
 }

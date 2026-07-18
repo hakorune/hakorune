@@ -29,6 +29,9 @@ It must not classify MIR operators, allocate a result, infer types, construct
 MIR instructions, own short-circuit control flow, or reconstruct source
 locations. It is stack-scoped and is never stored in `MirBuilder`.
 
-The first BIN0-S0 slice is disconnected. Raw production selection, normalized
-parity, and located `BinaryLeft` / `BinaryRight` acceptance belong to later
-BIN0 rows.
+BIN0-I0 selects the ordinary raw source entry through one owned raw input and
+the shared raw child-lowering port. `And` / `Or` are rejected by this driver
+and remain selected by `logical_shortcircuit.rs` before the raw adapter is
+constructed. The adapter owns no recursion guard, location, ledger, route, or
+result policy. Normalized parity and located `BinaryLeft` / `BinaryRight`
+acceptance remain later BIN0 rows; production located callers remain zero.
