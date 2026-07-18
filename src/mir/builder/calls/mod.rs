@@ -46,6 +46,7 @@ pub mod lowering;
 pub mod materializer;
 pub mod member_route; // Member call route plan + emit handoff
 mod method_call_descent;
+mod method_call_terminal;
 pub(in crate::mir::builder) use method_call_descent::{
     lower_method_call_argument_v1, LegacyMethodCallArgumentsV1, MethodCallArgumentDescentV1,
     MethodCallDescentPortV1,
@@ -54,6 +55,8 @@ pub(in crate::mir::builder) use method_call_descent::{
 mod member_route_descent_tests;
 #[cfg(test)]
 mod method_call_descent_tests;
+#[cfg(test)]
+mod method_call_terminal_tests;
 pub mod parameter_setup; // Step 3: Parameter setup and binding (static/instance methods)
 pub mod receiver_binding; // Step 4: Receiver ('me'/'this') normalization and binding
 mod reserved_method_route; // shared reserved-route policy adapter + selected dispatch

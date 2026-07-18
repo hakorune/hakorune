@@ -1,0 +1,166 @@
+#!/usr/bin/env python3
+"""Guard the disconnected SITE0-R0-EXPR0-M0-V0-S0 terminal boundary."""
+
+from __future__ import annotations
+
+import re
+import sys
+from pathlib import Path
+
+
+TAG = "[callable-result-i0-site0-r0-expr0-m0-v0]"
+
+
+def fail(message: str) -> None:
+    raise SystemExit(f"{TAG} {message}")
+
+
+def read(root: Path, relative: str) -> str:
+    path = root / relative
+    if not path.is_file():
+        fail(f"missing {relative}")
+    return path.read_text(encoding="utf-8")
+
+
+def require_count(text: str, needle: str, expected: int, label: str) -> None:
+    actual = text.count(needle)
+    if actual != expected:
+        fail(f"{label}: expected={expected} actual={actual}")
+
+
+def require_definition_count(text: str, name: str, expected: int, label: str) -> None:
+    actual = len(re.findall(rf"\bfn\s+{re.escape(name)}\s*\(", text))
+    if actual != expected:
+        fail(f"{label}: expected={expected} actual={actual}")
+
+
+def main() -> None:
+    root = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
+    terminal = read(root, "src/mir/builder/calls/method_call_terminal.rs")
+    tests = read(root, "src/mir/builder/calls/method_call_terminal_tests.rs")
+    readme = read(root, "src/mir/builder/calls/README.md")
+    calls_mod = read(root, "src/mir/builder/calls/mod.rs")
+
+    require_count(
+        terminal,
+        "trait MethodCallValueTerminalPortV1",
+        1,
+        "terminal port owner",
+    )
+    require_count(
+        terminal,
+        "impl MethodCallValueTerminalPortV1 for RawLegacyChildLoweringPortV1",
+        1,
+        "raw terminal implementation",
+    )
+    require_count(
+        terminal,
+        "MethodCallDescentPortV1",
+        2,
+        "associated-input terminal inheritance",
+    )
+
+    terminal_methods = (
+        "emit_typeop_value_terminal",
+        "emit_static_global_value_terminal",
+        "emit_me_lowered_global_value_terminal",
+        "emit_env_value_terminal",
+        "emit_standard_value_terminal",
+    )
+    for name in terminal_methods:
+        require_definition_count(terminal, name, 2, f"terminal method {name}")
+
+    raw_helpers = (
+        "emit_typeop_value_terminal_raw_v1",
+        "emit_global_value_terminal_raw_v1",
+        "emit_env_value_terminal_raw_v1",
+        "emit_standard_value_terminal_raw_v1",
+    )
+    for name in raw_helpers:
+        require_definition_count(terminal, name, 1, f"raw helper {name}")
+
+    require_count(
+        terminal,
+        "emit_global_value_terminal_raw_v1(",
+        3,
+        "shared static/me global helper",
+    )
+    require_count(calls_mod, "mod method_call_terminal;", 1, "private terminal module")
+    if "pub mod method_call_terminal;" in calls_mod:
+        fail("terminal module must remain private")
+
+    production = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in (root / "src/mir/builder").rglob("*.rs")
+        if path.name not in {"method_call_terminal.rs", "method_call_terminal_tests.rs"}
+        and not path.name.endswith("_tests.rs")
+    )
+    for name in terminal_methods:
+        require_count(production, f".{name}(", 0, f"S0 production consumer {name}")
+    require_count(
+        production,
+        "emit_standard_value_terminal_raw_v1(",
+        0,
+        "S0 materialized property consumer",
+    )
+
+    for forbidden in (
+        "ASTNode",
+        "method_call_syntax(",
+        "build_expression",
+        "MemberCallRoutePlan",
+        "ReceiverNormalizationPlan",
+        "VerifiedCallableResult",
+        "CallerLedger",
+        "LegacyExprInputV1",
+        "ActivationDisposition",
+        "CanonicalSameModuleCallableKeyV1",
+        "current_claim",
+        "retry",
+        "fallback",
+        "thread_local!",
+        "Arc<",
+    ):
+        if forbidden in terminal:
+            fail(f"terminal boundary owns forbidden authority: {forbidden}")
+
+    if re.search(r"#\[derive\([^]]*Clone[^]]*\)\]", terminal):
+        fail("terminal boundary must not add Clone state")
+    if re.search(r"\benum\s+.*Terminal", terminal):
+        fail("stored terminal enum is forbidden")
+
+    for evidence in (
+        "disconnected_typeop_terminals_preserve_check_cast_value_type_and_destination",
+        "disconnected_static_and_me_global_terminals_preserve_semantic_target_and_arguments",
+        "disconnected_env_terminals_preserve_returning_and_no_result_laws",
+        "disconnected_standard_terminal_preserves_method_identity_and_completed_destination",
+    ):
+        if evidence not in tests:
+            fail(f"missing disconnected terminal fixture: {evidence}")
+
+    for phrase in (
+        "disconnected V0 value-only terminal port",
+        "Route selection, syntax preflight, and child descent must finish",
+        "owns no route table",
+        "caller ledger, retry, or fallback",
+        "V0-S0 production consumers = 0",
+    ):
+        if phrase not in readme:
+            fail(f"missing README boundary: {phrase}")
+
+    touched = (
+        "src/mir/builder/calls/README.md",
+        "src/mir/builder/calls/mod.rs",
+        "src/mir/builder/calls/method_call_terminal.rs",
+        "src/mir/builder/calls/method_call_terminal_tests.rs",
+        "tools/checks/lib/callable_result_i0_site0_r0_expr0_m0_v0.py",
+    )
+    oversized = [relative for relative in touched if len(read(root, relative).splitlines()) >= 800]
+    if oversized:
+        fail(f"source/check files reached 800 lines: {oversized}")
+
+    print(f"{TAG} ok: terminal_owner=1 raw_impl=1 production_consumers=0")
+
+
+if __name__ == "__main__":
+    main()

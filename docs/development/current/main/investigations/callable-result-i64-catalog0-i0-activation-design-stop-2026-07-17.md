@@ -1,5 +1,5 @@
 ---
-Status: SITE0-R0-EXPR0-M0-ROUTE0-M0 closed; SITE0-R0-EXPR0-M0-V0 is task-locked and next
+Status: SITE0-R0-EXPR0-M0-V0-S0 closed; V0-I0 is next
 Date: 2026-07-18
 Decision: Candidate A owned single-use activation plan plus located legacy input
 Baseline: fe2d61baa0
@@ -833,6 +833,17 @@ V0-G0
   one structural guard, docs/current closeout, line caps
   -> SITE0-R0-EXPR0-L0
 ```
+
+### V0-S0 closeout
+
+V0-S0 is closed with one private `MethodCallValueTerminalPortV1` and one raw
+implementation. The disconnected fixtures cover TypeOp Check/Cast,
+qualified/current-owner globals, Env returning/no-result, and Standard method
+emission. Operand comparison normalizes the existing LocalSSA Copy/Const
+rematerialization instead of treating raw `ValueId` equality as semantic
+identity. One dedicated structural guard fixes the port/raw-helper owners,
+forbids syntax/route/located/ledger/result authority, and proves production
+terminal consumers remain zero. V0-I0 is next.
 
 ### Exact terminal laws
 

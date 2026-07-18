@@ -63,3 +63,10 @@ indexed E0 primitive. Its inline body remains a separate terminal authority.
 `property_reads.rs` is also separate because it already owns a materialized
 receiver value; the source MethodCall driver must not synthesize an AST for it
 or duplicate its standard-handler preflight.
+
+`method_call_terminal.rs` is the disconnected V0 value-only terminal port.
+Route selection, syntax preflight, and child descent must finish before it is
+called. Its raw adapter preserves TypeOp, qualified-static global,
+current-owner lowered global, Env extern, and Standard method emission. It
+owns no route table, callable key, effect/result inference, located source,
+caller ledger, retry, or fallback. V0-S0 production consumers = 0.
