@@ -5,11 +5,13 @@
 //! ## Architecture Overview
 //!
 //! This module serves as the orchestrator for all operator-level MIR building,
-//! delegating to 5 specialized submodules organized by single responsibility:
+//! delegating to specialized semantic modules plus one disconnected child
+//! descent substrate organized by single responsibility:
 //!
 //! ```text
 //! ops/ (587 lines → 1,098 lines with documentation)
-//! ├── mod.rs                   (196 lines)  - Orchestrator with wrapper methods
+//! ├── mod.rs                              - Orchestrator with wrapper methods
+//! ├── binary_expression_descent.rs        - Associated-input ordinary Binary descent
 //! ├── converters.rs            (105 lines)  - AST → MIR operator conversion
 //! ├── arithmetic.rs            (287 lines)  - Arithmetic ops (Add, Sub, Mul, etc.)
 //! ├── comparison.rs            (130 lines)  - Comparison ops (Eq, Lt, Ge, etc.)
@@ -125,6 +127,10 @@ use super::ValueId;
 use crate::ast::{ASTNode, BinaryOperator};
 
 pub(super) mod arithmetic;
+#[allow(dead_code)]
+mod binary_expression_descent;
+#[cfg(test)]
+mod binary_expression_descent_tests;
 pub(super) mod comparison;
 pub(super) mod converters;
 pub(super) mod logical_shortcircuit;

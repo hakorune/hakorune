@@ -1,5 +1,5 @@
 ---
-Status: active; ordinary Binary substrate is next
+Status: BIN0-S0 closed; BIN0-I0 is next
 Date: 2026-07-18
 Decision: expand located lowering by one structural child family per row
 Parent: callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md
@@ -184,6 +184,24 @@ The located session accepts an active ordinary Binary only by constructing
 `BinaryLeft` and `BinaryRight` children through the existing source view.
 Inactive Binary remains eligible for exact inactive-prefix raw delegation.
 Production located callers and callable-result publication remain zero.
+
+### BIN0-S0 closeout
+
+BIN0-S0 is closed. One private `BinaryExpressionDescentPortV1` and one generic
+driver own only borrowed operator observation, child-effect-free `And` / `Or`
+rejection, exact left-then-right E0 descent, and one completion through the
+existing `build_binary_op_from_values` owner. Operator conversion,
+arithmetic/comparison policy, LocalSSA, destination allocation, types,
+recursion depth, and short-circuit CFG/PHI remain with their prior owners.
+
+Six focused fixtures prove arithmetic and comparison completion, the exact
+16 ordinary versus 2 logical operator boundary, syntax/input/child failure
+order, terminal failure after both children, no retry, and fresh-driver reuse.
+The reusable SPINE0 guard proves one driver, two E0 descents, zero raw or
+located implementations, zero production callers, and no located/ledger/
+result authority. Callable-result 48/48, recursive child 7/7, existing
+short-circuit 1/1, every prior EXPR0 guard, quick, release build, formatting,
+and line caps are green. BIN0-I0 is next.
 
 ## SC0 — short-circuit Binary
 
