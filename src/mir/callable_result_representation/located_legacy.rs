@@ -400,6 +400,50 @@ impl<'plan> VerifiedCallableResultLegacySourceViewV1<'plan> {
         })
     }
 
+    /// Projects one exact nested-body item into the compact activation-site
+    /// vocabulary for the located Loop expression port.
+    ///
+    /// Generic `body_stmt` intentionally retains the semantic body-root
+    /// segment. This narrow capability instead uses the already-sealed typed
+    /// body domain; it never strips segments or consults activation rows.
+    pub(crate) fn project_compact_body_stmt(
+        &self,
+        body: &LegacyBodyInputV1<'plan>,
+        index: usize,
+    ) -> Result<LegacyStmtInputV1<'plan>, CallableResultLegacyLocationErrorV1> {
+        let LegacyBodyInputV1::Located(body) = body else {
+            return Err(CallableResultLegacyLocationErrorV1::UnlocatedCannotProveInactive);
+        };
+        self.require_carrier(body.plan_identity, body.caller)?;
+        let Some(domain_parent) = body.domain_parent.as_ref() else {
+            return Err(
+                CallableResultLegacyLocationErrorV1::RootBodyRequestedAsChild(
+                    body.parent
+                        .clone()
+                        .unwrap_or_else(|| SourcePathV1::function_body().node()),
+                ),
+            );
+        };
+        let index = u32::try_from(index)
+            .map_err(|_| CallableResultLegacyLocationErrorV1::BodyIndexOverflow { index })?;
+        let Some(node) = body.statements.get(index as usize) else {
+            return Err(CallableResultLegacyLocationErrorV1::BodyIndexOutOfBounds {
+                body: body.parent.clone(),
+                index,
+                len: body.statements.len(),
+            });
+        };
+        let site = SourcePathV1::from_node(domain_parent)
+            .child(body.kind.item_segment(index))
+            .stmt();
+        Ok(LegacyStmtInputV1::Located(LocatedLegacyStmtV1 {
+            plan_identity: self.plan_identity,
+            caller: self.caller,
+            site,
+            node,
+        }))
+    }
+
     pub(crate) fn statement_expression(
         &self,
         statement: &LegacyStmtInputV1<'plan>,

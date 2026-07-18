@@ -10,7 +10,7 @@ use crate::mir::callable_result_representation::{
     VerifiedCallableResultActivationRowsV1, VerifiedCallableResultCallerLedgerV1,
     VerifiedCallableResultLegacySourceViewV1, VerifiedSameModuleCallableResultCatalogV1,
 };
-use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
+use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1, SourcePathSegmentV1};
 use crate::mir::source_call_target::{
     VerifiedSourceStaticCallTargetCatalogV1, VerifiedStaticImportAliasViewV1,
 };
@@ -330,6 +330,51 @@ fn loop_inputs<'plan>(
         .child_expr_from_stmt(&array_local, ExprChildRoleV1::LocalInitializer(0))
         .unwrap();
     (view, condition, outer, inner, array)
+}
+
+#[test]
+fn located_loop_body_item_projection_is_compact_and_port_owned() {
+    let plan = activation_plan();
+    let caller = caller(&plan);
+    let view = VerifiedCallableResultLegacySourceViewV1::verify(&plan, &caller).unwrap();
+    let root = view.root_body();
+    let loop_statement = view.body_stmt(&root, 0).unwrap();
+    let body = view
+        .child_body_from_stmt(&loop_statement, BodyChildRoleV1::LoopBody)
+        .unwrap();
+
+    let semantic_statement = view.body_stmt(&body, 0).unwrap();
+    let semantic_value = view
+        .child_expr_from_stmt(&semantic_statement, ExprChildRoleV1::LocalInitializer(0))
+        .unwrap();
+    assert_eq!(
+        semantic_value
+            .activation_site()
+            .unwrap()
+            .1
+            .node()
+            .segments(),
+        &[
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::LoopBodyRoot,
+            SourcePathSegmentV1::LoopBody(0),
+            SourcePathSegmentV1::Initializer(0),
+        ]
+    );
+
+    let port = LocatedLoopPlanExpressionPortV1::new(view);
+    let compact_statement = port.exact_body_stmt(&body, 0).unwrap();
+    let compact_value = port
+        .exact_child_expr_from_stmt(&compact_statement, ExprChildRoleV1::LocalInitializer(0))
+        .unwrap();
+    assert_eq!(
+        compact_value.activation_site().unwrap().1.node().segments(),
+        &[
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::LoopBody(0),
+            SourcePathSegmentV1::Initializer(0),
+        ]
+    );
 }
 
 #[test]

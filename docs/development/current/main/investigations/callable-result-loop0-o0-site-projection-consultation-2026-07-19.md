@@ -1,5 +1,5 @@
 ---
-Status: Candidate A selected; SITEPROJ0-S0 is next
+Status: SITEPROJ0-S0 closed; SITEPROJ0-P0 is next
 Date: 2026-07-19
 Decision baseline: 906f994d12
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md
@@ -189,3 +189,26 @@ body-kind projection; no Loop-name or segment-spelling special case is added.
 
 `SITEPROJ0-S0` is now the sole next code-facing row. `O0-P0`, `O0-G0`, and T0
 remain forbidden until the SITEPROJ0 S0/P0/G0 evidence is green.
+
+## SITEPROJ0-S0 closeout
+
+One `project_compact_body_stmt` capability now projects an exact located nested
+body item from `domain_parent + SourceBodyKindV1::item_segment(index)`. Its sole
+direct consumer is `LocatedLoopPlanExpressionPortV1::exact_body_stmt`.
+Generic `body_stmt` remains unchanged and its semantic-root regression stays
+green. The focused port proof observes both surfaces explicitly:
+
+```text
+generic semantic carrier:
+  Body(0)/LoopBodyRoot/LoopBody(0)/Initializer(0)
+
+Loop-port compact carrier:
+  Body(0)/LoopBody(0)/Initializer(0)
+```
+
+No activation-row lookup, segment stripping, new path vocabulary, Builder
+state, ledger claim, fallback, or retry was added. Focused projection 1/1,
+expression-port 10/10, located-legacy 15/15, all-target check, the existing
+public expression-spine guard, pointer guard, and the 800-line cap are green.
+`SITEPROJ0-P0` is next and owns only the actual/nested projection matrix; the
+full default/strict representation proof remains in later `O0-P0`.

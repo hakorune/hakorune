@@ -378,7 +378,7 @@ mod located {
         ) -> Result<LegacyStmtInputV1<'plan>, LoopPlanExpressionPortErrorV1> {
             self.require_exact_body(body)?;
             self.view
-                .body_stmt(body, index)
+                .project_compact_body_stmt(body, index)
                 .map_err(LoopPlanExpressionPortErrorV1::Located)
         }
     }
