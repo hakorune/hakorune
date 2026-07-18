@@ -36,12 +36,18 @@ def main() -> None:
     raw_tests_path = "src/mir/builder/ops/binary_expression_raw_tests.rs"
     readme_path = "src/mir/builder/ops/README.md"
     ops_root_path = "src/mir/builder/ops/mod.rs"
+    located_path = "src/mir/builder/located_legacy_lowering.rs"
+    located_tests_path = (
+        "src/mir/callable_result_representation/tests/located_legacy_lowering.rs"
+    )
     module = read(root, module_path)
     tests = read(root, tests_path)
     parity_tests = read(root, parity_tests_path)
     raw_tests = read(root, raw_tests_path)
     readme = read(root, readme_path)
     ops_root = read(root, ops_root_path)
+    located = read(root, located_path)
+    located_tests = read(root, located_tests_path)
 
     require_count(
         module,
@@ -122,10 +128,36 @@ def main() -> None:
         1,
         "thin raw Binary facade",
     )
-    if "BinaryExpressionDescentPortV1 for LocatedLegacyLoweringSessionV1" in read(
-        root, "src/mir/builder/located_legacy_lowering.rs"
-    ):
-        fail("BIN0-S0 located implementation must remain zero")
+    require_count(
+        located,
+        "impl<'plan> BinaryExpressionDescentPortV1 for LocatedLegacyLoweringSessionV1<'plan>",
+        1,
+        "BIN0-L0 located implementation",
+    )
+    require_count(
+        located,
+        "ExprChildRoleV1::BinaryLeft",
+        1,
+        "PATH0 BinaryLeft consumer",
+    )
+    require_count(
+        located,
+        "ExprChildRoleV1::BinaryRight",
+        1,
+        "PATH0 BinaryRight consumer",
+    )
+    require_count(
+        located,
+        "drive_ordinary_binary_expression_v1(builder, self, &input)",
+        1,
+        "located ordinary Binary selector",
+    )
+    if "RowsUnderPrefix" in located:
+        fail("located Binary must not select a route from RowsUnderPrefix")
+    binary_selector_at = located.index("if matches!(input.node(), ASTNode::BinaryOp { .. })")
+    inactive_proof_at = located.index(".prove_expr_inactive(&input)")
+    if binary_selector_at >= inactive_proof_at:
+        fail("ordinary Binary must select located descent before whole-prefix proof")
 
     production_callers = 0
     ignored = {
@@ -138,8 +170,8 @@ def main() -> None:
         production_callers += path.read_text(encoding="utf-8").count(
             "drive_ordinary_binary_expression_v1("
         )
-    if production_callers != 0:
-        fail(f"generic Binary driver must remain facade-private: actual={production_callers}")
+    if production_callers != 1:
+        fail(f"generic Binary driver located consumers: expected=1 actual={production_callers}")
 
     raw_selectors = 0
     for path in (root / "src").rglob("*.rs"):
@@ -225,6 +257,15 @@ def main() -> None:
         if fixture not in parity_tests:
             fail(f"missing BIN0-P0 fixture: {fixture}")
 
+    for fixture in (
+        "active_row_under_ordinary_binary_claims_through_located_child",
+        "located_binary_claims_left_then_right_and_accepts_nested_ordinary_children",
+        "located_binary_accepts_actual_if_condition_shape",
+        "logical_binary_and_unlocated_binary_reject_before_child_effects",
+    ):
+        if fixture not in located_tests:
+            fail(f"missing BIN0-L0 fixture: {fixture}")
+
     for snapshot_fact in (
         "blocks:",
         "value_types:",
@@ -253,6 +294,8 @@ def main() -> None:
         "existing `build_binary_op_from_values` owner",
         "never stored in `MirBuilder`",
         "BIN0-I0 selects the ordinary raw source entry",
+        "BIN0-L0 adds one disconnected located port",
+        "never catches `RowsUnderPrefix`",
         "production located callers remain zero",
     ):
         if phrase not in readme:
@@ -265,6 +308,8 @@ def main() -> None:
         raw_tests_path,
         readme_path,
         ops_root_path,
+        located_path,
+        located_tests_path,
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0.py",
     )
     oversized = [relative for relative in touched if len(read(root, relative).splitlines()) >= 800]
@@ -276,7 +321,7 @@ def main() -> None:
 
     print(
         f"{TAG} ok: driver=1 child_descents=2 raw_selector=1 "
-        "raw_impl=1 parity_reference=1 located_impl=0 logical_owner_preserved=1"
+        "raw_impl=1 parity_reference=1 located_impl=1 logical_owner_preserved=1"
     )
 
 

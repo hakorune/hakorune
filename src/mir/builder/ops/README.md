@@ -42,3 +42,11 @@ transient types, value kinds, origins, next ValueId, and recursion depth for the
 ordinary operator matrix, MethodCall children, nested trees, failures, and
 reuse. The reference is parity evidence only and is never a production
 fallback or second lowering route. Located acceptance still belongs to BIN0-L0.
+
+BIN0-L0 adds one disconnected located port. Every ordinary Binary encountered
+by that session uses the same driver and obtains children only through PATH0
+`BinaryLeft` / `BinaryRight`. Each child independently proves an inactive
+prefix for raw whole-child delegation or continues located descent to an exact
+claim. The port never catches `RowsUnderPrefix` to probe for another route.
+Logical operators still reject before child effects, and production located
+root callers and callable-result publishers remain zero.

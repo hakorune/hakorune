@@ -23,6 +23,9 @@ use super::calls::{
     CallArgumentDescentPortV1, MethodCallDescentPortV1, MethodCallSyntaxViewV1,
     MethodCallValueTerminalPortV1,
 };
+use super::ops::{
+    drive_ordinary_binary_expression_v1, BinaryExpressionDescentPortV1, BinarySyntaxViewV1,
+};
 use super::recursive_child_lowering::{
     drive_raw_legacy_body_v1, drive_raw_legacy_expression_v1, drive_raw_legacy_statement_v1,
     with_legacy_expression_recursion_guard_v1, RecursiveChildLoweringPortV1,
@@ -140,6 +143,16 @@ impl<'plan> LocatedLegacyLoweringSessionV1<'plan> {
             .map_err(LocatedLegacyLoweringErrorV1::Lowering);
         }
 
+        if matches!(input.node(), ASTNode::BinaryOp { .. }) {
+            let guarded_node_kind = std::mem::discriminant(input.node());
+            return with_legacy_expression_recursion_guard_v1(
+                builder,
+                guarded_node_kind,
+                |builder| drive_ordinary_binary_expression_v1(builder, self, &input),
+            )
+            .map_err(LocatedLegacyLoweringErrorV1::Lowering);
+        }
+
         let proof = self
             .ledger
             .prove_expr_inactive(&input)
@@ -191,6 +204,38 @@ fn delegate_inactive_body(
 ) -> Result<ValueId, LocatedLegacyLoweringErrorV1> {
     drive_raw_legacy_body_v1(builder, input.statements().to_vec())
         .map_err(LocatedLegacyLoweringErrorV1::Lowering)
+}
+
+impl<'plan> BinaryExpressionDescentPortV1 for LocatedLegacyLoweringSessionV1<'plan> {
+    type BinaryInput = LegacyExprInputV1<'plan>;
+
+    fn binary_syntax<'input>(
+        &self,
+        input: &'input Self::BinaryInput,
+    ) -> Result<BinarySyntaxViewV1<'input>, String> {
+        match input.node() {
+            ASTNode::BinaryOp { operator, .. } => Ok(BinarySyntaxViewV1::new(operator)),
+            _ => Err("[located-lowering/binary-input-mismatch]".to_string()),
+        }
+    }
+
+    fn binary_left_input(
+        &self,
+        input: &Self::BinaryInput,
+    ) -> Result<Self::ExpressionInput, String> {
+        self.source
+            .child_expr(input, ExprChildRoleV1::BinaryLeft)
+            .map_err(|error| format!("[located-lowering/location] {error:?}"))
+    }
+
+    fn binary_right_input(
+        &self,
+        input: &Self::BinaryInput,
+    ) -> Result<Self::ExpressionInput, String> {
+        self.source
+            .child_expr(input, ExprChildRoleV1::BinaryRight)
+            .map_err(|error| format!("[located-lowering/location] {error:?}"))
+    }
 }
 
 impl<'plan> RecursiveChildLoweringPortV1 for LocatedLegacyLoweringSessionV1<'plan> {

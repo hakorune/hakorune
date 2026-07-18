@@ -102,6 +102,16 @@ fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
         .collect()
 }
 
+fn call_targets(builder: &MirBuilder) -> Vec<String> {
+    instructions(builder)
+        .into_iter()
+        .filter_map(|instruction| match instruction {
+            MirInstruction::Call { callee, .. } => Some(format!("{callee:?}")),
+            _ => None,
+        })
+        .collect()
+}
+
 #[test]
 fn selected_nested_and_unselected_method_rows_are_claimed_before_descent() {
     let plan = seal_plan(
@@ -155,7 +165,7 @@ fn inactive_expression_delegates_once_and_finish_reports_missing_rows() {
 }
 
 #[test]
-fn active_row_under_non_method_prefix_never_reaches_raw_lowering() {
+fn active_row_under_ordinary_binary_claims_through_located_child() {
     const SOURCE: &str = r#"
         box ParserBox {
             parse(text, pos) {
@@ -177,17 +187,168 @@ fn active_row_under_non_method_prefix_never_reaches_raw_lowering() {
     let mut session = LocatedLegacyLoweringSessionV1::verify(&plan, &caller).unwrap();
     let mut builder = builder_for(SOURCE, "located_active_prefix/0");
 
-    assert!(matches!(
-        session.lower_expression(&mut builder, binary),
-        Err(LocatedLegacyLoweringErrorV1::Ledger(
-            CallableResultCallerLedgerErrorV1::RowsUnderPrefix { .. }
-        ))
-    ));
-    assert!(instructions(&builder).is_empty());
-    assert_eq!(
-        session.finish(),
-        Err(LocatedLegacyLoweringErrorV1::Poisoned)
+    session.lower_expression(&mut builder, binary).unwrap();
+    session.finish().unwrap();
+
+    assert_eq!(call_targets(&builder).len(), 1);
+    assert!(instructions(&builder)
+        .iter()
+        .any(|instruction| matches!(instruction, MirInstruction::BinOp { .. })));
+    assert_eq!(builder.recursion_depth, 0);
+}
+
+#[test]
+fn located_binary_claims_left_then_right_and_accepts_nested_ordinary_children() {
+    const SOURCE: &str = r#"
+        box ParserBox {
+            parse(text, pos) {
+                local value = Helpers.left(1) + (2 * (3 + Helpers.right(4)))
+                return value
+            }
+        }
+        static box Helpers {
+            left(value) { return value }
+            right(value) { return value }
+        }
+    "#;
+    let left_site = site(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::Initializer(0),
+        SourcePathSegmentV1::Lhs,
+    ]);
+    let right_site = site(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::Initializer(0),
+        SourcePathSegmentV1::Rhs,
+        SourcePathSegmentV1::Rhs,
+        SourcePathSegmentV1::Rhs,
+    ]);
+    let plan = seal_plan(SOURCE, &[left_site, right_site]);
+    let caller = caller(&plan);
+    let view = VerifiedCallableResultLegacySourceViewV1::verify(&plan, &caller).unwrap();
+    let binary = expression_at(&view, 0);
+    let mut session = LocatedLegacyLoweringSessionV1::verify(&plan, &caller).unwrap();
+    let mut builder = builder_for(SOURCE, "located_binary_order/0");
+
+    session.lower_expression(&mut builder, binary).unwrap();
+    session.finish().unwrap();
+
+    let targets = call_targets(&builder);
+    assert_eq!(targets.len(), 2);
+    assert!(targets[0].contains("Helpers.left"), "{targets:?}");
+    assert!(targets[1].contains("Helpers.right"), "{targets:?}");
+    assert_eq!(builder.recursion_depth, 0);
+}
+
+#[test]
+fn located_binary_accepts_actual_if_condition_shape() {
+    const SOURCE: &str = r#"
+        box ParserBox {
+            parse(text, pos) {
+                if Helpers.step(1) == 0 { return 1 }
+                return 0
+            }
+        }
+        static box Helpers { step(value) { return value } }
+    "#;
+    let call_site = site(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::IfCondition,
+        SourcePathSegmentV1::Lhs,
+    ]);
+    let plan = seal_plan(SOURCE, &[call_site]);
+    let caller = caller(&plan);
+    let view = VerifiedCallableResultLegacySourceViewV1::verify(&plan, &caller).unwrap();
+    let body = view.root_body();
+    let statement = view.body_stmt(&body, 0).unwrap();
+    let condition = view
+        .child_expr_from_stmt(&statement, ExprChildRoleV1::IfCondition)
+        .unwrap();
+    let mut session = LocatedLegacyLoweringSessionV1::verify(&plan, &caller).unwrap();
+    let mut builder = builder_for(SOURCE, "located_binary_if_condition/0");
+
+    session.lower_expression(&mut builder, condition).unwrap();
+    session.finish().unwrap();
+
+    assert_eq!(call_targets(&builder).len(), 1);
+    assert!(instructions(&builder)
+        .iter()
+        .any(|instruction| matches!(instruction, MirInstruction::Compare { .. })));
+}
+
+#[test]
+fn logical_binary_and_unlocated_binary_reject_before_child_effects() {
+    const SOURCE: &str = r#"
+        box ParserBox {
+            parse(text, pos) {
+                local value = Helpers.left(1) && Helpers.right(2)
+                return value
+            }
+        }
+        static box Helpers {
+            left(value) { return value }
+            right(value) { return value }
+        }
+    "#;
+    let left_site = site(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::Initializer(0),
+        SourcePathSegmentV1::Lhs,
+    ]);
+    let right_site = site(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::Initializer(0),
+        SourcePathSegmentV1::Rhs,
+    ]);
+    let plan = seal_plan(SOURCE, &[left_site, right_site]);
+    let logical_caller = caller(&plan);
+    let view = VerifiedCallableResultLegacySourceViewV1::verify(&plan, &logical_caller).unwrap();
+    let logical = expression_at(&view, 0);
+    let mut logical_session =
+        LocatedLegacyLoweringSessionV1::verify(&plan, &logical_caller).unwrap();
+    let mut logical_builder = builder_for(SOURCE, "located_logical_reject/0");
+
+    let error = logical_session
+        .lower_expression(&mut logical_builder, logical)
+        .unwrap_err();
+    assert!(
+        matches!(error, LocatedLegacyLoweringErrorV1::Lowering(ref text)
+        if text.contains("logical-short-circuit-owned-by-sc0"))
     );
+    assert!(instructions(&logical_builder).is_empty());
+    assert_eq!(logical_builder.recursion_depth, 0);
+
+    const ORDINARY_SOURCE: &str = r#"
+        box ParserBox {
+            parse(text, pos) {
+                local value = 1 + Helpers.left(2)
+                return value
+            }
+        }
+        static box Helpers { left(value) { return value } }
+    "#;
+    let ordinary_site = site(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::Initializer(0),
+        SourcePathSegmentV1::Rhs,
+    ]);
+    let ordinary_plan = seal_plan(ORDINARY_SOURCE, &[ordinary_site]);
+    let ordinary_caller = caller(&ordinary_plan);
+    let ordinary_view =
+        VerifiedCallableResultLegacySourceViewV1::verify(&ordinary_plan, &ordinary_caller).unwrap();
+    let located = expression_at(&ordinary_view, 0);
+    let unlocated = ordinary_view.unlocated_expr(located.node());
+    let mut unlocated_session =
+        LocatedLegacyLoweringSessionV1::verify(&ordinary_plan, &ordinary_caller).unwrap();
+    let mut unlocated_builder = builder_for(ORDINARY_SOURCE, "unlocated_binary_reject/0");
+    let error = unlocated_session
+        .lower_expression(&mut unlocated_builder, unlocated)
+        .unwrap_err();
+    assert!(
+        matches!(error, LocatedLegacyLoweringErrorV1::Lowering(ref text)
+        if text.contains("UnlocatedCannotProveInactive"))
+    );
+    assert!(instructions(&unlocated_builder).is_empty());
 }
 
 #[test]

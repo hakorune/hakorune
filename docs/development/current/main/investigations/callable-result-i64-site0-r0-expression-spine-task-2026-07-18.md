@@ -1,5 +1,5 @@
 ---
-Status: BIN0-P0 closed; BIN0-L0 is next
+Status: BIN0-L0 closed; SC0-S0 is next
 Date: 2026-07-18
 Decision: expand located lowering by one structural child family per row
 Parent: callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md
@@ -62,15 +62,13 @@ SITE0-R0-EXPR0-SPINE0-BIN0-S0
 The sole next code-facing row is:
 
 ```text
-SITE0-R0-EXPR0-SPINE0-BIN0-L0
+SITE0-R0-EXPR0-SPINE0-SC0-S0
 ```
 
-`BIN0-P0` is closed. BIN0-L0 may add only the disconnected located Binary
-adapter over the existing PATH0 `BinaryLeft` / `BinaryRight` roles. Every
-ordinary Binary seen by the located session uses that adapter; each child then
-uses the existing ledger to prove an inactive prefix or claim an exact row.
-There is no whole-Binary active/inactive probe. Production located callers and
-callable-result publication remain zero.
+`BIN0-L0` is closed. SC0-S0 may add only the disconnected associated-input
+short-circuit boundary. It must preserve lhs-before-branch timing and request
+the rhs input only inside the existing eval-RHS block. Production located
+callers and callable-result publication remain zero.
 
 ## Why C0 is held
 
@@ -310,6 +308,29 @@ reference exists only in the test module and remains absent from every
 production source. Production code, grammar, MIR, runtime, located callers,
 ledger consumers, and result authority are unchanged. BIN0-L0 is next.
 
+### BIN0-L0 closeout
+
+BIN0-L0 is closed. `LocatedLegacyLoweringSessionV1` now implements the one
+ordinary Binary associated-input port. Every ordinary Binary reaches the
+closed generic driver once, and the existing PATH0 source view alone produces
+its `BinaryLeft` and `BinaryRight` inputs. Each child independently proves an
+inactive prefix for raw whole-child delegation or continues located descent to
+an exact MethodCall claim. No error is used as a route selector.
+
+Logical `And` / `Or` still reject before child effects with the stable SC0
+boundary. One located-session recursion guard owns the outer Binary; child
+expressions retain their existing guards, failures poison only the current
+session, and a fresh session remains independent. The port adds no operator,
+ledger, result, type, CFG, PHI, effect, or Builder-state authority.
+
+Four new focused fixtures prove a row under an ordinary Binary, exact
+lhs-before-rhs claims through nested depth, the actual If-condition equality
+shape, and fail-closed logical/unlocated inputs. Located lowering 8/8, all
+BIN0 16/16, recursive child 7/7, callable-result 51/51, the staged SPINE0
+guard, current pointer, quick 66/66, release build, formatting, diff check, and
+line caps are green. Production located root callers and callable-result
+publishers remain zero. SC0-S0 is next.
+
 ## SC0 — short-circuit Binary
 
 SC0 keeps `And` and `Or` separate from ordinary Binary because eager RHS
@@ -539,13 +560,12 @@ Stop the current row if any of the following becomes necessary:
 > The acceptance boundary should now expand, but only as a sequence of
 > structural associated-input rows. The actual A0 caller proves five active
 > MethodCalls under Binary ancestors, so direct EXPR0-C0 wiring is held.
-> Ordinary Binary is the sole current shape and continues at
-> `SITE0-R0-EXPR0-SPINE0-BIN0-L0`; short-circuit Binary, value-bearing
-> statements, If, raw suffix admission, and Loop site carriage remain separate
-> owners. BIN0-L0 always uses the located driver for an ordinary Binary and
-> lets each associated child prove inactivity or continue to an exact claim;
-> it never selects a route by catching `RowsUnderPrefix`. Every prerequisite
-> keeps production located callers and
+> Ordinary Binary is closed through BIN0-L0. The sole current shape is
+> `SITE0-R0-EXPR0-SPINE0-SC0-S0`; value-bearing statements, If, raw suffix
+> admission, and Loop site carriage remain separate owners. BIN0-L0 always
+> uses the located driver for an ordinary Binary and lets each associated child
+> prove inactivity or continue to an exact claim; it never selects a route by
+> catching `RowsUnderPrefix`. Every prerequisite keeps production located callers and
 > callable-result publication at zero. C0 may resume only after the actual
 > 15-row caller completes one exact located traversal and ledger finish with no
 > raw active-subtree escape, no retry, and no duplicated route/control/result
