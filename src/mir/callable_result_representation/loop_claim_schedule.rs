@@ -40,6 +40,13 @@ pub(crate) struct VerifiedCallableResultLoopClaimScheduleV1<'plan> {
     rows: Box<[&'plan VerifiedCallableResultActivationSiteV1]>,
 }
 
+pub(super) struct CallableResultLoopClaimSchedulePartsV1<'plan> {
+    pub(super) activation_plan: &'plan VerifiedCallableResultActivationPlanV1,
+    pub(super) caller: &'plan CanonicalSameModuleCallableKeyV1,
+    pub(super) loop_root: SourceStmtSiteV1,
+    pub(super) rows: Box<[&'plan VerifiedCallableResultActivationSiteV1]>,
+}
+
 impl<'plan> VerifiedCallableResultLoopClaimScheduleV1<'plan> {
     pub(crate) fn verify(
         activation_plan: &'plan VerifiedCallableResultActivationPlanV1,
@@ -145,5 +152,14 @@ impl<'plan> VerifiedCallableResultLoopClaimScheduleV1<'plan> {
         activation_plan: &VerifiedCallableResultActivationPlanV1,
     ) -> bool {
         std::ptr::eq(self.activation_plan, activation_plan)
+    }
+
+    pub(super) fn into_claim_parts(self) -> CallableResultLoopClaimSchedulePartsV1<'plan> {
+        CallableResultLoopClaimSchedulePartsV1 {
+            activation_plan: self.activation_plan,
+            caller: self.caller,
+            loop_root: self.loop_root,
+            rows: self.rows,
+        }
     }
 }

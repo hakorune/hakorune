@@ -1,5 +1,5 @@
 ---
-Status: LOOP0-S0b closed; LOOP0-S0c next
+Status: LOOP0-S0c closed; LOOP0-P0 next
 Date: 2026-07-18
 Code baseline: 2a87a3bbe91318f52154b97ff5fadc8ee24d5dec
 Decision-stop baseline: 4f9b84138a
@@ -240,8 +240,9 @@ The ledger-owned API performs:
 ```
 
 The schedule is not assumed to be the tail of the caller rows. For the actual
-fixture, ordinary rows 0-5 are claimed first and the Loop batch is the next
-consecutive slice 6-14.
+fixture, human rows 1-5 (Rust indices 0-4) are claimed first and the Loop batch
+is human rows 6-14 (Rust indices 5-13). Human row 15 (Rust index 14) remains an
+ordinary claim after the batch.
 
 The post-claim batch uses a `BTreeMap<SourceExprSiteV1, Claimed...>` only for
 plan-order lookup/removal. It rejects double removal and rejects finish while
@@ -439,6 +440,28 @@ unused/double-removal typed rejection
 actual 15-row exact-order fixture
 ```
 
+Closeout (2026-07-18): closed. The non-Clone preclaim schedule is consumed by
+one ledger extension entry. The ledger reuses the ordinary
+Duplicate/WrongOrder/Unexpected policy, stages the complete canonical row
+slice without mutation, pointer-checks every scheduled row against the exact
+activation-plan row, constructs the claimed tokens, and performs one
+non-fallible `claimed.extend` commit. It returns one non-Clone batch branded by
+the real activation plan, canonical caller, and Loop statement root. The batch
+retains source order only for deterministic unused diagnostics; exact-site
+slots support plan-order removal and distinguish unexpected, already-consumed,
+and unconsumed claims without copying target or ABI authority.
+
+Six focused fixtures include the actual 15-row ParserBox caller. They prove
+human rows 1-5 ordinary, 6-14 atomic Loop batch, and 15 ordinary; source order
+keeps outer row 13 before nested row 14 while simulated plan emission consumes
+14 before 13. Wrong-order, foreign-plan, and foreign-caller failures leave the
+ledger reusable; double removal, unknown removal, and unfinished batches are
+typed failures. Production `claim_loop_batch` callers, located Loop consumers,
+Builder storage, grammar, runtime, backend, and ownership deltas remain zero.
+Callable-result 75/75, located-plan 9/9, the public expression-spine guard,
+all-target check, release build, formatting, diff, line-cap checks, and quick
+66/66 in 82s are green. `LOOP0-P0` is next.
+
 ### LOOP0-P0 — actual GenericLoop plan proof
 
 Add one shared raw/test-located expression port without duplicating the
@@ -627,5 +650,5 @@ Stop the current row if it requires:
 > falls back. The first profile admits only direct-ordinal GenericLoop-v1
 > MethodCall inventory and rejects transformed bodies, nested Loop, and
 > normalized shadow before effects. `LOOP0-S0a` and `LOOP0-S0b` are closed;
-> `LOOP0-S0c` is next, and production located consumers and ledger claims remain
+> `LOOP0-S0c` is closed; `LOOP0-P0` is next. Production located consumers and ledger claims remain
 > zero through S0.

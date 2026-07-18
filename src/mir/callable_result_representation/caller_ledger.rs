@@ -13,6 +13,7 @@ use super::activation::VerifiedCallableResultActivationSiteV1;
 use super::located_legacy::{
     LegacyActivationBodyDomainPartsV1, LegacyActivationClaimPartsV1, LegacyActivationPrefixPartsV1,
 };
+use super::loop_claim_schedule::CallableResultLoopClaimSchedulePartsV1;
 use super::{
     CallableResultActivationDispositionV1, CallableResultCallerLedgerErrorV1, LegacyBodyInputV1,
     LegacyExprInputV1, LegacyStmtInputV1, LocatedLegacyBodySuffixV1,
@@ -71,6 +72,16 @@ impl ClaimedCallableResultActivationSiteV1<'_> {
 
     pub(crate) const fn disposition(&self) -> &CallableResultActivationDispositionV1 {
         self.disposition
+    }
+}
+
+impl<'plan> ClaimedCallableResultActivationSiteV1<'plan> {
+    fn from_row(row: &'plan VerifiedCallableResultActivationSiteV1) -> Self {
+        Self {
+            site: row.site(),
+            disposition: row.disposition(),
+            _plan: PhantomData,
+        }
     }
 }
 
@@ -211,37 +222,91 @@ impl<'plan> VerifiedCallableResultCallerLedgerV1<'plan> {
         parts: LegacyActivationClaimPartsV1<'_>,
     ) -> Result<ClaimedCallableResultActivationSiteV1<'plan>, CallableResultCallerLedgerErrorV1>
     {
-        if self.claimed.contains(parts.site) {
-            return Err(CallableResultCallerLedgerErrorV1::Duplicate {
-                site: parts.site.clone(),
-            });
+        let staged = BTreeSet::new();
+        let expected = self.prevalidate_claim_site(parts.site, &staged)?;
+        let claim = ClaimedCallableResultActivationSiteV1::from_row(expected);
+        self.claimed.insert(parts.site.clone());
+        Ok(claim)
+    }
+
+    pub(super) fn prevalidate_and_commit_loop_schedule(
+        &mut self,
+        parts: &CallableResultLoopClaimSchedulePartsV1<'plan>,
+    ) -> Result<
+        Box<[ClaimedCallableResultActivationSiteV1<'plan>]>,
+        CallableResultCallerLedgerErrorV1,
+    > {
+        self.prevalidate_and_commit_rows(parts.activation_plan, parts.caller, &parts.rows)
+    }
+
+    fn prevalidate_and_commit_rows(
+        &mut self,
+        activation_plan: &'plan VerifiedCallableResultActivationPlanV1,
+        caller: &'plan CanonicalSameModuleCallableKeyV1,
+        rows: &[&'plan VerifiedCallableResultActivationSiteV1],
+    ) -> Result<
+        Box<[ClaimedCallableResultActivationSiteV1<'plan>]>,
+        CallableResultCallerLedgerErrorV1,
+    > {
+        self.require_carrier(activation_plan as *const _ as usize, caller)?;
+        let mut staged = BTreeSet::new();
+        let mut expected_rows = Vec::with_capacity(rows.len());
+        for requested in rows {
+            let expected = self.prevalidate_claim_site(requested.site(), &staged)?;
+            if !std::ptr::eq(*requested, expected) {
+                return Err(CallableResultCallerLedgerErrorV1::ForeignPlan);
+            }
+            staged.insert(expected.site().clone());
+            expected_rows.push(expected);
+        }
+        let claims = expected_rows
+            .into_iter()
+            .map(ClaimedCallableResultActivationSiteV1::from_row)
+            .collect::<Vec<_>>()
+            .into_boxed_slice();
+        self.claimed.extend(staged);
+        Ok(claims)
+    }
+
+    #[cfg(test)]
+    pub(super) fn claim_rows_for_atomicity_test(
+        &mut self,
+        activation_plan: &'plan VerifiedCallableResultActivationPlanV1,
+        caller: &'plan CanonicalSameModuleCallableKeyV1,
+        rows: &[&'plan VerifiedCallableResultActivationSiteV1],
+    ) -> Result<
+        Box<[ClaimedCallableResultActivationSiteV1<'plan>]>,
+        CallableResultCallerLedgerErrorV1,
+    > {
+        self.prevalidate_and_commit_rows(activation_plan, caller, rows)
+    }
+
+    fn prevalidate_claim_site(
+        &self,
+        site: &SourceExprSiteV1,
+        staged: &BTreeSet<SourceExprSiteV1>,
+    ) -> Result<&'plan VerifiedCallableResultActivationSiteV1, CallableResultCallerLedgerErrorV1>
+    {
+        if self.claimed.contains(site) || staged.contains(site) {
+            return Err(CallableResultCallerLedgerErrorV1::Duplicate { site: site.clone() });
         }
         let Some(expected) = self
             .rows
             .iter()
-            .find(|row| !self.claimed.contains(row.site()))
+            .find(|row| !self.claimed.contains(row.site()) && !staged.contains(row.site()))
         else {
-            return Err(CallableResultCallerLedgerErrorV1::Unexpected {
-                site: parts.site.clone(),
-            });
+            return Err(CallableResultCallerLedgerErrorV1::Unexpected { site: site.clone() });
         };
-        if expected.site() == parts.site {
-            self.claimed.insert(parts.site.clone());
-            return Ok(ClaimedCallableResultActivationSiteV1 {
-                site: expected.site(),
-                disposition: expected.disposition(),
-                _plan: PhantomData,
-            });
+        if expected.site() == site {
+            return Ok(expected);
         }
-        if self.rows.iter().any(|row| row.site() == parts.site) {
+        if self.rows.iter().any(|row| row.site() == site) {
             return Err(CallableResultCallerLedgerErrorV1::WrongOrder {
                 expected: expected.site().clone(),
-                actual: parts.site.clone(),
+                actual: site.clone(),
             });
         }
-        Err(CallableResultCallerLedgerErrorV1::Unexpected {
-            site: parts.site.clone(),
-        })
+        Err(CallableResultCallerLedgerErrorV1::Unexpected { site: site.clone() })
     }
 
     fn prove_prefix(
