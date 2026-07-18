@@ -259,3 +259,139 @@ def check_suffix0_s0(root: Path) -> str:
     if oversized:
         _fail(f"SUFFIX0-S0 source/check files reached 800 lines: {oversized}")
     return "suffix_carrier=1 suffix_classifier=1 suffix_consumers=0"
+
+
+def check_suffix0_p0(root: Path) -> str:
+    driver_path = "src/mir/builder/stmts/block_driver.rs"
+    reference_path = "src/mir/builder/stmts/block_suffix_parity_reference.rs"
+    tests_path = (
+        "src/mir/callable_result_representation/tests/"
+        "block_suffix_route_parity.rs"
+    )
+    builder_path = "src/mir/builder.rs"
+    stmts_mod_path = "src/mir/builder/stmts/mod.rs"
+    tests_mod_path = "src/mir/callable_result_representation/tests/mod.rs"
+
+    driver = _read(root, driver_path)
+    reference = _read(root, reference_path)
+    tests = _read(root, tests_path)
+    builder = _read(root, builder_path)
+    stmts_mod = _read(root, stmts_mod_path)
+    tests_mod = _read(root, tests_mod_path)
+
+    _count(
+        reference,
+        "struct ClassifiedSuffixReferencePortV1",
+        1,
+        "test-only classified suffix port",
+    )
+    _count(
+        reference,
+        "impl LegacyBlockDescentPortV1 for ClassifiedSuffixReferencePortV1",
+        1,
+        "test-only legacy driver port",
+    )
+    _count(
+        reference,
+        "CallableResultBodySuffixDecisionV1::Inactive(proof) => Some(proof.as_ref())",
+        1,
+        "verified inactive suffix projection",
+    )
+    _count(
+        reference,
+        "CallableResultBodySuffixDecisionV1::Active { .. } => None",
+        1,
+        "active suffix refusal",
+    )
+    _count(
+        reference,
+        "drive_legacy_block_v1(&mut builder, &mut port)",
+        1,
+        "existing driver reference call",
+    )
+    _count(reference, "BlockSuffixParityInputV1::AlwaysNone => None", 1, "negative port")
+    if "NormalizedShadowSuffixRouterBox" in reference:
+        _fail("SUFFIX0-P0 duplicated or directly selected the existing router")
+    for forbidden in (
+        "RowsUnderPrefix",
+        ".claim(",
+        "retry",
+        "fallback",
+        "std::env::set_var",
+        "std::env::remove_var",
+    ):
+        if forbidden in reference:
+            _fail(f"SUFFIX0-P0 reference owns forbidden policy: {forbidden}")
+
+    for fixture in (
+        "inactive_nonempty_loop_suffix_routes_with_raw_parity",
+        "active_suffix_supplies_no_router_input_and_continues_statement_descent",
+        "always_none_is_explicitly_not_located_route_parity",
+    ):
+        if fixture not in tests:
+            _fail(f"missing SUFFIX0-P0 fixture: {fixture}")
+    for evidence in (
+        "assert_eq!(selected, raw)",
+        "selected.route_demand_indices, vec![0]",
+        "selected.lowered_indices, vec![1]",
+        "selected.route_demand_indices, vec![0, 1]",
+        "selected.lowered_indices, vec![0, 1]",
+        "always_none.lowered_indices, vec![0, 1]",
+        "assert_ne!(",
+        "always-none routing is not driver-route parity",
+        "first.segments()",
+        "SourcePathSegmentV1::Value",
+        "with_joinir_env_lock",
+        "crate::test_support::with_env_vars",
+        '("NYASH_JOINIR_DEV", Some("1"))',
+        '("HAKO_JOINIR_STRICT", Some("1"))',
+    ):
+        if evidence not in tests:
+            _fail(f"missing SUFFIX0-P0 exact evidence: {evidence}")
+    for forbidden in ("std::env::set_var", "std::env::remove_var"):
+        if forbidden in tests:
+            _fail(f"SUFFIX0-P0 bypassed shared environment restoration: {forbidden}")
+
+    if "type SuffixInput" in driver:
+        _fail("SUFFIX0-P0 prematurely changed the production port to the I0 GAT")
+    _count(
+        driver,
+        "fn suffix_route_input(&self, index: usize) -> Option<&[ASTNode]>;",
+        1,
+        "unchanged production suffix input seam",
+    )
+    for forbidden in (
+        "CallableResultBodySuffixDecisionV1",
+        "VerifiedCallableResultInactiveBodySuffixV1",
+        "LocatedLegacyBodySuffixV1",
+    ):
+        if forbidden in driver:
+            _fail(f"SUFFIX0-P0 connected production driver early: {forbidden}")
+
+    _count(
+        builder,
+        "#[cfg(test)]\npub(crate) use stmts::block_suffix_parity_reference",
+        1,
+        "test-only builder reference export",
+    )
+    _count(
+        stmts_mod,
+        "#[cfg(test)]\npub(crate) mod block_suffix_parity_reference;",
+        1,
+        "test-only reference module",
+    )
+    _count(tests_mod, "mod block_suffix_route_parity;", 1, "P0 parity test module")
+
+    touched = (
+        driver_path,
+        reference_path,
+        tests_path,
+        builder_path,
+        stmts_mod_path,
+        tests_mod_path,
+        "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_suffix0.py",
+    )
+    oversized = [path for path in touched if len(_read(root, path).splitlines()) >= 800]
+    if oversized:
+        _fail(f"SUFFIX0-P0 source/check files reached 800 lines: {oversized}")
+    return "suffix_parity_reference=1 production_driver_delta=0"

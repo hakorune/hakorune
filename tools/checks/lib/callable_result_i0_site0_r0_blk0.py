@@ -29,6 +29,8 @@ def main() -> None:
     driver = read(root, "src/mir/builder/stmts/block_driver.rs")
     raw = read(root, "src/mir/builder/stmts/block_stmt.rs")
     tests = read(root, "src/mir/builder/stmts/block_driver_tests.rs")
+    test_reference_path = "src/mir/builder/stmts/block_suffix_parity_reference.rs"
+    test_reference = read(root, test_reference_path)
     readme = read(root, "src/mir/builder/README.md")
 
     require_count(driver, "trait LegacyBlockDescentPortV1", 1, "block port owner")
@@ -69,7 +71,11 @@ def main() -> None:
     port_implementations = 0
     for path in (root / "src").rglob("*.rs"):
         relative = path.relative_to(root).as_posix()
-        if relative.endswith("/block_driver.rs") or relative.endswith("/block_driver_tests.rs"):
+        if (
+            relative.endswith("/block_driver.rs")
+            or relative.endswith("/block_driver_tests.rs")
+            or relative == test_reference_path
+        ):
             continue
         text = path.read_text(encoding="utf-8")
         production_driver_consumers += text.count("drive_legacy_block_v1(")
@@ -81,6 +87,18 @@ def main() -> None:
         )
     if port_implementations != 1:
         fail(f"selected port implementations: expected=1 actual={port_implementations}")
+    require_count(
+        test_reference,
+        "drive_legacy_block_v1(&mut builder, &mut port)",
+        1,
+        "separately counted test-only driver reference",
+    )
+    require_count(
+        test_reference,
+        "impl LegacyBlockDescentPortV1 for ClassifiedSuffixReferencePortV1",
+        1,
+        "separately counted test-only port",
+    )
 
     for evidence in (
         "empty_block_emits_one_void_and_restores_lexical_scope",
@@ -104,6 +122,7 @@ def main() -> None:
         "src/mir/builder/README.md",
         "src/mir/builder/stmts/block_driver.rs",
         "src/mir/builder/stmts/block_driver_tests.rs",
+        test_reference_path,
         "src/mir/builder/stmts/block_stmt.rs",
         "src/mir/builder/stmts/mod.rs",
         "tools/checks/lib/callable_result_i0_site0_r0_blk0.py",

@@ -1,5 +1,5 @@
 ---
-Status: SUFFIX0-S0 closed; SUFFIX0-P0 next
+Status: SUFFIX0-P0 closed; SUFFIX0-I0 next
 Date: 2026-07-18
 Decision: positive exact-body-suffix classification before any raw router view
 Parent: callable-result-i64-site0-r0-expression-spine-task-2026-07-18.md
@@ -158,6 +158,43 @@ nonempty inactive Loop suffix reaches the existing router, while an Active
 decision supplies no router input and continues statement descent. Always-None
 located routing is explicitly non-parity. Keep environment changes under the
 existing test lock/restore law.
+
+P0 closeout:
+
+```text
+test-only classified suffix ports = 1
+existing production block driver calls from the reference = 1
+production port/driver/router deltas = 0
+
+inactive Loop:
+  proof-backed selected route demand = [0]
+  selected statement descent = [1]
+  raw production block normalized MIR parity = exact
+
+active suffix:
+  exact first witness = Body(1).Value
+  router input = none
+  statement descent = [0, 1]
+
+always-none control:
+  statement descent = [0, 1]
+  selected inactive route parity = explicitly false
+
+focused route parity = 3/3
+callable-result fixtures = 68/68
+block-driver fixtures = 5/5
+BLK0 and public EXPR0-SPINE0 guards = green
+cargo check --all-targets = green
+release build = green
+quick = 66/66 in 208s
+worker authority/code/test audits = 3 GO
+modified source/check files >= 800 lines = 0
+```
+
+The raw and always-none lanes happen to emit equivalent MIR for the minimal
+`loop(true) { break }` fixture. P0 therefore fixes route non-parity with the
+exact statement-descent witness, while normalized MIR equality remains the
+selected-versus-raw production parity authority.
 
 ### SUFFIX0-I0 — behavior-neutral block seam cutover
 
