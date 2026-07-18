@@ -32,6 +32,9 @@ def check_asn0_s0(root: Path) -> str:
     stmts_root_path = "src/mir/builder/stmts/mod.rs"
     selector_path = "src/mir/builder/exprs.rs"
     grouped_path = "src/mir/builder/builder_build.rs"
+    located_path = "src/mir/builder/located_legacy_lowering.rs"
+    located_adapter_path = "src/mir/builder/located_legacy_assignment.rs"
+    located_tests_path = "src/mir/builder/located_legacy_assignment_tests.rs"
     readme_path = "src/mir/builder/stmts/README.md"
     helper_path = (
         "tools/checks/lib/"
@@ -45,6 +48,9 @@ def check_asn0_s0(root: Path) -> str:
     stmts_root = _read(root, stmts_root_path)
     selector = _read(root, selector_path)
     grouped = _read(root, grouped_path)
+    located = _read(root, located_path)
+    located_adapter = _read(root, located_adapter_path)
+    located_tests = _read(root, located_tests_path)
     readme = _read(root, readme_path)
 
     for needle, expected, label in (
@@ -113,8 +119,8 @@ def check_asn0_s0(root: Path) -> str:
         source = path.read_text(encoding="utf-8")
         driver_callers += source.count("drive_variable_assignment_v1(")
         raw_callers += source.count("drive_raw_variable_assignment_v1(")
-    if driver_callers != 0:
-        _fail(f"ASN0-S0 generic production callers must be zero: actual={driver_callers}")
+    if driver_callers != 1:
+        _fail(f"ASN0-L0 generic external callers must be one: actual={driver_callers}")
     if raw_callers != 1:
         _fail(f"ASN0-I0 raw production callers must be one: actual={raw_callers}")
 
@@ -139,12 +145,13 @@ def check_asn0_s0(root: Path) -> str:
         stmts_root,
     ):
         _fail("ASN0-P0 parity fixture module must remain cfg(test)-scoped")
-    _require_count(
-        stmts_root,
-        "pub(in crate::mir::builder) use variable_assignment_descent::drive_raw_variable_assignment_v1;",
-        1,
-        "narrow raw Assignment facade export",
-    )
+    for export in (
+        "drive_raw_variable_assignment_v1",
+        "drive_variable_assignment_v1",
+        "VariableAssignmentDescentPortV1",
+        "VariableAssignmentSyntaxViewV1",
+    ):
+        _require_count(stmts_root, export, 1, f"narrow Assignment export {export}")
 
     variable_branch = re.search(
         r"else if let ASTNode::Variable \{ name, \.\. \} = stmt\.target\.as_ref\(\) \{(?P<body>.*?)\n\s*\} else \{",
@@ -275,6 +282,59 @@ def check_asn0_s0(root: Path) -> str:
     ):
         if fixture not in parity_tests:
             _fail(f"missing ASN0-P0 parity fixture: {fixture}")
+
+    for needle, expected, label in (
+        ("struct LocatedVariableAssignmentInputV1", 1, "located selected input"),
+        ("fn select_exact_variable_assignment_v1", 1, "located exact selector"),
+        ("fn lower_selected_variable_assignment_v1", 1, "located selected lowering"),
+        (
+            "impl<'plan> VariableAssignmentDescentPortV1 for LocatedLegacyLoweringSessionV1<'plan>",
+            1,
+            "located Assignment port",
+        ),
+        ("drive_variable_assignment_v1(builder, session, selected)", 1, "shared driver use"),
+        ("ExprChildRoleV1::AssignmentValue", 1, "AssignmentValue navigation"),
+        ("with_legacy_expression_recursion_guard_v1", 2, "import plus outer guard"),
+    ):
+        _require_count(located_adapter, needle, expected, label)
+    for forbidden in (
+        "SourceExprSiteV1",
+        "SourcePath",
+        "AssignmentTarget",
+        "ASTNode::FieldAccess",
+        "ASTNode::Index",
+        "CompoundAssignment",
+        "GroupedAssignment",
+        "RowsUnderPrefix",
+        ".claim(",
+        ".ledger",
+        "build_expression(",
+        "build_expression_impl(",
+        "fallback",
+        "retry",
+    ):
+        if forbidden in located_adapter:
+            _fail(f"ASN0-L0 located adapter owns forbidden authority: {forbidden}")
+    _require_count(
+        located,
+        "assignment_adapter::select_exact_variable_assignment_v1(input)",
+        1,
+        "located Assignment selector consumer",
+    )
+    selector_at = located.index("assignment_adapter::select_exact_variable_assignment_v1(input)")
+    inactive_at = located.index(".prove_stmt_inactive(&input)")
+    if not selector_at < inactive_at:
+        _fail("ASN0-L0 selector must precede whole-statement inactive proof")
+    for fixture in (
+        "located_assignment_claims_outer_rhs_before_nested_argument_and_completes_once",
+        "located_assignment_reuses_binary_and_deferred_short_circuit_children",
+        "wrong_assignment_order_has_no_rhs_effect_and_fresh_session_succeeds",
+        "undeclared_target_and_rhs_failure_publish_no_assignment",
+        "loop_body_assignment_path_seam_fails_closed_until_loop0",
+        "non_variable_targets_and_active_if_loop_controls_fail_closed",
+    ):
+        if fixture not in located_tests:
+            _fail(f"missing ASN0-L0 fixture: {fixture}")
     for snapshot_fact in (
         "blocks:",
         "value_types:",
@@ -305,6 +365,12 @@ def check_asn0_s0(root: Path) -> str:
         "ASN0-P0 retains the pre-I0 exact Variable orchestration",
         "reference rejects Grouped, field, index, and compound surfaces",
         "parity reference and located `AssignmentValue` navigation",
+        "ASN0-L0 adds one disconnected located adapter",
+        "derives the RHS only",
+        "through the existing `AssignmentValue` role",
+        "Field/index/compound and",
+        "LoopBodyRoot",
+        "Exact Loop body carriage remains LOOP0",
     ):
         if phrase not in readme:
             _fail(f"missing ASN0-S0 README boundary: {phrase}")
@@ -317,6 +383,9 @@ def check_asn0_s0(root: Path) -> str:
         stmts_root_path,
         selector_path,
         grouped_path,
+        located_path,
+        located_adapter_path,
+        located_tests_path,
         readme_path,
         helper_path,
     )
@@ -328,4 +397,4 @@ def check_asn0_s0(root: Path) -> str:
     if re.search(r"Arc<|Rc<|thread_local!|static mut", module):
         _fail("ASN0 substrate must remain stack-scoped and immutable")
 
-    return "asn_driver=1 asn_e0_descents=1 asn_raw_impl=1 asn_raw_selectors=1 asn_parity_reference=1 asn_grouped_selectors=0"
+    return "asn_driver=1 asn_e0_descents=1 asn_raw_impl=1 asn_raw_selectors=1 asn_parity_reference=1 asn_located_impl=1 asn_located_selectors=1 asn_grouped_selectors=0"

@@ -7,8 +7,14 @@
 //! stored in `MirBuilder` and has no production constructor caller.
 
 #[cfg(test)]
+#[path = "located_legacy_assignment_tests.rs"]
+mod assignment_tests;
+#[cfg(test)]
 #[path = "located_legacy_local_tests.rs"]
 mod local_tests;
+
+#[path = "located_legacy_assignment.rs"]
+mod assignment_adapter;
 
 use crate::ast::ASTNode;
 use crate::mir::callable_result_representation::{
@@ -192,6 +198,15 @@ impl<'plan> LocatedLegacyLoweringSessionV1<'plan> {
             )
             .map_err(LocatedLegacyLoweringErrorV1::Lowering);
         }
+
+        let input = match assignment_adapter::select_exact_variable_assignment_v1(input) {
+            Ok(selected) => {
+                return assignment_adapter::lower_selected_variable_assignment_v1(
+                    self, builder, &selected,
+                );
+            }
+            Err(input) => input,
+        };
 
         let proof = self
             .ledger

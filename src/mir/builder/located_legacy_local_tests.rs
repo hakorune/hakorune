@@ -23,11 +23,11 @@ use super::{
 };
 
 #[derive(Clone)]
-struct CallSiteSpecV1 {
-    site: SourceExprSiteV1,
+pub(super) struct CallSiteSpecV1 {
+    pub(super) site: SourceExprSiteV1,
 }
 
-fn site(segments: Vec<SourcePathSegmentV1>) -> SourceExprSiteV1 {
+pub(super) fn site(segments: Vec<SourcePathSegmentV1>) -> SourceExprSiteV1 {
     SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(segments))
 }
 
@@ -37,7 +37,7 @@ fn declarations(source: &str) -> VerifiedSameModuleCallableDeclarationCatalogV1 
         .expect("located Local declarations must seal")
 }
 
-fn caller(
+pub(super) fn caller(
     declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
 ) -> CanonicalSameModuleCallableKeyV1 {
     declarations
@@ -52,7 +52,7 @@ fn caller(
         .clone()
 }
 
-fn seal_plan(
+pub(super) fn seal_plan(
     source: &str,
     selected: Vec<CallSiteSpecV1>,
 ) -> VerifiedCallableResultActivationPlanV1 {
@@ -105,7 +105,7 @@ fn seal_plan(
     VerifiedCallableResultActivationPlanV1::seal(declarations, rows).expect("located Local plan")
 }
 
-fn builder_for(source: &str, name: &str) -> MirBuilder {
+pub(super) fn builder_for(source: &str, name: &str) -> MirBuilder {
     let mut builder = MirBuilder::new();
     builder
         .comp_ctx
@@ -115,7 +115,7 @@ fn builder_for(source: &str, name: &str) -> MirBuilder {
     builder
 }
 
-fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
+pub(super) fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
     builder
         .scope_ctx
         .current_function
@@ -127,7 +127,7 @@ fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
         .collect()
 }
 
-fn lower_root_statements<'plan>(
+pub(super) fn lower_root_statements<'plan>(
     session: &mut LocatedLegacyLoweringSessionV1<'plan>,
     plan: &'plan VerifiedCallableResultActivationPlanV1,
     caller: &CanonicalSameModuleCallableKeyV1,

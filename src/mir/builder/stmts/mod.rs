@@ -109,7 +109,10 @@ pub(super) mod print_stmt;
 pub(super) mod return_stmt;
 pub(super) mod task_scope_stmt;
 mod variable_assignment_descent;
-pub(in crate::mir::builder) use variable_assignment_descent::drive_raw_variable_assignment_v1;
+pub(in crate::mir::builder) use variable_assignment_descent::{
+    drive_raw_variable_assignment_v1, drive_variable_assignment_v1,
+    VariableAssignmentDescentPortV1, VariableAssignmentSyntaxViewV1,
+};
 pub(super) mod variable_stmt;
 
 #[cfg(test)]
