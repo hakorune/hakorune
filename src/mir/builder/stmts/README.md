@@ -84,4 +84,13 @@ assignment retain their existing owners. `GroupedAssignmentExpr` remains
 parked on a dedicated legacy facade because sharing its old facade would widen
 ASN0 indirectly. The raw adapter does not inspect the target AST or add a
 second selector. The parity reference and located `AssignmentValue` navigation
-stay disconnected until ASN0-P0/L0 respectively.
+remain disconnected at I0.
+
+ASN0-P0 retains the pre-I0 exact Variable orchestration only in a cfg(test)
+reference: declared-binding preflight, raw RHS lowering, then the existing
+from-value completion. Selected and reference paths compare result/error,
+ordered MIR, transient facts, bindings/scopes, local and typed-array contracts,
+slot/cached state, allocators, failure effects, and same-Builder reuse. The
+reference rejects Grouped, field, index, and compound surfaces and has no
+production caller. Located `AssignmentValue` navigation remains disconnected
+until ASN0-L0.

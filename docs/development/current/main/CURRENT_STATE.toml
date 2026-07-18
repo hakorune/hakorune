@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result I0 ASN0-I0 is closed; ASN0-P0 is next"
+status = "callable-result I0 ASN0-P0 is closed; ASN0-L0 is next"
 date = "2026-07-18"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,13 +298,13 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 
 latest_card = "callable-result-i64-site0-r0-expression-spine-task-2026-07-18"
 latest_card_path = "docs/development/current/main/investigations/callable-result-i64-site0-r0-expression-spine-task-2026-07-18.md"
-latest_card_summary = """ASN0-I0 is closed. The exact Variable-target branch
-selects the raw Assignment driver once. A worker audit found that the old
-build_assignment facade also served GroupedAssignmentExpr, so Grouped was
-split onto a dedicated legacy facade and remains outside ASN0. Field/index and
-compound selectors remain unchanged. Production located roots and
-callable-result publication remain zero. ASN0-P0 is next."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-P0-001"
+latest_card_summary = """ASN0-P0 is closed. One cfg(test)-only pre-I0 exact
+Variable Assignment reference has normalized parity with the selected route
+across MIR, transient facts, bindings/scopes, exact and typed-array contracts,
+allocator state, partial failures, and reuse. Grouped/field/index/compound
+remain outside the reference. Production located roots and callable-result
+publication remain zero. ASN0-L0 is next."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-L0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -313,6 +313,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-P0 closes one cfg(test)-only pre-I0 exact Variable Assignment reference and normalized selected/reference parity. Four parity fixtures cover literal/Binary/short-circuit RHS, exact local contracts, typed-array reassignment, undeclared preflight, partial RHS failure, and same-Builder reuse; one boundary fixture proves only the test reference rejects Grouped. MIR, transient facts, bindings/scopes, local/array contracts, slot/cache state, and allocator counters match exactly. Assignment 16/16, resolver 4/4, recursive 7/7, callable-result 55/55, guard, cargo check, quick 66/66 in 59s, release, formatting, and line caps are green. Production located selectors and callable-result publication remain zero; ASN0-L0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-I0 behavior-neutrally selects the raw Assignment driver from the exact Variable-target branch exactly once. A worker audit found the former shared build_assignment facade also served parked GroupedAssignmentExpr, so Grouped retains its old preflight/descent/completion on a dedicated legacy facade; field/index/compound selectors remain unchanged. Five raw fixtures cover Binary success, undeclared preflight, RHS failure/reuse, field-owner ordering, and Grouped control. Assignment 11/11, resolver 4/4, recursive 7/7, callable-result 55/55, guard, cargo check, quick 66/66 in 62s, release, formatting, and line caps are green. Production located selectors and callable-result publication remain zero; ASN0-P0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-S0 closes one disconnected exact Variable-target Assignment driver. Existing declared-binding preflight precedes one associated RHS descent; existing build_assignment_from_value retains the second check, contracts, ReleaseStrong, and variable publication. Six fixtures cover exact order, undeclared/binding-missing/pin rejection, input/RHS/completion failure, reuse, and raw Binary descent. ASN0 6/6, resolver 4/4, recursive 7/7, callable-result 55/55, guard, quick 66/66 in 76s, release, formatting, and line caps are green. Raw/located production selectors and result publication remain zero; ASN0-I0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-L0 closes one disconnected located Local selector and port. Ordinary initializers retain exact LocalInitializer(index) sites and ledger order; typed-array/record hooks require exact inactive-prefix proof before effects. Six fixtures cover ordinary/nested/short-circuit order, specialized pass/reject boundaries, poisoning, and fresh sessions. Local 21/21, located Local 6/6, callable-result 55/55, guard, cargo check, quick 66/66 in 94s, release, formatting, and line caps are green. Production located roots/result publication remain zero; ASN0-S0 is next.",
@@ -324,5 +325,4 @@ landed_tail = [
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-SC0-I0 behavior-neutrally selects And/Or through one owned raw input and raw port. Lhs remains first, rhs input/lowering occurs only in eval-RHS, ordinary operators remain BIN0, and CFG/PHI/result/type authority stays unchanged. SC0 12/12, BIN0 16/16, located 8/8, callable-result 51/51, guard, quick 66/66, release, formatting, and line caps are green. Located SC0/result publication remain zero; SC0-P0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-SC0-S0 closes one disconnected associated-input short-circuit driver. And/Or lower lhs first and defer rhs input plus lowering until the existing CFG owner enters eval-RHS; that owner retains CFG/PHI/result/type/variable-map authority. SC0 6/6, BIN0 16/16, located 8/8, callable-result 51/51, staged guard, quick 66/66, release, formatting, and line caps are green. Raw/located SC0 adapters and production callers remain zero; SC0-I0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-BIN0-L0 closes one disconnected located ordinary-Binary port. PATH0 alone supplies BinaryLeft/Right; each child proves inactivity or continues to an exact claim, with no RowsUnderPrefix probing. And/Or remain SC0 fail-closed. Located 8/8, BIN0 16/16, recursive 7/7, callable-result 51/51, staged guard, quick 66/66, release, formatting, and line caps are green. Production located callers/result publication remain zero; SC0-S0 is next.",
-  "2026-07-18: SITE0-R0-EXPR0-SPINE0-BIN0-P0 closes exact selected-versus-pre-I0 parity. Four fixtures compare result/error, ordered MIR/terminators, transient types, value kinds, origins, next ValueId, and recursion depth across all 16 ordinary operators, MethodCall children, nested depth 2-4, failures, and reuse. The reference remains test-only; production/located/result authority delta is zero and BIN0-L0 is next.",
 ]

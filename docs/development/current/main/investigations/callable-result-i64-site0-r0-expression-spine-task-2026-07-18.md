@@ -1,5 +1,5 @@
 ---
-Status: ASN0-I0 closed; ASN0-P0 is next
+Status: ASN0-P0 closed; ASN0-L0 is next
 Date: 2026-07-18
 Decision: expand located lowering by one structural child family per row
 Parent: callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md
@@ -62,15 +62,14 @@ SITE0-R0-EXPR0-SPINE0-BIN0-S0
 The sole next code-facing row is:
 
 ```text
-SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-P0
+SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-L0
 ```
 
-`ASN0-I0` is closed. The exact Variable-target branch selects the raw
-Assignment driver once. The pre-I0 `build_assignment` facade was not a safe
-selector boundary because it also served parked `GroupedAssignmentExpr`.
-Grouped now retains the old preflight/descent/completion sequence on a
-dedicated legacy facade; field/index/compound selectors remain unchanged.
-ASN0-P0 may add only a cfg(test)-scoped pre-I0 reference and normalized parity;
+`ASN0-P0` is closed. One cfg(test)-only pre-I0 exact Variable reference has
+normalized parity with the selected route across MIR, transient facts,
+bindings/scopes, local and typed-array contracts, slot/cache state, failures,
+and reuse. Grouped/field/index/compound remain outside that reference. ASN0-L0
+may add only one disconnected located `AssignmentValue` port and fixtures;
 Return, If, Loop, production located root callers, and callable-result
 publication remain unchanged.
 
@@ -534,26 +533,22 @@ recheck, same-Builder reuse, and raw Binary descent. Assignment 6/6, resolver
 caps are green. Raw and located production selectors plus callable-result
 publication remain zero. ASN0-I0 is next.
 
-### ASN0-I0 closeout
+### ASN0-I0/P0 closeout
 
-ASN0-I0 is closed with one production selector in the exact Variable-target
-branch. It delegates to the raw ASN0 facade once; the generic driver still has
-no external production caller. A worker pre-landing audit found that the old
-`build_assignment` facade also served `GroupedAssignmentExpr`, so selecting at
-that shared facade would have widened the admitted surface. Grouped now keeps
-the identical legacy declared-binding preflight, raw RHS lowering, and
-from-value completion behind a dedicated facade. Field, index, and compound
-selectors are unchanged.
+ASN0-I0 selects one exact Variable-target branch. A worker audit found the old
+facade also served `GroupedAssignmentExpr`, so Grouped keeps its identical old
+orchestration on a dedicated legacy facade; field/index/compound remain
+unchanged. ASN0-P0 adds one cfg(test)-only pre-I0 reference, four parity
+fixtures for scalar/Binary/short-circuit RHS, exact and typed-array contracts,
+undeclared and partial-RHS failures plus reuse, and one boundary fixture proving
+that only the test reference rejects Grouped.
 
-Five raw fixtures prove Binary RHS success, undeclared rejection before RHS
-effects, RHS failure plus fresh reuse, field-owner selection before RHS, and
-Grouped success on the parked legacy route. The structural guard fixes one raw
-selector, zero Grouped ASN0 selectors, the three unchanged target-owner
-branches, narrow module visibility, and all files below 800 lines. Production
-Assignment 11/11, resolver 4/4, recursive child 7/7, callable-result 55/55,
-the SPINE0 guard, cargo check, quick 66/66 in 62s, formatting, diff check, and
-release build plus line caps are green. Located selectors and callable-result publication remain
-zero. ASN0-P0 is next.
+Selected/reference result, MIR, transient facts, bindings/scopes, contracts,
+slot/cache state, and allocator counters match exactly. The guard fixes one raw
+selector, one test-only reference, zero Grouped ASN0 selectors, and files below
+800 lines. Assignment 16/16, resolver 4/4, recursive 7/7, callable-result 55/55,
+guard, cargo check, quick 66/66 in 59s, and release are green. Production located
+selectors and callable-result publication remain zero. ASN0-L0 is next.
 
 ## STMT0 — value-bearing statement family
 
@@ -764,9 +759,9 @@ Stop the current row if any of the following becomes necessary:
 > structural associated-input rows. The actual A0 caller proves five active
 > MethodCalls under Binary ancestors, so direct EXPR0-C0 wiring is held.
 > Ordinary Binary, short-circuit Binary, Local initializer descent, and the
-> exact Variable-target Assignment raw selection is closed through ASN0-I0.
+> exact Variable-target Assignment raw selection and parity are closed through ASN0-P0.
 > The sole current shape is
-> `SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-P0`; later value-bearing statements, If, raw suffix
+> `SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-L0`; later value-bearing statements, If, raw suffix
 > admission, and Loop site carriage remain separate owners. BIN0-L0 always
 > uses the located driver for an ordinary Binary and lets each associated child
 > prove inactivity or continue to an exact claim; it never selects a route by
@@ -781,5 +776,5 @@ Stop the current row if any of the following becomes necessary:
 Quick-gate latency is tracked separately in
 [`dev-gate-quick-latency-task-2026-07-18.md`](./dev-gate-quick-latency-task-2026-07-18.md).
 Its first row is `DEV-GATE-Q0-M0`; it does not change this card's active
-`SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-P0` blocker or share a commit with a
+`SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-L0` blocker or share a commit with a
 compiler semantic row.

@@ -28,6 +28,7 @@ def check_asn0_s0(root: Path) -> str:
     module_path = "src/mir/builder/stmts/variable_assignment_descent.rs"
     tests_path = "src/mir/builder/stmts/variable_assignment_descent_tests.rs"
     raw_tests_path = "src/mir/builder/stmts/variable_assignment_raw_tests.rs"
+    parity_tests_path = "src/mir/builder/stmts/variable_assignment_parity_tests.rs"
     stmts_root_path = "src/mir/builder/stmts/mod.rs"
     selector_path = "src/mir/builder/exprs.rs"
     grouped_path = "src/mir/builder/builder_build.rs"
@@ -40,6 +41,7 @@ def check_asn0_s0(root: Path) -> str:
     module = _read(root, module_path)
     tests = _read(root, tests_path)
     raw_tests = _read(root, raw_tests_path)
+    parity_tests = _read(root, parity_tests_path)
     stmts_root = _read(root, stmts_root_path)
     selector = _read(root, selector_path)
     grouped = _read(root, grouped_path)
@@ -132,6 +134,11 @@ def check_asn0_s0(root: Path) -> str:
         stmts_root,
     ):
         _fail("ASN0-I0 raw fixture module must remain cfg(test)-scoped")
+    if not re.search(
+        r"#\[cfg\(test\)\]\s*mod variable_assignment_parity_tests;",
+        stmts_root,
+    ):
+        _fail("ASN0-P0 parity fixture module must remain cfg(test)-scoped")
     _require_count(
         stmts_root,
         "pub(in crate::mir::builder) use variable_assignment_descent::drive_raw_variable_assignment_v1;",
@@ -194,6 +201,50 @@ def check_asn0_s0(root: Path) -> str:
     if "drive_raw_variable_assignment_v1(" in grouped_body:
         _fail("grouped Assignment facade must remain outside ASN0")
 
+    _require_count(
+        parity_tests,
+        "fn lower_pre_i0_assignment_reference(",
+        1,
+        "test-only pre-I0 Assignment reference",
+    )
+    reference_body = parity_tests.split(
+        "fn lower_pre_i0_assignment_reference(", 1
+    )[1].split("fn snapshot(", 1)[0]
+    for required in (
+        "with_legacy_expression_recursion_guard_v1",
+        "ASTNode::Assignment { target, value, .. }",
+        "ASTNode::Variable { name, .. }",
+        "builder.metadata_ctx.set_current_span(span);",
+        "AssignmentResolverBox::ensure_declared(builder, &name)?;",
+        "builder.build_expression(*value)?",
+        "builder.build_assignment_from_value(name, value)",
+    ):
+        if required not in reference_body:
+            _fail(f"ASN0-P0 reference lost pre-I0 step: {required}")
+    span_at = reference_body.index("builder.metadata_ctx.set_current_span(span);")
+    preflight_at = reference_body.index(
+        "AssignmentResolverBox::ensure_declared(builder, &name)?;"
+    )
+    rhs_at = reference_body.index("builder.build_expression(*value)?")
+    completion_at = reference_body.index("builder.build_assignment_from_value(name, value)")
+    if not span_at < preflight_at < rhs_at < completion_at:
+        _fail("ASN0-P0 reference order must be span -> preflight -> RHS -> completion")
+    for forbidden in (
+        "drive_variable_assignment_v1(",
+        "drive_raw_variable_assignment_v1(",
+        "VariableAssignmentDescentPortV1",
+        "ASTNode::FieldAccess",
+        "ASTNode::Index",
+        "ASTNode::CompoundAssignment",
+    ):
+        if forbidden in reference_body:
+            _fail(f"ASN0-P0 reference owns forbidden surface: {forbidden}")
+    for path in (root / "src").rglob("*.rs"):
+        if path.resolve() == (root / parity_tests_path).resolve():
+            continue
+        if "lower_pre_i0_assignment_reference(" in path.read_text(encoding="utf-8"):
+            _fail(f"test-only Assignment reference escaped parity module: {path}")
+
     for fixture in (
         "declared_target_preflights_then_descends_rhs_and_completes_once",
         "undeclared_binding_missing_and_pin_targets_reject_before_rhs_effects",
@@ -215,6 +266,34 @@ def check_asn0_s0(root: Path) -> str:
         if fixture not in raw_tests:
             _fail(f"missing ASN0-I0 raw fixture: {fixture}")
 
+    for fixture in (
+        "literal_binary_and_short_circuit_rhs_have_exact_pre_i0_snapshot_parity",
+        "exact_local_contract_reassignment_has_exact_pre_i0_snapshot_parity",
+        "typed_array_reassignment_has_exact_pre_i0_snapshot_parity",
+        "undeclared_and_rhs_failures_plus_reuse_have_exact_pre_i0_snapshot_parity",
+        "pre_i0_reference_rejects_grouped_assignment_before_effects",
+    ):
+        if fixture not in parity_tests:
+            _fail(f"missing ASN0-P0 parity fixture: {fixture}")
+    for snapshot_fact in (
+        "blocks:",
+        "value_types:",
+        "value_kinds:",
+        "value_origins:",
+        "variable_map:",
+        "bindings:",
+        "scope_frames:",
+        "local_slot_contracts:",
+        "typed_array_contract_sources:",
+        "slot_registry:",
+        "local_ssa_map:",
+        "schedule_mat_map:",
+        "next_value_id:",
+        "recursion_depth:",
+    ):
+        if snapshot_fact not in parity_tests:
+            _fail(f"ASN0-P0 snapshot misses fact: {snapshot_fact}")
+
     for phrase in (
         "exact Variable-target",
         "field/index target syntax is structurally absent",
@@ -223,6 +302,8 @@ def check_asn0_s0(root: Path) -> str:
         "second completion-time declaration check is retained",
         "selects this raw driver exactly once",
         "`GroupedAssignmentExpr` remains",
+        "ASN0-P0 retains the pre-I0 exact Variable orchestration",
+        "reference rejects Grouped, field, index, and compound surfaces",
         "parity reference and located `AssignmentValue` navigation",
     ):
         if phrase not in readme:
@@ -232,6 +313,7 @@ def check_asn0_s0(root: Path) -> str:
         module_path,
         tests_path,
         raw_tests_path,
+        parity_tests_path,
         stmts_root_path,
         selector_path,
         grouped_path,
@@ -246,4 +328,4 @@ def check_asn0_s0(root: Path) -> str:
     if re.search(r"Arc<|Rc<|thread_local!|static mut", module):
         _fail("ASN0 substrate must remain stack-scoped and immutable")
 
-    return "asn_driver=1 asn_e0_descents=1 asn_raw_impl=1 asn_raw_selectors=1 asn_grouped_selectors=0"
+    return "asn_driver=1 asn_e0_descents=1 asn_raw_impl=1 asn_raw_selectors=1 asn_parity_reference=1 asn_grouped_selectors=0"

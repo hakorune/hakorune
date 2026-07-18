@@ -123,6 +123,8 @@ mod local_statement_raw_tests;
 #[cfg(test)]
 mod variable_assignment_descent_tests;
 #[cfg(test)]
+mod variable_assignment_parity_tests;
+#[cfg(test)]
 mod variable_assignment_raw_tests;
 
 use super::ValueId;
