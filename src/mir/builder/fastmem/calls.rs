@@ -3,6 +3,8 @@
 //! This module owns the source-call vocabulary for the memory-profile dialect.
 //! It maps `mem.*` helper calls to MemOps or metadata facts, but it does not
 //! choose backend lowering routes.
+//! Function-call and MethodCall facades share one intrinsic/preflight core;
+//! each facade supplies only its existing indexed expression descent.
 
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::builder::MirBuilder;
@@ -83,15 +85,21 @@ pub(crate) fn lower_fastmem_function_call(
             name
         ));
     };
-    lower_fastmem_intrinsic(builder, region, spec, arguments)
+    lower_fastmem_intrinsic_with(builder, region, spec, &arguments, |builder, index| {
+        builder.build_expression(arguments[index].clone())
+    })
 }
 
-fn lower_fastmem_intrinsic(
+fn lower_fastmem_intrinsic_with<Lower>(
     builder: &mut MirBuilder,
     region: FastMemRegionId,
     spec: FastMemIntrinsicSpec,
-    arguments: Vec<ASTNode>,
-) -> Result<ValueId, String> {
+    arguments: &[ASTNode],
+    mut lower_argument: Lower,
+) -> Result<ValueId, String>
+where
+    Lower: FnMut(&mut MirBuilder, usize) -> Result<ValueId, String>,
+{
     let call = spec.call_name;
     let expected = spec.arity.expected();
     if arguments.len() != expected {
@@ -105,7 +113,7 @@ fn lower_fastmem_intrinsic(
 
     match spec.intrinsic {
         FastMemIntrinsic::Addr => {
-            let arg = single_fastmem_arg(builder, region, call, arguments)?;
+            let arg = lower_argument(builder, 0)?;
             builder.emit_fastmem_value_memop(region, MemOpKind::AddrOf, vec![arg])
         }
         FastMemIntrinsic::CurrentAllocOwnerId => {
@@ -113,21 +121,21 @@ fn lower_fastmem_intrinsic(
             builder.emit_fastmem_value_memop(region, MemOpKind::CurrentAllocOwnerId, Vec::new())
         }
         FastMemIntrinsic::OwnerEq => {
-            let args = lower_fastmem_args(builder, region, arguments)?;
+            let args = lower_fastmem_args_with(builder, arguments.len(), &mut lower_argument)?;
             builder.emit_fastmem_value_memop(region, MemOpKind::OwnerEq, args)
         }
         FastMemIntrinsic::LocalFreePush => {
-            let args = lower_fastmem_args(builder, region, arguments)?;
+            let args = lower_fastmem_args_with(builder, arguments.len(), &mut lower_argument)?;
             builder.emit_fastmem_memop(region, MemOpKind::LocalFreePush, None, args, None)?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
         FastMemIntrinsic::FreeHeadPush => {
-            let args = lower_fastmem_args(builder, region, arguments)?;
+            let args = lower_fastmem_args_with(builder, arguments.len(), &mut lower_argument)?;
             builder.emit_fastmem_memop(region, MemOpKind::FreeHeadPush, None, args, None)?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
         FastMemIntrinsic::AtomicRemoteHeadPush => {
-            let args = lower_fastmem_args(builder, region, arguments)?;
+            let args = lower_fastmem_args_with(builder, arguments.len(), &mut lower_argument)?;
             builder.emit_fastmem_memop(
                 region,
                 MemOpKind::AtomicRemoteHeadPush,
@@ -138,11 +146,11 @@ fn lower_fastmem_intrinsic(
             crate::mir::builder::emission::constant::emit_void(builder)
         }
         FastMemIntrinsic::AtomicRemoteHeadDrain => {
-            let arg = single_fastmem_arg(builder, region, call, arguments)?;
+            let arg = lower_argument(builder, 0)?;
             builder.emit_fastmem_value_memop(region, MemOpKind::AtomicRemoteHeadDrain, vec![arg])
         }
         FastMemIntrinsic::DrainRemoteListToLocal => {
-            let args = lower_fastmem_args(builder, region, arguments)?;
+            let args = lower_fastmem_args_with(builder, arguments.len(), &mut lower_argument)?;
             builder.emit_fastmem_memop(
                 region,
                 MemOpKind::DrainRemoteListToLocal,
@@ -153,25 +161,25 @@ fn lower_fastmem_intrinsic(
             crate::mir::builder::emission::constant::emit_void(builder)
         }
         FastMemIntrinsic::LocalFreePop => {
-            let arg = single_fastmem_arg(builder, region, call, arguments)?;
+            let arg = lower_argument(builder, 0)?;
             builder.emit_fastmem_value_memop(region, MemOpKind::LocalFreePop, vec![arg])
         }
         FastMemIntrinsic::FreeHeadPop => {
-            let arg = single_fastmem_arg(builder, region, call, arguments)?;
+            let arg = lower_argument(builder, 0)?;
             builder.emit_fastmem_value_memop(region, MemOpKind::FreeHeadPop, vec![arg])
         }
         FastMemIntrinsic::AssumeSameOwner => {
-            let args = lower_fastmem_args(builder, region, arguments)?;
+            let args = lower_fastmem_args_with(builder, arguments.len(), &mut lower_argument)?;
             builder.add_fastmem_same_owner_fact(region, args[0], args[1])?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
         FastMemIntrinsic::AssumeRemoteOwner => {
-            let arg = single_fastmem_arg(builder, region, call, arguments)?;
+            let arg = lower_argument(builder, 0)?;
             builder.add_fastmem_remote_owner_fact(region, arg)?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
         FastMemIntrinsic::AssumeLocalFreeBlockNext => {
-            let arg = single_fastmem_arg(builder, region, call, arguments)?;
+            let arg = lower_argument(builder, 0)?;
             builder.add_fastmem_block_next_fact(
                 region,
                 arg,
@@ -180,7 +188,7 @@ fn lower_fastmem_intrinsic(
             crate::mir::builder::emission::constant::emit_void(builder)
         }
         FastMemIntrinsic::AssumeFreeHeadBlockNext => {
-            let arg = single_fastmem_arg(builder, region, call, arguments)?;
+            let arg = lower_argument(builder, 0)?;
             builder.add_fastmem_block_next_fact(
                 region,
                 arg,
@@ -189,7 +197,7 @@ fn lower_fastmem_intrinsic(
             crate::mir::builder::emission::constant::emit_void(builder)
         }
         FastMemIntrinsic::AssumeRemoteFreeBlockNext => {
-            let arg = single_fastmem_arg(builder, region, call, arguments)?;
+            let arg = lower_argument(builder, 0)?;
             builder.add_fastmem_block_next_fact(
                 region,
                 arg,
@@ -198,19 +206,19 @@ fn lower_fastmem_intrinsic(
             crate::mir::builder::emission::constant::emit_void(builder)
         }
         FastMemIntrinsic::AssumeLocalFreeNonEmpty => {
-            let arg = single_fastmem_arg(builder, region, call, arguments)?;
+            let arg = lower_argument(builder, 0)?;
             builder.add_fastmem_local_free_non_empty_fact(region, arg)?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
         FastMemIntrinsic::AssumeFreeHeadNonEmpty => {
-            let arg = single_fastmem_arg(builder, region, call, arguments)?;
+            let arg = lower_argument(builder, 0)?;
             builder.add_fastmem_free_head_non_empty_fact(region, arg)?;
             crate::mir::builder::emission::constant::emit_void(builder)
         }
         FastMemIntrinsic::AssumeTableLength => {
             let table_id = fastmem_table_length_table_id(&arguments[0])?;
             let resolved_length = fastmem_positive_usize_source_value(builder, &arguments[1])?;
-            let args = lower_fastmem_args(builder, region, arguments)?;
+            let args = lower_fastmem_args_with(builder, arguments.len(), &mut lower_argument)?;
             builder.add_fastmem_table_length_fact(
                 region,
                 table_id,
@@ -222,7 +230,7 @@ fn lower_fastmem_intrinsic(
         }
         FastMemIntrinsic::AssumeIndexInRange => {
             let resolved_upper = fastmem_positive_usize_source_value(builder, &arguments[1])?;
-            let args = lower_fastmem_args(builder, region, arguments)?;
+            let args = lower_fastmem_args_with(builder, arguments.len(), &mut lower_argument)?;
             let upper_value =
                 builder.canonical_fastmem_range_upper_value(region, resolved_upper, args[1])?;
             builder.add_fastmem_range_index_fact(args[0], upper_value)?;
@@ -231,41 +239,41 @@ fn lower_fastmem_intrinsic(
     }
 }
 
-pub(crate) fn lower_fastmem_method_call(
-    builder: &mut MirBuilder,
-    _region: FastMemRegionId,
-    method: String,
-    arguments: Vec<ASTNode>,
-) -> Result<ValueId, String> {
-    lower_fastmem_function_call(builder, _region, format!("mem.{}", method), arguments)
-}
-
-fn lower_fastmem_args(
-    builder: &mut MirBuilder,
-    _region: FastMemRegionId,
-    arguments: Vec<ASTNode>,
-) -> Result<Vec<ValueId>, String> {
-    arguments
-        .into_iter()
-        .map(|arg| builder.build_expression(arg))
-        .collect()
-}
-
-fn single_fastmem_arg(
+pub(in crate::mir::builder) fn lower_fastmem_method_call_with_port<Port>(
     builder: &mut MirBuilder,
     region: FastMemRegionId,
-    call: &str,
-    arguments: Vec<ASTNode>,
-) -> Result<ValueId, String> {
-    let mut args = lower_fastmem_args(builder, region, arguments)?;
-    if args.len() != 1 {
+    method: &str,
+    arguments: &[ASTNode],
+    port: &mut Port,
+    input: &Port::MethodCallInput,
+) -> Result<ValueId, String>
+where
+    Port: crate::mir::builder::calls::MethodCallDescentPortV1,
+{
+    let name = format!("mem.{method}");
+    let Some(spec) = lookup_fastmem_intrinsic(&name) else {
         return Err(format!(
-            "[freeze:contract][fastmem/arity] call={} expected=1 actual={}",
-            call,
-            args.len()
+            "[freeze:contract][fastmem/forbidden_call] call={name}"
         ));
+    };
+    lower_fastmem_intrinsic_with(builder, region, spec, arguments, |builder, index| {
+        crate::mir::builder::calls::lower_method_call_argument_v1(builder, port, input, index)
+    })
+}
+
+fn lower_fastmem_args_with<Lower>(
+    builder: &mut MirBuilder,
+    count: usize,
+    lower_argument: &mut Lower,
+) -> Result<Vec<ValueId>, String>
+where
+    Lower: FnMut(&mut MirBuilder, usize) -> Result<ValueId, String>,
+{
+    let mut values = Vec::with_capacity(count);
+    for index in 0..count {
+        values.push(lower_argument(builder, index)?);
     }
-    Ok(args.remove(0))
+    Ok(values)
 }
 
 fn ensure_no_fastmem_args(call: &str, arguments: &[ASTNode]) -> Result<(), String> {

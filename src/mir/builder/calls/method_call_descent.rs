@@ -66,6 +66,20 @@ pub(in crate::mir::builder) trait MethodCallDescentPortV1:
     ) -> Result<&'input Self::ArgumentsInput, String>;
 }
 
+pub(in crate::mir::builder) fn lower_method_call_argument_v1<Port>(
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    input: &Port::MethodCallInput,
+    index: usize,
+) -> Result<ValueId, String>
+where
+    Port: MethodCallDescentPortV1,
+{
+    let arguments = port.call_arguments_input(input)?;
+    let expression = port.argument_expression_input(arguments, index)?;
+    drive_legacy_expression_v1(builder, port, expression)
+}
+
 pub(in crate::mir::builder) fn lower_method_call_receiver_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
@@ -109,6 +123,10 @@ impl RawLegacyMethodCallInputV1 {
             method,
             arguments,
         }
+    }
+
+    pub(in crate::mir::builder) fn into_parts(self) -> (ASTNode, String, Vec<ASTNode>) {
+        (self.receiver, self.method, self.arguments)
     }
 }
 

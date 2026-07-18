@@ -53,7 +53,7 @@ def main() -> None:
         for path in (root / "src/mir/builder").rglob("*.rs")
         if not path.name.endswith("_tests.rs")
     )
-    require_count(builder_sources, "build_call_args(", 11, "stable build_call_args surface")
+    require_count(builder_sources, "build_call_args(", 10, "raw ARG0 facade surface")
 
     for forbidden in (
         "MemberCallRoutePlan",

@@ -40,3 +40,12 @@ The GUARD0 owner lives at the raw expression port implementation. Public and
 nested raw expression descent both reach that owner exactly once; the public
 facade owns no second depth counter. Limit failure and ordinary lowering
 failure both restore the entry depth before the same Builder session is reused.
+
+ROUTE0-R0 selects the neutral reserved-route decision once, then requests only
+the children that route already evaluates. Reserved receivers are syntax-only.
+MIR-debug labels and every `mark` extra argument remain unevaluated; `log`
+descends only indices one and later through the indexed E0 primitive. REPL uses
+the full ARG0 boundary. FastMem keeps its syntax preflight before indexed E0
+descent and shares one intrinsic core with its function-call facade. Ordinary and
+reserved-failure decisions descend no children. Terminal emission, result/type
+publication, located inputs, and ledger authorization remain outside R0.

@@ -6,8 +6,8 @@ use super::super::recursive_child_lowering::{
 };
 use super::call_argument_descent::CallArgumentDescentPortV1;
 use super::method_call_descent::{
-    lower_method_call_arguments_v1, lower_method_call_receiver_v1, MethodCallDescentPortV1,
-    MethodCallSyntaxViewV1, RawLegacyMethodCallInputV1,
+    lower_method_call_argument_v1, lower_method_call_arguments_v1, lower_method_call_receiver_v1,
+    MethodCallDescentPortV1, MethodCallSyntaxViewV1, RawLegacyMethodCallInputV1,
 };
 
 fn integer(value: i64) -> ASTNode {
@@ -193,6 +193,36 @@ impl MethodCallDescentPortV1 for DistinctMethodCallPort {
     ) -> Result<&'input Self::ArgumentsInput, String> {
         Ok(&input.arguments)
     }
+}
+
+#[test]
+fn raw_single_argument_descent_skips_syntax_only_neighbors() {
+    let input = RawLegacyMethodCallInputV1::new(
+        variable("__mir__"),
+        "log".to_string(),
+        vec![integer(10), integer(11), integer(12)],
+    );
+    let mut port = RawLegacyChildLoweringPortV1;
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("method_argument_range/0".to_string());
+
+    let value = lower_method_call_argument_v1(&mut builder, &mut port, &input, 1).unwrap();
+    let integer_values = instructions(&builder)
+        .into_iter()
+        .filter_map(|instruction| match instruction {
+            MirInstruction::Const {
+                value: crate::mir::ConstValue::Integer(value),
+                ..
+            } => Some(value),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+
+    assert_eq!(integer_values, vec![11]);
+    assert!(instructions(&builder).iter().any(|instruction| matches!(
+        instruction,
+        MirInstruction::Const { dst, .. } if *dst == value
+    )));
 }
 
 #[test]

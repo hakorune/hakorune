@@ -1,5 +1,5 @@
 ---
-Status: SITE0-R0-EXPR0-M0-GUARD0 closed; SITE0-R0-EXPR0-M0-ROUTE0-R0 is the next code-facing row
+Status: SITE0-R0-EXPR0-M0-ROUTE0-R0 closed; SITE0-R0-EXPR0-M0-ROUTE0-M0 is the next code-facing row
 Date: 2026-07-18
 Decision: Candidate A owned single-use activation plan plus located legacy input
 Baseline: fe2d61baa0
@@ -625,6 +625,39 @@ no later child effects occur. E0, ARG0, and ROUTE0 focused regressions plus the
 callable-result suite remain green. No route, accepted grammar, MIR result,
 located input, ledger, runtime, backend, or ownership authority is added.
 `SITE0-R0-EXPR0-M0-ROUTE0-R0` is next.
+
+## SITE0-R0-EXPR0-M0-ROUTE0-R0 closeout
+
+`I0-SITE0-R0-EXPR0-M0-ROUTE0-R0` is closed. One private non-Clone
+`PreparedReservedMethodCallV1` consumes the neutral reserved-route decision
+once and co-seals the active FastMem region when required. The production
+MethodCall entry constructs one stack-scoped raw MethodCall input and port,
+selects the reserved driver once, and reuses the same owned input for the
+ordinary member route. Reserved receiver descent remains zero.
+
+The exact child matrix is preserved. MIR-debug labels are syntax-only;
+`mark` descends no arguments and `log` descends only source indices one and
+later through one indexed E0 primitive with the existing suffix-relative
+undefined-value observation. REPL alone uses the full ARG0 boundary. FastMem
+function and method facades share one intrinsic/preflight core, while each
+supplies its prior indexed expression descent; arity and table/range syntax
+preflight still precede child effects. Ordinary and reserved-failure decisions
+descend no children. Terminal emission, effects, destination/type/result
+publication, located inputs, ledger authorization, and accepted grammar remain
+unchanged.
+
+The actual A0 Parser fixture has zero reserved-route sites: its 15 rows remain
+9 current-owner `me` calls, 2 selected static `skip_ws` calls, and 4 standard
+String calls. A future located cutover must stop if a non-evaluated MIR-debug
+label/`mark` child contains an activation row, because A0 currently inventories
+all MethodCall children while the legacy route intentionally evaluates fewer.
+R0 does not weaken the existing inactive-prefix proof or ledger.
+
+Reserved 11/11, MethodCall port 4/4, ARG0 5/5, E0 6/6, callable-result 43/43,
+reserved policy 5/5, moved-state 3/3, FastMem non-drift 72/72, all structural
+guards, release check, pointer guard, formatting, and line caps are green. The
+two broad FastMem assertion drifts documented at E0 remain reproducible and are
+not R0 regressions. `SITE0-R0-EXPR0-M0-ROUTE0-M0` is next.
 
 ## Required fixtures
 

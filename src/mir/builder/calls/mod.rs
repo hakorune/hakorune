@@ -46,6 +46,9 @@ pub mod lowering;
 pub mod materializer;
 pub mod member_route; // Member call route plan + emit handoff
 mod method_call_descent;
+pub(in crate::mir::builder) use method_call_descent::{
+    lower_method_call_argument_v1, MethodCallDescentPortV1,
+};
 #[cfg(test)]
 mod method_call_descent_tests;
 pub mod parameter_setup; // Step 3: Parameter setup and binding (static/instance methods)

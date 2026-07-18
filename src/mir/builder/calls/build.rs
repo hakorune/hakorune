@@ -128,13 +128,18 @@ impl MirBuilder {
         // Section 2: Special Method Handlers (special_method_handlers module)
         // ========================================
 
-        match self.build_reserved_method_call(&object, &method, &arguments)? {
+        let input =
+            super::method_call_descent::RawLegacyMethodCallInputV1::new(object, method, arguments);
+        let mut port = super::super::recursive_child_lowering::RawLegacyChildLoweringPortV1;
+        match super::reserved_method_route::build_reserved_method_call_v1(self, &mut port, &input)?
+        {
             super::reserved_method_route::ReservedMethodCallOutcomeV1::Ordinary => {}
             super::reserved_method_route::ReservedMethodCallOutcomeV1::Emitted(value) => {
                 return Ok(value)
             }
         }
 
+        let (object, method, arguments) = input.into_parts();
         let route_plan = self.plan_member_call_route(&object, &method)?;
         self.emit_member_call_from_plan(route_plan, object, method, arguments)
     }

@@ -33,11 +33,8 @@ impl MirBuilder {
     pub(super) fn build_selected_repl_method_call(
         &mut self,
         method: ReplIntrinsicMethodV1,
-        arguments: &[ASTNode],
+        arg_values: Vec<ValueId>,
     ) -> Result<ValueId, String> {
-        // Build argument values
-        let arg_values = self.build_call_args(arguments)?;
-
         // Emit ExternCall instruction
         let dst = self.next_value_id();
         self.emit_extern_call_with_effects(
@@ -63,38 +60,8 @@ impl MirBuilder {
         &mut self,
         method: MirDebugMethodV1,
         label: &str,
-        arguments: &[ASTNode],
+        values: Vec<ValueId>,
     ) -> Result<ValueId, String> {
-        // 残りの引数を評価して ValueId を集める
-        let mut values: Vec<ValueId> = Vec::new();
-        if method == MirDebugMethodV1::Log {
-            for (arg_idx, arg) in arguments[1..].iter().enumerate() {
-                let v = self.build_expression(arg.clone())?;
-
-                // Debug-only observation: check for undefined ValueId immediately after build
-                if crate::config::env::joinir_dev::debug_enabled() {
-                    if let Some(func) = self.scope_ctx.current_function.as_ref() {
-                        let def_blocks = crate::mir::verification::utils::compute_def_blocks(func);
-
-                        if !def_blocks.contains_key(&v) {
-                            // Found undefined ValueId - log AST type and span
-                            crate::runtime::get_global_ring0().log.error(&format!("[call/arg_build:undefined_value] fn={} bb={:?} arg_idx={} v=%{} ast={} span={:?} next={}",
-                                func.signature.name,
-                                self.current_block,
-                                arg_idx,
-                                v.0,
-                                arg.node_type(),
-                                arg.span(),
-                                func.next_value_id
-                            ));
-                        }
-                    }
-                }
-
-                values.push(v);
-            }
-        }
-
         // 式コンテキスト用の戻り値（呼び出し元では通常使われない）
         let void_value = crate::mir::builder::emission::constant::emit_void(self)?;
 
@@ -117,6 +84,34 @@ impl MirBuilder {
         }
 
         Ok(void_value)
+    }
+
+    pub(super) fn observe_selected_mir_debug_argument(
+        &self,
+        syntax: &ASTNode,
+        argument_index: usize,
+        value: ValueId,
+    ) {
+        if !crate::config::env::joinir_dev::debug_enabled() {
+            return;
+        }
+        let Some(function) = self.scope_ctx.current_function.as_ref() else {
+            return;
+        };
+        let def_blocks = crate::mir::verification::utils::compute_def_blocks(function);
+        if def_blocks.contains_key(&value) {
+            return;
+        }
+        crate::runtime::get_global_ring0().log.error(&format!(
+            "[call/arg_build:undefined_value] fn={} bb={:?} arg_idx={} v=%{} ast={} span={:?} next={}",
+            function.signature.name,
+            self.current_block,
+            argument_index,
+            value.0,
+            syntax.node_type(),
+            syntax.span(),
+            function.next_value_id
+        ));
     }
 
     /// Debug trace for receiver (if enabled)
