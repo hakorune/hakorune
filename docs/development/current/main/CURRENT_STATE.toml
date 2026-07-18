@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result IF0-P0 is closed; IF0-L0 is next"
+status = "callable-result IF0-L0 is parked behind BODYDOMAIN0-S0"
 date = "2026-07-18"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -296,16 +296,16 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 
-latest_card = "callable-result-i64-site0-r0-expression-spine-task-2026-07-18"
-latest_card_path = "docs/development/current/main/investigations/callable-result-i64-site0-r0-expression-spine-task-2026-07-18.md"
-latest_card_summary = """IF0-P0 is closed. One cfg(test)-only pre-I0 reference
-replays the retired ordinary/FastMem statement-If orchestration without using
-the selected driver. Six fixture groups prove exact selected/reference parity
-across CFG edges and spans, PHIs, transient facts, scope/allocator state,
-termination, failures and reuse, FastMem, recursion boundaries, and branch
-Program spans. Production behavior and caller counts remain unchanged.
-IF0-L0 is next."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-SPINE0-IF0-L0-001"
+latest_card = "callable-result-located-body-domain-task-2026-07-18"
+latest_card_path = "docs/development/current/main/investigations/callable-result-located-body-domain-task-2026-07-18.md"
+latest_card_summary = """IF0-L0 pre-connection fixtures found one false-inactive
+body proof: canonical activation rows use parent-plus-item sites while the
+legacy located body carrier concatenates a semantic body-root and item. The
+selected prerequisite keeps activation paths unchanged, makes located bodies
+retain parent statement plus body kind, and gives the caller ledger one typed
+body-domain membership proof. Production behavior/callers remain zero.
+BODYDOMAIN0-S0 is next; IF0-L0 remains parked."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-LDG0-BODYDOMAIN0-S0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
