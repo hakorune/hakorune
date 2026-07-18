@@ -646,3 +646,11 @@ Stop the current row if any of the following becomes necessary:
 > 15-row caller completes one exact located traversal and ledger finish with no
 > raw active-subtree escape, no retry, and no duplicated route/control/result
 > authority.
+
+## Parked tools/DX task
+
+Quick-gate latency is tracked separately in
+[`dev-gate-quick-latency-task-2026-07-18.md`](./dev-gate-quick-latency-task-2026-07-18.md).
+Its first row is `DEV-GATE-Q0-M0`; it does not change this card's active
+`SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-S0` blocker or share a commit with a
+compiler semantic row.
