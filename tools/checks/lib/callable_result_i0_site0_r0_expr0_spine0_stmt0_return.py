@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Private RET0-S0 structural checks for the public EXPR0-SPINE0 guard."""
+"""Private RET0-S0/I0 structural checks for the public EXPR0-SPINE0 guard."""
 
 from __future__ import annotations
 
@@ -27,7 +27,9 @@ def _require_count(text: str, needle: str, expected: int, label: str) -> None:
 def check_ret0_s0(root: Path) -> str:
     descent_path = "src/mir/builder/stmts/return_statement_descent.rs"
     tests_path = "src/mir/builder/stmts/return_statement_descent_tests.rs"
+    raw_tests_path = "src/mir/builder/stmts/return_statement_raw_tests.rs"
     return_owner_path = "src/mir/builder/stmts/return_stmt.rs"
+    expression_owner_path = "src/mir/builder/exprs.rs"
     stmts_root_path = "src/mir/builder/stmts/mod.rs"
     readme_path = "src/mir/builder/stmts/README.md"
     helper_path = (
@@ -37,7 +39,9 @@ def check_ret0_s0(root: Path) -> str:
 
     descent = _read(root, descent_path)
     tests = _read(root, tests_path)
+    raw_tests = _read(root, raw_tests_path)
     return_owner = _read(root, return_owner_path)
+    expression_owner = _read(root, expression_owner_path)
     stmts_root = _read(root, stmts_root_path)
     readme = _read(root, readme_path)
 
@@ -152,15 +156,21 @@ def check_ret0_s0(root: Path) -> str:
     )
     _require_count(
         return_owner,
-        "try_apply_match_return_optimization(builder, value.as_deref(), true)?",
+        "try_apply_match_return_optimization(builder, None, true)?",
         1,
-        "legacy match-return selection preserved",
+        "legacy Void match observation preserved",
     )
     _require_count(
         return_owner,
         "builder.build_expression(*expr)?",
+        0,
+        "retired inline value lowering",
+    )
+    _require_count(
+        return_owner,
+        "super::return_statement_descent::drive_raw_value_return_statement_v1(",
         1,
-        "legacy value lowering preserved",
+        "existing Return facade raw value selector",
     )
     _require_count(
         return_owner,
@@ -175,9 +185,55 @@ def check_ret0_s0(root: Path) -> str:
         "legacy Return completion preserved",
     )
 
+    facade_start = return_owner.index(
+        "pub(in crate::mir::builder) fn build_return_statement("
+    )
+    facade = return_owner[facade_start:]
+    _require_count(
+        facade,
+        "if let Some(expr) = value {",
+        1,
+        "exact value-bearing Return selector",
+    )
+    if not re.search(
+        r"if let Some\(expr\) = value \{\s*"
+        r"return super::return_statement_descent::"
+        r"drive_raw_value_return_statement_v1\(\s*builder, \*expr,\s*\);\s*\}",
+        facade,
+    ):
+        _fail("RET0-I0 Some selector must early-return through the raw driver")
+
+    selector_at = facade.index("if let Some(expr) = value {")
+    raw_at = facade.index(
+        "return super::return_statement_descent::drive_raw_value_return_statement_v1("
+    )
+    cleanup_at = facade.index("ensure_return_allowed(builder)?;")
+    void_match_at = facade.index(
+        "try_apply_match_return_optimization(builder, None, true)?"
+    )
+    void_at = facade.index(
+        "crate::mir::builder::emission::constant::emit_void(builder)?"
+    )
+    facade_completion_at = facade.index(
+        "emit_return_from_value(builder, return_value)"
+    )
+    if not (
+        selector_at
+        < raw_at
+        < cleanup_at
+        < void_match_at
+        < void_at
+        < facade_completion_at
+    ):
+        _fail(
+            "RET0-I0 order must be Some/raw early return before "
+            "Void cleanup -> match(None) -> emit_void -> completion"
+        )
+
     ignored = {
         (root / descent_path).resolve(),
         (root / tests_path).resolve(),
+        (root / raw_tests_path).resolve(),
     }
     driver_callers = 0
     raw_callers = 0
@@ -189,8 +245,17 @@ def check_ret0_s0(root: Path) -> str:
         raw_callers += source.count("drive_raw_value_return_statement_v1(")
     if driver_callers != 0:
         _fail(f"RET0-S0 production driver callers must be zero: actual={driver_callers}")
-    if raw_callers != 0:
-        _fail(f"RET0-S0 raw production selectors must be zero: actual={raw_callers}")
+    if raw_callers != 1:
+        _fail(f"RET0-I0 raw production selectors must be one: actual={raw_callers}")
+
+    _require_count(
+        expression_owner,
+        "super::stmts::return_stmt::build_return_statement(self, stmt.value.clone())",
+        1,
+        "unchanged expression-to-Return facade entry",
+    )
+    if "drive_raw_value_return_statement_v1(" in expression_owner:
+        _fail("RET0-I0 expression dispatch must not become a second Return policy owner")
 
     _require_count(
         stmts_root,
@@ -203,6 +268,11 @@ def check_ret0_s0(root: Path) -> str:
         stmts_root,
     ):
         _fail("RET0-S0 fixture module must remain cfg(test)-scoped")
+    if not re.search(
+        r"#\[cfg\(test\)\]\s*mod return_statement_raw_tests;",
+        stmts_root,
+    ):
+        _fail("RET0-I0 raw fixture module must remain cfg(test)-scoped")
 
     for fixture in (
         "cleanup_precedes_match_child_and_return_effects",
@@ -217,6 +287,17 @@ def check_ret0_s0(root: Path) -> str:
         if fixture not in tests:
             _fail(f"missing RET0-S0 fixture: {fixture}")
 
+    for fixture in (
+        "raw_value_return_selects_owned_descent_for_actual_method_call",
+        "raw_void_return_stays_on_legacy_facade",
+        "raw_match_return_keeps_existing_selection_owner_without_second_completion",
+        "raw_configured_defer_keeps_exact_copy_jump_completion",
+        "raw_cleanup_and_child_failures_leave_no_terminator_then_reuse",
+    ):
+        if fixture not in raw_tests:
+            _fail(f"missing RET0-I0 raw fixture: {fixture}")
+
+    normalized_readme = " ".join(readme.split())
     for phrase in (
         "one disconnected orchestration boundary for",
         "runs the existing cleanup prohibition first",
@@ -225,14 +306,18 @@ def check_ret0_s0(root: Path) -> str:
         "existing `emit_return_from_value` owner",
         "does not admit `return;`",
         "must not reconstruct",
+        "selects that driver exactly once inside the existing Return facade",
+        "keeps the `None` branch on the legacy Void path",
     ):
-        if phrase not in readme:
+        if phrase not in normalized_readme:
             _fail(f"missing RET0-S0 README boundary: {phrase}")
 
     touched = (
         descent_path,
         tests_path,
+        raw_tests_path,
         return_owner_path,
+        expression_owner_path,
         stmts_root_path,
         readme_path,
         helper_path,
@@ -245,4 +330,7 @@ def check_ret0_s0(root: Path) -> str:
     if re.search(r"Arc<|Rc<|thread_local!|static mut", descent):
         _fail("RET0-S0 substrate must remain stack-scoped and non-persistent")
 
-    return "ret_driver=1 ret_e0_descents=1 ret_match_hook=1 ret_production_callers=0"
+    return (
+        "ret_driver=1 ret_e0_descents=1 ret_match_hook=1 "
+        "ret_raw_selectors=1 ret_located_selectors=0"
+    )

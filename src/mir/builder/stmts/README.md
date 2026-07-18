@@ -132,3 +132,11 @@ cleanup rejection happens before port observation, while match-hook, input,
 or child failure emits no Return completion. The driver must not reconstruct
 sites, inspect Match facts, emit Return directly, retry another route, or
 store its input/port in `MirBuilder`.
+
+RET0-I0 selects that driver exactly once inside the existing Return facade
+when the source value is present. The facade performs no cleanup or Match work
+before selection; those remain ordered once inside the driver. It keeps the
+`None` branch on the legacy Void path, including cleanup, the existing
+no-value Match observation, `emit_void`, and the existing completion owner.
+Expression dispatch remains a thin caller of the Return facade, and failure
+never retries the retired inline value-lowering route.

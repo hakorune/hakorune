@@ -237,19 +237,21 @@ pub(in crate::mir::builder) fn build_return_statement(
     builder: &mut MirBuilder,
     value: Option<Box<ASTNode>>,
 ) -> Result<ValueId, String> {
+    if let Some(expr) = value {
+        return super::return_statement_descent::drive_raw_value_return_statement_v1(
+            builder, *expr,
+        );
+    }
+
     ensure_return_allowed(builder)?;
 
-    if let Some(return_value) =
-        try_apply_match_return_optimization(builder, value.as_deref(), true)?
-    {
+    // Preserve the legacy Void path exactly. The match owner observes `None`
+    // and declines without taking value-bearing Return authority.
+    if let Some(return_value) = try_apply_match_return_optimization(builder, None, true)? {
         return Ok(return_value);
     }
 
-    let return_value = if let Some(expr) = value {
-        builder.build_expression(*expr)?
-    } else {
-        crate::mir::builder::emission::constant::emit_void(builder)?
-    };
+    let return_value = crate::mir::builder::emission::constant::emit_void(builder)?;
 
     emit_return_from_value(builder, return_value)
 }

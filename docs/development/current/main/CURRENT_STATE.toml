@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result I0 RET0-S0 is closed; RET0-I0 is next"
+status = "callable-result I0 RET0-I0 is closed; RET0-P0 is next"
 date = "2026-07-18"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,13 +298,12 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 
 latest_card = "callable-result-i64-site0-r0-expression-spine-task-2026-07-18"
 latest_card_path = "docs/development/current/main/investigations/callable-result-i64-site0-r0-expression-spine-task-2026-07-18.md"
-latest_card_summary = """RET0-S0 is closed. One disconnected value-bearing
-Return driver preserves cleanup-first policy, delegates Match selection to the
-existing owner, descends through one ReturnValue E0 child, and reuses existing
-ordinary/defer completion. Void Return remains legacy. Production raw/located
-Return selectors and callable-result publication remain zero. RET0-I0 is
-next."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-SPINE0-STMT0-RET0-I0-001"
+latest_card_summary = """RET0-I0 is closed. The existing Return facade
+effect-freely selects the S0 raw value driver exactly once for Some(expr),
+while None retains the legacy cleanup, no-value Match observation, Void, and
+completion path. Production raw selectors are one; located Return selectors
+and callable-result publication remain zero. RET0-P0 is next."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-SPINE0-STMT0-RET0-P0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -313,6 +312,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-RET0-I0 behavior-neutrally selects the S0 raw value driver exactly once inside the existing Return facade for Some(expr), before cleanup/Match work. None retains legacy cleanup, match(None), Void emission, and completion. Five production-entry fixtures cover MethodCall, actual Match CorePlan selection, defer Copy/Jump, Void, cleanup/child failure, and same-Builder reuse. Return 13/13, stmt 58/58, recursive child 7/7, callable-result 55/55, guard, cargo check, quick 66/66 in 55s, release, formatting, and line caps are green. Production raw selectors are one; located selectors and result publication remain zero; RET0-P0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-RET0-S0 closes one disconnected value-bearing Return driver. Cleanup prohibition precedes value observation; the existing match owner may select before one ReturnValue E0 descent; existing completion retains ordinary Return and defer Copy/Jump. Eight fixtures cover order, selected Match bypass, MethodCall/Binary/short-circuit children, exact failure/defer terminators, Void legacy preservation, and reuse. RET0 8/8, stmt 53/53, recursive child 7/7, callable-result 55/55, guard, cargo check, quick 66/66 in 39s, release, formatting, and line caps are green. Production raw/located selectors and result publication remain zero; RET0-I0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-L0 closes one disconnected exact Variable-target located adapter. PATH0 alone supplies AssignmentValue; existing Binary, short-circuit, expression, ledger, preflight, and completion owners remain authoritative. Six fixtures cover direct/nested order, Binary/short-circuit descent, wrong order and fresh reuse, undeclared/RHS failure without publication, non-target and If/Loop fail-closed boundaries, and the LoopBodyRoot path seam parked for LOOP0. Located Assignment 6/6, located Local 6/6, Assignment 16/16, recursive 7/7, callable-result 55/55, guard, cargo check, quick 66/66 in 62s, formatting, and line caps are green. Production located roots and callable-result publication remain zero; RET0-S0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-P0 closes one cfg(test)-only pre-I0 exact Variable Assignment reference and normalized selected/reference parity. Four parity fixtures cover literal/Binary/short-circuit RHS, exact local contracts, typed-array reassignment, undeclared preflight, partial RHS failure, and same-Builder reuse; one boundary fixture proves only the test reference rejects Grouped. MIR, transient facts, bindings/scopes, local/array contracts, slot/cache state, and allocator counters match exactly. Assignment 16/16, resolver 4/4, recursive 7/7, callable-result 55/55, guard, cargo check, quick 66/66 in 59s, release, formatting, and line caps are green. Production located selectors and callable-result publication remain zero; ASN0-L0 is next.",
@@ -324,5 +324,4 @@ landed_tail = [
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-S0 closes one disconnected Local statement driver. Existing whole-declaration preflight precedes effects; ordinary initializers descend through E0 in order; missing untyped values and typed-array/record hooks retain their existing owners; one from-values completion follows all values. Local 8/8, variable 3/3, recursive 7/7, callable-result 55/55, guard, quick 66/66, release, formatting, and line caps are green. Raw/located Local adapters and production result publication remain zero; LCL0-I0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-SC0-L0 closes one disconnected located short-circuit port. PATH0 alone supplies BinaryLeft/Right; lhs is claimed first and rhs location is deferred into eval-RHS. Nested And/Or/comparison and actual Loop-condition surfaces are green with no site reconstruction or ledger probing. SC0 16/16, BIN0 16/16, located 12/12, callable-result 55/55, guard, quick 66/66, release, formatting, and line caps are green. Production located roots/result publication remain zero; LCL0-S0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-SC0-P0 closes exact selected-versus-pre-I0 parity. Four fixtures compare result/error, ordered MIR/terminators, transient types, value kinds/origins, variable/pin maps, current block, next ValueId, and recursion depth across Bool matrix, nested And/Or/comparison, MethodCall children, failures, and reuse. SC0 16/16, guard, quick 66/66, release, formatting, and line caps are green. The reference is cfg(test)-only; SC0-L0 is next.",
-  "2026-07-18: SITE0-R0-EXPR0-SPINE0-SC0-I0 behavior-neutrally selects And/Or through one owned raw input and raw port. Lhs remains first, rhs input/lowering occurs only in eval-RHS, ordinary operators remain BIN0, and CFG/PHI/result/type authority stays unchanged. SC0 12/12, BIN0 16/16, located 8/8, callable-result 51/51, guard, quick 66/66, release, formatting, and line caps are green. Located SC0/result publication remain zero; SC0-P0 is next.",
 ]
