@@ -327,7 +327,24 @@ pub(crate) enum SourceBodyKindV1 {
 
 impl SourceBodyKindV1 {
     pub(crate) fn owns_item_segment(self, segment: &SourcePathSegmentV1) -> bool {
-        std::mem::discriminant(segment) == std::mem::discriminant(&self.item_segment(0))
+        self.owned_item_index(segment).is_some()
+    }
+
+    pub(crate) fn owned_item_index(self, segment: &SourcePathSegmentV1) -> Option<u32> {
+        match (self, segment) {
+            (Self::Function, SourcePathSegmentV1::Body(index))
+            | (Self::Lambda, SourcePathSegmentV1::LambdaBody(index))
+            | (Self::Scope, SourcePathSegmentV1::ScopeBody(index))
+            | (Self::TaskScope, SourcePathSegmentV1::TaskScopeBody(index))
+            | (Self::FastMem, SourcePathSegmentV1::FastMemBody(index))
+            | (Self::IfThen, SourcePathSegmentV1::IfThen(index))
+            | (Self::IfElse, SourcePathSegmentV1::IfElse(index))
+            | (Self::Loop, SourcePathSegmentV1::LoopBody(index))
+            | (Self::BlockExprPrelude, SourcePathSegmentV1::BlockExprPrelude(index)) => {
+                Some(*index)
+            }
+            _ => None,
+        }
     }
 
     pub(crate) fn root_segment(self) -> Option<SourcePathSegmentV1> {
@@ -362,7 +379,37 @@ impl SourceBodyKindV1 {
 mod tests {
     use crate::ast::{ASTNode, LiteralValue, Span};
 
-    use super::{ExprChildRoleV1, ExprChildSyntaxV1, SourcePathSegmentV1};
+    use super::{ExprChildRoleV1, ExprChildSyntaxV1, SourceBodyKindV1, SourcePathSegmentV1};
+
+    #[test]
+    fn body_kind_owns_one_exact_item_index_vocabulary() {
+        let cases = [
+            (SourceBodyKindV1::Function, SourcePathSegmentV1::Body(7)),
+            (SourceBodyKindV1::Lambda, SourcePathSegmentV1::LambdaBody(7)),
+            (SourceBodyKindV1::Scope, SourcePathSegmentV1::ScopeBody(7)),
+            (
+                SourceBodyKindV1::TaskScope,
+                SourcePathSegmentV1::TaskScopeBody(7),
+            ),
+            (
+                SourceBodyKindV1::FastMem,
+                SourcePathSegmentV1::FastMemBody(7),
+            ),
+            (SourceBodyKindV1::IfThen, SourcePathSegmentV1::IfThen(7)),
+            (SourceBodyKindV1::IfElse, SourcePathSegmentV1::IfElse(7)),
+            (SourceBodyKindV1::Loop, SourcePathSegmentV1::LoopBody(7)),
+            (
+                SourceBodyKindV1::BlockExprPrelude,
+                SourcePathSegmentV1::BlockExprPrelude(7),
+            ),
+        ];
+
+        for (kind, segment) in cases {
+            assert_eq!(kind.owned_item_index(&segment), Some(7));
+            assert!(kind.owns_item_segment(&segment));
+            assert_eq!(kind.owned_item_index(&SourcePathSegmentV1::Value), None);
+        }
+    }
 
     #[test]
     fn grouped_assignment_target_is_path_only_synthetic_syntax() {

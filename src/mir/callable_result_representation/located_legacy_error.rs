@@ -16,6 +16,17 @@ pub(crate) enum CallableResultLegacyLocationErrorV1 {
         index: u32,
         len: usize,
     },
+    BodySuffixIndexOverflow {
+        index: usize,
+    },
+    BodySuffixLengthOverflow {
+        len: usize,
+    },
+    BodySuffixStartOutOfBounds {
+        body: Option<SourceNodeSiteV1>,
+        start: u32,
+        len: usize,
+    },
     StatementIsNotExpression(SourceNodeSiteV1),
     ExpressionRoleParentMismatch(SourceNodeSiteV1),
     ExpressionRoleHasNoSyntaxNode(SourceNodeSiteV1),

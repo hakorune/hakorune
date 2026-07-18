@@ -34,6 +34,17 @@ pub(crate) enum LegacyBodyInputV1<'plan> {
     Unlocated(UnlocatedLegacyBodyV1<'plan>),
 }
 
+#[derive(Debug)]
+pub(crate) struct LocatedLegacyBodySuffixV1<'plan> {
+    plan_identity: usize,
+    caller: &'plan CanonicalSameModuleCallableKeyV1,
+    parent: Option<SourceNodeSiteV1>,
+    domain_parent: Option<SourceNodeSiteV1>,
+    kind: SourceBodyKindV1,
+    start: u32,
+    statements: &'plan [ASTNode],
+}
+
 impl<'plan> LegacyBodyInputV1<'plan> {
     pub(crate) const fn statements(&self) -> &'plan [ASTNode] {
         match self {
@@ -180,11 +191,35 @@ impl LegacyBodyInputV1<'_> {
     }
 }
 
+impl<'plan> LocatedLegacyBodySuffixV1<'plan> {
+    pub(super) fn into_activation_parts(self) -> LegacyActivationBodySuffixPartsV1<'plan> {
+        LegacyActivationBodySuffixPartsV1 {
+            plan_identity: self.plan_identity,
+            caller: self.caller,
+            parent: self.parent,
+            domain_parent: self.domain_parent,
+            kind: self.kind,
+            start: self.start,
+            statements: self.statements,
+        }
+    }
+}
+
 pub(super) struct LegacyActivationBodyDomainPartsV1<'a> {
     pub(super) plan_identity: usize,
     pub(super) caller: &'a CanonicalSameModuleCallableKeyV1,
     pub(super) parent: Option<&'a SourceNodeSiteV1>,
     pub(super) kind: SourceBodyKindV1,
+}
+
+pub(super) struct LegacyActivationBodySuffixPartsV1<'plan> {
+    pub(super) plan_identity: usize,
+    pub(super) caller: &'plan CanonicalSameModuleCallableKeyV1,
+    pub(super) parent: Option<SourceNodeSiteV1>,
+    pub(super) domain_parent: Option<SourceNodeSiteV1>,
+    pub(super) kind: SourceBodyKindV1,
+    pub(super) start: u32,
+    pub(super) statements: &'plan [ASTNode],
 }
 
 pub(super) struct LegacyActivationClaimPartsV1<'a> {
@@ -230,6 +265,43 @@ impl<'plan> VerifiedCallableResultLegacySourceViewV1<'plan> {
             domain_parent: None,
             kind: SourceBodyKindV1::Function,
             statements: self.declaration.body(),
+        })
+    }
+
+    pub(crate) fn body_suffix(
+        &self,
+        body: &LegacyBodyInputV1<'plan>,
+        start: usize,
+    ) -> Result<LocatedLegacyBodySuffixV1<'plan>, CallableResultLegacyLocationErrorV1> {
+        let start = u32::try_from(start).map_err(|_| {
+            CallableResultLegacyLocationErrorV1::BodySuffixIndexOverflow { index: start }
+        })?;
+        let LegacyBodyInputV1::Located(body) = body else {
+            return Err(CallableResultLegacyLocationErrorV1::UnlocatedCannotProveInactive);
+        };
+        self.require_carrier(body.plan_identity, body.caller)?;
+        let _len = u32::try_from(body.statements.len()).map_err(|_| {
+            CallableResultLegacyLocationErrorV1::BodySuffixLengthOverflow {
+                len: body.statements.len(),
+            }
+        })?;
+        let Some(statements) = body.statements.get(start as usize..) else {
+            return Err(
+                CallableResultLegacyLocationErrorV1::BodySuffixStartOutOfBounds {
+                    body: body.parent.clone(),
+                    start,
+                    len: body.statements.len(),
+                },
+            );
+        };
+        Ok(LocatedLegacyBodySuffixV1 {
+            plan_identity: self.plan_identity,
+            caller: self.caller,
+            parent: body.parent.clone(),
+            domain_parent: body.domain_parent.clone(),
+            kind: body.kind,
+            start,
+            statements,
         })
     }
 

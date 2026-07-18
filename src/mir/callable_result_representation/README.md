@@ -55,3 +55,18 @@ claim activation rows.
 Located and unlocated syntax are distinct inputs. Synthetic syntax and every
 descendant constructed from it remain unlocated; only a located expression can
 expose an activation site. Production consumers remain zero through SITE0-L0.
+
+### SUFFIX0 exact inactive body suffix
+
+`LocatedLegacyBodySuffixV1` is a checked, non-raw carrier for one exact located
+body slice and start index. The caller ledger classifies it positively as
+either the exact first active row or a non-Clone inactive proof. Active is a
+normal decision, never a caught proof error or retry boundary.
+
+Suffix membership uses only the existing body-domain parent,
+`SourceBodyKindV1::owned_item_index`, and the checked start index. It never
+re-walks AST syntax, rebuilds source paths, reads spans or names, or mutates the
+claim ledger. The unverified carrier exposes no statement slice; only the
+inactive proof may provide the future read-only suffix view. SUFFIX0-S0 remains
+disconnected from Builder, BLK0 routing, production roots, grammar, runtime,
+and backend behavior.

@@ -15,7 +15,8 @@ use super::located_legacy::{
 };
 use super::{
     CallableResultActivationDispositionV1, CallableResultCallerLedgerErrorV1, LegacyBodyInputV1,
-    LegacyExprInputV1, LegacyStmtInputV1, VerifiedCallableResultActivationPlanV1,
+    LegacyExprInputV1, LegacyStmtInputV1, LocatedLegacyBodySuffixV1,
+    VerifiedCallableResultActivationPlanV1,
 };
 
 #[derive(Debug)]
@@ -31,6 +32,29 @@ pub(crate) struct VerifiedCallableResultInactiveBodyV1<'plan> {
     _parent: Option<SourceNodeSiteV1>,
     _kind: SourceBodyKindV1,
     _plan: PhantomData<&'plan VerifiedCallableResultActivationPlanV1>,
+}
+
+#[derive(Debug)]
+pub(crate) struct VerifiedCallableResultInactiveBodySuffixV1<'plan> {
+    _caller: &'plan CanonicalSameModuleCallableKeyV1,
+    _parent: Option<SourceNodeSiteV1>,
+    _domain_parent: Option<SourceNodeSiteV1>,
+    _kind: SourceBodyKindV1,
+    _start: u32,
+    statements: &'plan [ASTNode],
+    _plan: PhantomData<&'plan VerifiedCallableResultActivationPlanV1>,
+}
+
+impl AsRef<[ASTNode]> for VerifiedCallableResultInactiveBodySuffixV1<'_> {
+    fn as_ref(&self) -> &[ASTNode] {
+        self.statements
+    }
+}
+
+#[derive(Debug)]
+pub(crate) enum CallableResultBodySuffixDecisionV1<'plan> {
+    Inactive(VerifiedCallableResultInactiveBodySuffixV1<'plan>),
+    Active { first: &'plan SourceExprSiteV1 },
 }
 
 #[derive(Debug)]
@@ -115,6 +139,35 @@ impl<'plan> VerifiedCallableResultCallerLedgerV1<'plan> {
             .activation_body_domain_parts()
             .map_err(CallableResultCallerLedgerErrorV1::LegacyLocation)?;
         self.prove_body_domain(parts)
+    }
+
+    pub(crate) fn classify_body_suffix(
+        &self,
+        suffix: LocatedLegacyBodySuffixV1<'plan>,
+    ) -> Result<CallableResultBodySuffixDecisionV1<'plan>, CallableResultCallerLedgerErrorV1> {
+        let parts = suffix.into_activation_parts();
+        self.require_carrier(parts.plan_identity, parts.caller)?;
+        if let Some(row) = self.rows.iter().find(|row| {
+            body_suffix_contains(
+                parts.domain_parent.as_ref(),
+                parts.kind,
+                parts.start,
+                row.site().node(),
+            )
+        }) {
+            return Ok(CallableResultBodySuffixDecisionV1::Active { first: row.site() });
+        }
+        Ok(CallableResultBodySuffixDecisionV1::Inactive(
+            VerifiedCallableResultInactiveBodySuffixV1 {
+                _caller: self.caller,
+                _parent: parts.parent,
+                _domain_parent: parts.domain_parent,
+                _kind: parts.kind,
+                _start: parts.start,
+                statements: parts.statements,
+                _plan: PhantomData,
+            },
+        ))
     }
 
     pub(crate) fn prove_stmt_inactive(
@@ -271,6 +324,20 @@ fn body_domain_contains(
         return false;
     };
     kind.owns_item_segment(item)
+}
+
+fn body_suffix_contains(
+    domain_parent: Option<&SourceNodeSiteV1>,
+    kind: SourceBodyKindV1,
+    start: u32,
+    site: &SourceNodeSiteV1,
+) -> bool {
+    let parent_segments = domain_parent.map(SourceNodeSiteV1::segments).unwrap_or(&[]);
+    site.segments()
+        .strip_prefix(parent_segments)
+        .and_then(|tail| tail.first())
+        .and_then(|item| kind.owned_item_index(item))
+        .is_some_and(|index| index >= start)
 }
 
 fn body_root_diagnostic_site(

@@ -2,6 +2,7 @@ mod activation;
 mod actual_sources;
 mod call_substitution;
 mod caller_ledger;
+mod caller_ledger_suffix;
 mod core_composition;
 mod located_legacy;
 mod located_legacy_lowering;

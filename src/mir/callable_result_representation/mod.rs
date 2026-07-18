@@ -34,13 +34,14 @@ pub(crate) use activation::{
 pub(crate) use activation_error::CallableResultActivationErrorV1;
 #[allow(unused_imports)]
 pub(crate) use caller_ledger::{
-    ClaimedCallableResultActivationSiteV1, VerifiedCallableResultCallerLedgerV1,
+    CallableResultBodySuffixDecisionV1, ClaimedCallableResultActivationSiteV1,
+    VerifiedCallableResultCallerLedgerV1, VerifiedCallableResultInactiveBodySuffixV1,
     VerifiedCallableResultInactiveBodyV1, VerifiedCallableResultInactivePrefixV1,
 };
 pub(crate) use caller_ledger_error::CallableResultCallerLedgerErrorV1;
 #[allow(unused_imports)]
 pub(crate) use located_legacy::{
-    LegacyBodyInputV1, LegacyExprInputV1, LegacyStmtInputV1,
+    LegacyBodyInputV1, LegacyExprInputV1, LegacyStmtInputV1, LocatedLegacyBodySuffixV1,
     VerifiedCallableResultLegacySourceViewV1,
 };
 pub(crate) use located_legacy_error::CallableResultLegacyLocationErrorV1;
