@@ -114,4 +114,6 @@ impl<'plan> VerifiedLocatedGenericLoopBodyRepresentationV1<'plan> {
 }
 
 #[cfg(test)]
+mod site_projection_tests;
+#[cfg(test)]
 mod tests;

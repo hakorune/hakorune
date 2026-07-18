@@ -1,5 +1,5 @@
 ---
-Status: SITEPROJ0-S0 closed; SITEPROJ0-P0 is next
+Status: SITEPROJ0-P0 closed; SITEPROJ0-G0 is next
 Date: 2026-07-19
 Decision baseline: 906f994d12
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md
@@ -212,3 +212,21 @@ expression-port 10/10, located-legacy 15/15, all-target check, the existing
 public expression-spine guard, pointer guard, and the 800-line cap are green.
 `SITEPROJ0-P0` is next and owns only the actual/nested projection matrix; the
 full default/strict representation proof remains in later `O0-P0`.
+
+## SITEPROJ0-P0 closeout
+
+The shared actual `ParserBox.static_const_parse_add` fixture now proves that
+LoopBody ordinal 5 projects to the exact existing selected activation site.
+The LoopCondition carrier remains compact and unchanged. The ordinal 4 join If
+also proves recursively compact IfThen and IfElse item sites through the same
+typed Loop-port capability.
+
+The negative matrix rejects a foreign branded body, an Unlocated body, a
+function-root body, `usize` overflow, and direct out-of-range ordinals through
+existing typed errors. No full default/strict representation expectation is
+duplicated here; that remains the sole responsibility of `O0-P0`.
+
+Focused SITEPROJ0 2/2, all located-representation tests 8/8, and the existing
+public expression-spine guard are green. `SITEPROJ0-G0` is next and may add
+only structural owner/consumer/preservation guards before the original
+`O0-P0` resumes.
