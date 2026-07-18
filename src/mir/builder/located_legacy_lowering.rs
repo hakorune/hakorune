@@ -2,9 +2,10 @@
 //!
 //! The session is stack-scoped and borrows one activation plan. It owns the
 //! matching source view and caller ledger, claims every MethodCall before any
-//! child descent, and permits raw legacy delegation only after the ledger has
-//! proved that the complete prefix contains no activation rows. It is not
-//! stored in `MirBuilder` and has no production constructor caller.
+//! child descent, and permits raw statement/expression delegation only after
+//! the exact prefix is proven inactive. Body delegation instead requires the
+//! complete typed body domain to contain no activation rows. The session is
+//! not stored in `MirBuilder` and has no production constructor caller.
 
 #[cfg(test)]
 #[path = "located_legacy_assignment_tests.rs"]
@@ -12,6 +13,9 @@ mod assignment_tests;
 #[cfg(test)]
 #[path = "located_legacy_body_domain_tests.rs"]
 mod body_domain_tests;
+#[cfg(test)]
+#[path = "located_legacy_if_tests.rs"]
+mod if_tests;
 #[cfg(test)]
 #[path = "located_legacy_local_tests.rs"]
 mod local_tests;
@@ -21,6 +25,8 @@ mod return_tests;
 
 #[path = "located_legacy_assignment.rs"]
 mod assignment_adapter;
+#[path = "located_legacy_if.rs"]
+mod if_adapter;
 #[path = "located_legacy_return.rs"]
 mod return_adapter;
 
@@ -220,6 +226,13 @@ impl<'plan> LocatedLegacyLoweringSessionV1<'plan> {
         let input = match return_adapter::select_exact_value_return_v1(input) {
             Ok(selected) => {
                 return return_adapter::lower_selected_value_return_v1(self, builder, &selected);
+            }
+            Err(input) => input,
+        };
+
+        let input = match if_adapter::select_exact_statement_if_v1(input) {
+            Ok(selected) => {
+                return if_adapter::lower_selected_statement_if_v1(self, builder, &selected);
             }
             Err(input) => input,
         };

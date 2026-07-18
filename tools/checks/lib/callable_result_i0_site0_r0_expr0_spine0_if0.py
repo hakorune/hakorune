@@ -6,6 +6,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from callable_result_i0_site0_r0_expr0_spine0_if0_l0 import check_if0_l0
+
 
 def _fail(message: str) -> None:
     raise RuntimeError(message)
@@ -312,9 +314,13 @@ def check_if0_s0(root: Path) -> str:
     next_arm_at = statement_dispatch.index("ASTNode::StaticConstTable", if_at)
     if_arm = statement_dispatch[if_at:next_arm_at]
     _require_count(if_arm, "builder.build_if_statement(", 1, "one statement If selector")
-    _require_count(if_arm, "emit_void(builder)?", 1, "one facade Void publication")
-    if if_arm.index("builder.build_if_statement(") > if_arm.index("emit_void(builder)?"):
-        _fail("statement facade Void must follow successful If lowering")
+    _require_count(
+        if_arm,
+        "if_statement_descent::complete_if_statement_v1(builder, lowering)",
+        1,
+        "one shared facade completion",
+    )
+    _require_count(if_arm, "emit_void(builder)?", 0, "no duplicated facade Void")
 
     expression_dispatch = _function_slice(
         exprs, "fn try_build_statement_surface_expression("
@@ -512,8 +518,8 @@ def check_if0_s0(root: Path) -> str:
         text = path.read_text(encoding="utf-8")
         production_driver_callers += len(generic_call.findall(text))
         raw_driver_callers += len(raw_call.findall(text))
-    if production_driver_callers != 0:
-        _fail(f"IF0-S0 production generic driver callers: {production_driver_callers}")
+    if production_driver_callers != 1:
+        _fail(f"IF0-L0 generic driver callers: {production_driver_callers}")
     if raw_driver_callers != 1:
         _fail(f"IF0-I0 production raw driver callers: {raw_driver_callers}")
 
@@ -522,7 +528,7 @@ def check_if0_s0(root: Path) -> str:
         "existing FastMem post-condition verification",
         "IfForm remains the sole block",
         "one callback invoked at the existing then",
-        "Statement Void publication remains",
+        "One thin success-only completion seam",
         "source paths or caller ledger",
         "It owns no Match, Loop, suffix routing",
         "production raw If port preserves the retired branch Program shell",
@@ -549,4 +555,5 @@ def check_if0_s0(root: Path) -> str:
     if oversized:
         _fail(f"IF0-S0 source/check files reached 800 lines: {oversized}")
 
-    return "if_driver=1 if_branch_core=1 if_raw_selectors=1"
+    l0_summary = check_if0_l0(root)
+    return f"if_driver=1 if_branch_core=1 if_raw_selectors=1 {l0_summary}"

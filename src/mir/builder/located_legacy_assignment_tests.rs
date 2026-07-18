@@ -356,8 +356,8 @@ fn loop_body_assignment_path_seam_fails_closed_until_loop0() {
 }
 
 #[test]
-fn non_variable_targets_and_active_if_loop_controls_fail_closed() {
-    const CASES: [(&str, &[SourcePathSegmentV1]); 5] = [
+fn non_variable_targets_and_active_loop_controls_fail_closed() {
+    const CASES: [(&str, &[SourcePathSegmentV1]); 4] = [
         (
             r#"
                 box ParserBox {
@@ -383,21 +383,6 @@ fn non_variable_targets_and_active_if_loop_controls_fail_closed() {
                 static box Helpers { step(value) { return value } }
             "#,
             &[SourcePathSegmentV1::Body(1), SourcePathSegmentV1::Value],
-        ),
-        (
-            r#"
-                box ParserBox {
-                    parse(text, pos) {
-                        if Helpers.step(1) { return 1 }
-                        return 0
-                    }
-                }
-                static box Helpers { step(value) { return value } }
-            "#,
-            &[
-                SourcePathSegmentV1::Body(0),
-                SourcePathSegmentV1::IfCondition,
-            ],
         ),
         (
             r#"

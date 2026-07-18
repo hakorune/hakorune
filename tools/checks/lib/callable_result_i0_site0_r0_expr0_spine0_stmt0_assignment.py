@@ -331,7 +331,7 @@ def check_asn0_s0(root: Path) -> str:
         "wrong_assignment_order_has_no_rhs_effect_and_fresh_session_succeeds",
         "undeclared_target_and_rhs_failure_publish_no_assignment",
         "loop_body_assignment_path_seam_fails_closed_until_loop0",
-        "non_variable_targets_and_active_if_loop_controls_fail_closed",
+        "non_variable_targets_and_active_loop_controls_fail_closed",
     ):
         if fixture not in located_tests:
             _fail(f"missing ASN0-L0 fixture: {fixture}")

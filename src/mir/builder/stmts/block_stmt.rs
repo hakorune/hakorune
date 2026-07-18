@@ -95,9 +95,8 @@ pub(in crate::mir::builder) fn build_statement(
             ..
         } => {
             // Statement としての If - 既存 If lowering を呼ぶ
-            builder.build_if_statement(*condition, then_body, else_body)?;
-            // Statement なので値は使わない（Void を返す）
-            Ok(crate::mir::builder::emission::constant::emit_void(builder)?)
+            let lowering = builder.build_if_statement(*condition, then_body, else_body);
+            super::if_statement_descent::complete_if_statement_v1(builder, lowering)
         }
         ASTNode::StaticConstTable { .. } => {
             // Metadata-only declaration; execution observes no runtime statement.

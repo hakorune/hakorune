@@ -3,8 +3,9 @@
 //! This box owns only exact If syntax observation, one condition demand,
 //! ordered branch-body carrier demand, and delegation to the existing IfForm
 //! owner. CFG layout, variable snapshots, PHIs, branch termination, JoinIR
-//! diagnostics, statement Void publication, source location, and callable-
-//! result consumption remain outside it.
+//! diagnostics, source location, and callable-result consumption remain
+//! outside the driver core. This module also exposes one thin success-only
+//! completion seam; the existing constant emitter remains the Void owner.
 
 use crate::ast::ASTNode;
 use crate::mir::builder::if_form::IfBranchKindV1;
@@ -235,6 +236,18 @@ pub(in crate::mir::builder) fn drive_raw_if_statement_v1(
     let input = RawLegacyIfStatementInputV1::new(condition, then_body, else_body);
     let mut port = RawLegacyIfStatementPortV1;
     drive_if_statement_v1(builder, &mut port, &input)
+}
+
+/// Publish the statement-position Void only after If control lowering succeeds.
+///
+/// Raw and located carriers share this completion so neither adapter owns a
+/// second success/failure policy.
+pub(in crate::mir::builder) fn complete_if_statement_v1(
+    builder: &mut MirBuilder,
+    lowering: Result<(), String>,
+) -> Result<ValueId, String> {
+    lowering?;
+    crate::mir::builder::emission::constant::emit_void(builder)
 }
 
 fn prepare_if_statement_condition_value_v1(

@@ -180,13 +180,15 @@ while the disconnected driver lowers only associated `BodyInput`s. IfForm is
 not copied. Condition and FastMem failure happen before IfForm CFG effects;
 branch carrier failure preserves the existing partial IfForm state.
 
-FastMem policy does not enter the port. Statement Void publication remains in
-the existing `block_stmt` facade, expression-position If remains on `cf_if`,
-and the canonical resolved located-If route remains separate. IF0-S0 owns no
+FastMem policy does not enter the port. One thin success-only completion seam
+sequences the existing Void emitter after control lowering for both the raw
+`block_stmt` facade and the disconnected located adapter; the constant emitter
+remains the sole Void-representation owner. Expression-position If remains on
+`cf_if`, and the canonical resolved located-If route remains separate. IF0-S0 owns no
 source paths or caller ledger. It owns no Match, Loop, suffix routing, PHI
 emission, retry, fallback, or Builder-stored port/input. A later located port
-may expose a raw branch only after the complete associated body prefix is
-proven inactive.
+may expose a raw branch only after the complete associated typed body domain
+is proven inactive.
 
 IF0-I0 selects the raw driver exactly once from `build_if_statement`. The old
 inline FastMem split and direct `cf_if` selection are retired without a probe
@@ -196,11 +198,12 @@ and lowered through the existing raw expression recursion guard. This keeps
 the former branch recursion boundary and empty-branch span behavior while the
 generic associated-input driver remains free of source-span policy.
 
-`block_stmt::build_statement` remains the sole statement-source selector and
-publishes its one facade Void only after If lowering succeeds. The raw driver
-and its production port publish no statement Void. Expression-position If
-continues through `exprs.rs` and `cf_if`; resolved located If remains a
-separate inactive authority.
+`block_stmt::build_statement` remains the sole raw statement-source selector;
+the disconnected located session owns one exact statement-If selector but has
+no production root caller. Both selectors use the shared success-only
+completion seam, while the raw driver and its production port publish no
+statement Void. Expression-position If continues through `exprs.rs` and
+`cf_if`; the canonical resolved located-If route remains separate.
 
 IF0-P0 keeps one cfg(test)-only pre-I0 reference. It directly replays the
 retired ordinary `cf_if` and FastMem orchestration, unknown-span Program branch

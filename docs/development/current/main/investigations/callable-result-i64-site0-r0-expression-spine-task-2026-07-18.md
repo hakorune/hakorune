@@ -1,5 +1,5 @@
 ---
-Status: IF0-P0 closed; IF0-L0 is next
+Status: IF0-L0 closed; SUFFIX0-S0 is next
 Date: 2026-07-18
 Decision: expand located lowering by one structural child family per row
 Parent: callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md
@@ -62,16 +62,17 @@ SITE0-R0-EXPR0-SPINE0-BIN0-S0
 The sole next code-facing row is:
 
 ```text
-SITE0-R0-EXPR0-SPINE0-IF0-L0
+SITE0-R0-EXPR0-SPINE0-SUFFIX0-S0
 ```
 
-`IF0-P0` is closed. One cfg(test)-only pre-I0 reference directly replays the
-retired ordinary/FastMem statement-If orchestration, unknown-span Program
-branch shells, outer span, and success-only facade Void without calling the
-selected driver or raw port. Six fixture groups prove exact selected/reference
-parity over CFG edges and spans, PHIs, transient facts, scope/allocator state,
-termination, failures and reuse, FastMem, recursion boundaries, and branch
-spans. Production behavior and caller counts remain unchanged. IF0-L0 is next.
+`IF0-L0` is closed. One exact located statement-If selector derives only
+`IfCondition`, `IfThen`, and optional `IfElse` carriers through PATH0, enters
+the existing associated-input driver once, and shares the success-only
+statement completion with the raw facade. Ordinary Binary and short-circuit
+conditions reuse their closed descent owners. Branches delegate only after the
+complete typed body domain is proven inactive; active then/else rows reject
+before branch-local raw effects. Root Loop carriage, raw suffix admission, and
+production located roots remain zero. SUFFIX0-S0 is next.
 
 ## Why C0 is held
 
@@ -770,7 +771,7 @@ statement route and cease to be an independent oracle.
 Parity is 6/6, production statement If 7/7, If driver 7/7, recursive child
 7/7, callable-result 55/55, the strengthened structural guard,
 `cargo check --all-targets`, release, formatting, diff checks, and line caps
-are green. A standalone quick run is 66/66 in 65 seconds. IF0-L0 is next.
+are green. A standalone quick run is 66/66 in 65 seconds. IF0-L0 followed.
 
 ### IF0 staged activation
 
@@ -791,16 +792,31 @@ IF0-L0:
   PATH0 IfCondition / IfThen / optional IfElse only
 ```
 
-The actual top-level `Body(1).IfCondition.Lhs` row belongs to IF0-L0. The
-structurally identical row under `Body(4).LoopBody(2)` remains unreachable
+IF0-L0 now admits the actual top-level `Body(1).IfCondition.Lhs` row. Exact
+ledger finish preserves condition-row order; normalized fixtures require one
+ordinary `BinOp` for `+` and the existing Branch/Phi short-circuit topology
+without an eager `BinOp`. One module-wide Void inventory fixes the exact
+success/failure totals. Active branch fixtures place unique markers before the
+selected row: then rejects before its marker, while else preserves the already
+completed then marker and rejects before its own marker. Wrong-order failure
+has a full no-control-effect snapshot, poisons the session, and a fresh session
+succeeds. A rejected non-If selector returns the original node carrier.
+
+The structurally identical row under `Body(4).LoopBody(2)` remains unreachable
 until LOOP0 supplies that body carrier; IF0 fixtures must not reconstruct or
 claim a LoopBody path.
 
-Located branch bodies may delegate to raw block lowering only after the whole
-body prefix is proven inactive. `RowsUnderPrefix` therefore fails closed
+Located branch bodies may delegate to raw block lowering only after the
+complete typed body domain is proven inactive. `RowsUnderPrefix` therefore fails closed
 before raw block/suffix routing. Match, Loop, SUFFIX0, callable-result ledger,
 source paths, route retries, and Builder-stored ports/plans remain outside the
-S0 driver.
+adapter. The selected session remains test-only and production located roots
+remain zero.
+
+Located legacy 42/42, statement If 21/21, callable-result 59/59, the public
+SPINE0 and assignment guards, `cargo check --all-targets`, release, formatting,
+diff checks, current-state pointer guard, line caps, and quick 66/66 in 78
+seconds are green. Three independent worker audits are GO.
 
 ## SUFFIX0 — exact raw suffix boundary
 
@@ -945,9 +961,9 @@ Stop the current row if any of the following becomes necessary:
 > The acceptance boundary expands only as a sequence of structural
 > associated-input rows. The actual A0 caller proves five active MethodCalls
 > under Binary ancestors, so direct EXPR0-C0 wiring remains held. Ordinary
-> Binary, short-circuit Binary, Local, Assignment, Return, and raw statement-If
-> behavior/parity prerequisites are closed. The sole current shape is
-> `SITE0-R0-EXPR0-SPINE0-IF0-L0`; located If, raw suffix admission, and Loop
+> Binary, short-circuit Binary, Local, Assignment, Return, raw statement-If,
+> and exact located statement-If prerequisites are closed. The sole current
+> shape is `SITE0-R0-EXPR0-SPINE0-SUFFIX0-S0`; raw suffix admission and Loop
 > site carriage remain separate owners. BIN0-L0 always
 > uses the located driver for an ordinary Binary and lets each associated child
 > prove inactivity or continue to an exact claim; it never selects a route by
