@@ -1,5 +1,5 @@
 ---
-Status: SITEPROJ0-P0 closed; SITEPROJ0-G0 is next
+Status: SITEPROJ0 closed; O0-P0 resumes next
 Date: 2026-07-19
 Decision baseline: 906f994d12
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md
@@ -230,3 +230,27 @@ Focused SITEPROJ0 2/2, all located-representation tests 8/8, and the existing
 public expression-spine guard are green. `SITEPROJ0-G0` is next and may add
 only structural owner/consumer/preservation guards before the original
 `O0-P0` resumes.
+
+## SITEPROJ0-G0 closeout
+
+One private structural helper is imported by the existing public
+expression-spine guard. It fixes exactly one projection owner, one direct
+Loop-port consumer, unchanged generic `body_stmt`, the focused positive and
+negative fixture owners, and all touched source/check files below 800 lines.
+It also rejects projection-local activation lookup, AST inspection, ValueId,
+fallback, and retry vocabulary.
+
+The public guard reports:
+
+```text
+projection_owners=1
+direct_loop_port_consumers=1
+generic_body_stmt_delta=0
+activation_row_delta=0
+builder=0
+ledger=0
+```
+
+SITEPROJ0 is closed. The evidence-only WIP must still not be applied wholesale;
+`O0-P0` now rewrites its actual default/strict product proof cleanly against
+the landed compact projection.
