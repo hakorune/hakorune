@@ -86,6 +86,8 @@ def main() -> None:
     for path in (root / "src").rglob("*.rs"):
         if "callable_result_representation" in path.parts:
             continue
+        if path.name == "located_legacy_lowering.rs":
+            continue
         production_consumers += path.read_text(encoding="utf-8").count(
             "VerifiedCallableResultCallerLedgerV1"
         )

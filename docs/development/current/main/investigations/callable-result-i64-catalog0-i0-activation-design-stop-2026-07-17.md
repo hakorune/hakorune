@@ -1,5 +1,5 @@
 ---
-Status: SITE0-R0-EXPR0-M0-V0 closed; EXPR0-L0 is next
+Status: SITE0-R0-EXPR0-L0 closed; EXPR0-C0 is next
 Date: 2026-07-18
 Decision: Candidate A owned single-use activation plan plus located legacy input
 Baseline: fe2d61baa0
@@ -880,6 +880,36 @@ the explicit custom-terminal non-consumer inventory, required normalized and
 failure fixtures, forbidden authority imports, and every touched source/check
 file below 800 lines. No per-row shell guard or production evidence product was
 added. `SITE0-R0-EXPR0-L0` is next.
+
+### EXPR0-L0 closeout
+
+`SITE0-R0-EXPR0-L0` is closed. One non-Clone, stack-scoped located lowering
+session owns a source view and exact caller ledger borrowing the same activation
+plan. Every selected or unselected MethodCall row is claimed before the shared
+expression recursion guard, route preflight, receiver descent, or argument
+descent. The claimed row remains bound to the one call-local input while the
+existing E0, ARG0, ROUTE0, and V0 boundaries perform legacy lowering.
+
+Receiver and argument locations come only from PATH0 roles. Raw body,
+statement, and expression delegation consumes an exact inactive-prefix proof;
+an active row beneath a non-MethodCall expression prefix therefore fails before
+Builder effects instead of escaping into a second AST walk. Any claim,
+location, route, child, or terminal failure poisons the session, forbids retry,
+and prevents a successful ledger finish. The activation plan, source view,
+ledger, and call-local claim are never stored in `MirBuilder`.
+
+Five focused fixtures seal selected nested and unselected claims, inactive raw
+delegation, active-prefix rejection, wrong-order/duplicate no-child effects,
+failure poisoning, and fresh-session independence. Callable-result 48/48,
+member-route 13/13, terminal 4/4, all prior SITE0/EXPR0 guards, the new L0
+guard, release build, quick gate, formatting, pointer, and line caps are green.
+Production callers and callable-result publication remain zero.
+
+L0 deliberately does not accept a general active non-MethodCall expression
+spine such as `Binary(MethodCall(...), value)`. If C0's actual body inventory
+requires that shape, it must stop at a separate located expression-spine row;
+raw delegation and selected-only prefix proofs remain forbidden.
+`SITE0-R0-EXPR0-C0` is next.
 
 ### Exact terminal laws
 

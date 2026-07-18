@@ -38,8 +38,13 @@ mod exprs_check; // CheckExpr lowering
 mod exprs_enum_match; // narrow direct-MIR enum match lowering for guard-let sugar
 mod fastmem; // fastmem source -> MIR MemOp metadata lowering
 mod fastmem_context; // FastMemory region context helpers
+mod located_legacy_lowering;
 mod metadata_context; // Phase 136 follow-up (Step 6/7): MetadataContext extraction
 mod method_call_handlers;
+#[allow(unused_imports)]
+pub(in crate::mir) use located_legacy_lowering::{
+    LocatedLegacyLoweringErrorV1, LocatedLegacyLoweringSessionV1,
+};
 #[cfg(test)]
 mod phi_observation_tests;
 mod recursive_child_lowering;

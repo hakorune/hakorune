@@ -4,6 +4,7 @@ mod call_substitution;
 mod caller_ledger;
 mod core_composition;
 mod located_legacy;
+mod located_legacy_lowering;
 mod normalized_snapshot;
 mod source_proof;
 mod support;

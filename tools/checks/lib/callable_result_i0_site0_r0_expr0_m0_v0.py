@@ -93,6 +93,7 @@ def main() -> None:
         path.read_text(encoding="utf-8")
         for path in (root / "src/mir/builder").rglob("*.rs")
         if path.name not in {"method_call_terminal.rs", "method_call_terminal_tests.rs"}
+        and path.name != "located_legacy_lowering.rs"
         and not path.name.endswith("_tests.rs")
     )
     finish_methods = (

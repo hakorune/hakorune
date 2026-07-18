@@ -1,5 +1,5 @@
-use super::PlanNormalizer;
 use super::super::parts::var_map_scope::publish_emission_cache;
+use super::PlanNormalizer;
 use crate::ast::{ASTNode, BinaryOperator, FieldDecl, Span};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{Effect, EffectMask, MirType, ValueId};

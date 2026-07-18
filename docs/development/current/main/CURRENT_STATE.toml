@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result I0 SITE0-R0-EXPR0-M0-V0 is closed; EXPR0-L0 is next"
+status = "callable-result I0 SITE0-R0-EXPR0-L0 is closed; EXPR0-C0 is next"
 date = "2026-07-18"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,17 +298,17 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 
 latest_card = "callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17"
 latest_card_path = "docs/development/current/main/investigations/callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md"
-latest_card_summary = """SITE0-R0-EXPR0-M0-V0 is closed. Normalized
-terminal evidence fixes destination allocation, target/effects, argument
-order, returning/no-result Env behavior, and existing type/origin publication.
-Static-scalar, weak-load, helper-setter, FastMem, MIR-debug, REPL, and property
-remain explicit custom/materialized owners. Receiver, argument, preflight, and
-terminal failures publish no ordinary terminal and never retry; the Builder
-remains reusable. One structural guard fixes consumers, non-consumers,
-forbidden authorities, fixtures, and line caps. Production behavior and
-authority deltas remain zero. EXPR0-L0 is next, followed by C0, P0, SITE0-C0,
-CUT0, and G0."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-L0-001"
+latest_card_summary = """SITE0-R0-EXPR0-L0 is closed. One non-Clone,
+stack-scoped located session owns the plan-borrowed source view and exact caller
+ledger outside MirBuilder. It claims selected and unselected MethodCall rows
+before the shared recursion guard and child descent, projects receiver and
+arguments only through PATH0, and permits raw delegation only after an exact
+inactive-prefix proof. Any claim/location/lowering failure poisons the session;
+finish consumes exact coverage only after success. Active rows beneath a
+non-MethodCall expression prefix fail closed and remain a later explicit spine
+boundary if C0 needs them. Production callers and callable-result publication
+remain zero. EXPR0-C0 is next, followed by P0, SITE0-C0, CUT0, and G0."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-C0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

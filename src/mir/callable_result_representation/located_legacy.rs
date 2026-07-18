@@ -33,6 +33,15 @@ pub(crate) enum LegacyBodyInputV1<'plan> {
     Unlocated(UnlocatedLegacyBodyV1<'plan>),
 }
 
+impl<'plan> LegacyBodyInputV1<'plan> {
+    pub(crate) const fn statements(&self) -> &'plan [ASTNode] {
+        match self {
+            Self::Located(located) => located.statements,
+            Self::Unlocated(unlocated) => unlocated.statements,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub(crate) struct LocatedLegacyStmtV1<'plan> {
     plan_identity: usize,

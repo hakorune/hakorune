@@ -71,6 +71,7 @@ def main() -> None:
         if (
             "/callable_result_representation/tests/" in relative
             or relative.endswith("/located_legacy.rs")
+            or relative.endswith("/located_legacy_lowering.rs")
         ):
             continue
         production_consumers += path.read_text(encoding="utf-8").count(

@@ -203,7 +203,7 @@ where
     }
 }
 
-fn emit_typeop_value_terminal_raw_v1(
+pub(in crate::mir::builder) fn emit_typeop_value_terminal_raw_v1(
     builder: &mut MirBuilder,
     value: ValueId,
     op: TypeOpKind,
@@ -214,7 +214,7 @@ fn emit_typeop_value_terminal_raw_v1(
     Ok(dst)
 }
 
-fn emit_global_value_terminal_raw_v1(
+pub(in crate::mir::builder) fn emit_global_value_terminal_raw_v1(
     builder: &mut MirBuilder,
     owner: &str,
     method: &str,
@@ -227,7 +227,7 @@ fn emit_global_value_terminal_raw_v1(
     Ok((dst, target))
 }
 
-fn emit_env_value_terminal_raw_v1(
+pub(in crate::mir::builder) fn emit_env_value_terminal_raw_v1(
     builder: &mut MirBuilder,
     spec: &EnvMethodSpec,
     arguments: Vec<ValueId>,
