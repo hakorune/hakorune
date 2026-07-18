@@ -1,6 +1,10 @@
 pub(in crate::mir::builder) use super::helpers_layout::{create_phi_bindings, LoopBlocksStandard5};
 use super::CoreEffectPlan;
+use crate::mir::builder::control_flow::plan::{
+    LoopPlanExpressionPortV1, RawLoopPlanExpressionPortV1,
+};
 use crate::mir::builder::MirBuilder;
+use crate::mir::resolved_semantics::ExprChildRoleV1;
 use crate::mir::{BinaryOp, CompareOp, ConstValue, ValueId};
 use std::collections::BTreeMap;
 
@@ -64,15 +68,25 @@ impl super::PlanNormalizer {
         builder: &mut MirBuilder,
         phi_bindings: &BTreeMap<String, ValueId>,
     ) -> Result<(ValueId, BinaryOp, ValueId, Vec<CoreEffectPlan>), String> {
+        let port = RawLoopPlanExpressionPortV1::new();
+        Self::lower_binop_input(&port, port.expr(ast), builder, phi_bindings)
+    }
+
+    #[track_caller]
+    pub(in crate::mir::builder) fn lower_binop_input<'input, P>(
+        port: &P,
+        input: P::ExprInput<'input>,
+        builder: &mut MirBuilder,
+        phi_bindings: &BTreeMap<String, ValueId>,
+    ) -> Result<(ValueId, BinaryOp, ValueId, Vec<CoreEffectPlan>), String>
+    where
+        P: LoopPlanExpressionPortV1 + 'input,
+    {
         use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 
+        let ast = port.expr_syntax(&input);
         match ast {
-            ASTNode::BinaryOp {
-                operator,
-                left,
-                right,
-                ..
-            } => {
+            ASTNode::BinaryOp { operator, .. } => {
                 let op = match operator {
                     BinaryOperator::Add => BinaryOp::Add,
                     BinaryOperator::Subtract => BinaryOp::Sub,
@@ -87,28 +101,36 @@ impl super::PlanNormalizer {
                     }
                 };
 
-                let (lhs, mut lhs_consts) = Self::lower_value_ast(left, builder, phi_bindings)?;
-                let (rhs, rhs_consts) = Self::lower_value_ast(right, builder, phi_bindings)?;
+                let left = port
+                    .child_expr(&input, ExprChildRoleV1::BinaryLeft)
+                    .map_err(|error| error.render())?;
+                let right = port
+                    .child_expr(&input, ExprChildRoleV1::BinaryRight)
+                    .map_err(|error| error.render())?;
+                let lit3_lhs = matches!(
+                    port.expr_syntax(&left),
+                    ASTNode::Literal {
+                        value: LiteralValue::Integer(3),
+                        ..
+                    }
+                );
+                let lit3_rhs = matches!(
+                    port.expr_syntax(&right),
+                    ASTNode::Literal {
+                        value: LiteralValue::Integer(3),
+                        ..
+                    }
+                );
+                let (lhs, mut lhs_consts) =
+                    Self::lower_value_input(port, left, builder, phi_bindings)?;
+                let (rhs, rhs_consts) =
+                    Self::lower_value_input(port, right, builder, phi_bindings)?;
 
                 lhs_consts.extend(rhs_consts);
 
                 if crate::config::env::joinir_dev::strict_planner_required_debug_enabled()
                     && op == BinaryOp::Add
                 {
-                    let lit3_lhs = matches!(
-                        left.as_ref(),
-                        ASTNode::Literal {
-                            value: LiteralValue::Integer(3),
-                            ..
-                        }
-                    );
-                    let lit3_rhs = matches!(
-                        right.as_ref(),
-                        ASTNode::Literal {
-                            value: LiteralValue::Integer(3),
-                            ..
-                        }
-                    );
                     if lit3_lhs || lit3_rhs {
                         let fn_name = builder
                             .scope_ctx

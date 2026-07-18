@@ -298,6 +298,7 @@ pub(in crate::mir::builder) fn lower_method_call_stmt(
                 builder,
                 phi_bindings,
                 object.as_ref(),
+                CoreCallSourceV1::Unlocated,
                 method,
                 arg_ids,
                 arguments.len(),

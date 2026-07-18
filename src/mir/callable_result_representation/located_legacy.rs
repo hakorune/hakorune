@@ -313,6 +313,20 @@ impl<'plan> VerifiedCallableResultLegacySourceViewV1<'plan> {
         })
     }
 
+    /// Confirms that an already-created expression carrier belongs to this
+    /// exact activation plan and caller. This is an identity check only; it
+    /// creates no source path and claims no activation row.
+    pub(crate) fn require_expr_carrier(
+        &self,
+        input: &LegacyExprInputV1<'plan>,
+    ) -> Result<(), CallableResultLegacyLocationErrorV1> {
+        let (identity, caller) = match input {
+            LegacyExprInputV1::Located(input) => (input.plan_identity, input.caller),
+            LegacyExprInputV1::Unlocated(input) => (input.plan_identity, input.caller),
+        };
+        self.require_carrier(identity, caller)
+    }
+
     pub(crate) fn body_stmt(
         &self,
         body: &LegacyBodyInputV1<'plan>,

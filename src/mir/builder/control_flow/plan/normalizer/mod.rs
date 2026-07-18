@@ -21,6 +21,7 @@ pub(in crate::mir::builder) mod helpers;
 pub(in crate::mir::builder) mod helpers_layout;
 pub(in crate::mir::builder) mod helpers_pure_value;
 pub(in crate::mir::builder) mod helpers_value;
+mod helpers_value_state;
 pub(in crate::mir::builder) mod newbox;
 
 // Cond lowering modules (flattened from cond_lowering/)

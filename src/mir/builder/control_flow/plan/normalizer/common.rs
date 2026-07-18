@@ -38,6 +38,7 @@ pub(in crate::mir::builder) fn lower_me_this_method_effect(
     builder: &MirBuilder,
     phi_bindings: &BTreeMap<String, ValueId>,
     receiver: &ASTNode,
+    source: CoreCallSourceV1,
     method: &str,
     args: Vec<ValueId>,
     arity: usize,
@@ -54,7 +55,7 @@ pub(in crate::mir::builder) fn lower_me_this_method_effect(
         ASTNode::Me { .. } => {
             if let Some(object_id) = bound_me {
                 Ok(CoreEffectPlan::MethodCall {
-                    source: CoreCallSourceV1::Unlocated,
+                    source,
                     dst,
                     object: object_id,
                     method: method.to_string(),
@@ -63,7 +64,7 @@ pub(in crate::mir::builder) fn lower_me_this_method_effect(
                 })
             } else if let Some(box_name) = builder.comp_ctx.current_static_box.as_deref() {
                 Ok(CoreEffectPlan::GlobalCall {
-                    source: CoreCallSourceV1::Unlocated,
+                    source,
                     dst,
                     func: format!("{}.{}/{}", box_name, method, arity),
                     args,
@@ -75,14 +76,14 @@ pub(in crate::mir::builder) fn lower_me_this_method_effect(
         ASTNode::This { .. } => {
             if let Some(box_name) = builder.comp_ctx.current_static_box.as_deref() {
                 Ok(CoreEffectPlan::GlobalCall {
-                    source: CoreCallSourceV1::Unlocated,
+                    source,
                     dst,
                     func: format!("{}.{}/{}", box_name, method, arity),
                     args,
                 })
             } else if let Some(object_id) = bound_me {
                 Ok(CoreEffectPlan::MethodCall {
-                    source: CoreCallSourceV1::Unlocated,
+                    source,
                     dst,
                     object: object_id,
                     method: method.to_string(),

@@ -35,6 +35,7 @@ mod core;
 mod domain;
 mod effect;
 mod exit;
+mod expression_port;
 mod located_loop;
 mod located_loop_error;
 
@@ -139,6 +140,13 @@ pub(in crate::mir::builder) use self::core::{
 };
 pub(in crate::mir::builder) use self::effect::CoreEffectPlan;
 pub(in crate::mir::builder) use self::exit::CoreExitPlan;
+#[cfg(test)]
+pub(in crate::mir::builder) use self::expression_port::LocatedLoopPlanExpressionPortV1;
+#[cfg(test)]
+pub(in crate::mir::builder) use self::expression_port::LoopPlanExpressionPortErrorV1;
+pub(in crate::mir::builder) use self::expression_port::{
+    LoopPlanExpressionPortV1, RawLoopPlanExpressionPortV1,
+};
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use self::located_loop::VerifiedLocatedCoreLoopPlanV1;
 pub(in crate::mir::builder) use self::located_loop_error::LocatedCoreLoopPlanErrorV1;
@@ -146,5 +154,7 @@ pub(in crate::mir::builder) use self::located_loop_error::LocatedCoreLoopPlanErr
 // Domain types
 pub(in crate::mir::builder) use self::domain::LoopBreakStepPlacement;
 
+#[cfg(test)]
+mod expression_port_tests;
 #[cfg(test)]
 mod located_loop_tests;

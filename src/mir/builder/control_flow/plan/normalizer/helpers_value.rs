@@ -6,65 +6,15 @@ use super::newbox::record_newbox_metadata;
 use super::CoreEffectPlan;
 use crate::mir::builder::calls::extern_calls;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::CoreCallSourceV1;
+use crate::mir::builder::control_flow::plan::{
+    CoreCallSourceV1, LoopPlanExpressionPortV1, RawLoopPlanExpressionPortV1,
+};
 use crate::mir::builder::MirBuilder;
+use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
 use crate::mir::{BinaryOp, ConstValue, Effect, EffectMask, MirType, ValueId};
 use std::collections::BTreeMap;
 
 impl super::PlanNormalizer {
-    pub(in crate::mir::builder) fn declared_field_type_for_base(
-        builder: &MirBuilder,
-        base: ValueId,
-        field: &str,
-    ) -> Option<MirType> {
-        builder
-            .type_ctx
-            .value_origin_newbox
-            .get(&base)
-            .and_then(|box_name| builder.comp_ctx.declared_field_type_name(box_name, field))
-            .map(MirBuilder::parse_type_name_to_mir)
-    }
-
-    fn allocate_field_result(builder: &mut MirBuilder, declared_type: &Option<MirType>) -> ValueId {
-        match declared_type {
-            Some(ty) => {
-                let value_id = builder.alloc_typed(ty.clone());
-                if let MirType::Box(class_name) = ty {
-                    builder
-                        .type_ctx
-                        .value_origin_newbox
-                        .insert(value_id, class_name.clone());
-                }
-                value_id
-            }
-            None => {
-                let value_id = builder.next_value_id();
-                builder.type_ctx.set_type(value_id, MirType::Unknown);
-                value_id
-            }
-        }
-    }
-
-    fn non_add_arithmetic_result_type(builder: &MirBuilder, lhs: ValueId, rhs: ValueId) -> MirType {
-        let lhs_ty = builder.type_ctx.get_type(lhs);
-        let rhs_ty = builder.type_ctx.get_type(rhs);
-        if matches!(lhs_ty, Some(MirType::Float)) || matches!(rhs_ty, Some(MirType::Float)) {
-            MirType::Float
-        } else {
-            MirType::Integer
-        }
-    }
-
-    fn lookup_variable_value(
-        builder: &MirBuilder,
-        phi_bindings: &BTreeMap<String, ValueId>,
-        name: &str,
-    ) -> Option<ValueId> {
-        let from_map = builder.variable_ctx.variable_map.get(name).copied();
-        let from_bindings = phi_bindings.get(name).copied();
-        from_bindings.or(from_map)
-    }
-
     /// Helper: Lower value AST to (ValueId, const_effects)
     /// Returns the ValueId and any Const instructions needed to define literals
     ///
@@ -75,6 +25,20 @@ impl super::PlanNormalizer {
         builder: &mut MirBuilder,
         phi_bindings: &BTreeMap<String, ValueId>,
     ) -> Result<(ValueId, Vec<CoreEffectPlan>), String> {
+        let port = RawLoopPlanExpressionPortV1::new();
+        Self::lower_value_input(&port, port.expr(ast), builder, phi_bindings)
+    }
+
+    pub(in crate::mir::builder) fn lower_value_input<'input, P>(
+        port: &P,
+        input: P::ExprInput<'input>,
+        builder: &mut MirBuilder,
+        phi_bindings: &BTreeMap<String, ValueId>,
+    ) -> Result<(ValueId, Vec<CoreEffectPlan>), String>
+    where
+        P: LoopPlanExpressionPortV1 + 'input,
+    {
+        let ast = port.expr_syntax(&input);
         // Keep instruction spans meaningful in the plan-based lowering path too.
         // This mirrors `MirBuilder::build_expression_impl`.
         builder.metadata_ctx.set_current_span(ast.span());
@@ -97,9 +61,12 @@ impl super::PlanNormalizer {
                     Err("[normalizer] me/this value without bound receiver".to_string())
                 }
             }
-            ASTNode::FieldAccess { object, field, .. } => {
+            ASTNode::FieldAccess { field, .. } => {
+                let object = port
+                    .child_expr(&input, ExprChildRoleV1::Receiver)
+                    .map_err(|error| error.render())?;
                 let (object_id, mut effects) =
-                    Self::lower_value_ast(object, builder, phi_bindings)?;
+                    Self::lower_value_input(port, object, builder, phi_bindings)?;
                 let declared_type = Self::declared_field_type_for_base(builder, object_id, field);
                 let result_id = Self::allocate_field_result(builder, &declared_type);
                 effects.push(CoreEffectPlan::FieldGet {
@@ -173,11 +140,13 @@ impl super::PlanNormalizer {
 
                 Ok((value_id, vec![const_effect]))
             }
-            ASTNode::UnaryOp {
-                operator, operand, ..
-            } => match operator {
+            ASTNode::UnaryOp { operator, .. } => match operator {
                 UnaryOperator::Minus => {
-                    let (rhs, mut effects) = Self::lower_value_ast(operand, builder, phi_bindings)?;
+                    let operand = port
+                        .child_expr(&input, ExprChildRoleV1::UnaryOperand)
+                        .map_err(|error| error.render())?;
+                    let (rhs, mut effects) =
+                        Self::lower_value_input(port, operand, builder, phi_bindings)?;
                     let rhs_ty = builder
                         .type_ctx
                         .get_type(rhs)
@@ -202,7 +171,11 @@ impl super::PlanNormalizer {
                     Ok((dst, effects))
                 }
                 UnaryOperator::BitNot => {
-                    let (rhs, mut effects) = Self::lower_value_ast(operand, builder, phi_bindings)?;
+                    let operand = port
+                        .child_expr(&input, ExprChildRoleV1::UnaryOperand)
+                        .map_err(|error| error.render())?;
+                    let (rhs, mut effects) =
+                        Self::lower_value_input(port, operand, builder, phi_bindings)?;
                     let mask_id = builder.alloc_typed(MirType::Integer);
                     effects.push(CoreEffectPlan::Const {
                         dst: mask_id,
@@ -235,11 +208,16 @@ impl super::PlanNormalizer {
             } => {
                 let mut arg_ids = Vec::new();
                 let mut arg_effects = Vec::new();
-                for arg in arguments {
-                    let (arg_id, mut effects) = Self::lower_value_ast(arg, builder, phi_bindings)?;
+                for (index, _) in arguments.iter().enumerate() {
+                    let argument = port
+                        .child_expr(&input, ExprChildRoleV1::CallArgument(index as u32))
+                        .map_err(|error| error.render())?;
+                    let (arg_id, mut effects) =
+                        Self::lower_value_input(port, argument, builder, phi_bindings)?;
                     arg_ids.push(arg_id);
                     arg_effects.append(&mut effects);
                 }
+                let call_source = port.call_source(&input).map_err(|error| error.render())?;
 
                 let result_id = builder.next_value_id();
                 let result_type = match object.as_ref() {
@@ -268,7 +246,7 @@ impl super::PlanNormalizer {
                             ));
                         }
                         arg_effects.push(CoreEffectPlan::ExternCall {
-                            source: CoreCallSourceV1::Unlocated,
+                            source: call_source.clone(),
                             dst: Some(result_id),
                             iface_name,
                             method_name,
@@ -281,7 +259,7 @@ impl super::PlanNormalizer {
                             Self::lookup_variable_value(builder, phi_bindings, name)
                         {
                             arg_effects.push(CoreEffectPlan::MethodCall {
-                                source: CoreCallSourceV1::Unlocated,
+                                source: call_source.clone(),
                                 dst: Some(result_id),
                                 object: value_id,
                                 method: method.clone(),
@@ -291,7 +269,7 @@ impl super::PlanNormalizer {
                         } else if builder.comp_ctx.user_defined_boxes.contains_key(name) {
                             let func = format!("{}.{}/{}", name, method, arguments.len());
                             arg_effects.push(CoreEffectPlan::GlobalCall {
-                                source: CoreCallSourceV1::Unlocated,
+                                source: call_source.clone(),
                                 dst: Some(result_id),
                                 func,
                                 args: arg_ids,
@@ -307,11 +285,14 @@ impl super::PlanNormalizer {
                         value: LiteralValue::String(_),
                         ..
                     } => {
+                        let object = port
+                            .child_expr(&input, ExprChildRoleV1::Receiver)
+                            .map_err(|error| error.render())?;
                         let (object_id, mut object_effects) =
-                            Self::lower_value_ast(object, builder, phi_bindings)?;
+                            Self::lower_value_input(port, object, builder, phi_bindings)?;
                         arg_effects.append(&mut object_effects);
                         arg_effects.push(CoreEffectPlan::MethodCall {
-                            source: CoreCallSourceV1::Unlocated,
+                            source: call_source.clone(),
                             dst: Some(result_id),
                             object: object_id,
                             method: method.clone(),
@@ -324,6 +305,7 @@ impl super::PlanNormalizer {
                             builder,
                             phi_bindings,
                             object.as_ref(),
+                            call_source.clone(),
                             method,
                             arg_ids,
                             arguments.len(),
@@ -336,11 +318,14 @@ impl super::PlanNormalizer {
                     ASTNode::FieldAccess { .. }
                     | ASTNode::ThisField { .. }
                     | ASTNode::MeField { .. } => {
+                        let object = port
+                            .child_expr(&input, ExprChildRoleV1::Receiver)
+                            .map_err(|error| error.render())?;
                         let (object_id, mut object_effects) =
-                            Self::lower_value_ast(object, builder, phi_bindings)?;
+                            Self::lower_value_input(port, object, builder, phi_bindings)?;
                         arg_effects.append(&mut object_effects);
                         arg_effects.push(CoreEffectPlan::MethodCall {
-                            source: CoreCallSourceV1::Unlocated,
+                            source: call_source.clone(),
                             dst: Some(result_id),
                             object: object_id,
                             method: method.clone(),
@@ -358,11 +343,14 @@ impl super::PlanNormalizer {
                         // Lowering only the inner callee base (for example `arr` in
                         // `arr.get(idx).length()`) loses the receiver chain and
                         // misbinds the outer method to the wrong object.
+                        let object = port
+                            .child_expr(&input, ExprChildRoleV1::Receiver)
+                            .map_err(|error| error.render())?;
                         let (object_id, mut object_effects) =
-                            Self::lower_value_ast(object, builder, phi_bindings)?;
+                            Self::lower_value_input(port, object, builder, phi_bindings)?;
                         arg_effects.append(&mut object_effects);
                         arg_effects.push(CoreEffectPlan::MethodCall {
-                            source: CoreCallSourceV1::Unlocated,
+                            source: call_source.clone(),
                             dst: Some(result_id),
                             object: object_id,
                             method: method.clone(),
@@ -371,11 +359,14 @@ impl super::PlanNormalizer {
                         });
                     }
                     _ => {
+                        let object = port
+                            .child_expr(&input, ExprChildRoleV1::Receiver)
+                            .map_err(|error| error.render())?;
                         let (object_id, mut object_effects) =
-                            Self::lower_value_ast(object, builder, phi_bindings)?;
+                            Self::lower_value_input(port, object, builder, phi_bindings)?;
                         arg_effects.append(&mut object_effects);
                         arg_effects.push(CoreEffectPlan::MethodCall {
-                            source: CoreCallSourceV1::Unlocated,
+                            source: call_source,
                             dst: Some(result_id),
                             object: object_id,
                             method: method.clone(),
@@ -401,15 +392,19 @@ impl super::PlanNormalizer {
 
                 let mut arg_ids = Vec::new();
                 let mut arg_effects = Vec::new();
-                for arg in arguments {
-                    let (arg_id, mut effects) = Self::lower_value_ast(arg, builder, phi_bindings)?;
+                for (index, _) in arguments.iter().enumerate() {
+                    let argument = port
+                        .child_expr(&input, ExprChildRoleV1::CallArgument(index as u32))
+                        .map_err(|error| error.render())?;
+                    let (arg_id, mut effects) =
+                        Self::lower_value_input(port, argument, builder, phi_bindings)?;
                     arg_ids.push(arg_id);
                     arg_effects.append(&mut effects);
                 }
                 let result_id = builder.next_value_id();
                 builder.type_ctx.set_type(result_id, MirType::Unknown);
                 arg_effects.push(CoreEffectPlan::GlobalCall {
-                    source: CoreCallSourceV1::Unlocated,
+                    source: port.call_source(&input).map_err(|error| error.render())?,
                     dst: Some(result_id),
                     func: name.clone(),
                     args: arg_ids,
@@ -458,9 +453,12 @@ impl super::PlanNormalizer {
                 }
 
                 let mut effects = Vec::new();
-                let payload = if let Some(argument) = arguments.first() {
+                let payload = if arguments.first().is_some() {
+                    let argument = port
+                        .child_expr(&input, ExprChildRoleV1::CallArgument(0))
+                        .map_err(|error| error.render())?;
                     let (payload_id, mut payload_effects) =
-                        Self::lower_value_ast(argument, builder, phi_bindings)?;
+                        Self::lower_value_input(port, argument, builder, phi_bindings)?;
                     effects.append(&mut payload_effects);
                     Some(payload_id)
                 } else {
@@ -480,15 +478,20 @@ impl super::PlanNormalizer {
                 });
                 Ok((dst, effects))
             }
-            ASTNode::Call {
-                callee, arguments, ..
-            } => {
+            ASTNode::Call { arguments, .. } => {
+                let callee = port
+                    .child_expr(&input, ExprChildRoleV1::CallCallee)
+                    .map_err(|error| error.render())?;
                 let (callee_id, mut callee_effects) =
-                    Self::lower_value_ast(callee, builder, phi_bindings)?;
+                    Self::lower_value_input(port, callee, builder, phi_bindings)?;
                 let mut arg_ids = Vec::new();
                 let mut arg_effects = Vec::new();
-                for arg in arguments {
-                    let (arg_id, mut effects) = Self::lower_value_ast(arg, builder, phi_bindings)?;
+                for (index, _) in arguments.iter().enumerate() {
+                    let argument = port
+                        .child_expr(&input, ExprChildRoleV1::CallArgument(index as u32))
+                        .map_err(|error| error.render())?;
+                    let (arg_id, mut effects) =
+                        Self::lower_value_input(port, argument, builder, phi_bindings)?;
                     arg_ids.push(arg_id);
                     arg_effects.append(&mut effects);
                 }
@@ -496,7 +499,7 @@ impl super::PlanNormalizer {
                 builder.type_ctx.set_type(result_id, MirType::Unknown);
                 arg_effects.append(&mut callee_effects);
                 arg_effects.push(CoreEffectPlan::ValueCall {
-                    source: CoreCallSourceV1::Unlocated,
+                    source: port.call_source(&input).map_err(|error| error.render())?,
                     dst: Some(result_id),
                     callee: callee_id,
                     args: arg_ids,
@@ -520,8 +523,12 @@ impl super::PlanNormalizer {
                     .type_ctx
                     .set_type(result_id, MirType::Box(class.clone()));
                 let mut arg_ids = Vec::new();
-                for arg in arguments {
-                    let (arg_id, mut more) = Self::lower_value_ast(arg, builder, phi_bindings)?;
+                for (index, _) in arguments.iter().enumerate() {
+                    let argument = port
+                        .child_expr(&input, ExprChildRoleV1::CallArgument(index as u32))
+                        .map_err(|error| error.render())?;
+                    let (arg_id, mut more) =
+                        Self::lower_value_input(port, argument, builder, phi_bindings)?;
                     effects.append(&mut more);
                     arg_ids.push(arg_id);
                 }
@@ -553,9 +560,12 @@ impl super::PlanNormalizer {
                     args: vec![],
                     effects: EffectMask::MUT,
                 });
-                for element in elements {
+                for (index, _) in elements.iter().enumerate() {
+                    let element = port
+                        .child_expr(&input, ExprChildRoleV1::ArrayElement(index as u32))
+                        .map_err(|error| error.render())?;
                     let (element_id, mut more) =
-                        Self::lower_value_ast(element, builder, phi_bindings)?;
+                        Self::lower_value_input(port, element, builder, phi_bindings)?;
                     effects.append(&mut more);
                     effects.push(CoreEffectPlan::MethodCall {
                         source: CoreCallSourceV1::Unlocated,
@@ -588,16 +598,20 @@ impl super::PlanNormalizer {
                     args: vec![],
                     effects: EffectMask::MUT,
                 });
-                for (key_expr, value) in entries {
+                for (index, (key_expr, _)) in entries.iter().enumerate() {
                     let key_literal = ASTNode::Literal {
                         value: LiteralValue::String(key_expr.clone()),
                         span: crate::ast::Span::unknown(),
                     };
+                    let key_literal = port.synthetic_expr(&key_literal);
                     let (key_id, mut key_effects) =
-                        Self::lower_value_ast(&key_literal, builder, phi_bindings)?;
+                        Self::lower_value_input(port, key_literal, builder, phi_bindings)?;
                     effects.append(&mut key_effects);
+                    let value = port
+                        .child_expr(&input, ExprChildRoleV1::MapEntryValue(index as u32))
+                        .map_err(|error| error.render())?;
                     let (value_id, mut value_effects) =
-                        Self::lower_value_ast(value, builder, phi_bindings)?;
+                        Self::lower_value_input(port, value, builder, phi_bindings)?;
                     effects.append(&mut value_effects);
                     effects.push(CoreEffectPlan::MethodCall {
                         source: CoreCallSourceV1::Unlocated,
@@ -610,13 +624,12 @@ impl super::PlanNormalizer {
                 }
                 Ok((map_id, effects))
             }
-            ASTNode::BlockExpr {
-                prelude_stmts,
-                tail_expr,
-                ..
-            } => {
+            ASTNode::BlockExpr { prelude_stmts, .. } => {
                 if prelude_stmts.is_empty() {
-                    return Self::lower_value_ast(tail_expr.as_ref(), builder, phi_bindings);
+                    let tail = port
+                        .child_expr(&input, ExprChildRoleV1::BlockExprTail)
+                        .map_err(|error| error.render())?;
+                    return Self::lower_value_input(port, tail, builder, phi_bindings);
                 }
                 let (bindings, mut effects) = lower_blockexpr_value_prelude_stmts(
                     builder,
@@ -624,8 +637,11 @@ impl super::PlanNormalizer {
                     prelude_stmts,
                     "[normalizer] blockexpr value",
                 )?;
+                let tail = port
+                    .child_expr(&input, ExprChildRoleV1::BlockExprTail)
+                    .map_err(|error| error.render())?;
                 let (tail_id, mut tail_effects) =
-                    Self::lower_value_ast(tail_expr.as_ref(), builder, &bindings)?;
+                    Self::lower_value_input(port, tail, builder, &bindings)?;
                 effects.append(&mut tail_effects);
                 Ok((tail_id, effects))
             }
@@ -636,7 +652,7 @@ impl super::PlanNormalizer {
                 | crate::ast::BinaryOperator::Divide
                 | crate::ast::BinaryOperator::Modulo => {
                     let (lhs, op, rhs, mut consts) =
-                        Self::lower_binop_ast(ast, builder, phi_bindings)?;
+                        Self::lower_binop_input(port, input, builder, phi_bindings)?;
                     let result_type = if op == BinaryOp::Add {
                         prepare_coreplan_add_result_representation_v1(
                             builder.type_ctx.get_type(lhs),
@@ -681,9 +697,27 @@ impl super::PlanNormalizer {
                         "[normalizer] value-if requires single-expression branches".to_string()
                     );
                 }
-                let then_expr = &then_body[0];
-                let else_expr = &else_body[0];
-                if !is_pure_value_expr(then_expr) || !is_pure_value_expr(else_expr) {
+                let then_body_input = port
+                    .child_body(&input, BodyChildRoleV1::IfThen)
+                    .map_err(|error| error.render())?;
+                let else_body_input = port
+                    .child_body(&input, BodyChildRoleV1::IfElse)
+                    .map_err(|error| error.render())?;
+                let then_stmt = port
+                    .body_stmt(&then_body_input, 0)
+                    .map_err(|error| error.render())?;
+                let else_stmt = port
+                    .body_stmt(&else_body_input, 0)
+                    .map_err(|error| error.render())?;
+                let then_expr = port
+                    .statement_expr(&then_stmt)
+                    .map_err(|error| error.render())?;
+                let else_expr = port
+                    .statement_expr(&else_stmt)
+                    .map_err(|error| error.render())?;
+                if !is_pure_value_expr(port.expr_syntax(&then_expr))
+                    || !is_pure_value_expr(port.expr_syntax(&else_expr))
+                {
                     return Err("[normalizer] value-if requires pure expressions".to_string());
                 }
                 let cond_view = CondBlockView::from_expr(condition);
@@ -694,9 +728,9 @@ impl super::PlanNormalizer {
                     "[normalizer] value-if",
                 )?;
                 let (then_id, mut then_effects) =
-                    Self::lower_value_ast(then_expr, builder, phi_bindings)?;
+                    Self::lower_value_input(port, then_expr, builder, phi_bindings)?;
                 let (else_id, mut else_effects) =
-                    Self::lower_value_ast(else_expr, builder, phi_bindings)?;
+                    Self::lower_value_input(port, else_expr, builder, phi_bindings)?;
                 effects.append(&mut then_effects);
                 effects.append(&mut else_effects);
                 let ty = builder

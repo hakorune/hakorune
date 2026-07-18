@@ -1,5 +1,5 @@
 ---
-Status: LOOP0-S0c closed; worker-audited LOOP0-P0a next
+Status: LOOP0-P0a closed; worker-audited LOOP0-P0b next
 Date: 2026-07-19
 Code baseline: 2a87a3bbe91318f52154b97ff5fadc8ee24d5dec
 Decision-stop baseline: 4f9b84138a
@@ -33,8 +33,8 @@ claims condition rows 6-8 before body rows 9-14, and outer row 13 before its
 nested argument row 14. Plan emission may consume row 14 before row 13 because
 argument evaluation precedes the outer call.
 
-The next code-facing row is `LOOP0-P0a`, followed by the mechanical
-`P0b -> P0c` proof slices. Production located consumers, ledger claims,
+The next code-facing row is `LOOP0-P0b`, followed by the mechanical
+`P0c` proof slice. Production located consumers, ledger claims,
 grammar, runtime, backend, and ownership remain unchanged through P0.
 
 ## Repository-ground corrections
@@ -496,6 +496,23 @@ synthetic/canonical helper expressions without an exact carrier stay Unlocated
 port construction, inspection, and failure claim zero ledger rows
 ```
 
+P0a is closed. One sealed GAT port now delegates every admitted child demand
+to the existing PATH0 roles. The raw facade retains exact nested-call and
+nested pure value-If behavior, while the test-only located port co-validates
+the source-view brand before stamping a MethodCall site. Qualified MethodCalls
+preserve distinct inner/outer sites even though effect order is inner-first;
+synthetic Array calls stay Unlocated. Nine focused tests cover all four call
+families, exact Builder/type/effect snapshots, foreign-carrier rejection, and
+zero ledger mutation. One structural guard fixes the single raw/test-located
+port owners, production located producers/consumers zero, no GenericLoop
+threading, no second path/identity owner, and all touched source/check files
+below 800 lines. Normalizer, located-plan, callable-result, umbrella guard,
+all-target check, release build, formatting, pointer, and worker re-review are
+green; quick is 66/66 in 80 seconds. Boolean/short-circuit condition descent,
+BlockExpr prelude, and explicit externcall remain outside the first located
+profile and are carried explicitly
+to P0b rather than silently entering raw helpers.
+
 #### LOOP0-P0b — GenericLoopV1-only port threading
 
 Production behavior delta: 0. Production located consumers: 0.
@@ -804,6 +821,6 @@ Stop the current row if it requires:
 > before 13. Raw fallback behavior remains unchanged; located selection never
 > falls back. The first profile admits only direct-ordinal GenericLoop-v1
 > MethodCall inventory and rejects transformed bodies, nested Loop, and
-> normalized shadow before effects. `LOOP0-S0a` and `LOOP0-S0b` are closed;
-> `LOOP0-S0c` is closed; `LOOP0-P0a` is next. Production located consumers
+> normalized shadow before effects. `LOOP0-S0a` through `LOOP0-S0c` and
+> `LOOP0-P0a` are closed; `LOOP0-P0b` is next. Production located consumers
 > and ledger claims remain zero through P0.
