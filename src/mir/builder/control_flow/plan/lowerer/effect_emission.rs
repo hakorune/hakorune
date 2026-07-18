@@ -121,6 +121,7 @@ impl super::PlanLowerer {
                 method,
                 args,
                 effects,
+                source: _,
             } => {
                 // P2: dst and effects are now specified by Normalizer
                 // LocalSSA: ensure receiver/args are materialized in the current block to avoid
@@ -139,12 +140,22 @@ impl super::PlanLowerer {
                     crate::mir::definitions::call_unified::TypeCertainty::Union,
                 ))?;
             }
-            CoreEffectPlan::GlobalCall { dst, func, args } => {
+            CoreEffectPlan::GlobalCall {
+                dst,
+                func,
+                args,
+                source: _,
+            } => {
                 let args: Vec<ValueId> =
                     args.iter().copied().map(|a| builder.local_arg(a)).collect();
                 builder.emit_unified_call(*dst, CallTarget::Global(func.clone()), args)?;
             }
-            CoreEffectPlan::ValueCall { dst, callee, args } => {
+            CoreEffectPlan::ValueCall {
+                dst,
+                callee,
+                args,
+                source: _,
+            } => {
                 let callee = builder.local_arg(*callee);
                 let args: Vec<ValueId> =
                     args.iter().copied().map(|a| builder.local_arg(a)).collect();
@@ -156,6 +167,7 @@ impl super::PlanLowerer {
                 method_name,
                 args,
                 effects,
+                source: _,
             } => {
                 builder.emit_extern_call_with_effects(
                     iface_name,

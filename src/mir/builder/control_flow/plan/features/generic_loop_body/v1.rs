@@ -10,7 +10,7 @@ use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::parts::entry::apply_loop_final_values_to_bindings;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 use crate::mir::builder::control_flow::plan::{
-    CoreEffectPlan, CoreExitPlan, CorePlan, LoweredRecipe,
+    CoreCallSourceV1, CoreEffectPlan, CoreExitPlan, CorePlan, LoweredRecipe,
 };
 use crate::mir::builder::control_flow::verify::coreloop_body_contract::is_effect_only_stmt;
 use crate::mir::builder::MirBuilder;
@@ -246,6 +246,7 @@ fn lower_body_stmt_v1(
             let (value_id, mut effects) =
                 PlanNormalizer::lower_value_ast(expression, builder, phi_bindings)?;
             effects.push(CoreEffectPlan::ExternCall {
+                source: CoreCallSourceV1::Unlocated,
                 dst: None,
                 iface_name: "env.console".to_string(),
                 method_name: "log".to_string(),

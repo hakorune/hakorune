@@ -14,7 +14,9 @@ use crate::mir::builder::control_flow::plan::facts::return_prelude::{
 };
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, PlanNormalizer};
 use crate::mir::builder::control_flow::plan::recipe_tree::{ExitKind, RecipeBlock, RecipeItem};
-use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::plan::{
+    CoreCallSourceV1, CoreEffectPlan, CorePlan, LoweredRecipe,
+};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{Effect, EffectMask, ValueId};
 use std::collections::BTreeMap;
@@ -438,6 +440,7 @@ pub(in crate::mir::builder) fn lower_return_prelude_stmt(
             let (value_id, mut effects) =
                 PlanNormalizer::lower_value_ast(expression, builder, branch_bindings)?;
             effects.push(CoreEffectPlan::ExternCall {
+                source: CoreCallSourceV1::Unlocated,
                 dst: None,
                 iface_name: "env.console".to_string(),
                 method_name: "log".to_string(),

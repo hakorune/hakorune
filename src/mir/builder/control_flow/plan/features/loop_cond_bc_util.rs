@@ -6,7 +6,9 @@ use crate::mir::builder::control_flow::plan::features::carrier_merge::{
 };
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, PlanNormalizer};
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
-use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::plan::{
+    CoreCallSourceV1, CoreEffectPlan, CorePlan, LoweredRecipe,
+};
 use crate::mir::builder::control_flow::recipes::refs::StmtRef;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 use crate::mir::builder::MirBuilder;
@@ -182,6 +184,7 @@ pub(super) fn lower_simple_effect_stmt(
             let (value_id, mut effects) =
                 PlanNormalizer::lower_value_ast(expression, builder, current_bindings)?;
             effects.push(CoreEffectPlan::ExternCall {
+                source: CoreCallSourceV1::Unlocated,
                 dst: None,
                 iface_name: "env.console".to_string(),
                 method_name: "log".to_string(),

@@ -30,6 +30,7 @@
 
 // Layer 0: Core Data Structures (owner-internal)
 // 分割されたデータ構造定義。plan/mod.rs 配下でのみ使う内部層。
+mod call_source;
 mod core;
 mod domain;
 mod effect;
@@ -129,6 +130,8 @@ pub(in crate::mir::builder) use plan_build_session::PlanBuildSession;
 // ============================================================================
 
 // Core types
+#[allow(unused_imports)]
+pub(in crate::mir::builder) use self::call_source::{visit_core_call_sources_v1, CoreCallSourceV1};
 pub(in crate::mir::builder) use self::core::{
     CoreIfJoin, CoreIfPlan, CoreLoopPlan, CorePhiInfo, CorePlan, LoopStepMode, LoweredRecipe,
 };

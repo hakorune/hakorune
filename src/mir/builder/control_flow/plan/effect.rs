@@ -1,3 +1,4 @@
+use super::call_source::CoreCallSourceV1;
 use super::exit::CoreExitPlan;
 use crate::mir::{BinaryOp, CompareOp, ConstValue, EffectMask, LocalSlotId, MirType, ValueId};
 
@@ -22,18 +23,21 @@ pub(in crate::mir::builder) enum CoreEffectPlan {
         method: String, // Method name only (OK as String)
         args: Vec<ValueId>,
         effects: EffectMask, // P2: Side effect mask (PURE+Io or MUT)
+        source: CoreCallSourceV1,
     },
     /// Global/static call (box-level or free function)
     GlobalCall {
         dst: Option<ValueId>,
         func: String,
         args: Vec<ValueId>,
+        source: CoreCallSourceV1,
     },
     /// Indirect call (callee is a ValueId)
     ValueCall {
         dst: Option<ValueId>,
         callee: ValueId,
         args: Vec<ValueId>,
+        source: CoreCallSourceV1,
     },
     /// External call (env.* and other extern interfaces)
     ExternCall {
@@ -42,6 +46,7 @@ pub(in crate::mir::builder) enum CoreEffectPlan {
         method_name: String,
         args: Vec<ValueId>,
         effects: EffectMask,
+        source: CoreCallSourceV1,
     },
 
     /// New box allocation

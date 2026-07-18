@@ -168,16 +168,27 @@ fn remap_effect_in_place(value_map: &BTreeMap<ValueId, ValueId>, effect: &mut Co
             method: _,
             args,
             effects: _,
+            source: _,
         } => {
             *dst = dst.map(|d| remap_value_id(value_map, d));
             *object = remap_value_id(value_map, *object);
             *args = remap_value_ids(value_map, args);
         }
-        CoreEffectPlan::GlobalCall { dst, func: _, args } => {
+        CoreEffectPlan::GlobalCall {
+            dst,
+            func: _,
+            args,
+            source: _,
+        } => {
             *dst = dst.map(|d| remap_value_id(value_map, d));
             *args = remap_value_ids(value_map, args);
         }
-        CoreEffectPlan::ValueCall { dst, callee, args } => {
+        CoreEffectPlan::ValueCall {
+            dst,
+            callee,
+            args,
+            source: _,
+        } => {
             *dst = dst.map(|d| remap_value_id(value_map, d));
             *callee = remap_value_id(value_map, *callee);
             *args = remap_value_ids(value_map, args);
@@ -188,6 +199,7 @@ fn remap_effect_in_place(value_map: &BTreeMap<ValueId, ValueId>, effect: &mut Co
             method_name: _,
             args,
             effects: _,
+            source: _,
         } => {
             *dst = dst.map(|d| remap_value_id(value_map, d));
             *args = remap_value_ids(value_map, args);
@@ -420,5 +432,84 @@ fn remap_frag_with_values(
         exits,
         wires,
         branches,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::builder::control_flow::plan::CoreCallSourceV1;
+    use crate::mir::resolved_semantics::{SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1};
+    use crate::mir::EffectMask;
+
+    fn site() -> SourceExprSiteV1 {
+        SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+            SourcePathSegmentV1::Body(3),
+            SourcePathSegmentV1::Value,
+        ]))
+    }
+
+    #[test]
+    fn call_source_survives_value_id_remap_for_every_call_variant() {
+        let located = CoreCallSourceV1::LocatedMethodCall(site());
+        let mut effects = vec![
+            CoreEffectPlan::MethodCall {
+                source: located.clone(),
+                dst: Some(ValueId(1)),
+                object: ValueId(2),
+                method: "m".to_owned(),
+                args: vec![ValueId(3)],
+                effects: EffectMask::PURE,
+            },
+            CoreEffectPlan::GlobalCall {
+                source: located.clone(),
+                dst: Some(ValueId(1)),
+                func: "f".to_owned(),
+                args: vec![ValueId(3)],
+            },
+            CoreEffectPlan::ValueCall {
+                source: located.clone(),
+                dst: Some(ValueId(1)),
+                callee: ValueId(2),
+                args: vec![ValueId(3)],
+            },
+            CoreEffectPlan::ExternCall {
+                source: located.clone(),
+                dst: Some(ValueId(1)),
+                iface_name: "env".to_owned(),
+                method_name: "log".to_owned(),
+                args: vec![ValueId(3)],
+                effects: EffectMask::IO,
+            },
+        ];
+        let value_map = BTreeMap::from([
+            (ValueId(1), ValueId(11)),
+            (ValueId(2), ValueId(12)),
+            (ValueId(3), ValueId(13)),
+        ]);
+
+        for effect in &mut effects {
+            remap_effect_in_place(&value_map, effect);
+        }
+
+        for effect in &effects {
+            let source = match effect {
+                CoreEffectPlan::MethodCall { source, .. }
+                | CoreEffectPlan::GlobalCall { source, .. }
+                | CoreEffectPlan::ValueCall { source, .. }
+                | CoreEffectPlan::ExternCall { source, .. } => source,
+                _ => unreachable!("fixture contains only call effects"),
+            };
+            assert_eq!(source, &located);
+        }
+        assert!(matches!(
+            &effects[0],
+            CoreEffectPlan::MethodCall {
+                dst: Some(ValueId(11)),
+                object: ValueId(12),
+                args,
+                ..
+            } if args == &vec![ValueId(13)]
+        ));
     }
 }

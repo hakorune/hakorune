@@ -188,6 +188,7 @@ fn lower_value_ast_keeps_nested_method_call_receiver_chain() {
             method,
             args,
             effects,
+            source: _,
         } => {
             assert_eq!(*object, array_id, "get should stay on the array receiver");
             assert_eq!(method, "get");
@@ -205,6 +206,7 @@ fn lower_value_ast_keeps_nested_method_call_receiver_chain() {
             method,
             args,
             effects,
+            source: _,
         } => {
             assert_eq!(*dst, outer_result);
             assert_eq!(*object, inner_result, "length must receive the get result");

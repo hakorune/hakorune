@@ -28,6 +28,7 @@ pub(super) fn verify_effect(
             method,
             args,
             effects: _,
+            source: _,
         } => {
             // P2: dst is now Option<ValueId>
             if let Some(dst_val) = dst {
@@ -45,7 +46,12 @@ pub(super) fn verify_effect(
                 primitives::verify_value_id_basic(*arg, depth, &format!("MethodCall.args[{}]", i))?;
             }
         }
-        CoreEffectPlan::GlobalCall { dst, func, args } => {
+        CoreEffectPlan::GlobalCall {
+            dst,
+            func,
+            args,
+            source: _,
+        } => {
             if let Some(dst_val) = dst {
                 primitives::verify_value_id_basic(*dst_val, depth, "GlobalCall.dst")?;
             }
@@ -60,7 +66,12 @@ pub(super) fn verify_effect(
                 primitives::verify_value_id_basic(*arg, depth, &format!("GlobalCall.args[{}]", i))?;
             }
         }
-        CoreEffectPlan::ValueCall { dst, callee, args } => {
+        CoreEffectPlan::ValueCall {
+            dst,
+            callee,
+            args,
+            source: _,
+        } => {
             if let Some(dst_val) = dst {
                 primitives::verify_value_id_basic(*dst_val, depth, "ValueCall.dst")?;
             }
@@ -75,6 +86,7 @@ pub(super) fn verify_effect(
             method_name,
             args,
             effects: _,
+            source: _,
         } => {
             if let Some(dst_val) = dst {
                 primitives::verify_value_id_basic(*dst_val, depth, "ExternCall.dst")?;

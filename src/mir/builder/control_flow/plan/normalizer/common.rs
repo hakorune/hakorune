@@ -1,5 +1,5 @@
 use crate::ast::ASTNode;
-use crate::mir::builder::control_flow::plan::CoreEffectPlan;
+use crate::mir::builder::control_flow::plan::{CoreCallSourceV1, CoreEffectPlan};
 use crate::mir::builder::MirBuilder;
 use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
 use crate::mir::EdgeArgs;
@@ -54,6 +54,7 @@ pub(in crate::mir::builder) fn lower_me_this_method_effect(
         ASTNode::Me { .. } => {
             if let Some(object_id) = bound_me {
                 Ok(CoreEffectPlan::MethodCall {
+                    source: CoreCallSourceV1::Unlocated,
                     dst,
                     object: object_id,
                     method: method.to_string(),
@@ -62,6 +63,7 @@ pub(in crate::mir::builder) fn lower_me_this_method_effect(
                 })
             } else if let Some(box_name) = builder.comp_ctx.current_static_box.as_deref() {
                 Ok(CoreEffectPlan::GlobalCall {
+                    source: CoreCallSourceV1::Unlocated,
                     dst,
                     func: format!("{}.{}/{}", box_name, method, arity),
                     args,
@@ -73,12 +75,14 @@ pub(in crate::mir::builder) fn lower_me_this_method_effect(
         ASTNode::This { .. } => {
             if let Some(box_name) = builder.comp_ctx.current_static_box.as_deref() {
                 Ok(CoreEffectPlan::GlobalCall {
+                    source: CoreCallSourceV1::Unlocated,
                     dst,
                     func: format!("{}.{}/{}", box_name, method, arity),
                     args,
                 })
             } else if let Some(object_id) = bound_me {
                 Ok(CoreEffectPlan::MethodCall {
+                    source: CoreCallSourceV1::Unlocated,
                     dst,
                     object: object_id,
                     method: method.to_string(),

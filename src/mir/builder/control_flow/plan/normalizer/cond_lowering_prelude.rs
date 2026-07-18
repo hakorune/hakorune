@@ -7,7 +7,7 @@ use crate::mir::builder::control_flow::plan::normalizer::stmt_only_prelude_view:
     stmt_only_prelude_view, StmtOnlyPreludeView,
 };
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, PlanNormalizer};
-use crate::mir::builder::control_flow::plan::CoreEffectPlan;
+use crate::mir::builder::control_flow::plan::{CoreCallSourceV1, CoreEffectPlan};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{CompareOp, ConstValue, Effect, EffectMask, MirType, ValueId};
 use std::collections::BTreeMap;
@@ -238,6 +238,7 @@ fn lower_stmt_only_prelude_stmts(
                 let (value_id, mut stmt_effects) =
                     PlanNormalizer::lower_value_ast(expression, builder, &bindings)?;
                 stmt_effects.push(CoreEffectPlan::ExternCall {
+                    source: CoreCallSourceV1::Unlocated,
                     dst: None,
                     iface_name: "env.console".to_string(),
                     method_name: "log".to_string(),

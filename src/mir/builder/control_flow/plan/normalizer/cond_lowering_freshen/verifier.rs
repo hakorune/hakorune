@@ -420,7 +420,12 @@ fn find_unremapped_value_id_effect(
             }
             None
         }
-        CoreEffectPlan::ValueCall { dst, callee, args } => {
+        CoreEffectPlan::ValueCall {
+            dst,
+            callee,
+            args,
+            source: _,
+        } => {
             if let Some(d) = dst {
                 if let Some(&new) = value_map.get(d) {
                     return Some((*d, new, "Effect::ValueCall.dst"));

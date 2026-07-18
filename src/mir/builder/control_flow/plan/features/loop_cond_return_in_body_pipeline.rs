@@ -27,7 +27,7 @@ use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 use crate::mir::builder::control_flow::plan::steps::empty_carriers_args;
 use crate::mir::builder::control_flow::plan::{
-    CoreEffectPlan, CoreLoopPlan, CorePlan, LoweredRecipe,
+    CoreCallSourceV1, CoreEffectPlan, CoreLoopPlan, CorePlan, LoweredRecipe,
 };
 use crate::mir::builder::control_flow::recipes::loop_cond_return_in_body::{
     LoopCondReturnInBodyItem, LoopCondReturnInBodyRecipe,
@@ -422,6 +422,7 @@ fn lower_stmt_ast(
             let (value_id, mut effects) =
                 PlanNormalizer::lower_value_ast(expression, builder, current_bindings)?;
             effects.push(CoreEffectPlan::ExternCall {
+                source: CoreCallSourceV1::Unlocated,
                 dst: None,
                 iface_name: "env.console".to_string(),
                 method_name: "log".to_string(),

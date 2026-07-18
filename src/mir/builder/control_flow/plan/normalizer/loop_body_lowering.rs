@@ -4,7 +4,7 @@ use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
 use crate::mir::builder::calls::extern_calls;
 use crate::mir::builder::control_flow::plan::normalizer::common::lower_me_this_method_effect;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
-use crate::mir::builder::control_flow::plan::CoreEffectPlan;
+use crate::mir::builder::control_flow::plan::{CoreCallSourceV1, CoreEffectPlan};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BinaryOp, CompareOp, ConstValue, EffectMask, MirType, ValueId};
 use std::borrow::Cow;
@@ -54,6 +54,7 @@ pub(in crate::mir::builder) fn lower_assignment_stmt(
             effects.append(&mut value_effects);
 
             effects.push(CoreEffectPlan::MethodCall {
+                source: CoreCallSourceV1::Unlocated,
                 dst: None,
                 object: target_id,
                 method: "set".to_string(),
@@ -188,6 +189,7 @@ pub(in crate::mir::builder) fn lower_explicit_extern_call_value(
     );
     let (iface_name, method_name) = extern_calls::split_explicit_extern_name(&extern_name);
     effects.push(CoreEffectPlan::ExternCall {
+        source: CoreCallSourceV1::Unlocated,
         dst: Some(result_id),
         iface_name,
         method_name,
@@ -207,6 +209,7 @@ fn lower_explicit_extern_call_stmt(
         lower_explicit_extern_call_args(builder, phi_bindings, arguments, error_prefix)?;
     let (iface_name, method_name) = extern_calls::split_explicit_extern_name(&extern_name);
     effects.push(CoreEffectPlan::ExternCall {
+        source: CoreCallSourceV1::Unlocated,
         dst: None,
         iface_name,
         method_name,
@@ -253,6 +256,7 @@ pub(in crate::mir::builder) fn lower_method_call_stmt(
                 ));
             };
             effects.push(CoreEffectPlan::ExternCall {
+                source: CoreCallSourceV1::Unlocated,
                 dst: None,
                 iface_name,
                 method_name,
@@ -268,6 +272,7 @@ pub(in crate::mir::builder) fn lower_method_call_stmt(
             } else if builder.comp_ctx.user_defined_boxes.contains_key(name) {
                 let func = format!("{}.{}/{}", name, method, arguments.len());
                 effects.push(CoreEffectPlan::GlobalCall {
+                    source: CoreCallSourceV1::Unlocated,
                     dst: None,
                     func,
                     args: arg_ids,
@@ -280,6 +285,7 @@ pub(in crate::mir::builder) fn lower_method_call_stmt(
                 ));
             };
             effects.push(CoreEffectPlan::MethodCall {
+                source: CoreCallSourceV1::Unlocated,
                 dst: None,
                 object: object_id,
                 method: method.clone(),
@@ -306,6 +312,7 @@ pub(in crate::mir::builder) fn lower_method_call_stmt(
                 PlanNormalizer::lower_value_ast(object, builder, phi_bindings)?;
             effects.append(&mut obj_effects);
             effects.push(CoreEffectPlan::MethodCall {
+                source: CoreCallSourceV1::Unlocated,
                 dst: None,
                 object: object_id,
                 method: method.clone(),
@@ -402,6 +409,7 @@ pub(in crate::mir::builder) fn lower_function_call_stmt(
     }
     debug_log_callstmt_binop_lit3(builder, &effects, "function");
     effects.push(CoreEffectPlan::GlobalCall {
+        source: CoreCallSourceV1::Unlocated,
         dst: None,
         func: name.clone(),
         args: arg_ids,
@@ -619,6 +627,7 @@ mod tests {
                     method_name,
                     args,
                     effects,
+                    source: _,
                 } if *call_dst == dst
                     && iface_name.is_empty()
                     && method_name == "hako_atomic_ptr_load_ordered"
@@ -660,6 +669,7 @@ mod tests {
                     method_name,
                     args,
                     effects,
+                    source: _,
                 } if iface_name.is_empty()
                     && method_name == "hako_atomic_ptr_store_ordered"
                     && args.first() == Some(&ValueId::new(10))

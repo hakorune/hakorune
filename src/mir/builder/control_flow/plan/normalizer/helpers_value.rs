@@ -6,6 +6,7 @@ use super::newbox::record_newbox_metadata;
 use super::CoreEffectPlan;
 use crate::mir::builder::calls::extern_calls;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
+use crate::mir::builder::control_flow::plan::CoreCallSourceV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BinaryOp, ConstValue, Effect, EffectMask, MirType, ValueId};
 use std::collections::BTreeMap;
@@ -267,6 +268,7 @@ impl super::PlanNormalizer {
                             ));
                         }
                         arg_effects.push(CoreEffectPlan::ExternCall {
+                            source: CoreCallSourceV1::Unlocated,
                             dst: Some(result_id),
                             iface_name,
                             method_name,
@@ -279,6 +281,7 @@ impl super::PlanNormalizer {
                             Self::lookup_variable_value(builder, phi_bindings, name)
                         {
                             arg_effects.push(CoreEffectPlan::MethodCall {
+                                source: CoreCallSourceV1::Unlocated,
                                 dst: Some(result_id),
                                 object: value_id,
                                 method: method.clone(),
@@ -288,6 +291,7 @@ impl super::PlanNormalizer {
                         } else if builder.comp_ctx.user_defined_boxes.contains_key(name) {
                             let func = format!("{}.{}/{}", name, method, arguments.len());
                             arg_effects.push(CoreEffectPlan::GlobalCall {
+                                source: CoreCallSourceV1::Unlocated,
                                 dst: Some(result_id),
                                 func,
                                 args: arg_ids,
@@ -307,6 +311,7 @@ impl super::PlanNormalizer {
                             Self::lower_value_ast(object, builder, phi_bindings)?;
                         arg_effects.append(&mut object_effects);
                         arg_effects.push(CoreEffectPlan::MethodCall {
+                            source: CoreCallSourceV1::Unlocated,
                             dst: Some(result_id),
                             object: object_id,
                             method: method.clone(),
@@ -335,6 +340,7 @@ impl super::PlanNormalizer {
                             Self::lower_value_ast(object, builder, phi_bindings)?;
                         arg_effects.append(&mut object_effects);
                         arg_effects.push(CoreEffectPlan::MethodCall {
+                            source: CoreCallSourceV1::Unlocated,
                             dst: Some(result_id),
                             object: object_id,
                             method: method.clone(),
@@ -356,6 +362,7 @@ impl super::PlanNormalizer {
                             Self::lower_value_ast(object, builder, phi_bindings)?;
                         arg_effects.append(&mut object_effects);
                         arg_effects.push(CoreEffectPlan::MethodCall {
+                            source: CoreCallSourceV1::Unlocated,
                             dst: Some(result_id),
                             object: object_id,
                             method: method.clone(),
@@ -368,6 +375,7 @@ impl super::PlanNormalizer {
                             Self::lower_value_ast(object, builder, phi_bindings)?;
                         arg_effects.append(&mut object_effects);
                         arg_effects.push(CoreEffectPlan::MethodCall {
+                            source: CoreCallSourceV1::Unlocated,
                             dst: Some(result_id),
                             object: object_id,
                             method: method.clone(),
@@ -401,6 +409,7 @@ impl super::PlanNormalizer {
                 let result_id = builder.next_value_id();
                 builder.type_ctx.set_type(result_id, MirType::Unknown);
                 arg_effects.push(CoreEffectPlan::GlobalCall {
+                    source: CoreCallSourceV1::Unlocated,
                     dst: Some(result_id),
                     func: name.clone(),
                     args: arg_ids,
@@ -487,6 +496,7 @@ impl super::PlanNormalizer {
                 builder.type_ctx.set_type(result_id, MirType::Unknown);
                 arg_effects.append(&mut callee_effects);
                 arg_effects.push(CoreEffectPlan::ValueCall {
+                    source: CoreCallSourceV1::Unlocated,
                     dst: Some(result_id),
                     callee: callee_id,
                     args: arg_ids,
@@ -536,6 +546,7 @@ impl super::PlanNormalizer {
                     args: vec![],
                 });
                 effects.push(CoreEffectPlan::MethodCall {
+                    source: CoreCallSourceV1::Unlocated,
                     dst: None,
                     object: array_id,
                     method: "birth".to_string(),
@@ -547,6 +558,7 @@ impl super::PlanNormalizer {
                         Self::lower_value_ast(element, builder, phi_bindings)?;
                     effects.append(&mut more);
                     effects.push(CoreEffectPlan::MethodCall {
+                        source: CoreCallSourceV1::Unlocated,
                         dst: None,
                         object: array_id,
                         method: "push".to_string(),
@@ -569,6 +581,7 @@ impl super::PlanNormalizer {
                     args: vec![],
                 });
                 effects.push(CoreEffectPlan::MethodCall {
+                    source: CoreCallSourceV1::Unlocated,
                     dst: None,
                     object: map_id,
                     method: "birth".to_string(),
@@ -587,6 +600,7 @@ impl super::PlanNormalizer {
                         Self::lower_value_ast(value, builder, phi_bindings)?;
                     effects.append(&mut value_effects);
                     effects.push(CoreEffectPlan::MethodCall {
+                        source: CoreCallSourceV1::Unlocated,
                         dst: None,
                         object: map_id,
                         method: "set".to_string(),

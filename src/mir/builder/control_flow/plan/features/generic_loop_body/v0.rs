@@ -5,7 +5,9 @@ use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_entry::lo
 use crate::mir::builder::control_flow::plan::normalizer::loop_body_lowering;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::parts::var_map_scope::publish_emission_cache;
-use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::plan::{
+    CoreCallSourceV1, CoreEffectPlan, CorePlan, LoweredRecipe,
+};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{ConstValue, Effect, EffectMask, MirType};
 
@@ -87,6 +89,7 @@ pub(in crate::mir::builder) fn lower_generic_loop_v0_body(
                 let (value_id, mut effects) =
                     PlanNormalizer::lower_value_ast(expression, builder, phi_bindings)?;
                 effects.push(CoreEffectPlan::ExternCall {
+                    source: CoreCallSourceV1::Unlocated,
                     dst: None,
                     iface_name: "env.console".to_string(),
                     method_name: "log".to_string(),

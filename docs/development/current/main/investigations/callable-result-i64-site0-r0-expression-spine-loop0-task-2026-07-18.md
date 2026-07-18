@@ -1,5 +1,5 @@
 ---
-Status: B-prime selected; LOOP0-S0a next
+Status: LOOP0-S0a closed; LOOP0-S0b next
 Date: 2026-07-18
 Code baseline: 2a87a3bbe91318f52154b97ff5fadc8ee24d5dec
 Decision-stop baseline: 4f9b84138a
@@ -381,6 +381,17 @@ one exhaustive call-effect visitor
 Clone/remap preservation tests
 live guard excludes historical consult copies
 ```
+
+Closeout (2026-07-18): closed. One `CoreCallSourceV1` vocabulary now covers all
+four call-bearing variants. Every 34 live raw constructor explicitly publishes
+`Unlocated`; production located producers, located consumers, and ledger claims
+remain zero. The exhaustive plan/effect visitor covers Loop block effects and
+nested If effects, while Clone and ValueId remap preserve the exact source
+carrier. The public expression-spine guard inventories the full live plan tree,
+rejects premature S0b/ledger authorities, and excludes historical consult
+copies. Focused tests, `cargo check --all-targets`, quick 66/66 in 110s, format,
+diff, pointer, and line-cap checks are green. Three worker reviews are GO after
+the repository-wide guard correction.
 
 ### LOOP0-S0b — disconnected final-plan seal
 

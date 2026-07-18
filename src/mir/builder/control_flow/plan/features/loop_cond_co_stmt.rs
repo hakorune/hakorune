@@ -11,7 +11,9 @@ use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, Pl
 use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::parts::conditional_update::try_lower_general_if_recipe_authority;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
-use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::plan::{
+    CoreCallSourceV1, CoreEffectPlan, CorePlan, LoweredRecipe,
+};
 use crate::mir::builder::control_flow::recipes::loop_cond_continue_only::ContinueOnlyStmtRecipe;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{Effect, EffectMask};
@@ -212,6 +214,7 @@ pub(super) fn lower_stmt_ast(
             let (value_id, mut effects) =
                 PlanNormalizer::lower_value_ast(expression, builder, current_bindings)?;
             effects.push(CoreEffectPlan::ExternCall {
+                source: CoreCallSourceV1::Unlocated,
                 dst: None,
                 iface_name: "env.console".to_string(),
                 method_name: "log".to_string(),
