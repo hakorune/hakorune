@@ -10,7 +10,8 @@ use crate::mir::builder::control_flow::plan::parts;
 use crate::mir::builder::control_flow::plan::parts::entry::apply_loop_final_values_to_bindings;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 use crate::mir::builder::control_flow::plan::{
-    CoreCallSourceV1, CoreEffectPlan, CoreExitPlan, CorePlan, LoweredRecipe,
+    CoreCallSourceV1, CoreEffectPlan, CoreExitPlan, CorePlan, LoopPlanExpressionPortV1,
+    LoweredRecipe,
 };
 use crate::mir::builder::control_flow::verify::coreloop_body_contract::is_effect_only_stmt;
 use crate::mir::builder::MirBuilder;
@@ -20,7 +21,8 @@ use std::collections::BTreeMap;
 
 use super::helpers::{lower_effect_only_stmt, lower_nested_loop_plan, matches_loop_increment};
 use super::{
-    apply_generic_loop_v1_fallthrough_cleanup, body_plans_exit_on_all_paths, GENERIC_LOOP_ERR,
+    apply_generic_loop_v1_fallthrough_cleanup, body_plans_exit_on_all_paths,
+    lower_generic_loop_v1_direct_inputs, GENERIC_LOOP_ERR,
 };
 
 #[path = "branch.rs"]
@@ -70,50 +72,22 @@ pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
                 GENERIC_LOOP_ERR,
             )?
         } else {
-            let mut body_plans = Vec::new();
-            for stmt in &facts.body.body {
-                if matches_loop_increment(stmt, &facts.loop_var, &facts.loop_increment) {
-                    continue;
-                }
-                let plans = lower_body_stmt_v1(
-                    builder,
-                    &mut current_bindings,
-                    stmt,
-                    facts,
-                    &facts.loop_var,
-                    &facts.loop_increment,
-                    carrier_step_phis,
-                    ctx,
-                )?;
-                body_plans.extend(plans);
-                if body_plans_exit_on_all_paths(&body_plans) {
-                    break;
-                }
-            }
-            body_plans
-        }
-    } else {
-        let mut body_plans = Vec::new();
-        for stmt in &facts.body.body {
-            if matches_loop_increment(stmt, &facts.loop_var, &facts.loop_increment) {
-                continue;
-            }
-            let plans = lower_body_stmt_v1(
+            lower_direct_raw_body(
                 builder,
                 &mut current_bindings,
-                stmt,
                 facts,
-                &facts.loop_var,
-                &facts.loop_increment,
                 carrier_step_phis,
                 ctx,
-            )?;
-            body_plans.extend(plans);
-            if body_plans_exit_on_all_paths(&body_plans) {
-                break;
-            }
+            )?
         }
-        body_plans
+    } else {
+        lower_direct_raw_body(
+            builder,
+            &mut current_bindings,
+            facts,
+            carrier_step_phis,
+            ctx,
+        )?
     };
 
     apply_generic_loop_v1_fallthrough_cleanup(
@@ -127,6 +101,37 @@ pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
     )?;
 
     Ok(body_plans)
+}
+
+fn lower_direct_raw_body(
+    builder: &mut MirBuilder,
+    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
+    facts: &GenericLoopV1Facts,
+    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
+    ctx: &LoopRouteContext,
+) -> Result<Vec<LoweredRecipe>, String> {
+    let port = crate::mir::builder::control_flow::plan::RawLoopPlanExpressionPortV1::new();
+    let statements = facts.body.body.iter().filter(|statement| {
+        !matches_loop_increment(statement, &facts.loop_var, &facts.loop_increment)
+    });
+    lower_generic_loop_v1_direct_inputs(
+        builder,
+        current_bindings,
+        &port,
+        statements,
+        |builder, bindings, port, statement| {
+            lower_body_stmt_v1(
+                builder,
+                bindings,
+                port.stmt_syntax(&statement),
+                facts,
+                &facts.loop_var,
+                &facts.loop_increment,
+                carrier_step_phis,
+                ctx,
+            )
+        },
+    )
 }
 
 fn lower_body_stmt_v1(

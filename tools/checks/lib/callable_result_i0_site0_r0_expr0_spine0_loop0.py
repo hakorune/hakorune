@@ -255,13 +255,15 @@ def check_loop0_s0a(root: Path) -> str:
         production_plan_by_path[path.relative_to(root).as_posix()] = text
     production_plan_text = "\n".join(production_plan_sources)
     # P0a routes the 13 source-derived normalizer constructors through one
-    # stack-scoped call-source port. The remaining 21 raw/synthetic
-    # constructors stay explicitly Unlocated. The P0a guard below owns the
-    # dynamic producer and production-located-zero invariants.
+    # stack-scoped call-source port. B0 moves six statement constructors onto
+    # that same associated-input authority, leaving 15 raw/synthetic
+    # constructors explicitly Unlocated. The P0a guard below owns the dynamic
+    # producer and production-located-zero invariants; the B0 guard fixes the
+    # six associated statement owners.
     unlocated = production_plan_text.count("source: CoreCallSourceV1::Unlocated")
-    if unlocated != 21:
+    if unlocated != 15:
         raise RuntimeError(
-            f"LOOP0-P0a explicit Unlocated constructor drift: expected=21 actual={unlocated}"
+            f"LOOP0-P0a explicit Unlocated constructor drift: expected=15 actual={unlocated}"
         )
     located_production = _production(located)
     located_variant_reads = located_production.count(
@@ -557,7 +559,7 @@ def check_loop0_s0a(root: Path) -> str:
         raise RuntimeError(f"LOOP0-S0b source/check files reached 800 lines: {oversized}")
 
     return (
-        "loop0_s0a_sources=4 explicit_unlocated_constructors=21 located_producers=0 "
+        "loop0_s0a_sources=4 explicit_unlocated_constructors=15 located_producers=0 "
         "loop0_s0b_wrapper=1 schedule=1 loop0_s0c_batch=1 "
         "production_claim_callers=0 atomic_ledger_commits=1"
     )

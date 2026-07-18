@@ -2,9 +2,11 @@
 
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
 use crate::mir::builder::calls::extern_calls;
-use crate::mir::builder::control_flow::plan::normalizer::common::lower_me_this_method_effect;
+use crate::mir::builder::control_flow::plan::normalizer::loop_body_lowering_associated_input;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
-use crate::mir::builder::control_flow::plan::{CoreCallSourceV1, CoreEffectPlan};
+use crate::mir::builder::control_flow::plan::{
+    CoreCallSourceV1, CoreEffectPlan, RawLoopPlanExpressionPortV1,
+};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BinaryOp, CompareOp, ConstValue, EffectMask, MirType, ValueId};
 use std::borrow::Cow;
@@ -17,54 +19,15 @@ pub(in crate::mir::builder) fn lower_assignment_stmt(
     value: &ASTNode,
     error_prefix: &str,
 ) -> Result<(Option<(String, ValueId)>, Vec<CoreEffectPlan>), String> {
-    match target {
-        ASTNode::Variable { name, .. } => {
-            let (value_id, mut effects) =
-                PlanNormalizer::lower_value_ast(value, builder, phi_bindings)?;
-            let (value_id, contract_effect) =
-                local_contract_reassignment_effect(builder, name, value_id)?;
-            effects.extend(contract_effect);
-            Ok((Some((name.clone(), value_id)), effects))
-        }
-        ASTNode::FieldAccess { object, field, .. } => {
-            let (object_id, mut effects) =
-                PlanNormalizer::lower_value_ast(object, builder, phi_bindings)?;
-            let (value_id, mut value_effects) =
-                PlanNormalizer::lower_value_ast(value, builder, phi_bindings)?;
-            effects.append(&mut value_effects);
-            let declared_type =
-                PlanNormalizer::declared_field_type_for_base(builder, object_id, field);
-
-            effects.push(CoreEffectPlan::FieldSet {
-                base: object_id,
-                field: field.clone(),
-                value: value_id,
-                declared_type,
-            });
-            Ok((None, effects))
-        }
-        ASTNode::Index { target, index, .. } => {
-            let (target_id, mut effects) =
-                PlanNormalizer::lower_value_ast(target, builder, phi_bindings)?;
-            let (index_id, mut index_effects) =
-                PlanNormalizer::lower_value_ast(index, builder, phi_bindings)?;
-            effects.append(&mut index_effects);
-            let (value_id, mut value_effects) =
-                PlanNormalizer::lower_value_ast(value, builder, phi_bindings)?;
-            effects.append(&mut value_effects);
-
-            effects.push(CoreEffectPlan::MethodCall {
-                source: CoreCallSourceV1::Unlocated,
-                dst: None,
-                object: target_id,
-                method: "set".to_string(),
-                args: vec![index_id, value_id],
-                effects: EffectMask::MUT,
-            });
-            Ok((None, effects))
-        }
-        _ => Err(format!("{error_prefix}: unsupported assignment target")),
-    }
+    let port = RawLoopPlanExpressionPortV1::new();
+    loop_body_lowering_associated_input::lower_assignment_inputs(
+        &port,
+        port.expr(target),
+        port.expr(value),
+        builder,
+        phi_bindings,
+        error_prefix,
+    )
 }
 
 pub(in crate::mir::builder) fn local_contract_reassignment_effect(
@@ -131,19 +94,19 @@ pub(in crate::mir::builder) fn lower_local_init_values(
     initial_values: &[Option<Box<ASTNode>>],
     error_prefix: &str,
 ) -> Result<(Vec<(String, ValueId)>, Vec<CoreEffectPlan>), String> {
-    if variables.len() != initial_values.len() {
-        return Err(format!("{error_prefix}: local init arity mismatch"));
-    }
-    let mut effects = Vec::new();
-    let mut inits = Vec::with_capacity(variables.len());
-    for (name, init) in variables.iter().zip(initial_values.iter()) {
-        let init_node = local_init_node_or_null(init.as_ref());
-        let (value_id, mut init_effects) =
-            PlanNormalizer::lower_value_ast(init_node.as_ref(), builder, phi_bindings)?;
-        effects.append(&mut init_effects);
-        inits.push((name.to_string(), value_id));
-    }
-    Ok((inits, effects))
+    let port = RawLoopPlanExpressionPortV1::new();
+    let inputs = initial_values
+        .iter()
+        .map(|input| input.as_deref().map(|input| port.expr(input)))
+        .collect();
+    loop_body_lowering_associated_input::lower_local_initializer_inputs(
+        &port,
+        variables,
+        inputs,
+        builder,
+        phi_bindings,
+        error_prefix,
+    )
 }
 
 fn lower_explicit_extern_call_args(
@@ -199,134 +162,23 @@ pub(in crate::mir::builder) fn lower_explicit_extern_call_value(
     Ok((result_id, effects))
 }
 
-fn lower_explicit_extern_call_stmt(
-    builder: &mut MirBuilder,
-    phi_bindings: &BTreeMap<String, ValueId>,
-    arguments: &[ASTNode],
-    error_prefix: &str,
-) -> Result<Vec<CoreEffectPlan>, String> {
-    let (extern_name, arg_ids, mut effects) =
-        lower_explicit_extern_call_args(builder, phi_bindings, arguments, error_prefix)?;
-    let (iface_name, method_name) = extern_calls::split_explicit_extern_name(&extern_name);
-    effects.push(CoreEffectPlan::ExternCall {
-        source: CoreCallSourceV1::Unlocated,
-        dst: None,
-        iface_name,
-        method_name,
-        args: arg_ids,
-        effects: EffectMask::IO,
-    });
-    Ok(effects)
-}
-
 pub(in crate::mir::builder) fn lower_method_call_stmt(
     builder: &mut MirBuilder,
     phi_bindings: &BTreeMap<String, ValueId>,
     stmt: &ASTNode,
     error_prefix: &str,
 ) -> Result<Vec<CoreEffectPlan>, String> {
-    let ASTNode::MethodCall {
-        object,
-        method,
-        arguments,
-        ..
-    } = stmt
-    else {
-        return Err(format!("{error_prefix}: expected method call"));
-    };
-
-    let mut arg_ids = Vec::new();
-    let mut effects = Vec::new();
-    for arg in arguments {
-        let (arg_id, mut arg_effects) =
-            PlanNormalizer::lower_value_ast(arg, builder, phi_bindings)?;
-        arg_ids.push(arg_id);
-        effects.append(&mut arg_effects);
-    }
-    debug_log_callstmt_binop_lit3(builder, &effects, "method");
-
-    match object.as_ref() {
-        ASTNode::Variable { name, .. } if name == "env" => {
-            let Some((iface_name, method_name, effects_mask, _returns_value)) =
-                extern_calls::get_env_method_spec("env", method)
-            else {
-                return Err(format!(
-                    "{error_prefix}: env method not supported: {}",
-                    method
-                ));
-            };
-            effects.push(CoreEffectPlan::ExternCall {
-                source: CoreCallSourceV1::Unlocated,
-                dst: None,
-                iface_name,
-                method_name,
-                args: arg_ids,
-                effects: effects_mask,
-            });
-        }
-        ASTNode::Variable { name, .. } => {
-            let object_id = if let Some(&phi_dst) = phi_bindings.get(name) {
-                phi_dst
-            } else if let Some(&value_id) = builder.variable_ctx.variable_map.get(name) {
-                value_id
-            } else if builder.comp_ctx.user_defined_boxes.contains_key(name) {
-                let func = format!("{}.{}/{}", name, method, arguments.len());
-                effects.push(CoreEffectPlan::GlobalCall {
-                    source: CoreCallSourceV1::Unlocated,
-                    dst: None,
-                    func,
-                    args: arg_ids,
-                });
-                return Ok(effects);
-            } else {
-                return Err(format!(
-                    "{error_prefix}: method call object {} not found",
-                    name
-                ));
-            };
-            effects.push(CoreEffectPlan::MethodCall {
-                source: CoreCallSourceV1::Unlocated,
-                dst: None,
-                object: object_id,
-                method: method.clone(),
-                args: arg_ids,
-                effects: EffectMask::PURE.add(crate::mir::Effect::Io),
-            });
-        }
-        ASTNode::Me { .. } | ASTNode::This { .. } => {
-            let effect = lower_me_this_method_effect(
-                builder,
-                phi_bindings,
-                object.as_ref(),
-                CoreCallSourceV1::Unlocated,
-                method,
-                arg_ids,
-                arguments.len(),
-                None,
-                format!("{error_prefix}: me.method without bound receiver"),
-                format!("{error_prefix}: this.method without static box"),
-            )?;
-            effects.push(effect);
-        }
-        _ => {
-            let (object_id, mut obj_effects) =
-                PlanNormalizer::lower_value_ast(object, builder, phi_bindings)?;
-            effects.append(&mut obj_effects);
-            effects.push(CoreEffectPlan::MethodCall {
-                source: CoreCallSourceV1::Unlocated,
-                dst: None,
-                object: object_id,
-                method: method.clone(),
-                args: arg_ids,
-                effects: EffectMask::PURE.add(crate::mir::Effect::Io),
-            });
-        }
-    }
-
-    Ok(effects)
+    let port = RawLoopPlanExpressionPortV1::new();
+    loop_body_lowering_associated_input::lower_method_call_statement_input(
+        &port,
+        port.expr(stmt),
+        builder,
+        phi_bindings,
+        error_prefix,
+    )
 }
 
-fn debug_log_callstmt_binop_lit3(
+pub(super) fn debug_log_callstmt_binop_lit3(
     builder: &MirBuilder,
     effects: &[CoreEffectPlan],
     kind: &'static str,
@@ -389,33 +241,14 @@ pub(in crate::mir::builder) fn lower_function_call_stmt(
     stmt: &ASTNode,
     error_prefix: &str,
 ) -> Result<Vec<CoreEffectPlan>, String> {
-    let ASTNode::FunctionCall {
-        name, arguments, ..
-    } = stmt
-    else {
-        return Err(format!("{error_prefix}: expected function call"));
-    };
-
-    if name == "externcall" {
-        return lower_explicit_extern_call_stmt(builder, phi_bindings, arguments, error_prefix);
-    }
-
-    let mut arg_ids = Vec::new();
-    let mut effects = Vec::new();
-    for arg in arguments {
-        let (arg_id, mut arg_effects) =
-            PlanNormalizer::lower_value_ast(arg, builder, phi_bindings)?;
-        arg_ids.push(arg_id);
-        effects.append(&mut arg_effects);
-    }
-    debug_log_callstmt_binop_lit3(builder, &effects, "function");
-    effects.push(CoreEffectPlan::GlobalCall {
-        source: CoreCallSourceV1::Unlocated,
-        dst: None,
-        func: name.clone(),
-        args: arg_ids,
-    });
-    Ok(effects)
+    let port = RawLoopPlanExpressionPortV1::new();
+    loop_body_lowering_associated_input::lower_function_call_statement_input(
+        &port,
+        port.expr(stmt),
+        builder,
+        phi_bindings,
+        error_prefix,
+    )
 }
 
 pub(in crate::mir::builder) fn lower_bool_expr(

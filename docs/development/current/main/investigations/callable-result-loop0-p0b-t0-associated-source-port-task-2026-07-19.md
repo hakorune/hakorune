@@ -1,5 +1,5 @@
 ---
-Status: T0-C0 closed; T0-B0 next
+Status: T0-B0 closed; T0-R0 next
 Date: 2026-07-19
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md
 Prior decision: callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md
@@ -137,14 +137,44 @@ the And RHS, `A` false exits, `B` true enters the body, `B` false alone reaches
 the Or RHS, and only the final comparison returns to body/exit. It also fixes
 operand ordering, comparison ownership, and final parent span restoration.
 
+## T0-B0 closeout
+
+B0 keeps all body-mode, environment, `body_no_exit`, and progression-step
+selection in the existing raw GenericLoop facade. One associated-input sequence
+owner now consumes only an already-selected direct statement prefix and stops
+after terminal plans. One associated cleanup owner consumes only the selected
+cleanup expression after the existing terminality check.
+
+The existing statement semantics were not copied into GenericLoop. Assignment,
+Local initializer, MethodCall, FunctionCall, and Return now have neutral
+associated-input primitives under the normalizer; their raw entries select one
+`RawLoopPlanExpressionPortV1` and delegate. Nested expression children use the
+existing PATH0 roles and `PlanNormalizer::lower_value_input`. Six source-derived
+call constructors therefore moved from explicit `Unlocated` construction to
+the existing call-source port, while production located producers remain zero.
+
+Evidence:
+
+```text
+associated statement parity fixtures: 3/3
+direct statement-sequence fixtures: 3/3
+cleanup fixtures: 4/4
+generic_loop filtered library tests: 81/81
+cargo check --all-targets: green
+public expression-spine guard: green
+current pointer, format, and diff guards: green
+production located body callers: 0
+ledger claims: 0
+source/check files at or above 800 lines: 0
+```
+
+The consolidated T0 guard fixes the C0/B0 facade/core boundaries, PATH0 child
+roles, raw-only step filtering, terminal-before-cleanup order, focused fixtures,
+forbidden authority vocabulary, zero premature located consumers, and line
+caps. T0-R0 is the next row and owns only the neutral Parts associated-source
+recipe entry.
+
 ## Remaining rows
-
-### T0-B0
-
-Add a small body-port owner. `DirectRecipeOnly` supplies its exact prefix and
-cleanup carriers directly. The raw facade retains current behavior. B0 does
-not read environment, `facts.body`, `body_no_exit`, or classify the step on the
-located path.
 
 ### T0-R0
 

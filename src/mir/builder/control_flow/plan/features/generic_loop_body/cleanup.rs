@@ -7,7 +7,9 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
-use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
+use crate::mir::builder::control_flow::plan::{
+    CorePlan, LoopPlanExpressionPortV1, LoweredRecipe, RawLoopPlanExpressionPortV1,
+};
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 use std::collections::BTreeMap;
@@ -23,13 +25,40 @@ pub(in crate::mir::builder) fn apply_generic_loop_v1_fallthrough_cleanup(
     loop_increment: &ASTNode,
     error_prefix: &str,
 ) -> Result<(), String> {
+    let port = RawLoopPlanExpressionPortV1::new();
+    apply_generic_loop_v1_fallthrough_cleanup_input(
+        builder,
+        body_plans,
+        carrier_step_phis,
+        current_bindings,
+        loop_var,
+        &port,
+        port.expr(loop_increment),
+        error_prefix,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+pub(in crate::mir::builder) fn apply_generic_loop_v1_fallthrough_cleanup_input<'input, P>(
+    builder: &mut MirBuilder,
+    body_plans: &mut Vec<LoweredRecipe>,
+    carrier_step_phis: &BTreeMap<String, ValueId>,
+    current_bindings: &BTreeMap<String, ValueId>,
+    loop_var: &str,
+    port: &P,
+    loop_increment: P::ExprInput<'input>,
+    error_prefix: &str,
+) -> Result<(), String>
+where
+    P: LoopPlanExpressionPortV1 + 'input,
+{
     if body_plans_exit_on_all_paths(body_plans) {
         return Ok(());
     }
 
     let mut fallthrough_bindings = current_bindings.clone();
     let (loop_var_next, effects) =
-        PlanNormalizer::lower_value_ast(loop_increment, builder, &fallthrough_bindings)?;
+        PlanNormalizer::lower_value_input(port, loop_increment, builder, &fallthrough_bindings)?;
     body_plans.extend(effects_to_plans(effects));
     fallthrough_bindings.insert(loop_var.to_string(), loop_var_next);
 
@@ -98,6 +127,49 @@ mod tests {
             body_plans.last(),
             Some(CorePlan::Exit(CoreExitPlan::ContinueWithPhiArgs { .. }))
         ));
+    }
+
+    #[test]
+    fn generic_loop_v1_cleanup_raw_facade_matches_explicit_raw_port_core() {
+        let mut facade_builder = MirBuilder::new();
+        let mut core_builder = MirBuilder::new();
+        let facade_step = facade_builder.alloc_typed(MirType::Integer);
+        let core_step = core_builder.alloc_typed(MirType::Integer);
+        let facade_current = facade_builder.alloc_typed(MirType::Integer);
+        let core_current = core_builder.alloc_typed(MirType::Integer);
+        let increment = inc_expr("i");
+        let mut facade_plans = Vec::new();
+        let mut core_plans = Vec::new();
+
+        apply_generic_loop_v1_fallthrough_cleanup(
+            &mut facade_builder,
+            &mut facade_plans,
+            &BTreeMap::from([("i".to_string(), facade_step)]),
+            &BTreeMap::from([("i".to_string(), facade_current)]),
+            "i",
+            &increment,
+            "generic_loop_v1 facade",
+        )
+        .expect("raw cleanup facade lowers");
+
+        let port = RawLoopPlanExpressionPortV1::new();
+        apply_generic_loop_v1_fallthrough_cleanup_input(
+            &mut core_builder,
+            &mut core_plans,
+            &BTreeMap::from([("i".to_string(), core_step)]),
+            &BTreeMap::from([("i".to_string(), core_current)]),
+            "i",
+            &port,
+            port.expr(&increment),
+            "generic_loop_v1 explicit core",
+        )
+        .expect("explicit raw-port cleanup lowers");
+
+        assert_eq!(format!("{facade_plans:?}"), format!("{core_plans:?}"));
+        assert_eq!(
+            facade_builder.type_ctx.value_types,
+            core_builder.type_ctx.value_types
+        );
     }
 
     #[test]
