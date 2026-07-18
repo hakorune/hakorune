@@ -27,6 +27,9 @@ HELPER_PATH = (
     "tools/checks/lib/"
     "callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_o0.py"
 )
+REPRESENTATION_PATH = (
+    "src/mir/builder/control_flow/plan/generic_loop/located_representation/mod.rs"
+)
 
 
 def _lexical_code(source: str) -> str:
@@ -144,9 +147,10 @@ def check_loop0_p0b_o0_s0(root: Path) -> str:
         constructions = code.count("GenericLoopV1ExtractionV1::new(")
         if constructions:
             constructor_rows[relative] = constructions
-    if primary_calls:
+    if primary_calls != [REPRESENTATION_PATH]:
         raise RuntimeError(
-            f"LOOP0-P0b-O0-S0 canonical extraction gained production callers: {primary_calls}"
+            "LOOP0-P0b-O0-R0 canonical extraction consumer drift: "
+            f"{primary_calls}"
         )
     if constructor_rows != {EXTRACT_PATH: 1}:
         raise RuntimeError(

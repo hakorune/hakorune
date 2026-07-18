@@ -209,7 +209,7 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v1(
             loop_increment,
             body: RecipeBody::new(flat_body.clone()),
             body_lowering_policy,
-            body_exit_allowed: body_exit_allowed.clone(),
+            body_exit_allowed,
             body_no_exit,
         };
         matches.push(GenericLoopV1ExtractionV1::new(facts, disposition));

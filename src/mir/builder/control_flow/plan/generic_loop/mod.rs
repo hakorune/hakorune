@@ -12,4 +12,5 @@ pub(in crate::mir::builder) mod carrier_representation;
 pub(in crate::mir::builder) mod facts;
 pub(in crate::mir::builder) mod facts_helpers;
 pub(in crate::mir::builder) mod facts_types;
+pub(in crate::mir::builder) mod located_representation;
 pub(in crate::mir::builder) mod normalizer;

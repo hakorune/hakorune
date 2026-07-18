@@ -441,4 +441,4 @@ def check_suffix0_i0(root: Path) -> str:
     oversized = [path for path in touched if len(_read(root, path).splitlines()) >= 800]
     if oversized:
         _fail(f"SUFFIX0-P0 source/check files reached 800 lines: {oversized}")
-    return "suffix_parity_reference=1 associated_suffix_view=1 production_located_ports=0"
+    return "suffix_parity_reference=1 associated_suffix_view=1 passive_located_ports=1 production_located_execution_callers=0"

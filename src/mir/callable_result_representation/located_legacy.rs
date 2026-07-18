@@ -327,6 +327,29 @@ impl<'plan> VerifiedCallableResultLegacySourceViewV1<'plan> {
         self.require_carrier(identity, caller)
     }
 
+    /// Requires one exact located statement under this view's plan/caller.
+    /// Unlocated carriers are never upgraded by successful syntax lookup.
+    pub(crate) fn require_located_stmt_carrier(
+        &self,
+        input: &LegacyStmtInputV1<'plan>,
+    ) -> Result<(), CallableResultLegacyLocationErrorV1> {
+        let LegacyStmtInputV1::Located(input) = input else {
+            return Err(CallableResultLegacyLocationErrorV1::UnlocatedCannotProveInactive);
+        };
+        self.require_carrier(input.plan_identity, input.caller)
+    }
+
+    /// Requires one exact located body under this view's plan/caller.
+    pub(crate) fn require_located_body_carrier(
+        &self,
+        input: &LegacyBodyInputV1<'plan>,
+    ) -> Result<(), CallableResultLegacyLocationErrorV1> {
+        let LegacyBodyInputV1::Located(input) = input else {
+            return Err(CallableResultLegacyLocationErrorV1::UnlocatedCannotProveInactive);
+        };
+        self.require_carrier(input.plan_identity, input.caller)
+    }
+
     pub(crate) fn body_stmt(
         &self,
         body: &LegacyBodyInputV1<'plan>,

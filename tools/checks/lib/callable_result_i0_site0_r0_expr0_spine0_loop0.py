@@ -269,12 +269,17 @@ def check_loop0_s0a(root: Path) -> str:
     )
     if located_variant_reads != 1:
         raise RuntimeError("LOOP0-S0b wrapper must inspect located call sources exactly once")
+    located_source_allowlist = {
+        located_path: 1,
+        "src/mir/builder/control_flow/plan/expression_port.rs": 1,
+    }
     for path, text in production_plan_by_path.items():
-        if path == located_path:
-            continue
-        if "CoreCallSourceV1::LocatedMethodCall(" in text:
+        actual = text.count("CoreCallSourceV1::LocatedMethodCall(")
+        expected = located_source_allowlist.get(path, 0)
+        if actual != expected:
             raise RuntimeError(
-                f"LOOP0-S0a production located call-source producer escaped into {path}"
+                "LOOP0-O0-R0 production located call-source owner drift: "
+                f"path={path} expected={expected} actual={actual}"
             )
 
     source_production = _production(source)
@@ -336,9 +341,17 @@ def check_loop0_s0a(root: Path) -> str:
 
     schedule_production = _production(schedule)
     located_error_production = _production(located_error)
+    passive_callable_result_consumers = {
+        located_path,
+        located_error_path,
+        "src/mir/builder/control_flow/plan/expression_port.rs",
+        "src/mir/builder/control_flow/plan/generic_loop/located_representation/mod.rs",
+        "src/mir/builder/control_flow/plan/generic_loop/located_representation/product.rs",
+        "src/mir/builder/control_flow/plan/generic_loop/located_representation/recipe_seal.rs",
+    }
     for path, text in production_plan_by_path.items():
         if (
-            path not in (located_path, located_error_path)
+            path not in passive_callable_result_consumers
             and "callable_result_representation" in text
         ):
             raise RuntimeError(

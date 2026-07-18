@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result LOOP0-P0b O0-S0 closed; O0-R0 is next"
+status = "callable-result LOOP0-P0b O0-R0 closed; O0-P0 is next"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -312,7 +312,7 @@ the sole recipe owner, reject Program/ScopeBox/nested Loop recursively, and
 seal StmtWrappedJoinIf through the existing singleton NoExit Join bridge.
 Builder, composer, skeleton, ledger, fallback, retry, and shared ExitAllowed
 behavior remain outside O0."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0B-O0-R0-001"
+current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0B-O0-P0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

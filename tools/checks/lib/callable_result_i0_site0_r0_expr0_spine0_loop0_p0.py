@@ -96,8 +96,8 @@ def check_loop0_p0a(root: Path) -> str:
     port_production = _production(port)
     helpers_value = _production(_read(root, HELPERS_VALUE_PATH))
 
-    # One closed port vocabulary. The located implementation must disappear
-    # completely when cfg(test) items are removed.
+    # One closed port vocabulary. O0-R0 promotes the located implementation to
+    # a passive production schema while keeping execution callers at zero.
     owners = (
         ("trait LoopPlanExpressionPortV1", 1),
         ("struct RawLoopPlanExpressionPortV1", 1),
@@ -109,10 +109,10 @@ def check_loop0_p0a(root: Path) -> str:
             raise RuntimeError(
                 f"LOOP0-P0a port owner drift: owner={owner!r} expected={expected} actual={actual}"
             )
-    if "LocatedLoopPlanExpressionPortV1" in port_production:
-        raise RuntimeError("LOOP0-P0a located port escaped cfg(test)")
-    if port.count("#[cfg(test)]\nmod located") != 1:
-        raise RuntimeError("LOOP0-P0a located port must have one cfg(test) module")
+    if port_production.count("struct LocatedLoopPlanExpressionPortV1") != 1:
+        raise RuntimeError("LOOP0-O0-R0 passive located port schema drift")
+    if "#[cfg(test)]\nmod located" in port:
+        raise RuntimeError("LOOP0-O0-R0 located port remained test-only")
 
     for carrier in (
         "VerifiedCallableResultLegacySourceViewV1",
@@ -122,9 +122,9 @@ def check_loop0_p0a(root: Path) -> str:
     ):
         if carrier not in port:
             raise RuntimeError(f"LOOP0-P0a missing existing located carrier: {carrier}")
-        if carrier in port_production:
+        if carrier not in port_production:
             raise RuntimeError(
-                f"LOOP0-P0a located carrier became a production dependency: {carrier}"
+                f"LOOP0-O0-R0 passive located carrier missing from production schema: {carrier}"
             )
 
     located_input_owners = re.findall(
@@ -165,12 +165,12 @@ def check_loop0_p0a(root: Path) -> str:
     if "==" in port:
         raise RuntimeError("LOOP0-P0a AST/path equality reconstruction detected")
 
-    # The raw decision is one production owner. The exact located MethodCall
-    # source is constructed once, and only inside the stripped test module.
-    if port_production.count("CoreCallSourceV1::Unlocated") != 1:
-        raise RuntimeError("LOOP0-P0a raw Unlocated decision owner drift")
-    if "CoreCallSourceV1::LocatedMethodCall(" in port_production:
-        raise RuntimeError("LOOP0-P0a production located source producer detected")
+    # The raw decision and exact located MethodCall source each remain one
+    # passive production owner. No located execution root is connected here.
+    if port_production.count("CoreCallSourceV1::Unlocated") != 3:
+        raise RuntimeError("LOOP0-O0-R0 raw/located Unlocated decision drift")
+    if port_production.count("CoreCallSourceV1::LocatedMethodCall(") != 1:
+        raise RuntimeError("LOOP0-O0-R0 passive located source producer drift")
     if port.count("CoreCallSourceV1::LocatedMethodCall(") != 1:
         raise RuntimeError("LOOP0-P0a test-located source producer drift")
     if port.count(".activation_site()") != 1:
@@ -207,20 +207,33 @@ def check_loop0_p0a(root: Path) -> str:
     if recursive.count("Self::lower_value_input(") < 1:
         raise RuntimeError("LOOP0-P0a port-driven normalizer has no recursive demand")
 
-    # P0a is disconnected from GenericLoop composition and from every claim
-    # authority. P0b owns composer/pipeline signature threading.
+    # O0-R0 permits one analysis-only GenericLoop representation consumer and
+    # still forbids composition, lowering, and every claim authority.
     generic_loop_roots = (
         root / "src/mir/builder/control_flow/plan/generic_loop",
         root / "src/mir/builder/control_flow/plan/features",
         root / "src/mir/builder/control_flow/plan/recipe_tree",
     )
+    generic_loop_port_allowlist = {
+        "src/mir/builder/control_flow/plan/generic_loop/located_representation/mod.rs": 2,
+        "src/mir/builder/control_flow/plan/generic_loop/located_representation/recipe_seal.rs": 4,
+    }
+    observed_generic_loop_ports = {}
     for directory in generic_loop_roots:
         for path in directory.rglob("*.rs"):
-            if "LoopPlanExpressionPortV1" in _production(path.read_text(encoding="utf-8")):
-                raise RuntimeError(
-                    "LOOP0-P0a GenericLoop port threading landed before P0b: "
-                    f"{path.relative_to(root)}"
-                )
+            if path.name == "tests.rs" or path.name.endswith("_tests.rs") or "tests" in path.parts:
+                continue
+            relative = path.relative_to(root).as_posix()
+            count = _production(path.read_text(encoding="utf-8")).count(
+                "LocatedLoopPlanExpressionPortV1"
+            )
+            if count:
+                observed_generic_loop_ports[relative] = count
+    if observed_generic_loop_ports != generic_loop_port_allowlist:
+        raise RuntimeError(
+            "LOOP0-O0-R0 passive GenericLoop located consumer drift: "
+            f"{observed_generic_loop_ports}"
+        )
     for forbidden in (
         "VerifiedCallableResultCallerLedgerV1",
         "ClaimedCallableResultActivationSiteV1",
@@ -235,6 +248,7 @@ def check_loop0_p0a(root: Path) -> str:
     plan_sources = _production_plan_sources(root)
     located_read_allowlist = {
         "src/mir/builder/control_flow/plan/located_loop.rs": 1,
+        PORT_PATH: 1,
     }
     for path, text in plan_sources.items():
         expected = located_read_allowlist.get(path, 0)
@@ -244,7 +258,7 @@ def check_loop0_p0a(root: Path) -> str:
                 "LOOP0-P0a production located occurrence drift: "
                 f"path={path} expected={expected} actual={actual}"
             )
-        if ".activation_site()" in text:
+        if ".activation_site()" in text and path != PORT_PATH:
             raise RuntimeError(
                 f"LOOP0-P0a production located carrier consumer detected: {path}"
             )
@@ -387,9 +401,9 @@ def check_loop0_p0a(root: Path) -> str:
         )
 
     return (
-        "p0a_port_owners=1 raw_ports=1 test_located_ports=1 "
-        "production_located_ports=0 path_policy_owners=0 "
-        "production_located_producers=0 generic_loop_consumers=0 "
+        "p0a_port_owners=1 raw_ports=1 passive_located_ports=1 "
+        "production_located_execution_callers=0 path_policy_owners=0 "
+        "production_located_producers=1 generic_loop_passive_consumers=1 "
         "p0b_f0_actual_fixtures=1 p0b_f0_mode_locks=1"
     )
 

@@ -1,5 +1,5 @@
 ---
-Status: O0-S0 closed; O0-R0 is the sole next code-facing row
+Status: O0-R0 closed; O0-P0 is the sole next code-facing row
 Date: 2026-07-19
 Decision baseline: eef7c61d54085e8344608a7859420bd9e9a74887
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md
@@ -421,6 +421,42 @@ advanced to passive schema=1 with execution consumers still zero. Keeping the
 constructor cfg(test)-only is forbidden because T0 must consume the same
 durable authority rather than promote or recreate it later.
 
+Closeout (2026-07-19): closed. The located expression port is now one passive
+production-visible schema and exact statement/body carrier validation occurs
+before syntax or extraction reads. One dedicated
+`generic_loop/located_representation/` family owns the non-Clone two-mode
+product, typed rejection vocabulary, ordinal-lockstep recipe seal, and the
+complete `StmtWrappedJoinIf` singleton bridge. Its only constructor accepts an
+exact PATH0 Loop statement, obtains LoopCondition and LoopBody from that same
+carrier, invokes canonical extraction once, admits only
+NumericProgression/Last, and selects the mode only from
+`body_lowering_policy`.
+
+The ExitAllowed recipe remains owned exactly once by the extraction; the mode
+stores only the verified located proof tree and cleanup. Program, ScopeBox,
+nested Loop, foreign/unlocated roots, recipe ordinal drift, source/recipe kind
+drift, and If branch-presence drift reject without Builder, composer, skeleton,
+ledger, fallback, or retry. Every RecipeBlock body_id is co-sealed against its
+existing arena: the body must exist and its structural cardinality must equal
+both the exact PATH0 body cardinality and item cardinality; cloned arena AST
+contents are never source identity. One closed recipe domain admits only
+ExitOnly/ExitAllowed contracts in the ExitAllowed tree and only Join in the
+singleton NoExit bridge. LoopRange joins the first-profile nested-loop reject
+set.
+
+Focused default/strict representation, foreign/unlocated/non-Loop rejection,
+malformed body-id/cardinality, and cross-domain contract tests are green 6/6.
+The consolidated public
+expression-spine guard now reports passive located schema one, located
+execution callers zero, representation modes two, and canonical extraction
+calls one. Every touched source/check file remains below 800 lines.
+
+`LOOP0-P0b-O0-P0` is next. It must use the existing F0 actual Parser fixture
+and process-scoped default/strict lock to prove the exact six-statement body,
+root condition, ordinal 2 ExitOnly If, ordinal 4 wrapped Join If, and cleanup
+carrier. It must not connect a composer, Builder, ledger, or production
+located root.
+
 ### O0-P0 contract
 
 Use the existing F0 shared actual fixture and environment lock. Focused Rust
@@ -429,7 +465,8 @@ ordinal 2 ExitOnly If, ordinal 4 wrapped Join If, and cleanup carriers.
 
 ### O0-G0 contract
 
-The new private helper is imported by the existing public LOOP0 guard. It may
+The private O0-S0 helper plus its small O0-R0 sibling are imported by the
+existing public LOOP0 guard. They may
 reuse base LOOP0 helper functions but must not import the public P0 guard back
 into itself. It scans production-stripped source, structurally requires the
 focused test module/owners, and enforces every O0 source/check file below 800
@@ -441,6 +478,7 @@ The O0 guard must live in a new helper imported by the existing public guard:
 ```text
 tools/checks/lib/
   callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_o0.py
+  callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_o0_r0.py
 ```
 
 ## Required pass evidence
