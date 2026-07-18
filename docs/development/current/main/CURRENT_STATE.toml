@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result LOOP0-P0a is closed; worker-audited LOOP0-P0b is next"
+status = "callable-result LOOP0-P0a is closed; LOOP0-P0b conditional-GO split starts at F0"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -313,14 +313,20 @@ consumed before outer row 13. Production located consumers and claims stay
 zero. A three-worker audit fixes LOOP0-P0 as P0a/P0b/P0c: one shared
 raw/test-located PATH0-backed expression-demand port, GenericLoopV1-only
 signature threading with direct-ordinal preflight before skeleton mutation,
-then one actual 15-row raw/located structural parity proof. No new route,
+then one actual 15-row raw/located structural parity proof. Three worker audits
+now split P0b into F0 shared-fixture/environment lock, O0 disconnected
+recursive direct-ordinal seal, T0 GenericLoopV1-only port threading, and P0
+two-mode direct-compose parity. The actual six-statement Loop is authorized
+only when final ordinal 5 is the sole removed progression step and recipe
+prefix ordinals 0..4 plus nested If PATH0 children remain exact. O0 failure
+stops before composer/skeleton effects and opens a new design consultation.
+No new route,
 normalizer, source-path authority, production located consumer, or ledger
 claim is added. P0a now closes the one shared PATH0-backed expression-demand
 port with raw parity, branded located carriers, exact site propagation,
 synthetic Unlocated preservation, and production located consumers zero.
-LOOP0-P0b is next and threads that same port through GenericLoopV1 only after
-the direct-ordinal body preflight proves no transformed-path reconstruction."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0B-001"
+LOOP0-P0b-F0 is next; production located consumers and claims remain zero."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0B-F0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

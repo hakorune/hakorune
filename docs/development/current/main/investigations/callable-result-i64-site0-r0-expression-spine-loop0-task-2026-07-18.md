@@ -517,6 +517,98 @@ to P0b rather than silently entering raw helpers.
 
 Production behavior delta: 0. Production located consumers: 0.
 
+Worker closeout (2026-07-19): **conditional GO**. No external design
+consultation is required while one disconnected source-ordinal seal succeeds
+before composer threading. The actual `static_const_parse_add` Loop has six
+direct body statements. Its numeric-progression step is exactly the final
+statement at ordinal 5, so the selected recipe owns the unchanged prefix
+ordinals 0..4 while the exact PATH0 `LoopBody(5) -> AssignmentValue` carrier
+owns the cleanup step. Both NoExit and ExitAllowed builders enumerate their
+direct input slices and recursively retain child-local ordinals. This is enough
+to prove the admitted actual shape without AST equality or a second path table.
+
+P0b is split into four mechanically ordered rows:
+
+```text
+LOOP0-P0b-F0
+  shared actual 15-row fixture and one complete environment lock
+
+LOOP0-P0b-O0
+  disconnected recursively direct-ordinal source/RecipeBlock seal
+
+LOOP0-P0b-T0
+  GenericLoopV1-only same-port threading
+
+LOOP0-P0b-P0
+  default RecipeOnly and strict/planner-required ExitAllowed direct-compose parity
+```
+
+`P0b-F0` extracts the existing actual ParserBox fixture instead of creating a
+third source copy. One mutex owns save/set/restore for both legacy and current
+DEV, STRICT, PLANNER_REQUIRED, and DEBUG variables. Default and strict modes
+run sequentially under that same lock; separate environment locks are
+forbidden.
+
+`P0b-O0` is the hard authorization gate and has no composer or Builder
+consumer. Its non-Clone proof begins with the exact located Loop carrier,
+obtains condition/body only through `LoopCondition` and `LoopBody`, and accepts
+only this recursive grammar:
+
+```text
+root body:
+  direct statements with exactly one final numeric-progression step removed
+
+recipe block:
+  one item per remaining direct source ordinal
+  Stmt / Exit references equal that ordinal
+  IfV2.if_stmt equals that ordinal
+
+nested If:
+  child bodies obtained only through PATH0 IfThen / IfElse
+  child RecipeBlocks recursively satisfy the same direct-ordinal law
+```
+
+It rejects `ScopeBox`, `Program`, nested Loop, flattened/transformed input,
+non-final or multiple removed steps, mismatched item/ref order, and any child
+without an existing PATH0 role. Recipe arenas, cloned AST, `CondBlockView`, and
+recipe-local indices remain planning evidence only. Failure occurs before
+`alloc_generic_loop_v0_skeleton`, leaving the complete Builder snapshot
+unchanged. If this seal cannot be built without AST equality, span/name
+matching, or a second source-path table, P0b stops before T0 and opens a new
+source-ordinal design consultation.
+
+`P0b-T0` adds paired thin raw facades and port-aware GenericLoopV1 owners only:
+
+```text
+RecipeComposer::compose_generic_loop_v1_recipe
+  -> apply_generic_loop_v1_pipeline
+  -> orchestrate_generic_loop_v1_carriers
+  -> lower_generic_loop_v1_body
+
+apply_generic_loop_v1_pipeline
+  -> apply_generic_loop_v1_condition_step_handoff
+  -> apply_generic_loop_condition
+  -> lower_loop_header_cond
+```
+
+The same borrowed port reaches condition leaves, body leaves, nested If child
+bodies, and the exact final cleanup-step carrier. Existing Parts RecipeBlock
+dispatch may gain a neutral port-aware entry only after O0 succeeds; a
+GenericLoop-local duplicate dispatcher is forbidden. V0, non-Generic routes,
+registry selection, normalized shadow, nested-loop adoption, PlanLowerer,
+ledger claims, and production located roots remain untouched. Large existing
+normalizer files near the 800-line cap are not extended; new proof/adapter/test
+owners stay in small dedicated files.
+
+`P0b-P0` uses independently seeded raw and test-located Builders and invokes
+the direct composer, never the registry or PlanLowerer. Each environment mode
+proves raw/located structural plan and complete post-compose Builder-state
+parity; the only located delta is exact source provenance. Child-demand trace
+must cover ordinary Binary, short-circuit `&&`/`||`, MethodCall terminals,
+body statements, nested If bodies, and cleanup step. Body-first composition
+and condition-later handoff are preserved and must not be confused with source
+claim order. Ledger claims remain zero.
+
 Thread the same borrowed port through exactly the GenericLoopV1 composer,
 carrier orchestration/body lowering, and condition/step handoff. Both body and
 condition leaves must reach the same port-driven value lowering entry.
