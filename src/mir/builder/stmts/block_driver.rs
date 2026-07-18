@@ -11,9 +11,13 @@ use crate::mir::ValueId;
 use crate::ast::ASTNode;
 
 pub(in crate::mir::builder) trait LegacyBlockDescentPortV1 {
+    type SuffixInput<'a>: AsRef<[ASTNode]>
+    where
+        Self: 'a;
+
     fn len(&self) -> usize;
 
-    fn suffix_route_input(&self, index: usize) -> Option<&[ASTNode]>;
+    fn suffix_route_input(&self, index: usize) -> Result<Option<Self::SuffixInput<'_>>, String>;
 
     fn lower_statement(
         &mut self,
@@ -46,7 +50,8 @@ where
     let mut index = 0;
     while index < total {
         if crate::config::env::joinir_dev_enabled() {
-            if let Some(remaining) = port.suffix_route_input(index) {
+            if let Some(remaining) = port.suffix_route_input(index)? {
+                let remaining = remaining.as_ref();
                 let function_name = builder
                     .scope_ctx
                     .current_function

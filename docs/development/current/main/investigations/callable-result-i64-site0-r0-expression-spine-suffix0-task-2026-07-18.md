@@ -1,5 +1,5 @@
 ---
-Status: SUFFIX0-P0 closed; SUFFIX0-I0 next
+Status: SUFFIX0-I0 closed; LOOP0-D0 next
 Date: 2026-07-18
 Decision: positive exact-body-suffix classification before any raw router view
 Parent: callable-result-i64-site0-r0-expression-spine-task-2026-07-18.md
@@ -207,6 +207,36 @@ owner.
 I0 does not add a production located root or replace the existing whole-body-
 inactive `RecursiveChildLoweringPortV1::lower_body` path. The later C0 root
 connector and LOOP0 body connector remain explicit separate rows.
+
+I0 closeout:
+
+```text
+associated borrowed suffix-view owners = 1
+production raw-slice constructors = 1
+test-only inactive-proof view implementations = 1
+driver router-boundary AsRef projections = 1
+
+selector failure:
+  exact error propagation = green
+  router/statement descent = 0
+  MIR instruction delta = 0
+  lexical-scope leak = 0
+  fresh valid reuse = green
+
+production located ports/roots = 0
+classifier production consumers = 0
+router/environment/scope/consumed-index policy duplication = 0
+
+focused route parity = 4/4
+callable-result fixtures = 69/69
+block-driver fixtures = 5/5
+BLK0 and public EXPR0-SPINE0 guards = green
+cargo check --all-targets = green
+release build = green
+quick = 66/66 in 42s
+worker authority/code/test audits = 3 GO
+modified source/check files >= 800 lines = 0
+```
 
 ## Counters and guards
 

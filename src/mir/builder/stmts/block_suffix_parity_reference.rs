@@ -9,6 +9,7 @@ use std::cell::RefCell;
 
 use crate::ast::ASTNode;
 use crate::mir::callable_result_representation::CallableResultBodySuffixDecisionV1;
+use crate::mir::callable_result_representation::VerifiedCallableResultInactiveBodySuffixV1;
 use crate::mir::{BasicBlockId, MirBuilder, MirInstruction, ValueId};
 
 use super::block_driver::{drive_legacy_block_v1, LegacyBlockDescentPortV1};
@@ -17,6 +18,7 @@ pub(crate) enum BlockSuffixParityInputV1<'plan> {
     Raw,
     Classified(Vec<CallableResultBodySuffixDecisionV1<'plan>>),
     AlwaysNone,
+    RejectAt { index: usize, message: &'static str },
 }
 
 #[derive(Clone, Copy)]
@@ -41,6 +43,8 @@ pub(crate) struct BlockDriverParityOutcomeV1 {
     pub(crate) output: Result<ValueId, String>,
     pub(crate) route_demand_indices: Vec<usize>,
     pub(crate) lowered_indices: Vec<usize>,
+    pub(crate) instruction_count: usize,
+    pub(crate) lexical_scope_depth: usize,
     current_block: Option<BasicBlockId>,
     entry_block: BasicBlockId,
     next_value_id: u32,
@@ -55,6 +59,8 @@ impl PartialEq for BlockDriverParityOutcomeV1 {
             && self.current_block == other.current_block
             && self.entry_block == other.entry_block
             && self.next_value_id == other.next_value_id
+            && self.instruction_count == other.instruction_count
+            && self.lexical_scope_depth == other.lexical_scope_depth
             && self.blocks == other.blocks
     }
 }
@@ -67,21 +73,36 @@ struct ClassifiedSuffixReferencePortV1<'plan, 'syntax> {
     lowered_indices: Vec<usize>,
 }
 
-impl LegacyBlockDescentPortV1 for ClassifiedSuffixReferencePortV1<'_, '_> {
+impl<'plan> LegacyBlockDescentPortV1 for ClassifiedSuffixReferencePortV1<'plan, '_> {
+    type SuffixInput<'a>
+        = &'a VerifiedCallableResultInactiveBodySuffixV1<'plan>
+    where
+        Self: 'a;
+
     fn len(&self) -> usize {
         self.statements.len()
     }
 
-    fn suffix_route_input(&self, index: usize) -> Option<&[ASTNode]> {
+    fn suffix_route_input(&self, index: usize) -> Result<Option<Self::SuffixInput<'_>>, String> {
         self.route_demand_indices.borrow_mut().push(index);
-        match &self.input {
+        if let BlockSuffixParityInputV1::RejectAt {
+            index: rejected,
+            message,
+        } = &self.input
+        {
+            if index == *rejected {
+                return Err((*message).to_string());
+            }
+        }
+        Ok(match &self.input {
             BlockSuffixParityInputV1::Classified(decisions) => match &decisions[index] {
-                CallableResultBodySuffixDecisionV1::Inactive(proof) => Some(proof.as_ref()),
+                CallableResultBodySuffixDecisionV1::Inactive(proof) => Some(proof),
                 CallableResultBodySuffixDecisionV1::Active { .. } => None,
             },
             BlockSuffixParityInputV1::AlwaysNone => None,
+            BlockSuffixParityInputV1::RejectAt { .. } => None,
             BlockSuffixParityInputV1::Raw => unreachable!("raw input bypasses the reference port"),
-        }
+        })
     }
 
     fn lower_statement(
@@ -152,11 +173,17 @@ pub(crate) fn run_block_suffix_parity_reference_v1<'plan>(
         })
         .collect::<Vec<_>>();
     blocks.sort_by_key(|block| block.id);
+    let instruction_count = blocks
+        .iter()
+        .map(|block| block.instructions.len() + usize::from(block.terminator.is_some()))
+        .sum();
 
     BlockDriverParityOutcomeV1 {
         output,
         route_demand_indices,
         lowered_indices,
+        instruction_count,
+        lexical_scope_depth: builder.scope_ctx.lexical_scope_stack.len(),
         current_block: builder.current_block,
         entry_block: function.entry_block,
         next_value_id: function.next_value_id,

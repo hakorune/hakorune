@@ -12,7 +12,7 @@ from callable_result_i0_site0_r0_expr0_spine0_stmt0_return import check_ret0_s0
 from callable_result_i0_site0_r0_expr0_spine0_stmt0 import check_lcl0_s0
 from callable_result_i0_site0_r0_expr0_spine0_if0 import check_if0_s0
 from callable_result_i0_site0_r0_expr0_spine0_suffix0 import (
-    check_suffix0_p0,
+    check_suffix0_i0,
     check_suffix0_s0,
 )
 from callable_result_i0_site0_r0_bodydomain0 import check_bodydomain0
@@ -486,7 +486,7 @@ def main() -> None:
         if_summary = check_if0_s0(root)
         bodydomain_summary = check_bodydomain0(root)
         suffix_summary = check_suffix0_s0(root)
-        suffix_parity_summary = check_suffix0_p0(root)
+        suffix_parity_summary = check_suffix0_i0(root)
     except RuntimeError as error:
         fail(str(error))
     require_count(

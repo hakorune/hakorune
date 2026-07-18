@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result SUFFIX0-P0 is closed; SUFFIX0-I0 is next"
+status = "callable-result SUFFIX0-I0 is closed; LOOP0-D0 is next"
 date = "2026-07-18"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,14 +298,14 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 
 latest_card = "callable-result-i64-site0-r0-expression-spine-suffix0-task-2026-07-18"
 latest_card_path = "docs/development/current/main/investigations/callable-result-i64-site0-r0-expression-spine-suffix0-task-2026-07-18.md"
-latest_card_summary = """SUFFIX0-P0 is closed. One cfg(test)-only classified
-suffix port maps only an exact inactive proof to its borrowed router slice;
-Active supplies no router input. The existing production driver/router consumes
-the inactive Loop and matches the raw production block's normalized MIR, while
-the exact statement-descent witness proves that always-none routing is not
-route parity. Production port, driver, router, located roots, grammar, runtime,
-and backend deltas remain zero. SUFFIX0-I0 is next."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-SUFFIX0-I0-001"
+latest_card_summary = """SUFFIX0-I0 is closed. The legacy block driver now
+accepts one associated borrowed suffix view and projects it to raw statements
+only at the existing router boundary. The sole production raw port constructs
+the raw slice, while the cfg(test) parity port carries the sealed inactive proof
+itself. Selector failure propagates before router or statement descent and
+restores lexical scope. Production located ports/roots, classifier consumers,
+grammar, runtime, and backend deltas remain zero. LOOP0-D0 is next."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-D0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -314,6 +314,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-18: SITE0-R0-EXPR0-SPINE0-SUFFIX0-I0 behavior-neutrally generalizes the legacy block port to one fallible associated borrowed suffix view. The sole production raw port remains the sole raw-slice constructor; the cfg(test) classified port carries the non-Clone inactive proof itself, and the driver performs one AsRef projection only at the existing router boundary. Selector failure returns before router and statement descent with instruction delta zero, lexical scope restored, and fresh valid reuse green. Route parity 4/4, callable-result 69/69, block-driver 5/5, BLK0 and public EXPR0-SPINE0 guards, cargo check --all-targets, release, pointer/format/diff/line guards, and quick 66/66 in 42s are green. Three worker audits are GO. Production located ports/roots, classifier consumers, grammar, runtime, backend, and ownership deltas remain zero; LOOP0-D0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-SUFFIX0-P0 closes one cfg(test)-only classified suffix reference through the existing production block driver/router. Only Inactive(proof) exposes proof.as_ref(); Active supplies no router input and continues statement descent. The inactive loop fixture has route demand [0], statement descent [1], and exact normalized MIR parity with the raw production block; the same source under always-none descends [0,1], fixing explicit route non-parity even though the legacy and normalized loop happen to emit equivalent MIR. Route parity 3/3, callable-result 68/68, block-driver 5/5, BLK0 and public EXPR0-SPINE0 guards, cargo check --all-targets, release, pointer/format/diff/line guards, and quick 66/66 in 208s are green. Three worker audits are GO. Production port/driver/router, located roots, grammar, runtime, and backend deltas remain zero; SUFFIX0-I0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-SUFFIX0-S0 closes one checked located body-suffix carrier and one positive caller-ledger classifier. SourceBodyKindV1 owns the sole body-item inverse index; exact membership is domain parent plus body kind plus checked start. Active is a normal first-row witness, while only the non-Clone inactive proof exposes the exact borrowed slice. Full and actual-empty bodies, end suffix, earlier/current/later rows, condition/If sibling isolation, nested If and direct Loop descendants, foreign plan/caller, unlocated and bounds failures, and observation-only claim reuse are fixed by tests and structural guard. Suffix 6/6, caller-ledger 14/14, callable-result 65/65, cargo check --all-targets, release, pointer/format/diff/line guards, and quick 66/66 in 71.09s are green. Three worker audits are GO. Production classifier/constructor consumers, Builder, BLK0/router, claim-state, grammar, runtime, and backend deltas remain zero; SUFFIX0-P0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-IF0-L0 closes one exact located statement-If adapter. PATH0 alone supplies IfCondition/IfThen/IfElse carriers; the existing If driver retains condition order, short-circuit/FastMem preparation, IfForm CFG/termination/PHI authority, and one shared success-only completion sequences the existing Void emitter. Branches delegate only after complete typed body-domain inactivity; unique markers prove active then/else rows fail before branch-local raw effects. Ordinary BinOp, short-circuit Branch/Phi/no-eager-BinOp, module-wide Void totals, wrong-order no-effect plus poison/fresh reuse, Loop parking, selector carrier preservation, and production located roots zero are guarded. Located legacy 42/42, If 21/21, callable-result 59/59, structural guards, cargo check --all-targets, release, formatting, diff checks, line caps, and quick 66/66 in 78s are green. Three worker audits are GO. SUFFIX0-S0 is next.",
@@ -325,5 +326,4 @@ landed_tail = [
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-RET0-P0 closes one cfg(test)-only pre-I0 Return reference and exact selected/reference parity. Five fixtures cover literal/Binary/short-circuit/MethodCall, Void, selected Match, configured defer, cleanup/child failure, and same-Builder reuse. MIR, transient type/kind/origin/literal and exact facts, bindings/scopes, caches, allocators, span, cleanup, and defer state match exactly. Return 18/18, stmt 63/63, recursive child 7/7, callable-result 55/55, strengthened guard, cargo check, quick 66/66 in 61s, release, formatting, and line caps are green. The reference has no production caller; raw selectors remain one, located selectors and result publication remain zero; RET0-L0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-RET0-I0 behavior-neutrally selects the S0 raw value driver exactly once inside the existing Return facade for Some(expr), before cleanup/Match work. None retains legacy cleanup, match(None), Void emission, and completion. Five production-entry fixtures cover MethodCall, actual Match CorePlan selection, defer Copy/Jump, Void, cleanup/child failure, and same-Builder reuse. Return 13/13, stmt 58/58, recursive child 7/7, callable-result 55/55, guard, cargo check, quick 66/66 in 55s, release, formatting, and line caps are green. Production raw selectors are one; located selectors and result publication remain zero; RET0-P0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-RET0-S0 closes one disconnected value-bearing Return driver. Cleanup prohibition precedes value observation; the existing match owner may select before one ReturnValue E0 descent; existing completion retains ordinary Return and defer Copy/Jump. Eight fixtures cover order, selected Match bypass, MethodCall/Binary/short-circuit children, exact failure/defer terminators, Void legacy preservation, and reuse. RET0 8/8, stmt 53/53, recursive child 7/7, callable-result 55/55, guard, cargo check, quick 66/66 in 39s, release, formatting, and line caps are green. Production raw/located selectors and result publication remain zero; RET0-I0 is next.",
-  "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-L0 closes one disconnected exact Variable-target located adapter. PATH0 alone supplies AssignmentValue; existing Binary, short-circuit, expression, ledger, preflight, and completion owners remain authoritative. Six fixtures cover direct/nested order, Binary/short-circuit descent, wrong order and fresh reuse, undeclared/RHS failure without publication, non-target and If/Loop fail-closed boundaries, and the LoopBodyRoot path seam parked for LOOP0. Located Assignment 6/6, located Local 6/6, Assignment 16/16, recursive 7/7, callable-result 55/55, guard, cargo check, quick 66/66 in 62s, formatting, and line caps are green. Production located roots and callable-result publication remain zero; RET0-S0 is next.",
 ]

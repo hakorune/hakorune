@@ -38,6 +38,18 @@ def main() -> None:
     require_count(raw, "struct OwnedLegacyBlockPortV1", 1, "raw port owner")
     require_count(raw, "impl LegacyBlockDescentPortV1", 1, "raw port implementation")
     require_count(raw, "drive_legacy_block_v1(builder, &mut port)", 1, "selected driver caller")
+    require_count(driver, "type SuffixInput<'a>: AsRef<[ASTNode]>", 1, "suffix-view owner")
+    require_count(
+        driver,
+        "fn suffix_route_input(&self, index: usize) -> Result<Option<Self::SuffixInput<'_>>, String>;",
+        1,
+        "fallible suffix selector",
+    )
+    require_count(driver, "port.suffix_route_input(index)?", 1, "selector error propagation")
+    require_count(driver, "let remaining = remaining.as_ref();", 1, "router view projection")
+    require_count(raw, "type SuffixInput<'a>", 1, "raw suffix-view implementation")
+    require_count(raw, "= &'a [ASTNode]", 1, "raw borrowed suffix view")
+    require_count(raw, "Ok(Some(&self.statements[index..]))", 1, "raw suffix selector")
 
     require_count(
         driver,
@@ -95,10 +107,18 @@ def main() -> None:
     )
     require_count(
         test_reference,
-        "impl LegacyBlockDescentPortV1 for ClassifiedSuffixReferencePortV1",
+        "impl<'plan> LegacyBlockDescentPortV1 for ClassifiedSuffixReferencePortV1",
         1,
         "separately counted test-only port",
     )
+    require_count(test_reference, "type SuffixInput<'a>", 1, "test-only suffix view")
+    require_count(
+        test_reference,
+        "= &'a VerifiedCallableResultInactiveBodySuffixV1<'plan>",
+        1,
+        "test-only sealed suffix view",
+    )
+    require_count(test_reference, "&self.statements[index..]", 0, "test-only raw slice reconstruction")
 
     for evidence in (
         "empty_block_emits_one_void_and_restores_lexical_scope",
@@ -113,6 +133,8 @@ def main() -> None:
     for phrase in (
         "legacy block descent boundary",
         "LegacyBlockDescentPortV1",
+        "fallible optional",
+        "sole production raw-slice constructor",
         "must not decide suffix policy",
     ):
         if phrase not in readme:

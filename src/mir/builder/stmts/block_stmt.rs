@@ -54,12 +54,17 @@ struct OwnedLegacyBlockPortV1 {
 }
 
 impl LegacyBlockDescentPortV1 for OwnedLegacyBlockPortV1 {
+    type SuffixInput<'a>
+        = &'a [ASTNode]
+    where
+        Self: 'a;
+
     fn len(&self) -> usize {
         self.statements.len()
     }
 
-    fn suffix_route_input(&self, index: usize) -> Option<&[ASTNode]> {
-        Some(&self.statements[index..])
+    fn suffix_route_input(&self, index: usize) -> Result<Option<Self::SuffixInput<'_>>, String> {
+        Ok(Some(&self.statements[index..]))
     }
 
     fn lower_statement(

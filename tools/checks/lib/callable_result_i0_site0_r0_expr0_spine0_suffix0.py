@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Structural checks for the disconnected exact body-suffix classifier."""
+"""Structural checks for the exact body-suffix classifier and borrowed seam."""
 
 from __future__ import annotations
 
@@ -261,8 +261,9 @@ def check_suffix0_s0(root: Path) -> str:
     return "suffix_carrier=1 suffix_classifier=1 suffix_consumers=0"
 
 
-def check_suffix0_p0(root: Path) -> str:
+def check_suffix0_i0(root: Path) -> str:
     driver_path = "src/mir/builder/stmts/block_driver.rs"
+    raw_path = "src/mir/builder/stmts/block_stmt.rs"
     reference_path = "src/mir/builder/stmts/block_suffix_parity_reference.rs"
     tests_path = (
         "src/mir/callable_result_representation/tests/"
@@ -273,6 +274,7 @@ def check_suffix0_p0(root: Path) -> str:
     tests_mod_path = "src/mir/callable_result_representation/tests/mod.rs"
 
     driver = _read(root, driver_path)
+    raw = _read(root, raw_path)
     reference = _read(root, reference_path)
     tests = _read(root, tests_path)
     builder = _read(root, builder_path)
@@ -287,15 +289,15 @@ def check_suffix0_p0(root: Path) -> str:
     )
     _count(
         reference,
-        "impl LegacyBlockDescentPortV1 for ClassifiedSuffixReferencePortV1",
+        "impl<'plan> LegacyBlockDescentPortV1 for ClassifiedSuffixReferencePortV1",
         1,
         "test-only legacy driver port",
     )
     _count(
         reference,
-        "CallableResultBodySuffixDecisionV1::Inactive(proof) => Some(proof.as_ref())",
+        "CallableResultBodySuffixDecisionV1::Inactive(proof) => Some(proof)",
         1,
-        "verified inactive suffix projection",
+        "verified inactive suffix view",
     )
     _count(
         reference,
@@ -327,6 +329,7 @@ def check_suffix0_p0(root: Path) -> str:
         "inactive_nonempty_loop_suffix_routes_with_raw_parity",
         "active_suffix_supplies_no_router_input_and_continues_statement_descent",
         "always_none_is_explicitly_not_located_route_parity",
+        "suffix_selector_failure_stops_before_router_and_statement_descent",
     ):
         if fixture not in tests:
             _fail(f"missing SUFFIX0-P0 fixture: {fixture}")
@@ -345,6 +348,14 @@ def check_suffix0_p0(root: Path) -> str:
         "crate::test_support::with_env_vars",
         '("NYASH_JOINIR_DEV", Some("1"))',
         '("HAKO_JOINIR_STRICT", Some("1"))',
+        'message: "suffix-reference/reject"',
+        'assert_eq!(rejected.output, Err("suffix-reference/reject".to_string()))',
+        "rejected.route_demand_indices, vec![0]",
+        "rejected.lowered_indices.is_empty()",
+        "rejected.instruction_count, 0",
+        "rejected.lexical_scope_depth, 0",
+        "assert!(valid.output.is_ok())",
+        "valid.lowered_indices, vec![0]",
     ):
         if evidence not in tests:
             _fail(f"missing SUFFIX0-P0 exact evidence: {evidence}")
@@ -352,14 +363,49 @@ def check_suffix0_p0(root: Path) -> str:
         if forbidden in tests:
             _fail(f"SUFFIX0-P0 bypassed shared environment restoration: {forbidden}")
 
-    if "type SuffixInput" in driver:
-        _fail("SUFFIX0-P0 prematurely changed the production port to the I0 GAT")
     _count(
         driver,
-        "fn suffix_route_input(&self, index: usize) -> Option<&[ASTNode]>;",
+        "type SuffixInput<'a>: AsRef<[ASTNode]>",
         1,
-        "unchanged production suffix input seam",
+        "associated suffix-view owner",
     )
+    _count(
+        driver,
+        "fn suffix_route_input(&self, index: usize) -> Result<Option<Self::SuffixInput<'_>>, String>;",
+        1,
+        "fallible suffix-view selector",
+    )
+    _count(
+        driver,
+        "port.suffix_route_input(index)?",
+        1,
+        "selector failure propagation",
+    )
+    _count(
+        driver,
+        "let remaining = remaining.as_ref();",
+        1,
+        "single router-boundary projection",
+    )
+    _count(raw, "type SuffixInput<'a>", 1, "raw suffix-view implementation")
+    _count(raw, "= &'a [ASTNode]", 1, "raw borrowed slice view")
+    _count(
+        raw,
+        "Ok(Some(&self.statements[index..]))",
+        1,
+        "raw suffix-view construction",
+    )
+    _count(reference, "type SuffixInput<'a>", 1, "classified suffix-view implementation")
+    _count(
+        reference,
+        "= &'a VerifiedCallableResultInactiveBodySuffixV1<'plan>",
+        1,
+        "sealed classified suffix-view type",
+    )
+    _count(reference, "&self.statements[index..]", 0, "test raw suffix reconstruction")
+    _count(reference, "BlockSuffixParityInputV1::RejectAt", 2, "fallible selector fixture")
+    _count(reference, "return Err((*message).to_string());", 1, "selector rejection")
+    _count(driver + raw + reference, "fn suffix_route_input(&self, index: usize) -> Option<&[ASTNode]>", 0, "retired fixed slice seam")
     for forbidden in (
         "CallableResultBodySuffixDecisionV1",
         "VerifiedCallableResultInactiveBodySuffixV1",
@@ -384,6 +430,7 @@ def check_suffix0_p0(root: Path) -> str:
 
     touched = (
         driver_path,
+        raw_path,
         reference_path,
         tests_path,
         builder_path,
@@ -394,4 +441,4 @@ def check_suffix0_p0(root: Path) -> str:
     oversized = [path for path in touched if len(_read(root, path).splitlines()) >= 800]
     if oversized:
         _fail(f"SUFFIX0-P0 source/check files reached 800 lines: {oversized}")
-    return "suffix_parity_reference=1 production_driver_delta=0"
+    return "suffix_parity_reference=1 associated_suffix_view=1 production_located_ports=0"

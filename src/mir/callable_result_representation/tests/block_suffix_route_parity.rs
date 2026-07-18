@@ -192,3 +192,37 @@ fn always_none_is_explicitly_not_located_route_parity() {
         );
     });
 }
+
+#[test]
+fn suffix_selector_failure_stops_before_router_and_statement_descent() {
+    with_router_env(|| {
+        let statements = vec![crate::ast::ASTNode::Literal {
+            value: crate::ast::LiteralValue::Integer(1),
+            span: crate::ast::Span::unknown(),
+        }];
+        let rejected = run_block_suffix_parity_reference_v1(
+            &statements,
+            BlockSuffixParityInputV1::RejectAt {
+                index: 0,
+                message: "suffix-reference/reject",
+            },
+            StatementDescentReferenceV1::RecordOnly,
+            "suffix_reject/0",
+        );
+
+        assert_eq!(rejected.output, Err("suffix-reference/reject".to_string()));
+        assert_eq!(rejected.route_demand_indices, vec![0]);
+        assert!(rejected.lowered_indices.is_empty());
+        assert_eq!(rejected.instruction_count, 0);
+        assert_eq!(rejected.lexical_scope_depth, 0);
+
+        let valid = run_block_suffix_parity_reference_v1(
+            &statements,
+            BlockSuffixParityInputV1::AlwaysNone,
+            StatementDescentReferenceV1::RecordOnly,
+            "suffix_after_reject/0",
+        );
+        assert!(valid.output.is_ok());
+        assert_eq!(valid.lowered_indices, vec![0]);
+    });
+}
