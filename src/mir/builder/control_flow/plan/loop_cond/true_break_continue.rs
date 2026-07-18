@@ -401,28 +401,19 @@ fn build_else_exit_mixed_recipe(else_body: &[ASTNode]) -> Option<ElseExitMixedRe
 mod tests {
     use super::{try_extract_loop_true_break_continue_facts, LoopTrueBreakContinueLowering};
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-    use std::ffi::OsString;
-    use std::sync::{Mutex, OnceLock};
 
-    fn env_guard() -> &'static Mutex<()> {
-        static GUARD: OnceLock<Mutex<()>> = OnceLock::new();
-        GUARD.get_or_init(|| Mutex::new(()))
-    }
-
-    fn restore_env_var(name: &str, value: Option<OsString>) {
-        match value {
-            Some(value) => std::env::set_var(name, value),
-            None => std::env::remove_var(name),
-        }
-    }
-
-    fn with_loop_true_break_continue_env<F: FnOnce()>(f: F) {
-        let _lock = env_guard().lock().unwrap_or_else(|e| e.into_inner());
-        let prev_joinir_dev = std::env::var_os("NYASH_JOINIR_DEV");
-        let prev_planner_required = std::env::var_os("HAKO_JOINIR_PLANNER_REQUIRED");
-        f();
-        restore_env_var("NYASH_JOINIR_DEV", prev_joinir_dev);
-        restore_env_var("HAKO_JOINIR_PLANNER_REQUIRED", prev_planner_required);
+    fn with_loop_true_break_continue_env<F: FnOnce()>(
+        joinir_dev: Option<&str>,
+        planner_required: Option<&str>,
+        f: F,
+    ) {
+        crate::test_support::with_env_vars(
+            &[
+                ("NYASH_JOINIR_DEV", joinir_dev),
+                ("HAKO_JOINIR_PLANNER_REQUIRED", planner_required),
+            ],
+            f,
+        );
     }
 
     fn bool_lit(value: bool) -> ASTNode {
@@ -530,10 +521,7 @@ mod tests {
 
     #[test]
     fn policy_exit_allowed_when_extended() {
-        with_loop_true_break_continue_env(|| {
-            std::env::set_var("NYASH_JOINIR_DEV", "1");
-            std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
-
+        with_loop_true_break_continue_env(Some("1"), Some("1"), || {
             let condition = bool_lit(true);
             let body = vec![ASTNode::Return {
                 value: Some(Box::new(int(1))),
@@ -553,10 +541,7 @@ mod tests {
 
     #[test]
     fn policy_exit_allowed_without_dev_env() {
-        with_loop_true_break_continue_env(|| {
-            std::env::remove_var("NYASH_JOINIR_DEV");
-            std::env::remove_var("HAKO_JOINIR_PLANNER_REQUIRED");
-
+        with_loop_true_break_continue_env(None, None, || {
             let condition = bool_lit(true);
             let body = vec![ASTNode::If {
                 condition: Box::new(binop(BinaryOperator::Equal, bool_lit(true), bool_lit(true))),
@@ -580,10 +565,7 @@ mod tests {
 
     #[test]
     fn policy_exit_allowed_accepts_continue_prelude_with_else_exit_tree() {
-        with_loop_true_break_continue_env(|| {
-            std::env::remove_var("NYASH_JOINIR_DEV");
-            std::env::remove_var("HAKO_JOINIR_PLANNER_REQUIRED");
-
+        with_loop_true_break_continue_env(None, None, || {
             let condition = bool_lit(true);
             let body = vec![
                 local("value", me_call("parse_value", vec![])),
@@ -630,10 +612,7 @@ mod tests {
 
     #[test]
     fn policy_exit_allowed_accepts_receiver_field_nested_exit() {
-        with_loop_true_break_continue_env(|| {
-            std::env::remove_var("NYASH_JOINIR_DEV");
-            std::env::remove_var("HAKO_JOINIR_PLANNER_REQUIRED");
-
+        with_loop_true_break_continue_env(None, None, || {
             let condition = bool_lit(true);
             let policy_is_present = binop(BinaryOperator::NotEqual, me_field("policy"), null_lit());
             let body = vec![

@@ -28,9 +28,11 @@ use crate::parser::NyashParser;
 use crate::tests::helpers::joinir_env;
 use std::collections::BTreeMap;
 
-fn ensure_joinir_strict_env() {
-    std::env::set_var("NYASH_JOINIR_CORE", "1");
-    std::env::set_var("NYASH_JOINIR_STRICT", "1");
+fn joinir_strict_scope() -> crate::test_support::ScopedTestConfig {
+    crate::test_support::ScopedTestConfig::apply(&[
+        ("NYASH_JOINIR_CORE", Some("1")),
+        ("NYASH_JOINIR_STRICT", Some("1")),
+    ])
 }
 
 #[test]
@@ -114,7 +116,7 @@ fn mir_joinir_stage1_using_resolver_auto_lowering() {
 fn mir_joinir_stage1_using_resolver_type_sanity() {
     // Phase 27.12: 型定義の基本的なサニティチェック（常時実行）
     // stage1_using_resolver 用の JoinFunction が作成できることを確認
-    ensure_joinir_strict_env();
+    let _config = joinir_strict_scope();
 
     let resolve_id = JoinFuncId::new(20);
     let resolve_func = JoinFunction::new(
@@ -133,7 +135,7 @@ fn mir_joinir_stage1_using_resolver_type_sanity() {
 fn mir_joinir_stage1_using_resolver_empty_module_returns_none() {
     // Phase 27.13: 空の MIR モジュールでは None を返すことを確認
     // Stage1UsingResolverBox.resolve_for_source/1 関数が存在しない場合のフォールバック動作
-    ensure_joinir_strict_env();
+    let _config = joinir_strict_scope();
 
     // 最小限の MIR モジュールを作成
     use crate::mir::MirModule;

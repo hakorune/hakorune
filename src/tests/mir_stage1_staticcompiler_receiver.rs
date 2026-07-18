@@ -35,9 +35,11 @@ fn ensure_stage3_env() {
     std::env::set_var("HAKO_ENABLE_USING", "1");
 }
 
-fn ensure_joinir_strict_env() {
-    std::env::set_var("NYASH_JOINIR_CORE", "1");
-    std::env::set_var("NYASH_JOINIR_STRICT", "1");
+fn joinir_strict_scope() -> crate::test_support::ScopedTestConfig {
+    crate::test_support::ScopedTestConfig::apply(&[
+        ("NYASH_JOINIR_CORE", Some("1")),
+        ("NYASH_JOINIR_STRICT", Some("1")),
+    ])
 }
 
 /// StringHelpers.skip_ws + 最小 Main のテスト用フィクスチャ。
@@ -67,7 +69,7 @@ static box Main {
 #[test]
 fn mir_stage1_staticcompiler_receiver_compiles_and_verifies() {
     ensure_stage3_env();
-    ensure_joinir_strict_env();
+    let _joinir = joinir_strict_scope();
     let src = stage1_staticcompiler_fixture_src();
 
     let ast: ASTNode = NyashParser::parse_from_string(&src).expect("parse ok");
@@ -87,7 +89,7 @@ fn mir_stage1_staticcompiler_receiver_compiles_and_verifies() {
 #[test]
 fn mir_stage1_staticcompiler_receiver_exec_succeeds() {
     ensure_stage3_env();
-    ensure_joinir_strict_env();
+    let _joinir = joinir_strict_scope();
     std::env::set_var("NYASH_DISABLE_PLUGINS", "1"); // Plugin依存を排除
 
     let src = stage1_staticcompiler_fixture_src();
@@ -120,7 +122,7 @@ fn mir_stage1_staticcompiler_receiver_exec_succeeds() {
 #[test]
 fn mir_stage1_staticcompiler_receiver_normalizes_to_stringbox() {
     ensure_stage3_env();
-    ensure_joinir_strict_env();
+    let _joinir = joinir_strict_scope();
     let src = stage1_staticcompiler_fixture_src();
 
     let ast: ASTNode = NyashParser::parse_from_string(&src).expect("parse ok");

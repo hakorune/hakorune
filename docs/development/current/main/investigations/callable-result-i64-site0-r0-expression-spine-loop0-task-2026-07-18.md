@@ -1,5 +1,5 @@
 ---
-Status: LOOP0-P0a closed; worker-audited LOOP0-P0b next
+Status: LOOP0-P0b-F0 closed; direct-ordinal O0 authorization next
 Date: 2026-07-19
 Code baseline: 2a87a3bbe91318f52154b97ff5fadc8ee24d5dec
 Decision-stop baseline: 4f9b84138a
@@ -356,15 +356,28 @@ special case.
 ## Task order
 
 ```text
-LOOP0-S0a
-  -> LOOP0-S0b
-  -> LOOP0-S0c
-  -> LOOP0-P0
+LOOP0-S0a (closed)
+  -> LOOP0-S0b (closed)
+  -> LOOP0-S0c (closed)
+  -> LOOP0-P0a (closed)
+  -> LOOP0-P0b-F0
+  -> LOOP0-P0b-O0
+  -> LOOP0-P0b-T0
+  -> LOOP0-P0b-P0
+  -> LOOP0-P0c
   -> LOOP0-I0a
   -> LOOP0-I0b
   -> LOOP0-L0
   -> EXPR0-C0
 ```
+
+Consult reconciliation (2026-07-19): the later B-prime packet does not reopen
+`LOOP0-S0`. Its uniform provenance, non-Clone located-plan seal, canonical
+schedule, and atomic claimed batch are the already-closed S0a/S0b/S0c
+authorities. The packet's tentative `PreparedCallableResultLoopClaimsV1` must
+not be added beside the landed schedule -> ledger commit -> claimed-batch
+split. The current code-facing row remains P0b-F0 and advances only through
+the direct-ordinal O0 authorization gate.
 
 ### LOOP0-S0a — uniform provenance schema
 
@@ -548,6 +561,18 @@ third source copy. One mutex owns save/set/restore for both legacy and current
 DEV, STRICT, PLANNER_REQUIRED, and DEBUG variables. Default and strict modes
 run sequentially under that same lock; separate environment locks are
 forbidden.
+
+F0 closeout (2026-07-19): closed. One cfg(test)-only fixture now owns the
+actual ParserBox extraction, exact two selected sites, sealed 15-row plan, and
+caller. The prior activation and Loop-batch tests borrow it instead of keeping
+local copies. One crate-wide process-state guard owns all six current/legacy
+DEV, STRICT, PLANNER_REQUIRED, and DEBUG keys across the complete default then
+strict pair; direct literal writers for those keys are zero. Production
+GenericLoop, located producer/consumer, route, claim, grammar, runtime,
+backend, and ownership deltas remain zero. Focused mode, GenericLoop extract,
+and callable-result tests, both structural guards, all-target check, release
+build, quick 66/66 in 70 seconds, formatting, diff, pointer, and line-cap
+checks are green. Two final worker reviews are GO. O0 is the sole next row.
 
 `P0b-O0` is the hard authorization gate and has no composer or Builder
 consumer. Its non-Clone proof begins with the exact located Loop carrier,
@@ -749,6 +774,12 @@ roots remain zero.
 Thread one stack-scoped emission port through core/body/block/loop lowering.
 The raw facade preserves exact behavior and all existing callers. No plan,
 view, site table, ledger, or claim batch becomes a Builder field.
+
+The disconnected located wrapper intentionally exposes no owned plan escape.
+Before L0, I0b must add exactly one consuming handoff that moves the sealed
+CorePlan and its schedule into the claim-aware execution bundle. Clone,
+borrowed CorePlan access, remap after seal, and independently movable plan/site
+sidecars remain forbidden.
 
 ### LOOP0-L0 — disconnected located GenericLoop acceptance
 

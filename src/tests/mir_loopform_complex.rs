@@ -21,26 +21,38 @@ fn teardown_stage3_env() {
     std::env::remove_var("NYASH_ENABLE_USING");
     std::env::remove_var("HAKO_ENABLE_USING");
     std::env::remove_var("NYASH_DISABLE_PLUGINS");
-    std::env::remove_var("NYASH_JOINIR_DEV");
-    std::env::remove_var("HAKO_JOINIR_STRICT");
-    std::env::remove_var("HAKO_JOINIR_PLANNER_REQUIRED");
 }
 
 fn compile_module(src: &str) -> crate::mir::MirCompileResult {
     setup_stage3_env();
-    let ast = NyashParser::parse_from_string(src).expect("parse ok");
-    let mut mc = MirCompiler::with_options(false);
-    mc.compile(ast).expect("compile ok")
+    crate::test_support::with_env_vars(
+        &[
+            ("NYASH_JOINIR_DEV", None),
+            ("HAKO_JOINIR_STRICT", None),
+            ("HAKO_JOINIR_PLANNER_REQUIRED", None),
+        ],
+        || {
+            let ast = NyashParser::parse_from_string(src).expect("parse ok");
+            let mut mc = MirCompiler::with_options(false);
+            mc.compile(ast).expect("compile ok")
+        },
+    )
 }
 
 fn compile_module_strict_planner(src: &str) -> crate::mir::MirCompileResult {
     setup_stage3_env();
-    std::env::set_var("NYASH_JOINIR_DEV", "1");
-    std::env::set_var("HAKO_JOINIR_STRICT", "1");
-    std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
-    let ast = NyashParser::parse_from_string(src).expect("parse ok");
-    let mut mc = MirCompiler::with_options(false);
-    mc.compile(ast).expect("compile ok")
+    crate::test_support::with_env_vars(
+        &[
+            ("NYASH_JOINIR_DEV", Some("1")),
+            ("HAKO_JOINIR_STRICT", Some("1")),
+            ("HAKO_JOINIR_PLANNER_REQUIRED", Some("1")),
+        ],
+        || {
+            let ast = NyashParser::parse_from_string(src).expect("parse ok");
+            let mut mc = MirCompiler::with_options(false);
+            mc.compile(ast).expect("compile ok")
+        },
+    )
 }
 
 fn with_env_var<T>(key: &str, value: &str, f: impl FnOnce() -> T) -> T {

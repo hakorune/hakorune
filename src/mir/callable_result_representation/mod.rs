@@ -55,3 +55,6 @@ pub(crate) use loop_claim_batch::{
 pub(crate) use loop_claim_schedule::{
     CallableResultLoopClaimScheduleErrorV1, VerifiedCallableResultLoopClaimScheduleV1,
 };
+#[cfg(test)]
+#[allow(unused_imports)]
+pub(crate) use tests::actual_parser_add_fixture;

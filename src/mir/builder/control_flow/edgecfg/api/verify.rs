@@ -298,7 +298,6 @@ mod tests {
     use crate::mir::ValueId;
     use crate::mir::{BasicBlockId, EdgeArgs};
     use std::collections::BTreeMap;
-    use std::env;
 
     #[test]
     fn test_verify_frag_basic() {
@@ -318,15 +317,8 @@ mod tests {
         assert!(verify_frag_invariants(&frag).is_ok());
     }
 
-    fn strict_env_guard() -> impl Drop {
-        env::set_var("NYASH_JOINIR_STRICT", "1");
-        struct Guard;
-        impl Drop for Guard {
-            fn drop(&mut self) {
-                let _ = env::remove_var("NYASH_JOINIR_STRICT");
-            }
-        }
-        Guard
+    fn strict_env_guard() -> crate::test_support::ScopedTestConfig {
+        crate::test_support::ScopedTestConfig::apply(&[("NYASH_JOINIR_STRICT", Some("1"))])
     }
 
     #[test]

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Structural checks for the disconnected LOOP0-P0a expression port."""
+"""Structural checks for LOOP0-P0a and the disconnected P0b-F0 support."""
 
 from __future__ import annotations
 
@@ -30,6 +30,41 @@ P0A_TOUCHED_PATHS = (
     "src/mir/builder/control_flow/plan/expression_port_tests.rs",
     "src/mir/builder/control_flow/plan/mod.rs",
     "src/mir/callable_result_representation/located_legacy.rs",
+)
+P0B_F0_FIXTURE_PATH = (
+    "src/mir/callable_result_representation/tests/actual_parser_add_fixture.rs"
+)
+P0B_F0_ENV_PATH = (
+    "src/mir/builder/control_flow/plan/generic_loop/facts/extract/test_support.rs"
+)
+P0B_F0_TOUCHED_PATHS = (
+    P0B_F0_FIXTURE_PATH,
+    P0B_F0_ENV_PATH,
+    "src/mir/builder/control_flow/plan/generic_loop/facts/extract/mod.rs",
+    "src/mir/callable_result_representation/mod.rs",
+    "src/mir/callable_result_representation/tests/mod.rs",
+    "src/mir/callable_result_representation/tests/activation.rs",
+    "src/mir/callable_result_representation/tests/loop_claim_batch.rs",
+    "src/mir/builder/control_flow/edgecfg/api/verify.rs",
+    "src/mir/builder/control_flow/facts/loop_cond_return_in_body/tests.rs",
+    "src/mir/builder/control_flow/plan/facts/loop_tests_parts/multi_candidate.rs",
+    "src/mir/builder/control_flow/plan/loop_cond/true_break_continue.rs",
+    "src/mir/builder/control_flow/plan/normalizer/value_join_demo_if2.rs",
+    "src/mir/builder/control_flow/plan/parts/wiring_tests.rs",
+    "src/tests/mir_direct_route_decode_escapes.rs",
+    "src/tests/mir_joinir_if_select_parts/helpers.rs",
+    "src/tests/mir_joinir_stage1_using_resolver_min.rs",
+    "src/tests/mir_loopform_complex.rs",
+    "src/tests/mir_move_contract.rs",
+    "src/tests/mir_stage1_staticcompiler_receiver.rs",
+)
+P0B_F0_MODE_KEYS = (
+    "NYASH_JOINIR_DEV",
+    "HAKO_JOINIR_PLANNER_REQUIRED",
+    "HAKO_JOINIR_STRICT",
+    "NYASH_JOINIR_STRICT",
+    "HAKO_JOINIR_DEBUG",
+    "NYASH_JOINIR_DEBUG",
 )
 
 
@@ -235,10 +270,127 @@ def check_loop0_p0a(root: Path) -> str:
     if oversized:
         raise RuntimeError(f"LOOP0-P0a source/check files reached 800 lines: {oversized}")
 
+    # P0b-F0 owns one actual ParserBox extraction/activation fixture and one
+    # complete process-scoped mode lock. Later P0b rows must borrow both.
+    fixture = _read(root, P0B_F0_FIXTURE_PATH)
+    actual_method_owners = []
+    mir_root = root / "src/mir"
+    for path in mir_root.rglob("*.rs"):
+        count = path.read_text(encoding="utf-8").count(
+            '.find("\\n  static_const_parse_add(text, pos) {")'
+        )
+        actual_method_owners.extend([path.relative_to(root).as_posix()] * count)
+    if actual_method_owners != [P0B_F0_FIXTURE_PATH]:
+        raise RuntimeError(
+            "LOOP0-P0b-F0 actual ParserBox extraction owner drift: "
+            f"owners={actual_method_owners}"
+        )
+    for owner in (
+        "source",
+        "selected_static_sites",
+        "plan",
+        "caller",
+    ):
+        definitions = re.findall(rf"\bpub\(crate\)\s+fn\s+{owner}\s*\(", fixture)
+        if len(definitions) != 1:
+            raise RuntimeError(
+                f"LOOP0-P0b-F0 shared fixture owner drift: {owner}"
+            )
+    sites = _function_body(fixture, "selected_static_sites")
+    site_segments = re.findall(
+        r"SourcePathSegmentV1::(?:Body\(\d+\)|LoopBody\(\d+\)|Value)",
+        sites,
+    )
+    expected_segments = [
+        "SourcePathSegmentV1::Body(3)",
+        "SourcePathSegmentV1::Value",
+        "SourcePathSegmentV1::Body(4)",
+        "SourcePathSegmentV1::LoopBody(5)",
+        "SourcePathSegmentV1::Value",
+    ]
+    if sites.count("site(vec![") != 2 or site_segments != expected_segments:
+        raise RuntimeError(
+            "LOOP0-P0b-F0 exact selected-site drift: "
+            f"segments={site_segments}"
+        )
+    callable_mod = _read(root, "src/mir/callable_result_representation/mod.rs")
+    tests_mod = _read(root, "src/mir/callable_result_representation/tests/mod.rs")
+    if tests_mod.count("pub(crate) mod actual_parser_add_fixture;") != 1:
+        raise RuntimeError("LOOP0-P0b-F0 fixture module registration drift")
+    if callable_mod.count("pub(crate) use tests::actual_parser_add_fixture;") != 1:
+        raise RuntimeError("LOOP0-P0b-F0 fixture re-export drift")
+    if "actual_parser_add_fixture" in _production(callable_mod):
+        raise RuntimeError("LOOP0-P0b-F0 fixture escaped cfg(test)")
+    live_test_text = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in (root / "src/mir/callable_result_representation/tests").rglob("*.rs")
+    )
+    if re.search(r"\bfn\s+actual_plan\s*\(", live_test_text):
+        raise RuntimeError("LOOP0-P0b-F0 legacy local actual_plan owner remains")
+
+    env_support = _read(root, P0B_F0_ENV_PATH)
+    if "static ENV_LOCK" in env_support or "Mutex<" in env_support:
+        raise RuntimeError("LOOP0-P0b-F0 added a second environment lock")
+    for key in P0B_F0_MODE_KEYS:
+        if env_support.count(f'"{key}"') != 1:
+            raise RuntimeError(f"LOOP0-P0b-F0 mode-key owner drift: {key}")
+    if len(re.findall(r"\bfn\s+with_default_and_strict_modes\s*<", env_support)) != 1:
+        raise RuntimeError("LOOP0-P0b-F0 two-mode owner drift")
+    mode_pair = _function_body(env_support, "with_default_and_strict_modes")
+    for token, expected in (
+        ("ScopedTestConfig::apply", 1),
+        ("GenericLoopTestModeV1::Default", 1),
+        ("set_mode(", 1),
+        ("GenericLoopTestModeV1::StrictPlannerRequired", 1),
+    ):
+        if mode_pair.count(token) != expected:
+            raise RuntimeError(
+                f"LOOP0-P0b-F0 mode-pair step drift: token={token}"
+            )
+    ordered_steps = (
+        mode_pair.index("ScopedTestConfig::apply"),
+        mode_pair.index("GenericLoopTestModeV1::Default"),
+        mode_pair.index("set_mode("),
+        mode_pair.index("GenericLoopTestModeV1::StrictPlannerRequired"),
+    )
+    if list(ordered_steps) != sorted(ordered_steps):
+        raise RuntimeError("LOOP0-P0b-F0 default/strict order drift")
+    if "with_env_vars" in mode_pair or "Mutex" in mode_pair:
+        raise RuntimeError("LOOP0-P0b-F0 mode pair acquired a second lock")
+
+    direct_env_pattern = re.compile(
+        r"(?:std::)?env::(?:set_var|remove_var)\(\s*\"("
+        + "|".join(map(re.escape, P0B_F0_MODE_KEYS))
+        + r")\""
+    )
+    direct_writers = []
+    for path in (root / "src").rglob("*.rs"):
+        matches = direct_env_pattern.findall(path.read_text(encoding="utf-8"))
+        direct_writers.extend(
+            f"{path.relative_to(root).as_posix()}:{key}" for key in matches
+        )
+    if direct_writers:
+        raise RuntimeError(
+            "LOOP0-P0b-F0 mode keys bypass the process-state lock: "
+            f"writers={direct_writers}"
+        )
+
+    f0_touched = (*P0B_F0_TOUCHED_PATHS, __file__)
+    f0_oversized = []
+    for path in f0_touched:
+        relative = str(path) if isinstance(path, str) else str(Path(path).relative_to(root))
+        if len(_read(root, relative).splitlines()) >= 800:
+            f0_oversized.append(relative)
+    if f0_oversized:
+        raise RuntimeError(
+            f"LOOP0-P0b-F0 source/check files reached 800 lines: {f0_oversized}"
+        )
+
     return (
         "p0a_port_owners=1 raw_ports=1 test_located_ports=1 "
         "production_located_ports=0 path_policy_owners=0 "
-        "production_located_producers=0 generic_loop_consumers=0"
+        "production_located_producers=0 generic_loop_consumers=0 "
+        "p0b_f0_actual_fixtures=1 p0b_f0_mode_locks=1"
     )
 
 

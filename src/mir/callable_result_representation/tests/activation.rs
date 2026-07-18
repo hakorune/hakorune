@@ -4,6 +4,7 @@ use super::super::{
     CallableResultActivationDispositionV1, VerifiedCallableResultActivationPlanV1,
     VerifiedCallableResultActivationRowsV1,
 };
+use super::actual_parser_add_fixture;
 use super::support::{
     declarations, instance_key, key, qualified_targets, seal_with_targets, site, CallSiteSpecV1,
 };
@@ -156,62 +157,8 @@ fn plan_is_owned_and_single_use() {
 
 #[test]
 fn actual_parser_add_inventory_selects_only_two_static_skip_ws_sites() {
-    let parser = include_str!(concat!(
-        "../../../../lang/src/compiler/parser/",
-        "parser_box.hako"
-    ));
-    let start = parser
-        .find("\n  static_const_parse_add(text, pos) {")
-        .expect("actual ParserBox method start");
-    let end = parser
-        .find("\n  static_const_parse_mul(text, pos) {")
-        .expect("actual ParserBox method end");
-    let source = format!(
-        "static box ParserStringUtilsBox {{ skip_ws(text, pos) {{ return pos }} }}\nbox ParserBox {{ {}\n}}",
-        &parser[start..end],
-    );
-    let declarations = Box::new(declarations(&source));
-    let first = site(vec![
-        SourcePathSegmentV1::Body(3),
-        SourcePathSegmentV1::Value,
-    ]);
-    let second = site(vec![
-        SourcePathSegmentV1::Body(4),
-        SourcePathSegmentV1::LoopBody(5),
-        SourcePathSegmentV1::Value,
-    ]);
-    let targets = qualified_targets(
-        declarations.as_ref(),
-        &[],
-        &[
-            CallSiteSpecV1 {
-                caller_owner: "ParserBox",
-                caller_name: "static_const_parse_add",
-                caller_arity: 2,
-                site: first,
-            },
-            CallSiteSpecV1 {
-                caller_owner: "ParserBox",
-                caller_name: "static_const_parse_add",
-                caller_arity: 2,
-                site: second,
-            },
-        ],
-    );
-    let results = seal_with_targets(declarations.as_ref(), &targets);
-    let rows =
-        VerifiedCallableResultActivationRowsV1::verify(declarations.as_ref(), &targets, &results)
-            .expect("actual ParserBox activation rows");
-    drop(results);
-    drop(targets);
-    let plan = VerifiedCallableResultActivationPlanV1::seal(declarations, rows)
-        .expect("actual ParserBox owned activation plan");
-    let caller = instance_key(
-        plan.declaration_catalog(),
-        "ParserBox",
-        "static_const_parse_add",
-        2,
-    );
+    let plan = actual_parser_add_fixture::plan();
+    let caller = actual_parser_add_fixture::caller(&plan);
     let rows = plan.rows_for(&caller).expect("actual ParserBox rows");
     assert_eq!(rows.len(), 15);
     assert_eq!(

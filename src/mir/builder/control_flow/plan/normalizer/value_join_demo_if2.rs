@@ -1,7 +1,6 @@
 #[cfg(test)]
 mod tests {
     use std::collections::BTreeMap;
-    use std::env;
 
     use crate::mir::builder::control_flow::edgecfg::api::{
         BlockParams, ExitKind, Frag, FragEmitSession,
@@ -24,15 +23,8 @@ mod tests {
         else_val: ValueId,
     }
 
-    fn strict_env_guard() -> impl Drop {
-        env::set_var("NYASH_JOINIR_STRICT", "1");
-        struct Guard;
-        impl Drop for Guard {
-            fn drop(&mut self) {
-                let _ = env::remove_var("NYASH_JOINIR_STRICT");
-            }
-        }
-        Guard
+    fn strict_env_guard() -> crate::test_support::ScopedTestConfig {
+        crate::test_support::ScopedTestConfig::apply(&[("NYASH_JOINIR_STRICT", Some("1"))])
     }
 
     fn create_test_function() -> MirFunction {

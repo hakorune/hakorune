@@ -1,6 +1,10 @@
 use super::try_extract_loop_cond_return_in_body_facts;
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 
+fn joinir_dev_scope() -> crate::test_support::ScopedTestConfig {
+    crate::test_support::ScopedTestConfig::apply(&[("NYASH_JOINIR_DEV", Some("1"))])
+}
+
 fn var(name: &str) -> ASTNode {
     ASTNode::Variable {
         name: name.to_string(),
@@ -50,7 +54,7 @@ fn local(name: &str, init: ASTNode) -> ASTNode {
 
 #[test]
 fn return_in_body_brace_balance_shape_matches() {
-    std::env::set_var("NYASH_JOINIR_DEV", "1");
+    let _config = joinir_dev_scope();
 
     let condition = binop(BinaryOperator::Less, var("i"), var("n"));
     let inner_return = ASTNode::If {
@@ -88,7 +92,7 @@ fn return_in_body_brace_balance_shape_matches() {
 
 #[test]
 fn return_in_body_rejects_continue() {
-    std::env::set_var("NYASH_JOINIR_DEV", "1");
+    let _config = joinir_dev_scope();
 
     let condition = binop(BinaryOperator::Less, var("i"), var("n"));
     let body = vec![
@@ -110,7 +114,7 @@ fn return_in_body_rejects_continue() {
 
 #[test]
 fn return_in_body_rejects_nested_loop() {
-    std::env::set_var("NYASH_JOINIR_DEV", "1");
+    let _config = joinir_dev_scope();
 
     let condition = binop(BinaryOperator::Less, var("i"), var("n"));
     let body = vec![
@@ -150,7 +154,7 @@ fn simple_if_return_then_step_shape_detects() {
 
 #[test]
 fn return_in_body_simple_if_return_then_step_matches_in_dev_mode() {
-    std::env::set_var("NYASH_JOINIR_DEV", "1");
+    let _config = joinir_dev_scope();
 
     let condition = binop(
         BinaryOperator::LessEqual,
@@ -178,7 +182,7 @@ fn return_in_body_simple_if_return_then_step_matches_in_dev_mode() {
 
 #[test]
 fn return_in_body_simple_if_return_then_step_with_method_call_condition_matches() {
-    std::env::set_var("NYASH_JOINIR_DEV", "1");
+    let _config = joinir_dev_scope();
 
     let condition = binop(
         BinaryOperator::LessEqual,
@@ -211,7 +215,7 @@ fn return_in_body_simple_if_return_then_step_with_method_call_condition_matches(
 
 #[test]
 fn return_in_body_if_else_if_return_shape_matches() {
-    std::env::set_var("NYASH_JOINIR_DEV", "1");
+    let _config = joinir_dev_scope();
 
     let condition = binop(BinaryOperator::Less, var("v"), int(1));
     let body = vec![ASTNode::If {

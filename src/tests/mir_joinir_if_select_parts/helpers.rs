@@ -1,23 +1,16 @@
 use crate::mir::{BasicBlock, BasicBlockId, MirFunction, MirInstruction, ValueId};
 use std::collections::BTreeMap;
-use std::env;
 
 fn ensure_ring0_initialized() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
 }
 
-pub(super) fn strict_if_env_guard() -> impl Drop {
+pub(super) fn strict_if_env_guard() -> crate::test_support::ScopedTestConfig {
     ensure_ring0_initialized();
-    env::set_var("NYASH_JOINIR_CORE", "1");
-    env::set_var("NYASH_JOINIR_STRICT", "1");
-    struct Guard;
-    impl Drop for Guard {
-        fn drop(&mut self) {
-            let _ = env::remove_var("NYASH_JOINIR_CORE");
-            let _ = env::remove_var("NYASH_JOINIR_STRICT");
-        }
-    }
-    Guard
+    crate::test_support::ScopedTestConfig::apply(&[
+        ("NYASH_JOINIR_CORE", Some("1")),
+        ("NYASH_JOINIR_STRICT", Some("1")),
+    ])
 }
 
 /// Helper to create a simple if/else function matching the "simple" pattern

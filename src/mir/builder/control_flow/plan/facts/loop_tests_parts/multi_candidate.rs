@@ -1,41 +1,6 @@
 use super::super::try_build_loop_facts;
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::facts::loop_cond_break_continue::LoopCondBreakAcceptKind;
-use std::ffi::OsString;
-use std::sync::Mutex;
-
-static ENV_LOCK: Mutex<()> = Mutex::new(());
-
-struct EnvRestore {
-    joinir_dev: Option<OsString>,
-    planner_required: Option<OsString>,
-}
-
-impl EnvRestore {
-    fn set_planner_required() -> Self {
-        let restore = Self {
-            joinir_dev: std::env::var_os("NYASH_JOINIR_DEV"),
-            planner_required: std::env::var_os("HAKO_JOINIR_PLANNER_REQUIRED"),
-        };
-        std::env::set_var("NYASH_JOINIR_DEV", "1");
-        std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
-        restore
-    }
-}
-
-impl Drop for EnvRestore {
-    fn drop(&mut self) {
-        restore_var("NYASH_JOINIR_DEV", self.joinir_dev.take());
-        restore_var("HAKO_JOINIR_PLANNER_REQUIRED", self.planner_required.take());
-    }
-}
-
-fn restore_var(name: &str, value: Option<OsString>) {
-    match value {
-        Some(value) => std::env::set_var(name, value),
-        None => std::env::remove_var(name),
-    }
-}
 
 fn v(name: &str) -> ASTNode {
     ASTNode::Variable {
@@ -70,8 +35,10 @@ fn assign(name: &str, value: ASTNode) -> ASTNode {
 
 #[test]
 fn loopfacts_keeps_loop_cond_owner_for_multi_candidate_conditional_update() {
-    let _lock = ENV_LOCK.lock().expect("joinir env lock poisoned");
-    let _restore = EnvRestore::set_planner_required();
+    let _config = crate::test_support::ScopedTestConfig::apply(&[
+        ("NYASH_JOINIR_DEV", Some("1")),
+        ("HAKO_JOINIR_PLANNER_REQUIRED", Some("1")),
+    ]);
     let condition = bin(
         BinaryOperator::Or,
         bin(BinaryOperator::Greater, v("a"), lit_i(0)),

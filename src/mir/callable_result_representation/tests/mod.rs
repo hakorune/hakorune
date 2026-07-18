@@ -1,4 +1,5 @@
 mod activation;
+pub(crate) mod actual_parser_add_fixture;
 mod actual_sources;
 mod block_suffix_route_parity;
 mod call_substitution;

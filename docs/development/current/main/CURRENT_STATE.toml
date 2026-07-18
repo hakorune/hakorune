@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result LOOP0-P0a is closed; LOOP0-P0b conditional-GO split starts at F0"
+status = "callable-result LOOP0-P0b-F0 is closed; direct-ordinal O0 authorization is next"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -325,8 +325,11 @@ normalizer, source-path authority, production located consumer, or ledger
 claim is added. P0a now closes the one shared PATH0-backed expression-demand
 port with raw parity, branded located carriers, exact site propagation,
 synthetic Unlocated preservation, and production located consumers zero.
-LOOP0-P0b-F0 is next; production located consumers and claims remain zero."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0B-F0-001"
+LOOP0-P0b-F0 now closes one shared actual 15-row fixture and one complete
+process-scoped default/strict environment pair. Exact-key direct writers are
+zero outside the common test-state owner. LOOP0-P0b-O0 is next; production
+located consumers and claims remain zero."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0B-O0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -1,12 +1,6 @@
 #[cfg(test)]
 mod tests {
     use crate::parser::NyashParser;
-    use std::sync::{Mutex, OnceLock};
-
-    fn env_guard() -> &'static Mutex<()> {
-        static GUARD: OnceLock<Mutex<()>> = OnceLock::new();
-        GUARD.get_or_init(|| Mutex::new(()))
-    }
 
     fn ensure_ring0_initialized() {
         use crate::runtime::ring0::{default_ring0, init_global_ring0};
@@ -16,29 +10,15 @@ mod tests {
     }
 
     fn with_strict_planner_required_env<F: FnOnce()>(enabled: bool, f: F) {
-        let _lock = env_guard().lock().unwrap_or_else(|e| e.into_inner());
         ensure_ring0_initialized();
-        let prev_strict = std::env::var("HAKO_JOINIR_STRICT").ok();
-        let prev_required = std::env::var("HAKO_JOINIR_PLANNER_REQUIRED").ok();
-
-        if enabled {
-            std::env::set_var("HAKO_JOINIR_STRICT", "1");
-            std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
-        } else {
-            std::env::remove_var("HAKO_JOINIR_STRICT");
-            std::env::remove_var("HAKO_JOINIR_PLANNER_REQUIRED");
-        }
-
-        f();
-
-        match prev_strict {
-            Some(v) => std::env::set_var("HAKO_JOINIR_STRICT", v),
-            None => std::env::remove_var("HAKO_JOINIR_STRICT"),
-        }
-        match prev_required {
-            Some(v) => std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", v),
-            None => std::env::remove_var("HAKO_JOINIR_PLANNER_REQUIRED"),
-        }
+        let value = enabled.then_some("1");
+        crate::test_support::with_env_vars(
+            &[
+                ("HAKO_JOINIR_STRICT", value),
+                ("HAKO_JOINIR_PLANNER_REQUIRED", value),
+            ],
+            f,
+        );
     }
 
     fn compile_ok(code: &str) {

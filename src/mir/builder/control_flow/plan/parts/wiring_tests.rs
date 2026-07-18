@@ -277,8 +277,10 @@ mod tests {
 
     #[test]
     fn test_joinir_obligation_allows_then_only_local_branch_scoped() {
-        std::env::set_var("HAKO_JOINIR_STRICT", "1");
-        std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
+        let _config = crate::test_support::ScopedTestConfig::apply(&[
+            ("HAKO_JOINIR_STRICT", Some("1")),
+            ("HAKO_JOINIR_PLANNER_REQUIRED", Some("1")),
+        ]);
 
         let then_body_ast = vec![ASTNode::Local {
             variables: vec!["x".to_string()],
@@ -324,8 +326,10 @@ mod tests {
 
     #[test]
     fn test_joinir_obligation_freezes_loop_carrier_missing_in_pre() {
-        std::env::set_var("HAKO_JOINIR_STRICT", "1");
-        std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
+        let _config = crate::test_support::ScopedTestConfig::apply(&[
+            ("HAKO_JOINIR_STRICT", Some("1")),
+            ("HAKO_JOINIR_PLANNER_REQUIRED", Some("1")),
+        ]);
 
         let loop_body = vec![assign(
             "sum",
@@ -372,8 +376,10 @@ mod tests {
 
     #[test]
     fn test_joinir_obligation_freezes_exit_obligation() {
-        std::env::set_var("HAKO_JOINIR_STRICT", "1");
-        std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
+        let _config = crate::test_support::ScopedTestConfig::apply(&[
+            ("HAKO_JOINIR_STRICT", Some("1")),
+            ("HAKO_JOINIR_PLANNER_REQUIRED", Some("1")),
+        ]);
 
         let loop_body = vec![
             assign("sum", bin(BinaryOperator::Add, var("sum"), lit_int(1))),
@@ -421,8 +427,10 @@ mod tests {
 
     #[test]
     fn test_joinir_obligation_freezes_return_obligation() {
-        std::env::set_var("HAKO_JOINIR_STRICT", "1");
-        std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
+        let _config = crate::test_support::ScopedTestConfig::apply(&[
+            ("HAKO_JOINIR_STRICT", Some("1")),
+            ("HAKO_JOINIR_PLANNER_REQUIRED", Some("1")),
+        ]);
 
         let body_ast = vec![ASTNode::Return {
             value: Some(Box::new(lit_int(0))),
@@ -454,8 +462,10 @@ mod tests {
 
     #[test]
     fn test_joinir_obligation_exit_allowed_port_sig_is_seeded() {
-        std::env::set_var("HAKO_JOINIR_STRICT", "1");
-        std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
+        let _config = crate::test_support::ScopedTestConfig::apply(&[
+            ("HAKO_JOINIR_STRICT", Some("1")),
+            ("HAKO_JOINIR_PLANNER_REQUIRED", Some("1")),
+        ]);
 
         let body_ast = vec![ASTNode::Return {
             value: Some(Box::new(var("sum"))),
@@ -493,8 +503,10 @@ mod tests {
 
     #[test]
     fn test_joinir_obligation_exit_only_port_sig_is_seeded() {
-        std::env::set_var("HAKO_JOINIR_STRICT", "1");
-        std::env::set_var("HAKO_JOINIR_PLANNER_REQUIRED", "1");
+        let _config = crate::test_support::ScopedTestConfig::apply(&[
+            ("HAKO_JOINIR_STRICT", Some("1")),
+            ("HAKO_JOINIR_PLANNER_REQUIRED", Some("1")),
+        ]);
 
         let body_ast = vec![ASTNode::Return {
             value: Some(Box::new(var("sum"))),

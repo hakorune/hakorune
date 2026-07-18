@@ -11,9 +11,8 @@ use super::super::{
     VerifiedCallableResultLegacySourceViewV1, VerifiedCallableResultLoopClaimScheduleV1,
     VerifiedSameModuleCallableResultCatalogV1,
 };
-use super::support::{
-    declarations, instance_key, qualified_targets, seal_with_targets, site, CallSiteSpecV1,
-};
+use super::actual_parser_add_fixture;
+use super::support::{instance_key, site};
 
 const SOURCE: &str = r#"
     box ParserBox {
@@ -302,65 +301,10 @@ fn batch_sites(
         .collect()
 }
 
-fn actual_plan() -> VerifiedCallableResultActivationPlanV1 {
-    let parser = include_str!(concat!(
-        "../../../../lang/src/compiler/parser/",
-        "parser_box.hako"
-    ));
-    let start = parser
-        .find("\n  static_const_parse_add(text, pos) {")
-        .unwrap();
-    let end = parser
-        .find("\n  static_const_parse_mul(text, pos) {")
-        .unwrap();
-    let source = format!(
-        "static box ParserStringUtilsBox {{ skip_ws(text, pos) {{ return pos }} }}\nbox ParserBox {{ {}\n}}",
-        &parser[start..end],
-    );
-    let declarations = Box::new(declarations(&source));
-    let targets = qualified_targets(
-        declarations.as_ref(),
-        &[],
-        &[
-            CallSiteSpecV1 {
-                caller_owner: "ParserBox",
-                caller_name: "static_const_parse_add",
-                caller_arity: 2,
-                site: site(vec![
-                    SourcePathSegmentV1::Body(3),
-                    SourcePathSegmentV1::Value,
-                ]),
-            },
-            CallSiteSpecV1 {
-                caller_owner: "ParserBox",
-                caller_name: "static_const_parse_add",
-                caller_arity: 2,
-                site: site(vec![
-                    SourcePathSegmentV1::Body(4),
-                    SourcePathSegmentV1::LoopBody(5),
-                    SourcePathSegmentV1::Value,
-                ]),
-            },
-        ],
-    );
-    let results = seal_with_targets(declarations.as_ref(), &targets);
-    let rows =
-        VerifiedCallableResultActivationRowsV1::verify(declarations.as_ref(), &targets, &results)
-            .unwrap();
-    drop(results);
-    drop(targets);
-    VerifiedCallableResultActivationPlanV1::seal(declarations, rows).unwrap()
-}
-
 #[test]
 fn actual_fifteen_rows_claim_loop_six_through_fourteen_atomically() {
-    let plan = actual_plan();
-    let parser = instance_key(
-        plan.declaration_catalog(),
-        "ParserBox",
-        "static_const_parse_add",
-        2,
-    );
+    let plan = actual_parser_add_fixture::plan();
+    let parser = actual_parser_add_fixture::caller(&plan);
     let rows = plan.rows_for(&parser).unwrap();
     assert_eq!(rows.len(), 15);
     let view = VerifiedCallableResultLegacySourceViewV1::verify(&plan, &parser).unwrap();

@@ -1,7 +1,6 @@
 use crate::mir::{MirCompiler, MirVerifier};
 use crate::parser::NyashParser;
 use crate::runner::modes::common_util::source_hint::compile_with_source_hint;
-use crate::tests::helpers::joinir_env;
 
 fn ensure_stage3_env() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
@@ -11,8 +10,7 @@ fn ensure_stage3_env() {
 
 #[test]
 fn mir_direct_route_decode_escapes_fixture_accepts_in_release_route() {
-    joinir_env::with_joinir_env_lock(|| {
-        std::env::remove_var("HAKO_JOINIR_DEBUG");
+    crate::test_support::with_env_vars(&[("HAKO_JOINIR_DEBUG", None)], || {
         ensure_stage3_env();
 
         let source = include_str!(
@@ -37,8 +35,7 @@ fn mir_direct_route_decode_escapes_fixture_accepts_in_release_route() {
 
 #[test]
 fn mir_direct_route_decode_escapes_fixture_accepts_in_joinir_debug_shadow_route() {
-    joinir_env::with_joinir_env_lock(|| {
-        std::env::set_var("HAKO_JOINIR_DEBUG", "1");
+    crate::test_support::with_env_vars(&[("HAKO_JOINIR_DEBUG", Some("1"))], || {
         ensure_stage3_env();
 
         let source = include_str!(
@@ -57,7 +54,5 @@ fn mir_direct_route_decode_escapes_fixture_accepts_in_joinir_debug_shadow_route(
         verifier
             .verify_module(&result.module)
             .expect("lowered MIR should verify");
-
-        std::env::remove_var("HAKO_JOINIR_DEBUG");
     });
 }
