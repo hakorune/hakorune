@@ -32,11 +32,13 @@ def main() -> None:
     root = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
     module_path = "src/mir/builder/ops/binary_expression_descent.rs"
     tests_path = "src/mir/builder/ops/binary_expression_descent_tests.rs"
+    parity_tests_path = "src/mir/builder/ops/binary_expression_parity_tests.rs"
     raw_tests_path = "src/mir/builder/ops/binary_expression_raw_tests.rs"
     readme_path = "src/mir/builder/ops/README.md"
     ops_root_path = "src/mir/builder/ops/mod.rs"
     module = read(root, module_path)
     tests = read(root, tests_path)
+    parity_tests = read(root, parity_tests_path)
     raw_tests = read(root, raw_tests_path)
     readme = read(root, readme_path)
     ops_root = read(root, ops_root_path)
@@ -181,6 +183,12 @@ def main() -> None:
     )
     require_count(
         ops_root,
+        "mod binary_expression_parity_tests;",
+        1,
+        "BIN0-P0 parity fixture module",
+    )
+    require_count(
+        ops_root,
         "mod binary_expression_raw_tests;",
         1,
         "focused raw Binary fixture module",
@@ -208,6 +216,37 @@ def main() -> None:
         if fixture not in raw_tests:
             fail(f"missing BIN0-I0 fixture: {fixture}")
 
+    for fixture in (
+        "ordinary_operator_matrix_has_exact_legacy_snapshot_parity",
+        "method_call_on_each_side_has_exact_legacy_snapshot_parity",
+        "nested_binary_depth_two_through_four_has_exact_legacy_snapshot_parity",
+        "child_failures_and_reuse_have_exact_legacy_snapshot_parity",
+    ):
+        if fixture not in parity_tests:
+            fail(f"missing BIN0-P0 fixture: {fixture}")
+
+    for snapshot_fact in (
+        "blocks:",
+        "value_types:",
+        "value_kinds:",
+        "value_origins:",
+        "next_value_id:",
+        "recursion_depth:",
+    ):
+        if snapshot_fact not in parity_tests:
+            fail(f"BIN0-P0 snapshot misses fact: {snapshot_fact}")
+    require_count(
+        parity_tests,
+        "fn lower_legacy_reference(",
+        1,
+        "test-only pre-I0 reference",
+    )
+    for path in (root / "src").rglob("*.rs"):
+        if path.resolve() == (root / parity_tests_path).resolve():
+            continue
+        if "lower_legacy_reference(" in path.read_text(encoding="utf-8"):
+            fail(f"test-only Binary reference escaped parity module: {path}")
+
     for phrase in (
         "child-demand boundary",
         "reject `And` and `Or` before child effects",
@@ -222,6 +261,7 @@ def main() -> None:
     touched = (
         module_path,
         tests_path,
+        parity_tests_path,
         raw_tests_path,
         readme_path,
         ops_root_path,
@@ -236,7 +276,7 @@ def main() -> None:
 
     print(
         f"{TAG} ok: driver=1 child_descents=2 raw_selector=1 "
-        "raw_impl=1 located_impl=0 logical_owner_preserved=1"
+        "raw_impl=1 parity_reference=1 located_impl=0 logical_owner_preserved=1"
     )
 
 

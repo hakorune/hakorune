@@ -131,6 +131,8 @@ mod binary_expression_descent;
 #[cfg(test)]
 mod binary_expression_descent_tests;
 #[cfg(test)]
+mod binary_expression_parity_tests;
+#[cfg(test)]
 mod binary_expression_raw_tests;
 pub(super) mod comparison;
 pub(super) mod converters;

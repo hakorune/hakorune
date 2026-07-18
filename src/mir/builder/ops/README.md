@@ -33,5 +33,12 @@ BIN0-I0 selects the ordinary raw source entry through one owned raw input and
 the shared raw child-lowering port. `And` / `Or` are rejected by this driver
 and remain selected by `logical_shortcircuit.rs` before the raw adapter is
 constructed. The adapter owns no recursion guard, location, ledger, route, or
-result policy. Normalized parity and located `BinaryLeft` / `BinaryRight`
-acceptance remain later BIN0 rows; production located callers remain zero.
+result policy. Located `BinaryLeft` / `BinaryRight` acceptance remains the
+later BIN0-L0 row; production located callers remain zero.
+
+BIN0-P0 keeps one pre-I0 orchestration reference strictly inside a `#[cfg(test)]`
+module. Its snapshot compares output/error, ordered MIR and terminators,
+transient types, value kinds, origins, next ValueId, and recursion depth for the
+ordinary operator matrix, MethodCall children, nested trees, failures, and
+reuse. The reference is parity evidence only and is never a production
+fallback or second lowering route. Located acceptance still belongs to BIN0-L0.

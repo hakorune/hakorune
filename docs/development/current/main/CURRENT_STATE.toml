@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result I0 BIN0-I0 is closed; BIN0-P0 is next"
+status = "callable-result I0 BIN0-P0 is closed; BIN0-L0 is next"
 date = "2026-07-18"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,16 +298,15 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 
 latest_card = "callable-result-i64-site0-r0-expression-spine-task-2026-07-18"
 latest_card_path = "docs/development/current/main/investigations/callable-result-i64-site0-r0-expression-spine-task-2026-07-18.md"
-latest_card_summary = """BIN0-I0 is closed. One owned raw Binary input and one
-raw port implementation behavior-neutrally select the ordinary source branch
-through the closed associated-input driver. And/Or remain selected first by
-the existing short-circuit owner; operator conversion, LocalSSA,
-arithmetic/comparison policy, types, destination allocation, recursion depth,
-CFG, and PHI stay with existing owners. Focused raw/generic/recursive fixtures,
-callable-result regressions, and one reusable SPINE0 guard prove one raw
-selector, zero located implementations, zero result authority, exact child
-failure stopping, and Builder reuse. BIN0-P0 is next for normalized parity."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-SPINE0-BIN0-P0-001"
+latest_card_summary = """BIN0-P0 is closed. One test-only pre-I0 reference and
+one exact snapshot prove the selected raw path preserves output/error, ordered
+MIR and terminators, transient types, value kinds, origins, next ValueId, and
+recursion depth. The exact 16 ordinary operators, MethodCall on either side,
+nested depth two through four, lhs/rhs failures, and Builder reuse are equal.
+The retired reference is absent from production sources. Production code,
+grammar, MIR, runtime, located callers, ledger consumers, and result authority
+remain unchanged. BIN0-L0 is next for disconnected PATH0 acceptance."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-SPINE0-BIN0-L0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -316,6 +315,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-18: SITE0-R0-EXPR0-SPINE0-BIN0-P0 closes exact selected-versus-pre-I0 parity. Four fixtures compare result/error, ordered MIR/terminators, transient types, value kinds, origins, next ValueId, and recursion depth across all 16 ordinary operators, MethodCall children, nested depth 2-4, failures, and reuse. The reference remains test-only; production/located/result authority delta is zero and BIN0-L0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-BIN0-I0 behavior-neutrally selects the ordinary raw Binary source path through one owned input and one raw port. And/Or remain on the existing short-circuit owner. Raw 6/6, generic 6/6, recursive 7/7, short-circuit 1/1, callable-result 48/48, all prior EXPR0 guards, cargo check, quick 66/66, release, formatting, and line caps are green. Located implementations and result authority remain zero; BIN0-P0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-BIN0-S0 closes one disconnected ordinary Binary associated-input driver. It rejects And/Or before effects, descends lhs then rhs through E0, and completes through the existing from-values owner. Focused 6/6, callable-result 48/48, recursive 7/7, short-circuit 1/1, reusable SPINE0 and prior EXPR0 guards, quick, release, formatting, and line caps are green. Raw/located implementations, production callers, and result authority remain zero; BIN0-I0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-C0 audit selects structural located-spine expansion before block connection. The actual Parser caller has 15 rows: 8 direct statement children, 2 nested MethodCall arguments, and 5 below Binary ancestors. Ordinary Binary, short-circuit Binary, statements, If, suffix admission, and Loop carriage remain separate rows; BIN0-S0 is next with production located callers/result publication zero.",
@@ -327,5 +327,4 @@ landed_tail = [
   "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-M0-ROUTE0-M0 closes one generic associated-input ordinary MethodCall driver. TypeOp/Standard descend receiver E0 once; Static/Env/Me keep receiver syntax-only; arguments preserve preflight then ARG0 order. Record-helper uses indexed E0 only for non-record slots, and property reads retain their materialized value facade. Route 8/8, record helper 5/5, method port 4/4, reserved 11/11, property 3/3, recursive 7/7, callable-result 43/43, actual Env single-eval, guards, release, quick, pointer, and line caps are green. Result/located/ledger authority remains zero; M0-V0 is next.",
   "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-M0-ROUTE0-M0-TYPEOP-GUARD0 closes the pre-existing source TypeOp receiver recursion-depth bypass. The receiver now enters the existing E0 raw-expression guard; limit 200, syntax-only type spelling, and TypeOp semantics remain fixed. Entry depth 198 succeeds, entry 199 rejects attempted depth 201 before TypeOp publication, depth restores, and the Builder is reusable. Focused recursive 7/7 is green; route/result/located/ledger/grammar/backend authority remains zero and ROUTE0-M0 is next.",
   "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-M0-ROUTE0-R0 closes one classify-once prepared reserved decision and one raw MethodCall production selector. Reserved receivers/debug labels remain syntax-only; log uses indexed E0 suffix descent, mark none, REPL full ARG0, and FastMem function/method facades share one preflight core. Reserved 11/11, method port 4/4, ARG0 5/5, E0 6/6, callable-result 43/43, policy 5/5, moved 3/3, FastMem non-drift 72/72, guards, and release are green. Result/located/ledger authority remains zero; ROUTE0-M0 is next.",
-  "2026-07-18: R0-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-M0-GUARD0 restores one exact raw-expression recursion-depth owner in the raw E0 port. Public build_expression and nested ARG0/MethodCall descent reach it once; limit 200 and diagnostics remain stable, while ordinary and overflow failures restore entry depth for reuse. Focused recursive 6/6, ARG0 5/5, ROUTE0 3/3, callable-result 43/43, structural guards, and release check are green. Route/grammar/result/located/ledger authority remains zero; ROUTE0-R0 is next.",
 ]
