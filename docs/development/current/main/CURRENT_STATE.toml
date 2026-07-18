@@ -305,7 +305,10 @@ recursion depth. The exact 16 ordinary operators, MethodCall on either side,
 nested depth two through four, lhs/rhs failures, and Builder reuse are equal.
 The retired reference is absent from production sources. Production code,
 grammar, MIR, runtime, located callers, ledger consumers, and result authority
-remain unchanged. BIN0-L0 is next for disconnected PATH0 acceptance."""
+remain unchanged. BIN0-L0 is next for disconnected PATH0 acceptance. It routes
+every ordinary Binary through the located driver and lets each child prove
+inactivity or continue to an exact claim; `RowsUnderPrefix` is never used as
+an active/inactive route probe."""
 current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-SPINE0-BIN0-L0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."

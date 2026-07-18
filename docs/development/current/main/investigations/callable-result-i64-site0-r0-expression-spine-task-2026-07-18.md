@@ -66,8 +66,11 @@ SITE0-R0-EXPR0-SPINE0-BIN0-L0
 ```
 
 `BIN0-P0` is closed. BIN0-L0 may add only the disconnected located Binary
-adapter over the existing PATH0 `BinaryLeft` / `BinaryRight` roles. Production
-located callers and callable-result publication remain zero.
+adapter over the existing PATH0 `BinaryLeft` / `BinaryRight` roles. Every
+ordinary Binary seen by the located session uses that adapter; each child then
+uses the existing ledger to prove an inactive prefix or claim an exact row.
+There is no whole-Binary active/inactive probe. Production located callers and
+callable-result publication remain zero.
 
 ## Why C0 is held
 
@@ -198,8 +201,65 @@ recursion-depth restoration and Builder reuse
 
 The located session accepts an active ordinary Binary only by constructing
 `BinaryLeft` and `BinaryRight` children through the existing source view.
-Inactive Binary remains eligible for exact inactive-prefix raw delegation.
+
+The ledger currently exposes an exact inactive-prefix proof and a typed
+`RowsUnderPrefix` rejection, but no positive active/inactive classifier.
+Therefore BIN0-L0 must not call `prove_expr_inactive`, catch
+`RowsUnderPrefix`, and use that error to select the located route. That would
+be input probing and would create an implicit retry boundary.
+
+Instead, every ordinary Binary encountered by the disconnected located
+session goes through the located Binary driver. Its left and right associated
+inputs independently use the existing ledger law:
+
+```text
+child prefix contains no rows:
+  prove the exact child inactive
+  -> existing raw whole-child delegation
+
+child prefix contains rows:
+  continue located descent
+  -> exact terminal claim
+```
+
+This admits no new source shape and needs no new ledger API. `And` and `Or`
+still reject before child effects and remain owned by SC0. If whole-Binary raw
+delegation becomes a required invariant, stop BIN0-L0 and design a separate
+positive prefix-classification product rather than branching on an error.
 Production located callers and callable-result publication remain zero.
+
+Required BIN0-L0 fixtures:
+
+```text
+pass:
+  active MethodCall in lhs
+  active MethodCall in rhs
+  active rows on both sides, exact lhs-before-rhs claim order
+  nested ordinary Binary depth two through four
+  actual If-condition Eq shapes for rows 2 and 11
+  inactive child raw delegation with an exact child-prefix proof
+  failure poisons the session; a fresh session remains independent
+
+reject/no-effect:
+  And and Or
+  foreign or unlocated Binary input
+  wrong PATH0 child role
+  unsupported active non-Binary prefix
+  location reconstruction or error-based route probing
+```
+
+Post-row counters:
+
+```text
+ordinary Binary associated-input drivers = 1
+raw Binary implementations/selectors = 1 / 1
+located Binary implementations = 1
+Binary child-role policy owners = 1 (PATH0)
+error-based active-prefix selectors = 0
+production located root callers = 0
+callable-result publishers = 0
+Builder plan/view/ledger fields = 0
+```
 
 ### BIN0-S0 closeout
 
@@ -482,7 +542,10 @@ Stop the current row if any of the following becomes necessary:
 > Ordinary Binary is the sole current shape and continues at
 > `SITE0-R0-EXPR0-SPINE0-BIN0-L0`; short-circuit Binary, value-bearing
 > statements, If, raw suffix admission, and Loop site carriage remain separate
-> owners. Every prerequisite keeps production located callers and
+> owners. BIN0-L0 always uses the located driver for an ordinary Binary and
+> lets each associated child prove inactivity or continue to an exact claim;
+> it never selects a route by catching `RowsUnderPrefix`. Every prerequisite
+> keeps production located callers and
 > callable-result publication at zero. C0 may resume only after the actual
 > 15-row caller completes one exact located traversal and ledger finish with no
 > raw active-subtree escape, no retry, and no duplicated route/control/result
