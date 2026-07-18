@@ -1,6 +1,6 @@
 ---
-Status: LOOP0-S0c closed; LOOP0-P0 next
-Date: 2026-07-18
+Status: LOOP0-S0c closed; worker-audited LOOP0-P0a next
+Date: 2026-07-19
 Code baseline: 2a87a3bbe91318f52154b97ff5fadc8ee24d5dec
 Decision-stop baseline: 4f9b84138a
 Decision: uniform call provenance plus one non-Clone final-plan seal
@@ -33,10 +33,9 @@ claims condition rows 6-8 before body rows 9-14, and outer row 13 before its
 nested argument row 14. Plan emission may consume row 14 before row 13 because
 argument evaluation precedes the outer call.
 
-The next code-facing row is `LOOP0-S0`, implemented as the short Refactor
-Series `S0a -> S0b -> S0c`. S0 changes the internal plan schema explicitly but
-has no production execution, located-consumer, ledger-claim, grammar, runtime,
-backend, or ownership delta.
+The next code-facing row is `LOOP0-P0a`, followed by the mechanical
+`P0b -> P0c` proof slices. Production located consumers, ledger claims,
+grammar, runtime, backend, and ownership remain unchanged through P0.
 
 ## Repository-ground corrections
 
@@ -464,14 +463,170 @@ all-target check, release build, formatting, diff, line-cap checks, and quick
 
 ### LOOP0-P0 — actual GenericLoop plan proof
 
-Add one shared raw/test-located expression port without duplicating the
-normalizer. Invoke the GenericLoopV1 composer directly and prove the actual
-15-row child-demand trace, CorePlan, remap, PlanVerifier result, CFG plan,
-types/bindings, loop carrier, short-circuit shape, and exact nine-site Loop
-inventory. P0 does not own route selection or non-Generic route rejection;
-those become executable only in I0a/L0. Direct-ordinal body is accepted, while
-ScopeBox/flattened body rejects before composer invocation with Builder delta
-zero and claims zero. Production located consumers remain zero.
+Worker audit (2026-07-19): GO. No new design consultation is required while
+the first profile stays on the recursively direct-ordinal GenericLoopV1 body.
+The implementation is split mechanically into P0a/P0b/P0c so that port
+vocabulary, composer threading, and the actual parity proof never land as one
+opaque change.
+
+#### LOOP0-P0a — one expression-demand port vocabulary
+
+Production behavior delta: 0. Production located consumers: 0.
+
+Add one stack-scoped `LoopPlanExpressionPortV1` at the
+`compose_generic_loop_v1_recipe -> apply_generic_loop_v1_pipeline` boundary.
+The raw implementation borrows the existing AST/body and always returns
+`CoreCallSourceV1::Unlocated`. The `cfg(test)` located implementation owns no
+path table: it uses only `VerifiedCallableResultLegacySourceViewV1`,
+`LegacyStmtInputV1` / `LegacyExprInputV1` / `LegacyBodyInputV1`, and the
+existing `ExprChildRoleV1` / `BodyChildRoleV1` vocabulary.
+
+`PlanNormalizer::lower_value_ast` remains the normalizer SSOT. Its existing
+raw entry becomes a thin facade over one port-driven internal lowering entry;
+there is no second expression normalizer, AST walker, or target resolver.
+
+P0a fixtures:
+
+```text
+raw leaf/child demands preserve the existing CorePlan and Builder snapshot
+raw call source is always Unlocated
+located child demands return the exact existing PATH0 child carrier
+located MethodCall stamps exactly its activation_site
+synthetic/canonical helper expressions without an exact carrier stay Unlocated
+port construction, inspection, and failure claim zero ledger rows
+```
+
+#### LOOP0-P0b — GenericLoopV1-only port threading
+
+Production behavior delta: 0. Production located consumers: 0.
+
+Thread the same borrowed port through exactly the GenericLoopV1 composer,
+carrier orchestration/body lowering, and condition/step handoff. Both body and
+condition leaves must reach the same port-driven value lowering entry.
+`CondBlockView`, `RecipeBody`, flattened facts, or cloned AST may remain raw
+planning data, but none may become located source identity authority.
+
+The actual fixture has a two-mode obligation. Under the default environment it
+may use the direct RecipeOnly body, while strict/dev + `planner_required` may
+select `BodyLoweringPolicy::ExitAllowed`. P0b begins with a disconnected
+authorization inventory: ExitAllowed/NoExit may consume the port only if the
+existing recipe references demonstrably preserve original PATH0 ordinals.
+RecipeBlock indices are not presumed to be source ordinals. If that proof is
+green, thread the same port through the existing RecipeBlock dispatch; if it
+is not, stop before composer threading. AST comparison and a new mapping table
+remain forbidden.
+
+Only the located test path performs this preflight before
+`alloc_generic_loop_v0_skeleton`: verify one recursively
+direct-ordinal correspondence between the selected source Loop and the body
+consumed by the composer. `ScopeBox`, `Program`, flattened/transformed body,
+nested Loop, or a required child with no existing PATH0 role rejects before
+skeleton allocation. Therefore the rejection proves:
+
+```text
+composer invocations = 0
+Builder ValueId/block/type/binding/loop-state delta = 0
+ledger claims = 0
+retry/fallback = 0
+```
+
+The raw port continues to consume the existing cloned/flattened facts exactly
+as before. The shared port unifies lowering mechanics, not syntax authority;
+located admission must not narrow existing raw production behavior.
+
+This row does not select a route. Tests may construct `LoopRouteContext`, use
+the existing pure facts outcome, assert GenericLoopV1, and invoke
+`RecipeComposer::compose_generic_loop_v1_recipe` directly. Registry routing,
+`route_generic_loop_v1`, `PlanLowerer`, normalized shadow, and non-Generic
+routes are outside P0.
+
+#### LOOP0-P0c — actual 15-row disconnected parity proof
+
+Production behavior delta: 0. Production located consumers: 0. Production
+claims: 0.
+
+Use separate, identically seeded raw and test-located Builders. Compose the
+actual GenericLoopV1 plan directly, complete all existing ValueId remapping,
+run `PlanVerifier`, and only then seal `VerifiedLocatedCoreLoopPlanV1`. Run
+this proof separately under the default environment and under the exact
+strict/dev + `planner_required` lock. A default-only green result cannot close
+P0 or authorize C0.
+
+The normalized snapshot must compare structure rather than `Debug` text:
+
+```text
+CorePlan:
+  Loop block roles, body, block effects, phis, frag, final values, step mode
+
+Builder post-compose state:
+  current block
+  blocks/instructions/terminators
+  value_types/value_kinds/origins
+  variable and binding maps
+  next block/value/core cursors
+  loop/context depth
+
+Located-only evidence:
+  exact child-demand trace
+  exact nine Loop SourceExprSiteV1 occurrences
+  remap preserves every site without changing semantic plan structure
+  canonical claim schedule remains condition 6-8 then body 9-14
+```
+
+The short-circuit proof is CFG-shaped: RHS call effects must remain in their
+separate evaluation block. A call count or final MIR-only comparison is not
+sufficient to prove laziness.
+
+Required positive fixtures:
+
+```text
+actual static_const_parse_add 15-row carrier
+direct-ordinal Loop body
+condition rows 6,7,8 and body rows 9..14
+outer row 13 before nested row 14 in source schedule
+nested row 14 before outer row 13 in plan/evaluation traversal
+CorePlan clone/remap/site preservation
+PlanVerifier green
+raw/located plan, CFG, type, binding, carrier, and Builder-state parity
+default RecipeOnly and planner-required ExitAllowed parity
+short-circuit RHS separate-block laziness
+```
+
+Required negative fixtures:
+
+```text
+ScopeBox or flattened body rejects before composer invocation
+Program wrapper rejects before composer invocation
+nested Loop rejects
+missing PATH0 child role rejects
+located site reconstructed by AST equality/span/target/ValueId/order rejects
+raw active condition/body handed to located port rejects
+```
+
+False-green guards:
+
+```text
+Debug-string snapshot authority = 0
+site-count-only assertions = 0
+schedule-only assertions = 0
+final-MIR-only parity = 0
+source order == plan order assumptions = 0
+facts clone == source authority assumptions = 0
+route registry/fallback participation = 0
+```
+
+Hard stop and new consultation are required if the selected ExitAllowed
+RecipeBlock cannot preserve the original ordinal PATH0 carrier without AST
+equality or a second path table. The same stop applies to normalized shadow,
+nested Loop, a child demand with no existing PATH0 role, or any second
+location/path authority. Successful two-mode P0c advances to LOOP0-I0a; it
+does not activate located Loop production.
+
+Parked DX follow-up: `dev-gate-quick-latency-task-2026-07-18.md` owns the
+measured 42-134 second quick-gate latency, parallelization inventory, and
+conservative changed-path selector. Parallel execution remains parked behind
+its PAR0 row, and a second stable ultra-quick profile is rejected. It is not a
+LOOP0 prerequisite.
 
 ### LOOP0-I0a — shared route selection owner
 
@@ -557,9 +712,9 @@ call-effect visitor owners = 1
 
 VerifiedLocatedCoreLoopPlanV1 definitions = 1
 VerifiedCallableResultLoopClaimScheduleV1 definitions = 1
-ClaimedCallableResultLoopBatchV1 definitions = 1  # pending S0c
+ClaimedCallableResultLoopBatchV1 definitions = 1
 wrapper/schedule Clone implementations = 0
-batch Clone implementations = 0  # pending S0c
+batch Clone implementations = 0
 
 speculative planner claims = 0
 compose-before-seal claims = 0
@@ -650,5 +805,5 @@ Stop the current row if it requires:
 > falls back. The first profile admits only direct-ordinal GenericLoop-v1
 > MethodCall inventory and rejects transformed bodies, nested Loop, and
 > normalized shadow before effects. `LOOP0-S0a` and `LOOP0-S0b` are closed;
-> `LOOP0-S0c` is closed; `LOOP0-P0` is next. Production located consumers and ledger claims remain
-> zero through S0.
+> `LOOP0-S0c` is closed; `LOOP0-P0a` is next. Production located consumers
+> and ledger claims remain zero through P0.

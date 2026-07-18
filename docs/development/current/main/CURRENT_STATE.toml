@@ -1,8 +1,8 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result LOOP0-S0c is closed; LOOP0-P0 is next"
-date = "2026-07-18"
+status = "callable-result LOOP0-S0c is closed; worker-audited LOOP0-P0a is next"
+date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
 active_lane_status = """D′ is the current canonical control-lowering authority:
@@ -310,8 +310,13 @@ returns one non-Clone site-keyed batch whose claimed rows may be consumed in
 plan order with double/unused rejection. The actual 15-row caller proves human
 rows 1-5 ordinary, 6-14 batch, and 15 ordinary while nested row 14 may be
 consumed before outer row 13. Production located consumers and claims stay
-zero. LOOP0-P0 is next."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0-001"
+zero. A three-worker audit fixes LOOP0-P0 as P0a/P0b/P0c: one shared
+raw/test-located PATH0-backed expression-demand port, GenericLoopV1-only
+signature threading with direct-ordinal preflight before skeleton mutation,
+then one actual 15-row raw/located structural parity proof. No new route,
+normalizer, source-path authority, production located consumer, or ledger
+claim is added. LOOP0-P0a is next."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0A-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
