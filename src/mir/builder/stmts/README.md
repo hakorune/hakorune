@@ -47,6 +47,17 @@ origin facts, bindings/scopes, specialized array/record contracts, slot state,
 allocator counters, partial failure state, and same-Builder reuse. The
 reference must not call the selected driver or either descent port.
 
-Located Local acceptance remains disconnected until LCL0-L0. Its port must
-prove each exact `LocalInitializer(index)` subtree active or inactive before
-delegating; P0 does not authorize a located implementation or selector.
+LCL0-L0 adds one disconnected located Local selector. Ordinary initializers
+are requested only through the existing `LocalInitializer(index)` source role,
+so expression descent retains the exact site and ledger order. Typed-array and
+record hooks require exact inactive-subtree proof before specialized effects;
+an active element or constructor argument fails closed. The adapter does not
+catch `RowsUnderPrefix` to probe a route, reconstruct a site, or publish a
+production located root caller.
+
+The canonical source grammar currently admits at most one initialized binding
+per `Local`, so its reachable located role is `LocalInitializer(0)`. The shared
+driver deliberately keeps an indexed associated-input contract; its synthetic
+port fixture fixes `LocalInitializer(0)` then `LocalInitializer(1)` ordering.
+Located LCL0 binds every requested index to the exact source role, but does not
+invent a malformed multi-initializer source fixture to widen the parser law.

@@ -102,6 +102,9 @@ pub(super) mod async_stmt;
 pub(in crate::mir::builder) mod block_driver;
 pub(super) mod block_stmt;
 mod local_statement_descent;
+pub(in crate::mir::builder) use local_statement_descent::{
+    drive_local_statement_v1, LocalStatementDescentPortV1, LocalStatementSyntaxViewV1,
+};
 pub(super) mod print_stmt;
 pub(super) mod return_stmt;
 pub(super) mod task_scope_stmt;

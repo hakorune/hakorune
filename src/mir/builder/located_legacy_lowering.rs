@@ -6,6 +6,10 @@
 //! proved that the complete prefix contains no activation rows. It is not
 //! stored in `MirBuilder` and has no production constructor caller.
 
+#[cfg(test)]
+#[path = "located_legacy_local_tests.rs"]
+mod local_tests;
+
 use crate::ast::ASTNode;
 use crate::mir::callable_result_representation::{
     CallableResultCallerLedgerErrorV1, CallableResultLegacyLocationErrorV1,
@@ -31,6 +35,9 @@ use super::ops::{
 use super::recursive_child_lowering::{
     drive_raw_legacy_body_v1, drive_raw_legacy_expression_v1, drive_raw_legacy_statement_v1,
     with_legacy_expression_recursion_guard_v1, RecursiveChildLoweringPortV1,
+};
+use super::stmts::{
+    drive_local_statement_v1, LocalStatementDescentPortV1, LocalStatementSyntaxViewV1,
 };
 use super::CanonicalSameModuleCallableKeyV1;
 
@@ -105,11 +112,7 @@ impl<'plan> LocatedLegacyLoweringSessionV1<'plan> {
         input: LegacyStmtInputV1<'plan>,
     ) -> Result<ValueId, LocatedLegacyLoweringErrorV1> {
         self.require_active()?;
-        let result = self
-            .ledger
-            .prove_stmt_inactive(&input)
-            .map_err(LocatedLegacyLoweringErrorV1::Ledger)
-            .and_then(|proof| delegate_inactive_statement(builder, input, proof));
+        let result = self.lower_statement_active(builder, input);
         self.retain_failure(result)
     }
 
@@ -173,6 +176,42 @@ impl<'plan> LocatedLegacyLoweringSessionV1<'plan> {
         delegate_inactive_expression(builder, input, proof)
     }
 
+    fn lower_statement_active(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: LegacyStmtInputV1<'plan>,
+    ) -> Result<ValueId, LocatedLegacyLoweringErrorV1> {
+        if matches!(input.node(), ASTNode::Local { .. }) {
+            let guarded_node_kind = std::mem::discriminant(input.node());
+            let statement_span = input.node().span();
+            builder.metadata_ctx.set_current_span(statement_span);
+            return with_legacy_expression_recursion_guard_v1(
+                builder,
+                guarded_node_kind,
+                |builder| drive_local_statement_v1(builder, self, &input),
+            )
+            .map_err(LocatedLegacyLoweringErrorV1::Lowering);
+        }
+
+        let proof = self
+            .ledger
+            .prove_stmt_inactive(&input)
+            .map_err(LocatedLegacyLoweringErrorV1::Ledger)?;
+        delegate_inactive_statement(builder, input, proof)
+    }
+
+    fn prove_local_initializer_inactive(
+        &self,
+        input: &LegacyStmtInputV1<'plan>,
+        index: usize,
+    ) -> Result<(), String> {
+        let expression = self.local_initializer_expression_input(input, index)?;
+        self.ledger
+            .prove_expr_inactive(&expression)
+            .map(|_| ())
+            .map_err(|error| format!("[located-lowering/ledger] {error:?}"))
+    }
+
     fn require_active(&self) -> Result<(), LocatedLegacyLoweringErrorV1> {
         if self.state == LocatedLegacyLoweringStateV1::Active {
             Ok(())
@@ -189,6 +228,65 @@ impl<'plan> LocatedLegacyLoweringSessionV1<'plan> {
             self.state = LocatedLegacyLoweringStateV1::Failed;
         }
         result
+    }
+}
+
+impl<'plan> LocalStatementDescentPortV1 for LocatedLegacyLoweringSessionV1<'plan> {
+    type LocalInput = LegacyStmtInputV1<'plan>;
+
+    fn local_syntax<'input>(
+        &self,
+        input: &'input Self::LocalInput,
+    ) -> Result<LocalStatementSyntaxViewV1<'input>, String> {
+        match input.node() {
+            ASTNode::Local {
+                variables,
+                initial_values,
+                declared_type_names,
+                ..
+            } => Ok(LocalStatementSyntaxViewV1::new(
+                variables,
+                initial_values,
+                declared_type_names,
+            )),
+            _ => Err("[located-lowering/local-input-mismatch]".to_string()),
+        }
+    }
+
+    fn local_initializer_expression_input(
+        &self,
+        input: &Self::LocalInput,
+        index: usize,
+    ) -> Result<Self::ExpressionInput, String> {
+        let index = u32::try_from(index).map_err(|_| {
+            format!("[located-lowering/local-initializer-index-overflow] index={index}")
+        })?;
+        self.source
+            .child_expr_from_stmt(input, ExprChildRoleV1::LocalInitializer(index))
+            .map_err(|error| format!("[located-lowering/location] {error:?}"))
+    }
+
+    fn lower_typed_array_literal_initializer(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: &Self::LocalInput,
+        index: usize,
+        elements: &[ASTNode],
+    ) -> Result<(ValueId, String), String> {
+        self.prove_local_initializer_inactive(input, index)?;
+        builder.build_typed_array_literal(elements.to_vec())
+    }
+
+    fn lower_record_constructor_initializer(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: &Self::LocalInput,
+        index: usize,
+        class: &str,
+        arguments: &[ASTNode],
+    ) -> Result<ValueId, String> {
+        self.prove_local_initializer_inactive(input, index)?;
+        builder.build_record_constructor_value(class.to_string(), arguments.to_vec())
     }
 }
 

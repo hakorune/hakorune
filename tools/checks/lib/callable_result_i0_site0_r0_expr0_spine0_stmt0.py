@@ -33,6 +33,9 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     local_parity_tests_path = (
         "src/mir/builder/stmts/local_statement_parity_tests.rs"
     )
+    located_local_tests_path = (
+        "src/mir/builder/located_legacy_local_tests.rs"
+    )
     stmts_root_path = "src/mir/builder/stmts/mod.rs"
     stmts_readme_path = "src/mir/builder/stmts/README.md"
     variable_stmt_path = "src/mir/builder/stmts/variable_stmt.rs"
@@ -45,6 +48,7 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     local_descent_tests = _read(root, local_descent_tests_path)
     local_raw_tests = _read(root, local_raw_tests_path)
     local_parity_tests = _read(root, local_parity_tests_path)
+    located_local_tests = _read(root, located_local_tests_path)
     stmts_root = _read(root, stmts_root_path)
     stmts_readme = _read(root, stmts_readme_path)
     variable_stmt = _read(root, variable_stmt_path)
@@ -172,11 +176,68 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         2,
         "debug observation declaration plus sole post-preflight consumer",
     )
-    if (
-        "LocalStatementDescentPortV1 for LocatedLegacyLoweringSessionV1"
-        in normalized_rust_source
+    _require_count(
+        located,
+        "impl<'plan> LocalStatementDescentPortV1 for LocatedLegacyLoweringSessionV1<'plan>",
+        1,
+        "LCL0-L0 located implementation",
+    )
+    _require_count(
+        located,
+        "if matches!(input.node(), ASTNode::Local { .. })",
+        1,
+        "LCL0-L0 syntax selector",
+    )
+    _require_count(
+        located,
+        "ExprChildRoleV1::LocalInitializer(index)",
+        1,
+        "LCL0-L0 exact initializer source role",
+    )
+    _require_count(
+        located,
+        "fn prove_local_initializer_inactive(",
+        1,
+        "LCL0-L0 specialized inactive-proof owner",
+    )
+    _require_count(
+        located,
+        "self.prove_local_initializer_inactive(input, index)?;",
+        2,
+        "LCL0-L0 specialized hook proof consumers",
+    )
+    proof_at = located.index("fn prove_local_initializer_inactive(")
+    inactive_at = located.index(".prove_expr_inactive(&expression)", proof_at)
+    typed_hook_at = located.index("fn lower_typed_array_literal_initializer(", proof_at)
+    typed_proof_at = located.index(
+        "self.prove_local_initializer_inactive(input, index)?;", typed_hook_at
+    )
+    typed_effect_at = located.index(
+        "builder.build_typed_array_literal(elements.to_vec())", typed_hook_at
+    )
+    record_hook_at = located.index("fn lower_record_constructor_initializer(", typed_hook_at)
+    record_proof_at = located.index(
+        "self.prove_local_initializer_inactive(input, index)?;", record_hook_at
+    )
+    record_effect_at = located.index(
+        "builder.build_record_constructor_value(class.to_string(), arguments.to_vec())",
+        record_hook_at,
+    )
+    if not (
+        proof_at < inactive_at
+        and typed_hook_at < typed_proof_at < typed_effect_at
+        and record_hook_at < record_proof_at < record_effect_at
     ):
-        _fail("LCL0-S0 located implementation must remain zero")
+        _fail("LCL0-L0 inactive proof must precede every specialized effect")
+    for forbidden in (
+        "RowsUnderPrefix {",
+        "value_origin_newbox.insert",
+        "current_static_box",
+        "retry",
+        "fallback",
+    ):
+        if forbidden in located:
+            _fail(f"LCL0-L0 located adapter owns forbidden authority: {forbidden}")
 
     local_driver_callers = 0
     local_ignored = {
@@ -184,6 +245,7 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         (root / local_descent_tests_path).resolve(),
         (root / local_raw_tests_path).resolve(),
         parity_resolved,
+        (root / located_local_tests_path).resolve(),
     }
     for path in (root / "src").rglob("*.rs"):
         if path.resolve() in local_ignored:
@@ -191,9 +253,9 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         local_driver_callers += path.read_text(encoding="utf-8").count(
             "drive_local_statement_v1("
         )
-    if local_driver_callers != 0:
+    if local_driver_callers != 1:
         _fail(
-            "LCL0-I0 generic driver callers outside its raw facade must remain zero: "
+            "LCL0-L0 generic driver must have one located caller outside raw/test owners: "
             f"actual={local_driver_callers}"
         )
 
@@ -270,6 +332,12 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     )
     _require_count(
         stmts_root,
+        "drive_local_statement_v1, LocalStatementDescentPortV1, LocalStatementSyntaxViewV1,",
+        1,
+        "private located Local adapter facade",
+    )
+    _require_count(
+        stmts_root,
         "mod local_statement_descent_tests;",
         1,
         "focused Local descent fixture module",
@@ -291,6 +359,11 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         stmts_root,
     ):
         _fail("LCL0-P0 parity module must remain cfg(test)-scoped")
+    if not re.search(
+        r'#\[cfg\(test\)\]\s*#\[path = "located_legacy_local_tests\.rs"\]\s*mod local_tests;',
+        located,
+    ):
+        _fail("LCL0-L0 located fixture module must remain exactly cfg(test)-scoped")
 
     for fixture in (
         "ordinary_initializers_preflight_then_descend_in_index_order_and_complete_once",
@@ -304,6 +377,14 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     ):
         if fixture not in local_descent_tests:
             _fail(f"missing LCL0-S0 fixture: {fixture}")
+    _require_count(
+        local_descent_tests,
+        "EventV1::Input(1)",
+        1,
+        "generic Local second-initializer associated-input fixture",
+    )
+    if "canonical source grammar currently admits at most one initialized binding" not in stmts_readme:
+        _fail("missing LCL0-L0 source-cardinality boundary in statement README")
 
     for fixture in (
         "raw_local_selector_preserves_initializer_order_and_binding_completion",
@@ -363,6 +444,16 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     ):
         if fixture not in local_parity_tests:
             _fail(f"missing LCL0-P0 fixture: {fixture}")
+    for fixture in (
+        "located_local_claims_exact_initializers_in_statement_and_expression_order",
+        "located_local_short_circuit_keeps_deferred_rhs_site_and_completion",
+        "located_local_special_hooks_require_exact_inactive_initializer_subtrees",
+        "active_row_below_typed_array_hook_rejects_before_builder_effects_and_poisons_session",
+        "active_row_below_record_hook_rejects_before_constructor_effects",
+        "wrong_statement_order_fails_before_local_initializer_or_binding_effects",
+    ):
+        if fixture not in located_local_tests:
+            _fail(f"missing LCL0-L0 fixture: {fixture}")
     for snapshot_fact in (
         "blocks:",
         "value_types:",
@@ -416,7 +507,8 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         "must not reconstruct source sites",
         "LCL0-I0 selects the owned raw Local input",
         "LCL0-P0 keeps one `cfg(test)` pre-I0 orchestration reference",
-        "Located Local acceptance remains disconnected",
+        "LCL0-L0 adds one disconnected located Local selector",
+        "exact inactive-subtree proof before specialized effects",
     ):
         if phrase not in stmts_readme:
             _fail(f"missing LCL0 README boundary: {phrase}")
@@ -426,6 +518,7 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         local_descent_tests_path,
         local_raw_tests_path,
         local_parity_tests_path,
+        located_local_tests_path,
         stmts_root_path,
         stmts_readme_path,
         variable_stmt_path,
@@ -441,5 +534,6 @@ def check_lcl0_s0(root: Path, located: str) -> str:
 
     return (
         "lcl_driver=1 lcl_e0_descents=1 lcl_raw_impl=1 "
-        "lcl_raw_selector=1 lcl_parity_reference=1 lcl_located_impl=0"
+        "lcl_raw_selector=1 lcl_parity_reference=1 lcl_located_impl=1 "
+        "lcl_located_selector=1 lcl_special_inactive_proof=1"
     )

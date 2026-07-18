@@ -1,5 +1,5 @@
 ---
-Status: LCL0-P0 closed; LCL0-L0 is next
+Status: LCL0-L0 closed; ASN0-S0 is next
 Date: 2026-07-18
 Decision: expand located lowering by one structural child family per row
 Parent: callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md
@@ -62,13 +62,14 @@ SITE0-R0-EXPR0-SPINE0-BIN0-S0
 The sole next code-facing row is:
 
 ```text
-SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-L0
+SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-S0
 ```
 
-`LCL0-P0` is closed. LCL0-L0 may add only one disconnected located Local port
-and selector. Each initializer must preserve its exact `LocalInitializer(index)`
-site, and the typed-array/record hooks may run only after exact inactive-subtree
-proof. Assignment, Return, If, Loop, production located root callers, and
+`LCL0-L0` is closed. One disconnected located Local port preserves every
+ordinary initializer through its exact `LocalInitializer(index)` child and
+requires exact inactive-subtree proof before typed-array or record effects.
+ASN0-S0 may add only one disconnected exact Variable-target Assignment RHS
+child-demand boundary. Return, If, Loop, production located root callers, and
 callable-result publication remain zero.
 
 ## Why C0 is held
@@ -493,6 +494,25 @@ formatting, diff check, Python compile, and line caps are green. The pre-I0
 reference remains test-only; located Local implementations/selectors and
 callable-result publication remain zero. LCL0-L0 is next.
 
+### LCL0-L0 closeout
+
+LCL0-L0 is closed with one disconnected located Local selector and one located
+port implementation. Local selection is syntax-owned and never chosen by
+catching a ledger error. Each ordinary initializer is obtained from the
+existing source view with the exact `LocalInitializer(index)` role, then uses
+the already-closed expression spine and ledger claim order. Typed-array and
+record-constructor hooks share one exact initializer-prefix inactivity proof;
+an active MethodCall under an array element or constructor argument rejects
+before specialized Builder effects or binding publication.
+
+Six dedicated fixtures prove direct and nested ordinary initializer order,
+short-circuit deferred RHS descent, inactive typed-array and record hooks,
+active specialized subtrees failing closed, wrong statement order, session
+poisoning, and fresh-session independence. Existing Local 21/21 and
+callable-result 55/55 tests, the SPINE0 guard, cargo check, quick 66/66 in 94s,
+release build, formatting, diff check, and line caps are green. Production located root callers and
+callable-result publication remain zero. ASN0-S0 is next.
+
 ## STMT0 — value-bearing statement family
 
 The worker audit found that one shared STMT0 driver would have to duplicate or
@@ -701,8 +721,9 @@ Stop the current row if any of the following becomes necessary:
 > The acceptance boundary should now expand, but only as a sequence of
 > structural associated-input rows. The actual A0 caller proves five active
 > MethodCalls under Binary ancestors, so direct EXPR0-C0 wiring is held.
-> Ordinary Binary is closed through BIN0-L0. The sole current shape is
-> `SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-L0`; later value-bearing statements, If, raw suffix
+> Ordinary Binary, short-circuit Binary, and Local initializer descent are
+> closed through LCL0-L0. The sole current shape is
+> `SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-S0`; later value-bearing statements, If, raw suffix
 > admission, and Loop site carriage remain separate owners. BIN0-L0 always
 > uses the located driver for an ordinary Binary and lets each associated child
 > prove inactivity or continue to an exact claim; it never selects a route by
