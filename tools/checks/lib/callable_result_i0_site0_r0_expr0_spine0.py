@@ -7,6 +7,8 @@ import re
 import sys
 from pathlib import Path
 
+from callable_result_i0_site0_r0_expr0_spine0_stmt0 import check_lcl0_s0
+
 
 TAG = "[callable-result-i0-site0-r0-expr0-spine0]"
 
@@ -468,6 +470,11 @@ def main() -> None:
     ):
         if snapshot_fact not in parity_tests:
             fail(f"BIN0-P0 snapshot misses fact: {snapshot_fact}")
+
+    try:
+        lcl_summary = check_lcl0_s0(root, located)
+    except RuntimeError as error:
+        fail(str(error))
     require_count(
         parity_tests,
         "fn lower_legacy_reference(",
@@ -526,7 +533,8 @@ def main() -> None:
         f"{TAG} ok: driver=1 child_descents=2 raw_selector=1 "
         "raw_impl=1 parity_reference=1 located_impl=1 sc_driver=1 "
         "sc_raw_selector=1 sc_raw_impl=1 sc_located_impl=1 "
-        "sc_parity_reference=1 logical_owner_preserved=1"
+        "sc_parity_reference=1 logical_owner_preserved=1 "
+        f"{lcl_summary}"
     )
 
 

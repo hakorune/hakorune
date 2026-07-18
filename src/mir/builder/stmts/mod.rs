@@ -101,6 +101,7 @@
 pub(super) mod async_stmt;
 pub(in crate::mir::builder) mod block_driver;
 pub(super) mod block_stmt;
+mod local_statement_descent;
 pub(super) mod print_stmt;
 pub(super) mod return_stmt;
 pub(super) mod task_scope_stmt;
@@ -108,6 +109,8 @@ pub(super) mod variable_stmt;
 
 #[cfg(test)]
 mod block_driver_tests;
+#[cfg(test)]
+mod local_statement_descent_tests;
 
 use super::ValueId;
 use crate::ast::ASTNode;

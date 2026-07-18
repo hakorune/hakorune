@@ -119,7 +119,7 @@ pub(in crate::mir::builder) fn build_local_statement(
     )
 }
 
-fn preflight_exact_numeric_local_initializers(
+pub(in crate::mir::builder) fn preflight_exact_numeric_local_initializers(
     variables: &[String],
     initial_values: &[Option<Box<ASTNode>>],
     declared_type_names: &[Option<String>],
@@ -178,7 +178,7 @@ pub(in crate::mir::builder) fn build_local_statement_from_values_with_types(
     )
 }
 
-fn build_local_statement_from_values_with_types_and_preclaims(
+pub(in crate::mir::builder) fn build_local_statement_from_values_with_types_and_preclaims(
     builder: &mut MirBuilder,
     variables: Vec<String>,
     initial_values: Vec<ValueId>,
