@@ -35,6 +35,8 @@ mod core;
 mod domain;
 mod effect;
 mod exit;
+mod located_loop;
+mod located_loop_error;
 
 // Layer 1: Core Infrastructure (基盤)
 // MIR lowering の中核インフラ
@@ -137,6 +139,12 @@ pub(in crate::mir::builder) use self::core::{
 };
 pub(in crate::mir::builder) use self::effect::CoreEffectPlan;
 pub(in crate::mir::builder) use self::exit::CoreExitPlan;
+#[allow(unused_imports)]
+pub(in crate::mir::builder) use self::located_loop::VerifiedLocatedCoreLoopPlanV1;
+pub(in crate::mir::builder) use self::located_loop_error::LocatedCoreLoopPlanErrorV1;
 
 // Domain types
 pub(in crate::mir::builder) use self::domain::LoopBreakStepPlacement;
+
+#[cfg(test)]
+mod located_loop_tests;

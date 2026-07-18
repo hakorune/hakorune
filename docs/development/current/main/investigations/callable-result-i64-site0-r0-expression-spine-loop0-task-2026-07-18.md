@@ -1,5 +1,5 @@
 ---
-Status: LOOP0-S0a closed; LOOP0-S0b next
+Status: LOOP0-S0b closed; LOOP0-S0c next
 Date: 2026-07-18
 Code baseline: 2a87a3bbe91318f52154b97ff5fadc8ee24d5dec
 Decision-stop baseline: 4f9b84138a
@@ -407,6 +407,26 @@ canonical schedule borrowed from activation rows
 remap after seal unavailable by construction
 ```
 
+Closeout (2026-07-18): closed. One non-Clone
+`VerifiedCallableResultLoopClaimScheduleV1` retains the exact activation-plan
+brand, canonical caller, located `SourceStmtSiteV1` Loop root, and borrowed
+activation rows in their existing source order. Loop membership reuses the
+PATH0 `LoopCondition` and `LoopBody` roles; it is never derived from CorePlan
+traversal. One non-Clone `VerifiedLocatedCoreLoopPlanV1` consumes a completed
+Core Loop, runs `PlanVerifier` before location sealing, and owns only the
+private plan plus schedule. Its sole call-source visitor rejects missing
+scheduled occurrences (including an active site lost as `Unlocated`),
+duplicate occurrences, and extra located occurrences. Unrelated synthetic/raw
+`Unlocated` effects remain outside source-occurrence truth. Foreign
+plan/caller, wrong statement/plan kind, empty Loop domain, malformed plan, and
+same-caller sibling-Loop leakage reject in focused fixtures. Production
+located consumers, ledger claims, claim batches, Builder storage, CorePlan
+escape, and remap-after-seal APIs remain zero. Focused tests are 9/9; the
+public expression-spine structural guard, all-target check, release build,
+format/diff/line guards, and quick 66/66 in 78.13s are green. Three worker
+reviews are GO after PlanVerifier and structural-guard hardening. `LOOP0-S0c`
+is next.
+
 ### LOOP0-S0c — disconnected atomic claim batch
 
 Production behavior delta: 0. Production claims: 0.
@@ -466,7 +486,10 @@ synthetic Array/Map/Print calls remain Unlocated
 site-preserving CorePlan Clone
 site-preserving ValueId remap
 before/after normalized remap proves exact source preservation
-missing, extra, duplicate, Unlocated, and foreign-pair seal rejection
+missing scheduled occurrence, duplicate/extra located occurrence, and
+foreign-pair seal rejection
+required active site lost as Unlocated -> missing; unrelated synthetic
+Unlocated remains accepted
 actual caller exact 15-row sequence
 rows 0-5 followed by atomic rows 6-14
 row 13 before row 14 in schedule
@@ -511,8 +534,9 @@ call-effect visitor owners = 1
 
 VerifiedLocatedCoreLoopPlanV1 definitions = 1
 VerifiedCallableResultLoopClaimScheduleV1 definitions = 1
-ClaimedCallableResultLoopBatchV1 definitions = 1
-wrapper/schedule/batch Clone implementations = 0
+ClaimedCallableResultLoopBatchV1 definitions = 1  # pending S0c
+wrapper/schedule Clone implementations = 0
+batch Clone implementations = 0  # pending S0c
 
 speculative planner claims = 0
 compose-before-seal claims = 0
@@ -602,6 +626,6 @@ Stop the current row if it requires:
 > before 13. Raw fallback behavior remains unchanged; located selection never
 > falls back. The first profile admits only direct-ordinal GenericLoop-v1
 > MethodCall inventory and rejects transformed bodies, nested Loop, and
-> normalized shadow before effects. `LOOP0-S0a` is the first implementation
-> commit inside the selected `LOOP0-S0` series; production located consumers and
-> ledger claims remain zero through S0.
+> normalized shadow before effects. `LOOP0-S0a` and `LOOP0-S0b` are closed;
+> `LOOP0-S0c` is next, and production located consumers and ledger claims remain
+> zero through S0.

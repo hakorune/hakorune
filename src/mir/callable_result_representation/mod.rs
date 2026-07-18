@@ -13,6 +13,7 @@ mod expression_proof;
 mod function_proof;
 mod located_legacy;
 mod located_legacy_error;
+mod loop_claim_schedule;
 mod requirements;
 mod solver;
 
@@ -45,3 +46,7 @@ pub(crate) use located_legacy::{
     VerifiedCallableResultLegacySourceViewV1,
 };
 pub(crate) use located_legacy_error::CallableResultLegacyLocationErrorV1;
+#[allow(unused_imports)]
+pub(crate) use loop_claim_schedule::{
+    CallableResultLoopClaimScheduleErrorV1, VerifiedCallableResultLoopClaimScheduleV1,
+};
