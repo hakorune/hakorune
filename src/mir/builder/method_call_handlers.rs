@@ -6,6 +6,7 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::callable_declaration_catalog::SameModuleCallableNamespaceV1;
 use crate::mir::builder::calls::function_lowering;
+use crate::mir::builder::calls::{LegacyMethodCallArgumentsV1, MethodCallArgumentDescentV1};
 use crate::mir::builder::CallTarget;
 use crate::mir::builder::{MirBuilder, ValueId};
 use crate::mir::{MirInstruction, MirType, TypeOpKind};
@@ -35,6 +36,7 @@ impl MeCallPolicyBox {
         builder: &mut MirBuilder,
         method: &str,
         arguments: &[ASTNode],
+        descent: &mut dyn MethodCallArgumentDescentV1,
     ) -> Result<Option<ValueId>, String> {
         // Instance box: prefer enclosing box method (lowered function) if存在
         let enclosing_cls = current_enclosing_box_name(builder);
@@ -44,21 +46,25 @@ impl MeCallPolicyBox {
             let arity = arguments.len();
             let fname = function_lowering::generate_method_function_name(cls, method, arity);
             if let Some(me_id) = me_value {
-                if let Some(result) = builder.try_inline_record_helper_call(
+                if let Some(result) = builder.try_inline_record_helper_call_with_descent(
                     SameModuleCallableNamespaceV1::InstanceBoxMethod,
                     cls,
                     method,
                     arguments,
                     Some(me_id),
+                    descent,
                 )? {
                     return Ok(Some(result));
                 }
-                if let Some(result) = builder.try_inline_same_module_helper_setter_call(
-                    cls,
-                    method,
-                    arguments,
-                    Some(me_id),
-                )? {
+                if let Some(result) = builder
+                    .try_inline_same_module_helper_setter_call_with_descent(
+                        cls,
+                        method,
+                        arguments,
+                        Some(me_id),
+                        descent,
+                    )?
+                {
                     return Ok(Some(result));
                 }
             }
@@ -66,7 +72,7 @@ impl MeCallPolicyBox {
             if let Some(ref module) = builder.current_module {
                 if let Some(func) = module.functions.get(&fname) {
                     let params = func.signature.params.clone();
-                    let arg_values = builder.build_call_args(arguments)?;
+                    let arg_values = descent.lower_all(builder)?;
                     // Decide whether this lowered function expects an implicit receiver.
                     // Instance methods: params[0] is Box(box_name)
                     // Static methods:   params[0] is non-Box or params.is_empty()
@@ -137,14 +143,19 @@ impl MeCallPolicyBox {
             // Route 1: if `me` is bound, keep instance semantics.
             // This avoids silently turning `me.method(...)` into a static call.
             if let Some(me_id) = me_value {
-                let dst =
-                    builder.handle_standard_method_call(me_id, method.to_string(), arguments)?;
+                let dst = builder.handle_standard_method_call_with_descent(
+                    me_id,
+                    method.to_string(),
+                    arguments,
+                    descent,
+                )?;
                 return Ok(Some(dst));
             }
 
             // Route 2: static helper context (no bound `me`) keeps static lowering.
             // This path is mainly for static-box helper code where receiver is intentionally absent.
-            let static_dst = builder.handle_static_method_call(cls, method, arguments)?;
+            let static_dst =
+                builder.handle_static_method_call_with_descent(cls, method, arguments, descent)?;
             return Ok(Some(static_dst));
         }
 
@@ -153,12 +164,13 @@ impl MeCallPolicyBox {
 }
 
 impl MirBuilder {
-    /// Handle static method calls: BoxName.method(args)
-    pub(super) fn handle_static_method_call(
+    /// Handle source static calls after route selection.
+    pub(in crate::mir::builder) fn handle_static_method_call_with_descent(
         &mut self,
         box_name: &str,
         method: &str,
         arguments: &[ASTNode],
+        descent: &mut dyn MethodCallArgumentDescentV1,
     ) -> Result<ValueId, String> {
         if crate::config::env::joinir_dev::debug_enabled() {
             crate::runtime::get_global_ring0().log.debug(&format!(
@@ -176,18 +188,19 @@ impl MirBuilder {
                 );
             }
         }
-        if let Some(result) = self.try_inline_record_helper_call(
+        if let Some(result) = self.try_inline_record_helper_call_with_descent(
             SameModuleCallableNamespaceV1::StaticBoxMethod,
             box_name,
             method,
             arguments,
             None,
+            descent,
         )? {
             return Ok(result);
         }
 
         // Build argument values
-        let arg_values = self.build_call_args(arguments)?;
+        let arg_values = descent.lower_all(self)?;
         let dst = self.next_value_id();
 
         if crate::config::env::builder_static_call_trace() {
@@ -226,23 +239,14 @@ impl MirBuilder {
         Ok(dst)
     }
 
-    /// Check if this is a TypeOp method call
-    #[allow(dead_code)]
-    pub(super) fn is_typeop_method(method: &str, arguments: &[ASTNode]) -> Option<String> {
-        if (method == "is" || method == "as") && arguments.len() == 1 {
-            Self::extract_string_literal(&arguments[0])
-        } else {
-            None
-        }
-    }
-
-    /// Handle me.method() calls within static box context
-    pub(super) fn handle_me_method_call(
+    /// Handle source me.method() calls within static box context.
+    pub(in crate::mir::builder) fn handle_me_method_call_with_descent(
         &mut self,
         method: &str,
         arguments: &[ASTNode],
+        descent: &mut dyn MethodCallArgumentDescentV1,
     ) -> Result<Option<ValueId>, String> {
-        MeCallPolicyBox::resolve_me_call(self, method, arguments)
+        MeCallPolicyBox::resolve_me_call(self, method, arguments, descent)
     }
 
     /// Handle standard Box/Plugin method calls.
@@ -251,6 +255,17 @@ impl MirBuilder {
         object_value: ValueId,
         method: String,
         arguments: &[ASTNode],
+    ) -> Result<ValueId, String> {
+        let mut descent = LegacyMethodCallArgumentsV1::new(arguments);
+        self.handle_standard_method_call_with_descent(object_value, method, arguments, &mut descent)
+    }
+
+    pub(in crate::mir::builder) fn handle_standard_method_call_with_descent(
+        &mut self,
+        object_value: ValueId,
+        method: String,
+        arguments: &[ASTNode],
+        descent: &mut dyn MethodCallArgumentDescentV1,
     ) -> Result<ValueId, String> {
         if crate::config::env::joinir_dev::debug_enabled() {
             crate::runtime::get_global_ring0().log.debug(&format!(
@@ -283,28 +298,32 @@ impl MirBuilder {
             .is_some_and(|me| me == object_value)
         {
             if let Some(cls) = current_enclosing_box_name(self) {
-                if let Some(result) = self.try_inline_record_helper_call(
+                if let Some(result) = self.try_inline_record_helper_call_with_descent(
                     SameModuleCallableNamespaceV1::InstanceBoxMethod,
                     &cls,
                     &method,
                     arguments,
                     Some(object_value),
+                    descent,
                 )? {
                     return Ok(result);
                 }
             }
         }
 
-        if let Some(result) = self.try_inline_same_module_helper_setter_call_from_receiver(
-            object_value,
-            &method,
-            arguments,
-        )? {
+        if let Some(result) = self
+            .try_inline_same_module_helper_setter_call_from_receiver_with_descent(
+                object_value,
+                &method,
+                arguments,
+                descent,
+            )?
+        {
             return Ok(result);
         }
 
         // Build argument values
-        let arg_values = self.build_call_args(arguments)?;
+        let arg_values = descent.lower_all(self)?;
 
         // Receiver class hintは emit_unified_call 側で起源/型から判断する（重複回避）
         // 統一経路: emit_unified_call に委譲（RouterPolicy と rewrite::* で安定化）

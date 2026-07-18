@@ -35,6 +35,13 @@ def main() -> None:
     debug = read(root, "src/mir/builder/calls/debug_method_routing.rs")
     fastmem = read(root, "src/mir/builder/fastmem/calls.rs")
     build = read(root, "src/mir/builder/calls/build.rs")
+    member = read(root, "src/mir/builder/calls/member_route.rs")
+    member_tests = read(root, "src/mir/builder/calls/member_route_descent_tests.rs")
+    handlers = read(root, "src/mir/builder/method_call_handlers.rs")
+    helpers = read(root, "src/mir/builder/record_helper_args.rs")
+    helper_tests = read(root, "src/mir/builder/record_helper_args_tests.rs")
+    exprs = read(root, "src/mir/builder/exprs.rs")
+    property_reads = read(root, "src/mir/builder/property_reads.rs")
     reserved_tests = read(root, "src/mir/builder/calls/reserved_method_route_tests.rs")
 
     require_count(port, "struct MethodCallSyntaxViewV1", 1, "syntax view owner")
@@ -65,6 +72,10 @@ def main() -> None:
         1,
         "indexed E0 primitive owner",
     )
+    require_count(port, "trait MethodCallArgumentDescentV1", 1, "route argument capability")
+    require_count(port, "struct AssociatedMethodCallArgumentsV1", 1, "associated route adapter")
+    require_count(port, "struct LegacyMethodCallArgumentsV1", 1, "materialized-receiver adapter")
+    require_count(port, "fn into_parts", 0, "retired raw AST split")
 
     if re.search(r"#\[derive\([^]]*Clone[^]]*\)\]\s*pub\(in crate::mir::builder\) enum MethodCallChildDemandV1", port):
         fail("stage vocabulary must remain non-Clone")
@@ -74,11 +85,11 @@ def main() -> None:
         for path in (root / "src/mir/builder").rglob("*.rs")
         if path.name != "method_call_descent.rs" and not path.name.endswith("_tests.rs")
     )
-    require_count(production, "lower_method_call_receiver_v1(", 0, "R0 receiver consumers")
+    require_count(production, "lower_method_call_receiver_v1(", 2, "M0 receiver consumers")
     require_count(production, "lower_method_call_arguments_v1(", 1, "R0 REPL ARG0 consumer")
     require_count(production, "lower_method_call_argument_v1(", 2, "R0 indexed E0 consumers")
     require_count(production, "RawLegacyMethodCallInputV1::new(", 1, "R0 raw selector")
-    require_count(production, ".method_call_syntax(", 1, "R0 syntax-view consumer")
+    require_count(production, ".method_call_syntax(", 6, "M0 syntax-view consumers")
     require_count(production, ".receiver_expression_input(", 0, "R0 receiver-input consumers")
     require_count(
         production,
@@ -100,6 +111,24 @@ def main() -> None:
         "classify-once consumer",
     )
     require_count(build, "build_reserved_method_call_v1(", 1, "production reserved selector")
+    require_count(build, "RawLegacyMethodCallInputV1::new(", 1, "production raw MethodCall selector")
+    require_count(build, "build_member_method_call_v1(port, input)", 1, "ordinary member driver")
+    require_count(build, "is_typeop_method(", 1, "source TypeOp decision owner")
+    require_count(exprs, "is_typeop_method(", 0, "retired expression TypeOp decision")
+    require_count(member, "is_typeop_method(", 0, "retired member TypeOp reprobe")
+    require_count(member, "build_expression(object.clone())", 0, "raw receiver bypass")
+    require_count(member, "AssociatedMethodCallArgumentsV1::new(", 5, "route argument adapters")
+    require_count(handlers, "build_call_args(arguments)", 0, "handler ARG0 bypass")
+    require_count(handlers, "descent.lower_all(", 3, "static me standard ARG0 demand")
+    require_count(member, "descent.lower_all(self)?", 1, "env ARG0 demand")
+    require_count(helpers, "let value = self.build_expression(arg.clone())?", 0, "helper arg E0 bypass")
+    require_count(helpers, "descent.lower_index(self,", 2, "helper indexed E0 consumers")
+    require_count(
+        property_reads,
+        "handle_standard_method_call(object_value, getter_name, &[])",
+        1,
+        "materialized property-read consumer",
+    )
     require_count(reserved, "lower_method_call_arguments_v1(builder, port, input)?", 1, "REPL full ARG0")
     require_count(reserved, "lower_method_call_argument_v1(builder, port, input, index)?", 1, "Debug indexed E0")
     require_count(fastmem, "lower_method_call_argument_v1(builder, port, input, index)", 1, "FastMem indexed E0")
@@ -151,6 +180,27 @@ def main() -> None:
         if evidence not in reserved_tests:
             fail(f"missing R0 fixture: {evidence}")
 
+    for evidence in (
+        "typeop_descends_receiver_once_and_keeps_type_string_syntax_only",
+        "static_route_skips_receiver_and_descends_arguments_left_to_right",
+        "standard_route_descends_receiver_before_arguments",
+        "standard_receiver_failure_descends_no_arguments_and_builder_is_reusable",
+        "malformed_typeop_uses_standard_receiver_then_argument_demand",
+        "env_route_keeps_receiver_syntax_only_and_descends_arguments",
+        "bound_me_route_keeps_source_receiver_syntax_only",
+        "materialized_property_receiver_is_forwarded_without_source_redescent",
+    ):
+        if evidence not in member_tests:
+            fail(f"missing M0 fixture: {evidence}")
+
+    for evidence in (
+        "inlineable_setter_accepts_simple_assignment_and_return",
+        "setter_allowlist_rejects_before_catalog_query",
+        "structured_catalog_lookup_preserves_static_and_instance_namespaces",
+    ):
+        if evidence not in helper_tests:
+            fail(f"missing split record-helper fixture: {evidence}")
+
     for phrase in (
         "associated-input MethodCall child boundary",
         "never stored in `MirBuilder`",
@@ -159,6 +209,9 @@ def main() -> None:
         "Exact route demand remains owned by the later",
         "the full ARG0 boundary",
         "FastMem keeps its syntax preflight before indexed E0",
+        "ROUTE0-M0 is closed through S0/H0/I0/P0/G0",
+        "Record-helper scalarization is intentionally not a full-ARG0 consumer",
+        "already owns a materialized",
     ):
         if phrase not in readme:
             fail(f"missing README boundary: {phrase}")
@@ -168,10 +221,16 @@ def main() -> None:
         "src/mir/builder/calls/method_call_descent.rs",
         "src/mir/builder/calls/method_call_descent_tests.rs",
         "src/mir/builder/calls/mod.rs",
+        "src/mir/builder/calls/build.rs",
+        "src/mir/builder/calls/member_route.rs",
+        "src/mir/builder/calls/member_route_descent_tests.rs",
         "src/mir/builder/calls/reserved_method_route.rs",
         "src/mir/builder/calls/reserved_method_route_tests.rs",
         "src/mir/builder/calls/debug_method_routing.rs",
         "src/mir/builder/fastmem/calls.rs",
+        "src/mir/builder/method_call_handlers.rs",
+        "src/mir/builder/record_helper_args.rs",
+        "src/mir/builder/record_helper_args_tests.rs",
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_m0_route0.py",
     ]
     oversized = [relative for relative in touched if len(read(root, relative).splitlines()) >= 800]
@@ -180,7 +239,7 @@ def main() -> None:
 
     print(
         "[callable-result-i0-site0-r0-expr0-m0-route0] ok: "
-        "port_owner=1 reserved_selector=1 receiver_consumers=0"
+        "port_owner=1 reserved_selector=1 receiver_consumers=2"
     )
 
 

@@ -5,8 +5,11 @@
 
 use super::super::{MirBuilder, ValueId};
 use super::extern_calls::EnvMethodSpec;
+use super::method_call_descent::{
+    lower_method_call_receiver_v1, AssociatedMethodCallArgumentsV1, MethodCallArgumentDescentV1,
+    MethodCallDescentPortV1,
+};
 use super::receiver_binding::ReceiverNormalizationPlan;
-use super::special_handlers;
 use crate::ast::ASTNode;
 
 pub(in crate::mir::builder) enum MemberCallRoutePlan {
@@ -34,32 +37,58 @@ impl MirBuilder {
         Ok(MemberCallRoutePlan::Standard)
     }
 
-    pub(in crate::mir::builder) fn emit_member_call_from_plan(
+    pub(in crate::mir::builder) fn build_member_method_call_v1<Port>(
         &mut self,
-        route_plan: MemberCallRoutePlan,
-        object: ASTNode,
-        method: String,
-        arguments: Vec<ASTNode>,
-    ) -> Result<ValueId, String> {
+        port: &mut Port,
+        input: &Port::MethodCallInput,
+    ) -> Result<ValueId, String>
+    where
+        Port: MethodCallDescentPortV1,
+    {
+        let (route_plan, method, arguments) = {
+            let syntax = port.method_call_syntax(input)?;
+            (
+                self.plan_member_call_route(syntax.receiver(), syntax.method())?,
+                syntax.method().to_string(),
+                syntax.arguments(),
+            )
+        };
+
         match route_plan {
             MemberCallRoutePlan::StaticReceiver { box_name } => {
-                self.handle_static_method_call(&box_name, &method, &arguments)
+                let mut descent = AssociatedMethodCallArgumentsV1::new(port, input);
+                self.handle_static_method_call_with_descent(
+                    &box_name,
+                    &method,
+                    arguments,
+                    &mut descent,
+                )
             }
             MemberCallRoutePlan::EnvMethod { spec } => {
-                self.emit_resolved_env_method_call(&spec, &arguments)
+                let mut descent = AssociatedMethodCallArgumentsV1::new(port, input);
+                let arg_values = descent.lower_all(self)?;
+                self.emit_resolved_env_method_call(&spec, arg_values)
             }
             MemberCallRoutePlan::ReceiverNormalized { plan } => match plan {
-                ReceiverNormalizationPlan::MeCall => self
-                    .handle_me_method_call(&method, &arguments)?
-                    .ok_or_else(|| {
-                        format!("[member-call-route] unresolved me receiver for {}", method)
-                    }),
+                ReceiverNormalizationPlan::MeCall => {
+                    let mut descent = AssociatedMethodCallArgumentsV1::new(port, input);
+                    self.handle_me_method_call_with_descent(&method, arguments, &mut descent)?
+                        .ok_or_else(|| {
+                            format!("[member-call-route] unresolved me receiver for {}", method)
+                        })
+                }
                 ReceiverNormalizationPlan::StaticThis { box_name } => {
-                    self.handle_static_method_call(&box_name, &method, &arguments)
+                    let mut descent = AssociatedMethodCallArgumentsV1::new(port, input);
+                    self.handle_static_method_call_with_descent(
+                        &box_name,
+                        &method,
+                        arguments,
+                        &mut descent,
+                    )
                 }
             },
             MemberCallRoutePlan::Standard => {
-                let object_value = self.build_expression(object.clone())?;
+                let object_value = lower_method_call_receiver_v1(self, port, input)?;
 
                 if crate::config::env::builder_static_call_trace() {
                     let ring0 = crate::runtime::get_global_ring0();
@@ -69,13 +98,16 @@ impl MirBuilder {
                     ));
                 }
 
-                self.trace_receiver_if_enabled(&object, object_value);
+                let receiver = port.method_call_syntax(input)?.receiver();
+                self.trace_receiver_if_enabled(receiver, object_value);
 
-                if let Some(type_name) = special_handlers::is_typeop_method(&method, &arguments) {
-                    return self.handle_typeop_method(object_value, &method, &type_name);
-                }
-
-                self.handle_standard_method_call(object_value, method, &arguments)
+                let mut descent = AssociatedMethodCallArgumentsV1::new(port, input);
+                self.handle_standard_method_call_with_descent(
+                    object_value,
+                    method,
+                    arguments,
+                    &mut descent,
+                )
             }
         }
     }
@@ -83,9 +115,8 @@ impl MirBuilder {
     pub(in crate::mir::builder) fn emit_resolved_env_method_call(
         &mut self,
         spec: &EnvMethodSpec,
-        arguments: &[ASTNode],
+        arg_values: Vec<ValueId>,
     ) -> Result<ValueId, String> {
-        let arg_values = self.build_call_args(arguments)?;
         let result_id = self.next_value_id();
         let dst = if spec.returns { Some(result_id) } else { None };
         self.emit_extern_call_with_effects(

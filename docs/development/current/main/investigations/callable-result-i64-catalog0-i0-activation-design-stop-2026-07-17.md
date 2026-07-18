@@ -1,5 +1,5 @@
 ---
-Status: SITE0-R0-EXPR0-M0-ROUTE0-M0-TYPEOP-GUARD0 closed; SITE0-R0-EXPR0-M0-ROUTE0-M0 is the next code-facing row
+Status: SITE0-R0-EXPR0-M0-ROUTE0-M0 closed; SITE0-R0-EXPR0-M0-V0 is the next code-facing row
 Date: 2026-07-18
 Decision: Candidate A owned single-use activation plan plus located legacy input
 Baseline: fe2d61baa0
@@ -757,6 +757,26 @@ TypeOp type string become evaluated; standard arguments run before the
 receiver; helper terminals require full ARG0; me arity moves before argument
 effects; property reads need a fake AST; or any touched source/check file
 reaches 800 lines.
+
+### ROUTE0-M0 closeout
+
+M0 now owns one generic associated-input ordinary MethodCall driver over the
+existing route plan. TypeOp and Standard request receiver E0 exactly once;
+Static, Env, Me/This request no source-receiver descent; ordinary arguments
+use ARG0 only after the existing route preflight. The TypeOp type string stays
+syntax-only. Record-helper scalarization binds record-local values directly
+and uses indexed E0 only for non-record slots, without pretending to be a full
+ARG0 consumer. The already-materialized property-read entry remains a thin
+value-level compatibility facade and creates no fake MethodCall source.
+
+Env, Me, TypeOp, Static, Standard, failure-stop/reuse, malformed TypeOp, and
+materialized-property fixtures are green. The actual Env proof still observes
+its nested argument exactly once. Record-helper 5/5, MethodCall port 4/4,
+reserved 11/11, property 3/3, recursive child 7/7, callable-result 43/43,
+structural guards, PHI boundary guard, release build, quick gate, pointer guard,
+formatting, and line caps are green. Result/type/effect publication, located
+input, caller-ledger authorization, accepted grammar, backend, and runtime
+authority remain unchanged. `SITE0-R0-EXPR0-M0-V0` is next.
 
 ## Required fixtures
 

@@ -254,6 +254,8 @@ lines = result.stdout.splitlines() if result.returncode in (0, 1) else []
 violations = []
 for line in lines:
     path = line.split(":", 1)[0]
+    if path.endswith("_tests.rs") or path.endswith("/tests.rs"):
+        continue
     try:
         source = Path(path).read_text()
         line_no = int(line.split(":", 2)[1])

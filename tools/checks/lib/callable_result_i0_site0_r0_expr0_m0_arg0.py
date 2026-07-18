@@ -53,7 +53,11 @@ def main() -> None:
         for path in (root / "src/mir/builder").rglob("*.rs")
         if not path.name.endswith("_tests.rs")
     )
-    require_count(builder_sources, "build_call_args(", 10, "raw ARG0 facade surface")
+    # ROUTE0-M0 moves static/env/me/standard source calls to the associated
+    # MethodCall adapter. Seven legacy non-MethodCall/already-materialized
+    # facade surfaces remain; the route guard fixes the four associated ARG0
+    # demand owners separately.
+    require_count(builder_sources, "build_call_args(", 7, "raw ARG0 facade surface")
 
     for forbidden in (
         "MemberCallRoutePlan",
@@ -113,7 +117,7 @@ def main() -> None:
 
     print(
         "[callable-result-i0-site0-r0-expr0-m0-arg0] ok: "
-        "argument_owner=1 raw_child_impl=1 selected_facade=1 route_authority=0"
+        "argument_owner=1 raw_child_impl=1 selected_facade=1 raw_surface=7 route_authority=0"
     )
 
 

@@ -1,6 +1,6 @@
 // Expression lowering split from builder.rs to keep files lean
 use super::declaration_order::{sorted_constructor_entries, sorted_method_entries};
-use super::{MirInstruction, ValueId};
+use super::ValueId;
 use crate::ast::{
     ASTNode, AssignStmt, BinaryExpr, CallExpr, FieldAccessExpr, MethodCallExpr, ReturnStmt,
 };
@@ -221,27 +221,6 @@ impl super::MirBuilder {
 
             node @ ASTNode::MethodCall { .. } => {
                 let m = MethodCallExpr::try_from(node).expect("ASTNode::MethodCall must convert");
-                if (m.method == "is" || m.method == "as") && m.arguments.len() == 1 {
-                    if let Some(type_name) = Self::extract_string_literal(&m.arguments[0]) {
-                        // TypeOp keeps the type spelling syntax-only, but its receiver is a
-                        // recursive child and must pass through the canonical E0 depth guard.
-                        let obj_val = self.build_expression(*m.object.clone())?;
-                        let ty = Self::parse_type_name_to_mir(&type_name);
-                        let dst = self.next_value_id();
-                        let op = if m.method == "is" {
-                            crate::mir::TypeOpKind::Check
-                        } else {
-                            crate::mir::TypeOpKind::Cast
-                        };
-                        self.emit_instruction(MirInstruction::TypeOp {
-                            dst,
-                            op,
-                            value: obj_val,
-                            ty,
-                        })?;
-                        return Ok(dst);
-                    }
-                }
                 self.build_method_call(*m.object.clone(), m.method.clone(), m.arguments.clone())
             }
 

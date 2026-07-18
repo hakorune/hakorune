@@ -89,6 +89,34 @@ impl MirBuilder {
         method: String,
         arguments: Vec<ASTNode>,
     ) -> Result<ValueId, String> {
+        let input =
+            super::method_call_descent::RawLegacyMethodCallInputV1::new(object, method, arguments);
+        let mut port = super::super::recursive_child_lowering::RawLegacyChildLoweringPortV1;
+        self.build_method_call_from_input_v1(&mut port, &input)
+    }
+
+    pub(in crate::mir::builder) fn build_method_call_from_input_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        input: &Port::MethodCallInput,
+    ) -> Result<ValueId, String>
+    where
+        Port: super::method_call_descent::MethodCallDescentPortV1,
+    {
+        let typeop = {
+            let syntax = port.method_call_syntax(input)?;
+            super::special_handlers::is_typeop_method(syntax.method(), syntax.arguments())
+                .map(|type_name| (syntax.method().to_string(), type_name))
+        };
+        if let Some((method, type_name)) = typeop {
+            let object_value =
+                super::method_call_descent::lower_method_call_receiver_v1(self, port, input)?;
+            return self.handle_typeop_method(object_value, &method, &type_name);
+        }
+
+        // Capture syntax before incrementing so syntax errors cannot alter entry depth.
+        let method = port.method_call_syntax(input)?.method().to_string();
+
         // Debug: Check recursion depth
         const MAX_METHOD_DEPTH: usize = 100;
         self.recursion_depth += 1;
@@ -108,40 +136,39 @@ impl MirBuilder {
             ));
         }
 
-        let result = self.build_method_call_impl(object, method, arguments);
+        let result = self.build_method_call_impl(port, input);
         self.recursion_depth -= 1;
         result
     }
 
-    fn build_method_call_impl(
+    fn build_method_call_impl<Port>(
         &mut self,
-        object: ASTNode,
-        method: String,
-        arguments: Vec<ASTNode>,
-    ) -> Result<ValueId, String> {
+        port: &mut Port,
+        input: &Port::MethodCallInput,
+    ) -> Result<ValueId, String>
+    where
+        Port: super::method_call_descent::MethodCallDescentPortV1,
+    {
         // ========================================
         // Section 1: Debug Tracing (debug_method_routing module)
         // ========================================
-        self.trace_method_call_if_enabled(&object, &method);
+        {
+            let syntax = port.method_call_syntax(input)?;
+            self.trace_method_call_if_enabled(syntax.receiver(), syntax.method());
+        }
 
         // ========================================
         // Section 2: Special Method Handlers (special_method_handlers module)
         // ========================================
 
-        let input =
-            super::method_call_descent::RawLegacyMethodCallInputV1::new(object, method, arguments);
-        let mut port = super::super::recursive_child_lowering::RawLegacyChildLoweringPortV1;
-        match super::reserved_method_route::build_reserved_method_call_v1(self, &mut port, &input)?
-        {
+        match super::reserved_method_route::build_reserved_method_call_v1(self, port, input)? {
             super::reserved_method_route::ReservedMethodCallOutcomeV1::Ordinary => {}
             super::reserved_method_route::ReservedMethodCallOutcomeV1::Emitted(value) => {
                 return Ok(value)
             }
         }
 
-        let (object, method, arguments) = input.into_parts();
-        let route_plan = self.plan_member_call_route(&object, &method)?;
-        self.emit_member_call_from_plan(route_plan, object, method, arguments)
+        self.build_member_method_call_v1(port, input)
     }
 
     // Build from expression: from Parent.method(arguments)

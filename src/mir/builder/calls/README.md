@@ -50,7 +50,7 @@ descent and shares one intrinsic core with its function-call facade. Ordinary an
 reserved-failure decisions descend no children. Terminal emission, result/type
 publication, located inputs, and ledger authorization remain outside R0.
 
-ROUTE0-M0 is split into S0/H0/I0/P0/G0. It reuses the existing non-Clone
+ROUTE0-M0 is closed through S0/H0/I0/P0/G0. It reuses the existing non-Clone
 `MemberCallRoutePlan`; no second demand or route product is introduced. TypeOp
 and Standard descend the receiver exactly once, while Static, Env, Me/This,
 and reserved routes never descend source receiver syntax. TypeOp's type string
