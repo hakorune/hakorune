@@ -46,6 +46,25 @@ fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
         .collect()
 }
 
+fn next_value_cursor(builder: &MirBuilder) -> u32 {
+    builder
+        .scope_ctx
+        .current_function
+        .as_ref()
+        .expect("current function")
+        .next_value_id
+}
+
+fn value_fact(
+    builder: &MirBuilder,
+    value: crate::mir::ValueId,
+) -> (Option<MirType>, Option<String>) {
+    (
+        builder.type_ctx.value_types.get(&value).cloned(),
+        builder.type_ctx.value_origin_newbox.get(&value).cloned(),
+    )
+}
+
 fn ordinary_copy_root(
     instructions: &[MirInstruction],
     mut value: crate::mir::ValueId,
@@ -85,6 +104,7 @@ fn disconnected_typeop_terminals_preserve_check_cast_value_type_and_destination(
     let mut builder = builder("terminal_typeop/0");
     let value = builder.build_expression(integer(7)).unwrap();
     let mut port = RawLegacyChildLoweringPortV1;
+    let cursor_before = next_value_cursor(&builder);
 
     let check = port
         .emit_typeop_value_terminal(
@@ -123,6 +143,11 @@ fn disconnected_typeop_terminals_preserve_check_cast_value_type_and_destination(
             ty: MirType::Integer,
         } if *dst == cast && *actual == value
     )));
+    assert_eq!(check.0, cursor_before);
+    assert_eq!(cast.0, cursor_before + 1);
+    assert_eq!(next_value_cursor(&builder), cursor_before + 2);
+    assert_eq!(value_fact(&builder, check), (None, None));
+    assert_eq!(value_fact(&builder, cast), (None, None));
 }
 
 #[test]
@@ -131,6 +156,7 @@ fn disconnected_static_and_me_global_terminals_preserve_semantic_target_and_argu
     let left = builder.build_expression(integer(3)).unwrap();
     let right = builder.build_expression(integer(4)).unwrap();
     let mut port = RawLegacyChildLoweringPortV1;
+    let cursor_before = next_value_cursor(&builder);
 
     let static_result = port
         .emit_static_global_value_terminal(
@@ -169,6 +195,8 @@ fn disconnected_static_and_me_global_terminals_preserve_semantic_target_and_argu
     assert_eq!(calls.len(), 2);
     assert_eq!(calls[0].0, Some(static_result));
     assert_eq!(calls[1].0, Some(me_result));
+    assert_eq!(static_result.0, cursor_before);
+    assert!(me_result.0 > static_result.0);
     assert_eq!(calls[0].1.len(), 2);
     assert_eq!(calls[1].1.len(), 2);
     assert_eq!(
@@ -187,6 +215,8 @@ fn disconnected_static_and_me_global_terminals_preserve_semantic_target_and_argu
         normalized_const_value(&emitted, calls[1].1[1]),
         normalized_const_value(&emitted, right),
     );
+    assert_eq!(value_fact(&builder, static_result), (None, None));
+    assert_eq!(value_fact(&builder, me_result), (None, None));
 }
 
 #[test]
@@ -206,10 +236,12 @@ fn disconnected_env_terminals_preserve_returning_and_no_result_laws() {
         effects: EffectMask::IO,
         returns: false,
     };
+    let returning_cursor = next_value_cursor(&builder);
 
     let returning_value = port
         .emit_env_value_terminal(&mut builder, &input(), &returning, vec![argument])
         .unwrap();
+    let no_result_cursor = next_value_cursor(&builder);
     let void_value = port
         .emit_env_value_terminal(&mut builder, &input(), &no_result, vec![argument])
         .unwrap();
@@ -240,6 +272,15 @@ fn disconnected_env_terminals_preserve_returning_and_no_result_laws() {
             value: ConstValue::Void,
         } if *dst == void_value
     )));
+    assert_eq!(returning_value.0, returning_cursor);
+    assert_eq!(no_result_cursor, returning_cursor + 1);
+    assert_eq!(void_value.0, no_result_cursor + 1);
+    assert_eq!(next_value_cursor(&builder), no_result_cursor + 2);
+    assert_eq!(value_fact(&builder, returning_value), (None, None));
+    assert_eq!(
+        value_fact(&builder, void_value),
+        (Some(MirType::Void), None)
+    );
     let env_calls = emitted
         .iter()
         .filter_map(|instruction| match instruction {
@@ -267,6 +308,7 @@ fn disconnected_standard_terminal_preserves_method_identity_and_completed_destin
     let receiver = builder.build_expression(integer(8)).unwrap();
     let argument = builder.build_expression(integer(9)).unwrap();
     let mut port = RawLegacyChildLoweringPortV1;
+    let cursor_before = next_value_cursor(&builder);
 
     let result = port
         .emit_standard_value_terminal(
@@ -307,4 +349,7 @@ fn disconnected_standard_terminal_preserves_method_identity_and_completed_destin
         normalized_const_value(&emitted, actual_arguments[0]),
         normalized_const_value(&emitted, argument),
     );
+    assert_eq!(result.0, cursor_before);
+    assert!(next_value_cursor(&builder) > cursor_before);
+    assert_eq!(value_fact(&builder, result), (None, None));
 }

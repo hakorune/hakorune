@@ -1,5 +1,5 @@
 ---
-Status: SITE0-R0-EXPR0-M0-V0-I0 closed; V0-P0 is next
+Status: SITE0-R0-EXPR0-M0-V0-P0 closed; V0-G0 is next
 Date: 2026-07-18
 Decision: Candidate A owned single-use activation plan plus located legacy input
 Baseline: fe2d61baa0
@@ -857,6 +857,20 @@ constructing a MethodCall source input. Scalar facts, weak load, record/helper
 setter, FastMem, MIR-debug, and REPL remain explicit custom terminals. Route
 event fixtures prove children-before-terminal, lowered-Me receiver prefix,
 terminal failure exact-once/no-retry, and Builder reuse. V0-P0 is next.
+
+### V0-P0 closeout
+
+V0-P0 is closed as an evidence-only slice. The disconnected terminal fixtures
+now normalize destination allocation, target/effects, argument order,
+returning/no-result Env behavior, and existing type/origin publication for
+TypeOp, static/current-owner global, Env, and Standard. Materialized property
+fixes the returned Call destination plus normalized receiver without creating a
+source carrier. Static-scalar, weak-load/upgrade, helper-setter, FastMem,
+MIR-debug, and REPL fixtures plus structural counts prove those owners remain
+outside the generic terminal port. Receiver, argument, and terminal failures
+enter no later ordinary terminal publication, do not retry, and leave the
+Builder reusable. Production behavior and authority deltas remain zero. V0-G0
+is next.
 
 ### Exact terminal laws
 

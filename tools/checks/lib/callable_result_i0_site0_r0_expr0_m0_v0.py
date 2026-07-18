@@ -115,12 +115,50 @@ def main() -> None:
     member = read(root, "src/mir/builder/calls/member_route.rs")
     handlers = read(root, "src/mir/builder/method_call_handlers.rs")
     property_reads = read(root, "src/mir/builder/property_reads.rs")
+    static_scalar = read(root, "src/mir/builder/static_scalar_facts.rs")
+    weak_ref = read(root, "src/mir/builder/utils/weak_ref.rs")
+    record_helper = read(root, "src/mir/builder/record_helper_args.rs")
+    record_helper_tests = read(root, "src/mir/builder/record_helper_args_tests.rs")
+    reserved = read(root, "src/mir/builder/calls/reserved_method_route.rs")
+    reserved_tests = read(root, "src/mir/builder/calls/reserved_method_route_tests.rs")
+    debug_routes = read(root, "src/mir/builder/calls/debug_method_routing.rs")
+    fastmem_calls = read(root, "src/mir/builder/fastmem/calls.rs")
     require_count(handlers, "handle_typeop_method(", 0, "retired direct TypeOp handler")
     require_count(member, "emit_resolved_env_method_call", 0, "retired direct Env helper")
     require_count(handlers, "emit_unified_call(", 0, "ordinary direct call emission")
     require_count(handlers, "MirInstruction::TypeOp", 0, "ordinary direct TypeOp emission")
     require_count(property_reads, "RawLegacyMethodCallInputV1", 0, "property fake source input")
     require_count(build, "MethodCallValueTerminalPortV1", 2, "source terminal port bounds")
+
+    for needle, expected, label in (
+        ("static_scalar_method_fact(&func_name)", 1, "static scalar selector"),
+        ("emit_static_scalar_fact_const(", 1, "static scalar emitter"),
+        ('method == "weak_to_strong"', 1, "weak-load selector"),
+        ("emit_weak_load(", 1, "weak-load emitter"),
+        ('method == "upgrade"', 1, "deprecated upgrade preflight"),
+        (
+            "try_inline_record_helper_call_with_descent(",
+            3,
+            "record helper selectors",
+        ),
+        (
+            "try_inline_same_module_helper_setter_call_with_descent(",
+            1,
+            "direct setter selector",
+        ),
+        (
+            "try_inline_same_module_helper_setter_call_from_receiver_with_descent(",
+            1,
+            "receiver setter selector",
+        ),
+    ):
+        require_count(handlers, needle, expected, label)
+
+    custom_owners = "\n".join(
+        (static_scalar, weak_ref, record_helper, reserved, debug_routes, fastmem_calls)
+    )
+    for name in (*terminal_methods, *(f"finish_{name[5:]}" for name in terminal_methods)):
+        require_count(custom_owners, name, 0, f"custom owner ordinary terminal {name}")
 
     for forbidden in (
         "ASTNode",
@@ -173,6 +211,33 @@ def main() -> None:
         if evidence not in route_tests:
             fail(f"missing I0 terminal wiring fixture: {evidence}")
 
+    for evidence in (
+        "argument_failure_enters_no_terminal_and_builder_reuses",
+        "static_scalar_fact_returns_const_without_generic_terminal",
+        "weak_load_and_upgrade_preflight_bypass_generic_terminal",
+        "materialized_property_receiver_is_forwarded_without_source_redescent",
+    ):
+        if evidence not in route_tests:
+            fail(f"missing P0 route/custom evidence: {evidence}")
+    if "helper_setter_completion_bypasses_generic_terminal" not in record_helper_tests:
+        fail("missing P0 helper-setter custom-terminal evidence")
+
+    for evidence in (
+        "selected_mir_debug_route_preserves_debug_payload",
+        "selected_mir_mark_evaluates_neither_label_nor_extra_arguments",
+        "selected_mir_log_stops_at_first_failed_suffix_and_builder_is_reusable",
+        "ordinary_reserved_decision_descends_no_children",
+        "selected_mir_debug_zero_argument_failure_is_stable",
+        "selected_repl_route_preserves_extern_call",
+        "selected_repl_unsupported_method_failure_is_stable",
+        "selected_fastmem_method_route_preserves_memop_lowering",
+        "selected_fastmem_arity_failure_precedes_argument_effects",
+        "selected_fastmem_table_id_preflight_precedes_argument_effects",
+        "selected_fastmem_positive_upper_preflight_precedes_argument_effects",
+    ):
+        if evidence not in reserved_tests:
+            fail(f"missing P0 reserved custom-terminal evidence: {evidence}")
+
     for phrase in (
         "disconnected V0 value-only terminal port",
         "Route selection, syntax preflight, and child descent must finish",
@@ -196,6 +261,7 @@ def main() -> None:
         "src/mir/builder/calls/member_route.rs",
         "src/mir/builder/calls/member_route_descent_tests.rs",
         "src/mir/builder/method_call_handlers.rs",
+        "src/mir/builder/record_helper_args_tests.rs",
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_m0_v0.py",
     )
     oversized = [relative for relative in touched if len(read(root, relative).splitlines()) >= 800]

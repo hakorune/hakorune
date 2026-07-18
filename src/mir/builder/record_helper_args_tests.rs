@@ -131,6 +131,53 @@ fn setter_allowlist_rejects_before_catalog_query() {
 }
 
 #[test]
+fn helper_setter_completion_bypasses_generic_terminal() {
+    let source = r#"
+        box HakoAllocObjectLifecycleAllocResult {
+            recordAttempt() { return 1 }
+        }
+    "#;
+    let root = NyashParser::parse_from_string(source).unwrap();
+    let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&root).unwrap();
+    let mut builder = MirBuilder::new();
+    builder
+        .comp_ctx
+        .install_callable_declaration_catalog(catalog)
+        .unwrap();
+    builder.enter_function_for_test("record_setter_custom_terminal/0".to_string());
+
+    let result = builder
+        .try_inline_same_module_helper_setter_call(
+            "HakoAllocObjectLifecycleAllocResult",
+            "recordAttempt",
+            &[],
+            None,
+        )
+        .unwrap()
+        .expect("allowlisted setter must complete through its custom owner");
+    let instructions = builder
+        .scope_ctx
+        .current_function
+        .as_ref()
+        .unwrap()
+        .blocks
+        .values()
+        .flat_map(|block| &block.instructions)
+        .collect::<Vec<_>>();
+
+    assert!(instructions.iter().any(|instruction| matches!(
+        instruction,
+        MirInstruction::Const {
+            dst,
+            value: crate::mir::ConstValue::Integer(1),
+        } if *dst == result
+    )));
+    assert!(!instructions
+        .iter()
+        .any(|instruction| matches!(instruction, MirInstruction::Call { .. })));
+}
+
+#[test]
 fn infer_same_module_helper_receiver_box_name_follows_phi_inputs_without_hint() {
     let signature = FunctionSignature {
         name: "HakoAllocObjectLifecycleFacade.objectLifecycleSmallAlloc/1".to_string(),

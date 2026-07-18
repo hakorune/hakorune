@@ -59,6 +59,7 @@ enum RouteExpression {
 struct RoutePort {
     events: Vec<String>,
     fail_receiver: bool,
+    fail_argument: Option<usize>,
     fail_terminal: bool,
 }
 
@@ -94,6 +95,9 @@ impl RecursiveChildLoweringPortV1 for RoutePort {
             }
             RouteExpression::Argument(index, syntax) => {
                 self.events.push(format!("argument:{index}"));
+                if self.fail_argument == Some(index) {
+                    return Err(format!("route fixture argument failure index={index}"));
+                }
                 syntax
             }
         };
@@ -267,6 +271,37 @@ fn builder(name: &str) -> MirBuilder {
     builder
 }
 
+fn ordinary_copy_root(instructions: &[MirInstruction], mut value: ValueId) -> ValueId {
+    let mut remaining = instructions.len();
+    while remaining > 0 {
+        let Some(src) = instructions
+            .iter()
+            .find_map(|instruction| match instruction {
+                MirInstruction::Copy { dst, src } if *dst == value => Some(*src),
+                _ => None,
+            })
+        else {
+            break;
+        };
+        value = src;
+        remaining -= 1;
+    }
+    value
+}
+
+fn normalized_const_value(
+    instructions: &[MirInstruction],
+    value: ValueId,
+) -> Option<crate::mir::ConstValue> {
+    let root = ordinary_copy_root(instructions, value);
+    instructions
+        .iter()
+        .find_map(|instruction| match instruction {
+            MirInstruction::Const { dst, value } if *dst == root => Some(value.clone()),
+            _ => None,
+        })
+}
+
 #[test]
 fn typeop_descends_receiver_once_and_keeps_type_string_syntax_only() {
     let input = RouteInput {
@@ -354,6 +389,129 @@ fn standard_receiver_failure_descends_no_arguments_and_builder_is_reusable() {
     assert_eq!(port.events, ["receiver"]);
 
     port.fail_receiver = false;
+    port.events.clear();
+    builder
+        .build_method_call_from_input_v1(&mut port, &valid)
+        .unwrap();
+    assert_eq!(port.events, ["receiver", "terminal:typeop"]);
+}
+
+#[test]
+fn argument_failure_enters_no_terminal_and_builder_reuses() {
+    let failing = RouteInput {
+        receiver: integer(7),
+        method: "routeMethod".to_string(),
+        arguments: vec![integer(1), integer(2)],
+    };
+    let valid = RouteInput {
+        receiver: integer(8),
+        method: "is".to_string(),
+        arguments: vec![string("Integer")],
+    };
+    let mut port = RoutePort {
+        fail_argument: Some(0),
+        ..RoutePort::default()
+    };
+    let mut builder = builder("standard_argument_failure/0");
+
+    assert_eq!(
+        builder
+            .build_method_call_from_input_v1(&mut port, &failing)
+            .unwrap_err(),
+        "route fixture argument failure index=0"
+    );
+    assert_eq!(port.events, ["receiver", "argument:0"]);
+    assert!(!builder
+        .scope_ctx
+        .current_function
+        .as_ref()
+        .unwrap()
+        .blocks
+        .values()
+        .flat_map(|block| &block.instructions)
+        .any(|instruction| matches!(instruction, MirInstruction::Call { .. })));
+
+    port.fail_argument = None;
+    port.events.clear();
+    builder
+        .build_method_call_from_input_v1(&mut port, &valid)
+        .unwrap();
+    assert_eq!(port.events, ["receiver", "terminal:typeop"]);
+}
+
+#[test]
+fn static_scalar_fact_returns_const_without_generic_terminal() {
+    let body = [ASTNode::Return {
+        value: Some(Box::new(integer(41))),
+        span: Span::unknown(),
+    }];
+    let input = RouteInput {
+        receiver: variable("ScalarFacts"),
+        method: "answer".to_string(),
+        arguments: vec![],
+    };
+    let mut port = RoutePort::default();
+    let mut builder = builder("static_scalar_custom_terminal/0");
+    assert!(builder
+        .comp_ctx
+        .register_static_scalar_method_fact_if_verified("ScalarFacts.answer/0", &[], &body));
+
+    let result = builder
+        .build_method_call_from_input_v1(&mut port, &input)
+        .unwrap();
+
+    assert!(port.events.is_empty());
+    assert!(builder
+        .scope_ctx
+        .current_function
+        .as_ref()
+        .unwrap()
+        .blocks
+        .values()
+        .flat_map(|block| &block.instructions)
+        .any(|instruction| matches!(
+            instruction,
+            MirInstruction::Const {
+                dst,
+                value: crate::mir::ConstValue::Integer(41),
+            } if *dst == result
+        )));
+}
+
+#[test]
+fn weak_load_and_upgrade_preflight_bypass_generic_terminal() {
+    let weak = RouteInput {
+        receiver: integer(7),
+        method: "weak_to_strong".to_string(),
+        arguments: vec![],
+    };
+    let upgrade = RouteInput {
+        receiver: integer(8),
+        method: "upgrade".to_string(),
+        arguments: vec![],
+    };
+    let valid = RouteInput {
+        receiver: integer(9),
+        method: "as".to_string(),
+        arguments: vec![string("Integer")],
+    };
+    let mut port = RoutePort::default();
+    let mut builder = builder("weak_custom_terminal/0");
+
+    builder
+        .build_method_call_from_input_v1(&mut port, &weak)
+        .unwrap();
+    assert_eq!(port.events, ["receiver"]);
+
+    port.events.clear();
+    assert_eq!(
+        builder
+            .build_method_call_from_input_v1(&mut port, &upgrade)
+            .unwrap_err(),
+        "WeakRef uses weak_to_strong(), not upgrade()"
+    );
+    assert_eq!(port.events, ["receiver"]);
+
     port.events.clear();
     builder
         .build_method_call_from_input_v1(&mut port, &valid)
@@ -499,6 +657,20 @@ fn generic_terminal_failure_follows_children_without_retry_and_builder_reuses() 
         port.events,
         ["receiver", "argument:0", "argument:1", "terminal:standard"]
     );
+    let failed_instructions = builder
+        .scope_ctx
+        .current_function
+        .as_ref()
+        .unwrap()
+        .blocks
+        .values()
+        .flat_map(|block| &block.instructions)
+        .cloned()
+        .collect::<Vec<_>>();
+    assert!(!failed_instructions
+        .iter()
+        .any(|instruction| matches!(instruction, MirInstruction::Call { .. })));
+    assert!(builder.type_ctx.value_origin_newbox.is_empty());
 
     port.fail_terminal = false;
     port.events.clear();
@@ -509,6 +681,19 @@ fn generic_terminal_failure_follows_children_without_retry_and_builder_reuses() 
         port.events,
         ["receiver", "argument:0", "argument:1", "terminal:standard"]
     );
+    assert_eq!(
+        builder
+            .scope_ctx
+            .current_function
+            .as_ref()
+            .unwrap()
+            .blocks
+            .values()
+            .flat_map(|block| &block.instructions)
+            .filter(|instruction| matches!(instruction, MirInstruction::Call { .. }))
+            .count(),
+        1
+    );
 }
 
 #[test]
@@ -516,7 +701,7 @@ fn materialized_property_receiver_is_forwarded_without_source_redescent() {
     let mut builder = builder("materialized_property_route/0");
     let receiver = builder.build_expression(integer(11)).unwrap();
 
-    builder
+    let result = builder
         .handle_standard_method_call(receiver, "propertyGetter".to_string(), &[])
         .unwrap();
 
@@ -527,16 +712,28 @@ fn materialized_property_receiver_is_forwarded_without_source_redescent() {
         .flat_map(|block| &block.instructions)
         .cloned()
         .collect::<Vec<_>>();
-    assert!(emitted.iter().any(|instruction| matches!(
-        instruction,
-        MirInstruction::Call {
-            callee: Some(Callee::Method {
-                method,
-                receiver: Some(_),
+    let (call_dst, call_receiver) = emitted
+        .iter()
+        .find_map(|instruction| match instruction {
+            MirInstruction::Call {
+                dst: Some(dst),
+                callee:
+                    Some(Callee::Method {
+                        method,
+                        receiver: Some(call_receiver),
+                        ..
+                    }),
+                args,
                 ..
-            }),
-            args,
-            ..
-        } if method == "propertyGetter" && args.is_empty()
-    )));
+            } if method == "propertyGetter" && args.is_empty() => Some((*dst, *call_receiver)),
+            _ => None,
+        })
+        .expect("materialized property must emit one completed method call");
+    assert_eq!(call_dst, result);
+    assert_eq!(
+        normalized_const_value(&emitted, call_receiver),
+        normalized_const_value(&emitted, receiver),
+    );
+    assert_eq!(builder.type_ctx.value_types.get(&result), None);
+    assert_eq!(builder.type_ctx.value_origin_newbox.get(&result), None);
 }
