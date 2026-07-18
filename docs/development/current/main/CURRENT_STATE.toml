@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result LOOP0-P0b-F0 is closed; direct-ordinal O0 authorization is next"
+status = "callable-result LOOP0-P0b O0 hit its hard stop; representation design consultation is required"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -294,42 +294,26 @@ active_phase = "docs/development/current/main/investigations/mirbuilder-dprime-b
 phase_status = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 method_anchor = "docs/development/current/main/design/current-docs-archive-policy-ssot.md"
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
-latest_workstream_card = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
+latest_workstream_card = "docs/development/current/main/investigations/callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md"
 
-latest_card = "callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18"
-latest_card_path = "docs/development/current/main/investigations/callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md"
-latest_card_summary = """LOOP0 selects B-prime. S0a gives all four call-bearing
-CoreEffectPlan variants one uniform source-only provenance field. S0b now adds
-one non-Clone activation/caller/statement-root schedule in canonical source
-order and one non-Clone final CoreLoop seal. The seal runs PlanVerifier before
-matching exact located occurrences and rejects missing, duplicate, extra, and
-foreign pairings without exposing or remapping the owned CorePlan. Unrelated
-synthetic Unlocated effects remain outside source-occurrence truth. S0c makes
-the caller ledger the sole full-prevalidation and atomic-commit owner, then
-returns one non-Clone site-keyed batch whose claimed rows may be consumed in
-plan order with double/unused rejection. The actual 15-row caller proves human
-rows 1-5 ordinary, 6-14 batch, and 15 ordinary while nested row 14 may be
-consumed before outer row 13. Production located consumers and claims stay
-zero. A three-worker audit fixes LOOP0-P0 as P0a/P0b/P0c: one shared
-raw/test-located PATH0-backed expression-demand port, GenericLoopV1-only
-signature threading with direct-ordinal preflight before skeleton mutation,
-then one actual 15-row raw/located structural parity proof. Three worker audits
-now split P0b into F0 shared-fixture/environment lock, O0 disconnected
-recursive direct-ordinal seal, T0 GenericLoopV1-only port threading, and P0
-two-mode direct-compose parity. The actual six-statement Loop is authorized
-only when final ordinal 5 is the sole removed progression step and recipe
-prefix ordinals 0..4 plus nested If PATH0 children remain exact. O0 failure
-stops before composer/skeleton effects and opens a new design consultation.
-No new route,
-normalizer, source-path authority, production located consumer, or ledger
-claim is added. P0a now closes the one shared PATH0-backed expression-demand
-port with raw parity, branded located carriers, exact site propagation,
-synthetic Unlocated preservation, and production located consumers zero.
-LOOP0-P0b-F0 now closes one shared actual 15-row fixture and one complete
-process-scoped default/strict environment pair. Exact-key direct writers are
-zero outside the common test-state owner. LOOP0-P0b-O0 is next; production
-located consumers and claims remain zero."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0B-O0-001"
+latest_card = "callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19"
+latest_card_path = "docs/development/current/main/investigations/callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md"
+latest_card_summary = """LOOP0-P0b-F0 is closed. O0 then hit its explicit hard
+stop before code: canonical GenericLoopV1 extraction discards StepPlacement,
+default RecipeOnly has no NoExit RecipeBlock for the actual early-Return body,
+and strict ExitAllowed stores the source join If at ordinal 4 as opaque
+Stmt(4). The previous universal RecipeBlock-to-PATH0 recursion claim is false.
+The returned B-prime packet restates the already-closed S0a/S0b/S0c/P0a
+authorities and does not answer this representation stop; no S0 authority is
+reopened. T0 is forbidden. Candidate A-prime is recommended: retain the existing step
+witness in one same-call extraction product, then seal one non-Clone two-mode
+located body representation for DirectRecipeOnly and ExitAllowedRecipe.
+Stmt/Exit remain opaque exact ordinals; only explicit IfV2 recurses, while the
+strict Stmt-wrapped join If must prove in O0 the exact PATH0 source carrier to
+singleton NoExit Join IfV2 and IfThen/IfElse bridge. AST equality, a recipe/site
+side table, Builder effects, ledger claims, fallback, and files at 800 lines
+remain forbidden. A design decision is required before O0 code."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0B-O0-DESIGN-STOP-SELECT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
