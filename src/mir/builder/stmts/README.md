@@ -61,3 +61,21 @@ driver deliberately keeps an indexed associated-input contract; its synthetic
 port fixture fixes `LocalInitializer(0)` then `LocalInitializer(1)` ordering.
 Located LCL0 binds every requested index to the exact source role, but does not
 invent a malformed multi-initializer source fixture to widen the parser law.
+
+## Variable-target Assignment associated-input descent
+
+`variable_assignment_descent.rs` owns one disconnected exact Variable-target
+Assignment boundary. Its input carries only the already-selected variable name
+and RHS; field/index target syntax is structurally absent. It observes the name
+once and runs the existing declared-binding preflight before requesting the
+RHS. The RHS is lowered once through the shared recursive expression port,
+then the existing `build_assignment_from_value` owner repeats the declaration
+check and performs contracts, ownership effects, and binding publication.
+
+ASN0-S0 must not inspect or reconstruct target AST, admit field, index,
+compound, or grouped assignment targets, inspect callable-result rows, or
+publish a binding itself. An undeclared target rejects before RHS input or
+effects, and an RHS failure leaves the previous assignment binding unchanged.
+The second completion-time declaration check is retained. Raw selection,
+parity reference, and located `AssignmentValue` navigation stay disconnected
+until ASN0-I0/P0/L0 respectively.

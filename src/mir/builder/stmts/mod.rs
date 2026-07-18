@@ -108,6 +108,7 @@ pub(in crate::mir::builder) use local_statement_descent::{
 pub(super) mod print_stmt;
 pub(super) mod return_stmt;
 pub(super) mod task_scope_stmt;
+mod variable_assignment_descent;
 pub(super) mod variable_stmt;
 
 #[cfg(test)]
@@ -118,6 +119,8 @@ mod local_statement_descent_tests;
 mod local_statement_parity_tests;
 #[cfg(test)]
 mod local_statement_raw_tests;
+#[cfg(test)]
+mod variable_assignment_descent_tests;
 
 use super::ValueId;
 use crate::ast::ASTNode;

@@ -1,5 +1,5 @@
 ---
-Status: LCL0-L0 closed; ASN0-S0 is next
+Status: ASN0-S0 closed; ASN0-I0 is next
 Date: 2026-07-18
 Decision: expand located lowering by one structural child family per row
 Parent: callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md
@@ -62,15 +62,15 @@ SITE0-R0-EXPR0-SPINE0-BIN0-S0
 The sole next code-facing row is:
 
 ```text
-SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-S0
+SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-I0
 ```
 
-`LCL0-L0` is closed. One disconnected located Local port preserves every
-ordinary initializer through its exact `LocalInitializer(index)` child and
-requires exact inactive-subtree proof before typed-array or record effects.
-ASN0-S0 may add only one disconnected exact Variable-target Assignment RHS
-child-demand boundary. Return, If, Loop, production located root callers, and
-callable-result publication remain zero.
+`ASN0-S0` is closed. One disconnected exact Variable-target Assignment driver
+preserves the existing declared-binding preflight before one associated RHS
+descent and delegates completion to the existing from-value owner. ASN0-I0 may
+only select that raw driver through the existing `build_assignment` facade;
+field/index/compound selectors, Return, If, Loop, production located root
+callers, and callable-result publication remain unchanged.
 
 ## Why C0 is held
 
@@ -513,6 +513,25 @@ callable-result 55/55 tests, the SPINE0 guard, cargo check, quick 66/66 in 94s,
 release build, formatting, diff check, and line caps are green. Production located root callers and
 callable-result publication remain zero. ASN0-S0 is next.
 
+### ASN0-S0 closeout
+
+ASN0-S0 is closed with one disconnected exact Variable-target Assignment
+driver and one raw port whose production callers remain zero. Its input carries
+only an already-selected variable name and RHS, so field/index/compound target
+syntax is structurally absent. The existing `AssignmentResolverBox` check runs
+before RHS input or effects; one associated RHS is lowered through E0; and the
+existing `build_assignment_from_value` owner retains its second declaration
+check, typed contracts, `ReleaseStrong`, and variable publication.
+
+Six fixtures prove success order and exactly-once completion, undeclared,
+binding-missing, and synthetic-pin rejection before RHS effects, syntax/RHS
+input failure, RHS failure without assignment publication, completion-time
+recheck, same-Builder reuse, and raw Binary descent. Assignment 6/6, resolver
+4/4, recursive child 7/7, callable-result 55/55, the split SPINE0 guard, quick
+66/66 in 76s, release build, formatting, Python compile, diff check, and line
+caps are green. Raw and located production selectors plus callable-result
+publication remain zero. ASN0-I0 is next.
+
 ## STMT0 — value-bearing statement family
 
 The worker audit found that one shared STMT0 driver would have to duplicate or
@@ -721,9 +740,10 @@ Stop the current row if any of the following becomes necessary:
 > The acceptance boundary should now expand, but only as a sequence of
 > structural associated-input rows. The actual A0 caller proves five active
 > MethodCalls under Binary ancestors, so direct EXPR0-C0 wiring is held.
-> Ordinary Binary, short-circuit Binary, and Local initializer descent are
-> closed through LCL0-L0. The sole current shape is
-> `SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-S0`; later value-bearing statements, If, raw suffix
+> Ordinary Binary, short-circuit Binary, Local initializer descent, and the
+> disconnected Variable-target Assignment driver are closed through ASN0-S0.
+> The sole current shape is
+> `SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-I0`; later value-bearing statements, If, raw suffix
 > admission, and Loop site carriage remain separate owners. BIN0-L0 always
 > uses the located driver for an ordinary Binary and lets each associated child
 > prove inactivity or continue to an exact claim; it never selects a route by
@@ -738,5 +758,5 @@ Stop the current row if any of the following becomes necessary:
 Quick-gate latency is tracked separately in
 [`dev-gate-quick-latency-task-2026-07-18.md`](./dev-gate-quick-latency-task-2026-07-18.md).
 Its first row is `DEV-GATE-Q0-M0`; it does not change this card's active
-`SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-L0` blocker or share a commit with a
+`SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-I0` blocker or share a commit with a
 compiler semantic row.
