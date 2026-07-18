@@ -1,5 +1,5 @@
 ---
-Status: LOOP0-P0b-F0 closed; O0 representation design consultation required
+Status: Candidate A-prime-plus selected; LOOP0-P0b-O0-S0 next
 Date: 2026-07-19
 Code baseline: 2a87a3bbe91318f52154b97ff5fadc8ee24d5dec
 Decision-stop baseline: 4f9b84138a
@@ -33,10 +33,10 @@ claims condition rows 6-8 before body rows 9-14, and outer row 13 before its
 nested argument row 14. Plan emission may consume row 14 before row 13 because
 argument evaluation precedes the outer call.
 
-`LOOP0-P0b-F0` is closed. The current frontier is the P0b-O0 representation
-design stop; no further code is authorized until its two-mode body law is
-selected. Production located consumers, ledger claims, grammar, runtime,
-backend, and ownership remain unchanged through the stop.
+`LOOP0-P0b-F0` is closed and Candidate A-prime-plus selects the two-mode O0
+body law. `LOOP0-P0b-O0-S0` is the sole next code-facing row. Production
+located consumers, ledger claims, grammar, runtime, backend, and ownership
+remain unchanged through O0.
 
 ## Repository-ground corrections
 
@@ -364,7 +364,10 @@ LOOP0-S0a (closed)
   -> LOOP0-S0c (closed)
   -> LOOP0-P0a (closed)
   -> LOOP0-P0b-F0 (closed)
-  -> LOOP0-P0b-O0
+  -> LOOP0-P0b-O0-S0
+  -> LOOP0-P0b-O0-R0
+  -> LOOP0-P0b-O0-P0
+  -> LOOP0-P0b-O0-G0
   -> LOOP0-P0b-T0
   -> LOOP0-P0b-P0
   -> LOOP0-P0c
@@ -380,9 +383,9 @@ schedule, and atomic claimed batch are the already-closed S0a/S0b/S0c
 authorities. The packet's tentative `PreparedCallableResultLoopClaimsV1` must
 not be added beside the landed schedule -> ledger commit -> claimed-batch
 split. The B-prime packet is therefore recorded as an already-closed
-prerequisite. The current frontier remains the P0b-O0 representation design
-stop; no S0 authority is reopened and T0 remains forbidden until O0 selects
-its two-mode body law.
+prerequisite. Candidate A-prime-plus now selects the P0b-O0 two-mode body law;
+no S0 authority is reopened. O0-S0 is next and T0 remains forbidden until
+O0-G0 is green.
 
 ### LOOP0-S0a — uniform provenance schema
 
@@ -482,10 +485,10 @@ all-target check, release build, formatting, diff, line-cap checks, and quick
 ### LOOP0-P0 — actual GenericLoop plan proof
 
 The initial worker GO was conditional on a recursively complete direct-ordinal
-body representation. O0 disproved that premise for both actual modes, so the
-GO is superseded by the current design stop. P0a remains closed; P0b-T0 and
-later proof slices are forbidden until O0 selects and seals a replacement
-body-representation law.
+body representation. O0 disproved that premise for both actual modes.
+Candidate A-prime-plus now replaces it with one retained successful step
+disposition and one non-Clone two-mode seal. P0a remains closed; O0-S0 is next,
+while P0b-T0 and later proof slices remain forbidden until O0-G0 is green.
 
 #### LOOP0-P0a — one expression-demand port vocabulary
 
@@ -535,20 +538,29 @@ to P0b rather than silently entering raw helpers.
 
 Production behavior delta: 0. Production located consumers: 0.
 
-The pre-audit conditional GO is superseded. Read the O0 design-stop card before
-using any executable guidance below. The actual route has two distinct body
-representations, not one universal RecipeBlock: default RecipeOnly owns no
-NoExit recipe, while strict ExitAllowed keeps one join-bearing If opaque as a
-Stmt item. T0 remains forbidden until the design stop is resolved.
+The pre-audit conditional GO is superseded by Candidate A-prime-plus. The
+actual route has two distinct body representations, not one universal
+RecipeBlock: default RecipeOnly may own no NoExit recipe, while strict
+ExitAllowed keeps a join-bearing If opaque as a Stmt item. O0-S0 is authorized;
+T0 remains forbidden until the four O0 rows are green.
 
-P0b is split into four mechanically ordered rows:
+P0b is split into the following mechanically ordered rows:
 
 ```text
 LOOP0-P0b-F0
   shared actual 15-row fixture and one complete environment lock
 
-LOOP0-P0b-O0
-  design-selected two-mode located body seal
+LOOP0-P0b-O0-S0
+  canonical successful extraction product and raw facts facade parity
+
+LOOP0-P0b-O0-R0
+  non-Clone DirectRecipeOnly / ExitAllowedRecipe seal
+
+LOOP0-P0b-O0-P0
+  actual default/strict and StmtWrappedJoinIf bridge proof
+
+LOOP0-P0b-O0-G0
+  structural guard and negative matrix
 
 LOOP0-P0b-T0
   GenericLoopV1-only same-port threading
@@ -573,8 +585,8 @@ GenericLoop, located producer/consumer, route, claim, grammar, runtime,
 backend, and ownership deltas remain zero. Focused mode, GenericLoop extract,
 and callable-result tests, both structural guards, all-target check, release
 build, quick 66/66 in 70 seconds, formatting, diff, pointer, and line-cap
-checks are green. Two final worker reviews are GO. The O0 design decision is
-the sole frontier; no O0 code row is authorized yet.
+checks are green. Two final worker reviews are GO. Candidate A-prime-plus is
+selected and O0-S0 is the sole next code-facing row.
 
 `P0b-O0` is the hard authorization gate. Its audit stop fired before code: the
 canonical step
@@ -582,9 +594,40 @@ placement is discarded before facts publication; default RecipeOnly has no
 NoExit RecipeBlock because the actual body contains an early Return; and
 strict ExitAllowed intentionally represents the source join If at ordinal 4
 as opaque `Stmt(4)`. The previous universal RecipeBlock law is therefore not
-implementable. T0 is forbidden. Candidate A-prime and the exact decision
-question are fixed in
+implementable. Candidate A-prime-plus is selected; its successful-disposition,
+same-call PATH0 extraction, policy-owned mode selection, and O0-owned
+StmtWrappedJoinIf laws are fixed in
 `callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md`.
+O0-S0 is next; T0 remains forbidden until O0-G0 is green.
+
+O0 row contracts are fixed as follows:
+
+```text
+O0-S0:
+  one primary successful extraction product
+  StepResolution owns the final disposition
+  raw facts and hint remain thin behavior-identical facades
+
+O0-R0:
+  passive production-visible located port + non-Clone constructor
+  exact Located root and LoopCondition retained
+  DirectRecipeOnly / ExitAllowedRecipe chosen only by sealed policy
+  extraction owns the ExitAllowed recipe exactly once
+  root/execution consumers = 0
+
+O0-P0:
+  actual default/strict proof under the existing F0 lock
+  explicit If condition/branches and StmtWrappedJoinIf bridge closed
+  Builder/composer/skeleton/ledger delta = 0
+
+O0-G0:
+  one private helper imported by the public LOOP0 guard
+  focused Rust fixtures plus structural negative matrix
+```
+
+All recursively paired PATH0 bodies reject Program, ScopeBox, and nested Loop.
+The raw extraction retains `usize` body length so S0 adds no overflow failure;
+checked ordinal projection belongs to the disconnected located seal.
 
 `P0b-T0` adds paired thin raw facades and port-aware GenericLoopV1 owners only:
 
@@ -625,9 +668,10 @@ condition leaves must reach the same port-driven value lowering entry.
 planning data, but none may become located source identity authority.
 
 The old assumption that both modes provide a recursively complete RecipeBlock
-is superseded by the O0 design stop. Any future T0 must consume the selected
-two-mode seal and may not infer location from RecipeBlock indices, cloned AST,
-or a new mapping table.
+is superseded by Candidate A-prime-plus. T0 must consume the selected two-mode
+seal and may not reclassify steps or Stmt-wrapped If nodes, rebuild a NoExit
+recipe, or infer location from RecipeBlock indices, cloned AST, or a new
+mapping table.
 
 Only the located test path performs this preflight before
 `alloc_generic_loop_v0_skeleton`. It must consume the selected O0 two-mode
@@ -844,7 +888,7 @@ batch Clone implementations = 0
 
 speculative planner claims = 0
 compose-before-seal claims = 0
-production located consumers before L0 = 0
+production located root/execution call sites before L0 = 0
 production located roots before C0 = 0
 
 site mutation during remap = 0
@@ -873,7 +917,7 @@ source provenance survives mechanical Clone and ValueId remap
 one non-Clone wrapper can seal final plan occurrences against branded rows
 one branded source-order schedule can be committed atomically by the ledger
 one non-Clone claimed batch supports exact plan-order site consumption
-production located Loop consumers and claims remain zero
+production located Loop root/execution call sites and claims remain zero
 ```
 
 ## Implementation must not claim after S0
@@ -931,6 +975,8 @@ Stop the current row if it requires:
 > falls back. The first profile admits only direct-ordinal GenericLoop-v1
 > MethodCall inventory and rejects transformed bodies, nested Loop, and
 > normalized shadow before effects. `LOOP0-S0a` through `LOOP0-S0c` and
-> `LOOP0-P0a` and `LOOP0-P0b-F0` are closed. P0b-O0 is stopped at its explicit
-> two-mode body-representation consultation; T0 and later rows remain
-> forbidden. Production located consumers and ledger claims remain zero.
+> `LOOP0-P0a` and `LOOP0-P0b-F0` are closed. Candidate A-prime-plus selects one
+> retained successful extraction result and one non-Clone two-mode located
+> body seal. O0-S0 is the sole next code-facing row; T0 and later rows remain
+> forbidden until O0-G0 is green. Production located consumers and ledger
+> claims remain zero.

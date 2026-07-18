@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result LOOP0-P0b O0 hit its hard stop; representation design consultation is required"
+status = "callable-result LOOP0-P0b Candidate A-prime-plus selected; O0-S0 is next"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,22 +298,23 @@ latest_workstream_card = "docs/development/current/main/investigations/callable-
 
 latest_card = "callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19"
 latest_card_path = "docs/development/current/main/investigations/callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md"
-latest_card_summary = """LOOP0-P0b-F0 is closed. O0 then hit its explicit hard
-stop before code: canonical GenericLoopV1 extraction discards StepPlacement,
-default RecipeOnly has no NoExit RecipeBlock for the actual early-Return body,
-and strict ExitAllowed stores the source join If at ordinal 4 as opaque
-Stmt(4). The previous universal RecipeBlock-to-PATH0 recursion claim is false.
-The returned B-prime packet restates the already-closed S0a/S0b/S0c/P0a
-authorities and does not answer this representation stop; no S0 authority is
-reopened. T0 is forbidden. Candidate A-prime is recommended: retain the existing step
-witness in one same-call extraction product, then seal one non-Clone two-mode
-located body representation for DirectRecipeOnly and ExitAllowedRecipe.
-Stmt/Exit remain opaque exact ordinals; only explicit IfV2 recurses, while the
-strict Stmt-wrapped join If must prove in O0 the exact PATH0 source carrier to
-singleton NoExit Join IfV2 and IfThen/IfElse bridge. AST equality, a recipe/site
-side table, Builder effects, ledger claims, fallback, and files at 800 lines
-remain forbidden. A design decision is required before O0 code."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0B-O0-DESIGN-STOP-SELECT-001"
+latest_card_summary = """LOOP0-P0b-F0 is closed and Candidate A-prime-plus is
+selected. O0-S0 is the sole next code-facing row: one canonical GenericLoopV1
+extraction product retains the final successful step disposition while the
+existing facts API remains a behavior-identical thin facade. O0-R0 then
+promotes one passive production-visible located expression port and one
+non-Clone co-seal constructor with zero execution callers. The seal accepts
+only an exact Located PATH0 Loop root, retains its exact LoopCondition carrier,
+invokes extraction once, and selects DirectRecipeOnly or ExitAllowedRecipe
+only from body_lowering_policy. The extraction remains the sole recipe owner.
+Every recursively paired body rejects Program, ScopeBox, and nested Loop. A
+Stmt-wrapped source If is sealed through the existing singleton NoExit Join
+IfV2 with exact condition/then/else carriers, and T0 never rebuilds or
+reclassifies it. O0 has no Builder, composer, skeleton, ledger, production
+execution consumer, fallback, retry, or shared ExitAllowed behavior delta. The
+fixed order is O0-S0 -> O0-R0 -> O0-P0 -> O0-G0 -> T0; the next closeout must
+contain code or artifact delta and all source/check files stay below 800."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0B-O0-S0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -322,6 +323,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-19: Candidate A-prime-plus resolves the LOOP0-P0b-O0 representation stop. One canonical successful extraction result retains the final step disposition; one same-call exact PATH0 constructor later seals a non-Clone two-mode representation, exact Loop root and LoopCondition carrier, and the StmtWrappedJoinIf singleton NoExit Join bridge. The located port/constructor become passive production-visible schema in R0 with execution callers zero. Recipe duplication, post-extraction step reclassification, AST/source side maps, recursive Program/ScopeBox/nested Loop, Builder effects, claims, fallback, retry, and files at 800 lines remain forbidden. O0-S0 is next and docs-only closeout is forbidden.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-LOOP0-S0b closes one disconnected non-Clone source-order schedule and final CoreLoop seal. The schedule retains the exact activation-plan brand, canonical caller, located statement root, and borrowed activation rows in existing PATH0 order. The final wrapper consumes one private CorePlan, runs PlanVerifier before sealing, and uses the sole call-source visitor to reject missing scheduled occurrences, duplicate occurrences, extra located sites, and foreign plan/caller pairings. Required-site Unlocated becomes missing while unrelated synthetic Unlocated remains accepted. Nine focused fixtures include malformed plan, exact Loop root, same-caller sibling Loop isolation, and source-order versus plan-order inversion. The hardened guard fixes owner/path/caller counts, private fields, verifier-before-schedule order, zero ledger/claim APIs, zero Builder storage, and no CorePlan escape/remap-after-seal. All-target check, release build, format/diff/line guards, quick 66/66 in 78.13s, and three worker reviews are green. Production located consumers and claims remain zero; LOOP0-S0c is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-LOOP0-S0a closes one uniform source-only CorePlan call provenance schema. All four call-bearing variants carry CoreCallSourceV1; all 34 live raw constructors explicitly publish Unlocated; and one exhaustive visitor covers direct effects, nested If effects, Loop body/block effects, If, BranchN, and Seq. Clone and ValueId remap preserve exact source provenance without target, ABI, claim, or ledger authority. The repository-wide guard fixes four variants, 34 constructors, zero production located producers, and zero premature S0b/ledger symbols. Focused Clone/remap tests, callable-result tests, cargo check --all-targets, public expression-spine guard, pointer/format/diff/line checks, and quick 66/66 in 110s are green. Three worker reviews are GO after the guard scope correction. Production located consumers, claims, grammar, runtime, backend, and ownership deltas remain zero; LOOP0-S0b is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-LOOP0 selects B-prime after the external decision and three repository-ground audits. All four live call-bearing CoreEffectPlan variants receive one uniform source-only provenance field; one non-Clone statement-rooted final-plan wrapper co-seals exact occurrences with a caller/activation-branded canonical schedule; and the ledger alone prevalidates and atomically commits a non-Clone site-consumption batch. The task corrects the initial packet by preserving existing raw ordered fallback, forbidding located fallback, rejecting flattened/transformed bodies before compose, and separating preclaim schedule from post-claim batch. The 34 live constructors, Clone/remap route, actual 15-row order, and <800-line placement are inventoried. LOOP0-S0a is next; production located consumers, claims, grammar, runtime, backend, and ownership deltas remain zero.",
@@ -333,5 +335,4 @@ landed_tail = [
   "2026-07-18: SITE0-R0-LDG0-BODYDOMAIN0 closes the false-inactive body-prefix seam before IF0-L0. Located bodies retain the semantic body-root carrier for fail-closed direct child access and add a separate ledger-only domain parent; SourceBodyKindV1 remains the sole item-family vocabulary. Then/else/loop sibling separation, condition exclusion, nested descendants, empty bodies, foreign carriers, direct nested Loop fail-closed, and full CFG/terminator/current-block/allocator no-effect snapshots are fixed by tests and guard. Caller-ledger 8/8, located legacy 34/34, callable-result 59/59, structural and current-state guards, cargo check --all-targets, release, formatting, line caps, and quick 66/66 in 52s are green. Three worker audits are GO. Production behavior/callers remain zero; IF0-L0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-IF0-P0 closes one cfg(test)-only pre-I0 statement-If reference and exact selected/reference parity. The reference directly replays the retired ordinary cf_if path, FastMem verification/fact path, unknown-span Program branch shells, outer statement span, and success-only facade Void without using the selected driver or raw port. Six fixture groups cover ordinary Binary/short-circuit/MethodCall conditions, explicit/implicit else and merge PHIs, the four-way termination matrix, condition/then/else failure plus same-Builder reuse, FastMem positive/negative plus reuse, recursion depth 198/199/200, and branch span behavior. Snapshots compare instructions and spans, terminators and spans, predecessor/successor edges, transient facts, variables/bindings/scopes, FastMem metadata, pending PHIs, caches, allocators, recursion, and current span. Parity 6/6, production statement If 7/7, If driver 7/7, recursive child 7/7, callable-result 55/55, structural guard, cargo check --all-targets, release, formatting, line caps, and an isolated quick 66/66 in 65s are green. Production behavior/callers remain unchanged; IF0-L0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-IF0-I0 behavior-neutrally selects the shared raw If driver exactly once from build_if_statement. One sole private production port preserves the retired branch Program unknown-span shell and its recursion boundary; the old inline FastMem split and direct cf_if route are removed. block_stmt retains final statement Void, IfForm retains CFG/termination/PHI/EdgeCFG/JoinIR, expression If remains on cf_if, and resolved located If remains disconnected. Eight production-entry fixtures cover explicit/implicit else, exact merge PHIs, the termination matrix, failure/reuse, FastMem, expression separation, recursion depth 198/199/200, and empty/non-empty branch spans. Three worker audits are GO after removing a dormant alternate raw port. Statement 78/78, recursive child 7/7, callable-result 55/55, structural guard, cargo check --all-targets, release, formatting, diff checks, line caps, and quick 66/66 in 140s are green. The quick run overlapped an already-running release link and is correctness evidence only; IF0-P0 is next.",
-  "2026-07-18: SITE0-R0-EXPR0-SPINE0-IF0-S0 closes one disconnected statement-If associated-input driver and one callback-based IfForm branch seam. Condition descent and the shared FastMem post-condition helper precede lazy then and optional else carrier demand; IfForm retains sole CFG, termination, PHI, scope/debug, EdgeCFG, and JoinIR authority. Seven fixtures cover exact demand order, condition and FastMem failure, positive FastMem fact publication, branch partial state, implicit false, the termination matrix, and exact merge result/variable PHIs. Worker authority/code/false-green audits are GO. Statement tests 70/70, recursive child 7/7, callable-result 55/55, structural guard, cargo check --all-targets, release, formatting, line caps, and quick 66/66 in 137s are green. Generic/raw driver production callers and callable-result publication remain zero; IF0-I0 is next.",
 ]
