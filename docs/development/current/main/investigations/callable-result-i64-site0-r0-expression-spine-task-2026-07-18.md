@@ -28,10 +28,20 @@ SITE0-R0-EXPR0-SPINE0-BIN0-S0
   -> SC0-P0
   -> SC0-L0
 
-  -> STMT0-S0
-  -> STMT0-I0
-  -> STMT0-P0
-  -> STMT0-L0
+  -> STMT0-LCL0-S0
+  -> LCL0-I0
+  -> LCL0-P0
+  -> LCL0-L0
+
+  -> STMT0-ASN0-S0
+  -> ASN0-I0
+  -> ASN0-P0
+  -> ASN0-L0
+
+  -> STMT0-RET0-S0
+  -> RET0-I0
+  -> RET0-P0
+  -> RET0-L0
 
   -> IF0-S0
   -> IF0-I0
@@ -52,11 +62,12 @@ SITE0-R0-EXPR0-SPINE0-BIN0-S0
 The sole next code-facing row is:
 
 ```text
-SITE0-R0-EXPR0-SPINE0-BIN0-S0
+SITE0-R0-EXPR0-SPINE0-BIN0-I0
 ```
 
-`docs_only_closeout = forbidden` for BIN0. It must add the disconnected
-associated-input Binary substrate plus focused executable fixtures.
+`BIN0-S0` is closed. `docs_only_closeout = forbidden` for BIN0-I0: it must
+select the ordinary raw Binary entry through the closed associated-input
+driver while keeping `And` / `Or` on the existing short-circuit owner.
 
 ## Why C0 is held
 
@@ -94,6 +105,11 @@ nested outer-MethodCall arguments:       2
 non-MethodCall Binary ancestors:         5
 active receiver nesting:                 0
 active Unary/Array/Index/BlockExpr:       0
+actual statement-surface rows:           10
+  Local initializer:                      5
+  Assignment RHS (including arguments):   4
+  Return value:                           1
+direct expression statement rows:         0
 ```
 
 The closed L0 session can already claim direct MethodCalls and nested
@@ -224,23 +240,53 @@ AND/OR/comparison trees, normalized CFG/MIR parity, and fresh Builder reuse.
 SC0 adds no result, type, PHI, or control-flow policy. It only lets the
 existing short-circuit owner request associated child inputs.
 
-## STMT0 — value-bearing statements
+## STMT0 — value-bearing statement family
 
-STMT0 extracts one associated-input statement boundary for the actual direct
-surfaces:
+The worker audit found that one shared STMT0 driver would have to duplicate or
+bypass distinct source preflights. STMT0 is therefore a family, not one
+implementation row:
 
 ```text
-Local initializer
-Assignment RHS
-Return value
-direct expression statement
+LCL0:
+  Local initializer descent only after the existing local-shape/type preflight
+  actual call-site rows = 5
+
+ASN0:
+  exact Variable-target Assignment RHS only
+  field/index target evaluation remains parked
+  actual call-site rows = 4, including nested MethodCall arguments
+
+RET0:
+  Return value only after proving the existing match-return optimization
+  inactive; existing cleanup/contract completion remains authoritative
+  actual call-site rows = 1
 ```
 
-It must preserve each existing source preflight and then reuse existing
-from-value completion helpers. It may not call those helpers while skipping
-or duplicating source-level policy. If one shared statement contract cannot
-express all four without branching policy duplication, split the row before
-implementation.
+Each subrow follows `S0 -> I0 -> P0 -> L0`, preserves its existing source
+preflight, and then reuses the existing from-value completion helper. No
+subrow may call a completion helper while skipping or duplicating source-level
+policy. A future shared statement facade is permitted only after these three
+contracts are proven identical enough to share without branching policy.
+Direct expression statements have zero actual rows and remain parked until a
+concrete caller requires that separate surface.
+
+Minimum subrow proof:
+
+```text
+LCL0:
+  preserve exact-numeric/typed-array/record-constructor preflight timing
+  child failure publishes no binding and performs no later initializer
+
+ASN0:
+  undeclared Variable target rejects before RHS effects
+  field/index/compound targets remain outside the admitted row
+  RHS failure performs no assignment
+
+RET0:
+  cleanup prohibition and match-return probe precede child descent
+  child failure emits no Return
+  void Return remains outside the admitted row
+```
 
 IF and Loop are not STMT0 variants.
 
@@ -340,6 +386,11 @@ actual A0 rows = 15
 actual selected rows = 2
 actual unselected rows = 13
 actual Binary-ancestor rows = 5
+actual short-circuit descendant rows = 3
+actual statement-surface rows = 10
+actual If-condition rows = 2
+actual Loop-subtree rows = 9
+actual A0 path inventory = the exact 15 ordered paths listed above
 
 production located callers before EXPR0-C0 = 0
 callable-result publication before later SITE0-C0/CUT0 = 0
@@ -347,8 +398,10 @@ new language grammar/opcodes/backend/runtime behavior = 0
 source/check files >= 800 lines = 0
 ```
 
-Prefer one SPINE0 structural guard reused by BIN0 and SC0, and one later C0
-guard. Do not add one shell wrapper per subrow.
+Extend the existing SPINE0 structural guard across BIN0 and SC0 staged counts,
+then use one later C0 guard for LCL0/ASN0/RET0/IF0/SUFFIX0/LOOP0/C0. Keep the
+closed PATH0/A0/SITE0-L0/LDG0/BLK0/E0/L0 guards independently green. Do not
+add one shell wrapper per subrow.
 
 ## Implementation may claim
 
