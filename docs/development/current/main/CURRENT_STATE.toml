@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result LOOP0-P0b O0-P0 hit PATH0 site projection design stop"
+status = "callable-result LOOP0-P0b SITEPROJ0 Candidate A selected; S0 is next"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,15 +298,15 @@ latest_workstream_card = "docs/development/current/main/investigations/callable-
 
 latest_card = "callable-result-loop0-o0-site-projection-consultation-2026-07-19"
 latest_card_path = "docs/development/current/main/investigations/callable-result-loop0-o0-site-projection-consultation-2026-07-19.md"
-latest_card_summary = """O0-P0 actual default/strict proof reached the parked
-PATH0 nested-body site mismatch: the exact cleanup carrier contains
-LoopBodyRoot while its canonical activation row does not. Generic body_stmt is
-intentionally fail-closed under BODYDOMAIN0 and activation-row vocabulary is
-unchanged. Candidate A recommends one Loop-port-only typed projection from
-domain_parent plus SourceBodyKindV1 item vocabulary. Implementation is stopped
-pending this consultation; the failing proof is evidence-only in a named WIP
-stash and O0-P0/O0-G0/T0 remain forbidden."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0B-O0-SITEPROJ0-D0-001"
+latest_card_summary = """O0-P0 actual proof exposed the parked PATH0
+nested-body site mismatch. Candidate A is now selected by explicit user
+authorization plus two independent worker reviews. One Loop-port-only typed
+projection uses the existing branded body's domain_parent and
+SourceBodyKindV1 item vocabulary to publish a compact statement carrier.
+Generic body_stmt, semantic body roots, activation rows, caller-ledger domain
+logic, and path vocabulary remain unchanged. SITEPROJ0-S0 is next; the failing
+actual proof remains evidence-only until SITEPROJ0 closes."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0B-O0-SITEPROJ0-S0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

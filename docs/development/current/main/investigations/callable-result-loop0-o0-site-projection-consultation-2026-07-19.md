@@ -1,9 +1,10 @@
 ---
-Status: design consultation; implementation stopped
+Status: Candidate A selected; SITEPROJ0-S0 is next
 Date: 2026-07-19
 Decision baseline: 906f994d12
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md
 Scope: Loop-port-only canonical body-item site projection before O0-P0
+Decision: Candidate A
 ---
 
 # LOOP0 O0-P0 canonical body-item site projection stop
@@ -161,3 +162,30 @@ capability: one Loop-port-only typed projection built from the already sealed
 existing authority should own the compact activation-compatible child site
 without introducing a global root-segment equivalence rule?
 
+## Decision closeout
+
+Candidate A is selected after two independent worker reviews and explicit user
+authorization to decide locally. The reviews agree that the existing branded
+body carrier already owns every required fact and that the projection is a
+capability view rather than a second path authority.
+
+The implementation lock is:
+
+```text
+exact Located body
+  -> same plan/caller preflight
+  -> domain_parent must exist
+  -> checked direct ordinal
+  -> domain_parent + kind.item_segment(index)
+  -> compact located statement carrier
+```
+
+The sole direct consumer is
+`LocatedLoopPlanExpressionPortV1::exact_body_stmt`. Generic `body_stmt`, its
+semantic-root publication, activation rows, caller-ledger body-domain logic,
+and every source-path vocabulary owner remain unchanged. Nested IfThen/IfElse
+bodies reached through the sealed Loop representation reuse the same typed
+body-kind projection; no Loop-name or segment-spelling special case is added.
+
+`SITEPROJ0-S0` is now the sole next code-facing row. `O0-P0`, `O0-G0`, and T0
+remain forbidden until the SITEPROJ0 S0/P0/G0 evidence is green.
