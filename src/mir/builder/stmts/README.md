@@ -39,5 +39,14 @@ LCL0-I0 selects the owned raw Local input through the existing
 `variable_stmt::build_local_statement` facade. That facade has one consumer of
 the raw adapter; the old initializer loop is retired. The shared driver keeps
 the existing preflight-success debug observation in its original position,
-before initializer effects. Normalized parity belongs to LCL0-P0, while
-located Local acceptance remains disconnected until LCL0-L0.
+before initializer effects.
+
+LCL0-P0 keeps one `cfg(test)` pre-I0 orchestration reference. Selected and
+reference paths compare exact results plus normalized MIR, transient type and
+origin facts, bindings/scopes, specialized array/record contracts, slot state,
+allocator counters, partial failure state, and same-Builder reuse. The
+reference must not call the selected driver or either descent port.
+
+Located Local acceptance remains disconnected until LCL0-L0. Its port must
+prove each exact `LocalInitializer(index)` subtree active or inactive before
+delegating; P0 does not authorize a located implementation or selector.

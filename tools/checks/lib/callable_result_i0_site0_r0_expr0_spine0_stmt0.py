@@ -30,6 +30,9 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         "src/mir/builder/stmts/local_statement_descent_tests.rs"
     )
     local_raw_tests_path = "src/mir/builder/stmts/local_statement_raw_tests.rs"
+    local_parity_tests_path = (
+        "src/mir/builder/stmts/local_statement_parity_tests.rs"
+    )
     stmts_root_path = "src/mir/builder/stmts/mod.rs"
     stmts_readme_path = "src/mir/builder/stmts/README.md"
     variable_stmt_path = "src/mir/builder/stmts/variable_stmt.rs"
@@ -41,6 +44,7 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     local_descent = _read(root, local_descent_path)
     local_descent_tests = _read(root, local_descent_tests_path)
     local_raw_tests = _read(root, local_raw_tests_path)
+    local_parity_tests = _read(root, local_parity_tests_path)
     stmts_root = _read(root, stmts_root_path)
     stmts_readme = _read(root, stmts_readme_path)
     variable_stmt = _read(root, variable_stmt_path)
@@ -149,10 +153,13 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         if forbidden in local_descent:
             _fail(f"LCL0 substrate owns forbidden authority: {forbidden}")
 
-    all_rust_source = "\n".join(
-        path.read_text(encoding="utf-8") for path in (root / "src").rglob("*.rs")
+    parity_resolved = (root / local_parity_tests_path).resolve()
+    production_rust_source = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in (root / "src").rglob("*.rs")
+        if path.resolve() != parity_resolved
     )
-    normalized_rust_source = re.sub(r"\s+", " ", all_rust_source)
+    normalized_rust_source = re.sub(r"\s+", " ", production_rust_source)
     _require_count(
         normalized_rust_source,
         "impl LocalStatementDescentPortV1 for RawLegacyChildLoweringPortV1",
@@ -176,6 +183,7 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         (root / local_descent_path).resolve(),
         (root / local_descent_tests_path).resolve(),
         (root / local_raw_tests_path).resolve(),
+        parity_resolved,
     }
     for path in (root / "src").rglob("*.rs"):
         if path.resolve() in local_ignored:
@@ -272,6 +280,17 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         1,
         "focused raw Local fixture module",
     )
+    _require_count(
+        stmts_root,
+        "mod local_statement_parity_tests;",
+        1,
+        "focused Local parity fixture module",
+    )
+    if not re.search(
+        r"#\[cfg\(test\)\]\s*mod local_statement_parity_tests;",
+        stmts_root,
+    ):
+        _fail("LCL0-P0 parity module must remain cfg(test)-scoped")
 
     for fixture in (
         "ordinary_initializers_preflight_then_descend_in_index_order_and_complete_once",
@@ -298,6 +317,97 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         if fixture not in local_raw_tests:
             _fail(f"missing LCL0-I0 fixture: {fixture}")
 
+    _require_count(
+        local_parity_tests,
+        "fn lower_pre_i0_local_reference(",
+        1,
+        "cfg(test) pre-I0 Local reference",
+    )
+    _require_count(
+        local_parity_tests,
+        "fn build_pre_i0_local_reference(",
+        1,
+        "cfg(test) pre-I0 Local orchestration",
+    )
+    for owner_call, label in (
+        ("preflight_exact_numeric_local_initializers(", "whole preflight"),
+        ("observe_preflighted_local_statement(", "debug observation"),
+        ("builder.build_typed_array_literal(elements.to_vec())", "typed-array owner"),
+        (
+            "builder.build_record_constructor_value(class.to_string(), arguments.to_vec())",
+            "record owner",
+        ),
+        ("Some(initializer) => builder.build_expression(initializer.clone())?", "ordinary child"),
+        ("crate::mir::builder::emission::constant::emit_null(builder)?", "Null sugar"),
+        (
+            "build_local_statement_from_values_with_types_and_preclaims(",
+            "from-values completion",
+        ),
+    ):
+        _require_count(local_parity_tests, owner_call, 1, f"LCL0-P0 {label}")
+    for forbidden in (
+        "drive_local_statement_v1(",
+        "drive_raw_local_statement_v1(",
+        "LocalStatementDescentPortV1",
+        "RawLegacyChildLoweringPortV1",
+    ):
+        if forbidden in local_parity_tests:
+            _fail(f"LCL0-P0 reference must not reuse selected descent: {forbidden}")
+    for fixture in (
+        "ordinary_exact_numeric_and_null_locals_have_exact_pre_i0_snapshot_parity",
+        "typed_array_local_has_exact_pre_i0_snapshot_parity",
+        "record_constructor_local_has_exact_pre_i0_snapshot_parity",
+        "binary_and_short_circuit_initializers_have_exact_pre_i0_snapshot_parity",
+        "preflight_and_child_failures_plus_reuse_have_exact_pre_i0_snapshot_parity",
+        "specialized_and_completion_failures_plus_reuse_have_exact_pre_i0_snapshot_parity",
+    ):
+        if fixture not in local_parity_tests:
+            _fail(f"missing LCL0-P0 fixture: {fixture}")
+    for snapshot_fact in (
+        "blocks:",
+        "value_types:",
+        "value_kinds:",
+        "value_origins:",
+        "string_literals:",
+        "map_value_types:",
+        "map_literal_value_types:",
+        "variable_map:",
+        "bindings:",
+        "scope_frames:",
+        "pin_slots:",
+        "local_slot_contracts:",
+        "local_identity_evidence:",
+        "record_value_contracts:",
+        "record_local_values:",
+        "array_element_write_witnesses:",
+        "array_state_terms:",
+        "typed_array_contract_sources:",
+        "typed_array_element_contracts:",
+        "exact_numeric_const_facts:",
+        "exact_numeric_value_facts:",
+        "slot_registry:",
+        "local_ssa_map:",
+        "schedule_mat_map:",
+        "current_block:",
+        "next_value_id:",
+        "next_core_value:",
+        "next_core_block:",
+        "next_binding_id:",
+        "temp_slot_counter:",
+        "recursion_depth:",
+        "current_span:",
+    ):
+        if snapshot_fact not in local_parity_tests:
+            _fail(f"missing LCL0-P0 exact snapshot fact: {snapshot_fact}")
+    for path in (root / "src").rglob("*.rs"):
+        if path.resolve() == parity_resolved:
+            continue
+        if "lower_pre_i0_local_reference" in path.read_text(encoding="utf-8"):
+            _fail(
+                "LCL0-P0 pre-I0 reference escaped cfg(test) parity module: "
+                f"{path.relative_to(root)}"
+            )
+
     for phrase in (
         "Local declaration preflight",
         "existing whole-declaration exact-numeric/typed-array preflight",
@@ -305,7 +415,8 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         "prove the exact `LocalInitializer(index)` subtree",
         "must not reconstruct source sites",
         "LCL0-I0 selects the owned raw Local input",
-        "located Local acceptance remains disconnected",
+        "LCL0-P0 keeps one `cfg(test)` pre-I0 orchestration reference",
+        "Located Local acceptance remains disconnected",
     ):
         if phrase not in stmts_readme:
             _fail(f"missing LCL0 README boundary: {phrase}")
@@ -314,6 +425,7 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         local_descent_path,
         local_descent_tests_path,
         local_raw_tests_path,
+        local_parity_tests_path,
         stmts_root_path,
         stmts_readme_path,
         variable_stmt_path,
@@ -329,5 +441,5 @@ def check_lcl0_s0(root: Path, located: str) -> str:
 
     return (
         "lcl_driver=1 lcl_e0_descents=1 lcl_raw_impl=1 "
-        "lcl_raw_selector=1 lcl_located_impl=0"
+        "lcl_raw_selector=1 lcl_parity_reference=1 lcl_located_impl=0"
     )

@@ -1,5 +1,5 @@
 ---
-Status: LCL0-I0 closed; LCL0-P0 is next
+Status: LCL0-P0 closed; LCL0-L0 is next
 Date: 2026-07-18
 Decision: expand located lowering by one structural child family per row
 Parent: callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md
@@ -62,13 +62,14 @@ SITE0-R0-EXPR0-SPINE0-BIN0-S0
 The sole next code-facing row is:
 
 ```text
-SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-P0
+SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-L0
 ```
 
-`LCL0-I0` is closed. LCL0-P0 may add only a cfg(test)-scoped pre-I0 reference
-and exact normalized parity fixtures for the selected raw Local path.
-Assignment, Return, If, Loop, located Local adapters, production located root
-callers, and callable-result publication remain zero.
+`LCL0-P0` is closed. LCL0-L0 may add only one disconnected located Local port
+and selector. Each initializer must preserve its exact `LocalInitializer(index)`
+site, and the typed-array/record hooks may run only after exact inactive-subtree
+proof. Assignment, Return, If, Loop, production located root callers, and
+callable-result publication remain zero.
 
 ## Why C0 is held
 
@@ -472,6 +473,26 @@ diff check, and line caps are green. Located Local implementations/selectors,
 production located root callers, and callable-result publication remain zero.
 LCL0-P0 is next.
 
+### LCL0-P0 closeout
+
+LCL0-P0 is closed with one `cfg(test)` pre-I0 Local orchestration reference.
+It does not call the selected driver or either descent port. Six fixtures
+compare exact selected/reference result or error plus normalized blocks,
+instructions, terminators, transient types/kinds/origins, literal/map facts,
+bindings and lexical frames, slot registry, local/array/record contracts,
+record-local state, SSA/materialization caches, allocator counters, current
+span/block, and recursion depth.
+
+Ordinary, exact-numeric, Null, typed-array, record, Binary, and short-circuit
+initializers are exact-equal. Whole-preflight, left/right child, unsupported
+typed-array, record-arity, and completion-redeclaration failures retain exact
+partial state and same-Builder recovery parity. Combined Local 21/21,
+variable-statement 3/3, recursive child lowering 7/7, callable-result 55/55,
+cargo check, the SPINE0 guard, quick 66/66, release build,
+formatting, diff check, Python compile, and line caps are green. The pre-I0
+reference remains test-only; located Local implementations/selectors and
+callable-result publication remain zero. LCL0-L0 is next.
+
 ## STMT0 — value-bearing statement family
 
 The worker audit found that one shared STMT0 driver would have to duplicate or
@@ -681,7 +702,7 @@ Stop the current row if any of the following becomes necessary:
 > structural associated-input rows. The actual A0 caller proves five active
 > MethodCalls under Binary ancestors, so direct EXPR0-C0 wiring is held.
 > Ordinary Binary is closed through BIN0-L0. The sole current shape is
-> `SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-P0`; later value-bearing statements, If, raw suffix
+> `SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-L0`; later value-bearing statements, If, raw suffix
 > admission, and Loop site carriage remain separate owners. BIN0-L0 always
 > uses the located driver for an ordinary Binary and lets each associated child
 > prove inactivity or continue to an exact claim; it never selects a route by
@@ -696,5 +717,5 @@ Stop the current row if any of the following becomes necessary:
 Quick-gate latency is tracked separately in
 [`dev-gate-quick-latency-task-2026-07-18.md`](./dev-gate-quick-latency-task-2026-07-18.md).
 Its first row is `DEV-GATE-Q0-M0`; it does not change this card's active
-`SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-P0` blocker or share a commit with a
+`SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-L0` blocker or share a commit with a
 compiler semantic row.
