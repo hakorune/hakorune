@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result L0 RET0-L0 is closed; IF0-S0 is next"
+status = "callable-result IF0-S0 is closed; IF0-I0 is next"
 date = "2026-07-18"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,14 +298,15 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 
 latest_card = "callable-result-i64-site0-r0-expression-spine-task-2026-07-18"
 latest_card_path = "docs/development/current/main/investigations/callable-result-i64-site0-r0-expression-spine-task-2026-07-18.md"
-latest_card_summary = """RET0-L0 is closed. One disconnected exact
-value-bearing Return carrier obtains its mandatory child only through the
-existing ReturnValue role and reuses the shared Return driver. Six fixtures
-prove the actual final Body(5).Value row, nested child-before-parent order,
-Binary/short-circuit descent, poisoning/fresh-session behavior, and Void
-exclusion. Production located roots and callable-result publication remain
-zero. IF0-S0 is next."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-SPINE0-IF0-S0-001"
+latest_card_summary = """IF0-S0 is closed. One disconnected statement-If
+driver obtains condition and branch bodies through associated inputs, keeps
+then and optional else demand lazy at the existing IfForm execution points,
+and shares one FastMem post-condition helper with the legacy facade. IfForm
+retains sole CFG, termination, PHI, scope/debug, and JoinIR authority. Seven
+fixtures and the structural guard prove exact order, partial failures,
+termination/merge shapes, FastMem facts, and production driver caller zero.
+IF0-I0 is next."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-SPINE0-IF0-I0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -314,6 +315,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-18: SITE0-R0-EXPR0-SPINE0-IF0-S0 closes one disconnected statement-If associated-input driver and one callback-based IfForm branch seam. Condition descent and the shared FastMem post-condition helper precede lazy then and optional else carrier demand; IfForm retains sole CFG, termination, PHI, scope/debug, EdgeCFG, and JoinIR authority. Seven fixtures cover exact demand order, condition and FastMem failure, positive FastMem fact publication, branch partial state, implicit false, the termination matrix, and exact merge result/variable PHIs. Worker authority/code/false-green audits are GO. Statement tests 70/70, recursive child 7/7, callable-result 55/55, structural guard, cargo check --all-targets, release, formatting, line caps, and quick 66/66 in 137s are green. Generic/raw driver production callers and callable-result publication remain zero; IF0-I0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-RET0-L0 closes one disconnected exact Some(value) Return adapter. PATH0 alone supplies ReturnValue; the shared located expression spine and Return driver retain exact call order, cleanup, recursion, Match/defer, and completion authority. The actual final Body(5).Value row and nested argument order are separate fixtures; active Match stays fail-closed behind located inactive-prefix proof because the current source proof does not admit MatchExpr plans. Located Return 6/6, legacy located 32/32, Return 19/19, stmt 63/63, recursive child 7/7, callable-result 55/55, strengthened guard, cargo check --all-targets, cached quick 66/66 in about 25s, release, formatting, and line caps are green. Production located roots/result publication remain zero; IF0-S0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-RET0-P0 closes one cfg(test)-only pre-I0 Return reference and exact selected/reference parity. Five fixtures cover literal/Binary/short-circuit/MethodCall, Void, selected Match, configured defer, cleanup/child failure, and same-Builder reuse. MIR, transient type/kind/origin/literal and exact facts, bindings/scopes, caches, allocators, span, cleanup, and defer state match exactly. Return 18/18, stmt 63/63, recursive child 7/7, callable-result 55/55, strengthened guard, cargo check, quick 66/66 in 61s, release, formatting, and line caps are green. The reference has no production caller; raw selectors remain one, located selectors and result publication remain zero; RET0-L0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-RET0-I0 behavior-neutrally selects the S0 raw value driver exactly once inside the existing Return facade for Some(expr), before cleanup/Match work. None retains legacy cleanup, match(None), Void emission, and completion. Five production-entry fixtures cover MethodCall, actual Match CorePlan selection, defer Copy/Jump, Void, cleanup/child failure, and same-Builder reuse. Return 13/13, stmt 58/58, recursive child 7/7, callable-result 55/55, guard, cargo check, quick 66/66 in 55s, release, formatting, and line caps are green. Production raw selectors are one; located selectors and result publication remain zero; RET0-P0 is next.",
@@ -325,5 +327,4 @@ landed_tail = [
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-L0 closes one disconnected located Local selector and port. Ordinary initializers retain exact LocalInitializer(index) sites and ledger order; typed-array/record hooks require exact inactive-prefix proof before effects. Six fixtures cover ordinary/nested/short-circuit order, specialized pass/reject boundaries, poisoning, and fresh sessions. Local 21/21, located Local 6/6, callable-result 55/55, guard, cargo check, quick 66/66 in 94s, release, formatting, and line caps are green. Production located roots/result publication remain zero; ASN0-S0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-P0 closes one cfg(test)-only pre-I0 Local reference and exact selected/reference parity. Six fixtures cover ordinary/exact/Null, typed-array, record, Binary/short-circuit, whole-preflight, child, special-owner, completion failures, partial state, and reuse across MIR, transient facts, bindings/scopes, contracts, record-local state, caches, and allocators. Local 21/21, variable 3/3, recursive 7/7, callable-result 55/55, guard, cargo check, quick 66/66, release, formatting, and line caps are green. Located Local/result publication remain zero; LCL0-L0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-I0 behavior-neutrally selects one owned raw Local input through the existing build_local_statement facade and shared driver; the old initializer loop is retired. Preflight/debug timing, ordinary E0 descent, typed-array/record owners, Null sugar, and one completion remain exact. Local 15/15, variable 3/3, recursive 7/7, callable-result 55/55, guard, quick 66/66, release, formatting, and line caps are green. Located Local/result publication remain zero; LCL0-P0 is next.",
-  "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-S0 closes one disconnected Local statement driver. Existing whole-declaration preflight precedes effects; ordinary initializers descend through E0 in order; missing untyped values and typed-array/record hooks retain their existing owners; one from-values completion follows all values. Local 8/8, variable 3/3, recursive 7/7, callable-result 55/55, guard, quick 66/66, release, formatting, and line caps are green. Raw/located Local adapters and production result publication remain zero; LCL0-I0 is next.",
 ]

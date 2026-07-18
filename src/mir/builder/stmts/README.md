@@ -161,3 +161,29 @@ located expression spine and its ledger claims. Void Return stays outside the
 adapter on the existing inactive legacy path. The adapter owns no site/path
 construction, call-row claim, cleanup/defer policy, completion, retry, or
 production located root.
+
+## Statement If associated-input descent
+
+`if_statement_descent.rs` owns one disconnected statement-If child-demand
+boundary. It observes exact If syntax, lowers one condition through the shared
+expression port, preserves the existing FastMem post-condition verification
+and fact publication, and delegates control to the existing IfForm owner. Each
+branch carrier is requested lazily at its existing execution point; else is
+never requested before then succeeds. The new driver has no production caller
+in IF0-S0.
+
+IfForm remains the sole block, EdgeCFG, variable-snapshot, scope/debug,
+termination, result/variable PHI, JoinIR selection, and diagnostic authority.
+Its branch execution seam is one callback invoked at the existing then and
+optional else points; the legacy wrapper still lowers its raw Program inputs,
+while the disconnected driver lowers only associated `BodyInput`s. IfForm is
+not copied. Condition and FastMem failure happen before IfForm CFG effects;
+branch carrier failure preserves the existing partial IfForm state.
+
+FastMem policy does not enter the port. Statement Void publication remains in
+the existing `block_stmt` facade, expression-position If remains on `cf_if`,
+and the canonical resolved located-If route remains separate. IF0-S0 owns no
+source paths or caller ledger. It owns no Match, Loop, suffix routing, PHI
+emission, retry, fallback, or Builder-stored port/input. A later located port
+may expose a raw branch only after the complete associated body prefix is
+proven inactive.

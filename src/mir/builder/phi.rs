@@ -1,5 +1,4 @@
 use super::MirBuilder;
-use crate::ast::ASTNode;
 use crate::mir::{BasicBlockId, ValueId};
 use std::collections::{BTreeMap, BTreeSet}; // Phase 25.1: 決定性確保
 
@@ -251,8 +250,6 @@ impl MirBuilder {
         then_value_raw: ValueId,
         else_value_raw: ValueId,
         pre_if_var_map: &BTreeMap<String, ValueId>, // Phase 25.1: BTreeMap化
-        _then_ast_for_analysis: &ASTNode,
-        _else_ast_for_analysis: &Option<ASTNode>,
         then_var_map_end: &BTreeMap<String, ValueId>, // Phase 25.1: BTreeMap化
         else_var_map_end_opt: &Option<BTreeMap<String, ValueId>>, // Phase 25.1: BTreeMap化
         pre_then_var_value: Option<ValueId>,

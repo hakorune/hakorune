@@ -5,6 +5,12 @@ use crate::mir::loop_api::LoopBuilderApi; // for current_block()
 use crate::mir::phi_core::phi_builder_box::PhiBuilderOps;
 use crate::mir::BasicBlockId;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::builder) enum IfBranchKindV1 {
+    Then,
+    Else,
+}
+
 /// Phase 61-4-F: MirBuilder 用 PhiBuilderOps 実装
 ///
 /// ループ外 if の JoinIR 経路で emit_toplevel_phis() を呼ぶためのラッパー。
@@ -86,6 +92,38 @@ impl MirBuilder {
         then_branch: ASTNode,
         else_branch: Option<ASTNode>,
     ) -> Result<ValueId, String> {
+        let has_explicit_else = else_branch.is_some();
+        let mut then_branch = Some(then_branch);
+        let mut else_branch = else_branch;
+        self.lower_if_form_with_condition_value_and_branch_lowerer(
+            condition_val,
+            condition_debug,
+            has_explicit_else,
+            move |builder, branch| match branch {
+                IfBranchKindV1::Then => builder.build_expression(
+                    then_branch
+                        .take()
+                        .ok_or_else(|| "[if-form/raw-then-demanded-twice]".to_string())?,
+                ),
+                IfBranchKindV1::Else => builder.build_expression(
+                    else_branch
+                        .take()
+                        .ok_or_else(|| "[if-form/raw-else-demanded-without-input]".to_string())?,
+                ),
+            },
+        )
+    }
+
+    pub(super) fn lower_if_form_with_condition_value_and_branch_lowerer<LowerBranch>(
+        &mut self,
+        condition_val: ValueId,
+        condition_debug: Option<ASTNode>,
+        has_explicit_else: bool,
+        mut lower_branch: LowerBranch,
+    ) -> Result<ValueId, String>
+    where
+        LowerBranch: FnMut(&mut MirBuilder, IfBranchKindV1) -> Result<ValueId, String>,
+    {
         // Reserve a deterministic join id for debug region labeling
         let join_id = self.debug_next_join_id();
         // Pre-pin heuristic was deprecated; keep operands as-is for predictability.
@@ -148,7 +186,6 @@ impl MirBuilder {
         self.debug_push_region(format!("join#{}", join_id) + "/then");
         // Scope enter for then-branch
         self.hint_scope_enter(0);
-        let then_ast_for_analysis = then_branch.clone();
         // Materialize all variables at block entry via single-pred Phi (correctness-first)
         crate::mir::builder::emission::phi::materialize_vars_single_pred_at_entry(
             self,
@@ -167,7 +204,7 @@ impl MirBuilder {
                 }
             }
         }
-        let then_value_raw = self.build_expression(then_branch)?;
+        let then_value_raw = lower_branch(self, IfBranchKindV1::Then)?;
         let then_exit_block = self.current_block()?;
         let then_reaches_merge = !self.is_current_block_terminated();
         let then_var_map_end = self.variable_ctx.variable_map.clone();
@@ -185,56 +222,51 @@ impl MirBuilder {
         self.debug_push_region(format!("join#{}", join_id) + "/else");
         // Scope enter for else-branch
         self.hint_scope_enter(0);
-        let (else_value_raw, else_ast_for_analysis, else_var_map_end_opt) =
-            if let Some(else_ast) = else_branch {
-                // Materialize all variables at block entry via single-pred Phi (correctness-first)
-                crate::mir::builder::emission::phi::materialize_vars_single_pred_at_entry(
-                    self,
-                    pre_branch_bb,
-                    &pre_if_var_map,
-                    "if_form/else",
-                )?;
-                if trace_if {
-                    for (name, &pre_v) in pre_if_var_map.iter() {
-                        if let Some(&phi_val) = self.variable_ctx.variable_map.get(name) {
-                            let ring0 = crate::runtime::get_global_ring0();
-                            ring0.log.debug(&format!(
-                                "[if-trace] else-entry phi var={} pre={:?} -> dst={:?}",
-                                name, pre_v, phi_val
-                            ));
-                        }
+        let (else_value_raw, else_var_map_end_opt) = if has_explicit_else {
+            // Materialize all variables at block entry via single-pred Phi (correctness-first)
+            crate::mir::builder::emission::phi::materialize_vars_single_pred_at_entry(
+                self,
+                pre_branch_bb,
+                &pre_if_var_map,
+                "if_form/else",
+            )?;
+            if trace_if {
+                for (name, &pre_v) in pre_if_var_map.iter() {
+                    if let Some(&phi_val) = self.variable_ctx.variable_map.get(name) {
+                        let ring0 = crate::runtime::get_global_ring0();
+                        ring0.log.debug(&format!(
+                            "[if-trace] else-entry phi var={} pre={:?} -> dst={:?}",
+                            name, pre_v, phi_val
+                        ));
                     }
                 }
-                let val = self.build_expression(else_ast.clone())?;
-                (
-                    val,
-                    Some(else_ast),
-                    Some(self.variable_ctx.variable_map.clone()),
-                )
-            } else {
-                // No else branch: materialize PHI nodes for the empty else block
-                crate::mir::builder::emission::phi::materialize_vars_single_pred_at_entry(
-                    self,
-                    pre_branch_bb,
-                    &pre_if_var_map,
-                    "if_form/empty_else",
-                )?;
-                if trace_if {
-                    for (name, &pre_v) in pre_if_var_map.iter() {
-                        if let Some(&phi_val) = self.variable_ctx.variable_map.get(name) {
-                            let ring0 = crate::runtime::get_global_ring0();
-                            ring0.log.debug(&format!(
-                                "[if-trace] else-entry phi var={} pre={:?} -> dst={:?}",
-                                name, pre_v, phi_val
-                            ));
-                        }
+            }
+            let val = lower_branch(self, IfBranchKindV1::Else)?;
+            (val, Some(self.variable_ctx.variable_map.clone()))
+        } else {
+            // No else branch: materialize PHI nodes for the empty else block
+            crate::mir::builder::emission::phi::materialize_vars_single_pred_at_entry(
+                self,
+                pre_branch_bb,
+                &pre_if_var_map,
+                "if_form/empty_else",
+            )?;
+            if trace_if {
+                for (name, &pre_v) in pre_if_var_map.iter() {
+                    if let Some(&phi_val) = self.variable_ctx.variable_map.get(name) {
+                        let ring0 = crate::runtime::get_global_ring0();
+                        ring0.log.debug(&format!(
+                            "[if-trace] else-entry phi var={} pre={:?} -> dst={:?}",
+                            name, pre_v, phi_val
+                        ));
                     }
                 }
-                let void_val = crate::mir::builder::emission::constant::emit_void(self)?;
-                // Phase 25.1c/k: Pass PHI-renamed variable_map for empty else branch
-                // This ensures merge_modified_vars uses correct ValueIds after PHI renaming
-                (void_val, None, Some(self.variable_ctx.variable_map.clone()))
-            };
+            }
+            let void_val = crate::mir::builder::emission::constant::emit_void(self)?;
+            // Phase 25.1c/k: Pass PHI-renamed variable_map for empty else branch
+            // This ensures merge_modified_vars uses correct ValueIds after PHI renaming
+            (void_val, Some(self.variable_ctx.variable_map.clone()))
+        };
         let else_exit_block = self.current_block()?;
         let else_reaches_merge = !self.is_current_block_terminated();
         if else_reaches_merge {
@@ -404,8 +436,6 @@ impl MirBuilder {
                 then_value_raw,
                 else_value_raw,
                 &pre_if_var_map,
-                &then_ast_for_analysis,
-                &else_ast_for_analysis,
                 &then_var_map_end,
                 &else_var_map_end_opt,
                 pre_then_var_value,

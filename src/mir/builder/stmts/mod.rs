@@ -101,6 +101,7 @@
 pub(super) mod async_stmt;
 pub(in crate::mir::builder) mod block_driver;
 pub(super) mod block_stmt;
+pub(in crate::mir::builder) mod if_statement_descent;
 mod local_statement_descent;
 pub(in crate::mir::builder) use local_statement_descent::{
     drive_local_statement_v1, LocalStatementDescentPortV1, LocalStatementSyntaxViewV1,
@@ -118,6 +119,8 @@ pub(super) mod variable_stmt;
 
 #[cfg(test)]
 mod block_driver_tests;
+#[cfg(test)]
+mod if_statement_descent_tests;
 #[cfg(test)]
 mod local_statement_descent_tests;
 #[cfg(test)]
@@ -189,17 +192,12 @@ impl super::MirBuilder {
 
         if let Some(region) = self.current_fastmem_region() {
             let condition_value = self.build_expression(condition.clone())?;
-            crate::mir::builder::fastmem::branch::ensure_fastmem_owner_eq_condition(
+            let condition_debug = if_statement_descent::prepare_if_statement_condition_value_v1(
                 self,
-                region,
                 condition_value,
+                &condition,
             )?;
-            self.add_fastmem_branch_condition_fact(
-                region,
-                condition_value,
-                crate::mir::function::FastMemBranchConditionProofKind::SourceAssumeOwnerEq,
-                true,
-            )?;
+            debug_assert_eq!(self.current_fastmem_region(), Some(region));
 
             let then_node = ASTNode::Program {
                 statements: then_body,
@@ -211,7 +209,7 @@ impl super::MirBuilder {
             });
             let _ = self.lower_if_form_with_condition_value(
                 condition_value,
-                Some(condition),
+                condition_debug,
                 then_node,
                 else_node,
             )?;

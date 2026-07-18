@@ -1,5 +1,5 @@
 ---
-Status: RET0-L0 closed; IF0-S0 is next
+Status: IF0-S0 closed; IF0-I0 is next
 Date: 2026-07-18
 Decision: expand located lowering by one structural child family per row
 Parent: callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md
@@ -65,13 +65,15 @@ The sole next code-facing row is:
 SITE0-R0-EXPR0-SPINE0-IF0-S0
 ```
 
-`RET0-L0` is closed. One disconnected mandatory-value Return carrier selects
-exact `Return { value: Some(_) }`, obtains its child only through the existing
-`ReturnValue` role, and reuses the shared Return driver. Six fixtures prove the
-actual final `Body(5).Value` row, nested child-before-parent order, ordinary and
-short-circuit Binary descent, poisoning/fresh-session behavior, and exact Void
-exclusion. Production located roots and callable-result publication remain
-zero. IF0-S0 is next.
+`IF0-S0` is closed. One disconnected statement-If driver obtains condition and
+branch bodies through associated inputs, keeps then and optional else demand at
+the existing IfForm execution points, and shares one FastMem post-condition
+helper with the legacy production facade. IfForm remains the sole CFG,
+termination, PHI, scope/debug, and JoinIR owner. Seven fixtures cover exact
+demand order, condition/FastMem failure, positive FastMem fact publication,
+branch partial state, implicit false, the termination matrix, and exact merge
+result/variable PHIs. Production generic/raw If driver callers remain zero.
+IF0-I0 is next.
 
 ## Why C0 is held
 
@@ -654,7 +656,7 @@ IF and Loop are not STMT0 variants.
 
 ## IF0 — associated-input If control
 
-IF0 lets the existing If lowering request:
+IF0 lets the existing statement-If lowering request:
 
 ```text
 IfCondition
@@ -662,10 +664,88 @@ IfThen body
 optional IfElse body
 ```
 
-through one associated-input port. It retains the existing IfForm CFG/PHI,
-variable snapshots, branch analysis syntax view, termination, and diagnostics.
-Condition failure descends neither branch. Located branch bodies never fall
-back to raw lowering when their prefix is active.
+through one associated-input port. Expression-position If remains a separate
+raw facade. The canonical resolved `located_if` route is also a separate
+authority and is not reused or changed by this legacy located row.
+
+### IF0-S0 exact substrate
+
+Add one disconnected `IfStatementDescentPortV1` plus driver. The port owns
+only one exact If carrier, condition demand, then-body demand, and optional
+else-body demand. The syntax view borrows the condition and seals whether an
+explicit else exists; it does not expose raw branch slices to the driver.
+
+```text
+syntax observation
+-> IfCondition associated input
+-> one condition descent
+-> existing statement-If FastMem post-condition preparation
+-> existing IfForm control owner
+     -> request IfThen body at the current then-lowering point
+     -> request IfElse body only after then succeeds and only when present
+```
+
+Statement `Void` publication remains owned by the existing `block_stmt` facade;
+the disconnected IF0-S0 driver does not publish it.
+
+The current IfForm must not be copied. Generalize its two embedded raw branch
+calls behind one `FnMut(&mut MirBuilder, IfBranchKindV1)` callback. The current
+raw wrapper supplies its existing Program expressions; the new driver supplies
+associated `BodyInput`s through `drive_legacy_body_v1`. CFG blocks, branch
+scopes/debug regions, pre-If variable snapshots, single-predecessor PHIs,
+termination, EdgeCFG, result/variable merge PHIs, JoinIR selection and strict
+diagnostics remain solely in `lower_if_form_with_condition_value`.
+
+`build_if_statement` currently has a FastMem-only prelude after condition
+lowering. Extract that exact verification/fact publication into one neutral
+Builder helper used by the disconnected driver. FastMem policy does not enter
+the port, and ordinary If keeps `condition_debug = None`. Condition or FastMem
+failure requests neither branch and creates no IfForm CFG effects.
+
+S0 production driver callers remain zero. Its fixtures must cover exact event
+order, ordinary and FastMem condition failure, then failure before else demand,
+else failure after then, implicit false, the branch-termination matrix,
+variable/result PHIs, partial-state behavior, and fresh reuse. Snapshots include
+block terminators and predecessors; instruction-only observation is forbidden.
+
+IF0-S0 closes this substrate with one callback-based IfForm core and one
+FastMem helper shared by the disconnected and legacy paths. Worker authority,
+code, and false-green audits are all GO. Focused statement tests are 70/70,
+recursive-child tests are 7/7, callable-result tests are 55/55, the structural
+guard, `cargo check --all-targets`, release build, formatting, diff checks, and
+all source/check line caps are green. The complete quick gate is 66/66; its
+137-second wall time is recorded by the separately parked developer-gate
+latency task and does not widen this semantic row. IF0-I0 is next.
+
+### IF0 staged activation
+
+```text
+IF0-S0:
+  shared associated-input driver + one IfForm branch-demand seam
+  production driver callers = 0
+
+IF0-I0:
+  build_if_statement selects one raw carrier exactly once
+  expression-position If remains unchanged
+
+IF0-P0:
+  cfg(test)-only pre-I0 reference and exact selected/reference parity
+
+IF0-L0:
+  exact ASTNode::If located selector
+  PATH0 IfCondition / IfThen / optional IfElse only
+```
+
+The actual top-level `Body(1).IfCondition.Lhs` row belongs to IF0-L0. The
+structurally identical row under `Body(4).LoopBody(2)` remains unreachable
+until LOOP0 supplies that body carrier; IF0 fixtures must not reconstruct or
+claim a LoopBody path.
+
+Located branch bodies may delegate to raw block lowering only after the whole
+body prefix is proven inactive. `RowsUnderPrefix` therefore fails closed
+before raw block/suffix routing. Match, Loop, SUFFIX0, callable-result ledger,
+source paths, route retries, and Builder-stored ports/plans remain outside the
+S0 driver.
 
 ## SUFFIX0 — exact raw suffix boundary
 
