@@ -47,6 +47,9 @@ def main() -> None:
     short_circuit_raw_tests_path = (
         "src/mir/builder/ops/short_circuit_expression_raw_tests.rs"
     )
+    short_circuit_parity_tests_path = (
+        "src/mir/builder/ops/short_circuit_expression_parity_tests.rs"
+    )
     logical_owner_path = "src/mir/builder/ops/logical_shortcircuit.rs"
     module = read(root, module_path)
     tests = read(root, tests_path)
@@ -59,6 +62,7 @@ def main() -> None:
     short_circuit = read(root, short_circuit_path)
     short_circuit_tests = read(root, short_circuit_tests_path)
     short_circuit_raw_tests = read(root, short_circuit_raw_tests_path)
+    short_circuit_parity_tests = read(root, short_circuit_parity_tests_path)
     logical_owner = read(root, logical_owner_path)
 
     require_count(
@@ -233,6 +237,20 @@ def main() -> None:
     if rhs_block_at >= rhs_lower_at:
         fail("RHS lowering must occur only after entering eval-RHS block")
     require_count(
+        logical_owner,
+        "fn build_logical_shortcircuit_pre_sc0_i0_reference_v1",
+        1,
+        "SC0-P0 pre-I0 raw reference",
+    )
+    if (
+        "#[cfg(test)]\npub(in crate::mir::builder) fn "
+        "build_logical_shortcircuit_pre_sc0_i0_reference_v1"
+        not in logical_owner
+    ):
+        fail("SC0-P0 pre-I0 raw reference must remain cfg(test)")
+    if "fn build_logical_shortcircuit(" in logical_owner:
+        fail("retired production raw short-circuit facade must remain absent")
+    require_count(
         short_circuit,
         "impl ShortCircuitExpressionDescentPortV1 for RawLegacyChildLoweringPortV1",
         1,
@@ -396,6 +414,28 @@ def main() -> None:
         if fixture not in short_circuit_raw_tests:
             fail(f"missing SC0-I0 fixture: {fixture}")
 
+    for fixture in (
+        "and_or_bool_matrix_has_exact_pre_i0_snapshot_parity",
+        "nested_and_or_comparison_tree_has_exact_pre_i0_snapshot_parity",
+        "method_call_children_have_exact_pre_i0_snapshot_parity",
+        "child_failures_and_reuse_have_exact_pre_i0_snapshot_parity",
+    ):
+        if fixture not in short_circuit_parity_tests:
+            fail(f"missing SC0-P0 fixture: {fixture}")
+    for snapshot_fact in (
+        "blocks:",
+        "value_types:",
+        "value_kinds:",
+        "value_origins:",
+        "variable_map:",
+        "pin_slots:",
+        "current_block:",
+        "next_value_id:",
+        "recursion_depth:",
+    ):
+        if snapshot_fact not in short_circuit_parity_tests:
+            fail(f"SC0-P0 snapshot misses {snapshot_fact}")
+
     for snapshot_fact in (
         "blocks:",
         "value_types:",
@@ -429,6 +469,7 @@ def main() -> None:
         "disconnected SC0-S0 child-demand",
         "one deferred RHS closure",
         "SC0-I0 adds one owned raw short-circuit input",
+        "SC0-P0 retains the pre-I0 raw orchestration",
         "production located callers remain zero",
     ):
         if phrase not in readme:
@@ -446,6 +487,7 @@ def main() -> None:
         short_circuit_path,
         short_circuit_tests_path,
         short_circuit_raw_tests_path,
+        short_circuit_parity_tests_path,
         logical_owner_path,
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0.py",
     )
@@ -460,7 +502,7 @@ def main() -> None:
         f"{TAG} ok: driver=1 child_descents=2 raw_selector=1 "
         "raw_impl=1 parity_reference=1 located_impl=1 sc_driver=1 "
         "sc_raw_selector=1 sc_raw_impl=1 sc_located_impl=0 "
-        "logical_owner_preserved=1"
+        "sc_parity_reference=1 logical_owner_preserved=1"
     )
 
 

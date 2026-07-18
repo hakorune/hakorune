@@ -65,3 +65,10 @@ selector still chooses only `And` / `Or`, then delegates once to the generic
 driver. Ordinary Binary remains on BIN0. The raw adapter adds no operator,
 recursion, CFG, PHI, type, result, location, ledger, or fallback authority;
 located adapters and callable-result publication remain zero.
+
+SC0-P0 retains the pre-I0 raw orchestration only as one `#[cfg(test)]`
+reference. Fresh selected/reference Builders compare result or error, ordered
+blocks and terminators, transient types, value kinds and origins, variable and
+pin maps, current block, next ValueId, and recursion depth. The reference is
+not a production selector or fallback. Located adapters and result publication
+remain zero.

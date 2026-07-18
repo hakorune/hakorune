@@ -41,7 +41,8 @@ use std::collections::BTreeMap;
 /// **RHS evaluation**: Only if needed (short-circuit)
 ///
 /// **Phase 29bq+ Option 2: 1-join 構造（3-predecessor merge）**
-pub(in crate::mir::builder) fn build_logical_shortcircuit(
+#[cfg(test)]
+pub(in crate::mir::builder) fn build_logical_shortcircuit_pre_sc0_i0_reference_v1(
     builder: &mut MirBuilder,
     left: ASTNode,
     operator: BinaryOperator,
@@ -216,7 +217,7 @@ mod tests {
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("shortcircuit_lhs_pin_lifetime".to_string());
 
-        build_logical_shortcircuit(
+        build_logical_shortcircuit_pre_sc0_i0_reference_v1(
             &mut builder,
             bool_lit(false),
             BinaryOperator::And,

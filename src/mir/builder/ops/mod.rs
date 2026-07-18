@@ -144,6 +144,8 @@ mod short_circuit_expression_descent;
 #[cfg(test)]
 mod short_circuit_expression_descent_tests;
 #[cfg(test)]
+mod short_circuit_expression_parity_tests;
+#[cfg(test)]
 mod short_circuit_expression_raw_tests;
 pub(super) mod unary;
 use converters::BinaryOpType;
