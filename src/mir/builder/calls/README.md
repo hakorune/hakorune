@@ -49,3 +49,17 @@ the full ARG0 boundary. FastMem keeps its syntax preflight before indexed E0
 descent and shares one intrinsic core with its function-call facade. Ordinary and
 reserved-failure decisions descend no children. Terminal emission, result/type
 publication, located inputs, and ledger authorization remain outside R0.
+
+ROUTE0-M0 is split into S0/H0/I0/P0/G0. It reuses the existing non-Clone
+`MemberCallRoutePlan`; no second demand or route product is introduced. TypeOp
+and Standard descend the receiver exactly once, while Static, Env, Me/This,
+and reserved routes never descend source receiver syntax. TypeOp's type string
+is syntax-only. Ordinary route arguments use ARG0 only after each route's
+existing preflight.
+
+Record-helper scalarization is intentionally not a full-ARG0 consumer:
+record-local slots bind their existing values and only non-record slots use the
+indexed E0 primitive. Its inline body remains a separate terminal authority.
+`property_reads.rs` is also separate because it already owns a materialized
+receiver value; the source MethodCall driver must not synthesize an AST for it
+or duplicate its standard-handler preflight.

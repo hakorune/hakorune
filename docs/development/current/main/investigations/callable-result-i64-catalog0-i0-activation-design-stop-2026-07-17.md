@@ -659,6 +659,83 @@ guards, release check, pointer guard, formatting, and line caps are green. The
 two broad FastMem assertion drifts documented at E0 remain reproducible and are
 not R0 regressions. `SITE0-R0-EXPR0-M0-ROUTE0-M0` is next.
 
+## SITE0-R0-EXPR0-M0-ROUTE0-M0 task lock
+
+Three independent audits agree that M0 needs no new design consultation. It is
+one behavior-neutral Refactor Series with this exact order:
+
+```text
+M0-S0  generic associated-input MethodCall driver
+M0-H0  record-helper test split and indexed child boundary
+M0-I0  TypeOp/static/env/me/standard route wiring
+M0-P0  child-demand and normalized MIR parity
+M0-G0  structural guards and closeout
+-> SITE0-R0-EXPR0-M0-V0
+```
+
+The existing non-Clone `MemberCallRoutePlan` remains the sole prepared member
+route product. The production entry constructs one raw MethodCall input and one
+stack-scoped port, selects the reserved route once, and gives the same input to
+the ordinary member driver without `into_parts`, AST retry, or route
+reclassification.
+
+The exact demand matrix is:
+
+```text
+TypeOp is/as:
+  receiver E0 exactly once
+  syntax-only type argument descent 0
+
+StaticReceiver / StaticThis:
+  receiver descent 0
+  scalar/record-helper preflight before child effects
+  ordinary arguments ARG0 left-to-right
+
+EnvMethod:
+  receiver/iface syntax descent 0
+  sealed spec before child effects
+  arguments ARG0 left-to-right
+
+MeCall:
+  source receiver descent 0
+  existing me-binding/helper/module probes keep their order
+  lowered-function arguments ARG0 before the existing strict arity check
+
+Standard:
+  receiver E0 exactly once
+  weak/helper/setter preflight after the receiver and before arguments
+  ordinary arguments ARG0 left-to-right
+```
+
+Record-helper scalarization remains a distinct terminal authority. A
+record-local argument binds its existing `ValueId` without descent; only
+non-record arguments descend through the indexed E0 primitive in source-index
+order. The full ARG0 preflight must not be imposed on this custom terminal.
+Helper body lowering is not MethodCall child descent and remains parked outside
+M0. Tests are physically split from `record_helper_args.rs` before adding the
+port adapter so every touched source/check file remains below 800 lines.
+
+`property_reads.rs` is an already-materialized receiver consumer. M0 must not
+fabricate a MethodCall AST or re-run source preflight for it. Its existing
+value-level standard handler remains available while the source MethodCall
+path gets a thin associated-input wrapper. A need for duplicate preflight or a
+fake source carrier is a stop condition for M0.
+
+The actual A0 inventory remains exactly 15 entry claims: 9 current-owner calls,
+2 selected static `skip_ws` calls, and 4 unselected standard String calls.
+Selected and unselected rows are both active. Each outer `skip_ws` entry is
+claimed before its nested argument row. Env, TypeOp, and reserved rows are zero
+in that corpus, so route fixtures must prove those dormant demands separately.
+
+M0 may claim only exact child-demand threading and raw behavior/MIR parity. It
+may not add a completed-value terminal, result/type/effect authority, located
+input, caller-ledger rule, fallback, retry, accepted grammar, or backend/runtime
+behavior. Stop if route order changes; static/env/me syntax receivers or a
+TypeOp type string become evaluated; standard arguments run before the
+receiver; helper terminals require full ARG0; me arity moves before argument
+effects; property reads need a fake AST; or any touched source/check file
+reaches 800 lines.
+
 ## Required fixtures
 
 ```text
