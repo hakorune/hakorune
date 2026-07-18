@@ -16,6 +16,9 @@ from callable_result_i0_site0_r0_expr0_spine0_loop0_p0 import check_loop0_p0a
 from callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_o0 import (
     check_loop0_p0b_o0_s0,
 )
+from callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_o0_g0 import (
+    check_loop0_p0b_o0_g0,
+)
 from callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_o0_r0 import (
     check_loop0_p0b_o0_r0,
 )
@@ -503,6 +506,7 @@ def main() -> None:
         loop0_p0b_o0_summary = check_loop0_p0b_o0_s0(root)
         loop0_p0b_o0_r0_summary = check_loop0_p0b_o0_r0(root)
         loop0_p0b_o0_siteproj0_summary = check_loop0_p0b_o0_siteproj0(root)
+        loop0_p0b_o0_g0_summary = check_loop0_p0b_o0_g0(root)
     except RuntimeError as error:
         fail(str(error))
     require_count(
@@ -556,6 +560,7 @@ def main() -> None:
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_o0.py",
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_o0_r0.py",
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_o0_siteproj0.py",
+        "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_o0_g0.py",
     )
     oversized = [relative for relative in touched if len(read(root, relative).splitlines()) >= 800]
     if oversized:
@@ -574,6 +579,7 @@ def main() -> None:
         f" {suffix_parity_summary} {loop0_summary} {loop0_p0a_summary}"
         f" {loop0_p0b_o0_summary} {loop0_p0b_o0_r0_summary}"
         f" {loop0_p0b_o0_siteproj0_summary}"
+        f" {loop0_p0b_o0_g0_summary}"
     )
 
 

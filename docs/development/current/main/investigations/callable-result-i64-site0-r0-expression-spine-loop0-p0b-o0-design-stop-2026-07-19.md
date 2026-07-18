@@ -1,5 +1,5 @@
 ---
-Status: O0-P0 closed; O0-G0 is the sole next row
+Status: O0-G0 closed; LOOP0-P0b-T0 is the sole next row
 Date: 2026-07-19
 Decision baseline: eef7c61d54085e8344608a7859420bd9e9a74887
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md
@@ -495,6 +495,22 @@ tools/checks/lib/
   callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_o0.py
   callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_o0_r0.py
 ```
+
+Closeout (2026-07-19): closed. One private O0-G0 helper is imported and called
+exactly once by the existing public expression-spine guard. It fixes the
+actual test registration, shared Parser fixture and process mode lock, exact
+Body(4) Last/length-six proof, default DirectRecipeOnly prefix/cleanup, strict
+ExitAllowed ordinal layout, ordinal 2 ExitOnly condition/then carriers,
+ordinal 4 wrapped Join condition/then/else carriers, singleton Join shape and
+branch cardinality, and cleanup activation site. It also monitors the complete
+O0/source-port surface below 800 lines.
+
+The guard forbids local fixture/source ownership, direct environment control,
+recipe rebuilding, AST identity, Builder, composer, skeleton, ledger, claim,
+fallback, and retry in the actual proof. The existing public guard is green,
+the focused actual proof and all nine located-representation tests are green,
+and production located-root callers remain zero. LOOP0-P0b-T0 is the sole next
+row.
 
 ## Required pass evidence
 
