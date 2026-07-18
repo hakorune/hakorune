@@ -1,5 +1,5 @@
 ---
-Status: SITE0-R0-EXPR0-M0-ROUTE0-R0 closed; SITE0-R0-EXPR0-M0-ROUTE0-M0 is the next code-facing row
+Status: SITE0-R0-EXPR0-M0-ROUTE0-M0-TYPEOP-GUARD0 closed; SITE0-R0-EXPR0-M0-ROUTE0-M0 is the next code-facing row
 Date: 2026-07-18
 Decision: Candidate A owned single-use activation plan plus located legacy input
 Baseline: fe2d61baa0
@@ -659,10 +659,32 @@ guards, release check, pointer guard, formatting, and line caps are green. The
 two broad FastMem assertion drifts documented at E0 remain reproducible and are
 not R0 regressions. `SITE0-R0-EXPR0-M0-ROUTE0-M0` is next.
 
+## SITE0-R0-EXPR0-M0-ROUTE0-M0-TYPEOP-GUARD0 closeout
+
+The M0 diff audit found one pre-existing raw recursion-depth bypass in the
+source TypeOp shortcut. Its receiver used `build_expression_impl` directly,
+while every other selected recursive child enters through the E0 raw
+expression guard. This is closed as a prerequisite row rather than hidden in
+the behavior-neutral route refactor.
+
+The TypeOp source shortcut remains the selected production owner through this
+row. Only its receiver descent changes from the unguarded raw implementation
+call to the existing guarded expression facade. The type spelling remains
+syntax-only, the raw depth limit remains 200, MethodCall's separate depth limit
+still does not apply, and TypeOp emission occurs only after receiver success.
+
+The boundary fixture fixes the public-source accounting: an entry depth of 198
+can lower the outer MethodCall and its receiver at depth 200; an entry depth of
+199 rejects the receiver attempt at depth 201, restores the entry depth,
+publishes no TypeOp, and leaves the Builder reusable. This row claims only
+normalization onto the existing recursion resource law. Route/result/located/
+ledger/grammar/backend authority remains unchanged.
+
 ## SITE0-R0-EXPR0-M0-ROUTE0-M0 task lock
 
-Three independent audits agree that M0 needs no new design consultation. It is
-one behavior-neutral Refactor Series with this exact order:
+Three independent audits agree that M0 needs no new design consultation. After
+the TypeOp guard prerequisite above, it is one behavior-neutral Refactor Series
+with this exact order:
 
 ```text
 M0-S0  generic associated-input MethodCall driver

@@ -223,7 +223,9 @@ impl super::MirBuilder {
                 let m = MethodCallExpr::try_from(node).expect("ASTNode::MethodCall must convert");
                 if (m.method == "is" || m.method == "as") && m.arguments.len() == 1 {
                     if let Some(type_name) = Self::extract_string_literal(&m.arguments[0]) {
-                        let obj_val = self.build_expression_impl(*m.object.clone())?;
+                        // TypeOp keeps the type spelling syntax-only, but its receiver is a
+                        // recursive child and must pass through the canonical E0 depth guard.
+                        let obj_val = self.build_expression(*m.object.clone())?;
                         let ty = Self::parse_type_name_to_mir(&type_name);
                         let dst = self.next_value_id();
                         let op = if m.method == "is" {

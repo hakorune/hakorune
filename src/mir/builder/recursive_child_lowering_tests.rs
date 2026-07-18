@@ -70,6 +70,18 @@ fn add(left: ASTNode, right: ASTNode) -> ASTNode {
     }
 }
 
+fn typeop(receiver: ASTNode) -> ASTNode {
+    ASTNode::MethodCall {
+        object: Box::new(receiver),
+        method: "is".to_string(),
+        arguments: vec![ASTNode::Literal {
+            value: LiteralValue::String("Integer".to_string()),
+            span: Span::unknown(),
+        }],
+        span: Span::unknown(),
+    }
+}
+
 fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
     let function = builder
         .scope_ctx
@@ -192,5 +204,37 @@ fn raw_expression_depth_limit_rejects_without_poisoning_the_session() {
 
     builder.recursion_depth = 0;
     builder.build_expression(integer(9)).unwrap();
+    assert_eq!(builder.recursion_depth, 0);
+}
+
+#[test]
+fn typeop_receiver_uses_nested_raw_depth_guard_without_publishing_on_failure() {
+    let _ = std::panic::catch_unwind(|| {
+        crate::runtime::ring0::init_global_ring0(crate::runtime::ring0::default_ring0())
+    });
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("typeop_receiver_depth_limit/0".to_string());
+
+    // Public TypeOp lowering consumes one guard for the MethodCall and one for its receiver.
+    builder.recursion_depth = 198;
+    builder.build_expression(typeop(integer(8))).unwrap();
+    assert_eq!(builder.recursion_depth, 198);
+    assert_eq!(
+        instructions(&builder)
+            .iter()
+            .filter(|instruction| matches!(instruction, MirInstruction::TypeOp { .. }))
+            .count(),
+        1
+    );
+
+    builder.recursion_depth = 199;
+    let before = instructions(&builder);
+    let error = builder.build_expression(typeop(integer(9))).unwrap_err();
+    assert!(error.contains("Recursion depth exceeded: 201"));
+    assert_eq!(builder.recursion_depth, 199);
+    assert_eq!(instructions(&builder), before);
+
+    builder.recursion_depth = 0;
+    builder.build_expression(integer(10)).unwrap();
     assert_eq!(builder.recursion_depth, 0);
 }
