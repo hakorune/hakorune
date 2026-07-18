@@ -17,6 +17,29 @@ quick membership:            66 sequential steps
 approximate Cargo launches:  76
 ```
 
+Latest developer-loop intake:
+
+```text
+previous expectation:        72s is already too slow for a quick gate
+observed wall time:          134s
+primary visible costs:       cargo check + 66 sequential steps
+desired working range:       40-60s for an affected partial-invalidation run
+```
+
+This confirms the latency as a developer-experience blocker rather than a
+cosmetic optimization. The candidate levers to measure are:
+
+```text
+parallel execution          highest possible wall-time win, parked behind PAR0
+step/profile separation     local edit-run selection without weakening quick
+guard consolidation         remove duplicate process/artifact work only
+Cargo check/artifact reuse  preserve exact tuple/features and exploit caching
+```
+
+The 134-second observation is evidence for prioritization, not a stable
+benchmark by itself. M0 must reproduce and attribute it before selecting an
+implementation.
+
 The variance matters as much as the warm minimum. A partially invalidated run
 can rebuild several different artifact tuples:
 
