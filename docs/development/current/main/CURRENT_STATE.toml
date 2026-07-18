@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result IF0-I0 is closed; IF0-P0 is next"
+status = "callable-result IF0-P0 is closed; IF0-L0 is next"
 date = "2026-07-18"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,14 +298,14 @@ latest_workstream_card = "docs/development/current/main/design/vm-active-lane-re
 
 latest_card = "callable-result-i64-site0-r0-expression-spine-task-2026-07-18"
 latest_card_path = "docs/development/current/main/investigations/callable-result-i64-site0-r0-expression-spine-task-2026-07-18.md"
-latest_card_summary = """IF0-I0 is closed. The production statement-If facade
-selects one shared raw driver exactly once. One private port preserves the old
-branch Program recursion/span shell; block_stmt retains statement Void, IfForm
-retains CFG/termination/PHI/JoinIR, and expression If remains on cf_if. Eight
-production-entry fixtures and the structural guard cover merge shapes,
-failures/reuse, FastMem, expression separation, recursion, and span parity.
-IF0-P0 is next."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-SPINE0-IF0-P0-001"
+latest_card_summary = """IF0-P0 is closed. One cfg(test)-only pre-I0 reference
+replays the retired ordinary/FastMem statement-If orchestration without using
+the selected driver. Six fixture groups prove exact selected/reference parity
+across CFG edges and spans, PHIs, transient facts, scope/allocator state,
+termination, failures and reuse, FastMem, recursion boundaries, and branch
+Program spans. Production behavior and caller counts remain unchanged.
+IF0-L0 is next."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-I64-CATALOG0-I0-SITE0-R0-EXPR0-SPINE0-IF0-L0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -314,6 +314,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-18: SITE0-R0-EXPR0-SPINE0-IF0-P0 closes one cfg(test)-only pre-I0 statement-If reference and exact selected/reference parity. The reference directly replays the retired ordinary cf_if path, FastMem verification/fact path, unknown-span Program branch shells, outer statement span, and success-only facade Void without using the selected driver or raw port. Six fixture groups cover ordinary Binary/short-circuit/MethodCall conditions, explicit/implicit else and merge PHIs, the four-way termination matrix, condition/then/else failure plus same-Builder reuse, FastMem positive/negative plus reuse, recursion depth 198/199/200, and branch span behavior. Snapshots compare instructions and spans, terminators and spans, predecessor/successor edges, transient facts, variables/bindings/scopes, FastMem metadata, pending PHIs, caches, allocators, recursion, and current span. Parity 6/6, production statement If 7/7, If driver 7/7, recursive child 7/7, callable-result 55/55, structural guard, cargo check --all-targets, release, formatting, line caps, and an isolated quick 66/66 in 65s are green. Production behavior/callers remain unchanged; IF0-L0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-IF0-I0 behavior-neutrally selects the shared raw If driver exactly once from build_if_statement. One sole private production port preserves the retired branch Program unknown-span shell and its recursion boundary; the old inline FastMem split and direct cf_if route are removed. block_stmt retains final statement Void, IfForm retains CFG/termination/PHI/EdgeCFG/JoinIR, expression If remains on cf_if, and resolved located If remains disconnected. Eight production-entry fixtures cover explicit/implicit else, exact merge PHIs, the termination matrix, failure/reuse, FastMem, expression separation, recursion depth 198/199/200, and empty/non-empty branch spans. Three worker audits are GO after removing a dormant alternate raw port. Statement 78/78, recursive child 7/7, callable-result 55/55, structural guard, cargo check --all-targets, release, formatting, diff checks, line caps, and quick 66/66 in 140s are green. The quick run overlapped an already-running release link and is correctness evidence only; IF0-P0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-IF0-S0 closes one disconnected statement-If associated-input driver and one callback-based IfForm branch seam. Condition descent and the shared FastMem post-condition helper precede lazy then and optional else carrier demand; IfForm retains sole CFG, termination, PHI, scope/debug, EdgeCFG, and JoinIR authority. Seven fixtures cover exact demand order, condition and FastMem failure, positive FastMem fact publication, branch partial state, implicit false, the termination matrix, and exact merge result/variable PHIs. Worker authority/code/false-green audits are GO. Statement tests 70/70, recursive child 7/7, callable-result 55/55, structural guard, cargo check --all-targets, release, formatting, line caps, and quick 66/66 in 137s are green. Generic/raw driver production callers and callable-result publication remain zero; IF0-I0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-RET0-L0 closes one disconnected exact Some(value) Return adapter. PATH0 alone supplies ReturnValue; the shared located expression spine and Return driver retain exact call order, cleanup, recursion, Match/defer, and completion authority. The actual final Body(5).Value row and nested argument order are separate fixtures; active Match stays fail-closed behind located inactive-prefix proof because the current source proof does not admit MatchExpr plans. Located Return 6/6, legacy located 32/32, Return 19/19, stmt 63/63, recursive child 7/7, callable-result 55/55, strengthened guard, cargo check --all-targets, cached quick 66/66 in about 25s, release, formatting, and line caps are green. Production located roots/result publication remain zero; IF0-S0 is next.",
@@ -325,5 +326,4 @@ landed_tail = [
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-I0 behavior-neutrally selects the raw Assignment driver from the exact Variable-target branch exactly once. A worker audit found the former shared build_assignment facade also served parked GroupedAssignmentExpr, so Grouped retains its old preflight/descent/completion on a dedicated legacy facade; field/index/compound selectors remain unchanged. Five raw fixtures cover Binary success, undeclared preflight, RHS failure/reuse, field-owner ordering, and Grouped control. Assignment 11/11, resolver 4/4, recursive 7/7, callable-result 55/55, guard, cargo check, quick 66/66 in 62s, release, formatting, and line caps are green. Production located selectors and callable-result publication remain zero; ASN0-P0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-ASN0-S0 closes one disconnected exact Variable-target Assignment driver. Existing declared-binding preflight precedes one associated RHS descent; existing build_assignment_from_value retains the second check, contracts, ReleaseStrong, and variable publication. Six fixtures cover exact order, undeclared/binding-missing/pin rejection, input/RHS/completion failure, reuse, and raw Binary descent. ASN0 6/6, resolver 4/4, recursive 7/7, callable-result 55/55, guard, quick 66/66 in 76s, release, formatting, and line caps are green. Raw/located production selectors and result publication remain zero; ASN0-I0 is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-L0 closes one disconnected located Local selector and port. Ordinary initializers retain exact LocalInitializer(index) sites and ledger order; typed-array/record hooks require exact inactive-prefix proof before effects. Six fixtures cover ordinary/nested/short-circuit order, specialized pass/reject boundaries, poisoning, and fresh sessions. Local 21/21, located Local 6/6, callable-result 55/55, guard, cargo check, quick 66/66 in 94s, release, formatting, and line caps are green. Production located roots/result publication remain zero; ASN0-S0 is next.",
-  "2026-07-18: SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-P0 closes one cfg(test)-only pre-I0 Local reference and exact selected/reference parity. Six fixtures cover ordinary/exact/Null, typed-array, record, Binary/short-circuit, whole-preflight, child, special-owner, completion failures, partial state, and reuse across MIR, transient facts, bindings/scopes, contracts, record-local state, caches, and allocators. Local 21/21, variable 3/3, recursive 7/7, callable-result 55/55, guard, cargo check, quick 66/66, release, formatting, and line caps are green. Located Local/result publication remain zero; LCL0-L0 is next.",
 ]

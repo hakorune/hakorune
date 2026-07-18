@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Private IF0-S0/I0 structural checks for the public EXPR0-SPINE0 guard."""
+"""Private IF0-S0/I0/P0 structural checks for the public EXPR0-SPINE0 guard."""
 
 from __future__ import annotations
 
@@ -47,6 +47,7 @@ def check_if0_s0(root: Path) -> str:
     driver_path = "src/mir/builder/stmts/if_statement_descent.rs"
     tests_path = "src/mir/builder/stmts/if_statement_descent_tests.rs"
     raw_tests_path = "src/mir/builder/stmts/if_statement_raw_tests.rs"
+    parity_tests_path = "src/mir/builder/stmts/if_statement_parity_tests.rs"
     stmts_root_path = "src/mir/builder/stmts/mod.rs"
     block_stmt_path = "src/mir/builder/stmts/block_stmt.rs"
     exprs_path = "src/mir/builder/exprs.rs"
@@ -62,6 +63,7 @@ def check_if0_s0(root: Path) -> str:
     driver = _read(root, driver_path)
     tests = _read(root, tests_path)
     raw_tests = _read(root, raw_tests_path)
+    parity_tests = _read(root, parity_tests_path)
     stmts_root = _read(root, stmts_root_path)
     block_stmt = _read(root, block_stmt_path)
     exprs = _read(root, exprs_path)
@@ -273,6 +275,18 @@ def check_if0_s0(root: Path) -> str:
         1,
         "production IF0 fixture module",
     )
+    _require_count(
+        stmts_root,
+        "mod if_statement_parity_tests;",
+        1,
+        "cfg(test) IF0-P0 parity module",
+    )
+    _require_count(
+        stmts_root,
+        "#[cfg(test)]\nmod if_statement_parity_tests;",
+        1,
+        "IF0-P0 parity module remains test-only",
+    )
 
     raw_facade = _function_slice(stmts_root, "pub(super) fn build_if_statement(")
     _require_count(
@@ -372,6 +386,121 @@ def check_if0_s0(root: Path) -> str:
         if forbidden in raw_tests:
             _fail(f"IF0-I0 fixture bypasses production facade: {forbidden}")
 
+    _require_count(
+        parity_tests,
+        "fn lower_pre_i0_statement_if_reference(",
+        1,
+        "one pre-I0 If orchestration reference",
+    )
+    _require_count(
+        parity_tests,
+        "fn lower_pre_i0_statement_surface_reference(",
+        1,
+        "one pre-I0 statement surface reference",
+    )
+    for symbol in (
+        "fn lower_pre_i0_statement_if_reference(",
+        "fn lower_pre_i0_statement_surface_reference(",
+    ):
+        outside = 0
+        parity_path = (root / parity_tests_path).resolve()
+        for path in (root / "src").rglob("*.rs"):
+            if path.resolve() == parity_path:
+                continue
+            outside += path.read_text(encoding="utf-8").count(symbol)
+        if outside != 0:
+            _fail(f"IF0-P0 reference owner escaped cfg(test) module: {symbol}")
+    _require_count(
+        parity_tests,
+        "super::block_stmt::build_statement(builder, statement)",
+        1,
+        "selected parity path uses production statement entry",
+    )
+    reference = _function_slice(
+        parity_tests, "fn lower_pre_i0_statement_if_reference("
+    )
+    surface_reference = _function_slice(
+        parity_tests, "fn lower_pre_i0_statement_surface_reference("
+    )
+    for forbidden in (
+        "build_if_statement(",
+        "drive_if_statement_v1(",
+        "drive_raw_if_statement_v1(",
+        "RawLegacyIfStatementPortV1",
+        "prepare_if_statement_condition_value_v1(",
+        "retry",
+        "fallback",
+    ):
+        if forbidden in reference + surface_reference:
+            _fail(f"IF0-P0 reference reuses selected authority: {forbidden}")
+    for evidence, expected, label in (
+        ("builder.cf_if(", 1, "retired ordinary cf_if route"),
+        (
+            "builder.lower_if_form_with_condition_value(",
+            1,
+            "retired FastMem IfForm route",
+        ),
+        (
+            "ensure_fastmem_owner_eq_condition(",
+            1,
+            "retired direct FastMem verification",
+        ),
+        (
+            "builder.add_fastmem_branch_condition_fact(",
+            1,
+            "retired direct FastMem fact publication",
+        ),
+        ("legacy_branch_program(", 2, "retired then Program branch shells"),
+        ("map(legacy_branch_program)", 2, "retired optional Program branch shells"),
+    ):
+        _require_count(reference, evidence, expected, label)
+    _require_count(
+        surface_reference,
+        "metadata_ctx.set_current_span(statement.span())",
+        1,
+        "outer statement span publication",
+    )
+    _require_count(
+        surface_reference,
+        "emission::constant::emit_void(builder)",
+        1,
+        "successful facade Void publication",
+    )
+
+    for fixture in (
+        "if_statement_parity_explicit_else_phis_and_child_expression_families",
+        "if_statement_parity_implicit_else_and_termination_matrix",
+        "if_statement_parity_condition_then_else_failures_and_reuse",
+        "if_statement_parity_fastmem_positive_negative_and_reuse",
+        "if_statement_parity_recursion_boundaries_restore_exact_state",
+        "if_statement_parity_preserves_outer_and_branch_program_spans",
+    ):
+        if fixture not in parity_tests:
+            _fail(f"missing IF0-P0 parity fixture: {fixture}")
+    for evidence in (
+        "IfStatementParitySnapshotV1",
+        "instruction_spans",
+        "terminator_span",
+        "predecessors",
+        "successors",
+        "variable_map",
+        "scope_frames",
+        "if_merge_stack",
+        "debug_scope_stack",
+        "fastmem_region_stack",
+        "fastmem_branch_condition_facts",
+        "pending_phis",
+        "debug_join_counter",
+        "recursion_depth",
+        "current_span",
+        "snapshot(&selected, selected_result)",
+        "snapshot(&reference, reference_result)",
+    ):
+        if evidence not in parity_tests:
+            _fail(f"missing IF0-P0 exact-state evidence: {evidence}")
+    if "statement_if(" in reference or "statement_if_at(" in reference:
+        _fail("IF0-P0 reference must not select itself through a fixture helper")
+
     production_driver_callers = 0
     raw_driver_callers = 0
     ignored = {(root / driver_path).resolve(), (root / tests_path).resolve()}
@@ -406,6 +535,7 @@ def check_if0_s0(root: Path) -> str:
         driver_path,
         tests_path,
         raw_tests_path,
+        parity_tests_path,
         stmts_root_path,
         block_stmt_path,
         exprs_path,

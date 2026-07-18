@@ -201,3 +201,12 @@ publishes its one facade Void only after If lowering succeeds. The raw driver
 and its production port publish no statement Void. Expression-position If
 continues through `exprs.rs` and `cf_if`; resolved located If remains a
 separate inactive authority.
+
+IF0-P0 keeps one cfg(test)-only pre-I0 reference. It directly replays the
+retired ordinary `cf_if` and FastMem orchestration, unknown-span Program branch
+shells, outer statement span, and success-only facade Void; it never calls the
+selected driver or production raw port. Exact snapshots compare CFG edges and
+spans, PHIs, transient facts, scopes, allocators, FastMem facts, failure state,
+recursion boundaries, and reuse. Production behavior and caller counts remain
+unchanged. Nested statement If is not a reference fixture because it would
+re-enter the selected statement route from inside the old Program shell.

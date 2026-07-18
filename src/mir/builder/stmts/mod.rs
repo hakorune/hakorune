@@ -122,6 +122,8 @@ mod block_driver_tests;
 #[cfg(test)]
 mod if_statement_descent_tests;
 #[cfg(test)]
+mod if_statement_parity_tests;
+#[cfg(test)]
 mod if_statement_raw_tests;
 #[cfg(test)]
 mod local_statement_descent_tests;

@@ -1,5 +1,5 @@
 ---
-Status: IF0-I0 closed; IF0-P0 is next
+Status: IF0-P0 closed; IF0-L0 is next
 Date: 2026-07-18
 Decision: expand located lowering by one structural child family per row
 Parent: callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md
@@ -62,16 +62,16 @@ SITE0-R0-EXPR0-SPINE0-BIN0-S0
 The sole next code-facing row is:
 
 ```text
-SITE0-R0-EXPR0-SPINE0-IF0-P0
+SITE0-R0-EXPR0-SPINE0-IF0-L0
 ```
 
-`IF0-I0` is closed. `build_if_statement` now selects the shared raw If driver
-exactly once; the old inline FastMem split and direct `cf_if` route are retired.
-One private raw port preserves the legacy branch `Program(span=unknown)` shell,
-including its recursion and empty-branch span boundary. Statement Void remains
-in `block_stmt`, expression-position If remains on `cf_if`, and resolved located
-If remains disconnected. Production raw selectors are one and generic direct
-production callers remain zero. IF0-P0 is next.
+`IF0-P0` is closed. One cfg(test)-only pre-I0 reference directly replays the
+retired ordinary/FastMem statement-If orchestration, unknown-span Program
+branch shells, outer span, and success-only facade Void without calling the
+selected driver or raw port. Six fixture groups prove exact selected/reference
+parity over CFG edges and spans, PHIs, transient facts, scope/allocator state,
+termination, failures and reuse, FastMem, recursion boundaries, and branch
+spans. Production behavior and caller counts remain unchanged. IF0-L0 is next.
 
 ## Why C0 is held
 
@@ -742,6 +742,36 @@ release, formatting, diff checks, and all source/check line caps are green.
 Quick is 66/66 in 140 seconds; the run overlapped an already-running release
 link and is correctness evidence only, not latency evidence. IF0-P0 is next.
 
+### IF0-P0 closeout
+
+One cfg(test)-only reference owns the retired pre-I0 statement surface. It sets
+the outer statement span, replays the ordinary `cf_if` path or the direct
+FastMem condition verification/fact path, constructs the exact
+`Program(span=unknown)` branch shells, and emits the facade Void only after
+successful If lowering. It does not call `build_if_statement`, either shared
+driver, the production raw port, or the selected FastMem helper.
+
+The selected side always enters through `block_stmt::build_statement`.
+Normalized snapshots compare each block's instructions and spans, terminator
+and span, predecessor/successor edges, effects and sealing state, plus locals,
+transient type/kind/origin/literal and exact-numeric facts, variables,
+bindings, lexical/control/debug/FastMem stacks, FastMem metadata, pending PHIs,
+SSA/materialization caches, allocator counters, recursion depth, and current
+span. No production type, helper, visibility, selector, or caller is added.
+
+Six fixture groups cover ordinary Binary, short-circuit, and MethodCall
+conditions; explicit/implicit else and merge PHIs; the four termination
+combinations; condition/then/else failures and same-Builder reuse; FastMem
+positive/negative admission and reuse; recursion depth 198/199/200; and
+empty/non-empty branch span behavior. Nested statement If is intentionally not
+used as a parity input because its branch reference would re-enter the selected
+statement route and cease to be an independent oracle.
+
+Parity is 6/6, production statement If 7/7, If driver 7/7, recursive child
+7/7, callable-result 55/55, the strengthened structural guard,
+`cargo check --all-targets`, release, formatting, diff checks, and line caps
+are green. A standalone quick run is 66/66 in 65 seconds. IF0-L0 is next.
+
 ### IF0 staged activation
 
 ```text
@@ -912,14 +942,13 @@ Stop the current row if any of the following becomes necessary:
 
 ## Final lock
 
-> The acceptance boundary should now expand, but only as a sequence of
-> structural associated-input rows. The actual A0 caller proves five active
-> MethodCalls under Binary ancestors, so direct EXPR0-C0 wiring is held.
-> Ordinary Binary, short-circuit Binary, Local initializer descent, and the
-> exact Variable-target Assignment family is closed through ASN0-L0.
-> Value-bearing Local, Assignment, and Return statement rows are now closed.
-> The sole current shape is `SITE0-R0-EXPR0-SPINE0-IF0-S0`; If, raw suffix
-> admission, and Loop site carriage remain separate owners. BIN0-L0 always
+> The acceptance boundary expands only as a sequence of structural
+> associated-input rows. The actual A0 caller proves five active MethodCalls
+> under Binary ancestors, so direct EXPR0-C0 wiring remains held. Ordinary
+> Binary, short-circuit Binary, Local, Assignment, Return, and raw statement-If
+> behavior/parity prerequisites are closed. The sole current shape is
+> `SITE0-R0-EXPR0-SPINE0-IF0-L0`; located If, raw suffix admission, and Loop
+> site carriage remain separate owners. BIN0-L0 always
 > uses the located driver for an ordinary Binary and lets each associated child
 > prove inactivity or continue to an exact claim; it never selects a route by
 > catching `RowsUnderPrefix`. Every prerequisite keeps production located callers and
@@ -933,5 +962,5 @@ Stop the current row if any of the following becomes necessary:
 Quick-gate latency is tracked separately in
 [`dev-gate-quick-latency-task-2026-07-18.md`](./dev-gate-quick-latency-task-2026-07-18.md).
 Its first row is `DEV-GATE-Q0-M0`; it does not change this card's active
-`SITE0-R0-EXPR0-SPINE0-IF0-S0` blocker or share a commit with a
+`SITE0-R0-EXPR0-SPINE0-IF0-L0` blocker or share a commit with a
 compiler semantic row.
