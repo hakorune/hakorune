@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result LOOP0-P0b SITEPROJ0 closed; O0-P0 resumes next"
+status = "callable-result LOOP0-P0b O0-P0 closed; O0-G0 is next"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -296,16 +296,17 @@ method_anchor = "docs/development/current/main/design/current-docs-archive-polic
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/investigations/callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md"
 
-latest_card = "callable-result-loop0-o0-site-projection-consultation-2026-07-19"
-latest_card_path = "docs/development/current/main/investigations/callable-result-loop0-o0-site-projection-consultation-2026-07-19.md"
-latest_card_summary = """SITEPROJ0 is closed. One private helper inside the
-existing public expression-spine guard fixes one typed projection owner, one
-direct Loop-port consumer, unchanged generic body_stmt and activation rows,
-the actual/nested/negative path matrix, zero Builder/ledger/fallback/retry,
-and source/check files below 800 lines. The original O0-P0 actual
-default/strict representation proof now resumes from a clean rewrite; the old
-failing WIP remains evidence-only and must not be applied wholesale."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0B-O0-P0-001"
+latest_card = "callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19"
+latest_card_path = "docs/development/current/main/investigations/callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md"
+latest_card_summary = """O0-P0 is closed over the shared actual Parser
+fixture and process-scoped default/strict lock. Body(4) seals one exact
+six-statement NumericProgression/Last representation: default owns the direct
+RecipeOnly prefix plus cleanup, while strict owns the ExitAllowed ordinal-2
+ExitOnly If and ordinal-4 StmtWrappedJoinIf singleton Join with exact PATH0
+condition/then/else carriers. Cleanup matches the selected activation site.
+Builder, composer, skeleton, ledger, and production located-root callers stay
+zero. O0-G0 is next."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0B-O0-G0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

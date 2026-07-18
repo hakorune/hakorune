@@ -1,5 +1,5 @@
 ---
-Status: O0-R0 closed; O0-P0 is the sole next code-facing row
+Status: O0-P0 closed; O0-G0 is the sole next row
 Date: 2026-07-19
 Decision baseline: eef7c61d54085e8344608a7859420bd9e9a74887
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md
@@ -451,17 +451,32 @@ expression-spine guard now reports passive located schema one, located
 execution callers zero, representation modes two, and canonical extraction
 calls one. Every touched source/check file remains below 800 lines.
 
-`LOOP0-P0b-O0-P0` is next. It must use the existing F0 actual Parser fixture
-and process-scoped default/strict lock to prove the exact six-statement body,
-root condition, ordinal 2 ExitOnly If, ordinal 4 wrapped Join If, and cleanup
-carrier. It must not connect a composer, Builder, ledger, or production
-located root.
+The O0-P0 closeout below now supplies the required actual Parser fixture and
+process-scoped default/strict proof. No composer, Builder, ledger, or
+production located root was connected.
 
 ### O0-P0 contract
 
 Use the existing F0 shared actual fixture and environment lock. Focused Rust
 tests, not structural counts alone, prove default, strict, root condition,
 ordinal 2 ExitOnly If, ordinal 4 wrapped Join If, and cleanup carriers.
+
+Closeout (2026-07-19): closed. One focused test borrows the shared actual
+Parser fixture and its process-scoped default/strict lock. The exact Loop is
+`Body(4)` with canonical body length six and retained
+NumericProgression/Last disposition. Default seals RecipeOnly as the exact
+PATH0 direct prefix ordinals 0 through 4 plus cleanup 5. Strict seals the
+five-item ExitAllowed root, ordinal 2 as ExitOnly with exact condition/then
+carriers and no else, and ordinal 4 as one StmtWrappedJoinIf whose singleton
+NoExit recipe is exactly `IfV2 { if_stmt: 0, contract: Join }` with exact
+condition/then/else carriers and one sealed item per branch. Both modes retain
+the exact cleanup expression selected by the activation plan.
+
+The focused actual test and all nine located-representation tests are green;
+formatting, all-target check, the consolidated public expression-spine guard,
+current-state pointer guard, and the sub-800-line source limit are green.
+Builder, composer, skeleton, ledger, production located-root callers,
+fallback, and retry remain zero. O0-G0 is the sole next row.
 
 ### O0-G0 contract
 
