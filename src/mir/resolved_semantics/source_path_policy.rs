@@ -326,6 +326,10 @@ pub(crate) enum SourceBodyKindV1 {
 }
 
 impl SourceBodyKindV1 {
+    pub(crate) fn owns_item_segment(self, segment: &SourcePathSegmentV1) -> bool {
+        std::mem::discriminant(segment) == std::mem::discriminant(&self.item_segment(0))
+    }
+
     pub(crate) fn root_segment(self) -> Option<SourcePathSegmentV1> {
         match self {
             Self::Function | Self::Lambda => None,

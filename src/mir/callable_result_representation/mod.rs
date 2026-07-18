@@ -35,7 +35,7 @@ pub(crate) use activation_error::CallableResultActivationErrorV1;
 #[allow(unused_imports)]
 pub(crate) use caller_ledger::{
     ClaimedCallableResultActivationSiteV1, VerifiedCallableResultCallerLedgerV1,
-    VerifiedCallableResultInactivePrefixV1,
+    VerifiedCallableResultInactiveBodyV1, VerifiedCallableResultInactivePrefixV1,
 };
 pub(crate) use caller_ledger_error::CallableResultCallerLedgerErrorV1;
 #[allow(unused_imports)]

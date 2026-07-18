@@ -5,10 +5,14 @@ use std::marker::PhantomData;
 
 use crate::ast::ASTNode;
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
-use crate::mir::resolved_semantics::{SourceExprSiteV1, SourceNodeSiteV1};
+use crate::mir::resolved_semantics::{
+    SourceBodyKindV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathV1,
+};
 
 use super::activation::VerifiedCallableResultActivationSiteV1;
-use super::located_legacy::{LegacyActivationClaimPartsV1, LegacyActivationPrefixPartsV1};
+use super::located_legacy::{
+    LegacyActivationBodyDomainPartsV1, LegacyActivationClaimPartsV1, LegacyActivationPrefixPartsV1,
+};
 use super::{
     CallableResultActivationDispositionV1, CallableResultCallerLedgerErrorV1, LegacyBodyInputV1,
     LegacyExprInputV1, LegacyStmtInputV1, VerifiedCallableResultActivationPlanV1,
@@ -18,6 +22,14 @@ use super::{
 pub(crate) struct VerifiedCallableResultInactivePrefixV1<'plan> {
     caller: &'plan CanonicalSameModuleCallableKeyV1,
     prefix: Option<SourceNodeSiteV1>,
+    _plan: PhantomData<&'plan VerifiedCallableResultActivationPlanV1>,
+}
+
+#[derive(Debug)]
+pub(crate) struct VerifiedCallableResultInactiveBodyV1<'plan> {
+    _caller: &'plan CanonicalSameModuleCallableKeyV1,
+    _parent: Option<SourceNodeSiteV1>,
+    _kind: SourceBodyKindV1,
     _plan: PhantomData<&'plan VerifiedCallableResultActivationPlanV1>,
 }
 
@@ -97,12 +109,12 @@ impl<'plan> VerifiedCallableResultCallerLedgerV1<'plan> {
     pub(crate) fn prove_body_inactive(
         &self,
         body: &LegacyBodyInputV1<'plan>,
-    ) -> Result<VerifiedCallableResultInactivePrefixV1<'plan>, CallableResultCallerLedgerErrorV1>
+    ) -> Result<VerifiedCallableResultInactiveBodyV1<'plan>, CallableResultCallerLedgerErrorV1>
     {
         let parts = body
-            .activation_prefix_parts()
+            .activation_body_domain_parts()
             .map_err(CallableResultCallerLedgerErrorV1::LegacyLocation)?;
-        self.prove_prefix(parts)
+        self.prove_body_domain(parts)
     }
 
     pub(crate) fn prove_stmt_inactive(
@@ -203,6 +215,30 @@ impl<'plan> VerifiedCallableResultCallerLedgerV1<'plan> {
         })
     }
 
+    fn prove_body_domain(
+        &self,
+        parts: LegacyActivationBodyDomainPartsV1<'_>,
+    ) -> Result<VerifiedCallableResultInactiveBodyV1<'plan>, CallableResultCallerLedgerErrorV1>
+    {
+        self.require_carrier(parts.plan_identity, parts.caller)?;
+        if let Some(row) = self
+            .rows
+            .iter()
+            .find(|row| body_domain_contains(parts.parent, parts.kind, row.site().node()))
+        {
+            return Err(CallableResultCallerLedgerErrorV1::RowsUnderPrefix {
+                prefix: body_root_diagnostic_site(parts.parent, parts.kind),
+                first: row.site().clone(),
+            });
+        }
+        Ok(VerifiedCallableResultInactiveBodyV1 {
+            _caller: self.caller,
+            _parent: parts.parent.cloned(),
+            _kind: parts.kind,
+            _plan: PhantomData,
+        })
+    }
+
     fn require_carrier(
         &self,
         plan_identity: usize,
@@ -219,4 +255,31 @@ impl<'plan> VerifiedCallableResultCallerLedgerV1<'plan> {
         }
         Ok(())
     }
+}
+
+fn body_domain_contains(
+    parent: Option<&SourceNodeSiteV1>,
+    kind: SourceBodyKindV1,
+    site: &SourceNodeSiteV1,
+) -> bool {
+    let parent_segments = parent.map(SourceNodeSiteV1::segments).unwrap_or(&[]);
+    let segments = site.segments();
+    let Some(item) = segments
+        .strip_prefix(parent_segments)
+        .and_then(|tail| tail.first())
+    else {
+        return false;
+    };
+    kind.owns_item_segment(item)
+}
+
+fn body_root_diagnostic_site(
+    parent: Option<&SourceNodeSiteV1>,
+    kind: SourceBodyKindV1,
+) -> Option<SourceNodeSiteV1> {
+    let root = kind.root_segment()?;
+    Some(match parent {
+        Some(parent) => SourcePathV1::from_node(parent).child(root).node(),
+        None => SourcePathV1::function_body().child(root).node(),
+    })
 }

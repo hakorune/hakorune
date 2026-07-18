@@ -1,5 +1,5 @@
 ---
-Status: active prerequisite
+Status: closed
 Date: 2026-07-18
 Decision: canonical located-body domain before IF0-L0
 Parent: callable-result-i64-site0-r0-expression-spine-task-2026-07-18.md
@@ -43,20 +43,28 @@ The activation-row producer remains unchanged. `IfThenBody`, `IfElseBody`,
 and `LoopBodyRoot` are semantic body/scope identities, not literal ancestors
 of canonical statement sites.
 
-The located body carrier retains:
+The located body carrier retains two deliberately separate read-only surfaces:
 
 ```text
-parent statement site
+semantic body-root site
+domain parent statement site
 SourceBodyKindV1
 body statements
 plan/caller identity
 ```
 
-`body_stmt(index)` emits the canonical item site:
+The semantic body-root site remains the existing direct child-access carrier:
 
 ```text
-parent + kind.item_segment(index)
+semantic body root + kind.item_segment(index)
 ```
+
+It intentionally keeps direct nested statement access fail-closed until the
+corresponding If/Loop capability row. BODYDOMAIN0 must not make `body_stmt`
+canonical, because doing so would let a caller extract a nested Loop/If
+statement and bypass the body ledger.
+
+The separate domain parent is ledger-only. It classifies activation rows by:
 
 The ledger proves a body inactive only when no row belongs to its typed domain:
 
@@ -76,7 +84,8 @@ inactive proofs retain their existing literal-prefix law.
 | canonical statement/expression sites | existing activation/source-path producers |
 | body scope identity | existing `SourceBodyKindV1` root vocabulary |
 | body item family | existing `SourceBodyKindV1::item_segment` vocabulary |
-| located body membership | new immutable typed body-domain parts |
+| direct child statement carrier | existing semantic body-root location |
+| located body membership | new immutable typed domain-parent/body-kind parts |
 | exact row consumption/order | existing caller ledger |
 
 This row does not own or change:
@@ -115,8 +124,9 @@ foreign and unlocated carriers reject
 
 Connect `prove_body_inactive` to the typed body-domain decision exactly once.
 Keep `prove_stmt_inactive` and `prove_expr_inactive` on literal prefix proof.
-Make `body_stmt` publish canonical parent-plus-item sites and prove they
-round-trip through the existing source view/projection.
+Do not change `body_stmt` publication. Keep the existing direct nested Loop
+assignment fail-closed fixture. Canonical child-statement access requires a
+future explicit capability row and is not part of BODYDOMAIN0.
 
 Integration fixtures must show active then, else, and loop body rows fail with
 exact `RowsUnderPrefix` witnesses before raw Call/Return effects. The located
@@ -128,7 +138,8 @@ session becomes poisoned; a fresh independent session remains usable.
 typed body-domain owners = 1
 caller-ledger body-domain consumers = 1
 stmt/expr literal-prefix owners = 1
-root-plus-item located paths = 0
+canonical nested child-statement access = 0
+direct nested Loop/If bypass = 0
 activation producer path delta = 0
 source projection/shadow path delta = 0
 If/Loop selector callers = 0
@@ -152,6 +163,7 @@ Stop if any implementation requires:
 8. retry, fallback, or raw delegation after proof failure;
 9. a persistent Builder path/domain table;
 10. a source/check file reaching 800 lines.
+11. canonicalizing direct nested `body_stmt` access before its capability row.
 
 ## Closeout
 
@@ -159,3 +171,21 @@ BODYDOMAIN0 is behavior-neutral and production callers remain zero. Once its
 focused tests, callable-result suite, structural guard, check, release, and
 line caps are green, resume IF0-L0 from a clean reimplementation. Do not apply
 the failed IF0-L0 stash wholesale.
+
+Closed evidence:
+
+```text
+caller-ledger focused: 8/8
+located legacy: 34/34
+callable-result representation: 59/59
+structural spine guard: green
+current-state pointer guard: green
+cargo check --all-targets: green
+release build: green
+quick gate: 66/66 in 52s
+worker authority/code/test audits: GO / GO / GO
+maximum touched source/check file: 583 lines
+```
+
+The landed shape keeps semantic body-root child access fail-closed and adds a
+separate ledger-only `domain_parent`. IF0-L0 is the next code-facing row.

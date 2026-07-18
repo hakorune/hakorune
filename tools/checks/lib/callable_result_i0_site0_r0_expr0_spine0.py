@@ -11,6 +11,7 @@ from callable_result_i0_site0_r0_expr0_spine0_stmt0_assignment import check_asn0
 from callable_result_i0_site0_r0_expr0_spine0_stmt0_return import check_ret0_s0
 from callable_result_i0_site0_r0_expr0_spine0_stmt0 import check_lcl0_s0
 from callable_result_i0_site0_r0_expr0_spine0_if0 import check_if0_s0
+from callable_result_i0_site0_r0_bodydomain0 import check_bodydomain0
 
 
 TAG = "[callable-result-i0-site0-r0-expr0-spine0]"
@@ -479,6 +480,7 @@ def main() -> None:
         asn_summary = check_asn0_s0(root)
         ret_summary = check_ret0_s0(root)
         if_summary = check_if0_s0(root)
+        bodydomain_summary = check_bodydomain0(root)
     except RuntimeError as error:
         fail(str(error))
     require_count(
@@ -540,7 +542,8 @@ def main() -> None:
         "raw_impl=1 parity_reference=1 located_impl=1 sc_driver=1 "
         "sc_raw_selector=1 sc_raw_impl=1 sc_located_impl=1 "
         "sc_parity_reference=1 logical_owner_preserved=1 "
-        f"{lcl_summary} {asn_summary} {ret_summary} {if_summary}"
+        f"{lcl_summary} {asn_summary} {ret_summary} {if_summary} "
+        f"{bodydomain_summary}"
     )
 
 

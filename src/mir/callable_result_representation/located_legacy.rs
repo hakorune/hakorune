@@ -16,6 +16,7 @@ pub(crate) struct LocatedLegacyBodyV1<'plan> {
     plan_identity: usize,
     caller: &'plan CanonicalSameModuleCallableKeyV1,
     parent: Option<SourceNodeSiteV1>,
+    domain_parent: Option<SourceNodeSiteV1>,
     kind: SourceBodyKindV1,
     statements: &'plan [ASTNode],
 }
@@ -162,20 +163,28 @@ impl<'plan> LegacyExprInputV1<'plan> {
 }
 
 impl LegacyBodyInputV1<'_> {
-    pub(super) fn activation_prefix_parts(
+    pub(super) fn activation_body_domain_parts(
         &self,
-    ) -> Result<LegacyActivationPrefixPartsV1<'_>, CallableResultLegacyLocationErrorV1> {
+    ) -> Result<LegacyActivationBodyDomainPartsV1<'_>, CallableResultLegacyLocationErrorV1> {
         match self {
-            Self::Located(located) => Ok(LegacyActivationPrefixPartsV1 {
+            Self::Located(located) => Ok(LegacyActivationBodyDomainPartsV1 {
                 plan_identity: located.plan_identity,
                 caller: located.caller,
-                prefix: located.parent.as_ref(),
+                parent: located.domain_parent.as_ref(),
+                kind: located.kind,
             }),
             Self::Unlocated(_) => {
                 Err(CallableResultLegacyLocationErrorV1::UnlocatedCannotProveInactive)
             }
         }
     }
+}
+
+pub(super) struct LegacyActivationBodyDomainPartsV1<'a> {
+    pub(super) plan_identity: usize,
+    pub(super) caller: &'a CanonicalSameModuleCallableKeyV1,
+    pub(super) parent: Option<&'a SourceNodeSiteV1>,
+    pub(super) kind: SourceBodyKindV1,
 }
 
 pub(super) struct LegacyActivationClaimPartsV1<'a> {
@@ -218,6 +227,7 @@ impl<'plan> VerifiedCallableResultLegacySourceViewV1<'plan> {
             plan_identity: self.plan_identity,
             caller: self.caller,
             parent: None,
+            domain_parent: None,
             kind: SourceBodyKindV1::Function,
             statements: self.declaration.body(),
         })
@@ -443,6 +453,7 @@ impl<'plan> VerifiedCallableResultLegacySourceViewV1<'plan> {
                         .child(root_segment)
                         .node(),
                 ),
+                domain_parent: Some(parent.site.node().clone()),
                 kind: resolved.kind(),
                 statements,
             }),
@@ -488,6 +499,7 @@ impl<'plan> VerifiedCallableResultLegacySourceViewV1<'plan> {
                         .child(root_segment)
                         .node(),
                 ),
+                domain_parent: Some(parent.site.node().clone()),
                 kind: resolved.kind(),
                 statements,
             }),

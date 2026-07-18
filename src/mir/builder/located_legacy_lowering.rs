@@ -10,6 +10,9 @@
 #[path = "located_legacy_assignment_tests.rs"]
 mod assignment_tests;
 #[cfg(test)]
+#[path = "located_legacy_body_domain_tests.rs"]
+mod body_domain_tests;
+#[cfg(test)]
 #[path = "located_legacy_local_tests.rs"]
 mod local_tests;
 #[cfg(test)]
@@ -26,7 +29,8 @@ use crate::mir::callable_result_representation::{
     CallableResultCallerLedgerErrorV1, CallableResultLegacyLocationErrorV1,
     ClaimedCallableResultActivationSiteV1, LegacyBodyInputV1, LegacyExprInputV1, LegacyStmtInputV1,
     VerifiedCallableResultActivationPlanV1, VerifiedCallableResultCallerLedgerV1,
-    VerifiedCallableResultInactivePrefixV1, VerifiedCallableResultLegacySourceViewV1,
+    VerifiedCallableResultInactiveBodyV1, VerifiedCallableResultInactivePrefixV1,
+    VerifiedCallableResultLegacySourceViewV1,
 };
 use crate::mir::resolved_semantics::ExprChildRoleV1;
 use crate::mir::{MirBuilder, MirType, TypeOpKind, ValueId};
@@ -370,7 +374,7 @@ fn delegate_inactive_statement(
 fn delegate_inactive_body(
     builder: &mut MirBuilder,
     input: LegacyBodyInputV1<'_>,
-    _proof: VerifiedCallableResultInactivePrefixV1<'_>,
+    _proof: VerifiedCallableResultInactiveBodyV1<'_>,
 ) -> Result<ValueId, LocatedLegacyLoweringErrorV1> {
     drive_raw_legacy_body_v1(builder, input.statements().to_vec())
         .map_err(LocatedLegacyLoweringErrorV1::Lowering)
