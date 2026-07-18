@@ -10,12 +10,32 @@ use crate::ast::ASTNode;
 use crate::mir::{MirBuilder, ValueId};
 
 use super::super::recursive_child_lowering::{
-    drive_legacy_expression_v1, RecursiveChildLoweringPortV1,
+    drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
 use super::variable_stmt::{
     build_local_statement_from_values_with_types_and_preclaims,
-    preflight_exact_numeric_local_initializers,
+    observe_preflighted_local_statement, preflight_exact_numeric_local_initializers,
 };
+
+pub(in crate::mir::builder) struct RawLegacyLocalInputV1 {
+    variables: Vec<String>,
+    initial_values: Vec<Option<Box<ASTNode>>>,
+    declared_type_names: Vec<Option<String>>,
+}
+
+impl RawLegacyLocalInputV1 {
+    pub(in crate::mir::builder) const fn new(
+        variables: Vec<String>,
+        initial_values: Vec<Option<Box<ASTNode>>>,
+        declared_type_names: Vec<Option<String>>,
+    ) -> Self {
+        Self {
+            variables,
+            initial_values,
+            declared_type_names,
+        }
+    }
+}
 
 pub(in crate::mir::builder) struct LocalStatementSyntaxViewV1<'input> {
     variables: &'input [String],
@@ -83,6 +103,57 @@ pub(in crate::mir::builder) trait LocalStatementDescentPortV1:
     ) -> Result<ValueId, String>;
 }
 
+impl LocalStatementDescentPortV1 for RawLegacyChildLoweringPortV1 {
+    type LocalInput = RawLegacyLocalInputV1;
+
+    fn local_syntax<'input>(
+        &self,
+        input: &'input Self::LocalInput,
+    ) -> Result<LocalStatementSyntaxViewV1<'input>, String> {
+        Ok(LocalStatementSyntaxViewV1::new(
+            &input.variables,
+            &input.initial_values,
+            &input.declared_type_names,
+        ))
+    }
+
+    fn local_initializer_expression_input(
+        &self,
+        input: &Self::LocalInput,
+        index: usize,
+    ) -> Result<Self::ExpressionInput, String> {
+        input
+            .initial_values
+            .get(index)
+            .and_then(|value| value.as_deref())
+            .cloned()
+            .ok_or_else(|| {
+                format!("[local-statement-descent/raw-initializer-missing] index={index}")
+            })
+    }
+
+    fn lower_typed_array_literal_initializer(
+        &mut self,
+        builder: &mut MirBuilder,
+        _input: &Self::LocalInput,
+        _index: usize,
+        elements: &[ASTNode],
+    ) -> Result<(ValueId, String), String> {
+        builder.build_typed_array_literal(elements.to_vec())
+    }
+
+    fn lower_record_constructor_initializer(
+        &mut self,
+        builder: &mut MirBuilder,
+        _input: &Self::LocalInput,
+        _index: usize,
+        class: &str,
+        arguments: &[ASTNode],
+    ) -> Result<ValueId, String> {
+        builder.build_record_constructor_value(class.to_string(), arguments.to_vec())
+    }
+}
+
 pub(in crate::mir::builder) fn drive_local_statement_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
@@ -98,6 +169,7 @@ where
             syntax.initial_values(),
             syntax.declared_type_names(),
         )?;
+        observe_preflighted_local_statement(syntax.variables(), syntax.initial_values());
         (
             syntax.variables().to_vec(),
             syntax.initial_values().to_vec(),
@@ -145,4 +217,15 @@ where
         declared_type_names,
         preclaimed_arrays,
     )
+}
+
+pub(in crate::mir::builder) fn drive_raw_local_statement_v1(
+    builder: &mut MirBuilder,
+    variables: Vec<String>,
+    initial_values: Vec<Option<Box<ASTNode>>>,
+    declared_type_names: Vec<Option<String>>,
+) -> Result<ValueId, String> {
+    let input = RawLegacyLocalInputV1::new(variables, initial_values, declared_type_names);
+    let mut port = RawLegacyChildLoweringPortV1;
+    drive_local_statement_v1(builder, &mut port, &input)
 }

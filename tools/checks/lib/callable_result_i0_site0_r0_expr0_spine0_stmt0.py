@@ -29,6 +29,7 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     local_descent_tests_path = (
         "src/mir/builder/stmts/local_statement_descent_tests.rs"
     )
+    local_raw_tests_path = "src/mir/builder/stmts/local_statement_raw_tests.rs"
     stmts_root_path = "src/mir/builder/stmts/mod.rs"
     stmts_readme_path = "src/mir/builder/stmts/README.md"
     variable_stmt_path = "src/mir/builder/stmts/variable_stmt.rs"
@@ -39,6 +40,7 @@ def check_lcl0_s0(root: Path, located: str) -> str:
 
     local_descent = _read(root, local_descent_path)
     local_descent_tests = _read(root, local_descent_tests_path)
+    local_raw_tests = _read(root, local_raw_tests_path)
     stmts_root = _read(root, stmts_root_path)
     stmts_readme = _read(root, stmts_readme_path)
     variable_stmt = _read(root, variable_stmt_path)
@@ -50,24 +52,29 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         "Local initializer child-demand port owner",
     )
     _require_count(local_descent, "type LocalInput;", 1, "associated Local input")
-    _require_count(local_descent, "fn local_syntax", 1, "Local syntax query owner")
+    _require_count(
+        local_descent,
+        "fn local_syntax",
+        2,
+        "Local syntax query declaration plus raw implementation",
+    )
     _require_count(
         local_descent,
         "fn local_initializer_expression_input",
-        1,
-        "ordinary initializer input query owner",
+        2,
+        "ordinary initializer input declaration plus raw implementation",
     )
     _require_count(
         local_descent,
         "fn lower_typed_array_literal_initializer",
-        1,
-        "typed-array specialized hook owner",
+        2,
+        "typed-array hook declaration plus raw implementation",
     )
     _require_count(
         local_descent,
         "fn lower_record_constructor_initializer",
-        1,
-        "record specialized hook owner",
+        2,
+        "record hook declaration plus raw implementation",
     )
     _require_count(
         local_descent,
@@ -146,11 +153,18 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         path.read_text(encoding="utf-8") for path in (root / "src").rglob("*.rs")
     )
     normalized_rust_source = re.sub(r"\s+", " ", all_rust_source)
-    if (
-        "impl LocalStatementDescentPortV1 for RawLegacyChildLoweringPortV1"
-        in normalized_rust_source
-    ):
-        _fail("LCL0-S0 raw implementation must remain zero")
+    _require_count(
+        normalized_rust_source,
+        "impl LocalStatementDescentPortV1 for RawLegacyChildLoweringPortV1",
+        1,
+        "LCL0-I0 raw implementation",
+    )
+    _require_count(
+        normalized_rust_source,
+        "observe_preflighted_local_statement(",
+        2,
+        "debug observation declaration plus sole post-preflight consumer",
+    )
     if (
         "LocalStatementDescentPortV1 for LocatedLegacyLoweringSessionV1"
         in normalized_rust_source
@@ -161,6 +175,7 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     local_ignored = {
         (root / local_descent_path).resolve(),
         (root / local_descent_tests_path).resolve(),
+        (root / local_raw_tests_path).resolve(),
     }
     for path in (root / "src").rglob("*.rs"):
         if path.resolve() in local_ignored:
@@ -170,9 +185,61 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         )
     if local_driver_callers != 0:
         _fail(
-            "LCL0-S0 production/raw/located driver callers must remain zero: "
+            "LCL0-I0 generic driver callers outside its raw facade must remain zero: "
             f"actual={local_driver_callers}"
         )
+
+    _require_count(
+        local_descent,
+        "struct RawLegacyLocalInputV1",
+        1,
+        "owned raw Local input",
+    )
+    _require_count(
+        local_descent,
+        "fn drive_raw_local_statement_v1",
+        1,
+        "thin raw Local facade",
+    )
+    _require_count(
+        local_descent,
+        "builder.build_typed_array_literal(elements.to_vec())",
+        1,
+        "existing typed-array owner reuse",
+    )
+    _require_count(
+        local_descent,
+        "builder.build_record_constructor_value(class.to_string(), arguments.to_vec())",
+        1,
+        "existing record-constructor owner reuse",
+    )
+
+    raw_selector_callers = 0
+    for path in (root / "src").rglob("*.rs"):
+        if path.resolve() in local_ignored:
+            continue
+        raw_selector_callers += path.read_text(encoding="utf-8").count(
+            "drive_raw_local_statement_v1("
+        )
+    if raw_selector_callers != 1:
+        _fail(
+            "LCL0-I0 raw production selectors: "
+            f"expected=1 actual={raw_selector_callers}"
+        )
+    _require_count(
+        variable_stmt,
+        "super::local_statement_descent::drive_raw_local_statement_v1(",
+        1,
+        "existing build_local_statement facade selector",
+    )
+    for retired in (
+        "for (i, _var_name) in variables.iter().enumerate()",
+        "builder.build_typed_array_literal(elements.clone())",
+        "builder.build_record_constructor_value(class.clone(), arguments.clone())",
+        "builder.build_expression(*init_expr.clone())",
+    ):
+        if retired in variable_stmt:
+            _fail(f"LCL0-I0 old raw orchestration remains selected: {retired}")
 
     _require_count(
         variable_stmt,
@@ -199,6 +266,12 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         1,
         "focused Local descent fixture module",
     )
+    _require_count(
+        stmts_root,
+        "mod local_statement_raw_tests;",
+        1,
+        "focused raw Local fixture module",
+    )
 
     for fixture in (
         "ordinary_initializers_preflight_then_descend_in_index_order_and_complete_once",
@@ -213,13 +286,26 @@ def check_lcl0_s0(root: Path, located: str) -> str:
         if fixture not in local_descent_tests:
             _fail(f"missing LCL0-S0 fixture: {fixture}")
 
+    for fixture in (
+        "raw_local_selector_preserves_initializer_order_and_binding_completion",
+        "raw_local_preflight_rejects_before_first_initializer_effect",
+        "raw_local_child_failure_stops_later_initializer_and_binding_publication",
+        "raw_local_initializers_reuse_binary_and_short_circuit_spines",
+        "raw_local_typed_array_reuses_specialized_claim_before_appends",
+        "raw_local_record_initializer_reuses_existing_constructor_owner",
+        "raw_local_untyped_missing_initializer_keeps_existing_null_sugar",
+    ):
+        if fixture not in local_raw_tests:
+            _fail(f"missing LCL0-I0 fixture: {fixture}")
+
     for phrase in (
         "Local declaration preflight",
         "existing whole-declaration exact-numeric/typed-array preflight",
         "request ordinary initializer expressions in declaration order",
         "prove the exact `LocalInitializer(index)` subtree",
         "must not reconstruct source sites",
-        "first LCL0-S0 slice is disconnected",
+        "LCL0-I0 selects the owned raw Local input",
+        "located Local acceptance remains disconnected",
     ):
         if phrase not in stmts_readme:
             _fail(f"missing LCL0 README boundary: {phrase}")
@@ -227,6 +313,7 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     touched = (
         local_descent_path,
         local_descent_tests_path,
+        local_raw_tests_path,
         stmts_root_path,
         stmts_readme_path,
         variable_stmt_path,
@@ -240,4 +327,7 @@ def check_lcl0_s0(root: Path, located: str) -> str:
     if re.search(r"Arc<|Rc<|thread_local!|static mut", local_descent):
         _fail("LCL0 substrate must remain stack-scoped and immutable")
 
-    return "lcl_driver=1 lcl_e0_descents=1 lcl_production_callers=0"
+    return (
+        "lcl_driver=1 lcl_e0_descents=1 lcl_raw_impl=1 "
+        "lcl_raw_selector=1 lcl_located_impl=0"
+    )

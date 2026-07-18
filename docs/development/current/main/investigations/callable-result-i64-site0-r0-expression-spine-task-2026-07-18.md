@@ -1,5 +1,5 @@
 ---
-Status: LCL0-S0 closed; LCL0-I0 is next
+Status: LCL0-I0 closed; LCL0-P0 is next
 Date: 2026-07-18
 Decision: expand located lowering by one structural child family per row
 Parent: callable-result-i64-catalog0-i0-activation-design-stop-2026-07-17.md
@@ -62,13 +62,13 @@ SITE0-R0-EXPR0-SPINE0-BIN0-S0
 The sole next code-facing row is:
 
 ```text
-SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-I0
+SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-P0
 ```
 
-`LCL0-S0` is closed. LCL0-I0 may add only the behavior-neutral raw Local
-adapter that selects the disconnected Local-initializer associated-input
-driver. Assignment, Return, If, Loop, located Local adapters, production
-located root callers, and callable-result publication remain zero.
+`LCL0-I0` is closed. LCL0-P0 may add only a cfg(test)-scoped pre-I0 reference
+and exact normalized parity fixtures for the selected raw Local path.
+Assignment, Return, If, Loop, located Local adapters, production located root
+callers, and callable-result publication remain zero.
 
 ## Why C0 is held
 
@@ -450,6 +450,28 @@ formatting, diff check, and line caps are green. Raw and located Local adapters,
 production located root callers, and callable-result publication remain zero.
 LCL0-I0 is next.
 
+### LCL0-I0 closeout
+
+LCL0-I0 is closed. The existing
+`variable_stmt::build_local_statement` facade is the one production selector
+for an owned raw Local input and the shared statement driver. The old raw
+initializer loop is physically retired. The driver keeps one existing whole-
+declaration preflight and its preflight-success debug observation before
+initializer effects, requests ordinary expressions through the existing raw
+recursive port, retains typed-array claim/preclaim and record-constructor
+owners through thin hooks, and invokes the existing from-values completion
+once after all values exist.
+
+Seven raw fixtures cover declaration order and binding completion, whole-
+declaration failure before effects, child failure before later initializers or
+bindings, ordinary-Binary plus short-circuit initializer descent, typed-array
+claim-before-append, record publication, and Null sugar. Combined Local 15/15,
+existing variable-statement 3/3, recursive child lowering 7/7, callable-result
+55/55, cargo check, the SPINE0 guard, quick 66/66, release build, formatting,
+diff check, and line caps are green. Located Local implementations/selectors,
+production located root callers, and callable-result publication remain zero.
+LCL0-P0 is next.
+
 ## STMT0 — value-bearing statement family
 
 The worker audit found that one shared STMT0 driver would have to duplicate or
@@ -659,7 +681,7 @@ Stop the current row if any of the following becomes necessary:
 > structural associated-input rows. The actual A0 caller proves five active
 > MethodCalls under Binary ancestors, so direct EXPR0-C0 wiring is held.
 > Ordinary Binary is closed through BIN0-L0. The sole current shape is
-> `SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-I0`; later value-bearing statements, If, raw suffix
+> `SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-P0`; later value-bearing statements, If, raw suffix
 > admission, and Loop site carriage remain separate owners. BIN0-L0 always
 > uses the located driver for an ordinary Binary and lets each associated child
 > prove inactivity or continue to an exact claim; it never selects a route by
@@ -674,5 +696,5 @@ Stop the current row if any of the following becomes necessary:
 Quick-gate latency is tracked separately in
 [`dev-gate-quick-latency-task-2026-07-18.md`](./dev-gate-quick-latency-task-2026-07-18.md).
 Its first row is `DEV-GATE-Q0-M0`; it does not change this card's active
-`SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-I0` blocker or share a commit with a
+`SITE0-R0-EXPR0-SPINE0-STMT0-LCL0-P0` blocker or share a commit with a
 compiler semantic row.

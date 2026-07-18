@@ -63,7 +63,18 @@ pub(in crate::mir::builder) fn build_local_statement(
     initial_values: Vec<Option<Box<ASTNode>>>,
     declared_type_names: Vec<Option<String>>,
 ) -> Result<ValueId, String> {
-    preflight_exact_numeric_local_initializers(&variables, &initial_values, &declared_type_names)?;
+    super::local_statement_descent::drive_raw_local_statement_v1(
+        builder,
+        variables,
+        initial_values,
+        declared_type_names,
+    )
+}
+
+pub(in crate::mir::builder) fn observe_preflighted_local_statement(
+    variables: &[String],
+    initial_values: &[Option<Box<ASTNode>>],
+) {
     if crate::config::env::builder_loopform_debug() {
         crate::mir::builder::control_flow::joinir::trace::trace().stderr_if(
             &format!(
@@ -74,49 +85,6 @@ pub(in crate::mir::builder) fn build_local_statement(
             true,
         );
     }
-    let mut evaluated_values = Vec::with_capacity(variables.len());
-    let mut preclaimed_arrays = Vec::with_capacity(variables.len());
-    for (i, _var_name) in variables.iter().enumerate() {
-        let typed_spec = declared_type_names
-            .get(i)
-            .and_then(|value| value.as_deref())
-            .map(crate::typed_array_contract_spec::parse_annotation)
-            .transpose()?
-            .flatten();
-        let mut preclaimed = None;
-        let value_id = if i < initial_values.len() && initial_values[i].is_some() {
-            let init_expr = initial_values[i].as_ref().unwrap();
-            match init_expr.as_ref() {
-                ASTNode::ArrayLiteral { elements, .. } if typed_spec.is_some() => {
-                    let (value, contract_id) =
-                        builder.build_typed_array_literal(elements.clone())?;
-                    preclaimed = Some((contract_id, typed_spec.expect("guarded typed spec")));
-                    value
-                }
-                ASTNode::New {
-                    class, arguments, ..
-                } if builder.is_record_constructor_class(class) => {
-                    builder.build_record_constructor_value(class.clone(), arguments.clone())?
-                }
-                _ => builder.build_expression(*init_expr.clone())?,
-            }
-        } else {
-            // `local x` is sugar for `local x = null` (SSOT: docs/reference/language/types.md)
-            // At runtime, `null` and `void` are the same "no value" concept, but we preserve `Null`
-            // at the MIR-const level for consistency with surface syntax.
-            crate::mir::builder::emission::constant::emit_null(builder)?
-        };
-        evaluated_values.push(value_id);
-        preclaimed_arrays.push(preclaimed);
-    }
-
-    build_local_statement_from_values_with_types_and_preclaims(
-        builder,
-        variables,
-        evaluated_values,
-        declared_type_names,
-        preclaimed_arrays,
-    )
 }
 
 pub(in crate::mir::builder) fn preflight_exact_numeric_local_initializers(

@@ -35,5 +35,9 @@ This boundary must not reconstruct source sites, own a caller ledger, infer
 types, reimplement typed-array or record semantics, publish a binding before
 all initializer values exist, or store its port/input in `MirBuilder`.
 
-The first LCL0-S0 slice is disconnected. Raw selection, normalized parity,
-and located `LocalInitializer(index)` acceptance belong to later LCL0 rows.
+LCL0-I0 selects the owned raw Local input through the existing
+`variable_stmt::build_local_statement` facade. That facade has one consumer of
+the raw adapter; the old initializer loop is retired. The shared driver keeps
+the existing preflight-success debug observation in its original position,
+before initializer effects. Normalized parity belongs to LCL0-P0, while
+located Local acceptance remains disconnected until LCL0-L0.
