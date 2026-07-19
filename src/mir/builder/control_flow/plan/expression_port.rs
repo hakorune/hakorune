@@ -285,16 +285,19 @@ mod located {
 
     pub(in crate::mir::builder) enum LocatedLoopPlanExprInputV1<'plan, 'syntax> {
         Located(LegacyExprInputV1<'plan>),
+        BorrowedLocated(&'syntax LegacyExprInputV1<'plan>),
         Synthetic(&'syntax ASTNode),
     }
 
     pub(in crate::mir::builder) enum LocatedLoopPlanStmtInputV1<'plan, 'syntax> {
         Located(LegacyStmtInputV1<'plan>),
+        BorrowedLocated(&'syntax LegacyStmtInputV1<'plan>),
         Synthetic(&'syntax ASTNode),
     }
 
     pub(in crate::mir::builder) enum LocatedLoopPlanBodyInputV1<'plan, 'syntax> {
         Located(LegacyBodyInputV1<'plan>),
+        BorrowedLocated(&'syntax LegacyBodyInputV1<'plan>),
         Synthetic(&'syntax [ASTNode]),
     }
 
@@ -329,6 +332,27 @@ mod located {
             input: LegacyBodyInputV1<'plan>,
         ) -> LocatedLoopPlanBodyInputV1<'plan, 'plan> {
             LocatedLoopPlanBodyInputV1::Located(input)
+        }
+
+        pub(in crate::mir::builder) fn borrowed_expr<'input>(
+            &self,
+            input: &'input LegacyExprInputV1<'plan>,
+        ) -> LocatedLoopPlanExprInputV1<'plan, 'input> {
+            LocatedLoopPlanExprInputV1::BorrowedLocated(input)
+        }
+
+        pub(in crate::mir::builder) fn borrowed_stmt<'input>(
+            &self,
+            input: &'input LegacyStmtInputV1<'plan>,
+        ) -> LocatedLoopPlanStmtInputV1<'plan, 'input> {
+            LocatedLoopPlanStmtInputV1::BorrowedLocated(input)
+        }
+
+        pub(in crate::mir::builder) fn borrowed_body<'input>(
+            &self,
+            input: &'input LegacyBodyInputV1<'plan>,
+        ) -> LocatedLoopPlanBodyInputV1<'plan, 'input> {
+            LocatedLoopPlanBodyInputV1::BorrowedLocated(input)
         }
 
         pub(in crate::mir::builder) fn require_exact_stmt(
@@ -405,6 +429,7 @@ mod located {
         {
             match input {
                 LocatedLoopPlanExprInputV1::Located(input) => input.node(),
+                LocatedLoopPlanExprInputV1::BorrowedLocated(input) => input.node(),
                 LocatedLoopPlanExprInputV1::Synthetic(node) => node,
             }
         }
@@ -415,6 +440,7 @@ mod located {
         {
             match input {
                 LocatedLoopPlanStmtInputV1::Located(input) => input.node(),
+                LocatedLoopPlanStmtInputV1::BorrowedLocated(input) => input.node(),
                 LocatedLoopPlanStmtInputV1::Synthetic(node) => node,
             }
         }
@@ -425,6 +451,7 @@ mod located {
         {
             match input {
                 LocatedLoopPlanBodyInputV1::Located(input) => input.statements(),
+                LocatedLoopPlanBodyInputV1::BorrowedLocated(input) => input.statements(),
                 LocatedLoopPlanBodyInputV1::Synthetic(body) => body,
             }
         }
@@ -446,6 +473,11 @@ mod located {
         {
             match body {
                 LocatedLoopPlanBodyInputV1::Located(body) => self
+                    .view
+                    .body_stmt(body, index)
+                    .map(LocatedLoopPlanStmtInputV1::Located)
+                    .map_err(LoopPlanExpressionPortErrorV1::Located),
+                LocatedLoopPlanBodyInputV1::BorrowedLocated(body) => self
                     .view
                     .body_stmt(body, index)
                     .map(LocatedLoopPlanStmtInputV1::Located)
@@ -473,6 +505,11 @@ mod located {
                     .statement_expression(statement)
                     .map(LocatedLoopPlanExprInputV1::Located)
                     .map_err(LoopPlanExpressionPortErrorV1::Located),
+                LocatedLoopPlanStmtInputV1::BorrowedLocated(statement) => self
+                    .view
+                    .statement_expression(statement)
+                    .map(LocatedLoopPlanExprInputV1::Located)
+                    .map_err(LoopPlanExpressionPortErrorV1::Located),
                 LocatedLoopPlanStmtInputV1::Synthetic(statement) => {
                     Ok(LocatedLoopPlanExprInputV1::Synthetic(statement))
                 }
@@ -489,6 +526,11 @@ mod located {
         {
             match parent {
                 LocatedLoopPlanExprInputV1::Located(parent) => self
+                    .view
+                    .child_expr(parent, role)
+                    .map(LocatedLoopPlanExprInputV1::Located)
+                    .map_err(LoopPlanExpressionPortErrorV1::Located),
+                LocatedLoopPlanExprInputV1::BorrowedLocated(parent) => self
                     .view
                     .child_expr(parent, role)
                     .map(LocatedLoopPlanExprInputV1::Located)
@@ -513,6 +555,11 @@ mod located {
                     .child_expr_from_stmt(parent, role)
                     .map(LocatedLoopPlanExprInputV1::Located)
                     .map_err(LoopPlanExpressionPortErrorV1::Located),
+                LocatedLoopPlanStmtInputV1::BorrowedLocated(parent) => self
+                    .view
+                    .child_expr_from_stmt(parent, role)
+                    .map(LocatedLoopPlanExprInputV1::Located)
+                    .map_err(LoopPlanExpressionPortErrorV1::Located),
                 LocatedLoopPlanStmtInputV1::Synthetic(parent) => {
                     raw_child_expr(parent, role).map(LocatedLoopPlanExprInputV1::Synthetic)
                 }
@@ -529,6 +576,11 @@ mod located {
         {
             match parent {
                 LocatedLoopPlanExprInputV1::Located(parent) => self
+                    .view
+                    .child_body(parent, role)
+                    .map(LocatedLoopPlanBodyInputV1::Located)
+                    .map_err(LoopPlanExpressionPortErrorV1::Located),
+                LocatedLoopPlanExprInputV1::BorrowedLocated(parent) => self
                     .view
                     .child_body(parent, role)
                     .map(LocatedLoopPlanBodyInputV1::Located)
@@ -553,6 +605,11 @@ mod located {
                     .child_body_from_stmt(parent, role)
                     .map(LocatedLoopPlanBodyInputV1::Located)
                     .map_err(LoopPlanExpressionPortErrorV1::Located),
+                LocatedLoopPlanStmtInputV1::BorrowedLocated(parent) => self
+                    .view
+                    .child_body_from_stmt(parent, role)
+                    .map(LocatedLoopPlanBodyInputV1::Located)
+                    .map_err(LoopPlanExpressionPortErrorV1::Located),
                 LocatedLoopPlanStmtInputV1::Synthetic(parent) => {
                     raw_child_body(parent, role).map(LocatedLoopPlanBodyInputV1::Synthetic)
                 }
@@ -566,8 +623,10 @@ mod located {
         where
             Self: 'input,
         {
-            let LocatedLoopPlanExprInputV1::Located(input) = input else {
-                return Ok(CoreCallSourceV1::Unlocated);
+            let input = match input {
+                LocatedLoopPlanExprInputV1::Located(input) => input,
+                LocatedLoopPlanExprInputV1::BorrowedLocated(input) => *input,
+                LocatedLoopPlanExprInputV1::Synthetic(_) => return Ok(CoreCallSourceV1::Unlocated),
             };
             if !matches!(input.node(), ASTNode::MethodCall { .. }) {
                 return Ok(CoreCallSourceV1::Unlocated);
@@ -583,4 +642,7 @@ mod located {
     }
 }
 
-pub(in crate::mir::builder) use located::LocatedLoopPlanExpressionPortV1;
+pub(in crate::mir::builder) use located::{
+    LocatedLoopPlanBodyInputV1, LocatedLoopPlanExprInputV1, LocatedLoopPlanExpressionPortV1,
+    LocatedLoopPlanStmtInputV1,
+};

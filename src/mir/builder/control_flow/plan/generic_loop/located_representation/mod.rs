@@ -1,6 +1,7 @@
 //! Passive O0 located GenericLoopV1 representation seal.
 
 mod error;
+mod lowering_view;
 mod product;
 mod recipe_seal;
 
@@ -16,6 +17,11 @@ use crate::mir::policies::BodyLoweringPolicy;
 use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
 
 pub(in crate::mir::builder) use error::LocatedGenericLoopRepresentationErrorV1;
+pub(in crate::mir::builder) use lowering_view::{
+    VerifiedLocatedGenericLoopLoweringModeV1, VerifiedLocatedGenericLoopLoweringViewV1,
+    VerifiedLocatedRecipeBlockLoweringViewV1, VerifiedLocatedRecipeItemLoweringViewV1,
+    VerifiedStmtWrappedJoinIfLoweringViewV1,
+};
 use product::VerifiedLocatedGenericLoopBodyModeV1;
 pub(in crate::mir::builder) use product::VerifiedLocatedGenericLoopBodyRepresentationV1;
 use recipe_seal::{reject_unsupported_nested_statements, seal_recipe_block, RecipeSealDomainV1};
@@ -115,6 +121,8 @@ impl<'plan> VerifiedLocatedGenericLoopBodyRepresentationV1<'plan> {
 
 #[cfg(test)]
 mod actual_parser_tests;
+#[cfg(test)]
+mod lowering_view_tests;
 #[cfg(test)]
 mod site_projection_tests;
 #[cfg(test)]

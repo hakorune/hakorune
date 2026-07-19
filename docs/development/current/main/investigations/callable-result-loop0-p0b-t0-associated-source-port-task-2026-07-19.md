@@ -1,5 +1,5 @@
 ---
-Status: T0-B0 closed; T0-R0 next
+Status: T0-R0 V0/C0 closed; R0-D0 next
 Date: 2026-07-19
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md
 Prior decision: callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md
@@ -261,6 +261,42 @@ located If condition:
 
 PATH0 already owns `IfCondition`, `IfThen`, `IfElse`, `BlockExprPrelude`, and
 `BlockExprTail`. R0 adds no child-role vocabulary and no condition dispatcher.
+
+##### R0-V0/C0 closeout
+
+V0 and C0 are closed as one behavior-neutral Refactor Series milestone. The O0
+product now binds to the exact located port only after that port revalidates the
+stored Loop root. The resulting non-Clone view borrows the exact condition,
+direct prefix, cleanup, explicit If branches, and retained
+`StmtWrappedJoinIf` singleton product; it rebuilds no recipe and owns no
+Builder or ledger state.
+
+The located port now has lifetime-only borrowed expression, statement, and
+body carriers. One associated-input If-condition tail owner consumes those
+carriers through the existing PATH0 child roles. The raw `CondBlockView`
+facades retain prelude policy and delegate only the tail. A worker review found
+and closed one compatibility seam before landing: the old raw owner admitted
+arithmetic/value leaves through generic value lowering, so the new shared
+condition-value entry preserves that fallback instead of narrowing all leaves
+to the bool-expression subset.
+
+Evidence:
+
+```text
+bound O0 view fixtures: 3/3
+If-condition raw/associated + exact located-site fixtures: 3/3
+arithmetic, comparison, Not, and joinless And/Or leaf parity: green
+actual borrowed LoopCondition located call occurrences: 3, Unlocated: 0
+generic_loop: 84/84
+cargo check --all-targets: green
+public expression-spine guard: green
+production located execution callers: 0
+ledger claims: 0
+files at or above 800 lines: 0
+```
+
+R0-D0 is next. It must parameterize the existing Parts recipe dispatcher; it
+must not add a GenericLoop-local second statement/If dispatcher.
 
 ##### R0-D0: one recipe dispatcher, one source provider
 

@@ -4,7 +4,9 @@ use super::cond_lowering_prelude::lower_cond_prelude_stmts;
 use crate::ast::{ASTNode, BinaryOperator, UnaryOperator};
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::normalizer::{loop_body_lowering, PlanNormalizer};
-use crate::mir::builder::control_flow::plan::CoreEffectPlan;
+use crate::mir::builder::control_flow::plan::{
+    CoreEffectPlan, LoopPlanExpressionPortV1, RawLoopPlanExpressionPortV1,
+};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{ConstValue, MirType, ValueId};
 use std::collections::BTreeMap;
@@ -29,14 +31,34 @@ pub(super) fn lower_cond_value_expr(
     expr: &ASTNode,
     error_prefix: &str,
 ) -> Result<(ValueId, Vec<CoreEffectPlan>), String> {
-    match expr {
+    let port = RawLoopPlanExpressionPortV1::new();
+    lower_cond_value_input(&port, port.expr(expr), builder, phi_bindings, error_prefix)
+}
+
+pub(in crate::mir::builder) fn lower_cond_value_input<'input, P>(
+    port: &P,
+    input: P::ExprInput<'input>,
+    builder: &mut MirBuilder,
+    phi_bindings: &BTreeMap<String, ValueId>,
+    error_prefix: &str,
+) -> Result<(ValueId, Vec<CoreEffectPlan>), String>
+where
+    P: LoopPlanExpressionPortV1 + 'input,
+{
+    match port.expr_syntax(&input) {
         ASTNode::BinaryOp { operator, .. } => match operator {
             // Pure bool expressions can be lowered by value semantics without
             // violating the source short-circuit contract, because the pure
             // value gate has already excluded side-effecting operands.
             BinaryOperator::And | BinaryOperator::Or => {
                 let (value_id, effects) =
-                    loop_body_lowering::lower_bool_expr(builder, phi_bindings, expr, error_prefix)?;
+                    super::loop_body_lowering_associated_input::lower_bool_expression_input(
+                        port,
+                        input,
+                        builder,
+                        phi_bindings,
+                        error_prefix,
+                    )?;
                 debug_log_cond_value_int3(builder, value_id, &effects);
                 Ok((value_id, effects))
             }
@@ -47,14 +69,14 @@ pub(super) fn lower_cond_value_expr(
             | BinaryOperator::Equal
             | BinaryOperator::NotEqual => {
                 let (lhs, op, rhs, mut consts) =
-                    PlanNormalizer::lower_compare_ast(expr, builder, phi_bindings)?;
+                    PlanNormalizer::lower_compare_input(port, input, builder, phi_bindings)?;
                 let dst = builder.alloc_typed(MirType::Bool);
                 consts.push(CoreEffectPlan::Compare { dst, lhs, op, rhs });
                 Ok((dst, consts))
             }
             _ => {
                 let (value_id, effects) =
-                    PlanNormalizer::lower_value_ast(expr, builder, phi_bindings)?;
+                    PlanNormalizer::lower_value_input(port, input, builder, phi_bindings)?;
                 debug_log_cond_value_int3(builder, value_id, &effects);
                 Ok((value_id, effects))
             }
@@ -64,12 +86,19 @@ pub(super) fn lower_cond_value_expr(
             ..
         } => {
             let (value_id, effects) =
-                loop_body_lowering::lower_bool_expr(builder, phi_bindings, expr, error_prefix)?;
+                super::loop_body_lowering_associated_input::lower_bool_expression_input(
+                    port,
+                    input,
+                    builder,
+                    phi_bindings,
+                    error_prefix,
+                )?;
             debug_log_cond_value_int3(builder, value_id, &effects);
             Ok((value_id, effects))
         }
         _ => {
-            let (value_id, effects) = PlanNormalizer::lower_value_ast(expr, builder, phi_bindings)?;
+            let (value_id, effects) =
+                PlanNormalizer::lower_value_input(port, input, builder, phi_bindings)?;
             debug_log_cond_value_int3(builder, value_id, &effects);
             Ok((value_id, effects))
         }

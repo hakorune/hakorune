@@ -28,6 +28,9 @@ pub(in crate::mir::builder) mod newbox;
 pub(in crate::mir::builder) mod cond_lowering_entry;
 pub(in crate::mir::builder) mod cond_lowering_freshen;
 pub(in crate::mir::builder) mod cond_lowering_if_plan;
+pub(in crate::mir::builder) mod cond_lowering_if_plan_port;
+#[cfg(test)]
+mod cond_lowering_if_plan_port_tests;
 pub(in crate::mir::builder) mod cond_lowering_loop_header;
 pub(in crate::mir::builder) mod cond_lowering_loop_header_port;
 #[cfg(test)]

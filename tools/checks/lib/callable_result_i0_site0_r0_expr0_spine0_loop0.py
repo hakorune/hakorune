@@ -348,6 +348,7 @@ def check_loop0_s0a(root: Path) -> str:
         located_error_path,
         "src/mir/builder/control_flow/plan/expression_port.rs",
         "src/mir/builder/control_flow/plan/generic_loop/located_representation/mod.rs",
+        "src/mir/builder/control_flow/plan/generic_loop/located_representation/lowering_view.rs",
         "src/mir/builder/control_flow/plan/generic_loop/located_representation/product.rs",
         "src/mir/builder/control_flow/plan/generic_loop/located_representation/recipe_seal.rs",
     }

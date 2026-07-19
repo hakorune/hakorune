@@ -1,6 +1,6 @@
 //! Shared lowering helpers for loop body statements (generic_loop_v0/v1 + loop_true_break_continue).
 
-use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
+use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::builder::calls::extern_calls;
 use crate::mir::builder::control_flow::plan::normalizer::loop_body_lowering_associated_input;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
@@ -8,7 +8,7 @@ use crate::mir::builder::control_flow::plan::{
     CoreCallSourceV1, CoreEffectPlan, RawLoopPlanExpressionPortV1,
 };
 use crate::mir::builder::MirBuilder;
-use crate::mir::{BinaryOp, CompareOp, ConstValue, EffectMask, MirType, ValueId};
+use crate::mir::{BinaryOp, ConstValue, EffectMask, ValueId};
 use std::borrow::Cow;
 use std::collections::BTreeMap;
 
@@ -257,94 +257,17 @@ pub(in crate::mir::builder) fn lower_bool_expr(
     ast: &ASTNode,
     error_prefix: &str,
 ) -> Result<(ValueId, Vec<CoreEffectPlan>), String> {
-    match ast {
-        ASTNode::MethodCall { .. }
-        | ASTNode::Variable { .. }
-        | ASTNode::Literal {
-            value: LiteralValue::Bool(_),
-            ..
-        } => {
-            let (value_id, effects) = PlanNormalizer::lower_value_ast(ast, builder, phi_bindings)?;
-            debug_log_bool_expr_binop_lit3(builder, &effects, "simple");
-            Ok((value_id, effects))
-        }
-        ASTNode::UnaryOp {
-            operator: UnaryOperator::Not,
-            operand,
-            ..
-        } => {
-            let (inner, mut effects) =
-                lower_bool_expr(builder, phi_bindings, operand, error_prefix)?;
-            let false_id = builder.alloc_typed(MirType::Bool);
-            effects.push(CoreEffectPlan::Const {
-                dst: false_id,
-                value: ConstValue::Bool(false),
-            });
-            let dst = builder.alloc_typed(MirType::Bool);
-            effects.push(CoreEffectPlan::Compare {
-                dst,
-                lhs: inner,
-                op: CompareOp::Eq,
-                rhs: false_id,
-            });
-            debug_log_bool_expr_binop_lit3(builder, &effects, "not");
-            Ok((dst, effects))
-        }
-        ASTNode::BinaryOp {
-            operator,
-            left,
-            right,
-            ..
-        } => match operator {
-            BinaryOperator::And | BinaryOperator::Or => {
-                let (lhs, mut lhs_effects) =
-                    lower_bool_expr(builder, phi_bindings, left, error_prefix)?;
-                let (rhs, mut rhs_effects) =
-                    lower_bool_expr(builder, phi_bindings, right, error_prefix)?;
-                let const_id = builder.alloc_typed(MirType::Bool);
-                lhs_effects.push(CoreEffectPlan::Const {
-                    dst: const_id,
-                    value: ConstValue::Bool(matches!(operator, BinaryOperator::Or)),
-                });
-                let dst = builder.alloc_typed(MirType::Bool);
-                lhs_effects.append(&mut rhs_effects);
-                lhs_effects.push(CoreEffectPlan::Select {
-                    dst,
-                    cond: lhs,
-                    then_val: if matches!(operator, BinaryOperator::Or) {
-                        const_id
-                    } else {
-                        rhs
-                    },
-                    else_val: if matches!(operator, BinaryOperator::Or) {
-                        rhs
-                    } else {
-                        const_id
-                    },
-                });
-                debug_log_bool_expr_binop_lit3(builder, &lhs_effects, "and_or");
-                Ok((dst, lhs_effects))
-            }
-            BinaryOperator::Less
-            | BinaryOperator::LessEqual
-            | BinaryOperator::Greater
-            | BinaryOperator::GreaterEqual
-            | BinaryOperator::Equal
-            | BinaryOperator::NotEqual => {
-                let (lhs, op, rhs, mut consts) =
-                    PlanNormalizer::lower_compare_ast(ast, builder, phi_bindings)?;
-                let dst = builder.alloc_typed(MirType::Bool);
-                consts.push(CoreEffectPlan::Compare { dst, lhs, op, rhs });
-                debug_log_bool_expr_binop_lit3(builder, &consts, "compare");
-                Ok((dst, consts))
-            }
-            _ => Err(format!("{error_prefix}: unsupported bool op")),
-        },
-        _ => Err(format!("{error_prefix}: unsupported bool expr")),
-    }
+    let port = RawLoopPlanExpressionPortV1::new();
+    loop_body_lowering_associated_input::lower_bool_expression_input(
+        &port,
+        port.expr(ast),
+        builder,
+        phi_bindings,
+        error_prefix,
+    )
 }
 
-fn debug_log_bool_expr_binop_lit3(
+pub(super) fn debug_log_bool_expr_binop_lit3(
     builder: &MirBuilder,
     effects: &[CoreEffectPlan],
     kind: &'static str,
@@ -404,6 +327,7 @@ fn debug_log_bool_expr_binop_lit3(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::MirType;
 
     fn span() -> Span {
         Span::unknown()

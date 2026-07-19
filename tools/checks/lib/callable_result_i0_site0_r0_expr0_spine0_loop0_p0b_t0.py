@@ -33,6 +33,21 @@ ASSOCIATED_TESTS = (
     "src/mir/builder/control_flow/plan/normalizer/loop_body_lowering_associated_input_tests.rs"
 )
 NORMALIZER_MOD = "src/mir/builder/control_flow/plan/normalizer/mod.rs"
+EXPRESSION_PORT = "src/mir/builder/control_flow/plan/expression_port.rs"
+LOCATED_VIEW = (
+    "src/mir/builder/control_flow/plan/generic_loop/located_representation/lowering_view.rs"
+)
+LOCATED_VIEW_TESTS = (
+    "src/mir/builder/control_flow/plan/generic_loop/located_representation/lowering_view_tests.rs"
+)
+LOCATED_MOD = (
+    "src/mir/builder/control_flow/plan/generic_loop/located_representation/mod.rs"
+)
+IF_RAW = "src/mir/builder/control_flow/plan/normalizer/cond_lowering_if_plan.rs"
+IF_CORE = "src/mir/builder/control_flow/plan/normalizer/cond_lowering_if_plan_port.rs"
+IF_CORE_TESTS = (
+    "src/mir/builder/control_flow/plan/normalizer/cond_lowering_if_plan_port_tests.rs"
+)
 
 
 def _require(text: str, needle: str, expected: int, label: str) -> None:
@@ -228,17 +243,105 @@ def _guard_b0(root: Path) -> None:
     _require(normalizer_mod, "mod loop_body_lowering_associated_input_tests;", 1, "associated tests module")
 
 
+def _guard_r0_v0_c0(root: Path) -> None:
+    expression_port = _production(_read(root, EXPRESSION_PORT))
+    located_view = _production(_read(root, LOCATED_VIEW))
+    located_tests = _read(root, LOCATED_VIEW_TESTS)
+    located_mod = _read(root, LOCATED_MOD)
+    if_raw = _production(_read(root, IF_RAW))
+    if_core = _production(_read(root, IF_CORE))
+    if_tests = _read(root, IF_CORE_TESTS)
+    normalizer_mod = _read(root, NORMALIZER_MOD)
+
+    for carrier in ("LegacyExprInputV1", "LegacyStmtInputV1", "LegacyBodyInputV1"):
+        _require(
+            expression_port,
+            f"BorrowedLocated(&'syntax {carrier}<'plan>)",
+            1,
+            f"R0-V0 borrowed {carrier}",
+        )
+    for constructor in ("borrowed_expr", "borrowed_stmt", "borrowed_body"):
+        _require(expression_port, f"fn {constructor}<", 1, f"R0-V0 {constructor}")
+
+    _require(located_view, "fn bind_lowering_port<", 1, "R0-V0 bind owner")
+    bind = _function(located_view, "bind_lowering_port")
+    _require(bind, "port.require_exact_stmt(&self.loop_root)?", 1, "R0-V0 exact root")
+    _require(bind, "Ok(VerifiedLocatedGenericLoopLoweringViewV1", 1, "R0-V0 view publication")
+    if bind.index("require_exact_stmt") >= bind.index("Ok(VerifiedLocatedGenericLoopLoweringViewV1"):
+        raise RuntimeError("LOOP0-P0b-T0 R0-V0 publishes before exact root verification")
+    for owner, count in (
+        ("condition", 2),
+        ("cleanup", 1),
+        ("mode", 1),
+        ("singleton_recipe", 1),
+        ("singleton_root", 1),
+    ):
+        _require(located_view, f"fn {owner}(", count, f"R0-V0 {owner} view")
+    for token in (
+        "try_build_no_exit_block_recipe",
+        "classify_step_placement",
+        "matches_loop_increment",
+        "std::env",
+        "ledger",
+        "claim_batch",
+        "fallback",
+        "retry",
+    ):
+        if token in located_view:
+            raise RuntimeError(f"LOOP0-P0b-T0 R0-V0 owns forbidden authority: {token}")
+    if "#[derive(Clone" in located_view or "impl Clone" in located_view:
+        raise RuntimeError("LOOP0-P0b-T0 R0-V0 bound proof must remain non-Clone")
+    for name in (
+        "bound_view_borrows_default_prefix_condition_and_cleanup",
+        "bound_view_retains_strict_items_and_wrapped_join_product",
+        "foreign_port_rejects_before_a_bound_view_is_published",
+    ):
+        _fixture(located_tests, name)
+    _require(located_mod, "mod lowering_view;", 1, "R0-V0 module")
+    _require(located_mod, "mod lowering_view_tests;", 1, "R0-V0 tests module")
+
+    _require(if_core, "fn lower_cond_expr_to_if_plans_input<", 1, "R0-C0 associated owner")
+    for role in (
+        "ExprChildRoleV1::UnaryOperand",
+        "ExprChildRoleV1::BinaryLeft",
+        "ExprChildRoleV1::BinaryRight",
+    ):
+        if role not in if_core:
+            raise RuntimeError(f"LOOP0-P0b-T0 R0-C0 misses PATH0 role: {role}")
+    if "lower_cond_value_input(" not in if_core:
+        raise RuntimeError("LOOP0-P0b-T0 R0-C0 misses associated leaf owner")
+    if_core_owner = _function(if_core, "lower_cond_expr_to_if_plans_input")
+    if "CondBlockView" in if_core_owner:
+        raise RuntimeError("LOOP0-P0b-T0 R0-C0 core must not own raw CondBlockView")
+    for owner in ("lower_cond_to_if_plans", "lower_cond_to_if_plans_with_plan_prelude"):
+        body = _function(if_raw, owner)
+        _require(body, "RawLoopPlanExpressionPortV1::new()", 1, f"R0-C0 raw port {owner}")
+        _require(body, "lower_cond_expr_to_if_plans_input(", 1, f"R0-C0 delegation {owner}")
+    for name in (
+        "raw_if_condition_facade_matches_explicit_raw_port_core",
+        "raw_join_bearing_and_or_facade_matches_explicit_port_core",
+        "borrowed_located_loop_condition_preserves_exact_call_sites",
+    ):
+        _fixture(if_tests, name)
+    _require(normalizer_mod, "mod cond_lowering_if_plan_port_tests;", 1, "R0-C0 tests module")
+
+
 def _guard_no_premature_located_consumer(root: Path) -> None:
     callers = []
     for path in (root / "src/mir/builder/control_flow/plan").rglob("*.rs"):
         if _is_test_source(path):
             continue
         text = _production(path.read_text(encoding="utf-8"))
-        occurrences = text.count("verify_located_loop(")
-        if occurrences and path.name == "mod.rs" and "located_representation" in path.parts:
-            occurrences -= 1
-        if occurrences:
-            callers.append(f"{path.relative_to(root)}:{occurrences}")
+        verify_calls = text.count("verify_located_loop(")
+        if verify_calls and path.name == "mod.rs" and "located_representation" in path.parts:
+            verify_calls -= 1
+        bind_calls = text.count("bind_lowering_port(")
+        if bind_calls and path.name == "lowering_view.rs":
+            bind_calls -= 1
+        if verify_calls or bind_calls:
+            callers.append(
+                f"{path.relative_to(root)}:verify={verify_calls}:bind={bind_calls}"
+            )
     if callers:
         raise RuntimeError(f"LOOP0-P0b-T0 premature located body consumers: {callers}")
 
@@ -246,6 +349,7 @@ def _guard_no_premature_located_consumer(root: Path) -> None:
 def check_loop0_p0b_t0(root: Path) -> str:
     _guard_c0(root)
     _guard_b0(root)
+    _guard_r0_v0_c0(root)
     _guard_no_premature_located_consumer(root)
 
     touched = (
@@ -260,9 +364,16 @@ def check_loop0_p0b_t0(root: Path) -> str:
         RAW_STMTS,
         ASSOCIATED_TESTS,
         NORMALIZER_MOD,
+        EXPRESSION_PORT,
+        LOCATED_VIEW,
+        LOCATED_VIEW_TESTS,
+        LOCATED_MOD,
+        IF_RAW,
+        IF_CORE,
+        IF_CORE_TESTS,
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_t0.py",
     )
     oversized = [relative for relative in touched if len(_read(root, relative).splitlines()) >= 800]
     if oversized:
         raise RuntimeError(f"LOOP0-P0b-T0 source/check files reached 800 lines: {oversized}")
-    return "loop0_p0b_t0_c0=1 loop0_p0b_t0_b0=1 located_consumers=0"
+    return "loop0_p0b_t0_c0=1 loop0_p0b_t0_b0=1 r0_v0=1 r0_c0=1 located_consumers=0"
