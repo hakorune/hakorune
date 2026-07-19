@@ -38,6 +38,7 @@ mod exprs_enum_match; // narrow direct-MIR enum match lowering for guard-let sug
 mod fastmem; // fastmem source -> MIR MemOp metadata lowering
 mod fastmem_context; // FastMemory region context helpers
 mod function_lowering_state;
+mod function_state_transaction;
 mod located_legacy_lowering;
 mod metadata_context; // Phase 136 follow-up (Step 6/7): MetadataContext extraction
 mod method_call_handlers;

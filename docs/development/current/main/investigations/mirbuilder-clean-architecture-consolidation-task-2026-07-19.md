@@ -763,7 +763,17 @@ S0d
   existing final structural old-storage-zero and series closeout
 ```
 
-`S0c-S0` is the sole next code-facing row.
+#### `S0c-S0` — closed (2026-07-19)
+
+S0c-S0 adds one builder-private `FunctionOwnedStateTransactionV1`, its two
+explicit capture modes, and one `CapturedFunctionOwnedStateV1` payload. It
+has no production lifecycle consumer: the existing prepare/restore owner
+remains active. The product has no `Clone`, `Copy`, `Deref`, whole-state
+take/default/install, origin-fact field, or Legacy/Observation snapshot field.
+Its disconnected begin/restore smoke verifies that the move-only caller slot
+can be consumed once without changing emitted MIR or session behavior.
+
+`S0c-P0` is the sole next code-facing row.
 
 S0c-G0 must prove, from the existing Census0 fixture rather than a second
 surface table:
