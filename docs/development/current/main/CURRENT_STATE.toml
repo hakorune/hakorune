@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result LOOP0-P0b T0-L0 closed; P0 whole-loop parity is next"
+status = "callable-result LOOP0-P0b T0-L0 closed; T0-DIRECT0-S0 is next"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,17 +298,18 @@ latest_workstream_card = "docs/development/current/main/investigations/callable-
 
 latest_card = "callable-result-loop0-p0b-t0-associated-source-port-task-2026-07-19"
 latest_card_path = "docs/development/current/main/investigations/callable-result-loop0-p0b-t0-associated-source-port-task-2026-07-19.md"
-latest_card_summary = """T0-L0 is closed. One disconnected same-call composer
-consumes the non-Clone O0 representation, rejects DirectRecipeOnly before
-Builder effects, retains exact wrapped-Join carrier targets from HOOK0, and
-threads one located expression port through strict Parts body lowering,
-fallthrough cleanup, and short-circuit Loop condition lowering. The completed
-CorePlan is sealed once against all nine Loop activation rows. Plan visitation
-remains body 9-12, cleanup 14 then 13 by evaluation order, and condition 6-8;
-the independent claim schedule remains canonical source order 6-14.
-Production located callers, PlanLowerer, ledger claims, fallback, and retry
-remain zero. P0 whole-loop raw/located parity is next."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0B-P0-001"
+latest_card_summary = """T0-L0 is closed for strict ExitAllowedRecipe. The
+governing P0 contract still requires both default RecipeOnly and strict parity,
+so strict-only P0 would be a false closeout. Three worker audits select one
+local prerequisite: T0-DIRECT0 parameterizes the existing raw GenericLoopV1
+direct statement/If and conditional-update owners over the existing source
+port, keeps raw APIs thin, and consumes the O0 exact DirectRecipeOnly prefix
+without a second dispatcher or recipe reconstruction. The actual default Join
+If must retain its existing conditional-update Select shape; it must not detour
+through strict Parts. Production located callers, PlanLowerer, ledger claims,
+fallback, and retry remain zero. DIRECT0-S0 is next; both-mode P0 follows its
+G0 closeout."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0B-T0-DIRECT0-S0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

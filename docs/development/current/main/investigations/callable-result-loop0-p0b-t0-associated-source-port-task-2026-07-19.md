@@ -1,5 +1,5 @@
 ---
-Status: T0-L0 closed; P0 whole-loop parity is next
+Status: T0-L0 closed; T0-DIRECT0-S0 is next
 Date: 2026-07-19
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md
 Prior decision: callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md
@@ -933,8 +933,64 @@ order 6-14. This distinction is now a focused structural golden. The public
 expression-spine guard imports one private L0 helper; production located root
 callers and claim consumers remain zero.
 
-`LOOP0-P0b-P0` is next. It owns full raw/located whole-loop and complete
-Builder snapshot parity; L0 does not claim that parity.
+The first post-L0 audit found that `LOOP0-P0b-P0` cannot run next: its
+governing parent contract requires both default RecipeOnly and strict
+ExitAllowed parity, while L0 intentionally rejects DirectRecipeOnly. The
+prerequisite below must close first.
+
+#### T0-DIRECT0 worker task lock
+
+Three independent worker audits select a local prerequisite; no external
+design consultation is required yet.
+
+```text
+LOOP0-P0b-T0-DIRECT0-S0
+  shared conditional-update associated-input core
+
+LOOP0-P0b-T0-DIRECT0-R0
+  existing direct body/If owner port parameterization
+
+LOOP0-P0b-T0-DIRECT0-I0
+  O0 DirectRecipeOnly execution token + disconnected composer acceptance
+
+LOOP0-P0b-T0-DIRECT0-G0
+  raw parity, exact default proof, private guard
+
+then
+  LOOP0-P0b-P0
+  default + strict whole-loop typed parity
+```
+
+The actual default body's final Join If is lowered by the existing
+`parts::conditional_update` owner into its current Select-shaped plan. Routing
+it through the strict Parts Join owner would change the raw semantic plan and
+is forbidden. DIRECT0 therefore parameterizes the existing owner rather than
+adding a located dispatcher.
+
+DIRECT0-S0 makes the existing conditional-update branch collection and
+condition/value lowering consume `LoopPlanExpressionPortV1` carriers. The raw
+entry remains a thin facade. DIRECT0-R0 similarly extracts an associated-input
+core from the existing `generic_loop_body::lower_body_stmt_v1`,
+`lower_if_stmt_v1`, and direct block recursion. The first located admission is
+only the already-sealed O0 exact prefix with Local, Assignment, Return, and If;
+raw-only broader shapes keep their existing raw tail and production behavior.
+
+DIRECT0-I0 adds no new source classification. One Builder-free preflight
+consumes `VerifiedLocatedDirectBodyLoweringViewV1`, proves every required PATH0
+condition/branch/value carrier, and produces one non-Clone execution token.
+The existing same-call composer selects that token only for
+DirectRecipeOnly, uses the exact cleanup carrier already sealed by O0, and
+retains the same final located CorePlan seal.
+
+DIRECT0 must stop for a new consultation if implementation requires a second
+statement/If dispatcher, raw `facts.body` or environment policy as located
+authority, post-O0 recipe construction, AST equality, a changed raw
+conditional-update plan shape, broader source admission, fallback/retry, or a
+source/check file reaching 800 lines.
+
+After DIRECT0-G0, P0 must still run independently under default and strict
+modes with fresh identically seeded Builders. Strict-only parity cannot close
+P0.
 
 L0 stops for a new consultation if exact carrier targets cannot be retained by
 the existing HOOK0 traversal; if `DirectRecipeOnly` must become active now; if
