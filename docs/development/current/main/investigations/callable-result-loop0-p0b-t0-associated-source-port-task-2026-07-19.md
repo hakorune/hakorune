@@ -1,5 +1,5 @@
 ---
-Status: T0-R0 D0-DISPATCH0-S0 closed; raw Parts cutover next
+Status: T0-R0 D0-RAW0 closed; disconnected located Parts proof next
 Date: 2026-07-19
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md
 Prior decision: callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md
@@ -410,6 +410,48 @@ files at or above 800 lines: 0
 The next internal slice adds the raw hook adapter, threads raw blocks through
 the verified provider and by-value dispatcher, preserves each block's existing
 terminal/postcondition law, and only then deletes the old raw semantic matches.
+
+###### R0-D0-RAW0 closeout
+
+All four raw block modes now use one production path:
+
+```text
+RawPartsAssociatedSourceV1
+  -> VerifiedPartsAssociatedItemV1 by value
+  -> sole acceptance dispatcher
+  -> RawPartsAssociatedLoweringHooksV1
+```
+
+The old StmtOnly and NoExit matches in `dispatch/block.rs` and the old
+`lower_exit_only_item` match are physically retired. Existing leaf/state owners
+remain in place: exact-source exit lowering, ExitOnly/ExitAllowed If state,
+NoExit Join branch-local inventory and payload, nested LoopV0 lowering,
+terminal detection, and the ExitOnly all-path postcondition.
+
+Normalized facade/core proof compares plans, current bindings, Builder
+variable map, transient value types, and terminality on fresh Builders:
+
+```text
+ExitOnly: 1/1
+ExitAllowed: 1/1
+NoExit / Join: 1/1
+StmtOnly: 1/1
+independent plan/state/terminal golden assertions: 4/4
+focused associated-source tests: 11/11
+GenericLoop regression: 84/84
+public expression-spine guard: green
+legacy lowering RecipeItem matches: 0
+production raw provider/dispatcher/hook consumers: 1 each
+production located consumers: 0
+ledger claims: 0
+files at or above 800 lines: 0
+```
+
+This still does not activate located execution. The next slice supplies one
+disconnected located hook/driver proof for the actual strict root, including
+the retained wrapped-Join product, with Builder effects compared against the
+raw semantics and with production located callers and ledger claims held at
+zero.
 
 Statement leaves reuse the B0 associated-input primitives. Return values use
 the exact expression child. Existing Parts owners retain exit state, join

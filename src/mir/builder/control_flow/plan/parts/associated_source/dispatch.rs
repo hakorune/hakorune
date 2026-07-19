@@ -9,14 +9,14 @@ use crate::mir::builder::control_flow::plan::recipe_tree::{ExitKind, IfContractK
 use super::{PartsAssociatedRecipeItemV1, PartsAssociatedSourceV1, VerifiedPartsAssociatedItemV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum PartsAssociatedBlockModeV1 {
+pub(in crate::mir::builder::control_flow::plan::parts) enum PartsAssociatedBlockModeV1 {
     ExitOnly,
     ExitAllowed,
     StmtOnly,
     NoExit,
 }
 
-pub(super) trait PartsAssociatedLoweringHooksV1<S>
+pub(in crate::mir::builder::control_flow::plan::parts) trait PartsAssociatedLoweringHooksV1<S>
 where
     S: PartsAssociatedSourceV1,
 {
@@ -61,7 +61,10 @@ where
     ) -> Result<Self::Output, String>;
 }
 
-pub(super) fn lower_verified_parts_associated_item<S, H>(
+pub(in crate::mir::builder::control_flow::plan::parts) fn lower_verified_parts_associated_item<
+    S,
+    H,
+>(
     mode: PartsAssociatedBlockModeV1,
     verified: VerifiedPartsAssociatedItemV1<
         S::PortHandle,
@@ -147,6 +150,9 @@ where
             | PartsAssociatedBlockModeV1::NoExit,
             PartsAssociatedRecipeItemV1::RawLoopV0 { loop_input },
         ) => hooks.lower_raw_loop_v0(port, loop_input),
+        (PartsAssociatedBlockModeV1::StmtOnly, _) => Err(format!(
+            "[freeze:contract][recipe] stmt_only_block_contains_non_stmt_item: ctx={error_prefix}"
+        )),
         _ => Err(format!(
             "[freeze:contract][recipe] dispatch_saw_unsupported_item: ctx={error_prefix}"
         )),

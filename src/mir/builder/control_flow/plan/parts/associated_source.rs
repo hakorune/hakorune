@@ -38,6 +38,9 @@ mod sealed {
 pub(super) mod dispatch;
 #[cfg(test)]
 mod dispatch_tests;
+pub(super) mod raw_lowering;
+#[cfg(test)]
+mod raw_parity_tests;
 
 /// One representation-neutral item vocabulary.
 ///
@@ -181,6 +184,10 @@ pub(in crate::mir::builder) struct RawPartsAssociatedBlockV1<'source> {
 impl<'source> RawPartsAssociatedBlockV1<'source> {
     const fn new(arena: &'source RecipeBodies, block: &'source RecipeBlock) -> Self {
         Self { arena, block }
+    }
+
+    pub(super) const fn recipe_block(&self) -> &'source RecipeBlock {
+        self.block
     }
 }
 

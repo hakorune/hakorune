@@ -60,6 +60,16 @@ PARTS_ASSOCIATED_DISPATCH = (
 PARTS_ASSOCIATED_DISPATCH_TESTS = (
     "src/mir/builder/control_flow/plan/parts/associated_source/dispatch_tests.rs"
 )
+PARTS_ASSOCIATED_RAW = (
+    "src/mir/builder/control_flow/plan/parts/associated_source/raw_lowering.rs"
+)
+PARTS_ASSOCIATED_RAW_TESTS = (
+    "src/mir/builder/control_flow/plan/parts/associated_source/raw_parity_tests.rs"
+)
+PARTS_BLOCK = "src/mir/builder/control_flow/plan/parts/dispatch/block.rs"
+PARTS_IF_EXIT_ONLY = (
+    "src/mir/builder/control_flow/plan/parts/dispatch/if_exit_only.rs"
+)
 PARTS_MOD = "src/mir/builder/control_flow/plan/parts/mod.rs"
 
 
@@ -83,6 +93,12 @@ def _fixture(text: str, name: str) -> None:
     _require(text, f"fn {name}(", 1, f"focused fixture {name}")
     if re.search(rf"#\[(?:ignore|should_panic)[^\]]*\]\s*[^\n]*fn\s+{name}\b", text):
         raise RuntimeError(f"LOOP0-P0b-T0 focused fixture disabled: {name}")
+
+
+def _rust_code(text: str) -> str:
+    """Remove standalone Rust comments before structural symbol scans."""
+    text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
+    return re.sub(r"(?m)^\s*//.*$", "", text)
 
 
 def _guard_c0(root: Path) -> None:
@@ -394,21 +410,20 @@ def _guard_r0_d0_s0(root: Path) -> None:
     _require(parts_mod, "mod associated_source;", 1, "R0-D0 source module")
     _require(parts_mod, "mod associated_source_tests;", 1, "R0-D0 source tests module")
 
-    consumers = []
+    located_consumers = []
     for path in (root / "src/mir/builder/control_flow/plan").rglob("*.rs"):
         relative = path.relative_to(root).as_posix()
         if relative in (PARTS_ASSOCIATED_SOURCE, PARTS_ASSOCIATED_DISPATCH) or _is_test_source(path):
             continue
         text = _production(path.read_text(encoding="utf-8"))
-        counts = {
-            "raw": text.count("RawPartsAssociatedSourceV1::new"),
-            "located": text.count("LocatedPartsAssociatedSourceV1::new"),
-            "verified_item": text.count("VerifiedPartsAssociatedItemV1"),
-        }
-        if any(counts.values()):
-            consumers.append(f"{relative}:{counts}")
-    if consumers:
-        raise RuntimeError(f"LOOP0-P0b-T0 R0-D0-S0 premature consumers: {consumers}")
+        count = text.count("LocatedPartsAssociatedSourceV1::new")
+        if count:
+            located_consumers.append(f"{relative}:{count}")
+    if located_consumers:
+        raise RuntimeError(
+            "LOOP0-P0b-T0 R0-D0-S0 premature located consumers: "
+            f"{located_consumers}"
+        )
 
 
 def _guard_r0_d0_dispatch0_s0(root: Path) -> None:
@@ -466,23 +481,145 @@ def _guard_r0_d0_dispatch0_s0(root: Path) -> None:
     _require(source, "pub(super) mod dispatch;", 1, "R0-D0 dispatcher module")
     _require(source, "mod dispatch_tests;", 1, "R0-D0 dispatcher tests module")
 
-    consumers = []
-    for path in (root / "src/mir/builder/control_flow/plan").rglob("*.rs"):
-        relative = path.relative_to(root).as_posix()
-        if relative == PARTS_ASSOCIATED_DISPATCH or _is_test_source(path):
-            continue
-        text = _production(path.read_text(encoding="utf-8"))
-        counts = {
-            "dispatcher": text.count("lower_verified_parts_associated_item"),
-            "hooks": text.count("impl PartsAssociatedLoweringHooksV1"),
-            "mode": text.count("PartsAssociatedBlockModeV1"),
-        }
-        if any(counts.values()):
-            consumers.append(f"{relative}:{counts}")
-    if consumers:
-        raise RuntimeError(
-            f"LOOP0-P0b-T0 R0-D0 dispatcher has premature production consumers: {consumers}"
+    # RAW0 below owns the exact production consumer counts. This checkpoint
+    # continues to guard the dispatcher vocabulary and admission law.
+
+
+def _guard_r0_d0_raw0(root: Path) -> None:
+    raw = _rust_code(_production(_read(root, PARTS_ASSOCIATED_RAW)))
+    raw_tests = _read(root, PARTS_ASSOCIATED_RAW_TESTS)
+    source_all = _read(root, PARTS_ASSOCIATED_SOURCE)
+    source = _production(source_all)
+    old_block = _rust_code(_production(_read(root, PARTS_BLOCK)))
+    old_if_exit = _rust_code(_production(_read(root, PARTS_IF_EXIT_ONLY)))
+
+    hook_impls = len(
+        re.findall(
+            r"impl(?:\s*<[^>]*>)?\s+PartsAssociatedLoweringHooksV1\s*<\s*"
+            r"RawPartsAssociatedSourceV1",
+            raw,
         )
+    )
+    if hook_impls != 1:
+        raise RuntimeError(
+            "LOOP0-P0b-T0 R0-D0-RAW0 raw hook impl: "
+            f"expected=1 actual={hook_impls}"
+        )
+    _require(
+        raw,
+        "struct RawPartsAssociatedLoweringHooksV1",
+        1,
+        "R0-D0-RAW0 raw hook type owner",
+    )
+    production_root = root / "src/mir/builder/control_flow/plan"
+    located_consumers = []
+    dispatcher_calls = []
+    raw_provider_calls = []
+    raw_hook_impls = []
+    for path in production_root.rglob("*.rs"):
+        if _is_test_source(path):
+            continue
+        relative = path.relative_to(root).as_posix()
+        text = _rust_code(_production(path.read_text(encoding="utf-8")))
+        located = text.count("LocatedPartsAssociatedSourceV1::new(")
+        if located:
+            located_consumers.append(f"{relative}:{located}")
+        calls = len(
+            re.findall(
+                r"\blower_verified_parts_associated_item\s*(?:::<|\()",
+                text,
+            )
+        )
+        if relative == PARTS_ASSOCIATED_DISPATCH:
+            calls = 0
+        if calls:
+            dispatcher_calls.append(f"{relative}:{calls}")
+        providers = text.count("RawPartsAssociatedSourceV1::new(")
+        if providers:
+            raw_provider_calls.append(f"{relative}:{providers}")
+        impls = len(
+            re.findall(
+                r"impl(?:\s*<[^>]*>)?\s+PartsAssociatedLoweringHooksV1\s*<\s*"
+                r"RawPartsAssociatedSourceV1",
+                text,
+            )
+        )
+        if impls:
+            raw_hook_impls.append(f"{relative}:{impls}")
+    if located_consumers:
+        raise RuntimeError(
+            "LOOP0-P0b-T0 R0-D0-RAW0 premature located consumers: "
+            f"{located_consumers}"
+        )
+    if dispatcher_calls != [f"{PARTS_BLOCK}:1"]:
+        raise RuntimeError(
+            "LOOP0-P0b-T0 R0-D0-RAW0 dispatcher consumers drift: "
+            f"{dispatcher_calls}"
+        )
+    if raw_provider_calls != [f"{PARTS_BLOCK}:1"]:
+        raise RuntimeError(
+            "LOOP0-P0b-T0 R0-D0-RAW0 raw provider consumers drift: "
+            f"{raw_provider_calls}"
+        )
+    if raw_hook_impls != [f"{PARTS_ASSOCIATED_RAW}:1"]:
+        raise RuntimeError(
+            "LOOP0-P0b-T0 R0-D0-RAW0 raw hook owners drift: "
+            f"{raw_hook_impls}"
+        )
+
+    for relative, text in ((PARTS_BLOCK, old_block), (PARTS_IF_EXIT_ONLY, old_if_exit)):
+        if "RecipeItem::" in text:
+            raise RuntimeError(
+                f"LOOP0-P0b-T0 R0-D0-RAW0 legacy RecipeItem lowering remains: {relative}"
+            )
+    legacy_owner_defs = []
+    for path in production_root.rglob("*.rs"):
+        if _is_test_source(path):
+            continue
+        relative = path.relative_to(root).as_posix()
+        text = _rust_code(_production(path.read_text(encoding="utf-8")))
+        count = len(re.findall(r"\bfn\s+lower_exit_only_item(?:\s*<|\s*\()", text))
+        if count:
+            legacy_owner_defs.append(f"{relative}:{count}")
+    if legacy_owner_defs:
+        raise RuntimeError(
+            "LOOP0-P0b-T0 R0-D0-RAW0 legacy lowering owners remain: "
+            f"{legacy_owner_defs}"
+        )
+
+    forbidden = (
+        "LocatedPartsAssociatedSourceV1",
+        "VerifiedLocatedGenericLoop",
+        "try_build_no_exit_block_recipe",
+        "classify_step_placement",
+        "matches_loop_increment",
+        "facts.body",
+        "body_no_exit",
+        "std::env",
+        "ledger",
+        "claim_batch",
+        "fallback",
+        "retry",
+        "AST equality",
+    )
+    for relative, text in ((PARTS_ASSOCIATED_RAW, raw), (PARTS_BLOCK, old_block)):
+        for token in forbidden:
+            if token in text:
+                raise RuntimeError(
+                    "LOOP0-P0b-T0 R0-D0-RAW0 owns forbidden authority: "
+                    f"{relative}:{token}"
+                )
+    if "pub(super) mod raw_lowering;" not in source_all:
+        raise RuntimeError("LOOP0-P0b-T0 R0-D0-RAW0 raw module is not registered")
+    if "mod raw_parity_tests;" not in source_all:
+        raise RuntimeError("LOOP0-P0b-T0 R0-D0-RAW0 raw tests are not registered")
+    for name in (
+        "raw_exit_only_facade_matches_associated_block_driver",
+        "raw_exit_allowed_facade_matches_associated_block_driver",
+        "raw_no_exit_join_facade_matches_associated_block_driver",
+        "raw_stmt_only_facade_matches_associated_block_driver_and_golden_state",
+    ):
+        _fixture(raw_tests, name)
 
 
 def _guard_no_premature_located_consumer(root: Path) -> None:
@@ -511,6 +648,7 @@ def check_loop0_p0b_t0(root: Path) -> str:
     _guard_r0_v0_c0(root)
     _guard_r0_d0_s0(root)
     _guard_r0_d0_dispatch0_s0(root)
+    _guard_r0_d0_raw0(root)
     _guard_no_premature_located_consumer(root)
 
     touched = (
@@ -536,10 +674,14 @@ def check_loop0_p0b_t0(root: Path) -> str:
         PARTS_ASSOCIATED_SOURCE_TESTS,
         PARTS_ASSOCIATED_DISPATCH,
         PARTS_ASSOCIATED_DISPATCH_TESTS,
+        PARTS_ASSOCIATED_RAW,
+        PARTS_ASSOCIATED_RAW_TESTS,
+        PARTS_BLOCK,
+        PARTS_IF_EXIT_ONLY,
         PARTS_MOD,
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_t0.py",
     )
     oversized = [relative for relative in touched if len(_read(root, relative).splitlines()) >= 800]
     if oversized:
         raise RuntimeError(f"LOOP0-P0b-T0 source/check files reached 800 lines: {oversized}")
-    return "loop0_p0b_t0_c0=1 loop0_p0b_t0_b0=1 r0_v0=1 r0_c0=1 r0_d0_s0=1 r0_d0_dispatch0_s0=1 located_consumers=0"
+    return "loop0_p0b_t0_c0=1 loop0_p0b_t0_b0=1 r0_v0=1 r0_c0=1 r0_d0_s0=1 r0_d0_dispatch0_s0=1 r0_d0_raw0=1 located_consumers=0"

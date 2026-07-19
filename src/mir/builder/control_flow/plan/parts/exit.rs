@@ -22,6 +22,56 @@ pub(in crate::mir::builder) fn lower_loop_cond_exit_leaf(
     stmt_ref: StmtRef,
     error_prefix: &str,
 ) -> Result<Vec<LoweredRecipe>, String> {
+    let stmt = if matches!(kind, ExitKind::Return) {
+        Some(
+            body.get_ref(stmt_ref)
+                .ok_or_else(|| format!("{error_prefix}: missing stmt idx={}", stmt_ref.index()))?,
+        )
+    } else {
+        None
+    };
+    lower_loop_cond_exit_input(
+        builder,
+        current_bindings,
+        carrier_step_phis,
+        break_phi_dsts,
+        stmt,
+        kind,
+        error_prefix,
+    )
+}
+
+/// Lower an exit leaf whose exact source statement has already been paired by
+/// the associated-source provider.
+pub(in crate::mir::builder) fn lower_loop_cond_exit_source(
+    builder: &mut MirBuilder,
+    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
+    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
+    break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
+    stmt: &ASTNode,
+    kind: ExitKind,
+    error_prefix: &str,
+) -> Result<Vec<LoweredRecipe>, String> {
+    lower_loop_cond_exit_input(
+        builder,
+        current_bindings,
+        carrier_step_phis,
+        break_phi_dsts,
+        Some(stmt),
+        kind,
+        error_prefix,
+    )
+}
+
+fn lower_loop_cond_exit_input(
+    builder: &mut MirBuilder,
+    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
+    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
+    break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
+    stmt: Option<&ASTNode>,
+    kind: ExitKind,
+    error_prefix: &str,
+) -> Result<Vec<LoweredRecipe>, String> {
     match kind {
         ExitKind::Break { depth: 1 } => Ok(vec![CorePlan::Exit(
             build_break_with_phi_args(break_phi_dsts, current_bindings, error_prefix)?,
@@ -35,9 +85,8 @@ pub(in crate::mir::builder) fn lower_loop_cond_exit_leaf(
             )?,
         )]),
         ExitKind::Return => {
-            let stmt = body.get_ref(stmt_ref).ok_or_else(|| {
-                format!("{error_prefix}: missing stmt idx={}", stmt_ref.index())
-            })?;
+            let stmt = stmt
+                .ok_or_else(|| format!("{error_prefix}: ExitLeaf::Return expects Return"))?;
             let ret_value = match stmt {
                 ASTNode::Return { value, .. } => value.as_ref().map(|v| v.as_ref()),
                 _ => return Err(format!("{error_prefix}: ExitLeaf::Return expects Return")),

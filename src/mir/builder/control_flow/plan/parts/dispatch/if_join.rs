@@ -64,7 +64,7 @@ fn analyze_branch_exit_shape(
 }
 
 /// Lower if with join payload, using injected stmt lowerer (NoExit context).
-pub(super) fn lower_if_join_with_stmt_lowerer<'a>(
+pub(in crate::mir::builder::control_flow::plan::parts) fn lower_if_join_with_stmt_lowerer<'a>(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,

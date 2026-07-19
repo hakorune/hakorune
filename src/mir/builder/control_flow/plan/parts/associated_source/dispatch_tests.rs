@@ -322,7 +322,12 @@ fn sole_dispatcher_rejects_cross_mode_items_without_invoking_hooks() {
             "reject",
         )
         .expect_err("cross-mode item must reject");
-        assert!(error.contains("dispatch_saw_unsupported_item"));
+        let expected = if mode == PartsAssociatedBlockModeV1::StmtOnly {
+            "stmt_only_block_contains_non_stmt_item"
+        } else {
+            "dispatch_saw_unsupported_item"
+        };
+        assert!(error.contains(expected), "unexpected error: {error}");
         assert!(hooks.events.is_empty());
     }
 }

@@ -1,17 +1,12 @@
 //! Exit-only if lowering - exit-focused if handling.
 //!
 //! Contains:
-//! - lower_exit_only_item
 //! - lower_exit_only_if
 //! - lower_else_only_exit_if
 //! - lower_then_only_exit_if
 
-use super::super::exit as parts_exit;
-use super::super::stmt as parts_stmt;
 use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_entry::lower_cond_branch;
-use crate::mir::builder::control_flow::plan::recipe_tree::{
-    IfContractKind, IfMode, RecipeBlock, RecipeBodies, RecipeItem,
-};
+use crate::mir::builder::control_flow::plan::recipe_tree::{IfMode, RecipeBlock, RecipeBodies};
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
@@ -19,136 +14,10 @@ use std::collections::BTreeMap;
 use super::block::lower_exit_only_block;
 
 // ============================================================================
-// Exit-only item lowering
-// ============================================================================
-
-pub(super) fn lower_exit_only_item(
-    builder: &mut MirBuilder,
-    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
-    carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    break_phi_dsts: &BTreeMap<String, crate::mir::ValueId>,
-    arena: &RecipeBodies,
-    body_id: crate::mir::builder::control_flow::plan::recipe_tree::BodyId,
-    item: &RecipeItem,
-    error_prefix: &str,
-) -> Result<Vec<LoweredRecipe>, String> {
-    let body = arena.get(body_id).ok_or_else(|| {
-        format!(
-            "[freeze:contract][recipe] invalid_body_id: ctx={}",
-            error_prefix
-        )
-    })?;
-
-    #[allow(unreachable_patterns)]
-    match item {
-        RecipeItem::Stmt(stmt_ref) => {
-            let stmt = body.get_ref(*stmt_ref).ok_or_else(|| {
-                format!("{}: missing stmt idx={}", error_prefix, stmt_ref.index())
-            })?;
-            parts_stmt::lower_return_prelude_stmt(
-                builder,
-                current_bindings,
-                carrier_step_phis,
-                Some(break_phi_dsts),
-                stmt,
-                error_prefix,
-            )
-        }
-        RecipeItem::LoopV0 {
-            cond_view,
-            body_block,
-            body_contract,
-            ..
-        } => {
-            for (name, value_id) in current_bindings.iter() {
-                builder
-                    .variable_ctx
-                    .variable_map
-                    .insert(name.clone(), *value_id);
-            }
-            let plan = super::super::loop_::lower_loop_v0(
-                builder,
-                current_bindings,
-                cond_view,
-                *body_contract,
-                arena,
-                body_block,
-                error_prefix,
-            )?;
-            Ok(vec![plan])
-        }
-        RecipeItem::Exit { kind, stmt } => parts_exit::lower_loop_cond_exit_leaf(
-            builder,
-            current_bindings,
-            carrier_step_phis,
-            break_phi_dsts,
-            body,
-            *kind,
-            *stmt,
-            error_prefix,
-        ),
-        RecipeItem::IfV2 {
-            if_stmt: _,
-            cond_view,
-            contract,
-            then_block,
-            else_block,
-        } => match contract {
-            IfContractKind::ExitOnly { mode } => lower_exit_only_if(
-                builder,
-                current_bindings,
-                carrier_step_phis,
-                break_phi_dsts,
-                arena,
-                cond_view,
-                *mode,
-                then_block,
-                else_block.as_ref().map(|b| b.as_ref()),
-                error_prefix,
-            ),
-            IfContractKind::ExitAllowed {
-                mode: IfMode::ElseOnlyExit,
-            } => lower_else_only_exit_if(
-                builder,
-                current_bindings,
-                carrier_step_phis,
-                break_phi_dsts,
-                arena,
-                cond_view,
-                then_block,
-                else_block.as_ref().map(|b| b.as_ref()),
-                error_prefix,
-            ),
-            IfContractKind::ExitAllowed {
-                mode: IfMode::ThenOnlyExit,
-            } => lower_then_only_exit_if(
-                builder,
-                current_bindings,
-                carrier_step_phis,
-                break_phi_dsts,
-                arena,
-                cond_view,
-                then_block,
-                else_block.as_ref().map(|b| b.as_ref()),
-                error_prefix,
-            ),
-            _ => Err(format!(
-                "[freeze:contract][recipe] dispatch_saw_unsupported_item: ctx={}",
-                error_prefix
-            )),
-        },
-        _ => Err(format!(
-            "[freeze:contract][recipe] dispatch_saw_unsupported_item: ctx={}",
-            error_prefix
-        )),
-    }
-}
-
-// ============================================================================
 // Exit-only if lowering
 // ============================================================================
 
-fn lower_exit_only_if(
+pub(in crate::mir::builder::control_flow::plan::parts) fn lower_exit_only_if(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
@@ -255,7 +124,7 @@ fn lower_exit_only_if(
 /// - then_block: exit-allowed (may fall through)
 /// - else_block: exit-only (must exit)
 /// - After if: state is from then branch (else exits, no join needed)
-fn lower_else_only_exit_if(
+pub(in crate::mir::builder::control_flow::plan::parts) fn lower_else_only_exit_if(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
@@ -340,7 +209,7 @@ fn lower_else_only_exit_if(
 /// - then_block: exit-only (must exit)
 /// - else_block: exit-allowed (may fall through)
 /// - After if: state is from else branch (then exits, no join needed)
-fn lower_then_only_exit_if(
+pub(in crate::mir::builder::control_flow::plan::parts) fn lower_then_only_exit_if(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,

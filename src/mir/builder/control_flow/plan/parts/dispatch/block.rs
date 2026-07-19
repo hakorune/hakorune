@@ -6,28 +6,31 @@
 //! - Core lower_block_internal function
 //! - Block-level lowering entry points (exit-only, exit-allowed, stmt-only, no-exit)
 
+use super::super::associated_source::dispatch::{
+    lower_verified_parts_associated_item, PartsAssociatedBlockModeV1,
+};
+use super::super::associated_source::raw_lowering::RawPartsAssociatedLoweringHooksV1;
+use super::super::associated_source::{
+    PartsAssociatedSourceErrorV1, PartsAssociatedSourceV1, RawPartsAssociatedSourceV1,
+};
 use super::super::stmt as parts_stmt;
 use super::super::var_map_scope::with_scopebox_binding_boundary;
 #[cfg(debug_assertions)]
 use super::super::verify;
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::recipe_tree::VerifiedRecipeBlock;
-use crate::mir::builder::control_flow::plan::recipe_tree::{
-    IfContractKind, RecipeBlock, RecipeBodies, RecipeItem,
-};
+use crate::mir::builder::control_flow::plan::recipe_tree::{RecipeBlock, RecipeBodies};
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
 use super::block_exit;
-use super::if_exit_only::lower_exit_only_item;
-use super::if_join::lower_if_join_with_stmt_lowerer;
 
 // ============================================================================
 // Type aliases
 // ============================================================================
 
-pub(super) type LowerStmtFn<'a> = dyn FnMut(
+pub(in crate::mir::builder::control_flow::plan::parts) type LowerStmtFn<'a> = dyn FnMut(
         &mut MirBuilder,
         &mut BTreeMap<String, crate::mir::ValueId>,
         &BTreeMap<String, crate::mir::ValueId>,
@@ -37,14 +40,18 @@ pub(super) type LowerStmtFn<'a> = dyn FnMut(
     ) -> Result<Vec<LoweredRecipe>, String>
     + 'a;
 
-pub(super) type BoxedLowerStmtFn<'a> = Box<LowerStmtFn<'a>>;
+pub(in crate::mir::builder::control_flow::plan::parts) type BoxedLowerStmtFn<'a> =
+    Box<LowerStmtFn<'a>>;
 
 // ============================================================================
 // BlockKindInternal - dispatch enum
 // ============================================================================
 
-pub(super) enum BlockKindInternal<'a> {
+pub(in crate::mir::builder::control_flow::plan::parts) enum BlockKindInternal<'a> {
     ExitOnly {
+        break_phi_dsts: &'a BTreeMap<String, crate::mir::ValueId>,
+    },
+    ExitAllowed {
         break_phi_dsts: &'a BTreeMap<String, crate::mir::ValueId>,
     },
     StmtOnly {
@@ -62,14 +69,14 @@ pub(super) enum BlockKindInternal<'a> {
 // Core block lowering
 // ============================================================================
 
-pub(super) fn lower_block_internal<'a>(
+pub(in crate::mir::builder::control_flow::plan::parts) fn lower_block_internal<'a>(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
     arena: &RecipeBodies,
     block: &RecipeBlock,
     error_prefix: &str,
-    kind: BlockKindInternal<'a>,
+    mut kind: BlockKindInternal<'a>,
 ) -> Result<Vec<LoweredRecipe>, String> {
     arena.get(block.body_id).ok_or_else(|| {
         format!(
@@ -78,180 +85,89 @@ pub(super) fn lower_block_internal<'a>(
         )
     })?;
 
-    match kind {
-        BlockKindInternal::ExitOnly { break_phi_dsts } => {
-            #[cfg(debug_assertions)]
+    #[cfg(debug_assertions)]
+    match &kind {
+        BlockKindInternal::ExitOnly { .. } | BlockKindInternal::ExitAllowed { .. } => {
             verify::debug_check_block_contract(arena, block, error_prefix)?;
-
-            let mut plans = Vec::new();
-            for item in &block.items {
-                plans.extend(lower_exit_only_item(
-                    builder,
-                    current_bindings,
-                    carrier_step_phis,
-                    break_phi_dsts,
-                    arena,
-                    block.body_id,
-                    item,
-                    error_prefix,
-                )?);
-            }
-
-            if !plans_exit_on_all_paths(&plans) {
-                return Err(format!(
-                    "[freeze:contract][recipe] exit_only_block_must_end_with_exit: ctx={}",
-                    error_prefix
-                ));
-            }
-
-            Ok(plans)
         }
-        BlockKindInternal::StmtOnly {
-            break_phi_dsts,
-            lower_stmt,
-        } => {
-            #[cfg(debug_assertions)]
+        BlockKindInternal::StmtOnly { .. } => {
             verify::debug_check_stmt_only_block_contract(arena, block, error_prefix)?;
-
-            let body = arena.get(block.body_id).ok_or_else(|| {
-                format!(
-                    "[freeze:contract][recipe] invalid_body_id: ctx={}",
-                    error_prefix
-                )
-            })?;
-
-            let mut plans = Vec::new();
-            for item in &block.items {
-                let RecipeItem::Stmt(stmt_ref) = item else {
-                    return Err(format!(
-                        "[freeze:contract][recipe] stmt_only_block_contains_non_stmt_item: ctx={}",
-                        error_prefix
-                    ));
-                };
-                let stmt = body.get_ref(*stmt_ref).ok_or_else(|| {
-                    format!("{}: missing stmt idx={}", error_prefix, stmt_ref.index())
-                })?;
-                plans.extend(lower_stmt_dispatch(
-                    builder,
-                    current_bindings,
-                    carrier_step_phis,
-                    break_phi_dsts,
-                    stmt,
-                    error_prefix,
-                    lower_stmt,
-                )?);
-                if plans_exit_on_all_paths(&plans) {
-                    break;
-                }
-            }
-
-            Ok(plans)
         }
-        BlockKindInternal::NoExit {
-            break_phi_dsts,
-            make_lower_stmt,
-            should_update_binding,
-        } => {
-            #[cfg(debug_assertions)]
+        BlockKindInternal::NoExit { .. } => {
             verify::debug_check_no_exit_block_contract(arena, block, error_prefix)?;
-
-            let body = arena.get(block.body_id).ok_or_else(|| {
-                format!(
-                    "[freeze:contract][recipe] invalid_body_id: ctx={}",
-                    error_prefix
-                )
-            })?;
-
-            let mut lower_stmt_outer = make_lower_stmt();
-
-            let mut plans = Vec::new();
-            for item in &block.items {
-                #[allow(unreachable_patterns)]
-                match item {
-                    RecipeItem::Stmt(stmt_ref) => {
-                        let stmt = body.get_ref(*stmt_ref).ok_or_else(|| {
-                            format!("{}: missing stmt idx={}", error_prefix, stmt_ref.index())
-                        })?;
-                        plans.extend(lower_stmt_dispatch(
-                            builder,
-                            current_bindings,
-                            carrier_step_phis,
-                            break_phi_dsts,
-                            stmt,
-                            error_prefix,
-                            &mut *lower_stmt_outer,
-                        )?);
-                    }
-                    RecipeItem::IfV2 {
-                        if_stmt: _,
-                        cond_view,
-                        contract,
-                        then_block,
-                        else_block,
-                    } => match contract {
-                        IfContractKind::Join => {
-                            plans.extend(lower_if_join_with_stmt_lowerer(
-                                builder,
-                                current_bindings,
-                                carrier_step_phis,
-                                break_phi_dsts,
-                                arena,
-                                cond_view,
-                                then_block,
-                                else_block.as_deref(),
-                                error_prefix,
-                                make_lower_stmt,
-                                should_update_binding,
-                            )?);
-                        }
-                        _ => {
-                            return Err(format!(
-                                "[freeze:contract][recipe] dispatch_saw_unsupported_item: ctx={}",
-                                error_prefix
-                            ));
-                        }
-                    },
-                    RecipeItem::LoopV0 {
-                        cond_view,
-                        body_block,
-                        body_contract,
-                        ..
-                    } => {
-                        for (name, value_id) in current_bindings.iter() {
-                            builder
-                                .variable_ctx
-                                .variable_map
-                                .insert(name.clone(), *value_id);
-                        }
-                        let plan = super::super::loop_::lower_loop_v0(
-                            builder,
-                            current_bindings,
-                            cond_view,
-                            *body_contract,
-                            arena,
-                            body_block,
-                            error_prefix,
-                        )?;
-                        plans.push(plan);
-                    }
-                    _ => {
-                        return Err(format!(
-                            "[freeze:contract][recipe] dispatch_saw_unsupported_item: ctx={}",
-                            error_prefix
-                        ));
-                    }
-                }
-                if plans_exit_on_all_paths(&plans) {
-                    break;
-                }
-            }
-
-            Ok(plans)
         }
+    }
+
+    let mode = match &kind {
+        BlockKindInternal::ExitOnly { .. } => PartsAssociatedBlockModeV1::ExitOnly,
+        BlockKindInternal::ExitAllowed { .. } => PartsAssociatedBlockModeV1::ExitAllowed,
+        BlockKindInternal::StmtOnly { .. } => PartsAssociatedBlockModeV1::StmtOnly,
+        BlockKindInternal::NoExit { .. } => PartsAssociatedBlockModeV1::NoExit,
+    };
+    let source = RawPartsAssociatedSourceV1::new(arena);
+    let root = source.root(block);
+    let item_count = source
+        .block_len(&root)
+        .map_err(|error| render_raw_source_error(error, error_prefix))?;
+    let mut lower_stmt_outer = match &mut kind {
+        BlockKindInternal::NoExit {
+            make_lower_stmt, ..
+        } => Some(make_lower_stmt()),
+        _ => None,
+    };
+
+    let mut plans = Vec::new();
+    for index in 0..item_count {
+        let item = source
+            .item(&root, index)
+            .map_err(|error| render_raw_source_error(error, error_prefix))?;
+        let mut hooks = RawPartsAssociatedLoweringHooksV1::new(
+            builder,
+            current_bindings,
+            carrier_step_phis,
+            arena,
+            error_prefix,
+            &mut kind,
+            lower_stmt_outer.as_deref_mut(),
+        );
+        plans.extend(lower_verified_parts_associated_item::<
+            RawPartsAssociatedSourceV1<'_>,
+            _,
+        >(mode, item, &mut hooks, error_prefix)?);
+        if mode != PartsAssociatedBlockModeV1::ExitOnly && plans_exit_on_all_paths(&plans) {
+            break;
+        }
+    }
+
+    if mode == PartsAssociatedBlockModeV1::ExitOnly && !plans_exit_on_all_paths(&plans) {
+        return Err(format!(
+            "[freeze:contract][recipe] exit_only_block_must_end_with_exit: ctx={}",
+            error_prefix
+        ));
+    }
+
+    Ok(plans)
+}
+
+fn render_raw_source_error(error: PartsAssociatedSourceErrorV1, error_prefix: &str) -> String {
+    match error {
+        PartsAssociatedSourceErrorV1::MissingRecipeStatement { index } => {
+            format!("{error_prefix}: missing stmt idx={index}")
+        }
+        PartsAssociatedSourceErrorV1::MissingRecipeBody => format!(
+            "[freeze:contract][recipe] invalid_body_id: ctx={error_prefix}"
+        ),
+        PartsAssociatedSourceErrorV1::ItemIndexOutOfBounds { index, len } => format!(
+            "[freeze:contract][recipe] item_index_out_of_bounds: ctx={error_prefix} index={index} len={len}"
+        ),
+        PartsAssociatedSourceErrorV1::ForeignRawBlock
+        | PartsAssociatedSourceErrorV1::ForeignLocatedBlock => format!(
+            "[freeze:contract][recipe] foreign_associated_source_block: ctx={error_prefix}"
+        ),
     }
 }
 
-fn lower_stmt_dispatch(
+pub(in crate::mir::builder::control_flow::plan::parts) fn lower_stmt_dispatch(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
@@ -359,35 +275,15 @@ pub(super) fn lower_exit_allowed_block(
     block: &RecipeBlock,
     error_prefix: &str,
 ) -> Result<Vec<LoweredRecipe>, String> {
-    arena.get(block.body_id).ok_or_else(|| {
-        format!(
-            "[freeze:contract][recipe] invalid_body_id: ctx={}",
-            error_prefix
-        )
-    })?;
-
-    #[cfg(debug_assertions)]
-    verify::debug_check_block_contract(arena, block, error_prefix)?;
-
-    let mut plans = Vec::new();
-    for item in block.items.iter() {
-        let mut item_plans = lower_exit_only_item(
-            builder,
-            current_bindings,
-            carrier_step_phis,
-            break_phi_dsts,
-            arena,
-            block.body_id,
-            item,
-            error_prefix,
-        )?;
-        plans.append(&mut item_plans);
-        if plans_exit_on_all_paths(&plans) {
-            break;
-        }
-    }
-
-    Ok(plans)
+    lower_block_internal(
+        builder,
+        current_bindings,
+        carrier_step_phis,
+        arena,
+        block,
+        error_prefix,
+        BlockKindInternal::ExitAllowed { break_phi_dsts },
+    )
 }
 
 /// Lower an already-verified exit-allowed block (Verifier-gated entry).
@@ -413,7 +309,7 @@ pub(in crate::mir::builder) fn lower_exit_allowed_block_verified(
 /// Lower statement-only RecipeBlock via arena.
 ///
 /// Contract:
-/// - Only `RecipeItem::Stmt` is allowed.
+/// - Only opaque statement items are allowed.
 /// - No "must end with Exit" condition is enforced here.
 pub(in crate::mir::builder) fn lower_stmt_only_block<LowerStmt>(
     builder: &mut MirBuilder,
@@ -452,7 +348,7 @@ where
 /// Lower non-exit RecipeBlock (Stmt / IfV2{Join} only).
 ///
 /// Contract:
-/// - Only `RecipeItem::Stmt` and `RecipeItem::IfV2{ contract: Join, .. }` are allowed.
+/// - Only opaque statements and explicit join-if items are allowed.
 /// - Join-bearing if branches are lowered via `lower_stmt_only_block` and joined with PHI payload.
 fn lower_no_exit_block(
     builder: &mut MirBuilder,

@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result LOOP0-P0b T0-R0 D0-DISPATCH0-S0 closed; raw Parts cutover is next"
+status = "callable-result LOOP0-P0b T0-R0 D0-RAW0 closed; disconnected located Parts proof is next"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,16 +298,19 @@ latest_workstream_card = "docs/development/current/main/investigations/callable-
 
 latest_card = "callable-result-loop0-p0b-t0-associated-source-port-task-2026-07-19"
 latest_card_path = "docs/development/current/main/investigations/callable-result-loop0-p0b-t0-associated-source-port-task-2026-07-19.md"
-latest_card_summary = """T0-R0 D0-DISPATCH0-S0 is closed as the second
-behavior-neutral checkpoint. One child module consumes the private verified
-port/item pair by value and owns the sole block-mode/item acceptance matrix.
-The exact legacy IfContractKind/IfMode matrix, RawLoop, wrapped Join, and
-cross-mode rejection are fixed by three recording-hook fixtures. Hooks remain
-carrier-dependent leaf ports only. Builder, CorePlan, raw/located production
-consumers, lowering behavior, located execution callers, and ledger claims
-remain zero. The next slice adds one raw hook/facade and cuts the existing raw
-Parts entries over before deleting the old semantic matches."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0B-T0-R0-D0-RAW0-001"
+latest_card_summary = """T0-R0 D0-RAW0 is closed. All four raw Parts block
+modes now traverse one raw provider, the sole by-value acceptance dispatcher,
+and one raw hook implementation. The three old lowering RecipeItem matches are
+retired while existing exit, If state, Join inventory/payload, nested Loop,
+terminality, and ExitOnly postcondition owners remain unchanged. ExitOnly,
+ExitAllowed, NoExit/Join, and StmtOnly normalized facade/core plus independent
+golden state proof is 4/4; focused associated-source tests are 11/11 and
+GenericLoop is 84/84. The public guard
+fixes one raw provider/dispatcher/hook consumer, old match zero, located
+consumer zero, and files below 800 lines. The next slice proves the exact
+located strict Parts semantics while production located callers and ledger
+claims remain zero."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0B-T0-R0-P0-LOCATED0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -316,6 +319,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-19: LOOP0-P0b-T0-R0 D0-RAW0 cuts all four raw Parts block modes over to one RawPartsAssociatedSourceV1 provider, the sole by-value acceptance dispatcher, and one RawPartsAssociatedLoweringHooksV1. The three legacy lowering RecipeItem matches and lower_exit_only_item are zero; existing exact-source exit, If state, Join branch-local inventory/payload, nested Loop, terminality, and ExitOnly all-path postcondition owners remain intact. ExitOnly, ExitAllowed, NoExit/Join, and StmtOnly facade/core plus independent golden state proof is 4/4, focused associated-source tests are 11/11, GenericLoop is 84/84, and the public expression-spine guard is green. All touched source/check files remain below 800 lines. Located execution callers and ledger claims remain zero; disconnected located Parts semantic proof is next.",
   "2026-07-19: LOOP0-P0b-T0-R0 D0-DISPATCH0-S0 closes one disconnected by-value Parts acceptance dispatcher. The child module alone can open the private verified port/item pair; one match owns ExitOnly, ExitAllowed, StmtOnly, NoExit, OpaqueStmt/Exit, exact valid and invalid IfContractKind/IfMode pairs, sealed wrapped Join, and raw nested Loop admission. Carrier-dependent hooks own no semantic admission. Recording-hook acceptance/rejection fixtures 3/3 and the public expression-spine guard are green; all touched source/check files remain below 800 lines. Builder, CorePlan, production hook implementations/consumers, located execution callers, and ledger claims remain zero. Raw Parts cutover is next.",
   "2026-07-19: LOOP0-P0b-T0-R0 D0-S0 closes one disconnected Parts source-association vocabulary. One private sealed provider contract has exactly raw and located implementations; one private verified item product keeps the issuing expression port and projected recipe/source item inseparable. Raw arena/block and located port/block foreign pairing reject before cardinality or item publication, raw body inputs match the existing expression-port slice contract, and child blocks retain the same authority. Focused projection and pairing fixtures 4/4 plus the public expression-spine guard are green; every touched source/check file remains below 800 lines. Semantic dispatcher consumers, Builder effects, production located execution callers, and ledger claims remain zero. The shared Parts dispatcher cutover is next.",
   "2026-07-19: LOOP0-P0b-T0-R0 V0/C0 closes one behavior-neutral associated-source milestone. The non-Clone O0 representation binds only after one located port revalidates its exact Loop root, then exposes borrowed exact condition/body/cleanup/If/wrapped-Join carriers without recipe rebuilding. One shared If-condition tail core consumes associated inputs through existing PATH0 roles while raw CondBlockView facades retain prelude policy. Worker review found and closed an arithmetic/value-leaf compatibility narrowing before landing. Bound-view 3/3, condition 3/3, GenericLoop 84/84, all-target check, public expression-spine guard, format/diff/line checks, and files below 800 lines are green. Production located execution callers and ledger claims remain zero; R0-D0 is next.",
@@ -327,5 +331,4 @@ landed_tail = [
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-LOOP0-S0a closes one uniform source-only CorePlan call provenance schema. All four call-bearing variants carry CoreCallSourceV1; all 34 live raw constructors explicitly publish Unlocated; and one exhaustive visitor covers direct effects, nested If effects, Loop body/block effects, If, BranchN, and Seq. Clone and ValueId remap preserve exact source provenance without target, ABI, claim, or ledger authority. The repository-wide guard fixes four variants, 34 constructors, zero production located producers, and zero premature S0b/ledger symbols. Focused Clone/remap tests, callable-result tests, cargo check --all-targets, public expression-spine guard, pointer/format/diff/line checks, and quick 66/66 in 110s are green. Three worker reviews are GO after the guard scope correction. Production located consumers, claims, grammar, runtime, backend, and ownership deltas remain zero; LOOP0-S0b is next.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-LOOP0 selects B-prime after the external decision and three repository-ground audits. All four live call-bearing CoreEffectPlan variants receive one uniform source-only provenance field; one non-Clone statement-rooted final-plan wrapper co-seals exact occurrences with a caller/activation-branded canonical schedule; and the ledger alone prevalidates and atomically commits a non-Clone site-consumption batch. The task corrects the initial packet by preserving existing raw ordered fallback, forbidding located fallback, rejecting flattened/transformed bodies before compose, and separating preclaim schedule from post-claim batch. The 34 live constructors, Clone/remap route, actual 15-row order, and <800-line placement are inventoried. LOOP0-S0a is next; production located consumers, claims, grammar, runtime, backend, and ownership deltas remain zero.",
   "2026-07-18: SITE0-R0-EXPR0-SPINE0-LOOP0-D0 closes a three-worker read-only audit with AMBIGUOUS and an external design stop. The raw LoopRouteContext and PlanNormalizer erase exact source-site/canonical call-row identity into source-site-free CoreEffectPlan rows before selected emission; speculative planning is too early for exact-once claims, while the selected generic_loop_v1 route is body-first and canonical claim order is condition rows 6-8 before body rows 9-14. A generic located PlanNormalizer port, site-bearing CoreEffectPlan, and non-Clone co-sealed located-plan wrapper remain competing authorities. Production located Loop consumers, claims, route changes, grammar, runtime, backend, and ownership deltas are zero. No S0 implementation owner is selected before the external lifetime/remap/transaction/source-order decision.",
-  "2026-07-18: SITE0-R0-EXPR0-SPINE0-SUFFIX0-I0 behavior-neutrally generalizes the legacy block port to one fallible associated borrowed suffix view. The sole production raw port remains the sole raw-slice constructor; the cfg(test) classified port carries the non-Clone inactive proof itself, and the driver performs one AsRef projection only at the existing router boundary. Selector failure returns before router and statement descent with instruction delta zero, lexical scope restored, and fresh valid reuse green. Route parity 4/4, callable-result 69/69, block-driver 5/5, BLK0 and public EXPR0-SPINE0 guards, cargo check --all-targets, release, pointer/format/diff/line guards, and quick 66/66 in 42s are green. Three worker audits are GO. Production located ports/roots, classifier consumers, grammar, runtime, backend, and ownership deltas remain zero; LOOP0-D0 is next.",
 ]
