@@ -1782,6 +1782,9 @@ remain separate rows.
 
 #### `COPY-UNKNOWN0-D0` — active design stop
 
+The consultation question is
+[`mirbuilder-copy-unknown-origin-consultation-2026-07-20.md`](mirbuilder-copy-unknown-origin-consultation-2026-07-20.md).
+
 Source authority is the existing successful LocalSSA post-emission state:
 `value_types[v]`, `value_origin_newbox[v]`, `LocalKind::Recv`, and the exact
 `value_types[loc].is_none()` fallback condition. `MirFunction` final metadata,
