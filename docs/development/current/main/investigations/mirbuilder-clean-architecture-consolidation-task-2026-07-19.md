@@ -1423,6 +1423,17 @@ retirement, finalization repair, or a new accepted PHI shape. The stale
 whitespace-sensitive `phi_type_publication_inventory.py` source anchor is a
 separate guard-maintenance row; it is not PHI0 semantic work.
 
+#### `PHI-TYPE-PUBLISH0-GUARD-MAINT0` — closed (2026-07-20)
+
+The existing publication inventory's raw-origin anchor now accepts rustfmt's
+whitespace around the unchanged `value_origin_newbox.insert(dst, origin)`
+operation. Its production-consumer census excludes the private disconnected
+`phi_completion` owner, and its LocalSSA timing anchor follows the already
+landed `function_state.type_ctx` spelling. It remains a source-order guard over
+the same origin/type authorities; there is no PHI, type, origin, caller, or
+runtime behavior delta. This restores the existing inventory as a usable M0
+baseline without mixing maintenance into PHI0's semantic completion work.
+
 #### `PHI0-S0` — closed (2026-07-20)
 
 `src/mir/builder/phi_completion/` now owns the disconnected vocabulary:

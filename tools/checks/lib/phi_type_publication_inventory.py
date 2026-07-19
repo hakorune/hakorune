@@ -30,6 +30,11 @@ def require(text: str, snippet: str, label: str) -> None:
         fail(f"missing {label}: {snippet!r}")
 
 
+def require_pattern(text: str, pattern: str, label: str) -> None:
+    if re.search(pattern, text, flags=re.S) is None:
+        fail(f"missing {label}: {pattern!r}")
+
+
 def require_order(text: str, snippets: list[str], label: str) -> None:
     cursor = -1
     for snippet in snippets:
@@ -47,7 +52,12 @@ def production_rust(root: Path) -> list[Path]:
         relative = path.relative_to(root).as_posix()
         if "/tests/" in relative or relative.endswith("_tests.rs") or path.name == "tests.rs":
             continue
-        if relative.startswith("src/mir/builder/phi_type_publication/"):
+        if relative.startswith(
+            (
+                "src/mir/builder/phi_type_publication/",
+                "src/mir/builder/phi_completion/",
+            )
+        ):
             continue
         paths.append(path)
     return paths
@@ -191,7 +201,11 @@ def main() -> None:
     )
     if "value_types" in code_only(origin):
         fail("raw origin owner still writes type facts")
-    require(origin, "value_origin_newbox.insert(dst, origin)", "raw origin publication")
+    require_pattern(
+        code_only(origin),
+        r"value_origin_newbox\s*\.insert\(\s*dst,\s*origin\s*\)",
+        "raw origin publication",
+    )
 
     # Complete and batch decide from logical rows before rematerialization and
     # commit only after successful PHI mutation. Patch remains sorted identity.
@@ -250,8 +264,8 @@ def main() -> None:
         local_ssa,
         [
             "builder.emit_instruction(MirInstruction::Copy { dst: loc, src: v })",
-            "builder.type_ctx.value_types.get(&v).cloned()",
-            "builder.type_ctx.value_types.insert(loc, t)",
+            "builder.function_state.type_ctx.value_types.get(&v).cloned()",
+            "builder.function_state.type_ctx.value_types.insert(loc, t)",
         ],
         "LocalSSA success publication",
     )
