@@ -1,0 +1,42 @@
+{
+  "schema_version": 2,
+  "write_inventory": {
+    "src/mir/builder/example.rs": 2
+  },
+  "partition_profiles": {
+    "receiver_param0": {
+      "family": "parameter",
+      "evidence_owner": "method skeleton signature Box(owner)",
+      "commit_boundary": "receiver identity commit",
+      "failure_residual": "preflight has no receiver publication",
+      "retirement_prerequisite": "RCV0",
+      "status": "scoped_cutover"
+    },
+    "legacy_explicit": {
+      "family": "parameter",
+      "evidence_owner": "legacy formal annotation",
+      "commit_boundary": "parameter identity commit",
+      "failure_residual": "legacy Unknown permitted",
+      "retirement_prerequisite": "PARAMETER-UNKNOWN0-D0",
+      "status": "legacy"
+    }
+  },
+  "writer_partitions": [
+    {
+      "source_file": "src/mir/builder/example.rs",
+      "slices": [
+        {
+          "first_ordinal": 1,
+          "last_ordinal": 1,
+          "producer_profiles": ["receiver_param0", "legacy_explicit"],
+          "shared_site_reason": "one lexical identity commit serves two semantic parameter paths"
+        },
+        {
+          "first_ordinal": 2,
+          "last_ordinal": 2,
+          "producer_profiles": ["legacy_explicit"]
+        }
+      ]
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FACT0-I0-RCV0 closes the exact receiver publisher; FACT0-P1-PARTITION0 is next"
+status = "FACT0-P1-S0 schema validation is closed; FACT0-P1-P0 live 47/99 partition is next"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -367,10 +367,15 @@ monotone decision, from the existing method-skeleton Box(owner) fact after
 preflight and before receiver-state mutation. Existing direct parameter commit
 remains the one identity-write site, explicit/static Unknown formals remain
 legacy, and conflict tests prove no binding/variable/kind/type/origin/slot
-publication. FACT0-P1-PARTITION0 is next: it partitions the remaining 47/99
-writer inventory before PHI0 and later one-family-at-a-time cutovers; FACT0-G0
-remains the terminal global-zero gate. NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FACT0-P1-PARTITION0-001"
+publication. FACT0-P1-S0 is closed: schema v2 validates gap-free lexical
+ordinal coverage, shared semantic-profile reasons, and complete profile fields
+without changing the live 47/99 census. FACT0-P1-P0 is next: it assigns every
+live writer occurrence to those profiles before PHI0 and later
+one-family-at-a-time cutovers. FACT0-G0 remains a final global-zero gate after
+FINALIZE0, PLAN0, COMPCTX0, CONFIG0, and RAWADAPT0 retire their named legacy
+writers.
+NESTED-REP0 remains parked."""
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FACT0-P1-P0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

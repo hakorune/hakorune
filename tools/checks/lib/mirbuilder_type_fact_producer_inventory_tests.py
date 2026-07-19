@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+import json
 from pathlib import Path
 
 import mirbuilder_type_fact_producer_inventory as inventory
@@ -48,6 +49,50 @@ fn production() { type_ctx.set_type(value, ty); }
                 inventory.writer_counts(root),
                 {"src/mir/builder/example.rs": 1},
             )
+
+    def test_schema_v2_accepts_shared_semantic_profiles(self) -> None:
+        fixture = json.loads(
+            (Path(__file__).parents[1] / "fixtures/mirbuilder_type_fact_partition_schema_v2.json")
+            .read_text(encoding="utf-8")
+        )
+        inventory.validate_partition_schema_v2(fixture)
+
+    def test_schema_v2_rejects_shared_site_without_reason(self) -> None:
+        fixture = {
+            "write_inventory": {"src/mir/builder/example.rs": 1},
+            "partition_profiles": {
+                "first": {
+                    "family": "parameter",
+                    "evidence_owner": "signature",
+                    "commit_boundary": "entry",
+                    "failure_residual": "none",
+                    "retirement_prerequisite": "RCV0",
+                    "status": "scoped_cutover",
+                },
+                "second": {
+                    "family": "parameter",
+                    "evidence_owner": "legacy",
+                    "commit_boundary": "entry",
+                    "failure_residual": "legacy",
+                    "retirement_prerequisite": "PARAMETER-UNKNOWN0-D0",
+                    "status": "legacy",
+                },
+            },
+            "writer_partitions": [
+                {
+                    "source_file": "src/mir/builder/example.rs",
+                    "slices": [
+                        {
+                            "first_ordinal": 1,
+                            "last_ordinal": 1,
+                            "producer_profiles": ["first", "second"],
+                        }
+                    ],
+                }
+            ],
+        }
+        with self.assertRaises(SystemExit):
+            inventory.validate_partition_schema_v2(fixture)
 
 
 if __name__ == "__main__":

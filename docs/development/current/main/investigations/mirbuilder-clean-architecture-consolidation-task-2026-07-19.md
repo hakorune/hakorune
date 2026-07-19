@@ -176,9 +176,11 @@ is fixed as:
 ```text
 FSESSION0-S0c-I0 -> S0c-G0 -> S0d
   -> FSESSION0-C0-D0
-  -> FACT0 -> PHI0 -> FINALIZE0
-  -> PLAN0 -> PLAN0-RECIPE-RET0
+  -> FACT0-I0-RCV0 -> FACT0-P1-PARTITION0
+  -> PHI0 -> FACT0-I1-*
+  -> FINALIZE0 -> PLAN0 -> PLAN0-RECIPE-RET0
   -> COMPCTX0 -> CONFIG0 -> RAWADAPT0
+  -> FACT0-G0
   -> FSESSION0-C0-I0 -> FSESSION0-CUT0 -> FSESSION0-G0
 ```
 
@@ -1001,7 +1003,7 @@ FACT0-I0-RCV0  exact instance-receiver parameter cutover
 FACT0-P1-PARTITION0  classify the remaining direct writers and fix the terminal gate scope
 PHI0  one completion owner before any PHI writer migration
 FACT0-I1-*  one remaining producer family per code-facing row
-FACT0-G0  raw type-map writers zero outside the owner
+FACT0-G0  final global raw type-map writer convergence after every retirement prerequisite
 ```
 
 No general type inference, union rejection, origin widening, or final-metadata
@@ -1014,6 +1016,11 @@ instruction-commit timing, failure behavior, and retirement prerequisite. It
 also records the selected receiver's scoped closeout without claiming that the
 other legacy producers have migrated. This prevents a false global-zero claim
 while keeping every later code-facing migration to one producer family.
+The terminal gate runs only after `FINALIZE0`, `PLAN0`, `COMPCTX0`, `CONFIG0`,
+and `RAWADAPT0`: those owners physically retire remaining repair, compatibility,
+heuristic, and configuration-dependent writers. `FACT0-G0` is therefore the
+last fact convergence gate before fresh-session activation, not a Phase 2
+implementation shortcut.
 
 ### `FACT0-S0` — selected pure decision boundary
 
@@ -1186,6 +1193,58 @@ families then move one at a time; Call and FieldGet may not move until their
 T0-recorded post-failure annotation behavior has a single transaction law.
 `FACT0-G0` closes only after every partitioned writer has either migrated to
 the monotone owner or been physically retired by its named owner row.
+
+The P1 implementation is one guard/fixture series, not another raw inventory:
+
+```text
+FACT0-P1-S0
+  schema v2: lexical writer occurrence versus semantic producer profile
+
+FACT0-P1-P0
+  every one of the 99 lexical occurrences has gap-free ordinal coverage
+  every semantic profile has evidence, commit, failure, and retirement fields
+
+FACT0-P1-G0
+  guarded profile/prerequisite matrix; production delta = 0
+```
+
+#### `FACT0-P1-S0` — closed (2026-07-20)
+
+The existing producer-inventory checker now has a disconnected schema-v2
+validator and fixture test. A v2 partition keeps the current lexical
+`write_inventory` as its sole 47-path / 99-occurrence census, then requires
+each source-file ordinal to be covered once without gaps or overlaps. Every
+semantic profile must name its family, evidence owner, commit boundary, failure
+residual, retirement prerequisite, and bounded status; one lexical occurrence
+may name multiple profiles only with an explicit shared-site reason. The live
+fixture remains schema v1 during S0, so no production writer or current census
+classification changed. `FACT0-P1-P0` is next and must migrate that live
+fixture to complete v2 coverage before any PHI or producer cutover.
+
+One lexical write may serve more than one semantic path. For example,
+`parameter_setup` retains one identity-commit write while its receiver-param0
+path is `RCV0` decision-gated and explicit/static `Unknown` paths remain
+legacy. P1 must represent that shared site explicitly; it must not subtract
+the site from the 47/99 census or pretend that the legacy paths migrated.
+
+The first post-P1 code-facing family is `PHI0`. After PHI completion is
+unified, individual FACT0 families may proceed only in this dependency order:
+
+```text
+PHI0
+  -> exact Copy-only propagation (origin fallback separate)
+  -> independently sealed simple exact producers
+  -> FACT0-TX0-D0
+  -> normal FieldGet and Call transactions, separately
+  -> FINALIZE0 / PLAN0 / COMPCTX0 / CONFIG0 / RAWADAPT0 retirements
+  -> FACT0-G0 global lexical-zero convergence
+```
+
+`FACT0-TX0-D0` is required before normal FieldGet or Call migration because T0
+observes pre-emission FieldGet and post-failure Call residual facts. FastMem
+FieldLoad, origin recovery, name/current-static-box heuristics, explicit
+`Unknown`, overwrite/clear, and final-MIR repair stay distinct profiles and
+may never be disguised as monotone exact publication.
 
 ## Phase 3 — PHI0
 
