@@ -188,6 +188,8 @@ impl FunctionOwnedStateTransactionV1 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::value_kind::MirValueKind;
+    use crate::mir::{BindingId, MirType};
 
     #[test]
     fn capture_modes_are_disjoint_and_transaction_has_one_caller_slot() {
@@ -201,5 +203,225 @@ mod tests {
             FunctionStateCaptureModeV1::LegacyRestore,
         );
         transaction.restore(&mut state);
+    }
+
+    #[test]
+    fn legacy_mode_moves_and_restores_the_captured_function_owned_subset() {
+        let mut state = FunctionLoweringStateV1::default();
+        state.current_block = Some(BasicBlockId::new(10));
+        state
+            .variable_ctx
+            .insert("outer_value".into(), ValueId::new(11));
+        state
+            .type_ctx
+            .value_types
+            .insert(ValueId::new(11), MirType::Integer);
+        state
+            .type_ctx
+            .value_kinds
+            .insert(ValueId::new(12), MirValueKind::Local(0));
+        state
+            .type_ctx
+            .value_origin_newbox
+            .insert(ValueId::new(13), "OuterBox".into());
+        state
+            .type_ctx
+            .string_literals
+            .insert(ValueId::new(14), "outer".into());
+        state
+            .type_ctx
+            .map_value_types
+            .insert(ValueId::new(15), MirType::Bool);
+        state
+            .type_ctx
+            .map_literal_value_types
+            .insert((ValueId::new(16), "key".into()), MirType::String);
+        state
+            .binding_ctx
+            .insert("outer_binding".into(), BindingId::new(17));
+        state.scope.loop_header_stack.push(BasicBlockId::new(18));
+        state.compilation.reserve_value_id(ValueId::new(19));
+        state
+            .pending_phis
+            .push((BasicBlockId::new(20), ValueId::new(21), "outer".into()));
+        state.local_ssa_map.insert(
+            (BasicBlockId::new(22), ValueId::new(23), 0),
+            ValueId::new(24),
+        );
+        state.return_defer_active = true;
+
+        let transaction = FunctionOwnedStateTransactionV1::begin(
+            &mut state,
+            FunctionStateCaptureModeV1::LegacyRestore,
+        );
+
+        assert!(state.current_block.is_none());
+        assert!(state.variable_ctx.lookup("outer_value").is_none());
+        assert!(state.type_ctx.value_types.is_empty());
+        assert!(state.type_ctx.value_kinds.is_empty());
+        assert!(state.type_ctx.value_origin_newbox.is_empty());
+        assert!(state.type_ctx.string_literals.is_empty());
+        assert!(state.type_ctx.map_value_types.is_empty());
+        assert!(state.type_ctx.map_literal_value_types.is_empty());
+        assert!(state.binding_ctx.is_empty());
+        assert!(state.scope.loop_header_stack.is_empty());
+        assert!(!state.compilation.is_reserved_value_id(ValueId::new(19)));
+        assert!(state.pending_phis.is_empty());
+        assert!(state.local_ssa_map.is_empty());
+        assert!(!state.return_defer_active);
+
+        state
+            .variable_ctx
+            .insert("child_value".into(), ValueId::new(30));
+        state
+            .type_ctx
+            .value_types
+            .insert(ValueId::new(30), MirType::Float);
+        state
+            .pending_phis
+            .push((BasicBlockId::new(31), ValueId::new(32), "child".into()));
+        transaction.restore(&mut state);
+
+        assert_eq!(state.current_block, Some(BasicBlockId::new(10)));
+        assert_eq!(
+            state.variable_ctx.lookup("outer_value"),
+            Some(ValueId::new(11))
+        );
+        assert!(state.variable_ctx.lookup("child_value").is_none());
+        assert_eq!(
+            state.type_ctx.value_types[&ValueId::new(11)],
+            MirType::Integer
+        );
+        assert!(!state.type_ctx.value_types.contains_key(&ValueId::new(30)));
+        assert_eq!(
+            state.type_ctx.value_kinds[&ValueId::new(12)],
+            MirValueKind::Local(0)
+        );
+        assert_eq!(
+            state.type_ctx.value_origin_newbox[&ValueId::new(13)],
+            "OuterBox"
+        );
+        assert_eq!(state.type_ctx.string_literals[&ValueId::new(14)], "outer");
+        assert_eq!(
+            state.type_ctx.map_value_types[&ValueId::new(15)],
+            MirType::Bool
+        );
+        assert_eq!(
+            state.type_ctx.map_literal_value_types[&(ValueId::new(16), "key".into())],
+            MirType::String
+        );
+        assert_eq!(
+            state.binding_ctx.lookup("outer_binding"),
+            Some(BindingId::new(17))
+        );
+        assert_eq!(state.scope.loop_header_stack, vec![BasicBlockId::new(18)]);
+        assert!(state.compilation.is_reserved_value_id(ValueId::new(19)));
+        assert_eq!(state.pending_phis.len(), 1);
+        assert_eq!(state.local_ssa_map.len(), 1);
+        assert!(state.return_defer_active);
+    }
+
+    #[test]
+    fn box_mode_keeps_the_existing_three_clear_three_retain_type_action() {
+        let mut state = FunctionLoweringStateV1::default();
+        state
+            .variable_ctx
+            .insert("outer_value".into(), ValueId::new(40));
+        state
+            .type_ctx
+            .value_types
+            .insert(ValueId::new(41), MirType::Integer);
+        state
+            .type_ctx
+            .value_kinds
+            .insert(ValueId::new(42), MirValueKind::Local(0));
+        state
+            .type_ctx
+            .value_origin_newbox
+            .insert(ValueId::new(43), "OuterBox".into());
+        state
+            .type_ctx
+            .string_literals
+            .insert(ValueId::new(44), "outer".into());
+        state
+            .type_ctx
+            .map_value_types
+            .insert(ValueId::new(45), MirType::Bool);
+        state
+            .type_ctx
+            .map_literal_value_types
+            .insert((ValueId::new(46), "key".into()), MirType::String);
+
+        let transaction = FunctionOwnedStateTransactionV1::begin(
+            &mut state,
+            FunctionStateCaptureModeV1::BoxCompilationPartialClear,
+        );
+
+        assert!(state.variable_ctx.lookup("outer_value").is_none());
+        assert!(state.type_ctx.value_types.is_empty());
+        assert!(state.type_ctx.value_kinds.is_empty());
+        assert!(state.type_ctx.value_origin_newbox.is_empty());
+        assert_eq!(state.type_ctx.string_literals[&ValueId::new(44)], "outer");
+        assert_eq!(
+            state.type_ctx.map_value_types[&ValueId::new(45)],
+            MirType::Bool
+        );
+        assert_eq!(
+            state.type_ctx.map_literal_value_types[&(ValueId::new(46), "key".into())],
+            MirType::String
+        );
+
+        state
+            .variable_ctx
+            .insert("child_value".into(), ValueId::new(50));
+        state
+            .type_ctx
+            .value_types
+            .insert(ValueId::new(51), MirType::Float);
+        state
+            .type_ctx
+            .value_kinds
+            .insert(ValueId::new(52), MirValueKind::Local(1));
+        state
+            .type_ctx
+            .value_origin_newbox
+            .insert(ValueId::new(53), "ChildBox".into());
+        state
+            .type_ctx
+            .string_literals
+            .insert(ValueId::new(54), "child".into());
+        state
+            .type_ctx
+            .map_value_types
+            .insert(ValueId::new(55), MirType::Float);
+        state
+            .type_ctx
+            .map_literal_value_types
+            .insert((ValueId::new(56), "child-key".into()), MirType::Bool);
+        transaction.restore(&mut state);
+
+        assert!(state.variable_ctx.lookup("outer_value").is_none());
+        assert!(state.variable_ctx.lookup("child_value").is_none());
+        assert!(state.type_ctx.value_types.is_empty());
+        assert!(state.type_ctx.value_kinds.is_empty());
+        assert!(state.type_ctx.value_origin_newbox.is_empty());
+        assert_eq!(state.type_ctx.string_literals[&ValueId::new(44)], "outer");
+        assert_eq!(state.type_ctx.string_literals[&ValueId::new(54)], "child");
+        assert_eq!(
+            state.type_ctx.map_value_types[&ValueId::new(45)],
+            MirType::Bool
+        );
+        assert_eq!(
+            state.type_ctx.map_value_types[&ValueId::new(55)],
+            MirType::Float
+        );
+        assert_eq!(
+            state.type_ctx.map_literal_value_types[&(ValueId::new(46), "key".into())],
+            MirType::String
+        );
+        assert_eq!(
+            state.type_ctx.map_literal_value_types[&(ValueId::new(56), "child-key".into())],
+            MirType::Bool
+        );
     }
 }

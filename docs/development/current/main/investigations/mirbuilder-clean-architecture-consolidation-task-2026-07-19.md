@@ -748,8 +748,8 @@ S0c-S0
   private transaction and capture-mode vocabulary; production consumers = 0
 
 S0c-P0
-  disconnected legacy/Box matrix and one-shot/Drop proof; no Builder behavior
-  delta
+  disconnected legacy/Box matrix and one-shot proof; the existing canonical
+  Drop baseline remains unchanged until I0 connects the transaction
 
 S0c-I0
   replace only the FunctionOwned `LoweringContext.saved_*` and
@@ -773,7 +773,25 @@ take/default/install, origin-fact field, or Legacy/Observation snapshot field.
 Its disconnected begin/restore smoke verifies that the move-only caller slot
 can be consumed once without changing emitted MIR or session behavior.
 
-`S0c-P0` is the sole next code-facing row.
+#### `S0c-P0` — closed (2026-07-19)
+
+The transaction now has disconnected proof for both pre-existing modes. Legacy
+mode moves the variable map, all six TypeContext maps, function/block,
+Binding/SSA state, scope, compilation scratch, caches, and cleanup flags out
+of the child and restores the outer values while discarding child writes. Box
+mode proves exactly the inherited partial action: variable state and the three
+cleared type maps do not survive, while the three retained type maps preserve
+both outer and child facts. The product remains disconnected from production
+prepare/restore.
+
+The existing canonical-session suite remains green for its independent close
+law: success, five typed-error checkpoints, cleanup-error composition, static
+and instance publication after restoration, metadata-origin no-isolation, and
+panic Drop restoration. P0 does not claim that transaction Drop itself can
+restore a Builder; I0 must route the existing session Drop through its one
+consume-and-restore transition.
+
+`S0c-I0` is the sole next code-facing row.
 
 S0c-G0 must prove, from the existing Census0 fixture rather than a second
 surface table:
