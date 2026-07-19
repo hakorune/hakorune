@@ -36,10 +36,13 @@ its positive raw-primary proof remains blocked. This program instead supplies
 the next BoxShape boundary before any wider callable-result representation
 producer may be considered.
 
-Its sole first code-facing row is:
+The closed FSESSION0 and FACT0 preparation rows have established the
+function-state census, one receiver-only monotone publication consumer, and
+the complete 47-path / 99-occurrence writer partition. The sole next
+code-facing row is now:
 
 ```text
-MIRBUILDER-CLEAN0-FSESSION0-CENSUS0
+MIRBUILDER-CLEAN0-PHI0-S0
 ```
 
 ## Baseline finding
@@ -1332,6 +1335,93 @@ entry-specific type policies = 0
 failed single completion partial publication = 0
 failed batch partial publication = 0
 ```
+
+### PHI0 task lock — 2026-07-20
+
+The entry and proof audit selects a narrow BoxShape series. `PHI0` does not
+add PHI type inference, widen origin propagation, or change a caller's
+accepted source shape. It makes one semantic completion transaction explicit,
+then moves the four existing Builder completion entries onto that transaction.
+
+```text
+PHI0-S0
+  disconnected private completion vocabulary
+
+PHI0-M0
+  one raw/final/patch/batch timing and failure matrix
+
+PHI0-I0
+  connect the four Builder completion entries to the one owner
+
+PHI0-G0
+  prove direct entry-specific completion decisions and partial publication are zero
+```
+
+`PHI0-S0` is the next code-facing row. It introduces a private,
+production-unconnected completion vocabulary in a new small
+`src/mir/builder/phi_completion/` module:
+
+```text
+PhiDraftV1
+  + exact logical predecessor/input rows
+  + optional explicit type hint
+  -> PreparedPhiCompletionV1
+  -> CompletedPhiV1
+```
+
+The sole preparation constructor delegates the existing
+`PhiTransientTypeDecisionV1`; it neither reimplements the type decision nor
+owns `MirBuilder`, `MirFunction`, `TypeContext`, allocation, origin, or a raw
+map write. A test-only completion port may prove that type commit follows a
+successful instruction commit, but S0 has zero production consumers and zero
+MIR mutation.
+
+The semantic operation is fixed as:
+
+```text
+validate exact predecessor/input rows
+  -> prepare the existing type decision from logical rows
+  -> prepare candidate instruction mutation
+  -> commit instruction
+  -> commit prepared type fact
+  -> CompletedPhi
+```
+
+The later `PHI0-I0` consumer set is exactly four Builder entries:
+
+```text
+MirBuilder::emit_instruction(Phi)
+define_phi_final_with_type_hint
+patch_phi_inputs
+define_phi_batch_prepend
+```
+
+Raw origin publication remains the separate `origin::phi` authority.
+Provisional definition remains incomplete and publishes no unanimous type.
+Function-level `define_phi_final_fn*` remains outside lowering-time type
+publication because it has no active Builder session. Existing CFG
+reachability, dominance, input rematerialization, rollback, Binding SSA
+provisional `Unknown`, post-completion Bool publication, and finalization
+repair remain their current owners.
+
+S0 proof minimum:
+
+```text
+same logical request has normalized raw/final/patch/batch preparation parity
+provisional definition remains incomplete
+duplicate/missing/phantom predecessor rows fail before a completion product
+existing concrete-type conflict is preserved from the current decision owner
+single candidate failure commits no type
+batch item failure commits no live instruction or type
+failed patch retains an incomplete draft
+```
+
+Stop rather than broaden PHI0 if one completion transaction requires an
+origin-policy merge, new CFG/dominance authority, input rematerialization
+rewrite, function-level transient type publication, Binding SSA `Unknown`
+retirement, finalization repair, or a new accepted PHI shape. The stale
+whitespace-sensitive `phi_type_publication_inventory.py` source anchor is a
+separate guard-maintenance row; it is not PHI0 semantic work.
 
 ## Phase 4 — FINALIZE0
 
