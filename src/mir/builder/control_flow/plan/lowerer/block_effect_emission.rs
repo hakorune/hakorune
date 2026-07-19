@@ -32,6 +32,7 @@ pub fn emit_all_block_effects(
     body_effects: Option<Vec<CoreEffectPlan>>,
     ctx: &LoopRouteContext,
     loop_stack: &mut Vec<LoopFrame>,
+    port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
 ) -> Result<(), String> {
     let trace_logger = trace::trace();
     let debug = ctx.debug;
@@ -85,9 +86,22 @@ pub fn emit_all_block_effects(
                 ));
             }
             if let Some(ref effects) = body_effects {
-                emit_body_effects_from_lowerer(builder, effects, loop_plan.step_bb, loop_stack)?;
+                emit_body_effects_from_lowerer(
+                    builder,
+                    effects,
+                    loop_plan.step_bb,
+                    loop_stack,
+                    port,
+                )?;
             } else {
-                emit_loop_body_plans(builder, &loop_plan.body, ctx, loop_stack, loop_plan.step_bb)?;
+                emit_loop_body_plans(
+                    builder,
+                    &loop_plan.body,
+                    ctx,
+                    loop_stack,
+                    loop_plan.step_bb,
+                    port,
+                )?;
             }
         } else {
             // Normal block: emit effects with strict validation
@@ -98,6 +112,7 @@ pub fn emit_all_block_effects(
                 ctx,
                 &planned_defs,
                 strict_planner_required,
+                port,
             )?;
         }
     }
@@ -125,6 +140,7 @@ fn emit_block_effects_strict(
     ctx: &LoopRouteContext,
     planned_defs: &Option<HashMap<ValueId, (BasicBlockId, usize, &'static str)>>,
     strict_planner_required: bool,
+    port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
 ) -> Result<(), String> {
     let mut defined_values = if strict_planner_required {
         builder.scope_ctx.current_function.as_ref().map(|func| {
@@ -177,7 +193,7 @@ fn emit_block_effects_strict(
         }
 
         // Emit the effect
-        emit_effect_from_lowerer(builder, effect)?;
+        emit_effect_from_lowerer(builder, effect, port)?;
 
         // Track defined values
         if let Some(ref mut defined_values) = defined_values {
@@ -242,10 +258,11 @@ fn emit_loop_body_plans(
     ctx: &LoopRouteContext,
     loop_stack: &mut Vec<LoopFrame>,
     step_bb: BasicBlockId,
+    port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
 ) -> Result<(), String> {
     use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
 
-    PlanLowerer::lower_loop_body_plans(builder, body, ctx, loop_stack, step_bb)
+    PlanLowerer::lower_loop_body_plans(builder, body, ctx, loop_stack, step_bb, port)
 }
 
 /// Emit body effects (delegates to PlanLowerer::emit_body_effects)
@@ -254,18 +271,18 @@ fn emit_body_effects_from_lowerer(
     effects: &[CoreEffectPlan],
     step_bb: BasicBlockId,
     loop_stack: &mut Vec<LoopFrame>,
+    port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
 ) -> Result<(), String> {
     use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
 
-    PlanLowerer::emit_body_effects(builder, effects, step_bb, loop_stack)
+    PlanLowerer::emit_body_effects(builder, effects, step_bb, loop_stack, port)
 }
 
 /// Emit effect (delegates to PlanLowerer::emit_effect)
 fn emit_effect_from_lowerer(
     builder: &mut MirBuilder,
     effect: &CoreEffectPlan,
+    port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
 ) -> Result<(), String> {
-    use crate::mir::builder::control_flow::plan::lowerer::PlanLowerer;
-
-    PlanLowerer::emit_effect(builder, effect)
+    port.emit_effect(builder, effect)
 }

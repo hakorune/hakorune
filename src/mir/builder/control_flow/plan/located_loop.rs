@@ -4,8 +4,8 @@ use std::collections::BTreeMap;
 
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::callable_result_representation::{
-    LegacyStmtInputV1, VerifiedCallableResultActivationPlanV1,
-    VerifiedCallableResultLoopClaimScheduleV1,
+    ClaimedCallableResultLoopBatchV1, LegacyStmtInputV1, VerifiedCallableResultActivationPlanV1,
+    VerifiedCallableResultCallerLedgerV1, VerifiedCallableResultLoopClaimScheduleV1,
 };
 
 use super::{
@@ -16,12 +16,26 @@ use super::{
 #[derive(Debug)]
 struct LocatedCoreLoopPlanSealV1;
 
+#[derive(Debug)]
+struct ClaimedLocatedCoreLoopExecutionSealV1;
+
 /// Owns one completed, verified, already-remapped Core Loop plan.
 #[derive(Debug)]
 pub(in crate::mir::builder) struct VerifiedLocatedCoreLoopPlanV1<'plan> {
     plan: CorePlan,
     schedule: VerifiedCallableResultLoopClaimScheduleV1<'plan>,
     _seal: LocatedCoreLoopPlanSealV1,
+}
+
+/// One claimed, single-use execution bundle for a sealed located Loop plan.
+///
+/// It owns both the already-remapped CorePlan and the source-order claims, so
+/// neither can be paired with another plan or emitted twice.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct ClaimedLocatedCoreLoopExecutionV1<'plan> {
+    plan: CorePlan,
+    claims: ClaimedCallableResultLoopBatchV1<'plan>,
+    _seal: ClaimedLocatedCoreLoopExecutionSealV1,
 }
 
 impl<'plan> VerifiedLocatedCoreLoopPlanV1<'plan> {
@@ -87,8 +101,45 @@ impl<'plan> VerifiedLocatedCoreLoopPlanV1<'plan> {
         matches!(self.plan, CorePlan::Loop(_))
     }
 
+    /// Atomically acquires this plan's complete source-order claim batch.
+    ///
+    /// A failed claim leaves the ledger unchanged and drops the plan without
+    /// invoking PlanLowerer.  The method consumes the seal, preventing a
+    /// second schedule/plan pairing or retry from the same selected session.
+    pub(in crate::mir::builder) fn into_claimed_execution(
+        self,
+        ledger: &mut VerifiedCallableResultCallerLedgerV1<'plan>,
+    ) -> Result<ClaimedLocatedCoreLoopExecutionV1<'plan>, String> {
+        let claims = ledger.claim_loop_batch(self.schedule).map_err(|error| {
+            format!("[freeze:contract][callable_result/loop_claim_batch] {error:?}")
+        })?;
+        Ok(ClaimedLocatedCoreLoopExecutionV1 {
+            plan: self.plan,
+            claims,
+            _seal: ClaimedLocatedCoreLoopExecutionSealV1,
+        })
+    }
+
     #[cfg(test)]
     pub(in crate::mir::builder) const fn plan_for_tests(&self) -> &CorePlan {
         &self.plan
+    }
+}
+
+impl<'plan> ClaimedLocatedCoreLoopExecutionV1<'plan> {
+    /// Lowers once through the shared effect-emission port and then proves
+    /// exact consumption of every prepared claim.  Lowering failure intentionally
+    /// does not finish the batch: the caller owns poisoning of that session.
+    pub(in crate::mir::builder) fn lower(
+        self,
+        builder: &mut crate::mir::builder::MirBuilder,
+        ctx: &crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext,
+    ) -> Result<Option<crate::mir::ValueId>, String> {
+        let mut port =
+            super::lowerer::emission_port::CorePlanEffectEmissionPortV1::claimed(self.claims);
+        let lowered =
+            super::PlanLowerer::lower_with_emission_port(builder, self.plan, ctx, &mut port)?;
+        port.finish()?;
+        Ok(lowered)
     }
 }

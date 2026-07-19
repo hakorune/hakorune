@@ -146,6 +146,8 @@ pub(in crate::mir::builder) use self::expression_port::{
     LoopPlanExpressionPortV1, RawLoopPlanExpressionPortV1,
 };
 #[allow(unused_imports)]
+pub(in crate::mir::builder) use self::located_loop::ClaimedLocatedCoreLoopExecutionV1;
+#[allow(unused_imports)]
 pub(in crate::mir::builder) use self::located_loop::VerifiedLocatedCoreLoopPlanV1;
 pub(in crate::mir::builder) use self::located_loop_error::LocatedCoreLoopPlanErrorV1;
 

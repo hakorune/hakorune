@@ -34,6 +34,7 @@ impl super::PlanLowerer {
         else_effects: Option<&[CoreEffectPlan]>,
         fallthrough_target: BasicBlockId,
         loop_stack: &mut [LoopFrame],
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
     ) -> Result<(), String> {
         use crate::mir::builder::emission::branch::emit_conditional;
 
@@ -63,7 +64,13 @@ impl super::PlanLowerer {
         )?;
 
         builder.start_new_block(then_bb)?;
-        Self::emit_effects_with_fallthrough(builder, then_effects, fallthrough_target, loop_stack)?;
+        Self::emit_effects_with_fallthrough(
+            builder,
+            then_effects,
+            fallthrough_target,
+            loop_stack,
+            port,
+        )?;
 
         if let (Some(else_bb), Some(else_effects)) = (else_bb, else_effects) {
             builder.start_new_block(else_bb)?;
@@ -72,6 +79,7 @@ impl super::PlanLowerer {
                 else_effects,
                 fallthrough_target,
                 loop_stack,
+                port,
             )?;
         }
 
@@ -83,6 +91,7 @@ impl super::PlanLowerer {
         effects: &[CoreEffectPlan],
         fallthrough_target: BasicBlockId,
         loop_stack: &mut [LoopFrame],
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
     ) -> Result<(), String> {
         let strict_planner_required = crate::config::env::joinir_dev::strict_enabled()
             && crate::config::env::joinir_dev::planner_required_enabled();
@@ -147,6 +156,7 @@ impl super::PlanLowerer {
                         else_effects.as_deref(),
                         fallthrough.unwrap_or(fallthrough_target),
                         loop_stack,
+                        port,
                     )?;
                     if let Some(next_bb) = fallthrough {
                         builder.start_new_block(next_bb)?;
@@ -236,7 +246,7 @@ impl super::PlanLowerer {
                             }
                         }
                     }
-                    Self::emit_effect(builder, effect)?;
+                    port.emit_effect(builder, effect)?;
                     if let Some(ref mut defined_values) = defined_values {
                         if let Some((def_value, _)) = effect_defined_value(effect) {
                             defined_values.insert(def_value);
@@ -262,6 +272,7 @@ impl super::PlanLowerer {
         effects: &[CoreEffectPlan],
         fallthrough_target: BasicBlockId,
         loop_stack: &mut [LoopFrame],
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
     ) -> Result<(), String> {
         let has_control_flow =
             crate::mir::builder::control_flow::verify::coreloop_body_contract::has_control_flow_effect(effects);
@@ -363,7 +374,7 @@ impl super::PlanLowerer {
                     }
                 }
 
-                Self::emit_effect(builder, effect)?;
+                port.emit_effect(builder, effect)?;
                 if let Some(ref mut defined_values) = defined_values {
                     if let Some((def_value, _)) = effect_defined_value(effect) {
                         defined_values.insert(def_value);
@@ -373,13 +384,14 @@ impl super::PlanLowerer {
             return Ok(());
         }
 
-        Self::emit_effects_with_fallthrough(builder, effects, fallthrough_target, loop_stack)
+        Self::emit_effects_with_fallthrough(builder, effects, fallthrough_target, loop_stack, port)
     }
 
     pub(super) fn emit_effect_in_loop(
         builder: &mut MirBuilder,
         effect: &CoreEffectPlan,
         loop_stack: &mut [LoopFrame],
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
     ) -> Result<(), String> {
         match effect {
             CoreEffectPlan::ExitIf { cond, exit } => {
@@ -406,6 +418,7 @@ impl super::PlanLowerer {
                     else_effects.as_deref(),
                     fallthrough_target,
                     loop_stack,
+                    port,
                 )?;
                 builder.start_new_block(fallthrough_target)?;
             }
@@ -481,7 +494,7 @@ impl super::PlanLowerer {
                         }
                     }
                 }
-                Self::emit_effect(builder, effect)?;
+                port.emit_effect(builder, effect)?;
             }
         }
         Ok(())
@@ -493,6 +506,7 @@ impl super::PlanLowerer {
         ctx: &LoopRouteContext,
         loop_stack: &mut Vec<LoopFrame>,
         fallthrough_target: BasicBlockId,
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
     ) -> Result<(), String> {
         use crate::mir::builder::control_flow::joinir::trace;
 
@@ -546,7 +560,7 @@ impl super::PlanLowerer {
                     }
                 }
             }
-            Self::lower_with_stack(builder, plan.clone(), ctx, loop_stack)?;
+            Self::lower_with_stack(builder, plan.clone(), ctx, loop_stack, port)?;
             if builder.is_current_block_terminated() {
                 trace_logger.debug(
                     "lowerer/loop_body",

@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result LOOP0-I0a closed; LOOP0-I0b is next"
+status = "callable-result LOOP0-I0b closed; LOOP0-L0 is next"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -297,18 +297,18 @@ taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-bind
 latest_workstream_card = "docs/development/current/main/investigations/callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md"
 parked_loop_route_retirement_card = "docs/development/current/main/investigations/generic-loop-named-route-retirement-task-2026-07-19.md"
 
-latest_card = "callable-result-loop0-i0a-route-selection-task-2026-07-19"
-latest_card_path = "docs/development/current/main/investigations/callable-result-loop0-i0a-route-selection-task-2026-07-19.md"
-latest_card_summary = """LOOP0-I0a is closed. One pure selection product owns
-ordered predicates and suppression while preserving the intentional split
-between raw execution candidates and legacy diagnostic-effective candidates.
-Raw execution still tries selected routes in order, continues only after
-Ok(None), and propagates Err. A non-Clone located token issues only for exactly
-one GenericLoopV1 raw selection; production located roots remain zero. The
-focused registry/GenericLoop tests, all-target check, public expression-spine
-guard, route-exhaustion guard, format, diff, and source/check size checks are
-green. LOOP0-I0b is next."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-I0B-001"
+latest_card = "callable-result-loop0-i0b-emission-port-task-2026-07-19"
+latest_card_path = "docs/development/current/main/investigations/callable-result-loop0-i0b-emission-port-task-2026-07-19.md"
+latest_card_summary = """LOOP0-I0b is closed. One stack-scoped raw/claimed
+effect-emission port now threads every CorePlan lowering path without Builder
+state. A non-Clone consuming bundle moves one sealed located plan plus its
+source-order claim batch into the future execution owner. Selected exact-i64
+calls use only the claimed canonical target/ABI contract; raw spelling remains
+unselected/diagnostic payload. Raw lowering parity, focused port/bundle tests,
+all-target check, public expression-spine guard, pointer, format, diff, and
+source/check size checks are green. Production located roots remain zero.
+LOOP0-L0 is next."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-L0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -5,10 +5,11 @@ use crate::mir::builder::{
 use crate::mir::callable_result_representation::{
     CallableResultLoopClaimScheduleErrorV1, LegacyStmtInputV1,
     VerifiedCallableResultActivationPlanV1, VerifiedCallableResultActivationRowsV1,
-    VerifiedCallableResultLegacySourceViewV1, VerifiedSameModuleCallableResultCatalogV1,
+    VerifiedCallableResultCallerLedgerV1, VerifiedCallableResultLegacySourceViewV1,
+    VerifiedSameModuleCallableResultCatalogV1,
 };
 use crate::mir::resolved_semantics::{
-    SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
+    ExprChildRoleV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
 };
 use crate::mir::source_call_target::{
     VerifiedSourceStaticCallTargetCatalogV1, VerifiedStaticImportAliasViewV1,
@@ -292,6 +293,44 @@ fn source_schedule_is_independent_from_core_plan_traversal_order() {
             .collect::<Vec<_>>(),
         vec![condition_site(), outer_site(), inner_site()],
     );
+}
+
+#[test]
+fn sealed_loop_moves_once_into_the_claimed_execution_bundle() {
+    let activation = seal_plan(SOURCE);
+    let parser = caller(&activation, "ParserBox");
+    let view = VerifiedCallableResultLegacySourceViewV1::verify(&activation, &parser)
+        .expect("located source view");
+    let root = view.root_body();
+    let before_stmt = view.body_stmt(&root, 0).expect("before statement");
+    let before = view
+        .child_expr_from_stmt(&before_stmt, ExprChildRoleV1::LocalInitializer(0))
+        .expect("before call carrier");
+    let after_stmt = view.body_stmt(&root, 2).expect("after statement");
+    let after = view
+        .child_expr_from_stmt(&after_stmt, ExprChildRoleV1::ReturnValue)
+        .expect("after call carrier");
+
+    let located = VerifiedLocatedCoreLoopPlanV1::verify(
+        complete_plan(),
+        &activation,
+        &parser,
+        statement(&activation, &parser, 1),
+    )
+    .expect("located final plan");
+    let mut ledger =
+        VerifiedCallableResultCallerLedgerV1::verify(&activation, &parser).expect("caller ledger");
+    ledger.claim(&before).expect("claim before-loop row");
+
+    // This consumes both the plan and its schedule.  The execution bundle is
+    // intentionally opaque; only its lower() method can consume its claims.
+    let execution = located
+        .into_claimed_execution(&mut ledger)
+        .expect("atomic Loop claim batch");
+    drop(execution);
+
+    ledger.claim(&after).expect("claim post-loop row");
+    ledger.finish().expect("all caller rows claimed once");
 }
 
 #[test]

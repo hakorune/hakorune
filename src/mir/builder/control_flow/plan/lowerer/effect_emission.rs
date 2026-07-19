@@ -80,7 +80,7 @@ fn try_emit_select_as_phi_for_merge(
 impl super::PlanLowerer {
     /// Emit a single CoreEffectPlan as MirInstruction
     #[track_caller]
-    pub(super) fn emit_effect(
+    pub(super) fn emit_raw_effect(
         builder: &mut MirBuilder,
         effect: &CoreEffectPlan,
     ) -> Result<(), String> {

@@ -26,6 +26,7 @@ impl super::PlanLowerer {
         plans: &[LoweredRecipe],
         ctx: &LoopRouteContext,
         loop_stack: &mut Vec<LoopFrame>,
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
         list_ctx: &'static str,
     ) -> Result<Option<ValueId>, String> {
         let strict_planner_required = crate::config::env::joinir_dev::strict_enabled()
@@ -141,7 +142,7 @@ impl super::PlanLowerer {
                 }
             }
 
-            result = Self::lower_with_stack(builder, plan.clone(), ctx, loop_stack)?;
+            result = Self::lower_with_stack(builder, plan.clone(), ctx, loop_stack, port)?;
             if builder.is_current_block_terminated() {
                 break;
             }
@@ -155,8 +156,9 @@ impl super::PlanLowerer {
         plans: Vec<LoweredRecipe>,
         ctx: &LoopRouteContext,
         loop_stack: &mut Vec<LoopFrame>,
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
     ) -> Result<Option<ValueId>, String> {
-        Self::lower_plan_list(builder, &plans, ctx, loop_stack, "seq")
+        Self::lower_plan_list(builder, &plans, ctx, loop_stack, port, "seq")
     }
 
     /// If: emit Branch and lower then/else plans (standalone)
@@ -165,6 +167,7 @@ impl super::PlanLowerer {
         if_plan: CoreIfPlan,
         ctx: &LoopRouteContext,
         loop_stack: &mut Vec<LoopFrame>,
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
     ) -> Result<Option<ValueId>, String> {
         use crate::mir::builder::emission::branch::{emit_conditional, emit_jump};
 
@@ -193,7 +196,7 @@ impl super::PlanLowerer {
 
         // then
         builder.start_new_block(then_bb)?;
-        Self::lower_plan_list(builder, &then_plans, ctx, loop_stack, "if_then")?;
+        Self::lower_plan_list(builder, &then_plans, ctx, loop_stack, port, "if_then")?;
         let then_reaches_merge = !builder.is_current_block_terminated();
         let then_end_bb = builder.current_block;
         if then_reaches_merge {
@@ -203,7 +206,7 @@ impl super::PlanLowerer {
         // else
         builder.start_new_block(else_bb)?;
         if let Some(else_plans) = else_plans.as_ref() {
-            Self::lower_plan_list(builder, else_plans, ctx, loop_stack, "if_else")?;
+            Self::lower_plan_list(builder, else_plans, ctx, loop_stack, port, "if_else")?;
         }
         let else_reaches_merge = !builder.is_current_block_terminated();
         let else_end_bb = builder.current_block;
@@ -230,9 +233,10 @@ impl super::PlanLowerer {
         branch_plan: CoreBranchNPlan,
         ctx: &LoopRouteContext,
         loop_stack: &mut Vec<LoopFrame>,
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
     ) -> Result<Option<ValueId>, String> {
         let if_chain = super::super::branchn::branchn_to_if_chain(branch_plan)?;
-        Self::lower_with_stack(builder, if_chain, ctx, loop_stack)
+        Self::lower_with_stack(builder, if_chain, ctx, loop_stack, port)
     }
 }
 

@@ -45,6 +45,7 @@ mod core;
 mod debug_ctx;
 mod debug_tags;
 mod effect_emission;
+pub(in crate::mir::builder) mod emission_port;
 mod exit_lowering;
 mod loop_completion;
 mod loop_lowering;
@@ -222,6 +223,7 @@ mod tests {
 
     #[test]
     fn test_lower_loop_body_seq_flattens() {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("test_loop_body_seq".to_string());
 
@@ -301,6 +303,7 @@ mod tests {
 
     #[test]
     fn test_lower_loop_body_if_effect_ok() {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("test_loop_body_if_effect".to_string());
 

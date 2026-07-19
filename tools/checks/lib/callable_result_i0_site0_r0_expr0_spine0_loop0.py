@@ -274,6 +274,7 @@ def check_loop0_s0a(root: Path) -> str:
     located_source_allowlist = {
         located_path: 1,
         "src/mir/builder/control_flow/plan/expression_port.rs": 1,
+        "src/mir/builder/control_flow/plan/lowerer/emission_port.rs": 1,
     }
     for path, text in production_plan_by_path.items():
         actual = text.count("CoreCallSourceV1::LocatedMethodCall(")
@@ -348,6 +349,7 @@ def check_loop0_s0a(root: Path) -> str:
         located_path,
         located_error_path,
         "src/mir/builder/control_flow/plan/expression_port.rs",
+        "src/mir/builder/control_flow/plan/lowerer/emission_port.rs",
         "src/mir/builder/control_flow/plan/generic_loop/located_representation/mod.rs",
         "src/mir/builder/control_flow/plan/generic_loop/located_representation/lowering_view.rs",
         "src/mir/builder/control_flow/plan/generic_loop/located_representation/product.rs",
@@ -362,6 +364,9 @@ def check_loop0_s0a(root: Path) -> str:
             raise RuntimeError(
                 f"LOOP0-S0b callable-result authority escaped located seal: {path}"
             )
+    # I0b adds one consuming execution bundle beside the existing seal.  The
+    # seal/error/schedule products themselves remain ledger-read-only; the
+    # I0b private guard owns the bundle's exact single-use constraints.
     for forbidden in (
         "VerifiedCallableResultCallerLedgerV1",
         "ClaimedCallableResultActivationSiteV1",
@@ -371,7 +376,7 @@ def check_loop0_s0a(root: Path) -> str:
         ".claim(",
         ".finish(",
     ):
-        if forbidden in located_production + located_error_production + schedule_production:
+        if forbidden in located_error_production + schedule_production:
             raise RuntimeError(f"LOOP0-S0b seal must remain ledger-read-only: {forbidden}")
 
     _reject_clone_owner(located_production, "VerifiedLocatedCoreLoopPlanV1")
@@ -503,8 +508,12 @@ def check_loop0_s0a(root: Path) -> str:
             raise RuntimeError(f"LOOP0-S0c batch copied foreign authority: {forbidden_field}")
     if batch_production.count("fn claim_loop_batch(") != 1:
         raise RuntimeError("LOOP0-S0c requires one ledger batch-claim entry")
-    if all_mir_production_text.count(".claim_loop_batch(") != 0:
-        raise RuntimeError("LOOP0-S0c production claim callers must remain zero")
+    # I0b permits exactly one consuming handoff after the final located plan
+    # seal.  It must not create a second caller anywhere else in MIR.
+    if all_mir_production_text.count(".claim_loop_batch(") != 1:
+        raise RuntimeError("LOOP0-I0b requires exactly one production claim caller")
+    if located_production.count(".claim_loop_batch(") != 1:
+        raise RuntimeError("LOOP0-I0b claim caller must stay inside located execution bundle")
     for required_error in ("UnexpectedSite", "AlreadyConsumed", "Unconsumed"):
         if required_error not in batch_production:
             raise RuntimeError(f"LOOP0-S0c batch error vocabulary drift: {required_error}")

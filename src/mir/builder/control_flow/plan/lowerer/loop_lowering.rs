@@ -45,6 +45,7 @@ impl super::PlanLowerer {
         loop_plan: CoreLoopPlan,
         ctx: &LoopRouteContext,
         loop_stack: &mut Vec<LoopFrame>,
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
     ) -> Result<Option<ValueId>, String> {
         use crate::mir::builder::control_flow::joinir::trace;
 
@@ -72,7 +73,7 @@ impl super::PlanLowerer {
             break_phi_inputs: BTreeMap::new(),
         };
         loop_stack.push(frame);
-        let result = Self::lower_loop_generalized(builder, loop_plan, ctx, loop_stack);
+        let result = Self::lower_loop_generalized(builder, loop_plan, ctx, loop_stack, port);
         loop_stack.pop();
         result
     }
@@ -87,6 +88,7 @@ impl super::PlanLowerer {
         loop_plan: CoreLoopPlan,
         ctx: &LoopRouteContext,
         loop_stack: &mut Vec<LoopFrame>,
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
     ) -> Result<Option<ValueId>, String> {
         use super::super::PlanBuildSession;
         use crate::mir::builder::control_flow::joinir::trace;
@@ -128,6 +130,7 @@ impl super::PlanLowerer {
                 body_effects,
                 ctx,
                 loop_stack,
+                port,
             )?;
 
             // Step 3: Ensure non-effect blocks exist (after_bb, found_bb, etc.)

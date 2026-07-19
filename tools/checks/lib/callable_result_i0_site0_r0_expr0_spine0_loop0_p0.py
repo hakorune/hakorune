@@ -252,6 +252,7 @@ def check_loop0_p0a(root: Path) -> str:
     located_read_allowlist = {
         "src/mir/builder/control_flow/plan/located_loop.rs": 1,
         PORT_PATH: 1,
+        "src/mir/builder/control_flow/plan/lowerer/emission_port.rs": 1,
     }
     for path, text in plan_sources.items():
         expected = located_read_allowlist.get(path, 0)

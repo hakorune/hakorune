@@ -41,8 +41,21 @@ impl super::PlanLowerer {
         plan: LoweredRecipe,
         ctx: &LoopRouteContext,
     ) -> Result<Option<ValueId>, String> {
+        let mut port = super::emission_port::CorePlanEffectEmissionPortV1::raw();
+        Self::lower_with_emission_port(builder, plan, ctx, &mut port)
+    }
+
+    /// Internal entry for one already-selected effect-emission authority.
+    ///
+    /// Located execution owns this only through a consuming, non-Clone bundle.
+    pub(in crate::mir::builder) fn lower_with_emission_port<'plan>(
+        builder: &mut MirBuilder,
+        plan: LoweredRecipe,
+        ctx: &LoopRouteContext,
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'plan>,
+    ) -> Result<Option<ValueId>, String> {
         let mut loop_stack = Vec::new();
-        Self::lower_with_stack(builder, plan, ctx, &mut loop_stack)
+        Self::lower_with_stack(builder, plan, ctx, &mut loop_stack, port)
     }
 
     /// Internal dispatcher: routes CorePlan variants to specialized modules
@@ -51,19 +64,22 @@ impl super::PlanLowerer {
         plan: LoweredRecipe,
         ctx: &LoopRouteContext,
         loop_stack: &mut Vec<LoopFrame>,
+        port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
     ) -> Result<Option<ValueId>, String> {
         match plan {
-            CorePlan::Seq(plans) => Self::lower_seq(builder, plans, ctx, loop_stack),
-            CorePlan::Loop(loop_plan) => Self::lower_loop(builder, loop_plan, ctx, loop_stack),
-            CorePlan::If(if_plan) => Self::lower_if(builder, if_plan, ctx, loop_stack),
+            CorePlan::Seq(plans) => Self::lower_seq(builder, plans, ctx, loop_stack, port),
+            CorePlan::Loop(loop_plan) => {
+                Self::lower_loop(builder, loop_plan, ctx, loop_stack, port)
+            }
+            CorePlan::If(if_plan) => Self::lower_if(builder, if_plan, ctx, loop_stack, port),
             CorePlan::BranchN(branch_plan) => {
-                Self::lower_branchn(builder, branch_plan, ctx, loop_stack)
+                Self::lower_branchn(builder, branch_plan, ctx, loop_stack, port)
             }
             CorePlan::Effect(effect) => {
                 if loop_stack.is_empty() {
-                    Self::emit_effect(builder, &effect)?;
+                    port.emit_effect(builder, &effect)?;
                 } else {
-                    Self::emit_effect_in_loop(builder, &effect, loop_stack)?;
+                    Self::emit_effect_in_loop(builder, &effect, loop_stack, port)?;
                 }
                 Ok(None)
             }
