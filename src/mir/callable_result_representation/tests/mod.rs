@@ -6,6 +6,7 @@ mod call_substitution;
 mod caller_ledger;
 mod caller_ledger_suffix;
 mod core_composition;
+pub(crate) mod generic_selected_activation_fixture;
 mod located_legacy;
 mod located_legacy_lowering;
 mod located_short_circuit_lowering;

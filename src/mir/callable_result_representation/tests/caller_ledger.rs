@@ -7,20 +7,20 @@ use super::super::{
     VerifiedCallableResultLegacySourceViewV1,
 };
 use super::support::{
-    declarations, instance_key, qualified_targets, seal_with_targets, site, CallSiteSpecV1,
+    declarations, instance_key, key, qualified_targets, seal_with_targets, site, CallSiteSpecV1,
 };
 use crate::mir::resolved_semantics::SourcePathSegmentV1;
 
 const SOURCE: &str = r#"
-    box ParserBox {
-        parse(text, pos) {
-            local next = Helpers.step(text, pos)
-            local width = text.length()
+    static box Consumer {
+        run() {
+            local next = Helpers.step(1)
+            local width = "x".length()
             return next
         }
     }
     static box Helpers {
-        step(text, pos) { return pos }
+        step(pos) { return pos }
     }
 "#;
 
@@ -37,9 +37,9 @@ fn seal_plan() -> VerifiedCallableResultActivationPlanV1 {
         declarations.as_ref(),
         &[],
         &[CallSiteSpecV1 {
-            caller_owner: "ParserBox",
-            caller_name: "parse",
-            caller_arity: 2,
+            caller_owner: "Consumer",
+            caller_name: "run",
+            caller_arity: 0,
             site: selected_site(),
         }],
     );
@@ -50,6 +50,12 @@ fn seal_plan() -> VerifiedCallableResultActivationPlanV1 {
     drop(results);
     drop(targets);
     VerifiedCallableResultActivationPlanV1::seal(declarations, rows).expect("caller ledger plan")
+}
+
+fn source_caller(
+    plan: &VerifiedCallableResultActivationPlanV1,
+) -> crate::mir::builder::CanonicalSameModuleCallableKeyV1 {
+    key(plan.declaration_catalog(), "Consumer", "run", 0)
 }
 
 fn caller(
@@ -130,7 +136,7 @@ fn calls<'plan>(
 #[test]
 fn exact_source_order_claims_selected_and_unselected_rows_once() {
     let plan = seal_plan();
-    let caller = caller(&plan);
+    let caller = source_caller(&plan);
     let view = VerifiedCallableResultLegacySourceViewV1::verify(&plan, &caller).unwrap();
     let (_, selected, unselected) = calls(&view);
     let mut ledger = VerifiedCallableResultCallerLedgerV1::verify(&plan, &caller).unwrap();
@@ -157,7 +163,7 @@ fn exact_source_order_claims_selected_and_unselected_rows_once() {
 #[test]
 fn wrong_order_duplicate_unexpected_and_missing_are_distinct() {
     let plan = seal_plan();
-    let caller = caller(&plan);
+    let caller = source_caller(&plan);
     let view = VerifiedCallableResultLegacySourceViewV1::verify(&plan, &caller).unwrap();
     let (_, selected, unselected) = calls(&view);
 
@@ -193,7 +199,7 @@ fn wrong_order_duplicate_unexpected_and_missing_are_distinct() {
 #[test]
 fn prefix_proof_is_exact_and_unlocated_inputs_never_prove_inactive() {
     let plan = seal_plan();
-    let caller = caller(&plan);
+    let caller = source_caller(&plan);
     let view = VerifiedCallableResultLegacySourceViewV1::verify(&plan, &caller).unwrap();
     let (body, selected, _) = calls(&view);
     let ledger = VerifiedCallableResultCallerLedgerV1::verify(&plan, &caller).unwrap();
@@ -500,8 +506,8 @@ fn empty_bodies_and_condition_rows_remain_outside_branch_domains() {
 fn equal_foreign_plan_location_cannot_claim_or_prove_a_prefix() {
     let primary = seal_plan();
     let foreign = seal_plan();
-    let primary_caller = caller(&primary);
-    let foreign_caller = caller(&foreign);
+    let primary_caller = source_caller(&primary);
+    let foreign_caller = source_caller(&foreign);
     let foreign_view =
         VerifiedCallableResultLegacySourceViewV1::verify(&foreign, &foreign_caller).unwrap();
     let (foreign_body, foreign_selected, _) = calls(&foreign_view);

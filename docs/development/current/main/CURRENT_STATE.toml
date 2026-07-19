@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result ACT0-ARG0 P0-REBASE0 closed; I0 is next"
+status = "callable-result ACT0-ARG0 I0 closed; G0 is next"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -305,11 +305,13 @@ fixture has 15 source rows and two static target candidates, but both require a
 nested current-owner instance result and correctly normalize to Unselected.
 P0-REBASE0 is closed: a disconnected scoped fixture proves actual 15/2/0/15
 source classification without Builder or ledger effects, while separate generic
-literal and direct-formal fixtures own Gate-S selected coverage. I0 then
-connects one activation-row consumer, G0 updates
+literal and direct-formal fixtures own Gate-S selected coverage. I0 is closed:
+one activation-row consumer calls the source gate exactly once per observed
+site; actual activation rows are all Unselected and the generic literal row is
+Selected. G0 updates
 the existing guard family, and LOOP0-L0-R0 proves all-Unselected raw-primary
 located lowering. NESTED-REP0 remains parked until after CLEAN0 FSESSION0."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-ACT0-ARG0-I0-001"
+current_blocker_token = "DPRIME-CALLABLE-RESULT-ACT0-ARG0-G0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

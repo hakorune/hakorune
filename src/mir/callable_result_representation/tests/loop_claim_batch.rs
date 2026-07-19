@@ -361,7 +361,7 @@ fn actual_fifteen_rows_claim_loop_six_through_fourteen_atomically() {
     ));
     assert!(matches!(
         batch.take_claim(rows[12].site()).unwrap().disposition(),
-        CallableResultActivationDispositionV1::SelectedExactI64 { .. }
+        CallableResultActivationDispositionV1::Unselected
     ));
     for row in &rows[5..=11] {
         batch.take_claim(row.site()).unwrap();

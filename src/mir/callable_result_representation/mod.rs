@@ -35,7 +35,7 @@ pub(crate) use activation::{
     VerifiedCallableResultActivationRowsV1,
 };
 pub(crate) use activation_error::CallableResultActivationErrorV1;
-#[cfg(test)]
+#[allow(unused_imports)]
 pub(crate) use activation_source_gate::{
     classify_activation_source_site_v1, CallableResultActivationSourceDecisionV1,
     CallableResultActivationUnselectedReasonV1,
@@ -64,3 +64,5 @@ pub(crate) use loop_claim_schedule::{
 #[cfg(test)]
 #[allow(unused_imports)]
 pub(crate) use tests::actual_parser_add_fixture;
+#[cfg(test)]
+pub(crate) use tests::generic_selected_activation_fixture;

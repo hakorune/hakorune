@@ -37,15 +37,6 @@ const NESTED_INSTANCE_ARGUMENT_SOURCE: &str = r#"
     }
 "#;
 
-const LITERAL_ARGUMENT_SOURCE: &str = r#"
-    static box Provider {
-        step(value) { return value }
-    }
-    static box Caller {
-        run() { return Provider.step(41) }
-    }
-"#;
-
 fn selected_site() -> crate::mir::resolved_semantics::SourceExprSiteV1 {
     site(vec![
         SourcePathSegmentV1::Body(0),
@@ -89,7 +80,7 @@ fn seal_plan(source: &str) -> VerifiedCallableResultActivationPlanV1 {
 }
 
 #[test]
-fn instance_caller_owns_selected_static_target_and_explicit_unselected_site() {
+fn instance_caller_with_unproven_required_formal_keeps_all_rows_unselected() {
     let plan = seal_plan(SOURCE);
     let caller = instance_key(
         plan.declaration_catalog(),
@@ -98,20 +89,11 @@ fn instance_caller_owns_selected_static_target_and_explicit_unselected_site() {
         2,
     );
     let rows = plan.rows_for(&caller).expect("instance caller rows");
-    let target = key(
-        plan.declaration_catalog(),
-        "ParserStringUtilsBox",
-        "skip_ws",
-        2,
-    );
     assert_eq!(rows.len(), 2);
     assert_eq!(rows[0].site(), &selected_site());
     assert_eq!(
         rows[0].disposition(),
-        &CallableResultActivationDispositionV1::SelectedExactI64 {
-            target,
-            required_i64_arguments: Box::new([1]),
-        }
+        &CallableResultActivationDispositionV1::Unselected
     );
     assert_eq!(rows[1].site(), &unselected_site());
     assert_eq!(
@@ -188,35 +170,45 @@ fn plan_is_owned_and_single_use() {
 
 #[test]
 fn source_gate_selects_only_when_the_exact_call_result_row_exists() {
-    let declarations = declarations(LITERAL_ARGUMENT_SOURCE);
-    let targets = qualified_targets(
-        &declarations,
-        &[],
-        &[CallSiteSpecV1 {
-            caller_owner: "Caller",
-            caller_name: "run",
-            caller_arity: 0,
-            site: value_site(),
-        }],
+    super::generic_selected_activation_fixture::with_source_gate_inputs(
+        |declarations, caller, call_site, targets, results| {
+            let CallableResultActivationSourceDecisionV1::Selected(selected) =
+                classify_activation_source_site_v1(
+                    declarations,
+                    caller,
+                    call_site,
+                    targets,
+                    results,
+                )
+                .expect("source gate")
+            else {
+                panic!("literal required argument must have source proof");
+            };
+            assert_eq!(selected.target().owner(), "Provider");
+            assert_eq!(selected.target().name(), "step");
+            assert_eq!(selected.required_i64_arguments(), &[0]);
+        },
     );
-    let results = seal_with_targets(&declarations, &targets);
-    let caller = key(&declarations, "Caller", "run", 0);
+}
 
-    let CallableResultActivationSourceDecisionV1::Selected(selected) =
-        classify_activation_source_site_v1(
-            &declarations,
-            &caller,
-            &value_site(),
-            &targets,
-            &results,
-        )
-        .expect("source gate")
-    else {
-        panic!("literal required argument must have source proof");
-    };
-    assert_eq!(selected.target().owner(), "Provider");
-    assert_eq!(selected.target().name(), "step");
-    assert_eq!(selected.required_i64_arguments(), &[0]);
+#[test]
+fn activation_rows_preserve_the_generic_literal_selected_disposition() {
+    let plan = super::generic_selected_activation_fixture::plan();
+    let caller = super::generic_selected_activation_fixture::caller(&plan);
+    let rows = plan.rows_for(&caller).expect("literal caller rows");
+
+    assert_eq!(rows.len(), 1);
+    assert_eq!(
+        rows[0].site(),
+        &super::generic_selected_activation_fixture::call_site()
+    );
+    assert_eq!(
+        rows[0].disposition(),
+        &CallableResultActivationDispositionV1::SelectedExactI64 {
+            target: key(plan.declaration_catalog(), "Provider", "step", 1),
+            required_i64_arguments: Box::new([0]),
+        }
+    );
 }
 
 #[test]
@@ -364,7 +356,7 @@ fn actual_parser_source_gate_is_all_unselected_without_activation_or_builder_sta
 }
 
 #[test]
-fn actual_parser_add_inventory_selects_only_two_static_skip_ws_sites() {
+fn actual_parser_add_inventory_keeps_every_source_row_unselected() {
     let plan = actual_parser_add_fixture::plan();
     let caller = actual_parser_add_fixture::caller(&plan);
     let rows = plan.rows_for(&caller).expect("actual ParserBox rows");
@@ -376,29 +368,12 @@ fn actual_parser_add_inventory_selects_only_two_static_skip_ws_sites() {
                 CallableResultActivationDispositionV1::SelectedExactI64 { .. }
             ))
             .count(),
-        2
+        0
     );
     assert_eq!(
         rows.iter()
             .filter(|row| row.disposition() == &CallableResultActivationDispositionV1::Unselected)
             .count(),
-        13
+        15
     );
-    for row in rows.iter().filter(|row| {
-        matches!(
-            row.disposition(),
-            CallableResultActivationDispositionV1::SelectedExactI64 { .. }
-        )
-    }) {
-        let CallableResultActivationDispositionV1::SelectedExactI64 {
-            target,
-            required_i64_arguments,
-        } = row.disposition()
-        else {
-            unreachable!()
-        };
-        assert_eq!(target.owner(), "ParserStringUtilsBox");
-        assert_eq!(target.name(), "skip_ws");
-        assert_eq!(required_i64_arguments.as_ref(), &[1]);
-    }
 }

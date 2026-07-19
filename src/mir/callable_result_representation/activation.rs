@@ -10,8 +10,8 @@ use crate::mir::resolved_semantics::{
 use crate::mir::source_call_target::VerifiedSourceStaticCallTargetCatalogV1;
 
 use super::{
-    CallableResultActivationErrorV1, VerifiedCallableResultDispositionV1,
-    VerifiedSameModuleCallableResultCatalogV1,
+    classify_activation_source_site_v1, CallableResultActivationErrorV1,
+    CallableResultActivationSourceDecisionV1, VerifiedSameModuleCallableResultCatalogV1,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -84,34 +84,25 @@ impl VerifiedCallableResultActivationRowsV1 {
             let mut caller_rows = Vec::with_capacity(observations.len());
             for (site, _) in observations {
                 observed_sites.insert((caller.clone(), site.clone()));
-                let disposition = match targets.target(caller, &site) {
-                    Some(source_target) => {
-                        let target = source_target.target();
-                        if target.namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod {
-                            return Err(
-                                CallableResultActivationErrorV1::SelectedTargetMustBeStatic {
-                                    caller: caller.clone(),
-                                    site,
-                                    target: target.clone(),
-                                },
-                            );
-                        }
-                        match results.disposition(target) {
-                            Some(VerifiedCallableResultDispositionV1::ExactI64 {
-                                required_i64_arguments,
-                            }) => {
-                                validate_required_arguments(target, &site, required_i64_arguments)?;
-                                CallableResultActivationDispositionV1::SelectedExactI64 {
-                                    target: target.clone(),
-                                    required_i64_arguments: required_i64_arguments.clone(),
-                                }
-                            }
-                            Some(VerifiedCallableResultDispositionV1::Unavailable(_)) | None => {
-                                CallableResultActivationDispositionV1::Unselected
-                            }
+                let disposition = match classify_activation_source_site_v1(
+                    declarations,
+                    caller,
+                    &site,
+                    targets,
+                    results,
+                )? {
+                    CallableResultActivationSourceDecisionV1::Selected(selected) => {
+                        CallableResultActivationDispositionV1::SelectedExactI64 {
+                            target: selected.target().clone(),
+                            required_i64_arguments: selected
+                                .required_i64_arguments()
+                                .to_vec()
+                                .into_boxed_slice(),
                         }
                     }
-                    None => CallableResultActivationDispositionV1::Unselected,
+                    CallableResultActivationSourceDecisionV1::Unselected(_) => {
+                        CallableResultActivationDispositionV1::Unselected
+                    }
                 };
                 caller_rows.push(VerifiedCallableResultActivationSiteV1 { site, disposition });
             }
@@ -181,26 +172,4 @@ impl VerifiedCallableResultActivationPlanV1 {
     ) {
         (self.declaration_catalog, self.rows)
     }
-}
-
-fn validate_required_arguments(
-    target: &CanonicalSameModuleCallableKeyV1,
-    site: &SourceExprSiteV1,
-    required: &[u32],
-) -> Result<(), CallableResultActivationErrorV1> {
-    if let Some(ordinal) = required
-        .iter()
-        .copied()
-        .find(|ordinal| *ordinal >= target.arity())
-    {
-        return Err(
-            CallableResultActivationErrorV1::RequiredCallArgumentOutOfRange {
-                target: target.clone(),
-                site: site.clone(),
-                ordinal,
-                arity: target.arity(),
-            },
-        );
-    }
-    Ok(())
 }

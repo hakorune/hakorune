@@ -205,6 +205,26 @@ activation rows retain no lowered representation state
 Catalog disagreement remains a typed seal failure. Missing call-result proof
 remains ordinary `Unselected`.
 
+### I0 closeout (2026-07-19)
+
+Closed with one production consumer in
+`VerifiedCallableResultActivationRowsV1::verify`. Every observed method-call
+site calls `classify_activation_source_site_v1` once, then copies only the
+owned selected target and required-ordinal disposition or the ordinary
+`Unselected` disposition.
+
+```text
+activation-side target-disposition selection: 0
+activation-side call-result lookup bypass: 0
+source-gate production consumers: 1
+actual activation plan: 15 Unselected rows
+generic literal activation plan: 1 SelectedExactI64 row
+```
+
+The actual Loop claim batch remains all-Unselected. The selected-terminal
+fixture now borrows the generic activation plan rather than the Parser fixture;
+the remaining G0 fail-fast fixture owns the selected-terminal failure law.
+
 ## `G0` — regression and guard closeout
 
 Reuse the existing callable-result activation guard and its expression-spine

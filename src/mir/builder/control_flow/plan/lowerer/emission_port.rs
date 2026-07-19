@@ -158,7 +158,7 @@ mod tests {
     use super::emit_selected_exact_i64;
     use crate::mir::builder::control_flow::plan::{CoreCallSourceV1, CoreEffectPlan};
     use crate::mir::callable_result_representation::{
-        actual_parser_add_fixture, CallableResultActivationDispositionV1,
+        generic_selected_activation_fixture, CallableResultActivationDispositionV1,
     };
     use crate::mir::definitions::Callee;
     use crate::mir::{ConstValue, MirInstruction, MirType};
@@ -166,8 +166,8 @@ mod tests {
     #[test]
     fn selected_terminal_uses_claim_target_not_raw_global_spelling() {
         crate::runtime::ring0::ensure_global_ring0_initialized();
-        let activation = actual_parser_add_fixture::plan();
-        let caller = actual_parser_add_fixture::caller(&activation);
+        let activation = generic_selected_activation_fixture::plan();
+        let caller = generic_selected_activation_fixture::caller(&activation);
         let (target, required_i64_arguments) = activation
             .rows_for(&caller)
             .expect("actual caller rows")
@@ -179,7 +179,7 @@ mod tests {
                 } => Some((target.clone(), required_i64_arguments.clone())),
                 CallableResultActivationDispositionV1::Unselected => None,
             })
-            .expect("actual fixture has one selected exact-i64 row");
+            .expect("generic fixture has one selected exact-i64 row");
 
         let mut builder = crate::mir::builder::MirBuilder::new();
         builder.enter_function_for_test("selected_terminal".to_owned());
