@@ -29,6 +29,9 @@ use crate::ast::{ASTNode, ParamDecl};
 use crate::mir::builder::{MirBuilder, MirFunction, MirInstruction, MirType};
 use crate::mir::function::MirParamDecl;
 
+#[cfg(test)]
+use crate::mir::builder::stmts::block_driver::{drive_legacy_block_v1, LegacyBlockDescentPortV1};
+
 fn parse_declared_method_arity(func_name: &str) -> Option<usize> {
     let (_, tail) = func_name.rsplit_once('/')?;
     tail.parse::<usize>().ok()
@@ -427,6 +430,134 @@ impl MirBuilder {
                 .is_some_and(|function| !matches!(function.signature.return_type, MirType::Void));
             builder.finalize_function_draft(returns_value)
         })
+    }
+
+    /// Replays one exact instance-method entry and hands off its live root
+    /// block before one body suffix. This is test-only support for raw/located
+    /// parity: it deliberately reuses the production skeleton, signature, and
+    /// parameter publishers instead of synthesizing parameter facts.
+    #[cfg(test)]
+    pub(in crate::mir) fn lower_instance_method_prefix_for_test<R>(
+        &mut self,
+        box_name: &str,
+        declaration: ASTNode,
+        prefix_len: usize,
+        continuation: impl for<'suffix> FnOnce(
+            &mut MirBuilder,
+            &'suffix [ASTNode],
+        ) -> Result<(crate::mir::ValueId, R), String>,
+    ) -> Result<R, String> {
+        let ASTNode::FunctionDeclaration {
+            name,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+            is_static,
+            ..
+        } = declaration
+        else {
+            return Err(
+                "[freeze:contract][raw_prefix_harness/not_function_declaration]".to_string(),
+            );
+        };
+        if is_static {
+            return Err("[freeze:contract][raw_prefix_harness/static_method]".to_string());
+        }
+        if prefix_len >= body.len() {
+            return Err(format!(
+                "[freeze:contract][raw_prefix_harness/invalid_prefix] prefix_len={} body_len={}",
+                prefix_len,
+                body.len()
+            ));
+        }
+
+        let func_name = format!("{box_name}.{name}/{}", params.len());
+        let params = normalize_instance_method_params(&func_name, params);
+        let param_decls = normalize_instance_method_param_decls(&func_name, param_decls);
+        let session_name = func_name.clone();
+        let body_snapshot = body.clone();
+        let mut observed = None;
+
+        self.with_function_lowering_session(&session_name, body_snapshot, |builder| {
+            builder.create_method_skeleton(func_name, box_name, &params, &body)?;
+            builder.set_current_function_declared_signature(
+                mir_method_param_decls_from_source(box_name, &params, &param_decls),
+                return_type_name,
+            );
+            builder.set_current_function_runes(&attrs);
+            builder.set_current_function_declared_capability_uses(&uses);
+            builder.setup_method_params(box_name, &params)?;
+
+            let mut continuation = Some(continuation);
+            let mut handoff = |builder: &mut MirBuilder, suffix: &[ASTNode]| {
+                let continuation = continuation.take().ok_or_else(|| {
+                    "[freeze:contract][raw_prefix_harness/continuation_reentered]".to_string()
+                })?;
+                let (last_value, result) = continuation(builder, suffix)?;
+                observed = Some(result);
+                Ok(last_value)
+            };
+            let mut port = InstanceMethodPrefixPortV1 {
+                body: &body,
+                prefix_len,
+                continuation: &mut handoff,
+            };
+            drive_legacy_block_v1(builder, &mut port)?;
+
+            let returns_value = builder
+                .scope_ctx
+                .current_function
+                .as_ref()
+                .is_some_and(|function| !matches!(function.signature.return_type, MirType::Void));
+            builder.finalize_function_draft(returns_value)
+        })?;
+
+        observed.ok_or_else(|| {
+            "[freeze:contract][raw_prefix_harness/continuation_not_called]".to_string()
+        })
+    }
+}
+
+#[cfg(test)]
+struct InstanceMethodPrefixPortV1<'body, 'callback> {
+    body: &'body [ASTNode],
+    prefix_len: usize,
+    continuation: &'callback mut dyn FnMut(
+        &mut MirBuilder,
+        &[ASTNode],
+    ) -> Result<crate::mir::ValueId, String>,
+}
+
+#[cfg(test)]
+impl LegacyBlockDescentPortV1 for InstanceMethodPrefixPortV1<'_, '_> {
+    type SuffixInput<'a>
+        = &'a [ASTNode]
+    where
+        Self: 'a;
+
+    fn len(&self) -> usize {
+        self.prefix_len + 1
+    }
+
+    fn suffix_route_input(&self, index: usize) -> Result<Option<Self::SuffixInput<'_>>, String> {
+        Ok((index < self.prefix_len).then_some(&self.body[index..]))
+    }
+
+    fn lower_statement(
+        &mut self,
+        builder: &mut MirBuilder,
+        index: usize,
+    ) -> Result<crate::mir::ValueId, String> {
+        if index < self.prefix_len {
+            return crate::mir::builder::stmts::block_stmt::build_statement(
+                builder,
+                self.body[index].clone(),
+            );
+        }
+        (self.continuation)(builder, &self.body[self.prefix_len..])
     }
 }
 

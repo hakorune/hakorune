@@ -24,7 +24,7 @@ use crate::mir::callable_result_representation::{
 };
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::value_kind::MirValueKind;
-use crate::mir::{MirType, ValueId};
+use crate::mir::{MirModule, MirType, ValueId};
 
 use super::generic_loop_located_composer::compose_located_generic_loop_v1;
 use crate::mir::builder::control_flow::plan::generic_loop::located_representation::VerifiedLocatedGenericLoopBodyRepresentationV1;
@@ -66,6 +66,88 @@ fn actual_default_and_strict_raw_and_located_whole_loops_match_after_source_only
         assert_call_source_and_schedule(&activation, &caller, &raw, &located);
         assert_mode_golden(mode, &raw.plan);
     });
+}
+
+#[test]
+fn actual_method_prefix_uses_canonical_parameters_and_keeps_one_live_scope_for_loop_handoff() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let mut builder = MirBuilder::new();
+    builder.current_module = Some(MirModule::new("raw-prefix-harness".to_string()));
+    builder
+        .comp_ctx
+        .install_callable_declaration_catalog(
+            actual_parser_add_fixture::declaration_catalog_for_lowering(),
+        )
+        .expect("actual raw-prefix callable catalog");
+
+    let observed = builder
+        .lower_instance_method_prefix_for_test(
+            "ParserBox",
+            actual_parser_add_fixture::method_declaration_for_lowering(),
+            4,
+            |builder, suffix| {
+                let function = builder
+                    .scope_ctx
+                    .current_function
+                    .as_ref()
+                    .expect("canonical method skeleton");
+                assert_eq!(
+                    function.signature.name,
+                    "ParserBox.static_const_parse_add/2"
+                );
+                assert_eq!(function.params.len(), 3);
+                for index in 0..3 {
+                    let value = function.params[index];
+                    assert_eq!(
+                        builder.get_value_kind(value),
+                        Some(MirValueKind::Parameter(index as u32))
+                    );
+                }
+                assert_eq!(builder.variable_ctx.variable_map["me"], function.params[0]);
+                assert_eq!(
+                    builder.variable_ctx.variable_map["text"],
+                    function.params[1]
+                );
+                assert_ne!(builder.variable_ctx.variable_map["pos"], function.params[2]);
+                assert_eq!(
+                    builder
+                        .type_ctx
+                        .value_origin_newbox
+                        .get(&function.params[0]),
+                    Some(&"ParserBox".to_string())
+                );
+                assert!(builder.variable_ctx.variable_map.contains_key("ret"));
+                assert!(builder.variable_ctx.variable_map.contains_key("value"));
+                assert!(!builder
+                    .variable_ctx
+                    .variable_map
+                    .contains_key("ParserStringUtilsBox"));
+                assert_eq!(builder.scope_ctx.lexical_scope_stack.len(), 1);
+                assert_eq!(suffix.len(), 2);
+                assert!(matches!(suffix[0], crate::ast::ASTNode::Loop { .. }));
+                assert!(matches!(suffix[1], crate::ast::ASTNode::Return { .. }));
+
+                let value = builder.variable_ctx.variable_map["value"];
+                Ok((
+                    value,
+                    (
+                        function.params.clone(),
+                        value,
+                        builder.scope_ctx.lexical_scope_stack.len(),
+                    ),
+                ))
+            },
+        )
+        .expect("canonical method entry and raw prefix");
+
+    assert_eq!(observed.0.len(), 3);
+    assert_eq!(observed.2, 1);
+    assert!(builder.scope_ctx.current_function.is_none());
+    assert!(builder.current_module.as_ref().is_some_and(|module| {
+        module
+            .get_function("ParserBox.static_const_parse_add/2")
+            .is_some()
+    }));
 }
 
 pub(super) fn run_raw(

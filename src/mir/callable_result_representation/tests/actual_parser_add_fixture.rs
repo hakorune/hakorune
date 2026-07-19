@@ -13,6 +13,7 @@ use crate::mir::resolved_semantics::{
     SourcePathSegmentV1,
 };
 use crate::mir::source_call_target::VerifiedSourceStaticCallTargetCatalogV1;
+use crate::parser::NyashParser;
 
 use super::super::{
     VerifiedCallableResultActivationPlanV1, VerifiedCallableResultActivationRowsV1,
@@ -36,6 +37,46 @@ pub(crate) fn source() -> String {
         "static box ParserStringUtilsBox {{ skip_ws(text, pos) {{ return pos }} }}\nbox ParserBox {{ {}\n}}",
         &parser[start..end],
     )
+}
+
+/// Returns the exact parsed instance-method declaration used by this fixture.
+///
+/// The raw-prefix harness borrows this sole fixture instead of restating the
+/// ParserBox source or reconstructing a method declaration from catalog data.
+pub(crate) fn method_declaration_for_lowering() -> crate::ast::ASTNode {
+    let root = NyashParser::parse_from_string(&source())
+        .expect("actual ParserBox lowering fixture must parse");
+    let crate::ast::ASTNode::Program { statements, .. } = root else {
+        panic!("actual ParserBox lowering fixture root must be Program")
+    };
+    let methods = statements
+        .into_iter()
+        .find_map(|statement| match statement {
+            crate::ast::ASTNode::BoxDeclaration { name, methods, .. } if name == "ParserBox" => {
+                Some(methods)
+            }
+            _ => None,
+        })
+        .expect("actual ParserBox declaration");
+    methods
+        .into_iter()
+        .map(|(_, declaration)| declaration)
+        .find(|declaration| {
+            matches!(
+                declaration,
+                crate::ast::ASTNode::FunctionDeclaration { name, params, .. }
+                    if name == "static_const_parse_add" && params.len() == 2
+            )
+        })
+        .expect("actual ParserBox.static_const_parse_add/2 declaration")
+}
+
+/// Supplies a fresh builder-owned declaration catalog for raw lowering tests.
+///
+/// This stays in the sole actual-source fixture so the harness never derives
+/// callable declarations from a hand-written source fragment.
+pub(crate) fn declaration_catalog_for_lowering() -> VerifiedSameModuleCallableDeclarationCatalogV1 {
+    declarations(&source())
 }
 
 /// Exact static target candidates. Source-gate selection is decided separately.

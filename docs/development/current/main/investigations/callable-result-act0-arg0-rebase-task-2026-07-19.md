@@ -451,6 +451,32 @@ LOOP0-L0-R0-P0
   closes only if R0 proves raw-primary claim/effect/finish parity
 ```
 
+### H0 closeout (2026-07-19)
+
+Closed with one cfg(test) closure harness adjacent to the existing instance
+method lowering owner. It consumes the exact actual ParserBox declaration from
+the sole source fixture, reuses the existing skeleton/signature/parameter
+publishers, and keeps one existing legacy block-driver lexical scope alive
+across raw Body(0)..Body(3) and the Body(4) handoff.
+
+```text
+synthetic parameter/local/type seed: 0
+canonical parameter rows: me / text / pos
+raw prefix facts: ret / value / updated pos
+synthetic ParserStringUtilsBox binding: 0
+handoff suffix: exact Body(4) Loop then Body(5) Return
+active lexical root scope at handoff: 1
+published test draft: ParserBox.static_const_parse_add/2
+production caller / route / ledger / type-authority delta: 0
+```
+
+The harness does not split through `lower_method_body`: doing that would close
+its lexical scope before the Loop and create false parity. R0 is now the sole
+next row and must execute the already-sealed actual Body(4) all-Unselected
+plan through this live handoff. If it fails, preserve the exact
+producer/route/CFG/lifecycle fact and stop; H0 does not authorize another
+fixture authority or any type backfill.
+
 If canonical entry/prefix cannot produce the needed live function state, or
 R0 still fails after it, stop again with the exact producer/route/CFG/lifecycle
 fact. Do not add type backfill, fallback, source/ledger changes, nested-result
