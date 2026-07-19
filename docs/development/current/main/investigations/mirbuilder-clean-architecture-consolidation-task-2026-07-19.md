@@ -494,6 +494,24 @@ P0-G0
   one Census route map, one corrected snapshot, all session and source guards green
 ```
 
+`P0-R0` is closed (2026-07-19). Census remains the sole selector-to-destination
+authority. Its nine-row mixed-context API owner manifest records the exact
+method-definition owners for lexical, If-merge, FastMemory, entry-clear,
+reservation, legacy-body, record-local, origin-span, and origin-caller APIs;
+it deliberately records no second old-storage or destination map. The checker
+also proves that `scope.entry_clear` clears exactly its five FunctionOwned
+scope leaves plus `debug_scope_stack`, while `function_param_names` remains a
+prepare-time `take`, not an entry-clear member.
+
+The expanded session witness confirms that child entry clears all captured
+scope, reservation, slot-registry, and outer-body state before installing its
+own empty legacy body capture. It also fixes the two metadata origin maps as
+the explicit no-isolation control: outer origin facts are visible to the child,
+and child origin facts remain visible after caller restoration. No metadata
+snapshot, clear, restore, publication, or runtime behavior changed. The direct
+access snapshot now has 96 rows and 1,792 observations (1,175 production, 615
+test, 2 shared). `P0-P0` is next.
+
 P0 must not add a second route/destination authority, generic ownership
 inference, arbitrary alias tracking, a semantic cfg evaluator, or a metadata
 snapshot/clear/restore repair. `scope.entry_clear` stays the one explicit mixed

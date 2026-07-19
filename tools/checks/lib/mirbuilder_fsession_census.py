@@ -197,6 +197,7 @@ def main() -> None:
 
     validate_s0a_function_state_vocabulary(builder)
     validate_s0a_s0b_route_map(data, sources, builder)
+    validate_s0a_mixed_context_api_owners(data, sources)
 
     print(
         "[mirbuilder-fsession-census] ok "
@@ -461,6 +462,164 @@ def validate_s0a_s0b_route_map(
     }
     if not direct_builder <= builder_fields:
         fail(f"S0a old Builder storage missing: {sorted(direct_builder - builder_fields)}")
+
+
+def validate_s0a_mixed_context_api_owners(
+    data: dict[str, object],
+    sources: dict[str, object],
+) -> None:
+    owners = data.get("mixed_context_api_owners")
+    if not isinstance(owners, list):
+        fail("missing mixed-context API owner manifest")
+
+    expected = {
+        "scope.lexical_helpers": {
+            "selector": "scope.lexical_scope_stack",
+            "owner_source": "scope_context",
+            "owner_type": "ScopeContext",
+            "methods": {"push_lexical_scope", "pop_lexical_scope", "current_scope_mut"},
+        },
+        "scope.if_merge_helpers": {
+            "selector": "scope.if_merge_stack",
+            "owner_source": "scope_context",
+            "owner_type": "ScopeContext",
+            "methods": {"push_if_merge", "pop_if_merge"},
+        },
+        "scope.fastmem_helpers": {
+            "selector": "scope.fastmem_region_stack",
+            "owner_source": "scope_context",
+            "owner_type": "ScopeContext",
+            "methods": {"push_fastmem_region", "pop_fastmem_region", "current_fastmem_region"},
+        },
+        "scope.entry_clear": {
+            "selector": "scope.entry_clear",
+            "owner_source": "scope_context",
+            "owner_type": "ScopeContext",
+            "methods": {"clear_for_function_entry"},
+            "function_owned_clears": {
+                "lexical_scope_stack",
+                "loop_header_stack",
+                "loop_exit_stack",
+                "if_merge_stack",
+                "fastmem_region_stack",
+            },
+            "observation_clears": {"debug_scope_stack"},
+            "s0b_policy": "split_mixed_clear_preserving_current_behavior",
+        },
+        "compilation.reservation_helpers": {
+            "selector": "compilation.reserved_value_ids",
+            "owner_source": "compilation_context",
+            "owner_type": "CompilationContext",
+            "methods": {
+                "is_reserved_value_id",
+                "reserve_value_id",
+                "clear_reserved_value_ids",
+            },
+        },
+        "compilation.fn_body_helpers": {
+            "selector": "compilation.fn_body_ast",
+            "owner_source": "compilation_context",
+            "owner_type": "CompilationContext",
+            "methods": {"set_fn_body_ast", "take_fn_body_ast", "clear_fn_body_ast"},
+        },
+        "compilation.record_local_helpers": {
+            "selector": "compilation.record_local_values",
+            "owner_source": "compilation_declarations",
+            "owner_type": "CompilationContext",
+            "methods": {
+                "register_record_local_value",
+                "record_local_value",
+                "propagate_record_local_value",
+                "propagate_record_local_value_from_phi",
+                "clear_record_local_values",
+            },
+        },
+        "metadata.origin_span_helpers": {
+            "selector": "value_origins.spans",
+            "owner_source": "metadata_context",
+            "owner_type": "MetadataContext",
+            "methods": {"record_value_span", "value_span"},
+        },
+        "metadata.origin_caller_helpers": {
+            "selector": "value_origins.callers",
+            "owner_source": "metadata_context",
+            "owner_type": "MetadataContext",
+            "methods": {"record_value_caller", "value_caller", "value_origin_callers"},
+        },
+    }
+    rows: dict[str, dict[str, object]] = {}
+    for row in owners:
+        if not isinstance(row, dict):
+            fail("mixed-context API owner row is not an object")
+        identifier = required_string(row, "id", "mixed-context API owner")
+        if identifier in rows:
+            fail(f"duplicate mixed-context API owner: {identifier}")
+        rows[identifier] = row
+    if set(rows) != set(expected):
+        fail(
+            "mixed-context API owner manifest drift "
+            f"missing={sorted(set(expected) - set(rows))} "
+            f"extra={sorted(set(rows) - set(expected))}"
+        )
+
+    route_selectors = {
+        required_string(row, "selector", "S0b route")
+        for row in data["function_state_routes"]
+        if isinstance(row, dict)
+    }
+    for identifier, contract in expected.items():
+        row = rows[identifier]
+        methods = row.get("methods")
+        if not isinstance(methods, list) or not all(isinstance(value, str) for value in methods):
+            fail(f"mixed-context API owner lists invalid: {identifier}")
+        actual = {
+            "selector": required_string(row, "selector", identifier),
+            "owner_source": required_string(row, "owner_source", identifier),
+            "owner_type": required_string(row, "owner_type", identifier),
+            "methods": set(methods),
+        }
+        if identifier == "scope.entry_clear":
+            owned = row.get("function_owned_clears")
+            observation = row.get("observation_clears")
+            if not isinstance(owned, list) or not isinstance(observation, list):
+                fail("scope.entry_clear clear lists invalid")
+            actual["function_owned_clears"] = set(owned)
+            actual["observation_clears"] = set(observation)
+            actual["s0b_policy"] = required_string(row, "s0b_policy", identifier)
+        if actual != contract:
+            fail(f"mixed-context API owner contract drift: {identifier}")
+        if actual["selector"] not in route_selectors:
+            fail(f"mixed-context API owner selector absent from Census routes: {identifier}")
+        source_key = actual["owner_source"]
+        source = sources.get(source_key)
+        if not isinstance(source, str):
+            fail(f"mixed-context API owner source missing: {identifier} -> {source_key}")
+        source_text = (ROOT / source).read_text()
+        if not re.search(
+            rf"\bimpl(?:<[^>]+>)?\s+{re.escape(actual['owner_type'])}\b",
+            source_text,
+        ):
+            fail(f"mixed-context API owner impl missing: {identifier}.{actual['owner_type']}")
+        for method in actual["methods"]:
+            matches = re.findall(rf"\bfn\s+{re.escape(method)}\s*\(", source_text)
+            if len(matches) != 1:
+                fail(f"mixed-context API method definition drift: {identifier}.{method}")
+
+    lifecycle = (ROOT / required_string(sources, "lifecycle", "sources")).read_text()
+    for field in ("value_origin_spans", "value_origin_callers"):
+        if field in lifecycle:
+            fail(f"metadata origin isolation changed before METAISO: {field}")
+    clear_source = (ROOT / required_string(sources, "scope_context", "sources")).read_text()
+    clear_body = re.search(
+        r"fn\s+clear_for_function_entry\s*\([^)]*\)\s*\{(?P<body>.*?)\n    \}",
+        clear_source,
+        re.DOTALL,
+    )
+    if clear_body is None:
+        fail("missing scope.entry_clear body")
+    cleared = set(re.findall(r"self\.(\w+)\.clear\(\);", clear_body.group("body")))
+    if cleared != expected["scope.entry_clear"]["function_owned_clears"] | expected["scope.entry_clear"]["observation_clears"]:
+        fail(f"scope.entry_clear body drift: {sorted(cleared)}")
 
 
 if __name__ == "__main__":

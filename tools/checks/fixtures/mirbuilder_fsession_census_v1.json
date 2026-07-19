@@ -14,7 +14,8 @@
     "type_context": "crates/hakorune_mir_builder/src/type_context.rs",
     "scope_context": "src/mir/builder/scope_context.rs",
     "metadata_context": "crates/hakorune_mir_builder/src/metadata_context.rs",
-    "compilation_context": "src/mir/builder/compilation_context.rs"
+    "compilation_context": "src/mir/builder/compilation_context.rs",
+    "compilation_declarations": "src/mir/builder/compilation_context/declarations.rs"
   },
   "builder_fields": [
     {"field": "current_module", "coverage": "outside_session", "surface_ids": [], "class": "ModulePublication"},
@@ -78,6 +79,74 @@
     {"selector": "cleanup_allow_throw", "old_storage": "builder.cleanup_allow_throw", "destination": "function_state.cleanup_allow_throw"},
     {"selector": "suppress_pin_entry_copy_next", "old_storage": "builder.suppress_pin_entry_copy_next", "destination": "function_state.suppress_pin_entry_copy_next"},
     {"selector": "in_unified_boxcall_fallback", "old_storage": "builder.in_unified_boxcall_fallback", "destination": "function_state.in_unified_boxcall_fallback"}
+  ],
+  "mixed_context_api_owners": [
+    {
+      "id": "scope.lexical_helpers",
+      "selector": "scope.lexical_scope_stack",
+      "owner_source": "scope_context",
+      "owner_type": "ScopeContext",
+      "methods": ["push_lexical_scope", "pop_lexical_scope", "current_scope_mut"]
+    },
+    {
+      "id": "scope.if_merge_helpers",
+      "selector": "scope.if_merge_stack",
+      "owner_source": "scope_context",
+      "owner_type": "ScopeContext",
+      "methods": ["push_if_merge", "pop_if_merge"]
+    },
+    {
+      "id": "scope.fastmem_helpers",
+      "selector": "scope.fastmem_region_stack",
+      "owner_source": "scope_context",
+      "owner_type": "ScopeContext",
+      "methods": ["push_fastmem_region", "pop_fastmem_region", "current_fastmem_region"]
+    },
+    {
+      "id": "scope.entry_clear",
+      "selector": "scope.entry_clear",
+      "owner_source": "scope_context",
+      "owner_type": "ScopeContext",
+      "methods": ["clear_for_function_entry"],
+      "function_owned_clears": ["lexical_scope_stack", "loop_header_stack", "loop_exit_stack", "if_merge_stack", "fastmem_region_stack"],
+      "observation_clears": ["debug_scope_stack"],
+      "s0b_policy": "split_mixed_clear_preserving_current_behavior"
+    },
+    {
+      "id": "compilation.reservation_helpers",
+      "selector": "compilation.reserved_value_ids",
+      "owner_source": "compilation_context",
+      "owner_type": "CompilationContext",
+      "methods": ["is_reserved_value_id", "reserve_value_id", "clear_reserved_value_ids"]
+    },
+    {
+      "id": "compilation.fn_body_helpers",
+      "selector": "compilation.fn_body_ast",
+      "owner_source": "compilation_context",
+      "owner_type": "CompilationContext",
+      "methods": ["set_fn_body_ast", "take_fn_body_ast", "clear_fn_body_ast"]
+    },
+    {
+      "id": "compilation.record_local_helpers",
+      "selector": "compilation.record_local_values",
+      "owner_source": "compilation_declarations",
+      "owner_type": "CompilationContext",
+      "methods": ["register_record_local_value", "record_local_value", "propagate_record_local_value", "propagate_record_local_value_from_phi", "clear_record_local_values"]
+    },
+    {
+      "id": "metadata.origin_span_helpers",
+      "selector": "value_origins.spans",
+      "owner_source": "metadata_context",
+      "owner_type": "MetadataContext",
+      "methods": ["record_value_span", "value_span"]
+    },
+    {
+      "id": "metadata.origin_caller_helpers",
+      "selector": "value_origins.callers",
+      "owner_source": "metadata_context",
+      "owner_type": "MetadataContext",
+      "methods": ["record_value_caller", "value_caller", "value_origin_callers"]
+    }
   ],
   "surfaces": [
     {"id": "compat.context_active", "root_field": "comp_ctx", "path": "comp_ctx.compilation_context mode", "snapshot_field": "context_active", "class": "LegacyCompatibility", "prepare_anchor": "let context_active =", "restore_anchor": "if ctx.context_active {", "legacy_action": "derive_from_box_compilation_context", "box_context_action": "selects_clear_only_branch", "target": "FSESSION0-CUT0", "note": "legacy mode bit; it is not a source or type authority"},

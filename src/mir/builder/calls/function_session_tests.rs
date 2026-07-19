@@ -174,6 +174,12 @@ fn seeded_builder() -> MirBuilder {
     builder.comp_ctx.fn_body_ast = Some(vec![literal(717)]);
     builder.metadata_ctx.set_current_span(Span::new(1, 2, 3, 4));
     builder.metadata_ctx.push_region(RegionId(718));
+    builder
+        .metadata_ctx
+        .record_value_span(ValueId::new(727), Span::new(7, 2, 7, 9));
+    builder
+        .metadata_ctx
+        .record_value_caller(ValueId::new(728), std::panic::Location::caller());
     seal_outer_frag(&mut builder);
     builder
 }
@@ -284,6 +290,14 @@ fn assert_outer_state(builder: &MirBuilder) {
         builder.metadata_ctx.current_region_stack(),
         &[RegionId(718)]
     );
+    assert_eq!(
+        builder.metadata_ctx.value_span(ValueId::new(727)),
+        Some(Span::new(7, 2, 7, 9))
+    );
+    assert!(builder
+        .metadata_ctx
+        .value_caller(ValueId::new(728))
+        .is_some());
     assert!(builder
         .frag_emit_session
         .is_sealed_for_test(BasicBlockId::new(0)));
@@ -305,6 +319,32 @@ fn assert_child_entry_is_reset(builder: &MirBuilder) {
         .comp_ctx
         .record_local_value(ValueId::new(725))
         .is_none());
+    assert!(builder.scope_ctx.lexical_scope_stack.is_empty());
+    assert!(builder.scope_ctx.loop_header_stack.is_empty());
+    assert!(builder.scope_ctx.loop_exit_stack.is_empty());
+    assert!(builder.scope_ctx.if_merge_stack.is_empty());
+    assert!(builder.scope_ctx.debug_scope_stack.is_empty());
+    assert!(builder.scope_ctx.function_param_names.is_empty());
+    assert!(builder.scope_ctx.fastmem_region_stack.is_empty());
+    assert!(builder.comp_ctx.current_slot_registry.is_none());
+    assert!(!builder.comp_ctx.is_reserved_value_id(ValueId::new(716)));
+    assert_eq!(
+        builder.comp_ctx.fn_body_ast.as_ref().map(Vec::len),
+        Some(0),
+        "the child owns its empty legacy body capture rather than the outer body"
+    );
+    assert_eq!(
+        builder.metadata_ctx.value_span(ValueId::new(727)),
+        Some(Span::new(7, 2, 7, 9)),
+        "metadata origin spans are an explicit no-isolation control before METAISO"
+    );
+    assert!(
+        builder
+            .metadata_ctx
+            .value_caller(ValueId::new(728))
+            .is_some(),
+        "metadata origin callers are an explicit no-isolation control before METAISO"
+    );
     assert!(!builder
         .frag_emit_session
         .is_sealed_for_test(BasicBlockId::new(0)));
@@ -475,6 +515,12 @@ fn child_entry_resets_captured_function_owned_state_before_restoring_outer_state
                 "ChildRecord".into(),
                 Vec::new(),
             );
+            child
+                .metadata_ctx
+                .record_value_span(ValueId::new(908), Span::new(8, 1, 8, 9));
+            child
+                .metadata_ctx
+                .record_value_caller(ValueId::new(909), std::panic::Location::caller());
             Err("injected:child_entry".into())
         })
         .unwrap_err();
@@ -517,6 +563,18 @@ fn child_entry_resets_captured_function_owned_state_before_restoring_outer_state
         .comp_ctx
         .record_local_value(ValueId::new(902))
         .is_none());
+    assert_eq!(
+        builder.metadata_ctx.value_span(ValueId::new(908)),
+        Some(Span::new(8, 1, 8, 9)),
+        "child metadata origin span intentionally remains until METAISO"
+    );
+    assert!(
+        builder
+            .metadata_ctx
+            .value_caller(ValueId::new(909))
+            .is_some(),
+        "child metadata origin caller intentionally remains until METAISO"
+    );
 }
 
 #[test]
