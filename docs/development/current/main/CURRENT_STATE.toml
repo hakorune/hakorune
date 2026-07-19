@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result LOOP0-L0 stopped at selected i64 argument authority design"
+status = "callable-result ACT0-ARG0 source-proof-gated activation; S0 is next"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -297,18 +297,17 @@ taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-bind
 latest_workstream_card = "docs/development/current/main/investigations/callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md"
 parked_loop_route_retirement_card = "docs/development/current/main/investigations/generic-loop-named-route-retirement-task-2026-07-19.md"
 
-latest_card = "callable-result-loop0-l0-i64-argument-authority-design-stop-2026-07-19"
-latest_card_path = "docs/development/current/main/investigations/callable-result-loop0-l0-i64-argument-authority-design-stop-2026-07-19.md"
-latest_card_summary = """LOOP0-L0 reaches the selected `skip_ws/2` terminal,
-but its required ordinal 1 is a nested current-owner method result with
-lowering-time `MirType::Unknown`. The activation claim has canonical target and
-ordinal authority only; it cannot publish caller-side ValueId/type facts.
-The terminal's exact-i64 failure and selected-session poison are correct.
-LOOP0 is stopped for an argument-representation authority decision: either
-tighten selection to a proven argument fact or introduce a separately sealed
-nested-result representation witness. No local inference, dynamic ABI
-widening, fallback, retry, or WIP restoration is authorized."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-ARGTYPE-DESIGN-001"
+latest_card = "callable-result-act0-arg0-source-gate-task-2026-07-19"
+latest_card_path = "docs/development/current/main/investigations/callable-result-act0-arg0-source-gate-task-2026-07-19.md"
+latest_card_summary = """Candidate 1′ selects source-proof-gated activation.
+An exact static target is selected only when its target ExactI64 disposition
+and its exact caller/site call-result row co-seal. Missing source proof is
+pre-Builder Unselected; the selected terminal still independently checks final
+Integer ValueIds and poisons on failure. The actual 15-row inventory retains
+two target candidates but reclassifies to one selected and fourteen Unselected
+rows. `CALLABLE-RESULT-ACT0-ARG0-S0` is next; nested instance-result
+representation remains parked and no local type backfill/retry is authorized."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-ACT0-ARG0-S0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

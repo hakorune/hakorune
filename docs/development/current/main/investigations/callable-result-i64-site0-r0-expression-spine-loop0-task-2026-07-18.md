@@ -373,6 +373,10 @@ LOOP0-S0a (closed)
   -> LOOP0-P0c
   -> LOOP0-I0a
   -> LOOP0-I0b
+  -> CALLABLE-RESULT-ACT0-ARG0-S0
+  -> CALLABLE-RESULT-ACT0-ARG0-P0
+  -> CALLABLE-RESULT-ACT0-ARG0-I0
+  -> CALLABLE-RESULT-ACT0-ARG0-G0
   -> LOOP0-L0
   -> EXPR0-C0
 ```
@@ -383,9 +387,10 @@ schedule, and atomic claimed batch are the already-closed S0a/S0b/S0c
 authorities. The packet's tentative `PreparedCallableResultLoopClaimsV1` must
 not be added beside the landed schedule -> ledger commit -> claimed-batch
 split. The B-prime packet is therefore recorded as an already-closed
-prerequisite. Candidate A-prime-plus now selects the P0b-O0 two-mode body law;
-no S0 authority is reopened. O0-S0 is next and T0 remains forbidden until
-O0-G0 is green.
+prerequisite. Candidate A-prime-plus selected the P0b-O0 two-mode body law;
+no S0 authority was reopened. O0 through I0b are closed. ACT0-ARG0 now owns
+the source-proof selection prerequisite; L0 remains forbidden until ARG0-G0 is
+green.
 
 ### LOOP0-S0a — uniform provenance schema
 
@@ -816,7 +821,18 @@ forbidden.
 Connect exact located carrier to pure selection, located composition,
 verification, final seal, atomic claims, and plan-order emission. Normalized
 shadow and every non-Generic route reject before effects. Production source
-root callers remain zero.
+root callers remain zero. `CALLABLE-RESULT-ACT0-ARG0-G0` is a prerequisite:
+selected exact-i64 sites must first pass the source call-result gate. L0 must
+not add type backfill, selected-to-raw retry, or nested instance-result
+representation authority.
+
+### CALLABLE-RESULT-NESTED-REP0 — parked widening
+
+This is not next. It opens only when an explicitly selected profile requires a
+current-owner/instance nested result as an exact required input. It must own a
+separate source result authority plus an emission-local non-Clone
+source-site-to-final-result witness; it must not be mixed into ACT0-ARG0 or
+used as an L0 repair.
 
 ### EXPR0-C0 — one production connector
 
