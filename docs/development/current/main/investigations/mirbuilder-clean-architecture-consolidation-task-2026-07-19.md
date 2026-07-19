@@ -995,8 +995,9 @@ Task order:
 
 ```text
 FACT0-S0  pure decision + typed conflict vocabulary, consumers 0
-FACT0-P0  parameter/Copy/Phi/Call/FieldGet publication matrix
-FACT0-I0  type publication cutover
+FACT0-P0-INV0  direct transient-writer census
+FACT0-P0-T0  parameter/Copy/Phi/Call/FieldGet temporal witness
+FACT0-I0-RCV0  exact instance-receiver parameter cutover
 FACT0-G0  raw type-map writers zero outside the owner
 ```
 
@@ -1044,6 +1045,44 @@ exact publication, `Void` exactness, idempotence, preservation/no-publication,
 concrete mismatch, and explicit-Unknown rejection. The existing PHI decision
 and every direct writer remain unchanged. `FACT0-P0` is next: it must inventory
 parameter, Copy, PHI, Call, and FieldGet timing before connecting any writer.
+
+#### `FACT0-P0-INV0` — closed (2026-07-19)
+
+`tools/checks/lib/mirbuilder_type_fact_producer_inventory.py` now freezes the
+direct lexical census before any FACT0 writer cutover: 47 production
+`type_ctx.value_types` writer paths and 99 occurrences, each classified once
+by its next owner. Its five primary rows retain source anchors for Parameter,
+Copy, PHI, Call, and FieldGet. The fixture is a source inventory, not a runtime
+timing proof; it does not change `TypeContext`, a producer, or any consumer.
+The existing PHI-specific inventory remains separate. Its stale raw-origin
+literal check is recorded as guard maintenance, not as a PHI semantic drift.
+
+#### `FACT0-P0-T0` — next code-facing row
+
+Add one test-only in-process temporal witness for the five primary families.
+For each selected value, it must observe the current transient type fact,
+instruction commit point, and finalized-metadata boundary. Reuse the existing
+PHI immediate-Copy witness rather than duplicating its lifecycle matrix. The
+Call and FieldGet rows must classify their current failure-time behavior
+explicitly, including any post-failure annotation or pre-emission type fact, as
+legacy unsafe timing; T0 may not repair, normalize, or route around it.
+
+```text
+production behavior delta = 0
+new production publisher = 0
+new type-map API = 0
+finalization repair delta = 0
+PHI lifecycle policy delta = 0
+```
+
+Only after T0 is green may `FACT0-I0-RCV0` begin. Its sole prospective producer
+is the existing instance-method implicit receiver (`me`, parameter zero) with
+the already-built exact `MirType::Box(owner)`. Explicit/static formals that
+currently publish `Unknown`, Copy origin fallback, PHI, Call, FieldGet,
+origin/kind facts, and finalization remain legacy-owned. Stop for a new design
+decision if receiver conflict preflight cannot precede all parameter-state
+mutation, or if the receiver type must be recovered from names, origin, or
+final metadata rather than existing method setup input.
 
 ## Phase 3 — PHI0
 

@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "write_inventory": {
+    "src/mir/builder/array_element_write.rs": 1,
+    "src/mir/builder/builder_build.rs": 4,
+    "src/mir/builder/calls/annotation.rs": 5,
+    "src/mir/builder/calls/build.rs": 1,
+    "src/mir/builder/calls/parameter_setup.rs": 1,
+    "src/mir/builder/collection_literals.rs": 2,
+    "src/mir/builder/control_flow/joinir/merge/loop_header_phi_builder.rs": 3,
+    "src/mir/builder/control_flow/plan/composer/branchn_return.rs": 5,
+    "src/mir/builder/control_flow/plan/lowerer/emission_port.rs": 1,
+    "src/mir/builder/control_flow/plan/normalizer/helpers_value.rs": 8,
+    "src/mir/builder/control_flow/plan/normalizer/helpers_value_state.rs": 1,
+    "src/mir/builder/control_flow/plan/normalizer/loop_body_lowering.rs": 1,
+    "src/mir/builder/control_flow/plan/normalizer/newbox.rs": 1,
+    "src/mir/builder/decls.rs": 1,
+    "src/mir/builder/emission/compare.rs": 1,
+    "src/mir/builder/emission/constant.rs": 6,
+    "src/mir/builder/emission/value_lifecycle.rs": 1,
+    "src/mir/builder/exprs_check.rs": 1,
+    "src/mir/builder/exprs_enum_match.rs": 4,
+    "src/mir/builder/exprs_lambda.rs": 1,
+    "src/mir/builder/fastmem/ops.rs": 1,
+    "src/mir/builder/fields.rs": 1,
+    "src/mir/builder/function_state_transaction.rs": 1,
+    "src/mir/builder/indexing.rs": 1,
+    "src/mir/builder/metadata/propagate.rs": 2,
+    "src/mir/builder/ops/arithmetic.rs": 10,
+    "src/mir/builder/ops/comparison.rs": 1,
+    "src/mir/builder/ops/logical_shortcircuit.rs": 1,
+    "src/mir/builder/ops/unary.rs": 6,
+    "src/mir/builder/origin/infer.rs": 1,
+    "src/mir/builder/record_values.rs": 1,
+    "src/mir/builder/resolved_lowering/lowerer.rs": 2,
+    "src/mir/builder/resolved_lowering/trivial_ssa/direct_call.rs": 1,
+    "src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs": 1,
+    "src/mir/builder/resolved_lowering/trivial_ssa/operation.rs": 1,
+    "src/mir/builder/resolved_lowering/trivial_ssa/parameter_entry.rs": 1,
+    "src/mir/builder/rewrite/special.rs": 1,
+    "src/mir/builder/ssa/binding/mir_adapter.rs": 2,
+    "src/mir/builder/ssa/local.rs": 2,
+    "src/mir/builder/stmts/async_stmt.rs": 2,
+    "src/mir/builder/type_hint_providers.rs": 2,
+    "src/mir/builder/types/annotation.rs": 2,
+    "src/mir/builder/types/array_element.rs": 2,
+    "src/mir/builder/types/map_value.rs": 1,
+    "src/mir/builder/utils/boxcall_emit.rs": 2,
+    "src/mir/builder/utils/id_alloc.rs": 1,
+    "src/mir/builder/utils/weak_ref.rs": 1
+  },
+  "control_groups": [
+    {
+      "id": "fact0_direct_or_derived_producers",
+      "next_owner": "FACT0",
+      "source_files": [
+        "src/mir/builder/array_element_write.rs",
+        "src/mir/builder/builder_build.rs",
+        "src/mir/builder/calls/build.rs",
+        "src/mir/builder/calls/parameter_setup.rs",
+        "src/mir/builder/collection_literals.rs",
+        "src/mir/builder/decls.rs",
+        "src/mir/builder/emission/compare.rs",
+        "src/mir/builder/emission/constant.rs",
+        "src/mir/builder/exprs_check.rs",
+        "src/mir/builder/exprs_enum_match.rs",
+        "src/mir/builder/exprs_lambda.rs",
+        "src/mir/builder/fastmem/ops.rs",
+        "src/mir/builder/fields.rs",
+        "src/mir/builder/indexing.rs",
+        "src/mir/builder/ops/arithmetic.rs",
+        "src/mir/builder/ops/comparison.rs",
+        "src/mir/builder/ops/logical_shortcircuit.rs",
+        "src/mir/builder/ops/unary.rs",
+        "src/mir/builder/origin/infer.rs",
+        "src/mir/builder/record_values.rs",
+        "src/mir/builder/resolved_lowering/lowerer.rs",
+        "src/mir/builder/resolved_lowering/trivial_ssa/direct_call.rs",
+        "src/mir/builder/resolved_lowering/trivial_ssa/lowerer.rs",
+        "src/mir/builder/resolved_lowering/trivial_ssa/operation.rs",
+        "src/mir/builder/resolved_lowering/trivial_ssa/parameter_entry.rs",
+        "src/mir/builder/rewrite/special.rs",
+        "src/mir/builder/stmts/async_stmt.rs",
+        "src/mir/builder/types/array_element.rs",
+        "src/mir/builder/types/map_value.rs",
+        "src/mir/builder/utils/boxcall_emit.rs",
+        "src/mir/builder/utils/id_alloc.rs",
+        "src/mir/builder/utils/weak_ref.rs"
+      ]
+    },
+    {
+      "id": "phi_lifecycle_controls",
+      "next_owner": "PHI0",
+      "source_files": [
+        "src/mir/builder/control_flow/joinir/merge/loop_header_phi_builder.rs",
+        "src/mir/builder/ssa/binding/mir_adapter.rs"
+      ]
+    },
+    {
+      "id": "plan_and_compatibility_controls",
+      "next_owner": "PLAN0",
+      "source_files": [
+        "src/mir/builder/calls/annotation.rs",
+        "src/mir/builder/control_flow/plan/composer/branchn_return.rs",
+        "src/mir/builder/control_flow/plan/lowerer/emission_port.rs",
+        "src/mir/builder/control_flow/plan/normalizer/helpers_value.rs",
+        "src/mir/builder/control_flow/plan/normalizer/helpers_value_state.rs",
+        "src/mir/builder/control_flow/plan/normalizer/loop_body_lowering.rs",
+        "src/mir/builder/control_flow/plan/normalizer/newbox.rs",
+        "src/mir/builder/metadata/propagate.rs",
+        "src/mir/builder/ssa/local.rs",
+        "src/mir/builder/types/annotation.rs"
+      ]
+    },
+    {
+      "id": "finalization_controls",
+      "next_owner": "FINALIZE0",
+      "source_files": [
+        "src/mir/builder/emission/value_lifecycle.rs",
+        "src/mir/builder/type_hint_providers.rs"
+      ]
+    },
+    {
+      "id": "function_session_control",
+      "next_owner": "FSESSION0-CUT0",
+      "source_files": [
+        "src/mir/builder/function_state_transaction.rs"
+      ]
+    }
+  ],
+  "primary_matrix": [
+    {
+      "id": "parameter",
+      "source_file": "src/mir/builder/calls/parameter_setup.rs",
+      "anchor": "fn publish_function_parameter(",
+      "timing": "before_body_lowering"
+    },
+    {
+      "id": "copy",
+      "source_file": "src/mir/builder/ssa/local.rs",
+      "anchor": "pub fn ensure(",
+      "timing": "after_successful_copy_emission"
+    },
+    {
+      "id": "phi",
+      "source_file": "src/mir/builder/phi_type_publication/decision.rs",
+      "anchor": "fn decide_phi_transient_type_v1(",
+      "timing": "after_successful_phi_completion"
+    },
+    {
+      "id": "call",
+      "source_file": "src/mir/builder/calls/unified_emitter.rs",
+      "anchor": "let res = builder.emit_instruction(call_inst);",
+      "timing": "legacy_annotation_after_emit_result"
+    },
+    {
+      "id": "field_get",
+      "source_file": "src/mir/builder/fields.rs",
+      "anchor": "pub(super) fn build_field_access_from_value(",
+      "timing": "typed_destination_before_fieldget_emission"
+    }
+  ]
+}

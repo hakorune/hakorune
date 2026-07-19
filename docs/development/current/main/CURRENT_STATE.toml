@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FACT0-S0 is closed with one disconnected monotone type decision; FACT0-P0 producer timing matrix is next"
+status = "FACT0-P0-INV0 is closed with a 47-path/99-write direct-writer census; FACT0-P0-T0 temporal witness is next"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -354,9 +354,15 @@ and a non-restoring observation capability; all mutable compatibility, shared
 allocation, direct maps, finalization repair, and parent publication remain
 non-authorities. FACT0-S0 is closed: one pure map-free decision treats missing
 and Unknown as non-facts, Void as exact, rejects explicit Unknown publication,
-and has zero TypeContext/Builder/PHI/production consumers. FACT0-P0 is the next
-code-facing producer-timing matrix. NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FACT0-P0-001"
+and has zero TypeContext/Builder/PHI/production consumers. FACT0-P0-INV0 is
+closed: one static source census freezes 47 direct transient-writer paths and
+99 occurrences, classified once with five primary family anchors; it is not a
+runtime timing proof. FACT0-P0-T0 is next: one test-only temporal witness must
+classify Parameter, Copy, PHI, Call, and FieldGet publication/failed-state
+timing before a cutover. The first prospective cutover is receiver parameter
+zero with existing exact Box(owner), not generic Parameter typing.
+NESTED-REP0 remains parked."""
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FACT0-P0-T0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
