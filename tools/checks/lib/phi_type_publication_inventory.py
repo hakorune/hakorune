@@ -88,6 +88,13 @@ def main() -> None:
         "src/mir/builder/emission/phi_lifecycle/batch_type_publication.rs",
     )
     phi_completion = read(root, "src/mir/builder/phi_completion/mod.rs")
+    resolved_if_connection = read(
+        root, "src/mir/builder/phi_completion/resolved_if_connection.rs"
+    )
+    resolved_if = read(root, "src/mir/builder/resolved_lowering/if_materialization.rs")
+    resolved_if_bridge = read(
+        root, "src/mir/builder/resolved_lowering/if_cfg_ready_bridge.rs"
+    )
     origin = read(root, "src/mir/builder/origin/phi.rs")
     binding = read(root, "src/mir/builder/ssa/binding/mir_adapter.rs")
     local_ssa = read(root, "src/mir/builder/ssa/local.rs")
@@ -131,7 +138,6 @@ def main() -> None:
             "src/mir/builder/if_form.rs": 1,
             "src/mir/builder/exprs_peek.rs": 1,
             "src/mir/builder/emission/phi_lifecycle.rs": 1,
-            "src/mir/builder/resolved_lowering/if_materialization.rs": 1,
         },
         "define_phi_final_with_type_hint(": {
             "src/mir/builder/phi.rs": 1,
@@ -191,11 +197,59 @@ def main() -> None:
         if count != 4:
             fail(f"I0 completion consumer count for {symbol!r} must be 4, got {count}")
 
-    # PRED0 keeps route-owned CFG readiness disconnected from every generic
-    # lifecycle entry. The private preparation hook has no production caller
-    # until a future CFGREADY row selects one exact route owner.
+    # PRED0 keeps route-owned CFG readiness out of every generic lifecycle.
+    # CFGREADY0 activates exactly the canonical resolved-If sidecar; raw rows
+    # never become a generic expected-predecessor constructor.
     if code_only(phi_completion).count("prepare_cfg_ready(") != 1:
         fail("PRED0 private CFG-ready preparation must have exactly one definition")
+    if code_only(resolved_if_connection).count("CfgReadyPhiRowsV1::verify(") != 1:
+        fail("CFGREADY0 must have exactly one resolved-If CFG row constructor")
+    if code_only(resolved_if_connection).count(".prepare_cfg_ready(") != 1:
+        fail("CFGREADY0 must have exactly one resolved-If CFG-ready preparation")
+    for forbidden in (
+        "compute_predecessors",
+        "compute_reachable_blocks",
+        "compute_dominators",
+        "insert_phi",
+        "value_types.insert",
+        "value_origin_newbox.insert",
+    ):
+        if forbidden in code_only(resolved_if_connection):
+            fail(f"resolved-If CFG sidecar unexpectedly owns {forbidden!r}")
+
+    require_order(
+        resolved_if,
+        [
+            "fn define_join_phis(",
+            "VerifiedResolvedIfCfgReadyJoinRowsV1::verify(",
+            "phi_completion::prepare_for_resolved_if(",
+            "phi_lifecycle::define_final_from_prepared_completion(",
+        ],
+        "resolved-If CFGREADY0 timing",
+    )
+    resolved_if_join = resolved_if.split("pub(super) fn define_join_phis(", 1)[1].split(
+        "impl DefinedIfJoinSetV1", 1
+    )[0]
+    for forbidden in (
+        "phi_lifecycle::define_phi_final(",
+        "insert_phi",
+        "MirInstruction::Phi",
+        "value_types.insert",
+        "value_origin_newbox.insert",
+        "compute_predecessors",
+    ):
+        if forbidden in code_only(resolved_if_join):
+            fail(f"resolved-If join path unexpectedly owns {forbidden!r}")
+    for forbidden in (
+        "phi_completion",
+        "phi_lifecycle",
+        "insert_phi",
+        "value_types",
+        "value_origin_newbox",
+        "compute_predecessors",
+    ):
+        if forbidden in code_only(resolved_if_bridge):
+            fail(f"resolved-If CFG witness unexpectedly owns {forbidden!r}")
 
     # Raw prepares from logical inputs, rematerializes, appends, then commits
     # type and the independently prepared legacy origin fact.
@@ -330,6 +384,8 @@ def main() -> None:
         "late_copy_publisher": "user_box_route_fixpoint_copy_phi_fixed_point",
         "patch_physical_carrier": "sorted_logical_identity",
         "cfg_ready_preparation_definitions": 1,
+        "cfg_ready_production_consumers": 1,
+        "cfg_ready_resolved_if_consumers": 1,
         "generic_patch_cfg_predecessor_reads": 0,
         "generic_batch_cfg_predecessor_reads": 0,
     }
@@ -340,7 +396,7 @@ def main() -> None:
     artifact.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(
         "[phi-type-publication-inventory] ok "
-        "authorized=4 consumers=4 cfg_ready_consumers=0 "
+        "authorized=4 consumers=4 cfg_ready_consumers=1 "
         "late_publisher=user_box_route_fixpoint_copy_phi_fixed_point"
     )
 

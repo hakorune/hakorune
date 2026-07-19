@@ -1681,6 +1681,23 @@ Focused resolved-If, `phi_completion`, publication, all-target compilation,
 format, diff, and current-state gates are green. `PHI0-CFGREADY0-G0` is next to
 freeze the one-consumer inventory and route exclusions before `PHI0-G0`.
 
+#### `PHI0-CFGREADY0-G0` — closed (2026-07-20)
+
+The existing PHI publication inventory now proves the selected split directly:
+generic input/type preparation has exactly four Builder consumers (raw emit,
+generic final, provisional patch, and batch), and CFG-ready preparation has
+exactly one production consumer, the canonical resolved-If sidecar. The guard
+also rejects raw expected-row construction, direct PHI/type/origin mutation,
+and CFG analysis from both the sidecar and resolved-If join materialization.
+The disconnected bridge remains free of PHI-completion/lifecycle and fact-write
+authority. CorePlan select-as-PHI, loop-header future edges, and every generic
+lifecycle remain excluded.
+
+The guard itself is syntax-only and emits one machine-readable report; it does
+not add a second semantic authority. Source/check files remain below 800 lines.
+`PHI0-G0` is next to close the generic completion series without broadening
+CFG-ready admission.
+
 ## Phase 4 — FINALIZE0
 
 Finalization becomes a verifier and derived-publication boundary, not the
