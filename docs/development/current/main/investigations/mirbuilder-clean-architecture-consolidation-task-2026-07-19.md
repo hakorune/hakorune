@@ -196,6 +196,56 @@ than prove it. Each prerequisite remains BoxShape-only: it changes no accepted
 source shape, backend capability, ownership operation, runtime behavior,
 fallback, or retry policy.
 
+### `FSESSION0-C0-D0` — closed (2026-07-19)
+
+Three independent read-only audits agree that a fresh child session is not yet
+admissible. This row adds no session constructor, Builder consumer, test
+fixture, or production behavior. It fixes the future borrow contract and parks
+`C0-I0` until its already-selected prerequisite rows close.
+
+The future session may own only its unpublished draft, function-local ID/CFG/
+SSA state, monotone facts, and child-local diagnostics. It may borrow only:
+
+| Future input | Required owner | Borrow law | Prerequisite |
+| --- | --- | --- | --- |
+| declaration / ABI / callable truth | frozen `VerifiedModuleEnvironment` | immutable only | `COMPCTX0` |
+| route and diagnostic configuration | invocation-sealed `LoweringConfig` | fixed at session entry | `CONFIG0` |
+| observations | non-semantic `ObservationSink` capability | no parent stack take/restore | `FSESSION0-C0-I0` proof |
+| completed draft publication | existing `ModulePublicationTransaction` | child returns a closed draft; child publishes nothing | `FSESSION0-C0-I0` proof |
+
+The following are explicit non-authorities for the fresh child: `&mut
+MirBuilder`, mutable `CompilationContext`, shared `CoreContext` allocation,
+`current_module`, `current_static_box`, Box mode, field-origin and method-tail
+heuristics, direct `TypeContext` maps, raw AST/RecipeBody or raw/located mode,
+environment reads after entry, finalized metadata, finalization repair, and
+source inference from emitted MIR.
+
+The evidence is concrete: GenericLoop planning still accepts `&mut MirBuilder`
+and mutates bindings/body lowering; direct type maps and finalization repair
+remain live; raw and located lowering still co-reside; configuration is still
+read during route selection; and current lifecycle plus static-box paths still
+snapshot/restore parent compatibility and observation state. `CoreContext` also
+remains a shared mutable allocator, and current session close publishes through
+the parent builder. None can be smuggled into C0 as a borrowed capability.
+
+`FSESSION0-C0-I0` is forbidden until all of these are true:
+
+```text
+frozen VerifiedModuleEnvironment exists before child creation
+LoweringConfig is fixed before child creation
+child owns fresh state and function-local allocation; parent facts are unreachable
+child observation is child-owned or a non-restoring sink
+child returns a closed draft; one parent transaction alone publishes it
+FACT0 -> PHI0 -> FINALIZE0 -> PLAN0 -> PLAN0-RECIPE-RET0
+  -> COMPCTX0 -> CONFIG0 -> RAWADAPT0 are closed
+```
+
+Failure law for the future cutover is also fixed: typed, cleanup, publication,
+and panic/Drop failures discard the child draft/state and publish nothing;
+they never restore or mutate parent function-owned state. A fresh second
+session remains usable. The first next code-facing row is therefore
+`MIRBUILDER-CLEAN0-FACT0-S0`, not C0 implementation.
+
 ## Phase 1 — FSESSION0
 
 ### `FSESSION0-CENSUS0` — closed (2026-07-19)
