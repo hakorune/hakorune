@@ -163,14 +163,15 @@ mod tests {
     use crate::mir::definitions::Callee;
     use crate::mir::{ConstValue, MirInstruction, MirType};
 
-    #[test]
-    fn selected_terminal_uses_claim_target_not_raw_global_spelling() {
-        crate::runtime::ring0::ensure_global_ring0_initialized();
+    fn generic_selected_target() -> (
+        crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+        Box<[u32]>,
+    ) {
         let activation = generic_selected_activation_fixture::plan();
         let caller = generic_selected_activation_fixture::caller(&activation);
-        let (target, required_i64_arguments) = activation
+        activation
             .rows_for(&caller)
-            .expect("actual caller rows")
+            .expect("generic caller rows")
             .iter()
             .find_map(|row| match row.disposition() {
                 CallableResultActivationDispositionV1::SelectedExactI64 {
@@ -179,7 +180,13 @@ mod tests {
                 } => Some((target.clone(), required_i64_arguments.clone())),
                 CallableResultActivationDispositionV1::Unselected => None,
             })
-            .expect("generic fixture has one selected exact-i64 row");
+            .expect("generic fixture has one selected exact-i64 row")
+    }
+
+    #[test]
+    fn selected_terminal_uses_claim_target_not_raw_global_spelling() {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        let (target, required_i64_arguments) = generic_selected_target();
 
         let mut builder = crate::mir::builder::MirBuilder::new();
         builder.enter_function_for_test("selected_terminal".to_owned());
@@ -231,5 +238,40 @@ mod tests {
             builder.type_ctx.value_types.get(&dst),
             Some(&MirType::Integer)
         );
+    }
+
+    #[test]
+    fn selected_terminal_rejects_unknown_required_argument_before_call_or_result_publication() {
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        let (target, required_i64_arguments) = generic_selected_target();
+        let mut builder = crate::mir::builder::MirBuilder::new();
+        builder.enter_function_for_test("selected_terminal_unknown_argument".to_owned());
+        let argument = builder.alloc_value_for_test();
+        let dst = builder.alloc_value_for_test();
+        let effect = CoreEffectPlan::GlobalCall {
+            dst: Some(dst),
+            func: "forbidden.raw.target/999".to_owned(),
+            args: vec![argument],
+            source: CoreCallSourceV1::Unlocated,
+        };
+
+        let error =
+            emit_selected_exact_i64(&mut builder, &effect, &target, &required_i64_arguments)
+                .expect_err("missing transient type must fail the selected terminal");
+        assert!(error.contains("[freeze:contract][callable_result/selected_call_required_i64]"));
+
+        let function = builder
+            .scope_ctx
+            .current_function
+            .as_ref()
+            .expect("function");
+        let block = function
+            .get_block(builder.current_block.expect("current block"))
+            .expect("block");
+        assert!(block
+            .instructions
+            .iter()
+            .all(|instruction| !matches!(instruction, MirInstruction::Call { .. })));
+        assert_eq!(builder.type_ctx.value_types.get(&dst), None);
     }
 }

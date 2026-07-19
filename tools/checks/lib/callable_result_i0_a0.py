@@ -31,6 +31,9 @@ def main() -> None:
     source_gate = read(
         root, "src/mir/callable_result_representation/activation_source_gate.rs"
     )
+    emission = read(
+        root, "src/mir/builder/control_flow/plan/lowerer/emission_port.rs"
+    )
     solver = read(root, "src/mir/callable_result_representation/solver.rs")
     tests = read(root, "src/mir/callable_result_representation/tests/activation.rs")
 
@@ -68,6 +71,24 @@ def main() -> None:
     require_count(activation, "results.call_result(", 0, "activation result-row bypass")
     require_count(source_gate, "results.disposition(target)", 1, "source-gate target join")
     require_count(source_gate, "results.call_result(", 1, "source-gate required-proof join")
+    require_count(
+        emission,
+        "CallableResultActivationDispositionV1::Unselected => {\n                        PlanLowerer::emit_raw_effect(builder, effect)",
+        1,
+        "planned Unselected raw-primary emission",
+    )
+    require_count(
+        emission,
+        "fn selected_terminal_uses_claim_target_not_raw_global_spelling()",
+        1,
+        "generic selected-terminal success fixture",
+    )
+    require_count(
+        emission,
+        "fn selected_terminal_rejects_unknown_required_argument_before_call_or_result_publication()",
+        1,
+        "generic selected-terminal fail-fast fixture",
+    )
     require_count(
         activation,
         "observe_method_calls_shadow_view_v0(view)",
@@ -119,6 +140,7 @@ def main() -> None:
         "src/mir/callable_result_representation/activation.rs",
         "src/mir/callable_result_representation/activation_source_gate.rs",
         "src/mir/callable_result_representation/activation_error.rs",
+        "src/mir/builder/control_flow/plan/lowerer/emission_port.rs",
         "src/mir/callable_result_representation/solver.rs",
         "src/mir/callable_result_representation/tests/activation.rs",
         "src/mir/callable_result_representation/tests/generic_selected_activation_fixture.rs",
