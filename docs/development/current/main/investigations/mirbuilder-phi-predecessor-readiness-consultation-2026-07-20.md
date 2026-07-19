@@ -1,5 +1,5 @@
 ---
-Status: Design stop
+Status: Decision closed
 Date: 2026-07-20
 Scope: PHI0 predecessor-row readiness before any production facade connection
 Related:
@@ -20,9 +20,10 @@ cannot all obtain those rows from one existing authority. Consequently,
 
 ```text
 PHI0-M0 (closed evidence)
-  -> PHI0-PRED0-D0 (this decision)
-  -> one selected PRED0 implementation/proof slice
-  -> PHI0-I0, only if its consumer law is then true
+  -> PHI0-PRED0-D0 (closed decision)
+  -> PHI0-PRED0-S0 / P0
+  -> PHI0-I0 generic input/type connection
+  -> PHI0-CFGREADY0 route-owned activation
 ```
 
 The question is not whether a PHI type decision is shared: it already is. The
@@ -75,9 +76,9 @@ Rejected. This is self-certification and makes the exact-row contract empty.
 
 Rejected. It duplicates CFG authority and violates PHI0's BoxShape boundary.
 
-### D — split semantic boundaries before I0
+### D′ — split semantic boundaries before I0
 
-The recommended decision candidate is to distinguish:
+Selected. The semantic split is:
 
 ```text
 generic PHI input replacement / type publication
@@ -85,27 +86,27 @@ generic PHI input replacement / type publication
 route-owned CFG-ready predecessor validation
 ```
 
-The former can remain the common four-entry type-completion transaction. The
-latter is consumed only where an existing route already owns a sealed
-predecessor witness. A provisional patch must not pretend to be CFG-ready just
-because it has received inputs. This does not accept a new source shape and
-does not alter the final verifier's authority.
+The former is the common four-entry transaction. The latter is consumed only
+where an existing route already owns a sealed predecessor witness. A
+provisional patch must not pretend to be CFG-ready just because it has
+received inputs. This does not accept a new source shape and does not alter the
+final verifier's authority.
 
-Before selecting D, `PRED0-D0` must name the exact existing owner for every
-entry claimed to be CFG-ready and state whether the original four-entry `I0`
-means input/type completion or only the CFG-ready subset. If no such owner can
-be named without inventing one, that entry stays outside the CFG-ready facade;
-the PHI0 card must be narrowed rather than silently weakening validation.
+`PHI0-I0` means generic input/type completion only. A future `PHI0-CFGREADY0`
+may initially admit only canonical resolved-If
+`VerifiedIfMergePredecessorsV1` and the existing CorePlan select-as-PHI proof.
+Binding SSA, `exprs_peek`, generic loop, JoinIR exit, header batch, and legacy
+paths require their own route-local proof or remain generic. No entry is
+silently promoted from dominance, cached predecessors, or caller input rows.
 
 ## Proposed task order
 
 ```text
 PHI0-PRED0-D0
-  freeze the operation taxonomy and the per-entry existing-owner mapping
-  code delta = 0
+  closed: Candidate D′ and its owner inventory are fixed
 
 PHI0-PRED0-S0
-  introduce only the selected private capability/vocabulary
+  split only the selected private capability/vocabulary
   production consumers = 0
 
 PHI0-PRED0-P0
@@ -113,10 +114,13 @@ PHI0-PRED0-P0
   final-verifier parity
 
 PHI0-I0
-  connect only the consumers that satisfy the selected operation law
+  connect all four entries only to generic input/type completion
+
+PHI0-CFGREADY0
+  activate only explicitly route-owned readiness consumers
 
 PHI0-G0
-  prove direct type-decision bypass and partial type publication are zero
+  prove generic completion bypass and partial type publication are zero
 ```
 
 `PHI0-PRED0-D0` is a real design stop, not permission to write an adapter.

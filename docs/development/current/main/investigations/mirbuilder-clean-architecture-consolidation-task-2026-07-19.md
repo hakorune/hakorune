@@ -40,11 +40,12 @@ The closed FSESSION0 and FACT0 preparation rows have established the
 function-state census, one receiver-only monotone publication consumer, and
 the complete 47-path / 99-occurrence writer partition. PHI0-S0 is also
 closed. PHI0-M0 has now closed as an evidence row and found that I0 has no
-single existing predecessor-readiness authority. The sole next row is a design
-stop:
+single existing predecessor-readiness authority. PRED0-D0 therefore selects a
+split between generic input/type completion and route-scoped CFG readiness. The
+sole next code-facing row is now:
 
 ```text
-MIRBUILDER-CLEAN0-PHI0-PRED0-D0
+MIRBUILDER-CLEAN0-PHI0-PRED0-S0
 ```
 
 ## Baseline finding
@@ -1356,8 +1357,18 @@ PHI0-PRED0-D0
   decide the boundary between generic PHI input replacement and
   CFG-ready completion before any facade connection
 
+PHI0-PRED0-S0
+  split the disconnected vocabulary; generic input/type completion has
+  zero production consumers and CFG-ready proof remains route-scoped
+
+PHI0-PRED0-P0
+  prove generic unsealed and route-ready readiness boundaries
+
 PHI0-I0
-  connect the four Builder completion entries to the one owner
+  connect the four Builder entries to generic input/type completion only
+
+PHI0-CFGREADY0
+  separately activate only route-owned CFG-ready consumers
 
 PHI0-G0
   prove direct entry-specific completion decisions and partial publication are zero
@@ -1483,6 +1494,38 @@ self-authorize them and make S0's missing/phantom-row law tautological.
 `PHI0-I0` is therefore forbidden. The exact next decision, its candidate
 boundaries, and its non-authorities live in
 [`mirbuilder-phi-predecessor-readiness-consultation-2026-07-20.md`](mirbuilder-phi-predecessor-readiness-consultation-2026-07-20.md).
+
+#### `PHI0-PRED0-D0` — closed (2026-07-20)
+
+Three independent source audits select Candidate D′. Exact predecessor-row
+validation is not a precondition of every existing PHI input/type completion.
+It is a distinct semantic claim, available only to a route that already owns a
+sealed predecessor witness. The common transaction is therefore:
+
+```text
+normalize generic logical input rows
+  -> decide existing type fact
+  -> commit successful instruction/input replacement
+  -> commit prepared type fact
+```
+
+It does not claim CFG readiness. `PhiTxn::patch_phi_inputs`, raw
+`emit_instruction(Phi)`, generic final insertion, generic loop patch, JoinIR
+exit patch, header batch, and legacy helpers remain on this generic boundary.
+They must not gain a `compute_predecessors` scan, self-certified expected rows,
+or a new global CFG table.
+
+The separate CFG-ready capability admits only a route that already proves exact
+predecessor rows. The evidence inventory currently names canonical resolved-If
+`VerifiedIfMergePredecessorsV1` and the CorePlan select-as-PHI proof as ready;
+Binding SSA has its own `VerifiedPredecessorsV1` but its adapter currently drops
+that witness before generic patch. `exprs_peek` is a later route-local read-only
+candidate. Generic loop, JoinIR exit, header batch, raw emission, `if_form`,
+and legacy helpers are not ready. `PHI0-PRED0-S0` may split only the private,
+disconnected vocabulary; it has no production consumer, no CFG mutation, and
+no accepted-source-shape delta. `PHI0-I0` later connects the four entries only
+to generic input/type completion. CFG-ready activation is a separate
+`PHI0-CFGREADY0` row.
 
 ## Phase 4 — FINALIZE0
 
