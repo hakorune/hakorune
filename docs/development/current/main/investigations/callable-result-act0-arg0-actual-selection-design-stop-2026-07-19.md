@@ -98,6 +98,31 @@ Choose exactly one direction before another code-facing row:
 No third option may infer a nested instance result from its spelling, runtime
 class, final metadata, or raw success.
 
+## Raw-primary-path audit
+
+The existing claimed CorePlan emission port already distinguishes an
+`Unselected` claim before selected-terminal work:
+
+```text
+Unselected claim
+  -> one direct existing raw-effect emission
+
+SelectedExactI64 claim
+  -> selected terminal and its final ValueId type gate
+```
+
+Thus a future `0 selected / 15 Unselected` actual profile would not mean
+"try selected, catch the failure, then use raw." It would remain a planned
+primary raw route for every row.
+
+This audit is structural evidence only. The repository does not yet prove the
+complete actual 15-row all-Unselected lowering and execution path, because the
+source gate is still disconnected from activation-row construction. If direction
+2 is selected, `P0-REBASE0` must first prove that path with no selected-terminal
+attempt, no claim-schedule change, and no retry. A raw-path failure there opens
+a separate raw plan/emission parity stop; it must not reopen nested-result type
+inference implicitly.
+
 ## Next code-facing owner after a decision
 
 ```text
