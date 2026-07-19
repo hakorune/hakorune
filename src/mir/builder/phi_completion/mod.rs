@@ -1,9 +1,10 @@
 //! Disconnected semantic vocabulary for one PHI completion transaction.
 //!
-//! PHI0-S0 deliberately owns no Builder or MIR mutation. It validates the
-//! logical predecessor rows supplied by an existing CFG owner, delegates the
-//! type-only decision to `phi_type_publication`, and makes the post-instruction
-//! transition explicit for later facade integration.
+//! PHI0-PRED0-S0 deliberately owns no Builder or MIR mutation. Generic input
+//! completion validates only facts knowable from the supplied rows, delegates
+//! the type-only decision to `phi_type_publication`, and makes the
+//! post-instruction transition explicit for later facade integration. Exact
+//! predecessor-row validation is a separate route-owned CFG-ready capability.
 
 use std::collections::BTreeMap;
 
@@ -40,19 +41,42 @@ impl PhiDraftV1 {
         self.dst
     }
 
-    /// Prepare a completion without mutating an instruction or a fact map.
+    /// Prepare generic input/type completion without mutating an instruction
+    /// or a fact map.
     ///
-    /// `expected_predecessors` is a read-only CFG-owner input. This vocabulary
-    /// validates only row-set equality; reachability and dominance stay with
-    /// their existing owners.
-    pub(in crate::mir::builder) fn prepare(
+    /// This is intentionally not CFG-ready: a provisional patch can lawfully
+    /// name rows before the surrounding CFG publishes its predecessor set.
+    pub(in crate::mir::builder) fn prepare_input_completion(
         &self,
-        expected_predecessors: &[BasicBlockId],
         logical_inputs: &[(BasicBlockId, ValueId)],
         value_types: &BTreeMap<ValueId, MirType>,
         existing_destination: Option<&MirType>,
     ) -> Result<PreparedPhiCompletionV1, PhiCompletionPreparationErrorV1> {
-        validate_predecessor_rows(expected_predecessors, logical_inputs)?;
+        validate_unique_incoming_predecessors(logical_inputs)?;
+        self.prepare_normalized(logical_inputs, value_types, existing_destination)
+    }
+
+    /// Prepare a route-owned CFG-ready completion from a sealed row product.
+    /// This stays private until a route-specific owner is selected.
+    pub(super) fn prepare_cfg_ready(
+        &self,
+        cfg_ready_rows: CfgReadyPhiRowsV1,
+        value_types: &BTreeMap<ValueId, MirType>,
+        existing_destination: Option<&MirType>,
+    ) -> Result<PreparedPhiCompletionV1, PhiCompletionPreparationErrorV1> {
+        self.prepare_normalized(
+            cfg_ready_rows.logical_inputs(),
+            value_types,
+            existing_destination,
+        )
+    }
+
+    fn prepare_normalized(
+        &self,
+        logical_inputs: &[(BasicBlockId, ValueId)],
+        value_types: &BTreeMap<ValueId, MirType>,
+        existing_destination: Option<&MirType>,
+    ) -> Result<PreparedPhiCompletionV1, PhiCompletionPreparationErrorV1> {
         let mut normalized_inputs = logical_inputs.to_vec();
         normalized_inputs.sort_unstable_by_key(|(predecessor, value)| (*predecessor, *value));
         let prepared_type = PhiTransientTypeDecisionV1::prepare(
@@ -69,6 +93,34 @@ impl PhiDraftV1 {
             logical_inputs: normalized_inputs.into_boxed_slice(),
             prepared_type,
         })
+    }
+}
+
+/// Exact predecessor/input rows sealed by an existing route owner.
+///
+/// The constructor is private to this disconnected vocabulary: PRED0-S0 has
+/// no production route consumer. A later CFGREADY0 row must expose only a
+/// route-specific constructor, never a generic raw-row escape hatch.
+#[derive(Debug, PartialEq, Eq)]
+pub(in crate::mir::builder) struct CfgReadyPhiRowsV1 {
+    logical_inputs: Box<[(BasicBlockId, ValueId)]>,
+}
+
+impl CfgReadyPhiRowsV1 {
+    fn verify(
+        expected_predecessors: &[BasicBlockId],
+        logical_inputs: &[(BasicBlockId, ValueId)],
+    ) -> Result<Self, PhiCompletionPreparationErrorV1> {
+        validate_cfg_ready_predecessor_rows(expected_predecessors, logical_inputs)?;
+        let mut normalized_inputs = logical_inputs.to_vec();
+        normalized_inputs.sort_unstable_by_key(|(predecessor, value)| (*predecessor, *value));
+        Ok(Self {
+            logical_inputs: normalized_inputs.into_boxed_slice(),
+        })
+    }
+
+    fn logical_inputs(&self) -> &[(BasicBlockId, ValueId)] {
+        &self.logical_inputs
     }
 }
 
@@ -140,7 +192,24 @@ pub(in crate::mir::builder) enum PhiCompletionPreparationErrorV1 {
     ConcreteTypeConflict(PhiConcreteTypeConflictV1),
 }
 
-fn validate_predecessor_rows(
+fn validate_unique_incoming_predecessors(
+    logical_inputs: &[(BasicBlockId, ValueId)],
+) -> Result<(), PhiCompletionPreparationErrorV1> {
+    let mut actual = logical_inputs
+        .iter()
+        .map(|(predecessor, _)| *predecessor)
+        .collect::<Vec<_>>();
+    actual.sort_unstable();
+    if let Some(predecessor) = actual
+        .windows(2)
+        .find_map(|pair| (pair[0] == pair[1]).then_some(pair[0]))
+    {
+        return Err(PhiCompletionPreparationErrorV1::DuplicateIncomingPredecessor { predecessor });
+    }
+    Ok(())
+}
+
+fn validate_cfg_ready_predecessor_rows(
     expected_predecessors: &[BasicBlockId],
     logical_inputs: &[(BasicBlockId, ValueId)],
 ) -> Result<(), PhiCompletionPreparationErrorV1> {
@@ -153,17 +222,13 @@ fn validate_predecessor_rows(
         return Err(PhiCompletionPreparationErrorV1::DuplicateExpectedPredecessor { predecessor });
     }
 
+    validate_unique_incoming_predecessors(logical_inputs)?;
+
     let mut actual = logical_inputs
         .iter()
         .map(|(predecessor, _)| *predecessor)
         .collect::<Vec<_>>();
     actual.sort_unstable();
-    if let Some(predecessor) = actual
-        .windows(2)
-        .find_map(|pair| (pair[0] == pair[1]).then_some(pair[0]))
-    {
-        return Err(PhiCompletionPreparationErrorV1::DuplicateIncomingPredecessor { predecessor });
-    }
 
     if let Some(predecessor) = actual
         .iter()

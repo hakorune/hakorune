@@ -1,6 +1,9 @@
 use std::collections::BTreeMap;
 
-use super::{CompletedPhiV1, PhiCompletionPreparationErrorV1, PhiDraftV1, PreparedPhiCompletionV1};
+use super::{
+    CfgReadyPhiRowsV1, CompletedPhiV1, PhiCompletionPreparationErrorV1, PhiDraftV1,
+    PreparedPhiCompletionV1,
+};
 use crate::mir::builder::phi_type_publication::{
     PhiConcreteTypeConflictV1, PreparedPhiTypePublicationV1,
 };
@@ -66,8 +69,7 @@ impl FakeCompletionPortV1 {
 #[test]
 fn completion_prepares_normalized_rows_and_commits_type_only_after_instruction_success() {
     let prepared = draft()
-        .prepare(
-            &[block(1), block(2)],
+        .prepare_input_completion(
             &[(block(2), value(2)), (block(1), value(1))],
             &integer_types(&[1, 2]),
             None,
@@ -97,14 +99,21 @@ fn completion_prepares_normalized_rows_and_commits_type_only_after_instruction_s
 
 #[test]
 fn raw_final_patch_and_batch_requests_have_identical_preparation() {
-    let expected = [block(1), block(2)];
     let inputs = [(block(2), value(2)), (block(1), value(1))];
     let types = integer_types(&[1, 2]);
 
-    let raw = draft().prepare(&expected, &inputs, &types, None).unwrap();
-    let final_insert = draft().prepare(&expected, &inputs, &types, None).unwrap();
-    let patch = draft().prepare(&expected, &inputs, &types, None).unwrap();
-    let batch = draft().prepare(&expected, &inputs, &types, None).unwrap();
+    let raw = draft()
+        .prepare_input_completion(&inputs, &types, None)
+        .unwrap();
+    let final_insert = draft()
+        .prepare_input_completion(&inputs, &types, None)
+        .unwrap();
+    let patch = draft()
+        .prepare_input_completion(&inputs, &types, None)
+        .unwrap();
+    let batch = draft()
+        .prepare_input_completion(&inputs, &types, None)
+        .unwrap();
 
     assert_eq!(raw, final_insert);
     assert_eq!(raw, patch);
@@ -120,38 +129,35 @@ fn provisional_draft_has_no_prepared_or_completed_type_fact() {
 }
 
 #[test]
-fn duplicate_missing_and_phantom_rows_fail_before_a_completion_product() {
+fn generic_completion_rejects_duplicate_input_rows() {
     let types = integer_types(&[1, 2, 3]);
 
     assert_eq!(
         draft()
-            .prepare(
-                &[block(1), block(2)],
-                &[(block(1), value(1)), (block(1), value(2))],
-                &types,
-                None,
-            )
+            .prepare_input_completion(&[(block(1), value(1)), (block(1), value(2))], &types, None,)
             .unwrap_err(),
         PhiCompletionPreparationErrorV1::DuplicateIncomingPredecessor {
             predecessor: block(1),
         }
     );
+}
+
+#[test]
+fn cfg_ready_completion_rejects_duplicate_missing_and_phantom_rows() {
     assert_eq!(
-        draft()
-            .prepare(&[block(1), block(2)], &[(block(1), value(1))], &types, None)
-            .unwrap_err(),
+        CfgReadyPhiRowsV1::verify(&[block(1), block(1)], &[(block(1), value(1))]).unwrap_err(),
+        PhiCompletionPreparationErrorV1::DuplicateExpectedPredecessor {
+            predecessor: block(1),
+        }
+    );
+    assert_eq!(
+        CfgReadyPhiRowsV1::verify(&[block(1), block(2)], &[(block(1), value(1))]).unwrap_err(),
         PhiCompletionPreparationErrorV1::MissingIncomingPredecessor {
             predecessor: block(2),
         }
     );
     assert_eq!(
-        draft()
-            .prepare(
-                &[block(1)],
-                &[(block(1), value(1)), (block(3), value(3))],
-                &types,
-                None,
-            )
+        CfgReadyPhiRowsV1::verify(&[block(1)], &[(block(1), value(1)), (block(3), value(3))],)
             .unwrap_err(),
         PhiCompletionPreparationErrorV1::PhantomIncomingPredecessor {
             predecessor: block(3),
@@ -160,10 +166,26 @@ fn duplicate_missing_and_phantom_rows_fail_before_a_completion_product() {
 }
 
 #[test]
+fn cfg_ready_completion_consumes_one_sealed_row_product() {
+    let rows = CfgReadyPhiRowsV1::verify(
+        &[block(1), block(2)],
+        &[(block(2), value(2)), (block(1), value(1))],
+    )
+    .unwrap();
+    let prepared = draft()
+        .prepare_cfg_ready(rows, &integer_types(&[1, 2]), None)
+        .unwrap();
+
+    assert_eq!(
+        prepared.logical_inputs(),
+        &[(block(1), value(1)), (block(2), value(2))]
+    );
+}
+
+#[test]
 fn concrete_type_conflict_is_preserved_from_the_existing_decision_owner() {
     let error = draft()
-        .prepare(
-            &[block(1)],
+        .prepare_input_completion(
             &[(block(1), value(1))],
             &integer_types(&[1]),
             Some(&MirType::String),
@@ -179,12 +201,7 @@ fn concrete_type_conflict_is_preserved_from_the_existing_decision_owner() {
 #[test]
 fn failed_single_candidate_commit_never_commits_a_type() {
     let prepared = draft()
-        .prepare(
-            &[block(1)],
-            &[(block(1), value(1))],
-            &integer_types(&[1]),
-            None,
-        )
+        .prepare_input_completion(&[(block(1), value(1))], &integer_types(&[1]), None)
         .unwrap();
     let mut port = FakeCompletionPortV1 {
         fail_instruction: true,
@@ -199,20 +216,10 @@ fn failed_single_candidate_commit_never_commits_a_type() {
 #[test]
 fn failed_batch_candidate_commit_keeps_all_type_commits_at_zero() {
     let first = draft()
-        .prepare(
-            &[block(1)],
-            &[(block(1), value(1))],
-            &integer_types(&[1]),
-            None,
-        )
+        .prepare_input_completion(&[(block(1), value(1))], &integer_types(&[1]), None)
         .unwrap();
     let second = PhiDraftV1::new(block(9), value(100), None)
-        .prepare(
-            &[block(2)],
-            &[(block(2), value(2))],
-            &integer_types(&[2]),
-            None,
-        )
+        .prepare_input_completion(&[(block(2), value(2))], &integer_types(&[2]), None)
         .unwrap();
     let mut port = FakeCompletionPortV1 {
         fail_instruction: true,
@@ -230,19 +237,9 @@ fn failed_batch_candidate_commit_keeps_all_type_commits_at_zero() {
 #[test]
 fn failed_batch_item_preparation_never_reaches_live_commit() {
     let first = draft()
-        .prepare(
-            &[block(1)],
-            &[(block(1), value(1))],
-            &integer_types(&[1]),
-            None,
-        )
+        .prepare_input_completion(&[(block(1), value(1))], &integer_types(&[1]), None)
         .unwrap();
-    let second = PhiDraftV1::new(block(9), value(100), None).prepare(
-        &[block(2)],
-        &[(block(3), value(3))],
-        &integer_types(&[3]),
-        None,
-    );
+    let second = CfgReadyPhiRowsV1::verify(&[block(2)], &[(block(3), value(3))]);
     let port = FakeCompletionPortV1::default();
 
     assert_eq!(
@@ -257,12 +254,11 @@ fn failed_batch_item_preparation_never_reaches_live_commit() {
 }
 
 #[test]
-fn failed_patch_preparation_leaves_the_existing_draft_incomplete() {
+fn failed_unsealed_patch_preparation_leaves_the_existing_draft_incomplete() {
     let draft = PhiDraftV1::new(block(3), value(7), None);
     let error = draft
-        .prepare(
-            &[block(1)],
-            &[(block(2), value(2))],
+        .prepare_input_completion(
+            &[(block(2), value(2)), (block(2), value(3))],
             &integer_types(&[2]),
             None,
         )
@@ -270,10 +266,19 @@ fn failed_patch_preparation_leaves_the_existing_draft_incomplete() {
 
     assert_eq!(
         error,
-        PhiCompletionPreparationErrorV1::PhantomIncomingPredecessor {
+        PhiCompletionPreparationErrorV1::DuplicateIncomingPredecessor {
             predecessor: block(2),
         }
     );
     assert_eq!(draft.block(), block(3));
     assert_eq!(draft.dst(), value(7));
+}
+
+#[test]
+fn generic_completion_accepts_an_unsealed_route_row() {
+    let prepared = draft()
+        .prepare_input_completion(&[(block(42), value(1))], &integer_types(&[1]), None)
+        .unwrap();
+
+    assert_eq!(prepared.logical_inputs(), &[(block(42), value(1))]);
 }

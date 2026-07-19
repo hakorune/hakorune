@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PHI0-PRED0-D0 selects input/type completion separate from route-scoped CFG readiness; PHI0-PRED0-S0 is next"
+status = "PHI0-PRED0-S0 separates generic input/type completion from CFG readiness; PHI0-PRED0-P0 proof matrix is next"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -383,14 +383,16 @@ provisional patch and loop-header batch may intentionally name future edges
 that a recomputed current CFG cannot see. `PHI0-PRED0-D0` is closed: generic
 input/type completion is the one four-entry semantic transaction, while
 CFG-ready predecessor validation is a distinct route-scoped capability.
-`PHI0-PRED0-S0` is the sole next code-facing row and has zero production
-consumers. PHI0 does not widen origin, provisional Unknown,
+`PHI0-PRED0-S0` is closed: the private vocabulary now separates generic
+input/type completion from CFG-ready preparation with zero production
+consumers. `PHI0-PRED0-P0` is the sole next proof row. PHI0 does not widen
+origin, provisional Unknown,
 finalization, or function-level type authority. `metadata::propagate` remains a distinct
 METAPROP0 owner after COMPCTX0/CONFIG0 and before PLAN0-CUT0; FACT0-G0 remains
 the final global-zero gate after that owner plus FINALIZE0, PLAN0, COMPCTX0,
 CONFIG0, and RAWADAPT0 retire their named legacy writers.
 NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-PHI0-PRED0-S0-001"
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-PHI0-PRED0-P0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
