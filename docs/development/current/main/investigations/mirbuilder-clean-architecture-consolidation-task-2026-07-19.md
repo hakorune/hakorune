@@ -269,14 +269,27 @@ S0d  replace the FunctionOwned saved_* set with one move-only saved state
 must build, preserve visible MIR/session behavior, and add no accepted source
 shape, type inference, backfill, fallback, or retry.
 
-The partial BoxCompilationContext map handling is not a semantic compatibility
-authority. Its ValueId-keyed cross-function retention is the exact isolation
-defect Census exposed. S0 must not recreate it with a sidecar or a second map:
-the physical function state begins with all FunctionOwned facts empty, and
-visible draft/MIR parity proves that no supported behavior changes. This is an
-isolation correction inside the selected BoxShape refactor, not a new type
-producer. The metadata origin maps move with the same FunctionOwned state;
-they may not become module truth or finalization repair.
+The partial BoxCompilationContext map handling is an existing behavior that S0
+must preserve, but it is not a future semantic authority. S0d models its
+exact current action through one move-only FunctionLoweringState transaction:
+
+```text
+clear:
+  value_types
+  value_kinds
+  value_origin_newbox
+
+retain across the BoxCompilationContext branch:
+  string_literals
+  map_value_types
+  map_literal_value_types
+```
+
+The retained maps remain fields of that one state; no compatibility sidecar,
+second map, module publication, or finalization repair is allowed. Their
+isolation repair needs a later explicitly selected row. The metadata origin
+maps move with the same FunctionOwned state, but S0 makes no claim that their
+current cross-session handling is repaired.
 
 Forbidden in S0:
 
@@ -285,7 +298,7 @@ whole ScopeContext / CompilationContext / MetadataContext moves
 duplicate old-and-new FunctionOwned storage or Deref aliasing
 fresh child-session construction or address-separation claims (C0 only)
 new source acceptance, type inference, type backfill, fallback, or retry
-preserving the BoxCompilationContext leak through a compatibility sidecar
+repairing the BoxCompilationContext partial map action in the S0 series
 ```
 
 ### `FSESSION0-C0` — fresh child-session construction
