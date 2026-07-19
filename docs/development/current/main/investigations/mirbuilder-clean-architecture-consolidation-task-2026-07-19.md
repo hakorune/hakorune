@@ -1693,10 +1693,70 @@ The disconnected bridge remains free of PHI-completion/lifecycle and fact-write
 authority. CorePlan select-as-PHI, loop-header future edges, and every generic
 lifecycle remain excluded.
 
-The guard itself is syntax-only and emits one machine-readable report; it does
-not add a second semantic authority. Source/check files remain below 800 lines.
+It also fixes the shared final physical continuation at one definition plus its
+generic-final and resolved-If callers, keeps the CFG-ready constructor private,
+and proves raw emit is the one Builder-session PHI origin committer. Function-
+level EdgeCFG/JoinIR insertion remains a documented separate scope because it
+has no Builder transient facts; it is not a hidden fifth generic completion
+consumer. The guard itself is syntax-only and emits one machine-readable report;
+it does not add a second semantic authority. Source/check files remain below
+800 lines.
 `PHI0-G0` is next to close the generic completion series without broadening
 CFG-ready admission.
+
+#### `PHI0-G0` — closed (2026-07-20)
+
+The PHI completion series is closed as one BoxShape-only owner boundary. The
+inventory proves that raw emit, generic final, provisional patch, and batch are
+the exact four generic input/type completion consumers; the canonical
+resolved-If sidecar is the sole CFG-ready consumer; and the shared final
+physical continuation has exactly its definition plus the generic-final and
+resolved-If callers. Direct entry-specific type decisions are zero, raw emit
+remains the sole Builder-session PHI origin committer, and all generic routes
+remain CFG-free. The guard preserves the existing single/patch/batch failure
+laws rather than claiming rollback for provisional drafts or legacy raw
+materialization residuals.
+
+Function-level EdgeCFG/JoinIR PHI insertion is explicitly outside this
+Builder-transient completion scope: it has no Builder type context and is not a
+hidden fifth generic consumer. No new PHI route, CFG admission, origin policy,
+type inference, source shape, fallback, runtime, backend, or ownership change
+is introduced. The next row is `FACT0-I1-COPY0-D0`.
+
+#### `FACT0-I1-COPY0-D0` — next design row
+
+This is a read-only decision row with code delta zero. Its scope is one
+successful LocalSSA `Copy` only. `ssa/local.rs::ensure_inner` currently keeps
+two distinct post-success behaviors adjacent to one another:
+
+```text
+copy_exact:
+  existing source transient type -> Copy destination
+
+copy_origin_legacy:
+  receiver-origin-derived Box type fallback -> Copy destination
+```
+
+COPY0 may select only `copy_exact`; it may not infer a missing type, turn
+`Unknown` into an exact fact, write or repair origin, or change the legacy
+fallback. D0 must inventory whether an existing `Unknown` destination-map entry
+is observably required. If so, it stops with `COPY-UNKNOWN0-D0`; it does not
+silently treat that legacy write as monotone publication. If not, the fixed
+follow-up order is:
+
+```text
+FACT0-I1-COPY0-D0
+  -> FACT0-I1-COPY0-S0
+  -> FACT0-I1-COPY0-P0
+  -> FACT0-I1-COPY0-I0
+  -> FACT0-I1-COPY0-G0
+```
+
+S0 remains disconnected; P0 proves exact/idempotent/conflict/Unknown,
+successful-emission, and origin-isolation cases; I0 may connect only the
+successful exact source-type transfer; G0 closes the one-producer guard.
+`ORIGIN0-D0`, FieldGet, Call, finalization, and every accepted source shape
+remain separate rows.
 
 ## Phase 4 — FINALIZE0
 

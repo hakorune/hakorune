@@ -202,6 +202,16 @@ def main() -> None:
     # never become a generic expected-predecessor constructor.
     if code_only(phi_completion).count("prepare_cfg_ready(") != 1:
         fail("PRED0 private CFG-ready preparation must have exactly one definition")
+    require(
+        phi_completion,
+        "pub(super) fn prepare_cfg_ready(",
+        "CFG-ready preparation visibility",
+    )
+    require(
+        phi_completion,
+        "    fn verify(\n        expected_predecessors:",
+        "private CFG-ready row constructor",
+    )
     if code_only(resolved_if_connection).count("CfgReadyPhiRowsV1::verify(") != 1:
         fail("CFGREADY0 must have exactly one resolved-If CFG row constructor")
     if code_only(resolved_if_connection).count(".prepare_cfg_ready(") != 1:
@@ -250,6 +260,20 @@ def main() -> None:
     ):
         if forbidden in code_only(resolved_if_bridge):
             fail(f"resolved-If CFG witness unexpectedly owns {forbidden!r}")
+
+    # The shared final physical continuation is not another completion decision
+    # owner. It may be reached only by the generic final facade and the one
+    # selected resolved-If route; origin publication remains raw-only.
+    if occurrence_count(production, "define_final_from_prepared_completion(") != 3:
+        fail("shared final-PHI continuation must have one definition and two callers")
+    if code_only(resolved_if_connection).count("PhiDraftV1::new(") != 1:
+        fail("resolved-If sidecar must construct exactly one CFG-ready draft")
+    if code_only(read(root, "src/mir/builder/phi_completion/connection.rs")).count(
+        "PhiDraftV1::new("
+    ) != 1:
+        fail("generic connection must construct exactly one input-only draft")
+    if occurrence_count(production, "origin::phi::commit_unanimous_origin(") != 1:
+        fail("raw emit must remain the sole builder-session PHI origin committer")
 
     # Raw prepares from logical inputs, rematerializes, appends, then commits
     # type and the independently prepared legacy origin fact.
@@ -386,6 +410,9 @@ def main() -> None:
         "cfg_ready_preparation_definitions": 1,
         "cfg_ready_production_consumers": 1,
         "cfg_ready_resolved_if_consumers": 1,
+        "shared_final_physical_continuation_occurrences": 3,
+        "raw_origin_committers": 1,
+        "function_level_phi_scope": "excluded_no_builder_transient_facts",
         "generic_patch_cfg_predecessor_reads": 0,
         "generic_batch_cfg_predecessor_reads": 0,
     }
