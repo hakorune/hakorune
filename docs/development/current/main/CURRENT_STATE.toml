@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PHI0-S0 disconnected unified-completion vocabulary is closed; PHI0-M0 timing matrix is next"
+status = "PHI0-M0 is closed as a predecessor-readiness design stop; PHI0-PRED0-D0 is next and PHI0-I0 is forbidden"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -377,15 +377,19 @@ profile/prerequisite schedule, 58 slices, two shared sites, status baseline,
 and the prohibition on a premature FACT0-G0 prerequisite. PHI0-S0 is closed:
 one disconnected private completion vocabulary validates logical predecessor
 rows and delegates the existing type decision with zero production consumers
-or mutation. PHI0-M0 is now the sole next code-facing migration; it fixes the
-four-entry timing/failure matrix before a later I0 connection. PHI0 does not
-widen origin, provisional Unknown, finalization, or function-level type
-authority. `metadata::propagate` remains a distinct
+or mutation. PHI0-M0 is closed as an evidence row: raw, final, patch, and
+batch do not share one existing predecessor-readiness authority. In particular,
+provisional patch and loop-header batch may intentionally name future edges
+that a recomputed current CFG cannot see. `PHI0-PRED0-D0` is now the sole next
+design row; PHI0-I0 is forbidden until it fixes the semantic boundary between
+generic input replacement and CFG-ready completion without creating a new
+global CFG authority. PHI0 does not widen origin, provisional Unknown,
+finalization, or function-level type authority. `metadata::propagate` remains a distinct
 METAPROP0 owner after COMPCTX0/CONFIG0 and before PLAN0-CUT0; FACT0-G0 remains
 the final global-zero gate after that owner plus FINALIZE0, PLAN0, COMPCTX0,
 CONFIG0, and RAWADAPT0 retire their named legacy writers.
 NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-PHI0-001"
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-PHI0-PRED0-D0-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

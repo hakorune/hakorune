@@ -39,10 +39,12 @@ producer may be considered.
 The closed FSESSION0 and FACT0 preparation rows have established the
 function-state census, one receiver-only monotone publication consumer, and
 the complete 47-path / 99-occurrence writer partition. PHI0-S0 is also
-closed; the sole next code-facing row is now:
+closed. PHI0-M0 has now closed as an evidence row and found that I0 has no
+single existing predecessor-readiness authority. The sole next row is a design
+stop:
 
 ```text
-MIRBUILDER-CLEAN0-PHI0-M0
+MIRBUILDER-CLEAN0-PHI0-PRED0-D0
 ```
 
 ## Baseline finding
@@ -1350,6 +1352,10 @@ PHI0-S0
 PHI0-M0
   one raw/final/patch/batch timing and failure matrix
 
+PHI0-PRED0-D0
+  decide the boundary between generic PHI input replacement and
+  CFG-ready completion before any facade connection
+
 PHI0-I0
   connect the four Builder completion entries to the one owner
 
@@ -1357,7 +1363,7 @@ PHI0-G0
   prove direct entry-specific completion decisions and partial publication are zero
 ```
 
-`PHI0-S0` is the next code-facing row. It introduces a private,
+`PHI0-S0` is the first code-facing row. It introduces a private,
 production-unconnected completion vocabulary in a new small
 `src/mir/builder/phi_completion/` module:
 
@@ -1449,9 +1455,34 @@ provisional incompleteness, duplicate/missing/phantom rows, inherited concrete
 type conflicts, single and batch candidate failure, batch-item preparation
 failure, and retained provisional draft identity. `cargo test -q --lib
 phi_completion`, the existing PHI type-publication/lifecycle suites, and
-`cargo check --all-targets` are green. `PHI0-M0` is next; it must inventory the
-four real completion entries' logical rows, physical rematerialization, and
+`cargo check --all-targets` are green. `PHI0-M0` inventories the four real
+completion entries' logical rows, physical rematerialization, and
 instruction/type timing before any I0 facade connection.
+
+#### `PHI0-M0` — closed as a predecessor-readiness design stop (2026-07-20)
+
+The timing matrix is complete, but it disproves the premise needed to connect
+the S0 product to all four entries: there is no common existing authority for
+the exact expected predecessor rows. The existing transaction and residual law
+is intentionally different at each entry:
+
+| Entry | Existing completion order | Existing failure residual |
+| --- | --- | --- |
+| raw `emit_instruction(Phi)` | type decision, live edge rematerialization, raw-origin preparation, append, type/origin commit | prior rematerialized copies may remain; PHI/type/origin do not commit |
+| complete final insert | type decision, debug metadata, live rematerialization, insert, type commit | rematerialization/debug metadata may remain; type does not commit |
+| provisional patch | sort, stored hint, type decision, replace inputs, type commit | incomplete draft remains; no rematerialization; `PhiTxn` owns rollback |
+| batch | preflight/type decisions, candidate rematerialization/insert, function replacement, type commits | candidate is dropped; live function/types remain unchanged |
+
+Two existing legal cases make a blanket `compute_predecessors(current_cfg)`
+connection invalid. A lifecycle test patches a provisional PHI in a block whose
+predecessor set has not yet been published. A loop-header batch policy can
+admit a host-entry predecessor before its terminator is present in the current
+CFG. Passing the logical input rows as their own expected rows would merely
+self-authorize them and make S0's missing/phantom-row law tautological.
+
+`PHI0-I0` is therefore forbidden. The exact next decision, its candidate
+boundaries, and its non-authorities live in
+[`mirbuilder-phi-predecessor-readiness-consultation-2026-07-20.md`](mirbuilder-phi-predecessor-readiness-consultation-2026-07-20.md).
 
 ## Phase 4 — FINALIZE0
 
