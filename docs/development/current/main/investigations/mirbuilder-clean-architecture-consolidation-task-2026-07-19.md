@@ -240,6 +240,54 @@ snapshot behavior delta = 0
 This is a Refactor Series Mode task. It may use a short buildable series, but
 the series has one purpose and keeps behavior unchanged until cutover.
 
+#### Selected S0 implementation series
+
+`CENSUS0` proves that `ScopeContext`, `CompilationContext`, and
+`MetadataContext` mix FunctionOwned leaves with other lifetimes. S0 must not
+move any whole context into the function state. The selected buildable series
+is:
+
+```text
+S0a  expand existing function-session success/error/panic parity witnesses for
+     every captured FunctionOwned surface; keep the two metadata maps as
+     explicit unhealed controls
+
+S0b  split only FunctionOwned leaves from the three mixed contexts into private
+     component products; no duplicated authoritative storage and no fresh
+     session API
+
+S0c  make private FunctionLoweringStateV1 own those components plus direct
+     FunctionOwned Builder fields; mechanically update access sites and remove
+     the old fields
+
+S0d  replace the FunctionOwned saved_* set with one move-only saved state
+     transaction; LegacyCompatibility and ObservationBorrow snapshots remain
+     separate
+```
+
+`S0a -> S0b -> S0c -> S0d` is one Refactor Series Mode purpose. Every commit
+must build, preserve visible MIR/session behavior, and add no accepted source
+shape, type inference, backfill, fallback, or retry.
+
+The partial BoxCompilationContext map handling is not a semantic compatibility
+authority. Its ValueId-keyed cross-function retention is the exact isolation
+defect Census exposed. S0 must not recreate it with a sidecar or a second map:
+the physical function state begins with all FunctionOwned facts empty, and
+visible draft/MIR parity proves that no supported behavior changes. This is an
+isolation correction inside the selected BoxShape refactor, not a new type
+producer. The metadata origin maps move with the same FunctionOwned state;
+they may not become module truth or finalization repair.
+
+Forbidden in S0:
+
+```text
+whole ScopeContext / CompilationContext / MetadataContext moves
+duplicate old-and-new FunctionOwned storage or Deref aliasing
+fresh child-session construction or address-separation claims (C0 only)
+new source acceptance, type inference, type backfill, fallback, or retry
+preserving the BoxCompilationContext leak through a compatibility sidecar
+```
+
 ### `FSESSION0-C0` — fresh child-session construction
 
 Construct a fresh function state instead of clearing a parent state in place.
