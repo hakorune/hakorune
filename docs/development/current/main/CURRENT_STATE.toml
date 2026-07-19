@@ -295,6 +295,7 @@ phase_status = "docs/development/current/main/investigations/mirbuilder-dprime-b
 method_anchor = "docs/development/current/main/design/current-docs-archive-policy-ssot.md"
 taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
 latest_workstream_card = "docs/development/current/main/investigations/callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md"
+parked_loop_route_retirement_card = "docs/development/current/main/investigations/generic-loop-named-route-retirement-task-2026-07-19.md"
 
 latest_card = "callable-result-loop0-p0b-t0-associated-source-port-task-2026-07-19"
 latest_card_path = "docs/development/current/main/investigations/callable-result-loop0-p0b-t0-associated-source-port-task-2026-07-19.md"
