@@ -1721,9 +1721,10 @@ Function-level EdgeCFG/JoinIR PHI insertion is explicitly outside this
 Builder-transient completion scope: it has no Builder type context and is not a
 hidden fifth generic consumer. No new PHI route, CFG admission, origin policy,
 type inference, source shape, fallback, runtime, backend, or ownership change
-is introduced. The next row is `FACT0-I1-COPY0-D0`.
+is introduced. `FACT0-I1-COPY0-D0` is closed as a design stop; the next row is
+`COPY-UNKNOWN0-D0`.
 
-#### `FACT0-I1-COPY0-D0` — next design row
+#### `FACT0-I1-COPY0-D0` — closed as a design stop (2026-07-20)
 
 This is a read-only decision row with code delta zero. Its scope is one
 successful LocalSSA `Copy` only. `ssa/local.rs::ensure_inner` currently keeps
@@ -1739,10 +1740,31 @@ copy_origin_legacy:
 
 COPY0 may select only `copy_exact`; it may not infer a missing type, turn
 `Unknown` into an exact fact, write or repair origin, or change the legacy
-fallback. D0 must inventory whether an existing `Unknown` destination-map entry
-is observably required. If so, it stops with `COPY-UNKNOWN0-D0`; it does not
-silently treat that legacy write as monotone publication. If not, the fixed
-follow-up order is:
+fallback. D0 found that a stored `Unknown` destination-map entry is observably
+required by the current LocalSSA behavior. It does not silently treat that
+legacy write as monotone publication.
+
+```text
+source:
+  type = Unknown
+  origin = Owner
+
+current successful LocalSSA receiver Copy:
+  dst type = Unknown
+  -> receiver-origin Box(Owner) fallback is suppressed
+
+COPY0 treating Unknown as no publication:
+  dst type = absent
+  -> existing receiver-origin Box(Owner) fallback activates
+```
+
+That is an origin/receiver-compatibility behavior decision, not an exact-type
+transfer cleanup. The same post-success block also serves rematerialized
+Const/BinOp/Compare/Select results, so it is not yet a physical-Copy-only
+publisher boundary. `COPY0-S0` is forbidden until `COPY-UNKNOWN0-D0` selects
+an origin-aware law and a physical-Copy boundary.
+
+If that later decision makes exact Copy independent, the follow-up order is:
 
 ```text
 FACT0-I1-COPY0-D0
@@ -1757,6 +1779,31 @@ successful-emission, and origin-isolation cases; I0 may connect only the
 successful exact source-type transfer; G0 closes the one-producer guard.
 `ORIGIN0-D0`, FieldGet, Call, finalization, and every accepted source shape
 remain separate rows.
+
+#### `COPY-UNKNOWN0-D0` — active design stop
+
+Source authority is the existing successful LocalSSA post-emission state:
+`value_types[v]`, `value_origin_newbox[v]`, `LocalKind::Recv`, and the exact
+`value_types[loc].is_none()` fallback condition. `MirFunction` final metadata,
+method names, runtime tags, source syntax, and route success are non-authority.
+
+The decision must choose one coherent policy for a successful Copy whose source
+has stored `MirType::Unknown` plus an origin:
+
+```text
+A. retain Unknown as an explicit receiver-fallback suppression sentinel
+B. normalize Unknown to absence and explicitly redesign the origin fallback
+C. split the receiver compatibility fallback from generic origin propagation
+```
+
+Any selection must preserve a pre-emission source read, post-success commit,
+and no mutation on failed emission. It may not backfill an exact type, use
+finalization repair, widen source shapes, or fold string/map/record facts,
+`metadata::propagate`, direct Copy emitters, or PHI origin into the row. The
+minimum proof must cover missing versus stored Unknown, Unknown plus origin for
+`Recv`, exact and conflicting existing facts, failed Copy, and fresh Builder
+reuse. This is a consultation boundary: do not implement COPY0 or alter the
+fallback until the policy is selected.
 
 ## Phase 4 — FINALIZE0
 
