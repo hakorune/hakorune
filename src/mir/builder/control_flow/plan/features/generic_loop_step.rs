@@ -4,9 +4,10 @@ use crate::ast::{ASTNode, BinaryOperator};
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::plan::features::loop_carriers;
 use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_loop_header::lower_loop_header_cond;
+use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_loop_header_port::lower_loop_header_cond_input;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 use crate::mir::builder::control_flow::plan::skeletons::generic_loop::GenericLoopSkeleton;
-use crate::mir::builder::control_flow::plan::CoreEffectPlan;
+use crate::mir::builder::control_flow::plan::{CoreEffectPlan, LoopPlanExpressionPortV1};
 use crate::mir::builder::MirBuilder;
 use crate::mir::BasicBlockId;
 
@@ -44,6 +45,51 @@ pub(in crate::mir::builder) fn apply_generic_loop_condition(
         error_prefix,
     )?;
 
+    commit_generic_loop_condition(skeleton, header_result);
+
+    Ok(())
+}
+
+#[allow(clippy::too_many_arguments)]
+pub(in crate::mir::builder) fn apply_generic_loop_condition_input<'input, P>(
+    builder: &mut MirBuilder,
+    skeleton: &mut GenericLoopSkeleton,
+    port: &P,
+    condition: P::ExprInput<'input>,
+    loop_var: &str,
+    error_prefix: &str,
+) -> Result<(), String>
+where
+    P: LoopPlanExpressionPortV1 + 'input,
+{
+    let phi_bindings = loop_carriers::build_loop_bindings(&[(loop_var, skeleton.loop_var_current)]);
+    let header_branch = skeleton
+        .plan
+        .frag
+        .branches
+        .iter()
+        .find(|branch| branch.from == skeleton.plan.header_bb)
+        .ok_or_else(|| format!("{error_prefix}: missing header branch"))?;
+    let header_result = lower_loop_header_cond_input(
+        builder,
+        &phi_bindings,
+        port,
+        condition,
+        skeleton.plan.header_bb,
+        skeleton.plan.body_bb,
+        skeleton.plan.after_bb,
+        header_branch.then_args.clone(),
+        header_branch.else_args.clone(),
+        error_prefix,
+    )?;
+    commit_generic_loop_condition(skeleton, header_result);
+    Ok(())
+}
+
+fn commit_generic_loop_condition(
+    skeleton: &mut GenericLoopSkeleton,
+    header_result: crate::mir::builder::control_flow::plan::normalizer::cond_lowering_loop_header::LoopHeaderCondResult,
+) {
     // Merge block_effects (insert可: intermediate BB は新規追加)
     for (bb, effects) in header_result.block_effects {
         if let Some((_, existing)) = skeleton
@@ -69,8 +115,6 @@ pub(in crate::mir::builder) fn apply_generic_loop_condition(
         .branches
         .retain(|b| b.from != skeleton.plan.header_bb);
     skeleton.plan.frag.branches.extend(header_result.branches);
-
-    Ok(())
 }
 
 pub(in crate::mir::builder) fn apply_generic_loop_step(

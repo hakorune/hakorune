@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result LOOP0-P0b T0-R0 P0-PARITY0/G0 closed; T0-L0 is next"
+status = "callable-result LOOP0-P0b T0-L0 closed; P0 whole-loop parity is next"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,18 +298,17 @@ latest_workstream_card = "docs/development/current/main/investigations/callable-
 
 latest_card = "callable-result-loop0-p0b-t0-associated-source-port-task-2026-07-19"
 latest_card_path = "docs/development/current/main/investigations/callable-result-loop0-p0b-t0-associated-source-port-task-2026-07-19.md"
-latest_card_summary = """T0-R0 P0-PARITY0/G0 is closed. The actual strict raw
-and located Parts roots run on fresh identically seeded Builders and compare
-one typed normalized plan tree that removes only call-source provenance.
-ValueIds, targets, arguments, effects, joins, exits, bindings, variable map,
-transient types, origins, and terminality remain exact. Independent goldens
-fix both top-level If terminal shapes. Raw calls are four Unlocated rows while
-the located run retains exact activation rows 9 through 12. Foreign port
-pairing rejects with zero Builder-state delta and the same Builder then accepts
-the correct port. Production located callers and ledger claims remain zero.
-T0-L0 is next and consumes the non-Clone O0 representation in one same-call
-disconnected located composer."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0B-T0-L0-001"
+latest_card_summary = """T0-L0 is closed. One disconnected same-call composer
+consumes the non-Clone O0 representation, rejects DirectRecipeOnly before
+Builder effects, retains exact wrapped-Join carrier targets from HOOK0, and
+threads one located expression port through strict Parts body lowering,
+fallthrough cleanup, and short-circuit Loop condition lowering. The completed
+CorePlan is sealed once against all nine Loop activation rows. Plan visitation
+remains body 9-12, cleanup 14 then 13 by evaluation order, and condition 6-8;
+the independent claim schedule remains canonical source order 6-14.
+Production located callers, PlanLowerer, ledger claims, fallback, and retry
+remain zero. P0 whole-loop raw/located parity is next."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0B-P0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

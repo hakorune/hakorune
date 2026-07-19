@@ -88,9 +88,26 @@ impl<'plan> VerifiedLocatedGenericLoopBodyRepresentationV1<'plan> {
             port,
         })
     }
+
+    pub(in crate::mir::builder) fn into_loop_statement(
+        self,
+    ) -> crate::mir::callable_result_representation::LegacyStmtInputV1<'plan> {
+        self.loop_root
+    }
 }
 
 impl<'view, 'plan> VerifiedLocatedGenericLoopLoweringViewV1<'view, 'plan> {
+    pub(in crate::mir::builder) fn loop_var(&self) -> &str {
+        &self.representation.extraction.facts().loop_var
+    }
+
+    pub(in crate::mir::builder) fn carrier_role(
+        &self,
+    ) -> crate::mir::builder::control_flow::plan::generic_loop::facts_types::GenericLoopCarrierRoleV1
+    {
+        self.representation.extraction.facts().carrier_role
+    }
+
     pub(in crate::mir::builder) fn condition(&self) -> LocatedLoopPlanExprInputV1<'plan, 'view> {
         self.port.borrowed_expr(&self.representation.condition)
     }

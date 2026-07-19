@@ -323,6 +323,7 @@ def check_loop0_s0a(root: Path) -> str:
         "VerifiedLocatedCoreLoopPlanV1": {
             located_path: 2,
             "src/mir/builder/control_flow/plan/mod.rs": 1,
+            "src/mir/builder/control_flow/plan/features/generic_loop_located_composer.rs": 3,
         },
         "VerifiedCallableResultLoopClaimScheduleV1": {
             located_path: 4,
@@ -351,6 +352,7 @@ def check_loop0_s0a(root: Path) -> str:
         "src/mir/builder/control_flow/plan/generic_loop/located_representation/lowering_view.rs",
         "src/mir/builder/control_flow/plan/generic_loop/located_representation/product.rs",
         "src/mir/builder/control_flow/plan/generic_loop/located_representation/recipe_seal.rs",
+        "src/mir/builder/control_flow/plan/features/generic_loop_located_composer.rs",
     }
     for path, text in production_plan_by_path.items():
         if (

@@ -48,6 +48,83 @@ enum LocatedBlockPolicyV1 {
     NoExit,
 }
 
+pub(in crate::mir::builder) struct PreparedLocatedGenericLoopPartsExecutionV1<
+    'seal,
+    'view,
+    'plan,
+> {
+    lowering: &'seal crate::mir::builder::control_flow::plan::generic_loop::located_representation::VerifiedLocatedGenericLoopLoweringViewV1<'view, 'plan>,
+    carrier_targets: Box<[String]>,
+}
+
+pub(in crate::mir::builder) struct PreparedLocatedGenericLoopPartsBodyV1<
+    'seal,
+    'view,
+    'plan,
+> {
+    lowering: &'seal crate::mir::builder::control_flow::plan::generic_loop::located_representation::VerifiedLocatedGenericLoopLoweringViewV1<'view, 'plan>,
+}
+
+pub(in crate::mir::builder) fn prepare_located_generic_loop_parts_execution_v1<
+    'seal,
+    'view,
+    'plan,
+>(
+    lowering: &'seal crate::mir::builder::control_flow::plan::generic_loop::located_representation::VerifiedLocatedGenericLoopLoweringViewV1<'view, 'plan>,
+) -> Result<PreparedLocatedGenericLoopPartsExecutionV1<'seal, 'view, 'plan>, String> {
+    let preflight = VerifiedLocatedGenericLoopPartsPreflightV1::verify(lowering)
+        .map_err(|error| format!("[freeze:contract][located-parts/preflight] {error:?}"))?;
+    let (lowering, carrier_targets) = preflight.into_execution().into_components();
+    Ok(PreparedLocatedGenericLoopPartsExecutionV1 {
+        lowering,
+        carrier_targets,
+    })
+}
+
+impl<'seal, 'view, 'plan> PreparedLocatedGenericLoopPartsExecutionV1<'seal, 'view, 'plan> {
+    pub(in crate::mir::builder) fn into_parts(
+        self,
+    ) -> (
+        Box<[String]>,
+        PreparedLocatedGenericLoopPartsBodyV1<'seal, 'view, 'plan>,
+    ) {
+        (
+            self.carrier_targets,
+            PreparedLocatedGenericLoopPartsBodyV1 {
+                lowering: self.lowering,
+            },
+        )
+    }
+}
+
+impl<'seal, 'view, 'plan> PreparedLocatedGenericLoopPartsBodyV1<'seal, 'view, 'plan> {
+    #[allow(clippy::too_many_arguments)]
+    pub(in crate::mir::builder) fn lower_body(
+        self,
+        builder: &mut MirBuilder,
+        current_bindings: &mut BTreeMap<String, ValueId>,
+        carrier_step_phis: &BTreeMap<String, ValueId>,
+        break_phi_dsts: &BTreeMap<String, ValueId>,
+        error_prefix: &str,
+    ) -> Result<Vec<LoweredRecipe>, String> {
+        let crate::mir::builder::control_flow::plan::generic_loop::located_representation::VerifiedLocatedGenericLoopLoweringModeV1::ExitAllowedRecipe { root } = self.lowering.mode()
+        else {
+            return Err(format!(
+                "[freeze:contract][located-parts] execution_mode_drift: ctx={error_prefix}"
+            ));
+        };
+        lower_located_block(
+            &root,
+            LocatedBlockPolicyV1::ExitAllowed,
+            builder,
+            current_bindings,
+            carrier_step_phis,
+            break_phi_dsts,
+            error_prefix,
+        )
+    }
+}
+
 pub(in crate::mir::builder::control_flow::plan::parts) fn lower_preflighted_located_parts_root_v1<
     'seal,
     'view,
@@ -60,7 +137,7 @@ pub(in crate::mir::builder::control_flow::plan::parts) fn lower_preflighted_loca
     break_phi_dsts: &BTreeMap<String, ValueId>,
     error_prefix: &str,
 ) -> Result<Vec<LoweredRecipe>, String> {
-    preflight.lower_with_parts_adapter(|lowering| {
+    preflight.into_execution().lower_with_parts_adapter(|lowering| {
         let crate::mir::builder::control_flow::plan::generic_loop::located_representation::VerifiedLocatedGenericLoopLoweringModeV1::ExitAllowedRecipe { root } = lowering.mode()
         else {
             return Err(format!(

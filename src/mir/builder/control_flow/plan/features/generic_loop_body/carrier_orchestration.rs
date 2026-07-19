@@ -7,7 +7,8 @@ use crate::mir::ValueId;
 use std::collections::BTreeMap;
 
 use super::carriers::{
-    finalize_generic_loop_v1_carriers, prepare_generic_loop_v1_carriers, GenericLoopV1CarrierState,
+    finalize_generic_loop_v1_carriers, prepare_generic_loop_v1_carriers,
+    prepare_generic_loop_v1_carriers_from_targets, GenericLoopV1CarrierState,
 };
 use super::{lower_generic_loop_v1_body, plans_require_continue_edge};
 
@@ -75,14 +76,58 @@ pub(in crate::mir::builder) fn orchestrate_generic_loop_v1_carriers(
 ) -> Result<GenericLoopV1CarrierOrchestration, String> {
     let carrier_state =
         prepare_generic_loop_v1_carriers(builder, facts, loop_var_current, carrier_representation);
+    orchestrate_generic_loop_v1_carriers_with_body(
+        builder,
+        carrier_state,
+        |builder, phi_bindings, carrier_step_phis| {
+            lower_generic_loop_v1_body(builder, facts, phi_bindings, carrier_step_phis, ctx)
+        },
+    )
+}
+
+pub(in crate::mir::builder) fn orchestrate_generic_loop_v1_carriers_from_targets<LowerBody>(
+    builder: &mut MirBuilder,
+    loop_var: &str,
+    carrier_targets: &[String],
+    loop_var_current: ValueId,
+    carrier_representation: &PreparedGenericLoopCarrierRepresentationV1,
+    lower_body: LowerBody,
+) -> Result<GenericLoopV1CarrierOrchestration, String>
+where
+    LowerBody: FnOnce(
+        &mut MirBuilder,
+        &BTreeMap<String, ValueId>,
+        &BTreeMap<String, ValueId>,
+    ) -> Result<Vec<LoweredRecipe>, String>,
+{
+    let carrier_state = prepare_generic_loop_v1_carriers_from_targets(
+        builder,
+        loop_var,
+        carrier_targets,
+        loop_var_current,
+        carrier_representation,
+    );
+    orchestrate_generic_loop_v1_carriers_with_body(builder, carrier_state, lower_body)
+}
+
+fn orchestrate_generic_loop_v1_carriers_with_body<LowerBody>(
+    builder: &mut MirBuilder,
+    carrier_state: GenericLoopV1CarrierState,
+    lower_body: LowerBody,
+) -> Result<GenericLoopV1CarrierOrchestration, String>
+where
+    LowerBody: FnOnce(
+        &mut MirBuilder,
+        &BTreeMap<String, ValueId>,
+        &BTreeMap<String, ValueId>,
+    ) -> Result<Vec<LoweredRecipe>, String>,
+{
     crate::mir::builder::control_flow::joinir::trace::trace()
         .varmap("generic_loop_v1_phi_bindings", &carrier_state.phi_bindings);
-    let body_plans = lower_generic_loop_v1_body(
+    let body_plans = lower_body(
         builder,
-        facts,
         &carrier_state.phi_bindings,
         &carrier_state.carrier_step_phis,
-        ctx,
     )?;
     crate::mir::builder::control_flow::joinir::trace::trace().varmap(
         "generic_loop_v1_post_body",

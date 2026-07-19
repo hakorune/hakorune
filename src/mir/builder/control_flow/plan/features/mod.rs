@@ -17,6 +17,7 @@ pub(in crate::mir::builder) mod carrier_merge;
 pub(in crate::mir::builder) mod exit_if_map;
 pub(in crate::mir::builder) mod generic_loop_body;
 pub(in crate::mir::builder) mod generic_loop_handoff;
+pub(in crate::mir::builder) mod generic_loop_located_composer;
 pub(in crate::mir::builder) mod generic_loop_pipeline;
 pub(in crate::mir::builder) mod generic_loop_step;
 pub(in crate::mir::builder) mod loop_cond_continue_with_return_pipeline;

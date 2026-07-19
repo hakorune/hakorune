@@ -86,4 +86,9 @@ impl<'plan> VerifiedLocatedCoreLoopPlanV1<'plan> {
     pub(in crate::mir::builder) fn plan_is_loop(&self) -> bool {
         matches!(self.plan, CorePlan::Loop(_))
     }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) const fn plan_for_tests(&self) -> &CorePlan {
+        &self.plan
+    }
 }

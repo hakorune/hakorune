@@ -7,7 +7,7 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::MirType;
 use std::collections::BTreeMap;
 
-use super::helpers::collect_loop_carriers;
+use super::helpers::collect_loop_carrier_targets;
 
 pub(in crate::mir::builder) struct GenericLoopV1CarrierState {
     pub phi_bindings: BTreeMap<String, crate::mir::ValueId>,
@@ -27,16 +27,34 @@ pub(in crate::mir::builder) fn prepare_generic_loop_v1_carriers(
     loop_var_current: crate::mir::ValueId,
     carrier_representation: &PreparedGenericLoopCarrierRepresentationV1,
 ) -> GenericLoopV1CarrierState {
+    let carrier_targets = collect_loop_carrier_targets(&facts.body.body);
+    prepare_generic_loop_v1_carriers_from_targets(
+        builder,
+        &facts.loop_var,
+        &carrier_targets,
+        loop_var_current,
+        carrier_representation,
+    )
+}
+
+pub(in crate::mir::builder) fn prepare_generic_loop_v1_carriers_from_targets(
+    builder: &mut MirBuilder,
+    loop_var: &str,
+    carrier_targets: &[String],
+    loop_var_current: crate::mir::ValueId,
+    carrier_representation: &PreparedGenericLoopCarrierRepresentationV1,
+) -> GenericLoopV1CarrierState {
     let pre_loop_map = builder.variable_ctx.variable_map.clone();
-    let carrier_vars = collect_loop_carriers(&facts.body.body, &pre_loop_map, &facts.loop_var);
-    let mut phi_bindings =
-        loop_carriers::build_loop_bindings(&[(&facts.loop_var, loop_var_current)]);
+    let carrier_vars = carrier_targets
+        .iter()
+        .filter(|name| name.as_str() != loop_var && pre_loop_map.contains_key(name.as_str()));
+    let mut phi_bindings = loop_carriers::build_loop_bindings(&[(loop_var, loop_var_current)]);
     let loop_var_step_phi = builder.alloc_typed(carrier_representation.exact_type().clone());
     let mut carrier_step_phis = BTreeMap::new();
-    carrier_step_phis.insert(facts.loop_var.clone(), loop_var_step_phi);
+    carrier_step_phis.insert(loop_var.to_string(), loop_var_step_phi);
     let mut carrier_infos = Vec::new();
     for var in carrier_vars {
-        let Some(init_val) = pre_loop_map.get(&var) else {
+        let Some(init_val) = pre_loop_map.get(var.as_str()) else {
             continue;
         };
         let ty = builder
@@ -48,7 +66,7 @@ pub(in crate::mir::builder) fn prepare_generic_loop_v1_carriers(
         let step_phi_dst = builder.alloc_typed(ty);
         phi_bindings.insert(var.clone(), phi_dst);
         carrier_step_phis.insert(var.clone(), step_phi_dst);
-        carrier_infos.push((var, *init_val, phi_dst, step_phi_dst));
+        carrier_infos.push((var.clone(), *init_val, phi_dst, step_phi_dst));
     }
     GenericLoopV1CarrierState {
         phi_bindings,

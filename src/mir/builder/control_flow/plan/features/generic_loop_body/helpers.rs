@@ -19,17 +19,10 @@ use super::nested_loop_reject_tail::finish_generic_nested_loop_reject_tail;
 use super::GENERIC_LOOP_ERR;
 use crate::mir::builder::control_flow::plan::parts::exit as parts_exit;
 
-pub(super) fn collect_loop_carriers(
-    body: &[ASTNode],
-    pre_loop_map: &BTreeMap<String, crate::mir::ValueId>,
-    loop_var: &str,
-) -> Vec<String> {
+pub(super) fn collect_loop_carrier_targets(body: &[ASTNode]) -> Vec<String> {
     let mut targets = BTreeSet::new();
     collect_assignment_targets(body, &mut targets);
-    targets
-        .into_iter()
-        .filter(|name| name != loop_var && pre_loop_map.contains_key(name))
-        .collect()
+    targets.into_iter().collect()
 }
 
 fn collect_assignment_targets(body: &[ASTNode], out: &mut BTreeSet<String>) {

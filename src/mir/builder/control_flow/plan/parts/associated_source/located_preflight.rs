@@ -4,6 +4,8 @@
 //! carrier used by the first strict profile before any lowering hook exists.
 //! It owns no Builder state, recipe reconstruction, or condition grammar.
 
+use std::collections::BTreeSet;
+
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::plan::expression_port::{
     LoopPlanExpressionPortErrorV1, LoopPlanExpressionPortV1,
@@ -62,10 +64,19 @@ pub(in crate::mir::builder::control_flow::plan::parts) struct VerifiedLocatedGen
     'plan,
 > {
     lowering: &'seal VerifiedLocatedGenericLoopLoweringViewV1<'view, 'plan>,
+    carrier_targets: Box<[String]>,
     _seal: LocatedPartsPreflightSealV1,
 }
 
 struct LocatedPartsPreflightSealV1;
+
+pub(in crate::mir::builder) struct VerifiedLocatedGenericLoopPartsExecutionV1<'seal, 'view, 'plan> {
+    lowering: &'seal VerifiedLocatedGenericLoopLoweringViewV1<'view, 'plan>,
+    carrier_targets: Box<[String]>,
+    _seal: LocatedPartsExecutionSealV1,
+}
+
+struct LocatedPartsExecutionSealV1;
 
 impl<'seal, 'view, 'plan> VerifiedLocatedGenericLoopPartsPreflightV1<'seal, 'view, 'plan> {
     pub(in crate::mir::builder::control_flow::plan::parts) fn verify(
@@ -76,14 +87,27 @@ impl<'seal, 'view, 'plan> VerifiedLocatedGenericLoopPartsPreflightV1<'seal, 'vie
             return Err(LocatedPartsPreflightErrorV1::WrongLoweringMode);
         };
 
-        verify_strict_root(&root)?;
+        let carrier_targets = verify_strict_root(&root)?;
         Ok(Self {
             lowering,
+            carrier_targets,
             _seal: LocatedPartsPreflightSealV1,
         })
     }
 
-    pub(super) fn lower_with_parts_adapter(
+    pub(in crate::mir::builder) fn into_execution(
+        self,
+    ) -> VerifiedLocatedGenericLoopPartsExecutionV1<'seal, 'view, 'plan> {
+        VerifiedLocatedGenericLoopPartsExecutionV1 {
+            lowering: self.lowering,
+            carrier_targets: self.carrier_targets,
+            _seal: LocatedPartsExecutionSealV1,
+        }
+    }
+}
+
+impl<'seal, 'view, 'plan> VerifiedLocatedGenericLoopPartsExecutionV1<'seal, 'view, 'plan> {
+    pub(in crate::mir::builder) fn lower_with_parts_adapter(
         self,
         lower: impl FnOnce(
             &'seal VerifiedLocatedGenericLoopLoweringViewV1<'view, 'plan>,
@@ -94,11 +118,20 @@ impl<'seal, 'view, 'plan> VerifiedLocatedGenericLoopPartsPreflightV1<'seal, 'vie
     ) -> Result<Vec<crate::mir::builder::control_flow::plan::LoweredRecipe>, String> {
         lower(self.lowering)
     }
+
+    pub(super) fn into_components(
+        self,
+    ) -> (
+        &'seal VerifiedLocatedGenericLoopLoweringViewV1<'view, 'plan>,
+        Box<[String]>,
+    ) {
+        (self.lowering, self.carrier_targets)
+    }
 }
 
 fn verify_strict_root(
     root: &VerifiedLocatedRecipeBlockLoweringViewV1<'_, '_>,
-) -> Result<(), LocatedPartsPreflightErrorV1> {
+) -> Result<Box<[String]>, LocatedPartsPreflightErrorV1> {
     let provider = LocatedPartsAssociatedSourceV1::new(root);
     let len = provider.block_len(root)?;
     if len != 5 {
@@ -109,8 +142,12 @@ fn verify_strict_root(
     verify_local(&provider, root, 1)?;
     verify_exit_if(&provider, root, 2)?;
     verify_local(&provider, root, 3)?;
-    verify_wrapped_join(&provider, root, 4)?;
-    Ok(())
+    let mut carrier_targets = BTreeSet::new();
+    verify_wrapped_join(&provider, root, 4, &mut carrier_targets)?;
+    Ok(carrier_targets
+        .into_iter()
+        .collect::<Vec<_>>()
+        .into_boxed_slice())
 }
 
 fn verify_local<'view, 'plan>(
@@ -221,14 +258,15 @@ fn verify_wrapped_join<'view, 'plan>(
     provider: &LocatedPartsAssociatedSourceV1<'view, 'plan>,
     root: &VerifiedLocatedRecipeBlockLoweringViewV1<'view, 'plan>,
     ordinal: usize,
+    carrier_targets: &mut BTreeSet<String>,
 ) -> Result<(), LocatedPartsPreflightErrorV1> {
     let VerifiedPartsAssociatedItemV1 { item, .. } = provider.item(root, ordinal)?;
     let PartsAssociatedRecipeItemV1::StmtWrappedJoinIf { bridge } = item else {
         return Err(LocatedPartsPreflightErrorV1::UnexpectedRootItem { ordinal });
     };
     verify_join_recipe(&bridge)?;
-    verify_join_branch(provider, &bridge, true)?;
-    verify_join_branch(provider, &bridge, false)?;
+    carrier_targets.insert(verify_join_branch(provider, &bridge, true)?);
+    carrier_targets.insert(verify_join_branch(provider, &bridge, false)?);
     Ok(())
 }
 
@@ -264,7 +302,7 @@ fn verify_join_branch<'view, 'plan>(
     provider: &LocatedPartsAssociatedSourceV1<'view, 'plan>,
     bridge: &VerifiedStmtWrappedJoinIfLoweringViewV1<'view, 'plan>,
     then_branch: bool,
-) -> Result<(), LocatedPartsPreflightErrorV1> {
+) -> Result<String, LocatedPartsPreflightErrorV1> {
     let branch = if then_branch { "then" } else { "else" };
     let root = bridge.singleton_root();
     let block = if then_branch {
@@ -288,19 +326,18 @@ fn verify_join_branch<'view, 'plan>(
         return Err(LocatedPartsPreflightErrorV1::WrongJoinBranchStatement { branch });
     }
     let target = port.child_expr_from_stmt(&source, ExprChildRoleV1::AssignmentTarget)?;
-    require_variable_join_target(port.expr_syntax(&target), branch)?;
+    let target_name = require_variable_join_target(port.expr_syntax(&target), branch)?;
     port.child_expr_from_stmt(&source, ExprChildRoleV1::AssignmentValue)?;
-    Ok(())
+    Ok(target_name)
 }
 
 fn require_variable_join_target(
     target: &ASTNode,
     branch: &'static str,
-) -> Result<(), LocatedPartsPreflightErrorV1> {
-    if matches!(target, ASTNode::Variable { .. }) {
-        Ok(())
-    } else {
-        Err(LocatedPartsPreflightErrorV1::WrongJoinBranchTarget { branch })
+) -> Result<String, LocatedPartsPreflightErrorV1> {
+    match target {
+        ASTNode::Variable { name, .. } => Ok(name.clone()),
+        _ => Err(LocatedPartsPreflightErrorV1::WrongJoinBranchTarget { branch }),
     }
 }
 
@@ -316,7 +353,10 @@ mod tests {
             name: "value".to_string(),
             span: Span::unknown(),
         };
-        assert!(require_variable_join_target(&variable, "then").is_ok());
+        assert_eq!(
+            require_variable_join_target(&variable, "then"),
+            Ok("value".to_string())
+        );
 
         let field = ASTNode::FieldAccess {
             object: Box::new(ASTNode::Variable {

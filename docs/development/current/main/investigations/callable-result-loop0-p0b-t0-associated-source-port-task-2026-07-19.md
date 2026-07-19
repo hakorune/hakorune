@@ -1,5 +1,5 @@
 ---
-Status: T0-R0 P0-PARITY0/G0 closed; T0-L0 is next
+Status: T0-L0 closed; P0 whole-loop parity is next
 Date: 2026-07-19
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md
 Prior decision: callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md
@@ -820,6 +820,128 @@ Consume the non-Clone O0 representation in one same-call disconnected located
 composer. Condition, body, nested branches, and cleanup share the same port.
 Production located root callers, ledger claims, PlanLowerer activation, route
 registry changes, and normalized shadow remain zero.
+
+#### T0-L0 worker task lock
+
+Three read-only audits select a local implementation without an external
+design consultation. The first L0 admission is the actual strict
+`ExitAllowedRecipe` profile only. `DirectRecipeOnly` remains a sealed O0 mode
+but rejects before Builder effects in L0: opening its nested If body now would
+require either a second located statement/If dispatcher or a broader
+port-parameterization row. L0 must not smuggle either change into this slice.
+
+The same-call owner consumes one non-Clone O0 representation together with
+the exact located port, activation plan, and caller. Its order is fixed:
+
+```text
+bind exact port
+-> verify HOOK0 strict Parts root
+-> project exact cleanup AssignmentValue
+-> prepare exact loop carrier representation without allocation
+-> allocate GenericLoop skeleton
+-> allocate carrier PHIs from preflight-sealed exact target names
+-> lower strict Parts body through the same port
+-> lower exact cleanup through the same port
+-> lower exact LoopCondition through the same port
+-> finalize existing carrier state
+-> existing PlanVerifier + final located Loop schedule/site seal
+```
+
+The raw carrier producer currently scans `facts.body.body`. That clone is not a
+located authority. L0 therefore extends the existing Builder-free HOOK0
+preflight traversal to retain one immutable, deduplicated assignment-target
+inventory while it already verifies the exact wrapped-Join branches. One
+neutral carrier-allocation core consumes already-selected target names; the raw
+facade keeps its existing raw collector, while the located composer supplies
+only the preflight inventory. No second AST scan, statement dispatcher, side
+map, origin table, or facts-body fallback is permitted.
+
+The condition seam similarly gains one associated-input application core. The
+raw facade keeps its current `CondBlockView` entry; L0 supplies the exact O0
+`LoopCondition` carrier. Cleanup uses the existing associated-input cleanup
+core and the exact PATH0 `AssignmentValue`. Body, nested If conditions and
+branches, cleanup, and Loop condition all borrow the same port instance.
+
+Transaction law is intentionally not rollback:
+
+```text
+bind / O0 / HOOK0 / cleanup projection / carrier representation failure:
+  Builder delta = 0
+  same Builder may be reused
+
+after skeleton allocation begins:
+  selected function session is poisoned on failure
+  no finish, fallback, alternate route, or same-Builder retry
+  fresh Builder/compiler session remains reusable
+```
+
+`with_saved_variable_map_typed` restores only local binding state; L0 does not
+claim restoration of block/value cursors, transient type/origin facts, spans,
+or other selected-compose effects. L0 publishes no MIR instructions or module,
+calls no PlanLowerer, claims no ledger row, and adds no production route.
+
+Internal implementation order for this one semantic row:
+
+```text
+L0-S0
+  neutral selected-target carrier core
+  associated LoopCondition application core
+  raw facade parity
+
+L0-E0
+  HOOK0 exact target inventory
+  single-use located execution token
+
+L0-I0
+  one disconnected strict same-call composer
+  final VerifiedLocatedCoreLoopPlanV1 seal
+
+L0-G0
+  actual strict structural golden
+  exact nine located Loop occurrences
+  foreign and DirectRecipeOnly pre-effect rejection
+  private guard integration
+```
+
+The exact nine occurrences are source rows 6 through 14. Existing CorePlan
+visitation remains body rows 9 through 12, cleanup row 14 then row 13, then
+condition rows 6 through 8; L0 must not reorder this into claim order. The
+final located Loop seal independently retains canonical source order. Full
+raw/located whole-loop and complete Builder snapshot parity remain the next
+`LOOP0-P0b-P0` row, not an L0 test substitute.
+
+#### T0-L0 closeout
+
+T0-L0 is closed without a new design consultation. The strict
+`ExitAllowedRecipe` mode is the sole disconnected accepted mode;
+`DirectRecipeOnly` rejects during Builder-free Parts preflight. HOOK0 now
+retains one sorted immutable inventory of exact wrapped-Join assignment
+targets, and the raw carrier collector delegates to the same target-based
+allocation core.
+
+One same-call composer consumes the O0 representation and the single-use Parts
+execution token. It threads the exact located expression port through the
+strict Parts body, cleanup AssignmentValue, and short-circuit LoopCondition,
+then consumes the Loop statement carrier in the existing final located plan
+seal. No raw `facts.body`, policy re-read, recipe rebuilding, AST equality,
+PlanLowerer, ledger, fallback, or retry participates.
+
+The actual strict fixture seals all nine Loop occurrences. Its CorePlan visit
+order is body rows 9-12, nested cleanup argument row 14 before outer cleanup
+row 13, then condition rows 6-8. The independent claim schedule remains source
+order 6-14. This distinction is now a focused structural golden. The public
+expression-spine guard imports one private L0 helper; production located root
+callers and claim consumers remain zero.
+
+`LOOP0-P0b-P0` is next. It owns full raw/located whole-loop and complete
+Builder snapshot parity; L0 does not claim that parity.
+
+L0 stops for a new consultation if exact carrier targets cannot be retained by
+the existing HOOK0 traversal; if `DirectRecipeOnly` must become active now; if
+raw facts/body, environment policy, step reclassification, recipe rebuild,
+AST equality, a second dispatcher, PlanLowerer, ledger, production registry,
+fallback, retry, or full Builder rollback becomes necessary; or if a touched
+source/check file reaches 800 lines.
 
 ## Guard plan
 

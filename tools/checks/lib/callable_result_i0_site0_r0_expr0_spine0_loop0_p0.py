@@ -218,6 +218,7 @@ def check_loop0_p0a(root: Path) -> str:
         "src/mir/builder/control_flow/plan/generic_loop/located_representation/mod.rs": 2,
         "src/mir/builder/control_flow/plan/generic_loop/located_representation/lowering_view.rs": 8,
         "src/mir/builder/control_flow/plan/generic_loop/located_representation/recipe_seal.rs": 4,
+        "src/mir/builder/control_flow/plan/features/generic_loop_located_composer.rs": 2,
     }
     observed_generic_loop_ports = {}
     for directory in generic_loop_roots:

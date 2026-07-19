@@ -67,7 +67,12 @@ def check_loop0_p0b_t0_hook0(root: Path) -> str:
     _require(preflight, "verify_local(&provider, root, 1)", 1, "root local one")
     _require(preflight, "verify_exit_if(&provider, root, 2)", 1, "root exit If")
     _require(preflight, "verify_local(&provider, root, 3)", 1, "root local three")
-    _require(preflight, "verify_wrapped_join(&provider, root, 4)", 1, "root Join")
+    _require(
+        preflight,
+        "verify_wrapped_join(&provider, root, 4, &mut carrier_targets)",
+        1,
+        "root Join with retained targets",
+    )
     _require(
         preflight,
         "ExprChildRoleV1::AssignmentTarget",
@@ -76,7 +81,7 @@ def check_loop0_p0b_t0_hook0(root: Path) -> str:
     )
     _require(
         preflight,
-        "ASTNode::Variable { .. }",
+        "ASTNode::Variable { name, .. }",
         1,
         "variable-only Join assignment target",
     )
@@ -109,7 +114,7 @@ def check_loop0_p0b_t0_hook0(root: Path) -> str:
     )
     _require(
         lowering,
-        "preflight.lower_with_parts_adapter(",
+        "preflight.into_execution().lower_with_parts_adapter(",
         1,
         "preflight consumption",
     )
