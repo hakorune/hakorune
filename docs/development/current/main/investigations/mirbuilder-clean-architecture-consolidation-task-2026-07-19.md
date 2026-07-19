@@ -249,20 +249,21 @@ is:
 
 ```text
 S0a  expand existing function-session success/error/panic parity witnesses for
-     every captured FunctionOwned surface; keep the two metadata maps as
-     explicit unhealed controls
+     every captured FunctionOwned surface; introduce private state component
+     vocabulary only, with no production storage cutover; keep metadata gaps
+     as explicit unhealed controls
 
-S0b  split only FunctionOwned leaves from the three mixed contexts into private
-     component products; no duplicated authoritative storage and no fresh
-     session API
+S0b  one physical storage cutover: split only FunctionOwned leaves from the
+     three mixed contexts, make private FunctionLoweringStateV1 own every
+     FunctionOwned surface, mechanically update direct accesses, and remove
+     old fields; no Deref facade and no fresh-session API
 
-S0c  make private FunctionLoweringStateV1 own those components plus direct
-     FunctionOwned Builder fields; mechanically update access sites and remove
-     the old fields
-
-S0d  replace the FunctionOwned saved_* set with one move-only saved state
+S0c  replace the FunctionOwned saved_* set with one move-only saved state
      transaction; LegacyCompatibility and ObservationBorrow snapshots remain
-     separate
+     separate and the BoxCompilationContext partial action is preserved
+
+S0d  add structural old-storage-zero guards plus focused session parity and
+     release-build closeout
 ```
 
 `S0a -> S0b -> S0c -> S0d` is one Refactor Series Mode purpose. Every commit
