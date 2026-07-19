@@ -196,6 +196,7 @@ def main() -> None:
         fail(f"uncovered metadata inventory mismatch missing={sorted(expected_gaps - gap_ids)} extra={sorted(gap_ids - expected_gaps)}")
 
     validate_s0a_function_state_vocabulary(builder)
+    validate_s0a_s0b_route_map(data, sources, builder)
 
     print(
         "[mirbuilder-fsession-census] ok "
@@ -271,6 +272,195 @@ def validate_s0a_function_state_vocabulary(builder: Path) -> None:
                 f"S0a vocabulary partition mismatch for {name} "
                 f"missing={sorted(expected - actual)} extra={sorted(actual - expected)}"
             )
+
+
+def validate_s0a_s0b_route_map(
+    data: dict[str, object],
+    sources: dict[str, object],
+    builder: Path,
+) -> None:
+    routes = data.get("function_state_routes")
+    if not isinstance(routes, list):
+        fail("missing S0b FunctionOwned route map")
+
+    expected = {
+        "current_block": ("builder.current_block", "function_state.current_block"),
+        "type_ctx": ("builder.type_ctx", "function_state.type_ctx"),
+        "variable_ctx": ("builder.variable_ctx", "function_state.variable_ctx"),
+        "binding_ctx": ("builder.binding_ctx", "function_state.binding_ctx"),
+        "resolved_binding_state": (
+            "builder.resolved_binding_state",
+            "function_state.resolved_binding_state",
+        ),
+        "scope.current_function": (
+            "scope_ctx.current_function",
+            "function_state.current_function",
+        ),
+        "scope.lexical_scope_stack": (
+            "scope_ctx.lexical_scope_stack",
+            "function_state.scope.lexical_scope_stack",
+        ),
+        "scope.loop_header_stack": (
+            "scope_ctx.loop_header_stack",
+            "function_state.scope.loop_header_stack",
+        ),
+        "scope.loop_exit_stack": (
+            "scope_ctx.loop_exit_stack",
+            "function_state.scope.loop_exit_stack",
+        ),
+        "scope.if_merge_stack": (
+            "scope_ctx.if_merge_stack",
+            "function_state.scope.if_merge_stack",
+        ),
+        "scope.function_param_names": (
+            "scope_ctx.function_param_names",
+            "function_state.scope.function_param_names",
+        ),
+        "scope.fastmem_region_stack": (
+            "scope_ctx.fastmem_region_stack",
+            "function_state.scope.fastmem_region_stack",
+        ),
+        "scope.entry_clear": (
+            "scope_ctx.clear_for_function_entry",
+            "function_state.scope",
+        ),
+        "compilation.reserved_value_ids": (
+            "comp_ctx.reserved_value_ids",
+            "function_state.compilation.reserved_value_ids",
+        ),
+        "compilation.fn_body_ast": (
+            "comp_ctx.fn_body_ast",
+            "function_state.compilation.fn_body_ast",
+        ),
+        "compilation.record_local_values": (
+            "comp_ctx.record_local_values",
+            "function_state.compilation.record_local_values",
+        ),
+        "value_origins.spans": (
+            "metadata_ctx.value_origin_spans",
+            "function_state.value_origins.value_origin_spans",
+        ),
+        "value_origins.callers": (
+            "metadata_ctx.value_origin_callers",
+            "function_state.value_origins.value_origin_callers",
+        ),
+        "pending_phis": ("builder.pending_phis", "function_state.pending_phis"),
+        "local_ssa_map": ("builder.local_ssa_map", "function_state.local_ssa_map"),
+        "schedule_mat_map": (
+            "builder.schedule_mat_map",
+            "function_state.schedule_mat_map",
+        ),
+        "pin_slot_names": ("builder.pin_slot_names", "function_state.pin_slot_names"),
+        "frag_emit_session": (
+            "builder.frag_emit_session",
+            "function_state.frag_emit_session",
+        ),
+        "return_defer_active": (
+            "builder.return_defer_active",
+            "function_state.return_defer_active",
+        ),
+        "return_defer_slot": (
+            "builder.return_defer_slot",
+            "function_state.return_defer_slot",
+        ),
+        "return_defer_target": (
+            "builder.return_defer_target",
+            "function_state.return_defer_target",
+        ),
+        "return_deferred_emitted": (
+            "builder.return_deferred_emitted",
+            "function_state.return_deferred_emitted",
+        ),
+        "in_cleanup_block": (
+            "builder.in_cleanup_block",
+            "function_state.in_cleanup_block",
+        ),
+        "cleanup_allow_return": (
+            "builder.cleanup_allow_return",
+            "function_state.cleanup_allow_return",
+        ),
+        "cleanup_allow_throw": (
+            "builder.cleanup_allow_throw",
+            "function_state.cleanup_allow_throw",
+        ),
+        "suppress_pin_entry_copy_next": (
+            "builder.suppress_pin_entry_copy_next",
+            "function_state.suppress_pin_entry_copy_next",
+        ),
+        "in_unified_boxcall_fallback": (
+            "builder.in_unified_boxcall_fallback",
+            "function_state.in_unified_boxcall_fallback",
+        ),
+    }
+    actual: dict[str, tuple[str, str]] = {}
+    for row in routes:
+        if not isinstance(row, dict):
+            fail("S0b route row is not an object")
+        selector = required_string(row, "selector", "S0b route")
+        if selector in actual:
+            fail(f"duplicate S0b route selector: {selector}")
+        actual[selector] = (
+            required_string(row, "old_storage", selector),
+            required_string(row, "destination", selector),
+        )
+    if actual != expected:
+        fail(
+            "S0b route map drift "
+            f"missing={sorted(expected.keys() - actual.keys())} "
+            f"extra={sorted(actual.keys() - expected.keys())}"
+        )
+
+    source_paths = {key: ROOT / value for key, value in sources.items() if isinstance(value, str)}
+    required_sources = {"type_context", "scope_context", "compilation_context", "metadata_context"}
+    if required_sources - source_paths.keys():
+        fail(f"S0b route sources missing: {sorted(required_sources - source_paths.keys())}")
+    old_storage = {
+        "type_context": {
+            "value_types",
+            "value_kinds",
+            "value_origin_newbox",
+            "string_literals",
+            "map_value_types",
+            "map_literal_value_types",
+        },
+        "scope_context": {
+            "current_function",
+            "lexical_scope_stack",
+            "loop_header_stack",
+            "loop_exit_stack",
+            "if_merge_stack",
+            "function_param_names",
+            "fastmem_region_stack",
+        },
+        "compilation_context": {
+            "reserved_value_ids",
+            "fn_body_ast",
+            "record_local_values",
+        },
+        "metadata_context": {"value_origin_spans", "value_origin_callers"},
+    }
+    struct_names = {
+        "type_context": "TypeContext",
+        "scope_context": "ScopeContext",
+        "compilation_context": "CompilationContext",
+        "metadata_context": "MetadataContext",
+    }
+    for source, fields in old_storage.items():
+        actual_fields = struct_fields(source_paths[source], struct_names[source])
+        if not fields <= actual_fields:
+            fail(
+                f"S0a old storage missing from {struct_names[source]}: "
+                f"{sorted(fields - actual_fields)}"
+            )
+
+    builder_fields = struct_fields(builder, "MirBuilder")
+    direct_builder = {
+        old.split(".", 1)[1]
+        for old, _destination in actual.values()
+        if old.startswith("builder.")
+    }
+    if not direct_builder <= builder_fields:
+        fail(f"S0a old Builder storage missing: {sorted(direct_builder - builder_fields)}")
 
 
 if __name__ == "__main__":

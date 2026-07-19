@@ -433,6 +433,17 @@ unhealed no-snapshot/no-clear behavior, and leaves span/region observation
 state in `MetadataContext`. S0c, not S0b, owns replacing the legacy individual
 `saved_*` lifecycle transaction.
 
+`S0a-G0-I0` is closed (2026-07-19). Census0 now owns 32 exact old-storage to
+future-state routes, including the separate mixed `scope.entry_clear` route.
+It confirms every old FunctionOwned storage leaf remains physically present
+through S0a. The adjacent direct-access guard consumes that map and freezes 64
+selector/domain rows: 1,787 occurrences total, split into 1,188 production and
+599 test occurrences. Its bounded Rust lexer ignores comments, normal/raw/byte
+strings, and character literals; its receiver grammar covers `self`, `builder`,
+`self.builder`, `b`, `self.0`, and wrapper `.builder` forms. The generated
+snapshot is an observation only: no Builder storage, API, source acceptance, or
+type/semantic behavior changed. `S0a-G0-P0` is next.
+
 The partial BoxCompilationContext map handling is an existing behavior that S0
 must preserve, but it is not a future semantic authority. S0d models its
 exact current action through one move-only FunctionLoweringState transaction:
