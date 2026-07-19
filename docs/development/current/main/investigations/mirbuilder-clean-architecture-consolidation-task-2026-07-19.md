@@ -385,11 +385,11 @@ sorted source-file set
 observed occurrence count
 ```
 
-The checker scans `src/**/*.rs`, strips comments/strings, and recognizes every
-bounded Builder receiver form used today: `self.*`, `builder.*`,
-`self.builder.*`, and `<identifier>.builder.*`. It rejects an unclassified old
-FunctionOwned selector. It also inventories stateful mixed-context APIs, not
-just raw fields:
+The checker scans `src/**/*.rs`, strips comments/strings, and records only
+the bounded Builder receiver forms selected by the P0 receiver-owner grammar.
+It rejects Census/scanner selector drift; it does not claim to infer ownership
+through arbitrary local aliases. It also inventories stateful mixed-context
+APIs, not just raw fields:
 
 ```text
 ScopeContext function-entry / stack helpers
@@ -400,9 +400,8 @@ MetadataContext value-origin span/caller record/query/merge helpers
 Line numbers are deliberately not authority: mechanical cutover changes them.
 The checked sorted file set and count are the pre-cutover witness. The new
 `function_lowering_state` module itself is excluded from old-route scanning.
-The current audit finds 1,771 matching occurrences overall and 1,255 in
-non-test code; S0a-G0-I0 fixes those values only through the checked fixture,
-not this prose.
+I0's first broad observation is not S0b authority: P0 must replace it with a
+lexically owner-verified snapshot before any physical cutover.
 
 The selected task order is:
 
@@ -443,6 +442,60 @@ strings, and character literals; its receiver grammar covers `self`, `builder`,
 `self.builder`, `b`, `self.0`, and wrapper `.builder` forms. The generated
 snapshot is an observation only: no Builder storage, API, source acceptance, or
 type/semantic behavior changed. `S0a-G0-P0` is next.
+
+`S0a-G0-P0-D0` is now selected before its proof implementation. The I0 scanner
+found syntactic receiver forms but did not prove that bare `self` belonged to
+`MirBuilder`: it counted seven `LoopFormJsonOps::current_block` uses in the
+JSON-v0 bridge and one unrelated parity-result use. P0 therefore replaces only
+the observation mechanics, never compiler behavior. Its source grammar is
+bounded and fail-closed:
+
+```text
+self.<route>:
+  exact lexical impl MirBuilder only
+
+builder.<route> / b.<route>:
+  exact &MirBuilder or &mut MirBuilder function parameter only
+
+self.builder.<route> / self.0.<route> / wrapper.builder.<route>:
+  exact checked-in wrapper-owner contract only
+
+unknown local alias or unknown wrapper:
+  reject observation; do not count it
+```
+
+P0 also replaces the old regex-only `cfg(...test...)` split. `cfg(test)` and
+`cfg(all(test, ...))` are test-only, `cfg(not(test))` is production-only, and
+mixed or otherwise non-decidable predicates are recorded as a separate shared
+source domain rather than silently dropped from production. This is a bounded
+source classifier, not a Rust cfg evaluator or alias data-flow analysis.
+
+The fixed P0 order is:
+
+```text
+P0-S0
+  lexical receiver-owner and three-domain source observation;
+  regenerate the disposable snapshot; behavior = 0
+
+P0-R0
+  mixed API owner manifest and metadata-gap/session controls;
+  behavior = 0
+
+P0-P0
+  scanner self-tests plus focused existing-lifecycle witnesses;
+  no metadata isolation repair
+
+P0-G0
+  one Census route map, one corrected snapshot, all session and source guards green
+```
+
+P0 must not add a second route/destination authority, generic ownership
+inference, arbitrary alias tracking, a semantic cfg evaluator, or a metadata
+snapshot/clear/restore repair. `scope.entry_clear` stays the one explicit mixed
+helper until S0b splits its movable scope clear from debug observation. Metadata
+origin span/caller maps remain an explicit no-isolation control: P0 proves their
+current visibility/retention behavior but does not repair it; `METAISO` owns any
+future isolation change.
 
 The partial BoxCompilationContext map handling is an existing behavior that S0
 must preserve, but it is not a future semantic authority. S0d models its

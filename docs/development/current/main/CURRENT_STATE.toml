@@ -317,9 +317,10 @@ The two metadata-origin gaps remain explicit and unhealed. S0a-G0 now selects
 one Census-owned selector/destination map plus an adjacent occurrence guard;
 S0b's physical storage cutover follows only after that evidence freezes every
 FunctionOwned direct access. I0 is closed: 32 selector/destination routes and
-64 production/test occurrence rows fix 1,787 current accesses with no Builder
-storage or behavior change. P0 now proves the source-domain and helper-family
-coverage before the G0 closeout. NESTED-REP0 remains parked."""
+64 broad production/test observation rows record 1,787 syntactic accesses with
+no Builder storage or behavior change. P0 now replaces that disposable broad
+snapshot with lexical receiver-owner and three-domain source proof, then closes
+helper-family and metadata-gap controls before G0. NESTED-REP0 remains parked."""
 current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FSESSION0-S0A-G0-P0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
