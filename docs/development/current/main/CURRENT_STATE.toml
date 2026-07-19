@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FSESSION0-S0b is closed; S0c-D0 is the sole next design-facing move-only saved-state transaction decision"
+status = "FSESSION0-S0c-D0 is closed; S0c-S0 is the sole next code-facing private captured-subset transaction vocabulary row"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -332,10 +332,14 @@ FunctionLoweringStateV1, the historical 1,792-route observation remains
 separately frozen, and the active 96-row direct-access guard proves old-route
 zero. Scope/debug storage is split, the BoxCompilationContext
 three-clear/three-retain action and metadata-origin no-isolation control are
-preserved, and the individual saved_* transaction is unchanged. S0c-D0 is next;
-it alone may select move-only saved-state transaction consolidation. C0 remains
-separate. NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FSESSION0-S0C-D0-001"
+preserved, and the individual saved_* transaction is unchanged. S0c-D0 is now
+closed: it selects one private move-only captured-subset transaction, never a
+whole FunctionLoweringState swap. Legacy and Box mode preserve their exact
+existing state actions, metadata origins remain an explicit METAISO control,
+and C0 fresh-session construction remains separate. S0c-S0 is next; it alone
+may add the transaction vocabulary with production consumers still zero.
+NESTED-REP0 remains parked."""
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FSESSION0-S0C-S0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

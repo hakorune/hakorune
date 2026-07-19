@@ -592,8 +592,8 @@ current visibility/retention behavior but does not repair it; `METAISO` owns any
 future isolation change.
 
 The partial BoxCompilationContext map handling is an existing behavior that S0
-must preserve, but it is not a future semantic authority. S0d models its
-exact current action through one move-only FunctionLoweringState transaction:
+must preserve, but it is not a future semantic authority. S0c models its
+exact current action through one move-only FunctionOwned transaction:
 
 ```text
 clear:
@@ -656,8 +656,149 @@ cargo fmt --check
 git diff --check
 ```
 
-The next row is `FSESSION0-S0c-D0`: decide the move-only saved-state
-transaction without changing the now-single FunctionOwned storage owner.
+#### `FSESSION0-S0c-D0` — selected captured-subset transaction
+
+`S0c-D0` is closed (2026-07-19). Three independent read-only inventories
+agree that the next cleanup is not a fresh child session. It is one private,
+move-only `FunctionOwnedStateTransactionV1` that captures only the existing
+FunctionOwned leaves which the legacy lifecycle already restores.
+
+Candidate A, `mem::take` of the whole `FunctionLoweringStateV1` followed by a
+default child state, is rejected: it constructs a fresh child state and would
+therefore preempt C0. It also conflates the deliberately retained metadata
+origin facts with caller state.
+
+Candidate B, a thin wrapper that preserves each existing
+`LoweringContext.saved_*` field and `ScopeStacksSnapshot` as independently
+captured public-to-the-lifecycle details, is rejected: it repackages the same
+multiple capture authorities rather than establishing one state transition.
+
+Candidate C is selected:
+
+```text
+MirBuilder.function_state
+  -> FunctionOwnedStateTransactionV1
+       -> Option<CapturedFunctionOwnedStateV1>
+       -> one consume-and-restore transition
+```
+
+The transaction is builder-private, non-Clone, non-Copy, and non-Deref. Its
+payload is a fieldwise move of the existing captured FunctionOwned subset;
+it never swaps, takes, defaults, or installs the complete
+`FunctionLoweringStateV1`.
+
+Its exact capture law is:
+
+```text
+always capture and restore:
+  current function/block
+  Binding/ResolvedBinding authority
+  FunctionScope movable leaves and function parameter names
+  compilation scratch (reserved IDs, body AST, record locals)
+  pending PHI / LocalSSA / schedule / pin caches
+  Frag emit session
+  return/cleanup/fallback flags
+
+Legacy mode only:
+  variable map and all six TypeContext maps move and restore
+
+BoxCompilationContext mode:
+  variable map and TypeContext are not captured
+  value_types, value_kinds, value_origin_newbox clear on entry and close
+  string_literals, map_value_types, map_literal_value_types retain
+  record-local scratch is captured, child-cleared, then caller-restored
+
+never capture, clear, or restore:
+  value_origins.spans / value_origins.callers
+```
+
+The last row is the existing METAISO no-isolation control: child facts remain
+visible and child-written facts remain retained. `current_static_box` and the
+mode bit remain LegacyCompatibility; slot registry, debug scope, current span,
+region stack, and recursion depth remain ObservationBorrow snapshots. Module
+state, `core_ctx`, and module publication remain outside the transaction.
+
+Close law:
+
+```text
+success:
+  child draft is taken
+  -> session validation
+  -> transaction restores caller exactly once
+  -> existing module publication owner runs
+
+primary or cleanup error:
+  child state/draft is discarded
+  -> transaction restores caller exactly once
+  -> existing combined error vocabulary is retained
+
+panic / unclosed drop:
+  same one-shot restore backstop
+  -> no second panic while unwinding
+```
+
+This does not add a persistent Builder poison flag. A failure consumes the
+transaction, discards the child state, and leaves the restored outer builder
+reusable; it never retries the selected lowering route.
+
+The fixed task order is:
+
+```text
+S0c-S0
+  private transaction and capture-mode vocabulary; production consumers = 0
+
+S0c-P0
+  disconnected legacy/Box matrix and one-shot/Drop proof; no Builder behavior
+  delta
+
+S0c-I0
+  replace only the FunctionOwned `LoweringContext.saved_*` and
+  `ScopeStacksSnapshot` routes with the transaction; non-FunctionOwned
+  snapshots remain separate
+
+S0c-G0
+  transaction-owner/old-saved-route/parity guards, focused release closeout
+
+S0d
+  existing final structural old-storage-zero and series closeout
+```
+
+`S0c-S0` is the sole next code-facing row.
+
+S0c-G0 must prove, from the existing Census0 fixture rather than a second
+surface table:
+
+```text
+captured FunctionOwned Census surfaces = 34
+FunctionOwnedStateTransactionV1 definitions = 1
+transaction begin owner = 1
+transaction consume-and-restore owner = 1
+LoweringContext FunctionOwned capture products = 1
+individual captured FunctionOwned saved_* fields = 0
+ScopeStacksSnapshot = 0
+canonical lifecycle TypeContextSnapshot use = 0
+transaction Clone / Copy / Deref = 0
+whole FunctionLoweringState take/default/install = 0
+metadata-origin transaction capture/clear/restore = 0
+Box clear set = 3; retained set = 3
+old direct FunctionOwned routes = 0
+```
+
+The existing legacy/Box success, five typed-error checkpoints, cleanup-error,
+panic, post-restore publication, and metadata-origin control fixtures remain
+the behavioral matrix. S0c adds no new route map: Census0 remains the one
+surface authority and any sibling scanner may only consume it.
+
+S0c must stop rather than broaden if it needs:
+
+```text
+whole FunctionLoweringState take/default/install or child address separation
+origin snapshot/clear/restore or any METAISO repair
+Box three-clear/three-retain change, sidecar map, or finalization repair
+LegacyCompatibility or ObservationBorrow state inside the transaction
+the unrelated exprs.rs static-box snapshot family
+source/type policy, MIR emission, fallback, retry, or module-publication change
+```
 
 ### `FSESSION0-C0` — fresh child-session construction
 
