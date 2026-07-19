@@ -354,6 +354,85 @@ the expanded session witnesses are green, and the direct-access inventory must
 still identify every FunctionOwned use. No S0a commit may move a whole
 `ScopeContext`, `CompilationContext`, or `MetadataContext`.
 
+#### Selected S0a-G0 access-route freeze
+
+The S0a-G0 worker census selects one adjacent, read-only direct-access guard.
+Census0 remains the one lifecycle-owner/destination authority: its fixture
+defines the FunctionOwned selector-to-`FunctionLoweringStateV1` route map and
+the current old-storage leaves. The adjacent guard consumes that route map and
+owns only occurrence evidence, so it is not a second state authority. Its
+pre-cutover snapshot records each old FunctionOwned *access route* with its
+future private state destination:
+
+```text
+selector                 old route                         S0b destination
+current block            current_block                     function_state.current_block
+type / variable / binding direct context fields            function_state.*
+scope leaves              scope_ctx FunctionOwned leaves   function_state.scope.*
+compilation leaves        comp_ctx FunctionOwned leaves    function_state.compilation.*
+metadata origins          MetadataContext origin APIs      function_state.value_origins.*
+SSA / cleanup / Frag      direct Builder fields             function_state.*
+```
+
+Each fixture row is an exact pre-cutover source observation:
+
+```text
+logical selector
+old access spelling or context API family
+new FunctionLoweringStateV1 destination
+production or test domain
+sorted source-file set
+observed occurrence count
+```
+
+The checker scans `src/**/*.rs`, strips comments/strings, and recognizes every
+bounded Builder receiver form used today: `self.*`, `builder.*`,
+`self.builder.*`, and `<identifier>.builder.*`. It rejects an unclassified old
+FunctionOwned selector. It also inventories stateful mixed-context APIs, not
+just raw fields:
+
+```text
+ScopeContext function-entry / stack helpers
+CompilationContext reservation and record-local helpers
+MetadataContext value-origin span/caller record/query/merge helpers
+```
+
+Line numbers are deliberately not authority: mechanical cutover changes them.
+The checked sorted file set and count are the pre-cutover witness. The new
+`function_lowering_state` module itself is excluded from old-route scanning.
+The current audit finds 1,771 matching occurrences overall and 1,255 in
+non-test code; S0a-G0-I0 fixes those values only through the checked fixture,
+not this prose.
+
+The selected task order is:
+
+```text
+S0a-G0-I0
+  add the passive selector/destination grammar and old-storage assertion to
+  Census0; add one adjacent checker with a generated checked-in occurrence
+  snapshot; production behavior = 0
+
+S0a-G0-P0
+  prove source scan parity for production and test domains, every mixed-context
+  API family, the two metadata-origin gaps, and all S0a session witnesses
+
+S0a-G0-G0
+  freeze the inventory as S0b's sole old-route input; census, focused tests,
+  all-target build, pointer, format, diff, and line checks must be green
+
+S0b-D0
+  only then select the one physical cutover implementation order
+```
+
+S0b may not widen `FunctionLoweringStateV1` visibility to satisfy external
+consumers. It replaces those consumers with narrow `MirBuilder` query methods.
+`ScopeContext::clear_for_function_entry()` currently clears both movable scope
+leaves and `debug_scope_stack`, so S0b must split that behavior deliberately.
+Likewise, it moves only metadata origin maps, preserves their current
+unhealed no-snapshot/no-clear behavior, and leaves span/region observation
+state in `MetadataContext`. S0c, not S0b, owns replacing the legacy individual
+`saved_*` lifecycle transaction.
+
 The partial BoxCompilationContext map handling is an existing behavior that S0
 must preserve, but it is not a future semantic authority. S0d models its
 exact current action through one move-only FunctionLoweringState transaction:
