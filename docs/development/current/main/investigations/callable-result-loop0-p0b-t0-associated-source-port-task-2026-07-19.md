@@ -1,5 +1,5 @@
 ---
-Status: T0-L0, T0-DIRECT0-S0, T0-DIRECT0-R0, T0-DIRECT0-I0/G0, and T0-P0 closed; P0c is next
+Status: T0-L0, T0-DIRECT0-S0, T0-DIRECT0-R0, T0-DIRECT0-I0/G0, T0-P0, and P0c-S0 closed; P0c-P0 is next
 Date: 2026-07-19
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md
 Prior decision: callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md
@@ -1138,6 +1138,35 @@ The next row is `LOOP0-P0c`: the disconnected actual 15-row parity proof
 including explicit PlanVerifier, remap/site preservation, short-circuit
 laziness, and negative pre-composer rejection fixtures. T0-P0 does not
 activate located Loop production.
+
+### LOOP0-P0c-S0 closeout
+
+`LOOP0-P0c-S0` is closed as a test-only observation slice. The new focused
+proof reuses the existing raw/located fresh-builder harness, checks the exact
+15-row activation carrier and 9-row Loop domain, invokes `PlanVerifier` on
+both products, and records short-circuit topology from the typed `Frag`
+branches and block-effect ownership. The three condition call sites remain in
+distinct blocks (`1`, `5`, `6`) with edges `1→(5,4)`, `5→(2,6)`, and
+`6→(2,4)`; source-path roles are checked as `LoopCondition`, not reconstructed
+from names or targets. No production caller, PlanLowerer, source claim, retry,
+or fallback was added.
+
+Evidence:
+
+```text
+P0c focused test: green (default + strict)
+PlanVerifier calls: raw=1 located=1
+activation carrier: 15 rows
+Loop schedule: 9 rows
+short-circuit condition blocks: 3
+production located roots / ledger claims: 0
+```
+
+The next code-facing row is `LOOP0-P0c-P0`: add the remaining disconnected
+remap/site-preservation and negative pre-composer evidence. Stop for a new
+consultation if that work requires a second remapper/PATH authority, an
+owned-plan escape before seal, PlanLowerer/ledger/production wiring, or any
+fallback/retry.
 
 L0 stops for a new consultation if exact carrier targets cannot be retained by
 the existing HOOK0 traversal; if `DirectRecipeOnly` must become active now; if

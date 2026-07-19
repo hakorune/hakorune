@@ -31,7 +31,7 @@ use crate::mir::builder::control_flow::plan::generic_loop::located_representatio
 use crate::mir::builder::control_flow::plan::LocatedLoopPlanExpressionPortV1;
 
 #[derive(Debug, Clone, PartialEq)]
-struct WholeLoopBuilderSnapshotV1 {
+pub(super) struct WholeLoopBuilderSnapshotV1 {
     variable_map: BTreeMap<String, ValueId>,
     value_types: BTreeMap<ValueId, MirType>,
     value_kinds: Vec<(ValueId, MirValueKind)>,
@@ -39,11 +39,11 @@ struct WholeLoopBuilderSnapshotV1 {
     string_literals: BTreeMap<ValueId, String>,
 }
 
-struct WholeLoopRunV1 {
-    plan: CorePlan,
-    builder: WholeLoopBuilderSnapshotV1,
-    call_sources: Vec<crate::mir::builder::control_flow::plan::CoreCallSourceV1>,
-    schedule: Vec<SourceExprSiteV1>,
+pub(super) struct WholeLoopRunV1 {
+    pub(super) plan: CorePlan,
+    pub(super) builder: WholeLoopBuilderSnapshotV1,
+    pub(super) call_sources: Vec<crate::mir::builder::control_flow::plan::CoreCallSourceV1>,
+    pub(super) schedule: Vec<SourceExprSiteV1>,
 }
 
 #[test]
@@ -68,7 +68,7 @@ fn actual_default_and_strict_raw_and_located_whole_loops_match_after_source_only
     });
 }
 
-fn run_raw(
+pub(super) fn run_raw(
     mode: GenericLoopTestModeV1,
     port: &LocatedLoopPlanExpressionPortV1<'_>,
     loop_root: &crate::mir::callable_result_representation::LegacyStmtInputV1<'_>,
@@ -100,7 +100,7 @@ fn run_raw(
     }
 }
 
-fn run_located(
+pub(super) fn run_located(
     activation: &VerifiedCallableResultActivationPlanV1,
     caller: &crate::mir::builder::CanonicalSameModuleCallableKeyV1,
     port: LocatedLoopPlanExpressionPortV1<'_>,
@@ -135,7 +135,7 @@ fn run_located(
     }
 }
 
-fn located_loop<'plan>(
+pub(super) fn located_loop<'plan>(
     plan: &'plan VerifiedCallableResultActivationPlanV1,
     caller: &crate::mir::builder::CanonicalSameModuleCallableKeyV1,
 ) -> (
