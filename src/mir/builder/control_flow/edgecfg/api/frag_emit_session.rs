@@ -52,6 +52,11 @@ impl FragEmitSession {
         self.sealed.clear();
     }
 
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn is_sealed_for_test(&self, block: BasicBlockId) -> bool {
+        self.sealed.contains_key(&block)
+    }
+
     /// from 側 block を自動収集（BTreeSet で dedup + stable order）
     fn collect_from_blocks(frag: &Frag) -> BTreeSet<BasicBlockId> {
         let mut from_blocks = BTreeSet::new();

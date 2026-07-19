@@ -1,12 +1,21 @@
 use std::panic::{catch_unwind, AssertUnwindSafe};
+use std::sync::Arc;
 
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
+use crate::mir::builder::compilation_context::RecordLocalFieldValue;
+use crate::mir::builder::control_flow::edgecfg::api::{EdgeStub, ExitKind, Frag};
 use crate::mir::builder::MirBuilder;
 use crate::mir::function::{MirFunction, MirModule};
 use crate::mir::instruction::FastMemRegionId;
+use crate::mir::join_ir::lowering::inline_boundary::JumpArgsLayout;
 use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
 use crate::mir::region::RegionId;
-use crate::mir::{BasicBlockId, MirType, ValueId};
+use crate::mir::resolved_semantics::{
+    FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, VerifiedResolvedFunctionV1,
+};
+use crate::mir::value_kind::MirValueKind;
+use crate::mir::{BasicBlockId, BindingId, EdgeArgs, MirType, ValueId};
+use hakorune_mir_builder::BoxCompilationContext;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum InjectedCheckpoint {
@@ -24,6 +33,46 @@ fn literal(value: i64) -> ASTNode {
     }
 }
 
+fn resolved_product() -> Arc<VerifiedResolvedFunctionV1> {
+    let function = ASTNode::FunctionDeclaration {
+        name: "outer_resolved".into(),
+        params: Vec::new(),
+        param_decls: Vec::new(),
+        return_type_name: None,
+        body: Vec::new(),
+        uses: Vec::new(),
+        contracts: Vec::new(),
+        is_static: true,
+        is_override: false,
+        attrs: DeclarationAttrs::default(),
+        span: Span::unknown(),
+    };
+    let view = FunctionSyntaxViewV1::from_ast(&function).unwrap();
+    FunctionSemanticResolverSessionV1::new(0)
+        .unwrap()
+        .resolve(view)
+        .unwrap()
+}
+
+fn seal_outer_frag(builder: &mut MirBuilder) {
+    let entry = builder.current_block.unwrap();
+    let mut frag = Frag::new(entry);
+    frag.wires.push(EdgeStub::new(
+        entry,
+        ExitKind::Return,
+        None,
+        EdgeArgs {
+            layout: JumpArgsLayout::CarriersOnly,
+            values: Vec::new(),
+        },
+    ));
+    builder
+        .frag_emit_session
+        .emit_and_seal(builder.scope_ctx.current_function.as_mut().unwrap(), &frag)
+        .unwrap();
+    assert!(builder.frag_emit_session.is_sealed_for_test(entry));
+}
+
 fn seeded_builder() -> MirBuilder {
     let mut builder = MirBuilder::new();
     builder.current_module = Some(MirModule::new("session-fixture".into()));
@@ -35,6 +84,42 @@ fn seeded_builder() -> MirBuilder {
         .type_ctx
         .value_types
         .insert(ValueId::new(700), MirType::Integer);
+    builder
+        .type_ctx
+        .value_kinds
+        .insert(ValueId::new(720), MirValueKind::Parameter(0));
+    builder
+        .type_ctx
+        .value_origin_newbox
+        .insert(ValueId::new(721), "OuterOriginBox".into());
+    builder
+        .type_ctx
+        .string_literals
+        .insert(ValueId::new(722), "outer literal".into());
+    builder
+        .type_ctx
+        .map_value_types
+        .insert(ValueId::new(723), MirType::Integer);
+    builder
+        .type_ctx
+        .map_literal_value_types
+        .insert((ValueId::new(724), "outer-key".into()), MirType::String);
+    builder
+        .binding_ctx
+        .insert("outer_binding".into(), BindingId::new(719));
+    builder
+        .resolved_binding_state
+        .install(&resolved_product())
+        .unwrap();
+    builder.comp_ctx.register_record_local_value(
+        ValueId::new(725),
+        "OuterRecord".into(),
+        vec![RecordLocalFieldValue {
+            name: "field".into(),
+            declared_type_name: Some("Integer".into()),
+            value: ValueId::new(726),
+        }],
+    );
     builder.scope_ctx.push_lexical_scope();
     builder
         .scope_ctx
@@ -89,6 +174,7 @@ fn seeded_builder() -> MirBuilder {
     builder.comp_ctx.fn_body_ast = Some(vec![literal(717)]);
     builder.metadata_ctx.set_current_span(Span::new(1, 2, 3, 4));
     builder.metadata_ctx.push_region(RegionId(718));
+    seal_outer_frag(&mut builder);
     builder
 }
 
@@ -110,6 +196,46 @@ fn assert_outer_state(builder: &MirBuilder) {
         builder.type_ctx.value_types.get(&ValueId::new(700)),
         Some(&MirType::Integer)
     );
+    assert_eq!(
+        builder.type_ctx.value_kinds.get(&ValueId::new(720)),
+        Some(&MirValueKind::Parameter(0))
+    );
+    assert_eq!(
+        builder.type_ctx.value_origin_newbox.get(&ValueId::new(721)),
+        Some(&"OuterOriginBox".into())
+    );
+    assert_eq!(
+        builder.type_ctx.string_literals.get(&ValueId::new(722)),
+        Some(&"outer literal".into())
+    );
+    assert_eq!(
+        builder.type_ctx.map_value_types.get(&ValueId::new(723)),
+        Some(&MirType::Integer)
+    );
+    assert_eq!(
+        builder
+            .type_ctx
+            .map_literal_value_types
+            .get(&(ValueId::new(724), "outer-key".into())),
+        Some(&MirType::String)
+    );
+    assert_eq!(
+        builder.binding_ctx.lookup("outer_binding"),
+        Some(BindingId::new(719))
+    );
+    assert!(builder.resolved_binding_state.is_installed());
+    let outer_record = builder
+        .comp_ctx
+        .record_local_value(ValueId::new(725))
+        .expect("outer record-local scratch must restore");
+    assert_eq!(outer_record.record_name, "OuterRecord");
+    assert_eq!(outer_record.fields.len(), 1);
+    assert_eq!(outer_record.fields[0].name, "field");
+    assert_eq!(
+        outer_record.fields[0].declared_type_name.as_deref(),
+        Some("Integer")
+    );
+    assert_eq!(outer_record.fields[0].value, ValueId::new(726));
     assert_eq!(builder.scope_ctx.lexical_scope_stack.len(), 1);
     assert_eq!(
         builder.scope_ctx.loop_header_stack,
@@ -158,6 +284,30 @@ fn assert_outer_state(builder: &MirBuilder) {
         builder.metadata_ctx.current_region_stack(),
         &[RegionId(718)]
     );
+    assert!(builder
+        .frag_emit_session
+        .is_sealed_for_test(BasicBlockId::new(0)));
+}
+
+fn assert_child_entry_is_reset(builder: &MirBuilder) {
+    assert!(builder.scope_ctx.current_function.is_none());
+    assert!(builder.current_block.is_none());
+    assert!(builder.variable_ctx.lookup("outer_value").is_none());
+    assert!(builder.type_ctx.value_types.is_empty());
+    assert!(builder.type_ctx.value_kinds.is_empty());
+    assert!(builder.type_ctx.value_origin_newbox.is_empty());
+    assert!(builder.type_ctx.string_literals.is_empty());
+    assert!(builder.type_ctx.map_value_types.is_empty());
+    assert!(builder.type_ctx.map_literal_value_types.is_empty());
+    assert!(builder.binding_ctx.is_empty());
+    assert!(!builder.resolved_binding_state.is_installed());
+    assert!(builder
+        .comp_ctx
+        .record_local_value(ValueId::new(725))
+        .is_none());
+    assert!(!builder
+        .frag_emit_session
+        .is_sealed_for_test(BasicBlockId::new(0)));
 }
 
 fn run_injected_checkpoint(
@@ -277,6 +427,146 @@ fn static_and_instance_drafts_commit_only_after_caller_restore() {
         .unwrap()
         .get_function("Fixture.run/0")
         .is_some());
+}
+
+#[test]
+fn child_entry_resets_captured_function_owned_state_before_restoring_outer_state() {
+    let mut builder = seeded_builder();
+    let error = builder
+        .with_function_lowering_session("Injected.child_entry/0", Vec::new(), |child| {
+            assert_child_entry_is_reset(child);
+
+            child
+                .variable_ctx
+                .insert("child_value".into(), ValueId::new(900));
+            child
+                .type_ctx
+                .value_types
+                .insert(ValueId::new(900), MirType::String);
+            child
+                .type_ctx
+                .value_kinds
+                .insert(ValueId::new(903), MirValueKind::Local(0));
+            child
+                .type_ctx
+                .value_origin_newbox
+                .insert(ValueId::new(904), "ChildOriginBox".into());
+            child
+                .type_ctx
+                .string_literals
+                .insert(ValueId::new(905), "child literal".into());
+            child
+                .type_ctx
+                .map_value_types
+                .insert(ValueId::new(906), MirType::Bool);
+            child
+                .type_ctx
+                .map_literal_value_types
+                .insert((ValueId::new(907), "child-key".into()), MirType::Float);
+            child
+                .binding_ctx
+                .insert("child_binding".into(), BindingId::new(901));
+            child
+                .resolved_binding_state
+                .install(&resolved_product())
+                .unwrap();
+            child.comp_ctx.register_record_local_value(
+                ValueId::new(902),
+                "ChildRecord".into(),
+                Vec::new(),
+            );
+            Err("injected:child_entry".into())
+        })
+        .unwrap_err();
+
+    assert!(error.contains("injected:child_entry"));
+    assert_outer_state(&builder);
+    assert!(builder.variable_ctx.lookup("child_value").is_none());
+    assert!(builder
+        .type_ctx
+        .value_types
+        .get(&ValueId::new(900))
+        .is_none());
+    assert!(builder
+        .type_ctx
+        .value_kinds
+        .get(&ValueId::new(903))
+        .is_none());
+    assert!(builder
+        .type_ctx
+        .value_origin_newbox
+        .get(&ValueId::new(904))
+        .is_none());
+    assert!(builder
+        .type_ctx
+        .string_literals
+        .get(&ValueId::new(905))
+        .is_none());
+    assert!(builder
+        .type_ctx
+        .map_value_types
+        .get(&ValueId::new(906))
+        .is_none());
+    assert!(builder
+        .type_ctx
+        .map_literal_value_types
+        .get(&(ValueId::new(907), "child-key".into()))
+        .is_none());
+    assert!(builder.binding_ctx.lookup("child_binding").is_none());
+    assert!(builder
+        .comp_ctx
+        .record_local_value(ValueId::new(902))
+        .is_none());
+}
+
+#[test]
+fn box_compilation_session_preserves_the_existing_partial_type_context_action() {
+    let mut builder = seeded_builder();
+    builder.comp_ctx.compilation_context = Some(BoxCompilationContext::new());
+
+    let error = builder
+        .with_function_lowering_session("Injected.box_context/0", Vec::new(), |child| {
+            assert!(child.type_ctx.value_types.is_empty());
+            assert!(child.type_ctx.value_kinds.is_empty());
+            assert!(child.type_ctx.value_origin_newbox.is_empty());
+            assert_eq!(
+                child.type_ctx.string_literals.get(&ValueId::new(722)),
+                Some(&"outer literal".into())
+            );
+            assert_eq!(
+                child.type_ctx.map_value_types.get(&ValueId::new(723)),
+                Some(&MirType::Integer)
+            );
+            assert_eq!(
+                child
+                    .type_ctx
+                    .map_literal_value_types
+                    .get(&(ValueId::new(724), "outer-key".into())),
+                Some(&MirType::String)
+            );
+            Err("injected:box_context".into())
+        })
+        .unwrap_err();
+
+    assert!(error.contains("injected:box_context"));
+    assert!(builder.type_ctx.value_types.is_empty());
+    assert!(builder.type_ctx.value_kinds.is_empty());
+    assert!(builder.type_ctx.value_origin_newbox.is_empty());
+    assert_eq!(
+        builder.type_ctx.string_literals.get(&ValueId::new(722)),
+        Some(&"outer literal".into())
+    );
+    assert_eq!(
+        builder.type_ctx.map_value_types.get(&ValueId::new(723)),
+        Some(&MirType::Integer)
+    );
+    assert_eq!(
+        builder
+            .type_ctx
+            .map_literal_value_types
+            .get(&(ValueId::new(724), "outer-key".into())),
+        Some(&MirType::String)
+    );
 }
 
 #[test]

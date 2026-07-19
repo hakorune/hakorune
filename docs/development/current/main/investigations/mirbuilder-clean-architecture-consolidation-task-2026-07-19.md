@@ -283,8 +283,8 @@ S0a-V0  add private component vocabulary only
 S0a-G0  run census/structural guards and hand S0b one frozen surface list
 ```
 
-`S0a-T0` is the sole next code-facing hand. It makes no production storage
-change. It extends the existing success, typed-error, and panic session tests
+`S0a-T0` is closed (2026-07-19). It made no production storage change. It
+extends the existing success, typed-error, and panic session tests
 to observe the current behavior of every *captured* FunctionOwned surface:
 
 ```text
@@ -307,6 +307,24 @@ The two Census0 metadata gaps, `value_origin_spans` and
 not folded into the restoration-parity assertion, treated as module truth, or
 repaired through finalization. A focused diagnostic/control may demonstrate
 the current gap, but S0a must not alter it.
+
+Delivered T0 evidence:
+
+```text
+legacy child entry:
+  every TypeContext map, BindingId, resolved binding state, record scratch,
+  and sealed Frag state is reset before the callback
+
+legacy close:
+  success, every injected typed-error checkpoint, and panic restore the outer
+  captured state; child-written map facts do not leak back
+
+BoxCompilationContext:
+  value_types/value_kinds/value_origin_newbox clear at entry and close
+  string_literals/map_value_types/map_literal_value_types retain
+```
+
+The next code-facing hand is `S0a-V0`.
 
 `S0a-V0` may introduce private, storage-free vocabulary only:
 
