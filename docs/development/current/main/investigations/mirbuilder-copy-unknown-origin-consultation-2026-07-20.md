@@ -1,5 +1,5 @@
 ---
-Status: Open design consultation
+Status: Decision closed
 Date: 2026-07-20
 Scope: LocalSSA successful Copy, stored `MirType::Unknown`, and the adjacent receiver-origin fallback
 Related:
@@ -10,6 +10,15 @@ Related:
 ---
 
 # COPY-UNKNOWN0: LocalSSA Unknown / origin policy consultation
+
+## Decision
+
+Candidate C′ is selected. The active implementation card is
+[`mirbuilder-copy-unknown-origin-task-2026-07-20.md`](mirbuilder-copy-unknown-origin-task-2026-07-20.md):
+it preserves stored Unknown as an explicit legacy compatibility entry, makes
+receiver fallback suppression a named decision, and separates the later exact
+physical-Copy FACT0 lane. The remaining candidate analysis below is historical
+evidence for that decision.
 
 ## Decision requested
 

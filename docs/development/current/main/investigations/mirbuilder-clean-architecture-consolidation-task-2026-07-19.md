@@ -1780,33 +1780,32 @@ successful exact source-type transfer; G0 closes the one-producer guard.
 `ORIGIN0-D0`, FieldGet, Call, finalization, and every accepted source shape
 remain separate rows.
 
-#### `COPY-UNKNOWN0-D0` — active design stop
+#### `COPY-UNKNOWN0-D0` — closed (2026-07-20)
 
-The consultation question is
-[`mirbuilder-copy-unknown-origin-consultation-2026-07-20.md`](mirbuilder-copy-unknown-origin-consultation-2026-07-20.md).
+Candidate C′ is selected. The task order and first code-facing S0 contract are
+in [`mirbuilder-copy-unknown-origin-task-2026-07-20.md`](mirbuilder-copy-unknown-origin-task-2026-07-20.md).
 
 Source authority is the existing successful LocalSSA post-emission state:
 `value_types[v]`, `value_origin_newbox[v]`, `LocalKind::Recv`, and the exact
 `value_types[loc].is_none()` fallback condition. `MirFunction` final metadata,
 method names, runtime tags, source syntax, and route success are non-authority.
 
-The decision must choose one coherent policy for a successful Copy whose source
+The decision selected one coherent policy for a successful Copy whose source
 has stored `MirType::Unknown` plus an origin:
 
 ```text
-A. retain Unknown as an explicit receiver-fallback suppression sentinel
-B. normalize Unknown to absence and explicitly redesign the origin fallback
-C. split the receiver compatibility fallback from generic origin propagation
+C′. retain stored Unknown as an explicit compatibility sentinel while splitting
+    exact type, legacy Unknown, origin, and receiver fallback decisions
 ```
 
-Any selection must preserve a pre-emission source read, post-success commit,
+The selected task preserves a pre-emission source read, post-success commit,
 and no mutation on failed emission. It may not backfill an exact type, use
 finalization repair, widen source shapes, or fold string/map/record facts,
 `metadata::propagate`, direct Copy emitters, or PHI origin into the row. The
 minimum proof must cover missing versus stored Unknown, Unknown plus origin for
 `Recv`, exact and conflicting existing facts, failed Copy, and fresh Builder
-reuse. This is a consultation boundary: do not implement COPY0 or alter the
-fallback until the policy is selected.
+reuse. `COPY-UNKNOWN0-S0` may now add the disconnected vocabulary only; COPY0
+and production fallback changes remain forbidden.
 
 ## Phase 4 — FINALIZE0
 

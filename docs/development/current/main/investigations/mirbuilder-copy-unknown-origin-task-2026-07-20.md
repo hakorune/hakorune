@@ -1,0 +1,263 @@
+---
+Status: Active task
+Date: 2026-07-20
+Scope: behavior-preserving LocalSSA post-success metadata split
+Related:
+  - docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md
+  - docs/development/current/main/investigations/mirbuilder-copy-unknown-origin-consultation-2026-07-20.md
+  - src/mir/builder/ssa/local.rs
+  - src/mir/builder/calls/unified_emitter/temporal_witness_tests.rs
+---
+
+# COPY-UNKNOWN0: behavior-preserving LocalSSA metadata split
+
+## Decision
+
+Candidate C′ is selected. One successful LocalSSA materialization has four
+separate lanes, while preserving every currently observable destination state.
+
+```text
+successful LocalSSA materialization
+  -> exact type-fact transfer
+  -> legacy Unknown-entry compatibility
+  -> origin transfer
+  -> receiver-only Box fallback decision
+```
+
+`Unknown` is not an exact FACT0 type fact. It is retained only as an explicit
+legacy compatibility entry until its separate retirement row. In particular:
+
+```text
+source type = StoredUnknown
+source origin = Owner
+kind = Recv
+
+destination type = Unknown
+destination origin = Owner
+receiver Box(Owner) fallback = suppressed
+```
+
+The suppression comes from a named receiver-compatibility decision, not from
+an accidental `Unknown` map write preceding a generic origin fallback.
+
+## Fixed task order
+
+```text
+COPY-UNKNOWN0-S0
+  -> COPY-UNKNOWN0-M0
+  -> COPY-UNKNOWN0-P0
+  -> COPY-UNKNOWN0-I0
+  -> COPY-UNKNOWN0-G0
+
+  -> COPY0-S0
+  -> COPY0-P0
+  -> COPY0-I0
+  -> COPY0-G0
+```
+
+`COPY-UNKNOWN0-S0` is the sole next code-facing row. `COPY0-S0` remains
+forbidden until `COPY-UNKNOWN0-G0` is green.
+
+## Durable vocabulary
+
+S0 adds private, map-free vocabulary under `src/mir/builder/ssa/local/` so the
+existing 718-line `local.rs` does not grow into another mutable-world owner.
+Suggested physical home:
+
+```text
+src/mir/builder/ssa/local/post_success.rs
+```
+
+The module may define only these structural products and pure decisions:
+
+```rust
+enum LocalSsaSourceTypeEntryV1 {
+    Missing,
+    StoredUnknown,
+    Exact(MirType),
+}
+
+enum LocalSsaMaterializationKindV1 {
+    RematerializedConst,
+    RematerializedBinOp,
+    RematerializedCompare,
+    RematerializedSelect,
+    PhysicalCopy(LocalSsaPhysicalCopyReasonV1),
+}
+
+enum ReceiverOriginCompatibilityV1 {
+    Inactive,
+    PublishBoxFromMissingType { owner: String },
+    SuppressedByStoredUnknown { owner: String },
+    SuppressedByExactType { owner: String },
+}
+
+struct PreparedLocalSsaPostSuccessV1 {
+    materialization: LocalSsaMaterializationKindV1,
+    exact_type: Option<MirType>,
+    legacy_unknown: bool,
+    origin: Option<String>,
+    receiver_compat: ReceiverOriginCompatibilityV1,
+}
+```
+
+`Missing`, stored `Unknown`, and every other `MirType` (including `Void`) are
+classified once. `exact_type` and `legacy_unknown` are mutually exclusive.
+The product is a prepared decision, not a second `ValueId` fact map.
+
+## Behavior-preserving matrix
+
+| Source type | Origin | Kind | Required destination state |
+| --- | --- | --- | --- |
+| missing | missing | Arg | no type, no origin |
+| exact `T` | missing | Arg | `T` |
+| Unknown | missing | Arg | Unknown |
+| missing | Owner | Arg | origin only |
+| Unknown | Owner | Arg | Unknown + origin |
+| exact `T` | Owner | Arg | `T` + origin |
+| missing | Owner | Recv | `Box(Owner)` + origin |
+| Unknown | Owner | Recv | Unknown + origin |
+| exact `T` | Owner | Recv | `T` + origin |
+| missing | Owner | FieldBase | origin only |
+| Unknown | Owner | FieldBase | Unknown + origin |
+
+`FieldBase` shares a cache tag with `Recv`, but it must not acquire receiver
+Box synthesis. The current equality check on `LocalKind::Recv` remains the
+sole fallback gate.
+
+## Transaction and failure law
+
+Every selected checked materialization follows this order:
+
+```text
+1. snapshot/classify source type entry and origin
+2. prepare exact/Unknown/origin/receiver decision
+3. allocate destination ValueId
+4. emit or rematerialize the instruction
+5. after success only: commit exact type, legacy Unknown, origin, receiver fallback
+6. insert the LocalSSA cache entry
+```
+
+Commit is non-fallible. Fresh-destination conflict validation belongs before
+emission. An emission failure commits none of these:
+
+```text
+instruction
+exact destination type
+Unknown destination entry
+destination origin
+receiver Box fallback
+LocalSSA cache
+```
+
+ValueId cursor rollback is not claimed. Existing `ensure()` continues its
+legacy best-effort behavior; a new checked core may return its typed error, but
+selected COPY0 consumers may not turn that error into an original-ValueId
+fallback.
+
+## Row contracts
+
+### `COPY-UNKNOWN0-S0`
+
+```text
+production behavior delta = 0
+production consumers = 0
+MirBuilder parameter = 0
+type/origin/cache writes = 0
+```
+
+Implement the pure vocabulary and decision tests only. It must not inspect
+source syntax, runtime tags, final metadata, or environment configuration.
+
+### `COPY-UNKNOWN0-M0`
+
+Inventory the six actual materialization outcomes and extract the checked-core
+boundary without connecting the prepared product. Classify existing callers of
+`ensure`/`try_ensure`; retain legacy facade behavior exactly.
+
+### `COPY-UNKNOWN0-P0`
+
+Prove pure decision and synthetic transaction parity for the table above,
+physical Copy and non-Copy materialization families, cache hit/miss, and
+failure isolation. Downstream observations must retain stored-Unknown presence:
+CopyTypePropagator, PHI diagnostics, same-root receiver proof, type hints, and
+receiver route behavior.
+
+### `COPY-UNKNOWN0-I0`
+
+Replace the existing direct post-success metadata block with one prepared-then-
+commit owner. Successful behavior remains byte-for-byte state-equivalent for
+the table above. Non-Copy rematerialization stays behavior-preserving but is
+explicitly classified; it is not a COPY0 consumer.
+
+### `COPY-UNKNOWN0-G0`
+
+Freeze these counts:
+
+```text
+post-success decision owners = 1
+post-success commit owners = 1
+source type-entry classifiers = 1
+legacy Unknown compatibility lanes = 1
+receiver fallback decision lanes = 1
+physical materialization classifiers = 1
+non-Copy rematerialization COPY0 consumers = 0
+```
+
+Only after this closeout may COPY0 use the existing `TypeFactDecisionV1` for
+the `PhysicalCopy` exact lane.
+
+## COPY0 contract after this prerequisite
+
+COPY0 will handle only successful `PhysicalCopy` materializations:
+
+```text
+source Missing       -> no exact fact
+source StoredUnknown -> no exact fact
+source Exact(T)      -> exact T candidate
+```
+
+The legacy Unknown entry is owned by `COPY-UNKNOWN0`, not by the later exact
+publisher. Const, BinOp, Compare, and Select rematerializations are negative
+fixtures for COPY0.
+
+## Parked authorities
+
+```text
+ORIGIN0: global value_origin_newbox policy
+UNKNOWN-RET0-D0: eventual Unknown sentinel retirement
+CopyTypePropagator / finalization repair
+metadata::propagate
+direct Copy emitters outside LocalSSA
+string/map/record metadata transfer
+FieldGet and Call result publication
+source-shape, runtime, backend, and ownership widening
+```
+
+## Stop conditions
+
+Stop this series if it needs to:
+
+```text
+treat Unknown as an exact TypeFactDecision proposal
+drop the Unknown destination entry and silently change fallback behavior
+derive Box type generally from origin
+widen Recv fallback to FieldBase
+put non-Copy rematerialization into COPY0
+read final metadata during lowering
+change CopyTypePropagator, type_hint_providers, or metadata::propagate
+add a persistent ValueId -> type/owner map
+retry after a selected checked-core failure
+change grammar, runtime, backend, or ownership semantics
+exceed 800 lines in any source/check file
+```
+
+## Decision lock
+
+> **COPY-UNKNOWN0 selects C′: one behavior-preserving prepared transaction
+> separates exact type transfer, legacy Unknown compatibility, origin transfer,
+> and receiver-only Box synthesis. Stored Unknown explicitly suppresses the
+> Recv-origin fallback, preserving `Unknown + origin` without publishing
+> `Box(owner)`. The first code-facing row is disconnected S0; COPY0 remains
+> blocked through G0 and will later consume only successful physical Copy plus
+> already-exact source types.**
