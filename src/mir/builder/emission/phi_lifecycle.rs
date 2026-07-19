@@ -382,11 +382,12 @@ pub(in crate::mir::builder) fn define_phi_final_with_type_hint(
     type_hint: Option<crate::mir::MirType>,
     tag: &str,
 ) -> Result<(), String> {
-    let prepared_type = crate::mir::builder::phi_type_publication::prepare_for_builder(
+    let prepared_completion = crate::mir::builder::phi_completion::prepare_for_builder(
         builder,
+        block,
         dst,
         &inputs,
-        type_hint.as_ref(),
+        type_hint.clone(),
     )?;
 
     let span = builder.metadata_ctx.current_span();
@@ -434,7 +435,10 @@ pub(in crate::mir::builder) fn define_phi_final_with_type_hint(
             .map_err(|e| format!("{e} op=define_phi_final tag={tag}"))?;
     }
 
-    crate::mir::builder::phi_type_publication::commit_for_builder(builder, dst, prepared_type);
+    crate::mir::builder::phi_completion::commit_for_builder(
+        builder,
+        prepared_completion.after_instruction_commit(),
+    );
     Ok(())
 }
 
@@ -602,12 +606,10 @@ pub(in crate::mir::builder) fn patch_phi_inputs(
     // Sort inputs by block ID (SSA invariant)
     inputs.sort_by_key(|(bb, _)| bb.0);
     let type_hint = phi_type_hint_for_patch(builder, block, dst, tag)?;
-    let prepared_type = crate::mir::builder::phi_type_publication::prepare_for_builder(
-        builder,
-        dst,
-        &inputs,
-        type_hint.as_ref(),
+    let prepared_completion = crate::mir::builder::phi_completion::prepare_for_builder(
+        builder, block, dst, &inputs, type_hint,
     )?;
+    inputs = prepared_completion.logical_inputs().to_vec();
 
     if crate::config::env::joinir_dev::debug_enabled() {
         let mut detail = format!(" inputs={}", inputs.len());
@@ -635,7 +637,10 @@ pub(in crate::mir::builder) fn patch_phi_inputs(
     builder
         .update_phi_instruction(block, dst, inputs)
         .map_err(|e| format!("{e} op=patch_phi_inputs tag={tag}"))?;
-    crate::mir::builder::phi_type_publication::commit_for_builder(builder, dst, prepared_type);
+    crate::mir::builder::phi_completion::commit_for_builder(
+        builder,
+        prepared_completion.after_instruction_commit(),
+    );
     Ok(())
 }
 

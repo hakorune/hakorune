@@ -181,10 +181,15 @@ def main() -> None:
         count = occurrence_count(production, symbol)
         if count != 0:
             fail(f"direct production consumer count for {symbol!r} must be 0, got {count}")
-    for symbol in ("prepare_for_builder(", "commit_for_builder("):
+    if occurrence_count(production, "phi_type_publication::prepare_for_builder(") != 0:
+        fail("I0 must retire direct type-publication preparation consumers")
+    for symbol in (
+        "phi_completion::prepare_for_builder(",
+        "phi_completion::commit_for_builder(",
+    ):
         count = occurrence_count(production, symbol)
         if count != 4:
-            fail(f"I0 wrapper consumer count for {symbol!r} must be 4, got {count}")
+            fail(f"I0 completion consumer count for {symbol!r} must be 4, got {count}")
 
     # PRED0 keeps route-owned CFG readiness disconnected from every generic
     # lifecycle entry. The private preparation hook has no production caller
@@ -197,11 +202,11 @@ def main() -> None:
     require_order(
         builder_emit,
         [
-            "phi_type_publication::prepare_for_builder",
+            "phi_completion::prepare_for_builder",
             "phi_input_materializer::for_pred",
             "origin::phi::prepare_unanimous_origin",
             "block.add_instruction_with_span(",
-            "phi_type_publication::commit_for_builder",
+            "phi_completion::commit_for_builder",
             "origin::phi::commit_unanimous_origin",
         ],
         "raw I0 timing",
@@ -220,10 +225,10 @@ def main() -> None:
         lifecycle,
         [
             "fn define_phi_final_with_type_hint(",
-            "phi_type_publication::prepare_for_builder",
+            "phi_completion::prepare_for_builder",
             "phi_input_materializer::for_pred",
             "insert_phi_at_head_spanned_with_type_hint(",
-            "phi_type_publication::commit_for_builder",
+            "phi_completion::commit_for_builder",
         ],
         "complete lifecycle",
     )
@@ -232,12 +237,12 @@ def main() -> None:
         [
             "fn define_phi_batch_prepend(",
             "preflight(builder, block, &items, tag)",
-            "phi_type_publication::prepare_for_builder",
+            "phi_completion::prepare_for_builder",
             ".clone()",
             "phi_input_materializer::for_pred",
             "insert_phi_batch_prepend_spanned_with_type_hint(",
             "= candidate",
-            "phi_type_publication::commit_for_builder",
+            "phi_completion::commit_for_builder",
         ],
         "atomic batch lifecycle",
     )
@@ -248,9 +253,9 @@ def main() -> None:
     require_order(
         patch_body,
         [
-            "phi_type_publication::prepare_for_builder",
+            "phi_completion::prepare_for_builder",
             ".update_phi_instruction",
-            "phi_type_publication::commit_for_builder",
+            "phi_completion::commit_for_builder",
         ],
         "patch lifecycle",
     )

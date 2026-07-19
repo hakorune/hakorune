@@ -12,7 +12,7 @@ use crate::mir::{BasicBlockId, MirType, ValueId};
 
 #[allow(unused_imports)]
 pub(in crate::mir::builder) use commit::commit_prepared_phi_type;
-pub(in crate::mir::builder) use connection::{commit_for_builder, prepare_for_builder};
+pub(in crate::mir::builder) use connection::commit_for_builder;
 
 /// Sole Builder-lowering owner for the pure PHI type decision.
 #[derive(Debug)]

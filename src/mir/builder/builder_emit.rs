@@ -37,20 +37,18 @@ impl MirBuilder {
                 .field("err", e)
                 .build());
         }
-        let prepared_phi_type = match &instruction {
+        let prepared_phi_completion = match &instruction {
             MirInstruction::Phi {
                 dst,
                 inputs,
                 type_hint,
-            } => Some((
+            } => Some(super::phi_completion::prepare_for_builder(
+                self,
+                block_id,
                 *dst,
-                super::phi_type_publication::prepare_for_builder(
-                    self,
-                    *dst,
-                    inputs,
-                    type_hint.as_ref(),
-                )?,
-            )),
+                inputs,
+                type_hint.clone(),
+            )?),
             _ => None,
         };
         if let MirInstruction::Phi { inputs, .. } = &mut instruction {
@@ -397,8 +395,8 @@ impl MirBuilder {
             }
         }
 
-        if let Some((dst, prepared)) = prepared_phi_type {
-            super::phi_type_publication::commit_for_builder(self, dst, prepared);
+        if let Some(prepared) = prepared_phi_completion {
+            super::phi_completion::commit_for_builder(self, prepared.after_instruction_commit());
         }
         if let Some((dst, prepared)) = prepared_phi_origin {
             origin::phi::commit_unanimous_origin(self, dst, prepared);

@@ -12,19 +12,19 @@ pub(super) fn define_phi_batch_prepend(
 ) -> Result<(), String> {
     preflight(builder, block, &items, tag)?;
 
-    let mut type_rows = items
+    let mut completion_rows = items
         .iter()
         .map(|item| {
-            crate::mir::builder::phi_type_publication::prepare_for_builder(
+            crate::mir::builder::phi_completion::prepare_for_builder(
                 builder,
+                block,
                 item.dst,
                 &item.inputs,
-                item.type_hint.as_ref(),
+                item.type_hint.clone(),
             )
-            .map(|prepared| (item.dst, prepared))
         })
         .collect::<Result<Vec<_>, _>>()?;
-    type_rows.sort_by_key(|(dst, _)| *dst);
+    completion_rows.sort_by_key(|prepared| prepared.draft().dst());
 
     let mut candidate = builder
         .function_state
@@ -56,13 +56,14 @@ pub(super) fn define_phi_batch_prepend(
 
     if crate::config::env::joinir_dev::debug_enabled() {
         let caller = std::panic::Location::caller();
-        for (dst, _) in &type_rows {
-            builder.record_value_origin_caller(*dst, caller);
-            if let Some(location) = builder.value_origin_caller(*dst) {
+        for prepared in &completion_rows {
+            let dst = prepared.draft().dst();
+            builder.record_value_origin_caller(dst, caller);
+            if let Some(location) = builder.value_origin_caller(dst) {
                 candidate
                     .metadata
                     .value_origin_callers
-                    .insert(*dst, location.to_string());
+                    .insert(dst, location.to_string());
             }
         }
         let ring0 = crate::runtime::get_global_ring0();
@@ -70,7 +71,7 @@ pub(super) fn define_phi_batch_prepend(
             "[phi_lifecycle/batch_prepend] fn={} bb={:?} count={} tag={}",
             candidate.signature.name,
             block,
-            type_rows.len(),
+            completion_rows.len(),
             tag
         ));
     }
@@ -80,8 +81,11 @@ pub(super) fn define_phi_batch_prepend(
         .current_function
         .as_mut()
         .expect("batch preflight sealed current function") = candidate;
-    for (dst, prepared) in type_rows {
-        crate::mir::builder::phi_type_publication::commit_for_builder(builder, dst, prepared);
+    for prepared in completion_rows {
+        crate::mir::builder::phi_completion::commit_for_builder(
+            builder,
+            prepared.after_instruction_commit(),
+        );
     }
     Ok(())
 }

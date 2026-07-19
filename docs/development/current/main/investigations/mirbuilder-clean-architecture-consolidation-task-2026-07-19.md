@@ -42,10 +42,10 @@ the complete 47-path / 99-occurrence writer partition. PHI0-S0 is also
 closed. PHI0-M0 has now closed as an evidence row and found that I0 has no
 single existing predecessor-readiness authority. PRED0-D0 therefore selects a
 split between generic input/type completion and route-scoped CFG readiness.
-PRED0-S0 and PRED0-P0 are closed; the sole next integration row is now:
+PRED0-S0, PRED0-P0, and I0 are closed; the next route-selection row is now:
 
 ```text
-MIRBUILDER-CLEAN0-PHI0-I0
+MIRBUILDER-CLEAN0-PHI0-CFGREADY0-D0
 ```
 
 ## Baseline finding
@@ -1561,9 +1561,26 @@ The existing PHI publication inventory guard now keeps `prepare_cfg_ready`
 private with zero production consumers and rejects `compute_predecessors` from
 the generic patch and batch lifecycles. It does not prohibit route-owned CFG
 analysis such as the loop-header builder or CorePlan select-as-PHI helper.
-`PHI0-I0` is next: it may connect only raw/final/patch/batch to generic
-input/type completion. Any CFG-ready route activation remains the separately
-scoped `PHI0-CFGREADY0` row.
+
+#### `PHI0-I0` — closed (2026-07-20)
+
+The four authorized Builder entries now share one `phi_completion` connection:
+raw emit, complete final insertion, provisional patch, and batch prepend all
+prepare from their logical input rows before their existing materialization or
+instruction mutation, then transfer the prepared type fact to the existing
+type-publication owner only after success. Raw unanimous origin publication
+remains separate and success-committed; provisional definition and
+function-level APIs remain outside the connection.
+
+Generic completion now rejects duplicate incoming predecessor rows before any
+entry-specific mutation. Focused raw/final/patch/batch fixtures prove that
+rejection leaves instructions and transient type facts unchanged; the existing
+unsealed provisional-patch and candidate-batch atomicity controls remain
+green. The inventory fixes direct type-publication preparation consumers at
+zero and the new generic completion connection at exactly four. No generic
+entry reads CFG predecessors. `PHI0-CFGREADY0-D0` is next: it must select one
+route-owned exact predecessor witness before activating the private CFG-ready
+path.
 
 ## Phase 4 — FINALIZE0
 

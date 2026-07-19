@@ -1,10 +1,11 @@
 //! Disconnected semantic vocabulary for one PHI completion transaction.
 //!
-//! PHI0-PRED0-S0 deliberately owns no Builder or MIR mutation. Generic input
-//! completion validates only facts knowable from the supplied rows, delegates
-//! the type-only decision to `phi_type_publication`, and makes the
-//! post-instruction transition explicit for later facade integration. Exact
-//! predecessor-row validation is a separate route-owned CFG-ready capability.
+//! The core vocabulary deliberately owns no Builder or MIR mutation. Generic
+//! input completion validates only facts knowable from the supplied rows,
+//! delegates the type-only decision to `phi_type_publication`, and makes the
+//! post-instruction transition explicit. The private `connection` sidecar is
+//! only the Builder-facing handoff; exact predecessor-row validation remains a
+//! separate route-owned CFG-ready capability.
 
 use std::collections::BTreeMap;
 
@@ -12,6 +13,10 @@ use crate::mir::builder::phi_type_publication::{
     PhiConcreteTypeConflictV1, PhiTransientTypeDecisionV1, PreparedPhiTypePublicationV1,
 };
 use crate::mir::{BasicBlockId, MirType, ValueId};
+
+mod connection;
+
+pub(in crate::mir::builder) use connection::{commit_for_builder, prepare_for_builder};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) struct PhiDraftV1 {
@@ -180,6 +185,14 @@ impl CompletedPhiV1 {
 
     pub(in crate::mir::builder) fn prepared_type(&self) -> &PreparedPhiTypePublicationV1 {
         &self.prepared_type
+    }
+
+    /// Transfer the prepared type fact to the existing publication owner after
+    /// the facade has committed its instruction mutation.
+    pub(in crate::mir::builder) fn into_type_publication(
+        self,
+    ) -> (ValueId, PreparedPhiTypePublicationV1) {
+        (self.draft.dst, self.prepared_type)
     }
 }
 

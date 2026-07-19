@@ -23,10 +23,12 @@ incoming rows inseparable before `prepare_cfg_ready` may consume them. Its
 constructor remains private in S0; a future CFGREADY0 route must expose only a
 route-specific sealed witness, never generic raw rows.
 
-The module does not own `MirBuilder`, `MirFunction`, `TypeContext`, CFG
-reachability, dominance, input rematerialization, origin propagation, or raw
-fact-map writes. Production consumers remain zero in PRED0-S0. A later PHI0-I0
-may connect raw, final, patch, and batch only to generic input/type completion;
+The core vocabulary does not own `MirBuilder`, `MirFunction`, `TypeContext`,
+CFG reachability, dominance, input rematerialization, origin propagation, or
+raw fact-map writes. PHI0-I0 adds one thin private Builder-facing connection:
+raw, final, patch, and batch borrow existing transient types for generic
+preparation, then hand the prepared fact to `phi_type_publication` only after
+their existing instruction mutation succeeds. It adds no CFG-ready consumer;
 route-owned CFG-ready activation remains separate.
 
 `PhiTransientTypeDecisionV1` remains the sole type-decision authority.

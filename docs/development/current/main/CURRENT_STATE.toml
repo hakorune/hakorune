@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "PHI0-PRED0-P0 closes the real generic-unsealed and route-ready matrix; PHI0-I0 generic input/type facade integration is next"
+status = "PHI0-I0 connects all four generic completion entries without CFG authority; PHI0-CFGREADY0 route selection is next"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -389,16 +389,19 @@ consumers. `PHI0-PRED0-P0` is closed: focused fixtures freeze the legal
 unsealed provisional patch and future loop-host edge, while resolved-If and
 CorePlan select-as-PHI prove their existing CFG-ready routes. The shared guard
 now fixes private CFG-ready consumers at zero and forbids generic patch/batch
-predecessor recomputation. `PHI0-I0` is the sole next row and may connect only
-the four generic Builder entries to input/type completion; CFG-ready route
-activation remains a later `PHI0-CFGREADY0` row. PHI0 does not widen
+predecessor recomputation. `PHI0-I0` is closed: raw/final/patch/batch now use
+one generic completion connection, prepare from logical rows, and commit type
+facts only after their existing instruction success. Duplicate predecessor rows
+fail before mutation, while unsealed patches and batch candidate atomicity stay
+intact. `PHI0-CFGREADY0-D0` is next: select one route-owned predecessor witness
+before exposing any CFG-ready consumer. PHI0 does not widen
 origin, provisional Unknown,
 finalization, or function-level type authority. `metadata::propagate` remains a distinct
 METAPROP0 owner after COMPCTX0/CONFIG0 and before PLAN0-CUT0; FACT0-G0 remains
 the final global-zero gate after that owner plus FINALIZE0, PLAN0, COMPCTX0,
 CONFIG0, and RAWADAPT0 retire their named legacy writers.
 NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-PHI0-I0-001"
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-PHI0-CFGREADY0-D0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

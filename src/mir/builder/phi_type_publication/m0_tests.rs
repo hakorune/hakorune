@@ -108,6 +108,13 @@ fn logical_inputs(ids: PhiTimingIds) -> Vec<(BasicBlockId, ValueId)> {
     ]
 }
 
+fn duplicate_inputs(ids: PhiTimingIds) -> Vec<(BasicBlockId, ValueId)> {
+    vec![
+        (ids.then_block, ids.receiver),
+        (ids.then_block, ids.receiver),
+    ]
+}
+
 fn phi_inputs(builder: &MirBuilder, ids: PhiTimingIds) -> Vec<(BasicBlockId, ValueId)> {
     builder
         .function_state
@@ -467,4 +474,125 @@ fn phi_type_publication_i0_batch_conflict_is_instruction_and_type_atomic() {
         before_function
     );
     assert_eq!(builder.function_state.type_ctx.value_types, before_types);
+}
+
+#[test]
+fn phi_completion_i0_duplicate_rows_reject_before_every_generic_mutation() {
+    let (mut raw, ids) = timing_builder();
+    let error = raw
+        .emit_instruction(MirInstruction::Phi {
+            dst: ids.phi,
+            inputs: duplicate_inputs(ids),
+            type_hint: None,
+        })
+        .unwrap_err();
+    assert!(error.contains("phi_completion/duplicate_incoming_predecessor"));
+    assert!(raw
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .get_block(ids.merge_block)
+        .unwrap()
+        .instructions
+        .is_empty());
+    assert!(!raw
+        .function_state
+        .type_ctx
+        .value_types
+        .contains_key(&ids.phi));
+
+    let (mut final_builder, ids) = timing_builder();
+    let error = phi_lifecycle::define_phi_final_with_type_hint(
+        &mut final_builder,
+        ids.merge_block,
+        ids.phi,
+        duplicate_inputs(ids),
+        None,
+        "phi-completion-i0-final-duplicate",
+    )
+    .unwrap_err();
+    assert!(error.contains("phi_completion/duplicate_incoming_predecessor"));
+    assert!(final_builder
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .get_block(ids.merge_block)
+        .unwrap()
+        .instructions
+        .is_empty());
+    assert!(!final_builder
+        .function_state
+        .type_ctx
+        .value_types
+        .contains_key(&ids.phi));
+
+    let (mut patch_builder, ids) = timing_builder();
+    let mut transaction = PhiTxn::begin("phi-completion-i0-patch-duplicate");
+    let token = transaction
+        .define_provisional_phi(
+            &mut patch_builder,
+            ids.merge_block,
+            ids.phi,
+            "phi-completion-i0-provisional",
+        )
+        .unwrap();
+    let error = transaction
+        .patch_phi_inputs(
+            &mut patch_builder,
+            token,
+            duplicate_inputs(ids),
+            "phi-completion-i0-patch-duplicate",
+        )
+        .unwrap_err();
+    assert!(error.contains("phi_completion/duplicate_incoming_predecessor"));
+    assert!(phi_inputs(&patch_builder, ids).is_empty());
+    assert!(!patch_builder
+        .function_state
+        .type_ctx
+        .value_types
+        .contains_key(&ids.phi));
+
+    let (mut batch_builder, ids) = timing_builder();
+    let before_function = format!(
+        "{:?}",
+        batch_builder
+            .function_state
+            .current_function
+            .as_ref()
+            .unwrap()
+            .blocks
+    );
+    let before_types = batch_builder.function_state.type_ctx.value_types.clone();
+    let error = phi_lifecycle::define_phi_batch_prepend(
+        &mut batch_builder,
+        ids.merge_block,
+        vec![PhiBatchItem {
+            dst: ids.phi,
+            inputs: duplicate_inputs(ids),
+            type_hint: None,
+            span: Span::unknown(),
+            item_tag: "phi-completion-i0-batch-duplicate".to_string(),
+        }],
+        "phi-completion-i0-batch-duplicate",
+    )
+    .unwrap_err();
+    assert!(error.contains("phi_completion/duplicate_incoming_predecessor"));
+    assert_eq!(
+        format!(
+            "{:?}",
+            batch_builder
+                .function_state
+                .current_function
+                .as_ref()
+                .unwrap()
+                .blocks
+        ),
+        before_function
+    );
+    assert_eq!(
+        batch_builder.function_state.type_ctx.value_types,
+        before_types
+    );
 }
