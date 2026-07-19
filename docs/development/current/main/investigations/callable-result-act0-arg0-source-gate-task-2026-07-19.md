@@ -1,10 +1,14 @@
 ---
-Status: `CALLABLE-RESULT-ACT0-ARG0-S0` closed; P0 is next
+Status: `CALLABLE-RESULT-ACT0-ARG0-S0` closed; actual-profile P0 is superseded
 Date: 2026-07-19
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md
 Supersedes frontier: callable-result-loop0-l0-i64-argument-authority-design-stop-2026-07-19.md
 Scope: source-proof-gated callable-result activation
 ---
+
+> Actual Parser classification and all downstream order are superseded by
+> `callable-result-act0-arg0-rebase-task-2026-07-19.md`. This card remains the
+> S0 source-gate authority and historical pre-rebase decision record.
 
 # Callable-result ACT0-ARG0 source gate
 

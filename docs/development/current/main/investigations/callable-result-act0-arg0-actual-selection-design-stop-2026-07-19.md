@@ -1,9 +1,12 @@
 ---
-Status: design stop
+Status: Resolved by direction-2 rebase
 Date: 2026-07-19
 Parent: callable-result-act0-arg0-source-gate-task-2026-07-19.md
 Scope: ACT0-ARG0 actual Parser source-gate premise
 ---
+
+> Resolved by `callable-result-act0-arg0-rebase-task-2026-07-19.md`.
+> The design-stop evidence remains authoritative for the actual source shape.
 
 # ACT0-ARG0 actual-selection design stop
 
