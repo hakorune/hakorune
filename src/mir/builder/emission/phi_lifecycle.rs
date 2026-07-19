@@ -378,17 +378,31 @@ pub(in crate::mir::builder) fn define_phi_final_with_type_hint(
     builder: &mut MirBuilder,
     block: BasicBlockId,
     dst: ValueId,
-    mut inputs: Vec<(BasicBlockId, ValueId)>,
+    inputs: Vec<(BasicBlockId, ValueId)>,
     type_hint: Option<crate::mir::MirType>,
     tag: &str,
 ) -> Result<(), String> {
     let prepared_completion = crate::mir::builder::phi_completion::prepare_for_builder(
-        builder,
-        block,
-        dst,
-        &inputs,
-        type_hint.clone(),
+        builder, block, dst, &inputs, type_hint,
     )?;
+
+    define_final_from_prepared_completion(builder, prepared_completion, tag)
+}
+
+/// Execute the one shared final-PHI physical commit after a route-specific or
+/// generic completion owner has already prepared logical input/type facts.
+///
+/// This is not a fifth preparation API: it cannot construct a completion or
+/// publish a type fact before the existing PHI insertion succeeds.
+pub(in crate::mir::builder) fn define_final_from_prepared_completion(
+    builder: &mut MirBuilder,
+    prepared_completion: crate::mir::builder::phi_completion::PreparedPhiCompletionV1,
+    tag: &str,
+) -> Result<(), String> {
+    let block = prepared_completion.draft().block();
+    let dst = prepared_completion.draft().dst();
+    let type_hint = prepared_completion.draft().type_hint().cloned();
+    let mut inputs = prepared_completion.logical_inputs().to_vec();
 
     let span = builder.metadata_ctx.current_span();
     let origin_caller = if crate::config::env::joinir_dev::debug_enabled() {

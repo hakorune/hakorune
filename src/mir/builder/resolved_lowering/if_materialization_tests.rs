@@ -4,7 +4,7 @@ use hakorune_mir_core::BindingId;
 
 use crate::mir::builder::emission::{branch, constant};
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIssuerV1};
-use crate::mir::{ConstValue, MirInstruction, ValueId};
+use crate::mir::{ConstValue, MirInstruction, MirType, ValueId};
 
 use super::branch_transaction::{
     AuthorizedBranchRebindV1, BranchValueStoreV1, ResolvedBranchTransactionV1,
@@ -393,6 +393,10 @@ fn same_input_still_defines_fresh_final_phi_before_batch_publish() {
                 } if dst == value
             )));
     }
+    assert_eq!(
+        builder.function_state.type_ctx.value_types.get(dst),
+        Some(&MirType::Integer)
+    );
     assert_eq!(values.published, 0);
 
     defined.publish_join_values(&mut values).unwrap();

@@ -16,7 +16,7 @@ use super::if_materialization::VerifiedIfMergePredecessorsV1;
 use super::MirBuilder;
 
 #[derive(Debug)]
-pub(super) struct VerifiedResolvedIfCfgReadyJoinRowsV1 {
+pub(in crate::mir::builder) struct VerifiedResolvedIfCfgReadyJoinRowsV1 {
     predecessors: VerifiedIfMergePredecessorsV1,
     rows: Box<[VerifiedResolvedIfCfgReadyJoinRowV1]>,
 }
@@ -66,7 +66,7 @@ impl VerifiedResolvedIfCfgReadyJoinRowsV1 {
 
     /// Recheck the route-owned CFG witness immediately before a later
     /// completion consumer is allowed to materialize its final PHIs.
-    pub(super) fn reverify(&self, builder: &MirBuilder) -> Result<(), String> {
+    pub(in crate::mir::builder) fn reverify(&self, builder: &MirBuilder) -> Result<(), String> {
         self.predecessors.reverify(builder)?;
         if builder.function_state.current_block != Some(self.predecessors.merge()) {
             return Err("[freeze:contract][canonical_if/cfg_ready_outside_merge]".to_string());
@@ -76,6 +76,29 @@ impl VerifiedResolvedIfCfgReadyJoinRowsV1 {
 
     pub(super) fn rows(&self) -> &[VerifiedResolvedIfCfgReadyJoinRowV1] {
         &self.rows
+    }
+
+    pub(in crate::mir::builder) const fn merge(&self) -> BasicBlockId {
+        self.predecessors.merge()
+    }
+
+    pub(in crate::mir::builder) const fn expected_predecessors(&self) -> [BasicBlockId; 2] {
+        [
+            self.predecessors.then_predecessor(),
+            self.predecessors.else_predecessor(),
+        ]
+    }
+
+    pub(in crate::mir::builder) fn logical_inputs_at(
+        &self,
+        index: usize,
+    ) -> Result<&[(BasicBlockId, ValueId); 2], String> {
+        self.rows
+            .get(index)
+            .map(VerifiedResolvedIfCfgReadyJoinRowV1::logical_inputs)
+            .ok_or_else(|| {
+                format!("[freeze:contract][canonical_if/cfg_ready_row_missing] index={index}")
+            })
     }
 }
 

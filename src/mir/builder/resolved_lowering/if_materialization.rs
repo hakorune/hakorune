@@ -13,6 +13,7 @@ use crate::mir::verification::utils::compute_predecessors;
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 
 use super::branch_transaction::ResolvedJoinValueRowV1;
+use super::if_cfg_ready_bridge::VerifiedResolvedIfCfgReadyJoinRowsV1;
 use super::MirBuilder;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -323,32 +324,20 @@ pub(super) fn define_join_phis(
     predecessors: VerifiedIfMergePredecessorsV1,
     rows: &[ResolvedJoinValueRowV1],
 ) -> Result<DefinedIfJoinSetV1, String> {
-    predecessors.reverify(builder)?;
-    if builder.function_state.current_block != Some(predecessors.merge) {
-        return Err("[freeze:contract][canonical_if/define_outside_merge]".to_string());
-    }
-
-    let mut bindings = BTreeSet::new();
-    for row in rows {
-        if !bindings.insert(row.binding()) {
-            return Err(format!(
-                "[freeze:contract][canonical_if/duplicate_join_row] binding={:?}",
-                row.binding()
-            ));
-        }
-    }
+    let cfg_ready_rows = VerifiedResolvedIfCfgReadyJoinRowsV1::verify(builder, predecessors, rows)?;
 
     let mut values = Vec::with_capacity(rows.len());
-    for row in rows {
+    for (row_index, row) in cfg_ready_rows.rows().iter().enumerate() {
         let dst = builder.next_value_id();
-        phi_lifecycle::define_phi_final(
+        let prepared_completion = crate::mir::builder::phi_completion::prepare_for_resolved_if(
             builder,
-            predecessors.merge,
+            &cfg_ready_rows,
+            row_index,
             dst,
-            vec![
-                (predecessors.then_pred, row.then_value()),
-                (predecessors.else_pred, row.else_value()),
-            ],
+        )?;
+        phi_lifecycle::define_final_from_prepared_completion(
+            builder,
+            prepared_completion,
             "canonical_if:final_join",
         )?;
         values.push(DefinedJoinValueV1 {

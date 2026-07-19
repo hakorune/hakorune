@@ -5,7 +5,7 @@
 //! `phi_type_publication` owner. It owns no CFG, materialization, origin, or
 //! instruction mutation policy.
 
-use super::{CompletedPhiV1, PhiCompletionPreparationErrorV1, PhiDraftV1, PreparedPhiCompletionV1};
+use super::{render_preparation_error, CompletedPhiV1, PhiDraftV1, PreparedPhiCompletionV1};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, MirType, ValueId};
 
@@ -31,22 +31,4 @@ pub(in crate::mir::builder) fn commit_for_builder(
 ) {
     let (dst, prepared_type) = completed.into_type_publication();
     crate::mir::builder::phi_type_publication::commit_for_builder(builder, dst, prepared_type);
-}
-
-fn render_preparation_error(error: PhiCompletionPreparationErrorV1) -> String {
-    match error {
-        PhiCompletionPreparationErrorV1::ConcreteTypeConflict(conflict) => conflict.to_string(),
-        PhiCompletionPreparationErrorV1::DuplicateIncomingPredecessor { predecessor } => format!(
-            "[freeze:contract][phi_completion/duplicate_incoming_predecessor] predecessor={predecessor}"
-        ),
-        PhiCompletionPreparationErrorV1::DuplicateExpectedPredecessor { predecessor } => format!(
-            "[freeze:contract][phi_completion/duplicate_expected_predecessor] predecessor={predecessor}"
-        ),
-        PhiCompletionPreparationErrorV1::PhantomIncomingPredecessor { predecessor } => format!(
-            "[freeze:contract][phi_completion/phantom_incoming_predecessor] predecessor={predecessor}"
-        ),
-        PhiCompletionPreparationErrorV1::MissingIncomingPredecessor { predecessor } => format!(
-            "[freeze:contract][phi_completion/missing_incoming_predecessor] predecessor={predecessor}"
-        ),
-    }
 }

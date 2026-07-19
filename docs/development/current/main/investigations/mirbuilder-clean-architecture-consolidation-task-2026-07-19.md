@@ -1661,6 +1661,26 @@ transient types unchanged. Existing drift and duplicate-row negatives retain
 the same no-additional-mutation law. `PHI0-CFGREADY0-I0` is next: it may connect
 this bridge to exactly one resolved-If final-PHI path and nothing else.
 
+#### `PHI0-CFGREADY0-I0` — closed (2026-07-20)
+
+Canonical resolved-If lowering is now the sole CFG-ready completion consumer.
+It first seals `VerifiedResolvedIfCfgReadyJoinRowsV1`, then a route-local
+`phi_completion` sidecar revalidates that sealed bridge and constructs the
+private `CfgReadyPhiRowsV1` immediately before preparing the final PHI. The
+sidecar accepts no raw expected-row slice and performs no CFG scan, instruction
+insertion, type/origin write, or generic lifecycle selection.
+
+The existing final-PHI materialization and post-instruction type commit are
+shared with the generic final facade, so a successful resolved-If join retains
+the normal exact type publication timing. A failed bridge or preparation still
+adds no PHI, type, or origin fact and has no retry/fallback route. Raw emit,
+generic final, provisional patch, and batch remain exactly the four
+input/type-only completion consumers; they do not acquire CFG readiness.
+
+Focused resolved-If, `phi_completion`, publication, all-target compilation,
+format, diff, and current-state gates are green. `PHI0-CFGREADY0-G0` is next to
+freeze the one-consumer inventory and route exclusions before `PHI0-G0`.
+
 ## Phase 4 — FINALIZE0
 
 Finalization becomes a verifier and derived-publication boundary, not the

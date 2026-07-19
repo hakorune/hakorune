@@ -15,8 +15,28 @@ use crate::mir::builder::phi_type_publication::{
 use crate::mir::{BasicBlockId, MirType, ValueId};
 
 mod connection;
+mod resolved_if_connection;
 
 pub(in crate::mir::builder) use connection::{commit_for_builder, prepare_for_builder};
+pub(in crate::mir::builder) use resolved_if_connection::prepare_for_resolved_if;
+
+fn render_preparation_error(error: PhiCompletionPreparationErrorV1) -> String {
+    match error {
+        PhiCompletionPreparationErrorV1::ConcreteTypeConflict(conflict) => conflict.to_string(),
+        PhiCompletionPreparationErrorV1::DuplicateIncomingPredecessor { predecessor } => format!(
+            "[freeze:contract][phi_completion/duplicate_incoming_predecessor] predecessor={predecessor}"
+        ),
+        PhiCompletionPreparationErrorV1::DuplicateExpectedPredecessor { predecessor } => format!(
+            "[freeze:contract][phi_completion/duplicate_expected_predecessor] predecessor={predecessor}"
+        ),
+        PhiCompletionPreparationErrorV1::PhantomIncomingPredecessor { predecessor } => format!(
+            "[freeze:contract][phi_completion/phantom_incoming_predecessor] predecessor={predecessor}"
+        ),
+        PhiCompletionPreparationErrorV1::MissingIncomingPredecessor { predecessor } => format!(
+            "[freeze:contract][phi_completion/missing_incoming_predecessor] predecessor={predecessor}"
+        ),
+    }
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) struct PhiDraftV1 {
@@ -44,6 +64,10 @@ impl PhiDraftV1 {
 
     pub(in crate::mir::builder) const fn dst(&self) -> ValueId {
         self.dst
+    }
+
+    pub(in crate::mir::builder) fn type_hint(&self) -> Option<&MirType> {
+        self.type_hint.as_ref()
     }
 
     /// Prepare generic input/type completion without mutating an instruction
