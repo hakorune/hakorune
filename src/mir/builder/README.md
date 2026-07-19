@@ -3,6 +3,8 @@
 Pointers:
 - repo-wide selfhost compiler ownership map:
   - `docs/development/current/main/design/selfhost-compiler-structure-ssot.md`
+- parked clean-architecture consolidation task:
+  - `docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md`
 - current selfhost bootstrap authority:
   - `docs/development/current/main/design/selfhost-bootstrap-route-ssot.md`
 - MIR navigation root:
@@ -171,6 +173,8 @@ reach into route-specific plan internals. The current boundary SSOT is
 ## 追加ルール（将来の変更者向け）
 
 - 新しい状態を追加する場合は、まず「どの Context の責務か」を決めてから追加する（`MirBuilder` 直下に増やさない）。
+- function-session state は module truth / function-owned / observation / legacy compatibility のどれか一つに分類する。未分類の状態を snapshot/restore surface へ追加しない。
+- 同じ semantic operation に completion policy を増やさない。既存入口が複数なら、入口別の修正ではなく共通 completion owner の task を開く。
 - 新しい control-flow shape / CorePlan rule は builder core ではなく
   FlowPlanner row として扱う。builder から route-specific plan internals を
   直接 import しない。
