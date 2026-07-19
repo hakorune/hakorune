@@ -49,7 +49,7 @@ def check_loop0_p0b_o0_g0(root: Path) -> str:
         ("with_default_and_strict_modes(", 1, "shared process mode lock"),
         ("actual_parser_add_fixture::plan()", 1, "shared actual plan"),
         ("actual_parser_add_fixture::caller(&plan)", 1, "shared actual caller"),
-        ("actual_parser_add_fixture::selected_static_sites()[1]", 1, "cleanup site"),
+        ("actual_parser_add_fixture::static_target_candidate_sites()[1]", 1, "cleanup site"),
         ("body_stmt(&root_body, 4)", 1, "actual Loop root"),
         ("verify_located_loop(&port, loop_root)", 1, "same-call located seal"),
         ("canonical_body_len: 6", 1, "canonical body length"),

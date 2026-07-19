@@ -220,6 +220,42 @@ fn source_gate_selects_only_when_the_exact_call_result_row_exists() {
 }
 
 #[test]
+fn source_gate_selects_direct_formal_required_argument() {
+    let source = r#"
+        static box ProviderV1 {
+            second(left, right) { return right }
+        }
+        static box ConsumerV1 {
+            forward(value) { return ProviderV1.second("ignored", value) }
+        }
+    "#;
+    let declarations = declarations(source);
+    let call_site = value_site();
+    let targets = qualified_targets(
+        &declarations,
+        &[],
+        &[CallSiteSpecV1 {
+            caller_owner: "ConsumerV1",
+            caller_name: "forward",
+            caller_arity: 1,
+            site: call_site.clone(),
+        }],
+    );
+    let results = seal_with_targets(&declarations, &targets);
+    let caller = key(&declarations, "ConsumerV1", "forward", 1);
+
+    let CallableResultActivationSourceDecisionV1::Selected(selected) =
+        classify_activation_source_site_v1(&declarations, &caller, &call_site, &targets, &results)
+            .expect("direct formal source gate")
+    else {
+        panic!("direct required formal must have source proof");
+    };
+    assert_eq!(selected.target().owner(), "ProviderV1");
+    assert_eq!(selected.target().name(), "second");
+    assert_eq!(selected.required_i64_arguments(), &[1]);
+}
+
+#[test]
 fn source_gate_keeps_nested_instance_required_argument_unselected() {
     let declarations = declarations(NESTED_INSTANCE_ARGUMENT_SOURCE);
     let call_site = selected_site();
@@ -266,6 +302,65 @@ fn source_gate_treats_missing_target_as_unselected() {
             CallableResultActivationUnselectedReasonV1::NoStaticSourceTarget,
         )
     ));
+}
+
+#[test]
+fn actual_parser_source_gate_is_all_unselected_without_activation_or_builder_state() {
+    actual_parser_add_fixture::with_source_gate_inputs(
+        |declarations, caller, sites, targets, results| {
+            assert_eq!(sites.len(), 15);
+            let decisions = sites
+                .iter()
+                .map(|site| {
+                    classify_activation_source_site_v1(declarations, caller, site, targets, results)
+                        .expect("actual source gate decision")
+                })
+                .collect::<Vec<_>>();
+
+            assert_eq!(
+                decisions
+                    .iter()
+                    .filter(|decision| matches!(
+                        decision,
+                        CallableResultActivationSourceDecisionV1::Selected(_)
+                    ))
+                    .count(),
+                0
+            );
+            assert_eq!(
+                decisions
+                    .iter()
+                    .filter(|decision| matches!(
+                        decision,
+                        CallableResultActivationSourceDecisionV1::Unselected(_)
+                    ))
+                    .count(),
+                15
+            );
+            for candidate in actual_parser_add_fixture::static_target_candidate_sites() {
+                let index = sites
+                    .iter()
+                    .position(|site| site == &candidate)
+                    .expect("target candidate appears in actual source inventory");
+                assert!(matches!(
+                    decisions[index],
+                    CallableResultActivationSourceDecisionV1::Unselected(
+                        CallableResultActivationUnselectedReasonV1::RequiredArgumentSourceProofUnavailable,
+                    )
+                ));
+            }
+            assert!(matches!(
+                decisions[13],
+                CallableResultActivationSourceDecisionV1::Unselected(
+                    CallableResultActivationUnselectedReasonV1::NoStaticSourceTarget,
+                )
+            ));
+            assert_eq!(
+                actual_parser_add_fixture::static_target_candidate_sites().len(),
+                2
+            );
+        },
+    );
 }
 
 #[test]

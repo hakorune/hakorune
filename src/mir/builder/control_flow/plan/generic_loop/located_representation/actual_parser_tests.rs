@@ -282,7 +282,7 @@ fn assert_cleanup_site(
             .activation_site()
             .expect("cleanup expression is located")
             .1,
-        &actual_parser_add_fixture::selected_static_sites()[1]
+        &actual_parser_add_fixture::static_target_candidate_sites()[1]
     );
 }
 

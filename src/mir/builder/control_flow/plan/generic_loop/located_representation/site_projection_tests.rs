@@ -37,7 +37,7 @@ fn actual_loop_projection_matches_selected_site_and_nested_branch_paths() {
         .unwrap();
     assert_eq!(
         cleanup_value.activation_site().unwrap().1,
-        &actual_parser_add_fixture::selected_static_sites()[1]
+        &actual_parser_add_fixture::static_target_candidate_sites()[1]
     );
 
     let join_if = port.exact_body_stmt(&body, 4).unwrap();

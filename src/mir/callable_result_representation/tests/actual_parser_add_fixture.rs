@@ -4,8 +4,15 @@
 //! sealing its exact 15-row activation plan. GenericLoop located-plan tests
 //! borrow this fixture rather than copying source or target-site ordinals.
 
-use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
-use crate::mir::resolved_semantics::{SourceExprSiteV1, SourcePathSegmentV1};
+use crate::mir::builder::{
+    CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1,
+    VerifiedSameModuleCallableDeclarationCatalogV1,
+};
+use crate::mir::resolved_semantics::{
+    observe_method_calls_shadow_view_v0, FunctionSyntaxViewV1, ReceiverPolicyV1, SourceExprSiteV1,
+    SourcePathSegmentV1,
+};
+use crate::mir::source_call_target::VerifiedSourceStaticCallTargetCatalogV1;
 
 use super::super::{
     VerifiedCallableResultActivationPlanV1, VerifiedCallableResultActivationRowsV1,
@@ -31,7 +38,8 @@ pub(crate) fn source() -> String {
     )
 }
 
-pub(crate) fn selected_static_sites() -> [SourceExprSiteV1; 2] {
+/// Exact static target candidates. Source-gate selection is decided separately.
+pub(crate) fn static_target_candidate_sites() -> [SourceExprSiteV1; 2] {
     [
         site(vec![
             SourcePathSegmentV1::Body(3),
@@ -48,7 +56,7 @@ pub(crate) fn selected_static_sites() -> [SourceExprSiteV1; 2] {
 pub(crate) fn plan() -> VerifiedCallableResultActivationPlanV1 {
     let source = source();
     let declarations = Box::new(declarations(&source));
-    let [before_loop, loop_step] = selected_static_sites();
+    let [before_loop, loop_step] = static_target_candidate_sites();
     let targets = qualified_targets(
         declarations.as_ref(),
         &[],
@@ -75,6 +83,64 @@ pub(crate) fn plan() -> VerifiedCallableResultActivationPlanV1 {
     drop(targets);
     VerifiedCallableResultActivationPlanV1::seal(declarations, rows)
         .expect("actual ParserBox activation plan")
+}
+
+/// Builds actual source-gate inputs for disconnected proof tests only.
+///
+/// The callback cannot retain borrowed catalog evidence. It does not construct
+/// activation rows or touch Builder, CorePlan, or caller-ledger state.
+pub(crate) fn with_source_gate_inputs<R>(
+    f: impl FnOnce(
+        &VerifiedSameModuleCallableDeclarationCatalogV1,
+        &CanonicalSameModuleCallableKeyV1,
+        &[SourceExprSiteV1],
+        &VerifiedSourceStaticCallTargetCatalogV1<'_>,
+        &super::super::VerifiedSameModuleCallableResultCatalogV1<'_, '_>,
+    ) -> R,
+) -> R {
+    let source = source();
+    let declarations = declarations(&source);
+    let [before_loop, loop_step] = static_target_candidate_sites();
+    let targets = qualified_targets(
+        &declarations,
+        &[],
+        &[
+            CallSiteSpecV1 {
+                caller_owner: "ParserBox",
+                caller_name: "static_const_parse_add",
+                caller_arity: 2,
+                site: before_loop,
+            },
+            CallSiteSpecV1 {
+                caller_owner: "ParserBox",
+                caller_name: "static_const_parse_add",
+                caller_arity: 2,
+                site: loop_step,
+            },
+        ],
+    );
+    let results = seal_with_targets(&declarations, &targets);
+    let caller = instance_key(&declarations, "ParserBox", "static_const_parse_add", 2);
+    let declaration = declarations
+        .declaration_for(
+            SameModuleCallableNamespaceV1::InstanceBoxMethod,
+            "ParserBox",
+            "static_const_parse_add",
+            2,
+        )
+        .expect("actual ParserBox caller declaration");
+    let sites =
+        observe_method_calls_shadow_view_v0(FunctionSyntaxViewV1::from_borrowed_function_parts(
+            declaration.params(),
+            declaration.body(),
+            ReceiverPolicyV1::DeclaredInstance,
+        ))
+        .expect("actual ParserBox method-call inventory")
+        .into_iter()
+        .map(|(site, _)| site)
+        .collect::<Vec<_>>();
+
+    f(&declarations, &caller, &sites, &targets, &results)
 }
 
 pub(crate) fn caller(

@@ -161,6 +161,32 @@ source gate = Selected
 This fixture proves Gate S success only. It does not borrow actual Parser
 source, name a Parser method, or widen nested instance results.
 
+### P0-REBASE0 closeout (2026-07-19)
+
+Closed with a disconnected scoped source fixture. It builds the actual
+declarations, target/result catalogs, and observed method-call inventory, then
+returns without constructing activation rows or touching Builder, CorePlan, or
+the caller ledger.
+
+```text
+actual observed rows: 15
+static target candidates: 2
+Selected decisions: 0
+Unselected decisions: 15
+
+both static candidates:
+  RequiredArgumentSourceProofUnavailable
+
+nested static_const_eval_pos site:
+  NoStaticSourceTarget
+```
+
+The target-candidate helper is named `static_target_candidate_sites`; no proof
+labels a candidate as selected. Gate-S success is retained only in independent
+generic fixtures: one literal required argument and one direct formal required
+argument. This row has no production activation consumer and leaves Builder,
+CorePlan, ledger, source-site order, and claim schedule unchanged.
+
 ## `I0` — one activation-row consumer
 
 Replace the target-disposition-only selection branch in
