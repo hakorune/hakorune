@@ -183,6 +183,167 @@ co-sealed exact carriers. `StmtWrappedJoinIf` consumes the retained singleton
 NoExit recipe plus exact condition/then/else carriers; it never rebuilds or
 reclassifies the recipe.
 
+#### T0-R0 worker-audit decision lock
+
+Three read-only audits found no design-consultation blocker. R0 is one BoxShape
+row with this internal implementation order:
+
+```text
+R0-V0
+  bind one O0 representation to one located expression port
+
+R0-C0
+  extract one port-aware If-condition tail core
+
+R0-D0
+  parameterize the existing Parts recipe dispatcher with one source provider
+
+R0-P0
+  raw/associated parity, actual strict-carrier proof, and guard closeout
+```
+
+These are implementation checkpoints inside `LOOP0-P0b-T0-R0`, not new public
+rows or independently landable semantic authorities.
+
+##### R0-V0: bound borrowed view
+
+The O0 representation remains non-Clone and keeps all fields private. It gains
+one same-call binding entry equivalent to:
+
+```text
+VerifiedLocatedGenericLoopBodyRepresentationV1
+  + LocatedLoopPlanExpressionPortV1
+  -> BoundLocatedGenericLoopBodyViewV1
+```
+
+The constructor first requires the port to recognize the representation's
+exact stored Loop root. Failure occurs before Builder mutation. The bound view
+borrows both products and exposes only the already-sealed direct prefix,
+cleanup, recipe block/item, and branch carriers needed by Parts. It does not
+expose constructors that can independently pair a recipe, source carrier, or
+step disposition.
+
+The located port may add borrowed input forms for retained O0 carriers. This is
+a lifetime adapter only:
+
+```text
+borrowed expression carrier
+borrowed statement carrier
+borrowed body carrier
+```
+
+It owns no site, target, ABI, ledger, or recipe policy.
+
+##### R0-C0: If-condition associated-input seam
+
+The audits found one required seam not visible in the earlier short summary:
+existing Parts If owners pass a cloned/raw `CondBlockView` to
+`lower_cond_branch`. A located route must not use that view as its syntax
+authority.
+
+R0 therefore extracts one neutral associated-input tail core from the existing
+If-plan condition owner. The raw facade retains prelude handling and selects a
+raw port. The core receives the exact condition input and preserves the current
+`!`, `&&`, `||`, comparison, join, freshening, and branch semantics. Leaves use
+the existing `PlanNormalizer::lower_value_input` and
+`PlanNormalizer::lower_compare_input` owners.
+
+```text
+raw If condition:
+  existing CondBlockView prelude
+  -> raw port
+  -> shared associated-input tail core
+
+located If condition:
+  exact O0 IfCondition carrier
+  -> same shared tail core
+```
+
+PATH0 already owns `IfCondition`, `IfThen`, `IfElse`, `BlockExprPrelude`, and
+`BlockExprTail`. R0 adds no child-role vocabulary and no condition dispatcher.
+
+##### R0-D0: one recipe dispatcher, one source provider
+
+The existing `RecipeItem` semantic match in Parts remains the sole dispatcher.
+It is parameterized by one neutral source-provider boundary. The raw provider
+keeps the current `RecipeBody::get_ref` and `CondBlockView` behavior. The
+located provider reads only the bound O0 view.
+
+The provider supplies these already-associated inputs:
+
+```text
+OpaqueStmt:
+  exact statement input
+
+OpaqueExit:
+  exact statement input + retained ExitKind
+
+ExplicitIfV2:
+  exact condition, then body, optional else body, contract, and child blocks
+
+StmtWrappedJoinIf:
+  retained singleton NoExit recipe/root
+  + exact condition, then body, and optional else body
+```
+
+Statement leaves reuse the B0 associated-input primitives. Return values use
+the exact expression child. Existing Parts owners retain exit state, join
+snapshot/payload, binding publication, and terminality semantics.
+
+`StmtWrappedJoinIf` never calls `try_build_no_exit_block_recipe`, never
+reclassifies the source If, and never treats the singleton recipe's cloned AST
+or `CondBlockView` as located syntax. The retained singleton product is the
+already-selected Join proof; its exact O0 branch carriers are the only source
+inputs used by the shared Parts semantics.
+
+##### R0-P0: required proof
+
+Focused fixtures fix:
+
+```text
+raw parity:
+  ExitOnly
+  ExitAllowed
+  NoExit / Join
+
+associated items:
+  OpaqueStmt Local and Assignment
+  OpaqueExit Return
+  ExplicitIfV2 with exact condition/then/else presence
+  StmtWrappedJoinIf with retained singleton Join product
+
+actual strict root:
+  item 0 Local
+  item 1 Local
+  item 2 IfCondition + IfThen(ReturnValue)
+  item 3 Local
+  item 4 wrapped IfCondition + IfThen(AssignmentValue)
+         + IfElse(AssignmentValue)
+
+failure:
+  foreign or mismatched port/product pairing rejects before Builder effects
+  no later statement trace or plan is produced
+```
+
+The guard extends the existing private T0 helper. No shell, manifest, or public
+guard family is added. It fixes one bound-view constructor, one associated
+condition owner, one parameterized recipe dispatcher, zero recipe rebuilds,
+zero side maps, zero production located callers, zero ledger claims, and the
+800-line cap.
+
+Recommended physical split:
+
+```text
+parts/associated_source.rs
+parts/associated_source_tests.rs
+normalizer/cond_lowering_if_plan_port.rs
+generic_loop/located_representation/parts_associated_source_tests.rs
+```
+
+`parts/stmt.rs`, `parts/dispatch/block.rs`, and `parts/wiring_tests.rs` should
+not receive new test bodies. Any necessary edits there are thin delegation or
+generic threading only.
+
 ### T0-L0
 
 Consume the non-Clone O0 representation in one same-call disconnected located
