@@ -1,4 +1,5 @@
-//! Disconnected non-Clone seal for one final located Core Loop plan.
+//! Disconnected non-Clone seals for one final located Core Loop plan and its
+//! single-use execution session.
 
 use std::collections::BTreeMap;
 
@@ -19,6 +20,19 @@ struct LocatedCoreLoopPlanSealV1;
 #[derive(Debug)]
 struct ClaimedLocatedCoreLoopExecutionSealV1;
 
+#[derive(Debug)]
+struct LocatedCoreLoopExecutionSessionSealV1;
+
+/// Typed failure vocabulary for the claimed CorePlan execution session.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) enum LocatedCoreLoopExecutionSessionErrorV1 {
+    ClaimBatch(String),
+    Lowering(String),
+    Unexecuted,
+    Poisoned,
+    AlreadyCompleted,
+}
+
 /// Owns one completed, verified, already-remapped Core Loop plan.
 #[derive(Debug)]
 pub(in crate::mir::builder) struct VerifiedLocatedCoreLoopPlanV1<'plan> {
@@ -32,10 +46,28 @@ pub(in crate::mir::builder) struct VerifiedLocatedCoreLoopPlanV1<'plan> {
 /// It owns both the already-remapped CorePlan and the source-order claims, so
 /// neither can be paired with another plan or emitted twice.
 #[derive(Debug)]
-pub(in crate::mir::builder) struct ClaimedLocatedCoreLoopExecutionV1<'plan> {
+struct ClaimedLocatedCoreLoopExecutionV1<'plan> {
     plan: CorePlan,
     claims: ClaimedCallableResultLoopBatchV1<'plan>,
     _seal: ClaimedLocatedCoreLoopExecutionSealV1,
+}
+
+#[derive(Debug)]
+enum LocatedCoreLoopExecutionStateV1<'plan> {
+    Active(ClaimedLocatedCoreLoopExecutionV1<'plan>),
+    Poisoned,
+    Completed,
+}
+
+/// Stack-scoped state owner for one claimed CorePlan loop execution.
+///
+/// The session owns the already-claimed bundle.  It has no source-selection,
+/// claim-creation, or route-selection capability: lowering consumes the bundle
+/// once, then commits only the session state to `Completed` or `Poisoned`.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct LocatedCoreLoopExecutionSessionV1<'plan> {
+    state: LocatedCoreLoopExecutionStateV1<'plan>,
+    _seal: LocatedCoreLoopExecutionSessionSealV1,
 }
 
 impl<'plan> VerifiedLocatedCoreLoopPlanV1<'plan> {
@@ -106,7 +138,7 @@ impl<'plan> VerifiedLocatedCoreLoopPlanV1<'plan> {
     /// A failed claim leaves the ledger unchanged and drops the plan without
     /// invoking PlanLowerer.  The method consumes the seal, preventing a
     /// second schedule/plan pairing or retry from the same selected session.
-    pub(in crate::mir::builder) fn into_claimed_execution(
+    fn claim_execution(
         self,
         ledger: &mut VerifiedCallableResultCallerLedgerV1<'plan>,
     ) -> Result<ClaimedLocatedCoreLoopExecutionV1<'plan>, String> {
@@ -118,6 +150,18 @@ impl<'plan> VerifiedLocatedCoreLoopPlanV1<'plan> {
             claims,
             _seal: ClaimedLocatedCoreLoopExecutionSealV1,
         })
+    }
+
+    /// Consumes the verified plan and atomically claims its complete source
+    /// schedule before creating the only CorePlan execution-state owner.
+    pub(in crate::mir::builder) fn start_execution(
+        self,
+        ledger: &mut VerifiedCallableResultCallerLedgerV1<'plan>,
+    ) -> Result<LocatedCoreLoopExecutionSessionV1<'plan>, LocatedCoreLoopExecutionSessionErrorV1>
+    {
+        self.claim_execution(ledger)
+            .map(LocatedCoreLoopExecutionSessionV1::from_claimed)
+            .map_err(LocatedCoreLoopExecutionSessionErrorV1::ClaimBatch)
     }
 
     #[cfg(test)]
@@ -141,5 +185,70 @@ impl<'plan> ClaimedLocatedCoreLoopExecutionV1<'plan> {
             super::PlanLowerer::lower_with_emission_port(builder, self.plan, ctx, &mut port)?;
         port.finish()?;
         Ok(lowered)
+    }
+}
+
+impl<'plan> LocatedCoreLoopExecutionSessionV1<'plan> {
+    fn from_claimed(execution: ClaimedLocatedCoreLoopExecutionV1<'plan>) -> Self {
+        Self {
+            state: LocatedCoreLoopExecutionStateV1::Active(execution),
+            _seal: LocatedCoreLoopExecutionSessionSealV1,
+        }
+    }
+
+    /// Lowers the claimed bundle exactly once.
+    ///
+    /// The bundle is removed before calling the lowerer, so a failure cannot
+    /// expose a retry path.  The existing emission port remains the only owner
+    /// of exact prepared-claim consumption.
+    pub(in crate::mir::builder) fn lower_once(
+        &mut self,
+        builder: &mut crate::mir::builder::MirBuilder,
+        ctx: &crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext,
+    ) -> Result<Option<crate::mir::ValueId>, LocatedCoreLoopExecutionSessionErrorV1> {
+        let state = std::mem::replace(&mut self.state, LocatedCoreLoopExecutionStateV1::Poisoned);
+        match state {
+            LocatedCoreLoopExecutionStateV1::Active(execution) => {
+                match execution.lower(builder, ctx) {
+                    Ok(value) => {
+                        self.state = LocatedCoreLoopExecutionStateV1::Completed;
+                        Ok(value)
+                    }
+                    Err(error) => Err(LocatedCoreLoopExecutionSessionErrorV1::Lowering(error)),
+                }
+            }
+            LocatedCoreLoopExecutionStateV1::Poisoned => {
+                self.state = LocatedCoreLoopExecutionStateV1::Poisoned;
+                Err(LocatedCoreLoopExecutionSessionErrorV1::Poisoned)
+            }
+            LocatedCoreLoopExecutionStateV1::Completed => {
+                self.state = LocatedCoreLoopExecutionStateV1::Completed;
+                Err(LocatedCoreLoopExecutionSessionErrorV1::AlreadyCompleted)
+            }
+        }
+    }
+
+    /// Acknowledges successful single-use execution.
+    ///
+    /// `ClaimedLocatedCoreLoopExecutionV1::lower` already calls the emission
+    /// port's `finish`; this method seals this session's state only and never
+    /// creates a second claim or ledger completion path.
+    pub(in crate::mir::builder) fn finish(
+        self,
+    ) -> Result<(), LocatedCoreLoopExecutionSessionErrorV1> {
+        match self.state {
+            LocatedCoreLoopExecutionStateV1::Completed => Ok(()),
+            LocatedCoreLoopExecutionStateV1::Active(_) => {
+                Err(LocatedCoreLoopExecutionSessionErrorV1::Unexecuted)
+            }
+            LocatedCoreLoopExecutionStateV1::Poisoned => {
+                Err(LocatedCoreLoopExecutionSessionErrorV1::Poisoned)
+            }
+        }
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn is_active_for_tests(&self) -> bool {
+        matches!(self.state, LocatedCoreLoopExecutionStateV1::Active(_))
     }
 }

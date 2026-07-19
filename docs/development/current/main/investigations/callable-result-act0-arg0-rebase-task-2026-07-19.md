@@ -318,6 +318,33 @@ finish after `Poisoned` fail explicitly. A fresh Builder/compiler/session stays
 reusable. Do not reuse the legacy AST lowering session: this is a CorePlan
 execution owner with a different authority boundary.
 
+### S0 closeout (2026-07-19)
+
+Closed with one private claimed bundle and one non-Clone
+`LocatedCoreLoopExecutionSessionV1` owner.
+
+```text
+sole state-entry:
+  VerifiedLocatedCoreLoopPlanV1::start_execution
+
+states:
+  Active(claimed bundle) -> Completed | Poisoned
+
+session finish:
+  Completed -> success
+  Active -> Unexecuted
+  Poisoned -> Poisoned
+
+production session callers: 0
+legacy AST session reuse: 0
+claimed-bundle bypass: 0
+```
+
+The session does not create a second ledger or claim map. Its `lower_once`
+consumes the existing bundle before calling the existing port, making a retry
+structurally unavailable after either result. P0 owns first actual raw-primary
+execution; F0 owns the first injected selected-terminal failure transition.
+
 ## `LOOP0-L0-R0-P0` — all-Unselected bounded lowering proof
 
 Use the exact actual source carrier and its all-Unselected activation plan to

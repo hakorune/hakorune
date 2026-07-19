@@ -34,6 +34,7 @@ def main() -> None:
     emission = read(
         root, "src/mir/builder/control_flow/plan/lowerer/emission_port.rs"
     )
+    located_loop = read(root, "src/mir/builder/control_flow/plan/located_loop.rs")
     solver = read(root, "src/mir/callable_result_representation/solver.rs")
     tests = read(root, "src/mir/callable_result_representation/tests/activation.rs")
 
@@ -95,6 +96,26 @@ def main() -> None:
         1,
         "PATH0 inventory consumer",
     )
+    require_count(
+        located_loop,
+        "struct LocatedCoreLoopExecutionSessionV1",
+        1,
+        "claimed CorePlan execution session owner",
+    )
+    require_count(
+        located_loop,
+        "enum LocatedCoreLoopExecutionStateV1",
+        1,
+        "claimed CorePlan execution state owner",
+    )
+    require_count(
+        located_loop,
+        "into_claimed_execution",
+        0,
+        "claimed bundle production bypass",
+    )
+    if "LocatedLegacyLoweringSessionV1" in located_loop:
+        fail("CorePlan session must not reuse the legacy AST lowering session")
 
     for product in (
         "VerifiedCallableResultActivationRowsV1",
@@ -135,12 +156,27 @@ def main() -> None:
     if production_consumers != 0:
         fail(f"production activation consumers: expected=0 actual={production_consumers}")
 
+    production_session_starts = 0
+    for path in (root / "src").rglob("*.rs"):
+        relative = path.relative_to(root).as_posix()
+        if "/tests/" in relative or path.name == "tests.rs" or path.name.endswith("_tests.rs"):
+            continue
+        count = path.read_text(encoding="utf-8").count(".start_execution(")
+        production_session_starts += count
+    if production_session_starts != 0:
+        fail(
+            "production claimed CorePlan execution-session callers: "
+            f"expected=0 actual={production_session_starts}"
+        )
+
     touched = [
         "src/mir/builder/callable_declaration_catalog/catalog.rs",
         "src/mir/callable_result_representation/activation.rs",
         "src/mir/callable_result_representation/activation_source_gate.rs",
         "src/mir/callable_result_representation/activation_error.rs",
         "src/mir/builder/control_flow/plan/lowerer/emission_port.rs",
+        "src/mir/builder/control_flow/plan/located_loop.rs",
+        "src/mir/builder/control_flow/plan/located_loop_tests.rs",
         "src/mir/callable_result_representation/solver.rs",
         "src/mir/callable_result_representation/tests/activation.rs",
         "src/mir/callable_result_representation/tests/generic_selected_activation_fixture.rs",
@@ -153,7 +189,8 @@ def main() -> None:
 
     print(
         "[callable-result-i0-a0] ok: plan=1 rows=owned actual=15/2/0/15 "
-        "generic_selected=1 source_gate_consumers=1 production_consumers=0"
+        "generic_selected=1 source_gate_consumers=1 production_consumers=0 "
+        "core_loop_session_consumers=0"
     )
 
 

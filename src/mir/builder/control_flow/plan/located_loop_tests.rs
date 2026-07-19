@@ -18,8 +18,9 @@ use crate::mir::{BasicBlockId, ValueId};
 use crate::parser::NyashParser;
 
 use super::{
-    CoreCallSourceV1, CoreEffectPlan, CoreLoopPlan, CorePlan, LocatedCoreLoopPlanErrorV1,
-    LoopStepMode, VerifiedLocatedCoreLoopPlanV1,
+    CoreCallSourceV1, CoreEffectPlan, CoreLoopPlan, CorePlan,
+    LocatedCoreLoopExecutionSessionErrorV1, LocatedCoreLoopPlanErrorV1, LoopStepMode,
+    VerifiedLocatedCoreLoopPlanV1,
 };
 use crate::mir::builder::control_flow::edgecfg::api::Frag;
 
@@ -296,7 +297,7 @@ fn source_schedule_is_independent_from_core_plan_traversal_order() {
 }
 
 #[test]
-fn sealed_loop_moves_once_into_the_claimed_execution_bundle() {
+fn claimed_loop_execution_session_starts_active_and_rejects_early_finish() {
     let activation = seal_plan(SOURCE);
     let parser = caller(&activation, "ParserBox");
     let view = VerifiedCallableResultLegacySourceViewV1::verify(&activation, &parser)
@@ -306,10 +307,6 @@ fn sealed_loop_moves_once_into_the_claimed_execution_bundle() {
     let before = view
         .child_expr_from_stmt(&before_stmt, ExprChildRoleV1::LocalInitializer(0))
         .expect("before call carrier");
-    let after_stmt = view.body_stmt(&root, 2).expect("after statement");
-    let after = view
-        .child_expr_from_stmt(&after_stmt, ExprChildRoleV1::ReturnValue)
-        .expect("after call carrier");
 
     let located = VerifiedLocatedCoreLoopPlanV1::verify(
         complete_plan(),
@@ -322,15 +319,16 @@ fn sealed_loop_moves_once_into_the_claimed_execution_bundle() {
         VerifiedCallableResultCallerLedgerV1::verify(&activation, &parser).expect("caller ledger");
     ledger.claim(&before).expect("claim before-loop row");
 
-    // This consumes both the plan and its schedule.  The execution bundle is
-    // intentionally opaque; only its lower() method can consume its claims.
-    let execution = located
-        .into_claimed_execution(&mut ledger)
-        .expect("atomic Loop claim batch");
-    drop(execution);
-
-    ledger.claim(&after).expect("claim post-loop row");
-    ledger.finish().expect("all caller rows claimed once");
+    // This consumes both the plan and its schedule.  The session is the only
+    // CorePlan execution-state owner; it cannot finish before lowering.
+    let session = located
+        .start_execution(&mut ledger)
+        .expect("atomic Loop claim batch starts the execution session");
+    assert!(session.is_active_for_tests());
+    assert_eq!(
+        session.finish(),
+        Err(LocatedCoreLoopExecutionSessionErrorV1::Unexecuted),
+    );
 }
 
 #[test]
