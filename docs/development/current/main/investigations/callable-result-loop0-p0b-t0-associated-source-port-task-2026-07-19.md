@@ -1006,6 +1006,52 @@ expression-spine guard, pointer, formatting, diff, and line checks are green.
 The next slice is DIRECT0-R0: parameterize the existing direct body/If owner
 over the same port without adding a second dispatcher.
 
+#### T0-DIRECT0-R0 worker decision lock
+
+Three worker audits agree that R0 is an implementation row, not a new design
+consultation. The row remains disconnected: no located composer, skeleton,
+ledger claim, production caller, fallback, or retry is allowed.
+
+The sole new owner is one associated-input direct-body core. It accepts the
+existing `LoopPlanExpressionPortV1` and delegates Local, Assignment, MethodCall,
+FunctionCall, Return, and If lowering to the already-landed associated input
+primitives and the existing Parts state owners. The raw `v1` path remains a
+thin facade and retains its broader raw-only tail (Print, Program/BlockExpr,
+nested Loop, Break/Continue, and effect-only forms). Located admission is not
+expanded by this row.
+
+The If path must use the existing conditional-update input owner first and one
+port-aware wrapper around `lower_if_join_state_core` for ordinary join Ifs. A
+second statement/If dispatcher, `CondBlockView` reconstruction from located
+syntax, raw `facts.body`/environment policy reads, recipe rebuilding, AST
+equality, or direct method/field-name routing is forbidden.
+
+R0 acceptance is disconnected explicit-raw-port parity: Local/Assignment/
+Return/If recursion, early-terminal stopping, conditional-update Select shape,
+unsupported-carrier rejection before later input, and fresh Builder reuse.
+The actual DirectRecipeOnly carrier and located composer remain for I0.
+
+The implementation order is fixed:
+
+```text
+LOOP0-P0b-T0-DIRECT0-R0
+  one shared direct-body/If associated-input owner
+  raw facade only; production located callers = 0
+
+LOOP0-P0b-T0-DIRECT0-I0
+  Builder-free DirectRecipeOnly execution token and disconnected composer
+
+LOOP0-P0b-T0-DIRECT0-G0
+  raw/explicit-port parity, default-prefix proof, private guard
+
+then LOOP0-P0b-P0
+  default + strict whole-loop typed parity
+```
+
+R0 stops immediately if it needs a second dispatcher, a located facts/policy
+authority, post-O0 recipe construction, a changed raw Select shape, broader
+located grammar, fallback/retry, or a touched source/check file at 800 lines.
+
 L0 stops for a new consultation if exact carrier targets cannot be retained by
 the existing HOOK0 traversal; if `DirectRecipeOnly` must become active now; if
 raw facts/body, environment policy, step reclassification, recipe rebuild,
