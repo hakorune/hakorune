@@ -156,3 +156,5 @@ pub(in crate::mir::builder) use self::domain::LoopBreakStepPlacement;
 mod expression_port_tests;
 #[cfg(test)]
 mod located_loop_tests;
+#[cfg(test)]
+pub(in crate::mir::builder) mod parity_snapshot_test_support;

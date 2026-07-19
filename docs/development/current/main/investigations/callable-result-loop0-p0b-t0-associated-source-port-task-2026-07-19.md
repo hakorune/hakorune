@@ -1,5 +1,5 @@
 ---
-Status: T0-L0, T0-DIRECT0-S0, T0-DIRECT0-R0, and T0-DIRECT0-I0/G0 closed; T0-P0 is next
+Status: T0-L0, T0-DIRECT0-S0, T0-DIRECT0-R0, T0-DIRECT0-I0/G0, and T0-P0 closed; P0c is next
 Date: 2026-07-19
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md
 Prior decision: callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md
@@ -1101,6 +1101,43 @@ zero.
 
 The next row is `LOOP0-P0b-P0`: run both-mode whole-loop typed parity with
 fresh identically seeded Builders; strict-only parity is not sufficient.
+
+### T0-P0 closeout
+
+T0-P0 is closed without a design consultation. A shared test-only typed
+`CorePlan` snapshot support module now compares the complete raw and located
+GenericLoop products while erasing only `CoreCallSourceV1` provenance. It
+retains loop block roles, body/effect topology, PHIs, fragments, exits,
+bindings, ValueIds, types, kinds, origins, literals, and the complete Builder
+snapshot. The proof runs raw and located composition independently under both
+default `RecipeOnly` and strict `ExitAllowed` modes using fresh identically
+seeded Builders; the modes are never compared with each other.
+
+The actual located nine-site Loop schedule is verified through the existing
+schedule authority and compared separately from plan/evaluation traversal.
+The traversal witness is `[3,4,5,6,8,7,0,1,2]`; raw call effects remain
+`Unlocated`, while located call effects retain exact site provenance. No
+ledger, PlanLowerer, runtime/backend/ownership path, fallback, retry, or
+production located root is involved.
+
+Evidence:
+
+```text
+whole-loop parity fixture: 1/1 (two independent modes, raw + located)
+located parity: 3/3
+generic_loop filtered library tests: 91/91
+focused whole-loop test: 1/1
+all-target check: green
+public expression-spine guard + private P0 guard: green
+format, diff, pointer, and line checks: green
+source/check files at or above 800 lines: 0
+production located roots / PlanLowerer / ledger claims: 0
+```
+
+The next row is `LOOP0-P0c`: the disconnected actual 15-row parity proof
+including explicit PlanVerifier, remap/site preservation, short-circuit
+laziness, and negative pre-composer rejection fixtures. T0-P0 does not
+activate located Loop production.
 
 L0 stops for a new consultation if exact carrier targets cannot be retained by
 the existing HOOK0 traversal; if `DirectRecipeOnly` must become active now; if

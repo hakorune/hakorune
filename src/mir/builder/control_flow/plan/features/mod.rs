@@ -20,6 +20,8 @@ pub(in crate::mir::builder) mod generic_loop_handoff;
 pub(in crate::mir::builder) mod generic_loop_located_composer;
 pub(in crate::mir::builder) mod generic_loop_pipeline;
 pub(in crate::mir::builder) mod generic_loop_step;
+#[cfg(test)]
+mod generic_loop_whole_parity_tests;
 pub(in crate::mir::builder) mod loop_cond_continue_with_return_pipeline;
 pub(in crate::mir::builder) mod loop_cond_return_in_body_cleanup;
 pub(in crate::mir::builder) mod loop_cond_return_in_body_join;

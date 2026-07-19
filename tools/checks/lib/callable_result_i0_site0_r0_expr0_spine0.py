@@ -28,6 +28,9 @@ from callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_o0_siteproj0 import (
 from callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_t0 import (
     check_loop0_p0b_t0,
 )
+from callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_t0_p0 import (
+    check_loop0_p0b_t0_p0,
+)
 from callable_result_i0_site0_r0_expr0_spine0_suffix0 import (
     check_suffix0_i0,
     check_suffix0_s0,
@@ -511,6 +514,7 @@ def main() -> None:
         loop0_p0b_o0_siteproj0_summary = check_loop0_p0b_o0_siteproj0(root)
         loop0_p0b_o0_g0_summary = check_loop0_p0b_o0_g0(root)
         loop0_p0b_t0_summary = check_loop0_p0b_t0(root)
+        loop0_p0b_t0_p0_summary = check_loop0_p0b_t0_p0(root)
     except RuntimeError as error:
         fail(str(error))
     require_count(
@@ -585,7 +589,7 @@ def main() -> None:
         f" {loop0_p0b_o0_summary} {loop0_p0b_o0_r0_summary}"
         f" {loop0_p0b_o0_siteproj0_summary}"
         f" {loop0_p0b_o0_g0_summary}"
-        f" {loop0_p0b_t0_summary}"
+        f" {loop0_p0b_t0_summary} {loop0_p0b_t0_p0_summary}"
     )
 
 
