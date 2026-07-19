@@ -131,9 +131,9 @@ where
     )?;
     crate::mir::builder::control_flow::joinir::trace::trace().varmap(
         "generic_loop_v1_post_body",
-        &builder.variable_ctx.variable_map,
+        &builder.function_state.variable_ctx.variable_map,
     );
-    let post_body_map = builder.variable_ctx.variable_map.clone();
+    let post_body_map = builder.function_state.variable_ctx.variable_map.clone();
     let body_has_continue_edge = plans_require_continue_edge(&body_plans);
     Ok(GenericLoopV1CarrierOrchestration {
         body_plans,

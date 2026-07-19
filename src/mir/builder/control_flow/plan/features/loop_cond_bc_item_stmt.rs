@@ -84,6 +84,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_stmt(
         } => {
             for (name, value_id) in current_bindings.iter() {
                 builder
+                    .function_state
                     .variable_ctx
                     .variable_map
                     .insert(name.clone(), *value_id);

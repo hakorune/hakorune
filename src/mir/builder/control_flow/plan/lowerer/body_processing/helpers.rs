@@ -13,7 +13,7 @@ pub(super) fn validate_effects_binop_operands(
     if !strict_planner_required {
         return Ok(());
     }
-    let mut defined_values = match builder.scope_ctx.current_function.as_ref() {
+    let mut defined_values = match builder.function_state.current_function.as_ref() {
         Some(func) => crate::mir::verification::utils::compute_def_blocks(func)
             .keys()
             .copied()
@@ -27,13 +27,11 @@ pub(super) fn validate_effects_binop_operands(
                 if let Some((def_idx, def_kind)) = find_forward_def(effects, effect_idx + 1, *lhs) {
                     return Err(format!(
                         "[freeze:contract][loop_lowering/effect_forward_ref] fn={} bb={:?} use=%{} use_idx={} def_idx={} def_kind={} use_by=CoreEffectPlan::BinOp dst=%{} op={:?} operand=lhs path={}",
-                        builder
-                            .scope_ctx
-                            .current_function
+                        builder.function_state.current_function
                             .as_ref()
                             .map(|f| f.signature.name.as_str())
                             .unwrap_or("<unknown>"),
-                        builder.current_block,
+                        builder.function_state.current_block,
                         lhs.0,
                         effect_idx,
                         def_idx,
@@ -45,13 +43,11 @@ pub(super) fn validate_effects_binop_operands(
                 }
                 return Err(format!(
                     "[freeze:contract][loop_lowering/effect_undefined_operand] fn={} bb={:?} use=%{} use_idx={} use_by=CoreEffectPlan::BinOp dst=%{} op={:?} operand=lhs plan_def=none path={}",
-                    builder
-                        .scope_ctx
-                        .current_function
+                    builder.function_state.current_function
                         .as_ref()
                         .map(|f| f.signature.name.as_str())
                         .unwrap_or("<unknown>"),
-                    builder.current_block,
+                    builder.function_state.current_block,
                     lhs.0,
                     effect_idx,
                     dst.0,
@@ -63,13 +59,11 @@ pub(super) fn validate_effects_binop_operands(
                 if let Some((def_idx, def_kind)) = find_forward_def(effects, effect_idx + 1, *rhs) {
                     return Err(format!(
                         "[freeze:contract][loop_lowering/effect_forward_ref] fn={} bb={:?} use=%{} use_idx={} def_idx={} def_kind={} use_by=CoreEffectPlan::BinOp dst=%{} op={:?} operand=rhs path={}",
-                        builder
-                            .scope_ctx
-                            .current_function
+                        builder.function_state.current_function
                             .as_ref()
                             .map(|f| f.signature.name.as_str())
                             .unwrap_or("<unknown>"),
-                        builder.current_block,
+                        builder.function_state.current_block,
                         rhs.0,
                         effect_idx,
                         def_idx,
@@ -81,13 +75,11 @@ pub(super) fn validate_effects_binop_operands(
                 }
                 return Err(format!(
                     "[freeze:contract][loop_lowering/effect_undefined_operand] fn={} bb={:?} use=%{} use_idx={} use_by=CoreEffectPlan::BinOp dst=%{} op={:?} operand=rhs plan_def=none path={}",
-                    builder
-                        .scope_ctx
-                        .current_function
+                    builder.function_state.current_function
                         .as_ref()
                         .map(|f| f.signature.name.as_str())
                         .unwrap_or("<unknown>"),
-                    builder.current_block,
+                    builder.function_state.current_block,
                     rhs.0,
                     effect_idx,
                     dst.0,
@@ -112,7 +104,7 @@ pub(super) fn debug_log_literal_plan(
     if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
         let fn_name = super::super::debug_ctx::current_fn_name(builder);
         let next_value_id = builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .map(|f| f.next_value_id)
@@ -125,7 +117,7 @@ pub(super) fn debug_log_literal_plan(
         ring0.log.debug(&format!(
             "[lit/lower:plan] fn={} bb={:?} v=%{} lit={:?} span={} file={} next={} path={} emit=plan_effect",
             fn_name,
-            builder.current_block,
+            builder.function_state.current_block,
             dst.0,
             value,
             super::super::span_fmt::current_span_location(builder),

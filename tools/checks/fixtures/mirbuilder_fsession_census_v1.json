@@ -1,6 +1,6 @@
 {
   "schema": "MirBuilderFunctionSessionCensusV1",
-  "decision": "fsession_census_only",
+  "decision": "s0b_physical_cutover",
   "ownership_classes": [
     "ModuleImmutable",
     "ModulePublication",
@@ -10,6 +10,7 @@
   ],
   "sources": {
     "builder": "src/mir/builder.rs",
+    "function_state": "src/mir/builder/function_lowering_state.rs",
     "lifecycle": "src/mir/builder/calls/context_lifecycle.rs",
     "type_context": "crates/hakorune_mir_builder/src/type_context.rs",
     "scope_context": "src/mir/builder/scope_context.rs",
@@ -19,32 +20,14 @@
   },
   "builder_fields": [
     {"field": "current_module", "coverage": "outside_session", "surface_ids": [], "class": "ModulePublication"},
-    {"field": "current_block", "coverage": "surface", "surface_ids": ["cfg.current_block"]},
+    {"field": "function_state", "coverage": "outside_session", "surface_ids": [], "class": "FunctionOwned"},
     {"field": "core_ctx", "coverage": "outside_session", "surface_ids": [], "class": "LegacyCompatibility"},
-    {"field": "type_ctx", "coverage": "decomposed", "surface_ids": ["type.value_kinds", "type.value_origin_newbox", "type.value_types", "type.string_literals", "type.map_literal_value_types", "type.map_value_types"]},
-    {"field": "scope_ctx", "coverage": "decomposed", "surface_ids": ["scope.current_function", "scope.debug_scope_stack", "scope.fastmem_region_stack", "scope.function_param_names", "scope.if_merge_stack", "scope.lexical_scope_stack", "scope.loop_exit_stack", "scope.loop_header_stack"]},
-    {"field": "binding_ctx", "coverage": "surface", "surface_ids": ["binding.context"]},
-    {"field": "resolved_binding_state", "coverage": "surface", "surface_ids": ["binding.resolved_state"]},
-    {"field": "variable_ctx", "coverage": "surface", "surface_ids": ["variable.map"]},
-    {"field": "metadata_ctx", "coverage": "decomposed", "surface_ids": ["metadata.current_region_stack", "metadata.current_span"]},
-    {"field": "comp_ctx", "coverage": "decomposed", "surface_ids": ["compat.context_active", "compat.current_static_box", "function.fn_body_ast", "function.record_local_values", "function.reserved_value_ids", "observation.current_slot_registry"]},
-    {"field": "pending_phis", "coverage": "surface", "surface_ids": ["ssa.pending_phis"]},
-    {"field": "return_defer_active", "coverage": "surface", "surface_ids": ["cleanup.return_defer_active"]},
-    {"field": "return_defer_slot", "coverage": "surface", "surface_ids": ["cleanup.return_defer_slot"]},
-    {"field": "return_defer_target", "coverage": "surface", "surface_ids": ["cleanup.return_defer_target"]},
-    {"field": "return_deferred_emitted", "coverage": "surface", "surface_ids": ["cleanup.return_deferred_emitted"]},
-    {"field": "in_cleanup_block", "coverage": "surface", "surface_ids": ["cleanup.in_cleanup_block"]},
-    {"field": "cleanup_allow_return", "coverage": "surface", "surface_ids": ["cleanup.allow_return"]},
-    {"field": "cleanup_allow_throw", "coverage": "surface", "surface_ids": ["cleanup.allow_throw"]},
-    {"field": "suppress_pin_entry_copy_next", "coverage": "surface", "surface_ids": ["ssa.suppress_pin_entry_copy_next"]},
-    {"field": "local_ssa_map", "coverage": "surface", "surface_ids": ["ssa.local_map"]},
-    {"field": "schedule_mat_map", "coverage": "surface", "surface_ids": ["ssa.schedule_materialization_map"]},
-    {"field": "pin_slot_names", "coverage": "surface", "surface_ids": ["ssa.pin_slot_names"]},
-    {"field": "in_unified_boxcall_fallback", "coverage": "surface", "surface_ids": ["function.unified_boxcall_fallback"]},
-    {"field": "recursion_depth", "coverage": "surface", "surface_ids": ["observation.recursion_depth"]},
+    {"field": "scope_ctx", "coverage": "outside_session", "surface_ids": [], "class": "ObservationBorrow"},
+    {"field": "metadata_ctx", "coverage": "outside_session", "surface_ids": [], "class": "ObservationBorrow"},
+    {"field": "comp_ctx", "coverage": "outside_session", "surface_ids": [], "class": "LegacyCompatibility"},
+    {"field": "recursion_depth", "coverage": "outside_session", "surface_ids": [], "class": "ObservationBorrow"},
     {"field": "root_is_app_mode", "coverage": "outside_session", "surface_ids": [], "class": "ModulePublication"},
-    {"field": "repl_mode", "coverage": "outside_session", "surface_ids": [], "class": "LegacyCompatibility"},
-    {"field": "frag_emit_session", "coverage": "surface", "surface_ids": ["function.frag_emit_session"]}
+    {"field": "repl_mode", "coverage": "outside_session", "surface_ids": [], "class": "LegacyCompatibility"}
   ],
   "function_state_routes": [
     {"selector": "current_block", "old_storage": "builder.current_block", "destination": "function_state.current_block"},
@@ -84,29 +67,29 @@
     {
       "id": "scope.lexical_helpers",
       "selector": "scope.lexical_scope_stack",
-      "owner_source": "scope_context",
-      "owner_type": "ScopeContext",
+      "owner_source": "function_state",
+      "owner_type": "FunctionScopeStateV1",
       "methods": ["push_lexical_scope", "pop_lexical_scope", "current_scope_mut"]
     },
     {
       "id": "scope.if_merge_helpers",
       "selector": "scope.if_merge_stack",
-      "owner_source": "scope_context",
-      "owner_type": "ScopeContext",
-      "methods": ["push_if_merge", "pop_if_merge"]
+      "owner_source": "function_state",
+      "owner_type": "FunctionScopeStateV1",
+      "methods": []
     },
     {
       "id": "scope.fastmem_helpers",
       "selector": "scope.fastmem_region_stack",
-      "owner_source": "scope_context",
-      "owner_type": "ScopeContext",
+      "owner_source": "function_state",
+      "owner_type": "FunctionScopeStateV1",
       "methods": ["push_fastmem_region", "pop_fastmem_region", "current_fastmem_region"]
     },
     {
       "id": "scope.entry_clear",
       "selector": "scope.entry_clear",
-      "owner_source": "scope_context",
-      "owner_type": "ScopeContext",
+      "owner_source": "function_state",
+      "owner_type": "FunctionScopeStateV1",
       "methods": ["clear_for_function_entry"],
       "function_owned_clears": ["lexical_scope_stack", "loop_header_stack", "loop_exit_stack", "if_merge_stack", "fastmem_region_stack"],
       "observation_clears": ["debug_scope_stack"],
@@ -115,37 +98,37 @@
     {
       "id": "compilation.reservation_helpers",
       "selector": "compilation.reserved_value_ids",
-      "owner_source": "compilation_context",
-      "owner_type": "CompilationContext",
-      "methods": ["is_reserved_value_id", "reserve_value_id", "clear_reserved_value_ids"]
+      "owner_source": "function_state",
+      "owner_type": "FunctionCompilationScratchV1",
+      "methods": ["is_reserved_value_id", "reserve_value_id"]
     },
     {
       "id": "compilation.fn_body_helpers",
       "selector": "compilation.fn_body_ast",
-      "owner_source": "compilation_context",
-      "owner_type": "CompilationContext",
-      "methods": ["set_fn_body_ast", "take_fn_body_ast", "clear_fn_body_ast"]
+      "owner_source": "function_state",
+      "owner_type": "FunctionCompilationScratchV1",
+      "methods": []
     },
     {
       "id": "compilation.record_local_helpers",
       "selector": "compilation.record_local_values",
-      "owner_source": "compilation_declarations",
-      "owner_type": "CompilationContext",
+      "owner_source": "function_state",
+      "owner_type": "FunctionCompilationScratchV1",
       "methods": ["register_record_local_value", "record_local_value", "propagate_record_local_value", "propagate_record_local_value_from_phi", "clear_record_local_values"]
     },
     {
       "id": "metadata.origin_span_helpers",
       "selector": "value_origins.spans",
-      "owner_source": "metadata_context",
-      "owner_type": "MetadataContext",
-      "methods": ["record_value_span", "value_span"]
+      "owner_source": "function_state",
+      "owner_type": "FunctionValueOriginFactsV1",
+      "methods": ["record_span", "span"]
     },
     {
       "id": "metadata.origin_caller_helpers",
       "selector": "value_origins.callers",
-      "owner_source": "metadata_context",
-      "owner_type": "MetadataContext",
-      "methods": ["record_value_caller", "value_caller", "value_origin_callers"]
+      "owner_source": "function_state",
+      "owner_type": "FunctionValueOriginFactsV1",
+      "methods": ["record_caller", "caller", "caller_rows"]
     }
   ],
   "surfaces": [
@@ -191,8 +174,5 @@
     {"id": "function.unified_boxcall_fallback", "root_field": "in_unified_boxcall_fallback", "path": "in_unified_boxcall_fallback", "snapshot_field": "saved_in_unified_boxcall_fallback", "class": "FunctionOwned", "prepare_anchor": "let saved_in_unified_boxcall_fallback = self.in_unified_boxcall_fallback;", "restore_anchor": "self.in_unified_boxcall_fallback = ctx.saved_in_unified_boxcall_fallback;", "legacy_action": "copy_restore_legacy_guard", "box_context_action": "fresh_child_required", "target": "FSESSION0-S0", "note": "legacy fallback recursion guard; storage must not cross function sessions"},
     {"id": "observation.recursion_depth", "root_field": "recursion_depth", "path": "recursion_depth", "snapshot_field": "saved_recursion_depth", "class": "ObservationBorrow", "prepare_anchor": "let saved_recursion_depth = self.recursion_depth;", "restore_anchor": "self.recursion_depth = ctx.saved_recursion_depth;", "legacy_action": "copy_restore", "box_context_action": "borrowed_observation", "target": "FSESSION0-S0", "note": "debug recursion diagnostic only"}
   ],
-  "uncovered_function_state": [
-    {"id": "metadata.value_origin_spans", "path": "metadata_ctx.value_origin_spans", "class": "FunctionOwned", "current_handling": "not captured or cleared by prepare_lowering_context", "target": "FSESSION0-S0"},
-    {"id": "metadata.value_origin_callers", "path": "metadata_ctx.value_origin_callers", "class": "FunctionOwned", "current_handling": "not captured or cleared by prepare_lowering_context; later merged into function metadata", "target": "FSESSION0-S0"}
-  ]
+  "uncovered_function_state": []
 }

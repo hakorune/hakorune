@@ -107,7 +107,7 @@ pub(super) fn finalize_ready_function_completion(
 ) -> Result<MirFunction, String> {
     verify_canonical_return_state(builder)?;
     let completion = ready.completion;
-    let current_block = builder.current_block.ok_or_else(|| {
+    let current_block = builder.function_state.current_block.ok_or_else(|| {
         "[freeze:contract][canonical_completion/current_block_missing]".to_string()
     })?;
     let explicit_return = current_terminator_is_return(builder, current_block)?;
@@ -143,7 +143,7 @@ pub(super) fn finalize_preterminated_function_completion(
     ready: ReadyFunctionCompletionV1,
 ) -> Result<MirFunction, String> {
     verify_canonical_return_state(builder)?;
-    let current_block = builder.current_block.ok_or_else(|| {
+    let current_block = builder.function_state.current_block.ok_or_else(|| {
         "[freeze:contract][canonical_completion/current_block_missing]".to_string()
     })?;
     if !current_terminator_is_return(builder, current_block)? {
@@ -165,11 +165,11 @@ pub(super) fn finalize_preterminated_function_completion(
 }
 
 fn verify_canonical_return_state(builder: &MirBuilder) -> Result<(), String> {
-    if builder.return_defer_active
-        || builder.return_defer_slot.is_some()
-        || builder.return_defer_target.is_some()
-        || builder.return_deferred_emitted
-        || builder.in_cleanup_block
+    if builder.function_state.return_defer_active
+        || builder.function_state.return_defer_slot.is_some()
+        || builder.function_state.return_defer_target.is_some()
+        || builder.function_state.return_deferred_emitted
+        || builder.function_state.in_cleanup_block
     {
         return Err(
             "[freeze:contract][canonical_completion/legacy_return_state_active]".to_string(),
@@ -179,10 +179,11 @@ fn verify_canonical_return_state(builder: &MirBuilder) -> Result<(), String> {
 }
 
 fn current_terminator_is_return(builder: &MirBuilder, block: BasicBlockId) -> Result<bool, String> {
-    let function =
-        builder.scope_ctx.current_function.as_ref().ok_or_else(|| {
-            "[freeze:contract][canonical_completion/function_missing]".to_string()
-        })?;
+    let function = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .ok_or_else(|| "[freeze:contract][canonical_completion/function_missing]".to_string())?;
     let block = function
         .get_block(block)
         .ok_or_else(|| "[freeze:contract][canonical_completion/block_missing]".to_string())?;

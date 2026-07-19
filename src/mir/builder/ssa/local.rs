@@ -93,11 +93,11 @@ fn ensure_inner(
     kind: LocalKind,
     forbid_non_pure: bool,
 ) -> Result<ValueId, String> {
-    let bb_opt = builder.current_block;
+    let bb_opt = builder.function_state.current_block;
 
     // Get function name and entry block for logging (debug only)
     // Clone to avoid borrow checker issues with later mutable borrows
-    let (fn_name, fn_entry) = if let Some(func) = builder.scope_ctx.current_function.as_ref() {
+    let (fn_name, fn_entry) = if let Some(func) = builder.function_state.current_function.as_ref() {
         (func.signature.name.clone(), func.entry_block)
     } else {
         ("<unknown>".to_string(), crate::mir::BasicBlockId(0))
@@ -112,11 +112,11 @@ fn ensure_inner(
             ));
         }
         let key = (bb, v, kind.tag());
-        if let Some(&loc) = builder.local_ssa_map.get(&key) {
+        if let Some(&loc) = builder.function_state.local_ssa_map.get(&key) {
             if !strict_planner_required() || value_defined_in_current_function(builder, loc) {
                 return Ok(loc);
             }
-            builder.local_ssa_map.remove(&key);
+            builder.function_state.local_ssa_map.remove(&key);
             if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
                 let ring0 = crate::runtime::get_global_ring0();
                 ring0.log.debug(&format!(
@@ -147,11 +147,12 @@ fn ensure_inner(
         // emitting a Copy from the old value (which might not be defined in this block).
         // Try to detect pinned slots for this value and redirect to the latest slot value.
         // 1) First, look for "__pin$" entries in variable_ctx.variable_map that still point to v.
-        // 2) If not found, consult builder.pin_slot_names to recover the slot name
+        // 2) If not found, consult builder.function_state.pin_slot_names to recover the slot name
         //    and then look up the current ValueId for that slot.
         let mut slot_name_opt: Option<String> = None;
 
         let names_for_v: Vec<String> = builder
+            .function_state
             .variable_ctx
             .variable_map
             .iter()
@@ -161,12 +162,17 @@ fn ensure_inner(
 
         if let Some(first_pin_name) = names_for_v.first() {
             slot_name_opt = Some(first_pin_name.clone());
-        } else if let Some(name) = builder.pin_slot_names.get(&v) {
+        } else if let Some(name) = builder.function_state.pin_slot_names.get(&v) {
             slot_name_opt = Some(name.clone());
         }
 
         if let Some(slot_name) = slot_name_opt {
-            if let Some(&current_val) = builder.variable_ctx.variable_map.get(&slot_name) {
+            if let Some(&current_val) = builder
+                .function_state
+                .variable_ctx
+                .variable_map
+                .get(&slot_name)
+            {
                 if current_val != v {
                     // The slot has been updated (likely by a PHI or header rewrite).
                     // Use the updated value instead of the stale pinned ValueId.
@@ -182,7 +188,10 @@ fn ensure_inner(
                         ring0.log.debug(&format!("[local-sa:ensure:phi_redirect] fn={} entry={:?} bb={:?} kind={:?} slot={} v=%{} current_val=%{}",
                             fn_name, fn_entry, bb, kind, slot_name, v.0, current_val.0));
                     }
-                    builder.local_ssa_map.insert(key, current_val);
+                    builder
+                        .function_state
+                        .local_ssa_map
+                        .insert(key, current_val);
                     // Unconditional trace for phi-redirect cache hit
                     if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
                         let ring0 = crate::runtime::get_global_ring0();
@@ -212,7 +221,7 @@ fn ensure_inner(
         let mut def_inst: Option<MirInstruction> = None;
         let mut def_block: Option<crate::mir::BasicBlockId> = None;
         let mut def_kind: &'static str = "NotFound";
-        if let Some(func) = builder.scope_ctx.current_function.as_ref() {
+        if let Some(func) = builder.function_state.current_function.as_ref() {
             if func.params.iter().any(|pid| *pid == v) {
                 def_kind = "Param";
                 def_block = Some(func.entry_block);
@@ -249,6 +258,7 @@ fn ensure_inner(
 
         if strict_planner_required() && def_inst.is_none() && def_kind == "NotFound" {
             let mut varmap_hits: Vec<&str> = builder
+                .function_state
                 .variable_ctx
                 .variable_map
                 .iter()
@@ -264,14 +274,19 @@ fn ensure_inner(
                 format!("[{}]", varmap_hits.join(","))
             };
             let pin = builder
+                .function_state
                 .pin_slot_names
                 .get(&v)
                 .map(|s| s.as_str())
                 .unwrap_or("none");
-            let has_type = builder.type_ctx.value_types.contains_key(&v);
-            let reserved = builder.comp_ctx.reserved_value_ids.contains(&v);
+            let has_type = builder.function_state.type_ctx.value_types.contains_key(&v);
+            let reserved = builder
+                .function_state
+                .compilation
+                .reserved_value_ids
+                .contains(&v);
             let next_value_id_hint = builder
-                .scope_ctx
+                .function_state
                 .current_function
                 .as_ref()
                 .map(|f| f.next_value_id)
@@ -299,7 +314,7 @@ fn ensure_inner(
             // `%field -> copy -> compare/binop` chains. Keep this deliberately
             // narrow: no cross-block forwarding and no arbitrary copy
             // coalescing.
-            builder.local_ssa_map.insert(key, v);
+            builder.function_state.local_ssa_map.insert(key, v);
             return Ok(v);
         }
 
@@ -310,7 +325,7 @@ fn ensure_inner(
                 // This extends the older same-block-only seam without changing call
                 // execution, variable_map binding, PHI lifecycle, receiver
                 // materialization, or Arg forwarding.
-                builder.local_ssa_map.insert(key, root);
+                builder.function_state.local_ssa_map.insert(key, root);
                 return Ok(root);
             }
         }
@@ -323,7 +338,7 @@ fn ensure_inner(
                     // arbitrary copy coalescing: only direct expression
                     // consumers may reuse a root FieldGet value, and any
                     // visible same-field mutation blocks the forwarding.
-                    builder.local_ssa_map.insert(key, root.value);
+                    builder.function_state.local_ssa_map.insert(key, root.value);
                     return Ok(root.value);
                 }
             }
@@ -336,7 +351,7 @@ fn ensure_inner(
                 // local to this block. Keep Arg forwarding, cross-block/root
                 // chains, helper-name special-cases, variable_map, and PHI
                 // lifecycle closed.
-                builder.local_ssa_map.insert(key, root);
+                builder.function_state.local_ssa_map.insert(key, root);
                 return Ok(root);
             }
         }
@@ -349,19 +364,19 @@ fn ensure_inner(
             // immediately before Call emission. Reusing that Copy keeps the
             // receiver block-local without adding another `copy copy` layer.
             // Keep this limited to receiver operands and same-block Copy defs.
-            builder.local_ssa_map.insert(key, v);
+            builder.function_state.local_ssa_map.insert(key, v);
             return Ok(v);
         }
 
         if forbid_non_pure && non_rematerializable {
             let fn_name = builder
-                .scope_ctx
+                .function_state
                 .current_function
                 .as_ref()
                 .map(|f| f.signature.name.as_str())
                 .unwrap_or("<unknown>");
             let dominates = if let (Some(func), Some(def_block)) =
-                (builder.scope_ctx.current_function.as_ref(), def_block)
+                (builder.function_state.current_function.as_ref(), def_block)
             {
                 let dominators = crate::mir::verification::utils::compute_dominators(func);
                 dominators.dominates(def_block, bb)
@@ -378,6 +393,7 @@ fn ensure_inner(
                 // Diagnostic-only context: help pinpoint how an out-of-scope ValueId leaks into args.
                 // Keep output stable + short: at most 3 variable_map hits.
                 let mut varmap_hits: Vec<&str> = builder
+                    .function_state
                     .variable_ctx
                     .variable_map
                     .iter()
@@ -394,23 +410,32 @@ fn ensure_inner(
                 };
 
                 let pin = builder
+                    .function_state
                     .pin_slot_names
                     .get(&v)
                     .map(|s| s.as_str())
                     .unwrap_or("none");
 
                 let alloc_context = if def_kind == "NotFound" && def_block.is_none() {
-                    let has_type = builder.type_ctx.value_types.contains_key(&v);
-                    let has_origin_newbox = builder.type_ctx.value_origin_newbox.contains_key(&v);
-                    let reserved = builder.comp_ctx.reserved_value_ids.contains(&v);
+                    let has_type = builder.function_state.type_ctx.value_types.contains_key(&v);
+                    let has_origin_newbox = builder
+                        .function_state
+                        .type_ctx
+                        .value_origin_newbox
+                        .contains_key(&v);
+                    let reserved = builder
+                        .function_state
+                        .compilation
+                        .reserved_value_ids
+                        .contains(&v);
                     let next_value_id_hint = builder
-                        .scope_ctx
+                        .function_state
                         .current_function
                         .as_ref()
                         .map(|f| f.next_value_id)
                         .unwrap_or(0);
                     let (def_blocks_has, def_blocks_bb) = if let Some(func) =
-                        builder.scope_ctx.current_function.as_ref()
+                        builder.function_state.current_function.as_ref()
                     {
                         let def_blocks = crate::mir::verification::utils::compute_def_blocks(func);
                         let bb = def_blocks.get(&v).copied();
@@ -516,7 +541,7 @@ fn ensure_inner(
                     }
                     if let Some(def_b) = def_block {
                         let dominates =
-                            if let Some(func) = builder.scope_ctx.current_function.as_ref() {
+                            if let Some(func) = builder.function_state.current_function.as_ref() {
                                 let dominators =
                                     crate::mir::verification::utils::compute_dominators(func);
                                 dominators.dominates(def_b, bb)
@@ -571,31 +596,67 @@ fn ensure_inner(
                 fn_name, fn_entry, bb, kind, v.0, loc.0));
         }
         // Success: register metadata and cache
-        if let Some(t) = builder.type_ctx.value_types.get(&v).cloned() {
-            builder.type_ctx.value_types.insert(loc, t);
+        if let Some(t) = builder.function_state.type_ctx.value_types.get(&v).cloned() {
+            builder.function_state.type_ctx.value_types.insert(loc, t);
         }
-        if let Some(cls) = builder.type_ctx.value_origin_newbox.get(&v).cloned() {
+        if let Some(cls) = builder
+            .function_state
+            .type_ctx
+            .value_origin_newbox
+            .get(&v)
+            .cloned()
+        {
             builder
+                .function_state
                 .type_ctx
                 .value_origin_newbox
                 .insert(loc, cls.clone());
 
             // CRITICAL FIX: For receiver kind, if type is missing but origin exists,
             // infer MirType::Box from origin
-            if kind == LocalKind::Recv && builder.type_ctx.value_types.get(&loc).is_none() {
+            if kind == LocalKind::Recv
+                && builder
+                    .function_state
+                    .type_ctx
+                    .value_types
+                    .get(&loc)
+                    .is_none()
+            {
                 builder
+                    .function_state
                     .type_ctx
                     .value_types
                     .insert(loc, crate::mir::MirType::Box(cls));
             }
         }
-        if let Some(text) = builder.type_ctx.string_literals.get(&v).cloned() {
-            builder.type_ctx.string_literals.insert(loc, text);
+        if let Some(text) = builder
+            .function_state
+            .type_ctx
+            .string_literals
+            .get(&v)
+            .cloned()
+        {
+            builder
+                .function_state
+                .type_ctx
+                .string_literals
+                .insert(loc, text);
         }
-        if let Some(map_value_type) = builder.type_ctx.map_value_types.get(&v).cloned() {
-            builder.type_ctx.map_value_types.insert(loc, map_value_type);
+        if let Some(map_value_type) = builder
+            .function_state
+            .type_ctx
+            .map_value_types
+            .get(&v)
+            .cloned()
+        {
+            builder
+                .function_state
+                .type_ctx
+                .map_value_types
+                .insert(loc, map_value_type);
         }
         let literal_facts: Vec<(String, crate::mir::MirType)> = builder
+            .function_state
             .type_ctx
             .map_literal_value_types
             .iter()
@@ -604,12 +665,16 @@ fn ensure_inner(
             .collect();
         for (key, ty) in literal_facts {
             builder
+                .function_state
                 .type_ctx
                 .map_literal_value_types
                 .insert((loc, key), ty);
         }
-        builder.comp_ctx.propagate_record_local_value(v, loc);
-        builder.local_ssa_map.insert(key, loc);
+        builder
+            .function_state
+            .compilation
+            .propagate_record_local_value(v, loc);
+        builder.function_state.local_ssa_map.insert(key, loc);
         // Debug trace for newly created loc
         if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();

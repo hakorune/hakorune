@@ -125,7 +125,7 @@ where
         return Ok(None);
     }
 
-    let mut pre_if_map = builder.variable_ctx.variable_map.clone();
+    let mut pre_if_map = builder.function_state.variable_ctx.variable_map.clone();
     for (name, value_id) in current_bindings.iter() {
         pre_if_map.insert(name.clone(), *value_id);
     }
@@ -138,9 +138,9 @@ where
         carrier_step_phis,
         then_body,
     )?;
-    let then_map = builder.variable_ctx.variable_map.clone();
+    let then_map = builder.function_state.variable_ctx.variable_map.clone();
 
-    builder.variable_ctx.variable_map = pre_if_map.clone();
+    builder.function_state.variable_ctx.variable_map = pre_if_map.clone();
     *current_bindings = pre_bindings.clone();
     let else_plans = match else_body {
         Some(body) => Some(lower_block(
@@ -152,9 +152,9 @@ where
         )?),
         None => None,
     };
-    let else_map = builder.variable_ctx.variable_map.clone();
+    let else_map = builder.function_state.variable_ctx.variable_map.clone();
 
-    builder.variable_ctx.variable_map = pre_if_map.clone();
+    builder.function_state.variable_ctx.variable_map = pre_if_map.clone();
     *current_bindings = pre_bindings;
 
     let branch_locals =
@@ -177,6 +177,7 @@ where
 
     for join in &joins {
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert(join.name.clone(), join.dst);
@@ -369,7 +370,7 @@ mod tests {
             .expect("declare x");
 
             let then_body = vec![assign("x", lit_int(1))];
-            let mut default_bindings = builder.variable_ctx.variable_map.clone();
+            let mut default_bindings = builder.function_state.variable_ctx.variable_map.clone();
             let empty = BTreeMap::new();
             let default_plans = try_lower_general_if(
                 &mut builder,
@@ -388,7 +389,7 @@ mod tests {
                 "default release wrapper should stay planner-only"
             );
 
-            let mut release_bindings = builder.variable_ctx.variable_map.clone();
+            let mut release_bindings = builder.function_state.variable_ctx.variable_map.clone();
             let release_plans = try_lower_general_if_recipe_authority(
                 &mut builder,
                 &mut release_bindings,

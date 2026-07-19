@@ -38,12 +38,11 @@ impl super::PlanLowerer {
                 // Seq-level forward-ref check: if an operand is undefined "so far" but is defined later in the
                 // same plan list, fail-fast close to the ordering bug.
                 if let CorePlan::Effect(CoreEffectPlan::BinOp { dst, lhs, op, rhs }) = plan {
-                    if let Some(func) = builder.scope_ctx.current_function.as_ref() {
+                    if let Some(func) = builder.function_state.current_function.as_ref() {
                         let def_blocks = crate::mir::verification::utils::compute_def_blocks(func);
                         if !def_blocks.contains_key(lhs) {
                             let origin_span = builder
-                                .metadata_ctx
-                                .value_span(*lhs)
+                                .value_origin_span(*lhs)
                                 .map(|s| s.to_string())
                                 .unwrap_or_else(|| "unknown".to_string());
                             if let Some((def_idx, def_kind)) =
@@ -52,7 +51,7 @@ impl super::PlanLowerer {
                                 return Err(format!(
                                     "[freeze:contract][plan_lowering/seq_forward_ref] fn={} bb={:?} ctx={} use_idx={} use=%{} operand=lhs use_by=CoreEffectPlan::BinOp dst=%{} op={:?} def_idx={} def_kind={} use_origin_span={}",
                                     func.signature.name,
-                                    builder.current_block,
+                                    builder.function_state.current_block,
                                     list_ctx,
                                     idx,
                                     lhs.0,
@@ -65,7 +64,7 @@ impl super::PlanLowerer {
                             }
                             let debug_suffix = if crate::config::env::joinir_dev::debug_enabled() {
                                 let (const_dsts, const_origin_spans, has_use_const, add_binops) =
-                                    collect_seq_debug(&builder.metadata_ctx, plans, *lhs);
+                                    collect_seq_debug(builder, plans, *lhs);
                                 format!(
                                     " list_const_int3_dsts=[{}] list_const_int3_origin_spans=[{}] list_has_use_const={} list_add_binops=[{}]",
                                     const_dsts,
@@ -79,7 +78,7 @@ impl super::PlanLowerer {
                             return Err(format!(
                                 "[freeze:contract][plan_lowering/seq_undefined_operand] fn={} bb={:?} ctx={} use_idx={} use=%{} operand=lhs use_by=CoreEffectPlan::BinOp dst=%{} op={:?} use_origin_span={}{}",
                                 func.signature.name,
-                                builder.current_block,
+                                builder.function_state.current_block,
                                 list_ctx,
                                 idx,
                                 lhs.0,
@@ -91,8 +90,7 @@ impl super::PlanLowerer {
                         }
                         if !def_blocks.contains_key(rhs) {
                             let origin_span = builder
-                                .metadata_ctx
-                                .value_span(*rhs)
+                                .value_origin_span(*rhs)
                                 .map(|s| s.to_string())
                                 .unwrap_or_else(|| "unknown".to_string());
                             if let Some((def_idx, def_kind)) =
@@ -101,7 +99,7 @@ impl super::PlanLowerer {
                                 return Err(format!(
                                     "[freeze:contract][plan_lowering/seq_forward_ref] fn={} bb={:?} ctx={} use_idx={} use=%{} operand=rhs use_by=CoreEffectPlan::BinOp dst=%{} op={:?} def_idx={} def_kind={} use_origin_span={}",
                                     func.signature.name,
-                                    builder.current_block,
+                                    builder.function_state.current_block,
                                     list_ctx,
                                     idx,
                                     rhs.0,
@@ -114,7 +112,7 @@ impl super::PlanLowerer {
                             }
                             let debug_suffix = if crate::config::env::joinir_dev::debug_enabled() {
                                 let (const_dsts, const_origin_spans, has_use_const, add_binops) =
-                                    collect_seq_debug(&builder.metadata_ctx, plans, *rhs);
+                                    collect_seq_debug(builder, plans, *rhs);
                                 format!(
                                     " list_const_int3_dsts=[{}] list_const_int3_origin_spans=[{}] list_has_use_const={} list_add_binops=[{}]",
                                     const_dsts,
@@ -128,7 +126,7 @@ impl super::PlanLowerer {
                             return Err(format!(
                                 "[freeze:contract][plan_lowering/seq_undefined_operand] fn={} bb={:?} ctx={} use_idx={} use=%{} operand=rhs use_by=CoreEffectPlan::BinOp dst=%{} op={:?} use_origin_span={}{}",
                                 func.signature.name,
-                                builder.current_block,
+                                builder.function_state.current_block,
                                 list_ctx,
                                 idx,
                                 rhs.0,
@@ -179,6 +177,7 @@ impl super::PlanLowerer {
         } = if_plan;
 
         let _pre_branch_bb = builder
+            .function_state
             .current_block
             .ok_or_else(|| "[lowerer] No current block for CorePlan::If".to_string())?;
 
@@ -198,7 +197,7 @@ impl super::PlanLowerer {
         builder.start_new_block(then_bb)?;
         Self::lower_plan_list(builder, &then_plans, ctx, loop_stack, port, "if_then")?;
         let then_reaches_merge = !builder.is_current_block_terminated();
-        let then_end_bb = builder.current_block;
+        let then_end_bb = builder.function_state.current_block;
         if then_reaches_merge {
             emit_jump(builder, merge_bb)?;
         }
@@ -209,7 +208,7 @@ impl super::PlanLowerer {
             Self::lower_plan_list(builder, else_plans, ctx, loop_stack, port, "if_else")?;
         }
         let else_reaches_merge = !builder.is_current_block_terminated();
-        let else_end_bb = builder.current_block;
+        let else_end_bb = builder.function_state.current_block;
         if else_reaches_merge {
             emit_jump(builder, merge_bb)?;
         }
@@ -282,10 +281,7 @@ fn find_forward_def_in_seq(
 }
 
 fn collect_seq_debug(
-    metadata_ctx: &crate::mir::builder::metadata_context::MetadataContext<
-        crate::ast::Span,
-        crate::mir::region::RegionId,
-    >,
+    builder: &crate::mir::builder::MirBuilder,
     plans: &[LoweredRecipe],
     use_value: ValueId,
 ) -> (String, String, bool, String) {
@@ -300,8 +296,8 @@ fn collect_seq_debug(
                     if matches!(value, crate::mir::ConstValue::Integer(3)) {
                         const_dsts.push(*dst);
                         if const_origin_spans.len() < 3 {
-                            let origin = metadata_ctx
-                                .value_span(*dst)
+                            let origin = builder
+                                .value_origin_span(*dst)
                                 .map(|s| s.to_string())
                                 .unwrap_or_else(|| "unknown".to_string());
                             const_origin_spans.push(origin);

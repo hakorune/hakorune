@@ -171,7 +171,7 @@ pub(in crate::mir::builder) fn compose_located_generic_loop_v1<'plan>(
         let (carrier_targets, body_execution) = execution.into_parts();
 
         with_saved_variable_map_typed(builder, |builder| {
-            let pre_body_map = builder.variable_ctx.variable_map.clone();
+            let pre_body_map = builder.function_state.variable_ctx.variable_map.clone();
             let mut skeleton = alloc_generic_loop_v0_skeleton(builder, &loop_var, carrier_role)?;
             let mut carrier_orchestration =
                 generic_loop_body::orchestrate_generic_loop_v1_carriers_from_targets(
@@ -184,6 +184,7 @@ pub(in crate::mir::builder) fn compose_located_generic_loop_v1<'plan>(
                         let mut current_bindings = phi_bindings.clone();
                         for (name, value) in phi_bindings {
                             builder
+                                .function_state
                                 .variable_ctx
                                 .variable_map
                                 .insert(name.clone(), *value);
@@ -209,7 +210,7 @@ pub(in crate::mir::builder) fn compose_located_generic_loop_v1<'plan>(
                 )?;
             skeleton.plan.body = carrier_orchestration.take_body_plans();
 
-            builder.variable_ctx.variable_map = pre_body_map;
+            builder.function_state.variable_ctx.variable_map = pre_body_map;
             generic_loop_step::apply_generic_loop_condition_input(
                 builder,
                 &mut skeleton,
@@ -218,7 +219,8 @@ pub(in crate::mir::builder) fn compose_located_generic_loop_v1<'plan>(
                 &loop_var,
                 LOCATED_GENERIC_LOOP_ERR,
             )?;
-            builder.variable_ctx.variable_map = carrier_orchestration.post_body_map().clone();
+            builder.function_state.variable_ctx.variable_map =
+                carrier_orchestration.post_body_map().clone();
             carrier_orchestration.finalize(
                 builder,
                 &mut skeleton.plan,

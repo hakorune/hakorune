@@ -5,10 +5,12 @@ use crate::mir::ValueId;
 pub(super) fn record_newbox_metadata(builder: &mut MirBuilder, value_id: ValueId, class: &str) {
     let class_name = class.to_string();
     builder
+        .function_state
         .type_ctx
         .value_types
         .insert(value_id, MirType::Box(class_name.clone()));
     builder
+        .function_state
         .type_ctx
         .value_origin_newbox
         .insert(value_id, class_name.clone());

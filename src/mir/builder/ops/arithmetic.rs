@@ -36,15 +36,15 @@ fn classify_operand_type(
     use super::super::type_facts::OperandTypeClass;
 
     let type_facts = super::super::type_facts::TypeFactsBox::new(
-        &builder.type_ctx.value_types,
-        &builder.type_ctx.value_origin_newbox,
+        &builder.function_state.type_ctx.value_types,
+        &builder.function_state.type_ctx.value_origin_newbox,
     );
     let class = type_facts.classify_operand_type(value);
     if class != OperandTypeClass::Unknown {
         return class;
     }
 
-    let Some(function) = builder.scope_ctx.current_function.as_ref() else {
+    let Some(function) = builder.function_state.current_function.as_ref() else {
         return OperandTypeClass::Unknown;
     };
     match function.metadata.value_types.get(&value) {
@@ -90,7 +90,7 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
 
     // Phase Dev: Lower '+' を演算子ボックス呼び出しに置換（既定OFF）
     let in_add_op = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .map(|f| f.signature.name.starts_with("AddOperator.apply/"))
@@ -115,11 +115,19 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
         match (lhs_type, rhs_type) {
             (String, String) => {
                 // BOTH are strings: result stays value-world text.
-                builder.type_ctx.value_types.insert(dst, MirType::String);
+                builder
+                    .function_state
+                    .type_ctx
+                    .value_types
+                    .insert(dst, MirType::String);
             }
             (Integer, Integer) | (Integer, Unknown) | (Unknown, Integer) => {
                 // TypeFact: Integer + anything non-String = Integer
-                builder.type_ctx.value_types.insert(dst, MirType::Integer);
+                builder
+                    .function_state
+                    .type_ctx
+                    .value_types
+                    .insert(dst, MirType::Integer);
             }
             (String, Integer) | (Integer, String) => {
                 // Mixed types: leave as Unknown for use-site coercion
@@ -147,7 +155,7 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
         };
         if !name.is_empty() {
             let in_guard = builder
-                .scope_ctx
+                .function_state
                 .current_function
                 .as_ref()
                 .map(|f| f.signature.name.starts_with(guard_prefix))
@@ -159,12 +167,16 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
                     vec![lhs, rhs],
                 )?;
                 // 型注釈: 算術はおおむね整数（Addは上で注釈済み）
-                builder.type_ctx.value_types.insert(dst, MirType::Integer);
+                builder
+                    .function_state
+                    .type_ctx
+                    .value_types
+                    .insert(dst, MirType::Integer);
             } else {
                 // guard中は従来のBinOp
                 if let (Some(func), Some(cur_bb)) = (
-                    builder.scope_ctx.current_function.as_mut(),
-                    builder.current_block,
+                    builder.function_state.current_function.as_mut(),
+                    builder.function_state.current_block,
                 ) {
                     crate::mir::ssot::binop_lower::emit_binop_to_dst(
                         func, cur_bb, dst, op, lhs, rhs,
@@ -172,13 +184,17 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
                 } else {
                     builder.emit_instruction(MirInstruction::BinOp { dst, op, lhs, rhs })?;
                 }
-                builder.type_ctx.value_types.insert(dst, MirType::Integer);
+                builder
+                    .function_state
+                    .type_ctx
+                    .value_types
+                    .insert(dst, MirType::Integer);
             }
         } else {
             // 既存の算術経路
             if let (Some(func), Some(cur_bb)) = (
-                builder.scope_ctx.current_function.as_mut(),
-                builder.current_block,
+                builder.function_state.current_function.as_mut(),
+                builder.function_state.current_block,
             ) {
                 crate::mir::ssot::binop_lower::emit_binop_to_dst(func, cur_bb, dst, op, lhs, rhs);
             } else {
@@ -195,12 +211,20 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
                 match (lhs_type, rhs_type) {
                     (String, String) => {
                         // BOTH are strings: result stays value-world text.
-                        builder.type_ctx.value_types.insert(dst, MirType::String);
+                        builder
+                            .function_state
+                            .type_ctx
+                            .value_types
+                            .insert(dst, MirType::String);
                     }
                     (Integer, Integer) | (Integer, Unknown) | (Unknown, Integer) => {
                         // TypeFact: Integer + anything non-String = Integer
                         // This handles `counter + 1` where counter might be Unknown
-                        builder.type_ctx.value_types.insert(dst, MirType::Integer);
+                        builder
+                            .function_state
+                            .type_ctx
+                            .value_types
+                            .insert(dst, MirType::Integer);
                     }
                     (String, Integer) | (Integer, String) => {
                         // Mixed types: leave as Unknown for use-site coercion
@@ -215,14 +239,18 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
                     }
                 }
             } else {
-                builder.type_ctx.value_types.insert(dst, MirType::Integer);
+                builder
+                    .function_state
+                    .type_ctx
+                    .value_types
+                    .insert(dst, MirType::Integer);
             }
         }
     } else {
         // 既存の算術経路
         if let (Some(func), Some(cur_bb)) = (
-            builder.scope_ctx.current_function.as_mut(),
-            builder.current_block,
+            builder.function_state.current_function.as_mut(),
+            builder.function_state.current_block,
         ) {
             crate::mir::ssot::binop_lower::emit_binop_to_dst(func, cur_bb, dst, op, lhs, rhs);
         } else {
@@ -236,15 +264,27 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
             let rhs_type = classify_operand_type(builder, rhs);
             if lhs_type == String && rhs_type == String {
                 // BOTH are strings: result stays value-world text.
-                builder.type_ctx.value_types.insert(dst, MirType::String);
+                builder
+                    .function_state
+                    .type_ctx
+                    .value_types
+                    .insert(dst, MirType::String);
             } else if lhs_type != String && rhs_type != String {
                 // NEITHER is a string: numeric addition
-                builder.type_ctx.value_types.insert(dst, MirType::Integer);
+                builder
+                    .function_state
+                    .type_ctx
+                    .value_types
+                    .insert(dst, MirType::Integer);
             }
             // else: Mixed types (string + int or int + string)
             // Leave dst type as Unknown - LLVM will handle coercion at use-site
         } else {
-            builder.type_ctx.value_types.insert(dst, MirType::Integer);
+            builder
+                .function_state
+                .type_ctx
+                .value_types
+                .insert(dst, MirType::Integer);
         }
     }
 
@@ -255,7 +295,7 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
     {
         // Check only for Add operation (our target: %229's Add generation point)
         if matches!(op, crate::mir::BinaryOp::Add) {
-            if let Some(func) = builder.scope_ctx.current_function.as_ref() {
+            if let Some(func) = builder.function_state.current_function.as_ref() {
                 let def_blocks = crate::mir::verification::utils::compute_def_blocks(func);
 
                 // Check both lhs and rhs operands are defined
@@ -270,7 +310,7 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
                         Err(format!(
                             "[freeze:contract][ops/binop_add:operand_not_defined] fn={} bb={:?} operand={} v=%{} span={} span_start={} span_end={} file={}",
                             func.signature.name,
-                            builder.current_block,
+                            builder.function_state.current_block,
                             name,
                             v.0,
                             span.location_string(),

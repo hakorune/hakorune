@@ -51,7 +51,7 @@ fn builder(name: &str) -> MirBuilder {
 
 fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("current BIN0-I0 function")
@@ -128,7 +128,7 @@ fn raw_ordinary_binary_accepts_method_calls_on_both_sides() {
         } if *dst == output
     )));
     assert_eq!(
-        builder.type_ctx.value_types.get(&output),
+        builder.function_state.type_ctx.value_types.get(&output),
         Some(&MirType::Bool)
     );
 }
@@ -200,7 +200,7 @@ fn logical_operators_remain_on_existing_short_circuit_owner() {
             .unwrap();
 
         assert_eq!(
-            builder.type_ctx.value_types.get(&output),
+            builder.function_state.type_ctx.value_types.get(&output),
             Some(&MirType::Bool)
         );
         assert!(instructions(&builder).iter().any(

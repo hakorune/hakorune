@@ -50,10 +50,8 @@ impl AvailableInputsCollectorBox {
         let mut available_inputs = BTreeMap::new();
 
         // 1. Function params (SSOT: scope_ctx + variable_ctx) - highest priority
-        for param_name in &builder.scope_ctx.function_param_names {
-            if let Some(value_id) = builder.variable_ctx.lookup(param_name) {
-                available_inputs.insert(param_name.clone(), value_id);
-            }
+        for (param_name, value_id) in builder.function_parameter_bindings() {
+            available_inputs.insert(param_name, value_id);
         }
 
         // 2. Prefix variables (medium priority) - Phase 141 P1.5
@@ -96,11 +94,7 @@ mod tests {
         let mut builder = MirBuilder::new();
 
         // Simulate function param: x -> ValueId(1)
-        builder
-            .scope_ctx
-            .function_param_names
-            .insert("x".to_string());
-        builder.variable_ctx.insert("x".to_string(), ValueId(1));
+        builder.bind_function_parameter_for_test("x", ValueId(1));
 
         let result = AvailableInputsCollectorBox::collect(&builder, None, None);
         assert_eq!(result.len(), 1);
@@ -124,11 +118,7 @@ mod tests {
         let mut builder = MirBuilder::new();
 
         // Function param: x -> ValueId(1)
-        builder
-            .scope_ctx
-            .function_param_names
-            .insert("x".to_string());
-        builder.variable_ctx.insert("x".to_string(), ValueId(1));
+        builder.bind_function_parameter_for_test("x", ValueId(1));
 
         // Captured: x -> ValueId(42) (should be ignored)
         let mut captured = CapturedEnv::new();
@@ -145,21 +135,9 @@ mod tests {
         let mut builder = MirBuilder::new();
 
         // Add params in non-alphabetical order
-        builder
-            .scope_ctx
-            .function_param_names
-            .insert("z".to_string());
-        builder
-            .scope_ctx
-            .function_param_names
-            .insert("a".to_string());
-        builder
-            .scope_ctx
-            .function_param_names
-            .insert("m".to_string());
-        builder.variable_ctx.insert("z".to_string(), ValueId(3));
-        builder.variable_ctx.insert("a".to_string(), ValueId(1));
-        builder.variable_ctx.insert("m".to_string(), ValueId(2));
+        builder.bind_function_parameter_for_test("z", ValueId(3));
+        builder.bind_function_parameter_for_test("a", ValueId(1));
+        builder.bind_function_parameter_for_test("m", ValueId(2));
 
         let result = AvailableInputsCollectorBox::collect(&builder, None, None);
         let keys: Vec<_> = result.keys().collect();
@@ -192,11 +170,7 @@ mod tests {
         let mut builder = MirBuilder::new();
 
         // Function param: x -> ValueId(1)
-        builder
-            .scope_ctx
-            .function_param_names
-            .insert("x".to_string());
-        builder.variable_ctx.insert("x".to_string(), ValueId(1));
+        builder.bind_function_parameter_for_test("x", ValueId(1));
 
         // Prefix: x -> ValueId(42) (should be ignored)
         let mut prefix_vars = BTreeMap::new();
@@ -213,11 +187,7 @@ mod tests {
         let mut builder = MirBuilder::new();
 
         // Function param: x -> ValueId(1)
-        builder
-            .scope_ctx
-            .function_param_names
-            .insert("x".to_string());
-        builder.variable_ctx.insert("x".to_string(), ValueId(1));
+        builder.bind_function_parameter_for_test("x", ValueId(1));
 
         // Prefix: x -> ValueId(2), y -> ValueId(3)
         let mut prefix_vars = BTreeMap::new();

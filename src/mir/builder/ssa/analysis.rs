@@ -8,7 +8,7 @@ pub(crate) fn strict_planner_required() -> bool {
 }
 
 pub(crate) fn value_defined_in_current_function(builder: &MirBuilder, v: ValueId) -> bool {
-    let Some(func) = builder.scope_ctx.current_function.as_ref() else {
+    let Some(func) = builder.function_state.current_function.as_ref() else {
         return false;
     };
     if func.params.iter().any(|param| *param == v) {
@@ -106,7 +106,7 @@ pub(crate) fn find_value_def(
     builder: &MirBuilder,
     value: ValueId,
 ) -> Option<(crate::mir::BasicBlockId, MirInstruction)> {
-    let func = builder.scope_ctx.current_function.as_ref()?;
+    let func = builder.function_state.current_function.as_ref()?;
     for (bid, block) in func.blocks.iter() {
         for inst in &block.instructions {
             if inst.dst_value() == Some(value) {
@@ -166,7 +166,7 @@ pub(crate) fn dominated_call_result_root(
                 if block == current_block {
                     return Some(current);
                 }
-                let func = builder.scope_ctx.current_function.as_ref()?;
+                let func = builder.function_state.current_function.as_ref()?;
                 let dominators = crate::mir::verification::utils::compute_dominators(func);
                 return dominators
                     .dominates(block, current_block)
@@ -212,7 +212,7 @@ pub(crate) fn has_dominated_same_field_set_after_root(
     current_block: crate::mir::BasicBlockId,
     field: &str,
 ) -> bool {
-    let Some(func) = builder.scope_ctx.current_function.as_ref() else {
+    let Some(func) = builder.function_state.current_function.as_ref() else {
         return true;
     };
     let dominators = crate::mir::verification::utils::compute_dominators(func);

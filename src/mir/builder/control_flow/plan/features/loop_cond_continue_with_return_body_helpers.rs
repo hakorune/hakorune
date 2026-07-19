@@ -401,7 +401,7 @@ fn lower_hetero_return_if(
 ) -> Result<Vec<LoweredRecipe>, String> {
     use crate::mir::builder::control_flow::plan::parts::conditional_update::collect_conditional_update_branch;
 
-    let pre_if_map = builder.variable_ctx.variable_map.clone();
+    let pre_if_map = builder.function_state.variable_ctx.variable_map.clone();
     let pre_bindings = current_bindings.clone();
 
     let then_body = std::slice::from_ref(then_assignment);
@@ -419,9 +419,9 @@ fn lower_hetero_return_if(
         then_assignment,
         error_prefix,
     )?);
-    let then_map = builder.variable_ctx.variable_map.clone();
+    let then_map = builder.function_state.variable_ctx.variable_map.clone();
 
-    builder.variable_ctx.variable_map = pre_if_map.clone();
+    builder.function_state.variable_ctx.variable_map = pre_if_map.clone();
     *current_bindings = pre_bindings.clone();
 
     let mut else_plans = Vec::new();
@@ -436,9 +436,9 @@ fn lower_hetero_return_if(
             error_prefix,
         )?);
     }
-    let else_map = builder.variable_ctx.variable_map.clone();
+    let else_map = builder.function_state.variable_ctx.variable_map.clone();
 
-    builder.variable_ctx.variable_map = pre_if_map.clone();
+    builder.function_state.variable_ctx.variable_map = pre_if_map.clone();
     *current_bindings = pre_bindings;
 
     if crate::config::env::is_joinir_debug() {
@@ -514,7 +514,7 @@ fn lower_continue_if(
     let prelude_view = BodyView::Slice(prelude_body);
 
     let saved_bindings = current_bindings.clone();
-    let saved_map = builder.variable_ctx.variable_map.clone();
+    let saved_map = builder.function_state.variable_ctx.variable_map.clone();
     then_plans.extend(lower_continue_with_return_block(
         builder,
         current_bindings,
@@ -533,7 +533,7 @@ fn lower_continue_if(
     )?));
 
     *current_bindings = saved_bindings;
-    builder.variable_ctx.variable_map = saved_map;
+    builder.function_state.variable_ctx.variable_map = saved_map;
 
     let cond_view = CondBlockView::from_expr(condition);
     let mut then_plans_once = Some(then_plans);

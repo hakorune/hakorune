@@ -95,7 +95,7 @@ impl MirBuilder {
         if !crate::config::env::joinir_dev::debug_enabled() {
             return;
         }
-        let Some(function) = self.scope_ctx.current_function.as_ref() else {
+        let Some(function) = self.function_state.current_function.as_ref() else {
             return;
         };
         let def_blocks = crate::mir::verification::utils::compute_def_blocks(function);
@@ -105,7 +105,7 @@ impl MirBuilder {
         crate::runtime::get_global_ring0().log.error(&format!(
             "[call/arg_build:undefined_value] fn={} bb={:?} arg_idx={} v=%{} ast={} span={:?} next={}",
             function.signature.name,
-            self.current_block,
+            self.function_state.current_block,
             argument_index,
             value.0,
             syntax.node_type(),
@@ -126,10 +126,15 @@ impl MirBuilder {
                     ),
                     true,
                 );
-                if let Some(origin) = self.type_ctx.value_origin_newbox.get(&object_value) {
+                if let Some(origin) = self
+                    .function_state
+                    .type_ctx
+                    .value_origin_newbox
+                    .get(&object_value)
+                {
                     trace.stderr_if(&format!("[DEBUG/param-recv]   origin: {}", origin), true);
                 }
-                if let Some(&mapped_id) = self.variable_ctx.variable_map.get(name) {
+                if let Some(&mapped_id) = self.function_state.variable_ctx.variable_map.get(name) {
                     trace.stderr_if(
                         &format!(
                             "[DEBUG/param-recv]   variable_map['{}'] = ValueId({})",
@@ -155,7 +160,7 @@ impl MirBuilder {
                 trace.stderr_if(
                     &format!(
                         "[DEBUG/param-recv]   current_block: {:?}",
-                        self.current_block
+                        self.function_state.current_block
                     ),
                     true,
                 );

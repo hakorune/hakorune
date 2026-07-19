@@ -74,7 +74,7 @@ impl super::MirBuilder {
                     trace.stderr_if(
                         &format!(
                             "[DEBUG]   variable_map = {:?}",
-                            self.variable_ctx.variable_map
+                            self.function_state.variable_ctx.variable_map
                         ),
                         true,
                     );
@@ -96,14 +96,15 @@ impl super::MirBuilder {
                     trace.stderr_if(
                         &format!(
                             "[DEBUG]   variable_map = {:?}",
-                            self.variable_ctx.variable_map
+                            self.function_state.variable_ctx.variable_map
                         ),
                         true,
                     );
                 }
                 // Initialize local variables for Main.main() parameters
                 // Note: These are local variables in the wrapper main() function, NOT parameters
-                let saved_var_map = std::mem::take(&mut self.variable_ctx.variable_map);
+                let saved_var_map =
+                    std::mem::take(&mut self.function_state.variable_ctx.variable_map);
                 let script_args = collect_script_args_from_env();
                 for p in params.iter() {
                     // Allocate a value ID using the current function's value generator
@@ -116,10 +117,12 @@ impl super::MirBuilder {
                             box_type: "ArrayBox".to_string(),
                             args: vec![],
                         })?;
-                        self.type_ctx
+                        self.function_state
+                            .type_ctx
                             .value_origin_newbox
                             .insert(pid, "ArrayBox".to_string());
-                        self.type_ctx
+                        self.function_state
+                            .type_ctx
                             .value_types
                             .insert(pid, super::MirType::Box("ArrayBox".to_string()));
                         self.emit_constructor_birth_marker(pid, "ArrayBox")?;
@@ -148,10 +151,13 @@ impl super::MirBuilder {
                         self.emit_instruction(MirInstruction::Copy { dst: pid, src: v })?;
                         crate::mir::builder::metadata::propagate::propagate(self, v, pid);
                     }
-                    self.variable_ctx.variable_map.insert(p.clone(), pid);
+                    self.function_state
+                        .variable_ctx
+                        .variable_map
+                        .insert(p.clone(), pid);
                     // 関数スコープ SlotRegistry にも登録しておくよ（観測専用）
                     if let Some(reg) = self.comp_ctx.current_slot_registry.as_mut() {
-                        let ty = self.type_ctx.value_types.get(&pid).cloned();
+                        let ty = self.function_state.type_ctx.value_types.get(&pid).cloned();
                         reg.ensure_slot(p, ty);
                     }
                 }
@@ -163,7 +169,7 @@ impl super::MirBuilder {
                         body.len()
                     ));
                 }
-                self.comp_ctx.fn_body_ast = Some(body.clone());
+                self.function_state.compilation.fn_body_ast = Some(body.clone());
                 self.set_current_function_runes(attrs);
                 self.set_current_function_declared_capability_uses(uses);
 
@@ -171,9 +177,9 @@ impl super::MirBuilder {
                 let lowered = self.cf_block(body.clone());
 
                 // Phase 200-C: Clear fn_body_ast after main() lowering
-                self.comp_ctx.fn_body_ast = None;
+                self.function_state.compilation.fn_body_ast = None;
 
-                self.variable_ctx.variable_map = saved_var_map;
+                self.function_state.variable_ctx.variable_map = saved_var_map;
                 lowered
             } else {
                 Err("main method in static box is not a FunctionDeclaration".to_string())

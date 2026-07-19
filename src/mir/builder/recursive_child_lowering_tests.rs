@@ -84,7 +84,7 @@ fn typeop(receiver: ASTNode) -> ASTNode {
 
 fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
     let function = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("current test function");

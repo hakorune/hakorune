@@ -49,7 +49,7 @@ impl MirBuilder {
         super::method_resolution::resolve_call_target(
             name,
             &self.comp_ctx.current_static_box,
-            &self.variable_ctx.variable_map,
+            &self.function_state.variable_ctx.variable_map,
         )
     }
 }

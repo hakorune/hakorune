@@ -72,7 +72,7 @@ where
 
     // Evaluate LHS only once and pin to a slot so it can be reused safely across blocks
     let lhs_val = builder.pin_to_slot(lhs_val0, "@sc_lhs")?;
-    let lhs_pin_slot = builder.pin_slot_names.get(&lhs_val).cloned();
+    let lhs_pin_slot = builder.function_state.pin_slot_names.get(&lhs_val).cloned();
 
     // Prepare blocks: eval_rhs_block (evaluates RHS), skip_block (skips RHS), merge_block
     let eval_rhs_block = builder.next_block_id();
@@ -103,11 +103,15 @@ where
     // Keep the SSA value for the already-emitted branch, but do not let the
     // synthetic slot participate in branch-entry materialization or PHI merge.
     if let Some(slot) = lhs_pin_slot.as_ref() {
-        builder.variable_ctx.variable_map.remove(slot);
+        builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .remove(slot);
     }
 
     // Snapshot variables before entering branches
-    let pre_if_var_map = builder.variable_ctx.variable_map.clone();
+    let pre_if_var_map = builder.function_state.variable_ctx.variable_map.clone();
 
     // ---- SKIP branch (short-circuit path) ----
     builder.start_new_block(skip_block)?;
@@ -123,7 +127,7 @@ where
     builder.hint_scope_leave(0);
     crate::mir::builder::emission::branch::emit_jump(builder, merge_block)?;
     let skip_exit = builder.current_block()?;
-    let skip_var_map = builder.variable_ctx.variable_map.clone();
+    let skip_var_map = builder.function_state.variable_ctx.variable_map.clone();
 
     // ---- EVAL RHS branch ----
     builder.start_new_block(eval_rhs_block)?;
@@ -145,25 +149,25 @@ where
         rhs_false_block,
     )?;
     // Capture var_map after RHS evaluation (shared by rhs_true/rhs_false)
-    let rhs_eval_var_map = builder.variable_ctx.variable_map.clone();
+    let rhs_eval_var_map = builder.function_state.variable_ctx.variable_map.clone();
 
     // ---- RHS TRUE path → merge ----
     builder.start_new_block(rhs_true_block)?;
-    builder.variable_ctx.variable_map = rhs_eval_var_map.clone();
+    builder.function_state.variable_ctx.variable_map = rhs_eval_var_map.clone();
     let rhs_true_value = crate::mir::builder::emission::constant::emit_bool(builder, true)?;
     builder.hint_scope_leave(0);
     crate::mir::builder::emission::branch::emit_jump(builder, merge_block)?;
     let rhs_true_exit = builder.current_block()?;
-    let rhs_true_var_map = builder.variable_ctx.variable_map.clone();
+    let rhs_true_var_map = builder.function_state.variable_ctx.variable_map.clone();
 
     // ---- RHS FALSE path → merge ----
     builder.start_new_block(rhs_false_block)?;
-    builder.variable_ctx.variable_map = rhs_eval_var_map.clone();
+    builder.function_state.variable_ctx.variable_map = rhs_eval_var_map.clone();
     let rhs_false_value = crate::mir::builder::emission::constant::emit_bool(builder, false)?;
     builder.hint_scope_leave(0);
     crate::mir::builder::emission::branch::emit_jump(builder, merge_block)?;
     let rhs_false_exit = builder.current_block()?;
-    let rhs_false_var_map = builder.variable_ctx.variable_map.clone();
+    let rhs_false_var_map = builder.function_state.variable_ctx.variable_map.clone();
 
     // ---- MERGE (3-predecessor) ----
     builder.suppress_next_entry_pin_copy();
@@ -176,11 +180,12 @@ where
         (rhs_true_exit, rhs_true_value),
         (rhs_false_exit, rhs_false_value),
     ];
-    if let Some(func) = builder.scope_ctx.current_function.as_mut() {
+    if let Some(func) = builder.function_state.current_function.as_mut() {
         func.update_cfg();
     }
     let result_val = builder.insert_phi(result_inputs)?;
     builder
+        .function_state
         .type_ctx
         .value_types
         .insert(result_val, MirType::Bool);
@@ -192,7 +197,11 @@ where
     exits.insert(rhs_false_exit, rhs_false_var_map);
     builder.merge_modified_vars_multi(exits, &pre_if_var_map, None)?;
     if let Some(slot) = lhs_pin_slot.as_ref() {
-        builder.variable_ctx.variable_map.remove(slot);
+        builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .remove(slot);
     }
 
     builder.pop_if_merge();
@@ -227,6 +236,7 @@ mod tests {
 
         assert!(
             !builder
+                .function_state
                 .variable_ctx
                 .variable_map
                 .keys()

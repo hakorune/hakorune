@@ -31,7 +31,7 @@ pub(in crate::mir::builder::control_flow::plan::features) fn lower_else_only_bre
         return Err(format!("{LOOP_COND_ERR}: ElseOnlyBreakIf expects Break"));
     }
 
-    let pre_if_map = builder.variable_ctx.variable_map.clone();
+    let pre_if_map = builder.function_state.variable_ctx.variable_map.clone();
     let pre_bindings = current_bindings.clone();
 
     let mut fallthrough_end_map: Option<BTreeMap<String, crate::mir::ValueId>> = None;
@@ -121,10 +121,10 @@ pub(in crate::mir::builder::control_flow::plan::features) fn lower_else_only_bre
                 )?
             };
 
-            fallthrough_end_map = Some(builder.variable_ctx.variable_map.clone());
+            fallthrough_end_map = Some(builder.function_state.variable_ctx.variable_map.clone());
             fallthrough_end_bindings = Some(bindings.clone());
 
-            builder.variable_ctx.variable_map = pre_if_map.clone();
+            builder.function_state.variable_ctx.variable_map = pre_if_map.clone();
             *bindings = pre_bindings.clone();
 
             Ok(plans)
@@ -136,7 +136,7 @@ pub(in crate::mir::builder::control_flow::plan::features) fn lower_else_only_bre
                 parts::exit::build_break_with_phi_args(break_phi_dsts, bindings, LOOP_COND_ERR)?;
             let plans = vec![CorePlan::Exit(exit)];
 
-            builder.variable_ctx.variable_map = pre_if_map.clone();
+            builder.function_state.variable_ctx.variable_map = pre_if_map.clone();
             *bindings = pre_bindings.clone();
 
             Ok(plans)
@@ -166,7 +166,7 @@ pub(in crate::mir::builder::control_flow::plan::features) fn lower_else_only_bre
         ));
     };
 
-    builder.variable_ctx.variable_map = fallthrough_end_map;
+    builder.function_state.variable_ctx.variable_map = fallthrough_end_map;
     *current_bindings = fallthrough_end_bindings;
 
     Ok(if_plans)
@@ -192,7 +192,7 @@ pub(in crate::mir::builder::control_flow::plan::features) fn lower_then_only_bre
         return Err(format!("{LOOP_COND_ERR}: ThenOnlyBreakIf expects Break"));
     }
 
-    let pre_if_map = builder.variable_ctx.variable_map.clone();
+    let pre_if_map = builder.function_state.variable_ctx.variable_map.clone();
     let pre_bindings = current_bindings.clone();
 
     let mut fallthrough_end_map: Option<BTreeMap<String, crate::mir::ValueId>> = None;
@@ -204,7 +204,7 @@ pub(in crate::mir::builder::control_flow::plan::features) fn lower_then_only_bre
                 parts::exit::build_break_with_phi_args(break_phi_dsts, bindings, LOOP_COND_ERR)?;
             let plans = vec![CorePlan::Exit(exit)];
 
-            builder.variable_ctx.variable_map = pre_if_map.clone();
+            builder.function_state.variable_ctx.variable_map = pre_if_map.clone();
             *bindings = pre_bindings.clone();
 
             Ok(plans)
@@ -293,10 +293,10 @@ pub(in crate::mir::builder::control_flow::plan::features) fn lower_then_only_bre
                 )?
             };
 
-            fallthrough_end_map = Some(builder.variable_ctx.variable_map.clone());
+            fallthrough_end_map = Some(builder.function_state.variable_ctx.variable_map.clone());
             fallthrough_end_bindings = Some(bindings.clone());
 
-            builder.variable_ctx.variable_map = pre_if_map.clone();
+            builder.function_state.variable_ctx.variable_map = pre_if_map.clone();
             *bindings = pre_bindings.clone();
 
             Ok(plans)
@@ -326,7 +326,7 @@ pub(in crate::mir::builder::control_flow::plan::features) fn lower_then_only_bre
         ));
     };
 
-    builder.variable_ctx.variable_map = fallthrough_end_map;
+    builder.function_state.variable_ctx.variable_map = fallthrough_end_map;
     *current_bindings = fallthrough_end_bindings;
 
     Ok(if_plans)

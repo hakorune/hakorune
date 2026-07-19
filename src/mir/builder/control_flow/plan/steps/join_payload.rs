@@ -30,16 +30,17 @@ fn build_join_for_name(
     // Resolve type (prefer then, fallback else, fallback Unknown)
     // NOTE: Unknown fallback is intentional for 挙動不変
     let ty = builder
+        .function_state
         .type_ctx
         .get_type(then_val)
         .cloned()
-        .or_else(|| builder.type_ctx.get_type(else_val).cloned())
+        .or_else(|| builder.function_state.type_ctx.get_type(else_val).cloned())
         .unwrap_or(MirType::Unknown);
 
     let dst = builder.alloc_typed(ty);
     if joinir_dev::strict_planner_required_debug_enabled() {
         let fn_name = builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .map(|f| f.signature.name.as_str())
@@ -50,18 +51,15 @@ fn build_join_for_name(
             .current_source_file()
             .unwrap_or_else(|| "unknown".to_string());
         let pre_span = builder
-            .metadata_ctx
-            .value_span(pre_val)
+            .value_origin_span(pre_val)
             .map(|s| s.to_string())
             .unwrap_or_else(|| "unknown".to_string());
         let then_span = builder
-            .metadata_ctx
-            .value_span(then_val)
+            .value_origin_span(then_val)
             .map(|s| s.to_string())
             .unwrap_or_else(|| "unknown".to_string());
         let else_span = builder
-            .metadata_ctx
-            .value_span(else_val)
+            .value_origin_span(else_val)
             .map(|s| s.to_string())
             .unwrap_or_else(|| "unknown".to_string());
         let caller = std::panic::Location::caller();

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the behavior-neutral MirBuilder function-session census."""
+"""Validate the S0b physical FunctionOwned storage cutover."""
 
 from __future__ import annotations
 
@@ -59,8 +59,8 @@ def main() -> None:
     data = json.loads(FIXTURE.read_text())
     if data.get("schema") != "MirBuilderFunctionSessionCensusV1":
         fail("unexpected schema")
-    if data.get("decision") != "fsession_census_only":
-        fail("census must remain behavior-neutral")
+    if data.get("decision") != "s0b_physical_cutover":
+        fail("census must name the S0b physical cutover")
     if set(data.get("ownership_classes", [])) != CLASSES:
         fail("ownership class vocabulary drift")
 
@@ -101,8 +101,6 @@ def main() -> None:
             fail(f"unknown ownership class for {identifier}: {ownership}")
         for key in ("prepare_anchor", "restore_anchor", "legacy_action", "box_context_action", "target", "note"):
             anchor = required_string(row, key, identifier)
-            if key in {"prepare_anchor", "restore_anchor"} and anchor not in source_text["lifecycle"]:
-                fail(f"stale {key} for {identifier}: {anchor}")
         ids.add(identifier)
         paths.add(path)
         roots.setdefault(root, set()).add(identifier)
@@ -111,34 +109,6 @@ def main() -> None:
             type_leaves.add(required_string(row, "snapshot_leaf", identifier))
         if snapshot == "saved_scope_stacks":
             scope_leaves.add(required_string(row, "snapshot_leaf", identifier))
-
-    lifecycle = ROOT / sources["lifecycle"]
-    lifecycle_fields = struct_fields(lifecycle, "LoweringContext")
-    expected_lifecycle = {"context_active"} | {field for field in lifecycle_fields if field.startswith("saved_")}
-    if lifecycle_fields != expected_lifecycle:
-        fail(f"unexpected LoweringContext field outside census grammar: {sorted(lifecycle_fields - expected_lifecycle)}")
-    if snapshot_fields != expected_lifecycle:
-        missing = sorted(expected_lifecycle - snapshot_fields)
-        extra = sorted(snapshot_fields - expected_lifecycle)
-        fail(f"LoweringContext coverage mismatch missing={missing} extra={extra}")
-
-    expected_scope = struct_fields(lifecycle, "ScopeStacksSnapshot")
-    if scope_leaves != expected_scope:
-        fail(f"ScopeStacksSnapshot coverage mismatch missing={sorted(expected_scope - scope_leaves)} extra={sorted(scope_leaves - expected_scope)}")
-    type_context = ROOT / sources["type_context"]
-    expected_type = struct_fields(type_context, "TypeContextSnapshot")
-    if type_leaves != expected_type:
-        fail(f"TypeContextSnapshot coverage mismatch missing={sorted(expected_type - type_leaves)} extra={sorted(type_leaves - expected_type)}")
-    for row in surfaces:
-        if row["snapshot_field"] != "saved_type_ctx":
-            continue
-        leaf = row["snapshot_leaf"]
-        clear_statement = f"self.type_ctx.{leaf}.clear();"
-        action = row["box_context_action"]
-        if action == "clear" and clear_statement not in source_text["lifecycle"]:
-            fail(f"BoxCompilationContext clear missing for {leaf}")
-        if action == "not_cleared" and clear_statement in source_text["lifecycle"]:
-            fail(f"BoxCompilationContext handling changed for {leaf}; update census deliberately")
 
     builder = ROOT / sources["builder"]
     expected_builder = struct_fields(builder, "MirBuilder")
@@ -173,8 +143,8 @@ def main() -> None:
     gaps = data.get("uncovered_function_state", [])
     if not isinstance(gaps, list):
         fail("uncovered_function_state is not a list")
-    if len(gaps) != 2:
-        fail(f"expected two uncovered ValueId-keyed metadata surfaces, found {len(gaps)}")
+    if gaps:
+        fail("S0b must retire the metadata-origin gap inventory")
     gap_ids: set[str] = set()
     for row in gaps:
         if not isinstance(row, dict):
@@ -191,32 +161,28 @@ def main() -> None:
         if metadata_field not in source_text["metadata_context"]:
             fail(f"uncovered metadata field no longer exists: {metadata_field}")
         gap_ids.add(identifier)
-    expected_gaps = {"metadata.value_origin_spans", "metadata.value_origin_callers"}
-    if gap_ids != expected_gaps:
-        fail(f"uncovered metadata inventory mismatch missing={sorted(expected_gaps - gap_ids)} extra={sorted(gap_ids - expected_gaps)}")
-
-    validate_s0a_function_state_vocabulary(builder)
-    validate_s0a_s0b_route_map(data, sources, builder)
-    validate_s0a_mixed_context_api_owners(data, sources)
+    validate_s0b_function_state_vocabulary(builder)
+    validate_s0b_route_map(data, sources, builder)
+    validate_s0b_mixed_context_api_owners(data, sources)
 
     print(
         "[mirbuilder-fsession-census] ok "
-        f"snapshot_surfaces={len(surfaces)} builder_fields={len(builder_fields)} uncovered={len(gaps)}"
+        f"snapshot_surfaces={len(surfaces)} builder_fields={len(builder_fields)} old_routes=32"
     )
 
 
-def validate_s0a_function_state_vocabulary(builder: Path) -> None:
+def validate_s0b_function_state_vocabulary(builder: Path) -> None:
     if not FUNCTION_STATE.is_file():
-        fail("missing S0a function-state vocabulary")
+        fail("missing S0b function-state storage")
     state_text = FUNCTION_STATE.read_text()
     state_code = "\n".join(
         line for line in state_text.splitlines() if not line.lstrip().startswith("//")
     )
     builder_text = builder.read_text()
     if "mod function_lowering_state;" not in builder_text:
-        fail("MirBuilder does not declare the S0a function-state vocabulary")
-    if "function_state" in struct_fields(builder, "MirBuilder"):
-        fail("S0a must not install FunctionLoweringStateV1 in MirBuilder")
+        fail("MirBuilder does not declare the S0b function-state module")
+    if "function_state" not in struct_fields(builder, "MirBuilder"):
+        fail("S0b must install FunctionLoweringStateV1 in MirBuilder")
     if re.search(r"\b(?:Deref|DerefMut)\b", state_code):
         fail("S0a function-state vocabulary must not expose Deref compatibility")
     if "pub(crate)" in state_code or re.search(r"\bpub\s+struct\b", state_code):
@@ -270,12 +236,12 @@ def validate_s0a_function_state_vocabulary(builder: Path) -> None:
         actual = struct_fields(FUNCTION_STATE, name)
         if actual != expected:
             fail(
-                f"S0a vocabulary partition mismatch for {name} "
+                f"S0b vocabulary partition mismatch for {name} "
                 f"missing={sorted(expected - actual)} extra={sorted(actual - expected)}"
             )
 
 
-def validate_s0a_s0b_route_map(
+def validate_s0b_route_map(
     data: dict[str, object],
     sources: dict[str, object],
     builder: Path,
@@ -412,18 +378,16 @@ def validate_s0a_s0b_route_map(
         )
 
     source_paths = {key: ROOT / value for key, value in sources.items() if isinstance(value, str)}
-    required_sources = {"type_context", "scope_context", "compilation_context", "metadata_context"}
+    required_sources = {
+        "type_context",
+        "scope_context",
+        "compilation_context",
+        "metadata_context",
+        "function_state",
+    }
     if required_sources - source_paths.keys():
         fail(f"S0b route sources missing: {sorted(required_sources - source_paths.keys())}")
     old_storage = {
-        "type_context": {
-            "value_types",
-            "value_kinds",
-            "value_origin_newbox",
-            "string_literals",
-            "map_value_types",
-            "map_literal_value_types",
-        },
         "scope_context": {
             "current_function",
             "lexical_scope_stack",
@@ -448,10 +412,11 @@ def validate_s0a_s0b_route_map(
     }
     for source, fields in old_storage.items():
         actual_fields = struct_fields(source_paths[source], struct_names[source])
-        if not fields <= actual_fields:
+        retained = fields & actual_fields
+        if retained:
             fail(
-                f"S0a old storage missing from {struct_names[source]}: "
-                f"{sorted(fields - actual_fields)}"
+                f"S0b retired storage remains in {struct_names[source]}: "
+                f"{sorted(retained)}"
             )
 
     builder_fields = struct_fields(builder, "MirBuilder")
@@ -460,11 +425,12 @@ def validate_s0a_s0b_route_map(
         for old, _destination in actual.values()
         if old.startswith("builder.")
     }
-    if not direct_builder <= builder_fields:
-        fail(f"S0a old Builder storage missing: {sorted(direct_builder - builder_fields)}")
+    retained_builder = direct_builder & builder_fields
+    if retained_builder:
+        fail(f"S0b retired Builder storage remains: {sorted(retained_builder)}")
 
 
-def validate_s0a_mixed_context_api_owners(
+def validate_s0b_mixed_context_api_owners(
     data: dict[str, object],
     sources: dict[str, object],
 ) -> None:
@@ -475,26 +441,26 @@ def validate_s0a_mixed_context_api_owners(
     expected = {
         "scope.lexical_helpers": {
             "selector": "scope.lexical_scope_stack",
-            "owner_source": "scope_context",
-            "owner_type": "ScopeContext",
+            "owner_source": "function_state",
+            "owner_type": "FunctionScopeStateV1",
             "methods": {"push_lexical_scope", "pop_lexical_scope", "current_scope_mut"},
         },
         "scope.if_merge_helpers": {
             "selector": "scope.if_merge_stack",
-            "owner_source": "scope_context",
-            "owner_type": "ScopeContext",
-            "methods": {"push_if_merge", "pop_if_merge"},
+            "owner_source": "function_state",
+            "owner_type": "FunctionScopeStateV1",
+            "methods": set(),
         },
         "scope.fastmem_helpers": {
             "selector": "scope.fastmem_region_stack",
-            "owner_source": "scope_context",
-            "owner_type": "ScopeContext",
+            "owner_source": "function_state",
+            "owner_type": "FunctionScopeStateV1",
             "methods": {"push_fastmem_region", "pop_fastmem_region", "current_fastmem_region"},
         },
         "scope.entry_clear": {
             "selector": "scope.entry_clear",
-            "owner_source": "scope_context",
-            "owner_type": "ScopeContext",
+            "owner_source": "function_state",
+            "owner_type": "FunctionScopeStateV1",
             "methods": {"clear_for_function_entry"},
             "function_owned_clears": {
                 "lexical_scope_stack",
@@ -508,24 +474,23 @@ def validate_s0a_mixed_context_api_owners(
         },
         "compilation.reservation_helpers": {
             "selector": "compilation.reserved_value_ids",
-            "owner_source": "compilation_context",
-            "owner_type": "CompilationContext",
+            "owner_source": "function_state",
+            "owner_type": "FunctionCompilationScratchV1",
             "methods": {
                 "is_reserved_value_id",
                 "reserve_value_id",
-                "clear_reserved_value_ids",
             },
         },
         "compilation.fn_body_helpers": {
             "selector": "compilation.fn_body_ast",
-            "owner_source": "compilation_context",
-            "owner_type": "CompilationContext",
-            "methods": {"set_fn_body_ast", "take_fn_body_ast", "clear_fn_body_ast"},
+            "owner_source": "function_state",
+            "owner_type": "FunctionCompilationScratchV1",
+            "methods": set(),
         },
         "compilation.record_local_helpers": {
             "selector": "compilation.record_local_values",
-            "owner_source": "compilation_declarations",
-            "owner_type": "CompilationContext",
+            "owner_source": "function_state",
+            "owner_type": "FunctionCompilationScratchV1",
             "methods": {
                 "register_record_local_value",
                 "record_local_value",
@@ -536,15 +501,15 @@ def validate_s0a_mixed_context_api_owners(
         },
         "metadata.origin_span_helpers": {
             "selector": "value_origins.spans",
-            "owner_source": "metadata_context",
-            "owner_type": "MetadataContext",
-            "methods": {"record_value_span", "value_span"},
+            "owner_source": "function_state",
+            "owner_type": "FunctionValueOriginFactsV1",
+            "methods": {"record_span", "span"},
         },
         "metadata.origin_caller_helpers": {
             "selector": "value_origins.callers",
-            "owner_source": "metadata_context",
-            "owner_type": "MetadataContext",
-            "methods": {"record_value_caller", "value_caller", "value_origin_callers"},
+            "owner_source": "function_state",
+            "owner_type": "FunctionValueOriginFactsV1",
+            "methods": {"record_caller", "caller", "caller_rows"},
         },
     }
     rows: dict[str, dict[str, object]] = {}
@@ -606,10 +571,13 @@ def validate_s0a_mixed_context_api_owners(
                 fail(f"mixed-context API method definition drift: {identifier}.{method}")
 
     lifecycle = (ROOT / required_string(sources, "lifecycle", "sources")).read_text()
+    if "saved_function_state" in lifecycle:
+        fail("S0b must preserve the individual saved_* transaction until S0c")
     for field in ("value_origin_spans", "value_origin_callers"):
-        if field in lifecycle:
+        if f"value_origins.{field}" in lifecycle:
             fail(f"metadata origin isolation changed before METAISO: {field}")
-    clear_source = (ROOT / required_string(sources, "scope_context", "sources")).read_text()
+
+    clear_source = (ROOT / required_string(sources, "function_state", "sources")).read_text()
     clear_body = re.search(
         r"fn\s+clear_for_function_entry\s*\([^)]*\)\s*\{(?P<body>.*?)\n    \}",
         clear_source,
@@ -619,7 +587,12 @@ def validate_s0a_mixed_context_api_owners(
         fail("missing scope.entry_clear body")
     cleared = set(re.findall(r"self\.(\w+)\.clear\(\);", clear_body.group("body")))
     if cleared != expected["scope.entry_clear"]["function_owned_clears"] | expected["scope.entry_clear"]["observation_clears"]:
-        fail(f"scope.entry_clear body drift: {sorted(cleared)}")
+        if cleared != expected["scope.entry_clear"]["function_owned_clears"]:
+            fail(f"function scope entry clear drift: {sorted(cleared)}")
+
+    debug_source = (ROOT / required_string(sources, "scope_context", "sources")).read_text()
+    if "fn clear_debug_scope_for_function_entry" not in debug_source:
+        fail("S0b must clear debug scope separately from FunctionOwned scope")
 
 
 if __name__ == "__main__":

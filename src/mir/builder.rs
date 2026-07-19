@@ -9,8 +9,7 @@ use super::{
     MirFunction, MirInstruction, MirModule, MirType, ValueId,
 };
 pub(crate) use calls::CallTarget;
-use hakorune_mir_builder::{BindingContext, CoreContext};
-use std::collections::HashMap;
+use hakorune_mir_builder::CoreContext;
 mod array_element_write;
 mod builder_build;
 mod builder_debug;
@@ -38,8 +37,7 @@ mod exprs_check; // CheckExpr lowering
 mod exprs_enum_match; // narrow direct-MIR enum match lowering for guard-let sugar
 mod fastmem; // fastmem source -> MIR MemOp metadata lowering
 mod fastmem_context; // FastMemory region context helpers
-#[allow(dead_code)]
-mod function_lowering_state; // FSESSION0-S0a: private ownership vocabulary; no storage cutover
+mod function_lowering_state;
 mod located_legacy_lowering;
 mod metadata_context; // Phase 136 follow-up (Step 6/7): MetadataContext extraction
 mod method_call_handlers;
@@ -156,101 +154,30 @@ pub struct MirBuilder {
     /// Current module being built
     pub(super) current_module: Option<MirModule>,
 
-    /// Current basic block being built
-    pub(super) current_block: Option<BasicBlockId>,
+    /// The sole physical owner of every FunctionOwned lowering surface.
+    ///
+    /// Module, observer, and legacy-compatibility state intentionally remains
+    /// outside this component. S0b preserves the existing prepare/restore
+    /// transaction; S0c owns its later consolidation.
+    function_state: function_lowering_state::FunctionLoweringStateV1,
 
     /// Phase 136 follow-up (Step 2/7): Core ID generation context
     /// Consolidates value_gen, block_gen, next_binding_id, temp_slot_counter, debug_join_counter.
     /// Direct field access for backward compatibility (migration in progress).
     pub(super) core_ctx: CoreContext,
 
-    /// Phase 136 follow-up: Type information context
-    /// Consolidates value_types, value_kinds, value_origin_newbox for better organization.
-    /// Direct field access for backward compatibility (migration in progress).
-    pub(super) type_ctx: type_context::TypeContext,
-
-    /// Phase 136 follow-up (Step 3/7): Scope and control flow context
-    /// Consolidates lexical_scope_stack, loop stacks, if_merge_stack, current_function,
-    /// function_param_names, debug_scope_stack for better organization.
-    /// Direct field access for backward compatibility (migration in progress).
+    /// Observation-only scope state. FunctionOwned scope leaves live in
+    /// `function_state.scope`.
     pub(super) scope_ctx: scope_context::ScopeContext,
 
-    /// Phase 136 follow-up (Step 4/7): Binding context
-    /// Consolidates binding_map (String -> BindingId mapping).
-    /// Direct field access for backward compatibility (migration in progress).
-    pub(super) binding_ctx: BindingContext,
-
-    /// SA3 pre-Lower transport for one sealed function's BindingId authority.
-    /// Disconnected in SA3-A; production declarations switch atomically in SA3-B.
-    pub(super) resolved_binding_state: vars::resolved_binding_state::ResolvedBindingLoweringStateV1,
-
-    /// Phase 136 follow-up (Step 5/7): Variable context
-    /// Consolidates variable_map (String -> ValueId mapping for SSA conversion).
-    /// Direct field access for backward compatibility (migration in progress).
-    pub(super) variable_ctx: variable_context::VariableContext,
-
-    /// Phase 136 follow-up (Step 6/7): Metadata context
-    /// Consolidates current_span, source_file, hint_sink, current_region_stack.
-    /// Direct field access for backward compatibility (migration in progress).
+    /// Observation-only metadata. FunctionOwned ValueId origins live in
+    /// `function_state.value_origins`.
     pub(super) metadata_ctx:
         metadata_context::MetadataContext<crate::ast::Span, crate::mir::region::RegionId>,
 
-    /// Phase 136 follow-up (Step 7/7): Compilation context
-    /// Consolidates compilation_context, current_static_box, user_defined_boxes, reserved_value_ids,
-    /// fn_body_ast, callable declaration catalog, weak_fields_by_box, property_registry,
-    /// field_origin_class, field_origin_by_box, method_tail_index, type_registry,
-    /// current_slot_registry, plugin_method_sigs.
-    /// Direct field access for backward compatibility (migration in progress).
+    /// Module, observation, and compatibility compilation state. FunctionOwned
+    /// reservations/body/record scratch live in `function_state.compilation`.
     pub(super) comp_ctx: compilation_context::CompilationContext,
-
-    /// Pending phi functions to be inserted
-    #[allow(dead_code)]
-    pub(super) pending_phis: Vec<(BasicBlockId, ValueId, String)>,
-
-    // Phase 2-5: binding_map removed - use binding_ctx methods instead
-
-    // include guards removed
-    // フェーズM: no_phi_modeフィールド削除（常にPHI使用）
-
-    // ---- Try/Catch/Cleanup lowering context ----
-    /// When true, `return` statements are deferred: they assign to `return_defer_slot`
-    /// and jump to `return_defer_target` (typically the cleanup/exit block).
-    pub(super) return_defer_active: bool,
-    /// Slot value to receive deferred return values (edge-copy mode friendly).
-    pub(super) return_defer_slot: Option<ValueId>,
-    /// Target block to jump to on deferred return.
-    pub(super) return_defer_target: Option<BasicBlockId>,
-    /// Set to true when a deferred return has been emitted in the current context.
-    pub(super) return_deferred_emitted: bool,
-    /// True while lowering the cleanup block.
-    pub(super) in_cleanup_block: bool,
-    /// Policy flags (snapshotted at entry of try/catch lowering)
-    pub(super) cleanup_allow_return: bool,
-    pub(super) cleanup_allow_throw: bool,
-
-    /// If true, skip entry materialization of pinned slots on the next start_new_block call.
-    suppress_pin_entry_copy_next: bool,
-
-    // ----------------------
-    // Debug scope context (dev only; zero-cost when unused)
-    // ----------------------
-    /// Local SSA cache: ensure per-block materialization for critical operands (e.g., recv)
-    /// Key: (bb, original ValueId, kind) -> local ValueId
-    /// kind: 0=recv, 1+ reserved for future (args etc.)
-    pub(super) local_ssa_map: HashMap<(BasicBlockId, ValueId, u8), ValueId>,
-    /// BlockSchedule cache: deduplicate materialize copies per (bb, src)
-    pub(super) schedule_mat_map: HashMap<(BasicBlockId, ValueId), ValueId>,
-    /// Mapping from ValueId to its pin slot name (e.g., "__pin$3$@recv")
-    /// Used by LocalSSA to redirect old pinned values to the latest slot value.
-    pub(super) pin_slot_names: HashMap<ValueId, String>,
-
-    /// Guard flag to prevent re-entering emit_unified_call from BoxCall fallback.
-    /// Used when RouterPolicyBox in emit_unified_call has already decided to
-    /// route a given Method call to BoxCall; emit_box_or_plugin_call must not
-    /// bounce back into the unified path for the same call, otherwise an
-    /// infinite recursion (emit_unified_call → emit_box_or_plugin_call →
-    /// emit_unified_call …) can occur when routing decisions disagree.
-    pub(super) in_unified_boxcall_fallback: bool,
 
     /// Recursion depth counter for debugging stack overflow
     /// Tracks the depth of build_expression calls to detect infinite loops
@@ -266,10 +193,6 @@ pub struct MirBuilder {
     /// File mode: false (explicit local required)
     /// REPL mode: true (暗黙 local 許可)
     pub(crate) repl_mode: bool,
-
-    /// Phase 29bq+: Frag emit session (per-function sealing)
-    /// 各関数開始時に reset() する（lifecycle.rs / calls/lowering.rs）
-    pub(super) frag_emit_session: FragEmitSession,
 }
 
 impl Default for MirBuilder {
@@ -287,7 +210,7 @@ mod binding_id_tests {
         let builder = MirBuilder::new();
         assert_eq!(builder.core_ctx.next_binding_id, 0);
         // Phase 2-6: binding_ctx is now SSOT (legacy field removed)
-        assert!(builder.binding_ctx.is_empty());
+        assert!(builder.function_state.binding_ctx.is_empty());
     }
 
     #[test]
@@ -317,7 +240,7 @@ mod binding_id_tests {
             .declare_local_in_current_scope("x", outer_vid)
             .unwrap();
         // Phase 2-6: Check binding_ctx (SSOT)
-        let outer_bid = builder.binding_ctx.lookup("x").unwrap();
+        let outer_bid = builder.function_state.binding_ctx.lookup("x").unwrap();
         assert_eq!(outer_bid.raw(), 0);
 
         // Enter inner scope and shadow x
@@ -328,13 +251,13 @@ mod binding_id_tests {
             .declare_local_in_current_scope("x", inner_vid)
             .unwrap();
         // Phase 2-6: Check binding_ctx (SSOT)
-        let inner_bid = builder.binding_ctx.lookup("x").unwrap();
+        let inner_bid = builder.function_state.binding_ctx.lookup("x").unwrap();
         assert_eq!(inner_bid.raw(), 1);
 
         // Exit inner scope - should restore outer binding
         builder.pop_lexical_scope();
         // Phase 2-6: Check binding_ctx (SSOT)
-        let restored_bid = builder.binding_ctx.lookup("x").unwrap();
+        let restored_bid = builder.function_state.binding_ctx.lookup("x").unwrap();
         assert_eq!(restored_bid, outer_bid);
         assert_eq!(restored_bid.raw(), 0);
 

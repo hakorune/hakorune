@@ -13,14 +13,17 @@ impl MirBuilder {
         // Capture caller location at function entry (before any closures) for accurate reporting
         let caller = std::panic::Location::caller();
 
-        let block_id = self.current_block.ok_or("No current basic block")?;
+        let block_id = self
+            .function_state
+            .current_block
+            .ok_or("No current basic block")?;
 
         // Make instruction mutable for potential receiver materialization
         let mut instruction = instruction;
 
         // Precompute debug metadata to avoid borrow conflicts later
         let _dbg_fn_name = self
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .map(|f| f.signature.name.clone());
@@ -51,11 +54,15 @@ impl MirBuilder {
             _ => None,
         };
         if let MirInstruction::Phi { inputs, .. } = &mut instruction {
-            let func = self.scope_ctx.current_function.as_mut().ok_or_else(|| {
-                FreezeContract::new("builder/phi_without_function")
-                    .field("bb", format!("{:?}", block_id))
-                    .build()
-            })?;
+            let func = self
+                .function_state
+                .current_function
+                .as_mut()
+                .ok_or_else(|| {
+                    FreezeContract::new("builder/phi_without_function")
+                        .field("bb", format!("{:?}", block_id))
+                        .build()
+                })?;
             for (pred, incoming) in inputs.iter_mut() {
                 *incoming = crate::mir::builder::ssa::phi_input_materializer::for_pred(
                     func,
@@ -136,8 +143,7 @@ impl MirBuilder {
         } else {
             None
         };
-
-        let emit_result = if let Some(ref mut function) = self.scope_ctx.current_function {
+        let emit_result = if let Some(ref mut function) = self.function_state.current_function {
             // Fail-fast: non-dominating Copy should not be emitted (strict/dev+planner_required only).
             if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
                 if let MirInstruction::Copy { src, .. } = &instruction {
@@ -239,7 +245,7 @@ impl MirBuilder {
                         ring0.log.debug(&format!(
                             "[emit-inst] fn={} bb={:?} COPY %{} <- %{}",
                             current_fn_name,
-                            self.current_block.map(|b| b.0).unwrap_or(0),
+                            self.function_state.current_block.map(|b| b.0).unwrap_or(0),
                             dst.0,
                             src.0
                         ));
@@ -263,7 +269,7 @@ impl MirBuilder {
                             ring0.log.debug(&format!(
                                 "[emit-inst] fn={} bb={:?} Call {}.{} recv=%{}",
                                 current_fn_name,
-                                self.current_block.map(|b| b.0).unwrap_or(0),
+                                self.function_state.current_block.map(|b| b.0).unwrap_or(0),
                                 box_name,
                                 method,
                                 r.0
@@ -279,6 +285,7 @@ impl MirBuilder {
                         }) = callee
                         {
                             let names: Vec<String> = self
+                                .function_state
                                 .variable_ctx
                                 .variable_map
                                 .iter()
@@ -289,7 +296,7 @@ impl MirBuilder {
                             ring0.log.debug(&format!(
                                 "[builder/recv-trace] fn={} bb={:?} method={}.{} recv=%{} aliases={:?}",
                                 current_fn_name,
-                                self.current_block,
+                                self.function_state.current_block,
                                 box_name,
                                 method,
                                 r.0,
@@ -371,20 +378,24 @@ impl MirBuilder {
                     succ.add_predecessor(block_id);
                 }
             }
-            if let Some(dst) = dst_value_for_metadata {
-                self.metadata_ctx.record_value_caller(dst, caller);
-                if let Some(loc) = self.metadata_ctx.value_caller(dst) {
-                    function
-                        .metadata
-                        .value_origin_callers
-                        .insert(dst, loc.to_string());
-                }
-            }
             Ok(())
         } else {
             Err(format!("Basic block {} does not exist", block_id))
         };
         emit_result?;
+
+        if let Some(dst) = dst_value_for_metadata {
+            self.record_value_origin_caller(dst, caller);
+            if let (Some(origin_caller), Some(function)) = (
+                self.value_origin_caller(dst).map(str::to_owned),
+                self.function_state.current_function.as_mut(),
+            ) {
+                function
+                    .metadata
+                    .value_origin_callers
+                    .insert(dst, origin_caller);
+            }
+        }
 
         if let Some((dst, prepared)) = prepared_phi_type {
             super::phi_type_publication::commit_for_builder(self, dst, prepared);
@@ -444,7 +455,7 @@ impl MirBuilder {
         phi_id: ValueId,
         new_inputs: Vec<(BasicBlockId, ValueId)>,
     ) -> Result<(), String> {
-        if let Some(ref mut function) = self.scope_ctx.current_function {
+        if let Some(ref mut function) = self.function_state.current_function {
             if let Some(block_data) = function.get_block_mut(block) {
                 // Find PHI instruction with matching dst
                 for inst in &mut block_data.instructions {

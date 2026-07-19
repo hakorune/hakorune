@@ -66,19 +66,16 @@ fn builder_for(source: &str, name: &str, install_catalog: bool) -> MirBuilder {
 
 fn call_rows(builder: &MirBuilder) -> Vec<(BasicBlockId, String)> {
     builder
-        .scope_ctx
-        .current_function
-        .as_ref()
-        .unwrap()
-        .blocks
-        .iter()
-        .flat_map(|(block, data)| {
-            data.instructions
+        .current_function_instruction_blocks()
+        .into_iter()
+        .flat_map(|(block, instructions)| {
+            instructions
                 .iter()
                 .filter_map(|instruction| match instruction {
-                    MirInstruction::Call { callee, .. } => Some((*block, format!("{callee:?}"))),
+                    MirInstruction::Call { callee, .. } => Some((block, format!("{callee:?}"))),
                     _ => None,
                 })
+                .collect::<Vec<_>>()
         })
         .collect()
 }

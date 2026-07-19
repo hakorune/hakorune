@@ -26,7 +26,7 @@ fn fastmem_source_lowers_to_region_metadata_and_memops() {
     ];
 
     super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
     assert_eq!(function.metadata.fastmem_regions.len(), 1);
     let region = &function.metadata.fastmem_regions[0];
     assert_eq!(region.contract, "PageMapV0");
@@ -83,7 +83,7 @@ fn fastmem_layout_table_source_preserves_symbolic_access_ids() {
     ];
 
     super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
     let access_entries: Vec<(MemOpKind, Option<String>, Option<String>)> = function
         .blocks
         .values()

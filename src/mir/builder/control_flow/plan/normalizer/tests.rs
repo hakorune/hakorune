@@ -51,6 +51,7 @@ fn lower_binary_result_type(
         matches!(effects.last(), Some(super::CoreEffectPlan::BinOp { dst, .. }) if *dst == result)
     );
     builder
+        .function_state
         .type_ctx
         .get_type(result)
         .expect("result type must be published")
@@ -109,10 +110,12 @@ fn lower_value_ast_accepts_me_field_access() {
     );
     let me_id = builder.alloc_typed(MirType::Box("Counter".to_string()));
     builder
+        .function_state
         .variable_ctx
         .variable_map
         .insert("me".to_string(), me_id);
     builder
+        .function_state
         .type_ctx
         .value_origin_newbox
         .insert(me_id, "Counter".to_string());
@@ -130,7 +133,7 @@ fn lower_value_ast_accepts_me_field_access() {
             .expect("me.field should lower in value context");
 
     assert_eq!(
-        builder.type_ctx.get_type(value_id),
+        builder.function_state.type_ctx.get_type(value_id),
         Some(&MirType::Box("IntegerBox".to_string()))
     );
     assert!(matches!(
@@ -153,17 +156,23 @@ fn lower_value_ast_keeps_nested_method_call_receiver_chain() {
     let array_id = ValueId(1);
     let index_id = ValueId(2);
     builder
+        .function_state
         .variable_ctx
         .variable_map
         .insert("arr".to_string(), array_id);
     builder
+        .function_state
         .variable_ctx
         .variable_map
         .insert("idx".to_string(), index_id);
     builder
+        .function_state
         .type_ctx
         .set_type(array_id, MirType::Box("RuntimeDataBox".to_string()));
-    builder.type_ctx.set_type(index_id, MirType::Integer);
+    builder
+        .function_state
+        .type_ctx
+        .set_type(index_id, MirType::Integer);
 
     let expr = method_call(
         method_call(var("arr"), "get", vec![var("idx")]),

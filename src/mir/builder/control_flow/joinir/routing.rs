@@ -287,7 +287,7 @@ impl MirBuilder {
     ) -> Result<Option<ValueId>, String> {
         // Get current function name
         let func_name = self
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .map(|f| f.signature.name.clone())
@@ -473,7 +473,7 @@ impl MirBuilder {
 
         // Phase 200-C: Pass fn_body_ast to LoopRouteContext if available
         // Clone fn_body_ast to avoid borrow checker issues
-        let fn_body_clone = self.comp_ctx.fn_body_ast.clone();
+        let fn_body_clone = self.function_state.compilation.fn_body_ast.clone();
         trace::trace().routing(
             "router",
             func_name,
@@ -595,7 +595,7 @@ impl MirBuilder {
         // Phase 134 P0: Delegate execution to NormalizationExecuteBox (SSOT)
         // Phase 141 P1.5: Pass prefix_variables (using variable_map at this point)
         // Clone to avoid borrow checker conflict (self is borrowed mutably in execute)
-        let prefix_var_map = self.variable_ctx.variable_map.clone();
+        let prefix_var_map = self.function_state.variable_ctx.variable_map.clone();
         match NormalizationExecuteBox::execute(
             self,
             &plan,

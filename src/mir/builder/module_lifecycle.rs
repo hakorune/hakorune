@@ -82,11 +82,11 @@ impl super::MirBuilder {
 
         self.current_module = Some(module);
         // Phase 136 Step 3/7: Use scope_ctx as SSOT
-        self.scope_ctx.current_function = Some(main_function);
-        self.current_block = Some(entry_block);
+        self.function_state.current_function = Some(main_function);
+        self.function_state.current_block = Some(entry_block);
 
         // Phase 29bq+: reset sealing session for new function
-        self.frag_emit_session.reset();
+        self.function_state.frag_emit_session.reset();
 
         // 関数スコープの SlotRegistry を初期化するよ（観測専用）。
         // main 関数用のスロット登録箱として使う想定だよ。
@@ -354,15 +354,21 @@ impl super::MirBuilder {
     pub(super) fn finalize_module(&mut self, result_value: ValueId) -> Result<MirModule, String> {
         // Hint: scope leave at function end (id=0 for main)
         self.hint_scope_leave(0);
-        if let Some(block_id) = self.current_block {
-            if let Some(ref mut function) = self.scope_ctx.current_function {
+        if let Some(block_id) = self.function_state.current_block {
+            if let Some(ref mut function) = self.function_state.current_function {
                 if let Some(block) = function.get_block_mut(block_id) {
                     if !block.is_terminated() {
                         block.add_instruction(MirInstruction::Return {
                             value: Some(result_value),
                         });
                     }
-                    if let Some(mt) = self.type_ctx.value_types.get(&result_value).cloned() {
+                    if let Some(mt) = self
+                        .function_state
+                        .type_ctx
+                        .value_types
+                        .get(&result_value)
+                        .cloned()
+                    {
                         function.signature.return_type = mt;
                     }
                 }
@@ -375,7 +381,7 @@ impl super::MirBuilder {
             self,
             "finalize_module",
         )?;
-        let mut function = self.scope_ctx.current_function.take().unwrap();
+        let mut function = self.function_state.current_function.take().unwrap();
 
         // ===== Step 1: Type Propagation (TypePropagationPipeline SSOT) =====
         // Phase 279 P0: SSOT type propagation pipeline
@@ -384,23 +390,23 @@ impl super::MirBuilder {
         // 順序固定: Copy → BinOp → Copy → PHI
         // lifecycle.rs と joinir_function_converter.rs の両方がこのパイプラインを呼ぶ。
         use crate::mir::type_propagation::TypePropagationPipeline;
-        TypePropagationPipeline::run(&mut function, &mut self.type_ctx.value_types)?;
+        TypePropagationPipeline::run(&mut function, &mut self.function_state.type_ctx.value_types)?;
 
         // ===== Step 2: Type Hint Provision (delegation to type_hint_providers) =====
         // Phase 84-5 guard hardening: ensure call/await results are registered in `value_types`
         // before return type inference. This avoids "impossible" debug panics when the builder
         // emitted a value-producing instruction without annotating its dst type.
         type_hint_providers::annotate_missing_result_types_from_calls_and_await(
-            &mut self.type_ctx,
+            &mut self.function_state.type_ctx,
             &function,
             &module,
         );
 
         // Phase 131-9: Update function metadata with corrected types
         // MUST happen after PHI type correction above AND BinOp re-propagation
-        function.metadata.value_types = self.type_ctx.value_types.clone();
+        function.metadata.value_types = self.function_state.type_ctx.value_types.clone();
         let mut origin_callers = function.metadata.value_origin_callers.clone();
-        for (k, v) in self.metadata_ctx.value_origin_callers().iter() {
+        for (k, v) in self.value_origin_caller_rows().iter() {
             origin_callers.insert(*k, v.clone());
         }
         function.metadata.value_origin_callers = origin_callers;

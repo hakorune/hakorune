@@ -113,8 +113,15 @@ impl LoopHeaderPhiBuilder {
 
         // Phase 131-11-H: Set PHI type from entry incoming (init value) only
         // Ignore backedge to avoid circular dependency in type inference
-        if let Some(init_type) = builder.type_ctx.value_types.get(&loop_var_init).cloned() {
+        if let Some(init_type) = builder
+            .function_state
+            .type_ctx
+            .value_types
+            .get(&loop_var_init)
+            .cloned()
+        {
             builder
+                .function_state
                 .type_ctx
                 .value_types
                 .insert(loop_var_phi_dst, init_type.clone());
@@ -166,8 +173,15 @@ impl LoopHeaderPhiBuilder {
 
             // Phase 131-11-H: Set PHI type from entry incoming (init value) only
             // Ignore backedge to avoid circular dependency in type inference
-            if let Some(init_type) = builder.type_ctx.value_types.get(&init_value).cloned() {
+            if let Some(init_type) = builder
+                .function_state
+                .type_ctx
+                .value_types
+                .get(&init_value)
+                .cloned()
+            {
                 builder
+                    .function_state
                     .type_ctx
                     .value_types
                     .insert(phi_dst, init_type.clone());
@@ -216,8 +230,15 @@ impl LoopHeaderPhiBuilder {
             crate::mir::join_ir::verify_phi_reserved::observe_phi_dst(invariant_phi_dst);
 
             // Phase 131-11-H: Set PHI type from entry incoming (init value) only
-            if let Some(init_type) = builder.type_ctx.value_types.get(host_id).cloned() {
+            if let Some(init_type) = builder
+                .function_state
+                .type_ctx
+                .value_types
+                .get(host_id)
+                .cloned()
+            {
                 builder
+                    .function_state
                     .type_ctx
                     .value_types
                     .insert(invariant_phi_dst, init_type.clone());
@@ -313,7 +334,7 @@ impl LoopHeaderPhiBuilder {
 
         // Phase 257 P1.2-FIX: Capture builder's current_block BEFORE getting mutable reference
         // This is the host entry block that will emit_jump to the loop header
-        let host_entry_block_opt = builder.current_block;
+        let host_entry_block_opt = builder.function_state.current_block;
 
         if dev_debug {
             trace.stderr_if(
@@ -327,7 +348,7 @@ impl LoopHeaderPhiBuilder {
 
         // Get the header block from current function
         let current_func = builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_mut()
             .ok_or("Phase 33-16: No current function when finalizing header PHIs")?;
@@ -549,7 +570,7 @@ impl LoopHeaderPhiBuilder {
 
         if dev_debug {
             let header_instruction_count = builder
-                .scope_ctx
+                .function_state
                 .current_function
                 .as_ref()
                 .and_then(|func| func.blocks.get(&info.header_block))

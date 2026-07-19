@@ -17,7 +17,7 @@ pub fn debug_log_literal_plan(
     if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
         let fn_name = super::debug_ctx::current_fn_name(builder);
         let next_value_id = builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .map(|f| f.next_value_id)
@@ -30,7 +30,7 @@ pub fn debug_log_literal_plan(
         ring0.log.debug(&format!(
             "[lit/lower:plan] fn={} bb={:?} v=%{} lit={:?} span={} file={} next={} path={} emit=plan_effect",
             fn_name,
-            builder.current_block,
+            builder.function_state.current_block,
             dst.0,
             value,
             super::span_fmt::current_span_location(builder),

@@ -34,7 +34,11 @@ where
     Port: LegacyBlockDescentPortV1,
 {
     let trace = crate::mir::builder::control_flow::joinir::trace::trace();
-    let scope_id = builder.current_block.map(|bb| bb.as_u32()).unwrap_or(0);
+    let scope_id = builder
+        .function_state
+        .current_block
+        .map(|bb| bb.as_u32())
+        .unwrap_or(0);
     builder.hint_scope_enter(scope_id);
     let _lex_scope = super::super::vars::lexical_scope::LexicalScopeGuard::new(builder);
     let mut last_value = None;
@@ -53,12 +57,12 @@ where
             if let Some(remaining) = port.suffix_route_input(index)? {
                 let remaining = remaining.as_ref();
                 let function_name = builder
-                    .scope_ctx
+                    .function_state
                     .current_function
                     .as_ref()
                     .map(|function| function.signature.name.clone())
                     .unwrap_or_else(|| "unknown".to_string());
-                let prefix_variables = builder.variable_ctx.variable_map.clone();
+                let prefix_variables = builder.function_state.variable_ctx.variable_map.clone();
                 if let Some(consumed) = crate::mir::builder::control_flow::normalization::NormalizedShadowSuffixRouterBox::try_lower_loop_suffix(
                     builder,
                     remaining,
@@ -87,9 +91,9 @@ where
                 "Statement {}/{}  current_block={:?}  current_function={}",
                 index + 1,
                 total,
-                builder.current_block,
+                builder.function_state.current_block,
                 builder
-                    .scope_ctx
+                    .function_state
                     .current_function
                     .as_ref()
                     .map(|function| function.signature.name.as_str())

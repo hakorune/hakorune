@@ -114,7 +114,13 @@ where
         .argument_syntax(input, index)
         .expect("argument inputs were validated before record-value preflight");
     if let ASTNode::Variable { name, .. } = syntax {
-        if let Some(value) = builder.variable_ctx.variable_map.get(name).copied() {
+        if let Some(value) = builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .get(name)
+            .copied()
+        {
             builder.fail_if_record_value_call_arg_by_name(name, value)?;
         }
     }
@@ -133,7 +139,7 @@ fn observe_undefined_argument_value<Port>(
     if !crate::config::env::joinir_dev::debug_enabled() {
         return;
     }
-    let Some(function) = builder.scope_ctx.current_function.as_ref() else {
+    let Some(function) = builder.function_state.current_function.as_ref() else {
         return;
     };
     let def_blocks = crate::mir::verification::utils::compute_def_blocks(function);
@@ -148,7 +154,7 @@ fn observe_undefined_argument_value<Port>(
     ring0.log.debug(&format!(
         "[call/arg_build:undefined_value] fn={} bb={:?} arg_idx={} v=%{} ast={} span={:?} next={}",
         function.signature.name,
-        builder.current_block,
+        builder.function_state.current_block,
         index,
         value.0,
         syntax.node_type(),

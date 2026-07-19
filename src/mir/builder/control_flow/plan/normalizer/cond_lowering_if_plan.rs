@@ -219,7 +219,7 @@ pub(super) fn debug_log_cond_if_lit3_origin(builder: &MirBuilder, effects: &[Cor
     for effect in effects {
         if let CoreEffectPlan::Const { dst, value } = effect {
             if matches!(value, ConstValue::Integer(3)) {
-                if let Some(span) = builder.metadata_ctx.value_span(*dst) {
+                if let Some(span) = builder.value_origin_span(*dst) {
                     lit3_spans.push(span.to_string());
                     lit3_dsts.push(*dst);
                 }
@@ -232,7 +232,7 @@ pub(super) fn debug_log_cond_if_lit3_origin(builder: &MirBuilder, effects: &[Cor
     }
 
     let fn_name = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .map(|f| f.signature.name.as_str())
@@ -247,7 +247,7 @@ pub(super) fn debug_log_cond_if_lit3_origin(builder: &MirBuilder, effects: &[Cor
     ring0.log.debug(&format!(
         "[cond_if/effects:lit3_origin] fn={} bb={:?} effects_len={} const_int3_dsts=[{}] origin_spans=[{}]",
         fn_name,
-        builder.current_block,
+        builder.function_state.current_block,
         effects.len(),
         const_int3_dsts,
         span_list
@@ -298,7 +298,7 @@ pub(super) fn merge_value_maps(
     let strict_planner_required = crate::config::env::joinir_dev::strict_enabled()
         && crate::config::env::joinir_dev::planner_required_enabled();
     let fn_name = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .map(|f| f.signature.name.as_str())

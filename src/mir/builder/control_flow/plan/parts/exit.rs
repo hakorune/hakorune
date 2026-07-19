@@ -164,7 +164,7 @@ pub(in crate::mir::builder) fn build_continue_with_phi_args(
     let debug = crate::config::env::joinir_dev::strict_planner_required_debug_enabled();
     let fn_name = if debug {
         builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .map(|f| f.signature.name.as_str())
@@ -172,7 +172,11 @@ pub(in crate::mir::builder) fn build_continue_with_phi_args(
     } else {
         "<none>"
     };
-    let pred_bb = if debug { builder.current_block } else { None };
+    let pred_bb = if debug {
+        builder.function_state.current_block
+    } else {
+        None
+    };
     let caller = if debug {
         Some(std::panic::Location::caller().to_string())
     } else {

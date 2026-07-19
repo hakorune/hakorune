@@ -43,7 +43,7 @@ fn append_local_contract_init(
     let dst = builder.next_value_id();
     let slot = builder.declare_local_in_current_scope(name, dst)?;
     let function = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_mut()
         .ok_or_else(|| "[type/local_contract_carrier_missing] function=<none>".to_string())?;

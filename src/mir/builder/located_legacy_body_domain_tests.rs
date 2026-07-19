@@ -43,7 +43,7 @@ struct BuilderEffectSnapshotV1 {
 
 fn effect_snapshot(builder: &crate::mir::MirBuilder) -> BuilderEffectSnapshotV1 {
     let function = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("body-domain function");
@@ -64,7 +64,7 @@ fn effect_snapshot(builder: &crate::mir::MirBuilder) -> BuilderEffectSnapshotV1 
         .collect::<Vec<_>>();
     blocks.sort_by_key(|row| row.0);
     BuilderEffectSnapshotV1 {
-        current_block: builder.current_block,
+        current_block: builder.function_state.current_block,
         function_next_value: function.next_value_id,
         core_next_value: builder.core_ctx.peek_next_value(),
         core_next_block: builder.core_ctx.peek_next_block(),
@@ -146,7 +146,7 @@ fn call_count(builder: &crate::mir::MirBuilder) -> usize {
 
 fn return_count(builder: &crate::mir::MirBuilder) -> usize {
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("body-domain function")

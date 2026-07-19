@@ -36,10 +36,12 @@ impl super::MirBuilder {
             args: vec![],
         })?;
         self.emit_constructor_birth_marker(arr_id, "ArrayBox")?;
-        self.type_ctx
+        self.function_state
+            .type_ctx
             .value_origin_newbox
             .insert(arr_id, "ArrayBox".to_string());
-        self.type_ctx
+        self.function_state
+            .type_ctx
             .value_types
             .insert(arr_id, MirType::Box("ArrayBox".to_string()));
         self.comp_ctx
@@ -66,12 +68,19 @@ impl super::MirBuilder {
         let mut element_types = Vec::new();
         for element in elements {
             let value = self.build_expression_impl(element)?;
-            let element_type = self.type_ctx.value_types.get(&value).cloned().or_else(|| {
-                self.type_ctx
-                    .value_origin_newbox
-                    .get(&value)
-                    .map(|box_name| MirType::Box(box_name.clone()))
-            });
+            let element_type = self
+                .function_state
+                .type_ctx
+                .value_types
+                .get(&value)
+                .cloned()
+                .or_else(|| {
+                    self.function_state
+                        .type_ctx
+                        .value_origin_newbox
+                        .get(&value)
+                        .map(|box_name| MirType::Box(box_name.clone()))
+                });
             self.emit_array_element_write(
                 None,
                 ArrayElementWriteKind::LiteralAppend,
@@ -102,10 +111,12 @@ impl super::MirBuilder {
             args: vec![],
         })?;
         self.emit_constructor_birth_marker(map_id, "MapBox")?;
-        self.type_ctx
+        self.function_state
+            .type_ctx
             .value_origin_newbox
             .insert(map_id, "MapBox".to_string());
-        self.type_ctx
+        self.function_state
+            .type_ctx
             .value_types
             .insert(map_id, MirType::Box("MapBox".to_string()));
         self.comp_ctx

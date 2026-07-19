@@ -11,6 +11,7 @@ impl super::PlanNormalizer {
         field: &str,
     ) -> Option<MirType> {
         builder
+            .function_state
             .type_ctx
             .value_origin_newbox
             .get(&base)
@@ -27,6 +28,7 @@ impl super::PlanNormalizer {
                 let value_id = builder.alloc_typed(ty.clone());
                 if let MirType::Box(class_name) = ty {
                     builder
+                        .function_state
                         .type_ctx
                         .value_origin_newbox
                         .insert(value_id, class_name.clone());
@@ -35,7 +37,10 @@ impl super::PlanNormalizer {
             }
             None => {
                 let value_id = builder.next_value_id();
-                builder.type_ctx.set_type(value_id, MirType::Unknown);
+                builder
+                    .function_state
+                    .type_ctx
+                    .set_type(value_id, MirType::Unknown);
                 value_id
             }
         }
@@ -46,8 +51,8 @@ impl super::PlanNormalizer {
         lhs: ValueId,
         rhs: ValueId,
     ) -> MirType {
-        let lhs_ty = builder.type_ctx.get_type(lhs);
-        let rhs_ty = builder.type_ctx.get_type(rhs);
+        let lhs_ty = builder.function_state.type_ctx.get_type(lhs);
+        let rhs_ty = builder.function_state.type_ctx.get_type(rhs);
         if matches!(lhs_ty, Some(MirType::Float)) || matches!(rhs_ty, Some(MirType::Float)) {
             MirType::Float
         } else {
@@ -60,7 +65,12 @@ impl super::PlanNormalizer {
         phi_bindings: &BTreeMap<String, ValueId>,
         name: &str,
     ) -> Option<ValueId> {
-        let from_map = builder.variable_ctx.variable_map.get(name).copied();
+        let from_map = builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .get(name)
+            .copied();
         let from_bindings = phi_bindings.get(name).copied();
         from_bindings.or(from_map)
     }

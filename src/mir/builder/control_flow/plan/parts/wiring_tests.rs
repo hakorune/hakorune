@@ -70,12 +70,13 @@ mod tests {
         )
         .expect("declare outer");
         let outer_binding_id = builder
+            .function_state
             .binding_ctx
             .lookup("outer")
             .expect("outer BindingId");
 
         let mut current_bindings: BTreeMap<String, crate::mir::ValueId> =
-            builder.variable_ctx.variable_map.clone();
+            builder.function_state.variable_ctx.variable_map.clone();
         let scope_stmt = ASTNode::ScopeBox {
             body: vec![
                 ASTNode::Local {
@@ -135,16 +136,20 @@ mod tests {
             "ScopeBox local must not leak into current bindings"
         );
         assert!(
-            !builder.variable_ctx.variable_map.contains_key("tmp"),
+            !builder
+                .function_state
+                .variable_ctx
+                .variable_map
+                .contains_key("tmp"),
             "ScopeBox local must not leak into builder variable_map"
         );
         assert_eq!(
-            builder.binding_ctx.lookup("tmp"),
+            builder.function_state.binding_ctx.lookup("tmp"),
             None,
             "ScopeBox local must not leak into BindingContext"
         );
         assert_eq!(
-            builder.binding_ctx.lookup("outer"),
+            builder.function_state.binding_ctx.lookup("outer"),
             Some(outer_binding_id),
             "assignment must preserve the outer lexical identity"
         );
@@ -171,7 +176,7 @@ mod tests {
         .expect("declare sum");
 
         let mut current_bindings: BTreeMap<String, crate::mir::ValueId> =
-            builder.variable_ctx.variable_map.clone();
+            builder.function_state.variable_ctx.variable_map.clone();
 
         let sum_noop = assign("sum", var("sum"));
         let sum_inc = assign("sum", bin(BinaryOperator::Add, var("sum"), lit_int(1)));

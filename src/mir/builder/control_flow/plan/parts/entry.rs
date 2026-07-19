@@ -377,7 +377,7 @@ fn debug_log_entry_plans_lit3_origin(
     for plan in plans {
         if let CorePlan::Effect(CoreEffectPlan::Const { dst, value }) = plan {
             if matches!(value, ConstValue::Integer(3)) {
-                if let Some(span) = builder.metadata_ctx.value_span(*dst) {
+                if let Some(span) = builder.value_origin_span(*dst) {
                     lit3_dsts.push(*dst);
                     lit3_spans.push(span.to_string());
                 }
@@ -390,7 +390,7 @@ fn debug_log_entry_plans_lit3_origin(
     }
 
     let fn_name = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .map(|f| f.signature.name.as_str())
@@ -406,7 +406,7 @@ fn debug_log_entry_plans_lit3_origin(
         "[entry/block_plans:lit3_origin] fn={} kind={} bb={:?} plans_len={} const_int3_dsts=[{}] origin_spans=[{}]",
         fn_name,
         kind,
-        builder.current_block,
+        builder.function_state.current_block,
         plans.len(),
         const_int3_dsts,
         origin_spans

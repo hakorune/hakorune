@@ -234,14 +234,14 @@ fn implicit_false_edge_targets_merge_without_synthetic_else() {
     session.close_then(&mut builder).unwrap();
     let predecessors = session.verify_actual_predecessors(&mut builder).unwrap();
 
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
     assert!(matches!(
         function.get_block(layout.header()).unwrap().terminator,
         Some(MirInstruction::Branch { else_bb, .. }) if else_bb == layout.merge()
     ));
     let actual = crate::mir::verification::utils::compute_predecessors(function);
     assert_eq!(actual[&layout.merge()].len(), 2);
-    assert_eq!(builder.current_block, Some(layout.merge()));
+    assert_eq!(builder.function_state.current_block, Some(layout.merge()));
     let _ = predecessors;
 }
 
@@ -251,12 +251,18 @@ fn aborted_if_restores_the_saved_post_condition_header_cursor() {
     let session = IfCfgSessionV1::open_implicit_false(&mut builder, condition).unwrap();
     let header = session.layout().header();
     session.enter_then(&mut builder).unwrap();
-    assert_ne!(builder.current_block, Some(header));
+    assert_ne!(builder.function_state.current_block, Some(header));
 
     session.restore_header_after_error(&mut builder).unwrap();
 
-    assert_eq!(builder.current_block, Some(header));
-    assert!(builder.scope_ctx.current_function.as_ref().unwrap().blocks[&header].is_terminated());
+    assert_eq!(builder.function_state.current_block, Some(header));
+    assert!(builder
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .blocks[&header]
+        .is_terminated());
 }
 
 #[test]
@@ -272,7 +278,7 @@ fn nested_actual_exit_not_then_entry_is_merge_predecessor() {
     session.close_then(&mut builder).unwrap();
     session.verify_actual_predecessors(&mut builder).unwrap();
 
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
     let actual = crate::mir::verification::utils::compute_predecessors(function);
     assert!(actual[&layout.merge()].contains(&nested_exit));
     assert!(!actual[&layout.merge()].contains(&layout.then_entry()));
@@ -292,12 +298,15 @@ fn extra_actual_predecessor_is_rejected_before_phi_definition() {
         .verify_actual_predecessors(&mut builder)
         .unwrap_err()
         .contains("actual_predecessor_mismatch"));
-    assert!(
-        builder.scope_ctx.current_function.as_ref().unwrap().blocks[&layout.merge()]
-            .phi_instructions()
-            .next()
-            .is_none()
-    );
+    assert!(builder
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .blocks[&layout.merge()]
+        .phi_instructions()
+        .next()
+        .is_none());
 }
 
 #[test]
@@ -312,12 +321,15 @@ fn disconnected_block_cannot_claim_the_then_exit_role() {
         .verify_actual_predecessors(&mut builder)
         .unwrap_err()
         .contains("then_exit_not_reachable"));
-    assert!(
-        builder.scope_ctx.current_function.as_ref().unwrap().blocks[&layout.merge()]
-            .phi_instructions()
-            .next()
-            .is_none()
-    );
+    assert!(builder
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .blocks[&layout.merge()]
+        .phi_instructions()
+        .next()
+        .is_none());
 }
 
 #[test]
@@ -340,7 +352,7 @@ fn same_input_still_defines_fresh_final_phi_before_batch_publish() {
     let predecessors = session.verify_actual_predecessors(&mut builder).unwrap();
     let defined = define_join_phis(&mut builder, predecessors, &rows).unwrap();
 
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
     let phi = function
         .get_block(layout.merge())
         .unwrap()
@@ -407,11 +419,11 @@ fn explicit_else_uses_both_actual_branch_exits() {
     session.enter_then(&mut builder).unwrap();
     session.close_then(&mut builder).unwrap();
     session.enter_else(&mut builder).unwrap();
-    let else_exit = builder.current_block.unwrap();
+    let else_exit = builder.function_state.current_block.unwrap();
     session.close_else(&mut builder).unwrap();
     session.verify_actual_predecessors(&mut builder).unwrap();
 
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
     let actual = crate::mir::verification::utils::compute_predecessors(function);
     assert!(actual[&layout.merge()].contains(&layout.then_entry()));
     assert!(actual[&layout.merge()].contains(&else_exit));

@@ -59,7 +59,7 @@ fn fastmem_source_emits_local_free_list_memops() {
     ];
 
     super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
 
     assert_eq!(
         emitted_memop_kinds(function),
@@ -96,7 +96,7 @@ fn fastmem_source_emits_free_head_pop_memop() {
     ];
 
     super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
 
     assert_eq!(
         emitted_memop_kinds(function),
@@ -127,7 +127,7 @@ fn fastmem_source_emits_free_head_push_memop() {
     ];
 
     super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
 
     assert_eq!(
         emitted_memop_kinds(function),
@@ -158,7 +158,7 @@ fn fastmem_source_emits_atomic_remote_head_push_memop() {
     ];
 
     super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
 
     assert_eq!(
         emitted_memop_kinds(function),
@@ -191,7 +191,7 @@ fn fastmem_source_emits_atomic_remote_head_drain_memop() {
     ];
 
     super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
 
     assert_eq!(
         emitted_memop_kinds(function),
@@ -222,7 +222,7 @@ fn fastmem_source_emits_numeric_binary_memops() {
     ];
 
     super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
 
     assert!(emitted_memop_kinds(function).is_empty());
     assert_eq!(
@@ -266,7 +266,7 @@ fn fastmem_source_emits_drain_remote_list_to_local_memop() {
     ];
 
     super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
 
     assert_eq!(
         emitted_memop_kinds(function),
@@ -335,7 +335,7 @@ fn fastmem_source_records_local_free_precondition_facts() {
     ];
 
     super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
     assert_eq!(function.metadata.fastmem_same_owner_facts.len(), 1);
     assert_eq!(function.metadata.fastmem_remote_owner_facts.len(), 1);
     assert_eq!(function.metadata.fastmem_block_next_facts.len(), 3);
@@ -391,7 +391,7 @@ fn fastmem_source_records_access_sites() {
     ];
 
     super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
 
     assert_eq!(function.metadata.fastmem_field_access_sites.len(), 2);
     assert_eq!(function.metadata.fastmem_index_access_sites.len(), 1);
@@ -470,7 +470,7 @@ fn fastmem_source_shared_shell_accepts_local_without_initializer_and_return() {
     }];
 
     super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
 
     assert!(function
         .blocks

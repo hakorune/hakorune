@@ -36,6 +36,7 @@ pub(in crate::mir::builder) fn apply_loop_cond_break_continue_cleanup(
         let mut fallthrough_bindings = current_bindings.clone();
         for name in carrier_step_phis.keys() {
             let selected = builder
+                .function_state
                 .variable_ctx
                 .variable_map
                 .get(name)

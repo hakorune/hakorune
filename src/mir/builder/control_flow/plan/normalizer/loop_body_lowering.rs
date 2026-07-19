@@ -35,12 +35,12 @@ pub(in crate::mir::builder) fn local_contract_reassignment_effect(
     name: &str,
     src: ValueId,
 ) -> Result<(ValueId, Option<CoreEffectPlan>), String> {
-    let Some(binding_id) = builder.binding_ctx.lookup(name) else {
+    let Some(binding_id) = builder.function_state.binding_ctx.lookup(name) else {
         return Ok((src, None));
     };
     let local_slot_id = crate::mir::LocalSlotId::from(binding_id);
     let has_contract = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .and_then(|function| {
@@ -146,7 +146,7 @@ pub(in crate::mir::builder) fn lower_explicit_extern_call_value(
     let (extern_name, arg_ids, mut effects) =
         lower_explicit_extern_call_args(builder, phi_bindings, arguments, error_prefix)?;
     let result_id = builder.next_value_id();
-    builder.type_ctx.set_type(
+    builder.function_state.type_ctx.set_type(
         result_id,
         extern_calls::explicit_extern_return_type(&extern_name),
     );
@@ -210,7 +210,7 @@ pub(super) fn debug_log_callstmt_binop_lit3(
     }
 
     let fn_name = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .map(|f| f.signature.name.as_str())
@@ -225,7 +225,7 @@ pub(super) fn debug_log_callstmt_binop_lit3(
     ring0.log.debug(&format!(
         "[callstmt/effects:binop_lit3] fn={} bb={:?} effects_len={} const_int3_dsts=[{}] add_binops=[dst=%{} lhs=%{} rhs=%{}] kind={}",
         fn_name,
-        builder.current_block,
+        builder.function_state.current_block,
         effects.len(),
         const_int3_dsts,
         dst.0,
@@ -299,7 +299,7 @@ pub(super) fn debug_log_bool_expr_binop_lit3(
     }
 
     let fn_name = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .map(|f| f.signature.name.as_str())
@@ -314,7 +314,7 @@ pub(super) fn debug_log_bool_expr_binop_lit3(
     ring0.log.debug(&format!(
         "[bool_expr/effects:binop_lit3] fn={} bb={:?} effects_len={} const_int3_dsts=[{}] add_binops=[dst=%{} lhs=%{} rhs=%{}] kind={}",
         fn_name,
-        builder.current_block,
+        builder.function_state.current_block,
         effects.len(),
         const_int3_dsts,
         dst.0,
@@ -373,7 +373,7 @@ mod tests {
         .expect("externcall value must lower");
 
         assert_eq!(
-            builder.type_ctx.get_type(dst).cloned(),
+            builder.function_state.type_ctx.get_type(dst).cloned(),
             Some(MirType::Integer)
         );
         assert!(

@@ -61,7 +61,7 @@ fn builder(name: &str) -> MirBuilder {
 
 fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("current RET0-I0 function")
@@ -78,9 +78,12 @@ fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
 }
 
 fn current_terminator(builder: &MirBuilder) -> Option<MirInstruction> {
-    let block = builder.current_block.expect("current RET0-I0 block");
+    let block = builder
+        .function_state
+        .current_block
+        .expect("current RET0-I0 block");
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("current RET0-I0 function")
@@ -163,14 +166,14 @@ fn raw_configured_defer_keeps_exact_copy_jump_completion() {
     let mut builder = builder("ret0_i0_defer/0");
     let slot = builder.next_value_id();
     let target = builder.next_block_id();
-    builder.return_defer_active = true;
-    builder.return_defer_slot = Some(slot);
-    builder.return_defer_target = Some(target);
+    builder.function_state.return_defer_active = true;
+    builder.function_state.return_defer_slot = Some(slot);
+    builder.function_state.return_defer_target = Some(target);
 
     let result = builder.build_expression(value_return(integer(7))).unwrap();
     let rows = instructions(&builder);
 
-    assert!(builder.return_deferred_emitted);
+    assert!(builder.function_state.return_deferred_emitted);
     assert_eq!(return_count(&builder), 0);
     assert_eq!(
         rows.iter()
@@ -196,8 +199,8 @@ fn raw_configured_defer_keeps_exact_copy_jump_completion() {
 #[test]
 fn raw_cleanup_and_child_failures_leave_no_terminator_then_reuse() {
     let mut cleanup = builder("ret0_i0_cleanup/0");
-    cleanup.in_cleanup_block = true;
-    cleanup.cleanup_allow_return = false;
+    cleanup.function_state.in_cleanup_block = true;
+    cleanup.function_state.cleanup_allow_return = false;
 
     let error = cleanup
         .build_expression(value_return(type_check(integer(8))))
@@ -207,7 +210,7 @@ fn raw_cleanup_and_child_failures_leave_no_terminator_then_reuse() {
     assert!(current_terminator(&cleanup).is_none());
     assert_eq!(cleanup.recursion_depth, 0);
 
-    cleanup.in_cleanup_block = false;
+    cleanup.function_state.in_cleanup_block = false;
     cleanup.build_expression(value_return(integer(1))).unwrap();
     assert_eq!(return_count(&cleanup), 1);
 

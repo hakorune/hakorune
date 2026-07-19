@@ -240,7 +240,7 @@ fn debug_leaf(
         })
         .collect::<Vec<_>>();
     let function = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .map(|function| function.signature.name.as_str())

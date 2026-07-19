@@ -39,11 +39,12 @@ fn builder(block_count: u32, params: Vec<MirType>) -> MirBuilder {
     }
     for (index, ty) in params.into_iter().enumerate() {
         builder
+            .function_state
             .type_ctx
             .value_types
             .insert(ValueId::new(index as u32), ty);
     }
-    builder.scope_ctx.current_function = Some(function);
+    builder.function_state.current_function = Some(function);
     builder
 }
 
@@ -55,20 +56,20 @@ fn emit_const(
 ) -> ValueId {
     let dst = builder.next_value_id();
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_mut()
         .unwrap()
         .get_block_mut(block)
         .unwrap()
         .add_instruction(MirInstruction::Const { dst, value });
-    builder.type_ctx.value_types.insert(dst, ty);
+    builder.function_state.type_ctx.value_types.insert(dst, ty);
     dst
 }
 
 fn set_return(builder: &mut MirBuilder, block: BasicBlockId, value: Option<ValueId>) {
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_mut()
         .unwrap()
@@ -78,9 +79,7 @@ fn set_return(builder: &mut MirBuilder, block: BasicBlockId, value: Option<Value
 }
 
 fn phi(builder: &MirBuilder, block: BasicBlockId, dst: ValueId) -> Option<&MirInstruction> {
-    builder
-        .scope_ctx
-        .current_function
+    builder.function_state.current_function
         .as_ref()
         .unwrap()
         .get_block(block)
@@ -100,7 +99,10 @@ fn seal_ssa(
     block: BasicBlockId,
 ) -> Result<(), BindingSsaErrorV1> {
     let witness = cfg
-        .seal_block(builder.scope_ctx.current_function.as_mut().unwrap(), block)
+        .seal_block(
+            builder.function_state.current_function.as_mut().unwrap(),
+            block,
+        )
         .unwrap();
     let mut adapter = MirBindingSsaAdapterV1::new(builder, phis);
     ssa.seal(&mut adapter, block, &witness)
@@ -117,7 +119,7 @@ fn real_loop_phi_is_defined_before_exposure_and_stays_fact_unknown() {
 
     let body_value = emit_const(&mut builder, bb(2), ConstValue::Bool(true), MirType::Bool);
     {
-        let function = builder.scope_ctx.current_function.as_mut().unwrap();
+        let function = builder.function_state.current_function.as_mut().unwrap();
         cfg.emit_jump(function, bb(0), bb(1)).unwrap();
         cfg.emit_branch(function, bb(1), ValueId::new(0), bb(2), bb(3))
             .unwrap();
@@ -136,7 +138,11 @@ fn real_loop_phi_is_defined_before_exposure_and_stays_fact_unknown() {
         Some(MirInstruction::Phi { inputs, .. }) if inputs.is_empty()
     ));
     assert_eq!(
-        builder.type_ctx.value_types.get(&header_value),
+        builder
+            .function_state
+            .type_ctx
+            .value_types
+            .get(&header_value),
         Some(&MirType::Unknown)
     );
 
@@ -151,12 +157,16 @@ fn real_loop_phi_is_defined_before_exposure_and_stays_fact_unknown() {
             if inputs == &vec![(bb(0), ValueId::new(0)), (bb(2), body_value)]
     ));
     assert_eq!(
-        builder.type_ctx.value_types.get(&header_value),
+        builder
+            .function_state
+            .type_ctx
+            .value_types
+            .get(&header_value),
         Some(&MirType::Unknown)
     );
     ssa.finish().unwrap();
     phis.commit(&mut builder).unwrap();
-    cfg.finish(builder.scope_ctx.current_function.as_ref().unwrap())
+    cfg.finish(builder.function_state.current_function.as_ref().unwrap())
         .unwrap();
 }
 
@@ -175,7 +185,7 @@ fn non_dominating_sibling_input_rolls_back_pending_phi_and_poison_ssa() {
         MirType::Integer,
     );
     {
-        let function = builder.scope_ctx.current_function.as_mut().unwrap();
+        let function = builder.function_state.current_function.as_mut().unwrap();
         cfg.emit_branch(function, bb(0), ValueId::new(0), bb(1), bb(2))
             .unwrap();
         cfg.emit_jump(function, bb(1), bb(3)).unwrap();
@@ -187,14 +197,20 @@ fn non_dominating_sibling_input_rolls_back_pending_phi_and_poison_ssa() {
     ssa.define(binding, bb(2), sibling_value).unwrap();
     for block in [bb(0), bb(1), bb(2)] {
         let witness = cfg
-            .seal_block(builder.scope_ctx.current_function.as_mut().unwrap(), block)
+            .seal_block(
+                builder.function_state.current_function.as_mut().unwrap(),
+                block,
+            )
             .unwrap();
         let mut adapter = MirBindingSsaAdapterV1::new(&mut builder, &mut phis);
         ssa.seal(&mut adapter, block, &witness).unwrap();
     }
 
     let merge_witness = cfg
-        .seal_block(builder.scope_ctx.current_function.as_mut().unwrap(), bb(3))
+        .seal_block(
+            builder.function_state.current_function.as_mut().unwrap(),
+            bb(3),
+        )
         .unwrap();
     {
         let mut adapter = MirBindingSsaAdapterV1::new(&mut builder, &mut phis);
@@ -212,7 +228,7 @@ fn non_dominating_sibling_input_rolls_back_pending_phi_and_poison_ssa() {
         }) if detail.contains("does not dominate")
     ));
     assert!(builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -222,6 +238,7 @@ fn non_dominating_sibling_input_rolls_back_pending_phi_and_poison_ssa() {
         .iter()
         .all(|instruction| !matches!(instruction, MirInstruction::Phi { .. })));
     assert!(builder
+        .function_state
         .type_ctx
         .value_types
         .values()
@@ -263,7 +280,7 @@ fn return_block_uses_the_same_cfg_witness_and_ssa_seal_path() {
     assert_eq!(value, ValueId::new(0));
     ssa.finish().unwrap();
     phis.commit(&mut builder).unwrap();
-    cfg.finish(builder.scope_ctx.current_function.as_ref().unwrap())
+    cfg.finish(builder.function_state.current_function.as_ref().unwrap())
         .unwrap();
 }
 
@@ -284,7 +301,7 @@ fn later_patch_failure_keeps_completed_peer_and_discards_draft() {
         MirType::Integer,
     );
     {
-        let function = builder.scope_ctx.current_function.as_mut().unwrap();
+        let function = builder.function_state.current_function.as_mut().unwrap();
         cfg.emit_jump(function, bb(0), bb(1)).unwrap();
         cfg.emit_branch(function, bb(1), ValueId::new(0), bb(2), bb(3))
             .unwrap();
@@ -308,7 +325,7 @@ fn later_patch_failure_keeps_completed_peer_and_discards_draft() {
     seal_ssa(&mut builder, &mut cfg, &mut ssa, &mut phis, bb(2)).unwrap();
 
     let header = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_mut()
         .unwrap()
@@ -336,7 +353,7 @@ fn later_patch_failure_keeps_completed_peer_and_discards_draft() {
     assert_eq!(abort.pending_count(), 1);
     assert_eq!(abort.cleanup_failures().len(), 1);
 
-    let discarded = builder.scope_ctx.current_function.take().unwrap();
-    assert!(builder.scope_ctx.current_function.is_none());
+    let discarded = builder.function_state.current_function.take().unwrap();
+    assert!(builder.function_state.current_function.is_none());
     drop(discarded);
 }

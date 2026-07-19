@@ -20,6 +20,7 @@ impl LoopBlocksStandard5 {
     /// Allocate 5 blocks for a standard loop
     pub(in crate::mir::builder) fn allocate(builder: &mut MirBuilder) -> Result<Self, String> {
         let preheader_bb = builder
+            .function_state
             .current_block
             .ok_or_else(|| "[normalizer] No current block for loop entry".to_string())?;
         let header_bb = builder.next_block_id();

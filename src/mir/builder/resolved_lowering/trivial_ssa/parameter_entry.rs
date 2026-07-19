@@ -20,9 +20,13 @@ pub(super) fn publish_parameter_entries_v1(
 ) -> Result<(), String> {
     let expected_count = profile.parameter_entry_count();
     let (entry_block, function_params, signature_params) = {
-        let function = builder.scope_ctx.current_function.as_ref().ok_or_else(|| {
-            "[freeze:contract][canonical_binding_ssa/parameter_function_missing]".to_string()
-        })?;
+        let function = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .ok_or_else(|| {
+                "[freeze:contract][canonical_binding_ssa/parameter_function_missing]".to_string()
+            })?;
         (
             function.entry_block,
             function.params.clone(),
@@ -37,10 +41,10 @@ pub(super) fn publish_parameter_entries_v1(
             signature_params.len(),
         ));
     }
-    if builder.current_block != Some(entry_block) {
+    if builder.function_state.current_block != Some(entry_block) {
         return Err(format!(
             "[freeze:contract][canonical_binding_ssa/parameter_entry_block_drift] expected={entry_block:?} actual={:?}",
-            builder.current_block,
+            builder.function_state.current_block,
         ));
     }
 
@@ -89,6 +93,7 @@ pub(super) fn publish_parameter_entries_v1(
             hakorune_mir_core::MirValueKind::Parameter(formal_index),
         );
         builder
+            .function_state
             .type_ctx
             .value_types
             .insert(value, expected_type.clone());

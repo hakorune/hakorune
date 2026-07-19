@@ -58,7 +58,7 @@ pub(super) fn sync_carrier_bindings(
     carrier_phis: &BTreeMap<String, crate::mir::ValueId>,
 ) {
     for (name, _) in carrier_phis {
-        if let Some(value_id) = builder.variable_ctx.variable_map.get(name) {
+        if let Some(value_id) = builder.function_state.variable_ctx.variable_map.get(name) {
             current_bindings.insert(name.clone(), *value_id);
         }
     }

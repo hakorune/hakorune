@@ -13,6 +13,7 @@ impl super::MirBuilder {
         field: &str,
     ) -> Option<(String, usize, Option<String>)> {
         let box_name = self
+            .function_state
             .type_ctx
             .value_origin_newbox
             .get(&object_value)?
@@ -35,6 +36,7 @@ impl super::MirBuilder {
         field: &str,
     ) -> Option<crate::mir::MirType> {
         if let Some(declared_type) = self
+            .function_state
             .type_ctx
             .value_origin_newbox
             .get(&object_value)
@@ -64,6 +66,7 @@ impl super::MirBuilder {
             .cloned()
             .or_else(|| {
                 let base_cls = self
+                    .function_state
                     .type_ctx
                     .value_origin_newbox
                     .get(&object_value)?
@@ -90,7 +93,8 @@ impl super::MirBuilder {
                     object_value.0, field, class_name
                 ));
             }
-            self.type_ctx
+            self.function_state
+                .type_ctx
                 .value_origin_newbox
                 .insert(field_val, class_name);
         }
@@ -102,6 +106,7 @@ impl super::MirBuilder {
         field: &str,
     ) -> Option<String> {
         let class_name = self
+            .function_state
             .type_ctx
             .value_origin_newbox
             .get(&object_value)?

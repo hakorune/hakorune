@@ -128,13 +128,13 @@ fn emit_selected_exact_i64(
                 args.len()
             ));
         };
-        if builder.type_ctx.value_types.get(argument) != Some(&MirType::Integer) {
+        if builder.function_state.type_ctx.value_types.get(argument) != Some(&MirType::Integer) {
             return Err(format!(
                 "[freeze:contract][callable_result/selected_call_required_i64] target={} ordinal={} value=%{} actual={:?}",
                 target.mir_symbol_projection(),
                 ordinal,
                 argument.0,
-                builder.type_ctx.value_types.get(argument)
+                builder.function_state.type_ctx.value_types.get(argument)
             ));
         }
     }
@@ -149,7 +149,11 @@ fn emit_selected_exact_i64(
         CallTarget::Global(target.mir_symbol_projection()),
         args,
     )?;
-    builder.type_ctx.value_types.insert(*dst, MirType::Integer);
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(*dst, MirType::Integer);
     Ok(())
 }
 
@@ -199,7 +203,11 @@ mod tests {
                         value: ConstValue::Integer(value as i64),
                     })
                     .expect("argument const");
-                builder.type_ctx.value_types.insert(id, MirType::Integer);
+                builder
+                    .function_state
+                    .type_ctx
+                    .value_types
+                    .insert(id, MirType::Integer);
                 id
             })
             .collect::<Vec<_>>();
@@ -215,12 +223,12 @@ mod tests {
             .expect("selected terminal");
 
         let function = builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .expect("function");
         let block = function
-            .get_block(builder.current_block.expect("current block"))
+            .get_block(builder.function_state.current_block.expect("current block"))
             .expect("block");
         assert!(block.instructions.iter().any(|instruction| {
             matches!(instruction,
@@ -235,7 +243,7 @@ mod tests {
             )
         }));
         assert_eq!(
-            builder.type_ctx.value_types.get(&dst),
+            builder.function_state.type_ctx.value_types.get(&dst),
             Some(&MirType::Integer)
         );
     }
@@ -261,17 +269,17 @@ mod tests {
         assert!(error.contains("[freeze:contract][callable_result/selected_call_required_i64]"));
 
         let function = builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .expect("function");
         let block = function
-            .get_block(builder.current_block.expect("current block"))
+            .get_block(builder.function_state.current_block.expect("current block"))
             .expect("block");
         assert!(block
             .instructions
             .iter()
             .all(|instruction| !matches!(instruction, MirInstruction::Call { .. })));
-        assert_eq!(builder.type_ctx.value_types.get(&dst), None);
+        assert_eq!(builder.function_state.type_ctx.value_types.get(&dst), None);
     }
 }

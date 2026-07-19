@@ -109,10 +109,10 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
     let carrier_step_phis = phi_materializer.carrier_step_phis().clone();
     let break_phi_dsts = phi_materializer.break_phi_dsts().clone();
 
-    let mut current_bindings = builder.variable_ctx.variable_map.clone();
+    let mut current_bindings = builder.function_state.variable_ctx.variable_map.clone();
     for (name, value_id) in phi_materializer.phi_bindings() {
         current_bindings.insert(name.clone(), value_id);
-        // NOTE: Do NOT insert into builder.variable_ctx.variable_map here.
+        // NOTE: Do NOT insert into builder.function_state.variable_ctx.variable_map here.
         // PHI dst (value_id) is not yet defined at this point.
         // It will be defined by provisional PHI insertion in loop_lowering.rs Step 1.5.
     }
@@ -149,6 +149,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
     for (name, value_id) in &carrier_phis {
         current_bindings.insert(name.clone(), *value_id);
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert(name.clone(), *value_id);
@@ -178,7 +179,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_break_continue(
                 &body_exit_allowed.arena,
                 &body_exit_allowed.block,
                 LOOP_COND_ERR,
-                Some(&builder.variable_ctx.variable_map),
+                Some(&builder.function_state.variable_ctx.variable_map),
             )?;
             parts::entry::lower_exit_allowed_block_verified(
                 builder,
@@ -323,7 +324,7 @@ pub(super) fn sync_carrier_bindings(
         if current_bindings.contains_key(name) {
             continue;
         }
-        if let Some(value_id) = builder.variable_ctx.variable_map.get(name) {
+        if let Some(value_id) = builder.function_state.variable_ctx.variable_map.get(name) {
             current_bindings.insert(name.clone(), *value_id);
         }
     }
@@ -376,7 +377,12 @@ fn collect_carrier_vars_from_condition(
 
     let mut carriers = BTreeMap::<String, ()>::new();
     for name in vars {
-        if builder.variable_ctx.variable_map.contains_key(&name) {
+        if builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .contains_key(&name)
+        {
             carriers.insert(name, ());
         }
     }

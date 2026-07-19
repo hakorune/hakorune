@@ -28,7 +28,7 @@ impl super::PlanLowerer {
 
         let trace_logger = trace::trace();
         let func_name = builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .map(|func| func.signature.name.clone())
@@ -37,7 +37,7 @@ impl super::PlanLowerer {
         match exit {
             CoreExitPlan::Return(opt_val) => {
                 builder.emit_instruction(MirInstruction::Return { value: opt_val })?;
-                if let Some(current_bb) = builder.current_block {
+                if let Some(current_bb) = builder.function_state.current_block {
                     trace_logger.debug(
                         "lowerer/term_set",
                         &format!("func={} bb={:?} term=Return", func_name, current_bb),
@@ -52,7 +52,7 @@ impl super::PlanLowerer {
                     target: frame.break_target,
                     edge_args: None,
                 })?;
-                if let Some(current_bb) = builder.current_block {
+                if let Some(current_bb) = builder.function_state.current_block {
                     trace_logger.debug(
                         "lowerer/term_set",
                         &format!(
@@ -64,7 +64,7 @@ impl super::PlanLowerer {
                 Ok(None)
             }
             CoreExitPlan::BreakWithPhiArgs { depth, phi_args } => {
-                let current_bb = builder.current_block.ok_or_else(|| {
+                let current_bb = builder.function_state.current_block.ok_or_else(|| {
                     "[lowerer] BreakWithPhiArgs without current block".to_string()
                 })?;
                 let frame = Self::resolve_loop_frame_mut(loop_stack, depth)?;
@@ -106,7 +106,7 @@ impl super::PlanLowerer {
                     target: frame.continue_target,
                     edge_args: None,
                 })?;
-                if let Some(current_bb) = builder.current_block {
+                if let Some(current_bb) = builder.function_state.current_block {
                     trace_logger.debug(
                         "lowerer/term_set",
                         &format!(
@@ -118,7 +118,7 @@ impl super::PlanLowerer {
                 Ok(None)
             }
             CoreExitPlan::ContinueWithPhiArgs { depth, phi_args } => {
-                let current_bb = builder.current_block.ok_or_else(|| {
+                let current_bb = builder.function_state.current_block.ok_or_else(|| {
                     "[lowerer] ContinueWithPhiArgs without current block".to_string()
                 })?;
                 let frame = Self::resolve_loop_frame_mut(loop_stack, depth)?;

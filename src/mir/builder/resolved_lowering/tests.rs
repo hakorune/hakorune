@@ -100,8 +100,8 @@ fn closed_family_uses_resolver_bindings_without_legacy_allocation() {
 
     assert!(module.functions.contains_key("canonical_fixture/1"));
     assert_eq!(builder.core_ctx.next_binding_id, 0);
-    assert!(builder.binding_ctx.is_empty());
-    assert!(builder.variable_ctx.variable_map.is_empty());
+    assert!(builder.function_state.binding_ctx.is_empty());
+    assert!(builder.function_state.variable_ctx.variable_map.is_empty());
     let function = &module.functions["canonical_fixture/1"];
     assert_eq!(function.metadata.outbox_bindings, vec!["result"]);
 }
@@ -188,6 +188,7 @@ fn installed_product_structurally_vetoes_legacy_binding_allocator() {
     let input = unit.root_function_input().unwrap();
     let mut builder = MirBuilder::new();
     builder
+        .function_state
         .resolved_binding_state
         .install(input.function())
         .unwrap();
@@ -253,7 +254,10 @@ fn function_error_discards_unpublished_canonical_draft() {
     builder.prepare_module().unwrap();
     let error = builder
         .with_resolved_function_lowering_session("canonical_fixture/1", |builder| {
-            builder.resolved_binding_state.install(input.function())?;
+            builder
+                .function_state
+                .resolved_binding_state
+                .install(input.function())?;
             builder.create_function_skeleton("canonical_fixture/1".into(), &["arg".into()], &[])?;
             Err("[injected/canonical_body]".to_string())
         })
@@ -266,5 +270,5 @@ fn function_error_discards_unpublished_canonical_draft() {
         .unwrap()
         .functions
         .contains_key("canonical_fixture/1"));
-    assert!(!builder.resolved_binding_state.is_installed());
+    assert!(!builder.function_state.resolved_binding_state.is_installed());
 }

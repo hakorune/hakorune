@@ -41,10 +41,10 @@ impl MirBuilder {
         );
 
         // Phase 136 Step 3/7: Use scope_ctx as SSOT
-        self.scope_ctx.current_function = Some(function);
-        self.current_block = Some(entry);
+        self.function_state.current_function = Some(function);
+        self.function_state.current_block = Some(entry);
         // Phase 29bq+: reset sealing session for new function
-        self.frag_emit_session.reset();
+        self.function_state.frag_emit_session.reset();
         // 新しい関数スコープ用の SlotRegistry を準備するよ（観測専用）
         self.comp_ctx.current_slot_registry = Some(FunctionSlotRegistry::new());
         self.ensure_block_exists(entry)?;
@@ -69,8 +69,8 @@ impl MirBuilder {
         let function = self.new_function_with_metadata(signature, entry);
 
         // Phase 136 Step 3/7: Use scope_ctx as SSOT
-        self.scope_ctx.current_function = Some(function);
-        self.current_block = Some(entry);
+        self.function_state.current_function = Some(function);
+        self.function_state.current_block = Some(entry);
         // instance method 用の関数スコープ SlotRegistry もここで用意するよ。
         self.comp_ctx.current_slot_registry = Some(FunctionSlotRegistry::new());
         self.ensure_block_exists(entry)?;

@@ -87,7 +87,7 @@ fn actual_method_prefix_uses_canonical_parameters_and_keeps_one_live_scope_for_l
             4,
             |builder, suffix| {
                 let function = builder
-                    .scope_ctx
+                    .function_state
                     .current_function
                     .as_ref()
                     .expect("canonical method skeleton");
@@ -103,37 +103,53 @@ fn actual_method_prefix_uses_canonical_parameters_and_keeps_one_live_scope_for_l
                         Some(MirValueKind::Parameter(index as u32))
                     );
                 }
-                assert_eq!(builder.variable_ctx.variable_map["me"], function.params[0]);
                 assert_eq!(
-                    builder.variable_ctx.variable_map["text"],
+                    builder.function_state.variable_ctx.variable_map["me"],
+                    function.params[0]
+                );
+                assert_eq!(
+                    builder.function_state.variable_ctx.variable_map["text"],
                     function.params[1]
                 );
-                assert_ne!(builder.variable_ctx.variable_map["pos"], function.params[2]);
+                assert_ne!(
+                    builder.function_state.variable_ctx.variable_map["pos"],
+                    function.params[2]
+                );
                 assert_eq!(
                     builder
+                        .function_state
                         .type_ctx
                         .value_origin_newbox
                         .get(&function.params[0]),
                     Some(&"ParserBox".to_string())
                 );
-                assert!(builder.variable_ctx.variable_map.contains_key("ret"));
-                assert!(builder.variable_ctx.variable_map.contains_key("value"));
+                assert!(builder
+                    .function_state
+                    .variable_ctx
+                    .variable_map
+                    .contains_key("ret"));
+                assert!(builder
+                    .function_state
+                    .variable_ctx
+                    .variable_map
+                    .contains_key("value"));
                 assert!(!builder
+                    .function_state
                     .variable_ctx
                     .variable_map
                     .contains_key("ParserStringUtilsBox"));
-                assert_eq!(builder.scope_ctx.lexical_scope_stack.len(), 1);
+                assert_eq!(builder.function_state.scope.lexical_scope_stack.len(), 1);
                 assert_eq!(suffix.len(), 2);
                 assert!(matches!(suffix[0], crate::ast::ASTNode::Loop { .. }));
                 assert!(matches!(suffix[1], crate::ast::ASTNode::Return { .. }));
 
-                let value = builder.variable_ctx.variable_map["value"];
+                let value = builder.function_state.variable_ctx.variable_map["value"];
                 Ok((
                     value,
                     (
                         function.params.clone(),
                         value,
-                        builder.scope_ctx.lexical_scope_stack.len(),
+                        builder.function_state.scope.lexical_scope_stack.len(),
                     ),
                 ))
             },
@@ -142,7 +158,7 @@ fn actual_method_prefix_uses_canonical_parameters_and_keeps_one_live_scope_for_l
 
     assert_eq!(observed.0.len(), 3);
     assert_eq!(observed.2, 1);
-    assert!(builder.scope_ctx.current_function.is_none());
+    assert!(builder.function_state.current_function.is_none());
     assert!(builder.current_module.as_ref().is_some_and(|module| {
         module
             .get_function("ParserBox.static_const_parse_add/2")
@@ -179,15 +195,19 @@ fn actual_canonical_prefix_rejects_untyped_numeric_loop_carrier_before_claims() 
                     assert!(matches!(suffix[0], crate::ast::ASTNode::Loop { .. }));
                     assert!(matches!(suffix[1], crate::ast::ASTNode::Return { .. }));
                     let parameter_pos = builder
-                        .scope_ctx
+                        .function_state
                         .current_function
                         .as_ref()
                         .expect("canonical method skeleton")
                         .params[2];
-                    let loop_carrier = builder.variable_ctx.variable_map["pos"];
+                    let loop_carrier = builder.function_state.variable_ctx.variable_map["pos"];
                     assert_ne!(loop_carrier, parameter_pos);
                     assert!(
-                        builder.type_ctx.get_type(loop_carrier).is_none(),
+                        builder
+                            .function_state
+                            .type_ctx
+                            .get_type(loop_carrier)
+                            .is_none(),
                         "R0 must observe the actual raw prefix before any type backfill"
                     );
                     let error = compose_located_generic_loop_v1(
@@ -204,7 +224,7 @@ fn actual_canonical_prefix_rejects_untyped_numeric_loop_carrier_before_claims() 
             .expect_err("R0 must stop at the raw carrier type producer");
         assert!(error.contains("GenericLoop carrier representation failed"));
         assert!(error.contains("MissingTransientType"));
-        assert!(builder.scope_ctx.current_function.is_none());
+        assert!(builder.function_state.current_function.is_none());
     });
 }
 
@@ -307,6 +327,7 @@ fn seeded_builder() -> MirBuilder {
 fn seed(builder: &mut MirBuilder, name: &str, ty: MirType) {
     let value = builder.alloc_typed(ty);
     builder
+        .function_state
         .variable_ctx
         .variable_map
         .insert(name.to_string(), value);
@@ -314,10 +335,11 @@ fn seed(builder: &mut MirBuilder, name: &str, ty: MirType) {
 
 fn snapshot_builder(builder: &MirBuilder) -> WholeLoopBuilderSnapshotV1 {
     WholeLoopBuilderSnapshotV1 {
-        variable_map: builder.variable_ctx.variable_map.clone(),
-        value_types: builder.type_ctx.value_types.clone(),
+        variable_map: builder.function_state.variable_ctx.variable_map.clone(),
+        value_types: builder.function_state.type_ctx.value_types.clone(),
         value_kinds: {
             let mut values = builder
+                .function_state
                 .type_ctx
                 .value_kinds
                 .iter()
@@ -326,8 +348,8 @@ fn snapshot_builder(builder: &MirBuilder) -> WholeLoopBuilderSnapshotV1 {
             values.sort_by_key(|(value, _)| *value);
             values
         },
-        value_origins: builder.type_ctx.value_origin_newbox.clone(),
-        string_literals: builder.type_ctx.string_literals.clone(),
+        value_origins: builder.function_state.type_ctx.value_origin_newbox.clone(),
+        string_literals: builder.function_state.type_ctx.string_literals.clone(),
     }
 }
 

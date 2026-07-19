@@ -44,7 +44,7 @@ pub(super) fn with_scopebox_binding_boundary<T, F>(
 where
     F: FnOnce(&mut MirBuilder, &mut BTreeMap<String, ValueId>) -> Result<T, String>,
 {
-    let pre_builder_map = builder.variable_ctx.variable_map.clone();
+    let pre_builder_map = builder.function_state.variable_ctx.variable_map.clone();
     let pre_bindings = branch_bindings.clone();
     let scope_locals = collect_scope_local_vars(body);
 
@@ -53,7 +53,7 @@ where
     let result = f(builder, &mut scoped_bindings);
     builder.pop_lexical_scope();
 
-    builder.variable_ctx.variable_map = pre_builder_map.clone();
+    builder.function_state.variable_ctx.variable_map = pre_builder_map.clone();
     *branch_bindings = pre_bindings.clone();
 
     if result.is_ok() {
@@ -80,7 +80,11 @@ pub(in crate::mir::builder::control_flow::plan) fn publish_emission_cache(
     name: String,
     value_id: ValueId,
 ) {
-    builder.variable_ctx.variable_map.insert(name, value_id);
+    builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .insert(name, value_id);
 }
 
 pub(in crate::mir::builder::control_flow::plan) fn publish_defined_binding(

@@ -42,7 +42,7 @@ pub(super) fn debug_log_stmt_binop_lit3(
     }
 
     let fn_name = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .map(|f| f.signature.name.as_str())
@@ -57,7 +57,7 @@ pub(super) fn debug_log_stmt_binop_lit3(
         "[stmt/effects:binop_lit3] fn={} kind={} bb={:?} effects_len={} const_int3_dsts=[{}] add_binops=[dst=%{} lhs=%{} rhs=%{}]",
         fn_name,
         kind,
-        builder.current_block,
+        builder.function_state.current_block,
         effects.len(),
         const_int3_dsts,
         dst.0,

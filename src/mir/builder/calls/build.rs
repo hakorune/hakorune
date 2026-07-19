@@ -36,7 +36,7 @@ impl MirBuilder {
         // Dev trace
         if crate::config::env::cli_verbose() {
             let cur_fun = self
-                .scope_ctx
+                .function_state
                 .current_function
                 .as_ref()
                 .map(|f| f.signature.name.clone())
@@ -324,7 +324,10 @@ impl MirBuilder {
             Some(dst),
             EffectMask::IO,
         )?;
-        self.type_ctx.value_types.insert(dst, return_type);
+        self.function_state
+            .type_ctx
+            .value_types
+            .insert(dst, return_type);
         Ok(dst)
     }
 }

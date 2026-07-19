@@ -128,7 +128,7 @@ fn debug_log_cond_value_int3(
     }
 
     let fn_name = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .map(|f| f.signature.name.as_str())
@@ -142,7 +142,7 @@ fn debug_log_cond_value_int3(
     ring0.log.debug(&format!(
         "[cond_value/effects:int3] fn={} bb={:?} value=%{} effects_len={} const_int3_dsts=[{}]",
         fn_name,
-        builder.current_block,
+        builder.function_state.current_block,
         value_id.0,
         effects.len(),
         const_int3_dsts

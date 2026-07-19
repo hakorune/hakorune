@@ -631,6 +631,7 @@ fn lower_conditional_update_if_from_branch_values(
         let then_val = then_branch.updates.get(&var).copied().unwrap_or(current);
         let else_val = else_branch.updates.get(&var).copied().unwrap_or(current);
         let ty = builder
+            .function_state
             .type_ctx
             .get_type(current)
             .cloned()

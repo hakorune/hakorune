@@ -28,7 +28,7 @@ pub(in crate::mir::builder) fn materialize_vars_single_pred_at_entry(
     pre_if_var_map: &std::collections::BTreeMap<String, ValueId>,
     _context: &str,
 ) -> Result<(), String> {
-    let sanitized_map = if let Some(func) = builder.scope_ctx.current_function.as_ref() {
+    let sanitized_map = if let Some(func) = builder.function_state.current_function.as_ref() {
         let def_blocks = crate::mir::verification::utils::compute_def_blocks(func);
         let dominators = crate::mir::verification::utils::compute_dominators(func);
         pre_if_var_map
@@ -46,9 +46,10 @@ pub(in crate::mir::builder) fn materialize_vars_single_pred_at_entry(
         pre_if_var_map.clone()
     };
 
-    builder.variable_ctx.variable_map = sanitized_map.clone();
+    builder.function_state.variable_ctx.variable_map = sanitized_map.clone();
     for (name, &pre_v) in sanitized_map.iter() {
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert(name.clone(), pre_v);

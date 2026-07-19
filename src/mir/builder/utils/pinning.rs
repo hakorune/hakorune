@@ -26,7 +26,7 @@ impl super::super::MirBuilder {
         let slot_id = self.core_ctx.next_temp_slot();
         let slot_name = format!("__pin${}${}", slot_id, hint);
         // Phase 25.1b: Use function-local ID allocator to avoid SSA verification failures
-        let dst = if let Some(ref mut f) = self.scope_ctx.current_function {
+        let dst = if let Some(ref mut f) = self.function_state.current_function {
             f.next_value_id() // Function context: use local ID
         } else {
             self.core_ctx.next_value() // Module context: use core_ctx SSOT
@@ -39,9 +39,16 @@ impl super::super::MirBuilder {
         crate::mir::builder::metadata::propagate::propagate(self, v, dst);
         // Remember pin slot name for both the original and the pinned value.
         // LocalSSA uses this to redirect old pinned values to the latest slot value.
-        self.pin_slot_names.insert(v, slot_name.clone());
-        self.pin_slot_names.insert(dst, slot_name.clone());
-        self.variable_ctx.variable_map.insert(slot_name, dst);
+        self.function_state
+            .pin_slot_names
+            .insert(v, slot_name.clone());
+        self.function_state
+            .pin_slot_names
+            .insert(dst, slot_name.clone());
+        self.function_state
+            .variable_ctx
+            .variable_map
+            .insert(slot_name, dst);
         Ok(dst)
     }
 
@@ -52,9 +59,10 @@ impl super::super::MirBuilder {
         dst: super::super::ValueId,
         src: super::super::ValueId,
     ) -> Result<(), String> {
-        if let (Some(ref mut function), Some(bb)) =
-            (&mut self.scope_ctx.current_function, self.current_block)
-        {
+        if let (Some(ref mut function), Some(bb)) = (
+            &mut self.function_state.current_function,
+            self.function_state.current_block,
+        ) {
             if crate::config::env::builder_schedule_trace() {
                 let ring0 = crate::runtime::get_global_ring0();
                 ring0.log.debug(&format!(

@@ -50,7 +50,7 @@ impl super::super::MirBuilder {
 
         // Dev: Lower 比較 を演算子ボックス呼び出しに置換（既定OFF）
         let in_cmp_op = self
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .map(|f| f.signature.name.starts_with("CompareOperator.apply/"))
@@ -74,16 +74,21 @@ impl super::super::MirBuilder {
                 super::super::CallTarget::Global(name),
                 vec![op_const, lhs, rhs],
             )?;
-            self.type_ctx.value_types.insert(dst, MirType::Bool);
+            self.function_state
+                .type_ctx
+                .value_types
+                .insert(dst, MirType::Bool);
         } else {
             // 既存の比較経路（安全のための型注釈/slot化含む）
             let (lhs2_raw, rhs2_raw) = if self
+                .function_state
                 .type_ctx
                 .value_origin_newbox
                 .get(&lhs)
                 .map(|s| s == "IntegerBox")
                 .unwrap_or(false)
                 && self
+                    .function_state
                     .type_ctx
                     .value_origin_newbox
                     .get(&rhs)

@@ -15,9 +15,9 @@ enum FunctionParameterKind {
 
 impl MirBuilder {
     pub(super) fn setup_function_params(&mut self, params: &[String]) -> Result<(), String> {
-        self.scope_ctx.function_param_names.clear();
+        self.function_state.scope.function_param_names.clear();
         let entries = {
-            let Some(function) = self.scope_ctx.current_function.as_mut() else {
+            let Some(function) = self.function_state.current_function.as_mut() else {
                 return Err("[type/parameter_binding_identity_missing] function=<none>".to_string());
             };
             let receiver_offset = usize::from(function.params.len() > params.len());
@@ -62,10 +62,10 @@ impl MirBuilder {
         box_name: &str,
         params: &[String],
     ) -> Result<(), String> {
-        self.scope_ctx.function_param_names.clear();
+        self.function_state.scope.function_param_names.clear();
         let me_type = MirType::Box(box_name.to_string());
         let entries = {
-            let Some(function) = self.scope_ctx.current_function.as_mut() else {
+            let Some(function) = self.function_state.current_function.as_mut() else {
                 return Err("[type/parameter_binding_identity_missing] function=<none>".to_string());
             };
             let required_count = params.len() + 1;
@@ -130,7 +130,13 @@ impl MirBuilder {
         name: &str,
         formal_index: usize,
     ) -> Result<(), String> {
-        if self.variable_ctx.variable_map.contains_key(name) || self.binding_ctx.contains(name) {
+        if self
+            .function_state
+            .variable_ctx
+            .variable_map
+            .contains_key(name)
+            || self.function_state.binding_ctx.contains(name)
+        {
             return Err(format!(
                 "[type/parameter_binding_identity_duplicate] name={} formal_index={}",
                 name, formal_index
@@ -150,17 +156,26 @@ impl MirBuilder {
         kind: FunctionParameterKind,
         receiver_box: Option<String>,
     ) -> Result<BindingId, String> {
-        self.variable_ctx
+        self.function_state
+            .variable_ctx
             .variable_map
             .insert(name.to_string(), value);
-        self.binding_ctx.insert(name.to_string(), binding_id);
-        self.scope_ctx.function_param_names.insert(name.to_string());
+        self.function_state
+            .binding_ctx
+            .insert(name.to_string(), binding_id);
+        self.function_state
+            .scope
+            .function_param_names
+            .insert(name.to_string());
         self.register_value_kind(value, MirValueKind::Parameter(formal_index as u32));
         if let Some(ty) = ty.clone() {
-            self.type_ctx.value_types.insert(value, ty);
+            self.function_state.type_ctx.value_types.insert(value, ty);
         }
         if let Some(box_name) = receiver_box {
-            self.type_ctx.value_origin_newbox.insert(value, box_name);
+            self.function_state
+                .type_ctx
+                .value_origin_newbox
+                .insert(value, box_name);
         }
         if let Some(registry) = self.comp_ctx.current_slot_registry.as_mut() {
             registry.ensure_slot(name, ty);
@@ -194,11 +209,18 @@ mod tests {
             .expect("parameter declaration");
 
         assert_eq!(
-            builder.variable_ctx.variable_map.get("arg"),
+            builder.function_state.variable_ctx.variable_map.get("arg"),
             Some(&ValueId::new(4))
         );
-        assert_eq!(builder.binding_ctx.lookup("arg"), Some(binding));
-        assert!(builder.scope_ctx.function_param_names.contains("arg"));
+        assert_eq!(
+            builder.function_state.binding_ctx.lookup("arg"),
+            Some(binding)
+        );
+        assert!(builder
+            .function_state
+            .scope
+            .function_param_names
+            .contains("arg"));
         assert_eq!(
             builder.get_value_kind(ValueId::new(4)),
             Some(MirValueKind::Parameter(0))
@@ -219,9 +241,16 @@ mod tests {
             )
             .expect("receiver declaration");
 
-        assert_eq!(builder.binding_ctx.lookup("me"), Some(binding));
         assert_eq!(
-            builder.type_ctx.value_origin_newbox.get(&ValueId::new(0)),
+            builder.function_state.binding_ctx.lookup("me"),
+            Some(binding)
+        );
+        assert_eq!(
+            builder
+                .function_state
+                .type_ctx
+                .value_origin_newbox
+                .get(&ValueId::new(0)),
             Some(&"Counter".to_string())
         );
     }

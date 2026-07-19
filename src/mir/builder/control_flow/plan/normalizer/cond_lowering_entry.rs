@@ -81,7 +81,7 @@ fn debug_log_cond_branch_lit3_origin(
     }
 
     let fn_name = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .map(|f| f.signature.name.as_str())
@@ -96,7 +96,7 @@ fn debug_log_cond_branch_lit3_origin(
     ring0.log.debug(&format!(
         "[cond_branch/plans:lit3_origin] fn={} bb={:?} plans_len={} const_int3_dsts=[{}] origin_spans=[{}] origin_missing={} caller={}",
         fn_name,
-        builder.current_block,
+        builder.function_state.current_block,
         plans.len(),
         const_int3_dsts,
         origin_spans,
@@ -203,7 +203,7 @@ fn collect_lit3_from_effect(
     if let CoreEffectPlan::Const { dst, value } = effect {
         if matches!(value, ConstValue::Integer(3)) {
             lit3_dsts.push(*dst);
-            if let Some(span) = builder.metadata_ctx.value_span(*dst) {
+            if let Some(span) = builder.value_origin_span(*dst) {
                 lit3_spans.push(span.to_string());
             } else {
                 *origin_missing += 1;

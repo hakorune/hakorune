@@ -106,7 +106,10 @@ impl MirBuilder {
         let function_name = format!("{}/{}", name, params.len());
         let session_name = function_name.clone();
         self.with_resolved_function_lowering_session(&session_name, |builder| {
-            builder.resolved_binding_state.install(input.function())?;
+            builder
+                .function_state
+                .resolved_binding_state
+                .install(input.function())?;
             builder.create_function_skeleton(function_name, params, body)?;
             builder.set_current_function_declared_signature(
                 params
@@ -176,7 +179,10 @@ impl MirBuilder {
         let function_name = format!("{}/{}", name, params.len());
         let session_name = function_name.clone();
         let draft = self.with_resolved_function_draft_session(&session_name, |builder| {
-            builder.resolved_binding_state.install(input.function())?;
+            builder
+                .function_state
+                .resolved_binding_state
+                .install(input.function())?;
             builder.create_function_skeleton(function_name, params, body)?;
             install_trivial_callable_abi_v1(builder, &profile);
             builder.set_current_function_runes(attrs);

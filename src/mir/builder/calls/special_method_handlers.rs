@@ -96,7 +96,8 @@ impl MirBuilder {
         if let Err(e) = self.emit_constructor_call(math_recv, "MathBox".to_string(), vec![]) {
             return Some(Err(e));
         }
-        self.type_ctx
+        self.function_state
+            .type_ctx
             .value_origin_newbox
             .insert(math_recv, "MathBox".to_string());
         // birth()

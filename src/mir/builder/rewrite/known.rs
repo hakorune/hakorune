@@ -14,7 +14,12 @@ fn should_block_primitive_str_rewrite(
         return false;
     }
 
-    let Some(recv_type) = builder.type_ctx.value_types.get(&object_value) else {
+    let Some(recv_type) = builder
+        .function_state
+        .type_ctx
+        .value_types
+        .get(&object_value)
+    else {
         return false;
     };
 
@@ -109,6 +114,7 @@ pub(crate) fn try_known_rewrite(
     }
     // Receiver must be Known (origin 由来)
     if builder
+        .function_state
         .type_ctx
         .value_origin_newbox
         .get(&object_value)
@@ -131,6 +137,7 @@ pub(crate) fn try_known_rewrite(
     let allow_userbox_rewrite = crate::config::env::builder_dev_rewrite_userbox();
     let allow_new_origin = crate::config::env::builder_dev_rewrite_new_origin();
     let from_new_origin = builder
+        .function_state
         .type_ctx
         .value_origin_newbox
         .get(&object_value)
@@ -190,6 +197,7 @@ pub(crate) fn try_known_rewrite_to_dst(
         return None;
     }
     if builder
+        .function_state
         .type_ctx
         .value_origin_newbox
         .get(&object_value)
@@ -210,6 +218,7 @@ pub(crate) fn try_known_rewrite_to_dst(
     let allow_userbox_rewrite = crate::config::env::builder_dev_rewrite_userbox();
     let allow_new_origin = crate::config::env::builder_dev_rewrite_new_origin();
     let from_new_origin = builder
+        .function_state
         .type_ctx
         .value_origin_newbox
         .get(&object_value)
@@ -266,6 +275,7 @@ pub(crate) fn try_unique_suffix_rewrite(
     }
     // Only attempt if receiver is Known (keeps behavior stable and avoids surprises)
     if builder
+        .function_state
         .type_ctx
         .value_origin_newbox
         .get(&object_value)
@@ -310,7 +320,7 @@ pub(crate) fn try_unique_suffix_rewrite(
     }
     builder.annotate_call_result_from_func_name(dst, &fname);
     let meta = serde_json::json!({
-        "recv_cls": builder.type_ctx.value_origin_newbox.get(&object_value).cloned().unwrap_or_default(),
+        "recv_cls": builder.function_state.type_ctx.value_origin_newbox.get(&object_value).cloned().unwrap_or_default(),
         "method": method,
         "arity": arity_us,
         "chosen": fname,
@@ -333,6 +343,7 @@ pub(crate) fn try_unique_suffix_rewrite_to_dst(
         return None;
     }
     if builder
+        .function_state
         .type_ctx
         .value_origin_newbox
         .get(&object_value)
@@ -381,7 +392,7 @@ pub(crate) fn try_unique_suffix_rewrite_to_dst(
     }
     builder.annotate_call_result_from_func_name(actual_dst, &fname);
     let meta = serde_json::json!({
-        "recv_cls": builder.type_ctx.value_origin_newbox.get(&object_value).cloned().unwrap_or_default(),
+        "recv_cls": builder.function_state.type_ctx.value_origin_newbox.get(&object_value).cloned().unwrap_or_default(),
         "method": method,
         "arity": arity_us,
         "chosen": fname,

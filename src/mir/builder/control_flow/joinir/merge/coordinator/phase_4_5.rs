@@ -69,7 +69,7 @@ pub fn execute(
     // Contract check (Fail-Fast): ensure we didn't leave dangling Jump/Branch targets.
     // Phase 131 Task 6: Use MergeConfig.strict_mode instead of env checks
     if config.strict_mode || config.dev_log {
-        if let Some(ref current_func) = builder.scope_ctx.current_function {
+        if let Some(ref current_func) = builder.function_state.current_function {
             // Note: exit_block_id may be allocated but not inserted yet (it becomes the
             // current block after merge, and subsequent AST lowering fills it).
             // We still want to catch truly dangling targets (e.g., jumps to skipped k_exit).

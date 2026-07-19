@@ -12,7 +12,7 @@ pub(super) fn build(builder: &MirBuilder) -> Option<DebugCtx> {
     if !crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
         return None;
     }
-    let func = builder.scope_ctx.current_function.as_ref()?;
+    let func = builder.function_state.current_function.as_ref()?;
     Some(DebugCtx {
         fn_name: func.signature.name.clone(),
         def_blocks: compute_def_blocks(func),
@@ -21,7 +21,7 @@ pub(super) fn build(builder: &MirBuilder) -> Option<DebugCtx> {
 
 pub(super) fn current_fn_name(builder: &MirBuilder) -> String {
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .map(|f| f.signature.name.clone())

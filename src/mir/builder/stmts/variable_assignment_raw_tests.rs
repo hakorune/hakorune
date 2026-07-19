@@ -48,17 +48,19 @@ fn builder(name: &str) -> MirBuilder {
 
 fn declare(builder: &mut MirBuilder, name: &str, value: ValueId, binding: u32) {
     builder
+        .function_state
         .variable_ctx
         .variable_map
         .insert(name.to_string(), value);
     builder
+        .function_state
         .binding_ctx
         .insert(name.to_string(), BindingId::new(binding));
 }
 
 fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("current ASN0 raw function")
@@ -78,7 +80,10 @@ fn raw_variable_assignment_selects_owned_descent_and_recursive_rhs() {
         .build_expression(assignment(variable("x"), binary(integer(2), integer(3))))
         .unwrap();
 
-    assert_eq!(builder.variable_ctx.variable_map.get("x"), Some(&result));
+    assert_eq!(
+        builder.function_state.variable_ctx.variable_map.get("x"),
+        Some(&result)
+    );
     assert_ne!(result, old);
     let rows = instructions(&builder);
     assert_eq!(
@@ -120,7 +125,10 @@ fn raw_rhs_failure_keeps_old_binding_and_fresh_retry_succeeds() {
         .build_expression(assignment(variable("x"), variable("missing_rhs")))
         .unwrap_err();
     assert!(error.contains("Undefined variable: missing_rhs"));
-    assert_eq!(builder.variable_ctx.variable_map.get("x"), Some(&old));
+    assert_eq!(
+        builder.function_state.variable_ctx.variable_map.get("x"),
+        Some(&old)
+    );
     assert!(!instructions(&builder)
         .iter()
         .any(|row| matches!(row, MirInstruction::ReleaseStrong { .. })));
@@ -128,7 +136,10 @@ fn raw_rhs_failure_keeps_old_binding_and_fresh_retry_succeeds() {
     let result = builder
         .build_expression(assignment(variable("x"), integer(9)))
         .unwrap();
-    assert_eq!(builder.variable_ctx.variable_map.get("x"), Some(&result));
+    assert_eq!(
+        builder.function_state.variable_ctx.variable_map.get("x"),
+        Some(&result)
+    );
     assert_eq!(
         instructions(&builder)
             .iter()
@@ -177,7 +188,10 @@ fn grouped_assignment_remains_on_its_legacy_facade() {
         .build_expression(grouped_assignment("x", integer(11)))
         .unwrap();
 
-    assert_eq!(builder.variable_ctx.variable_map.get("x"), Some(&result));
+    assert_eq!(
+        builder.function_state.variable_ctx.variable_map.get("x"),
+        Some(&result)
+    );
     assert_ne!(result, old);
     assert_eq!(
         instructions(&builder)

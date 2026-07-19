@@ -75,7 +75,12 @@ pub fn execute(
                 );
             } else {
                 // Phase 283 P0 FIX: Ensure remapper has valid mapping (Fail-Fast)
-                if let Some(host_id) = builder.variable_ctx.variable_map.get(&binding.name) {
+                if let Some(host_id) = builder
+                    .function_state
+                    .variable_ctx
+                    .variable_map
+                    .get(&binding.name)
+                {
                     // Variable exists in host context - map join_value to existing host_id
                     trace.stderr_if(
                         &format!(

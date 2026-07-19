@@ -54,7 +54,7 @@ pub(in crate::mir::builder) fn lower_loop_v0(
     let body_recipe = arena
         .get(body_block.body_id)
         .ok_or_else(|| format!("{LOOP_V0_ERR} invalid_body_id: ctx={error_prefix}"))?;
-    let pre_loop_map = builder.variable_ctx.variable_map.clone();
+    let pre_loop_map = builder.function_state.variable_ctx.variable_map.clone();
 
     let mut carrier_vars = BTreeSet::from_iter(carriers::collect_from_body(&body_recipe.body).vars);
     let mut assigned_vars = BTreeSet::new();
@@ -63,7 +63,11 @@ pub(in crate::mir::builder) fn lower_loop_v0(
     }
     for name in assigned_vars {
         if current_bindings.contains_key(&name)
-            || builder.variable_ctx.variable_map.contains_key(&name)
+            || builder
+                .function_state
+                .variable_ctx
+                .variable_map
+                .contains_key(&name)
         {
             carrier_vars.insert(name);
         }
@@ -84,7 +88,14 @@ pub(in crate::mir::builder) fn lower_loop_v0(
         let init_val = current_bindings
             .get(var)
             .copied()
-            .or_else(|| builder.variable_ctx.variable_map.get(var).copied())
+            .or_else(|| {
+                builder
+                    .function_state
+                    .variable_ctx
+                    .variable_map
+                    .get(var)
+                    .copied()
+            })
             .ok_or_else(|| contract_err(&format!("carrier_init_missing var={var}")))?;
         carrier_inits.insert(var.clone(), init_val);
     }
@@ -97,6 +108,7 @@ pub(in crate::mir::builder) fn lower_loop_v0(
             continue;
         };
         let ty = builder
+            .function_state
             .type_ctx
             .get_type(init_val)
             .cloned()
@@ -110,6 +122,7 @@ pub(in crate::mir::builder) fn lower_loop_v0(
     for (name, value_id) in &frame.carrier_header_phis {
         loop_bindings.insert(name.clone(), *value_id);
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert(name.clone(), *value_id);
@@ -156,6 +169,7 @@ pub(in crate::mir::builder) fn lower_loop_v0(
     // PHIs, so re-seal carrier names before lowering body statements.
     for (name, value_id) in &frame.carrier_header_phis {
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert(name.clone(), *value_id);
@@ -167,7 +181,7 @@ pub(in crate::mir::builder) fn lower_loop_v0(
         if pre_bindings_for_verify.contains_key(var) {
             continue;
         }
-        if let Some(value_id) = builder.variable_ctx.variable_map.get(var) {
+        if let Some(value_id) = builder.function_state.variable_ctx.variable_map.get(var) {
             pre_bindings_for_verify.insert(var.clone(), *value_id);
         }
     }
@@ -259,7 +273,7 @@ pub(in crate::mir::builder) fn lower_loop_v0(
         for plan in &body_plans {
             if let CorePlan::Effect(CoreEffectPlan::Const { dst, value }) = plan {
                 if matches!(value, ConstValue::Integer(3)) {
-                    if let Some(span) = builder.metadata_ctx.value_span(*dst) {
+                    if let Some(span) = builder.value_origin_span(*dst) {
                         lit3_dsts.push(*dst);
                         lit3_spans.push(span.to_string());
                     }
@@ -268,7 +282,7 @@ pub(in crate::mir::builder) fn lower_loop_v0(
         }
         if !lit3_dsts.is_empty() {
             let fn_name = builder
-                .scope_ctx
+                .function_state
                 .current_function
                 .as_ref()
                 .map(|f| f.signature.name.as_str())
@@ -283,7 +297,7 @@ pub(in crate::mir::builder) fn lower_loop_v0(
             ring0.log.debug(&format!(
                 "[loop_parts/body_plans:lit3_origin] fn={} bb={:?} plans_len={} const_int3_dsts=[{}] origin_spans=[{}]",
                 fn_name,
-                builder.current_block,
+                builder.function_state.current_block,
                 body_plans.len(),
                 const_int3_dsts,
                 origin_spans
@@ -294,6 +308,7 @@ pub(in crate::mir::builder) fn lower_loop_v0(
     if !body_exits_all_paths {
         for (name, _) in &frame.carrier_step_phis {
             let selected = builder
+                .function_state
                 .variable_ctx
                 .variable_map
                 .get(name)
@@ -374,11 +389,12 @@ pub(in crate::mir::builder) fn lower_loop_v0(
     // Final values: after-phi dsts for carrier vars.
     // Restore the outer lexical map first so loop-body locals do not leak past
     // the loop boundary. Only carrier final values are allowed to escape.
-    builder.variable_ctx.variable_map = pre_loop_map;
+    builder.function_state.variable_ctx.variable_map = pre_loop_map;
     let mut final_values = Vec::new();
     for (name, after_phi_dst) in &break_phi_dsts {
         final_values.push((name.clone(), *after_phi_dst));
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert(name.clone(), *after_phi_dst);

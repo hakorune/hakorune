@@ -133,7 +133,7 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
         let requires_resolved_authority =
             matches!(&body_capture, FunctionBodyCaptureV1::CanonicalClosedFamily);
         let context = builder.prepare_lowering_context(function_name);
-        builder.comp_ctx.fn_body_ast = match body_capture {
+        builder.function_state.compilation.fn_body_ast = match body_capture {
             FunctionBodyCaptureV1::Legacy(body) => Some(body),
             FunctionBodyCaptureV1::CanonicalClosedFamily => None,
         };
@@ -214,33 +214,52 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
         if self.builder.recursion_depth != 0 {
             imbalances.push("recursion_depth");
         }
-        if self.builder.in_unified_boxcall_fallback {
+        if self.builder.function_state.in_unified_boxcall_fallback {
             imbalances.push("unified_boxcall_fallback");
         }
         if operation_succeeded {
-            if self.builder.scope_ctx.current_function.is_some() {
+            if self.builder.function_state.current_function.is_some() {
                 imbalances.push("published_draft_still_installed");
             }
-            if !self.builder.scope_ctx.lexical_scope_stack.is_empty() {
+            if !self
+                .builder
+                .function_state
+                .scope
+                .lexical_scope_stack
+                .is_empty()
+            {
                 imbalances.push("lexical_scope_stack");
             }
-            if !self.builder.scope_ctx.loop_header_stack.is_empty() {
+            if !self
+                .builder
+                .function_state
+                .scope
+                .loop_header_stack
+                .is_empty()
+            {
                 imbalances.push("loop_header_stack");
             }
-            if !self.builder.scope_ctx.loop_exit_stack.is_empty() {
+            if !self.builder.function_state.scope.loop_exit_stack.is_empty() {
                 imbalances.push("loop_exit_stack");
             }
-            if !self.builder.scope_ctx.if_merge_stack.is_empty() {
+            if !self.builder.function_state.scope.if_merge_stack.is_empty() {
                 imbalances.push("if_merge_stack");
             }
             if !self.builder.scope_ctx.debug_scope_stack.is_empty() {
                 imbalances.push("debug_scope_stack");
             }
-            if !self.builder.scope_ctx.fastmem_region_stack.is_empty() {
+            if !self
+                .builder
+                .function_state
+                .scope
+                .fastmem_region_stack
+                .is_empty()
+            {
                 imbalances.push("fastmem_region_stack");
             }
             if !self
                 .builder
+                .function_state
                 .resolved_binding_state
                 .session_success_is_closed(self.requires_resolved_authority)
             {

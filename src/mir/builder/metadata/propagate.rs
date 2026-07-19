@@ -19,20 +19,57 @@ pub fn propagate(builder: &mut MirBuilder, src: ValueId, dst: ValueId) {
         builder.comp_ctx.type_registry.propagate(src, dst);
     } else {
         // 従来: 直接アクセス（後方互換性）
-        if let Some(t) = builder.type_ctx.value_types.get(&src).cloned() {
-            builder.type_ctx.value_types.insert(dst, t);
+        if let Some(t) = builder
+            .function_state
+            .type_ctx
+            .value_types
+            .get(&src)
+            .cloned()
+        {
+            builder.function_state.type_ctx.value_types.insert(dst, t);
         }
-        if let Some(cls) = builder.type_ctx.value_origin_newbox.get(&src).cloned() {
-            builder.type_ctx.value_origin_newbox.insert(dst, cls);
+        if let Some(cls) = builder
+            .function_state
+            .type_ctx
+            .value_origin_newbox
+            .get(&src)
+            .cloned()
+        {
+            builder
+                .function_state
+                .type_ctx
+                .value_origin_newbox
+                .insert(dst, cls);
         }
     }
-    if let Some(text) = builder.type_ctx.string_literals.get(&src).cloned() {
-        builder.type_ctx.string_literals.insert(dst, text);
+    if let Some(text) = builder
+        .function_state
+        .type_ctx
+        .string_literals
+        .get(&src)
+        .cloned()
+    {
+        builder
+            .function_state
+            .type_ctx
+            .string_literals
+            .insert(dst, text);
     }
-    if let Some(map_value_type) = builder.type_ctx.map_value_types.get(&src).cloned() {
-        builder.type_ctx.map_value_types.insert(dst, map_value_type);
+    if let Some(map_value_type) = builder
+        .function_state
+        .type_ctx
+        .map_value_types
+        .get(&src)
+        .cloned()
+    {
+        builder
+            .function_state
+            .type_ctx
+            .map_value_types
+            .insert(dst, map_value_type);
     }
     let literal_facts: Vec<(String, MirType)> = builder
+        .function_state
         .type_ctx
         .map_literal_value_types
         .iter()
@@ -41,11 +78,15 @@ pub fn propagate(builder: &mut MirBuilder, src: ValueId, dst: ValueId) {
         .collect();
     for (key, ty) in literal_facts {
         builder
+            .function_state
             .type_ctx
             .map_literal_value_types
             .insert((dst, key), ty);
     }
-    builder.comp_ctx.propagate_record_local_value(src, dst);
+    builder
+        .function_state
+        .compilation
+        .propagate_record_local_value(src, dst);
     type_trace::propagate("meta", src, dst);
 }
 
@@ -63,7 +104,7 @@ pub fn propagate_with_override(builder: &mut MirBuilder, dst: ValueId, ty: MirTy
         builder.comp_ctx.type_registry.record_type(dst, ty);
     } else {
         // 従来: 直接アクセス
-        builder.type_ctx.value_types.insert(dst, ty);
+        builder.function_state.type_ctx.value_types.insert(dst, ty);
     }
     type_trace::ty("override", dst, &ty_clone);
 }

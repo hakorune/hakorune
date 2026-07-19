@@ -259,8 +259,13 @@ impl MirBuilder {
                 let ASTNode::Variable { name, .. } = arg else {
                     return None;
                 };
-                let value = self.variable_ctx.variable_map.get(name).copied()?;
-                self.comp_ctx.record_local_value(value)?;
+                let value = self
+                    .function_state
+                    .variable_ctx
+                    .variable_map
+                    .get(name)
+                    .copied()?;
+                self.function_state.compilation.record_local_value(value)?;
                 Some(idx)
             })
             .collect()
@@ -291,6 +296,7 @@ impl MirBuilder {
                     ));
                 };
                 let value = self
+                    .function_state
                     .variable_ctx
                     .variable_map
                     .get(name)
@@ -301,12 +307,16 @@ impl MirBuilder {
                         func_name, name
                     )
                     })?;
-                let record = self.comp_ctx.record_local_value(value).ok_or_else(|| {
-                    format!(
-                        "[record-helper-arg/internal] func={} name={} expected=record-local",
-                        func_name, name
-                    )
-                })?;
+                let record = self
+                    .function_state
+                    .compilation
+                    .record_local_value(value)
+                    .ok_or_else(|| {
+                        format!(
+                            "[record-helper-arg/internal] func={} name={} expected=record-local",
+                            func_name, name
+                        )
+                    })?;
                 let declared_type = declared_params
                     .get(idx)
                     .and_then(|decl| decl.declared_type_name.as_deref());
@@ -349,6 +359,7 @@ impl MirBuilder {
         }
 
         if let Some(box_name) = self
+            .function_state
             .type_ctx
             .value_origin_newbox
             .get(&object_value)
@@ -357,10 +368,10 @@ impl MirBuilder {
             return Some(box_name);
         }
 
-        match self.type_ctx.value_types.get(&object_value) {
+        match self.function_state.type_ctx.value_types.get(&object_value) {
             Some(MirType::Box(box_name)) => Some(box_name.clone()),
             _ => {
-                if let Some(function) = self.scope_ctx.current_function.as_ref() {
+                if let Some(function) = self.function_state.current_function.as_ref() {
                     if let Some(MirType::Box(box_name)) =
                         function.metadata.value_types.get(&object_value)
                     {
@@ -385,7 +396,7 @@ impl MirBuilder {
             return Some(box_name);
         }
 
-        let function = self.scope_ctx.current_function.as_ref()?;
+        let function = self.function_state.current_function.as_ref()?;
         let def_map = build_value_def_map(function);
         let (block_id, inst_idx) = def_map.get(&origin_value).copied()?;
         let block = function.blocks.get(&block_id)?;
@@ -439,15 +450,21 @@ impl MirBuilder {
     }
 
     fn infer_same_module_helper_box_name_from_known_value(&self, value: ValueId) -> Option<String> {
-        if let Some(MirType::Box(box_name)) = self.type_ctx.value_types.get(&value) {
+        if let Some(MirType::Box(box_name)) = self.function_state.type_ctx.value_types.get(&value) {
             return Some(box_name.clone());
         }
 
-        if let Some(box_name) = self.type_ctx.value_origin_newbox.get(&value).cloned() {
+        if let Some(box_name) = self
+            .function_state
+            .type_ctx
+            .value_origin_newbox
+            .get(&value)
+            .cloned()
+        {
             return Some(box_name);
         }
 
-        if let Some(function) = self.scope_ctx.current_function.as_ref() {
+        if let Some(function) = self.function_state.current_function.as_ref() {
             if let Some(MirType::Box(box_name)) = function.metadata.value_types.get(&value) {
                 return Some(box_name.clone());
             }
@@ -457,7 +474,7 @@ impl MirBuilder {
     }
 
     fn resolve_same_module_helper_receiver_origin_value(&self, object_value: ValueId) -> ValueId {
-        let Some(function) = self.scope_ctx.current_function.as_ref() else {
+        let Some(function) = self.function_state.current_function.as_ref() else {
             return object_value;
         };
         let def_map = build_value_def_map(function);
@@ -471,21 +488,23 @@ impl MirBuilder {
         bindings: Vec<HelperArgBinding>,
         body: &[ASTNode],
     ) -> Result<ValueId, String> {
-        let saved_var_map = self.variable_ctx.variable_map.clone();
+        let saved_var_map = self.function_state.variable_ctx.variable_map.clone();
 
         if let Some(receiver) = receiver {
-            self.variable_ctx
+            self.function_state
+                .variable_ctx
                 .variable_map
                 .insert("me".to_string(), receiver);
         }
         for binding in bindings {
-            self.variable_ctx
+            self.function_state
+                .variable_ctx
                 .variable_map
                 .insert(binding.param_name, binding.value);
         }
 
         let result = self.lower_record_helper_body_until_return(func_name, body);
-        self.variable_ctx.variable_map = saved_var_map;
+        self.function_state.variable_ctx.variable_map = saved_var_map;
         result
     }
 

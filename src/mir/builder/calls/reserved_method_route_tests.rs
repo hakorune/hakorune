@@ -38,7 +38,7 @@ fn method(receiver: &str, name: &str, arguments: Vec<ASTNode>) -> ASTNode {
 
 fn instructions(builder: &MirBuilder) -> impl Iterator<Item = &MirInstruction> {
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("current function")

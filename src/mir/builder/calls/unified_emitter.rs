@@ -91,15 +91,27 @@ impl UnifiedCallEmitterBox {
         {
             let recv_cls = box_type
                 .clone()
-                .or_else(|| builder.type_ctx.value_origin_newbox.get(&receiver).cloned())
                 .or_else(|| {
-                    builder.type_ctx.value_types.get(&receiver).and_then(|t| {
-                        if matches!(t, crate::mir::MirType::String) {
-                            Some("StringBox".to_string())
-                        } else {
-                            None
-                        }
-                    })
+                    builder
+                        .function_state
+                        .type_ctx
+                        .value_origin_newbox
+                        .get(&receiver)
+                        .cloned()
+                })
+                .or_else(|| {
+                    builder
+                        .function_state
+                        .type_ctx
+                        .value_types
+                        .get(&receiver)
+                        .and_then(|t| {
+                            if matches!(t, crate::mir::MirType::String) {
+                                Some("StringBox".to_string())
+                            } else {
+                                None
+                            }
+                        })
                 })
                 .unwrap_or_default();
             // Use indexed candidate lookup (tail → names)
@@ -122,17 +134,29 @@ impl UnifiedCallEmitterBox {
         {
             let class_name_opt = box_type
                 .clone()
-                .or_else(|| builder.type_ctx.value_origin_newbox.get(&receiver).cloned())
                 .or_else(|| {
-                    builder.type_ctx.value_types.get(&receiver).and_then(|t| {
-                        if let crate::mir::MirType::Box(b) = t {
-                            Some(b.clone())
-                        } else if matches!(t, crate::mir::MirType::String) {
-                            Some("StringBox".to_string())
-                        } else {
-                            None
-                        }
-                    })
+                    builder
+                        .function_state
+                        .type_ctx
+                        .value_origin_newbox
+                        .get(&receiver)
+                        .cloned()
+                })
+                .or_else(|| {
+                    builder
+                        .function_state
+                        .type_ctx
+                        .value_types
+                        .get(&receiver)
+                        .and_then(|t| {
+                            if let crate::mir::MirType::Box(b) = t {
+                                Some(b.clone())
+                            } else if matches!(t, crate::mir::MirType::String) {
+                                Some("StringBox".to_string())
+                            } else {
+                                None
+                            }
+                        })
                 });
             // Early str-like
             if let Some(res) = crate::mir::builder::rewrite::special::try_early_str_like_to_dst(
@@ -176,8 +200,8 @@ impl UnifiedCallEmitterBox {
         if let CallTarget::Global(ref _n) = target { /* dev trace removed */ }
         // If a Global target is unresolved, try the additional global resolvers.
         let resolver = super::resolver::CalleeResolverBox::new(
-            &builder.type_ctx.value_origin_newbox,
-            &builder.type_ctx.value_types,
+            &builder.function_state.type_ctx.value_origin_newbox,
+            &builder.function_state.type_ctx.value_types,
             Some(&builder.comp_ctx.type_registry), // 🎯 TypeRegistry を渡す
         );
         let mut callee = match resolver.resolve(target.clone()) {
@@ -253,7 +277,7 @@ impl UnifiedCallEmitterBox {
         // Structural guard FIRST: prevent static compiler boxes from being called with runtime receivers
         // 箱理論: CalleeGuardBox による構造的分離
         // (Guard may convert Method → Global, so we check BEFORE materializing receiver)
-        let guard = super::guard::CalleeGuardBox::new(&builder.type_ctx.value_types);
+        let guard = super::guard::CalleeGuardBox::new(&builder.function_state.type_ctx.value_types);
         callee = guard.apply_static_runtime_guard(callee)?;
 
         // Safety: ensure receiver is materialized ONLY for Method calls
@@ -304,8 +328,8 @@ impl UnifiedCallEmitterBox {
         // Validate call arguments
         // 箱理論: CalleeResolverBox で引数検証
         let resolver = super::resolver::CalleeResolverBox::new(
-            &builder.type_ctx.value_origin_newbox,
-            &builder.type_ctx.value_types,
+            &builder.function_state.type_ctx.value_origin_newbox,
+            &builder.function_state.type_ctx.value_types,
             Some(&builder.comp_ctx.type_registry),
         );
         resolver.validate_args(&callee, &args)?;
@@ -323,6 +347,7 @@ impl UnifiedCallEmitterBox {
                     // Try to retrieve origin info for receiver
                     let recv_meta = receiver.and_then(|r| {
                         builder
+                            .function_state
                             .type_ctx
                             .value_origin_newbox
                             .get(&r)
@@ -403,11 +428,11 @@ impl UnifiedCallEmitterBox {
                 // Route::BoxCall for this callee, so emit_box_or_plugin_call
                 // must not re-enter the unified path even if its own heuristics
                 // would otherwise choose Unified.
-                let prev_flag = builder.in_unified_boxcall_fallback;
-                builder.in_unified_boxcall_fallback = true;
+                let prev_flag = builder.function_state.in_unified_boxcall_fallback;
+                builder.function_state.in_unified_boxcall_fallback = true;
                 let res =
                     builder.emit_box_or_plugin_call(dst, *r, method.clone(), None, args, effects);
-                builder.in_unified_boxcall_fallback = prev_flag;
+                builder.function_state.in_unified_boxcall_fallback = prev_flag;
                 return res;
             }
         }
@@ -488,7 +513,7 @@ impl UnifiedCallEmitterBox {
                     let ring0 = crate::runtime::get_global_ring0();
                     ring0.log.debug(&format!(
                         "[vm-call-final] bb={:?} method={} recv=%{} class={}",
-                        builder.current_block, method, r.0, box_name
+                        builder.function_state.current_block, method, r.0, box_name
                     ));
                 }
             }

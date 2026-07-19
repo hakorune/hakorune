@@ -38,19 +38,19 @@ pub(in crate::mir::builder) fn cf_try_catch(
     let exit_block = builder.next_block_id();
 
     // Snapshot deferred-return state
-    let saved_defer_active = builder.return_defer_active;
-    let saved_defer_slot = builder.return_defer_slot;
-    let saved_defer_target = builder.return_defer_target;
-    let saved_deferred_flag = builder.return_deferred_emitted;
-    let saved_in_cleanup = builder.in_cleanup_block;
-    let saved_allow_ret = builder.cleanup_allow_return;
-    let saved_allow_throw = builder.cleanup_allow_throw;
+    let saved_defer_active = builder.function_state.return_defer_active;
+    let saved_defer_slot = builder.function_state.return_defer_slot;
+    let saved_defer_target = builder.function_state.return_defer_target;
+    let saved_deferred_flag = builder.function_state.return_deferred_emitted;
+    let saved_in_cleanup = builder.function_state.in_cleanup_block;
+    let saved_allow_ret = builder.function_state.cleanup_allow_return;
+    let saved_allow_throw = builder.function_state.cleanup_allow_throw;
 
     let ret_slot = builder.next_value_id();
-    builder.return_defer_active = true;
-    builder.return_defer_slot = Some(ret_slot);
-    builder.return_deferred_emitted = false;
-    builder.return_defer_target = Some(finally_block.unwrap_or(exit_block));
+    builder.function_state.return_defer_active = true;
+    builder.function_state.return_defer_slot = Some(ret_slot);
+    builder.function_state.return_deferred_emitted = false;
+    builder.function_state.return_defer_target = Some(finally_block.unwrap_or(exit_block));
 
     if let Some(catch_clause) = catch_clauses.first() {
         if crate::config::env::builder_trycatch_debug() {
@@ -105,10 +105,10 @@ pub(in crate::mir::builder) fn cf_try_catch(
     let mut cleanup_terminated = false;
     if let (Some(finally_block_id), Some(finally_statements)) = (finally_block, finally_body) {
         builder.start_new_block(finally_block_id)?;
-        builder.in_cleanup_block = true;
-        builder.cleanup_allow_return = crate::config::env::cleanup_allow_return();
-        builder.cleanup_allow_throw = crate::config::env::cleanup_allow_throw();
-        builder.return_defer_active = false; // do not defer inside cleanup
+        builder.function_state.in_cleanup_block = true;
+        builder.function_state.cleanup_allow_return = crate::config::env::cleanup_allow_return();
+        builder.function_state.cleanup_allow_throw = crate::config::env::cleanup_allow_throw();
+        builder.function_state.return_defer_active = false; // do not defer inside cleanup
 
         let finally_ast = ASTNode::Program {
             statements: finally_statements,
@@ -119,12 +119,12 @@ pub(in crate::mir::builder) fn cf_try_catch(
         if !cleanup_terminated {
             crate::mir::builder::emission::branch::emit_jump(builder, exit_block)?;
         }
-        builder.in_cleanup_block = false;
+        builder.function_state.in_cleanup_block = false;
     }
 
     // Exit block
     builder.start_new_block(exit_block)?;
-    if builder.return_deferred_emitted && !cleanup_terminated {
+    if builder.function_state.return_deferred_emitted && !cleanup_terminated {
         builder.emit_instruction(MirInstruction::Return {
             value: Some(ret_slot),
         })?;
@@ -132,13 +132,13 @@ pub(in crate::mir::builder) fn cf_try_catch(
     let result = crate::mir::builder::emission::constant::emit_void(builder)?;
 
     // Restore context
-    builder.return_defer_active = saved_defer_active;
-    builder.return_defer_slot = saved_defer_slot;
-    builder.return_defer_target = saved_defer_target;
-    builder.return_deferred_emitted = saved_deferred_flag;
-    builder.in_cleanup_block = saved_in_cleanup;
-    builder.cleanup_allow_return = saved_allow_ret;
-    builder.cleanup_allow_throw = saved_allow_throw;
+    builder.function_state.return_defer_active = saved_defer_active;
+    builder.function_state.return_defer_slot = saved_defer_slot;
+    builder.function_state.return_defer_target = saved_defer_target;
+    builder.function_state.return_deferred_emitted = saved_deferred_flag;
+    builder.function_state.in_cleanup_block = saved_in_cleanup;
+    builder.function_state.cleanup_allow_return = saved_allow_ret;
+    builder.function_state.cleanup_allow_throw = saved_allow_throw;
 
     Ok(result)
 }

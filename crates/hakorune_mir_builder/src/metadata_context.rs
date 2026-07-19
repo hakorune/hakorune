@@ -14,9 +14,6 @@
  * - current_region_stack は開発用トレース（本番コストゼロ）
  */
 
-use hakorune_mir_core::ValueId;
-use std::collections::HashMap;
-
 #[derive(Debug, Clone, Default)]
 struct HintSink;
 
@@ -48,12 +45,6 @@ pub struct MetadataContext<SpanT: Copy, RegionIdT: Copy> {
     /// - FunctionRegion がルート
     /// - 開発時のみ使用（本番コストゼロ）
     pub(super) current_region_stack: Vec<RegionIdT>,
-
-    /// ValueId 起源 span（診断用）
-    pub(super) value_origin_spans: HashMap<ValueId, SpanT>,
-
-    /// ValueId 起源 caller（診断用）
-    pub(super) value_origin_callers: HashMap<ValueId, String>,
 }
 
 impl<SpanT: Copy, RegionIdT: Copy> MetadataContext<SpanT, RegionIdT> {
@@ -64,8 +55,6 @@ impl<SpanT: Copy, RegionIdT: Copy> MetadataContext<SpanT, RegionIdT> {
             source_file: None,
             hint_sink: HintSink::new(),
             current_region_stack: Vec::new(),
-            value_origin_spans: HashMap::new(),
-            value_origin_callers: HashMap::new(),
         }
     }
 
@@ -141,43 +130,6 @@ impl<SpanT: Copy, RegionIdT: Copy> MetadataContext<SpanT, RegionIdT> {
     #[inline]
     pub fn current_region_stack(&self) -> &[RegionIdT] {
         &self.current_region_stack
-    }
-
-    // ---- ValueId 起源 span 管理（診断専用）----
-
-    /// ValueId 起源 span を記録（診断用）
-    #[inline]
-    pub fn record_value_span(&mut self, value_id: ValueId, span: SpanT) {
-        self.value_origin_spans.insert(value_id, span);
-    }
-
-    /// ValueId 起源 span を取得（診断用）
-    #[inline]
-    pub fn value_span(&self, value_id: ValueId) -> Option<SpanT> {
-        self.value_origin_spans.get(&value_id).copied()
-    }
-
-    /// ValueId 起源 caller を記録（診断用）
-    #[inline]
-    pub fn record_value_caller(
-        &mut self,
-        value_id: ValueId,
-        caller: &'static std::panic::Location<'static>,
-    ) {
-        let loc = format!("{}:{}:{}", caller.file(), caller.line(), caller.column());
-        self.value_origin_callers.insert(value_id, loc);
-    }
-
-    /// ValueId 起源 caller を取得（診断用）
-    #[inline]
-    pub fn value_caller(&self, value_id: ValueId) -> Option<&str> {
-        self.value_origin_callers.get(&value_id).map(|s| s.as_str())
-    }
-
-    /// ValueId 起源 caller 全体（読み取り専用）
-    #[inline]
-    pub fn value_origin_callers(&self) -> &HashMap<ValueId, String> {
-        &self.value_origin_callers
     }
 }
 

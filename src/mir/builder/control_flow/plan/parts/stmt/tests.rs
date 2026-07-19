@@ -36,7 +36,7 @@ fn return_prelude_scopebox_keeps_locals_scoped_and_outer_assignments_visible() {
     .expect("declare outer");
 
     let mut bindings: BTreeMap<String, crate::mir::ValueId> =
-        builder.variable_ctx.variable_map.clone();
+        builder.function_state.variable_ctx.variable_map.clone();
     let stmt = ASTNode::ScopeBox {
         body: vec![
             ASTNode::Local {
@@ -70,7 +70,11 @@ fn return_prelude_scopebox_keeps_locals_scoped_and_outer_assignments_visible() {
         "ScopeBox local must not leak into branch bindings"
     );
     assert!(
-        !builder.variable_ctx.variable_map.contains_key("tmp"),
+        !builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .contains_key("tmp"),
         "ScopeBox local must not leak into builder variable_map"
     );
     assert!(
@@ -104,7 +108,8 @@ fn coreplan_typed_local_uses_contract_write_and_binding_owner() {
     )
     .unwrap();
 
-    let slot = crate::mir::LocalSlotId::from(builder.binding_ctx.lookup("count").unwrap());
+    let slot =
+        crate::mir::LocalSlotId::from(builder.function_state.binding_ctx.lookup("count").unwrap());
     assert!(plans.iter().any(|plan| matches!(
         plan,
         CorePlan::Effect(CoreEffectPlan::LocalContractWrite {
@@ -115,11 +120,15 @@ fn coreplan_typed_local_uses_contract_write_and_binding_owner() {
     )));
     assert_eq!(
         bindings.get("count"),
-        builder.variable_ctx.variable_map.get("count")
+        builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .get("count")
     );
     assert_eq!(
         builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .unwrap()

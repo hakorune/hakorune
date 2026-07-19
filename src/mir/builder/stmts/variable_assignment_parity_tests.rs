@@ -154,7 +154,7 @@ fn snapshot(
     observed_names: &[&str],
 ) -> AssignmentParitySnapshotV1 {
     let function = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("current ASN0-P0 function");
@@ -166,6 +166,7 @@ fn snapshot(
     blocks.sort_by_key(|(id, _, _)| *id);
 
     let mut value_kinds = builder
+        .function_state
         .type_ctx
         .value_kinds
         .iter()
@@ -177,11 +178,19 @@ fn snapshot(
         .iter()
         .map(|name| (*name).to_string())
         .collect::<Vec<_>>();
-    names.extend(builder.variable_ctx.variable_map.keys().cloned());
+    names.extend(
+        builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .keys()
+            .cloned(),
+    );
     names.sort();
     names.dedup();
 
     let mut pin_slots = builder
+        .function_state
         .pin_slot_names
         .iter()
         .map(|(value, name)| (*value, name.clone()))
@@ -189,6 +198,7 @@ fn snapshot(
     pin_slots.sort_by_key(|(value, _)| *value);
 
     let mut local_ssa_map = builder
+        .function_state
         .local_ssa_map
         .iter()
         .map(|(key, value)| (*key, *value))
@@ -196,6 +206,7 @@ fn snapshot(
     local_ssa_map.sort_by_key(|(key, value)| (*key, *value));
 
     let mut schedule_mat_map = builder
+        .function_state
         .schedule_mat_map
         .iter()
         .map(|(key, value)| (*key, *value))
@@ -216,6 +227,7 @@ fn snapshot(
         blocks,
         locals: function.locals.clone(),
         value_types: builder
+            .function_state
             .type_ctx
             .value_types
             .iter()
@@ -223,30 +235,35 @@ fn snapshot(
             .collect(),
         value_kinds,
         value_origins: builder
+            .function_state
             .type_ctx
             .value_origin_newbox
             .iter()
             .map(|(value, owner)| (*value, owner.clone()))
             .collect(),
         string_literals: builder
+            .function_state
             .type_ctx
             .string_literals
             .iter()
             .map(|(value, text)| (*value, text.clone()))
             .collect(),
         map_value_types: builder
+            .function_state
             .type_ctx
             .map_value_types
             .iter()
             .map(|(value, ty)| (*value, ty.clone()))
             .collect(),
         map_literal_value_types: builder
+            .function_state
             .type_ctx
             .map_literal_value_types
             .iter()
             .map(|(key, ty)| (key.clone(), ty.clone()))
             .collect(),
         variable_map: builder
+            .function_state
             .variable_ctx
             .variable_map
             .iter()
@@ -255,12 +272,13 @@ fn snapshot(
         bindings: names
             .into_iter()
             .map(|name| {
-                let binding = builder.binding_ctx.lookup(&name);
+                let binding = builder.function_state.binding_ctx.lookup(&name);
                 (name, binding)
             })
             .collect(),
         scope_frames: builder
-            .scope_ctx
+            .function_state
+            .scope
             .lexical_scope_stack
             .iter()
             .map(|frame| ScopeFrameSnapshotV1 {
@@ -299,7 +317,7 @@ fn snapshot(
         slot_registry,
         local_ssa_map,
         schedule_mat_map,
-        current_block: builder.current_block,
+        current_block: builder.function_state.current_block,
         next_value_id: function.next_value_id,
         next_core_value: builder.core_ctx.peek_next_value(),
         next_core_block: builder.core_ctx.peek_next_block(),

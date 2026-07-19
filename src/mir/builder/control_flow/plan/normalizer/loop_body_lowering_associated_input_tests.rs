@@ -75,8 +75,8 @@ fn raw_function_call_statement_facade_matches_associated_input() {
     assert_const_then_global(&raw, "Worker.run");
     assert_const_then_global(&via_port, "Worker.run");
     assert_eq!(
-        raw_builder.type_ctx.value_types,
-        associated_builder.type_ctx.value_types
+        raw_builder.function_state.type_ctx.value_types,
+        associated_builder.function_state.type_ctx.value_types
     );
 }
 
@@ -229,6 +229,7 @@ fn raw_method_statement_and_associated_return_preserve_statement_semantics() {
         ]
     ));
     assert!(associated_builder
+        .function_state
         .type_ctx
         .value_types
         .values()

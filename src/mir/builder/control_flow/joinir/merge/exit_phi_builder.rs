@@ -29,11 +29,11 @@ pub(super) fn build_exit_phi(
     let verbose = debug || crate::config::env::joinir_dev_enabled();
     let mut carrier_phis: BTreeMap<String, ValueId> = BTreeMap::new();
 
-    if builder.scope_ctx.current_function.is_none() {
+    if builder.function_state.current_function.is_none() {
         return Ok((None, carrier_phis));
     }
 
-    if let Some(ref mut func) = builder.scope_ctx.current_function {
+    if let Some(ref mut func) = builder.function_state.current_function {
         func.add_block(BasicBlock::new(exit_block_id));
     }
 
@@ -153,7 +153,7 @@ fn next_exit_phi_dst(
     tag: &str,
 ) -> Result<ValueId, String> {
     let func = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_mut()
         .ok_or_else(|| format!("[freeze:contract][joinir_exit_phi/no_function] tag={tag}"))?;

@@ -11,7 +11,7 @@ impl MirBuilder {
         inputs: Vec<(BasicBlockId, ValueId)>,
         tag: &str,
     ) -> Result<(), String> {
-        let Some(cur_bb) = self.current_block else {
+        let Some(cur_bb) = self.function_state.current_block else {
             return Err(format!(
                 "[freeze:contract][phi_lifecycle/no_current_block] tag={tag}"
             ));
@@ -28,7 +28,7 @@ impl MirBuilder {
         type_hint: Option<crate::mir::MirType>,
         tag: &str,
     ) -> Result<(), String> {
-        let Some(cur_bb) = self.current_block else {
+        let Some(cur_bb) = self.function_state.current_block else {
             return Err(format!(
                 "[freeze:contract][phi_lifecycle/no_current_block] tag={tag}"
             ));
@@ -96,23 +96,27 @@ impl MirBuilder {
                 0 => {}
                 1 => {
                     let (_pred, v) = inputs[0];
-                    self.variable_ctx.variable_map.insert(pin_name.clone(), v);
+                    self.function_state
+                        .variable_ctx
+                        .variable_map
+                        .insert(pin_name.clone(), v);
                 }
                 _ => {
-                    if let Some(func) = self.scope_ctx.current_function.as_mut() {
+                    if let Some(func) = self.function_state.current_function.as_mut() {
                         func.update_cfg();
                     }
                     // Debug verification (when function and current_block available)
-                    if let (Some(func), Some(cur_bb)) =
-                        (&self.scope_ctx.current_function, self.current_block)
-                    {
+                    if let (Some(func), Some(cur_bb)) = (
+                        &self.function_state.current_function,
+                        self.function_state.current_block,
+                    ) {
                         crate::mir::phi_core::common::debug_verify_phi_inputs(
                             func, cur_bb, &inputs,
                         );
                     }
                     let merged = self.next_value_id();
                     // SSOT: PHI insertion via phi_lifecycle
-                    if let Some(cur_bb) = self.current_block {
+                    if let Some(cur_bb) = self.function_state.current_block {
                         crate::mir::builder::emission::phi_lifecycle::define_phi_final(
                             self,
                             cur_bb,
@@ -125,7 +129,8 @@ impl MirBuilder {
                              tag=phi:merge_modified_vars"
                             .to_string());
                     }
-                    self.variable_ctx
+                    self.function_state
+                        .variable_ctx
                         .variable_map
                         .insert(pin_name.clone(), merged);
                 }
@@ -149,15 +154,15 @@ impl MirBuilder {
         pre_if_snapshot: &BTreeMap<String, ValueId>,
         skip_var: Option<&str>,
     ) -> Result<(), String> {
-        let (def_blocks, dominators) = if let Some(func) = self.scope_ctx.current_function.as_ref()
-        {
-            (
-                Some(crate::mir::verification::utils::compute_def_blocks(func)),
-                Some(crate::mir::verification::utils::compute_dominators(func)),
-            )
-        } else {
-            (None, None)
-        };
+        let (def_blocks, dominators) =
+            if let Some(func) = self.function_state.current_function.as_ref() {
+                (
+                    Some(crate::mir::verification::utils::compute_def_blocks(func)),
+                    Some(crate::mir::verification::utils::compute_dominators(func)),
+                )
+            } else {
+                (None, None)
+            };
 
         // 全変数を収集（決定的順序）
         let all_vars: BTreeSet<String> = exits
@@ -218,21 +223,28 @@ impl MirBuilder {
             match inputs.len() {
                 0 => {}
                 1 => {
-                    self.variable_ctx.variable_map.insert(var, inputs[0].1);
+                    self.function_state
+                        .variable_ctx
+                        .variable_map
+                        .insert(var, inputs[0].1);
                 }
                 _ => {
-                    if let Some(func) = self.scope_ctx.current_function.as_mut() {
+                    if let Some(func) = self.function_state.current_function.as_mut() {
                         func.update_cfg();
                     }
-                    if let (Some(func), Some(cur_bb)) =
-                        (&self.scope_ctx.current_function, self.current_block)
-                    {
+                    if let (Some(func), Some(cur_bb)) = (
+                        &self.function_state.current_function,
+                        self.function_state.current_block,
+                    ) {
                         crate::mir::phi_core::common::debug_verify_phi_inputs(
                             func, cur_bb, &inputs,
                         );
                     }
                     let merged = self.insert_phi(inputs)?;
-                    self.variable_ctx.variable_map.insert(var, merged);
+                    self.function_state
+                        .variable_ctx
+                        .variable_map
+                        .insert(var, merged);
                 }
             }
         }
@@ -301,17 +313,21 @@ impl MirBuilder {
                 0 => {}
                 1 => {
                     // Direct bind (no PHI needed)
-                    self.variable_ctx.variable_map = pre_if_var_map.clone();
-                    self.variable_ctx.variable_map.insert(var_name, inputs[0].1);
+                    self.function_state.variable_ctx.variable_map = pre_if_var_map.clone();
+                    self.function_state
+                        .variable_ctx
+                        .variable_map
+                        .insert(var_name, inputs[0].1);
                     return Ok(inputs[0].1);
                 }
                 _ => {
-                    if let Some(func) = self.scope_ctx.current_function.as_mut() {
+                    if let Some(func) = self.function_state.current_function.as_mut() {
                         func.update_cfg();
                     }
-                    if let (Some(func), Some(cur_bb)) =
-                        (&self.scope_ctx.current_function, self.current_block)
-                    {
+                    if let (Some(func), Some(cur_bb)) = (
+                        &self.function_state.current_function,
+                        self.function_state.current_block,
+                    ) {
                         crate::mir::phi_core::common::debug_verify_phi_inputs(
                             func, cur_bb, &inputs,
                         );
@@ -319,8 +335,11 @@ impl MirBuilder {
                     self.insert_phi_with_dst(result_val, inputs)?;
                 }
             }
-            self.variable_ctx.variable_map = pre_if_var_map.clone();
-            self.variable_ctx.variable_map.insert(var_name, result_val);
+            self.function_state.variable_ctx.variable_map = pre_if_var_map.clone();
+            self.function_state
+                .variable_ctx
+                .variable_map
+                .insert(var_name, result_val);
         } else {
             // No variable assignment pattern detected – just emit Phi for expression result
             let mut inputs: Vec<(BasicBlockId, ValueId)> = Vec::new();
@@ -340,12 +359,13 @@ impl MirBuilder {
                     return Ok(inputs[0].1);
                 }
                 _ => {
-                    if let Some(func) = self.scope_ctx.current_function.as_mut() {
+                    if let Some(func) = self.function_state.current_function.as_mut() {
                         func.update_cfg();
                     }
-                    if let (Some(func), Some(cur_bb)) =
-                        (&self.scope_ctx.current_function, self.current_block)
-                    {
+                    if let (Some(func), Some(cur_bb)) = (
+                        &self.function_state.current_function,
+                        self.function_state.current_block,
+                    ) {
                         crate::mir::phi_core::common::debug_verify_phi_inputs(
                             func, cur_bb, &inputs,
                         );
@@ -354,7 +374,7 @@ impl MirBuilder {
                 }
             }
             // Merge variable map conservatively to pre-if snapshot (no new bindings)
-            self.variable_ctx.variable_map = pre_if_var_map.clone();
+            self.function_state.variable_ctx.variable_map = pre_if_var_map.clone();
         }
 
         Ok(result_val)

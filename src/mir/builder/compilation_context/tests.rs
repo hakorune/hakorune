@@ -5,7 +5,6 @@ fn test_compilation_context_creation() {
     let ctx = CompilationContext::new();
     assert!(ctx.current_static_box.is_none());
     assert!(ctx.user_defined_boxes.is_empty());
-    assert!(ctx.reserved_value_ids.is_empty());
 }
 
 #[test]
@@ -15,20 +14,6 @@ fn test_user_defined_box() {
 
     ctx.register_user_box("MyBox".to_string());
     assert!(ctx.is_user_defined_box("MyBox"));
-}
-
-#[test]
-fn test_reserved_value_ids() {
-    let mut ctx = CompilationContext::new();
-    let id = ValueId::new(42);
-
-    assert!(!ctx.is_reserved_value_id(id));
-
-    ctx.reserve_value_id(id);
-    assert!(ctx.is_reserved_value_id(id));
-
-    ctx.clear_reserved_value_ids();
-    assert!(!ctx.is_reserved_value_id(id));
 }
 
 #[test]

@@ -42,7 +42,7 @@ pub(in crate::mir::builder::control_flow::plan::features) fn lower_else_only_ret
         ));
     };
 
-    let pre_if_map = builder.variable_ctx.variable_map.clone();
+    let pre_if_map = builder.function_state.variable_ctx.variable_map.clone();
     let pre_bindings = current_bindings.clone();
 
     let mut fallthrough_end_map: Option<BTreeMap<String, crate::mir::ValueId>> = None;
@@ -132,10 +132,10 @@ pub(in crate::mir::builder::control_flow::plan::features) fn lower_else_only_ret
                 )?
             };
 
-            fallthrough_end_map = Some(builder.variable_ctx.variable_map.clone());
+            fallthrough_end_map = Some(builder.function_state.variable_ctx.variable_map.clone());
             fallthrough_end_bindings = Some(bindings.clone());
 
-            builder.variable_ctx.variable_map = pre_if_map.clone();
+            builder.function_state.variable_ctx.variable_map = pre_if_map.clone();
             *bindings = pre_bindings.clone();
 
             Ok(plans)
@@ -164,7 +164,7 @@ pub(in crate::mir::builder::control_flow::plan::features) fn lower_else_only_ret
                 LOOP_COND_ERR,
             )?);
 
-            builder.variable_ctx.variable_map = pre_if_map.clone();
+            builder.function_state.variable_ctx.variable_map = pre_if_map.clone();
             *bindings = pre_bindings.clone();
 
             Ok(plans)
@@ -228,7 +228,7 @@ pub(in crate::mir::builder::control_flow::plan::features) fn lower_then_only_ret
         ));
     };
 
-    let pre_if_map = builder.variable_ctx.variable_map.clone();
+    let pre_if_map = builder.function_state.variable_ctx.variable_map.clone();
     let pre_bindings = current_bindings.clone();
 
     let mut fallthrough_end_map: Option<BTreeMap<String, crate::mir::ValueId>> = None;
@@ -257,7 +257,7 @@ pub(in crate::mir::builder::control_flow::plan::features) fn lower_then_only_ret
                 LOOP_COND_ERR,
             )?);
 
-            builder.variable_ctx.variable_map = pre_if_map.clone();
+            builder.function_state.variable_ctx.variable_map = pre_if_map.clone();
             *bindings = pre_bindings.clone();
 
             Ok(plans)
@@ -347,10 +347,10 @@ pub(in crate::mir::builder::control_flow::plan::features) fn lower_then_only_ret
                 )?
             };
 
-            fallthrough_end_map = Some(builder.variable_ctx.variable_map.clone());
+            fallthrough_end_map = Some(builder.function_state.variable_ctx.variable_map.clone());
             fallthrough_end_bindings = Some(bindings.clone());
 
-            builder.variable_ctx.variable_map = pre_if_map.clone();
+            builder.function_state.variable_ctx.variable_map = pre_if_map.clone();
             *bindings = pre_bindings.clone();
 
             Ok(plans)

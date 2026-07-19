@@ -82,7 +82,7 @@ impl RecipeComposer {
             ));
         };
 
-        let mut current_bindings = builder.variable_ctx.variable_map.clone();
+        let mut current_bindings = builder.function_state.variable_ctx.variable_map.clone();
         parts::entry::lower_loop_v0(
             builder,
             &mut current_bindings,

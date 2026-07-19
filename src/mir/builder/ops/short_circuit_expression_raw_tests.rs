@@ -40,7 +40,7 @@ fn builder(name: &str) -> MirBuilder {
 
 fn instructions(builder: &MirBuilder) -> Vec<(BasicBlockId, MirInstruction)> {
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("current SC0-I0 function")
@@ -64,7 +64,7 @@ fn raw_short_circuit_selector_preserves_and_or_completion() {
             .unwrap();
 
         assert_eq!(
-            builder.type_ctx.value_types.get(&output),
+            builder.function_state.type_ctx.value_types.get(&output),
             Some(&MirType::Bool)
         );
         assert!(instructions(&builder).iter().any(
@@ -107,7 +107,7 @@ fn raw_rhs_is_materialized_only_inside_the_eval_block() {
 fn raw_lhs_failure_stops_before_short_circuit_cfg() {
     let mut builder = builder("sc0_raw_lhs_failure/0");
     let before_blocks = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -125,7 +125,7 @@ fn raw_lhs_failure_stops_before_short_circuit_cfg() {
     assert!(error.contains("Undefined variable: missing_lhs"));
     assert_eq!(
         builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .unwrap()
@@ -152,7 +152,7 @@ fn raw_rhs_failure_occurs_after_entering_eval_block() {
     assert!(error.contains("Undefined variable: missing_rhs"));
     assert!(
         builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .unwrap()
@@ -194,7 +194,7 @@ fn failed_raw_short_circuit_allows_a_fresh_builder() {
         .build_expression(binary(BinaryOperator::And, boolean(true), boolean(true)))
         .unwrap();
     assert_eq!(
-        fresh.type_ctx.value_types.get(&output),
+        fresh.function_state.type_ctx.value_types.get(&output),
         Some(&MirType::Bool)
     );
     assert_eq!(fresh.recursion_depth, 0);

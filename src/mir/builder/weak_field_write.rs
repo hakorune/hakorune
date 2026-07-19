@@ -10,7 +10,13 @@ impl MirBuilder {
         field_name: &str,
         value: ValueId,
     ) -> Result<bool, String> {
-        let Some(box_name) = self.type_ctx.value_origin_newbox.get(&base).cloned() else {
+        let Some(box_name) = self
+            .function_state
+            .type_ctx
+            .value_origin_newbox
+            .get(&base)
+            .cloned()
+        else {
             return Ok(false);
         };
         let Some(fields) = self.comp_ctx.user_box_field_decls.get(&box_name) else {
@@ -57,7 +63,7 @@ impl MirBuilder {
 
     fn next_weak_field_write_site_id(&self) -> WeakFieldWriteSiteId {
         let next = self
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .into_iter()

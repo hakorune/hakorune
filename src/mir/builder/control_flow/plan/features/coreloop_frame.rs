@@ -80,6 +80,7 @@ pub(in crate::mir::builder) fn build_coreloop_frame(
 
         // Get type from init value
         let ty = builder
+            .function_state
             .type_ctx
             .get_type(init_val)
             .cloned()

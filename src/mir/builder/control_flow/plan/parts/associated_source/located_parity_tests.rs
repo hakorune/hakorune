@@ -253,18 +253,27 @@ fn foreign_located_port_rejects_before_builder_effects_and_valid_reuse_succeeds(
         let _scope = LexicalScopeGuard::new(&mut builder);
         let mut bindings = seed_actual_bindings(&mut builder);
         let bindings_before = bindings.clone();
-        let variable_map_before = builder.variable_ctx.variable_map.clone();
-        let value_types_before = builder.type_ctx.value_types.clone();
-        let value_origins_before = builder.type_ctx.value_origin_newbox.clone();
+        let variable_map_before = builder.function_state.variable_ctx.variable_map.clone();
+        let value_types_before = builder.function_state.type_ctx.value_types.clone();
+        let value_origins_before = builder.function_state.type_ctx.value_origin_newbox.clone();
 
         assert!(
             representation.bind_lowering_port(&foreign_port).is_err(),
             "foreign activation plan must reject before Parts lowering"
         );
         assert_eq!(bindings, bindings_before);
-        assert_eq!(builder.variable_ctx.variable_map, variable_map_before);
-        assert_eq!(builder.type_ctx.value_types, value_types_before);
-        assert_eq!(builder.type_ctx.value_origin_newbox, value_origins_before);
+        assert_eq!(
+            builder.function_state.variable_ctx.variable_map,
+            variable_map_before
+        );
+        assert_eq!(
+            builder.function_state.type_ctx.value_types,
+            value_types_before
+        );
+        assert_eq!(
+            builder.function_state.type_ctx.value_origin_newbox,
+            value_origins_before
+        );
 
         let lowering = representation
             .bind_lowering_port(&port)
@@ -379,6 +388,7 @@ fn seed(
 ) {
     let value = builder.alloc_typed(ty);
     builder
+        .function_state
         .variable_ctx
         .variable_map
         .insert(name.to_string(), value);
@@ -394,9 +404,9 @@ fn capture_run(
     let snapshot = NormalizedActualStrictPartsSnapshotV1 {
         semantic_plans: normalized_semantic_plans(&plans),
         current_bindings: bindings.clone(),
-        variable_map: builder.variable_ctx.variable_map.clone(),
-        value_types: builder.type_ctx.value_types.clone(),
-        value_origins: builder.type_ctx.value_origin_newbox.clone(),
+        variable_map: builder.function_state.variable_ctx.variable_map.clone(),
+        value_types: builder.function_state.type_ctx.value_types.clone(),
+        value_origins: builder.function_state.type_ctx.value_origin_newbox.clone(),
         exits_on_all_paths: plans_exit_on_all_paths(&plans),
     };
     ActualStrictPartsRunV1 {

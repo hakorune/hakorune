@@ -10,7 +10,11 @@ pub(super) fn collect_carriers_from_condition(
         .into_iter()
         .filter(|name| {
             current_bindings.contains_key(name)
-                || builder.variable_ctx.variable_map.contains_key(name)
+                || builder
+                    .function_state
+                    .variable_ctx
+                    .variable_map
+                    .contains_key(name)
         })
         .collect()
 }

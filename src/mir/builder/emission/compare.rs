@@ -11,12 +11,18 @@ pub fn emit_to(
     lhs: ValueId,
     rhs: ValueId,
 ) -> Result<(), String> {
-    if let (Some(func), Some(cur_bb)) = (b.scope_ctx.current_function.as_mut(), b.current_block) {
+    if let (Some(func), Some(cur_bb)) = (
+        b.function_state.current_function.as_mut(),
+        b.function_state.current_block,
+    ) {
         crate::mir::ssot::cf_common::emit_compare_func(func, cur_bb, dst, op, lhs, rhs);
     } else {
         b.emit_instruction(MirInstruction::Compare { dst, op, lhs, rhs })?;
     }
     // 比較結果は Bool 型（既存実装と同じ振る舞い）
-    b.type_ctx.value_types.insert(dst, MirType::Bool);
+    b.function_state
+        .type_ctx
+        .value_types
+        .insert(dst, MirType::Bool);
     Ok(())
 }

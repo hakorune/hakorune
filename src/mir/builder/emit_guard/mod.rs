@@ -69,7 +69,7 @@ fn check_call_arg_scope(
     if !strict_planner_required() {
         return Ok(());
     }
-    let func = match builder.scope_ctx.current_function.as_ref() {
+    let func = match builder.function_state.current_function.as_ref() {
         Some(f) => f,
         None => return Ok(()),
     };
@@ -77,7 +77,7 @@ fn check_call_arg_scope(
     let args_list = format_value_ids(args);
     let params_list = format_value_ids(&func.params);
     let fn_name = func.signature.name.as_str();
-    let bb = builder.current_block;
+    let bb = builder.function_state.current_block;
     let entry = func.entry_block;
     let call_label = callee_label(callee);
 
@@ -90,6 +90,7 @@ fn check_call_arg_scope(
         if crate::config::env::joinir_dev::debug_enabled() {
             // Reverse lookup variable_map to find variable names pointing to this ValueId
             let varmap_hits: Vec<&str> = builder
+                .function_state
                 .variable_ctx
                 .variable_map
                 .iter()
@@ -99,6 +100,7 @@ fn check_call_arg_scope(
 
             // Check if this is a pin slot (raw value, no prefix added)
             let pin_slot_name = builder
+                .function_state
                 .pin_slot_names
                 .get(&v)
                 .map(|name| name.as_str())
@@ -180,6 +182,7 @@ fn check_call_arg_scope(
                 if let Some(&first_undef) = undef_values.iter().min_by_key(|v| v.0) {
                     // Reverse lookup variable_map to find variable names pointing to first_undef
                     let varmap_hits: Vec<&str> = builder
+                        .function_state
                         .variable_ctx
                         .variable_map
                         .iter()
@@ -189,6 +192,7 @@ fn check_call_arg_scope(
 
                     // Check if first_undef is a pin slot
                     let pin_slot_name = builder
+                        .function_state
                         .pin_slot_names
                         .get(&first_undef)
                         .map(|name| name.as_str())

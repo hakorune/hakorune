@@ -38,11 +38,15 @@ impl<'a> PhiBuilderOps for ToplevelOps<'a> {
     }
 
     fn update_var(&mut self, name: String, value: ValueId) {
-        self.0.variable_ctx.variable_map.insert(name, value);
+        self.0
+            .function_state
+            .variable_ctx
+            .variable_map
+            .insert(name, value);
     }
 
     fn get_block_predecessors(&self, block: BasicBlockId) -> Vec<BasicBlockId> {
-        if let Some(ref func) = self.0.scope_ctx.current_function {
+        if let Some(ref func) = self.0.function_state.current_function {
             func.blocks
                 .get(&block)
                 .map(|bb| bb.predecessors.iter().copied().collect())
@@ -64,7 +68,7 @@ impl<'a> PhiBuilderOps for ToplevelOps<'a> {
     }
 
     fn block_exists(&self, block: BasicBlockId) -> bool {
-        if let Some(ref func) = self.0.scope_ctx.current_function {
+        if let Some(ref func) = self.0.function_state.current_function {
             func.blocks.contains_key(&block)
         } else {
             false
@@ -142,7 +146,7 @@ impl MirBuilder {
             && crate::config::env::joinir_dev::strict_enabled()
             && crate::config::env::joinir_dev::planner_required_enabled()
         {
-            if let Some(func) = self.scope_ctx.current_function.as_ref() {
+            if let Some(func) = self.function_state.current_function.as_ref() {
                 let def_blocks = crate::mir::verification::utils::compute_def_blocks(func);
                 if let Some(def_block) = def_blocks.get(&condition_val) {
                     if *def_block != pre_branch_bb {
@@ -176,7 +180,7 @@ impl MirBuilder {
         // Phase 268 P0: emit_conditional() deleted (replaced by emit_conditional_edgecfg() at line 206)
 
         // Snapshot variables before entering branches
-        let pre_if_var_map = self.variable_ctx.variable_map.clone();
+        let pre_if_var_map = self.function_state.variable_ctx.variable_map.clone();
 
         let trace_if = crate::config::env::builder_if_trace();
 
@@ -195,7 +199,7 @@ impl MirBuilder {
         )?;
         if trace_if {
             for (name, &pre_v) in pre_if_var_map.iter() {
-                if let Some(&phi_val) = self.variable_ctx.variable_map.get(name) {
+                if let Some(&phi_val) = self.function_state.variable_ctx.variable_map.get(name) {
                     let ring0 = crate::runtime::get_global_ring0();
                     ring0.log.debug(&format!(
                         "[if-trace] then-entry phi var={} pre={:?} -> dst={:?}",
@@ -207,7 +211,7 @@ impl MirBuilder {
         let then_value_raw = lower_branch(self, IfBranchKindV1::Then)?;
         let then_exit_block = self.current_block()?;
         let then_reaches_merge = !self.is_current_block_terminated();
-        let then_var_map_end = self.variable_ctx.variable_map.clone();
+        let then_var_map_end = self.function_state.variable_ctx.variable_map.clone();
         if then_reaches_merge {
             // Scope leave for then-branch
             self.hint_scope_leave(0);
@@ -232,7 +236,8 @@ impl MirBuilder {
             )?;
             if trace_if {
                 for (name, &pre_v) in pre_if_var_map.iter() {
-                    if let Some(&phi_val) = self.variable_ctx.variable_map.get(name) {
+                    if let Some(&phi_val) = self.function_state.variable_ctx.variable_map.get(name)
+                    {
                         let ring0 = crate::runtime::get_global_ring0();
                         ring0.log.debug(&format!(
                             "[if-trace] else-entry phi var={} pre={:?} -> dst={:?}",
@@ -242,7 +247,10 @@ impl MirBuilder {
                 }
             }
             let val = lower_branch(self, IfBranchKindV1::Else)?;
-            (val, Some(self.variable_ctx.variable_map.clone()))
+            (
+                val,
+                Some(self.function_state.variable_ctx.variable_map.clone()),
+            )
         } else {
             // No else branch: materialize PHI nodes for the empty else block
             crate::mir::builder::emission::phi::materialize_vars_single_pred_at_entry(
@@ -253,7 +261,8 @@ impl MirBuilder {
             )?;
             if trace_if {
                 for (name, &pre_v) in pre_if_var_map.iter() {
-                    if let Some(&phi_val) = self.variable_ctx.variable_map.get(name) {
+                    if let Some(&phi_val) = self.function_state.variable_ctx.variable_map.get(name)
+                    {
                         let ring0 = crate::runtime::get_global_ring0();
                         ring0.log.debug(&format!(
                             "[if-trace] else-entry phi var={} pre={:?} -> dst={:?}",
@@ -265,7 +274,10 @@ impl MirBuilder {
             let void_val = crate::mir::builder::emission::constant::emit_void(self)?;
             // Phase 25.1c/k: Pass PHI-renamed variable_map for empty else branch
             // This ensures merge_modified_vars uses correct ValueIds after PHI renaming
-            (void_val, Some(self.variable_ctx.variable_map.clone()))
+            (
+                void_val,
+                Some(self.function_state.variable_ctx.variable_map.clone()),
+            )
         };
         let else_exit_block = self.current_block()?;
         let else_reaches_merge = !self.is_current_block_terminated();
@@ -314,7 +326,7 @@ impl MirBuilder {
 
         // 関数名ガードチェック
         let func_name = self
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .map(|f| f.signature.name.as_str())
@@ -332,7 +344,7 @@ impl MirBuilder {
             core_mainline || (joinir_enabled && is_target && (joinir_toplevel || joinir_dryrun));
 
         if should_try_joinir {
-            if let Some(ref func) = self.scope_ctx.current_function {
+            if let Some(ref func) = self.function_state.current_function {
                 match crate::mir::join_ir::lowering::try_lower_if_to_joinir(
                     func,
                     pre_branch_bb,

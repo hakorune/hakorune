@@ -98,7 +98,7 @@ impl super::PlanLowerer {
 
         let trace_logger = trace::trace();
         let debug = ctx.debug;
-        let pre_loop_map = builder.variable_ctx.variable_map.clone();
+        let pre_loop_map = builder.function_state.variable_ctx.variable_map.clone();
 
         // Phase 6: Prepare loop entry (preheader, body flattening, jump to entry)
         // SSOT: Delegated to loop_preparation::prepare_loop_entry()
@@ -143,7 +143,7 @@ impl super::PlanLowerer {
             let debug_step_inputs =
                 crate::config::env::joinir_dev::strict_planner_required_debug_enabled();
             let (debug_fn_name, debug_def_blocks) = if debug_step_inputs {
-                let func = builder.scope_ctx.current_function.as_ref();
+                let func = builder.function_state.current_function.as_ref();
                 let fn_name = func
                     .map(|f| f.signature.name.as_str())
                     .unwrap_or("<none>")
@@ -202,7 +202,7 @@ impl super::PlanLowerer {
         // Restore the outer lexical map before reapplying loop final_values.
         // Loop-body locals must not leak past after_bb just because their defs
         // were materialized while lowering the loop body.
-        builder.variable_ctx.variable_map = pre_loop_map;
+        builder.function_state.variable_ctx.variable_map = pre_loop_map;
         // SSOT: Delegated to loop_completion::finalize_loop_variables()
         let out = loop_completion::finalize_loop_variables(
             builder,

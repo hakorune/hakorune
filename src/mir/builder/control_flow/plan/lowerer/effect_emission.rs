@@ -24,10 +24,10 @@ fn try_emit_select_as_phi_for_merge(
     then_val: ValueId,
     else_val: ValueId,
 ) -> Result<bool, String> {
-    let Some(cur_bb) = builder.current_block else {
+    let Some(cur_bb) = builder.function_state.current_block else {
         return Ok(false);
     };
-    let Some(func) = builder.scope_ctx.current_function.as_ref() else {
+    let Some(func) = builder.function_state.current_function.as_ref() else {
         return Ok(false);
     };
 
@@ -71,7 +71,7 @@ fn try_emit_select_as_phi_for_merge(
     builder.define_current_block_phi_final_with_type_hint(
         dst,
         inputs,
-        builder.type_ctx.get_type(dst).cloned(),
+        builder.function_state.type_ctx.get_type(dst).cloned(),
         "effect_emission:select_as_phi",
     )?;
     Ok(true)
@@ -89,7 +89,7 @@ impl super::PlanLowerer {
                 if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
                     let fn_name = debug_ctx::current_fn_name(builder);
                     let next_value_id = builder
-                        .scope_ctx
+                        .function_state
                         .current_function
                         .as_ref()
                         .map(|f| f.next_value_id)
@@ -102,7 +102,7 @@ impl super::PlanLowerer {
                     ring0.log.debug(&format!(
                         "[lit/lower:emit] fn={} bb={:?} v=%{} lit={:?} span={} file={} next={} emit=ok",
                         fn_name,
-                        builder.current_block,
+                        builder.function_state.current_block,
                         dst.0,
                         value,
                         super::span_fmt::current_span_location(builder),
@@ -350,6 +350,7 @@ impl super::PlanLowerer {
         use crate::mir::builder::emission::branch::emit_conditional;
 
         let _pre_branch_bb = builder
+            .function_state
             .current_block
             .ok_or_else(|| "[lowerer] No current block for ExitIf".to_string())?;
 
@@ -376,7 +377,7 @@ impl super::PlanLowerer {
                 emit_conditional(builder, cond_val, frame.break_target, fallthrough_target)?;
             }
             CoreExitPlan::BreakWithPhiArgs { depth, phi_args } => {
-                let pre_bb = builder.current_block.ok_or_else(|| {
+                let pre_bb = builder.function_state.current_block.ok_or_else(|| {
                     "[lowerer] No current block for ExitIf(BreakWithPhiArgs)".to_string()
                 })?;
                 let frame = Self::resolve_loop_frame_mut(loop_stack, *depth)?;
@@ -401,7 +402,7 @@ impl super::PlanLowerer {
                 emit_conditional(builder, cond_val, frame.continue_target, fallthrough_target)?;
             }
             CoreExitPlan::ContinueWithPhiArgs { depth, phi_args } => {
-                let pre_bb = builder.current_block.ok_or_else(|| {
+                let pre_bb = builder.function_state.current_block.ok_or_else(|| {
                     "[lowerer] No current block for ExitIf(ContinueWithPhiArgs)".to_string()
                 })?;
                 let frame = Self::resolve_loop_frame_mut(loop_stack, *depth)?;

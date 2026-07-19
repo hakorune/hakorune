@@ -61,8 +61,9 @@ struct LocatedIfBoundarySnapshotV1 {
 }
 
 fn boundary_snapshot(builder: &crate::mir::MirBuilder) -> LocatedIfBoundarySnapshotV1 {
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
     let mut variables = builder
+        .function_state
         .variable_ctx
         .variable_map
         .iter()
@@ -86,7 +87,7 @@ fn boundary_snapshot(builder: &crate::mir::MirBuilder) -> LocatedIfBoundarySnaps
         .collect::<Vec<_>>();
     blocks.sort_by_key(|row| row.0);
     LocatedIfBoundarySnapshotV1 {
-        current_block: builder.current_block,
+        current_block: builder.function_state.current_block,
         function_next_value: function.next_value_id,
         core_next_value: builder.core_ctx.peek_next_value(),
         core_next_block: builder.core_ctx.peek_next_block(),
@@ -208,7 +209,7 @@ fn located_statement_if_reuses_short_circuit_condition_descent() {
         .any(|instruction| matches!(instruction, MirInstruction::BinOp { .. })));
     assert_eq!(
         builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .unwrap()
@@ -279,8 +280,8 @@ fn located_statement_if_orders_condition_rows_and_lowers_inactive_branches() {
         .iter()
         .any(|instruction| matches!(instruction, MirInstruction::Phi { .. })));
     assert!(matches!(
-        builder.scope_ctx.current_function.as_ref().unwrap().blocks
-            [&builder.current_block.unwrap()]
+        builder.function_state.current_function.as_ref().unwrap().blocks
+            [&builder.function_state.current_block.unwrap()]
             .instructions
             .last(),
         Some(MirInstruction::Const {

@@ -64,11 +64,7 @@ impl MirBuilder {
         // Phase 25.1b fix: Use function-local ID allocator to avoid SSA verification failures
         // This prevents PHI dst ValueIds from colliding with function-local IDs allocated later.
         // Same pattern as pin_to_slot() and the loop builder fix in e2d061d1.
-        let phi_val = if let Some(ref mut f) = self.scope_ctx.current_function {
-            f.next_value_id() // Function context: use local ID allocator
-        } else {
-            self.core_ctx.next_value() // Module context: use core_ctx SSOT
-        };
+        let phi_val = self.next_function_value_id_or_core();
 
         self.define_current_block_phi_final(phi_val, inputs.clone(), "phi_helpers:insert_phi")
             .map_err(|e| {
@@ -81,8 +77,7 @@ impl MirBuilder {
                         .build()
                 }
             })?;
-        self.comp_ctx
-            .propagate_record_local_value_from_phi(&inputs, phi_val);
+        self.propagate_record_local_value_from_phi(&inputs, phi_val);
 
         Ok(phi_val)
     }
@@ -142,8 +137,7 @@ impl MirBuilder {
                         .build()
                 }
             })?;
-        self.comp_ctx
-            .propagate_record_local_value_from_phi(&inputs, dst);
+        self.propagate_record_local_value_from_phi(&inputs, dst);
 
         Ok(())
     }

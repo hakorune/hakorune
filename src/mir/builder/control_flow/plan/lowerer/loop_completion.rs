@@ -37,7 +37,7 @@ pub fn emit_loop_frag(
     // Phase 29bq+: Use session.emit_and_seal for structural lock
     // - from blocks auto-collected from frag.wires/branches
     // - assert_open before emit, seal after success
-    if let Some(ref mut func) = builder.scope_ctx.current_function {
+    if let Some(ref mut func) = builder.function_state.current_function {
         session.emit_and_seal(func, frag)?;
     } else {
         return Err("[lowerer] current_function is None".to_string());
@@ -46,7 +46,7 @@ pub fn emit_loop_frag(
     // Strict/dev+planner_required debug: Validate PHI inputs dominate predecessors
     if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
         let func = builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .ok_or_else(|| "[lowerer] current_function is None".to_string())?;
@@ -102,6 +102,7 @@ pub fn finalize_loop_variables(
     // Step 6: Update variable_map for final values
     for (name, value_id) in final_values {
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert(name.clone(), *value_id);

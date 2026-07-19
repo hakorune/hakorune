@@ -80,6 +80,7 @@ fn lower_loop_cond_continue_only_stepbb(
     let mut current_bindings = frame.carrier_header_phis.clone();
     for (name, value_id) in &current_bindings {
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert(name.clone(), *value_id);

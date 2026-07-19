@@ -26,8 +26,13 @@ impl AssignmentResolverBox {
             return Ok(());
         }
 
-        if builder.variable_ctx.variable_map.contains_key(var_name) {
-            return if builder.binding_ctx.contains(var_name) {
+        if builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .contains_key(var_name)
+        {
+            return if builder.function_state.binding_ctx.contains(var_name) {
                 Ok(())
             } else {
                 Err(format!(
@@ -52,6 +57,7 @@ mod tests {
     fn rejects_value_publication_without_lexical_identity() {
         let mut builder = MirBuilder::new();
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert("x".to_string(), ValueId::new(1));
@@ -65,38 +71,46 @@ mod tests {
     fn reassignment_keeps_existing_lexical_identity() {
         let mut builder = MirBuilder::new();
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert("x".to_string(), ValueId::new(1));
         builder
+            .function_state
             .binding_ctx
             .insert("x".to_string(), BindingId::new(3));
 
         AssignmentResolverBox::ensure_declared(&builder, "x").expect("declared local");
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert("x".to_string(), ValueId::new(2));
 
-        assert_eq!(builder.binding_ctx.lookup("x"), Some(BindingId::new(3)));
+        assert_eq!(
+            builder.function_state.binding_ctx.lookup("x"),
+            Some(BindingId::new(3))
+        );
     }
 
     #[test]
     fn parameter_observation_without_identity_is_rejected() {
         let mut builder = MirBuilder::new();
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert("arg".to_string(), ValueId::new(0));
         builder
-            .scope_ctx
+            .function_state
+            .scope
             .function_param_names
             .insert("arg".to_string());
 
         let error = AssignmentResolverBox::ensure_declared(&builder, "arg")
             .expect_err("observation inventory is not assignment authority");
         assert!(error.starts_with("[type/local_contract_binding_missing]"));
-        assert!(!builder.binding_ctx.contains("arg"));
+        assert!(!builder.function_state.binding_ctx.contains("arg"));
     }
 
     #[test]

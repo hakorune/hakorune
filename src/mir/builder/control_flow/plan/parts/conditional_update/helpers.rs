@@ -144,7 +144,11 @@ pub(in crate::mir::builder) fn collect_conditional_update_assignment_or_local(
                     return Err(format!("{error_prefix}: local init not pure"));
                 }
                 if !current_bindings.contains_key(name)
-                    && !builder.variable_ctx.variable_map.contains_key(name)
+                    && !builder
+                        .function_state
+                        .variable_ctx
+                        .variable_map
+                        .contains_key(name)
                 {
                     return Err(format!(
                         "{error_prefix}: local init requires predeclared {}",
@@ -182,7 +186,7 @@ pub(in crate::mir::builder) fn current_value_for_join(
     if let Some(value) = current_bindings.get(name) {
         return Ok(*value);
     }
-    if let Some(value) = builder.variable_ctx.variable_map.get(name) {
+    if let Some(value) = builder.function_state.variable_ctx.variable_map.get(name) {
         return Ok(*value);
     }
     Err(format!("{error_prefix}: join value {} not found", name))

@@ -23,13 +23,14 @@ pub fn finalize_method_receiver(builder: &mut MirBuilder, callee: &mut Callee) {
         // Optional dev trace for receiver aliases
         if crate::config::env::builder_trace_recv() {
             let current_fn = builder
-                .scope_ctx
+                .function_state
                 .current_function
                 .as_ref()
                 .map(|f| f.signature.name.clone())
                 .unwrap_or_else(|| "<none>".to_string());
-            let bb = builder.current_block;
+            let bb = builder.function_state.current_block;
             let names: Vec<String> = builder
+                .function_state
                 .variable_ctx
                 .variable_map
                 .iter()

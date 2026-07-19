@@ -45,7 +45,7 @@ impl BlockScheduleBox {
     }
 
     fn resolve_pure_def(builder: &MirBuilder, src: ValueId) -> Option<MirInstruction> {
-        let func = builder.scope_ctx.current_function.as_ref()?;
+        let func = builder.function_state.current_function.as_ref()?;
         let def = Self::find_def_inst(func, src)?;
         match def {
             MirInstruction::Const { .. }
@@ -70,8 +70,8 @@ impl BlockScheduleBox {
         src_for_meta: ValueId,
     ) -> Result<(), String> {
         if let (Some(ref mut function), Some(bb)) = (
-            &mut builder.scope_ctx.current_function,
-            builder.current_block,
+            &mut builder.function_state.current_function,
+            builder.function_state.current_block,
         ) {
             if let Some(block) = function.get_block_mut(bb) {
                 let dst = inst.dst_value();
@@ -93,8 +93,8 @@ impl BlockScheduleBox {
         builder: &mut MirBuilder,
         src: ValueId,
     ) -> Result<ValueId, String> {
-        if let Some(bb) = builder.current_block {
-            if let Some(&cached) = builder.schedule_mat_map.get(&(bb, src)) {
+        if let Some(bb) = builder.function_state.current_block {
+            if let Some(&cached) = builder.function_state.schedule_mat_map.get(&(bb, src)) {
                 if crate::config::env::builder_schedule_trace() {
                     let ring0 = crate::runtime::get_global_ring0();
                     ring0.log.debug(&format!(
@@ -105,7 +105,7 @@ impl BlockScheduleBox {
                 return Ok(cached);
             }
             if Self::strict_planner_required() {
-                if let Some(func) = builder.scope_ctx.current_function.as_ref() {
+                if let Some(func) = builder.function_state.current_function.as_ref() {
                     let def_blocks = crate::mir::verification::utils::compute_def_blocks(func);
                     let dominators = crate::mir::verification::utils::compute_dominators(func);
                     let def_block = def_blocks.get(&src).copied();
@@ -145,13 +145,16 @@ impl BlockScheduleBox {
                 if crate::config::env::builder_schedule_trace() {
                     let ring0 = crate::runtime::get_global_ring0();
                     ring0.log.debug(&format!(
-                        "[schedule/after-phis] bb={:?} src=%{} new dst=%{} (inserting Copy) builder.current_block={:?}",
-                        bb, src.0, dst.0, builder.current_block
+                        "[schedule/after-phis] bb={:?} src=%{} new dst=%{} (inserting Copy) builder.function_state.current_block={:?}",
+                        bb, src.0, dst.0, builder.function_state.current_block
                     ));
                 }
                 builder.insert_copy_after_phis(dst, src)?;
             }
-            builder.schedule_mat_map.insert((bb, src), dst);
+            builder
+                .function_state
+                .schedule_mat_map
+                .insert((bb, src), dst);
             return Ok(dst);
         }
         Err("No current block".into())
@@ -169,7 +172,7 @@ impl BlockScheduleBox {
                 let ring0 = crate::runtime::get_global_ring0();
                 ring0.log.debug(&format!(
                     "[schedule/before-call] bb={:?} src=%{} dst=%{} (rematerialize)",
-                    builder.current_block, src.0, dst.0
+                    builder.function_state.current_block, src.0, dst.0
                 ));
             }
             let remat_inst = match def_inst {
@@ -209,7 +212,7 @@ impl BlockScheduleBox {
         if Self::strict_planner_required() {
             return Err(format!(
                 "[freeze:contract][schedule/non_dominating_src] bb={:?} src={:?}",
-                builder.current_block, src
+                builder.function_state.current_block, src
             ));
         }
 
@@ -220,7 +223,7 @@ impl BlockScheduleBox {
             let ring0 = crate::runtime::get_global_ring0();
             ring0.log.debug(&format!(
                 "[schedule/before-call] bb={:?} src=%{} base=%{} dst=%{} (emitting Copy)",
-                builder.current_block, src.0, base.0, dst.0
+                builder.function_state.current_block, src.0, base.0, dst.0
             ));
         }
         builder.emit_instruction(MirInstruction::Copy { dst, src: base })?;
@@ -238,8 +241,8 @@ impl BlockScheduleBox {
             return;
         }
         let (f_opt, bb_opt) = (
-            builder.scope_ctx.current_function.as_ref(),
-            builder.current_block,
+            builder.function_state.current_function.as_ref(),
+            builder.function_state.current_block,
         );
         let (Some(fun), Some(bb_id)) = (f_opt, bb_opt) else {
             return;
@@ -273,7 +276,11 @@ impl BlockScheduleBox {
             if let [MirInstruction::Copy { dst: _, src }, call] = w {
                 if is_call_like(call) {
                     // best-effort: src should be one of the after-PHIs materialized ids for this bb
-                    let derived_ok = builder.schedule_mat_map.values().any(|&v| v == *src);
+                    let derived_ok = builder
+                        .function_state
+                        .schedule_mat_map
+                        .values()
+                        .any(|&v| v == *src);
                     if !derived_ok {
                         if crate::config::env::builder_schedule_trace() {
                             let ring0 = crate::runtime::get_global_ring0();

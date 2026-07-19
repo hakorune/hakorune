@@ -14,7 +14,8 @@ pub fn emit_integer(b: &mut MirBuilder, val: i64) -> Result<ValueId, String> {
         value: ConstValue::Integer(val),
     })?;
     // Phase 84-1: Integer constant type annotation
-    b.type_ctx
+    b.function_state
+        .type_ctx
         .value_types
         .insert(dst, crate::mir::MirType::Integer);
     Ok(dst)
@@ -28,7 +29,8 @@ pub fn emit_bool(b: &mut MirBuilder, val: bool) -> Result<ValueId, String> {
         value: ConstValue::Bool(val),
     })?;
     // Phase 84-1: Bool constant type annotation
-    b.type_ctx
+    b.function_state
+        .type_ctx
         .value_types
         .insert(dst, crate::mir::MirType::Bool);
     Ok(dst)
@@ -42,7 +44,8 @@ pub fn emit_float(b: &mut MirBuilder, val: f64) -> Result<ValueId, String> {
         value: ConstValue::Float(val),
     })?;
     // Phase 84-1: Float constant type annotation
-    b.type_ctx
+    b.function_state
+        .type_ctx
         .value_types
         .insert(dst, crate::mir::MirType::Float);
     Ok(dst)
@@ -58,10 +61,11 @@ pub fn emit_string<S: Into<String>>(b: &mut MirBuilder, s: S) -> Result<ValueId,
     })?;
     // 137x-H1: string constants are value-world text. Runtime method dispatch may
     // still route through StringBox, but const emission must not create object origin.
-    b.type_ctx
+    b.function_state
+        .type_ctx
         .value_types
         .insert(dst, crate::mir::MirType::String);
-    b.type_ctx.string_literals.insert(dst, s);
+    b.function_state.type_ctx.string_literals.insert(dst, s);
     Ok(dst)
 }
 
@@ -74,7 +78,8 @@ pub fn emit_null(b: &mut MirBuilder) -> Result<ValueId, String> {
     })?;
     // Phase 285A1.1: Null constant type annotation
     // Null is syntactic sugar for Void (SSOT: lifecycle.md)
-    b.type_ctx
+    b.function_state
+        .type_ctx
         .value_types
         .insert(dst, crate::mir::MirType::Void);
     Ok(dst)
@@ -88,7 +93,8 @@ pub fn emit_void(b: &mut MirBuilder) -> Result<ValueId, String> {
         value: ConstValue::Void,
     })?;
     // Phase 84-1: Void constant type annotation
-    b.type_ctx
+    b.function_state
+        .type_ctx
         .value_types
         .insert(dst, crate::mir::MirType::Void);
     Ok(dst)

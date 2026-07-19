@@ -23,7 +23,7 @@ pub(super) fn emit(
         return Err("[freeze:contract][canonical_direct_call/current_header_drift]".to_string());
     }
     let current_symbol = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .map(|function| function.signature.name.as_str())
@@ -36,7 +36,7 @@ pub(super) fn emit(
     }
 
     let capability_rows = &builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .ok_or_else(|| "[freeze:contract][canonical_direct_call/function_missing]".to_string())?
@@ -53,6 +53,7 @@ pub(super) fn emit(
         })?;
     builder.emit_instruction(instruction)?;
     builder
+        .function_state
         .type_ctx
         .value_types
         .insert(result, mir_type(row.result()));

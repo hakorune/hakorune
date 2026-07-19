@@ -134,7 +134,11 @@ pub(super) fn build_unary_op(
         {
             if let Some(negated) = n.checked_neg() {
                 let dst = crate::mir::builder::emission::constant::emit_integer(builder, negated)?;
-                builder.type_ctx.value_types.insert(dst, MirType::Integer);
+                builder
+                    .function_state
+                    .type_ctx
+                    .value_types
+                    .insert(dst, MirType::Integer);
                 return Ok(dst);
             }
         }
@@ -149,7 +153,7 @@ pub(super) fn build_unary_op(
             _ => unreachable!("validated by return_type"),
         };
         let in_guard = builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .map(|f| f.signature.name.starts_with(guard_prefix))
@@ -162,6 +166,7 @@ pub(super) fn build_unary_op(
                 vec![operand_val],
             )?;
             builder
+                .function_state
                 .type_ctx
                 .value_types
                 .insert(dst, return_type.clone());
@@ -181,6 +186,7 @@ pub(super) fn build_unary_op(
                     rhs: operand_val,
                 })?;
                 builder
+                    .function_state
                     .type_ctx
                     .value_types
                     .insert(dst, return_type.clone());
@@ -197,6 +203,7 @@ pub(super) fn build_unary_op(
                     f,
                 )?;
                 builder
+                    .function_state
                     .type_ctx
                     .value_types
                     .insert(dst, return_type.clone());
@@ -212,6 +219,7 @@ pub(super) fn build_unary_op(
                     rhs: all1,
                 })?;
                 builder
+                    .function_state
                     .type_ctx
                     .value_types
                     .insert(dst, return_type.clone());
@@ -227,6 +235,10 @@ pub(super) fn build_unary_op(
         op: mir_op,
         operand: operand_val,
     })?;
-    builder.type_ctx.value_types.insert(dst, return_type);
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(dst, return_type);
     Ok(dst)
 }

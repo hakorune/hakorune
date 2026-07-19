@@ -38,7 +38,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_item(
                 &exit_allowed_block.arena,
                 &exit_allowed_block.block,
                 LOOP_COND_ERR,
-                Some(&builder.variable_ctx.variable_map),
+                Some(&builder.function_state.variable_ctx.variable_map),
             )?;
             return parts::entry::lower_exit_allowed_block_verified(
                 builder,
@@ -97,7 +97,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_item(
                 &exit_allowed_block.arena,
                 &exit_allowed_block.block,
                 LOOP_COND_ERR,
-                Some(&builder.variable_ctx.variable_map),
+                Some(&builder.function_state.variable_ctx.variable_map),
             )?;
             return parts::entry::lower_exit_allowed_block_verified(
                 builder,
@@ -141,7 +141,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_item(
                     &recipe.arena,
                     &recipe.block,
                     LOOP_COND_ERR,
-                    Some(&builder.variable_ctx.variable_map),
+                    Some(&builder.function_state.variable_ctx.variable_map),
                 )?;
                 return parts::entry::lower_no_exit_block_with_stmt_lowerer_verified(
                     builder,
@@ -190,7 +190,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_item(
                     &recipe.arena,
                     &recipe.block,
                     LOOP_COND_ERR,
-                    Some(&builder.variable_ctx.variable_map),
+                    Some(&builder.function_state.variable_ctx.variable_map),
                 )?;
                 let plans = parts::entry::lower_exit_allowed_block_verified(
                     builder,
@@ -277,7 +277,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_item(
                 &recipe.arena,
                 &recipe.block,
                 LOOP_COND_ERR,
-                Some(&builder.variable_ctx.variable_map),
+                Some(&builder.function_state.variable_ctx.variable_map),
             )?;
             parts::entry::lower_no_exit_block_verified(
                 builder,
@@ -530,6 +530,7 @@ fn lower_nested_loop_depth1_item(
 
     for (name, value_id) in current_bindings.iter() {
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert(name.clone(), *value_id);
@@ -546,7 +547,7 @@ fn lower_nested_loop_depth1_item(
                 outer_carriers
             ));
         }
-        let pre_loop_map = builder.variable_ctx.variable_map.clone();
+        let pre_loop_map = builder.function_state.variable_ctx.variable_map.clone();
 
         let mut plan = if let Some(body_recipe) = payload_stmt_only {
             parts::entry::lower_nested_loop_depth1_stmt_only(
@@ -572,7 +573,7 @@ fn lower_nested_loop_depth1_item(
             }
         };
 
-        let post_loop_map = builder.variable_ctx.variable_map.clone();
+        let post_loop_map = builder.function_state.variable_ctx.variable_map.clone();
 
         if crate::config::env::is_joinir_debug() {
             let ring0 = crate::runtime::get_global_ring0();

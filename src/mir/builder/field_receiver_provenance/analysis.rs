@@ -38,11 +38,12 @@ pub(super) fn verify(
     capture_normalized: bool,
 ) -> Result<ConstructionResultV1, SameRootReceiverProofErrorV1> {
     let function = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .ok_or(SameRootReceiverProofErrorV1::NoCurrentFunction)?;
     let use_block = builder
+        .function_state
         .current_block
         .ok_or(SameRootReceiverProofErrorV1::MissingUseSite)?;
     let use_order = function
@@ -63,7 +64,7 @@ pub(super) fn verify_at(
 ) -> Result<ConstructionResultV1, SameRootReceiverProofErrorV1> {
     let receiver = VerifiedCurrentReceiverIdentityV1::verify(builder)?;
     let function = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .ok_or(SameRootReceiverProofErrorV1::NoCurrentFunction)?;
@@ -195,6 +196,7 @@ fn validate_value(
     receiver: &VerifiedCurrentReceiverIdentityV1,
 ) -> Result<(), SameRootReceiverProofErrorV1> {
     let ty = builder
+        .function_state
         .type_ctx
         .value_types
         .get(&value)
@@ -203,6 +205,7 @@ fn validate_value(
         return Err(SameRootReceiverProofErrorV1::SeedTypeMismatch);
     }
     if builder
+        .function_state
         .type_ctx
         .value_origin_newbox
         .get(&value)

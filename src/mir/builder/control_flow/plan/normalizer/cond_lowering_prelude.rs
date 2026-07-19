@@ -67,7 +67,7 @@ fn lower_stmt_only_prelude_stmts(
         return Ok((phi_bindings.clone(), Vec::new()));
     }
 
-    let base_var_map = builder.variable_ctx.variable_map.clone();
+    let base_var_map = builder.function_state.variable_ctx.variable_map.clone();
     let mut bindings = phi_bindings.clone();
     let mut effects = Vec::new();
     for stmt in prelude_stmts {
@@ -90,7 +90,11 @@ fn lower_stmt_only_prelude_stmts(
                         error_prefix,
                     )?;
                 bindings.insert(name.clone(), value_id);
-                builder.variable_ctx.variable_map.insert(name, value_id);
+                builder
+                    .function_state
+                    .variable_ctx
+                    .variable_map
+                    .insert(name, value_id);
                 sync_stmt_only_prelude_variable_map(builder, &base_var_map, &bindings);
                 effects.append(&mut stmt_effects);
             }
@@ -104,7 +108,7 @@ fn lower_stmt_only_prelude_stmts(
                     lower_cond_value(builder, &bindings, &cond_view, error_prefix)?;
                 effects.append(&mut cond_effects);
 
-                let branch_base_var_map = builder.variable_ctx.variable_map.clone();
+                let branch_base_var_map = builder.function_state.variable_ctx.variable_map.clone();
                 let (then_bindings, then_effects) = lower_stmt_only_prelude_stmts(
                     builder,
                     &bindings,
@@ -112,7 +116,7 @@ fn lower_stmt_only_prelude_stmts(
                     error_prefix,
                     contract,
                 )?;
-                builder.variable_ctx.variable_map = branch_base_var_map.clone();
+                builder.function_state.variable_ctx.variable_map = branch_base_var_map.clone();
                 let has_else = else_body.is_some();
                 let (else_bindings, else_effects) = if let Some(else_body) = else_body {
                     let lowered = lower_stmt_only_prelude_stmts(
@@ -122,7 +126,7 @@ fn lower_stmt_only_prelude_stmts(
                         error_prefix,
                         contract,
                     )?;
-                    builder.variable_ctx.variable_map = branch_base_var_map;
+                    builder.function_state.variable_ctx.variable_map = branch_base_var_map;
                     lowered
                 } else {
                     (bindings.clone(), Vec::new())
@@ -169,14 +173,18 @@ fn lower_stmt_only_prelude_stmts(
                     if then_id == else_id {
                         if then_id != base_id {
                             bindings.insert(name.clone(), then_id);
-                            builder.variable_ctx.variable_map.insert(name, then_id);
+                            builder
+                                .function_state
+                                .variable_ctx
+                                .variable_map
+                                .insert(name, then_id);
                         }
                         continue;
                     }
 
                     let merged_ty = match (
-                        builder.type_ctx.get_type(then_id).cloned(),
-                        builder.type_ctx.get_type(else_id).cloned(),
+                        builder.function_state.type_ctx.get_type(then_id).cloned(),
+                        builder.function_state.type_ctx.get_type(else_id).cloned(),
                     ) {
                         (Some(then_ty), Some(else_ty)) if then_ty == else_ty => then_ty,
                         (Some(then_ty), None) => then_ty,
@@ -191,7 +199,11 @@ fn lower_stmt_only_prelude_stmts(
                         else_val: else_id,
                     });
                     bindings.insert(name.clone(), merged_id);
-                    builder.variable_ctx.variable_map.insert(name, merged_id);
+                    builder
+                        .function_state
+                        .variable_ctx
+                        .variable_map
+                        .insert(name, merged_id);
                 }
                 sync_stmt_only_prelude_variable_map(builder, &base_var_map, &bindings);
             }
@@ -211,7 +223,11 @@ fn lower_stmt_only_prelude_stmts(
                 )?;
                 for (name, value_id) in inits {
                     bindings.insert(name.clone(), value_id);
-                    builder.variable_ctx.variable_map.insert(name, value_id);
+                    builder
+                        .function_state
+                        .variable_ctx
+                        .variable_map
+                        .insert(name, value_id);
                 }
                 sync_stmt_only_prelude_variable_map(builder, &base_var_map, &bindings);
                 effects.append(&mut stmt_effects);
@@ -288,9 +304,10 @@ fn sync_stmt_only_prelude_variable_map(
     base_var_map: &BTreeMap<String, ValueId>,
     bindings: &BTreeMap<String, ValueId>,
 ) {
-    builder.variable_ctx.variable_map = base_var_map.clone();
+    builder.function_state.variable_ctx.variable_map = base_var_map.clone();
     for (name, value_id) in bindings {
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert(name.clone(), *value_id);

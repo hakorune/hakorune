@@ -59,7 +59,7 @@ pub fn emit_all_block_effects(
     for (block_id, effects) in block_effects {
         builder.start_new_block(*block_id)?;
         let term = builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .and_then(|func| func.get_block(*block_id))
@@ -143,12 +143,16 @@ fn emit_block_effects_strict(
     port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
 ) -> Result<(), String> {
     let mut defined_values = if strict_planner_required {
-        builder.scope_ctx.current_function.as_ref().map(|func| {
-            crate::mir::verification::utils::compute_def_blocks(func)
-                .keys()
-                .copied()
-                .collect::<HashSet<ValueId>>()
-        })
+        builder
+            .function_state
+            .current_function
+            .as_ref()
+            .map(|func| {
+                crate::mir::verification::utils::compute_def_blocks(func)
+                    .keys()
+                    .copied()
+                    .collect::<HashSet<ValueId>>()
+            })
     } else {
         None
     };

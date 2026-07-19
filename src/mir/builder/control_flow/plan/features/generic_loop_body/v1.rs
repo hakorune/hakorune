@@ -38,6 +38,7 @@ pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
     let mut current_bindings = phi_bindings.clone();
     for (name, value_id) in phi_bindings {
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert(name.clone(), *value_id);
@@ -167,6 +168,7 @@ fn lower_body_stmt_v1(
                         unreachable!();
                     };
                     builder
+                        .function_state
                         .variable_ctx
                         .variable_map
                         .insert(name.clone(), value_id);
@@ -183,6 +185,7 @@ fn lower_body_stmt_v1(
             )?;
             if let Some((name, value_id)) = binding {
                 builder
+                    .function_state
                     .variable_ctx
                     .variable_map
                     .insert(name.clone(), value_id);
@@ -211,6 +214,7 @@ fn lower_body_stmt_v1(
                     )? {
                         let name = variables[0].clone();
                         builder
+                            .function_state
                             .variable_ctx
                             .variable_map
                             .insert(name.clone(), value_id);
@@ -228,6 +232,7 @@ fn lower_body_stmt_v1(
             )?;
             for (name, value_id) in inits {
                 builder
+                    .function_state
                     .variable_ctx
                     .variable_map
                     .insert(name.clone(), value_id);
@@ -373,12 +378,12 @@ fn lower_if_stmt_v1(
     }
 
     // Fallback: inline lowering with branch closures
-    let pre_map = builder.variable_ctx.variable_map.clone();
+    let pre_map = builder.function_state.variable_ctx.variable_map.clone();
 
     let mut lower_then =
         |builder: &mut MirBuilder, bindings: &mut BTreeMap<String, crate::mir::ValueId>| {
             let mut then_bindings = bindings.clone();
-            builder.variable_ctx.variable_map = pre_map.clone();
+            builder.function_state.variable_ctx.variable_map = pre_map.clone();
             let plans = lower_body_block_v1(
                 builder,
                 &mut then_bindings,
@@ -399,7 +404,7 @@ fn lower_if_stmt_v1(
                 return Ok(Vec::new());
             };
             let mut else_bindings = bindings.clone();
-            builder.variable_ctx.variable_map = pre_map.clone();
+            builder.function_state.variable_ctx.variable_map = pre_map.clone();
             let plans = lower_body_block_v1(
                 builder,
                 &mut else_bindings,

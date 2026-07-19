@@ -7,7 +7,13 @@ pub(crate) fn prepare_unanimous_origin(
 ) -> Option<String> {
     let mut common_cls: Option<String> = None;
     for (_bb, v) in inputs {
-        if let Some(c) = builder.type_ctx.value_origin_newbox.get(v).cloned() {
+        if let Some(c) = builder
+            .function_state
+            .type_ctx
+            .value_origin_newbox
+            .get(v)
+            .cloned()
+        {
             match &common_cls {
                 None => common_cls = Some(c),
                 Some(cc) => {
@@ -30,6 +36,10 @@ pub(crate) fn commit_unanimous_origin(
     prepared: Option<String>,
 ) {
     if let Some(origin) = prepared {
-        builder.type_ctx.value_origin_newbox.insert(dst, origin);
+        builder
+            .function_state
+            .type_ctx
+            .value_origin_newbox
+            .insert(dst, origin);
     }
 }

@@ -166,6 +166,7 @@ struct BuilderSnapshotV1 {
 
 fn builder_snapshot(builder: &MirBuilder) -> BuilderSnapshotV1 {
     let mut value_types = builder
+        .function_state
         .type_ctx
         .value_types
         .iter()
@@ -173,6 +174,7 @@ fn builder_snapshot(builder: &MirBuilder) -> BuilderSnapshotV1 {
         .collect::<Vec<_>>();
     value_types.sort_by_key(|row| row.0);
     let mut origins = builder
+        .function_state
         .type_ctx
         .value_origin_newbox
         .iter()
@@ -180,6 +182,7 @@ fn builder_snapshot(builder: &MirBuilder) -> BuilderSnapshotV1 {
         .collect::<Vec<_>>();
     origins.sort_by_key(|row| row.0);
     let mut variables = builder
+        .function_state
         .variable_ctx
         .variable_map
         .iter()
@@ -409,8 +412,8 @@ fn raw_facade_and_raw_port_are_exactly_equivalent() {
         .iter()
         .all(|source| *source == CoreCallSourceV1::Unlocated));
 
-    let array = facade_builder.variable_ctx.variable_map["arr"];
-    let index = facade_builder.variable_ctx.variable_map["idx"];
+    let array = facade_builder.function_state.variable_ctx.variable_map["arr"];
+    let index = facade_builder.function_state.variable_ctx.variable_map["idx"];
     let shapes = call_shapes(&facade_effects);
     let inner_result = match &shapes[0] {
         CallShapeV1::Method {
@@ -443,11 +446,17 @@ fn raw_facade_and_raw_port_are_exactly_equivalent() {
             && args.is_empty()
     ));
     assert_eq!(
-        facade_builder.type_ctx.get_type(inner_result),
+        facade_builder
+            .function_state
+            .type_ctx
+            .get_type(inner_result),
         Some(&MirType::Unknown)
     );
     assert_eq!(
-        facade_builder.type_ctx.get_type(facade_result),
+        facade_builder
+            .function_state
+            .type_ctx
+            .get_type(facade_result),
         Some(&MirType::Unknown)
     );
     assert_eq!(

@@ -27,7 +27,7 @@ pub(super) fn define_phi_batch_prepend(
     type_rows.sort_by_key(|(dst, _)| *dst);
 
     let mut candidate = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("batch preflight sealed current function")
@@ -57,8 +57,8 @@ pub(super) fn define_phi_batch_prepend(
     if crate::config::env::joinir_dev::debug_enabled() {
         let caller = std::panic::Location::caller();
         for (dst, _) in &type_rows {
-            builder.metadata_ctx.record_value_caller(*dst, caller);
-            if let Some(location) = builder.metadata_ctx.value_caller(*dst) {
+            builder.record_value_origin_caller(*dst, caller);
+            if let Some(location) = builder.value_origin_caller(*dst) {
                 candidate
                     .metadata
                     .value_origin_callers
@@ -76,7 +76,7 @@ pub(super) fn define_phi_batch_prepend(
     }
 
     *builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_mut()
         .expect("batch preflight sealed current function") = candidate;
@@ -92,7 +92,7 @@ fn preflight(
     items: &[PhiBatchItem],
     tag: &str,
 ) -> Result<(), String> {
-    let function = builder.scope_ctx.current_function.as_ref().ok_or_else(|| {
+    let function = builder.function_state.current_function.as_ref().ok_or_else(|| {
         format!(
             "[freeze:contract][phi_lifecycle/batch_prepend_no_function] tag={tag} No current function"
         )

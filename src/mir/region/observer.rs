@@ -37,11 +37,9 @@ pub fn observe_control_form(builder: &mut MirBuilder, form: &ControlForm) {
     }
 
     let func_name = builder
-        .scope_ctx
-        .current_function
-        .as_ref()
-        .map(|f| f.signature.name.as_str())
-        .unwrap_or("<unknown>");
+        .current_function_name()
+        .unwrap_or("<unknown>")
+        .to_string();
 
     // dev 用フィルタ: Stage‑B 周辺を優先的に見る（必要なら将来拡張）。
     // ここでは "StageB" を含む関数だけログする。
@@ -96,11 +94,9 @@ pub fn observe_function_region(builder: &mut MirBuilder) {
     }
 
     let func_name = builder
-        .scope_ctx
-        .current_function
-        .as_ref()
-        .map(|f| f.signature.name.as_str())
-        .unwrap_or("<unknown>");
+        .current_function_name()
+        .unwrap_or("<unknown>")
+        .to_string();
 
     // まずは Stage‑B 系だけを対象にしてログ量を抑えるよ。
     if !func_name.contains("StageB") {
@@ -110,10 +106,7 @@ pub fn observe_function_region(builder: &mut MirBuilder) {
     let id = RegionId(NEXT_REGION_ID.fetch_add(1, Ordering::Relaxed));
 
     let entry_block = builder
-        .scope_ctx
-        .current_function
-        .as_ref()
-        .map(|f| f.entry_block)
+        .current_function_entry_block()
         .unwrap_or_else(|| crate::mir::BasicBlockId::new(0));
 
     let region = Region {
@@ -171,18 +164,15 @@ fn classify_slots_from_registry(reg: &mut FunctionSlotRegistry) -> Vec<SlotMetad
 
 fn classify_slots_from_variable_map(builder: &MirBuilder) -> Vec<SlotMetadata> {
     let mut slots = Vec::new();
-    for (name, &vid) in builder.variable_ctx.variable_map().iter() {
+    for (name, vid) in builder.variable_bindings() {
         let ref_kind = classify_slot(builder, vid, name.as_str());
-        slots.push(SlotMetadata {
-            name: name.clone(),
-            ref_kind,
-        });
+        slots.push(SlotMetadata { name, ref_kind });
     }
     slots
 }
 
 fn classify_slot(builder: &MirBuilder, v: ValueId, name: &str) -> RefSlotKind {
-    if let Some(ty) = builder.type_ctx.value_types.get(&v) {
+    if let Some(ty) = builder.value_type(v) {
         return Region::classify_ref_kind(ty);
     }
 

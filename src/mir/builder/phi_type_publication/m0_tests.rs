@@ -75,13 +75,15 @@ fn timing_builder() -> (MirBuilder, PhiTimingIds) {
     function.update_cfg();
 
     let mut builder = MirBuilder::new();
-    builder.scope_ctx.current_function = Some(function);
-    builder.current_block = Some(merge_block);
+    builder.function_state.current_function = Some(function);
+    builder.function_state.current_block = Some(merge_block);
     builder
+        .function_state
         .type_ctx
         .value_types
         .insert(receiver, MirType::Box(OWNER.to_string()));
     builder
+        .function_state
         .type_ctx
         .value_origin_newbox
         .insert(receiver, OWNER.to_string());
@@ -108,7 +110,7 @@ fn logical_inputs(ids: PhiTimingIds) -> Vec<(BasicBlockId, ValueId)> {
 
 fn phi_inputs(builder: &MirBuilder, ids: PhiTimingIds) -> Vec<(BasicBlockId, ValueId)> {
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -136,11 +138,14 @@ fn phi_type_publication_i0_connects_exactly_the_four_builder_completion_shapes()
     let (mut raw, ids) = timing_builder();
     raw.emit_instruction(raw_phi(ids)).unwrap();
     assert_eq!(
-        raw.type_ctx.value_types.get(&ids.phi),
+        raw.function_state.type_ctx.value_types.get(&ids.phi),
         Some(&MirType::Box(OWNER.to_string()))
     );
     assert_eq!(
-        raw.type_ctx.value_origin_newbox.get(&ids.phi),
+        raw.function_state
+            .type_ctx
+            .value_origin_newbox
+            .get(&ids.phi),
         Some(&OWNER.to_string())
     );
 
@@ -155,11 +160,19 @@ fn phi_type_publication_i0_connects_exactly_the_four_builder_completion_shapes()
     )
     .unwrap();
     assert_eq!(
-        final_builder.type_ctx.value_types.get(&ids.phi),
+        final_builder
+            .function_state
+            .type_ctx
+            .value_types
+            .get(&ids.phi),
         Some(&MirType::Box(OWNER.to_string()))
     );
     assert_eq!(
-        final_builder.type_ctx.value_origin_newbox.get(&ids.phi),
+        final_builder
+            .function_state
+            .type_ctx
+            .value_origin_newbox
+            .get(&ids.phi),
         None
     );
 
@@ -173,9 +186,20 @@ fn phi_type_publication_i0_connects_exactly_the_four_builder_completion_shapes()
             "type-publish0-m0-provisional",
         )
         .unwrap();
-    assert_eq!(patch_builder.type_ctx.value_types.get(&ids.phi), None);
     assert_eq!(
-        patch_builder.type_ctx.value_origin_newbox.get(&ids.phi),
+        patch_builder
+            .function_state
+            .type_ctx
+            .value_types
+            .get(&ids.phi),
+        None
+    );
+    assert_eq!(
+        patch_builder
+            .function_state
+            .type_ctx
+            .value_origin_newbox
+            .get(&ids.phi),
         None
     );
     transaction
@@ -187,7 +211,11 @@ fn phi_type_publication_i0_connects_exactly_the_four_builder_completion_shapes()
         )
         .unwrap();
     assert_eq!(
-        patch_builder.type_ctx.value_types.get(&ids.phi),
+        patch_builder
+            .function_state
+            .type_ctx
+            .value_types
+            .get(&ids.phi),
         Some(&MirType::Box(OWNER.to_string()))
     );
 
@@ -206,11 +234,19 @@ fn phi_type_publication_i0_connects_exactly_the_four_builder_completion_shapes()
     )
     .unwrap();
     assert_eq!(
-        batch_builder.type_ctx.value_types.get(&ids.phi),
+        batch_builder
+            .function_state
+            .type_ctx
+            .value_types
+            .get(&ids.phi),
         Some(&MirType::Box(OWNER.to_string()))
     );
     assert_eq!(
-        batch_builder.type_ctx.value_origin_newbox.get(&ids.phi),
+        batch_builder
+            .function_state
+            .type_ctx
+            .value_origin_newbox
+            .get(&ids.phi),
         None
     );
 }
@@ -230,18 +266,18 @@ fn phi_type_publication_i0_is_visible_to_the_immediate_local_copy() {
     .unwrap();
     assert_eq!(phi_inputs(&builder, ids), logical);
     assert_eq!(
-        builder.type_ctx.value_types.get(&ids.phi),
+        builder.function_state.type_ctx.value_types.get(&ids.phi),
         Some(&MirType::Box(OWNER.to_string()))
     );
 
-    builder.current_block = Some(ids.consumer_block);
+    builder.function_state.current_block = Some(ids.consumer_block);
     let copy = local::field_base(&mut builder, ids.phi);
     assert_ne!(copy, ids.phi);
     assert_eq!(
-        builder.type_ctx.value_types.get(&copy),
+        builder.function_state.type_ctx.value_types.get(&copy),
         Some(&MirType::Box(OWNER.to_string()))
     );
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
     assert!(function
         .get_block(ids.consumer_block)
         .unwrap()
@@ -250,8 +286,22 @@ fn phi_type_publication_i0_is_visible_to_the_immediate_local_copy() {
         .any(|instruction| matches!(instruction, MirInstruction::Copy { dst, src } if *dst == copy && *src == ids.phi)));
     assert_eq!(function.metadata.value_types.get(&ids.phi), None);
     assert_eq!(function.metadata.value_types.get(&copy), None);
-    assert_eq!(builder.type_ctx.value_origin_newbox.get(&ids.phi), None);
-    assert_eq!(builder.type_ctx.value_origin_newbox.get(&copy), None);
+    assert_eq!(
+        builder
+            .function_state
+            .type_ctx
+            .value_origin_newbox
+            .get(&ids.phi),
+        None
+    );
+    assert_eq!(
+        builder
+            .function_state
+            .type_ctx
+            .value_origin_newbox
+            .get(&copy),
+        None
+    );
 }
 
 #[test]
@@ -259,11 +309,14 @@ fn phi_type_publication_i0_conflicts_precede_single_phi_mutation() {
     let expected = MirType::String;
 
     let (mut raw, ids) = timing_builder();
-    raw.type_ctx.value_types.insert(ids.phi, expected.clone());
+    raw.function_state
+        .type_ctx
+        .value_types
+        .insert(ids.phi, expected.clone());
     let error = raw.emit_instruction(raw_phi(ids)).unwrap_err();
     assert!(error.contains("phi_type_publication/concrete_fact_conflict"));
     assert!(raw
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -271,11 +324,21 @@ fn phi_type_publication_i0_conflicts_precede_single_phi_mutation() {
         .unwrap()
         .instructions
         .is_empty());
-    assert_eq!(raw.type_ctx.value_types.get(&ids.phi), Some(&expected));
-    assert_eq!(raw.type_ctx.value_origin_newbox.get(&ids.phi), None);
+    assert_eq!(
+        raw.function_state.type_ctx.value_types.get(&ids.phi),
+        Some(&expected)
+    );
+    assert_eq!(
+        raw.function_state
+            .type_ctx
+            .value_origin_newbox
+            .get(&ids.phi),
+        None
+    );
 
     let (mut final_builder, ids) = timing_builder();
     final_builder
+        .function_state
         .type_ctx
         .value_types
         .insert(ids.phi, expected.clone());
@@ -290,7 +353,7 @@ fn phi_type_publication_i0_conflicts_precede_single_phi_mutation() {
     .unwrap_err();
     assert!(error.contains("phi_type_publication/concrete_fact_conflict"));
     assert!(final_builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -299,7 +362,11 @@ fn phi_type_publication_i0_conflicts_precede_single_phi_mutation() {
         .instructions
         .is_empty());
     assert_eq!(
-        final_builder.type_ctx.value_types.get(&ids.phi),
+        final_builder
+            .function_state
+            .type_ctx
+            .value_types
+            .get(&ids.phi),
         Some(&expected)
     );
 
@@ -314,6 +381,7 @@ fn phi_type_publication_i0_conflicts_precede_single_phi_mutation() {
         )
         .unwrap();
     patch_builder
+        .function_state
         .type_ctx
         .value_types
         .insert(ids.phi, expected.clone());
@@ -328,7 +396,11 @@ fn phi_type_publication_i0_conflicts_precede_single_phi_mutation() {
     assert!(error.contains("phi_type_publication/concrete_fact_conflict"));
     assert!(phi_inputs(&patch_builder, ids).is_empty());
     assert_eq!(
-        patch_builder.type_ctx.value_types.get(&ids.phi),
+        patch_builder
+            .function_state
+            .type_ctx
+            .value_types
+            .get(&ids.phi),
         Some(&expected)
     );
 }
@@ -337,17 +409,26 @@ fn phi_type_publication_i0_conflicts_precede_single_phi_mutation() {
 fn phi_type_publication_i0_batch_conflict_is_instruction_and_type_atomic() {
     let (mut builder, ids) = timing_builder();
     let second = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_mut()
         .unwrap()
         .next_value_id();
-    builder.type_ctx.value_types.insert(second, MirType::String);
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(second, MirType::String);
     let before_function = format!(
         "{:?}",
-        builder.scope_ctx.current_function.as_ref().unwrap().blocks
+        builder
+            .function_state
+            .current_function
+            .as_ref()
+            .unwrap()
+            .blocks
     );
-    let before_types = builder.type_ctx.value_types.clone();
+    let before_types = builder.function_state.type_ctx.value_types.clone();
 
     let error = phi_lifecycle::define_phi_batch_prepend(
         &mut builder,
@@ -376,9 +457,14 @@ fn phi_type_publication_i0_batch_conflict_is_instruction_and_type_atomic() {
     assert_eq!(
         format!(
             "{:?}",
-            builder.scope_ctx.current_function.as_ref().unwrap().blocks
+            builder
+                .function_state
+                .current_function
+                .as_ref()
+                .unwrap()
+                .blocks
         ),
         before_function
     );
-    assert_eq!(builder.type_ctx.value_types, before_types);
+    assert_eq!(builder.function_state.type_ctx.value_types, before_types);
 }

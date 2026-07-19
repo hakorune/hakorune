@@ -155,7 +155,7 @@ pub(crate) fn run_block_suffix_parity_reference_v1<'plan>(
     };
 
     let function = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("parity reference current function");
@@ -183,8 +183,8 @@ pub(crate) fn run_block_suffix_parity_reference_v1<'plan>(
         route_demand_indices,
         lowered_indices,
         instruction_count,
-        lexical_scope_depth: builder.scope_ctx.lexical_scope_stack.len(),
-        current_block: builder.current_block,
+        lexical_scope_depth: builder.function_state.scope.lexical_scope_stack.len(),
+        current_block: builder.function_state.current_block,
         entry_block: function.entry_block,
         next_value_id: function.next_value_id,
         blocks,

@@ -28,7 +28,7 @@ pub(in crate::mir::builder) fn collect_from_body(body: &[ASTNode]) -> CarrierSet
 
 /// Collect outer carrier vars from AST body (SSOT entry).
 ///
-/// "outer" = builder.variable_ctx.variable_map に既に存在する変数のみ収集。
+/// "outer" = builder.function_state.variable_ctx.variable_map に既に存在する変数のみ収集。
 pub(in crate::mir::builder) fn collect_outer_from_body(
     builder: &MirBuilder,
     body: &[ASTNode],
@@ -52,7 +52,12 @@ fn collect_outer_carrier_vars_impl(builder: &MirBuilder, body: &[ASTNode]) -> Ve
                 let ASTNode::Variable { name, .. } = target.as_ref() else {
                     return;
                 };
-                if builder.variable_ctx.variable_map.contains_key(name) {
+                if builder
+                    .function_state
+                    .variable_ctx
+                    .variable_map
+                    .contains_key(name)
+                {
                     carriers.insert(name.clone(), ());
                 }
             }

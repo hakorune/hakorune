@@ -46,10 +46,14 @@ pub(in crate::mir::builder) fn lower_me_this_method_effect(
     missing_me_error: String,
     missing_this_error: String,
 ) -> Result<CoreEffectPlan, String> {
-    let bound_me = phi_bindings
-        .get("me")
-        .copied()
-        .or_else(|| builder.variable_ctx.variable_map.get("me").copied());
+    let bound_me = phi_bindings.get("me").copied().or_else(|| {
+        builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .get("me")
+            .copied()
+    });
 
     match receiver {
         ASTNode::Me { .. } => {

@@ -95,7 +95,7 @@ pub(in crate::mir::builder) fn merge_joinir_mir_blocks(
     // Phase 286 P3: Validate boundary contract BEFORE merge begins
     if let Some(boundary) = boundary {
         let host_fn = builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .map(|f| f.signature.name.as_str())

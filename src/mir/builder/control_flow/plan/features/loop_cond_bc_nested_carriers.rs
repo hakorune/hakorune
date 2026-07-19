@@ -46,6 +46,7 @@ pub(super) fn extend_nested_loop_carriers(
             continue; // value unchanged
         }
         let ty = builder
+            .function_state
             .type_ctx
             .get_type(init_val)
             .cloned()

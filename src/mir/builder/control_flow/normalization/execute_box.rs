@@ -187,6 +187,7 @@ impl NormalizationExecuteBox {
             .map(|(carrier_name, join_exit_value)| {
                 // Get host_slot from variable_map
                 let host_slot = builder
+                    .function_state
                     .variable_ctx
                     .variable_map
                     .get(carrier_name)
@@ -195,7 +196,12 @@ impl NormalizationExecuteBox {
                         panic!(
                             "[Phase 134 P0] Carrier '{}' not in variable_map (available: {:?})",
                             carrier_name,
-                            builder.variable_ctx.variable_map.keys().collect::<Vec<_>>()
+                            builder
+                                .function_state
+                                .variable_ctx
+                                .variable_map
+                                .keys()
+                                .collect::<Vec<_>>()
                         )
                     });
 

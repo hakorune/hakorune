@@ -92,7 +92,7 @@ fn lower_pre_i0_reference(
 
 fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> ShortCircuitParitySnapshotV1 {
     let function = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("current SC0-P0 function");
@@ -104,6 +104,7 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> ShortCircu
     blocks.sort_by_key(|(id, _, _)| *id);
 
     let mut value_kinds = builder
+        .function_state
         .type_ctx
         .value_kinds
         .iter()
@@ -112,6 +113,7 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> ShortCircu
     value_kinds.sort_by_key(|(value, _)| *value);
 
     let mut pin_slots = builder
+        .function_state
         .pin_slot_names
         .iter()
         .map(|(value, name)| (*value, name.clone()))
@@ -122,6 +124,7 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> ShortCircu
         result,
         blocks,
         value_types: builder
+            .function_state
             .type_ctx
             .value_types
             .iter()
@@ -129,19 +132,21 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> ShortCircu
             .collect(),
         value_kinds,
         value_origins: builder
+            .function_state
             .type_ctx
             .value_origin_newbox
             .iter()
             .map(|(value, owner)| (*value, owner.clone()))
             .collect(),
         variable_map: builder
+            .function_state
             .variable_ctx
             .variable_map
             .iter()
             .map(|(name, value)| (name.clone(), *value))
             .collect(),
         pin_slots,
-        current_block: builder.current_block,
+        current_block: builder.function_state.current_block,
         next_value_id: function.next_value_id,
         recursion_depth: builder.recursion_depth,
     }

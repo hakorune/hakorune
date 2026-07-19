@@ -37,8 +37,8 @@ fn normalized(
     NormalizedRawLoweringV1 {
         plans: format!("{plans:#?}"),
         current_bindings: current_bindings.clone(),
-        variable_map: builder.variable_ctx.variable_map.clone(),
-        value_types: builder.type_ctx.value_types.clone(),
+        variable_map: builder.function_state.variable_ctx.variable_map.clone(),
+        value_types: builder.function_state.type_ctx.value_types.clone(),
         exits_on_all_paths: plans_exit_on_all_paths(plans),
     }
 }
@@ -231,7 +231,11 @@ fn raw_exit_only_facade_matches_associated_block_driver() {
         Some(CorePlan::Exit(CoreExitPlan::Return(Some(_))))
     ));
     assert!(driver_bindings.is_empty());
-    assert!(driver_builder.variable_ctx.variable_map.is_empty());
+    assert!(driver_builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .is_empty());
 }
 
 #[test]
@@ -289,7 +293,11 @@ fn raw_exit_allowed_facade_matches_associated_block_driver() {
         .is_some_and(|plans| !plans_exit_on_all_paths(plans)));
     assert!(if_plan.joins.is_empty());
     assert!(driver_bindings.is_empty());
-    assert!(driver_builder.variable_ctx.variable_map.is_empty());
+    assert!(driver_builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .is_empty());
 }
 
 #[test]
@@ -306,7 +314,11 @@ fn raw_no_exit_join_facade_matches_associated_block_driver() {
         Vec::new(),
     )
     .expect("seed facade binding");
-    let mut facade_bindings = facade_builder.variable_ctx.variable_map.clone();
+    let mut facade_bindings = facade_builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .clone();
     let facade_plans = entry::lower_no_exit_block(
         &mut facade_builder,
         &mut facade_bindings,
@@ -327,7 +339,11 @@ fn raw_no_exit_join_facade_matches_associated_block_driver() {
         Vec::new(),
     )
     .expect("seed driver binding");
-    let mut driver_bindings = driver_builder.variable_ctx.variable_map.clone();
+    let mut driver_bindings = driver_builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .clone();
     let mut make_lower_stmt = || -> BoxedLowerStmtFn<'_> {
         Box::new(
             |builder, bindings, carrier_step_phis, break_phi_dsts, stmt, error_prefix| {
@@ -375,7 +391,11 @@ fn raw_no_exit_join_facade_matches_associated_block_driver() {
     assert_eq!(if_plan.joins[0].name, "value");
     assert_eq!(driver_bindings.get("value"), Some(&if_plan.joins[0].dst));
     assert_eq!(
-        driver_builder.variable_ctx.variable_map.get("value"),
+        driver_builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .get("value"),
         Some(&if_plan.joins[0].dst)
     );
 }
@@ -434,11 +454,19 @@ fn raw_stmt_only_facade_matches_associated_block_driver_and_golden_state() {
         .copied()
         .expect("stmt-only golden state publishes local binding");
     assert_eq!(
-        driver_builder.variable_ctx.variable_map.get("item"),
+        driver_builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .get("item"),
         Some(&item)
     );
     assert_eq!(
-        driver_builder.type_ctx.value_types.get(&item),
+        driver_builder
+            .function_state
+            .type_ctx
+            .value_types
+            .get(&item),
         Some(&MirType::Integer)
     );
 }

@@ -66,6 +66,7 @@ pub(super) fn prebuild_header_phis(
 
             // Get host's current block as the entry edge
             let _host_entry_block = builder
+                .function_state
                 .current_block
                 .ok_or("Phase 287 P0.4: No current block when building header PHIs")?;
 
@@ -176,13 +177,13 @@ pub(super) fn prebuild_header_phis(
     }
 
     // Set reserved IDs in MirBuilder so next_value_id() skips them
-    builder.comp_ctx.reserved_value_ids = reserved_value_ids.clone();
+    builder.function_state.compilation.reserved_value_ids = reserved_value_ids.clone();
     trace.stderr_if(
         &format!(
-            "[cf_loop/joinir] Phase 287 P0.4: Set builder.comp_ctx.reserved_value_ids = {:?}",
-            builder.comp_ctx.reserved_value_ids
+            "[cf_loop/joinir] Phase 287 P0.4: Set builder.function_state.compilation.reserved_value_ids = {:?}",
+            builder.function_state.compilation.reserved_value_ids
         ),
-        debug && !builder.comp_ctx.reserved_value_ids.is_empty(),
+        debug && !builder.function_state.compilation.reserved_value_ids.is_empty(),
     );
 
     Ok((loop_header_phi_info, merge_entry_block, reserved_value_ids))

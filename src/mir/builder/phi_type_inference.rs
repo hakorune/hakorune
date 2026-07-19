@@ -90,7 +90,7 @@ pub(super) fn infer_return_type_from_phi(
     for (_bid, bb) in function.blocks.iter() {
         // Phase 82-5: instructions scan removed, check terminator Return only
         if let Some(super::MirInstruction::Return { value: Some(v) }) = &bb.terminator {
-            if let Some(mt) = builder.type_ctx.value_types.get(v).cloned() {
+            if let Some(mt) = builder.function_state.type_ctx.value_types.get(v).cloned() {
                 inferred = Some(mt);
                 break;
             }
@@ -109,7 +109,7 @@ pub(super) fn infer_return_type_from_phi(
                 if let Some(mt) = MethodReturnHintBox::resolve_for_return(
                     &function,
                     *v,
-                    &builder.type_ctx.value_types,
+                    &builder.function_state.type_ctx.value_types,
                 ) {
                     if crate::config::env::builder_p3d_debug() {
                         crate::runtime::get_global_ring0().log.debug(&format!(
@@ -126,7 +126,8 @@ pub(super) fn infer_return_type_from_phi(
             // DFS explores PHI + Copy small graph and returns only if converged to 1 type.
             // This resolves type inference after Loop edge copy / If merge.
             if hint.is_none() {
-                let phi_resolver = PhiTypeResolver::new(&function, &builder.type_ctx.value_types);
+                let phi_resolver =
+                    PhiTypeResolver::new(&function, &builder.function_state.type_ctx.value_types);
                 if let Some(mt) = phi_resolver.resolve(*v) {
                     if crate::config::env::builder_p4_debug() {
                         crate::runtime::get_global_ring0().log.debug(&format!(
@@ -143,7 +144,7 @@ pub(super) fn infer_return_type_from_phi(
                 if let Some(mt) = GenericTypeResolver::resolve_from_phi(
                     &function,
                     *v,
-                    &builder.type_ctx.value_types,
+                    &builder.function_state.type_ctx.value_types,
                 ) {
                     if crate::config::env::builder_p3c_debug() {
                         crate::runtime::get_global_ring0().log.debug(&format!(

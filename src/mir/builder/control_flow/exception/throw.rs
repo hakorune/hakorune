@@ -18,7 +18,7 @@ pub(in crate::mir::builder) fn cf_throw(
     builder: &mut super::super::super::MirBuilder,
     expression: ASTNode,
 ) -> Result<ValueId, String> {
-    if builder.in_cleanup_block && !builder.cleanup_allow_throw {
+    if builder.function_state.in_cleanup_block && !builder.function_state.cleanup_allow_throw {
         return Err("throw is not allowed inside cleanup block (enable NYASH_CLEANUP_ALLOW_THROW=1 to permit)".to_string());
     }
     if crate::config::env::builder_disable_throw() {

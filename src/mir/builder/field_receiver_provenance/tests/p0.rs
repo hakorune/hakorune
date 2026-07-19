@@ -210,7 +210,12 @@ fn p0_rejects_static_param_missing_type_and_mismatched_type() {
 
     let mut missing = FixtureV1::new();
     let missing_seed = missing.add_copy(0, missing.receiver());
-    missing.builder.type_ctx.value_types.remove(&missing_seed);
+    missing
+        .builder
+        .function_state
+        .type_ctx
+        .value_types
+        .remove(&missing_seed);
     assert_error(
         missing.verify(missing_seed),
         SameRootReceiverProofErrorV1::SeedTypeMissing,

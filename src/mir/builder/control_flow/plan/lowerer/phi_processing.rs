@@ -211,24 +211,25 @@ pub fn validate_no_unpatched_phis(
 
     let strict_or_dev = joinir_dev::strict_enabled() || crate::config::env::joinir_dev_enabled();
     if strict_or_dev && joinir_dev::planner_required_enabled() {
-        let (fn_name, unpatched) = if let Some(func) = builder.scope_ctx.current_function.as_ref() {
-            let mut unpatched: Vec<(ValueId, BasicBlockId, String)> = Vec::new();
-            for &(phi_dst, phi_bb, ref phi_tag) in provisional_phis {
-                let Some(block) = func.get_block(phi_bb) else {
-                    continue;
-                };
-                let has_empty_inputs = block.instructions.iter().any(|inst| {
-                    matches!(inst, crate::mir::MirInstruction::Phi { dst, inputs, .. }
+        let (fn_name, unpatched) =
+            if let Some(func) = builder.function_state.current_function.as_ref() {
+                let mut unpatched: Vec<(ValueId, BasicBlockId, String)> = Vec::new();
+                for &(phi_dst, phi_bb, ref phi_tag) in provisional_phis {
+                    let Some(block) = func.get_block(phi_bb) else {
+                        continue;
+                    };
+                    let has_empty_inputs = block.instructions.iter().any(|inst| {
+                        matches!(inst, crate::mir::MirInstruction::Phi { dst, inputs, .. }
                         if *dst == phi_dst && inputs.is_empty())
-                });
-                if has_empty_inputs {
-                    unpatched.push((phi_dst, phi_bb, phi_tag.clone()));
+                    });
+                    if has_empty_inputs {
+                        unpatched.push((phi_dst, phi_bb, phi_tag.clone()));
+                    }
                 }
-            }
-            (func.signature.name.clone(), unpatched)
-        } else {
-            return Ok(());
-        };
+                (func.signature.name.clone(), unpatched)
+            } else {
+                return Ok(());
+            };
 
         if !unpatched.is_empty() {
             let (rollback_count, rollback_err) =
@@ -270,7 +271,7 @@ pub fn validate_no_unpatched_phis_after_patch(
         return Ok(());
     }
 
-    let Some(func) = builder.scope_ctx.current_function.as_ref() else {
+    let Some(func) = builder.function_state.current_function.as_ref() else {
         return Ok(());
     };
 

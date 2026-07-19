@@ -79,6 +79,7 @@ impl super::MirBuilder {
     ) -> Result<ValueId, String> {
         let region = self.current_fastmem_region();
         let receiver_box_name = self
+            .function_state
             .type_ctx
             .value_origin_newbox
             .get(&object_value)
@@ -117,7 +118,8 @@ impl super::MirBuilder {
                 Some(crate::mir::instruction::MemOpAccess::field(field.clone())),
             )?;
             if declared_type.is_none() {
-                self.type_ctx
+                self.function_state
+                    .type_ctx
                     .value_types
                     .insert(field_val, crate::mir::MirType::Integer);
             }
@@ -160,6 +162,7 @@ impl super::MirBuilder {
     ) -> Result<ValueId, String> {
         let region = region.or_else(|| self.current_fastmem_region());
         let receiver_box_name = self
+            .function_state
             .type_ctx
             .value_origin_newbox
             .get(&object_value)
@@ -190,9 +193,13 @@ impl super::MirBuilder {
         if let Some((box_name, field_index, declared_name)) =
             self.declared_field_contract_identity(object_value, &field)
         {
-            let function = self.scope_ctx.current_function.as_mut().ok_or_else(|| {
-                "[type/typed_array_contract_carrier_missing] function=<none>".to_string()
-            })?;
+            let function = self
+                .function_state
+                .current_function
+                .as_mut()
+                .ok_or_else(|| {
+                    "[type/typed_array_contract_carrier_missing] function=<none>".to_string()
+                })?;
             let contract_id = crate::mir::type_contracts::typed_array::register_instruction_source(
                 function,
                 crate::mir::function::TypedArrayContractBoundary::BoxFieldWrite,
@@ -238,6 +245,7 @@ impl super::MirBuilder {
 
         // Record origin class for this field value if known
         if let Some(val_cls) = self
+            .function_state
             .type_ctx
             .value_origin_newbox
             .get(&value_result)
@@ -248,6 +256,7 @@ impl super::MirBuilder {
                 .insert((object_value, field.clone()), val_cls.clone());
             // Also record class-level mapping if base object class is known
             if let Some(base_cls) = self
+                .function_state
                 .type_ctx
                 .value_origin_newbox
                 .get(&object_value)
@@ -322,7 +331,7 @@ mod tests {
         ];
 
         super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
-        let function = builder.scope_ctx.current_function.as_ref().unwrap();
+        let function = builder.function_state.current_function.as_ref().unwrap();
 
         assert_eq!(function.metadata.fastmem_field_access_sites.len(), 2);
         assert!(function

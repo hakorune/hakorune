@@ -13,7 +13,8 @@ impl super::super::MirBuilder {
         let dst = self.next_value_id();
 
         // Phase 285A1: Track WeakRef type (even in pure mode)
-        self.type_ctx
+        self.function_state
+            .type_ctx
             .value_types
             .insert(dst, crate::mir::types::MirType::WeakRef);
 

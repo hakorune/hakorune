@@ -22,7 +22,7 @@ fn builder_with_blocks() -> MirBuilder {
     );
     function.add_block(BasicBlock::new(block(1)));
     function.add_block(BasicBlock::new(block(2)));
-    builder.scope_ctx.current_function = Some(function);
+    builder.function_state.current_function = Some(function);
     builder
 }
 
@@ -36,9 +36,7 @@ fn define_two(builder: &mut MirBuilder) -> PhiTxn {
 }
 
 fn has_phi(builder: &MirBuilder, block: BasicBlockId, dst: ValueId) -> bool {
-    builder
-        .scope_ctx
-        .current_function
+    builder.function_state.current_function
         .as_ref()
         .and_then(|function| function.get_block(block))
         .is_some_and(|block| {
@@ -71,7 +69,7 @@ fn rollback_continues_after_one_pending_block_was_removed() {
     let mut builder = builder_with_blocks();
     let txn = define_two(&mut builder);
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_mut()
         .unwrap()
@@ -94,7 +92,7 @@ fn rollback_continues_after_one_pending_block_was_removed() {
 fn abort_retains_every_cleanup_failure_with_the_primary_error() {
     let mut builder = builder_with_blocks();
     let txn = define_two(&mut builder);
-    let discarded_draft = builder.scope_ctx.current_function.take().unwrap();
+    let discarded_draft = builder.function_state.current_function.take().unwrap();
 
     let error = abort(txn, &mut builder);
 
@@ -106,7 +104,7 @@ fn abort_retains_every_cleanup_failure_with_the_primary_error() {
         .iter()
         .all(|failure| failure.error().contains("rollback_no_function")));
     assert!(error.to_string().contains("cleanup_failure_count=2"));
-    assert!(builder.scope_ctx.current_function.is_none());
+    assert!(builder.function_state.current_function.is_none());
     drop(discarded_draft);
 }
 
@@ -150,7 +148,7 @@ fn missing_provisional_phi_is_retained_as_a_cleanup_failure() {
     txn.define_provisional_phi(&mut builder, block(1), ValueId::new(10), "define")
         .unwrap();
     let target = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_mut()
         .unwrap()

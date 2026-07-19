@@ -59,12 +59,12 @@ fn check_non_dominating_use(
     if !crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
         return Ok(());
     }
-    let bb = match builder.current_block {
+    let bb = match builder.function_state.current_block {
         Some(bb) => bb,
         None => return Ok(()),
     };
     let (func_name, def_block_opt, def_kind, phi_inputs_opt) = {
-        let Some(func) = builder.scope_ctx.current_function.as_ref() else {
+        let Some(func) = builder.function_state.current_function.as_ref() else {
             return Ok(());
         };
         let func_name = func.signature.name.clone();
@@ -103,7 +103,7 @@ fn check_non_dominating_use(
         return Ok(());
     }
 
-    let Some(func) = builder.scope_ctx.current_function.as_ref() else {
+    let Some(func) = builder.function_state.current_function.as_ref() else {
         return Ok(());
     };
     let Some(phi_def_bb) = def_block_opt else {
@@ -130,7 +130,7 @@ pub fn finalize_args(builder: &mut MirBuilder, args: &mut Vec<ValueId>) -> Resul
                 Err(e) => {
                     if crate::config::env::joinir_dev::debug_enabled() {
                         let (fn_name, params, entry) = builder
-                            .scope_ctx
+                            .function_state
                             .current_function
                             .as_ref()
                             .map(|f| {
@@ -146,7 +146,7 @@ pub fn finalize_args(builder: &mut MirBuilder, args: &mut Vec<ValueId>) -> Resul
                         ring0.log.debug(&format!(
                             "[local-ssa/arg-context] fn={} bb={:?} kind=Arg v=%{} args={} params={} entry={:?}",
                             fn_name,
-                            builder.current_block,
+                            builder.function_state.current_block,
                             a.0,
                             args_list.as_deref().unwrap_or("[]"),
                             params_list,
@@ -172,7 +172,7 @@ pub fn finalize_branch_cond(
     check_non_dominating_use(builder, *condition_v, "Cond")?;
     *condition_v = super::cond(builder, *condition_v);
     if crate::config::env::builder_local_ssa_trace() {
-        if let Some(bb) = builder.current_block {
+        if let Some(bb) = builder.function_state.current_block {
             let ring0 = crate::runtime::get_global_ring0();
             ring0.log.debug(&format!(
                 "[local-ssa] finalize-branch bb={:?} cond=%{}",
@@ -195,7 +195,7 @@ pub fn finalize_compare(
     *lhs = cmp_operand(builder, *lhs);
     *rhs = cmp_operand(builder, *rhs);
     if crate::config::env::builder_local_ssa_trace() {
-        if let Some(bb) = builder.current_block {
+        if let Some(bb) = builder.function_state.current_block {
             let ring0 = crate::runtime::get_global_ring0();
             ring0.log.debug(&format!(
                 "[local-ssa] finalize-compare bb={:?} lhs=%{} rhs=%{}",

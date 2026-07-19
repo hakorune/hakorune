@@ -14,11 +14,12 @@ pub(in crate::mir::builder) fn apply_generic_loop_v0_pipeline(
     ctx: &LoopRouteContext,
     skeleton: &mut GenericLoopSkeleton,
 ) -> Result<(), String> {
-    let pre_body_map = builder.variable_ctx.variable_map.clone();
+    let pre_body_map = builder.function_state.variable_ctx.variable_map.clone();
     // Keep loop-step lowering anchored to the current header PHI in v0 route.
     // Without this rebinding, post_body_map can retain the init value and
     // step-only loops (e.g. i = i + k) become constant updates.
     builder
+        .function_state
         .variable_ctx
         .variable_map
         .insert(facts.loop_var.clone(), skeleton.loop_var_current);
@@ -27,7 +28,7 @@ pub(in crate::mir::builder) fn apply_generic_loop_v0_pipeline(
         generic_loop_body::lower_generic_loop_v0_body(builder, facts, &skeleton.phi_bindings, ctx)?;
     skeleton.plan.body = body_plans;
 
-    let post_body_map = builder.variable_ctx.variable_map.clone();
+    let post_body_map = builder.function_state.variable_ctx.variable_map.clone();
     generic_loop_handoff::apply_generic_loop_v0_condition_step_handoff(
         builder,
         facts,
@@ -45,9 +46,11 @@ pub(in crate::mir::builder) fn apply_generic_loop_v1_pipeline(
     ctx: &LoopRouteContext,
     skeleton: &mut GenericLoopSkeleton,
 ) -> Result<(), String> {
-    crate::mir::builder::control_flow::joinir::trace::trace()
-        .varmap("generic_loop_v1_pre", &builder.variable_ctx.variable_map);
-    let pre_body_map = builder.variable_ctx.variable_map.clone();
+    crate::mir::builder::control_flow::joinir::trace::trace().varmap(
+        "generic_loop_v1_pre",
+        &builder.function_state.variable_ctx.variable_map,
+    );
+    let pre_body_map = builder.function_state.variable_ctx.variable_map.clone();
 
     let mut carrier_orchestration = generic_loop_body::orchestrate_generic_loop_v1_carriers(
         builder,

@@ -253,6 +253,7 @@ impl<'source> PartsAssociatedLoweringHooksV1<RawPartsAssociatedSourceV1<'source>
     ) -> Result<Self::Output, String> {
         for (name, value_id) in self.current_bindings.iter() {
             self.builder
+                .function_state
                 .variable_ctx
                 .variable_map
                 .insert(name.clone(), *value_id);

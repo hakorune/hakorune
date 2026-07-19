@@ -91,15 +91,7 @@ fn builder_for(source: &str, name: &str) -> MirBuilder {
 }
 
 fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
-    builder
-        .scope_ctx
-        .current_function
-        .as_ref()
-        .unwrap()
-        .blocks
-        .values()
-        .flat_map(|block| block.instructions.iter().cloned())
-        .collect()
+    builder.current_function_instructions()
 }
 
 fn call_targets(builder: &MirBuilder) -> Vec<String> {

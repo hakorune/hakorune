@@ -65,7 +65,11 @@ fn located_assignment_claims_outer_rhs_before_nested_argument_and_completes_once
     assert_eq!(targets.len(), 2, "{targets:?}");
     assert!(targets[0].contains("Helpers.inner"), "{targets:?}");
     assert!(targets[1].contains("Helpers.outer"), "{targets:?}");
-    assert!(builder.variable_ctx.variable_map.contains_key("selected"));
+    assert!(builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .contains_key("selected"));
     assert_eq!(builder.recursion_depth, 0);
 }
 
@@ -181,7 +185,7 @@ fn wrong_assignment_order_has_no_rhs_effect_and_fresh_session_succeeds() {
         .lower_statement(&mut builder, view.body_stmt(&body, 0).unwrap())
         .unwrap();
     let before_calls = call_targets(&builder);
-    let before_value = builder.variable_ctx.variable_map["selected"];
+    let before_value = builder.function_state.variable_ctx.variable_map["selected"];
 
     let error = session
         .lower_statement(&mut builder, view.body_stmt(&body, 2).unwrap())
@@ -189,7 +193,10 @@ fn wrong_assignment_order_has_no_rhs_effect_and_fresh_session_succeeds() {
 
     assert!(format!("{error:?}").contains("WrongOrder"));
     assert_eq!(call_targets(&builder), before_calls);
-    assert_eq!(builder.variable_ctx.variable_map["selected"], before_value);
+    assert_eq!(
+        builder.function_state.variable_ctx.variable_map["selected"],
+        before_value
+    );
     assert_eq!(builder.recursion_depth, 0);
     assert!(matches!(
         session.finish(),
@@ -271,14 +278,17 @@ fn undeclared_target_and_rhs_failure_publish_no_assignment() {
     session
         .lower_statement(&mut builder, view.body_stmt(&body, 0).unwrap())
         .unwrap();
-    let old = builder.variable_ctx.variable_map["selected"];
+    let old = builder.function_state.variable_ctx.variable_map["selected"];
     let before = instructions(&builder);
 
     let error = session
         .lower_statement(&mut builder, view.body_stmt(&body, 1).unwrap())
         .unwrap_err();
     assert!(format!("{error:?}").contains("Undefined variable: text"));
-    assert_eq!(builder.variable_ctx.variable_map["selected"], old);
+    assert_eq!(
+        builder.function_state.variable_ctx.variable_map["selected"],
+        old
+    );
     assert_eq!(instructions(&builder), before);
     assert_eq!(builder.recursion_depth, 0);
 }
@@ -337,7 +347,7 @@ fn loop_body_assignment_path_seam_fails_closed_until_loop0() {
         .unwrap();
 
     let before = instructions(&builder);
-    let old = builder.variable_ctx.variable_map["selected"];
+    let old = builder.function_state.variable_ctx.variable_map["selected"];
 
     let error = session
         .lower_statement(&mut builder, assignment)
@@ -346,7 +356,10 @@ fn loop_body_assignment_path_seam_fails_closed_until_loop0() {
     assert!(format!("{error:?}").contains("Unexpected"));
     assert!(format!("{error:?}").contains("LoopBodyRoot"));
     assert_eq!(instructions(&builder), before);
-    assert_eq!(builder.variable_ctx.variable_map["selected"], old);
+    assert_eq!(
+        builder.function_state.variable_ctx.variable_map["selected"],
+        old
+    );
     assert!(call_targets(&builder).is_empty());
     assert_eq!(builder.recursion_depth, 0);
     assert!(matches!(

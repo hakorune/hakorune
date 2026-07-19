@@ -34,17 +34,20 @@ fn actual_default_direct_preflight_is_builder_free_and_collects_value_target() {
             .expect("bound direct lowering view");
 
         let mut builder = MirBuilder::new();
-        let variable_map = builder.variable_ctx.variable_map.clone();
-        let value_types = builder.type_ctx.value_types.clone();
-        let origin = builder.type_ctx.value_origin_newbox.clone();
+        let variable_map = builder.function_state.variable_ctx.variable_map.clone();
+        let value_types = builder.function_state.type_ctx.value_types.clone();
+        let origin = builder.function_state.type_ctx.value_origin_newbox.clone();
         let execution = VerifiedLocatedGenericLoopDirectPreflightV1::verify(&lowering)
             .expect("direct preflight");
         let (_lowering, targets) = execution.into_execution().into_components();
 
         assert_eq!(targets.as_ref(), ["value"]);
-        assert_eq!(builder.variable_ctx.variable_map, variable_map);
-        assert_eq!(builder.type_ctx.value_types, value_types);
-        assert_eq!(builder.type_ctx.value_origin_newbox, origin);
+        assert_eq!(
+            builder.function_state.variable_ctx.variable_map,
+            variable_map
+        );
+        assert_eq!(builder.function_state.type_ctx.value_types, value_types);
+        assert_eq!(builder.function_state.type_ctx.value_origin_newbox, origin);
     });
 }
 

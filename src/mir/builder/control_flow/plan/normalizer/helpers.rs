@@ -152,7 +152,7 @@ impl super::PlanNormalizer {
                 {
                     if lit3_lhs || lit3_rhs {
                         let fn_name = builder
-                            .scope_ctx
+                            .function_state
                             .current_function
                             .as_ref()
                             .map(|f| f.signature.name.as_str())
@@ -195,7 +195,7 @@ impl super::PlanNormalizer {
                         ring0.log.debug(&format!(
                             "[binop/lower:lit_int3] fn={} bb={:?} lhs=%{} rhs=%{} side={} consts_len={} rhs_const_def={} lhs_const_def={} caller={}",
                             fn_name,
-                            builder.current_block,
+                            builder.function_state.current_block,
                             lhs.0,
                             rhs.0,
                             side,

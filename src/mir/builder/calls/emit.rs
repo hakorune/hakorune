@@ -38,11 +38,11 @@ impl MirBuilder {
                 // Instance→Function rewrite is centralized in unified call path.
                 // This path no longer functionizes; always use Box/Plugin call here.
                 // Prevent bouncing back to emit_unified_call after RouterPolicy chose BoxCall.
-                let prev_flag = self.in_unified_boxcall_fallback;
-                self.in_unified_boxcall_fallback = true;
+                let prev_flag = self.function_state.in_unified_boxcall_fallback;
+                self.function_state.in_unified_boxcall_fallback = true;
                 let result =
                     self.emit_box_or_plugin_call(dst, receiver, method, None, args, EffectMask::IO);
-                self.in_unified_boxcall_fallback = prev_flag;
+                self.function_state.in_unified_boxcall_fallback = prev_flag;
                 result
             }
             CallTarget::Constructor(box_type) => {

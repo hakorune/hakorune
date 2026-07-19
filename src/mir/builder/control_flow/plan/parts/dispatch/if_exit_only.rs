@@ -69,18 +69,18 @@ where
         ));
     }
 
-    let pre_if_map = builder.variable_ctx.variable_map.clone();
+    let pre_if_map = builder.function_state.variable_ctx.variable_map.clone();
     let pre_bindings = current_bindings.clone();
 
     let then_plans = lower_branch(ExitIfBranchV1::Then, builder, current_bindings)?;
     let then_state = matches!(policy, ExitIfStatePolicyV1::ElseOnlyExit).then(|| {
         (
-            builder.variable_ctx.variable_map.clone(),
+            builder.function_state.variable_ctx.variable_map.clone(),
             current_bindings.clone(),
         )
     });
 
-    builder.variable_ctx.variable_map = pre_if_map.clone();
+    builder.function_state.variable_ctx.variable_map = pre_if_map.clone();
     *current_bindings = pre_bindings.clone();
 
     if matches!(policy, ExitIfStatePolicyV1::ExitOnly(IfMode::ElseOnlyExit)) {
@@ -111,18 +111,18 @@ where
     };
     let else_state = matches!(policy, ExitIfStatePolicyV1::ThenOnlyExit).then(|| {
         (
-            builder.variable_ctx.variable_map.clone(),
+            builder.function_state.variable_ctx.variable_map.clone(),
             current_bindings.clone(),
         )
     });
 
-    builder.variable_ctx.variable_map = pre_if_map;
+    builder.function_state.variable_ctx.variable_map = pre_if_map;
     *current_bindings = pre_bindings;
 
     let plans = lower_condition(builder, current_bindings, then_plans, else_plans)?;
 
     if let Some((continuing_map, continuing_bindings)) = then_state.or(else_state) {
-        builder.variable_ctx.variable_map = continuing_map;
+        builder.function_state.variable_ctx.variable_map = continuing_map;
         *current_bindings = continuing_bindings;
     }
 

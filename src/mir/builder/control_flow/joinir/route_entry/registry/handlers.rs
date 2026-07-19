@@ -76,9 +76,9 @@ fn with_standard_compose_binding_boundary<T, E, F>(builder: &mut MirBuilder, f: 
 where
     F: FnOnce(&mut MirBuilder) -> Result<T, E>,
 {
-    let saved = builder.variable_ctx.variable_map.clone();
+    let saved = builder.function_state.variable_ctx.variable_map.clone();
     let result = f(builder);
-    builder.variable_ctx.variable_map = saved;
+    builder.function_state.variable_ctx.variable_map = saved;
     result
 }
 
@@ -133,6 +133,7 @@ mod tests {
         let outer = ValueId(10);
         let scratch = ValueId(20);
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert("outer".to_string(), outer);
@@ -140,10 +141,12 @@ mod tests {
         let result: Result<(), ()> =
             with_standard_compose_binding_boundary(&mut builder, |builder| {
                 builder
+                    .function_state
                     .variable_ctx
                     .variable_map
                     .insert("scratch".to_string(), scratch);
                 builder
+                    .function_state
                     .variable_ctx
                     .variable_map
                     .insert("outer".to_string(), scratch);
@@ -151,9 +154,20 @@ mod tests {
             });
 
         assert!(result.is_ok());
-        assert_eq!(builder.variable_ctx.variable_map.get("outer"), Some(&outer));
+        assert_eq!(
+            builder
+                .function_state
+                .variable_ctx
+                .variable_map
+                .get("outer"),
+            Some(&outer)
+        );
         assert!(
-            !builder.variable_ctx.variable_map.contains_key("scratch"),
+            !builder
+                .function_state
+                .variable_ctx
+                .variable_map
+                .contains_key("scratch"),
             "compose scratch binding must not be visible to PlanLowerer pre-loop snapshots"
         );
     }

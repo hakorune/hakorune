@@ -56,19 +56,22 @@ impl FixtureV1 {
             .metadata
             .value_types
             .insert(ValueId::new(1), MirType::Box(OWNER.to_string()));
-        builder.scope_ctx.current_function = Some(function);
-        builder.current_block = Some(block(0));
+        builder.function_state.current_function = Some(function);
+        builder.function_state.current_block = Some(block(0));
         builder.register_value_kind(ValueId::new(0), MirValueKind::Parameter(0));
         builder.register_value_kind(ValueId::new(1), MirValueKind::Parameter(1));
         builder
+            .function_state
             .type_ctx
             .value_types
             .insert(ValueId::new(0), MirType::Box(OWNER.to_string()));
         builder
+            .function_state
             .type_ctx
             .value_types
             .insert(ValueId::new(1), MirType::Box(OWNER.to_string()));
         builder
+            .function_state
             .type_ctx
             .value_origin_newbox
             .insert(ValueId::new(0), OWNER.to_string());
@@ -98,7 +101,7 @@ impl FixtureV1 {
 
     fn function_mut(&mut self) -> &mut MirFunction {
         self.builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_mut()
             .expect("test function")
@@ -111,7 +114,11 @@ impl FixtureV1 {
     }
 
     fn set_value_type(&mut self, value: ValueId, ty: MirType) {
-        self.builder.type_ctx.value_types.insert(value, ty.clone());
+        self.builder
+            .function_state
+            .type_ctx
+            .value_types
+            .insert(value, ty.clone());
         self.function_mut().metadata.value_types.insert(value, ty);
     }
 
@@ -195,7 +202,7 @@ impl FixtureV1 {
     }
 
     fn use_in(&mut self, block_id: u32) {
-        self.builder.current_block = Some(block(block_id));
+        self.builder.function_state.current_block = Some(block(block_id));
     }
 
     fn verify(
@@ -227,7 +234,7 @@ impl FixtureV1 {
     fn assert_final_verifier_accepts(&self, returned: ValueId) {
         let mut function = self
             .builder
-            .scope_ctx
+            .function_state
             .current_function
             .clone()
             .expect("synthetic function");
@@ -283,6 +290,7 @@ fn accepts_receiver_and_copy_chain_without_persistent_metadata() {
     assert_eq!(proof.receiver().owner_box(), OWNER);
     assert!(!fixture
         .builder
+        .function_state
         .type_ctx
         .value_origin_newbox
         .contains_key(&second));
@@ -301,6 +309,7 @@ fn production_field_lookup_has_one_same_root_phi_fallback() {
     let phi = fixture.diamond();
     assert!(!fixture
         .builder
+        .function_state
         .type_ctx
         .value_origin_newbox
         .contains_key(&phi));
@@ -585,6 +594,7 @@ fn rejects_receiver_identity_contract_drift() {
             SameRootReceiverProofErrorV1::ReceiverOwnerMismatch => {
                 fixture
                     .builder
+                    .function_state
                     .type_ctx
                     .value_origin_newbox
                     .insert(fixture.receiver(), "OtherOwner".to_string());
@@ -603,6 +613,7 @@ fn rejects_type_origin_definition_and_cfg_cache_drift() {
     let mut missing_type = FixtureV1::new();
     missing_type
         .builder
+        .function_state
         .type_ctx
         .value_types
         .remove(&missing_type.receiver());
@@ -615,6 +626,7 @@ fn rejects_type_origin_definition_and_cfg_cache_drift() {
     let copy = foreign_origin.add_copy(0, foreign_origin.receiver());
     foreign_origin
         .builder
+        .function_state
         .type_ctx
         .value_origin_newbox
         .insert(copy, "OtherOwner".to_string());

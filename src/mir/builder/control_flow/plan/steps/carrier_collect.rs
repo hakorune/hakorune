@@ -12,7 +12,7 @@ use std::collections::BTreeMap;
 /// Collect carrier init values from variable_map.
 ///
 /// # Contract
-/// - All carrier_vars MUST exist in builder.variable_ctx.variable_map
+/// - All carrier_vars MUST exist in builder.function_state.variable_ctx.variable_map
 /// - Returns Err immediately if any variable is missing (Fail-Fast)
 pub fn collect_carrier_inits<I>(
     builder: &MirBuilder,
@@ -24,7 +24,7 @@ where
 {
     let mut carrier_inits = BTreeMap::new();
     for var in carrier_vars {
-        let Some(&init_val) = builder.variable_ctx.variable_map.get(&var) else {
+        let Some(&init_val) = builder.function_state.variable_ctx.variable_map.get(&var) else {
             return Err(format!("{}: carrier {} missing init", err_tag, var));
         };
         carrier_inits.insert(var, init_val);

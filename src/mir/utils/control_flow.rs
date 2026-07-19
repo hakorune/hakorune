@@ -6,7 +6,6 @@
  */
 
 use super::super::{BasicBlockId, MirBuilder};
-use crate::mir::diagnostics::FreezeContract;
 
 /// **外部関数**: 現在のブロックが終端済みかチェック
 ///
@@ -19,19 +18,7 @@ use crate::mir::diagnostics::FreezeContract;
 /// }
 /// ```
 pub fn is_current_block_terminated(builder: &MirBuilder) -> Result<bool, String> {
-    let cur_id = builder
-        .current_block
-        .ok_or_else(|| "No current block".to_string())?;
-
-    if let Some(ref function) = builder.scope_ctx.current_function {
-        if let Some(bb) = function.get_block(cur_id) {
-            Ok(bb.is_terminated())
-        } else {
-            Ok(false)
-        }
-    } else {
-        Ok(false)
-    }
+    builder.checked_current_block_terminated()
 }
 
 /// **外部関数**: 実到達ブロックを捕捉してJump発行
@@ -53,27 +40,7 @@ pub fn capture_actual_predecessor_and_jump(
     builder: &mut MirBuilder,
     target_block: BasicBlockId,
 ) -> Result<Option<BasicBlockId>, String> {
-    let cur_id = builder
-        .current_block
-        .ok_or_else(|| "No current block".to_string())?;
-
-    let need_jump = !is_current_block_terminated(builder)?;
-
-    if need_jump {
-        // Jump発行前に実到達ブロックID捕捉（重要！）
-        // `emit_instruction` へ直接触らず、cf_common の単一路線で終端を設定する。
-        if let Some(ref mut function) = builder.scope_ctx.current_function {
-            crate::mir::ssot::cf_common::set_jump(function, cur_id, target_block);
-            Ok(Some(cur_id))
-        } else {
-            Err(FreezeContract::new("builder/capture_jump_without_function")
-                .field("target_bb", format!("{:?}", target_block))
-                .build())
-        }
-    } else {
-        // 既に終端済み（break/continue等）、PHI incomingから除外
-        Ok(None)
-    }
+    builder.capture_current_predecessor_and_jump(target_block)
 }
 
 /// **外部関数**: 条件付きPHI incoming収集

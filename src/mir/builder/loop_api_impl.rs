@@ -6,7 +6,8 @@ impl crate::mir::loop_api::LoopBuilderApi for MirBuilder {
     }
 
     fn current_block(&self) -> Result<BasicBlockId, String> {
-        self.current_block
+        self.function_state
+            .current_block
             .ok_or_else(|| "No current block".to_string())
     }
 
@@ -23,7 +24,7 @@ impl crate::mir::loop_api::LoopBuilderApi for MirBuilder {
     }
 
     fn add_predecessor(&mut self, block: BasicBlockId, pred: BasicBlockId) -> Result<(), String> {
-        if let Some(ref mut f) = self.scope_ctx.current_function {
+        if let Some(ref mut f) = self.function_state.current_function {
             if let Some(bb) = f.get_block_mut(block) {
                 bb.add_predecessor(pred);
                 Ok(())
@@ -36,7 +37,7 @@ impl crate::mir::loop_api::LoopBuilderApi for MirBuilder {
     }
 
     fn seal_block(&mut self, block: BasicBlockId) -> Result<(), String> {
-        if let Some(ref mut f) = self.scope_ctx.current_function {
+        if let Some(ref mut f) = self.function_state.current_function {
             if let Some(bb) = f.get_block_mut(block) {
                 bb.seal();
                 Ok(())

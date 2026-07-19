@@ -206,7 +206,9 @@ where
         ASTNode::Variable { name, .. } => {
             let object_id = if let Some(&phi_dst) = phi_bindings.get(name) {
                 phi_dst
-            } else if let Some(&value_id) = builder.variable_ctx.variable_map.get(name) {
+            } else if let Some(&value_id) =
+                builder.function_state.variable_ctx.variable_map.get(name)
+            {
                 value_id
             } else if builder.comp_ctx.user_defined_boxes.contains_key(name) {
                 effects.push(CoreEffectPlan::GlobalCall {

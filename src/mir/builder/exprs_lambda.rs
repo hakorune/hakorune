@@ -164,11 +164,16 @@ impl super::MirBuilder {
         }
         let mut captures: Vec<(String, ValueId)> = Vec::new();
         for name in used.into_iter() {
-            if let Some(&vid) = self.variable_ctx.variable_map.get(&name) {
+            if let Some(&vid) = self.function_state.variable_ctx.variable_map.get(&name) {
                 captures.push((name, vid));
             }
         }
-        let me = self.variable_ctx.variable_map.get("me").copied();
+        let me = self
+            .function_state
+            .variable_ctx
+            .variable_map
+            .get("me")
+            .copied();
         let body_id = self.intern_closure_body(body.clone());
         let dst = self.next_value_id();
         self.emit_instruction(super::MirInstruction::NewClosure {
@@ -183,7 +188,8 @@ impl super::MirBuilder {
             captures,
             me,
         })?;
-        self.type_ctx
+        self.function_state
+            .type_ctx
             .value_types
             .insert(dst, crate::mir::MirType::Box("FunctionBox".to_string()));
         Ok(dst)

@@ -58,7 +58,7 @@ use crate::mir::{MirBuilder, MirInstruction, ValueId};
 /// Preserve the existing cleanup-block Return prohibition before any value
 /// observation or lowering effect.
 pub(in crate::mir::builder) fn ensure_return_allowed(builder: &MirBuilder) -> Result<(), String> {
-    if builder.in_cleanup_block && !builder.cleanup_allow_return {
+    if builder.function_state.in_cleanup_block && !builder.function_state.cleanup_allow_return {
         return Err("return is not allowed inside cleanup block (enable NYASH_CLEANUP_ALLOW_RETURN=1 to permit)".to_string());
     }
     Ok(())
@@ -108,7 +108,7 @@ fn adopt_match_return_coreplan(
     };
     let body: Vec<ASTNode> = Vec::new();
     let func_name = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .map(|func| func.signature.name.clone())
@@ -127,7 +127,7 @@ pub(in crate::mir::builder) fn try_apply_match_return_optimization(
     value: Option<&ASTNode>,
     emit_tag: bool,
 ) -> Result<Option<ValueId>, String> {
-    if builder.return_defer_active {
+    if builder.function_state.return_defer_active {
         return Ok(None);
     }
 
@@ -166,11 +166,13 @@ pub(in crate::mir::builder) fn emit_return_from_value(
     builder: &mut MirBuilder,
     return_value: ValueId,
 ) -> Result<ValueId, String> {
-    if builder.return_defer_active {
+    if builder.function_state.return_defer_active {
         // Defer: copy into slot and jump to target
-        if let (Some(slot), Some(target)) = (builder.return_defer_slot, builder.return_defer_target)
-        {
-            builder.return_deferred_emitted = true;
+        if let (Some(slot), Some(target)) = (
+            builder.function_state.return_defer_slot,
+            builder.function_state.return_defer_target,
+        ) {
+            builder.function_state.return_deferred_emitted = true;
             builder.emit_instruction(MirInstruction::Copy {
                 dst: slot,
                 src: return_value,

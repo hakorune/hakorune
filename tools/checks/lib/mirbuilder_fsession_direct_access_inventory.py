@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Freeze pre-S0b FunctionOwned direct-access observations.
+"""Reject retired pre-S0b FunctionOwned direct-access routes.
 
 This checker owns only source occurrence evidence. The selector-to-destination
 map remains in the FSESSION Census fixture, so S0b has one state-authority map
-and one disposable pre-cutover observation guard.
+and one post-cutover old-route-zero guard.
 """
 
 from __future__ import annotations
@@ -18,6 +18,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CENSUS = ROOT / "tools/checks/fixtures/mirbuilder_fsession_census_v1.json"
 SNAPSHOT = ROOT / "tools/checks/fixtures/mirbuilder_fsession_direct_access_v1.json"
+PRE_S0B_BASELINE = ROOT / "tools/checks/fixtures/mirbuilder_fsession_direct_access_pre_s0b_v1.json"
 SOURCE_ROOT = ROOT / "src"
 EXCLUDED = {"src/mir/builder/function_lowering_state.rs"}
 
@@ -592,11 +593,24 @@ def observe(routes: dict[str, dict[str, str]]) -> list[dict[str, object]]:
 
 
 def validate_snapshot(observed: list[dict[str, object]]) -> None:
+    baseline = json.loads(PRE_S0B_BASELINE.read_text(encoding="utf-8"))
+    if baseline.get("schema") != "MirBuilderFunctionStateDirectAccessV1":
+        fail("unexpected pre-S0b baseline schema")
+    if baseline.get("decision") != "pre_s0b_observation_only":
+        fail("pre-S0b baseline must remain observation-only")
+    if baseline.get("totals") != {
+        "all": 1792,
+        "production": 1175,
+        "test": 615,
+        "shared": 2,
+    }:
+        fail("pre-S0b baseline totals drift")
+
     data = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
     if data.get("schema") != "MirBuilderFunctionStateDirectAccessV1":
         fail("unexpected direct-access snapshot schema")
-    if data.get("decision") != "pre_s0b_observation_only":
-        fail("direct-access snapshot must remain pre-S0b observation only")
+    if data.get("decision") != "s0b_old_routes_retired":
+        fail("direct-access snapshot must require retired S0b routes")
     expected = data.get("routes")
     if not isinstance(expected, list):
         fail("snapshot lacks routes")
@@ -619,8 +633,17 @@ def validate_snapshot(observed: list[dict[str, object]]) -> None:
     actual_totals = {domain: sum(int(row["occurrences"]) for row in expected if row["domain"] == domain) for domain in ("production", "test", "shared")}
     if totals != {"all": sum(actual_totals.values()), **actual_totals}:
         fail("snapshot totals drift from rows")
+    if any(int(row["occurrences"]) for row in expected):
+        fail("post-S0b snapshot must keep every retired route at zero")
+    if any(int(row["occurrences"]) for row in observed):
+        nonzero = [
+            f"{row['selector']}:{row['domain']}={row['occurrences']}"
+            for row in observed
+            if int(row["occurrences"])
+        ]
+        fail(f"retired direct route observed: {', '.join(nonzero)}")
     if expected != observed:
-        fail("direct-access inventory drift; regenerate only through the selected S0a-G0 row")
+        fail("post-S0b old-route-zero snapshot drift")
 
 
 def reference_document(observed: list[dict[str, object]]) -> str:
@@ -632,7 +655,7 @@ def reference_document(observed: list[dict[str, object]]) -> str:
     lines = [
         "{",
         '  "schema": "MirBuilderFunctionStateDirectAccessV1",',
-        '  "decision": "pre_s0b_observation_only",',
+        '  "decision": "s0b_old_routes_retired",',
         f'  "totals": {{"all": {total}, "production": {domain_totals["production"]}, "test": {domain_totals["test"]}, "shared": {domain_totals["shared"]}}},',
         '  "routes": [',
     ]

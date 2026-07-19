@@ -84,7 +84,7 @@ fn empty_and_nonempty_implicit_fallthrough_emit_one_return_each() {
 #[test]
 fn canonical_return_never_uses_active_legacy_defer_state() {
     let mut builder = crate::mir::MirBuilder::new();
-    builder.return_defer_active = true;
+    builder.function_state.return_defer_active = true;
 
     let error = emit_canonical_explicit_return(&mut builder, ValueId::new(0)).unwrap_err();
     assert!(error.contains("legacy_return_state_active"));

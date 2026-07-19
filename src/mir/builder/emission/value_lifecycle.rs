@@ -34,6 +34,7 @@ fn format_value_ids(values: &[ValueId]) -> String {
 
 fn format_varmap_hits(builder: &MirBuilder, v: ValueId) -> String {
     let mut hits: Vec<&str> = builder
+        .function_state
         .variable_ctx
         .variable_map
         .iter()
@@ -59,7 +60,7 @@ pub(in crate::mir::builder) fn verify_typed_values_are_defined(
     if !strict_or_dev_planner_required() {
         return Ok(());
     }
-    let Some(func) = builder.scope_ctx.current_function.as_ref() else {
+    let Some(func) = builder.function_state.current_function.as_ref() else {
         return Ok(());
     };
 
@@ -71,6 +72,7 @@ pub(in crate::mir::builder) fn verify_typed_values_are_defined(
     };
 
     let mut missing: Vec<(ValueId, MirType)> = builder
+        .function_state
         .type_ctx
         .value_types
         .iter()
@@ -89,13 +91,17 @@ pub(in crate::mir::builder) fn verify_typed_values_are_defined(
     // Policy: only fail-fast if the missing ValueId is actually referenced by the function
     // (or still present in builder-side pending structures). Otherwise, prune stale entries.
     let referenced = collect_referenced_values(func);
-    let pending_phi_dsts: HashSet<ValueId> =
-        builder.pending_phis.iter().map(|(_bb, v, _)| *v).collect();
+    let pending_phi_dsts: HashSet<ValueId> = builder
+        .function_state
+        .pending_phis
+        .iter()
+        .map(|(_bb, v, _)| *v)
+        .collect();
 
     let is_fatal_missing = |v: &ValueId| -> bool {
         referenced.contains(v)
             || pending_phi_dsts.contains(v)
-            || builder.pin_slot_names.contains_key(v)
+            || builder.function_state.pin_slot_names.contains_key(v)
         // Metadata caller tables are process-global diagnostics and may still carry
         // same-numbered ValueIds from previously lowered functions. They are not
         // a semantic "use" signal for the current function boundary contract.
@@ -113,9 +119,13 @@ pub(in crate::mir::builder) fn verify_typed_values_are_defined(
 
     if missing.is_empty() {
         for v in stale {
-            builder.type_ctx.value_types.remove(&v);
-            builder.type_ctx.value_kinds.remove(&v);
-            builder.type_ctx.value_origin_newbox.remove(&v);
+            builder.function_state.type_ctx.value_types.remove(&v);
+            builder.function_state.type_ctx.value_kinds.remove(&v);
+            builder
+                .function_state
+                .type_ctx
+                .value_origin_newbox
+                .remove(&v);
         }
         return Ok(());
     }
@@ -131,8 +141,9 @@ pub(in crate::mir::builder) fn verify_typed_values_are_defined(
         .metadata_ctx
         .current_source_file()
         .unwrap_or_else(|| "unknown".to_string());
-    let value_caller = builder.metadata_ctx.value_caller(v0).unwrap_or("none");
+    let value_caller = builder.value_origin_caller(v0).unwrap_or("none");
     let pin = builder
+        .function_state
         .pin_slot_names
         .get(&v0)
         .map(|s| s.as_str())
@@ -147,7 +158,7 @@ pub(in crate::mir::builder) fn verify_typed_values_are_defined(
         v0.0,
         ty0,
         missing_list,
-        builder.type_ctx.value_types.len(),
+        builder.function_state.type_ctx.value_types.len(),
         def_blocks.len(),
         span.location_string(),
         span.start,
@@ -172,7 +183,7 @@ pub(in crate::mir::builder) fn verify_reserved_values_not_exposed(
     if !strict_or_dev_planner_required() || reserved.is_empty() {
         return Ok(());
     }
-    let Some(func) = builder.scope_ctx.current_function.as_ref() else {
+    let Some(func) = builder.function_state.current_function.as_ref() else {
         return Ok(());
     };
 
@@ -186,6 +197,7 @@ pub(in crate::mir::builder) fn verify_reserved_values_not_exposed(
     }
 
     let mut hits: Vec<(&str, ValueId)> = builder
+        .function_state
         .variable_ctx
         .variable_map
         .iter()

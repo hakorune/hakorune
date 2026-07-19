@@ -83,7 +83,7 @@ fn lower_legacy_reference(
 
 fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> BinaryParitySnapshotV1 {
     let function = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("current BIN0-P0 function");
@@ -95,6 +95,7 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> BinaryPari
     blocks.sort_by_key(|(id, _, _)| *id);
 
     let mut value_kinds = builder
+        .function_state
         .type_ctx
         .value_kinds
         .iter()
@@ -106,6 +107,7 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> BinaryPari
         result,
         blocks,
         value_types: builder
+            .function_state
             .type_ctx
             .value_types
             .iter()
@@ -113,6 +115,7 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> BinaryPari
             .collect(),
         value_kinds,
         value_origins: builder
+            .function_state
             .type_ctx
             .value_origin_newbox
             .iter()

@@ -42,6 +42,7 @@ pub(in crate::mir::builder) fn try_compose_core_loop_v2_nested_minimal(
     };
 
     let outer_loop_var_init = builder
+        .function_state
         .variable_ctx
         .variable_map
         .get(&nested.outer_loop_var)
@@ -53,6 +54,7 @@ pub(in crate::mir::builder) fn try_compose_core_loop_v2_nested_minimal(
             )
         })?;
     let acc_var_init = builder
+        .function_state
         .variable_ctx
         .variable_map
         .get(&nested.acc_var)
@@ -65,6 +67,7 @@ pub(in crate::mir::builder) fn try_compose_core_loop_v2_nested_minimal(
         })?;
 
     let preheader_bb = builder
+        .function_state
         .current_block
         .ok_or_else(|| "[coreloop_v2_nested] No current block for loop entry".to_string())?;
     let header_bb = builder.next_block_id();
@@ -397,10 +400,12 @@ mod tests {
         let i_init = builder.alloc_typed(MirType::Integer);
         let sum_init = builder.alloc_typed(MirType::Integer);
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert("i".to_string(), i_init);
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert("sum".to_string(), sum_init);
@@ -454,10 +459,12 @@ mod tests {
         let i_init = builder.alloc_typed(MirType::Integer);
         let sum_init = builder.alloc_typed(MirType::Integer);
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert("i".to_string(), i_init);
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert("sum".to_string(), sum_init);

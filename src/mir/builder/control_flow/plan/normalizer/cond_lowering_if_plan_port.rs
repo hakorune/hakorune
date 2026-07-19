@@ -212,9 +212,10 @@ fn allocate_intermediate_joins(
     let mut rows = Vec::with_capacity(joins.len());
     for join in joins {
         let ty = builder
+            .function_state
             .type_ctx
             .get_type(join.then_val)
-            .or_else(|| builder.type_ctx.get_type(join.else_val))
+            .or_else(|| builder.function_state.type_ctx.get_type(join.else_val))
             .cloned()
             .unwrap_or(MirType::Unknown);
         let value = builder.alloc_typed(ty);

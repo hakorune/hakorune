@@ -108,7 +108,7 @@ mod tests {
 
         let entry = builder.current_block_for_test().expect("entry block");
         let func = builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .expect("function");
@@ -155,7 +155,7 @@ mod tests {
         assert!(result.is_ok());
 
         let func = builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .expect("function");
@@ -288,7 +288,7 @@ mod tests {
         assert!(result.is_ok());
 
         let func = builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .expect("function");

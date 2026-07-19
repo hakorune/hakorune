@@ -37,6 +37,7 @@ impl BindingSsaIrV1 for MirBindingSsaAdapterV1<'_> {
             self.phis
                 .define_provisional_phi(self.builder, block, dst, "binding-ssa-define")?;
         self.builder
+            .function_state
             .type_ctx
             .value_types
             .insert(dst, MirType::Unknown);
@@ -56,7 +57,7 @@ impl BindingSsaIrV1 for MirBindingSsaAdapterV1<'_> {
     fn verify_phi_input(&self, predecessor: BasicBlockId, value: ValueId) -> Result<(), String> {
         let function = self
             .builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .ok_or_else(|| format!("{ADAPTER_TAG}: no current function"))?;
@@ -86,7 +87,11 @@ impl BindingSsaIrV1 for MirBindingSsaAdapterV1<'_> {
     fn rollback_phi(&mut self, token: Self::PhiToken) -> Result<(), String> {
         self.phis
             .rollback_pending_phi(self.builder, token, "binding-ssa-rollback")?;
-        self.builder.type_ctx.value_types.remove(&token.dst());
+        self.builder
+            .function_state
+            .type_ctx
+            .value_types
+            .remove(&token.dst());
         Ok(())
     }
 }

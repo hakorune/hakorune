@@ -24,6 +24,7 @@ pub(in crate::mir::builder) fn compose_match_return_branchn(
 
     let scrutinee_id = match &facts.scrutinee {
         crate::mir::builder::control_flow::plan::facts::MatchReturnScrutinee::Var(name) => builder
+            .function_state
             .variable_ctx
             .require(name, "match_return_scrutinee")?,
         crate::mir::builder::control_flow::plan::facts::MatchReturnScrutinee::Int(value) => {
@@ -108,19 +109,28 @@ fn literal_to_const(literal: &LiteralValue) -> Result<ConstValue, String> {
 fn register_literal_type(builder: &mut MirBuilder, dst: ValueId, literal: &LiteralValue) {
     match literal {
         LiteralValue::Integer(_) | LiteralValue::TypedInteger { .. } => {
-            builder.type_ctx.set_type(dst, MirType::Integer);
+            builder
+                .function_state
+                .type_ctx
+                .set_type(dst, MirType::Integer);
         }
         LiteralValue::Bool(_) => {
-            builder.type_ctx.set_type(dst, MirType::Bool);
+            builder.function_state.type_ctx.set_type(dst, MirType::Bool);
         }
         LiteralValue::Float(_) => {
-            builder.type_ctx.set_type(dst, MirType::Float);
+            builder
+                .function_state
+                .type_ctx
+                .set_type(dst, MirType::Float);
         }
         LiteralValue::String(_) => {
-            builder.type_ctx.set_type(dst, MirType::String);
+            builder
+                .function_state
+                .type_ctx
+                .set_type(dst, MirType::String);
         }
         LiteralValue::Null | LiteralValue::Void => {
-            builder.type_ctx.set_type(dst, MirType::Void);
+            builder.function_state.type_ctx.set_type(dst, MirType::Void);
         }
     }
 }

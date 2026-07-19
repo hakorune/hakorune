@@ -117,7 +117,7 @@ pub(super) fn builder_for(source: &str, name: &str) -> MirBuilder {
 
 pub(super) fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("located Local function")
@@ -194,8 +194,8 @@ fn located_local_claims_exact_initializers_in_statement_and_expression_order() {
     assert_eq!(targets.len(), 2);
     assert!(targets[0].contains("Helpers.left"), "{targets:?}");
     assert!(targets[1].contains("Helpers.right"), "{targets:?}");
-    assert!(builder.binding_ctx.contains("first"));
-    assert!(builder.binding_ctx.contains("second"));
+    assert!(builder.function_state.binding_ctx.contains("first"));
+    assert!(builder.function_state.binding_ctx.contains("second"));
     assert_eq!(builder.recursion_depth, 0);
 }
 
@@ -240,7 +240,7 @@ fn located_local_short_circuit_keeps_deferred_rhs_site_and_completion() {
     lower_root_statements(&mut session, &plan, &caller, &mut builder, &[0]).unwrap();
     session.finish().unwrap();
 
-    assert!(builder.binding_ctx.contains("flag"));
+    assert!(builder.function_state.binding_ctx.contains("flag"));
     assert!(instructions(&builder)
         .iter()
         .any(|instruction| matches!(instruction, MirInstruction::Phi { .. })));
@@ -295,9 +295,9 @@ fn located_local_special_hooks_require_exact_inactive_initializer_subtrees() {
     assert!(rows
         .iter()
         .any(|instruction| matches!(instruction, MirInstruction::RecordValuePublish { .. })));
-    assert!(builder.binding_ctx.contains("bytes"));
-    assert!(builder.binding_ctx.contains("pair"));
-    assert!(builder.binding_ctx.contains("active"));
+    assert!(builder.function_state.binding_ctx.contains("bytes"));
+    assert!(builder.function_state.binding_ctx.contains("pair"));
+    assert!(builder.function_state.binding_ctx.contains("active"));
 }
 
 #[test]
@@ -338,7 +338,7 @@ fn active_row_below_typed_array_hook_rejects_before_builder_effects_and_poisons_
             if text.contains("RowsUnderPrefix")
     ));
     assert!(instructions(&builder).is_empty());
-    assert!(!builder.binding_ctx.contains("bytes"));
+    assert!(!builder.function_state.binding_ctx.contains("bytes"));
     assert_eq!(builder.recursion_depth, 0);
     assert!(matches!(
         session.finish(),
@@ -395,7 +395,7 @@ fn active_row_below_record_hook_rejects_before_constructor_effects() {
             if text.contains("RowsUnderPrefix")
     ));
     assert!(instructions(&builder).is_empty());
-    assert!(!builder.binding_ctx.contains("pair"));
+    assert!(!builder.function_state.binding_ctx.contains("pair"));
     assert_eq!(builder.recursion_depth, 0);
 }
 
@@ -446,7 +446,7 @@ fn wrong_statement_order_fails_before_local_initializer_or_binding_effects() {
             if text.contains("WrongOrder")
     ));
     assert!(instructions(&builder).is_empty());
-    assert!(!builder.binding_ctx.contains("second"));
+    assert!(!builder.function_state.binding_ctx.contains("second"));
     assert_eq!(builder.recursion_depth, 0);
     assert!(matches!(
         session.finish(),

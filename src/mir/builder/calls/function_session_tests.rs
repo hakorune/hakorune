@@ -55,7 +55,7 @@ fn resolved_product() -> Arc<VerifiedResolvedFunctionV1> {
 }
 
 fn seal_outer_frag(builder: &mut MirBuilder) {
-    let entry = builder.current_block.unwrap();
+    let entry = builder.function_state.current_block.unwrap();
     let mut frag = Frag::new(entry);
     frag.wires.push(EdgeStub::new(
         entry,
@@ -67,10 +67,17 @@ fn seal_outer_frag(builder: &mut MirBuilder) {
         },
     ));
     builder
+        .function_state
         .frag_emit_session
-        .emit_and_seal(builder.scope_ctx.current_function.as_mut().unwrap(), &frag)
+        .emit_and_seal(
+            builder.function_state.current_function.as_mut().unwrap(),
+            &frag,
+        )
         .unwrap();
-    assert!(builder.frag_emit_session.is_sealed_for_test(entry));
+    assert!(builder
+        .function_state
+        .frag_emit_session
+        .is_sealed_for_test(entry));
 }
 
 fn seeded_builder() -> MirBuilder {
@@ -78,108 +85,128 @@ fn seeded_builder() -> MirBuilder {
     builder.current_module = Some(MirModule::new("session-fixture".into()));
     builder.enter_function_for_test("outer".into());
     builder
+        .function_state
         .variable_ctx
         .insert("outer_value".into(), ValueId::new(700));
     builder
+        .function_state
         .type_ctx
         .value_types
         .insert(ValueId::new(700), MirType::Integer);
     builder
+        .function_state
         .type_ctx
         .value_kinds
         .insert(ValueId::new(720), MirValueKind::Parameter(0));
     builder
+        .function_state
         .type_ctx
         .value_origin_newbox
         .insert(ValueId::new(721), "OuterOriginBox".into());
     builder
+        .function_state
         .type_ctx
         .string_literals
         .insert(ValueId::new(722), "outer literal".into());
     builder
+        .function_state
         .type_ctx
         .map_value_types
         .insert(ValueId::new(723), MirType::Integer);
     builder
+        .function_state
         .type_ctx
         .map_literal_value_types
         .insert((ValueId::new(724), "outer-key".into()), MirType::String);
     builder
+        .function_state
         .binding_ctx
         .insert("outer_binding".into(), BindingId::new(719));
     builder
+        .function_state
         .resolved_binding_state
         .install(&resolved_product())
         .unwrap();
-    builder.comp_ctx.register_record_local_value(
-        ValueId::new(725),
-        "OuterRecord".into(),
-        vec![RecordLocalFieldValue {
-            name: "field".into(),
-            declared_type_name: Some("Integer".into()),
-            value: ValueId::new(726),
-        }],
-    );
-    builder.scope_ctx.push_lexical_scope();
     builder
-        .scope_ctx
+        .function_state
+        .compilation
+        .register_record_local_value(
+            ValueId::new(725),
+            "OuterRecord".into(),
+            vec![RecordLocalFieldValue {
+                name: "field".into(),
+                declared_type_name: Some("Integer".into()),
+                value: ValueId::new(726),
+            }],
+        );
+    builder.function_state.scope.push_lexical_scope();
+    builder
+        .function_state
+        .scope
         .loop_header_stack
         .push(BasicBlockId::new(701));
     builder
-        .scope_ctx
+        .function_state
+        .scope
         .loop_exit_stack
         .push(BasicBlockId::new(702));
     builder
-        .scope_ctx
+        .function_state
+        .scope
         .if_merge_stack
         .push(BasicBlockId::new(703));
     builder
         .scope_ctx
         .debug_scope_stack
         .push("outer/debug".into());
-    builder.scope_ctx.function_param_names.insert("arg".into());
     builder
-        .scope_ctx
+        .function_state
+        .scope
+        .function_param_names
+        .insert("arg".into());
+    builder
+        .function_state
+        .scope
         .fastmem_region_stack
         .push(FastMemRegionId(704));
-    builder.pending_phis.push((
+    builder.function_state.pending_phis.push((
         BasicBlockId::new(705),
         ValueId::new(706),
         "outer_phi".into(),
     ));
-    builder.local_ssa_map.insert(
+    builder.function_state.local_ssa_map.insert(
         (BasicBlockId::new(707), ValueId::new(708), 0),
         ValueId::new(709),
     );
-    builder.schedule_mat_map.insert(
+    builder.function_state.schedule_mat_map.insert(
         (BasicBlockId::new(710), ValueId::new(711)),
         ValueId::new(712),
     );
     builder
+        .function_state
         .pin_slot_names
         .insert(ValueId::new(713), "outer_pin".into());
-    builder.return_defer_active = true;
-    builder.return_defer_slot = Some(ValueId::new(714));
-    builder.return_defer_target = Some(BasicBlockId::new(715));
-    builder.return_deferred_emitted = true;
-    builder.in_cleanup_block = true;
-    builder.cleanup_allow_return = true;
-    builder.cleanup_allow_throw = true;
-    builder.suppress_pin_entry_copy_next = true;
-    builder.in_unified_boxcall_fallback = true;
+    builder.function_state.return_defer_active = true;
+    builder.function_state.return_defer_slot = Some(ValueId::new(714));
+    builder.function_state.return_defer_target = Some(BasicBlockId::new(715));
+    builder.function_state.return_deferred_emitted = true;
+    builder.function_state.in_cleanup_block = true;
+    builder.function_state.cleanup_allow_return = true;
+    builder.function_state.cleanup_allow_throw = true;
+    builder.function_state.suppress_pin_entry_copy_next = true;
+    builder.function_state.in_unified_boxcall_fallback = true;
     builder.recursion_depth = 7;
     builder.comp_ctx.current_static_box = Some("OuterBox".into());
     builder.comp_ctx.current_slot_registry = Some(FunctionSlotRegistry::new());
-    builder.comp_ctx.reserve_value_id(ValueId::new(716));
-    builder.comp_ctx.fn_body_ast = Some(vec![literal(717)]);
+    builder
+        .function_state
+        .compilation
+        .reserve_value_id(ValueId::new(716));
+    builder.function_state.compilation.fn_body_ast = Some(vec![literal(717)]);
     builder.metadata_ctx.set_current_span(Span::new(1, 2, 3, 4));
     builder.metadata_ctx.push_region(RegionId(718));
-    builder
-        .metadata_ctx
-        .record_value_span(ValueId::new(727), Span::new(7, 2, 7, 9));
-    builder
-        .metadata_ctx
-        .record_value_caller(ValueId::new(728), std::panic::Location::caller());
+    builder.record_value_origin_span(ValueId::new(727), Span::new(7, 2, 7, 9));
+    builder.record_value_origin_caller(ValueId::new(728), std::panic::Location::caller());
     seal_outer_frag(&mut builder);
     builder
 }
@@ -187,51 +214,73 @@ fn seeded_builder() -> MirBuilder {
 fn assert_outer_state(builder: &MirBuilder) {
     assert_eq!(
         builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .map(|function| function.signature.name.as_str()),
         Some("outer")
     );
-    assert!(builder.current_block.is_some());
+    assert!(builder.function_state.current_block.is_some());
     assert_eq!(
-        builder.variable_ctx.lookup("outer_value"),
+        builder.function_state.variable_ctx.lookup("outer_value"),
         Some(ValueId::new(700))
     );
     assert_eq!(
-        builder.type_ctx.value_types.get(&ValueId::new(700)),
-        Some(&MirType::Integer)
-    );
-    assert_eq!(
-        builder.type_ctx.value_kinds.get(&ValueId::new(720)),
-        Some(&MirValueKind::Parameter(0))
-    );
-    assert_eq!(
-        builder.type_ctx.value_origin_newbox.get(&ValueId::new(721)),
-        Some(&"OuterOriginBox".into())
-    );
-    assert_eq!(
-        builder.type_ctx.string_literals.get(&ValueId::new(722)),
-        Some(&"outer literal".into())
-    );
-    assert_eq!(
-        builder.type_ctx.map_value_types.get(&ValueId::new(723)),
+        builder
+            .function_state
+            .type_ctx
+            .value_types
+            .get(&ValueId::new(700)),
         Some(&MirType::Integer)
     );
     assert_eq!(
         builder
+            .function_state
+            .type_ctx
+            .value_kinds
+            .get(&ValueId::new(720)),
+        Some(&MirValueKind::Parameter(0))
+    );
+    assert_eq!(
+        builder
+            .function_state
+            .type_ctx
+            .value_origin_newbox
+            .get(&ValueId::new(721)),
+        Some(&"OuterOriginBox".into())
+    );
+    assert_eq!(
+        builder
+            .function_state
+            .type_ctx
+            .string_literals
+            .get(&ValueId::new(722)),
+        Some(&"outer literal".into())
+    );
+    assert_eq!(
+        builder
+            .function_state
+            .type_ctx
+            .map_value_types
+            .get(&ValueId::new(723)),
+        Some(&MirType::Integer)
+    );
+    assert_eq!(
+        builder
+            .function_state
             .type_ctx
             .map_literal_value_types
             .get(&(ValueId::new(724), "outer-key".into())),
         Some(&MirType::String)
     );
     assert_eq!(
-        builder.binding_ctx.lookup("outer_binding"),
+        builder.function_state.binding_ctx.lookup("outer_binding"),
         Some(BindingId::new(719))
     );
-    assert!(builder.resolved_binding_state.is_installed());
+    assert!(builder.function_state.resolved_binding_state.is_installed());
     let outer_record = builder
-        .comp_ctx
+        .function_state
+        .compilation
         .record_local_value(ValueId::new(725))
         .expect("outer record-local scratch must restore");
     assert_eq!(outer_record.record_name, "OuterRecord");
@@ -242,47 +291,65 @@ fn assert_outer_state(builder: &MirBuilder) {
         Some("Integer")
     );
     assert_eq!(outer_record.fields[0].value, ValueId::new(726));
-    assert_eq!(builder.scope_ctx.lexical_scope_stack.len(), 1);
+    assert_eq!(builder.function_state.scope.lexical_scope_stack.len(), 1);
     assert_eq!(
-        builder.scope_ctx.loop_header_stack,
+        builder.function_state.scope.loop_header_stack,
         vec![BasicBlockId::new(701)]
     );
     assert_eq!(
-        builder.scope_ctx.loop_exit_stack,
+        builder.function_state.scope.loop_exit_stack,
         vec![BasicBlockId::new(702)]
     );
     assert_eq!(
-        builder.scope_ctx.if_merge_stack,
+        builder.function_state.scope.if_merge_stack,
         vec![BasicBlockId::new(703)]
     );
     assert_eq!(builder.scope_ctx.debug_scope_stack, vec!["outer/debug"]);
-    assert!(builder.scope_ctx.function_param_names.contains("arg"));
+    assert!(builder
+        .function_state
+        .scope
+        .function_param_names
+        .contains("arg"));
     assert_eq!(
-        builder.scope_ctx.fastmem_region_stack,
+        builder.function_state.scope.fastmem_region_stack,
         vec![FastMemRegionId(704)]
     );
-    assert_eq!(builder.pending_phis.len(), 1);
-    assert_eq!(builder.local_ssa_map.len(), 1);
-    assert_eq!(builder.schedule_mat_map.len(), 1);
-    assert_eq!(builder.pin_slot_names.len(), 1);
-    assert!(builder.return_defer_active);
-    assert_eq!(builder.return_defer_slot, Some(ValueId::new(714)));
-    assert_eq!(builder.return_defer_target, Some(BasicBlockId::new(715)));
-    assert!(builder.return_deferred_emitted);
-    assert!(builder.in_cleanup_block);
-    assert!(builder.cleanup_allow_return);
-    assert!(builder.cleanup_allow_throw);
-    assert!(builder.suppress_pin_entry_copy_next);
-    assert!(builder.in_unified_boxcall_fallback);
+    assert_eq!(builder.function_state.pending_phis.len(), 1);
+    assert_eq!(builder.function_state.local_ssa_map.len(), 1);
+    assert_eq!(builder.function_state.schedule_mat_map.len(), 1);
+    assert_eq!(builder.function_state.pin_slot_names.len(), 1);
+    assert!(builder.function_state.return_defer_active);
+    assert_eq!(
+        builder.function_state.return_defer_slot,
+        Some(ValueId::new(714))
+    );
+    assert_eq!(
+        builder.function_state.return_defer_target,
+        Some(BasicBlockId::new(715))
+    );
+    assert!(builder.function_state.return_deferred_emitted);
+    assert!(builder.function_state.in_cleanup_block);
+    assert!(builder.function_state.cleanup_allow_return);
+    assert!(builder.function_state.cleanup_allow_throw);
+    assert!(builder.function_state.suppress_pin_entry_copy_next);
+    assert!(builder.function_state.in_unified_boxcall_fallback);
     assert_eq!(builder.recursion_depth, 7);
     assert_eq!(
         builder.comp_ctx.current_static_box.as_deref(),
         Some("OuterBox")
     );
     assert!(builder.comp_ctx.current_slot_registry.is_some());
-    assert!(builder.comp_ctx.is_reserved_value_id(ValueId::new(716)));
+    assert!(builder
+        .function_state
+        .compilation
+        .is_reserved_value_id(ValueId::new(716)));
     assert_eq!(
-        builder.comp_ctx.fn_body_ast.as_ref().map(|body| body.len()),
+        builder
+            .function_state
+            .compilation
+            .fn_body_ast
+            .as_ref()
+            .map(|body| body.len()),
         Some(1)
     );
     assert_eq!(builder.metadata_ctx.current_span(), Span::new(1, 2, 3, 4));
@@ -291,61 +358,78 @@ fn assert_outer_state(builder: &MirBuilder) {
         &[RegionId(718)]
     );
     assert_eq!(
-        builder.metadata_ctx.value_span(ValueId::new(727)),
+        builder.value_origin_span(ValueId::new(727)),
         Some(Span::new(7, 2, 7, 9))
     );
+    assert!(builder.value_origin_caller(ValueId::new(728)).is_some());
     assert!(builder
-        .metadata_ctx
-        .value_caller(ValueId::new(728))
-        .is_some());
-    assert!(builder
+        .function_state
         .frag_emit_session
         .is_sealed_for_test(BasicBlockId::new(0)));
 }
 
 fn assert_child_entry_is_reset(builder: &MirBuilder) {
-    assert!(builder.scope_ctx.current_function.is_none());
-    assert!(builder.current_block.is_none());
-    assert!(builder.variable_ctx.lookup("outer_value").is_none());
-    assert!(builder.type_ctx.value_types.is_empty());
-    assert!(builder.type_ctx.value_kinds.is_empty());
-    assert!(builder.type_ctx.value_origin_newbox.is_empty());
-    assert!(builder.type_ctx.string_literals.is_empty());
-    assert!(builder.type_ctx.map_value_types.is_empty());
-    assert!(builder.type_ctx.map_literal_value_types.is_empty());
-    assert!(builder.binding_ctx.is_empty());
-    assert!(!builder.resolved_binding_state.is_installed());
+    assert!(builder.function_state.current_function.is_none());
+    assert!(builder.function_state.current_block.is_none());
     assert!(builder
-        .comp_ctx
+        .function_state
+        .variable_ctx
+        .lookup("outer_value")
+        .is_none());
+    assert!(builder.function_state.type_ctx.value_types.is_empty());
+    assert!(builder.function_state.type_ctx.value_kinds.is_empty());
+    assert!(builder
+        .function_state
+        .type_ctx
+        .value_origin_newbox
+        .is_empty());
+    assert!(builder.function_state.type_ctx.string_literals.is_empty());
+    assert!(builder.function_state.type_ctx.map_value_types.is_empty());
+    assert!(builder
+        .function_state
+        .type_ctx
+        .map_literal_value_types
+        .is_empty());
+    assert!(builder.function_state.binding_ctx.is_empty());
+    assert!(!builder.function_state.resolved_binding_state.is_installed());
+    assert!(builder
+        .function_state
+        .compilation
         .record_local_value(ValueId::new(725))
         .is_none());
-    assert!(builder.scope_ctx.lexical_scope_stack.is_empty());
-    assert!(builder.scope_ctx.loop_header_stack.is_empty());
-    assert!(builder.scope_ctx.loop_exit_stack.is_empty());
-    assert!(builder.scope_ctx.if_merge_stack.is_empty());
+    assert!(builder.function_state.scope.lexical_scope_stack.is_empty());
+    assert!(builder.function_state.scope.loop_header_stack.is_empty());
+    assert!(builder.function_state.scope.loop_exit_stack.is_empty());
+    assert!(builder.function_state.scope.if_merge_stack.is_empty());
     assert!(builder.scope_ctx.debug_scope_stack.is_empty());
-    assert!(builder.scope_ctx.function_param_names.is_empty());
-    assert!(builder.scope_ctx.fastmem_region_stack.is_empty());
+    assert!(builder.function_state.scope.function_param_names.is_empty());
+    assert!(builder.function_state.scope.fastmem_region_stack.is_empty());
     assert!(builder.comp_ctx.current_slot_registry.is_none());
-    assert!(!builder.comp_ctx.is_reserved_value_id(ValueId::new(716)));
+    assert!(!builder
+        .function_state
+        .compilation
+        .is_reserved_value_id(ValueId::new(716)));
     assert_eq!(
-        builder.comp_ctx.fn_body_ast.as_ref().map(Vec::len),
+        builder
+            .function_state
+            .compilation
+            .fn_body_ast
+            .as_ref()
+            .map(Vec::len),
         Some(0),
         "the child owns its empty legacy body capture rather than the outer body"
     );
     assert_eq!(
-        builder.metadata_ctx.value_span(ValueId::new(727)),
+        builder.value_origin_span(ValueId::new(727)),
         Some(Span::new(7, 2, 7, 9)),
         "metadata origin spans are an explicit no-isolation control before METAISO"
     );
     assert!(
-        builder
-            .metadata_ctx
-            .value_caller(ValueId::new(728))
-            .is_some(),
+        builder.value_origin_caller(ValueId::new(728)).is_some(),
         "metadata origin callers are an explicit no-isolation control before METAISO"
     );
     assert!(!builder
+        .function_state
         .frag_emit_session
         .is_sealed_for_test(BasicBlockId::new(0)));
 }
@@ -477,102 +561,118 @@ fn child_entry_resets_captured_function_owned_state_before_restoring_outer_state
             assert_child_entry_is_reset(child);
 
             child
+                .function_state
                 .variable_ctx
                 .insert("child_value".into(), ValueId::new(900));
             child
+                .function_state
                 .type_ctx
                 .value_types
                 .insert(ValueId::new(900), MirType::String);
             child
+                .function_state
                 .type_ctx
                 .value_kinds
                 .insert(ValueId::new(903), MirValueKind::Local(0));
             child
+                .function_state
                 .type_ctx
                 .value_origin_newbox
                 .insert(ValueId::new(904), "ChildOriginBox".into());
             child
+                .function_state
                 .type_ctx
                 .string_literals
                 .insert(ValueId::new(905), "child literal".into());
             child
+                .function_state
                 .type_ctx
                 .map_value_types
                 .insert(ValueId::new(906), MirType::Bool);
             child
+                .function_state
                 .type_ctx
                 .map_literal_value_types
                 .insert((ValueId::new(907), "child-key".into()), MirType::Float);
             child
+                .function_state
                 .binding_ctx
                 .insert("child_binding".into(), BindingId::new(901));
             child
+                .function_state
                 .resolved_binding_state
                 .install(&resolved_product())
                 .unwrap();
-            child.comp_ctx.register_record_local_value(
-                ValueId::new(902),
-                "ChildRecord".into(),
-                Vec::new(),
-            );
             child
-                .metadata_ctx
-                .record_value_span(ValueId::new(908), Span::new(8, 1, 8, 9));
-            child
-                .metadata_ctx
-                .record_value_caller(ValueId::new(909), std::panic::Location::caller());
+                .function_state
+                .compilation
+                .register_record_local_value(ValueId::new(902), "ChildRecord".into(), Vec::new());
+            child.record_value_origin_span(ValueId::new(908), Span::new(8, 1, 8, 9));
+            child.record_value_origin_caller(ValueId::new(909), std::panic::Location::caller());
             Err("injected:child_entry".into())
         })
         .unwrap_err();
 
     assert!(error.contains("injected:child_entry"));
     assert_outer_state(&builder);
-    assert!(builder.variable_ctx.lookup("child_value").is_none());
     assert!(builder
+        .function_state
+        .variable_ctx
+        .lookup("child_value")
+        .is_none());
+    assert!(builder
+        .function_state
         .type_ctx
         .value_types
         .get(&ValueId::new(900))
         .is_none());
     assert!(builder
+        .function_state
         .type_ctx
         .value_kinds
         .get(&ValueId::new(903))
         .is_none());
     assert!(builder
+        .function_state
         .type_ctx
         .value_origin_newbox
         .get(&ValueId::new(904))
         .is_none());
     assert!(builder
+        .function_state
         .type_ctx
         .string_literals
         .get(&ValueId::new(905))
         .is_none());
     assert!(builder
+        .function_state
         .type_ctx
         .map_value_types
         .get(&ValueId::new(906))
         .is_none());
     assert!(builder
+        .function_state
         .type_ctx
         .map_literal_value_types
         .get(&(ValueId::new(907), "child-key".into()))
         .is_none());
-    assert!(builder.binding_ctx.lookup("child_binding").is_none());
     assert!(builder
-        .comp_ctx
+        .function_state
+        .binding_ctx
+        .lookup("child_binding")
+        .is_none());
+    assert!(builder
+        .function_state
+        .compilation
         .record_local_value(ValueId::new(902))
         .is_none());
     assert_eq!(
-        builder.metadata_ctx.value_span(ValueId::new(908)),
+        builder.value_origin_span(ValueId::new(908)),
         Some(Span::new(8, 1, 8, 9)),
         "child metadata origin span intentionally remains until METAISO"
     );
     assert!(
-        builder
-            .metadata_ctx
-            .value_caller(ValueId::new(909))
-            .is_some(),
+        builder.value_origin_caller(ValueId::new(909)).is_some(),
         "child metadata origin caller intentionally remains until METAISO"
     );
 }
@@ -584,19 +684,28 @@ fn box_compilation_session_preserves_the_existing_partial_type_context_action() 
 
     let error = builder
         .with_function_lowering_session("Injected.box_context/0", Vec::new(), |child| {
-            assert!(child.type_ctx.value_types.is_empty());
-            assert!(child.type_ctx.value_kinds.is_empty());
-            assert!(child.type_ctx.value_origin_newbox.is_empty());
+            assert!(child.function_state.type_ctx.value_types.is_empty());
+            assert!(child.function_state.type_ctx.value_kinds.is_empty());
+            assert!(child.function_state.type_ctx.value_origin_newbox.is_empty());
             assert_eq!(
-                child.type_ctx.string_literals.get(&ValueId::new(722)),
+                child
+                    .function_state
+                    .type_ctx
+                    .string_literals
+                    .get(&ValueId::new(722)),
                 Some(&"outer literal".into())
             );
             assert_eq!(
-                child.type_ctx.map_value_types.get(&ValueId::new(723)),
+                child
+                    .function_state
+                    .type_ctx
+                    .map_value_types
+                    .get(&ValueId::new(723)),
                 Some(&MirType::Integer)
             );
             assert_eq!(
                 child
+                    .function_state
                     .type_ctx
                     .map_literal_value_types
                     .get(&(ValueId::new(724), "outer-key".into())),
@@ -607,19 +716,32 @@ fn box_compilation_session_preserves_the_existing_partial_type_context_action() 
         .unwrap_err();
 
     assert!(error.contains("injected:box_context"));
-    assert!(builder.type_ctx.value_types.is_empty());
-    assert!(builder.type_ctx.value_kinds.is_empty());
-    assert!(builder.type_ctx.value_origin_newbox.is_empty());
+    assert!(builder.function_state.type_ctx.value_types.is_empty());
+    assert!(builder.function_state.type_ctx.value_kinds.is_empty());
+    assert!(builder
+        .function_state
+        .type_ctx
+        .value_origin_newbox
+        .is_empty());
     assert_eq!(
-        builder.type_ctx.string_literals.get(&ValueId::new(722)),
+        builder
+            .function_state
+            .type_ctx
+            .string_literals
+            .get(&ValueId::new(722)),
         Some(&"outer literal".into())
     );
     assert_eq!(
-        builder.type_ctx.map_value_types.get(&ValueId::new(723)),
+        builder
+            .function_state
+            .type_ctx
+            .map_value_types
+            .get(&ValueId::new(723)),
         Some(&MirType::Integer)
     );
     assert_eq!(
         builder
+            .function_state
             .type_ctx
             .map_literal_value_types
             .get(&(ValueId::new(724), "outer-key".into())),

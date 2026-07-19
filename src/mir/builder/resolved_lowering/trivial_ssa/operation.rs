@@ -37,6 +37,7 @@ pub(super) fn emit_binary(
     };
     builder.emit_instruction(instruction)?;
     builder
+        .function_state
         .type_ctx
         .value_types
         .insert(dst, mir_type(representation));

@@ -26,7 +26,7 @@ impl MirBuilder {
         body_statement_count: usize,
     ) -> Result<FastMemRegionId, String> {
         let function = self
-            .scope_ctx
+            .function_state
             .current_function
             .as_mut()
             .ok_or_else(|| "[freeze:contract][fastmem/outside_function]".to_string())?;
@@ -63,7 +63,10 @@ impl MirBuilder {
     ) -> Result<ValueId, String> {
         let dst = self.next_value_id();
         self.emit_fastmem_memop(region, kind, Some(dst), operands, access)?;
-        self.type_ctx.value_types.insert(dst, MirType::Integer);
+        self.function_state
+            .type_ctx
+            .value_types
+            .insert(dst, MirType::Integer);
         Ok(dst)
     }
 
@@ -99,7 +102,7 @@ impl MirBuilder {
     ) -> Result<(), String> {
         let source_span = self.metadata_ctx.current_span();
         let function = self
-            .scope_ctx
+            .function_state
             .current_function
             .as_mut()
             .ok_or_else(|| "[freeze:contract][fastmem/outside_function]".to_string())?;
@@ -145,7 +148,7 @@ impl MirBuilder {
     ) -> Result<(), String> {
         let source_span = self.metadata_ctx.current_span();
         let function = self
-            .scope_ctx
+            .function_state
             .current_function
             .as_mut()
             .ok_or_else(|| "[freeze:contract][fastmem/outside_function]".to_string())?;
@@ -186,7 +189,7 @@ impl MirBuilder {
         owner_eq_required: bool,
     ) -> Result<(), String> {
         let function = self
-            .scope_ctx
+            .function_state
             .current_function
             .as_mut()
             .ok_or_else(|| "[freeze:contract][fastmem/outside_function]".to_string())?;
@@ -228,7 +231,7 @@ impl MirBuilder {
         resolved_length: Option<u64>,
     ) -> Result<(), String> {
         let function = self
-            .scope_ctx
+            .function_state
             .current_function
             .as_mut()
             .ok_or_else(|| "[freeze:contract][fastmem/outside_function]".to_string())?;
@@ -255,7 +258,7 @@ impl MirBuilder {
         proof_value: ValueId,
     ) -> Result<(), String> {
         let function = self
-            .scope_ctx
+            .function_state
             .current_function
             .as_mut()
             .ok_or_else(|| "[freeze:contract][fastmem/outside_function]".to_string())?;
@@ -280,7 +283,7 @@ impl MirBuilder {
         page_value: ValueId,
     ) -> Result<(), String> {
         let function = self
-            .scope_ctx
+            .function_state
             .current_function
             .as_mut()
             .ok_or_else(|| "[freeze:contract][fastmem/outside_function]".to_string())?;
@@ -305,7 +308,7 @@ impl MirBuilder {
         proof_kind: FastMemBlockNextProofKind,
     ) -> Result<(), String> {
         let function = self
-            .scope_ctx
+            .function_state
             .current_function
             .as_mut()
             .ok_or_else(|| "[freeze:contract][fastmem/outside_function]".to_string())?;
@@ -331,7 +334,7 @@ impl MirBuilder {
         page_value: ValueId,
     ) -> Result<(), String> {
         let function = self
-            .scope_ctx
+            .function_state
             .current_function
             .as_mut()
             .ok_or_else(|| "[freeze:contract][fastmem/outside_function]".to_string())?;
@@ -355,7 +358,7 @@ impl MirBuilder {
         page_value: ValueId,
     ) -> Result<(), String> {
         let function = self
-            .scope_ctx
+            .function_state
             .current_function
             .as_mut()
             .ok_or_else(|| "[freeze:contract][fastmem/outside_function]".to_string())?;
@@ -381,7 +384,7 @@ impl MirBuilder {
         let body_bb = self.current_block()?;
         let lower_value = self.build_literal(LiteralValue::Integer(0))?;
         let function = self
-            .scope_ctx
+            .function_state
             .current_function
             .as_mut()
             .ok_or_else(|| "[freeze:contract][fastmem/outside_function]".to_string())?;
@@ -411,7 +414,7 @@ impl MirBuilder {
             return Ok(fallback);
         };
         let function = self
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .ok_or_else(|| "[freeze:contract][fastmem/outside_function]".to_string())?;
@@ -426,7 +429,7 @@ impl MirBuilder {
 
     fn note_fastmem_memop(&mut self, region: FastMemRegionId) -> Result<(), String> {
         let function = self
-            .scope_ctx
+            .function_state
             .current_function
             .as_mut()
             .ok_or_else(|| "[freeze:contract][fastmem/outside_function]".to_string())?;

@@ -14,7 +14,7 @@ pub(crate) fn ensure_fastmem_owner_eq_condition(
     condition_value: ValueId,
 ) -> Result<(), String> {
     let function = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .ok_or_else(|| "[freeze:contract][fastmem/outside_function]".to_string())?;

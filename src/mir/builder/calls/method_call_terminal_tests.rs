@@ -36,7 +36,7 @@ fn builder(name: &str) -> MirBuilder {
 
 fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -48,7 +48,7 @@ fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
 
 fn next_value_cursor(builder: &MirBuilder) -> u32 {
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("current function")
@@ -60,8 +60,18 @@ fn value_fact(
     value: crate::mir::ValueId,
 ) -> (Option<MirType>, Option<String>) {
     (
-        builder.type_ctx.value_types.get(&value).cloned(),
-        builder.type_ctx.value_origin_newbox.get(&value).cloned(),
+        builder
+            .function_state
+            .type_ctx
+            .value_types
+            .get(&value)
+            .cloned(),
+        builder
+            .function_state
+            .type_ctx
+            .value_origin_newbox
+            .get(&value)
+            .cloned(),
     )
 }
 

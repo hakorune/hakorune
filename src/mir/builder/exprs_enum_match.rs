@@ -14,8 +14,8 @@ impl super::MirBuilder {
         for stmt in body {
             last_value = Some(self.build_statement(stmt)?);
         }
-        self.variable_ctx.remove(&temp_name);
-        self.binding_ctx.remove(&temp_name);
+        self.function_state.variable_ctx.remove(&temp_name);
+        self.function_state.binding_ctx.remove(&temp_name);
         Ok(Some(last_value.unwrap_or_else(|| self.next_value_id())))
     }
 
@@ -89,9 +89,17 @@ impl super::MirBuilder {
             }
         };
         let payload_type = declared_payload_type
-            .or_else(|| payload.and_then(|value| self.type_ctx.value_types.get(&value).cloned()))
             .or_else(|| {
-                self.scope_ctx
+                payload.and_then(|value| {
+                    self.function_state
+                        .type_ctx
+                        .value_types
+                        .get(&value)
+                        .cloned()
+                })
+            })
+            .or_else(|| {
+                self.function_state
                     .current_function
                     .as_ref()
                     .and_then(|function| {
@@ -103,7 +111,7 @@ impl super::MirBuilder {
                     })
             })
             .or_else(|| {
-                self.scope_ctx
+                self.function_state
                     .current_function
                     .as_ref()
                     .and_then(|function| {
@@ -119,7 +127,8 @@ impl super::MirBuilder {
             payload,
             payload_type,
         })?;
-        self.type_ctx
+        self.function_state
+            .type_ctx
             .value_types
             .insert(dst, MirType::Box(runtime_variant_box_name(enum_name)));
         Ok(Some(dst))
@@ -163,7 +172,8 @@ impl super::MirBuilder {
             value: scrutinee_value,
             enum_name,
         })?;
-        self.type_ctx
+        self.function_state
+            .type_ctx
             .value_types
             .insert(tag_value, MirType::Integer);
 
@@ -192,7 +202,10 @@ impl super::MirBuilder {
                 then_val,
                 else_val: result,
             })?;
-            self.type_ctx.value_types.insert(dst, MirType::Bool);
+            self.function_state
+                .type_ctx
+                .value_types
+                .insert(dst, MirType::Bool);
             result = dst;
         }
 
@@ -221,7 +234,8 @@ impl super::MirBuilder {
         let declared_payload_type_name = resolved.decl.payload_type_name.clone();
         let scrutinee_value = self.build_expression_impl(scrutinee.clone())?;
         let payload_type = payload_mir_type(declared_payload_type_name.as_deref()).or_else(|| {
-            self.type_ctx
+            self.function_state
+                .type_ctx
                 .value_types
                 .get(&scrutinee_value)
                 .and_then(|ty| concrete_enum_payload_type(enum_name, ty))
@@ -235,7 +249,8 @@ impl super::MirBuilder {
             tag,
             payload_type: payload_type.clone(),
         })?;
-        self.type_ctx
+        self.function_state
+            .type_ctx
             .value_types
             .insert(dst, payload_type.unwrap_or(MirType::Unknown));
         Ok(Some(dst))

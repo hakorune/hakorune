@@ -57,20 +57,21 @@ pub(in crate::mir::builder) fn apply_if_joins(
     let mut copy_srcs: Option<HashMap<ValueId, ValueId>> = None;
 
     if strict_planner_required_debug {
-        let func =
-            builder.scope_ctx.current_function.as_ref().ok_or_else(|| {
-                "[if_join] No current function for join dominance check".to_string()
-            })?;
+        let func = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .ok_or_else(|| "[if_join] No current function for join dominance check".to_string())?;
         dominators = Some(crate::mir::verification::utils::compute_dominators(func));
         fn_name = Some(func.signature.name.clone());
-        merge_bb = builder.current_block;
+        merge_bb = builder.function_state.current_block;
         let loc = std::panic::Location::caller();
         caller = Some(format!("{}:{}:{}", loc.file(), loc.line(), loc.column()));
     }
 
     let (release_def_blocks, release_dominators) = if strict_planner_required_debug {
         (None, None)
-    } else if let Some(func) = builder.scope_ctx.current_function.as_ref() {
+    } else if let Some(func) = builder.function_state.current_function.as_ref() {
         (
             Some(crate::mir::verification::utils::compute_def_blocks(func)),
             Some(crate::mir::verification::utils::compute_dominators(func)),
@@ -134,9 +135,13 @@ pub(in crate::mir::builder) fn apply_if_joins(
                 .ok_or_else(|| "[lowerer] Missing then end block for CorePlan::If".to_string())?;
             then_pred = Some(pred);
             then_in = {
-                let func = builder.scope_ctx.current_function.as_mut().ok_or_else(|| {
-                    "[if_join] No current function for PHI input materialization".to_string()
-                })?;
+                let func = builder
+                    .function_state
+                    .current_function
+                    .as_mut()
+                    .ok_or_else(|| {
+                        "[if_join] No current function for PHI input materialization".to_string()
+                    })?;
                 crate::mir::builder::ssa::phi_input_materializer::for_pred(
                     func, pred, then_in, &join.name, "then",
                 )?
@@ -148,9 +153,13 @@ pub(in crate::mir::builder) fn apply_if_joins(
                 .ok_or_else(|| "[lowerer] Missing else end block for CorePlan::If".to_string())?;
             else_pred = Some(pred);
             else_in = {
-                let func = builder.scope_ctx.current_function.as_mut().ok_or_else(|| {
-                    "[if_join] No current function for PHI input materialization".to_string()
-                })?;
+                let func = builder
+                    .function_state
+                    .current_function
+                    .as_mut()
+                    .ok_or_else(|| {
+                        "[if_join] No current function for PHI input materialization".to_string()
+                    })?;
                 crate::mir::builder::ssa::phi_input_materializer::for_pred(
                     func, pred, else_in, &join.name, "else",
                 )?
@@ -160,16 +169,16 @@ pub(in crate::mir::builder) fn apply_if_joins(
         if inputs.is_empty() {
             continue;
         }
-        let type_hint = builder.type_ctx.get_type(join.dst).cloned();
+        let type_hint = builder.function_state.type_ctx.get_type(join.dst).cloned();
 
         if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
             let fn_name = builder
-                .scope_ctx
+                .function_state
                 .current_function
                 .as_ref()
                 .map(|f| f.signature.name.as_str())
                 .unwrap_or("<none>");
-            let merge_bb = builder.current_block;
+            let merge_bb = builder.function_state.current_block;
             let caller = std::panic::Location::caller();
             let ring0 = crate::runtime::get_global_ring0();
             ring0.log.debug(&format!(
@@ -194,9 +203,13 @@ pub(in crate::mir::builder) fn apply_if_joins(
             let merge_bb = merge_bb;
             let caller = caller.as_ref().unwrap();
             let debug_def_blocks = {
-                let func = builder.scope_ctx.current_function.as_ref().ok_or_else(|| {
-                    "[if_join] No current function for join dominance check".to_string()
-                })?;
+                let func = builder
+                    .function_state
+                    .current_function
+                    .as_ref()
+                    .ok_or_else(|| {
+                        "[if_join] No current function for join dominance check".to_string()
+                    })?;
                 crate::mir::verification::utils::compute_def_blocks(func)
             };
             let def_blocks = &debug_def_blocks;
@@ -205,9 +218,13 @@ pub(in crate::mir::builder) fn apply_if_joins(
             let else_def_bb = else_pred.and_then(|_| def_blocks.get(&else_in).copied());
 
             {
-                let func = builder.scope_ctx.current_function.as_ref().ok_or_else(|| {
-                    "[if_join] No current function for join carry check".to_string()
-                })?;
+                let func = builder
+                    .function_state
+                    .current_function
+                    .as_ref()
+                    .ok_or_else(|| {
+                        "[if_join] No current function for join carry check".to_string()
+                    })?;
                 if const_ints.is_none() || copy_srcs.is_none() {
                     let mut const_map = HashMap::new();
                     let mut copy_map = HashMap::new();
@@ -350,8 +367,8 @@ pub(in crate::mir::builder) fn apply_if_joins(
 
         // Fail-fast: check for duplicate PHI dst across ALL blocks (strict/dev+planner_required only)
         if strict_planner_required_debug {
-            if let Some(current_bb) = builder.current_block {
-                if let Some(func) = &builder.scope_ctx.current_function {
+            if let Some(current_bb) = builder.function_state.current_block {
+                if let Some(func) = &builder.function_state.current_function {
                     // Check ALL blocks for existing PHI with same dst (SSA violation)
                     for (&bb_id, block) in &func.blocks {
                         for inst in &block.instructions {

@@ -161,7 +161,7 @@ impl super::MirBuilder {
             "Loop lowering failed: JoinIR does not support this route shape, and LoopBuilder has been removed.\n\
              Function: {}\n\
              Hint: This loop route shape is not supported. All loops must use JoinIR lowering.{}",
-            self.scope_ctx.current_function.as_ref().map(|f| f.signature.name.as_str()).unwrap_or("<unknown>")
+            self.function_state.current_function.as_ref().map(|f| f.signature.name.as_str()).unwrap_or("<unknown>")
             ,
             detail_suffix
         )));

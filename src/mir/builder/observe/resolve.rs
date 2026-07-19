@@ -20,7 +20,7 @@ fn sample_every() -> usize {
 /// Dev‑only: emit a resolve.try event（candidates inspection）。
 pub(crate) fn emit_try(builder: &MirBuilder, meta: serde_json::Value) {
     let fn_name = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .map(|f| f.signature.name.as_str());
@@ -31,7 +31,7 @@ pub(crate) fn emit_try(builder: &MirBuilder, meta: serde_json::Value) {
 /// Dev‑only: emit a resolve.choose event（decision）。
 pub(crate) fn emit_choose(builder: &MirBuilder, meta: serde_json::Value) {
     let fn_name = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .map(|f| f.signature.name.as_str());

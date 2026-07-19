@@ -623,6 +623,42 @@ new source acceptance, type inference, type backfill, fallback, or retry
 repairing the BoxCompilationContext partial map action in the S0 series
 ```
 
+#### `S0b-I0 -> P0 -> G0` — closed (2026-07-19)
+
+The atomic physical cutover is green. `MirBuilder` now has exactly one private
+`FunctionLoweringStateV1`; all 32 Census routes use that sole owner, and no
+retired direct FunctionOwned route remains in production, tests, or shared
+source. `ScopeContext` is debug-only, `CompilationContext` retains only module,
+observation, and compatibility state, and `MetadataContext` retains only span,
+source-hint, and region observation. The individual `LoweringContext.saved_*`
+transaction remains unchanged, and the origin facts remain deliberately outside
+snapshot/clear/restore until METAISO.
+
+The historical pre-cutover inventory is retained separately at
+`tools/checks/fixtures/mirbuilder_fsession_direct_access_pre_s0b_v1.json`
+(1,792 observed routes). The active direct-access guard is now an old-route-zero
+proof: all 96 selector/domain rows are zero. Census also verifies the exact
+four-component state partition, retired mixed-context leaves, separate movable
+scope/debug clears, preserved BoxCompilationContext three-clear/three-retain
+behavior, absence of `saved_function_state`, and no metadata-origin lifecycle
+repair.
+
+Closeout evidence:
+
+```text
+python3 tools/checks/lib/mirbuilder_fsession_census.py
+python3 tools/checks/lib/mirbuilder_fsession_direct_access_inventory.py
+python3 tools/checks/lib/mirbuilder_fsession_direct_access_inventory_tests.py
+cargo test -q --lib function_session
+cargo check --all-targets -q
+bash tools/checks/current_state_pointer_guard.sh
+cargo fmt --check
+git diff --check
+```
+
+The next row is `FSESSION0-S0c-D0`: decide the move-only saved-state
+transaction without changing the now-single FunctionOwned storage owner.
+
 ### `FSESSION0-C0` — fresh child-session construction
 
 Construct a fresh function state instead of clearing a parent state in place.

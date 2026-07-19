@@ -57,6 +57,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         block_expr_count: usize,
     ) -> Result<Self, String> {
         if !builder
+            .function_state
             .resolved_binding_state
             .is_installed_for(input.owner())
         {
@@ -68,9 +69,13 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             return Err("[freeze:contract][canonical_binding_ssa/owner_mismatch]".to_string());
         }
         let requires_direct_call_capability = !profile.direct_calls().is_empty();
-        let function = builder.scope_ctx.current_function.as_mut().ok_or_else(|| {
-            "[freeze:contract][canonical_direct_call/function_missing]".to_string()
-        })?;
+        let function = builder
+            .function_state
+            .current_function
+            .as_mut()
+            .ok_or_else(|| {
+                "[freeze:contract][canonical_direct_call/function_missing]".to_string()
+            })?;
         CanonicalDirectStaticCallCapabilityV1::install_for_function(
             &mut function.metadata.canonical_direct_static_call_capabilities,
             requires_direct_call_capability,
@@ -131,6 +136,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             .commit(self.builder)
             .map_err(|error| error.to_string())?;
         self.builder
+            .function_state
             .resolved_binding_state
             .finish(self.input.owner())?;
         self.completion
@@ -460,7 +466,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             let cfg = &self.cfg;
             let function = self
                 .builder
-                .scope_ctx
+                .function_state
                 .current_function
                 .as_mut()
                 .ok_or_else(|| {
@@ -532,7 +538,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         let cfg = &self.cfg;
         let function = self
             .builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_mut()
             .ok_or_else(|| {
@@ -550,7 +556,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
     fn seal_block_if_needed(&mut self, block: BasicBlockId) -> Result<(), String> {
         let already_sealed = self
             .builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .and_then(|function| function.get_block(block))
@@ -565,7 +571,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
             let cfg = &mut self.cfg;
             let function = self
                 .builder
-                .scope_ctx
+                .function_state
                 .current_function
                 .as_mut()
                 .ok_or_else(|| {
@@ -582,7 +588,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
         let cfg = std::mem::take(&mut self.cfg);
         let function = self
             .builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .ok_or_else(|| {
@@ -594,7 +600,7 @@ impl<'builder, 'source> CanonicalTrivialSsaLowererV1<'builder, 'source> {
     }
 
     fn current_block(&self) -> Result<BasicBlockId, String> {
-        self.builder.current_block.ok_or_else(|| {
+        self.builder.function_state.current_block.ok_or_else(|| {
             "[freeze:contract][canonical_binding_ssa/current_block_missing]".to_string()
         })
     }
@@ -624,13 +630,17 @@ fn ensure_value_representation(
     representation: TrivialRepresentationV1,
 ) -> Result<(), String> {
     let expected = mir_type(representation);
-    if let Some(actual) = builder.type_ctx.value_types.get(&value) {
+    if let Some(actual) = builder.function_state.type_ctx.value_types.get(&value) {
         if actual != &MirType::Unknown && actual != &expected {
             return Err(format!(
                 "[freeze:contract][canonical_binding_ssa/value_type_mismatch] value={value:?} actual={actual:?} expected={expected:?}"
             ));
         }
     }
-    builder.type_ctx.value_types.insert(value, expected);
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(value, expected);
     Ok(())
 }

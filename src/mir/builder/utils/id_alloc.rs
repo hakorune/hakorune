@@ -19,7 +19,7 @@ impl super::super::MirBuilder {
     #[allow(deprecated)]
     pub(crate) fn next_value_id(&mut self) -> super::super::ValueId {
         loop {
-            let candidate = if let Some(ref mut f) = self.scope_ctx.current_function {
+            let candidate = if let Some(ref mut f) = self.function_state.current_function {
                 f.next_value_id() // Function context
             } else {
                 // Phase 136 Step 2/7 + Phase 2-2: Use core_ctx as SSOT (no sync needed)
@@ -27,7 +27,12 @@ impl super::super::MirBuilder {
             };
 
             // Phase 201-A: Skip reserved PHI dst ValueIds
-            if !self.comp_ctx.reserved_value_ids.contains(&candidate) {
+            if !self
+                .function_state
+                .compilation
+                .reserved_value_ids
+                .contains(&candidate)
+            {
                 return candidate;
             }
             // Reserved ID - try next one (loop continues)
@@ -48,7 +53,10 @@ impl super::super::MirBuilder {
     #[inline]
     pub(crate) fn alloc_typed(&mut self, ty: MirType) -> super::super::ValueId {
         let value_id = self.next_value_id();
-        self.type_ctx.value_types.insert(value_id, ty);
+        self.function_state
+            .type_ctx
+            .value_types
+            .insert(value_id, ty);
         value_id
     }
 

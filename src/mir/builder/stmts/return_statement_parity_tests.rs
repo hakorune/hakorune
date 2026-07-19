@@ -156,7 +156,7 @@ fn lower_pre_i0_return_reference(
 
 fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> ReturnParitySnapshotV1 {
     let function = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("current RET0-P0 function");
@@ -168,6 +168,7 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> ReturnPari
     blocks.sort_by_key(|(id, _, _)| *id);
 
     let mut value_kinds = builder
+        .function_state
         .type_ctx
         .value_kinds
         .iter()
@@ -176,6 +177,7 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> ReturnPari
     value_kinds.sort_by_key(|(value, _)| *value);
 
     let mut value_origins = builder
+        .function_state
         .type_ctx
         .value_origin_newbox
         .iter()
@@ -184,6 +186,7 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> ReturnPari
     value_origins.sort_by_key(|(value, _)| *value);
 
     let mut string_literals = builder
+        .function_state
         .type_ctx
         .string_literals
         .iter()
@@ -192,6 +195,7 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> ReturnPari
     string_literals.sort_by_key(|(value, _)| *value);
 
     let mut variable_map = builder
+        .function_state
         .variable_ctx
         .variable_map
         .iter()
@@ -201,11 +205,17 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> ReturnPari
 
     let bindings = variable_map
         .iter()
-        .map(|(name, _)| (name.clone(), builder.binding_ctx.lookup(name)))
+        .map(|(name, _)| {
+            (
+                name.clone(),
+                builder.function_state.binding_ctx.lookup(name),
+            )
+        })
         .collect();
 
     let scope_frames = builder
-        .scope_ctx
+        .function_state
+        .scope
         .lexical_scope_stack
         .iter()
         .map(|frame| ScopeFrameSnapshotV1 {
@@ -224,6 +234,7 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> ReturnPari
         .collect();
 
     let mut pin_slots = builder
+        .function_state
         .pin_slot_names
         .iter()
         .map(|(value, name)| (*value, name.clone()))
@@ -231,6 +242,7 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> ReturnPari
     pin_slots.sort_by_key(|(value, _)| *value);
 
     let mut local_ssa_map = builder
+        .function_state
         .local_ssa_map
         .iter()
         .map(|(key, value)| (*key, *value))
@@ -238,6 +250,7 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> ReturnPari
     local_ssa_map.sort_by_key(|(key, value)| (*key, *value));
 
     let mut schedule_mat_map = builder
+        .function_state
         .schedule_mat_map
         .iter()
         .map(|(key, value)| (*key, *value))
@@ -245,6 +258,7 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> ReturnPari
     schedule_mat_map.sort_by_key(|(key, value)| (*key, *value));
 
     let mut value_types = builder
+        .function_state
         .type_ctx
         .value_types
         .iter()
@@ -284,7 +298,7 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> ReturnPari
         pin_slots,
         local_ssa_map,
         schedule_mat_map,
-        current_block: builder.current_block,
+        current_block: builder.function_state.current_block,
         next_value_id: function.next_value_id,
         next_core_value: builder.core_ctx.peek_next_value(),
         next_core_block: builder.core_ctx.peek_next_block(),
@@ -292,12 +306,12 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> ReturnPari
         temp_slot_counter: builder.core_ctx.temp_slot_counter,
         recursion_depth: builder.recursion_depth,
         current_span: builder.metadata_ctx.current_span(),
-        in_cleanup_block: builder.in_cleanup_block,
-        cleanup_allow_return: builder.cleanup_allow_return,
-        return_defer_active: builder.return_defer_active,
-        return_defer_slot: builder.return_defer_slot,
-        return_defer_target: builder.return_defer_target,
-        return_deferred_emitted: builder.return_deferred_emitted,
+        in_cleanup_block: builder.function_state.in_cleanup_block,
+        cleanup_allow_return: builder.function_state.cleanup_allow_return,
+        return_defer_active: builder.function_state.return_defer_active,
+        return_defer_slot: builder.function_state.return_defer_slot,
+        return_defer_target: builder.function_state.return_defer_target,
+        return_deferred_emitted: builder.function_state.return_deferred_emitted,
     }
 }
 
@@ -348,9 +362,9 @@ fn configured_defer_has_exact_pre_i0_parity() {
     assert_eq!(selected_target, reference_target);
 
     for builder in [&mut selected, &mut reference] {
-        builder.return_defer_active = true;
-        builder.return_defer_slot = Some(selected_slot);
-        builder.return_defer_target = Some(selected_target);
+        builder.function_state.return_defer_active = true;
+        builder.function_state.return_defer_slot = Some(selected_slot);
+        builder.function_state.return_defer_target = Some(selected_target);
     }
 
     let expression = value_return(type_check(integer(8)));
@@ -367,8 +381,8 @@ fn cleanup_and_child_failures_plus_same_builder_reuse_have_exact_pre_i0_parity()
     let mut selected = builder("return_parity_cleanup/0");
     let mut reference = builder("return_parity_cleanup/0");
     for builder in [&mut selected, &mut reference] {
-        builder.in_cleanup_block = true;
-        builder.cleanup_allow_return = false;
+        builder.function_state.in_cleanup_block = true;
+        builder.function_state.cleanup_allow_return = false;
     }
 
     let cleanup = value_return(type_check(integer(8)));
@@ -379,8 +393,8 @@ fn cleanup_and_child_failures_plus_same_builder_reuse_have_exact_pre_i0_parity()
         snapshot(&reference, reference_result)
     );
 
-    selected.in_cleanup_block = false;
-    reference.in_cleanup_block = false;
+    selected.function_state.in_cleanup_block = false;
+    reference.function_state.in_cleanup_block = false;
     let recovery = value_return(integer(1));
     let selected_result = lower_selected(&mut selected, recovery.clone());
     let reference_result = lower_pre_i0_return_reference(&mut reference, recovery);

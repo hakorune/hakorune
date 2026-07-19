@@ -57,7 +57,7 @@ pub(in crate::mir::builder::control_flow::joinir::merge) fn apply_rewrites(
     }
 
     // Add new blocks to current function
-    if let Some(ref mut current_func) = builder.scope_ctx.current_function {
+    if let Some(ref mut current_func) = builder.function_state.current_function {
         for new_block in blocks.new_blocks {
             if debug && new_block.instructions.len() >= 4 {
                 log!(
@@ -151,7 +151,7 @@ pub(in crate::mir::builder::control_flow::joinir::merge) fn apply_rewrites(
             .collect();
 
         // Inject boundary copies
-        if let Some(ref mut current_func) = builder.scope_ctx.current_function {
+        if let Some(ref mut current_func) = builder.function_state.current_function {
             let _reallocations = BoundaryInjector::inject_boundary_copies(
                 current_func,
                 entry_block_remapped,
@@ -179,7 +179,7 @@ pub(in crate::mir::builder::control_flow::joinir::merge) fn apply_rewrites(
             true,
             "[apply_rewrites] Applied {} blocks, {} phi_inputs, {} carriers",
             builder
-                .scope_ctx
+                .function_state
                 .current_function
                 .as_ref()
                 .map(|f| f.blocks.len())

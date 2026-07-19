@@ -30,7 +30,7 @@ fn snapshot_branch_map(
     builder: &MirBuilder,
     current_bindings: &BTreeMap<String, crate::mir::ValueId>,
 ) -> BTreeMap<String, crate::mir::ValueId> {
-    let mut map = builder.variable_ctx.variable_map.clone();
+    let mut map = builder.function_state.variable_ctx.variable_map.clone();
     for (name, value_id) in current_bindings.iter() {
         map.insert(name.clone(), *value_id);
     }
@@ -118,7 +118,7 @@ where
     let then_plans = lower_branch(JoinIfBranchV1::Then, builder, current_bindings)?;
     let then_map = snapshot_branch_map(builder, current_bindings);
 
-    builder.variable_ctx.variable_map = pre_if_map.clone();
+    builder.function_state.variable_ctx.variable_map = pre_if_map.clone();
     *current_bindings = pre_bindings.clone();
 
     let else_plans = if has_else {
@@ -132,7 +132,7 @@ where
     };
     let else_map = snapshot_branch_map(builder, current_bindings);
 
-    builder.variable_ctx.variable_map = pre_if_map.clone();
+    builder.function_state.variable_ctx.variable_map = pre_if_map.clone();
     *current_bindings = pre_bindings;
 
     let (then_map, else_map) = normalize_branch_maps(&pre_if_map, &then_map, &else_map);
@@ -153,9 +153,10 @@ where
     debug_log_if_join_lit3_origin(builder, &plans, exit_shape.one_sided_exit);
 
     if !exit_shape.both_sides_exit {
-        builder.variable_ctx.variable_map = pre_if_map;
+        builder.function_state.variable_ctx.variable_map = pre_if_map;
         for join in &joins {
             builder
+                .function_state
                 .variable_ctx
                 .variable_map
                 .insert(join.name.clone(), join.dst);
@@ -267,7 +268,7 @@ fn debug_log_if_join_lit3_origin(
     }
 
     let fn_name = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .map(|f| f.signature.name.as_str())
@@ -282,7 +283,7 @@ fn debug_log_if_join_lit3_origin(
     ring0.log.debug(&format!(
         "[if_join/lowered_plans:lit3_origin] fn={} bb={:?} one_sided_exit={} plans_len={} const_int3_dsts=[{}] origin_spans=[{}] origin_missing={}",
         fn_name,
-        builder.current_block,
+        builder.function_state.current_block,
         if one_sided_exit { 1 } else { 0 },
         plans.len(),
         const_int3_dsts,
@@ -389,7 +390,7 @@ fn collect_lit3_from_effect(
     if let CoreEffectPlan::Const { dst, value } = effect {
         if matches!(value, ConstValue::Integer(3)) {
             lit3_dsts.push(*dst);
-            if let Some(span) = builder.metadata_ctx.value_span(*dst) {
+            if let Some(span) = builder.value_origin_span(*dst) {
                 lit3_spans.push(span.to_string());
             } else {
                 *origin_missing += 1;
@@ -512,6 +513,7 @@ where
 
     for join in &joins {
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert(join.name.clone(), join.dst);

@@ -94,6 +94,7 @@ pub(super) fn lower_simple_effect_stmt(
                         current_bindings.insert(name.clone(), value_id);
                     }
                     builder
+                        .function_state
                         .variable_ctx
                         .variable_map
                         .insert(name.clone(), value_id);
@@ -141,6 +142,7 @@ pub(super) fn lower_simple_effect_stmt(
                     plans.append(&mut init_plans);
                     current_bindings.insert(name.clone(), value_id);
                     builder
+                        .function_state
                         .variable_ctx
                         .variable_map
                         .insert(name.clone(), value_id);
@@ -258,7 +260,11 @@ fn lower_value_stmt_with_blockexpr_loop_prelude(
     for name in outer_binding_names {
         if let Some(value_id) = block_bindings.get(&name).copied() {
             current_bindings.insert(name.clone(), value_id);
-            builder.variable_ctx.variable_map.insert(name, value_id);
+            builder
+                .function_state
+                .variable_ctx
+                .variable_map
+                .insert(name, value_id);
         }
     }
     Ok((tail_id, plans))

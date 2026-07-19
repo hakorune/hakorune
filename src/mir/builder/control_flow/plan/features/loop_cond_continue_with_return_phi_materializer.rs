@@ -57,6 +57,7 @@ impl LoopCondContinueWithReturnPhiMaterializer {
         let current_bindings = frame.carrier_header_phis.clone();
         for (name, value_id) in &current_bindings {
             builder
+                .function_state
                 .variable_ctx
                 .variable_map
                 .insert(name.clone(), *value_id);

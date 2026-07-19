@@ -46,7 +46,7 @@ pub fn execute(
     trace.stderr_if(
         &format!(
             "[cf_loop/joinir]   Current block before emit_jump: {:?}",
-            builder.current_block
+            builder.function_state.current_block
         ),
         debug,
     );
@@ -63,7 +63,7 @@ pub fn execute(
     trace.stderr_if(
         &format!(
             "[cf_loop/joinir]   After emit_jump, current_block: {:?}",
-            builder.current_block
+            builder.function_state.current_block
         ),
         debug,
     );
@@ -85,7 +85,7 @@ pub fn execute(
     #[cfg(debug_assertions)]
     {
         if let Some(boundary) = boundary {
-            if let Some(ref func) = builder.scope_ctx.current_function {
+            if let Some(ref func) = builder.function_state.current_function {
                 debug_assertions::verify_joinir_contracts(
                     func,
                     loop_header_phi_info.header_block,

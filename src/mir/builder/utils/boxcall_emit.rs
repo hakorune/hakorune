@@ -38,7 +38,7 @@ impl super::super::MirBuilder {
         use crate::runtime::{CoreBoxId, CoreMethodId};
 
         // 1. box_val の型を取得
-        let box_ty = self.type_ctx.value_types.get(&box_val)?;
+        let box_ty = self.function_state.type_ctx.value_types.get(&box_val)?;
 
         // 2. Box 型名を取得
         let box_name = match box_ty {
@@ -114,9 +114,14 @@ impl super::super::MirBuilder {
         // Check environment variable for unified call usage, with safe overrides for core/user boxes
         let use_unified_env = super::super::calls::call_unified::is_unified_call_enabled();
         // First, try to determine the box type
-        let mut box_type: Option<String> = self.type_ctx.value_origin_newbox.get(&box_val).cloned();
+        let mut box_type: Option<String> = self
+            .function_state
+            .type_ctx
+            .value_origin_newbox
+            .get(&box_val)
+            .cloned();
         if box_type.is_none() {
-            if let Some(t) = self.type_ctx.value_types.get(&box_val) {
+            if let Some(t) = self.function_state.type_ctx.value_types.get(&box_val) {
                 match t {
                     super::super::MirType::String => box_type = Some("StringBox".to_string()),
                     super::super::MirType::Array(_) => box_type = Some("ArrayBox".to_string()),
@@ -175,7 +180,7 @@ impl super::super::MirBuilder {
                 ring0.log.debug(&format!(
                     "[boxcall-decision] method={} bb={:?} recv=%{} class_hint={:?} route_boxcall={}",
                     method,
-                    self.current_block,
+                    self.function_state.current_block,
                     box_val.0,
                     box_type,
                     matches!(route, crate::mir::builder::router::policy::Route::BoxCall)
@@ -188,7 +193,7 @@ impl super::super::MirBuilder {
         // RouterPolicy BoxCall route decisions.
         if use_unified_env
             && matches!(route, crate::mir::builder::router::policy::Route::Unified)
-            && !self.in_unified_boxcall_fallback
+            && !self.function_state.in_unified_boxcall_fallback
         {
             let target = super::super::CallTarget::Method {
                 box_type,
@@ -218,10 +223,14 @@ impl super::super::MirBuilder {
             effects,
         })?;
         if let Some(d) = dst {
-            let mut recv_box: Option<String> =
-                self.type_ctx.value_origin_newbox.get(&box_val).cloned();
+            let mut recv_box: Option<String> = self
+                .function_state
+                .type_ctx
+                .value_origin_newbox
+                .get(&box_val)
+                .cloned();
             if recv_box.is_none() {
-                if let Some(t) = self.type_ctx.value_types.get(&box_val) {
+                if let Some(t) = self.function_state.type_ctx.value_types.get(&box_val) {
                     match t {
                         super::super::MirType::String => recv_box = Some("StringBox".to_string()),
                         super::super::MirType::Array(_) => recv_box = Some("ArrayBox".to_string()),
@@ -236,12 +245,18 @@ impl super::super::MirBuilder {
                     .plugin_method_sigs
                     .get(&(bt.clone(), method.clone()))
                 {
-                    self.type_ctx.value_types.insert(d, mt.clone());
+                    self.function_state
+                        .type_ctx
+                        .value_types
+                        .insert(d, mt.clone());
                 } else {
                     // Phase 84-4-B: ビルトイン Box のメソッド戻り値型推論。
                     // plugin_method_sigs に登録されていない場合は CoreMethodId で補完する。
                     if let Some(ret_ty) = self.infer_boxcall_return_type(box_val, &method) {
-                        self.type_ctx.value_types.insert(d, ret_ty.clone());
+                        self.function_state
+                            .type_ctx
+                            .value_types
+                            .insert(d, ret_ty.clone());
 
                         if crate::config::env::builder_boxcall_type_trace() {
                             let ring0 = crate::runtime::get_global_ring0();

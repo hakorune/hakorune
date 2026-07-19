@@ -93,7 +93,7 @@ impl RecipeComposer {
             ));
         };
 
-        let mut current_bindings = builder.variable_ctx.variable_map.clone();
+        let mut current_bindings = builder.function_state.variable_ctx.variable_map.clone();
         parts::entry::lower_loop_v0(
             builder,
             &mut current_bindings,
@@ -162,7 +162,7 @@ impl RecipeComposer {
             return Err(Freeze::contract("LoopCharMap recipe root is not LoopV0"));
         };
 
-        let mut current_bindings = builder.variable_ctx.variable_map.clone();
+        let mut current_bindings = builder.function_state.variable_ctx.variable_map.clone();
         parts::entry::lower_loop_v0(
             builder,
             &mut current_bindings,
@@ -232,7 +232,7 @@ impl RecipeComposer {
             return Err(Freeze::contract("LoopArrayJoin recipe root is not LoopV0"));
         };
 
-        let mut current_bindings = builder.variable_ctx.variable_map.clone();
+        let mut current_bindings = builder.function_state.variable_ctx.variable_map.clone();
         parts::entry::lower_loop_v0(
             builder,
             &mut current_bindings,

@@ -217,7 +217,7 @@ fn builder(name: &str) -> MirBuilder {
 
 fn terminators(builder: &MirBuilder) -> Vec<MirInstruction> {
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("If driver function")
@@ -229,7 +229,7 @@ fn terminators(builder: &MirBuilder) -> Vec<MirInstruction> {
 
 fn cfg_snapshot(builder: &MirBuilder) -> Vec<String> {
     let mut rows: Vec<_> = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("If driver function")
@@ -254,12 +254,12 @@ struct IfCfgShapeSnapshotV1 {
 
 fn cfg_shape_snapshot(builder: &MirBuilder) -> IfCfgShapeSnapshotV1 {
     let function = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("If driver function");
     IfCfgShapeSnapshotV1 {
-        current_block: builder.current_block,
+        current_block: builder.function_state.current_block,
         blocks: {
             let mut blocks: Vec<_> = function
                 .blocks
@@ -291,10 +291,10 @@ struct IfPartialStateSnapshotV1 {
 fn partial_state_snapshot(builder: &MirBuilder) -> IfPartialStateSnapshotV1 {
     IfPartialStateSnapshotV1 {
         cfg: cfg_snapshot(builder),
-        current_block: builder.current_block,
-        variables: builder.variable_ctx.variable_map.clone(),
-        lexical_scope_depth: builder.scope_ctx.lexical_scope_stack.len(),
-        if_merge_stack: builder.scope_ctx.if_merge_stack.clone(),
+        current_block: builder.function_state.current_block,
+        variables: builder.function_state.variable_ctx.variable_map.clone(),
+        lexical_scope_depth: builder.function_state.scope.lexical_scope_stack.len(),
+        if_merge_stack: builder.function_state.scope.if_merge_stack.clone(),
         debug_scope_stack: builder.scope_ctx.debug_scope_stack.clone(),
     }
 }
@@ -304,7 +304,7 @@ fn assert_simple_if_termination_shape(
     then_returns: bool,
     else_returns: bool,
 ) -> (BasicBlockId, BasicBlockId, BasicBlockId) {
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
     let (then_bb, else_bb) = function
         .blocks
         .values()
@@ -315,7 +315,10 @@ fn assert_simple_if_termination_shape(
             _ => None,
         })
         .expect("one If header Branch");
-    let merge_bb = builder.current_block.expect("If merge current block");
+    let merge_bb = builder
+        .function_state
+        .current_block
+        .expect("If merge current block");
 
     for (label, block_id, returns) in [
         ("then", then_bb, then_returns),
@@ -417,7 +420,7 @@ fn if_driver_fastmem_failure_requests_no_branch_or_cfg() {
     );
     assert!(terminators(&builder).is_empty());
     assert!(builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -434,7 +437,7 @@ fn if_driver_fastmem_success_publishes_one_existing_condition_fact() {
     let _scope = LexicalScopeGuard::new(&mut builder);
     let region = FastMemRegionId(0);
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_mut()
         .unwrap()
@@ -471,7 +474,7 @@ fn if_driver_fastmem_success_publishes_one_existing_condition_fact() {
         ]
     );
     let facts = &builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -593,7 +596,7 @@ fn if_driver_implicit_false_never_requests_else() {
         ]
     );
     let (then_bb, else_bb, merge_bb) = assert_simple_if_termination_shape(&builder, false, false);
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
     assert!(function.blocks[&then_bb].successors.contains(&merge_bb));
     assert!(function.blocks[&else_bb].successors.contains(&merge_bb));
 }
@@ -649,7 +652,7 @@ fn if_driver_preserves_termination_and_variable_phi_shapes() {
             cfg_snapshot(&builder)
         );
         if label == "both_fallthrough" {
-            let function = builder.scope_ctx.current_function.as_ref().unwrap();
+            let function = builder.function_state.current_function.as_ref().unwrap();
             assert!(function.blocks[&merge_bb].instructions.iter().any(
                 |instruction| matches!(instruction, MirInstruction::Phi { inputs, .. }
                     if inputs.iter().map(|(pred, _)| *pred).collect::<BTreeSet<_>>()
@@ -664,9 +667,9 @@ fn if_driver_preserves_termination_and_variable_phi_shapes() {
     let input = if_input(vec![assignment("x", 1)], Some(vec![assignment("x", 2)]));
     let mut port = RecordingIfPortV1::new(None);
     drive_if_statement_v1(&mut builder, &mut port, &input).unwrap();
-    let x_value = builder.variable_ctx.variable_map["x"];
-    let merge_bb = builder.current_block.unwrap();
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let x_value = builder.function_state.variable_ctx.variable_map["x"];
+    let merge_bb = builder.function_state.current_block.unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
     let merge = &function.blocks[&merge_bb];
     let x_phi_inputs = merge
         .instructions

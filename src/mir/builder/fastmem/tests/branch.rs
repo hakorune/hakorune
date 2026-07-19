@@ -66,7 +66,7 @@ fn fastmem_source_lowers_owner_eq_branch_cfg_pilot() {
     ];
 
     super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
     assert_eq!(function.metadata.fastmem_branch_condition_facts.len(), 1);
     assert_eq!(
         function.metadata.fastmem_branch_condition_facts[0].proof_kind,
@@ -169,7 +169,7 @@ fn fastmem_source_lowers_direct_owner_eq_branch_cfg_pilot() {
     ];
 
     super::super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
     assert_eq!(function.metadata.fastmem_branch_condition_facts.len(), 1);
     assert_eq!(
         function.metadata.fastmem_branch_condition_facts[0].proof_kind,

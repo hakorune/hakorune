@@ -70,8 +70,8 @@ fn raw_if_condition_facade_matches_explicit_raw_port_core() {
 
         assert_eq!(format!("{facade:?}"), format!("{core:?}"));
         assert_eq!(
-            facade_builder.type_ctx.value_types,
-            core_builder.type_ctx.value_types
+            facade_builder.function_state.type_ctx.value_types,
+            core_builder.function_state.type_ctx.value_types
         );
     }
 }
@@ -117,8 +117,8 @@ fn raw_join_bearing_and_or_facade_matches_explicit_port_core() {
 
     assert_eq!(format!("{facade:?}"), format!("{core:?}"));
     assert_eq!(
-        facade_builder.type_ctx.value_types,
-        core_builder.type_ctx.value_types
+        facade_builder.function_state.type_ctx.value_types,
+        core_builder.function_state.type_ctx.value_types
     );
 }
 

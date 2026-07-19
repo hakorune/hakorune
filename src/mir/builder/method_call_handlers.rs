@@ -21,12 +21,17 @@ use crate::mir::{MirType, TypeOpKind};
 struct MeCallPolicyBox;
 
 fn current_enclosing_box_name(builder: &MirBuilder) -> Option<String> {
-    if let Some(cls) = builder.scope_ctx.current_function.as_ref().and_then(|f| {
-        f.signature
-            .name
-            .split_once('.')
-            .map(|(cls, _)| cls.to_string())
-    }) {
+    if let Some(cls) = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .and_then(|f| {
+            f.signature
+                .name
+                .split_once('.')
+                .map(|(cls, _)| cls.to_string())
+        })
+    {
         return Some(cls);
     }
 
@@ -343,6 +348,7 @@ impl MirBuilder {
         // same-owner scalarization contract here, but only when the receiver is
         // the current `me` value.
         if self
+            .function_state
             .variable_ctx
             .variable_map
             .get("me")

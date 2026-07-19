@@ -13,7 +13,7 @@ pub(crate) fn annotate_me_origin(builder: &mut MirBuilder, me_id: ValueId) {
         }
     }
     if cls.is_none() {
-        if let Some(ref fun) = builder.scope_ctx.current_function {
+        if let Some(ref fun) = builder.function_state.current_function {
             if let Some(dot) = fun.signature.name.find('.') {
                 let c = fun.signature.name[..dot].to_string();
                 if !c.is_empty() {
@@ -25,9 +25,14 @@ pub(crate) fn annotate_me_origin(builder: &mut MirBuilder, me_id: ValueId) {
     if let Some(c) = cls {
         // Record both origin class and a Box type hint for downstream passes（観測用）。
         builder
+            .function_state
             .type_ctx
             .value_origin_newbox
             .insert(me_id, c.clone());
-        builder.type_ctx.value_types.insert(me_id, MirType::Box(c));
+        builder
+            .function_state
+            .type_ctx
+            .value_types
+            .insert(me_id, MirType::Box(c));
     }
 }

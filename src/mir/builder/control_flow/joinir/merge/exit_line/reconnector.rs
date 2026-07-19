@@ -50,7 +50,7 @@ use std::collections::BTreeMap;
 /// - carrier_phis: Map from carrier name to PHI dst ValueId
 ///
 /// **Effect**:
-/// - Updates builder.variable_ctx.variable_map entries for each carrier with PHI dst values
+/// - Updates builder.function_state.variable_ctx.variable_map entries for each carrier with PHI dst values
 ///
 /// **Output**:
 /// - Result<(), String> (side effect on builder)
@@ -189,6 +189,7 @@ impl ExitLineReconnector {
             // Update variable_ctx.variable_map with final value
             if let Some(phi_value) = final_value {
                 if let Some(var_vid) = builder
+                    .function_state
                     .variable_ctx
                     .variable_map
                     .get_mut(&binding.carrier_name)
@@ -240,7 +241,11 @@ impl ExitLineReconnector {
         // Phase 190-impl-D-3: Contract verification (debug build only)
         // Ensures all exit_bindings have corresponding entries in carrier_phis and variable_ctx.variable_map
         #[cfg(debug_assertions)]
-        Self::verify_exit_line_contract(boundary, carrier_phis, &builder.variable_ctx.variable_map);
+        Self::verify_exit_line_contract(
+            boundary,
+            carrier_phis,
+            &builder.function_state.variable_ctx.variable_map,
+        );
 
         Ok(())
     }

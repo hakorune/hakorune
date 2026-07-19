@@ -7,8 +7,13 @@ pub(crate) fn emit_phi(builder: &MirBuilder, dst: ValueId, inputs: &Vec<(BasicBl
     let preds: Vec<serde_json::Value> = inputs
         .iter()
         .map(|(bb, v)| {
-            let t = builder.type_ctx.value_types.get(v).cloned();
-            let o = builder.type_ctx.value_origin_newbox.get(v).cloned();
+            let t = builder.function_state.type_ctx.value_types.get(v).cloned();
+            let o = builder
+                .function_state
+                .type_ctx
+                .value_origin_newbox
+                .get(v)
+                .cloned();
             serde_json::json!({
                 "bb": bb.0,
                 "v": v.0,
@@ -18,6 +23,7 @@ pub(crate) fn emit_phi(builder: &MirBuilder, dst: ValueId, inputs: &Vec<(BasicBl
         })
         .collect();
     let decided_t = builder
+        .function_state
         .type_ctx
         .value_types
         .get(&dst)
@@ -25,6 +31,7 @@ pub(crate) fn emit_phi(builder: &MirBuilder, dst: ValueId, inputs: &Vec<(BasicBl
         .map(|tt| format!("{:?}", tt))
         .unwrap_or_default();
     let decided_o = builder
+        .function_state
         .type_ctx
         .value_origin_newbox
         .get(&dst)
@@ -37,7 +44,7 @@ pub(crate) fn emit_phi(builder: &MirBuilder, dst: ValueId, inputs: &Vec<(BasicBl
         "decided_origin": decided_o,
     });
     let fn_name = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .map(|f| f.signature.name.as_str());

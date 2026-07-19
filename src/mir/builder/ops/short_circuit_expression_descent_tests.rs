@@ -158,7 +158,7 @@ fn drive(
 
 fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -186,7 +186,7 @@ fn logical_driver_requests_left_before_rhs_and_rhs_only_in_eval_block() {
     };
     assert_ne!(rhs_block, entry, "RHS must lower inside the eval-RHS block");
     assert_eq!(
-        builder.type_ctx.value_types.get(&result),
+        builder.function_state.type_ctx.value_types.get(&result),
         Some(&MirType::Bool)
     );
     assert!(instructions(&builder)
@@ -203,7 +203,7 @@ fn and_and_or_share_the_existing_short_circuit_completion() {
         let result = drive(&mut builder, &mut port, operator).unwrap();
 
         assert_eq!(
-            builder.type_ctx.value_types.get(&result),
+            builder.function_state.type_ctx.value_types.get(&result),
             Some(&MirType::Bool)
         );
         assert_eq!(
@@ -220,7 +220,7 @@ fn and_and_or_share_the_existing_short_circuit_completion() {
 fn ordinary_operator_rejects_before_child_input_or_cfg_effects() {
     let mut builder = builder("sc0_ordinary_reject/0");
     let before_block_count = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -234,7 +234,7 @@ fn ordinary_operator_rejects_before_child_input_or_cfg_effects() {
     assert_eq!(port.events(), vec![EventV1::Syntax]);
     assert_eq!(
         builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .unwrap()
@@ -273,7 +273,7 @@ fn syntax_and_left_failures_stop_before_short_circuit_cfg() {
     );
     assert_eq!(
         left_builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .unwrap()
@@ -296,7 +296,7 @@ fn rhs_input_and_lowering_fail_only_after_entering_eval_block() {
     assert_eq!(input_port.events().last(), Some(&EventV1::RightInput));
     assert!(
         input_builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .unwrap()
@@ -332,7 +332,11 @@ fn failed_driver_does_not_poison_a_fresh_driver() {
     let mut fresh_port = RecordingShortCircuitPortV1::accepting(true, true);
     let result = drive(&mut fresh_builder, &mut fresh_port, BinaryOperator::And).unwrap();
     assert_eq!(
-        fresh_builder.type_ctx.value_types.get(&result),
+        fresh_builder
+            .function_state
+            .type_ctx
+            .value_types
+            .get(&result),
         Some(&MirType::Bool)
     );
 }

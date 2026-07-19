@@ -314,8 +314,9 @@ impl super::MirBuilder {
                         // Phase 285LLVM-1.1: Register static box (no fields)
                         self.comp_ctx.register_user_box(name.clone());
                         // Use BoxCompilationContext even in script/test mode to isolate metadata per static box.
-                        let saved_var_map = std::mem::take(&mut self.variable_ctx.variable_map);
-                        let saved_type_ctx = self.type_ctx.take_snapshot();
+                        let saved_var_map =
+                            std::mem::take(&mut self.function_state.variable_ctx.variable_map);
+                        let saved_type_ctx = self.function_state.type_ctx.take_snapshot();
                         let saved_slot_registry = self.comp_ctx.current_slot_registry.take();
                         let saved_comp_ctx = self.comp_ctx.compilation_context.take();
                         self.comp_ctx.compilation_context = Some(BoxCompilationContext::new());
@@ -348,8 +349,10 @@ impl super::MirBuilder {
                             }
                         }
                         self.comp_ctx.compilation_context = saved_comp_ctx;
-                        self.variable_ctx.variable_map = saved_var_map;
-                        self.type_ctx.restore_snapshot(saved_type_ctx);
+                        self.function_state.variable_ctx.variable_map = saved_var_map;
+                        self.function_state
+                            .type_ctx
+                            .restore_snapshot(saved_type_ctx);
                         self.comp_ctx.current_slot_registry = saved_slot_registry;
                         // Return void for declaration context
                         Ok(crate::mir::builder::emission::constant::emit_void(self)?)

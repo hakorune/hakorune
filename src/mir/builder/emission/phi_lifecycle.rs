@@ -291,27 +291,26 @@ pub(in crate::mir::builder) fn define_provisional_phi(
     dst: ValueId,
     tag: &str,
 ) -> Result<(), String> {
-    let func = builder.scope_ctx.current_function.as_mut().ok_or_else(|| {
-        format!(
-            "[freeze:contract][phi_lifecycle/define_no_function] tag={} No current function",
-            tag
-        )
-    })?;
-
     let span = builder.metadata_ctx.current_span();
+    let origin_caller = if crate::config::env::joinir_dev::debug_enabled() {
+        builder.record_value_origin_caller(dst, std::panic::Location::caller());
+        builder.value_origin_caller(dst).map(str::to_owned)
+    } else {
+        None
+    };
+    let func = builder
+        .function_state
+        .current_function
+        .as_mut()
+        .ok_or_else(|| {
+            format!(
+                "[freeze:contract][phi_lifecycle/define_no_function] tag={} No current function",
+                tag
+            )
+        })?;
 
-    if crate::config::env::joinir_dev::debug_enabled() {
-        builder
-            .metadata_ctx
-            .record_value_caller(dst, std::panic::Location::caller());
-        if let Some(loc) = builder
-            .metadata_ctx
-            .value_origin_callers()
-            .get(&dst)
-            .cloned()
-        {
-            func.metadata.value_origin_callers.insert(dst, loc);
-        }
+    if let Some(loc) = origin_caller {
+        func.metadata.value_origin_callers.insert(dst, loc);
     }
 
     if crate::config::env::joinir_dev::debug_enabled() {
@@ -391,13 +390,23 @@ pub(in crate::mir::builder) fn define_phi_final_with_type_hint(
     )?;
 
     let span = builder.metadata_ctx.current_span();
+    let origin_caller = if crate::config::env::joinir_dev::debug_enabled() {
+        builder.record_value_origin_caller(dst, std::panic::Location::caller());
+        builder.value_origin_caller(dst).map(str::to_owned)
+    } else {
+        None
+    };
     {
-        let func = builder.scope_ctx.current_function.as_mut().ok_or_else(|| {
-            format!(
+        let func = builder
+            .function_state
+            .current_function
+            .as_mut()
+            .ok_or_else(|| {
+                format!(
                 "[freeze:contract][phi_lifecycle/define_no_function] tag={} No current function",
                 tag
             )
-        })?;
+            })?;
 
         for (pred, incoming) in &mut inputs {
             *incoming = crate::mir::builder::ssa::phi_input_materializer::for_pred(
@@ -405,18 +414,8 @@ pub(in crate::mir::builder) fn define_phi_final_with_type_hint(
             )?;
         }
 
-        if crate::config::env::joinir_dev::debug_enabled() {
-            builder
-                .metadata_ctx
-                .record_value_caller(dst, std::panic::Location::caller());
-            if let Some(loc) = builder
-                .metadata_ctx
-                .value_origin_callers()
-                .get(&dst)
-                .cloned()
-            {
-                func.metadata.value_origin_callers.insert(dst, loc);
-            }
+        if let Some(loc) = origin_caller {
+            func.metadata.value_origin_callers.insert(dst, loc);
         }
 
         // Sort inputs by block ID (SSA invariant)
@@ -619,7 +618,7 @@ pub(in crate::mir::builder) fn patch_phi_inputs(
             ));
         }
         let fn_name = builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .map(|f| f.signature.name.as_str())
@@ -646,10 +645,11 @@ fn phi_type_hint_for_patch(
     dst: ValueId,
     tag: &str,
 ) -> Result<Option<MirType>, String> {
-    let function =
-        builder.scope_ctx.current_function.as_ref().ok_or_else(|| {
-            format!("[freeze:contract][phi_lifecycle/patch_no_function] tag={tag}")
-        })?;
+    let function = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .ok_or_else(|| format!("[freeze:contract][phi_lifecycle/patch_no_function] tag={tag}"))?;
     let block_data = function.get_block(block).ok_or_else(|| {
         format!("[freeze:contract][phi_lifecycle/patch_missing_block] bb={block} tag={tag}")
     })?;
@@ -687,12 +687,16 @@ pub(in crate::mir::builder) fn rollback_provisional_phi(
     dst: ValueId,
     tag: &str,
 ) -> Result<bool, String> {
-    let func = builder.scope_ctx.current_function.as_mut().ok_or_else(|| {
-        format!(
-            "[freeze:contract][phi_lifecycle/rollback_no_function] tag={} No current function",
-            tag
-        )
-    })?;
+    let func = builder
+        .function_state
+        .current_function
+        .as_mut()
+        .ok_or_else(|| {
+            format!(
+                "[freeze:contract][phi_lifecycle/rollback_no_function] tag={} No current function",
+                tag
+            )
+        })?;
 
     let Some(bb) = func.get_block_mut(block) else {
         return Err(format!(

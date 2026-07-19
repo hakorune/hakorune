@@ -38,6 +38,7 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
         block_expr_count: usize,
     ) -> Result<Self, String> {
         if !builder
+            .function_state
             .resolved_binding_state
             .is_installed_for(input.owner())
         {
@@ -83,6 +84,7 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
         self.semantics.finish()?;
         self.identity.finish()?;
         self.builder
+            .function_state
             .resolved_binding_state
             .finish(self.input.owner())?;
         let body_end = u32::try_from(body.statements().len()).map_err(|_| {
@@ -99,7 +101,7 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
         let entries = {
             let function = self
                 .builder
-                .scope_ctx
+                .function_state
                 .current_function
                 .as_ref()
                 .ok_or_else(|| {
@@ -135,7 +137,11 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
                 hakorune_mir_core::MirValueKind::Parameter(index as u32),
             );
             if let Some(ty) = ty {
-                self.builder.type_ctx.value_types.insert(value, ty.clone());
+                self.builder
+                    .function_state
+                    .type_ctx
+                    .value_types
+                    .insert(value, ty.clone());
                 if let Some(registry) = self.builder.comp_ctx.current_slot_registry.as_mut() {
                     registry.ensure_slot(&name, Some(ty));
                 }
@@ -240,7 +246,13 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
                 value,
             )?;
             if let Some(registry) = self.builder.comp_ctx.current_slot_registry.as_mut() {
-                let ty = self.builder.type_ctx.value_types.get(&value).cloned();
+                let ty = self
+                    .builder
+                    .function_state
+                    .type_ctx
+                    .value_types
+                    .get(&value)
+                    .cloned();
                 registry.ensure_slot(name, ty);
             }
         }
@@ -270,7 +282,7 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
                 name,
                 value,
             )?;
-            if let Some(function) = self.builder.scope_ctx.current_function.as_mut() {
+            if let Some(function) = self.builder.function_state.current_function.as_mut() {
                 function.metadata.outbox_bindings.push(name.clone());
             }
         }
@@ -405,6 +417,7 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
         let value = self.builder.build_literal(literal.clone())?;
         if matches!(literal, LiteralValue::Void | LiteralValue::Null) {
             self.builder
+                .function_state
                 .type_ctx
                 .value_types
                 .insert(value, MirType::Void);

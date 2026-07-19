@@ -164,7 +164,7 @@ fn builder(name: &str) -> MirBuilder {
 
 fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("current RET0 function")
@@ -188,9 +188,12 @@ fn return_count(builder: &MirBuilder) -> usize {
 }
 
 fn current_terminator(builder: &MirBuilder) -> Option<MirInstruction> {
-    let block = builder.current_block.expect("current RET0 block");
+    let block = builder
+        .function_state
+        .current_block
+        .expect("current RET0 block");
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("current RET0 function")
@@ -204,8 +207,8 @@ fn current_terminator(builder: &MirBuilder) -> Option<MirInstruction> {
 #[test]
 fn cleanup_precedes_match_child_and_return_effects() {
     let mut builder = builder("ret0_cleanup/0");
-    builder.in_cleanup_block = true;
-    builder.cleanup_allow_return = false;
+    builder.function_state.in_cleanup_block = true;
+    builder.function_state.cleanup_allow_return = false;
     let input = ReturnInputV1 { value: integer(1) };
     let mut port = RecordingReturnPortV1::accepting();
 
@@ -302,16 +305,16 @@ fn configured_defer_reuses_copy_and_jump_completion_without_direct_return() {
     let mut builder = builder("ret0_defer/0");
     let slot = builder.next_value_id();
     let target = builder.next_block_id();
-    builder.return_defer_active = true;
-    builder.return_defer_slot = Some(slot);
-    builder.return_defer_target = Some(target);
+    builder.function_state.return_defer_active = true;
+    builder.function_state.return_defer_slot = Some(slot);
+    builder.function_state.return_defer_target = Some(target);
     let input = ReturnInputV1 { value: integer(1) };
     let mut port = RecordingReturnPortV1::accepting();
 
     let result = drive_value_return_statement_v1(&mut builder, &mut port, &input).unwrap();
     let rows = instructions(&builder);
 
-    assert!(builder.return_deferred_emitted);
+    assert!(builder.function_state.return_deferred_emitted);
     assert_eq!(return_count(&builder), 0);
     assert_eq!(
         rows.iter()
@@ -367,6 +370,7 @@ fn raw_value_return_reuses_binary_and_short_circuit_child_spines() {
             let flag =
                 crate::mir::builder::emission::constant::emit_bool(&mut builder, true).unwrap();
             builder
+                .function_state
                 .variable_ctx
                 .variable_map
                 .insert("flag".to_string(), flag);

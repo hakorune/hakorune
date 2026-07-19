@@ -31,7 +31,7 @@ pub(crate) struct VerifiedCurrentReceiverIdentityV1 {
 impl VerifiedCurrentReceiverIdentityV1 {
     fn verify(builder: &MirBuilder) -> Result<Self, SameRootReceiverProofErrorV1> {
         let function = builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .ok_or(SameRootReceiverProofErrorV1::NoCurrentFunction)?;
@@ -54,12 +54,17 @@ impl VerifiedCurrentReceiverIdentityV1 {
             Some(crate::mir::MirType::Box(owner)) => owner,
             _ => return Err(SameRootReceiverProofErrorV1::ReceiverOwnerMismatch),
         };
-        if builder.type_ctx.value_types.get(&receiver_parameter)
+        if builder
+            .function_state
+            .type_ctx
+            .value_types
+            .get(&receiver_parameter)
             != Some(&crate::mir::MirType::Box(signature_owner.clone()))
         {
             return Err(SameRootReceiverProofErrorV1::ReceiverOwnerMismatch);
         }
         if builder
+            .function_state
             .type_ctx
             .value_origin_newbox
             .get(&receiver_parameter)

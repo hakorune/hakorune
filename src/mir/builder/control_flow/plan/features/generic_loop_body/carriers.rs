@@ -44,7 +44,7 @@ pub(in crate::mir::builder) fn prepare_generic_loop_v1_carriers_from_targets(
     loop_var_current: crate::mir::ValueId,
     carrier_representation: &PreparedGenericLoopCarrierRepresentationV1,
 ) -> GenericLoopV1CarrierState {
-    let pre_loop_map = builder.variable_ctx.variable_map.clone();
+    let pre_loop_map = builder.function_state.variable_ctx.variable_map.clone();
     let carrier_vars = carrier_targets
         .iter()
         .filter(|name| name.as_str() != loop_var && pre_loop_map.contains_key(name.as_str()));
@@ -58,6 +58,7 @@ pub(in crate::mir::builder) fn prepare_generic_loop_v1_carriers_from_targets(
             continue;
         };
         let ty = builder
+            .function_state
             .type_ctx
             .get_type(*init_val)
             .cloned()

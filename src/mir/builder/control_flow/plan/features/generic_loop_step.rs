@@ -128,6 +128,7 @@ pub(in crate::mir::builder) fn apply_generic_loop_step(
     // This keeps generic_loop_v1 escape-style loops correct: body may produce `i_pre`,
     // and step must evaluate `i = i_pre + 1`, not `loop_var_current + 1`.
     let loop_var_step_src = builder
+        .function_state
         .variable_ctx
         .variable_map
         .get(loop_var)

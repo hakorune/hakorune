@@ -21,8 +21,8 @@ impl super::MirBuilder {
         let dispatch_block = self.next_block_id();
         // Jump from current block to dispatch (ensure terminator exists)
         let need_jump = {
-            let cur = self.current_block;
-            if let (Some(cb), Some(ref func)) = (cur, &self.scope_ctx.current_function) {
+            let cur = self.function_state.current_block;
+            if let (Some(cb), Some(ref func)) = (cur, &self.function_state.current_function) {
                 if let Some(bb) = func.blocks.get(&cb) {
                     !bb.is_terminated()
                 } else {

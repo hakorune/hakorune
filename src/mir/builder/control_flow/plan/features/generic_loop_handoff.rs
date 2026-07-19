@@ -20,7 +20,7 @@ pub(in crate::mir::builder) fn apply_generic_loop_v0_condition_step_handoff(
     pre_body_map: BTreeMap<String, ValueId>,
     post_body_map: BTreeMap<String, ValueId>,
 ) -> Result<(), String> {
-    builder.variable_ctx.variable_map = pre_body_map;
+    builder.function_state.variable_ctx.variable_map = pre_body_map;
     generic_loop_step::apply_generic_loop_condition(
         builder,
         skeleton,
@@ -28,7 +28,7 @@ pub(in crate::mir::builder) fn apply_generic_loop_v0_condition_step_handoff(
         &facts.loop_var,
         GENERIC_LOOP_ERR,
     )?;
-    builder.variable_ctx.variable_map = post_body_map;
+    builder.function_state.variable_ctx.variable_map = post_body_map;
     generic_loop_step::apply_generic_loop_step(
         builder,
         skeleton,
@@ -46,7 +46,7 @@ pub(in crate::mir::builder) fn apply_generic_loop_v1_condition_step_handoff(
     pre_body_map: BTreeMap<String, ValueId>,
     carrier_orchestration: &GenericLoopV1CarrierOrchestration,
 ) -> Result<(), String> {
-    builder.variable_ctx.variable_map = pre_body_map;
+    builder.function_state.variable_ctx.variable_map = pre_body_map;
     generic_loop_step::apply_generic_loop_condition(
         builder,
         skeleton,
@@ -55,7 +55,8 @@ pub(in crate::mir::builder) fn apply_generic_loop_v1_condition_step_handoff(
         GENERIC_LOOP_ERR,
     )?;
 
-    builder.variable_ctx.variable_map = carrier_orchestration.post_body_map().clone();
+    builder.function_state.variable_ctx.variable_map =
+        carrier_orchestration.post_body_map().clone();
 
     Ok(())
 }

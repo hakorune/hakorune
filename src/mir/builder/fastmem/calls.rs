@@ -409,7 +409,13 @@ fn fastmem_positive_usize_source_value(
             ..
         } => Some(*value),
         ASTNode::Variable { name, .. } => {
-            let Some(value_id) = builder.variable_ctx.variable_map.get(name).copied() else {
+            let Some(value_id) = builder
+                .function_state
+                .variable_ctx
+                .variable_map
+                .get(name)
+                .copied()
+            else {
                 return Ok(None);
             };
             fastmem_const_integer_value(builder, value_id)
@@ -431,7 +437,7 @@ fn fastmem_positive_usize_source_value(
 }
 
 fn fastmem_const_integer_value(builder: &MirBuilder, value_id: ValueId) -> Option<i64> {
-    let function = builder.scope_ctx.current_function.as_ref()?;
+    let function = builder.function_state.current_function.as_ref()?;
     function.blocks.values().find_map(|block| {
         block
             .instructions

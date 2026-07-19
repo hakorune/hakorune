@@ -167,8 +167,8 @@ mod tests {
 
         assert_eq!(format!("{facade_plans:?}"), format!("{core_plans:?}"));
         assert_eq!(
-            facade_builder.type_ctx.value_types,
-            core_builder.type_ctx.value_types
+            facade_builder.function_state.type_ctx.value_types,
+            core_builder.function_state.type_ctx.value_types
         );
     }
 

@@ -56,7 +56,7 @@ fn builder(name: &str) -> MirBuilder {
 
 fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("current LCL0-I0 function")
@@ -90,8 +90,8 @@ fn raw_local_selector_preserves_initializer_order_and_binding_completion() {
         })
         .collect::<Vec<_>>();
     assert!(constants.starts_with(&[4, 9]), "constants={constants:?}");
-    assert!(builder.binding_ctx.contains("x"));
-    assert!(builder.binding_ctx.contains("y"));
+    assert!(builder.function_state.binding_ctx.contains("x"));
+    assert!(builder.function_state.binding_ctx.contains("y"));
     assert_eq!(builder.recursion_depth, 0);
 }
 
@@ -110,8 +110,8 @@ fn raw_local_preflight_rejects_before_first_initializer_effect() {
 
     assert!(error.contains("local_contract_uninitialized_forbidden"));
     assert!(instructions(&builder).is_empty());
-    assert!(!builder.binding_ctx.contains("x"));
-    assert!(!builder.binding_ctx.contains("y"));
+    assert!(!builder.function_state.binding_ctx.contains("x"));
+    assert!(!builder.function_state.binding_ctx.contains("y"));
     assert_eq!(builder.recursion_depth, 0);
 }
 
@@ -133,8 +133,8 @@ fn raw_local_child_failure_stops_later_initializer_and_binding_publication() {
 
     assert!(error.contains("Undefined variable: missing"));
     assert!(instructions(&builder).is_empty());
-    assert!(!builder.binding_ctx.contains("x"));
-    assert!(!builder.binding_ctx.contains("y"));
+    assert!(!builder.function_state.binding_ctx.contains("x"));
+    assert!(!builder.function_state.binding_ctx.contains("y"));
     assert_eq!(builder.recursion_depth, 0);
 }
 
@@ -169,8 +169,8 @@ fn raw_local_initializers_reuse_binary_and_short_circuit_spines() {
     assert!(rows
         .iter()
         .any(|instruction| matches!(instruction, MirInstruction::Phi { .. })));
-    assert!(builder.binding_ctx.contains("sum"));
-    assert!(builder.binding_ctx.contains("flag"));
+    assert!(builder.function_state.binding_ctx.contains("sum"));
+    assert!(builder.function_state.binding_ctx.contains("flag"));
     assert_eq!(builder.recursion_depth, 0);
 }
 
@@ -202,7 +202,7 @@ fn raw_local_typed_array_reuses_specialized_claim_before_appends() {
         .position(|instruction| matches!(instruction, MirInstruction::ArrayElementWrite { .. }))
         .expect("typed-array append");
     assert!(claim < append);
-    assert!(builder.binding_ctx.contains("xs"));
+    assert!(builder.function_state.binding_ctx.contains("xs"));
 }
 
 #[test]
@@ -234,7 +234,7 @@ fn raw_local_record_initializer_reuses_existing_constructor_owner() {
         ))
         .unwrap();
 
-    assert!(builder.binding_ctx.contains("pair"));
+    assert!(builder.function_state.binding_ctx.contains("pair"));
     assert!(instructions(&builder)
         .iter()
         .any(|instruction| matches!(instruction, MirInstruction::RecordValuePublish { .. })));
@@ -249,7 +249,7 @@ fn raw_local_untyped_missing_initializer_keeps_existing_null_sugar() {
         .build_expression(local(&["x"], vec![None], vec![None]))
         .unwrap();
 
-    assert!(builder.binding_ctx.contains("x"));
+    assert!(builder.function_state.binding_ctx.contains("x"));
     assert!(instructions(&builder).iter().any(|instruction| matches!(
         instruction,
         MirInstruction::Const {

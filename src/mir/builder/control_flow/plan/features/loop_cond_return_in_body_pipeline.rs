@@ -180,7 +180,12 @@ fn collect_carrier_vars_from_condition(builder: &MirBuilder, condition: &ASTNode
 
     let mut carriers = BTreeMap::<String, ()>::new();
     for name in vars {
-        if builder.variable_ctx.variable_map.contains_key(&name) {
+        if builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .contains_key(&name)
+        {
             carriers.insert(name, ());
         }
     }

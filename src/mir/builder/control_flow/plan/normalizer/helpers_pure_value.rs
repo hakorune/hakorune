@@ -314,8 +314,8 @@ mod tests {
             format!("{:?}", tail_effects)
         );
         assert_eq!(
-            wrapped_builder.type_ctx.get_type(wrapped_id),
-            tail_builder.type_ctx.get_type(tail_id)
+            wrapped_builder.function_state.type_ctx.get_type(wrapped_id),
+            tail_builder.function_state.type_ctx.get_type(tail_id)
         );
     }
 
@@ -344,7 +344,7 @@ mod tests {
                 .expect("BlockExpr prelude should lower in value context");
 
         assert_eq!(
-            builder.variable_ctx.variable_map.get("tmp"),
+            builder.function_state.variable_ctx.variable_map.get("tmp"),
             Some(&value_id)
         );
         assert!(matches!(
@@ -376,10 +376,12 @@ mod tests {
         );
         let point_id = builder.alloc_typed(MirType::Box("Point".to_string()));
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert("p".to_string(), point_id);
         builder
+            .function_state
             .type_ctx
             .value_origin_newbox
             .insert(point_id, "Point".to_string());
@@ -389,7 +391,7 @@ mod tests {
                 .expect("FieldAccess should lower in value context");
 
         assert_eq!(
-            builder.type_ctx.get_type(value_id),
+            builder.function_state.type_ctx.get_type(value_id),
             Some(&MirType::Box("IntegerBox".to_string()))
         );
         assert!(matches!(
@@ -418,6 +420,7 @@ mod tests {
         let mut builder = MirBuilder::new();
         let i_id = builder.alloc_typed(MirType::Integer);
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert("i".to_string(), i_id);
@@ -426,7 +429,10 @@ mod tests {
             PlanNormalizer::lower_value_ast(&expr, &mut builder, &BTreeMap::new())
                 .expect("compare value should lower in value context");
 
-        assert_eq!(builder.type_ctx.get_type(value_id), Some(&MirType::Bool));
+        assert_eq!(
+            builder.function_state.type_ctx.get_type(value_id),
+            Some(&MirType::Bool)
+        );
         assert!(matches!(
             effects.last(),
             Some(CoreEffectPlan::Compare { dst, lhs, rhs, .. })
@@ -443,7 +449,10 @@ mod tests {
             PlanNormalizer::lower_value_ast(&expr, &mut builder, &BTreeMap::new())
                 .expect("float literal should lower in value context");
 
-        assert_eq!(builder.type_ctx.get_type(value_id), Some(&MirType::Float));
+        assert_eq!(
+            builder.function_state.type_ctx.get_type(value_id),
+            Some(&MirType::Float)
+        );
         assert!(matches!(
             effects.as_slice(),
             [CoreEffectPlan::Const {
@@ -467,7 +476,10 @@ mod tests {
             PlanNormalizer::lower_value_ast(&expr, &mut builder, &BTreeMap::new())
                 .expect("float add should lower in value context");
 
-        assert_eq!(builder.type_ctx.get_type(value_id), Some(&MirType::Float));
+        assert_eq!(
+            builder.function_state.type_ctx.get_type(value_id),
+            Some(&MirType::Float)
+        );
         assert!(
             effects
                 .iter()
@@ -519,14 +531,17 @@ mod tests {
         let acc_id = builder.alloc_typed(MirType::Integer);
         let flag_id = builder.alloc_typed(MirType::Box("Flag".to_string()));
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert("acc".to_string(), acc_id);
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert("f".to_string(), flag_id);
         builder
+            .function_state
             .type_ctx
             .value_origin_newbox
             .insert(flag_id, "Flag".to_string());
@@ -535,7 +550,10 @@ mod tests {
             PlanNormalizer::lower_value_ast(&expr, &mut builder, &BTreeMap::new())
                 .expect("compare nested inside add should lower in value context");
 
-        assert_eq!(builder.type_ctx.get_type(value_id), Some(&MirType::Integer));
+        assert_eq!(
+            builder.function_state.type_ctx.get_type(value_id),
+            Some(&MirType::Integer)
+        );
         assert!(effects.iter().any(|effect| matches!(
             effect,
             CoreEffectPlan::FieldGet { field, declared_type, .. }
@@ -586,8 +604,15 @@ mod tests {
             })
             .expect("merged pre-existing binding should produce Select");
         assert_eq!(value_id, select_dst);
-        assert_eq!(builder.variable_ctx.variable_map.get("a"), Some(&value_id));
-        assert!(!builder.variable_ctx.variable_map.contains_key("tmp"));
+        assert_eq!(
+            builder.function_state.variable_ctx.variable_map.get("a"),
+            Some(&value_id)
+        );
+        assert!(!builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .contains_key("tmp"));
     }
 
     #[test]

@@ -22,7 +22,7 @@ fn add(left: ASTNode, right: ASTNode) -> ASTNode {
 
 fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("current test function")

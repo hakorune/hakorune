@@ -30,8 +30,8 @@ fn actual_strict_loop_composes_and_final_seals_in_one_call() {
                 .expect("actual O0 representation");
 
         let mut builder = seeded_builder();
-        let variable_map_before = builder.variable_ctx.variable_map.clone();
-        let value_types_before = builder.type_ctx.value_types.clone();
+        let variable_map_before = builder.function_state.variable_ctx.variable_map.clone();
+        let value_types_before = builder.function_state.type_ctx.value_types.clone();
         let _scope = LexicalScopeGuard::new(&mut builder);
         let result = compose_located_generic_loop_v1(
             &mut builder,
@@ -61,8 +61,14 @@ fn actual_strict_loop_composes_and_final_seals_in_one_call() {
             }
         });
         assert_eq!(traversal, vec![3, 4, 5, 6, 8, 7, 0, 1, 2]);
-        assert_eq!(builder.variable_ctx.variable_map, variable_map_before);
-        assert_ne!(builder.type_ctx.value_types, value_types_before);
+        assert_eq!(
+            builder.function_state.variable_ctx.variable_map,
+            variable_map_before
+        );
+        assert_ne!(
+            builder.function_state.type_ctx.value_types,
+            value_types_before
+        );
     });
 }
 
@@ -84,6 +90,7 @@ fn seeded_builder() -> MirBuilder {
 fn seed(builder: &mut MirBuilder, name: &str, ty: MirType) {
     let value = builder.alloc_typed(ty);
     builder
+        .function_state
         .variable_ctx
         .variable_map
         .insert(name.to_string(), value);

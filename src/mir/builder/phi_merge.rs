@@ -81,22 +81,30 @@ impl<'a> PhiMergeHelper<'a> {
             1 => {
                 // Single predecessor - direct insert (no PHI)
                 let (_pred, v) = inputs[0];
-                self.builder.variable_ctx.variable_map.insert(name, v);
+                self.builder
+                    .function_state
+                    .variable_ctx
+                    .variable_map
+                    .insert(name, v);
                 Ok(())
             }
             _ => {
                 // Multiple predecessors - insert PHI
-                if let Some(func) = self.builder.scope_ctx.current_function.as_mut() {
+                if let Some(func) = self.builder.function_state.current_function.as_mut() {
                     func.update_cfg();
                 }
                 if let (Some(func), Some(cur_bb)) = (
-                    &self.builder.scope_ctx.current_function,
-                    self.builder.current_block,
+                    &self.builder.function_state.current_function,
+                    self.builder.function_state.current_block,
                 ) {
                     crate::mir::phi_core::common::debug_verify_phi_inputs(func, cur_bb, &inputs);
                 }
                 let merged = self.builder.insert_phi(inputs)?;
-                self.builder.variable_ctx.variable_map.insert(name, merged);
+                self.builder
+                    .function_state
+                    .variable_ctx
+                    .variable_map
+                    .insert(name, merged);
                 Ok(())
             }
         }
@@ -133,12 +141,12 @@ impl<'a> PhiMergeHelper<'a> {
             }
             _ => {
                 // Insert PHI with explicit dst
-                if let Some(func) = self.builder.scope_ctx.current_function.as_mut() {
+                if let Some(func) = self.builder.function_state.current_function.as_mut() {
                     func.update_cfg();
                 }
                 if let (Some(func), Some(cur_bb)) = (
-                    &self.builder.scope_ctx.current_function,
-                    self.builder.current_block,
+                    &self.builder.function_state.current_function,
+                    self.builder.function_state.current_block,
                 ) {
                     crate::mir::phi_core::common::debug_verify_phi_inputs(func, cur_bb, &inputs);
                 }
@@ -181,7 +189,7 @@ impl<'a> PhiMergeHelper<'a> {
         skip_var: Option<&str>,
     ) -> Result<HashSet<String>, String> {
         let (def_blocks, dominators) =
-            if let Some(func) = self.builder.scope_ctx.current_function.as_ref() {
+            if let Some(func) = self.builder.function_state.current_function.as_ref() {
                 (
                     Some(crate::mir::verification::utils::compute_def_blocks(func)),
                     Some(crate::mir::verification::utils::compute_dominators(func)),

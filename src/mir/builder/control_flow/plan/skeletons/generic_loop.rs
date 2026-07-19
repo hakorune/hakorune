@@ -31,8 +31,14 @@ pub(in crate::mir::builder) fn alloc_generic_loop_v0_skeleton(
     loop_var: &str,
     carrier_role: GenericLoopCarrierRoleV1,
 ) -> Result<GenericLoopSkeleton, String> {
-    let loop_var_init = builder.variable_ctx.variable_map.get(loop_var).copied();
-    let transient_type = loop_var_init.and_then(|init| builder.type_ctx.get_type(init));
+    let loop_var_init = builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .get(loop_var)
+        .copied();
+    let transient_type =
+        loop_var_init.and_then(|init| builder.function_state.type_ctx.get_type(init));
     let carrier_representation =
         prepare_generic_loop_carrier_representation_v1(carrier_role, loop_var_init, transient_type)
             .map_err(|error| format!("GenericLoop carrier representation failed: {error:?}"))?;

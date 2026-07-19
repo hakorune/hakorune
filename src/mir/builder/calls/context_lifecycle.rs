@@ -21,7 +21,8 @@ use std::collections::{BTreeMap, HashMap, HashSet}; // Phase 25.1: 決定性確�
 
 #[derive(Debug)]
 pub(super) struct ScopeStacksSnapshot {
-    pub(super) lexical_scope_stack: Vec<crate::mir::builder::scope_context::LexicalScopeFrame>,
+    pub(super) lexical_scope_stack:
+        Vec<crate::mir::builder::vars::lexical_scope::LexicalScopeFrame>,
     pub(super) loop_header_stack: Vec<BasicBlockId>,
     pub(super) loop_exit_stack: Vec<BasicBlockId>,
     pub(super) if_merge_stack: Vec<BasicBlockId>,
@@ -73,8 +74,8 @@ impl MirBuilder {
     pub(super) fn prepare_lowering_context(&mut self, func_name: &str) -> LoweringContext {
         // Snapshot the caller function first. No later fallible step owns this
         // state, so the session can restore even if skeleton creation fails.
-        let saved_function = self.scope_ctx.current_function.take();
-        let saved_block = self.current_block.take();
+        let saved_function = self.function_state.current_function.take();
+        let saved_block = self.function_state.current_block.take();
 
         // Static box context設定
         let saved_static_ctx = self.comp_ctx.current_static_box.clone();
@@ -88,84 +89,95 @@ impl MirBuilder {
         // BoxCompilationContext vs saved_var_map モード判定
         let context_active = self.comp_ctx.compilation_context.is_some();
         let saved_var_map = if !context_active {
-            Some(std::mem::take(&mut self.variable_ctx.variable_map))
+            Some(std::mem::take(
+                &mut self.function_state.variable_ctx.variable_map,
+            ))
         } else {
             None
         };
         // ValueId は関数ローカルなので、snapshot path では type_ctx も関数境界で必ず分離する。
         // そうしないと別関数の ValueId と衝突し、box_name 推論がランダムに壊れる（phase29aq flake 根因）。
         let saved_type_ctx = if !context_active {
-            Some(self.type_ctx.take_snapshot())
+            Some(self.function_state.type_ctx.take_snapshot())
         } else {
             None
         };
 
         // 関数スコープ SlotRegistry は元の関数側から退避しておくよ。
         let saved_slot_registry = self.comp_ctx.current_slot_registry.take();
-        let saved_reserved_value_ids = std::mem::take(&mut self.comp_ctx.reserved_value_ids);
-        let saved_fn_body_ast = self.comp_ctx.fn_body_ast.take();
-        let saved_frag_emit_session = std::mem::take(&mut self.frag_emit_session);
+        let saved_reserved_value_ids =
+            std::mem::take(&mut self.function_state.compilation.reserved_value_ids);
+        let saved_fn_body_ast = self.function_state.compilation.fn_body_ast.take();
+        let saved_frag_emit_session = std::mem::take(&mut self.function_state.frag_emit_session);
         let saved_current_span = self.metadata_ctx.current_span();
         let saved_region_stack = self.metadata_ctx.current_region_stack().to_vec();
 
         // Nested function lowering must not destroy the caller's lexical scopes / SSA caches.
-        let saved_binding_ctx = std::mem::take(&mut self.binding_ctx);
-        let saved_resolved_binding_state = std::mem::take(&mut self.resolved_binding_state);
+        let saved_binding_ctx = std::mem::take(&mut self.function_state.binding_ctx);
+        let saved_resolved_binding_state =
+            std::mem::take(&mut self.function_state.resolved_binding_state);
         let saved_scope_stacks = ScopeStacksSnapshot {
-            lexical_scope_stack: std::mem::take(&mut self.scope_ctx.lexical_scope_stack),
-            loop_header_stack: std::mem::take(&mut self.scope_ctx.loop_header_stack),
-            loop_exit_stack: std::mem::take(&mut self.scope_ctx.loop_exit_stack),
-            if_merge_stack: std::mem::take(&mut self.scope_ctx.if_merge_stack),
+            lexical_scope_stack: std::mem::take(&mut self.function_state.scope.lexical_scope_stack),
+            loop_header_stack: std::mem::take(&mut self.function_state.scope.loop_header_stack),
+            loop_exit_stack: std::mem::take(&mut self.function_state.scope.loop_exit_stack),
+            if_merge_stack: std::mem::take(&mut self.function_state.scope.if_merge_stack),
             debug_scope_stack: std::mem::take(&mut self.scope_ctx.debug_scope_stack),
-            function_param_names: std::mem::take(&mut self.scope_ctx.function_param_names),
-            fastmem_region_stack: std::mem::take(&mut self.scope_ctx.fastmem_region_stack),
+            function_param_names: std::mem::take(
+                &mut self.function_state.scope.function_param_names,
+            ),
+            fastmem_region_stack: std::mem::take(
+                &mut self.function_state.scope.fastmem_region_stack,
+            ),
         };
-        let saved_pending_phis = std::mem::take(&mut self.pending_phis);
-        let saved_local_ssa_map = std::mem::take(&mut self.local_ssa_map);
-        let saved_schedule_mat_map = std::mem::take(&mut self.schedule_mat_map);
-        let saved_pin_slot_names = std::mem::take(&mut self.pin_slot_names);
-        let saved_record_local_values = std::mem::take(&mut self.comp_ctx.record_local_values);
-        let saved_return_defer_active = self.return_defer_active;
-        let saved_return_defer_slot = self.return_defer_slot;
-        let saved_return_defer_target = self.return_defer_target;
-        let saved_return_deferred_emitted = self.return_deferred_emitted;
-        let saved_in_cleanup_block = self.in_cleanup_block;
-        let saved_cleanup_allow_return = self.cleanup_allow_return;
-        let saved_cleanup_allow_throw = self.cleanup_allow_throw;
-        let saved_suppress_pin_entry_copy_next = self.suppress_pin_entry_copy_next;
-        let saved_in_unified_boxcall_fallback = self.in_unified_boxcall_fallback;
+        let saved_pending_phis = std::mem::take(&mut self.function_state.pending_phis);
+        let saved_local_ssa_map = std::mem::take(&mut self.function_state.local_ssa_map);
+        let saved_schedule_mat_map = std::mem::take(&mut self.function_state.schedule_mat_map);
+        let saved_pin_slot_names = std::mem::take(&mut self.function_state.pin_slot_names);
+        let saved_record_local_values =
+            std::mem::take(&mut self.function_state.compilation.record_local_values);
+        let saved_return_defer_active = self.function_state.return_defer_active;
+        let saved_return_defer_slot = self.function_state.return_defer_slot;
+        let saved_return_defer_target = self.function_state.return_defer_target;
+        let saved_return_deferred_emitted = self.function_state.return_deferred_emitted;
+        let saved_in_cleanup_block = self.function_state.in_cleanup_block;
+        let saved_cleanup_allow_return = self.function_state.cleanup_allow_return;
+        let saved_cleanup_allow_throw = self.function_state.cleanup_allow_throw;
+        let saved_suppress_pin_entry_copy_next = self.function_state.suppress_pin_entry_copy_next;
+        let saved_in_unified_boxcall_fallback = self.function_state.in_unified_boxcall_fallback;
         let saved_recursion_depth = self.recursion_depth;
 
         // Function boundary: clear per-function state to avoid ValueId leaks across functions.
-        self.binding_ctx.clear_for_function_entry();
-        self.scope_ctx.clear_for_function_entry();
-        self.variable_ctx = crate::mir::builder::variable_context::VariableContext::new();
-        self.pending_phis.clear();
-        self.local_ssa_map.clear();
-        self.schedule_mat_map.clear();
-        self.pin_slot_names.clear();
-        self.return_defer_active = false;
-        self.return_defer_slot = None;
-        self.return_defer_target = None;
-        self.return_deferred_emitted = false;
-        self.in_cleanup_block = false;
-        self.cleanup_allow_return = false;
-        self.cleanup_allow_throw = false;
-        self.suppress_pin_entry_copy_next = false;
-        self.in_unified_boxcall_fallback = false;
+        self.function_state.binding_ctx.clear_for_function_entry();
+        self.function_state.scope.clear_for_function_entry();
+        self.scope_ctx.clear_debug_scope_for_function_entry();
+        self.function_state.variable_ctx =
+            crate::mir::builder::variable_context::VariableContext::new();
+        self.function_state.pending_phis.clear();
+        self.function_state.local_ssa_map.clear();
+        self.function_state.schedule_mat_map.clear();
+        self.function_state.pin_slot_names.clear();
+        self.function_state.return_defer_active = false;
+        self.function_state.return_defer_slot = None;
+        self.function_state.return_defer_target = None;
+        self.function_state.return_deferred_emitted = false;
+        self.function_state.in_cleanup_block = false;
+        self.function_state.cleanup_allow_return = false;
+        self.function_state.cleanup_allow_throw = false;
+        self.function_state.suppress_pin_entry_copy_next = false;
+        self.function_state.in_unified_boxcall_fallback = false;
         self.recursion_depth = 0;
 
         // BoxCompilationContext mode: clear()で完全独立化
         if context_active {
-            self.variable_ctx.variable_map.clear();
-            self.type_ctx.value_origin_newbox.clear();
-            self.comp_ctx.clear_record_local_values();
+            self.function_state.variable_ctx.variable_map.clear();
+            self.function_state.type_ctx.value_origin_newbox.clear();
+            self.function_state.compilation.clear_record_local_values();
             // value_types も static box 単位で独立させる。
             // これにより、前の static box で使用された ValueId に紐づく型情報が
             // 次の box にリークして誤った box_name 推論（例: Stage1UsingResolverBox）
             // を引き起こすことを防ぐ。
-            self.type_ctx.value_types.clear();
-            self.type_ctx.value_kinds.clear();
+            self.function_state.type_ctx.value_types.clear();
+            self.function_state.type_ctx.value_kinds.clear();
         }
 
         LoweringContext {
@@ -205,23 +217,25 @@ impl MirBuilder {
     /// 🎯 箱理論: Step 6 - Context復元
     pub(super) fn restore_lowering_context(&mut self, ctx: LoweringContext) {
         // Phase 136 Step 3/7: Restore to scope_ctx (SSOT)
-        self.scope_ctx.current_function = ctx.saved_function;
-        self.current_block = ctx.saved_block;
+        self.function_state.current_function = ctx.saved_function;
+        self.function_state.current_block = ctx.saved_block;
 
         // モード別にcontext復元
         if ctx.context_active {
             // BoxCompilationContext mode: clear のみ（次回も完全独立）
-            self.variable_ctx.variable_map.clear();
-            self.type_ctx.value_origin_newbox.clear();
-            self.comp_ctx.clear_record_local_values();
+            self.function_state.variable_ctx.variable_map.clear();
+            self.function_state.type_ctx.value_origin_newbox.clear();
+            self.function_state.compilation.clear_record_local_values();
             // static box ごとに型情報も独立させる（前 box の型メタデータを引きずらない）
-            self.type_ctx.value_types.clear();
-            self.type_ctx.value_kinds.clear();
+            self.function_state.type_ctx.value_types.clear();
+            self.function_state.type_ctx.value_kinds.clear();
         } else if let Some(saved) = ctx.saved_var_map {
             // Legacy mode: Main.main 側の variable_map を元に戻す
-            self.variable_ctx.variable_map = saved;
+            self.function_state.variable_ctx.variable_map = saved;
             if let Some(saved_type_ctx) = ctx.saved_type_ctx {
-                self.type_ctx.restore_snapshot(saved_type_ctx);
+                self.function_state
+                    .type_ctx
+                    .restore_snapshot(saved_type_ctx);
             }
         }
 
@@ -229,9 +243,9 @@ impl MirBuilder {
         self.comp_ctx.current_static_box = ctx.saved_static_ctx;
         // 関数スコープ SlotRegistry も元の関数に戻すよ。
         self.comp_ctx.current_slot_registry = ctx.saved_slot_registry;
-        self.comp_ctx.reserved_value_ids = ctx.saved_reserved_value_ids;
-        self.comp_ctx.fn_body_ast = ctx.saved_fn_body_ast;
-        self.frag_emit_session = ctx.saved_frag_emit_session;
+        self.function_state.compilation.reserved_value_ids = ctx.saved_reserved_value_ids;
+        self.function_state.compilation.fn_body_ast = ctx.saved_fn_body_ast;
+        self.function_state.frag_emit_session = ctx.saved_frag_emit_session;
         self.metadata_ctx.set_current_span(ctx.saved_current_span);
         while self.metadata_ctx.pop_region().is_some() {}
         for region in ctx.saved_region_stack {
@@ -239,29 +253,31 @@ impl MirBuilder {
         }
 
         // Restore caller function state (lexical scopes / SSA caches / try-cleanup flags).
-        self.binding_ctx = ctx.saved_binding_ctx;
-        self.resolved_binding_state = ctx.saved_resolved_binding_state;
-        self.scope_ctx.lexical_scope_stack = ctx.saved_scope_stacks.lexical_scope_stack;
-        self.scope_ctx.loop_header_stack = ctx.saved_scope_stacks.loop_header_stack;
-        self.scope_ctx.loop_exit_stack = ctx.saved_scope_stacks.loop_exit_stack;
-        self.scope_ctx.if_merge_stack = ctx.saved_scope_stacks.if_merge_stack;
+        self.function_state.binding_ctx = ctx.saved_binding_ctx;
+        self.function_state.resolved_binding_state = ctx.saved_resolved_binding_state;
+        self.function_state.scope.lexical_scope_stack = ctx.saved_scope_stacks.lexical_scope_stack;
+        self.function_state.scope.loop_header_stack = ctx.saved_scope_stacks.loop_header_stack;
+        self.function_state.scope.loop_exit_stack = ctx.saved_scope_stacks.loop_exit_stack;
+        self.function_state.scope.if_merge_stack = ctx.saved_scope_stacks.if_merge_stack;
         self.scope_ctx.debug_scope_stack = ctx.saved_scope_stacks.debug_scope_stack;
-        self.scope_ctx.function_param_names = ctx.saved_scope_stacks.function_param_names;
-        self.scope_ctx.fastmem_region_stack = ctx.saved_scope_stacks.fastmem_region_stack;
-        self.pending_phis = ctx.saved_pending_phis;
-        self.local_ssa_map = ctx.saved_local_ssa_map;
-        self.schedule_mat_map = ctx.saved_schedule_mat_map;
-        self.pin_slot_names = ctx.saved_pin_slot_names;
-        self.comp_ctx.record_local_values = ctx.saved_record_local_values;
-        self.return_defer_active = ctx.saved_return_defer_active;
-        self.return_defer_slot = ctx.saved_return_defer_slot;
-        self.return_defer_target = ctx.saved_return_defer_target;
-        self.return_deferred_emitted = ctx.saved_return_deferred_emitted;
-        self.in_cleanup_block = ctx.saved_in_cleanup_block;
-        self.cleanup_allow_return = ctx.saved_cleanup_allow_return;
-        self.cleanup_allow_throw = ctx.saved_cleanup_allow_throw;
-        self.suppress_pin_entry_copy_next = ctx.saved_suppress_pin_entry_copy_next;
-        self.in_unified_boxcall_fallback = ctx.saved_in_unified_boxcall_fallback;
+        self.function_state.scope.function_param_names =
+            ctx.saved_scope_stacks.function_param_names;
+        self.function_state.scope.fastmem_region_stack =
+            ctx.saved_scope_stacks.fastmem_region_stack;
+        self.function_state.pending_phis = ctx.saved_pending_phis;
+        self.function_state.local_ssa_map = ctx.saved_local_ssa_map;
+        self.function_state.schedule_mat_map = ctx.saved_schedule_mat_map;
+        self.function_state.pin_slot_names = ctx.saved_pin_slot_names;
+        self.function_state.compilation.record_local_values = ctx.saved_record_local_values;
+        self.function_state.return_defer_active = ctx.saved_return_defer_active;
+        self.function_state.return_defer_slot = ctx.saved_return_defer_slot;
+        self.function_state.return_defer_target = ctx.saved_return_defer_target;
+        self.function_state.return_deferred_emitted = ctx.saved_return_deferred_emitted;
+        self.function_state.in_cleanup_block = ctx.saved_in_cleanup_block;
+        self.function_state.cleanup_allow_return = ctx.saved_cleanup_allow_return;
+        self.function_state.cleanup_allow_throw = ctx.saved_cleanup_allow_throw;
+        self.function_state.suppress_pin_entry_copy_next = ctx.saved_suppress_pin_entry_copy_next;
+        self.function_state.in_unified_boxcall_fallback = ctx.saved_in_unified_boxcall_fallback;
         self.recursion_depth = ctx.saved_recursion_depth;
     }
 }

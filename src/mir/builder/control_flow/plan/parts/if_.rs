@@ -36,7 +36,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_exit_if_tree(
     }
 
     // Save state at if entry (both branches start from same point)
-    let pre_if_map = builder.variable_ctx.variable_map.clone();
+    let pre_if_map = builder.function_state.variable_ctx.variable_map.clone();
     let pre_bindings = current_bindings.clone();
 
     // then_recipe → verify + lower exit-only block
@@ -56,7 +56,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_exit_if_tree(
     )?;
 
     // Reset to pre-if state before lowering else
-    builder.variable_ctx.variable_map = pre_if_map.clone();
+    builder.function_state.variable_ctx.variable_map = pre_if_map.clone();
     *current_bindings = pre_bindings.clone();
 
     // else_recipe → convert to block and dispatch (ExitAll only)
@@ -103,7 +103,7 @@ pub(in crate::mir::builder) fn lower_loop_cond_exit_if_tree(
     };
 
     // Reset to pre-if state for condition evaluation
-    builder.variable_ctx.variable_map = pre_if_map;
+    builder.function_state.variable_ctx.variable_map = pre_if_map;
     *current_bindings = pre_bindings;
 
     // Build if plan (no join PHIs needed since all branches exit)

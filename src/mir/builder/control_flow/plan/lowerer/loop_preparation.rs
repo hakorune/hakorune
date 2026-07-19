@@ -36,7 +36,7 @@ pub fn prepare_loop_entry(
     // Preheader handling: if current block != preheader_bb, either:
     // - Jump to preheader (if fresh)
     // - Rewire preheader_bb to current_bb (if not fresh)
-    if let Some(current_bb) = builder.current_block {
+    if let Some(current_bb) = builder.function_state.current_block {
         if loop_plan.preheader_bb != current_bb {
             if loop_plan.preheader_is_fresh {
                 builder.ensure_block_exists(loop_plan.preheader_bb)?;
@@ -91,13 +91,13 @@ pub fn prepare_loop_entry(
     let frag = loop_plan.frag.clone();
 
     // Step 1: Emit Jump from current block to loop entry
-    if builder.current_block.is_some() {
+    if builder.function_state.current_block.is_some() {
         builder.emit_instruction(MirInstruction::Jump {
             target: frag.entry,
             edge_args: None,
         })?;
         if debug {
-            if let Some(current_bb) = builder.current_block {
+            if let Some(current_bb) = builder.function_state.current_block {
                 trace_logger.debug(
                     "lowerer/term_set",
                     &format!(

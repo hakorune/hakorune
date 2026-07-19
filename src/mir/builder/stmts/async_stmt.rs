@@ -39,16 +39,19 @@ pub(in crate::mir::builder) fn build_nowait_statement(
         value: expression_value,
     })?;
     let inner = builder
+        .function_state
         .type_ctx
         .value_types
         .get(&expression_value)
         .cloned()
         .unwrap_or(MirType::Unknown);
     builder
+        .function_state
         .type_ctx
         .value_types
         .insert(future_id, MirType::Future(Box::new(inner)));
     builder
+        .function_state
         .variable_ctx
         .variable_map
         .insert(variable.clone(), future_id);
@@ -81,11 +84,20 @@ pub(in crate::mir::builder) fn build_await_expression(
         dst: result_id,
         future: future_value,
     })?;
-    let result_type = match builder.type_ctx.value_types.get(&future_value) {
+    let result_type = match builder
+        .function_state
+        .type_ctx
+        .value_types
+        .get(&future_value)
+    {
         Some(MirType::Future(inner)) => (**inner).clone(),
         _ => MirType::Unknown,
     };
-    builder.type_ctx.value_types.insert(result_id, result_type);
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(result_id, result_type);
     builder.emit_instruction(MirInstruction::Safepoint)?;
     Ok(result_id)
 }

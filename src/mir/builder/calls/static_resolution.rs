@@ -43,7 +43,11 @@ impl MirBuilder {
             return Some(imported_box_name.to_string());
         }
 
-        let is_local_var = self.variable_ctx.variable_map.contains_key(obj_name);
+        let is_local_var = self
+            .function_state
+            .variable_ctx
+            .variable_map
+            .contains_key(obj_name);
         if crate::config::env::builder_static_call_trace() {
             let ring0 = crate::runtime::get_global_ring0();
             ring0.log.debug(&format!(

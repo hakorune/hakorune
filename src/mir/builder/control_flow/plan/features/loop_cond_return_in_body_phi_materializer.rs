@@ -71,10 +71,11 @@ impl LoopCondReturnInBodyPhiMaterializer {
         let mut carrier_phis = BTreeMap::new();
         let mut carrier_step_phis = BTreeMap::new();
         for var in carrier_vars {
-            let Some(&init_val) = builder.variable_ctx.variable_map.get(var) else {
+            let Some(&init_val) = builder.function_state.variable_ctx.variable_map.get(var) else {
                 return Err(format!("{error_prefix}: carrier {} missing init", var));
             };
             let ty = builder
+                .function_state
                 .type_ctx
                 .get_type(init_val)
                 .cloned()
@@ -93,6 +94,7 @@ impl LoopCondReturnInBodyPhiMaterializer {
         let current_bindings = carrier_phis.clone();
         for (name, value_id) in &current_bindings {
             builder
+                .function_state
                 .variable_ctx
                 .variable_map
                 .insert(name.clone(), *value_id);

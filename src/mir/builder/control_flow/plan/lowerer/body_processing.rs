@@ -39,6 +39,7 @@ impl super::PlanLowerer {
         use crate::mir::builder::emission::branch::emit_conditional;
 
         let _pre_branch_bb = builder
+            .function_state
             .current_block
             .ok_or_else(|| "[lowerer] No current block for IfEffect".to_string())?;
 
@@ -96,12 +97,16 @@ impl super::PlanLowerer {
         let strict_planner_required = crate::config::env::joinir_dev::strict_enabled()
             && crate::config::env::joinir_dev::planner_required_enabled();
         let mut defined_values = if strict_planner_required {
-            builder.scope_ctx.current_function.as_ref().map(|func| {
-                crate::mir::verification::utils::compute_def_blocks(func)
-                    .keys()
-                    .copied()
-                    .collect::<HashSet<ValueId>>()
-            })
+            builder
+                .function_state
+                .current_function
+                .as_ref()
+                .map(|func| {
+                    crate::mir::verification::utils::compute_def_blocks(func)
+                        .keys()
+                        .copied()
+                        .collect::<HashSet<ValueId>>()
+                })
         } else {
             None
         };
@@ -178,13 +183,11 @@ impl super::PlanLowerer {
                                 {
                                     return Err(format!(
                                         "[freeze:contract][loop_lowering/effect_forward_ref] fn={} bb={:?} use=%{} use_idx={} def_idx={} def_kind={} use_by=CoreEffectPlan::BinOp dst=%{} op={:?} operand=lhs path=body_fallthrough",
-                                        builder
-                                            .scope_ctx
-                                            .current_function
+                                        builder.function_state.current_function
                                             .as_ref()
                                             .map(|f| f.signature.name.as_str())
                                             .unwrap_or("<unknown>"),
-                                        builder.current_block,
+                                        builder.function_state.current_block,
                                         lhs.0,
                                         idx,
                                         def_idx,
@@ -195,13 +198,11 @@ impl super::PlanLowerer {
                                 }
                                 return Err(format!(
                                     "[freeze:contract][loop_lowering/effect_undefined_operand] fn={} bb={:?} use=%{} use_idx={} use_by=CoreEffectPlan::BinOp dst=%{} op={:?} operand=lhs plan_def=none path=body_fallthrough",
-                                    builder
-                                        .scope_ctx
-                                        .current_function
+                                    builder.function_state.current_function
                                         .as_ref()
                                         .map(|f| f.signature.name.as_str())
                                         .unwrap_or("<unknown>"),
-                                    builder.current_block,
+                                    builder.function_state.current_block,
                                     lhs.0,
                                     idx,
                                     dst.0,
@@ -214,13 +215,11 @@ impl super::PlanLowerer {
                                 {
                                     return Err(format!(
                                         "[freeze:contract][loop_lowering/effect_forward_ref] fn={} bb={:?} use=%{} use_idx={} def_idx={} def_kind={} use_by=CoreEffectPlan::BinOp dst=%{} op={:?} operand=rhs path=body_fallthrough",
-                                        builder
-                                            .scope_ctx
-                                            .current_function
+                                        builder.function_state.current_function
                                             .as_ref()
                                             .map(|f| f.signature.name.as_str())
                                             .unwrap_or("<unknown>"),
-                                        builder.current_block,
+                                        builder.function_state.current_block,
                                         rhs.0,
                                         idx,
                                         def_idx,
@@ -231,13 +230,11 @@ impl super::PlanLowerer {
                                 }
                                 return Err(format!(
                                     "[freeze:contract][loop_lowering/effect_undefined_operand] fn={} bb={:?} use=%{} use_idx={} use_by=CoreEffectPlan::BinOp dst=%{} op={:?} operand=rhs plan_def=none path=body_fallthrough",
-                                    builder
-                                        .scope_ctx
-                                        .current_function
+                                    builder.function_state.current_function
                                         .as_ref()
                                         .map(|f| f.signature.name.as_str())
                                         .unwrap_or("<unknown>"),
-                                    builder.current_block,
+                                    builder.function_state.current_block,
                                     rhs.0,
                                     idx,
                                     dst.0,
@@ -281,12 +278,16 @@ impl super::PlanLowerer {
             let strict_planner_required = crate::config::env::joinir_dev::strict_enabled()
                 && crate::config::env::joinir_dev::planner_required_enabled();
             let mut defined_values = if strict_planner_required {
-                builder.scope_ctx.current_function.as_ref().map(|func| {
-                    crate::mir::verification::utils::compute_def_blocks(func)
-                        .keys()
-                        .copied()
-                        .collect::<HashSet<ValueId>>()
-                })
+                builder
+                    .function_state
+                    .current_function
+                    .as_ref()
+                    .map(|func| {
+                        crate::mir::verification::utils::compute_def_blocks(func)
+                            .keys()
+                            .copied()
+                            .collect::<HashSet<ValueId>>()
+                    })
             } else {
                 None
             };
@@ -305,13 +306,11 @@ impl super::PlanLowerer {
                             {
                                 return Err(format!(
                                     "[freeze:contract][loop_lowering/effect_forward_ref] fn={} bb={:?} use=%{} use_idx={} def_idx={} def_kind={} use_by=CoreEffectPlan::BinOp dst=%{} op={:?} operand=lhs path=body_effects",
-                                    builder
-                                        .scope_ctx
-                                        .current_function
+                                    builder.function_state.current_function
                                         .as_ref()
                                         .map(|f| f.signature.name.as_str())
                                         .unwrap_or("<unknown>"),
-                                    builder.current_block,
+                                    builder.function_state.current_block,
                                     lhs.0,
                                     effect_idx,
                                     def_idx,
@@ -322,13 +321,11 @@ impl super::PlanLowerer {
                             }
                             return Err(format!(
                                 "[freeze:contract][loop_lowering/effect_undefined_operand] fn={} bb={:?} use=%{} use_idx={} use_by=CoreEffectPlan::BinOp dst=%{} op={:?} operand=lhs plan_def=none path=body_effects",
-                                builder
-                                    .scope_ctx
-                                    .current_function
+                                builder.function_state.current_function
                                     .as_ref()
                                     .map(|f| f.signature.name.as_str())
                                     .unwrap_or("<unknown>"),
-                                builder.current_block,
+                                builder.function_state.current_block,
                                 lhs.0,
                                 effect_idx,
                                 dst.0,
@@ -341,13 +338,11 @@ impl super::PlanLowerer {
                             {
                                 return Err(format!(
                                     "[freeze:contract][loop_lowering/effect_forward_ref] fn={} bb={:?} use=%{} use_idx={} def_idx={} def_kind={} use_by=CoreEffectPlan::BinOp dst=%{} op={:?} operand=rhs path=body_effects",
-                                    builder
-                                        .scope_ctx
-                                        .current_function
+                                    builder.function_state.current_function
                                         .as_ref()
                                         .map(|f| f.signature.name.as_str())
                                         .unwrap_or("<unknown>"),
-                                    builder.current_block,
+                                    builder.function_state.current_block,
                                     rhs.0,
                                     effect_idx,
                                     def_idx,
@@ -358,13 +353,11 @@ impl super::PlanLowerer {
                             }
                             return Err(format!(
                                 "[freeze:contract][loop_lowering/effect_undefined_operand] fn={} bb={:?} use=%{} use_idx={} use_by=CoreEffectPlan::BinOp dst=%{} op={:?} operand=rhs plan_def=none path=body_effects",
-                                builder
-                                    .scope_ctx
-                                    .current_function
+                                builder.function_state.current_function
                                     .as_ref()
                                     .map(|f| f.signature.name.as_str())
                                     .unwrap_or("<unknown>"),
-                                builder.current_block,
+                                builder.function_state.current_block,
                                 rhs.0,
                                 effect_idx,
                                 dst.0,
@@ -443,7 +436,7 @@ impl super::PlanLowerer {
                 }
                 if strict_planner_required {
                     if let CoreEffectPlan::BinOp { dst, lhs, op, rhs } = effect {
-                        if let Some(func) = builder.scope_ctx.current_function.as_ref() {
+                        if let Some(func) = builder.function_state.current_function.as_ref() {
                             let def_blocks =
                                 crate::mir::verification::utils::compute_def_blocks(func);
                             let span = builder.metadata_ctx.current_span();
@@ -453,14 +446,13 @@ impl super::PlanLowerer {
                                 .unwrap_or_else(|| "unknown".to_string());
                             if !def_blocks.contains_key(lhs) {
                                 let origin_span = builder
-                                    .metadata_ctx
-                                    .value_span(*lhs)
+                                    .value_origin_span(*lhs)
                                     .map(|s| s.to_string())
                                     .unwrap_or_else(|| "unknown".to_string());
                                 return Err(format!(
                                     "[freeze:contract][loop_lowering/effect_undefined_operand] fn={} bb={:?} use=%{} use_idx=0 use_by=CoreEffectPlan::BinOp dst=%{} op={:?} operand=lhs plan_def=none path=effect_in_loop span={} span_start={} span_end={} file={} use_origin_span={}",
                                     func.signature.name,
-                                    builder.current_block,
+                                    builder.function_state.current_block,
                                     lhs.0,
                                     dst.0,
                                     op,
@@ -473,14 +465,13 @@ impl super::PlanLowerer {
                             }
                             if !def_blocks.contains_key(rhs) {
                                 let origin_span = builder
-                                    .metadata_ctx
-                                    .value_span(*rhs)
+                                    .value_origin_span(*rhs)
                                     .map(|s| s.to_string())
                                     .unwrap_or_else(|| "unknown".to_string());
                                 return Err(format!(
                                     "[freeze:contract][loop_lowering/effect_undefined_operand] fn={} bb={:?} use=%{} use_idx=0 use_by=CoreEffectPlan::BinOp dst=%{} op={:?} operand=rhs plan_def=none path=effect_in_loop span={} span_start={} span_end={} file={} use_origin_span={}",
                                     func.signature.name,
-                                    builder.current_block,
+                                    builder.function_state.current_block,
                                     rhs.0,
                                     dst.0,
                                     op,
@@ -519,7 +510,7 @@ impl super::PlanLowerer {
             }
             if strict_planner_required {
                 if let CorePlan::Effect(CoreEffectPlan::BinOp { dst, lhs, op, rhs }) = plan {
-                    if let Some(func) = builder.scope_ctx.current_function.as_ref() {
+                    if let Some(func) = builder.function_state.current_function.as_ref() {
                         let def_blocks = crate::mir::verification::utils::compute_def_blocks(func);
                         if !def_blocks.contains_key(lhs) {
                             if let Some((def_idx, def_kind)) = plans_find_def(plans, idx + 1, *lhs)
@@ -532,7 +523,7 @@ impl super::PlanLowerer {
                             return Err(format!(
                                 "[freeze:contract][loop_lowering/effect_undefined_operand] fn={} bb={:?} use=%{} use_idx={} use_by=CorePlan::Effect dst=%{} op={:?} operand=lhs plan_def=none path=body_plan",
                                 ctx.func_name,
-                                builder.current_block,
+                                builder.function_state.current_block,
                                 lhs.0,
                                 idx,
                                 dst.0,
@@ -550,7 +541,7 @@ impl super::PlanLowerer {
                             return Err(format!(
                                 "[freeze:contract][loop_lowering/effect_undefined_operand] fn={} bb={:?} use=%{} use_idx={} use_by=CorePlan::Effect dst=%{} op={:?} operand=rhs plan_def=none path=body_plan",
                                 ctx.func_name,
-                                builder.current_block,
+                                builder.function_state.current_block,
                                 rhs.0,
                                 idx,
                                 dst.0,
@@ -575,7 +566,7 @@ impl super::PlanLowerer {
             target: fallthrough_target,
             edge_args: None,
         })?;
-        if let Some(current_bb) = builder.current_block {
+        if let Some(current_bb) = builder.function_state.current_block {
             trace_logger.debug(
                 "lowerer/term_set",
                 &format!(

@@ -124,7 +124,7 @@ impl MirBuilder {
         let strict = crate::config::env::joinir_dev::strict_enabled();
         let dev = crate::config::env::joinir_dev_enabled();
         let func_name = self
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .map(|f| f.signature.name.clone())
@@ -192,8 +192,8 @@ impl MirBuilder {
     ) -> Result<MirFunction, String> {
         // Void return追加（必要な場合）
         if !returns_value {
-            if let Some(ref mut f) = self.scope_ctx.current_function {
-                if let Some(block) = f.get_block(self.current_block.unwrap()) {
+            if let Some(ref mut f) = self.function_state.current_function {
+                if let Some(block) = f.get_block(self.function_state.current_block.unwrap()) {
                     if !block.is_terminated() {
                         let void_val = crate::mir::builder::emission::constant::emit_void(self)?;
                         self.emit_instruction(MirInstruction::Return {
@@ -204,36 +204,40 @@ impl MirBuilder {
             }
         }
 
-        if let Some(ref mut f) = self.scope_ctx.current_function {
+        if let Some(ref mut f) = self.function_state.current_function {
             use crate::mir::type_propagation::TypePropagationPipeline;
-            TypePropagationPipeline::run(f, &mut self.type_ctx.value_types)?;
+            TypePropagationPipeline::run(f, &mut self.function_state.type_ctx.value_types)?;
         }
 
         if let (Some(function), Some(module)) = (
-            self.scope_ctx.current_function.as_ref(),
+            self.function_state.current_function.as_ref(),
             self.current_module.as_ref(),
         ) {
             crate::mir::builder::type_hint_providers::annotate_missing_result_types_from_calls_and_await(
-                &mut self.type_ctx, function, module,
+                &mut self.function_state.type_ctx, function, module,
             );
         }
 
+        let origin_caller_rows = self.value_origin_caller_rows();
+
         // 型推論
-        if let Some(ref mut f) = self.scope_ctx.current_function {
+        if let Some(ref mut f) = self.function_state.current_function {
             if returns_value && matches!(f.signature.return_type, MirType::Void | MirType::Unknown)
             {
                 let mut inferred: Option<MirType> = None;
                 'search: for (_bid, bb) in f.blocks.iter() {
                     for inst in bb.instructions.iter() {
                         if let MirInstruction::Return { value: Some(v) } = inst {
-                            if let Some(mt) = self.type_ctx.value_types.get(v).cloned() {
+                            if let Some(mt) =
+                                self.function_state.type_ctx.value_types.get(v).cloned()
+                            {
                                 inferred = Some(mt);
                                 break 'search;
                             }
                         }
                     }
                     if let Some(MirInstruction::Return { value: Some(v) }) = &bb.terminator {
-                        if let Some(mt) = self.type_ctx.value_types.get(v).cloned() {
+                        if let Some(mt) = self.function_state.type_ctx.value_types.get(v).cloned() {
                             inferred = Some(mt);
                             break;
                         }
@@ -247,9 +251,9 @@ impl MirBuilder {
             // Keep per-function metadata complete before the function enters the
             // module so later canonicalization sees the same receiver facts on
             // direct-lowered instance methods as it does on main.
-            f.metadata.value_types = self.type_ctx.value_types.clone();
+            f.metadata.value_types = self.function_state.type_ctx.value_types.clone();
             let mut origin_callers = f.metadata.value_origin_callers.clone();
-            for (k, v) in self.metadata_ctx.value_origin_callers().iter() {
+            for (k, v) in &origin_caller_rows {
                 origin_callers.insert(*k, v.clone());
             }
             f.metadata.value_origin_callers = origin_callers;
@@ -261,7 +265,7 @@ impl MirBuilder {
             self,
             "finalize_function_draft",
         )?;
-        self.scope_ctx.current_function.take().ok_or_else(|| {
+        self.function_state.current_function.take().ok_or_else(|| {
             "[freeze:contract][canonical_function_session/finalize_without_draft]".to_string()
         })
     }
@@ -280,7 +284,7 @@ impl MirBuilder {
         let strict = crate::config::env::joinir_dev::strict_enabled();
         let dev = crate::config::env::joinir_dev_enabled();
         let func_name = self
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .map(|f| f.signature.name.clone())
@@ -364,7 +368,7 @@ impl MirBuilder {
             builder.lower_function_body(body)?;
 
             let returns_value = builder
-                .scope_ctx
+                .function_state
                 .current_function
                 .as_ref()
                 .is_some_and(|function| !matches!(function.signature.return_type, MirType::Void));
@@ -424,7 +428,7 @@ impl MirBuilder {
             builder.lower_method_body(body)?;
 
             let returns_value = builder
-                .scope_ctx
+                .function_state
                 .current_function
                 .as_ref()
                 .is_some_and(|function| !matches!(function.signature.return_type, MirType::Void));
@@ -508,7 +512,7 @@ impl MirBuilder {
             drive_legacy_block_v1(builder, &mut port)?;
 
             let returns_value = builder
-                .scope_ctx
+                .function_state
                 .current_function
                 .as_ref()
                 .is_some_and(|function| !matches!(function.signature.return_type, MirType::Void));

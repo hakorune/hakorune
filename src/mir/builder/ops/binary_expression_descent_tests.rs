@@ -159,7 +159,7 @@ fn builder(name: &str) -> MirBuilder {
 
 fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("current BIN0 test function")
@@ -222,7 +222,7 @@ fn ordinary_comparison_uses_same_order_and_existing_bool_terminal() {
         ]
     );
     assert_eq!(
-        builder.type_ctx.value_types.get(&output),
+        builder.function_state.type_ctx.value_types.get(&output),
         Some(&MirType::Bool)
     );
     assert!(instructions(&builder).iter().any(|instruction| matches!(

@@ -14,8 +14,8 @@ pub(in crate::mir::builder) fn prepare_for_builder(
     PhiTransientTypeDecisionV1::prepare(
         dst,
         logical_inputs,
-        &builder.type_ctx.value_types,
-        builder.type_ctx.value_types.get(&dst),
+        &builder.function_state.type_ctx.value_types,
+        builder.function_state.type_ctx.value_types.get(&dst),
         type_hint,
     )
     .map_err(|error| error.to_string())
@@ -27,5 +27,9 @@ pub(in crate::mir::builder) fn commit_for_builder(
     dst: ValueId,
     prepared: PreparedPhiTypePublicationV1,
 ) {
-    commit_prepared_phi_type(&mut builder.type_ctx.value_types, dst, prepared);
+    commit_prepared_phi_type(
+        &mut builder.function_state.type_ctx.value_types,
+        dst,
+        prepared,
+    );
 }

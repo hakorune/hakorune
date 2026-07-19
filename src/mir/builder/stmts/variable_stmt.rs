@@ -191,9 +191,13 @@ pub(in crate::mir::builder) fn build_local_statement_from_values_with_types_and_
             .flatten()
             .is_some();
         if exact_contract {
-            let function = builder.scope_ctx.current_function.as_mut().ok_or_else(|| {
-                "[type/local_contract_carrier_missing] function=<none>".to_string()
-            })?;
+            let function = builder
+                .function_state
+                .current_function
+                .as_mut()
+                .ok_or_else(|| {
+                    "[type/local_contract_carrier_missing] function=<none>".to_string()
+                })?;
             crate::mir::type_contracts::local_slot::register_local_slot_contract(
                 function,
                 local_slot_id,
@@ -207,9 +211,13 @@ pub(in crate::mir::builder) fn build_local_statement_from_values_with_types_and_
                 write_kind: crate::mir::function::LocalContractWriteKind::Init,
             })?;
         } else if typed_array_contract {
-            let function = builder.scope_ctx.current_function.as_mut().ok_or_else(|| {
-                "[type/typed_array_contract_carrier_missing] function=<none>".to_string()
-            })?;
+            let function = builder
+                .function_state
+                .current_function
+                .as_mut()
+                .ok_or_else(|| {
+                    "[type/typed_array_contract_carrier_missing] function=<none>".to_string()
+                })?;
             if let Some((contract_id, element_spec)) =
                 preclaimed_arrays.get(index).and_then(|entry| entry.clone())
             {
@@ -257,7 +265,8 @@ pub(in crate::mir::builder) fn build_local_statement_from_values_with_types_and_
         }
         crate::mir::builder::metadata::propagate::propagate(builder, init_val, var_id);
         builder
-            .comp_ctx
+            .function_state
+            .compilation
             .propagate_record_local_value(init_val, var_id);
 
         if crate::config::env::builder_loopform_debug() {
@@ -270,7 +279,12 @@ pub(in crate::mir::builder) fn build_local_statement_from_values_with_types_and_
             );
         }
         if let Some(reg) = builder.comp_ctx.current_slot_registry.as_mut() {
-            let ty = builder.type_ctx.value_types.get(&var_id).cloned();
+            let ty = builder
+                .function_state
+                .type_ctx
+                .value_types
+                .get(&var_id)
+                .cloned();
             reg.ensure_slot(&var_name, ty);
         }
         last_value = Some(var_id);
@@ -295,7 +309,7 @@ pub(in crate::mir::builder) fn build_outbox_statement(
 
     let result = build_local_statement_from_values(builder, variables.clone(), values)?;
 
-    if let Some(function) = builder.scope_ctx.current_function.as_mut() {
+    if let Some(function) = builder.function_state.current_function.as_mut() {
         function.metadata.outbox_bindings.extend(variables);
     }
 
@@ -342,7 +356,13 @@ pub(in crate::mir::builder) fn build_me_expression(
     const ME_VAR: &str = "me"; // Small constant SSOT
 
     // Fast path: return if "me" is in variable_map
-    if let Some(id) = builder.variable_ctx.variable_map.get(ME_VAR).cloned() {
+    if let Some(id) = builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .get(ME_VAR)
+        .cloned()
+    {
         return Ok(id);
     }
 
@@ -350,7 +370,7 @@ pub(in crate::mir::builder) fn build_me_expression(
     // This is a contract violation - caller must initialize "me" before use
 
     let function_context = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .map(|f| f.signature.name.clone())
@@ -414,13 +434,14 @@ mod local_contract_tests {
             vec![Some("u8".to_string())],
         )
         .unwrap();
-        let slot = crate::mir::LocalSlotId::from(builder.binding_ctx.lookup("x").unwrap());
+        let slot =
+            crate::mir::LocalSlotId::from(builder.function_state.binding_ctx.lookup("x").unwrap());
         let rhs = builder.build_expression(integer(2)).unwrap();
         builder
             .build_assignment_from_value("x".to_string(), rhs)
             .unwrap();
 
-        let function = builder.scope_ctx.current_function.as_ref().unwrap();
+        let function = builder.function_state.current_function.as_ref().unwrap();
         assert_eq!(function.metadata.local_slot_contracts.len(), 1);
         assert_eq!(
             function.metadata.local_slot_contracts[0].local_slot_id,
@@ -461,8 +482,12 @@ mod local_contract_tests {
         )
         .unwrap_err();
         assert!(error.contains("[type/local_contract_uninitialized_forbidden]"));
-        assert!(!builder.variable_ctx.variable_map.contains_key("x"));
-        assert!(!builder.binding_ctx.contains("x"));
+        assert!(!builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .contains_key("x"));
+        assert!(!builder.function_state.binding_ctx.contains("x"));
     }
 
     #[test]
@@ -481,7 +506,8 @@ mod local_contract_tests {
             vec![Some("Array<u8>".to_string())],
         )
         .unwrap();
-        let slot = crate::mir::LocalSlotId::from(builder.binding_ctx.lookup("xs").unwrap());
+        let slot =
+            crate::mir::LocalSlotId::from(builder.function_state.binding_ctx.lookup("xs").unwrap());
 
         let replacement = builder
             .build_expression(ASTNode::ArrayLiteral {
@@ -493,7 +519,7 @@ mod local_contract_tests {
             .build_assignment_from_value("xs".to_string(), replacement)
             .unwrap();
 
-        let function = builder.scope_ctx.current_function.as_ref().unwrap();
+        let function = builder.function_state.current_function.as_ref().unwrap();
         let instructions = function
             .blocks
             .values()

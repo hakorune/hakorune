@@ -10,7 +10,10 @@ pub fn emit_conditional(
     then_bb: BasicBlockId,
     else_bb: BasicBlockId,
 ) -> Result<(), String> {
-    if let (Some(func), Some(cur_bb)) = (b.scope_ctx.current_function.as_mut(), b.current_block) {
+    if let (Some(func), Some(cur_bb)) = (
+        b.function_state.current_function.as_mut(),
+        b.function_state.current_block,
+    ) {
         crate::mir::ssot::cf_common::set_branch(func, cur_bb, cond, then_bb, else_bb);
         Ok(())
     } else {
@@ -26,7 +29,10 @@ pub fn emit_conditional(
 
 #[inline]
 pub fn emit_jump(b: &mut MirBuilder, target: BasicBlockId) -> Result<(), String> {
-    if let (Some(func), Some(cur_bb)) = (b.scope_ctx.current_function.as_mut(), b.current_block) {
+    if let (Some(func), Some(cur_bb)) = (
+        b.function_state.current_function.as_mut(),
+        b.function_state.current_block,
+    ) {
         crate::mir::ssot::cf_common::set_jump(func, cur_bb, target);
         Ok(())
     } else {
@@ -123,8 +129,10 @@ pub fn emit_conditional_edgecfg(
     );
 
     // Emit to MIR (Phase 29bq+: session 経由で sealing enforce)
-    if let Some(ref mut func) = b.scope_ctx.current_function {
-        b.frag_emit_session.emit_and_seal(func, &if_frag)?;
+    if let Some(ref mut func) = b.function_state.current_function {
+        b.function_state
+            .frag_emit_session
+            .emit_and_seal(func, &if_frag)?;
     } else {
         return Err("[emit_conditional_edgecfg] current_function is None".to_string());
     }

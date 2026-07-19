@@ -73,7 +73,7 @@ impl RecursiveChildLoweringPortV1 for RecordingAssignmentPortV1 {
         self.events.borrow_mut().push(EventV1::RhsLower);
         let value = crate::mir::builder::emission::constant::emit_integer(builder, 41)?;
         if self.remove_binding_during_lower {
-            builder.binding_ctx.remove("x");
+            builder.function_state.binding_ctx.remove("x");
         }
         if self.fail_lower {
             return Err("rhs-lower".to_string());
@@ -132,17 +132,19 @@ fn builder(name: &str) -> MirBuilder {
 
 fn declare(builder: &mut MirBuilder, name: &str, value: ValueId, binding: u32) {
     builder
+        .function_state
         .variable_ctx
         .variable_map
         .insert(name.to_string(), value);
     builder
+        .function_state
         .binding_ctx
         .insert(name.to_string(), BindingId::new(binding));
 }
 
 fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("current ASN0 function")
@@ -168,7 +170,10 @@ fn declared_target_preflights_then_descends_rhs_and_completes_once() {
         port.events(),
         vec![EventV1::Syntax, EventV1::RhsInput, EventV1::RhsLower]
     );
-    assert_eq!(builder.variable_ctx.variable_map.get("x"), Some(&result));
+    assert_eq!(
+        builder.function_state.variable_ctx.variable_map.get("x"),
+        Some(&result)
+    );
     assert_ne!(result, old);
     assert_eq!(
         instructions(&builder)
@@ -187,6 +192,7 @@ fn undeclared_binding_missing_and_pin_targets_reject_before_rhs_effects() {
         let target = match case {
             "binding-missing" => {
                 builder
+                    .function_state
                     .variable_ctx
                     .variable_map
                     .insert("x".to_string(), old);
@@ -232,7 +238,10 @@ fn syntax_and_rhs_input_failures_publish_no_rhs_or_assignment_effects() {
 
         drive_variable_assignment_v1(&mut builder, &mut port, &input).unwrap_err();
 
-        assert_eq!(builder.variable_ctx.variable_map.get("x"), Some(&old));
+        assert_eq!(
+            builder.function_state.variable_ctx.variable_map.get("x"),
+            Some(&old)
+        );
         assert_eq!(instructions(&builder), before);
         assert_eq!(
             port.events(),
@@ -259,7 +268,10 @@ fn rhs_failure_keeps_old_assignment_and_emits_no_completion_effect() {
     let error = drive_variable_assignment_v1(&mut builder, &mut port, &input).unwrap_err();
 
     assert_eq!(error, "rhs-lower");
-    assert_eq!(builder.variable_ctx.variable_map.get("x"), Some(&old));
+    assert_eq!(
+        builder.function_state.variable_ctx.variable_map.get("x"),
+        Some(&old)
+    );
     assert!(!instructions(&builder)
         .iter()
         .any(|row| matches!(row, MirInstruction::ReleaseStrong { .. })));
@@ -278,17 +290,24 @@ fn completion_recheck_rejects_lost_binding_and_fresh_attempt_succeeds() {
 
     let error = drive_variable_assignment_v1(&mut builder, &mut port, &input).unwrap_err();
     assert!(error.contains("local_contract_binding_missing"));
-    assert_eq!(builder.variable_ctx.variable_map.get("x"), Some(&old));
+    assert_eq!(
+        builder.function_state.variable_ctx.variable_map.get("x"),
+        Some(&old)
+    );
     assert!(!instructions(&builder)
         .iter()
         .any(|row| matches!(row, MirInstruction::ReleaseStrong { .. })));
 
     builder
+        .function_state
         .binding_ctx
         .insert("x".to_string(), BindingId::new(0));
     let mut fresh = RecordingAssignmentPortV1::accepting();
     let result = drive_variable_assignment_v1(&mut builder, &mut fresh, &input).unwrap();
-    assert_eq!(builder.variable_ctx.variable_map.get("x"), Some(&result));
+    assert_eq!(
+        builder.function_state.variable_ctx.variable_map.get("x"),
+        Some(&result)
+    );
 }
 
 #[test]
@@ -304,7 +323,10 @@ fn raw_facade_reuses_recursive_binary_rhs_and_existing_completion() {
     )
     .unwrap();
 
-    assert_eq!(builder.variable_ctx.variable_map.get("x"), Some(&result));
+    assert_eq!(
+        builder.function_state.variable_ctx.variable_map.get("x"),
+        Some(&result)
+    );
     assert!(instructions(&builder)
         .iter()
         .any(|row| matches!(row, MirInstruction::BinOp { .. })));

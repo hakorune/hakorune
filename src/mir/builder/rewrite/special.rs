@@ -54,6 +54,7 @@ pub(crate) fn try_early_str_like_to_dst(
 
     // Annotate result type as value-world String (toString always returns text).
     builder
+        .function_state
         .type_ctx
         .value_types
         .insert(actual_dst, super::super::MirType::String);

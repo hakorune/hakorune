@@ -6,10 +6,16 @@ use super::{EffectMask, MirInstruction, MirType, ValueId};
 
 impl super::MirBuilder {
     pub(super) fn infer_index_target_class(&self, target_val: ValueId) -> Option<String> {
-        if let Some(cls) = self.type_ctx.value_origin_newbox.get(&target_val) {
+        if let Some(cls) = self
+            .function_state
+            .type_ctx
+            .value_origin_newbox
+            .get(&target_val)
+        {
             return Some(cls.clone());
         }
-        self.type_ctx
+        self.function_state
+            .type_ctx
             .value_types
             .get(&target_val)
             .and_then(|ty| match ty {
@@ -207,10 +213,13 @@ impl super::MirBuilder {
                     align: plan.align,
                     index: index_val,
                 })?;
-                if let Some(func) = self.scope_ctx.current_function.as_mut() {
+                if let Some(func) = self.function_state.current_function.as_mut() {
                     func.metadata.value_types.insert(dst, MirType::Integer);
                 }
-                self.type_ctx.value_types.insert(dst, MirType::Integer);
+                self.function_state
+                    .type_ctx
+                    .value_types
+                    .insert(dst, MirType::Integer);
                 return Ok(dst);
             }
         }
@@ -303,10 +312,12 @@ mod tests {
         builder.enter_function_for_test("ordinary_index_access/0".to_string());
         let page_table_id = builder.alloc_value_for_test();
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert("page_table".to_string(), page_table_id);
         builder
+            .function_state
             .type_ctx
             .value_types
             .insert(page_table_id, MirType::Box("ArrayBox".to_string()));
@@ -318,7 +329,7 @@ mod tests {
         ];
 
         super::super::stmts::block_stmt::build_block(&mut builder, body).unwrap();
-        let function = builder.scope_ctx.current_function.as_ref().unwrap();
+        let function = builder.function_state.current_function.as_ref().unwrap();
 
         assert_eq!(function.metadata.fastmem_index_access_sites.len(), 2);
         assert!(function

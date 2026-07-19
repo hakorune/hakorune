@@ -19,8 +19,11 @@ impl MirBuilder {
         )?;
         self.emit_instruction(instruction)?;
         if let Some(dst) = dst {
-            self.type_ctx.value_types.insert(dst, MirType::Void);
-            if let Some(function) = self.scope_ctx.current_function.as_mut() {
+            self.function_state
+                .type_ctx
+                .value_types
+                .insert(dst, MirType::Void);
+            if let Some(function) = self.function_state.current_function.as_mut() {
                 function.metadata.value_types.insert(dst, MirType::Void);
             }
         }
@@ -64,7 +67,7 @@ impl MirBuilder {
 
     fn next_array_write_site_id(&self) -> ArrayWriteSiteId {
         let next = self
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .into_iter()

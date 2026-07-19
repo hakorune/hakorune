@@ -53,7 +53,7 @@ impl MirBuilder {
         };
         // Annotate type
         if let Some(ty) = ty_for_dst {
-            self.type_ctx.value_types.insert(dst, ty);
+            self.function_state.type_ctx.value_types.insert(dst, ty);
         }
 
         Ok(dst)
@@ -76,7 +76,7 @@ impl MirBuilder {
         let checked = exact_numeric_const_from_i128(i128::from(value), &ty)
             .map_err(exact_numeric_literal_error)?;
         let dst = crate::mir::builder::emission::constant::emit_integer(self, value)?;
-        if let Some(function) = self.scope_ctx.current_function.as_mut() {
+        if let Some(function) = self.function_state.current_function.as_mut() {
             function.metadata.exact_numeric_const_facts.insert(
                 dst,
                 ExactNumericConstFact {
@@ -101,14 +101,14 @@ impl MirBuilder {
             ));
         }
 
-        if let Some(&value_id) = self.variable_ctx.variable_map.get(&name) {
+        if let Some(&value_id) = self.function_state.variable_ctx.variable_map.get(&name) {
             self.fail_if_record_value_escape_by_name(&name, value_id)?;
             // Removed: [build_variable_access:GHOST_v36] observation (PHI issue resolved)
             // Removed: [build_variable_access:index_of_trace] observation (PHI issue resolved)
             // Removed: [build_variable_access:VAR_j] observation (PHI issue resolved)
             // Debug-only observation: check if variable_map value is defined
             if crate::config::env::joinir_dev::debug_enabled() {
-                if let Some(func) = self.scope_ctx.current_function.as_ref() {
+                if let Some(func) = self.function_state.current_function.as_ref() {
                     let def_blocks = crate::mir::verification::utils::compute_def_blocks(func);
 
                     if !def_blocks.contains_key(&value_id) {
@@ -116,7 +116,7 @@ impl MirBuilder {
                         let ring0 = crate::runtime::get_global_ring0();
                         ring0.log.debug(&format!("[call/arg_build:undefined_value] fn={} bb={:?} var_name={} v=%{} ast=Variable span=n/a next={}",
                             func.signature.name,
-                            self.current_block,
+                            self.function_state.current_block,
                             name,
                             value_id.0,
                             func.next_value_id
@@ -203,11 +203,12 @@ impl MirBuilder {
         // Result: VM would try to read undefined ValueIds (e.g., ValueId(270) at bb303).
         if !var_name.starts_with("__pin$") {
             let local_slot_id = self
+                .function_state
                 .binding_ctx
                 .lookup(&var_name)
                 .map(crate::mir::LocalSlotId::from);
             let local_contract = local_slot_id.and_then(|slot| {
-                self.scope_ctx
+                self.function_state
                     .current_function
                     .as_ref()
                     .and_then(|function| {
@@ -216,7 +217,7 @@ impl MirBuilder {
                     })
             });
             let typed_array_spec = local_slot_id.and_then(|slot| {
-                self.scope_ctx
+                self.function_state
                     .current_function
                     .as_ref()
                     .and_then(|function| {
@@ -229,9 +230,13 @@ impl MirBuilder {
                     local_slot_id.binding_id().raw(),
                     value_id.as_u32()
                 );
-                let function = self.scope_ctx.current_function.as_mut().ok_or_else(|| {
-                    "[type/typed_array_contract_carrier_missing] function=<none>".to_string()
-                })?;
+                let function = self
+                    .function_state
+                    .current_function
+                    .as_mut()
+                    .ok_or_else(|| {
+                        "[type/typed_array_contract_carrier_missing] function=<none>".to_string()
+                    })?;
                 function.metadata.typed_array_contract_sources.push(
                     crate::mir::function::TypedArrayContractSource {
                         contract_id: contract_id.clone(),
@@ -270,14 +275,21 @@ impl MirBuilder {
             // This ensures "alive until overwrite, then dropped" semantics
             // ⚠️ Termination guard: don't emit after return/throw
             if !self.is_current_block_terminated() {
-                if let Some(prev) = self.variable_ctx.variable_map.get(&var_name).copied() {
+                if let Some(prev) = self
+                    .function_state
+                    .variable_ctx
+                    .variable_map
+                    .get(&var_name)
+                    .copied()
+                {
                     let _ =
                         self.emit_instruction(MirInstruction::ReleaseStrong { values: vec![prev] });
                 }
             }
 
             // In SSA form, each assignment creates a new value
-            self.variable_ctx
+            self.function_state
+                .variable_ctx
                 .variable_map
                 .insert(var_name.clone(), published_value);
 
@@ -326,7 +338,8 @@ impl MirBuilder {
                 EffectMask::PURE,
             )?;
             // 型注釈（最小）
-            self.type_ctx
+            self.function_state
+                .type_ctx
                 .value_types
                 .insert(dst, super::MirType::Box(class.clone()));
             return Ok(dst);
@@ -345,7 +358,8 @@ impl MirBuilder {
                     dst,
                     value: ConstValue::Integer(n),
                 })?;
-                self.type_ctx
+                self.function_state
+                    .type_ctx
                     .value_types
                     .insert(dst, super::MirType::Integer);
                 return Ok(dst);
@@ -372,12 +386,16 @@ impl MirBuilder {
         })?;
         // Phase 15.5: Unified box type handling
         // All boxes (including former core boxes) are treated uniformly as Box types
-        self.type_ctx
+        self.function_state
+            .type_ctx
             .value_types
             .insert(dst, super::MirType::Box(class.clone()));
 
         // Record origin for optimization: dst was created by NewBox of class
-        self.type_ctx.value_origin_newbox.insert(dst, class.clone());
+        self.function_state
+            .type_ctx
+            .value_origin_newbox
+            .insert(dst, class.clone());
 
         // birth 呼び出し（Builder 正規化）
         // 優先: 低下済みグローバル関数 `<Class>.birth/Arity`（Arity は me を含まない）
@@ -445,9 +463,10 @@ impl MirBuilder {
 
     /// Check if the current basic block is terminated
     pub(super) fn is_current_block_terminated(&self) -> bool {
-        if let (Some(block_id), Some(ref function)) =
-            (self.current_block, &self.scope_ctx.current_function)
-        {
+        if let (Some(block_id), Some(ref function)) = (
+            self.function_state.current_block,
+            &self.function_state.current_function,
+        ) {
             if let Some(block) = function.get_block(block_id) {
                 return block.is_terminated();
             }

@@ -120,6 +120,7 @@ fn seed(
 ) {
     let value = builder.alloc_typed(ty);
     builder
+        .function_state
         .variable_ctx
         .variable_map
         .insert(name.to_string(), value);

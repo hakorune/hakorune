@@ -113,25 +113,6 @@ pub(crate) struct CompilationContext {
     /// falling through to helper calls.
     pub enum_decls: HashMap<String, EnumDeclLocal>,
 
-    /// Builder-local record values created by the C205b scalarization seam.
-    ///
-    /// These values are not runtime objects and must not lower through NewBox,
-    /// typed-object plans, or provider/backend routes. They are legal only as
-    /// field-read bases while the builder can replace `.field` with the
-    /// constructor operand.
-    pub record_local_values: HashMap<ValueId, RecordLocalValue>,
-
-    /// Phase 201-A: Reserved ValueIds that must not be allocated
-    /// These are PHI dst ValueIds created by LoopHeaderPhiBuilder.
-    /// When next_value_id() encounters a reserved ID, it skips to the next.
-    /// Cleared after JoinIR merge completes.
-    pub reserved_value_ids: HashSet<ValueId>,
-
-    /// Phase 200-C: Original function body AST for capture analysis
-    /// Stored temporarily during function lowering to support FunctionScopeCaptureAnalyzer.
-    /// None when not lowering a function, or when fn_body is not available.
-    pub fn_body_ast: Option<Vec<ASTNode>>,
-
     /// Complete immutable same-module callable declarations for this root.
     ///
     /// The slot is cleared at module preparation and installed exactly once
@@ -204,9 +185,6 @@ impl CompilationContext {
             record_decls: HashMap::new(),
             record_field_defaults: HashMap::new(),
             enum_decls,
-            record_local_values: HashMap::new(),
-            reserved_value_ids: HashSet::new(),
-            fn_body_ast: None,
             callable_declaration_catalog: None,
             static_scalar_method_facts: HashMap::new(),
             weak_fields_by_box: HashMap::new(),
@@ -307,21 +285,6 @@ impl CompilationContext {
             .and_then(|decl| decl.declared_type_name.as_deref())
     }
 
-    /// Check if a ValueId is reserved
-    pub fn is_reserved_value_id(&self, id: ValueId) -> bool {
-        self.reserved_value_ids.contains(&id)
-    }
-
-    /// Reserve a ValueId (for PHI instructions)
-    pub fn reserve_value_id(&mut self, id: ValueId) {
-        self.reserved_value_ids.insert(id);
-    }
-
-    /// Clear all reserved ValueIds (after JoinIR merge)
-    pub fn clear_reserved_value_ids(&mut self) {
-        self.reserved_value_ids.clear();
-    }
-
     /// Enter static box compilation mode
     pub fn enter_static_box(&mut self, name: String) {
         self.current_static_box = Some(name);
@@ -340,21 +303,6 @@ impl CompilationContext {
     /// Check if currently compiling a static box
     pub fn is_in_static_box(&self) -> bool {
         self.current_static_box.is_some()
-    }
-
-    /// Store function body AST for capture analysis
-    pub fn set_fn_body_ast(&mut self, ast: Vec<ASTNode>) {
-        self.fn_body_ast = Some(ast);
-    }
-
-    /// Take function body AST (consumes it)
-    pub fn take_fn_body_ast(&mut self) -> Option<Vec<ASTNode>> {
-        self.fn_body_ast.take()
-    }
-
-    /// Clear function body AST
-    pub fn clear_fn_body_ast(&mut self) {
-        self.fn_body_ast = None;
     }
 
     /// Check if a field is weak for a box

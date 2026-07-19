@@ -63,13 +63,22 @@ pub(in super::super) fn annotate_call_result_from_func_name<S: AsRef<str>>(
                 // Normalize to Known Box(JsonParser)
                 ret = MirType::Box("JsonParser".into());
             }
-            builder.type_ctx.value_types.insert(dst, ret.clone());
+            builder
+                .function_state
+                .type_ctx
+                .value_types
+                .insert(dst, ret.clone());
             if let MirType::Box(bx) = ret {
-                builder.type_ctx.value_origin_newbox.insert(dst, bx);
+                builder
+                    .function_state
+                    .type_ctx
+                    .value_origin_newbox
+                    .insert(dst, bx);
                 if super::super::utils::builder_debug_enabled()
                     || crate::config::env::builder_debug_enabled()
                 {
                     let bx = builder
+                        .function_state
                         .type_ctx
                         .value_origin_newbox
                         .get(&dst)
@@ -87,9 +96,17 @@ pub(in super::super) fn annotate_call_result_from_func_name<S: AsRef<str>>(
     // 2) No module signature—apply minimal heuristic for known functions
     if name == "JsonParser.parse/1" {
         let ret = MirType::Box("JsonNode".into());
-        builder.type_ctx.value_types.insert(dst, ret.clone());
+        builder
+            .function_state
+            .type_ctx
+            .value_types
+            .insert(dst, ret.clone());
         if let MirType::Box(bx) = ret {
-            builder.type_ctx.value_origin_newbox.insert(dst, bx);
+            builder
+                .function_state
+                .type_ctx
+                .value_origin_newbox
+                .insert(dst, bx);
         }
         if super::super::utils::builder_debug_enabled()
             || crate::config::env::builder_debug_enabled()
@@ -101,9 +118,17 @@ pub(in super::super) fn annotate_call_result_from_func_name<S: AsRef<str>>(
         }
     } else if name == "JsonParser.current_token/0" {
         let ret = MirType::Box("JsonToken".into());
-        builder.type_ctx.value_types.insert(dst, ret.clone());
+        builder
+            .function_state
+            .type_ctx
+            .value_types
+            .insert(dst, ret.clone());
         if let MirType::Box(bx) = ret {
-            builder.type_ctx.value_origin_newbox.insert(dst, bx);
+            builder
+                .function_state
+                .type_ctx
+                .value_origin_newbox
+                .insert(dst, bx);
         }
         if super::super::utils::builder_debug_enabled()
             || crate::config::env::builder_debug_enabled()
@@ -116,9 +141,17 @@ pub(in super::super) fn annotate_call_result_from_func_name<S: AsRef<str>>(
     } else if name == "JsonTokenizer.tokenize/0" {
         // Tokenize returns an ArrayBox of tokens
         let ret = MirType::Box("ArrayBox".into());
-        builder.type_ctx.value_types.insert(dst, ret.clone());
+        builder
+            .function_state
+            .type_ctx
+            .value_types
+            .insert(dst, ret.clone());
         if let MirType::Box(bx) = ret {
-            builder.type_ctx.value_origin_newbox.insert(dst, bx);
+            builder
+                .function_state
+                .type_ctx
+                .value_origin_newbox
+                .insert(dst, bx);
         }
         if super::super::utils::builder_debug_enabled()
             || crate::config::env::builder_debug_enabled()
@@ -131,9 +164,17 @@ pub(in super::super) fn annotate_call_result_from_func_name<S: AsRef<str>>(
     } else if name == "JsonParserModule.create_parser/0" {
         // Known parser factory heuristic when no module signature is available.
         let ret = MirType::Box("JsonParser".into());
-        builder.type_ctx.value_types.insert(dst, ret.clone());
+        builder
+            .function_state
+            .type_ctx
+            .value_types
+            .insert(dst, ret.clone());
         if let MirType::Box(bx) = ret {
-            builder.type_ctx.value_origin_newbox.insert(dst, bx);
+            builder
+                .function_state
+                .type_ctx
+                .value_origin_newbox
+                .insert(dst, bx);
         }
         if super::super::utils::builder_debug_enabled()
             || crate::config::env::builder_debug_enabled()

@@ -85,7 +85,7 @@ impl super::PlanNormalizer {
                     || (crate::config::env::joinir_dev::strict_enabled()
                         && crate::config::env::joinir_dev::planner_required_enabled())
                 {
-                    builder.metadata_ctx.record_value_span(value_id, *span);
+                    builder.record_value_origin_span(value_id, *span);
                 }
                 let (const_value, value_type) = match value {
                     LiteralValue::Integer(n) => (ConstValue::Integer(*n), MirType::Integer),
@@ -99,19 +99,22 @@ impl super::PlanNormalizer {
                     LiteralValue::Void => (ConstValue::Void, MirType::Void),
                 };
 
-                builder.type_ctx.set_type(value_id, value_type);
+                builder
+                    .function_state
+                    .type_ctx
+                    .set_type(value_id, value_type);
 
                 if crate::config::env::joinir_dev::strict_planner_required_debug_enabled() {
                     let caller = std::panic::Location::caller();
                     let ring0 = crate::runtime::get_global_ring0();
                     let fn_name = builder
-                        .scope_ctx
+                        .function_state
                         .current_function
                         .as_ref()
                         .map(|f| f.signature.name.as_str())
                         .unwrap_or("<none>");
                     let next_value_id = builder
-                        .scope_ctx
+                        .function_state
                         .current_function
                         .as_ref()
                         .map(|f| f.next_value_id)
@@ -123,7 +126,7 @@ impl super::PlanNormalizer {
                     ring0.log.debug(&format!(
                         "[lit/lower:alloc] fn={} bb={:?} v=%{} lit={:?} span={} file={} next={} emit=skipped:plan_effect caller={}",
                         fn_name,
-                        builder.current_block,
+                        builder.function_state.current_block,
                         value_id.0,
                         value,
                         span.location_string(),
@@ -148,6 +151,7 @@ impl super::PlanNormalizer {
                     let (rhs, mut effects) =
                         Self::lower_value_input(port, operand, builder, phi_bindings)?;
                     let rhs_ty = builder
+                        .function_state
                         .type_ctx
                         .get_type(rhs)
                         .cloned()
@@ -227,7 +231,10 @@ impl super::PlanNormalizer {
                     }
                     _ => MirType::Unknown,
                 };
-                builder.type_ctx.set_type(result_id, result_type);
+                builder
+                    .function_state
+                    .type_ctx
+                    .set_type(result_id, result_type);
 
                 match object.as_ref() {
                     ASTNode::Variable { name, .. } if name == "env" => {
@@ -402,7 +409,10 @@ impl super::PlanNormalizer {
                     arg_effects.append(&mut effects);
                 }
                 let result_id = builder.next_value_id();
-                builder.type_ctx.set_type(result_id, MirType::Unknown);
+                builder
+                    .function_state
+                    .type_ctx
+                    .set_type(result_id, MirType::Unknown);
                 arg_effects.push(CoreEffectPlan::GlobalCall {
                     source: port.call_source(&input).map_err(|error| error.render())?,
                     dst: Some(result_id),
@@ -466,6 +476,7 @@ impl super::PlanNormalizer {
                 };
                 let dst = builder.next_value_id();
                 builder
+                    .function_state
                     .type_ctx
                     .set_type(dst, MirType::Box(runtime_variant_box_name(parent)));
                 effects.push(CoreEffectPlan::VariantMake {
@@ -496,7 +507,10 @@ impl super::PlanNormalizer {
                     arg_effects.append(&mut effects);
                 }
                 let result_id = builder.next_value_id();
-                builder.type_ctx.set_type(result_id, MirType::Unknown);
+                builder
+                    .function_state
+                    .type_ctx
+                    .set_type(result_id, MirType::Unknown);
                 arg_effects.append(&mut callee_effects);
                 arg_effects.push(CoreEffectPlan::ValueCall {
                     source: port.call_source(&input).map_err(|error| error.render())?,
@@ -520,6 +534,7 @@ impl super::PlanNormalizer {
                 let mut effects = Vec::new();
                 let result_id = builder.next_value_id();
                 builder
+                    .function_state
                     .type_ctx
                     .set_type(result_id, MirType::Box(class.clone()));
                 let mut arg_ids = Vec::new();
@@ -544,6 +559,7 @@ impl super::PlanNormalizer {
                 let mut effects = Vec::new();
                 let array_id = builder.next_value_id();
                 builder
+                    .function_state
                     .type_ctx
                     .set_type(array_id, MirType::Box("ArrayBox".to_string()));
                 record_newbox_metadata(builder, array_id, "ArrayBox");
@@ -582,6 +598,7 @@ impl super::PlanNormalizer {
                 let mut effects = Vec::new();
                 let map_id = builder.next_value_id();
                 builder
+                    .function_state
                     .type_ctx
                     .set_type(map_id, MirType::Box("MapBox".to_string()));
                 record_newbox_metadata(builder, map_id, "MapBox");
@@ -655,8 +672,8 @@ impl super::PlanNormalizer {
                         Self::lower_binop_input(port, input, builder, phi_bindings)?;
                     let result_type = if op == BinaryOp::Add {
                         prepare_coreplan_add_result_representation_v1(
-                            builder.type_ctx.get_type(lhs),
-                            builder.type_ctx.get_type(rhs),
+                            builder.function_state.type_ctx.get_type(lhs),
+                            builder.function_state.type_ctx.get_type(rhs),
                         )
                         .into_exact_type()
                     } else {
@@ -734,6 +751,7 @@ impl super::PlanNormalizer {
                 effects.append(&mut then_effects);
                 effects.append(&mut else_effects);
                 let ty = builder
+                    .function_state
                     .type_ctx
                     .get_type(then_id)
                     .cloned()

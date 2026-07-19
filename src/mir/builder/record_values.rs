@@ -225,7 +225,12 @@ impl MirBuilder {
 
         let (dst, contract_id, fingerprint) = self.begin_record_value_contract(&decl);
         let base_value = self.build_record_value_base(base)?;
-        let Some(record) = self.comp_ctx.record_local_value(base_value).cloned() else {
+        let Some(record) = self
+            .function_state
+            .compilation
+            .record_local_value(base_value)
+            .cloned()
+        else {
             return Err(format!(
                 "[type/record_contract_update_base_mismatch] value={}",
                 base_value.as_u32()
@@ -304,7 +309,7 @@ impl MirBuilder {
         name: &str,
         value: ValueId,
     ) -> Result<(), String> {
-        if let Some(record) = self.comp_ctx.record_local_value(value) {
+        if let Some(record) = self.function_state.compilation.record_local_value(value) {
             return Err(format!(
                 "[record-value/escape] name={} record={} supported_use=field-read",
                 name, record.record_name
@@ -318,7 +323,7 @@ impl MirBuilder {
         name: &str,
         value: ValueId,
     ) -> Result<(), String> {
-        if let Some(record) = self.comp_ctx.record_local_value(value) {
+        if let Some(record) = self.function_state.compilation.record_local_value(value) {
             return Err(format!(
                 "[record-helper-arg/unsupported] name={} record={} required=helper-argument-scalarization supported_use=field-read",
                 name, record.record_name
@@ -334,7 +339,13 @@ impl MirBuilder {
     ) -> Result<Option<ValueId>, String> {
         match object {
             ASTNode::Variable { name, .. } => {
-                let Some(value) = self.variable_ctx.variable_map.get(name).copied() else {
+                let Some(value) = self
+                    .function_state
+                    .variable_ctx
+                    .variable_map
+                    .get(name)
+                    .copied()
+                else {
                     return Ok(None);
                 };
                 self.lower_record_field_read_from_value(value, field)
@@ -370,8 +381,15 @@ impl MirBuilder {
     ) -> Result<(), String> {
         match object {
             ASTNode::Variable { name, .. } => {
-                if let Some(value) = self.variable_ctx.variable_map.get(name).copied() {
-                    if let Some(record) = self.comp_ctx.record_local_value(value) {
+                if let Some(value) = self
+                    .function_state
+                    .variable_ctx
+                    .variable_map
+                    .get(name)
+                    .copied()
+                {
+                    if let Some(record) = self.function_state.compilation.record_local_value(value)
+                    {
                         return Err(format!(
                             "[record-field-set/unsupported] name={} record={} field={}",
                             name, record.record_name, field
@@ -407,6 +425,7 @@ impl MirBuilder {
     fn build_record_value_base(&mut self, base: ASTNode) -> Result<ValueId, String> {
         match base {
             ASTNode::Variable { name, .. } => self
+                .function_state
                 .variable_ctx
                 .variable_map
                 .get(&name)
@@ -432,10 +451,11 @@ impl MirBuilder {
     fn record_name_for_value_base(&self, base: &ASTNode) -> Option<String> {
         match base {
             ASTNode::Variable { name, .. } => self
+                .function_state
                 .variable_ctx
                 .variable_map
                 .get(name)
-                .and_then(|value| self.comp_ctx.record_local_value(*value))
+                .and_then(|value| self.function_state.compilation.record_local_value(*value))
                 .map(|record| record.record_name.clone()),
             ASTNode::New { class, .. } if self.is_record_constructor_class(class) => {
                 Some(class.clone())
@@ -453,7 +473,12 @@ impl MirBuilder {
         value: ValueId,
         field: &str,
     ) -> Result<Option<ValueId>, String> {
-        let Some(record) = self.comp_ctx.record_local_value(value).cloned() else {
+        let Some(record) = self
+            .function_state
+            .compilation
+            .record_local_value(value)
+            .cloned()
+        else {
             return Ok(None);
         };
         let Some(field_value) = record
@@ -468,7 +493,10 @@ impl MirBuilder {
         };
         if let Some(declared_type) = field_value.declared_type_name.as_deref() {
             let ty = Self::parse_type_name_to_mir(declared_type);
-            self.type_ctx.value_types.insert(field_value.value, ty);
+            self.function_state
+                .type_ctx
+                .value_types
+                .insert(field_value.value, ty);
         }
         Ok(Some(field_value.value))
     }
@@ -530,9 +558,13 @@ impl MirBuilder {
         field_values: Vec<RecordLocalFieldValue>,
     ) -> Result<ValueId, String> {
         for (field_index, field_value) in field_values.iter().enumerate() {
-            let function = self.scope_ctx.current_function.as_mut().ok_or_else(|| {
-                "[type/typed_array_contract_carrier_missing] function=<none>".to_string()
-            })?;
+            let function = self
+                .function_state
+                .current_function
+                .as_mut()
+                .ok_or_else(|| {
+                    "[type/typed_array_contract_carrier_missing] function=<none>".to_string()
+                })?;
             let typed_contract =
                 crate::mir::type_contracts::typed_array::register_instruction_source(
                     function,
@@ -569,7 +601,8 @@ impl MirBuilder {
             base,
             fields: field_values.iter().map(|field| field.value).collect(),
         })?;
-        self.comp_ctx
+        self.function_state
+            .compilation
             .register_record_local_value(dst, record_name, field_values);
         Ok(dst)
     }

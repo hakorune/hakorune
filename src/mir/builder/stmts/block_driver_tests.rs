@@ -33,7 +33,7 @@ fn return_(value: Option<ASTNode>) -> ASTNode {
 
 fn instructions(builder: &MirBuilder) -> Vec<&MirInstruction> {
     let function = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("current test function");
@@ -75,7 +75,7 @@ fn empty_block_emits_one_void_and_restores_lexical_scope() {
         })
         .collect::<Vec<_>>();
     assert_eq!(void_outputs, vec![output]);
-    assert!(builder.scope_ctx.lexical_scope_stack.is_empty());
+    assert!(builder.function_state.scope.lexical_scope_stack.is_empty());
 }
 
 #[test]
@@ -91,7 +91,7 @@ fn statements_lower_once_in_source_order_and_return_the_last_value() {
     assert_eq!(constants[0].1, 11);
     assert_eq!(constants[1].1, 22);
     assert_eq!(output, constants[1].0);
-    assert!(builder.scope_ctx.lexical_scope_stack.is_empty());
+    assert!(builder.function_state.scope.lexical_scope_stack.is_empty());
 }
 
 #[test]
@@ -107,7 +107,7 @@ fn termination_stops_before_an_invalid_trailing_statement() {
 
     assert_eq!(integer_constants(&builder).len(), 1);
     assert!(builder.is_current_block_terminated());
-    assert!(builder.scope_ctx.lexical_scope_stack.is_empty());
+    assert!(builder.function_state.scope.lexical_scope_stack.is_empty());
 }
 
 #[test]
@@ -117,9 +117,13 @@ fn successful_local_scope_restores_variable_and_binding_views() {
 
     super::block_stmt::build_block(&mut builder, vec![local("inner", integer(1))]).unwrap();
 
-    assert!(!builder.variable_ctx.variable_map.contains_key("inner"));
-    assert!(builder.binding_ctx.lookup("inner").is_none());
-    assert!(builder.scope_ctx.lexical_scope_stack.is_empty());
+    assert!(!builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .contains_key("inner"));
+    assert!(builder.function_state.binding_ctx.lookup("inner").is_none());
+    assert!(builder.function_state.scope.lexical_scope_stack.is_empty());
     assert!(instructions(&builder)
         .iter()
         .any(|instruction| matches!(instruction, MirInstruction::KeepAlive { .. })));
@@ -137,7 +141,11 @@ fn failure_after_local_restores_scope_state_without_retry() {
     .unwrap_err();
 
     assert!(error.contains("missing"));
-    assert!(!builder.variable_ctx.variable_map.contains_key("inner"));
-    assert!(builder.binding_ctx.lookup("inner").is_none());
-    assert!(builder.scope_ctx.lexical_scope_stack.is_empty());
+    assert!(!builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .contains_key("inner"));
+    assert!(builder.function_state.binding_ctx.lookup("inner").is_none());
+    assert!(builder.function_state.scope.lexical_scope_stack.is_empty());
 }

@@ -20,7 +20,7 @@ pub(super) fn lower_continue_if_with_else(
     fallthrough_body: &Option<NoExitBlockRecipe>,
     error_prefix: &str,
 ) -> Result<Vec<LoweredRecipe>, String> {
-    let saved_map = builder.variable_ctx.variable_map.clone();
+    let saved_map = builder.function_state.variable_ctx.variable_map.clone();
     let saved_bindings = current_bindings.clone();
 
     let cond_view = CondBlockView::from_expr(condition);
@@ -30,7 +30,7 @@ pub(super) fn lower_continue_if_with_else(
 
     let mut lower_continue_branch =
         |builder: &mut MirBuilder, bindings: &mut BTreeMap<String, crate::mir::ValueId>| {
-            builder.variable_ctx.variable_map = saved_map.clone();
+            builder.function_state.variable_ctx.variable_map = saved_map.clone();
             let mut branch_bindings = saved_bindings.clone();
 
             let mut plans = Vec::new();
@@ -74,7 +74,7 @@ pub(super) fn lower_continue_if_with_else(
             }
             let mut pred_bindings = branch_bindings.clone();
             for (name, _) in carrier_step_phis {
-                if let Some(value_id) = builder.variable_ctx.variable_map.get(name) {
+                if let Some(value_id) = builder.function_state.variable_ctx.variable_map.get(name) {
                     pred_bindings.insert(name.clone(), *value_id);
                 }
             }
@@ -86,14 +86,14 @@ pub(super) fn lower_continue_if_with_else(
             )?;
             plans.push(CorePlan::Exit(exit));
 
-            builder.variable_ctx.variable_map = saved_map.clone();
+            builder.function_state.variable_ctx.variable_map = saved_map.clone();
             *bindings = saved_bindings.clone();
             Ok(plans)
         };
 
     let mut lower_fallthrough_branch =
         |builder: &mut MirBuilder, bindings: &mut BTreeMap<String, crate::mir::ValueId>| {
-            builder.variable_ctx.variable_map = saved_map.clone();
+            builder.function_state.variable_ctx.variable_map = saved_map.clone();
             *bindings = saved_bindings.clone();
 
             let mut plans = Vec::new();
@@ -136,15 +136,15 @@ pub(super) fn lower_continue_if_with_else(
             )?);
             }
 
-            fallthrough_map = Some(builder.variable_ctx.variable_map.clone());
+            fallthrough_map = Some(builder.function_state.variable_ctx.variable_map.clone());
             fallthrough_bindings = Some(bindings.clone());
 
-            builder.variable_ctx.variable_map = saved_map.clone();
+            builder.function_state.variable_ctx.variable_map = saved_map.clone();
             *bindings = saved_bindings.clone();
             Ok(plans)
         };
 
-    builder.variable_ctx.variable_map = saved_map.clone();
+    builder.function_state.variable_ctx.variable_map = saved_map.clone();
     *current_bindings = saved_bindings.clone();
 
     let (then_lowerer, else_lowerer) = if continue_in_then {

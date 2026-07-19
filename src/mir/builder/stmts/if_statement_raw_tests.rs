@@ -96,7 +96,7 @@ fn builder(name: &str) -> MirBuilder {
 
 fn void_values(builder: &MirBuilder) -> Vec<(BasicBlockId, ValueId)> {
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -118,7 +118,7 @@ fn void_values(builder: &MirBuilder) -> Vec<(BasicBlockId, ValueId)> {
 
 fn branch_count(builder: &MirBuilder) -> usize {
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -133,7 +133,7 @@ fn assert_simple_statement_if_shape(
     then_returns: bool,
     else_returns: bool,
 ) -> (BasicBlockId, BasicBlockId, BasicBlockId) {
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
     let (then_bb, else_bb) = function
         .blocks
         .values()
@@ -145,6 +145,7 @@ fn assert_simple_statement_if_shape(
         })
         .expect("production statement If header");
     let merge_bb = builder
+        .function_state
         .current_block
         .expect("production statement If merge");
 
@@ -197,7 +198,7 @@ fn production_statement_if_explicit_else_publishes_merge_phis_then_facade_void()
     .unwrap();
 
     let (then_bb, else_bb, merge_bb) = assert_simple_statement_if_shape(&builder, false, false);
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
     let merge = &function.blocks[&merge_bb];
     assert!(matches!(
         merge.instructions.last(),
@@ -206,7 +207,7 @@ fn production_statement_if_explicit_else_publishes_merge_phis_then_facade_void()
             value: ConstValue::Void,
         }) if *dst == output
     ));
-    let x_value = builder.variable_ctx.variable_map["x"];
+    let x_value = builder.function_state.variable_ctx.variable_map["x"];
     let x_inputs = merge
         .instructions
         .iter()
@@ -250,7 +251,7 @@ fn production_statement_if_implicit_else_keeps_internal_and_facade_void_distinct
         .find(|(block, value)| *block == merge_bb && *value == output)
         .expect("statement facade Void");
     assert_ne!(internal.1, facade.1);
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
     assert!(function.blocks[&then_bb].successors.contains(&merge_bb));
     assert!(function.blocks[&else_bb].successors.contains(&merge_bb));
 }
@@ -302,7 +303,7 @@ fn production_statement_if_preserves_branch_termination_matrix() {
             .iter()
             .any(|(block, value)| *block == merge_bb && *value == output));
         let returns = builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .unwrap()
@@ -447,7 +448,7 @@ fn production_statement_if_fastmem_preserves_positive_and_negative_admission() {
         let mut builder = builder(name);
         let region = FastMemRegionId(0);
         builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_mut()
             .unwrap()
@@ -474,7 +475,7 @@ fn production_statement_if_fastmem_preserves_positive_and_negative_admission() {
     assert!(negative_error.contains("fastmem/branch_cfg_requires_owner_eq_condition"));
     assert_eq!(branch_count(&negative), 0);
     assert!(negative
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -494,7 +495,7 @@ fn production_statement_if_fastmem_preserves_positive_and_negative_admission() {
     .unwrap();
     assert_eq!(branch_count(&positive), 1);
     let facts = &positive
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -522,8 +523,8 @@ fn expression_if_remains_cf_if_value_route_without_statement_void() {
         ))
         .unwrap();
 
-    let merge_bb = builder.current_block.unwrap();
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let merge_bb = builder.function_state.current_block.unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
     assert!(function.blocks[&merge_bb].instructions.iter().any(
         |instruction| matches!(instruction, MirInstruction::Phi { dst, .. } if *dst == output)
     ));

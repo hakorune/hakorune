@@ -318,7 +318,7 @@ fn typeop_descends_receiver_once_and_keeps_type_string_syntax_only() {
 
     assert_eq!(port.events, ["receiver", "terminal:typeop"]);
     assert!(builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -422,7 +422,7 @@ fn argument_failure_enters_no_terminal_and_builder_reuses() {
     );
     assert_eq!(port.events, ["receiver", "argument:0"]);
     assert!(!builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -462,7 +462,7 @@ fn static_scalar_fact_returns_const_without_generic_terminal() {
 
     assert!(port.events.is_empty());
     assert!(builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -566,6 +566,7 @@ fn bound_me_route_keeps_source_receiver_syntax_only() {
     let mut builder = builder("RouteOwner.method/0");
     let me = builder.build_expression(integer(9)).unwrap();
     builder
+        .function_state
         .variable_ctx
         .variable_map
         .insert("me".to_string(), me);
@@ -593,6 +594,7 @@ fn lowered_me_arguments_precede_terminal_and_keep_receiver_prefix() {
     let mut builder = builder("RouteOwner.caller/0");
     let me = builder.build_expression(integer(9)).unwrap();
     builder
+        .function_state
         .variable_ctx
         .variable_map
         .insert("me".to_string(), me);
@@ -617,7 +619,7 @@ fn lowered_me_arguments_precede_terminal_and_keep_receiver_prefix() {
 
     assert_eq!(port.events, ["argument:0", "argument:1", "terminal:me"]);
     let call = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -658,7 +660,7 @@ fn generic_terminal_failure_follows_children_without_retry_and_builder_reuses() 
         ["receiver", "argument:0", "argument:1", "terminal:standard"]
     );
     let failed_instructions = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -670,7 +672,11 @@ fn generic_terminal_failure_follows_children_without_retry_and_builder_reuses() 
     assert!(!failed_instructions
         .iter()
         .any(|instruction| matches!(instruction, MirInstruction::Call { .. })));
-    assert!(builder.type_ctx.value_origin_newbox.is_empty());
+    assert!(builder
+        .function_state
+        .type_ctx
+        .value_origin_newbox
+        .is_empty());
 
     port.fail_terminal = false;
     port.events.clear();
@@ -683,7 +689,7 @@ fn generic_terminal_failure_follows_children_without_retry_and_builder_reuses() 
     );
     assert_eq!(
         builder
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .unwrap()
@@ -705,7 +711,7 @@ fn materialized_property_receiver_is_forwarded_without_source_redescent() {
         .handle_standard_method_call(receiver, "propertyGetter".to_string(), &[])
         .unwrap();
 
-    let function = builder.scope_ctx.current_function.as_ref().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
     let emitted = function
         .blocks
         .values()
@@ -734,6 +740,16 @@ fn materialized_property_receiver_is_forwarded_without_source_redescent() {
         normalized_const_value(&emitted, call_receiver),
         normalized_const_value(&emitted, receiver),
     );
-    assert_eq!(builder.type_ctx.value_types.get(&result), None);
-    assert_eq!(builder.type_ctx.value_origin_newbox.get(&result), None);
+    assert_eq!(
+        builder.function_state.type_ctx.value_types.get(&result),
+        None
+    );
+    assert_eq!(
+        builder
+            .function_state
+            .type_ctx
+            .value_origin_newbox
+            .get(&result),
+        None
+    );
 }

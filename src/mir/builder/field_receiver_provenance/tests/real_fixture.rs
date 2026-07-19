@@ -98,7 +98,7 @@ fn rehydrate_builder(
     use_block: crate::mir::BasicBlockId,
 ) -> MirBuilder {
     let mut builder = MirBuilder::new();
-    builder.type_ctx.value_types = function.metadata.value_types.clone();
+    builder.function_state.type_ctx.value_types = function.metadata.value_types.clone();
     for (index, parameter) in function.params.iter().copied().enumerate() {
         builder.register_value_kind(parameter, MirValueKind::Parameter(index as u32));
     }
@@ -108,7 +108,11 @@ fn rehydrate_builder(
         Some(MirType::Box(owner)) => owner.clone(),
         other => panic!("fixture receiver must have exact Box owner: {other:?}"),
     };
-    builder.type_ctx.value_origin_newbox.insert(receiver, owner);
+    builder
+        .function_state
+        .type_ctx
+        .value_origin_newbox
+        .insert(receiver, owner);
 
     for (box_name, declarations) in &module.metadata.user_box_field_decls {
         builder.comp_ctx.register_user_box_with_field_decls(
@@ -124,8 +128,8 @@ fn rehydrate_builder(
                 .collect(),
         );
     }
-    builder.scope_ctx.current_function = Some(function.clone());
-    builder.current_block = Some(use_block);
+    builder.function_state.current_function = Some(function.clone());
+    builder.function_state.current_block = Some(use_block);
     builder
 }
 

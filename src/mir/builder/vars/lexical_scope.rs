@@ -46,8 +46,8 @@ impl super::super::MirBuilder {
         &self,
     ) -> LocalBindingStateSnapshot {
         LocalBindingStateSnapshot {
-            variable_map: self.variable_ctx.variable_map.clone(),
-            binding_context: self.binding_ctx.snapshot(),
+            variable_map: self.function_state.variable_ctx.variable_map.clone(),
+            binding_context: self.function_state.binding_ctx.snapshot(),
         }
     }
 
@@ -55,24 +55,26 @@ impl super::super::MirBuilder {
         &mut self,
         snapshot: LocalBindingStateSnapshot,
     ) {
-        self.variable_ctx.variable_map = snapshot.variable_map;
-        self.binding_ctx.restore(snapshot.binding_context);
+        self.function_state.variable_ctx.variable_map = snapshot.variable_map;
+        self.function_state
+            .binding_ctx
+            .restore(snapshot.binding_context);
     }
 
     pub(in crate::mir::builder) fn push_lexical_scope(&mut self) {
         // Phase 2-4: scope_ctx is the lexical-scope stack SSOT.
-        self.scope_ctx.push_lexical_scope();
+        self.function_state.scope.push_lexical_scope();
     }
 
     pub(in crate::mir::builder) fn pop_lexical_scope(&mut self) {
         // Phase 2-4: scope_ctx is the lexical-scope stack SSOT.
-        let frame = match self.scope_ctx.pop_lexical_scope() {
+        let frame = match self.function_state.scope.pop_lexical_scope() {
             Some(f) => f,
             None => {
                 // Fail-fast with freeze tag (strict/dev+planner_required mode)
-                let depth = self.scope_ctx.lexical_scope_stack.len();
+                let depth = self.function_state.scope.lexical_scope_stack.len();
                 let func_name = self
-                    .scope_ctx
+                    .function_state
                     .current_function
                     .as_ref()
                     .map(|f| f.signature.name.as_str())
@@ -91,7 +93,13 @@ impl super::super::MirBuilder {
             let keepalive_values: Vec<crate::mir::ValueId> = frame
                 .declared
                 .iter()
-                .filter_map(|name| self.variable_ctx.variable_map.get(name).copied())
+                .filter_map(|name| {
+                    self.function_state
+                        .variable_ctx
+                        .variable_map
+                        .get(name)
+                        .copied()
+                })
                 .collect();
 
             if !keepalive_values.is_empty() {
@@ -105,10 +113,13 @@ impl super::super::MirBuilder {
         for (name, previous) in frame.restore {
             match previous {
                 Some(prev_id) => {
-                    self.variable_ctx.variable_map.insert(name, prev_id);
+                    self.function_state
+                        .variable_ctx
+                        .variable_map
+                        .insert(name, prev_id);
                 }
                 None => {
-                    self.variable_ctx.variable_map.remove(&name);
+                    self.function_state.variable_ctx.variable_map.remove(&name);
                 }
             }
         }
@@ -118,10 +129,12 @@ impl super::super::MirBuilder {
         for (name, previous_binding) in frame.restore_binding {
             match previous_binding {
                 Some(prev_bid) => {
-                    self.binding_ctx.insert(name.clone(), prev_bid);
+                    self.function_state
+                        .binding_ctx
+                        .insert(name.clone(), prev_bid);
                 }
                 None => {
-                    self.binding_ctx.remove(&name);
+                    self.function_state.binding_ctx.remove(&name);
                 }
             }
         }
@@ -139,13 +152,13 @@ impl super::super::MirBuilder {
 
     fn ensure_local_name_available(&self, name: &str) -> Result<(), String> {
         let func_name = self
-            .scope_ctx
+            .function_state
             .current_function
             .as_ref()
             .map(|f| f.signature.name.clone())
             .unwrap_or_else(|| "<unknown>".to_string());
         // Phase 2-4: Use scope_ctx (SSOT)
-        let Some(frame) = self.scope_ctx.lexical_scope_stack.last() else {
+        let Some(frame) = self.function_state.scope.lexical_scope_stack.last() else {
             return Err("COMPILER BUG: local declaration outside lexical scope".to_string());
         };
         if frame.declared.contains(name) {
@@ -164,28 +177,37 @@ impl super::super::MirBuilder {
         binding_id: BindingId,
     ) -> Result<LocalSlotId, String> {
         let frame = self
-            .scope_ctx
+            .function_state
+            .scope
             .current_scope_mut()
             .expect("local availability check requires current scope");
         assert!(frame.declared.insert(name.to_string()));
         // Capture previous ValueId for restoration
-        let previous = self.variable_ctx.variable_map.get(name).copied();
+        let previous = self
+            .function_state
+            .variable_ctx
+            .variable_map
+            .get(name)
+            .copied();
         frame.restore.insert(name.to_string(), previous);
 
         // Phase 74: Capture previous BindingId for parallel restoration
         // Phase 136 Step 4/7: Use binding_ctx for lookup
-        let previous_binding = self.binding_ctx.lookup(name);
+        let previous_binding = self.function_state.binding_ctx.lookup(name);
         frame
             .restore_binding
             .insert(name.to_string(), previous_binding);
 
         // Update both ValueId and BindingId mappings
-        self.variable_ctx
+        self.function_state
+            .variable_ctx
             .variable_map
             .insert(name.to_string(), value);
 
         // Phase 2-5: binding_ctx is the binding-id SSOT.
-        self.binding_ctx.insert(name.to_string(), binding_id);
+        self.function_state
+            .binding_ctx
+            .insert(name.to_string(), binding_id);
 
         Ok(LocalSlotId::from(binding_id))
     }
@@ -209,12 +231,18 @@ mod tests {
             .declare_local_in_current_scope("x", ValueId::new(2))
             .expect("inner declaration");
         assert_ne!(inner, outer);
-        assert_eq!(builder.binding_ctx.lookup("x"), Some(inner.binding_id()));
+        assert_eq!(
+            builder.function_state.binding_ctx.lookup("x"),
+            Some(inner.binding_id())
+        );
 
         builder.pop_lexical_scope();
-        assert_eq!(builder.binding_ctx.lookup("x"), Some(outer.binding_id()));
         assert_eq!(
-            builder.variable_ctx.variable_map.get("x"),
+            builder.function_state.binding_ctx.lookup("x"),
+            Some(outer.binding_id())
+        );
+        assert_eq!(
+            builder.function_state.variable_ctx.variable_map.get("x"),
             Some(&ValueId::new(1))
         );
         builder.pop_lexical_scope();
@@ -230,17 +258,21 @@ mod tests {
         let snapshot = builder.snapshot_local_binding_state();
 
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .insert("x".to_string(), ValueId::new(2));
-        builder.binding_ctx.remove("x");
+        builder.function_state.binding_ctx.remove("x");
         builder.restore_local_binding_state(snapshot);
 
         assert_eq!(
-            builder.variable_ctx.variable_map.get("x"),
+            builder.function_state.variable_ctx.variable_map.get("x"),
             Some(&ValueId::new(1))
         );
-        assert_eq!(builder.binding_ctx.lookup("x"), Some(slot.binding_id()));
+        assert_eq!(
+            builder.function_state.binding_ctx.lookup("x"),
+            Some(slot.binding_id())
+        );
         builder.pop_lexical_scope();
     }
 }

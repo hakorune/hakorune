@@ -174,7 +174,7 @@ fn builder(name: &str) -> MirBuilder {
 
 fn instruction_count(builder: &MirBuilder) -> usize {
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -207,8 +207,8 @@ fn ordinary_initializers_preflight_then_descend_in_index_order_and_complete_once
             EventV1::Lower(1),
         ]
     );
-    assert!(builder.binding_ctx.contains("x"));
-    assert!(builder.binding_ctx.contains("y"));
+    assert!(builder.function_state.binding_ctx.contains("x"));
+    assert!(builder.function_state.binding_ctx.contains("y"));
 }
 
 #[test]
@@ -227,7 +227,7 @@ fn later_exact_numeric_missing_initializer_rejects_before_first_child_effect() {
     assert!(error.contains("local_contract_uninitialized_forbidden"));
     assert_eq!(port.events(), vec![EventV1::Syntax]);
     assert_eq!(instruction_count(&builder), 0);
-    assert!(!builder.binding_ctx.contains("x"));
+    assert!(!builder.function_state.binding_ctx.contains("x"));
 }
 
 #[test]
@@ -255,7 +255,7 @@ fn later_typed_array_declaration_rejects_before_first_child_effect() {
         assert!(error.contains(expected_error), "{error}");
         assert_eq!(port.events(), vec![EventV1::Syntax]);
         assert_eq!(instruction_count(&builder), 0);
-        assert!(!builder.binding_ctx.contains("x"));
+        assert!(!builder.function_state.binding_ctx.contains("x"));
     }
 }
 
@@ -269,9 +269,9 @@ fn untyped_missing_initializer_uses_null_without_child_demand() {
     drive_local_statement_v1(&mut builder, &mut port, &input).unwrap();
 
     assert_eq!(port.events(), vec![EventV1::Syntax]);
-    assert!(builder.binding_ctx.contains("x"));
+    assert!(builder.function_state.binding_ctx.contains("x"));
     assert!(builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -294,7 +294,7 @@ fn syntax_failure_precedes_preflight_or_initializer_effects() {
     assert_eq!(error, "syntax");
     assert_eq!(port.events(), vec![EventV1::Syntax]);
     assert_eq!(instruction_count(&builder), 0);
-    assert!(!builder.binding_ctx.contains("x"));
+    assert!(!builder.function_state.binding_ctx.contains("x"));
 }
 
 #[test]
@@ -327,9 +327,9 @@ fn initializer_input_and_child_failures_publish_no_binding_or_later_initializer(
         assert!(error.contains(if fail_input { "input-1" } else { "lower-1" }));
         assert!(!port.events().contains(&EventV1::Input(2)));
         assert!(!port.events().contains(&EventV1::Lower(2)));
-        assert!(!builder.binding_ctx.contains("x"));
-        assert!(!builder.binding_ctx.contains("y"));
-        assert!(!builder.binding_ctx.contains("z"));
+        assert!(!builder.function_state.binding_ctx.contains("x"));
+        assert!(!builder.function_state.binding_ctx.contains("y"));
+        assert!(!builder.function_state.binding_ctx.contains("z"));
     }
 }
 
@@ -354,15 +354,15 @@ fn typed_array_special_hook_precedes_direct_builder_effects_and_preclaim_reaches
         vec![EventV1::Syntax, EventV1::TypedArray(0)]
     );
     assert_eq!(instruction_count(&rejected_builder), 0);
-    assert!(!rejected_builder.binding_ctx.contains("xs"));
+    assert!(!rejected_builder.function_state.binding_ctx.contains("xs"));
 
     let mut accepted_builder = builder("lcl0_array_accept/0");
     let _accepted_scope = LexicalScopeGuard::new(&mut accepted_builder);
     let mut accepted_port = RecordingLocalPortV1::accepting();
     drive_local_statement_v1(&mut accepted_builder, &mut accepted_port, &input).unwrap();
-    assert!(accepted_builder.binding_ctx.contains("xs"));
+    assert!(accepted_builder.function_state.binding_ctx.contains("xs"));
     assert!(accepted_builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -405,5 +405,5 @@ fn record_special_hook_precedes_constructor_effects() {
     assert!(error.contains("record"));
     assert_eq!(port.events(), vec![EventV1::Syntax, EventV1::Record(0)]);
     assert_eq!(instruction_count(&builder), 0);
-    assert!(!builder.binding_ctx.contains("pair"));
+    assert!(!builder.function_state.binding_ctx.contains("pair"));
 }

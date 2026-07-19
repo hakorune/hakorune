@@ -58,10 +58,10 @@ pub(super) fn lower_continue_if_no_else(
     then_body: &BodyView<'_>,
     prelude_span: StmtSpan,
 ) -> Result<Vec<LoweredRecipe>, String> {
-    let saved_map = builder.variable_ctx.variable_map.clone();
+    let saved_map = builder.function_state.variable_ctx.variable_map.clone();
     let saved_bindings = current_bindings.clone();
 
-    builder.variable_ctx.variable_map = saved_map.clone();
+    builder.function_state.variable_ctx.variable_map = saved_map.clone();
     let mut branch_bindings = saved_bindings.clone();
     let mut then_plans = lower_continue_if_prelude_span(
         builder,
@@ -85,7 +85,7 @@ pub(super) fn lower_continue_if_no_else(
     )?;
     then_plans.push(CorePlan::Exit(exit));
 
-    builder.variable_ctx.variable_map = saved_map;
+    builder.function_state.variable_ctx.variable_map = saved_map;
     *current_bindings = saved_bindings;
 
     let cond_view = CondBlockView::from_expr(condition);
@@ -117,10 +117,10 @@ pub(super) fn lower_continue_if_group_prelude(
     prelude_span: StmtSpan,
     prelude_items: &[ContinueOnlyStmtRecipe],
 ) -> Result<Vec<LoweredRecipe>, String> {
-    let saved_map = builder.variable_ctx.variable_map.clone();
+    let saved_map = builder.function_state.variable_ctx.variable_map.clone();
     let saved_bindings = current_bindings.clone();
 
-    builder.variable_ctx.variable_map = saved_map.clone();
+    builder.function_state.variable_ctx.variable_map = saved_map.clone();
     let mut branch_bindings = saved_bindings.clone();
     let prelude_body = get_body_span(
         then_body,
@@ -146,7 +146,7 @@ pub(super) fn lower_continue_if_group_prelude(
     )?;
     then_plans.push(CorePlan::Exit(exit));
 
-    builder.variable_ctx.variable_map = saved_map;
+    builder.function_state.variable_ctx.variable_map = saved_map;
     *current_bindings = saved_bindings;
 
     let cond_view = CondBlockView::from_expr(condition);

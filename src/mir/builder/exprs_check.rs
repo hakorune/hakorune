@@ -20,7 +20,10 @@ impl super::MirBuilder {
                 then_val: ok,
                 else_val: zero,
             })?;
-            self.type_ctx.value_types.insert(dst, MirType::Integer);
+            self.function_state
+                .type_ctx
+                .value_types
+                .insert(dst, MirType::Integer);
             ok = dst;
         }
 

@@ -37,11 +37,11 @@ pub(super) fn lower_group_if(
             "{LOOP_COND_CONTINUE_ONLY_ERR}: recipe if mismatch (GroupIf)"
         ));
     };
-    let pre_if_map = builder.variable_ctx.variable_map.clone();
+    let pre_if_map = builder.function_state.variable_ctx.variable_map.clone();
     let pre_bindings = current_bindings.clone();
 
     // Then
-    builder.variable_ctx.variable_map = pre_if_map.clone();
+    builder.function_state.variable_ctx.variable_map = pre_if_map.clone();
     *current_bindings = pre_bindings.clone();
     let then_view = BodyView::Recipe(&then_body.body);
     let then_plans = lower_continue_only_block(
@@ -53,10 +53,10 @@ pub(super) fn lower_group_if(
         &then_view,
         &then_body.items,
     )?;
-    let then_map = builder.variable_ctx.variable_map.clone();
+    let then_map = builder.function_state.variable_ctx.variable_map.clone();
 
     // Else
-    builder.variable_ctx.variable_map = pre_if_map.clone();
+    builder.function_state.variable_ctx.variable_map = pre_if_map.clone();
     *current_bindings = pre_bindings.clone();
     let else_plans = match else_body {
         Some(body) => {
@@ -73,7 +73,7 @@ pub(super) fn lower_group_if(
         }
         None => None,
     };
-    let else_map = builder.variable_ctx.variable_map.clone();
+    let else_map = builder.function_state.variable_ctx.variable_map.clone();
 
     // Fallthrough mutation is out-of-scope: no join generation here.
     if map_mutates_existing_vars(&pre_if_map, &then_map)
@@ -84,7 +84,7 @@ pub(super) fn lower_group_if(
         ));
     }
 
-    builder.variable_ctx.variable_map = pre_if_map;
+    builder.function_state.variable_ctx.variable_map = pre_if_map;
     *current_bindings = pre_bindings;
     let cond_view = CondBlockView::from_expr(condition);
     let mut then_plans_once = Some(then_plans);
@@ -151,10 +151,10 @@ pub(super) fn lower_continue_if_nested_loop(
             "{LOOP_COND_CONTINUE_ONLY_ERR}: recipe if mismatch (ContinueIfNestedLoop)"
         ));
     };
-    let saved_map = builder.variable_ctx.variable_map.clone();
+    let saved_map = builder.function_state.variable_ctx.variable_map.clone();
     let saved_bindings = current_bindings.clone();
 
-    builder.variable_ctx.variable_map = saved_map.clone();
+    builder.function_state.variable_ctx.variable_map = saved_map.clone();
     let mut branch_bindings = saved_bindings.clone();
 
     // Lower prelude statements
@@ -246,7 +246,7 @@ pub(super) fn lower_continue_if_nested_loop(
     )?;
     then_plans.push(CorePlan::Exit(exit));
 
-    builder.variable_ctx.variable_map = saved_map;
+    builder.function_state.variable_ctx.variable_map = saved_map;
     *current_bindings = saved_bindings;
 
     let cond_view = CondBlockView::from_expr(outer_condition);

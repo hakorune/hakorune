@@ -191,9 +191,13 @@ impl IfCfgSessionV1 {
 
 impl VerifiedIfMergePredecessorsV1 {
     fn reverify(self, builder: &MirBuilder) -> Result<(), String> {
-        let function = builder.scope_ctx.current_function.as_ref().ok_or_else(|| {
-            "[freeze:contract][canonical_if/predecessors_without_function]".to_string()
-        })?;
+        let function = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .ok_or_else(|| {
+                "[freeze:contract][canonical_if/predecessors_without_function]".to_string()
+            })?;
         let false_target = self.else_entry.unwrap_or(self.merge);
         if !matches!(
             function
@@ -308,7 +312,7 @@ pub(super) fn define_join_phis(
     rows: &[ResolvedJoinValueRowV1],
 ) -> Result<DefinedIfJoinSetV1, String> {
     predecessors.reverify(builder)?;
-    if builder.current_block != Some(predecessors.merge) {
+    if builder.function_state.current_block != Some(predecessors.merge) {
         return Err("[freeze:contract][canonical_if/define_outside_merge]".to_string());
     }
 
@@ -365,10 +369,11 @@ impl DefinedIfJoinSetV1 {
 
 fn current_unterminated_block(builder: &MirBuilder, role: &str) -> Result<BasicBlockId, String> {
     let block_id = builder
+        .function_state
         .current_block
         .ok_or_else(|| format!("[freeze:contract][canonical_if/{role}_block_missing]"))?;
     let function = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .ok_or_else(|| format!("[freeze:contract][canonical_if/{role}_function_missing]"))?;

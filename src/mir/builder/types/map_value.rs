@@ -86,12 +86,14 @@ pub(in crate::mir::builder) fn annotate_map_get_result(
     }
 
     let value_type = builder
+        .function_state
         .type_ctx
         .map_literal_value_types
         .get(&(*receiver, key_literal.clone()))
         .cloned()
         .or_else(|| {
             builder
+                .function_state
                 .type_ctx
                 .map_value_types
                 .get(receiver)
@@ -115,17 +117,23 @@ fn user_args(receiver: ValueId, args: &[ValueId]) -> &[ValueId] {
 }
 
 fn string_literal(builder: &MirBuilder, value: ValueId) -> Option<String> {
-    builder.type_ctx.string_literals.get(&value).cloned()
+    builder
+        .function_state
+        .type_ctx
+        .string_literals
+        .get(&value)
+        .cloned()
 }
 
 fn concrete_value_type(builder: &MirBuilder, value: ValueId) -> Option<MirType> {
-    if let Some(ty) = builder.type_ctx.value_types.get(&value) {
+    if let Some(ty) = builder.function_state.type_ctx.value_types.get(&value) {
         if is_publishable_value_type(ty) {
             return Some(ty.clone());
         }
         return None;
     }
     builder
+        .function_state
         .type_ctx
         .value_origin_newbox
         .get(&value)
@@ -151,14 +159,22 @@ fn merge_map_value_fact(
         return;
     };
     builder
+        .function_state
         .type_ctx
         .map_literal_value_types
         .insert((receiver, literal_key), next_type.clone());
 
-    match builder.type_ctx.map_value_types.get(&receiver).cloned() {
+    match builder
+        .function_state
+        .type_ctx
+        .map_value_types
+        .get(&receiver)
+        .cloned()
+    {
         Some(existing) if existing == next_type => {}
         Some(existing) if is_publishable_value_type(&existing) => {
             builder
+                .function_state
                 .type_ctx
                 .map_value_types
                 .insert(receiver, MirType::Unknown);
@@ -167,6 +183,7 @@ fn merge_map_value_fact(
         Some(_) => return,
         None => {
             builder
+                .function_state
                 .type_ctx
                 .map_value_types
                 .insert(receiver, next_type.clone());
@@ -175,10 +192,11 @@ fn merge_map_value_fact(
 }
 
 fn receiver_supports_local_map_facts(builder: &MirBuilder, receiver: ValueId) -> bool {
-    match builder.type_ctx.value_types.get(&receiver) {
+    match builder.function_state.type_ctx.value_types.get(&receiver) {
         Some(MirType::Box(box_name)) if box_name == "MapBox" => true,
         Some(_) => false,
         None => builder
+            .function_state
             .type_ctx
             .value_origin_newbox
             .get(&receiver)
@@ -189,10 +207,12 @@ fn receiver_supports_local_map_facts(builder: &MirBuilder, receiver: ValueId) ->
 
 fn mark_map_value_unknown(builder: &mut MirBuilder, receiver: ValueId) {
     builder
+        .function_state
         .type_ctx
         .map_value_types
         .insert(receiver, MirType::Unknown);
     builder
+        .function_state
         .type_ctx
         .map_literal_value_types
         .retain(|(value_id, _), _| *value_id != receiver);
@@ -200,18 +220,25 @@ fn mark_map_value_unknown(builder: &mut MirBuilder, receiver: ValueId) {
 
 fn mark_map_literal_key_unknown(builder: &mut MirBuilder, receiver: ValueId, key: &str) {
     builder
+        .function_state
         .type_ctx
         .map_value_types
         .insert(receiver, MirType::Unknown);
     builder
+        .function_state
         .type_ctx
         .map_literal_value_types
         .remove(&(receiver, key.to_string()));
 }
 
 fn clear_map_facts(builder: &mut MirBuilder, receiver: ValueId) {
-    builder.type_ctx.map_value_types.remove(&receiver);
     builder
+        .function_state
+        .type_ctx
+        .map_value_types
+        .remove(&receiver);
+    builder
+        .function_state
         .type_ctx
         .map_literal_value_types
         .retain(|(value_id, _), _| *value_id != receiver);
@@ -222,13 +249,18 @@ fn is_publishable_value_type(ty: &MirType) -> bool {
 }
 
 fn publish_map_get_type(builder: &mut MirBuilder, dst: ValueId, value_type: MirType) {
-    builder.type_ctx.value_types.insert(dst, value_type.clone());
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(dst, value_type.clone());
     builder
         .comp_ctx
         .type_registry
         .record_type(dst, value_type.clone());
     if let MirType::Box(box_name) = value_type {
         builder
+            .function_state
             .type_ctx
             .value_origin_newbox
             .insert(dst, box_name.clone());

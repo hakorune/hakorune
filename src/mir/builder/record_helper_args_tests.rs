@@ -156,7 +156,7 @@ fn helper_setter_completion_bypasses_generic_terminal() {
         .unwrap()
         .expect("allowlisted setter must complete through its custom owner");
     let instructions = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .unwrap()
@@ -208,7 +208,7 @@ fn infer_same_module_helper_receiver_box_name_follows_phi_inputs_without_hint() 
     });
 
     let mut builder = MirBuilder::new();
-    builder.scope_ctx.current_function = Some(function);
+    builder.function_state.current_function = Some(function);
 
     assert_eq!(
         builder

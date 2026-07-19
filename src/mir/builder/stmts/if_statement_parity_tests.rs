@@ -257,7 +257,7 @@ fn sorted_map<K: Ord, V>(iter: impl Iterator<Item = (K, V)>) -> Vec<(K, V)> {
 
 fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> IfStatementParitySnapshotV1 {
     let function = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .expect("current IF0-P0 function");
@@ -283,6 +283,7 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> IfStatemen
 
     let variable_map = sorted_map(
         builder
+            .function_state
             .variable_ctx
             .variable_map
             .iter()
@@ -290,10 +291,16 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> IfStatemen
     );
     let bindings = variable_map
         .iter()
-        .map(|(name, _)| (name.clone(), builder.binding_ctx.lookup(name)))
+        .map(|(name, _)| {
+            (
+                name.clone(),
+                builder.function_state.binding_ctx.lookup(name),
+            )
+        })
         .collect();
     let scope_frames = builder
-        .scope_ctx
+        .function_state
+        .scope
         .lexical_scope_stack
         .iter()
         .map(|frame| ScopeFrameSnapshotV1 {
@@ -317,6 +324,7 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> IfStatemen
         locals: function.locals.clone(),
         value_types: sorted_map(
             builder
+                .function_state
                 .type_ctx
                 .value_types
                 .iter()
@@ -324,6 +332,7 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> IfStatemen
         ),
         value_kinds: sorted_map(
             builder
+                .function_state
                 .type_ctx
                 .value_kinds
                 .iter()
@@ -331,6 +340,7 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> IfStatemen
         ),
         value_origins: sorted_map(
             builder
+                .function_state
                 .type_ctx
                 .value_origin_newbox
                 .iter()
@@ -338,6 +348,7 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> IfStatemen
         ),
         string_literals: sorted_map(
             builder
+                .function_state
                 .type_ctx
                 .string_literals
                 .iter()
@@ -360,33 +371,36 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> IfStatemen
         variable_map,
         bindings,
         scope_frames,
-        loop_header_stack: builder.scope_ctx.loop_header_stack.clone(),
-        loop_exit_stack: builder.scope_ctx.loop_exit_stack.clone(),
-        if_merge_stack: builder.scope_ctx.if_merge_stack.clone(),
+        loop_header_stack: builder.function_state.scope.loop_header_stack.clone(),
+        loop_exit_stack: builder.function_state.scope.loop_exit_stack.clone(),
+        if_merge_stack: builder.function_state.scope.if_merge_stack.clone(),
         debug_scope_stack: builder.scope_ctx.debug_scope_stack.clone(),
-        fastmem_region_stack: builder.scope_ctx.fastmem_region_stack.clone(),
+        fastmem_region_stack: builder.function_state.scope.fastmem_region_stack.clone(),
         fastmem_regions: function.metadata.fastmem_regions.clone(),
         fastmem_branch_condition_facts: function.metadata.fastmem_branch_condition_facts.clone(),
-        pending_phis: builder.pending_phis.clone(),
+        pending_phis: builder.function_state.pending_phis.clone(),
         pin_slots: sorted_map(
             builder
+                .function_state
                 .pin_slot_names
                 .iter()
                 .map(|(value, name)| (*value, name.clone())),
         ),
         local_ssa_map: sorted_map(
             builder
+                .function_state
                 .local_ssa_map
                 .iter()
                 .map(|(key, value)| (*key, *value)),
         ),
         schedule_mat_map: sorted_map(
             builder
+                .function_state
                 .schedule_mat_map
                 .iter()
                 .map(|(key, value)| (*key, *value)),
         ),
-        current_block: builder.current_block,
+        current_block: builder.function_state.current_block,
         next_value_id: function.next_value_id,
         next_core_value: builder.core_ctx.peek_next_value(),
         next_core_block: builder.core_ctx.peek_next_block(),
@@ -395,12 +409,12 @@ fn snapshot(builder: &MirBuilder, result: Result<ValueId, String>) -> IfStatemen
         debug_join_counter: builder.core_ctx.debug_join_counter,
         recursion_depth: builder.recursion_depth,
         current_span: builder.metadata_ctx.current_span(),
-        in_cleanup_block: builder.in_cleanup_block,
-        cleanup_allow_return: builder.cleanup_allow_return,
-        return_defer_active: builder.return_defer_active,
-        return_defer_slot: builder.return_defer_slot,
-        return_defer_target: builder.return_defer_target,
-        return_deferred_emitted: builder.return_deferred_emitted,
+        in_cleanup_block: builder.function_state.in_cleanup_block,
+        cleanup_allow_return: builder.function_state.cleanup_allow_return,
+        return_defer_active: builder.function_state.return_defer_active,
+        return_defer_slot: builder.function_state.return_defer_slot,
+        return_defer_target: builder.function_state.return_defer_target,
+        return_deferred_emitted: builder.function_state.return_deferred_emitted,
     }
 }
 
@@ -515,7 +529,7 @@ fn if_statement_parity_condition_then_else_failures_and_reuse() {
 fn configure_fastmem(builder: &mut MirBuilder) -> FastMemRegionId {
     let region = FastMemRegionId(0);
     builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_mut()
         .unwrap()

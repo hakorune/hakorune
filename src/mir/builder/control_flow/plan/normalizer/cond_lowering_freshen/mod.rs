@@ -27,7 +27,7 @@ pub(super) fn clone_plans_with_fresh_loops(
     let strict_planner_required = crate::config::env::joinir_dev::strict_enabled()
         && crate::config::env::joinir_dev::planner_required_enabled();
     let fn_name = builder
-        .scope_ctx
+        .function_state
         .current_function
         .as_ref()
         .map(|f| f.signature.name.clone())
@@ -50,6 +50,7 @@ pub(super) fn clone_plans_with_fresh_loops(
     }
     for def_id in definitions {
         let ty = builder
+            .function_state
             .type_ctx
             .get_type(def_id)
             .cloned()
@@ -60,9 +61,9 @@ pub(super) fn clone_plans_with_fresh_loops(
         // Debug-only: preserve origin span across ValueId alpha-renaming so downstream diagnostics
         // can tell whether an ID drift is a remap bug vs an attach/drop bug.
         if crate::config::env::joinir_dev::debug_enabled() {
-            let span_opt = builder.metadata_ctx.value_span(def_id);
+            let span_opt = builder.value_origin_span(def_id);
             if let Some(span) = span_opt {
-                builder.metadata_ctx.record_value_span(fresh_id, span);
+                builder.record_value_origin_span(fresh_id, span);
             }
         }
     }
