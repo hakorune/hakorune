@@ -523,6 +523,66 @@ therefore one Census route map, one 96-row/1,792-occurrence snapshot, and the
 existing session parity suite. `S0b-D0` is next and is design-only: it must
 select the physical cutover order before any storage moves.
 
+#### `S0b-D0` — selected atomic physical cutover
+
+`S0b-D0` is closed (2026-07-19). Candidate A, a multi-commit migration of
+individual FunctionOwned storage groups, is rejected: it prolongs a hybrid
+owner, makes the direct-access inventory ambiguous during the series, and
+invites a second lifecycle policy while metadata origins are still deliberately
+unhealed. Candidate B is selected:
+
+```text
+S0b-I0:
+  one buildable mechanical commit
+  installs exactly one private FunctionLoweringStateV1 in MirBuilder
+  removes every old FunctionOwned storage leaf at the same cutover
+  updates all 32 Census routes directly to their existing destinations
+```
+
+`S0b-I0` changes storage and access spelling only. The current individual
+`LoweringContext.saved_*` prepare/restore transaction, canonical session
+close/drop law, publication order, and panic backstop remain intact; S0c alone
+may replace them with a move-only transaction, and C0 alone may construct a
+fresh child state.
+
+Mixed-context cutover law:
+
+```text
+ScopeContext retains only debug_scope_stack.
+FunctionScopeStateV1 receives current_function plus lexical/loop/If/parameter/
+fastmem leaves. Its entry clear has the existing five movable clears;
+ScopeContext clears debug separately at the same lifecycle point.
+
+CompilationContext retains declarations, catalogs, current_static_box,
+current_slot_registry, and compatibility state. FunctionCompilationScratchV1
+receives only reserved_value_ids, fn_body_ast, and record_local_values.
+
+MetadataContext retains current span, source-file/hint, and region observation.
+FunctionValueOriginFactsV1 receives origin span/caller maps and their narrow
+record/query/merge APIs. It preserves the current no-snapshot/no-clear/no-
+restore behavior; METAISO, not S0b, owns any isolation repair.
+```
+
+No `Deref`, whole-state accessor, public state/context/map exposure, old/new
+mirror, whole mixed-context move, `saved_function_state`, or fresh-session API
+is allowed. Builder-external consumers may use only new narrow `MirBuilder`
+queries/actions that replace their old field access. The implementation order
+is fixed:
+
+```text
+S0b-D0  closed decision
+  -> S0b-I0  all 32-route physical storage cutover
+  -> S0b-P0  post-cutover session, BoxCompilationContext, metadata-gap, and
+              old-route-zero proof
+  -> S0b-G0  full structural/format/build/pointer closeout
+  -> S0c     saved-state transaction consolidation
+```
+
+`S0b-I0` must stop rather than broaden if any route needs a second owner,
+metadata isolation repair, a context-wide move, an external state borrow, a
+source/route/type-policy change, fallback, retry, or a lifecycle transaction
+redesign.
+
 P0 must not add a second route/destination authority, generic ownership
 inference, arbitrary alias tracking, a semantic cfg evaluator, or a metadata
 snapshot/clear/restore repair. `scope.entry_clear` stays the one explicit mixed
