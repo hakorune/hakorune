@@ -57,14 +57,65 @@ fn assert_short_circuit_cfg(plan: &CorePlan, schedule: &[SourceExprSiteV1]) {
         .iter()
         .map(|branch| (branch.from, branch.then_target, branch.else_target))
         .collect::<BTreeSet<_>>();
+    let header = loop_plan.header_bb;
+    let body = loop_plan.body_bb;
+    let after = loop_plan.after_bb;
+    let header_branch = branches
+        .iter()
+        .find(|(from, _, _)| *from == header)
+        .copied()
+        .expect("loop header branch");
+    assert_eq!(header_branch.2, after);
+    let first_rhs = header_branch.1;
+    assert_ne!(first_rhs, body);
+    assert_ne!(first_rhs, after);
+    let first_branch = branches
+        .iter()
+        .find(|(from, _, _)| *from == first_rhs)
+        .copied()
+        .expect("short-circuit && branch");
+    let second_rhs = if first_branch.1 == body {
+        first_branch.2
+    } else if first_branch.2 == body {
+        first_branch.1
+    } else {
+        panic!("first short-circuit branch must reach body or next RHS")
+    };
+    assert_ne!(second_rhs, after);
+    assert!(first_branch.1 == body || first_branch.2 == body);
+    let second_branch = branches
+        .iter()
+        .find(|(from, _, _)| *from == second_rhs)
+        .copied()
+        .expect("short-circuit || branch");
+    assert!(second_branch.1 == body || second_branch.2 == body);
+    assert!(second_branch.1 == after || second_branch.2 == after);
+    assert_eq!(branches.len(), 3);
+    let body_preds = branches
+        .iter()
+        .filter(|(_, then_target, else_target)| *then_target == body || *else_target == body)
+        .count();
+    let after_preds = branches
+        .iter()
+        .filter(|(_, then_target, else_target)| *then_target == after || *else_target == after)
+        .count();
     assert_eq!(
-        branches,
-        BTreeSet::from([
-            (BasicBlockId(1), BasicBlockId(5), BasicBlockId(4)),
-            (BasicBlockId(5), BasicBlockId(2), BasicBlockId(6)),
-            (BasicBlockId(6), BasicBlockId(2), BasicBlockId(4)),
-        ])
+        body_preds, 2,
+        "short-circuit body has two branch predecessors"
     );
+    assert_eq!(
+        after_preds, 2,
+        "short-circuit after has two branch predecessors"
+    );
+
+    let wires = loop_plan
+        .frag
+        .wires
+        .iter()
+        .filter_map(|wire| wire.target.map(|target| (wire.from, target)))
+        .collect::<BTreeSet<_>>();
+    assert!(wires.contains(&(body, loop_plan.step_bb)));
+    assert!(wires.contains(&(loop_plan.step_bb, header)));
 
     let mut located_by_block = BTreeMap::<BasicBlockId, Vec<SourceExprSiteV1>>::new();
     for (block, effects) in &loop_plan.block_effects {
@@ -72,7 +123,7 @@ fn assert_short_circuit_cfg(plan: &CorePlan, schedule: &[SourceExprSiteV1]) {
             collect_effect_sites(effect, &mut located_by_block.entry(*block).or_default());
         }
     }
-    let condition_blocks = [BasicBlockId(1), BasicBlockId(5), BasicBlockId(6)];
+    let condition_blocks = [header, first_rhs, second_rhs];
     for block in condition_blocks {
         let sites = located_by_block
             .get(&block)

@@ -1,5 +1,5 @@
 ---
-Status: T0-L0, T0-DIRECT0-S0, T0-DIRECT0-R0, T0-DIRECT0-I0/G0, T0-P0, and P0c-S0 closed; P0c-P0 is next
+Status: T0-L0, T0-DIRECT0-S0, T0-DIRECT0-R0, T0-DIRECT0-I0/G0, T0-P0, and P0c closed; LOOP0-I0a is next
 Date: 2026-07-19
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md
 Prior decision: callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md
@@ -1162,11 +1162,27 @@ short-circuit condition blocks: 3
 production located roots / ledger claims: 0
 ```
 
-The next code-facing row is `LOOP0-P0c-P0`: add the remaining disconnected
-remap/site-preservation and negative pre-composer evidence. Stop for a new
-consultation if that work requires a second remapper/PATH authority, an
-owned-plan escape before seal, PlanLowerer/ledger/production wiring, or any
-fallback/retry.
+### LOOP0-P0c-P0 closeout
+
+`LOOP0-P0c-P0` is closed as disconnected evidence. The actual located plan is
+checked after its existing remap-and-seal path; source-site preservation is
+covered by the existing all-call-variant remapper proof and by the final
+located occurrence seal, without adding a second remapper. The P0c guard also
+requires the existing pre-composer rejection owners for malformed plans,
+foreign/unlocated/non-loop roots, wrong-port carriers, and unsupported nested
+`ScopeBox`/`Program`/`Loop` statements. These checks remain test-only and do
+not invoke PlanLowerer, ledger claims, production roots, fallback, or retry.
+
+Evidence:
+
+```text
+P0c verifier/topology test: green (default + strict)
+remap source-preservation owner: existing all-call-variant test
+negative pre-composer owners: guarded and green
+PlanLowerer / ledger / production located roots: 0
+```
+
+The next code-facing row is `LOOP0-I0a`, the shared route-selection owner.
 
 L0 stops for a new consultation if exact carrier targets cannot be retained by
 the existing HOOK0 traversal; if `DirectRecipeOnly` must become active now; if

@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result LOOP0-P0b T0-P0 and LOOP0-P0c-S0 closed; LOOP0-P0c-P0 is next"
+status = "callable-result LOOP0-P0b T0-P0 and LOOP0-P0c closed; LOOP0-I0a is next"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -322,12 +322,13 @@ The actual nine-site Loop schedule is co-validated separately from plan
 traversal [3,4,5,6,8,7,0,1,2]. The private P0 guard is imported by the
 existing public expression-spine guard; production located roots, PlanLowerer,
 ledger claims, fallback, retry, and heavy quick/full gates remain untouched.
-LOOP0-P0c-S0 is now closed: one disconnected focused proof reuses the
-raw/located fresh-builder harness, checks the exact 15-row activation carrier
-and 9-row Loop schedule, invokes PlanVerifier on both products, and records
-short-circuit condition blocks and Frag branch topology without production
-claims or fallback. LOOP0-P0c-P0 is next."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0C-P0-001"
+LOOP0-P0c is now closed as disconnected evidence: the actual located plan is
+checked after its existing remap-and-seal path, the all-call-variant remapper
+proof preserves source sites, and the guard covers malformed/foreign/
+unlocated/non-loop/wrong-port and unsupported nested-statement rejection
+owners. No PlanLowerer, ledger, production located root, fallback, or retry
+was added. LOOP0-I0a is next."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-I0A-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

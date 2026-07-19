@@ -298,3 +298,41 @@ fn require_exit_kind(source: &ASTNode, expected: ExitKind) -> Result<(), Error> 
         Err(Error::ExitKindMismatch)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::ast::Span;
+
+    fn leaf() -> ASTNode {
+        ASTNode::Return {
+            value: None,
+            span: Span::unknown(),
+        }
+    }
+
+    #[test]
+    fn reject_unsupported_nested_statements_rejects_scopebox_program_and_nested_loop() {
+        let cases = [
+            ASTNode::ScopeBox {
+                body: vec![leaf()],
+                span: Span::unknown(),
+            },
+            ASTNode::Program {
+                statements: vec![leaf()],
+                span: Span::unknown(),
+            },
+            ASTNode::Loop {
+                condition: Box::new(leaf()),
+                body: vec![leaf()],
+                span: Span::unknown(),
+            },
+        ];
+        for nested in cases {
+            assert!(matches!(
+                reject_unsupported_nested_statements(&[nested]),
+                Err(Error::UnsupportedNestedStatement)
+            ));
+        }
+    }
+}
