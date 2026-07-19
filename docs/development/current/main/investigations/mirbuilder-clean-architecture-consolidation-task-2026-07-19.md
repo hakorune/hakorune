@@ -161,7 +161,7 @@ ownership operation, or runtime behavior.
 
 ## Phase 1 — FSESSION0
 
-### `FSESSION0-CENSUS0` — next code-facing row when selected
+### `FSESSION0-CENSUS0` — closed (2026-07-19)
 
 Add one generated or machine-readable inventory for every state surface
 currently touched by function-session prepare/restore.
@@ -187,6 +187,43 @@ behavior delta = 0
 
 The inventory is diagnostic structure, not a new runtime state or semantic
 authority.
+
+Delivered evidence:
+
+```text
+fixture:
+  tools/checks/fixtures/mirbuilder_fsession_census_v1.json
+
+validator:
+  python3 tools/checks/lib/mirbuilder_fsession_census.py
+
+sealed current inventory:
+  41 expanded prepare/restore leaf surfaces
+  27 direct MirBuilder fields accounted for
+  2 uncovered ValueId-keyed metadata surfaces recorded as gaps
+```
+
+The 41 rows expand the two aggregate snapshot products rather than treating
+them as opaque: `saved_type_ctx` contributes all six TypeContext maps and
+`saved_scope_stacks` contributes all seven scope leaves. Each row has one
+ownership class, current prepare/restore anchors, and an exact BoxCompilation
+Context action. In particular, `string_literals`, `map_value_types`, and
+`map_literal_value_types` are FunctionOwned facts but are currently neither
+saved nor cleared by the BoxCompilationContext branch. Census records that
+gap; it does not repair it.
+
+`metadata_ctx.value_origin_spans` and `value_origin_callers` are likewise
+FunctionOwned ValueId-keyed state outside the current snapshot. They remain
+explicit FSESSION0-S0 inputs rather than being silently classified as module
+truth. Shared `core_ctx` allocation is recorded as existing legacy-compatible
+storage through the direct Builder-field manifest; CENSUS0 makes no claim that
+it is already session-isolated.
+
+Next code-facing row:
+
+```text
+MIRBUILDER-CLEAN0-FSESSION0-S0
+```
 
 ### `FSESSION0-S0` — one physical function-state owner
 
