@@ -1287,10 +1287,25 @@ PHI0 -> exact Copy0 -> simple exact rows -> FACT0-TX0-D0
   -> FACT0-G0 -> fresh-session cutover
 ```
 
-`FACT0-P1-G0` is next. It is classification-only: it freezes these exact
-profile/prerequisite counters, adds no producer consumer, changes no type
-timing, and makes no premature raw-writer-zero claim. `PHI0` is the next
-code-facing migration only after that guard closes.
+#### `FACT0-P1-G0` — closed (2026-07-20)
+
+`mirbuilder_type_fact_partition_guard.py` now runs the existing lexical
+inventory/schema guard first, then freezes the approved semantic partition.
+The fixture remains the only classification surface; the G0 guard reads a
+normalized projection of its profile family/status/prerequisite and sorted
+writer slices, rather than creating a second raw-writer inventory. Its fixed
+projection digest, 38 per-profile occurrence/slice rows, five status counts,
+and two shared profile sets reject a fixture-only migration rewrite.
+
+The guard permits JSON ordering and evidence-prose changes, but rejects a
+profile/prerequisite/status change, a schema-valid lexical-slice rebinding, a
+shared-profile drift, or a premature `FACT0-G0` prerequisite. Its five unit
+tests prove those boundaries. Production writer, consumer, type-timing, and
+raw-map deltas remain zero.
+
+`PHI0` is now the sole next code-facing migration. It must unify raw, complete,
+patch, and batch completion before any PHI profile can move; P1 authorizes no
+PHI write change by itself.
 
 ## Phase 3 — PHI0
 
