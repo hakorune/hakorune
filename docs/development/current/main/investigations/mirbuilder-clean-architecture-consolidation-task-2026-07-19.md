@@ -133,11 +133,17 @@ MIRBUILDER-CLEAN0-FACT0
 MIRBUILDER-CLEAN0-PHI0
   one PHI completion state machine
 
+MIRBUILDER-CLEAN0-FINALIZE0
+  retire finalization-time correctness repair
+
 MIRBUILDER-CLEAN0-PLAN0
   pure symbolic function-plan boundary
 
 MIRBUILDER-CLEAN0-COMPCTX0
   module truth / cache / legacy-state split
+
+MIRBUILDER-CLEAN0-CONFIG0
+  invocation-sealed lowering configuration
 
 MIRBUILDER-CLEAN0-RAWADAPT0
   raw compatibility adapter outside the emitter
@@ -277,7 +283,59 @@ failed single completion partial publication = 0
 failed batch partial publication = 0
 ```
 
-## Phase 4 — PLAN0
+## Phase 4 — FINALIZE0
+
+Finalization becomes a verifier and derived-publication boundary, not the
+first producer of facts required during lowering.
+
+Inventory every finalization pass as exactly one of:
+
+```text
+VerifyCompletedDraft
+NormalizeRepresentation
+PublishDerivedArtifact
+RepairMissingLoweringFact
+LegacySemanticInference
+```
+
+The last two classifications must reach zero. A required type, origin, call
+disposition, or source identity fact is published by its lowering-time producer
+before the dependent instruction is emitted, or lowering fails there.
+
+Task order:
+
+```text
+FINALIZE0-CENSUS0
+  deterministic pass inventory and first-publication sites
+
+FINALIZE0-P0
+  lowering-time versus finalized fact parity matrix
+
+FINALIZE0-CUT0
+  remove correctness repair and MIR-to-source semantic inference
+
+FINALIZE0-G0
+  repair and legacy semantic inference counts zero
+```
+
+Allowed finalization work remains explicit:
+
+```text
+whole-draft verification
+representation-preserving normalization
+metadata snapshot from already-sealed facts
+backend-neutral derived artifact publication
+```
+
+Forbidden:
+
+```text
+making an earlier FieldGet/Call/Phi valid after the fact
+inferring source target or field owner from emitted MIR spelling/order
+running the lowering fact pipeline again to hide producer timing drift
+```
+
+## Phase 5 — PLAN0
 
 Move plan construction before Builder mutation. The first pilot is the already
 bounded `GenericLoopV1` family; it does not widen Loop grammar.
@@ -304,7 +362,18 @@ Facts, Recipe, located representation, CorePlan, and Parts are not renamed or
 merged mechanically. A representation is retired only after all of its unique
 authority has one proven destination.
 
-## Phase 5 — COMPCTX0
+`RecipeBody` may remain as a compatibility input during the bounded adapter
+cutover, but cloned AST is never source identity or semantic truth. PLAN0 owns
+an explicit retirement subrow:
+
+```text
+PLAN0-RECIPE-RET0
+  unique RecipeBody authority projected into the verified plan
+  RecipeBody cloned-AST semantic reads after plan seal = 0
+  source identity reconstructed from cloned AST = 0
+```
+
+## Phase 6 — COMPCTX0
 
 Split `CompilationContext` by lifetime and trust level:
 
@@ -324,7 +393,41 @@ Visibility prevents canonical lowering from reading legacy compatibility
 state. A cache miss may affect performance only, never acceptance or emitted
 meaning.
 
-## Phase 6 — RAWADAPT0
+## Phase 7 — CONFIG0
+
+Capture process/environment configuration once, before module and function
+sessions begin.
+
+```rust
+struct LoweringConfig {
+    planner_mode: PlannerMode,
+    diagnostics: DiagnosticMode,
+    compatibility: CompatibilityMode,
+}
+```
+
+Task order:
+
+```text
+CONFIG0-CENSUS0
+  all environment reads reachable from semantic resolution, planning,
+  function lowering, finalization, and publication
+
+CONFIG0-S0
+  immutable parsed config with typed invalid-value errors
+
+CONFIG0-I0
+  session consumers use borrowed config only
+
+CONFIG0-G0
+  process environment reads after session entry = 0
+```
+
+Diagnostic environment toggles that are explicitly outside semantic behavior
+may remain only behind the repository debug contract. They cannot change route
+selection, accepted syntax, representation, emitted MIR, or fallback behavior.
+
+## Phase 8 — RAWADAPT0
 
 Legacy AST and canonical semantic inputs both terminate at the same verified
 plan boundary:
@@ -339,6 +442,30 @@ canonical semantic input ---+             |
 
 The emitter accepts plans only. Raw/located mode flags, source-name recovery,
 and compatibility fallback are absent from the function session.
+
+## Retirement ledger
+
+The program is not complete merely because the new products exist. These old
+structures have explicit retirement owners and zero conditions:
+
+| Retiring structure | Owning row | Completion condition |
+| --- | --- | --- |
+| giant cross-function `MirBuilder` mutable world | `FSESSION0` + `COMPCTX0` | function-owned mutable state exists only in one fresh session; module truth is immutable |
+| nested-function snapshot/restore | `FSESSION0-CUT0` | function-owned `saved_*` rows and parent-state clear/restore are zero |
+| planner `&mut MirBuilder` access | `PLAN0` | selected plan producers accept verified inputs and symbolic IDs only |
+| `RecipeBody` cloned-AST authority | `PLAN0-RECIPE-RET0` | semantic/source-identity reads from cloned recipe AST after plan seal are zero |
+| raw/located dual lowering | `RAWADAPT0` | both inputs terminate at one verified plan and one emitter |
+| Builder-internal fallback | `RAWADAPT0` | selected canonical failure has no raw/alternate retry path |
+| entry-specific PHI completion | `PHI0` | all complete/patch/batch/raw facades consume one completion owner |
+| public mutable `TypeContext` maps | `FACT0-G0` | external raw writes are zero; producers use monotone publication APIs |
+| finalization-time type/correctness repair | `FINALIZE0-CUT0` | facts needed during lowering are never first published in finalization |
+| MIR scan used for source-semantic inference | `FINALIZE0-CUT0` + `RAWADAPT0` | emitted MIR spelling/order is not source target, field owner, or route authority |
+| mid-process environment reads | `CONFIG0-G0` | semantic/config reads after module-session entry are zero |
+
+Temporary compatibility code is not considered retired merely because its
+production count happens to be zero in one fixture. The owning row must remove
+the authority or isolate it behind a typed legacy adapter with an explicit
+later removal token.
 
 ## Architecture budget
 
@@ -425,9 +552,10 @@ and reuses only landed contracts and evidence.
 > It first converts the current whole-builder snapshot transaction into one
 > fresh function-local state owner, then centralizes monotone value-fact
 > publication and PHI completion, then places a pure symbolic verified plan
-> before MIR mutation, then separates immutable module truth, caches, and
-> retiring compatibility state, and finally moves raw adaptation outside the
-> emitter. Existing source identity, callable authority, claim ledgers,
+> before MIR mutation, retires finalization-time correctness repair, separates
+> immutable module truth, caches, and retiring compatibility state, seals
+> process configuration at invocation entry, and finally moves raw adaptation
+> outside the emitter. Existing source identity, callable authority, claim ledgers,
 > typed fail-fast, unpublished drafts, and atomic publication remain intact.
 > The parked first code-facing row is
 > `MIRBUILDER-CLEAN0-FSESSION0-CENSUS0`; it changes no behavior and classifies
