@@ -9,13 +9,13 @@ use std::collections::HashMap;
 
 use hakorune_mir_builder::BindingContext;
 
-use crate::mir::builder::control_flow::edgecfg::api::FragEmitSession;
 use crate::mir::builder::function_lowering_state::{
     FunctionCompilationScratchV1, FunctionLoweringStateV1, FunctionScopeStateV1,
 };
 use crate::mir::builder::type_context::TypeContext;
 use crate::mir::builder::variable_context::VariableContext;
 use crate::mir::builder::vars::resolved_binding_state::ResolvedBindingLoweringStateV1;
+use crate::mir::builder::FragEmitSession;
 use crate::mir::{BasicBlockId, MirFunction, ValueId};
 
 /// Selects the exact pre-existing action for variable/type facts.

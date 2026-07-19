@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FSESSION0-S0c-P0 is closed; S0c-I0 is the sole next code-facing transaction connection row"
+status = "FSESSION0-S0c-I0/G0 are closed; S0d is the sole next S0-series structural closeout row"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -340,9 +340,13 @@ and C0 fresh-session construction remains separate. S0c-S0 is closed: one
 private transaction vocabulary exists with production consumers still zero.
 S0c-P0 is closed: direct legacy/Box parity proves the six-map legacy restore
 and three-clear/three-retain Box action while the existing session error/panic
-matrix remains green. S0c-I0 is next; it alone may connect prepare/restore and
-Drop to the one transaction owner. NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FSESSION0-S0C-I0-001"
+matrix remains green. S0c-I0/G0 are closed: canonical lifecycle now has one
+move-only FunctionOwned transaction, separate LegacyCompatibility and
+ObservationBorrow snapshots, zero individual FunctionOwned saved captures, and
+one Census-owned transaction guard; existing close/error/panic/publication
+ordering and METAISO control remain unchanged. S0d is next. NESTED-REP0 remains
+parked."""
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FSESSION0-S0D-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

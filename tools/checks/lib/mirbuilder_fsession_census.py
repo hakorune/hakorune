@@ -12,6 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 FIXTURE = ROOT / "tools/checks/fixtures/mirbuilder_fsession_census_v1.json"
 FUNCTION_STATE = ROOT / "src/mir/builder/function_lowering_state.rs"
+FUNCTION_TRANSACTION = ROOT / "src/mir/builder/function_state_transaction.rs"
 CLASSES = {
     "ModuleImmutable",
     "ModulePublication",
@@ -164,10 +165,12 @@ def main() -> None:
     validate_s0b_function_state_vocabulary(builder)
     validate_s0b_route_map(data, sources, builder)
     validate_s0b_mixed_context_api_owners(data, sources)
+    validate_s0c_lifecycle_transaction(data, sources)
 
     print(
         "[mirbuilder-fsession-census] ok "
-        f"snapshot_surfaces={len(surfaces)} builder_fields={len(builder_fields)} old_routes=32"
+        f"snapshot_surfaces={len(surfaces)} builder_fields={len(builder_fields)} "
+        "function_owned_transaction=1 old_routes=32"
     )
 
 
@@ -457,21 +460,6 @@ def validate_s0b_mixed_context_api_owners(
             "owner_type": "FunctionScopeStateV1",
             "methods": {"push_fastmem_region", "pop_fastmem_region", "current_fastmem_region"},
         },
-        "scope.entry_clear": {
-            "selector": "scope.entry_clear",
-            "owner_source": "function_state",
-            "owner_type": "FunctionScopeStateV1",
-            "methods": {"clear_for_function_entry"},
-            "function_owned_clears": {
-                "lexical_scope_stack",
-                "loop_header_stack",
-                "loop_exit_stack",
-                "if_merge_stack",
-                "fastmem_region_stack",
-            },
-            "observation_clears": {"debug_scope_stack"},
-            "s0b_policy": "split_mixed_clear_preserving_current_behavior",
-        },
         "compilation.reservation_helpers": {
             "selector": "compilation.reserved_value_ids",
             "owner_source": "function_state",
@@ -496,7 +484,6 @@ def validate_s0b_mixed_context_api_owners(
                 "record_local_value",
                 "propagate_record_local_value",
                 "propagate_record_local_value_from_phi",
-                "clear_record_local_values",
             },
         },
         "metadata.origin_span_helpers": {
@@ -543,14 +530,6 @@ def validate_s0b_mixed_context_api_owners(
             "owner_type": required_string(row, "owner_type", identifier),
             "methods": set(methods),
         }
-        if identifier == "scope.entry_clear":
-            owned = row.get("function_owned_clears")
-            observation = row.get("observation_clears")
-            if not isinstance(owned, list) or not isinstance(observation, list):
-                fail("scope.entry_clear clear lists invalid")
-            actual["function_owned_clears"] = set(owned)
-            actual["observation_clears"] = set(observation)
-            actual["s0b_policy"] = required_string(row, "s0b_policy", identifier)
         if actual != contract:
             fail(f"mixed-context API owner contract drift: {identifier}")
         if actual["selector"] not in route_selectors:
@@ -577,22 +556,107 @@ def validate_s0b_mixed_context_api_owners(
         if f"value_origins.{field}" in lifecycle:
             fail(f"metadata origin isolation changed before METAISO: {field}")
 
-    clear_source = (ROOT / required_string(sources, "function_state", "sources")).read_text()
-    clear_body = re.search(
-        r"fn\s+clear_for_function_entry\s*\([^)]*\)\s*\{(?P<body>.*?)\n    \}",
-        clear_source,
-        re.DOTALL,
-    )
-    if clear_body is None:
-        fail("missing scope.entry_clear body")
-    cleared = set(re.findall(r"self\.(\w+)\.clear\(\);", clear_body.group("body")))
-    if cleared != expected["scope.entry_clear"]["function_owned_clears"] | expected["scope.entry_clear"]["observation_clears"]:
-        if cleared != expected["scope.entry_clear"]["function_owned_clears"]:
-            fail(f"function scope entry clear drift: {sorted(cleared)}")
-
     debug_source = (ROOT / required_string(sources, "scope_context", "sources")).read_text()
     if "fn clear_debug_scope_for_function_entry" not in debug_source:
         fail("S0b must clear debug scope separately from FunctionOwned scope")
+
+
+def validate_s0c_lifecycle_transaction(
+    data: dict[str, object],
+    sources: dict[str, object],
+) -> None:
+    """Prove that the canonical lifecycle has one FunctionOwned transition."""
+    if not FUNCTION_TRANSACTION.is_file():
+        fail("missing S0c function-owned transaction")
+    transaction = FUNCTION_TRANSACTION.read_text()
+    transaction_runtime = transaction.split("#[cfg(test)]", 1)[0]
+    lifecycle_path = ROOT / required_string(sources, "lifecycle", "sources")
+    lifecycle = lifecycle_path.read_text()
+
+    surfaces = data.get("surfaces")
+    if not isinstance(surfaces, list):
+        fail("missing Census surfaces for S0c transaction validation")
+    function_owned = [
+        row
+        for row in surfaces
+        if isinstance(row, dict) and row.get("class") == "FunctionOwned"
+    ]
+    if len(function_owned) != 34:
+        fail(f"S0c must retain exactly 34 FunctionOwned Census surfaces, found {len(function_owned)}")
+
+    if struct_fields(lifecycle_path, "LoweringContext") != {
+        "function_state_transaction",
+        "legacy",
+        "observation",
+    }:
+        fail("canonical LoweringContext must have one transaction plus two non-FunctionOwned snapshots")
+    if struct_fields(lifecycle_path, "LegacyCompatibilitySnapshotV1") != {"saved_static_ctx"}:
+        fail("legacy compatibility snapshot drift")
+    if struct_fields(lifecycle_path, "ObservationBorrowSnapshotV1") != {
+        "saved_slot_registry",
+        "saved_debug_scope_stack",
+        "saved_current_span",
+        "saved_region_stack",
+        "saved_recursion_depth",
+    }:
+        fail("observation snapshot drift")
+    if struct_fields(FUNCTION_TRANSACTION, "FunctionOwnedStateTransactionV1") != {
+        "mode",
+        "caller",
+    }:
+        fail("FunctionOwned transaction payload drift")
+
+    if transaction_runtime.count("fn begin(") != 1 or transaction_runtime.count("fn restore(") != 1:
+        fail("FunctionOwned transaction must have one begin and one consume-and-restore owner")
+    if lifecycle.count("FunctionOwnedStateTransactionV1::begin") != 1:
+        fail("canonical lifecycle must begin the FunctionOwned transaction exactly once")
+    if len(re.findall(r"function_state_transaction\s*\.\s*restore\(", lifecycle)) != 1:
+        fail("canonical lifecycle must consume-and-restore the transaction exactly once")
+
+    retired_fields = {
+        "saved_var_map",
+        "saved_type_ctx",
+        "saved_function",
+        "saved_block",
+        "saved_reserved_value_ids",
+        "saved_fn_body_ast",
+        "saved_frag_emit_session",
+        "saved_binding_ctx",
+        "saved_resolved_binding_state",
+        "saved_scope_stacks",
+        "saved_pending_phis",
+        "saved_local_ssa_map",
+        "saved_schedule_mat_map",
+        "saved_pin_slot_names",
+        "saved_record_local_values",
+        "saved_return_defer_active",
+        "saved_return_defer_slot",
+        "saved_return_defer_target",
+        "saved_return_deferred_emitted",
+        "saved_in_cleanup_block",
+        "saved_cleanup_allow_return",
+        "saved_cleanup_allow_throw",
+        "saved_suppress_pin_entry_copy_next",
+        "saved_in_unified_boxcall_fallback",
+        "ScopeStacksSnapshot",
+        "TypeContextSnapshot",
+    }
+    retained = sorted(token for token in retired_fields if token in lifecycle)
+    if retained:
+        fail(f"retired FunctionOwned lifecycle snapshot remains: {retained}")
+    for token in ("value_origin_spans", "value_origin_callers", "value_origins"):
+        if token in lifecycle:
+            fail(f"S0c must preserve METAISO no-isolation control: {token}")
+
+    forbidden_whole_state = re.compile(
+        r"(?:mem::take|std::mem::take)\(\s*&mut\s+(?:self\.)?function_state\s*\)"
+    )
+    if forbidden_whole_state.search(lifecycle) or forbidden_whole_state.search(transaction_runtime):
+        fail("S0c must not take the whole FunctionLoweringState")
+    if "FunctionLoweringStateV1::default" in transaction_runtime:
+        fail("S0c must not install a fresh FunctionLoweringState")
+    if re.search(r"(?:derive\([^)]*(?:Clone|Copy)[^)]*\)|impl\s+(?:Clone|Copy|Deref))[^\n]*FunctionOwnedStateTransactionV1", transaction_runtime):
+        fail("FunctionOwned transaction must remain non-Clone/non-Copy/non-Deref")
 
 
 if __name__ == "__main__":

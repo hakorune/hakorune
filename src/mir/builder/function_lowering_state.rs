@@ -92,14 +92,6 @@ impl FunctionScopeStateV1 {
     pub(super) fn current_fastmem_region(&self) -> Option<FastMemRegionId> {
         self.fastmem_region_stack.last().copied()
     }
-
-    pub(super) fn clear_for_function_entry(&mut self) {
-        self.lexical_scope_stack.clear();
-        self.loop_header_stack.clear();
-        self.loop_exit_stack.clear();
-        self.if_merge_stack.clear();
-        self.fastmem_region_stack.clear();
-    }
 }
 
 impl FunctionCompilationScratchV1 {
@@ -161,11 +153,6 @@ impl FunctionCompilationScratchV1 {
         }) {
             self.record_local_values.insert(dst, first);
         }
-    }
-
-    #[inline]
-    pub(super) fn clear_record_local_values(&mut self) {
-        self.record_local_values.clear();
     }
 }
 

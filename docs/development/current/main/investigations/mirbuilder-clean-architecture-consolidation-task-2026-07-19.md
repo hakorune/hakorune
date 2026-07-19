@@ -828,9 +828,18 @@ panic Drop restoration. P0 does not claim that transaction Drop itself can
 restore a Builder; I0 must route the existing session Drop through its one
 consume-and-restore transition.
 
-`S0c-I0` is the sole next code-facing row.
+#### `S0c-I0` — closed (2026-07-19)
 
-S0c-G0 must prove, from the existing Census0 fixture rather than a second
+The canonical lifecycle now begins one `FunctionOwnedStateTransactionV1` and
+consumes it exactly once during restore. `LoweringContext` has exactly three
+products: that opaque transaction, one LegacyCompatibility static-box
+snapshot, and one ObservationBorrow snapshot for slot/debug/span/region/
+recursion state. The 34 FunctionOwned individual `saved_*` captures,
+`ScopeStacksSnapshot`, and canonical lifecycle `TypeContextSnapshot` use are
+physically removed. Existing close, typed-error, cleanup-error, publication,
+and Drop/panic ordering remain owned by `CanonicalFunctionLoweringSessionV1`.
+
+`S0c-G0` proves, from the existing Census0 fixture rather than a second
 surface table:
 
 ```text
@@ -853,6 +862,15 @@ The existing legacy/Box success, five typed-error checkpoints, cleanup-error,
 panic, post-restore publication, and metadata-origin control fixtures remain
 the behavioral matrix. S0c adds no new route map: Census0 remains the one
 surface authority and any sibling scanner may only consume it.
+
+#### `S0c-G0` — closed (2026-07-19)
+
+The existing Census fixture now also guards the one transaction begin/restore
+owner, the exact three-field `LoweringContext`, retired FunctionOwned snapshot
+vocabulary, METAISO non-interference, and the no-whole-state rule. Census,
+old-route-zero inventory, inventory tests, transaction/session tests,
+all-target check, release build, pointer guard, format, diff, and line-budget
+checks are green. `S0d` is the sole next S0-series closeout row.
 
 S0c must stop rather than broaden if it needs:
 

@@ -86,16 +86,6 @@
       "methods": ["push_fastmem_region", "pop_fastmem_region", "current_fastmem_region"]
     },
     {
-      "id": "scope.entry_clear",
-      "selector": "scope.entry_clear",
-      "owner_source": "function_state",
-      "owner_type": "FunctionScopeStateV1",
-      "methods": ["clear_for_function_entry"],
-      "function_owned_clears": ["lexical_scope_stack", "loop_header_stack", "loop_exit_stack", "if_merge_stack", "fastmem_region_stack"],
-      "observation_clears": ["debug_scope_stack"],
-      "s0b_policy": "split_mixed_clear_preserving_current_behavior"
-    },
-    {
       "id": "compilation.reservation_helpers",
       "selector": "compilation.reserved_value_ids",
       "owner_source": "function_state",
@@ -114,7 +104,7 @@
       "selector": "compilation.record_local_values",
       "owner_source": "function_state",
       "owner_type": "FunctionCompilationScratchV1",
-      "methods": ["register_record_local_value", "record_local_value", "propagate_record_local_value", "propagate_record_local_value_from_phi", "clear_record_local_values"]
+      "methods": ["register_record_local_value", "record_local_value", "propagate_record_local_value", "propagate_record_local_value_from_phi"]
     },
     {
       "id": "metadata.origin_span_helpers",

@@ -203,7 +203,7 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
             .as_ref()
             .expect("open function session always owns one context");
         let current_regions = self.builder.metadata_ctx.current_region_stack();
-        let saved_regions = context.saved_region_stack.as_slice();
+        let saved_regions = context.saved_region_stack();
         let region_prefix_matches = current_regions.starts_with(saved_regions);
         let region_depth_is_bounded = current_regions.len() <= saved_regions.len() + 1;
 
