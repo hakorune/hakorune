@@ -142,17 +142,20 @@ MIRBUILDER-CLEAN0-FACT0
 MIRBUILDER-CLEAN0-PHI0
   one PHI completion state machine
 
-MIRBUILDER-CLEAN0-FINALIZE0
-  retire finalization-time correctness repair
-
-MIRBUILDER-CLEAN0-PLAN0
-  pure symbolic function-plan boundary
-
 MIRBUILDER-CLEAN0-COMPCTX0
   module truth / cache / legacy-state split
 
 MIRBUILDER-CLEAN0-CONFIG0
   invocation-sealed lowering configuration
+
+MIRBUILDER-CLEAN0-FINALIZE0
+  retire finalization-time correctness repair
+
+MIRBUILDER-CLEAN0-METAPROP0
+  retire the multi-fact propagation facade before plan cutover
+
+MIRBUILDER-CLEAN0-PLAN0
+  pure symbolic function-plan boundary
 
 MIRBUILDER-CLEAN0-RAWADAPT0
   raw compatibility adapter outside the emitter
@@ -178,8 +181,9 @@ FSESSION0-S0c-I0 -> S0c-G0 -> S0d
   -> FSESSION0-C0-D0
   -> FACT0-I0-RCV0 -> FACT0-P1-PARTITION0
   -> PHI0 -> FACT0-I1-*
-  -> FINALIZE0 -> PLAN0 -> PLAN0-RECIPE-RET0
-  -> COMPCTX0 -> CONFIG0 -> RAWADAPT0
+  -> COMPCTX0 -> CONFIG0 -> FINALIZE0
+  -> METAPROP0-D0 -> METAPROP0-CUT0
+  -> PLAN0 -> PLAN0-RECIPE-RET0 -> RAWADAPT0
   -> FACT0-G0
   -> FSESSION0-C0-I0 -> FSESSION0-CUT0 -> FSESSION0-G0
 ```
@@ -1016,9 +1020,10 @@ instruction-commit timing, failure behavior, and retirement prerequisite. It
 also records the selected receiver's scoped closeout without claiming that the
 other legacy producers have migrated. This prevents a false global-zero claim
 while keeping every later code-facing migration to one producer family.
-The terminal gate runs only after `FINALIZE0`, `PLAN0`, `COMPCTX0`, `CONFIG0`,
-and `RAWADAPT0`: those owners physically retire remaining repair, compatibility,
-heuristic, and configuration-dependent writers. `FACT0-G0` is therefore the
+The terminal gate runs only after `COMPCTX0`, `CONFIG0`, `FINALIZE0`,
+`METAPROP0`, `PLAN0`, and `RAWADAPT0`: those owners physically retire remaining
+repair, compatibility, multi-fact propagation, heuristic, and
+configuration-dependent writers. `FACT0-G0` is therefore the
 last fact convergence gate before fresh-session activation, not a Phase 2
 implementation shortcut.
 
@@ -1236,7 +1241,9 @@ PHI0
   -> independently sealed simple exact producers
   -> FACT0-TX0-D0
   -> normal FieldGet and Call transactions, separately
-  -> FINALIZE0 / PLAN0 / COMPCTX0 / CONFIG0 / RAWADAPT0 retirements
+  -> COMPCTX0 -> CONFIG0 -> FINALIZE0
+  -> METAPROP0-D0 / METAPROP0-CUT0
+  -> PLAN0 / RAWADAPT0 retirements
   -> FACT0-G0 global lexical-zero convergence
 ```
 
@@ -1245,6 +1252,45 @@ observes pre-emission FieldGet and post-failure Call residual facts. FastMem
 FieldLoad, origin recovery, name/current-static-box heuristics, explicit
 `Unknown`, overwrite/clear, and final-MIR repair stay distinct profiles and
 may never be disguised as monotone exact publication.
+
+#### `FACT0-P1-P0` — closed (2026-07-20)
+
+The live fixture is now schema v2 and completely partitions the unchanged
+lexical census: 47 writer paths, 99 writer occurrences, and 58 gap-free
+ordinal slices. It records 38 semantic profiles, including two explicitly
+shared lexical sites: the receiver-param0/explicit-static identity commit and
+the module-signature annotation site that also carries legacy name
+normalization. No raw writer was removed or migrated.
+
+The partition distinguishes PHI-related precompletion, provisional, rollback,
+and post-PHI Bool writes; exact literal facts distinct from legacy
+operator-mode paths;
+signature/extern/name call annotation; FastMem, array,
+record, and static-data field paths; preinstruction typed allocation; and the
+multi-fact metadata facade. A profile names an actual evidence owner,
+instruction boundary, failure residual, and retirement row; it is not merely
+a directory label.
+
+`metadata::propagate` is a separate multi-fact compatibility facade, not a
+Copy or finalization writer: it carries type, origin, string/map, and
+record-local facts and branches on the TypeRegistry environment route. Its
+decision and cutover therefore occur after `COMPCTX0` and `CONFIG0`, and
+before any `PLAN0` cutover can claim that planning has no hidden Builder fact
+writes. The conservative execution order is now:
+
+```text
+PHI0 -> exact Copy0 -> simple exact rows -> FACT0-TX0-D0
+  -> FieldGet0 -> Call0
+  -> COMPCTX0 -> CONFIG0 -> FINALIZE0
+  -> METAPROP0-D0 -> METAPROP0-CUT0
+  -> PLAN0 -> PLAN0-RECIPE-RET0 -> RAWADAPT0
+  -> FACT0-G0 -> fresh-session cutover
+```
+
+`FACT0-P1-G0` is next. It is classification-only: it freezes these exact
+profile/prerequisite counters, adds no producer consumer, changes no type
+timing, and makes no premature raw-writer-zero claim. `PHI0` is the next
+code-facing migration only after that guard closes.
 
 ## Phase 3 — PHI0
 
@@ -1416,6 +1462,35 @@ Diagnostic environment toggles that are explicitly outside semantic behavior
 may remain only behind the repository debug contract. They cannot change route
 selection, accepted syntax, representation, emitted MIR, or fallback behavior.
 
+## Phase 7.5 — METAPROP0
+
+Retire the generic lowering-time metadata facade before `PLAN0-CUT0`. This is
+not Copy0: the current facade conditionally selects TypeRegistry or direct
+TypeContext writes and transports type, origin, string-literal, map-value,
+map-literal, and record-local facts across plan and non-plan callers.
+
+```text
+METAPROP0-CENSUS0
+  every propagation caller and every transported fact family
+
+METAPROP0-D0
+  one fact-family ownership and transaction decision; no call-site cutover
+
+METAPROP0-CUT0
+  selected plan-path callers no longer reach the mutable facade
+
+METAPROP0-G0
+  direct facade type/origin/auxiliary-fact writes are zero or have one named
+  legacy-adapter removal row
+```
+
+`COMPCTX0` must first split the mutable TypeRegistry owner, and `CONFIG0` must
+first seal the propagation mode. `METAPROP0-CUT0` precedes `PLAN0-CUT0`; a
+pure-plan claim is false while a plan path can still hide `&mut MirBuilder`
+fact mutation through this facade. Non-plan callers are inventoried in D0 and
+may remain behind an explicitly named later adapter; they are never silently
+classified as Copy or finalization behavior.
+
 ## Phase 8 — RAWADAPT0
 
 Legacy AST and canonical semantic inputs both terminate at the same verified
@@ -1446,6 +1521,7 @@ structures have explicit retirement owners and zero conditions:
 | raw/located dual lowering | `RAWADAPT0` | both inputs terminate at one verified plan and one emitter |
 | Builder-internal fallback | `RAWADAPT0` | selected canonical failure has no raw/alternate retry path |
 | entry-specific PHI completion | `PHI0` | all complete/patch/batch/raw facades consume one completion owner |
+| multi-fact metadata propagation facade | `METAPROP0-CUT0` | plan paths no longer mutate type/origin/string/map/record facts through the generic facade |
 | public mutable `TypeContext` maps | `FACT0-G0` | external raw writes are zero; producers use monotone publication APIs |
 | finalization-time type/correctness repair | `FINALIZE0-CUT0` | facts needed during lowering are never first published in finalization |
 | MIR scan used for source-semantic inference | `FINALIZE0-CUT0` + `RAWADAPT0` | emitted MIR spelling/order is not source target, field owner, or route authority |

@@ -1,8 +1,8 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FACT0-P1-S0 schema validation is closed; FACT0-P1-P0 live 47/99 partition is next"
-date = "2026-07-19"
+status = "FACT0-P1-P0 live 47/99 semantic partition is closed; FACT0-P1-G0 guarded profile/prerequisite matrix is next"
+date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
 active_lane_status = """D′ is the current canonical control-lowering authority:
@@ -367,15 +367,17 @@ monotone decision, from the existing method-skeleton Box(owner) fact after
 preflight and before receiver-state mutation. Existing direct parameter commit
 remains the one identity-write site, explicit/static Unknown formals remain
 legacy, and conflict tests prove no binding/variable/kind/type/origin/slot
-publication. FACT0-P1-S0 is closed: schema v2 validates gap-free lexical
-ordinal coverage, shared semantic-profile reasons, and complete profile fields
-without changing the live 47/99 census. FACT0-P1-P0 is next: it assigns every
-live writer occurrence to those profiles before PHI0 and later
-one-family-at-a-time cutovers. FACT0-G0 remains a final global-zero gate after
-FINALIZE0, PLAN0, COMPCTX0, CONFIG0, and RAWADAPT0 retire their named legacy
-writers.
+publication. FACT0-P1-S0 and P0 are closed: schema v2 now partitions the
+unchanged 47-path/99-occurrence census into 58 gap-free ordinal slices and 38
+semantic profiles, with two explicit shared lexical sites. The partition fixes
+PHI lifecycle, literal/operator, call annotation, field, allocation, and
+metadata-facade retirement owners without migrating any raw writer.
+FACT0-P1-G0 is next and remains classification-only. `metadata::propagate` is
+now a distinct METAPROP0 owner after COMPCTX0/CONFIG0 and before PLAN0-CUT0;
+FACT0-G0 remains the final global-zero gate after that owner plus FINALIZE0,
+PLAN0, COMPCTX0, CONFIG0, and RAWADAPT0 retire their named legacy writers.
 NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FACT0-P1-P0-001"
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FACT0-P1-G0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
