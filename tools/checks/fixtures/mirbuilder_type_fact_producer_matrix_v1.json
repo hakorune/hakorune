@@ -133,6 +133,8 @@
       "id": "parameter",
       "source_file": "src/mir/builder/calls/parameter_setup.rs",
       "anchor": "fn publish_function_parameter(",
+      "decision_anchor": "TypeFactDecisionV1::prepare(",
+      "decision_occurrences": 1,
       "timing": "before_body_lowering"
     },
     {

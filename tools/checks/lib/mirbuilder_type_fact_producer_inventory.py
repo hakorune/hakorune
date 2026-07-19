@@ -99,6 +99,19 @@ def require_anchor(root: Path, row: dict[str, object]) -> None:
     if anchor not in read(root / source_file):
         fail(f"missing primary anchor {anchor!r} in {source_file}")
 
+    decision_anchor = row.get("decision_anchor")
+    decision_occurrences = row.get("decision_occurrences")
+    if decision_anchor is None and decision_occurrences is None:
+        return
+    if not isinstance(decision_anchor, str) or not isinstance(decision_occurrences, int):
+        fail(f"invalid decision anchor contract: {row!r}")
+    actual = code_only(read(root / source_file)).count(decision_anchor)
+    if actual != decision_occurrences:
+        fail(
+            f"decision anchor drift in {source_file}: "
+            f"expected={decision_occurrences} actual={actual} anchor={decision_anchor!r}"
+        )
+
 
 def load_fixture(root: Path) -> dict[str, object]:
     fixture = root / "tools/checks/fixtures/mirbuilder_type_fact_producer_matrix_v1.json"

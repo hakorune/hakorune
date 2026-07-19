@@ -1110,7 +1110,7 @@ FieldGet emission. FastMem FieldLoad remains a separate producer and is not
 treated as normal FieldGet timing. No producer, map API, finalization behavior,
 or production consumer changed.
 
-#### `FACT0-I0-RCV0` — next code-facing row
+#### `FACT0-I0-RCV0` — closed (2026-07-20)
 
 Connect `TypeFactDecisionV1` to exactly one existing producer shape:
 `setup_method_params` publishing the verified implicit receiver `me` at formal
@@ -1143,6 +1143,20 @@ before setup, then prove that a conflict leaves receiver publication state
 unchanged. RCV0 does not claim setup-wide rollback after a later legacy
 explicit-parameter failure, nor allocator rollback, origin monotonicity, or
 slot-conflict policy.
+
+`setup_method_params` now accepts the one existing production receiver shape
+through a private prepare/commit pair. Preparation reads only parameter zero,
+the already-built signature `Box(owner)`, and the current transient type fact;
+the pure decision runs before binding allocation, parameter-name clearing,
+parameter extension, variable/binding/kind/type/origin/slot publication. Its
+prepared action reaches the existing parameter identity commit through one
+private enum, preserving the 47-path / 99-occurrence direct-writer inventory
+instead of creating a second raw map-write site. Exact same facts are
+idempotent; foreign concrete facts, non-Box signatures, and owner mismatches
+fail with no receiver publication. The temporal witness now constructs the
+same method skeleton as production. Explicit/static `Unknown` parameters,
+Copy, PHI, Call, FieldGet, origin/kind policy, finalization, and whole-setup
+rollback remain untouched.
 
 #### `FACT0-P1-PARTITION0` — producer migration partition
 

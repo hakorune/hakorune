@@ -23,6 +23,14 @@ fn builder_with_entry(name: &str) -> MirBuilder {
     builder
 }
 
+fn builder_with_method_entry(name: &str, owner: &str) -> MirBuilder {
+    let mut builder = MirBuilder::new();
+    builder
+        .create_method_skeleton(name.to_string(), owner, &[], &[])
+        .unwrap();
+    builder
+}
+
 fn transient_type(builder: &MirBuilder, value: ValueId) -> Option<MirType> {
     builder
         .function_state
@@ -109,7 +117,7 @@ fn call_count(builder: &MirBuilder) -> usize {
 
 #[test]
 fn parameter_publishes_exact_receiver_before_metadata_snapshot() {
-    let mut builder = builder_with_entry("fact0_temporal_parameter/0");
+    let mut builder = builder_with_method_entry("fact0_temporal_parameter/0", RECEIVER_OWNER);
     let receiver = receiver_parameter(&mut builder, RECEIVER_OWNER);
 
     assert_eq!(
@@ -142,7 +150,7 @@ fn explicit_unknown_parameter_remains_a_legacy_non_fact() {
 
 #[test]
 fn copy_publishes_only_after_the_copy_instruction_commits() {
-    let mut builder = builder_with_entry("fact0_temporal_copy/0");
+    let mut builder = builder_with_method_entry("fact0_temporal_copy/0", RECEIVER_OWNER);
     let receiver = receiver_parameter(&mut builder, RECEIVER_OWNER);
     let copy = local::field_base(&mut builder, receiver);
 
@@ -337,7 +345,7 @@ fn install_typed_field(builder: &mut MirBuilder) -> ValueId {
 
 #[test]
 fn typed_field_get_publishes_before_fieldget_emission_then_finalizes() {
-    let mut builder = builder_with_entry("fact0_temporal_field_success/0");
+    let mut builder = builder_with_method_entry("fact0_temporal_field_success/0", FIELD_OWNER);
     let base = install_typed_field(&mut builder);
     let dst = builder
         .build_field_access_from_value(base, "items".to_string())
@@ -359,7 +367,7 @@ fn typed_field_get_publishes_before_fieldget_emission_then_finalizes() {
 
 #[test]
 fn typed_field_get_failure_leaves_pre_emission_type_residual() {
-    let mut builder = builder_with_entry("fact0_temporal_field_failure/0");
+    let mut builder = builder_with_method_entry("fact0_temporal_field_failure/0", FIELD_OWNER);
     let base = install_typed_field(&mut builder);
     let before = builder
         .function_state
