@@ -394,22 +394,67 @@ widening, selected-terminal type backfill, or a raw-route retry. The failing
 test WIP is evidence-only and must not be committed while its focused gate is
 red.
 
-Next design row:
+### `RAW-PLAN-EMISSION-PARITY0-D0` — canonical pre-Loop harness selected
+
+```text
+selected shape:
+  one test-only bounded instance-method entry/prefix harness
+  adjacent to the existing calls/lowering owner
+
+entry:
+  existing method skeleton + declared signature + setup_method_params
+
+prefix:
+  existing raw lowering of exact actual Body(0)..Body(3)
+
+located execution begins:
+  exact actual Loop Body(4)
+```
+
+The harness has no public generic parameter-seeding API. It must delegate to
+the existing method entry owner through a cfg(test) closure or adjacent
+test-support seam, not copy `setup_method_params` into GenericLoop tests.
+
+```text
+canonical entry owns:
+  me / text / pos parameter identity and any existing representation facts
+
+raw prefix owns:
+  ret / value / updated pos and ordinary static-call resolution
+
+forbidden synthetic seed facts:
+  text:String
+  pos:Integer
+  value:Integer
+  me:Box(ParserBox)
+  ParserStringUtilsBox local binding
+```
+
+`static_const_parse_add(text, pos)` has unannotated explicit formals. The D0
+proof records the canonical pre-Loop snapshot rather than preserving the old
+synthetic `String`/`Integer` types. Any post-prefix mismatch is a raw
+plan/emission parity fact, not permission to seed a replacement type.
+
+Fixed order:
 
 ```text
 RAW-PLAN-EMISSION-PARITY0-D0
-  decide one test-only function-parameter materialization harness that
-  represents text / pos / value / me / ParserStringUtilsBox as exact function
-  parameters before actual Loop execution
+  this decision lock; closed
 
-  must not alter production parameter setup, GenericLoop lowering, claim
-  scheduling, activation rows, source identity, or value-lifecycle law
+RAW-PLAN-EMISSION-PARITY0-H0
+  disconnected canonical method-entry + Body(0..3) prefix harness
+
+RAW-PLAN-EMISSION-PARITY0-R0
+  retry actual Body(4) all-Unselected session execution from that harness
+
+LOOP0-L0-R0-P0
+  closes only if R0 proves raw-primary claim/effect/finish parity
 ```
 
-The decision must prove whether the existing parameter publication API can be
-used unchanged from this test boundary. If it cannot, stop again and task a
-generic test-session setup seam; do not hand-create a second parameter/type
-authority inside the Loop fixture.
+If canonical entry/prefix cannot produce the needed live function state, or
+R0 still fails after it, stop again with the exact producer/route/CFG/lifecycle
+fact. Do not add type backfill, fallback, source/ledger changes, nested-result
+widening, or another test-only type authority.
 
 ## `LOOP0-L0-R0-F0` — selected execution failure proof
 
