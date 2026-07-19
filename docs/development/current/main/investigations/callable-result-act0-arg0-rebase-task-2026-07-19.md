@@ -371,6 +371,46 @@ RAW-PLAN-EMISSION-PARITY0
 
 Do not open nested-result inference, type backfill, or `NESTED-REP0` there.
 
+### P0 investigation stop (2026-07-19)
+
+The first exact actual execution probe reached the claimed raw-primary port but
+stopped at the existing lowering-time lifecycle verifier:
+
+```text
+[freeze:contract][value_lifecycle/typed_without_def]
+fn=whole_loop_p0/0
+tag=loop_lowerer:after_finalize_loop_variables
+missing0=%1, type=String, varmap hit=[text]
+```
+
+The probe reused the existing `seeded_builder` helper. That helper creates an
+empty `enter_function_for_test` function, then publishes typed values directly
+into `variable_map`; those values are neither emitted definitions nor entries
+in `MirFunction.params`. The verifier correctly rejects them when the actual
+lowering first reaches its function-boundary contract.
+
+This is not evidence for nested callable-result representation, source-gate
+widening, selected-terminal type backfill, or a raw-route retry. The failing
+test WIP is evidence-only and must not be committed while its focused gate is
+red.
+
+Next design row:
+
+```text
+RAW-PLAN-EMISSION-PARITY0-D0
+  decide one test-only function-parameter materialization harness that
+  represents text / pos / value / me / ParserStringUtilsBox as exact function
+  parameters before actual Loop execution
+
+  must not alter production parameter setup, GenericLoop lowering, claim
+  scheduling, activation rows, source identity, or value-lifecycle law
+```
+
+The decision must prove whether the existing parameter publication API can be
+used unchanged from this test boundary. If it cannot, stop again and task a
+generic test-session setup seam; do not hand-create a second parameter/type
+authority inside the Loop fixture.
+
 ## `LOOP0-L0-R0-F0` — selected execution failure proof
 
 Use one synthetic generic selected row whose final required argument ValueId is

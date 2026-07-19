@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "LOOP0-L0-R0-S0 closed; P0 actual all-Unselected raw-primary execution proof is next"
+status = "LOOP0-L0-R0 P0 stopped at RAW-PLAN-EMISSION-PARITY0; parameter-materialization D0 is next"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -314,10 +314,13 @@ error, while actual activation remains all-Unselected and raw-primary. S0 is
 closed: one non-Clone claimed CorePlan execution session is the sole owner of
 Active / Poisoned / Completed state; its bundle is private, it reuses neither
 the legacy AST session nor a second ledger, and production callers remain zero.
-P0 next proves actual all-Unselected raw-primary completion; F0 then proves
-synthetic selected failure poison/no-retry before L0. NESTED-REP0 remains
-parked until after CLEAN0 FSESSION0."""
-current_blocker_token = "DPRIME-LOOP0-L0-R0-P0-001"
+P0's first actual raw-primary probe reaches the lowering-time lifecycle
+contract but its existing test seed has typed values that are neither function
+parameters nor MIR definitions. The probe is stopped as
+RAW-PLAN-EMISSION-PARITY0; D0 must decide one test-only parameter
+materialization harness before retrying P0. F0 remains after P0; NESTED-REP0
+remains parked until after CLEAN0 FSESSION0."""
+current_blocker_token = "DPRIME-RAW-PLAN-EMISSION-PARITY0-D0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
