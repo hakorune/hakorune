@@ -133,6 +133,9 @@ MIRBUILDER-CLEAN0-D0
 MIRBUILDER-CLEAN0-FSESSION0
   function-local state isolation
 
+FSESSION0-C0-D0
+  audit the fresh-session borrow boundary only; no fresh-session cutover
+
 MIRBUILDER-CLEAN0-FACT0
   monotone type/kind/origin publication
 
@@ -153,11 +156,45 @@ MIRBUILDER-CLEAN0-CONFIG0
 
 MIRBUILDER-CLEAN0-RAWADAPT0
   raw compatibility adapter outside the emitter
+
+FSESSION0-C0-I0 -> FSESSION0-CUT0 -> FSESSION0-G0
+  activate the fresh session and retire snapshot transformation only after
+  the preceding fact, plan, context, configuration, and raw-adapter owners
+  are green
 ```
 
 Each macro row is independently selected and landed. No row may combine
 BoxShape cleanup with a new accepted source shape, backend capability,
 ownership operation, or runtime behavior.
+
+### Execution dependency refinement
+
+The macro list is a responsibility map, not permission to cut over a fresh
+function session immediately after the S0 series. The current concrete order
+is fixed as:
+
+```text
+FSESSION0-S0c-I0 -> S0c-G0 -> S0d
+  -> FSESSION0-C0-D0
+  -> FACT0 -> PHI0 -> FINALIZE0
+  -> PLAN0 -> PLAN0-RECIPE-RET0
+  -> COMPCTX0 -> CONFIG0 -> RAWADAPT0
+  -> FSESSION0-C0-I0 -> FSESSION0-CUT0 -> FSESSION0-G0
+```
+
+`FSESSION0-C0-D0` may audit only the selected borrow contract:
+
+```text
+child session borrows immutable module truth and observation sinks only
+child session borrows or snapshots mutable LegacyCompatibility state = 0
+```
+
+It must not activate a fresh child session. The existing mutable compatibility
+state, direct fact-map writers, finalization repair, real-`ValueId` planning,
+and raw/located emitter split would otherwise make the C0 law false rather
+than prove it. Each prerequisite remains BoxShape-only: it changes no accepted
+source shape, backend capability, ownership operation, runtime behavior,
+fallback, or retry policy.
 
 ## Phase 1 — FSESSION0
 
