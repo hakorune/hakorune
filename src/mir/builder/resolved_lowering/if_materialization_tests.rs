@@ -481,6 +481,61 @@ fn cfg_ready_bridge_seals_one_implicit_resolved_if_join_without_mutation() {
 }
 
 #[test]
+fn cfg_ready_bridge_uses_actual_explicit_branch_exits_without_emission() {
+    let (mut builder, condition, entry) = builder_fixture();
+    let binding = bindings(1)[0];
+    let values = store(&[(binding, entry)]);
+    let transaction =
+        ResolvedBranchTransactionV1::snapshot(&values, &[binding], &[binding]).unwrap();
+    let rows = transaction
+        .join_rows(
+            &transaction.implicit_false_values(),
+            &transaction.implicit_false_values(),
+        )
+        .unwrap();
+
+    let mut session = IfCfgSessionV1::open_explicit_else(&mut builder, condition).unwrap();
+    let layout = session.layout();
+    session.enter_then(&mut builder).unwrap();
+    let then_exit = builder.next_block_id();
+    branch::emit_jump(&mut builder, then_exit).unwrap();
+    builder.start_new_block(then_exit).unwrap();
+    session.close_then(&mut builder).unwrap();
+
+    session.enter_else(&mut builder).unwrap();
+    let else_exit = builder.next_block_id();
+    branch::emit_jump(&mut builder, else_exit).unwrap();
+    builder.start_new_block(else_exit).unwrap();
+    session.close_else(&mut builder).unwrap();
+
+    let predecessors = session.verify_actual_predecessors(&mut builder).unwrap();
+    let before_instructions = instruction_count(&builder);
+    let before_types = builder.function_state.type_ctx.value_types.clone();
+
+    let bridge =
+        VerifiedResolvedIfCfgReadyJoinRowsV1::verify(&builder, predecessors, &rows).unwrap();
+    assert_eq!(bridge.rows().len(), 1);
+    assert_eq!(
+        bridge.rows()[0].logical_inputs(),
+        &[(then_exit, entry), (else_exit, entry)]
+    );
+    assert_ne!(then_exit, layout.then_entry());
+    assert_ne!(else_exit, layout.else_entry().unwrap());
+    assert_eq!(instruction_count(&builder), before_instructions);
+    assert_eq!(builder.function_state.type_ctx.value_types, before_types);
+    assert!(builder
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .get_block(layout.merge())
+        .unwrap()
+        .phi_instructions()
+        .next()
+        .is_none());
+}
+
+#[test]
 fn cfg_ready_bridge_rejects_cfg_drift_without_additional_mutation() {
     let (mut builder, condition, entry) = builder_fixture();
     let binding = bindings(1)[0];

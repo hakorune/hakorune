@@ -43,10 +43,10 @@ closed. PHI0-M0 has now closed as an evidence row and found that I0 has no
 single existing predecessor-readiness authority. PRED0-D0 therefore selects a
 split between generic input/type completion and route-scoped CFG readiness.
 PRED0-S0, PRED0-P0, I0, and CFGREADY0-D0 are closed; the next disconnected
-proof row is now:
+one-consumer integration row is now:
 
 ```text
-MIRBUILDER-CLEAN0-PHI0-CFGREADY0-P0
+MIRBUILDER-CLEAN0-PHI0-CFGREADY0-I0
 ```
 
 ## Baseline finding
@@ -1650,6 +1650,16 @@ mutation, CFG-drift rejection without an additional instruction or type write,
 and duplicate join-row rejection without mutation. `PHI0-CFGREADY0-P0` is next
 to add the explicit-else and actual route matrix before I0 connects the one
 consumer.
+
+#### `PHI0-CFGREADY0-P0` — closed (2026-07-20)
+
+The actual matrix now covers both implicit and explicit canonical If routes.
+The explicit case deliberately gives both branches an intermediate block, so
+the bridge proves it uses the actual then/else merge exits rather than lexical
+branch entries. In both cases bridge creation leaves merge PHI instructions and
+transient types unchanged. Existing drift and duplicate-row negatives retain
+the same no-additional-mutation law. `PHI0-CFGREADY0-I0` is next: it may connect
+this bridge to exactly one resolved-If final-PHI path and nothing else.
 
 ## Phase 4 — FINALIZE0
 
