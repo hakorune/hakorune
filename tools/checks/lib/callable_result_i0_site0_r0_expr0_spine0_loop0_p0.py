@@ -216,7 +216,7 @@ def check_loop0_p0a(root: Path) -> str:
     )
     generic_loop_port_allowlist = {
         "src/mir/builder/control_flow/plan/generic_loop/located_representation/mod.rs": 2,
-        "src/mir/builder/control_flow/plan/generic_loop/located_representation/lowering_view.rs": 7,
+        "src/mir/builder/control_flow/plan/generic_loop/located_representation/lowering_view.rs": 8,
         "src/mir/builder/control_flow/plan/generic_loop/located_representation/recipe_seal.rs": 4,
     }
     observed_generic_loop_ports = {}

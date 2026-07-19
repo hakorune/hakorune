@@ -19,6 +19,7 @@
 //! - loop.rs: Loop skeleton assembly
 //! - join.rs: JoinPayload generation
 
+pub(super) mod associated_source;
 pub(super) mod conditional_update;
 mod dispatch;
 pub(in crate::mir::builder) mod entry;
@@ -41,5 +42,7 @@ mod verify_shape;
 
 pub(in crate::mir::builder) use loop_::LoopBodyContractKind;
 
+#[cfg(test)]
+mod associated_source_tests;
 #[cfg(test)]
 mod wiring_tests;

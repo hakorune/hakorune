@@ -48,6 +48,13 @@ IF_CORE = "src/mir/builder/control_flow/plan/normalizer/cond_lowering_if_plan_po
 IF_CORE_TESTS = (
     "src/mir/builder/control_flow/plan/normalizer/cond_lowering_if_plan_port_tests.rs"
 )
+PARTS_ASSOCIATED_SOURCE = (
+    "src/mir/builder/control_flow/plan/parts/associated_source.rs"
+)
+PARTS_ASSOCIATED_SOURCE_TESTS = (
+    "src/mir/builder/control_flow/plan/parts/associated_source_tests.rs"
+)
+PARTS_MOD = "src/mir/builder/control_flow/plan/parts/mod.rs"
 
 
 def _require(text: str, needle: str, expected: int, label: str) -> None:
@@ -326,6 +333,78 @@ def _guard_r0_v0_c0(root: Path) -> None:
     _require(normalizer_mod, "mod cond_lowering_if_plan_port_tests;", 1, "R0-C0 tests module")
 
 
+def _guard_r0_d0_s0(root: Path) -> None:
+    source = _production(_read(root, PARTS_ASSOCIATED_SOURCE))
+    tests = _read(root, PARTS_ASSOCIATED_SOURCE_TESTS)
+    parts_mod = _read(root, PARTS_MOD)
+    located_view = _production(_read(root, LOCATED_VIEW))
+
+    _require(source, "trait PartsAssociatedSourceV1", 1, "R0-D0 source provider owner")
+    _require(source, "enum PartsAssociatedRecipeItemV1", 1, "R0-D0 item vocabulary")
+    _require(source, "PartsAssociatedSourceV1: sealed::Sealed", 1, "R0-D0 sealed provider")
+    _require(source, "impl sealed::Sealed for", 2, "R0-D0 sealed implementations")
+    _require(source, "PartsAssociatedSourceV1 for", 2, "R0-D0 provider implementations")
+    _require(
+        source,
+        "struct VerifiedPartsAssociatedItemV1",
+        1,
+        "R0-D0 port/item product",
+    )
+    _require(source, "\n    port: PortHandle,", 1, "R0-D0 exact port retention")
+    _require(source, "ForeignRawBlock", 2, "R0-D0 raw pairing rejection")
+    _require(source, "ForeignLocatedBlock", 2, "R0-D0 located pairing rejection")
+    _require(source, "type BodyInput = &'source [ASTNode]", 1, "R0-D0 raw body port shape")
+    _require(
+        located_view,
+        "fn expression_port(",
+        1,
+        "R0-D0 bound located port projection",
+    )
+
+    for token in (
+        "MirBuilder",
+        "CorePlan",
+        "LoweredRecipe",
+        "try_build_no_exit_block_recipe",
+        "classify_step_placement",
+        "matches_loop_increment",
+        "std::env",
+        "facts.body",
+        "ledger",
+        "claim_batch",
+        "fallback",
+        "retry",
+    ):
+        if token in source:
+            raise RuntimeError(f"LOOP0-P0b-T0 R0-D0-S0 owns forbidden authority: {token}")
+
+    for name in (
+        "raw_provider_projects_stmt_exit_and_explicit_if_without_lowering",
+        "located_provider_projects_actual_strict_root_and_retained_join_bridge",
+        "raw_provider_rejects_a_block_issued_by_a_foreign_arena",
+        "located_provider_rejects_a_block_bound_to_a_foreign_port",
+    ):
+        _fixture(tests, name)
+    _require(parts_mod, "mod associated_source;", 1, "R0-D0 source module")
+    _require(parts_mod, "mod associated_source_tests;", 1, "R0-D0 source tests module")
+
+    consumers = []
+    for path in (root / "src/mir/builder/control_flow/plan").rglob("*.rs"):
+        relative = path.relative_to(root).as_posix()
+        if relative == PARTS_ASSOCIATED_SOURCE or _is_test_source(path):
+            continue
+        text = _production(path.read_text(encoding="utf-8"))
+        counts = {
+            "raw": text.count("RawPartsAssociatedSourceV1::new"),
+            "located": text.count("LocatedPartsAssociatedSourceV1::new"),
+            "verified_item": text.count("VerifiedPartsAssociatedItemV1"),
+        }
+        if any(counts.values()):
+            consumers.append(f"{relative}:{counts}")
+    if consumers:
+        raise RuntimeError(f"LOOP0-P0b-T0 R0-D0-S0 premature consumers: {consumers}")
+
+
 def _guard_no_premature_located_consumer(root: Path) -> None:
     callers = []
     for path in (root / "src/mir/builder/control_flow/plan").rglob("*.rs"):
@@ -350,6 +429,7 @@ def check_loop0_p0b_t0(root: Path) -> str:
     _guard_c0(root)
     _guard_b0(root)
     _guard_r0_v0_c0(root)
+    _guard_r0_d0_s0(root)
     _guard_no_premature_located_consumer(root)
 
     touched = (
@@ -371,9 +451,12 @@ def check_loop0_p0b_t0(root: Path) -> str:
         IF_RAW,
         IF_CORE,
         IF_CORE_TESTS,
+        PARTS_ASSOCIATED_SOURCE,
+        PARTS_ASSOCIATED_SOURCE_TESTS,
+        PARTS_MOD,
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_t0.py",
     )
     oversized = [relative for relative in touched if len(_read(root, relative).splitlines()) >= 800]
     if oversized:
         raise RuntimeError(f"LOOP0-P0b-T0 source/check files reached 800 lines: {oversized}")
-    return "loop0_p0b_t0_c0=1 loop0_p0b_t0_b0=1 r0_v0=1 r0_c0=1 located_consumers=0"
+    return "loop0_p0b_t0_c0=1 loop0_p0b_t0_b0=1 r0_v0=1 r0_c0=1 r0_d0_s0=1 located_consumers=0"

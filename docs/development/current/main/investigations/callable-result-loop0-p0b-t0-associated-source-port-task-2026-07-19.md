@@ -1,5 +1,5 @@
 ---
-Status: T0-R0 V0/C0 closed; R0-D0 next
+Status: T0-R0 D0-S0 closed; shared Parts dispatcher cutover next
 Date: 2026-07-19
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md
 Prior decision: callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md
@@ -321,6 +321,43 @@ StmtWrappedJoinIf:
   retained singleton NoExit recipe/root
   + exact condition, then body, and optional else body
 ```
+
+###### R0-D0-S0 closeout
+
+The disconnected association vocabulary is closed before the semantic
+dispatcher cutover. One Parts-private sealed provider contract has exactly two
+implementations. Raw blocks retain their issuing `RecipeBodies`; located
+providers retain the exact expression port borrowed by the O0 lowering view.
+Every published item keeps that port and its source carriers together in one
+private product. Foreign raw arena/block and located port/block pairings reject
+before either cardinality or item publication.
+
+Raw body inputs are `&[ASTNode]`, matching the existing raw expression-port
+contract. The located provider projects the actual strict five-item root and
+retains the existing wrapped-Join singleton product without rebuilding it.
+The product constructor is private, the provider trait is sealed, and no
+production consumer can split or fabricate the pair.
+
+Evidence:
+
+```text
+raw projection: green
+actual strict located projection: green
+foreign raw pairing rejection: green
+foreign located pairing rejection: green
+focused fixtures: 4/4
+public expression-spine guard: green
+Builder/lowering/production consumers: 0
+located execution callers: 0
+ledger claims: 0
+files at or above 800 lines: 0
+```
+
+This is not full R0-D0 closeout. The next slice consumes the verified item
+by value in one shared semantic dispatcher, replaces the three existing Parts
+`RecipeItem` semantic matches with thin raw facades, and adds ExitOnly,
+ExitAllowed, and NoExit/Join lowering parity. Port and item must not gain
+independent production accessors.
 
 Statement leaves reuse the B0 associated-input primitives. Return values use
 the exact expression child. Existing Parts owners retain exit state, join

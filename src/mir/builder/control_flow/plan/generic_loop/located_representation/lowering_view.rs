@@ -143,6 +143,12 @@ impl<'view, 'plan> VerifiedLocatedDirectBodyLoweringViewV1<'view, 'plan> {
 }
 
 impl<'view, 'plan> VerifiedLocatedRecipeBlockLoweringViewV1<'view, 'plan> {
+    pub(in crate::mir::builder) fn expression_port(
+        &self,
+    ) -> &'view LocatedLoopPlanExpressionPortV1<'plan> {
+        self.port
+    }
+
     pub(in crate::mir::builder) fn len(&self) -> usize {
         self.block.items.len()
     }
