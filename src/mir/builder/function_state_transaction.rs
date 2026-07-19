@@ -1,7 +1,7 @@
 //! Private move-only vocabulary for the S0c function-state transaction.
 //!
-//! S0c-S0 deliberately has no production lifecycle consumer. The later I0
-//! connection alone may capture and restore these products. In particular,
+//! The canonical lifecycle is the sole production consumer of this product.
+//! In particular,
 //! this module must not take or replace the whole `FunctionLoweringStateV1`:
 //! C0 owns fresh child-session construction.
 

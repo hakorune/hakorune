@@ -605,6 +605,61 @@ def validate_s0c_lifecycle_transaction(
         "caller",
     }:
         fail("FunctionOwned transaction payload drift")
+    if struct_fields(FUNCTION_TRANSACTION, "CapturedFunctionOwnedStateV1") != {
+        "current_function",
+        "current_block",
+        "legacy_value_state",
+        "binding_ctx",
+        "resolved_binding_state",
+        "scope",
+        "compilation",
+        "pending_phis",
+        "local_ssa_map",
+        "schedule_mat_map",
+        "pin_slot_names",
+        "frag_emit_session",
+        "return_defer_active",
+        "return_defer_slot",
+        "return_defer_target",
+        "return_deferred_emitted",
+        "in_cleanup_block",
+        "cleanup_allow_return",
+        "cleanup_allow_throw",
+        "suppress_pin_entry_copy_next",
+        "in_unified_boxcall_fallback",
+    }:
+        fail("captured FunctionOwned payload no longer matches the Census partition")
+    if struct_fields(FUNCTION_TRANSACTION, "LegacyFunctionValueStateV1") != {
+        "variable_ctx",
+        "type_ctx",
+    }:
+        fail("legacy captured value-state payload drift")
+    capture_mode = re.search(
+        r"enum\s+FunctionStateCaptureModeV1\s*\{(?P<body>.*?)\n\}",
+        transaction_runtime,
+        re.DOTALL,
+    )
+    if capture_mode is None:
+        fail("missing FunctionOwned capture-mode vocabulary")
+    modes = set(re.findall(r"^    (\w+),$", capture_mode.group("body"), re.MULTILINE))
+    if modes != {"LegacyRestore", "BoxCompilationPartialClear"}:
+        fail(f"FunctionOwned capture modes drift: {sorted(modes)}")
+
+    clear_method = re.search(
+        r"fn\s+clear_box_compilation_type_facts\s*\([^)]*\)\s*\{(?P<body>.*?)\n    \}",
+        transaction_runtime,
+        re.DOTALL,
+    )
+    if clear_method is None:
+        fail("missing BoxCompilationContext type-fact clear owner")
+    box_clears = set(
+        re.findall(r"state\.type_ctx\.(\w+)\.clear\(\);", clear_method.group("body"))
+    )
+    if box_clears != {"value_types", "value_kinds", "value_origin_newbox"}:
+        fail(f"BoxCompilationContext clear set drift: {sorted(box_clears)}")
+    for retained_name in ("string_literals", "map_value_types", "map_literal_value_types"):
+        if f"state.type_ctx.{retained_name}.clear" in transaction_runtime:
+            fail(f"BoxCompilationContext retained type fact was cleared: {retained_name}")
 
     if transaction_runtime.count("fn begin(") != 1 or transaction_runtime.count("fn restore(") != 1:
         fail("FunctionOwned transaction must have one begin and one consume-and-restore owner")

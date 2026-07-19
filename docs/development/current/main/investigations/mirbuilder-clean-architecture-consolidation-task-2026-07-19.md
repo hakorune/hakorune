@@ -870,7 +870,17 @@ owner, the exact three-field `LoweringContext`, retired FunctionOwned snapshot
 vocabulary, METAISO non-interference, and the no-whole-state rule. Census,
 old-route-zero inventory, inventory tests, transaction/session tests,
 all-target check, release build, pointer guard, format, diff, and line-budget
-checks are green. `S0d` is the sole next S0-series closeout row.
+checks are green.
+
+#### `S0d` — closed (2026-07-19)
+
+The same Census consumer now proves the captured FunctionOwned payload's exact
+field set, the legacy two-field value payload, the two capture modes, and the
+inherited BoxCompilationContext three-clear/three-retain law. No second
+fixture, route map, scanner, or lifecycle test authority was added. The S0
+Refactor Series is closed: local helper/static-box snapshots outside canonical
+function lifecycle remain outside this scope. `FSESSION0-C0-D0` is next and is
+an audit-only borrow-boundary decision; it must not activate fresh sessions.
 
 S0c must stop rather than broaden if it needs:
 
