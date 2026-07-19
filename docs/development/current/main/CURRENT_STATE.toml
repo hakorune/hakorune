@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FSESSION0 C0-D0 is closed: fresh-session activation remains parked behind FACT0 through RAWADAPT0; FACT0-S0 is next"
+status = "FACT0-S0 is closed with one disconnected monotone type decision; FACT0-P0 producer timing matrix is next"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -352,8 +352,11 @@ activation until FACT0, PHI0, FINALIZE0, PLAN0, COMPCTX0, CONFIG0, and RAWADAPT0
 close. The child may borrow only frozen module truth, entry-sealed configuration,
 and a non-restoring observation capability; all mutable compatibility, shared
 allocation, direct maps, finalization repair, and parent publication remain
-non-authorities. FACT0-S0 is the next code-facing row. NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FACT0-S0-001"
+non-authorities. FACT0-S0 is closed: one pure map-free decision treats missing
+and Unknown as non-facts, Void as exact, rejects explicit Unknown publication,
+and has zero TypeContext/Builder/PHI/production consumers. FACT0-P0 is the next
+code-facing producer-timing matrix. NESTED-REP0 remains parked."""
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FACT0-P0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

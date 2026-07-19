@@ -1003,6 +1003,48 @@ FACT0-G0  raw type-map writers zero outside the owner
 No general type inference, union rejection, origin widening, or final-metadata
 fallback is introduced.
 
+### `FACT0-S0` — selected pure decision boundary
+
+S0 adds one disconnected, map-free `TypeFactDecisionV1` in the
+`hakorune-mir-builder` substrate. It receives only an existing optional
+`MirType` and a proposed optional `MirType`; it owns no `TypeContext`,
+`ValueId`, producer/evidence label, Builder, MIR instruction, commit, or
+consumer. Producer-specific evidence vocabulary belongs to P0 after the
+parameter/Copy/PHI/Call/FieldGet timing matrix is sealed.
+
+```text
+missing or Unknown + exact T  -> Publish(T)
+exact T + exact T             -> Idempotent(T)
+exact T + no proposal         -> PreserveExisting(T)
+missing or Unknown + no proposal -> NoPublication
+exact T + exact U             -> typed concrete conflict
+any explicit Unknown proposal -> typed rejected proposal
+```
+
+`Void` is exact. Missing and stored `Unknown` are non-facts, but an explicit
+proposal to write `Unknown` is rejected: the future monotone publisher may not
+perform an `Exact -> Unknown` regression. S0 has no commit API, direct-map
+writer migration, PHI input/hint change, type propagation, finalization,
+origin/kind change, or Builder consumer. The existing PHI decision continues
+to own logical-input unanimity; a later PHI row may delegate only its final
+existing-versus-candidate comparison.
+
+S0 must stop if it needs a map write/snapshot, `ValueId`, producer-specific
+evidence, TypeContext visibility change, AST/name/runtime inference, final
+metadata, or a production consumer. P0 first inventories current producer
+timing and the intentionally non-monotone legacy surfaces.
+
+#### `FACT0-S0` — closed (2026-07-19)
+
+`hakorune-mir-builder::lowering_facts::TypeFactDecisionV1` now owns the
+disconnected binary decision and its stable typed errors. It has no
+`TypeContext` dependency, map/commit API, ValueId/evidence payload, Builder
+consumer, PHI import, or production caller. Unit tests seal missing/Unknown to
+exact publication, `Void` exactness, idempotence, preservation/no-publication,
+concrete mismatch, and explicit-Unknown rejection. The existing PHI decision
+and every direct writer remain unchanged. `FACT0-P0` is next: it must inventory
+parameter, Copy, PHI, Call, and FieldGet timing before connecting any writer.
+
 ## Phase 3 — PHI0
 
 One semantic PHI completion operation replaces entry-specific policy.

@@ -1,6 +1,7 @@
 pub mod binding_context;
 pub mod context;
 pub mod core_context;
+pub mod lowering_facts;
 pub mod metadata_context;
 pub mod type_context;
 pub mod variable_context;
