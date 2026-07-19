@@ -571,6 +571,77 @@ touched source/check file remains below 800 lines. Production located callers,
 Builder-free preflight seals, and ledger claims remain zero. `R0-P0-HOOK0` is
 the sole next code-facing row.
 
+###### R0-P0-HOOK0 worker task lock
+
+Three read-only inventories conclude that HOOK0 is locally implementable and
+does not require an external design consultation. The selected product is:
+
+```rust
+VerifiedLocatedGenericLoopPartsPreflightV1<'seal, 'view, 'plan>
+```
+
+It privately borrows one already-bound
+`VerifiedLocatedGenericLoopLoweringViewV1<'view, 'plan>`. It is non-Clone,
+Builder-free, and exposes neither an independent provider/root pair nor item
+accessors. Its constructor fully walks the exact strict root before any
+lowering hook exists:
+
+```text
+root length = 5
+
+0: untyped Local with exact initializer carrier
+1: untyped Local with exact initializer carrier
+2: ExplicitIfV2 ExitOnly::ExitIf
+     no else
+     then root length = 1
+     exact Return(value) carrier
+3: untyped Local with exact initializer carrier
+4: StmtWrappedJoinIf
+     retained singleton IfV2(0, Join)
+     exact then Assignment(value)
+     exact else Assignment(value)
+```
+
+The constructor uses only the existing bound lowering view, located expression
+port, `LocatedPartsAssociatedSourceV1`, retained wrapped-Join product, and PATH0
+child carriers. It does not inspect the singleton recipe's cloned AST or
+`CondBlockView`, rebuild a recipe, compare ASTs, or create a source side map.
+All three admitted Locals are source-untyped; a typed Local opens a separate
+profile rather than widening this row.
+
+The seal may later be consumed exactly once through a private
+`lower_with_hooks(self, ...)` path. That path may deterministically re-project
+the already-sealed lowering mode and delegate to the shared associated block
+driver, but it may not return the provider and root independently. The
+located hook remains a thin carrier adapter; Local/Assignment/Return use the
+existing B0 associated-input primitives, and Exit/Join state stays in the
+STATE0 shared owners.
+
+Recommended physical split:
+
+```text
+parts/associated_source/located_preflight.rs
+parts/associated_source/located_lowering.rs
+parts/associated_source/located_hook_tests.rs
+tools/checks/lib/
+  callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_t0_hook0.py
+```
+
+The new private guard helper is imported by the existing public expression-
+spine guard; no shell, manifest, or public guard family is added. Existing
+large source/test/guard files do not receive new test bodies.
+
+Preflight claims only exact carrier/profile admission. It does not duplicate
+or pre-prove the condition normalizer grammar. If arbitrary condition semantic
+acceptability must be sealed before Builder effects, stop for a separate pure
+condition-profile owner rather than copying the condition matcher.
+
+HOOK0 stops if it requires Builder/type/binding facts during preflight, a
+self-referential provider/root product, lazy post-effect carrier validation,
+raw recipe syntax as located authority, a second dispatcher, typed Local
+support, general Join-local discovery, production located callers, ledger
+claims, fallback/retry, or a source/check file at or above 800 lines.
+
 ##### R0-P0: required proof
 
 Focused fixtures fix:
