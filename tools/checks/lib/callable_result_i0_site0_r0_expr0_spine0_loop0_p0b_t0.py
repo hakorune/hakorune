@@ -66,6 +66,9 @@ PARTS_ASSOCIATED_RAW = (
 PARTS_ASSOCIATED_RAW_TESTS = (
     "src/mir/builder/control_flow/plan/parts/associated_source/raw_parity_tests.rs"
 )
+PARTS_ASSOCIATED_BLOCK_DRIVER = (
+    "src/mir/builder/control_flow/plan/parts/associated_source/block_driver.rs"
+)
 PARTS_BLOCK = "src/mir/builder/control_flow/plan/parts/dispatch/block.rs"
 PARTS_IF_EXIT_ONLY = (
     "src/mir/builder/control_flow/plan/parts/dispatch/if_exit_only.rs"
@@ -551,7 +554,7 @@ def _guard_r0_d0_raw0(root: Path) -> None:
             "LOOP0-P0b-T0 R0-D0-RAW0 premature located consumers: "
             f"{located_consumers}"
         )
-    if dispatcher_calls != [f"{PARTS_BLOCK}:1"]:
+    if dispatcher_calls != [f"{PARTS_ASSOCIATED_BLOCK_DRIVER}:1"]:
         raise RuntimeError(
             "LOOP0-P0b-T0 R0-D0-RAW0 dispatcher consumers drift: "
             f"{dispatcher_calls}"

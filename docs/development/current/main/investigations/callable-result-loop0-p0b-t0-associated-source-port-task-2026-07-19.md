@@ -538,6 +538,39 @@ or `CondBlockView` as located syntax. The retained singleton product is the
 already-selected Join proof; its exact O0 branch carriers are the only source
 inputs used by the shared Parts semantics.
 
+###### R0-P0-STATE0 closeout
+
+STATE0 is closed as one behavior-neutral BoxShape milestone:
+
+```text
+associated-source block iteration / early terminal / ExitOnly postcondition:
+  one provider-neutral block driver
+
+ExitIf state:
+  one condition-parameterized snapshot/reset/continuation owner
+
+JoinIf state:
+  one condition-parameterized snapshot/reset/join/publication owner
+
+raw carrier adapters:
+  thin facades only
+```
+
+The shared owners retain no raw or located syntax carrier. Raw diagnostics,
+invalid-mode failure order, branch reset order, one-sided continuation state,
+Join payload construction, and continuation binding publication remain
+unchanged. The public structural guard now recognizes the shared block driver
+as the sole dispatcher consumer rather than pinning that consumer to the raw
+block facade.
+
+Focused raw parity 4/4, associated-source, If Join, ExitAllowed, GenericLoop
+84/84, all-target check, public expression-spine guard, format/diff/line checks,
+and a read-only worker review are green. Two representative failures from the
+wide serial lib suite reproduce at clean HEAD and are outside this row. Every
+touched source/check file remains below 800 lines. Production located callers,
+Builder-free preflight seals, and ledger claims remain zero. `R0-P0-HOOK0` is
+the sole next code-facing row.
+
 ##### R0-P0: required proof
 
 Focused fixtures fix:

@@ -13,6 +13,122 @@ use std::collections::BTreeMap;
 
 use super::block::lower_exit_only_block;
 
+#[derive(Clone, Copy)]
+pub(in crate::mir::builder::control_flow::plan::parts) enum ExitIfBranchV1 {
+    Then,
+    Else,
+}
+
+#[derive(Clone, Copy)]
+pub(in crate::mir::builder::control_flow::plan::parts) enum ExitIfStatePolicyV1 {
+    ExitOnly(IfMode),
+    ElseOnlyExit,
+    ThenOnlyExit,
+}
+
+/// Carrier-neutral state owner for exit-bearing `if` lowering.
+///
+/// Branch/source carriers stay with the caller. This core owns only the
+/// snapshot/reset/continuing-side restoration transaction and delegates
+/// condition materialization through one callback.
+pub(in crate::mir::builder::control_flow::plan::parts) fn lower_exit_if_state_core<
+    LowerBranch,
+    LowerCondition,
+>(
+    builder: &mut MirBuilder,
+    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
+    policy: ExitIfStatePolicyV1,
+    has_else: bool,
+    error_prefix: &str,
+    mut lower_branch: LowerBranch,
+    mut lower_condition: LowerCondition,
+) -> Result<Vec<LoweredRecipe>, String>
+where
+    LowerBranch: FnMut(
+        ExitIfBranchV1,
+        &mut MirBuilder,
+        &mut BTreeMap<String, crate::mir::ValueId>,
+    ) -> Result<Vec<LoweredRecipe>, String>,
+    LowerCondition: FnMut(
+        &mut MirBuilder,
+        &mut BTreeMap<String, crate::mir::ValueId>,
+        Vec<LoweredRecipe>,
+        Option<Vec<LoweredRecipe>>,
+    ) -> Result<Vec<LoweredRecipe>, String>,
+{
+    if matches!(policy, ExitIfStatePolicyV1::ExitOnly(IfMode::ExitAll)) && !has_else {
+        return Err(format!(
+            "[freeze:contract][recipe] if_exit_all_requires_else: ctx={}",
+            error_prefix
+        ));
+    }
+    if matches!(policy, ExitIfStatePolicyV1::ExitOnly(IfMode::ExitIf)) && has_else {
+        return Err(format!(
+            "[freeze:contract][recipe] if_exit_if_forbids_else: ctx={}",
+            error_prefix
+        ));
+    }
+
+    let pre_if_map = builder.variable_ctx.variable_map.clone();
+    let pre_bindings = current_bindings.clone();
+
+    let then_plans = lower_branch(ExitIfBranchV1::Then, builder, current_bindings)?;
+    let then_state = matches!(policy, ExitIfStatePolicyV1::ElseOnlyExit).then(|| {
+        (
+            builder.variable_ctx.variable_map.clone(),
+            current_bindings.clone(),
+        )
+    });
+
+    builder.variable_ctx.variable_map = pre_if_map.clone();
+    *current_bindings = pre_bindings.clone();
+
+    if matches!(policy, ExitIfStatePolicyV1::ExitOnly(IfMode::ElseOnlyExit)) {
+        return Err(format!(
+            "[freeze:contract][recipe] else_only_exit_not_in_exit_only_if: ctx={}",
+            error_prefix
+        ));
+    }
+    if matches!(policy, ExitIfStatePolicyV1::ExitOnly(IfMode::ThenOnlyExit)) {
+        return Err(format!(
+            "[freeze:contract][recipe] then_only_exit_not_in_exit_only_if: ctx={}",
+            error_prefix
+        ));
+    }
+
+    let else_plans = match policy {
+        ExitIfStatePolicyV1::ExitOnly(IfMode::ExitAll)
+        | ExitIfStatePolicyV1::ElseOnlyExit
+        | ExitIfStatePolicyV1::ThenOnlyExit => Some(lower_branch(
+            ExitIfBranchV1::Else,
+            builder,
+            current_bindings,
+        )?),
+        ExitIfStatePolicyV1::ExitOnly(IfMode::ExitIf) => None,
+        ExitIfStatePolicyV1::ExitOnly(IfMode::ElseOnlyExit | IfMode::ThenOnlyExit) => {
+            unreachable!("invalid exit-only modes returned above")
+        }
+    };
+    let else_state = matches!(policy, ExitIfStatePolicyV1::ThenOnlyExit).then(|| {
+        (
+            builder.variable_ctx.variable_map.clone(),
+            current_bindings.clone(),
+        )
+    });
+
+    builder.variable_ctx.variable_map = pre_if_map;
+    *current_bindings = pre_bindings;
+
+    let plans = lower_condition(builder, current_bindings, then_plans, else_plans)?;
+
+    if let Some((continuing_map, continuing_bindings)) = then_state.or(else_state) {
+        builder.variable_ctx.variable_map = continuing_map;
+        *current_bindings = continuing_bindings;
+    }
+
+    Ok(plans)
+}
+
 // ============================================================================
 // Exit-only if lowering
 // ============================================================================
@@ -29,88 +145,45 @@ pub(in crate::mir::builder::control_flow::plan::parts) fn lower_exit_only_if(
     else_block: Option<&RecipeBlock>,
     error_prefix: &str,
 ) -> Result<Vec<LoweredRecipe>, String> {
-    // Mode contract (fail-fast)
-    if matches!(mode, IfMode::ExitAll) && else_block.is_none() {
-        return Err(format!(
-            "[freeze:contract][recipe] if_exit_all_requires_else: ctx={}",
-            error_prefix
-        ));
-    }
-    if matches!(mode, IfMode::ExitIf) && else_block.is_some() {
-        return Err(format!(
-            "[freeze:contract][recipe] if_exit_if_forbids_else: ctx={}",
-            error_prefix
-        ));
-    }
-
-    // Save state at if entry
-    let pre_if_map = builder.variable_ctx.variable_map.clone();
-    let pre_bindings = current_bindings.clone();
-
-    // Lower then branch
-    let then_plans = lower_exit_only_block(
-        builder,
-        current_bindings,
-        carrier_step_phis,
-        break_phi_dsts,
-        arena,
-        then_block,
-        error_prefix,
-    )?;
-
-    // Reset to pre-if state
-    builder.variable_ctx.variable_map = pre_if_map.clone();
-    *current_bindings = pre_bindings.clone();
-
-    // Lower else branch (ExitAll only)
-    let else_plans = match mode {
-        IfMode::ExitAll => {
-            let eb = else_block.ok_or_else(|| {
-                format!(
-                    "[freeze:contract][recipe] if_exit_all_requires_else: ctx={}",
-                    error_prefix
-                )
-            })?;
-            Some(lower_exit_only_block(
-                builder,
-                current_bindings,
-                carrier_step_phis,
-                break_phi_dsts,
-                arena,
-                eb,
-                error_prefix,
-            )?)
-        }
-        IfMode::ExitIf => None,
-        IfMode::ElseOnlyExit => {
-            // ElseOnlyExit is handled by lower_else_only_exit_if, not this function
-            return Err(format!(
-                "[freeze:contract][recipe] else_only_exit_not_in_exit_only_if: ctx={}",
-                error_prefix
-            ));
-        }
-        IfMode::ThenOnlyExit => {
-            // ThenOnlyExit is handled by lower_then_only_exit_if, not this function
-            return Err(format!(
-                "[freeze:contract][recipe] then_only_exit_not_in_exit_only_if: ctx={}",
-                error_prefix
-            ));
-        }
+    let mut lower_branch = |branch,
+                            builder: &mut MirBuilder,
+                            current_bindings: &mut BTreeMap<_, _>| {
+        let block = match branch {
+            ExitIfBranchV1::Then => then_block,
+            ExitIfBranchV1::Else => else_block.expect("mode contract checked before state core"),
+        };
+        lower_exit_only_block(
+            builder,
+            current_bindings,
+            carrier_step_phis,
+            break_phi_dsts,
+            arena,
+            block,
+            error_prefix,
+        )
     };
-
-    // Reset to pre-if state for condition
-    builder.variable_ctx.variable_map = pre_if_map;
-    *current_bindings = pre_bindings;
-
-    // Build if plan (no joins for exit-only)
-    lower_cond_branch(
+    let mut lower_condition = |builder: &mut MirBuilder,
+                               current_bindings: &mut BTreeMap<_, _>,
+                               then_plans,
+                               else_plans| {
+        lower_cond_branch(
+            builder,
+            current_bindings,
+            cond_view,
+            then_plans,
+            else_plans,
+            Vec::new(),
+            error_prefix,
+        )
+    };
+    lower_exit_if_state_core(
         builder,
         current_bindings,
-        cond_view,
-        then_plans,
-        else_plans,
-        Vec::new(),
+        ExitIfStatePolicyV1::ExitOnly(mode),
+        else_block.is_some(),
         error_prefix,
+        &mut lower_branch,
+        &mut lower_condition,
     )
 }
 
@@ -143,60 +216,50 @@ pub(in crate::mir::builder::control_flow::plan::parts) fn lower_else_only_exit_i
         )
     })?;
 
-    // Save state at if entry
-    let pre_if_map = builder.variable_ctx.variable_map.clone();
-    let pre_bindings = current_bindings.clone();
-
-    // Lower then branch (exit-allowed, may fall through)
-    let then_plans = super::block::lower_exit_allowed_block(
+    let mut lower_branch =
+        |branch, builder: &mut MirBuilder, current_bindings: &mut BTreeMap<_, _>| match branch {
+            ExitIfBranchV1::Then => super::block::lower_exit_allowed_block(
+                builder,
+                current_bindings,
+                carrier_step_phis,
+                break_phi_dsts,
+                arena,
+                then_block,
+                error_prefix,
+            ),
+            ExitIfBranchV1::Else => lower_exit_only_block(
+                builder,
+                current_bindings,
+                carrier_step_phis,
+                break_phi_dsts,
+                arena,
+                else_block,
+                error_prefix,
+            ),
+        };
+    let mut lower_condition = |builder: &mut MirBuilder,
+                               current_bindings: &mut BTreeMap<_, _>,
+                               then_plans,
+                               else_plans| {
+        lower_cond_branch(
+            builder,
+            current_bindings,
+            cond_view,
+            then_plans,
+            else_plans,
+            Vec::new(),
+            error_prefix,
+        )
+    };
+    lower_exit_if_state_core(
         builder,
         current_bindings,
-        carrier_step_phis,
-        break_phi_dsts,
-        arena,
-        then_block,
+        ExitIfStatePolicyV1::ElseOnlyExit,
+        true,
         error_prefix,
-    )?;
-
-    // Capture then's final state (this continues after the if)
-    let then_map = builder.variable_ctx.variable_map.clone();
-    let then_bindings = current_bindings.clone();
-
-    // Reset to pre-if state for else branch
-    builder.variable_ctx.variable_map = pre_if_map.clone();
-    *current_bindings = pre_bindings.clone();
-
-    // Lower else branch (exit-only, must exit)
-    let else_plans = lower_exit_only_block(
-        builder,
-        current_bindings,
-        carrier_step_phis,
-        break_phi_dsts,
-        arena,
-        else_block,
-        error_prefix,
-    )?;
-
-    // Reset to pre-if state for condition lowering
-    builder.variable_ctx.variable_map = pre_if_map;
-    *current_bindings = pre_bindings;
-
-    // Build if plan (no joins since else exits)
-    let plans = lower_cond_branch(
-        builder,
-        current_bindings,
-        cond_view,
-        then_plans,
-        Some(else_plans),
-        Vec::new(),
-        error_prefix,
-    )?;
-
-    // After the if, state is from the then branch (else exits)
-    builder.variable_ctx.variable_map = then_map;
-    *current_bindings = then_bindings;
-
-    Ok(plans)
+        &mut lower_branch,
+        &mut lower_condition,
+    )
 }
 
 // ============================================================================
@@ -227,50 +290,48 @@ pub(in crate::mir::builder::control_flow::plan::parts) fn lower_then_only_exit_i
         )
     })?;
 
-    let pre_if_map = builder.variable_ctx.variable_map.clone();
-    let pre_bindings = current_bindings.clone();
-
-    let then_plans = lower_exit_only_block(
+    let mut lower_branch =
+        |branch, builder: &mut MirBuilder, current_bindings: &mut BTreeMap<_, _>| match branch {
+            ExitIfBranchV1::Then => lower_exit_only_block(
+                builder,
+                current_bindings,
+                carrier_step_phis,
+                break_phi_dsts,
+                arena,
+                then_block,
+                error_prefix,
+            ),
+            ExitIfBranchV1::Else => super::block::lower_exit_allowed_block(
+                builder,
+                current_bindings,
+                carrier_step_phis,
+                break_phi_dsts,
+                arena,
+                else_block,
+                error_prefix,
+            ),
+        };
+    let mut lower_condition = |builder: &mut MirBuilder,
+                               current_bindings: &mut BTreeMap<_, _>,
+                               then_plans,
+                               else_plans| {
+        lower_cond_branch(
+            builder,
+            current_bindings,
+            cond_view,
+            then_plans,
+            else_plans,
+            Vec::new(),
+            error_prefix,
+        )
+    };
+    lower_exit_if_state_core(
         builder,
         current_bindings,
-        carrier_step_phis,
-        break_phi_dsts,
-        arena,
-        then_block,
+        ExitIfStatePolicyV1::ThenOnlyExit,
+        true,
         error_prefix,
-    )?;
-
-    builder.variable_ctx.variable_map = pre_if_map.clone();
-    *current_bindings = pre_bindings.clone();
-
-    let else_plans = super::block::lower_exit_allowed_block(
-        builder,
-        current_bindings,
-        carrier_step_phis,
-        break_phi_dsts,
-        arena,
-        else_block,
-        error_prefix,
-    )?;
-
-    let else_map = builder.variable_ctx.variable_map.clone();
-    let else_bindings = current_bindings.clone();
-
-    builder.variable_ctx.variable_map = pre_if_map;
-    *current_bindings = pre_bindings;
-
-    let plans = lower_cond_branch(
-        builder,
-        current_bindings,
-        cond_view,
-        then_plans,
-        Some(else_plans),
-        Vec::new(),
-        error_prefix,
-    )?;
-
-    builder.variable_ctx.variable_map = else_map;
-    *current_bindings = else_bindings;
-
-    Ok(plans)
+        &mut lower_branch,
+        &mut lower_condition,
+    )
 }

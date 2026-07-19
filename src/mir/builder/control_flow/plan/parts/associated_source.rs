@@ -35,6 +35,7 @@ mod sealed {
     pub trait Sealed {}
 }
 
+pub(super) mod block_driver;
 pub(super) mod dispatch;
 #[cfg(test)]
 mod dispatch_tests;

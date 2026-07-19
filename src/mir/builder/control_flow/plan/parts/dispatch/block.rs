@@ -6,13 +6,10 @@
 //! - Core lower_block_internal function
 //! - Block-level lowering entry points (exit-only, exit-allowed, stmt-only, no-exit)
 
-use super::super::associated_source::dispatch::{
-    lower_verified_parts_associated_item, PartsAssociatedBlockModeV1,
-};
+use super::super::associated_source::block_driver::lower_verified_parts_associated_block;
+use super::super::associated_source::dispatch::PartsAssociatedBlockModeV1;
 use super::super::associated_source::raw_lowering::RawPartsAssociatedLoweringHooksV1;
-use super::super::associated_source::{
-    PartsAssociatedSourceErrorV1, PartsAssociatedSourceV1, RawPartsAssociatedSourceV1,
-};
+use super::super::associated_source::{PartsAssociatedSourceErrorV1, RawPartsAssociatedSourceV1};
 use super::super::stmt as parts_stmt;
 use super::super::var_map_scope::with_scopebox_binding_boundary;
 #[cfg(debug_assertions)]
@@ -106,47 +103,30 @@ pub(in crate::mir::builder::control_flow::plan::parts) fn lower_block_internal<'
     };
     let source = RawPartsAssociatedSourceV1::new(arena);
     let root = source.root(block);
-    let item_count = source
-        .block_len(&root)
-        .map_err(|error| render_raw_source_error(error, error_prefix))?;
     let mut lower_stmt_outer = match &mut kind {
         BlockKindInternal::NoExit {
             make_lower_stmt, ..
         } => Some(make_lower_stmt()),
         _ => None,
     };
-
-    let mut plans = Vec::new();
-    for index in 0..item_count {
-        let item = source
-            .item(&root, index)
-            .map_err(|error| render_raw_source_error(error, error_prefix))?;
-        let mut hooks = RawPartsAssociatedLoweringHooksV1::new(
-            builder,
-            current_bindings,
-            carrier_step_phis,
-            arena,
-            error_prefix,
-            &mut kind,
-            lower_stmt_outer.as_deref_mut(),
-        );
-        plans.extend(lower_verified_parts_associated_item::<
-            RawPartsAssociatedSourceV1<'_>,
-            _,
-        >(mode, item, &mut hooks, error_prefix)?);
-        if mode != PartsAssociatedBlockModeV1::ExitOnly && plans_exit_on_all_paths(&plans) {
-            break;
-        }
-    }
-
-    if mode == PartsAssociatedBlockModeV1::ExitOnly && !plans_exit_on_all_paths(&plans) {
-        return Err(format!(
-            "[freeze:contract][recipe] exit_only_block_must_end_with_exit: ctx={}",
-            error_prefix
-        ));
-    }
-
-    Ok(plans)
+    let mut hooks = RawPartsAssociatedLoweringHooksV1::new(
+        builder,
+        current_bindings,
+        carrier_step_phis,
+        arena,
+        error_prefix,
+        &mut kind,
+        lower_stmt_outer.as_deref_mut(),
+    );
+    lower_verified_parts_associated_block::<RawPartsAssociatedSourceV1<'_>, _, _, _>(
+        &source,
+        &root,
+        mode,
+        &mut hooks,
+        error_prefix,
+        |error| render_raw_source_error(error, error_prefix),
+        plans_exit_on_all_paths,
+    )
 }
 
 fn render_raw_source_error(error: PartsAssociatedSourceErrorV1, error_prefix: &str) -> String {

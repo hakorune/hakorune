@@ -48,6 +48,12 @@ struct BranchExitShape {
     no_join_continuation: bool,
 }
 
+#[derive(Clone, Copy)]
+pub(in crate::mir::builder::control_flow::plan::parts) enum JoinIfBranchV1 {
+    Then,
+    Else,
+}
+
 fn analyze_branch_exit_shape(
     then_plans: &[LoweredRecipe],
     else_plans: Option<&[LoweredRecipe]>,
@@ -61,6 +67,105 @@ fn analyze_branch_exit_shape(
         both_sides_exit,
         no_join_continuation: both_sides_exit,
     }
+}
+
+/// Carrier-neutral state owner for join-bearing `if` lowering.
+///
+/// Source/recipe carriers, branch-local classification, and condition
+/// materialization are injected by the caller. This core is the sole owner of
+/// branch snapshots, reset order, join construction, and continuation binding
+/// publication.
+pub(in crate::mir::builder::control_flow::plan::parts) fn lower_if_join_state_core<
+    LowerBranch,
+    NormalizeBranchMaps,
+    LowerCondition,
+    ShouldUpdateBinding,
+>(
+    builder: &mut MirBuilder,
+    current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
+    has_else: bool,
+    mut lower_branch: LowerBranch,
+    normalize_branch_maps: NormalizeBranchMaps,
+    mut lower_condition: LowerCondition,
+    should_update_binding: &ShouldUpdateBinding,
+) -> Result<Vec<LoweredRecipe>, String>
+where
+    LowerBranch: FnMut(
+        JoinIfBranchV1,
+        &mut MirBuilder,
+        &mut BTreeMap<String, crate::mir::ValueId>,
+    ) -> Result<Vec<LoweredRecipe>, String>,
+    NormalizeBranchMaps: FnOnce(
+        &BTreeMap<String, crate::mir::ValueId>,
+        &BTreeMap<String, crate::mir::ValueId>,
+        &BTreeMap<String, crate::mir::ValueId>,
+    ) -> (
+        BTreeMap<String, crate::mir::ValueId>,
+        BTreeMap<String, crate::mir::ValueId>,
+    ),
+    LowerCondition: FnMut(
+        &mut MirBuilder,
+        &mut BTreeMap<String, crate::mir::ValueId>,
+        Vec<LoweredRecipe>,
+        Option<Vec<LoweredRecipe>>,
+        Vec<crate::mir::builder::control_flow::plan::CoreIfJoin>,
+    ) -> Result<Vec<LoweredRecipe>, String>,
+    ShouldUpdateBinding: Fn(&str, &BTreeMap<String, crate::mir::ValueId>) -> bool + ?Sized,
+{
+    let pre_if_map = snapshot_branch_map(builder, current_bindings);
+    let pre_bindings = current_bindings.clone();
+
+    let then_plans = lower_branch(JoinIfBranchV1::Then, builder, current_bindings)?;
+    let then_map = snapshot_branch_map(builder, current_bindings);
+
+    builder.variable_ctx.variable_map = pre_if_map.clone();
+    *current_bindings = pre_bindings.clone();
+
+    let else_plans = if has_else {
+        Some(lower_branch(
+            JoinIfBranchV1::Else,
+            builder,
+            current_bindings,
+        )?)
+    } else {
+        None
+    };
+    let else_map = snapshot_branch_map(builder, current_bindings);
+
+    builder.variable_ctx.variable_map = pre_if_map.clone();
+    *current_bindings = pre_bindings;
+
+    let (then_map, else_map) = normalize_branch_maps(&pre_if_map, &then_map, &else_map);
+    let exit_shape = analyze_branch_exit_shape(&then_plans, else_plans.as_deref());
+    let joins = if exit_shape.no_join_continuation {
+        Vec::new()
+    } else {
+        build_join_payload(builder, &pre_if_map, &then_map, &else_map)?
+    };
+
+    let plans = lower_condition(
+        builder,
+        current_bindings,
+        then_plans,
+        else_plans,
+        joins.clone(),
+    )?;
+    debug_log_if_join_lit3_origin(builder, &plans, exit_shape.one_sided_exit);
+
+    if !exit_shape.both_sides_exit {
+        builder.variable_ctx.variable_map = pre_if_map;
+        for join in &joins {
+            builder
+                .variable_ctx
+                .variable_map
+                .insert(join.name.clone(), join.dst);
+            if should_update_binding(&join.name, current_bindings) {
+                current_bindings.insert(join.name.clone(), join.dst);
+            }
+        }
+    }
+
+    Ok(plans)
 }
 
 /// Lower if with join payload, using injected stmt lowerer (NoExit context).
@@ -77,102 +182,64 @@ pub(in crate::mir::builder::control_flow::plan::parts) fn lower_if_join_with_stm
     make_lower_stmt: &mut dyn FnMut() -> BoxedLowerStmtFn<'a>,
     should_update_binding: &dyn Fn(&str, &BTreeMap<String, crate::mir::ValueId>) -> bool,
 ) -> Result<Vec<LoweredRecipe>, String> {
-    // NoExit join branch contract is recursive (Option A).
-    // Lower then/else as NoExit blocks so nested joins are supported without re-checking in features.
-    let pre_if_map = snapshot_branch_map(builder, current_bindings);
-    let pre_bindings = current_bindings.clone();
-
-    let then_plans = {
-        let mut make_lower_stmt_boxed = || -> BoxedLowerStmtFn<'_> { make_lower_stmt() };
-        lower_block_internal(
-            builder,
-            current_bindings,
-            carrier_step_phis,
-            arena,
-            then_block,
-            error_prefix,
-            BlockKindInternal::NoExit {
-                break_phi_dsts,
-                make_lower_stmt: &mut make_lower_stmt_boxed,
-                should_update_binding,
-            },
-        )?
-    };
-    let then_map = snapshot_branch_map(builder, current_bindings);
-
-    builder.variable_ctx.variable_map = pre_if_map.clone();
-    *current_bindings = pre_bindings.clone();
-
-    let else_plans = match else_block {
-        Some(eb) => {
+    let mut lower_branch =
+        |branch,
+         builder: &mut MirBuilder,
+         current_bindings: &mut BTreeMap<String, crate::mir::ValueId>| {
+            let block = match branch {
+                JoinIfBranchV1::Then => then_block,
+                JoinIfBranchV1::Else => else_block.expect("has_else is derived from this option"),
+            };
             let mut make_lower_stmt_boxed = || -> BoxedLowerStmtFn<'_> { make_lower_stmt() };
-            Some(lower_block_internal(
+            lower_block_internal(
                 builder,
                 current_bindings,
                 carrier_step_phis,
                 arena,
-                eb,
+                block,
                 error_prefix,
                 BlockKindInternal::NoExit {
                     break_phi_dsts,
                     make_lower_stmt: &mut make_lower_stmt_boxed,
                     should_update_binding,
                 },
-            )?)
+            )
+        };
+    let normalize_branch_maps = |pre_if_map: &BTreeMap<_, _>,
+                                 then_map: &BTreeMap<_, _>,
+                                 else_map: &BTreeMap<_, _>| {
+        let mut branch_locals = collect_branch_local_vars_from_block_recursive(arena, then_block);
+        if let Some(else_block) = else_block {
+            branch_locals.extend(collect_branch_local_vars_from_block_recursive(
+                arena, else_block,
+            ));
         }
-        None => None,
+        filter_branch_locals_from_maps(pre_if_map, then_map, else_map, &branch_locals)
     };
-    let else_map = snapshot_branch_map(builder, current_bindings);
-
-    builder.variable_ctx.variable_map = pre_if_map.clone();
-    *current_bindings = pre_bindings;
-
-    let mut branch_locals = collect_branch_local_vars_from_block_recursive(arena, then_block);
-    if let Some(else_block) = else_block {
-        branch_locals.extend(collect_branch_local_vars_from_block_recursive(
-            arena, else_block,
-        ));
-    }
-    let (then_map, else_map) =
-        filter_branch_locals_from_maps(&pre_if_map, &then_map, &else_map, &branch_locals);
-
-    // This path lowers branches under NoExit join contract. One-sided exits
-    // still need joins for values produced on the continuing branch so later
-    // plans reference merge-local values, not raw branch-local definitions.
-    let exit_shape = analyze_branch_exit_shape(&then_plans, else_plans.as_deref());
-    let joins = if exit_shape.no_join_continuation {
-        Vec::new()
-    } else {
-        build_join_payload(builder, &pre_if_map, &then_map, &else_map)?
+    let mut lower_condition = |builder: &mut MirBuilder,
+                               current_bindings: &mut BTreeMap<_, _>,
+                               then_plans,
+                               else_plans,
+                               joins| {
+        lower_cond_branch(
+            builder,
+            current_bindings,
+            cond_view,
+            then_plans,
+            else_plans,
+            joins,
+            error_prefix,
+        )
     };
-
-    let plans = lower_cond_branch(
+    lower_if_join_state_core(
         builder,
         current_bindings,
-        cond_view,
-        then_plans,
-        else_plans,
-        joins.clone(),
-        error_prefix,
-    )?;
-    debug_log_if_join_lit3_origin(builder, &plans, exit_shape.one_sided_exit);
-
-    if exit_shape.both_sides_exit {
-        // Both branches terminate: no continuation bindings to apply.
-    } else {
-        builder.variable_ctx.variable_map = pre_if_map;
-        for join in &joins {
-            builder
-                .variable_ctx
-                .variable_map
-                .insert(join.name.clone(), join.dst);
-            if should_update_binding(&join.name, current_bindings) {
-                current_bindings.insert(join.name.clone(), join.dst);
-            }
-        }
-    }
-
-    Ok(plans)
+        else_block.is_some(),
+        &mut lower_branch,
+        normalize_branch_maps,
+        &mut lower_condition,
+        should_update_binding,
+    )
 }
 
 fn debug_log_if_join_lit3_origin(
@@ -358,68 +425,49 @@ pub(in crate::mir::builder) fn lower_if_join_with_branch_lowerers<ShouldUpdateBi
 where
     ShouldUpdateBinding: Fn(&str, &BTreeMap<String, crate::mir::ValueId>) -> bool,
 {
-    let pre_if_map = snapshot_branch_map(builder, current_bindings);
-    let pre_bindings = current_bindings.clone();
-
-    let then_plans = lower_then(builder, current_bindings)?;
-    let then_map = snapshot_branch_map(builder, current_bindings);
-
-    builder.variable_ctx.variable_map = pre_if_map.clone();
-    *current_bindings = pre_bindings.clone();
-
-    let else_plans = match lower_else.as_deref_mut() {
-        Some(lower_else) => Some(lower_else(builder, current_bindings)?),
-        None => None,
+    let has_else = lower_else.is_some();
+    let mut lower_branch =
+        |branch,
+         builder: &mut MirBuilder,
+         current_bindings: &mut BTreeMap<String, crate::mir::ValueId>| {
+            match branch {
+                JoinIfBranchV1::Then => lower_then(builder, current_bindings),
+                JoinIfBranchV1::Else => lower_else
+                    .as_deref_mut()
+                    .expect("has_else is derived from this option")(
+                    builder, current_bindings
+                ),
+            }
+        };
+    let normalize_branch_maps =
+        |pre_if_map: &BTreeMap<_, _>, then_map: &BTreeMap<_, _>, else_map: &BTreeMap<_, _>| {
+            let branch_locals = collect_branch_local_vars_from_maps(pre_if_map, then_map, else_map);
+            filter_branch_locals_from_maps(pre_if_map, then_map, else_map, &branch_locals)
+        };
+    let mut lower_condition = |builder: &mut MirBuilder,
+                               current_bindings: &mut BTreeMap<_, _>,
+                               then_plans,
+                               else_plans,
+                               joins| {
+        lower_cond_branch(
+            builder,
+            current_bindings,
+            cond_view,
+            then_plans,
+            else_plans,
+            joins,
+            error_prefix,
+        )
     };
-    let else_map = snapshot_branch_map(builder, current_bindings);
-
-    builder.variable_ctx.variable_map = pre_if_map.clone();
-    *current_bindings = pre_bindings;
-
-    // If both branches exit, there is no continuation join point.
-    // If exactly one branch exits, the continuing branch still reaches the
-    // merge block and changed values must be materialized there before later
-    // plans can reference them.
-    //
-    // After lowering, bindings reflect merge-local join dsts.
-    let exit_shape = analyze_branch_exit_shape(&then_plans, else_plans.as_deref());
-    let branch_locals = collect_branch_local_vars_from_maps(&pre_if_map, &then_map, &else_map);
-    let (then_map, else_map) =
-        filter_branch_locals_from_maps(&pre_if_map, &then_map, &else_map, &branch_locals);
-    let joins = if exit_shape.no_join_continuation {
-        Vec::new()
-    } else {
-        build_join_payload(builder, &pre_if_map, &then_map, &else_map)?
-    };
-
-    let plans = lower_cond_branch(
+    lower_if_join_state_core(
         builder,
         current_bindings,
-        cond_view,
-        then_plans,
-        else_plans,
-        joins.clone(),
-        error_prefix,
-    )?;
-
-    debug_log_if_join_lit3_origin(builder, &plans, exit_shape.one_sided_exit);
-
-    if exit_shape.both_sides_exit {
-        // Both branches terminate: no continuation bindings to apply.
-    } else {
-        builder.variable_ctx.variable_map = pre_if_map.clone();
-        for join in &joins {
-            builder
-                .variable_ctx
-                .variable_map
-                .insert(join.name.clone(), join.dst);
-            if should_update_binding(&join.name, current_bindings) {
-                current_bindings.insert(join.name.clone(), join.dst);
-            }
-        }
-    }
-
-    Ok(plans)
+        has_else,
+        &mut lower_branch,
+        normalize_branch_maps,
+        &mut lower_condition,
+        should_update_binding,
+    )
 }
 
 /// Lower an if with a value condition (`lower_cond_value`) and a filtered join payload.
