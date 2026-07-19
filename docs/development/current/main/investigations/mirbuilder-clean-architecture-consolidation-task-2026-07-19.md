@@ -42,10 +42,11 @@ the complete 47-path / 99-occurrence writer partition. PHI0-S0 is also
 closed. PHI0-M0 has now closed as an evidence row and found that I0 has no
 single existing predecessor-readiness authority. PRED0-D0 therefore selects a
 split between generic input/type completion and route-scoped CFG readiness.
-PRED0-S0, PRED0-P0, and I0 are closed; the next route-selection row is now:
+PRED0-S0, PRED0-P0, I0, and CFGREADY0-D0 are closed; the next disconnected
+route bridge row is now:
 
 ```text
-MIRBUILDER-CLEAN0-PHI0-CFGREADY0-D0
+MIRBUILDER-CLEAN0-PHI0-CFGREADY0-S0
 ```
 
 ## Baseline finding
@@ -1581,6 +1582,57 @@ zero and the new generic completion connection at exactly four. No generic
 entry reads CFG predecessors. `PHI0-CFGREADY0-D0` is next: it must select one
 route-owned exact predecessor witness before activating the private CFG-ready
 path.
+
+#### `PHI0-CFGREADY0-D0` — closed (2026-07-20)
+
+Three independent audits select Candidate A: one route-local canonical
+resolved-If bridge is the sole first production consumer of CFG-ready PHI
+completion. `VerifiedIfMergePredecessorsV1` already seals the header branch,
+actual then/else exit reachability, distinct expected predecessors, recomputed
+predecessor set, and cached merge predecessor set. `define_join_phis` also
+reverifies that witness immediately before it constructs each two-row final
+join PHI. This is the only audited route whose predecessor authority is both
+durable and exact at the completion seam.
+
+```text
+PHI0-CFGREADY0-S0
+  disconnected canonical-resolved-If bridge; production consumer = 0
+
+PHI0-CFGREADY0-P0
+  implicit/explicit actual CFG matrix plus tampered-row/no-mutation proof
+
+PHI0-CFGREADY0-I0
+  canonical resolved-If only; CFG-ready consumer count = 1
+
+PHI0-CFGREADY0-G0
+  inventory and route-exclusion guards
+
+then PHI0-G0
+```
+
+The bridge may create `CfgReadyPhiRowsV1` only from the already-reverified
+`VerifiedIfMergePredecessorsV1` and its two logical join rows. It must reuse
+the same final materialize/insert/after-instruction type-commit path as the
+generic final facade; it may not insert a PHI or commit a type fact directly.
+Reverification/preparation failure leaves instruction, transient type, and
+origin state unchanged, with no retry or fallback.
+
+Rejected for this row:
+
+```text
+generic CFG-ready facade or raw expected-row constructor
+raw emit, generic final, provisional patch, generic batch, and legacy routes
+loop-header batch (its host entry may be a deliberate future edge)
+CorePlan select-as-PHI (route-local observation but no durable witness)
+Binding SSA and exprs_peek (separate route rows)
+compute_predecessors/final verifier as generic lowering-time authority
+persistent predecessor tables or Builder fields
+```
+
+The inventory must keep `prepare_cfg_ready` private, permit exactly the
+canonical resolved-If route at I0, and forbid every generic lifecycle from CFG
+analysis. CorePlan select-as-PHI remains parked behind a separate
+`PHI0-CFGREADY0-SELECT0-D0` decision after this route is green.
 
 ## Phase 4 — FINALIZE0
 
