@@ -998,11 +998,22 @@ FACT0-S0  pure decision + typed conflict vocabulary, consumers 0
 FACT0-P0-INV0  direct transient-writer census
 FACT0-P0-T0  parameter/Copy/Phi/Call/FieldGet temporal witness
 FACT0-I0-RCV0  exact instance-receiver parameter cutover
+FACT0-P1-PARTITION0  classify the remaining direct writers and fix the terminal gate scope
+PHI0  one completion owner before any PHI writer migration
+FACT0-I1-*  one remaining producer family per code-facing row
 FACT0-G0  raw type-map writers zero outside the owner
 ```
 
 No general type inference, union rejection, origin widening, or final-metadata
 fallback is introduced.
+
+`FACT0-G0` is a terminal macro closeout, not the immediate successor of the
+receiver-only cutover. `FACT0-P1-PARTITION0` consumes the existing 47-path /
+99-occurrence inventory and partitions every remaining writer by evidence,
+instruction-commit timing, failure behavior, and retirement prerequisite. It
+also records the selected receiver's scoped closeout without claiming that the
+other legacy producers have migrated. This prevents a false global-zero claim
+while keeping every later code-facing migration to one producer family.
 
 ### `FACT0-S0` — selected pure decision boundary
 
@@ -1122,6 +1133,45 @@ Stop rather than widen if a receiver concrete conflict is already reachable,
 preflight cannot precede every state mutation, receiver type recovery needs an
 authority other than existing method setup input, or any explicit/static
 parameter requires the new publisher to retain current behavior.
+
+The accepted preflight input is the existing production method skeleton: it
+already owns both `function.params[0]` and
+`function.signature.params[0] = Box(owner)`. A generic test helper that first
+creates parameter zero inside `setup_method_params` is not an alternate
+receiver admission shape. RCV0 tests must construct the same method skeleton
+before setup, then prove that a conflict leaves receiver publication state
+unchanged. RCV0 does not claim setup-wide rollback after a later legacy
+explicit-parameter failure, nor allocator rollback, origin monotonicity, or
+slot-conflict policy.
+
+#### `FACT0-P1-PARTITION0` — producer migration partition
+
+After RCV0 is green, partition the remaining inventory before any broad map
+cutover. This is a read-only/guarded classification step, not a new publisher:
+
+```text
+remaining writer families:
+  PHI completion
+  successful Copy
+  typed FieldGet allocation/emission
+  successful Call emission
+  simple exact producers
+  legacy repair/compatibility/finalization surfaces
+
+for every row:
+  evidence owner
+  instruction-commit boundary
+  failure-time residual behavior
+  dependency / retirement row
+```
+
+`PHI0` is the first operation-owner prerequisite because raw, complete,
+patch, and batch PHIs currently have distinct completion entries. Only after
+that one completion law exists may its direct writer migrate. The remaining
+families then move one at a time; Call and FieldGet may not move until their
+T0-recorded post-failure annotation behavior has a single transaction law.
+`FACT0-G0` closes only after every partitioned writer has either migrated to
+the monotone owner or been physically retired by its named owner row.
 
 ## Phase 3 — PHI0
 
