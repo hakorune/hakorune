@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result ACT0-ARG0 I0 closed; G0 selected-terminal evidence is in progress"
+status = "callable-result ACT0-ARG0 G0 closed; LOOP0-L0-R0-S0 claimed execution-session owner is next"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -308,11 +308,15 @@ source classification without Builder or ledger effects, while separate generic
 literal and direct-formal fixtures own Gate-S selected coverage. I0 is closed:
 one activation-row consumer calls the source gate exactly once per observed
 site; actual activation rows are all Unselected and the generic literal row is
-Selected. G0 has generic terminal success/fail-fast evidence in progress; the
-located-session poison/no-retry proof remains with its LOOP0 execution owner.
-After G0, LOOP0-L0-R0 proves all-Unselected raw-primary
-located lowering. NESTED-REP0 remains parked until after CLEAN0 FSESSION0."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-ACT0-ARG0-G0-001"
+Selected. G0 is closed: generic terminal success/fail-fast proves no Call or
+result publication before the stateless selected terminal returns its typed
+error, while actual activation remains all-Unselected and raw-primary. Poison,
+no-retry, and no-finish are not activation facts: LOOP0-L0-R0-S0 is next and
+introduces one non-Clone claimed CorePlan execution session to own them. Then
+P0 proves actual all-Unselected raw-primary completion and F0 proves synthetic
+selected failure poison/no-retry before L0. NESTED-REP0 remains parked until
+after CLEAN0 FSESSION0."""
+current_blocker_token = "DPRIME-LOOP0-L0-R0-S0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

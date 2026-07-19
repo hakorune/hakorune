@@ -98,8 +98,15 @@ CALLABLE-RESULT-ACT0-ARG0-I0
 CALLABLE-RESULT-ACT0-ARG0-G0
   guard and generic selected-terminal fixture migration
 
-LOOP0-L0-R0
+LOOP0-L0-R0-S0
+  one non-Clone claimed CorePlan execution session; it alone owns
+  Active / Poisoned / Completed state
+
+LOOP0-L0-R0-P0
   actual all-Unselected claim -> raw-effect -> finish proof
+
+LOOP0-L0-R0-F0
+  synthetic selected failure -> Poisoned / no retry / no finish proof
 
 LOOP0-L0
   bounded located GenericLoop acceptance
@@ -114,9 +121,11 @@ CALLABLE-RESULT-NESTED-REP0
   parked; open only if an explicit post-CLEAN0 profile needs it
 ```
 
-`LOOP0-L0-R0` is intentionally after I0/G0: an all-Unselected activation plan
-does not exist until I0 connects the source gate. It is a bounded lowering and
-claim-completion proof, not a full Parser runtime claim.
+`LOOP0-L0-R0-S0` is intentionally after I0/G0: an all-Unselected activation
+plan does not exist until I0 connects the source gate. It introduces neither a
+new route, ledger, site, or type authority; it only gives the already-claimed
+CorePlan execution bundle one stack-scoped failure owner. P0 is the bounded
+lowering and claim-completion proof, not a full Parser runtime claim.
 
 ## `P0-REBASE0` — disconnected source matrix
 
@@ -240,8 +249,8 @@ generic selected terminal:
 
 generic selected terminal failure:
   Unknown required final ValueId -> no Call/result publication
-  poisoned selected session
-  raw retry = 0
+  terminal returns typed fail-fast only
+  execution-session poison is not claimed here
 
 actual fixture:
   selected-terminal attempts = 0
@@ -259,7 +268,57 @@ generic selected rows = 1
 activation rows with ValueId/MirType/Builder/AST/retry state = 0
 ```
 
-## `LOOP0-L0-R0` — all-Unselected bounded lowering proof
+### G0 closeout (2026-07-19)
+
+Closed with generic selected-terminal success and fail-fast coverage plus the
+existing activation guard.
+
+```text
+generic selected success:
+  claimed canonical target is used; raw GlobalCall spelling is not authority
+
+generic selected failure:
+  required final ValueId = Unknown
+  -> typed fail-fast
+  -> Call publication = 0
+  -> result type publication = 0
+
+actual Parser activation:
+  15 Unselected
+  -> selected-terminal attempts = 0
+  -> existing raw-primary branch is selected before emission
+```
+
+This row deliberately does **not** claim poison, retry prohibition, or finish
+prohibition for an executed located-loop session. The selected terminal is
+stateless; `ClaimedLocatedCoreLoopExecutionV1` explicitly leaves failure-state
+ownership to its caller. That owner is introduced by `LOOP0-L0-R0-S0`.
+
+## `LOOP0-L0-R0-S0` — claimed execution-session owner
+
+```text
+production located-loop callers: 0
+new authority: exactly one stack-scoped, non-Clone execution session
+new route / ledger / site / type authority: 0
+```
+
+Introduce one `LocatedCoreLoopExecutionSessionV1`-style owner around the
+existing claimed loop execution bundle. It owns the only state transition:
+
+```text
+Active claimed execution
+  -> successful lowering and claim completion -> Completed
+  -> selected or raw lowering failure -> Poisoned
+```
+
+The session starts only from the existing verified located plan plus its atomic
+claim batch. It neither classifies source calls nor creates claims. It may lower
+once; `finish` is permitted only after successful lowering, while retry and
+finish after `Poisoned` fail explicitly. A fresh Builder/compiler/session stays
+reusable. Do not reuse the legacy AST lowering session: this is a CorePlan
+execution owner with a different authority boundary.
+
+## `LOOP0-L0-R0-P0` — all-Unselected bounded lowering proof
 
 Use the exact actual source carrier and its all-Unselected activation plan to
 prove only:
@@ -284,6 +343,24 @@ RAW-PLAN-EMISSION-PARITY0
 ```
 
 Do not open nested-result inference, type backfill, or `NESTED-REP0` there.
+
+## `LOOP0-L0-R0-F0` — selected execution failure proof
+
+Use one synthetic generic selected row whose final required argument ValueId is
+`Unknown`. The execution session must become `Poisoned` after the existing
+selected terminal fails.
+
+```text
+Call instruction publication = 0
+result type publication = 0
+retry on the same session = rejected
+finish on the same session = rejected
+raw / alternate route retry = 0
+fresh session = reusable
+```
+
+This is the only row that claims the session poison law. It does not widen
+source selection, infer a nested result, or write a type fact.
 
 ## Explicit non-claims
 
@@ -323,8 +400,10 @@ Stop the selected row if it needs:
 > required argument expressions are unsupported nested instance results.
 > Every actual row is therefore planned Unselected and may use only the
 > existing raw primary effect route. One generic direct-argument fixture, not
-> the actual Parser caller, owns successful selected-terminal and fail-fast
-> coverage. ARG0 closes through `P0-REBASE0 -> I0 -> G0`; then `LOOP0-L0-R0`
-> proves bounded all-Unselected located lowering before L0 and EXPR0-C0 resume.
+> the actual Parser caller, owns successful selected-terminal and terminal
+> fail-fast coverage. ARG0 closes through `P0-REBASE0 -> I0 -> G0`; then
+> `LOOP0-L0-R0-S0 -> P0 -> F0` gives claimed CorePlan execution one exact
+> poison owner, proves bounded all-Unselected lowering, and fixes the
+> selected-failure no-retry law before L0 and EXPR0-C0 resume.
 > Nested instance result representation remains parked until after the first
 > selected MirBuilder clean-architecture census.
