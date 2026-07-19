@@ -1,5 +1,5 @@
 ---
-Status: T0-L0 and T0-DIRECT0-S0 closed; T0-DIRECT0-R0 is next
+Status: T0-L0, T0-DIRECT0-S0, and T0-DIRECT0-R0 closed; T0-DIRECT0-I0 is next
 Date: 2026-07-19
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md
 Prior decision: callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md
@@ -1051,6 +1051,29 @@ then LOOP0-P0b-P0
 R0 stops immediately if it needs a second dispatcher, a located facts/policy
 authority, post-O0 recipe construction, a changed raw Select shape, broader
 located grammar, fallback/retry, or a touched source/check file at 800 lines.
+
+#### T0-DIRECT0-R0 closeout
+
+R0 is closed as a shared associated-input refactor. The new
+`generic_loop_body::direct_associated` owner consumes one existing expression
+port and delegates Local, Assignment, MethodCall, FunctionCall, Return, and If
+to the existing associated primitives. Ordinary Join If state remains owned by
+the single Parts state core; conditional-update If remains on the existing
+Select-shaped Parts owner. The raw GenericLoop facade delegates through this
+owner while keeping raw-only Print/Program/BlockExpr/nested-Loop/effect-only
+shapes and progression filtering in its fallback boundary.
+
+The row stays disconnected from located execution. No composer, skeleton,
+ledger claim, production located caller, fallback, or retry was added. New
+files are 355-line direct core, 100-line Parts If adapter, and 87-line focused
+tests. The direct tests are 3/3; GenericLoop body tests are 20/20;
+associated-input tests are 3/3; `cargo check --all-targets`, the public
+expression-spine guard, pointer, formatting, diff, and line checks are green.
+
+The next row is `LOOP0-P0b-T0-DIRECT0-I0`: Builder-free DirectRecipeOnly
+preflight/execution token and disconnected located composer acceptance. It
+must consume this shared owner without introducing a second dispatcher or
+reclassifying raw facts/policy.
 
 L0 stops for a new consultation if exact carrier targets cannot be retained by
 the existing HOOK0 traversal; if `DirectRecipeOnly` must become active now; if

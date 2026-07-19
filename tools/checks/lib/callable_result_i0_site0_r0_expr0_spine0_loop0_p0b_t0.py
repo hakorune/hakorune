@@ -165,7 +165,12 @@ def _guard_b0(root: Path) -> None:
     direct_raw = _function(v1, "lower_direct_raw_body")
     _require(direct_raw, "RawLoopPlanExpressionPortV1::new()", 1, "B0 raw port")
     _require(direct_raw, "matches_loop_increment(", 1, "B0 raw-only step filter")
-    _require(direct_raw, "lower_generic_loop_v1_direct_inputs(", 1, "B0 direct delegation")
+    direct_delegation = direct_raw.count("lower_generic_loop_v1_direct_inputs(")
+    direct_associated = direct_raw.count("lower_direct_body_input_with_policy(")
+    if direct_delegation + direct_associated != 1:
+        raise RuntimeError(
+            "LOOP0-P0b-T0 B0 direct delegation: expected one direct associated owner"
+        )
     body_router = _function(v1, "lower_generic_loop_v1_body")
     _require(body_router, "lower_direct_raw_body(", 2, "B0 raw policy branches")
     _require(body_router, "apply_generic_loop_v1_fallthrough_cleanup(", 1, "B0 cleanup facade")

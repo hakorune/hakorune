@@ -22,7 +22,7 @@ use std::collections::BTreeMap;
 use super::helpers::{lower_effect_only_stmt, lower_nested_loop_plan, matches_loop_increment};
 use super::{
     apply_generic_loop_v1_fallthrough_cleanup, body_plans_exit_on_all_paths,
-    lower_generic_loop_v1_direct_inputs, GENERIC_LOOP_ERR,
+    lower_direct_body_input_with_policy, GENERIC_LOOP_ERR,
 };
 
 #[path = "branch.rs"]
@@ -111,15 +111,11 @@ fn lower_direct_raw_body(
     ctx: &LoopRouteContext,
 ) -> Result<Vec<LoweredRecipe>, String> {
     let port = crate::mir::builder::control_flow::plan::RawLoopPlanExpressionPortV1::new();
-    let statements = facts.body.body.iter().filter(|statement| {
-        !matches_loop_increment(statement, &facts.loop_var, &facts.loop_increment)
-    });
-    lower_generic_loop_v1_direct_inputs(
-        builder,
-        current_bindings,
-        &port,
-        statements,
-        |builder, bindings, port, statement| {
+    let mut fallback =
+        |builder: &mut MirBuilder,
+         bindings: &mut BTreeMap<String, crate::mir::ValueId>,
+         port: &crate::mir::builder::control_flow::plan::RawLoopPlanExpressionPortV1,
+         statement: &ASTNode| {
             lower_body_stmt_v1(
                 builder,
                 bindings,
@@ -130,7 +126,17 @@ fn lower_direct_raw_body(
                 carrier_step_phis,
                 ctx,
             )
-        },
+        };
+    lower_direct_body_input_with_policy(
+        builder,
+        current_bindings,
+        &port,
+        &facts.body.body,
+        carrier_step_phis,
+        &facts.loop_var,
+        GENERIC_LOOP_ERR,
+        &mut fallback,
+        &|statement| matches_loop_increment(statement, &facts.loop_var, &facts.loop_increment),
     )
 }
 

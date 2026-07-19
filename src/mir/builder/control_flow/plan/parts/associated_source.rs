@@ -36,6 +36,7 @@ mod sealed {
 }
 
 pub(super) mod block_driver;
+pub(in crate::mir::builder) mod direct_if;
 pub(super) mod dispatch;
 #[cfg(test)]
 mod dispatch_tests;
