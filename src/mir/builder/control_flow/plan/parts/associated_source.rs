@@ -39,6 +39,10 @@ pub(super) mod block_driver;
 pub(super) mod dispatch;
 #[cfg(test)]
 mod dispatch_tests;
+#[cfg(test)]
+mod located_hook_tests;
+pub(super) mod located_lowering;
+pub(super) mod located_preflight;
 pub(super) mod raw_lowering;
 #[cfg(test)]
 mod raw_parity_tests;

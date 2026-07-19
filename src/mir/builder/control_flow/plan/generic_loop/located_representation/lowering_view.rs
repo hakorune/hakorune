@@ -6,7 +6,7 @@
 use crate::mir::builder::control_flow::facts::no_exit_block::NoExitBlockRecipe;
 use crate::mir::builder::control_flow::plan::expression_port::{
     LocatedLoopPlanBodyInputV1, LocatedLoopPlanExprInputV1, LocatedLoopPlanExpressionPortV1,
-    LocatedLoopPlanStmtInputV1,
+    LocatedLoopPlanStmtInputV1, LoopPlanExpressionPortV1,
 };
 use crate::mir::builder::control_flow::plan::recipe_tree::{ExitKind, IfContractKind};
 
@@ -208,6 +208,11 @@ impl<'view, 'plan> VerifiedLocatedRecipeBlockLoweringViewV1<'view, 'plan> {
 }
 
 impl<'view, 'plan> VerifiedStmtWrappedJoinIfLoweringViewV1<'view, 'plan> {
+    pub(in crate::mir::builder) fn source_syntax(&self) -> &'view crate::ast::ASTNode {
+        let source = self.port.borrowed_stmt(&self.bridge.source_if);
+        self.port.stmt_syntax(&source)
+    }
+
     pub(in crate::mir::builder) fn source(&self) -> LocatedLoopPlanStmtInputV1<'plan, 'view> {
         self.port.borrowed_stmt(&self.bridge.source_if)
     }

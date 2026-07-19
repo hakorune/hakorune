@@ -12,6 +12,10 @@ from callable_result_i0_site0_r0_expr0_spine0_loop0 import (
     _production,
     _read,
 )
+from callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_t0_hook0 import (
+    ALLOWED_LOCATED_PROVIDER_CONSUMERS,
+    check_loop0_p0b_t0_hook0,
+)
 
 
 C0_RAW = "src/mir/builder/control_flow/plan/normalizer/cond_lowering_loop_header.rs"
@@ -420,6 +424,8 @@ def _guard_r0_d0_s0(root: Path) -> None:
             continue
         text = _production(path.read_text(encoding="utf-8"))
         count = text.count("LocatedPartsAssociatedSourceV1::new")
+        if relative in ALLOWED_LOCATED_PROVIDER_CONSUMERS:
+            count = 0
         if count:
             located_consumers.append(f"{relative}:{count}")
     if located_consumers:
@@ -525,6 +531,8 @@ def _guard_r0_d0_raw0(root: Path) -> None:
         relative = path.relative_to(root).as_posix()
         text = _rust_code(_production(path.read_text(encoding="utf-8")))
         located = text.count("LocatedPartsAssociatedSourceV1::new(")
+        if relative in ALLOWED_LOCATED_PROVIDER_CONSUMERS:
+            located = 0
         if located:
             located_consumers.append(f"{relative}:{located}")
         calls = len(
@@ -652,6 +660,7 @@ def check_loop0_p0b_t0(root: Path) -> str:
     _guard_r0_d0_s0(root)
     _guard_r0_d0_dispatch0_s0(root)
     _guard_r0_d0_raw0(root)
+    hook0 = check_loop0_p0b_t0_hook0(root)
     _guard_no_premature_located_consumer(root)
 
     touched = (
@@ -687,4 +696,4 @@ def check_loop0_p0b_t0(root: Path) -> str:
     oversized = [relative for relative in touched if len(_read(root, relative).splitlines()) >= 800]
     if oversized:
         raise RuntimeError(f"LOOP0-P0b-T0 source/check files reached 800 lines: {oversized}")
-    return "loop0_p0b_t0_c0=1 loop0_p0b_t0_b0=1 r0_v0=1 r0_c0=1 r0_d0_s0=1 r0_d0_dispatch0_s0=1 r0_d0_raw0=1 located_consumers=0"
+    return f"loop0_p0b_t0_c0=1 loop0_p0b_t0_b0=1 r0_v0=1 r0_c0=1 r0_d0_s0=1 r0_d0_dispatch0_s0=1 r0_d0_raw0=1 {hook0} located_consumers=0"

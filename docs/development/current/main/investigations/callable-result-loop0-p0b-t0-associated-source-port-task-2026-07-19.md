@@ -642,6 +642,35 @@ raw recipe syntax as located authority, a second dispatcher, typed Local
 support, general Join-local discovery, production located callers, ledger
 claims, fallback/retry, or a source/check file at or above 800 lines.
 
+###### R0-P0-HOOK0 closeout
+
+HOOK0 is closed with one Builder-free, non-Clone
+`VerifiedLocatedGenericLoopPartsPreflightV1`. Its constructor walks the exact
+strict five-item root and validates every carrier needed by the disconnected
+adapter: three untyped Local initializers, the ExitIf condition and exact
+Return value, the retained singleton Join topology, and exact variable-only
+Assignment targets plus values in both Join branches. Field/index assignment
+targets reject through a typed preflight reason before a Builder exists.
+
+The seal exposes only one purpose-specific single-use adapter callback whose
+result is `Vec<LoweredRecipe>`. The adapter reseals branch bindings before each
+opaque statement/exit and delegates block iteration, Local/Assignment/Return,
+condition, Exit, and Join behavior to the existing B0 and STATE0 owners. It
+does not rebuild recipes, inspect cloned recipe AST, create a side map, or own
+a second statement/If dispatcher.
+
+Focused HOOK0 3/3, associated-source, If Join, ExitAllowed, GenericLoop 84/84,
+all-target check, current pointer guard, public expression-spine guard,
+format/diff checks, and two read-only worker reviews are green. Every touched
+source/check file remains below 800 lines. Production located callers and
+ledger claims remain zero.
+
+Condition semantic grammar is intentionally not duplicated or pre-proved by
+HOOK0. The exact condition carrier is sealed, while semantic acceptability
+remains with the existing condition owner during disconnected lowering. A
+stronger before-effects condition-profile claim would require a separate row.
+`R0-P0-PARITY0` is the sole next code-facing row.
+
 ##### R0-P0: required proof
 
 Focused fixtures fix:
