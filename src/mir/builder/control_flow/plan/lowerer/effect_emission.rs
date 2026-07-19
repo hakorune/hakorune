@@ -440,3 +440,115 @@ impl super::PlanLowerer {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::{BasicBlock, ConstValue, EffectMask, FunctionSignature, MirFunction, MirType};
+
+    #[test]
+    fn select_as_phi_uses_the_ready_two_predecessor_merge() {
+        let entry = BasicBlockId::new(0);
+        let then_block = BasicBlockId::new(1);
+        let else_block = BasicBlockId::new(2);
+        let merge_block = BasicBlockId::new(3);
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "effect_emission_select_phi/0".to_string(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            entry,
+        );
+        function.add_block(BasicBlock::new(then_block));
+        function.add_block(BasicBlock::new(else_block));
+        function.add_block(BasicBlock::new(merge_block));
+
+        let condition = function.next_value_id();
+        let then_value = function.next_value_id();
+        let else_value = function.next_value_id();
+        let phi_value = function.next_value_id();
+        function
+            .get_block_mut(entry)
+            .unwrap()
+            .add_instruction(MirInstruction::Const {
+                dst: condition,
+                value: ConstValue::Integer(1),
+            });
+        function
+            .get_block_mut(entry)
+            .unwrap()
+            .set_terminator(MirInstruction::Branch {
+                condition,
+                then_bb: then_block,
+                else_bb: else_block,
+                then_edge_args: None,
+                else_edge_args: None,
+            });
+        function
+            .get_block_mut(then_block)
+            .unwrap()
+            .add_instruction(MirInstruction::Const {
+                dst: then_value,
+                value: ConstValue::Integer(10),
+            });
+        function
+            .get_block_mut(then_block)
+            .unwrap()
+            .set_terminator(MirInstruction::Jump {
+                target: merge_block,
+                edge_args: None,
+            });
+        function
+            .get_block_mut(else_block)
+            .unwrap()
+            .add_instruction(MirInstruction::Const {
+                dst: else_value,
+                value: ConstValue::Integer(20),
+            });
+        function
+            .get_block_mut(else_block)
+            .unwrap()
+            .set_terminator(MirInstruction::Jump {
+                target: merge_block,
+                edge_args: None,
+            });
+        function.update_cfg();
+
+        let mut builder = MirBuilder::new();
+        builder.function_state.current_function = Some(function);
+        builder.function_state.current_block = Some(merge_block);
+        for value in [condition, then_value, else_value] {
+            builder
+                .function_state
+                .type_ctx
+                .value_types
+                .insert(value, MirType::Integer);
+        }
+
+        assert!(
+            try_emit_select_as_phi_for_merge(&mut builder, phi_value, then_value, else_value,)
+                .unwrap()
+        );
+
+        let merge = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .unwrap()
+            .get_block(merge_block)
+            .unwrap();
+        assert_eq!(merge.instructions.len(), 1);
+        assert!(matches!(
+            &merge.instructions[0],
+            MirInstruction::Phi { dst, inputs, type_hint: None }
+                if *dst == phi_value
+                    && inputs == &vec![(then_block, then_value), (else_block, else_value)]
+        ));
+        assert_eq!(
+            builder.function_state.type_ctx.value_types.get(&phi_value),
+            Some(&MirType::Integer)
+        );
+    }
+}

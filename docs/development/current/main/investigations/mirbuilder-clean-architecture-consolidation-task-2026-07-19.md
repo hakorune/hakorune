@@ -42,10 +42,10 @@ the complete 47-path / 99-occurrence writer partition. PHI0-S0 is also
 closed. PHI0-M0 has now closed as an evidence row and found that I0 has no
 single existing predecessor-readiness authority. PRED0-D0 therefore selects a
 split between generic input/type completion and route-scoped CFG readiness.
-PRED0-S0 is closed; the sole next proof row is now:
+PRED0-S0 and PRED0-P0 are closed; the sole next integration row is now:
 
 ```text
-MIRBUILDER-CLEAN0-PHI0-PRED0-P0
+MIRBUILDER-CLEAN0-PHI0-I0
 ```
 
 ## Baseline finding
@@ -1544,8 +1544,26 @@ parity, an unsealed input row accepted by the generic path, duplicate-input
 rejection, CFG-ready duplicate/missing/phantom rejection, existing concrete
 type conflicts, and zero type commit after failed single or batch candidate
 instruction commit. The module has zero production consumers, no Builder or
-MIR mutation, and no new ValueId/CFG/origin map. `PHI0-PRED0-P0` is next: it
-must prove the real ready/unready route matrix before any I0 connection.
+MIR mutation, and no new ValueId/CFG/origin map.
+
+#### `PHI0-PRED0-P0` — closed (2026-07-20)
+
+The proof matrix now fixes the real readiness split rather than inferring it
+from the disconnected vocabulary. A provisional transaction accepts its
+existing unsealed row; a loop-header host entry is deliberately an accepted
+future entry predecessor before that host terminator is published. Conversely,
+the canonical resolved-If matrix proves exact predecessor coverage and the
+CorePlan select-as-PHI helper proves a completed two-predecessor CFG before it
+inserts a final PHI. Negative resolved-If controls still reject phantom and
+disconnected predecessors.
+
+The existing PHI publication inventory guard now keeps `prepare_cfg_ready`
+private with zero production consumers and rejects `compute_predecessors` from
+the generic patch and batch lifecycles. It does not prohibit route-owned CFG
+analysis such as the loop-header builder or CorePlan select-as-PHI helper.
+`PHI0-I0` is next: it may connect only raw/final/patch/batch to generic
+input/type completion. Any CFG-ready route activation remains the separately
+scoped `PHI0-CFGREADY0` row.
 
 ## Phase 4 — FINALIZE0
 

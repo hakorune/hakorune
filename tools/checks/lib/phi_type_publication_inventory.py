@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the TYPE-PUBLISH0-I0 four-entry publication boundary."""
+"""Validate the TYPE-PUBLISH0-I0 publication and PRED0 readiness boundaries."""
 
 from __future__ import annotations
 
@@ -87,6 +87,7 @@ def main() -> None:
         root,
         "src/mir/builder/emission/phi_lifecycle/batch_type_publication.rs",
     )
+    phi_completion = read(root, "src/mir/builder/phi_completion/mod.rs")
     origin = read(root, "src/mir/builder/origin/phi.rs")
     binding = read(root, "src/mir/builder/ssa/binding/mir_adapter.rs")
     local_ssa = read(root, "src/mir/builder/ssa/local.rs")
@@ -185,6 +186,12 @@ def main() -> None:
         if count != 4:
             fail(f"I0 wrapper consumer count for {symbol!r} must be 4, got {count}")
 
+    # PRED0 keeps route-owned CFG readiness disconnected from every generic
+    # lifecycle entry. The private preparation hook has no production caller
+    # until a future CFGREADY row selects one exact route owner.
+    if code_only(phi_completion).count("prepare_cfg_ready(") != 1:
+        fail("PRED0 private CFG-ready preparation must have exactly one definition")
+
     # Raw prepares from logical inputs, rematerializes, appends, then commits
     # type and the independently prepared legacy origin fact.
     require_order(
@@ -250,6 +257,10 @@ def main() -> None:
     require(patch_body, ".update_phi_instruction", "patch mutation")
     if "phi_input_materializer::for_pred" in patch_body:
         fail("patch unexpectedly gained rematerialization during I0")
+    if "compute_predecessors" in patch_body:
+        fail("generic patch must not acquire CFG predecessor authority during PRED0")
+    if "compute_predecessors" in code_only(batch):
+        fail("generic batch must not acquire CFG predecessor authority during PRED0")
 
     # I0 retires the post-patch Unknown overwrite; the provisional seed remains
     # the only Binding SSA Unknown publication before completion.
@@ -297,7 +308,7 @@ def main() -> None:
 
     # Report the fixed I0 matrix without creating a second checked-in authority.
     report = {
-        "schema": "phi-type-publication-i0-inventory-v1",
+        "schema": "phi-type-publication-pred0-inventory-v1",
         "authorized_entries": [row[0] for row in authorized],
         "explicit_nonconsumers": [row[0] for row in nonconsumers],
         "caller_families": {
@@ -313,6 +324,9 @@ def main() -> None:
         "raw_success_committed_origin_writers": 1,
         "late_copy_publisher": "user_box_route_fixpoint_copy_phi_fixed_point",
         "patch_physical_carrier": "sorted_logical_identity",
+        "cfg_ready_preparation_definitions": 1,
+        "generic_patch_cfg_predecessor_reads": 0,
+        "generic_batch_cfg_predecessor_reads": 0,
     }
     if report["raw_direct_phi_emit_call_sites"] != 0:
         fail("raw direct Phi emit call sites must remain 0 in I0")
@@ -321,7 +335,7 @@ def main() -> None:
     artifact.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(
         "[phi-type-publication-inventory] ok "
-        "authorized=4 consumers=4 post_patch_unknown=0 "
+        "authorized=4 consumers=4 cfg_ready_consumers=0 "
         "late_publisher=user_box_route_fixpoint_copy_phi_fixed_point"
     )
 

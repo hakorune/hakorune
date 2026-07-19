@@ -57,3 +57,41 @@ pub(super) fn split_header_preds(
         host_entry_added,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::builder::control_flow::joinir::merge::loop_header_phi_info::CarrierPhiEntry;
+    use crate::mir::join_ir::lowering::carrier_info::CarrierRole;
+    use crate::mir::ValueId;
+
+    fn block(id: u32) -> BasicBlockId {
+        BasicBlockId::new(id)
+    }
+
+    fn header_info(entry: BasicBlockId) -> LoopHeaderPhiInfo {
+        let mut info = LoopHeaderPhiInfo::empty(block(9));
+        info.carrier_phis.insert(
+            "index".to_string(),
+            CarrierPhiEntry {
+                phi_dst: ValueId::new(30),
+                entry_incoming: (entry, ValueId::new(1)),
+                latch_incoming: Some((block(8), ValueId::new(2))),
+                role: CarrierRole::LoopState,
+            },
+        );
+        info
+    }
+
+    #[test]
+    fn host_entry_is_a_future_entry_predecessor_when_its_terminator_is_unpublished() {
+        let entry = block(1);
+        let latch = block(8);
+        let host = block(0);
+        let groups = split_header_preds(&header_info(entry), &[entry, latch], Some(host), latch);
+
+        assert_eq!(groups.entry_preds, vec![entry, host]);
+        assert_eq!(groups.latch_preds, vec![latch]);
+        assert!(groups.host_entry_added);
+    }
+}
