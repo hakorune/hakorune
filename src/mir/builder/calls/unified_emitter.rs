@@ -26,6 +26,9 @@ use crate::mir::definitions::call_unified::Callee;
 /// - ピュア関数的: 入力CallTarget → 解決・発行 → MirCall命令
 pub struct UnifiedCallEmitterBox;
 
+#[cfg(test)]
+mod temporal_witness_tests;
+
 impl UnifiedCallEmitterBox {
     /// Unified call emission - replaces all emit_*_call methods
     /// ChatGPT5 Pro A++ design for complete call unification

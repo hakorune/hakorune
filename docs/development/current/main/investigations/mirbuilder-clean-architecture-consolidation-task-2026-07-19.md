@@ -1084,6 +1084,45 @@ decision if receiver conflict preflight cannot precede all parameter-state
 mutation, or if the receiver type must be recovered from names, origin, or
 final metadata rather than existing method setup input.
 
+#### `FACT0-P0-T0` — closed (2026-07-20)
+
+One test-only in-process suite now owns the temporal witness under the private
+generic Call emitter, without widening production visibility. Its eight cases
+prove the exact receiver parameter and success-path Copy/Phi/Call/typed
+FieldGet facts are transient before the metadata snapshot, then present in the
+unpublished finalized draft. The existing PHI immediate-Copy test remains the
+four-lifecycle-entry backstop; T0 observes one canonical completed-PHI case
+only. It also records the intentional legacy split: explicit `Unknown`
+parameters remain non-facts, generic unified Call annotation can survive a
+failed Call emission, and typed FieldGet allocation can survive a failed
+FieldGet emission. FastMem FieldLoad remains a separate producer and is not
+treated as normal FieldGet timing. No producer, map API, finalization behavior,
+or production consumer changed.
+
+#### `FACT0-I0-RCV0` — next code-facing row
+
+Connect `TypeFactDecisionV1` to exactly one existing producer shape:
+`setup_method_params` publishing the verified implicit receiver `me` at formal
+index zero, with the already constructed exact `MirType::Box(owner)`. Preflight
+the decision before any receiver binding, variable, kind, origin, slot, or type
+mutation; after success, commit through one private publisher facade. Existing
+same-type receiver publication stays idempotent. A concrete conflict is a
+typed fail-fast and must leave all receiver state unchanged.
+
+```text
+selected producer = instance receiver parameter zero only
+explicit/static Unknown formals = legacy, unconnected
+Copy/Phi/Call/FieldGet/finalization = legacy, unconnected
+origin/kind publication delta = 0
+new instructions or ValueIds = 0
+name/runtime/final-metadata inference = 0
+```
+
+Stop rather than widen if a receiver concrete conflict is already reachable,
+preflight cannot precede every state mutation, receiver type recovery needs an
+authority other than existing method setup input, or any explicit/static
+parameter requires the new publisher to retain current behavior.
+
 ## Phase 3 — PHI0
 
 One semantic PHI completion operation replaces entry-specific policy.

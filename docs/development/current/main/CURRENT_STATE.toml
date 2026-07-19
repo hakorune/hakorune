@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FACT0-P0-INV0 is closed with a 47-path/99-write direct-writer census; FACT0-P0-T0 temporal witness is next"
+status = "FACT0-P0-T0 is closed with an eight-case temporal witness; FACT0-I0-RCV0 exact receiver publisher cutover is next"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -357,12 +357,15 @@ and Unknown as non-facts, Void as exact, rejects explicit Unknown publication,
 and has zero TypeContext/Builder/PHI/production consumers. FACT0-P0-INV0 is
 closed: one static source census freezes 47 direct transient-writer paths and
 99 occurrences, classified once with five primary family anchors; it is not a
-runtime timing proof. FACT0-P0-T0 is next: one test-only temporal witness must
-classify Parameter, Copy, PHI, Call, and FieldGet publication/failed-state
-timing before a cutover. The first prospective cutover is receiver parameter
-zero with existing exact Box(owner), not generic Parameter typing.
+runtime timing proof. FACT0-P0-T0 is closed: eight in-process cases observe
+receiver Parameter, Copy, canonical Phi, generic Call, and typed FieldGet
+against transient facts, instruction commit, and finalized-draft metadata.
+They preserve the observed generic-Call and typed-FieldGet failure residuals,
+while explicit Unknown parameters and FastMem FieldLoad remain separate legacy
+controls. FACT0-I0-RCV0 is next: only receiver parameter zero with existing
+exact Box(owner) may consume the monotone decision after full state preflight.
 NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FACT0-P0-T0-001"
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FACT0-I0-RCV0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
