@@ -270,6 +270,63 @@ S0d  add structural old-storage-zero guards plus focused session parity and
 must build, preserve visible MIR/session behavior, and add no accepted source
 shape, type inference, backfill, fallback, or retry.
 
+#### Selected S0a execution hand
+
+The S0 census and three independent implementation/test audits select the
+following buildable internal sequence. S0a deliberately fixes the observable
+contract before moving physical storage: S0b is a broad mechanical cutover and
+must not become the first place where a lost function-local surface is noticed.
+
+```text
+S0a-T0  expand existing function-session witnesses
+S0a-V0  add private component vocabulary only
+S0a-G0  run census/structural guards and hand S0b one frozen surface list
+```
+
+`S0a-T0` is the sole next code-facing hand. It makes no production storage
+change. It extends the existing success, typed-error, and panic session tests
+to observe the current behavior of every *captured* FunctionOwned surface:
+
+```text
+all six TypeContext maps
+variable and exact BindingId state
+resolved Binding SSA install state
+function/block and lexical/loop/If/parameter/fastmem stacks
+pending PHI, LocalSSA, schedule, pin, reservation, cleanup, and fallback state
+record-local scratch state
+FragEmitSession reset/seal observation through one test-only query
+```
+
+The same witnesses must prove the existing child-entry reset behavior and
+outer-state restoration after success, typed error, and panic. They do not
+claim a fresh child-state object, address separation, or repaired child
+isolation; those are C0 concerns.
+
+The two Census0 metadata gaps, `value_origin_spans` and
+`value_origin_callers`, remain explicit *unhealed controls* in S0a. They are
+not folded into the restoration-parity assertion, treated as module truth, or
+repaired through finalization. A focused diagnostic/control may demonstrate
+the current gap, but S0a must not alter it.
+
+`S0a-V0` may introduce private, storage-free vocabulary only:
+
+```text
+FunctionLoweringStateV1
+FunctionScopeStateV1
+FunctionCompilationScratchV1
+FunctionValueOriginFactsV1
+```
+
+Their fields and constructors stay private, `MirBuilder` gains no
+`function_state` field yet, and no `Deref`/`DerefMut` compatibility facade is
+permitted. This preserves Rust field-disjoint mutable borrows for the S0b
+mechanical cutover.
+
+`S0a-G0` freezes the S0b input list: the current Census0 checker remains green,
+the expanded session witnesses are green, and the direct-access inventory must
+still identify every FunctionOwned use. No S0a commit may move a whole
+`ScopeContext`, `CompilationContext`, or `MetadataContext`.
+
 The partial BoxCompilationContext map handling is an existing behavior that S0
 must preserve, but it is not a future semantic authority. S0d models its
 exact current action through one move-only FunctionLoweringState transaction:
