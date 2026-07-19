@@ -190,7 +190,7 @@ impl IfCfgSessionV1 {
 }
 
 impl VerifiedIfMergePredecessorsV1 {
-    fn reverify(self, builder: &MirBuilder) -> Result<(), String> {
+    pub(super) fn reverify(self, builder: &MirBuilder) -> Result<(), String> {
         let function = builder
             .function_state
             .current_function
@@ -243,6 +243,18 @@ impl VerifiedIfMergePredecessorsV1 {
             ));
         }
         Ok(())
+    }
+
+    pub(super) const fn merge(self) -> BasicBlockId {
+        self.merge
+    }
+
+    pub(super) const fn then_predecessor(self) -> BasicBlockId {
+        self.then_pred
+    }
+
+    pub(super) const fn else_predecessor(self) -> BasicBlockId {
+        self.else_pred
     }
 }
 

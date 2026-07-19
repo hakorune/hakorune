@@ -10,6 +10,8 @@ pub(in crate::mir::builder) mod canonical_cfg;
 mod completion_consumption;
 mod flow_consumption;
 mod identity;
+#[allow(dead_code)]
+mod if_cfg_ready_bridge;
 mod if_materialization;
 mod located_if;
 mod lowerer;

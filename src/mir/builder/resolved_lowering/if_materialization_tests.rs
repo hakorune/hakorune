@@ -9,6 +9,7 @@ use crate::mir::{ConstValue, MirInstruction, ValueId};
 use super::branch_transaction::{
     AuthorizedBranchRebindV1, BranchValueStoreV1, ResolvedBranchTransactionV1,
 };
+use super::if_cfg_ready_bridge::VerifiedResolvedIfCfgReadyJoinRowsV1;
 use super::if_materialization::{
     define_join_phis, DefinedJoinPublishV1, DefinedJoinValueStoreV1, IfCfgSessionV1,
 };
@@ -101,6 +102,18 @@ fn builder_fixture() -> (MirBuilder, ValueId, ValueId) {
     let condition = constant::emit_bool(&mut builder, true).unwrap();
     let entry = constant::emit_integer(&mut builder, 7).unwrap();
     (builder, condition, entry)
+}
+
+fn instruction_count(builder: &MirBuilder) -> usize {
+    builder
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .blocks
+        .values()
+        .map(|block| block.instructions.len())
+        .sum()
 }
 
 #[test]
@@ -428,4 +441,104 @@ fn explicit_else_uses_both_actual_branch_exits() {
     assert!(actual[&layout.merge()].contains(&layout.then_entry()));
     assert!(actual[&layout.merge()].contains(&else_exit));
     assert_eq!(layout.else_entry(), Some(else_exit));
+}
+
+#[test]
+fn cfg_ready_bridge_seals_one_implicit_resolved_if_join_without_mutation() {
+    let (mut builder, condition, entry) = builder_fixture();
+    let binding = bindings(1)[0];
+    let values = store(&[(binding, entry)]);
+    let transaction =
+        ResolvedBranchTransactionV1::snapshot(&values, &[binding], &[binding]).unwrap();
+    let rows = transaction
+        .join_rows(
+            &transaction.implicit_false_values(),
+            &transaction.implicit_false_values(),
+        )
+        .unwrap();
+
+    let mut session = IfCfgSessionV1::open_implicit_false(&mut builder, condition).unwrap();
+    let layout = session.layout();
+    session.enter_then(&mut builder).unwrap();
+    session.close_then(&mut builder).unwrap();
+    let predecessors = session.verify_actual_predecessors(&mut builder).unwrap();
+    let before_instructions = instruction_count(&builder);
+    let before_types = builder.function_state.type_ctx.value_types.clone();
+
+    let bridge =
+        VerifiedResolvedIfCfgReadyJoinRowsV1::verify(&builder, predecessors, &rows).unwrap();
+    assert_eq!(bridge.rows().len(), 1);
+    let row = &bridge.rows()[0];
+    assert_eq!(row.binding(), binding);
+    assert_eq!(row.entry(), entry);
+    assert_eq!(
+        row.logical_inputs(),
+        &[(layout.then_entry(), entry), (layout.header(), entry)]
+    );
+    bridge.reverify(&builder).unwrap();
+    assert_eq!(instruction_count(&builder), before_instructions);
+    assert_eq!(builder.function_state.type_ctx.value_types, before_types);
+}
+
+#[test]
+fn cfg_ready_bridge_rejects_cfg_drift_without_additional_mutation() {
+    let (mut builder, condition, entry) = builder_fixture();
+    let binding = bindings(1)[0];
+    let values = store(&[(binding, entry)]);
+    let transaction =
+        ResolvedBranchTransactionV1::snapshot(&values, &[binding], &[binding]).unwrap();
+    let rows = transaction
+        .join_rows(
+            &transaction.implicit_false_values(),
+            &transaction.implicit_false_values(),
+        )
+        .unwrap();
+
+    let mut session = IfCfgSessionV1::open_implicit_false(&mut builder, condition).unwrap();
+    let layout = session.layout();
+    session.enter_then(&mut builder).unwrap();
+    session.close_then(&mut builder).unwrap();
+    let predecessors = session.verify_actual_predecessors(&mut builder).unwrap();
+
+    let foreign = builder.next_block_id();
+    builder.start_new_block(foreign).unwrap();
+    branch::emit_jump(&mut builder, layout.merge()).unwrap();
+    let before_instructions = instruction_count(&builder);
+    let before_types = builder.function_state.type_ctx.value_types.clone();
+
+    let error =
+        VerifiedResolvedIfCfgReadyJoinRowsV1::verify(&builder, predecessors, &rows).unwrap_err();
+    assert!(error.contains("actual_predecessor_mismatch"));
+    assert_eq!(instruction_count(&builder), before_instructions);
+    assert_eq!(builder.function_state.type_ctx.value_types, before_types);
+}
+
+#[test]
+fn cfg_ready_bridge_rejects_duplicate_join_rows_without_mutation() {
+    let (mut builder, condition, entry) = builder_fixture();
+    let binding = bindings(1)[0];
+    let values = store(&[(binding, entry)]);
+    let transaction =
+        ResolvedBranchTransactionV1::snapshot(&values, &[binding], &[binding]).unwrap();
+    let rows = transaction
+        .join_rows(
+            &transaction.implicit_false_values(),
+            &transaction.implicit_false_values(),
+        )
+        .unwrap();
+    let duplicate_rows = vec![rows[0], rows[0]];
+
+    let mut session = IfCfgSessionV1::open_implicit_false(&mut builder, condition).unwrap();
+    session.enter_then(&mut builder).unwrap();
+    session.close_then(&mut builder).unwrap();
+    let predecessors = session.verify_actual_predecessors(&mut builder).unwrap();
+    let before_instructions = instruction_count(&builder);
+    let before_types = builder.function_state.type_ctx.value_types.clone();
+
+    let error =
+        VerifiedResolvedIfCfgReadyJoinRowsV1::verify(&builder, predecessors, &duplicate_rows)
+            .unwrap_err();
+    assert!(error.contains("cfg_ready_duplicate_join_row"));
+    assert_eq!(instruction_count(&builder), before_instructions);
+    assert_eq!(builder.function_state.type_ctx.value_types, before_types);
 }
