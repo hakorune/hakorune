@@ -10,18 +10,20 @@ use super::router::LoopRouteContext;
 mod handlers;
 mod legacy_observer;
 mod predicates;
+mod selection;
 mod types;
 mod utils;
 
 use handlers::*;
 use predicates::*;
+pub(crate) use selection::{select_recipe_first_routes, RecipeFirstRouteSelectionV1};
 use types::{entry_keys, LegacyRouteSuccess, LoopRouteId};
 pub(crate) use types::{Entry, RouterEnv};
 
 pub(crate) fn collect_b_lite_shadow_report(
-    facts: Option<&CanonicalLoopFacts>,
+    selection: &RecipeFirstRouteSelectionV1,
 ) -> legacy_observer::LoopRouteShadowReport {
-    legacy_observer::shadow_report(facts)
+    legacy_observer::shadow_report(selection)
 }
 
 pub(crate) const ENTRIES: &[Entry] = &[
@@ -141,60 +143,8 @@ pub(crate) const ENTRIES: &[Entry] = &[
     },
 ];
 
-struct CandidateSuppression {
-    if_phi_join_candidate: bool,
-    loop_continue_only_candidate: bool,
-    loop_cond_continue_only_candidate: bool,
-    loop_true_early_exit_candidate: bool,
-    loop_true_break_continue_candidate: bool,
-    array_join_candidate: bool,
-}
-
-fn should_skip_candidate(name: &str, suppression: &CandidateSuppression) -> bool {
-    match name {
-        entry_keys::LOOP_COND_BREAK_CONTINUE => {
-            suppression.if_phi_join_candidate
-                || suppression.loop_continue_only_candidate
-                || suppression.loop_cond_continue_only_candidate
-                || suppression.array_join_candidate
-        }
-        entry_keys::LOOP_COND_CONTINUE_ONLY => suppression.loop_continue_only_candidate,
-        entry_keys::LOOP_TRUE_BREAK_CONTINUE => suppression.loop_true_early_exit_candidate,
-        entry_keys::GENERIC_LOOP_V1 => suppression.loop_true_break_continue_candidate,
-        _ => false,
-    }
-}
-
 pub(crate) fn collect_candidates(facts: Option<&CanonicalLoopFacts>) -> Vec<&'static str> {
-    let Some(facts) = facts else {
-        return Vec::new();
-    };
-    let mut names = Vec::new();
-    let suppression = CandidateSuppression {
-        if_phi_join_candidate: pred_if_phi_join(facts),
-        loop_continue_only_candidate: pred_loop_continue_only(facts),
-        loop_cond_continue_only_candidate: pred_loop_cond_continue_only(facts),
-        loop_true_early_exit_candidate: pred_loop_true_early_exit(facts),
-        loop_true_break_continue_candidate: pred_loop_true_break_continue(facts),
-        array_join_candidate: pred_loop_array_join(facts),
-    };
-    let char_map_candidate = pred_loop_char_map(facts);
-
-    for entry in ENTRIES {
-        if should_skip_candidate(entry.name, &suppression) {
-            continue;
-        }
-        if (entry.predicate)(facts) {
-            names.push(entry.name);
-        }
-    }
-
-    let block_generic_loop_v1 =
-        char_map_candidate || pred_loop_simple_while(facts) || pred_nested_loop_minimal(facts);
-    if block_generic_loop_v1 {
-        names.retain(|name| *name != entry_keys::GENERIC_LOOP_V1);
-    }
-    names
+    select_recipe_first_routes(facts).diagnostic_effective_names()
 }
 
 pub(crate) fn try_route_recipe_first_with_success(
@@ -203,32 +153,40 @@ pub(crate) fn try_route_recipe_first_with_success(
     outcome: &PlanBuildOutcome,
     env: &RouterEnv,
 ) -> Result<Option<LegacyRouteSuccess>, String> {
-    let Some(facts) = outcome.facts.as_ref() else {
-        return Ok(None);
-    };
-    let suppression = CandidateSuppression {
-        if_phi_join_candidate: pred_if_phi_join(facts),
-        loop_continue_only_candidate: pred_loop_continue_only(facts),
-        loop_cond_continue_only_candidate: pred_loop_cond_continue_only(facts),
-        loop_true_early_exit_candidate: pred_loop_true_early_exit(facts),
-        loop_true_break_continue_candidate: pred_loop_true_break_continue(facts),
-        array_join_candidate: pred_loop_array_join(facts),
-    };
-    for entry in ENTRIES {
-        if should_skip_candidate(entry.name, &suppression) {
-            continue;
-        }
-        if !(entry.predicate)(facts) {
-            continue;
-        }
+    let selection = select_recipe_first_routes(outcome.facts.as_ref());
+    try_execute_recipe_first_selection(builder, ctx, outcome, env, &selection)
+}
+
+pub(crate) fn try_execute_recipe_first_selection(
+    builder: &mut MirBuilder,
+    ctx: &LoopRouteContext,
+    outcome: &PlanBuildOutcome,
+    env: &RouterEnv,
+    selection: &RecipeFirstRouteSelectionV1,
+) -> Result<Option<LegacyRouteSuccess>, String> {
+    execute_selected_routes_in_order(selection.raw_execution_routes(), |route_id| {
+        let entry = ENTRIES
+            .iter()
+            .find(|entry| entry.id == route_id)
+            .expect("recipe-first selection route must be present in ENTRIES");
         let Some(route) = entry.route else {
-            continue;
+            return Ok(None);
         };
         if let Some(value) = route(builder, ctx, outcome, env)? {
-            return Ok(Some(LegacyRouteSuccess {
-                route: entry.id,
-                value,
-            }));
+            return Ok(Some(value));
+        }
+        Ok(None)
+    })
+    .map(|success| success.map(|(route, value)| LegacyRouteSuccess { route, value }))
+}
+
+fn execute_selected_routes_in_order<T, E>(
+    routes: &[LoopRouteId],
+    mut execute: impl FnMut(LoopRouteId) -> Result<Option<T>, E>,
+) -> Result<Option<(LoopRouteId, T)>, E> {
+    for route in routes {
+        if let Some(value) = execute(*route)? {
+            return Ok(Some((*route, value)));
         }
     }
     Ok(None)
@@ -236,57 +194,48 @@ pub(crate) fn try_route_recipe_first_with_success(
 
 #[cfg(test)]
 mod tests {
-    use super::{entry_keys, should_skip_candidate, CandidateSuppression};
+    use super::{execute_selected_routes_in_order, select_recipe_first_routes};
+    use crate::mir::builder::control_flow::joinir::route_entry::registry::types::LoopRouteId;
 
-    fn suppression_with_loop_continue_only() -> CandidateSuppression {
-        CandidateSuppression {
-            if_phi_join_candidate: false,
-            loop_continue_only_candidate: true,
-            loop_cond_continue_only_candidate: false,
-            loop_true_early_exit_candidate: false,
-            loop_true_break_continue_candidate: false,
-            array_join_candidate: false,
-        }
+    #[test]
+    fn empty_facts_select_no_recipe_first_routes() {
+        let selection = select_recipe_first_routes(None);
+
+        assert!(!selection.facts_present());
+        assert!(selection.matched_routes().is_empty());
+        assert!(selection.raw_execution_routes().is_empty());
+        assert!(selection.diagnostic_effective_routes().is_empty());
     }
 
     #[test]
-    fn loop_cond_continue_only_keeps_existing_loop_continue_only_suppression() {
-        let suppression = suppression_with_loop_continue_only();
+    fn raw_execution_continues_after_a_selected_route_returns_none() {
+        let routes = [LoopRouteId::LoopSimpleWhile, LoopRouteId::GenericLoopV1];
+        let mut attempted = Vec::new();
 
-        assert!(should_skip_candidate(
-            entry_keys::LOOP_COND_CONTINUE_ONLY,
-            &suppression
-        ));
+        let result = execute_selected_routes_in_order(&routes, |route| {
+            attempted.push(route);
+            Ok::<_, ()>((route == LoopRouteId::GenericLoopV1).then_some(7_u8))
+        });
+
+        assert_eq!(result, Ok(Some((LoopRouteId::GenericLoopV1, 7_u8))));
+        assert_eq!(attempted, routes);
     }
 
     #[test]
-    fn loop_cond_break_continue_keeps_existing_loop_continue_only_suppression() {
-        let suppression = suppression_with_loop_continue_only();
+    fn raw_execution_propagates_error_without_trying_later_routes() {
+        let routes = [LoopRouteId::LoopSimpleWhile, LoopRouteId::GenericLoopV1];
+        let mut attempted = Vec::new();
 
-        assert!(should_skip_candidate(
-            entry_keys::LOOP_COND_BREAK_CONTINUE,
-            &suppression
-        ));
-    }
+        let result = execute_selected_routes_in_order(&routes, |route| {
+            attempted.push(route);
+            if route == LoopRouteId::LoopSimpleWhile {
+                Err("route failed")
+            } else {
+                Ok(Some(7_u8))
+            }
+        });
 
-    #[test]
-    fn generic_loop_v1_is_suppressed_when_loop_true_break_continue_owns_shape() {
-        let suppression = CandidateSuppression {
-            if_phi_join_candidate: false,
-            loop_continue_only_candidate: false,
-            loop_cond_continue_only_candidate: false,
-            loop_true_early_exit_candidate: false,
-            loop_true_break_continue_candidate: true,
-            array_join_candidate: false,
-        };
-
-        assert!(should_skip_candidate(
-            entry_keys::GENERIC_LOOP_V1,
-            &suppression
-        ));
-        assert!(!should_skip_candidate(
-            entry_keys::LOOP_TRUE_BREAK_CONTINUE,
-            &suppression
-        ));
+        assert_eq!(result, Err("route failed"));
+        assert_eq!(attempted, [LoopRouteId::LoopSimpleWhile]);
     }
 }

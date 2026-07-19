@@ -6,9 +6,7 @@
 //! uses the historical ordered registry. The purpose is to make route ownership
 //! debt visible before retiring named routes.
 
-use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
-
-use super::{collect_candidates, types::LoopRouteId, ENTRIES};
+use super::{selection::RecipeFirstRouteSelectionV1, types::LoopRouteId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum LoopRouteDenyReason {
@@ -77,18 +75,15 @@ impl LoopRouteShadowReport {
     }
 }
 
-pub(crate) fn shadow_report(facts: Option<&CanonicalLoopFacts>) -> LoopRouteShadowReport {
-    let legacy_matched_candidates = legacy_matched_candidates(facts);
-    let legacy_effective_candidates = collect_candidates(facts)
-        .into_iter()
-        .filter_map(route_id_from_str)
-        .collect::<Vec<_>>();
+pub(crate) fn shadow_report(selection: &RecipeFirstRouteSelectionV1) -> LoopRouteShadowReport {
+    let legacy_matched_candidates = selection.matched_routes().to_vec();
+    let legacy_effective_candidates = selection.diagnostic_effective_routes().to_vec();
     let legacy_suppressed_candidates = legacy_matched_candidates
         .iter()
         .copied()
         .filter(|candidate| !legacy_effective_candidates.contains(candidate))
         .collect::<Vec<_>>();
-    let decision = resolve_from_effective(facts, &legacy_effective_candidates);
+    let decision = resolve_from_effective(selection.facts_present(), &legacy_effective_candidates);
     LoopRouteShadowReport {
         decision,
         legacy_matched_candidates,
@@ -98,10 +93,10 @@ pub(crate) fn shadow_report(facts: Option<&CanonicalLoopFacts>) -> LoopRouteShad
 }
 
 fn resolve_from_effective(
-    facts: Option<&CanonicalLoopFacts>,
+    facts_present: bool,
     effective_candidates: &[LoopRouteId],
 ) -> LoopRouteDecision {
-    if facts.is_none() {
+    if !facts_present {
         return LoopRouteDecision::Deny(LoopRouteDenyReason::NoFacts);
     }
     match effective_candidates {
@@ -111,24 +106,6 @@ fn resolve_from_effective(
         }),
         _ => LoopRouteDecision::Deny(LoopRouteDenyReason::OverlappingNamedRoutes),
     }
-}
-
-fn legacy_matched_candidates(facts: Option<&CanonicalLoopFacts>) -> Vec<LoopRouteId> {
-    let Some(facts) = facts else {
-        return Vec::new();
-    };
-    ENTRIES
-        .iter()
-        .filter(|entry| (entry.predicate)(facts))
-        .map(|entry| entry.id)
-        .collect()
-}
-
-fn route_id_from_str(name: &str) -> Option<LoopRouteId> {
-    ENTRIES
-        .iter()
-        .find(|entry| entry.name == name)
-        .map(|entry| entry.id)
 }
 
 fn join_or_none(items: &[LoopRouteId]) -> String {

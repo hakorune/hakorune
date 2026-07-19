@@ -12,6 +12,7 @@ INDEX="docs/tools/check-scripts-index.md"
 SELF_SCRIPT="tools/checks/coreplan_planner_required_route_exhaustion_guard.sh"
 ROUTER="src/mir/builder/control_flow/joinir/route_entry/router.rs"
 REGISTRY="src/mir/builder/control_flow/joinir/route_entry/registry/mod.rs"
+SELECTION="src/mir/builder/control_flow/joinir/route_entry/registry/selection.rs"
 GENERIC_HANDLER="src/mir/builder/control_flow/joinir/route_entry/registry/handlers/generic.rs"
 SINGLE_PLANNER="src/mir/builder/control_flow/plan/single_planner/rules.rs"
 
@@ -25,6 +26,7 @@ guard_require_files \
   "$SELF_SCRIPT" \
   "$ROUTER" \
   "$REGISTRY" \
+  "$SELECTION" \
   "$GENERIC_HANDLER" \
   "$SINGLE_PLANNER"
 
@@ -52,9 +54,13 @@ guard_expect_fixed_in_file "$TAG" \
   "check index must list this guard"
 
 guard_expect_fixed_in_file "$TAG" \
-  "let candidates = registry::collect_candidates(outcome.facts.as_ref());" \
+  "let selection = registry::select_recipe_first_routes(outcome.facts.as_ref());" \
   "$ROUTER" \
-  "router must collect candidates under planner_required"
+  "router must create one pure recipe-first selection"
+guard_expect_fixed_in_file "$TAG" \
+  "let candidates = selection.diagnostic_effective_names();" \
+  "$ROUTER" \
+  "router must keep diagnostic candidates under planner_required"
 guard_expect_fixed_in_file "$TAG" \
   "if candidates.len() > 1" \
   "$ROUTER" \
@@ -83,16 +89,31 @@ guard_expect_fixed_in_file "$TAG" \
 guard_expect_fixed_in_file "$TAG" \
   "pub(crate) fn collect_candidates" \
   "$REGISTRY" \
-  "registry must own candidate collection"
+  "registry must keep diagnostic candidate facade"
 guard_expect_fixed_in_file "$TAG" \
   "pub(crate) fn try_route_recipe_first" \
   "$REGISTRY" \
-  "registry must own recipe-first route iteration"
+  "registry must keep raw recipe-first facade"
+guard_expect_fixed_in_file "$TAG" \
+  "pub(crate) fn select_recipe_first_routes" \
+  "$SELECTION" \
+  "selection module must own ordered predicate and suppression evaluation"
+guard_expect_fixed_in_file "$TAG" \
+  "raw_execution" \
+  "$SELECTION" \
+  "selection must retain raw execution order separately from diagnostics"
+guard_expect_fixed_in_file "$TAG" \
+  "diagnostic_effective" \
+  "$SELECTION" \
+  "selection must retain legacy diagnostic filtering separately"
+if rg -q 'MirBuilder|PlanLowerer|ledger|claim_batch' "$SELECTION"; then
+  guard_fail "$TAG" "pure route selection must not import execution or claim authority"
+fi
 
 guard_expect_fixed_in_file "$TAG" \
-  "Err(_err) if !env.strict_or_dev => return Ok(None)" \
+  "if PlanVerifier::verify(&core_plan).is_err()" \
   "$GENERIC_HANDLER" \
-  "generic release compose fallback must remain explicit for inventory"
+  "generic release verification fallback must remain explicit for inventory"
 guard_expect_fixed_in_file "$TAG" \
   "Err(_) => Ok(None)" \
   "$GENERIC_HANDLER" \

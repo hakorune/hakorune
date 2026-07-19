@@ -231,6 +231,7 @@ pub(crate) fn route_loop(
         planner_required,
         has_body_local,
     };
+    let selection = registry::select_recipe_first_routes(outcome.facts.as_ref());
     let allow_shadow_fallback = outcome.recipe_contract.is_none();
     let debug_enabled = crate::config::env::joinir_dev::debug_enabled();
     let trace_entry_route = |route: &str| {
@@ -259,7 +260,7 @@ pub(crate) fn route_loop(
                 strict_or_dev, planner_required, debug_enabled
             ));
         }
-        let candidates = registry::collect_candidates(outcome.facts.as_ref());
+        let candidates = selection.diagnostic_effective_names();
         if debug_enabled {
             let list = if candidates.is_empty() {
                 "none".to_string()
@@ -271,7 +272,7 @@ pub(crate) fn route_loop(
                 "[plan/trace:entry_candidates] ctx=loop_router candidates={}",
                 list
             ));
-            let resolver_shadow = registry::collect_b_lite_shadow_report(outcome.facts.as_ref());
+            let resolver_shadow = registry::collect_b_lite_shadow_report(&selection);
             let _ = ring0
                 .io
                 .stderr_write(format!("{}\n", resolver_shadow.trace_line()).as_bytes());
@@ -299,7 +300,7 @@ pub(crate) fn route_loop(
     let recipe_first_allowed = strict_or_dev || release_recipe_first_allowed;
     if recipe_first_allowed {
         if let Some(success) =
-            registry::try_route_recipe_first_with_success(builder, ctx, &outcome, &env)?
+            registry::try_execute_recipe_first_selection(builder, ctx, &outcome, &env, &selection)?
         {
             trace_legacy_selected(success.route.as_str());
             trace_entry_route("recipe_first");
@@ -326,7 +327,7 @@ pub(crate) fn route_loop(
     }
 
     // No route matched - return None (caller will handle error)
-    let candidate_names = registry::collect_candidates(outcome.facts.as_ref());
+    let candidate_names = selection.diagnostic_effective_names();
     let candidate_text = if candidate_names.is_empty() {
         "none".to_string()
     } else {
