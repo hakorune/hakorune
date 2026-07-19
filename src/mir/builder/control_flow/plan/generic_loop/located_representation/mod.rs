@@ -1,5 +1,6 @@
 //! Passive O0 located GenericLoopV1 representation seal.
 
+mod direct_preflight;
 mod error;
 mod lowering_view;
 mod product;
@@ -16,11 +17,14 @@ use crate::mir::callable_result_representation::LegacyStmtInputV1;
 use crate::mir::policies::BodyLoweringPolicy;
 use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
 
+pub(in crate::mir::builder) use direct_preflight::{
+    PreparedLocatedGenericLoopDirectExecutionV1, VerifiedLocatedGenericLoopDirectPreflightV1,
+};
 pub(in crate::mir::builder) use error::LocatedGenericLoopRepresentationErrorV1;
 pub(in crate::mir::builder) use lowering_view::{
-    VerifiedLocatedGenericLoopLoweringModeV1, VerifiedLocatedGenericLoopLoweringViewV1,
-    VerifiedLocatedRecipeBlockLoweringViewV1, VerifiedLocatedRecipeItemLoweringViewV1,
-    VerifiedStmtWrappedJoinIfLoweringViewV1,
+    VerifiedLocatedDirectBodyLoweringViewV1, VerifiedLocatedGenericLoopLoweringModeV1,
+    VerifiedLocatedGenericLoopLoweringViewV1, VerifiedLocatedRecipeBlockLoweringViewV1,
+    VerifiedLocatedRecipeItemLoweringViewV1, VerifiedStmtWrappedJoinIfLoweringViewV1,
 };
 use product::VerifiedLocatedGenericLoopBodyModeV1;
 pub(in crate::mir::builder) use product::VerifiedLocatedGenericLoopBodyRepresentationV1;

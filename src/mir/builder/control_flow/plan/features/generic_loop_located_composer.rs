@@ -8,9 +8,15 @@
 use std::collections::BTreeMap;
 
 use crate::mir::builder::control_flow::plan::features::{generic_loop_body, generic_loop_step};
-use crate::mir::builder::control_flow::plan::generic_loop::located_representation::VerifiedLocatedGenericLoopBodyRepresentationV1;
-use crate::mir::builder::control_flow::plan::parts::prepare_located_generic_loop_parts_execution_v1;
+use crate::mir::builder::control_flow::plan::generic_loop::located_representation::{
+    PreparedLocatedGenericLoopDirectExecutionV1, VerifiedLocatedGenericLoopBodyRepresentationV1,
+    VerifiedLocatedGenericLoopDirectPreflightV1, VerifiedLocatedGenericLoopLoweringViewV1,
+};
 use crate::mir::builder::control_flow::plan::parts::var_map_scope::with_saved_variable_map_typed;
+use crate::mir::builder::control_flow::plan::parts::{
+    prepare_located_generic_loop_parts_execution_v1, PreparedLocatedGenericLoopPartsBodyV1,
+    PreparedLocatedGenericLoopPartsExecutionV1,
+};
 use crate::mir::builder::control_flow::plan::skeletons::generic_loop::alloc_generic_loop_v0_skeleton;
 use crate::mir::builder::control_flow::plan::{
     CorePlan, LocatedLoopPlanExpressionPortV1, LoopPlanExpressionPortV1,
@@ -19,8 +25,129 @@ use crate::mir::builder::control_flow::plan::{
 use crate::mir::builder::{CanonicalSameModuleCallableKeyV1, MirBuilder};
 use crate::mir::callable_result_representation::VerifiedCallableResultActivationPlanV1;
 use crate::mir::resolved_semantics::ExprChildRoleV1;
+use crate::mir::ValueId;
 
 const LOCATED_GENERIC_LOOP_ERR: &str = "[located-generic-loop-v1]";
+
+enum PreparedLocatedGenericLoopBodyExecutionV1<'seal, 'view, 'plan> {
+    Direct(PreparedLocatedGenericLoopDirectBodyV1<'seal, 'view, 'plan>),
+    ExitAllowed(PreparedLocatedGenericLoopPartsBodyV1<'seal, 'view, 'plan>),
+}
+
+struct PreparedLocatedGenericLoopDirectBodyV1<'seal, 'view, 'plan> {
+    lowering: &'seal VerifiedLocatedGenericLoopLoweringViewV1<'view, 'plan>,
+    _seal: DirectBodyExecutionSealV1,
+}
+
+struct DirectBodyExecutionSealV1;
+
+impl<'seal, 'view, 'plan> PreparedLocatedGenericLoopBodyExecutionV1<'seal, 'view, 'plan> {
+    fn lower_body(
+        self,
+        builder: &mut MirBuilder,
+        current_bindings: &mut BTreeMap<String, ValueId>,
+        carrier_step_phis: &BTreeMap<String, ValueId>,
+        loop_var: &str,
+    ) -> Result<Vec<crate::mir::builder::control_flow::plan::LoweredRecipe>, String> {
+        match self {
+            Self::Direct(body) => {
+                let lowering = body.lowering;
+                let crate::mir::builder::control_flow::plan::generic_loop::located_representation::VerifiedLocatedGenericLoopLoweringModeV1::DirectRecipeOnly { body } = lowering.mode()
+                else {
+                    return Err(format!(
+                        "{LOCATED_GENERIC_LOOP_ERR}: direct execution mode drift"
+                    ));
+                };
+                let port = body.expression_port();
+                let statements = (0..body.len()).map(|index| {
+                    body.statement(index).ok_or_else(|| {
+                        format!(
+                            "{LOCATED_GENERIC_LOOP_ERR}: direct prefix carrier missing: index={index}"
+                        )
+                    })
+                });
+                let mut reject = |_builder: &mut MirBuilder,
+                                  _bindings: &mut BTreeMap<String, ValueId>,
+                                  _port: &LocatedLoopPlanExpressionPortV1<'plan>,
+                                  _statement| {
+                    Err(format!(
+                        "{LOCATED_GENERIC_LOOP_ERR}: unsupported DirectRecipeOnly statement"
+                    ))
+                };
+                let statements = statements.collect::<Result<Vec<_>, _>>()?;
+                generic_loop_body::lower_direct_statement_inputs(
+                    builder,
+                    current_bindings,
+                    port,
+                    statements,
+                    carrier_step_phis,
+                    loop_var,
+                    LOCATED_GENERIC_LOOP_ERR,
+                    &mut reject,
+                    &|_| false,
+                )
+            }
+            Self::ExitAllowed(body) => body.lower_body(
+                builder,
+                current_bindings,
+                carrier_step_phis,
+                &BTreeMap::new(),
+                LOCATED_GENERIC_LOOP_ERR,
+            ),
+        }
+    }
+}
+
+enum PreparedLocatedGenericLoopExecutionV1<'seal, 'view, 'plan> {
+    Direct(PreparedLocatedGenericLoopDirectExecutionV1<'seal, 'view, 'plan>),
+    ExitAllowed(PreparedLocatedGenericLoopPartsExecutionV1<'seal, 'view, 'plan>),
+}
+
+impl<'seal, 'view, 'plan> PreparedLocatedGenericLoopExecutionV1<'seal, 'view, 'plan> {
+    fn prepare(
+        lowering: &'seal VerifiedLocatedGenericLoopLoweringViewV1<'view, 'plan>,
+    ) -> Result<Self, String> {
+        match lowering.mode() {
+            crate::mir::builder::control_flow::plan::generic_loop::located_representation::VerifiedLocatedGenericLoopLoweringModeV1::DirectRecipeOnly { .. } => {
+                let preflight = VerifiedLocatedGenericLoopDirectPreflightV1::verify(lowering)
+                    .map_err(|error| format!("{LOCATED_GENERIC_LOOP_ERR}: direct preflight failed: {error:?}"))?;
+                Ok(Self::Direct(preflight.into_execution()))
+            }
+            crate::mir::builder::control_flow::plan::generic_loop::located_representation::VerifiedLocatedGenericLoopLoweringModeV1::ExitAllowedRecipe { .. } => {
+                Ok(Self::ExitAllowed(prepare_located_generic_loop_parts_execution_v1(lowering)?))
+            }
+        }
+    }
+
+    fn into_parts(
+        self,
+    ) -> (
+        Box<[String]>,
+        PreparedLocatedGenericLoopBodyExecutionV1<'seal, 'view, 'plan>,
+    ) {
+        match self {
+            Self::Direct(token) => {
+                let (lowering, targets) = token.into_components();
+                (
+                    targets,
+                    PreparedLocatedGenericLoopBodyExecutionV1::Direct(
+                        PreparedLocatedGenericLoopDirectBodyV1 {
+                            lowering,
+                            _seal: DirectBodyExecutionSealV1,
+                        },
+                    ),
+                )
+            }
+            Self::ExitAllowed(token) => {
+                let (targets, body) = token.into_parts();
+                (
+                    targets,
+                    PreparedLocatedGenericLoopBodyExecutionV1::ExitAllowed(body),
+                )
+            }
+        }
+    }
+}
 
 pub(in crate::mir::builder) fn compose_located_generic_loop_v1<'plan>(
     builder: &mut MirBuilder,
@@ -40,8 +167,8 @@ pub(in crate::mir::builder) fn compose_located_generic_loop_v1<'plan>(
             .map_err(|error| error.render())?;
         let loop_var = lowering.loop_var().to_string();
         let carrier_role = lowering.carrier_role();
-        let execution = prepare_located_generic_loop_parts_execution_v1(&lowering)?;
-        let (carrier_targets, parts_body) = execution.into_parts();
+        let execution = PreparedLocatedGenericLoopExecutionV1::prepare(&lowering)?;
+        let (carrier_targets, body_execution) = execution.into_parts();
 
         with_saved_variable_map_typed(builder, |builder| {
             let pre_body_map = builder.variable_ctx.variable_map.clone();
@@ -61,12 +188,11 @@ pub(in crate::mir::builder) fn compose_located_generic_loop_v1<'plan>(
                                 .variable_map
                                 .insert(name.clone(), *value);
                         }
-                        let mut body = parts_body.lower_body(
+                        let mut body = body_execution.lower_body(
                             builder,
                             &mut current_bindings,
                             carrier_step_phis,
-                            &BTreeMap::new(),
-                            LOCATED_GENERIC_LOOP_ERR,
+                            &loop_var,
                         )?;
                         generic_loop_body::apply_generic_loop_v1_fallthrough_cleanup_input(
                             builder,

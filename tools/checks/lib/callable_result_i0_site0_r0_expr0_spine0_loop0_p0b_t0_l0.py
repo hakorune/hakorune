@@ -48,7 +48,7 @@ def check_loop0_p0b_t0_l0(root: Path) -> str:
     _require(features, "mod generic_loop_located_composer;", 1, "module registration")
     _require(production, "fn compose_located_generic_loop_v1<'plan>(", 1, "composer owner")
     _require(production, "bind_lowering_port(port)", 1, "same-call O0 binding")
-    _require(production, "prepare_located_generic_loop_parts_execution_v1(&lowering)", 1, "pre-effect strict preflight")
+    _require(production, "prepare_located_generic_loop_parts_execution_v1(lowering)", 1, "pre-effect strict preflight")
     _require(production, "orchestrate_generic_loop_v1_carriers_from_targets(", 1, "target-owned carrier orchestration")
     _require(production, "apply_generic_loop_v1_fallthrough_cleanup_input(", 1, "located cleanup")
     _require(production, "apply_generic_loop_condition_input(", 1, "located condition")
@@ -76,7 +76,7 @@ def check_loop0_p0b_t0_l0(root: Path) -> str:
             raise RuntimeError(f"LOOP0-P0b-T0 L0 composer owns forbidden authority: {forbidden}")
 
     _require(tests, "fn actual_strict_loop_composes_and_final_seals_in_one_call()", 1, "actual strict fixture")
-    _require(tests, "DirectRecipeOnly must remain parked at L0", 1, "direct-mode pre-effect reject")
+    _require(tests, "both located loop modes compose", 1, "direct-mode acceptance")
     _require(tests, "vec![3, 4, 5, 6, 8, 7, 0, 1, 2]", 1, "plan traversal order")
     _require(tests, "schedule.len(), 9", 1, "exact Loop call count")
 
@@ -95,7 +95,7 @@ def check_loop0_p0b_t0_l0(root: Path) -> str:
     if oversized:
         raise RuntimeError(f"LOOP0-P0b-T0 L0 source/check files reached 800 lines: {oversized}")
 
-    return "t0_l0=green composer=1 strict=1 direct=0 sites=9 builder=disconnected ledger=0"
+    return "t0_l0=green composer=1 strict=1 direct=1 sites=9 builder=disconnected ledger=0"
 
 
 def __file_relative() -> str:

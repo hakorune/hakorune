@@ -22,7 +22,9 @@ pub(in crate::mir::builder) use carrier_orchestration::{
 pub(in crate::mir::builder) use cleanup::{
     apply_generic_loop_v1_fallthrough_cleanup, apply_generic_loop_v1_fallthrough_cleanup_input,
 };
-pub(in crate::mir::builder) use direct_associated::lower_direct_body_input_with_policy;
+pub(in crate::mir::builder) use direct_associated::{
+    lower_direct_body_input_with_policy, lower_direct_statement_inputs,
+};
 pub(in crate::mir::builder) use direct_port::lower_generic_loop_v1_direct_inputs;
 pub(in crate::mir::builder) use terminality::{
     body_plans_exit_on_all_paths, plans_require_continue_edge,

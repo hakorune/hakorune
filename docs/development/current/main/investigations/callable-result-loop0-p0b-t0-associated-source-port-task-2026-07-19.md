@@ -1,5 +1,5 @@
 ---
-Status: T0-L0, T0-DIRECT0-S0, and T0-DIRECT0-R0 closed; T0-DIRECT0-I0 is next
+Status: T0-L0, T0-DIRECT0-S0, T0-DIRECT0-R0, and T0-DIRECT0-I0/G0 closed; T0-P0 is next
 Date: 2026-07-19
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md
 Prior decision: callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md
@@ -1074,6 +1074,33 @@ The next row is `LOOP0-P0b-T0-DIRECT0-I0`: Builder-free DirectRecipeOnly
 preflight/execution token and disconnected located composer acceptance. It
 must consume this shared owner without introducing a second dispatcher or
 reclassifying raw facts/policy.
+
+#### T0-DIRECT0-I0 closeout
+
+I0 is closed without a design consultation. One Builder-free
+`DirectRecipeOnly` preflight consumes only the O0-bound lowering view, checks
+the exact PATH0 Local/Assignment/Return/If carriers, and records one canonical
+sorted assignment-target inventory. The resulting non-Clone execution token
+rejects strict `ExitAllowedRecipe` before Builder effects; it reads no facts,
+environment, body policy, recipe, or ledger state.
+
+The R0 direct owner now has one `StmtInput` iterator entry, so the exact O0
+prefix is lowered without fabricating a synthetic body. The same-call composer
+has one sealed Direct/ExitAllowed mode dispatch and keeps the existing common
+skeleton, carrier orchestration, cleanup, condition, and final located plan
+seal. Default and strict actual fixtures both compose successfully with nine
+located sites; plan traversal remains `[3, 4, 5, 6, 8, 7, 0, 1, 2]` while the
+source schedule remains rows 6 through 14.
+
+Focused preflight tests are 2/2, direct core 3/3, GenericLoop body 20/20,
+associated-input 3/3, located representation 14/14, and composer 1/1. The
+all-target check, public expression-spine guard, pointer, formatting, diff,
+and line checks are green. Production located roots, PlanLowerer, ledger
+claims, fallback/retry, synthetic-body conversion, and broader grammar remain
+zero.
+
+The next row is `LOOP0-P0b-P0`: run both-mode whole-loop typed parity with
+fresh identically seeded Builders; strict-only parity is not sufficient.
 
 L0 stops for a new consultation if exact carrier targets cannot be retained by
 the existing HOOK0 traversal; if `DirectRecipeOnly` must become active now; if

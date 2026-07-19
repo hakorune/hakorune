@@ -22,6 +22,9 @@ from callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_t0_parity0 import (
 from callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_t0_l0 import (
     check_loop0_p0b_t0_l0,
 )
+from callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_t0_direct0_i0 import (
+    check_loop0_p0b_t0_direct0_i0,
+)
 
 
 C0_RAW = "src/mir/builder/control_flow/plan/normalizer/cond_lowering_loop_header.rs"
@@ -397,7 +400,7 @@ def _guard_r0_d0_s0(root: Path) -> None:
     _require(
         located_view,
         "fn expression_port(",
-        1,
+        2,
         "R0-D0 bound located port projection",
     )
 
@@ -678,6 +681,7 @@ def check_loop0_p0b_t0(root: Path) -> str:
     hook0 = check_loop0_p0b_t0_hook0(root)
     parity0 = check_loop0_p0b_t0_parity0(root)
     l0 = check_loop0_p0b_t0_l0(root)
+    direct0_i0 = check_loop0_p0b_t0_direct0_i0(root)
     _guard_no_premature_located_consumer(root)
 
     touched = (
@@ -709,8 +713,9 @@ def check_loop0_p0b_t0(root: Path) -> str:
         PARTS_IF_EXIT_ONLY,
         PARTS_MOD,
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_t0.py",
+        "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_t0_direct0_i0.py",
     )
     oversized = [relative for relative in touched if len(_read(root, relative).splitlines()) >= 800]
     if oversized:
         raise RuntimeError(f"LOOP0-P0b-T0 source/check files reached 800 lines: {oversized}")
-    return f"loop0_p0b_t0_c0=1 loop0_p0b_t0_b0=1 r0_v0=1 r0_c0=1 r0_d0_s0=1 r0_d0_dispatch0_s0=1 r0_d0_raw0=1 {hook0} {parity0} {l0} production_located_callers=0"
+    return f"loop0_p0b_t0_c0=1 loop0_p0b_t0_b0=1 r0_v0=1 r0_c0=1 r0_d0_s0=1 r0_d0_dispatch0_s0=1 r0_d0_raw0=1 {hook0} {parity0} {l0} {direct0_i0} production_located_callers=0"

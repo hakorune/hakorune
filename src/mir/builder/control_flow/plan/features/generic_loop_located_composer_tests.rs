@@ -1,6 +1,4 @@
-use crate::mir::builder::control_flow::plan::generic_loop::facts::extract::test_support::{
-    with_default_and_strict_modes, GenericLoopTestModeV1,
-};
+use crate::mir::builder::control_flow::plan::generic_loop::facts::extract::test_support::with_default_and_strict_modes;
 use crate::mir::builder::control_flow::plan::generic_loop::located_representation::VerifiedLocatedGenericLoopBodyRepresentationV1;
 use crate::mir::builder::control_flow::plan::{
     visit_core_call_sources_v1, CoreCallSourceV1, LocatedLoopPlanExpressionPortV1,
@@ -17,7 +15,7 @@ use super::compose_located_generic_loop_v1;
 #[test]
 fn actual_strict_loop_composes_and_final_seals_in_one_call() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
-    with_default_and_strict_modes(|mode| {
+    with_default_and_strict_modes(|_mode| {
         let activation = actual_parser_add_fixture::plan();
         let caller = actual_parser_add_fixture::caller(&activation);
         let view = VerifiedCallableResultLegacySourceViewV1::verify(&activation, &caller)
@@ -43,35 +41,28 @@ fn actual_strict_loop_composes_and_final_seals_in_one_call() {
             &caller,
         );
 
-        match mode {
-            GenericLoopTestModeV1::Default => {
-                assert!(result.is_err(), "DirectRecipeOnly must remain parked at L0");
-                assert_eq!(builder.variable_ctx.variable_map, variable_map_before);
-                assert_eq!(builder.type_ctx.value_types, value_types_before);
+        let located = result.expect("both located loop modes compose");
+        assert!(located.plan_is_loop());
+        let schedule = located
+            .schedule()
+            .sites_in_source_order()
+            .cloned()
+            .collect::<Vec<_>>();
+        assert_eq!(schedule.len(), 9);
+        let mut traversal = Vec::new();
+        visit_core_call_sources_v1(located.plan_for_tests(), &mut |source| {
+            if let CoreCallSourceV1::LocatedMethodCall(site) = source {
+                traversal.push(
+                    schedule
+                        .iter()
+                        .position(|candidate| candidate == site)
+                        .expect("every plan site belongs to the final schedule"),
+                );
             }
-            GenericLoopTestModeV1::StrictPlannerRequired => {
-                let located = result.expect("strict located loop composes");
-                assert!(located.plan_is_loop());
-                let schedule = located
-                    .schedule()
-                    .sites_in_source_order()
-                    .cloned()
-                    .collect::<Vec<_>>();
-                assert_eq!(schedule.len(), 9);
-                let mut traversal = Vec::new();
-                visit_core_call_sources_v1(located.plan_for_tests(), &mut |source| {
-                    if let CoreCallSourceV1::LocatedMethodCall(site) = source {
-                        traversal.push(
-                            schedule
-                                .iter()
-                                .position(|candidate| candidate == site)
-                                .expect("every plan site belongs to the final schedule"),
-                        );
-                    }
-                });
-                assert_eq!(traversal, vec![3, 4, 5, 6, 8, 7, 0, 1, 2]);
-            }
-        }
+        });
+        assert_eq!(traversal, vec![3, 4, 5, 6, 8, 7, 0, 1, 2]);
+        assert_eq!(builder.variable_ctx.variable_map, variable_map_before);
+        assert_ne!(builder.type_ctx.value_types, value_types_before);
     });
 }
 

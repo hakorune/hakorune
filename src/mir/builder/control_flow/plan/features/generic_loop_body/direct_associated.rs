@@ -51,7 +51,7 @@ where
     )
 }
 
-pub(in crate::mir::builder) fn lower_direct_body_input_with_policy<'input, P, F, S>(
+pub(in crate::mir::builder) fn lower_direct_body_input_with_policy<'input, P>(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, ValueId>,
     port: &P,
@@ -59,30 +59,78 @@ pub(in crate::mir::builder) fn lower_direct_body_input_with_policy<'input, P, F,
     carrier_step_phis: &BTreeMap<String, ValueId>,
     loop_var: &str,
     error_prefix: &str,
-    fallback: &mut F,
-    skip_statement: &S,
-) -> Result<Vec<LoweredRecipe>, String>
-where
-    P: LoopPlanExpressionPortV1 + 'input,
-    F: FnMut(
+    fallback: &mut dyn FnMut(
         &mut MirBuilder,
         &mut BTreeMap<String, ValueId>,
         &P,
         P::StmtInput<'input>,
     ) -> Result<Vec<LoweredRecipe>, String>,
-    S: Fn(&ASTNode) -> bool,
+    skip_statement: &dyn Fn(&ASTNode) -> bool,
+) -> Result<Vec<LoweredRecipe>, String>
+where
+    P: LoopPlanExpressionPortV1 + 'input,
 {
     let statements = port.body_statements(&body);
+    lower_direct_statement_inputs(
+        builder,
+        current_bindings,
+        port,
+        statements.iter().enumerate().map(|(index, _)| {
+            let input = port
+                .body_stmt(&body, index)
+                .expect("body index came from body_statements");
+            input
+        }),
+        carrier_step_phis,
+        loop_var,
+        error_prefix,
+        &mut |builder, bindings, port, statement| {
+            lower_direct_statement_input(
+                builder,
+                bindings,
+                port,
+                statement,
+                carrier_step_phis,
+                loop_var,
+                error_prefix,
+                fallback,
+                skip_statement,
+            )
+        },
+        skip_statement,
+    )
+}
+
+/// Lowers an already-selected statement sequence through the same direct-body
+/// owner.  The located DirectRecipeOnly prefix is not a complete BodyInput,
+/// so it must enter here rather than through a synthetic body carrier.
+pub(in crate::mir::builder) fn lower_direct_statement_inputs<'input, P, Inputs>(
+    builder: &mut MirBuilder,
+    current_bindings: &mut BTreeMap<String, ValueId>,
+    port: &P,
+    statements: Inputs,
+    carrier_step_phis: &BTreeMap<String, ValueId>,
+    loop_var: &str,
+    error_prefix: &str,
+    fallback: &mut dyn FnMut(
+        &mut MirBuilder,
+        &mut BTreeMap<String, ValueId>,
+        &P,
+        P::StmtInput<'input>,
+    ) -> Result<Vec<LoweredRecipe>, String>,
+    skip_statement: &dyn Fn(&ASTNode) -> bool,
+) -> Result<Vec<LoweredRecipe>, String>
+where
+    P: LoopPlanExpressionPortV1 + 'input,
+    Inputs: IntoIterator<Item = P::StmtInput<'input>>,
+{
     lower_generic_loop_v1_direct_inputs(
         builder,
         current_bindings,
         port,
-        statements.iter().enumerate().filter_map(|(index, _)| {
-            let input = port
-                .body_stmt(&body, index)
-                .expect("body index came from body_statements");
-            (!skip_statement(port.stmt_syntax(&input))).then_some(input)
-        }),
+        statements
+            .into_iter()
+            .filter(|statement| !skip_statement(port.stmt_syntax(statement))),
         |builder, bindings, port, statement| {
             lower_direct_statement_input(
                 builder,
@@ -99,7 +147,7 @@ where
     )
 }
 
-fn lower_direct_statement_input<'input, P, F, S>(
+fn lower_direct_statement_input<'input, P>(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, ValueId>,
     port: &P,
@@ -107,18 +155,16 @@ fn lower_direct_statement_input<'input, P, F, S>(
     carrier_step_phis: &BTreeMap<String, ValueId>,
     loop_var: &str,
     error_prefix: &str,
-    fallback: &mut F,
-    skip_statement: &S,
-) -> Result<Vec<LoweredRecipe>, String>
-where
-    P: LoopPlanExpressionPortV1 + 'input,
-    F: FnMut(
+    fallback: &mut dyn FnMut(
         &mut MirBuilder,
         &mut BTreeMap<String, ValueId>,
         &P,
         P::StmtInput<'input>,
     ) -> Result<Vec<LoweredRecipe>, String>,
-    S: Fn(&ASTNode) -> bool,
+    skip_statement: &dyn Fn(&ASTNode) -> bool,
+) -> Result<Vec<LoweredRecipe>, String>
+where
+    P: LoopPlanExpressionPortV1 + 'input,
 {
     match port.stmt_syntax(&statement) {
         ASTNode::Local { .. } => {
@@ -198,7 +244,7 @@ where
     }
 }
 
-fn lower_direct_if_input<'input, P, F, S>(
+fn lower_direct_if_input<'input, P>(
     builder: &mut MirBuilder,
     current_bindings: &mut BTreeMap<String, ValueId>,
     port: &P,
@@ -206,18 +252,16 @@ fn lower_direct_if_input<'input, P, F, S>(
     carrier_step_phis: &BTreeMap<String, ValueId>,
     loop_var: &str,
     error_prefix: &str,
-    fallback: &mut F,
-    skip_statement: &S,
-) -> Result<Vec<LoweredRecipe>, String>
-where
-    P: LoopPlanExpressionPortV1 + 'input,
-    F: FnMut(
+    fallback: &mut dyn FnMut(
         &mut MirBuilder,
         &mut BTreeMap<String, ValueId>,
         &P,
         P::StmtInput<'input>,
     ) -> Result<Vec<LoweredRecipe>, String>,
-    S: Fn(&ASTNode) -> bool,
+    skip_statement: &dyn Fn(&ASTNode) -> bool,
+) -> Result<Vec<LoweredRecipe>, String>
+where
+    P: LoopPlanExpressionPortV1 + 'input,
 {
     let condition = port
         .child_expr_from_stmt(&statement, ExprChildRoleV1::IfCondition)
