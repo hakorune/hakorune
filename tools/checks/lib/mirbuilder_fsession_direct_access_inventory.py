@@ -11,7 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
-from collections import defaultdict
+from dataclasses import dataclass
 from pathlib import Path
 
 
@@ -21,9 +21,9 @@ SNAPSHOT = ROOT / "tools/checks/fixtures/mirbuilder_fsession_direct_access_v1.js
 SOURCE_ROOT = ROOT / "src"
 EXCLUDED = {"src/mir/builder/function_lowering_state.rs"}
 
-# Every accepted receiver is an existing, bounded MirBuilder carrier. The
-# `b` and `self.0` forms are required by production emitter wrappers.
-RECEIVER = r"(?:\bself(?:\s*\.\s*(?:0|builder))?|\bbuilder|\bb|\b[A-Za-z_]\w*\s*\.\s*builder)"
+# The receiver spelling is only a candidate. `ReceiverOwnerIndex` proves the
+# lexical owner before it contributes an old FunctionOwned access.
+RECEIVER = r"(?P<receiver>\bself(?:\s*\.\s*(?:0|builder))?|\bbuilder|\bb|\b[A-Za-z_]\w*\s*\.\s*builder)"
 
 
 def fail(message: str) -> None:
@@ -31,10 +31,11 @@ def fail(message: str) -> None:
 
 
 def skip_rust_literal_or_comment(text: str, index: int) -> int | None:
-    if text.startswith("//", index):
+    initial = text[index]
+    if initial == "/" and text.startswith("//", index):
         newline = text.find("\n", index + 2)
         return len(text) if newline < 0 else newline + 1
-    if text.startswith("/*", index):
+    if initial == "/" and text.startswith("/*", index):
         depth = 1
         cursor = index + 2
         while cursor < len(text) and depth:
@@ -48,15 +49,16 @@ def skip_rust_literal_or_comment(text: str, index: int) -> int | None:
                 cursor += 1
         return cursor
 
-    raw = re.match(r"(?:br|r)(?P<hashes>#{0,16})\"", text[index:])
-    if raw is not None:
-        delimiter = '"' + raw.group("hashes")
-        body = index + raw.end()
-        close = text.find(delimiter, body)
-        return len(text) if close < 0 else close + len(delimiter)
+    if initial in {"r", "b"}:
+        raw = re.match(r"(?:br|r)(?P<hashes>#{0,16})\"", text[index:])
+        if raw is not None:
+            delimiter = '"' + raw.group("hashes")
+            body = index + raw.end()
+            close = text.find(delimiter, body)
+            return len(text) if close < 0 else close + len(delimiter)
 
-    quote_index = index + 1 if text.startswith(('b"', 'c"'), index) else index
-    if quote_index < len(text) and text[quote_index] == '"':
+    quote_index = index + 1 if initial in {"b", "c"} and text.startswith('"', index + 1) else index
+    if initial == '"' or quote_index != index:
         cursor = quote_index + 1
         while cursor < len(text):
             if text[cursor] == "\\":
@@ -68,7 +70,7 @@ def skip_rust_literal_or_comment(text: str, index: int) -> int | None:
         return len(text)
 
     # Lifetimes are not character literals. Only consume a nearby closing quote.
-    if text[index] == "'":
+    if initial == "'":
         cursor = index + 2 if text.startswith("'\\", index) else index + 1
         close = text.find("'", cursor)
         if 0 <= close - index <= 8:
@@ -102,7 +104,7 @@ def skip_space_and_comments(text: str, index: int) -> int:
     return index
 
 
-def matching_brace(text: str, opening: int) -> int:
+def matching_delimiter(text: str, opening: int, left: str = "{", right: str = "}") -> int:
     depth = 1
     cursor = opening + 1
     while cursor < len(text):
@@ -110,14 +112,18 @@ def matching_brace(text: str, opening: int) -> int:
         if skipped is not None:
             cursor = skipped
             continue
-        if text[cursor] == "{":
+        if text[cursor] == left:
             depth += 1
-        elif text[cursor] == "}":
+        elif text[cursor] == right:
             depth -= 1
             if depth == 0:
                 return cursor + 1
         cursor += 1
     fail("unterminated cfg(test) item")
+
+
+def matching_brace(text: str, opening: int) -> int:
+    return matching_delimiter(text, opening)
 
 
 def cfg_test_item_end(text: str, attribute_start: int) -> int:
@@ -157,28 +163,201 @@ def cfg_test_item_end(text: str, attribute_start: int) -> int:
     fail("unterminated cfg(test) item")
 
 
-def partition_cfg_test_items(text: str) -> tuple[str, str]:
-    """Return source outside and inside cfg(...test...) items, respectively."""
+def blank_like(text: str) -> str:
+    return "".join("\n" if char == "\n" else " " for char in text)
 
-    production: list[str] = []
-    tests: list[str] = []
+
+def cfg_source_domain(attribute: str) -> str:
+    compact = re.sub(r"\s+", "", attribute)
+    if compact == "test" or compact.startswith("all(test,"):
+        return "test"
+    if compact == "not(test)" or compact.startswith("all(not(test),"):
+        return "production"
+    return "shared"
+
+
+def partition_cfg_items(text: str) -> dict[str, str]:
+    """Classify only bounded cfg/test items; all other source stays production."""
+
+    partitions = {domain: [] for domain in ("production", "test", "shared")}
     cursor = 0
-    marker = re.compile(r"(?m)^[ \t]*(?P<marker>#\[\s*cfg\([^\]]*\btest\b[^\]]*\)\])")
+    marker = re.compile(r"(?m)^[ \t]*#\[\s*(?P<attribute>cfg\((?P<cfg>[^\]]+)\)|test)\s*\]")
     while True:
         match = marker.search(text, cursor)
         if match is None:
-            production.append(text[cursor:])
-            return "".join(production), "".join(tests)
-        start = match.start("marker")
-        production.append(text[cursor:start])
+            tail = text[cursor:]
+            partitions["production"].append(tail)
+            partitions["test"].append(blank_like(tail))
+            partitions["shared"].append(blank_like(tail))
+            return {domain: "".join(parts) for domain, parts in partitions.items()}
+        start = match.start()
+        prefix = text[cursor:start]
+        partitions["production"].append(prefix)
+        partitions["test"].append(blank_like(prefix))
+        partitions["shared"].append(blank_like(prefix))
         end = cfg_test_item_end(text, start)
-        tests.append(text[start:end])
-        production.append("\n" * text[start:end].count("\n"))
+        item = text[start:end]
+        domain = cfg_source_domain(match.group("cfg") or match.group("attribute"))
+        for candidate, parts in partitions.items():
+            parts.append(item if candidate == domain else blank_like(item))
         cursor = end
 
 
 def is_test_path(path: Path) -> bool:
     return path.name == "tests.rs" or path.name.endswith("_tests.rs") or "tests" in path.parts
+
+
+@dataclass(frozen=True)
+class LexicalSpan:
+    start: int
+    end: int
+    kind: str
+    bare_receivers: frozenset[str] = frozenset()
+
+
+def terminal_type_name(header: str) -> str | None:
+    candidate = header.rsplit(" for ", 1)[-1].strip()
+    candidate = re.sub(r"\s+where\b.*", "", candidate, flags=re.S)
+    match = re.search(r"(?P<name>[A-Za-z_]\w*)(?:\s*<[^<>]*>)?\s*$", candidate)
+    return None if match is None else match.group("name")
+
+
+def struct_wrapper_kinds(text: str) -> dict[str, str]:
+    wrappers: dict[str, str] = {}
+    for match in re.finditer(r"\bstruct\s+(?P<name>[A-Za-z_]\w*)[^;{(]*", text):
+        cursor = skip_space_and_comments(text, match.end())
+        if cursor >= len(text):
+            continue
+        name = match.group("name")
+        if text[cursor] == "{":
+            body = text[cursor + 1 : matching_brace(text, cursor) - 1]
+            if re.search(r"\bbuilder\s*:\s*&?\s*(?:'[A-Za-z_]\w*\s*)?(?:mut\s+)?(?:[A-Za-z_]\w*::)*MirBuilder\b", body):
+                wrappers[name] = "builder"
+        elif text[cursor] == "(":
+            body = text[cursor + 1 : matching_delimiter(text, cursor, "(", ")") - 1]
+            if re.match(r"\s*&?\s*(?:'[A-Za-z_]\w*\s*)?(?:mut\s+)?(?:[A-Za-z_]\w*::)*MirBuilder\b", body):
+                wrappers[name] = "zero"
+    return wrappers
+
+
+def function_spans(text: str) -> list[LexicalSpan]:
+    spans: list[LexicalSpan] = []
+    for match in re.finditer(r"\bfn\s+[A-Za-z_]\w*", text):
+        opening = text.find("(", match.end())
+        if opening < 0:
+            continue
+        closing = matching_delimiter(text, opening, "(", ")")
+        body_open = text.find("{", closing)
+        semicolon = text.find(";", closing)
+        if body_open < 0 or (0 <= semicolon < body_open):
+            continue
+        body_end = matching_brace(text, body_open)
+        parameters = text[opening + 1 : closing - 1]
+        names = frozenset(
+            parameter.group("name")
+            for parameter in re.finditer(
+                r"\b(?P<name>builder|b)\s*:\s*&\s*(?:'[A-Za-z_]\w*\s*)?(?:mut\s+)?(?:[A-Za-z_]\w*::)*MirBuilder\b",
+                parameters,
+            )
+        )
+        spans.append(LexicalSpan(body_open, body_end, "function", names))
+    return spans
+
+
+def impl_spans(text: str, wrappers: dict[str, str]) -> list[LexicalSpan]:
+    spans: list[LexicalSpan] = []
+    for match in re.finditer(r"\bimpl\b(?P<header>[^{};]*)\{", text):
+        target = terminal_type_name(match.group("header"))
+        kind = "mir_builder" if target == "MirBuilder" else wrappers.get(target or "")
+        if kind is not None:
+            spans.append(LexicalSpan(match.end() - 1, matching_brace(text, match.end() - 1), kind))
+    return spans
+
+
+class ReceiverOwnerIndex:
+    """A bounded lexical proof; it intentionally performs no alias analysis."""
+
+    def __init__(
+        self,
+        text: str,
+        wrappers: dict[str, str] | None = None,
+        factories: frozenset[str] = frozenset(),
+    ) -> None:
+        self.text = text
+        self.wrappers = struct_wrapper_kinds(text) if wrappers is None else wrappers
+        self.factories = factories
+        self.functions = function_spans(text)
+        self.impls = impl_spans(text, self.wrappers)
+
+    @staticmethod
+    def enclosing(spans: list[LexicalSpan], position: int) -> LexicalSpan | None:
+        contained = [span for span in spans if span.start <= position < span.end]
+        return min(contained, key=lambda span: span.end - span.start, default=None)
+
+    def exact_builder_binding(self, name: str, position: int, function: LexicalSpan) -> bool:
+        if name in function.bare_receivers:
+            return True
+        prefix = self.text[function.start:position]
+        birth = rf"\blet\s+(?:mut\s+)?{re.escape(name)}\s*=\s*(?:[A-Za-z_]\w*::)*MirBuilder\s*::\s*new\s*\("
+        if re.search(birth, prefix):
+            return True
+        factory = re.search(
+            rf"\blet\s+(?:\(\s*mut\s+{re.escape(name)}\b[^)]*\)|(?:mut\s+)?{re.escape(name)})\s*=\s*(?P<factory>[A-Za-z_]\w*)\s*\(",
+            prefix,
+        )
+        return factory is not None and factory.group("factory") in self.factories
+
+    def exact_array_iteration_binding(self, name: str, position: int, function: LexicalSpan) -> bool:
+        prefix = self.text[function.start:position]
+        match = re.search(rf"\bfor\s+{re.escape(name)}\s+in\s*\[(?P<items>[^\]]+)\]\s*\{{", prefix)
+        if match is None:
+            return False
+        roots = re.findall(r"&\s*mut\s+(?P<name>[A-Za-z_]\w*)\b", match.group("items"))
+        loop_position = function.start + match.start()
+        return bool(roots) and all(self.exact_builder_binding(root, loop_position, function) for root in roots)
+
+    def classify(self, receiver: str, position: int) -> str:
+        compact = re.sub(r"\s+", "", receiver)
+        owner = self.enclosing(self.impls, position)
+        if compact == "self":
+            return "accept" if owner is not None and owner.kind == "mir_builder" else "ignore"
+        if compact == "self.builder":
+            return "accept" if owner is not None and owner.kind == "builder" else "ignore"
+        if compact == "self.0":
+            return "accept" if owner is not None and owner.kind == "zero" else "ignore"
+        if compact in {"builder", "b"}:
+            function = self.enclosing(self.functions, position)
+            if function is not None:
+                if self.exact_builder_binding(compact, position, function):
+                    return "accept"
+                if self.exact_array_iteration_binding(compact, position, function):
+                    return "accept"
+                prefix = self.text[function.start:position]
+                closure_start = max(prefix.rfind("|builder|"), prefix.rfind("| builder |"))
+                if compact == "builder" and closure_start >= 0:
+                    closure_context = prefix[max(0, closure_start - 512) : closure_start]
+                    if any(
+                        owner in closure_context
+                        for owner in (
+                            "with_function_lowering_session",
+                            "with_resolved_function_lowering_session",
+                            "with_resolved_function_draft_session",
+                        )
+                    ):
+                        return "accept"
+            return "unknown"
+        if compact.endswith(".builder"):
+            function = self.enclosing(self.functions, position)
+            root = compact.removesuffix(".builder")
+            if function is not None:
+                prefix = self.text[function.start:position]
+                wrapper_names = "|".join(re.escape(name) for name, kind in self.wrappers.items() if kind == "builder")
+                if wrapper_names:
+                    typed = rf"\b{re.escape(root)}\s*:\s*&?\s*(?:'[A-Za-z_]\w*\s*)?(?:mut\s+)?(?:{wrapper_names})\b"
+                    born = rf"\blet\s+(?:mut\s+)?{re.escape(root)}\s*=\s*(?:{wrapper_names})\s*::"
+                    if re.search(typed, self.text[function.start:function.end]) or re.search(born, prefix):
+                        return "accept"
+        return "unknown"
 
 
 def direct(receiver: str) -> str:
@@ -330,12 +509,31 @@ def census_routes() -> dict[str, dict[str, str]]:
 
 def source_partitions(path: Path, text: str) -> dict[str, str]:
     if is_test_path(path):
-        return {"production": "", "test": strip_rust_literals_and_comments(text)}
-    production, tests = partition_cfg_test_items(text)
-    return {
-        "production": strip_rust_literals_and_comments(production),
-        "test": strip_rust_literals_and_comments(tests),
-    }
+        return {"production": blank_like(text), "test": text, "shared": blank_like(text)}
+    return partition_cfg_items(text)
+
+
+def wrapper_contracts() -> dict[str, str]:
+    contracts: dict[str, str] = {}
+    for path in sorted(SOURCE_ROOT.rglob("*.rs")):
+        relative = path.relative_to(ROOT).as_posix()
+        if relative in EXCLUDED:
+            continue
+        for name, kind in struct_wrapper_kinds(strip_rust_literals_and_comments(path.read_text(encoding="utf-8"))).items():
+            previous = contracts.setdefault(name, kind)
+            if previous != kind:
+                fail(f"ambiguous MirBuilder wrapper contract: {name}")
+    return contracts
+
+
+def factory_contracts() -> frozenset[str]:
+    factories: set[str] = set()
+    pattern = re.compile(
+        r"\bfn\s+(?P<name>[A-Za-z_]\w*)\s*\([^)]*\)\s*->\s*(?:\(\s*)?(?:[A-Za-z_]\w*::)*MirBuilder\b"
+    )
+    for path in SOURCE_ROOT.rglob("*.rs"):
+        factories.update(match.group("name") for match in pattern.finditer(strip_rust_literals_and_comments(path.read_text(encoding="utf-8"))))
+    return frozenset(factories)
 
 
 def observe(routes: dict[str, dict[str, str]]) -> list[dict[str, object]]:
@@ -344,8 +542,10 @@ def observe(routes: dict[str, dict[str, str]]) -> list[dict[str, object]]:
         for selector, patterns in ROUTE_PATTERNS.items()
     }
     evidence: dict[tuple[str, str], dict[str, object]] = {}
+    wrappers = wrapper_contracts()
+    factories = factory_contracts()
     for selector, route in routes.items():
-        for domain in ("production", "test"):
+        for domain in ("production", "test", "shared"):
             evidence[(selector, domain)] = {
                 "selector": selector,
                 "old_storage": route["old_storage"],
@@ -362,17 +562,32 @@ def observe(routes: dict[str, dict[str, str]]) -> list[dict[str, object]]:
         raw_text = path.read_text(encoding="utf-8")
         if not any(hint in raw_text for hint in ALL_HINTS):
             continue
-        for domain, text in source_partitions(path, raw_text).items():
+        source_text = strip_rust_literals_and_comments(raw_text)
+        owners = ReceiverOwnerIndex(source_text, wrappers, factories)
+        for domain, text in source_partitions(path, source_text).items():
             for selector, patterns in compiled.items():
                 if not any(hint in text for hint in ROUTE_HINTS[selector]):
                     continue
-                count = sum(len(pattern.findall(text)) for pattern in patterns)
+                count = 0
+                for pattern in patterns:
+                    for match in pattern.finditer(text):
+                        disposition = owners.classify(match.group("receiver"), match.start("receiver"))
+                        if disposition == "accept":
+                            count += 1
+                        elif disposition == "unknown":
+                            fail(
+                                "unverified candidate receiver "
+                                f"path={relative} line={text.count(chr(10), 0, match.start()) + 1} "
+                                f"receiver={match.group('receiver').strip()} selector={selector}"
+                            )
                 if count == 0:
                     continue
                 row = evidence[(selector, domain)]
                 row["files"].append(relative)
                 row["occurrences"] += count
 
+    for row in evidence.values():
+        row["files"] = sorted(row["files"])
     return [evidence[key] for key in sorted(evidence)]
 
 
@@ -385,18 +600,40 @@ def validate_snapshot(observed: list[dict[str, object]]) -> None:
     expected = data.get("routes")
     if not isinstance(expected, list):
         fail("snapshot lacks routes")
+    expected_rows = len(census_routes()) * 3
+    if len(expected) != expected_rows:
+        fail(f"snapshot row count must be {expected_rows}")
+    if expected != sorted(expected, key=lambda row: (row.get("selector", ""), row.get("domain", ""))):
+        fail("snapshot rows must be sorted by selector and domain")
+    for row in expected:
+        if row.get("domain") not in {"production", "test", "shared"}:
+            fail("snapshot has an unknown source domain")
+        files = row.get("files")
+        if not isinstance(files, list) or files != sorted(set(files)):
+            fail("snapshot files must be sorted and unique")
+        if not isinstance(row.get("occurrences"), int) or row["occurrences"] < 0:
+            fail("snapshot occurrence count must be non-negative")
+    totals = data.get("totals")
+    if not isinstance(totals, dict):
+        fail("snapshot lacks totals")
+    actual_totals = {domain: sum(int(row["occurrences"]) for row in expected if row["domain"] == domain) for domain in ("production", "test", "shared")}
+    if totals != {"all": sum(actual_totals.values()), **actual_totals}:
+        fail("snapshot totals drift from rows")
     if expected != observed:
         fail("direct-access inventory drift; regenerate only through the selected S0a-G0 row")
 
 
 def reference_document(observed: list[dict[str, object]]) -> str:
     total = sum(int(row["occurrences"]) for row in observed)
-    production = sum(int(row["occurrences"]) for row in observed if row["domain"] == "production")
+    domain_totals = {
+        domain: sum(int(row["occurrences"]) for row in observed if row["domain"] == domain)
+        for domain in ("production", "test", "shared")
+    }
     lines = [
         "{",
         '  "schema": "MirBuilderFunctionStateDirectAccessV1",',
         '  "decision": "pre_s0b_observation_only",',
-        f'  "totals": {{"all": {total}, "production": {production}, "test": {total - production}}},',
+        f'  "totals": {{"all": {total}, "production": {domain_totals["production"]}, "test": {domain_totals["test"]}, "shared": {domain_totals["shared"]}}},',
         '  "routes": [',
     ]
     for index, row in enumerate(observed):

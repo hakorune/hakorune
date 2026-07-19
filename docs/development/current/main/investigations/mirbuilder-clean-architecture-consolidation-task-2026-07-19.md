@@ -447,15 +447,20 @@ type/semantic behavior changed. `S0a-G0-P0` is next.
 found syntactic receiver forms but did not prove that bare `self` belonged to
 `MirBuilder`: it counted seven `LoopFormJsonOps::current_block` uses in the
 JSON-v0 bridge and one unrelated parity-result use. P0 therefore replaces only
-the observation mechanics, never compiler behavior. Its source grammar is
-bounded and fail-closed:
+the observation mechanics, never compiler behavior. `P0-S0` is closed: its
+bounded lexical owner proof removes those eight false positives, fixes the
+snapshot to 96 selector/domain rows and 1,776 observations (1,175 production,
+599 test, 2 shared), and reduces the checker's runtime from about 27 seconds
+to about 7 seconds. Its source grammar is bounded and fail-closed:
 
 ```text
 self.<route>:
   exact lexical impl MirBuilder only
 
 builder.<route> / b.<route>:
-  exact &MirBuilder or &mut MirBuilder function parameter only
+  exact &MirBuilder or &mut MirBuilder parameter, direct MirBuilder birth,
+  checked MirBuilder-returning factory, selected function-session closure, or
+  finite inline array iteration whose every root is already one of those forms
 
 self.builder.<route> / self.0.<route> / wrapper.builder.<route>:
   exact checked-in wrapper-owner contract only
