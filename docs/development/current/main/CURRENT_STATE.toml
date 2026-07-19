@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result LOOP0-P0b T0-R0 P0-HOOK0 closed; PARITY0 is next"
+status = "callable-result LOOP0-P0b T0-R0 P0-PARITY0/G0 closed; T0-L0 is next"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -298,18 +298,18 @@ latest_workstream_card = "docs/development/current/main/investigations/callable-
 
 latest_card = "callable-result-loop0-p0b-t0-associated-source-port-task-2026-07-19"
 latest_card_path = "docs/development/current/main/investigations/callable-result-loop0-p0b-t0-associated-source-port-task-2026-07-19.md"
-latest_card_summary = """T0-R0 P0-HOOK0 is closed. One Builder-free,
-non-Clone preflight seal fully validates the actual strict
-Local/Local/ExitIf(Return)/Local/wrapped-Join carrier profile before the
-disconnected adapter exists. Wrapped Join branches require exact variable
-assignment targets and values. One single-use adapter consumes the seal,
-reseals branch bindings at each leaf, and delegates Local/Assignment/Return,
-condition, Exit, Join, and block state to the existing shared owners. Exact
-PATH0 carriers remain the only located syntax authority. Condition grammar is
-deliberately not duplicated or pre-proved. Production located callers and
-ledger claims remain zero. PARITY0 next fixes raw/located plan, binding,
-transient-type, variable-map, and terminal parity before G0 closeout."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0B-T0-R0-P0-PARITY0-001"
+latest_card_summary = """T0-R0 P0-PARITY0/G0 is closed. The actual strict raw
+and located Parts roots run on fresh identically seeded Builders and compare
+one typed normalized plan tree that removes only call-source provenance.
+ValueIds, targets, arguments, effects, joins, exits, bindings, variable map,
+transient types, origins, and terminality remain exact. Independent goldens
+fix both top-level If terminal shapes. Raw calls are four Unlocated rows while
+the located run retains exact activation rows 9 through 12. Foreign port
+pairing rejects with zero Builder-state delta and the same Builder then accepts
+the correct port. Production located callers and ledger claims remain zero.
+T0-L0 is next and consumes the non-Clone O0 representation in one same-call
+disconnected located composer."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-SITE0-R0-EXPR0-SPINE0-LOOP0-P0B-T0-L0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
@@ -318,6 +318,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-19: LOOP0-P0b-T0-R0 P0-PARITY0/G0 closes the actual strict raw/located Parts proof. One typed normalized tree removes only call-source provenance while preserving every ValueId, target, argument, effect, join, exit, binding, variable-map, transient-type, origin, and terminal fact. Independent goldens fix both top-level If shapes. Raw calls remain four Unlocated rows and located calls retain exact activation rows 9 through 12. Foreign port pairing rejects with zero Builder-state delta, then the same Builder accepts the correct port. Focused parity 3/3, HOOK0, raw parity, associated-source, GenericLoop, all-target check, public guard, pointer/format/diff/line checks, and worker reviews are green. Production located callers and ledger claims remain zero; T0-L0 is next.",
   "2026-07-19: LOOP0-P0b-T0-R0 P0-HOOK0 closes one Builder-free non-Clone actual-strict-root preflight and one disconnected located Parts adapter. The seal validates the exact five-item root, Return value, retained singleton Join topology, exact variable Assignment targets/values, and all required PATH0 carriers before Builder effects. Its purpose-specific single-use adapter reseals branch bindings and delegates block, Local/Assignment/Return, condition, Exit, and Join semantics to the existing B0/STATE0 owners. Focused HOOK0 3/3, associated-source, If Join, ExitAllowed, GenericLoop 84/84, all-target check, public expression-spine guard, pointer/format/diff checks, and worker review are green. Condition grammar remains an explicit nonclaim. All touched source/check files remain below 800 lines; production located callers and ledger claims remain zero. PARITY0 is next.",
   "2026-07-19: LOOP0-P0b-T0-R0 P0-STATE0 closes the behavior-neutral shared Parts state owners. One provider-neutral associated block driver owns block iteration, early terminal detection, and the ExitOnly all-path postcondition. One condition-parameterized Exit owner owns snapshot/reset and one-sided continuation restoration; one Join owner owns branch snapshots, terminal-shape analysis, join payload, and continuation publication. Raw facades retain source/recipe carriers and existing diagnostic/failure order. Focused raw parity 4/4, associated-source, If Join, ExitAllowed, GenericLoop 84/84, all-target check, public expression-spine guard, format/diff/line checks, and worker review are green. Two representative full-lib failures reproduce unchanged at clean HEAD. All touched source/check files remain below 800 lines. Production located callers and ledger claims remain zero; HOOK0 is next.",
   "2026-07-19: LOOP0-P0b-T0-R0 P0-LOCATED0 is selected by three read-only audits without external consultation. STATE0 owns one provider-neutral associated block driver and condition-parameterized Exit/Join state cores; HOOK0 owns one Builder-free non-Clone actual-strict-root preflight seal plus a disconnected located carrier adapter; PARITY0 fixes raw/located plan and state parity; G0 extends the existing private guard. Exact PATH0 carriers remain the sole located syntax authority. Recipe rebuilds, cloned recipe AST/CondBlockView authority, side maps, second dispatchers, lazy post-effect validation, production located callers, ledger claims, fallback/retry, and files at or above 800 lines remain forbidden. STATE0 is next.",
@@ -329,5 +330,4 @@ landed_tail = [
   "2026-07-19: LOOP0-P0b-T0-C0 closes the behavior-neutral Loop-header condition seam. The raw entry retains CondBlockView prelude lowering and selects one RawLoopPlanExpressionPortV1; one associated-input core owns lazy Not/And/Or CFG descent. The existing compare owner is port-aware, preserving one operator/child-role policy and parent comparison span restoration. One frozen A-and-(B-or-C) fixture fixes exact branch/block laziness. Focused 1/1, generic_loop 77/77, cond_lowering 4/4, cargo check --all-targets, public expression-spine guard, pointer/format/diff/line checks, and worker review are green. Production located callers and ledger claims remain zero; T0-B0 is next.",
   "2026-07-19: LOOP0-P0b-O0-S0 closes one canonical successful GenericLoopV1 extraction product. StepResolution now retains the final NumericProgression placement plus flattened usize body length or BodyManagedState, including the post-validation fallback path; the raw facts API and recipe hint are thin projections of the same owner. Last, InBody, ContinueIf, BreakElseIf, initial/fallback BodyManaged, flattened-body, and facts parity fixtures are green. One consolidated structural guard fixes private product fields, sole classification/construction, passive primary re-export, existing three facts callers, zero external primary callers, and files below 800 lines. Focused 22/22, carrier inventory, public expression-spine guard, all-target check, release build, quick 66/66 in 236s, and worker reviews are green. Production behavior, located execution callers, Builder, composer, skeleton, ledger, grammar, runtime, backend, ownership, fallback, and retry deltas remain zero; O0-R0 is next.",
   "2026-07-19: Candidate A-prime-plus resolves the LOOP0-P0b-O0 representation stop. One canonical successful extraction result retains the final step disposition; one same-call exact PATH0 constructor later seals a non-Clone two-mode representation, exact Loop root and LoopCondition carrier, and the StmtWrappedJoinIf singleton NoExit Join bridge. The located port/constructor become passive production-visible schema in R0 with execution callers zero. Recipe duplication, post-extraction step reclassification, AST/source side maps, recursive Program/ScopeBox/nested Loop, Builder effects, claims, fallback, retry, and files at 800 lines remain forbidden. O0-S0 is next and docs-only closeout is forbidden.",
-  "2026-07-18: SITE0-R0-EXPR0-SPINE0-LOOP0-S0b closes one disconnected non-Clone source-order schedule and final CoreLoop seal. The schedule retains the exact activation-plan brand, canonical caller, located statement root, and borrowed activation rows in existing PATH0 order. The final wrapper consumes one private CorePlan, runs PlanVerifier before sealing, and uses the sole call-source visitor to reject missing scheduled occurrences, duplicate occurrences, extra located sites, and foreign plan/caller pairings. Required-site Unlocated becomes missing while unrelated synthetic Unlocated remains accepted. Nine focused fixtures include malformed plan, exact Loop root, same-caller sibling Loop isolation, and source-order versus plan-order inversion. The hardened guard fixes owner/path/caller counts, private fields, verifier-before-schedule order, zero ledger/claim APIs, zero Builder storage, and no CorePlan escape/remap-after-seal. All-target check, release build, format/diff/line guards, quick 66/66 in 78.13s, and three worker reviews are green. Production located consumers and claims remain zero; LOOP0-S0c is next.",
 ]

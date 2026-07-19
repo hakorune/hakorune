@@ -1,5 +1,5 @@
 ---
-Status: T0-R0 P0-LOCATED0 selected; STATE0 is next
+Status: T0-R0 P0-PARITY0/G0 closed; T0-L0 is next
 Date: 2026-07-19
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md
 Prior decision: callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md
@@ -670,6 +670,101 @@ HOOK0. The exact condition carrier is sealed, while semantic acceptability
 remains with the existing condition owner during disconnected lowering. A
 stronger before-effects condition-profile claim would require a separate row.
 `R0-P0-PARITY0` is the sole next code-facing row.
+
+###### R0-P0-PARITY0 worker task lock
+
+Three read-only inventories conclude that PARITY0 is a local test-only proof
+and does not require an external design consultation. The raw oracle is
+derived from the same exact PATH0 Loop syntax as the located carrier:
+
+```text
+exact Body(4) Loop condition/body
+  -> canonical try_extract_generic_loop_v1
+  -> existing facts.body_exit_allowed
+  -> existing raw lower_exit_allowed_block
+```
+
+The located side remains the already-sealed
+representation -> bound view -> HOOK0 preflight -> disconnected adapter path.
+Both sides use fresh Builders with the same function name, lexical scope,
+seed order, and seed types:
+
+```text
+text: String
+pos: Integer
+value: Integer
+me: Box(ParserBox)
+```
+
+One test-only typed normalizer preserves the complete admitted `Seq` / `If` /
+`Effect` / `Exit` topology and every ValueId, target spelling, argument,
+effect mask, join, and exit payload. It removes only the
+`CoreCallSourceV1` field from call-bearing effects. `Loop` or `BranchN` inside
+this first Parts root is an explicit normalization rejection. Debug-string
+replacement, sorting, ValueId renumbering, target/effect elision, and generic
+plan rebuilding are forbidden.
+
+One normalized snapshot compares exact semantic plans, `current_bindings`,
+Builder `variable_map`, the complete transient `value_types`, existing value
+origins, and all-path terminality. Independent golden assertions fix the two
+top-level If plans, one Return, one `value` Join, exact binding keys, and the
+published Join destination so a shared-owner bug cannot pass by self-equality.
+
+Call provenance remains an intentional separately verified difference:
+
+```text
+raw Parts prefix:
+  four Unlocated call effects
+
+located Parts prefix:
+  exact activation rows 9..12 in plan order
+
+excluded from this root proof:
+  Loop condition rows 6..8
+  cleanup/step rows 13..14
+```
+
+The physical slice is one new `located_parity_tests.rs` and one private guard
+helper imported by the existing public expression-spine guard. Existing
+HOOK0/raw test files and the 699-line T0 guard receive no test body. Production
+code/API, production located callers, ledger claims, grammar, runtime,
+backend, ownership, fallback, and retry remain unchanged.
+
+PARITY0 stops rather than normalizing more if call provenance is not the sole
+plan difference; exact ValueId/maps/types/terminality differ; the raw recipe
+must be rebuilt; condition or cleanup must enter the root proof; a production
+accessor/caller is needed; or a source/check file reaches 800 lines.
+
+###### R0-P0-PARITY0/G0 closeout
+
+PARITY0 and its private G0 guard are closed. The actual strict raw and located
+Parts roots now run on fresh identically seeded Builders and compare one typed
+normalized plan tree. The normalizer is exhaustive over the admitted
+`Seq`/`If`/`Effect`/`Exit` vocabulary, rejects nested `Loop`/`BranchN`, and
+removes only the call-source field. It preserves every ValueId, target,
+argument, effect mask, join row, and exit payload without Debug-string
+replacement, sorting, or ValueId renumbering.
+
+The snapshot also compares exact current bindings, Builder variable map,
+complete transient type map, existing origin map, and all-path terminality.
+Independent goldens fix the first If's exact `Return(Some(rhs))`, its existing
+empty else sequence and all-path-exit then branch, plus the second Join If's
+fallthrough branches and exact `value` publication. Raw calls remain four
+`Unlocated` rows; the located run retains exactly activation rows 9 through 12.
+Condition rows 6 through 8 and cleanup rows 13 through 14 remain outside this
+root proof.
+
+A foreign activation-plan port now rejects before bindings, variable map,
+transient types, or origins change. The same unchanged Builder and
+representation then accept the correct port and lower successfully. This is a
+pairing/reuse proof only; production located callers and ledger claims remain
+zero.
+
+Focused located parity 3/3, HOOK0, raw parity, associated-source, GenericLoop,
+all-target check, the public expression-spine guard, current pointer, format,
+diff, line-cap checks, and two worker re-reviews are green. The parity test,
+main guard, and private parity helper are 771, 703, and 144 lines. `T0-L0` is
+the sole next code-facing row.
 
 ##### R0-P0: required proof
 

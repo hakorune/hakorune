@@ -42,6 +42,8 @@ mod dispatch_tests;
 #[cfg(test)]
 mod located_hook_tests;
 pub(super) mod located_lowering;
+#[cfg(test)]
+mod located_parity_tests;
 pub(super) mod located_preflight;
 pub(super) mod raw_lowering;
 #[cfg(test)]
