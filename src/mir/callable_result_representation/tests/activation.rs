@@ -1,8 +1,9 @@
 use crate::mir::resolved_semantics::SourcePathSegmentV1;
 
 use super::super::{
-    CallableResultActivationDispositionV1, VerifiedCallableResultActivationPlanV1,
-    VerifiedCallableResultActivationRowsV1,
+    classify_activation_source_site_v1, CallableResultActivationDispositionV1,
+    CallableResultActivationSourceDecisionV1, CallableResultActivationUnselectedReasonV1,
+    VerifiedCallableResultActivationPlanV1, VerifiedCallableResultActivationRowsV1,
 };
 use super::actual_parser_add_fixture;
 use super::support::{
@@ -22,6 +23,29 @@ const SOURCE: &str = r#"
     }
 "#;
 
+const NESTED_INSTANCE_ARGUMENT_SOURCE: &str = r#"
+    box ParserBox {
+        static_const_parse_add(text, pos) {
+            local next = ParserStringUtilsBox.skip_ws(text, me.dynamic_pos(text))
+            return next
+        }
+
+        dynamic_pos(text) { return 0 }
+    }
+    static box ParserStringUtilsBox {
+        skip_ws(text, pos) { return pos }
+    }
+"#;
+
+const LITERAL_ARGUMENT_SOURCE: &str = r#"
+    static box Provider {
+        step(value) { return value }
+    }
+    static box Caller {
+        run() { return Provider.step(41) }
+    }
+"#;
+
 fn selected_site() -> crate::mir::resolved_semantics::SourceExprSiteV1 {
     site(vec![
         SourcePathSegmentV1::Body(0),
@@ -33,6 +57,13 @@ fn unselected_site() -> crate::mir::resolved_semantics::SourceExprSiteV1 {
     site(vec![
         SourcePathSegmentV1::Body(1),
         SourcePathSegmentV1::Initializer(0),
+    ])
+}
+
+fn value_site() -> crate::mir::resolved_semantics::SourceExprSiteV1 {
+    site(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::Value,
     ])
 }
 
@@ -153,6 +184,88 @@ fn plan_is_owned_and_single_use() {
     let (catalog, rows) = plan.into_parts();
     assert_eq!(catalog.len(), 2);
     assert_eq!(rows.len(), 2);
+}
+
+#[test]
+fn source_gate_selects_only_when_the_exact_call_result_row_exists() {
+    let declarations = declarations(LITERAL_ARGUMENT_SOURCE);
+    let targets = qualified_targets(
+        &declarations,
+        &[],
+        &[CallSiteSpecV1 {
+            caller_owner: "Caller",
+            caller_name: "run",
+            caller_arity: 0,
+            site: value_site(),
+        }],
+    );
+    let results = seal_with_targets(&declarations, &targets);
+    let caller = key(&declarations, "Caller", "run", 0);
+
+    let CallableResultActivationSourceDecisionV1::Selected(selected) =
+        classify_activation_source_site_v1(
+            &declarations,
+            &caller,
+            &value_site(),
+            &targets,
+            &results,
+        )
+        .expect("source gate")
+    else {
+        panic!("literal required argument must have source proof");
+    };
+    assert_eq!(selected.target().owner(), "Provider");
+    assert_eq!(selected.target().name(), "step");
+    assert_eq!(selected.required_i64_arguments(), &[0]);
+}
+
+#[test]
+fn source_gate_keeps_nested_instance_required_argument_unselected() {
+    let declarations = declarations(NESTED_INSTANCE_ARGUMENT_SOURCE);
+    let call_site = selected_site();
+    let targets = qualified_targets(
+        &declarations,
+        &[],
+        &[CallSiteSpecV1 {
+            caller_owner: "ParserBox",
+            caller_name: "static_const_parse_add",
+            caller_arity: 2,
+            site: call_site.clone(),
+        }],
+    );
+    let results = seal_with_targets(&declarations, &targets);
+    let caller = instance_key(&declarations, "ParserBox", "static_const_parse_add", 2);
+
+    assert!(results.call_result(&caller, &call_site).is_none());
+    assert!(matches!(
+        classify_activation_source_site_v1(&declarations, &caller, &call_site, &targets, &results,)
+            .expect("source proof absence is ordinary unselected"),
+        CallableResultActivationSourceDecisionV1::Unselected(
+            CallableResultActivationUnselectedReasonV1::RequiredArgumentSourceProofUnavailable,
+        )
+    ));
+}
+
+#[test]
+fn source_gate_treats_missing_target_as_unselected() {
+    let declarations = declarations(SOURCE);
+    let targets = qualified_targets(&declarations, &[], &[]);
+    let results = seal_with_targets(&declarations, &targets);
+    let caller = instance_key(&declarations, "ParserBox", "static_const_parse_add", 2);
+
+    assert!(matches!(
+        classify_activation_source_site_v1(
+            &declarations,
+            &caller,
+            &selected_site(),
+            &targets,
+            &results,
+        )
+        .expect("missing target is ordinary unselected"),
+        CallableResultActivationSourceDecisionV1::Unselected(
+            CallableResultActivationUnselectedReasonV1::NoStaticSourceTarget,
+        )
+    ));
 }
 
 #[test]

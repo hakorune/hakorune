@@ -24,4 +24,16 @@ pub(crate) enum CallableResultActivationErrorV1 {
         ordinal: u32,
         arity: u32,
     },
+    StaticSourceTargetEvidenceMismatch {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+        target: CanonicalSameModuleCallableKeyV1,
+    },
+    CalleeRequiredArgumentOrdinalMismatch {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+        target: CanonicalSameModuleCallableKeyV1,
+        target_required_i64_arguments: Box<[u32]>,
+        evidence_required_i64_arguments: Box<[u32]>,
+    },
 }

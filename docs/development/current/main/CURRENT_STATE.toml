@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result ACT0-ARG0 source-proof-gated activation; S0 is next"
+status = "callable-result ACT0-ARG0 S0 closed; P0 source-proof matrix is next"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -299,15 +299,15 @@ parked_loop_route_retirement_card = "docs/development/current/main/investigation
 
 latest_card = "callable-result-act0-arg0-source-gate-task-2026-07-19"
 latest_card_path = "docs/development/current/main/investigations/callable-result-act0-arg0-source-gate-task-2026-07-19.md"
-latest_card_summary = """Candidate 1′ selects source-proof-gated activation.
-An exact static target is selected only when its target ExactI64 disposition
-and its exact caller/site call-result row co-seal. Missing source proof is
-pre-Builder Unselected; the selected terminal still independently checks final
-Integer ValueIds and poisons on failure. The actual 15-row inventory retains
-two target candidates but reclassifies to one selected and fourteen Unselected
-rows. `CALLABLE-RESULT-ACT0-ARG0-S0` is next; nested instance-result
-representation remains parked and no local type backfill/retry is authorized."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-ACT0-ARG0-S0-001"
+latest_card_summary = """ACT0-ARG0-S0 is closed. One disconnected borrowed
+source-gate classifier co-seals the existing static target, ExactI64 target
+disposition, and same-site call-result proof; missing source proof is an
+explicit Unselected decision and catalog/evidence disagreement is typed. The
+classifier stores no ValueId, MirType, Builder, AST, or retry authority and has
+zero production consumers. P0 is next to prove the full source matrix and the
+actual 15-row 1-selected/14-Unselected reclassification before I0 connects one
+activation-row construction consumer."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-ACT0-ARG0-P0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

@@ -1,5 +1,5 @@
 ---
-Status: Candidate 1′ selected; `CALLABLE-RESULT-ACT0-ARG0-S0` is next
+Status: `CALLABLE-RESULT-ACT0-ARG0-S0` closed; P0 is next
 Date: 2026-07-19
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md
 Supersedes frontier: callable-result-loop0-l0-i64-argument-authority-design-stop-2026-07-19.md
@@ -142,6 +142,16 @@ construction. It may inspect `results.call_result(caller, site)` exactly once
 per static candidate site and validate same-module-static evidence. It creates
 no catalog and has no production consumer.
 
+Closeout (2026-07-19): closed. One private sibling source-gate classifier
+borrows the existing declarations, target, and result catalogs and returns
+only a borrowed selected co-seal or one explicit unselected reason. It checks
+catalog branding, pointer identity of same-module-static evidence, and the
+callee-required ordinal set without reading the caller-propagated requirement
+set as target truth. The owned activation schema, Builder, ledger, plan, and
+production activation consumers are unchanged. Focused tests cover literal
+source proof selection, missing target, and a nested instance required argument
+whose source proof is absent.
+
 ### P0 — proof matrix
 
 Prove:
@@ -229,4 +239,3 @@ actual 15-row traversal can retain one selected call and all exact coverage
 No claim is made that `static_const_eval_pos` is exact i64, that all
 exact-result static targets are selected, or that source proof publishes a MIR
 type.
-

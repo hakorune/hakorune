@@ -72,6 +72,20 @@ impl<'target> VerifiedCallableResultCallSiteV1<'target> {
         }
     }
 
+    /// Borrowed exact target evidence for consumers that must co-seal this
+    /// source result row with one target-catalog allocation.
+    pub(super) fn same_module_static_evidence(
+        &self,
+    ) -> Option<(&VerifiedSourceStaticCallTargetV1, &[u32])> {
+        match &self.evidence {
+            VerifiedCallableResultEvidenceV1::SameModuleStatic {
+                source_target,
+                callee_required_i64_arguments,
+            } => Some((source_target, callee_required_i64_arguments)),
+            VerifiedCallableResultEvidenceV1::CoreStringMethod { .. } => None,
+        }
+    }
+
     pub(super) fn semantically_matches(&self, other: &Self) -> bool {
         self.required_i64_arguments == other.required_i64_arguments
             && match (&self.evidence, &other.evidence) {

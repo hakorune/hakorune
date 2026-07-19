@@ -2,6 +2,7 @@
 
 mod activation;
 mod activation_error;
+mod activation_source_gate;
 mod call_proof;
 mod call_row;
 mod call_substitution;
@@ -34,6 +35,11 @@ pub(crate) use activation::{
     VerifiedCallableResultActivationRowsV1,
 };
 pub(crate) use activation_error::CallableResultActivationErrorV1;
+#[cfg(test)]
+pub(crate) use activation_source_gate::{
+    classify_activation_source_site_v1, CallableResultActivationSourceDecisionV1,
+    CallableResultActivationUnselectedReasonV1,
+};
 #[allow(unused_imports)]
 pub(crate) use caller_ledger::{
     CallableResultBodySuffixDecisionV1, ClaimedCallableResultActivationSiteV1,
