@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-PLAN-EMISSION-PARITY0 R0 stopped at the actual untyped NumericProgression carrier design frontier"
+status = "CARRIER-TYPE-D0 selected the NumericProgression representation-precondition rebase; MIRBUILDER-CLEAN0 FSESSION census is next"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -290,41 +290,27 @@ recursive prototypes remain parked and must not be revived directly.
 LoopFeature parity remains a parked follow-up;
 call-return/provider/cast roots remain deferred."""
 
-active_phase = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
-phase_status = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
+active_phase = "docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md"
+phase_status = "docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md"
 method_anchor = "docs/development/current/main/design/current-docs-archive-policy-ssot.md"
-taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md"
-latest_workstream_card = "docs/development/current/main/investigations/callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md"
+taskboard = "docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md"
+latest_workstream_card = "docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md"
 parked_loop_route_retirement_card = "docs/development/current/main/investigations/generic-loop-named-route-retirement-task-2026-07-19.md"
-parked_mirbuilder_clean_architecture_card = "docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md"
+mirbuilder_clean_architecture_card = "docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md"
 
-latest_card = "callable-result-act0-arg0-rebase-task-2026-07-19"
-latest_card_path = "docs/development/current/main/investigations/callable-result-act0-arg0-rebase-task-2026-07-19.md"
-latest_card_summary = """ACT0-ARG0 direction 2 is selected. The actual Parser
-fixture has 15 source rows and two static target candidates, but both require a
-nested current-owner instance result and correctly normalize to Unselected.
-P0-REBASE0 is closed: a disconnected scoped fixture proves actual 15/2/0/15
-source classification without Builder or ledger effects, while separate generic
-literal and direct-formal fixtures own Gate-S selected coverage. I0 is closed:
-one activation-row consumer calls the source gate exactly once per observed
-site; actual activation rows are all Unselected and the generic literal row is
-Selected. G0 is closed: generic terminal success/fail-fast proves no Call or
-result publication before the stateless selected terminal returns its typed
-error, while actual activation remains all-Unselected and raw-primary. S0 is
-closed: one non-Clone claimed CorePlan execution session is the sole owner of
-Active / Poisoned / Completed state; its bundle is private, it reuses neither
-the legacy AST session nor a second ledger, and production callers remain zero.
-contract but its existing test seed has typed values that are neither function
-parameters nor MIR definitions. RAW-PLAN-EMISSION-PARITY0 H0 is closed: one
-test-only bounded harness uses the existing instance-method entry and raw
-Body(0..3) prefix, retains the root lexical scope through the exact Body(4)
-handoff, and publishes no synthetic parameter/local/type fact. R0 reached the
-actual composer but found that Body(3)'s raw `skip_ws` result replaces `pos`
-with a live ValueId lacking an exact transient type; NumericProgression rejects
-before claims or emission. This is a semantic-owner design frontier, not a
-type backfill/wiring repair. `RAW-PLAN-EMISSION-PARITY0-CARRIER-TYPE-D0` is
-next; F0, L0, EXPR0-C0, and NESTED-REP0 remain parked."""
-current_blocker_token = "DPRIME-RAW-PLAN-EMISSION-PARITY0-CARRIER-TYPE-DESIGN-STOP-001"
+latest_card = "mirbuilder-clean-architecture-consolidation-task-2026-07-19"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md"
+latest_card_summary = """ACT0-ARG0 source-gated activation is closed: the actual
+Parser sites are raw-primary Unselected while separate generic rows own
+selected-terminal coverage. RAW-PLAN-EMISSION-PARITY0 H0 reached the exact
+actual Loop handoff; R0 proved Body(3)'s raw skip_ws result replaces `pos` with
+a live ValueId lacking an exact transient type. CARRIER-TYPE-D0 selects A-prime:
+NumericProgression admits only already-published lowering-time Integer facts,
+so that source-faithful rejection remains and the positive raw-primary proof is
+blocked. The next code-facing row is MIRBUILDER-CLEAN0-FSESSION0-CENSUS0, a
+behavior-neutral inventory of every prepare/restore state surface before any
+future nested callable-result representation producer is considered."""
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FSESSION0-CENSUS0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

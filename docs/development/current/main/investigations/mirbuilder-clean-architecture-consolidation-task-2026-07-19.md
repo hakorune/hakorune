@@ -1,5 +1,5 @@
 ---
-Status: Parked architecture task
+Status: Active architecture task
 Date: 2026-07-19
 Scope: MirBuilder function-session, fact-publication, plan, and compatibility boundaries
 Related:
@@ -28,9 +28,15 @@ The decisive target is not a smaller Rust file. It is fewer truth owners,
 fewer completion entries, and a function session that cannot mutate another
 function's state.
 
-This card is parked and does not replace the current ACT0-ARG0 design stop.
-When the architecture lane is explicitly selected, its sole first code-facing
-row is:
+This card is selected after
+`RAW-PLAN-EMISSION-PARITY0-CARRIER-TYPE-D0` chose the representation-
+precondition rebase. It does not repair the actual untyped NumericProgression
+carrier: the R0 rejection remains the correct source-faithful diagnostic, and
+its positive raw-primary proof remains blocked. This program instead supplies
+the next BoxShape boundary before any wider callable-result representation
+producer may be considered.
+
+Its sole first code-facing row is:
 
 ```text
 MIRBUILDER-CLEAN0-FSESSION0-CENSUS0
@@ -538,10 +544,11 @@ Stop the selected architecture row if it requires:
 
 ## Selection boundary
 
-This architecture program should be selected after the current ACT0-ARG0
-decision and its bounded LOOP0 closeout, before another broad callable/control-
-flow feature widening. It may be selected earlier only by an explicit lane
-switch that parks the current blocker cleanly.
+This architecture program is selected after the `CARRIER-TYPE-D0`
+representation-precondition decision and before another callable/control-flow
+representation widening. `CALLABLE-RESULT-NESTED-REP0` remains parked until
+the census and its selected clean-architecture program establish the next
+function-session boundary.
 
 No stash is an implementation authority. Every row starts from the clean tree
 and reuses only landed contracts and evidence.
@@ -557,6 +564,6 @@ and reuses only landed contracts and evidence.
 > process configuration at invocation entry, and finally moves raw adaptation
 > outside the emitter. Existing source identity, callable authority, claim ledgers,
 > typed fail-fast, unpublished drafts, and atomic publication remain intact.
-> The parked first code-facing row is
+> The selected first code-facing row is
 > `MIRBUILDER-CLEAN0-FSESSION0-CENSUS0`; it changes no behavior and classifies
 > every function-session state surface before physical movement.

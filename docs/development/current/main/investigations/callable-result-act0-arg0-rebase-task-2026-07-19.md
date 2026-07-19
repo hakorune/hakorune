@@ -524,6 +524,52 @@ of an exact NumericProgression carrier before a code-facing producer row may
 exist. `LOOP0-L0-R0-P0`, F0, L0, and EXPR0-C0 remain blocked behind that
 decision.
 
+### Carrier-type D0 decision — A-prime selected (2026-07-19)
+
+The selected law is a representation-precondition rebase:
+
+```text
+NumericProgression:
+  admit only an already-published exact lowering-time Integer carrier
+
+actual Parser Body(3) carrier:
+  missing type
+  -> pre-emission rejection
+  -> no claim, no CorePlan execution, no retry
+```
+
+The actual R0 diagnostic is retained as the source-faithful proof of this
+boundary. It is not a positive raw-primary execution proof and cannot close
+`LOOP0-L0-R0-P0`.
+
+Rejected candidates:
+
+```text
+GenericLoop derives Integer from its condition or step
+raw skip_ws terminal consumes the conditional result catalog as a type writer
+source annotation or fixture rewrite changes the actual profile
+Unknown / BodyManagedState reclassifies NumericProgression
+finalization repairs the lowering-time fact
+CALLABLE-RESULT-NESTED-REP0 opens before the architecture census
+```
+
+The only durable future producer is parked
+`CALLABLE-RESULT-NESTED-REP0`: it must co-seal a current-owner instance result
+contract, exact source-site result evidence, final remapped call destination,
+and successful call emission before it publishes an `Integer`. It may not use
+a persistent source-site-to-ValueId map. This is wider than the current Loop
+row and remains forbidden until after the selected clean-architecture census.
+
+Fixed handoff:
+
+```text
+RAW-PLAN-EMISSION-PARITY0-CARRIER-TYPE-D0  [closed]
+  -> actual R0 diagnostic retained; positive P0 remains blocked
+  -> MIRBUILDER-CLEAN0-FSESSION0-CENSUS0   [next code-facing row]
+  -> only after the selected architecture program:
+     CALLABLE-RESULT-NESTED-REP0-D0
+```
+
 ## `LOOP0-L0-R0-F0` — selected execution failure proof
 
 Use one synthetic generic selected row whose final required argument ValueId is
