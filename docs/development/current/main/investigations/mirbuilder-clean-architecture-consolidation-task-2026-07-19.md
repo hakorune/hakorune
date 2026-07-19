@@ -38,11 +38,11 @@ producer may be considered.
 
 The closed FSESSION0 and FACT0 preparation rows have established the
 function-state census, one receiver-only monotone publication consumer, and
-the complete 47-path / 99-occurrence writer partition. The sole next
-code-facing row is now:
+the complete 47-path / 99-occurrence writer partition. PHI0-S0 is also
+closed; the sole next code-facing row is now:
 
 ```text
-MIRBUILDER-CLEAN0-PHI0-S0
+MIRBUILDER-CLEAN0-PHI0-M0
 ```
 
 ## Baseline finding
@@ -1422,6 +1422,25 @@ rewrite, function-level transient type publication, Binding SSA `Unknown`
 retirement, finalization repair, or a new accepted PHI shape. The stale
 whitespace-sensitive `phi_type_publication_inventory.py` source anchor is a
 separate guard-maintenance row; it is not PHI0 semantic work.
+
+#### `PHI0-S0` — closed (2026-07-20)
+
+`src/mir/builder/phi_completion/` now owns the disconnected vocabulary:
+`PhiDraftV1`, `PreparedPhiCompletionV1`, and `CompletedPhiV1`. Preparation
+checks an exact caller-supplied predecessor-row set, normalizes logical rows,
+and delegates the existing `PhiTransientTypeDecisionV1`; no Builder,
+instruction, type-map, origin, allocation, rematerialization, or production
+facade is touched. A test-only fake port fixes instruction-success-before-type
+commit for single and candidate-batch completion.
+
+The ten focused tests freeze raw/final/patch/batch preparation parity,
+provisional incompleteness, duplicate/missing/phantom rows, inherited concrete
+type conflicts, single and batch candidate failure, batch-item preparation
+failure, and retained provisional draft identity. `cargo test -q --lib
+phi_completion`, the existing PHI type-publication/lifecycle suites, and
+`cargo check --all-targets` are green. `PHI0-M0` is next; it must inventory the
+four real completion entries' logical rows, physical rematerialization, and
+instruction/type timing before any I0 facade connection.
 
 ## Phase 4 — FINALIZE0
 

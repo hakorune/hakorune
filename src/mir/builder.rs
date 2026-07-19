@@ -106,6 +106,8 @@ mod loop_api_impl; // CLEAN-D: LoopBuilderApi wiring kept inside builder layer
 mod module_lifecycle; // Phase 29bq+: Module lifecycle orchestrator (prepare → lower → finalize)
 mod ops;
 mod phi;
+#[allow(dead_code)]
+mod phi_completion; // PHI0-S0: disconnected semantic completion vocabulary
 mod phi_merge;
 mod phi_type_inference; // Phase 29bq+: PHI type inference (multi-phase fallback chain)
 #[allow(dead_code)]
