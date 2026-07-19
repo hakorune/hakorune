@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FSESSION0-S0a-G0-P0-R0 is closed; P0-P0 must close the focused proof bundle before the physical owner cutover"
+status = "FSESSION0-S0a-G0 is closed; S0b-D0 must select the physical FunctionOwned storage cutover before implementation"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -324,8 +324,11 @@ observations (1,175 production, 599 test, 2 shared). P0-R0 closes the nine
 mixed-context API owners and the unhealed metadata-origin control: the snapshot
 now records 1,792 observations (1,175 production, 615 test, 2 shared), while
 outer-to-child visibility and child-to-outer retention remain deliberately
-unrepaired. P0-P0 is next. NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FSESSION0-S0A-G0-P0-P0-001"
+unrepaired. P0-P0 and P0-G0 are closed: Census, the corrected snapshot,
+focused lifecycle tests, all-target check, pointer, format, diff, and line
+checks are green. S0b-D0 is the next design-only blocker. NESTED-REP0 remains
+parked."""
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FSESSION0-S0B-D0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

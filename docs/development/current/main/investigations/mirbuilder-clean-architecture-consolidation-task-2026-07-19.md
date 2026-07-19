@@ -512,6 +512,17 @@ snapshot, clear, restore, publication, or runtime behavior changed. The direct
 access snapshot now has 96 rows and 1,792 observations (1,175 production, 615
 test, 2 shared). `P0-P0` is next.
 
+`P0-P0` and `P0-G0` are closed (2026-07-19). The scanner's five focused
+self-tests cover literal stripping, three-domain cfg partitioning, bounded
+receiver ownership, mixed-context selector attribution, and Census/scanner
+selector coupling. The session witness now covers the remaining mixed leaves
+and both metadata-gap controls. Census, direct-access inventory, scanner
+self-test, focused function-session test, all-target check, pointer guard,
+format, diff, and changed-file line limits are green. The frozen S0b input is
+therefore one Census route map, one 96-row/1,792-occurrence snapshot, and the
+existing session parity suite. `S0b-D0` is next and is design-only: it must
+select the physical cutover order before any storage moves.
+
 P0 must not add a second route/destination authority, generic ownership
 inference, arbitrary alias tracking, a semantic cfg evaluator, or a metadata
 snapshot/clear/restore repair. `scope.entry_clear` stays the one explicit mixed
