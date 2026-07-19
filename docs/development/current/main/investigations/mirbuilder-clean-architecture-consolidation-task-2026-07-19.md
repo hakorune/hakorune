@@ -324,7 +324,16 @@ BoxCompilationContext:
   string_literals/map_value_types/map_literal_value_types retain
 ```
 
-The next code-facing hand is `S0a-V0`.
+`S0a-V0` is closed (2026-07-19). It adds exactly one builder-private,
+fieldful `function_lowering_state` vocabulary and no live storage. The module
+contains `FunctionLoweringStateV1`, `FunctionScopeStateV1`,
+`FunctionCompilationScratchV1`, and `FunctionValueOriginFactsV1`; it has no
+constructor/accessor/session API, no `Clone`/`Copy`/`Deref` facade, and
+`MirBuilder` still has no `function_state` field or consumer. The existing
+census checker now verifies that exact four-component partition and rejects a
+premature Builder installation or public compatibility surface. Its focused
+default-state unit test, the expanded function-session witnesses, the census,
+and all-target build are green. The next code-facing hand is `S0a-G0`.
 
 `S0a-V0` may introduce private, storage-free vocabulary only:
 

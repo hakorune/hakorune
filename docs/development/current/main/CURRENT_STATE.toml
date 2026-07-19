@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FSESSION0-S0a-T0 is closed; S0a-V0 may add private function-state vocabulary before the physical owner cutover"
+status = "FSESSION0-S0a-V0 is closed; S0a-G0 must freeze the S0b FunctionOwned direct-access inventory before the physical owner cutover"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -306,14 +306,17 @@ and no type backfill, retry, or fixture rewrite is authorized. FSESSION0-CENSUS0
 is closed with one checked inventory: all 41 expanded prepare/restore leaves,
 all 27 direct MirBuilder fields, and two uncovered ValueId-keyed metadata gaps
 are explicit. BoxCompilationContext's three uncleared FunctionOwned TypeContext
-maps are recorded rather than repaired. The selected next hand is
-MIRBUILDER-CLEAN0-FSESSION0-S0a-V0. T0 now fixes legacy child-entry,
+maps are recorded rather than repaired. S0a-V0 now fixes one private,
+fieldful FunctionLoweringState vocabulary and a structural partition guard
+without adding Builder storage, consumers, constructors, or Deref
+compatibility. The selected next hand is MIRBUILDER-CLEAN0-FSESSION0-S0a-G0.
+T0 fixes legacy child-entry,
 success/error/panic restoration across every captured FunctionOwned surface and
 the existing BoxCompilationContext three-clear/three-retain type-map behavior.
-The two metadata-origin gaps remain explicit and unhealed. V0 may add only
-private storage-free component vocabulary; S0b's physical storage cutover
-follows only after S0a-G0. NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FSESSION0-S0A-V0-001"
+The two metadata-origin gaps remain explicit and unhealed. S0b's physical
+storage cutover follows only after S0a-G0 freezes every FunctionOwned direct
+access. NESTED-REP0 remains parked."""
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FSESSION0-S0A-G0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

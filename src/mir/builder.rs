@@ -38,6 +38,8 @@ mod exprs_check; // CheckExpr lowering
 mod exprs_enum_match; // narrow direct-MIR enum match lowering for guard-let sugar
 mod fastmem; // fastmem source -> MIR MemOp metadata lowering
 mod fastmem_context; // FastMemory region context helpers
+#[allow(dead_code)]
+mod function_lowering_state; // FSESSION0-S0a: private ownership vocabulary; no storage cutover
 mod located_legacy_lowering;
 mod metadata_context; // Phase 136 follow-up (Step 6/7): MetadataContext extraction
 mod method_call_handlers;

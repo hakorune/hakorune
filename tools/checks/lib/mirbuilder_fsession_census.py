@@ -11,6 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 FIXTURE = ROOT / "tools/checks/fixtures/mirbuilder_fsession_census_v1.json"
+FUNCTION_STATE = ROOT / "src/mir/builder/function_lowering_state.rs"
 CLASSES = {
     "ModuleImmutable",
     "ModulePublication",
@@ -194,10 +195,82 @@ def main() -> None:
     if gap_ids != expected_gaps:
         fail(f"uncovered metadata inventory mismatch missing={sorted(expected_gaps - gap_ids)} extra={sorted(gap_ids - expected_gaps)}")
 
+    validate_s0a_function_state_vocabulary(builder)
+
     print(
         "[mirbuilder-fsession-census] ok "
         f"snapshot_surfaces={len(surfaces)} builder_fields={len(builder_fields)} uncovered={len(gaps)}"
     )
+
+
+def validate_s0a_function_state_vocabulary(builder: Path) -> None:
+    if not FUNCTION_STATE.is_file():
+        fail("missing S0a function-state vocabulary")
+    state_text = FUNCTION_STATE.read_text()
+    state_code = "\n".join(
+        line for line in state_text.splitlines() if not line.lstrip().startswith("//")
+    )
+    builder_text = builder.read_text()
+    if "mod function_lowering_state;" not in builder_text:
+        fail("MirBuilder does not declare the S0a function-state vocabulary")
+    if "function_state" in struct_fields(builder, "MirBuilder"):
+        fail("S0a must not install FunctionLoweringStateV1 in MirBuilder")
+    if re.search(r"\b(?:Deref|DerefMut)\b", state_code):
+        fail("S0a function-state vocabulary must not expose Deref compatibility")
+    if "pub(crate)" in state_code or re.search(r"\bpub\s+struct\b", state_code):
+        fail("S0a function-state vocabulary must stay builder-private")
+
+    expected_fields = {
+        "FunctionLoweringStateV1": {
+            "current_function",
+            "current_block",
+            "variable_ctx",
+            "type_ctx",
+            "binding_ctx",
+            "resolved_binding_state",
+            "scope",
+            "compilation",
+            "value_origins",
+            "pending_phis",
+            "local_ssa_map",
+            "schedule_mat_map",
+            "pin_slot_names",
+            "frag_emit_session",
+            "return_defer_active",
+            "return_defer_slot",
+            "return_defer_target",
+            "return_deferred_emitted",
+            "in_cleanup_block",
+            "cleanup_allow_return",
+            "cleanup_allow_throw",
+            "suppress_pin_entry_copy_next",
+            "in_unified_boxcall_fallback",
+        },
+        "FunctionScopeStateV1": {
+            "lexical_scope_stack",
+            "loop_header_stack",
+            "loop_exit_stack",
+            "if_merge_stack",
+            "function_param_names",
+            "fastmem_region_stack",
+        },
+        "FunctionCompilationScratchV1": {
+            "reserved_value_ids",
+            "fn_body_ast",
+            "record_local_values",
+        },
+        "FunctionValueOriginFactsV1": {
+            "value_origin_spans",
+            "value_origin_callers",
+        },
+    }
+    for name, expected in expected_fields.items():
+        actual = struct_fields(FUNCTION_STATE, name)
+        if actual != expected:
+            fail(
+                f"S0a vocabulary partition mismatch for {name} "
+                f"missing={sorted(expected - actual)} extra={sorted(actual - expected)}"
+            )
 
 
 if __name__ == "__main__":
