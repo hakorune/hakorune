@@ -150,6 +150,64 @@ fn actual_method_prefix_uses_canonical_parameters_and_keeps_one_live_scope_for_l
     }));
 }
 
+#[test]
+fn actual_canonical_prefix_rejects_untyped_numeric_loop_carrier_before_claims() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    with_default_and_strict_modes(|_mode| {
+        let activation = actual_parser_add_fixture::plan();
+        let caller = actual_parser_add_fixture::caller(&activation);
+        let (port, loop_root) = located_loop(&activation, &caller);
+        let representation =
+            VerifiedLocatedGenericLoopBodyRepresentationV1::verify_located_loop(&port, loop_root)
+                .expect("actual located GenericLoop representation");
+
+        let mut builder = MirBuilder::new();
+        builder.current_module = Some(MirModule::new("raw-primary-r0".to_string()));
+        builder
+            .comp_ctx
+            .install_callable_declaration_catalog(
+                actual_parser_add_fixture::declaration_catalog_for_lowering(),
+            )
+            .expect("actual raw-primary callable catalog");
+        let error = builder
+            .lower_instance_method_prefix_for_test(
+                "ParserBox",
+                actual_parser_add_fixture::method_declaration_for_lowering(),
+                4,
+                |builder, suffix| {
+                    assert_eq!(suffix.len(), 2, "exact Loop and Return suffix");
+                    assert!(matches!(suffix[0], crate::ast::ASTNode::Loop { .. }));
+                    assert!(matches!(suffix[1], crate::ast::ASTNode::Return { .. }));
+                    let parameter_pos = builder
+                        .scope_ctx
+                        .current_function
+                        .as_ref()
+                        .expect("canonical method skeleton")
+                        .params[2];
+                    let loop_carrier = builder.variable_ctx.variable_map["pos"];
+                    assert_ne!(loop_carrier, parameter_pos);
+                    assert!(
+                        builder.type_ctx.get_type(loop_carrier).is_none(),
+                        "R0 must observe the actual raw prefix before any type backfill"
+                    );
+                    let error = compose_located_generic_loop_v1(
+                        builder,
+                        representation,
+                        &port,
+                        &activation,
+                        &caller,
+                    )
+                    .expect_err("untyped raw loop carrier must stop before claims");
+                    Err::<(ValueId, ()), _>(error)
+                },
+            )
+            .expect_err("R0 must stop at the raw carrier type producer");
+        assert!(error.contains("GenericLoop carrier representation failed"));
+        assert!(error.contains("MissingTransientType"));
+        assert!(builder.scope_ctx.current_function.is_none());
+    });
+}
+
 pub(super) fn run_raw(
     mode: GenericLoopTestModeV1,
     port: &LocatedLoopPlanExpressionPortV1<'_>,

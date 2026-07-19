@@ -471,16 +471,58 @@ production caller / route / ledger / type-authority delta: 0
 ```
 
 The harness does not split through `lower_method_body`: doing that would close
-its lexical scope before the Loop and create false parity. R0 is now the sole
-next row and must execute the already-sealed actual Body(4) all-Unselected
-plan through this live handoff. If it fails, preserve the exact
-producer/route/CFG/lifecycle fact and stop; H0 does not authorize another
-fixture authority or any type backfill.
+its lexical scope before the Loop and create false parity.
 
-If canonical entry/prefix cannot produce the needed live function state, or
-R0 still fails after it, stop again with the exact producer/route/CFG/lifecycle
-fact. Do not add type backfill, fallback, source/ledger changes, nested-result
-widening, or another test-only type authority.
+### R0 investigation stop (2026-07-19)
+
+R0 reached the canonical raw prefix and the actual located GenericLoop
+composer, then stopped before ledger construction, `start_execution`, raw
+effect emission, or retry:
+
+```text
+actual exact Body(3):
+  pos = ParserStringUtilsBox.skip_ws(
+      text,
+      me.static_const_eval_pos(ret)
+  )
+
+canonical live binding:
+  variable_map["pos"] = %34
+  %34 != original parameter pos
+  type_ctx.value_types[%34] = absent
+
+NumericProgression skeleton:
+  -> MissingTransientType { init: %34 }
+```
+
+The numeric ValueId is an observation, not a test identity. The committed
+diagnostic uses the live `pos` binding and proves the same error through the
+actual located composer in both existing process modes.
+
+This is not a PHI or finalization timing repair. The nested current-owner call
+and outer raw `skip_ws` call both publish no lowering-time type. Raw call
+annotation consults a currently published MIR function or unrelated fixed
+heuristics; the installed declaration catalog is not a MIR result-type
+authority, and this reduced `skip_ws(text, pos) { return pos }` declaration is
+untyped. The actual source-gate row is also `Unselected` because its required
+nested instance result has no exact source proof.
+
+Therefore `R0` does not authorize any implementation widening. In particular:
+
+```text
+claim -> Integer backfill: 0
+loop-condition Integer inference: 0
+skip_ws/name/runtime special case: 0
+final metadata read or mid-lowering propagation: 0
+raw retry: 0
+CALLABLE-RESULT-NESTED-REP0 early opening: 0
+```
+
+The next frontier is the design stop
+`RAW-PLAN-EMISSION-PARITY0-CARRIER-TYPE-D0`. It must select the semantic owner
+of an exact NumericProgression carrier before a code-facing producer row may
+exist. `LOOP0-L0-R0-P0`, F0, L0, and EXPR0-C0 remain blocked behind that
+decision.
 
 ## `LOOP0-L0-R0-F0` — selected execution failure proof
 

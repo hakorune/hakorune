@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RAW-PLAN-EMISSION-PARITY0 H0 closed; R0 actual Body(4) raw-primary retry is next"
+status = "RAW-PLAN-EMISSION-PARITY0 R0 stopped at the actual untyped NumericProgression carrier design frontier"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -318,10 +318,13 @@ contract but its existing test seed has typed values that are neither function
 parameters nor MIR definitions. RAW-PLAN-EMISSION-PARITY0 H0 is closed: one
 test-only bounded harness uses the existing instance-method entry and raw
 Body(0..3) prefix, retains the root lexical scope through the exact Body(4)
-handoff, and publishes no synthetic parameter/local/type fact. R0 now retries
-actual Body(4) execution. F0 remains after P0; NESTED-REP0 remains parked
-until after CLEAN0 FSESSION0."""
-current_blocker_token = "DPRIME-RAW-PLAN-EMISSION-PARITY0-R0-001"
+handoff, and publishes no synthetic parameter/local/type fact. R0 reached the
+actual composer but found that Body(3)'s raw `skip_ws` result replaces `pos`
+with a live ValueId lacking an exact transient type; NumericProgression rejects
+before claims or emission. This is a semantic-owner design frontier, not a
+type backfill/wiring repair. `RAW-PLAN-EMISSION-PARITY0-CARRIER-TYPE-D0` is
+next; F0, L0, EXPR0-C0, and NESTED-REP0 remain parked."""
+current_blocker_token = "DPRIME-RAW-PLAN-EMISSION-PARITY0-CARRIER-TYPE-DESIGN-STOP-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
