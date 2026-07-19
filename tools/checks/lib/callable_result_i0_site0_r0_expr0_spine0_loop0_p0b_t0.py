@@ -54,6 +54,12 @@ PARTS_ASSOCIATED_SOURCE = (
 PARTS_ASSOCIATED_SOURCE_TESTS = (
     "src/mir/builder/control_flow/plan/parts/associated_source_tests.rs"
 )
+PARTS_ASSOCIATED_DISPATCH = (
+    "src/mir/builder/control_flow/plan/parts/associated_source/dispatch.rs"
+)
+PARTS_ASSOCIATED_DISPATCH_TESTS = (
+    "src/mir/builder/control_flow/plan/parts/associated_source/dispatch_tests.rs"
+)
 PARTS_MOD = "src/mir/builder/control_flow/plan/parts/mod.rs"
 
 
@@ -391,7 +397,7 @@ def _guard_r0_d0_s0(root: Path) -> None:
     consumers = []
     for path in (root / "src/mir/builder/control_flow/plan").rglob("*.rs"):
         relative = path.relative_to(root).as_posix()
-        if relative == PARTS_ASSOCIATED_SOURCE or _is_test_source(path):
+        if relative in (PARTS_ASSOCIATED_SOURCE, PARTS_ASSOCIATED_DISPATCH) or _is_test_source(path):
             continue
         text = _production(path.read_text(encoding="utf-8"))
         counts = {
@@ -403,6 +409,80 @@ def _guard_r0_d0_s0(root: Path) -> None:
             consumers.append(f"{relative}:{counts}")
     if consumers:
         raise RuntimeError(f"LOOP0-P0b-T0 R0-D0-S0 premature consumers: {consumers}")
+
+
+def _guard_r0_d0_dispatch0_s0(root: Path) -> None:
+    dispatch = _production(_read(root, PARTS_ASSOCIATED_DISPATCH))
+    tests = _read(root, PARTS_ASSOCIATED_DISPATCH_TESTS)
+    source = _read(root, PARTS_ASSOCIATED_SOURCE)
+
+    _require(
+        dispatch,
+        "fn lower_verified_parts_associated_item<",
+        1,
+        "R0-D0 sole item dispatcher",
+    )
+    owner = _function(dispatch, "lower_verified_parts_associated_item")
+    signature = owner[: owner.index("{")]
+    if "verified: VerifiedPartsAssociatedItemV1<" not in signature or "verified: &" in signature:
+        raise RuntimeError("LOOP0-P0b-T0 R0-D0 dispatcher must consume the verified pair by value")
+    _require(owner, "match (mode, item)", 1, "R0-D0 sole acceptance match")
+    for variant in (
+        "OpaqueStmt",
+        "OpaqueExit",
+        "ExplicitIfV2",
+        "StmtWrappedJoinIf",
+        "RawLoopV0",
+    ):
+        if f"PartsAssociatedRecipeItemV1::{variant}" not in owner:
+            raise RuntimeError(f"LOOP0-P0b-T0 R0-D0 dispatcher misses variant: {variant}")
+    for mode in ("ExitOnly", "ExitAllowed", "StmtOnly", "NoExit"):
+        if f"PartsAssociatedBlockModeV1::{mode}" not in owner:
+            raise RuntimeError(f"LOOP0-P0b-T0 R0-D0 dispatcher misses mode: {mode}")
+    for if_mode in ("ExitIf", "ExitAll", "ThenOnlyExit", "ElseOnlyExit"):
+        if f"IfMode::{if_mode}" not in owner:
+            raise RuntimeError(f"LOOP0-P0b-T0 R0-D0 dispatcher misses If mode: {if_mode}")
+    for token in (
+        "MirBuilder",
+        "CorePlan",
+        "LoweredRecipe",
+        "RecipeItem::",
+        "try_build_no_exit_block_recipe",
+        "CondBlockView::from_expr",
+        "ASTNode::If",
+        "ledger",
+        "claim_batch",
+        "fallback",
+        "retry",
+    ):
+        if token in dispatch:
+            raise RuntimeError(f"LOOP0-P0b-T0 R0-D0 dispatcher owns forbidden authority: {token}")
+    for name in (
+        "sole_dispatcher_accepts_the_existing_block_mode_matrix",
+        "sole_dispatcher_rejects_cross_mode_items_without_invoking_hooks",
+        "invalid_if_contract_modes_reject_without_invoking_hooks",
+    ):
+        _fixture(tests, name)
+    _require(source, "pub(super) mod dispatch;", 1, "R0-D0 dispatcher module")
+    _require(source, "mod dispatch_tests;", 1, "R0-D0 dispatcher tests module")
+
+    consumers = []
+    for path in (root / "src/mir/builder/control_flow/plan").rglob("*.rs"):
+        relative = path.relative_to(root).as_posix()
+        if relative == PARTS_ASSOCIATED_DISPATCH or _is_test_source(path):
+            continue
+        text = _production(path.read_text(encoding="utf-8"))
+        counts = {
+            "dispatcher": text.count("lower_verified_parts_associated_item"),
+            "hooks": text.count("impl PartsAssociatedLoweringHooksV1"),
+            "mode": text.count("PartsAssociatedBlockModeV1"),
+        }
+        if any(counts.values()):
+            consumers.append(f"{relative}:{counts}")
+    if consumers:
+        raise RuntimeError(
+            f"LOOP0-P0b-T0 R0-D0 dispatcher has premature production consumers: {consumers}"
+        )
 
 
 def _guard_no_premature_located_consumer(root: Path) -> None:
@@ -430,6 +510,7 @@ def check_loop0_p0b_t0(root: Path) -> str:
     _guard_b0(root)
     _guard_r0_v0_c0(root)
     _guard_r0_d0_s0(root)
+    _guard_r0_d0_dispatch0_s0(root)
     _guard_no_premature_located_consumer(root)
 
     touched = (
@@ -453,10 +534,12 @@ def check_loop0_p0b_t0(root: Path) -> str:
         IF_CORE_TESTS,
         PARTS_ASSOCIATED_SOURCE,
         PARTS_ASSOCIATED_SOURCE_TESTS,
+        PARTS_ASSOCIATED_DISPATCH,
+        PARTS_ASSOCIATED_DISPATCH_TESTS,
         PARTS_MOD,
         "tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0_p0b_t0.py",
     )
     oversized = [relative for relative in touched if len(_read(root, relative).splitlines()) >= 800]
     if oversized:
         raise RuntimeError(f"LOOP0-P0b-T0 source/check files reached 800 lines: {oversized}")
-    return "loop0_p0b_t0_c0=1 loop0_p0b_t0_b0=1 r0_v0=1 r0_c0=1 r0_d0_s0=1 located_consumers=0"
+    return "loop0_p0b_t0_c0=1 loop0_p0b_t0_b0=1 r0_v0=1 r0_c0=1 r0_d0_s0=1 r0_d0_dispatch0_s0=1 located_consumers=0"

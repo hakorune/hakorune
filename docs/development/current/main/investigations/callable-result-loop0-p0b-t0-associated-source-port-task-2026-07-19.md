@@ -1,5 +1,5 @@
 ---
-Status: T0-R0 D0-S0 closed; shared Parts dispatcher cutover next
+Status: T0-R0 D0-DISPATCH0-S0 closed; raw Parts cutover next
 Date: 2026-07-19
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md
 Prior decision: callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md
@@ -358,6 +358,58 @@ by value in one shared semantic dispatcher, replaces the three existing Parts
 `RecipeItem` semantic matches with thin raw facades, and adds ExitOnly,
 ExitAllowed, and NoExit/Join lowering parity. Port and item must not gain
 independent production accessors.
+
+###### R0-D0-DISPATCH0-S0 closeout
+
+One child module now consumes the private verified port/item pair by value.
+It owns the sole disconnected acceptance match across four block modes and all
+five associated item variants. The product still exposes no production
+port/item accessor, and providers remain projection-only.
+
+The matrix preserves the exact existing raw law:
+
+```text
+OpaqueStmt:
+  ExitOnly | ExitAllowed | StmtOnly | NoExit
+
+OpaqueExit:
+  ExitOnly | ExitAllowed
+
+ExplicitIfV2:
+  ExitOnly/ExitAllowed blocks accept only
+    ExitOnly(ExitIf | ExitAll)
+    ExitAllowed(ThenOnlyExit | ElseOnlyExit)
+  NoExit accepts only Join
+
+StmtWrappedJoinIf:
+  ExitAllowed only
+
+RawLoopV0:
+  ExitOnly | ExitAllowed | NoExit
+```
+
+All complementary If contract/mode pairs reject before a hook runs. Hooks are
+carrier-dependent leaf ports and own no acceptance policy. No production hook
+implementation or dispatcher caller exists yet.
+
+Evidence:
+
+```text
+acceptance matrix fixture: green
+cross-mode rejection fixture: green
+invalid If contract/mode fixture: green
+focused fixtures: 3/3
+public expression-spine guard: green
+Builder/CorePlan/lowering delta: 0
+production dispatcher/hook callers: 0
+located execution callers: 0
+ledger claims: 0
+files at or above 800 lines: 0
+```
+
+The next internal slice adds the raw hook adapter, threads raw blocks through
+the verified provider and by-value dispatcher, preserves each block's existing
+terminal/postcondition law, and only then deletes the old raw semantic matches.
 
 Statement leaves reuse the B0 associated-input primitives. Return values use
 the exact expression child. Existing Parts owners retain exit state, join

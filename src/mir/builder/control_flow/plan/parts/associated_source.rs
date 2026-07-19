@@ -35,6 +35,10 @@ mod sealed {
     pub trait Sealed {}
 }
 
+pub(super) mod dispatch;
+#[cfg(test)]
+mod dispatch_tests;
+
 /// One representation-neutral item vocabulary.
 ///
 /// The type parameters are source carriers only. This enum intentionally owns
