@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "callable-result ACT0-ARG0 S0 closed; P0 source-proof matrix is next"
+status = "callable-result ACT0-ARG0 stopped: actual source gate proves zero selected sites; decision required"
 date = "2026-07-19"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -297,17 +297,17 @@ taskboard = "docs/development/current/main/investigations/mirbuilder-dprime-bind
 latest_workstream_card = "docs/development/current/main/investigations/callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md"
 parked_loop_route_retirement_card = "docs/development/current/main/investigations/generic-loop-named-route-retirement-task-2026-07-19.md"
 
-latest_card = "callable-result-act0-arg0-source-gate-task-2026-07-19"
-latest_card_path = "docs/development/current/main/investigations/callable-result-act0-arg0-source-gate-task-2026-07-19.md"
-latest_card_summary = """ACT0-ARG0-S0 is closed. One disconnected borrowed
-source-gate classifier co-seals the existing static target, ExactI64 target
-disposition, and same-site call-result proof; missing source proof is an
-explicit Unselected decision and catalog/evidence disagreement is typed. The
-classifier stores no ValueId, MirType, Builder, AST, or retry authority and has
-zero production consumers. P0 is next to prove the full source matrix and the
-actual 15-row 1-selected/14-Unselected reclassification before I0 connects one
-activation-row construction consumer."""
-current_blocker_token = "DPRIME-CALLABLE-RESULT-ACT0-ARG0-P0-001"
+latest_card = "callable-result-act0-arg0-actual-selection-design-stop-2026-07-19"
+latest_card_path = "docs/development/current/main/investigations/callable-result-act0-arg0-actual-selection-design-stop-2026-07-19.md"
+latest_card_summary = """ACT0-ARG0-S0 remains closed and disconnected. P0
+directly observed that both actual Parser `skip_ws` target candidates require
+a nested current-owner `static_const_eval_pos` result, so neither has an exact
+source call-result row and Candidate 1-prime selects 0 of 15 rows. The active
+card's locked 1-selected/14-Unselected outcome and resumed-L0 selected-emission
+claim cannot be silently changed. Choose either the parked NESTED-REP0 widening
+or an explicit rebase to 0-selected actual coverage plus a separate selected
+fixture; ARG0 I0/G0 and LOOP0-L0 remain blocked until then."""
+current_blocker_token = "DPRIME-CALLABLE-RESULT-ACT0-ARG0-ACTUAL-SELECTION-DESIGN-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
