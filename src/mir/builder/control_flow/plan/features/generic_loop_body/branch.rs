@@ -3,6 +3,7 @@ use crate::mir::builder::control_flow::plan::facts::expr_generic_loop::is_pure_v
 use crate::mir::builder::control_flow::plan::parts::conditional_update;
 use crate::mir::builder::control_flow::plan::steps::effects_to_plans;
 use crate::mir::builder::control_flow::plan::LoweredRecipe;
+use crate::mir::builder::control_flow::plan::RawLoopPlanExpressionPortV1;
 use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
@@ -200,15 +201,20 @@ pub(super) fn try_lower_conditional_update_if(
 
     let carrier_phis = BTreeMap::new();
     let mut carrier_updates = BTreeMap::new();
-    conditional_update::try_lower_conditional_update_if(
+    let port = RawLoopPlanExpressionPortV1::new();
+    let then_input: &[ASTNode] = then_body;
+    let else_input = else_body.map(Vec::as_slice);
+    conditional_update::try_lower_conditional_update_if_input(
+        &port,
         builder,
         current_bindings,
         &carrier_phis,
         carrier_step_phis,
         &mut carrier_updates,
-        condition,
-        then_body,
-        else_body,
+        None,
+        port.expr(condition),
+        &then_input,
+        else_input.as_ref(),
         GENERIC_LOOP_ERR,
     )
 }

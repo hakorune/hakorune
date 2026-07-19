@@ -1,5 +1,5 @@
 ---
-Status: T0-L0 closed; T0-DIRECT0-S0 is next
+Status: T0-L0 and T0-DIRECT0-S0 closed; T0-DIRECT0-R0 is next
 Date: 2026-07-19
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md
 Prior decision: callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md
@@ -991,6 +991,20 @@ source/check file reaching 800 lines.
 After DIRECT0-G0, P0 must still run independently under default and strict
 modes with fresh identically seeded Builders. Strict-only parity cannot close
 P0.
+
+#### T0-DIRECT0-S0 closeout
+
+S0 is closed as a behavior-neutral associated-input prerequisite. The existing
+GenericLoop conditional-update branch now selects one
+`RawLoopPlanExpressionPortV1` and delegates branch shape checks, assignment and
+local child lookup, condition/value lowering, and Select/exit assembly through
+one port-aware core. The raw Parts conditional-update owner remains the sole
+semantic owner; no located production caller, Builder-independent execution
+token, composer, ledger claim, fallback, or retry was added. The focused
+GenericLoop library tests are 17/17, `cargo check --all-targets`, the public
+expression-spine guard, pointer, formatting, diff, and line checks are green.
+The next slice is DIRECT0-R0: parameterize the existing direct body/If owner
+over the same port without adding a second dispatcher.
 
 L0 stops for a new consultation if exact carrier targets cannot be retained by
 the existing HOOK0 traversal; if `DirectRecipeOnly` must become active now; if
