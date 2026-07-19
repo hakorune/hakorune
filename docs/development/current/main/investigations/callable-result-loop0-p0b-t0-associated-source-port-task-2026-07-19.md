@@ -1,5 +1,5 @@
 ---
-Status: T0-R0 D0-RAW0 closed; disconnected located Parts proof next
+Status: T0-R0 P0-LOCATED0 selected; STATE0 is next
 Date: 2026-07-19
 Parent: callable-result-i64-site0-r0-expression-spine-loop0-task-2026-07-18.md
 Prior decision: callable-result-i64-site0-r0-expression-spine-loop0-p0b-o0-design-stop-2026-07-19.md
@@ -452,6 +452,81 @@ disconnected located hook/driver proof for the actual strict root, including
 the retained wrapped-Join product, with Builder effects compared against the
 raw semantics and with production located callers and ledger claims held at
 zero.
+
+###### R0-P0-LOCATED0 worker-audit decision lock
+
+Three read-only audits select one local implementation order without an
+external design consultation:
+
+```text
+R0-P0-STATE0
+  one provider-neutral associated block driver
+  one condition-parameterized Exit/Join state owner
+
+R0-P0-HOOK0
+  one non-Clone Builder-free strict-root preflight seal
+  one disconnected located carrier adapter
+
+R0-P0-PARITY0
+  actual strict raw/located plan and Builder-state proof
+
+R0-P0-G0
+  existing private T0 guard closeout
+```
+
+The raw lowering hook remains a raw carrier adapter. It is not widened with
+raw/located branches because it owns raw `RecipeBodies`, `RecipeBlock`, and
+`CondBlockView` inputs. The located hook is a separate thin carrier adapter;
+semantic state remains in shared Parts owners:
+
+```text
+item order / early terminal / ExitOnly postcondition:
+  one provider-neutral associated block driver
+
+If snapshot / reset / continuing-side restore:
+  one condition-parameterized Exit state owner
+
+Join branch snapshots / terminal analysis / payload / publication:
+  one condition-parameterized Join state owner
+
+Local / Assignment / Return expression descent:
+  existing associated-input primitives and binding publishers
+
+condition syntax:
+  exact located PATH0 carrier through lower_cond_expr_to_if_plans_input
+```
+
+`HOOK0` must not lazily discover a foreign or unsupported item after an earlier
+root item has already mutated the Builder. One private, non-Clone execution
+seal recursively preflights the immutable actual strict root without a Builder:
+
+```text
+root:
+  Local
+  Local
+  ExplicitIfV2 ExitOnly::ExitIf with exact Return branch
+  Local
+  StmtWrappedJoinIf with exact Assignment / Assignment branches
+
+accepted nested block source kinds:
+  Return in the ExitOnly branch
+  Assignment in the wrapped Join branches
+
+rejected before Builder effects:
+  foreign port/root
+  branch-presence or contract mismatch
+  unsupported opaque statement or exit kind
+  nested Loop / RawLoop
+```
+
+This admission is structural and contains no caller, method, field, target, or
+source-file name condition. The retained singleton NoExit recipe is topology
+proof only; its cloned AST and `CondBlockView` never become located syntax.
+
+The implementation stops if it needs a second statement/If dispatcher,
+lazy post-effect validation, a recipe/source side map, recipe rebuilding,
+general Join-local inventory, production located callers, ledger claims,
+fallback/retry, or a source/check file at or above 800 lines.
 
 Statement leaves reuse the B0 associated-input primitives. Return values use
 the exact expression child. Existing Parts owners retain exit state, join
