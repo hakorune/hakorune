@@ -1893,3 +1893,35 @@ items; an Excluded classification keeps only its gate, so it cannot trigger
 descendant validation in a future I0 consumer. Unknown and active inner `path`
 are typed stops. No production traversal calls this draft yet. `CONTENTCFG0-P0`
 is next and owns the root/external/inline proof matrix.
+
+##### `CONTENTCFG0-P0` closeout
+
+One `#[cfg(test)]` candidate observer now measures the content gate before
+module-instance issuance without connecting the production traversal. It reuses
+the selected outer cfg stream, module path resolver, and R0 content draft; it
+creates no topology edge, module instance, or compiler fact. Only an
+outer-Included declaration is observed as an external or inline content
+candidate, and an inner Excluded draft stops before descendant parsing.
+
+The disconnected root/external/inline matrix fixes Included, Excluded, and
+Unknown gates; preserves the same candidate and defining-surface evidence;
+keeps parse-before-inner-false behavior; keeps a missing descendant behind an
+inner false gate; preserves source-order short-circuit before malformed/path
+rows; and retains active/inactive nested `cfg_attr` behavior. Existing
+MODULE0/INCLUDE0 fixtures continue to pin outer-false no-probe, included
+fragment inner-attribute rejection, and active block-local-module rejection.
+
+The exact six-profile repository census is now source-derived:
+
+```text
+host-test-unit-default = 11 content candidates with inner rows, all Excluded
+host-default-dev / host-default-release / host-llvm-harness-dev /
+host-vm-reference-dev / wasm32-default-dev = 0
+```
+
+The eleven paths are the five resolved-lowering tests, three compiler
+activation tests, two interpreter-legacy tests, and `plugin_hygiene.rs` in
+deterministic source traversal order. The topology suite, registered cfg-stream
+guard, current-state pointer guard, and root `cargo check` are green. The next
+row, `CONTENTCFG0-I0`, alone may connect this already-proved gate to root,
+external, and inline traversal; CUT0 remains forbidden.

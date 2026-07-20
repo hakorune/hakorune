@@ -1,5 +1,7 @@
 mod content_gate;
 mod content_draft;
+#[cfg(test)]
+mod content_candidate;
 mod cfg_gate;
 mod declarations;
 mod error;

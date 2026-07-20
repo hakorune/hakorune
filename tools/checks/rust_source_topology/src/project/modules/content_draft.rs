@@ -194,13 +194,119 @@ mod tests {
         ));
     }
 
+    #[test]
+    fn root_external_and_inline_candidates_share_the_same_three_way_gate() {
+        let cases = [
+            (ModuleContentCandidateIdV1::Root, source_surface(), "root"),
+            (
+                ModuleContentCandidateIdV1::ModuleEdge {
+                    edge_id: "edge:external".to_string(),
+                },
+                ModuleContentDefiningSurfaceV1::SourceFile {
+                    source_path_workspace_relative: "src/external.rs".to_string(),
+                    content_digest: "sha256:external".to_string(),
+                },
+                "external",
+            ),
+            (
+                ModuleContentCandidateIdV1::ModuleEdge {
+                    edge_id: "edge:inline".to_string(),
+                },
+                ModuleContentDefiningSurfaceV1::InlineBody {
+                    parent_source_observation_id: "source:parent".to_string(),
+                    body_range: crate::SourceRangeV1 {
+                        start: crate::PositionV1 { line: 4, column: 0 },
+                        end: crate::PositionV1 { line: 6, column: 1 },
+                        byte_start: 40,
+                        byte_end: 58,
+                    },
+                },
+                "inline",
+            ),
+        ];
+        for (candidate_id, surface, label) in cases {
+            let included = classify_with(
+                candidate_id.clone(),
+                surface.clone(),
+                "#![cfg(all())]\npub fn item() {}\n",
+            );
+            let ClassifiedModuleContentDraftV1::Included { gate, .. } = included.unwrap() else {
+                panic!("{label} true must include");
+            };
+            assert_eq!(gate.candidate_id, candidate_id);
+            assert_eq!(gate.defining_surface, surface);
+
+            let excluded = classify_with(
+                candidate_id.clone(),
+                surface.clone(),
+                "#![cfg(any())]\nmod missing;\n",
+            );
+            let ClassifiedModuleContentDraftV1::Excluded { gate } = excluded.unwrap() else {
+                panic!("{label} false must exclude");
+            };
+            assert_eq!(gate.candidate_id, candidate_id);
+            assert_eq!(gate.defining_surface, surface);
+
+            let unknown = classify_with(
+                candidate_id,
+                surface,
+                "#![cfg(content_cfg_unknown)]\npub fn item() {}\n",
+            );
+            assert!(matches!(
+                unknown,
+                Err(ModuleContentDraftErrorV1::UnknownCfg { .. })
+            ));
+        }
+    }
+
+    #[test]
+    fn excluded_inner_content_short_circuits_later_path_and_malformed_cfg() {
+        let classified = classify(
+            "#![cfg(any())]\n#![path = concat!(\"not\", \"a-path\")]\n#![cfg(not())]\nmod missing;\n",
+        )
+        .unwrap();
+        let ClassifiedModuleContentDraftV1::Excluded { gate } = classified else {
+            panic!("first false cfg must exclude the candidate");
+        };
+        assert_eq!(gate.cfg_decision.final_state, CfgDecisionStateV1::Excluded);
+        assert_eq!(gate.cfg_decision.active_path_effects.len(), 0);
+        assert!(gate.cfg_decision.rows.iter().skip(1).all(|row| matches!(
+            row.disposition,
+            crate::project::CfgAttributeStreamRowDispositionV1::NotReachedAfterExclusion
+        )));
+    }
+
+    #[test]
+    fn active_or_inactive_nested_cfg_attr_keeps_the_shared_stream_law() {
+        let inactive = classify("#![cfg_attr(any(), cfg(not()))]\npub fn item() {}\n").unwrap();
+        let ClassifiedModuleContentDraftV1::Included { gate, .. } = inactive else {
+            panic!("inactive cfg_attr must not parse its malformed nested cfg");
+        };
+        assert_eq!(gate.cfg_decision.final_state, CfgDecisionStateV1::Included);
+
+        let active = classify("#![cfg_attr(all(), cfg(any()))]\npub fn item() {}\n").unwrap();
+        let ClassifiedModuleContentDraftV1::Excluded { gate } = active else {
+            panic!("active cfg_attr must apply its nested cfg");
+        };
+        assert_eq!(gate.cfg_decision.final_state, CfgDecisionStateV1::Excluded);
+
+        let malformed_first = classify("#![cfg(not())]\n#![cfg(any())]\npub fn item() {}\n");
+        assert!(matches!(
+            malformed_first,
+            Err(ModuleContentDraftErrorV1::Stream(_))
+        ));
+    }
+
     fn classify(source: &str) -> Result<ClassifiedModuleContentDraftV1, ModuleContentDraftErrorV1> {
-        let draft = parse_module_content_draft_v1(
-            ModuleContentCandidateIdV1::Root,
-            source_surface(),
-            "src/lib.rs",
-            source,
-        )?;
+        classify_with(ModuleContentCandidateIdV1::Root, source_surface(), source)
+    }
+
+    fn classify_with(
+        candidate_id: ModuleContentCandidateIdV1,
+        surface: ModuleContentDefiningSurfaceV1,
+        source: &str,
+    ) -> Result<ClassifiedModuleContentDraftV1, ModuleContentDraftErrorV1> {
+        let draft = parse_module_content_draft_v1(candidate_id, surface, "src/lib.rs", source)?;
         classify_module_content_draft_v1(draft, &environment())
     }
 
