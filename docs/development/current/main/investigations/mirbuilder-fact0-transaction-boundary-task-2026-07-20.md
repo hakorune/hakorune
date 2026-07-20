@@ -1642,14 +1642,14 @@ is forbidden pending a dedicated weak-classification design decision.  No
 FieldSet, weak, contract, FastMem, index, type/origin, or access-site behavior
 has changed in this row.
 
-### `WEAKFIELD-CLASSIFY0-D0` — consultation brief (2026-07-20)
+### `WEAKFIELD-CLASSIFY0-D0` — selected (2026-07-20)
 
 Three independent follow-up audits agree that the only safe continuation is a
-shared, read-only weak-route preflight.  This is a design consultation, not an
-implementation authorization: `FIELDSTORE-OBSERVE0-I0` remains forbidden until
-this boundary is explicitly accepted.
+shared, read-only weak-route preflight. Candidate A-prime is accepted. The
+selected task and exact row order are now owned by
+`mirbuilder-weakfield-classification-task-2026-07-20.md`.
 
-#### Recommended candidate: A-prime
+#### Selected candidate: A-prime
 
 The existing weak-field owner must classify the route once and return one
 private, non-Clone preparation product:
@@ -1713,7 +1713,7 @@ move the common append after weak issuance:
   changes the excluded weak-field timing contract
 ```
 
-#### Proposed code-facing order after acceptance
+#### Selected code-facing order
 
 ```text
 WEAKFIELD-CLASSIFY0-S0
@@ -1725,13 +1725,14 @@ WEAKFIELD-CLASSIFY0-S0
 
 -> WEAKFIELD-CLASSIFY0-I0
   existing weak issuer consumes its prepared product exactly once
-  fields route classifies once; only selected ordinary/no-contract FieldSet
-  moves its access-site append after receipt
+  fields route classifies once; all existing access-site timing is preserved
 
 -> WEAKFIELD-CLASSIFY0-G0
   classification owner = 1; registry re-query = 0; provisional cancellation = 0
 
--> resume FIELDSTORE-OBSERVE0-I0
+-> FIELDSTORE-OBSERVE0-P0
+-> FIELDSTORE-OBSERVE0-I0
+   ordinary/no-contract FieldSet receipt movement only
 ```
 
 #### Non-authorities and stop conditions
@@ -1747,8 +1748,8 @@ stop:
   field transaction API
 ```
 
-The sole decision requested is whether to accept A-prime as the next owner.
-Until then, no production field-assignment wiring is authorized.
+`WEAKFIELD-CLASSIFY0-S0` is the sole next code-facing row. Ordinary receipt
+movement remains forbidden until its separate `FIELDSTORE-OBSERVE0-I0` row.
 
 ### `FASTMEM-RECEIPT0` historical stop conditions
 
