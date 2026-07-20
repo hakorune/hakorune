@@ -1,5 +1,5 @@
 ---
-Status: FINALIZE0-CENSUS0-P0a-S0b and FINALIZE0-VERIFY-SPLIT0-S0 are closed; VERIFY-SPLIT0-P0 is next
+Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0 are closed; VERIFY-SPLIT0-I0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -2182,3 +2182,38 @@ retirement.
 
 Focused library tests, formatting, pointer guard, diff check, and root
 `cargo check` are green.  `FINALIZE0-VERIFY-SPLIT0-P0` is next.
+
+### P0 closeout
+
+The same disconnected product now proves the complete pure row matrix:
+
+```text
+function parameters and all instruction definitions, including unreachable blocks
+  -> defined
+ValueId::INVALID, even when present in retention inputs
+  -> absent from rows
+Missing Integer / Unknown / Void
+  -> stable ValueId sort and exact type preservation
+completed-draft verification with any residual row
+  -> typed failure
+unretained multi-row input
+  -> one ordered prepared candidate set
+referenced / pending-PHI / pinned missing row
+  -> typed retention failure
+overlapping retention
+  -> Referenced > PendingPhi > Pinned
+early stale plus later retained row
+  -> no partial prepared product
+```
+
+The legacy helper and its three direct callers remain exactly as before.  The
+loop caller remains an intermediate diagnostic boundary, not a final-draft
+consumer.  The obsolete historical typed-value guard is quarantined rather
+than repaired: it names pre-FSESSION storage and encodes the mixed strict-gated
+helper, so it cannot be evidence for this split.
+
+No production caller, map mutation, snapshot ordering, Return, type pipeline,
+Call/Await, PHI, metadata, fact-session, build-mode, or legacy diagnostic text
+changes in P0.  Eight focused product tests, formatting, diff check, and the
+pointer guard are green; the new source file is 423 lines.  `VERIFY-SPLIT0-I0`
+is the sole next row.

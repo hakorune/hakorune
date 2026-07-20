@@ -205,8 +205,8 @@ mod tests {
         TransientTypedValueRetentionV1, TypedValueDefinitionRowsV1,
     };
     use crate::mir::{
-        BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirFunction, MirInstruction,
-        MirType, ValueId,
+        BasicBlock, BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirFunction,
+        MirInstruction, MirType, ValueId,
     };
     use std::collections::{BTreeMap, BTreeSet};
 
@@ -254,6 +254,22 @@ mod tests {
     }
 
     #[test]
+    fn all_function_definitions_include_unreachable_instruction_definitions() {
+        let mut function = function_with_parameter_and_const();
+        let mut unreachable = BasicBlock::new(BasicBlockId::new(7));
+        unreachable.add_instruction(MirInstruction::Const {
+            dst: ValueId::new(2),
+            value: ConstValue::Integer(11),
+        });
+        function.add_block(unreachable);
+        let types = BTreeMap::from([(ValueId::new(2), MirType::Integer)]);
+
+        let rows = TypedValueDefinitionRowsV1::collect(&function, &types);
+        assert!(rows.missing().is_empty());
+        assert_eq!(rows.verify_completed_draft(), Ok(()));
+    }
+
+    #[test]
     fn completed_draft_rejects_each_remaining_missing_typed_value() {
         let function = function_with_parameter_and_const();
         let types = BTreeMap::from([
@@ -282,15 +298,45 @@ mod tests {
     }
 
     #[test]
-    fn only_unretained_missing_rows_prepare_as_transient_stale_candidates() {
+    fn completed_draft_rejects_stale_candidates_until_a_normalizer_consumes_them() {
         let function = function_with_parameter_and_const();
-        let types = BTreeMap::from([(ValueId::new(9), MirType::Integer)]);
+        let types = BTreeMap::from([(ValueId::new(9), MirType::Void)]);
         let rows = TypedValueDefinitionRowsV1::collect(&function, &types);
 
         let prepared = rows
             .prepare_transient_stale_rows(&BTreeSet::new(), &BTreeSet::new(), &BTreeSet::new())
-            .expect("unretained row is stale");
+            .expect("the row is a normalizer candidate");
         assert_eq!(prepared.values(), &[ValueId::new(9)]);
+        assert_eq!(
+            rows.verify_completed_draft(),
+            Err(
+                CompletedDraftTypedValueDefinitionErrorV1::MissingDefinition {
+                    value: ValueId::new(9),
+                    value_type: MirType::Void,
+                    missing_count: 1,
+                }
+            )
+        );
+    }
+
+    #[test]
+    fn only_unretained_missing_rows_prepare_as_transient_stale_candidates() {
+        let function = function_with_parameter_and_const();
+        let types = BTreeMap::from([
+            (ValueId::INVALID, MirType::Unknown),
+            (ValueId::new(9), MirType::Integer),
+            (ValueId::new(5), MirType::Unknown),
+        ]);
+        let rows = TypedValueDefinitionRowsV1::collect(&function, &types);
+
+        let prepared = rows
+            .prepare_transient_stale_rows(
+                &BTreeSet::from([ValueId::INVALID]),
+                &BTreeSet::from([ValueId::INVALID]),
+                &BTreeSet::from([ValueId::INVALID]),
+            )
+            .expect("unretained row is stale");
+        assert_eq!(prepared.values(), &[ValueId::new(5), ValueId::new(9)]);
     }
 
     #[test]
@@ -328,5 +374,50 @@ mod tests {
                 })
             );
         }
+    }
+
+    #[test]
+    fn retention_priority_is_deterministic_and_preparation_cannot_publish_a_partial_product() {
+        let function = function_with_parameter_and_const();
+        let types = BTreeMap::from([
+            (ValueId::new(5), MirType::Integer),
+            (ValueId::new(9), MirType::Unknown),
+        ]);
+        let rows = TypedValueDefinitionRowsV1::collect(&function, &types);
+
+        let all_retained = rows.prepare_transient_stale_rows(
+            &BTreeSet::from([ValueId::new(9)]),
+            &BTreeSet::from([ValueId::new(9)]),
+            &BTreeSet::from([ValueId::new(9)]),
+        );
+        assert_eq!(
+            all_retained,
+            Err(TransientStaleValueFactErrorV1::RetainedMissingDefinition {
+                value: ValueId::new(9),
+                value_type: MirType::Unknown,
+                retention: TransientTypedValueRetentionV1::Referenced,
+            })
+        );
+
+        let later_retained = rows.prepare_transient_stale_rows(
+            &BTreeSet::from([ValueId::new(9)]),
+            &BTreeSet::new(),
+            &BTreeSet::new(),
+        );
+        assert_eq!(
+            later_retained,
+            Err(TransientStaleValueFactErrorV1::RetainedMissingDefinition {
+                value: ValueId::new(9),
+                value_type: MirType::Unknown,
+                retention: TransientTypedValueRetentionV1::Referenced,
+            })
+        );
+        assert_eq!(
+            rows.missing()
+                .iter()
+                .map(|row| row.value())
+                .collect::<Vec<_>>(),
+            vec![ValueId::new(5), ValueId::new(9)]
+        );
     }
 }
