@@ -1278,6 +1278,42 @@ Stop if preserving the semantic source receiver requires a second fact map,
 moving generic Call observation, deriving facts from physical receiver copies,
 or a fallback/retry after physical emission failure.
 
+### `ARRAY-WRITE-OBSERVE0-I0` — closed (2026-07-20)
+
+The two selected specializations now invoke the existing observer only after
+`try_emit_known_array_method_write` returns `true`. The unified path retains
+its exact `Callee` and original arguments; BoxCall retains its separately
+captured semantic receiver/arguments while its physical route may use LocalSSA
+materialized values. No Array fact policy moved or changed.
+
+One dedicated 146-line temporal witness module proves both selected callers:
+
+```text
+physical write failure:
+  ArrayElementWrite = 0
+  receiver remains Box(ArrayBox)
+
+physical write success:
+  ArrayElementWrite = 1
+  semantic receiver becomes Array(Integer)
+```
+
+### `ARRAY-WRITE-OBSERVE0-G0` — closed (2026-07-20)
+
+The existing FACT0 partition guard now seals the narrow structural boundary:
+
+```text
+unified direct post-success observer consumers = 1
+BoxCall direct post-success observer consumers = 1
+generic unified observer consumers = 1, unchanged
+generic Call/Map, FieldStore/index, FastMem = excluded
+```
+
+Focused temporal tests pass 6/6, the reusable partition guard and its unit
+suite pass, `cargo check --all-targets` passes, and every touched source/check
+file remains below 800 lines. Return to `NEXT-PRODUCER-D0` before selecting the
+next fact producer.
+
 ### `FASTMEM-RECEIPT0` historical stop conditions
 
 Stop this row if it requires any of the following:

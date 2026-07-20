@@ -10,6 +10,7 @@ from pathlib import Path
 
 from mirbuilder_type_fact_partition_guard import (
     validate_active_cutover_writer_inventory_v1,
+    validate_array_write_observe0_authority_v1,
     validate_const0_authority_v1,
     validate_fastmem_fieldload0_authority_v1,
     validate_fastmem_receipt0_authority_v1,
@@ -40,6 +41,7 @@ class PartitionGuardTests(unittest.TestCase):
         validate_const0_authority_v1(ROOT)
         validate_fastmem_receipt0_authority_v1(ROOT)
         validate_fastmem_fieldload0_authority_v1(ROOT)
+        validate_array_write_observe0_authority_v1(ROOT)
 
     def test_profile_prerequisite_drift_rejects(self) -> None:
         data = fixture_copy()

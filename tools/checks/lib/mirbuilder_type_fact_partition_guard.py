@@ -610,6 +610,42 @@ def validate_fastmem_fieldload0_authority_v1(root: Path) -> None:
             fail(f"FASTMEM-FIELDLOAD0 source/check file reached 800 lines: {path}")
 
 
+def validate_array_write_observe0_authority_v1(root: Path) -> None:
+    emitter = read(root / "src/mir/builder/calls/unified_emitter.rs")
+    boxcall = read(root / "src/mir/builder/utils/boxcall_emit.rs")
+
+    direct = emitter.split('if box_name == "ArrayBox" {', 1)[1].split(
+        "if let Callee::Method {", 1
+    )[0]
+    if direct.count("observe_array_write_call(") != 1:
+        fail("ARRAY-WRITE-OBSERVE0 requires one unified direct observer consumer")
+    if direct.find("observe_array_write_call(") < direct.find(
+        "try_emit_known_array_method_write"
+    ):
+        fail("ARRAY-WRITE-OBSERVE0 unified observation must follow physical write")
+    if emitter.count("observe_array_write_call(") != 2:
+        fail("ARRAY-WRITE-OBSERVE0 generic unified observer inventory drift")
+
+    direct_boxcall = boxcall.split('if bx_name == "ArrayBox" {', 1)[1].split(
+        'if bx_name == "MapBox" {', 1
+    )[0]
+    if direct_boxcall.count("observe_array_write_call(") != 1:
+        fail("ARRAY-WRITE-OBSERVE0 requires one BoxCall direct observer consumer")
+    if direct_boxcall.find("observe_array_write_call(") < direct_boxcall.find(
+        "try_emit_known_array_method_write"
+    ):
+        fail("ARRAY-WRITE-OBSERVE0 BoxCall observation must follow physical write")
+
+    for path in (
+        root / "src/mir/builder/calls/unified_emitter.rs",
+        root / "src/mir/builder/utils/boxcall_emit.rs",
+        root / "src/mir/builder/calls/unified_emitter/array_write_timing_tests.rs",
+        Path(__file__),
+    ):
+        if len(read(path).splitlines()) >= 800:
+            fail(f"ARRAY-WRITE-OBSERVE0 source/check file reached 800 lines: {path}")
+
+
 def check(root: Path) -> None:
     fixture = load_fixture(root)
     validate_p1_g0_profile_freeze_v1(fixture)
@@ -625,6 +661,7 @@ def check(root: Path) -> None:
     validate_fieldget_receipt0_authority_v1(root)
     validate_fastmem_receipt0_authority_v1(root)
     validate_fastmem_fieldload0_authority_v1(root)
+    validate_array_write_observe0_authority_v1(root)
     matrix = fixture.get("primary_matrix")
     if not isinstance(matrix, list):
         fail("FACT0 fixture primary matrix is invalid")
@@ -639,7 +676,8 @@ def check(root: Path) -> None:
         "shared_slices=2 const0=closed staticload0=closed checkselect0=closed "
         "literal_postemit_ret0=closed resolved_trivial_op0=closed "
         "resolved_direct_call0=closed compareemit0=closed call_receipt0=closed "
-        "fieldget_receipt0=closed fastmem_receipt0=closed fastmem_fieldload0=closed"
+        "fieldget_receipt0=closed fastmem_receipt0=closed fastmem_fieldload0=closed "
+        "array_write_observe0=closed"
     )
 
 

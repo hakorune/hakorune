@@ -26,6 +26,8 @@ use crate::mir::definitions::call_unified::Callee;
 /// - ピュア関数的: 入力CallTarget → 解決・発行 → MirCall命令
 pub struct UnifiedCallEmitterBox;
 
+#[cfg(test)]
+mod array_write_timing_tests;
 mod post_success;
 #[cfg(test)]
 mod temporal_witness_tests;
@@ -301,10 +303,10 @@ impl UnifiedCallEmitterBox {
         } = &callee
         {
             if box_name == "ArrayBox" {
-                super::super::types::array_element::observe_array_write_call(
-                    builder, &callee, &args,
-                );
                 if builder.try_emit_known_array_method_write(dst, *receiver, method, &args)? {
+                    super::super::types::array_element::observe_array_write_call(
+                        builder, &callee, &args,
+                    );
                     return Ok(());
                 }
             }
