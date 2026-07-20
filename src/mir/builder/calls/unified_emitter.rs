@@ -28,6 +28,8 @@ pub struct UnifiedCallEmitterBox;
 
 #[cfg(test)]
 mod array_write_timing_tests;
+#[cfg(test)]
+mod map_write_timing_tests;
 mod post_success;
 #[cfg(test)]
 mod temporal_witness_tests;

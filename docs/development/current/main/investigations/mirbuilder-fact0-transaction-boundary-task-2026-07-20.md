@@ -1435,6 +1435,71 @@ lines. `MAP-WRITE-OBSERVE0-M0` is now the sole next row: it must freeze the
 actual route and timing inventory without connecting this product to
 production.
 
+### `MAP-WRITE-OBSERVE0-M0` — closed (2026-07-20)
+
+The production route inventory has exactly two physical Call receipt owners
+and three pre-I0 observation shapes:
+
+```text
+direct Unified:
+  observe S
+  -> finalize_call_operands materializes R and propagates existing map facts
+  -> emit Call
+
+terminal BoxCall:
+  materialize L
+  -> observe S
+  -> emit Call
+
+BoxCall -> Unified:
+  materialize L
+  -> observe S
+  -> delegate
+  -> observe L
+  -> finalize to R when distinct
+  -> emit Call
+```
+
+The sole existing physical receipt is `emit_instruction(MirInstruction::Call)`.
+`metadata::propagate` is an existing LocalSSA fact transfer, not a new Map
+authority. Map Get, router policy, environment selection, Array/FastMem,
+FieldStore/index, final metadata, and all non-Call routes remain outside the
+row.
+
+### `MAP-WRITE-OBSERVE0-P0` — closed (2026-07-20)
+
+Seven focused baseline witnesses in
+`calls/unified_emitter/map_write_timing_tests.rs` freeze both the current
+success coverage and the exact failure residual to remove at I0:
+
+```text
+direct Unified Set failure:
+  Call = 0, but S receives Integer map facts
+
+direct Unified Delete/Clear failure:
+  Call = 0, but seeded facts are removed
+
+direct Unified success:
+  Set preserves S plus finalized LocalSSA receiver coverage
+  Delete/Clear remove facts after one Call
+
+terminal BoxCall (unified mode explicitly disabled):
+  Set failure leaves S facts; success observes S only
+
+BoxCall -> Unified success:
+  preserves S plus delegated LocalSSA receiver coverage
+```
+
+The environment toggle is a test-only route selector protected by a local
+mutex and restored on drop; it is not an I0 runtime authority. I0 changes the
+failure assertions to require no Map fact delta while retaining the enumerated
+success-path receiver coverage and the existing Map policy owner.
+
+`MAP-WRITE-OBSERVE0-I0` is the sole next row. It may connect the prepared
+schedule only at the two existing Call receipt endpoints; it must retain the
+outer semantic descriptor privately across BoxCall-to-Unified delegation and
+must not add a generic receipt API.
+
 ### Stop conditions
 
 Stop `MAP-WRITE-OBSERVE0` and reopen consultation if preserving S/L/R requires:
