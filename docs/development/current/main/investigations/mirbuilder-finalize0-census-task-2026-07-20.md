@@ -1,5 +1,5 @@
 ---
-Status: Design consultation stop
+Status: Implementation task selected
 Date: 2026-07-20
 Scope: classify finalization passes before retiring repair/inference
 Parent: docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md
@@ -15,20 +15,25 @@ PHI return inference, PHI input rematerialization, metadata snapshots, and
 derived module refresh. This row records the inventory only; it does not
 delete a repair pass or move a producer.
 
-The next code-facing row is not `FINALIZE0-CUT0`. A design decision must first
-classify every pass as exactly one of:
+Candidate A-prime is accepted in the linked boundary decision. The next
+code-facing row is `FINALIZE0-CENSUS0-SCHEMA0`, not `FINALIZE0-CUT0`.
+
+Semantic operations classify as exactly one of:
 
 ```text
-VerifyCompletedDraft
+VerifyNormalizationPreconditions
 NormalizeRepresentation
-PublishDerivedArtifact
+PublishSealedArtifact
+VerifyPublishedDraft
 RepairMissingLoweringFact
 LegacySemanticInference
 ```
 
 The last two classes must be explicit, even when their retirement is parked.
+Lifecycle transitions and diagnostic observations are separate operation
+domains and do not receive a semantic class.
 
-The completed source census found that this five-class vocabulary cannot be
+The completed source census found that the v1 five-class vocabulary cannot be
 applied to facade function names: several current facades contain two or more
 semantic operations. The consultation and recommended decomposition are now
 fixed in
@@ -82,15 +87,30 @@ records `RepairMissingLoweringFact` and `LegacySemanticInference` as parked
 classes rather than silently treating them as verification. No Rust producer,
 finalization call, or runtime behavior is changed by this artifact.
 
-Before CUT0, the inventory must record for each call site:
+Schema v2 must record for each operation:
 
 ```text
-pass owner and invocation count
+operation_domain
+semantic_class when domain=semantic_pass
+pass owner and production invocation count
+route/profile reachability
+source sites: path, enclosing symbol, operation, ordinal, cfg domain
 input fact authority
-first publication site for every output fact
-whether mutation is representation-preserving
-whether failure is typed and pre-publication
-downstream consumers that require the result during lowering
+outputs and publication_kind
+first publication site
+mutation and identity-stability law
+invalidated artifacts
+session generation
+failure timing and atomicity
+lowering/downstream consumers
+disposition and retirement owner/dependency
+```
+
+The validator must prove both directions:
+
+```text
+every production source match -> exactly one inventory row
+every inventory source site -> exactly one production source match
 ```
 
 The census must include both `finalize_function_draft` and `finalize_module`
@@ -139,12 +159,12 @@ can delete PHIs, add missing rows, allocate Values, rematerialize instructions,
 and rewrite inputs before all later failures are known. Metadata snapshots can
 therefore occur before the final structural shape exists.
 
-The external decision requested by the linked consultation is whether to
-select producer-first pure finalization, permanent transactional repair, or
-permanent canonical/legacy dual finalizers. The local recommendation is the
-producer-first candidate with temporary repair quarantine.
+The external decision selected producer-first pure finalization with temporary
+repair quarantine and five clarifications: post-publication final verification,
+lifecycle/diagnostic domains, fresh fact generations, all-exit return sealing,
+and identity/freshness-preserving normalization.
 
-If accepted, the sole next code-facing row is:
+The sole next code-facing row is:
 
 ```text
 FINALIZE0-CENSUS0-SCHEMA0
@@ -152,12 +172,31 @@ FINALIZE0-CENSUS0-SCHEMA0
 
 It upgrades the machine-readable inventory and validator. It makes no compiler
 behavior change and is the required executable/artifact step after this
-consultation. No second docs-only FINALIZE0 row is permitted.
+decision. No second docs-only FINALIZE0 row is permitted.
+
+Required SCHEMA0 output includes explicit rows for semantic lowering origin
+`value_origin_newbox`, diagnostic origin `value_origin_callers`, and an exact
+post-Builder semantic-origin field or explicit `none`. A no-consumer origin
+write is a retirement candidate, not an automatic producer-migration target.
+
+The next implementation sequence after schema/parity is:
+
+```text
+VERIFY-SPLIT0
+-> FACTSESSION0
+-> TYPEPIPE-SPLIT0 / CALLAWAIT-SPLIT0 / PHI-SPLIT0
+-> FIELD / CALLAWAIT / COPY / BINOP / PHI producer closures
+-> RETURN0 all-exit contract
+-> DERIVED0 publication/freshness verification
+-> CONDITIONFN-RET0
+-> family CUT0
+-> Builder-local FINALIZE0-G0
+```
 
 ## Stop conditions
 
-Stop and use the linked boundary consultation if any pass needs to remain a
-first publisher, if MIR scanning is required to recover source semantics, if a
+Stop the active implementation row if any pass needs to remain a first
+publisher, if MIR scanning is required to recover source semantics, if a
 finalization pass must rerun lowering propagation to hide timing drift, or if
 removing a pass changes FieldGet/Call/PHI behavior. These conditions are now
 observed, so no CUT0 implementation is authorized. Do not combine this census
@@ -165,7 +204,9 @@ with PHI, Call, FieldGet, Unknown, or metadata-isolation changes.
 
 ## Decision lock
 
-> `FINALIZE0-CENSUS0` is a read-only responsibility inventory. It must classify
-> every finalization operation and identify the true lowering-time producer
-> before any repair or MIR-to-source inference is retired. `FINALIZE0-CUT0`
-> remains forbidden until the census and parity matrix are green.
+> `FINALIZE0-CENSUS0-SCHEMA0` upgrades the read-only inventory to operation-
+> domain-aware schema v2 with bidirectional production-site coverage, route
+> reachability, publication/freshness, generation, atomicity, consumers, and
+> retirement ownership. It changes no compiler behavior. `FINALIZE0-CUT0`
+> remains forbidden until schema v2, its parity guard, producer closures, and
+> the all-exit return/freshness proofs are green.

@@ -20,6 +20,8 @@ them. It reduces the mutable world underneath them into this final boundary:
 VerifiedModuleSemantics
   -> VerifiedFunctionLoweringPlan
   -> FunctionLoweringSession
+  -> CompletedMirFunctionDraft
+  -> owned normalize/publish/final-verify boundary
   -> VerifiedMirFunctionDraft
   -> ModulePublicationTransaction
 ```
@@ -1886,23 +1888,34 @@ No new publisher, metadata fallback, origin change, or runtime delta exists.
 
 ## Phase 4 — FINALIZE0
 
-The current census/design stop is tracked in
+The accepted census/boundary decision is tracked in
 [`mirbuilder-finalize0-census-task-2026-07-20.md`](mirbuilder-finalize0-census-task-2026-07-20.md).
 The completed source census exposed mixed passes, missing rows, non-atomic PHI
-repair, and metadata snapshot ordering drift. The pending boundary decision is
-recorded in
+repair, and metadata snapshot ordering drift. Candidate A-prime plus the five
+final-boundary clarifications is recorded in
 [`mirbuilder-finalize0-boundary-consultation-2026-07-20.md`](mirbuilder-finalize0-boundary-consultation-2026-07-20.md).
 No `FINALIZE0-CUT0` implementation is authorized until that inventory closes.
 
-Finalization becomes a verifier and derived-publication boundary, not the
-first producer of facts required during lowering.
+Finalization consumes a `CompletedMirFunctionDraft`, normalizes an owned
+candidate, publishes sealed artifacts inside that candidate, verifies the
+published MIR/metadata, then aggregates/commits. It is not the first producer
+of facts required during lowering.
 
-Inventory every finalization pass as exactly one of:
+Inventory every operation domain as:
 
 ```text
-VerifyCompletedDraft
+semantic_pass
+lifecycle_transition
+diagnostic_observation
+```
+
+Every semantic pass is exactly one of:
+
+```text
+VerifyNormalizationPreconditions
 NormalizeRepresentation
-PublishDerivedArtifact
+PublishSealedArtifact
+VerifyPublishedDraft
 RepairMissingLoweringFact
 LegacySemanticInference
 ```
@@ -1921,9 +1934,10 @@ FINALIZE0-CENSUS0-P0
   repository-wide production-site coverage
 
 FINALIZE0-VERIFY-SPLIT0
+FINALIZE0-FACTSESSION0
 FINALIZE0-TYPEPIPE-SPLIT0
 FINALIZE0-CALLAWAIT-SPLIT0
-  split mixed verifier/type/call repair facades without behavior delta
+  split verifier/type/call repair and isolate transient generations
 
 FINALIZE0-PHI-SPLIT0
   pure verifier + unused-PHI normalization + isolated legacy repair
@@ -1936,10 +1950,10 @@ FINALIZE0-PHI-CLOSE0
   lowering-time producer closure, one family at a time
 
 FINALIZE0-RETURN0
-  sealed return-contract projection; no MIR/name inference
+  completion-owned implicit Return plus all-exit contract projection
 
 FINALIZE0-DERIVED0
-  Builder snapshot, optimizer coherence, and natural-owner partition
+  publication kinds, post-publication verify, freshness, optimizer coherence
 
 FINALIZE0-CONDITIONFN-RET0
   retire/re-home the synthetic compatibility producer
@@ -1960,11 +1974,13 @@ MIRBUILDER-CLEAN0-REPAIR-RET0-G0
 Allowed finalization work remains explicit:
 
 ```text
-whole-draft verification
 representation-preserving normalization
-metadata snapshot from already-sealed facts
-backend-neutral derived artifact publication
+sealed candidate artifact publication
+read-only verification after final candidate publication
 ```
+
+Lifecycle aggregation/commit and diagnostic observation remain explicitly
+outside this semantic-pass list.
 
 Forbidden:
 
