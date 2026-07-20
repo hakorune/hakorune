@@ -1,5 +1,5 @@
 ---
-Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0 are closed; VERIFY-SPLIT0-I0 is next
+Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0 are closed; VERIFY-SPLIT0-G0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -2152,11 +2152,15 @@ publication, diagnostics, or session-generation cleanup.
 
 P0 proves the row matrix and prepared-then-commit failure boundary.  I0 alone
 extracts transient stale-row normalization before sealed fact snapshots and
-installs the read-only verifier after the final draft-publication mutation;
-intermediate loop lowering remains a separate diagnostic caller until its own
-owner is selected.  G0 retires the mixed helper only after every production
-caller has an exact replacement and guards the one verifier, one normalizer,
-all-build correctness, and zero finalization repair claim.
+installs the read-only verifier after the final draft-publication mutation.
+The first safe I0 consumer is only `finalize_function_draft`: its pipeline and
+Call/Await annotation are complete before metadata publication, and it takes
+the draft immediately after the verifier.  `finalize_module` remains legacy
+because its PHI inference/materialization still mutates after the current
+snapshot; intermediate loop lowering remains a separate diagnostic caller.
+G0 retires the mixed helper only after every production caller has an exact
+replacement and guards the one verifier, one normalizer, all-build correctness,
+and zero finalization repair claim.
 
 No row in this series may repair a missing lowering fact, infer source
 semantics, mutate completed MIR, or use final metadata as a lowering fact.
@@ -2216,4 +2220,54 @@ No production caller, map mutation, snapshot ordering, Return, type pipeline,
 Call/Await, PHI, metadata, fact-session, build-mode, or legacy diagnostic text
 changes in P0.  Eight focused product tests, formatting, diff check, and the
 pointer guard are green; the new source file is 423 lines.  `VERIFY-SPLIT0-I0`
+is the sole next row.
+
+### I0 selected slice
+
+`finalize_function_draft` alone adopts the split in this order:
+
+```text
+TypePropagationPipeline
+-> Call/Await annotation
+-> prepare + commit transient stale rows
+-> existing metadata type/origin publication
+-> read-only completed-draft verifier
+-> current-function take
+```
+
+Both new operations are unconditional correctness operations.  Strict/dev may
+add diagnostic detail later, but cannot choose whether the function-draft
+normalizer or verifier runs.  A retained missing row fails before any transient
+map or metadata mutation; a residual row after snapshot fails before draft
+take.  No MIR or ValueId rollback is claimed.
+
+`finalize_module` and loop lowering retain the legacy helper in this row.  I0
+does not reorder or redesign Return, TypePropagationPipeline, Call/Await,
+metadata contents/freshness, PHI inference/materialization, session generation,
+or the historical guard.  The existing legacy helper is not retired until G0.
+
+### I0 closeout
+
+`finalize_function_draft` is now the sole production consumer of the split.
+After its existing type pipeline and Call/Await annotation, it prepares and
+commits only unretained transient stale rows before the existing metadata
+snapshot.  It then runs the read-only completed-draft definition verifier after
+metadata publication and before taking the draft.  Neither operation reads a
+strict/dev gate.
+
+The new function-finalizer witnesses prove that an unretained stale row is
+removed from all three transient lanes (`value_types`, `value_kinds`, and
+`value_origin_newbox`) before the snapshot; a pinned stale row fails with the
+new typed retention error while those three rows and the draft remain present;
+and an ordinary no-stale finalizer still completes.  A product-level witness
+also proves that prepared commit removes exactly those three lanes and leaves a
+defined row untouched.
+
+This is not a whole-finalizer rollback claim: pre-existing Return/pipeline work
+may already have run before a retained-row failure.  The new normalizer itself
+does no MIR, ValueId, metadata, or cache mutation before its successful commit.
+`finalize_module` remains legacy because PHI repair can still mutate after its
+snapshot, and loop lowering remains an intermediate legacy diagnostic.  The
+historical mixed-helper guard remains quarantined.  Focused tests, formatting,
+diff check, pointer guard, and root `cargo check` are green.  `VERIFY-SPLIT0-G0`
 is the sole next row.

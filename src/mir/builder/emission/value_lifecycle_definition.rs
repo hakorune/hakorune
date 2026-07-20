@@ -2,8 +2,10 @@
 //!
 //! FINALIZE0-VERIFY-SPLIT0-S0 separates the read-only completed-draft check
 //! from the legacy helper that also removes transient stale rows.  This module
-//! deliberately owns neither `MirBuilder` nor a fact-map commit path.
+//! deliberately owns neither `MirBuilder` nor a MIR mutation path.
 
+use crate::mir::builder::joinir_id_remapper::JoinIrIdRemapper;
+use crate::mir::builder::type_context::TypeContext;
 use crate::mir::verification::utils::compute_def_blocks;
 use crate::mir::{MirFunction, MirType, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
@@ -114,9 +116,55 @@ impl TypedValueDefinitionRowsV1 {
     }
 }
 
+/// Collects the current function's reachable instruction and parameter uses.
+///
+/// The transient normalizer receives this exact set as an input.  Definitions
+/// remain all-function facts, including unreachable blocks; only use retention
+/// follows the existing reachable-use contract.
+pub(in crate::mir::builder) fn collect_referenced_typed_values_v1(
+    function: &MirFunction,
+) -> BTreeSet<ValueId> {
+    let remapper = JoinIrIdRemapper::new();
+    let reachable = crate::mir::verification::utils::compute_reachable_blocks(function);
+    let mut values = BTreeSet::new();
+    for (block_id, block) in &function.blocks {
+        if reachable.contains(block_id) {
+            values.extend(remapper.collect_values_in_block(block));
+        }
+    }
+    values.extend(function.params.iter().copied());
+    values
+}
+
+/// Prepares the one transient stale-row normalization candidate for a function.
+///
+/// This remains independent of `MirBuilder`: caller-owned pending-PHI and pin
+/// sets are explicit inputs, while MIR and type facts are borrowed only for
+/// classification.
+pub(in crate::mir::builder) fn prepare_transient_stale_value_facts_v1(
+    function: &MirFunction,
+    value_types: &BTreeMap<ValueId, MirType>,
+    pending_phi_destinations: &BTreeSet<ValueId>,
+    pinned_values: &BTreeSet<ValueId>,
+) -> Result<PreparedTransientStaleValueFactsV1, TransientStaleValueFactErrorV1> {
+    TypedValueDefinitionRowsV1::collect(function, value_types).prepare_transient_stale_rows(
+        &collect_referenced_typed_values_v1(function),
+        pending_phi_destinations,
+        pinned_values,
+    )
+}
+
+/// Verifies that a completed draft has no residual typed-without-definition row.
+pub(in crate::mir::builder) fn verify_completed_draft_typed_value_definitions_v1(
+    function: &MirFunction,
+    value_types: &BTreeMap<ValueId, MirType>,
+) -> Result<(), CompletedDraftTypedValueDefinitionErrorV1> {
+    TypedValueDefinitionRowsV1::collect(function, value_types).verify_completed_draft()
+}
+
 /// A completed-draft failure: no repair or source-semantic inference follows.
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub(super) enum CompletedDraftTypedValueDefinitionErrorV1 {
+pub(in crate::mir::builder) enum CompletedDraftTypedValueDefinitionErrorV1 {
     MissingDefinition {
         value: ValueId,
         value_type: MirType,
@@ -144,7 +192,7 @@ impl std::error::Error for CompletedDraftTypedValueDefinitionErrorV1 {}
 
 /// Why a missing typed value cannot be normalized as a stale transient row.
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(super) enum TransientTypedValueRetentionV1 {
+pub(in crate::mir::builder) enum TransientTypedValueRetentionV1 {
     Referenced,
     PendingPhi,
     Pinned,
@@ -152,7 +200,7 @@ pub(super) enum TransientTypedValueRetentionV1 {
 
 /// A typed failure before any transient fact-map mutation.
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub(super) enum TransientStaleValueFactErrorV1 {
+pub(in crate::mir::builder) enum TransientStaleValueFactErrorV1 {
     RetainedMissingDefinition {
         value: ValueId,
         value_type: MirType,
@@ -183,7 +231,7 @@ impl std::error::Error for TransientStaleValueFactErrorV1 {}
 /// It carries only ValueIds; the normalizer will own the three coordinated
 /// transient-map removals and their lifecycle timing in I0.
 #[derive(Debug, Eq, PartialEq)]
-pub(super) struct PreparedTransientStaleValueFactsV1 {
+pub(in crate::mir::builder) struct PreparedTransientStaleValueFactsV1 {
     values: Box<[ValueId]>,
     _seal: TransientStaleValueFactsSealV1,
 }
@@ -192,6 +240,19 @@ pub(super) struct PreparedTransientStaleValueFactsV1 {
 struct TransientStaleValueFactsSealV1;
 
 impl PreparedTransientStaleValueFactsV1 {
+    /// Commits only the three existing transient stale-row removals.
+    ///
+    /// The candidate is prepared before metadata publication and consumed once
+    /// after all retention checks have succeeded.  It cannot mutate MIR or
+    /// allocate a ValueId.
+    pub(in crate::mir::builder) fn commit(self, type_ctx: &mut TypeContext) {
+        for value in self.values {
+            type_ctx.value_types.remove(&value);
+            type_ctx.value_kinds.remove(&value);
+            type_ctx.value_origin_newbox.remove(&value);
+        }
+    }
+
     #[cfg(test)]
     fn values(&self) -> &[ValueId] {
         &self.values
@@ -204,10 +265,12 @@ mod tests {
         CompletedDraftTypedValueDefinitionErrorV1, TransientStaleValueFactErrorV1,
         TransientTypedValueRetentionV1, TypedValueDefinitionRowsV1,
     };
+    use crate::mir::builder::type_context::TypeContext;
     use crate::mir::{
         BasicBlock, BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirFunction,
         MirInstruction, MirType, ValueId,
     };
+    use hakorune_mir_core::MirValueKind;
     use std::collections::{BTreeMap, BTreeSet};
 
     fn function_with_parameter_and_const() -> MirFunction {
@@ -418,6 +481,49 @@ mod tests {
                 .map(|row| row.value())
                 .collect::<Vec<_>>(),
             vec![ValueId::new(5), ValueId::new(9)]
+        );
+    }
+
+    #[test]
+    fn prepared_stale_commit_removes_exactly_the_three_transient_lanes() {
+        let function = function_with_parameter_and_const();
+        let stale = ValueId::new(9);
+        let retained = ValueId::new(1);
+        let rows = TypedValueDefinitionRowsV1::collect(
+            &function,
+            &BTreeMap::from([(stale, MirType::Integer), (retained, MirType::Integer)]),
+        );
+        let prepared = rows
+            .prepare_transient_stale_rows(&BTreeSet::new(), &BTreeSet::new(), &BTreeSet::new())
+            .expect("unretained row prepares");
+
+        let mut type_ctx = TypeContext::default();
+        type_ctx.value_types.insert(stale, MirType::Integer);
+        type_ctx.value_kinds.insert(stale, MirValueKind::Temporary);
+        type_ctx
+            .value_origin_newbox
+            .insert(stale, "StaleOrigin".to_string());
+        type_ctx.value_types.insert(retained, MirType::Integer);
+        type_ctx
+            .value_kinds
+            .insert(retained, MirValueKind::Parameter(0));
+        type_ctx
+            .value_origin_newbox
+            .insert(retained, "DefinedOrigin".to_string());
+
+        prepared.commit(&mut type_ctx);
+
+        assert!(!type_ctx.value_types.contains_key(&stale));
+        assert!(!type_ctx.value_kinds.contains_key(&stale));
+        assert!(!type_ctx.value_origin_newbox.contains_key(&stale));
+        assert_eq!(type_ctx.value_types.get(&retained), Some(&MirType::Integer));
+        assert_eq!(
+            type_ctx.value_kinds.get(&retained),
+            Some(&MirValueKind::Parameter(0))
+        );
+        assert_eq!(
+            type_ctx.value_origin_newbox.get(&retained),
+            Some(&"DefinedOrigin".to_string())
         );
     }
 }

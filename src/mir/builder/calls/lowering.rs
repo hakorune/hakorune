@@ -28,6 +28,7 @@ use super::function_lowering;
 use crate::ast::{ASTNode, ParamDecl};
 use crate::mir::builder::{MirBuilder, MirFunction, MirInstruction, MirType};
 use crate::mir::function::MirParamDecl;
+use std::collections::BTreeSet;
 
 #[cfg(test)]
 use crate::mir::builder::stmts::block_driver::{drive_legacy_block_v1, LegacyBlockDescentPortV1};
@@ -218,6 +219,39 @@ impl MirBuilder {
             );
         }
 
+        // FINALIZE0-VERIFY-SPLIT0-I0: normalize only explicit transient stale
+        // rows before the existing metadata snapshot.  This is unconditional
+        // correctness work for the final function draft; module finalization
+        // and loop diagnostics retain their legacy helper until their own
+        // post-mutation boundaries are selected.
+        if let Some(function) = self.function_state.current_function.as_ref() {
+            let pending_phi_destinations = self
+                .function_state
+                .pending_phis
+                .iter()
+                .map(|(_block, value, _name)| *value)
+                .collect::<BTreeSet<_>>();
+            let pinned_values = self
+                .function_state
+                .pin_slot_names
+                .keys()
+                .copied()
+                .collect::<BTreeSet<_>>();
+            let prepared = crate::mir::builder::emission::value_lifecycle_definition::prepare_transient_stale_value_facts_v1(
+                function,
+                &self.function_state.type_ctx.value_types,
+                &pending_phi_destinations,
+                &pinned_values,
+            )
+            .map_err(|error| {
+                format!(
+                    "{error} fn={} tag=finalize_function_draft",
+                    function.signature.name
+                )
+            })?;
+            prepared.commit(&mut self.function_state.type_ctx);
+        }
+
         let origin_caller_rows = self.value_origin_caller_rows();
 
         // 型推論
@@ -259,12 +293,21 @@ impl MirBuilder {
             f.metadata.value_origin_callers = origin_callers;
         }
 
-        // Keep the draft unpublished until the function session restores and
-        // verifies the caller context.
-        crate::mir::builder::emission::value_lifecycle::verify_typed_values_are_defined(
-            self,
-            "finalize_function_draft",
-        )?;
+        if let Some(function) = self.function_state.current_function.as_ref() {
+            crate::mir::builder::emission::value_lifecycle_definition::verify_completed_draft_typed_value_definitions_v1(
+                function,
+                &self.function_state.type_ctx.value_types,
+            )
+            .map_err(|error| {
+                format!(
+                    "{error} fn={} tag=finalize_function_draft",
+                    function.signature.name
+                )
+            })?;
+        }
+
+        // The completed-draft verifier above runs after metadata publication
+        // and before the draft leaves this function-owned session.
         self.function_state.current_function.take().ok_or_else(|| {
             "[freeze:contract][canonical_function_session/finalize_without_draft]".to_string()
         })
