@@ -157,17 +157,55 @@ Box-specific or test-only. Thus no metadata-timing stop condition blocks P0.
 
 `CONST0-P0` is now the sole next row.
 
-### `CONST0-P0`
+### `CONST0-P0` — closed (2026-07-20)
 
 Prove all six mappings; Missing/Unknown/idempotent/conflict decisions; Null as
 Void; failed emission non-publication; and String companion non-publication on
 failure.
 
-### `CONST0-I0`
+The proof is now split at the intended boundary:
+
+```text
+constant_type unit proof:
+  six exact mappings
+  Missing / StoredUnknown -> Publish
+  matching exact -> Idempotent
+  conflicting exact -> typed rejection
+
+constant emitter integration proof:
+  six successful Const instructions -> six transient exact facts
+  String -> one matching string_literals companion
+  current-block failure -> no instruction, type, String, or metadata fact
+```
+
+The failure proof deliberately observes the existing non-rollback ValueId
+cursor only as an excluded residual. It does not invoke finalization, origin,
+or a fallback route. `CONST0-I0` is now the sole next row.
+
+### `CONST0-I0` — closed (2026-07-20)
 
 Replace only the six direct transient type writes in `emission/constant.rs`.
 There is one production consumer family: successful canonical Const emission.
 Commit comes after `emit_instruction` and before returning the ValueId.
+
+All six public helpers now delegate to one private `emit_exact_const` path:
+
+```text
+fresh dst
+  -> PreparedCanonicalConstTypeV1::prepare
+  -> emit_instruction(Const)?
+  -> PreparedCanonicalConstTypeV1::commit
+  -> return dst
+```
+
+The commit consumes only `Publish`; an idempotent prepared fact does not
+overwrite. `emit_string` writes its existing `string_literals` payload only
+after that shared path returns successfully. The six direct `value_types.insert`
+writes are gone. Existing successful output and missing-current-block failure
+parity are covered by P0; no new type map, origin, metadata write, fallback,
+retry, grammar, runtime, backend, or ownership behavior is introduced.
+
+`CONST0-G0` is now the sole next row.
 
 ### `CONST0-G0`
 

@@ -1,13 +1,15 @@
 //! Disconnected exact-type preparation for canonical `Const` emission.
 //!
-//! CONST0-S0 owns only the representation law:
-//! `ConstValue -> exact MirType -> TypeFactDecisionV1::prepare`.  It owns no
-//! Builder state, ValueId, instruction emission, or fact-store commit.
+//! CONST0 owns the representation law and its successful-emission commit:
+//! `ConstValue -> exact MirType -> TypeFactDecisionV1::prepare -> commit`.
+//! It owns no Builder state allocation or instruction emission.
 
 use hakorune_mir_builder::lowering_facts::{
     PreparedTypeFactPublicationV1, TypeFactDecisionErrorV1, TypeFactDecisionV1,
 };
 
+use crate::mir::builder::type_context::TypeContext;
+use crate::mir::ValueId;
 use crate::mir::{ConstValue, MirType};
 
 /// A prepared exact type fact for one future successful canonical Const.
@@ -41,6 +43,16 @@ impl PreparedCanonicalConstTypeV1 {
         let publication = TypeFactDecisionV1::prepare(existing_destination, Some(&candidate))
             .map_err(CanonicalConstTypeErrorV1::FactDecision)?;
         Ok(Self { publication })
+    }
+
+    /// Commits only an already-prepared exact Const publication.
+    ///
+    /// The sole production caller invokes this after `MirInstruction::Const`
+    /// succeeds. Idempotent decisions preserve the existing exact fact.
+    pub(crate) fn commit(self, destination: ValueId, type_ctx: &mut TypeContext) {
+        if let PreparedTypeFactPublicationV1::Publish(ty) = self.publication {
+            type_ctx.set_type(destination, ty);
+        }
     }
 
     #[cfg(test)]
