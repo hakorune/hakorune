@@ -96,6 +96,8 @@ ACTIVE_CUTOVER_WRITER_REPLACEMENTS = {
     "src/mir/builder/ssa/local/post_success.rs": 3,
     "src/mir/builder/emission/constant.rs": None,
     "src/mir/builder/emission/constant_type.rs": 1,
+    "src/mir/builder/indexing.rs": None,
+    "src/mir/builder/indexing/static_load_type.rs": 1,
 }
 
 
@@ -247,11 +249,35 @@ def validate_const0_authority_v1(root: Path) -> None:
             fail(f"CONST0 source/check file reached 800 lines: {path}")
 
 
+def validate_staticload0_authority_v1(root: Path) -> None:
+    indexing = code_only(read(root / "src/mir/builder/indexing.rs"))
+    owner = code_only(read(root / "src/mir/builder/indexing/static_load_type.rs"))
+
+    if "metadata.value_types.insert" in indexing or "type_ctx.value_types.insert" in indexing:
+        fail("STATICLOAD0 direct type writer survived in indexing.rs")
+    if indexing.count("PreparedStaticU16LoadTypeV1::prepare") != 1:
+        fail("STATICLOAD0 requires one pre-emission preparation consumer")
+    if indexing.count("prepared.commit(") != 1:
+        fail("STATICLOAD0 requires one post-emission transient commit consumer")
+    if indexing.find("prepared.commit(") < indexing.find("StaticDataLoad {"):
+        fail("STATICLOAD0 commit must follow StaticDataLoad emission")
+    if owner.count("TypeFactDecisionV1::prepare") != 1 or owner.count("type_ctx.set_type") != 1:
+        fail("STATICLOAD0 decision/commit owner drift")
+    for path in (
+        root / "src/mir/builder/indexing.rs",
+        root / "src/mir/builder/indexing/static_load_type.rs",
+        Path(__file__),
+    ):
+        if len(read(path).splitlines()) >= 800:
+            fail(f"STATICLOAD0 source/check file reached 800 lines: {path}")
+
+
 def check(root: Path) -> None:
     fixture = load_fixture(root)
     validate_p1_g0_profile_freeze_v1(fixture)
     validate_active_cutover_writer_inventory_v1(root, fixture)
     validate_const0_authority_v1(root)
+    validate_staticload0_authority_v1(root)
     matrix = fixture.get("primary_matrix")
     if not isinstance(matrix, list):
         fail("FACT0 fixture primary matrix is invalid")
@@ -263,7 +289,7 @@ def check(root: Path) -> None:
         "[mirbuilder-type-fact-partition-guard] ok "
         "baseline_writer_paths=47 baseline_writer_occurrences=99 "
         "active_writer_paths=48 active_writer_occurrences=96 slices=58 profiles=38 "
-        "shared_slices=2 const0=closed"
+        "shared_slices=2 const0=closed staticload0=closed"
     )
 
 

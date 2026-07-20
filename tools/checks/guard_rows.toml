@@ -103,3 +103,9 @@ id = "mirbuilder-copy-unknown-authority"
 label = "COPY-UNKNOWN0 LocalSSA post-success authority guard"
 profiles = ["pilot"]
 cmd = ["tools/checks/lib/mirbuilder_copy_unknown_authority_guard.py", "."]
+
+[[rows]]
+id = "mirbuilder-type-fact-partition"
+label = "FACT0 exact-fact producer partition guard"
+profiles = ["pilot"]
+cmd = ["tools/checks/lib/mirbuilder_type_fact_partition_guard.py", "."]

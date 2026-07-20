@@ -7,8 +7,9 @@ use hakorune_mir_builder::lowering_facts::{
     PreparedTypeFactPublicationV1, TypeFactDecisionErrorV1, TypeFactDecisionV1,
 };
 
+use crate::mir::builder::type_context::TypeContext;
 use crate::mir::function::StaticDataPlan;
-use crate::mir::MirType;
+use crate::mir::{MirType, ValueId};
 
 /// Prepared Integer publication for one future successful static `u16` load.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -18,16 +19,22 @@ pub(super) struct PreparedStaticU16LoadTypeV1 {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub(super) enum StaticU16LoadTypeErrorV1 {
-    UnsupportedElement(String),
+    UnsupportedElement {
+        source_name: String,
+        element: String,
+    },
     FactDecision(TypeFactDecisionErrorV1),
 }
 
 impl std::fmt::Display for StaticU16LoadTypeErrorV1 {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::UnsupportedElement(element) => write!(
+            Self::UnsupportedElement {
+                source_name,
+                element,
+            } => write!(
                 formatter,
-                "[freeze:contract][static_load_type/unsupported_element] element={element}"
+                "[static-const/load-unsupported-element] {source_name} element={element}"
             ),
             Self::FactDecision(error) => error.fmt(formatter),
         }
@@ -44,14 +51,23 @@ impl PreparedStaticU16LoadTypeV1 {
         existing_destination: Option<&MirType>,
     ) -> Result<Self, StaticU16LoadTypeErrorV1> {
         if plan.element != "u16" {
-            return Err(StaticU16LoadTypeErrorV1::UnsupportedElement(
-                plan.element.clone(),
-            ));
+            return Err(StaticU16LoadTypeErrorV1::UnsupportedElement {
+                source_name: plan.source_name.clone(),
+                element: plan.element.clone(),
+            });
         }
         let publication =
             TypeFactDecisionV1::prepare(existing_destination, Some(&MirType::Integer))
                 .map_err(StaticU16LoadTypeErrorV1::FactDecision)?;
         Ok(Self { publication })
+    }
+
+    /// Commits only the prepared exact transient type after successful load
+    /// emission. Finalized function metadata remains a later snapshot owner.
+    pub(super) fn commit(self, destination: ValueId, type_ctx: &mut TypeContext) {
+        if let PreparedTypeFactPublicationV1::Publish(ty) = self.publication {
+            type_ctx.set_type(destination, ty);
+        }
     }
 
     #[cfg(test)]
@@ -118,9 +134,10 @@ mod tests {
         plan.element = "u8".to_string();
         assert_eq!(
             PreparedStaticU16LoadTypeV1::prepare(&plan, None),
-            Err(StaticU16LoadTypeErrorV1::UnsupportedElement(
-                "u8".to_string()
-            ))
+            Err(StaticU16LoadTypeErrorV1::UnsupportedElement {
+                source_name: "SIZE_CLASS".to_string(),
+                element: "u8".to_string(),
+            })
         );
     }
 }

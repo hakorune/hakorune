@@ -6,6 +6,8 @@ use super::{EffectMask, MirInstruction, MirType, ValueId};
 
 mod static_load_type;
 
+use static_load_type::PreparedStaticU16LoadTypeV1;
+
 impl super::MirBuilder {
     pub(super) fn infer_index_target_class(&self, target_val: ValueId) -> Option<String> {
         if let Some(cls) = self
@@ -198,12 +200,8 @@ impl super::MirBuilder {
                 })
                 .cloned()
             {
-                if plan.element != "u16" {
-                    return Err(format!(
-                        "[static-const/load-unsupported-element] {} element={}",
-                        plan.source_name, plan.element
-                    ));
-                }
+                let prepared = PreparedStaticU16LoadTypeV1::prepare(&plan, None)
+                    .map_err(|error| error.to_string())?;
                 let index_val = self.build_expression(index)?;
                 let dst = self.next_value_id();
                 self.emit_instruction(MirInstruction::StaticDataLoad {
@@ -215,13 +213,7 @@ impl super::MirBuilder {
                     align: plan.align,
                     index: index_val,
                 })?;
-                if let Some(func) = self.function_state.current_function.as_mut() {
-                    func.metadata.value_types.insert(dst, MirType::Integer);
-                }
-                self.function_state
-                    .type_ctx
-                    .value_types
-                    .insert(dst, MirType::Integer);
+                prepared.commit(dst, &mut self.function_state.type_ctx);
                 return Ok(dst);
             }
         }
@@ -408,8 +400,8 @@ mod tests {
                 .current_function
                 .as_ref()
                 .and_then(|function| function.metadata.value_types.get(&dst)),
-            Some(&MirType::Integer),
-            "pre-I0 compatibility baseline: the current legacy metadata write remains observable"
+            None,
+            "STATICLOAD0-I0: metadata is finalized only after the function session closes"
         );
         assert!(has_static_load(&builder));
         assert!(
@@ -419,6 +411,14 @@ mod tests {
                 .value_origin_newbox
                 .contains_key(&dst),
             "StaticDataLoad must not publish an origin fact"
+        );
+        let finalized = builder
+            .finalize_function_draft(false)
+            .expect("finalize static load test function");
+        assert_eq!(
+            finalized.metadata.value_types.get(&dst),
+            Some(&MirType::Integer),
+            "normal finalization must snapshot the transient StaticDataLoad fact"
         );
     }
 

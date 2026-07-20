@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "STATICLOAD0-P0 is closed; I0 may remove the legacy early StaticDataLoad metadata write"
+status = "STATICLOAD0 is closed; select the next independent EXACT0 producer before implementation"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -314,8 +314,12 @@ transient Integer. P0 is closed: direct Builder and VM/JSON fixtures prove the
 pre-I0 transient/metadata baseline, finalization snapshot, unsupported-plan
 preflight, failed-emission isolation, and no origin. I0 may now connect one
 successful StaticDataLoad transient-fact commit and remove only its early
-metadata write; final metadata is never a lowering authority. CONST0 is closed
-and guarded. Compare, Select,
+metadata write; that cutover is closed. Successful StaticDataLoad now commits
+only transient Integer after emission, and finalized metadata comes only from
+normal function finalization. G0 is closed: the reusable manifest-backed FACT0
+guard freezes COPY0, CONST0, and STATICLOAD0 together. The next blocker is an
+explicit next-producer selection; final metadata is never a lowering authority.
+Compare, Select,
 operator/call-backed writers, static u16 load, and post-emit duplicate
 annotations remain separate rows. Historical summary follows. CARRIER-TYPE-D0
 selects the NumericProgression
@@ -432,7 +436,7 @@ METAPROP0 owner after COMPCTX0/CONFIG0 and before PLAN0-CUT0; FACT0-G0 remains
 the final global-zero gate after that owner plus FINALIZE0, PLAN0, COMPCTX0,
 CONFIG0, and RAWADAPT0 retire their named legacy writers.
 NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-FACT0-I1-EXACT0-STATICLOAD0-I0-001"
+current_blocker_token = "DPRIME-MIRBUILDER-FACT0-I1-EXACT0-NEXT-D0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

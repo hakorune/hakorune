@@ -164,6 +164,77 @@ metadata write. Its post-change fixture must change the pre-finalization
 metadata expectation from present to absent while retaining finalization,
 failure, JSON, and VM parity.
 
+## `STATICLOAD0-I0` — closed (2026-07-20)
+
+`build_index_expression` now prepares the sealed-u16 exact type before index
+lowering, emits the existing `StaticDataLoad`, then commits the prepared fact
+only to the current `TypeContext`. The plan check remains pre-index and keeps
+the existing unsupported-element diagnostic. The destination is issued only
+after index lowering, so a successfully reached destination is fresh and the
+preparation uses its required Missing-fact state without a second type lookup.
+
+```text
+sealed u16 plan -> prepare Integer
+  -> index lowering -> fresh dst -> StaticDataLoad success
+  -> transient Integer commit
+
+StaticDataLoad failure:
+  commit = 0
+  metadata = 0
+  origin = 0
+```
+
+The former direct `function.metadata.value_types.insert` and
+`type_ctx.value_types.insert` writes are removed. The direct Builder proof now
+requires no pre-finalization metadata entry and verifies the normal finalizer
+snapshot; the existing JSON/VM proof remains green. The shared FACT0 guard
+freezes the one prepare/one post-emission commit connection and rejects both
+direct indexing writers.
+
+Focused evidence:
+
+```text
+cargo test -q --lib indexing::tests
+cargo test -q --lib indexing::static_load_type::tests
+python3 tools/checks/lib/mirbuilder_type_fact_partition_guard.py .
+cargo test -q --features vm-reference --lib static_const_table_load_lowers_to_mir_json_and_vm_value
+cargo check --all-targets
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+`STATICLOAD0-G0` is the sole next row. It must register the durable row guard
+through the existing manifest family, freeze the selected one-owner counts and
+early-metadata exclusion, and leave all non-u16/static-index/runtime concerns
+parked.
+
+## `STATICLOAD0-G0` — closed (2026-07-20)
+
+The existing manifest-backed row-guard family now exposes
+`mirbuilder-type-fact-partition`; no per-row guard family was added. Its
+FACT0 guard covers the historical 47/99 writer inventory and the landed
+COPY0, CONST0, and STATICLOAD0 replacements together. STATICLOAD0 freezes:
+
+```text
+prepare consumers in indexing = 1
+post-emission transient commits in indexing = 1
+static-load type decision owners = 1
+static-load type commit owners = 1
+direct indexing type/metadata writers = 0
+origin publication = 0
+```
+
+The stable public command is:
+
+```text
+tools/checks/run_row_guard.sh --only mirbuilder-type-fact-partition
+```
+
+`STATICLOAD0` is complete. It does not select another D-prime producer:
+Compare, Select, operator/call-backed writers, FieldGet, Call, origin,
+Unknown retirement, and finalization repair remain separate authorities. The
+next blocker is an explicit EXACT0-next selection, not an implicit widening of
+this static-u16 row.
+
 ## Required proof matrix
 
 M0/P0 must independently show:
