@@ -173,6 +173,20 @@ FSESSION0-C0-I0 -> FSESSION0-CUT0 -> FSESSION0-G0
   are green
 ```
 
+The parked JoinIR/CorePlan succession child is:
+
+```text
+mirbuilder-joinir-dprime-succession-task-2026-07-20.md
+```
+
+It tracks separate active CorePlan/Recipe Loop and legacy
+`JoinModule`/runner/bridge caller ledgers plus their cross-dependency edges,
+fixes normalized old/new parity, moves surviving diagnostics to
+located-control or MIR/SSA owners, and permits physical retirement only after
+the relevant repository callers reach zero. It does not move the current
+`FINALIZE0-CENSUS0` blocker. Its code rows begin only when this program reaches
+the D-prime Loop/PLAN0 and retirement boundary.
+
 Each macro row is independently selected and landed. No row may combine
 BoxShape cleanup with a new accepted source shape, backend capability,
 ownership operation, or runtime behavior.

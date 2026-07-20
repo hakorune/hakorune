@@ -6,6 +6,10 @@ Date: 2026-07-14
 Implementation taskboard:
 `../investigations/mirbuilder-dprime-binding-ssa-final-form-task-2026-07-14.md`
 
+JoinIR/CorePlan succession, normalized parity, diagnostic rehome, and physical
+retirement child task:
+`../investigations/mirbuilder-joinir-dprime-succession-task-2026-07-20.md`
+
 ## Purpose
 
 This document is the long-lived architecture authority for canonical mutable

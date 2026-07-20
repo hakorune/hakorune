@@ -1902,6 +1902,12 @@ decisions.
 
 ### RET-P0 — legacy caller inventory
 
+Detailed two-ecosystem census, normalized parity, diagnostic rehome, and
+retirement order are owned by
+`mirbuilder-joinir-dprime-succession-task-2026-07-20.md`. This row remains the
+parent D-prime retirement authority; the child card refines it without moving
+the current blocker.
+
 Inventory every remaining caller of:
 
 ```text
