@@ -1,5 +1,5 @@
 ---
-Status: P0a-S0b CARGO0-P0 closed; CARGO0-G0 is next
+Status: P0a-S0b CARGO0-G0 closed; MODULE0 is next
 Date: 2026-07-20
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -602,10 +602,10 @@ FINALIZE0-CENSUS0-P0a-S0b-CARGO0-P0    # closed
   dependency-free synthetic workspace proof
   root six-profile declared-unit observation
 
-FINALIZE0-CENSUS0-P0a-S0b-CARGO0-G0    # sole next
+FINALIZE0-CENSUS0-P0a-S0b-CARGO0-G0    # closed
   exact evidence and stop-line guards
 
-FINALIZE0-CENSUS0-P0a-S0b-MODULE0
+FINALIZE0-CENSUS0-P0a-S0b-MODULE0      # sole next
   inline/ordinary/literal-path module instances
   profile-gated traversal
 
@@ -829,6 +829,44 @@ cargo test --locked --offline \
   --manifest-path tools/checks/rust_source_topology/Cargo.toml
 ```
 
+CARGO0-G0 closed evidence:
+
+```text
+declared-unit seal owners = 1
+cargo_metadata process owners = 1
+rustc cfg probe owners = 1
+workspace input fingerprint owners = 1
+
+metadata command:
+  literal cargo executable = 1
+  --locked = 1
+  --offline = 1
+  --filter-platform = 1
+  package-qualified feature projection = 1
+  dependency-pruned metadata = 0
+
+durable process evidence raw snapshot fields = 0
+durable process evidence absolute-path fields = 0
+project CLI Cargo evidence consumers = 0
+Cargo evidence FINALIZE0/MirBuilder policy consumers = 0
+
+disconnected proof tests:
+  declared unit = 7
+  process/fingerprint = 3
+  profile matrix = 2
+```
+
+Stable guard:
+
+```bash
+tools/checks/run_row_guard.sh \
+  --only rust-source-topology-cargo-evidence
+```
+
+This guard closes only the Cargo/rustc evidence boundary. MODULE0 remains the
+first owner allowed to add profile-gated module traversal, and the project
+CLI/report remains disconnected until the full S0b-G0.
+
 Every implementation file is split by responsibility before reaching 800
 lines. `extract.rs` receives no S0b traversal policy.
 
@@ -1014,6 +1052,6 @@ compiler/runtime/backend behavior changes
 > child is operation-owned or callsite-reasoned. Static code reachability is
 > closed by P0a, while test-only scoped entered/changed mutation-surface
 > observations are closed by P0b. Neither product proves runtime multiplicity,
-> canonical consumer zero, quarantine, or CUT0 readiness. PROFILE0-S0 and
-> CARGO0-S0/M0/P0 are closed; the sole next code-facing row is
-> `FINALIZE0-CENSUS0-P0a-S0b-CARGO0-G0`.
+> canonical consumer zero, quarantine, or CUT0 readiness. PROFILE0-S0 and the
+> complete CARGO0-S0/M0/P0/G0 chain are closed; the sole next code-facing row
+> is `FINALIZE0-CENSUS0-P0a-S0b-MODULE0`.

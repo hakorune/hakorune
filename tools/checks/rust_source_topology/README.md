@@ -126,7 +126,8 @@ seals default/no-default and asymmetric feature aliases across library,
 required-feature binary, integration-test, host, and wasm32 targets. The root
 matrix executes all six declared nyash-rust profiles twice and requires
 byte-identical durable evidence with no absolute workspace path. These are
-evidence tests only; the project report/CLI remains disconnected until G0.
+evidence tests only. CARGO0-G0 freezes this disconnected evidence boundary;
+the project report/CLI remains disconnected until the full S0b-G0.
 
 ## Stop lines
 
@@ -139,7 +140,7 @@ no guessed resolved def-path
 no claim that syntax paths are Rust semantic def-paths
 no active/excluded cfg or production classification
 no Cargo/profile CLI consumer before CARGO0
-no project CLI/report publication before CARGO0-G0
+no project CLI/report publication before S0b-G0
 no root workspace dependency change
 no source/check file at or above 800 lines
 ```
