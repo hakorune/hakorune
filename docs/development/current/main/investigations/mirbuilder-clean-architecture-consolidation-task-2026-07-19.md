@@ -1840,6 +1840,19 @@ writes are zero; and the existing FACT0 guard fixes the one decision/commit
 owner without claiming generic Select inference. A new EXACT0 producer requires
 an explicit independent selection.
 
+#### `LITERAL-POSTEMIT-RET0-D0` — closed (2026-07-20)
+
+The read-only current writer inventory selected one behavior-neutral retirement
+root: three caller-side literal type writes duplicate the exact fact already
+committed by canonical Const after successful emission. The selected task is
+[`mirbuilder-literal-postemit-retirement-task-2026-07-20.md`](mirbuilder-literal-postemit-retirement-task-2026-07-20.md).
+
+There is no S0 owner: adding one would duplicate `PreparedCanonicalConstTypeV1`.
+`LITERAL-POSTEMIT-RET0-M0` is the sole next row and must prove literal timing
+and emitter-error parity before I0 may delete the three writes. Compare remains
+blocked on an emission-success receipt; FieldGet, Call/operator routes,
+`metadata::propagate`, and Unknown retirement remain separate authorities.
+
 ## Phase 4 — FINALIZE0
 
 Finalization becomes a verifier and derived-publication boundary, not the

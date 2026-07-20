@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "CHECKSELECT0 is closed; select the next independent EXACT0 producer"
+status = "LITERAL-POSTEMIT-RET0 is selected; prove canonical Const post-emission parity"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -302,22 +302,16 @@ copy_unknown_task = "docs/development/current/main/investigations/mirbuilder-cop
 exact0_const_task = "docs/development/current/main/investigations/mirbuilder-exact0-const-task-2026-07-20.md"
 staticload0_task = "docs/development/current/main/investigations/mirbuilder-staticload0-task-2026-07-20.md"
 checkselect0_task = "docs/development/current/main/investigations/mirbuilder-checkselect0-task-2026-07-20.md"
+literal_postemit_retirement_task = "docs/development/current/main/investigations/mirbuilder-literal-postemit-retirement-task-2026-07-20.md"
 
-latest_card = "mirbuilder-checkselect0-task-2026-07-20"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-checkselect0-task-2026-07-20.md"
-latest_card_summary = """CHECKSELECT0-D0 is closed: one CheckExpr accumulator
-Select is the next exact producer because its then/else values are already
-exact Integer under CONST0. The condition is non-authority; generic Select
-inference is not claimed. CHECKSELECT0-S0 is closed: one disconnected map-free
-TypeFactDecision preparation product has zero Builder, ValueId, MIR, metadata,
-or production-consumer delta. M0 and P0 are closed: CONST0 one/zero establish
-the accumulator induction; failure leaves the Select destination untyped; and
-ordinary finalization snapshots the transient Integer result. I0 and G0 are
-closed: one prepared post-emission transient Integer commit replaces the direct
-writer, and the existing FACT0 guard freezes that one owner. The next blocker
-is an explicit next-producer selection. Compare,
-operator/call-backed writers, PHI, FieldGet, Call, origin, Unknown retirement,
-and finalization repair remain separate rows. STATICLOAD0-D0 is closed: the
+latest_card = "mirbuilder-literal-postemit-retirement-task-2026-07-20"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-literal-postemit-retirement-task-2026-07-20.md"
+latest_card_summary = """LITERAL-POSTEMIT-RET0-D0 is closed under a read-only
+worker inventory. Canonical Const already commits literal type facts after a
+successful instruction, so three later caller-side annotations are redundant.
+M0 must add timing/failure evidence; I0 may then delete only those writes.
+Compare, FieldGet, Call/operator routes, metadata propagation, and Unknown
+retirement remain separate authorities. Historical retained detail: STATICLOAD0-D0 is closed: the
 previous sole producer was an
 exact StaticDataLoad from an existing sealed static u16 plan. That contract,
 not index syntax/value/name/runtime behavior, was Integer representation
@@ -450,7 +444,7 @@ METAPROP0 owner after COMPCTX0/CONFIG0 and before PLAN0-CUT0; FACT0-G0 remains
 the final global-zero gate after that owner plus FINALIZE0, PLAN0, COMPCTX0,
 CONFIG0, and RAWADAPT0 retire their named legacy writers.
 NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-FACT0-I1-EXACT0-NEXT-D0-002"
+current_blocker_token = "DPRIME-MIRBUILDER-FACT0-I1-LITERAL-POSTEMIT-RET0-M0-003"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
