@@ -65,7 +65,7 @@ An emitted `Select` failure commits no type fact. The fresh `ValueId` cursor
 is not rolled back. Final metadata remains the ordinary finalization snapshot,
 never a lowering-time fallback.
 
-## `CHECKSELECT0-S0` — next code-facing row
+## `CHECKSELECT0-S0` — closed (2026-07-20)
 
 ```text
 production behavior delta = 0
@@ -87,6 +87,29 @@ S0 owns no condition lowering, accumulator construction, destination
 allocation, `Select` emission, commit, metadata publication, or production
 consumer. It is a fixed-result producer decision, not a reusable `Select`
 type solver.
+
+Closed evidence:
+
+```text
+private owner:
+  src/mir/builder/exprs_check/select_type.rs
+
+Missing / StoredUnknown -> Publish(Integer)
+Integer                 -> Idempotent(Integer)
+foreign concrete type   -> typed conflict
+
+production consumers / Builder / ValueId / MIR / TypeContext writes = 0
+```
+
+Focused verification:
+
+```text
+cargo fmt --check
+cargo test -q --lib select_type
+cargo check --all-targets
+```
+
+`CHECKSELECT0-M0` is now the sole next row.
 
 ## M0 and P0 requirements
 

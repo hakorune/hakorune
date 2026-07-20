@@ -1821,6 +1821,12 @@ map-free `TypeFactDecisionV1` preparation product. Compare, Call-backed
 operators, PHI, FieldGet, origin, Unknown retirement, and finalization repair
 remain separate authorities. No production consumer is authorized before I0.
 
+`CHECKSELECT0-S0` is closed: the private `exprs_check::select_type` owner
+prepares only Integer publication from an optional destination fact, with
+Missing/StoredUnknown publish, Integer idempotence, and exact conflict tests.
+It has no Builder, ValueId, MIR, TypeContext, or production-consumer authority.
+`CHECKSELECT0-M0` is next.
+
 ## Phase 4 — FINALIZE0
 
 Finalization becomes a verifier and derived-publication boundary, not the

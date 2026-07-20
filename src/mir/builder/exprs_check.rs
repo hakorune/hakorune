@@ -2,6 +2,8 @@ use crate::ast::CheckItem;
 
 use super::{MirInstruction, MirType, ValueId};
 
+mod select_type;
+
 impl super::MirBuilder {
     pub(super) fn build_check_expression(
         &mut self,
