@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FASTMEM-EXPECT0 is closed; select the Array write observation authority boundary"
+status = "MAP-WRITE-OBSERVE0-D0 selects the behavior-preserving Map write receipt replay chain; S0 is next"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -499,9 +499,16 @@ is closed: two direct ArrayElementWrite specializations retain the existing
 semantic observer and move only its invocation after successful physical
 emission. Six temporal witnesses and the existing partition guard seal two
 post-success direct consumers while generic Call/Map, FieldStore/index
-reservations, and FastMem remain excluded. Return to NEXT-PRODUCER-D0 before
-opening another code row."""
-current_blocker_token = "DPRIME-MIRBUILDER-FACT0-TX0-NEXT-PRODUCER-D0-040"
+reservations, and FastMem remain excluded. Three read-only Map audits then
+select MAP-WRITE-OBSERVE0-D0: Map Set/Delete/Clear needs a route-specific,
+success-only replay chain, not a naive observer move. The chain preserves the
+existing semantic-source to LocalSSA receiver fact propagation: terminal
+BoxCall commits S, direct Unified commits S then its finalized receiver R when
+distinct, and BoxCall-to-Unified commits S then the delegated L/R chain after
+one physical Call receipt. No persistent alias map, generic Call API rewrite,
+Map Get policy, router/environment change, FieldStore/index, or FastMem work
+is authorized. MAP-WRITE-OBSERVE0-S0 is the sole next code-facing row."""
+current_blocker_token = "DPRIME-MIRBUILDER-FACT0-TX0-MAP-WRITE-OBSERVE0-S0-041"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

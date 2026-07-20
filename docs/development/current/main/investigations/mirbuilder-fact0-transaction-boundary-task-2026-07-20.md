@@ -1314,6 +1314,115 @@ suite pass, `cargo check --all-targets` passes, and every touched source/check
 file remains below 800 lines. Return to `NEXT-PRODUCER-D0` before selecting the
 next fact producer.
 
+## Next producer selection: `MAP-WRITE-OBSERVE0-D0`
+
+Three independent, read-only inventories select Map write observation as the
+next residual receipt seam. `observe_map_write_call` owns the existing
+receiver-local `map_value_types` and `map_literal_value_types` policy for
+`Set`, `Delete`, and `Clear`, but its two callers currently run before the
+physical `Call` can fail:
+
+```text
+direct Unified:
+  observe semantic source S
+  -> LocalSSA/finalize exposes the fact on final receiver R
+  -> physical Call
+
+terminal BoxCall:
+  capture semantic S
+  -> LocalSSA L
+  -> observe S
+  -> physical Call
+
+BoxCall -> Unified:
+  capture semantic S
+  -> LocalSSA L
+  -> observe S
+  -> delegate
+  -> Unified observes L
+  -> physical Call
+```
+
+A naive one-site move would change current receiver-keyed facts. The first
+admission must preserve the existing route-specific observation sequence, but
+make every observation conditional on the one successful physical Call receipt.
+
+### `MAP-WRITE-OBSERVE0-D0` — selected (2026-07-20)
+
+Candidate C-prime is selected: **a private, non-Clone, Builder-free prepared
+Map write replay chain**. It carries only existing semantic call descriptors
+and reuses the existing `observe_map_write_call` owner after success. It does
+not create an alias map, infer Map identity, or replace the existing map fact
+policy.
+
+```text
+terminal BoxCall receipt:
+  physical Call success -> replay S
+
+direct Unified receipt:
+  physical Call success -> replay S -> replay R only when R != S
+
+BoxCall -> Unified receipt:
+  physical Call success -> replay outer S -> replay delegated L
+  -> replay final R only when R != L
+```
+
+The order is the existing fact-observation order, not a new route or runtime
+order. A failed Call leaves both map-fact maps unchanged.
+
+| Concern | Authority |
+| --- | --- |
+| Map Set/Delete/Clear fact policy | existing `types::map_value::observe_map_write_call` |
+| semantic source descriptor S | existing pre-LocalSSA inputs |
+| delegated descriptor L | existing BoxCall LocalSSA output/delegated Unified input |
+| final receiver R | existing Unified finalized callee/arguments |
+| replay schedule and duplicate suppression | one prepared receipt chain |
+| physical success | existing `MirBuilder::emit_instruction(Call)` result |
+
+Non-authorities:
+
+```text
+Map Get result annotation
+method/receiver-name or runtime-tag inference
+new persistent ValueId alias/type/origin maps
+LocalSSA propagation policy
+generic Call receipt API, router/environment policy
+FieldStore/index, Array, FastMem, final metadata, fallback, retry
+```
+
+### `MAP-WRITE-OBSERVE0-S0` — sole next code-facing row
+
+```text
+production behavior delta = 0
+production consumers = 0
+Builder/type/origin/map-fact writes = 0
+```
+
+Add one small private prepared descriptor/replay vocabulary next to
+`map_value.rs`. It may accept only existing `MapBox` Set/Delete/Clear call
+descriptors; retain S/L/R as owned existing `Callee` plus argument descriptors;
+encode the three schedules above; and reject malformed construction before any
+commit exists. It performs no Builder mutation, LocalSSA, routing, emission,
+or Map Get work.
+
+M0 freezes the direct/terminal/delegated route inventory. P0 supplies Map
+Set/Delete/Clear success/failure witnesses before I0 connects the two existing
+physical emission endpoints.
+
+### Stop conditions
+
+Stop `MAP-WRITE-OBSERVE0` and reopen consultation if preserving S/L/R requires:
+
+```text
+a persistent alias or receiver-fact map
+changing LocalSSA propagation or map fact policy
+AST/name/runtime-tag inference
+a generic Call receipt abstraction or router rewrite
+Map Get policy, FieldStore/index, Array, or FastMem work
+fallback/retry after selected Call failure
+a source/check file at or above 800 lines
+```
+
 ### `FASTMEM-RECEIPT0` historical stop conditions
 
 Stop this row if it requires any of the following:
