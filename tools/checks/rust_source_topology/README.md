@@ -81,6 +81,29 @@ returns a typed error. The target matcher currently uses cfg-expr's built-in
 target database. CARGO0 must add exact rustc/config fingerprints before any
 repository inclusion claim.
 
+`project::cargo` now owns the disconnected CARGO0-S0 seal:
+
+```text
+neutral Cargo metadata snapshot
+  + exact selected manifest
+  + validated profile request
+  -> declared package/target/root-feature evidence
+```
+
+Selection is manifest-first and workspace-member exact; package names and
+opaque Cargo PackageIds are never durable identity. Raw target kinds and crate
+types remain in the evidence, while one bounded semantic-kind check prevents
+library, binary, integration-test, example, build-script, and proc-macro roots
+from being mixed. The Cargo resolve-node feature set is compared exactly,
+including the literal `default` feature, and target `required-features` must
+already be active.
+
+This seal proves declarations and one metadata-run feature closure only. It
+does not prove that Cargo compiled the target, that a build succeeded, or that
+profile codegen, module inclusion, call resolution, or FINALIZE0 reachability
+is active. The cargo_metadata process adapter, sealed rustc cfg probe, and
+Cargo/config fingerprints remain CARGO0-M0 work.
+
 ## Stop lines
 
 ```text
@@ -92,6 +115,7 @@ no guessed resolved def-path
 no claim that syntax paths are Rust semantic def-paths
 no active/excluded cfg or production classification
 no Cargo/profile CLI consumer before CARGO0
+no cargo_metadata process consumer before CARGO0-M0
 no root workspace dependency change
 no source/check file at or above 800 lines
 ```

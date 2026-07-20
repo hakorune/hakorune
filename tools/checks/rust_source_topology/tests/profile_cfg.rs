@@ -20,6 +20,9 @@ fn six_exact_profile_inputs_normalize_deterministically() {
     assert!(!llvm
         .expected_activated_root_features
         .contains(&"llvm".to_string()));
+    assert!(llvm
+        .expected_activated_root_features
+        .contains(&"default".to_string()));
 }
 
 #[test]
@@ -53,6 +56,11 @@ fn feature_target_test_and_debug_release_rows_are_independent() {
     assert_state(
         profile(&schema.profiles, "host-test-unit-default"),
         "cfg(test)",
+        CfgDecisionStateV1::Included,
+    );
+    assert_state(
+        profile(&schema.profiles, "host-default-dev"),
+        "cfg(feature = \"default\")",
         CfgDecisionStateV1::Included,
     );
     assert_state(

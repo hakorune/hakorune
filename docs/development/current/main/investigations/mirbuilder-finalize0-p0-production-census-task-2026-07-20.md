@@ -1,5 +1,5 @@
 ---
-Status: P0a-S0b architecture fixed; S0b-PROFILE0-S0 is next
+Status: P0a-S0b CARGO0-S0 closed; CARGO0-M0 is next
 Date: 2026-07-20
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -589,9 +589,21 @@ FINALIZE0-CENSUS0-P0a-S0b-PROFILE0-S0  # closed
   pure three-valued cfg/cfg_attr decision
   Cargo/module consumers = 0
 
-FINALIZE0-CENSUS0-P0a-S0b-CARGO0       # sole next
-  cargo_metadata target/package adapter
-  exact compile-unit feature/rustc/config evidence
+FINALIZE0-CENSUS0-P0a-S0b-CARGO0-S0    # closed
+  neutral Cargo metadata snapshot vocabulary
+  pure declared-unit package/target/feature seal
+  cargo_metadata process consumers = 0
+
+FINALIZE0-CENSUS0-P0a-S0b-CARGO0-M0    # sole next
+  cargo_metadata locked/offline process adapter
+  sealed rustc cfg probe and Cargo-config fingerprints
+
+FINALIZE0-CENSUS0-P0a-S0b-CARGO0-P0
+  dependency-free synthetic workspace proof
+  root six-profile declared-unit observation
+
+FINALIZE0-CENSUS0-P0a-S0b-CARGO0-G0
+  exact evidence and stop-line guards
 
 FINALIZE0-CENSUS0-P0a-S0b-MODULE0
   inline/ordinary/literal-path module instances
@@ -641,6 +653,108 @@ fixtures, while CARGO0 must replace that assumption with Cargo-derived closure
 and exact rustc/config evidence. Production CLI consumers, Cargo metadata
 calls, module/include traversal, semantic resolution, FINALIZE0 policy, and
 compiler behavior remain zero through PROFILE0-S0.
+
+### `FINALIZE0-CENSUS0-P0a-S0b-CARGO0` — authority lock
+
+`cargo metadata` is not an actual Cargo-unit graph or build-success proof.
+CARGO0 therefore names its durable product declared-unit evidence.
+
+```text
+Cargo manifest / metadata
+  package declaration
+  target declaration
+  metadata-invocation root feature closure
+
+explicit compile-mode request
+  test-harness disposition only
+
+sealed rustc cfg probe
+  exact cfg rows for the explicit probe argv
+
+Cargo/config fingerprints
+  exact observed inputs
+  not a reimplementation of Cargo profile inheritance
+```
+
+S0 accepts one neutral metadata snapshot and one already-validated profile.
+It selects a workspace package by exact manifest identity, never by package
+name alone. It then selects one exact target by name and semantic target kind,
+retains raw Cargo target kinds/crate types, and checks the Cargo resolve-node
+feature set without reimplementing feature dependency direction.
+
+The Cargo resolve-node feature `default` remains an exact feature fact. When
+default features are enabled and the package declares `default`, the expected
+feature set must contain the literal `default`; no comparison projection may
+silently remove it. Consequently `cfg(feature = "default")` remains true in
+the disconnected cfg decision environment when Cargo proves it active.
+
+The S0 product may claim only:
+
+```text
+exact selected workspace manifest/package declaration
+exact declared Cargo target root
+exact metadata-run root feature closure
+request/package/target/feature agreement
+target required-feature eligibility
+```
+
+It may not claim:
+
+```text
+the target was compiled
+Cargo internal unit-graph completeness
+build success
+Cargo-derived debug_assertions or panic strategy
+build-script/proc-macro custom cfg
+module/include inclusion
+semantic call resolution
+production or FINALIZE0 reachability
+```
+
+M0 must keep evidence owners separate. `cargo_metadata` owns package, target,
+and feature resolution. A sealed `rustc --print cfg` probe owns only its exact
+argv/result. Repository and ambient Cargo configuration are fingerprinted and
+validated separately. If an external config, wrapper, build-script cfg, or
+profile setting is needed to claim the actual Cargo invocation, CARGO0 stops
+rather than reconstructing Cargo policy.
+
+CARGO0 stop conditions:
+
+```text
+package selection by name or opaque Cargo PackageId
+absolute path as durable identity
+dropping the default feature from Cargo closure
+guessing a target kind or required-feature eligibility
+claiming actual compilation from metadata
+reimplementing Cargo profile inheritance
+unsealed global/ancestor Cargo config or cfg-affecting environment
+module/include traversal before MODULE0/INCLUDE0
+FINALIZE0 policy or compiler behavior connection
+source/check file >= 800 lines
+```
+
+CARGO0-S0 closed evidence:
+
+```text
+neutral snapshot vocabulary owners = 1
+declared-unit seal owners = 1
+manifest-first workspace package selection = exact
+target name + semantic kind selection = exact
+raw Cargo kind / crate-type preservation = exact
+opaque Cargo PackageId durable identity uses = 0
+serialized absolute-path observations = 0
+literal default feature projection drops = 0
+cargo_metadata process consumers = 0
+rustc/config consumers = 0
+module/include consumers = 0
+FINALIZE0 policy consumers = 0
+```
+
+Seven disconnected declared-unit fixtures cover exact success, stable
+workspace-relative identity, opaque-ID non-publication, missing/foreign
+package/target rejection, exact `default` retention, expected-feature drift,
+requested/required feature failure, no-default success, asymmetric LLVM alias
+direction, required-feature success, and unit-test-library compile mode.
 
 Focused command:
 
@@ -834,5 +948,6 @@ compiler/runtime/backend behavior changes
 > child is operation-owned or callsite-reasoned. Static code reachability is
 > closed by P0a, while test-only scoped entered/changed mutation-surface
 > observations are closed by P0b. Neither product proves runtime multiplicity,
-> canonical consumer zero, quarantine, or CUT0 readiness. The sole next
-> code-facing row is `FINALIZE0-CENSUS0-P0a-S0b-PROFILE0-S0`.
+> canonical consumer zero, quarantine, or CUT0 readiness. PROFILE0-S0 and
+> CARGO0-S0 are closed; the sole next code-facing row is
+> `FINALIZE0-CENSUS0-P0a-S0b-CARGO0-M0`.

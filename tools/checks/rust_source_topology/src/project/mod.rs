@@ -1,3 +1,4 @@
+pub mod cargo;
 mod cfg_eval;
 mod error;
 mod model;

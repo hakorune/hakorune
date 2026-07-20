@@ -28,7 +28,7 @@ pub struct BuildProfileRequestV1 {
     pub ambient_rustflags: AmbientRustflagsPolicyV1,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum CargoTargetKindV1 {
     Library,

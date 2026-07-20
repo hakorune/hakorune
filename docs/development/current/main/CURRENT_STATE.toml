@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINALIZE0 P0a-S0b PROFILE0-S0 is closed; CARGO0 metadata and compile-unit evidence are next, and CUT0 remains forbidden"
+status = "FINALIZE0 P0a-S0b CARGO0-S0 is closed; locked/offline metadata plus sealed rustc/config evidence are next, and CUT0 remains forbidden"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -317,7 +317,7 @@ finalize0_p0_production_census_task = "docs/development/current/main/investigati
 
 latest_card = "mirbuilder-finalize0-p0-production-census-task-2026-07-20"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-task-2026-07-20.md"
-latest_card_summary = """FINALIZE0-CENSUS0-P0a-S0b-PROFILE0-S0 is closed. One disconnected project layer validates and deterministically orders six explicit compile-unit inputs, retains expected rather than claimed Cargo feature closure, and provides one pure three-valued cfg/cfg_attr decision. Feature, target, unit-test, debug/release, cfg_attr implication, custom-path Unknown, and unsealed target-feature Unknown fixtures are green. Cargo metadata/rustc/config evidence, project CLI consumers, module/include traversal, semantic resolution, FINALIZE0 policy, and compiler behavior remain zero. CARGO0 is the sole next code-facing row; CUT0 remains forbidden."""
+latest_card_summary = """FINALIZE0-CENSUS0-P0a-S0b-CARGO0-S0 is closed. One neutral Cargo snapshot and pure declared-unit seal select a workspace package by exact manifest, select one target by exact name plus bounded semantic kind, preserve raw Cargo kinds/crate types, and require exact Cargo root-feature agreement including literal default plus target required-feature eligibility. Opaque Cargo PackageIds and absolute paths never become durable output identity. Seven disconnected fixtures are green. cargo_metadata process calls, rustc/config probes, module/include traversal, semantic resolution, FINALIZE0 policy, compiler behavior, and CUT0 remain zero. CARGO0-M0 is the sole next code-facing row."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -519,7 +519,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-CENSUS0-P0A-S0B-CARGO0-065"
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-CENSUS0-P0A-S0B-CARGO0-M0-066"
 finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
