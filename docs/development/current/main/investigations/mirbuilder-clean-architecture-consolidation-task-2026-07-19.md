@@ -1260,6 +1260,17 @@ FieldLoad, origin recovery, name/current-static-box heuristics, explicit
 `Unknown`, overwrite/clear, and final-MIR repair stay distinct profiles and
 may never be disguised as monotone exact publication.
 
+#### `FACT0-TX0-D0` — closed (2026-07-20)
+
+The transaction boundary is selected in
+[`mirbuilder-fact0-transaction-boundary-task-2026-07-20.md`](mirbuilder-fact0-transaction-boundary-task-2026-07-20.md).
+It deliberately does **not** create a generic Call/FieldGet transaction API:
+the canonical generic unified Call has a post-emission annotation residual,
+while ordinary typed FieldGet has a distinct pre-emission typed-reservation
+residual. The sole immediate child is `FACT0-TX0-CALL-RECEIPT0-S0`, a
+disconnected post-success Call payload; `FACT0-TX0-FIELDGET0-D0` remains later
+and separate.
+
 #### `FACT0-P1-P0` — closed (2026-07-20)
 
 The live fixture is now schema v2 and completely partitions the unchanged

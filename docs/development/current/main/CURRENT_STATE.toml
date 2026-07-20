@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "COMPAREEMIT0 is closed; select the next independent D-prime type-fact producer"
+status = "FACT0-TX0-D0 is closed; connect only the canonical unified Call receipt child"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -306,16 +306,21 @@ literal_postemit_retirement_task = "docs/development/current/main/investigations
 resolved_trivial_operation_task = "docs/development/current/main/investigations/mirbuilder-resolved-trivial-operation-task-2026-07-20.md"
 resolved_direct_call_task = "docs/development/current/main/investigations/mirbuilder-resolved-direct-call-task-2026-07-20.md"
 compareemit0_task = "docs/development/current/main/investigations/mirbuilder-compare-emission-receipt-task-2026-07-20.md"
+fact0_tx0_task = "docs/development/current/main/investigations/mirbuilder-fact0-transaction-boundary-task-2026-07-20.md"
 
-latest_card = "mirbuilder-compare-emission-receipt-task-2026-07-20"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-compare-emission-receipt-task-2026-07-20.md"
-latest_card_summary = """RESOLVED-DIRECT-CALL0 is closed: one sealed InlineI64
-direct-call result now prepares and commits Integer only after successful Call
-emission. Three independent next-producer audits select COMPAREEMIT0-D0: the
-shared builder Compare helper directly writes Bool after a unit-return
-function/block compatibility path, so no Bool-fact I0 is authorized until D0
-establishes one checked physical Compare receipt. ArrayWrite and unified Call
-receipt remain separate parked design rows.
+latest_card = "mirbuilder-fact0-transaction-boundary-task-2026-07-20"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-fact0-transaction-boundary-task-2026-07-20.md"
+latest_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
+requires strict current-function/current-block membership, emits one physical
+Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
+unchanged. Three independent audits then close FACT0-TX0-D0: normal FieldGet
+has a distinct pre-emission typed-reservation residual, while the canonical
+generic unified Call has a post-failure annotation residual. No generic
+transaction API is selected. FACT0-TX0-CALL-RECEIPT0-S0 is the sole next
+code-facing row: one disconnected post-success payload for the canonical
+generic unified Call;
+FieldGet/FastMem, ArrayWrite, metadata propagation, and other Call routes stay
+parked.
 Historical retained detail: STATICLOAD0-D0 is closed: the
 previous sole producer was an
 exact StaticDataLoad from an existing sealed static u16 plan. That contract,
@@ -449,7 +454,7 @@ METAPROP0 owner after COMPCTX0/CONFIG0 and before PLAN0-CUT0; FACT0-G0 remains
 the final global-zero gate after that owner plus FINALIZE0, PLAN0, COMPCTX0,
 CONFIG0, and RAWADAPT0 retire their named legacy writers.
 NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-FACT0-I1-NEXT-SELECT-017"
+current_blocker_token = "DPRIME-MIRBUILDER-FACT0-TX0-CALL-RECEIPT0-S0-018"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
