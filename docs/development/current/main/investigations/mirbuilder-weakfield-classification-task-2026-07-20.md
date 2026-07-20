@@ -31,7 +31,7 @@ weak issuer consumes its prepared route without re-querying declarations.
 7. `FIELDSTORE-OBSERVE0-G0`
 8. `MIRBUILDER-FSESSION0-D0`
 
-`WEAKFIELD-CLASSIFY0-S0` is the sole next code-facing row.
+`WEAKFIELD-CLASSIFY0-I0` is the sole next code-facing row after S0/P0 proof.
 
 ### `WEAKFIELD-CLASSIFY0-S0` — closed (2026-07-20)
 
@@ -50,9 +50,69 @@ cargo check --all-targets
 source file = 163 lines (<800)
 ```
 
-`WEAKFIELD-CLASSIFY0-P0` is now the sole next row. It must compare the pure
-classifier/product matrix with the current weak and ordinary route timing
-before the I0 authority cutover.
+### `WEAKFIELD-CLASSIFY0-P0` — closed (2026-07-20)
+
+The pure matrix and existing timing boundaries are fixed by five focused
+tests: three classifier cases plus weak success and weak FastMem issuance
+cases. The existing ordinary FieldSet failure witness remains the pre-I0
+baseline (`FieldSet=0`, access site count `1`). No production route consumer
+or metadata timing changed.
+
+Focused evidence:
+
+```text
+cargo fmt --check
+cargo test -q --lib weak_field_write_route   # 3 passed
+cargo test -q --lib weak_field_write         # 5 passed
+cargo test -q --lib mir::builder::fields::tests::ordinary_fieldset_failure_currently_leaves_only_the_pre_emission_site -- --exact
+cargo check --all-targets
+```
+
+`WEAKFIELD-CLASSIFY0-I0` is now the sole next row. It may change only route
+classification/issuance ownership; ordinary access-site timing remains
+owned by the later FieldStore row.
+
+### `WEAKFIELD-CLASSIFY0-I0` — closed (2026-07-20)
+
+The field assignment path now classifies once through the prepared route
+product. `KnownWeak` is consumed by a prepared issuer; the issuer performs the
+existing FastMem check, allocates its physical site ID, and emits the same
+`WeakFieldWrite`. The declaration registry is no longer re-read by issuance.
+Ordinary, typed-array, and FastMem route timing remains unchanged.
+
+Focused evidence:
+
+```text
+cargo fmt --check
+cargo test -q --lib weak_field_write_route
+cargo test -q --lib weak_field_write
+cargo test -q --lib mir::builder::fields::tests::ordinary_field_access_records_site_metadata -- --exact
+cargo check --all-targets
+source files: weak_field_write_route=173, weak_field_write=141, fields=399
+```
+
+`WEAKFIELD-CLASSIFY0-G0` is now the sole next row. It must freeze one
+classifier, one route consumer, one prepared issuer, and zero registry
+re-queries before FieldStore P0 begins.
+
+### `WEAKFIELD-CLASSIFY0-G0` — closed (2026-07-20)
+
+The existing row-guard manifest now owns one dedicated
+`mirbuilder-weakfield-classification-authority` guard. It freezes one
+classifier, one production route consumer, one prepared issuer, zero old bool
+emitters, zero issuer declaration-registry queries, zero `weak_fields_by_box`
+classifier reads, and zero prepared-product Builder/metadata/site-ID fields.
+
+Evidence:
+
+```text
+tools/checks/run_row_guard.sh --only mirbuilder-weakfield-classification-authority
+python3 tools/checks/guard_manifest_inventory.py --root .
+```
+
+The guard reports `classifier=1 consumer=1 issuer=1 registry_requery=0` and
+the manifest inventory remains green. `FIELDSTORE-OBSERVE0-P0` is now the sole
+next code-facing row.
 
 ## Authority
 

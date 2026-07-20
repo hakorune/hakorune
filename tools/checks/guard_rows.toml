@@ -105,6 +105,12 @@ profiles = ["pilot"]
 cmd = ["tools/checks/lib/mirbuilder_copy_unknown_authority_guard.py", "."]
 
 [[rows]]
+id = "mirbuilder-weakfield-classification-authority"
+label = "WEAKFIELD-CLASSIFY0 one route authority guard"
+profiles = ["pilot"]
+cmd = ["tools/checks/lib/mirbuilder_weakfield_classification_authority_guard.py", "."]
+
+[[rows]]
 id = "mirbuilder-type-fact-partition"
 label = "FACT0 exact-fact producer partition guard"
 profiles = ["pilot"]

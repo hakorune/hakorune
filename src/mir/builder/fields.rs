@@ -1,4 +1,5 @@
 // Field access and assignment lowering
+use super::weak_field_write_route::{prepare_field_write_route_v1, PreparedFieldWriteRouteV1};
 use super::ValueId;
 use crate::ast::ASTNode;
 use crate::mir::instruction::FastMemRegionId;
@@ -164,7 +165,7 @@ impl super::MirBuilder {
         self.record_field_access_site(
             region,
             object_value,
-            receiver_box_name,
+            receiver_box_name.clone(),
             field.clone(),
             None,
             "store",
@@ -181,8 +182,24 @@ impl super::MirBuilder {
         )?;
         let declared_type = self.declared_field_type_for_value(object_value, &field);
 
-        let is_known_weak =
-            self.emit_known_weak_field_write(region, object_value, &field, value_result)?;
+        let route = prepare_field_write_route_v1(
+            region,
+            object_value,
+            &field,
+            value_result,
+            receiver_box_name.as_deref(),
+            receiver_box_name
+                .as_ref()
+                .and_then(|owner| self.comp_ctx.user_box_field_decls.get(owner))
+                .map(Vec::as_slice),
+        );
+        let is_known_weak = match route {
+            PreparedFieldWriteRouteV1::KnownWeak(prepared) => {
+                self.emit_prepared_known_weak_field_write(prepared)?;
+                true
+            }
+            PreparedFieldWriteRouteV1::Ordinary(_) => false,
+        };
 
         if let Some((box_name, field_index, declared_name)) =
             self.declared_field_contract_identity(object_value, &field)

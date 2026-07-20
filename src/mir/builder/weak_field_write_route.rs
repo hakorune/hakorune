@@ -1,6 +1,7 @@
 //! Builder-free declaration-backed weak-field route classification.
 
 use super::ValueId;
+use crate::ast::FieldDecl;
 use crate::mir::instruction::FastMemRegionId;
 use crate::mir::type_contracts::weak_field::box_schema_fingerprint;
 use crate::mir::UserBoxFieldDecl;
@@ -50,7 +51,7 @@ pub(super) fn prepare_field_write_route_v1(
     field_name: &str,
     value: ValueId,
     base_owner: Option<&str>,
-    declarations: Option<&[UserBoxFieldDecl]>,
+    declarations: Option<&[FieldDecl]>,
 ) -> PreparedFieldWriteRouteV1 {
     let Some(owner) = base_owner else {
         return ordinary(region, base, field_name, value);
@@ -69,6 +70,14 @@ pub(super) fn prepare_field_write_route_v1(
         return ordinary(region, base, field_name, value);
     }
 
+    let typed_fields = fields
+        .iter()
+        .map(|field| UserBoxFieldDecl {
+            name: field.name.clone(),
+            declared_type_name: field.declared_type_name.clone(),
+            is_weak: field.is_weak,
+        })
+        .collect::<Vec<_>>();
     PreparedFieldWriteRouteV1::KnownWeak(PreparedKnownWeakFieldWriteV1 {
         region,
         base,
@@ -76,7 +85,7 @@ pub(super) fn prepare_field_write_route_v1(
         box_name: owner.to_string(),
         field_name: field_name.to_string(),
         field_index,
-        schema_fingerprint: box_schema_fingerprint(owner, fields),
+        schema_fingerprint: box_schema_fingerprint(owner, &typed_fields),
         _seal: KnownWeakFieldWriteSealV1,
     })
 }
@@ -99,11 +108,12 @@ fn ordinary(
 mod tests {
     use super::*;
 
-    fn decl(name: &str, is_weak: bool) -> UserBoxFieldDecl {
-        UserBoxFieldDecl {
+    fn decl(name: &str, is_weak: bool) -> FieldDecl {
+        FieldDecl {
             name: name.to_string(),
             declared_type_name: Some("MapBox".to_string()),
             is_weak,
+            default_value: None,
         }
     }
 
