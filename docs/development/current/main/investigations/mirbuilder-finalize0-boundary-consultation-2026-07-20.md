@@ -3,10 +3,39 @@ Status: Design consultation
 Date: 2026-07-20
 Scope: FINALIZE0 final responsibility boundary and producer-first retirement order
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
-Basis: 5220d7a307
+Repository: https://github.com/hakorune/hakorune
+Branch: public-main
+Source basis: 5220d7a307d7de5796a2f66d9239914c8fd92e7f
+Initial consultation commit: f3be911a1f09ab7f08631f0c348387db20792891
 ---
 
 # FINALIZE0 boundary consultation
+
+## External reproduction
+
+The source census was performed against the exact source-basis commit above.
+The consultation document was first published by the initial consultation
+commit and remains current on `public-main`.
+
+```bash
+git clone --branch public-main https://github.com/hakorune/hakorune.git
+cd hakorune
+git cat-file -e 5220d7a307d7de5796a2f66d9239914c8fd92e7f^{commit}
+git show 5220d7a307d7de5796a2f66d9239914c8fd92e7f:src/mir/builder/module_lifecycle.rs
+git show public-main:docs/development/current/main/investigations/mirbuilder-finalize0-boundary-consultation-2026-07-20.md
+```
+
+To inspect the public branch without cloning, query the ref rather than passing
+a commit hash as an `ls-remote` pattern:
+
+```bash
+git ls-remote https://github.com/hakorune/hakorune.git refs/heads/public-main
+```
+
+`git ls-remote <url> <commit-sha>` does not prove commit reachability; the final
+argument is treated as a ref-name pattern. Fetch the branch and use
+`git cat-file -e <sha>^{commit}` or `git merge-base --is-ancestor` for that
+check.
 
 ## Request
 
