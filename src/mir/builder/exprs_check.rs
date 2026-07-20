@@ -1,8 +1,10 @@
 use crate::ast::CheckItem;
 
-use super::{MirInstruction, MirType, ValueId};
+use super::{MirInstruction, ValueId};
 
 mod select_type;
+
+use select_type::PreparedCheckSelectIntegerTypeV1;
 
 impl super::MirBuilder {
     pub(super) fn build_check_expression(
@@ -16,16 +18,17 @@ impl super::MirBuilder {
         for item in items {
             let condition = self.build_expression_impl(item.expression)?;
             let dst = self.next_value_id();
+            let prepared = PreparedCheckSelectIntegerTypeV1::prepare(
+                self.function_state.type_ctx.get_type(dst),
+            )
+            .map_err(|error| error.to_string())?;
             self.emit_instruction(MirInstruction::Select {
                 dst,
                 cond: condition,
                 then_val: ok,
                 else_val: zero,
             })?;
-            self.function_state
-                .type_ctx
-                .value_types
-                .insert(dst, MirType::Integer);
+            prepared.commit(dst, &mut self.function_state.type_ctx);
             ok = dst;
         }
 

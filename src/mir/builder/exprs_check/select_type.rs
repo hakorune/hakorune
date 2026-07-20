@@ -8,7 +8,8 @@ use hakorune_mir_builder::lowering_facts::{
     PreparedTypeFactPublicationV1, TypeFactDecisionErrorV1, TypeFactDecisionV1,
 };
 
-use crate::mir::MirType;
+use crate::mir::builder::type_context::TypeContext;
+use crate::mir::{MirType, ValueId};
 
 /// Prepared Integer publication for one future successful CheckExpr Select.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -40,6 +41,13 @@ impl PreparedCheckSelectIntegerTypeV1 {
             TypeFactDecisionV1::prepare(existing_destination, Some(&MirType::Integer))
                 .map_err(CheckSelectIntegerTypeErrorV1::FactDecision)?;
         Ok(Self { publication })
+    }
+
+    /// Commits only the prepared exact fact after the existing Select succeeds.
+    pub(super) fn commit(self, destination: ValueId, type_ctx: &mut TypeContext) {
+        if let PreparedTypeFactPublicationV1::Publish(ty) = self.publication {
+            type_ctx.set_type(destination, ty);
+        }
     }
 
     #[cfg(test)]

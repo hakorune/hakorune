@@ -1834,6 +1834,12 @@ CONST0 Integer accumulator induction, Select failure leaves its destination
 untyped, and ordinary finalization snapshots the result. `CHECKSELECT0-I0` is
 next and may connect only the shared post-success Select fact commit.
 
+`CHECKSELECT0-I0/G0` are closed: the one prepared Integer decision commits only
+after the existing accumulator Select succeeds; direct `exprs_check` type
+writes are zero; and the existing FACT0 guard fixes the one decision/commit
+owner without claiming generic Select inference. A new EXACT0 producer requires
+an explicit independent selection.
+
 ## Phase 4 — FINALIZE0
 
 Finalization becomes a verifier and derived-publication boundary, not the

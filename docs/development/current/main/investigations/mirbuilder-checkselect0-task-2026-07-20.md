@@ -177,15 +177,23 @@ cargo check --all-targets
 `CHECKSELECT0-I0` is now the sole next row. It may connect the prepared
 decision only after the existing accumulator Select succeeds.
 
-## I0 and G0 law
+## `CHECKSELECT0-I0` — closed (2026-07-20)
 
 I0 has exactly one production connection: after the successful accumulator
-`Select` in `build_check_expression`. It prepares before emission and commits
-only after success. The direct `value_types.insert(dst, Integer)` is removed
-only in that I0 cutover.
+`Select` in `build_check_expression`. It prepares after condition lowering and
+before emission, then commits only after success. The direct
+`value_types.insert(dst, Integer)` is removed.
+
+```text
+Select failure -> prepared commit = 0
+successful Select -> transient Integer only
+origin / metadata publication = 0
+```
+
+## `CHECKSELECT0-G0` — closed (2026-07-20)
 
 G0 extends the existing `mirbuilder-type-fact-partition` manifest guard; it
-does not create a new guard family. It must freeze:
+does not create a new guard family. It freezes:
 
 ```text
 CheckExpr Select decision owners = 1
@@ -194,6 +202,23 @@ direct exprs_check type writers for this producer = 0
 origin / metadata publication = 0
 generic Select consumers = 0
 ```
+
+The active writer inventory removes the direct `exprs_check.rs` writer and
+adds exactly one `exprs_check/select_type.rs` owner. The guard strips test
+modules before testing the production direct-write exclusion.
+
+Focused verification:
+
+```text
+tools/checks/run_row_guard.sh --only mirbuilder-type-fact-partition
+bash tools/checks/current_state_pointer_guard.sh
+cargo fmt --check
+cargo test -q --lib select_type
+cargo test -q --lib exprs_check::tests
+cargo check --all-targets
+```
+
+`CHECKSELECT0` is complete. It does not select the next EXACT0 producer.
 
 ## Exclusions and stop conditions
 
