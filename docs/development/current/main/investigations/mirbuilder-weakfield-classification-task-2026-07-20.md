@@ -33,6 +33,27 @@ weak issuer consumes its prepared route without re-querying declarations.
 
 `WEAKFIELD-CLASSIFY0-S0` is the sole next code-facing row.
 
+### `WEAKFIELD-CLASSIFY0-S0` — closed (2026-07-20)
+
+`src/mir/builder/weak_field_write_route.rs` now owns the disconnected pure
+route vocabulary and classifier. It retains exact physical inputs in both
+route variants; `KnownWeak` additionally seals declaration-order index and
+schema fingerprint. It performs no Builder, MIR, metadata, site-ID,
+type/origin, contract, or registry mutation. Production consumers remain zero.
+
+Focused evidence:
+
+```text
+cargo fmt --check
+cargo test -q --lib weak_field_write_route   # 3 passed
+cargo check --all-targets
+source file = 163 lines (<800)
+```
+
+`WEAKFIELD-CLASSIFY0-P0` is now the sole next row. It must compare the pure
+classifier/product matrix with the current weak and ordinary route timing
+before the I0 authority cutover.
+
 ## Authority
 
 The classifier reads only the existing base origin
