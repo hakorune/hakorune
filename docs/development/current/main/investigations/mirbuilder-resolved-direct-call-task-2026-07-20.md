@@ -50,6 +50,32 @@ RESOLVED-DIRECT-CALL0-S0
 
 `RESOLVED-DIRECT-CALL0-S0` is the sole next code-facing row.
 
+### `RESOLVED-DIRECT-CALL0-S0` — closed (2026-07-20)
+
+One private, disconnected `direct_call_type.rs` product now prepares only an
+Integer fact for the existing `InlineI64` direct-call result profile. It
+rejects every other trivial representation before creating a decision, and it
+has no Builder, ValueId, Call, capability, source-site, or commit consumer.
+
+The existing direct-call emitter remains behavior-identical in S0; its current
+generic representation projection has not been replaced yet. This preserves
+the existing route while I0 remains the sole authorized connection point.
+
+Focused evidence:
+
+```text
+InlineI64 + Missing/Unknown -> Publish(Integer)
+InlineI64 + Integer -> Idempotent(Integer)
+InlineI64 + conflicting concrete -> typed conflict
+InlineBool/InlineF64/ExplicitVoidValue/NullSentinel -> typed rejection
+
+cargo check --all-targets = green
+```
+
+`RESOLVED-DIRECT-CALL0-M0` is now the sole next row. It must inventory the
+actual caller, all preflight ordering, fresh destination, materialization, and
+existing Call receipt before the disconnected decision may commit.
+
 ## Authority and transaction law
 
 S0 adds one private prepared Integer decision, using the existing
