@@ -350,6 +350,159 @@ cargo check --all-targets: green
 `FACT0-TX0-FIELDGET0-D0` design stop; it must decide ordinary typed FieldGet
 reservation semantics before any FieldGet code-facing row opens.
 
+## `FACT0-TX0-FIELDGET0-D0` — closed (2026-07-20)
+
+### Decision: Candidate R′ — ordinary FieldGet receipt boundary
+
+The selected owner is one ordinary, non-FastMem source FieldGet path only:
+
+```text
+src/mir/builder/fields.rs
+  MirBuilder::build_field_access_from_value
+  region == None
+```
+
+It is neither a generic field transaction nor a generic allocator/rollback
+API. It accepts the already-resolved `declared_type`, existing field-origin
+facts, and the ordinary field-access observation; it emits exactly the existing
+`MirInstruction::FieldGet` and commits the resulting facts only after that
+instruction succeeds.
+
+The evidence for the split is exact:
+
+```text
+current ordinary order:
+  record_field_access_site
+  -> declared field lookup
+  -> alloc_typed (when declared)
+  -> FieldGet emission
+  -> publish_field_result_origin
+
+no-current-block failure:
+  FieldGet = 0
+  -> declared destination type remains
+  -> ordinary field-access metadata row remains
+  -> field-result origin remains absent
+```
+
+The existing success witness proves that a typed `ArrayBox` field reaches the
+physical `FieldGet` with `declared_type = Box(ArrayBox)` and remains typed
+through finalization. The existing failure witness proves the type residual;
+D0 source inspection additionally establishes the retained access-site row.
+
+### Selected receipt law
+
+The future I0 lifecycle is fixed now:
+
+```text
+1. resolve existing declared field type and origin/access-site inputs
+2. prepare one non-mutating ordinary FieldGet post-success product
+3. allocate a fresh ValueId with next_value_id only
+4. emit the existing ordinary FieldGet instruction
+5. after receipt only:
+   a. commit the exact declared type through TypeFactDecisionV1
+   b. append the ordinary field-access metadata row
+   c. publish the existing field-result origin
+6. return the destination
+```
+
+For a declared field, the product may make an exact type proposal only for a
+non-`Unknown` `MirType`; an absent declared type makes no type proposal. The
+current declared-field parser produces concrete representation types, including
+`Void`, scalar types, and `Box(name)`, so this is not a new inference rule.
+
+On FieldGet emission failure:
+
+```text
+physical FieldGet = 0
+destination transient type delta = 0
+field-result origin delta = 0
+ordinary field-access metadata delta = 0
+fallback/retry = 0
+```
+
+The fresh ValueId cursor and already-lowered base remain outside rollback. This
+is not a whole-Builder transaction.
+
+### Durable S0 product
+
+`FACT0-TX0-FIELDGET0-S0` is the sole next code-facing row. It introduces one
+private, non-Clone, Builder-free prepared product, tentatively named
+`PreparedOrdinaryFieldGetPostSuccessV1`.
+
+It may own only immutable resolved inputs needed after receipt:
+
+```text
+declared type proposal
+ordinary field-access-site descriptor
+existing field-result origin disposition
+```
+
+It may not own a `ValueId`, `MirBuilder`, `TypeContext`, mutable metadata,
+MIR instruction, source AST, final metadata, or a new registry. Construction
+may snapshot existing source-derived inputs through a thin Builder wrapper, but
+the product itself neither reads nor writes Builder state.
+
+### Explicit exclusions
+
+```text
+FastMem region != None:
+  excluded
+  MemOp::FieldLoad, note_fastmem_memop, and missing-declared Integer fallback
+  remain their own owner
+
+CorePlan FieldGet:
+  excluded
+  its normalizer preallocates plan ValueIds/types/origins and its lowerer only
+  emits a preplanned instruction
+
+FieldSet / weak writes / property reads / record-local reads:
+  excluded
+
+field declaration lookup, receiver provenance, metadata::propagate,
+finalization repair, TypeFactDecisionV1 semantics, and origin-wide policy:
+  unchanged
+```
+
+The frozen FACT0 partition profile `field_collection_unsafe` retains its
+historical `FACT0-I1-FIELDGET0` prerequisite. G0 may add an active replacement
+mapping/guard for this one receipt owner, but must not rewrite that immutable
+inventory to hide the old residual.
+
+### Task order
+
+```text
+FACT0-TX0-FIELDGET0-D0       closed
+  -> FACT0-TX0-FIELDGET0-S0  sole next code-facing row
+  -> FACT0-TX0-FIELDGET0-M0
+  -> FACT0-TX0-FIELDGET0-P0
+  -> FACT0-TX0-FIELDGET0-I0
+  -> FACT0-TX0-FIELDGET0-G0
+```
+
+M0 must freeze the one ordinary producer and the excluded FastMem/CorePlan
+routes. P0 must prove typed and untyped success/failure matrices: typed failure
+currently leaves type plus site metadata and no origin; untyped failure leaves
+site metadata only; post-I0 failures leave none of those facts. I0 connects
+only the `region == None` branch. G0 extends the existing FACT0 partition guard
+without a new guard family.
+
+### Stop conditions
+
+Stop and return to consultation if this row needs any of the following:
+
+```text
+FastMem, CorePlan, FieldSet, record, or property-read activation
+alloc_typed followed by removal / implicit rollback
+a generic allocation or FieldGet transaction API
+TypeFactDecisionV1 handling Unknown as exact
+new persistent ValueId maps or final-metadata authority
+field-name, method-name, runtime-tag, or source-path special cases
+retry/fallback after failed FieldGet
+whole-Builder rollback
+source/check file at or above 800 lines
+```
+
 ## Stop conditions
 
 Stop and open a new design consultation if any one of these is needed:
