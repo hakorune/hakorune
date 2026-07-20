@@ -10,7 +10,7 @@ Predecessor: docs/development/current/main/investigations/mirbuilder-exact0-cons
 
 ## Decision
 
-`STATICLOAD0-D0` is closed. The next code-facing row is disconnected:
+`STATICLOAD0-D0` is closed. The first code-facing row is disconnected:
 
 ```text
 STATICLOAD0-S0
@@ -83,6 +83,22 @@ successful load:
 
 The fresh ValueId cursor is not rolled back. No origin, string, map, record,
 receiver, or ownership fact is written.
+
+## `STATICLOAD0-S0` — closed (2026-07-20)
+
+One private `indexing::static_load_type` product now prepares the existing
+exact Integer candidate from `StaticDataPlan.element == "u16"`. It owns no
+Builder, `TypeContext`, ValueId, index lowering, load instruction, metadata,
+or commit. Its three tests fix:
+
+```text
+u16 plan + Missing/Unknown -> Publish(Integer)
+u16 plan + Integer -> Idempotent(Integer)
+u16 plan + conflicting exact -> typed conflict
+non-u16 plan -> typed unsupported-element rejection
+```
+
+No production consumer is connected. `STATICLOAD0-M0` is the sole next row.
 
 ## Required proof matrix
 

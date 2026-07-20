@@ -4,6 +4,8 @@ use crate::mir::instruction::MemOpKind;
 
 use super::{EffectMask, MirInstruction, MirType, ValueId};
 
+mod static_load_type;
+
 impl super::MirBuilder {
     pub(super) fn infer_index_target_class(&self, target_val: ValueId) -> Option<String> {
         if let Some(cls) = self
