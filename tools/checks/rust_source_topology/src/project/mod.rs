@@ -21,9 +21,9 @@ pub use model::{
     RUST_CARGO_TOPOLOGY_PROFILE_SCHEMA_V1,
 };
 pub use modules::{
-    collect_declared_module_topology_v1, DeclaredModuleEdgeV1, DeclaredModuleInstanceV1,
-    DeclaredModuleTopologyV1, ModuleEdgeKindV1, ModuleInstanceKindV1, ModuleSourceObservationV1,
-    ModuleTopologyErrorV1,
+    collect_declared_module_topology_v1, DeclaredIncludeEdgeV1, DeclaredModuleEdgeV1,
+    DeclaredModuleInstanceV1, DeclaredModuleTopologyV1, ModuleEdgeKindV1, ModuleInstanceKindV1,
+    ModuleSourceObservationV1, ModuleTopologyErrorV1,
 };
 pub use process_error::CargoProcessEvidenceErrorV1;
 pub use profiles::{parse_and_verify_profile_schema_v1, verify_profile_requests_v1};

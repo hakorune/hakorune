@@ -26,9 +26,11 @@ compiler/runtime behavior
 
 Every call is therefore emitted with a typed unresolved reason in S0a.
 Resolution, Cargo topology, and cfg profiles are later rows. Unsupported call
-shapes must remain explicit; spelling heuristics are forbidden. Macro bodies,
-`include!`, and external modules are not expanded; each remains a typed opaque
-site so an unparsed surface cannot become a false zero-call result.
+shapes must remain explicit; spelling heuristics are forbidden. Macro bodies
+and external modules remain typed opaque S0a sites so an unparsed surface
+cannot become a false zero-call result. The disconnected project layer may
+additionally traverse the bounded literal module-position `include!` profile
+described below; this does not change the S0a observation schema.
 
 The tool is a standalone workspace so its parser dependencies do not enter the
 root compiler workspace.
@@ -159,9 +161,44 @@ as a cycle.
 
 The first MODULE0 profile deliberately rejects reachable source-level inner
 topology attributes and block-local modules. Their content-gate and block
-identity laws require separate widening rows. `include!` remains an unchanged
-opaque S0a observation until INCLUDE0. The project CLI, semantic resolution,
-entry-family policy, and compiler/runtime behavior remain disconnected.
+identity laws require separate widening rows. The project CLI, semantic
+resolution, entry-family policy, and compiler/runtime behavior remain
+disconnected.
+
+## Disconnected literal include traversal
+
+INCLUDE0 extends the same project traversal with one ordered module-position
+item vocabulary. An include edge adds a source occurrence to the exact
+surrounding module; it never creates a module instance or a synthetic module
+path.
+
+```text
+including source occurrence lexical parent
+  -> literal include path
+  -> included source occurrence in the same module
+  -> included-file parent as the temporary child-module directory
+```
+
+This separation matters for inline modules: `include!("parts/items.rs")` is
+resolved relative to the physical file containing the invocation, not the
+inline module's ordinary-module directory. Conversely, `mod child;` inside the
+included file starts from that included file's parent directory. Nested
+includes repeat the same rule using their immediate source occurrence.
+
+Each include edge owns its parent observation, optional parent include edge,
+exact invocation range, cfg decision, literal/selected path, and optional child
+observation. Included and excluded edges are explicit. Unknown cfg stops before
+path interpretation; excluded cfg performs no path probe or read. Module and
+include loads share one canonical ancestry stack, so ancestor reuse rejects
+while sibling includes of the same file remain distinct occurrences.
+
+The bounded profile accepts only an unqualified item/module-position
+`include!` with one literal string and optional trailing comma. Expression,
+statement/block, impl, trait, foreign, generated, nonliteral, absolute,
+workspace-escaping, and ambiguous macro-identity forms fail with typed errors.
+Included shebang/inner-attribute preambles also stop rather than being guessed.
+The original S0a opaque include row remains available for source-site
+correspondence; INCLUDE0 does not turn it into semantic call resolution.
 
 ## Stop lines
 
@@ -169,13 +206,13 @@ entry-family policy, and compiler/runtime behavior remain disconnected.
 no FINALIZE0 names or policy in this crate
 no filename-based cfg classification
 no alias/method/type inference
-no macro expansion
+no general macro expansion
 no guessed resolved def-path
 no claim that syntax paths are Rust semantic def-paths
 no active/excluded cfg or production classification
 no Cargo/profile CLI consumer before CARGO0
 no project CLI/report publication before S0b-G0
-no include expansion before INCLUDE0
+no generated, expression-context, or macro-ambiguous include expansion
 no inner-cfg or block-local module guessing
 no root workspace dependency change
 no source/check file at or above 800 lines

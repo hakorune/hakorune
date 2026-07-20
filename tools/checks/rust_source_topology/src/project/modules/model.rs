@@ -16,6 +16,7 @@ pub struct DeclaredModuleTopologyV1 {
     pub root_instance_id: String,
     pub module_instances: Box<[DeclaredModuleInstanceV1]>,
     pub module_edges: Box<[DeclaredModuleEdgeV1]>,
+    pub include_edges: Box<[DeclaredIncludeEdgeV1]>,
     pub source_observations: Box<[ModuleSourceObservationV1]>,
 }
 
@@ -45,6 +46,7 @@ pub enum ModuleInstanceKindV1 {
 pub struct DeclaredModuleEdgeV1 {
     pub edge_id: String,
     pub parent_instance_id: String,
+    pub declaration_source_observation_id: String,
     pub declaration_range: SourceRangeV1,
     pub declared_ident_syntax: String,
     pub semantic_segment: String,
@@ -53,6 +55,19 @@ pub struct DeclaredModuleEdgeV1 {
     pub cfg_decision: CfgDecisionV1,
     pub child_instance_id: Option<String>,
     pub selected_source_path_workspace_relative: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct DeclaredIncludeEdgeV1 {
+    pub include_edge_id: String,
+    pub owning_module_instance_id: String,
+    pub parent_source_observation_id: String,
+    pub parent_include_edge_id: Option<String>,
+    pub invocation_range: SourceRangeV1,
+    pub cfg_decision: CfgDecisionV1,
+    pub literal_path: Option<String>,
+    pub selected_source_path_workspace_relative: Option<String>,
+    pub child_source_observation_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -67,6 +82,7 @@ pub enum ModuleEdgeKindV1 {
 pub struct ModuleSourceObservationV1 {
     pub source_observation_id: String,
     pub module_instance_id: String,
+    pub parent_include_edge_id: Option<String>,
     pub source_path_workspace_relative: String,
     pub canonical_source_path_workspace_relative: String,
     pub topology: RustSourceTopologyV1,

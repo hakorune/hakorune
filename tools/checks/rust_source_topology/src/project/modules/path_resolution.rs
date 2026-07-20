@@ -69,6 +69,36 @@ pub(super) struct ResolvedExternalModuleV1 {
     pub directory: ModuleDirectoryOwnershipV1,
 }
 
+pub(super) struct ResolvedIncludeSourceV1 {
+    pub lexical_path: PathBuf,
+    pub canonical_path: PathBuf,
+    pub directory: ModuleDirectoryOwnershipV1,
+}
+
+pub(super) fn resolve_include_source_v1(
+    workspace_root: &Path,
+    including_source: &Path,
+    literal_path: &str,
+) -> Result<ResolvedIncludeSourceV1, ModuleTopologyErrorV1> {
+    let literal = Path::new(literal_path);
+    if literal.is_absolute() {
+        return Err(ModuleTopologyErrorV1::AbsoluteIncludePath {
+            path: literal_path.to_string(),
+        });
+    }
+    let parent = including_source
+        .parent()
+        .ok_or(ModuleTopologyErrorV1::WorkspaceRootInvalid)?;
+    let lexical_path = normalize_inside_workspace(workspace_root, &parent.join(literal))?;
+    let canonical_path = canonical_regular_file(workspace_root, &lexical_path)?;
+    let directory = ModuleDirectoryOwnershipV1::root(&lexical_path)?;
+    Ok(ResolvedIncludeSourceV1 {
+        lexical_path,
+        canonical_path,
+        directory,
+    })
+}
+
 pub(super) fn resolve_external_module_v1(
     workspace_root: &Path,
     parent_directory: &ModuleDirectoryOwnershipV1,

@@ -1,5 +1,5 @@
 ---
-Status: P0a-S0b MODULE0 closed; INCLUDE0 is next
+Status: P0a-S0b INCLUDE0 closed; CONTENTCFG0 decision is next
 Date: 2026-07-20
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -609,9 +609,13 @@ FINALIZE0-CENSUS0-P0a-S0b-MODULE0      # closed
   inline/ordinary/literal-path module instances
   profile-gated traversal
 
-FINALIZE0-CENSUS0-P0a-S0b-INCLUDE0     # sole next
+FINALIZE0-CENSUS0-P0a-S0b-INCLUDE0     # closed
   literal item/module-position include instances
   include-chain identity and cycle rejection
+
+FINALIZE0-CENSUS0-P0a-S0b-CONTENTCFG0-D0  # sole next
+  source-level inner cfg/cfg_attr content-gate authority
+  block-local module identity remains separate
 
 FINALIZE0-CENSUS0-P0a-S0b-P0
   synthetic workspace/profile/module/include parity
@@ -621,6 +625,130 @@ FINALIZE0-CENSUS0-P0a-S0b-G0
   deterministic/atomic report
   typed Unknown and unresolved topology closure
 ```
+
+#### INCLUDE0 authority lock
+
+`include!` is a same-module source-occurrence edge. It never creates a module
+instance or a synthetic module path segment.
+
+```text
+logical module identity:
+  exact surrounding module instance
+
+include path base:
+  lexical parent directory of the source occurrence containing the invocation
+
+module directory while traversing included items:
+  included file parent with relative owner = none
+```
+
+The last two directories are deliberately different from the surrounding
+module's ordinary-module lookup directory. An included file may itself contain
+ordinary, inline, or literal-path modules; their parent module identity remains
+the surrounding module, while their filesystem lookup starts at the included
+file. This is the bounded rustc directory law and is not reconstructed from a
+module name.
+
+One ordered source scan owns both declarations:
+
+```text
+ModulePositionItemV1 =
+  Module(ModuleDeclarationV1)
+  | Include(IncludeDeclarationV1)
+```
+
+Adding a second include pass is forbidden because it would lose the expansion
+position relative to sibling module declarations.
+
+The durable topology product gains one occurrence edge:
+
+```text
+DeclaredIncludeEdgeV1 {
+  include_edge_id
+  owning_module_instance_id
+  parent_source_observation_id
+  parent_include_edge_id
+  invocation_range
+  cfg_decision
+  literal_path?
+  selected_source_path_workspace_relative?
+  child_source_observation_id?
+}
+```
+
+Every included source observation keeps the same `module_instance_id` as the
+owning edge and points back through `parent_include_edge_id`. The chain is
+derived from edge/observation references; a duplicate textual include-chain
+field or a canonical-file global dedup table is forbidden. Two sibling
+includes of the same physical file remain two edges and two observations.
+
+The existing canonical ancestry stack is shared by module and include loads.
+Only an ancestor canonical re-entry is a cycle. A completed sibling reuse is
+legal. Successful product invariants are:
+
+```text
+module instances = 1 + Included module edges
+source observations = defining module observations + Included include edges
+Included include edge -> exactly one child observation
+Excluded include edge -> zero child observation and zero path probe/read
+include child module identity = owning surrounding module identity
+partial report on any error = 0
+```
+
+The first admission accepts only unqualified module-position `include!` with
+one literal string and an optional trailing comma. It accepts crate/module
+items, inline-module items, nested includes, and included-file module items.
+It rejects expression, statement/block, impl, trait, foreign, generated, and
+nonliteral include forms before topology publication. Unknown cfg stops before
+path interpretation or filesystem access; excluded cfg does neither.
+
+Unqualified spelling is not by itself a semantic built-in-macro proof. An
+observed local `include` macro definition/import, wildcard macro import, or
+other unsupported macro-identity ambiguity is a typed unresolved stop. The
+topology extractor does not guess macro resolution or add a name-based
+fallback.
+
+INCLUDE0 may claim bounded source-occurrence closure only. It may not claim
+general macro expansion, expression-fragment inclusion, semantic item/call
+resolution, production callsite counts, FINALIZE0 route policy, or compiler
+behavior.
+
+INCLUDE0 closed evidence:
+
+```text
+ordered ModulePositionItemV1 owners = 1
+DeclaredIncludeEdgeV1 owners = 1
+include path resolution owners = 1
+same-module included source occurrences = exact
+included-file child-module directory law = exact
+nested include parent chain = exact
+sibling same-file include occurrences = independent
+module/include shared ancestor-cycle rejection = exact
+Excluded include path/token probes = 0
+Unknown include acceptance = 0
+macro-identity guessing = 0
+project CLI / FINALIZE0 policy consumers = 0
+
+focused INCLUDE0 tests = 7
+MODULE0 focused tests = 7
+manifest-backed INCLUDE0 guards = 1
+source/check files >= 800 lines = 0
+```
+
+Commands:
+
+```bash
+cargo test --manifest-path tools/checks/rust_source_topology/Cargo.toml
+tools/checks/run_row_guard.sh --only rust-source-topology-module-traversal
+tools/checks/run_row_guard.sh --only rust-source-topology-include-traversal
+cargo check -q
+```
+
+The root profile still reaches source files with file-level inner `cfg` and
+`cfg_attr`. INCLUDE0 does not reinterpret them or skip their contents. The next
+row therefore selects one content-gate authority before S0b-P0; block-local
+module identity remains a different widening and may not be smuggled into that
+decision.
 
 PROFILE0-S0 closed evidence:
 
@@ -1246,5 +1374,7 @@ compiler/runtime/backend behavior changes
 > closed by P0a, while test-only scoped entered/changed mutation-surface
 > observations are closed by P0b. Neither product proves runtime multiplicity,
 > canonical consumer zero, quarantine, or CUT0 readiness. PROFILE0-S0 and the
-> complete CARGO0-S0/M0/P0/G0 chain and MODULE0 are closed; the sole next
-> code-facing row is `FINALIZE0-CENSUS0-P0a-S0b-INCLUDE0`.
+> complete CARGO0-S0/M0/P0/G0 chain, MODULE0, and INCLUDE0 are closed; the sole
+> next row is `FINALIZE0-CENSUS0-P0a-S0b-CONTENTCFG0-D0`. It decides only the
+> source-level inner content gate before S0b-P0; block-local module identity,
+> semantic resolution, FINALIZE0 policy, and CUT0 remain forbidden.

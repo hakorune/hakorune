@@ -30,6 +30,8 @@ fn custom_root_directory_path_and_inline_laws_are_exact() {
 
     assert_eq!(topology.module_instances.len(), 13);
     assert_eq!(topology.module_edges.len(), 17);
+    assert_eq!(topology.include_edges.len(), 1);
+    assert_eq!(topology.source_observations.len(), 12);
     assert!(paths.contains(&("crate", ModuleInstanceKindV1::Root, "roots/custom_root.rs")));
     assert!(paths.contains(&(
         "crate::flat",
@@ -107,6 +109,22 @@ fn custom_root_directory_path_and_inline_laws_are_exact() {
             .filter(|site| site.syntax_name == "include")
             .count(),
         1
+    );
+    let include = &topology.include_edges[0];
+    assert_eq!(include.owning_module_instance_id, "module:0");
+    assert_eq!(
+        include.selected_source_path_workspace_relative.as_deref(),
+        Some("roots/must_remain_opaque.rs")
+    );
+    assert_eq!(
+        topology
+            .source_observations
+            .iter()
+            .find(|row| row.source_observation_id
+                == include.child_source_observation_id.as_deref().unwrap())
+            .unwrap()
+            .module_instance_id,
+        "module:0"
     );
 }
 

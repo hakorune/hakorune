@@ -122,7 +122,6 @@ def main() -> None:
         "from_profile_input",
         "profile_expected_root_features",
         "HashSet<PathBuf>",
-        "include expansion",
         "semantic def-path",
     ):
         require_absent(module_sources, forbidden, "MODULE0 authority boundary")

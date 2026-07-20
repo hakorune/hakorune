@@ -3,9 +3,10 @@ use std::collections::BTreeSet;
 use proc_macro2::Span;
 use quote::ToTokens;
 use syn::ext::IdentExt;
+use syn::parse::Parser;
 use syn::spanned::Spanned;
 use syn::visit::{self, Visit};
-use syn::{AttrStyle, Attribute, Item, ItemMod, Meta};
+use syn::{AttrStyle, Attribute, Item, ItemMod, LitStr, Meta, Token, UseTree};
 
 use crate::{PositionV1, SourceRangeV1};
 
@@ -18,42 +19,95 @@ pub(super) struct ModuleDeclarationV1 {
     pub range: SourceRangeV1,
     pub outer_attributes: Box<[Attribute]>,
     pub inline_body_range: Option<SourceRangeV1>,
-    pub inline_children: Option<Box<[ModuleDeclarationV1]>>,
+    pub inline_items: Option<Box<[ModulePositionItemV1]>>,
+    pub include_macro_ambiguity: bool,
+}
+
+#[derive(Clone)]
+pub(super) struct IncludeDeclarationV1 {
+    pub range: SourceRangeV1,
+    pub outer_attributes: Box<[Attribute]>,
+    pub tokens: proc_macro2::TokenStream,
+    pub include_macro_ambiguity: bool,
+}
+
+#[derive(Clone)]
+pub(super) enum ModulePositionItemV1 {
+    Module(ModuleDeclarationV1),
+    Include(IncludeDeclarationV1),
 }
 
 pub(super) struct ParsedModuleSourceV1 {
-    pub declarations: Box<[ModuleDeclarationV1]>,
+    pub items: Box<[ModulePositionItemV1]>,
 }
 
 pub(super) fn parse_module_source_v1(
     path: &str,
     source: &str,
+    inherited_include_macro_ambiguity: bool,
+) -> Result<ParsedModuleSourceV1, ModuleTopologyErrorV1> {
+    parse_source_v1(path, source, inherited_include_macro_ambiguity, false)
+}
+
+pub(super) fn parse_included_module_source_v1(
+    path: &str,
+    source: &str,
+) -> Result<ParsedModuleSourceV1, ModuleTopologyErrorV1> {
+    parse_source_v1(path, source, false, true)
+}
+
+fn parse_source_v1(
+    path: &str,
+    source: &str,
+    inherited_include_macro_ambiguity: bool,
+    included_fragment: bool,
 ) -> Result<ParsedModuleSourceV1, ModuleTopologyErrorV1> {
     let file = syn::parse_file(source).map_err(|error| ModuleTopologyErrorV1::Parse {
         path: path.to_string(),
         detail: error.to_string(),
     })?;
+    if included_fragment && (file.shebang.is_some() || !file.attrs.is_empty()) {
+        return Err(ModuleTopologyErrorV1::UnsupportedIncludedPreamble {
+            path: path.to_string(),
+        });
+    }
     reject_inner_topology_attributes(path, &file.attrs)?;
     let line_starts = line_starts(source);
-    let declarations = collect_module_position_items(&file.items, &line_starts, source)?;
-    let accepted_ranges = flatten_ranges(&declarations);
-    let mut all_modules = AllModuleRangesV1 {
+    let items = collect_module_position_items(
+        &file.items,
+        &line_starts,
+        source,
+        path,
+        inherited_include_macro_ambiguity,
+    )?;
+    let (accepted_modules, accepted_includes) = flatten_ranges(&items);
+    let mut all = AllTopologyRangesV1 {
         line_starts: &line_starts,
         source,
-        ranges: Vec::new(),
+        modules: Vec::new(),
+        includes: Vec::new(),
     };
-    all_modules.visit_file(&file);
-    if let Some(range) = all_modules
-        .ranges
+    all.visit_file(&file);
+    if let Some(range) = all
+        .modules
         .into_iter()
-        .find(|range| !accepted_ranges.contains(range))
+        .find(|range| !accepted_modules.contains(range))
     {
         return Err(ModuleTopologyErrorV1::ModuleInBlock {
             path: format!("{path}:{}..{}", range.byte_start, range.byte_end),
         });
     }
+    if let Some(range) = all
+        .includes
+        .into_iter()
+        .find(|range| !accepted_includes.contains(range))
+    {
+        return Err(ModuleTopologyErrorV1::UnsupportedIncludeContext {
+            path: format!("{path}:{}..{}", range.byte_start, range.byte_end),
+        });
+    }
     Ok(ParsedModuleSourceV1 {
-        declarations: declarations.into_boxed_slice(),
+        items: items.into_boxed_slice(),
     })
 }
 
@@ -103,6 +157,38 @@ pub(super) fn validate_module_attributes(
     Ok(())
 }
 
+pub(super) fn validate_include_attributes(
+    source_path: &str,
+    attributes: &[Attribute],
+) -> Result<(), ModuleTopologyErrorV1> {
+    for attribute in attributes {
+        if !matches!(attribute.style, AttrStyle::Outer) {
+            continue;
+        }
+        let path = attribute.path();
+        let allowed = [
+            "cfg",
+            "cfg_attr",
+            "doc",
+            "deprecated",
+            "allow",
+            "warn",
+            "deny",
+            "forbid",
+            "expect",
+        ]
+        .iter()
+        .any(|name| path.is_ident(name));
+        if !allowed {
+            return Err(ModuleTopologyErrorV1::UnsupportedIncludeAttribute {
+                path: source_path.to_string(),
+                attribute: path.to_token_stream().to_string(),
+            });
+        }
+    }
+    Ok(())
+}
+
 pub(super) fn direct_path_literal(
     module: &str,
     attribute: &Attribute,
@@ -128,13 +214,58 @@ pub(super) fn direct_path_literal(
     Ok(Some(value.value()))
 }
 
+pub(super) fn include_literal(
+    source_path: &str,
+    declaration: &IncludeDeclarationV1,
+) -> Result<String, ModuleTopologyErrorV1> {
+    let parser = |input: syn::parse::ParseStream<'_>| {
+        let value = input.parse::<LitStr>()?;
+        let _ = input.parse::<Option<Token![,]>>()?;
+        if !input.is_empty() {
+            return Err(input.error("include! requires one literal path"));
+        }
+        Ok(value.value())
+    };
+    parser.parse2(declaration.tokens.clone()).map_err(|_| {
+        ModuleTopologyErrorV1::NonLiteralInclude {
+            path: source_path.to_string(),
+        }
+    })
+}
+
 fn collect_module_position_items(
     items: &[Item],
     line_starts: &[usize],
     source: &str,
-) -> Result<Vec<ModuleDeclarationV1>, ModuleTopologyErrorV1> {
-    let mut declarations = Vec::new();
+    source_path: &str,
+    inherited_include_macro_ambiguity: bool,
+) -> Result<Vec<ModulePositionItemV1>, ModuleTopologyErrorV1> {
+    let mut result = Vec::new();
+    let scope_ambiguity =
+        inherited_include_macro_ambiguity || items.iter().any(item_may_shadow_builtin_include);
     for item in items {
+        if let Item::Macro(item_macro) = item {
+            if item_macro.mac.path.is_ident("include") {
+                result.push(ModulePositionItemV1::Include(IncludeDeclarationV1 {
+                    range: source_range(item_macro.mac.span(), line_starts, source),
+                    outer_attributes: item_macro
+                        .attrs
+                        .iter()
+                        .filter(|attribute| matches!(attribute.style, AttrStyle::Outer))
+                        .cloned()
+                        .collect::<Vec<_>>()
+                        .into_boxed_slice(),
+                    tokens: item_macro.mac.tokens.clone(),
+                    include_macro_ambiguity: scope_ambiguity,
+                }));
+            } else if macro_path_ends_with_include(&item_macro.mac.path) {
+                let range = source_range(item_macro.mac.span(), line_starts, source);
+                return Err(ModuleTopologyErrorV1::IncludeMacroIdentityUnresolved {
+                    path: format!("{source_path}:{}..{}", range.byte_start, range.byte_end),
+                });
+            }
+            continue;
+        }
         let Item::Mod(item_mod) = item else {
             continue;
         };
@@ -143,13 +274,21 @@ fn collect_module_position_items(
         let inline_body_range = item_mod.content.as_ref().map(|(brace, _)| {
             range_between(brace.span.open(), brace.span.close(), line_starts, source)
         });
-        let inline_children = item_mod
+        let inline_items = item_mod
             .content
             .as_ref()
-            .map(|(_, children)| collect_module_position_items(children, line_starts, source))
+            .map(|(_, children)| {
+                collect_module_position_items(
+                    children,
+                    line_starts,
+                    source,
+                    source_path,
+                    scope_ambiguity,
+                )
+            })
             .transpose()?
             .map(Vec::into_boxed_slice);
-        declarations.push(ModuleDeclarationV1 {
+        result.push(ModulePositionItemV1::Module(ModuleDeclarationV1 {
             ident_syntax: item_mod.ident.to_string(),
             semantic_segment: item_mod.ident.unraw().to_string(),
             range,
@@ -161,10 +300,52 @@ fn collect_module_position_items(
                 .collect::<Vec<_>>()
                 .into_boxed_slice(),
             inline_body_range,
-            inline_children,
-        });
+            inline_items,
+            include_macro_ambiguity: scope_ambiguity,
+        }));
     }
-    Ok(declarations)
+    Ok(result)
+}
+
+fn macro_path_ends_with_include(path: &syn::Path) -> bool {
+    path.segments
+        .last()
+        .is_some_and(|segment| segment.ident == "include")
+}
+
+fn item_may_shadow_builtin_include(item: &Item) -> bool {
+    match item {
+        Item::Use(item_use) => use_tree_may_import_include(&item_use.tree),
+        Item::Macro(item_macro) => {
+            item_macro
+                .ident
+                .as_ref()
+                .is_some_and(|ident| ident == "include")
+                || item_macro
+                    .attrs
+                    .iter()
+                    .any(|attribute| attribute.path().is_ident("macro_use"))
+        }
+        Item::ExternCrate(item_extern) => item_extern
+            .attrs
+            .iter()
+            .any(|attribute| attribute.path().is_ident("macro_use")),
+        Item::Mod(item_mod) => item_mod
+            .attrs
+            .iter()
+            .any(|attribute| attribute.path().is_ident("macro_use")),
+        _ => false,
+    }
+}
+
+fn use_tree_may_import_include(tree: &UseTree) -> bool {
+    match tree {
+        UseTree::Path(path) => use_tree_may_import_include(&path.tree),
+        UseTree::Name(name) => name.ident == "include",
+        UseTree::Rename(rename) => rename.rename == "include",
+        UseTree::Group(group) => group.items.iter().any(use_tree_may_import_include),
+        UseTree::Glob(_) => true,
+    }
 }
 
 fn reject_inner_topology_attributes(
@@ -184,31 +365,54 @@ fn reject_inner_topology_attributes(
     Ok(())
 }
 
-fn flatten_ranges(declarations: &[ModuleDeclarationV1]) -> BTreeSet<SourceRangeV1> {
-    fn collect(rows: &[ModuleDeclarationV1], result: &mut BTreeSet<SourceRangeV1>) {
+fn flatten_ranges(
+    items: &[ModulePositionItemV1],
+) -> (BTreeSet<SourceRangeV1>, BTreeSet<SourceRangeV1>) {
+    fn collect(
+        rows: &[ModulePositionItemV1],
+        modules: &mut BTreeSet<SourceRangeV1>,
+        includes: &mut BTreeSet<SourceRangeV1>,
+    ) {
         for row in rows {
-            result.insert(row.range);
-            if let Some(children) = &row.inline_children {
-                collect(children, result);
+            match row {
+                ModulePositionItemV1::Module(module) => {
+                    modules.insert(module.range);
+                    if let Some(children) = &module.inline_items {
+                        collect(children, modules, includes);
+                    }
+                }
+                ModulePositionItemV1::Include(include) => {
+                    includes.insert(include.range);
+                }
             }
         }
     }
-    let mut result = BTreeSet::new();
-    collect(declarations, &mut result);
-    result
+    let mut modules = BTreeSet::new();
+    let mut includes = BTreeSet::new();
+    collect(items, &mut modules, &mut includes);
+    (modules, includes)
 }
 
-struct AllModuleRangesV1<'source> {
+struct AllTopologyRangesV1<'source> {
     line_starts: &'source [usize],
     source: &'source str,
-    ranges: Vec<SourceRangeV1>,
+    modules: Vec<SourceRangeV1>,
+    includes: Vec<SourceRangeV1>,
 }
 
-impl Visit<'_> for AllModuleRangesV1<'_> {
+impl Visit<'_> for AllTopologyRangesV1<'_> {
     fn visit_item_mod(&mut self, item: &ItemMod) {
-        self.ranges
+        self.modules
             .push(source_range(item.span(), self.line_starts, self.source));
         visit::visit_item_mod(self, item);
+    }
+
+    fn visit_macro(&mut self, mac: &syn::Macro) {
+        if macro_path_ends_with_include(&mac.path) {
+            self.includes
+                .push(source_range(mac.span(), self.line_starts, self.source));
+        }
+        visit::visit_macro(self, mac);
     }
 }
 
