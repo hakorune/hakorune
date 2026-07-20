@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "COPY-UNKNOWN0-G0 is closed; one manifest-backed guard freezes LocalSSA post-success authority and COPY0 remains disconnected, COPY0-S0 is next"
+status = "COPY0-S0 is closed; one disconnected physical-Copy exact-type decision delegates to TypeFactDecisionV1 with no production consumer, COPY0-P0 is next"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -302,13 +302,12 @@ copy_unknown_task = "docs/development/current/main/investigations/mirbuilder-cop
 
 latest_card = "mirbuilder-copy-unknown-origin-task-2026-07-20"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-copy-unknown-origin-task-2026-07-20.md"
-latest_card_summary = """COPY-UNKNOWN0-G0 is closed: one manifest-backed guard
-freezes exactly one LocalSSA source-entry classifier, prepared decision,
-post-success commit, physical materialization classifier, StoredUnknown
-receiver-suppression lane, and missing-type receiver fallback lane. Direct
-destination type/origin writes, metadata propagation reuse, and COPY0
-TypeFactDecision consumers remain zero. COPY0-S0 is next and remains
-disconnected. CARRIER-TYPE-D0 selects the NumericProgression
+latest_card_summary = """COPY0-S0 is closed: one disconnected map-free
+physical-Copy decision accepts only the two classified physical Copy paths,
+proposes only an already-exact source type through TypeFactDecisionV1, and
+leaves Missing/StoredUnknown as no-proposal inputs. TypeContext, Builder, MIR,
+origin, receiver fallback, and production consumers remain zero. COPY0-P0 is
+next. CARRIER-TYPE-D0 selects the NumericProgression
 representation-precondition rebase: the actual R0 rejection stays source-faithful
 and no type backfill, retry, or fixture rewrite is authorized. FSESSION0-CENSUS0
 is closed with one checked inventory: all 41 expanded prepare/restore leaves,
@@ -422,7 +421,7 @@ METAPROP0 owner after COMPCTX0/CONFIG0 and before PLAN0-CUT0; FACT0-G0 remains
 the final global-zero gate after that owner plus FINALIZE0, PLAN0, COMPCTX0,
 CONFIG0, and RAWADAPT0 retire their named legacy writers.
 NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-COPY0-S0-001"
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-COPY0-P0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

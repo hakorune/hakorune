@@ -406,6 +406,34 @@ The legacy Unknown entry is owned by `COPY-UNKNOWN0`, not by the later exact
 publisher. Const, BinOp, Compare, and Select rematerializations are negative
 fixtures for COPY0.
 
+### `COPY0-S0` — closed (2026-07-20)
+
+`local/copy_type.rs` now owns one disconnected, map-free
+`PreparedLocalSsaPhysicalCopyTypeV1`. It accepts only the two existing
+`PhysicalCopy` classifications, sends an exact source type through the existing
+`TypeFactDecisionV1`, and keeps Missing/StoredUnknown as no-proposal inputs.
+Non-Copy rematerialization rejects before any decision. Matching existing facts
+remain idempotent and concrete conflicts retain the existing typed error.
+
+```text
+TypeContext / Builder / ValueId / MIR instruction ownership = 0
+production LocalSSA consumer = 0
+Unknown sentinel write / origin transfer / receiver fallback ownership = 0
+```
+
+Focused evidence:
+
+```text
+cargo test -q --lib copy_type
+cargo test -q --lib post_success
+cargo check --all-targets
+```
+
+`COPY0-P0` is now the sole next row. It must prove physical fallback and
+rematerialized Copy timing, Missing/StoredUnknown/exact decisions, matching and
+conflicting prepublication, and failure isolation before I0 connects one
+successful physical-Copy producer.
+
 ## Parked authorities
 
 ```text

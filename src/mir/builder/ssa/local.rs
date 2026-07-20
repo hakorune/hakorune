@@ -1,6 +1,8 @@
 use crate::mir::builder::MirBuilder;
 use crate::mir::{MirInstruction, ValueId};
 
+#[allow(dead_code)] // COPY0-S0 defines the disconnected physical-Copy publisher.
+mod copy_type;
 mod finalize;
 #[allow(dead_code)] // COPY-UNKNOWN0-S0 defines the disconnected decision owner.
 mod post_success;
