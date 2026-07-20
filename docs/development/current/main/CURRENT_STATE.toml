@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "LITERAL-POSTEMIT-RET0-G0 is closed; FINALIZE0-CENSUS0 is the sole next row"
+status = "FINALIZE0-CENSUS0 is a design consultation stop; no CUT0 implementation authorized"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -514,7 +514,8 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-CENSUS0-057"
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-CENSUS0-D0-058"
+finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

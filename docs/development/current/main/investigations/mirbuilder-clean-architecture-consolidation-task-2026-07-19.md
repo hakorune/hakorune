@@ -1872,6 +1872,10 @@ No new publisher, metadata fallback, origin change, or runtime delta exists.
 
 ## Phase 4 — FINALIZE0
 
+The current census/design stop is tracked in
+[`mirbuilder-finalize0-census-task-2026-07-20.md`](mirbuilder-finalize0-census-task-2026-07-20.md).
+No `FINALIZE0-CUT0` implementation is authorized until that inventory closes.
+
 Finalization becomes a verifier and derived-publication boundary, not the
 first producer of facts required during lowering.
 
