@@ -1,5 +1,5 @@
 ---
-Status: P0a-S0a closed; P0a-S0b is next
+Status: P0a-S0b architecture fixed; S0b-PROFILE0-S0 is next
 Date: 2026-07-20
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -471,10 +471,165 @@ S0a does not claim Cargo target/module inclusion, active cfg profiles,
 production callsites, semantic resolution, repository completeness, route
 reachability, facade coverage, runtime observation, or FINALIZE0 policy.
 
-### `FINALIZE0-CENSUS0-P0a-S0b` — sole next code-facing row
+### `FINALIZE0-CENSUS0-P0a-S0b` — architecture fixed
 
-Add Cargo target/module topology and exact build/cfg profile evaluation.
-Inline cfg(test), path modules, and supported include/module forms are covered.
+S0b adds a second product without changing the S0a single-file schema.
+
+```text
+RustSourceTopologyV1
+  syntax facts for one physical source file
+
+RustCargoTopologyV1
+  explicit compile-unit profiles
+  Cargo target roots
+  module/include instances
+  three-valued inclusion evidence
+```
+
+Physical files are not module identity. The same file may appear under
+different Cargo targets, module syntax paths, include chains, and profiles.
+Each occurrence remains a distinct instance. `include!` is a same-module
+source inclusion edge, never a child-module edge.
+
+#### Exact cfg boundary
+
+S0b uses Kleene three-valued evaluation.
+
+```text
+not(Unknown) = Unknown
+all(...) = Excluded if any Excluded
+           Included if all Included
+           Unknown otherwise
+any(...) = Included if any Included
+           Excluded if all Excluded
+           Unknown otherwise
+```
+
+Known evidence is limited to one explicit compile unit:
+
+```text
+Cargo-resolved root-package features
+explicit test-harness disposition
+Cargo profile debug_assertions / panic disposition
+rustc --print cfg --target <exact triple>
+sealed ambient RUSTFLAGS / CARGO_ENCODED_RUSTFLAGS policy
+```
+
+Build-script cfg, undeclared custom cfg, proc-macro-generated topology,
+unsupported attribute macros, unsealed target-feature flags, and nonliteral or
+generated includes remain typed `Unknown`. S0b never converts unknown evidence
+to false. `cfg!(...)` is a value expression, not source inclusion; both source
+branches remain in the topology.
+
+`cfg_attr` may affect inclusion only through recursively supported nested
+`cfg` and literal `path`. Unknown topology-affecting conditions remain
+`Unknown`. Non-topology attributes such as `allow`, `inline`, and `no_mangle`
+do not alter inclusion.
+
+#### Initial exact profiles
+
+Profile labels are summaries; every row retains package, target name/kind,
+target triple, Cargo profile, compile mode, requested/default/resolved
+features, rustc cfg/version digest, repository Cargo-config digest, and
+ambient rustflags policy.
+
+```text
+host-default-dev
+host-vm-reference-dev
+host-llvm-harness-dev
+wasm32-default-dev
+host-test-unit-default
+host-default-release
+```
+
+The release twin is mandatory because FINALIZE0 currently has known
+`debug_assertions`-dependent behavior. `wasm32` target selection does not
+activate the `wasm-backend` feature. Requesting `llvm-harness` does not
+activate the compatibility alias `llvm`; feature dependency direction remains
+the Cargo-declared direction. A library unit-test compile unit and an
+integration-test target are distinct; the latter's library dependency does
+not gain `cfg(test)`.
+
+#### Module and include boundary
+
+Supported module traversal:
+
+```text
+inline mod
+ordinary external x.rs xor x/mod.rs
+literal #[path = "..."] mod
+literal item/module-position include!("...")
+```
+
+Ordinary module lookup accepts exactly one candidate. Missing or dual
+`x.rs`/`x/mod.rs` candidates are typed failures. Excluded edges are not read.
+Unknown edges are not guessed or followed. Literal path/include files must
+remain inside the workspace, exist, and avoid canonical-path cycles.
+
+Unsupported first-profile surfaces remain explicit:
+
+```text
+cfg_attr-controlled path with Unknown condition
+nonliteral include / concat! / env! / OUT_DIR
+expression, statement, impl, or trait fragment include
+macro-generated module or call
+external workspace source escape
+custom cfg that controls a watched module edge
+```
+
+#### S0b task order
+
+```text
+FINALIZE0-CENSUS0-P0a-S0b-D0
+  this architecture lock
+
+FINALIZE0-CENSUS0-P0a-S0b-PROFILE0-S0
+  disconnected project/profile schema
+  explicit profile input validation
+  pure three-valued cfg/cfg_attr decision
+  Cargo/module consumers = 0
+
+FINALIZE0-CENSUS0-P0a-S0b-CARGO0
+  cargo_metadata target/package adapter
+  exact compile-unit feature/rustc/config evidence
+
+FINALIZE0-CENSUS0-P0a-S0b-MODULE0
+  inline/ordinary/literal-path module instances
+  profile-gated traversal
+
+FINALIZE0-CENSUS0-P0a-S0b-INCLUDE0
+  literal item/module-position include instances
+  include-chain identity and cycle rejection
+
+FINALIZE0-CENSUS0-P0a-S0b-P0
+  synthetic workspace/profile/module/include parity
+  root nyash-rust exact-profile observation
+
+FINALIZE0-CENSUS0-P0a-S0b-G0
+  deterministic/atomic report
+  typed Unknown and unresolved topology closure
+```
+
+Every implementation file is split by responsibility before reaching 800
+lines. `extract.rs` receives no S0b traversal policy.
+
+#### S0b stop conditions
+
+Stop before widening if any selected watched edge requires:
+
+1. build-script execution output or arbitrary custom cfg inference;
+2. proc-macro expansion or rustc-internal name resolution;
+3. nonliteral/generated or arbitrary-context include expansion;
+4. choosing one ambiguous module candidate;
+5. filename/path heuristics for test or production classification;
+6. semantic call/item resolution, FINALIZE0 policy, or route ownership;
+7. root compiler dependency or compiler/runtime behavior changes;
+8. a source/check file reaching 800 lines.
+
+S0b may claim exact bounded inclusion only for declared compile units and
+supported syntax. It may not claim production callsite counts, repository
+completeness, semantic def-paths, route reachability, facade coverage, or
+FINALIZE0 repair ownership.
 
 ### `FINALIZE0-CENSUS0-P0a-S0c`
 
@@ -641,4 +796,4 @@ compiler/runtime/backend behavior changes
 > closed by P0a, while test-only scoped entered/changed mutation-surface
 > observations are closed by P0b. Neither product proves runtime multiplicity,
 > canonical consumer zero, quarantine, or CUT0 readiness. The sole next
-> code-facing row is `FINALIZE0-CENSUS0-P0a-S0b`.
+> code-facing row is `FINALIZE0-CENSUS0-P0a-S0b-PROFILE0-S0`.
