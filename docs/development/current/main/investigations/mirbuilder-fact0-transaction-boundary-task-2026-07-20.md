@@ -1409,6 +1409,32 @@ M0 freezes the direct/terminal/delegated route inventory. P0 supplies Map
 Set/Delete/Clear success/failure witnesses before I0 connects the two existing
 physical emission endpoints.
 
+### `MAP-WRITE-OBSERVE0-S0` — closed (2026-07-20)
+
+`src/mir/builder/types/map_value/post_success.rs` now owns the disconnected
+non-Clone replay product. It has no Builder, type/origin/map-fact map,
+LocalSSA, router, physical Call, or Map Get dependency. Its only retained
+payload is the existing `Callee` plus argument descriptors, classified through
+the existing `MapMethodId` surface.
+
+Focused structural proof fixes:
+
+```text
+accepted: Set, Delete/remove, Clear
+excluded: Get and non-Method call shapes
+direct Unified schedule: S -> R
+delegated schedule: S -> L -> R
+equal adjacent receiver: one observation
+operation drift: typed rejection before a replay exists
+production consumers/map-fact writes: 0
+```
+
+`cargo test -q --lib types::map_value::post_success::tests` and
+`cargo check --all-targets` are green. All added source remains below 800
+lines. `MAP-WRITE-OBSERVE0-M0` is now the sole next row: it must freeze the
+actual route and timing inventory without connecting this product to
+production.
+
 ### Stop conditions
 
 Stop `MAP-WRITE-OBSERVE0` and reopen consultation if preserving S/L/R requires:

@@ -8,6 +8,8 @@
 use crate::mir::builder::MirBuilder;
 use crate::mir::{Callee, MirType, ValueId};
 
+mod post_success;
+
 pub(in crate::mir::builder) fn observe_map_write_call(
     builder: &mut MirBuilder,
     callee: &Callee,
