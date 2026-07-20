@@ -1,5 +1,5 @@
 ---
-Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0 are closed; VERIFY-SPLIT0-G0 is next
+Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0 are closed; VERIFY-SPLIT0-FUNCTION-G0-D0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -2123,7 +2123,16 @@ only and may not decide whether semantic validation or normalization occurs.
 FINALIZE0-VERIFY-SPLIT0-S0
   -> FINALIZE0-VERIFY-SPLIT0-P0
   -> FINALIZE0-VERIFY-SPLIT0-I0
-  -> FINALIZE0-VERIFY-SPLIT0-G0
+  -> FINALIZE0-VERIFY-SPLIT0-FUNCTION-G0-D0
+  -> FINALIZE0-VERIFY-SPLIT0-FUNCTION-G0-S0
+  -> FINALIZE0-VERIFY-SPLIT0-FUNCTION-G0-P0
+  -> FINALIZE0-VERIFY-SPLIT0-FUNCTION-G0-G0
+
+parked terminal retirement:
+  FINALIZE0-PHI-SPLIT0
+  -> MODULE-FINALIZE-VERIFY-CUT0
+  -> LOOP-LIVEFACT0
+  -> MIRBUILDER-CLEAN0-VERIFY-MIXED-RET0-G0
 ```
 
 ### S0 — disconnected definition rows
@@ -2158,9 +2167,11 @@ Call/Await annotation are complete before metadata publication, and it takes
 the draft immediately after the verifier.  `finalize_module` remains legacy
 because its PHI inference/materialization still mutates after the current
 snapshot; intermediate loop lowering remains a separate diagnostic caller.
-G0 retires the mixed helper only after every production caller has an exact
-replacement and guards the one verifier, one normalizer, all-build correctness,
-and zero finalization repair claim.
+The initially reserved global G0 is not currently admissible: module
+finalization and loop lowering still have distinct live/post-mutation
+boundaries.  The next scoped function G0 may guard only the selected function
+finalizer split.  Terminal mixed-helper retirement remains parked until every
+remaining production caller has its own exact replacement.
 
 No row in this series may repair a missing lowering fact, infer source
 semantics, mutate completed MIR, or use final metadata as a lowering fact.
@@ -2270,4 +2281,121 @@ does no MIR, ValueId, metadata, or cache mutation before its successful commit.
 snapshot, and loop lowering remains an intermediate legacy diagnostic.  The
 historical mixed-helper guard remains quarantined.  Focused tests, formatting,
 diff check, pointer guard, and root `cargo check` are green.  `VERIFY-SPLIT0-G0`
+must not make a repository-wide retirement claim.  `VERIFY-SPLIT0-FUNCTION-G0-D0`
 is the sole next row.
+
+### FUNCTION-G0 design lock — scoped closure, not mixed-helper retirement
+
+The original `VERIFY-SPLIT0-G0` reservation promised mixed-helper retirement
+after every caller had a replacement.  That condition is false today and must
+not be weakened by a source-count guard.
+
+```text
+selected split boundary:
+  MirBuilder::finalize_function_draft
+
+legacy mixed-helper boundaries retained:
+  finalize_module
+  loop lowering intermediate diagnostic
+```
+
+`finalize_module` runs its legacy helper before type/call annotation, metadata
+publication, return-PHI inference, and PHI input materialization.  The latter
+can allocate ValueIds, insert predecessor instructions, rewrite PHI inputs, and
+remove unused PHIs/instruction spans.  It therefore has no completed-draft
+boundary compatible with the selected function verifier.  The loop caller runs
+after loop-variable finalization but before enclosing lowering is complete; it
+is an intermediate diagnostic rather than a completed draft.
+
+#### `FINALIZE0-VERIFY-SPLIT0-FUNCTION-G0-D0` — next row
+
+```text
+code delta = 0
+
+scope:
+  function-finalizer split only
+
+global mixed-helper retirement claim = 0
+module conversion claim = 0
+loop conversion claim = 0
+```
+
+It fixes the explicit partition and creates no guard yet:
+
+```text
+split prepare production consumer = 1
+  finalize_function_draft
+
+split completed-draft verifier production consumer = 1
+  finalize_function_draft
+
+legacy mixed-helper production consumers = 2
+  finalize_module
+  loop lowering
+```
+
+#### `FINALIZE0-VERIFY-SPLIT0-FUNCTION-G0-S0/P0/G0`
+
+S0 adds one scoped guard, tentatively named
+`rust_lifecycle_mirbuilder_finalize_function_typed_value_split_guard.sh`.  It
+must inspect only the bounded `finalize_function_draft` body and the named
+definition modules; it must not repair or green the historical
+`rust_lifecycle_mirbuilder_typed_value_verification_guard.sh`, which remains a
+quarantined module-finalizer/mixed-helper artifact.
+
+The scoped guard locks this exact order:
+
+```text
+TypePropagationPipeline::run
+-> Call/Await annotation
+-> prepare_transient_stale_value_facts_v1
+-> prepared commit
+-> metadata.value_types snapshot
+-> metadata.value_origin_callers publication
+-> verify_completed_draft_typed_value_definitions_v1
+-> current_function.take
+```
+
+It requires one prepare definition and consumer, one completed verifier
+definition and consumer, one prepared commit consumer, and exactly one remove
+from each stale transient lane.  The selected finalizer must contain none of
+`strict_or_dev_planner_required`, `strict_enabled`, `joinir_dev_enabled`,
+`planner_required_enabled`, or the legacy mixed-helper call.  P0 proves the
+three existing function-finalizer witnesses plus the product commit witness in
+the default build profile; G0 may claim only this scoped all-build boundary.
+
+Its stable report must say:
+
+```text
+selected_function_finalizer_normalizer_consumers = 1
+selected_function_finalizer_verifier_consumers = 1
+legacy_mixed_helper_remaining_consumers = 2
+module_legacy_conversion_claim = 0
+loop_legacy_conversion_claim = 0
+mixed_helper_retirement_claim = 0
+```
+
+#### Parked successor order
+
+```text
+FINALIZE0-PHI-SPLIT0
+  read-only edge verifier
+  + unused-PHI normalizer
+  + full-candidate transactional missing-edge/rematerialization repair
+
+FINALIZE0-DERIVED0 / producer closure
+  metadata freshness and post-publication verification boundary
+
+MODULE-FINALIZE-VERIFY-CUT0
+  module finalizer conversion only after its post-mutation boundary exists
+
+LOOP-LIVEFACT0
+  intermediate diagnostic and live reservation/pending-producer law
+
+MIRBUILDER-CLEAN0-VERIFY-MIXED-RET0-G0
+  only then, zero legacy mixed-helper consumers and deletion
+```
+
+Stop the scoped row if it needs module PHI mutation/order changes, loop
+diagnostic semantics, historical-guard repair, a global helper-zero claim, or
+Return/type-pipeline/Call-Await/metadata/fact-session redesign.
