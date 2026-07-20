@@ -1888,6 +1888,10 @@ No new publisher, metadata fallback, origin change, or runtime delta exists.
 
 The current census/design stop is tracked in
 [`mirbuilder-finalize0-census-task-2026-07-20.md`](mirbuilder-finalize0-census-task-2026-07-20.md).
+The completed source census exposed mixed passes, missing rows, non-atomic PHI
+repair, and metadata snapshot ordering drift. The pending boundary decision is
+recorded in
+[`mirbuilder-finalize0-boundary-consultation-2026-07-20.md`](mirbuilder-finalize0-boundary-consultation-2026-07-20.md).
 No `FINALIZE0-CUT0` implementation is authorized until that inventory closes.
 
 Finalization becomes a verifier and derived-publication boundary, not the
@@ -1910,17 +1914,47 @@ before the dependent instruction is emitted, or lowering fails there.
 Task order:
 
 ```text
-FINALIZE0-CENSUS0
-  deterministic pass inventory and first-publication sites
+FINALIZE0-CENSUS0-SCHEMA0
+  schema-v2 semantic-operation inventory and measured validator
+
+FINALIZE0-CENSUS0-P0
+  repository-wide production-site coverage
+
+FINALIZE0-VERIFY-SPLIT0
+FINALIZE0-TYPEPIPE-SPLIT0
+FINALIZE0-CALLAWAIT-SPLIT0
+  split mixed verifier/type/call repair facades without behavior delta
+
+FINALIZE0-PHI-SPLIT0
+  pure verifier + unused-PHI normalization + isolated legacy repair
+
+FINALIZE0-FIELD-CLOSE0
+FINALIZE0-CALLAWAIT-CLOSE0
+FINALIZE0-COPY-CLOSE0
+FINALIZE0-BINOP-CLOSE0
+FINALIZE0-PHI-CLOSE0
+  lowering-time producer closure, one family at a time
+
+FINALIZE0-RETURN0
+  sealed return-contract projection; no MIR/name inference
+
+FINALIZE0-DERIVED0
+  Builder snapshot, optimizer coherence, and natural-owner partition
+
+FINALIZE0-CONDITIONFN-RET0
+  retire/re-home the synthetic compatibility producer
 
 FINALIZE0-P0
-  lowering-time versus finalized fact parity matrix
+  lowering-time/finalized facts plus route/backend/debug-release parity
 
 FINALIZE0-CUT0
-  remove correctness repair and MIR-to-source semantic inference
+  remove one proven-closed repair/inference family per commit
 
 FINALIZE0-G0
-  repair and legacy semantic inference counts zero
+  Builder lifecycle repair and legacy semantic inference counts zero
+
+MIRBUILDER-CLEAN0-REPAIR-RET0-G0
+  later terminal join after METAPROP0, PLAN0/RAWADAPT0, JoinIR, and Ownership
 ```
 
 Allowed finalization work remains explicit:

@@ -28,6 +28,12 @@ LegacySemanticInference
 
 The last two classes must be explicit, even when their retirement is parked.
 
+The completed source census found that this five-class vocabulary cannot be
+applied to facade function names: several current facades contain two or more
+semantic operations. The consultation and recommended decomposition are now
+fixed in
+[`mirbuilder-finalize0-boundary-consultation-2026-07-20.md`](mirbuilder-finalize0-boundary-consultation-2026-07-20.md).
+
 ## Observed pass inventory
 
 | Site | Current operation | Initial classification | Decision needed |
@@ -91,12 +97,70 @@ The census must include both `finalize_function_draft` and `finalize_module`
 and the post-module semantic refresh calls. It must not infer ownership from
 function names alone.
 
+### Census findings — design stop confirmed
+
+Three independent read-only audits found that the current v1 artifact is not
+a completion proof.
+
+```text
+missing operations:
+  function.metadata_type_snapshot
+  module.call_await_annotation
+  module.metadata_origin_snapshot
+
+TypePropagationPipeline production sites:
+  3
+
+materialize_all_phi_inputs production sites:
+  3
+```
+
+The current validator checks row count, enums, and anchor substrings only. Its
+`production_consumers=0` output is a fixed literal. It does not yet validate
+inputs, outputs, first publication, invocation count, mutation, failure
+atomicity, consumers, or retirement dependencies.
+
+The following entries are composite and must be split before they can receive
+one exact classification:
+
+```text
+verify_typed_values_are_defined
+annotate_missing_result_types_from_calls_and_await
+materialize_all_phi_inputs
+optimizer
+contract refresh
+semantic refresh
+callsite canonicalization
+extern route refresh
+```
+
+`materialize_all_phi_inputs` is a legacy repair rather than verification. It
+can delete PHIs, add missing rows, allocate Values, rematerialize instructions,
+and rewrite inputs before all later failures are known. Metadata snapshots can
+therefore occur before the final structural shape exists.
+
+The external decision requested by the linked consultation is whether to
+select producer-first pure finalization, permanent transactional repair, or
+permanent canonical/legacy dual finalizers. The local recommendation is the
+producer-first candidate with temporary repair quarantine.
+
+If accepted, the sole next code-facing row is:
+
+```text
+FINALIZE0-CENSUS0-SCHEMA0
+```
+
+It upgrades the machine-readable inventory and validator. It makes no compiler
+behavior change and is the required executable/artifact step after this
+consultation. No second docs-only FINALIZE0 row is permitted.
+
 ## Stop conditions
 
-Stop and open a follow-up design row if any pass needs to remain a first
-publisher, if MIR scanning is required to recover source semantics, if a
+Stop and use the linked boundary consultation if any pass needs to remain a
+first publisher, if MIR scanning is required to recover source semantics, if a
 finalization pass must rerun lowering propagation to hide timing drift, or if
-removing a pass changes FieldGet/Call/PHI behavior. Do not combine this census
+removing a pass changes FieldGet/Call/PHI behavior. These conditions are now
+observed, so no CUT0 implementation is authorized. Do not combine this census
 with PHI, Call, FieldGet, Unknown, or metadata-isolation changes.
 
 ## Decision lock
