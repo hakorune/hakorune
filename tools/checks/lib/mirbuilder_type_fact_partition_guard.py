@@ -108,6 +108,8 @@ ACTIVE_CUTOVER_WRITER_REPLACEMENTS = {
     "src/mir/builder/resolved_lowering/trivial_ssa/operation_type.rs": 1,
     "src/mir/builder/resolved_lowering/trivial_ssa/direct_call.rs": None,
     "src/mir/builder/resolved_lowering/trivial_ssa/direct_call_type.rs": 1,
+    "src/mir/builder/emission/compare.rs": None,
+    "src/mir/builder/emission/compare_type.rs": 1,
 }
 
 
@@ -398,6 +400,33 @@ def validate_resolved_direct_call_authority_v1(root: Path) -> None:
             fail(f"RESOLVED-DIRECT-CALL0 source/check file reached 800 lines: {path}")
 
 
+def validate_compareemit0_authority_v1(root: Path) -> None:
+    compare = code_only(read(root / "src/mir/builder/emission/compare.rs"))
+    owner = code_only(read(root / "src/mir/builder/emission/compare_type.rs"))
+
+    if "value_types.insert" in compare or "type_ctx.set_type" in compare:
+        fail("COMPAREEMIT0 direct Bool writer survived in compare.rs")
+    if "cf_common::emit_compare_func" in compare:
+        fail("COMPAREEMIT0 Builder helper must not use unit-return cf_common emission")
+    if compare.count("require_existing_current_compare_block(") != 2:
+        fail("COMPAREEMIT0 requires one strict receipt preflight definition and consumer")
+    if compare.count("PreparedCanonicalCompareBoolTypeV1::prepare") != 1:
+        fail("COMPAREEMIT0 requires one pre-emission Bool preparation consumer")
+    if compare.count("prepared.commit(") != 1:
+        fail("COMPAREEMIT0 requires one post-emission Bool commit consumer")
+    if compare.find("prepared.commit(") < compare.find("b.emit_instruction(MirInstruction::Compare"):
+        fail("COMPAREEMIT0 Bool commit must follow checked Compare emission")
+    if owner.count("TypeFactDecisionV1::prepare") != 1 or owner.count("type_ctx.set_type") != 1:
+        fail("COMPAREEMIT0 Bool decision/commit owner drift")
+    for path in (
+        root / "src/mir/builder/emission/compare.rs",
+        root / "src/mir/builder/emission/compare_type.rs",
+        Path(__file__),
+    ):
+        if len(read(path).splitlines()) >= 800:
+            fail(f"COMPAREEMIT0 source/check file reached 800 lines: {path}")
+
+
 def check(root: Path) -> None:
     fixture = load_fixture(root)
     validate_p1_g0_profile_freeze_v1(fixture)
@@ -408,6 +437,7 @@ def check(root: Path) -> None:
     validate_literal_postemit_retirement_v1(root)
     validate_resolved_trivial_operation_authority_v1(root)
     validate_resolved_direct_call_authority_v1(root)
+    validate_compareemit0_authority_v1(root)
     matrix = fixture.get("primary_matrix")
     if not isinstance(matrix, list):
         fail("FACT0 fixture primary matrix is invalid")
@@ -421,7 +451,7 @@ def check(root: Path) -> None:
         "active_writer_paths=48 active_writer_occurrences=96 slices=58 profiles=38 "
         "shared_slices=2 const0=closed staticload0=closed checkselect0=closed "
         "literal_postemit_ret0=closed resolved_trivial_op0=closed "
-        "resolved_direct_call0=closed"
+        "resolved_direct_call0=closed compareemit0=closed"
     )
 
 

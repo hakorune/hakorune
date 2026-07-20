@@ -166,6 +166,25 @@ stale block now fail before instruction creation, type publication, or implicit
 block creation. The valid builder receipt remains one physical Compare plus
 Bool. `COMPAREEMIT0-G0` is now the sole next row.
 
+### `COMPAREEMIT0-G0` — closed (2026-07-20)
+
+The existing type-fact partition guard now fixes the complete Compare receipt
+boundary without a new guard family:
+
+```text
+compare.rs direct Bool writer = 0
+compare.rs strict receipt preflight definition + consumer = 1 each
+compare.rs Bool prepare consumer = 1
+compare.rs post-emission Bool commit consumer = 1
+compare_type.rs TypeFactDecision prepare owner = 1
+compare_type.rs type_ctx.set_type commit owner = 1
+compare.rs cf_common emission use = 0
+```
+
+It also keeps every touched source/check file below 800 lines. COMPAREEMIT0 is
+closed. ArrayWrite, unified Call receipt, FieldGet/FastMem, metadata
+propagation, and legacy operator routing remain independent parked owners.
+
 ## Evidence and selection
 
 Three independent post-`RESOLVED-DIRECT-CALL0` audits found no remaining direct
