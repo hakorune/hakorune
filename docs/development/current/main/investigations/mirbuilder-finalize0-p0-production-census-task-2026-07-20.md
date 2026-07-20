@@ -1,5 +1,5 @@
 ---
-Status: FINALIZE0-CENSUS0-P0a-S0b is closed; FINALIZE0-VERIFY-SPLIT0 is next
+Status: FINALIZE0-CENSUS0-P0a-S0b and FINALIZE0-VERIFY-SPLIT0-S0 are closed; VERIFY-SPLIT0-P0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -2090,4 +2090,95 @@ to the current direct-item projector and nine focused MODULE0 fixtures. No new
 parser, cfg evaluator, traversal, CLI/report consumer, semantic resolution,
 FINALIZE0 policy, repair quarantine, or CUT0 authority is introduced.
 
-`FINALIZE0-VERIFY-SPLIT0` is next.
+`FINALIZE0-VERIFY-SPLIT0-S0` is next.
+
+## FINALIZE0-VERIFY-SPLIT0 — typed-value verifier / stale-row split
+
+### Decision lock
+
+`verify_typed_values_are_defined` currently combines two incompatible roles:
+
+```text
+completed-draft definition verification
+transient unreferenced stale-row removal
+```
+
+The selected end state is:
+
+```text
+CompletedMirFunctionDraft
+  -> read-only definition verification
+
+FunctionLoweringSession transient facts
+  -> explicit stale-row normalization
+```
+
+The verifier is correctness-bearing in every build mode once connected.  The
+normalizer is a distinct lifecycle operation; strict/dev controls diagnostics
+only and may not decide whether semantic validation or normalization occurs.
+
+### Fixed row order
+
+```text
+FINALIZE0-VERIFY-SPLIT0-S0
+  -> FINALIZE0-VERIFY-SPLIT0-P0
+  -> FINALIZE0-VERIFY-SPLIT0-I0
+  -> FINALIZE0-VERIFY-SPLIT0-G0
+```
+
+### S0 — disconnected definition rows
+
+The active row introduces only a Builder-free vocabulary for typed-value
+definition rows, a read-only completed-draft verifier, and a private prepared
+transient stale-row product.  It has zero production callers and makes no
+fact-map writes.
+
+It fixes these boundaries before any lifecycle rewiring:
+
+```text
+defined parameter / defined instruction       -> accepted
+ValueId::INVALID                              -> ignored
+referenced undefined typed value               -> verifier error
+unreferenced undefined typed value             -> prepared stale candidate
+pending PHI / pinned transient value           -> not a stale candidate
+```
+
+S0 must not change the legacy helper, its strict/dev gate, current finalizer
+callers, fact snapshot timing, or error text.  It does not move implicit
+Return, TypePropagationPipeline, Call/Await annotation, PHI repair, metadata
+publication, diagnostics, or session-generation cleanup.
+
+### P0 / I0 / G0 reservation
+
+P0 proves the row matrix and prepared-then-commit failure boundary.  I0 alone
+extracts transient stale-row normalization before sealed fact snapshots and
+installs the read-only verifier after the final draft-publication mutation;
+intermediate loop lowering remains a separate diagnostic caller until its own
+owner is selected.  G0 retires the mixed helper only after every production
+caller has an exact replacement and guards the one verifier, one normalizer,
+all-build correctness, and zero finalization repair claim.
+
+No row in this series may repair a missing lowering fact, infer source
+semantics, mutate completed MIR, or use final metadata as a lowering fact.
+
+### S0 closeout
+
+`value_lifecycle_definition.rs` now owns the disconnected, Builder-free
+products.  It collects deterministic typed-without-definition rows from a
+`MirFunction` plus its transient type snapshot, ignores `ValueId::INVALID`,
+and provides a read-only completed-draft failure.  A separate non-Clone
+prepared stale-row product can contain only unretained rows; referenced,
+pending-PHI, and pinned rows reject before any commit surface exists.
+
+The five focused fixtures cover parameter and instruction definitions, the
+invalid sentinel, deterministic completed-draft failure, unretained stale-row
+preparation, and each retained category.  There are no production callers and
+no `MirBuilder`, map write, finalizer order, metadata, Return, type pipeline,
+Call/Await, PHI, or strict/dev behavior changes.  The existing
+`rust_lifecycle_mirbuilder_typed_value_verification_guard.sh` is intentionally
+not an S0 proof: it still encodes the legacy mixed helper and currently has a
+pre-existing stale `module_lifecycle` marker; P0/I0 owns its replacement or
+retirement.
+
+Focused library tests, formatting, pointer guard, diff check, and root
+`cargo check` are green.  `FINALIZE0-VERIFY-SPLIT0-P0` is next.

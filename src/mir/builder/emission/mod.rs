@@ -18,3 +18,4 @@ pub(in crate::mir) mod phi_lifecycle; // PHI lifecycle SSOT
 #[cfg(test)]
 mod phi_lifecycle_tests;
 pub(in crate::mir::builder) mod value_lifecycle; // Value lifecycle contract (typed → defined)
+pub(in crate::mir::builder) mod value_lifecycle_definition;
