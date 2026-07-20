@@ -717,3 +717,119 @@ generic unified Call invokes its already-existing post-call annotation and
 verification owners after a successful physical Call. It may not claim generic
 Call completion, all result facts monotone, FieldGet rollback, Array/Map policy
 cleanup, finalization retirement, or whole-Builder transactionality.
+
+## Next producer selection: `FASTMEM-RECEIPT0`
+
+### Decision
+
+The explicit next-producer frontier is closed by a three-worker, read-only
+inventory. It selects the shared FastMem physical-MemOp receipt as the next
+durable slice:
+
+```text
+FACT0-TX0-FASTMEM-RECEIPT0-D0    closed
+  -> FACT0-TX0-FASTMEM-RECEIPT0-S0    sole next code-facing row
+  -> FACT0-TX0-FASTMEM-RECEIPT0-M0
+  -> FACT0-TX0-FASTMEM-RECEIPT0-P0
+  -> FACT0-TX0-FASTMEM-RECEIPT0-I0
+  -> FACT0-TX0-FASTMEM-RECEIPT0-G0
+
+then, separately:
+  FASTMEM-FIELDLOAD0-D0
+```
+
+The selected physical owner is exactly:
+
+```text
+MirBuilder::emit_fastmem_memop
+  -> validate the current function and exact region
+  -> emit one physical MemOp
+  -> publish one emitted_memop_count receipt
+```
+
+Today that helper calls `note_fastmem_memop` before `emit_instruction`. A
+missing current block therefore leaves `emitted_memop_count += 1` with no
+physical `MemOp`. The same helper is the canonical endpoint for the FastMem
+value facade, FastMem intrinsic calls, field stores, index stores, and the
+FastMem FieldLoad branch. This is one receipt fact with one physical owner;
+its correction does not choose a result-type, origin, or source-shape policy.
+
+### Receipt law
+
+`FASTMEM-RECEIPT0` must preserve current preflight errors while splitting
+validation from publication:
+
+```text
+1. validate current function and exact registered region, mutation = 0
+2. prepare one private non-Clone MemOp receipt for that region
+3. emit the existing physical MemOp
+4. only on success, increment emitted_memop_count exactly once
+```
+
+Failure law:
+
+```text
+physical MemOp = 0
+emitted_memop_count delta = 0
+retry/fallback = 0
+```
+
+This row does not claim ValueId cursor rollback or whole-Builder rollback.
+It does not move the existing field-access site, typed destination reservation,
+missing-declared `Integer` compatibility write, or field-result origin in the
+FastMem FieldLoad branch. Those are the separate `FASTMEM-FIELDLOAD0-D0`
+frontier after the generic MemOp receipt is green.
+
+### Candidate disposition
+
+```text
+selected:
+  shared FastMem emitted_memop_count receipt
+
+parked:
+  FastMem FieldLoad type/site/origin reservation
+  Array write observation before known ArrayElementWrite
+  Array element-result / receiver-chain facts
+  CorePlan preplanned FieldGet
+  metadata propagation, finalization repair, direct Copy, unary/operator
+```
+
+Array write is not selected even though its physical `ArrayElementWrite`
+already has a receipt-ordered `Void` publication: its Array observation is
+performed before final operand/call emission in a distinct call-owner seam.
+Joining it to this generic MemOp row would mix two durable semantic slices.
+
+### `FACT0-TX0-FASTMEM-RECEIPT0-S0`
+
+```text
+production behavior delta = 0
+production consumers = 0
+```
+
+Add only a private preflight/prepared-receipt vocabulary. It must retain the
+validated `FastMemRegionId` and expose neither `MirBuilder`, metadata, a
+mutable region reference, nor a type/origin/result policy. The constructor
+must perform no metadata write; the commit API must be non-fallible and remain
+unconnected in S0.
+
+M0 inventories every existing `emit_fastmem_memop` facade and records the
+pre-I0 missing-current-block counter residual. P0 adds success/failure temporal
+proof for direct helper and representative facade paths. I0 connects only the
+shared helper, preserving validation error order and moving exactly the counter
+increment after successful `emit_instruction`. G0 extends the existing FACT0
+partition guard; it must not add a new guard family.
+
+### Stop conditions
+
+Stop this row if it requires any of the following:
+
+```text
+FastMem FieldLoad type/site/origin movement
+FastMem region registration or region metadata schema change
+source AST, field/method name, runtime tag, or final metadata as authority
+new persistent ValueId maps
+generic FieldGet/Call transaction API
+Array or Map observation activation
+retry, fallback, or whole-Builder rollback
+source/check file at or above 800 lines
+```
