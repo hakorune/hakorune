@@ -1,5 +1,5 @@
 ---
-Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT are closed; PHI-SPLIT0-MODULETX0-S0 is next
+Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0 are closed; PHI-SPLIT0-REMATFACT0-D0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -2864,3 +2864,21 @@ Unused-Phi deletion stays disconnected. The P0 fixture closure is not real
 FunctionMetadata coverage. The module I0 stops rather than deleting any unused
 Phi until exact positional and ValueId artifact closure is independently
 proven.
+
+#### MODULETX0-S0 closeout
+
+`PreparedModuleCompletionCandidateV1` is now the one private, non-Clone S0
+ownership product. It moves an already assembled `MirModule` together with all
+six current transient `TypeContext` lanes, the two current diagnostic-origin
+observation lanes, and one derived-artifact invalidation ledger. The product
+has no Builder reference, live-state constructor, commit operation, PHI repair
+operation, metadata publication, fact projection, or derived refresh. Its
+facts are explicitly observations, not source-producer receipts, so the
+product cannot authorize a fresh rematerialized `ValueId` publication.
+
+The only production module completion path remains unchanged. The focused
+candidate test proves the eight lanes and a multi-function module move as one
+non-Clone boundary; format, cargo check, pointer guard, diff check, and the
+under-800-line limit are green. `REMATFACT0-D0` is now the required design
+frontier: it must select a producer-time receipt and candidate-local exact
+fresh-value projection without treating any mutable fact map as that receipt.
