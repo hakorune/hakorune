@@ -43,6 +43,50 @@ COMPAREEMIT0-D0
 Only D0 is selected. S0 remains forbidden until D0 fixes the checked receipt
 authority and the `cf_common` compatibility boundary.
 
+### `COMPAREEMIT0-D0` — closed (2026-07-20)
+
+The selected receipt owner is the existing builder method:
+
+```text
+MirBuilder::emit_instruction(MirInstruction::Compare { ... })
+```
+
+It already rejects a missing current block and checks that the current block
+exists before instruction insertion. The D0 cut is therefore intentionally
+one-way:
+
+```text
+builder-owned Compare completion:
+  must use the checked Builder receipt
+
+cf_common::emit_compare_func:
+  remains a non-Builder JSON-v0 compatibility helper
+  and is not a COMPAREEMIT0 consumer
+```
+
+Replacing the builder's silent function/block path is an I0 fail-fast behavior
+tightening, not an S0 change. It neither changes JSON-v0 callers nor opens the
+legacy CompareOperator call route. Missing/stale builder blocks must become an
+error before a Bool fact can commit.
+
+`COMPAREEMIT0-S0` is now the sole next code-facing row.
+
+### `COMPAREEMIT0-S0` — closed (2026-07-20)
+
+One private, map-free `compare_type.rs` product now prepares only the fixed
+`MirInstruction::Compare -> Bool` decision:
+
+```text
+Missing / StoredUnknown -> Publish(Bool)
+Bool                    -> Idempotent(Bool)
+other exact type        -> typed conflict
+```
+
+It has no Builder, ValueId, instruction, operand, commit, or production
+consumer. `COMPAREEMIT0-M0` is now the sole next row; it must prove every
+builder caller and current failure timing before I0 may replace the direct
+Bool write.
+
 ## Evidence and selection
 
 Three independent post-`RESOLVED-DIRECT-CALL0` audits found no remaining direct

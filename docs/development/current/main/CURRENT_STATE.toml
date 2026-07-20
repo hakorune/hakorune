@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "COMPAREEMIT0-D0 is selected; decide one checked builder Compare receipt before Bool publication"
+status = "COMPAREEMIT0-S0 is closed; inventory checked Compare receipt timing before one Bool commit"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -449,7 +449,7 @@ METAPROP0 owner after COMPCTX0/CONFIG0 and before PLAN0-CUT0; FACT0-G0 remains
 the final global-zero gate after that owner plus FINALIZE0, PLAN0, COMPCTX0,
 CONFIG0, and RAWADAPT0 retire their named legacy writers.
 NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-FACT0-I1-COMPAREEMIT0-D0-012"
+current_blocker_token = "DPRIME-MIRBUILDER-FACT0-I1-COMPAREEMIT0-M0-013"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
