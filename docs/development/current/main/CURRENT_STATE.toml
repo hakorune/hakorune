@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "CONST0-S0 is closed; canonical Const has one disconnected exact-type preparation owner and M0 is next"
+status = "CONST0-M0 is closed; canonical Const has one verified post-emission boundary and P0 is next"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -303,12 +303,14 @@ exact0_const_task = "docs/development/current/main/investigations/mirbuilder-exa
 
 latest_card = "mirbuilder-exact0-const-task-2026-07-20"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-exact0-const-task-2026-07-20.md"
-latest_card_summary = """FACT0-I1-EXACT0-CONST0-S0 is closed: one disconnected
-`ConstValue -> exact MirType -> TypeFactDecisionV1` owner has zero Builder,
-TypeContext, ValueId, MIR, fact-commit, String-companion, and production
-consumer authority. Four focused tests cover all six canonical Const variants,
-Missing/StoredUnknown, idempotence, and conflict. M0 is next to inventory the
-six real emitter callers and their post-success timing. Compare, Select,
+latest_card_summary = """FACT0-I1-EXACT0-CONST0-S0/M0 are closed: one
+disconnected `ConstValue -> exact MirType -> TypeFactDecisionV1` owner has zero
+Builder, TypeContext, ValueId, MIR, fact-commit, String-companion, and
+production-consumer authority. The six real emitters all follow
+`next_value_id -> Const emission? -> transient fact`; a missing current block
+leaves no instruction/type/String/metadata fact and only the existing cursor
+advance. Canonical Const does not use finalized metadata before completion. P0
+is next. Compare, Select,
 operator/call-backed writers, static u16 load, and post-emit duplicate
 annotations remain separate rows. Historical summary follows. CARRIER-TYPE-D0
 selects the NumericProgression
@@ -425,7 +427,7 @@ METAPROP0 owner after COMPCTX0/CONFIG0 and before PLAN0-CUT0; FACT0-G0 remains
 the final global-zero gate after that owner plus FINALIZE0, PLAN0, COMPCTX0,
 CONFIG0, and RAWADAPT0 retire their named legacy writers.
 NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-FACT0-I1-EXACT0-CONST0-M0-001"
+current_blocker_token = "DPRIME-MIRBUILDER-FACT0-I1-EXACT0-CONST0-P0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

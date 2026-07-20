@@ -127,11 +127,35 @@ variant mappings, Missing/StoredUnknown publication, exact idempotence, and
 concrete conflict. The existing direct writers remain unchanged; production
 consumers are still zero.
 
-### `CONST0-M0`
+### `CONST0-M0` — closed (2026-07-20)
 
 Inventory all six callers and prove their instruction/error boundary. Record
 String companion ordering and confirm that no Const caller requires function
 metadata before finalization.
+
+The direct implementation inventory closes one uniform six-helper boundary:
+
+```text
+emit_integer / emit_bool / emit_float / emit_string / emit_null / emit_void
+  -> next_value_id
+  -> emit_instruction(Const)?
+  -> transient exact type write
+  -> String only: string_literals write
+```
+
+`builder_emit::emit_instruction` rejects a missing current block before any
+instruction mutation. Every helper uses `?`, so this failure leaves no Const
+instruction, transient type, String fact, or function-metadata type entry. The
+existing ValueId cursor advance is the only residual and remains outside this
+row's rollback claim.
+
+No helper reads or writes `MirFunction.metadata.value_types`. Direct literal
+front ends only delegate to these helpers; normal downstream arithmetic reads
+the transient type first and reaches its metadata fallback only for Unknown,
+which canonical Const never publishes. Existing metadata readers are either
+Box-specific or test-only. Thus no metadata-timing stop condition blocks P0.
+
+`CONST0-P0` is now the sole next row.
 
 ### `CONST0-P0`
 
