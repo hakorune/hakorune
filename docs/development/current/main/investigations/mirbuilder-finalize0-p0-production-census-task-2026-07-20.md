@@ -1,5 +1,5 @@
 ---
-Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0 are closed; PHI-SPLIT0-REMATFACT0-S0 is next
+Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0/S0 are closed; PHI-SPLIT0-REMATFACT0-M0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -2990,3 +2990,21 @@ REMATFACT0-D0
 Stop rather than widen REMATFACT0 if one row needs a persistent ValueId map,
 whole-Builder rollback, Unknown transfer, kind/origin transfer, source
 re-inference, a new MIR type, or a function/module repair consumer.
+
+#### REMATFACT0-S0 closeout
+
+One disconnected vocabulary now defines the opaque function generation and
+producer-definition identity, an append-only exact-only receipt ledger, a
+sealed lookup boundary, a candidate-local fresh-destination reservation, and a
+non-Clone exact-type projection. It owns no Builder, `MirFunction`,
+`TypeContext`, metadata, finalization pipeline, source inference, physical
+emission, candidate fact commit, or module repair consumer. Receipt rows reject
+`Unknown`, foreign generations, and duplicate definitions. Projection refuses
+missing/foreign receipts before any mutation owner exists; `Void` remains an
+ordinary exact type.
+
+The five disconnected fixtures cover exact-only recording, sealed-definition
+lookup, foreign generation rejection, one reservation per candidate destination,
+and source/node/destination co-sealing. `REMATFACT0-M0` is next: it must census
+every direct physical producer entry for all P0 rematerialization families and
+may not connect this vocabulary to Const or any other producer yet.
