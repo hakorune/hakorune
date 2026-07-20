@@ -2,9 +2,9 @@ use serde::Serialize;
 
 use crate::{RustSourceTopologyV1, SourceRangeV1};
 
-use crate::project::CfgDecisionV1;
+use crate::project::CfgAttributeStreamDecisionV1;
 
-pub const DECLARED_MODULE_TOPOLOGY_SCHEMA_V1: &str = "declared-module-topology-v1";
+pub const DECLARED_MODULE_TOPOLOGY_SCHEMA_V2: &str = "declared-module-topology-v2";
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct DeclaredModuleTopologyV1 {
@@ -52,7 +52,7 @@ pub struct DeclaredModuleEdgeV1 {
     pub semantic_segment: String,
     pub kind: ModuleEdgeKindV1,
     pub active_literal_path: Option<String>,
-    pub cfg_decision: CfgDecisionV1,
+    pub cfg_decision: CfgAttributeStreamDecisionV1,
     pub child_instance_id: Option<String>,
     pub selected_source_path_workspace_relative: Option<String>,
 }
@@ -64,7 +64,7 @@ pub struct DeclaredIncludeEdgeV1 {
     pub parent_source_observation_id: String,
     pub parent_include_edge_id: Option<String>,
     pub invocation_range: SourceRangeV1,
-    pub cfg_decision: CfgDecisionV1,
+    pub cfg_decision: CfgAttributeStreamDecisionV1,
     pub literal_path: Option<String>,
     pub selected_source_path_workspace_relative: Option<String>,
     pub child_source_observation_id: Option<String>,

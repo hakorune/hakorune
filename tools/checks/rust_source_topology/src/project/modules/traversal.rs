@@ -10,10 +10,10 @@ use crate::project::{
 };
 
 use super::cfg_gate::{
-    decide_module_cfg_v1, select_active_path_v1, validate_active_cfg_attributes_v1,
+    decide_module_cfg_stream_v1, select_active_path_v1, validate_selected_cfg_attributes_v1,
 };
 use super::declarations::{
-    include_literal, outer_cfg_syntax, parse_included_module_source_v1, parse_module_source_v1,
+    include_literal, parse_included_module_source_v1, parse_module_source_v1,
     validate_include_attributes, validate_module_attributes, IncludeDeclarationV1,
     ModuleDeclarationV1, ModulePositionItemV1,
 };
@@ -21,7 +21,7 @@ use super::error::ModuleTopologyErrorV1;
 use super::model::{
     DeclaredIncludeEdgeV1, DeclaredModuleEdgeV1, DeclaredModuleInstanceV1,
     DeclaredModuleTopologyV1, ModuleEdgeKindV1, ModuleInstanceKindV1, ModuleSourceObservationV1,
-    DECLARED_MODULE_TOPOLOGY_SCHEMA_V1,
+    DECLARED_MODULE_TOPOLOGY_SCHEMA_V2,
 };
 use super::path_resolution::{
     canonical_regular_file, normalize_inside_workspace, resolve_external_module_v1,
@@ -179,17 +179,15 @@ impl ModuleTraversalV1 {
                 continue;
             };
             let module_path = format!("{parent_syntax_path}::{}", declaration.semantic_segment);
-            let cfg = decide_module_cfg_v1(
-                &outer_cfg_syntax(&declaration.outer_attributes),
-                &self.environment,
-            )?;
-            if cfg.state == CfgDecisionStateV1::Unknown {
+            let cfg =
+                decide_module_cfg_stream_v1(&declaration.outer_topology_rows, &self.environment)?;
+            if cfg.final_state == CfgDecisionStateV1::Unknown {
                 return Err(ModuleTopologyErrorV1::UnknownCfg {
                     module: module_path,
                 });
             }
             let edge_id = self.next_edge_id();
-            if cfg.state == CfgDecisionStateV1::Excluded {
+            if cfg.final_state == CfgDecisionStateV1::Excluded {
                 self.edges.push(DeclaredModuleEdgeV1 {
                     edge_id,
                     parent_instance_id: parent_instance_id.to_string(),
@@ -210,16 +208,8 @@ impl ModuleTraversalV1 {
                 continue;
             }
             validate_module_attributes(&module_path, &declaration.outer_attributes)?;
-            validate_active_cfg_attributes_v1(
-                &module_path,
-                &declaration.outer_attributes,
-                &self.environment,
-            )?;
-            let literal_path = select_active_path_v1(
-                &module_path,
-                &declaration.outer_attributes,
-                &self.environment,
-            )?;
+            validate_selected_cfg_attributes_v1(&module_path, &cfg)?;
+            let literal_path = select_active_path_v1(&module_path, &cfg)?;
             if let Some(children) = &declaration.inline_items {
                 self.add_inline_module(
                     edge_id,
@@ -259,11 +249,8 @@ impl ModuleTraversalV1 {
         declaration: &IncludeDeclarationV1,
     ) -> Result<(), ModuleTopologyErrorV1> {
         let source_relative = self.relative(including_lexical_path)?;
-        let cfg = decide_module_cfg_v1(
-            &outer_cfg_syntax(&declaration.outer_attributes),
-            &self.environment,
-        )?;
-        if cfg.state == CfgDecisionStateV1::Unknown {
+        let cfg = decide_module_cfg_stream_v1(&declaration.outer_topology_rows, &self.environment)?;
+        if cfg.final_state == CfgDecisionStateV1::Unknown {
             return Err(ModuleTopologyErrorV1::UnknownCfg {
                 module: format!("include@{source_relative}"),
             });
@@ -275,7 +262,7 @@ impl ModuleTraversalV1 {
             .find(|row| row.source_observation_id == parent_observation_id)
             .ok_or(ModuleTopologyErrorV1::WorkspaceEvidenceDrift)?;
         let parent_include_edge_id = parent_observation.parent_include_edge_id.clone();
-        if cfg.state == CfgDecisionStateV1::Excluded {
+        if cfg.final_state == CfgDecisionStateV1::Excluded {
             self.include_edges.push(DeclaredIncludeEdgeV1 {
                 include_edge_id,
                 owning_module_instance_id: owning_module_instance_id.to_string(),
@@ -291,18 +278,8 @@ impl ModuleTraversalV1 {
         }
 
         validate_include_attributes(&source_relative, &declaration.outer_attributes)?;
-        validate_active_cfg_attributes_v1(
-            &format!("include@{source_relative}"),
-            &declaration.outer_attributes,
-            &self.environment,
-        )?;
-        if select_active_path_v1(
-            &format!("include@{source_relative}"),
-            &declaration.outer_attributes,
-            &self.environment,
-        )?
-        .is_some()
-        {
+        validate_selected_cfg_attributes_v1(&format!("include@{source_relative}"), &cfg)?;
+        if select_active_path_v1(&format!("include@{source_relative}"), &cfg)?.is_some() {
             return Err(ModuleTopologyErrorV1::UnsupportedIncludeAttribute {
                 path: source_relative,
                 attribute: "path".to_string(),
@@ -370,7 +347,7 @@ impl ModuleTraversalV1 {
         parent_directory: &ModuleDirectoryOwnershipV1,
         declaration: &ModuleDeclarationV1,
         literal_path: Option<String>,
-        cfg: crate::project::CfgDecisionV1,
+        cfg: crate::project::CfgAttributeStreamDecisionV1,
         children: &[ModulePositionItemV1],
     ) -> Result<(), ModuleTopologyErrorV1> {
         let child_id = self.next_instance_id();
@@ -420,7 +397,7 @@ impl ModuleTraversalV1 {
         parent_directory: &ModuleDirectoryOwnershipV1,
         declaration: &ModuleDeclarationV1,
         literal_path: Option<String>,
-        cfg: crate::project::CfgDecisionV1,
+        cfg: crate::project::CfgAttributeStreamDecisionV1,
     ) -> Result<(), ModuleTopologyErrorV1> {
         let resolved = resolve_external_module_v1(
             &self.workspace_root,
@@ -568,26 +545,26 @@ impl ModuleTraversalV1 {
         let included_modules = self
             .edges
             .iter()
-            .filter(|edge| edge.cfg_decision.state == CfgDecisionStateV1::Included)
+            .filter(|edge| edge.cfg_decision.final_state == CfgDecisionStateV1::Included)
             .count();
         let external_module_observations = self
             .edges
             .iter()
             .filter(|edge| {
-                edge.cfg_decision.state == CfgDecisionStateV1::Included
+                edge.cfg_decision.final_state == CfgDecisionStateV1::Included
                     && edge.kind != ModuleEdgeKindV1::Inline
             })
             .count();
         let included_source_observations = self
             .include_edges
             .iter()
-            .filter(|edge| edge.cfg_decision.state == CfgDecisionStateV1::Included)
+            .filter(|edge| edge.cfg_decision.final_state == CfgDecisionStateV1::Included)
             .count();
         if self.instances.len() != 1 + included_modules
             || self.observations.len()
                 != 1 + external_module_observations + included_source_observations
             || self.edges.iter().any(|edge| {
-                (edge.cfg_decision.state == CfgDecisionStateV1::Included)
+                (edge.cfg_decision.final_state == CfgDecisionStateV1::Included)
                     != edge.child_instance_id.is_some()
             })
             || self.edges.iter().any(|edge| {
@@ -596,7 +573,7 @@ impl ModuleTraversalV1 {
                 })
             })
             || self.include_edges.iter().any(|edge| {
-                let included = edge.cfg_decision.state == CfgDecisionStateV1::Included;
+                let included = edge.cfg_decision.final_state == CfgDecisionStateV1::Included;
                 let complete = edge.literal_path.is_some()
                     && edge.selected_source_path_workspace_relative.is_some()
                     && edge.child_source_observation_id.is_some();
@@ -631,7 +608,7 @@ impl ModuleTraversalV1 {
             return Err(ModuleTopologyErrorV1::WorkspaceEvidenceDrift);
         }
         Ok(DeclaredModuleTopologyV1 {
-            schema: DECLARED_MODULE_TOPOLOGY_SCHEMA_V1,
+            schema: DECLARED_MODULE_TOPOLOGY_SCHEMA_V2,
             schema_version: 1,
             profile_id: self.profile_id,
             package_key: self.package_key,

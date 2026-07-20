@@ -1,34 +1,89 @@
 use std::fmt;
 
-use crate::project::{CargoProcessEvidenceErrorV1, CfgDecisionErrorV1};
+use crate::project::{CargoProcessEvidenceErrorV1, CfgAttributeStreamErrorV1, CfgDecisionErrorV1};
 
 #[derive(Debug)]
 pub enum ModuleTopologyErrorV1 {
     CargoEvidence(CargoProcessEvidenceErrorV1),
     WorkspaceEvidenceDrift,
     WorkspaceRootInvalid,
-    SourceOutsideWorkspace { path: String },
-    SourceMissing { path: String },
-    SourceNotFile { path: String },
-    SourceRead { path: String, detail: String },
-    SourceChanged { path: String },
-    Parse { path: String, detail: String },
+    SourceOutsideWorkspace {
+        path: String,
+    },
+    SourceMissing {
+        path: String,
+    },
+    SourceNotFile {
+        path: String,
+    },
+    SourceRead {
+        path: String,
+        detail: String,
+    },
+    SourceChanged {
+        path: String,
+    },
+    AttributeOrdinalOverflow {
+        path: String,
+    },
+    AttributeRangeInvalid {
+        path: String,
+        byte_start: usize,
+        byte_end: usize,
+    },
+    Parse {
+        path: String,
+        detail: String,
+    },
     Cfg(CfgDecisionErrorV1),
-    UnknownCfg { module: String },
-    UnsupportedModuleAttribute { module: String, attribute: String },
-    UnsupportedInnerTopologyAttribute { path: String },
-    ModuleInBlock { path: String },
-    UnsupportedIncludeContext { path: String },
-    UnsupportedIncludeAttribute { path: String, attribute: String },
-    NonLiteralInclude { path: String },
-    IncludeMacroIdentityUnresolved { path: String },
-    UnsupportedIncludedPreamble { path: String },
-    AbsoluteIncludePath { path: String },
-    NonLiteralPath { module: String },
-    MultipleActivePaths { module: String },
-    OrdinaryModuleMissing { module: String },
-    OrdinaryModuleAmbiguous { module: String },
-    CanonicalCycle { path: String },
+    CfgStream(CfgAttributeStreamErrorV1),
+    UnknownCfg {
+        module: String,
+    },
+    UnsupportedModuleAttribute {
+        module: String,
+        attribute: String,
+    },
+    UnsupportedInnerTopologyAttribute {
+        path: String,
+    },
+    ModuleInBlock {
+        path: String,
+    },
+    UnsupportedIncludeContext {
+        path: String,
+    },
+    UnsupportedIncludeAttribute {
+        path: String,
+        attribute: String,
+    },
+    NonLiteralInclude {
+        path: String,
+    },
+    IncludeMacroIdentityUnresolved {
+        path: String,
+    },
+    UnsupportedIncludedPreamble {
+        path: String,
+    },
+    AbsoluteIncludePath {
+        path: String,
+    },
+    NonLiteralPath {
+        module: String,
+    },
+    MultipleActivePaths {
+        module: String,
+    },
+    OrdinaryModuleMissing {
+        module: String,
+    },
+    OrdinaryModuleAmbiguous {
+        module: String,
+    },
+    CanonicalCycle {
+        path: String,
+    },
 }
 
 impl fmt::Display for ModuleTopologyErrorV1 {
@@ -42,8 +97,11 @@ impl fmt::Display for ModuleTopologyErrorV1 {
             Self::SourceNotFile { path } => write!(formatter, "[rust-source-topology/module/source-not-file] path={path:?}"),
             Self::SourceRead { path, detail } => write!(formatter, "[rust-source-topology/module/source-read-failed] path={path:?} detail={detail}"),
             Self::SourceChanged { path } => write!(formatter, "[rust-source-topology/module/source-changed] path={path:?}"),
+            Self::AttributeOrdinalOverflow { path } => write!(formatter, "[rust-source-topology/module/attribute-ordinal-overflow] path={path:?}"),
+            Self::AttributeRangeInvalid { path, byte_start, byte_end } => write!(formatter, "[rust-source-topology/module/attribute-range-invalid] path={path:?} start={byte_start} end={byte_end}"),
             Self::Parse { path, detail } => write!(formatter, "[rust-source-topology/module/parse-failed] path={path:?} detail={detail}"),
             Self::Cfg(error) => error.fmt(formatter),
+            Self::CfgStream(error) => error.fmt(formatter),
             Self::UnknownCfg { module } => write!(formatter, "[rust-source-topology/module/cfg-unknown] module={module}"),
             Self::UnsupportedModuleAttribute { module, attribute } => write!(formatter, "[rust-source-topology/module/unsupported-attribute] module={module} attribute={attribute:?}"),
             Self::UnsupportedInnerTopologyAttribute { path } => write!(formatter, "[rust-source-topology/module/unsupported-inner-topology-attribute] path={path:?}"),
@@ -74,5 +132,11 @@ impl From<CargoProcessEvidenceErrorV1> for ModuleTopologyErrorV1 {
 impl From<CfgDecisionErrorV1> for ModuleTopologyErrorV1 {
     fn from(error: CfgDecisionErrorV1) -> Self {
         Self::Cfg(error)
+    }
+}
+
+impl From<CfgAttributeStreamErrorV1> for ModuleTopologyErrorV1 {
+    fn from(error: CfgAttributeStreamErrorV1) -> Self {
+        Self::CfgStream(error)
     }
 }

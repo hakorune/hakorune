@@ -201,7 +201,7 @@ fn topology_is_deterministic_atomic_and_workspace_relative() {
         1 + first
             .module_edges
             .iter()
-            .filter(|edge| edge.cfg_decision.state == CfgDecisionStateV1::Included)
+            .filter(|edge| edge.cfg_decision.final_state == CfgDecisionStateV1::Included)
             .count()
     );
 }
@@ -221,7 +221,7 @@ fn module_lookup_and_cfg_failures_are_typed_before_fallback() {
     let excluded = workspace.collect(&evidence).unwrap();
     assert_eq!(excluded.module_instances.len(), 1);
     assert_eq!(
-        excluded.module_edges[0].cfg_decision.state,
+        excluded.module_edges[0].cfg_decision.final_state,
         CfgDecisionStateV1::Excluded
     );
 
@@ -275,8 +275,49 @@ fn module_lookup_and_cfg_failures_are_typed_before_fallback() {
     );
     let excluded_unknown = workspace.collect(&evidence).unwrap();
     assert_eq!(
-        excluded_unknown.module_edges[0].cfg_decision.state,
+        excluded_unknown.module_edges[0].cfg_decision.final_state,
         CfgDecisionStateV1::Excluded
+    );
+
+    workspace.write(
+        "src/root.rs",
+        "#[cfg(any())] #[cfg_attr(all(), path = concat!(\"bad\", \".rs\"))] mod excluded_nonliteral;\n",
+    );
+    let excluded_nonliteral = workspace.collect(&evidence).unwrap();
+    assert_eq!(
+        excluded_nonliteral.module_edges[0].cfg_decision.final_state,
+        CfgDecisionStateV1::Excluded
+    );
+
+    workspace.write(
+        "src/root.rs",
+        "#[cfg_attr(any(), path = concat!(\"bad\", \".rs\"))] mod inactive_nonliteral;\n",
+    );
+    workspace.write("src/inactive_nonliteral.rs", "pub fn child() {}\n");
+    let inactive_nonliteral = workspace.collect(&evidence).unwrap();
+    assert_eq!(inactive_nonliteral.module_instances.len(), 2);
+    assert_eq!(
+        inactive_nonliteral.module_edges[0].active_literal_path,
+        None
+    );
+
+    workspace.write(
+        "src/root.rs",
+        "#[cfg_attr(all(), cfg_attr(all(), path = \"nested.rs\"))] mod nested;\n",
+    );
+    workspace.write("src/nested.rs", "pub fn child() {}\n");
+    let nested = workspace.collect(&evidence).unwrap();
+    assert_eq!(
+        nested.module_edges[0].active_literal_path.as_deref(),
+        Some("nested.rs")
+    );
+    assert_eq!(
+        nested.module_edges[0]
+            .cfg_decision
+            .active_path_effects[0]
+            .nested_index_path
+            .as_ref(),
+        [0_u32, 0]
     );
 
     workspace.write("src/root.rs", "#[path = \"broken.rs\"] mod broken;\n");

@@ -77,6 +77,38 @@ fn inactive_cfg_attr_keeps_malformed_nested_cfg_unparsed() {
         CfgAttributeNestedDispositionV1::NotEvaluatedInactiveCfgAttr
     );
     assert_eq!(row.nested[0].state, None);
+    assert!(decision.active_path_effects.is_empty());
+}
+
+#[test]
+fn included_stream_exports_exact_direct_and_nested_path_effects() {
+    let decision = decide(&[
+        row(4, "path = \"direct.rs\""),
+        row(9, "cfg_attr(all(), cfg_attr(all(), path = \"nested.rs\"))"),
+    ])
+    .unwrap();
+
+    assert_eq!(decision.final_state, CfgDecisionStateV1::Included);
+    assert_eq!(decision.active_path_effects.len(), 2);
+    assert_eq!(decision.active_path_effects[0].outer_source_ordinal, 4);
+    assert_eq!(
+        decision.active_path_effects[0].outer_source_range,
+        row(4, "path = \"direct.rs\"").source_range
+    );
+    assert!(decision.active_path_effects[0].nested_index_path.is_empty());
+    assert_eq!(
+        decision.active_path_effects[0].syntax,
+        "path = \"direct.rs\""
+    );
+    assert_eq!(decision.active_path_effects[1].outer_source_ordinal, 9);
+    assert_eq!(
+        decision.active_path_effects[1].nested_index_path.as_ref(),
+        [0_u32, 0]
+    );
+    assert_eq!(
+        decision.active_path_effects[1].syntax,
+        "path = \"nested.rs\""
+    );
 }
 
 #[test]

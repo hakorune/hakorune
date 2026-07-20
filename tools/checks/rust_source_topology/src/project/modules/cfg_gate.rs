@@ -1,36 +1,42 @@
+//! Module-layer consumers of the ordered CFG stream.
+//!
+//! Predicate evaluation belongs exclusively to CFGSTREAM0. This adapter only
+//! projects its final state into topology, validates active non-predicate
+//! attribute shapes, and parses already-selected literal path effects.
+
 use quote::ToTokens;
-use syn::parse::Parser;
-use syn::punctuated::Punctuated;
-use syn::{Attribute, Meta, Token};
+use syn::Meta;
 
 use crate::project::{
-    decide_cfg_rows_v1, CfgDecisionStateV1, CfgDecisionV1, CfgEvaluationEnvironmentV1,
+    decide_cfg_attribute_stream_v1, CfgAttributeNestedDecisionV1, CfgAttributeNestedDispositionV1,
+    CfgAttributeStreamDecisionV1, CfgAttributeStreamInputRowV1, CfgDecisionStateV1,
+    CfgEvaluationEnvironmentV1,
 };
 
-use super::declarations::direct_path_literal;
 use super::error::ModuleTopologyErrorV1;
 
-pub(super) fn decide_module_cfg_v1(
-    rows: &[String],
+pub(super) fn decide_module_cfg_stream_v1(
+    rows: &[CfgAttributeStreamInputRowV1],
     environment: &CfgEvaluationEnvironmentV1,
-) -> Result<CfgDecisionV1, ModuleTopologyErrorV1> {
-    decide_cfg_rows_v1(rows, environment).map_err(Into::into)
+) -> Result<CfgAttributeStreamDecisionV1, ModuleTopologyErrorV1> {
+    decide_cfg_attribute_stream_v1(rows, environment).map_err(Into::into)
 }
 
 pub(super) fn select_active_path_v1(
     module: &str,
-    attributes: &[Attribute],
-    environment: &CfgEvaluationEnvironmentV1,
+    decision: &CfgAttributeStreamDecisionV1,
 ) -> Result<Option<String>, ModuleTopologyErrorV1> {
+    if decision.final_state != CfgDecisionStateV1::Included {
+        return Ok(None);
+    }
     let mut active = Vec::new();
-    for attribute in attributes {
-        if let Some(path) = direct_path_literal(module, attribute)? {
-            active.push(path);
-            continue;
-        }
-        if attribute.path().is_ident("cfg_attr") {
-            collect_cfg_attr_paths(module, &attribute.meta, environment, &mut active)?;
-        }
+    for effect in decision.active_path_effects.iter() {
+        let meta = syn::parse_str::<Meta>(&effect.syntax).map_err(|_| {
+            ModuleTopologyErrorV1::NonLiteralPath {
+                module: module.to_string(),
+            }
+        })?;
+        active.push(literal_path(module, &meta)?);
     }
     match active.len() {
         0 => Ok(None),
@@ -41,132 +47,99 @@ pub(super) fn select_active_path_v1(
     }
 }
 
-pub(super) fn validate_active_cfg_attributes_v1(
+pub(super) fn validate_selected_cfg_attributes_v1(
     module: &str,
-    attributes: &[Attribute],
-    environment: &CfgEvaluationEnvironmentV1,
+    decision: &CfgAttributeStreamDecisionV1,
 ) -> Result<(), ModuleTopologyErrorV1> {
-    for attribute in attributes {
-        if attribute.path().is_ident("cfg_attr") {
-            validate_cfg_attr_contents(module, &attribute.meta, environment)?;
-        }
+    if decision.final_state != CfgDecisionStateV1::Included {
+        return Ok(());
+    }
+    for row in decision.rows.iter() {
+        let Some(condition) = row.cfg_attr_condition.as_ref() else {
+            continue;
+        };
+        validate_nested_attributes(module, &row.nested, condition.state)?;
     }
     Ok(())
 }
 
-fn collect_cfg_attr_paths(
+fn validate_nested_attributes(
     module: &str,
-    meta: &Meta,
-    environment: &CfgEvaluationEnvironmentV1,
-    active: &mut Vec<String>,
+    nested: &[CfgAttributeNestedDecisionV1],
+    inherited_condition: CfgDecisionStateV1,
 ) -> Result<(), ModuleTopologyErrorV1> {
-    let Meta::List(list) = meta else {
-        return Ok(());
-    };
-    let nested = Punctuated::<Meta, Token![,]>::parse_terminated
-        .parse2(list.tokens.clone())
-        .map_err(|_| ModuleTopologyErrorV1::NonLiteralPath {
-            module: module.to_string(),
-        })?;
-    let mut rows = nested.iter();
-    let Some(condition) = rows.next() else {
-        return Ok(());
-    };
-    let condition_syntax = format!("cfg({})", condition.to_token_stream());
-    let decision = decide_cfg_rows_v1(&[condition_syntax], environment)?;
-    match decision.state {
-        CfgDecisionStateV1::Excluded => return Ok(()),
-        CfgDecisionStateV1::Unknown if rows.clone().any(meta_contains_path) => {
-            return Err(ModuleTopologyErrorV1::UnknownCfg {
+    for row in nested {
+        match row.disposition {
+            CfgAttributeNestedDispositionV1::NotEvaluatedInactiveCfgAttr
+            | CfgAttributeNestedDispositionV1::NotReachedAfterExclusion => continue,
+            CfgAttributeNestedDispositionV1::Evaluated
+            | CfgAttributeNestedDispositionV1::TopologyNeutral => {}
+        }
+        let meta = syn::parse_str::<Meta>(&row.syntax).map_err(|_| {
+            ModuleTopologyErrorV1::UnsupportedModuleAttribute {
                 module: module.to_string(),
-            })
-        }
-        CfgDecisionStateV1::Unknown | CfgDecisionStateV1::Included => {}
-    }
-    if decision.state != CfgDecisionStateV1::Included {
-        return Ok(());
-    }
-    for nested_meta in rows {
-        if nested_meta.path().is_ident("path") {
-            let attribute: Attribute = syn::parse_quote!(#[#nested_meta]);
-            if let Some(path) = direct_path_literal(module, &attribute)? {
-                active.push(path);
+                attribute: row.syntax.clone(),
             }
-        } else if nested_meta.path().is_ident("cfg_attr") {
-            collect_cfg_attr_paths(module, nested_meta, environment, active)?;
-        }
-    }
-    Ok(())
-}
-
-fn validate_cfg_attr_contents(
-    module: &str,
-    meta: &Meta,
-    environment: &CfgEvaluationEnvironmentV1,
-) -> Result<(), ModuleTopologyErrorV1> {
-    let Meta::List(list) = meta else {
-        return Ok(());
-    };
-    let nested = Punctuated::<Meta, Token![,]>::parse_terminated
-        .parse2(list.tokens.clone())
-        .map_err(|_| ModuleTopologyErrorV1::UnsupportedModuleAttribute {
-            module: module.to_string(),
-            attribute: list.to_token_stream().to_string(),
         })?;
-    let mut rows = nested.iter();
-    let Some(condition) = rows.next() else {
-        return Ok(());
-    };
-    let decision = decide_cfg_rows_v1(
-        &[format!("cfg({})", condition.to_token_stream())],
-        environment,
-    )?;
-    for nested_meta in rows {
-        let recognized = [
-            "cfg",
-            "cfg_attr",
-            "path",
-            "doc",
-            "deprecated",
-            "allow",
-            "warn",
-            "deny",
-            "forbid",
-            "expect",
-            "no_implicit_prelude",
-            "macro_use",
-        ]
-        .iter()
-        .any(|name| nested_meta.path().is_ident(name));
-        if !recognized {
-            return Err(match decision.state {
+        if !is_supported_attribute(&meta) {
+            return Err(match inherited_condition {
                 CfgDecisionStateV1::Unknown => ModuleTopologyErrorV1::UnknownCfg {
                     module: module.to_string(),
                 },
-                CfgDecisionStateV1::Included => ModuleTopologyErrorV1::UnsupportedModuleAttribute {
-                    module: module.to_string(),
-                    attribute: nested_meta.path().to_token_stream().to_string(),
-                },
-                CfgDecisionStateV1::Excluded => continue,
+                CfgDecisionStateV1::Included | CfgDecisionStateV1::Excluded => {
+                    ModuleTopologyErrorV1::UnsupportedModuleAttribute {
+                        module: module.to_string(),
+                        attribute: meta.path().to_token_stream().to_string(),
+                    }
+                }
             });
         }
-        if decision.state == CfgDecisionStateV1::Included && nested_meta.path().is_ident("cfg_attr")
-        {
-            validate_cfg_attr_contents(module, nested_meta, environment)?;
+        if let Some(condition) = row.cfg_attr_condition.as_ref() {
+            validate_nested_attributes(module, &row.nested, condition.state)?;
         }
     }
     Ok(())
 }
 
-fn meta_contains_path(meta: &Meta) -> bool {
-    if meta.path().is_ident("path") {
-        return true;
+fn literal_path(module: &str, meta: &Meta) -> Result<String, ModuleTopologyErrorV1> {
+    if !meta.path().is_ident("path") {
+        return Err(ModuleTopologyErrorV1::NonLiteralPath {
+            module: module.to_string(),
+        });
     }
-    let Meta::List(list) = meta else {
-        return false;
+    let Meta::NameValue(name_value) = meta else {
+        return Err(ModuleTopologyErrorV1::NonLiteralPath {
+            module: module.to_string(),
+        });
     };
-    Punctuated::<Meta, Token![,]>::parse_terminated
-        .parse2(list.tokens.clone())
-        .map(|rows| rows.iter().any(meta_contains_path))
-        .unwrap_or(true)
+    let syn::Expr::Lit(expression) = &name_value.value else {
+        return Err(ModuleTopologyErrorV1::NonLiteralPath {
+            module: module.to_string(),
+        });
+    };
+    let syn::Lit::Str(value) = &expression.lit else {
+        return Err(ModuleTopologyErrorV1::NonLiteralPath {
+            module: module.to_string(),
+        });
+    };
+    Ok(value.value())
+}
+
+fn is_supported_attribute(meta: &Meta) -> bool {
+    [
+        "cfg",
+        "cfg_attr",
+        "path",
+        "doc",
+        "deprecated",
+        "allow",
+        "warn",
+        "deny",
+        "forbid",
+        "expect",
+        "no_implicit_prelude",
+        "macro_use",
+    ]
+    .iter()
+    .any(|name| meta.path().is_ident(name))
 }

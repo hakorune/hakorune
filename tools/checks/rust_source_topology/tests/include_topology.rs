@@ -129,13 +129,24 @@ fn include_cfg_is_decided_before_path_or_token_interpretation() {
     let excluded = workspace.collect().unwrap();
     assert_eq!(excluded.include_edges.len(), 1);
     assert_eq!(
-        excluded.include_edges[0].cfg_decision.state,
+        excluded.include_edges[0].cfg_decision.final_state,
         CfgDecisionStateV1::Excluded
     );
     assert!(excluded.include_edges[0].literal_path.is_none());
     assert!(excluded.include_edges[0]
         .child_source_observation_id
         .is_none());
+
+    workspace.write(
+        "src/root.rs",
+        "#[cfg(any())] #[cfg_attr(all(), path = concat!(\"bad\", \".rs\"))] include!(concat!(\"missing\", \".rs\"));\n",
+    );
+    let excluded_nested = workspace.collect().unwrap();
+    assert_eq!(excluded_nested.include_edges.len(), 1);
+    assert_eq!(
+        excluded_nested.include_edges[0].cfg_decision.final_state,
+        CfgDecisionStateV1::Excluded
+    );
 
     workspace.write(
         "src/root.rs",

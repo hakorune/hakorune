@@ -6,8 +6,9 @@ use syn::ext::IdentExt;
 use syn::parse::Parser;
 use syn::spanned::Spanned;
 use syn::visit::{self, Visit};
-use syn::{AttrStyle, Attribute, Item, ItemMod, LitStr, Meta, Token, UseTree};
+use syn::{AttrStyle, Attribute, Item, ItemMod, LitStr, Token, UseTree};
 
+use crate::project::CfgAttributeStreamInputRowV1;
 use crate::{PositionV1, SourceRangeV1};
 
 use super::error::ModuleTopologyErrorV1;
@@ -18,6 +19,7 @@ pub(super) struct ModuleDeclarationV1 {
     pub semantic_segment: String,
     pub range: SourceRangeV1,
     pub outer_attributes: Box<[Attribute]>,
+    pub outer_topology_rows: Box<[CfgAttributeStreamInputRowV1]>,
     pub inline_body_range: Option<SourceRangeV1>,
     pub inline_items: Option<Box<[ModulePositionItemV1]>>,
     pub include_macro_ambiguity: bool,
@@ -27,6 +29,7 @@ pub(super) struct ModuleDeclarationV1 {
 pub(super) struct IncludeDeclarationV1 {
     pub range: SourceRangeV1,
     pub outer_attributes: Box<[Attribute]>,
+    pub outer_topology_rows: Box<[CfgAttributeStreamInputRowV1]>,
     pub tokens: proc_macro2::TokenStream,
     pub include_macro_ambiguity: bool,
 }
@@ -111,17 +114,6 @@ fn parse_source_v1(
     })
 }
 
-pub(super) fn outer_cfg_syntax(attributes: &[Attribute]) -> Vec<String> {
-    attributes
-        .iter()
-        .filter(|attribute| {
-            matches!(attribute.style, AttrStyle::Outer)
-                && (attribute.path().is_ident("cfg") || attribute.path().is_ident("cfg_attr"))
-        })
-        .map(|attribute| attribute.meta.to_token_stream().to_string())
-        .collect()
-}
-
 pub(super) fn validate_module_attributes(
     module: &str,
     attributes: &[Attribute],
@@ -189,31 +181,6 @@ pub(super) fn validate_include_attributes(
     Ok(())
 }
 
-pub(super) fn direct_path_literal(
-    module: &str,
-    attribute: &Attribute,
-) -> Result<Option<String>, ModuleTopologyErrorV1> {
-    if !attribute.path().is_ident("path") {
-        return Ok(None);
-    }
-    let Meta::NameValue(name_value) = &attribute.meta else {
-        return Err(ModuleTopologyErrorV1::NonLiteralPath {
-            module: module.to_string(),
-        });
-    };
-    let syn::Expr::Lit(expression) = &name_value.value else {
-        return Err(ModuleTopologyErrorV1::NonLiteralPath {
-            module: module.to_string(),
-        });
-    };
-    let syn::Lit::Str(value) = &expression.lit else {
-        return Err(ModuleTopologyErrorV1::NonLiteralPath {
-            module: module.to_string(),
-        });
-    };
-    Ok(Some(value.value()))
-}
-
 pub(super) fn include_literal(
     source_path: &str,
     declaration: &IncludeDeclarationV1,
@@ -255,6 +222,12 @@ fn collect_module_position_items(
                         .cloned()
                         .collect::<Vec<_>>()
                         .into_boxed_slice(),
+                    outer_topology_rows: collect_outer_topology_rows(
+                        source_path,
+                        &item_macro.attrs,
+                        line_starts,
+                        source,
+                    )?,
                     tokens: item_macro.mac.tokens.clone(),
                     include_macro_ambiguity: scope_ambiguity,
                 }));
@@ -299,12 +272,54 @@ fn collect_module_position_items(
                 .cloned()
                 .collect::<Vec<_>>()
                 .into_boxed_slice(),
+            outer_topology_rows: collect_outer_topology_rows(
+                source_path,
+                &item_mod.attrs,
+                line_starts,
+                source,
+            )?,
             inline_body_range,
             inline_items,
             include_macro_ambiguity: scope_ambiguity,
         }));
     }
     Ok(result)
+}
+
+fn collect_outer_topology_rows(
+    source_path: &str,
+    attributes: &[Attribute],
+    line_starts: &[usize],
+    source: &str,
+) -> Result<Box<[CfgAttributeStreamInputRowV1]>, ModuleTopologyErrorV1> {
+    let mut rows = Vec::new();
+    for attribute in attributes.iter().filter(|attribute| {
+        matches!(attribute.style, AttrStyle::Outer)
+            && (attribute.path().is_ident("cfg")
+                || attribute.path().is_ident("cfg_attr")
+                || attribute.path().is_ident("path"))
+    }) {
+        let source_ordinal = u32::try_from(rows.len()).map_err(|_| {
+            ModuleTopologyErrorV1::AttributeOrdinalOverflow {
+                path: source_path.to_string(),
+            }
+        })?;
+        let source_range = source_range(attribute.meta.span(), line_starts, source);
+        let syntax = source
+            .get(source_range.byte_start..source_range.byte_end)
+            .ok_or_else(|| ModuleTopologyErrorV1::AttributeRangeInvalid {
+                path: source_path.to_string(),
+                byte_start: source_range.byte_start,
+                byte_end: source_range.byte_end,
+            })?
+            .to_string();
+        rows.push(CfgAttributeStreamInputRowV1 {
+            source_ordinal,
+            source_range,
+            syntax,
+        });
+    }
+    Ok(rows.into_boxed_slice())
 }
 
 fn macro_path_ends_with_include(path: &syn::Path) -> bool {

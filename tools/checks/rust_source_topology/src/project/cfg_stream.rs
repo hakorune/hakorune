@@ -1,9 +1,8 @@
 //! Source-order CFG / cfg_attr stream decisions.
 //!
-//! This module is deliberately disconnected through CFGSTREAM0-S0. The legacy
-//! `decide_cfg_rows_v1` facade remains the production consumer until I0; this
-//! owner exists to make its eager-after-exclusion behavior observable and
-//! replaceable without changing module traversal yet.
+//! CFGSTREAM0-I0 makes this the sole ordered decision owner for module and
+//! include declarations. Consumers receive completed stream evidence; they do
+//! not re-evaluate predicates or reconstruct cfg_attr path effects.
 
 use std::fmt;
 
@@ -16,9 +15,10 @@ use syn::{Meta, Token};
 use super::cfg_eval::{decide_cfg_predicate_syntax_v1, validate_cfg_environment_v1};
 use super::error::CfgDecisionErrorV1;
 use super::model::{
-    CfgAttributeConditionDecisionV1, CfgAttributeNestedDecisionV1, CfgAttributeNestedDispositionV1,
-    CfgAttributeStreamDecisionV1, CfgAttributeStreamInputRowV1, CfgAttributeStreamRowDecisionV1,
-    CfgAttributeStreamRowDispositionV1, CfgDecisionStateV1, CfgEvaluationEnvironmentV1,
+    CfgAttributeActivePathEffectV1, CfgAttributeConditionDecisionV1, CfgAttributeNestedDecisionV1,
+    CfgAttributeNestedDispositionV1, CfgAttributeStreamDecisionV1, CfgAttributeStreamInputRowV1,
+    CfgAttributeStreamRowDecisionV1, CfgAttributeStreamRowDispositionV1, CfgDecisionStateV1,
+    CfgEvaluationEnvironmentV1,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -103,20 +103,33 @@ pub fn decide_cfg_attribute_stream_v1(
     validate_stream_rows(rows)?;
 
     let mut decisions = Vec::with_capacity(rows.len());
+    let mut active_path_effects = Vec::new();
     for (index, input) in rows.iter().enumerate() {
         let evaluated = evaluate_outer_row(input, environment, &target)?;
-        let state = evaluated.state.expect("evaluated row must carry a state");
-        decisions.push(evaluated);
+        let state = evaluated
+            .decision
+            .state
+            .expect("evaluated row must carry a state");
+        active_path_effects.extend(evaluated.active_path_syntaxes.into_vec().into_iter().map(
+            |effect| CfgAttributeActivePathEffectV1 {
+                outer_source_ordinal: input.source_ordinal,
+                outer_source_range: input.source_range,
+                nested_index_path: effect.nested_index_path,
+                syntax: effect.syntax,
+            },
+        ));
+        decisions.push(evaluated.decision);
 
         match state {
             CfgDecisionStateV1::Included => {}
             CfgDecisionStateV1::Unknown => {
-                return Ok(CfgAttributeStreamDecisionV1 {
-                    profile_id: environment.profile_id.clone(),
-                    final_state: CfgDecisionStateV1::Unknown,
-                    decisive_row_ordinal: Some(input.source_ordinal),
-                    rows: decisions.into_boxed_slice(),
-                });
+                return Ok(finish_decision(
+                    environment,
+                    CfgDecisionStateV1::Unknown,
+                    Some(input.source_ordinal),
+                    decisions,
+                    active_path_effects,
+                ));
             }
             CfgDecisionStateV1::Excluded => {
                 for later in &rows[index + 1..] {
@@ -129,22 +142,44 @@ pub fn decide_cfg_attribute_stream_v1(
                         nested: Box::new([]),
                     });
                 }
-                return Ok(CfgAttributeStreamDecisionV1 {
-                    profile_id: environment.profile_id.clone(),
-                    final_state: CfgDecisionStateV1::Excluded,
-                    decisive_row_ordinal: Some(input.source_ordinal),
-                    rows: decisions.into_boxed_slice(),
-                });
+                return Ok(finish_decision(
+                    environment,
+                    CfgDecisionStateV1::Excluded,
+                    Some(input.source_ordinal),
+                    decisions,
+                    active_path_effects,
+                ));
             }
         }
     }
 
-    Ok(CfgAttributeStreamDecisionV1 {
+    Ok(finish_decision(
+        environment,
+        CfgDecisionStateV1::Included,
+        None,
+        decisions,
+        active_path_effects,
+    ))
+}
+
+fn finish_decision(
+    environment: &CfgEvaluationEnvironmentV1,
+    final_state: CfgDecisionStateV1,
+    decisive_row_ordinal: Option<u32>,
+    rows: Vec<CfgAttributeStreamRowDecisionV1>,
+    active_path_effects: Vec<CfgAttributeActivePathEffectV1>,
+) -> CfgAttributeStreamDecisionV1 {
+    CfgAttributeStreamDecisionV1 {
         profile_id: environment.profile_id.clone(),
-        final_state: CfgDecisionStateV1::Included,
-        decisive_row_ordinal: None,
-        rows: decisions.into_boxed_slice(),
-    })
+        final_state,
+        decisive_row_ordinal,
+        rows: rows.into_boxed_slice(),
+        active_path_effects: if final_state == CfgDecisionStateV1::Included {
+            active_path_effects.into_boxed_slice()
+        } else {
+            Box::new([])
+        },
+    }
 }
 
 fn validate_stream_rows(
@@ -186,18 +221,49 @@ fn evaluate_outer_row(
     input: &CfgAttributeStreamInputRowV1,
     environment: &CfgEvaluationEnvironmentV1,
     target: &cfg_expr::targets::TargetInfo,
-) -> Result<CfgAttributeStreamRowDecisionV1, CfgAttributeStreamErrorV1> {
+) -> Result<EvaluatedOuterRowV1, CfgAttributeStreamErrorV1> {
     let meta = parse_meta(input, &input.syntax)?;
     let evaluated = evaluate_meta(&meta, &input.syntax, environment, target)
         .map_err(|source| row_error(input, source))?;
-    Ok(CfgAttributeStreamRowDecisionV1 {
-        input: input.clone(),
-        disposition: evaluated.disposition,
-        state: Some(evaluated.state),
-        unknown_predicates: evaluated.unknown_predicates,
-        cfg_attr_condition: evaluated.cfg_attr_condition,
-        nested: evaluated.nested,
+    Ok(EvaluatedOuterRowV1 {
+        decision: CfgAttributeStreamRowDecisionV1 {
+            input: input.clone(),
+            disposition: evaluated.disposition,
+            state: Some(evaluated.state),
+            unknown_predicates: evaluated.unknown_predicates,
+            cfg_attr_condition: evaluated.cfg_attr_condition,
+            nested: evaluated.nested,
+        },
+        active_path_syntaxes: evaluated.active_path_syntaxes,
     })
+}
+
+struct EvaluatedOuterRowV1 {
+    decision: CfgAttributeStreamRowDecisionV1,
+    active_path_syntaxes: Box<[ActivePathSyntaxV1]>,
+}
+
+struct ActivePathSyntaxV1 {
+    syntax: String,
+    nested_index_path: Box<[u32]>,
+}
+
+impl ActivePathSyntaxV1 {
+    fn direct(syntax: &str) -> Self {
+        Self {
+            syntax: syntax.to_string(),
+            nested_index_path: Box::new([]),
+        }
+    }
+
+    fn nested_below(mut self, index: usize) -> Self {
+        let index = u32::try_from(index).expect("nested cfg_attr index exceeds u32");
+        let mut nested_index_path = Vec::with_capacity(self.nested_index_path.len() + 1);
+        nested_index_path.push(index);
+        nested_index_path.extend(self.nested_index_path);
+        self.nested_index_path = nested_index_path.into_boxed_slice();
+        self
+    }
 }
 
 struct EvaluatedAttributeV1 {
@@ -206,14 +272,14 @@ struct EvaluatedAttributeV1 {
     unknown_predicates: Box<[String]>,
     cfg_attr_condition: Option<CfgAttributeConditionDecisionV1>,
     nested: Box<[CfgAttributeNestedDecisionV1]>,
-    active_path_syntaxes: Box<[String]>,
+    active_path_syntaxes: Box<[ActivePathSyntaxV1]>,
 }
 
 struct EvaluatedNestedStreamV1 {
     state: CfgDecisionStateV1,
     unknown_predicates: Box<[String]>,
     nested: Box<[CfgAttributeNestedDecisionV1]>,
-    active_path_syntaxes: Box<[String]>,
+    active_path_syntaxes: Box<[ActivePathSyntaxV1]>,
 }
 
 fn evaluate_meta(
@@ -251,7 +317,7 @@ fn evaluate_meta(
         cfg_attr_condition: None,
         nested: Box::new([]),
         active_path_syntaxes: if meta.path().is_ident("path") {
-            vec![syntax.to_string()].into_boxed_slice()
+            vec![ActivePathSyntaxV1::direct(syntax)].into_boxed_slice()
         } else {
             Box::new([])
         },
@@ -289,6 +355,7 @@ fn evaluate_cfg_attr(
                 disposition: CfgAttributeNestedDispositionV1::NotEvaluatedInactiveCfgAttr,
                 state: None,
                 unknown_predicates: Box::new([]),
+                cfg_attr_condition: None,
                 nested: Box::new([]),
             }]
             .into_boxed_slice()
@@ -317,7 +384,7 @@ fn evaluate_cfg_attr(
             nested
                 .active_path_syntaxes
                 .iter()
-                .map(|syntax| format!("cfg_attr:path:{syntax}")),
+                .map(|effect| format!("cfg_attr:path:{}", effect.syntax)),
         );
     }
     unknown.sort();
@@ -377,18 +444,25 @@ fn evaluate_active_nested_stream(
     let mut unknown = Vec::new();
     let mut nested = Vec::new();
     let mut active_path_syntaxes = Vec::new();
-    let mut metas = nested_metas.into_iter();
-    while let Some(meta) = metas.next() {
+    let mut metas = nested_metas.into_iter().enumerate();
+    while let Some((index, meta)) = metas.next() {
         let syntax = meta.to_token_stream().to_string();
         let child = evaluate_meta(&meta, &syntax, environment, target)?;
         let child_state = child.state;
         unknown.extend(child.unknown_predicates.iter().cloned());
-        active_path_syntaxes.extend(child.active_path_syntaxes.iter().cloned());
+        active_path_syntaxes.extend(
+            child
+                .active_path_syntaxes
+                .into_vec()
+                .into_iter()
+                .map(|effect| effect.nested_below(index)),
+        );
         nested.push(CfgAttributeNestedDecisionV1 {
             syntax,
             disposition: nested_disposition(child.disposition),
             state: Some(child_state),
             unknown_predicates: child.unknown_predicates,
+            cfg_attr_condition: child.cfg_attr_condition,
             nested: child.nested,
         });
         match child_state {
@@ -402,12 +476,13 @@ fn evaluate_active_nested_stream(
                 });
             }
             CfgDecisionStateV1::Excluded => {
-                for later in metas {
+                for (_, later) in metas {
                     nested.push(CfgAttributeNestedDecisionV1 {
                         syntax: later.to_token_stream().to_string(),
                         disposition: CfgAttributeNestedDispositionV1::NotReachedAfterExclusion,
                         state: None,
                         unknown_predicates: Box::new([]),
+                        cfg_attr_condition: None,
                         nested: Box::new([]),
                     });
                 }

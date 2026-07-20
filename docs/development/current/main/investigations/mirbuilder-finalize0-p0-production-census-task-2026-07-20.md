@@ -1,5 +1,5 @@
 ---
-Status: CFGSTREAM0-P0 closed; CFGSTREAM0-I0 is next
+Status: CFGSTREAM0-I0 closed; CFGSTREAM0-G0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -929,6 +929,36 @@ instance, content gate, path selection, or compiler fact. `CFGSTREAM0-I0` is
 now the sole next row and may make the existing eager module/include cfg users
 thin consumers of the selected stream owner.
 
+##### `CFGSTREAM0-I0` decision lock
+
+I0 has one bounded source-order cutover. The stream decision gains one ordered
+`CfgAttributeActivePathEffectV1` projection, produced during the same outer or
+nested `cfg_attr` evaluation. A direct path effect keeps its exact outer row;
+a nested effect keeps the exact enclosing outer row plus its nested index path
+and selected path syntax. Effects are present only when the complete stream is
+Included. They do not perform literal parsing, module lookup, or filesystem
+selection.
+
+`ModuleDeclarationV1` and `IncludeDeclarationV1` retain one exact outer
+topology input stream (`cfg`, `cfg_attr`, and direct `path`) while source spans
+and source slices are available. The module layer calls the ordered stream
+decision once per declaration. It consumes only its final state, same-owner
+path effects, and nested decision dispositions: literal-path parsing and
+path-resolution stay in the module layer; active nested shape validation reads
+the decision evidence but does not evaluate predicates. Inactive and
+not-reached nested rows are never parsed again.
+
+`DeclaredModuleEdgeV1` and `DeclaredIncludeEdgeV1` publish the exact stream
+decision rather than the lossy eager `CfgDecisionV1`; the declared module
+topology observation schema therefore advances to V2. This is a check-only
+observation-schema change, not a compiler behavior change. `decide_cfg_rows_v1`,
+`outer_cfg_syntax`, `collect_cfg_attr_paths`, and
+`validate_cfg_attr_contents` retire in this row. The direct profile fixtures
+migrate to stream inputs. I0 must preserve Unknown-before-path failure,
+inactive nested path no-op, active nested literal path selection, duplicate
+active-path rejection, and active unsupported attribute rejection without a
+second predicate evaluator.
+
 ##### `CONTENTCFG0` — module-content candidate authority
 
 The gate is not owned by a non-root child `ModuleInstance`. Rust removes an
@@ -1806,3 +1836,26 @@ compiler/runtime/backend behavior changes
 > module-local-import versus inherited-textual-macro drift. Block-local module
 > identity, general semantic/macro resolution, FINALIZE0 policy, repair
 > quarantine, and CUT0 remain forbidden.
+
+##### `CFGSTREAM0-I0` closeout
+
+Module and include declarations now retain one exact outer topology stream
+while source ranges and slices are available. Their traversal calls
+`decide_cfg_attribute_stream_v1` exactly once, then consumes only the final
+state, same-owner path effects, and nested dispositions. The module layer
+does literal parsing and filesystem selection; it no longer evaluates a cfg
+predicate or rebuilds a cfg_attr path list.
+
+`CfgAttributeActivePathEffectV1` keeps the enclosing outer row and, for a
+nested `cfg_attr`, the exact nested index path. Effects exist only for a fully
+Included stream. `DeclaredModuleEdgeV1` and `DeclaredIncludeEdgeV1` now carry
+the full stream result, so the declared-topology observation schema is V2.
+The lossy eager row product, `outer_cfg_syntax`, `collect_cfg_attr_paths`, and
+`validate_cfg_attr_contents` are retired.
+
+Focused fixtures prove inactive and outer-excluded nonliteral paths are never
+parsed, active nested literal paths select once, unknown remains terminal, and
+active unsupported attributes still fail. The standalone topology suite,
+MODULE0/INCLUDE0 guards, current-state pointer guard, and root `cargo check`
+are green. `CFGSTREAM0-G0` is next: it must freeze the one stream owner and
+the absence of eager/reconstructing consumers before CONTENTCFG0 begins.

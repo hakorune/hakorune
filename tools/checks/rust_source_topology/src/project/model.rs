@@ -140,20 +140,6 @@ pub enum CfgDecisionStateV1 {
     Unknown,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
-pub struct CfgRowDecisionV1 {
-    pub syntax: String,
-    pub state: CfgDecisionStateV1,
-    pub unknown_predicates: Box<[String]>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
-pub struct CfgDecisionV1 {
-    pub profile_id: String,
-    pub state: CfgDecisionStateV1,
-    pub rows: Box<[CfgRowDecisionV1]>,
-}
-
 /// One exact source-order attribute input to the bounded CFG stream.
 ///
 /// This is intentionally richer than the legacy `Vec<String>` cfg facade:
@@ -212,7 +198,22 @@ pub struct CfgAttributeNestedDecisionV1 {
     pub disposition: CfgAttributeNestedDispositionV1,
     pub state: Option<CfgDecisionStateV1>,
     pub unknown_predicates: Box<[String]>,
+    pub cfg_attr_condition: Option<CfgAttributeConditionDecisionV1>,
     pub nested: Box<[CfgAttributeNestedDecisionV1]>,
+}
+
+/// One active literal-path candidate emitted by the ordered CFG stream.
+///
+/// Direct `path` attributes use an empty `nested_index_path`. A path expanded
+/// by `cfg_attr` is branded by its exact outer source row and the ordered nested
+/// path within that row. Literal parsing and filesystem selection remain a
+/// module-layer responsibility.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct CfgAttributeActivePathEffectV1 {
+    pub outer_source_ordinal: u32,
+    pub outer_source_range: SourceRangeV1,
+    pub nested_index_path: Box<[u32]>,
+    pub syntax: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -237,4 +238,5 @@ pub struct CfgAttributeStreamDecisionV1 {
     pub final_state: CfgDecisionStateV1,
     pub decisive_row_ordinal: Option<u32>,
     pub rows: Box<[CfgAttributeStreamRowDecisionV1]>,
+    pub active_path_effects: Box<[CfgAttributeActivePathEffectV1]>,
 }

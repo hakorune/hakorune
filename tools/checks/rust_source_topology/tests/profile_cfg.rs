@@ -1,7 +1,9 @@
 use rust_source_topology_check::project::{
-    decide_cfg_rows_v1, parse_and_verify_profile_schema_v1, CfgDecisionStateV1,
-    CfgEvaluationEnvironmentV1, ProfileValidationErrorV1, ValidatedBuildProfileInputV1,
+    decide_cfg_attribute_stream_v1, parse_and_verify_profile_schema_v1,
+    CfgAttributeStreamInputRowV1, CfgDecisionStateV1, CfgEvaluationEnvironmentV1,
+    ProfileValidationErrorV1, ValidatedBuildProfileInputV1,
 };
+use rust_source_topology_check::{PositionV1, SourceRangeV1};
 
 const PROFILES: &str = include_str!("fixtures/profiles_v1.json");
 
@@ -102,15 +104,11 @@ fn cfg_attr_and_unknown_topology_effects_follow_three_valued_law() {
         CfgDecisionStateV1::Unknown,
     );
     let environment = CfgEvaluationEnvironmentV1::from_profile_input(normal);
-    let decision = decide_cfg_rows_v1(
-        &[
-            "cfg(feature = \"plugins\")".to_string(),
-            "cfg(custom_build)".to_string(),
-        ],
+    let decision = decide_rows(
+        &["cfg(feature = \"plugins\")", "cfg(custom_build)"],
         &environment,
-    )
-    .unwrap();
-    assert_eq!(decision.state, CfgDecisionStateV1::Unknown);
+    );
+    assert_eq!(decision.final_state, CfgDecisionStateV1::Unknown);
     assert_eq!(
         decision.rows[1].unknown_predicates.as_ref(),
         ["flag=custom_build"]
@@ -184,12 +182,33 @@ fn assert_state(
     expected: CfgDecisionStateV1,
 ) {
     let environment = CfgEvaluationEnvironmentV1::from_profile_input(profile);
-    let decision = decide_cfg_rows_v1(&[syntax.to_string()], &environment).unwrap();
+    let decision = decide_rows(&[syntax], &environment);
     assert_eq!(
-        decision.state, expected,
+        decision.final_state, expected,
         "profile={} syntax={syntax}",
         profile.profile_id
     );
+}
+
+fn decide_rows(
+    syntaxes: &[&str],
+    environment: &CfgEvaluationEnvironmentV1,
+) -> rust_source_topology_check::project::CfgAttributeStreamDecisionV1 {
+    let rows = syntaxes
+        .iter()
+        .enumerate()
+        .map(|(index, syntax)| CfgAttributeStreamInputRowV1 {
+            source_ordinal: u32::try_from(index).unwrap(),
+            source_range: SourceRangeV1 {
+                start: PositionV1 { line: 1, column: 0 },
+                end: PositionV1 { line: 1, column: syntax.len() },
+                byte_start: index * 100,
+                byte_end: index * 100 + syntax.len(),
+            },
+            syntax: (*syntax).to_string(),
+        })
+        .collect::<Vec<_>>();
+    decide_cfg_attribute_stream_v1(&rows, environment).unwrap()
 }
 
 fn profile<'a>(
