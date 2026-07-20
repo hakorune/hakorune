@@ -1,5 +1,5 @@
 ---
-Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0 are closed; PHI-SPLIT0-M0 is next
+Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0 are closed; PHI-SPLIT0-P0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -2596,8 +2596,60 @@ state. Candidate collection rejects a missing instruction span rather than
 fabricating one. Focused verifier tests and `cargo check -q` pass; existing
 warnings are unchanged.
 
-`FINALIZE0-PHI-SPLIT0-M0` is now the sole next row. It must inventory the
-complete candidate state, positional/site-indexed artifact closure, direct
-caller timing, and deterministic rematerialization order before P0 or any I0
-selection. Module and JoinIR callers remain legacy; no repair conversion,
-deletion, or retirement claim has been made.
+The following M0 inventories the complete candidate state, positional/site-
+indexed artifact closure, direct caller timing, and deterministic
+rematerialization order before P0 or any I0 selection. Module and JoinIR
+callers remain legacy; no repair conversion, deletion, or retirement claim has
+been made.
+
+### M0 closeout — candidate scope, freshness, and deterministic repair census
+
+The legacy helper remains unmodified. Its exact mutation sequence is:
+
+```text
+unused Phi instruction/span deletion
+-> update_cfg plus missing predecessor-row completion
+-> recursive edge rematerialization / fresh ValueId allocation / predecessor insertion
+-> original Phi input-slot rewrite
+```
+
+It is neither candidate-safe nor deterministic today. `MirFunction.blocks` is
+a `HashMap`; its traversal determines work order, fresh ValueId allocation,
+predecessor insertion, and some missing-row input order. Recursive operand
+materialization can insert/allocate a left child before a later right child,
+argument, callee, or target-Phi lookup fails. Duplicate ValueId definitions
+are also currently hidden by map overwrite and require a future preflight
+reject, never a sorted first/last-wins rule.
+
+The minimum physical function candidate is the complete `MirFunction`, not a
+block subset: blocks and aligned spans, terminators, `next_value_id`, CFG
+caches/effects/reachability/sealing/return environment, signature/params, and
+all `FunctionMetadata`. It is still only helper-local rollback. A module
+candidate must additionally own every function, `MirModule` metadata, affected
+transient fact/origin-observation state, all positional or ValueId-indexed
+derived artifacts, and a post-publication freshness verifier. Existing remat
+does not publish type/kind/origin or other transient facts for its fresh dsts;
+P0 must preserve that fact rather than repair it by inference.
+
+The three direct production callers remain exactly:
+
+```text
+module finalizer after function metadata snapshot
+module finalizer after record/typed-object/direct-state refresh
+JoinIR apply after live rewritten-block insertion and before later boundary/context work
+```
+
+The two module sites prove a `MirFunction` clone cannot establish module
+freshness. The JoinIR site proves any later JoinIR integration must own block
+application, repair, and subsequent builder/context obligations in one
+separately selected transaction. The six `for_pred` callers remain excluded as
+producer-time PHI completion, not whole-function repair.
+
+P0 must first prove a pure preflight and stable candidate schedule: sorted
+target block/Phi site/predecessor/input rows before allocation; explicit
+duplicate definitions, invalid edges, cycles, non-rematerializable values, and
+allocator overflow reject before candidate mutation; operand traversal is the
+only retained local order. Candidate execution may only delete in descending
+per-block index order, rebuild cache from terminators, apply sorted rows,
+verify edges, close artifacts, and then commit once. No candidate or I0 route
+is selected by M0. `FINALIZE0-PHI-SPLIT0-P0` is the sole next row.
