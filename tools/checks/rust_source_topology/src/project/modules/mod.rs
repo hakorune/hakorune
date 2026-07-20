@@ -1,4 +1,5 @@
 mod content_gate;
+mod content_draft;
 mod cfg_gate;
 mod declarations;
 mod error;

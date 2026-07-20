@@ -1,5 +1,5 @@
 ---
-Status: CONTENTCFG0-S0 closed; CONTENTCFG0-R0 is next
+Status: CONTENTCFG0-R0 closed; CONTENTCFG0-P0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -1883,3 +1883,13 @@ the completed stream decision, but no traversal builds or consumes it yet.
 Focused tests pin both root/file and edge/inline pairings. The next row,
 `CONTENTCFG0-R0`, may introduce only the private parsed-content draft and must
 not alter accepted active shapes or connect traversal.
+
+##### `CONTENTCFG0-R0` closeout
+
+One private complete-file draft now parses source before deciding the inner
+stream. Its shared inner-surface helper preserves the same source slices used
+by CFGSTREAM0. An Included classification alone exposes one-level direct
+items; an Excluded classification keeps only its gate, so it cannot trigger
+descendant validation in a future I0 consumer. Unknown and active inner `path`
+are typed stops. No production traversal calls this draft yet. `CONTENTCFG0-P0`
+is next and owns the root/external/inline proof matrix.

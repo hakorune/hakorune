@@ -83,6 +83,21 @@ pub fn collect_file_inner_topology_attribute_surface_v1(
             source_path_workspace_relative: source_path_workspace_relative.to_string(),
             detail: error.to_string(),
         })?;
+    Ok(collect_inner_topology_surface_from_parsed_file_v1(
+        source_path_workspace_relative,
+        source,
+        &file,
+    )?)
+}
+
+/// Derives the exact inner-topology surface from one already-parsed complete
+/// file. CONTENTCFG0-R0 reuses this helper so source parsing and source-slice
+/// ownership remain separate from stream evaluation.
+pub(crate) fn collect_inner_topology_surface_from_parsed_file_v1(
+    source_path_workspace_relative: &str,
+    source: &str,
+    file: &syn::File,
+) -> Result<FileInnerTopologyAttributeSurfaceV1, InnerTopologyAttributeSurfaceErrorV1> {
     let line_starts = line_starts(source);
     let mut rows = Vec::new();
     let mut inner_cfg_count = 0;
