@@ -1,5 +1,5 @@
 use crate::backend::VM;
-use crate::mir::{MirCompiler, MirInstruction};
+use crate::mir::{MirCompiler, MirInstruction, MirType};
 use crate::parser::NyashParser;
 
 fn ensure_ring0_initialized() {
@@ -38,20 +38,26 @@ static box Main {
         .values()
         .find(|function| function.signature.name.contains("main"))
         .expect("main function");
-    let has_static_load = main.blocks.values().any(|block| {
-        block.instructions.iter().any(|inst| {
-            matches!(
-                inst,
-                MirInstruction::StaticDataLoad {
-                    source_name,
-                    element,
-                    len,
-                    ..
-                } if source_name == "SIZE_CLASS" && element == "u16" && *len == 4
-            )
+    let static_load_dst = main
+        .blocks
+        .values()
+        .flat_map(|block| block.instructions.iter())
+        .find_map(|instruction| match instruction {
+            MirInstruction::StaticDataLoad {
+                dst,
+                source_name,
+                element,
+                len,
+                ..
+            } if source_name == "SIZE_CLASS" && element == "u16" && *len == 4 => Some(*dst),
+            _ => None,
         })
-    });
-    assert!(has_static_load, "expected StaticDataLoad instruction");
+        .expect("expected StaticDataLoad instruction");
+    assert_eq!(
+        main.metadata.value_types.get(&static_load_dst),
+        Some(&MirType::Integer),
+        "normal function finalization must snapshot the transient StaticDataLoad fact"
+    );
 
     let json = crate::runner::mir_json_emit::emit_mir_json_string_for_harness_bin(&module)
         .expect("emit mir json");

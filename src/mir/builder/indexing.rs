@@ -264,6 +264,8 @@ mod tests {
     use super::super::MirBuilder;
     use super::MirType;
     use crate::ast::{ASTNode, LiteralValue, Span};
+    use crate::mir::function::StaticDataPlan;
+    use crate::mir::{MirInstruction, MirModule};
 
     fn span() -> Span {
         Span::unknown()
@@ -306,6 +308,35 @@ mod tests {
             declared_type_names: Vec::new(),
             span: span(),
         }
+    }
+
+    fn u16_static_plan() -> StaticDataPlan {
+        StaticDataPlan {
+            source_name: "SIZE_CLASS".to_string(),
+            symbol: ".hako.static.SIZE_CLASS".to_string(),
+            element: "u16".to_string(),
+            align: 2,
+            linkage: "private".to_string(),
+            unnamed_addr: true,
+            values: vec![8, 16, 24, 32],
+        }
+    }
+
+    fn install_static_plan(builder: &mut MirBuilder, plan: StaticDataPlan) {
+        let mut module = MirModule::new("static-load-indexing-test".to_string());
+        module.metadata.static_data_plans.push(plan);
+        builder.current_module = Some(module);
+    }
+
+    fn has_static_load(builder: &MirBuilder) -> bool {
+        builder
+            .function_state
+            .current_function
+            .as_ref()
+            .into_iter()
+            .flat_map(|function| function.blocks.values())
+            .flat_map(|block| block.instructions.iter())
+            .any(|instruction| matches!(instruction, MirInstruction::StaticDataLoad { .. }))
     }
 
     #[test]
@@ -355,5 +386,128 @@ mod tests {
             function.metadata.fastmem_index_access_sites[1].access_kind,
             "store"
         );
+    }
+
+    #[test]
+    fn static_u16_load_publishes_transient_integer_before_finalization() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("static_u16_load_before_finalization/0".to_string());
+        install_static_plan(&mut builder, u16_static_plan());
+
+        let dst = builder
+            .build_index_expression(var("SIZE_CLASS"), int_lit(2))
+            .expect("sealed u16 static load");
+
+        assert_eq!(
+            builder.function_state.type_ctx.value_types.get(&dst),
+            Some(&MirType::Integer)
+        );
+        assert_eq!(
+            builder
+                .function_state
+                .current_function
+                .as_ref()
+                .and_then(|function| function.metadata.value_types.get(&dst)),
+            Some(&MirType::Integer),
+            "pre-I0 compatibility baseline: the current legacy metadata write remains observable"
+        );
+        assert!(has_static_load(&builder));
+        assert!(
+            !builder
+                .function_state
+                .type_ctx
+                .value_origin_newbox
+                .contains_key(&dst),
+            "StaticDataLoad must not publish an origin fact"
+        );
+    }
+
+    #[test]
+    fn unsupported_static_element_rejects_before_index_or_load_allocation() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("static_load_unsupported_element/0".to_string());
+        let mut plan = u16_static_plan();
+        plan.element = "u8".to_string();
+        install_static_plan(&mut builder, plan);
+        let next_before = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .expect("test function")
+            .next_value_id;
+
+        let error = builder
+            .build_index_expression(var("SIZE_CLASS"), int_lit(0))
+            .expect_err("unsupported static element must reject");
+
+        assert!(
+            error.contains("[static-const/load-unsupported-element]"),
+            "{error}"
+        );
+        assert_eq!(
+            builder
+                .function_state
+                .current_function
+                .as_ref()
+                .expect("test function")
+                .next_value_id,
+            next_before
+        );
+        assert!(!has_static_load(&builder));
+    }
+
+    #[test]
+    fn failed_static_load_emission_publishes_no_load_type_or_origin() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("static_load_emission_failure/0".to_string());
+        install_static_plan(&mut builder, u16_static_plan());
+        let index = builder.alloc_value_for_test();
+        builder
+            .function_state
+            .variable_ctx
+            .variable_map
+            .insert("index".to_string(), index);
+        let load_dst = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .expect("test function")
+            .next_value_id;
+        builder.function_state.current_block = None;
+
+        let error = builder
+            .build_index_expression(var("SIZE_CLASS"), var("index"))
+            .expect_err("missing block must reject StaticDataLoad emission");
+
+        assert_eq!(error, "No current basic block");
+        let dst = super::ValueId::new(load_dst);
+        assert!(
+            !builder
+                .function_state
+                .type_ctx
+                .value_types
+                .contains_key(&dst),
+            "failed load must not publish a transient type"
+        );
+        assert!(
+            !builder
+                .function_state
+                .current_function
+                .as_ref()
+                .expect("test function")
+                .metadata
+                .value_types
+                .contains_key(&dst),
+            "failed load must not publish metadata"
+        );
+        assert!(
+            !builder
+                .function_state
+                .type_ctx
+                .value_origin_newbox
+                .contains_key(&dst),
+            "failed load must not publish an origin fact"
+        );
+        assert!(!has_static_load(&builder));
     }
 }

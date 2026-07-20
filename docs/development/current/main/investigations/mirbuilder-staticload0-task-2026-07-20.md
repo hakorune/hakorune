@@ -124,6 +124,46 @@ The existing static-table VM/JSON fixture establishes runtime load and bounds
 parity. No early-metadata timing stop condition remains. `STATICLOAD0-P0` is
 the sole next row.
 
+## `STATICLOAD0-P0` — closed (2026-07-20)
+
+The proof is now split by the three relevant time boundaries without adding a
+production consumer:
+
+```text
+successful pre-I0 StaticDataLoad:
+  transient Integer = present
+  legacy early metadata Integer = present
+  origin = absent
+
+normal function finalization:
+  finalized metadata Integer = present
+
+failed StaticDataLoad emission:
+  transient type / metadata / origin / instruction = absent
+```
+
+The direct Builder fixture also fixes that a non-`u16` static plan rejects
+before index lowering or load-destination allocation. The VM/JSON fixture now
+locates the exact `StaticDataLoad` destination and proves that ordinary
+finalization snapshots its transient `Integer` fact into finalized metadata;
+the existing VM value and out-of-bounds failure coverage remain unchanged.
+
+Focused evidence:
+
+```text
+cargo test -q --lib indexing::tests
+cargo test -q --features vm-reference --lib static_const_table_load_lowers_to_mir_json_and_vm_value
+cargo check --all-targets
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+`STATICLOAD0-I0` is the sole next row. It may connect the existing prepared
+u16 decision at exactly one successful `StaticDataLoad` emission site, commit
+only the transient fact after emission, and remove only the legacy early
+metadata write. Its post-change fixture must change the pre-finalization
+metadata expectation from present to absent while retaining finalization,
+failure, JSON, and VM parity.
+
 ## Required proof matrix
 
 M0/P0 must independently show:
