@@ -1642,6 +1642,114 @@ is forbidden pending a dedicated weak-classification design decision.  No
 FieldSet, weak, contract, FastMem, index, type/origin, or access-site behavior
 has changed in this row.
 
+### `WEAKFIELD-CLASSIFY0-D0` — consultation brief (2026-07-20)
+
+Three independent follow-up audits agree that the only safe continuation is a
+shared, read-only weak-route preflight.  This is a design consultation, not an
+implementation authorization: `FIELDSTORE-OBSERVE0-I0` remains forbidden until
+this boundary is explicitly accepted.
+
+#### Recommended candidate: A-prime
+
+The existing weak-field owner must classify the route once and return one
+private, non-Clone preparation product:
+
+```text
+prepare_known_weak_field_write(...)
+  -> Ordinary
+  |  KnownWeak(prepared existing weak emission inputs)
+```
+
+The product is created by the existing weak-field module from only the current
+base-origin and `user_box_field_decls` truth.  `KnownWeak` retains the exact
+declaration-order field index, complete declaration fingerprint, and existing
+weak contract identity, so issuance never re-queries the registry.  The
+preflight itself writes no MIR instruction, access-site metadata, type fact,
+origin fact, contract claim, or persistent map.
+
+The shared field-assignment entry then has two deliberately different timing
+lanes:
+
+```text
+KnownWeak:
+  preserve the existing pre-emission access-site append
+  -> existing FastMem weak rejection or WeakFieldWrite issuance
+
+Ordinary, region = None, no typed-array contract identity:
+  prepare the closed ordinary-store descriptor
+  -> physical FieldSet receipt
+  -> append one access site
+```
+
+Typed-array contract lanes retain their current pre-emission ordering in this
+row.  They are not silently folded into the ordinary receipt profile.
+
+#### Evidence and excluded alternatives
+
+The audits fixed these current facts:
+
+```text
+weak success:
+  WeakFieldWrite = 1, FieldSet = 0, site is recorded before weak issuance
+
+weak FastMem:
+  exact existing weak-FastMem error remains issuance-time behavior
+
+ordinary no-current-block failure:
+  FieldSet = 0, pre-I0 site = 1
+```
+
+The alternatives are rejected for concrete authority reasons:
+
+```text
+provisional append/remove:
+  fastmem_field_access_sites is append-ordered; cancellation adds a second
+  lifecycle, ordering, and intermediate-observer contract
+
+duplicate registry query in fields.rs:
+  produces two weak-route authorities and can drift on schema/error order
+
+move the common append after weak issuance:
+  changes the excluded weak-field timing contract
+```
+
+#### Proposed code-facing order after acceptance
+
+```text
+WEAKFIELD-CLASSIFY0-S0
+  pure private classifier + prepared known-weak product
+  production consumers = 0
+
+-> WEAKFIELD-CLASSIFY0-P0
+  classifier matrix, weak success/failure/FastMem timing parity
+
+-> WEAKFIELD-CLASSIFY0-I0
+  existing weak issuer consumes its prepared product exactly once
+  fields route classifies once; only selected ordinary/no-contract FieldSet
+  moves its access-site append after receipt
+
+-> WEAKFIELD-CLASSIFY0-G0
+  classification owner = 1; registry re-query = 0; provisional cancellation = 0
+
+-> resume FIELDSTORE-OBSERVE0-I0
+```
+
+#### Non-authorities and stop conditions
+
+```text
+not authority:
+  weak_fields_by_box cache, typed-array contract lookup, FastMem region,
+  source/method names, runtime tags, final metadata, fallback or retry
+
+stop:
+  a second registry lookup, a persistent route map, access-site cancellation,
+  weak-site movement after receipt, typed-array timing changes, or a generic
+  field transaction API
+```
+
+The sole decision requested is whether to accept A-prime as the next owner.
+Until then, no production field-assignment wiring is authorized.
+
 ### `FASTMEM-RECEIPT0` historical stop conditions
 
 Stop this row if it requires any of the following:

@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FIELDSTORE-OBSERVE0-M0 reached a weak-route preflight design stop; no I0 is authorized"
+status = "FIELDSTORE-OBSERVE0-M0 design brief is ready: shared weak-route preflight is recommended; no I0 is authorized pending acceptance"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
