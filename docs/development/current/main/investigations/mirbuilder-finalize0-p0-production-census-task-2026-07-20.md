@@ -1,5 +1,5 @@
 ---
-Status: INCLUDE-SCOPE0-S0 closed; INCLUDE-SCOPE0-P0 is next
+Status: INCLUDE-SCOPE0-P0 closed; INCLUDE-SCOPE0-I0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -1990,3 +1990,26 @@ lanes, the child-boundary operation, zero production consumers, the focused
 INCLUDE0 suite, and the 800-line limit. `INCLUDE-SCOPE0-P0` is next and alone
 owns the cfg/order/module-boundary/include-threading matrix. CUT0 remains
 forbidden.
+
+##### `INCLUDE-SCOPE0-P0` closeout
+
+One test-only shared-authority observer now proves the bounded scope matrix
+without attaching a production consumer. It reuses the existing root content
+draft/parser, the sole ordered cfg-stream gate, the included-fragment parser
+facade, and the declaration-owned direct-item range projector. It owns no
+second parser, cfg evaluator, source-range calculation, declaration issuance,
+or legacy-boolean read.
+
+Five focused fixtures fix the active/excluded/Unknown glob law; module-local
+reset for both inline and external child entries; source-ordered textual macro
+inheritance; same-module included-text continuation into the following root
+sibling; and zero scope scans for excluded root content. The observer stays
+behind `#[cfg(test)]`; the registered INCLUDE0 guard freezes the five proof
+fixtures, one test-only observer pair, one parser facade, and zero production
+scope consumers. The standalone topology suite, focused observer suite,
+checker/root `cargo check`, pointer guard, and diff check are green.
+
+`INCLUDE-SCOPE0-I0` is next and alone may replace the existing blanket
+`include_macro_ambiguity` connection in traversal. P0 does not claim general
+macro resolution, block-local module identity, production direct-callsite
+census, compiler behavior, or CUT0 readiness.

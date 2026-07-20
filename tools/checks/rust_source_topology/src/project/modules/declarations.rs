@@ -52,6 +52,19 @@ pub(super) fn parse_included_module_source_v1(
     parse_source_v1(path, source, false, true)
 }
 
+/// Returns the direct raw syntax of one included fragment after the existing
+/// fragment/preamble validation.  Test-only scope proof consumes this instead
+/// of adding a second `syn::parse_file` authority.
+#[cfg(test)]
+pub(super) fn parse_included_direct_items_v1(
+    path: &str,
+    source: &str,
+) -> Result<Box<[Item]>, ModuleTopologyErrorV1> {
+    let file = parse_source_file_v1(path, source, true)?;
+    reject_inner_topology_attributes(path, &file.attrs)?;
+    Ok(file.items.into_boxed_slice())
+}
+
 /// Issues one direct declaration surface from already parsed, already admitted
 /// module content.
 ///
@@ -84,6 +97,21 @@ fn parse_source_v1(
     inherited_include_macro_ambiguity: bool,
     included_fragment: bool,
 ) -> Result<ParsedModuleSourceV1, ModuleTopologyErrorV1> {
+    let file = parse_source_file_v1(path, source, included_fragment)?;
+    reject_inner_topology_attributes(path, &file.attrs)?;
+    collect_direct_module_position_items_v1(
+        path,
+        source,
+        &file.items,
+        inherited_include_macro_ambiguity,
+    )
+}
+
+fn parse_source_file_v1(
+    path: &str,
+    source: &str,
+    included_fragment: bool,
+) -> Result<syn::File, ModuleTopologyErrorV1> {
     let file = syn::parse_file(source).map_err(|error| ModuleTopologyErrorV1::Parse {
         path: path.to_string(),
         detail: error.to_string(),
@@ -93,13 +121,7 @@ fn parse_source_v1(
             path: path.to_string(),
         });
     }
-    reject_inner_topology_attributes(path, &file.attrs)?;
-    collect_direct_module_position_items_v1(
-        path,
-        source,
-        &file.items,
-        inherited_include_macro_ambiguity,
-    )
+    Ok(file)
 }
 
 fn reject_non_direct_topology_positions(
@@ -296,7 +318,7 @@ fn collect_module_position_items(
     Ok(result)
 }
 
-fn collect_outer_topology_rows(
+pub(super) fn collect_outer_topology_rows(
     source_path: &str,
     attributes: &[Attribute],
     line_starts: &[usize],
@@ -330,6 +352,22 @@ fn collect_outer_topology_rows(
         });
     }
     Ok(rows.into_boxed_slice())
+}
+
+/// Projects one direct item's outer CFG surface through the declaration owner.
+#[cfg(test)]
+pub(super) fn collect_item_outer_topology_rows_v1(
+    source_path: &str,
+    attributes: &[Attribute],
+    source: &str,
+) -> Result<Box<[CfgAttributeStreamInputRowV1]>, ModuleTopologyErrorV1> {
+    collect_outer_topology_rows(source_path, attributes, &line_starts(source), source)
+}
+
+/// Projects an exact direct-item range through the declaration source owner.
+#[cfg(test)]
+pub(super) fn direct_item_source_range_v1(item: &Item, source: &str) -> SourceRangeV1 {
+    source_range(item.span(), &line_starts(source), source)
 }
 
 fn macro_path_ends_with_include(path: &syn::Path) -> bool {

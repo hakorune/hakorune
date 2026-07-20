@@ -14,6 +14,7 @@ FILES = {
     "model": f"{MODULE_DIR}/model.rs",
     "error": f"{MODULE_DIR}/error.rs",
     "include_scope": f"{MODULE_DIR}/include_scope.rs",
+    "include_scope_candidate": f"{MODULE_DIR}/include_scope_candidate.rs",
     "declarations": f"{MODULE_DIR}/declarations.rs",
     "path_resolution": f"{MODULE_DIR}/path_resolution.rs",
     "traversal": f"{MODULE_DIR}/traversal.rs",
@@ -82,6 +83,18 @@ def main() -> None:
         "pub(super) fn parse_included_module_source_v1(",
         1,
         "included item-list parser",
+    )
+    require_count(
+        sources["declarations"],
+        "pub(super) fn parse_included_direct_items_v1(",
+        1,
+        "included raw-item parser facade",
+    )
+    require_count(
+        sources["declarations"],
+        "fn parse_source_file_v1(",
+        1,
+        "sole included/source syntax parser owner",
     )
     require_count(
         sources["path_resolution"],
@@ -167,6 +180,54 @@ def main() -> None:
         "INCLUDE-SCOPE0-S0 production consumers",
     )
 
+    require_count(
+        sources["module"],
+        "#[cfg(test)]\nmod include_scope_candidate;",
+        1,
+        "INCLUDE-SCOPE0-P0 test-only module registration",
+    )
+    require_count(
+        sources["include_scope_candidate"],
+        "fn observe_file_content_scope_v1(",
+        1,
+        "root content scope observer",
+    )
+    require_count(
+        sources["include_scope_candidate"],
+        "fn observe_same_module_include_v1(",
+        1,
+        "same-module include scope observer",
+    )
+    for forbidden in (
+        "syn::parse_file",
+        "decide_cfg_attribute_stream_v1",
+        "include_macro_ambiguity",
+        "to_token_stream",
+        "line_starts_v1",
+        "item_range_v1",
+        "collect_direct_module_position_items_v1",
+    ):
+        require_absent(
+            sources["include_scope_candidate"],
+            forbidden,
+            "INCLUDE-SCOPE0-P0 shared-authority boundary",
+        )
+    for fixture in (
+        "excluded_glob_has_no_scope_effect_but_active_and_unknown_globs_do",
+        "parent_import_does_not_poison_inline_or_external_child_entry",
+        "textual_macro_visibility_is_source_ordered_and_inherited_by_children",
+        "included_source_scope_returns_to_following_sibling",
+        "excluded_content_performs_zero_scope_scans",
+    ):
+        if fixture not in sources["include_scope_candidate"]:
+            fail(f"missing INCLUDE-SCOPE0-P0 fixture: {fixture}")
+    require_count(
+        sources["include_scope_candidate"],
+        "#[test]",
+        5,
+        "INCLUDE-SCOPE0-P0 focused test inventory",
+    )
+
     require_count(sources["test"], "#[test]", 7, "INCLUDE0 focused test inventory")
     for tag in (
         "CanonicalCycle",
@@ -189,7 +250,8 @@ def main() -> None:
 
     print(
         f"[{TAG}] ok edge_owner=1 ordered_items=1 path_owner=1 "
-        "traversal_owner=1 cli_consumers=0 scope_consumers=0 tests=7"
+        "traversal_owner=1 cli_consumers=0 scope_consumers=0 "
+        "scope_proof_consumers=0 include_tests=7 scope_proof_tests=5"
     )
 
 

@@ -1,6 +1,8 @@
 mod cfg_gate;
 #[cfg(test)]
 mod content_candidate;
+#[cfg(test)]
+mod include_scope_candidate;
 mod content_draft;
 mod content_gate;
 mod content_issuance;
