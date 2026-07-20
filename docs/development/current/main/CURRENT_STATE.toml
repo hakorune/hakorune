@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RESOLVED-TRIVIAL-OP0 is closed; select the next independent EXACT0 producer"
+status = "RESOLVED-DIRECT-CALL0-D0 is closed; implement the one sealed direct-call result producer"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -304,15 +304,16 @@ staticload0_task = "docs/development/current/main/investigations/mirbuilder-stat
 checkselect0_task = "docs/development/current/main/investigations/mirbuilder-checkselect0-task-2026-07-20.md"
 literal_postemit_retirement_task = "docs/development/current/main/investigations/mirbuilder-literal-postemit-retirement-task-2026-07-20.md"
 resolved_trivial_operation_task = "docs/development/current/main/investigations/mirbuilder-resolved-trivial-operation-task-2026-07-20.md"
+resolved_direct_call_task = "docs/development/current/main/investigations/mirbuilder-resolved-direct-call-task-2026-07-20.md"
 
-latest_card = "mirbuilder-resolved-trivial-operation-task-2026-07-20"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-resolved-trivial-operation-task-2026-07-20.md"
-latest_card_summary = """RESOLVED-TRIVIAL-OP0 is closed. One sealed profile
-representation is prepared through TypeFactDecision before its exact BinOp or
-Compare, then committed only after emission succeeds; the reusable FACT0 guard
-freezes one direct-write removal, decision, commit, and receipt order. Select
-the next independent producer; raw Compare/operator, Array, FieldGet, Call,
-metadata propagation, finalization, and Unknown retirement remain parked.
+latest_card = "mirbuilder-resolved-direct-call-task-2026-07-20"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-resolved-direct-call-task-2026-07-20.md"
+latest_card_summary = """RESOLVED-DIRECT-CALL0-D0 is closed. The next exact
+producer is one sealed resolved-trivial direct Call result: profile row
+InlineI64, verified materialization, successful Call, then Integer. S0 adds a
+disconnected prepared decision only. Array, FieldGet, raw Compare/operator,
+generic Call annotation, metadata propagation, finalization, and Unknown
+retirement remain parked.
 Historical retained detail: STATICLOAD0-D0 is closed: the
 previous sole producer was an
 exact StaticDataLoad from an existing sealed static u16 plan. That contract,
@@ -446,7 +447,7 @@ METAPROP0 owner after COMPCTX0/CONFIG0 and before PLAN0-CUT0; FACT0-G0 remains
 the final global-zero gate after that owner plus FINALIZE0, PLAN0, COMPCTX0,
 CONFIG0, and RAWADAPT0 retire their named legacy writers.
 NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-FACT0-I1-EXACT0-NEXT-D0-007"
+current_blocker_token = "DPRIME-MIRBUILDER-FACT0-I1-RESOLVED-DIRECT-CALL0-S0-008"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
