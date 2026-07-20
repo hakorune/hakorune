@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "STATICLOAD0 is closed; select the next independent EXACT0 producer before implementation"
+status = "CHECKSELECT0-D0 is closed; disconnected CheckExpr Select S0 is next"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -301,20 +301,30 @@ copy_unknown_consultation = "docs/development/current/main/investigations/mirbui
 copy_unknown_task = "docs/development/current/main/investigations/mirbuilder-copy-unknown-origin-task-2026-07-20.md"
 exact0_const_task = "docs/development/current/main/investigations/mirbuilder-exact0-const-task-2026-07-20.md"
 staticload0_task = "docs/development/current/main/investigations/mirbuilder-staticload0-task-2026-07-20.md"
+checkselect0_task = "docs/development/current/main/investigations/mirbuilder-checkselect0-task-2026-07-20.md"
 
-latest_card = "mirbuilder-staticload0-task-2026-07-20"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-staticload0-task-2026-07-20.md"
-latest_card_summary = """STATICLOAD0-D0 is closed: the next sole producer is an
+latest_card = "mirbuilder-checkselect0-task-2026-07-20"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-checkselect0-task-2026-07-20.md"
+latest_card_summary = """CHECKSELECT0-D0 is closed: one CheckExpr accumulator
+Select is the next exact producer because its then/else values are already
+exact Integer under CONST0. The condition is non-authority; generic Select
+inference is not claimed. CHECKSELECT0-S0 is the sole next code-facing row:
+one disconnected map-free TypeFactDecision preparation product with zero
+Builder, ValueId, MIR, metadata, or production-consumer delta. I0 may later
+connect exactly one post-emission transient Integer commit. Compare,
+operator/call-backed writers, PHI, FieldGet, Call, origin, Unknown retirement,
+and finalization repair remain separate rows. STATICLOAD0-D0 is closed: the
+previous sole producer was an
 exact StaticDataLoad from an existing sealed static u16 plan. That contract,
-not index syntax/value/name/runtime behavior, is Integer representation
-authority. STATICLOAD0-S0 is closed as one disconnected prepare-only owner
-with zero production consumers; M0 is closed: no lowering-time consumer needs
-the current early metadata Integer because successful load already publishes
-transient Integer. P0 is closed: direct Builder and VM/JSON fixtures prove the
+not index syntax/value/name/runtime behavior, was Integer representation
+authority. STATICLOAD0-S0 was closed as one disconnected prepare-only owner
+with zero production consumers; M0 was closed: no lowering-time consumer needed
+the current early metadata Integer because successful load already published
+transient Integer. P0 was closed: direct Builder and VM/JSON fixtures prove the
 pre-I0 transient/metadata baseline, finalization snapshot, unsupported-plan
-preflight, failed-emission isolation, and no origin. I0 may now connect one
-successful StaticDataLoad transient-fact commit and remove only its early
-metadata write; that cutover is closed. Successful StaticDataLoad now commits
+preflight, failed-emission isolation, and no origin. I0 connected one
+successful StaticDataLoad transient-fact commit and removed only its early
+metadata write. Successful StaticDataLoad now commits
 only transient Integer after emission, and finalized metadata comes only from
 normal function finalization. G0 is closed: the reusable manifest-backed FACT0
 guard freezes COPY0, CONST0, and STATICLOAD0 together. The next blocker is an
@@ -436,7 +446,7 @@ METAPROP0 owner after COMPCTX0/CONFIG0 and before PLAN0-CUT0; FACT0-G0 remains
 the final global-zero gate after that owner plus FINALIZE0, PLAN0, COMPCTX0,
 CONFIG0, and RAWADAPT0 retire their named legacy writers.
 NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-FACT0-I1-EXACT0-NEXT-D0-001"
+current_blocker_token = "DPRIME-MIRBUILDER-FACT0-I1-CHECKSELECT0-S0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

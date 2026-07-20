@@ -1807,6 +1807,20 @@ minimum proof must cover missing versus stored Unknown, Unknown plus origin for
 reuse. `COPY-UNKNOWN0-S0` may now add the disconnected vocabulary only; COPY0
 and production fallback changes remain forbidden.
 
+#### `FACT0-I1-CHECKSELECT0-D0` — closed (2026-07-20)
+
+The LocalSSA compatibility and physical-Copy rows are complete. The next
+independent exact-fact producer is one successful `CheckExpr` accumulator
+`Select`, not generic Select inference: both selected values are already exact
+Integer from closed CONST0, while the condition is non-authority. The selected
+task is
+[`mirbuilder-checkselect0-task-2026-07-20.md`](mirbuilder-checkselect0-task-2026-07-20.md).
+
+`CHECKSELECT0-S0` is the sole next row. It may add only a disconnected,
+map-free `TypeFactDecisionV1` preparation product. Compare, Call-backed
+operators, PHI, FieldGet, origin, Unknown retirement, and finalization repair
+remain separate authorities. No production consumer is authorized before I0.
+
 ## Phase 4 — FINALIZE0
 
 Finalization becomes a verifier and derived-publication boundary, not the
