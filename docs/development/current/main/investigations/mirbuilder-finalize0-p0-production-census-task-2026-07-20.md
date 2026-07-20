@@ -2689,3 +2689,42 @@ coverage of real metadata or production deletion. The P0 candidate has no
 `commit_to_live` API, Builder/module/fact references, or production consumers.
 It may claim helper-local isolation only, never module freshness, transient
 fact completeness, caller conversion, or repair retirement.
+
+### P0 closeout — disconnected deterministic candidate
+
+`legacy_candidate.rs` now implements the locked P0 sequence with zero
+production callers:
+
+```text
+immutable MirFunction
+-> tolerant terminator-derived CFG view
+-> duplicate-definition / allocator / exception preflight
+-> non-Clone clone-owned candidate schedule
+-> deterministic candidate-only rematerialization
+-> terminator-derived cache rebuild
+-> strict edge verification
+-> drop candidate
+```
+
+The only rematerialized definitions are Const, Copy, BinOp, Compare, UnaryOp,
+Select, and `RuntimeDataBox`/`StringBox` `substring` calls whose effect mask is
+pure. The exact rejection matrix covers missing rows without one dominating
+source, duplicate definitions, undefined late operands, cycles,
+non-rematerializable definitions, impure substring calls, allocator cursor
+collisions/overflow, and Catch/Throw regions. Every rejection fixture snapshots
+the live function and proves unchanged instructions, spans, terminators, CFG
+caches, cursor, signature, parameters, and metadata.
+
+The strict verifier's P0 cases separately pin missing, phantom, duplicate,
+undefined, non-dominating, unreachable, cache-drift, and deterministic
+diagnostic behavior. A test-only fixture proves only the declared paired
+instruction/span and fake positional/value closure; real metadata closure is
+still absent, so unused-Phi deletion remains blocked.
+
+Focused `edge_verifier` (7) and `legacy_candidate` (12) tests, `cargo check
+-q`, format, diff, pointer, and 800-line checks are green. The candidate is
+not a module transaction and exposes no live commit. Exactly three legacy
+whole-function repair callers remain unchanged. The sole next frontier is
+`FINALIZE0-PHI-SPLIT0-I0-SELECT`: select a module-owned transaction only after
+its full artifact/fact/freshness closure is designed. CUT0 and all direct
+caller conversions remain forbidden.

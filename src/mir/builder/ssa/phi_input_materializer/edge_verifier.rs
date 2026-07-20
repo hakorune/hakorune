@@ -99,6 +99,58 @@ impl std::fmt::Display for PhiEdgeVerificationErrorV1 {
 
 impl std::error::Error for PhiEdgeVerificationErrorV1 {}
 
+/// Read-only CFG facts derived only from terminators.
+///
+/// Cache equality is deliberately not a property of this view. Strict
+/// verification checks it separately; a disconnected candidate may rebuild
+/// its owned caches from the same terminator truth before strict verification.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct TerminatorCfgViewV1 {
+    predecessors: BTreeMap<BasicBlockId, BTreeSet<BasicBlockId>>,
+    reachable: BTreeSet<BasicBlockId>,
+    dominators: BTreeMap<BasicBlockId, BTreeSet<BasicBlockId>>,
+}
+
+impl TerminatorCfgViewV1 {
+    pub(in crate::mir::builder) fn predecessors(
+        &self,
+        block: BasicBlockId,
+    ) -> BTreeSet<BasicBlockId> {
+        self.predecessors.get(&block).cloned().unwrap_or_default()
+    }
+
+    pub(in crate::mir::builder) fn is_reachable(&self, block: BasicBlockId) -> bool {
+        self.reachable.contains(&block)
+    }
+
+    pub(in crate::mir::builder) fn dominates(
+        &self,
+        definition: BasicBlockId,
+        use_block: BasicBlockId,
+    ) -> bool {
+        self.dominators
+            .get(&use_block)
+            .is_some_and(|set| set.contains(&definition))
+    }
+}
+
+/// Derives CFG facts from terminators without reading or updating CFG caches.
+pub(in crate::mir::builder) fn derive_terminator_cfg_view_v1(
+    function: &MirFunction,
+) -> Result<TerminatorCfgViewV1, Vec<PhiEdgeVerificationErrorV1>> {
+    let (predecessors, reachable, mut errors) = terminator_cfg(function, false);
+    errors.sort_by_key(PhiEdgeVerificationErrorV1::sort_key);
+    if !errors.is_empty() {
+        return Err(errors);
+    }
+    let dominators = terminator_dominators(function, &predecessors, &reachable);
+    Ok(TerminatorCfgViewV1 {
+        predecessors,
+        reachable,
+        dominators,
+    })
+}
+
 /// Read-only candidate for an unused Phi deletion.
 ///
 /// It intentionally exposes no commit. A later side-artifact closure owner
@@ -204,7 +256,7 @@ impl PreparedUnusedPhiNormalizationV1 {
 pub(in crate::mir::builder) fn verify_phi_edges_v1(
     function: &MirFunction,
 ) -> Result<(), Vec<PhiEdgeVerificationErrorV1>> {
-    let (predecessors, reachable, mut errors) = terminator_cfg(function);
+    let (predecessors, reachable, mut errors) = terminator_cfg(function, true);
     let definitions = definitions(function);
     let dominators = terminator_dominators(function, &predecessors, &reachable);
 
@@ -282,6 +334,7 @@ pub(in crate::mir::builder) fn verify_phi_edges_v1(
 
 fn terminator_cfg(
     function: &MirFunction,
+    check_successor_cache: bool,
 ) -> (
     BTreeMap<BasicBlockId, BTreeSet<BasicBlockId>>,
     BTreeSet<BasicBlockId>,
@@ -292,7 +345,7 @@ fn terminator_cfg(
     for block_id in sorted_block_ids(function) {
         let block = &function.blocks[&block_id];
         let successors = block.successors_from_terminator();
-        if successors != block.successors {
+        if check_successor_cache && successors != block.successors {
             errors.push(PhiEdgeVerificationErrorV1::SuccessorCacheMismatch { block: block_id });
         }
         for successor in successors {
