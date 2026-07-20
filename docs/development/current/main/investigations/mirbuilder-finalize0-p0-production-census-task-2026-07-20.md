@@ -1,5 +1,5 @@
 ---
-Status: CONTENTCFG0-G0 closed; INCLUDE-SCOPE0-S0 is next
+Status: INCLUDE-SCOPE0-S0 closed; INCLUDE-SCOPE0-P0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -1970,3 +1970,23 @@ topology suite, content-draft suite, checker/root `cargo check`, pointer guard,
 and diff check are green. `INCLUDE-SCOPE0-S0` is next. CONTENTCFG0 makes no
 claim about module-local import scope, textual macro scope, block-local module
 identity, general name/macro resolution, compiler behavior, or CUT0.
+
+##### `INCLUDE-SCOPE0-S0` closeout
+
+One private, disconnected `IncludeScopeLanesV1` now separates the two states
+that the legacy `include_macro_ambiguity` bit had conflated. The
+order-independent module-local lane records whether the builtin name may be
+shadowed within one module. The source-order textual lane records whether a
+`macro_rules! include` definition is visible. `child_module_entry` resets only
+the module-local lane and preserves the textual lane, which is the required
+future inline/external child boundary; same-module included text will instead
+continue with the same product in P0/I0.
+
+This row has no production consumer: it does not scan AST items, evaluate cfg,
+issue a topology declaration, change the legacy boolean, or alter any typed
+error. Two unit tests fix root initialization and the child-boundary law. The
+registered reusable INCLUDE0 guard now checks the one vocabulary owner, both
+lanes, the child-boundary operation, zero production consumers, the focused
+INCLUDE0 suite, and the 800-line limit. `INCLUDE-SCOPE0-P0` is next and alone
+owns the cfg/order/module-boundary/include-threading matrix. CUT0 remains
+forbidden.

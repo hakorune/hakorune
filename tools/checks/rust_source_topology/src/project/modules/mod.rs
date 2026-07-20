@@ -6,6 +6,7 @@ mod content_gate;
 mod content_issuance;
 mod declarations;
 mod error;
+mod include_scope;
 mod model;
 mod path_resolution;
 mod traversal;

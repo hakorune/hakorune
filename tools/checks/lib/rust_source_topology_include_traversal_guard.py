@@ -13,6 +13,7 @@ MODULE_DIR = f"{TOOL}/src/project/modules"
 FILES = {
     "model": f"{MODULE_DIR}/model.rs",
     "error": f"{MODULE_DIR}/error.rs",
+    "include_scope": f"{MODULE_DIR}/include_scope.rs",
     "declarations": f"{MODULE_DIR}/declarations.rs",
     "path_resolution": f"{MODULE_DIR}/path_resolution.rs",
     "traversal": f"{MODULE_DIR}/traversal.rs",
@@ -56,6 +57,7 @@ def main() -> None:
         for name in (
             "model",
             "error",
+            "include_scope",
             "declarations",
             "path_resolution",
             "traversal",
@@ -94,6 +96,30 @@ def main() -> None:
         "include occurrence traversal owner",
     )
     require_count(
+        sources["include_scope"],
+        "pub(super) struct IncludeScopeLanesV1",
+        1,
+        "two-lane include scope vocabulary owner",
+    )
+    require_count(
+        sources["include_scope"],
+        "pub(super) enum ModuleLocalIncludeNameLaneV1",
+        1,
+        "module-local scope lane vocabulary",
+    )
+    require_count(
+        sources["include_scope"],
+        "pub(super) enum TextualIncludeMacroLaneV1",
+        1,
+        "textual scope lane vocabulary",
+    )
+    require_count(
+        sources["include_scope"],
+        "pub(super) fn child_module_entry(&self) -> Self",
+        1,
+        "child module scope boundary",
+    )
+    require_count(
         sources["traversal"],
         "format!(\"include:{}\"",
         1,
@@ -124,6 +150,22 @@ def main() -> None:
         "DeclaredIncludeEdgeV1",
         "project CLI before S0b-G0",
     )
+    disconnected_scope_consumers = "\n".join(
+        sources[name]
+        for name in (
+            "model",
+            "error",
+            "declarations",
+            "path_resolution",
+            "traversal",
+            "module",
+        )
+    )
+    require_absent(
+        disconnected_scope_consumers,
+        "IncludeScopeLanesV1",
+        "INCLUDE-SCOPE0-S0 production consumers",
+    )
 
     require_count(sources["test"], "#[test]", 7, "INCLUDE0 focused test inventory")
     for tag in (
@@ -147,7 +189,7 @@ def main() -> None:
 
     print(
         f"[{TAG}] ok edge_owner=1 ordered_items=1 path_owner=1 "
-        "traversal_owner=1 cli_consumers=0 tests=7"
+        "traversal_owner=1 cli_consumers=0 scope_consumers=0 tests=7"
     )
 
 
