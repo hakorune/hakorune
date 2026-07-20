@@ -213,6 +213,31 @@ unified-off legacy route = excluded
 Prove payload preparation occurs after final operand/callee normalization and
 before Call emission, while every payload effect occurs only after success.
 
+### `FACT0-TX0-CALL-RECEIPT0-M0` — closed (2026-07-20)
+
+The canonical consumer inventory is fixed:
+
+```text
+post-success payload producer = 1
+  unified_emitter::emit_unified_call_impl
+
+post-success payload consumers before I0 = 0
+canonical future receipt consumer at I0 = 1
+
+emit_global_unified = existing receipt-ordered compatibility entry, excluded
+CallMaterializer = existing receipt-ordered direct entry, excluded
+rewrite and method terminals = propagate unified-call error before annotation
+resolved direct Call = sealed independent producer, excluded
+unified-off legacy route = excluded
+```
+
+The canonical generic emitter finalizes `callee` and `args_local`, prepares
+signature and collection descriptors from exactly that final shape, constructs
+the Call, and currently invokes its annotation package regardless of the
+emission `Result`. The pre-I0 temporal witness remains the proof of that last
+residual. `FACT0-TX0-CALL-RECEIPT0-P0` is now the sole next row; it may add
+only failure/success observation fixtures, with zero production connection.
+
 ### `FACT0-TX0-CALL-RECEIPT0-P0`
 
 Retain the current failure witness as the pre-I0 baseline, then prove the
