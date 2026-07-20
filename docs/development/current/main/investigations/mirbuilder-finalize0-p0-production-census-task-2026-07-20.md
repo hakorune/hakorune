@@ -867,6 +867,156 @@ This guard closes only the Cargo/rustc evidence boundary. MODULE0 remains the
 first owner allowed to add profile-gated module traversal, and the project
 CLI/report remains disconnected until the full S0b-G0.
 
+### `FINALIZE0-CENSUS0-P0a-S0b-MODULE0` — authority lock
+
+MODULE0 consumes one already-sealed CARGO0 process evidence row plus an exact
+workspace root. It revalidates the CARGO0 workspace fingerprints before and
+after traversal, then emits only an explicit-`ItemMod` module-instance graph.
+The workspace root is an execution capability and is never serialized.
+
+```text
+CARGO0 declared unit:
+  exact profile / package / target / root source
+  exact Cargo-resolved features
+  exact rustc cfg flags and key/value rows
+
+MODULE0:
+  explicit inline module instances
+  explicit ordinary external module instances
+  explicit literal-path module instances
+  three-valued cfg-gated edges
+  workspace-relative source observations
+
+not MODULE0:
+  include! expansion
+  macro-generated modules
+  semantic def-path or call resolution
+  entry-family / FINALIZE0 policy
+  project CLI/report publication
+```
+
+The single-file S0a schema remains unchanged. MODULE0 owns a separate
+parser-backed declaration tree because S0a deliberately does not publish the
+literal path selector or a traversal policy. Each loaded source occurrence is
+still passed through the existing S0a extractor with its exact module syntax
+root; one physical file used by different module paths or compile units is not
+deduplicated into one semantic instance.
+
+#### Exact directory law
+
+MODULE0 models the same bounded directory state as rustc.
+
+```text
+ModuleDirectoryOwnershipV1:
+  Owned { relative = None | Some(module_segment) }
+  UnownedViaBlock
+```
+
+For ordinary `mod x;`, `relative=None` probes exactly `x.rs` and
+`x/mod.rs`; `relative=Some(parent)` probes exactly `parent/x.rs` and
+`parent/x/mod.rs`. Zero candidates reject as missing and two candidates reject
+as ambiguous, even when both canonicalize to the same file. An `x.rs` child
+retains `relative=Some(x)` while an `x/mod.rs` child retains `relative=None`.
+Cargo roots always start with `relative=None`, regardless of root filename.
+
+Inline modules push any pending relative owner and then their own semantic
+segment. A literal `#[path]` on an inline module denotes its child directory.
+A literal `#[path]` on an external module denotes its exact source file. Every
+external file loaded through `#[path]` starts its children with
+`relative=None`, matching rustc's historical mod.rs-equivalent law. Raw Rust
+identifiers retain their source spelling for diagnostics but use the unraw
+segment for logical and filesystem identity.
+
+#### Exact cfg and filesystem order
+
+The cfg environment is derived only from the sealed CARGO0 feature and rustc
+probe evidence. It never returns to profile expected-feature assertions.
+
+```text
+parse parent source
+  -> extract explicit module declaration
+  -> evaluate cfg / topology-affecting cfg_attr
+  -> Excluded: record edge, filesystem operations = 0
+  -> Unknown: typed stop, filesystem operations = 0
+  -> Included: select literal path or ordinary candidates
+  -> canonicalize and enforce workspace containment
+  -> reject ancestor-stack cycle
+  -> read / parse child
+```
+
+Known `cfg_attr(..., path = "...")` conditions may select one literal path.
+Unknown path selection, a nonliteral path, or multiple active path attributes
+rejects before probing a child. Non-topology attributes remain passive, while
+an unknown attribute macro on a module is unsupported rather than guessed.
+
+Lexical and canonical workspace containment are separate checks. A symlink
+that escapes the workspace rejects. Cycle identity is the current canonical
+source ancestry stack, not a global visited set; sibling uses of one canonical
+file remain distinct valid instances. No partial graph is returned on error.
+
+#### MODULE0 durable product
+
+```text
+DeclaredModuleTopologyV1
+  profile_id
+  package_key
+  target_key
+  root_instance_id
+  module_instances[]
+  module_edges[]
+  source_observations[]
+
+ModuleInstanceV1
+  instance_id / parent_edge_id
+  exact module syntax path
+  root | inline | ordinary-file | ordinary-mod-file | literal-path
+  workspace-relative source path
+  optional inline body range
+
+ModuleEdgeV1
+  parent instance / declaration range
+  source ident spelling / unraw semantic segment
+  inline | ordinary | literal-path
+  Included | Excluded decision
+  optional included child instance
+```
+
+Successful invariants:
+
+```text
+root instances = 1
+unknown edges = 0
+excluded-edge filesystem operations = 0
+module instances = 1 + included edges
+each included edge has exactly one child instance
+each excluded edge has zero child instances
+all serialized paths are workspace-relative
+```
+
+MODULE0 fixtures must cover root/custom root, inline and nested inline,
+ordinary flat and mod.rs forms, non-mod-rs relative ownership, direct and
+known-cfg_attr literal paths, excluded missing non-read, Unknown non-probe,
+test/debug/release/feature/host/wasm gates, missing/dual candidates,
+workspace/symlink escape, ancestor cycle, sibling same-file reuse, child parse
+failure, raw identifiers, deterministic output, and an opaque unchanged
+`include!` row. The synthetic fixture owns these focused laws; root six-profile
+counts remain for the later S0b-P0 row.
+
+MODULE0 stop conditions:
+
+```text
+filename or module-name guessing beyond the exact rustc directory law
+reading/probing an Excluded or Unknown child
+first-match selection of ambiguous candidates or path attributes
+global canonical-file deduplication
+absolute path serialization
+include! or proc-macro expansion
+semantic resolution or FINALIZE0 policy
+project CLI/report publication
+root workspace dependency or compiler behavior change
+source/check file >= 800 lines
+```
+
 Every implementation file is split by responsibility before reaching 800
 lines. `extract.rs` receives no S0b traversal policy.
 

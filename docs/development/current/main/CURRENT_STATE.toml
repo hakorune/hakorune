@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINALIZE0 P0a-S0b CARGO0-P0 is closed; Cargo evidence guards/report boundary are next, and CUT0 remains forbidden"
+status = "FINALIZE0 P0a-S0b CARGO0-G0 is closed; MODULE0 is next, and CUT0 remains forbidden"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
