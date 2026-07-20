@@ -819,6 +819,28 @@ shared helper, preserving validation error order and moving exactly the counter
 increment after successful `emit_instruction`. G0 extends the existing FACT0
 partition guard; it must not add a new guard family.
 
+### `FACT0-TX0-FASTMEM-RECEIPT0-S0` — closed (2026-07-20)
+
+`src/mir/builder/fastmem/receipt.rs` now owns one private,
+non-Clone `PreparedFastMemMemOpReceiptV1`. Its pure `prepare` path validates
+only the existing current-function and registered-region law, retaining the
+same stable error spelling without mutating region metadata. Its non-fallible
+`commit` holds the sole future increment and is intentionally unconnected from
+production emission in S0.
+
+Focused tests prove:
+
+```text
+valid preparation changes emitted_memop_count by 0
+commit changes it by exactly 1
+missing function and unknown region reject with metadata delta 0
+```
+
+No `MirBuilder` reference, metadata reference, value type/origin policy, or
+instruction is retained in the receipt. The legacy `note_fastmem_memop` remains
+the only production timing owner until I0. `FACT0-TX0-FASTMEM-RECEIPT0-M0` is
+now the sole next row.
+
 ### Stop conditions
 
 Stop this row if it requires any of the following:

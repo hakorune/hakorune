@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FACT0-TX0-FASTMEM-RECEIPT0 is selected; prepare its disconnected receipt vocabulary"
+status = "FACT0-TX0-FASTMEM-RECEIPT0-S0 is closed; inventory its canonical receipt timing"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -470,8 +470,10 @@ selects only the shared FastMem MemOp receipt: `emit_fastmem_memop` must
 preflight function/region, emit the physical MemOp, then publish its region
 counter. FastMem FieldLoad reservation, Array write observation, array
 receiver/result facts, CorePlan FieldGet, metadata propagation, and finalization
-remain separate parked owners."""
-current_blocker_token = "DPRIME-MIRBUILDER-FACT0-TX0-FASTMEM-RECEIPT0-S0-030"
+remain separate parked owners. FASTMEM-RECEIPT0-S0 now owns a disconnected
+private prepared receipt with no production emitter consumer; M0 must inventory
+the existing facade/timing matrix before the single I0 connection."""
+current_blocker_token = "DPRIME-MIRBUILDER-FACT0-TX0-FASTMEM-RECEIPT0-M0-031"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

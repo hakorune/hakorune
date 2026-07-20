@@ -8,6 +8,7 @@
 pub(crate) mod branch;
 pub(crate) mod calls;
 pub(crate) mod ops;
+mod receipt;
 
 use super::{MirBuilder, ValueId};
 use crate::ast::{ASTNode, Span};
