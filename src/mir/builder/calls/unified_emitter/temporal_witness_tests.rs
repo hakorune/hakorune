@@ -386,7 +386,7 @@ fn unified_call_publishes_after_successful_call_commit() {
 }
 
 #[test]
-fn unified_call_failure_leaves_legacy_annotation_residual() {
+fn unified_call_failure_publishes_no_signature_annotation_residual() {
     let mut builder = builder_with_entry("fact0_temporal_call_failure/0");
     install_integer_call_target(&mut builder);
     let dst = builder.alloc_value_for_test();
@@ -402,8 +402,144 @@ fn unified_call_failure_leaves_legacy_annotation_residual() {
 
     assert_eq!(error, "No current basic block");
     assert_eq!(call_count(&builder), 0);
-    assert_eq!(transient_type(&builder, dst), Some(MirType::Integer));
+    assert_eq!(transient_type(&builder, dst), None);
     assert_eq!(metadata_type(&builder, dst), None);
+}
+
+#[test]
+fn unified_array_get_failure_publishes_no_collection_annotation_residual() {
+    let mut builder = builder_with_entry("fact0_temporal_array_get_failure/0");
+    let receiver = builder.alloc_value_for_test();
+    let index = builder.alloc_value_for_test();
+    let dst = builder.alloc_value_for_test();
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(receiver, MirType::Array(Box::new(MirType::Integer)));
+    builder.function_state.current_block = None;
+
+    let error = UnifiedCallEmitterBox::emit_unified_call_impl(
+        &mut builder,
+        Some(dst),
+        CallTarget::Method {
+            box_type: Some("ArrayBox".to_string()),
+            method: "get".to_string(),
+            receiver,
+        },
+        vec![index],
+    )
+    .unwrap_err();
+
+    assert_eq!(error, "No current basic block");
+    assert_eq!(call_count(&builder), 0);
+    assert_eq!(transient_type(&builder, dst), None);
+}
+
+#[test]
+fn unified_array_get_success_retains_collection_annotation() {
+    let mut builder = builder_with_entry("fact0_temporal_array_get_success/0");
+    let receiver = builder.alloc_value_for_test();
+    let index = builder.alloc_value_for_test();
+    let dst = builder.alloc_value_for_test();
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(receiver, MirType::Array(Box::new(MirType::Integer)));
+
+    UnifiedCallEmitterBox::emit_unified_call_impl(
+        &mut builder,
+        Some(dst),
+        CallTarget::Method {
+            box_type: Some("ArrayBox".to_string()),
+            method: "get".to_string(),
+            receiver,
+        },
+        vec![index],
+    )
+    .unwrap();
+
+    assert_eq!(call_count(&builder), 1);
+    assert_eq!(transient_type(&builder, dst), Some(MirType::Integer));
+}
+
+#[test]
+fn unified_map_get_failure_publishes_no_collection_annotation_residual() {
+    let mut builder = builder_with_entry("fact0_temporal_map_get_failure/0");
+    let receiver = builder.alloc_value_for_test();
+    let key = builder.alloc_value_for_test();
+    let dst = builder.alloc_value_for_test();
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(receiver, MirType::Box("MapBox".to_string()));
+    builder
+        .function_state
+        .type_ctx
+        .string_literals
+        .insert(key, "answer".to_string());
+    builder
+        .function_state
+        .type_ctx
+        .map_literal_value_types
+        .insert((receiver, "answer".to_string()), MirType::Integer);
+    builder.function_state.current_block = None;
+
+    let error = UnifiedCallEmitterBox::emit_unified_call_impl(
+        &mut builder,
+        Some(dst),
+        CallTarget::Method {
+            box_type: Some("MapBox".to_string()),
+            method: "get".to_string(),
+            receiver,
+        },
+        vec![key],
+    )
+    .unwrap_err();
+
+    assert_eq!(error, "No current basic block");
+    assert_eq!(call_count(&builder), 0);
+    assert_eq!(transient_type(&builder, dst), None);
+}
+
+#[test]
+fn unified_map_get_success_retains_collection_annotation() {
+    let mut builder = builder_with_entry("fact0_temporal_map_get_success/0");
+    let receiver = builder.alloc_value_for_test();
+    let key = builder.alloc_value_for_test();
+    let dst = builder.alloc_value_for_test();
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(receiver, MirType::Box("MapBox".to_string()));
+    builder
+        .function_state
+        .type_ctx
+        .string_literals
+        .insert(key, "answer".to_string());
+    builder
+        .function_state
+        .type_ctx
+        .map_literal_value_types
+        .insert((receiver, "answer".to_string()), MirType::Integer);
+
+    UnifiedCallEmitterBox::emit_unified_call_impl(
+        &mut builder,
+        Some(dst),
+        CallTarget::Method {
+            box_type: Some("MapBox".to_string()),
+            method: "get".to_string(),
+            receiver,
+        },
+        vec![key],
+    )
+    .unwrap();
+
+    assert_eq!(call_count(&builder), 1);
+    assert_eq!(transient_type(&builder, dst), Some(MirType::Integer));
 }
 
 fn install_typed_field(builder: &mut MirBuilder) -> ValueId {

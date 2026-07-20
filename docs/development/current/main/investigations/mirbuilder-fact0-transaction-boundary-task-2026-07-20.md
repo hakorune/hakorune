@@ -254,6 +254,29 @@ successful Array and Map result:
   existing type/origin/registry parity
 ```
 
+### `FACT0-TX0-CALL-RECEIPT0-P0` — closed (2026-07-20)
+
+The temporal witness now fixes all three pre-I0 residual families under the
+canonical unified emitter:
+
+```text
+signature result:
+  failed Call -> Integer residual
+
+ArrayBox.get:
+  failed Call -> Array element Integer residual
+
+MapBox.get with a tracked literal key:
+  failed Call -> Map value Integer residual
+```
+
+Every baseline case has `Call count = 0` and the same `No current basic block`
+receipt failure. The successful signature case remains the parity witness for
+ordinary metadata finalization. These are pre-I0 observations, not an accepted
+failure behavior. `FACT0-TX0-CALL-RECEIPT0-I0` is now the sole next row and
+must invert all three failed-call residual assertions without changing their
+successful annotation policies.
+
 ### `FACT0-TX0-CALL-RECEIPT0-I0`
 
 Connect exactly one canonical consumer:
@@ -267,6 +290,30 @@ Ok(())
 `verify_after_call` belongs inside that successful commit. No annotation policy
 may move, and no selected failure may retry raw emission.
 
+### `FACT0-TX0-CALL-RECEIPT0-I0` — closed (2026-07-20)
+
+The one canonical generic unified emitter now prepares its existing annotation
+descriptors after callee/operand normalization, emits the physical `Call`, and
+only then consumes the private post-success payload. The payload invokes the
+same signature, Array, Map, and schedule owners as before; it changes only
+their receipt order.
+
+Focused temporal witnesses prove:
+
+```text
+failed signature / ArrayBox.get / MapBox.get Call:
+  Call count = 0
+  destination transient type = absent
+
+successful signature / ArrayBox.get / MapBox.get Call:
+  Call count = 1
+  existing Integer annotation retained
+```
+
+No selected failure retries, writes a type/origin/registry fact, or invokes
+post-call schedule observation. `FACT0-TX0-CALL-RECEIPT0-G0` is now the sole
+next row and may add only the existing FACT0 partition guard coverage.
+
 ### `FACT0-TX0-CALL-RECEIPT0-G0`
 
 Extend the existing FACT0 partition guard; do not add a guard family. Freeze:
@@ -278,6 +325,30 @@ post-call verification before successful Call = 0
 new type/origin map = 0
 files at or above 800 lines = 0
 ```
+
+### `FACT0-TX0-CALL-RECEIPT0-G0` — closed (2026-07-20)
+
+The existing `mirbuilder_type_fact_partition_guard.py` now owns the receipt
+boundary without adding a guard family. It requires exactly one canonical
+payload prepare/consume pair, rejects signature/Array/Map annotation and
+post-call verification inside the canonical emitter, and requires their one
+existing invocation each inside the post-success owner. It also keeps the
+excluded `emit_global_unified` compatibility path outside this consumer count
+and enforces the four touched source/check files below 800 lines.
+
+Final evidence:
+
+```text
+mirbuilder_type_fact_partition_guard.py: green
+current_state_pointer_guard.sh: green
+temporal unified-emitter tests: 14/14 green
+post-success payload tests: 3/3 green
+cargo check --all-targets: green
+```
+
+`FACT0-TX0-CALL-RECEIPT0` is complete. The sole next blocker is the separate
+`FACT0-TX0-FIELDGET0-D0` design stop; it must decide ordinary typed FieldGet
+reservation semantics before any FieldGet code-facing row opens.
 
 ## Stop conditions
 

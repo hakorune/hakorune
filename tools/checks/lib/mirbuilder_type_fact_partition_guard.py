@@ -427,6 +427,54 @@ def validate_compareemit0_authority_v1(root: Path) -> None:
             fail(f"COMPAREEMIT0 source/check file reached 800 lines: {path}")
 
 
+def validate_call_receipt0_authority_v1(root: Path) -> None:
+    emitter = strip_cfg_test_modules(
+        code_only(read(root / "src/mir/builder/calls/unified_emitter.rs"))
+    )
+    receipt = strip_cfg_test_modules(
+        code_only(read(root / "src/mir/builder/calls/unified_emitter/post_success.rs"))
+    )
+
+    canonical = emitter.split("fn emit_unified_call_impl", 1)[1].split(
+        "pub fn emit_global_unified", 1
+    )[0]
+    if canonical.count("PreparedUnifiedCallPostSuccessV1::prepare") != 1:
+        fail("CALL-RECEIPT0 requires one canonical payload preparation consumer")
+    if canonical.count("prepared_post_success.commit_after_success(builder)") != 1:
+        fail("CALL-RECEIPT0 requires one canonical post-success payload consumer")
+    if canonical.find("prepared_post_success.commit_after_success(builder)") < canonical.find(
+        "builder.emit_instruction(call_inst)?"
+    ):
+        fail("CALL-RECEIPT0 payload consumption must follow successful Call emission")
+    for forbidden in (
+        "annotate_call_result_from_func_name",
+        "annotate_array_element_result",
+        "annotate_map_get_result",
+        "verify_after_call",
+    ):
+        if forbidden in canonical:
+            fail(f"CALL-RECEIPT0 direct post-success effect survived in emitter: {forbidden}")
+
+    if receipt.count("fn commit_after_success") != 1:
+        fail("CALL-RECEIPT0 requires one post-success commit owner")
+    for required in (
+        "annotate_call_result_from_func_name",
+        "annotate_array_element_result",
+        "annotate_map_get_result",
+        "verify_after_call",
+    ):
+        if receipt.count(required) != 1:
+            fail(f"CALL-RECEIPT0 post-success owner drift: {required}")
+    for path in (
+        root / "src/mir/builder/calls/unified_emitter.rs",
+        root / "src/mir/builder/calls/unified_emitter/post_success.rs",
+        root / "src/mir/builder/calls/unified_emitter/temporal_witness_tests.rs",
+        Path(__file__),
+    ):
+        if len(read(path).splitlines()) >= 800:
+            fail(f"CALL-RECEIPT0 source/check file reached 800 lines: {path}")
+
+
 def check(root: Path) -> None:
     fixture = load_fixture(root)
     validate_p1_g0_profile_freeze_v1(fixture)
@@ -438,6 +486,7 @@ def check(root: Path) -> None:
     validate_resolved_trivial_operation_authority_v1(root)
     validate_resolved_direct_call_authority_v1(root)
     validate_compareemit0_authority_v1(root)
+    validate_call_receipt0_authority_v1(root)
     matrix = fixture.get("primary_matrix")
     if not isinstance(matrix, list):
         fail("FACT0 fixture primary matrix is invalid")
@@ -451,7 +500,7 @@ def check(root: Path) -> None:
         "active_writer_paths=48 active_writer_occurrences=96 slices=58 profiles=38 "
         "shared_slices=2 const0=closed staticload0=closed checkselect0=closed "
         "literal_postemit_ret0=closed resolved_trivial_op0=closed "
-        "resolved_direct_call0=closed compareemit0=closed"
+        "resolved_direct_call0=closed compareemit0=closed call_receipt0=closed"
     )
 
 

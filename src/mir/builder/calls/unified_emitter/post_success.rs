@@ -4,7 +4,7 @@
 //! invocation descriptors that I0 may consume after a physical Call receipt;
 //! it neither publishes facts nor selects annotation policy.
 
-use crate::mir::builder::ValueId;
+use crate::mir::builder::{MirBuilder, ValueId};
 use crate::mir::definitions::call_unified::{Callee, CalleeBoxKind, TypeCertainty};
 
 use super::super::annotation::callee_sig_name;
@@ -27,9 +27,6 @@ struct PreparedSignatureAnnotationV1 {
 #[derive(Debug)]
 struct PreparedCollectionResultAnnotationV1 {
     destination: ValueId,
-    // S0 keeps the finalized callee for the later one-shot I0 commit. It is
-    // intentionally inert while this disconnected payload has zero consumers.
-    #[allow(dead_code)]
     callee: Callee,
     arguments: Box<[ValueId]>,
 }
@@ -61,6 +58,42 @@ impl PreparedUnifiedCallPostSuccessV1 {
             signature,
             collection_result,
         }
+    }
+
+    /// Consume the payload only after its physical Call instruction succeeds.
+    ///
+    /// The delegated annotation modules retain their existing policies. This
+    /// owner changes only when their already-finalized invocation is allowed.
+    pub(super) fn commit_after_success(self, builder: &mut MirBuilder) {
+        if let Some(signature) = self.signature {
+            if crate::config::env::builder_debug_annotation() {
+                let ring0 = crate::runtime::get_global_ring0();
+                ring0.log.debug(&format!(
+                    "[annotation] dst=%{} func_name={}",
+                    signature.destination.0, signature.function_name
+                ));
+            }
+            super::super::annotation::annotate_call_result_from_func_name(
+                builder,
+                signature.destination,
+                &signature.function_name,
+            );
+        }
+        if let Some(collection) = self.collection_result {
+            super::super::super::types::array_element::annotate_array_element_result(
+                builder,
+                collection.destination,
+                &collection.callee,
+                &collection.arguments,
+            );
+            super::super::super::types::map_value::annotate_map_get_result(
+                builder,
+                collection.destination,
+                &collection.callee,
+                &collection.arguments,
+            );
+        }
+        crate::mir::builder::emit_guard::verify_after_call(builder);
     }
 }
 

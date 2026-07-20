@@ -192,8 +192,8 @@
     {
       "id": "call",
       "source_file": "src/mir/builder/calls/unified_emitter.rs",
-      "anchor": "let res = builder.emit_instruction(call_inst);",
-      "timing": "legacy_annotation_after_emit_result"
+      "anchor": "builder.emit_instruction(call_inst)?;",
+      "timing": "prepared_annotation_after_successful_call_receipt"
     },
     {
       "id": "field_get",

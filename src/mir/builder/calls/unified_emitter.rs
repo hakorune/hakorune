@@ -498,9 +498,6 @@ impl UnifiedCallEmitterBox {
 
         // Create MirCall instruction using the new module (pure data composition)
         let mir_call = call_unified::create_mir_call(dst, callee.clone(), args_local.clone());
-        let array_element_annotation = mir_call
-            .dst
-            .map(|dst| (dst, callee.clone(), args_local.clone()));
 
         // Dev trace: show final callee/recv right before emission (guarded)
         if crate::config::env::builder_local_ssa_trace()
@@ -523,20 +520,11 @@ impl UnifiedCallEmitterBox {
             }
         }
 
-        // Prepare annotation BEFORE moving values into instruction
-        let annotation_info = if let Some(dst) = mir_call.dst {
-            use super::annotation::callee_sig_name;
-            let arity = match &callee {
-                Callee::Method {
-                    receiver: Some(recv),
-                    ..
-                } if args_local.first() == Some(recv) => args_local.len().saturating_sub(1),
-                _ => args_local.len(),
-            };
-            callee_sig_name(&callee, arity).map(|func_name| (dst, func_name))
-        } else {
-            None
-        };
+        let prepared_post_success = post_success::PreparedUnifiedCallPostSuccessV1::prepare(
+            mir_call.dst,
+            &callee,
+            &args_local,
+        );
 
         // Build the MIR Call instruction with a concrete Callee and finalized operands.
         let call_inst = MirInstruction::Call {
@@ -547,29 +535,9 @@ impl UnifiedCallEmitterBox {
             effects: mir_call.effects,
         };
 
-        let res = builder.emit_instruction(call_inst);
-
-        // Annotate call result with return type from module signature
-        if let Some((dst, func_name)) = annotation_info {
-            if crate::config::env::builder_debug_annotation() {
-                let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!(
-                    "[annotation] dst=%{} func_name={}",
-                    dst.0, func_name
-                ));
-            }
-            super::annotation::annotate_call_result_from_func_name(builder, dst, &func_name);
-        }
-        if let Some((dst, callee, args)) = array_element_annotation {
-            super::super::types::array_element::annotate_array_element_result(
-                builder, dst, &callee, &args,
-            );
-            super::super::types::map_value::annotate_map_get_result(builder, dst, &callee, &args);
-        }
-
-        // Dev-only: verify block schedule invariants after emitting call
-        crate::mir::builder::emit_guard::verify_after_call(builder);
-        res
+        builder.emit_instruction(call_inst)?;
+        prepared_post_success.commit_after_success(builder);
+        Ok(())
     }
 
     /// Emit global call with name constant (public compatibility entry).
