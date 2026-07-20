@@ -2,9 +2,10 @@ use serde::Serialize;
 
 use crate::{RustSourceTopologyV1, SourceRangeV1};
 
+use super::DeclaredModuleContentGateV1;
 use crate::project::CfgAttributeStreamDecisionV1;
 
-pub const DECLARED_MODULE_TOPOLOGY_SCHEMA_V2: &str = "declared-module-topology-v2";
+pub const DECLARED_MODULE_TOPOLOGY_SCHEMA_V3: &str = "declared-module-topology-v3";
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct DeclaredModuleTopologyV1 {
@@ -14,6 +15,8 @@ pub struct DeclaredModuleTopologyV1 {
     pub package_key: String,
     pub target_key: String,
     pub root_instance_id: String,
+    /// The root content candidate is decided before root source observation.
+    pub root_content_gate: DeclaredModuleContentGateV1,
     pub module_instances: Box<[DeclaredModuleInstanceV1]>,
     pub module_edges: Box<[DeclaredModuleEdgeV1]>,
     pub include_edges: Box<[DeclaredIncludeEdgeV1]>,
@@ -28,7 +31,9 @@ pub struct DeclaredModuleInstanceV1 {
     pub kind: ModuleInstanceKindV1,
     pub source_path_workspace_relative: String,
     pub canonical_source_path_workspace_relative: String,
-    pub source_observation_id: String,
+    /// Only an excluded root lacks an active source observation.  Every
+    /// non-root instance is issued only from included content and has one.
+    pub source_observation_id: Option<String>,
     pub inline_body_range: Option<SourceRangeV1>,
 }
 
@@ -53,6 +58,9 @@ pub struct DeclaredModuleEdgeV1 {
     pub kind: ModuleEdgeKindV1,
     pub active_literal_path: Option<String>,
     pub cfg_decision: CfgAttributeStreamDecisionV1,
+    /// Present exactly when the outer declaration is Included.  Its candidate
+    /// identity is this edge; its Included state is the sole child issuer.
+    pub content_gate: Option<DeclaredModuleContentGateV1>,
     pub child_instance_id: Option<String>,
     pub selected_source_path_workspace_relative: Option<String>,
 }

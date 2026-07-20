@@ -1,5 +1,3 @@
-use std::collections::BTreeSet;
-
 use proc_macro2::Span;
 use quote::ToTokens;
 use syn::ext::IdentExt;
@@ -21,7 +19,10 @@ pub(super) struct ModuleDeclarationV1 {
     pub outer_attributes: Box<[Attribute]>,
     pub outer_topology_rows: Box<[CfgAttributeStreamInputRowV1]>,
     pub inline_body_range: Option<SourceRangeV1>,
-    pub inline_items: Option<Box<[ModulePositionItemV1]>>,
+    /// Parsed direct children of an inline body.  These are source syntax only:
+    /// `CONTENTCFG0-I0` must classify the child's own inner stream before it
+    /// issues `ModulePositionItemV1` declarations from them.
+    pub inline_body_items: Option<Box<[Item]>>,
     pub include_macro_ambiguity: bool,
 }
 
@@ -44,19 +45,37 @@ pub(super) struct ParsedModuleSourceV1 {
     pub items: Box<[ModulePositionItemV1]>,
 }
 
-pub(super) fn parse_module_source_v1(
-    path: &str,
-    source: &str,
-    inherited_include_macro_ambiguity: bool,
-) -> Result<ParsedModuleSourceV1, ModuleTopologyErrorV1> {
-    parse_source_v1(path, source, inherited_include_macro_ambiguity, false)
-}
-
 pub(super) fn parse_included_module_source_v1(
     path: &str,
     source: &str,
 ) -> Result<ParsedModuleSourceV1, ModuleTopologyErrorV1> {
     parse_source_v1(path, source, false, true)
+}
+
+/// Issues one direct declaration surface from already parsed, already admitted
+/// module content.
+///
+/// Callers must have classified the enclosing file or inline body through the
+/// CONTENTCFG0 gate first.  This function intentionally does not inspect an
+/// inner attribute stream or recursively issue inline descendants.
+pub(super) fn collect_direct_module_position_items_v1(
+    path: &str,
+    source: &str,
+    items: &[Item],
+    inherited_include_macro_ambiguity: bool,
+) -> Result<ParsedModuleSourceV1, ModuleTopologyErrorV1> {
+    let line_starts = line_starts(source);
+    let direct_items = collect_module_position_items(
+        items,
+        &line_starts,
+        source,
+        path,
+        inherited_include_macro_ambiguity,
+    )?;
+    reject_non_direct_topology_positions(path, source, items, &line_starts)?;
+    Ok(ParsedModuleSourceV1 {
+        items: direct_items.into_boxed_slice(),
+    })
 }
 
 fn parse_source_v1(
@@ -75,43 +94,45 @@ fn parse_source_v1(
         });
     }
     reject_inner_topology_attributes(path, &file.attrs)?;
-    let line_starts = line_starts(source);
-    let items = collect_module_position_items(
-        &file.items,
-        &line_starts,
-        source,
+    collect_direct_module_position_items_v1(
         path,
+        source,
+        &file.items,
         inherited_include_macro_ambiguity,
-    )?;
-    let (accepted_modules, accepted_includes) = flatten_ranges(&items);
-    let mut all = AllTopologyRangesV1 {
-        line_starts: &line_starts,
+    )
+}
+
+fn reject_non_direct_topology_positions(
+    path: &str,
+    source: &str,
+    direct_items: &[Item],
+    line_starts: &[usize],
+) -> Result<(), ModuleTopologyErrorV1> {
+    let mut nested = NestedTopologyPositionsV1 {
+        line_starts,
         source,
         modules: Vec::new(),
         includes: Vec::new(),
     };
-    all.visit_file(&file);
-    if let Some(range) = all
-        .modules
-        .into_iter()
-        .find(|range| !accepted_modules.contains(range))
-    {
+    for item in direct_items {
+        match item {
+            // A module's direct surface is checked only after its own content
+            // gate includes it.  Do not descend through it here.
+            Item::Mod(_) | Item::Macro(_) => {}
+            other => nested.visit_item(other),
+        }
+    }
+    if let Some(range) = nested.modules.into_iter().next() {
         return Err(ModuleTopologyErrorV1::ModuleInBlock {
             path: format!("{path}:{}..{}", range.byte_start, range.byte_end),
         });
     }
-    if let Some(range) = all
-        .includes
-        .into_iter()
-        .find(|range| !accepted_includes.contains(range))
-    {
+    if let Some(range) = nested.includes.into_iter().next() {
         return Err(ModuleTopologyErrorV1::UnsupportedIncludeContext {
             path: format!("{path}:{}..{}", range.byte_start, range.byte_end),
         });
     }
-    Ok(ParsedModuleSourceV1 {
-        items: items.into_boxed_slice(),
-    })
+    Ok(())
 }
 
 pub(super) fn validate_module_attributes(
@@ -242,25 +263,14 @@ fn collect_module_position_items(
         let Item::Mod(item_mod) = item else {
             continue;
         };
-        reject_inner_topology_attributes("inline-module", &item_mod.attrs)?;
         let range = source_range(item_mod.span(), line_starts, source);
         let inline_body_range = item_mod.content.as_ref().map(|(brace, _)| {
             range_between(brace.span.open(), brace.span.close(), line_starts, source)
         });
-        let inline_items = item_mod
+        let inline_body_items = item_mod
             .content
             .as_ref()
-            .map(|(_, children)| {
-                collect_module_position_items(
-                    children,
-                    line_starts,
-                    source,
-                    source_path,
-                    scope_ambiguity,
-                )
-            })
-            .transpose()?
-            .map(Vec::into_boxed_slice);
+            .map(|(_, children)| children.clone().into_boxed_slice());
         result.push(ModulePositionItemV1::Module(ModuleDeclarationV1 {
             ident_syntax: item_mod.ident.to_string(),
             semantic_segment: item_mod.ident.unraw().to_string(),
@@ -279,7 +289,7 @@ fn collect_module_position_items(
                 source,
             )?,
             inline_body_range,
-            inline_items,
+            inline_body_items,
             include_macro_ambiguity: scope_ambiguity,
         }));
     }
@@ -380,42 +390,14 @@ fn reject_inner_topology_attributes(
     Ok(())
 }
 
-fn flatten_ranges(
-    items: &[ModulePositionItemV1],
-) -> (BTreeSet<SourceRangeV1>, BTreeSet<SourceRangeV1>) {
-    fn collect(
-        rows: &[ModulePositionItemV1],
-        modules: &mut BTreeSet<SourceRangeV1>,
-        includes: &mut BTreeSet<SourceRangeV1>,
-    ) {
-        for row in rows {
-            match row {
-                ModulePositionItemV1::Module(module) => {
-                    modules.insert(module.range);
-                    if let Some(children) = &module.inline_items {
-                        collect(children, modules, includes);
-                    }
-                }
-                ModulePositionItemV1::Include(include) => {
-                    includes.insert(include.range);
-                }
-            }
-        }
-    }
-    let mut modules = BTreeSet::new();
-    let mut includes = BTreeSet::new();
-    collect(items, &mut modules, &mut includes);
-    (modules, includes)
-}
-
-struct AllTopologyRangesV1<'source> {
+struct NestedTopologyPositionsV1<'source> {
     line_starts: &'source [usize],
     source: &'source str,
     modules: Vec<SourceRangeV1>,
     includes: Vec<SourceRangeV1>,
 }
 
-impl Visit<'_> for AllTopologyRangesV1<'_> {
+impl Visit<'_> for NestedTopologyPositionsV1<'_> {
     fn visit_item_mod(&mut self, item: &ItemMod) {
         self.modules
             .push(source_range(item.span(), self.line_starts, self.source));

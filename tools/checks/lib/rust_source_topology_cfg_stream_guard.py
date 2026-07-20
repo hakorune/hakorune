@@ -17,6 +17,7 @@ FILES = {
     "declarations": f"{TOOL}/src/project/modules/declarations.rs",
     "module_model": f"{TOOL}/src/project/modules/model.rs",
     "traversal": f"{TOOL}/src/project/modules/traversal.rs",
+    "content_issuance": f"{TOOL}/src/project/modules/content_issuance.rs",
     "stream_test": f"{TOOL}/tests/cfg_stream.rs",
     "module_test": f"{TOOL}/tests/module_topology.rs",
     "include_test": f"{TOOL}/tests/include_topology.rs",
@@ -59,6 +60,7 @@ def main() -> None:
             "declarations",
             "module_model",
             "traversal",
+            "content_issuance",
         )
     )
 

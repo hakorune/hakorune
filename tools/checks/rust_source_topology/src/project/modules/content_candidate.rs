@@ -17,11 +17,12 @@ use super::cfg_gate::{
     decide_module_cfg_stream_v1, select_active_path_v1, validate_selected_cfg_attributes_v1,
 };
 use super::content_draft::{
-    classify_module_content_draft_v1, parse_module_content_draft_v1,
-    ClassifiedModuleContentDraftV1, ModuleContentDraftErrorV1,
+    classify_module_content_draft_v1, parse_inline_module_content_draft_v1,
+    parse_module_content_draft_v1, ClassifiedModuleContentDraftV1, ModuleContentDraftErrorV1,
 };
 use super::declarations::{
-    parse_module_source_v1, validate_module_attributes, ModuleDeclarationV1, ModulePositionItemV1,
+    collect_direct_module_position_items_v1, validate_module_attributes, ModuleDeclarationV1,
+    ModulePositionItemV1,
 };
 use super::path_resolution::{
     canonical_regular_file, normalize_inside_workspace, resolve_external_module_v1,
@@ -126,14 +127,18 @@ impl ContentCandidateObserverV1 {
                 );
                 Ok(())
             }
-            ClassifiedModuleContentDraftV1::Included { gate, .. } => {
+            ClassifiedModuleContentDraftV1::Included { gate, direct_items } => {
                 self.record(
                     &relative,
                     gate.cfg_decision.final_state,
                     gate.inner_cfg_sites.len(),
                 );
-                let parsed =
-                    parse_module_source_v1(&relative, &source, inherited_include_macro_ambiguity)?;
+                let parsed = collect_direct_module_position_items_v1(
+                    &relative,
+                    &source,
+                    &direct_items,
+                    inherited_include_macro_ambiguity,
+                )?;
                 self.walk_items(&lexical_path, &directory, &source, &parsed.items)
             }
         }
@@ -169,7 +174,7 @@ impl ContentCandidateObserverV1 {
             validate_selected_cfg_attributes_v1(&declaration.semantic_segment, &outer)?;
             let literal_path = select_active_path_v1(&declaration.semantic_segment, &outer)?;
             let candidate_id = self.next_edge_candidate();
-            if let Some(children) = &declaration.inline_items {
+            if declaration.inline_body_items.is_some() {
                 self.observe_inline_candidate(
                     candidate_id,
                     declaration,
@@ -177,7 +182,6 @@ impl ContentCandidateObserverV1 {
                     parent_directory,
                     parent_source,
                     literal_path,
-                    children,
                 )?;
             } else {
                 self.observe_external_candidate(
@@ -200,31 +204,21 @@ impl ContentCandidateObserverV1 {
         parent_directory: &ModuleDirectoryOwnershipV1,
         parent_source: &str,
         literal_path: Option<String>,
-        children: &[ModulePositionItemV1],
     ) -> Result<(), ContentCandidateObservationErrorV1> {
         let body_range = declaration
             .inline_body_range
             .ok_or(ModuleTopologyErrorV1::WorkspaceEvidenceDrift)?;
-        let braced_body = parent_source
-            .get(body_range.byte_start..body_range.byte_end)
-            .ok_or(ModuleTopologyErrorV1::AttributeRangeInvalid {
-                path: workspace_relative(&self.workspace_root, parent_lexical_path)?,
-                byte_start: body_range.byte_start,
-                byte_end: body_range.byte_end,
-            })?;
-        let body = braced_body
-            .strip_prefix('{')
-            .and_then(|source| source.strip_suffix('}'))
-            .ok_or(ModuleTopologyErrorV1::WorkspaceEvidenceDrift)?;
         let parent_relative = workspace_relative(&self.workspace_root, parent_lexical_path)?;
-        let surface = ModuleContentDefiningSurfaceV1::InlineBody {
-            parent_source_observation_id: format!(
+        let draft = parse_inline_module_content_draft_v1(
+            candidate_id,
+            format!(
                 "proof-source:{parent_relative}:{}..{}",
                 body_range.byte_start, body_range.byte_end
             ),
+            &parent_relative,
+            parent_source,
             body_range,
-        };
-        let draft = parse_module_content_draft_v1(candidate_id, surface, &parent_relative, body)?;
+        )?;
         let directory =
             parent_directory.inline_child(&declaration.semantic_segment, literal_path.as_deref());
         match classify_module_content_draft_v1(draft, &self.environment)? {
@@ -242,7 +236,22 @@ impl ContentCandidateObserverV1 {
                     gate.cfg_decision.final_state,
                     gate.inner_cfg_sites.len(),
                 );
-                self.walk_items(parent_lexical_path, &directory, body, children)
+                let raw_items = declaration
+                    .inline_body_items
+                    .as_deref()
+                    .ok_or(ModuleTopologyErrorV1::WorkspaceEvidenceDrift)?;
+                let parsed = collect_direct_module_position_items_v1(
+                    &parent_relative,
+                    parent_source,
+                    raw_items,
+                    declaration.include_macro_ambiguity,
+                )?;
+                self.walk_items(
+                    parent_lexical_path,
+                    &directory,
+                    parent_source,
+                    &parsed.items,
+                )
             }
         }
     }

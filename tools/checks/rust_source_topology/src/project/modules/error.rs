@@ -40,6 +40,15 @@ pub enum ModuleTopologyErrorV1 {
     UnknownCfg {
         module: String,
     },
+    ContentCfgUnknown {
+        path: String,
+    },
+    ActiveContentPath {
+        path: String,
+    },
+    ContentDraft {
+        detail: String,
+    },
     UnsupportedModuleAttribute {
         module: String,
         attribute: String,
@@ -103,6 +112,9 @@ impl fmt::Display for ModuleTopologyErrorV1 {
             Self::Cfg(error) => error.fmt(formatter),
             Self::CfgStream(error) => error.fmt(formatter),
             Self::UnknownCfg { module } => write!(formatter, "[rust-source-topology/module/cfg-unknown] module={module}"),
+            Self::ContentCfgUnknown { path } => write!(formatter, "[rust-source-topology/content-gate/cfg-unknown] path={path:?}"),
+            Self::ActiveContentPath { path } => write!(formatter, "[rust-source-topology/content-gate/active-path-unsupported] path={path:?}"),
+            Self::ContentDraft { detail } => write!(formatter, "[rust-source-topology/content-gate/draft-failed] detail={detail}"),
             Self::UnsupportedModuleAttribute { module, attribute } => write!(formatter, "[rust-source-topology/module/unsupported-attribute] module={module} attribute={attribute:?}"),
             Self::UnsupportedInnerTopologyAttribute { path } => write!(formatter, "[rust-source-topology/module/unsupported-inner-topology-attribute] path={path:?}"),
             Self::ModuleInBlock { path } => write!(formatter, "[rust-source-topology/module/block-module-unsupported] path={path:?}"),

@@ -13,11 +13,12 @@ use crate::project::{
     decide_cfg_attribute_stream_v1, CfgAttributeStreamErrorV1, CfgEvaluationEnvironmentV1,
     InnerTopologyAttributeSurfaceErrorV1,
 };
+use crate::{PositionV1, SourceRangeV1};
 
+use super::super::inner_cfg_surface::collect_inner_topology_surface_from_parsed_file_v1;
 use super::{
     DeclaredModuleContentGateV1, ModuleContentCandidateIdV1, ModuleContentDefiningSurfaceV1,
 };
-use super::super::inner_cfg_surface::collect_inner_topology_surface_from_parsed_file_v1;
 
 pub(super) struct ParsedModuleContentDraftV1 {
     candidate_id: ModuleContentCandidateIdV1,
@@ -46,6 +47,11 @@ pub(super) enum ModuleContentDraftErrorV1 {
     ActiveInnerPath {
         source_path_workspace_relative: String,
     },
+    InlineBodyRangeInvalid {
+        source_path_workspace_relative: String,
+        byte_start: usize,
+        byte_end: usize,
+    },
 }
 
 impl fmt::Display for ModuleContentDraftErrorV1 {
@@ -65,11 +71,45 @@ impl fmt::Display for ModuleContentDraftErrorV1 {
                 formatter,
                 "[rust-source-topology/content-draft/inner-path-unsupported] path={source_path_workspace_relative}"
             ),
+            Self::InlineBodyRangeInvalid {
+                source_path_workspace_relative,
+                byte_start,
+                byte_end,
+            } => write!(
+                formatter,
+                "[rust-source-topology/content-draft/inline-body-range-invalid] path={source_path_workspace_relative} start={byte_start} end={byte_end}"
+            ),
         }
     }
 }
 
 impl std::error::Error for ModuleContentDraftErrorV1 {}
+
+impl ModuleContentDraftErrorV1 {
+    pub(super) fn into_topology_error(self) -> super::ModuleTopologyErrorV1 {
+        match self {
+            Self::Stream(error) => super::ModuleTopologyErrorV1::CfgStream(error),
+            Self::UnknownCfg {
+                source_path_workspace_relative,
+            } => super::ModuleTopologyErrorV1::ContentCfgUnknown {
+                path: source_path_workspace_relative,
+            },
+            Self::ActiveInnerPath {
+                source_path_workspace_relative,
+            } => super::ModuleTopologyErrorV1::ActiveContentPath {
+                path: source_path_workspace_relative,
+            },
+            Self::Surface(error) => super::ModuleTopologyErrorV1::ContentDraft {
+                detail: error.to_string(),
+            },
+            error @ Self::InlineBodyRangeInvalid { .. } => {
+                super::ModuleTopologyErrorV1::ContentDraft {
+                    detail: error.to_string(),
+                }
+            }
+        }
+    }
+}
 
 pub(super) fn parse_module_content_draft_v1(
     candidate_id: ModuleContentCandidateIdV1,
@@ -95,6 +135,104 @@ pub(super) fn parse_module_content_draft_v1(
         inner_surface,
         direct_items: file.items.into_boxed_slice(),
     })
+}
+
+/// Parses one inline body and projects its inner-CFG rows back to the parent
+/// source coordinate system.  The body-local parser is an implementation
+/// detail; `InlineBody` gates never publish body-relative source identity.
+pub(super) fn parse_inline_module_content_draft_v1(
+    candidate_id: ModuleContentCandidateIdV1,
+    parent_source_observation_id: String,
+    source_path_workspace_relative: &str,
+    parent_source: &str,
+    body_range: SourceRangeV1,
+) -> Result<ParsedModuleContentDraftV1, ModuleContentDraftErrorV1> {
+    let braced_body = parent_source
+        .get(body_range.byte_start..body_range.byte_end)
+        .ok_or_else(|| ModuleContentDraftErrorV1::InlineBodyRangeInvalid {
+            source_path_workspace_relative: source_path_workspace_relative.to_string(),
+            byte_start: body_range.byte_start,
+            byte_end: body_range.byte_end,
+        })?;
+    let body = braced_body
+        .strip_prefix('{')
+        .and_then(|source| source.strip_suffix('}'))
+        .ok_or_else(|| ModuleContentDraftErrorV1::InlineBodyRangeInvalid {
+            source_path_workspace_relative: source_path_workspace_relative.to_string(),
+            byte_start: body_range.byte_start,
+            byte_end: body_range.byte_end,
+        })?;
+    let mut draft = parse_module_content_draft_v1(
+        candidate_id,
+        ModuleContentDefiningSurfaceV1::InlineBody {
+            parent_source_observation_id,
+            body_range,
+        },
+        source_path_workspace_relative,
+        body,
+    )?;
+    let content_start = body_range.byte_start.checked_add(1).ok_or_else(|| {
+        ModuleContentDraftErrorV1::InlineBodyRangeInvalid {
+            source_path_workspace_relative: source_path_workspace_relative.to_string(),
+            byte_start: body_range.byte_start,
+            byte_end: body_range.byte_end,
+        }
+    })?;
+    for row in &mut draft.inner_surface.rows {
+        row.source_range = translate_body_range_v1(
+            parent_source,
+            content_start,
+            row.source_range,
+            source_path_workspace_relative,
+            body_range,
+        )?;
+    }
+    Ok(draft)
+}
+
+fn translate_body_range_v1(
+    parent_source: &str,
+    content_start: usize,
+    local: SourceRangeV1,
+    source_path_workspace_relative: &str,
+    body_range: SourceRangeV1,
+) -> Result<SourceRangeV1, ModuleContentDraftErrorV1> {
+    let byte_start = content_start.checked_add(local.byte_start).ok_or_else(|| {
+        ModuleContentDraftErrorV1::InlineBodyRangeInvalid {
+            source_path_workspace_relative: source_path_workspace_relative.to_string(),
+            byte_start: body_range.byte_start,
+            byte_end: body_range.byte_end,
+        }
+    })?;
+    let byte_end = content_start.checked_add(local.byte_end).ok_or_else(|| {
+        ModuleContentDraftErrorV1::InlineBodyRangeInvalid {
+            source_path_workspace_relative: source_path_workspace_relative.to_string(),
+            byte_start: body_range.byte_start,
+            byte_end: body_range.byte_end,
+        }
+    })?;
+    if byte_start > byte_end || byte_end > parent_source.len() {
+        return Err(ModuleContentDraftErrorV1::InlineBodyRangeInvalid {
+            source_path_workspace_relative: source_path_workspace_relative.to_string(),
+            byte_start: body_range.byte_start,
+            byte_end: body_range.byte_end,
+        });
+    }
+    Ok(SourceRangeV1 {
+        start: position_at_byte(parent_source, byte_start),
+        end: position_at_byte(parent_source, byte_end),
+        byte_start,
+        byte_end,
+    })
+}
+
+fn position_at_byte(source: &str, byte_offset: usize) -> PositionV1 {
+    let prefix = &source[..byte_offset];
+    let line = prefix.bytes().filter(|byte| *byte == b'\n').count() + 1;
+    let column = prefix.rfind('\n').map_or(prefix.len(), |newline| {
+        prefix.len().saturating_sub(newline + 1)
+    });
+    PositionV1 { line, column }
 }
 
 pub(super) fn classify_module_content_draft_v1(
@@ -125,11 +263,9 @@ pub(super) fn classify_module_content_draft_v1(
         crate::project::CfgDecisionStateV1::Excluded => {
             Ok(ClassifiedModuleContentDraftV1::Excluded { gate })
         }
-        crate::project::CfgDecisionStateV1::Unknown => {
-            Err(ModuleContentDraftErrorV1::UnknownCfg {
-                source_path_workspace_relative: path,
-            })
-        }
+        crate::project::CfgDecisionStateV1::Unknown => Err(ModuleContentDraftErrorV1::UnknownCfg {
+            source_path_workspace_relative: path,
+        }),
     }
 }
 
@@ -295,6 +431,45 @@ mod tests {
             malformed_first,
             Err(ModuleContentDraftErrorV1::Stream(_))
         ));
+    }
+
+    #[test]
+    fn inline_body_rows_keep_parent_source_coordinates() {
+        let parent = "mod child { #![cfg(any())]\nmod missing; }\n";
+        let open = parent.find('{').unwrap();
+        let close = parent.rfind('}').unwrap();
+        let draft = parse_inline_module_content_draft_v1(
+            ModuleContentCandidateIdV1::ModuleEdge {
+                edge_id: "edge:inline".to_string(),
+            },
+            "source:parent".to_string(),
+            "src/lib.rs",
+            parent,
+            crate::SourceRangeV1 {
+                start: crate::PositionV1 {
+                    line: 1,
+                    column: open,
+                },
+                end: crate::PositionV1 {
+                    line: 1,
+                    column: close + 1,
+                },
+                byte_start: open,
+                byte_end: close + 1,
+            },
+        )
+        .unwrap();
+        let ClassifiedModuleContentDraftV1::Excluded { gate } =
+            classify_module_content_draft_v1(draft, &environment()).unwrap()
+        else {
+            panic!("inline cfg(any()) must exclude");
+        };
+        assert_eq!(gate.inner_cfg_sites.len(), 1);
+        assert_eq!(
+            gate.inner_cfg_sites[0].source_range.byte_start,
+            parent.find("cfg(any())").unwrap()
+        );
+        assert_eq!(gate.inner_cfg_sites[0].syntax, "cfg(any())");
     }
 
     fn classify(source: &str) -> Result<ClassifiedModuleContentDraftV1, ModuleContentDraftErrorV1> {

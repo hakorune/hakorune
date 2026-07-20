@@ -7,7 +7,7 @@ use rust_source_topology_check::project::cargo::{
 };
 use rust_source_topology_check::project::{
     collect_declared_module_topology_v1, parse_and_verify_profile_schema_v1, CfgDecisionStateV1,
-    ModuleInstanceKindV1, ModuleTopologyErrorV1, ValidatedBuildProfileInputV1,
+    ModuleEdgeKindV1, ModuleInstanceKindV1, ModuleTopologyErrorV1, ValidatedBuildProfileInputV1,
 };
 
 const FIXTURE_PROFILES: &str = include_str!("fixtures/module0_workspace/profiles_v1.json");
@@ -201,9 +201,19 @@ fn topology_is_deterministic_atomic_and_workspace_relative() {
         1 + first
             .module_edges
             .iter()
-            .filter(|edge| edge.cfg_decision.final_state == CfgDecisionStateV1::Included)
+            .filter(|edge| edge.child_instance_id.is_some())
             .count()
     );
+    assert!(first.module_edges.iter().all(|edge| {
+        let outer_included = edge.cfg_decision.final_state == CfgDecisionStateV1::Included;
+        match &edge.content_gate {
+            None => !outer_included && edge.child_instance_id.is_none(),
+            Some(gate) => {
+                (gate.cfg_decision.final_state == CfgDecisionStateV1::Included)
+                    == edge.child_instance_id.is_some()
+            }
+        }
+    }));
 }
 
 #[test]
@@ -312,9 +322,7 @@ fn module_lookup_and_cfg_failures_are_typed_before_fallback() {
         Some("nested.rs")
     );
     assert_eq!(
-        nested.module_edges[0]
-            .cfg_decision
-            .active_path_effects[0]
+        nested.module_edges[0].cfg_decision.active_path_effects[0]
             .nested_index_path
             .as_ref(),
         [0_u32, 0]
@@ -324,7 +332,7 @@ fn module_lookup_and_cfg_failures_are_typed_before_fallback() {
     workspace.write("src/broken.rs", "this is not valid Rust {\n");
     assert!(matches!(
         workspace.collect(&evidence),
-        Err(ModuleTopologyErrorV1::Parse { .. })
+        Err(ModuleTopologyErrorV1::ContentDraft { .. })
     ));
 
     workspace.write(
@@ -396,7 +404,7 @@ fn reachable_inner_cfg_and_unknown_attribute_stop_explicitly() {
     workspace.write("src/root.rs", "#![cfg(custom_inner)]\npub fn root() {}\n");
     assert!(matches!(
         workspace.collect(&evidence),
-        Err(ModuleTopologyErrorV1::UnsupportedInnerTopologyAttribute { .. })
+        Err(ModuleTopologyErrorV1::ContentCfgUnknown { .. })
     ));
     workspace.write(
         "src/root.rs",
@@ -404,7 +412,7 @@ fn reachable_inner_cfg_and_unknown_attribute_stop_explicitly() {
     );
     assert!(matches!(
         workspace.collect(&evidence),
-        Err(ModuleTopologyErrorV1::UnsupportedInnerTopologyAttribute { .. })
+        Err(ModuleTopologyErrorV1::ContentCfgUnknown { .. })
     ));
     workspace.write("src/root.rs", "#[custom_attr] mod child;\n");
     assert!(matches!(
@@ -418,6 +426,119 @@ fn reachable_inner_cfg_and_unknown_attribute_stop_explicitly() {
     assert!(matches!(
         workspace.collect(&evidence),
         Err(ModuleTopologyErrorV1::UnsupportedModuleAttribute { .. })
+    ));
+}
+
+#[test]
+fn content_gate_controls_root_external_and_inline_instance_issue() {
+    let workspace = TemporaryModuleWorkspace::new("#![cfg(any())]\nmod absent;\n");
+    let evidence = workspace.evidence();
+
+    let root_excluded = workspace.collect(&evidence).unwrap();
+    assert_eq!(root_excluded.module_instances.len(), 1);
+    assert_eq!(root_excluded.source_observations.len(), 0);
+    assert_eq!(
+        root_excluded.root_content_gate.cfg_decision.final_state,
+        CfgDecisionStateV1::Excluded
+    );
+    assert!(root_excluded.module_instances[0]
+        .source_observation_id
+        .is_none());
+
+    workspace.write("src/root.rs", "#![cfg(all())]\nmod child;\n");
+    workspace.write("src/child.rs", "#![cfg(any())]\nmod missing;\n");
+    let external_excluded = workspace.collect(&evidence).unwrap();
+    let edge = &external_excluded.module_edges[0];
+    assert_eq!(edge.cfg_decision.final_state, CfgDecisionStateV1::Included);
+    assert_eq!(
+        edge.content_gate.as_ref().unwrap().cfg_decision.final_state,
+        CfgDecisionStateV1::Excluded
+    );
+    assert!(edge.child_instance_id.is_none());
+    assert_eq!(external_excluded.module_instances.len(), 1);
+    assert_eq!(external_excluded.source_observations.len(), 1);
+    assert_eq!(
+        edge.selected_source_path_workspace_relative.as_deref(),
+        Some("src/child.rs")
+    );
+
+    workspace.write("src/child.rs", "#![cfg(all())]\npub fn child() {}\n");
+    let external_included = workspace.collect(&evidence).unwrap();
+    assert_eq!(external_included.module_instances.len(), 2);
+    assert_eq!(external_included.source_observations.len(), 2);
+    assert_eq!(
+        external_included.module_edges[0]
+            .content_gate
+            .as_ref()
+            .unwrap()
+            .cfg_decision
+            .final_state,
+        CfgDecisionStateV1::Included
+    );
+    assert!(external_included.module_edges[0]
+        .child_instance_id
+        .is_some());
+
+    workspace.write(
+        "src/root.rs",
+        "#![cfg(all())]\nmod inline { #![cfg(any())] mod missing; }\n",
+    );
+    let inline_excluded = workspace.collect(&evidence).unwrap();
+    let edge = &inline_excluded.module_edges[0];
+    assert_eq!(edge.kind, ModuleEdgeKindV1::Inline);
+    assert_eq!(
+        edge.content_gate.as_ref().unwrap().cfg_decision.final_state,
+        CfgDecisionStateV1::Excluded
+    );
+    assert!(edge.child_instance_id.is_none());
+    assert_eq!(inline_excluded.module_instances.len(), 1);
+    assert_eq!(inline_excluded.source_observations.len(), 1);
+
+    workspace.write(
+        "src/root.rs",
+        "#![cfg(all())]\nmod inline { #![cfg(all())] pub fn child() {} }\n",
+    );
+    let inline_included = workspace.collect(&evidence).unwrap();
+    assert_eq!(inline_included.module_instances.len(), 2);
+    assert_eq!(inline_included.source_observations.len(), 1);
+    assert!(inline_included.module_edges[0].child_instance_id.is_some());
+}
+
+#[test]
+fn content_gate_unknown_and_outer_exclusion_have_distinct_typed_boundaries() {
+    let workspace = TemporaryModuleWorkspace::new("#[cfg(any())] mod absent;\n");
+    let evidence = workspace.evidence();
+    let outer_excluded = workspace.collect(&evidence).unwrap();
+    assert_eq!(outer_excluded.module_edges.len(), 1);
+    assert!(outer_excluded.module_edges[0].content_gate.is_none());
+    assert!(outer_excluded.module_edges[0].child_instance_id.is_none());
+
+    workspace.write(
+        "src/root.rs",
+        "#![cfg(content_cfg_unknown)]\npub fn root() {}\n",
+    );
+    assert!(matches!(
+        workspace.collect(&evidence),
+        Err(ModuleTopologyErrorV1::ContentCfgUnknown { .. })
+    ));
+
+    workspace.write("src/root.rs", "mod child;\n");
+    workspace.write(
+        "src/child.rs",
+        "#![cfg(content_cfg_unknown)]\npub fn child() {}\n",
+    );
+    assert!(matches!(
+        workspace.collect(&evidence),
+        Err(ModuleTopologyErrorV1::ContentCfgUnknown { .. })
+    ));
+
+    workspace.write(
+        "src/root.rs",
+        "mod inline { #![cfg(content_cfg_unknown)] pub fn child() {} }\n",
+    );
+    assert!(matches!(
+        workspace.collect(&evidence),
+        Err(ModuleTopologyErrorV1::ContentCfgUnknown { .. })
     ));
 }
 

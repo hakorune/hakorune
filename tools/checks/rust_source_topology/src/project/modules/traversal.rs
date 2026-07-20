@@ -12,20 +12,22 @@ use crate::project::{
 use super::cfg_gate::{
     decide_module_cfg_stream_v1, select_active_path_v1, validate_selected_cfg_attributes_v1,
 };
+use super::content_draft::ClassifiedModuleContentDraftV1;
+use super::content_gate::{DeclaredModuleContentGateV1, ModuleContentCandidateIdV1};
 use super::declarations::{
-    include_literal, parse_included_module_source_v1, parse_module_source_v1,
+    collect_direct_module_position_items_v1, include_literal, parse_included_module_source_v1,
     validate_include_attributes, validate_module_attributes, IncludeDeclarationV1,
-    ModuleDeclarationV1, ModulePositionItemV1,
+    ModulePositionItemV1,
 };
 use super::error::ModuleTopologyErrorV1;
 use super::model::{
     DeclaredIncludeEdgeV1, DeclaredModuleEdgeV1, DeclaredModuleInstanceV1,
     DeclaredModuleTopologyV1, ModuleEdgeKindV1, ModuleInstanceKindV1, ModuleSourceObservationV1,
-    DECLARED_MODULE_TOPOLOGY_SCHEMA_V2,
+    DECLARED_MODULE_TOPOLOGY_SCHEMA_V3,
 };
 use super::path_resolution::{
-    canonical_regular_file, normalize_inside_workspace, resolve_external_module_v1,
-    resolve_include_source_v1, workspace_relative, ModuleDirectoryOwnershipV1,
+    canonical_regular_file, normalize_inside_workspace, resolve_include_source_v1,
+    workspace_relative, ModuleDirectoryOwnershipV1,
 };
 
 pub fn collect_declared_module_topology_v1(
@@ -75,18 +77,19 @@ pub fn collect_declared_module_topology_v1(
     traversal.finish()
 }
 
-struct ModuleTraversalV1 {
-    workspace_root: PathBuf,
-    profile_id: String,
-    package_key: String,
-    target_key: String,
-    environment: CfgEvaluationEnvironmentV1,
-    instances: Vec<DeclaredModuleInstanceV1>,
-    edges: Vec<DeclaredModuleEdgeV1>,
-    include_edges: Vec<DeclaredIncludeEdgeV1>,
-    observations: Vec<ModuleSourceObservationV1>,
-    source_snapshots: BTreeMap<PathBuf, String>,
-    canonical_ancestry: Vec<PathBuf>,
+pub(super) struct ModuleTraversalV1 {
+    pub(super) workspace_root: PathBuf,
+    pub(super) profile_id: String,
+    pub(super) package_key: String,
+    pub(super) target_key: String,
+    pub(super) environment: CfgEvaluationEnvironmentV1,
+    pub(super) instances: Vec<DeclaredModuleInstanceV1>,
+    pub(super) edges: Vec<DeclaredModuleEdgeV1>,
+    pub(super) include_edges: Vec<DeclaredIncludeEdgeV1>,
+    pub(super) observations: Vec<ModuleSourceObservationV1>,
+    pub(super) source_snapshots: BTreeMap<PathBuf, String>,
+    pub(super) canonical_ancestry: Vec<PathBuf>,
+    pub(super) root_content_gate: Option<DeclaredModuleContentGateV1>,
 }
 
 impl ModuleTraversalV1 {
@@ -109,6 +112,7 @@ impl ModuleTraversalV1 {
             observations: Vec::new(),
             source_snapshots: BTreeMap::new(),
             canonical_ancestry: Vec::new(),
+            root_content_gate: None,
         }
     }
 
@@ -119,34 +123,58 @@ impl ModuleTraversalV1 {
     ) -> Result<(), ModuleTopologyErrorV1> {
         let directory = ModuleDirectoryOwnershipV1::root(&lexical_path)?;
         let source = self.read_source(&lexical_path, &canonical_path)?;
-        let parsed = parse_module_source_v1(&self.relative(&lexical_path)?, &source, false)?;
+        let relative = self.relative(&lexical_path)?;
         let root_id = self.next_instance_id();
-        let observation_id = self.add_source_observation(
-            &root_id,
-            &lexical_path,
-            &canonical_path,
-            "crate",
-            &source,
-            None,
-        )?;
+        let classified =
+            self.classify_file_content(ModuleContentCandidateIdV1::Root, &relative, &source)?;
+        let (gate, parsed, observation_id) = match classified {
+            ClassifiedModuleContentDraftV1::Excluded { gate } => (gate, None, None),
+            ClassifiedModuleContentDraftV1::Included { gate, direct_items } => {
+                let parsed = collect_direct_module_position_items_v1(
+                    &relative,
+                    &source,
+                    &direct_items,
+                    false,
+                )?;
+                let observation_id = self.add_source_observation(
+                    &root_id,
+                    &lexical_path,
+                    &canonical_path,
+                    "crate",
+                    &source,
+                    None,
+                )?;
+                (gate, Some(parsed), Some(observation_id))
+            }
+        };
+        self.root_content_gate = Some(gate);
         self.instances.push(DeclaredModuleInstanceV1 {
             instance_id: root_id.clone(),
             parent_edge_id: None,
             module_syntax_path: "crate".to_string(),
             kind: ModuleInstanceKindV1::Root,
-            source_path_workspace_relative: self.relative(&lexical_path)?,
+            source_path_workspace_relative: relative,
             canonical_source_path_workspace_relative: self.relative(&canonical_path)?,
             source_observation_id: observation_id,
             inline_body_range: None,
         });
+        let Some(parsed) = parsed else {
+            return Ok(());
+        };
+        let root_observation_id = self.instances[0]
+            .source_observation_id
+            .as_deref()
+            .ok_or(ModuleTopologyErrorV1::WorkspaceEvidenceDrift)?
+            .to_string();
         self.canonical_ancestry.push(canonical_path);
         let result = self.walk_items(
             &root_id,
             "crate",
             &lexical_path,
             &self.relative(&self.canonical_ancestry[0])?,
-            &self.instances[0].source_observation_id.clone(),
+            &root_observation_id,
             &directory,
+            &source,
             &parsed.items,
         );
         self.canonical_ancestry.pop();
@@ -154,7 +182,7 @@ impl ModuleTraversalV1 {
     }
 
     #[allow(clippy::too_many_arguments)]
-    fn walk_items(
+    pub(super) fn walk_items(
         &mut self,
         parent_instance_id: &str,
         parent_syntax_path: &str,
@@ -162,6 +190,7 @@ impl ModuleTraversalV1 {
         parent_canonical_relative: &str,
         parent_observation_id: &str,
         parent_directory: &ModuleDirectoryOwnershipV1,
+        parent_source: &str,
         items: &[ModulePositionItemV1],
     ) -> Result<(), ModuleTopologyErrorV1> {
         for item in items {
@@ -195,13 +224,14 @@ impl ModuleTraversalV1 {
                     declaration_range: declaration.range,
                     declared_ident_syntax: declaration.ident_syntax.clone(),
                     semantic_segment: declaration.semantic_segment.clone(),
-                    kind: if declaration.inline_items.is_some() {
+                    kind: if declaration.inline_body_items.is_some() {
                         ModuleEdgeKindV1::Inline
                     } else {
                         ModuleEdgeKindV1::Ordinary
                     },
                     active_literal_path: None,
                     cfg_decision: cfg,
+                    content_gate: None,
                     child_instance_id: None,
                     selected_source_path_workspace_relative: None,
                 });
@@ -210,7 +240,7 @@ impl ModuleTraversalV1 {
             validate_module_attributes(&module_path, &declaration.outer_attributes)?;
             validate_selected_cfg_attributes_v1(&module_path, &cfg)?;
             let literal_path = select_active_path_v1(&module_path, &cfg)?;
-            if let Some(children) = &declaration.inline_items {
+            if declaration.inline_body_items.is_some() {
                 self.add_inline_module(
                     edge_id,
                     parent_instance_id,
@@ -222,7 +252,7 @@ impl ModuleTraversalV1 {
                     declaration,
                     literal_path,
                     cfg,
-                    children,
+                    parent_source,
                 )?;
             } else {
                 self.add_external_module(
@@ -329,146 +359,14 @@ impl ModuleTraversalV1 {
             &canonical_relative,
             &observation_id,
             &resolved.directory,
+            &source,
             &parsed.items,
         );
         self.canonical_ancestry.pop();
         result
     }
 
-    #[allow(clippy::too_many_arguments)]
-    fn add_inline_module(
-        &mut self,
-        edge_id: String,
-        parent_instance_id: &str,
-        module_path: &str,
-        parent_lexical_path: &Path,
-        parent_canonical_relative: &str,
-        parent_observation_id: &str,
-        parent_directory: &ModuleDirectoryOwnershipV1,
-        declaration: &ModuleDeclarationV1,
-        literal_path: Option<String>,
-        cfg: crate::project::CfgAttributeStreamDecisionV1,
-        children: &[ModulePositionItemV1],
-    ) -> Result<(), ModuleTopologyErrorV1> {
-        let child_id = self.next_instance_id();
-        let directory =
-            parent_directory.inline_child(&declaration.semantic_segment, literal_path.as_deref());
-        self.edges.push(DeclaredModuleEdgeV1 {
-            edge_id: edge_id.clone(),
-            parent_instance_id: parent_instance_id.to_string(),
-            declaration_source_observation_id: parent_observation_id.to_string(),
-            declaration_range: declaration.range,
-            declared_ident_syntax: declaration.ident_syntax.clone(),
-            semantic_segment: declaration.semantic_segment.clone(),
-            kind: ModuleEdgeKindV1::Inline,
-            active_literal_path: literal_path,
-            cfg_decision: cfg,
-            child_instance_id: Some(child_id.clone()),
-            selected_source_path_workspace_relative: None,
-        });
-        self.instances.push(DeclaredModuleInstanceV1 {
-            instance_id: child_id.clone(),
-            parent_edge_id: Some(edge_id),
-            module_syntax_path: module_path.to_string(),
-            kind: ModuleInstanceKindV1::Inline,
-            source_path_workspace_relative: self.relative(parent_lexical_path)?,
-            canonical_source_path_workspace_relative: parent_canonical_relative.to_string(),
-            source_observation_id: parent_observation_id.to_string(),
-            inline_body_range: declaration.inline_body_range,
-        });
-        self.walk_items(
-            &child_id,
-            module_path,
-            parent_lexical_path,
-            parent_canonical_relative,
-            parent_observation_id,
-            &directory,
-            children,
-        )
-    }
-
-    #[allow(clippy::too_many_arguments)]
-    fn add_external_module(
-        &mut self,
-        edge_id: String,
-        parent_instance_id: &str,
-        module_path: &str,
-        parent_observation_id: &str,
-        parent_directory: &ModuleDirectoryOwnershipV1,
-        declaration: &ModuleDeclarationV1,
-        literal_path: Option<String>,
-        cfg: crate::project::CfgAttributeStreamDecisionV1,
-    ) -> Result<(), ModuleTopologyErrorV1> {
-        let resolved = resolve_external_module_v1(
-            &self.workspace_root,
-            parent_directory,
-            &declaration.semantic_segment,
-            literal_path.as_deref(),
-        )?;
-        if self.canonical_ancestry.contains(&resolved.canonical_path) {
-            return Err(ModuleTopologyErrorV1::CanonicalCycle {
-                path: self.relative(&resolved.canonical_path)?,
-            });
-        }
-        let child_id = self.next_instance_id();
-        let selected_relative = self.relative(&resolved.lexical_path)?;
-        let source = self.read_source(&resolved.lexical_path, &resolved.canonical_path)?;
-        let parsed = parse_module_source_v1(
-            &selected_relative,
-            &source,
-            declaration.include_macro_ambiguity,
-        )?;
-        let observation_id = self.add_source_observation(
-            &child_id,
-            &resolved.lexical_path,
-            &resolved.canonical_path,
-            module_path,
-            &source,
-            None,
-        )?;
-        self.edges.push(DeclaredModuleEdgeV1 {
-            edge_id: edge_id.clone(),
-            parent_instance_id: parent_instance_id.to_string(),
-            declaration_source_observation_id: parent_observation_id.to_string(),
-            declaration_range: declaration.range,
-            declared_ident_syntax: declaration.ident_syntax.clone(),
-            semantic_segment: declaration.semantic_segment.clone(),
-            kind: if literal_path.is_some() {
-                ModuleEdgeKindV1::LiteralPath
-            } else {
-                ModuleEdgeKindV1::Ordinary
-            },
-            active_literal_path: literal_path,
-            cfg_decision: cfg,
-            child_instance_id: Some(child_id.clone()),
-            selected_source_path_workspace_relative: Some(selected_relative.clone()),
-        });
-        let canonical_relative = self.relative(&resolved.canonical_path)?;
-        self.instances.push(DeclaredModuleInstanceV1 {
-            instance_id: child_id.clone(),
-            parent_edge_id: Some(edge_id),
-            module_syntax_path: module_path.to_string(),
-            kind: resolved.kind,
-            source_path_workspace_relative: selected_relative,
-            canonical_source_path_workspace_relative: canonical_relative.clone(),
-            source_observation_id: observation_id.clone(),
-            inline_body_range: None,
-        });
-        self.canonical_ancestry.push(resolved.canonical_path);
-        let result = self.walk_items(
-            &child_id,
-            module_path,
-            &resolved.lexical_path,
-            &canonical_relative,
-            &observation_id,
-            &resolved.directory,
-            &parsed.items,
-        );
-        self.canonical_ancestry.pop();
-        result
-    }
-
-    fn add_source_observation(
+    pub(super) fn add_source_observation(
         &mut self,
         module_instance_id: &str,
         lexical_path: &Path,
@@ -497,7 +395,7 @@ impl ModuleTraversalV1 {
         Ok(id)
     }
 
-    fn read_source(
+    pub(super) fn read_source(
         &mut self,
         lexical_path: &Path,
         canonical_path: &Path,
@@ -542,17 +440,21 @@ impl ModuleTraversalV1 {
     }
 
     fn finish(self) -> Result<DeclaredModuleTopologyV1, ModuleTopologyErrorV1> {
-        let included_modules = self
+        let root_content_gate = self
+            .root_content_gate
+            .ok_or(ModuleTopologyErrorV1::WorkspaceEvidenceDrift)?;
+        let root_included =
+            root_content_gate.cfg_decision.final_state == CfgDecisionStateV1::Included;
+        let issued_modules = self
             .edges
             .iter()
-            .filter(|edge| edge.cfg_decision.final_state == CfgDecisionStateV1::Included)
+            .filter(|edge| edge.child_instance_id.is_some())
             .count();
         let external_module_observations = self
             .edges
             .iter()
             .filter(|edge| {
-                edge.cfg_decision.final_state == CfgDecisionStateV1::Included
-                    && edge.kind != ModuleEdgeKindV1::Inline
+                edge.child_instance_id.is_some() && edge.kind != ModuleEdgeKindV1::Inline
             })
             .count();
         let included_source_observations = self
@@ -560,12 +462,44 @@ impl ModuleTraversalV1 {
             .iter()
             .filter(|edge| edge.cfg_decision.final_state == CfgDecisionStateV1::Included)
             .count();
-        if self.instances.len() != 1 + included_modules
+        if !matches!(
+            root_content_gate.candidate_id,
+            ModuleContentCandidateIdV1::Root
+        ) || self.instances.len() != 1 + issued_modules
             || self.observations.len()
-                != 1 + external_module_observations + included_source_observations
+                != usize::from(root_included)
+                    + external_module_observations
+                    + included_source_observations
+            || self.instances.first().is_none_or(|instance| {
+                instance.kind != ModuleInstanceKindV1::Root
+                    || instance.source_observation_id.is_some() != root_included
+            })
             || self.edges.iter().any(|edge| {
-                (edge.cfg_decision.final_state == CfgDecisionStateV1::Included)
-                    != edge.child_instance_id.is_some()
+                let outer_included = edge.cfg_decision.final_state == CfgDecisionStateV1::Included;
+                let Some(gate) = &edge.content_gate else {
+                    return outer_included;
+                };
+                let inner_included = gate.cfg_decision.final_state == CfgDecisionStateV1::Included;
+                gate.candidate_id
+                    != (ModuleContentCandidateIdV1::ModuleEdge {
+                        edge_id: edge.edge_id.clone(),
+                    })
+                    || edge.child_instance_id.is_some() != (outer_included && inner_included)
+                    || (!outer_included && edge.content_gate.is_some())
+            })
+            || self.instances.iter().any(|instance| {
+                let root = instance.kind == ModuleInstanceKindV1::Root;
+                (!root && instance.source_observation_id.is_none())
+                    || instance
+                        .source_observation_id
+                        .as_ref()
+                        .is_some_and(|observation_id| {
+                            !self.observations.iter().any(|observation| {
+                                &observation.source_observation_id == observation_id
+                                    && (instance.kind == ModuleInstanceKindV1::Inline
+                                        || observation.module_instance_id == instance.instance_id)
+                            })
+                        })
             })
             || self.edges.iter().any(|edge| {
                 !self.observations.iter().any(|observation| {
@@ -608,12 +542,13 @@ impl ModuleTraversalV1 {
             return Err(ModuleTopologyErrorV1::WorkspaceEvidenceDrift);
         }
         Ok(DeclaredModuleTopologyV1 {
-            schema: DECLARED_MODULE_TOPOLOGY_SCHEMA_V2,
-            schema_version: 1,
+            schema: DECLARED_MODULE_TOPOLOGY_SCHEMA_V3,
+            schema_version: 3,
             profile_id: self.profile_id,
             package_key: self.package_key,
             target_key: self.target_key,
             root_instance_id: "module:0".to_string(),
+            root_content_gate,
             module_instances: self.instances.into_boxed_slice(),
             module_edges: self.edges.into_boxed_slice(),
             include_edges: self.include_edges.into_boxed_slice(),
@@ -621,7 +556,7 @@ impl ModuleTraversalV1 {
         })
     }
 
-    fn next_instance_id(&self) -> String {
+    pub(super) fn next_instance_id(&self) -> String {
         format!("module:{}", self.instances.len())
     }
 
@@ -633,7 +568,7 @@ impl ModuleTraversalV1 {
         format!("include:{}", self.include_edges.len())
     }
 
-    fn relative(&self, path: &Path) -> Result<String, ModuleTopologyErrorV1> {
+    pub(super) fn relative(&self, path: &Path) -> Result<String, ModuleTopologyErrorV1> {
         workspace_relative(&self.workspace_root, path)
     }
 }

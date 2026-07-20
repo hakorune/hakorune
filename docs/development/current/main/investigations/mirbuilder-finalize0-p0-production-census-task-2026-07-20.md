@@ -1,5 +1,5 @@
 ---
-Status: CONTENTCFG0-R0 closed; CONTENTCFG0-P0 is next
+Status: CONTENTCFG0-I0 closed; CONTENTCFG0-G0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -1925,3 +1925,28 @@ deterministic source traversal order. The topology suite, registered cfg-stream
 guard, current-state pointer guard, and root `cargo check` are green. The next
 row, `CONTENTCFG0-I0`, alone may connect this already-proved gate to root,
 external, and inline traversal; CUT0 remains forbidden.
+
+##### `CONTENTCFG0-I0` closeout
+
+The declared-topology observation advances to V3. It owns one root content
+gate, while each module edge owns `content_gate: Option<_>`: absence means its
+outer stream excluded the declaration, and an owned gate records the exact
+Root or same-edge candidate. A root instance remains when its inner content is
+Excluded but has no active source observation. A non-root child instance exists
+exactly when both the outer declaration and its content gate are Included.
+
+`content_issuance.rs` owns the single post-outer-cfg transition. It resolves
+and parses external source before its inner gate, records an Included-outer /
+Excluded-inner edge without a child or active observation, and issues a child
+only from the Included direct-item product. Inline bodies retain raw syntax and
+their exact body range, then classify before direct module or include
+declarations issue. `traversal.rs` remains the outer-cfg/include owner at 574
+lines; content issuance is a 275-line sibling.
+
+Root/external/inline Included, Excluded, and Unknown fixtures prove the central
+issuance law, parse-before-inner-false behavior, outer-false no-probe, active
+inner-path typed stop, included-fragment rejection, and no descendant probe
+behind excluded content. The standalone topology suite, CFGSTREAM0 guard,
+pointer guard, and root `cargo check` are green. `CONTENTCFG0-G0` is next and
+alone may freeze the one production gate/issuance owner and its negative
+boundaries. CUT0 remains forbidden.
