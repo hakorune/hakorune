@@ -1,5 +1,5 @@
 ---
-Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0 are closed; PHI-SPLIT0-REMATFACT0-D0 is next
+Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0 are closed; PHI-SPLIT0-REMATFACT0-S0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -2882,3 +2882,111 @@ non-Clone boundary; format, cargo check, pointer guard, diff check, and the
 under-800-line limit are green. `REMATFACT0-D0` is now the required design
 frontier: it must select a producer-time receipt and candidate-local exact
 fresh-value projection without treating any mutable fact map as that receipt.
+
+### REMATFACT0-D0 decision lock — Candidate R-prime
+
+Candidate R-prime, **producer-receipt-gated exact projection**, is selected.
+Current `TypeContext` maps, metadata, finalization pipeline, and individual
+prepared type-publication products are not receipts: none retains a
+function-generation brand, source-definition identity, and successful physical
+producer association for later PHI rematerialization.
+
+```text
+successful physical producer
+-> function-generation-branded exact producer receipt
+-> sealed, function-session-local append-only receipt ledger
+-> candidate preflight matches source definition + receipt
+-> physical rematerialization succeeds
+-> non-Clone source/node/fresh-destination projection
+-> candidate-local exact type commit only
+```
+
+The sole receipt form is exact-only:
+
+```rust
+ExactProducerTypeReceiptV1 {
+    function_generation: FunctionFactGenerationV1,
+    source_definition: ProducerDefinitionIdentityV1,
+    source_value: ValueId,
+    exact_type: MirType, // MirType::Unknown is forbidden
+}
+```
+
+`ProducerDefinitionIdentityV1` is minted only by the successful physical
+producer and binds function generation, destination, and sealed definition
+recipe. It is not reconstructed from a later opcode, source name, span,
+runtime tag, final metadata, or mutable type-map row. The receipt ledger is
+append-only while its function is lowered, sealed before candidate use, and
+destroyed with the module-completion candidate. It is not a persistent second
+`ValueId -> MirType` map.
+
+One module candidate uses a per-function namespace:
+
+```text
+ModuleCompletionFactSessionV1
+  = opaque candidate-function key
+    -> FunctionFactSessionV1 {
+         FunctionFactGenerationV1,
+         sealed producer receipt ledger,
+         candidate-only fresh exact publications,
+       }
+```
+
+The current eight observation lanes in `PreparedModuleCompletionCandidateV1`
+remain observations; they are neither receipt storage nor candidate
+publication authority. A non-Clone `PreparedPhiRematExactTypeProjectionV1`
+co-seals the matching receipt, verified node/predecessor, successful fresh
+destination, and candidate-function session. It may commit one exact type
+through `TypeFactDecisionV1` only after preflight reserves every destination
+lane, making post-emission commit infallible.
+
+Missing and stored `Unknown` create no receipt and publish no exact fact;
+`Void` is exact. Kind, origin, literal/map/record facts, diagnostic origins,
+metadata, and finalization repair remain parked. Missing/duplicate/foreign
+generation or definition receipts, and any occupied fresh fact lane, reject
+before fresh allocation, candidate MIR mutation, or candidate fact
+publication. Physical insertion failure commits no projection. Map reads,
+`TypePropagationPipeline`, `type_hint_providers`, `metadata::propagate`, final
+metadata, and name/runtime inference are forbidden.
+
+The first receipt-consuming profile is limited to Const and Compare after each
+selected physical producer has receipt coverage. Copy, BinOp, UnaryOp, Select,
+and pure substring Call each remain separate producer-closure rows; a legacy,
+JoinIR, or generic definition without a receipt is rejected, never rescued.
+
+#### Fixed task order after D0
+
+```text
+REMATFACT0-D0
+  Candidate R-prime decision lock
+  code delta = 0
+
+-> REMATFACT0-S0
+   generation / receipt-ledger / projection vocabulary
+   production consumers = 0
+
+-> REMATFACT0-M0
+   direct producer-entry and rematerialization-family receipt census
+   production behavior delta = 0
+
+-> REMATFACT0-P0
+   foreign pairing, Missing/Unknown, collision, failure-atomicity proof
+   production consumers = 0
+
+-> REMATFACT0-I0
+   receipt connection for exactly one fully inventoried producer family
+   (first candidate: Const); module repair consumer = 0
+
+-> REMATFACT0-G0
+   one receipt owner per admitted family; map-as-receipt = 0
+
+-> individually selected receipt closures for Copy, BinOp, UnaryOp, Select,
+   and substring Call
+
+-> MODULETX0-P0 only after every rematerialization family needed by the
+   selected module-repair profile has receipt coverage
+```
+
+Stop rather than widen REMATFACT0 if one row needs a persistent ValueId map,
+whole-Builder rollback, Unknown transfer, kind/origin transfer, source
+re-inference, a new MIR type, or a function/module repair consumer.
