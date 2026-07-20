@@ -243,6 +243,42 @@ tools/checks/run_row_guard.sh --only mirbuilder-fieldstore-observe-authority
 `MIRBUILDER-FSESSION0-D0` is now the next design row; no broader field
 transaction or whole-Builder rollback was introduced.
 
+## `MIRBUILDER-FSESSION0-D0` — consultation stop (2026-07-20)
+
+The next architecture discussion is owned by the existing SSOT card
+[`mirbuilder-clean-architecture-consolidation-task-2026-07-19.md`](./mirbuilder-clean-architecture-consolidation-task-2026-07-19.md),
+not by this FieldStore card. The current target is the three-layer boundary:
+
+```text
+VerifiedModuleSemantics
+  -> VerifiedFunctionLoweringPlan
+  -> FunctionLoweringSession
+  -> VerifiedMirFunctionDraft
+  -> ModulePublicationTransaction
+```
+
+The consultation must decide the first physical function-session slice from
+the existing census and borrow contract. It may not activate a fresh nested
+session yet, because mutable compatibility state, direct fact-map writers,
+finalization repair, real `ValueId` planning, and raw/located lowering still
+cross the proposed boundary.
+
+Until that consultation is accepted, the following remain forbidden:
+
+```text
+new MirBuilder field for function state
+nested-function snapshot/restore rewrite
+planner -> &mut MirBuilder cutover
+whole-Builder rollback claim
+new accepted source shape or backend capability
+fallback/retry or environment-driven route policy
+```
+
+This is a design stop, not an implementation blocker: the weak-field and
+ordinary FieldSet receipt rows are complete and pushed, and the next work must
+be a source-authority/borrow-boundary decision on the existing architecture
+card.
+
 ## Required fixtures and stops
 
 Fixtures cover Ordinary missing-origin/owner/field/nonweak cases; typed and
