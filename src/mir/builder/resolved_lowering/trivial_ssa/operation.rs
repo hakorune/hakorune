@@ -53,3 +53,82 @@ fn arithmetic(dst: ValueId, op: BinaryOp, lhs: ValueId, rhs: ValueId) -> MirInst
 fn comparison(dst: ValueId, op: CompareOp, lhs: ValueId, rhs: ValueId) -> MirInstruction {
     MirInstruction::Compare { dst, op, lhs, rhs }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::emit_binary;
+    use crate::ast::BinaryOperator;
+    use crate::mir::builder::MirBuilder;
+    use crate::mir::resolved_value_profile::product::TrivialRepresentationV1;
+    use crate::mir::{MirInstruction, MirType, ValueId};
+
+    #[test]
+    fn successful_operation_receipt_precedes_the_existing_exact_type_fact() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("resolved_operation_receipt/0".to_string());
+
+        let arithmetic = emit_binary(
+            &mut builder,
+            &BinaryOperator::Add,
+            ValueId::new(0),
+            ValueId::new(1),
+            TrivialRepresentationV1::InlineI64,
+        )
+        .unwrap();
+        let comparison = emit_binary(
+            &mut builder,
+            &BinaryOperator::Equal,
+            arithmetic,
+            ValueId::new(2),
+            TrivialRepresentationV1::InlineBool,
+        )
+        .unwrap();
+
+        assert_eq!(
+            builder.function_state.type_ctx.get_type(arithmetic),
+            Some(&MirType::Integer)
+        );
+        assert_eq!(
+            builder.function_state.type_ctx.get_type(comparison),
+            Some(&MirType::Bool)
+        );
+        let instructions: Vec<_> = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .unwrap()
+            .blocks
+            .values()
+            .flat_map(|block| block.instructions.iter())
+            .collect();
+        assert!(instructions.iter().any(|instruction| {
+            matches!(instruction, MirInstruction::BinOp { dst, .. } if *dst == arithmetic)
+        }));
+        assert!(instructions.iter().any(|instruction| {
+            matches!(instruction, MirInstruction::Compare { dst, .. } if *dst == comparison)
+        }));
+    }
+
+    #[test]
+    fn failed_operation_emission_leaves_no_destination_type_fact() {
+        let mut builder = MirBuilder::new();
+
+        assert_eq!(
+            emit_binary(
+                &mut builder,
+                &BinaryOperator::Add,
+                ValueId::new(0),
+                ValueId::new(1),
+                TrivialRepresentationV1::InlineI64,
+            ),
+            Err("No current basic block".to_string())
+        );
+        assert!(builder.function_state.type_ctx.value_types.is_empty());
+        assert!(builder
+            .function_state
+            .type_ctx
+            .value_origin_newbox
+            .is_empty());
+        assert!(builder.function_state.variable_ctx.variable_map.is_empty());
+    }
+}

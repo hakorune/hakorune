@@ -125,6 +125,34 @@ and only the actual admissible Binary/Compare pairs through the resolved route.
 failure-isolation proof around the disconnected decision without connecting a
 production commit consumer.
 
+### `RESOLVED-TRIVIAL-OP0-P0` — closed (2026-07-20)
+
+The proof now covers both sides of the selected receipt boundary:
+
+```text
+direct operation emitter:
+  successful Add emits BinOp, then exposes Integer
+  successful Equal emits Compare, then exposes Bool
+
+failed operation emitter:
+  no current block -> error
+  transient type map = unchanged
+  origin map = unchanged
+  variable binding map = unchanged
+```
+
+An actual resolved-source Bool equality fixture reaches the sealed profile,
+materializes `Compare`, preserves `Bool` into normal finalized metadata, and
+passes verification. The existing Float fixture remains the arithmetic route
+witness; feature-enabled Void comparison execution remains a representation
+regression witness. The disconnected decision tests retain the complete five
+representation mapping plus Missing/Unknown/idempotent/conflict matrix.
+
+No production decision commit is connected in this row.
+
+`RESOLVED-TRIVIAL-OP0-I0` is now the sole next row. It may add one non-fallible
+commit method and replace only the post-success direct operation write.
+
 ## Authority and transaction law
 
 S0 introduces one private prepared product adjacent to the existing operation

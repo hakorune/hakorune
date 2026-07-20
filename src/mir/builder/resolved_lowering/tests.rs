@@ -167,6 +167,46 @@ fn trivial_float_route_keeps_exact_type_and_emits_no_legacy_release() {
 }
 
 #[test]
+fn trivial_comparison_route_keeps_the_profile_sealed_bool_result() {
+    let expression = ASTNode::BinaryOp {
+        operator: BinaryOperator::Equal,
+        left: Box::new(ASTNode::Literal {
+            value: LiteralValue::Bool(true),
+            span: Span::unknown(),
+        }),
+        right: Box::new(ASTNode::Literal {
+            value: LiteralValue::Bool(false),
+            span: Span::unknown(),
+        }),
+        span: Span::unknown(),
+    };
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(trivial_returning(
+        "trivial_bool_compare",
+        expression,
+    ))
+    .unwrap();
+    let result = crate::mir::MirCompiler::with_options(false)
+        .compile_resolved(unit.lowering_input(), Some("trivial_bool_compare.hako"))
+        .unwrap();
+    let function = &result.module.functions["trivial_bool_compare/0"];
+    let comparison = function
+        .blocks
+        .values()
+        .flat_map(|block| block.instructions.iter())
+        .find_map(|instruction| match instruction {
+            MirInstruction::Compare { dst, .. } => Some(*dst),
+            _ => None,
+        })
+        .expect("sealed trivial Bool equality must materialize Compare");
+
+    assert_eq!(
+        function.metadata.value_types.get(&comparison),
+        Some(&MirType::Bool)
+    );
+    assert!(result.verification_result.is_ok());
+}
+
+#[test]
 fn incomplete_identity_coverage_cannot_finish() {
     let unit = VerifiedResolvedSourceUnitV1::resolve_function(fixture()).unwrap();
     let input = unit.root_function_input().unwrap();
