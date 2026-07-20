@@ -1,5 +1,5 @@
 ---
-Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0 are closed; VERIFY-SPLIT0-FUNCTION-G0-P0 is next
+Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 are closed; FINALIZE0-PHI-SPLIT0-D0 is the next design boundary
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -2428,3 +2428,33 @@ The new guard is listed in the check-script index, exits green on the current
 source, and stays below 800 lines.  No Rust production behavior changes.  The
 sole next row is `VERIFY-SPLIT0-FUNCTION-G0-P0` for guard-negative and
 function-finalizer witness proof.
+
+#### P0 closeout
+
+The scoped guard's four in-memory drift probes reject removal of the prepared
+commit, removal of the `value_kinds` stale lane, removal of the module legacy
+partition, and insertion of a selected-finalizer build-mode gate.  Its parser
+also observes the actual lifetime label and format strings in the selected
+source body.  The existing default-profile Rust witnesses remain separate from
+the static proof: `finalize_value_lifecycle_tests` is 3/3 and the definition
+product suite is 9/9.  The scope remains one function finalizer, not a proof
+that module or loop behavior has been converted.  The sole next row is
+`VERIFY-SPLIT0-FUNCTION-G0-G0`.
+
+#### FUNCTION-G0 closeout
+
+The scoped guard is green with its drift probes, the function-finalizer
+witnesses are 3/3, the definition-product witnesses are 9/9, the Python source
+compiles, the pointer guard is green, and every new source/check file remains
+below 800 lines.  It proves exactly one all-build prepare/commit/verifier seam
+inside `finalize_function_draft`, ordered after the existing pipeline and
+Call/Await annotation and before/after the existing metadata publication as
+sealed by the guard.
+
+The same report pins two legacy mixed-helper consumers and explicitly reports
+zero module conversion, zero loop conversion, and zero mixed-helper retirement.
+Therefore this is a function-scoped closure only.  The old historical guard
+remains quarantined and the legacy helper remains live.  The next work is the
+separate `FINALIZE0-PHI-SPLIT0-D0` design boundary; it must select a complete
+candidate-state transaction and post-mutation verification law before any
+module conversion or helper retirement can begin.

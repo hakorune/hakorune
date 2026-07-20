@@ -10,6 +10,7 @@ successful conversion.
 
 from __future__ import annotations
 
+import argparse
 from pathlib import Path
 
 
@@ -122,12 +123,13 @@ def ordered_positions(body: str, markers: list[str]) -> None:
         cursor = position
 
 
-def main() -> int:
-    lowering = source(LOWERING)
-    definition = source(DEFINITION)
-    legacy = source(LEGACY)
-    module = source(MODULE)
-    loop = source(LOOP)
+def validate_sources(
+    lowering: str,
+    definition: str,
+    legacy: str,
+    module: str,
+    loop: str,
+) -> None:
     finalize = function_body(
         lowering,
         "pub(in crate::mir::builder) fn finalize_function_draft",
@@ -190,6 +192,79 @@ def main() -> int:
     require(module.count(legacy_marker) == 1, "module legacy consumer count must be 1")
     require(loop.count(legacy_marker) == 1, "loop legacy consumer count must be 1")
     require(lowering.count(legacy_marker) == 0, "selected finalizer legacy consumer count must be 0")
+
+
+def run_drift_probes(
+    lowering: str,
+    definition: str,
+    legacy: str,
+    module: str,
+    loop: str,
+) -> None:
+    probes = [
+        (
+            "selected commit removed",
+            lowering.replace(
+                "prepared.commit(&mut self.function_state.type_ctx)",
+                "prepared.commit_was_removed(&mut self.function_state.type_ctx)",
+                1,
+            ),
+            definition,
+            legacy,
+            module,
+            loop,
+        ),
+        (
+            "kind removal removed",
+            lowering,
+            definition.replace("type_ctx.value_kinds.remove(&value)", "// kind removal absent", 1),
+            legacy,
+            module,
+            loop,
+        ),
+        (
+            "module legacy partition removed",
+            lowering,
+            definition,
+            legacy,
+            module.replace("value_lifecycle::verify_typed_values_are_defined(", "legacy_call_removed(", 1),
+            loop,
+        ),
+        (
+            "build-mode gate added",
+            lowering.replace(
+                "// Void return追加（必要な場合）",
+                "strict_enabled(); // injected drift\n        // Void return追加（必要な場合）",
+                1,
+            ),
+            definition,
+            legacy,
+            module,
+            loop,
+        ),
+    ]
+    for label, *candidate in probes:
+        try:
+            validate_sources(*candidate)
+        except SystemExit:
+            continue
+        raise SystemExit(
+            f"[finalize0/verify-split-function-guard] drift probe was accepted: {label}"
+        )
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--drift-probes", action="store_true")
+    args = parser.parse_args()
+    lowering = source(LOWERING)
+    definition = source(DEFINITION)
+    legacy = source(LEGACY)
+    module = source(MODULE)
+    loop = source(LOOP)
+    validate_sources(lowering, definition, legacy, module, loop)
+    if args.drift_probes:
+        run_drift_probes(lowering, definition, legacy, module, loop)
 
     print("output_contract=finalize0-verify-split0-function-draft-guard-v0")
     print("selected_function_finalizer_normalizer_consumers=1")
