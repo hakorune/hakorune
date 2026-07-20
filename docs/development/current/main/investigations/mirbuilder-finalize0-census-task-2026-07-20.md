@@ -1,5 +1,5 @@
 ---
-Status: SCHEMA0 closed; P0 is next
+Status: SCHEMA0 closed; P0 production-census design stop
 Date: 2026-07-20
 Scope: classify finalization passes before retiring repair/inference
 Parent: docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md
@@ -148,7 +148,7 @@ bash tools/checks/run_row_guard.sh --only mirbuilder-finalize0-pass-inventory
 Both commands are green with `behavior_delta=0` and
 `production_connections=0`.
 
-### `FINALIZE0-CENSUS0-P0` — next
+### `FINALIZE0-CENSUS0-P0` — design stop
 
 P0 now consumes schema v2 and proves the repository-wide production call-site
 and route-reachability counts. In particular, it must replace manually entered
@@ -156,6 +156,17 @@ and route-reachability counts. In particular, it must replace manually entered
 measured source/call-graph evidence. It must also prove that every production
 finalization/refresh child belongs to one inventory row, rather than only
 proving the reverse coverage of already registered operation anchors.
+
+The first independent P0 audit found that the three remaining fields do not
+yet share one measurable meaning. Inline operation counts, facade direct-call
+counts, and boundary ingress counts are mixed. It also found that authority
+routes and execution boundaries occupy one array, while static code
+reachability is being asked to stand in for actual repair mutation.
+
+Implementation is paused at
+[`mirbuilder-finalize0-p0-production-census-consultation-2026-07-20.md`](mirbuilder-finalize0-p0-production-census-consultation-2026-07-20.md).
+No scanner, route fixture, counter, or schema correction is authorized until
+that decision selects the count law and proof architecture.
 
 ### Census findings — design stop confirmed
 
