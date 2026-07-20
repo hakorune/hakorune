@@ -100,7 +100,15 @@ fn fastmem_layout_table_source_preserves_symbolic_access_ids() {
 
     assert_eq!(
         access_entries,
-        vec![(MemOpKind::TableIndex, Some("page_table".to_string()), None,)]
+        vec![
+            (MemOpKind::TableIndex, Some("page_table".to_string()), None),
+            (MemOpKind::FieldLoad, None, Some("owner_id".to_string())),
+            (
+                MemOpKind::FieldStore,
+                None,
+                Some("local_free_head".to_string()),
+            ),
+        ]
     );
     assert_eq!(function.metadata.fastmem_field_access_sites.len(), 2);
     assert!(function
@@ -116,23 +124,17 @@ fn fastmem_layout_table_source_preserves_symbolic_access_ids() {
         function.metadata.fastmem_field_access_sites[1].field_id,
         "local_free_head"
     );
-    let field_insts: Vec<&MirInstruction> = function
+    let legacy_field_access = function
         .blocks
         .values()
         .flat_map(|block| block.instructions.iter())
-        .filter(|inst| {
-            matches!(
-                inst,
-                MirInstruction::FieldGet { .. } | MirInstruction::FieldSet { .. }
-            )
-        })
-        .collect();
-    assert!(field_insts.iter().any(|inst| matches!(
-        inst,
-        MirInstruction::FieldGet { field, .. } if field == "owner_id"
-    )));
-    assert!(field_insts.iter().any(|inst| matches!(
-        inst,
-        MirInstruction::FieldSet { field, .. } if field == "local_free_head"
-    )));
+        .any(|inst| match inst {
+            MirInstruction::FieldGet { field, .. } => field == "owner_id",
+            MirInstruction::FieldSet { field, .. } => field == "local_free_head",
+            _ => false,
+        });
+    assert!(
+        !legacy_field_access,
+        "FastMem field access must stay on the MemOp surface"
+    );
 }

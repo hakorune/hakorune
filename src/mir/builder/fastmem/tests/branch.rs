@@ -86,6 +86,8 @@ fn fastmem_source_lowers_owner_eq_branch_cfg_pilot() {
         MemOpKind::TableIndex,
         MemOpKind::CurrentAllocOwnerId,
         MemOpKind::OwnerEq,
+        MemOpKind::FieldLoad,
+        MemOpKind::FieldStore,
     ] {
         assert_eq!(
             kinds.iter().filter(|actual| **actual == kind).count(),
@@ -95,36 +97,41 @@ fn fastmem_source_lowers_owner_eq_branch_cfg_pilot() {
             kinds
         );
     }
-    let field_insts: Vec<&MirInstruction> = function
+    let field_memops: Vec<(MemOpKind, String)> = function
         .blocks
         .values()
         .flat_map(|block| block.instructions.iter())
-        .filter(|inst| {
-            matches!(
-                inst,
-                MirInstruction::FieldGet { .. } | MirInstruction::FieldSet { .. }
-            )
+        .filter_map(|inst| match inst {
+            MirInstruction::MemOp { kind, access, .. }
+                if matches!(kind, MemOpKind::FieldLoad | MemOpKind::FieldStore) =>
+            {
+                access
+                    .as_ref()
+                    .and_then(|access| access.field_id.clone())
+                    .map(|field| (*kind, field))
+            }
+            _ => None,
         })
         .collect();
     assert_eq!(
-        field_insts
-            .iter()
-            .filter(|inst| matches!(inst, MirInstruction::FieldGet { field, .. } if field == "owner_worker_id"))
-            .count(),
-        1,
-        "field_insts={:?}",
-        field_insts
+        field_memops,
+        vec![
+            (MemOpKind::FieldLoad, "owner_worker_id".to_string()),
+            (MemOpKind::FieldStore, "used".to_string()),
+        ]
     );
-    assert_eq!(
-        field_insts
-            .iter()
-            .filter(
-                |inst| matches!(inst, MirInstruction::FieldSet { field, .. } if field == "used")
-            )
-            .count(),
-        1,
-        "field_insts={:?}",
-        field_insts
+    let legacy_field_access = function
+        .blocks
+        .values()
+        .flat_map(|block| block.instructions.iter())
+        .any(|inst| match inst {
+            MirInstruction::FieldGet { field, .. } => field == "owner_worker_id",
+            MirInstruction::FieldSet { field, .. } => field == "used",
+            _ => false,
+        });
+    assert!(
+        !legacy_field_access,
+        "FastMem field access must stay on the MemOp surface"
     );
     let branch_count = function
         .blocks

@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FACT0-TX0-FASTMEM-RECEIPT0 is closed; select the FastMem FieldLoad authority boundary"
+status = "FASTMEM-EXPECT0 is closed; select the Array write observation authority boundary"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -490,10 +490,14 @@ lifecycle to that FieldLoad arm while preserving its pre-emission reservations
 and post-success completions. FASTMEM-FIELDLOAD0 is now closed: one selected
 lifecycle owns the reservation/completion split, and the existing partition
 guard seals its two scoped type lanes and one site/origin owner. Return to
-NEXT-PRODUCER-D0 before opening another code row. The unrelated full-FastMem
-stale expectations remain parked as a maintenance row, not masked by this
-timing closure."""
-current_blocker_token = "DPRIME-MIRBUILDER-FACT0-TX0-NEXT-PRODUCER-D0-037"
+ARRAY-WRITE-OBSERVE0-D0 before opening another code row. FASTMEM-EXPECT0 is
+closed: the two stale FastMem tests now assert the existing FieldLoad/FieldStore
+MemOp surface and legacy FieldGet/FieldSet absence; full FastMem is 91/91.
+Three independent read-only inventories identify Array write receiver
+observation as the next distinct pre-emission seam. Generic Call/Map,
+FieldStore/index reservations, and FastMem remain excluded until that D0
+selects one exact first owner."""
+current_blocker_token = "DPRIME-MIRBUILDER-FACT0-TX0-ARRAY-WRITE-OBSERVE0-D0-038"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

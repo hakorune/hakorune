@@ -1170,9 +1170,66 @@ direct writer and records the two scoped lifecycle lanes in
 `fastmem/field_load.rs`; it is not a new persistent map or a general type
 authority. Focused lifecycle tests pass 3/3, timing tests pass 4/4, FastMem
 receipt tests pass 6/6, the partition guard and its unit suite pass, and
-`cargo check --all-targets` passes. The two known full-FastMem stale
-expectations remain visible and parked. Return to the explicit
-`NEXT-PRODUCER-D0` selection frontier before opening another code row.
+`cargo check --all-targets` passes. The formerly stale full-FastMem
+expectations are closed by the maintenance row below. Return to the explicit
+`ARRAY-WRITE-OBSERVE0-D0` selection frontier before opening another code row.
+
+## `FASTMEM-EXPECT0`: physical-surface expectation maintenance
+
+### `FASTMEM-EXPECT0-D0/I0/G0` — closed (2026-07-20)
+
+This maintenance row changes no compiler behavior. Two old test expectations
+still described FastMem region field access as ordinary `FieldGet`/`FieldSet`,
+despite the existing FastMem route having retired those instructions in favor
+of `MemOp::FieldLoad`/`MemOp::FieldStore`.
+
+The authority is only the emitted physical FastMem surface plus existing
+FastMem access metadata:
+
+```text
+region layout fixture:
+  TableIndex(page_table)
+  -> FieldLoad(owner_id)
+  -> FieldStore(local_free_head)
+
+owner-equality branch fixture:
+  one FieldLoad(owner_worker_id)
+  one FieldStore(used)
+
+legacy FieldGet/FieldSet for those fields:
+  zero
+```
+
+Only `fastmem/tests/region.rs` and `fastmem/tests/branch.rs` change. No
+MirBuilder, route, receipt, FieldLoad lifecycle, type, origin, metadata,
+runtime, backend, or guard policy changes. The focused witnesses and
+`cargo test -q --lib fastmem` pass 91/91.
+
+## Next producer selection: `ARRAY-WRITE-OBSERVE0-D0`
+
+Three independent read-only inventories select one design stop before another
+producer cutover. `emit_array_element_write` already publishes its Void result
+after successful physical emission; the residual is earlier:
+
+```text
+observe_array_write_call
+  -> receiver Array<T>/Unknown and copy-chain observation
+  -> later LocalSSA/materialization
+  -> physical ArrayElementWrite or generic Call
+```
+
+The observation appears before physical work in the unified known-Array path,
+the BoxCall specialization, and the generic unified path. A later failure can
+therefore retain the receiver fact. The next D0 must decide whether the first
+admission may isolate one canonical known-`ArrayElementWrite` route. It must
+not fold generic Call, Map observation, FieldStore/index reservations, or
+FastMem receipts into the same row.
+
+```text
+ARRAY-WRITE-OBSERVE0-D0
+  -> select one pre-emission observation authority and failure boundary
+  -> then, and only then, open its code-facing S0
+```
 
 ### `FASTMEM-RECEIPT0` historical stop conditions
 
