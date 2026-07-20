@@ -841,6 +841,63 @@ instruction is retained in the receipt. The legacy `note_fastmem_memop` remains
 the only production timing owner until I0. `FACT0-TX0-FASTMEM-RECEIPT0-M0` is
 now the sole next row.
 
+### `FACT0-TX0-FASTMEM-RECEIPT0-M0` — closed (2026-07-20)
+
+The canonical physical path is fixed without expanding the selected owner:
+
+```text
+physical MemOp receipt owner = 1
+  MirBuilder::emit_fastmem_memop
+
+direct helper call sites = 8
+  value facade = 1
+  FastMem FieldLoad/FieldStore = 2
+  FastMem index store = 1
+  FastMem intrinsic direct-effect branches = 4
+```
+
+Both value facade methods reduce to that same helper. `note_fastmem_memop`
+performs the existing current-function/region preflight and increments the
+region counter before the following `emit_instruction(MemOp)`. Therefore a
+missing current block has a stable pre-I0 shape: the physical MemOp is absent,
+but the counter is one larger. No caller-specific source policy, result fact,
+or FastMem FieldLoad reservation joins this inventory.
+
+`FACT0-TX0-FASTMEM-RECEIPT0-P0` is now the sole next row.
+
+### `FACT0-TX0-FASTMEM-RECEIPT0-P0` — closed (2026-07-20)
+
+Receipt-local temporal tests now freeze the pre-I0 baseline:
+
+```text
+direct successful MemOp:
+  physical MemOp = 1
+  emitted_memop_count = 1
+
+direct helper with no current block:
+  physical MemOp = 0
+  emitted_memop_count = 1     # pre-I0 residual
+
+value facade with no current block:
+  physical MemOp = 0
+  emitted_memop_count = 1     # same shared-owner residual
+```
+
+The same test module retains S0 preflight proof: preparation has counter delta
+zero, while its isolated test-only commit increments exactly once; missing
+function and unknown-region preparation leave metadata unchanged. P0 does not
+connect the prepared receipt to production emission. The next row is therefore
+the one-consumer I0 cutover.
+
+`cargo test -q --lib fastmem` has two independent baseline-red expectations and
+is not an acceptance gate for this receipt row. Both tests predate the existing
+FastMem `MemOp::FieldLoad`/`FieldStore` route: one expects the full MemOp list
+to contain only `TableIndex`, and the other expects ordinary `FieldGet`/
+`FieldSet` inside a FastMem region. The focused `fastmem::receipt` module is
+green (6/6), and `cargo check --all-targets` is green. Reconcile those stale
+FastMem behavior fixtures only in a separate maintenance row after receipt G0;
+do not change their source/route expectations in this timing-only row.
+
 ### Stop conditions
 
 Stop this row if it requires any of the following:

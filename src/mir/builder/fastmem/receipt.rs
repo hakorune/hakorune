@@ -85,41 +85,51 @@ impl PreparedFastMemMemOpReceiptV1 {
 mod tests {
     use super::*;
     use crate::ast::Span;
+    use crate::mir::instruction::MemOpKind;
+    use crate::mir::MirInstruction;
+
+    fn register_region(builder: &mut MirBuilder, name: &str) -> FastMemRegionId {
+        builder
+            .register_fastmem_region(name.to_string(), Span::unknown(), 0)
+            .unwrap()
+    }
+
+    fn emitted_memop_count(builder: &MirBuilder) -> usize {
+        builder
+            .function_state
+            .current_function
+            .as_ref()
+            .unwrap()
+            .blocks
+            .values()
+            .flat_map(|block| block.instructions.iter())
+            .filter(|instruction| matches!(instruction, MirInstruction::MemOp { .. }))
+            .count()
+    }
+
+    fn region_receipt_count(builder: &MirBuilder) -> usize {
+        builder
+            .function_state
+            .current_function
+            .as_ref()
+            .unwrap()
+            .metadata
+            .fastmem_regions[0]
+            .emitted_memop_count
+    }
 
     #[test]
     fn prepare_validates_region_without_mutating_metadata() {
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("fastmem_receipt_prepare/0".to_string());
-        let region = builder
-            .register_fastmem_region("ReceiptV1".to_string(), Span::unknown(), 0)
-            .unwrap();
+        let region = register_region(&mut builder, "ReceiptV1");
 
         let receipt = PreparedFastMemMemOpReceiptV1::prepare(&builder, region).unwrap();
         assert_eq!(receipt.region(), region);
-        assert_eq!(
-            builder
-                .function_state
-                .current_function
-                .as_ref()
-                .unwrap()
-                .metadata
-                .fastmem_regions[0]
-                .emitted_memop_count,
-            0
-        );
+        assert_eq!(region_receipt_count(&builder), 0);
 
         receipt.commit(&mut builder);
-        assert_eq!(
-            builder
-                .function_state
-                .current_function
-                .as_ref()
-                .unwrap()
-                .metadata
-                .fastmem_regions[0]
-                .emitted_memop_count,
-            1
-        );
+        assert_eq!(region_receipt_count(&builder), 1);
     }
 
     #[test]
@@ -135,25 +145,59 @@ mod tests {
     fn prepare_rejects_unknown_region_without_mutating_metadata() {
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("fastmem_receipt_unknown/0".to_string());
-        let region = builder
-            .register_fastmem_region("ReceiptV1".to_string(), Span::unknown(), 0)
-            .unwrap();
+        let region = register_region(&mut builder, "ReceiptV1");
         let unknown = FastMemRegionId::new(region.0 + 1);
 
         assert_eq!(
             PreparedFastMemMemOpReceiptV1::prepare(&builder, unknown).unwrap_err(),
             FastMemMemOpReceiptPreparationErrorV1::UnknownRegion { region: unknown }
         );
-        assert_eq!(
-            builder
-                .function_state
-                .current_function
-                .as_ref()
-                .unwrap()
-                .metadata
-                .fastmem_regions[0]
-                .emitted_memop_count,
-            0
-        );
+        assert_eq!(region_receipt_count(&builder), 0);
+    }
+
+    #[test]
+    fn pre_i0_direct_memop_failure_leaves_counter_residual() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("fastmem_receipt_direct_failure/0".to_string());
+        let region = register_region(&mut builder, "ReceiptV1");
+        builder.function_state.current_block = None;
+
+        let error = builder
+            .emit_fastmem_memop(region, MemOpKind::AddrOf, None, Vec::new(), None)
+            .unwrap_err();
+
+        assert_eq!(error, "No current basic block");
+        assert_eq!(emitted_memop_count(&builder), 0);
+        assert_eq!(region_receipt_count(&builder), 1);
+    }
+
+    #[test]
+    fn pre_i0_value_facade_failure_has_the_same_counter_residual() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("fastmem_receipt_value_failure/0".to_string());
+        let region = register_region(&mut builder, "ReceiptV1");
+        builder.function_state.current_block = None;
+
+        let error = builder
+            .emit_fastmem_value_memop(region, MemOpKind::AddrOf, Vec::new())
+            .unwrap_err();
+
+        assert_eq!(error, "No current basic block");
+        assert_eq!(emitted_memop_count(&builder), 0);
+        assert_eq!(region_receipt_count(&builder), 1);
+    }
+
+    #[test]
+    fn direct_memop_success_has_one_matching_receipt() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("fastmem_receipt_direct_success/0".to_string());
+        let region = register_region(&mut builder, "ReceiptV1");
+
+        builder
+            .emit_fastmem_memop(region, MemOpKind::AddrOf, None, Vec::new(), None)
+            .unwrap();
+
+        assert_eq!(emitted_memop_count(&builder), 1);
+        assert_eq!(region_receipt_count(&builder), 1);
     }
 }
