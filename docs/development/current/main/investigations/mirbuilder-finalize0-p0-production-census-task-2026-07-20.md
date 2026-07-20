@@ -1,6 +1,6 @@
 ---
-Status: P0a-S0b content/include-scope architecture locked; CFGSTREAM0-S0 is next
-Date: 2026-07-20
+Status: CFGSTREAM0-S0 closed; CFGSTREAM0-P0 is next
+Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
 Decision: docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-consultation-2026-07-20.md
@@ -850,11 +850,48 @@ empty stream:
 Task order:
 
 ```text
-CFGSTREAM0-S0  pure vocabulary/decision, production consumers = 0
-CFGSTREAM0-P0  source-order and nested-cfg_attr matrix
+CFGSTREAM0-S0  # closed: pure vocabulary/decision, production consumers = 0
+CFGSTREAM0-P0  # sole next: source-order and nested-cfg_attr matrix
 CFGSTREAM0-I0  replace the existing eager cfg-row owner once
 CFGSTREAM0-G0  decision owners = 1; eager all-row owners = 0
 ```
+
+##### `CFGSTREAM0-S0` closeout
+
+`CfgAttributeStreamDecisionV1` now owns a disconnected, source-ordered
+cfg/cfg_attr decision. Each source row retains its ordinal, exact range, and
+syntax. The decision reuses the existing one-row predicate evaluator; it adds
+no second cfg predicate engine and has no production consumer.
+
+The stream law is now explicit:
+
+```text
+Excluded row:
+  preserves all later source rows as NotReachedAfterExclusion without parsing
+  or evaluating them
+
+Unknown row:
+  is terminal and preserves only the consumed prefix
+  later rows are neither parsed nor allowed to overwrite Unknown with Excluded
+
+inactive cfg_attr:
+  retains nested token evidence as NotEvaluatedInactiveCfgAttr without parsing
+  the nested attributes
+
+active nested cfg_attr:
+  applies the same exclusion short-circuit recursively and records later
+  parsed nested attributes as NotReachedAfterExclusion
+```
+
+The disconnected fixtures cover the false-before-malformed/unknown,
+malformed-before-false, Unknown-before-false, inactive nested malformed,
+active recursive nested, active nested short-circuit, malformed active nested
+separator, strict source ordinal, direct and recursively nested cfg_attr
+path-unknown, and empty-stream boundaries. `cargo test
+--manifest-path tools/checks/rust_source_topology/Cargo.toml`, the existing
+MODULE0/INCLUDE0 guards, and the current-state pointer guard are green. P0 now
+owns source-derived/profile matrix evidence; it must not connect the existing
+eager traversal consumer.
 
 ##### `CONTENTCFG0` — module-content candidate authority
 
@@ -1725,8 +1762,9 @@ compiler/runtime/backend behavior changes
 > canonical consumer zero, quarantine, or CUT0 readiness. PROFILE0-S0 and the
 > complete CARGO0-S0/M0/P0/G0 chain, MODULE0, and INCLUDE0 are closed. The
 > continuation is fixed as `CFGSTREAM0 -> CONTENTCFG0 -> INCLUDE-SCOPE0 ->
-> S0b-P0`. `CFGSTREAM0-S0` is the sole next code-facing row and establishes one
-> ordered, short-circuiting cfg/cfg_attr decision owner. CONTENTCFG0 then gates
+> S0b-P0`. `CFGSTREAM0-S0` is closed: one ordered, short-circuiting cfg/cfg_attr
+> decision owner now exists with zero production consumers. `CFGSTREAM0-P0` is
+> the sole next code-facing row. CONTENTCFG0 then gates
 > each Root or outer-Included ModuleEdge candidate before non-root module
 > instance issuance. INCLUDE-SCOPE0 separately repairs the discovered
 > module-local-import versus inherited-textual-macro drift. Block-local module

@@ -14,14 +14,7 @@ pub fn decide_cfg_rows_v1(
     rows: &[String],
     environment: &CfgEvaluationEnvironmentV1,
 ) -> Result<CfgDecisionV1, CfgDecisionErrorV1> {
-    if environment.profile_id.is_empty() {
-        return Err(CfgDecisionErrorV1::EmptyProfileId);
-    }
-    let target = get_builtin_target_by_triple(&environment.target_triple).ok_or_else(|| {
-        CfgDecisionErrorV1::UnsupportedTargetTriple {
-            target_triple: environment.target_triple.clone(),
-        }
-    })?;
+    let target = validate_cfg_environment_v1(environment)?;
     let mut decisions = Vec::with_capacity(rows.len());
     let mut combined = CfgDecisionStateV1::Included;
     for syntax in rows {
@@ -47,6 +40,33 @@ pub fn decide_cfg_rows_v1(
         state: combined,
         rows: decisions.into_boxed_slice(),
     })
+}
+
+/// Validates the sealed build inputs shared by legacy and ordered CFG owners.
+pub(super) fn validate_cfg_environment_v1(
+    environment: &CfgEvaluationEnvironmentV1,
+) -> Result<&'static cfg_expr::targets::TargetInfo, CfgDecisionErrorV1> {
+    if environment.profile_id.is_empty() {
+        return Err(CfgDecisionErrorV1::EmptyProfileId);
+    }
+    get_builtin_target_by_triple(&environment.target_triple).ok_or_else(|| {
+        CfgDecisionErrorV1::UnsupportedTargetTriple {
+            target_triple: environment.target_triple.clone(),
+        }
+    })
+}
+
+/// Evaluates one normalized `cfg(...)` predicate without owning row order.
+pub(super) fn decide_cfg_predicate_syntax_v1(
+    syntax: &str,
+    environment: &CfgEvaluationEnvironmentV1,
+    target: &cfg_expr::targets::TargetInfo,
+) -> Result<(CfgDecisionStateV1, Box<[String]>), CfgDecisionErrorV1> {
+    let mut unknown = Vec::new();
+    let state = eval_cfg_expression(syntax, environment, target, &mut unknown)?;
+    unknown.sort();
+    unknown.dedup();
+    Ok((state, unknown.into_boxed_slice()))
 }
 
 fn eval_meta(
