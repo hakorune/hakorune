@@ -3056,3 +3056,115 @@ No `Const` I0 is admitted now. In particular, CorePlan's current
 receipt issuer whose exact physical representation is `Void`. That is a
 separate compatibility owner, not a receipt fallback. The module transaction,
 unused-Phi deletion, JoinIR caller, and CUT0 remain disconnected.
+
+#### FACTSESSION0-D0 decision lock — Candidate F-prime
+
+Candidate F-prime, **module-invocation-owned fact sessions**, is selected.
+The `FunctionFactGenerationV1` raw number is never a ValueId-derived identity
+and never restarts when a Builder's function state is reset. One non-Clone
+`ModuleFactSessionV1` is opened for one compiler/module invocation; it is the
+sole generation issuer and the sole collector of successfully sealed function
+sessions. It is an explicit lowering-session input, not a `MirBuilder`,
+`CompilationContext`, `CoreContext`, metadata, or `TypeContext` field.
+
+```text
+ModuleFactSessionV1 (one compiler invocation)
+  -> opens one OpenFunctionFactSessionV1 for every physical function
+  -> mints opaque, invocation-branded FunctionFactGenerationV1 values
+  -> collects only CompletedFunctionDraftWithFactsV1 products
+  -> moves the collection with the eventual module-completion candidate
+  -> commits once or discards it whole
+```
+
+The active function session is FunctionOwned state. It owns all current
+ValueId-keyed lanes, rather than treating the receipt ledger as an eighth
+sidecar:
+
+```text
+OpenFunctionFactSessionV1
+  generation
+  six TypeContext lanes
+  diagnostic origin spans
+  diagnostic origin callers
+  open exact-producer receipt ledger
+
+-> SealedFunctionFactSessionV1
+  same generation
+  same eight lanes
+  sealed receipt ledger
+```
+
+The six lanes and the two diagnostic lanes remain different products: no
+diagnostic origin becomes a semantic producer receipt. `Unknown` remains an
+ordinary observation lane and creates no exact receipt; `Void` remains exact.
+No direct map or ledger clone/deref API is admitted.
+
+Root main, every legacy child, and every canonical child must obtain a fresh
+function session through the same explicit module-session port. Nested entry
+moves the active parent session with the existing FunctionOwned capture,
+opens a fresh child generation, seals and transfers a successful child draft
+to the module collector before restoring its parent, and drops an errored or
+unwound child session before that restore. Parent and child facts never merge.
+The existing BoxCompilation three-clear/three-retain behavior is legacy
+incompatible with this law and is not inherited by the eventual FACTSESSION
+cutover.
+
+Function completion cannot keep returning a bare `MirFunction` at the new
+boundary. Its eventual output is:
+
+```rust
+CompletedFunctionDraftWithFactsV1 {
+    draft: MirFunction,
+    facts: SealedFunctionFactSessionV1,
+}
+```
+
+Only the module collector consumes that product. Any lowering, cleanup,
+completion, candidate, derived-refresh, or final-verification failure discards
+the affected open/candidate session; it never seals a partial session and
+never exposes its rows to the next compiler invocation. A fresh invocation
+opens a fresh module session while the opaque issuer identity remains distinct,
+even when its first function reuses `%1`.
+
+The current `PendingModuleCompletionFactsV1` is intentionally disconnected,
+but its eight flat `ValueId` maps cannot survive to MODULETX0-P0: multiple
+functions reuse ValueIds. Before any module candidate consumer, it must be
+replaced by a per-function, generation-branded session collection co-sealed
+with completed drafts. Function name and a global `ValueId` map are not valid
+substitutes.
+
+This row does not connect a receipt issuer, run PHI repair, alter finalization,
+or claim whole-Builder rollback. It only selects the lifecycle required before
+those changes.
+
+```text
+FINALIZE0-FACTSESSION0-D0
+  Candidate F-prime decision lock
+  code delta = 0
+
+-> FINALIZE0-FACTSESSION0-S0
+   disconnected module/function session, open/seal/abort, completed-draft,
+   and per-function candidate-collection vocabulary
+   production consumers = 0
+
+-> FINALIZE0-FACTSESSION0-M0
+   exact root/legacy/canonical/test function-entry and close/abort census
+
+-> FINALIZE0-FACTSESSION0-P0
+   nested success/failure/panic, sibling `%1`, module/compiler reuse,
+   eight-lane isolation, and candidate failure matrix
+
+-> FINALIZE0-FACTSESSION0-I0
+   one session-boundary cutover; no receipt issuer or PHI repair connection
+
+-> FINALIZE0-FACTSESSION0-G0
+
+-> FINALIZE0-PHI-SPLIT0-REMATFACT0-P0
+```
+
+The mandatory P0 reuse witness is concrete: compile an Integer-producing
+module, then a String-producing module with the same `MirCompiler`; it must
+equal the String result from a fresh compiler. It must also succeed after a
+failure that occurs after one physical producer. The current `prepare_module`
+does not clear transient facts and `MirFunction` restarts its value allocation,
+so this is a real stale-fact collision proof, not merely a unit-map test.
