@@ -308,6 +308,7 @@ resolved_direct_call_task = "docs/development/current/main/investigations/mirbui
 compareemit0_task = "docs/development/current/main/investigations/mirbuilder-compare-emission-receipt-task-2026-07-20.md"
 fact0_tx0_task = "docs/development/current/main/investigations/mirbuilder-fact0-transaction-boundary-task-2026-07-20.md"
 fastmem_receipt0_task = "docs/development/current/main/investigations/mirbuilder-fact0-transaction-boundary-task-2026-07-20.md"
+fastmem_fieldload0_task = "docs/development/current/main/investigations/mirbuilder-fact0-transaction-boundary-task-2026-07-20.md"
 
 latest_card = "mirbuilder-fact0-transaction-boundary-task-2026-07-20"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-fact0-transaction-boundary-task-2026-07-20.md"
@@ -477,11 +478,15 @@ inventory fixes one physical owner and eight direct helper call sites; P0
 freezes the direct/value no-block counter residual. I0 moves the one shared
 receipt commit after successful physical MemOp emission, and G0 seals that
 single owner through the existing partition guard. The next decision stop is
-FASTMEM-FIELDLOAD0-D0; its pre-emission typed destination, access-site, and
-origin reservations must not be silently joined to the closed generic receipt.
-The unrelated full-FastMem stale expectations remain parked as a maintenance
-row, not masked by this timing closure."""
-current_blocker_token = "DPRIME-MIRBUILDER-FACT0-TX0-FASTMEM-FIELDLOAD0-D0-033"
+FASTMEM-FIELDLOAD0-D0 is closed with a behavior-preserving split: FastMem
+FieldLoad site plus declared type remain pre-emission reservations, while its
+missing-declared Integer compatibility and field-result origin remain
+post-success completions. The selected lifecycle must not be silently merged
+with ordinary FieldGet or the closed generic MemOp receipt. FASTMEM-FIELDLOAD0
+S0 is the sole next code-facing row. The unrelated full-FastMem stale
+expectations remain parked as a maintenance row, not masked by this timing
+closure."""
+current_blocker_token = "DPRIME-MIRBUILDER-FACT0-TX0-FASTMEM-FIELDLOAD0-S0-034"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

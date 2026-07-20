@@ -936,6 +936,135 @@ FastMem stale expectations remain explicitly parked and are not masked. The
 next frontier is `FASTMEM-FIELDLOAD0-D0`: select its authority boundary before
 any new implementation row.
 
+## Next producer selection: `FASTMEM-FIELDLOAD0`
+
+### Decision
+
+`FASTMEM-FIELDLOAD0-D0` selects Candidate C-prime: one
+**behavior-preserving FieldLoad reservation/completion lifecycle**. It does
+not reclassify every FastMem FieldLoad fact as a post-success receipt.
+
+```text
+FastMem FieldLoad
+  pre-emission reservation:
+    exact FastMem access-site
+    declared destination type, when present
+
+  physical owner:
+    existing emit_fastmem_memop(FieldLoad)
+
+  post-success completion:
+    missing-declared Integer compatibility
+    existing field-result origin publication
+```
+
+This is the narrowest truthful boundary. The current FastMem arm is not an
+ordinary FieldGet: it records its layout-verified field site and, when a
+declared type exists, reserves that destination type before physical MemOp
+emission. A failed MemOp therefore already retains those two reservations,
+while the missing-declared Integer compatibility entry and field-result origin
+remain absent. Moving every effect after emission would be a behavior-changing
+receipt redesign, not a FACT0 timing cleanup.
+
+### Authority and non-authority
+
+```text
+selected owner:
+  MirBuilder::build_field_access_from_value, region != None arm only
+
+declared type:
+  existing declared_field_type_for_value
+
+pre-emission site:
+  existing record_field_access_site
+
+physical instruction and region counter:
+  existing emit_fastmem_memop / FASTMEM-RECEIPT0
+
+missing-declared Integer completion:
+  existing FastMem FieldLoad compatibility law
+
+field-result origin:
+  existing publish_field_result_origin
+```
+
+Not authority in this row:
+
+```text
+ordinary PreparedOrdinaryFieldGetPostSuccessV1
+TypeFactDecisionV1 for missing -> Integer compatibility
+FieldStore or indexing FieldStore
+generic FastMem value-MemOp result typing
+region/layout metadata schema or verification
+CorePlan FieldGet, metadata::propagate, finalization repair
+general origin monotonicity or ValueId rollback
+```
+
+### Exact task order
+
+```text
+FACT0-TX0-FASTMEM-FIELDLOAD0-D0   closed
+  -> FACT0-TX0-FASTMEM-FIELDLOAD0-S0
+  -> FACT0-TX0-FASTMEM-FIELDLOAD0-M0
+  -> FACT0-TX0-FASTMEM-FIELDLOAD0-P0
+  -> FACT0-TX0-FASTMEM-FIELDLOAD0-I0
+  -> FACT0-TX0-FASTMEM-FIELDLOAD0-G0
+```
+
+`S0` adds one private Builder-free prepared lifecycle vocabulary with zero
+production consumers or writes. `M0` freezes the direct owner, two semantic
+call entrances, and the five observable timing states. `P0` proves declared
+and missing declaration success/failure states without using the two known
+stale full-FastMem expectations. `I0` connects only the selected FieldLoad arm
+and preserves its reservation/completion ordering. `G0` extends the existing
+FACT0 partition guard; it creates no guard family.
+
+### Required timing matrix
+
+```text
+record-site failure:
+  no destination/type/MemOp/origin
+
+declared T + MemOp failure:
+  site + destination T reservation
+  no physical MemOp, completion, or origin
+
+missing declaration + MemOp failure:
+  site + destination allocation
+  no type entry, physical MemOp, completion, or origin
+
+declared T + success:
+  site + T reservation + physical MemOp + origin-if-known
+
+missing declaration + success:
+  site + physical MemOp + Integer compatibility + origin-if-known
+```
+
+The ValueId cursor is outside this matrix. Both public entrances remain
+delegates into the same semantic owner:
+
+```text
+build_field_access
+  -> build_field_access_from_value
+
+compound-place read
+  -> build_field_access_from_value
+```
+
+### Stop conditions
+
+Stop and reopen the design boundary if this row requires any of the following:
+
+```text
+moving the site or declared reservation after MemOp emission
+missing -> Integer through exact-type authority
+changing FASTMEM-RECEIPT0 or physical MemOp ownership
+FieldStore, index store, generic value-MemOp, or ordinary FieldGet inclusion
+region/layout schema or source/runtime/final-metadata inference
+new persistent ValueId/type/origin maps
+fallback, retry, whole-Builder rollback, or a source/check file >= 800 lines
+```
+
 ### Stop conditions
 
 Stop this row if it requires any of the following:
