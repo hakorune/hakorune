@@ -136,7 +136,7 @@ this one-site inventory.
 
 `CHECKSELECT0-P0` is now the sole next row.
 
-### `CHECKSELECT0-P0` — required proof
+### `CHECKSELECT0-P0` — closed (2026-07-20)
 
 P0 fixes:
 
@@ -147,6 +147,35 @@ failed Select publishes no destination type
 ordinary finalization snapshots the transient Integer fact
 Missing/Unknown/Idempotent/conflict decision behavior is exact
 ```
+
+Closed evidence:
+
+```text
+empty CheckExpr:
+  returns the existing CONST0 Integer and emits no Select
+
+multiple CheckExpr items:
+  every successful Select destination is Integer
+  final result is the last Select destination
+
+failed Select emission:
+  destination type entry = absent
+
+ordinary finalization:
+  snapshots the transient result Integer into function metadata
+```
+
+Focused verification:
+
+```text
+cargo fmt --check
+cargo test -q --lib select_type
+cargo test -q --lib exprs_check::tests
+cargo check --all-targets
+```
+
+`CHECKSELECT0-I0` is now the sole next row. It may connect the prepared
+decision only after the existing accumulator Select succeeds.
 
 ## I0 and G0 law
 

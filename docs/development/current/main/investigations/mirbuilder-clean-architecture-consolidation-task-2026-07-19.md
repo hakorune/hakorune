@@ -1829,6 +1829,11 @@ It has no Builder, ValueId, MIR, TypeContext, or production-consumer authority.
 induction; condition lowering precedes Select; and `emit_instruction` failure
 returns before the legacy direct Integer write. `CHECKSELECT0-P0` is next.
 
+`CHECKSELECT0-P0` is closed: empty and multi-item CheckExpr fixtures prove the
+CONST0 Integer accumulator induction, Select failure leaves its destination
+untyped, and ordinary finalization snapshots the result. `CHECKSELECT0-I0` is
+next and may connect only the shared post-success Select fact commit.
+
 ## Phase 4 — FINALIZE0
 
 Finalization becomes a verifier and derived-publication boundary, not the
