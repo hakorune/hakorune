@@ -9,25 +9,18 @@ use crate::project::{
     CfgDecisionStateV1, CfgEvaluationEnvironmentV1,
 };
 
-use super::cfg_gate::{
-    decide_module_cfg_stream_v1, select_active_path_v1, validate_selected_cfg_attributes_v1,
-};
 use super::content_draft::ClassifiedModuleContentDraftV1;
 use super::content_gate::{DeclaredModuleContentGateV1, ModuleContentCandidateIdV1};
-use super::declarations::{
-    collect_direct_module_position_items_v1, include_literal, parse_included_module_source_v1,
-    validate_include_attributes, validate_module_attributes, IncludeDeclarationV1,
-    ModulePositionItemV1,
-};
+use super::declarations::collect_direct_module_position_items_v1;
 use super::error::ModuleTopologyErrorV1;
+use super::include_scope::IncludeScopeLanesV1;
 use super::model::{
     DeclaredIncludeEdgeV1, DeclaredModuleEdgeV1, DeclaredModuleInstanceV1,
     DeclaredModuleTopologyV1, ModuleEdgeKindV1, ModuleInstanceKindV1, ModuleSourceObservationV1,
     DECLARED_MODULE_TOPOLOGY_SCHEMA_V3,
 };
 use super::path_resolution::{
-    canonical_regular_file, normalize_inside_workspace, resolve_include_source_v1,
-    workspace_relative, ModuleDirectoryOwnershipV1,
+    canonical_regular_file, normalize_inside_workspace, workspace_relative, ModuleDirectoryOwnershipV1,
 };
 
 pub fn collect_declared_module_topology_v1(
@@ -134,7 +127,6 @@ impl ModuleTraversalV1 {
                     &relative,
                     &source,
                     &direct_items,
-                    false,
                 )?;
                 let observation_id = self.add_source_observation(
                     &root_id,
@@ -176,194 +168,10 @@ impl ModuleTraversalV1 {
             &directory,
             &source,
             &parsed.items,
+            IncludeScopeLanesV1::root(),
         );
         self.canonical_ancestry.pop();
-        result
-    }
-
-    #[allow(clippy::too_many_arguments)]
-    pub(super) fn walk_items(
-        &mut self,
-        parent_instance_id: &str,
-        parent_syntax_path: &str,
-        parent_lexical_path: &Path,
-        parent_canonical_relative: &str,
-        parent_observation_id: &str,
-        parent_directory: &ModuleDirectoryOwnershipV1,
-        parent_source: &str,
-        items: &[ModulePositionItemV1],
-    ) -> Result<(), ModuleTopologyErrorV1> {
-        for item in items {
-            let ModulePositionItemV1::Module(declaration) = item else {
-                let ModulePositionItemV1::Include(include) = item else {
-                    unreachable!();
-                };
-                self.add_include_source(
-                    parent_instance_id,
-                    parent_syntax_path,
-                    parent_lexical_path,
-                    parent_observation_id,
-                    include,
-                )?;
-                continue;
-            };
-            let module_path = format!("{parent_syntax_path}::{}", declaration.semantic_segment);
-            let cfg =
-                decide_module_cfg_stream_v1(&declaration.outer_topology_rows, &self.environment)?;
-            if cfg.final_state == CfgDecisionStateV1::Unknown {
-                return Err(ModuleTopologyErrorV1::UnknownCfg {
-                    module: module_path,
-                });
-            }
-            let edge_id = self.next_edge_id();
-            if cfg.final_state == CfgDecisionStateV1::Excluded {
-                self.edges.push(DeclaredModuleEdgeV1 {
-                    edge_id,
-                    parent_instance_id: parent_instance_id.to_string(),
-                    declaration_source_observation_id: parent_observation_id.to_string(),
-                    declaration_range: declaration.range,
-                    declared_ident_syntax: declaration.ident_syntax.clone(),
-                    semantic_segment: declaration.semantic_segment.clone(),
-                    kind: if declaration.inline_body_items.is_some() {
-                        ModuleEdgeKindV1::Inline
-                    } else {
-                        ModuleEdgeKindV1::Ordinary
-                    },
-                    active_literal_path: None,
-                    cfg_decision: cfg,
-                    content_gate: None,
-                    child_instance_id: None,
-                    selected_source_path_workspace_relative: None,
-                });
-                continue;
-            }
-            validate_module_attributes(&module_path, &declaration.outer_attributes)?;
-            validate_selected_cfg_attributes_v1(&module_path, &cfg)?;
-            let literal_path = select_active_path_v1(&module_path, &cfg)?;
-            if declaration.inline_body_items.is_some() {
-                self.add_inline_module(
-                    edge_id,
-                    parent_instance_id,
-                    &module_path,
-                    parent_lexical_path,
-                    parent_canonical_relative,
-                    parent_observation_id,
-                    parent_directory,
-                    declaration,
-                    literal_path,
-                    cfg,
-                    parent_source,
-                )?;
-            } else {
-                self.add_external_module(
-                    edge_id,
-                    parent_instance_id,
-                    &module_path,
-                    parent_observation_id,
-                    parent_directory,
-                    declaration,
-                    literal_path,
-                    cfg,
-                )?;
-            }
-        }
-        Ok(())
-    }
-
-    fn add_include_source(
-        &mut self,
-        owning_module_instance_id: &str,
-        module_syntax_path: &str,
-        including_lexical_path: &Path,
-        parent_observation_id: &str,
-        declaration: &IncludeDeclarationV1,
-    ) -> Result<(), ModuleTopologyErrorV1> {
-        let source_relative = self.relative(including_lexical_path)?;
-        let cfg = decide_module_cfg_stream_v1(&declaration.outer_topology_rows, &self.environment)?;
-        if cfg.final_state == CfgDecisionStateV1::Unknown {
-            return Err(ModuleTopologyErrorV1::UnknownCfg {
-                module: format!("include@{source_relative}"),
-            });
-        }
-        let include_edge_id = self.next_include_edge_id();
-        let parent_observation = self
-            .observations
-            .iter()
-            .find(|row| row.source_observation_id == parent_observation_id)
-            .ok_or(ModuleTopologyErrorV1::WorkspaceEvidenceDrift)?;
-        let parent_include_edge_id = parent_observation.parent_include_edge_id.clone();
-        if cfg.final_state == CfgDecisionStateV1::Excluded {
-            self.include_edges.push(DeclaredIncludeEdgeV1 {
-                include_edge_id,
-                owning_module_instance_id: owning_module_instance_id.to_string(),
-                parent_source_observation_id: parent_observation_id.to_string(),
-                parent_include_edge_id,
-                invocation_range: declaration.range,
-                cfg_decision: cfg,
-                literal_path: None,
-                selected_source_path_workspace_relative: None,
-                child_source_observation_id: None,
-            });
-            return Ok(());
-        }
-
-        validate_include_attributes(&source_relative, &declaration.outer_attributes)?;
-        validate_selected_cfg_attributes_v1(&format!("include@{source_relative}"), &cfg)?;
-        if select_active_path_v1(&format!("include@{source_relative}"), &cfg)?.is_some() {
-            return Err(ModuleTopologyErrorV1::UnsupportedIncludeAttribute {
-                path: source_relative,
-                attribute: "path".to_string(),
-            });
-        }
-        if declaration.include_macro_ambiguity {
-            return Err(ModuleTopologyErrorV1::IncludeMacroIdentityUnresolved {
-                path: source_relative,
-            });
-        }
-        let literal_path = include_literal(&source_relative, declaration)?;
-        let resolved =
-            resolve_include_source_v1(&self.workspace_root, including_lexical_path, &literal_path)?;
-        if self.canonical_ancestry.contains(&resolved.canonical_path) {
-            return Err(ModuleTopologyErrorV1::CanonicalCycle {
-                path: self.relative(&resolved.canonical_path)?,
-            });
-        }
-        let selected_relative = self.relative(&resolved.lexical_path)?;
-        let source = self.read_source(&resolved.lexical_path, &resolved.canonical_path)?;
-        let parsed = parse_included_module_source_v1(&selected_relative, &source)?;
-        let observation_id = self.add_source_observation(
-            owning_module_instance_id,
-            &resolved.lexical_path,
-            &resolved.canonical_path,
-            module_syntax_path,
-            &source,
-            Some(include_edge_id.clone()),
-        )?;
-        self.include_edges.push(DeclaredIncludeEdgeV1 {
-            include_edge_id,
-            owning_module_instance_id: owning_module_instance_id.to_string(),
-            parent_source_observation_id: parent_observation_id.to_string(),
-            parent_include_edge_id,
-            invocation_range: declaration.range,
-            cfg_decision: cfg,
-            literal_path: Some(literal_path),
-            selected_source_path_workspace_relative: Some(selected_relative),
-            child_source_observation_id: Some(observation_id.clone()),
-        });
-        self.canonical_ancestry.push(resolved.canonical_path);
-        let canonical_relative = self.relative(self.canonical_ancestry.last().unwrap())?;
-        let result = self.walk_items(
-            owning_module_instance_id,
-            module_syntax_path,
-            &resolved.lexical_path,
-            &canonical_relative,
-            &observation_id,
-            &resolved.directory,
-            &source,
-            &parsed.items,
-        );
-        self.canonical_ancestry.pop();
-        result
+        result.map(|_| ())
     }
 
     pub(super) fn add_source_observation(
@@ -560,11 +368,11 @@ impl ModuleTraversalV1 {
         format!("module:{}", self.instances.len())
     }
 
-    fn next_edge_id(&self) -> String {
+    pub(super) fn next_edge_id(&self) -> String {
         format!("edge:{}", self.edges.len())
     }
 
-    fn next_include_edge_id(&self) -> String {
+    pub(super) fn next_include_edge_id(&self) -> String {
         format!("include:{}", self.include_edges.len())
     }
 

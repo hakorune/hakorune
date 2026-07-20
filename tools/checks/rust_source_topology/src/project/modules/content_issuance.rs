@@ -12,6 +12,7 @@ use super::content_draft::{
 };
 use super::content_gate::{ModuleContentCandidateIdV1, ModuleContentDefiningSurfaceV1};
 use super::declarations::{collect_direct_module_position_items_v1, ModuleDeclarationV1};
+use super::include_scope::IncludeScopeLanesV1;
 use super::model::{
     DeclaredModuleEdgeV1, DeclaredModuleInstanceV1, ModuleEdgeKindV1, ModuleInstanceKindV1,
 };
@@ -55,6 +56,7 @@ impl ModuleTraversalV1 {
         literal_path: Option<String>,
         cfg: crate::project::CfgAttributeStreamDecisionV1,
         parent_source: &str,
+        child_scope: IncludeScopeLanesV1,
     ) -> Result<(), ModuleTopologyErrorV1> {
         let body_range = declaration
             .inline_body_range
@@ -83,7 +85,6 @@ impl ModuleTraversalV1 {
                     &parent_relative,
                     parent_source,
                     raw_items,
-                    declaration.include_macro_ambiguity,
                 )?;
                 (gate, Some(parsed))
             }
@@ -141,7 +142,9 @@ impl ModuleTraversalV1 {
             &directory,
             parent_source,
             &parsed.items,
+            child_scope,
         )
+        .map(|_| ())
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -155,6 +158,7 @@ impl ModuleTraversalV1 {
         declaration: &ModuleDeclarationV1,
         literal_path: Option<String>,
         cfg: crate::project::CfgAttributeStreamDecisionV1,
+        child_scope: IncludeScopeLanesV1,
     ) -> Result<(), ModuleTopologyErrorV1> {
         let resolved = resolve_external_module_v1(
             &self.workspace_root,
@@ -183,7 +187,6 @@ impl ModuleTraversalV1 {
                     &selected_relative,
                     &source,
                     &direct_items,
-                    declaration.include_macro_ambiguity,
                 )?;
                 (gate, Some(parsed))
             }
@@ -254,7 +257,9 @@ impl ModuleTraversalV1 {
             &resolved.directory,
             &source,
             &parsed.items,
-        );
+            child_scope,
+        )
+        .map(|_| ());
         self.canonical_ancestry.pop();
         result
     }

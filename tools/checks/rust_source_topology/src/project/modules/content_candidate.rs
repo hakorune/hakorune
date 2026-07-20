@@ -96,7 +96,6 @@ impl ContentCandidateObserverV1 {
             lexical_path,
             canonical_path,
             directory,
-            false,
         );
         self.canonical_ancestry.pop();
         result
@@ -109,7 +108,6 @@ impl ContentCandidateObserverV1 {
         lexical_path: PathBuf,
         canonical_path: PathBuf,
         directory: ModuleDirectoryOwnershipV1,
-        inherited_include_macro_ambiguity: bool,
     ) -> Result<(), ContentCandidateObservationErrorV1> {
         let relative = workspace_relative(&self.workspace_root, &lexical_path)?;
         let source = self.read_source(&lexical_path, &canonical_path)?;
@@ -137,7 +135,6 @@ impl ContentCandidateObserverV1 {
                     &relative,
                     &source,
                     &direct_items,
-                    inherited_include_macro_ambiguity,
                 )?;
                 self.walk_items(&lexical_path, &directory, &source, &parsed.items)
             }
@@ -244,7 +241,6 @@ impl ContentCandidateObserverV1 {
                     &parent_relative,
                     parent_source,
                     raw_items,
-                    declaration.include_macro_ambiguity,
                 )?;
                 self.walk_items(
                     parent_lexical_path,
@@ -282,7 +278,6 @@ impl ContentCandidateObserverV1 {
             resolved.lexical_path,
             resolved.canonical_path,
             resolved.directory,
-            declaration.include_macro_ambiguity,
         );
         self.canonical_ancestry.pop();
         result

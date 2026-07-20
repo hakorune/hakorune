@@ -9,6 +9,7 @@ mod content_issuance;
 mod declarations;
 mod error;
 mod include_scope;
+mod include_scope_traversal;
 mod model;
 mod path_resolution;
 mod traversal;

@@ -1,5 +1,5 @@
 ---
-Status: INCLUDE-SCOPE0-P0 closed; INCLUDE-SCOPE0-I0 is next
+Status: INCLUDE-SCOPE0-I0 closed; INCLUDE-SCOPE0-G0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -2013,3 +2013,31 @@ checker/root `cargo check`, pointer guard, and diff check are green.
 `include_macro_ambiguity` connection in traversal. P0 does not claim general
 macro resolution, block-local module identity, production direct-callsite
 census, compiler behavior, or CUT0 readiness.
+
+##### `INCLUDE-SCOPE0-I0` closeout
+
+One new sibling, `include_scope_traversal.rs`, now owns the sole production
+scope stream. `declarations.rs` retains ordered direct `use` and exact
+`macro_rules! include` events with existing cfg rows and source ranges, but no
+longer manufactures or transports a blanket ambiguity boolean. The traversal
+first folds Included direct module-local events over the entire current module;
+that lane is deliberately order-independent. It then applies Included textual
+macro events in source order, rejects either non-builtin lane at literal
+include issuance, and leaves Excluded events inert while keeping Unknown typed.
+
+An inline or external child receives `child_module_entry()`: module-local
+state resets and textual state inherits; the child result is discarded. A
+same-module included source receives the current scope by value and returns
+its final scope to the following parent sibling. `content_issuance.rs` only
+threads this child product through the pre-existing content-gate path and
+does not classify scope or evaluate cfg. The old blanket state, its parser
+parameter, and all production reads are zero.
+
+The focused topology suite expands to eleven tests: excluded and Unknown scope
+events, order-independent direct imports, source-ordered textual macros,
+inline/external child boundaries, child non-leakage, and included-source
+continuation are all fixed alongside the prior include/path/cycle laws. The
+checker/root `cargo check`, private proof suite, topology suite, registered
+guard, pointer guard, and diff check are green. `INCLUDE-SCOPE0-G0` is next
+and owns only final owner/consumer/retirement guard closure; CUT0 remains
+forbidden.

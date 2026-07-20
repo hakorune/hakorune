@@ -23,7 +23,6 @@ pub(super) struct ModuleDeclarationV1 {
     /// `CONTENTCFG0-I0` must classify the child's own inner stream before it
     /// issues `ModulePositionItemV1` declarations from them.
     pub inline_body_items: Option<Box<[Item]>>,
-    pub include_macro_ambiguity: bool,
 }
 
 #[derive(Clone)]
@@ -32,11 +31,21 @@ pub(super) struct IncludeDeclarationV1 {
     pub outer_attributes: Box<[Attribute]>,
     pub outer_topology_rows: Box<[CfgAttributeStreamInputRowV1]>,
     pub tokens: proc_macro2::TokenStream,
-    pub include_macro_ambiguity: bool,
+}
+
+/// One direct source-order event that can affect unqualified `include!`
+/// identity.  Traversal alone evaluates its outer cfg stream and applies the
+/// selected event to the current two-lane scope.
+#[derive(Clone)]
+pub(super) struct IncludeScopeDeclarationV1 {
+    pub range: SourceRangeV1,
+    pub outer_topology_rows: Box<[CfgAttributeStreamInputRowV1]>,
 }
 
 #[derive(Clone)]
 pub(super) enum ModulePositionItemV1 {
+    ModuleLocalIncludeNameScope(IncludeScopeDeclarationV1),
+    TextualIncludeMacroScope(IncludeScopeDeclarationV1),
     Module(ModuleDeclarationV1),
     Include(IncludeDeclarationV1),
 }
@@ -49,7 +58,7 @@ pub(super) fn parse_included_module_source_v1(
     path: &str,
     source: &str,
 ) -> Result<ParsedModuleSourceV1, ModuleTopologyErrorV1> {
-    parse_source_v1(path, source, false, true)
+    parse_source_v1(path, source, true)
 }
 
 /// Returns the direct raw syntax of one included fragment after the existing
@@ -75,7 +84,6 @@ pub(super) fn collect_direct_module_position_items_v1(
     path: &str,
     source: &str,
     items: &[Item],
-    inherited_include_macro_ambiguity: bool,
 ) -> Result<ParsedModuleSourceV1, ModuleTopologyErrorV1> {
     let line_starts = line_starts(source);
     let direct_items = collect_module_position_items(
@@ -83,7 +91,6 @@ pub(super) fn collect_direct_module_position_items_v1(
         &line_starts,
         source,
         path,
-        inherited_include_macro_ambiguity,
     )?;
     reject_non_direct_topology_positions(path, source, items, &line_starts)?;
     Ok(ParsedModuleSourceV1 {
@@ -94,7 +101,6 @@ pub(super) fn collect_direct_module_position_items_v1(
 fn parse_source_v1(
     path: &str,
     source: &str,
-    inherited_include_macro_ambiguity: bool,
     included_fragment: bool,
 ) -> Result<ParsedModuleSourceV1, ModuleTopologyErrorV1> {
     let file = parse_source_file_v1(path, source, included_fragment)?;
@@ -103,7 +109,6 @@ fn parse_source_v1(
         path,
         source,
         &file.items,
-        inherited_include_macro_ambiguity,
     )
 }
 
@@ -248,14 +253,35 @@ fn collect_module_position_items(
     line_starts: &[usize],
     source: &str,
     source_path: &str,
-    inherited_include_macro_ambiguity: bool,
 ) -> Result<Vec<ModulePositionItemV1>, ModuleTopologyErrorV1> {
     let mut result = Vec::new();
-    let scope_ambiguity =
-        inherited_include_macro_ambiguity || items.iter().any(item_may_shadow_builtin_include);
     for item in items {
+        if let Item::Use(item_use) = item {
+            if use_tree_may_import_include(&item_use.tree) {
+                result.push(ModulePositionItemV1::ModuleLocalIncludeNameScope(
+                    include_scope_declaration(
+                        item_use.span(),
+                        &item_use.attrs,
+                        line_starts,
+                        source,
+                        source_path,
+                    )?,
+                ));
+            }
+            continue;
+        }
         if let Item::Macro(item_macro) = item {
-            if item_macro.mac.path.is_ident("include") {
+            if is_macro_rules_include(item_macro) {
+                result.push(ModulePositionItemV1::TextualIncludeMacroScope(
+                    include_scope_declaration(
+                        item_macro.span(),
+                        &item_macro.attrs,
+                        line_starts,
+                        source,
+                        source_path,
+                    )?,
+                ));
+            } else if item_macro.mac.path.is_ident("include") {
                 result.push(ModulePositionItemV1::Include(IncludeDeclarationV1 {
                     range: source_range(item_macro.mac.span(), line_starts, source),
                     outer_attributes: item_macro
@@ -272,7 +298,6 @@ fn collect_module_position_items(
                         source,
                     )?,
                     tokens: item_macro.mac.tokens.clone(),
-                    include_macro_ambiguity: scope_ambiguity,
                 }));
             } else if macro_path_ends_with_include(&item_macro.mac.path) {
                 let range = source_range(item_macro.mac.span(), line_starts, source);
@@ -312,10 +337,27 @@ fn collect_module_position_items(
             )?,
             inline_body_range,
             inline_body_items,
-            include_macro_ambiguity: scope_ambiguity,
         }));
     }
     Ok(result)
+}
+
+fn include_scope_declaration(
+    span: Span,
+    attributes: &[Attribute],
+    line_starts: &[usize],
+    source: &str,
+    source_path: &str,
+) -> Result<IncludeScopeDeclarationV1, ModuleTopologyErrorV1> {
+    Ok(IncludeScopeDeclarationV1 {
+        range: source_range(span, line_starts, source),
+        outer_topology_rows: collect_outer_topology_rows(
+            source_path,
+            attributes,
+            line_starts,
+            source,
+        )?,
+    })
 }
 
 pub(super) fn collect_outer_topology_rows(
@@ -376,29 +418,12 @@ fn macro_path_ends_with_include(path: &syn::Path) -> bool {
         .is_some_and(|segment| segment.ident == "include")
 }
 
-fn item_may_shadow_builtin_include(item: &Item) -> bool {
-    match item {
-        Item::Use(item_use) => use_tree_may_import_include(&item_use.tree),
-        Item::Macro(item_macro) => {
-            item_macro
-                .ident
-                .as_ref()
-                .is_some_and(|ident| ident == "include")
-                || item_macro
-                    .attrs
-                    .iter()
-                    .any(|attribute| attribute.path().is_ident("macro_use"))
-        }
-        Item::ExternCrate(item_extern) => item_extern
-            .attrs
-            .iter()
-            .any(|attribute| attribute.path().is_ident("macro_use")),
-        Item::Mod(item_mod) => item_mod
-            .attrs
-            .iter()
-            .any(|attribute| attribute.path().is_ident("macro_use")),
-        _ => false,
-    }
+fn is_macro_rules_include(item_macro: &syn::ItemMacro) -> bool {
+    item_macro.mac.path.is_ident("macro_rules")
+        && item_macro
+            .ident
+            .as_ref()
+            .is_some_and(|ident| ident == "include")
 }
 
 fn use_tree_may_import_include(tree: &UseTree) -> bool {

@@ -220,6 +220,105 @@ fn unsupported_context_attributes_and_macro_identity_fail_typed() {
 }
 
 #[test]
+fn scope_cfg_controls_only_active_direct_scope_events() {
+    let workspace = TemporaryIncludeWorkspace::new(
+        "#[cfg(any())] use crate::prelude::*;\ninclude!(\"item.inc\");\n",
+    );
+    workspace.write("src/item.inc", "pub fn item() {}\n");
+    assert_eq!(workspace.collect().unwrap().include_edges.len(), 1);
+
+    workspace.write(
+        "src/root.rs",
+        "#[cfg(any())] macro_rules! include { ($path:literal) => {}; }\ninclude!(\"item.inc\");\n",
+    );
+    assert_eq!(workspace.collect().unwrap().include_edges.len(), 1);
+
+    workspace.write(
+        "src/root.rs",
+        "#[cfg(scope_unknown)] use crate::prelude::*;\ninclude!(\"item.inc\");\n",
+    );
+    assert!(matches!(
+        workspace.collect(),
+        Err(ModuleTopologyErrorV1::UnknownCfg { .. })
+    ));
+}
+
+#[test]
+fn module_local_import_is_order_independent_but_resets_for_children() {
+    let workspace = TemporaryIncludeWorkspace::new(
+        "include!(\"item.inc\");\nuse crate::prelude::*;\n",
+    );
+    workspace.write("src/item.inc", "pub fn item() {}\n");
+    assert!(matches!(
+        workspace.collect(),
+        Err(ModuleTopologyErrorV1::IncludeMacroIdentityUnresolved { .. })
+    ));
+
+    workspace.write(
+        "src/root.rs",
+        "use crate::prelude::*;\nmod external;\nmod inline { include!(\"inline.inc\"); }\n",
+    );
+    workspace.write("src/external.rs", "include!(\"external.inc\");\n");
+    workspace.write("src/external.inc", "pub fn external() {}\n");
+    workspace.write("src/inline.inc", "pub fn inline() {}\n");
+    assert_eq!(workspace.collect().unwrap().include_edges.len(), 2);
+}
+
+#[test]
+fn textual_macro_is_source_ordered_and_inherited_by_children() {
+    let workspace = TemporaryIncludeWorkspace::new(
+        "mod child;\nmacro_rules! include { ($path:literal) => {}; }\n",
+    );
+    workspace.write("src/child.rs", "include!(\"child.inc\");\n");
+    workspace.write("src/child.inc", "pub fn child() {}\n");
+    assert_eq!(workspace.collect().unwrap().include_edges.len(), 1);
+
+    workspace.write(
+        "src/root.rs",
+        "macro_rules! include { ($path:literal) => {}; }\nmod child;\n",
+    );
+    assert!(matches!(
+        workspace.collect(),
+        Err(ModuleTopologyErrorV1::IncludeMacroIdentityUnresolved { .. })
+    ));
+
+    workspace.write(
+        "src/root.rs",
+        "mod child;\ninclude!(\"root.inc\");\n",
+    );
+    workspace.write(
+        "src/child.rs",
+        "macro_rules! include { ($path:literal) => {}; }\n",
+    );
+    workspace.write("src/root.inc", "pub fn root() {}\n");
+    assert_eq!(workspace.collect().unwrap().include_edges.len(), 1);
+}
+
+#[test]
+fn included_scope_continues_to_following_parent_sibling() {
+    let workspace =
+        TemporaryIncludeWorkspace::new("include!(\"part.inc\");\ninclude!(\"later.inc\");\n");
+    workspace.write(
+        "src/part.inc",
+        "macro_rules! include { ($path:literal) => {}; }\n",
+    );
+    workspace.write("src/later.inc", "pub fn later() {}\n");
+    assert!(matches!(
+        workspace.collect(),
+        Err(ModuleTopologyErrorV1::IncludeMacroIdentityUnresolved { .. })
+    ));
+
+    workspace.write(
+        "src/part.inc",
+        "use crate::prelude::*;\n",
+    );
+    assert!(matches!(
+        workspace.collect(),
+        Err(ModuleTopologyErrorV1::IncludeMacroIdentityUnresolved { .. })
+    ));
+}
+
+#[test]
 fn include_paths_are_workspace_bounded_and_output_is_deterministic() {
     let workspace = TemporaryIncludeWorkspace::new(
         r##"include!(r#"parts/item.inc"#,);

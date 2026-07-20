@@ -1,10 +1,8 @@
 //! INCLUDE-SCOPE0's disconnected two-lane include-identity vocabulary.
 //!
-//! The legacy `include_macro_ambiguity` bit conflates ordinary module-local
-//! imports with textual `macro_rules!` visibility.  This product deliberately
-//! models them independently, but has no production consumer until P0/I0.
-
-#![allow(dead_code)] // INCLUDE-SCOPE0-S0 intentionally has zero production consumers.
+//! The retired `include_macro_ambiguity` bit conflated ordinary module-local
+//! imports with textual `macro_rules!` visibility. This product models them
+//! independently; `include_scope_traversal` is its sole production consumer.
 
 use crate::SourceRangeV1;
 

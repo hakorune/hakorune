@@ -14,7 +14,10 @@ FILES = {
     "model": f"{MODULE_DIR}/model.rs",
     "error": f"{MODULE_DIR}/error.rs",
     "include_scope": f"{MODULE_DIR}/include_scope.rs",
+    "include_scope_traversal": f"{MODULE_DIR}/include_scope_traversal.rs",
     "include_scope_candidate": f"{MODULE_DIR}/include_scope_candidate.rs",
+    "content_candidate": f"{MODULE_DIR}/content_candidate.rs",
+    "content_issuance": f"{MODULE_DIR}/content_issuance.rs",
     "declarations": f"{MODULE_DIR}/declarations.rs",
     "path_resolution": f"{MODULE_DIR}/path_resolution.rs",
     "traversal": f"{MODULE_DIR}/traversal.rs",
@@ -59,9 +62,11 @@ def main() -> None:
             "model",
             "error",
             "include_scope",
+            "include_scope_traversal",
             "declarations",
             "path_resolution",
             "traversal",
+            "content_issuance",
             "module",
         )
     )
@@ -103,10 +108,16 @@ def main() -> None:
         "include path resolver",
     )
     require_count(
-        sources["traversal"],
-        "fn add_include_source(",
+        sources["declarations"],
+        "ModuleLocalIncludeNameScope(IncludeScopeDeclarationV1)",
         1,
-        "include occurrence traversal owner",
+        "module-local scope event vocabulary",
+    )
+    require_count(
+        sources["declarations"],
+        "TextualIncludeMacroScope(IncludeScopeDeclarationV1)",
+        1,
+        "textual scope event vocabulary",
     )
     require_count(
         sources["include_scope"],
@@ -138,6 +149,36 @@ def main() -> None:
         1,
         "include occurrence ID owner",
     )
+    require_count(
+        sources["module"],
+        "mod include_scope_traversal;",
+        1,
+        "INCLUDE-SCOPE0-I0 traversal owner registration",
+    )
+    require_count(
+        sources["include_scope_traversal"],
+        "fn prepare_module_local_scope_v1(",
+        1,
+        "module-local scope preparation owner",
+    )
+    require_count(
+        sources["include_scope_traversal"],
+        "fn add_include_source(",
+        1,
+        "include occurrence continuation owner",
+    )
+    require_count(
+        sources["include_scope_traversal"],
+        "scope.child_module_entry()",
+        1,
+        "child scope boundary consumer",
+    )
+    require_count(
+        sources["include_scope_traversal"],
+        "incoming_scope,\n        );",
+        1,
+        "same-module include scope continuation",
+    )
     for token in (
         "parent_include_edge_id",
         "owning_module_instance_id",
@@ -163,21 +204,34 @@ def main() -> None:
         "DeclaredIncludeEdgeV1",
         "project CLI before S0b-G0",
     )
-    disconnected_scope_consumers = "\n".join(
-        sources[name]
-        for name in (
-            "model",
-            "error",
-            "declarations",
-            "path_resolution",
-            "traversal",
-            "module",
+    for source_name in (
+        "model",
+        "error",
+        "declarations",
+        "path_resolution",
+        "traversal",
+        "content_issuance",
+        "module",
+    ):
+        require_absent(
+            sources[source_name],
+            "include_macro_ambiguity",
+            "INCLUDE-SCOPE0-I0 retired blanket ambiguity",
         )
-    )
+    for forbidden in (
+        "syn::parse_file",
+        "decide_cfg_attribute_stream_v1",
+        "collect_direct_module_position_items_v1",
+    ):
+        require_absent(
+            sources["include_scope_traversal"],
+            forbidden,
+            "INCLUDE-SCOPE0-I0 shared-authority boundary",
+        )
     require_absent(
-        disconnected_scope_consumers,
-        "IncludeScopeLanesV1",
-        "INCLUDE-SCOPE0-S0 production consumers",
+        sources["content_issuance"],
+        "prepare_module_local_scope_v1",
+        "CONTENTCFG0 scope-classifier boundary",
     )
 
     require_count(
@@ -228,7 +282,7 @@ def main() -> None:
         "INCLUDE-SCOPE0-P0 focused test inventory",
     )
 
-    require_count(sources["test"], "#[test]", 7, "INCLUDE0 focused test inventory")
+    require_count(sources["test"], "#[test]", 11, "INCLUDE0 focused test inventory")
     for tag in (
         "CanonicalCycle",
         "UnknownCfg",
@@ -237,6 +291,10 @@ def main() -> None:
         "IncludeMacroIdentityUnresolved",
         "UnsupportedIncludedPreamble",
         "SourceOutsideWorkspace",
+        "scope_cfg_controls_only_active_direct_scope_events",
+        "module_local_import_is_order_independent_but_resets_for_children",
+        "textual_macro_is_source_ordered_and_inherited_by_children",
+        "included_scope_continues_to_following_parent_sibling",
     ):
         if tag not in sources["test"]:
             fail(f"missing focused include fixture: {tag}")
@@ -250,8 +308,8 @@ def main() -> None:
 
     print(
         f"[{TAG}] ok edge_owner=1 ordered_items=1 path_owner=1 "
-        "traversal_owner=1 cli_consumers=0 scope_consumers=0 "
-        "scope_proof_consumers=0 include_tests=7 scope_proof_tests=5"
+        "traversal_owner=1 cli_consumers=0 scope_consumers=1 "
+        "scope_proof_consumers=0 include_tests=11 scope_proof_tests=5"
     )
 
 
