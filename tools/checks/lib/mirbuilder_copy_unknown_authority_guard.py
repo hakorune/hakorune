@@ -10,6 +10,7 @@ from pathlib import Path
 TAG = "mirbuilder-copy-unknown-authority"
 LOCAL = "src/mir/builder/ssa/local.rs"
 POST_SUCCESS = "src/mir/builder/ssa/local/post_success.rs"
+COPY_TYPE = "src/mir/builder/ssa/local/copy_type.rs"
 SELF = "tools/checks/lib/mirbuilder_copy_unknown_authority_guard.py"
 
 
@@ -43,6 +44,7 @@ def main() -> None:
     root = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
     local = production_source(read(root, LOCAL))
     post_success = production_source(read(root, POST_SUCCESS))
+    copy_type = production_source(read(root, COPY_TYPE))
 
     require_count(
         local,
@@ -55,6 +57,18 @@ def main() -> None:
         "PreparedLocalSsaPostSuccessV1::prepare(",
         1,
         "post-success decision owner",
+    )
+    require_count(
+        local,
+        "PreparedLocalSsaPhysicalCopyTypeV1::prepare(",
+        1,
+        "shared physical-Copy decision consumer",
+    )
+    require_count(
+        local,
+        "prepared_physical_copy_type.commit(",
+        1,
+        "shared physical-Copy commit consumer",
     )
     require_count(
         local,
@@ -89,6 +103,12 @@ def main() -> None:
     )
     require_count(
         post_success,
+        "LocalSsaMaterializationKindV1::PhysicalCopy(_)",
+        1,
+        "physical-Copy exact-lane exclusion",
+    )
+    require_count(
+        post_success,
         "SuppressedByStoredUnknown { owner: String }",
         1,
         "stored-Unknown receiver compatibility decision",
@@ -98,6 +118,18 @@ def main() -> None:
         "PublishBoxFromMissingType { owner: String }",
         1,
         "receiver-only Box fallback decision",
+    )
+    require_count(
+        copy_type,
+        "TypeFactDecisionV1::prepare(",
+        1,
+        "physical-Copy exact decision owner",
+    )
+    require_count(
+        copy_type,
+        "pub(super) fn commit(",
+        1,
+        "physical-Copy exact commit owner",
     )
 
     for forbidden, label in (
@@ -113,7 +145,7 @@ def main() -> None:
 
     oversized = [
         relative
-        for relative in (LOCAL, POST_SUCCESS, SELF)
+        for relative in (LOCAL, POST_SUCCESS, COPY_TYPE, SELF)
         if len(read(root, relative).splitlines()) >= 800
     ]
     if oversized:
@@ -122,7 +154,8 @@ def main() -> None:
     print(
         f"[{TAG}] ok "
         "decision=1 commit=1 classifier=1 "
-        "stored_unknown_lane=1 receiver_fallback_lane=1 copy0_consumers=0"
+        "stored_unknown_lane=1 receiver_fallback_lane=1 "
+        "physical_copy_decision=1 physical_copy_commit=1"
     )
 
 

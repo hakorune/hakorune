@@ -142,14 +142,19 @@ impl PreparedLocalSsaPostSuccessV1 {
         }
     }
 
-    /// Commits only the four C-prime lanes after successful materialization.
+    /// Commits C-prime compatibility lanes after successful materialization.
     ///
     /// The destination is fresh by the LocalSSA allocation invariant, so this
     /// commit is intentionally non-fallible. String/map/record compatibility
     /// transfer and cache insertion remain owned by their existing callers.
     pub(super) fn commit(self, destination: ValueId, type_ctx: &mut TypeContext) {
-        if let Some(ty) = self.exact_type {
-            type_ctx.set_type(destination, ty);
+        if !matches!(
+            self.materialization,
+            LocalSsaMaterializationKindV1::PhysicalCopy(_)
+        ) {
+            if let Some(ty) = self.exact_type {
+                type_ctx.set_type(destination, ty);
+            }
         }
         if self.legacy_unknown {
             type_ctx.set_type(destination, MirType::Unknown);
@@ -457,11 +462,12 @@ mod tests {
     }
 
     #[test]
-    fn production_commit_preserves_the_full_type_origin_receiver_matrix() {
+    fn production_commit_preserves_non_copy_exact_and_physical_compatibility_lanes() {
         struct Case {
             source_type: Option<MirType>,
             origin: Option<&'static str>,
             kind: LocalKind,
+            materialization: LocalSsaMaterializationKindV1,
             expected_type: Option<MirType>,
             expected_origin: Option<&'static str>,
         }
@@ -471,6 +477,9 @@ mod tests {
                 source_type: None,
                 origin: None,
                 kind: LocalKind::Arg,
+                materialization: LocalSsaMaterializationKindV1::PhysicalCopy(
+                    LocalSsaPhysicalCopyReasonV1::DominatingFallbackCopy,
+                ),
                 expected_type: None,
                 expected_origin: None,
             },
@@ -478,6 +487,7 @@ mod tests {
                 source_type: Some(MirType::Integer),
                 origin: None,
                 kind: LocalKind::Arg,
+                materialization: LocalSsaMaterializationKindV1::RematerializedConst,
                 expected_type: Some(MirType::Integer),
                 expected_origin: None,
             },
@@ -485,6 +495,9 @@ mod tests {
                 source_type: Some(MirType::Unknown),
                 origin: Some("Owner"),
                 kind: LocalKind::Recv,
+                materialization: LocalSsaMaterializationKindV1::PhysicalCopy(
+                    LocalSsaPhysicalCopyReasonV1::DominatingFallbackCopy,
+                ),
                 expected_type: Some(MirType::Unknown),
                 expected_origin: Some("Owner"),
             },
@@ -492,6 +505,9 @@ mod tests {
                 source_type: None,
                 origin: Some("Owner"),
                 kind: LocalKind::Recv,
+                materialization: LocalSsaMaterializationKindV1::PhysicalCopy(
+                    LocalSsaPhysicalCopyReasonV1::DominatingFallbackCopy,
+                ),
                 expected_type: Some(MirType::Box("Owner".to_string())),
                 expected_origin: Some("Owner"),
             },
@@ -499,6 +515,7 @@ mod tests {
                 source_type: Some(MirType::Integer),
                 origin: Some("Owner"),
                 kind: LocalKind::Recv,
+                materialization: LocalSsaMaterializationKindV1::RematerializedSelect,
                 expected_type: Some(MirType::Integer),
                 expected_origin: Some("Owner"),
             },
@@ -506,13 +523,21 @@ mod tests {
                 source_type: None,
                 origin: Some("Owner"),
                 kind: LocalKind::FieldBase,
+                materialization: LocalSsaMaterializationKindV1::PhysicalCopy(
+                    LocalSsaPhysicalCopyReasonV1::DominatingFallbackCopy,
+                ),
                 expected_type: None,
                 expected_origin: Some("Owner"),
             },
         ];
 
         for (index, case) in cases.into_iter().enumerate() {
-            let prepared = prepare(case.source_type.as_ref(), case.origin, case.kind);
+            let prepared = PreparedLocalSsaPostSuccessV1::prepare(
+                &LocalSsaSourceTypeEntryV1::classify(case.source_type.as_ref()),
+                case.origin,
+                case.materialization,
+                case.kind,
+            );
             let destination = ValueId::new(100 + index as u32);
             let mut type_ctx = TypeContext::default();
 
@@ -521,6 +546,18 @@ mod tests {
             assert_eq!(type_ctx.get_type(destination), case.expected_type.as_ref());
             assert_eq!(type_ctx.get_origin_box(destination), case.expected_origin);
         }
+    }
+
+    #[test]
+    fn physical_copy_post_success_commit_leaves_exact_type_to_copy0() {
+        let prepared = prepare(Some(&MirType::Integer), Some("Owner"), LocalKind::Recv);
+        let destination = ValueId::new(212);
+        let mut type_ctx = TypeContext::default();
+
+        prepared.commit(destination, &mut type_ctx);
+
+        assert_eq!(type_ctx.get_type(destination), None);
+        assert_eq!(type_ctx.get_origin_box(destination), Some("Owner"));
     }
 
     #[test]

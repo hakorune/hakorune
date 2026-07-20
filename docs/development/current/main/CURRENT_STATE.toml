@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "COPY0-P0 is closed; the disconnected physical-Copy decision proves fallback/rematerialized parity and conflict isolation with no production consumer, COPY0-I0 is next"
+status = "COPY-UNKNOWN0/COPY0 are closed; LocalSSA physical-Copy exact publication and compatibility lanes are separated, D-prime successor selection is next"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -421,7 +421,7 @@ METAPROP0 owner after COMPCTX0/CONFIG0 and before PLAN0-CUT0; FACT0-G0 remains
 the final global-zero gate after that owner plus FINALIZE0, PLAN0, COMPCTX0,
 CONFIG0, and RAWADAPT0 retire their named legacy writers.
 NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-COPY0-I0-001"
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-NEXT-SELECT-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

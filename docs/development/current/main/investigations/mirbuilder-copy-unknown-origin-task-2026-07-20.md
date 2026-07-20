@@ -1,5 +1,5 @@
 ---
-Status: Active task
+Status: Closed task
 Date: 2026-07-20
 Scope: behavior-preserving LocalSSA post-success metadata split
 Related:
@@ -478,6 +478,92 @@ cargo check --all-targets
 LocalSSA `PhysicalCopy` producer; its design must remove the physical-Copy
 exact-type direct write from the legacy post-success commit without changing
 the StoredUnknown, origin, receiver-fallback, or non-Copy lanes.
+
+### `COPY0-I0` — closed (2026-07-20)
+
+The one semantic production producer is the shared successful LocalSSA
+`PhysicalCopy` branch. `ensure` and `try_ensure` remain facade-level route and
+failure-policy owners: neither selects the physical-Copy rule nor commits a
+type fact itself.
+
+```text
+before physical Copy emission:
+  prepare one COPY0 decision from the source entry and fresh destination
+
+after successful physical Copy emission:
+  COPY0 commits only Publish(exact T)
+  COPY-UNKNOWN0 commits StoredUnknown, origin, and receiver compatibility
+
+after successful non-Copy rematerialization:
+  COPY-UNKNOWN0 retains the existing exact/Unknown/origin/receiver commit
+```
+
+This removes the old direct physical-Copy exact write from the post-success
+owner while preserving every successful destination state. A decision conflict
+is pre-emission and typed; under the existing fresh `ValueId` allocation law it
+is an invariant failure rather than a legacy recovery route. Existing
+`ensure`/`try_ensure` block-creation and instruction-emission behavior,
+including recursive materialization, is unchanged.
+
+The former in-file materialization error policy now has its own small module,
+so `local.rs` remains under the source-size limit without changing its facade
+contract.
+
+Focused evidence:
+
+```text
+cargo fmt --check
+cargo test -q --lib ssa::local::copy_type::tests
+cargo test -q --lib ssa::local::post_success::tests
+cargo test -q --lib temporal_witness
+cargo test -q --lib local_statement_parity
+cargo check --all-targets
+```
+
+`COPY0-G0` is now the sole next row. It must guard the one shared successful
+physical-Copy decision/commit branch, the absence of physical exact transfer
+from `PreparedLocalSsaPostSuccessV1::commit`, and the continued separation of
+StoredUnknown, origin, receiver fallback, and non-Copy rematerialization.
+
+### `COPY0-G0` — closed (2026-07-20)
+
+The existing manifest-backed COPY-UNKNOWN0 guard is extended rather than
+creating another guard family. It now fixes:
+
+```text
+source-entry classifier = 1
+post-success decision/commit = 1 each
+shared physical-Copy prepare/commit consumer = 1 each
+physical-Copy exact TypeFact decision/commit owner = 1 each
+StoredUnknown receiver-compatibility lane = 1
+receiver Box fallback lane = 1
+physical exact transfer in post-success commit = 0
+```
+
+It also rejects a direct LocalSSA destination type/origin write, a COPY0
+decision in the compatibility owner, use of `metadata::propagate`, and any
+source/check file at or above 800 lines. The guard describes the shared
+successful materialization branch as the semantic producer; `ensure` and
+`try_ensure` remain facade-level route/error-policy adapters rather than a
+second type-publication authority.
+
+Final evidence:
+
+```text
+tools/checks/run_row_guard.sh --only mirbuilder-copy-unknown-authority
+bash tools/checks/current_state_pointer_guard.sh
+cargo fmt --check
+cargo test -q --lib ssa::local::copy_type::tests
+cargo test -q --lib ssa::local::post_success::tests
+cargo test -q --lib temporal_witness
+cargo test -q --lib local_statement_parity
+cargo check --all-targets
+```
+
+`COPY-UNKNOWN0` and `COPY0` are complete. This task does not select the next
+D-prime producer family: `UNKNOWN-RET0`, ORIGIN0, finalization repair,
+metadata propagation, direct Copy emitters, FieldGet, and Call remain parked
+until the active D-prime taskboard chooses their dependency order.
 
 ## Parked authorities
 

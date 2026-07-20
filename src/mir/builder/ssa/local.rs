@@ -1,10 +1,9 @@
 use crate::mir::builder::MirBuilder;
 use crate::mir::{MirInstruction, ValueId};
 
-#[allow(dead_code)] // COPY0-S0 defines the disconnected physical-Copy publisher.
 mod copy_type;
+mod error;
 mod finalize;
-#[allow(dead_code)] // COPY-UNKNOWN0-S0 defines the disconnected decision owner.
 mod post_success;
 pub use finalize::{finalize_args, finalize_branch_cond, finalize_compare};
 
@@ -70,6 +69,7 @@ use analysis::{
     has_dominated_same_field_set_after_root, same_block_copy_root,
     value_defined_in_current_function,
 };
+use error::{LocalSsaFailurePolicyV1, LocalSsaMaterializationErrorV1};
 
 /// Ensure a value has an in-block definition and cache it per (bb, orig, kind).
 /// Always emits a Copy in the current block when not cached.
@@ -89,46 +89,6 @@ pub fn try_ensure(
         crate::config::env::joinir_dev::strict_planner_required_debug_enabled()
             && kind == LocalKind::Arg,
     )
-}
-
-/// Checked failures; legacy facades recover only block/emission failures.
-enum LocalSsaMaterializationErrorV1 {
-    Contract(String),
-    BlockCreation(String),
-    InstructionEmission(String),
-}
-
-impl LocalSsaMaterializationErrorV1 {
-    fn message(&self) -> &str {
-        match self {
-            Self::Contract(message)
-            | Self::BlockCreation(message)
-            | Self::InstructionEmission(message) => message,
-        }
-    }
-}
-
-#[derive(Clone, Copy)]
-#[allow(dead_code)] // Checked is reserved for COPY0's first selected consumer.
-enum LocalSsaFailurePolicyV1 {
-    LegacyFacade,
-    Checked,
-}
-
-impl LocalSsaFailurePolicyV1 {
-    fn resolve(
-        self,
-        original: ValueId,
-        error: LocalSsaMaterializationErrorV1,
-    ) -> Result<ValueId, LocalSsaMaterializationErrorV1> {
-        match self {
-            Self::LegacyFacade => {
-                let _ = error.message();
-                Ok(original)
-            }
-            Self::Checked => Err(error),
-        }
-    }
 }
 
 fn ensure_inner(
@@ -566,12 +526,24 @@ fn materialize_local_v1(
             }
         }
 
+        let materialization = post_success::PreparedLocalSsaPostSuccessV1::classify_materialization(
+            def_inst.as_ref(),
+        );
+        let prepared_physical_copy_type = match materialization {
+            post_success::LocalSsaMaterializationKindV1::PhysicalCopy(_) => Some(
+                copy_type::PreparedLocalSsaPhysicalCopyTypeV1::prepare(
+                    &source_type_entry,
+                    materialization,
+                    builder.function_state.type_ctx.value_types.get(&loc),
+                )
+                .map_err(|error| LocalSsaMaterializationErrorV1::Contract(error.to_string()))?,
+            ),
+            _ => None,
+        };
         let prepared_post_success = post_success::PreparedLocalSsaPostSuccessV1::prepare(
             &source_type_entry,
             source_origin.as_deref(),
-            post_success::PreparedLocalSsaPostSuccessV1::classify_materialization(
-                def_inst.as_ref(),
-            ),
+            materialization,
             kind,
         );
 
@@ -706,8 +678,11 @@ fn materialize_local_v1(
             ring0.log.debug(&format!("[local-sa:ensure:success] fn={} entry={:?} bb={:?} kind={:?} v=%{} loc=%{} returning_loc",
                 fn_name, fn_entry, bb, kind, v.0, loc.0));
         }
-        // Success: commit the prepared C-prime lanes, then retain existing
-        // string/map/record compatibility transfer and cache ownership.
+        // Success: COPY0 owns physical-Copy exact facts; C-prime retains
+        // StoredUnknown, origin, receiver fallback, and non-Copy exact facts.
+        if let Some(prepared_physical_copy_type) = prepared_physical_copy_type {
+            prepared_physical_copy_type.commit(loc, &mut builder.function_state.type_ctx);
+        }
         prepared_post_success.commit(loc, &mut builder.function_state.type_ctx);
         if let Some(text) = builder
             .function_state

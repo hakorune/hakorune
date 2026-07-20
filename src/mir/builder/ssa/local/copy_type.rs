@@ -8,7 +8,8 @@ use hakorune_mir_builder::lowering_facts::{
 };
 
 use super::post_success::{LocalSsaMaterializationKindV1, LocalSsaSourceTypeEntryV1};
-use crate::mir::MirType;
+use crate::mir::builder::type_context::TypeContext;
+use crate::mir::{MirType, ValueId};
 
 /// The physical-Copy-only decision prepared before a future successful commit.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -21,6 +22,20 @@ pub(crate) enum LocalSsaPhysicalCopyTypeErrorV1 {
     NotPhysicalCopy(LocalSsaMaterializationKindV1),
     FactDecision(TypeFactDecisionErrorV1),
 }
+
+impl std::fmt::Display for LocalSsaPhysicalCopyTypeErrorV1 {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::NotPhysicalCopy(materialization) => write!(
+                formatter,
+                "[freeze:contract][local_ssa/copy_type/not_physical_copy] materialization={materialization:?}"
+            ),
+            Self::FactDecision(error) => error.fmt(formatter),
+        }
+    }
+}
+
+impl std::error::Error for LocalSsaPhysicalCopyTypeErrorV1 {}
 
 impl PreparedLocalSsaPhysicalCopyTypeV1 {
     /// Prepares an exact type fact only for the two already-classified physical
@@ -48,6 +63,17 @@ impl PreparedLocalSsaPhysicalCopyTypeV1 {
         Ok(Self { publication })
     }
 
+    /// Commits only an already-prepared exact physical-Copy publication.
+    ///
+    /// This is called after the physical `Copy` instruction succeeds. The
+    /// StoredUnknown, origin, receiver fallback, and non-Copy lanes remain in
+    /// the C-prime post-success owner.
+    pub(super) fn commit(self, destination: ValueId, type_ctx: &mut TypeContext) {
+        if let PreparedTypeFactPublicationV1::Publish(ty) = self.publication {
+            type_ctx.set_type(destination, ty);
+        }
+    }
+
     #[cfg(test)]
     fn publication(&self) -> &PreparedTypeFactPublicationV1 {
         &self.publication
@@ -60,7 +86,8 @@ mod tests {
     use crate::mir::builder::ssa::local::post_success::{
         LocalSsaMaterializationKindV1, LocalSsaPhysicalCopyReasonV1, LocalSsaSourceTypeEntryV1,
     };
-    use crate::mir::MirType;
+    use crate::mir::builder::type_context::TypeContext;
+    use crate::mir::{MirType, ValueId};
     use hakorune_mir_builder::lowering_facts::{
         PreparedTypeFactPublicationV1, TypeFactDecisionErrorV1,
     };
@@ -161,5 +188,30 @@ mod tests {
                 TypeFactDecisionErrorV1::ConcreteFactConflict { .. }
             ))
         ));
+    }
+
+    #[test]
+    fn commit_writes_only_the_prepared_exact_publication() {
+        let destination = ValueId::new(90);
+        let mut type_ctx = TypeContext::default();
+        type_ctx.set_type(destination, MirType::Unknown);
+
+        PreparedLocalSsaPhysicalCopyTypeV1::prepare(
+            &LocalSsaSourceTypeEntryV1::Exact(MirType::Integer),
+            FALLBACK_COPY,
+            type_ctx.get_type(destination),
+        )
+        .unwrap()
+        .commit(destination, &mut type_ctx);
+        assert_eq!(type_ctx.get_type(destination), Some(&MirType::Integer));
+
+        PreparedLocalSsaPhysicalCopyTypeV1::prepare(
+            &LocalSsaSourceTypeEntryV1::StoredUnknown,
+            REMATERIALIZED_COPY,
+            type_ctx.get_type(destination),
+        )
+        .unwrap()
+        .commit(destination, &mut type_ctx);
+        assert_eq!(type_ctx.get_type(destination), Some(&MirType::Integer));
     }
 }
