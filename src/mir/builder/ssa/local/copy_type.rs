@@ -69,19 +69,25 @@ mod tests {
         LocalSsaMaterializationKindV1::PhysicalCopy(
             LocalSsaPhysicalCopyReasonV1::DominatingFallbackCopy,
         );
+    const REMATERIALIZED_COPY: LocalSsaMaterializationKindV1 =
+        LocalSsaMaterializationKindV1::PhysicalCopy(
+            LocalSsaPhysicalCopyReasonV1::RematerializedCopy,
+        );
 
     #[test]
-    fn exact_physical_copy_delegates_to_the_existing_fact_decision() {
-        let prepared = PreparedLocalSsaPhysicalCopyTypeV1::prepare(
-            &LocalSsaSourceTypeEntryV1::Exact(MirType::Integer),
-            FALLBACK_COPY,
-            None,
-        )
-        .unwrap();
-        assert_eq!(
-            prepared.publication(),
-            &PreparedTypeFactPublicationV1::Publish(MirType::Integer)
-        );
+    fn both_physical_copy_reasons_delegate_exact_types_to_the_existing_decision() {
+        for materialization in [FALLBACK_COPY, REMATERIALIZED_COPY] {
+            let prepared = PreparedLocalSsaPhysicalCopyTypeV1::prepare(
+                &LocalSsaSourceTypeEntryV1::Exact(MirType::Integer),
+                materialization,
+                None,
+            )
+            .unwrap();
+            assert_eq!(
+                prepared.publication(),
+                &PreparedTypeFactPublicationV1::Publish(MirType::Integer)
+            );
+        }
 
         let idempotent = PreparedLocalSsaPhysicalCopyTypeV1::prepare(
             &LocalSsaSourceTypeEntryV1::Exact(MirType::Integer),
@@ -97,16 +103,19 @@ mod tests {
 
     #[test]
     fn missing_and_stored_unknown_do_not_propose_exact_type_facts() {
-        for source in [
-            LocalSsaSourceTypeEntryV1::Missing,
-            LocalSsaSourceTypeEntryV1::StoredUnknown,
-        ] {
-            let prepared =
-                PreparedLocalSsaPhysicalCopyTypeV1::prepare(&source, FALLBACK_COPY, None).unwrap();
-            assert_eq!(
-                prepared.publication(),
-                &PreparedTypeFactPublicationV1::NoPublication
-            );
+        for materialization in [FALLBACK_COPY, REMATERIALIZED_COPY] {
+            for source in [
+                LocalSsaSourceTypeEntryV1::Missing,
+                LocalSsaSourceTypeEntryV1::StoredUnknown,
+            ] {
+                let prepared =
+                    PreparedLocalSsaPhysicalCopyTypeV1::prepare(&source, materialization, None)
+                        .unwrap();
+                assert_eq!(
+                    prepared.publication(),
+                    &PreparedTypeFactPublicationV1::NoPublication
+                );
+            }
         }
     }
 
@@ -136,5 +145,21 @@ mod tests {
                 }
             ))
         );
+    }
+
+    #[test]
+    fn failed_decision_has_no_publication_product() {
+        let result = PreparedLocalSsaPhysicalCopyTypeV1::prepare(
+            &LocalSsaSourceTypeEntryV1::Exact(MirType::Integer),
+            REMATERIALIZED_COPY,
+            Some(&MirType::String),
+        );
+
+        assert!(matches!(
+            result,
+            Err(LocalSsaPhysicalCopyTypeErrorV1::FactDecision(
+                TypeFactDecisionErrorV1::ConcreteFactConflict { .. }
+            ))
+        ));
     }
 }

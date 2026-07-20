@@ -434,6 +434,51 @@ rematerialized Copy timing, Missing/StoredUnknown/exact decisions, matching and
 conflicting prepublication, and failure isolation before I0 connects one
 successful physical-Copy producer.
 
+### `COPY0-P0` — closed (2026-07-20)
+
+The disconnected publisher now has the complete first-consumer proof without
+changing a production publication path:
+
+```text
+physical Copy reasons:
+  DominatingFallbackCopy
+  RematerializedCopy
+
+source Missing / StoredUnknown:
+  no exact publication proposal
+
+source Exact(Integer):
+  Publish(Integer), or Idempotent(Integer) when already present
+
+pre-existing concrete disagreement:
+  typed conflict before a prepared publication exists
+
+non-Copy rematerialization:
+  reject before the TypeFact decision
+```
+
+An actual LocalSSA fixture proves that a rematerialized physical `Copy` retains
+its exact transient type after successful emission; the existing fallback-copy
+and StoredUnknown fixtures retain their prior destination-state observation.
+There is still no COPY0 commit path, so a failed decision produces no prepared
+publication product and the existing COPY-UNKNOWN0 failed-emission proof
+continues to own MIR/fact/origin/cache isolation.
+
+Focused evidence:
+
+```text
+cargo fmt --check
+cargo test -q --lib copy_type
+cargo test -q --lib temporal_witness
+cargo test -q --lib post_success
+cargo check --all-targets
+```
+
+`COPY0-I0` is now the sole next row. It may connect exactly one successful
+LocalSSA `PhysicalCopy` producer; its design must remove the physical-Copy
+exact-type direct write from the legacy post-success commit without changing
+the StoredUnknown, origin, receiver-fallback, or non-Copy lanes.
+
 ## Parked authorities
 
 ```text

@@ -9,7 +9,9 @@ use crate::mir::builder::emission::phi_lifecycle;
 use crate::mir::builder::ssa::local;
 use crate::mir::builder::MirBuilder;
 use crate::mir::function::{FunctionSignature, MirFunction, MirModule};
-use crate::mir::{BasicBlock, BasicBlockId, EffectMask, MirInstruction, MirType, ValueId};
+use crate::mir::{
+    BasicBlock, BasicBlockId, ConstValue, EffectMask, MirInstruction, MirType, ValueId,
+};
 use hakorune_mir_core::MirValueKind;
 use std::collections::BTreeSet;
 
@@ -200,6 +202,47 @@ fn local_ssa_receiver_copy_preserves_stored_unknown_and_origin_after_commit() {
         Some(RECEIVER_OWNER.to_string())
     );
     assert_eq!(metadata_type(&builder, copy), None);
+}
+
+#[test]
+fn local_ssa_rematerialized_copy_keeps_its_exact_transient_type_after_commit() {
+    let mut builder = builder_with_entry("fact0_temporal_rematerialized_copy/0");
+    let source = builder.alloc_value_for_test();
+    builder
+        .emit_for_test(MirInstruction::Const {
+            dst: source,
+            value: ConstValue::Integer(7),
+        })
+        .unwrap();
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(source, MirType::Integer);
+
+    let copied_source = builder.alloc_value_for_test();
+    builder
+        .emit_for_test(MirInstruction::Copy {
+            dst: copied_source,
+            src: source,
+        })
+        .unwrap();
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(copied_source, MirType::Integer);
+
+    let materialized = local::ensure(&mut builder, copied_source, local::LocalKind::Arg);
+
+    assert!(all_instructions(&builder).any(
+        |instruction| matches!(instruction, MirInstruction::Copy { dst, .. } if *dst == materialized)
+    ));
+    assert_eq!(
+        transient_type(&builder, materialized),
+        Some(MirType::Integer)
+    );
+    assert_eq!(metadata_type(&builder, materialized), None);
 }
 
 #[derive(Clone, Copy)]
