@@ -151,6 +151,13 @@ mod tests {
     use crate::mir::builder::ssa::local::LocalKind;
     use crate::mir::MirType;
 
+    #[derive(Clone, Debug, Default, Eq, PartialEq)]
+    struct SyntheticCommittedPostSuccessV1 {
+        type_entry: Option<MirType>,
+        origin: Option<String>,
+        cache_inserted: bool,
+    }
+
     fn prepare(
         source_type: Option<&MirType>,
         source_origin: Option<&str>,
@@ -164,6 +171,42 @@ mod tests {
             ),
             local_kind,
         )
+    }
+
+    fn commit_on_synthetic_cache_miss(
+        prepared: &PreparedLocalSsaPostSuccessV1,
+        cache_hit: bool,
+        state: &mut SyntheticCommittedPostSuccessV1,
+    ) -> bool {
+        if cache_hit {
+            return false;
+        }
+
+        if let Some(ty) = prepared.exact_type() {
+            state.type_entry = Some(ty.clone());
+        }
+        if prepared.has_legacy_unknown() {
+            state.type_entry = Some(MirType::Unknown);
+        }
+        state.origin = prepared.origin().map(str::to_owned);
+        if let ReceiverOriginCompatibilityV1::PublishBoxFromMissingType { owner } =
+            prepared.receiver_compat()
+        {
+            state.type_entry = Some(MirType::Box(owner.clone()));
+        }
+        state.cache_inserted = true;
+        true
+    }
+
+    fn commit_after_synthetic_emission(
+        prepared: &PreparedLocalSsaPostSuccessV1,
+        emission: Result<(), ()>,
+        state: &mut SyntheticCommittedPostSuccessV1,
+    ) -> bool {
+        if emission.is_err() {
+            return false;
+        }
+        commit_on_synthetic_cache_miss(prepared, false, state)
     }
 
     #[test]
@@ -285,5 +328,148 @@ mod tests {
                 LocalSsaPhysicalCopyReasonV1::RematerializedCopy
             )
         );
+    }
+
+    #[test]
+    fn synthetic_success_commit_preserves_the_full_type_origin_receiver_matrix() {
+        struct Case {
+            source_type: Option<MirType>,
+            origin: Option<&'static str>,
+            kind: LocalKind,
+            expected_type: Option<MirType>,
+            expected_origin: Option<&'static str>,
+        }
+
+        let cases = [
+            Case {
+                source_type: None,
+                origin: None,
+                kind: LocalKind::Arg,
+                expected_type: None,
+                expected_origin: None,
+            },
+            Case {
+                source_type: Some(MirType::Integer),
+                origin: None,
+                kind: LocalKind::Arg,
+                expected_type: Some(MirType::Integer),
+                expected_origin: None,
+            },
+            Case {
+                source_type: Some(MirType::Unknown),
+                origin: Some("Owner"),
+                kind: LocalKind::Arg,
+                expected_type: Some(MirType::Unknown),
+                expected_origin: Some("Owner"),
+            },
+            Case {
+                source_type: None,
+                origin: Some("Owner"),
+                kind: LocalKind::Recv,
+                expected_type: Some(MirType::Box("Owner".to_string())),
+                expected_origin: Some("Owner"),
+            },
+            Case {
+                source_type: Some(MirType::Unknown),
+                origin: Some("Owner"),
+                kind: LocalKind::Recv,
+                expected_type: Some(MirType::Unknown),
+                expected_origin: Some("Owner"),
+            },
+            Case {
+                source_type: Some(MirType::Integer),
+                origin: Some("Owner"),
+                kind: LocalKind::Recv,
+                expected_type: Some(MirType::Integer),
+                expected_origin: Some("Owner"),
+            },
+            Case {
+                source_type: None,
+                origin: Some("Owner"),
+                kind: LocalKind::FieldBase,
+                expected_type: None,
+                expected_origin: Some("Owner"),
+            },
+        ];
+
+        for case in cases {
+            let prepared = prepare(case.source_type.as_ref(), case.origin, case.kind);
+            let mut committed = SyntheticCommittedPostSuccessV1::default();
+
+            assert!(commit_on_synthetic_cache_miss(
+                &prepared,
+                false,
+                &mut committed
+            ));
+            assert_eq!(committed.type_entry, case.expected_type);
+            assert_eq!(committed.origin.as_deref(), case.expected_origin);
+            assert!(committed.cache_inserted);
+        }
+    }
+
+    #[test]
+    fn synthetic_failure_commits_no_type_origin_or_cache_state() {
+        let prepared = prepare(Some(&MirType::Unknown), Some("Owner"), LocalKind::Recv);
+        let mut committed = SyntheticCommittedPostSuccessV1::default();
+
+        assert!(!commit_after_synthetic_emission(
+            &prepared,
+            Err(()),
+            &mut committed
+        ));
+
+        assert_eq!(committed, SyntheticCommittedPostSuccessV1::default());
+    }
+
+    #[test]
+    fn synthetic_cache_hit_skips_metadata_republication() {
+        let prepared = prepare(Some(&MirType::Integer), Some("Owner"), LocalKind::Recv);
+        let mut committed = SyntheticCommittedPostSuccessV1 {
+            type_entry: Some(MirType::Unknown),
+            origin: Some("Existing".to_string()),
+            cache_inserted: true,
+        };
+        let before = committed.clone();
+
+        assert!(!commit_on_synthetic_cache_miss(
+            &prepared,
+            true,
+            &mut committed
+        ));
+        assert_eq!(committed, before);
+    }
+
+    #[test]
+    fn every_materialization_kind_uses_the_same_prepared_legacy_unknown_state() {
+        let kinds = [
+            LocalSsaMaterializationKindV1::RematerializedConst,
+            LocalSsaMaterializationKindV1::RematerializedBinOp,
+            LocalSsaMaterializationKindV1::RematerializedCompare,
+            LocalSsaMaterializationKindV1::RematerializedSelect,
+            LocalSsaMaterializationKindV1::PhysicalCopy(
+                LocalSsaPhysicalCopyReasonV1::RematerializedCopy,
+            ),
+            LocalSsaMaterializationKindV1::PhysicalCopy(
+                LocalSsaPhysicalCopyReasonV1::DominatingFallbackCopy,
+            ),
+        ];
+
+        for materialization in kinds {
+            let prepared = PreparedLocalSsaPostSuccessV1::prepare(
+                &LocalSsaSourceTypeEntryV1::StoredUnknown,
+                Some("Owner"),
+                materialization,
+                LocalKind::Recv,
+            );
+            let mut committed = SyntheticCommittedPostSuccessV1::default();
+
+            assert!(commit_on_synthetic_cache_miss(
+                &prepared,
+                false,
+                &mut committed
+            ));
+            assert_eq!(committed.type_entry, Some(MirType::Unknown));
+            assert_eq!(committed.origin.as_deref(), Some("Owner"));
+        }
     }
 }

@@ -269,13 +269,51 @@ excluded direct owner:
 decision and synthetic transaction matrix before I0 changes the existing
 post-success block.
 
-### `COPY-UNKNOWN0-P0`
+### `COPY-UNKNOWN0-P0` — closed (2026-07-20)
 
 Prove pure decision and synthetic transaction parity for the table above,
 physical Copy and non-Copy materialization families, cache hit/miss, and
 failure isolation. Downstream observations must retain stored-Unknown presence:
 CopyTypePropagator, PHI diagnostics, same-root receiver proof, type hints, and
 receiver route behavior.
+
+Closed proof:
+
+```text
+pure synthetic commit:
+  full Missing / StoredUnknown / Exact / origin / Recv / FieldBase matrix
+  exact and Unknown lanes are mutually exclusive
+  failure before commit leaves type/origin/cache empty
+  cache hit leaves existing metadata untouched
+  Const/BinOp/Compare/Select/Copy/fallback-Copy share the same prepared law
+
+actual observation:
+  a method receiver whose source type entry is StoredUnknown and whose origin
+  is the method owner materializes through LocalSSA Recv as:
+    emitted Copy
+    destination type = Unknown
+    destination origin = owner
+    no Box(owner) overwrite
+
+downstream preservation boundary:
+  the destination remains a present Unknown entry; this row changes neither
+  CopyTypePropagator, PHI publication, same-root provenance, type hints, nor
+  receiver routing.
+```
+
+Focused evidence:
+
+```text
+cargo test -q --lib post_success
+cargo test -q --lib temporal_witness
+cargo test -q --lib local_statement_parity
+```
+
+`COPY-UNKNOWN0-I0` is now the sole next row. It may replace only the current
+LocalSSA post-success metadata block with one prepared-then-commit owner; it
+must retain every successful destination state proven here and leave all six
+materialization families outside COPY0 except the two explicitly classified
+physical-Copy variants.
 
 ### `COPY-UNKNOWN0-I0`
 

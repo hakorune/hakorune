@@ -40,6 +40,15 @@ fn transient_type(builder: &MirBuilder, value: ValueId) -> Option<MirType> {
         .cloned()
 }
 
+fn transient_origin(builder: &MirBuilder, value: ValueId) -> Option<String> {
+    builder
+        .function_state
+        .type_ctx
+        .value_origin_newbox
+        .get(&value)
+        .cloned()
+}
+
 fn metadata_type(builder: &MirBuilder, value: ValueId) -> Option<MirType> {
     builder
         .function_state
@@ -167,6 +176,30 @@ fn copy_publishes_only_after_the_copy_instruction_commits() {
         finalize_metadata_type(&mut builder, copy),
         Some(MirType::Box(RECEIVER_OWNER.to_string()))
     );
+}
+
+#[test]
+fn local_ssa_receiver_copy_preserves_stored_unknown_and_origin_after_commit() {
+    let mut builder = builder_with_method_entry("fact0_temporal_unknown_copy/0", RECEIVER_OWNER);
+    let receiver = receiver_parameter(&mut builder, RECEIVER_OWNER);
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(receiver, MirType::Unknown);
+
+    let copy = local::recv(&mut builder, receiver);
+
+    assert_ne!(copy, receiver);
+    assert!(all_instructions(&builder).any(
+        |instruction| matches!(instruction, MirInstruction::Copy { dst, src } if *dst == copy && *src == receiver)
+    ));
+    assert_eq!(transient_type(&builder, copy), Some(MirType::Unknown));
+    assert_eq!(
+        transient_origin(&builder, copy),
+        Some(RECEIVER_OWNER.to_string())
+    );
+    assert_eq!(metadata_type(&builder, copy), None);
 }
 
 #[derive(Clone, Copy)]
