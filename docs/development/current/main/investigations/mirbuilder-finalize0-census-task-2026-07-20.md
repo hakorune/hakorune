@@ -69,8 +69,9 @@ retry/fallback routes
 
 The first read-only inventory artifact is
 `tools/checks/fixtures/mirbuilder_finalize0_pass_inventory_v1.json`. Its
-validator checks 45 explicit pass rows and source anchors, including the
-post-module compiler finish schedule and contract-refresh children. It deliberately
+validator checks 51 explicit pass rows and source anchors, including the
+post-module compiler finish schedule, semantic-refresh stages, and
+contract-refresh children. It deliberately
 records `RepairMissingLoweringFact` and `LegacySemanticInference` as parked
 classes rather than silently treating them as verification. No Rust producer,
 finalization call, or runtime behavior is changed by this artifact.

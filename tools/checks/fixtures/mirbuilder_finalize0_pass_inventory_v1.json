@@ -45,6 +45,12 @@
     {"id":"contract.record_value","site":"semantic_refresh/contracts.rs","anchor":"refresh_function_record_value_contracts","class":"PublishDerivedArtifact","first_publication":"record lowering contract","status":"parked"},
     {"id":"contract.exact_numeric","site":"semantic_refresh/contracts.rs","anchor":"refresh_module_exact_numeric_runtime_check_contracts","class":"PublishDerivedArtifact","first_publication":"exact numeric lowering contract","status":"parked"},
     {"id":"contract.static_table","site":"semantic_refresh/contracts.rs","anchor":"refresh_module_static_table_contracts","class":"PublishDerivedArtifact","first_publication":"static table lowering contract","status":"parked"},
-    {"id":"contract.extern_routes","site":"semantic_refresh/contracts.rs","anchor":"refresh_module_extern_call_routes","class":"PublishDerivedArtifact","first_publication":"extern route lowering contract","status":"parked"}
+    {"id":"contract.extern_routes","site":"semantic_refresh/contracts.rs","anchor":"refresh_module_extern_call_routes","class":"PublishDerivedArtifact","first_publication":"extern route lowering contract","status":"parked"},
+    {"id":"semantic.layout_decl_stage","site":"semantic_refresh.rs","anchor":"refresh_module_layout_and_decl_plans","class":"PublishDerivedArtifact","first_publication":"sealed module declarations","status":"parked"},
+    {"id":"semantic.all_functions_stage","site":"semantic_refresh.rs","anchor":"refresh_all_functions_semantic_metadata","class":"PublishDerivedArtifact","first_publication":"lowered function MIR","status":"parked"},
+    {"id":"semantic.route_convergence_stage","site":"semantic_refresh.rs","anchor":"refresh_module_route_convergence","class":"LegacySemanticInference","first_publication":"route producer facts","status":"parked"},
+    {"id":"semantic.post_fixpoint_stage","site":"semantic_refresh.rs","anchor":"refresh_function_post_fixpoint_consumers","class":"PublishDerivedArtifact","first_publication":"route fixpoint facts","status":"parked"},
+    {"id":"semantic.contract_stage","site":"semantic_refresh.rs","anchor":"refresh_module_contracts_and_exact_numeric","class":"PublishDerivedArtifact","first_publication":"sealed contracts","status":"parked"},
+    {"id":"semantic.value_representation_stage","site":"semantic_refresh.rs","anchor":"refresh_module_value_representation_facts","class":"PublishDerivedArtifact","first_publication":"lowering representation facts","status":"parked"}
   ]
 }
