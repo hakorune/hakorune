@@ -7,6 +7,8 @@ use crate::mir::instruction::FastMemRegionId;
 mod post_success;
 mod store_post_success;
 
+use store_post_success::PreparedOrdinaryFieldStoreAccessSiteV1;
+
 impl super::MirBuilder {
     /// Build field access: object.field
     pub(super) fn build_field_access(
@@ -162,24 +164,6 @@ impl super::MirBuilder {
             .value_origin_newbox
             .get(&object_value)
             .cloned();
-        self.record_field_access_site(
-            region,
-            object_value,
-            receiver_box_name.clone(),
-            field.clone(),
-            None,
-            "store",
-            if region.is_some() {
-                "verified_layout_field"
-            } else {
-                "none"
-            },
-            if region.is_some() {
-                "forbidden"
-            } else {
-                "allow_dynamic"
-            },
-        )?;
         let declared_type = self.declared_field_type_for_value(object_value, &field);
 
         let route = prepare_field_write_route_v1(
@@ -193,17 +177,66 @@ impl super::MirBuilder {
                 .and_then(|owner| self.comp_ctx.user_box_field_decls.get(owner))
                 .map(Vec::as_slice),
         );
-        let is_known_weak = match route {
+        let contract_identity = self.declared_field_contract_identity(object_value, &field);
+        let has_contract_identity = contract_identity.is_some();
+        let mut is_known_weak = false;
+        let ordinary_receipt = match route {
             PreparedFieldWriteRouteV1::KnownWeak(prepared) => {
+                is_known_weak = true;
+                self.record_field_access_site(
+                    region,
+                    object_value,
+                    receiver_box_name.clone(),
+                    field.clone(),
+                    None,
+                    "store",
+                    if region.is_some() {
+                        "verified_layout_field"
+                    } else {
+                        "none"
+                    },
+                    if region.is_some() {
+                        "forbidden"
+                    } else {
+                        "allow_dynamic"
+                    },
+                )?;
                 self.emit_prepared_known_weak_field_write(prepared)?;
-                true
+                None
             }
-            PreparedFieldWriteRouteV1::Ordinary(_) => false,
+            PreparedFieldWriteRouteV1::Ordinary(prepared) => {
+                if region.is_none() && contract_identity.is_none() {
+                    Some(PreparedOrdinaryFieldStoreAccessSiteV1::prepare(
+                        self.metadata_ctx.current_span(),
+                        prepared.base,
+                        receiver_box_name.as_deref(),
+                        &prepared.field,
+                    ))
+                } else {
+                    self.record_field_access_site(
+                        region,
+                        object_value,
+                        receiver_box_name.clone(),
+                        field.clone(),
+                        None,
+                        "store",
+                        if region.is_some() {
+                            "verified_layout_field"
+                        } else {
+                            "none"
+                        },
+                        if region.is_some() {
+                            "forbidden"
+                        } else {
+                            "allow_dynamic"
+                        },
+                    )?;
+                    None
+                }
+            }
         };
 
-        if let Some((box_name, field_index, declared_name)) =
-            self.declared_field_contract_identity(object_value, &field)
-        {
+        if let Some((box_name, field_index, declared_name)) = contract_identity.clone() {
             let function = self
                 .function_state
                 .current_function
@@ -237,6 +270,10 @@ impl super::MirBuilder {
 
         if is_known_weak {
             // WeakFieldWrite owns validation, publication, and bookkeeping.
+        } else if ordinary_receipt.is_none() && region.is_none() && !has_contract_identity {
+            // The prepared ordinary receipt is committed below after FieldSet.
+        } else if has_contract_identity {
+            // The typed-array contract lane owns its existing FieldSet timing.
         } else if let Some(region) = region {
             self.emit_fastmem_memop(
                 region,
@@ -252,6 +289,10 @@ impl super::MirBuilder {
                 value: value_result,
                 declared_type,
             })?;
+        }
+
+        if let Some(receipt) = ordinary_receipt {
+            receipt.commit(self)?;
         }
 
         // Record origin class for this field value if known
@@ -369,7 +410,7 @@ mod tests {
     }
 
     #[test]
-    fn ordinary_fieldset_failure_currently_leaves_only_the_pre_emission_site() {
+    fn ordinary_fieldset_failure_leaves_no_access_site_after_receipt_cutover() {
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("ordinary_fieldset_timing_failure/0".to_string());
         let base = builder.alloc_value_for_test();
@@ -384,8 +425,8 @@ mod tests {
         let function = builder.function_state.current_function.as_ref().unwrap();
         assert_eq!(
             function.metadata.fastmem_field_access_sites.len(),
-            1,
-            "pre-I0 baseline residual"
+            0,
+            "ordinary receipt must not publish a site before FieldSet succeeds"
         );
         assert!(function
             .blocks

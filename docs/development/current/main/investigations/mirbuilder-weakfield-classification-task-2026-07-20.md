@@ -205,6 +205,44 @@ no-contract routes still append their access site before physical emission.
 `FIELDSTORE-OBSERVE0-I0` remains the sole owner of moving only the ordinary
 no-FastMem/no-contract site append behind successful FieldSet receipt.
 
+### `FIELDSTORE-OBSERVE0-I0` — closed (2026-07-20)
+
+Only the ordinary, no-FastMem, no-declared-contract lane now prepares its
+existing access-site descriptor and commits it after successful `FieldSet`.
+Weak, FastMem, and typed-array lanes retain their pre-emission site timing.
+Failed ordinary `FieldSet` therefore publishes neither the instruction nor the
+access-site metadata, with no retry or origin change.
+
+Focused evidence:
+
+```text
+cargo fmt --check
+cargo test -q --lib mir::builder::fields::tests::ordinary_field_access_records_site_metadata -- --exact
+cargo test -q --lib mir::builder::fields::tests::ordinary_fieldset_failure_leaves_no_access_site_after_receipt_cutover -- --exact
+cargo test -q --lib weak_field_write               # 7 passed
+cargo check --all-targets
+```
+
+`PreparedOrdinaryFieldStoreAccessSiteV1::commit` is the sole ordinary receipt
+consumer. It owns no rollback or ValueId allocation; it only appends the
+already-resolved site after the physical `FieldSet` succeeds.
+
+### `FIELDSTORE-OBSERVE0-G0` — closed (2026-07-20)
+
+The existing row manifest now guards one ordinary receipt product, one commit
+owner, and one production consumer, plus the post-cutover failure witness.
+The guard does not inspect weak, FastMem, or typed-array timing, so those lanes
+remain owned by their existing producers.
+
+Evidence:
+
+```text
+tools/checks/run_row_guard.sh --only mirbuilder-fieldstore-observe-authority
+```
+
+`MIRBUILDER-FSESSION0-D0` is now the next design row; no broader field
+transaction or whole-Builder rollback was introduced.
+
 ## Required fixtures and stops
 
 Fixtures cover Ordinary missing-origin/owner/field/nonweak cases; typed and

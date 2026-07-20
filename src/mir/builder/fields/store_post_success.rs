@@ -36,6 +36,40 @@ impl PreparedOrdinaryFieldStoreAccessSiteV1 {
         }
     }
 
+    /// Commits the ordinary access-site receipt after FieldSet succeeds.
+    pub(super) fn commit(self, builder: &mut super::super::MirBuilder) -> Result<(), String> {
+        let Self {
+            source_span,
+            base,
+            receiver_box_name,
+            field,
+        } = self;
+        let function = builder
+            .function_state
+            .current_function
+            .as_mut()
+            .ok_or_else(|| "[freeze:contract][fastmem/outside_function]".to_string())?;
+        let site_id = format!(
+            "field.{}",
+            function.metadata.fastmem_field_access_sites.len()
+        );
+        function.metadata.fastmem_field_access_sites.push(
+            crate::mir::function::FastMemFieldAccessSite {
+                site_id,
+                source_span,
+                region: None,
+                base_value: base,
+                receiver_box_name,
+                field_id: field,
+                layout_id: None,
+                access_kind: "store".to_string(),
+                required_route: "none".to_string(),
+                fallback_policy: "allow_dynamic".to_string(),
+            },
+        );
+        Ok(())
+    }
+
     #[cfg(test)]
     fn source_span(&self) -> Span {
         self.source_span
