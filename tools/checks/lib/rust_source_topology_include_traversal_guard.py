@@ -179,6 +179,18 @@ def main() -> None:
         1,
         "same-module include scope continuation",
     )
+    require_count(
+        sources["include_scope_traversal"],
+        ".with_module_local_shadow(evidence)",
+        1,
+        "sole production module-local scope writer",
+    )
+    require_count(
+        sources["include_scope_traversal"],
+        ".with_textual_macro(evidence)",
+        1,
+        "sole production textual scope writer",
+    )
     for token in (
         "parent_include_edge_id",
         "owning_module_instance_id",
@@ -232,6 +244,22 @@ def main() -> None:
         sources["content_issuance"],
         "prepare_module_local_scope_v1",
         "CONTENTCFG0 scope-classifier boundary",
+    )
+    for source_name in ("traversal", "content_issuance", "declarations"):
+        for forbidden in (
+            ".with_module_local_shadow(",
+            ".with_textual_macro(",
+            ".child_module_entry(",
+        ):
+            require_absent(
+                sources[source_name],
+                forbidden,
+                "INCLUDE-SCOPE0-G0 sole scope-stream owner",
+            )
+    require_absent(
+        sources["content_issuance"],
+        "initial_scope",
+        "INCLUDE-SCOPE0-G0 parent-to-child scope leak",
     )
 
     require_count(

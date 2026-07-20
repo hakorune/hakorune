@@ -1,5 +1,5 @@
 ---
-Status: INCLUDE-SCOPE0-I0 closed; INCLUDE-SCOPE0-G0 is next
+Status: INCLUDE-SCOPE0 closed; FINALIZE0-CENSUS0-P0a-S0b-P0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -2041,3 +2041,21 @@ checker/root `cargo check`, private proof suite, topology suite, registered
 guard, pointer guard, and diff check are green. `INCLUDE-SCOPE0-G0` is next
 and owns only final owner/consumer/retirement guard closure; CUT0 remains
 forbidden.
+
+##### `INCLUDE-SCOPE0-G0` closeout
+
+The existing reusable INCLUDE0 guard now closes the I0 ownership boundary. It
+requires one production scope-stream module, one module-local preparation
+owner, one include continuation owner, one writer for each lane, and one child
+boundary consumer. It forbids lane writing, child-boundary construction, or
+scope preparation in declarations, the legacy traversal shell, and
+CONTENTCFG0 issuance; `content_issuance.rs` may only receive its prepared
+child scope. The retired blanket boolean is absent from every production
+surface, while the test-only P0 proof remains explicitly separated.
+
+The 11 focused topology fixtures and five private proof fixtures are green,
+as are the checker/root `cargo check`, registered guard, pointer guard, and
+line/diff checks. The root six-profile `FINALIZE0-CENSUS0-P0a-S0b-P0` proof is
+now authorized. INCLUDE-SCOPE0 makes no claim about general macro or name
+resolution, block-local identity, compiler behavior, repair quarantine, or
+CUT0 readiness.
