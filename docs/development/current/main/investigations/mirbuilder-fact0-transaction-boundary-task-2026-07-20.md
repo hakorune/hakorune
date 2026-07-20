@@ -182,6 +182,22 @@ existing annotation owners and the existing schedule observer. Its constructor
 may not mutate a Builder, inspect final metadata, perform annotation, or issue
 an instruction.
 
+### `FACT0-TX0-CALL-RECEIPT0-S0` — closed (2026-07-20)
+
+`src/mir/builder/calls/unified_emitter/post_success.rs` now owns one private
+non-Clone `PreparedUnifiedCallPostSuccessV1`. It is constructed only from the
+already-finalized `Callee`, destination, and argument slice, and retains:
+
+```text
+optional existing signature-annotation descriptor
+optional existing Array/Map result-annotation descriptor
+```
+
+It has no `MirBuilder`, type/origin/registry mutation, instruction, final
+metadata lookup, annotation invocation, or commit API. Three focused tests
+freeze global arity, explicit-receiver method arity, and no-destination
+absence. `FACT0-TX0-CALL-RECEIPT0-M0` is now the sole next row.
+
 ### `FACT0-TX0-CALL-RECEIPT0-M0`
 
 Freeze the exact canonical consumer inventory:

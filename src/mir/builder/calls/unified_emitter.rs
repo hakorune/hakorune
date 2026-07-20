@@ -26,6 +26,7 @@ use crate::mir::definitions::call_unified::Callee;
 /// - ピュア関数的: 入力CallTarget → 解決・発行 → MirCall命令
 pub struct UnifiedCallEmitterBox;
 
+mod post_success;
 #[cfg(test)]
 mod temporal_witness_tests;
 

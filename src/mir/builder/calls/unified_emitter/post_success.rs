@@ -1,0 +1,138 @@
+//! Prepared post-success payload for the canonical generic unified Call.
+//!
+//! This is intentionally Builder-free. It captures only the final existing
+//! invocation descriptors that I0 may consume after a physical Call receipt;
+//! it neither publishes facts nor selects annotation policy.
+
+use crate::mir::builder::ValueId;
+use crate::mir::definitions::call_unified::{Callee, CalleeBoxKind, TypeCertainty};
+
+use super::super::annotation::callee_sig_name;
+
+/// Immutable payload prepared after unified-call normalization and before its
+/// physical instruction. It is deliberately non-Clone: the later receipt
+/// owner must consume one prepared payload at most once.
+#[derive(Debug)]
+pub(super) struct PreparedUnifiedCallPostSuccessV1 {
+    signature: Option<PreparedSignatureAnnotationV1>,
+    collection_result: Option<PreparedCollectionResultAnnotationV1>,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+struct PreparedSignatureAnnotationV1 {
+    destination: ValueId,
+    function_name: String,
+}
+
+#[derive(Debug)]
+struct PreparedCollectionResultAnnotationV1 {
+    destination: ValueId,
+    // S0 keeps the finalized callee for the later one-shot I0 commit. It is
+    // intentionally inert while this disconnected payload has zero consumers.
+    #[allow(dead_code)]
+    callee: Callee,
+    arguments: Box<[ValueId]>,
+}
+
+impl PreparedUnifiedCallPostSuccessV1 {
+    /// Build descriptors only from the already-finalized call shape.
+    ///
+    /// There is intentionally no `MirBuilder` argument, fact write, lookup,
+    /// instruction emission, or commit capability in S0.
+    pub(super) fn prepare(
+        destination: Option<ValueId>,
+        callee: &Callee,
+        arguments: &[ValueId],
+    ) -> Self {
+        let signature = destination.and_then(|destination| {
+            let arity = signature_arity(callee, arguments);
+            callee_sig_name(callee, arity).map(|function_name| PreparedSignatureAnnotationV1 {
+                destination,
+                function_name,
+            })
+        });
+        let collection_result =
+            destination.map(|destination| PreparedCollectionResultAnnotationV1 {
+                destination,
+                callee: callee.clone(),
+                arguments: arguments.into(),
+            });
+        Self {
+            signature,
+            collection_result,
+        }
+    }
+}
+
+fn signature_arity(callee: &Callee, arguments: &[ValueId]) -> usize {
+    match callee {
+        Callee::Method {
+            receiver: Some(receiver),
+            ..
+        } if arguments.first() == Some(receiver) => arguments.len().saturating_sub(1),
+        _ => arguments.len(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn global_payload_keeps_the_final_signature_and_collection_shape() {
+        let destination = ValueId::new(7);
+        let arguments = [ValueId::new(1), ValueId::new(2)];
+        let prepared = PreparedUnifiedCallPostSuccessV1::prepare(
+            Some(destination),
+            &Callee::Global("answer".to_string()),
+            &arguments,
+        );
+
+        assert_eq!(
+            prepared.signature,
+            Some(PreparedSignatureAnnotationV1 {
+                destination,
+                function_name: "answer/2".to_string(),
+            })
+        );
+        let collection = prepared.collection_result.expect("destination descriptor");
+        assert_eq!(collection.destination, destination);
+        assert_eq!(collection.arguments.as_ref(), arguments);
+    }
+
+    #[test]
+    fn method_signature_excludes_the_explicit_receiver_argument() {
+        let receiver = ValueId::new(3);
+        let prepared = PreparedUnifiedCallPostSuccessV1::prepare(
+            Some(ValueId::new(8)),
+            &Callee::Method {
+                box_name: "ArrayBox".to_string(),
+                method: "get".to_string(),
+                receiver: Some(receiver),
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::RuntimeData,
+            },
+            &[receiver, ValueId::new(4)],
+        );
+
+        assert_eq!(
+            prepared.signature,
+            Some(PreparedSignatureAnnotationV1 {
+                destination: ValueId::new(8),
+                function_name: "ArrayBox.get/1".to_string(),
+            })
+        );
+    }
+
+    #[test]
+    fn no_destination_prepares_no_post_success_fact_descriptors() {
+        let prepared = PreparedUnifiedCallPostSuccessV1::prepare(
+            None,
+            &Callee::Value(ValueId::new(9)),
+            &[ValueId::new(9)],
+        );
+
+        assert!(prepared.signature.is_none());
+        assert!(prepared.collection_result.is_none());
+    }
+}
