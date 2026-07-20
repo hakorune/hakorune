@@ -2,6 +2,7 @@ use super::*;
 use crate::ast::{BinaryOperator, LiteralValue};
 
 mod branch;
+mod field_load_timing;
 mod memops;
 mod region;
 

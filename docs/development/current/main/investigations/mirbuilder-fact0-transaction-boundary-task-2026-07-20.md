@@ -1083,6 +1083,53 @@ missing-declared cases so `Unknown` is not accidentally promoted into an exact
 fact law. The existing production branch remains untouched. M0 is the sole
 next row.
 
+### `FACT0-TX0-FASTMEM-FIELDLOAD0-M0` — closed (2026-07-20)
+
+The production inventory is exactly:
+
+```text
+semantic FieldLoad owner = 1
+  build_field_access_from_value, region != None
+
+semantic entrances = 2
+  ordinary field-access descent
+  compound-place read descent
+
+physical MemOp/counter owner = 1
+  emit_fastmem_memop / FASTMEM-RECEIPT0
+```
+
+No second FieldLoad publisher exists. The selected owner keeps the current
+five-state split: site reservation always precedes allocation; declared type
+reservation precedes physical emission; missing-declared Integer and origin
+completion follow only successful emission. `FieldStore`, including the index
+store shape, has a different transaction and remains excluded. P0 is the sole
+next row.
+
+### `FACT0-TX0-FASTMEM-FIELDLOAD0-P0` — closed (2026-07-20)
+
+Focused temporal tests freeze the four direct states at the selected owner:
+
+```text
+declared FieldLoad failure:
+  site + declared Box reservation
+  no FieldLoad, region receipt, or result origin
+
+missing-declared FieldLoad failure:
+  site only
+  no type completion, FieldLoad, region receipt, or result origin
+
+declared FieldLoad success:
+  site + declared reservation + FieldLoad + region receipt + origin
+
+missing-declared FieldLoad success:
+  site + Integer compatibility + FieldLoad + region receipt
+```
+
+The tests intentionally observe no ValueId cursor rollback. They are separate
+from the two stale full-FastMem behavior expectations. I0 is the sole next
+row.
+
 ### `FASTMEM-RECEIPT0` historical stop conditions
 
 Stop this row if it requires any of the following:

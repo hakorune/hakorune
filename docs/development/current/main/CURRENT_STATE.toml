@@ -484,11 +484,13 @@ missing-declared Integer compatibility and field-result origin remain
 post-success completions. The selected lifecycle must not be silently merged
 with ordinary FieldGet or the closed generic MemOp receipt. FASTMEM-FIELDLOAD0
 S0 now owns a disconnected Builder-free lifecycle payload with zero production
-consumers; M0 must freeze the direct timing/caller inventory before I0. The
-unrelated full-FastMem stale
+consumers; M0/P0 now freeze one FieldLoad owner, two semantic entrances, and
+declared/missing success/failure timing. I0 alone may connect the prepared
+lifecycle to that FieldLoad arm while preserving its pre-emission reservations
+and post-success completions. The unrelated full-FastMem stale
 expectations remain parked as a maintenance row, not masked by this timing
 closure."""
-current_blocker_token = "DPRIME-MIRBUILDER-FACT0-TX0-FASTMEM-FIELDLOAD0-M0-035"
+current_blocker_token = "DPRIME-MIRBUILDER-FACT0-TX0-FASTMEM-FIELDLOAD0-I0-036"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
