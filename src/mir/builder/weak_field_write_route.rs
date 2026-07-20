@@ -170,4 +170,44 @@ mod tests {
             format!("weak-field:{}:1", route.schema_fingerprint)
         );
     }
+
+    #[test]
+    fn ordinary_route_retains_region_and_physical_inputs() {
+        let fields = [decl("slot", false)];
+        let route = prepare_field_write_route_v1(
+            Some(FastMemRegionId::new(9)),
+            ValueId::new(8),
+            "slot",
+            ValueId::new(10),
+            Some("Owner"),
+            Some(&fields),
+        );
+        let PreparedFieldWriteRouteV1::Ordinary(route) = route else {
+            panic!("non-weak declaration must stay Ordinary");
+        };
+        assert_eq!(route.region, Some(FastMemRegionId::new(9)));
+        assert_eq!(route.base, ValueId::new(8));
+        assert_eq!(route.field, "slot");
+        assert_eq!(route.value, ValueId::new(10));
+    }
+
+    #[test]
+    fn weak_region_is_classified_before_fastmem_error_boundary() {
+        let fields = [decl("slot", true)];
+        let route = prepare_field_write_route_v1(
+            Some(FastMemRegionId::new(11)),
+            ValueId::new(12),
+            "slot",
+            ValueId::new(13),
+            Some("Owner"),
+            Some(&fields),
+        );
+        assert!(matches!(
+            route,
+            PreparedFieldWriteRouteV1::KnownWeak(PreparedKnownWeakFieldWriteV1 {
+                region: Some(FastMemRegionId(11)),
+                ..
+            })
+        ));
+    }
 }

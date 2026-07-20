@@ -180,6 +180,31 @@ ID fields in a prepared product.
 field contract. It changes failed FieldSet from site one to site zero, with no
 origin delta or retry. Weak, FastMem, and typed-array timing remains unchanged.
 
+### `FIELDSTORE-OBSERVE0-P0` — closed (2026-07-20)
+
+The classified route matrix is frozen without changing production timing.
+Focused route tests cover ordinary declaration-backed writes with and without
+FastMem regions, weak writes before the existing FastMem error boundary, and
+exact preservation of base/value/field/region inputs. Existing Builder tests
+continue to cover weak success, weak FastMem failure, ordinary FieldSet
+success-site observation, and the pre-I0 ordinary FieldSet failure witness
+(`FieldSet=0`, site count `1`).
+
+Focused evidence:
+
+```text
+cargo fmt --check
+cargo test -q --lib weak_field_write_route   # 5 passed
+cargo test -q --lib weak_field_write         # 5 passed
+cargo test -q --lib mir::builder::fields::tests::ordinary_fieldset_failure_currently_leaves_only_the_pre_emission_site -- --exact
+cargo check --all-targets
+```
+
+The matrix is behavior-neutral: weak, FastMem, typed-array, and ordinary
+no-contract routes still append their access site before physical emission.
+`FIELDSTORE-OBSERVE0-I0` remains the sole owner of moving only the ordinary
+no-FastMem/no-contract site append behind successful FieldSet receipt.
+
 ## Required fixtures and stops
 
 Fixtures cover Ordinary missing-origin/owner/field/nonweak cases; typed and
