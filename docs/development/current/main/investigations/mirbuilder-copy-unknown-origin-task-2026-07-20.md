@@ -200,11 +200,74 @@ behavior-parity proof:
 materialization outcomes and extract the checked-core boundary without wiring
 this prepared product into production.
 
-### `COPY-UNKNOWN0-M0`
+### `COPY-UNKNOWN0-M0` — closed (2026-07-20)
 
 Inventory the six actual materialization outcomes and extract the checked-core
 boundary without connecting the prepared product. Classify existing callers of
 `ensure`/`try_ensure`; retain legacy facade behavior exactly.
+
+Closed inventory:
+
+| Successful LocalSSA outcome | Existing `ensure_inner` arm | COPY0 status |
+| --- | --- | --- |
+| rematerialized Const | `MirInstruction::Const` | parked non-Copy |
+| rematerialized BinOp | `MirInstruction::BinOp` | parked non-Copy |
+| rematerialized Compare | `MirInstruction::Compare` | parked non-Copy |
+| rematerialized Select | `MirInstruction::Select` | parked non-Copy |
+| rematerialized Copy | `MirInstruction::Copy` | future PhysicalCopy |
+| dominating fallback Copy | wildcard arm after the existing dominance check | future PhysicalCopy |
+
+There are no other post-success paths in `ensure_inner`; all six converge on
+the present direct metadata/cache block. `schedule::block` owns separate
+after-PHI/before-call materialization and remains outside this LocalSSA row.
+
+Caller classification is also fixed:
+
+```text
+legacy best-effort facade:
+  ensure
+  recv / arg / cond / field_base / cmp_operand
+  MirBuilder local_* convenience wrappers
+  raw method receiver, binary, scheduler, and qmark callers
+
+strict error-propagating facade:
+  try_ensure
+  finalize_args
+  GenericLoop exit-edge, body Copy, BinOp, and effect-emission callers
+
+not a LocalSSA caller:
+  schedule::block direct Copy/rematerialization
+```
+
+The extracted checked-core boundary is deliberately distinct from the existing
+`try_ensure` spelling. Today `try_ensure` propagates only strict
+non-rematerializable/dominance errors: block-creation failure and instruction
+emission failure remain legacy `Ok(original ValueId)` outcomes. Therefore I0
+must introduce a private `try_materialize_local_v1`-style core and keep both
+existing facades on their current best-effort behavior. The future checked
+consumer may receive the new typed emission error directly, but it must not
+convert that error back into an original-ValueId fallback. No production
+consumer is added in M0, and `PreparedLocalSsaPostSuccessV1` remains
+unconnected.
+
+Evidence:
+
+```text
+source inventory:
+  src/mir/builder/ssa/local.rs::ensure_inner
+
+caller inventory:
+  src/mir/builder/ssa/local/finalize.rs
+  src/mir/builder/control_flow/plan/lowerer/{body_processing,effect_emission,exit_lowering}.rs
+  src/mir/builder/{builder_emit,receiver,ops,utils/local_ssa}.rs
+
+excluded direct owner:
+  src/mir/builder/schedule/block.rs
+```
+
+`COPY-UNKNOWN0-P0` is now the sole next row. It must prove the complete pure
+decision and synthetic transaction matrix before I0 changes the existing
+post-success block.
 
 ### `COPY-UNKNOWN0-P0`
 
