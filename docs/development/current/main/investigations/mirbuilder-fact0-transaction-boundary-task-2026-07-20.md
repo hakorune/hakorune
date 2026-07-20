@@ -556,6 +556,49 @@ ordinary `region == None` branch so type, access-site metadata, and origin all
 commit after a successful physical `FieldGet`; FastMem and CorePlan remain
 excluded.
 
+### `FACT0-TX0-FIELDGET0-I0` — closed (2026-07-20)
+
+The one ordinary `region == None` branch now follows the selected receipt
+order:
+
+```text
+resolve declared type, receiver owner, and existing field origin
+-> prepare PreparedOrdinaryFieldGetPostSuccessV1
+-> reserve fresh ValueId
+-> emit ordinary FieldGet
+-> commit exact type, access-site metadata, and field origin
+```
+
+The post-success product remains non-Clone and owns the only receipt commit.
+Its type lane consumes the existing `TypeFactDecisionV1`; access-site append
+and origin publication use the existing metadata/origin stores only after the
+physical instruction succeeds. The product does not retain Builder state or a
+ValueId.
+
+The temporal matrix now observes the intended I0 failure law:
+
+```text
+typed or untyped ordinary FieldGet with no current block:
+  FieldGet instruction = 0
+  destination type/origin delta = 0
+  ordinary access-site metadata delta = 0
+```
+
+FastMem keeps its former pre-emission `MemOp::FieldLoad` and compatibility
+write. CorePlan FieldGet remains preplanned and untouched.
+
+Focused evidence:
+
+```text
+cargo test -q --lib temporal_witness  # 16/16
+cargo test -q --lib post_success      # 4/4
+cargo check --all-targets
+```
+
+`FACT0-TX0-FIELDGET0-G0` is now the sole next row. It may extend the existing
+FACT0 partition guard with one ordinary receipt owner and must reject
+pre-emission ordinary type/site/origin writes without adding a guard family.
+
 ### Explicit exclusions
 
 ```text

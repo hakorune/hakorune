@@ -8,7 +8,9 @@ use hakorune_mir_builder::lowering_facts::{
     PreparedTypeFactPublicationV1, TypeFactDecisionErrorV1, TypeFactDecisionV1,
 };
 
+use crate::mir::builder::MirBuilder;
 use crate::mir::MirType;
+use crate::mir::ValueId;
 
 /// Immutable field-access metadata inputs prepared before ordinary FieldGet.
 #[derive(Debug, Eq, PartialEq)]
@@ -74,6 +76,38 @@ impl PreparedOrdinaryFieldGetPostSuccessV1 {
             access_site,
             field_result_origin,
         })
+    }
+
+    /// Commits the prepared ordinary FieldGet facts after its instruction
+    /// receipt.  Successful emission already proves the current function
+    /// exists, so the access-site append is structurally non-fallible here.
+    pub(super) fn commit(self, builder: &mut MirBuilder, destination: ValueId, base: ValueId) {
+        let Self {
+            type_publication,
+            access_site,
+            field_result_origin,
+        } = self;
+        if let PreparedTypeFactPublicationV1::Publish(ty) = type_publication {
+            builder.function_state.type_ctx.set_type(destination, ty);
+        }
+        builder
+            .record_field_access_site(
+                None,
+                base,
+                access_site.receiver_box_name,
+                access_site.field,
+                None,
+                "load",
+                "none",
+                "allow_dynamic",
+            )
+            .expect("[freeze:contract][fieldget/receipt_site_commit_failed]");
+        if let FieldResultOriginDispositionV1::Publish(origin) = field_result_origin {
+            builder
+                .function_state
+                .type_ctx
+                .set_origin_box(destination, origin);
+        }
     }
 
     #[cfg(test)]

@@ -86,32 +86,23 @@ impl super::MirBuilder {
             .value_origin_newbox
             .get(&object_value)
             .cloned();
-        self.record_field_access_site(
-            region,
-            object_value,
-            receiver_box_name,
-            field.clone(),
-            None,
-            "load",
-            if region.is_some() {
-                "verified_layout_field"
-            } else {
-                "none"
-            },
-            if region.is_some() {
-                "forbidden"
-            } else {
-                "allow_dynamic"
-            },
-        )?;
         let declared_type = self.declared_field_type_for_value(object_value, &field);
-
-        let field_val = if let Some(ref ty) = declared_type {
-            self.alloc_typed(ty.clone())
-        } else {
-            self.next_value_id()
-        };
         if let Some(region) = region {
+            self.record_field_access_site(
+                Some(region),
+                object_value,
+                receiver_box_name,
+                field.clone(),
+                None,
+                "load",
+                "verified_layout_field",
+                "forbidden",
+            )?;
+            let field_val = if let Some(ref ty) = declared_type {
+                self.alloc_typed(ty.clone())
+            } else {
+                self.next_value_id()
+            };
             self.emit_fastmem_memop(
                 region,
                 crate::mir::instruction::MemOpKind::FieldLoad,
@@ -125,16 +116,26 @@ impl super::MirBuilder {
                     .value_types
                     .insert(field_val, crate::mir::MirType::Integer);
             }
-        } else {
-            self.emit_instruction(crate::mir::MirInstruction::FieldGet {
-                dst: field_val,
-                base: object_value,
-                field: field.clone(),
-                declared_type,
-            })?;
+            self.publish_field_result_origin(field_val, object_value, &field);
+            return Ok(field_val);
         }
 
-        self.publish_field_result_origin(field_val, object_value, &field);
+        let field_result_origin = self.inferred_field_result_class(object_value, &field);
+        let post_success = post_success::PreparedOrdinaryFieldGetPostSuccessV1::prepare(
+            declared_type.as_ref(),
+            receiver_box_name.as_deref(),
+            &field,
+            field_result_origin.as_deref(),
+        )
+        .map_err(|error| error.to_string())?;
+        let field_val = self.next_value_id();
+        self.emit_instruction(crate::mir::MirInstruction::FieldGet {
+            dst: field_val,
+            base: object_value,
+            field,
+            declared_type,
+        })?;
+        post_success.commit(self, field_val, object_value);
 
         Ok(field_val)
     }

@@ -146,6 +146,17 @@ fn assert_one_ordinary_field_load_site(
     assert_eq!(site.fallback_policy, "allow_dynamic");
 }
 
+fn field_access_site_count(builder: &MirBuilder) -> usize {
+    builder
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .metadata
+        .fastmem_field_access_sites
+        .len()
+}
+
 #[test]
 fn parameter_publishes_exact_receiver_before_metadata_snapshot() {
     let mut builder = builder_with_method_entry("fact0_temporal_parameter/0", RECEIVER_OWNER);
@@ -621,7 +632,7 @@ fn typed_field_get_publishes_before_fieldget_emission_then_finalizes() {
 }
 
 #[test]
-fn typed_field_get_failure_leaves_pre_emission_type_residual() {
+fn typed_field_get_failure_receipt_gates_type_site_and_origin() {
     let mut builder = builder_with_method_entry("fact0_temporal_field_failure/0", FIELD_OWNER);
     let base = install_typed_field(&mut builder);
     let before = builder
@@ -631,6 +642,7 @@ fn typed_field_get_failure_leaves_pre_emission_type_residual() {
         .keys()
         .copied()
         .collect::<BTreeSet<_>>();
+    let before_origins = builder.function_state.type_ctx.value_origin_newbox.clone();
     builder.function_state.current_block = None;
 
     let error = builder
@@ -646,10 +658,12 @@ fn typed_field_get_failure_leaves_pre_emission_type_residual() {
         .collect::<Vec<_>>();
 
     assert_eq!(error, "No current basic block");
-    assert_eq!(residuals.len(), 1);
-    assert_eq!(residuals[0].1, MirType::Box("ArrayBox".to_string()));
-    assert_eq!(transient_origin(&builder, residuals[0].0), None);
-    assert_one_ordinary_field_load_site(&builder, base, FIELD_OWNER, "items");
+    assert!(residuals.is_empty());
+    assert_eq!(
+        builder.function_state.type_ctx.value_origin_newbox,
+        before_origins
+    );
+    assert_eq!(field_access_site_count(&builder), 0);
     assert!(!all_instructions(&builder)
         .any(|instruction| matches!(instruction, MirInstruction::FieldGet { .. })));
 }
@@ -674,7 +688,7 @@ fn untyped_field_get_success_publishes_site_but_no_type_or_origin() {
 }
 
 #[test]
-fn untyped_field_get_failure_leaves_only_pre_emission_site_residual() {
+fn untyped_field_get_failure_receipt_gates_site_without_other_residuals() {
     let mut builder = builder_with_method_entry(
         "fact0_temporal_untyped_field_failure/0",
         UNTYPED_FIELD_OWNER,
@@ -709,7 +723,7 @@ fn untyped_field_get_failure_leaves_only_pre_emission_site_residual() {
         builder.function_state.type_ctx.value_origin_newbox,
         before_origins
     );
-    assert_one_ordinary_field_load_site(&builder, base, UNTYPED_FIELD_OWNER, "items");
+    assert_eq!(field_access_site_count(&builder), 0);
     assert!(!all_instructions(&builder)
         .any(|instruction| matches!(instruction, MirInstruction::FieldGet { .. })));
 }
