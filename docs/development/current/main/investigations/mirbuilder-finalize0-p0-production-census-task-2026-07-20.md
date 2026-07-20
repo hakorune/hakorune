@@ -1,5 +1,5 @@
 ---
-Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0 are closed; VERIFY-SPLIT0-FUNCTION-G0-S0 is next
+Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0 are closed; VERIFY-SPLIT0-FUNCTION-G0-P0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -2410,3 +2410,21 @@ into a completed-draft G0.  The historical guard is confirmed obsolete and
 quarantined.  No code or check was changed by D0.  The sole next row is the
 new scoped `VERIFY-SPLIT0-FUNCTION-G0-S0` guard; terminal mixed-helper
 retirement remains parked.
+
+#### S0 closeout
+
+`tools/rust_lifecycle/mirbuilder_finalize_function_typed_value_split.py` and
+its seven-line shell entry now form the one scoped guard.  Its brace scanner
+handles comments, quoted/raw strings, character literals, and lifetime labels
+before extracting only `finalize_function_draft`; it therefore cannot mistake a
+format string or the function's `'search` label for a structural brace.  The
+guard locks the selected eight-step order, the one prepare/verifier/commit
+consumer counts, the one-per-lane commit removals, and absence of build-mode
+tokens or the old helper in the selected body.  It separately pins the two
+remaining legacy callers and reports zero module/loop conversion and zero
+mixed-helper retirement claims.  The historical guard is untouched.
+
+The new guard is listed in the check-script index, exits green on the current
+source, and stays below 800 lines.  No Rust production behavior changes.  The
+sole next row is `VERIFY-SPLIT0-FUNCTION-G0-P0` for guard-negative and
+function-finalizer witness proof.
