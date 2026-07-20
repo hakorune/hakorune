@@ -1,5 +1,5 @@
 ---
-Status: P0a-S0b CARGO0-M0 closed; CARGO0-P0 is next
+Status: P0a-S0b CARGO0-P0 closed; CARGO0-G0 is next
 Date: 2026-07-20
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -598,11 +598,11 @@ FINALIZE0-CENSUS0-P0a-S0b-CARGO0-M0    # closed
   cargo_metadata locked/offline process adapter
   sealed rustc cfg probe and Cargo-config fingerprints
 
-FINALIZE0-CENSUS0-P0a-S0b-CARGO0-P0    # sole next
+FINALIZE0-CENSUS0-P0a-S0b-CARGO0-P0    # closed
   dependency-free synthetic workspace proof
   root six-profile declared-unit observation
 
-FINALIZE0-CENSUS0-P0a-S0b-CARGO0-G0
+FINALIZE0-CENSUS0-P0a-S0b-CARGO0-G0    # sole next
   exact evidence and stop-line guards
 
 FINALIZE0-CENSUS0-P0a-S0b-MODULE0
@@ -786,6 +786,41 @@ byte-identical durable evidence, verify host release, wasm32, and unit-test
 rustc cfg probes, accept the repository's linker-only rustflags, and reject a
 synthetic `--cfg` injection. The first-profile process remains disconnected
 from the project CLI and from FINALIZE0 policy.
+
+CARGO0-P0 closed evidence:
+
+```text
+dependency-free synthetic profiles = 6
+root nyash-rust exact profiles = 6
+
+synthetic target roots:
+  library
+  required-feature binary
+  integration-test target
+
+synthetic feature rows:
+  default exact
+  no-default exact
+  llvm-harness does not activate llvm alias
+  required feature exact
+
+synthetic target rows:
+  host
+  wasm32
+  integration cfg(test)
+
+root two complete runs:
+  durable JSON byte equality = exact
+  absolute workspace path occurrences = 0
+  expected feature rows = Cargo resolve rows for all six profiles
+  wasm-backend activation from wasm target = 0
+```
+
+The synthetic fixture is a separate dependency-free Cargo workspace with its
+own lockfile. It proves lib/bin/test target selection and profile/feature
+separation without registry or root-workspace dependency behavior. The root
+proof executes all six declared profiles twice and retains exact host dev,
+host release, VM-reference, LLVM-harness, unit-test, and wasm32 evidence.
 
 Focused command:
 
@@ -980,5 +1015,5 @@ compiler/runtime/backend behavior changes
 > closed by P0a, while test-only scoped entered/changed mutation-surface
 > observations are closed by P0b. Neither product proves runtime multiplicity,
 > canonical consumer zero, quarantine, or CUT0 readiness. PROFILE0-S0 and
-> CARGO0-S0/M0 are closed; the sole next code-facing row is
-> `FINALIZE0-CENSUS0-P0a-S0b-CARGO0-P0`.
+> CARGO0-S0/M0/P0 are closed; the sole next code-facing row is
+> `FINALIZE0-CENSUS0-P0a-S0b-CARGO0-G0`.

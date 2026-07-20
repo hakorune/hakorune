@@ -1,0 +1,24 @@
+[workspace]
+
+[package]
+name = "fixture-app"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = ["base"]
+base = []
+vm-reference = []
+llvm-harness = []
+llvm = ["llvm-harness"]
+tool = []
+
+[lib]
+name = "fixture_core"
+path = "src/lib.rs"
+doctest = false
+
+[[bin]]
+name = "tool"
+path = "src/bin/tool.rs"
+required-features = ["tool"]

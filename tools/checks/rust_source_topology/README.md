@@ -121,6 +121,13 @@ drifting tool or input cannot produce a sealed result. The final process
 evidence serializes only workspace-relative paths and digests, never neutral
 snapshot absolute paths or opaque Cargo PackageIds.
 
+CARGO0-P0 owns two proof matrices. A dependency-free nested fixture workspace
+seals default/no-default and asymmetric feature aliases across library,
+required-feature binary, integration-test, host, and wasm32 targets. The root
+matrix executes all six declared nyash-rust profiles twice and requires
+byte-identical durable evidence with no absolute workspace path. These are
+evidence tests only; the project report/CLI remains disconnected until G0.
+
 ## Stop lines
 
 ```text
