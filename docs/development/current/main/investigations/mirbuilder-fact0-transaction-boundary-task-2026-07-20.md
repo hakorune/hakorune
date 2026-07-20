@@ -443,6 +443,26 @@ MIR instruction, source AST, final metadata, or a new registry. Construction
 may snapshot existing source-derived inputs through a thin Builder wrapper, but
 the product itself neither reads nor writes Builder state.
 
+### `FACT0-TX0-FIELDGET0-S0` — closed (2026-07-20)
+
+`src/mir/builder/fields/post_success.rs` now owns one private non-Clone
+`PreparedOrdinaryFieldGetPostSuccessV1`. It prepares only:
+
+```text
+declared exact type -> existing TypeFactDecisionV1 proposal
+ordinary access-site receiver/field descriptor
+field-result origin disposition
+```
+
+It owns no `ValueId`, `MirBuilder`, `TypeContext`, metadata, instruction, or
+commit operation. Absent declared type becomes the existing no-publication
+decision; declared `Unknown` is rejected; `Void` remains exact. Four focused
+unit tests freeze these outcomes. No production caller is connected.
+
+`FACT0-TX0-FIELDGET0-M0` is now the sole next row. It must inventory the
+single ordinary `region == None` caller and prove all FastMem/CorePlan/direct
+FieldGet routes remain excluded before I0 is considered.
+
 ### Explicit exclusions
 
 ```text

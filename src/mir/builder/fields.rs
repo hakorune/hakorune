@@ -3,6 +3,8 @@ use super::ValueId;
 use crate::ast::ASTNode;
 use crate::mir::instruction::FastMemRegionId;
 
+mod post_success;
+
 impl super::MirBuilder {
     /// Build field access: object.field
     pub(super) fn build_field_access(
