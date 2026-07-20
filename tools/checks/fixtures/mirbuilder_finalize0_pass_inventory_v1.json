@@ -32,6 +32,19 @@
     {"id":"compiler.legacy_rc","site":"compiler/mod.rs","anchor":"insert_rc_instructions","class":"LegacySemanticInference","first_publication":"legacy compatibility route","status":"parked"},
     {"id":"compiler.semantic_refresh","site":"compiler/mod.rs","anchor":"refresh_module_semantic_metadata(&mut module)","class":"PublishDerivedArtifact","first_publication":"sealed MIR/contracts","status":"parked"},
     {"id":"compiler.callsite_canonicalize","site":"compiler/mod.rs","anchor":"canonicalize_for_site","class":"NormalizeRepresentation","first_publication":"completed module draft","status":"retain"},
-    {"id":"compiler.semantic_refresh_after_canonicalize","site":"compiler/mod.rs","anchor":"semantic_refresh_after_canonicalize","class":"PublishDerivedArtifact","first_publication":"canonicalized MIR/contracts","status":"parked"}
+    {"id":"compiler.semantic_refresh_after_canonicalize","site":"compiler/mod.rs","anchor":"semantic_refresh_after_canonicalize","class":"PublishDerivedArtifact","first_publication":"canonicalized MIR/contracts","status":"parked"},
+    {"id":"contract.weak_canonicalize","site":"semantic_refresh/contracts.rs","anchor":"weak_field::canonicalize_function","class":"NormalizeRepresentation","first_publication":"lowering weak-field producer","status":"parked"},
+    {"id":"contract.weak_refresh","site":"semantic_refresh/contracts.rs","anchor":"weak_field::refresh_function","class":"PublishDerivedArtifact","first_publication":"sealed weak declarations","status":"parked"},
+    {"id":"contract.typed_array_source_rows","site":"semantic_refresh/contracts.rs","anchor":"typed_array::refresh_source_rows","class":"PublishDerivedArtifact","first_publication":"typed-array lowering receipts","status":"parked"},
+    {"id":"contract.array_write_canonicalize","site":"semantic_refresh/contracts.rs","anchor":"canonicalize_legacy_array_write_calls","class":"NormalizeRepresentation","first_publication":"array write producer","status":"parked"},
+    {"id":"contract.array_write_witnesses","site":"semantic_refresh/contracts.rs","anchor":"refresh_function_array_write_witnesses","class":"PublishDerivedArtifact","first_publication":"array write producer","status":"parked"},
+    {"id":"contract.typed_array_refresh","site":"semantic_refresh/contracts.rs","anchor":"typed_array::refresh_function","class":"PublishDerivedArtifact","first_publication":"typed-array lowering receipts","status":"parked"},
+    {"id":"contract.parameter_entry","site":"semantic_refresh/contracts.rs","anchor":"refresh_function_parameter_entry_contracts","class":"PublishDerivedArtifact","first_publication":"parameter lowering contract","status":"retain"},
+    {"id":"contract.return_exit","site":"semantic_refresh/contracts.rs","anchor":"refresh_function_return_exit_contract","class":"PublishDerivedArtifact","first_publication":"return lowering contract","status":"retain"},
+    {"id":"contract.local_slot","site":"semantic_refresh/contracts.rs","anchor":"refresh_function_local_identity_evidence","class":"PublishDerivedArtifact","first_publication":"local lowering contract","status":"retain"},
+    {"id":"contract.record_value","site":"semantic_refresh/contracts.rs","anchor":"refresh_function_record_value_contracts","class":"PublishDerivedArtifact","first_publication":"record lowering contract","status":"parked"},
+    {"id":"contract.exact_numeric","site":"semantic_refresh/contracts.rs","anchor":"refresh_module_exact_numeric_runtime_check_contracts","class":"PublishDerivedArtifact","first_publication":"exact numeric lowering contract","status":"parked"},
+    {"id":"contract.static_table","site":"semantic_refresh/contracts.rs","anchor":"refresh_module_static_table_contracts","class":"PublishDerivedArtifact","first_publication":"static table lowering contract","status":"parked"},
+    {"id":"contract.extern_routes","site":"semantic_refresh/contracts.rs","anchor":"refresh_module_extern_call_routes","class":"PublishDerivedArtifact","first_publication":"extern route lowering contract","status":"parked"}
   ]
 }

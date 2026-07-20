@@ -25,8 +25,8 @@ def main() -> int:
     if data.get("schema") != "mirbuilder-finalize0-pass-inventory-v1":
         fail("schema mismatch")
     rows = data.get("rows")
-    if not isinstance(rows, list) or len(rows) != 32:
-        fail("expected exactly 32 inventory rows")
+    if not isinstance(rows, list) or len(rows) != 45:
+        fail("expected exactly 45 inventory rows")
     ids = [row.get("id") for row in rows]
     if len(set(ids)) != len(ids) or any(not value for value in ids):
         fail("duplicate or empty row id")
@@ -37,7 +37,11 @@ def main() -> int:
             fail(f"unknown class for {row.get('id')}")
         if row.get("status") not in {"retain", "parked"}:
             fail(f"unknown status for {row.get('id')}")
-        source_root = ROOT / "src/mir" if row["site"].startswith("compiler/") else ROOT / "src/mir/builder"
+        source_root = (
+            ROOT / "src/mir"
+            if row["site"].startswith(("compiler/", "semantic_refresh/"))
+            else ROOT / "src/mir/builder"
+        )
         source = source_root / row["site"]
         if not source.exists():
             fail(f"missing source anchor file: {source}")
