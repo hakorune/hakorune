@@ -1,11 +1,38 @@
 ---
-Status: Design consultation stop
+Status: Candidate A-prime accepted; implementation delegated to task card
 Date: 2026-07-20
 Scope: define measured production-call and route evidence for FINALIZE0 census
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
 ---
 
 # FINALIZE0-CENSUS0-P0 production census consultation
+
+## Decision returned
+
+Candidate A-prime is accepted with one normalization: entry families own
+callsite and route evidence once, while semantic operation rows only reference
+an entry family. The following repeated row fields are retired by P0a:
+
+```text
+production_invocation_count
+route_reachability
+canonical_repair_reachable
+```
+
+The measured scalar is renamed to
+`production_direct_callsite_count` and is always derived from
+`production_direct_call_sites[]`. Runtime invocation multiplicity is not a
+static census claim.
+
+The generic source extractor is a check-only Rust product using parser,
+Cargo-target/module, and cfg evidence. It emits neutral JSON only. FINALIZE0
+classification remains in a separate Python policy checker. Static
+reachability and test-only entered/changed observations remain separate.
+
+The authoritative implementation task is
+[`mirbuilder-finalize0-p0-production-census-task-2026-07-20.md`](mirbuilder-finalize0-p0-production-census-task-2026-07-20.md).
+The remainder of this document is retained as the question and source audit
+which led to that decision.
 
 ## Question
 

@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINALIZE0 SCHEMA0 is closed; P0 is at a production-census proof-architecture design stop, and CUT0 remains forbidden"
+status = "FINALIZE0 P0 Candidate A-prime is accepted; P0a-S0a neutral Rust source topology is next, and CUT0 remains forbidden"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -313,10 +313,11 @@ fastmem_fieldload0_task = "docs/development/current/main/investigations/mirbuild
 weakfield_classify0_task = "docs/development/current/main/investigations/mirbuilder-weakfield-classification-task-2026-07-20.md"
 finalize0_boundary_consultation = "docs/development/current/main/investigations/mirbuilder-finalize0-boundary-consultation-2026-07-20.md"
 finalize0_p0_production_census_consultation = "docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-consultation-2026-07-20.md"
+finalize0_p0_production_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-task-2026-07-20.md"
 
-latest_card = "mirbuilder-finalize0-p0-production-census-consultation-2026-07-20"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-consultation-2026-07-20.md"
-latest_card_summary = """FINALIZE0-CENSUS0-P0 is at a design stop: production_invocation_count currently mixes operation statements, facade CallExpr sites, and boundary ingresses; route_reachability mixes authority and execution-boundary axes; and static canonical reachability cannot prove an actual repair delta. Candidate A-prime is recommended: one cfg/module-aware production CallExpr census, separate authority/boundary route roots, exhaustive facade-child classification, and a separate test-only repair-delta observation product. No P0 implementation or CUT0 is authorized before this choice is fixed."""
+latest_card = "mirbuilder-finalize0-p0-production-census-task-2026-07-20"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-task-2026-07-20.md"
+latest_card_summary = """FINALIZE0-CENSUS0-P0 selects Candidate A-prime with normalized evidence ownership. A standalone parser/Cargo/module/cfg-aware Rust check tool emits neutral source topology; entry families own derived production direct-callsite sets plus separate authority, boundary, and build-profile reachability; facade children require exact dispositions; and test-only entered/changed observations remain separate from three-valued static reachability. P0a-S0a is the sole next code-facing row. Compiler behavior, production observers, quarantine, and CUT0 remain zero."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -518,7 +519,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-CENSUS0-P0-DESIGN-STOP-061"
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-CENSUS0-P0A-S0A-062"
 finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."

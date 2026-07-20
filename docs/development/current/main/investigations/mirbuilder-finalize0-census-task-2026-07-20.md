@@ -1,5 +1,5 @@
 ---
-Status: SCHEMA0 closed; P0 production-census design stop
+Status: SCHEMA0 closed; P0 Candidate A-prime accepted; P0a-S0a is next
 Date: 2026-07-20
 Scope: classify finalization passes before retiring repair/inference
 Parent: docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md
@@ -148,7 +148,7 @@ bash tools/checks/run_row_guard.sh --only mirbuilder-finalize0-pass-inventory
 Both commands are green with `behavior_delta=0` and
 `production_connections=0`.
 
-### `FINALIZE0-CENSUS0-P0` — design stop
+### `FINALIZE0-CENSUS0-P0` — Candidate A-prime accepted
 
 P0 now consumes schema v2 and proves the repository-wide production call-site
 and route-reachability counts. In particular, it must replace manually entered
@@ -163,10 +163,18 @@ counts, and boundary ingress counts are mixed. It also found that authority
 routes and execution boundaries occupy one array, while static code
 reachability is being asked to stand in for actual repair mutation.
 
-Implementation is paused at
-[`mirbuilder-finalize0-p0-production-census-consultation-2026-07-20.md`](mirbuilder-finalize0-p0-production-census-consultation-2026-07-20.md).
-No scanner, route fixture, counter, or schema correction is authorized until
-that decision selects the count law and proof architecture.
+The decision is closed at
+[`mirbuilder-finalize0-p0-production-census-task-2026-07-20.md`](mirbuilder-finalize0-p0-production-census-task-2026-07-20.md).
+Entry families now own measured direct-callsite and route evidence once;
+operation rows will stop repeating manual count/route/repair booleans. P0a
+owns parser/module/cfg-aware static topology and three-valued reachability.
+P0b separately owns test-only entered/changed mutation observations.
+
+The sole next code-facing row is:
+
+```text
+FINALIZE0-CENSUS0-P0a-S0a
+```
 
 ### Census findings — design stop confirmed
 
