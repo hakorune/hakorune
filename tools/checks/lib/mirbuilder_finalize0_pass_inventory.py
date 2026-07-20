@@ -25,8 +25,8 @@ def main() -> int:
     if data.get("schema") != "mirbuilder-finalize0-pass-inventory-v1":
         fail("schema mismatch")
     rows = data.get("rows")
-    if not isinstance(rows, list) or len(rows) != 11:
-        fail("expected exactly 11 inventory rows")
+    if not isinstance(rows, list) or len(rows) != 20:
+        fail("expected exactly 20 inventory rows")
     ids = [row.get("id") for row in rows]
     if len(set(ids)) != len(ids) or any(not value for value in ids):
         fail("duplicate or empty row id")

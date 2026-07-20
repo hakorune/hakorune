@@ -8,9 +8,18 @@
     {"id":"module.phi_return_inference","site":"module_lifecycle.rs","anchor":"infer_return_type_from_phi","class":"LegacySemanticInference","first_publication":"PHI completion/return owner","status":"parked"},
     {"id":"module.phi_input_materialization","site":"module_lifecycle.rs","anchor":"materialize_all_phi_inputs","class":"VerifyCompletedDraft","first_publication":"completed PHI edge rows","status":"retain"},
     {"id":"module.metadata_type_snapshot","site":"module_lifecycle.rs","anchor":"metadata.value_types =","class":"PublishDerivedArtifact","first_publication":"lowering-time type facts","status":"retain"},
+    {"id":"function.metadata_origin_snapshot","site":"calls/lowering.rs","anchor":"metadata.value_origin_callers =","class":"PublishDerivedArtifact","first_publication":"lowering-time origin observation","status":"retain"},
     {"id":"module.newbox_birth_verify","site":"module_lifecycle.rs","anchor":"dev verify: NewBox","class":"VerifyCompletedDraft","first_publication":"NewBox/birth lowering","status":"retain"},
     {"id":"module.record_layout_refresh","site":"module_lifecycle.rs","anchor":"refresh_module_record_and_packed_layout_plans","class":"PublishDerivedArtifact","first_publication":"sealed declarations","status":"retain"},
     {"id":"module.typed_object_refresh","site":"module_lifecycle.rs","anchor":"refresh_module_typed_object_plans","class":"PublishDerivedArtifact","first_publication":"sealed declarations","status":"retain"},
-    {"id":"module.direct_state_refresh","site":"module_lifecycle.rs","anchor":"refresh_module_direct_state_plans","class":"PublishDerivedArtifact","first_publication":"sealed declarations","status":"retain"}
+    {"id":"module.direct_state_refresh","site":"module_lifecycle.rs","anchor":"refresh_module_direct_state_plans","class":"PublishDerivedArtifact","first_publication":"sealed declarations","status":"retain"},
+    {"id":"module.all_function_phi_materialization","site":"module_lifecycle.rs","anchor":"finalize_module_all_functions","class":"VerifyCompletedDraft","first_publication":"completed PHI edge rows","status":"retain"},
+    {"id":"module.user_box_metadata_snapshot","site":"module_lifecycle.rs","anchor":"metadata.user_box_decls =","class":"PublishDerivedArtifact","first_publication":"sealed declarations","status":"retain"},
+    {"id":"module.field_metadata_snapshot","site":"module_lifecycle.rs","anchor":"metadata.user_box_field_decls =","class":"PublishDerivedArtifact","first_publication":"sealed declarations","status":"retain"},
+    {"id":"module.record_metadata_snapshot","site":"module_lifecycle.rs","anchor":"metadata.record_decls =","class":"PublishDerivedArtifact","first_publication":"sealed declarations","status":"retain"},
+    {"id":"module.enum_metadata_snapshot","site":"module_lifecycle.rs","anchor":"metadata.enum_decls =","class":"PublishDerivedArtifact","first_publication":"sealed declarations","status":"retain"},
+    {"id":"module.condition_fn_compat_stub","site":"module_lifecycle.rs","anchor":"condition_fn","class":"LegacySemanticInference","first_publication":"compatibility route","status":"parked"},
+    {"id":"module.region_observer_close","site":"module_lifecycle.rs","anchor":"pop_function_region","class":"VerifyCompletedDraft","first_publication":"function session lifecycle","status":"retain"},
+    {"id":"module.slot_registry_close","site":"module_lifecycle.rs","anchor":"current_slot_registry = None","class":"VerifyCompletedDraft","first_publication":"function session lifecycle","status":"retain"}
   ]
 }
