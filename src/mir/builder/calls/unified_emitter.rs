@@ -43,6 +43,20 @@ impl UnifiedCallEmitterBox {
         target: CallTarget,
         args: Vec<ValueId>,
     ) -> Result<(), String> {
+        Self::emit_unified_call_with_map_replay(builder, dst, target, args, None)
+    }
+
+    /// Private BoxCall-to-Unified handoff retaining an already prepared Map
+    /// semantic-source replay. No public call API gains receipt state.
+    pub(in crate::mir::builder) fn emit_unified_call_with_map_replay(
+        builder: &mut MirBuilder,
+        dst: Option<ValueId>,
+        target: CallTarget,
+        args: Vec<ValueId>,
+        map_write_replay: Option<
+            crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1,
+        >,
+    ) -> Result<(), String> {
         // Debug: Check recursion depth
         const MAX_EMIT_DEPTH: usize = 100;
         builder.recursion_depth += 1;
@@ -68,7 +82,13 @@ impl UnifiedCallEmitterBox {
             // Use the compatibility call entry when unified calls are disabled.
             builder.emit_legacy_call(dst, target, args)
         } else {
-            Self::emit_unified_call_impl(builder, dst, target, args)
+            Self::emit_unified_call_impl_with_map_replay(
+                builder,
+                dst,
+                target,
+                args,
+                map_write_replay,
+            )
         };
         builder.recursion_depth -= 1;
         result
@@ -79,6 +99,18 @@ impl UnifiedCallEmitterBox {
         dst: Option<ValueId>,
         target: CallTarget,
         args: Vec<ValueId>,
+    ) -> Result<(), String> {
+        Self::emit_unified_call_impl_with_map_replay(builder, dst, target, args, None)
+    }
+
+    fn emit_unified_call_impl_with_map_replay(
+        builder: &mut MirBuilder,
+        dst: Option<ValueId>,
+        target: CallTarget,
+        args: Vec<ValueId>,
+        map_write_replay: Option<
+            crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1,
+        >,
     ) -> Result<(), String> {
         // Phase 287 P4: Debug trace to see what CallTarget is passed
         if crate::config::env::builder_static_call_trace() {
@@ -449,7 +481,15 @@ impl UnifiedCallEmitterBox {
         // LocalSSA receiver copy created below. Record writes before
         // finalization so later calls on the same source value see Array<T>.
         super::super::types::array_element::observe_array_write_call(builder, &callee, &args);
-        super::super::types::map_value::observe_map_write_call(builder, &callee, &args);
+        let mut map_write_replay = match map_write_replay {
+            Some(mut replay) => {
+                replay
+                    .append_if_distinct_receiver(&callee, &args)
+                    .map_err(|error| format!("[freeze:contract][map_write/replay_handoff] {error:?}"))?;
+                Some(replay)
+            }
+            None => crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1::prepare(&callee, &args),
+        };
 
         // Finalize operands in current block (EmitGuardBox wrapper)
         let mut callee = callee;
@@ -500,6 +540,12 @@ impl UnifiedCallEmitterBox {
             }
         }
 
+        if let Some(replay) = &mut map_write_replay {
+            replay
+                .append_if_distinct_receiver(&callee, &args_local)
+                .map_err(|error| format!("[freeze:contract][map_write/replay_final] {error:?}"))?;
+        }
+
         // Create MirCall instruction using the new module (pure data composition)
         let mir_call = call_unified::create_mir_call(dst, callee.clone(), args_local.clone());
 
@@ -528,6 +574,7 @@ impl UnifiedCallEmitterBox {
             mir_call.dst,
             &callee,
             &args_local,
+            map_write_replay,
         );
 
         // Build the MIR Call instruction with a concrete Callee and finalized operands.

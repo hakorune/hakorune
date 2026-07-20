@@ -1,8 +1,7 @@
-//! MAP-WRITE-OBSERVE0-P0 baseline witnesses for MapBox write observation.
+//! MAP-WRITE-OBSERVE0 temporal witnesses for MapBox write observation.
 //!
-//! These tests deliberately record the pre-I0 residual: Map facts change
-//! before a generic Call receipt. I0 will move that same existing policy to
-//! the selected receipt without changing success-path receiver coverage.
+//! They require fact replay only after the selected Call receipt while
+//! preserving the established successful receiver coverage by route.
 
 use super::{CallTarget, UnifiedCallEmitterBox};
 use crate::mir::builder::MirBuilder;
@@ -129,7 +128,7 @@ impl Drop for UnifiedCallModeGuard {
 }
 
 #[test]
-fn direct_unified_set_failure_currently_leaves_a_pre_receipt_fact() {
+fn direct_unified_set_failure_publishes_no_map_fact_residual() {
     let mut builder = builder_with_entry("map_write_unified_failure/0");
     let (receiver, key, value) = install_map_set_inputs(&mut builder);
     builder.function_state.current_block = None;
@@ -148,11 +147,11 @@ fn direct_unified_set_failure_currently_leaves_a_pre_receipt_fact() {
 
     assert_eq!(error, "No current basic block");
     assert_eq!(call_count(&builder), 0);
-    assert_seed_map_fact(&builder, receiver);
+    assert!(map_facts(&builder).is_empty());
 }
 
 #[test]
-fn direct_unified_delete_and_clear_failure_currently_remove_seeded_facts() {
+fn direct_unified_delete_and_clear_failure_retain_seeded_facts() {
     for method in ["delete", "clear"] {
         let mut builder = builder_with_entry(&format!("map_write_{method}_failure/0"));
         let (receiver, key, _) = install_map_set_inputs(&mut builder);
@@ -178,10 +177,7 @@ fn direct_unified_delete_and_clear_failure_currently_remove_seeded_facts() {
 
         assert_eq!(error, "No current basic block");
         assert_eq!(call_count(&builder), 0);
-        assert!(
-            map_facts(&builder).is_empty(),
-            "{method} should show baseline residual"
-        );
+        assert_seed_map_fact(&builder, receiver);
     }
 }
 
@@ -240,8 +236,10 @@ fn direct_unified_set_success_preserves_source_and_final_receiver_coverage() {
 }
 
 #[test]
-fn terminal_boxcall_set_failure_currently_leaves_a_pre_receipt_fact() {
-    let _lock = unified_env_lock().lock().unwrap();
+fn terminal_boxcall_set_failure_publishes_no_map_fact_residual() {
+    let _lock = unified_env_lock()
+        .lock()
+        .unwrap_or_else(|error| error.into_inner());
     let _mode = UnifiedCallModeGuard::disabled();
     let mut builder = builder_with_entry("map_write_boxcall_failure/0");
     let (receiver, key, value) = install_map_set_inputs(&mut builder);
@@ -260,12 +258,14 @@ fn terminal_boxcall_set_failure_currently_leaves_a_pre_receipt_fact() {
 
     assert_eq!(error, "No current basic block");
     assert_eq!(call_count(&builder), 0);
-    assert_seed_map_fact(&builder, receiver);
+    assert!(map_facts(&builder).is_empty());
 }
 
 #[test]
 fn terminal_boxcall_set_success_observes_only_the_semantic_source_receiver() {
-    let _lock = unified_env_lock().lock().unwrap();
+    let _lock = unified_env_lock()
+        .lock()
+        .unwrap_or_else(|error| error.into_inner());
     let _mode = UnifiedCallModeGuard::disabled();
     let mut builder = builder_with_entry("map_write_boxcall_success/0");
     let (receiver, key, value) = install_map_set_inputs(&mut builder);

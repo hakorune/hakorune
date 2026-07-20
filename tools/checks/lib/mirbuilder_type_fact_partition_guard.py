@@ -646,6 +646,56 @@ def validate_array_write_observe0_authority_v1(root: Path) -> None:
             fail(f"ARRAY-WRITE-OBSERVE0 source/check file reached 800 lines: {path}")
 
 
+def validate_map_write_observe0_authority_v1(root: Path) -> None:
+    emitter = strip_cfg_test_modules(
+        code_only(read(root / "src/mir/builder/calls/unified_emitter.rs"))
+    )
+    receipt = strip_cfg_test_modules(
+        code_only(read(root / "src/mir/builder/calls/unified_emitter/post_success.rs"))
+    )
+    boxcall = strip_cfg_test_modules(
+        code_only(read(root / "src/mir/builder/utils/boxcall_emit.rs"))
+    )
+    replay = code_only(read(root / "src/mir/builder/types/map_value/post_success.rs"))
+
+    if emitter.count("PreparedMapWriteReplayV1::prepare") != 1:
+        fail("MAP-WRITE-OBSERVE0 requires one direct Unified replay preparation")
+    if emitter.count("append_if_distinct_receiver") != 2:
+        fail("MAP-WRITE-OBSERVE0 Unified S/L/R replay sequence drift")
+    if "observe_map_write_call" in emitter:
+        fail("MAP-WRITE-OBSERVE0 direct Unified pre-receipt observer survived")
+    if receipt.count("observe_map_write_call") != 1:
+        fail("MAP-WRITE-OBSERVE0 requires one Unified receipt replay consumer")
+    if receipt.find("observe_map_write_call") > receipt.find("annotate_call_result_from_func_name"):
+        fail("MAP-WRITE-OBSERVE0 Map replay must precede generic Call annotations")
+
+    if boxcall.count("PreparedMapWriteReplayV1::prepare") != 1:
+        fail("MAP-WRITE-OBSERVE0 requires one BoxCall semantic-source preparation")
+    if boxcall.count("emit_unified_call_with_map_replay") != 1:
+        fail("MAP-WRITE-OBSERVE0 requires one private BoxCall-to-Unified handoff")
+    if boxcall.count("observe_map_write_call") != 1:
+        fail("MAP-WRITE-OBSERVE0 requires one terminal BoxCall receipt replay")
+    terminal = boxcall.split("self.emit_instruction(super::super::MirInstruction::Call", 1)[1]
+    if terminal.find("observe_map_write_call") < terminal.find("})?"):
+        fail("MAP-WRITE-OBSERVE0 terminal replay must follow successful Call")
+
+    if replay.count("pub(in crate::mir::builder) struct PreparedMapWriteReplayV1") != 1:
+        fail("MAP-WRITE-OBSERVE0 replay authority count drift")
+    if "MirBuilder" in replay or "observe_map_write_call" in replay:
+        fail("MAP-WRITE-OBSERVE0 replay product must remain Builder-free")
+    for path in (
+        root / "src/mir/builder/calls/unified_emitter.rs",
+        root / "src/mir/builder/calls/unified_emitter/post_success.rs",
+        root / "src/mir/builder/utils/boxcall_emit.rs",
+        root / "src/mir/builder/types/map_value.rs",
+        root / "src/mir/builder/types/map_value/post_success.rs",
+        root / "src/mir/builder/calls/unified_emitter/map_write_timing_tests.rs",
+        Path(__file__),
+    ):
+        if len(read(path).splitlines()) >= 800:
+            fail(f"MAP-WRITE-OBSERVE0 source/check file reached 800 lines: {path}")
+
+
 def check(root: Path) -> None:
     fixture = load_fixture(root)
     validate_p1_g0_profile_freeze_v1(fixture)
@@ -662,6 +712,7 @@ def check(root: Path) -> None:
     validate_fastmem_receipt0_authority_v1(root)
     validate_fastmem_fieldload0_authority_v1(root)
     validate_array_write_observe0_authority_v1(root)
+    validate_map_write_observe0_authority_v1(root)
     matrix = fixture.get("primary_matrix")
     if not isinstance(matrix, list):
         fail("FACT0 fixture primary matrix is invalid")
@@ -677,7 +728,7 @@ def check(root: Path) -> None:
         "literal_postemit_ret0=closed resolved_trivial_op0=closed "
         "resolved_direct_call0=closed compareemit0=closed call_receipt0=closed "
         "fieldget_receipt0=closed fastmem_receipt0=closed fastmem_fieldload0=closed "
-        "array_write_observe0=closed"
+        "array_write_observe0=closed map_write_observe0=closed"
     )
 
 

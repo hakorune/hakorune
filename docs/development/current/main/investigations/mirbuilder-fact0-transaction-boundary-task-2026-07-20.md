@@ -1500,6 +1500,53 @@ schedule only at the two existing Call receipt endpoints; it must retain the
 outer semantic descriptor privately across BoxCall-to-Unified delegation and
 must not add a generic receipt API.
 
+### `MAP-WRITE-OBSERVE0-I0` — closed (2026-07-20)
+
+The pre-Call Map observer is removed from direct Unified and BoxCall. One
+prepared schedule is now consumed only after successful physical Call:
+
+```text
+direct Unified:
+  prepare S -> append finalized R when distinct -> Call success -> replay
+
+terminal BoxCall:
+  prepare S -> Call success -> replay
+
+BoxCall -> Unified:
+  prepare outer S -> private handoff -> append delegated L
+  -> append final R when distinct -> Call success -> replay
+```
+
+The handoff is a private `UnifiedCallEmitterBox` entry and carries only the
+non-Clone prepared replay. It does not change public call APIs, routing,
+LocalSSA propagation, map fact policy, or generic Call receipt semantics.
+`Set` failures now publish no fact, while failed `Delete`/`Clear` retain their
+seeded fact state. Successful writes preserve the existing source/final
+receiver coverage.
+
+### `MAP-WRITE-OBSERVE0-G0` — closed (2026-07-20)
+
+The existing FACT0 partition guard now enforces:
+
+```text
+direct Unified Map replay preparation = 1
+Unified S/L/R append sites = 2
+Unified pre-receipt Map observation = 0
+Unified receipt replay consumer = 1
+
+BoxCall semantic-source preparation = 1
+BoxCall -> Unified private handoff = 1
+terminal BoxCall receipt replay = 1
+
+PreparedMapWriteReplayV1 = 1
+replay module MirBuilder/map-policy dependency = 0
+```
+
+Focused Map (7), Array (4), and existing call-temporal (16) tests pass, as do
+the reusable FACT0 partition guard and its Python unit suite. All touched
+source/check files remain below 800 lines. Return to `NEXT-PRODUCER-D0` before
+selecting any further fact producer.
+
 ### Stop conditions
 
 Stop `MAP-WRITE-OBSERVE0` and reopen consultation if preserving S/L/R requires:

@@ -14,6 +14,7 @@ from mirbuilder_type_fact_partition_guard import (
     validate_const0_authority_v1,
     validate_fastmem_fieldload0_authority_v1,
     validate_fastmem_receipt0_authority_v1,
+    validate_map_write_observe0_authority_v1,
     validate_p1_g0_profile_freeze_v1,
 )
 
@@ -42,6 +43,7 @@ class PartitionGuardTests(unittest.TestCase):
         validate_fastmem_receipt0_authority_v1(ROOT)
         validate_fastmem_fieldload0_authority_v1(ROOT)
         validate_array_write_observe0_authority_v1(ROOT)
+        validate_map_write_observe0_authority_v1(ROOT)
 
     def test_profile_prerequisite_drift_rejects(self) -> None:
         data = fixture_copy()

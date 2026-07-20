@@ -156,7 +156,7 @@ impl super::super::MirBuilder {
                 return Ok(());
             }
         }
-        if bx_name == "MapBox" {
+        let mut map_write_replay = if bx_name == "MapBox" {
             let box_kind = crate::mir::builder::calls::call_unified::classify_box_kind(&bx_name);
             let observed_callee = crate::mir::Callee::Method {
                 box_name: bx_name.clone(),
@@ -165,12 +165,13 @@ impl super::super::MirBuilder {
                 certainty: crate::mir::definitions::call_unified::TypeCertainty::Union,
                 box_kind,
             };
-            crate::mir::builder::types::map_value::observe_map_write_call(
-                self,
+            crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1::prepare(
                 &observed_callee,
                 &observed_args,
-            );
-        }
+            )
+        } else {
+            None
+        };
         if super::builder_debug_enabled() || crate::config::env::builder_local_ssa_trace() {
             if matches!(
                 method.as_str(),
@@ -200,7 +201,13 @@ impl super::super::MirBuilder {
                 method: method.clone(),
                 receiver: box_val,
             };
-            return self.emit_unified_call(dst, target, args);
+            return super::super::calls::unified_emitter::UnifiedCallEmitterBox::emit_unified_call_with_map_replay(
+                self,
+                dst,
+                target,
+                args,
+                map_write_replay,
+            );
         }
 
         // Canonical implementation (RCL-3-min3): emit Call(callee=Method)
@@ -222,6 +229,15 @@ impl super::super::MirBuilder {
             args,
             effects,
         })?;
+        if let Some(replay) = map_write_replay.take() {
+            for observation in replay.into_observations().iter() {
+                crate::mir::builder::types::map_value::observe_map_write_call(
+                    self,
+                    observation.callee(),
+                    observation.args(),
+                );
+            }
+        }
         if let Some(d) = dst {
             let mut recv_box: Option<String> = self
                 .function_state

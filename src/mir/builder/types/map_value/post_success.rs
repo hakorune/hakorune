@@ -3,8 +3,6 @@
 //! This module preserves existing receiver-keyed observation order without
 //! owning map facts, LocalSSA, routing, or physical Call emission.
 
-#![allow(dead_code)] // MAP-WRITE-OBSERVE0-S0 is intentionally disconnected.
-
 use crate::mir::{Callee, ValueId};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -16,7 +14,7 @@ enum MapWriteOperationV1 {
 
 /// One existing semantic MapBox write observation to replay after a receipt.
 #[derive(Debug)]
-pub(super) struct MapWriteObservationDescriptorV1 {
+pub(in crate::mir::builder) struct MapWriteObservationDescriptorV1 {
     callee: Callee,
     args: Box<[ValueId]>,
     receiver: ValueId,
@@ -58,11 +56,11 @@ impl MapWriteObservationDescriptorV1 {
         })
     }
 
-    pub(super) fn callee(&self) -> &Callee {
+    pub(in crate::mir::builder) fn callee(&self) -> &Callee {
         &self.callee
     }
 
-    pub(super) fn args(&self) -> &[ValueId] {
+    pub(in crate::mir::builder) fn args(&self) -> &[ValueId] {
         &self.args
     }
 
@@ -72,24 +70,24 @@ impl MapWriteObservationDescriptorV1 {
 }
 
 #[derive(Debug, Eq, PartialEq)]
-pub(super) enum MapWriteReplayErrorV1 {
+pub(in crate::mir::builder) enum MapWriteReplayErrorV1 {
     UnsupportedDescriptor,
     OperationMismatch,
 }
 
 /// A non-Clone, single-receipt schedule of existing Map write observations.
 ///
-/// S0 creates and verifies this structural product only. I0 will be its first
-/// consumer and will invoke the existing map-fact owner after physical success.
+/// The two physical Call receipt owners consume this only after successful
+/// emission, then invoke the existing map-fact owner in the sealed order.
 #[derive(Debug)]
-pub(super) struct PreparedMapWriteReplayV1 {
+pub(in crate::mir::builder) struct PreparedMapWriteReplayV1 {
     operation: MapWriteOperationV1,
     observations: Vec<MapWriteObservationDescriptorV1>,
 }
 
 impl PreparedMapWriteReplayV1 {
     /// Starts a replay only for an existing MapBox Set/Delete/Clear descriptor.
-    pub(super) fn prepare(callee: &Callee, args: &[ValueId]) -> Option<Self> {
+    pub(in crate::mir::builder) fn prepare(callee: &Callee, args: &[ValueId]) -> Option<Self> {
         let first = MapWriteObservationDescriptorV1::from_existing_call(callee, args)?;
         Some(Self {
             operation: first.operation,
@@ -99,7 +97,7 @@ impl PreparedMapWriteReplayV1 {
 
     /// Adds a finalized/delegated receiver replay only when it changes the
     /// receiver identity and retains the same existing map-write operation.
-    pub(super) fn append_if_distinct_receiver(
+    pub(in crate::mir::builder) fn append_if_distinct_receiver(
         &mut self,
         callee: &Callee,
         args: &[ValueId],
@@ -121,7 +119,9 @@ impl PreparedMapWriteReplayV1 {
     }
 
     /// Transfers the exact prevalidated schedule to the future receipt owner.
-    pub(super) fn into_observations(self) -> Box<[MapWriteObservationDescriptorV1]> {
+    pub(in crate::mir::builder) fn into_observations(
+        self,
+    ) -> Box<[MapWriteObservationDescriptorV1]> {
         self.observations.into_boxed_slice()
     }
 }

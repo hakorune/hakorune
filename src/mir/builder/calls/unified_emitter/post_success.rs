@@ -16,6 +16,7 @@ use super::super::annotation::callee_sig_name;
 pub(super) struct PreparedUnifiedCallPostSuccessV1 {
     signature: Option<PreparedSignatureAnnotationV1>,
     collection_result: Option<PreparedCollectionResultAnnotationV1>,
+    map_write: Option<Box<[crate::mir::builder::types::map_value::post_success::MapWriteObservationDescriptorV1]>>,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -40,6 +41,9 @@ impl PreparedUnifiedCallPostSuccessV1 {
         destination: Option<ValueId>,
         callee: &Callee,
         arguments: &[ValueId],
+        map_write: Option<
+            crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1,
+        >,
     ) -> Self {
         let signature = destination.and_then(|destination| {
             let arity = signature_arity(callee, arguments);
@@ -57,6 +61,7 @@ impl PreparedUnifiedCallPostSuccessV1 {
         Self {
             signature,
             collection_result,
+            map_write: map_write.map(|replay| replay.into_observations()),
         }
     }
 
@@ -65,6 +70,15 @@ impl PreparedUnifiedCallPostSuccessV1 {
     /// The delegated annotation modules retain their existing policies. This
     /// owner changes only when their already-finalized invocation is allowed.
     pub(super) fn commit_after_success(self, builder: &mut MirBuilder) {
+        if let Some(observations) = self.map_write {
+            for observation in observations.iter() {
+                super::super::super::types::map_value::observe_map_write_call(
+                    builder,
+                    observation.callee(),
+                    observation.args(),
+                );
+            }
+        }
         if let Some(signature) = self.signature {
             if crate::config::env::builder_debug_annotation() {
                 let ring0 = crate::runtime::get_global_ring0();
@@ -119,6 +133,7 @@ mod tests {
             Some(destination),
             &Callee::Global("answer".to_string()),
             &arguments,
+            None,
         );
 
         assert_eq!(
@@ -146,6 +161,7 @@ mod tests {
                 box_kind: CalleeBoxKind::RuntimeData,
             },
             &[receiver, ValueId::new(4)],
+            None,
         );
 
         assert_eq!(
@@ -163,6 +179,7 @@ mod tests {
             None,
             &Callee::Value(ValueId::new(9)),
             &[ValueId::new(9)],
+            None,
         );
 
         assert!(prepared.signature.is_none());
