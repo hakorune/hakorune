@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 are closed; FINALIZE0-PHI-SPLIT0-D0 is the next design boundary, and CUT0 remains forbidden"
+status = "FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0 are closed; PHI-SPLIT0-S0 is next, and CUT0 remains forbidden"
 date = "2026-07-21"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -317,7 +317,7 @@ finalize0_p0_production_census_task = "docs/development/current/main/investigati
 
 latest_card = "mirbuilder-finalize0-p0-production-census-task-2026-07-20"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-task-2026-07-20.md"
-latest_card_summary = """FINALIZE0-CENSUS0-P0a-S0b is closed. CFGSTREAM0, CONTENTCFG0, and INCLUDE-SCOPE0 now give one ordered cfg/cfg_attr stream, one V3 content gate/issuance owner, and one two-lane production include scope stream with no legacy blanket state. The synthetic workspace/profile/module/include fixtures remain bounded parity evidence. One root-only milestone proof consumes the six sealed CARGO0 rows and collects the existing V3 declared topology twice: all six profiles succeed with Included roots, exact profile-specific instance/edge/include/observation counts, evidence-consistent profile/package/target keys, byte-identical JSON, and no absolute workspace path. The proof is deliberately outside quick/daily gates. The module guard pins the single proof consumer and six IDs. No parser/cfg/traversal/CLI/semantic-resolution/FINALIZE0-policy authority was added; macro/name resolution, block-local identity, repair quarantine, and CUT0 remain zero. FINALIZE0-VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 are closed: the selected all-build function finalizer alone normalizes unretained stale transient rows before its existing metadata snapshot, then read-only verifies the published draft before take. A scoped guard and four negative probes pin that function's order and one-consumer split while explicitly retaining the two legacy helper consumers. No global retirement is claimed. FINALIZE0-PHI-SPLIT0-D0 is the next design boundary; PHI/module/loop successor work must precede terminal mixed-helper retirement."""
+latest_card_summary = """FINALIZE0-CENSUS0-P0a-S0b is closed. CFGSTREAM0, CONTENTCFG0, and INCLUDE-SCOPE0 now give one ordered cfg/cfg_attr stream, one V3 content gate/issuance owner, and one two-lane production include scope stream with no legacy blanket state. The synthetic workspace/profile/module/include fixtures remain bounded parity evidence. One root-only milestone proof consumes the six sealed CARGO0 rows and collects the existing V3 declared topology twice: all six profiles succeed with Included roots, exact profile-specific instance/edge/include/observation counts, evidence-consistent profile/package/target keys, byte-identical JSON, and no absolute workspace path. The proof is deliberately outside quick/daily gates. The module guard pins the single proof consumer and six IDs. No parser/cfg/traversal/CLI/semantic-resolution/FINALIZE0-policy authority was added; macro/name resolution, block-local identity, repair quarantine, and CUT0 remain zero. FINALIZE0-VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 are closed: the selected all-build function finalizer alone normalizes unretained stale transient rows before its existing metadata snapshot, then read-only verifies the published draft before take. A scoped guard and four negative probes pin that function's order and one-consumer split while explicitly retaining the two legacy helper consumers. PHI-SPLIT0-D0 is now closed: A′ separates a read-only terminator-derived edge verifier, an artifact-gated unused-Phi candidate plan, and a quarantined candidate-only legacy repair. PHI-SPLIT0-S0 is next; no module/JoinIR conversion or global retirement is claimed."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -519,7 +519,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-PHI-SPLIT0-D0-093"
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-PHI-SPLIT0-S0-094"
 finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."

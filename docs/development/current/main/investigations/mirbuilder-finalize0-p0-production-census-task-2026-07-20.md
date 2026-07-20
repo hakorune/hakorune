@@ -1,5 +1,5 @@
 ---
-Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 are closed; FINALIZE0-PHI-SPLIT0-D0 is the next design boundary
+Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0 are closed; PHI-SPLIT0-S0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -2458,3 +2458,115 @@ remains quarantined and the legacy helper remains live.  The next work is the
 separate `FINALIZE0-PHI-SPLIT0-D0` design boundary; it must select a complete
 candidate-state transaction and post-mutation verification law before any
 module conversion or helper retirement can begin.
+
+## FINALIZE0-PHI-SPLIT0 — legacy PHI repair containment
+
+### D0 decision lock — Candidate A′ selected
+
+`materialize_all_phi_inputs` is neither a verifier nor a permanent normalizer.
+It combines unused-Phi deletion (instruction plus aligned span),
+dominance-based missing predecessor-row completion, and edge rematerialization
+that allocates ValueIds, inserts predecessor instructions, and rewrites Phi
+inputs. A nested rematerialization can mutate one child before a later child
+fails; its `HashMap` work traversal also has no canonical fresh-ID order.
+
+Candidate A′ separates exactly three products:
+
+```text
+verify_phi_edges_v1(&MirFunction)
+  all-build, read-only, terminator-derived CFG edge verifier
+
+PreparedUnusedPhiNormalizationV1
+  private non-Clone candidate plan; no live deletion without side-artifact closure
+
+LegacyPhiRepairCandidateV1
+  private non-Clone candidate-only quarantine for unused cleanup,
+  missing-edge completion, and rematerialization; drop on failure
+```
+
+The edge verifier must not call `update_cfg`. It derives predecessor facts from
+terminators and checks reachable Phi targets for duplicate, phantom, and
+missing predecessor rows, incoming definitions, edge dominance, and stable
+diagnostic order `(block, Phi ordinal, predecessor, value)`. Unreachable policy
+is explicit.
+
+The unused-Phi product retains exact instruction/span rows. It may commit only
+with a positive side-artifact closure; otherwise it returns
+`BlockedByArtifactReference` before mutation. Existing stale type/origin rows
+are not such a closure. A function clone can prove helper-local rollback, but
+is not a module-finalization transaction: module commit later must own all
+candidate functions, module artifacts, relevant transient facts, and
+site-indexed artifacts before one external commit.
+
+### Explicit non-selection and caller partition
+
+```text
+split verifier + direct live repair
+  rejected: partial MIR/ValueId mutation remains
+
+classify every repair as NormalizeRepresentation
+  rejected: missing-edge derivation/remat is semantic repair; unused deletion
+  lacks artifact closure
+
+type/origin inference or pipeline rerun for remat dsts
+  rejected: producer closure owns those facts
+```
+
+Whole-function repair has exactly three production callers: two separate
+`finalize_module` phases (after a type snapshot and after derived refresh) and
+one intermediate JoinIR rewrite phase. Six live `for_pred` completion consumers
+are excluded; they are not whole-function repair callers. No caller is
+connected in S0/P0. Return, TypePipeline, Call/Await, phi type inference, fact
+publication, source/name inference, backend policy, and JoinIR conversion
+remain non-authorities.
+
+### Fixed task order
+
+```text
+FINALIZE0-PHI-SPLIT0-D0
+  this lock; code delta = 0
+-> FINALIZE0-PHI-SPLIT0-S0
+   disconnected edge verifier + prepared vocabulary; production consumers = 0
+-> FINALIZE0-PHI-SPLIT0-M0
+   candidate-state, positional-artifact, and caller-timing census
+-> FINALIZE0-PHI-SPLIT0-P0
+   verifier/plan/candidate-failure/determinism/freshness proof
+-> FINALIZE0-PHI-SPLIT0-I0-SELECT
+   select one integration only after module candidate ownership and
+   post-publication verifier are proven
+-> FINALIZE0-PHI-SPLIT0-G0
+   scoped guard for the selected integration
+```
+
+No production I0 is authorized by D0. Current module/JoinIR callers remain
+legacy and terminal mixed-helper retirement remains parked.
+
+### Required proof and stop law
+
+```text
+verifier: valid loop; missing/phantom/duplicate predecessor; undefined or
+non-dominating incoming; unreachable policy; terminator/cache drift; stable diagnostics
+
+plan: used Phi untouched; exact instruction/span candidate; positional artifact
+without closure rejects; no new ValueId
+
+candidate: permitted remat families; cycle/non-rematerializable/missing-pred/
+late-RHS failure leaves live MIR/cursor/spans/facts/metadata unchanged;
+deterministic sorted output
+
+module: function-N failure leaves all live functions/artifacts unchanged;
+repair-before-derived-refresh exactly once; post-publication freshness check
+```
+
+Stop before I0 if it needs type/kind/origin inference, source/name/runtime-tag
+reconstruction, direct live repair, partial module commit, unproven
+instruction-index/site closure, HashMap-dependent output, JoinIR conversion,
+or Return/Call-Await/metadata/fact-session redesign.
+
+#### D0 closeout
+
+Three independent audits establish the three direct callers, six excluded live
+completion consumers, partial nested-remat mutation, and post-snapshot/
+post-derived-refresh staleness. A′ is a containment architecture only; it
+claims no production conversion. `FINALIZE0-PHI-SPLIT0-S0` is the sole next
+code-facing row.
