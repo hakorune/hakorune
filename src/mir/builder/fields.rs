@@ -350,4 +350,33 @@ mod tests {
             "store"
         );
     }
+
+    #[test]
+    fn ordinary_fieldset_failure_currently_leaves_only_the_pre_emission_site() {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("ordinary_fieldset_timing_failure/0".to_string());
+        let base = builder.alloc_value_for_test();
+        let value = builder.alloc_value_for_test();
+        builder.function_state.current_block = None;
+
+        let error = builder
+            .build_field_assignment_from_value_id(None, base, "slot".to_string(), value)
+            .unwrap_err();
+
+        assert_eq!(error, "No current basic block");
+        let function = builder.function_state.current_function.as_ref().unwrap();
+        assert_eq!(
+            function.metadata.fastmem_field_access_sites.len(),
+            1,
+            "pre-I0 baseline residual"
+        );
+        assert!(function
+            .blocks
+            .values()
+            .flat_map(|block| block.instructions.iter())
+            .all(|instruction| !matches!(
+                instruction,
+                crate::mir::MirInstruction::FieldSet { .. }
+            )));
+    }
 }

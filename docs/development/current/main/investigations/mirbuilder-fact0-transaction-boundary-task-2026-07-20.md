@@ -1615,6 +1615,33 @@ identity without synthesizing one; `cargo check --all-targets` is green.  M0
 is now the sole next row and must prove the actual ordinary FieldSet failure
 residual before any production consumer is connected.
 
+### `FIELDSTORE-OBSERVE0-M0` — design stop (2026-07-20)
+
+The direct ordinary fixture is now executable: with no current block,
+`FieldSet = 0` while the pre-emission store access-site count is `1`.  This
+confirms the residual.  It also exposes a boundary that this row must not
+silently cross: the common access-site append currently precedes
+`emit_known_weak_field_write`, whose `false` result is the only existing
+ordinary-route discriminator and whose `true` branch may already emit a
+physical WeakFieldWrite.
+
+An ordinary-only receipt connection therefore requires one of:
+
+```text
+A. one shared, pure weak-field classification product reused by the emitter
+   and FieldSet route selection;
+B. a provisional access-site append plus later cancellation;
+C. a duplicate declaration-registry weak-field query in fields.rs;
+D. moving the shared append after WeakFieldWrite.
+```
+
+Only A is plausibly compatible with one authority.  B introduces a temporary
+metadata mutation/cancellation lifecycle; C creates a second weak-route owner;
+and D changes the excluded WeakFieldWrite timing.  `FIELDSTORE-OBSERVE0-I0`
+is forbidden pending a dedicated weak-classification design decision.  No
+FieldSet, weak, contract, FastMem, index, type/origin, or access-site behavior
+has changed in this row.
+
 ### `FASTMEM-RECEIPT0` historical stop conditions
 
 Stop this row if it requires any of the following:
