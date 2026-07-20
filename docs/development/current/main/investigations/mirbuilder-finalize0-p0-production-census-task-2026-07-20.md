@@ -1,5 +1,5 @@
 ---
-Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0 are closed; PHI-SPLIT0-S0 is next
+Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0 are closed; PHI-SPLIT0-M0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -2568,5 +2568,36 @@ or Return/Call-Await/metadata/fact-session redesign.
 Three independent audits establish the three direct callers, six excluded live
 completion consumers, partial nested-remat mutation, and post-snapshot/
 post-derived-refresh staleness. A′ is a containment architecture only; it
-claims no production conversion. `FINALIZE0-PHI-SPLIT0-S0` is the sole next
+claims no production conversion. The following S0 was the sole first
 code-facing row.
+
+### S0 closeout — disconnected edge verifier and unused-Phi vocabulary
+
+`src/mir/builder/ssa/phi_input_materializer/edge_verifier.rs` now owns the
+two disconnected A′ products, with zero production consumers:
+
+```text
+verify_phi_edges_v1(&MirFunction)
+  -> direct terminator successors
+  -> direct reachable predecessor sets
+  -> direct dominator sets
+  -> deterministically sorted edge errors
+
+PreparedUnusedPhiNormalizationV1
+  -> exact unused Phi instruction/span rows
+  -> non-Clone candidate only
+  -> no commit surface
+  -> BlockedByArtifactReference without a later closure owner
+```
+
+The verifier never calls `update_cfg`, never mutates the successor or
+predecessor caches, and never writes MIR, facts, metadata, spans, or ValueId
+state. Candidate collection rejects a missing instruction span rather than
+fabricating one. Focused verifier tests and `cargo check -q` pass; existing
+warnings are unchanged.
+
+`FINALIZE0-PHI-SPLIT0-M0` is now the sole next row. It must inventory the
+complete candidate state, positional/site-indexed artifact closure, direct
+caller timing, and deterministic rematerialization order before P0 or any I0
+selection. Module and JoinIR callers remain legacy; no repair conversion,
+deletion, or retirement claim has been made.

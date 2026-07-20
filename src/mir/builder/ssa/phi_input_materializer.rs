@@ -5,6 +5,7 @@
 //! while SSA-L0 changes only the physical ownership boundary.
 
 mod edge_rematerialization;
+pub(in crate::mir::builder) mod edge_verifier;
 mod function_repair;
 
 #[cfg(test)]
