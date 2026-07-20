@@ -494,10 +494,12 @@ ARRAY-WRITE-OBSERVE0-D0 before opening another code row. FASTMEM-EXPECT0 is
 closed: the two stale FastMem tests now assert the existing FieldLoad/FieldStore
 MemOp surface and legacy FieldGet/FieldSet absence; full FastMem is 91/91.
 Three independent read-only inventories identify Array write receiver
-observation as the next distinct pre-emission seam. Generic Call/Map,
-FieldStore/index reservations, and FastMem remain excluded until that D0
-selects one exact first owner."""
-current_blocker_token = "DPRIME-MIRBUILDER-FACT0-TX0-ARRAY-WRITE-OBSERVE0-D0-038"
+observation as the next distinct pre-emission seam. ARRAY-WRITE-OBSERVE0-D0
+is closed: two direct ArrayElementWrite specializations retain the existing
+semantic observer and move only its invocation after successful physical
+emission. Generic Call/Map, FieldStore/index reservations, and FastMem remain
+excluded; I0 is the sole next code-facing row."""
+current_blocker_token = "DPRIME-MIRBUILDER-FACT0-TX0-ARRAY-WRITE-OBSERVE0-I0-039"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

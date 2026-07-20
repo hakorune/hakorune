@@ -1231,6 +1231,53 @@ ARRAY-WRITE-OBSERVE0-D0
   -> then, and only then, open its code-facing S0
 ```
 
+### `ARRAY-WRITE-OBSERVE0-D0` — closed (2026-07-20)
+
+Candidate A-prime is selected: **post-success observation at the two existing
+known-ArrayElementWrite specializations**. `observe_array_write_call` remains
+the sole owner of receiver-local `Array<T>`/`Unknown` and copy-chain facts; the
+row changes only when its existing call is made.
+
+```text
+selected callers:
+  UnifiedCallEmitter ArrayBox direct specialization
+  BoxCall ArrayBox direct specialization
+
+selected physical receipt:
+  existing try_emit_known_array_method_write
+  -> existing emit_array_element_write
+
+success:
+  physical ArrayElementWrite
+  -> existing observer on the semantic source receiver/arguments
+
+failure or non-write:
+  observer delta = 0
+  existing non-write route continues unchanged
+```
+
+The observer may not move inside `try_emit_known_array_method_write`: the
+BoxCall route deliberately lowers a physical LocalSSA receiver while the
+observer must retain the original semantic receiver and argument values. The
+generic unified Call observer remains pre-finalization and outside this first
+row; changing it would mix generic Call receipt, Map observation, and an
+independent failure boundary.
+
+```text
+ARRAY-WRITE-OBSERVE0-I0
+  -> move the two selected observer invocations after a true physical-write result
+  -> add success/failure temporal witnesses and direct-route parity
+  -> extend the existing FACT0 partition guard only if the owner count needs it
+
+ARRAY-WRITE-OBSERVE0-G0
+  -> prove exactly two selected post-success consumers
+  -> prove generic Call/Map, FieldStore/index, and FastMem remain excluded
+```
+
+Stop if preserving the semantic source receiver requires a second fact map,
+moving generic Call observation, deriving facts from physical receiver copies,
+or a fallback/retry after physical emission failure.
+
 ### `FASTMEM-RECEIPT0` historical stop conditions
 
 Stop this row if it requires any of the following:
