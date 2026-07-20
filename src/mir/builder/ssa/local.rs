@@ -89,12 +89,91 @@ pub fn try_ensure(
     )
 }
 
+/// Checked failures; legacy facades recover only block/emission failures.
+enum LocalSsaMaterializationErrorV1 {
+    Contract(String),
+    BlockCreation(String),
+    InstructionEmission(String),
+}
+
+impl LocalSsaMaterializationErrorV1 {
+    fn message(&self) -> &str {
+        match self {
+            Self::Contract(message)
+            | Self::BlockCreation(message)
+            | Self::InstructionEmission(message) => message,
+        }
+    }
+}
+
+#[derive(Clone, Copy)]
+#[allow(dead_code)] // Checked is reserved for COPY0's first selected consumer.
+enum LocalSsaFailurePolicyV1 {
+    LegacyFacade,
+    Checked,
+}
+
+impl LocalSsaFailurePolicyV1 {
+    fn resolve(
+        self,
+        original: ValueId,
+        error: LocalSsaMaterializationErrorV1,
+    ) -> Result<ValueId, LocalSsaMaterializationErrorV1> {
+        match self {
+            Self::LegacyFacade => {
+                let _ = error.message();
+                Ok(original)
+            }
+            Self::Checked => Err(error),
+        }
+    }
+}
+
 fn ensure_inner(
     builder: &mut MirBuilder,
     v: ValueId,
     kind: LocalKind,
     forbid_non_pure: bool,
 ) -> Result<ValueId, String> {
+    match materialize_local_v1(
+        builder,
+        v,
+        kind,
+        forbid_non_pure,
+        LocalSsaFailurePolicyV1::LegacyFacade,
+    ) {
+        Ok(value) => Ok(value),
+        Err(LocalSsaMaterializationErrorV1::Contract(error)) => Err(error),
+        Err(LocalSsaMaterializationErrorV1::BlockCreation(_))
+        | Err(LocalSsaMaterializationErrorV1::InstructionEmission(_)) => unreachable!(
+            "legacy LocalSSA materialization must resolve recoverable failures before returning"
+        ),
+    }
+}
+
+#[allow(dead_code)] // COPY0 is the first checked consumer.
+fn try_materialize_local_v1(
+    builder: &mut MirBuilder,
+    v: ValueId,
+    kind: LocalKind,
+    forbid_non_pure: bool,
+) -> Result<ValueId, LocalSsaMaterializationErrorV1> {
+    materialize_local_v1(
+        builder,
+        v,
+        kind,
+        forbid_non_pure,
+        LocalSsaFailurePolicyV1::Checked,
+    )
+}
+
+fn materialize_local_v1(
+    builder: &mut MirBuilder,
+    v: ValueId,
+    kind: LocalKind,
+    forbid_non_pure: bool,
+    failure_policy: LocalSsaFailurePolicyV1,
+) -> Result<ValueId, LocalSsaMaterializationErrorV1> {
     let bb_opt = builder.function_state.current_block;
 
     // Get function name and entry block for logging (debug only)
@@ -141,7 +220,7 @@ fn ensure_inner(
                     bb, kind, v.0, e
                 ));
             }
-            return Ok(v);
+            return failure_policy.resolve(v, LocalSsaMaterializationErrorV1::BlockCreation(e));
         }
 
         // CRITICAL FIX: If `v` is from a pinned slot, check if there's a PHI value for that slot
@@ -205,6 +284,15 @@ fn ensure_inner(
             }
         }
 
+        let source_type_entry = post_success::LocalSsaSourceTypeEntryV1::classify(
+            builder.function_state.type_ctx.value_types.get(&v),
+        );
+        let source_origin = builder
+            .function_state
+            .type_ctx
+            .value_origin_newbox
+            .get(&v)
+            .cloned();
         let loc = builder.next_value_id();
 
         // Unconditional trace to observe all ValueId allocations in ensure()
@@ -293,7 +381,7 @@ fn ensure_inner(
                 .as_ref()
                 .map(|f| f.next_value_id)
                 .unwrap_or(0);
-            return Err(format!(
+            return Err(LocalSsaMaterializationErrorV1::Contract(format!(
                 "[freeze:contract][local_ssa/undefined_source] fn={} bb={:?} kind={:?} v=%{} varmap_hits={} pin={} has_type={} reserved={} next_value_id_hint={}",
                 fn_name,
                 bb,
@@ -304,7 +392,7 @@ fn ensure_inner(
                 has_type,
                 reserved,
                 next_value_id_hint
-            ));
+            )));
         }
 
         if kind.can_forward_same_block_field_get_to_consumer()
@@ -461,7 +549,7 @@ fn ensure_inner(
                     String::new()
                 };
 
-                return Err(format!(
+                return Err(LocalSsaMaterializationErrorV1::Contract(format!(
                     "[freeze:contract][local_ssa/non_rematerializable_arg] fn={} bb={:?} kind={:?} v=%{} def_kind={} def_block={} varmap_hits={} pin={}{}",
                     fn_name,
                     bb,
@@ -472,9 +560,18 @@ fn ensure_inner(
                     varmap_hits_str,
                     pin,
                     alloc_context
-                ));
+                )));
             }
         }
+
+        let prepared_post_success = post_success::PreparedLocalSsaPostSuccessV1::prepare(
+            &source_type_entry,
+            source_origin.as_deref(),
+            post_success::PreparedLocalSsaPostSuccessV1::classify_materialization(
+                def_inst.as_ref(),
+            ),
+            kind,
+        );
 
         // CRITICAL: Check emit_instruction result - if emission fails, return original value
         // to avoid returning undefined ValueId.
@@ -495,7 +592,8 @@ fn ensure_inner(
             Some(MirInstruction::Compare { op, lhs, rhs, .. }) => {
                 let mut lhs_local = lhs;
                 let mut rhs_local = rhs;
-                finalize_compare(builder, &mut lhs_local, &mut rhs_local)?;
+                finalize_compare(builder, &mut lhs_local, &mut rhs_local)
+                    .map_err(LocalSsaMaterializationErrorV1::Contract)?;
                 builder.emit_instruction(MirInstruction::Compare {
                     dst: loc,
                     op,
@@ -509,9 +607,17 @@ fn ensure_inner(
                 else_val,
                 ..
             }) => {
-                let cond_local = ensure_inner(builder, cond, LocalKind::Cond, forbid_non_pure)?;
-                let then_local = ensure_inner(builder, then_val, kind, forbid_non_pure)?;
-                let else_local = ensure_inner(builder, else_val, kind, forbid_non_pure)?;
+                let cond_local = materialize_local_v1(
+                    builder,
+                    cond,
+                    LocalKind::Cond,
+                    forbid_non_pure,
+                    failure_policy,
+                )?;
+                let then_local =
+                    materialize_local_v1(builder, then_val, kind, forbid_non_pure, failure_policy)?;
+                let else_local =
+                    materialize_local_v1(builder, else_val, kind, forbid_non_pure, failure_policy)?;
                 builder.emit_instruction(MirInstruction::Select {
                     dst: loc,
                     cond: cond_local,
@@ -523,7 +629,7 @@ fn ensure_inner(
                 let src_local = if src == v {
                     src
                 } else {
-                    ensure_inner(builder, src, kind, forbid_non_pure)?
+                    materialize_local_v1(builder, src, kind, forbid_non_pure, failure_policy)?
                 };
                 builder.emit_instruction(MirInstruction::Copy {
                     dst: loc,
@@ -556,10 +662,10 @@ fn ensure_inner(
                                 fn_name, bb, def_b, dominates));
                         }
                         if !dominates {
-                            return Err(format!(
+                            return Err(LocalSsaMaterializationErrorV1::Contract(format!(
                                 "[freeze:contract][local_ssa/non_dominating_copy] fn={} bb={:?} src=%{} def_block={:?} def_kind={}",
                                 fn_name, bb, v.0, def_b, def_kind
-                            ));
+                            )));
                         }
                     }
                 }
@@ -582,7 +688,8 @@ fn ensure_inner(
                     fn_name, fn_entry, bb, kind, v.0, loc.0));
             }
             // Failed to emit Copy - return original value instead of undefined dst
-            return Ok(v);
+            return failure_policy
+                .resolve(v, LocalSsaMaterializationErrorV1::InstructionEmission(e));
         }
         if crate::config::env::builder_local_ssa_trace() {
             let ring0 = crate::runtime::get_global_ring0();
@@ -597,40 +704,9 @@ fn ensure_inner(
             ring0.log.debug(&format!("[local-sa:ensure:success] fn={} entry={:?} bb={:?} kind={:?} v=%{} loc=%{} returning_loc",
                 fn_name, fn_entry, bb, kind, v.0, loc.0));
         }
-        // Success: register metadata and cache
-        if let Some(t) = builder.function_state.type_ctx.value_types.get(&v).cloned() {
-            builder.function_state.type_ctx.value_types.insert(loc, t);
-        }
-        if let Some(cls) = builder
-            .function_state
-            .type_ctx
-            .value_origin_newbox
-            .get(&v)
-            .cloned()
-        {
-            builder
-                .function_state
-                .type_ctx
-                .value_origin_newbox
-                .insert(loc, cls.clone());
-
-            // CRITICAL FIX: For receiver kind, if type is missing but origin exists,
-            // infer MirType::Box from origin
-            if kind == LocalKind::Recv
-                && builder
-                    .function_state
-                    .type_ctx
-                    .value_types
-                    .get(&loc)
-                    .is_none()
-            {
-                builder
-                    .function_state
-                    .type_ctx
-                    .value_types
-                    .insert(loc, crate::mir::MirType::Box(cls));
-            }
-        }
+        // Success: commit the prepared C-prime lanes, then retain existing
+        // string/map/record compatibility transfer and cache ownership.
+        prepared_post_success.commit(loc, &mut builder.function_state.type_ctx);
         if let Some(text) = builder
             .function_state
             .type_ctx

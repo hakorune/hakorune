@@ -1,10 +1,11 @@
 //! Pure LocalSSA post-success metadata decisions.
 //!
-//! This module deliberately owns no `MirBuilder`, `ValueId`, or fact map.  It
-//! prepares the behavior-preserving transfer decision that a later lifecycle
-//! row will commit only after materialization succeeds.
+//! This module deliberately owns no `MirBuilder` or new fact map. It prepares
+//! the behavior-preserving transfer decision and commits it only after the
+//! caller's materialization instruction has succeeded.
 
-use crate::mir::MirType;
+use crate::mir::builder::type_context::TypeContext;
+use crate::mir::{MirInstruction, MirType, ValueId};
 
 use super::LocalKind;
 
@@ -116,6 +117,53 @@ impl PreparedLocalSsaPostSuccessV1 {
         }
     }
 
+    pub(super) fn classify_materialization(
+        definition: Option<&MirInstruction>,
+    ) -> LocalSsaMaterializationKindV1 {
+        match definition {
+            Some(MirInstruction::Const { .. }) => {
+                LocalSsaMaterializationKindV1::RematerializedConst
+            }
+            Some(MirInstruction::BinOp { .. }) => {
+                LocalSsaMaterializationKindV1::RematerializedBinOp
+            }
+            Some(MirInstruction::Compare { .. }) => {
+                LocalSsaMaterializationKindV1::RematerializedCompare
+            }
+            Some(MirInstruction::Select { .. }) => {
+                LocalSsaMaterializationKindV1::RematerializedSelect
+            }
+            Some(MirInstruction::Copy { .. }) => LocalSsaMaterializationKindV1::PhysicalCopy(
+                LocalSsaPhysicalCopyReasonV1::RematerializedCopy,
+            ),
+            _ => LocalSsaMaterializationKindV1::PhysicalCopy(
+                LocalSsaPhysicalCopyReasonV1::DominatingFallbackCopy,
+            ),
+        }
+    }
+
+    /// Commits only the four C-prime lanes after successful materialization.
+    ///
+    /// The destination is fresh by the LocalSSA allocation invariant, so this
+    /// commit is intentionally non-fallible. String/map/record compatibility
+    /// transfer and cache insertion remain owned by their existing callers.
+    pub(super) fn commit(self, destination: ValueId, type_ctx: &mut TypeContext) {
+        if let Some(ty) = self.exact_type {
+            type_ctx.set_type(destination, ty);
+        }
+        if self.legacy_unknown {
+            type_ctx.set_type(destination, MirType::Unknown);
+        }
+        if let Some(owner) = self.origin {
+            type_ctx.set_origin_box(destination, owner);
+        }
+        if let ReceiverOriginCompatibilityV1::PublishBoxFromMissingType { owner } =
+            self.receiver_compat
+        {
+            type_ctx.set_type(destination, MirType::Box(owner));
+        }
+    }
+
     #[cfg(test)]
     fn materialization(&self) -> LocalSsaMaterializationKindV1 {
         self.materialization
@@ -149,7 +197,8 @@ mod tests {
         PreparedLocalSsaPostSuccessV1, ReceiverOriginCompatibilityV1,
     };
     use crate::mir::builder::ssa::local::LocalKind;
-    use crate::mir::MirType;
+    use crate::mir::builder::type_context::TypeContext;
+    use crate::mir::{MirType, ValueId};
 
     #[derive(Clone, Debug, Default, Eq, PartialEq)]
     struct SyntheticCommittedPostSuccessV1 {
@@ -404,6 +453,73 @@ mod tests {
             assert_eq!(committed.type_entry, case.expected_type);
             assert_eq!(committed.origin.as_deref(), case.expected_origin);
             assert!(committed.cache_inserted);
+        }
+    }
+
+    #[test]
+    fn production_commit_preserves_the_full_type_origin_receiver_matrix() {
+        struct Case {
+            source_type: Option<MirType>,
+            origin: Option<&'static str>,
+            kind: LocalKind,
+            expected_type: Option<MirType>,
+            expected_origin: Option<&'static str>,
+        }
+
+        let cases = [
+            Case {
+                source_type: None,
+                origin: None,
+                kind: LocalKind::Arg,
+                expected_type: None,
+                expected_origin: None,
+            },
+            Case {
+                source_type: Some(MirType::Integer),
+                origin: None,
+                kind: LocalKind::Arg,
+                expected_type: Some(MirType::Integer),
+                expected_origin: None,
+            },
+            Case {
+                source_type: Some(MirType::Unknown),
+                origin: Some("Owner"),
+                kind: LocalKind::Recv,
+                expected_type: Some(MirType::Unknown),
+                expected_origin: Some("Owner"),
+            },
+            Case {
+                source_type: None,
+                origin: Some("Owner"),
+                kind: LocalKind::Recv,
+                expected_type: Some(MirType::Box("Owner".to_string())),
+                expected_origin: Some("Owner"),
+            },
+            Case {
+                source_type: Some(MirType::Integer),
+                origin: Some("Owner"),
+                kind: LocalKind::Recv,
+                expected_type: Some(MirType::Integer),
+                expected_origin: Some("Owner"),
+            },
+            Case {
+                source_type: None,
+                origin: Some("Owner"),
+                kind: LocalKind::FieldBase,
+                expected_type: None,
+                expected_origin: Some("Owner"),
+            },
+        ];
+
+        for (index, case) in cases.into_iter().enumerate() {
+            let prepared = prepare(case.source_type.as_ref(), case.origin, case.kind);
+            let destination = ValueId::new(100 + index as u32);
+            let mut type_ctx = TypeContext::default();
+
+            prepared.commit(destination, &mut type_ctx);
+
+            assert_eq!(type_ctx.get_type(destination), case.expected_type.as_ref());
+            assert_eq!(type_ctx.get_origin_box(destination), case.expected_origin);
         }
     }
 

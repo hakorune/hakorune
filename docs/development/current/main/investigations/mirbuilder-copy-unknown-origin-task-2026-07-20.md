@@ -315,12 +315,55 @@ must retain every successful destination state proven here and leave all six
 materialization families outside COPY0 except the two explicitly classified
 physical-Copy variants.
 
-### `COPY-UNKNOWN0-I0`
+### `COPY-UNKNOWN0-I0` — closed (2026-07-20)
 
-Replace the existing direct post-success metadata block with one prepared-then-
-commit owner. Successful behavior remains byte-for-byte state-equivalent for
-the table above. Non-Copy rematerialization stays behavior-preserving but is
-explicitly classified; it is not a COPY0 consumer.
+One prepared decision now snapshots the source type entry and origin before
+LocalSSA reserves its destination, classifies the materialization definition,
+and commits only after the instruction succeeds. The one commit owner transfers
+exact type, stored-Unknown compatibility, origin, and receiver-only Box
+synthesis; existing string/map/record transfers and cache insertion remain in
+their former owner after that commit.
+
+The new private checked materialization entry preserves typed block-creation
+and instruction-emission failures for a future COPY0 consumer. The existing
+`ensure` and `try_ensure` facades deliberately retain their legacy best-effort
+result for those failures, including recursive Select/Copy materialization;
+contract failures retain their prior error behavior. No selected checked
+consumer exists yet.
+
+Closed evidence:
+
+```text
+successful LocalSSA:
+  one PreparedLocalSsaPostSuccessV1::commit owner
+  exact / StoredUnknown / origin / receiver fallback lanes unchanged
+
+actual commit matrix:
+  Missing, Exact, StoredUnknown, Recv, and FieldBase destination state parity
+
+checked boundary:
+  legacy facade recovers only BlockCreation / InstructionEmission
+  checked future path preserves those typed failures
+
+COPY0 scope:
+  only RematerializedCopy and DominatingFallbackCopy are PhysicalCopy
+  Const/BinOp/Compare/Select remain non-COPY0
+```
+
+Focused evidence:
+
+```text
+cargo test -q --lib post_success
+cargo test -q --lib temporal_witness
+cargo test -q --lib local_statement_parity
+cargo test -q --lib variable_assignment_parity
+cargo test -q --lib if_statement_parity
+cargo test -q --lib return_statement_parity
+cargo check --all-targets
+```
+
+`COPY-UNKNOWN0-G0` is now the sole next row. It freezes the one-owner counts
+and direct-write exclusions before COPY0 may start.
 
 ### `COPY-UNKNOWN0-G0`
 
