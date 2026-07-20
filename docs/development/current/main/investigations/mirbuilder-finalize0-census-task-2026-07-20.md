@@ -1,5 +1,5 @@
 ---
-Status: Implementation task selected
+Status: SCHEMA0 closed; P0 is next
 Date: 2026-07-20
 Scope: classify finalization passes before retiring repair/inference
 Parent: docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md
@@ -76,18 +76,30 @@ retry/fallback routes
 
 ## Required census evidence
 
-### `FINALIZE0-CENSUS0-P0` — in progress
+### `FINALIZE0-CENSUS0-SCHEMA0` — closed
 
 The first read-only inventory artifact is
-`tools/checks/fixtures/mirbuilder_finalize0_pass_inventory_v1.json`. Its
-validator checks 51 explicit pass rows and source anchors, including the
-post-module compiler finish schedule, semantic-refresh stages, and
-contract-refresh children. It deliberately
-records `RepairMissingLoweringFact` and `LegacySemanticInference` as parked
-classes rather than silently treating them as verification. No Rust producer,
-finalization call, or runtime behavior is changed by this artifact.
+`tools/checks/fixtures/mirbuilder_finalize0_pass_inventory_v2.json`. Its
+validator records 66 semantic child-operation rows, 68 explicit source-site
+anchors, and 93 declared production invocations. The measured domain split is:
 
-Schema v2 must record for each operation:
+```text
+semantic_pass = 49
+lifecycle_transition = 14
+diagnostic_observation = 3
+canonical_repair_reachable = 33
+```
+
+The validator rejects an unclassified semantic operation, a semantic class on
+a lifecycle/diagnostic operation, an invalid publication kind, a missing
+route/generation/atomicity/retirement field, a duplicate source identity, a
+missing source occurrence, and an uncovered occurrence of any registered
+operation anchor. It deliberately records `RepairMissingLoweringFact` and
+`LegacySemanticInference` as parked classes rather than silently treating them
+as verification. No Rust producer, finalization call, or runtime behavior is
+changed by this artifact.
+
+Schema v2 records for each operation:
 
 ```text
 operation_domain
@@ -106,16 +118,44 @@ lowering/downstream consumers
 disposition and retirement owner/dependency
 ```
 
-The validator must prove both directions:
+The validator proves both directions for every registered operation anchor:
 
 ```text
 every production source match -> exactly one inventory row
 every inventory source site -> exactly one production source match
 ```
 
-The census must include both `finalize_function_draft` and `finalize_module`
-and the post-module semantic refresh calls. It must not infer ownership from
-function names alone.
+The census includes both `finalize_function_draft` and `finalize_module`, the
+post-module compiler schedule, semantic-refresh stages, and contract-refresh
+children. It does not infer ownership from function names alone.
+
+Origin surfaces are explicit rather than grouped under one ambiguous
+"type/origin snapshot" label:
+
+```text
+semantic lowering origin = value_origin_newbox
+diagnostic origin = value_origin_callers
+post-Builder semantic origin publication = none
+```
+
+Focused acceptance:
+
+```text
+python3 tools/checks/lib/mirbuilder_finalize0_pass_inventory.py
+bash tools/checks/run_row_guard.sh --only mirbuilder-finalize0-pass-inventory
+```
+
+Both commands are green with `behavior_delta=0` and
+`production_connections=0`.
+
+### `FINALIZE0-CENSUS0-P0` — next
+
+P0 now consumes schema v2 and proves the repository-wide production call-site
+and route-reachability counts. In particular, it must replace manually entered
+`production_invocation_count` and `canonical_repair_reachable` assertions with
+measured source/call-graph evidence. It must also prove that every production
+finalization/refresh child belongs to one inventory row, rather than only
+proving the reverse coverage of already registered operation anchors.
 
 ### Census findings — design stop confirmed
 
@@ -164,15 +204,15 @@ repair quarantine and five clarifications: post-publication final verification,
 lifecycle/diagnostic domains, fresh fact generations, all-exit return sealing,
 and identity/freshness-preserving normalization.
 
-The sole next code-facing row is:
+SCHEMA0 is closed. The sole next code-facing row is:
 
 ```text
-FINALIZE0-CENSUS0-SCHEMA0
+FINALIZE0-CENSUS0-P0
 ```
 
-It upgrades the machine-readable inventory and validator. It makes no compiler
-behavior change and is the required executable/artifact step after this
-decision. No second docs-only FINALIZE0 row is permitted.
+It upgrades invocation/reachability claims from explicit inventory assertions
+to measured repository evidence. It makes no compiler behavior change. No
+second docs-only FINALIZE0 row is permitted.
 
 Required SCHEMA0 output includes explicit rows for semantic lowering origin
 `value_origin_newbox`, diagnostic origin `value_origin_callers`, and an exact
