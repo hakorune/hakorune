@@ -1,5 +1,5 @@
 ---
-Status: P0a-S0b INCLUDE0 closed; CONTENTCFG0 decision is next
+Status: P0a-S0b content/include-scope architecture locked; CFGSTREAM0-S0 is next
 Date: 2026-07-20
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -613,9 +613,30 @@ FINALIZE0-CENSUS0-P0a-S0b-INCLUDE0     # closed
   literal item/module-position include instances
   include-chain identity and cycle rejection
 
-FINALIZE0-CENSUS0-P0a-S0b-CONTENTCFG0-D0  # sole next
-  source-level inner cfg/cfg_attr content-gate authority
-  block-local module identity remains separate
+FINALIZE0-CENSUS0-P0a-S0b-CFGSTREAM0-S0   # sole next
+  one source-order cfg/cfg_attr stream decision
+  no eager evaluation after the first excluding row
+
+FINALIZE0-CENSUS0-P0a-S0b-CFGSTREAM0-P0
+FINALIZE0-CENSUS0-P0a-S0b-CFGSTREAM0-I0
+FINALIZE0-CENSUS0-P0a-S0b-CFGSTREAM0-G0
+
+FINALIZE0-CENSUS0-P0a-S0b-CONTENTCFG0-S0
+  root-or-module-edge content-candidate gate vocabulary
+
+FINALIZE0-CENSUS0-P0a-S0b-CONTENTCFG0-R0
+  private parse/classify typestate
+  excluded content exposes no direct items
+
+FINALIZE0-CENSUS0-P0a-S0b-CONTENTCFG0-P0
+FINALIZE0-CENSUS0-P0a-S0b-CONTENTCFG0-I0
+FINALIZE0-CENSUS0-P0a-S0b-CONTENTCFG0-G0
+
+FINALIZE0-CENSUS0-P0a-S0b-INCLUDE-SCOPE0-S0
+FINALIZE0-CENSUS0-P0a-S0b-INCLUDE-SCOPE0-P0
+FINALIZE0-CENSUS0-P0a-S0b-INCLUDE-SCOPE0-I0
+FINALIZE0-CENSUS0-P0a-S0b-INCLUDE-SCOPE0-G0
+  module-local path imports and inherited textual macros are distinct
 
 FINALIZE0-CENSUS0-P0a-S0b-P0
   synthetic workspace/profile/module/include parity
@@ -749,6 +770,334 @@ The root profile still reaches source files with file-level inner `cfg` and
 row therefore selects one content-gate authority before S0b-P0; block-local
 module identity remains a different widening and may not be smuggled into that
 decision.
+
+#### CFGSTREAM0 / CONTENTCFG0 / INCLUDE-SCOPE0 decision lock
+
+The source-order audit selects three separate rows. They must not be collapsed
+into one implementation change:
+
+```text
+CFGSTREAM0:
+  shared ordered cfg/cfg_attr decision semantics
+
+CONTENTCFG0:
+  apply that decision to one root-or-module-edge content candidate
+
+INCLUDE-SCOPE0:
+  prove that an unqualified include! still denotes the builtin macro
+```
+
+This split is required by the observed Rust laws. Inner attributes are
+processed in source order. The first excluding `cfg` removes the attached
+crate/module content and later attributes are not evaluated. An inactive
+`cfg_attr` does not evaluate its nested attributes. Conversely, the complete
+source must still parse before stripping. Reusing the current eager
+all-row evaluator unchanged would reject malformed or unknown rows which rustc
+never reaches.
+
+Primary specification anchors:
+
+- [conditional compilation](https://doc.rust-lang.org/reference/conditional-compilation.html)
+- [inner attributes](https://doc.rust-lang.org/reference/attributes.html#inner-attributes)
+- [attributes on modules](https://doc.rust-lang.org/reference/items/modules.html#attributes-on-modules)
+- [`macro_rules!` scope](https://doc.rust-lang.org/reference/macros-by-example.html#scoping-exporting-and-importing)
+- [ordinary item scopes](https://doc.rust-lang.org/reference/names/scopes.html)
+
+##### `CFGSTREAM0` — sole next code-facing prerequisite
+
+One pure owner decides an ordered attribute stream:
+
+```text
+CfgAttributeStreamDecisionV1
+  rows[]
+  final_state = Included | Excluded | Unknown
+  decisive_row_ordinal?
+```
+
+Each row retains its exact source ordinal/range/syntax and one disposition:
+
+```text
+Evaluated
+TopologyNeutral
+NotReachedAfterExclusion
+```
+
+`cfg_attr` expansion remains nested evidence under its source row; it is not a
+second flat authority. `Unknown` is never converted to false and never guessed
+from a filename, feature spelling, build success, or rustc output. The existing
+outer module/include cfg consumers become thin users of this same stream owner.
+CONTENTCFG0 may not introduce a second predicate engine.
+
+Required fixtures:
+
+```text
+false cfg before malformed/unknown row:
+  Excluded; later row NotReached
+
+malformed/unknown row before false cfg:
+  typed failure / Unknown
+
+inactive cfg_attr with malformed nested cfg:
+  Included; nested attribute not evaluated
+
+active nested cfg_attr:
+  exact recursive decision
+
+empty stream:
+  Included
+```
+
+Task order:
+
+```text
+CFGSTREAM0-S0  pure vocabulary/decision, production consumers = 0
+CFGSTREAM0-P0  source-order and nested-cfg_attr matrix
+CFGSTREAM0-I0  replace the existing eager cfg-row owner once
+CFGSTREAM0-G0  decision owners = 1; eager all-row owners = 0
+```
+
+##### `CONTENTCFG0` — module-content candidate authority
+
+The gate is not owned by a non-root child `ModuleInstance`. Rust removes an
+inline or external module item when its inner `cfg` is false. The gate must
+therefore precede child-instance issuance:
+
+```text
+ModuleContentCandidateIdV1 =
+  Root
+  | ModuleEdge(edge_id)
+
+DeclaredModuleContentGateV1 {
+  candidate_id
+  defining_surface
+  inner_cfg_sites[]
+  cfg_decision
+}
+```
+
+`defining_surface` is bounded evidence, not a semantic module instance:
+
+```text
+SourceFile {
+  workspace_relative_path
+  content_digest
+}
+
+InlineBody {
+  parent_source_observation_id
+  body_range
+}
+```
+
+Outer declaration cfg and inner content cfg remain separate. They have
+different filesystem timing and may not be collapsed into one `Excluded`
+boolean:
+
+```text
+root:
+  root instance = 1
+  root content gate = 1
+  gate Excluded keeps crate identity but exposes zero contents
+
+outer declaration Excluded:
+  content gate = 0
+  path/read/parse = 0
+  child instance = 0
+
+outer declaration Included + inner Excluded:
+  defining source is resolved/read/parsed
+  content gate = 1
+  selected external source path may be recorded
+  child instance = 0
+  active S0a source observation = 0
+  descendant module/include probes = 0
+
+outer declaration Included + inner Included:
+  content gate = 1
+  child instance = 1
+  active source observation = 1
+  direct-item traversal enabled
+
+inner Unknown:
+  typed failure
+  returned partial topology = 0
+```
+
+The central invariant is:
+
+```text
+child_instance_id.is_some()
+  iff outer_cfg == Included
+  and content_cfg == Included
+```
+
+`include!` adds another source occurrence to the already-Included surrounding
+module. It creates no content gate of its own. A top-level inner attribute in
+an included item fragment remains rejected even when its `cfg_attr` condition
+is inactive. An inline or external module declared by that fragment receives
+its own normal module-edge content candidate.
+
+The parser/traversal boundary becomes a private typestate:
+
+```text
+ParsedModuleContentDraftV1
+  -> classify with CfgAttributeStreamDecisionV1
+  -> Included { gate, direct_items }
+     | Excluded { gate }
+```
+
+Only `Included` exposes direct items. This prevents excluded content from
+triggering block-module, include-identity, missing-child, path, or descendant
+validation. It does not admit block-local modules in active content.
+
+Task order:
+
+```text
+CONTENTCFG0-S0
+  candidate/gate/defining-surface vocabulary
+  production consumers = 0
+
+CONTENTCFG0-R0
+  one-level private parse draft
+  eager inline descendant collection = 0
+  active accepted shapes delta = 0
+
+CONTENTCFG0-P0
+  pure gate and synthetic transaction matrix
+
+CONTENTCFG0-I0
+  root/external/inline traversal connection
+  successful topology published only after complete traversal
+
+CONTENTCFG0-G0
+  content gate owners = 1
+  Unknown gates in successful products = 0
+  excluded-content descendant probes = 0
+```
+
+Required fixtures:
+
+```text
+root: no attrs / true / false / Unknown
+external: true / false / Unknown
+inline: true / false / Unknown
+outer false + missing file: no probe
+inner false + syntactically invalid source: parse error
+inner false + missing grandchild: no grandchild probe
+false-before-malformed attr vs malformed-before-false
+inactive vs active nested cfg_attr
+active inner path: typed parked stop
+inner path after excluding cfg: NotReached
+included fragment top-level inner attr: reject
+included fragment inline child inner cfg: normal child gate
+active block-local module: unchanged typed rejection
+```
+
+The exact repository census for the six declared library profiles is:
+
+```text
+file-level inner cfg rows in repository = 17
+file-level inner cfg_attr rows = 0
+file-level inner path rows = 0
+
+reachable rows:
+  host-test-unit-default = 11, all Excluded
+  other five profiles = 0
+```
+
+The eleven reachable files are five resolved-lowering tests, three compiler
+activation tests, two interpreter-legacy tests, and `plugin_hygiene.rs`.
+CONTENTCFG0-P0 must pin this matrix without treating current absence of inner
+`cfg_attr`/`path` as permission to omit their typed laws.
+
+##### `INCLUDE-SCOPE0` — bounded macro-identity correction
+
+The closed INCLUDE0 structure currently has one discovered scope drift. Its
+single `include_macro_ambiguity` boolean conflates two different Rust scopes,
+scans cfg-excluded items, ignores source order, and propagates parent `use`
+imports into external children. In the actual root this makes the wasm-only
+`use wasm_bindgen::prelude::*` poison host child modules.
+
+The replacement has two ephemeral lanes:
+
+```text
+module-local path/import ambiguity:
+  active direct use/rename/glob only
+  order-independent inside the current module
+  reset at every inline/external child module
+
+textual macro_rules include state:
+  source-order
+  active only after its definition
+  inherited into inline/external child modules
+  threaded through same-module included files
+```
+
+Each potentially relevant import/definition is first filtered through the
+shared cfg-stream authority. Excluded rows have no scope effect; Unknown rows
+are typed unresolved. General glob-content resolution, `macro_use`, proc
+macros, trait resolution, and exported-macro resolution remain outside this
+bounded proof.
+
+Task order:
+
+```text
+INCLUDE-SCOPE0-S0  private two-lane scope vocabulary, consumers = 0
+INCLUDE-SCOPE0-P0  cfg/order/module-boundary/include-threading matrix
+INCLUDE-SCOPE0-I0  remove the blanket ambiguity boolean and connect once
+INCLUDE-SCOPE0-G0  scope owners = 1; parent-use child propagation = 0
+```
+
+Required fixtures:
+
+```text
+cfg-excluded glob + same-module include: accepted
+active/Unknown same-module glob: typed unresolved
+parent use glob does not poison external/inline child include
+textual macro definition before child does poison child include
+definition after child does not retroactively poison child
+included-source textual scope returns to following sibling items
+excluded module content performs zero scope scan
+```
+
+The root six-profile S0b-P0 proof remains forbidden until all three rows are
+green. CONTENTCFG0 does not absorb the scope correction, and INCLUDE-SCOPE0
+does not infer content visibility independently.
+
+##### Claims and stop conditions
+
+After the three G0 rows, implementation may claim only:
+
+```text
+cfg/cfg_attr streams are evaluated once in rustc source order
+root and module-edge inner content gates decide instance issuance exactly
+excluded content publishes no active call/item/module/include facts
+unqualified literal include identity uses bounded correct module/textual scope
+the six declared profiles reach no Unknown topology in this bounded surface
+```
+
+It must not claim general item-level cfg projection, general macro expansion,
+block-local module identity, complete Rust name resolution, production direct
+callsite census, FINALIZE0 route reachability, repair quarantine, or CUT0
+readiness.
+
+Stop if any row requires:
+
+1. a second cfg/cfg_attr evaluator;
+2. evaluation after an excluding row;
+3. active facts from excluded raw S0a content;
+4. a child module instance for non-root inner `cfg(false)`;
+5. inner `path` normalization rather than a typed stop;
+6. included-fragment top-level inner attributes;
+7. general glob/`macro_use`/proc-macro resolution;
+8. persistent macro catalogs or filename/name special cases;
+9. block-local module widening;
+10. compiler/runtime/backend behavior changes;
+11. any source/check file reaching 800 lines.
+
+Before CONTENTCFG0-I0, split parser/content-gate and traversal state into
+separate modules. `traversal.rs` is already near the line budget; growing one
+more recursive state machine there is forbidden.
 
 PROFILE0-S0 closed evidence:
 
@@ -1374,7 +1723,12 @@ compiler/runtime/backend behavior changes
 > closed by P0a, while test-only scoped entered/changed mutation-surface
 > observations are closed by P0b. Neither product proves runtime multiplicity,
 > canonical consumer zero, quarantine, or CUT0 readiness. PROFILE0-S0 and the
-> complete CARGO0-S0/M0/P0/G0 chain, MODULE0, and INCLUDE0 are closed; the sole
-> next row is `FINALIZE0-CENSUS0-P0a-S0b-CONTENTCFG0-D0`. It decides only the
-> source-level inner content gate before S0b-P0; block-local module identity,
-> semantic resolution, FINALIZE0 policy, and CUT0 remain forbidden.
+> complete CARGO0-S0/M0/P0/G0 chain, MODULE0, and INCLUDE0 are closed. The
+> continuation is fixed as `CFGSTREAM0 -> CONTENTCFG0 -> INCLUDE-SCOPE0 ->
+> S0b-P0`. `CFGSTREAM0-S0` is the sole next code-facing row and establishes one
+> ordered, short-circuiting cfg/cfg_attr decision owner. CONTENTCFG0 then gates
+> each Root or outer-Included ModuleEdge candidate before non-root module
+> instance issuance. INCLUDE-SCOPE0 separately repairs the discovered
+> module-local-import versus inherited-textual-macro drift. Block-local module
+> identity, general semantic/macro resolution, FINALIZE0 policy, repair
+> quarantine, and CUT0 remain forbidden.
