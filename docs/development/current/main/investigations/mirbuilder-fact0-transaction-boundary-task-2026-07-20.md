@@ -1065,7 +1065,25 @@ new persistent ValueId/type/origin maps
 fallback, retry, whole-Builder rollback, or a source/check file >= 800 lines
 ```
 
-### Stop conditions
+### `FACT0-TX0-FASTMEM-FIELDLOAD0-S0` — closed (2026-07-20)
+
+`src/mir/builder/fastmem/field_load.rs` now owns one private, Builder-free,
+non-Clone `PreparedFastMemFieldLoadLifecycleV1`. It snapshots only:
+
+```text
+FastMem load-site reservation descriptor
+declared type reservation: absent | stored MirType
+missing-declared completion: inactive | Integer compatibility
+field-result origin completion: absent | publish class
+```
+
+The disconnected payload writes no type, site, origin, metadata, instruction,
+or cache. Its tests retain declared exact, declared `Unknown`, and
+missing-declared cases so `Unknown` is not accidentally promoted into an exact
+fact law. The existing production branch remains untouched. M0 is the sole
+next row.
+
+### `FASTMEM-RECEIPT0` historical stop conditions
 
 Stop this row if it requires any of the following:
 
