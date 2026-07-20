@@ -157,7 +157,7 @@ fallback.
 
 ## Row contracts
 
-### `COPY-UNKNOWN0-S0`
+### `COPY-UNKNOWN0-S0` — closed (2026-07-20)
 
 ```text
 production behavior delta = 0
@@ -168,6 +168,37 @@ type/origin/cache writes = 0
 
 Implement the pure vocabulary and decision tests only. It must not inspect
 source syntax, runtime tags, final metadata, or environment configuration.
+
+Closed evidence:
+
+```text
+new owner:
+  src/mir/builder/ssa/local/post_success.rs
+
+source state:
+  Missing | StoredUnknown | Exact(MirType), including Exact(Void)
+
+receiver law:
+  Missing + owner + Recv -> named Box(owner) publication decision
+  StoredUnknown + owner + Recv -> named suppression decision
+  FieldBase -> no receiver fallback
+
+materialization vocabulary:
+  physical Copy distinct from Const/BinOp/Compare/Select rematerialization
+
+production connection / Builder / fact-map / origin / cache writes:
+  0
+
+focused proof:
+  cargo test -q --lib post_success
+
+behavior-parity proof:
+  cargo test -q --lib local_statement_parity
+```
+
+`COPY-UNKNOWN0-M0` is now the sole next row. It must inventory the actual six
+materialization outcomes and extract the checked-core boundary without wiring
+this prepared product into production.
 
 ### `COPY-UNKNOWN0-M0`
 

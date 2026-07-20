@@ -2,6 +2,8 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::{MirInstruction, ValueId};
 
 mod finalize;
+#[allow(dead_code)] // COPY-UNKNOWN0-S0 defines the disconnected decision owner.
+mod post_success;
 pub use finalize::{finalize_args, finalize_branch_cond, finalize_compare};
 
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Debug)]
