@@ -1,5 +1,5 @@
 ---
-Status: Candidate A-prime selected; P0a-S0a is next
+Status: P0a-S0a closed; P0a-S0b is next
 Date: 2026-07-20
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -123,7 +123,7 @@ direct_call_sites
 unresolved_call_sites
 ```
 
-Direct-callsite identity:
+Final neutral callsite fields after Cargo topology and conservative resolution:
 
 ```text
 path
@@ -136,6 +136,12 @@ resolved_callee_def_path | unresolved_reason
 cfg_expression
 active_profiles
 ```
+
+S0a does not publish semantic module/item def-paths. Its single-file rows use
+`module_syntax_path`, `enclosing_item_syntax_path`, and report-local syntax
+IDs. S0b/S0c may add semantic def-path projections only from their Cargo graph
+and supported resolver evidence. Byte range and normalized syntax are
+diagnostic observations, not cross-reorder stable source identity.
 
 Substring ordinal may remain diagnostic-only. It is not identity authority.
 The extractor performs no FINALIZE0 classification.
@@ -406,7 +412,7 @@ equivalent guard proof.
 
 ## Task order
 
-### `FINALIZE0-CENSUS0-P0a-S0a` — sole next code-facing row
+### `FINALIZE0-CENSUS0-P0a-S0a` — closed
 
 ```text
 production behavior delta = 0
@@ -419,7 +425,53 @@ and parser-backed single-file item/direct-call extraction. It must distinguish
 emit typed unresolved rows. No Cargo module graph or route policy is claimed
 yet.
 
-### `FINALIZE0-CENSUS0-P0a-S0b`
+Closed evidence:
+
+```text
+standalone crate:
+  tools/checks/rust_source_topology
+
+schema:
+  rust-source-topology-v1
+
+single-file fixture:
+  items = 13
+  direct calls = 13
+  typed unresolved calls = 13
+  typed opaque syntax sites = 4
+
+real-file observation:
+  src/mir/compiler/mod.rs
+  items = 52
+  direct calls = 150
+  typed unresolved calls = 150
+  typed opaque syntax sites = 27
+```
+
+S0a deliberately names module/item values as syntax paths, not semantic Rust
+def-paths. It preserves direct and inherited `cfg`/`cfg_attr` syntax without
+evaluating inclusion. Half-open byte ranges round-trip to exact source slices;
+macro invocation, `include!`, ordinary external `mod`, and `#[path] mod` are
+typed opaque rows rather than false empty call inventories. Parse failure is a
+typed nonzero tool failure. Deterministic fixture rerun, call-kind separation,
+closure/async lexical context, Unicode range roundtrip, and all files below
+800 lines are green.
+
+Commands:
+
+```bash
+cargo fmt --manifest-path tools/checks/rust_source_topology/Cargo.toml -- --check
+cargo test --manifest-path tools/checks/rust_source_topology/Cargo.toml
+cargo run --quiet --manifest-path tools/checks/rust_source_topology/Cargo.toml -- \
+  single-file src/mir/compiler/mod.rs \
+  --module-syntax-path hakorune::mir::compiler
+```
+
+S0a does not claim Cargo target/module inclusion, active cfg profiles,
+production callsites, semantic resolution, repository completeness, route
+reachability, facade coverage, runtime observation, or FINALIZE0 policy.
+
+### `FINALIZE0-CENSUS0-P0a-S0b` — sole next code-facing row
 
 Add Cargo target/module topology and exact build/cfg profile evaluation.
 Inline cfg(test), path modules, and supported include/module forms are covered.
@@ -589,4 +641,4 @@ compiler/runtime/backend behavior changes
 > closed by P0a, while test-only scoped entered/changed mutation-surface
 > observations are closed by P0b. Neither product proves runtime multiplicity,
 > canonical consumer zero, quarantine, or CUT0 readiness. The sole next
-> code-facing row is `FINALIZE0-CENSUS0-P0a-S0a`.
+> code-facing row is `FINALIZE0-CENSUS0-P0a-S0b`.
