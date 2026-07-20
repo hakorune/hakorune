@@ -2,9 +2,11 @@
 
 use crate::ast::BinaryOperator;
 use crate::mir::resolved_value_profile::product::TrivialRepresentationV1;
-use crate::mir::{BinaryOp, CompareOp, MirInstruction, MirType, ValueId};
+use crate::mir::{BinaryOp, CompareOp, MirInstruction, ValueId};
 
 use super::super::super::MirBuilder;
+
+pub(super) use super::operation_type::exact_type_for_representation as mir_type;
 
 pub(super) fn emit_binary(
     builder: &mut MirBuilder,
@@ -42,16 +44,6 @@ pub(super) fn emit_binary(
         .value_types
         .insert(dst, mir_type(representation));
     Ok(dst)
-}
-
-pub(super) const fn mir_type(representation: TrivialRepresentationV1) -> MirType {
-    match representation {
-        TrivialRepresentationV1::InlineI64 => MirType::Integer,
-        TrivialRepresentationV1::InlineBool => MirType::Bool,
-        TrivialRepresentationV1::InlineF64 => MirType::Float,
-        TrivialRepresentationV1::ExplicitVoidValue => MirType::Void,
-        TrivialRepresentationV1::NullSentinel => MirType::Void,
-    }
 }
 
 fn arithmetic(dst: ValueId, op: BinaryOp, lhs: ValueId, rhs: ValueId) -> MirInstruction {

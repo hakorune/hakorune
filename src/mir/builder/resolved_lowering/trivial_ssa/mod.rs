@@ -5,6 +5,7 @@ mod direct_call;
 mod identity;
 mod lowerer;
 mod operation;
+mod operation_type;
 mod parameter_entry;
 
 pub(super) use callable_abi::{

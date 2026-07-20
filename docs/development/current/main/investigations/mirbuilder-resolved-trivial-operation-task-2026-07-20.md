@@ -51,6 +51,35 @@ RESOLVED-TRIVIAL-OP0-S0
 This is an EXACT0 producer cutover. It neither widens resolved-trivial
 grammar nor treats a raw operator or generic compare path as equivalent.
 
+### `RESOLVED-TRIVIAL-OP0-S0` — closed (2026-07-20)
+
+One private, disconnected `operation_type.rs` product now owns the exact
+`TrivialRepresentationV1 -> MirType` projection and prepares the existing
+`TypeFactDecisionV1`. It is intentionally not connected to the operation
+emitter yet: no Builder, ValueId, MIR instruction, `TypeContext`, origin,
+metadata, cache, or commit consumer was added.
+
+The former `operation::mir_type` is now a compatibility re-export of that one
+projection, so the existing direct writer and direct-call route retain exactly
+their prior behavior while representation mapping has one physical owner.
+
+Focused evidence:
+
+```text
+operation_type tests:
+  all five representations
+  Missing / Unknown publication
+  Void idempotence for explicit Void and Null
+  concrete conflict rejection
+
+cargo check --all-targets = green
+```
+
+`RESOLVED-TRIVIAL-OP0-M0` is now the sole next row. It must inventory the
+actual callers, receipt ordering, destination freshness, and all pre-I0
+representation/instruction pairs before the new decision receives one commit
+consumer.
+
 ## Authority and transaction law
 
 S0 introduces one private prepared product adjacent to the existing operation
