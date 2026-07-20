@@ -1,5 +1,5 @@
 ---
-Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0/S0 are closed; PHI-SPLIT0-REMATFACT0-M0 is next
+Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0/S0/M0 are closed; FINALIZE0-FACTSESSION0-D0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -3008,3 +3008,51 @@ lookup, foreign generation rejection, one reservation per candidate destination,
 and source/node/destination co-sealing. `REMATFACT0-M0` is next: it must census
 every direct physical producer entry for all P0 rematerialization families and
 may not connect this vocabulary to Const or any other producer yet.
+
+#### REMATFACT0-M0 closeout — no issuer is admissible
+
+The direct production census found receipt coverage equal to **zero** for every
+P0 rematerialization family. The P0 candidate admits `Const`, `Copy`, `BinOp`,
+`Compare`, `UnaryOp`, `Select`, and pure substring Call by instruction shape,
+but its schedule retains neither a producer identity nor a receipt.
+
+`Const` is not an exception. At least these independent production families
+physically create it: canonical `emit_exact_const`, IntegerBox literal fast
+path, LocalSSA rematerialization, two BlockSchedule rematerializers, raw
+CorePlan effect emission, JoinIR normalization, and direct-`MirFunction`
+function-emission helpers. The shared Builder instruction sink covers only a
+subset. JSON/JoinIR/direct-MIR/import constructors are separate unreceipted
+routes and must be rejected structurally rather than silently treated as
+covered. Canonical Compare likewise has direct noncanonical producers, while
+Copy, BinOp, UnaryOp, Select, and substring have broader unresolved producer
+sets.
+
+Instruction spans and `(block, instruction_index)` are positional and mutable
+under rewrite/rematerialization, so neither may mint
+`ProducerDefinitionIdentityV1`. A later MIR scan, a hash reconstructed from
+MIR, a source name, caller location, or `next_value_id` is equally forbidden.
+The existing `recipe_fingerprint` placeholder must therefore be replaced by an
+opaque producer-success token minted by the future successful-emission
+transaction, not interpreted as a later-computed fingerprint.
+
+The prerequisite is now explicit:
+
+```text
+FINALIZE0-FACTSESSION0-D0
+  select the one function-local fact-session lifecycle
+  that mints FunctionFactGenerationV1 once, owns the open ledger,
+  seals/moves it with the completed draft, and discards it on failure/reuse
+
+-> FACTSESSION0-S0/P0/I0/G0
+   before every REMATFACT receipt issuer or projection consumer
+
+-> REMATFACT0-P0
+-> a separately selected Const route/issuer closure
+-> REMATFACT0-I0/G0
+```
+
+No `Const` I0 is admitted now. In particular, CorePlan's current
+`Null -> Unknown` compatibility prewrite cannot be combined with a Const
+receipt issuer whose exact physical representation is `Void`. That is a
+separate compatibility owner, not a receipt fallback. The module transaction,
+unused-Phi deletion, JoinIR caller, and CUT0 remain disconnected.
