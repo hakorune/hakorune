@@ -8,7 +8,8 @@ use hakorune_mir_builder::lowering_facts::{
     PreparedTypeFactPublicationV1, TypeFactDecisionErrorV1, TypeFactDecisionV1,
 };
 
-use crate::mir::MirType;
+use crate::mir::builder::type_context::TypeContext;
+use crate::mir::{MirType, ValueId};
 
 /// Prepared Bool fact for a future successfully emitted physical Compare.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -39,6 +40,13 @@ impl PreparedCanonicalCompareBoolTypeV1 {
         let publication = TypeFactDecisionV1::prepare(existing_destination, Some(&MirType::Bool))
             .map_err(CanonicalCompareBoolTypeErrorV1::FactDecision)?;
         Ok(Self { publication })
+    }
+
+    /// Commits only a Bool fact prepared before a checked Compare receipt.
+    pub(super) fn commit(self, destination: ValueId, type_ctx: &mut TypeContext) {
+        if let PreparedTypeFactPublicationV1::Publish(ty) = self.publication {
+            type_ctx.set_type(destination, ty);
+        }
     }
 
     #[cfg(test)]
