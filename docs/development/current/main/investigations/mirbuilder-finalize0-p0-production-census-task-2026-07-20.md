@@ -1,5 +1,5 @@
 ---
-Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0 are closed; PHI-SPLIT0-P0 is next
+Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT are closed; PHI-SPLIT0-MODULETX0-S0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -2728,3 +2728,139 @@ whole-function repair callers remain unchanged. The sole next frontier is
 `FINALIZE0-PHI-SPLIT0-I0-SELECT`: select a module-owned transaction only after
 its full artifact/fact/freshness closure is designed. CUT0 and all direct
 caller conversions remain forbidden.
+
+### I0-SELECT decision lock — Candidate M-prime
+
+Candidate M-prime is selected as the **only eventual production integration**.
+No function-only replacement and no direct-live repair is admitted.
+
+```text
+completed function drafts
+-> one unpublished module-completion candidate
+-> all candidate PHI repairs exactly once
+-> fact/session closure
+-> metadata snapshots and derived artifacts
+-> post-publication coherence verification
+-> one lifecycle commit
+```
+
+The existing `PreparedLegacyPhiRepairCandidateV1` remains the private
+function-local engine. It has no live commit API. The eventual
+`PreparedModuleCompletionCandidateV1` must own the complete candidate module,
+every function that the batch can repair, candidate transient fact generation,
+candidate diagnostic-origin observations, positional/site-indexed artifacts,
+derived-artifact invalidation, and final verification input. It is non-Clone
+and single-use. A one-function commit API is forbidden.
+
+#### One repair position, not two
+
+The current module lifecycle is stale by construction:
+
+```text
+transient type snapshot
+-> first whole-function repair
+-> module derived refresh
+-> second all-functions repair
+```
+
+M-prime replaces both module repair calls only when one batch contains every
+function-producing completion output, runs before every function metadata
+snapshot and module-derived refresh, and no later pass mutates MIR before the
+post-publication verifier. `condition_fn` is currently produced after the
+first function insertion; it must either become a pre-batch draft or retain a
+separate explicitly excluded completion law. The first I0 must not simply
+replace the early call while retaining the late all-functions repair.
+
+The intended final order is:
+
+```text
+physical completion producers
+-> existing transient normalization / TypePipeline / Call-Await / return work
+   // retained legacy authority; no retirement claim here
+-> assemble all pending module function drafts
+-> sorted candidate PHI preflight and repair batch
+-> strict edge verification for every repaired function
+-> fresh-rematerialized-value fact closure
+-> function metadata snapshots
+-> module aggregation
+-> declaration and derived-artifact publication
+-> final published-module coherence verification
+-> lifecycle-only context close and one external commit
+```
+
+JoinIR is excluded. Its apply stage performs live block insertion, repair,
+boundary-copy insertion, and RewriteContext mutation in one currently
+non-atomic chain; it needs a separate `JoinIrApplyCandidateV1` row and cannot
+borrow the module-completion transaction.
+
+#### Rematerialized fact prerequisite
+
+M-prime does **not** authorize the proposed fresh-value disposition projection
+yet. Current `TypeContext.value_types` is an unbranded mutable observation,
+not a source-definition sealed receipt. `value_kinds`, `value_origin_newbox`,
+string/map/record facts, final metadata, `TypePropagationPipeline`, and
+`metadata::propagate` cannot supply this authority. In particular, generic
+BinOp, UnaryOp, Select, Copy, and substring Call lack retained producer
+receipts. P0 correctly remains fact-free.
+
+`REMATFACT0-D0` therefore precedes every production I0. Its only acceptable
+enabling shape is a producer-time, function-generation-branded exact type
+receipt plus a non-Clone, candidate-local projection that co-seals the source
+receipt, verified rematerialization node, and fresh destination after physical
+candidate emission. It may publish only an exact type into the candidate fact
+session; Missing and Unknown publish nothing, and kind/origin/literal/map/
+record transfer are separate parked owners. This is a temporary legacy
+quarantine, not a second persistent ValueId map or an inference engine.
+
+#### Fixed task order
+
+```text
+FINALIZE0-PHI-SPLIT0-I0-SELECT
+  Candidate M-prime decision lock
+  code delta = 0
+
+-> FINALIZE0-PHI-SPLIT0-MODULETX0-S0
+   private module-completion candidate vocabulary and owned-state boundary
+   production consumers = 0
+
+-> FINALIZE0-PHI-SPLIT0-REMATFACT0-D0
+   select producer-receipt and candidate-fact-session authority
+   code delta = 0
+
+-> FINALIZE0-PHI-SPLIT0-REMATFACT0-S0/P0/I0/G0
+   close fresh exact-type projection before any module repair connection
+
+-> FINALIZE0-PHI-SPLIT0-MODULETX0-P0
+   batch success/failure/freshness proof over every owned candidate surface
+
+-> FINALIZE0-PHI-SPLIT0-I0
+   one module-completion batch connection only; absorb both legacy module
+   repair calls or reject before commit
+
+-> FINALIZE0-PHI-SPLIT0-MODULE-G0
+   module repair batch consumers = 1
+   direct live repair consumers = 0
+   unused-Phi deletion consumers = 0
+
+-> MODULE-FINALIZE-VERIFY-CUT0
+```
+
+#### Required proof and stop law
+
+`MODULETX0-S0` creates no production candidate, no Builder snapshot/restore,
+no fact write, no metadata snapshot, and no repair consumer. `REMATFACT0-D0`
+stops if it needs source/type re-inference, raw map observation as a receipt,
+final metadata, type pipeline, name/runtime-tag recovery, Unknown copying,
+origin/kind copying, `metadata::propagate`, or a persistent ValueId fact map.
+
+`MODULETX0-P0` must prove that a failure in any function candidate, candidate
+fact projection, metadata snapshot, derived refresh, or final verifier leaves
+live functions, six transient TypeContext maps, caller-origin observations,
+module metadata, derived artifacts, spans, allocator state, and lifecycle
+close/commit unchanged. It does not claim whole-Builder rollback or compiler
+reuse until FACTSESSION0 / FunctionSession owns those laws.
+
+Unused-Phi deletion stays disconnected. The P0 fixture closure is not real
+FunctionMetadata coverage. The module I0 stops rather than deleting any unused
+Phi until exact positional and ValueId artifact closure is independently
+proven.
