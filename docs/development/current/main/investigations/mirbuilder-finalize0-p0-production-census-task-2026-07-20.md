@@ -1,5 +1,5 @@
 ---
-Status: P0a-S0b CARGO0-S0 closed; CARGO0-M0 is next
+Status: P0a-S0b CARGO0-M0 closed; CARGO0-P0 is next
 Date: 2026-07-20
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -594,11 +594,11 @@ FINALIZE0-CENSUS0-P0a-S0b-CARGO0-S0    # closed
   pure declared-unit package/target/feature seal
   cargo_metadata process consumers = 0
 
-FINALIZE0-CENSUS0-P0a-S0b-CARGO0-M0    # sole next
+FINALIZE0-CENSUS0-P0a-S0b-CARGO0-M0    # closed
   cargo_metadata locked/offline process adapter
   sealed rustc cfg probe and Cargo-config fingerprints
 
-FINALIZE0-CENSUS0-P0a-S0b-CARGO0-P0
+FINALIZE0-CENSUS0-P0a-S0b-CARGO0-P0    # sole next
   dependency-free synthetic workspace proof
   root six-profile declared-unit observation
 
@@ -755,6 +755,37 @@ workspace-relative identity, opaque-ID non-publication, missing/foreign
 package/target rejection, exact `default` retention, expected-feature drift,
 requested/required feature failure, no-default success, asymmetric LLVM alias
 direction, required-feature success, and unit-test-library compile mode.
+
+CARGO0-M0 closed evidence:
+
+```text
+cargo_metadata process owners = 1
+metadata flags = --locked + --offline + exact --filter-platform
+requested feature spelling = exact package-qualified feature
+metadata ambient cfg environment = sanitized
+
+rustc cfg probe owners = 1
+rustc target / test / debug / panic / feature argv = explicit
+rustc cfg/version digests = exact observation
+
+workspace input fingerprint owners = 1
+manifest / Cargo.lock / repository config = exact digest
+ancestor / Cargo-home configs = enumerated digest
+cfg-affecting repository/external rustflags = reject
+
+cargo executable drift acceptance = 0
+rustc executable drift acceptance = 0
+workspace input drift acceptance = 0
+serialized absolute path / opaque PackageId = 0
+actual Cargo build or unit-graph claims = 0
+module/include/FINALIZE0 consumers = 0
+```
+
+Focused M0 fixtures run the root default metadata path twice and require
+byte-identical durable evidence, verify host release, wasm32, and unit-test
+rustc cfg probes, accept the repository's linker-only rustflags, and reject a
+synthetic `--cfg` injection. The first-profile process remains disconnected
+from the project CLI and from FINALIZE0 policy.
 
 Focused command:
 
@@ -949,5 +980,5 @@ compiler/runtime/backend behavior changes
 > closed by P0a, while test-only scoped entered/changed mutation-surface
 > observations are closed by P0b. Neither product proves runtime multiplicity,
 > canonical consumer zero, quarantine, or CUT0 readiness. PROFILE0-S0 and
-> CARGO0-S0 are closed; the sole next code-facing row is
-> `FINALIZE0-CENSUS0-P0a-S0b-CARGO0-M0`.
+> CARGO0-S0/M0 are closed; the sole next code-facing row is
+> `FINALIZE0-CENSUS0-P0a-S0b-CARGO0-P0`.

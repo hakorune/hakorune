@@ -102,7 +102,24 @@ This seal proves declarations and one metadata-run feature closure only. It
 does not prove that Cargo compiled the target, that a build succeeded, or that
 profile codegen, module inclusion, call resolution, or FINALIZE0 reachability
 is active. The cargo_metadata process adapter, sealed rustc cfg probe, and
-Cargo/config fingerprints remain CARGO0-M0 work.
+Cargo/config fingerprints are now owned by the disconnected CARGO0-M0 layer.
+
+CARGO0-M0 runs `cargo metadata` with exact manifest, target filter,
+package-qualified requested features, `--locked`, and `--offline`. It removes
+cfg-affecting ambient Cargo/Rust flags and records a Cargo version digest. A
+separate direct `rustc --print cfg` probe receives explicit target, test mode,
+debug-assertion, panic, and Cargo-resolved feature arguments; its output and
+rustc version are digested independently. Neither process is called a Cargo
+build or actual unit-graph proof.
+
+Manifest, Cargo.lock, repository Cargo config, and every discovered ancestor
+or Cargo-home config are read and fingerprinted. Repository/external
+rustflags are admitted only when the bounded classifier proves them
+linker-only; cfg/profile/target-affecting settings reject. Cargo/rustc versions
+and workspace fingerprints are checked before and after the observation so a
+drifting tool or input cannot produce a sealed result. The final process
+evidence serializes only workspace-relative paths and digests, never neutral
+snapshot absolute paths or opaque Cargo PackageIds.
 
 ## Stop lines
 
@@ -115,7 +132,7 @@ no guessed resolved def-path
 no claim that syntax paths are Rust semantic def-paths
 no active/excluded cfg or production classification
 no Cargo/profile CLI consumer before CARGO0
-no cargo_metadata process consumer before CARGO0-M0
+no project CLI/report publication before CARGO0-G0
 no root workspace dependency change
 no source/check file at or above 800 lines
 ```
