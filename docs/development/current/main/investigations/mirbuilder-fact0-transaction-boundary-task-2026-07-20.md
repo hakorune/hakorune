@@ -1561,6 +1561,60 @@ fallback/retry after selected Call failure
 a source/check file at or above 800 lines
 ```
 
+### `FIELDSTORE-OBSERVE0-D0` — selected (2026-07-20)
+
+Three read-only audits selected the smallest remaining receipt seam: the
+ordinary, non-FastMem `MirInstruction::FieldSet` access-site metadata.  The
+current common field-assignment entry appends its `store` access site before
+route selection; an ordinary no-current-block failure can therefore leave a
+site without a physical FieldSet.  The field-origin maps already publish only
+after the physical route succeeds.
+
+The first profile is deliberately narrow:
+
+```text
+region = None
+is_known_weak = false
+declared_field_contract_identity = None
+physical instruction = ordinary FieldSet
+```
+
+`FIELDSTORE-OBSERVE0-S0` is the sole next code-facing row.  It will add one
+private Builder-free prepared ordinary-store access-site descriptor, including
+the existing source span and immutable site inputs, with zero production
+consumers.  M0/P0 must freeze the ordinary success/failure timing, then I0 may
+append exactly one site only after the successful FieldSet receipt.
+
+Excluded and parked:
+
+```text
+WeakFieldWrite
+typed-array contract claims
+FastMem FieldStore
+ordinary FieldGet
+index-store route fan-out
+generic Array Call observation
+field-origin/type policy
+CorePlan and finalization
+```
+
+Stop for a design consultation if the ordinary profile cannot retain its exact
+site/span without changing a listed excluded owner, adding a persistent
+ValueId map, reusing a generic receipt API, or adding fallback/retry.
+
+### `FIELDSTORE-OBSERVE0-S0` — closed (2026-07-20)
+
+`fields/store_post_success.rs` now owns one disconnected non-Clone-free
+Builder-free descriptor for the selected ordinary FieldSet site.  It retains
+only the already-resolved source span, base ValueId, optional receiver box
+name, and field spelling.  It has no metadata append, instruction, route,
+type/origin fact, contract, weak-write, FastMem, index, or commit capability.
+
+Focused descriptor tests cover exact resolved inputs and an absent receiver
+identity without synthesizing one; `cargo check --all-targets` is green.  M0
+is now the sole next row and must prove the actual ordinary FieldSet failure
+residual before any production consumer is connected.
+
 ### `FASTMEM-RECEIPT0` historical stop conditions
 
 Stop this row if it requires any of the following:

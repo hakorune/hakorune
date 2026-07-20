@@ -4,6 +4,7 @@ use crate::ast::ASTNode;
 use crate::mir::instruction::FastMemRegionId;
 
 mod post_success;
+mod store_post_success;
 
 impl super::MirBuilder {
     /// Build field access: object.field
