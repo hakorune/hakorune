@@ -103,6 +103,7 @@ pub struct CfgEvaluationEnvironmentV1 {
     pub debug_assertions: bool,
     pub target_features: BTreeSet<String>,
     pub target_features_sealed: bool,
+    pub target_predicates_sealed: bool,
     pub known_flags: BTreeMap<String, bool>,
     pub known_key_values: BTreeMap<String, BTreeSet<String>>,
 }
@@ -122,6 +123,7 @@ impl CfgEvaluationEnvironmentV1 {
             debug_assertions: profile.debug_assertions,
             target_features: BTreeSet::new(),
             target_features_sealed: false,
+            target_predicates_sealed: false,
             known_flags: BTreeMap::new(),
             known_key_values: BTreeMap::new(),
         }

@@ -1,0 +1,18 @@
+[workspace]
+
+[package]
+name = "module0-fixture"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = ["base"]
+base = []
+vm-reference = []
+llvm-harness = []
+llvm = ["llvm-harness"]
+
+[lib]
+name = "module0_fixture"
+path = "roots/custom_root.rs"
+doctest = false

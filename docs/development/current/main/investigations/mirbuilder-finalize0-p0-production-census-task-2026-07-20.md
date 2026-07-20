@@ -1,5 +1,5 @@
 ---
-Status: P0a-S0b CARGO0-G0 closed; MODULE0 is next
+Status: P0a-S0b MODULE0 closed; INCLUDE0 is next
 Date: 2026-07-20
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -605,11 +605,11 @@ FINALIZE0-CENSUS0-P0a-S0b-CARGO0-P0    # closed
 FINALIZE0-CENSUS0-P0a-S0b-CARGO0-G0    # closed
   exact evidence and stop-line guards
 
-FINALIZE0-CENSUS0-P0a-S0b-MODULE0      # sole next
+FINALIZE0-CENSUS0-P0a-S0b-MODULE0      # closed
   inline/ordinary/literal-path module instances
   profile-gated traversal
 
-FINALIZE0-CENSUS0-P0a-S0b-INCLUDE0
+FINALIZE0-CENSUS0-P0a-S0b-INCLUDE0     # sole next
   literal item/module-position include instances
   include-chain identity and cycle rejection
 
@@ -1017,6 +1017,49 @@ root workspace dependency or compiler behavior change
 source/check file >= 800 lines
 ```
 
+MODULE0 closed evidence:
+
+```text
+durable topology owners = 1
+module declaration parser owners = 1
+sealed CARGO0 cfg-environment owners = 1
+external path-resolution owners = 1
+S0a observation calls = 1
+
+focused fixtures = 7
+fixture profiles = 6
+
+custom Cargo root = exact physical-parent ownership
+ordinary x.rs / x/mod.rs = exact relative ownership
+inline / path-inline = exact child-directory ownership
+path-loaded external child = mod.rs-equivalent sibling ownership
+raw identifier spelling / semantic segment = separate
+
+Excluded child probes = 0
+Unknown child acceptance = 0
+ancestor canonical cycles = rejected
+sibling same-file instances = preserved independently
+workspace lexical/canonical escape = rejected
+partial graph publication on error = 0
+
+project CLI consumers = 0
+include expansion consumers = 0
+semantic resolution / FINALIZE0 policy consumers = 0
+compiler/runtime/backend behavior delta = 0
+```
+
+The first profile explicitly stops on reachable source-level inner topology
+attributes and block-local modules. Root source files contain examples of the
+former, so S0b-P0 may not silently count the whole repository until a separate
+content-gate widening row closes them. MODULE0 does not infer either surface.
+
+Commands:
+
+```bash
+cargo test --manifest-path tools/checks/rust_source_topology/Cargo.toml
+tools/checks/run_row_guard.sh --only rust-source-topology-module-traversal
+```
+
 Every implementation file is split by responsibility before reaching 800
 lines. `extract.rs` receives no S0b traversal policy.
 
@@ -1203,5 +1246,5 @@ compiler/runtime/backend behavior changes
 > closed by P0a, while test-only scoped entered/changed mutation-surface
 > observations are closed by P0b. Neither product proves runtime multiplicity,
 > canonical consumer zero, quarantine, or CUT0 readiness. PROFILE0-S0 and the
-> complete CARGO0-S0/M0/P0/G0 chain are closed; the sole next code-facing row
-> is `FINALIZE0-CENSUS0-P0a-S0b-MODULE0`.
+> complete CARGO0-S0/M0/P0/G0 chain and MODULE0 are closed; the sole next
+> code-facing row is `FINALIZE0-CENSUS0-P0a-S0b-INCLUDE0`.

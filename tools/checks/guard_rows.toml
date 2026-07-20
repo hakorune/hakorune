@@ -129,6 +129,12 @@ profiles = ["pilot"]
 cmd = ["tools/checks/lib/rust_source_topology_cargo_evidence_guard.py", "."]
 
 [[rows]]
+id = "rust-source-topology-module-traversal"
+label = "FINALIZE0 MODULE0 disconnected traversal guard"
+profiles = ["pilot"]
+cmd = ["tools/checks/lib/rust_source_topology_module_traversal_guard.py", "."]
+
+[[rows]]
 id = "mirbuilder-type-fact-partition"
 label = "FACT0 exact-fact producer partition guard"
 profiles = ["pilot"]

@@ -1,4 +1,4 @@
-use cfg_expr::{targets::get_builtin_target_by_triple, Expression, Predicate};
+use cfg_expr::{targets::get_builtin_target_by_triple, Expression, Predicate, TargetPredicate};
 use quote::ToTokens;
 use syn::parse::Parser;
 use syn::punctuated::Punctuated;
@@ -149,6 +149,9 @@ fn eval_predicate(
     unknown: &mut Vec<String>,
 ) -> Option<bool> {
     match predicate {
+        Predicate::Target(target_predicate) if environment.target_predicates_sealed => {
+            Some(matches_sealed_target(target_predicate, environment))
+        }
         Predicate::Target(target_predicate) => Some(target_predicate.matches(target)),
         Predicate::Test => Some(environment.test_cfg),
         Predicate::DebugAssertions => Some(environment.debug_assertions),
@@ -175,6 +178,41 @@ fn eval_predicate(
                 None
             }
         },
+    }
+}
+
+fn matches_sealed_target(
+    predicate: &TargetPredicate,
+    environment: &CfgEvaluationEnvironmentV1,
+) -> bool {
+    let has_value = |key: &str, value: &str| {
+        environment
+            .known_key_values
+            .get(key)
+            .is_some_and(|values| values.contains(value))
+    };
+    match predicate {
+        TargetPredicate::Abi(value) => has_value("target_abi", value.as_str()),
+        TargetPredicate::Arch(value) => has_value("target_arch", value.as_str()),
+        TargetPredicate::Endian(value) => has_value(
+            "target_endian",
+            match value {
+                cfg_expr::targets::Endian::big => "big",
+                cfg_expr::targets::Endian::little => "little",
+            },
+        ),
+        TargetPredicate::Env(value) => has_value("target_env", value.as_str()),
+        TargetPredicate::Family(value) => {
+            has_value("target_family", value.as_str())
+                || environment.known_flags.get(value.as_str()) == Some(&true)
+        }
+        TargetPredicate::HasAtomic(value) => has_value("target_has_atomic", &value.to_string()),
+        TargetPredicate::Os(value) => has_value("target_os", value.as_str()),
+        TargetPredicate::Panic(value) => has_value("panic", value.as_str()),
+        TargetPredicate::PointerWidth(value) => {
+            has_value("target_pointer_width", &value.to_string())
+        }
+        TargetPredicate::Vendor(value) => has_value("target_vendor", value.as_str()),
     }
 }
 

@@ -129,6 +129,40 @@ byte-identical durable evidence with no absolute workspace path. These are
 evidence tests only. CARGO0-G0 freezes this disconnected evidence boundary;
 the project report/CLI remains disconnected until the full S0b-G0.
 
+## Disconnected explicit-module traversal
+
+MODULE0 consumes one sealed CARGO0 process-evidence row plus its exact
+workspace capability and emits a separate `DeclaredModuleTopologyV1`.
+
+```text
+sealed Cargo package / target / features / rustc cfg
+  -> explicit ItemMod declarations
+  -> cfg gate before filesystem access
+  -> inline / ordinary / literal-path module instances
+  -> one S0a observation per loaded source occurrence
+```
+
+The traversal follows rustc's bounded directory ownership law. A custom Cargo
+root starts at its physical parent; an ordinary `x.rs` puts later ordinary
+children under `x/`, while `x/mod.rs` does not add another relative segment.
+Inline modules advance the directory owner, and path-loaded external files are
+treated as mod.rs-equivalent for their children. Literal path selection,
+ordinary candidate selection, lexical containment, canonical containment, and
+ancestor-cycle checks each have one owner.
+
+`Excluded` declarations are recorded without probing a child. `Unknown`
+declarations stop before probing and never appear in a successful product.
+The graph is returned only after source and Cargo fingerprints are rechecked;
+failure returns no partial graph. Sibling declarations may load the same
+canonical file as distinct module instances, while an ancestor reuse rejects
+as a cycle.
+
+The first MODULE0 profile deliberately rejects reachable source-level inner
+topology attributes and block-local modules. Their content-gate and block
+identity laws require separate widening rows. `include!` remains an unchanged
+opaque S0a observation until INCLUDE0. The project CLI, semantic resolution,
+entry-family policy, and compiler/runtime behavior remain disconnected.
+
 ## Stop lines
 
 ```text
@@ -141,6 +175,8 @@ no claim that syntax paths are Rust semantic def-paths
 no active/excluded cfg or production classification
 no Cargo/profile CLI consumer before CARGO0
 no project CLI/report publication before S0b-G0
+no include expansion before INCLUDE0
+no inner-cfg or block-local module guessing
 no root workspace dependency change
 no source/check file at or above 800 lines
 ```

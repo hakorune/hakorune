@@ -40,6 +40,10 @@ impl RustcCfgProbeEvidenceV1 {
     pub fn cfg_values(&self, key: &str) -> Option<&[String]> {
         self.cfg_key_values.get(key).map(AsRef::as_ref)
     }
+
+    pub(crate) fn cfg_key_values(&self) -> &BTreeMap<String, Box<[String]>> {
+        &self.cfg_key_values
+    }
 }
 
 pub fn collect_rustc_cfg_probe_v1(
