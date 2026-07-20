@@ -110,7 +110,9 @@ ACTIVE_CUTOVER_WRITER_REPLACEMENTS = {
     "src/mir/builder/resolved_lowering/trivial_ssa/direct_call_type.rs": 1,
     "src/mir/builder/emission/compare.rs": None,
     "src/mir/builder/emission/compare_type.rs": 1,
+    "src/mir/builder/fields.rs": None,
     "src/mir/builder/fields/post_success.rs": 1,
+    "src/mir/builder/fastmem/field_load.rs": 2,
 }
 
 
@@ -552,6 +554,62 @@ def validate_fastmem_receipt0_authority_v1(root: Path) -> None:
             fail(f"FASTMEM-RECEIPT0 source/check file reached 800 lines: {path}")
 
 
+def validate_fastmem_fieldload0_authority_v1(root: Path) -> None:
+    fields = code_only(read(root / "src/mir/builder/fields.rs"))
+    lifecycle = code_only(read(root / "src/mir/builder/fastmem/field_load.rs"))
+
+    fastmem = fields.split("if let Some(region) = region {", 1)[1].split(
+        "return Ok(field_val);\n        }\n\n        let field_result_origin", 1
+    )[0]
+    for forbidden in (
+        "record_field_access_site(",
+        "alloc_typed(",
+        "value_types.insert",
+        "publish_field_result_origin(",
+    ):
+        if forbidden in fastmem:
+            fail(f"FASTMEM-FIELDLOAD0 direct lifecycle effect survived: {forbidden}")
+    for required in (
+        "PreparedFastMemFieldLoadLifecycleV1::prepare",
+        "lifecycle.reserve_site(self, region, object_value)",
+        "lifecycle.reserve_declared_type(self, field_val)",
+        "self.emit_fastmem_memop(",
+        "lifecycle.complete_after_success(self, field_val)",
+    ):
+        if fastmem.count(required) != 1:
+            fail(f"FASTMEM-FIELDLOAD0 selected lifecycle consumer drift: {required}")
+    ordered = (
+        "lifecycle.reserve_site(self, region, object_value)",
+        "lifecycle.reserve_declared_type(self, field_val)",
+        "self.emit_fastmem_memop(",
+        "lifecycle.complete_after_success(self, field_val)",
+    )
+    positions = [fastmem.find(anchor) for anchor in ordered]
+    if positions != sorted(positions):
+        fail("FASTMEM-FIELDLOAD0 reservation/completion order drift")
+
+    for required in (
+        "fn reserve_site(",
+        "fn reserve_declared_type(",
+        "fn complete_after_success(",
+    ):
+        if lifecycle.count(required) != 1:
+            fail(f"FASTMEM-FIELDLOAD0 lifecycle owner drift: {required}")
+    if lifecycle.count("record_field_access_site(") != 1:
+        fail("FASTMEM-FIELDLOAD0 site reservation owner drift")
+    if lifecycle.count("set_type(") != 2:
+        fail("FASTMEM-FIELDLOAD0 declared/integer type lanes drift")
+    if lifecycle.count("set_origin_box(") != 1:
+        fail("FASTMEM-FIELDLOAD0 origin completion owner drift")
+    for path in (
+        root / "src/mir/builder/fields.rs",
+        root / "src/mir/builder/fastmem/field_load.rs",
+        Path(__file__),
+    ):
+        if len(read(path).splitlines()) >= 800:
+            fail(f"FASTMEM-FIELDLOAD0 source/check file reached 800 lines: {path}")
+
+
 def check(root: Path) -> None:
     fixture = load_fixture(root)
     validate_p1_g0_profile_freeze_v1(fixture)
@@ -566,6 +624,7 @@ def check(root: Path) -> None:
     validate_call_receipt0_authority_v1(root)
     validate_fieldget_receipt0_authority_v1(root)
     validate_fastmem_receipt0_authority_v1(root)
+    validate_fastmem_fieldload0_authority_v1(root)
     matrix = fixture.get("primary_matrix")
     if not isinstance(matrix, list):
         fail("FACT0 fixture primary matrix is invalid")
@@ -576,11 +635,11 @@ def check(root: Path) -> None:
     print(
         "[mirbuilder-type-fact-partition-guard] ok "
         "baseline_writer_paths=47 baseline_writer_occurrences=99 "
-        "active_writer_paths=49 active_writer_occurrences=94 slices=58 profiles=38 "
+        "active_writer_paths=49 active_writer_occurrences=95 slices=58 profiles=38 "
         "shared_slices=2 const0=closed staticload0=closed checkselect0=closed "
         "literal_postemit_ret0=closed resolved_trivial_op0=closed "
         "resolved_direct_call0=closed compareemit0=closed call_receipt0=closed "
-        "fieldget_receipt0=closed fastmem_receipt0=closed"
+        "fieldget_receipt0=closed fastmem_receipt0=closed fastmem_fieldload0=closed"
     )
 
 

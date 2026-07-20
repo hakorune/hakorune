@@ -7,7 +7,7 @@
 
 pub(crate) mod branch;
 pub(crate) mod calls;
-mod field_load;
+pub(in crate::mir::builder) mod field_load;
 pub(crate) mod ops;
 mod receipt;
 

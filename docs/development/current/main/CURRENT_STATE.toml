@@ -487,10 +487,13 @@ S0 now owns a disconnected Builder-free lifecycle payload with zero production
 consumers; M0/P0 now freeze one FieldLoad owner, two semantic entrances, and
 declared/missing success/failure timing. I0 alone may connect the prepared
 lifecycle to that FieldLoad arm while preserving its pre-emission reservations
-and post-success completions. The unrelated full-FastMem stale
-expectations remain parked as a maintenance row, not masked by this timing
-closure."""
-current_blocker_token = "DPRIME-MIRBUILDER-FACT0-TX0-FASTMEM-FIELDLOAD0-I0-036"
+and post-success completions. FASTMEM-FIELDLOAD0 is now closed: one selected
+lifecycle owns the reservation/completion split, and the existing partition
+guard seals its two scoped type lanes and one site/origin owner. Return to
+NEXT-PRODUCER-D0 before opening another code row. The unrelated full-FastMem
+stale expectations remain parked as a maintenance row, not masked by this
+timing closure."""
+current_blocker_token = "DPRIME-MIRBUILDER-FACT0-TX0-NEXT-PRODUCER-D0-037"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

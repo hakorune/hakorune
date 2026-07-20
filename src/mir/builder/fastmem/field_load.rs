@@ -6,39 +6,41 @@
 //! after the physical MemOp succeeds. This module records that split without
 //! holding Builder state or connecting a production consumer.
 
-use crate::mir::MirType;
+use crate::mir::builder::MirBuilder;
+use crate::mir::instruction::FastMemRegionId;
+use crate::mir::{MirType, ValueId};
 
 /// Immutable site inputs for the existing pre-emission FastMem reservation.
 #[derive(Debug, Eq, PartialEq)]
-pub(super) struct FastMemFieldLoadSiteReservationV1 {
+struct FastMemFieldLoadSiteReservationV1 {
     receiver_box_name: Option<String>,
     field: String,
 }
 
 /// Existing declared-type reservation behavior.
 #[derive(Debug, Eq, PartialEq)]
-pub(super) enum FastMemFieldLoadTypeReservationV1 {
+enum FastMemFieldLoadTypeReservationV1 {
     AbsentDeclaredType,
     Declared(MirType),
 }
 
 /// Existing missing-declared compatibility completion behavior.
 #[derive(Debug, Eq, PartialEq)]
-pub(super) enum FastMemFieldLoadTypeCompletionV1 {
+enum FastMemFieldLoadTypeCompletionV1 {
     Inactive,
     PublishIntegerCompatibility,
 }
 
 /// Existing post-success field-result origin behavior.
 #[derive(Debug, Eq, PartialEq)]
-pub(super) enum FastMemFieldLoadOriginCompletionV1 {
+enum FastMemFieldLoadOriginCompletionV1 {
     Absent,
     Publish(String),
 }
 
 /// One Builder-free, non-Clone description of the FieldLoad timing split.
 #[derive(Debug)]
-pub(super) struct PreparedFastMemFieldLoadLifecycleV1 {
+pub(in crate::mir::builder) struct PreparedFastMemFieldLoadLifecycleV1 {
     site: FastMemFieldLoadSiteReservationV1,
     type_reservation: FastMemFieldLoadTypeReservationV1,
     type_completion: FastMemFieldLoadTypeCompletionV1,
@@ -47,7 +49,7 @@ pub(super) struct PreparedFastMemFieldLoadLifecycleV1 {
 
 impl PreparedFastMemFieldLoadLifecycleV1 {
     /// Snapshots already-resolved inputs without publishing a fact or site.
-    pub(super) fn prepare(
+    pub(in crate::mir::builder) fn prepare(
         declared_type: Option<&MirType>,
         receiver_box_name: Option<&str>,
         field: &str,
@@ -74,6 +76,60 @@ impl PreparedFastMemFieldLoadLifecycleV1 {
                 Some(origin) => FastMemFieldLoadOriginCompletionV1::Publish(origin.to_string()),
                 None => FastMemFieldLoadOriginCompletionV1::Absent,
             },
+        }
+    }
+
+    /// Preserves the existing pre-emission layout-site reservation.
+    pub(in crate::mir::builder) fn reserve_site(
+        &self,
+        builder: &mut MirBuilder,
+        region: FastMemRegionId,
+        base: ValueId,
+    ) -> Result<(), String> {
+        builder.record_field_access_site(
+            Some(region),
+            base,
+            self.site.receiver_box_name.clone(),
+            self.site.field.clone(),
+            None,
+            "load",
+            "verified_layout_field",
+            "forbidden",
+        )
+    }
+
+    /// Preserves the existing declared-type reservation after fresh ValueId
+    /// allocation and before physical MemOp emission.
+    pub(in crate::mir::builder) fn reserve_declared_type(
+        &self,
+        builder: &mut MirBuilder,
+        destination: ValueId,
+    ) {
+        if let FastMemFieldLoadTypeReservationV1::Declared(ty) = &self.type_reservation {
+            builder
+                .function_state
+                .type_ctx
+                .set_type(destination, ty.clone());
+        }
+    }
+
+    /// Publishes only the existing post-success completion facts.
+    pub(in crate::mir::builder) fn complete_after_success(
+        self,
+        builder: &mut MirBuilder,
+        destination: ValueId,
+    ) {
+        if self.type_completion == FastMemFieldLoadTypeCompletionV1::PublishIntegerCompatibility {
+            builder
+                .function_state
+                .type_ctx
+                .set_type(destination, MirType::Integer);
+        }
+        if let FastMemFieldLoadOriginCompletionV1::Publish(origin) = self.origin_completion {
+            builder
+                .function_state
+                .type_ctx
+                .set_origin_box(destination, origin);
         }
     }
 

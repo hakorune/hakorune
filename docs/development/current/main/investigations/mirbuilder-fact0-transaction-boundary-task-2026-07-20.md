@@ -1130,6 +1130,50 @@ The tests intentionally observe no ValueId cursor rollback. They are separate
 from the two stale full-FastMem behavior expectations. I0 is the sole next
 row.
 
+### `FACT0-TX0-FASTMEM-FIELDLOAD0-I0` — closed (2026-07-20)
+
+The selected FastMem FieldLoad arm now consumes the prepared lifecycle in its
+existing observable order:
+
+```text
+prepare resolved site/type/origin dispositions
+-> reserve layout site
+-> allocate fresh destination
+-> reserve declared type, when present
+-> existing emit_fastmem_memop(FieldLoad)
+-> complete missing Integer compatibility and result origin
+```
+
+No ordinary FieldGet, FieldStore, index store, generic value-MemOp, region
+schema, or physical receipt policy was touched. The old direct
+`publish_field_result_origin` branch helper is gone: origin disposition is
+snapshotted before emission and the selected lifecycle publishes it only after
+the existing physical receipt succeeds. Declared `Unknown` remains a stored
+pre-emission reservation rather than entering an exact-fact decision.
+
+### `FACT0-TX0-FASTMEM-FIELDLOAD0-G0` — closed (2026-07-20)
+
+The existing FACT0 partition guard now seals this lifecycle without adding a
+guard family:
+
+```text
+selected FieldLoad lifecycle consumer = 1
+direct fields.rs lifecycle effects in selected arm = 0
+site reservation owner = 1
+declared/integer type lanes = 2
+origin completion owner = 1
+reservation -> MemOp -> completion order = fixed
+```
+
+The active type-writer inventory deliberately removes the former `fields.rs`
+direct writer and records the two scoped lifecycle lanes in
+`fastmem/field_load.rs`; it is not a new persistent map or a general type
+authority. Focused lifecycle tests pass 3/3, timing tests pass 4/4, FastMem
+receipt tests pass 6/6, the partition guard and its unit suite pass, and
+`cargo check --all-targets` passes. The two known full-FastMem stale
+expectations remain visible and parked. Return to the explicit
+`NEXT-PRODUCER-D0` selection frontier before opening another code row.
+
 ### `FASTMEM-RECEIPT0` historical stop conditions
 
 Stop this row if it requires any of the following:

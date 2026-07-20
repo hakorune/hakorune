@@ -78,28 +78,6 @@ impl super::MirBuilder {
             })
     }
 
-    pub(super) fn publish_field_result_origin(
-        &mut self,
-        field_val: ValueId,
-        object_value: ValueId,
-        field: &str,
-    ) {
-        let inferred_class = self.inferred_field_result_class(object_value, field);
-        if let Some(class_name) = inferred_class {
-            if super::utils::builder_debug_enabled() || crate::config::env::builder_debug_enabled()
-            {
-                super::utils::builder_debug_log(&format!(
-                    "field-origin publish: base=%{} .{} -> {}",
-                    object_value.0, field, class_name
-                ));
-            }
-            self.function_state
-                .type_ctx
-                .value_origin_newbox
-                .insert(field_val, class_name);
-        }
-    }
-
     pub(super) fn resolve_property_getter_name(
         &self,
         object_value: ValueId,

@@ -88,21 +88,17 @@ impl super::MirBuilder {
             .cloned();
         let declared_type = self.declared_field_type_for_value(object_value, &field);
         if let Some(region) = region {
-            self.record_field_access_site(
-                Some(region),
-                object_value,
-                receiver_box_name,
-                field.clone(),
-                None,
-                "load",
-                "verified_layout_field",
-                "forbidden",
-            )?;
-            let field_val = if let Some(ref ty) = declared_type {
-                self.alloc_typed(ty.clone())
-            } else {
-                self.next_value_id()
-            };
+            let field_result_origin = self.inferred_field_result_class(object_value, &field);
+            let lifecycle =
+                super::fastmem::field_load::PreparedFastMemFieldLoadLifecycleV1::prepare(
+                    declared_type.as_ref(),
+                    receiver_box_name.as_deref(),
+                    &field,
+                    field_result_origin.as_deref(),
+                );
+            lifecycle.reserve_site(self, region, object_value)?;
+            let field_val = self.next_value_id();
+            lifecycle.reserve_declared_type(self, field_val);
             self.emit_fastmem_memop(
                 region,
                 crate::mir::instruction::MemOpKind::FieldLoad,
@@ -110,13 +106,7 @@ impl super::MirBuilder {
                 vec![object_value],
                 Some(crate::mir::instruction::MemOpAccess::field(field.clone())),
             )?;
-            if declared_type.is_none() {
-                self.function_state
-                    .type_ctx
-                    .value_types
-                    .insert(field_val, crate::mir::MirType::Integer);
-            }
-            self.publish_field_result_origin(field_val, object_value, &field);
+            lifecycle.complete_after_success(self, field_val);
             return Ok(field_val);
         }
 
