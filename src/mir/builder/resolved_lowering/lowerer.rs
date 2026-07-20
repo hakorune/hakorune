@@ -7,7 +7,7 @@ use crate::mir::compiler::source_view::{BodyChildRoleV1, ExprChildRoleV1};
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_region_flow::VerifiedResolvedFunctionFlowV1;
 use crate::mir::resolved_semantics::{BindingKindV1, ResolvedExitSiteV1, SourceBindingSiteV1};
-use crate::mir::{MirInstruction, MirType, ValueId};
+use crate::mir::{MirInstruction, ValueId};
 
 use super::super::MirBuilder;
 use super::branch_transaction::{ResolvedActiveEffectStackV1, ResolvedEffectBindingClassV1};
@@ -414,14 +414,6 @@ impl<'builder, 'source> CanonicalFunctionLowererV1<'builder, 'source> {
     }
 
     fn lower_literal(&mut self, literal: &LiteralValue) -> Result<ValueId, String> {
-        let value = self.builder.build_literal(literal.clone())?;
-        if matches!(literal, LiteralValue::Void | LiteralValue::Null) {
-            self.builder
-                .function_state
-                .type_ctx
-                .value_types
-                .insert(value, MirType::Void);
-        }
-        Ok(value)
+        self.builder.build_literal(literal.clone())
     }
 }

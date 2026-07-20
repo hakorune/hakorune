@@ -1853,6 +1853,12 @@ and emitter-error parity before I0 may delete the three writes. Compare remains
 blocked on an emission-success receipt; FieldGet, Call/operator routes,
 `metadata::propagate`, and Unknown retirement remain separate authorities.
 
+`LITERAL-POSTEMIT-RET0` is closed: focused timing/failure and feature-enabled
+Null/Void fixtures prove that canonical Const facts are present before caller
+return and ordinary finalization only snapshots them. I0 deletes the three
+redundant caller-side writes; G0 extends the existing FACT0 partition guard.
+No new publisher, metadata fallback, origin change, or runtime delta exists.
+
 ## Phase 4 — FINALIZE0
 
 Finalization becomes a verifier and derived-publication boundary, not the

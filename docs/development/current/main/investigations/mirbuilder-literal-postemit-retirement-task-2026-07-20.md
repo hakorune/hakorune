@@ -96,7 +96,7 @@ direct Copy outside LocalSSA:
 
 ## Row contracts
 
-### `LITERAL-POSTEMIT-RET0-M0` — next code-facing row
+### `LITERAL-POSTEMIT-RET0-M0` — closed (2026-07-20)
 
 ```text
 code_or_artifact_delta_required = 1
@@ -111,7 +111,20 @@ Null, Void, and folded negative Integer. The test surface must observe
 transient facts and ordinary finalization snapshots; it must not introduce
 metadata as a lowering-time fallback.
 
-### `LITERAL-POSTEMIT-RET0-P0`
+Closed evidence:
+
+```text
+literal_postemit_retirement_tests:
+  canonical transient type before caller return
+  canonical emitter failure leaves type/origin/string facts empty
+  folded negative Integer uses the same Const producer
+  ordinary module finalization snapshots that existing fact
+
+resolved_lowering null/void fixtures:
+  executed under vm-reference
+```
+
+### `LITERAL-POSTEMIT-RET0-P0` — closed (2026-07-20)
 
 Prove parity before deletion:
 
@@ -123,20 +136,45 @@ Null/Void remain Void
 failed canonical Const reaches no caller post-publication
 ```
 
-### `LITERAL-POSTEMIT-RET0-I0`
+The focused literal matrix covers every direct caller literal form, including
+TypedInteger's retained exact-numeric metadata and String's retained companion
+fact. The feature-enabled resolved Null/Void fixtures retain their ordinary
+finalized representation. No producer changed in M0/P0.
+
+`LITERAL-POSTEMIT-RET0-I0` is now the sole next row.
+
+### `LITERAL-POSTEMIT-RET0-I0` — closed (2026-07-20)
 
 Delete exactly the three redundant direct-write sites. Do not modify
 `emission::constant`, `constant_type`, the exact-numeric metadata write,
 string companion publication, Null/Void representation, or non-folded unary
 routes.
 
-### `LITERAL-POSTEMIT-RET0-G0`
+The direct writes are gone from `build_literal`, resolved Null/Void lowering,
+and the folded negative Integer branch. Each path delegates unchanged to the
+successful canonical Const producer.
+
+### `LITERAL-POSTEMIT-RET0-G0` — closed (2026-07-20)
 
 Extend the existing `mirbuilder-type-fact-partition` guard rather than adding
 a new guard family. It must update the active writer replacement inventory,
 freeze zero direct literal post-emission type writes in the three caller
 locations, preserve one canonical Const decision/commit owner, and enforce the
 800-line cap for touched source/check files.
+
+Closed evidence:
+
+```text
+literal_postemit_retirement_tests = 5/5
+resolved_lowering null/void fixtures = vm-reference green
+cargo check --all-targets = green
+mirbuilder-type-fact-partition guard = green
+current-state pointer / format / diff / line caps = green
+```
+
+`LITERAL-POSTEMIT-RET0` is complete. It does not select the next independent
+EXACT0 producer; Compare, FieldGet, Call/operator routes, metadata
+propagation, and Unknown retirement remain parked.
 
 ## Stop conditions
 

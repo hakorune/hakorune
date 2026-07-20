@@ -133,13 +133,7 @@ pub(super) fn build_unary_op(
         } = &operand
         {
             if let Some(negated) = n.checked_neg() {
-                let dst = crate::mir::builder::emission::constant::emit_integer(builder, negated)?;
-                builder
-                    .function_state
-                    .type_ctx
-                    .value_types
-                    .insert(dst, MirType::Integer);
-                return Ok(dst);
+                return crate::mir::builder::emission::constant::emit_integer(builder, negated);
             }
         }
     }

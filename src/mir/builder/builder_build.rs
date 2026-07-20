@@ -24,18 +24,9 @@ impl MirBuilder {
 
     /// Build a literal value
     pub(super) fn build_literal(&mut self, literal: LiteralValue) -> Result<ValueId, String> {
-        // Determine type without moving literal
-        let ty_for_dst = match &literal {
-            LiteralValue::Integer(_) => Some(super::MirType::Integer),
-            LiteralValue::TypedInteger { .. } => Some(super::MirType::Integer),
-            LiteralValue::Float(_) => Some(super::MirType::Float),
-            LiteralValue::Bool(_) => Some(super::MirType::Bool),
-            LiteralValue::String(_) => Some(super::MirType::String),
-            _ => None,
-        };
-
-        // Emit via ConstantEmissionBox（仕様不変の統一ルート）
-        let dst = match literal {
+        // Canonical Const emission publishes the transient type only after the
+        // instruction succeeds. Literal dispatch must not duplicate that fact.
+        Ok(match literal {
             LiteralValue::Integer(n) => {
                 crate::mir::builder::emission::constant::emit_integer(self, n)?
             }
@@ -50,13 +41,7 @@ impl MirBuilder {
             LiteralValue::Bool(b) => crate::mir::builder::emission::constant::emit_bool(self, b)?,
             LiteralValue::Null => crate::mir::builder::emission::constant::emit_null(self)?,
             LiteralValue::Void => crate::mir::builder::emission::constant::emit_void(self)?,
-        };
-        // Annotate type
-        if let Some(ty) = ty_for_dst {
-            self.function_state.type_ctx.value_types.insert(dst, ty);
-        }
-
-        Ok(dst)
+        })
     }
 
     pub(in crate::mir::builder) fn emit_typed_integer_literal(

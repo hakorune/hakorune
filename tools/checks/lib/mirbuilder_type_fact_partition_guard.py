@@ -101,6 +101,9 @@ ACTIVE_CUTOVER_WRITER_REPLACEMENTS = {
     "src/mir/builder/indexing/static_load_type.rs": 1,
     "src/mir/builder/exprs_check.rs": None,
     "src/mir/builder/exprs_check/select_type.rs": 1,
+    "src/mir/builder/builder_build.rs": 3,
+    "src/mir/builder/resolved_lowering/lowerer.rs": 1,
+    "src/mir/builder/ops/unary.rs": 5,
 }
 
 
@@ -300,6 +303,41 @@ def validate_checkselect0_authority_v1(root: Path) -> None:
             fail(f"CHECKSELECT0 source/check file reached 800 lines: {path}")
 
 
+def validate_literal_postemit_retirement_v1(root: Path) -> None:
+    literal_builder = read(root / "src/mir/builder/builder_build.rs")
+    resolved_lowerer = read(root / "src/mir/builder/resolved_lowering/lowerer.rs")
+    unary = read(root / "src/mir/builder/ops/unary.rs")
+
+    literal_dispatch = literal_builder.split("pub(super) fn build_literal", 1)[1].split(
+        "pub(in crate::mir::builder) fn emit_typed_integer_literal", 1
+    )[0]
+    resolved_literal = resolved_lowerer.split("fn lower_literal", 1)[1]
+    folded_negative = unary.split('if operator == "-"', 1)[1].split("let operand_val", 1)[0]
+
+    if "value_types.insert" in literal_dispatch:
+        fail("LITERAL-POSTEMIT-RET0 literal dispatch direct type writer survived")
+    if "value_types.insert" in resolved_literal:
+        fail("LITERAL-POSTEMIT-RET0 resolved Null/Void direct type writer survived")
+    if "value_types.insert" in folded_negative:
+        fail("LITERAL-POSTEMIT-RET0 folded negative direct type writer survived")
+    if literal_dispatch.count("emission::constant::emit_") != 6:
+        fail("LITERAL-POSTEMIT-RET0 literal dispatch must retain six canonical Const delegates")
+    if "emit_typed_integer_literal" not in literal_dispatch:
+        fail("LITERAL-POSTEMIT-RET0 TypedInteger canonical delegate missing")
+    if "build_literal(literal.clone())" not in resolved_literal:
+        fail("LITERAL-POSTEMIT-RET0 resolved literal must delegate to canonical literal lowering")
+    if "emission::constant::emit_integer(builder, negated)" not in folded_negative:
+        fail("LITERAL-POSTEMIT-RET0 folded negative must delegate to canonical Const")
+    for path in (
+        root / "src/mir/builder/builder_build.rs",
+        root / "src/mir/builder/resolved_lowering/lowerer.rs",
+        root / "src/mir/builder/ops/unary.rs",
+        Path(__file__),
+    ):
+        if len(read(path).splitlines()) >= 800:
+            fail(f"LITERAL-POSTEMIT-RET0 source/check file reached 800 lines: {path}")
+
+
 def check(root: Path) -> None:
     fixture = load_fixture(root)
     validate_p1_g0_profile_freeze_v1(fixture)
@@ -307,6 +345,7 @@ def check(root: Path) -> None:
     validate_const0_authority_v1(root)
     validate_staticload0_authority_v1(root)
     validate_checkselect0_authority_v1(root)
+    validate_literal_postemit_retirement_v1(root)
     matrix = fixture.get("primary_matrix")
     if not isinstance(matrix, list):
         fail("FACT0 fixture primary matrix is invalid")
@@ -318,7 +357,8 @@ def check(root: Path) -> None:
         "[mirbuilder-type-fact-partition-guard] ok "
         "baseline_writer_paths=47 baseline_writer_occurrences=99 "
         "active_writer_paths=48 active_writer_occurrences=96 slices=58 profiles=38 "
-        "shared_slices=2 const0=closed staticload0=closed checkselect0=closed"
+        "shared_slices=2 const0=closed staticload0=closed checkselect0=closed "
+        "literal_postemit_ret0=closed"
     )
 
 
