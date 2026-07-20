@@ -1,5 +1,5 @@
 ---
-Status: CFGSTREAM0-I0 closed; CFGSTREAM0-G0 is next
+Status: CFGSTREAM0-G0 closed; CONTENTCFG0-S0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -1857,5 +1857,19 @@ Focused fixtures prove inactive and outer-excluded nonliteral paths are never
 parsed, active nested literal paths select once, unknown remains terminal, and
 active unsupported attributes still fail. The standalone topology suite,
 MODULE0/INCLUDE0 guards, current-state pointer guard, and root `cargo check`
-are green. `CFGSTREAM0-G0` is next: it must freeze the one stream owner and
+are green. The subsequent `CFGSTREAM0-G0` freezes the one stream owner and
 the absence of eager/reconstructing consumers before CONTENTCFG0 begins.
+
+##### `CFGSTREAM0-G0` closeout
+
+`rust-source-topology-cfg-stream` is the registered pilot guard for this
+cutover. It fixes exactly one ordered stream owner and one one-row predicate
+evaluator, two module/include declaration consumers, two V2 edge publications,
+and zero eager row owners or cfg_attr path reconstruction helpers. It also
+requires active-effect, inactive-path, and excluded-include fixtures and keeps
+the guarded implementation/test files below 800 lines.
+
+`CONTENTCFG0-S0` is now the sole next row. It must define only the inner
+content-candidate vocabulary before any child-module instance is issued;
+inner cfg evaluation, source-content pruning, or compiler behavior remains
+for its later rows.
