@@ -104,6 +104,8 @@ ACTIVE_CUTOVER_WRITER_REPLACEMENTS = {
     "src/mir/builder/builder_build.rs": 3,
     "src/mir/builder/resolved_lowering/lowerer.rs": 1,
     "src/mir/builder/ops/unary.rs": 5,
+    "src/mir/builder/resolved_lowering/trivial_ssa/operation.rs": None,
+    "src/mir/builder/resolved_lowering/trivial_ssa/operation_type.rs": 1,
 }
 
 
@@ -338,6 +340,33 @@ def validate_literal_postemit_retirement_v1(root: Path) -> None:
             fail(f"LITERAL-POSTEMIT-RET0 source/check file reached 800 lines: {path}")
 
 
+def validate_resolved_trivial_operation_authority_v1(root: Path) -> None:
+    operation = code_only(
+        read(root / "src/mir/builder/resolved_lowering/trivial_ssa/operation.rs")
+    )
+    owner = code_only(
+        read(root / "src/mir/builder/resolved_lowering/trivial_ssa/operation_type.rs")
+    )
+
+    if "value_types.insert" in operation or "type_ctx.set_type" in operation:
+        fail("RESOLVED-TRIVIAL-OP0 direct type writer survived in operation.rs")
+    if operation.count("PreparedResolvedTrivialOperationTypeV1::prepare") != 1:
+        fail("RESOLVED-TRIVIAL-OP0 requires one pre-emission preparation consumer")
+    if operation.count("prepared.commit(") != 1:
+        fail("RESOLVED-TRIVIAL-OP0 requires one post-emission commit consumer")
+    if operation.find("prepared.commit(") < operation.find("builder.emit_instruction(instruction)?"):
+        fail("RESOLVED-TRIVIAL-OP0 commit must follow BinOp/Compare emission")
+    if owner.count("TypeFactDecisionV1::prepare") != 1 or owner.count("type_ctx.set_type") != 1:
+        fail("RESOLVED-TRIVIAL-OP0 decision/commit owner drift")
+    for path in (
+        root / "src/mir/builder/resolved_lowering/trivial_ssa/operation.rs",
+        root / "src/mir/builder/resolved_lowering/trivial_ssa/operation_type.rs",
+        Path(__file__),
+    ):
+        if len(read(path).splitlines()) >= 800:
+            fail(f"RESOLVED-TRIVIAL-OP0 source/check file reached 800 lines: {path}")
+
+
 def check(root: Path) -> None:
     fixture = load_fixture(root)
     validate_p1_g0_profile_freeze_v1(fixture)
@@ -346,6 +375,7 @@ def check(root: Path) -> None:
     validate_staticload0_authority_v1(root)
     validate_checkselect0_authority_v1(root)
     validate_literal_postemit_retirement_v1(root)
+    validate_resolved_trivial_operation_authority_v1(root)
     matrix = fixture.get("primary_matrix")
     if not isinstance(matrix, list):
         fail("FACT0 fixture primary matrix is invalid")
@@ -358,7 +388,7 @@ def check(root: Path) -> None:
         "baseline_writer_paths=47 baseline_writer_occurrences=99 "
         "active_writer_paths=48 active_writer_occurrences=96 slices=58 profiles=38 "
         "shared_slices=2 const0=closed staticload0=closed checkselect0=closed "
-        "literal_postemit_ret0=closed"
+        "literal_postemit_ret0=closed resolved_trivial_op0=closed"
     )
 
 

@@ -5,6 +5,7 @@ use crate::mir::resolved_value_profile::product::TrivialRepresentationV1;
 use crate::mir::{BinaryOp, CompareOp, MirInstruction, ValueId};
 
 use super::super::super::MirBuilder;
+use super::operation_type::PreparedResolvedTrivialOperationTypeV1;
 
 pub(super) use super::operation_type::exact_type_for_representation as mir_type;
 
@@ -16,6 +17,11 @@ pub(super) fn emit_binary(
     representation: TrivialRepresentationV1,
 ) -> Result<ValueId, String> {
     let dst = builder.next_value_id();
+    let prepared = PreparedResolvedTrivialOperationTypeV1::prepare(
+        representation,
+        builder.function_state.type_ctx.get_type(dst),
+    )
+    .map_err(|error| error.to_string())?;
     let instruction = match operator {
         BinaryOperator::Add => arithmetic(dst, BinaryOp::Add, lhs, rhs),
         BinaryOperator::Subtract => arithmetic(dst, BinaryOp::Sub, lhs, rhs),
@@ -38,11 +44,7 @@ pub(super) fn emit_binary(
         }
     };
     builder.emit_instruction(instruction)?;
-    builder
-        .function_state
-        .type_ctx
-        .value_types
-        .insert(dst, mir_type(representation));
+    prepared.commit(dst, &mut builder.function_state.type_ctx);
     Ok(dst)
 }
 

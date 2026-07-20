@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RESOLVED-TRIVIAL-OP0-P0 is closed; connect one resolved-trivial operation commit consumer"
+status = "RESOLVED-TRIVIAL-OP0 is closed; select the next independent EXACT0 producer"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -307,11 +307,11 @@ resolved_trivial_operation_task = "docs/development/current/main/investigations/
 
 latest_card = "mirbuilder-resolved-trivial-operation-task-2026-07-20"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-resolved-trivial-operation-task-2026-07-20.md"
-latest_card_summary = """RESOLVED-TRIVIAL-OP0-P0 is closed. Direct Add/Equal
-receipt tests and actual sealed Bool/Float resolved routes prove post-success
-type timing and failure isolation; the decision remains unconnected. I0 may
-replace only the resolved-trivial operation's post-success direct write with
-one prepared exact-fact commit. Raw Compare/operator, Array, FieldGet, Call,
+latest_card_summary = """RESOLVED-TRIVIAL-OP0 is closed. One sealed profile
+representation is prepared through TypeFactDecision before its exact BinOp or
+Compare, then committed only after emission succeeds; the reusable FACT0 guard
+freezes one direct-write removal, decision, commit, and receipt order. Select
+the next independent producer; raw Compare/operator, Array, FieldGet, Call,
 metadata propagation, finalization, and Unknown retirement remain parked.
 Historical retained detail: STATICLOAD0-D0 is closed: the
 previous sole producer was an
@@ -446,7 +446,7 @@ METAPROP0 owner after COMPCTX0/CONFIG0 and before PLAN0-CUT0; FACT0-G0 remains
 the final global-zero gate after that owner plus FINALIZE0, PLAN0, COMPCTX0,
 CONFIG0, and RAWADAPT0 retire their named legacy writers.
 NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-FACT0-I1-RESOLVED-TRIVIAL-OP0-I0-006"
+current_blocker_token = "DPRIME-MIRBUILDER-FACT0-I1-EXACT0-NEXT-D0-007"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

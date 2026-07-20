@@ -8,8 +8,9 @@ use hakorune_mir_builder::lowering_facts::{
     PreparedTypeFactPublicationV1, TypeFactDecisionErrorV1, TypeFactDecisionV1,
 };
 
+use crate::mir::builder::type_context::TypeContext;
 use crate::mir::resolved_value_profile::product::TrivialRepresentationV1;
-use crate::mir::MirType;
+use crate::mir::{MirType, ValueId};
 
 /// Prepared exact type decision for one future successful trivial operation.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -44,6 +45,16 @@ impl PreparedResolvedTrivialOperationTypeV1 {
         let publication = TypeFactDecisionV1::prepare(existing_destination, Some(&candidate))
             .map_err(ResolvedTrivialOperationTypeErrorV1::FactDecision)?;
         Ok(Self { publication })
+    }
+
+    /// Commits only a decision prepared before the selected operation emits.
+    ///
+    /// I0's sole production caller invokes this after `BinOp` or `Compare`
+    /// emission succeeds. Idempotent decisions preserve an existing exact fact.
+    pub(super) fn commit(self, destination: ValueId, type_ctx: &mut TypeContext) {
+        if let PreparedTypeFactPublicationV1::Publish(ty) = self.publication {
+            type_ctx.set_type(destination, ty);
+        }
     }
 
     #[cfg(test)]

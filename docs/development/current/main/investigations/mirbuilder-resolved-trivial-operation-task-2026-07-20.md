@@ -153,6 +153,54 @@ No production decision commit is connected in this row.
 `RESOLVED-TRIVIAL-OP0-I0` is now the sole next row. It may add one non-fallible
 commit method and replace only the post-success direct operation write.
 
+### `RESOLVED-TRIVIAL-OP0-I0` — closed (2026-07-20)
+
+The operation emitter now follows the fixed transaction:
+
+```text
+fresh destination
+  -> prepare from profile representation and current destination entry
+  -> emit BinOp or Compare
+  -> commit the prepared exact fact
+```
+
+The old direct `value_types.insert` is deleted. The new commit uses the
+existing exact `TypeFactDecisionV1`; Missing and stored Unknown publish the
+sealed type, a matching exact fact is idempotent, and an incompatible concrete
+fact rejects before instruction emission. Failed emission reaches `?` before
+commit. No source profile, raw route, origin, cache, binding, metadata,
+finalization, or retry behavior changes.
+
+`RESOLVED-TRIVIAL-OP0-G0` is now the sole next row. It freezes the direct-write
+replacement, one prepare/commit relationship, receipt ordering, and size cap
+in the reusable FACT0 partition guard.
+
+### `RESOLVED-TRIVIAL-OP0-G0` — closed (2026-07-20)
+
+The existing manifest-backed `mirbuilder-type-fact-partition` guard now owns
+the structural freeze. It verifies:
+
+```text
+operation.rs direct type writer = 0
+operation.rs prepared decision consumer = 1
+operation.rs post-emission commit consumer = 1
+commit occurs after builder.emit_instruction(instruction)?
+operation_type.rs TypeFactDecision prepare owner = 1
+operation_type.rs type_ctx.set_type commit owner = 1
+all touched source/check files < 800 lines
+```
+
+The active writer inventory removes the historical operation writer and adds
+the one private owner without altering the immutable P1 census. Focused
+operation, resolved Float/Bool, feature-enabled Void comparison, all-target,
+row-guard, pointer, format, and diff checks are green.
+
+`RESOLVED-TRIVIAL-OP0` is complete. It does not select the next independent
+EXACT0 producer. Raw Compare/operator, Array result, FieldGet, Call
+annotation, metadata propagation, finalization repair, origin policy, and
+Unknown retirement remain parked until the active D-prime selector chooses one
+new owner.
+
 ## Authority and transaction law
 
 S0 introduces one private prepared product adjacent to the existing operation
