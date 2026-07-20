@@ -1,5 +1,5 @@
 ---
-Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0 are closed; VERIFY-SPLIT0-FUNCTION-G0-D0 is next
+Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0 are closed; VERIFY-SPLIT0-FUNCTION-G0-S0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -2399,3 +2399,14 @@ MIRBUILDER-CLEAN0-VERIFY-MIXED-RET0-G0
 Stop the scoped row if it needs module PHI mutation/order changes, loop
 diagnostic semantics, historical-guard repair, a global helper-zero claim, or
 Return/type-pipeline/Call-Await/metadata/fact-session redesign.
+
+#### D0 closeout
+
+The production-callsite audit fixes the partition as one selected split
+function-finalizer consumer and two intentionally legacy mixed-helper
+consumers.  The old module finalizer has post-snapshot PHI mutation and the
+loop caller is an intermediate diagnostic, so neither can be silently folded
+into a completed-draft G0.  The historical guard is confirmed obsolete and
+quarantined.  No code or check was changed by D0.  The sole next row is the
+new scoped `VERIFY-SPLIT0-FUNCTION-G0-S0` guard; terminal mixed-helper
+retirement remains parked.
