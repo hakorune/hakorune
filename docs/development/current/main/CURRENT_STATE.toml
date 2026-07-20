@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINALIZE0 CFGSTREAM0-G0 is closed; CONTENTCFG0-S0 is next, and CUT0 remains forbidden"
+status = "FINALIZE0 CONTENTCFG0-S0 is closed; CONTENTCFG0-R0 is next, and CUT0 remains forbidden"
 date = "2026-07-21"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -317,7 +317,7 @@ finalize0_p0_production_census_task = "docs/development/current/main/investigati
 
 latest_card = "mirbuilder-finalize0-p0-production-census-task-2026-07-20"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-task-2026-07-20.md"
-latest_card_summary = """FINALIZE0-CENSUS0-P0a-S0b selects a three-row continuation after INCLUDE0. CFGSTREAM0 S0/P0/I0/G0 are closed: one ordered cfg/cfg_attr stream owns predicate evaluation, source order, active path effects, and the V2 topology decision published by module/include edges. The formal guard fixes one stream owner, one one-row predicate evaluator, two declaration consumers, and zero eager/reconstructing owners. CONTENTCFG0-S0 is now next: it must decide the pre-instance inner-content candidate boundary for Root or outer-Included ModuleEdge without making content reachability, module identity, or compiler facts. INCLUDE-SCOPE0 then separately replaces the unsound inherited ambiguity bool with module-local path-import ambiguity plus source-order textual macro state. Root/include P0 remains forbidden until all three G0 rows close. Block-local module identity, general macro/name resolution, FINALIZE0 policy, compiler behavior, and CUT0 remain zero."""
+latest_card_summary = """FINALIZE0-CENSUS0-P0a-S0b has closed CFGSTREAM0 through G0: one ordered cfg/cfg_attr stream owns predicate evaluation, source order, active path effects, and V2 topology decisions; its guard fixes one stream owner, one predicate evaluator, two declaration consumers, and zero eager/reconstructing owners. CONTENTCFG0-S0 is closed: disconnected vocabulary keeps Root versus ModuleEdge candidate identity separate from SourceFile versus InlineBody defining-surface evidence, and no traversal consumer exists. CONTENTCFG0-R0 is next: it must create the private parsed-content draft boundary before any root/external/inline connection. INCLUDE-SCOPE0 remains a separate scope correction. Block-local module identity, general macro/name resolution, FINALIZE0 policy, compiler behavior, and CUT0 remain zero."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -519,7 +519,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-CENSUS0-P0A-S0B-CONTENTCFG0-S0-076"
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-CENSUS0-P0A-S0B-CONTENTCFG0-R0-077"
 finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."

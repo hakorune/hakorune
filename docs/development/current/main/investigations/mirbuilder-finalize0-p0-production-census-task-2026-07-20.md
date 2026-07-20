@@ -1,5 +1,5 @@
 ---
-Status: CFGSTREAM0-G0 closed; CONTENTCFG0-S0 is next
+Status: CONTENTCFG0-S0 closed; CONTENTCFG0-R0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -1873,3 +1873,13 @@ the guarded implementation/test files below 800 lines.
 content-candidate vocabulary before any child-module instance is issued;
 inner cfg evaluation, source-content pruning, or compiler behavior remains
 for its later rows.
+
+##### `CONTENTCFG0-S0` closeout
+
+The disconnected content-gate vocabulary now keeps `Root` and `ModuleEdge`
+candidate identity distinct from `SourceFile` and `InlineBody` defining-surface
+evidence. `DeclaredModuleContentGateV1` holds the exact inner stream rows and
+the completed stream decision, but no traversal builds or consumes it yet.
+Focused tests pin both root/file and edge/inline pairings. The next row,
+`CONTENTCFG0-R0`, may introduce only the private parsed-content draft and must
+not alter accepted active shapes or connect traversal.
