@@ -1,8 +1,7 @@
 //! Prepared receipt for one successfully emitted FastMem MemOp.
 //!
-//! This is intentionally disconnected during FASTMEM-RECEIPT0-S0. It proves
-//! the existing function/region preflight without changing the legacy
-//! `note_fastmem_memop` timing until the later one-consumer cutover.
+//! Preparation validates the existing function/region boundary before
+//! emission; commit records the receipt only after the physical instruction.
 
 use crate::mir::builder::MirBuilder;
 use crate::mir::instruction::FastMemRegionId;
@@ -156,7 +155,7 @@ mod tests {
     }
 
     #[test]
-    fn pre_i0_direct_memop_failure_leaves_counter_residual() {
+    fn direct_memop_failure_publishes_no_counter_receipt() {
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("fastmem_receipt_direct_failure/0".to_string());
         let region = register_region(&mut builder, "ReceiptV1");
@@ -168,11 +167,11 @@ mod tests {
 
         assert_eq!(error, "No current basic block");
         assert_eq!(emitted_memop_count(&builder), 0);
-        assert_eq!(region_receipt_count(&builder), 1);
+        assert_eq!(region_receipt_count(&builder), 0);
     }
 
     #[test]
-    fn pre_i0_value_facade_failure_has_the_same_counter_residual() {
+    fn value_facade_failure_publishes_no_counter_receipt() {
         let mut builder = MirBuilder::new();
         builder.enter_function_for_test("fastmem_receipt_value_failure/0".to_string());
         let region = register_region(&mut builder, "ReceiptV1");
@@ -184,7 +183,7 @@ mod tests {
 
         assert_eq!(error, "No current basic block");
         assert_eq!(emitted_memop_count(&builder), 0);
-        assert_eq!(region_receipt_count(&builder), 1);
+        assert_eq!(region_receipt_count(&builder), 0);
     }
 
     #[test]

@@ -78,7 +78,8 @@ impl MirBuilder {
         operands: Vec<ValueId>,
         access: Option<MemOpAccess>,
     ) -> Result<(), String> {
-        self.note_fastmem_memop(region)?;
+        let receipt = super::receipt::PreparedFastMemMemOpReceiptV1::prepare(self, region)
+            .map_err(|error| error.to_string())?;
         self.emit_instruction(MirInstruction::MemOp {
             region,
             kind,
@@ -86,7 +87,9 @@ impl MirBuilder {
             operands,
             access,
             effects: kind.effect_mask(),
-        })
+        })?;
+        receipt.commit(self);
+        Ok(())
     }
 
     pub(crate) fn record_field_access_site(
@@ -425,26 +428,5 @@ impl MirBuilder {
             .find(|fact| fact.region == region && fact.resolved_length == Some(resolved_upper))
             .map(|fact| fact.length_value)
             .unwrap_or(fallback))
-    }
-
-    fn note_fastmem_memop(&mut self, region: FastMemRegionId) -> Result<(), String> {
-        let function = self
-            .function_state
-            .current_function
-            .as_mut()
-            .ok_or_else(|| "[freeze:contract][fastmem/outside_function]".to_string())?;
-        let Some(metadata) = function
-            .metadata
-            .fastmem_regions
-            .iter_mut()
-            .find(|entry| entry.id == region)
-        else {
-            return Err(format!(
-                "[freeze:contract][fastmem/unknown_region] region={}",
-                region.0
-            ));
-        };
-        metadata.emitted_memop_count += 1;
-        Ok(())
     }
 }

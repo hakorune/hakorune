@@ -11,6 +11,7 @@ from pathlib import Path
 from mirbuilder_type_fact_partition_guard import (
     validate_active_cutover_writer_inventory_v1,
     validate_const0_authority_v1,
+    validate_fastmem_receipt0_authority_v1,
     validate_p1_g0_profile_freeze_v1,
 )
 
@@ -36,6 +37,7 @@ class PartitionGuardTests(unittest.TestCase):
     def test_live_active_cutover_and_const0_authority_pass(self) -> None:
         validate_active_cutover_writer_inventory_v1(ROOT, fixture_copy())
         validate_const0_authority_v1(ROOT)
+        validate_fastmem_receipt0_authority_v1(ROOT)
 
     def test_profile_prerequisite_drift_rejects(self) -> None:
         data = fixture_copy()

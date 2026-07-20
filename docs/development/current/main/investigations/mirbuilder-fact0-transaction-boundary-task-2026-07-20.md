@@ -898,6 +898,44 @@ green (6/6), and `cargo check --all-targets` is green. Reconcile those stale
 FastMem behavior fixtures only in a separate maintenance row after receipt G0;
 do not change their source/route expectations in this timing-only row.
 
+### `FACT0-TX0-FASTMEM-RECEIPT0-I0` — closed (2026-07-20)
+
+`MirBuilder::emit_fastmem_memop` is now the sole production consumer of the
+prepared receipt. Its fixed order is:
+
+```text
+prepare current-function/registered-region receipt
+-> emit existing MemOp
+-> commit emitted_memop_count
+```
+
+The legacy `note_fastmem_memop` pre-emission counter writer is removed. The
+same helper still owns both direct MemOp and value-facade paths, so a failed
+emission now leaves both paths with zero physical MemOps and zero counter
+receipts. Successful direct emission remains one physical MemOp and one
+receipt. No FieldLoad type/site/origin reservation, region schema, caller
+policy, fallback, or retry changed. `FACT0-TX0-FASTMEM-RECEIPT0-G0` is now the
+sole next row.
+
+### `FACT0-TX0-FASTMEM-RECEIPT0-G0` — closed (2026-07-20)
+
+The existing `mirbuilder-type-fact-partition` guard now seals the selected
+timing owner without creating a guard family:
+
+```text
+shared preparation consumer = 1
+shared post-emission commit consumer = 1
+legacy pre-emission counter owner = 0
+counter increment owner = 1
+commit follows physical MemOp = 1
+```
+
+`cargo test -q --lib fastmem::receipt` passes 6/6, the partition guard and its
+unit suite pass, and `cargo check --all-targets` passes. The two known full
+FastMem stale expectations remain explicitly parked and are not masked. The
+next frontier is `FASTMEM-FIELDLOAD0-D0`: select its authority boundary before
+any new implementation row.
+
 ### Stop conditions
 
 Stop this row if it requires any of the following:

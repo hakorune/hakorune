@@ -523,6 +523,35 @@ def validate_fieldget_receipt0_authority_v1(root: Path) -> None:
             fail(f"FIELDGET-RECEIPT0 source/check file reached 800 lines: {path}")
 
 
+def validate_fastmem_receipt0_authority_v1(root: Path) -> None:
+    ops = code_only(read(root / "src/mir/builder/fastmem/ops.rs"))
+    receipt = code_only(read(root / "src/mir/builder/fastmem/receipt.rs"))
+
+    helper = ops.split("pub(crate) fn emit_fastmem_memop", 1)[1].split(
+        "pub(crate) fn record_field_access_site", 1
+    )[0]
+    if "note_fastmem_memop" in ops:
+        fail("FASTMEM-RECEIPT0 legacy pre-emission counter owner survived")
+    if helper.count("PreparedFastMemMemOpReceiptV1::prepare") != 1:
+        fail("FASTMEM-RECEIPT0 requires one shared receipt preparation consumer")
+    if helper.count("receipt.commit(self)") != 1:
+        fail("FASTMEM-RECEIPT0 requires one shared post-emission receipt consumer")
+    if helper.find("receipt.commit(self)") < helper.find("MirInstruction::MemOp"):
+        fail("FASTMEM-RECEIPT0 receipt commit must follow MemOp emission")
+
+    if receipt.count("fn commit(") != 1:
+        fail("FASTMEM-RECEIPT0 requires one receipt commit owner")
+    if receipt.count("emitted_memop_count += 1") != 1:
+        fail("FASTMEM-RECEIPT0 counter writer drift")
+    for path in (
+        root / "src/mir/builder/fastmem/ops.rs",
+        root / "src/mir/builder/fastmem/receipt.rs",
+        Path(__file__),
+    ):
+        if len(read(path).splitlines()) >= 800:
+            fail(f"FASTMEM-RECEIPT0 source/check file reached 800 lines: {path}")
+
+
 def check(root: Path) -> None:
     fixture = load_fixture(root)
     validate_p1_g0_profile_freeze_v1(fixture)
@@ -536,6 +565,7 @@ def check(root: Path) -> None:
     validate_compareemit0_authority_v1(root)
     validate_call_receipt0_authority_v1(root)
     validate_fieldget_receipt0_authority_v1(root)
+    validate_fastmem_receipt0_authority_v1(root)
     matrix = fixture.get("primary_matrix")
     if not isinstance(matrix, list):
         fail("FACT0 fixture primary matrix is invalid")
@@ -550,7 +580,7 @@ def check(root: Path) -> None:
         "shared_slices=2 const0=closed staticload0=closed checkselect0=closed "
         "literal_postemit_ret0=closed resolved_trivial_op0=closed "
         "resolved_direct_call0=closed compareemit0=closed call_receipt0=closed "
-        "fieldget_receipt0=closed"
+        "fieldget_receipt0=closed fastmem_receipt0=closed"
     )
 
 

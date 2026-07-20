@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FACT0-TX0-FASTMEM-RECEIPT0-S0/M0/P0 are closed; connect one shared receipt owner"
+status = "FACT0-TX0-FASTMEM-RECEIPT0 is closed; select the FastMem FieldLoad authority boundary"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -474,9 +474,14 @@ remain separate parked owners. FASTMEM-RECEIPT0-S0 now owns a disconnected
 private prepared receipt with no production emitter consumer; M0 must inventory
 the existing facade/timing matrix before the single I0 connection. The M0
 inventory fixes one physical owner and eight direct helper call sites; P0
-freezes the direct/value no-block counter residual. I0 alone may connect the
-shared receipt commit."""
-current_blocker_token = "DPRIME-MIRBUILDER-FACT0-TX0-FASTMEM-RECEIPT0-I0-032"
+freezes the direct/value no-block counter residual. I0 moves the one shared
+receipt commit after successful physical MemOp emission, and G0 seals that
+single owner through the existing partition guard. The next decision stop is
+FASTMEM-FIELDLOAD0-D0; its pre-emission typed destination, access-site, and
+origin reservations must not be silently joined to the closed generic receipt.
+The unrelated full-FastMem stale expectations remain parked as a maintenance
+row, not masked by this timing closure."""
+current_blocker_token = "DPRIME-MIRBUILDER-FACT0-TX0-FASTMEM-FIELDLOAD0-D0-033"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
