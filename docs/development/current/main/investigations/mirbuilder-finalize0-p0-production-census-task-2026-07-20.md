@@ -2653,3 +2653,39 @@ only retained local order. Candidate execution may only delete in descending
 per-block index order, rebuild cache from terminators, apply sorted rows,
 verify edges, close artifacts, and then commit once. No candidate or I0 route
 is selected by M0. `FINALIZE0-PHI-SPLIT0-P0` is the sole next row.
+
+### P0 implementation lock — tolerant analysis before strict verification
+
+`verify_phi_edges_v1` is intentionally **not** P0's input preflight. It must
+reject missing predecessor rows and non-dominating incoming values, while the
+legacy repair's only legitimate purpose is to complete or rematerialize those
+two bounded cases. P0 therefore owns this disconnected sequence:
+
+```text
+immutable MirFunction
+-> PhiRepairInputAnalysisV1 (terminator-derived, tolerant only at the two repair seams)
+-> PreparedLegacyPhiRepairCandidateV1 (non-Clone; no fresh ValueId; no mutation)
+-> owned MirFunction clone execution in one deterministic schedule
+-> terminator-derived cache rebuild
+-> verify_phi_edges_v1(candidate)
+-> explicit artifact-closure fixture
+-> drop candidate
+```
+
+Duplicate/phantom predecessor rows, undefined or duplicate definitions,
+unrepairable missing rows, cycles, non-rematerializable definitions, allocator
+cursor collision/overflow, and exception-region PHIs reject in input analysis.
+Missing rows are limited to the existing self-carried or exactly-one dominating
+incoming laws. Rematerialization remains limited to Const, Copy, BinOp,
+Compare, UnaryOp, Select, and an explicitly pure bounded substring Call. The
+plan uses plan-local IDs only; fresh `ValueId`s are assigned inside the moved
+candidate after a checked allocation budget.
+
+Unused-Phi deletion remains blocked in P0. Its candidate span row is observed,
+but no real `FunctionMetadata` closure exists yet. P0 may prove a deliberately
+declared fixture closure for paired instruction/span removal and fake
+positional/value artifacts; that proves the closure API's rejection laws, not
+coverage of real metadata or production deletion. The P0 candidate has no
+`commit_to_live` API, Builder/module/fact references, or production consumers.
+It may claim helper-local isolation only, never module freshness, transient
+fact completeness, caller conversion, or repair retirement.
