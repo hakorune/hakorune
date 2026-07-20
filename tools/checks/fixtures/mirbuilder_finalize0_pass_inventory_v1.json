@@ -20,6 +20,18 @@
     {"id":"module.enum_metadata_snapshot","site":"module_lifecycle.rs","anchor":"metadata.enum_decls =","class":"PublishDerivedArtifact","first_publication":"sealed declarations","status":"retain"},
     {"id":"module.condition_fn_compat_stub","site":"module_lifecycle.rs","anchor":"condition_fn","class":"LegacySemanticInference","first_publication":"compatibility route","status":"parked"},
     {"id":"module.region_observer_close","site":"module_lifecycle.rs","anchor":"pop_function_region","class":"VerifyCompletedDraft","first_publication":"function session lifecycle","status":"retain"},
-    {"id":"module.slot_registry_close","site":"module_lifecycle.rs","anchor":"current_slot_registry = None","class":"VerifyCompletedDraft","first_publication":"function session lifecycle","status":"retain"}
+    {"id":"module.slot_registry_close","site":"module_lifecycle.rs","anchor":"current_slot_registry = None","class":"VerifyCompletedDraft","first_publication":"function session lifecycle","status":"retain"},
+    {"id":"function.implicit_void_return","site":"calls/lowering.rs","anchor":"void_val = crate::mir::builder::emission::constant::emit_void","class":"VerifyCompletedDraft","first_publication":"function completion contract","status":"retain"},
+    {"id":"function.typed_value_verify","site":"calls/lowering.rs","anchor":"finalize_function_draft","class":"VerifyCompletedDraft","first_publication":"completed function draft","status":"retain"},
+    {"id":"module.implicit_main_return","site":"module_lifecycle.rs","anchor":"value: Some(result_value)","class":"VerifyCompletedDraft","first_publication":"main completion contract","status":"retain"},
+    {"id":"module.typed_value_verify","site":"module_lifecycle.rs","anchor":"verify_typed_values_are_defined","class":"VerifyCompletedDraft","first_publication":"completed function draft","status":"retain"},
+    {"id":"compiler.rune_refresh","site":"compiler/mod.rs","anchor":"refresh_module_rune_plans","class":"PublishDerivedArtifact","first_publication":"sealed declarations and finished body","status":"retain"},
+    {"id":"compiler.optimizer","site":"compiler/mod.rs","anchor":"optimizer.optimize_module","class":"NormalizeRepresentation","first_publication":"completed MIR draft","status":"retain"},
+    {"id":"compiler.contract_refresh","site":"compiler/mod.rs","anchor":"refresh_and_validate_for_boundary","class":"PublishDerivedArtifact","first_publication":"sealed contract carriers","status":"parked"},
+    {"id":"compiler.pre_verify","site":"compiler/mod.rs","anchor":"verify_module(&module)","class":"VerifyCompletedDraft","first_publication":"completed module draft","status":"retain"},
+    {"id":"compiler.legacy_rc","site":"compiler/mod.rs","anchor":"insert_rc_instructions","class":"LegacySemanticInference","first_publication":"legacy compatibility route","status":"parked"},
+    {"id":"compiler.semantic_refresh","site":"compiler/mod.rs","anchor":"refresh_module_semantic_metadata(&mut module)","class":"PublishDerivedArtifact","first_publication":"sealed MIR/contracts","status":"parked"},
+    {"id":"compiler.callsite_canonicalize","site":"compiler/mod.rs","anchor":"canonicalize_for_site","class":"NormalizeRepresentation","first_publication":"completed module draft","status":"retain"},
+    {"id":"compiler.semantic_refresh_after_canonicalize","site":"compiler/mod.rs","anchor":"semantic_refresh_after_canonicalize","class":"PublishDerivedArtifact","first_publication":"canonicalized MIR/contracts","status":"parked"}
   ]
 }
