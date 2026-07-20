@@ -113,17 +113,30 @@ cargo check --all-targets
 
 ## M0 and P0 requirements
 
-M0 inventories the one producer and its current timing:
+### `CHECKSELECT0-M0` — closed (2026-07-20)
+
+The current one-site timing inventory is:
 
 ```text
 `emit_integer(1)` and `emit_integer(0)` publish CONST0 Integer
 empty CheckExpr returns `one`
-each non-empty item emits one Select and then writes Integer
+each non-empty item lowers its condition, emits one Select, then writes Integer
 ```
 
-It must prove that a failed `Select` cannot be followed by the current write.
-No Compare, operator-call, PHI, field, or generic branch producer joins this
-row.
+`emit_instruction` returns before the following write when `current_block` is
+absent or block creation fails, so a failed Select cannot reach the current
+destination type publication. No early function-metadata write exists; normal
+finalization later snapshots `type_ctx.value_types`.
+
+The accumulator invariant is inductive: CONST0 publishes Integer for `one` and
+`zero`; each successful Select destination is directly published Integer before
+it becomes the next `ok`. The condition is never read as an Integer authority.
+Compare, operator-call, PHI, field, and generic branch producers do not join
+this one-site inventory.
+
+`CHECKSELECT0-P0` is now the sole next row.
+
+### `CHECKSELECT0-P0` — required proof
 
 P0 fixes:
 

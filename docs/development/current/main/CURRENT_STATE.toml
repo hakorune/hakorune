@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "CHECKSELECT0-S0 is closed; CheckExpr Select timing inventory M0 is next"
+status = "CHECKSELECT0-M0 is closed; CheckExpr Select proof P0 is next"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -310,9 +310,10 @@ Select is the next exact producer because its then/else values are already
 exact Integer under CONST0. The condition is non-authority; generic Select
 inference is not claimed. CHECKSELECT0-S0 is closed: one disconnected map-free
 TypeFactDecision preparation product has zero Builder, ValueId, MIR, metadata,
-or production-consumer delta. M0 is the sole next row and inventories exact
-emission/fact timing before I0 may connect one post-emission transient Integer
-commit. Compare,
+or production-consumer delta. M0 is closed: CONST0 one/zero establish the
+accumulator induction, and failed Select emission cannot reach the current
+write. P0 is the sole next row before I0 may connect one post-emission
+transient Integer commit. Compare,
 operator/call-backed writers, PHI, FieldGet, Call, origin, Unknown retirement,
 and finalization repair remain separate rows. STATICLOAD0-D0 is closed: the
 previous sole producer was an
@@ -447,7 +448,7 @@ METAPROP0 owner after COMPCTX0/CONFIG0 and before PLAN0-CUT0; FACT0-G0 remains
 the final global-zero gate after that owner plus FINALIZE0, PLAN0, COMPCTX0,
 CONFIG0, and RAWADAPT0 retire their named legacy writers.
 NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-FACT0-I1-CHECKSELECT0-M0-001"
+current_blocker_token = "DPRIME-MIRBUILDER-FACT0-I1-CHECKSELECT0-P0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 

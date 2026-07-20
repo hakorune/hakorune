@@ -1825,7 +1825,9 @@ remain separate authorities. No production consumer is authorized before I0.
 prepares only Integer publication from an optional destination fact, with
 Missing/StoredUnknown publish, Integer idempotence, and exact conflict tests.
 It has no Builder, ValueId, MIR, TypeContext, or production-consumer authority.
-`CHECKSELECT0-M0` is next.
+`CHECKSELECT0-M0` is closed: CONST0 one/zero establish exact accumulator
+induction; condition lowering precedes Select; and `emit_instruction` failure
+returns before the legacy direct Integer write. `CHECKSELECT0-P0` is next.
 
 ## Phase 4 — FINALIZE0
 
