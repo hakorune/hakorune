@@ -166,6 +166,22 @@ pub struct CfgAttributeStreamInputRowV1 {
     pub syntax: String,
 }
 
+/// One file-scoped, source-derived inner-attribute surface.
+///
+/// The rows are intentionally not merged across files: their source ordinals
+/// are local to this file, while the outer product owns the file path and exact
+/// source digest. CONTENTCFG0 will later decide which of these surfaces is a
+/// reachable content candidate.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+pub struct FileInnerTopologyAttributeSurfaceV1 {
+    pub source_path_workspace_relative: String,
+    pub source_digest: String,
+    pub rows: Box<[CfgAttributeStreamInputRowV1]>,
+    pub inner_cfg_count: usize,
+    pub inner_cfg_attr_count: usize,
+    pub inner_path_count: usize,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum CfgAttributeStreamRowDispositionV1 {

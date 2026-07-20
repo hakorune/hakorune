@@ -1,5 +1,5 @@
 ---
-Status: CFGSTREAM0-S0 closed; CFGSTREAM0-P0 is next
+Status: CFGSTREAM0-P0 closed; CFGSTREAM0-I0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -851,8 +851,8 @@ Task order:
 
 ```text
 CFGSTREAM0-S0  # closed: pure vocabulary/decision, production consumers = 0
-CFGSTREAM0-P0  # sole next: source-order and nested-cfg_attr matrix
-CFGSTREAM0-I0  replace the existing eager cfg-row owner once
+CFGSTREAM0-P0  # closed: source-derived inner-topology attribute/profile matrix
+CFGSTREAM0-I0  # sole next: replace the existing eager cfg-row owner once
 CFGSTREAM0-G0  decision owners = 1; eager all-row owners = 0
 ```
 
@@ -892,6 +892,42 @@ path-unknown, and empty-stream boundaries. `cargo test
 MODULE0/INCLUDE0 guards, and the current-state pointer guard are green. P0 now
 owns source-derived/profile matrix evidence; it must not connect the existing
 eager traversal consumer.
+
+##### `CFGSTREAM0-P0` closeout
+
+`FileInnerTopologyAttributeSurfaceV1` is now the disconnected source product
+for one complete Rust file. It owns a workspace-relative source path, exact
+source digest, and one file-local ordered stream of only inner `cfg`,
+`cfg_attr`, and `path` attributes. Each stream row preserves the parsed meta
+range and its exact source slice; token-display reconstruction is not used.
+Inner documentation comments and other non-topology attributes are purposely
+outside this product because their comment-shaped source is not a second syntax
+authority. File-local rows are never merged across files.
+
+The existing Cargo/rustc evidence conversion was moved to the neutral
+`cfg_environment_from_declared_unit_evidence_v1` owner. Both the still-legacy
+module traversal and this disconnected proof use that one conversion; P0 does
+not assemble feature, target, test, or debug facts from a profile label.
+
+The root `src/**/*.rs` static inventory now proves:
+
+```text
+inner cfg rows      = 17
+inner cfg_attr rows = 0
+inner path rows     = 0
+```
+
+Against the six sealed Cargo/rustc profiles, direct raw-file stream decisions
+are deterministic and contain no `Unknown` result. The raw source matrix has
+eight Included rows only for `host-vm-reference-dev`; each of the other five
+profiles has zero Included rows. This is not a module-content reachability
+claim: the later CONTENTCFG0-P0 owns the distinct outer-candidate matrix of
+eleven host-test rows, all Excluded.
+
+P0 remains disconnected from module/include traversal and emits no module
+instance, content gate, path selection, or compiler fact. `CFGSTREAM0-I0` is
+now the sole next row and may make the existing eager module/include cfg users
+thin consumers of the selected stream owner.
 
 ##### `CONTENTCFG0` — module-content candidate authority
 

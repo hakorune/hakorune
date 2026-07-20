@@ -1,14 +1,64 @@
+use std::collections::{BTreeMap, BTreeSet};
+
 use cfg_expr::{targets::get_builtin_target_by_triple, Expression, Predicate, TargetPredicate};
 use quote::ToTokens;
 use syn::parse::Parser;
 use syn::punctuated::Punctuated;
 use syn::{Meta, Token};
 
+use super::cargo::CargoDeclaredUnitProcessEvidenceV1;
 use super::error::CfgDecisionErrorV1;
 use super::model::{
     CargoTargetKindV1, CfgDecisionStateV1, CfgDecisionV1, CfgEvaluationEnvironmentV1,
     CfgRowDecisionV1,
 };
+
+/// Builds one exact CFG environment from sealed Cargo and rustc evidence.
+///
+/// This conversion is shared by the legacy module gate and disconnected
+/// source-surface proofs. Neither consumer may hand-assemble feature or
+/// target facts from a profile label.
+pub fn cfg_environment_from_declared_unit_evidence_v1(
+    evidence: &CargoDeclaredUnitProcessEvidenceV1,
+) -> CfgEvaluationEnvironmentV1 {
+    let declared = evidence.declared_unit();
+    let probe = evidence.rustc_cfg_probe();
+    let known_flags = probe
+        .cfg_flags()
+        .iter()
+        .cloned()
+        .map(|flag| (flag, true))
+        .collect::<BTreeMap<_, _>>();
+    let known_key_values = probe
+        .cfg_key_values()
+        .iter()
+        .map(|(key, values)| (key.clone(), values.iter().cloned().collect()))
+        .collect::<BTreeMap<String, BTreeSet<String>>>();
+    let target_features = known_key_values
+        .get("target_feature")
+        .cloned()
+        .unwrap_or_default();
+    CfgEvaluationEnvironmentV1 {
+        profile_id: declared.profile_id().to_string(),
+        target_kind: declared.target().semantic_kind(),
+        target_triple: probe.target_triple().to_string(),
+        activated_features: declared
+            .cargo_resolved_root_features()
+            .iter()
+            .cloned()
+            .collect(),
+        test_cfg: probe.cfg_flags().iter().any(|flag| flag == "test"),
+        debug_assertions: probe
+            .cfg_flags()
+            .iter()
+            .any(|flag| flag == "debug_assertions"),
+        target_features,
+        target_features_sealed: true,
+        target_predicates_sealed: true,
+        known_flags,
+        known_key_values,
+    }
+}
 
 pub fn decide_cfg_rows_v1(
     rows: &[String],

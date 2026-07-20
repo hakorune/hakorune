@@ -5,12 +5,12 @@ use std::path::{Path, PathBuf};
 use crate::extract_single_file_source;
 use crate::project::cargo::CargoDeclaredUnitProcessEvidenceV1;
 use crate::project::{
-    collect_workspace_input_fingerprints_v1, CfgDecisionStateV1, CfgEvaluationEnvironmentV1,
+    cfg_environment_from_declared_unit_evidence_v1, collect_workspace_input_fingerprints_v1,
+    CfgDecisionStateV1, CfgEvaluationEnvironmentV1,
 };
 
 use super::cfg_gate::{
-    decide_module_cfg_v1, sealed_cfg_environment_v1, select_active_path_v1,
-    validate_active_cfg_attributes_v1,
+    decide_module_cfg_v1, select_active_path_v1, validate_active_cfg_attributes_v1,
 };
 use super::declarations::{
     include_literal, outer_cfg_syntax, parse_included_module_source_v1, parse_module_source_v1,
@@ -58,7 +58,7 @@ pub fn collect_declared_module_topology_v1(
         ),
     )?;
     let root_canonical = canonical_regular_file(&workspace_root, &root_lexical)?;
-    let environment = sealed_cfg_environment_v1(evidence);
+    let environment = cfg_environment_from_declared_unit_evidence_v1(evidence);
     let mut traversal = ModuleTraversalV1::new(
         workspace_root.clone(),
         evidence.declared_unit().profile_id(),

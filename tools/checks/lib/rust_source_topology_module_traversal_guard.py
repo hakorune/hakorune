@@ -86,10 +86,10 @@ def main() -> None:
         "module declaration parser",
     )
     require_count(
-        sources["cfg_gate"],
-        "pub(super) fn sealed_cfg_environment_v1(",
+        sources["cfg_eval"],
+        "pub fn cfg_environment_from_declared_unit_evidence_v1(",
         1,
-        "sealed cfg environment",
+        "sealed Cargo/rustc cfg environment owner",
     )
     require_count(
         sources["path_resolution"],
@@ -105,7 +105,7 @@ def main() -> None:
     )
     require_count(
         sources["cfg_eval"],
-        "target_predicates_sealed",
+        "Predicate::Target(target_predicate) if environment.target_predicates_sealed",
         1,
         "sealed target predicate branch",
     )
@@ -160,7 +160,7 @@ def main() -> None:
         fail(f"source/check files reached 800 lines: {oversized}")
 
     print(
-        f"[{TAG}] ok traversal=1 declaration_parser=1 cfg_owner=1 "
+        f"[{TAG}] ok traversal=1 declaration_parser=1 cfg_environment_owner=1 "
         "path_owner=1 cli_consumers=0 tests=7 profiles=6"
     )
 
