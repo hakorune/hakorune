@@ -1,0 +1,215 @@
+---
+Status: Active implementation task
+Date: 2026-07-20
+Scope: one sealed resolved-trivial Binary/Compare type-fact producer
+Parent: docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md
+Predecessor: docs/development/current/main/investigations/mirbuilder-literal-postemit-retirement-task-2026-07-20.md
+---
+
+# RESOLVED-TRIVIAL-OP0: publish one sealed trivial-operation type fact
+
+## Decision
+
+`RESOLVED-TRIVIAL-OP0-D0` selects one exact producer only:
+`resolved_lowering::trivial_ssa::operation::emit_binary`.
+
+The function receives an existing sealed `TrivialRepresentationV1` only after
+the resolved-trivial lowerer claims the exact expression site from its verified
+profile. It emits one `BinOp` or `Compare`, then directly writes the matching
+`MirType` to the fresh destination. That existing write is the selected
+post-success exact-fact producer.
+
+```text
+exact resolved expression site
+  -> profile.claim_value(site)
+  -> TrivialRepresentationV1
+  -> operation::emit_binary
+  -> successful MirInstruction::BinOp | Compare
+  -> exact destination type fact
+```
+
+The selected representation law is closed and name-free:
+
+```text
+InlineI64          -> Integer
+InlineBool         -> Bool
+InlineF64          -> Float
+ExplicitVoidValue  -> Void
+NullSentinel       -> Void
+```
+
+`RESOLVED-TRIVIAL-OP0-S0` is the sole next code-facing row.
+
+```text
+RESOLVED-TRIVIAL-OP0-S0
+  -> RESOLVED-TRIVIAL-OP0-M0
+  -> RESOLVED-TRIVIAL-OP0-P0
+  -> RESOLVED-TRIVIAL-OP0-I0
+  -> RESOLVED-TRIVIAL-OP0-G0
+```
+
+This is an EXACT0 producer cutover. It neither widens resolved-trivial
+grammar nor treats a raw operator or generic compare path as equivalent.
+
+## Authority and transaction law
+
+S0 introduces one private prepared product adjacent to the existing operation
+owner. Its sole job is to turn the already sealed representation into the
+existing exact `TypeFactDecisionV1` before instruction emission.
+
+```rust
+struct PreparedResolvedTrivialOperationTypeV1 {
+    decision: TypeFactDecisionV1,
+}
+```
+
+The final shape may use the repository's exact decision vocabulary directly;
+it must not add a second type map, a source-site map, or a duplicate
+representation classifier.
+
+```text
+1. caller claims the exact profile representation
+2. operation prepares the exact type decision for its fresh destination
+3. operation emits BinOp or Compare
+4. only after success, the prepared decision commits
+5. operation returns the destination
+```
+
+The commit is non-fallible. Fresh-destination conflict checks are completed
+before instruction emission.
+
+```text
+successful emission:
+  Missing -> Publish(T)
+  Unknown -> Publish(T)
+  Exact(T) -> Idempotent(T)
+
+pre-existing Exact(U), U != T:
+  typed conflict before emission
+
+emission failure:
+  instruction/type/origin/cache/profile-retry delta = 0
+```
+
+The row has no origin, metadata, SSA-binding, cache, finalization, runtime,
+backend, or grammar authority.
+
+## M0 inventory contract
+
+M0 must prove, without production rewiring, all of the following:
+
+```text
+operation producer:
+  exactly one direct write in operation.rs
+
+callers:
+  every emit_binary call receives representation from the existing
+  profile.claim_value(expression.site()) path
+
+instruction receipt:
+  builder.emit_instruction(instruction)? precedes the direct write
+
+instruction families:
+  arithmetic -> BinOp
+  comparison -> Compare
+
+destination:
+  fresh from next_value_id
+```
+
+It must inventory `ExplicitVoidValue` and `NullSentinel` even when the first
+resolved-trivial corpus does not execute every operator/representation pair.
+
+## P0 proof matrix
+
+The disconnected owner must test:
+
+```text
+all five TrivialRepresentationV1 mappings
+Missing / Unknown / matching exact / conflicting exact destination states
+arithmetic and comparison instruction selection
+successful post-emission commit ordering
+failed emission has no exact type publication
+```
+
+M0/P0 keep production consumers at zero. Synthetic transaction tests may use
+a narrow fake receipt; they must not make final function metadata a
+lowering-time authority.
+
+## I0 and G0 contract
+
+I0 replaces only this direct writer:
+
+```text
+src/mir/builder/resolved_lowering/trivial_ssa/operation.rs
+```
+
+Exactly one operation emitter prepares and commits exactly one decision. The
+existing profile claim remains the sole representation authority, and
+`emit_instruction` remains the sole success receipt.
+
+G0 extends the existing `mirbuilder-type-fact-partition` guard rather than
+creating a new guard family. It must freeze:
+
+```text
+resolved-trivial operation direct writes = 0
+prepared decision owners = 1
+successful commit consumers = 1
+profile representation classifiers added here = 0
+origin / final metadata / retry writers added here = 0
+all touched source/check files < 800 lines
+```
+
+## Parked adjacent writers
+
+These are intentionally not part of this row.
+
+```text
+raw Compare:
+  cf_common::emit_compare_func may take a void/no-op branch while publishing
+  Bool, so COMPARE-RECEIPT0 must establish a physical success receipt first.
+
+raw operator lowering:
+  contains call/environment/name-compatible routes and belongs to OPERATOR0.
+
+Array element result:
+  array/map metadata annotation currently happens independently of the call
+  emission result and needs ARRAY-FACT0 transaction work.
+
+FieldGet:
+  typed allocation is pre-emission and FastMem owns a separate fallback.
+
+Call annotation:
+  signature/name-compatible annotation and failure timing remain CALL-ANNOTATION0.
+
+LocalSSA and metadata propagation:
+  COPY0 is closed; metadata::propagate still mixes type, origin, String, Map,
+  Record, and compatibility state under METAPROP0.
+```
+
+## Stop conditions
+
+Stop before I0 and open a new design row if any of these become necessary:
+
+```text
+an emit_binary caller lacks a sealed profile representation
+the destination is not fresh or needs a concrete overwrite
+the selected representation conflicts with its emitted instruction law
+the conflict needs fallback, retry, or raw routing
+origin/metadata/SSA/cache/finalization state must change
+raw Compare, raw operator, direct call, FieldGet, or array writers must move
+source name, runtime tag, final metadata, or environment policy is needed
+a touched source/check file reaches 800 lines
+```
+
+## Decision lock
+
+> **RESOLVED-TRIVIAL-OP0 selects one post-success exact-fact producer:
+> `trivial_ssa::operation::emit_binary`. The existing verified profile claim is
+> the sole source/representation authority; the existing successful `BinOp` or
+> `Compare` emission is the sole receipt. A private prepared decision may use
+> the existing `TypeFactDecisionV1` to publish only the mapped exact type after
+> that receipt, reject a conflicting concrete prestate before emission, and
+> leave emission failure with no type, origin, cache, retry, or metadata delta.
+> Raw Compare/operator, Array, FieldGet, Call annotation, metadata propagation,
+> finalization, and all representation or grammar widening remain parked.**
