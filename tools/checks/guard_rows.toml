@@ -97,3 +97,9 @@ id = "guard-spec-pilot"
 label = "guard declarative spec pilot no-growth guard"
 profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/guard_spec_pilot_guard.sh"]
+
+[[rows]]
+id = "mirbuilder-copy-unknown-authority"
+label = "COPY-UNKNOWN0 LocalSSA post-success authority guard"
+profiles = ["pilot"]
+cmd = ["tools/checks/lib/mirbuilder_copy_unknown_authority_guard.py", "."]

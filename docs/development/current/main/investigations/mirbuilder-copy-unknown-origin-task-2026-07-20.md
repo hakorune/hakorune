@@ -365,9 +365,9 @@ cargo check --all-targets
 `COPY-UNKNOWN0-G0` is now the sole next row. It freezes the one-owner counts
 and direct-write exclusions before COPY0 may start.
 
-### `COPY-UNKNOWN0-G0`
+### `COPY-UNKNOWN0-G0` — closed (2026-07-20)
 
-Freeze these counts:
+One existing manifest-backed row guard now freezes these counts:
 
 ```text
 post-success decision owners = 1
@@ -379,8 +379,18 @@ physical materialization classifiers = 1
 non-Copy rematerialization COPY0 consumers = 0
 ```
 
-Only after this closeout may COPY0 use the existing `TypeFactDecisionV1` for
-the `PhysicalCopy` exact lane.
+It additionally rejects direct LocalSSA destination type/origin writes,
+`metadata::propagate` reuse, and any premature `TypeFactDecisionV1` consumer.
+It checks the touched source/check files remain below 800 lines.
+
+Focused evidence:
+
+```text
+tools/checks/run_row_guard.sh --only mirbuilder-copy-unknown-authority
+```
+
+`COPY0-S0` is now the sole next row. Only there may the existing
+`TypeFactDecisionV1` become the disconnected exact physical-Copy publisher.
 
 ## COPY0 contract after this prerequisite
 
