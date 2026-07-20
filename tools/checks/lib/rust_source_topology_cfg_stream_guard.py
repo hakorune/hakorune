@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Freeze CFGSTREAM0's one ordered module/include decision owner."""
+"""Freeze CFGSTREAM0 and CONTENTCFG0 topology decision boundaries."""
 
 from __future__ import annotations
 
@@ -14,6 +14,9 @@ FILES = {
     "cfg_stream": f"{TOOL}/src/project/cfg_stream.rs",
     "model": f"{TOOL}/src/project/model.rs",
     "cfg_gate": f"{TOOL}/src/project/modules/cfg_gate.rs",
+    "content_gate": f"{TOOL}/src/project/modules/content_gate.rs",
+    "content_draft": f"{TOOL}/src/project/modules/content_draft.rs",
+    "content_candidate": f"{TOOL}/src/project/modules/content_candidate.rs",
     "declarations": f"{TOOL}/src/project/modules/declarations.rs",
     "module_model": f"{TOOL}/src/project/modules/model.rs",
     "traversal": f"{TOOL}/src/project/modules/traversal.rs",
@@ -57,6 +60,8 @@ def main() -> None:
             "cfg_eval",
             "cfg_stream",
             "cfg_gate",
+            "content_gate",
+            "content_draft",
             "declarations",
             "module_model",
             "traversal",
@@ -136,6 +141,144 @@ def main() -> None:
     if "excluded_nested" not in sources["include_test"]:
         fail("missing excluded include cfg_attr fixture")
 
+    require_count(
+        sources["content_gate"],
+        "pub struct DeclaredModuleContentGateV1",
+        1,
+        "content gate vocabulary owner",
+    )
+    require_count(
+        sources["content_draft"],
+        "pub(super) fn classify_module_content_draft_v1(",
+        1,
+        "content gate classifier owner",
+    )
+    require_count(
+        sources["content_draft"],
+        "CfgDecisionStateV1::Unknown => Err(ModuleContentDraftErrorV1::UnknownCfg",
+        1,
+        "unknown content gate typed stop",
+    )
+    require_count(
+        sources["content_issuance"],
+        "impl ModuleTraversalV1 {",
+        1,
+        "post-outer-cfg content issuance owner",
+    )
+    require_count(
+        sources["content_issuance"],
+        "pub(super) fn add_inline_module(",
+        1,
+        "inline content issuance consumer",
+    )
+    require_count(
+        sources["content_issuance"],
+        "pub(super) fn add_external_module(",
+        1,
+        "external content issuance consumer",
+    )
+    require_count(
+        sources["traversal"],
+        "self.classify_file_content(ModuleContentCandidateIdV1::Root",
+        1,
+        "root content issuance consumer",
+    )
+    require_count(
+        sources["traversal"],
+        "root_content_gate: None,",
+        1,
+        "empty traversal root-gate state",
+    )
+    require_count(
+        sources["traversal"],
+        "\n                    content_gate: None,",
+        1,
+        "outer-excluded edge no-gate publication",
+    )
+    require_count(
+        sources["content_issuance"],
+        "content_gate: Some(content_gate),",
+        4,
+        "outer-included content-gate publications",
+    )
+    require_count(
+        sources["content_issuance"],
+        "ModuleContentCandidateIdV1::ModuleEdge {",
+        2,
+        "external and inline edge candidate issuers",
+    )
+    require_count(
+        sources["content_issuance"],
+        "ClassifiedModuleContentDraftV1::Excluded { gate } => (gate, None),",
+        2,
+        "excluded content has no direct declaration product",
+    )
+    require_count(
+        sources["content_issuance"],
+        "let Some(parsed) = parsed else {",
+        2,
+        "excluded content stops before child issuance",
+    )
+    require_count(
+        sources["traversal"],
+        "ModuleContentCandidateIdV1::ModuleEdge {",
+        1,
+        "read-only edge candidate identity verifier",
+    )
+    require_count(
+        sources["module_model"],
+        "pub root_content_gate: DeclaredModuleContentGateV1",
+        1,
+        "root gate topology publication",
+    )
+    require_count(
+        sources["module_model"],
+        "pub content_gate: Option<DeclaredModuleContentGateV1>",
+        1,
+        "edge gate topology publication",
+    )
+    for source_name, forbidden, label in (
+        (
+            "traversal",
+            "resolve_external_module_v1",
+            "traversal must not resolve post-gate external content",
+        ),
+        (
+            "content_issuance",
+            "decide_module_cfg_stream_v1",
+            "content issuer must not re-evaluate outer cfg",
+        ),
+        (
+            "content_issuance",
+            "decide_cfg_attribute_stream_v1",
+            "content issuer must not re-evaluate inner cfg",
+        ),
+        (
+            "content_issuance",
+            "content_gate: None",
+            "included issuer must not publish an absent content gate",
+        ),
+        (
+            "traversal",
+            "inline_items",
+            "retired eager inline declaration surface",
+        ),
+    ):
+        require_absent(sources[source_name], forbidden, label)
+
+    if "#[cfg(test)]\nmod content_candidate;" not in read(
+        root, f"{TOOL}/src/project/modules/mod.rs"
+    ):
+        fail("content candidate observer escaped cfg(test)")
+    for fixture in (
+        "content_gate_controls_root_external_and_inline_instance_issue",
+        "content_gate_unknown_and_outer_exclusion_have_distinct_typed_boundaries",
+        "reachable_inner_cfg_and_unknown_attribute_stop_explicitly",
+        "excluded_content_is_parsed_but_never_exposes_direct_items",
+    ):
+        if fixture not in sources["module_test"] + sources["content_draft"]:
+            fail(f"missing content-gate boundary fixture: {fixture}")
+
     guarded = [*FILES.values(), SELF]
     oversized = [
         relative for relative in guarded if len(read(root, relative).splitlines()) >= 800
@@ -145,7 +288,8 @@ def main() -> None:
 
     print(
         f"[{TAG}] ok stream_owner=1 predicate_owner=1 declaration_consumers=2 "
-        "eager_owners=0 effect_product=1"
+        "eager_owners=0 effect_product=1 content_gate_owners=1 "
+        "content_issuance_owner=1 excluded_edge_gate=0 unknown_success=0"
     )
 
 

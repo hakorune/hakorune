@@ -1,5 +1,5 @@
 ---
-Status: CONTENTCFG0-I0 closed; CONTENTCFG0-G0 is next
+Status: CONTENTCFG0-G0 closed; INCLUDE-SCOPE0-S0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -1950,3 +1950,23 @@ behind excluded content. The standalone topology suite, CFGSTREAM0 guard,
 pointer guard, and root `cargo check` are green. `CONTENTCFG0-G0` is next and
 alone may freeze the one production gate/issuance owner and its negative
 boundaries. CUT0 remains forbidden.
+
+##### `CONTENTCFG0-G0` closeout
+
+The registered `rust-source-topology-cfg-stream` guard is now the shared
+CFGSTREAM0/CONTENTCFG0 boundary guard. It fixes one content-gate vocabulary
+owner, one three-way content classifier, one post-outer-cfg issuance owner,
+and exactly the root plus external/inline issuance consumers. The only absent
+edge gate is the outer-Excluded publication; every outer-Included edge retains
+its gate. The guard also fixes two `Excluded -> None` direct-item transitions,
+two early returns before child issuance, the typed Unknown stop, and the sole
+read-only edge-candidate identity verifier. The test-only candidate observer
+remains behind `#[cfg(test)]`.
+
+Focused root/external/inline tests prove Included, Excluded, and Unknown
+boundaries; the private draft tests prove that excluded content exposes no
+direct items and cannot probe descendants. The registered guard, standalone
+topology suite, content-draft suite, checker/root `cargo check`, pointer guard,
+and diff check are green. `INCLUDE-SCOPE0-S0` is next. CONTENTCFG0 makes no
+claim about module-local import scope, textual macro scope, block-local module
+identity, general name/macro resolution, compiler behavior, or CUT0.
