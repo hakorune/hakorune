@@ -104,7 +104,7 @@ authorized.
 
 ## Row plan
 
-### `FACT0-I1-EXACT0-CONST0-S0` — next code-facing row
+### `FACT0-I1-EXACT0-CONST0-S0` — closed (2026-07-20)
 
 ```text
 production behavior delta: 0
@@ -114,6 +114,18 @@ production consumers: 0
 Add one disconnected Const representation-to-type decision/prepare vocabulary
 and focused tests. It may borrow `TypeFactDecisionV1`; it must not add a second
 type map, Builder field, direct writer replacement, or new fact facade.
+
+The disconnected owner is `emission::constant_type`:
+
+```text
+ConstValue -> exact MirType -> PreparedTypeFactPublicationV1
+```
+
+It owns no `MirBuilder`, `TypeContext`, `ValueId`, instruction emission, fact
+commit, or String companion publication. Its four focused tests seal all six
+variant mappings, Missing/StoredUnknown publication, exact idempotence, and
+concrete conflict. The existing direct writers remain unchanged; production
+consumers are still zero.
 
 ### `CONST0-M0`
 
