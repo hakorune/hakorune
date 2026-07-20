@@ -8,7 +8,11 @@ import json
 import unittest
 from pathlib import Path
 
-from mirbuilder_type_fact_partition_guard import validate_p1_g0_profile_freeze_v1
+from mirbuilder_type_fact_partition_guard import (
+    validate_active_cutover_writer_inventory_v1,
+    validate_const0_authority_v1,
+    validate_p1_g0_profile_freeze_v1,
+)
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -28,6 +32,10 @@ def partition(data: dict[str, object], source_file: str) -> dict[str, object]:
 class PartitionGuardTests(unittest.TestCase):
     def test_live_fixture_passes(self) -> None:
         validate_p1_g0_profile_freeze_v1(fixture_copy())
+
+    def test_live_active_cutover_and_const0_authority_pass(self) -> None:
+        validate_active_cutover_writer_inventory_v1(ROOT, fixture_copy())
+        validate_const0_authority_v1(ROOT)
 
     def test_profile_prerequisite_drift_rejects(self) -> None:
         data = fixture_copy()

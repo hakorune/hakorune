@@ -9,8 +9,14 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from mirbuilder_type_fact_producer_inventory import check as check_inventory
-from mirbuilder_type_fact_producer_inventory import fail, load_fixture
+from mirbuilder_type_fact_producer_inventory import (
+    code_only,
+    fail,
+    load_fixture,
+    read,
+    require_anchor,
+    writer_counts,
+)
 
 
 EXPECTED_COUNTS = {
@@ -79,6 +85,18 @@ EXPECTED_SHARED_PROFILE_SETS = {
     ("explicit_static_legacy", "receiver_param0_rcv0"),
 }
 EXPECTED_PARTITION_DIGEST = "8f85e1ee5db91b5b6f58f5a6d69ee37382722ac8e8e41d8153be245e45f80cde"
+
+# The P1 fixture remains the immutable pre-cutover census. These are the only
+# approved current source-level replacements landed by later independent rows.
+# A new FACT0 row must extend this map deliberately; it may not rewrite the
+# historical partition to make a direct writer disappearance look invisible.
+ACTIVE_CUTOVER_WRITER_REPLACEMENTS = {
+    "src/mir/builder/ssa/local.rs": None,
+    "src/mir/builder/ssa/local/copy_type.rs": 1,
+    "src/mir/builder/ssa/local/post_success.rs": 3,
+    "src/mir/builder/emission/constant.rs": None,
+    "src/mir/builder/emission/constant_type.rs": 1,
+}
 
 
 def partition_projection_v1(fixture: dict[str, object]) -> dict[str, object]:
@@ -184,12 +202,68 @@ def validate_p1_g0_profile_freeze_v1(fixture: dict[str, object]) -> None:
         fail("P1-G0 cannot name FACT0-G0 as a retirement prerequisite")
 
 
+def validate_active_cutover_writer_inventory_v1(root: Path, fixture: dict[str, object]) -> None:
+    baseline = fixture.get("write_inventory")
+    if not isinstance(baseline, dict):
+        fail("active FACT0 cutover requires write_inventory")
+    expected = dict(baseline)
+    for path, count in ACTIVE_CUTOVER_WRITER_REPLACEMENTS.items():
+        if count is None:
+            expected.pop(path, None)
+        else:
+            expected[path] = count
+    actual = writer_counts(root)
+    if actual != expected:
+        fail(
+            "active FACT0 direct-writer inventory drift: "
+            f"expected={expected} actual={actual}"
+        )
+
+
+def validate_const0_authority_v1(root: Path) -> None:
+    constant = code_only(read(root / "src/mir/builder/emission/constant.rs"))
+    owner = code_only(read(root / "src/mir/builder/emission/constant_type.rs"))
+
+    if "value_types.insert" in constant or "value_origin_newbox" in constant:
+        fail("CONST0 direct type/origin writer survived in constant.rs")
+    if constant.count("PreparedCanonicalConstTypeV1::prepare") != 1:
+        fail("CONST0 requires one shared preparation consumer")
+    if constant.count("prepared.commit(") != 1:
+        fail("CONST0 requires one shared post-emission commit consumer")
+    if constant.count("emit_exact_const(") != 7:
+        fail("CONST0 requires one helper plus six canonical public delegates")
+    if constant.count("string_literals.insert") != 1:
+        fail("CONST0 String companion publication drift")
+    if constant.find("prepared.commit(") > constant.find("string_literals.insert"):
+        fail("CONST0 String companion must follow the shared type commit")
+    if owner.count("TypeFactDecisionV1::prepare") != 1 or owner.count("type_ctx.set_type") != 1:
+        fail("CONST0 decision/commit owner drift")
+    for path in (
+        root / "src/mir/builder/emission/constant.rs",
+        root / "src/mir/builder/emission/constant_type.rs",
+        Path(__file__),
+    ):
+        if len(read(path).splitlines()) >= 800:
+            fail(f"CONST0 source/check file reached 800 lines: {path}")
+
+
 def check(root: Path) -> None:
-    check_inventory(root)
-    validate_p1_g0_profile_freeze_v1(load_fixture(root))
+    fixture = load_fixture(root)
+    validate_p1_g0_profile_freeze_v1(fixture)
+    validate_active_cutover_writer_inventory_v1(root, fixture)
+    validate_const0_authority_v1(root)
+    matrix = fixture.get("primary_matrix")
+    if not isinstance(matrix, list):
+        fail("FACT0 fixture primary matrix is invalid")
+    for row in matrix:
+        if not isinstance(row, dict):
+            fail("FACT0 fixture primary matrix row is invalid")
+        require_anchor(root, row)
     print(
         "[mirbuilder-type-fact-partition-guard] ok "
-        "writer_paths=47 writer_occurrences=99 slices=58 profiles=38 shared_slices=2"
+        "baseline_writer_paths=47 baseline_writer_occurrences=99 "
+        "active_writer_paths=48 active_writer_occurrences=96 slices=58 profiles=38 "
+        "shared_slices=2 const0=closed"
     )
 
 

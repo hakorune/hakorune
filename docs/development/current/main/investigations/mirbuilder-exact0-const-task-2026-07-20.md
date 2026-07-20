@@ -207,7 +207,7 @@ retry, grammar, runtime, backend, or ownership behavior is introduced.
 
 `CONST0-G0` is now the sole next row.
 
-### `CONST0-G0`
+### `CONST0-G0` — closed (2026-07-20)
 
 Extend the existing FACT0 partition/authority guard; do not create a manifest
 family. It freezes:
@@ -221,6 +221,20 @@ Unknown proposals = 0
 Const origin writes = 0
 source/check files >= 800 lines = 0
 ```
+
+The existing partition fixture remains the immutable historical P1 census
+(47 paths / 99 direct writes). The extended guard now also derives the active
+cutover surface from that census through the only approved COPY0 and CONST0
+replacement map (48 paths / 96 direct writes). It therefore detects both a
+historical-fixture rewrite and an unrecorded current direct writer.
+
+CONST0-specific checks require one shared preparation call, one shared
+post-emission commit call, six public delegates, one String companion write
+after the shared commit, no direct Const type/origin write, and one
+`TypeFactDecisionV1`/`set_type` owner. The guard's unit suite, focused Const
+tests, format, pointer, and diff checks are green.
+
+`CONST0` is complete. `STATICLOAD0-D0` is the next selected D-prime row.
 
 ## Parked successor order
 
