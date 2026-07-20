@@ -100,6 +100,30 @@ non-u16 plan -> typed unsupported-element rejection
 
 No production consumer is connected. `STATICLOAD0-M0` is the sole next row.
 
+## `STATICLOAD0-M0` — closed (2026-07-20)
+
+The timing census finds exactly one producer site. It performs:
+
+```text
+index lowering succeeds
+-> fresh dst
+-> StaticDataLoad emission succeeds
+-> transient Integer write
+-> early metadata Integer write
+```
+
+The only production lowering-time metadata readers are arithmetic and
+record-helper compatibility fallbacks. Arithmetic reaches metadata only after
+the transient type/origin classifier is Unknown; record helpers read only
+Box-shaped entries. A successful static u16 load has transient Integer before
+its result returns to either consumer, so neither path requires the early
+metadata Integer entry. Finalization copies transient facts to metadata after
+type propagation and call/await annotation.
+
+The existing static-table VM/JSON fixture establishes runtime load and bounds
+parity. No early-metadata timing stop condition remains. `STATICLOAD0-P0` is
+the sole next row.
+
 ## Required proof matrix
 
 M0/P0 must independently show:
