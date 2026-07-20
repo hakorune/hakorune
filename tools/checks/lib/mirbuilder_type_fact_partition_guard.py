@@ -110,6 +110,7 @@ ACTIVE_CUTOVER_WRITER_REPLACEMENTS = {
     "src/mir/builder/resolved_lowering/trivial_ssa/direct_call_type.rs": 1,
     "src/mir/builder/emission/compare.rs": None,
     "src/mir/builder/emission/compare_type.rs": 1,
+    "src/mir/builder/fields/post_success.rs": 1,
 }
 
 
@@ -475,6 +476,53 @@ def validate_call_receipt0_authority_v1(root: Path) -> None:
             fail(f"CALL-RECEIPT0 source/check file reached 800 lines: {path}")
 
 
+def validate_fieldget_receipt0_authority_v1(root: Path) -> None:
+    fields = code_only(read(root / "src/mir/builder/fields.rs"))
+    receipt = code_only(read(root / "src/mir/builder/fields/post_success.rs"))
+
+    ordinary = fields.split("pub(super) fn build_field_access_from_value", 1)[1].split(
+        "pub(super) fn build_field_assignment_from_value", 1
+    )[0]
+    ordinary_commit = ordinary.split("let field_result_origin", 1)[1]
+    if ordinary.count("PreparedOrdinaryFieldGetPostSuccessV1::prepare") != 1:
+        fail("FIELDGET-RECEIPT0 requires one ordinary payload preparation consumer")
+    if ordinary.count("post_success.commit(self, field_val, object_value)") != 1:
+        fail("FIELDGET-RECEIPT0 requires one ordinary post-success payload consumer")
+    if ordinary_commit.find("post_success.commit(self, field_val, object_value)") < ordinary_commit.find(
+        "self.emit_instruction(crate::mir::MirInstruction::FieldGet"
+    ):
+        fail("FIELDGET-RECEIPT0 ordinary payload consumption must follow FieldGet emission")
+    for forbidden in (
+        "alloc_typed(",
+        "value_types.insert",
+        "record_field_access_site(",
+        "publish_field_result_origin(",
+    ):
+        if forbidden in ordinary_commit:
+            fail(f"FIELDGET-RECEIPT0 direct ordinary effect survived in fields.rs: {forbidden}")
+
+    if receipt.count("fn commit(") != 1:
+        fail("FIELDGET-RECEIPT0 requires one post-success commit owner")
+    if receipt.count("TypeFactDecisionV1::prepare") != 1 or receipt.count("type_ctx.set_type") != 1:
+        fail("FIELDGET-RECEIPT0 exact type decision/commit owner drift")
+    if receipt.count("record_field_access_site(") != 1 or receipt.count("set_origin_box") != 1:
+        fail("FIELDGET-RECEIPT0 site/origin commit owner drift")
+    if receipt.find("type_ctx.set_type") > receipt.find("record_field_access_site("):
+        fail("FIELDGET-RECEIPT0 type commit must precede ordinary site commit")
+    if receipt.find("record_field_access_site(") > receipt.find("set_origin_box"):
+        fail("FIELDGET-RECEIPT0 ordinary site commit must precede origin commit")
+    if "metadata::propagate" in receipt:
+        fail("FIELDGET-RECEIPT0 must not reuse metadata propagation")
+    for path in (
+        root / "src/mir/builder/fields.rs",
+        root / "src/mir/builder/fields/post_success.rs",
+        root / "src/mir/builder/calls/unified_emitter/temporal_witness_tests.rs",
+        Path(__file__),
+    ):
+        if len(read(path).splitlines()) >= 800:
+            fail(f"FIELDGET-RECEIPT0 source/check file reached 800 lines: {path}")
+
+
 def check(root: Path) -> None:
     fixture = load_fixture(root)
     validate_p1_g0_profile_freeze_v1(fixture)
@@ -487,6 +535,7 @@ def check(root: Path) -> None:
     validate_resolved_direct_call_authority_v1(root)
     validate_compareemit0_authority_v1(root)
     validate_call_receipt0_authority_v1(root)
+    validate_fieldget_receipt0_authority_v1(root)
     matrix = fixture.get("primary_matrix")
     if not isinstance(matrix, list):
         fail("FACT0 fixture primary matrix is invalid")
@@ -497,10 +546,11 @@ def check(root: Path) -> None:
     print(
         "[mirbuilder-type-fact-partition-guard] ok "
         "baseline_writer_paths=47 baseline_writer_occurrences=99 "
-        "active_writer_paths=48 active_writer_occurrences=96 slices=58 profiles=38 "
+        "active_writer_paths=49 active_writer_occurrences=94 slices=58 profiles=38 "
         "shared_slices=2 const0=closed staticload0=closed checkselect0=closed "
         "literal_postemit_ret0=closed resolved_trivial_op0=closed "
-        "resolved_direct_call0=closed compareemit0=closed call_receipt0=closed"
+        "resolved_direct_call0=closed compareemit0=closed call_receipt0=closed "
+        "fieldget_receipt0=closed"
     )
 
 

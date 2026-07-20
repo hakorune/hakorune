@@ -599,6 +599,43 @@ cargo check --all-targets
 FACT0 partition guard with one ordinary receipt owner and must reject
 pre-emission ordinary type/site/origin writes without adding a guard family.
 
+### `FACT0-TX0-FIELDGET0-G0` — closed (2026-07-20)
+
+The existing `mirbuilder_type_fact_partition_guard.py` now freezes the active
+replacement without rewriting the historical `field_collection_unsafe`
+inventory:
+
+```text
+ordinary receipt prepare consumer = 1
+ordinary receipt commit consumer = 1
+ordinary post-success exact type decision/commit owner = 1
+ordinary post-success access-site/origin commit owner = 1 each
+ordinary pre-emission type/site/origin effects = 0
+metadata::propagate consumer = 0
+FastMem/CorePlan receipt consumers = 0
+```
+
+It also enforces the source/check file limit for the ordinary branch, payload,
+temporal witness, and shared guard. The active direct-writer inventory records
+the one new post-success type owner while retaining FastMem's independent
+writer.
+
+Final evidence:
+
+```text
+tools/checks/run_row_guard.sh --only mirbuilder-type-fact-partition
+python3 tools/checks/lib/mirbuilder_type_fact_partition_guard_tests.py
+bash tools/checks/current_state_pointer_guard.sh
+cargo test -q --lib temporal_witness
+cargo test -q --lib post_success
+cargo check --all-targets
+```
+
+`FACT0-TX0-FIELDGET0` is complete. The next FACT0 producer family is an
+explicit selection frontier: it must not be inferred from the historical
+inventory, and this card does not activate FastMem, CorePlan, FieldSet,
+metadata propagation, finalization repair, or origin-wide policy.
+
 ### Explicit exclusions
 
 ```text
