@@ -8,8 +8,9 @@ use hakorune_mir_builder::lowering_facts::{
     PreparedTypeFactPublicationV1, TypeFactDecisionErrorV1, TypeFactDecisionV1,
 };
 
+use crate::mir::builder::type_context::TypeContext;
 use crate::mir::resolved_value_profile::product::TrivialRepresentationV1;
-use crate::mir::MirType;
+use crate::mir::{MirType, ValueId};
 
 /// Prepared Integer fact for one future successful sealed direct call.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -54,6 +55,15 @@ impl PreparedResolvedDirectCallIntegerTypeV1 {
             TypeFactDecisionV1::prepare(existing_destination, Some(&MirType::Integer))
                 .map_err(ResolvedDirectCallIntegerTypeErrorV1::FactDecision)?;
         Ok(Self { publication })
+    }
+
+    /// Commits only the exact result fact prepared before this direct call
+    /// emitted successfully. Idempotent publication deliberately preserves
+    /// an existing matching fact.
+    pub(super) fn commit(self, destination: ValueId, type_ctx: &mut TypeContext) {
+        if let PreparedTypeFactPublicationV1::Publish(ty) = self.publication {
+            type_ctx.set_type(destination, ty);
+        }
     }
 
     #[cfg(test)]

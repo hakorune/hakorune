@@ -108,6 +108,89 @@ the selected emitter.
 disconnected decision matrix plus selected-emitter receipt/failure isolation
 proof before I0 replaces the direct write.
 
+### `RESOLVED-DIRECT-CALL0-P0` — closed (2026-07-20)
+
+The disconnected decision matrix remains exhaustive: only sealed `InlineI64`
+may prepare `Integer`; Missing/Unknown prepare publication, matching Integer
+is idempotent, a concrete disagreement rejects before a prepared commit, and
+every other trivial representation rejects before materialization.
+
+The existing cardinality fixture fixes pure direct-call materialization failure
+before a `MirInstruction::Call` exists. The selected compiler fixture now also
+captures the emitted call destination and proves that its finalized receipt is
+`MirType::Integer`, for both source declaration orders, while the VM executes
+the call. This is receipt parity only: P0 does not add a commit path or alter
+the existing writer.
+
+```text
+pure materialization cardinality failure:
+  Call instruction = 0
+  prepared decision commit = 0
+
+successful selected compiler route:
+  exactly one global Call
+  -> its destination metadata type = Integer
+  -> VM result parity
+```
+
+The no-function/no-block emitter failures remain existing preflight failures
+before fresh-result materialization or the current direct type write. I0 may
+therefore connect the already-proven private decision only after
+`builder.emit_instruction(instruction)?` succeeds; it must not add a failure
+recovery route.
+
+Focused evidence:
+
+```text
+cargo test -q --features vm-reference --lib sibling_call_tests
+cargo test -q --lib canonical_direct_call_tests
+cargo test -q --lib resolved_lowering::trivial_ssa::direct_call_type::tests
+cargo check --all-targets
+```
+
+`RESOLVED-DIRECT-CALL0-I0` is now the sole next row. It may replace exactly
+the existing post-emission direct `value_types.insert` with prepare-before and
+non-fallible commit-after the same successful Call emission.
+
+### `RESOLVED-DIRECT-CALL0-I0` — closed (2026-07-20)
+
+`trivial_ssa::direct_call::emit` now prepares the direct-call-only Integer
+decision after its existing header/symbol/capability preflight and fresh result
+allocation, then commits it only after the unchanged
+`builder.emit_instruction(instruction)?` succeeds. The previous direct map
+write is gone.
+
+```text
+InlineI64 sealed row
+  -> prepare Integer decision
+  -> materialize exact Call
+  -> emit_instruction succeeds
+  -> non-fallible commit
+```
+
+Materialization, no-function/no-block, and emission failures leave the prepared
+product uncommitted. The change adds no origin, metadata, capability, source
+site, caller ledger, fallback, or retry write. `RESOLVED-DIRECT-CALL0-G0` is
+now the sole next row.
+
+### `RESOLVED-DIRECT-CALL0-G0` — closed (2026-07-20)
+
+The existing manifest-backed type-fact partition guard now freezes the direct
+call cutover without creating a second guard family:
+
+```text
+direct_call.rs direct type writer = 0
+direct_call.rs prepare consumer = 1
+direct_call.rs post-emission commit consumer = 1
+direct_call_type.rs TypeFactDecision prepare owner = 1
+direct_call_type.rs type_ctx.set_type commit owner = 1
+```
+
+It also rejects an early commit, general representation mapping, and any
+touched source/check file at or above 800 lines. `RESOLVED-DIRECT-CALL0` is
+closed. The active D-prime scheduler may now select the next independent
+producer family; no direct-call widening is implied.
+
 ## Authority and transaction law
 
 S0 adds one private prepared Integer decision, using the existing

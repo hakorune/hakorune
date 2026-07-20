@@ -8,7 +8,7 @@ use crate::mir::resolved_value_profile::VerifiedTrivialDirectCallV1;
 use crate::mir::ValueId;
 
 use super::super::super::MirBuilder;
-use super::operation::mir_type;
+use super::direct_call_type::PreparedResolvedDirectCallIntegerTypeV1;
 
 pub(super) fn emit(
     builder: &mut MirBuilder,
@@ -46,17 +46,18 @@ pub(super) fn emit(
         .map_err(str::to_string)?;
 
     let result = builder.next_value_id();
+    let prepared = PreparedResolvedDirectCallIntegerTypeV1::prepare(
+        row.result(),
+        builder.function_state.type_ctx.get_type(result),
+    )
+    .map_err(|error| error.to_string())?;
     let instruction = VerifiedCanonicalDirectCallEmissionV1::from_verified_profile(row)
         .materialize(result, arguments)
         .map_err(|error| {
             format!("[freeze:contract][canonical_direct_call/materialization] {error:?}")
         })?;
     builder.emit_instruction(instruction)?;
-    builder
-        .function_state
-        .type_ctx
-        .value_types
-        .insert(result, mir_type(row.result()));
+    prepared.commit(result, &mut builder.function_state.type_ctx);
 
     Ok((result, row.result()))
 }

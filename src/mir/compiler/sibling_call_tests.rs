@@ -2,7 +2,7 @@
 
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, ParamDecl, Span};
 use crate::backend::{MirInterpreter, VMValue};
-use crate::mir::{Callee, MirInstruction};
+use crate::mir::{Callee, MirInstruction, MirType};
 
 use super::{MirCompiler, VerifiedResolvedCallableProgramV1};
 
@@ -106,6 +106,7 @@ fn exact_sibling_call_is_order_independent_and_executes() {
         let caller = &result.module.functions["caller/1"];
         let callee = &result.module.functions["callee/1"];
         let [MirInstruction::Call {
+            dst: Some(call_result),
             callee: Some(Callee::Global(target)),
             ..
         }] = calls(caller).as_slice()
@@ -114,6 +115,11 @@ fn exact_sibling_call_is_order_independent_and_executes() {
         };
 
         assert_eq!(target, "callee/1");
+        assert_eq!(
+            caller.metadata.value_types.get(call_result),
+            Some(&MirType::Integer),
+            "the sealed direct-call result must retain its Integer receipt"
+        );
         assert!(calls(callee).is_empty());
         assert_eq!(
             caller
