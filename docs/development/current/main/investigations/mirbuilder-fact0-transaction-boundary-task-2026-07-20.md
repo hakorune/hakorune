@@ -512,6 +512,50 @@ and untyped success/failure temporal matrices, including the retained
 pre-I0 residuals, without connecting `PreparedOrdinaryFieldGetPostSuccessV1`
 to production.
 
+### `FACT0-TX0-FIELDGET0-P0` — closed (2026-07-20)
+
+The in-process ordinary FieldGet matrix now fixes the current behavior before
+the receipt connection changes it:
+
+```text
+typed success:
+  FieldGet = 1
+  destination type = Box(ArrayBox)
+  destination origin = ArrayBox
+  ordinary access-site metadata = 1
+
+typed no-current-block failure:
+  FieldGet = 0
+  destination type residual = Box(ArrayBox)
+  destination origin residual = 0
+  ordinary access-site metadata residual = 1
+
+untyped success:
+  FieldGet = 1 with declared_type = None
+  destination type/origin = absent
+  ordinary access-site metadata = 1
+
+untyped no-current-block failure:
+  FieldGet = 0
+  destination type/origin residual = 0
+  ordinary access-site metadata residual = 1
+```
+
+Every ordinary metadata row is checked as a non-FastMem `load` for the exact
+base, owner, field, route, and fallback policy. The proof does not connect the
+S0 product and leaves production behavior unchanged.
+
+Focused evidence:
+
+```text
+cargo test -q --lib temporal_witness  # 16/16
+```
+
+`FACT0-TX0-FIELDGET0-I0` is now the sole next row. It may connect exactly the
+ordinary `region == None` branch so type, access-site metadata, and origin all
+commit after a successful physical `FieldGet`; FastMem and CorePlan remain
+excluded.
+
 ### Explicit exclusions
 
 ```text

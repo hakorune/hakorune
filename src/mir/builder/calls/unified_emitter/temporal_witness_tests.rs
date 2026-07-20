@@ -17,6 +17,7 @@ use std::collections::BTreeSet;
 
 const RECEIVER_OWNER: &str = "Fact0TemporalReceiverV1";
 const FIELD_OWNER: &str = "Fact0TemporalFieldOwnerV1";
+const UNTYPED_FIELD_OWNER: &str = "Fact0TemporalUntypedFieldOwnerV1";
 const CALL_TARGET: &str = "Fact0TemporalCall.answer/0";
 
 fn builder_with_entry(name: &str) -> MirBuilder {
@@ -124,6 +125,25 @@ fn call_count(builder: &MirBuilder) -> usize {
     all_instructions(builder)
         .filter(|instruction| matches!(instruction, MirInstruction::Call { .. }))
         .count()
+}
+
+fn assert_one_ordinary_field_load_site(
+    builder: &MirBuilder,
+    base: ValueId,
+    owner: &str,
+    field: &str,
+) {
+    let function = builder.function_state.current_function.as_ref().unwrap();
+    let sites = &function.metadata.fastmem_field_access_sites;
+    assert_eq!(sites.len(), 1);
+    let site = &sites[0];
+    assert_eq!(site.region, None);
+    assert_eq!(site.base_value, base);
+    assert_eq!(site.receiver_box_name, Some(owner.to_string()));
+    assert_eq!(site.field_id, field);
+    assert_eq!(site.access_kind, "load");
+    assert_eq!(site.required_route, "none");
+    assert_eq!(site.fallback_policy, "allow_dynamic");
 }
 
 #[test]
@@ -552,7 +572,25 @@ fn install_typed_field(builder: &mut MirBuilder) -> ValueId {
             default_value: None,
         }],
     );
+    builder.comp_ctx.set_field_origin_by_box(
+        FIELD_OWNER.to_string(),
+        "items".to_string(),
+        "ArrayBox".to_string(),
+    );
     receiver_parameter(builder, FIELD_OWNER)
+}
+
+fn install_untyped_field(builder: &mut MirBuilder) -> ValueId {
+    builder.comp_ctx.register_user_box_with_field_decls(
+        UNTYPED_FIELD_OWNER.to_string(),
+        vec![FieldDecl {
+            name: "items".to_string(),
+            declared_type_name: None,
+            is_weak: false,
+            default_value: None,
+        }],
+    );
+    receiver_parameter(builder, UNTYPED_FIELD_OWNER)
 }
 
 #[test]
@@ -570,6 +608,11 @@ fn typed_field_get_publishes_before_fieldget_emission_then_finalizes() {
         transient_type(&builder, dst),
         Some(MirType::Box("ArrayBox".to_string()))
     );
+    assert_eq!(
+        transient_origin(&builder, dst),
+        Some("ArrayBox".to_string())
+    );
+    assert_one_ordinary_field_load_site(&builder, base, FIELD_OWNER, "items");
     assert_eq!(metadata_type(&builder, dst), None);
     assert_eq!(
         finalize_metadata_type(&mut builder, dst),
@@ -605,6 +648,68 @@ fn typed_field_get_failure_leaves_pre_emission_type_residual() {
     assert_eq!(error, "No current basic block");
     assert_eq!(residuals.len(), 1);
     assert_eq!(residuals[0].1, MirType::Box("ArrayBox".to_string()));
+    assert_eq!(transient_origin(&builder, residuals[0].0), None);
+    assert_one_ordinary_field_load_site(&builder, base, FIELD_OWNER, "items");
+    assert!(!all_instructions(&builder)
+        .any(|instruction| matches!(instruction, MirInstruction::FieldGet { .. })));
+}
+
+#[test]
+fn untyped_field_get_success_publishes_site_but_no_type_or_origin() {
+    let mut builder = builder_with_method_entry(
+        "fact0_temporal_untyped_field_success/0",
+        UNTYPED_FIELD_OWNER,
+    );
+    let base = install_untyped_field(&mut builder);
+    let dst = builder
+        .build_field_access_from_value(base, "items".to_string())
+        .unwrap();
+
+    assert!(all_instructions(&builder).any(
+        |instruction| matches!(instruction, MirInstruction::FieldGet { dst: field_dst, declared_type: None, .. } if *field_dst == dst)
+    ));
+    assert_eq!(transient_type(&builder, dst), None);
+    assert_eq!(transient_origin(&builder, dst), None);
+    assert_one_ordinary_field_load_site(&builder, base, UNTYPED_FIELD_OWNER, "items");
+}
+
+#[test]
+fn untyped_field_get_failure_leaves_only_pre_emission_site_residual() {
+    let mut builder = builder_with_method_entry(
+        "fact0_temporal_untyped_field_failure/0",
+        UNTYPED_FIELD_OWNER,
+    );
+    let base = install_untyped_field(&mut builder);
+    let before_types = builder
+        .function_state
+        .type_ctx
+        .value_types
+        .keys()
+        .copied()
+        .collect::<BTreeSet<_>>();
+    let before_origins = builder.function_state.type_ctx.value_origin_newbox.clone();
+    builder.function_state.current_block = None;
+
+    let error = builder
+        .build_field_access_from_value(base, "items".to_string())
+        .unwrap_err();
+
+    assert_eq!(error, "No current basic block");
+    assert_eq!(
+        builder
+            .function_state
+            .type_ctx
+            .value_types
+            .keys()
+            .copied()
+            .collect::<BTreeSet<_>>(),
+        before_types
+    );
+    assert_eq!(
+        builder.function_state.type_ctx.value_origin_newbox,
+        before_origins
+    );
+    assert_one_ordinary_field_load_site(&builder, base, UNTYPED_FIELD_OWNER, "items");
     assert!(!all_instructions(&builder)
         .any(|instruction| matches!(instruction, MirInstruction::FieldGet { .. })));
 }
