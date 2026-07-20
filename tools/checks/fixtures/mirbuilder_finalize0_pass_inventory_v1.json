@@ -1,0 +1,16 @@
+{
+  "schema": "mirbuilder-finalize0-pass-inventory-v1",
+  "rows": [
+    {"id":"function.type_propagation","site":"calls/lowering.rs","anchor":"TypePropagationPipeline::run","class":"RepairMissingLoweringFact","first_publication":"builder lowering producers","status":"parked"},
+    {"id":"function.call_await_annotation","site":"calls/lowering.rs","anchor":"annotate_missing_result_types_from_calls_and_await","class":"RepairMissingLoweringFact","first_publication":"call/await emitters","status":"parked"},
+    {"id":"function.return_scan","site":"calls/lowering.rs","anchor":"signature.return_type = mt","class":"LegacySemanticInference","first_publication":"return contract/lowering","status":"parked"},
+    {"id":"module.type_propagation","site":"module_lifecycle.rs","anchor":"TypePropagationPipeline::run","class":"RepairMissingLoweringFact","first_publication":"builder lowering producers","status":"parked"},
+    {"id":"module.phi_return_inference","site":"module_lifecycle.rs","anchor":"infer_return_type_from_phi","class":"LegacySemanticInference","first_publication":"PHI completion/return owner","status":"parked"},
+    {"id":"module.phi_input_materialization","site":"module_lifecycle.rs","anchor":"materialize_all_phi_inputs","class":"VerifyCompletedDraft","first_publication":"completed PHI edge rows","status":"retain"},
+    {"id":"module.metadata_type_snapshot","site":"module_lifecycle.rs","anchor":"metadata.value_types =","class":"PublishDerivedArtifact","first_publication":"lowering-time type facts","status":"retain"},
+    {"id":"module.newbox_birth_verify","site":"module_lifecycle.rs","anchor":"dev verify: NewBox","class":"VerifyCompletedDraft","first_publication":"NewBox/birth lowering","status":"retain"},
+    {"id":"module.record_layout_refresh","site":"module_lifecycle.rs","anchor":"refresh_module_record_and_packed_layout_plans","class":"PublishDerivedArtifact","first_publication":"sealed declarations","status":"retain"},
+    {"id":"module.typed_object_refresh","site":"module_lifecycle.rs","anchor":"refresh_module_typed_object_plans","class":"PublishDerivedArtifact","first_publication":"sealed declarations","status":"retain"},
+    {"id":"module.direct_state_refresh","site":"module_lifecycle.rs","anchor":"refresh_module_direct_state_plans","class":"PublishDerivedArtifact","first_publication":"sealed declarations","status":"retain"}
+  ]
+}

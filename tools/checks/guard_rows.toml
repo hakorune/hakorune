@@ -117,6 +117,12 @@ profiles = ["pilot"]
 cmd = ["tools/checks/lib/mirbuilder_fieldstore_observe_authority_guard.py", "."]
 
 [[rows]]
+id = "mirbuilder-finalize0-pass-inventory"
+label = "FINALIZE0-CENSUS0 finalization pass inventory"
+profiles = ["pilot"]
+cmd = ["tools/checks/lib/mirbuilder_finalize0_pass_inventory.py"]
+
+[[rows]]
 id = "mirbuilder-type-fact-partition"
 label = "FACT0 exact-fact producer partition guard"
 profiles = ["pilot"]
