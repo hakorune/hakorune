@@ -59,6 +59,28 @@ typed opaque rows for macros, include!, and external modules
 deterministic source-order JSON
 ```
 
+## Disconnected project profile layer
+
+`project` now owns the first disconnected S0b prerequisite:
+
+```text
+explicit profile request JSON
+  -> structurally validated, deterministically ordered profile inputs
+  -> pure three-valued cfg / cfg_attr decisions
+```
+
+The six initial inputs distinguish host dev, VM-reference, LLVM-harness,
+wasm32 dev, unit-test library, and host release. Their expected activated
+features are input assertions only. CARGO0 must compare them with Cargo's
+actual feature closure before they become compile-unit evidence.
+
+The cfg decision consumes an explicit environment and never reads Cargo,
+rustc, process environment, source filenames, or FINALIZE0 policy. Unsupported
+custom flags and unsealed target features return `Unknown`; malformed syntax
+returns a typed error. The target matcher currently uses cfg-expr's built-in
+target database. CARGO0 must add exact rustc/config fingerprints before any
+repository inclusion claim.
+
 ## Stop lines
 
 ```text
@@ -69,6 +91,7 @@ no macro expansion
 no guessed resolved def-path
 no claim that syntax paths are Rust semantic def-paths
 no active/excluded cfg or production classification
+no Cargo/profile CLI consumer before CARGO0
 no root workspace dependency change
 no source/check file at or above 800 lines
 ```

@@ -7,6 +7,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
+cfg-expr = "0.20"
 proc-macro2 = { version = "1", features = ["span-locations"] }
 quote = "1"
 serde = { version = "1", features = ["derive"] }

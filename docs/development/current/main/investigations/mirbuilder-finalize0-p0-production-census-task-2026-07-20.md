@@ -583,13 +583,13 @@ custom cfg that controls a watched module edge
 FINALIZE0-CENSUS0-P0a-S0b-D0
   this architecture lock
 
-FINALIZE0-CENSUS0-P0a-S0b-PROFILE0-S0
+FINALIZE0-CENSUS0-P0a-S0b-PROFILE0-S0  # closed
   disconnected project/profile schema
   explicit profile input validation
   pure three-valued cfg/cfg_attr decision
   Cargo/module consumers = 0
 
-FINALIZE0-CENSUS0-P0a-S0b-CARGO0
+FINALIZE0-CENSUS0-P0a-S0b-CARGO0       # sole next
   cargo_metadata target/package adapter
   exact compile-unit feature/rustc/config evidence
 
@@ -608,6 +608,45 @@ FINALIZE0-CENSUS0-P0a-S0b-P0
 FINALIZE0-CENSUS0-P0a-S0b-G0
   deterministic/atomic report
   typed Unknown and unresolved topology closure
+```
+
+PROFILE0-S0 closed evidence:
+
+```text
+schema:
+  rust-cargo-topology-profile-schema-v1
+
+validated initial inputs:
+  host-default-dev
+  host-vm-reference-dev
+  host-llvm-harness-dev
+  wasm32-default-dev
+  host-test-unit-default
+  host-default-release
+
+focused decisions:
+  feature / target / test / debug-release separation
+  llvm-harness does not activate llvm alias
+  wasm32 does not activate wasm-backend
+  cfg_attr conditional cfg implication
+  unknown custom path selector remains Unknown
+  unsealed target_feature remains Unknown
+  malformed/profile-drift errors remain typed
+```
+
+`ValidatedBuildProfileInputV1` deliberately stores
+`expected_activated_root_features`; it is not a Cargo feature proof. One pure
+`CfgEvaluationEnvironmentV1` may use those expectations in disconnected
+fixtures, while CARGO0 must replace that assumption with Cargo-derived closure
+and exact rustc/config evidence. Production CLI consumers, Cargo metadata
+calls, module/include traversal, semantic resolution, FINALIZE0 policy, and
+compiler behavior remain zero through PROFILE0-S0.
+
+Focused command:
+
+```bash
+cargo test --locked --offline \
+  --manifest-path tools/checks/rust_source_topology/Cargo.toml
 ```
 
 Every implementation file is split by responsibility before reaching 800
