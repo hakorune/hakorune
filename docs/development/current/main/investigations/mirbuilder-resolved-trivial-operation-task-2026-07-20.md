@@ -80,6 +80,51 @@ actual callers, receipt ordering, destination freshness, and all pre-I0
 representation/instruction pairs before the new decision receives one commit
 consumer.
 
+### `RESOLVED-TRIVIAL-OP0-M0` — closed (2026-07-20)
+
+The current source inventory closes one exact emitter relationship:
+
+```text
+emit_binary production call sites = 1
+
+lowerer BinaryOp branch:
+  lower left
+  -> lower right
+  -> profile.claim_value(expression.site())
+  -> emit_binary(builder, operator, lhs, rhs, expected)
+  -> return (value, expected)
+```
+
+No raw AST router, method name, environment flag, result catalog, or final
+metadata participates. The caller returns before the generic expression tail,
+so it does not invoke `ensure_value_representation` as a second binary-result
+publisher.
+
+`emit_binary` itself has one fresh `next_value_id()` destination, maps the
+closed profile to exactly one `BinOp` or `Compare`, and invokes
+`builder.emit_instruction(instruction)?` before its present direct write. The
+shared builder validates current block/function conditions before it appends
+the instruction. Therefore a returned `Ok(())` is the selected operation
+receipt; an `Err` reaches the caller before any operation type write.
+
+Existing focused corpus evidence exercises both selected families:
+
+```text
+trivial Float arithmetic:
+  BinOp destination has Float in finalized metadata
+
+Void equality / inequality:
+  Compare destination has Bool and executes under vm-reference
+```
+
+The profile's first executable grammar may not pair every representation with
+every binary operator. P0 therefore proves all mapping decisions synthetically
+and only the actual admissible Binary/Compare pairs through the resolved route.
+
+`RESOLVED-TRIVIAL-OP0-P0` is now the sole next row. It adds actual receipt and
+failure-isolation proof around the disconnected decision without connecting a
+production commit consumer.
+
 ## Authority and transaction law
 
 S0 introduces one private prepared product adjacent to the existing operation

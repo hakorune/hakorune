@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "RESOLVED-TRIVIAL-OP0-S0 is closed; inventory the sealed operation producer before one commit consumer"
+status = "RESOLVED-TRIVIAL-OP0-M0 is closed; prove operation receipt and failure isolation before one commit consumer"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -307,13 +307,12 @@ resolved_trivial_operation_task = "docs/development/current/main/investigations/
 
 latest_card = "mirbuilder-resolved-trivial-operation-task-2026-07-20"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-resolved-trivial-operation-task-2026-07-20.md"
-latest_card_summary = """RESOLVED-TRIVIAL-OP0-S0 is closed. One disconnected
-private product owns the sealed resolved-trivial representation-to-type
-projection plus an existing TypeFact decision, while the current direct writer
-remains unconnected and behavior-identical. M0 must inventory all callers,
-receipt ordering, freshness, and pre-I0 instruction/representation parity.
-Raw Compare/operator, Array, FieldGet, Call, metadata propagation,
-finalization, and Unknown retirement remain parked.
+latest_card_summary = """RESOLVED-TRIVIAL-OP0-M0 is closed. There is one
+profile-claim caller and one fresh-destination operation emitter: a successful
+BinOp or Compare is the sole receipt before the current direct type write.
+P0 now proves actual receipt/failure isolation while the prepared decision
+remains unconnected. Raw Compare/operator, Array, FieldGet, Call, metadata
+propagation, finalization, and Unknown retirement remain parked.
 Historical retained detail: STATICLOAD0-D0 is closed: the
 previous sole producer was an
 exact StaticDataLoad from an existing sealed static u16 plan. That contract,
@@ -447,7 +446,7 @@ METAPROP0 owner after COMPCTX0/CONFIG0 and before PLAN0-CUT0; FACT0-G0 remains
 the final global-zero gate after that owner plus FINALIZE0, PLAN0, COMPCTX0,
 CONFIG0, and RAWADAPT0 retire their named legacy writers.
 NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-FACT0-I1-RESOLVED-TRIVIAL-OP0-M0-006"
+current_blocker_token = "DPRIME-MIRBUILDER-FACT0-I1-RESOLVED-TRIVIAL-OP0-P0-006"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
