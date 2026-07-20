@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "COPY-UNKNOWN0/COPY0 are closed; LocalSSA physical-Copy exact publication and compatibility lanes are separated, D-prime successor selection is next"
+status = "COPY-UNKNOWN0/COPY0 are closed; FACT0-I1-EXACT0-D0 selects canonical Const exact publication as the next bounded producer row"
 date = "2026-07-20"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -299,15 +299,19 @@ parked_loop_route_retirement_card = "docs/development/current/main/investigation
 mirbuilder_clean_architecture_card = "docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md"
 copy_unknown_consultation = "docs/development/current/main/investigations/mirbuilder-copy-unknown-origin-consultation-2026-07-20.md"
 copy_unknown_task = "docs/development/current/main/investigations/mirbuilder-copy-unknown-origin-task-2026-07-20.md"
+exact0_const_task = "docs/development/current/main/investigations/mirbuilder-exact0-const-task-2026-07-20.md"
 
-latest_card = "mirbuilder-copy-unknown-origin-task-2026-07-20"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-copy-unknown-origin-task-2026-07-20.md"
-latest_card_summary = """COPY0-S0 is closed: one disconnected map-free
-physical-Copy decision accepts only the two classified physical Copy paths,
-proposes only an already-exact source type through TypeFactDecisionV1, and
-leaves Missing/StoredUnknown as no-proposal inputs. TypeContext, Builder, MIR,
-origin, receiver fallback, and production consumers remain zero. COPY0-P0 is
-next. CARRIER-TYPE-D0 selects the NumericProgression
+latest_card = "mirbuilder-exact0-const-task-2026-07-20"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-exact0-const-task-2026-07-20.md"
+latest_card_summary = """FACT0-I1-EXACT0-D0 is closed: the completed COPY0
+predecessor and three independent writer audits select canonical Const as the
+next exact-fact producer. CONST0-S0 is disconnected with production consumers
+zero; it may add only ConstValue-to-exact-MirType decision/prepare vocabulary
+and tests. Successful fallible Const emission is the sole future commit
+boundary; String content remains a separate post-success companion. Compare,
+Select, operator/call-backed writers, static u16 load, and post-emit duplicate
+annotations remain separate rows. Historical summary follows. CARRIER-TYPE-D0
+selects the NumericProgression
 representation-precondition rebase: the actual R0 rejection stays source-faithful
 and no type backfill, retry, or fixture rewrite is authorized. FSESSION0-CENSUS0
 is closed with one checked inventory: all 41 expanded prepare/restore leaves,
@@ -421,7 +425,7 @@ METAPROP0 owner after COMPCTX0/CONFIG0 and before PLAN0-CUT0; FACT0-G0 remains
 the final global-zero gate after that owner plus FINALIZE0, PLAN0, COMPCTX0,
 CONFIG0, and RAWADAPT0 retire their named legacy writers.
 NESTED-REP0 remains parked."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-NEXT-SELECT-001"
+current_blocker_token = "DPRIME-MIRBUILDER-FACT0-I1-EXACT0-CONST0-S0-001"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 
