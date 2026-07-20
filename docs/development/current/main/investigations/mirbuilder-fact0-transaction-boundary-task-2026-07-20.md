@@ -463,6 +463,55 @@ unit tests freeze these outcomes. No production caller is connected.
 single ordinary `region == None` caller and prove all FastMem/CorePlan/direct
 FieldGet routes remain excluded before I0 is considered.
 
+### `FACT0-TX0-FIELDGET0-M0` — closed (2026-07-20)
+
+The future receipt connection has exactly one semantic production owner:
+
+```text
+src/mir/builder/fields.rs
+  MirBuilder::build_field_access_from_value
+  ordinary region == None branch
+```
+
+The raw direct entry and compound-assignment read path both reach this same
+owner; neither is a second FieldGet fact publisher.  The disconnected S0
+product has zero production consumers through M0.
+
+The producer inventory also fixes the following exclusions:
+
+```text
+FastMem region != None:
+  MemOp::FieldLoad and its missing-declared Integer compatibility write
+
+CorePlan FieldGet:
+  normalizer-owned preallocated ValueId/type/origin;
+  lowerer emits only the preplanned FieldGet instruction
+
+record/property/helper reads and FieldSet:
+  separate instruction and fact owners
+```
+
+The direct failure baseline remains intentionally visible until I0:
+
+```text
+ordinary typed FieldGet with no current block:
+  FieldGet instruction = 0
+  destination type residual = 1
+  ordinary access-site metadata residual = 1
+  field-result origin residual = 0
+
+ordinary untyped FieldGet with no current block:
+  FieldGet instruction = 0
+  destination type residual = 0
+  ordinary access-site metadata residual = 1
+  field-result origin residual = 0
+```
+
+`FACT0-TX0-FIELDGET0-P0` is now the sole next row. It must freeze the typed
+and untyped success/failure temporal matrices, including the retained
+pre-I0 residuals, without connecting `PreparedOrdinaryFieldGetPostSuccessV1`
+to production.
+
 ### Explicit exclusions
 
 ```text
