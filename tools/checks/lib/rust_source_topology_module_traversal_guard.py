@@ -24,8 +24,10 @@ FILES = {
     "rustc_cfg": f"{TOOL}/src/project/rustc_cfg.rs",
     "cli": f"{TOOL}/src/main.rs",
     "test": f"{TOOL}/tests/module_topology.rs",
+    "root_profile_test": f"{TOOL}/tests/root_topology_profiles.rs",
 }
 PROFILE_FIXTURE = f"{TOOL}/tests/fixtures/module0_workspace/profiles_v1.json"
+ROOT_PROFILE_FIXTURE = f"{TOOL}/tests/fixtures/profiles_v1.json"
 SELF = "tools/checks/lib/rust_source_topology_module_traversal_guard.py"
 
 
@@ -81,9 +83,9 @@ def main() -> None:
     )
     require_count(
         sources["declarations"],
-        "pub(super) fn parse_module_source_v1(",
+        "pub(super) fn collect_direct_module_position_items_v1(",
         1,
-        "module declaration parser",
+        "module direct-item projector",
     )
     require_count(
         sources["cfg_eval"],
@@ -133,7 +135,7 @@ def main() -> None:
     ):
         require_absent(sources["cli"], forbidden, "project CLI before S0b-G0")
 
-    require_count(sources["test"], "#[test]", 7, "MODULE0 focused test inventory")
+    require_count(sources["test"], "#[test]", 9, "MODULE0 focused test inventory")
     for tag in (
         "OrdinaryModuleMissing",
         "OrdinaryModuleAmbiguous",
@@ -145,12 +147,63 @@ def main() -> None:
         if tag not in sources["test"]:
             fail(f"missing focused rejection fixture: {tag}")
 
+    require_count(
+        sources["root_profile_test"],
+        "fn root_six_profile_topologies_are_exact_deterministic_and_path_clean()",
+        1,
+        "root six-profile topology proof owner",
+    )
+    require_count(
+        sources["root_profile_test"],
+        "collect_declared_module_topology_v1(",
+        1,
+        "root topology collection consumer",
+    )
+    require_count(
+        sources["root_profile_test"],
+        "collect_declared_cargo_unit_process_evidence_v1(",
+        1,
+        "root sealed Cargo evidence consumer",
+    )
+    require_count(
+        sources["root_profile_test"],
+        "let first = collect_topologies(&root, &evidence);",
+        1,
+        "root first topology observation",
+    )
+    require_count(
+        sources["root_profile_test"],
+        "let second = collect_topologies(&root, &evidence);",
+        1,
+        "root second topology observation",
+    )
+    require_count(
+        sources["root_profile_test"],
+        "serde_json::to_vec(&first)",
+        1,
+        "root topology deterministic comparison",
+    )
+    for profile_id in (
+        "host-default-dev",
+        "host-default-release",
+        "host-llvm-harness-dev",
+        "host-test-unit-default",
+        "host-vm-reference-dev",
+        "wasm32-default-dev",
+    ):
+        if profile_id not in sources["root_profile_test"]:
+            fail(f"root six-profile proof missing profile={profile_id}")
+
     profile_document = json.loads(read(root, PROFILE_FIXTURE))
     profiles = profile_document.get("profiles", [])
     if len(profiles) != 6:
         fail(f"MODULE0 fixture profile count: expected=6 actual={len(profiles)}")
+    root_profile_document = json.loads(read(root, ROOT_PROFILE_FIXTURE))
+    root_profiles = root_profile_document.get("profiles", [])
+    if len(root_profiles) != 6:
+        fail(f"root profile count: expected=6 actual={len(root_profiles)}")
 
-    guarded = [*FILES.values(), PROFILE_FIXTURE, SELF]
+    guarded = [*FILES.values(), PROFILE_FIXTURE, ROOT_PROFILE_FIXTURE, SELF]
     oversized = [
         relative
         for relative in guarded
@@ -161,7 +214,7 @@ def main() -> None:
 
     print(
         f"[{TAG}] ok traversal=1 declaration_parser=1 cfg_environment_owner=1 "
-        "path_owner=1 cli_consumers=0 tests=7 profiles=6"
+        "path_owner=1 cli_consumers=0 tests=9 root_six_profile_proofs=1 profiles=6"
     )
 
 

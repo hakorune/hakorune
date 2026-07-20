@@ -130,7 +130,7 @@ cmd = ["tools/checks/lib/rust_source_topology_cargo_evidence_guard.py", "."]
 
 [[rows]]
 id = "rust-source-topology-module-traversal"
-label = "FINALIZE0 MODULE0 disconnected traversal guard"
+label = "FINALIZE0 MODULE0 / S0b-P0 disconnected traversal guard"
 profiles = ["pilot"]
 cmd = ["tools/checks/lib/rust_source_topology_module_traversal_guard.py", "."]
 

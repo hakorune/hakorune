@@ -1,5 +1,5 @@
 ---
-Status: INCLUDE-SCOPE0 closed; FINALIZE0-CENSUS0-P0a-S0b-P0 is next
+Status: FINALIZE0-CENSUS0-P0a-S0b is closed; FINALIZE0-VERIFY-SPLIT0 is next
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -2059,3 +2059,35 @@ line/diff checks. The root six-profile `FINALIZE0-CENSUS0-P0a-S0b-P0` proof is
 now authorized. INCLUDE-SCOPE0 makes no claim about general macro or name
 resolution, block-local identity, compiler behavior, repair quarantine, or
 CUT0 readiness.
+
+##### `S0b-P0 / G0` closeout
+
+The existing synthetic Cargo/profile, explicit-module, and literal-include
+fixtures remain the bounded parity substrate. One root-only proof consumes the
+same six sealed CARGO0 evidence rows and calls the existing V3 traversal twice.
+It fixes the exact profile order and topology matrix:
+
+```text
+host-default-dev:         instances=2282 edges=3128 includes=3 observations=2260
+host-default-release:     instances=2281 edges=3126 includes=3 observations=2259
+host-llvm-harness-dev:    instances=2282 edges=3128 includes=3 observations=2260
+host-test-unit-default:   instances=3538 edges=3633 includes=3 observations=2921
+host-vm-reference-dev:    instances=2359 edges=3227 includes=3 observations=2336
+wasm32-default-dev:       instances=2255 edges=3096 includes=3 observations=2233
+```
+
+Every root content gate is Included; successful traversal is the typed closure
+for supported Unknown/unresolved topology. Both V3 JSON results are byte-equal,
+the topology profile/package/target keys agree with their sealed evidence, and
+no serialized result contains the workspace absolute path. CARGO0 remains the
+separate owner of repeated Cargo/rustc process-evidence determinism. The root
+topology proof is an explicit milestone test (about three minutes), not a
+quick-gate or daily-guard command.
+
+The reusable module traversal guard now pins the one root proof consumer and
+the six exact profile IDs; it also corrects two stale pre-CONTENTCFG0 literals
+to the current direct-item projector and nine focused MODULE0 fixtures. No new
+parser, cfg evaluator, traversal, CLI/report consumer, semantic resolution,
+FINALIZE0 policy, repair quarantine, or CUT0 authority is introduced.
+
+`FINALIZE0-VERIFY-SPLIT0` is next.
