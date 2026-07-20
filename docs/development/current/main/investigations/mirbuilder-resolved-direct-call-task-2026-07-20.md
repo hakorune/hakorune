@@ -76,6 +76,38 @@ cargo check --all-targets = green
 actual caller, all preflight ordering, fresh destination, materialization, and
 existing Call receipt before the disconnected decision may commit.
 
+### `RESOLVED-DIRECT-CALL0-M0` — closed (2026-07-20)
+
+The source inventory establishes one selected production caller:
+
+```text
+direct_call::emit call sites = 1
+
+FunctionCall lowering:
+  every child argument lowers first
+  -> every child requires InlineI64
+  -> profile claims exact call row by expression site
+  -> row argument source sites exactly equal lowered child sites
+  -> direct_call::emit
+```
+
+The profile analyzer independently seals every finite direct-call row with
+`result = InlineI64`; it rejects a non-i64 argument before direct-call profile
+publication. The emitter then verifies current owner/symbol and the installed
+VM-only direct-call capability, allocates a fresh result, performs pure
+row-owned materialization, calls `emit_instruction(instruction)?`, and only
+then reaches the current type write.
+
+Existing unit evidence already fixes the row's target/ordered arguments/result
+and pure materialization/cardinality failure. Existing compiler activation
+fixtures execute the selected VM-only direct-call capability. No raw source
+name, target reconstruction, result catalog, or final metadata is consulted by
+the selected emitter.
+
+`RESOLVED-DIRECT-CALL0-P0` is now the sole next row. It must add the
+disconnected decision matrix plus selected-emitter receipt/failure isolation
+proof before I0 replaces the direct write.
+
 ## Authority and transaction law
 
 S0 adds one private prepared Integer decision, using the existing
