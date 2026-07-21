@@ -140,6 +140,23 @@ fn check(expression: ASTNode) -> ASTNode {
     }
 }
 
+fn array(elements: Vec<ASTNode>) -> ASTNode {
+    ASTNode::ArrayLiteral {
+        elements,
+        span: Span::unknown(),
+    }
+}
+
+fn map(entries: Vec<(&str, ASTNode)>) -> ASTNode {
+    ASTNode::MapLiteral {
+        entries: entries
+            .into_iter()
+            .map(|(key, value)| (key.to_string(), value))
+            .collect(),
+        span: Span::unknown(),
+    }
+}
+
 fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
     let function = builder
         .function_state
@@ -421,6 +438,43 @@ fn raw_invocation_port_preserves_check_item_descent() {
             instruction,
             MirInstruction::Select { dst, .. } if *dst == output
         )));
+        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
+    });
+}
+
+#[test]
+fn raw_invocation_port_preserves_collection_element_descent() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("raw_invocation_collections/0".to_string());
+    let mut invocation = ModuleLoweringInvocationV1::with_collector(
+        &mut builder,
+        collector_with_header("Prefix.f/1", 1),
+    );
+
+    invocation.with_module_port(|builder, module_port| {
+        let mut port = RawInvocationChildPortV1::new(module_port);
+        let array_output = drive_legacy_expression_v1(
+            builder,
+            &mut port,
+            array(vec![add(integer(2), integer(3))]),
+        )
+        .unwrap();
+        let map_output = drive_legacy_expression_v1(
+            builder,
+            &mut port,
+            map(vec![("key", add(integer(4), integer(5)))]),
+        )
+        .unwrap();
+
+        let boxes = instructions(builder)
+            .into_iter()
+            .filter_map(|instruction| match instruction {
+                MirInstruction::NewBox { dst, box_type, .. } => Some((dst, box_type)),
+                _ => None,
+            })
+            .collect::<Vec<_>>();
+        assert!(boxes.contains(&(array_output, "ArrayBox".to_string())));
+        assert!(boxes.contains(&(map_output, "MapBox".to_string())));
         port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
     });
 }

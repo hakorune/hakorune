@@ -591,8 +591,12 @@ impl super::MirBuilder {
                 field_initializers.clone(),
             ),
 
-            ASTNode::ArrayLiteral { elements, .. } => self.build_array_literal(elements),
-            ASTNode::MapLiteral { entries, .. } => self.build_map_literal(entries),
+            ASTNode::ArrayLiteral { elements, .. } => {
+                self.build_array_literal_with_port_v1(port, elements)
+            }
+            ASTNode::MapLiteral { entries, .. } => {
+                self.build_map_literal_with_port_v1(port, entries)
+            }
 
             ASTNode::AwaitExpression { expression, .. } => {
                 super::stmts::async_stmt::build_await_expression_with_port_v1(

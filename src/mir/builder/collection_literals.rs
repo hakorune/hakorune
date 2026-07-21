@@ -1,5 +1,8 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::observe::types as type_trace;
+use crate::mir::builder::recursive_child_lowering::{
+    drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+};
 use crate::mir::definitions::call_unified::TypeCertainty;
 use crate::mir::ssot::method_call::runtime_method_call;
 use crate::mir::{ArrayElementWriteKind, ArrayWriteProducerKind};
@@ -11,7 +14,20 @@ impl super::MirBuilder {
         &mut self,
         elements: Vec<ASTNode>,
     ) -> Result<ValueId, String> {
-        self.build_array_literal_with_contract(elements, None)
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_array_literal_with_port_v1(&mut port, elements)
+    }
+
+    /// Lower an array literal while retaining the caller's raw child port.
+    pub(in crate::mir::builder) fn build_array_literal_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        elements: Vec<ASTNode>,
+    ) -> Result<ValueId, String>
+    where
+        Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
+    {
+        self.build_array_literal_with_contract_and_port_v1(port, elements, None)
             .map(|(value, _)| value)
     }
 
@@ -19,16 +35,24 @@ impl super::MirBuilder {
         &mut self,
         elements: Vec<ASTNode>,
     ) -> Result<(ValueId, String), String> {
-        let (value, contract_id) =
-            self.build_array_literal_with_contract(elements, Some("local-literal"))?;
+        let mut port = RawLegacyChildLoweringPortV1;
+        let (value, contract_id) = self.build_array_literal_with_contract_and_port_v1(
+            &mut port,
+            elements,
+            Some("local-literal"),
+        )?;
         Ok((value, contract_id.expect("typed literal emits contract ID")))
     }
 
-    fn build_array_literal_with_contract(
+    fn build_array_literal_with_contract_and_port_v1<Port>(
         &mut self,
+        port: &mut Port,
         elements: Vec<ASTNode>,
         contract_prefix: Option<&str>,
-    ) -> Result<(ValueId, Option<String>), String> {
+    ) -> Result<(ValueId, Option<String>), String>
+    where
+        Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
+    {
         let arr_id = self.next_value_id();
         self.emit_instruction(MirInstruction::NewBox {
             dst: arr_id,
@@ -67,7 +91,7 @@ impl super::MirBuilder {
 
         let mut element_types = Vec::new();
         for element in elements {
-            let value = self.build_expression_impl(element)?;
+            let value = drive_legacy_expression_v1(self, port, element)?;
             let element_type = self
                 .function_state
                 .type_ctx
@@ -104,6 +128,19 @@ impl super::MirBuilder {
         &mut self,
         entries: Vec<(String, ASTNode)>,
     ) -> Result<ValueId, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_map_literal_with_port_v1(&mut port, entries)
+    }
+
+    /// Lower a map literal while retaining the caller's raw child port.
+    pub(in crate::mir::builder) fn build_map_literal_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        entries: Vec<(String, ASTNode)>,
+    ) -> Result<ValueId, String>
+    where
+        Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
+    {
         let map_id = self.next_value_id();
         self.emit_instruction(MirInstruction::NewBox {
             dst: map_id,
@@ -134,7 +171,7 @@ impl super::MirBuilder {
 
         for (key, expr) in entries {
             let key_id = crate::mir::builder::emission::constant::emit_string(self, key)?;
-            let value_id = self.build_expression_impl(expr)?;
+            let value_id = drive_legacy_expression_v1(self, port, expr)?;
             self.emit_instruction(runtime_method_call(
                 None,
                 map_id,
