@@ -269,6 +269,125 @@ The next row is `HEADERPORT0-REENTRANT-TERM0-I0-SHELL-I0-SELECT`: decide the
 single production invocation cutover owner and exact shell/collector terminal
 sequence. Partial capture/commit remains forbidden.
 
+## I0-SHELL-I0-SELECT decision
+
+The source audit and an independent canonical-root audit select **Candidate
+S-prime**:
+
+```text
+one ModuleLoweringInvocationV2
+  owns one function-empty ModuleLoweringShellV1
+  owns one ModuleDraftCollectorV1
+  borrows the Builder only for the active lowering session
+```
+
+The cutover is invocation-wide. A raw-child-only or canonical-only switch is
+rejected because `main`, another root family, or a re-entrant child would keep
+`current_module.functions` as a second function authority.
+
+### Authority lock
+
+```text
+completed function/header truth:
+  ModuleDraftCollectorV1 only
+
+module globals and accumulated metadata:
+  ModuleLoweringShellPortV1 only
+
+shell function map during lowering:
+  structurally empty
+
+raw child identity:
+  LegacySymbol + LegacyReplaceWholePair
+
+A+ / trivial identity:
+  CanonicalResolvedOwner(FunctionOwnerIdV1)
+
+acyclic / recursive identity:
+  existing sealed callable catalog remains sibling/header authority;
+  physical drafts enter the collector as CanonicalCallable(key)
+```
+
+The collector is not a replacement callable catalog and does not decide
+target identity, graph cardinality, or recursive capability. It receives only
+already-sealed physical drafts.
+
+### Terminal law
+
+```text
+raw / A+ / trivial child:
+  capture -> scoped header reads -> validate -> prepared admission
+  -> seal -> collector commit -> parent restore
+
+main:
+  remains only in FunctionLoweringState while root lowers
+  -> capture -> Main admission -> collector commit
+
+condition_fn:
+  synthesize and collect only when the collector header is absent
+
+invocation completion:
+  validate complete collector inventory and empty shell
+  -> prepare one drain product owning shell + collector state
+  -> infallible drain exactly once
+  -> final verify / external return
+```
+
+The existing shell drain API is a disconnected vocabulary only. Production
+I0 must add a `PreparedInvocationDrainV1` that performs every symbol,
+identity, main/condition policy, and shell-emptiness check before consuming
+either owner. No fallible lookup, assertion, or retry may remain after drain.
+
+### Failure law
+
+```text
+child primary/cleanup/admission/panic:
+  restore parent exactly once
+  collector prefix unchanged
+  shell unchanged
+
+root/main/preflight failure:
+  drop invocation-owned shell and collector
+  publish no module
+
+canonical candidate failure:
+  drop candidate Builder
+  no legacy/A+/BindingSSA retry
+```
+
+This does not claim whole-legacy-Builder rollback. Only the invocation-owned
+shell/collector and the unpublished candidate are transactional.
+
+### Rejected candidates
+
+```text
+raw-only child cutover
+canonical-only cutover
+current_module as collector backing store
+collector prefix + current_module fallback
+one root at a time
+```
+
+### Fixed task order
+
+```text
+HEADERPORT0-REENTRANT-TERM0-I0-SHELL-I0-SELECT  closed here
+  -> HEADERPORT0-REENTRANT-TERM0-I0-SHELL-I0-S0
+     PreparedInvocationDrainV1 vocabulary, consumers = 0
+  -> HEADERPORT0-REENTRANT-TERM0-I0-SHELL-I0-P0
+     raw/main/condition, A+/trivial, acyclic/recursive,
+     reader and failure matrix
+  -> HEADERPORT0-REENTRANT-TERM0-I0-SHELL-I0-I0
+     one atomic production cutover across all root families
+  -> HEADERPORT0-REENTRANT-TERM0-I0-SHELL-I0-G0
+     active current_module header reads = 0
+     direct function insertion = 0
+     collector drain = 1
+```
+
+The next code-facing row is the disconnected S0 vocabulary. Production
+capture/commit and `CUT0` remain forbidden until its P0 matrix is green.
+
 ## Questions that must be answered before implementation
 
 1. Does `ModuleLoweringInvocationV1` own the module shell, or does a separate
