@@ -9,6 +9,10 @@
 use crate::mir::{FunctionSignature, MirBuilder};
 
 use super::module_draft_collector::{CompletedDraftSignatureViewV1, ModuleDraftCollectorV1};
+use super::module_draft_collector::{
+    DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftAdmissionErrorV1,
+    PreparedFunctionDraftAdmissionV1,
+};
 
 /// Read-only completed-function header capability for one lowering closure.
 ///
@@ -87,6 +91,22 @@ impl<'builder> ModuleLoweringInvocationV1<'builder> {
         };
         lower(self.builder, &header_port)
     }
+
+    /// Begin the one future terminal transition after every header borrow ends.
+    ///
+    /// This is still disconnected in P0. Returning the prepared admission
+    /// exclusively borrows the collector, so a caller cannot overlap header
+    /// observation with seal/collect.
+    pub(in crate::mir::builder) fn prepare_draft_admission(
+        &mut self,
+        key: FunctionDraftKeyV1,
+        expected_symbol: String,
+        expected_arity: usize,
+        policy: DraftPublicationPolicyV1,
+    ) -> Result<PreparedFunctionDraftAdmissionV1<'_>, ModuleDraftAdmissionErrorV1> {
+        self.collector
+            .prepare_admission(key, expected_symbol, expected_arity, policy)
+    }
 }
 
 #[cfg(test)]
@@ -158,6 +178,60 @@ mod tests {
             assert_eq!(headers.symbol_count(), 0);
             assert!(headers.signature("first/0").is_none());
             assert!(!headers.contains_symbol("first/0"));
+        });
+    }
+
+    #[test]
+    fn read_borrow_ends_before_prepared_admission_and_updates_the_same_prefix() {
+        let mut builder = MirBuilder::new();
+        let mut invocation =
+            ModuleLoweringInvocationV1::with_collector(&mut builder, collected_prefix());
+
+        invocation.with_header_port(|_builder, headers| {
+            assert_eq!(headers.symbol_count(), 1);
+            assert!(headers.contains_symbol("Prefix.f/1"));
+        });
+
+        invocation
+            .prepare_draft_admission(
+                FunctionDraftKeyV1::LegacySymbol("Later.g/0".into()),
+                "Later.g/0".into(),
+                0,
+                DraftPublicationPolicyV1::LegacyReplaceWholePair,
+            )
+            .unwrap()
+            .seal(draft("Later.g/0", 0))
+            .unwrap()
+            .collect();
+
+        invocation.with_header_port(|_builder, headers| {
+            assert_eq!(headers.symbol_count(), 2);
+            assert!(headers.contains_symbol("Prefix.f/1"));
+            assert!(headers.contains_symbol("Later.g/0"));
+        });
+    }
+
+    #[test]
+    fn rejected_post_read_admission_keeps_the_collected_prefix_unchanged() {
+        let mut builder = MirBuilder::new();
+        let mut invocation =
+            ModuleLoweringInvocationV1::with_collector(&mut builder, collected_prefix());
+
+        invocation.with_header_port(|_builder, headers| {
+            assert_eq!(headers.symbol_count(), 1);
+        });
+
+        let duplicate = invocation.prepare_draft_admission(
+            FunctionDraftKeyV1::LegacySymbol("Prefix.f/1".into()),
+            "Prefix.f/1".into(),
+            1,
+            DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+        );
+        assert!(duplicate.is_err());
+
+        invocation.with_header_port(|_builder, headers| {
+            assert_eq!(headers.symbol_count(), 1);
+            assert_eq!(headers.signature("Prefix.f/1").unwrap().params.len(), 1);
         });
     }
 }

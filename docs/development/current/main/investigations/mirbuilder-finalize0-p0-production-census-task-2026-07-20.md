@@ -3777,3 +3777,47 @@ the collector remains 557 lines.
 borrow ends before mutable admission, empty-first-child and collected-prefix
 parity, all root/child/header-reader chain coverage, and the no-hidden-state
 boundary before the one atomic production I0 is allowed.
+
+#### MODULEDRAFT0-HEADERPORT0-P0 closeout — borrow and reader inventory proof
+
+The disconnected invocation now exposes `prepare_draft_admission` only after a
+`with_header_port` closure returns. Its prepared result exclusively borrows the
+collector through seal/collect, so header observation cannot overlap the
+future terminal transition. Focused proofs establish:
+
+```text
+fresh invocation:
+  empty header prefix
+
+collected prefix:
+  read -> prepared admission -> collect -> later read sees the same prefix + 1
+
+rejected admission after read:
+  collector prefix unchanged
+```
+
+The reusable `mirbuilder_module_draft_headerport_guard.py` pins the four
+read-only port queries, the absence of Builder/CompilationContext/TLS/cache
+storage, and the eight currently direct header-reader families:
+
+```text
+Call annotation / finalizer hint
+method-call signature
+known rewrite
+method index
+tail resolver
+materializer
+birth check
+```
+
+The existing collector P0 matrix supplies all five root plus four child
+duplicate-policy profiles. This remains a disconnected proof: direct readers
+still use `current_module.functions`, and no production invocation, child
+terminal, main finalizer, or canonical batch uses `ModuleLoweringInvocationV1`.
+The invocation source is 237 lines and its reusable guard is 93 lines.
+
+`FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0` is next. It is the sole permitted
+production activation and must atomically thread the explicit read port to the
+audited reader chains while moving every function completion into the same
+collector before parent restore. A partial HeaderPort reader cutover, an
+adapter from `current_module`, or any fallback is forbidden.
