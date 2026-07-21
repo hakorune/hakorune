@@ -1,7 +1,8 @@
 # HEADERPORT0-ACCESS0: `me` method header ownership consultation
 
-Status: **Candidate A-prime typed-source refinement selected; S0/P0/I0 closed;
-G0 is next; production capture/commit and CUT0 remain disconnected**
+Status: **Candidate A-prime typed-source refinement selected; S0/P0/I0/G0
+closed; ACCESS0-REWRITE-KNOWN-P0 is next; production capture/commit and CUT0
+remain disconnected**
 
 Date: 2026-07-21
 
@@ -157,8 +158,8 @@ ACCESS0-MEHEADER-I0
   three route adapters; terminal lookup remains separate
 
 ACCESS0-MEHEADER-G0
-  next: one shared policy owner, no direct header fallback, and no long-lived
-  observation loan
+  (closed) one shared policy owner, no direct header fallback, and no
+  long-lived observation loan
   shared me policy owner = 1
   invocation current_module fallback = 0
   located collector capability = 0
@@ -269,8 +270,27 @@ observation persistence/cache = 0
 terminal result-annotation redesign = 0
 ```
 
-`ACCESS0-MEHEADER-G0` is now the sole next row. `ACCESS0-REWRITE-KNOWN-P0`
-and the production capture/commit/CUT0 rows remain outside this closeout.
+`ACCESS0-MEHEADER-G0` is now closed. `ACCESS0-REWRITE-KNOWN-P0` is the next
+row; production capture/commit and CUT0 remain outside this closeout.
+
+## ACCESS0-MEHEADER-G0 closeout
+
+The reusable lane guard now closes the structural boundary rather than merely
+proving connection:
+
+```text
+MeCallPolicyBox definitions = 1
+shared me policy entries = 1
+route adapters = 3
+direct method-handler module reads = 0
+invocation miss -> current_module fallback = 0
+header loan across argument descent = 0
+observation persistence/cache = 0
+duplicate receiver classifier = 0
+```
+
+The guard also rechecks the source-size boundary and the exact route adapter
+count. The production module draft/fact session and CUT0 remain disconnected.
 
 ## Required fixtures
 
