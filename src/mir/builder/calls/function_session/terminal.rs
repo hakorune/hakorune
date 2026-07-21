@@ -4,6 +4,7 @@
 //! one place to perform `validate -> seal/collect -> restore` without making
 //! the existing production `run()` lifecycle observe a new collector.
 
+use crate::ast::ASTNode;
 use crate::mir::function::MirFunction;
 use crate::mir::MirBuilder;
 
@@ -18,6 +19,19 @@ pub(in crate::mir::builder) struct PendingFunctionSessionCloseV1<'builder> {
     session: CanonicalFunctionLoweringSessionV1<'builder>,
     draft: Option<MirFunction>,
 }
+
+/// One successful legacy child whose parent context is still captured.
+///
+/// This newtype deliberately prevents a raw legacy child from entering the
+/// resolved-child terminal by accident.  Its only future consumer is the
+/// invocation-owned legacy terminal; it carries no collector, identity, or
+/// publication policy.
+pub(in crate::mir::builder) struct LegacyFunctionPendingSessionV1<'builder> {
+    pending: PendingFunctionSessionCloseV1<'builder>,
+    _seal: LegacyFunctionPendingSessionSealV1,
+}
+
+struct LegacyFunctionPendingSessionSealV1;
 
 impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
     /// Run one child operation and retain its successful draft before restore.
@@ -70,6 +84,29 @@ impl MirBuilder {
         )
         .capture_pending(operation)
     }
+
+    /// Capture one raw legacy child without publishing it after restoration.
+    ///
+    /// This is disconnected S0 vocabulary.  The legacy body snapshot retains
+    /// the existing function-session capture mode, while the returned newtype
+    /// cannot be paired with a resolved owner admission.
+    pub(in crate::mir::builder) fn capture_legacy_function_pending_session_v1(
+        &mut self,
+        function_name: &str,
+        body_snapshot: Vec<ASTNode>,
+        operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
+    ) -> Result<LegacyFunctionPendingSessionV1<'_>, CanonicalFunctionSessionErrorV1> {
+        CanonicalFunctionLoweringSessionV1::open(
+            self,
+            function_name,
+            super::FunctionBodyCaptureV1::Legacy(body_snapshot),
+        )
+        .capture_pending(operation)
+        .map(|pending| LegacyFunctionPendingSessionV1 {
+            pending,
+            _seal: LegacyFunctionPendingSessionSealV1,
+        })
+    }
 }
 
 impl PendingFunctionSessionCloseV1<'_> {
@@ -103,6 +140,24 @@ impl PendingFunctionSessionCloseV1<'_> {
         if !self.session.closed {
             self.session.restore_context();
         }
+    }
+}
+
+impl LegacyFunctionPendingSessionV1<'_> {
+    /// Complete one legacy child while its parent remains captured.
+    ///
+    /// The caller must close all collector admission failures before this
+    /// closure returns.  Both outcomes restore the parent exactly once.
+    pub(in crate::mir::builder) fn complete_before_restore<R, E>(
+        self,
+        complete: impl FnOnce(MirFunction) -> Result<R, E>,
+    ) -> Result<R, E> {
+        self.pending.complete_before_restore(complete)
+    }
+
+    #[allow(dead_code)] // The disconnected S0 vocabulary exposes explicit abort semantics.
+    pub(in crate::mir::builder) fn abort_and_restore(self) {
+        self.pending.abort_and_restore();
     }
 }
 
@@ -184,5 +239,23 @@ mod tests {
         }
         assert_eq!(builder.next_value_id().0, 0);
         assert_eq!(collector.symbol_count(), 0);
+    }
+
+    #[test]
+    fn legacy_pending_capture_keeps_legacy_authority_distinct_from_resolved() {
+        let mut builder = MirBuilder::new();
+        let pending = builder
+            .capture_legacy_function_pending_session_v1("Legacy.f/0", Vec::new(), |_| {
+                Ok(draft("Legacy.f/0", 0))
+            })
+            .unwrap();
+
+        pending
+            .complete_before_restore(|draft| {
+                assert_eq!(draft.signature.name, "Legacy.f/0");
+                Ok::<(), ()>(())
+            })
+            .unwrap();
+        assert_eq!(builder.next_value_id().0, 0);
     }
 }

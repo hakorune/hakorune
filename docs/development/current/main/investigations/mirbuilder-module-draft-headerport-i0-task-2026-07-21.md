@@ -1,5 +1,7 @@
 ---
-Status: `HEADERPORT0-RAWPORT0-SELECT/S0/M0-T0` are closed; `HEADERPORT0-RAWPORT0-M0-R0` is next
+Status: `HEADERPORT0-RAWPORT0-SELECT/S0/M0-T0/R0` and
+  `HEADERPORT0-RAWPORT0-LEGACYTERM0-S0` are closed;
+  `HEADERPORT0-RAWPORT0-LEGACYTERM0-P0` is next
 Date: 2026-07-21
 Scope: one atomic `FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0` cutover
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-task-2026-07-20.md
@@ -27,7 +29,8 @@ CompilationContext field, TLS value, cache, second draft store, or fallback.
 The one semantic activation is the final atomic cutover.  Earlier I0 steps
 are buildable BoxShape preparation only and keep production consumers at zero.
 The raw recursive re-entrancy audit, passive S0 vocabulary, and port-owned
-resolved terminal are closed; the next code-facing row is `RAWPORT0-M0-R0`.
+resolved terminal and raw recursive threading are closed.  The next
+code-facing row is `RAWPORT0-LEGACYTERM0-P0`.
 
 ## Fixed terminal law
 
@@ -554,3 +557,34 @@ source-derived raw child census; it may not activate a single partial route.
 Binding-SSA callable batches retain their sealed catalog and receive a separate
 batch adapter later; this terminal cannot be reused to sequentially collect
 them.
+
+## RAWPORT0-LEGACYTERM0-S0 closeout (2026-07-21)
+
+`LEGACYTERM0-S0` closes one disconnected legacy child terminal with zero
+production callers.
+
+```text
+LegacyFunctionPendingSessionV1
+  wraps the existing pending session and preserves Legacy body capture
+
+LegacyChildDraftAdmissionV1
+  owns only exact LegacySymbol + arity
+  has no Clone, canonical owner, collector, Builder, or header authority
+
+ModuleLoweringPortV1::complete_legacy_child
+  captures -> prepares LegacyReplaceWholePair -> seals -> collects -> restores
+```
+
+The port creates its own prepared collector admission, so callers cannot pair a
+legacy pending child with a foreign prepared admission.  Focused tests pin one
+legacy collection, legacy whole-pair replacement, admission failure with zero
+collection, and legacy-versus-resolved pending authority.  The HeaderPort
+guard requires the non-Clone `LegacySymbol` shape, the explicit whole-pair
+policy, and zero raw-dispatch/function-session production callers.  No raw Box
+body is wired in this row.
+
+`HEADERPORT0-RAWPORT0-LEGACYTERM0-P0` is next.  It must prove cleanup failure,
+primary failure, unwind restoration, exact raw static/instance Box child body
+port transport, and no resolved identity fabrication while preserving collector
+delta zero on every non-success terminal.  Loop remains outside that proof and
+behind `RAWPORT0-LOOPBRIDGE0-SELECT`.

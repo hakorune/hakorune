@@ -6,6 +6,7 @@
 //! closure. Production roots and child terminals remain disconnected until the
 //! atomic MODULEDRAFT0-HEADERPORT0-I0 cutover.
 
+use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{FunctionSignature, MirBuilder, MirFunction};
 
@@ -54,6 +55,44 @@ impl ResolvedChildDraftAdmissionV1 {
                 arity,
             ),
         }
+    }
+}
+
+/// Owned legacy child identity before collector admission.
+///
+/// Legacy lowering preserves replace-by-symbol behavior.  This request is not
+/// Clone and cannot name a canonical owner, so a raw child cannot accidentally
+/// enter the resolved-child duplicate policy.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct LegacyChildDraftAdmissionV1 {
+    symbol: String,
+    arity: usize,
+    _seal: LegacyChildDraftAdmissionSealV1,
+}
+
+#[derive(Debug)]
+struct LegacyChildDraftAdmissionSealV1;
+
+impl LegacyChildDraftAdmissionV1 {
+    pub(in crate::mir::builder) fn legacy_symbol(symbol: String, arity: usize) -> Self {
+        Self {
+            symbol,
+            arity,
+            _seal: LegacyChildDraftAdmissionSealV1,
+        }
+    }
+
+    fn collector_parts(self) -> (FunctionDraftKeyV1, String, usize) {
+        let Self {
+            symbol,
+            arity,
+            _seal: _,
+        } = self;
+        (
+            FunctionDraftKeyV1::LegacySymbol(symbol.clone()),
+            symbol,
+            arity,
+        )
     }
 }
 
@@ -173,6 +212,39 @@ impl ModuleLoweringPortV1<'_> {
             Ok(())
         })
     }
+
+    /// Complete one legacy raw child through this invocation's collector.
+    ///
+    /// This disconnected terminal preserves the existing legacy whole-pair
+    /// replacement policy.  The port, rather than its caller, creates the
+    /// prepared admission so no foreign collector pairing can be supplied.
+    pub(in crate::mir::builder) fn complete_legacy_child(
+        &mut self,
+        builder: &mut MirBuilder,
+        body_snapshot: Vec<ASTNode>,
+        admission: LegacyChildDraftAdmissionV1,
+        lower: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
+    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
+        let (key, symbol, arity) = admission.collector_parts();
+        let pending = builder
+            .capture_legacy_function_pending_session_v1(&symbol, body_snapshot, lower)
+            .map_err(ModuleLoweringPortChildErrorV1::Session)?;
+        pending.complete_before_restore(|draft| {
+            let prepared = self
+                .prepare_draft_admission(
+                    key,
+                    symbol,
+                    arity,
+                    DraftPublicationPolicyV1::LegacyReplaceWholePair,
+                )
+                .map_err(ModuleLoweringPortChildErrorV1::Admission)?;
+            prepared
+                .seal(draft)
+                .map_err(ModuleLoweringPortChildErrorV1::Admission)?
+                .collect();
+            Ok(())
+        })
+    }
 }
 
 /// The external owner of one module-lowering invocation.
@@ -256,7 +328,9 @@ impl<'builder> ModuleLoweringInvocationV1<'builder> {
 
 #[cfg(test)]
 mod tests {
-    use super::{ModuleLoweringInvocationV1, ResolvedChildDraftAdmissionV1};
+    use super::{
+        LegacyChildDraftAdmissionV1, ModuleLoweringInvocationV1, ResolvedChildDraftAdmissionV1,
+    };
     use crate::ast::{ASTNode, DeclarationAttrs, Span};
     use crate::mir::builder::module_draft_collector::{
         DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftCollectorV1,
@@ -508,6 +582,83 @@ mod tests {
         invocation.with_header_port(|_builder, headers| {
             assert_eq!(headers.symbol_count(), 0);
             assert!(headers.signature("rejected_child/0").is_none());
+        });
+    }
+
+    #[test]
+    fn legacy_child_terminal_collects_with_legacy_symbol_identity() {
+        let mut builder = MirBuilder::new();
+        let mut invocation = ModuleLoweringInvocationV1::open(&mut builder);
+
+        invocation
+            .with_module_port(|builder, port| {
+                port.complete_legacy_child(
+                    builder,
+                    Vec::new(),
+                    LegacyChildDraftAdmissionV1::legacy_symbol("Legacy.f/0".into(), 0),
+                    |_| Ok(draft("Legacy.f/0", 0)),
+                )
+            })
+            .unwrap();
+
+        invocation.with_header_port(|_builder, headers| {
+            assert_eq!(headers.symbol_count(), 1);
+            assert_eq!(
+                headers.signature("Legacy.f/0").unwrap().return_type,
+                MirType::Integer
+            );
+        });
+    }
+
+    #[test]
+    fn legacy_child_terminal_replaces_the_whole_collected_pair() {
+        let mut builder = MirBuilder::new();
+        let mut invocation = ModuleLoweringInvocationV1::open(&mut builder);
+
+        for return_type in [MirType::Integer, MirType::String] {
+            invocation
+                .with_module_port(|builder, port| {
+                    port.complete_legacy_child(
+                        builder,
+                        Vec::new(),
+                        LegacyChildDraftAdmissionV1::legacy_symbol("Legacy.f/0".into(), 0),
+                        |_| {
+                            let mut next = draft("Legacy.f/0", 0);
+                            next.signature.return_type = return_type;
+                            Ok(next)
+                        },
+                    )
+                })
+                .unwrap();
+        }
+
+        invocation.with_header_port(|_builder, headers| {
+            assert_eq!(headers.symbol_count(), 1);
+            assert_eq!(
+                headers.signature("Legacy.f/0").unwrap().return_type,
+                MirType::String
+            );
+        });
+    }
+
+    #[test]
+    fn legacy_child_admission_failure_restores_without_collection() {
+        let mut builder = MirBuilder::new();
+        let mut invocation = ModuleLoweringInvocationV1::open(&mut builder);
+
+        let error = invocation.with_module_port(|builder, port| {
+            port.complete_legacy_child(
+                builder,
+                Vec::new(),
+                LegacyChildDraftAdmissionV1::legacy_symbol("Legacy.f/0".into(), 0),
+                |_| Ok(draft("wrong/0", 0)),
+            )
+        });
+        assert!(error.is_err());
+
+        invocation.with_header_port(|_builder, headers| {
+            assert_eq!(headers.symbol_count(), 0);
+            assert!(headers.signature("Legacy.f/0").is_none());
         });
     }
 }

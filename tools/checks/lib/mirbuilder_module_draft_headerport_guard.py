@@ -91,7 +91,12 @@ def main() -> int:
         "collector: &'collector mut ModuleDraftCollectorV1",
         "RAWPORT0 stack-owned capability",
     )
-    for fragment in ("with_headers", "prepare_draft_admission", "complete_resolved_child"):
+    for fragment in (
+        "with_headers",
+        "prepare_draft_admission",
+        "complete_resolved_child",
+        "complete_legacy_child",
+    ):
         require(module_port_impl, fragment, "RAWPORT0 stack-owned capability")
     for fragment in ("MirBuilder", "current_module", "thread_local", "OnceLock"):
         forbid(module_port_decl, fragment, "RAWPORT0 stack-owned capability field")
@@ -110,7 +115,39 @@ def main() -> int:
         "capture_resolved_function_pending_session_v1",
         "RAWPORT0 resolved pending seam",
     )
+    require(
+        pending_terminal,
+        "struct LegacyFunctionPendingSessionV1",
+        "RAWPORT0 legacy pending seam",
+    )
+    require(
+        pending_terminal,
+        "capture_legacy_function_pending_session_v1",
+        "RAWPORT0 legacy capture seam",
+    )
     forbid(pending_terminal, "PreparedFunctionDraftAdmissionV1", "RAWPORT0 pending terminal")
+
+    legacy_admission = invocation.split("struct LegacyChildDraftAdmissionV1", 1)[1].split(
+        "/// Failure while", 1
+    )[0]
+    for fragment in ("symbol: String", "arity: usize", "legacy_symbol"):
+        require(legacy_admission, fragment, "RAWPORT0 legacy admission")
+    for fragment in ("Clone", "CanonicalResolvedOwner", "ModuleDraftCollectorV1", "MirBuilder"):
+        forbid(legacy_admission, fragment, "RAWPORT0 legacy admission")
+    require(
+        module_port_impl,
+        "DraftPublicationPolicyV1::LegacyReplaceWholePair",
+        "RAWPORT0 legacy whole-pair policy",
+    )
+    for relative in (
+        "src/mir/builder/raw_expression_dispatch.rs",
+        "src/mir/builder/calls/function_session.rs",
+    ):
+        forbid(
+            read(ROOT / relative),
+            "complete_legacy_child(",
+            f"RAWPORT0 S0 production caller {relative}",
+        )
 
     for fragment in ("thread_local", "OnceLock", "static ", "derive(Clone)"):
         forbid(invocation, fragment, "HEADERPORT0 external invocation")
@@ -123,7 +160,8 @@ def main() -> int:
 
     print(
         "[module-draft-headerport-guard] ok "
-        f"p0_reader_families={len(P0_DIRECT_HEADER_READER_FRAGMENTS)}"
+        f"p0_reader_families={len(P0_DIRECT_HEADER_READER_FRAGMENTS)} "
+        "legacyterm0_s0_production_consumers=0"
     )
     return 0
 
