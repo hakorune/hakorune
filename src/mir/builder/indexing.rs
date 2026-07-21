@@ -1,4 +1,7 @@
 use crate::ast::ASTNode;
+use crate::mir::builder::recursive_child_lowering::{
+    drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+};
 use crate::mir::instruction::FastMemRegionId;
 use crate::mir::instruction::MemOpKind;
 
@@ -188,6 +191,23 @@ impl super::MirBuilder {
         target: ASTNode,
         index: ASTNode,
     ) -> Result<ValueId, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_index_expression_with_port_v1(&mut port, target, index)
+    }
+
+    /// Lower an index read while retaining the raw child's descent port.
+    ///
+    /// Index routing and access-site publication remain owned by this module;
+    /// only target and index expression descent are delegated to the caller.
+    pub(super) fn build_index_expression_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        target: ASTNode,
+        index: ASTNode,
+    ) -> Result<ValueId, String>
+    where
+        Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
+    {
         if let ASTNode::Variable { name, .. } = &target {
             if let Some(plan) = self
                 .current_module
@@ -202,7 +222,7 @@ impl super::MirBuilder {
             {
                 let prepared = PreparedStaticU16LoadTypeV1::prepare(&plan, None)
                     .map_err(|error| error.to_string())?;
-                let index_val = self.build_expression(index)?;
+                let index_val = drive_legacy_expression_v1(self, port, index)?;
                 let dst = self.next_value_id();
                 self.emit_instruction(MirInstruction::StaticDataLoad {
                     dst,
@@ -222,8 +242,8 @@ impl super::MirBuilder {
             ASTNode::Variable { name, .. } => Some(name.clone()),
             _ => None,
         };
-        let target_val = self.build_expression(target)?;
-        let index_val = self.build_expression(index)?;
+        let target_val = drive_legacy_expression_v1(self, port, target)?;
+        let index_val = drive_legacy_expression_v1(self, port, index)?;
         self.build_index_access_from_values(None, target_val, index_val, target_label, "load", None)
     }
 
@@ -233,13 +253,28 @@ impl super::MirBuilder {
         index: ASTNode,
         value: ASTNode,
     ) -> Result<ValueId, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_index_assignment_with_port_v1(&mut port, target, index, value)
+    }
+
+    /// Lower an index write while retaining the raw child's descent port.
+    pub(super) fn build_index_assignment_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        target: ASTNode,
+        index: ASTNode,
+        value: ASTNode,
+    ) -> Result<ValueId, String>
+    where
+        Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
+    {
         let target_label = match &target {
             ASTNode::Variable { name, .. } => Some(name.clone()),
             _ => None,
         };
-        let target_val = self.build_expression(target)?;
-        let index_val = self.build_expression(index)?;
-        let value_val = self.build_expression(value)?;
+        let target_val = drive_legacy_expression_v1(self, port, target)?;
+        let index_val = drive_legacy_expression_v1(self, port, index)?;
+        let value_val = drive_legacy_expression_v1(self, port, value)?;
         self.build_index_access_from_values(
             None,
             target_val,

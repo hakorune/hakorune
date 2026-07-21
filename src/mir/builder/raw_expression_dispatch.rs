@@ -227,7 +227,12 @@ impl super::MirBuilder {
         if let ASTNode::FieldAccess { object, field, .. } = stmt.target.as_ref() {
             self.build_field_assignment(*object.clone(), field.clone(), *stmt.value.clone())
         } else if let ASTNode::Index { target, index, .. } = stmt.target.as_ref() {
-            self.build_index_assignment(*target.clone(), *index.clone(), *stmt.value.clone())
+            self.build_index_assignment_with_port_v1(
+                port,
+                *target.clone(),
+                *index.clone(),
+                *stmt.value.clone(),
+            )
         } else if let ASTNode::Variable { name, .. } = stmt.target.as_ref() {
             let input = RawLegacyVariableAssignmentInputV1::new(name.clone(), *stmt.value);
             drive_variable_assignment_v1(self, port, &input)
@@ -359,7 +364,7 @@ impl super::MirBuilder {
             }
 
             ASTNode::Index { target, index, .. } => {
-                self.build_index_expression(*target.clone(), *index.clone())
+                self.build_index_expression_with_port_v1(port, *target.clone(), *index.clone())
             }
 
             node @ ASTNode::FunctionCall { .. } => {
