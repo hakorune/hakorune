@@ -88,6 +88,31 @@ fn collector_with_return_type(return_type: MirType) -> ModuleDraftCollectorV1 {
     collector
 }
 
+fn birth_collector() -> ModuleDraftCollectorV1 {
+    let mut collector = ModuleDraftCollectorV1::default();
+    let function = MirFunction::new(
+        FunctionSignature {
+            name: "Prefix.birth/1".to_owned(),
+            params: vec![MirType::Integer],
+            return_type: MirType::Void,
+            effects: EffectMask::READ.add(Effect::ReadHeap),
+        },
+        BasicBlockId(0),
+    );
+    collector
+        .prepare_admission(
+            FunctionDraftKeyV1::LegacySymbol("Prefix.birth/1".to_owned()),
+            "Prefix.birth/1".to_owned(),
+            1,
+            DraftPublicationPolicyV1::LegacyReplaceWholePair,
+        )
+        .unwrap()
+        .seal(function)
+        .unwrap()
+        .collect();
+    collector
+}
+
 macro_rules! with_port {
     ($builder:ident, $port:ident, $body:block) => {{
         let mut invocation = ModuleLoweringInvocationV1::with_collector(&mut $builder, collector());
@@ -219,6 +244,44 @@ fn headerport_annotation_matches_legacy_module_signature_without_ambient_module(
             .value_origin_newbox
             .get(&dst)
     );
+}
+
+#[test]
+fn headerport_birth_presence_matches_legacy_newbox_branch() {
+    let birth = MirFunction::new(
+        FunctionSignature {
+            name: "Prefix.birth/1".to_owned(),
+            params: vec![MirType::Integer],
+            return_type: MirType::Void,
+            effects: EffectMask::READ.add(Effect::ReadHeap),
+        },
+        BasicBlockId(0),
+    );
+    let mut legacy = MirBuilder::new();
+    legacy.enter_function_for_test("headerport_birth/0".to_owned());
+    legacy.current_module = Some(MirModule::new("legacy-birth-module".to_owned()));
+    legacy.current_module.as_mut().unwrap().add_function(birth);
+    let mut legacy_port = RawLegacyChildLoweringPortV1;
+    let legacy_value = legacy
+        .build_new_expression_with_port_v1(&mut legacy_port, "Prefix".to_owned(), vec![int(7)])
+        .unwrap();
+
+    let mut port_builder = MirBuilder::new();
+    port_builder.enter_function_for_test("headerport_birth/0".to_owned());
+    let invocation_value = {
+        let mut invocation =
+            ModuleLoweringInvocationV1::with_collector(&mut port_builder, birth_collector());
+        let value = invocation.with_module_port(|builder, module_port| {
+            let mut port = RawInvocationChildPortV1::new(module_port);
+            builder.build_new_expression_with_port_v1(&mut port, "Prefix".to_owned(), vec![int(7)])
+        });
+        drop(invocation);
+        value.unwrap()
+    };
+
+    assert_eq!(legacy_value, invocation_value);
+    assert_eq!(instructions(&legacy), instructions(&port_builder));
+    assert!(port_builder.current_module.is_none());
 }
 
 #[test]

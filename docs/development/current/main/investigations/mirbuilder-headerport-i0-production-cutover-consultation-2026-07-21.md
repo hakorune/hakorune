@@ -6,8 +6,8 @@ CANDIDATE0-S0/P0, MAINROLE0-D0/S0/P0, BODYDRAIN0-S0/P0,
 MAINPENDING0-S0/P0, ROOTBATCH0-S0/P0, SHELLFACT0-S0/P0, and
 DRAIN0-S0/P0, MODULEFINAL0-SPLIT0/P0, MODULEFINAL0-CANDIDATE0-P0, and
 WIRING-S0/P0 and WIRING-I0-HDR0-M0 are closed; M-root-prime and Candidate
-A-prime are selected. The first passive `WIRING-I0-HDR0-P0` annotation
-parity slice is landed; unresolved reader families remain in P0;
+A-prime are selected. The annotation and constructor/birth passive
+`WIRING-I0-HDR0-P0` slices are landed; unresolved reader families remain in P0;
 production capture/commit and
 CUT0 remain forbidden until replacement/parity,
 the compatibility-policy consultation, and the all-route cutover gates are
@@ -3186,3 +3186,22 @@ The remaining P0 rows are not mechanically selected by this witness. In
 particular, constructor/birth presence, method-index freshness, and the
 Located compatibility observation still have no unique replacement owner;
 choosing one would cross the documented design-consultation boundary.
+
+## WIRING-I0-HDR0-P0 constructor/birth presence slice
+
+The worker audit selects the constructor/birth presence read as a separate
+mechanical owner. `build_new_expression_with_port_v1` now requires the
+short-lived `RawFunctionHeaderLookupPortV1`; an explicit invocation header
+uses `LoweringHeaderPortV1::contains_symbol`, while the legacy `None` adapter
+keeps the existing `current_module` compatibility path. The constructor
+fallback policy (`user_defined_boxes` and the builtin birth toggle) is
+unchanged and is not inferred from the header lookup.
+
+`headerport_birth_presence_matches_legacy_newbox_branch` compares the actual
+`NewBox -> Global(<Class>.birth/N)` branch and emitted instructions against the
+legacy module path. The fixture is disconnected: no production invocation
+caller, capture/commit, catalog authority, or CUT0 wiring is added.
+
+The worker decision does not extend to method-index freshness, static tail
+resolver routing, materializer `legacy_presence`, or lifecycle cutover. Those
+still require a separate cache/policy/route owner decision.

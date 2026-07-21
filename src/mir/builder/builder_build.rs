@@ -3,7 +3,8 @@ use super::CallTarget;
 use super::{ConstValue, Effect, EffectMask, MirBuilder, MirInstruction, MirModule, ValueId};
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::builder::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawFunctionHeaderLookupPortV1,
+    RawLegacyChildLoweringPortV1,
 };
 use crate::mir::exact_numeric_value_facts::ExactNumericConstFact;
 use crate::mir::numeric_substrate::{
@@ -307,7 +308,7 @@ impl MirBuilder {
         arguments: Vec<ASTNode>,
     ) -> Result<ValueId, String>
     where
-        Port: RawAstChildLoweringPortV1,
+        Port: RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1,
     {
         if self.is_record_constructor_class(&class) {
             return Err(format!(
@@ -408,11 +409,13 @@ impl MirBuilder {
                 crate::mir::builder::calls::function_lowering::generate_method_function_name(
                     &class, "birth", arity,
                 );
-            let use_lowered = if let Some(ref module) = self.current_module {
-                module.functions.contains_key(&lowered)
-            } else {
-                false
-            };
+            let use_lowered = port.with_function_headers(|headers| match headers {
+                Some(view) => view.contains_symbol(&lowered),
+                None => self
+                    .current_module
+                    .as_ref()
+                    .is_some_and(|module| module.functions.contains_key(&lowered)),
+            });
             if use_lowered {
                 // Call Global("Class.birth/Arity") with argv = [me, args...]
                 let mut argv: Vec<ValueId> = Vec::with_capacity(1 + arity);
@@ -469,7 +472,7 @@ impl MirBuilder {
         field_initializers: Vec<(String, ASTNode)>,
     ) -> Result<ValueId, String>
     where
-        Port: RawAstChildLoweringPortV1,
+        Port: RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1,
     {
         if !field_initializers.is_empty() && self.is_record_constructor_class(&class) {
             return Err(format!(
