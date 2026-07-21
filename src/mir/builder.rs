@@ -33,6 +33,8 @@ mod collection_literals; // ArrayLiteral / MapLiteral lowering
 mod compilation_context; // Phase 136 follow-up (Step 7/7): CompilationContext extraction
 mod compound_assignment; // evaluated Place read-modify-write lowering
 mod decls; // declarations lowering split
+#[allow(dead_code)]
+mod drained_module_candidate; // HEADERPORT0-I0-DRAIN0-S0 disconnected candidate
 mod exprs_call;
 mod exprs_check; // CheckExpr lowering
 mod exprs_enum_match; // narrow direct-MIR enum match lowering for guard-let sugar

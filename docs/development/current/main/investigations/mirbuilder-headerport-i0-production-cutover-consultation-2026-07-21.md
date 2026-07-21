@@ -2,8 +2,10 @@
 
 Status: **STATE0-S0/P0/I0/G0, CONSULT0, ACCESS0-S0, and
 ACCESS0-MEHEADER-S0/P0/I0/G0, ACCESS0-REWRITE-KNOWN-P0, ACCESS0-P0, and
-CANDIDATE0-S0/P0, MAINROLE0-D0/S0/P0, and BODYDRAIN0-S0/P0 are closed;
-M-root-prime remains selected and `HEADERPORT0-I0-ROOTBATCH0-S0` is next**
+CANDIDATE0-S0/P0, MAINROLE0-D0/S0/P0, BODYDRAIN0-S0/P0,
+MAINPENDING0-S0/P0, ROOTBATCH0-S0/P0, SHELLFACT0-S0/P0, and
+DRAIN0-S0 are closed; M-root-prime remains selected and
+`HEADERPORT0-I0-DRAIN0-P0` is next**
 
 Date: 2026-07-21
 
@@ -722,9 +724,12 @@ HEADERPORT0-I0-ROOTBATCH0-S0/P0 (closed)
 HEADERPORT0-I0-SHELLFACT0-S0/P0 (closed)
   one-way source declaration fact snapshot and lane/failure parity
 
-HEADERPORT0-I0-DRAIN0-S0/P0
-  next code-facing row
+HEADERPORT0-I0-DRAIN0-S0 (closed)
   route-owned inventory witness and non-Clone drained candidate
+
+HEADERPORT0-I0-DRAIN0-P0
+  next code-facing row
+  exact drain/inventory/condition policy and failure matrix
 
 HEADERPORT0-I0-MODULEFINAL0-SPLIT0
   split root completion from post-drain module finalization
@@ -863,8 +868,22 @@ The snapshot is non-Clone and consuming `into_parts` is the only way to move
 all lanes together; no shell mutation, derived-plan refresh, collector borrow,
 drain, fallback, or retry route was added.
 
-The next row is `HEADERPORT0-I0-DRAIN0-S0`; shell publication, drain,
-FACTSESSION0, and CUT0 remain forbidden.
+The next row is `HEADERPORT0-I0-DRAIN0-P0`; shell publication, production
+drain, FACTSESSION0, and CUT0 remain forbidden.
+
+## DRAIN0-S0 closeout
+
+`HEADERPORT0-I0-DRAIN0-S0` is closed with production consumers still zero.
+`CompletedInvocationInventoryV1` owns the route-produced symbol inventory,
+the completed-root witness, and the explicit condition-function policy. It
+rejects duplicate inventory symbols before candidate issuance. The
+non-Clone `DrainedModuleCandidateV1` accepts only an exact module-function
+set, requires `main`, enforces the condition policy, and exposes only borrowed
+module/inventory views; it has no Builder, collector, retry, fallback, or bare
+module extraction API. Focused fixtures cover exact co-seal, duplicate and
+condition failures, and the absence of a bare-module consumer. The product is
+disconnected: production capture/commit, shell mutation, FACTSESSION0, and
+CUT0 remain forbidden.
 
 ## MAINPENDING0-P0 closeout
 
