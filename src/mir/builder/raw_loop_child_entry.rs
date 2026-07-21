@@ -1,0 +1,159 @@
+//! Pure raw-Loop child-entry quarantine.
+//!
+//! This module answers one question before the future invocation-aware raw
+//! Loop boundary calls `cf_loop`: can this exact raw syntax enter a Box child
+//! function? It owns no Builder, JoinIR route, module collector, header port,
+//! source-site identity, or AST rewrite authority.
+
+use crate::ast::ASTNode;
+
+/// Exact child-entry result for one raw Loop syntax surface.
+///
+/// `NoChildFunctionEntry` is deliberately narrow: it says only that the
+/// executable syntax has no reachable `BoxDeclaration`. It does not prove a
+/// JoinIR route, recipe, CFG, type fact, or general Loop acceptance.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::builder) enum RawLoopChildEntryDispositionV1 {
+    NoChildFunctionEntry,
+    ReachableBoxDeclaration,
+}
+
+/// Classify the original condition and body of one raw `ASTNode::Loop`.
+///
+/// The AST traversal API is the generic child-topology SSOT. Lambda and nested
+/// function declaration bodies are deferred ownership surfaces: neither is
+/// executed by the surrounding raw Loop lowering, so this classifier does not
+/// descend into them. A `BoxDeclaration` itself is executable on the raw
+/// dispatcher path and is therefore a direct child-entry boundary.
+pub(in crate::mir::builder) fn classify_raw_loop_child_entry_v1(
+    condition: &ASTNode,
+    body: &[ASTNode],
+) -> RawLoopChildEntryDispositionV1 {
+    let has_child_entry = contains_reachable_box_declaration(condition)
+        || body.iter().any(contains_reachable_box_declaration);
+
+    if has_child_entry {
+        RawLoopChildEntryDispositionV1::ReachableBoxDeclaration
+    } else {
+        RawLoopChildEntryDispositionV1::NoChildFunctionEntry
+    }
+}
+
+fn contains_reachable_box_declaration(node: &ASTNode) -> bool {
+    match node {
+        ASTNode::BoxDeclaration { .. } => true,
+        ASTNode::Lambda { .. } | ASTNode::FunctionDeclaration { .. } => false,
+        _ => node.any_child(contains_reachable_box_declaration),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use super::{classify_raw_loop_child_entry_v1, RawLoopChildEntryDispositionV1};
+    use crate::ast::{ASTNode, DeclarationAttrs, Span};
+
+    fn span() -> Span {
+        Span::unknown()
+    }
+
+    fn literal_bool(value: bool) -> ASTNode {
+        ASTNode::Literal {
+            value: crate::ast::LiteralValue::Bool(value),
+            span: span(),
+        }
+    }
+
+    fn box_declaration() -> ASTNode {
+        ASTNode::BoxDeclaration {
+            name: "Nested".to_string(),
+            fields: Vec::new(),
+            field_decls: Vec::new(),
+            public_fields: Vec::new(),
+            private_fields: Vec::new(),
+            methods: HashMap::new(),
+            constructors: HashMap::new(),
+            init_fields: Vec::new(),
+            weak_fields: Vec::new(),
+            delegates: Vec::new(),
+            invariants: Vec::new(),
+            transitions: Vec::new(),
+            is_interface: false,
+            is_record: false,
+            extends: Vec::new(),
+            implements: Vec::new(),
+            type_parameters: Vec::new(),
+            is_sync: false,
+            is_static: true,
+            static_init: None,
+            attrs: DeclarationAttrs::default(),
+            span: span(),
+        }
+    }
+
+    #[test]
+    fn accepts_plain_loop_syntax_without_box_declaration() {
+        let body = vec![ASTNode::If {
+            condition: Box::new(literal_bool(true)),
+            then_body: vec![ASTNode::Print {
+                expression: Box::new(literal_bool(false)),
+                span: span(),
+            }],
+            else_body: None,
+            span: span(),
+        }];
+
+        assert_eq!(
+            classify_raw_loop_child_entry_v1(&literal_bool(true), &body),
+            RawLoopChildEntryDispositionV1::NoChildFunctionEntry,
+        );
+    }
+
+    #[test]
+    fn rejects_box_declaration_in_loop_body_or_expression() {
+        let direct = vec![box_declaration()];
+        let nested_expression = vec![ASTNode::FunctionCall {
+            name: "consume".to_string(),
+            arguments: vec![box_declaration()],
+            span: span(),
+        }];
+
+        assert_eq!(
+            classify_raw_loop_child_entry_v1(&literal_bool(true), &direct),
+            RawLoopChildEntryDispositionV1::ReachableBoxDeclaration,
+        );
+        assert_eq!(
+            classify_raw_loop_child_entry_v1(&literal_bool(true), &nested_expression),
+            RawLoopChildEntryDispositionV1::ReachableBoxDeclaration,
+        );
+    }
+
+    #[test]
+    fn rejects_box_declaration_in_nested_executable_loop() {
+        let body = vec![ASTNode::Loop {
+            condition: Box::new(literal_bool(true)),
+            body: vec![box_declaration()],
+            span: span(),
+        }];
+
+        assert_eq!(
+            classify_raw_loop_child_entry_v1(&literal_bool(true), &body),
+            RawLoopChildEntryDispositionV1::ReachableBoxDeclaration,
+        );
+    }
+
+    #[test]
+    fn ignores_box_declaration_inside_deferred_lambda_body() {
+        let body = vec![ASTNode::Lambda {
+            params: Vec::new(),
+            body: vec![box_declaration()],
+            span: span(),
+        }];
+
+        assert_eq!(
+            classify_raw_loop_child_entry_v1(&literal_bool(true), &body),
+            RawLoopChildEntryDispositionV1::NoChildFunctionEntry,
+        );
+    }
+}

@@ -1,7 +1,8 @@
 ---
 Status: `HEADERPORT0-RAWPORT0-SELECT/S0/M0-T0/R0` and
   `HEADERPORT0-RAWPORT0-LEGACYTERM0-S0/P0/I0/G0` are closed;
-  `HEADERPORT0-RAWPORT0-LOOPBRIDGE0-SELECT` is next
+  `HEADERPORT0-RAWPORT0-LOOPBRIDGE0-SELECT` is closed;
+  `HEADERPORT0-RAWPORT0-LOOPBRIDGE0-S0` is next
 Date: 2026-07-21
 Scope: one atomic `FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0` cutover
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-task-2026-07-20.md
@@ -213,7 +214,7 @@ HEADERPORT0-RAWPORT0-LEGACYTERM0-S0
    for the disconnected path
 ```
 
-### Loop is explicitly parked behind a separate selection
+### Loop bridge selection — Candidate C-prime accepted
 
 `cf_loop` cannot be parameterized as another M0-R0 thin sibling.  Its active
 route reaches JoinIR routing, recipe composition, and `PlanLowerer`, where
@@ -221,19 +222,94 @@ plan construction already mutates the Builder and normalized shadow may clone
 or reconstruct syntax.  Passing `ModuleLoweringPortV1` into that stack now
 would mix raw child transport with Loop semantic/transaction authority.
 
-After `LEGACYTERM0-G0`, `HEADERPORT0-RAWPORT0-LOOPBRIDGE0-SELECT` must choose
-one explicit Loop bridge or reject the relevant raw Loop profile before M0-G0.
-Until that selection:
+The selection is now closed. Candidate C-prime is a scoped **raw Loop
+child-open quarantine**, not a JoinIR port bridge:
+
+```text
+Raw invocation Loop
+-> pure NoChildFunctionEntry preflight over the exact raw syntax
+-> NoChildFunctionEntry
+     -> unchanged cf_loop
+   | ReachableBoxDeclaration
+     -> typed freeze before cf_loop
+```
+
+The preflight reads the original raw Loop syntax only. It does not clone,
+canonicalize, reconstruct, or assign source identity to AST nodes. It treats a
+Lambda body as deferred ownership, recursively scans executable nested Loop /
+If / statement and expression bodies, and rejects any reachable
+`BoxDeclaration` before a Builder effect, header loan, collector admission, or
+child session. This preserves the current accepted JoinIR loop behavior: the
+audited generic Loop normalizer and recipe/Parts vocabulary do not admit a
+`BoxDeclaration` or open a child function session. It does not claim that all
+future Loop profiles have this property.
+
+Candidate A, passing `ModuleLoweringPortV1` through JoinIR, is rejected:
+JoinIR route selection, recipe composers, normalized shadow, and `PlanLowerer`
+already own Builder, CFG, variable-map, PHI, and plan transactions. Candidate
+B, reusing `VerifiedLocatedCoreLoopPlanV1`, is also rejected: it is a
+callable-result claim product, its composer still mutates Builder, and it is
+not a module-draft transport boundary.
+
+The following remains fixed:
 
 ```text
 ModuleLoweringPortV1 parameter in JoinIR router / RecipeComposer / PlanLowerer = 0
 raw Loop clone/reconstruction for this port = 0
-Loop counted as M0-R0 closure = 0
+ModuleLoweringPortV1 parameter in normalized shadow / StepTree = 0
+collector/header capability stored in Builder / CompilationContext / TLS = 0
 ```
 
-Lambda is not a raw lowering child edge: it records a deferred closure body and
-does not open a function session at this point.  The M0 census must classify it
-as deferred-body ownership rather than pretending it was port-lowered.
+`cf_loop` remains the only Loop semantic/transaction owner. The quarantine is
+not a raw Loop rewrite, a second `cf_loop_with_port`, a general located Loop
+bridge, or a fallback to a different route.
+
+#### Exact continuation order
+
+```text
+HEADERPORT0-RAWPORT0-LOOPBRIDGE0-S0
+  one private pure RawLoopChildEntryDispositionV1 and exact-syntax scanner;
+  production consumers = 0; no Builder, port, collector, or JoinIR parameter
+
+-> HEADERPORT0-RAWPORT0-LOOPBRIDGE0-P0
+   source/route matrix: accepted generic/recipe shapes are NoChild;
+   direct/nested executable BoxDeclaration rejects before effects; Lambda is
+   deferred; normalized shadow does not receive the port; existing no-child
+   cf_loop parity is fixed
+
+-> HEADERPORT0-RAWPORT0-LOOPBRIDGE0-I0
+   wire only the raw invocation Loop boundary:
+   NoChild -> existing cf_loop, child-opening -> typed pre-effect freeze.
+   Legacy raw facade and JoinIR internals remain unchanged.
+
+-> HEADERPORT0-RAWPORT0-LOOPBRIDGE0-G0
+   one scanner/boundary owner; JoinIR/plan/normalization port consumers = 0;
+   existing successful Loop child-session openers = 0
+```
+
+Stop and reopen a dedicated pure-plan/function-session bridge design if a
+currently successful Loop profile opens a child function, if a route requires
+the module port in JoinIR, if the scanner needs a cloned/reconstructed AST as
+authority, or if a collector/header capability must enter Builder/TLS. Do not
+weaken this to a broad raw-Loop rejection unless a production census proves the
+rejected profile is absent and that behavior change is explicitly selected.
+
+#### LOOPBRIDGE0-S0 closeout — disconnected syntax disposition
+
+`LOOPBRIDGE0-S0` closes one private pure
+`RawLoopChildEntryDispositionV1` with no production consumer. It classifies
+the exact raw Loop condition/body using `ASTNode::for_each_child`, the generic
+AST child-topology SSOT. A direct, expression-nested, or executable nested-Loop
+`BoxDeclaration` yields `ReachableBoxDeclaration`; an ordinary Loop yields
+`NoChildFunctionEntry`. Lambda and function-declaration bodies are deferred
+ownership surfaces and are not scanned as surrounding Loop execution. The
+product has no Builder, invocation port, collector, header, JoinIR, source-site
+identity, AST clone, or mutation authority. Four focused fixtures are green.
+
+`HEADERPORT0-RAWPORT0-LOOPBRIDGE0-P0` is next. It must prove the source and
+route matrix plus pre-effect rejection/parity before I0 wires the one raw
+invocation boundary. No production dispatcher, `cf_loop`, JoinIR, or collector
+consumer changed in S0.
 
 ## Exact task order
 
