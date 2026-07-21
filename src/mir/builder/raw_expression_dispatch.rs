@@ -391,7 +391,7 @@ impl super::MirBuilder {
             } => self.build_indirect_call_expression(*callee.clone(), arguments.clone()),
 
             ASTNode::QMarkPropagate { expression, .. } => {
-                self.build_qmark_propagate_expression(*expression.clone())
+                self.build_qmark_propagate_expression_with_port_v1(port, *expression.clone())
             }
 
             ASTNode::MatchExpr {
