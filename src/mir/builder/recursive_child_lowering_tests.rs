@@ -164,6 +164,13 @@ fn throw(expression: ASTNode) -> ASTNode {
     }
 }
 
+fn print(expression: ASTNode) -> ASTNode {
+    ASTNode::Print {
+        expression: Box::new(expression),
+        span: Span::unknown(),
+    }
+}
+
 fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
     let function = builder
         .function_state
@@ -509,6 +516,29 @@ fn raw_invocation_port_preserves_throw_expression_descent() {
         assert!(function.blocks.values().any(|block| matches!(
             block.terminator.as_ref(),
             Some(MirInstruction::Throw { exception, .. }) if *exception == output
+        )));
+        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
+    });
+}
+
+#[test]
+fn raw_invocation_port_preserves_print_expression_descent() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("raw_invocation_print/0".to_string());
+    let mut invocation = ModuleLoweringInvocationV1::with_collector(
+        &mut builder,
+        collector_with_header("Prefix.f/1", 1),
+    );
+
+    invocation.with_module_port(|builder, module_port| {
+        let mut port = RawInvocationChildPortV1::new(module_port);
+        let output =
+            drive_legacy_expression_v1(builder, &mut port, print(add(integer(2), integer(3))))
+                .unwrap();
+
+        assert!(instructions(builder).iter().any(|instruction| matches!(
+            instruction,
+            MirInstruction::BinOp { dst, .. } if *dst == output
         )));
         port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
     });

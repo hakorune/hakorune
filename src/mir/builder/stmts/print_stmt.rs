@@ -12,6 +12,9 @@
 
 use super::super::{CallTarget, MirBuilder, MirInstruction, ValueId};
 use crate::ast::{ASTNode, CallExpr};
+use crate::mir::builder::recursive_child_lowering::{
+    drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+};
 use crate::mir::TypeOpKind;
 
 /// Print statement: env.console.log(value) with early TypeOp handling
@@ -34,6 +37,19 @@ pub(in crate::mir::builder) fn build_print_statement(
     builder: &mut MirBuilder,
     expression: ASTNode,
 ) -> Result<ValueId, String> {
+    let mut port = RawLegacyChildLoweringPortV1;
+    build_print_statement_with_port_v1(builder, &mut port, expression)
+}
+
+/// Lower a print expression while retaining the caller's raw child port.
+pub(in crate::mir::builder) fn build_print_statement_with_port_v1<Port>(
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    expression: ASTNode,
+) -> Result<ValueId, String>
+where
+    Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
+{
     super::super::utils::builder_debug_log("enter build_print_statement");
     // Prefer wrapper for simple function-call pattern (non-breaking refactor)
     if let Ok(call) = CallExpr::try_from(expression.clone()) {
@@ -48,7 +64,7 @@ pub(in crate::mir::builder) fn build_print_statement(
                     "extract_string_literal OK: {}",
                     type_name
                 ));
-                let val = builder.build_expression(call.arguments[0].clone())?;
+                let val = drive_legacy_expression_v1(builder, port, call.arguments[0].clone())?;
                 let ty = super::super::MirBuilder::parse_type_name_to_mir(&type_name);
                 let dst = builder.next_value_id();
                 let op = if call.name == "isType" {
@@ -86,7 +102,7 @@ pub(in crate::mir::builder) fn build_print_statement(
                     "extract_string_literal OK: {}",
                     type_name
                 ));
-                let val = builder.build_expression(arguments[0].clone())?;
+                let val = drive_legacy_expression_v1(builder, port, arguments[0].clone())?;
                 let ty = super::super::MirBuilder::parse_type_name_to_mir(&type_name);
                 let dst = builder.next_value_id();
                 let op = if name == "isType" {
@@ -124,7 +140,7 @@ pub(in crate::mir::builder) fn build_print_statement(
                     "extract_string_literal OK: {}",
                     type_name
                 ));
-                let obj_val = builder.build_expression(*object.clone())?;
+                let obj_val = drive_legacy_expression_v1(builder, port, *object.clone())?;
                 let ty = super::super::MirBuilder::parse_type_name_to_mir(&type_name);
                 let dst = builder.next_value_id();
                 let op = if method == "is" {
@@ -151,7 +167,7 @@ pub(in crate::mir::builder) fn build_print_statement(
         _ => {}
     }
 
-    let value = builder.build_expression(expression)?;
+    let value = drive_legacy_expression_v1(builder, port, expression)?;
     super::super::utils::builder_debug_log(&format!("general print value={}", value));
 
     build_print_from_value(builder, value)

@@ -114,7 +114,11 @@ impl super::MirBuilder {
                 source_keyword, name
             )),
             ASTNode::Print { expression, .. } => Ok(StatementSurfaceDispatch::Lowered(
-                super::stmts::print_stmt::build_print_statement(self, *expression)?,
+                super::stmts::print_stmt::build_print_statement_with_port_v1(
+                    self,
+                    port,
+                    *expression,
+                )?,
             )),
             ASTNode::If {
                 condition,
