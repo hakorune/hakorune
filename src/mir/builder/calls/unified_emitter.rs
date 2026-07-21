@@ -112,8 +112,15 @@ impl UnifiedCallEmitterBox {
 
         // Check environment variable for unified call usage
         let result = if !call_unified::is_unified_call_enabled() {
-            // Use the compatibility call entry when unified calls are disabled.
-            builder.emit_legacy_call(dst, target, args)
+            if lookup.is_some() {
+                Err(
+                    "[freeze:contract][headerport/unified_call_disabled] explicit header lookup cannot retry through legacy emission"
+                        .to_owned(),
+                )
+            } else {
+                // Use the compatibility call entry when unified calls are disabled.
+                builder.emit_legacy_call(dst, target, args)
+            }
         } else {
             Self::emit_unified_call_impl_with_lookup_and_map_replay(
                 builder,
