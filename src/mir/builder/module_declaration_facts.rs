@@ -9,7 +9,7 @@ use std::collections::BTreeMap;
 use crate::mir::function::{MirEnumDecl, RecordDecl};
 use crate::mir::UserBoxFieldDecl;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) struct SealedModuleDeclarationFactsV1 {
     user_box_decls: BTreeMap<String, Vec<String>>,
     user_box_field_decls: BTreeMap<String, Vec<UserBoxFieldDecl>>,
@@ -18,7 +18,7 @@ pub(in crate::mir::builder) struct SealedModuleDeclarationFactsV1 {
     _seal: SealedModuleDeclarationFactsSealV1,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 struct SealedModuleDeclarationFactsSealV1;
 
 impl SealedModuleDeclarationFactsV1 {
@@ -55,6 +55,23 @@ impl SealedModuleDeclarationFactsV1 {
 
     pub(in crate::mir::builder) fn enum_decls(&self) -> &BTreeMap<String, MirEnumDecl> {
         &self.enum_decls
+    }
+
+    /// Consume all declaration lanes together at the future shell boundary.
+    pub(in crate::mir::builder) fn into_parts(
+        self,
+    ) -> (
+        BTreeMap<String, Vec<String>>,
+        BTreeMap<String, Vec<UserBoxFieldDecl>>,
+        BTreeMap<String, RecordDecl>,
+        BTreeMap<String, MirEnumDecl>,
+    ) {
+        (
+            self.user_box_decls,
+            self.user_box_field_decls,
+            self.record_decls,
+            self.enum_decls,
+        )
     }
 }
 

@@ -58,7 +58,9 @@ mod metadata_context; // Phase 136 follow-up (Step 6/7): MetadataContext extract
 mod method_call_handlers;
 mod module_completion_candidate;
 #[allow(dead_code)]
-mod module_declaration_facts;
+mod module_declaration_facts; // HEADERPORT0-I0-SHELLFACT0-S0 disconnected facts
+#[cfg(test)]
+mod module_declaration_facts_p0; // HEADERPORT0-I0-SHELLFACT0-P0 fixtures
 mod module_draft_collector;
 #[allow(dead_code)]
 mod module_invocation_drain; // HEADERPORT0 I0-SHELL-I0-S0 disconnected drain

@@ -719,14 +719,11 @@ HEADERPORT0-I0-MAINPENDING0-S0/P0 (closed)
 HEADERPORT0-I0-ROOTBATCH0-S0/P0 (closed)
   Main + condition_fn prepared admissions and policy/failure parity
 
-HEADERPORT0-I0-SHELLFACT0-S0 (closed)
-  one-way source declaration fact snapshot for the function-empty shell
-
-HEADERPORT0-I0-SHELLFACT0-P0
-  next code-facing row
-  declaration lane parity and shell publication failure matrix
+HEADERPORT0-I0-SHELLFACT0-S0/P0 (closed)
+  one-way source declaration fact snapshot and lane/failure parity
 
 HEADERPORT0-I0-DRAIN0-S0/P0
+  next code-facing row
   route-owned inventory witness and non-Clone drained candidate
 
 HEADERPORT0-I0-MODULEFINAL0-SPLIT0
@@ -855,6 +852,18 @@ prove insertion-order stability and preserve the exact source declaration
 payload without semantic refresh.
 
 The next row is `HEADERPORT0-I0-SHELLFACT0-P0`; shell publication, drain,
+FACTSESSION0, and CUT0 remain forbidden.
+
+## SHELLFACT0-P0 closeout
+
+`HEADERPORT0-I0-SHELLFACT0-P0` is closed with production consumers still
+zero. The matrix proves all four declaration lanes move together at the
+future shell boundary, while empty and populated lane shapes remain explicit.
+The snapshot is non-Clone and consuming `into_parts` is the only way to move
+all lanes together; no shell mutation, derived-plan refresh, collector borrow,
+drain, fallback, or retry route was added.
+
+The next row is `HEADERPORT0-I0-DRAIN0-S0`; shell publication, drain,
 FACTSESSION0, and CUT0 remain forbidden.
 
 ## MAINPENDING0-P0 closeout
