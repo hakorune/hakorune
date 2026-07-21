@@ -237,25 +237,9 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         self.module_port.with_headers(observe)
     }
 
-    /// Complete one raw legacy child through this exact invocation port.
-    ///
-    /// Only the port holds the collector borrow, so a raw Box method cannot
-    /// supply a foreign prepared admission or resolved owner identity.
-    pub(in crate::mir::builder) fn complete_legacy_child(
-        &mut self,
-        builder: &mut MirBuilder,
-        body_snapshot: Vec<ASTNode>,
-        admission: LegacyChildDraftAdmissionV1,
-        lower: impl FnOnce(&mut MirBuilder) -> Result<crate::mir::MirFunction, String>,
-    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
-        self.module_port
-            .complete_legacy_child(builder, body_snapshot, admission, lower)
-    }
-
     /// Capture one raw static child while the same invocation port remains
     /// available to every recursive body descendant.  The header loan starts
     /// only after body descent has returned.
-    #[allow(dead_code)]
     pub(in crate::mir::builder) fn capture_static_box_method_pending_v1<'builder>(
         &mut self,
         builder: &'builder mut MirBuilder,
@@ -267,7 +251,6 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         uses: Vec<String>,
         attrs: DeclarationAttrs,
     ) -> Result<LegacyFunctionPendingSessionV1<'builder>, ModuleLoweringPortChildErrorV1> {
-        let expected_arity = params.len();
         let body_snapshot = body.clone();
         let session_name = function_name.clone();
         let pending = {
@@ -299,7 +282,6 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
     }
 
     /// Instance counterpart of the port-aware capture seam.
-    #[allow(dead_code)]
     pub(in crate::mir::builder) fn capture_instance_box_method_pending_v1<'builder>(
         &mut self,
         builder: &'builder mut MirBuilder,
@@ -515,24 +497,23 @@ impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1<'_, '_> {
     ) -> Result<(), String> {
         builder.observe_legacy_method_lowering_v1(&function_name, &body, None);
         let expected_arity = params.len();
-        let body_snapshot = body.clone();
-        self.complete_legacy_child(
-            builder,
-            body_snapshot,
-            LegacyChildDraftAdmissionV1::legacy_symbol(function_name.clone(), expected_arity),
-            move |builder| {
-                builder.build_static_method_draft_v1(
-                    function_name,
-                    params,
-                    param_decls,
-                    return_type_name,
-                    body,
-                    uses,
-                    attrs,
-                )
-            },
-        )
-        .map_err(|error| error.to_string())
+        let admission =
+            LegacyChildDraftAdmissionV1::legacy_symbol(function_name.clone(), expected_arity);
+        let pending = self
+            .capture_static_box_method_pending_v1(
+                builder,
+                function_name,
+                params,
+                param_decls,
+                return_type_name,
+                body,
+                uses,
+                attrs,
+            )
+            .map_err(|error| error.to_string())?;
+        self.module_port
+            .commit_legacy_pending(pending, admission)
+            .map_err(|error| error.to_string())
     }
 
     fn lower_instance_box_method(
@@ -555,25 +536,24 @@ impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1<'_, '_> {
         );
         builder.observe_legacy_method_lowering_v1(&function_name, &body, Some(&box_name));
         let expected_arity = params.len() + 1;
-        let body_snapshot = body.clone();
-        self.complete_legacy_child(
-            builder,
-            body_snapshot,
-            LegacyChildDraftAdmissionV1::legacy_symbol(function_name.clone(), expected_arity),
-            move |builder| {
-                builder.build_instance_method_draft_v1(
-                    function_name,
-                    box_name,
-                    params,
-                    param_decls,
-                    return_type_name,
-                    body,
-                    uses,
-                    attrs,
-                )
-            },
-        )
-        .map_err(|error| error.to_string())
+        let admission =
+            LegacyChildDraftAdmissionV1::legacy_symbol(function_name.clone(), expected_arity);
+        let pending = self
+            .capture_instance_box_method_pending_v1(
+                builder,
+                function_name,
+                box_name,
+                params,
+                param_decls,
+                return_type_name,
+                body,
+                uses,
+                attrs,
+            )
+            .map_err(|error| error.to_string())?;
+        self.module_port
+            .commit_legacy_pending(pending, admission)
+            .map_err(|error| error.to_string())
     }
 }
 

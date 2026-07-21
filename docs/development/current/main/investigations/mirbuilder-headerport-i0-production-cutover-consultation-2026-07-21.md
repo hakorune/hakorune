@@ -2605,3 +2605,91 @@ It must prove the existing port-aware raw path through at least three nested
 static/instance/constructor frames, exact header-before-pending ordering,
 commit-before-restore, prefix preservation, and primary/cleanup/admission/panic
 failure laws before the canonical or root proof slices begin.
+
+## WIRING-I0-BORROW-P0-RAW closeout
+
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-BORROW-P0-RAW` is closed. The
+disconnected `RawInvocationChildPortV1` method terminal now uses only:
+
+```text
+prepare exact legacy admission
+-> capture_static/instance_box_method_pending_v1
+     body descent through a shorter reborrow
+     short final collector-header callback
+     pending-session seal
+-> commit_legacy_pending
+     collector mutation
+     parent restore
+```
+
+The raw port's closure-owning `complete_legacy_child` facade has no remaining
+definition. Static and instance method dispatch no longer return to
+`build_*_method_draft_v1`; both consume the port-aware pending draft and the
+same commit-only collector terminal. This is a disconnected path
+normalization, not a production-root cutover: production constructions of
+`RawInvocationChildPortV1` remain zero outside its implementation and
+test-only proofs.
+
+One exact AST fixture now exercises:
+
+```text
+Outer.run/0                  static child
+  -> Middle.run/0            nested instance child
+       -> Leaf.birth/0       nested constructor
+       -> Leaf.run/0         sibling instance method
+```
+
+All four drafts reach the sole collector, and the original root parent is
+restored with recursion depth zero. The existing one- and two-level static,
+instance, constructor, header-before-commit, nested-Main rejection, and body
+failure fixtures remain green.
+
+One reusable invocation is also driven through the complete failure matrix
+after a pre-existing `prefix/0` draft has been collected:
+
+```text
+primary body failure:
+  prefix unchanged; parent restored
+
+successful body + cleanup failure:
+  prefix unchanged; parent restored
+
+admission mismatch after pending capture:
+  prefix unchanged; parent restored
+
+panic during capture:
+  prefix unchanged; unwind resumed after restore
+
+fresh success after all failures:
+  after/0 collected once; invocation remains reusable
+```
+
+The earlier legacy-terminal proof continues to retain the distinct
+primary-plus-cleanup `DuringCleanup` error and unwind baseline. No failure
+takes a retry or a module fallback.
+
+The reusable HeaderPort guard now additionally fixes:
+
+```text
+raw method terminals using capture pending = 2
+raw method terminals using commit pending = 2
+raw closure-owning facade definitions = 0
+three-level static/instance/constructor proof = 1
+primary/cleanup/admission/panic prefix matrix = 1
+production RawInvocationChildPort constructors = 0
+all changed source/check files < 800 lines
+```
+
+Production root capture/commit, canonical draft collection, raw Main/root
+batch, shell/drain/finalizer wiring, external commit, FACTSESSION, PHI repair,
+JoinIR, and FastMem remain unchanged.
+
+The sole next code-facing row is:
+
+```text
+HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-BORROW-P0-CANONICAL
+```
+
+It must prove A+, trivial BindingSSA, acyclic BindingSSA, and recursive
+BindingSSA phase ordering while keeping immutable callable catalogs external
+to the collector and preserving the live Builder on every candidate failure.

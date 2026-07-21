@@ -145,7 +145,7 @@ def verify_single_header_s0(
     require(card, "WIRING-I0-ROUTEINV-P0c-SINGLEHDR-P0 closeout", "single-header P0 closeout")
     require(
         state,
-        "P0e-MATRIX-G0 are closed; BORROW-D0 worker audit is closed; BORROW-S0 is closed; WIRING-I0-BORROW-P0-RAW",
+        "P0e-MATRIX-G0 are closed; BORROW-D0 worker audit is closed; BORROW-S0 is closed; BORROW-P0-RAW is closed; WIRING-I0-BORROW-P0-CANONICAL",
         "single-header downstream closed-state pointer",
     )
 
@@ -304,7 +304,7 @@ def verify_callable_batch_p0(
     require(card, "WIRING-I0-ROUTEINV-P0d-CALLABLE-P0 closeout", "P0d closeout")
     require(
         state,
-        "P0e-MATRIX-G0 are closed; BORROW-D0 worker audit is closed; BORROW-S0 is closed; WIRING-I0-BORROW-P0-RAW",
+        "P0e-MATRIX-G0 are closed; BORROW-D0 worker audit is closed; BORROW-S0 is closed; BORROW-P0-RAW is closed; WIRING-I0-BORROW-P0-CANONICAL",
         "P0d downstream closed-state pointer",
     )
 
@@ -494,8 +494,94 @@ def verify_borrow_schedule_s0(
     require(card, "WIRING-I0-BORROW-S0 closeout", "BORROW-S0 closeout")
     require(
         state,
-        "BORROW-S0 is closed; WIRING-I0-BORROW-P0-RAW is next",
+        "BORROW-S0 is closed; BORROW-P0-RAW is closed; WIRING-I0-BORROW-P0-CANONICAL",
         "BORROW-S0 downstream state pointer",
+    )
+
+
+def verify_borrow_raw_p0(
+    root: pathlib.Path,
+    card: str,
+    state: str,
+) -> None:
+    port_path = root / "src/mir/builder/recursive_child_lowering.rs"
+    proof_path = root / "src/mir/builder/module_lowering_invocation_reentrant_tests.rs"
+    legacy_proof_path = root / "src/mir/builder/module_lowering_invocation_legacyterm_tests.rs"
+    port = port_path.read_text()
+    proof = proof_path.read_text()
+    legacy_proof = legacy_proof_path.read_text()
+
+    for path, source in (
+        (port_path, port),
+        (proof_path, proof),
+        (legacy_proof_path, legacy_proof),
+    ):
+        if len(source.splitlines()) >= 800:
+            raise AssertionError(f"BORROW-P0-RAW source/proof reached 800 lines: {path}")
+
+    raw_terminal = port.split(
+        "impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1", 1
+    )[1].split("impl RawFunctionHeaderLookupPortV1", 1)[0]
+    for fragment in (
+        "capture_static_box_method_pending_v1(",
+        "capture_instance_box_method_pending_v1(",
+        ".commit_legacy_pending(pending, admission)",
+        "LegacyChildDraftAdmissionV1::legacy_symbol",
+    ):
+        require(raw_terminal, fragment, "BORROW-P0-RAW capture/commit terminal")
+    for fragment in (
+        "self.complete_legacy_child(",
+        ".build_static_method_draft_v1(",
+        ".build_instance_method_draft_v1(",
+    ):
+        forbid(raw_terminal, fragment, "BORROW-P0-RAW old closure terminal")
+    forbid(
+        port,
+        "pub(in crate::mir::builder) fn complete_legacy_child(",
+        "raw invocation closure-owning facade",
+    )
+
+    for fragment in (
+        "raw_capture_commit_reaches_static_instance_constructor_depth_three",
+        '"Leaf.birth/0"',
+        '"Leaf.run/0"',
+        '"Middle.run/0"',
+        '"Outer.run/0"',
+        "raw_capture_commit_failure_matrix_preserves_prefix_and_reuse",
+        'collect_seed(&mut invocation, "prefix/0")',
+        "CanonicalFunctionSessionErrorV1::Primary(_)",
+        "CanonicalFunctionSessionErrorV1::Cleanup(_)",
+        "ModuleLoweringPortChildErrorV1::Admission(_)",
+        "catch_unwind(AssertUnwindSafe",
+        'collect_seed(&mut invocation, "after/0")',
+    ):
+        require(proof, fragment, "BORROW-P0-RAW recursive/failure proof")
+    for fragment in (
+        "legacy_child_primary_and_during_cleanup_restore_without_collection",
+        "legacy_child_success_cleanup_failure_restores_without_collection",
+        "legacy_child_unwind_restores_without_collection",
+        "CanonicalFunctionSessionErrorV1::DuringCleanup",
+    ):
+        require(legacy_proof, fragment, "BORROW-P0-RAW terminal failure baseline")
+
+    constructors = []
+    excluded = {port_path, proof_path}
+    for path in (root / "src/mir").rglob("*.rs"):
+        if path in excluded or "tests" in path.name:
+            continue
+        if "RawInvocationChildPortV1::new(" in path.read_text():
+            constructors.append(str(path.relative_to(root)))
+    if constructors:
+        raise AssertionError(
+            "BORROW-P0-RAW production invocation-port constructors: "
+            + ", ".join(constructors)
+        )
+
+    require(card, "WIRING-I0-BORROW-P0-RAW closeout", "BORROW-P0-RAW closeout")
+    require(
+        state,
+        "BORROW-P0-RAW is closed; WIRING-I0-BORROW-P0-CANONICAL is next",
+        "BORROW-P0-RAW downstream state pointer",
     )
 
 
@@ -624,3 +710,4 @@ def verify_route_inventory_extension(
     verify_callable_batch_p0(root, card, state)
     verify_route_matrix_g0(root, builder_mod, card)
     verify_borrow_schedule_s0(root, builder_mod, card, state)
+    verify_borrow_raw_p0(root, card, state)

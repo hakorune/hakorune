@@ -13,6 +13,7 @@ use crate::mir::builder::recursive_child_lowering::{
 };
 use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirBuilder, MirFunction, MirType};
 use std::collections::HashMap;
+use std::panic::{catch_unwind, AssertUnwindSafe};
 
 fn draft(symbol: &str) -> MirFunction {
     MirFunction::new(
@@ -32,18 +33,26 @@ fn seeded<'builder>(builder: &'builder mut MirBuilder) -> ModuleLoweringInvocati
 }
 
 fn function(name: &str, is_static: bool) -> ASTNode {
-    ASTNode::FunctionDeclaration {
-        name: name.to_owned(),
-        params: Vec::new(),
-        param_decls: Vec::<ParamDecl>::new(),
-        return_type_name: None,
-        body: vec![ASTNode::Return {
+    function_with_body(
+        name,
+        is_static,
+        vec![ASTNode::Return {
             value: Some(Box::new(ASTNode::Literal {
                 value: LiteralValue::Integer(1),
                 span: Span::unknown(),
             })),
             span: Span::unknown(),
         }],
+    )
+}
+
+fn function_with_body(name: &str, is_static: bool, body: Vec<ASTNode>) -> ASTNode {
+    ASTNode::FunctionDeclaration {
+        name: name.to_owned(),
+        params: Vec::new(),
+        param_decls: Vec::<ParamDecl>::new(),
+        return_type_name: None,
+        body,
         uses: Vec::new(),
         contracts: Vec::new(),
         is_static,
@@ -53,8 +62,8 @@ fn function(name: &str, is_static: bool) -> ASTNode {
     }
 }
 
-fn nested_box(name: &str, is_static: bool) -> ASTNode {
-    let method = function("run", is_static);
+fn nested_box_with_body(name: &str, is_static: bool, body: Vec<ASTNode>) -> ASTNode {
+    let method = function_with_body("run", is_static, body);
     let ASTNode::FunctionDeclaration {
         name: method_name, ..
     } = &method
@@ -87,6 +96,20 @@ fn nested_box(name: &str, is_static: bool) -> ASTNode {
     }
 }
 
+fn nested_box(name: &str, is_static: bool) -> ASTNode {
+    nested_box_with_body(name, is_static, vec![function_return_value(1)])
+}
+
+fn function_return_value(value: i64) -> ASTNode {
+    ASTNode::Return {
+        value: Some(Box::new(ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            span: Span::unknown(),
+        })),
+        span: Span::unknown(),
+    }
+}
+
 fn nested_box_with_constructor(name: &str) -> ASTNode {
     let mut node = nested_box(name, false);
     let ASTNode::BoxDeclaration { constructors, .. } = &mut node else {
@@ -94,6 +117,42 @@ fn nested_box_with_constructor(name: &str) -> ASTNode {
     };
     constructors.insert("birth/0".to_owned(), function("birth", false));
     node
+}
+
+fn collect_seed(invocation: &mut ModuleLoweringInvocationV1<'_>, symbol: &str) {
+    invocation
+        .with_module_port(|builder, port| {
+            let pending =
+                port.capture_legacy_pending(builder, symbol, Vec::new(), |_| Ok(draft(symbol)))?;
+            port.commit_legacy_pending(
+                pending,
+                LegacyChildDraftAdmissionV1::legacy_symbol(symbol.into(), 0),
+            )
+        })
+        .unwrap();
+}
+
+fn assert_parent_and_prefix(
+    invocation: &mut ModuleLoweringInvocationV1<'_>,
+    expected_symbols: &[&str],
+) {
+    invocation.with_header_port(|builder, headers| {
+        assert_eq!(headers.symbol_count(), expected_symbols.len());
+        for symbol in expected_symbols {
+            assert!(headers.contains_symbol(symbol));
+        }
+        assert_eq!(
+            builder
+                .function_state
+                .current_function
+                .as_ref()
+                .unwrap()
+                .signature
+                .name,
+            "reentrant_parent/0"
+        );
+        assert_eq!(builder.recursion_depth, 0);
+    });
 }
 
 #[test]
@@ -139,6 +198,7 @@ fn pending_capture_ends_before_header_loan_and_commit() {
 fn rejected_commit_restores_parent_without_collector_delta() {
     let mut builder = MirBuilder::new();
     let mut invocation = seeded(&mut builder);
+    collect_seed(&mut invocation, "prefix/0");
 
     let result = invocation.with_module_port(|builder, port| {
         let pending = port
@@ -154,19 +214,7 @@ fn rejected_commit_restores_parent_without_collector_delta() {
         result,
         Err(ModuleLoweringPortChildErrorV1::Admission(_))
     ));
-    invocation.with_header_port(|builder, headers| {
-        assert_eq!(headers.symbol_count(), 0);
-        assert_eq!(
-            builder
-                .function_state
-                .current_function
-                .as_ref()
-                .unwrap()
-                .signature
-                .name,
-            "reentrant_parent/0"
-        );
-    });
+    assert_parent_and_prefix(&mut invocation, &["prefix/0"]);
 }
 
 #[test]
@@ -299,6 +347,107 @@ fn port_aware_nested_instance_constructor_uses_the_same_child_terminal() {
         assert!(headers.contains_symbol("Outer.run/0"));
         assert_eq!(headers.symbol_count(), 3);
     });
+}
+
+#[test]
+fn raw_capture_commit_reaches_static_instance_constructor_depth_three() {
+    let mut builder = MirBuilder::new();
+    let mut invocation = seeded(&mut builder);
+    let leaf = nested_box_with_constructor("Leaf");
+    let middle = nested_box_with_body("Middle", false, vec![leaf, function_return_value(2)]);
+    let body = vec![middle, function_return_value(3)];
+
+    invocation
+        .with_module_port(|builder, module_port| {
+            let pending = {
+                let mut raw_port = RawInvocationChildPortV1::new(module_port);
+                raw_port.capture_static_box_method_pending_v1(
+                    builder,
+                    "Outer.run/0".into(),
+                    Vec::new(),
+                    Vec::new(),
+                    None,
+                    body,
+                    Vec::new(),
+                    DeclarationAttrs::default(),
+                )?
+            };
+            module_port.commit_legacy_pending(
+                pending,
+                LegacyChildDraftAdmissionV1::legacy_symbol("Outer.run/0".into(), 0),
+            )
+        })
+        .unwrap();
+
+    assert_parent_and_prefix(
+        &mut invocation,
+        &["Leaf.birth/0", "Leaf.run/0", "Middle.run/0", "Outer.run/0"],
+    );
+}
+
+#[test]
+fn raw_capture_commit_failure_matrix_preserves_prefix_and_reuse() {
+    let mut builder = MirBuilder::new();
+    let mut invocation = seeded(&mut builder);
+    collect_seed(&mut invocation, "prefix/0");
+
+    let primary = invocation.with_module_port(|builder, port| {
+        port.capture_legacy_pending(builder, "primary/0", Vec::new(), |_| {
+            Err("raw primary".to_owned())
+        })
+        .map(drop)
+    });
+    assert!(matches!(
+        primary,
+        Err(ModuleLoweringPortChildErrorV1::Session(
+            CanonicalFunctionSessionErrorV1::Primary(_)
+        ))
+    ));
+    assert_parent_and_prefix(&mut invocation, &["prefix/0"]);
+
+    let cleanup = invocation.with_module_port(|builder, port| {
+        port.capture_legacy_pending(builder, "cleanup/0", Vec::new(), |builder| {
+            builder.recursion_depth = 1;
+            Ok(draft("cleanup/0"))
+        })
+        .map(drop)
+    });
+    assert!(matches!(
+        cleanup,
+        Err(ModuleLoweringPortChildErrorV1::Session(
+            CanonicalFunctionSessionErrorV1::Cleanup(_)
+        ))
+    ));
+    assert_parent_and_prefix(&mut invocation, &["prefix/0"]);
+
+    let admission = invocation.with_module_port(|builder, port| {
+        let pending = port.capture_legacy_pending(builder, "admission/0", Vec::new(), |_| {
+            Ok(draft("admission/0"))
+        })?;
+        port.commit_legacy_pending(
+            pending,
+            LegacyChildDraftAdmissionV1::legacy_symbol("wrong/0".into(), 0),
+        )
+    });
+    assert!(matches!(
+        admission,
+        Err(ModuleLoweringPortChildErrorV1::Admission(_))
+    ));
+    assert_parent_and_prefix(&mut invocation, &["prefix/0"]);
+
+    let panic = catch_unwind(AssertUnwindSafe(|| {
+        let _ = invocation.with_module_port(|builder, port| {
+            port.capture_legacy_pending(builder, "panic/0", Vec::new(), |_| {
+                panic!("raw child panic")
+            })
+            .map(drop)
+        });
+    }));
+    assert!(panic.is_err());
+    assert_parent_and_prefix(&mut invocation, &["prefix/0"]);
+
+    collect_seed(&mut invocation, "after/0");
+    assert_parent_and_prefix(&mut invocation, &["prefix/0", "after/0"]);
 }
 
 #[test]
