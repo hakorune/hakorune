@@ -2951,3 +2951,44 @@ No external design consultation is required for these rows. The only
 intentional later stop remains `CUT0-COMPAT-POLICY-CONSULT0`, after `HDR0-G0`
 and before `CUT0-S0`, for duplicate Main source behavior and optional callable
 `Main.main/N` failure propagation.
+
+## WIRING-I0-BORROW-P0-ROOT-P0c closeout
+
+`BORROW-P0-ROOT-P0c` is closed as one disconnected declaration-fact shell
+transaction. The physical owner is
+`src/mir/builder/module_lowering_shell/declaration_fact_commit.rs`.
+
+Its exact law is:
+
+```text
+function-empty ModuleLoweringShellV1
++ sealed user-box / typed-field / record / enum facts
+-> inspect all four destination lanes
+-> any destination lane nonempty:
+     typed rejection
+     exact shell returned unchanged
+     exact sealed facts returned unchanged
+-> every destination lane empty:
+     convert all metadata representations during preparation
+     issue one non-Clone prepared commit owner
+-> infallibly publish all four lanes together
+-> return the same function-empty shell
+```
+
+The prepared product owns the complete metadata payload. Its commit has no
+Builder, CompilationContext, collector, header, source AST, semantic
+inference, derived-plan refresh, fallback, retry, or external publication
+capability. After `SealedModuleDeclarationFactsV1` exists, neither preparation
+nor commit can return to mutable lowering state for a missing lane.
+
+Focused fixtures prove that all four declaration lanes move exactly once and
+that a nonempty target rejects before mutation while preserving both the
+existing shell metadata and the sealed incoming facts. The implementation and
+proof remain below 800 lines, and production consumers remain zero.
+
+The next row is `BORROW-P0-ROOT-P0d`. It must co-seal all nine route rows with
+the eleven-phase schedule, prove that the four raw rows own the five-phase
+Main prefix while the five canonical rows enter only the common six-phase
+tail, and observe external commit count zero on drain/finalizer failure and
+one on success. ROOT-G0 and BORROW-G0 remain forbidden until that matrix is
+green.

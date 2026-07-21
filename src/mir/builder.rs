@@ -63,6 +63,8 @@ mod me_call_header_observation; // ACCESS0-MEHEADER-S0 typed source snapshot
 mod metadata_context; // Phase 136 follow-up (Step 6/7): MetadataContext extraction
 mod method_call_handlers;
 mod module_completion_candidate;
+#[cfg(test)]
+mod module_declaration_fact_shell_commit_p0; // HEADERPORT0 BORROW-P0-ROOT-P0c proof
 #[allow(dead_code)]
 mod module_declaration_facts; // HEADERPORT0-I0-SHELLFACT0-S0 disconnected facts
 #[cfg(test)]

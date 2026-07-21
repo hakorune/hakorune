@@ -49,6 +49,8 @@ MODULE_FINAL_CANDIDATE_P0 = ROOT / "src/mir/builder/module_finalization_candidat
 BORROW_ROOT_P0 = ROOT / "src/mir/builder/module_lowering_borrow_root_p0.rs"
 ROOT_BATCH_COMMIT = ROOT / "src/mir/builder/module_draft_collector/root_batch.rs"
 ROOT_BATCH_COMMIT_P0 = ROOT / "src/mir/builder/root_draft_batch_commit_p0.rs"
+DECL_FACT_COMMIT = ROOT / "src/mir/builder/module_lowering_shell/declaration_fact_commit.rs"
+DECL_FACT_COMMIT_P0 = ROOT / "src/mir/builder/module_declaration_fact_shell_commit_p0.rs"
 BUILDER_MOD = ROOT / "src/mir/builder.rs"
 CARD = ROOT / (
     "docs/development/current/main/investigations/"
@@ -358,6 +360,8 @@ def main() -> int:
             RAW_LEDGER_TESTS,
             ROOT_BATCH_COMMIT,
             ROOT_BATCH_COMMIT_P0,
+            DECL_FACT_COMMIT,
+            DECL_FACT_COMMIT_P0,
             BUILDER_MOD,
         ):
             continue
@@ -549,6 +553,8 @@ def main() -> int:
             BORROW_ROOT_P0,
             ROOT_BATCH_COMMIT,
             ROOT_BATCH_COMMIT_P0,
+            DECL_FACT_COMMIT,
+            DECL_FACT_COMMIT_P0,
             BUILDER_MOD,
         ) or path.name.endswith("_tests.rs"):
             continue

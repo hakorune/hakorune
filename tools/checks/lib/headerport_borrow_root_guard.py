@@ -25,6 +25,10 @@ def verify_borrow_root_p0(
     final_path = root / "src/mir/builder/module_finalization_split.rs"
     batch_commit_path = root / "src/mir/builder/module_draft_collector/root_batch.rs"
     batch_commit_proof_path = root / "src/mir/builder/root_draft_batch_commit_p0.rs"
+    fact_commit_path = root / "src/mir/builder/module_lowering_shell/declaration_fact_commit.rs"
+    fact_commit_proof_path = (
+        root / "src/mir/builder/module_declaration_fact_shell_commit_p0.rs"
+    )
     proof = proof_path.read_text()
     matrix = matrix_path.read_text()
     owners = "\n".join(
@@ -40,6 +44,8 @@ def verify_borrow_root_p0(
         final_path,
         batch_commit_path,
         batch_commit_proof_path,
+        fact_commit_path,
+        fact_commit_proof_path,
     ):
         if len(path.read_text().splitlines()) >= 800:
             raise AssertionError(f"BORROW-P0-ROOT source/proof reached 800 lines: {path}")
@@ -97,6 +103,26 @@ def verify_borrow_root_p0(
         "#[cfg(test)]\nmod root_draft_batch_commit_p0;",
         "BORROW-P0-ROOT-P0b proof registration",
     )
+    fact_commit = fact_commit_path.read_text()
+    fact_commit_proof = fact_commit_proof_path.read_text()
+    for fragment in (
+        "PreparedModuleDeclarationFactShellCommitV1",
+        "RejectedModuleDeclarationFactShellCommitV1",
+        "ModuleDeclarationFactShellPrepareErrorV1",
+        "prepare_declaration_fact_commit",
+        "pub(in crate::mir::builder) fn commit",
+    ):
+        require(fact_commit, fragment, "BORROW-P0-ROOT-P0c transaction owner")
+    for fragment in (
+        "prepared_shell_commit_moves_all_four_declaration_lanes_once",
+        "failed_preparation_returns_the_exact_unmodified_shell_and_sealed_facts",
+    ):
+        require(fact_commit_proof, fragment, "BORROW-P0-ROOT-P0c proof")
+    require(
+        builder_mod,
+        "#[cfg(test)]\nmod module_declaration_fact_shell_commit_p0;",
+        "BORROW-P0-ROOT-P0c proof registration",
+    )
 
     production_calls = []
     excluded = {
@@ -108,6 +134,8 @@ def verify_borrow_root_p0(
         root / "src/mir/builder/module_finalization_split_p0.rs",
         batch_commit_path,
         batch_commit_proof_path,
+        fact_commit_path,
+        fact_commit_proof_path,
     }
     watched = (
         "PreparedRootDraftBatchV1::prepare(",
@@ -118,6 +146,7 @@ def verify_borrow_root_p0(
         "DrainedModuleCandidateV1::from_drained_module(",
         "DrainedModuleFinalizationInputV1::new(",
         "prepare_root_batch(",
+        "prepare_declaration_fact_commit(",
     )
     for path in (root / "src/mir").rglob("*.rs"):
         if path in excluded:
@@ -133,8 +162,9 @@ def verify_borrow_root_p0(
 
     require(card, "WIRING-I0-BORROW-P0-ROOT-P0a closeout", "root P0a closeout")
     require(card, "WIRING-I0-BORROW-P0-ROOT-P0b closeout", "root P0b closeout")
+    require(card, "WIRING-I0-BORROW-P0-ROOT-P0c closeout", "root P0c closeout")
     require(
         state,
-        "BORROW-P0-ROOT-P0b is closed; BORROW-P0-ROOT-P0c is next",
-        "root P0b pointer",
+        "BORROW-P0-ROOT-P0c is closed; BORROW-P0-ROOT-P0d is next",
+        "root P0c pointer",
     )
