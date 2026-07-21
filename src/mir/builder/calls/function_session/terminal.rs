@@ -1,10 +1,11 @@
-//! RAWPORT0-S0: pending child terminal before parent restore.
+//! RAWPORT0-M0-T0: pending child terminal before parent restore.
 //!
 //! The product remains disconnected. It gives a future invocation-owned port
 //! one place to perform `validate -> seal/collect -> restore` without making
 //! the existing production `run()` lifecycle observe a new collector.
 
 use crate::mir::function::MirFunction;
+use crate::mir::MirBuilder;
 
 use super::{CanonicalFunctionLoweringSessionV1, CanonicalFunctionSessionErrorV1};
 
@@ -51,7 +52,46 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
     }
 }
 
+impl MirBuilder {
+    /// Capture one resolved child draft without restoring its parent yet.
+    ///
+    /// Only the invocation-owned module port consumes this M0 seam.  The
+    /// existing resolved production entries keep their V1 close-and-publish
+    /// path until HEADERPORT0-I0.
+    pub(in crate::mir::builder) fn capture_resolved_function_pending_session_v1(
+        &mut self,
+        function_name: &str,
+        operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
+    ) -> Result<PendingFunctionSessionCloseV1<'_>, CanonicalFunctionSessionErrorV1> {
+        CanonicalFunctionLoweringSessionV1::open(
+            self,
+            function_name,
+            super::FunctionBodyCaptureV1::CanonicalClosedFamily,
+        )
+        .capture_pending(operation)
+    }
+}
+
 impl PendingFunctionSessionCloseV1<'_> {
+    /// Run one port-owned completion while the parent context remains captured.
+    ///
+    /// The closure must close every admission failure before it returns.  Its
+    /// success path may then collect infallibly; both success and failure
+    /// restore the parent exactly once.  Unwind relies on `Drop` for the same
+    /// restoration guarantee.
+    pub(in crate::mir::builder) fn complete_before_restore<R, E>(
+        mut self,
+        complete: impl FnOnce(MirFunction) -> Result<R, E>,
+    ) -> Result<R, E> {
+        let draft = self
+            .draft
+            .take()
+            .expect("pending terminal owns exactly one successful draft");
+        let result = complete(draft);
+        self.restore_parent();
+        result
+    }
+
     /// Discard the pending draft and restore after a later pre-collect error.
     #[allow(dead_code)] // RAWPORT0-S0 exposes the later error path without a production caller.
     pub(in crate::mir::builder) fn abort_and_restore(mut self) {

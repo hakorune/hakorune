@@ -6,13 +6,74 @@
 //! closure. Production roots and child terminals remain disconnected until the
 //! atomic MODULEDRAFT0-HEADERPORT0-I0 cutover.
 
-use crate::mir::{FunctionSignature, MirBuilder};
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
+use crate::mir::{FunctionSignature, MirBuilder, MirFunction};
 
+use super::calls::CanonicalFunctionSessionErrorV1;
 use super::module_draft_collector::{CompletedDraftSignatureViewV1, ModuleDraftCollectorV1};
 use super::module_draft_collector::{
     DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftAdmissionErrorV1,
     PreparedFunctionDraftAdmissionV1,
 };
+
+/// Owned canonical child identity before collector admission.
+///
+/// It carries no collector borrow, draft, Builder, or header view.  The
+/// module port is the sole owner which turns it into a prepared admission.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) enum ResolvedChildDraftAdmissionV1 {
+    CanonicalResolvedOwner {
+        owner: FunctionOwnerIdV1,
+        symbol: String,
+        arity: usize,
+    },
+}
+
+impl ResolvedChildDraftAdmissionV1 {
+    pub(in crate::mir::builder) fn canonical_resolved_owner(
+        owner: FunctionOwnerIdV1,
+        symbol: String,
+        arity: usize,
+    ) -> Self {
+        Self::CanonicalResolvedOwner {
+            owner,
+            symbol,
+            arity,
+        }
+    }
+
+    fn collector_parts(self) -> (FunctionDraftKeyV1, String, usize) {
+        match self {
+            Self::CanonicalResolvedOwner {
+                owner,
+                symbol,
+                arity,
+            } => (
+                FunctionDraftKeyV1::CanonicalResolvedOwner(owner),
+                symbol,
+                arity,
+            ),
+        }
+    }
+}
+
+/// Failure while a port-owned resolved child completes before parent restore.
+#[derive(Debug)]
+pub(in crate::mir::builder) enum ModuleLoweringPortChildErrorV1 {
+    Session(CanonicalFunctionSessionErrorV1),
+    Admission(ModuleDraftAdmissionErrorV1),
+}
+
+impl std::fmt::Display for ModuleLoweringPortChildErrorV1 {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Session(error) => error.fmt(formatter),
+            Self::Admission(error) => error.fmt(formatter),
+        }
+    }
+}
+
+impl std::error::Error for ModuleLoweringPortChildErrorV1 {}
 
 /// Read-only completed-function header capability for one lowering closure.
 ///
@@ -69,7 +130,7 @@ impl ModuleLoweringPortV1<'_> {
         observe(&headers)
     }
 
-    pub(in crate::mir::builder) fn prepare_draft_admission(
+    fn prepare_draft_admission(
         &mut self,
         key: FunctionDraftKeyV1,
         expected_symbol: String,
@@ -79,13 +140,47 @@ impl ModuleLoweringPortV1<'_> {
         self.collector
             .prepare_admission(key, expected_symbol, expected_arity, policy)
     }
+
+    /// Complete one resolved child through this exact invocation's collector.
+    ///
+    /// The port owns the only pairing between the pending child and admission:
+    /// `capture -> prepare -> seal -> collect -> restore`.  No caller can
+    /// supply a foreign prepared admission or observe the draft after parent
+    /// restoration.
+    pub(in crate::mir::builder) fn complete_resolved_child(
+        &mut self,
+        builder: &mut MirBuilder,
+        admission: ResolvedChildDraftAdmissionV1,
+        lower: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
+    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
+        let (key, symbol, arity) = admission.collector_parts();
+        let pending = builder
+            .capture_resolved_function_pending_session_v1(&symbol, lower)
+            .map_err(ModuleLoweringPortChildErrorV1::Session)?;
+        pending.complete_before_restore(|draft| {
+            let prepared = self
+                .prepare_draft_admission(
+                    key,
+                    symbol,
+                    arity,
+                    DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+                )
+                .map_err(ModuleLoweringPortChildErrorV1::Admission)?;
+            prepared
+                .seal(draft)
+                .map_err(ModuleLoweringPortChildErrorV1::Admission)?
+                .collect();
+            Ok(())
+        })
+    }
 }
 
 /// The external owner of one module-lowering invocation.
 ///
 /// It borrows the route's Builder and owns the invocation-local collector, but
 /// is never stored in either of them. The only public transition in S0 loans a
-/// read-only header capability; collection remains an I0 responsibility.
+/// read-only header capability. M0-T0 adds only one disconnected resolved
+/// child terminal; production collection remains an I0 responsibility.
 pub(in crate::mir::builder) struct ModuleLoweringInvocationV1<'builder> {
     builder: &'builder mut MirBuilder,
     collector: ModuleDraftCollectorV1,
@@ -116,9 +211,9 @@ impl<'builder> ModuleLoweringInvocationV1<'builder> {
 
     /// Lend one stack-owned lowering port to an explicit recursive descent.
     ///
-    /// This remains disconnected in RAWPORT0-S0. Future routes use the port to
-    /// alternate header reads with child terminal collection without ambient
-    /// collector lookup.
+    /// M0 keeps this disconnected while it proves raw recursive propagation.
+    /// Future routes use the port to alternate header reads with child terminal
+    /// collection without ambient collector lookup.
     pub(in crate::mir::builder) fn with_module_port<R>(
         &mut self,
         lower: impl for<'port> FnOnce(&mut MirBuilder, &'port mut ModuleLoweringPortV1<'port>) -> R,
@@ -161,13 +256,18 @@ impl<'builder> ModuleLoweringInvocationV1<'builder> {
 
 #[cfg(test)]
 mod tests {
-    use super::ModuleLoweringInvocationV1;
+    use super::{ModuleLoweringInvocationV1, ResolvedChildDraftAdmissionV1};
+    use crate::ast::{ASTNode, DeclarationAttrs, Span};
     use crate::mir::builder::module_draft_collector::{
         DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftCollectorV1,
+    };
+    use crate::mir::resolved_semantics::{
+        FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, VerifiedResolvedFunctionV1,
     };
     use crate::mir::{
         BasicBlockId, EffectMask, FunctionSignature, MirBuilder, MirFunction, MirType,
     };
+    use std::sync::Arc;
 
     fn draft(symbol: &str, arity: usize) -> MirFunction {
         MirFunction::new(
@@ -179,6 +279,41 @@ mod tests {
             },
             BasicBlockId::new(0),
         )
+    }
+
+    fn resolved_function(symbol: &str) -> Arc<VerifiedResolvedFunctionV1> {
+        let declaration = ASTNode::FunctionDeclaration {
+            name: symbol.to_string(),
+            params: Vec::new(),
+            param_decls: Vec::new(),
+            return_type_name: None,
+            body: Vec::new(),
+            uses: Vec::new(),
+            contracts: Vec::new(),
+            is_static: true,
+            is_override: false,
+            attrs: DeclarationAttrs::default(),
+            span: Span::unknown(),
+        };
+        let view = FunctionSyntaxViewV1::from_ast(&declaration).unwrap();
+        FunctionSemanticResolverSessionV1::new(0)
+            .unwrap()
+            .resolve(view)
+            .unwrap()
+    }
+
+    fn finish_resolved_authority(builder: &mut MirBuilder, function: &VerifiedResolvedFunctionV1) {
+        let owner = function.owner();
+        builder
+            .function_state
+            .resolved_binding_state
+            .install(function)
+            .unwrap();
+        builder
+            .function_state
+            .resolved_binding_state
+            .finish(owner)
+            .unwrap();
     }
 
     fn collected_prefix() -> ModuleDraftCollectorV1 {
@@ -311,6 +446,68 @@ mod tests {
                 assert!(headers.contains_symbol("main"));
                 assert_eq!(headers.signature("main").unwrap().params.len(), 0);
             });
+        });
+    }
+
+    #[test]
+    fn resolved_child_terminal_collects_before_parent_restore() {
+        let resolved = resolved_function("resolved_child");
+        let owner = resolved.owner();
+        let mut builder = MirBuilder::new();
+        let mut invocation = ModuleLoweringInvocationV1::open(&mut builder);
+
+        invocation
+            .with_module_port(|builder, port| {
+                port.complete_resolved_child(
+                    builder,
+                    ResolvedChildDraftAdmissionV1::canonical_resolved_owner(
+                        owner,
+                        "resolved_child/0".into(),
+                        0,
+                    ),
+                    |builder| {
+                        finish_resolved_authority(builder, &resolved);
+                        Ok(draft("resolved_child/0", 0))
+                    },
+                )
+            })
+            .unwrap();
+
+        invocation.with_header_port(|_builder, headers| {
+            assert_eq!(headers.symbol_count(), 1);
+            assert_eq!(
+                headers.signature("resolved_child/0").unwrap().params.len(),
+                0
+            );
+        });
+    }
+
+    #[test]
+    fn resolved_child_admission_failure_restores_without_collection() {
+        let resolved = resolved_function("rejected_child");
+        let owner = resolved.owner();
+        let mut builder = MirBuilder::new();
+        let mut invocation = ModuleLoweringInvocationV1::open(&mut builder);
+
+        let error = invocation.with_module_port(|builder, port| {
+            port.complete_resolved_child(
+                builder,
+                ResolvedChildDraftAdmissionV1::canonical_resolved_owner(
+                    owner,
+                    "rejected_child/0".into(),
+                    0,
+                ),
+                |builder| {
+                    finish_resolved_authority(builder, &resolved);
+                    Ok(draft("wrong_symbol/0", 0))
+                },
+            )
+        });
+        assert!(error.is_err());
+
+        invocation.with_header_port(|_builder, headers| {
+            assert_eq!(headers.symbol_count(), 0);
+            assert!(headers.signature("rejected_child/0").is_none());
         });
     }
 }

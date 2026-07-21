@@ -1,5 +1,5 @@
 ---
-Status: `HEADERPORT0-RAWPORT0-SELECT/S0` are closed; `HEADERPORT0-RAWPORT0-M0` is next
+Status: `HEADERPORT0-RAWPORT0-SELECT/S0/M0-T0` are closed; `HEADERPORT0-RAWPORT0-M0-R0` is next
 Date: 2026-07-21
 Scope: one atomic `FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0` cutover
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-task-2026-07-20.md
@@ -26,8 +26,8 @@ CompilationContext field, TLS value, cache, second draft store, or fallback.
 
 The one semantic activation is the final atomic cutover.  Earlier I0 steps
 are buildable BoxShape preparation only and keep production consumers at zero.
-The raw recursive re-entrancy audit and its passive S0 vocabulary are closed;
-the next code-facing row is `RAWPORT0-M0`.
+The raw recursive re-entrancy audit, passive S0 vocabulary, and port-owned
+resolved terminal are closed; the next code-facing row is `RAWPORT0-M0-R0`.
 
 ## Fixed terminal law
 
@@ -158,9 +158,32 @@ HEADERPORT0-RAWPORT0-S0
   spellings.  Production consumers = 0.
 
 -> HEADERPORT0-RAWPORT0-M0
-   Complete port-preserving raw recursive descent and resolved child-terminal
-   seams.  Reuse descent traits; do not clone lowering trees.  Existing V1
-   routes remain production.
+   M0 is one BoxShape series, not an eight-call patch:
+
+   ```text
+   M0-T0  port-owned resolved-child terminal.  One request carries only
+          resolved identity/symbol/arity; the port itself performs
+          capture-pending -> prepare -> seal -> collect -> restore.
+          Production consumers = 0.
+
+   M0-R0  introduce the one raw invocation child port and move every existing
+          raw child request through the existing recursive-descent traits or
+          thin port-aware siblings.  The existing expression dispatcher is
+          parameterized once; a parallel AST match tree is forbidden.
+
+   M0-G0  source-derived direct-child census: every production raw child edge
+          is port-preserving, or the row fails before I0.  Legacy V1 facades
+          remain the production route through this whole M0 series.
+   ```
+
+   The audit finds 21 direct production `build_expression*` families.  The
+   existing Binary, short-circuit, CallArgument, MethodCall, Local,
+   Assignment, Return, and statement-If descent traits are reusable, but each
+   raw facade currently recreates `RawLegacyChildLoweringPortV1`; Program,
+   ScopeBox, unary, field/index, collection, indirect-call, match/check,
+   record, async, print, exception, and control-flow helpers still bypass the
+   trait boundary.  Therefore partial `BoxDeclaration` wiring is forbidden.
+   Existing V1 routes remain production.
 
 -> HEADERPORT0-RAWPORT0-P0
    Add disconnected port-aware main completion, synthetic condition_fn
@@ -262,3 +285,30 @@ disconnected fixtures use real `main`/`condition_fn` symbols with arities
 HeaderPort guard, `cargo check`, formatting, and whitespace checks are green.
 `RAWPORT0-M0` alone may thread this port through the audited raw/resolved
 recursive descent and construct the port-branded terminal admission.
+
+## RAWPORT0-M0-T0 closeout (2026-07-21)
+
+`M0-T0` closes with zero production consumers. One owned
+`ResolvedChildDraftAdmissionV1` carries only resolved source identity, symbol,
+and arity for the A-plus single-child family; it carries no collector borrow.
+The invocation port alone turns it into a collector admission and consumes one
+pending resolved child in this order:
+
+```text
+capture pending child
+-> prepare collector admission
+-> seal matching draft
+-> infallible collect
+-> restore parent
+```
+
+The pending product does not accept `PreparedFunctionDraftAdmissionV1`; a
+foreign collector pairing is therefore absent from the API. M0-T0 fixtures
+prove collection after a sealed resolved child and zero collection after a
+symbol mismatch. The port, pending-terminal, collector, and HeaderPort guard
+remain disconnected from every production route. `M0-R0` must now parameterize
+the one existing raw dispatcher and propagate the port across the complete
+source-derived raw child census; it may not activate a single partial route.
+Binding-SSA callable batches retain their sealed catalog and receive a separate
+batch adapter later; this terminal cannot be reused to sequentially collect
+them.

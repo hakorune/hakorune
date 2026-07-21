@@ -80,13 +80,21 @@ def main() -> int:
     require(invocation, "for<'header>", "HEADERPORT0 non-escaping read borrow")
     require(invocation, "for<'port>", "RAWPORT0 non-escaping stack port")
 
-    module_port_impl = invocation.split("struct ModuleLoweringPortV1", 1)[1].split(
+    module_port_decl = invocation.split("struct ModuleLoweringPortV1", 1)[1].split(
+        "impl ModuleLoweringPortV1", 1
+    )[0]
+    module_port_impl = invocation.split("impl ModuleLoweringPortV1", 1)[1].split(
         "/// The external owner", 1
     )[0]
-    for fragment in ("collector: &'collector mut ModuleDraftCollectorV1", "with_headers", "prepare_draft_admission"):
+    require(
+        module_port_decl,
+        "collector: &'collector mut ModuleDraftCollectorV1",
+        "RAWPORT0 stack-owned capability",
+    )
+    for fragment in ("with_headers", "prepare_draft_admission", "complete_resolved_child"):
         require(module_port_impl, fragment, "RAWPORT0 stack-owned capability")
     for fragment in ("MirBuilder", "current_module", "thread_local", "OnceLock"):
-        forbid(module_port_impl, fragment, "RAWPORT0 stack-owned capability")
+        forbid(module_port_decl, fragment, "RAWPORT0 stack-owned capability field")
 
     pending_decl = pending_terminal.split("struct PendingFunctionSessionCloseV1", 1)[1].split(
         "impl<'builder> CanonicalFunctionLoweringSessionV1", 1
@@ -96,6 +104,13 @@ def main() -> int:
     for fragment in ("ModuleDraftCollectorV1", "MirBuilder", "current_module"):
         forbid(pending_decl, fragment, "RAWPORT0 pending terminal")
     forbid(pending_terminal, "derive(Clone)", "RAWPORT0 pending terminal")
+    require(pending_terminal, "complete_before_restore", "RAWPORT0 port-owned terminal")
+    require(
+        pending_terminal,
+        "capture_resolved_function_pending_session_v1",
+        "RAWPORT0 resolved pending seam",
+    )
+    forbid(pending_terminal, "PreparedFunctionDraftAdmissionV1", "RAWPORT0 pending terminal")
 
     for fragment in ("thread_local", "OnceLock", "static ", "derive(Clone)"):
         forbid(invocation, fragment, "HEADERPORT0 external invocation")
