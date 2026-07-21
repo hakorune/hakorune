@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import pathlib
 import sys
+from collections import Counter
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
@@ -28,6 +29,10 @@ RAW_DISPATCH = ROOT / "src/mir/builder/raw_expression_dispatch.rs"
 RAW_PORT = ROOT / "src/mir/builder/recursive_child_lowering.rs"
 RAW_LOOP_ENTRY = ROOT / "src/mir/builder/raw_loop_child_entry.rs"
 LOOP_PLAN = ROOT / "src/mir/builder/control_flow/plan"
+SOURCE_CENSUS_DOC = ROOT / (
+    "docs/development/current/main/investigations/"
+    "mirbuilder-headerport-i0-source-integration-consultation-2026-07-21.md"
+)
 
 P0_DIRECT_HEADER_READER_FRAGMENTS = {
     "src/mir/builder/calls/annotation.rs": "module.functions.get(name)",
@@ -38,6 +43,82 @@ P0_DIRECT_HEADER_READER_FRAGMENTS = {
     "src/mir/builder/calls/static_resolution.rs": "module\n                    .functions\n                    .keys()",
     "src/mir/builder/calls/materializer.rs": "module.functions.contains_key(name)",
     "src/mir/builder/builder_build.rs": "module.functions.contains_key(&lowered)",
+}
+
+# I0-SHELL-P0 owns the complete production reader census.  The source anchor
+# is checked against Rust and the future owner phrase is checked against the
+# consultation card, so a hand-entered row cannot survive source drift.
+P0_READER_CENSUS_ROWS = {
+    "src/mir/builder/calls/annotation.rs": (
+        "header",
+        "module.functions.get(name)",
+        "LoweringHeaderPortV1",
+    ),
+    "src/mir/builder/calls/lowering.rs": (
+        "header",
+        "self.current_module.take()",
+        "LoweringHeaderPortV1",
+    ),
+    "src/mir/builder/method_call_handlers.rs": (
+        "header",
+        "module.functions.get(&fname)",
+        "LoweringHeaderPortV1",
+    ),
+    "src/mir/builder/rewrite/known.rs": (
+        "header",
+        "module.functions.get(fname)",
+        "collector header view",
+    ),
+    "src/mir/builder/builder_method_index.rs": (
+        "header",
+        "module.functions.keys()",
+        "collector inventory projection",
+    ),
+    "src/mir/builder/calls/static_resolution.rs": (
+        "header",
+        "module\n                    .functions\n                    .keys()",
+        "collector header inventory",
+    ),
+    "src/mir/builder/calls/materializer.rs": (
+        "header",
+        "module.functions.contains_key(name)",
+        "collector header presence",
+    ),
+    "src/mir/builder/builder_build.rs": (
+        "header",
+        "module.functions.contains_key(&lowered)",
+        "collector header presence",
+    ),
+    "src/mir/builder/builder_metadata.rs": (
+        "shell_metadata",
+        "intern_closure_body(body)",
+        "ModuleLoweringShellPortV1",
+    ),
+    "src/mir/builder/indexing.rs": (
+        "shell_metadata",
+        "module.metadata.static_data_plans",
+        "ModuleLoweringShellPortV1",
+    ),
+    "src/mir/builder/module_lifecycle.rs": (
+        "lifecycle",
+        "self.current_module = Some(module)",
+        "shell + one collector drain",
+    ),
+    "src/mir/builder/calls/function_session.rs": (
+        "lifecycle",
+        "pub(super) fn publish_function_draft",
+        "ModuleLoweringPortV1",
+    ),
+    "src/mir/builder/resolved_lowering/mod.rs": (
+        "canonical",
+        "self.current_module\n            .as_mut()",
+        "prepared shell/collector admission",
+    ),
+    "src/mir/builder/resolved_lowering/callable_module_transaction.rs": (
+        "canonical",
+        "try_add_functions_atomic",
+        "common collector adapter",
+    ),
 }
 
 
@@ -81,16 +162,28 @@ def main() -> int:
     raw_dispatch = read(RAW_DISPATCH)
     raw_port = read(RAW_PORT)
     raw_loop_entry = read(RAW_LOOP_ENTRY)
+    consultation = read(SOURCE_CENSUS_DOC)
 
     for fragment in (
         "ModuleLoweringShellV1",
+        "ModuleLoweringShellPortV1",
+        "ModuleLoweringShellDrainInventoryV1",
         "PreparedModuleLoweringShellDrainV1",
         "from_empty_module",
+        "with_port",
         "prepare_drain",
         "FunctionMapNotEmpty",
         "DuplicateFunction",
+        "DuplicateInventorySymbol",
+        "InventoryMismatch",
     ):
         require(module_shell, fragment, "HEADERPORT0 I0-SHELL-S0 vocabulary")
+    for fragment in (
+        "shell_metadata_port_is_the_only_narrow_metadata_write_surface",
+        "shell_drain_inventory_rejects_duplicate_symbols_before_commit",
+        "shell_drain_rejects_inventory_function_mismatch_before_commit",
+    ):
+        require(module_shell, fragment, "HEADERPORT0 I0-SHELL-P0 fixture")
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
         if path in (MODULE_SHELL, REENTRANT_TESTS) or path.name.endswith("_tests.rs"):
             continue
@@ -446,9 +539,31 @@ def main() -> int:
     for relative, fragment in P0_DIRECT_HEADER_READER_FRAGMENTS.items():
         require(read(ROOT / relative), fragment, f"P0 direct header reader {relative}")
 
+    census_counts = Counter()
+    for relative, (family, source_anchor, future_owner) in P0_READER_CENSUS_ROWS.items():
+        source = read(ROOT / relative)
+        require(source, source_anchor, f"I0-SHELL-P0 source census anchor {relative}")
+        doc_path = relative.removeprefix("src/mir/builder/")
+        require(
+            consultation,
+            f"`{doc_path}`",
+            f"I0-SHELL-P0 consultation row {relative}",
+        )
+        require(
+            consultation,
+            future_owner,
+            f"I0-SHELL-P0 future owner {relative}",
+        )
+        census_counts[family] += 1
+
+    if sum(census_counts.values()) != len(P0_READER_CENSUS_ROWS):
+        raise AssertionError("I0-SHELL-P0 census family accounting drifted")
+
     print(
         "[module-draft-headerport-guard] ok "
         f"p0_reader_families={len(P0_DIRECT_HEADER_READER_FRAGMENTS)} "
+        f"p0_census_rows={len(P0_READER_CENSUS_ROWS)} "
+        f"census={dict(sorted(census_counts.items()))} "
         "legacyterm0_g0_raw_box_consumers=2 loop_bridge_consumers=0 "
         "loopbridge0_i0_plan_child_openers=0"
     )

@@ -1,6 +1,6 @@
 # HEADERPORT0-REENTRANT-TERM0-I0: source integration consultation
 
-Status: **Candidate A-prime selected; production I0 remains disconnected**
+Status: **Candidate A-prime selected; I0-SHELL-S0/P0 closed; production I0 remains disconnected**
 Date: 2026-07-21
 Parent: `mirbuilder-headerport-reentrant-terminal-task-2026-07-21.md`
 Decision: one invocation-owned shell plus one collector; shell vocabulary is
@@ -192,15 +192,82 @@ PreparedModuleLoweringShellDrainV1
   preflights duplicate function symbols before shell mutation
 ```
 
-Its three focused tests prove rejection of an already-published function map,
-one successful batch drain, and duplicate-symbol rejection. The module is
+Its six focused tests prove rejection of an already-published function map,
+one successful batch drain, duplicate-symbol rejection, inventory mismatch
+rejection, duplicate-inventory rejection, and the narrow metadata port. The module is
 registered behind the reusable HeaderPort guard, and no production lowering
 consumer calls `prepare_drain` yet. The shell is therefore a vocabulary and
 transaction boundary, not a second live module store.
 
-The next row is `HEADERPORT0-REENTRANT-TERM0-I0-SHELL-P0`: inventory the
-module metadata/global writes and prove the collector-to-shell drain preflight
-without connecting a production root or child.
+The next row was the P0 source census and shell preflight; that row is now
+closed below. Production lowering remains disconnected.
+
+## I0-SHELL-P0 source census
+
+The production `current_module` references fall into four distinct families.
+They must not be solved by a single `module.functions` fallback.
+
+| Source family | Current use | Future authority | I0 consequence |
+| --- | --- | --- | --- |
+| `calls/annotation.rs` | Call result signature hint | `LoweringHeaderPortV1` | header loan required |
+| `calls/lowering.rs` | finalizer call/await lookup | `LoweringHeaderPortV1` | port-aware path only |
+| `method_call_handlers.rs` | receiver method signature/arity | `LoweringHeaderPortV1` | header loan required |
+| `calls/static_resolution.rs` | method-tail candidate scan | collector header inventory or a sealed catalog | no shell fallback |
+| `calls/materializer.rs` | direct global-function presence | collector header presence | no retry route |
+| `rewrite/known.rs` | known method signature/presence | collector header view | identity is not spelling authority |
+| `builder_method_index.rs` | method-tail index rebuild | collector inventory projection | lifecycle/cache split |
+| `builder_build.rs` | lowered constructor birth presence | collector header presence | no current-module read |
+| `builder_metadata.rs` | closure-body metadata intern | `ModuleLoweringShellPortV1` | shell metadata write |
+| `indexing.rs` | static-data-plan lookup | `ModuleLoweringShellPortV1` | shell metadata read |
+| `module_lifecycle.rs` | shell setup, metadata, final aggregation | shell + one collector drain | terminal owner |
+| `calls/function_session.rs` | legacy draft publication | `ModuleLoweringPortV1` commit | direct publication retires |
+| `resolved_lowering/mod.rs` | A+ draft publication | prepared shell/collector admission | route adapter required |
+| `resolved_lowering/callable_module_transaction.rs` | canonical batch publication | explicit common collector adapter | separate identity policy |
+
+Test-only `current_module` assignments remain fixtures and are not production
+authority. The key P0 invariant is stronger than a count:
+
+```text
+production current_module.functions header reads during active invocation = 0
+production direct function publication during active invocation = 0
+shell metadata/global writes use one shell port
+collector drain occurs exactly once after all function drafts are sealed
+```
+
+The census shows that `I0-SHELL-P0` is a real ownership slice, not a rename of
+`ModuleLoweringInvocationV1`. It must add the shell metadata port and the
+collector drain preflight before any production child or root is connected.
+
+## I0-SHELL-P0 closeout
+
+The P0 boundary is now mechanically guarded without production cutover:
+
+```text
+source-derived reader rows = 14
+  header = 8
+  shell metadata = 2
+  lifecycle = 2
+  canonical transaction = 2
+
+ModuleLoweringShellPortV1
+  exposes only narrow metadata/global operations
+
+ModuleLoweringShellDrainInventoryV1
+  sorts and rejects duplicate symbols before drain
+
+PreparedModuleLoweringShellDrainV1
+  rejects inventory/function mismatch before shell mutation
+```
+
+The reusable HeaderPort guard checks each source anchor and its future owner
+phrase in this card, so the census cannot remain green after a source move or
+an undocumented authority change. Six focused shell fixtures, the source
+census guard, cargo check, and diff checks are green. No production reader,
+root, child, collector, or shell drain consumer has been connected.
+
+The next row is `HEADERPORT0-REENTRANT-TERM0-I0-SHELL-I0-SELECT`: decide the
+single production invocation cutover owner and exact shell/collector terminal
+sequence. Partial capture/commit remains forbidden.
 
 ## Questions that must be answered before implementation
 
