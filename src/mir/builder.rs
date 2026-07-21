@@ -33,7 +33,6 @@ mod collection_literals; // ArrayLiteral / MapLiteral lowering
 mod compilation_context; // Phase 136 follow-up (Step 7/7): CompilationContext extraction
 mod compound_assignment; // evaluated Place read-modify-write lowering
 mod decls; // declarations lowering split
-mod exprs; // expression lowering split
 mod exprs_call;
 mod exprs_check; // CheckExpr lowering
 mod exprs_enum_match; // narrow direct-MIR enum match lowering for guard-let sugar
@@ -50,6 +49,7 @@ mod method_call_handlers;
 mod module_completion_candidate;
 mod module_draft_collector;
 mod module_lowering_invocation;
+mod raw_expression_dispatch; // single raw AST expression dispatcher
 #[allow(unused_imports)]
 pub(in crate::mir) use located_legacy_lowering::{
     LocatedLegacyLoweringErrorV1, LocatedLegacyLoweringSessionV1,

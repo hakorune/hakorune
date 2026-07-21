@@ -1,4 +1,8 @@
-// Expression lowering split from builder.rs to keep files lean
+//! Raw AST expression dispatcher.
+//!
+//! RAWPORT0 keeps exactly one AST match tree here. The legacy facade still
+//! owns production behavior; later M0 commits parameterize this dispatcher
+//! with the invocation child port rather than adding a second matcher.
 use super::declaration_order::{sorted_constructor_entries, sorted_method_entries};
 use super::ValueId;
 use crate::ast::{
