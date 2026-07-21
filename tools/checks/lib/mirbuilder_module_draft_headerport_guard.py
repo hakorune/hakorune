@@ -22,6 +22,7 @@ SIGNATURE_LOOKUP = ROOT / "src/mir/builder/function_signature_lookup.rs"
 PORT_AWARE_DRAFT = ROOT / "src/mir/builder/port_aware_function_draft.rs"
 MODULE_SHELL = ROOT / "src/mir/builder/module_lowering_shell.rs"
 INVOCATION_DRAIN = ROOT / "src/mir/builder/module_invocation_drain.rs"
+ROUTE_MATRIX = ROOT / "src/mir/builder/module_invocation_route_matrix.rs"
 PENDING_TERMINAL = ROOT / "src/mir/builder/calls/function_session/terminal.rs"
 LEGACYTERM_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_legacyterm_tests.rs"
 RAWPORT_TESTS = ROOT / "src/mir/builder/recursive_child_lowering_rawport_tests.rs"
@@ -155,6 +156,7 @@ def main() -> int:
     port_aware_draft = read(PORT_AWARE_DRAFT)
     module_shell = read(MODULE_SHELL)
     invocation_drain = read(INVOCATION_DRAIN)
+    route_matrix = read(ROUTE_MATRIX)
     builder = read(BUILDER)
     compilation = read(COMPILATION)
     pending_terminal = read(PENDING_TERMINAL)
@@ -196,13 +198,33 @@ def main() -> int:
         "drain_rejects_inventory_mismatch_before_any_shell_mutation",
     ):
         require(invocation_drain, fragment, "HEADERPORT0 I0-SHELL-I0-S0 fixture")
+    for fragment in (
+        "InvocationRootFamilyV1",
+        "InvocationEntryV1",
+        "InvocationIdentityV1",
+        "InvocationFailureStageV1",
+        "InvocationFailureLawV1",
+        "InvocationRouteMatrixV1",
+        "p0_route_matrix_covers_every_root_and_child_family",
+        "p0_failure_matrix_forbids_retry_and_partial_publication",
+        "raw_main_root",
+        "canonical_a_plus_root",
+        "binding_ssa_acyclic_module",
+        "binding_ssa_recursive_module",
+    ):
+        require(route_matrix, fragment, "HEADERPORT0 I0-SHELL-I0-P0 route matrix")
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
-        if path in (INVOCATION_DRAIN, MODULE_SHELL) or path.name.endswith("_tests.rs"):
+        if path in (INVOCATION_DRAIN, MODULE_SHELL, ROUTE_MATRIX, MODULE_DRAFT) or path.name.endswith("_tests.rs"):
             continue
         forbid(
             read(path),
             "PreparedInvocationDrainV1",
             f"HEADERPORT0 I0-SHELL-I0-S0 disconnected drain consumer {path.relative_to(ROOT)}",
+        )
+        forbid(
+            read(path),
+            "InvocationRouteMatrixV1",
+            f"HEADERPORT0 I0-SHELL-I0-P0 disconnected matrix consumer {path.relative_to(ROOT)}",
         )
     for fragment in (
         "shell_metadata_port_is_the_only_narrow_metadata_write_surface",

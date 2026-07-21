@@ -1,6 +1,6 @@
 # HEADERPORT0-REENTRANT-TERM0-I0: source integration consultation
 
-Status: **Candidate S-prime selected; I0-SHELL-S0/P0 and I0-SHELL-I0-S0 closed; production I0 remains disconnected**
+Status: **Candidate S-prime selected; I0-SHELL-S0/P0, I0-SHELL-I0-S0/P0 closed; production I0 remains disconnected**
 Date: 2026-07-21
 Parent: `mirbuilder-headerport-reentrant-terminal-task-2026-07-21.md`
 Decision: one invocation-owned shell plus one collector; shell vocabulary is
@@ -385,8 +385,8 @@ HEADERPORT0-REENTRANT-TERM0-I0-SHELL-I0-SELECT  closed here
      collector drain = 1
 ```
 
-The next code-facing row is the disconnected S0 vocabulary. Production
-capture/commit and `CUT0` remain forbidden until its P0 matrix is green.
+The disconnected S0 vocabulary and P0 matrix are now closed. Production
+capture/commit and `CUT0` remain forbidden until the following I0/G0 series.
 
 ## I0-SHELL-I0-S0 closeout
 
@@ -420,12 +420,48 @@ missing main                     -> typed preflight failure
 inventory mismatch               -> typed preflight failure
 ```
 
-The next row is
-`HEADERPORT0-REENTRANT-TERM0-I0-SHELL-I0-P0`: freeze the complete raw,
-main/condition, A+/trivial, and acyclic/recursive route/failure matrix before
-any production capture/commit. `CUT0` remains forbidden.
+This closeout precedes the route matrix below; no production capture/commit
+was performed.
 
-## Questions that must be answered before implementation
+## I0-SHELL-I0-P0 closeout
+
+The disconnected route/failure matrix now lives in
+`src/mir/builder/module_invocation_route_matrix.rs`.  It is a passive product
+with no Builder, module, draft, fact, or retry authority.  One row owns each
+route identity and publication policy, so the collector tests no longer
+recreate canonical routes as `LegacySymbol` rows.
+
+The matrix covers:
+
+```text
+raw main root
+raw static child
+raw instance/constructor child
+synthetic condition_fn
+canonical A+ root and child
+BindingSSA trivial root
+BindingSSA acyclic module
+BindingSSA recursive module
+```
+
+Each row also seals its failure stages and the common laws:
+
+```text
+collector prefix unchanged before a failed admission
+parent restored exactly once for raw child failure
+invocation/candidate dropped without external publication at root failure
+retry/fallback = 0
+```
+
+The two focused matrix fixtures and the collector route-policy fixture are
+green, and the reusable HeaderPort guard rejects any production matrix or
+drain consumer.  Production capture/commit remains disconnected.
+
+The next code-facing row is
+`HEADERPORT0-REENTRANT-TERM0-I0-SHELL-I0-I0`: one atomic production cutover
+across the complete route matrix.  `CUT0` remains forbidden until its G0.
+
+## Resolved design questions (consultation record)
 
 1. Does `ModuleLoweringInvocationV1` own the module shell, or does a separate
    `ModuleDraftCollector` terminal consume an explicit shell product?
@@ -440,18 +476,17 @@ any production capture/commit. `CUT0` remains forbidden.
 6. Does the canonical A+/BindingSSA module transaction reuse this collector
    physically, or does it adapt into the same prepared admission product?
 
-## Minimum implementation slice after consultation
+## Minimum implementation slice after P0
 
-Do not wire a child consumer yet. The next approved code-facing slice is:
+The next approved code-facing slice is:
 
 ```text
-I0-SHELL-S0
-  immutable module shell + collector drain vocabulary, consumers = 0
+I0-SHELL-I0-I0
+  one atomic production cutover across the complete route matrix
 ```
 
-The slice must include a fixture proving that a collected child header is
-visible to a later child while the shell function map remains empty for the
-same identity. It must not add a fallback or retry route.
+The slice must preserve the route-specific identity and failure laws above;
+it must not add a fallback, retry, or one-root-at-a-time publication route.
 
 ## Non-claims
 
