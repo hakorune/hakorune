@@ -3616,15 +3616,16 @@ is 557 lines. Production collector consumers, parent-restore rewrites,
 fact-session connections, finalizer changes, PHI repair, and direct
 live-module insertion remain zero.
 
-`FINALIZE0-MODULEDRAFT0-I0` is next. It must connect one prepared collector
-admission through each existing child terminal before parent restore, collect
-main through the same port, and make module aggregation the sole downstream
-consumer. It preserves legacy replace and canonical reject, makes every
-post-preparation collection infallible, and leaves facts disconnected. Main,
-condition_fn, the canonical atomic callable batch, and root error/abort paths
-must use the same collector ownership surface; no second collector, header
-cache, direct `MirModule` insertion, fact-session lane move, PHI repair, or
-finalization reordering is admitted.
+The planned `FINALIZE0-MODULEDRAFT0-I0` cutover must connect one prepared
+collector admission through each existing child terminal before parent restore,
+collect main through the same port, and make module aggregation the sole
+downstream consumer. It preserves legacy replace and canonical reject, makes
+every post-preparation collection infallible, and leaves facts disconnected.
+Main, `condition_fn`, the canonical atomic callable batch, and root error/abort
+paths must use the same collector ownership surface; no second collector,
+header cache, direct `MirModule` insertion, fact-session lane move, PHI repair,
+or finalization reordering is admitted. The following source audit establishes
+the required HeaderPort prerequisite before that production cutover.
 
 #### MODULEDRAFT0-I0 design stop — external header-port prerequisite
 
@@ -3655,12 +3656,12 @@ This is source evidence that invalidates the original *terminal-only* I0
 implementation owner. It is not permission to relax the collector law.
 
 ```text
-MODULEDRAFT0-HEADERPORT0-SELECT  # current design frontier
+MODULEDRAFT0-HEADERPORT0-SELECT  # resolved below
   select one invocation-owned, read-only header-query port
   that is external to MirBuilder and CompilationContext
 
-  -> MODULEDRAFT0-HEADERPORT0-S0/P0/I0/G0
-  -> MODULEDRAFT0-I0
+  -> MODULEDRAFT0-HEADERPORT0-S0/P0
+  -> combined MODULEDRAFT0-HEADERPORT0-I0/G0
 ```
 
 The selection must decide how the same collector-owned
@@ -3671,6 +3672,108 @@ the resolved/Binding-SSA child terminal, the canonical callable batch adapter,
 and main completion. Header reads remain read-only; function body and metadata
 reads are still a stop.
 
-Until that port is selected, I0 must not change a child terminal, main
-finalization, or callable-batch publication. FACTSESSION, PHI repair, JoinIR,
-finalization repair, MODULETX activation, and CUT0 remain outside this stop.
+Until the selected HeaderPort preparation rows close, I0 must not change a
+child terminal, main finalization, or callable-batch publication. FACTSESSION,
+PHI repair, JoinIR, finalization repair, MODULETX activation, and CUT0 remain
+outside this stop.
+
+#### MODULEDRAFT0-HEADERPORT0-SELECT closeout — Candidate H-prime
+
+Candidate H-prime is selected. One `ModuleLoweringInvocationV1` lives outside
+`MirBuilder` and `CompilationContext`, owns the one `ModuleDraftCollectorV1`,
+and borrows the route's Builder. It loans a non-owning, non-Clone
+`LoweringHeaderPortV1` over the collector's same-owned
+`CompletedDraftSignatureViewV1` only to lowering call chains that require a
+completed-function header. The port exposes no mutable admission, draft body,
+metadata, cache, or source reconstruction authority. Once the read closure
+ends, the invocation may exclusively prepare, seal, and collect a draft.
+
+```text
+ModuleLoweringInvocationV1
+  collector (sole completed-draft owner)
+  + borrowed Builder
+  -> short-lived LoweringHeaderPortV1 (read-only)
+  -> child terminal prepared admission / seal / collect
+```
+
+The nearest existing seam, `RecursiveChildLoweringPortV1`, erases its port
+before `build_expression_impl`; it is therefore only one required threading
+seam, not a sufficient owner. Raw AST lowering, static-box lowering, child
+sessions and `finalize_function_draft`, Call/Await annotation, method handling,
+known rewrite, method-index/static resolution, materialization/birth checks,
+canonical A-plus/Binding-SSA children, the canonical callable batch, and main
+completion must receive the explicit port where they reach a header reader.
+Module-shell metadata/static-plan reads do not become HeaderPort queries.
+
+No standalone production `HEADERPORT0-I0` is admitted. Before draft collection
+is connected, the collector is empty while completed child headers still live
+in `current_module.functions`; redirecting readers first would turn valid
+completed-prefix lookup into absence. A preload, fallback, adapter, or copied
+header cache would create the forbidden second authority. The first production
+cutover is consequently atomic:
+
+```text
+empty invocation collector
+-> every lowering-time header reader uses LoweringHeaderPortV1
+-> first child observes empty headers
+-> prepare / seal / collect / restore
+-> later child observes the same collector-owned completed prefix
+-> main and canonical batch use the same collector
+-> one module aggregation
+```
+
+The selected order is:
+
+```text
+FINALIZE0-MODULEDRAFT0-HEADERPORT0-S0
+  disconnected invocation/header-port vocabulary
+  production consumers = 0
+
+-> FINALIZE0-MODULEDRAFT0-HEADERPORT0-P0
+  borrowed-port, empty/prefix, error, route-chain, and no-hidden-state proof
+  production consumers = 0
+
+-> FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0
+  one atomic production cutover:
+    explicit reader-port threading
+    + collect-before-restore child terminals
+    + main and canonical-batch common collection
+
+-> FINALIZE0-MODULEDRAFT0-HEADERPORT0-G0
+  lowering-time current_module.functions header readers = 0
+  Builder/CompilationContext HeaderPort fields = 0
+  TLS/header cache/second draft store = 0
+  direct post-restore publication = 0
+```
+
+I0 is a BoxShape refactor series: it may use small buildable mechanical commits
+for port threading, but the only semantic activation is its final atomic
+cutover. It must not introduce an adapter from `current_module` to the port,
+or a partial reader switch. FACTSESSION, PHI repair, JoinIR, finalization
+repair, MODULETX activation, and CUT0 remain outside the series.
+
+#### MODULEDRAFT0-HEADERPORT0-S0 closeout — disconnected external vocabulary
+
+`module_lowering_invocation.rs` now defines the selected external ownership
+shape without a production caller:
+
+```text
+ModuleLoweringInvocationV1
+  borrows one MirBuilder
+  owns one ModuleDraftCollectorV1
+  loans one short-lived LoweringHeaderPortV1
+```
+
+`LoweringHeaderPortV1` delegates only `signature`, exact symbol presence,
+symbol count, and deterministic symbol visitation to the same collector-owned
+drafts. It cannot collect, prepare admission, cache headers, expose a body, or
+be cloned. The invocation is not a Builder or CompilationContext field. Two
+focused fixtures prove the empty-prefix and one collected-prefix views while a
+closure separately holds `&mut MirBuilder`; no root, child terminal, finalizer,
+or canonical batch consumes the new vocabulary. The new source is 163 lines;
+the collector remains 557 lines.
+
+`FINALIZE0-MODULEDRAFT0-HEADERPORT0-P0` is next. It must prove the short read
+borrow ends before mutable admission, empty-first-child and collected-prefix
+parity, all root/child/header-reader chain coverage, and the no-hidden-state
+boundary before the one atomic production I0 is allowed.
