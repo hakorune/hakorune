@@ -47,7 +47,6 @@ STATE_CUTOVER_DOC = ROOT / (
 P0_DIRECT_HEADER_READER_FRAGMENTS = {
     "src/mir/builder/calls/annotation.rs": "builder\n        .current_module\n        .as_ref()",
     "src/mir/builder/calls/lowering.rs": "self.current_module.take()",
-    "src/mir/builder/method_call_handlers.rs": "module.functions.get(&fname)",
     "src/mir/builder/rewrite/known.rs": "module.functions.get(fname)",
     "src/mir/builder/builder_method_index.rs": "module.functions.keys()",
     "src/mir/builder/calls/static_resolution.rs": "module\n                    .functions\n                    .keys()",
@@ -76,10 +75,10 @@ P0_READER_CENSUS_ROWS = {
         "self.current_module.take()",
         "LoweringHeaderPortV1",
     ),
-    "src/mir/builder/method_call_handlers.rs": (
+    "src/mir/builder/recursive_child_lowering.rs": (
         "header",
-        "module.functions.get(&fname)",
-        "LoweringHeaderPortV1",
+        "impl MeCallHeaderObservationPortV1 for RawInvocationChildPortV1",
+        "MeCallHeaderObservationPortV1",
     ),
     "src/mir/builder/rewrite/known.rs": (
         "header",

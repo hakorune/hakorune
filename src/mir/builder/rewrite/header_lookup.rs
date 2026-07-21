@@ -116,4 +116,42 @@ mod tests {
         assert_eq!(view.unique_suffix_candidates("f", 1).len(), 2);
         assert_eq!(view.unique_suffix_candidates("g", 1), vec!["Other.g/1"]);
     }
+
+    #[test]
+    fn header_view_missing_symbol_has_no_compatibility_fallback() {
+        let explicit = FakeHeaders {
+            signatures: vec![("Other.f/1".to_owned(), signature("Other.f/1", 1))],
+        };
+        let stale = FakeHeaders {
+            signatures: vec![("User.f/1".to_owned(), signature("User.f/1", 1))],
+        };
+        let view = KnownRewriteHeaderViewV1::new(&explicit);
+        let stale_view = KnownRewriteHeaderViewV1::new(&stale);
+
+        assert!(!view.contains_symbol("User.f/1"));
+        assert_eq!(view.parameter_count("User.f/1"), None);
+        assert!(view.unique_suffix_candidates("User.f", 1).is_empty());
+        assert!(stale_view.contains_symbol("User.f/1"));
+    }
+
+    #[test]
+    fn header_view_known_arity_matrix_keeps_static_and_instance_shapes() {
+        let headers = FakeHeaders {
+            signatures: vec![
+                ("User.static/1".to_owned(), signature("User.static/1", 1)),
+                (
+                    "User.instance/2".to_owned(),
+                    signature("User.instance/2", 2),
+                ),
+            ],
+        };
+        let view = KnownRewriteHeaderViewV1::new(&headers);
+
+        assert_eq!(view.parameter_count("User.static/1"), Some(1));
+        assert!(!view.prepend_receiver("User.static/1", 1));
+        assert!(view.prepend_receiver("User.static/1", 0));
+        assert_eq!(view.parameter_count("User.instance/2"), Some(2));
+        assert!(!view.prepend_receiver("User.instance/2", 2));
+        assert!(view.prepend_receiver("User.instance/2", 1));
+    }
 }

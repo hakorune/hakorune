@@ -211,7 +211,7 @@ They must not be solved by a single `module.functions` fallback.
 | --- | --- | --- | --- |
 | `calls/annotation.rs` | Legacy facade wraps explicit signature lookup | `LoweringHeaderPortV1` | header loan required |
 | `calls/lowering.rs` | finalizer call/await lookup | `LoweringHeaderPortV1` | port-aware path only |
-| `method_call_handlers.rs` | receiver method signature/arity | `LoweringHeaderPortV1` | header loan required |
+| `recursive_child_lowering.rs` | route-owned `me` header observation | `MeCallHeaderObservationPortV1` | source-branded loan ends before arguments |
 | `calls/static_resolution.rs` | method-tail candidate scan | collector header inventory or a sealed catalog | no shell fallback |
 | `calls/materializer.rs` | direct global-function presence | collector header presence | no retry route |
 | `rewrite/known.rs` | known method signature/presence | collector header view | identity is not spelling authority |

@@ -451,7 +451,10 @@ HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-P0
     connect only the shared `MeCallPolicyBox` to the typed observation
 
   ACCESS0-REWRITE-KNOWN-P0
-    parity matrix and invocation-path lookup threading
+    (closed) parity matrix and invocation-path lookup threading
+
+  HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-P0
+    broad reader census closeout after all disconnected adapters are green
 
 HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-S0/P0
   invocation-owned shell take/restore and candidate failure transaction
@@ -465,9 +468,10 @@ CANDIDATE0-P0 are green.  This decision closes the consultation boundary but
 does not claim any production route has been rewired.
 
 The `me` method reader consultation selected Candidate A-prime with a
-typed-source refinement. Its disconnected S0/P0 vocabulary and parity proof
-are closed; I0 may connect only the shared handler, while production capture/
-commit and CUT0 remain disconnected.
+typed-source refinement. Its disconnected S0/P0/I0/G0 vocabulary and parity
+proof are closed. The Known/unique/equals rewrite P0 is also closed with its
+lookup-only parity guard; only the broader access-port census remains before
+any production capture/commit or CUT0 decision.
 
 ## ACCESS0-REWRITE-KNOWN-S0 closeout
 
@@ -506,7 +510,9 @@ parity matrix must cover missing headers, static/instance arity, unique
 behavior, and the production-consumer guard must remain zero until the
 candidate cutover.
 
-The reusable HeaderPort guard also requires the four disconnected adapter
-anchors (`KnownRewriteHeaderViewV1`, the Known/unique and equals lookup
-entries, and `emit_unified_call_with_lookup`) while keeping the production
-access-port consumer count at zero.
+The reusable HeaderPort guard requires the four disconnected adapter anchors
+(`KnownRewriteHeaderViewV1`, the Known/unique and equals lookup entries, and
+`emit_unified_call_with_lookup`) while keeping the production access-port
+consumer count at zero. The focused P0 guard is
+`tools/checks/lib/rewrite_header_p0_guard.py`; it fixes the 0/1/>1 candidate,
+arity, gate, primitive, and no-retry matrix without adding a production route.

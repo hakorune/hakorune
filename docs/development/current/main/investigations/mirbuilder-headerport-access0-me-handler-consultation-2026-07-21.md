@@ -1,8 +1,8 @@
 # HEADERPORT0-ACCESS0: `me` method header ownership consultation
 
 Status: **Candidate A-prime typed-source refinement selected; S0/P0/I0/G0
-closed; ACCESS0-REWRITE-KNOWN-P0 is next; production capture/commit and CUT0
-remain disconnected**
+and ACCESS0-REWRITE-KNOWN-P0 are closed; the broader ACCESS0-P0 is next;
+production capture/commit and CUT0 remain disconnected**
 
 Date: 2026-07-21
 
@@ -165,7 +165,7 @@ ACCESS0-MEHEADER-G0
   located collector capability = 0
 
 then:
-  ACCESS0-REWRITE-KNOWN-P0 closeout
+  broader HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-P0
 ```
 
 ## ACCESS0-MEHEADER-S0 closeout
@@ -270,8 +270,31 @@ observation persistence/cache = 0
 terminal result-annotation redesign = 0
 ```
 
-`ACCESS0-MEHEADER-G0` is now closed. `ACCESS0-REWRITE-KNOWN-P0` is the next
-row; production capture/commit and CUT0 remain outside this closeout.
+`ACCESS0-MEHEADER-G0` is now closed. The rewrite P0 closeout below records the
+next completed disconnected slice; production capture/commit and CUT0 remain
+outside both rows.
+
+## ACCESS0-REWRITE-KNOWN-P0 closeout
+
+The lookup-only rewrite projection now has a focused parity matrix for the
+Known, unique-suffix, and equals/1 routes:
+
+```text
+missing header: no compatibility lookup from the explicit view
+static/instance arity: receiver prepend follows the supplied header count
+unique candidates: 0 / 1 / >1 remain distinct and source-order independent
+environment gate: rewrite-disabled returns no route
+primitive guard: universal string route remains outside Known rewrite
+error/no-retry: explicit lookup is forwarded without a legacy retry
+```
+
+The matrix is backed by `KnownRewriteHeaderViewV1` fixtures and the reusable
+`tools/checks/lib/rewrite_header_p0_guard.py`. The projection and all
+lookup-aware Known/unique/equals/emitter adapters remain construction-only;
+they own no Builder, module cache, or publication. The broad access-port guard
+also reports zero production access-port consumers, so this P0 closes only the
+disconnected rewrite seam. The broader `HEADERPORT0-...-ACCESS0-P0` census is
+the next row; MODULEDRAFT/FACTSESSION capture and CUT0 remain forbidden.
 
 ## ACCESS0-MEHEADER-G0 closeout
 
