@@ -3197,3 +3197,65 @@ admitted to MODULETX0-P0; a later session-collection consumer replaces it.
 canonical child, test-only entry, completion, abort, and publication seam
 before I0 chooses a production cutover. REMATFACT proof/issuer work, direct
 repair, unused-Phi deletion, JoinIR, and CUT0 remain forbidden.
+
+#### FACTSESSION0-M0 closeout — every physical function is named
+
+The source audit fixes three production entry families. There are exactly five
+direct production `prepare_module` callsites: legacy `build_module`, canonical
+A-plus, canonical BindingSSA trivial, acyclic callable-module, and recursive
+callable-module. Each creates main directly and later reaches one of the four
+direct production `finalize_module` candidate paths. Main is therefore not a
+child-session special case.
+
+There are exactly four non-main production session-entry callsites:
+
+```text
+legacy static/free                 -> with_function_lowering_session
+legacy instance/constructor        -> with_function_lowering_session
+canonical A-plus                   -> with_resolved_function_lowering_session
+canonical BindingSSA               -> with_resolved_function_draft_session
+```
+
+The BindingSSA entry is shared by direct trivial, acyclic, and recursive
+modules; it is not three independent function-session implementations. All
+four eventually use the one `prepare_lowering_context` capture/restore seam.
+The current bare-draft finalizer has five direct production consumers: three
+legacy child lowerers plus two canonical completion helpers.
+
+One additional production physical function is direct synthetic `condition_fn`
+inside `finalize_module`. It currently creates a `MirFunction` without any
+function session. I0 must give it a session-owned empty fact disposition or
+reject the enclosing completion path; it cannot inherit main facts and cannot
+be silently excluded. JoinIR has no independent FACTSESSION entry and remains
+inside its legacy lowering caller family.
+
+The 139 `enter_function_for_test` uses, direct test `MirFunction` assembly,
+JSON-v0, prefix harnesses, and test-only finalize sites are a separate
+cfg(test) adapter family. They are not evidence of production coverage. P0
+must either route that family through one explicit test session adapter or
+declare the intentionally Builder-only fixtures one by one; no implicit
+no-session fixture remains admissible after I0.
+
+Canonical candidates use fresh `MirBuilder` instances and have five authority
+roots under three public compiler ingress methods; their module fact session
+must live beside the outer candidate and be discarded before a failed candidate
+can commit. Legacy root lowering uses the live builder and currently has no
+module abort; I0 must introduce an explicit root abort boundary rather than
+pretend that child restore covers root failure. In every child path, success
+must seal/collect before parent restore, while primary error, cleanup error,
+and Drop/unwind must abort before restore. Current `FunctionOwnedStateTransactionV1`
+only partially meets this because it omits diagnostic origins and retains three
+TypeContext lanes in BoxCompilation mode.
+
+The static guard specification is now fixed for P0: parser-backed direct-call
+facts must classify root open, function open, completion, abort/Drop,
+publication, synthetic function, and cfg(test) adapter sites for the watched
+facades. Every included physical function must have a success seal/collect and
+an error abort disposition; unresolved watched calls and unclassified routes
+are failures.
+
+`FACTSESSION0-P0` is next. It owns the disconnected main/static/instance/
+canonical/synthetic/test-adapter matrix, nested and root failure paths,
+eight-lane transport, foreign/closed session rejection, and same-compiler
+reuse proof. It still has zero production receipt issuers and does not connect
+PHI repair, direct repair, unused-Phi deletion, JoinIR, or CUT0.
