@@ -2088,3 +2088,438 @@ HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-BORROW-S0
 It must inventory every mutable borrow crossing capture, header observation,
 collector admission, parent restore, and root completion before any production
 cutover. `WIRING-I0-HDR0` and `WIRING-I0-CUT0` remain downstream.
+
+## WIRING-I0-BORROW worker audit and task lock
+
+Three independent read-only audits covered raw recursive lowering, all four
+canonical families, and Main/root/drain/finalization. They found no unowned
+cross-session mutable borrow. This is therefore an implementation task, not a
+new external design consultation.
+
+### Selected owner: Candidate S-prime
+
+The production owner is an invocation-owned shell/collector candidate plus an
+outer orchestration helper which lends the route Builder only for the current
+phase. `MirBuilder` and `CompilationContext` store no invocation, collector,
+header cache, or retry capability.
+
+```text
+outer compiler/module invocation owner
+  owns:
+    candidate Builder selected by the existing route session
+    ModuleLoweringInvocationCandidateV1
+      -> ModuleLoweringInvocationStateV1
+           shell
+           collector
+           typed root state
+
+  lends, one phase at a time:
+    Builder exclusive loan
+    collector header shared loan
+    collector exclusive terminal loan
+    shell exclusive publication loan
+
+  consumes:
+    route-owned drain witness
+    post-drain candidate
+    finalized external-commit candidate
+```
+
+The disconnected `ModuleLoweringInvocationV1<'builder>` remains useful proof
+scaffolding, but its invocation-long Builder borrow is not selected as the
+production owner. A long external borrow can be Rust-safe, but it makes the
+canonical candidate Builder, Main/root terminal, and post-drain ownership
+handoffs harder to express. The selected production seam is the existing
+`ModuleLoweringInvocationCandidateV1::with_active_lowering` shape narrowed into
+explicit short access methods; callers never receive the whole mutable
+`ModuleLoweringInvocationStateV1`.
+
+### Exact authority allocation
+
+| Concern | Sole owner |
+| --- | --- |
+| active function-local mutable state | `MirBuilder::function_state` |
+| child parent snapshot and exactly-once restore | `PendingFunctionSessionCloseV1` / `LegacyFunctionPendingSessionV1` |
+| invocation shell and draft collector | `ModuleLoweringInvocationCandidateV1` |
+| recursive raw reborrow | `RawInvocationChildPortV1` |
+| completed-header observation | `LoweringHeaderPortV1` HRTB callback |
+| prepared admission and physical collect | `ModuleLoweringPortV1` commit-only terminal |
+| Main body temporal completion | `CompletedRootBodyV1` |
+| Main plus compatibility root batch | future collector-wide prepared root batch |
+| declaration metadata publication | owned declaration snapshot plus short shell port |
+| raw/canonical drain admission | `RouteOwnedInvocationInventoryV2` projection |
+| post-drain verification/finalization | owned drained-module candidate |
+| external Builder/module replacement | existing `MirCompiler` route session commit |
+
+Explicit non-authorities:
+
+```text
+MirBuilder field holding an invocation or collector
+CompilationContext field holding an invocation or collector
+current_module after an invocation-header miss
+collector headers for canonical semantic target resolution
+caller-authored symbol inventory
+RefCell/Rc/Mutex/unsafe borrow escape
+retry or fallback after a selected phase fails
+```
+
+### Two fixed borrow schedules
+
+The passive schedule product records two domains instead of forcing recursive
+child completion and module completion into one flat lifecycle.
+
+```text
+ChildTerminal schedule:
+  BodyDescent
+    BuilderMut + short recursive port reborrow
+  CapturePending
+    BuilderMut; no surviving collector/header loan
+  HeaderObservation
+    CollectorHeaderShared; callback-scoped
+  CommitPending
+    CollectorMut; Builder accepted only through pending token
+  ParentRestore
+    pending token exactly once; collect already complete
+
+InvocationCompletion schedule:
+  RootBodyDrive
+  RootBodySeal
+  MainHeaderCompletion
+  RootBatchPreflight
+  RootBatchCommit
+  ShellFactsSeal
+  ShellFactsCommit
+  DrainPreflight
+  DrainCommit
+  PostDrainFinalize
+  ExternalCommit
+```
+
+Required overlap laws:
+
+```text
+CollectorHeaderShared + CollectorMut:
+  forbidden
+
+BuilderMut after PendingMainDraftV1:
+  forbidden for raw root completion
+
+any live Builder/header/collector/shell loan after DrainCommit:
+  forbidden
+
+external publication before PostDrainFinalize success:
+  forbidden
+
+restore before successful child collect:
+  forbidden
+
+retry/fallback after any selected failure:
+  forbidden
+```
+
+The schedule derives route scope from `InvocationRouteMatrixV1` and
+`RouteOwnedInvocationInventoryV2`. It does not repeat route-name strings,
+callable keys, function symbols, or expected collector inventory.
+
+### Raw child cutover seam
+
+The one concrete raw hazard is already identified. Production
+`RawInvocationChildPortV1::lower_static_box_method` and
+`lower_instance_box_method` still call the old closure-owning
+`complete_legacy_child`, and constructors share the same legacy terminal
+family. Before CUT0 they must use:
+
+```text
+capture_static_box_method_pending_v1
+or capture_instance_box_method_pending_v1
+  -> raw child-port/header loans end
+  -> ModuleLoweringPortV1::commit_legacy_pending
+  -> collect
+  -> parent restore exactly once
+```
+
+The semantic draft builders are not copied. The port-aware body/finalizer
+entrypoints remain the only recursive implementation. The generic
+`ModuleLoweringPortV1::capture_legacy_pending` fixture seam does not become the
+production recursive-body authority.
+
+### Canonical cutover seams
+
+Canonical semantic catalogs and plans remain immutable external authorities;
+collector headers do not replace them.
+
+```text
+A+:
+  split restore-then-publish facade
+  -> capture resolved pending
+  -> common collector commit
+
+Binding SSA trivial:
+  split lower_resolved_trivial_function_draft session wrapper
+  -> capture resolved pending
+  -> common collector commit
+
+Binding SSA acyclic / recursive:
+  retain callable catalog and plan correspondence
+  -> collect each unpublished draft through common collector
+  -> retire direct VerifiedUnpublishedCallableDraftSetV1::publish_into
+
+recursive capability/module marker:
+  seal into shell before drain
+```
+
+The existing `CanonicalModuleLoweringSessionV1` remains the outer atomic
+candidate-Builder owner. A failure drops its candidate and leaves the live
+Builder unchanged; success replaces the live Builder exactly once only after
+post-drain final verification.
+
+### Main/root/drain seams
+
+The raw Main path is ordered as follows:
+
+```text
+drive and seal CompletedRootBodyV1
+-> one short final Main header loan
+-> PendingMainDraftV1
+-> whole Main + optional condition_fn batch preflight
+-> infallible whole-batch collect
+-> seal all declaration-fact lanes
+-> one short shell commit
+-> route-owned raw drain preflight
+-> consume shell + collector into owned drained candidate
+-> post-drain finalizer with Builder/collector reads = 0
+-> final verified external commit
+```
+
+Canonical routes skip raw-only Main/root-batch phases. They join the common
+chain at shell facts, route-owned drain, post-drain finalization, and external
+commit. A raw `main` requirement is never imposed on a canonical route.
+
+Known implementation gaps have named owners and do not require consultation:
+
+```text
+RootCompletionStateV1 typed transitions:
+  invocation state owner
+
+whole Main + condition_fn batch preflight:
+  root-batch / collector owner
+
+bare MirModule drain result retirement:
+  drained-module candidate owner
+
+route-tagged raw/canonical drain handoff:
+  RouteOwnedInvocationInventoryV2 consumer
+
+FinalizedModuleCandidateV1 and external handoff:
+  post-drain finalizer / MirCompiler session owner
+```
+
+### Exact implementation order
+
+```text
+WIRING-I0-BORROW-S0             <- next code-facing row
+  new module_lowering_borrow_schedule.rs
+  passive ChildTerminal + InvocationCompletion schedules
+  candidate-owned short access-method vocabulary
+  production consumers = 0
+
+WIRING-I0-BORROW-P0-RAW
+  three-level static / instance / constructor recursion
+  capture -> header -> commit -> restore ordering
+  body, cleanup, admission, and panic failure matrix
+
+WIRING-I0-BORROW-P0-CANONICAL
+  A+ / trivial / acyclic / recursive phase-order proof
+  immutable catalog authority remains external
+  live Builder unchanged on every candidate failure
+
+WIRING-I0-BORROW-P0-ROOT
+  exact eleven-row invocation-completion schedule
+  raw-only Main phases vs all-route common phases
+  root batch / shell / drain / finalizer failure matrix
+
+WIRING-I0-BORROW-G0
+  extend existing Candidate0/HeaderPort guard
+  no new one-off shell guard
+
+WIRING-I0-HDR0-M0
+  exact production current_module/functions reader census
+  classify every reader as route header, canonical semantic catalog,
+  shell/lifecycle access, diagnostic observation, or forbidden fallback
+
+WIRING-I0-HDR0-P0
+  replacement and parity proof for every reader
+  explicit invocation miss remains terminal
+
+WIRING-I0-HDR0-G0
+  unclassified production function-map readers = 0
+  second header cache = 0
+
+WIRING-I0-CUT0-S0
+  disconnected all-route adapters and outer orchestration helper
+  production consumers = 0
+
+WIRING-I0-CUT0-P0
+  all five root families / nine matrix rows
+  success, primary, cleanup, admission, drain, finalizer, and panic parity
+
+WIRING-I0-CUT0-I0
+  one atomic production cutover
+  partial route cutover = 0
+
+WIRING-I0-CUT0-G0
+  old closure terminals / direct module insertion / direct callable publish = 0
+  one collector / one drain / one finalizer / one external commit
+
+then:
+  FACTSESSION0-ACTIVEBIND0
+  -> FACTSESSION0-I0/G0
+```
+
+### Required BORROW fixtures
+
+```text
+passive schedule:
+  exact ChildTerminal phase order
+  exact eleven InvocationCompletion rows
+  no shared-header/exclusive-collector overlap
+  no borrow survives DrainCommit
+
+raw recursion:
+  static -> instance -> constructor depth >= 3
+  pending draft invisible before commit
+  committed draft visible only after header callback ends
+  nested body/cleanup/admission/panic failure restores exactly once
+  collector prefix unchanged for the failing child
+
+canonical:
+  A+ / trivial / acyclic / recursive all reach common drain once
+  callable catalog remains the semantic header owner
+  failed finalizer leaves live Builder unchanged
+  success replaces live Builder exactly once
+
+root:
+  raw owns Main phases; canonical skips them
+  second root-batch admission failure leaves collector prefix unchanged
+  declaration-fact preflight failure leaves shell unchanged
+  drain/finalizer failure gives external commit count 0
+  success gives external commit count 1
+
+S0 behavior:
+  Builder cursor delta = 0
+  module/function inventory delta = 0
+  production consumers = 0
+```
+
+### Guards
+
+```text
+borrow schedule definitions = 1
+production borrow-schedule consumers through BORROW-G0 = 0
+
+MirBuilder fields storing invocation/collector/header cache = 0
+CompilationContext fields storing invocation/collector/header cache = 0
+whole mutable invocation-state loans outside candidate implementation = 0
+
+header loan crossing body/argument descent = 0
+header loan crossing collector commit = 0
+prepared admission crossing lowering = 0
+restore before collect = 0
+
+old raw closure-terminal consumers after CUT0 = 0
+direct callable publish plus common collector coexistence after CUT0 = 0
+direct pre-drain module function insertion after CUT0 = 0
+bare MirModule between drain and finalizer after CUT0 = 0
+
+retry / fallback = 0
+new route-name or caller-symbol inventory = 0
+new persistent ValueId/fact maps = 0
+source/check files >= 800 lines = 0
+```
+
+`module_lowering_invocation.rs` is already 799 lines and is closed to further
+growth. BORROW vocabulary and proof code must live in new focused files.
+
+### Stop conditions
+
+Stop before connection if any slice requires:
+
+1. storing an invocation, collector, or header cache in `MirBuilder`,
+   `CompilationContext`, or `MirCompiler`;
+2. `RefCell`, `Rc`, `Mutex`, `unsafe`, TLS, or another borrow escape;
+3. keeping a header loan across recursive descent, argument descent, commit,
+   or drain;
+4. keeping a prepared admission across lowering;
+5. restoring a parent before its child draft is collected;
+6. raw legacy or `current_module` fallback for an invocation child;
+7. using collector headers for canonical semantic resolution;
+8. keeping `VerifiedUnpublishedCallableDraftSetV1::publish_into` beside the
+   common collector;
+9. partially switching only raw or only canonical production roots;
+10. mutating one root-batch member before all batch admissions are closed;
+11. publishing shell facts piecemeal;
+12. returning a bare `MirModule` between drain and finalization;
+13. reading Builder/current_module/collector after drain;
+14. committing externally before final verification;
+15. mixing FACTSESSION, PHI repair, JoinIR conversion, FastMem, or source
+    semantics into this series;
+16. adding a source/check file at or above 800 lines; or
+17. discovering a genuinely ownerless cross-session mutable borrow.
+
+Only stop condition 17 reopens an external design consultation. The other
+conditions are typed implementation failures inside the selected owner model.
+
+### Claims after BORROW-G0
+
+May claim:
+
+```text
+every future HEADERPORT production phase has one named mutable-borrow owner
+recursive child capture, header observation, commit, and restore have a fixed
+non-overlapping schedule
+raw, canonical, and root/finalizer paths fit one candidate-owned short-loan
+orchestration model
+production behavior remains unchanged and production consumers remain zero
+```
+
+Must not claim:
+
+```text
+production capture/commit is active
+current_module function-header reads are retired
+all routes use the common collector
+Main/root batch is production-active
+drain/finalizer/external commit is production-active
+FACTSESSION, PHI repair, JoinIR, or FastMem changed
+```
+
+### Decision lock
+
+> **WIRING-I0-BORROW selects Candidate S-prime. No ownerless cross-session
+> mutable borrow exists, so no new external design consultation is required.
+> One invocation-owned shell/collector candidate lives outside MirBuilder and
+> CompilationContext; an outer orchestration helper lends the selected route
+> Builder, collector header, collector terminal, and shell only for the exact
+> current phase. Recursive raw capture ends its child-port and header loans
+> before the commit-only collector terminal runs, and the pending session
+> restores its parent exactly once only after collection. Canonical semantic
+> catalogs remain external immutable authorities while A+, trivial, acyclic,
+> and recursive drafts converge on the same collector without a direct
+> publish side store. Raw Main completion uses one final short header loan,
+> one atomic Main/condition batch, one declaration-fact shell commit, one
+> route-owned drain, one owned post-drain finalizer, and one verified external
+> commit; canonical routes skip raw-only Main phases and join the common drain
+> chain without inheriting a synthetic main requirement. BORROW-S0 remains a
+> passive schedule with zero production consumers, followed by raw,
+> canonical, and root proofs plus one reusable guard. HDR0 then closes every
+> production header/read authority, and only one all-route CUT0 may activate
+> capture, collect, drain, finalization, and commit. No Builder-held mirror,
+> long-lived header loan, second collector/cache, caller-authored inventory,
+> direct callable publish side store, partial route cutover, fallback, retry,
+> or source/check file at or above 800 lines is admitted.**
+
+FastMem remains explicitly parked in
+`docs/development/current/main/investigations/fastmem-v1-execution-task-2026-07-22.md`.
+Its selected contracted raw-view / FieldLoad vertical slice is already
+taskified, but it does not pre-empt BORROW -> HDR0 -> CUT0 unless the active
+lane is explicitly switched.

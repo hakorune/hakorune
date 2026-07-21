@@ -145,7 +145,7 @@ def verify_single_header_s0(
     require(card, "WIRING-I0-ROUTEINV-P0c-SINGLEHDR-P0 closeout", "single-header P0 closeout")
     require(
         state,
-        "P0e-MATRIX-G0 are closed; WIRING-I0-BORROW-S0",
+        "P0e-MATRIX-G0 and BORROW-D0 worker audit are closed; WIRING-I0-BORROW-S0",
         "single-header downstream closed-state pointer",
     )
 
@@ -304,7 +304,7 @@ def verify_callable_batch_p0(
     require(card, "WIRING-I0-ROUTEINV-P0d-CALLABLE-P0 closeout", "P0d closeout")
     require(
         state,
-        "P0e-MATRIX-G0 are closed; WIRING-I0-BORROW-S0",
+        "P0e-MATRIX-G0 and BORROW-D0 worker audit are closed; WIRING-I0-BORROW-S0",
         "P0d downstream closed-state pointer",
     )
 
