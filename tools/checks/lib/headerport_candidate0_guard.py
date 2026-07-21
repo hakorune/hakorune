@@ -22,6 +22,7 @@ MAIN_PENDING = ROOT / "src/mir/builder/main_pending_draft.rs"
 MAIN_PENDING_P0 = ROOT / "src/mir/builder/main_pending_draft_p0.rs"
 ROOT_BATCH = ROOT / "src/mir/builder/root_draft_batch.rs"
 ROOT_BATCH_P0 = ROOT / "src/mir/builder/root_draft_batch_p0.rs"
+SHELL_FACTS = ROOT / "src/mir/builder/module_declaration_facts.rs"
 BUILDER_MOD = ROOT / "src/mir/builder.rs"
 CARD = ROOT / (
     "docs/development/current/main/investigations/"
@@ -50,6 +51,7 @@ def main() -> int:
     main_pending_p0 = MAIN_PENDING_P0.read_text()
     root_batch = ROOT_BATCH.read_text()
     root_batch_p0 = ROOT_BATCH_P0.read_text()
+    shell_facts = SHELL_FACTS.read_text()
     builder_mod = BUILDER_MOD.read_text()
     card = CARD.read_text()
     state = STATE.read_text()
@@ -72,6 +74,8 @@ def main() -> int:
         raise AssertionError("ROOTBATCH0-S0 source must remain below 800 lines")
     if len(root_batch_p0.splitlines()) >= 800:
         raise AssertionError("ROOTBATCH0-P0 fixture source must remain below 800 lines")
+    if len(shell_facts.splitlines()) >= 800:
+        raise AssertionError("SHELLFACT0-S0 source must remain below 800 lines")
 
     for fragment in (
         "VerifiedMainExpansionV1",
@@ -135,6 +139,22 @@ def main() -> int:
         "condition_identity_failures_are_typed_before_batch_creation",
     ):
         require(root_batch_p0, fragment, "ROOTBATCH0-P0 policy/failure fixtures")
+
+    for fragment in (
+        "SealedModuleDeclarationFactsV1",
+        "user_box_field_decls",
+        "record_decls",
+        "enum_decls",
+        "declaration_snapshot_preserves_all_four_source_fact_lanes",
+        "btree_snapshot_order_is_independent_of_insertion_order",
+    ):
+        require(shell_facts, fragment, "SHELLFACT0-S0 source product/fixtures")
+    facts_struct = shell_facts.split(
+        "pub(in crate::mir::builder) struct SealedModuleDeclarationFactsV1", 1
+    )[1].split("#[derive(Debug, Clone, Copy", 1)[0]
+    forbid(facts_struct, "MirBuilder", "declaration facts store Builder")
+    forbid(facts_struct, "ModuleDraftCollector", "declaration facts store collector")
+    forbid(facts_struct, "ASTNode", "declaration facts store AST body")
     batch_struct = root_batch.split(
         "pub(in crate::mir::builder) struct PreparedRootDraftBatchV1", 1
     )[1].split("#[derive(Debug)]\nstruct PreparedRootDraftBatchSealV1", 1)[0]
@@ -156,6 +176,7 @@ def main() -> int:
             MAIN_PENDING_P0,
             ROOT_BATCH,
             ROOT_BATCH_P0,
+            SHELL_FACTS,
             BUILDER_MOD,
         ) or path.name.endswith("_tests.rs"):
             continue
@@ -216,6 +237,7 @@ def main() -> int:
     require(builder_mod, "mod main_pending_draft_p0;", "MAINPENDING0-P0 fixture registration")
     require(builder_mod, "mod root_draft_batch;", "ROOTBATCH0-S0 module registration")
     require(builder_mod, "mod root_draft_batch_p0;", "ROOTBATCH0-P0 fixture registration")
+    require(builder_mod, "mod module_declaration_facts;", "SHELLFACT0-S0 module registration")
     other_builder_files = []
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
         if path in (CANDIDATE, CANDIDATE_P0, BUILDER_MOD):
@@ -247,7 +269,8 @@ def main() -> int:
         "HEADERPORT0-I0-BODYDRAIN0-S0/P0 (closed)",
         "HEADERPORT0-I0-MAINPENDING0-S0/P0 (closed)",
         "HEADERPORT0-I0-ROOTBATCH0-S0/P0 (closed)",
-        "HEADERPORT0-I0-SHELLFACT0-S0/P0\n  next code-facing row",
+        "HEADERPORT0-I0-SHELLFACT0-S0 (closed)",
+        "HEADERPORT0-I0-SHELLFACT0-P0\n  next code-facing row",
         "one disconnected invocation-owned shell/collector candidate",
         "typed abort/no-publication/no-retry proof",
         "production capture/commit remains forbidden",
@@ -256,7 +279,7 @@ def main() -> int:
         require(card, fragment, "Candidate0 task boundary")
     require(
         state,
-        "HEADERPORT0-I0-SHELLFACT0-S0 is next",
+        "HEADERPORT0-I0-SHELLFACT0-P0 is next",
         "current Candidate0/MainROLE0 pointer",
     )
 

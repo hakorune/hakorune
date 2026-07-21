@@ -719,9 +719,12 @@ HEADERPORT0-I0-MAINPENDING0-S0/P0 (closed)
 HEADERPORT0-I0-ROOTBATCH0-S0/P0 (closed)
   Main + condition_fn prepared admissions and policy/failure parity
 
-HEADERPORT0-I0-SHELLFACT0-S0/P0
+HEADERPORT0-I0-SHELLFACT0-S0 (closed)
+  one-way source declaration fact snapshot for the function-empty shell
+
+HEADERPORT0-I0-SHELLFACT0-P0
   next code-facing row
-  one-way module declaration fact publication into shell
+  declaration lane parity and shell publication failure matrix
 
 HEADERPORT0-I0-DRAIN0-S0/P0
   route-owned inventory witness and non-Clone drained candidate
@@ -839,6 +842,19 @@ admission; no collision mutation, collector borrow, drain, fallback, or retry
 route was introduced.
 
 The next row is `HEADERPORT0-I0-SHELLFACT0-S0`; collection, drain,
+FACTSESSION0, and CUT0 remain forbidden.
+
+## SHELLFACT0-S0 closeout
+
+`HEADERPORT0-I0-SHELLFACT0-S0` is closed with production consumers still
+zero. `SealedModuleDeclarationFactsV1` owns deterministic user-box,
+typed-field, record, and enum declaration lanes only. It contains no AST
+body, Builder, function map, collector, derived layout plan, fallback, or
+publication capability. BTree-backed snapshots and all-four-lane fixtures
+prove insertion-order stability and preserve the exact source declaration
+payload without semantic refresh.
+
+The next row is `HEADERPORT0-I0-SHELLFACT0-P0`; shell publication, drain,
 FACTSESSION0, and CUT0 remain forbidden.
 
 ## MAINPENDING0-P0 closeout

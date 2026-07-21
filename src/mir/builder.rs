@@ -57,6 +57,8 @@ mod me_call_header_observation; // ACCESS0-MEHEADER-S0 typed source snapshot
 mod metadata_context; // Phase 136 follow-up (Step 6/7): MetadataContext extraction
 mod method_call_handlers;
 mod module_completion_candidate;
+#[allow(dead_code)]
+mod module_declaration_facts;
 mod module_draft_collector;
 #[allow(dead_code)]
 mod module_invocation_drain; // HEADERPORT0 I0-SHELL-I0-S0 disconnected drain
@@ -87,7 +89,7 @@ mod root_body_completion_p0; // HEADERPORT0-I0-BODYDRAIN0-P0 fixtures
 #[allow(dead_code)]
 mod root_draft_batch; // HEADERPORT0-I0-ROOTBATCH0-S0 disconnected batch
 #[cfg(test)]
-mod root_draft_batch_p0; // HEADERPORT0-I0-ROOTBATCH0-P0 fixtures
+mod root_draft_batch_p0; // HEADERPORT0-I0-ROOTBATCH0-P0 fixtures // HEADERPORT0-I0-SHELLFACT0-S0 disconnected facts
 #[allow(unused_imports)]
 pub(in crate::mir) use located_legacy_lowering::{
     LocatedLegacyLoweringErrorV1, LocatedLegacyLoweringSessionV1,
