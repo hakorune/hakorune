@@ -46,6 +46,7 @@ DRAINED_CANDIDATE_P0 = ROOT / "src/mir/builder/drained_module_candidate_p0.rs"
 MODULE_FINAL = ROOT / "src/mir/builder/module_finalization_split.rs"
 MODULE_FINAL_P0 = ROOT / "src/mir/builder/module_finalization_split_p0.rs"
 MODULE_FINAL_CANDIDATE_P0 = ROOT / "src/mir/builder/module_finalization_candidate_p0.rs"
+BORROW_ROOT_P0 = ROOT / "src/mir/builder/module_lowering_borrow_root_p0.rs"
 BUILDER_MOD = ROOT / "src/mir/builder.rs"
 CARD = ROOT / (
     "docs/development/current/main/investigations/"
@@ -496,7 +497,7 @@ def main() -> int:
         "ModuleFinalizationFailureMatrixV1",
         "child_failures_preserve_prefix_and_restore_parent",
         "root_and_drain_failures_discard_unpublished_invocation",
-        "post_drain_verification_has_no_fallback_route",
+        "post_drain_finalization_has_no_fallback_route",
         "matrix_has_one_row_per_failure_owner",
     ):
         require(module_final_candidate_p0, fragment, "MODULEFINAL0-CANDIDATE0-P0 matrix")
@@ -541,6 +542,7 @@ def main() -> int:
             MODULE_FINAL,
             MODULE_FINAL_P0,
             MODULE_FINAL_CANDIDATE_P0,
+            BORROW_ROOT_P0,
             BUILDER_MOD,
         ) or path.name.endswith("_tests.rs"):
             continue

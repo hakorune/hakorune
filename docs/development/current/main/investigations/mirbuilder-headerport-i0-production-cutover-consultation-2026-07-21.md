@@ -2785,3 +2785,102 @@ HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-BORROW-P0-ROOT
 It must prove the exact eleven-row invocation-completion schedule, raw-only
 Main phases versus the all-route common tail, and root-batch/shell/drain/
 finalizer failure atomicity before BORROW-G0.
+
+## WIRING-I0-BORROW-P0-ROOT-P0a closeout
+
+The worker re-audit rejected an early broad ROOT closeout. The schedule was
+correct, but the actual collector-wide root-batch commit, declaration-fact
+shell commit, and final external commit observation do not yet exist. The
+closed P0a claim is therefore deliberately narrower: one focused test-only
+projection consumes the existing passive schedule and fixes the exact
+invocation order:
+
+```text
+raw-only prefix = 5
+  root body drive
+  root body seal
+  Main header completion
+  root-batch preflight
+  root-batch commit
+
+all-route tail = 6
+  declaration-fact seal
+  shell commit
+  drain preflight
+  drain commit
+  post-drain finalization
+  external commit
+```
+
+The passive mutation boundary is explicit. Root-batch, shell, drain, and
+external commit rows are marked infallible only after their matching
+preflight, seal, or final-verification row. The passive failure matrix now has
+eight exact, ordered owners; the previously implicit root-batch preflight and
+declaration-fact seal stages are separate rows. This P0a records the required
+failure disposition but does not claim that the missing physical commit APIs
+already enforce it.
+
+The proof reuses the existing owners rather than introducing an orchestration
+facade:
+
+```text
+PreparedRootDraftBatchV1
+SealedModuleDeclarationFactsV1
+PreparedInvocationDrainV1
+DrainedModuleFinalizationInputV1
+```
+
+Production consumers of the root-batch and post-drain orchestration entries
+remain zero. No Builder, collector, header cache, second module store, live
+commit, FACTSESSION, PHI repair, JoinIR, FastMem, or CUT0 authority is added.
+All changed source/check files remain below 800 lines.
+
+The worker audits found no ownerless cross-session mutable borrow and no new
+semantic selection. They selected the following complete ROOT task queue:
+
+```text
+BORROW-P0-ROOT-P0b  <- next
+  one disconnected collector-wide Main + condition_fn admission owner
+  preflight every key/symbol/arity/replacement before mutation
+  second admission failure preserves the exact collector prefix
+  successful commit is infallible and publishes the whole batch once
+
+BORROW-P0-ROOT-P0c
+  one disconnected declaration-fact shell commit owner
+  all declaration lanes move together
+  failed preparation leaves the shell unchanged
+  no Builder/CompilationContext read after sealing
+
+BORROW-P0-ROOT-P0d
+  co-seal all nine route rows with the eleven-phase schedule
+  raw four rows own the five-phase Main prefix
+  canonical five rows enter only the six-phase common tail
+  drain/finalizer failure gives external commit count 0
+  success gives external commit count 1
+
+BORROW-P0-ROOT-G0
+  root batch/shell/drain/finalizer owners = one each
+  direct/fallback/retry owners = zero
+
+WIRING-I0-BORROW-G0
+  one reusable BORROW guard over raw, canonical, and root proofs
+```
+
+Then the fixed order is:
+
+```text
+HDR0-M0 -> HDR0-P0 -> HDR0-G0
+-> CUT0-COMPAT-POLICY-CONSULT0
+-> CUT0-S0 -> CUT0-P0 -> CUT0-I0 -> CUT0-G0
+-> FACTSESSION0-ACTIVEBIND0-S0/P0
+-> FACTSESSION0-I0/G0
+-> REMATFACT0 / producer closures
+-> MODULETX0-P0
+```
+
+`CUT0-COMPAT-POLICY-CONSULT0` is the one intentional future design stop. It
+must decide duplicate Main source behavior and optional callable-Main failure
+propagation before any all-route production cutover. BORROW, ROOT, HDR0, and
+the already selected FACTSESSION Candidate A-prime need no additional design
+consultation. FastMem remains parked and may resume only through an explicit
+lane switch beginning at `FASTMEM-BASELINE0`.

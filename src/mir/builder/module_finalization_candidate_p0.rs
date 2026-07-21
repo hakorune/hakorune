@@ -10,8 +10,10 @@ pub(in crate::mir::builder) enum ModuleFinalizationFailureStageV1 {
     ChildCleanup,
     Admission,
     RootCompletion,
+    RootBatchPreflight,
+    DeclarationFactsSeal,
     DrainPreflight,
-    PostDrainVerification,
+    PostDrainFinalize,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -29,7 +31,7 @@ pub(in crate::mir::builder) struct ModuleFinalizationFailureRowV1 {
     retry_forbidden: bool,
 }
 
-const FAILURE_ROWS: [ModuleFinalizationFailureRowV1; 6] = [
+const FAILURE_ROWS: [ModuleFinalizationFailureRowV1; 8] = [
     ModuleFinalizationFailureRowV1 {
         stage: ModuleFinalizationFailureStageV1::ChildPrimary,
         candidate: ModuleFinalizationCandidateDispositionV1::CollectorPrefixPreserved,
@@ -59,6 +61,20 @@ const FAILURE_ROWS: [ModuleFinalizationFailureRowV1; 6] = [
         retry_forbidden: true,
     },
     ModuleFinalizationFailureRowV1 {
+        stage: ModuleFinalizationFailureStageV1::RootBatchPreflight,
+        candidate: ModuleFinalizationCandidateDispositionV1::InvocationCandidateDiscarded,
+        external_publication_unchanged: true,
+        parent_restored_once: false,
+        retry_forbidden: true,
+    },
+    ModuleFinalizationFailureRowV1 {
+        stage: ModuleFinalizationFailureStageV1::DeclarationFactsSeal,
+        candidate: ModuleFinalizationCandidateDispositionV1::InvocationCandidateDiscarded,
+        external_publication_unchanged: true,
+        parent_restored_once: false,
+        retry_forbidden: true,
+    },
+    ModuleFinalizationFailureRowV1 {
         stage: ModuleFinalizationFailureStageV1::DrainPreflight,
         candidate: ModuleFinalizationCandidateDispositionV1::InvocationCandidateDiscarded,
         external_publication_unchanged: true,
@@ -66,7 +82,7 @@ const FAILURE_ROWS: [ModuleFinalizationFailureRowV1; 6] = [
         retry_forbidden: true,
     },
     ModuleFinalizationFailureRowV1 {
-        stage: ModuleFinalizationFailureStageV1::PostDrainVerification,
+        stage: ModuleFinalizationFailureStageV1::PostDrainFinalize,
         candidate: ModuleFinalizationCandidateDispositionV1::InvocationCandidateDiscarded,
         external_publication_unchanged: true,
         parent_restored_once: false,
@@ -137,10 +153,32 @@ mod tests {
     }
 
     #[test]
-    fn post_drain_verification_has_no_fallback_route() {
+    fn root_batch_shell_drain_and_finalizer_failures_have_no_fallback_route() {
+        let expected = [
+            ModuleFinalizationFailureStageV1::RootBatchPreflight,
+            ModuleFinalizationFailureStageV1::DeclarationFactsSeal,
+            ModuleFinalizationFailureStageV1::DrainPreflight,
+            ModuleFinalizationFailureStageV1::PostDrainFinalize,
+        ];
+        for stage in expected {
+            let row = ModuleFinalizationFailureMatrixV1::rows()
+                .iter()
+                .find(|row| row.stage() == stage)
+                .unwrap();
+            assert_eq!(
+                row.candidate(),
+                ModuleFinalizationCandidateDispositionV1::InvocationCandidateDiscarded
+            );
+            assert!(row.external_publication_unchanged());
+            assert!(row.retry_forbidden());
+        }
+    }
+
+    #[test]
+    fn post_drain_finalization_has_no_fallback_route() {
         let row = ModuleFinalizationFailureMatrixV1::rows()
             .iter()
-            .find(|row| row.stage() == ModuleFinalizationFailureStageV1::PostDrainVerification)
+            .find(|row| row.stage() == ModuleFinalizationFailureStageV1::PostDrainFinalize)
             .unwrap();
         assert_eq!(
             row.candidate(),
@@ -152,6 +190,22 @@ mod tests {
 
     #[test]
     fn matrix_has_one_row_per_failure_owner() {
-        assert_eq!(ModuleFinalizationFailureMatrixV1::rows().len(), 6);
+        assert_eq!(ModuleFinalizationFailureMatrixV1::rows().len(), 8);
+        assert_eq!(
+            ModuleFinalizationFailureMatrixV1::rows()
+                .iter()
+                .map(|row| row.stage())
+                .collect::<Vec<_>>(),
+            vec![
+                ModuleFinalizationFailureStageV1::ChildPrimary,
+                ModuleFinalizationFailureStageV1::ChildCleanup,
+                ModuleFinalizationFailureStageV1::Admission,
+                ModuleFinalizationFailureStageV1::RootCompletion,
+                ModuleFinalizationFailureStageV1::RootBatchPreflight,
+                ModuleFinalizationFailureStageV1::DeclarationFactsSeal,
+                ModuleFinalizationFailureStageV1::DrainPreflight,
+                ModuleFinalizationFailureStageV1::PostDrainFinalize,
+            ]
+        );
     }
 }

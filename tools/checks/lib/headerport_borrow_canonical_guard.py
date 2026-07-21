@@ -84,4 +84,4 @@ def verify_borrow_canonical_p0(root: pathlib.Path, card: str, state: str) -> Non
     ):
         require(path.read_text(), fixture, "canonical compiler reuse")
     require(card, "WIRING-I0-BORROW-P0-CANONICAL closeout", "canonical closeout")
-    require(state, "BORROW-P0-CANONICAL is closed; WIRING-I0-BORROW-P0-ROOT is next", "canonical pointer")
+    require(state, "BORROW-P0-CANONICAL is closed", "canonical landed pointer")
