@@ -28,7 +28,7 @@ PORT_AWARE_DRAFT = ROOT / "src/mir/builder/port_aware_function_draft.rs"
 MODULE_SHELL = ROOT / "src/mir/builder/module_lowering_shell.rs"
 INVOCATION_DRAIN = ROOT / "src/mir/builder/module_invocation_drain.rs"
 ROUTE_MATRIX = ROOT / "src/mir/builder/module_invocation_route_matrix.rs"
-WIRING_P0 = ROOT / "src/mir/builder/module_wiring_parity_p0.rs"
+MATRIX_CONSUMERS = tuple(ROOT / f"src/mir/builder/{name}.rs" for name in ("module_wiring_parity_p0", "route_owned_invocation_inventory"))
 INVOCATION_STATE = ROOT / "src/mir/builder/module_lowering_invocation_state.rs"
 ACCESS_PORT = ROOT / "src/mir/builder/module_lowering_access_port.rs"
 PENDING_TERMINAL = ROOT / "src/mir/builder/calls/function_session/terminal.rs"
@@ -316,7 +316,7 @@ def main() -> int:
             INVOCATION,
             MODULE_SHELL,
             ROUTE_MATRIX,
-            WIRING_P0,
+            *MATRIX_CONSUMERS,
             INVOCATION_STATE,
             INVOCATION_CANDIDATE,
             INVOCATION_CANDIDATE_P0,

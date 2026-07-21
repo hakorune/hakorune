@@ -110,6 +110,8 @@ mod root_body_completion_p0; // HEADERPORT0-I0-BODYDRAIN0-P0 fixtures
 mod root_draft_batch; // HEADERPORT0-I0-ROOTBATCH0-S0 disconnected batch
 #[cfg(test)]
 mod root_draft_batch_p0; // HEADERPORT0-I0-ROOTBATCH0-P0 fixtures
+#[allow(dead_code)]
+mod route_owned_invocation_inventory; // HEADERPORT0 WIRING-I0-ROUTEINV-S0 policy
 #[allow(unused_imports)]
 pub(in crate::mir) use located_legacy_lowering::{
     LocatedLegacyLoweringErrorV1, LocatedLegacyLoweringSessionV1,

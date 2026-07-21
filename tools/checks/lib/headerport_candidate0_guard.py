@@ -28,6 +28,7 @@ ACCESS_IMPL = ROOT / "src/mir/builder/module_lowering_invocation.rs"
 ACCESS_LIVE = ROOT / "src/mir/builder/module_lowering_invocation_access.rs"
 ACCESS_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_access_tests.rs"
 WIRING_P0 = ROOT / "src/mir/builder/module_wiring_parity_p0.rs"
+ROUTE_INVENTORY = ROOT / "src/mir/builder/route_owned_invocation_inventory.rs"
 SHELL_FACTS = ROOT / "src/mir/builder/module_declaration_facts.rs"
 SHELL_FACTS_P0 = ROOT / "src/mir/builder/module_declaration_facts_p0.rs"
 DRAINED_CANDIDATE = ROOT / "src/mir/builder/drained_module_candidate.rs"
@@ -68,6 +69,7 @@ def main() -> int:
     access_impl = ACCESS_IMPL.read_text()
     access_live = ACCESS_LIVE.read_text()
     wiring_p0 = WIRING_P0.read_text()
+    route_inventory = ROUTE_INVENTORY.read_text()
     shell_facts = SHELL_FACTS.read_text()
     shell_facts_p0 = SHELL_FACTS_P0.read_text()
     drained_candidate = DRAINED_CANDIDATE.read_text()
@@ -101,6 +103,8 @@ def main() -> int:
         raise AssertionError("WIRING-S0 source must remain below 800 lines")
     if len(wiring_p0.splitlines()) >= 800:
         raise AssertionError("WIRING-P0 source must remain below 800 lines")
+    if len(route_inventory.splitlines()) >= 800:
+        raise AssertionError("WIRING-I0-ROUTEINV-S0 source must remain below 800 lines")
     if len(shell_facts.splitlines()) >= 800:
         raise AssertionError("SHELLFACT0-S0 source must remain below 800 lines")
     if len(shell_facts_p0.splitlines()) >= 800:
@@ -230,6 +234,78 @@ def main() -> int:
     ):
         require(wiring_p0, fragment, "WIRING-P0 route parity product/fixtures")
 
+    for fragment in (
+        "RouteOwnedInvocationInventoryV2",
+        "RouteOwnedInventoryPolicyV2",
+        "StaticRouteReachabilityV2",
+        "InvocationInventoryAuthorityV2",
+        "InvocationRootPolicyV2",
+        "RouteConditionPolicyV2",
+        "ExactInvocationSourceSymbolsV2",
+        "InvocationRouteMatrixV1::rows()",
+        "RawExpansionReceipts",
+        "CanonicalResolvedOwner",
+        "CanonicalCallableCatalog",
+        "route_matrix_projects_to_four_policy_lanes_without_merging_families",
+        "raw_and_canonical_policies_keep_distinct_root_and_condition_laws",
+        "exact_ingress_and_lowering_root_symbols_are_sealed_per_family",
+        "unknown_or_unreachable_source_topology_cannot_issue_a_policy",
+    ):
+        require(route_inventory, fragment, "WIRING-I0-ROUTEINV-S0 product/fixtures")
+    for fragment in (
+        "MirCompiler::compile_legacy_request",
+        "MirBuilder::build_module",
+        "MirCompiler::compile_resolved_first_family",
+        "MirBuilder::build_resolved_function_module",
+        "MirBuilder::build_resolved_trivial_function_module",
+        "MirCompiler::compile_resolved_callable_module",
+        "MirBuilder::build_acyclic_callable_module_candidate",
+        "MirCompiler::compile_resolved_recursive_callable_module",
+        "MirBuilder::build_recursive_callable_module_candidate",
+    ):
+        require(route_inventory, fragment, "WIRING-I0 exact ingress/root symbol")
+    for relative, fragment in (
+        ("src/mir/compiler/mod.rs", "fn compile_legacy_request"),
+        ("src/mir/builder/builder_build.rs", "fn build_module"),
+        ("src/mir/compiler/mod.rs", "fn compile_resolved_first_family"),
+        ("src/mir/builder/resolved_lowering/mod.rs", "fn build_resolved_function_module"),
+        (
+            "src/mir/builder/resolved_lowering/mod.rs",
+            "fn build_resolved_trivial_function_module",
+        ),
+        ("src/mir/compiler/mod.rs", "fn compile_resolved_callable_module"),
+        (
+            "src/mir/builder/resolved_lowering/callable_module_transaction.rs",
+            "fn build_acyclic_callable_module_candidate",
+        ),
+        (
+            "src/mir/compiler/mod.rs",
+            "fn compile_resolved_recursive_callable_module",
+        ),
+        (
+            "src/mir/builder/resolved_lowering/callable_module_transaction.rs",
+            "fn build_recursive_callable_module_candidate",
+        ),
+    ):
+        require(
+            (ROOT / relative).read_text(),
+            fragment,
+            f"WIRING-I0 source symbol {relative}",
+        )
+    inventory_struct = route_inventory.split(
+        "pub(in crate::mir::builder) struct RouteOwnedInventoryPolicyV2", 1
+    )[1].split("struct RouteOwnedInventoryPolicySealV2", 1)[0]
+    for fragment in (
+        "MirBuilder",
+        "ModuleDraftCollectorV1",
+        "MirModule",
+        "MirFunction",
+        "ValueId",
+        "TypeContext",
+        "retry",
+    ):
+        forbid(inventory_struct, fragment, f"route inventory stores {fragment}")
+
     for relative, fragment in (
         ("src/mir/builder/module_lifecycle.rs", "lower_root"),
         ("src/mir/builder/decls.rs", "build_static_main_box"),
@@ -340,6 +416,7 @@ def main() -> int:
             ACCESS_IMPL,
             ACCESS_LIVE,
             WIRING_P0,
+            ROUTE_INVENTORY,
             SHELL_FACTS,
             SHELL_FACTS_P0,
             DRAINED_CANDIDATE,
@@ -382,6 +459,10 @@ def main() -> int:
         if "HeaderPortWiringParityV1" in text:
             raise AssertionError(
                 f"WIRING-P0 production consumer exists: {path.relative_to(ROOT)}"
+            )
+        if "RouteOwnedInvocationInventoryV2" in text:
+            raise AssertionError(
+                f"WIRING-I0-ROUTEINV-S0 production consumer exists: {path.relative_to(ROOT)}"
             )
 
     for fragment in (
@@ -429,6 +510,11 @@ def main() -> int:
     require(builder_mod, "mod root_draft_batch_p0;", "ROOTBATCH0-P0 fixture registration")
     require(builder_mod, "mod main_root_wiring;", "WIRING-S0 Main/root order registration")
     require(builder_mod, "mod module_wiring_parity_p0;", "WIRING-P0 parity registration")
+    require(
+        builder_mod,
+        "mod route_owned_invocation_inventory;",
+        "WIRING-I0-ROUTEINV-S0 registration",
+    )
     require(
         builder_mod,
         "mod module_lowering_invocation_access;",
@@ -504,6 +590,7 @@ def main() -> int:
         "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-P0\n  closed",
         "Candidate A-prime",
         "WIRING-I0-ROUTEINV-S0",
+        "WIRING-I0-ROUTEINV-S0 closeout",
         "WIRING-I0-BORROW-S0",
         "WIRING-I0-HDR0",
         "production capture/commit and\nCUT0 remain forbidden",
@@ -520,13 +607,15 @@ def main() -> int:
         require(card, fragment, "Candidate0 task boundary")
     require(
         state,
-        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-S0",
+        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0",
         "current Candidate0/MainROLE0 pointer",
     )
 
     print(
         "[headerport-candidate0-guard] ok disconnected=1 "
-        f"source_lines={len(candidate.splitlines())} production_consumers=0"
+        f"source_lines={len(candidate.splitlines())} "
+        f"route_inventory_lines={len(route_inventory.splitlines())} "
+        "production_consumers=0"
     )
     return 0
 

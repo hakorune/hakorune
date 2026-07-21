@@ -1,8 +1,8 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0/S0/M0/P0-SELECT/P0-S0/P0-P0/P0-G0, FACTSESSION0-I0-SELECT, MODULEDRAFT0-S0/M0/P0 and HEADERPORT0-SELECT/S0/P0, and HEADERPORT0-RAWPORT0-SELECT/S0/M0-T0/R0/LEGACYTERM0-S0/P0/I0/G0/LOOPBRIDGE0-SELECT/S0/P0/I0/G0/HEADERPORT0-REENTRANT-TERM0-S0/P0/I0-SHELL-S0/P0/I0-SELECT/I0-S0/P0/STATE0-S0/P0/I0/G0/CONSULT0/ACCESS0-S0/MEHEADER-CONSULT0/MEHEADER-S0/MEHEADER-P0/MEHEADER-I0/MEHEADER-G0/REWRITE-KNOWN-P0/ACCESS0-P0/CANDIDATE0-S0/P0/MAINROLE0-D0/S0/P0/BODYDRAIN0-S0/P0/MAINPENDING0-S0/P0/ROOTBATCH0-S0/P0/SHELLFACT0-S0/P0/DRAIN0-S0/P0/MODULEFINAL0-SPLIT0/P0/MODULEFINAL0-CANDIDATE0-P0/WIRING-S0/P0/CONSULT0 are closed; WIRING-I0-ROUTEINV-S0 is next, with production capture/commit and CUT0 forbidden"
-date = "2026-07-21"
+status = "FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0/S0/M0/P0-SELECT/P0-S0/P0-P0/P0-G0, FACTSESSION0-I0-SELECT, MODULEDRAFT0-S0/M0/P0 and HEADERPORT0-SELECT/S0/P0, and HEADERPORT0-RAWPORT0-SELECT/S0/M0-T0/R0/LEGACYTERM0-S0/P0/I0/G0/LOOPBRIDGE0-SELECT/S0/P0/I0/G0/HEADERPORT0-REENTRANT-TERM0-S0/P0/I0-SHELL-S0/P0/I0-SELECT/I0-S0/P0/STATE0-S0/P0/I0/G0/CONSULT0/ACCESS0-S0/MEHEADER-CONSULT0/MEHEADER-S0/MEHEADER-P0/MEHEADER-I0/MEHEADER-G0/REWRITE-KNOWN-P0/ACCESS0-P0/CANDIDATE0-S0/P0/MAINROLE0-D0/S0/P0/BODYDRAIN0-S0/P0/MAINPENDING0-S0/P0/ROOTBATCH0-S0/P0/SHELLFACT0-S0/P0/DRAIN0-S0/P0/MODULEFINAL0-SPLIT0/P0/MODULEFINAL0-CANDIDATE0-P0/WIRING-S0/P0/CONSULT0/ROUTEINV-S0 are closed; WIRING-I0-ROUTEINV-P0 is next, with production capture/commit and CUT0 forbidden"
+date = "2026-07-22"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
 active_lane_status = """D′ is the current canonical control-lowering authority:
@@ -319,7 +319,7 @@ module_draft_headerport_i0_task = "docs/development/current/main/investigations/
 
 latest_card = "mirbuilder-headerport-i0-production-cutover-consultation-2026-07-21"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-headerport-i0-production-cutover-consultation-2026-07-21.md"
-latest_card_summary = """ACCESS0-S0 and ACCESS0-MEHEADER S0/P0/I0/G0, ACCESS0-REWRITE-KNOWN-P0, and the broader ACCESS0-P0 census are closed. Candidate0-S0/P0 co-seal one disconnected shell/collector candidate against all nine route identities and failure laws. M-root-prime and Candidate A-prime are selected: Main is a source-expansion coordinator, root completion is distinct from collector drain, and one physical collector is drained under route-owned raw/canonical inventory policies. MAINROLE0-S0/P0, BODYDRAIN0-S0/P0, MAINPENDING0-S0/P0, ROOTBATCH0-S0/P0, SHELLFACT0-S0/P0, DRAIN0-S0/P0, MODULEFINAL0-SPLIT0/P0, MODULEFINAL0-CANDIDATE0-P0, WIRING-S0, WIRING-P0, and the I0 policy consultation are closed with disconnected witnesses. WIRING-I0-ROUTEINV-S0 is next; production capture/commit, FACTSESSION, and CUT0 remain forbidden."""
+latest_card_summary = """ACCESS0-S0 and ACCESS0-MEHEADER S0/P0/I0/G0, ACCESS0-REWRITE-KNOWN-P0, and the broader ACCESS0-P0 census are closed. Candidate0-S0/P0 co-seal one disconnected shell/collector candidate against all nine route identities and failure laws. M-root-prime and Candidate A-prime are selected: Main is a source-expansion coordinator, root completion is distinct from collector drain, and one physical collector is drained under route-owned raw/canonical inventory policies. MAINROLE0-S0/P0, BODYDRAIN0-S0/P0, MAINPENDING0-S0/P0, ROOTBATCH0-S0/P0, SHELLFACT0-S0/P0, DRAIN0-S0/P0, MODULEFINAL0-SPLIT0/P0, MODULEFINAL0-CANDIDATE0-P0, WIRING-S0/P0, the I0 policy consultation, and ROUTEINV-S0 are closed with disconnected witnesses. RouteOwnedInvocationInventoryV2 derives four raw/canonical policy lanes from the existing route matrix, seals exact ingress/root symbols and fail-closed three-valued reachability, and has zero production consumers. WIRING-I0-ROUTEINV-P0 is next; production capture/commit, FACTSESSION, and CUT0 remain forbidden."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -521,7 +521,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-MODULEDRAFT0-HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-S0-20260722"
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-MODULEDRAFT0-HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0-20260722"
 finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."

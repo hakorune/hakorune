@@ -1130,3 +1130,52 @@ module-finalizer, or retry route was introduced.
 
 The next row is `HEADERPORT0-I0-ROOTBATCH0-S0`; Main/condition_fn collection,
 drain, FACTSESSION0, and CUT0 remain forbidden.
+
+## WIRING-I0-ROUTEINV-S0 closeout
+
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-S0` is closed as a
+disconnected route-policy product. `RouteOwnedInvocationInventoryV2` derives
+only from the existing `InvocationRouteMatrixV1`; it does not recreate the
+nine route identities or accept a caller-authored function-symbol list.
+
+The tagged product keeps four drain-policy lanes distinct:
+
+```text
+Raw
+  inventory authority = raw expansion receipts
+  root policy          = required main
+  condition policy     = selected by the sealed raw source shape
+
+Canonical A+ / Binding-SSA trivial
+  inventory authority = exact resolved owner
+  root policy          = exact canonical owner
+  condition policy     = forbidden
+
+Binding-SSA acyclic
+  inventory authority = exact callable catalog
+  root policy          = exact callable catalog
+  condition policy     = forbidden
+
+Binding-SSA recursive
+  inventory authority = exact callable catalog
+  root policy          = exact callable catalog
+  condition policy     = forbidden
+```
+
+Each lane seals its exact Rust ingress and lowering-root symbols. Static
+reachability is represented as `Reachable | Unreachable | Unknown`; only
+`Reachable + Reachable` may issue the policy, while the other states fail with
+a typed seal error. Every lane fixes fallback/retry authority to absent. The
+product stores no Builder, collector, module, function draft, ValueId,
+TypeContext, fact map, or source AST and intentionally has no `Clone`.
+
+Focused fixtures prove the four policy lanes, the separate raw/canonical
+root and condition laws, exact ingress/root symbols, and fail-closed unknown
+or unreachable topology. The reusable HeaderPort guard owns the source-shape,
+line-count, negative-field, registration, and production-consumer-zero checks.
+
+This row does not yet co-seal real raw child completion receipts, resolved
+owner identity, callable catalog cardinality, duplicate/failure matrices, or
+collector-miss behavior. Those are the next
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0` proof. Production
+capture/commit, drain, finalization, FACTSESSION, and CUT0 remain forbidden.
