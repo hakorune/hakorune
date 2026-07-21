@@ -1,5 +1,5 @@
 ---
-Status: Accepted decision
+Status: Accepted downstream decision; execution parked behind HEADERPORT0-I0-G0
 Date: 2026-07-21
 Scope: `FINALIZE0-FACTSESSION0-I0` production ownership selection.
 Related:
@@ -9,7 +9,8 @@ Related:
   - src/mir/builder/function_state_transaction.rs
   - src/mir/builder/calls/function_session.rs
   - src/mir/builder/module_lifecycle.rs
-Decision: Candidate A-prime accepted; `FINALIZE0-MODULEDRAFT0-S0` is next.
+Decision: Candidate A-prime accepted; the next downstream row is
+  `FINALIZE0-FACTSESSION0-ACTIVEBIND0-S0` after `HEADERPORT0-I0-G0`.
 ---
 
 # FACTSESSION0-I0: physical owner and draft-collection boundary
@@ -28,11 +29,13 @@ MODULEDRAFT0
   -> FACTSESSION0-I0
 ```
 
-The first code-facing row is `FINALIZE0-MODULEDRAFT0-S0`. It introduces only
-private disconnected vocabulary: `UnpublishedFunctionDraftV1`,
-`PreparedFunctionDraftAdmissionV1`, `ModuleDraftCollectorV1`, and
-`CompletedDraftSignatureViewV1`. It has zero production consumers, no draft
-clone, no fact-session connection, no PHI repair, and no finalization change.
+`MODULEDRAFT0-S0/M0/P0` and the HeaderPort/RAWPORT prerequisite series have
+already established the collector and its explicit recursive port.  No
+FACTSESSION row is executable until `HEADERPORT0-I0-G0` closes.  The next
+downstream code-facing row is `FINALIZE0-FACTSESSION0-ACTIVEBIND0-S0`; it
+introduces only disconnected active-binding vocabulary and has zero production
+consumers, no draft clone, no second `TypeContext`, no PHI repair, and no
+finalization change.
 
 ## Question
 
