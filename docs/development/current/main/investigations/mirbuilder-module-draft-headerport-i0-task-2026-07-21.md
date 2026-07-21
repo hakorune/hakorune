@@ -1,8 +1,8 @@
 ---
 Status: `HEADERPORT0-RAWPORT0-SELECT/S0/M0-T0/R0` and
-  `HEADERPORT0-RAWPORT0-LEGACYTERM0-S0/P0/I0/G0` are closed;
-  `HEADERPORT0-RAWPORT0-LOOPBRIDGE0-SELECT` is closed;
-  `HEADERPORT0-RAWPORT0-LOOPBRIDGE0-S0` is next
+  `HEADERPORT0-RAWPORT0-LEGACYTERM0-S0/P0/I0/G0` and
+  `HEADERPORT0-RAWPORT0-LOOPBRIDGE0-SELECT/S0/P0/I0/G0` are closed;
+  `FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0` is next
 Date: 2026-07-21
 Scope: one atomic `FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0` cutover
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-task-2026-07-20.md
@@ -30,9 +30,9 @@ CompilationContext field, TLS value, cache, second draft store, or fallback.
 The one semantic activation is the final atomic cutover.  Earlier I0 steps
 are buildable BoxShape preparation only and keep production consumers at zero.
 The raw recursive re-entrancy audit, passive S0 vocabulary, and port-owned
-resolved terminal, raw recursive threading, and the disconnected legacy
-terminal proof are closed.  The next code-facing row is
-`RAWPORT0-LOOPBRIDGE0-SELECT`.
+  resolved terminal, raw recursive threading, and the disconnected legacy
+ terminal proof are closed. `LOOPBRIDGE0-S0/P0/I0/G0` is also closed. The next
+ code-facing row is `FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0`.
 
 ## Fixed terminal law
 
@@ -329,6 +329,24 @@ disposition observable at the raw invocation Loop boundary, before `cf_loop`.
 It must preserve the legacy raw facade, keep the one dispatch match tree, and
 prove zero Builder/collector/header delta on `ReachableBoxDeclaration`.
 
+#### LOOPBRIDGE0-I0/G0 closeout — one pre-JoinIR boundary
+
+I0 adds one `RawLoopChildEntryPortV1` to the existing raw dispatcher
+capability set. The single Loop match now calls one `port.lower_loop`; the
+legacy port delegates directly to the unchanged `cf_loop`, while the invocation
+port classifies the original syntax and delegates only `NoChildFunctionEntry`.
+`ReachableBoxDeclaration` returns one typed contract freeze before JoinIR,
+Builder emission, collector admission, or header observation. Focused fixtures
+prove both the zero-delta rejection and legacy/invocation no-child result plus
+instruction-set parity.
+
+G0 extends the reusable HeaderPort guard: it fixes one raw Loop dispatch, one
+raw Loop boundary trait, exactly two port implementations, no direct dispatcher
+`cf_loop` bypass, and zero control-flow/plan module-port or child-opener
+consumers. The next row is the already-selected atomic
+`FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0` cutover; LOOPBRIDGE0 does not add a
+second production collector or authorize FACTSESSION0.
+
 ## Exact task order
 
 ```text
@@ -430,8 +448,7 @@ PHI/TypePipeline/Call-Await/JoinIR semantic repair in this row
 
 ## Downstream task boundary
 
-Only after the active `HEADERPORT0-RAWPORT0-LOOPBRIDGE0-SELECT` frontier is
-resolved and the remaining `HEADERPORT0-I0-G0` cutover is green:
+Only after the remaining `HEADERPORT0-I0-G0` cutover is green:
 
 ```text
 FACTSESSION0-ACTIVEBIND0-S0/P0
@@ -442,8 +459,8 @@ FACTSESSION0-ACTIVEBIND0-S0/P0
 ### FACTSESSION0 continuation contract — Candidate A-prime
 
 This is a downstream contract, not an authorization to begin FACTSESSION0
-while the raw Loop bridge selection or remaining HeaderPort cutover is active.
-Candidate A-prime is fixed as follows:
+while the remaining HeaderPort cutover is active. Candidate A-prime is fixed
+as follows:
 
 ```text
 MODULEDRAFT0
@@ -576,8 +593,7 @@ that API must take an explicit session or become a proven test-only adapter.
 
 #### Fixed downstream order and stop conditions
 
-Once the Loop bridge is selected and `HEADERPORT0-I0-G0` is green, the fixed
-order is:
+Once `HEADERPORT0-I0-G0` is green, the fixed order is:
 
 ```text
 FACTSESSION0-ACTIVEBIND0-S0

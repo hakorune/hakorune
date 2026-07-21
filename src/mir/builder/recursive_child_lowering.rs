@@ -12,6 +12,9 @@ use super::module_lowering_invocation::{
     ModuleLoweringPortV1,
 };
 use super::raw_expression_dispatch::RawExpressionDispatchPortV1;
+use super::raw_loop_child_entry::{
+    classify_raw_loop_child_entry_v1, RawLoopChildEntryDispositionV1,
+};
 
 const MAX_RAW_EXPRESSION_RECURSION_DEPTH: usize = 200;
 
@@ -84,6 +87,20 @@ pub(in crate::mir::builder) trait RawBoxMethodChildPortV1 {
         uses: Vec<String>,
         attrs: DeclarationAttrs,
     ) -> Result<(), String>;
+}
+
+/// One raw Loop child-entry boundary.
+///
+/// This boundary owns only the decision whether a raw invocation may delegate
+/// to the existing `cf_loop`. It does not pass the invocation port into JoinIR,
+/// recipe composition, normalization, or plan lowering.
+pub(in crate::mir::builder) trait RawLoopChildEntryPortV1 {
+    fn lower_loop(
+        &mut self,
+        builder: &mut MirBuilder,
+        condition: ASTNode,
+        body: Vec<ASTNode>,
+    ) -> Result<ValueId, String>;
 }
 
 impl<Port> RawAstChildLoweringPortV1 for Port where
@@ -299,6 +316,17 @@ impl RawBoxMethodChildPortV1 for RawLegacyChildLoweringPortV1 {
     }
 }
 
+impl RawLoopChildEntryPortV1 for RawLegacyChildLoweringPortV1 {
+    fn lower_loop(
+        &mut self,
+        builder: &mut MirBuilder,
+        condition: ASTNode,
+        body: Vec<ASTNode>,
+    ) -> Result<ValueId, String> {
+        builder.cf_loop(condition, body)
+    }
+}
+
 impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1<'_, '_> {
     fn lower_static_box_method(
         &mut self,
@@ -372,6 +400,27 @@ impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1<'_, '_> {
             },
         )
         .map_err(|error| error.to_string())
+    }
+}
+
+impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
+    fn lower_loop(
+        &mut self,
+        builder: &mut MirBuilder,
+        condition: ASTNode,
+        body: Vec<ASTNode>,
+    ) -> Result<ValueId, String> {
+        match classify_raw_loop_child_entry_v1(&condition, &body) {
+            RawLoopChildEntryDispositionV1::NoChildFunctionEntry => {
+                builder.cf_loop(condition, body)
+            }
+            RawLoopChildEntryDispositionV1::ReachableBoxDeclaration => Err(
+                super::control_flow::lower::Freeze::contract(
+                    "raw_loop_child_entry: reachable BoxDeclaration requires a pure-plan/function-session bridge",
+                )
+                .to_string(),
+            ),
+        }
     }
 }
 

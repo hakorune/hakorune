@@ -14,7 +14,8 @@ use super::ops::{
 };
 use super::recursive_child_lowering::{
     drive_legacy_body_v1, drive_legacy_expression_v1, drive_legacy_statement_v1,
-    RawBoxMethodChildPortV1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+    RawBoxMethodChildPortV1, RawLegacyChildLoweringPortV1, RawLoopChildEntryPortV1,
+    RecursiveChildLoweringPortV1,
 };
 use super::stmts::{
     drive_local_statement_v1, drive_value_return_statement_v1, drive_variable_assignment_v1,
@@ -52,6 +53,7 @@ pub(super) trait RawExpressionDispatchPortV1:
     + VariableAssignmentDescentPortV1<VariableAssignmentInput = RawLegacyVariableAssignmentInputV1>
     + ReturnStatementDescentPortV1<ReturnInput = RawLegacyValueReturnInputV1>
     + RawBoxMethodChildPortV1
+    + RawLoopChildEntryPortV1
 {
 }
 
@@ -69,6 +71,7 @@ impl<Port> RawExpressionDispatchPortV1 for Port where
             VariableAssignmentInput = RawLegacyVariableAssignmentInputV1,
         > + ReturnStatementDescentPortV1<ReturnInput = RawLegacyValueReturnInputV1>
         + RawBoxMethodChildPortV1
+        + RawLoopChildEntryPortV1
 {
 }
 
@@ -152,7 +155,7 @@ impl super::MirBuilder {
                     ring0.log.debug("[exprs.rs] statement surface Loop route matched");
                 }
                 Ok(StatementSurfaceDispatch::Lowered(
-                    self.cf_loop(*condition, body)?,
+                    port.lower_loop(self, *condition, body)?,
                 ))
             }
             ASTNode::TryCatch {

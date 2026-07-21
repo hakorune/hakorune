@@ -226,21 +226,16 @@ def main() -> int:
         1,
         "LEGACYTERM0 instance raw dispatch",
     )
-    require(
-        raw_dispatch,
-        "self.cf_loop(*condition, body)?",
-        "LOOPBRIDGE0 P0 unchanged raw Loop delegate",
-    )
     require_count(
         raw_dispatch,
-        "self.cf_loop(*condition, body)?",
+        "port.lower_loop(self, *condition, body)?",
         1,
-        "LOOPBRIDGE0 P0 raw Loop delegate",
+        "LOOPBRIDGE0 I0 raw Loop boundary",
     )
     forbid(
         raw_dispatch,
-        "classify_raw_loop_child_entry_v1(",
-        "LOOPBRIDGE0 P0 disconnected classifier consumer",
+        "self.cf_loop(*condition, body)?",
+        "LOOPBRIDGE0 I0 raw Loop direct bypass",
     )
     for fragment in (
         "enum RawLoopChildEntryDispositionV1",
@@ -248,7 +243,28 @@ def main() -> int:
         "ASTNode::Lambda { .. } | ASTNode::FunctionDeclaration { .. } => false",
         "node.any_child(contains_reachable_box_declaration)",
     ):
-        require(raw_loop_entry, fragment, "LOOPBRIDGE0 P0 syntax quarantine")
+        require(raw_loop_entry, fragment, "LOOPBRIDGE0 I0 syntax quarantine")
+    for fragment in (
+        "trait RawLoopChildEntryPortV1",
+        "impl RawLoopChildEntryPortV1 for RawLegacyChildLoweringPortV1",
+        "impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1",
+        "classify_raw_loop_child_entry_v1(&condition, &body)",
+        "RawLoopChildEntryDispositionV1::ReachableBoxDeclaration",
+        "raw_loop_child_entry: reachable BoxDeclaration requires a pure-plan/function-session bridge",
+    ):
+        require(raw_port, fragment, "LOOPBRIDGE0 I0 raw Loop boundary")
+    require_count(
+        raw_port,
+        "trait RawLoopChildEntryPortV1",
+        1,
+        "LOOPBRIDGE0 G0 raw Loop boundary authority",
+    )
+    require_count(
+        raw_port,
+        "impl RawLoopChildEntryPortV1 for",
+        2,
+        "LOOPBRIDGE0 I0 raw Loop port implementations",
+    )
 
     for path in (ROOT / "src/mir/builder/control_flow").rglob("*.rs"):
         forbid(read(path), "ModuleLoweringPortV1", "LEGACYTERM0 Loop bridge")
@@ -272,7 +288,7 @@ def main() -> int:
         "[module-draft-headerport-guard] ok "
         f"p0_reader_families={len(P0_DIRECT_HEADER_READER_FRAGMENTS)} "
         "legacyterm0_g0_raw_box_consumers=2 loop_bridge_consumers=0 "
-        "loopbridge0_p0_plan_child_openers=0"
+        "loopbridge0_i0_plan_child_openers=0"
     )
     return 0
 
