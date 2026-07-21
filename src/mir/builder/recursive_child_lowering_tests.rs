@@ -1,9 +1,18 @@
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
-use crate::mir::{MirBuilder, MirInstruction, ValueId};
+use crate::mir::{
+    BasicBlockId, Effect, EffectMask, FunctionSignature, MirBuilder, MirFunction, MirInstruction,
+    MirType, ValueId,
+};
 
 use super::recursive_child_lowering::{
     drive_legacy_body_v1, drive_legacy_expression_v1, drive_legacy_statement_v1,
-    RecursiveChildLoweringPortV1,
+    RawInvocationChildPortV1, RecursiveChildLoweringPortV1,
+};
+use super::{
+    module_draft_collector::{
+        DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftCollectorV1,
+    },
+    module_lowering_invocation::ModuleLoweringInvocationV1,
 };
 
 struct BodyTokenV1(i64);
@@ -95,6 +104,34 @@ fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
         .collect()
 }
 
+fn collected_header(symbol: &str, arity: usize) -> MirFunction {
+    MirFunction::new(
+        FunctionSignature {
+            name: symbol.to_string(),
+            params: vec![MirType::Integer; arity],
+            return_type: MirType::Void,
+            effects: EffectMask::READ.add(Effect::ReadHeap),
+        },
+        BasicBlockId(0),
+    )
+}
+
+fn collector_with_header(symbol: &str, arity: usize) -> ModuleDraftCollectorV1 {
+    let mut collector = ModuleDraftCollectorV1::default();
+    collector
+        .prepare_admission(
+            FunctionDraftKeyV1::LegacySymbol(symbol.to_string()),
+            symbol.to_string(),
+            arity,
+            DraftPublicationPolicyV1::LegacyReplaceWholePair,
+        )
+        .unwrap()
+        .seal(collected_header(symbol, arity))
+        .unwrap()
+        .collect();
+    collector
+}
+
 #[test]
 fn associated_inputs_dispatch_each_child_kind_exactly_once() {
     let mut builder = MirBuilder::new();
@@ -124,6 +161,32 @@ fn child_driver_propagates_failure_without_retry() {
         "counting-expression-failure"
     );
     assert_eq!(port.expression_calls, 1);
+}
+
+#[test]
+fn raw_invocation_port_reborrows_one_collector_backed_header_view() {
+    let mut builder = MirBuilder::new();
+    let mut invocation = ModuleLoweringInvocationV1::with_collector(
+        &mut builder,
+        collector_with_header("Prefix.f/1", 1),
+    );
+
+    invocation.with_module_port(|_builder, module_port| {
+        let mut root = RawInvocationChildPortV1::new(module_port);
+        root.with_headers(|headers| {
+            assert_eq!(headers.signature("Prefix.f/1").unwrap().params.len(), 1);
+            assert_eq!(headers.symbol_count(), 1);
+        });
+
+        let nested = root.reborrow();
+        nested.with_headers(|headers| {
+            assert!(headers.contains_symbol("Prefix.f/1"));
+            assert_eq!(
+                headers.signature("Prefix.f/1").unwrap().return_type,
+                MirType::Void
+            );
+        });
+    });
 }
 
 #[test]

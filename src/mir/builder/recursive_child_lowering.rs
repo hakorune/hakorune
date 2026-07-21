@@ -7,6 +7,8 @@
 use crate::ast::ASTNode;
 use crate::mir::{MirBuilder, ValueId};
 
+use super::module_lowering_invocation::{LoweringHeaderPortV1, ModuleLoweringPortV1};
+
 const MAX_RAW_EXPRESSION_RECURSION_DEPTH: usize = 200;
 
 pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
@@ -67,6 +69,52 @@ where
 }
 
 pub(in crate::mir::builder) struct RawLegacyChildLoweringPortV1;
+
+/// Stack-owned raw-recursion capability for one module-lowering invocation.
+///
+/// This is intentionally only the carrier in the first RAWPORT0-M0-R0
+/// refactor commit.  The following port-aware dispatcher series consumes it
+/// for body, statement, and expression descent.  It owns neither a Builder,
+/// collector, header view, AST cache, nor child-terminal authority; all it can
+/// do is reborrow the exact invocation port for a shorter recursive frame.
+///
+/// Keeping this wrapper separate from `RawLegacyChildLoweringPortV1` makes a
+/// port drop mechanically visible while the legacy facade remains the sole
+/// production route through M0.
+pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
+    module_port: &'port mut ModuleLoweringPortV1<'collector>,
+    _seal: RawInvocationChildPortSealV1,
+}
+
+struct RawInvocationChildPortSealV1;
+
+impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
+    /// Start one raw recursive frame from the exact invocation port.
+    pub(in crate::mir::builder) fn new(
+        module_port: &'port mut ModuleLoweringPortV1<'collector>,
+    ) -> Self {
+        Self {
+            module_port,
+            _seal: RawInvocationChildPortSealV1,
+        }
+    }
+
+    /// Reborrow the same invocation capability for one nested raw frame.
+    ///
+    /// No header borrow crosses this boundary: `with_headers` consumes the
+    /// observation closure before the next descendant can mutate state.
+    pub(in crate::mir::builder) fn reborrow(&mut self) -> RawInvocationChildPortV1<'_, 'collector> {
+        RawInvocationChildPortV1::new(&mut *self.module_port)
+    }
+
+    /// Lend the exact collector-backed header view for one observation only.
+    pub(in crate::mir::builder) fn with_headers<R>(
+        &self,
+        observe: impl for<'header> FnOnce(&'header LoweringHeaderPortV1<'header>) -> R,
+    ) -> R {
+        self.module_port.with_headers(observe)
+    }
+}
 
 impl RecursiveChildLoweringPortV1 for RawLegacyChildLoweringPortV1 {
     type BodyInput = Vec<ASTNode>;
