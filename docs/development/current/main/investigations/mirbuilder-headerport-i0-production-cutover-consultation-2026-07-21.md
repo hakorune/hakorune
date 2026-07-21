@@ -3,7 +3,7 @@
 Status: **STATE0-S0/P0/I0/G0, CONSULT0, ACCESS0-S0, and
 ACCESS0-MEHEADER-S0/P0/I0/G0, ACCESS0-REWRITE-KNOWN-P0, ACCESS0-P0, and
 CANDIDATE0-S0/P0, MAINROLE0-D0/S0/P0, and BODYDRAIN0-S0/P0 are closed;
-M-root-prime remains selected and `HEADERPORT0-I0-MAINPENDING0-S0` is next**
+M-root-prime remains selected and `HEADERPORT0-I0-ROOTBATCH0-S0` is next**
 
 Date: 2026-07-21
 
@@ -713,14 +713,11 @@ HEADERPORT0-I0-BODYDRAIN0-S0 (closed)
 HEADERPORT0-I0-BODYDRAIN0-S0/P0 (closed)
   CompletedRootBodyV1 witness and nested child/pending-loan failure parity
 
-HEADERPORT0-I0-MAINPENDING0-S0 (closed)
-  root completion with explicit short-lived collector/header loan
-
-HEADERPORT0-I0-MAINPENDING0-P0
-  next code-facing row
-  root completion parity and header-source failure matrix
+HEADERPORT0-I0-MAINPENDING0-S0/P0 (closed)
+  root completion with explicit short-lived collector/header loan and parity
 
 HEADERPORT0-I0-ROOTBATCH0-S0/P0
+  next code-facing row
   Main + condition_fn prepared admissions and infallible collection
 
 HEADERPORT0-I0-SHELLFACT0-S0/P0
@@ -816,5 +813,17 @@ authority. Symbol/arity pairing is checked before the pending product is
 issued, and the disconnected fixtures prove header-loan expiry plus foreign
 draft rejection.
 
-The next row is `HEADERPORT0-I0-MAINPENDING0-P0`; root completion parity,
-Main/condition_fn batching, drain, FACTSESSION0, and CUT0 remain forbidden.
+The next row is `HEADERPORT0-I0-ROOTBATCH0-S0`; Main/condition_fn batching,
+drain, FACTSESSION0, and CUT0 remain forbidden.
+
+## MAINPENDING0-P0 closeout
+
+`HEADERPORT0-I0-MAINPENDING0-P0` is closed with production consumers still
+zero. The disconnected matrix preserves the selected header source tag for
+invocation-collector and module-compatibility loans without a fallback, and
+preserves both root value and explicit no-value dispositions. Root symbol and
+arity checks remain the only draft pairing gate; no collector, Builder,
+module-finalizer, or retry route was introduced.
+
+The next row is `HEADERPORT0-I0-ROOTBATCH0-S0`; Main/condition_fn collection,
+drain, FACTSESSION0, and CUT0 remain forbidden.

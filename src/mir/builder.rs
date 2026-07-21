@@ -49,7 +49,9 @@ mod located_legacy_lowering;
 #[allow(dead_code)]
 mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion
 #[allow(dead_code)]
-mod main_pending_draft;
+mod main_pending_draft; // HEADERPORT0-I0-MAINPENDING0-S0 disconnected handoff
+#[cfg(test)]
+mod main_pending_draft_p0; // HEADERPORT0-I0-MAINPENDING0-P0 fixtures
 #[allow(dead_code)]
 mod me_call_header_observation; // ACCESS0-MEHEADER-S0 typed source snapshot
 mod metadata_context; // Phase 136 follow-up (Step 6/7): MetadataContext extraction
