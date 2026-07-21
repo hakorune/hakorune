@@ -310,6 +310,7 @@ compareemit0_task = "docs/development/current/main/investigations/mirbuilder-com
 fact0_tx0_task = "docs/development/current/main/investigations/mirbuilder-fact0-transaction-boundary-task-2026-07-20.md"
 fastmem_receipt0_task = "docs/development/current/main/investigations/mirbuilder-fact0-transaction-boundary-task-2026-07-20.md"
 fastmem_fieldload0_task = "docs/development/current/main/investigations/mirbuilder-fact0-transaction-boundary-task-2026-07-20.md"
+fastmem_v1_execution_task = "docs/development/current/main/investigations/fastmem-v1-execution-task-2026-07-22.md"
 weakfield_classify0_task = "docs/development/current/main/investigations/mirbuilder-weakfield-classification-task-2026-07-20.md"
 finalize0_boundary_consultation = "docs/development/current/main/investigations/mirbuilder-finalize0-boundary-consultation-2026-07-20.md"
 finalize0_p0_production_census_consultation = "docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-consultation-2026-07-20.md"

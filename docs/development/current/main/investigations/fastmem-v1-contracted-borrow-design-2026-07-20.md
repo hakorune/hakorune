@@ -5,6 +5,7 @@ Date: 2026-07-20
 Scope: FastMem naming, capability semantics, backend boundary, V1 task order, and V0 retirement
 Current-lane effect: none; FINALIZE0 CFGSTREAM0 remains authoritative
 Related:
+  - docs/development/current/main/investigations/fastmem-v1-execution-task-2026-07-22.md
   - docs/development/current/main/design/mir-fastmem-memop-dialect-ssot.md
   - docs/development/current/main/design/contract-region-v0-ssot.md
   - docs/development/current/main/design/fastmem-layout-table-contract-v0-ssot.md
@@ -719,8 +720,16 @@ not a substitute for the assembly gate.
 This design does not replace the active FINALIZE0 blocker. When FastMem is
 explicitly reopened by `CURRENT_STATE.toml`, use this order:
 
+The normalized execution board, audit anchors, gates, and stop conditions live
+in `fastmem-v1-execution-task-2026-07-22.md`.  This section remains the compact
+dependency order; the execution board is the code-facing restart surface.
+
 ```text
 FASTMEM-V1-D0                       this design lock; docs only
+
+FASTMEM-BASELINE0
+  remove one test-only HashMap block-order expectation
+  production behavior delta = 0
 
 FASTMEM-SSOT-DRIFT0
   correct parse-only/backend-label/MemValueKind/current-route drift
