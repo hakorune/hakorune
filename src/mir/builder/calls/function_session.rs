@@ -49,6 +49,20 @@ enum FunctionBodyCaptureV1 {
     CanonicalClosedFamily,
 }
 
+/// Test-only terminal observed while the caller state is still captured.
+///
+/// FACTSESSION0-P0 uses this to prove a disconnected fact attempt reaches its
+/// terminal action before the existing child-session restore. It is not a
+/// production lifecycle product and carries neither Builder facts nor a
+/// publication capability.
+#[cfg(test)]
+pub(in crate::mir::builder) enum FunctionSessionP0TerminalV1 {
+    Success(MirFunction),
+    Primary(String),
+    Cleanup(String),
+    Panicked,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum FunctionDraftPublicationErrorV1 {
     MissingModule { function_name: String },
@@ -295,17 +309,64 @@ impl Drop for CanonicalFunctionLoweringSessionV1<'_> {
 }
 
 impl MirBuilder {
-    /// Test-only observation adapter for FACTSESSION0-P0.
-    ///
-    /// It intentionally exposes existing restore behavior without changing a
-    /// production session boundary or transporting any fact-session state.
+    /// Test-only FACTSESSION0-P0 seam: call the supplied terminal observer
+    /// while the child session still owns the caller snapshot, then perform
+    /// the unchanged restore. Panics are observed, cleaned up, and resumed.
     #[cfg(test)]
-    pub(in crate::mir::builder) fn observe_function_restore_for_p0_test(
+    pub(in crate::mir::builder) fn observe_function_terminal_before_restore_for_p0_test(
         &mut self,
         function_name: &str,
         operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
+        terminal: impl FnOnce(FunctionSessionP0TerminalV1, Option<String>) -> Result<(), String>,
     ) -> Result<(), String> {
-        self.with_function_lowering_session(function_name, Vec::new(), operation)
+        let mut session = CanonicalFunctionLoweringSessionV1::open(
+            self,
+            function_name,
+            FunctionBodyCaptureV1::Legacy(Vec::new()),
+        );
+        let outcome =
+            std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| operation(session.builder)));
+        let current_before_restore = session
+            .builder
+            .function_state
+            .current_function
+            .as_ref()
+            .map(|function| function.signature.name.clone());
+
+        match outcome {
+            Ok(Ok(draft)) => {
+                if let Err(cleanup) = session.validate_before_restore(true) {
+                    let terminal = terminal(
+                        FunctionSessionP0TerminalV1::Cleanup(cleanup.to_string()),
+                        current_before_restore,
+                    );
+                    let restore = session.cleanup(false);
+                    return terminal.and(restore.map_err(|error| error.to_string()));
+                }
+                let terminal = terminal(
+                    FunctionSessionP0TerminalV1::Success(draft),
+                    current_before_restore,
+                );
+                let cleanup = session.cleanup(terminal.is_ok());
+                terminal.and(cleanup.map_err(|error| error.to_string()))
+            }
+            Ok(Err(primary)) => {
+                let terminal = terminal(
+                    FunctionSessionP0TerminalV1::Primary(primary),
+                    current_before_restore,
+                );
+                let cleanup = session.cleanup(false);
+                terminal.and(cleanup.map_err(|error| error.to_string()))
+            }
+            Err(payload) => {
+                let _ = terminal(
+                    FunctionSessionP0TerminalV1::Panicked,
+                    current_before_restore,
+                );
+                let _ = session.cleanup(false);
+                std::panic::resume_unwind(payload);
+            }
+        }
     }
 
     pub(super) fn with_function_lowering_session(

@@ -319,15 +319,17 @@ struct SealedModuleFactSessionSealV1;
 pub(super) mod p0_test_support {
     use super::{
         FactSessionIssuerErrorV1, FactSessionIssuerV1, FunctionFactGenerationV1,
-        ModuleFactSessionErrorV1, ModuleFactSessionV1,
+        ModuleFactSessionErrorV1, ModuleFactSessionV1, OpenFunctionFactSessionV1,
     };
     use crate::mir::{MirFunction, ValueId};
+    use std::panic::{catch_unwind, resume_unwind, AssertUnwindSafe};
 
     #[allow(dead_code)] // P0-S0 exposes the typed test-only failure surface before P0 probes it.
     #[derive(Debug)]
     pub(in crate::mir::builder) enum FactSessionP0HarnessErrorV1 {
         Issuer(FactSessionIssuerErrorV1),
         Module(ModuleFactSessionErrorV1),
+        Primary(String),
     }
 
     impl From<FactSessionIssuerErrorV1> for FactSessionP0HarnessErrorV1 {
@@ -348,6 +350,45 @@ pub(super) mod p0_test_support {
         module: ModuleFactSessionV1,
     }
 
+    /// One seeded, single-use fact attempt held outside the Builder session.
+    ///
+    /// P0's test-only child adapter consumes this attempt before restoring the
+    /// Builder parent. The attempt has no Builder reference or draft until its
+    /// terminal outcome is known.
+    pub(in crate::mir::builder) struct PreparedFactSessionP0AttemptV1<'session> {
+        module: &'session mut ModuleFactSessionV1,
+        function: Option<OpenFunctionFactSessionV1>,
+    }
+
+    impl PreparedFactSessionP0AttemptV1<'_> {
+        pub(in crate::mir::builder) fn generation(&self) -> FunctionFactGenerationV1 {
+            self.function
+                .as_ref()
+                .expect("prepared P0 attempt is consumed once")
+                .generation()
+        }
+
+        pub(in crate::mir::builder) fn collect_success(
+            mut self,
+            draft: MirFunction,
+        ) -> Result<(), FactSessionP0HarnessErrorV1> {
+            let function = self
+                .function
+                .take()
+                .expect("prepared P0 attempt is consumed once");
+            self.module
+                .collect_completed(function.seal_with_draft(draft))?;
+            Ok(())
+        }
+
+        pub(in crate::mir::builder) fn abort(mut self) {
+            self.function
+                .take()
+                .expect("prepared P0 attempt is consumed once")
+                .abort();
+        }
+    }
+
     impl FactSessionP0HarnessV1 {
         pub(in crate::mir::builder) fn open(
             issuer: &mut FactSessionIssuerV1,
@@ -357,18 +398,53 @@ pub(super) mod p0_test_support {
             })
         }
 
-        /// Exercises only the success sequence: open, seed, seal, collect.
+        /// Runs one disconnected completion attempt.
+        ///
+        /// Success seals and collects after the supplied operation returns a
+        /// draft. A typed failure or unwind consumes `abort` first; unwinds
+        /// are then resumed so P0 cannot accidentally turn them into success.
+        pub(in crate::mir::builder) fn run_with_seed(
+            &mut self,
+            value: ValueId,
+            operation: impl FnOnce() -> Result<MirFunction, String>,
+        ) -> Result<FunctionFactGenerationV1, FactSessionP0HarnessErrorV1> {
+            let attempt = self.prepare_seeded_attempt(value)?;
+            let generation = attempt.generation();
+            match catch_unwind(AssertUnwindSafe(operation)) {
+                Ok(Ok(draft)) => {
+                    attempt.collect_success(draft)?;
+                    Ok(generation)
+                }
+                Ok(Err(error)) => {
+                    attempt.abort();
+                    Err(FactSessionP0HarnessErrorV1::Primary(error))
+                }
+                Err(payload) => {
+                    attempt.abort();
+                    resume_unwind(payload);
+                }
+            }
+        }
+
+        pub(in crate::mir::builder) fn prepare_seeded_attempt(
+            &mut self,
+            value: ValueId,
+        ) -> Result<PreparedFactSessionP0AttemptV1<'_>, FactSessionP0HarnessErrorV1> {
+            let mut function = self.module.open_function()?;
+            function.test_insert_all_lanes(value);
+            Ok(PreparedFactSessionP0AttemptV1 {
+                module: &mut self.module,
+                function: Some(function),
+            })
+        }
+
+        /// Short success facade for fixtures that do not observe Builder work.
         pub(in crate::mir::builder) fn collect_success(
             &mut self,
             draft: MirFunction,
             value: ValueId,
         ) -> Result<FunctionFactGenerationV1, FactSessionP0HarnessErrorV1> {
-            let mut function = self.module.open_function()?;
-            let generation = function.generation();
-            function.test_insert_all_lanes(value);
-            self.module
-                .collect_completed(function.seal_with_draft(draft))?;
-            Ok(generation)
+            self.run_with_seed(value, || Ok(draft))
         }
 
         /// Exercises abort as a consuming terminal state without collection.
@@ -376,15 +452,22 @@ pub(super) mod p0_test_support {
             &mut self,
             value: ValueId,
         ) -> Result<FunctionFactGenerationV1, FactSessionP0HarnessErrorV1> {
-            let mut function = self.module.open_function()?;
-            let generation = function.generation();
-            function.test_insert_all_lanes(value);
-            function.abort();
+            let attempt = self.prepare_seeded_attempt(value)?;
+            let generation = attempt.generation();
+            attempt.abort();
             Ok(generation)
         }
 
         pub(in crate::mir::builder) fn completed_count(&self) -> usize {
             self.module.completed.len()
+        }
+
+        pub(in crate::mir::builder) fn completed_lane_counts(&self) -> Vec<[usize; 8]> {
+            self.module
+                .completed
+                .values()
+                .map(|completed| completed.facts.transient.test_lane_counts())
+                .collect()
         }
     }
 }

@@ -30,6 +30,8 @@ pub mod function_preflight; // Function-call special gate before arg materializa
 mod function_session; // Closure-scoped function transaction and cleanup owner
 pub(in crate::mir) use function_session::CanonicalFunctionSessionErrorV1;
 #[cfg(test)]
+pub(in crate::mir::builder) use function_session::FunctionSessionP0TerminalV1;
+#[cfg(test)]
 mod finalize_value_lifecycle_tests;
 #[cfg(test)]
 mod function_publication_tests;

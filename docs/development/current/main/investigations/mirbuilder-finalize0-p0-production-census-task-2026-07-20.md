@@ -1,5 +1,5 @@
 ---
-Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0/S0/M0/FACTSESSION0-D0/S0/M0/P0-SELECT/P0-S0 are closed; FINALIZE0-FACTSESSION0-P0-P0 is next, and CUT0 remains forbidden
+Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0/S0/M0/P0-SELECT/P0-S0/P0-P0 are closed; FINALIZE0-FACTSESSION0-P0-G0 is next, and CUT0 remains forbidden
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -3348,7 +3348,30 @@ to remain parser-unresolved, rejects a duplicate classification, and reports
 
 Focused fact-session tests, the pilot row guard, format, `cargo check`, and
 the current-state pointer guard are green. All touched source/check files are
-below 800 lines. `FACTSESSION0-P0-P0` is next: it must add the complete nested
-success/error/panic, sibling-ValueId, candidate-failure, baseline reuse, and
-static matrix proofs without connecting a production lifecycle, receipt issuer,
-or PHI repair.
+below 800 lines. The following P0 proof scope was fixed before implementation:
+nested success/error/panic, sibling-ValueId, candidate-failure, baseline reuse,
+and static matrix evidence, all without connecting a production lifecycle,
+receipt issuer, or PHI repair.
+
+#### FACTSESSION0-P0-P0 closeout — disconnected lifecycle matrix
+
+The test-only harness now closes all P0 fixture classes without a production
+connection. It transports all eight test lanes through independent `main`,
+synthetic `condition_fn`, and test-adapter drafts. Nested child success seals
+and collects while the caller snapshot is still captured, then takes the
+existing Builder restore seam. Child primary and cleanup errors consume abort
+before restoration; a child panic consumes abort before the panic is resumed.
+Two sibling drafts may reuse the same local `ValueId` only because their
+function generations are distinct.
+
+The candidate-failure fixture leaves the disconnected collection empty. The
+reuse fixture intentionally records current legacy behavior: two
+`prepare_module` entries reuse the local value identity while the earlier exact
+type remains in the current transient map. This is baseline evidence, not an
+isolation pass; `FACTSESSION0-I0` alone owns clearing or moving that state.
+The already-fixed 11-site parser-backed syntax matrix remains the static P0
+evidence and still makes no semantic-resolution claim.
+
+Focused fact-session tests, the static row guard, `cargo check`, format, diff,
+and pointer guards are green. `FACTSESSION0-P0-G0` is next. Production
+lifecycle, receipt issuer, PHI repair, JoinIR, and CUT0 consumers remain zero.
