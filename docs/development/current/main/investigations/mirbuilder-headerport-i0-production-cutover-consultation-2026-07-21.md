@@ -1179,3 +1179,196 @@ owner identity, callable catalog cardinality, duplicate/failure matrices, or
 collector-miss behavior. Those are the next
 `HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0` proof. Production
 capture/commit, drain, finalization, FACTSESSION, and CUT0 remain forbidden.
+
+## WIRING-I0-ROUTEINV-P0 worker audit and revised task order
+
+Three read-only worker audits found that the original one-step P0 would have
+been too weak. A list of Rust symbol names and a projection of the existing
+route matrix can describe where an authority should live, but cannot itself
+co-seal the inventory owned by that authority. The discarded local P0 draft
+did exactly that and is not an implementation basis.
+
+The existing authorities are deliberately different:
+
+```text
+Raw/Main
+  successful collector admissions discovered by recursive raw expansion
+
+Canonical A+ / Binding-SSA trivial
+  one exact first-family plan + resolved owner + physical header
+
+Binding-SSA acyclic / recursive
+  canonical callable key/catalog + resolved function map + graph/SCC plan map
+```
+
+They must not be normalized into a caller-authored symbol list or a second
+catalog. P0 is therefore split into the following code-facing slices.
+
+### P0a — successful draft admission receipt
+
+```text
+WIRING-I0-ROUTEINV-P0a-RECEIPT-S0
+  CollectedDraftAdmissionReceiptV1
+  issued only after infallible collector commit
+  exact key / symbol / arity / publication policy / replacement disposition
+  non-Clone, no Builder/module/collector/header/fallback capability
+  production receipt consumers = 0
+
+WIRING-I0-ROUTEINV-P0a-RECEIPT-P0
+  legacy whole-pair replacement
+  canonical duplicate-key / duplicate-symbol rejection
+  symbol and arity drift rejection before mutation
+  failed prepare/seal/collect path emits no receipt
+  collector prefix and index parity
+```
+
+The receipt is an event witness, not a second draft store. It may be returned
+by the one collector commit terminal, but no production route consumes it in
+P0a.
+
+### P0b — raw expansion reservation/completion ledger
+
+```text
+WIRING-I0-ROUTEINV-P0b-RAWLEDGER-S0
+  one invocation-owned RawExpansionReceiptLedgerV1
+  reservation before each selected raw child/root completion
+  completion consumes exactly one collector admission receipt
+  legacy replacement semantics produce the final unique inventory
+  event order remains separately observable for inner-before-outer proof
+  raw condition disposition = RequiredCompatibility until CONDITIONFN-RET0
+  production consumers = 0
+
+WIRING-I0-ROUTEINV-P0b-RAWLEDGER-P0
+  script/root Main, top-level function, static/instance/constructor child
+  nested static/instance/constructor discovery
+  optional callable Main.main/N selected/not-selected matrix
+  inner-before-outer completion
+  child failure leaves the pre-child prefix
+  outer/root failure cannot seal a completed invocation
+  duplicate legacy symbol replaces the whole receipt pair
+  missing required condition/root receipt rejects
+```
+
+The raw inventory is sealed from successful expansion receipts, not from an
+AST pre-scan, `VerifiedMainExpansionV1` alone, the callable declaration
+catalog, or `collector.visit_symbols()`. The collector inventory is only the
+actual side of the final equality check.
+
+Two current compatibility behaviors are recorded as CUT0 stop conditions,
+not silently normalized in P0b:
+
+```text
+duplicate Main source boxes:
+  current legacy lowering and VerifiedMainExpansionV1 disagree
+
+selected optional Main.main/N lowering failure:
+  current legacy path can discard the error
+```
+
+P0b must expose either discrepancy as typed proof evidence. CUT0 may not
+choose a new source behavior without a separate decision.
+
+### P0c — canonical single-owner header seal
+
+```text
+WIRING-I0-ROUTEINV-P0c-SINGLEHDR-S0
+  VerifiedResolvedOwnerHeaderV1
+  co-sealed first-family brand + resolved owner + symbol + arity
+  issued by CanonicalFirstFamilyPlanV1 before plan consumption
+  zero-arity remains valid
+  no caller constructor from owner/string/arity pieces
+  production consumers = 0
+
+WIRING-I0-ROUTEINV-P0c-SINGLEHDR-P0
+  exact A+ and Binding-SSA-trivial family fixtures
+  declaration/source reorder parity
+  foreign owner/header pairing rejection
+  canonical duplicate-key / duplicate-symbol / symbol / arity matrix
+  raw Main/condition policy leakage = 0
+```
+
+The exact-i64 callable header is not reused here because its profile and
+zero-arity admission differ from the general first-family root contract.
+
+### P0d — canonical callable batch proof
+
+```text
+WIRING-I0-ROUTEINV-P0d-CALLABLE-P0
+  acyclic:
+    catalog keys == functions_by_key == graph nodes == plans_by_key
+  recursive:
+    catalog keys == functions_by_key == SCC inventory == plans_by_key
+  every key owns one existing catalog header and one derived physical symbol
+  declaration reorder parity
+  source/catalog/plan/draft/publication failure matrix
+  recursive and acyclic late-failure publication delta = 0
+  new catalog / new key map / collector connection = 0
+  production consumers = 0
+```
+
+This proof borrows the existing callable catalog and plan products. It must
+not route canonical batches through `ModuleDraftCollectorV1`; that is a later
+all-route CUT0 concern.
+
+### P0e — route matrix and no-fallback closure
+
+```text
+WIRING-I0-ROUTEINV-P0e-MATRIX-G0
+  four policy lanes / five root families / nine route rows exactly once
+  every route consumes exactly one of P0b/P0c/P0d authority products
+  duplicate and failure laws project from InvocationRouteMatrixV1
+  explicit invocation header miss is terminal
+  stale current_module cannot satisfy an empty collector lookup
+  entered and changed observations remain separate
+  caller-authored symbol inventory constructors = 0
+  production inventory consumers = 0
+```
+
+The no-fallback claim is intentionally narrow:
+
+```text
+explicit invocation collector/header lookup miss
+  -> no current_module retry
+```
+
+It does not claim that all legacy resolver families, the compatibility
+`condition_fn`, or declaration-catalog recovery have already been retired.
+
+### Fixed continuation
+
+```text
+P0a RECEIPT S0/P0
+  -> P0b RAWLEDGER S0/P0
+  -> P0c SINGLEHDR S0/P0
+  -> P0d CALLABLE P0
+  -> P0e MATRIX G0
+  -> WIRING-I0-BORROW-S0
+  -> WIRING-I0-HDR0
+  -> WIRING-I0-CUT0
+```
+
+The sole next code-facing row is
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0a-RECEIPT-S0`.
+No further external design consultation is required for that disconnected
+receipt vocabulary. Production capture/commit, drain, finalization,
+FACTSESSION, and CUT0 remain forbidden.
+
+### Stop conditions
+
+Stop this series if any slice requires:
+
+```text
+an AST pre-scan as the complete raw inventory authority
+collector.visit_symbols() as both expected and actual inventory
+a caller-authored Vec<String> or symbol-list expectation
+a second callable catalog or canonical key map
+reusing exact-i64 callable headers for general zero-arity roots
+current_module lookup after an explicit invocation-header miss
+silently choosing duplicate-Main or swallowed-Main.main failure semantics
+connecting canonical publication or production drain before P0e
+storing Builder, module, collector, draft, ValueId, or retry authority in a receipt
+```
+
+FastMem remains an independent parked execution lane. Its selected contracted
+raw-borrow V1 task order is unchanged and does not pre-empt this MirBuilder
+production-cutover dependency chain.
