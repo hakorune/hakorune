@@ -1,5 +1,5 @@
 ---
-Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0/S0/M0/P0-SELECT/P0-S0/P0-P0 are closed; FINALIZE0-FACTSESSION0-P0-G0 is next, and CUT0 remains forbidden
+Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0/S0/M0/P0-SELECT/P0-S0/P0-P0/P0-G0 are closed; FINALIZE0-FACTSESSION0-I0 is next, and CUT0 remains forbidden
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -3373,5 +3373,20 @@ The already-fixed 11-site parser-backed syntax matrix remains the static P0
 evidence and still makes no semantic-resolution claim.
 
 Focused fact-session tests, the static row guard, `cargo check`, format, diff,
-and pointer guards are green. `FACTSESSION0-P0-G0` is next. Production
-lifecycle, receipt issuer, PHI repair, JoinIR, and CUT0 consumers remain zero.
+and pointer guards are green. The following G0 scope retains zero production
+lifecycle, receipt issuer, PHI repair, JoinIR, and CUT0 consumers.
+
+#### FACTSESSION0-P0-G0 closeout — disconnected boundary guard
+
+The pilot `mirbuilder-factsession-p0-guard` now pins the P0-only vocabulary to
+its exact cfg(test) source files. It requires exactly four terminal
+observations and all four outcomes—success, primary error, cleanup error, and
+panic—while rejecting every additional `FactSessionP0HarnessV1`, issuer,
+terminal, or test-adapter consumer path. This proves only
+`production_p0_consumers=0`; it does not make the disconnected session a live
+Builder lifecycle authority. The guard also enforces the under-800-line limit
+on the P0 source/check surface.
+
+Focused fact-session tests, both P0 guards, `cargo check`, format, diff, and
+pointer guards are green. `FACTSESSION0-I0` is next. PHI repair, direct
+repair, unused-Phi deletion, JoinIR, and CUT0 remain forbidden.
