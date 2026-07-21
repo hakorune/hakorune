@@ -151,7 +151,7 @@ impl RecursiveChildLoweringPortV1 for RawLegacyChildLoweringPortV1 {
         builder: &mut MirBuilder,
         input: Self::BodyInput,
     ) -> Result<ValueId, String> {
-        super::stmts::block_stmt::build_block(builder, input)
+        super::stmts::block_stmt::build_block_with_port_v1(builder, self, input)
     }
 
     fn lower_statement(
@@ -159,7 +159,7 @@ impl RecursiveChildLoweringPortV1 for RawLegacyChildLoweringPortV1 {
         builder: &mut MirBuilder,
         input: Self::StatementInput,
     ) -> Result<ValueId, String> {
-        super::stmts::block_stmt::build_statement(builder, input)
+        super::stmts::block_stmt::build_statement_with_port_v1(builder, self, input)
     }
 
     fn lower_expression(

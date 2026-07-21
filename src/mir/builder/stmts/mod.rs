@@ -176,29 +176,4 @@ impl super::MirBuilder {
     pub(super) fn build_statement(&mut self, node: ASTNode) -> Result<ValueId, String> {
         super::recursive_child_lowering::drive_raw_legacy_statement_v1(self, node)
     }
-
-    /// Phase 212.5: Statement としての If 処理（副作用のみ）
-    ///
-    /// ループ内 if や top-level statement if はここを通る。
-    /// Expression としての if（値を使う場合）は build_expression 経由。
-    ///
-    /// # Arguments
-    /// * `condition` - If の条件式
-    /// * `then_body` - then ブロックの statements
-    /// * `else_body` - else ブロックの statements (optional)
-    ///
-    /// # Example
-    /// ```hako
-    /// if i > 0 {
-    ///     sum = sum + 1  // ← Statement としての If
-    /// }
-    /// ```
-    pub(super) fn build_if_statement(
-        &mut self,
-        condition: ASTNode,
-        then_body: Vec<ASTNode>,
-        else_body: Option<Vec<ASTNode>>,
-    ) -> Result<(), String> {
-        if_statement_descent::drive_raw_if_statement_v1(self, condition, then_body, else_body)
-    }
 }

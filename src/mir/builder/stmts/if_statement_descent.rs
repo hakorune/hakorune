@@ -12,19 +12,38 @@ use crate::mir::builder::if_form::IfBranchKindV1;
 use crate::mir::{MirBuilder, ValueId};
 
 use super::super::recursive_child_lowering::{
-    drive_legacy_body_v1, drive_legacy_expression_v1, drive_raw_legacy_expression_v1,
-    drive_raw_legacy_statement_v1, RecursiveChildLoweringPortV1,
+    drive_legacy_body_v1, drive_legacy_expression_v1, drive_legacy_statement_v1,
+    RecursiveChildLoweringPortV1,
 };
 
-/// Production raw-If port preserving the retired facade's branch Program shell.
+/// Raw statement-If adapter preserving the retired facade's branch Program shell.
 ///
 /// The shared raw child port lowers a body directly. Statement-position If
 /// historically lowered each branch as an expression-position `Program` with
 /// an unknown span. Keeping that shell here preserves its recursion boundary
 /// and span publication without making the generic If driver own either law.
-struct RawLegacyIfStatementPortV1;
+///
+/// The adapter borrows the same raw child port through condition and branch
+/// descent. It therefore preserves the unknown-span Program wrapper without
+/// rebuilding a raw-recursion port at an If boundary.
+struct RawStatementIfPortV1<'port, Port> {
+    child: &'port mut Port,
+}
 
-impl RecursiveChildLoweringPortV1 for RawLegacyIfStatementPortV1 {
+impl<'port, Port> RawStatementIfPortV1<'port, Port> {
+    const fn new(child: &'port mut Port) -> Self {
+        Self { child }
+    }
+}
+
+impl<Port> RecursiveChildLoweringPortV1 for RawStatementIfPortV1<'_, Port>
+where
+    Port: RecursiveChildLoweringPortV1<
+        BodyInput = Vec<ASTNode>,
+        StatementInput = ASTNode,
+        ExpressionInput = ASTNode,
+    >,
+{
     type BodyInput = Vec<ASTNode>;
     type StatementInput = ASTNode;
     type ExpressionInput = ASTNode;
@@ -34,8 +53,9 @@ impl RecursiveChildLoweringPortV1 for RawLegacyIfStatementPortV1 {
         builder: &mut MirBuilder,
         input: Self::BodyInput,
     ) -> Result<ValueId, String> {
-        drive_raw_legacy_expression_v1(
+        drive_legacy_expression_v1(
             builder,
+            self.child,
             ASTNode::Program {
                 statements: input,
                 span: crate::ast::Span::unknown(),
@@ -48,7 +68,7 @@ impl RecursiveChildLoweringPortV1 for RawLegacyIfStatementPortV1 {
         builder: &mut MirBuilder,
         input: Self::StatementInput,
     ) -> Result<ValueId, String> {
-        drive_raw_legacy_statement_v1(builder, input)
+        drive_legacy_statement_v1(builder, self.child, input)
     }
 
     fn lower_expression(
@@ -56,7 +76,7 @@ impl RecursiveChildLoweringPortV1 for RawLegacyIfStatementPortV1 {
         builder: &mut MirBuilder,
         input: Self::ExpressionInput,
     ) -> Result<ValueId, String> {
-        drive_raw_legacy_expression_v1(builder, input)
+        drive_legacy_expression_v1(builder, self.child, input)
     }
 }
 
@@ -147,7 +167,14 @@ pub(in crate::mir::builder) trait IfStatementDescentPortV1:
     fn if_else_body_input(&self, input: &Self::IfInput) -> Result<Self::BodyInput, String>;
 }
 
-impl IfStatementDescentPortV1 for RawLegacyIfStatementPortV1 {
+impl<Port> IfStatementDescentPortV1 for RawStatementIfPortV1<'_, Port>
+where
+    Port: RecursiveChildLoweringPortV1<
+        BodyInput = Vec<ASTNode>,
+        StatementInput = ASTNode,
+        ExpressionInput = ASTNode,
+    >,
+{
     type IfInput = RawLegacyIfStatementInputV1;
 
     fn if_syntax<'input>(
@@ -227,14 +254,26 @@ where
     Ok(())
 }
 
-pub(in crate::mir::builder) fn drive_raw_if_statement_v1(
+/// Lower one raw statement-position If through an existing raw child port.
+///
+/// This owns no control-flow policy: it only preserves the historical Program
+/// branch shell while threading the caller's recursive descent capability.
+pub(in crate::mir::builder) fn drive_raw_if_statement_with_port_v1<Port>(
     builder: &mut MirBuilder,
+    child: &mut Port,
     condition: ASTNode,
     then_body: Vec<ASTNode>,
     else_body: Option<Vec<ASTNode>>,
-) -> Result<(), String> {
+) -> Result<(), String>
+where
+    Port: RecursiveChildLoweringPortV1<
+        BodyInput = Vec<ASTNode>,
+        StatementInput = ASTNode,
+        ExpressionInput = ASTNode,
+    >,
+{
     let input = RawLegacyIfStatementInputV1::new(condition, then_body, else_body);
-    let mut port = RawLegacyIfStatementPortV1;
+    let mut port = RawStatementIfPortV1::new(child);
     drive_if_statement_v1(builder, &mut port, &input)
 }
 

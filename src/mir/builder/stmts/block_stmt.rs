@@ -22,7 +22,8 @@
 use super::block_driver::{drive_legacy_block_v1, LegacyBlockDescentPortV1};
 use crate::ast::ASTNode;
 use crate::mir::builder::recursive_child_lowering::{
-    drive_legacy_statement_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+    drive_legacy_expression_v1, drive_legacy_statement_v1, RawLegacyChildLoweringPortV1,
+    RecursiveChildLoweringPortV1,
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::builder::ValueId;
@@ -115,6 +116,27 @@ pub(in crate::mir::builder) fn build_statement(
     builder: &mut MirBuilder,
     node: ASTNode,
 ) -> Result<ValueId, String> {
+    let mut child = RawLegacyChildLoweringPortV1;
+    build_statement_with_port_v1(builder, &mut child, node)
+}
+
+/// Run the existing statement dispatcher while retaining one raw child port.
+///
+/// Direct helper branches remain behavior-identical in M0. The expression
+/// fallback and statement-position If reuse `child`, so nested raw descent no
+/// longer recreates a legacy port at this dispatcher boundary.
+pub(in crate::mir::builder) fn build_statement_with_port_v1<Port>(
+    builder: &mut MirBuilder,
+    child: &mut Port,
+    node: ASTNode,
+) -> Result<ValueId, String>
+where
+    Port: RecursiveChildLoweringPortV1<
+        BodyInput = Vec<ASTNode>,
+        StatementInput = ASTNode,
+        ExpressionInput = ASTNode,
+    >,
+{
     // Align current_span to this statement node before lowering expressions under it.
     builder.metadata_ctx.set_current_span(node.span());
     match node {
@@ -126,7 +148,9 @@ pub(in crate::mir::builder) fn build_statement(
             ..
         } => {
             // Statement としての If - 既存 If lowering を呼ぶ
-            let lowering = builder.build_if_statement(*condition, then_body, else_body);
+            let lowering = super::if_statement_descent::drive_raw_if_statement_with_port_v1(
+                builder, child, *condition, then_body, else_body,
+            );
             super::if_statement_descent::complete_if_statement_v1(builder, lowering)
         }
         ASTNode::StaticConstTable { .. } => {
@@ -139,6 +163,6 @@ pub(in crate::mir::builder) fn build_statement(
             span,
         } => super::super::fastmem::build_fastmem_region(builder, contract, body, span),
         // 将来ここに While / LoopRange / Match / Using など statement 専用分岐を追加する。
-        other => builder.build_expression(other),
+        other => drive_legacy_expression_v1(builder, child, other),
     }
 }
