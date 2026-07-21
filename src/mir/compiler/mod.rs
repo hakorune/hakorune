@@ -39,6 +39,8 @@ pub(in crate::mir) mod source_view;
 #[cfg(test)]
 mod acyclic_callable_module_activation_tests;
 #[cfg(test)]
+mod callable_batch_correspondence_test_support;
+#[cfg(test)]
 mod callable_catalog_cutover_tests;
 #[cfg(test)]
 mod capability_tests;

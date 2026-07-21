@@ -241,3 +241,7 @@ impl MirBuilder {
             .map_err(CallableModuleTransactionErrorV1::BuilderContract)
     }
 }
+
+#[cfg(test)]
+#[path = "callable_module_transaction_p0d_tests.rs"]
+mod p0d_tests;

@@ -1,6 +1,7 @@
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, ParamDecl, Span};
 
 use super::*;
+use crate::mir::compiler::callable_batch_correspondence_test_support::borrowed_catalog_header_rows;
 use crate::mir::compiler::VerifiedResolvedCallableProgramV1;
 
 fn variable() -> ASTNode {
@@ -64,6 +65,36 @@ fn plan_counts(plan: &VerifiedRecursiveCallableModulePlanV1<'_>) -> Vec<(String,
         .collect()
 }
 
+fn borrowed_batch_rows(
+    plan: &VerifiedRecursiveCallableModulePlanV1<'_>,
+) -> Vec<(CanonicalCallableKeyV1, String, usize)> {
+    let module = plan.module();
+    let functions = module.functions_by_key();
+    let inventory = plan.partition().inventory();
+    let plans = plan.plans_by_key();
+    let rows = borrowed_catalog_header_rows(module);
+    let mut component_members = plan
+        .partition()
+        .components()
+        .iter()
+        .flat_map(|component| component.members().iter().cloned())
+        .collect::<Vec<_>>();
+    component_members.sort();
+
+    assert_eq!(rows.len(), functions.len());
+    assert_eq!(functions.len(), inventory.nodes().len());
+    assert_eq!(inventory.nodes().len(), component_members.len());
+    assert_eq!(component_members.len(), plans.len());
+    assert!(functions.keys().eq(inventory.nodes().iter()));
+    assert!(functions.keys().eq(component_members.iter()));
+    assert!(functions.keys().eq(plans.keys()));
+
+    assert!(rows.iter().all(|(key, _, _)| {
+        plan.partition().component_for(key).is_some() && plans.contains_key(key)
+    }));
+    rows
+}
+
 #[test]
 fn seals_mutual_self_and_mixed_recursive_components_into_typed_plans() {
     let source = program(vec![
@@ -79,6 +110,7 @@ fn seals_mutual_self_and_mixed_recursive_components_into_typed_plans() {
     assert_eq!(plan.partition().recursive_component_count(), 2);
     assert_eq!(plan.partition().inventory().call_sites().len(), 6);
     assert_eq!(plan.plans_by_key().len(), 6);
+    assert_eq!(borrowed_batch_rows(&plan).len(), 6);
     assert_eq!(
         plan_counts(&plan),
         [
@@ -112,6 +144,7 @@ fn declaration_reorder_preserves_partition_and_typed_plan_keys() {
         let source = program(functions);
         let plan = VerifiedRecursiveCallableModulePlanV1::verify(source.module()).unwrap();
         observed.push((
+            borrowed_batch_rows(&plan),
             plan.partition()
                 .components()
                 .iter()

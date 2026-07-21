@@ -145,8 +145,167 @@ def verify_single_header_s0(
     require(card, "WIRING-I0-ROUTEINV-P0c-SINGLEHDR-P0 closeout", "single-header P0 closeout")
     require(
         state,
-        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0d-CALLABLE-P0",
-        "single-header next pointer",
+        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0e-MATRIX-G0",
+        "single-header downstream pointer",
+    )
+
+
+def verify_callable_batch_p0(
+    root: pathlib.Path,
+    card: str,
+    state: str,
+) -> None:
+    acyclic_path = root / "src/mir/compiler/acyclic_callable_module_plan/tests.rs"
+    recursive_path = root / "src/mir/compiler/recursive_callable_module_plan/tests.rs"
+    support_path = root / (
+        "src/mir/compiler/callable_batch_correspondence_test_support.rs"
+    )
+    compiler_mod_path = root / "src/mir/compiler/mod.rs"
+    transaction_path = root / (
+        "src/mir/builder/resolved_lowering/callable_module_transaction.rs"
+    )
+    p0d_path = root / (
+        "src/mir/builder/resolved_lowering/"
+        "callable_module_transaction_p0d_tests.rs"
+    )
+    catalog_failure_path = root / (
+        "src/mir/resolved_semantics/callable_catalog_candidate_tests.rs"
+    )
+    source_failure_path = root / "src/mir/compiler/resolved_callable_module_tests.rs"
+    publication_path = root / "src/mir/function/tests.rs"
+    acyclic = acyclic_path.read_text()
+    recursive = recursive_path.read_text()
+    support = support_path.read_text()
+    compiler_mod = compiler_mod_path.read_text()
+    transaction = transaction_path.read_text()
+    p0d = p0d_path.read_text()
+    catalog_failure = catalog_failure_path.read_text()
+    source_failure = source_failure_path.read_text()
+    publication = publication_path.read_text()
+
+    for path, text in (
+        (acyclic_path, acyclic),
+        (recursive_path, recursive),
+        (support_path, support),
+        (transaction_path, transaction),
+        (p0d_path, p0d),
+    ):
+        if len(text.splitlines()) >= 800:
+            raise AssertionError(
+                f"ROUTEINV-P0d source/proof must remain below 800 lines: {path}"
+            )
+
+    for proof, label in ((acyclic, "acyclic"), (recursive, "recursive")):
+        for fragment in (
+            "fn borrowed_batch_rows(",
+            "let functions = module.functions_by_key();",
+            "let plans = plan.plans_by_key();",
+            "let rows = borrowed_catalog_header_rows(module);",
+            "assert_eq!(rows.len(), functions.len());",
+            "assert!(functions.keys().eq(plans.keys()));",
+        ):
+            require(proof, fragment, f"ROUTEINV-P0d {label} borrowed correspondence")
+        forbid(proof, "ModuleDraftCollectorV1", f"{label} proof collector connection")
+        forbid(proof, "struct VerifiedCallableBatch", f"{label} second batch catalog")
+
+    for fragment in (
+        "fn borrowed_catalog_header_rows(",
+        "let catalog = module.source().catalog();",
+        "let functions = module.functions_by_key();",
+        "assert_eq!(catalog.len(), functions.len());",
+        "CanonicalCallableSymbolV1::from_name_arity(",
+        "assert_eq!(header.source_key(), key);",
+        "assert_eq!(header.symbol(), &physical);",
+        "assert_eq!(header.signature().arity(), key.arity() as usize);",
+        "module.function(key).is_some()",
+    ):
+        require(support, fragment, "ROUTEINV-P0d shared borrowed header proof")
+    for fragment in (
+        "BTreeMap",
+        "ModuleDraftCollectorV1",
+        "pub(crate) struct",
+        "pub(in crate::mir) struct",
+    ):
+        forbid(support, fragment, f"P0d support owns {fragment}")
+    require(
+        compiler_mod,
+        "#[cfg(test)]\nmod callable_batch_correspondence_test_support;",
+        "test-only callable-batch support registration",
+    )
+
+    for fragment in (
+        "let nodes = plan.graph().nodes();",
+        "assert!(functions.keys().eq(nodes.iter()));",
+        "declaration_reorder_preserves_graph_and_typed_plan_keys",
+    ):
+        require(acyclic, fragment, "ROUTEINV-P0d acyclic exact set/reorder")
+    for fragment in (
+        "let inventory = plan.partition().inventory();",
+        "component_members.sort();",
+        "assert!(functions.keys().eq(inventory.nodes().iter()));",
+        "assert!(functions.keys().eq(component_members.iter()));",
+        "plan.partition().component_for(key).is_some()",
+        "declaration_reorder_preserves_partition_and_typed_plan_keys",
+    ):
+        require(recursive, fragment, "ROUTEINV-P0d recursive exact set/reorder")
+
+    require(
+        transaction,
+        '#[cfg(test)]\n#[path = "callable_module_transaction_p0d_tests.rs"]',
+        "test-only P0d transaction registration",
+    )
+    for fragment in (
+        "acyclic_late_draft_failure_keeps_candidate_publication_at_zero",
+        "recursive_late_draft_failure_keeps_candidate_publication_at_zero",
+        "atomic_publication_failure_preserves_the_preexisting_module_prefix",
+        "VerifiedUnpublishedCallableDraftSetV1::collect_acyclic_with",
+        "VerifiedUnpublishedCallableDraftSetV1::collect_recursive_with",
+        ".current_module",
+        ".functions\n        .is_empty()",
+        "CallableModuleTransactionErrorV1::Publication(_)",
+        'module.get_function("second/1").is_none()',
+    ):
+        require(p0d, fragment, "ROUTEINV-P0d late failure/publication proof")
+    for fragment in (
+        "ModuleDraftCollectorV1",
+        "RouteOwnedInvocationInventoryV2",
+        "RawExpansionReceiptLedgerV1",
+        "pub(crate) struct",
+        "pub(in crate::mir) struct",
+    ):
+        forbid(p0d, fragment, f"P0d test proof owns {fragment}")
+
+    require(
+        catalog_failure,
+        "rejects_duplicate_exact_key_with_both_declaration_sites",
+        "catalog failure owner",
+    )
+    require(
+        source_failure,
+        "unknown_target_rejects_before_a_resolved_module_is_published",
+        "source/resolution failure owner",
+    )
+    require(
+        acyclic,
+        "rejects_one_function_zero_call_cycles_and_nontrivial_function_profiles",
+        "acyclic plan failure owner",
+    )
+    require(
+        recursive,
+        "rejects_zero_call_acyclic_and_nontrivial_profiles",
+        "recursive plan failure owner",
+    )
+    require(
+        publication,
+        "atomic_function_batch_preserves_existing_module_on_late_collision",
+        "atomic publication failure owner",
+    )
+
+    require(card, "WIRING-I0-ROUTEINV-P0d-CALLABLE-P0 closeout", "P0d closeout")
+    require(
+        state,
+        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0e-MATRIX-G0",
+        "P0d next pointer",
     )
 
 
@@ -272,3 +431,4 @@ def verify_route_inventory_extension(
         "raw ledger next pointer",
     )
     verify_single_header_s0(root, builder_mod, card, state)
+    verify_callable_batch_p0(root, card, state)

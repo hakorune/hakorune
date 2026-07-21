@@ -1690,3 +1690,78 @@ prove exact key/header/symbol/arity/cardinality correspondence and late-failure
 publication zero, and add no catalog, key map, collector connection, or
 production consumer. Production capture/commit, drain, FACTSESSION, and CUT0
 remain forbidden.
+
+## WIRING-I0-ROUTEINV-P0d-CALLABLE-P0 closeout
+
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0d-CALLABLE-P0`
+is closed without a new production product. The proof borrows the existing
+callable catalog, resolved function map, acyclic graph or recursive SCC
+partition, and typed plan map directly.
+
+For the acyclic lane, every fixture now proves:
+
+```text
+catalog cardinality
+  == functions_by_key cardinality
+  == graph node cardinality
+  == plans_by_key cardinality
+
+functions_by_key keys
+  == graph nodes
+  == plans_by_key keys
+```
+
+For the recursive lane, the same proof adds both the SCC inventory nodes and
+the sorted union of all SCC members. Every canonical key resolves to exactly
+one existing catalog header, the header owns the same source key and arity,
+and its physical symbol equals the neutral
+`CanonicalCallableSymbolV1::from_name_arity` projection. No catalog key
+iterator, second catalog, persistent key map, or caller-authored symbol list
+was added.
+
+Declaration reorder fixtures compare only invocation-independent key,
+symbol/arity, graph/SCC, condensation, and plan observations. They do not
+compare source sites, owner IDs, origins, or resolved callable identities,
+which are legitimately issuance-local.
+
+The failure matrix remains split by its existing owner:
+
+```text
+source/resolution failure:
+  resolved callable module
+
+catalog duplicate/key/symbol failure:
+  callable catalog/index seals
+
+graph/SCC/plan failure:
+  acyclic and recursive plan verifiers
+
+draft failure:
+  private callable draft transaction
+
+publication collision:
+  MirModule::try_add_functions_atomic
+```
+
+The private transaction gained only a `cfg(test)` child proof. Both acyclic
+and recursive fixtures successfully lower the first real draft, inject a
+failure into the later draft, and observe zero candidate function publication.
+A separate real atomic-publication collision preserves the preexisting module
+row and publishes no fresh peer. This claim is intentionally limited to the
+candidate module function map: Builder cursors, transient facts, and whole-
+Builder rollback are not claimed.
+
+```text
+new production catalog/key map = 0
+ModuleDraftCollectorV1 connection = 0
+production inventory consumers = 0
+production behavior delta = 0
+source/proof/guard files >= 800 lines = 0
+```
+
+The sole next code-facing row is
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0e-MATRIX-G0`.
+It must close the four policy lanes, five root families, and nine route rows,
+project each route to exactly one P0b/P0c/P0d authority, and prove explicit
+invocation header miss has no stale `current_module` fallback. Production
+capture/commit, drain, finalization, FACTSESSION, and CUT0 remain forbidden.

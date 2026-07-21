@@ -1,6 +1,7 @@
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, ParamDecl, Span};
 
 use super::*;
+use crate::mir::compiler::callable_batch_correspondence_test_support::borrowed_catalog_header_rows;
 use crate::mir::compiler::VerifiedResolvedCallableProgramV1;
 
 fn variable() -> ASTNode {
@@ -64,6 +65,24 @@ fn plan_counts(plan: &VerifiedAcyclicCallableModulePlanV1<'_>) -> Vec<(String, u
         .collect()
 }
 
+fn borrowed_batch_rows(
+    plan: &VerifiedAcyclicCallableModulePlanV1<'_>,
+) -> Vec<(CanonicalCallableKeyV1, String, usize)> {
+    let module = plan.module();
+    let functions = module.functions_by_key();
+    let nodes = plan.graph().nodes();
+    let plans = plan.plans_by_key();
+    let rows = borrowed_catalog_header_rows(module);
+
+    assert_eq!(rows.len(), functions.len());
+    assert_eq!(functions.len(), nodes.len());
+    assert_eq!(nodes.len(), plans.len());
+    assert!(functions.keys().eq(nodes.iter()));
+    assert!(functions.keys().eq(plans.keys()));
+    assert!(rows.iter().all(|(key, _, _)| plans.contains_key(key)));
+    rows
+}
+
 #[test]
 fn seals_nested_finite_calls_into_a_typed_canonical_plan_map() {
     let source = program(vec![
@@ -78,6 +97,7 @@ fn seals_nested_finite_calls_into_a_typed_canonical_plan_map() {
         plan_counts(&plan),
         [("root".to_string(), 2), ("step".to_string(), 0)]
     );
+    assert_eq!(borrowed_batch_rows(&plan).len(), 2);
 }
 
 #[test]
@@ -104,6 +124,7 @@ fn declaration_reorder_preserves_graph_and_typed_plan_keys() {
         let source = program(functions);
         let plan = VerifiedAcyclicCallableModulePlanV1::verify(source.module()).unwrap();
         observed.push((
+            borrowed_batch_rows(&plan),
             plan.graph().nodes().to_vec(),
             plan.graph().call_sites().to_vec(),
             plan.graph().unique_edges().to_vec(),
