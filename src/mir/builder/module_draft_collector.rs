@@ -289,6 +289,14 @@ impl ModuleDraftCollectorV1 {
         self.key_by_symbol.insert(symbol, key.clone());
         self.drafts.insert(key, CollectedFunctionDraftV1 { draft });
     }
+
+    /// Move the collector-owned drafts out only for the invocation drain.
+    ///
+    /// No header or identity side table is returned: the physical drafts and
+    /// their collector indexes are consumed together by the one drain owner.
+    pub(in crate::mir::builder) fn into_draft_functions(self) -> Vec<MirFunction> {
+        self.drafts.into_values().map(|entry| entry.draft).collect()
+    }
 }
 
 impl CompletedDraftSignatureViewV1 for ModuleDraftCollectorV1 {

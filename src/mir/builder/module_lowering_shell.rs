@@ -98,6 +98,10 @@ impl ModuleLoweringShellV1 {
         !self.module.functions.is_empty()
     }
 
+    pub(in crate::mir::builder) fn published_function_count(&self) -> usize {
+        self.module.functions.len()
+    }
+
     pub(in crate::mir::builder) fn with_port<R>(
         &mut self,
         use_port: impl FnOnce(&mut ModuleLoweringShellPortV1<'_>) -> R,
@@ -138,6 +142,10 @@ impl ModuleLoweringShellDrainInventoryV1 {
             symbols: symbols.into_boxed_slice(),
             _seal: ModuleLoweringShellDrainInventorySealV1,
         })
+    }
+
+    pub(in crate::mir::builder) fn symbols(&self) -> &[String] {
+        &self.symbols
     }
 }
 
@@ -194,6 +202,21 @@ impl PreparedModuleLoweringShellDrainV1 {
             self.shell.module.add_function(function);
         }
         Ok(self.shell.module)
+    }
+
+    /// Commit after `PreparedInvocationDrainV1` has checked every symbol.
+    ///
+    /// This path deliberately has no fallible checks.  The reusable guard
+    /// keeps it disconnected from every caller except the invocation-drain
+    /// owner, where the preflight proof is consumed immediately beforehand.
+    pub(in crate::mir::builder) fn commit_preflighted(
+        mut self,
+        functions: Vec<MirFunction>,
+    ) -> MirModule {
+        for function in functions {
+            self.shell.module.add_function(function);
+        }
+        self.shell.module
     }
 }
 

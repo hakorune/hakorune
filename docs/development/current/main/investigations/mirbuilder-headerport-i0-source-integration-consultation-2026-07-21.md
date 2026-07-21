@@ -1,6 +1,6 @@
 # HEADERPORT0-REENTRANT-TERM0-I0: source integration consultation
 
-Status: **Candidate A-prime selected; I0-SHELL-S0/P0 closed; production I0 remains disconnected**
+Status: **Candidate S-prime selected; I0-SHELL-S0/P0 and I0-SHELL-I0-S0 closed; production I0 remains disconnected**
 Date: 2026-07-21
 Parent: `mirbuilder-headerport-reentrant-terminal-task-2026-07-21.md`
 Decision: one invocation-owned shell plus one collector; shell vocabulary is
@@ -387,6 +387,43 @@ HEADERPORT0-REENTRANT-TERM0-I0-SHELL-I0-SELECT  closed here
 
 The next code-facing row is the disconnected S0 vocabulary. Production
 capture/commit and `CUT0` remain forbidden until its P0 matrix is green.
+
+## I0-SHELL-I0-S0 closeout
+
+The disconnected invocation drain vocabulary now lives in
+`src/mir/builder/module_invocation_drain.rs`:
+
+```text
+ModuleLoweringInvocationDrainOwnerV1
+  owns one shell and one collector
+
+InvocationDrainExpectationV1
+  owns sorted complete symbols plus main/condition_fn policy
+
+PreparedInvocationDrainV1
+  is non-Clone and single-use
+  drains only after all preflight checks pass
+```
+
+The owner compares the collector inventory with the expected complete batch,
+checks shell emptiness, and enforces the `main`/`condition_fn` policy while
+both owners are still intact. Only the resulting prepared product may call
+the shell's no-fallible-check `commit_preflighted` path. No production root,
+child, canonical transaction, or `MirBuilder` consumer exists; the reusable
+HeaderPort guard rejects any such consumer.
+
+Focused S0 fixtures are green:
+
+```text
+complete inventory + required roots -> one assembled module
+missing main                     -> typed preflight failure
+inventory mismatch               -> typed preflight failure
+```
+
+The next row is
+`HEADERPORT0-REENTRANT-TERM0-I0-SHELL-I0-P0`: freeze the complete raw,
+main/condition, A+/trivial, and acyclic/recursive route/failure matrix before
+any production capture/commit. `CUT0` remains forbidden.
 
 ## Questions that must be answered before implementation
 
