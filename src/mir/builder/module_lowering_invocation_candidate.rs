@@ -197,6 +197,17 @@ impl AbortedModuleLoweringInvocationCandidateV1 {
         &self.proof
     }
 
+    /// Drop the failed shell/collector together with the observational proof.
+    /// The proof is moved out only for the disconnected P0 route co-seal.
+    pub(in crate::mir::builder) fn into_proof(self) -> InvocationCandidateAbortProofV1 {
+        let Self {
+            state: _,
+            proof,
+            _seal: _,
+        } = self;
+        proof
+    }
+
     /// Consume the failed candidate.  No module or collector publication is
     /// possible after this transition.
     pub(in crate::mir::builder) fn discard(self) {

@@ -2,8 +2,7 @@
 
 Status: **STATE0-S0/P0/I0/G0, CONSULT0, ACCESS0-S0, and
 ACCESS0-MEHEADER-S0/P0/I0/G0, ACCESS0-REWRITE-KNOWN-P0, ACCESS0-P0, and
-CANDIDATE0-S0 are closed; CANDIDATE0-P0 is next, and production cutover
-remains disconnected**
+CANDIDATE0-S0/P0 are closed; production cutover I0 remains disconnected**
 
 Date: 2026-07-21
 
@@ -462,16 +461,19 @@ HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-S0 (closed)
   scoped Builder loan
   typed abort/no-publication/no-retry proof
 
-HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-P0
-  next: raw/main/condition, route, and failure matrix
+HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-P0 (closed)
+  nine-row route/failure co-seal
+  duplicate/missing/drift rejection
+  production consumers = 0
 
 HEADERPORT0-REENTRANT-TERM0-I0
-  one all-route production capture/commit cutover
+  next: one all-route production capture/commit cutover
 ```
 
-The current production I0 and `CUT0` remain forbidden until CANDIDATE0-P0 is
-green. This decision closes the consultation boundary but does not claim any
-production route has been rewired.
+The current production I0 remains disconnected until the all-route cutover
+row is explicitly implemented and green; `CUT0` remains forbidden.  This
+decision closes the consultation boundary but does not claim any production
+route has been rewired.
 
 The `me` method reader consultation selected Candidate A-prime with a
 typed-source refinement. Its disconnected S0/P0/I0/G0 vocabulary and parity
@@ -503,8 +505,23 @@ no-publication law.  `PendingFunctionSessionCloseV1` remains the sole owner of
 parent function-state restoration; Candidate0-S0 does not duplicate that
 transaction or connect a production route.  The reusable guard is
 `tools/checks/lib/headerport_candidate0_guard.py`; focused Candidate0 tests,
-row guard, formatting, and diff checks are green.  Candidate0-P0 must still
-prove the route/failure matrix before any capture/commit or CUT0 wiring.
+row guard, formatting, and diff checks are green.  Production capture/commit
+and CUT0 remain disconnected until the separate all-route I0 is implemented.
+
+## CANDIDATE0-P0 closeout
+
+`module_lowering_invocation_candidate_p0.rs` now consumes the existing
+`InvocationRouteMatrixV1` as the sole route authority.  It does not recreate
+raw, A+, trivial, acyclic, recursive, main, or condition-fn identity/policy.
+Each of the nine matrix rows is observed exactly once and is co-sealed with
+one Candidate0 abort proof.
+
+The P0 product rejects duplicate or missing rows, route identity/publication
+drift, changed shell/collector boundaries, changed external publication, and
+any retry disposition.  The matrix's collector-prefix, parent-restore, root
+drop, and retry laws are rechecked before the non-Clone proof is issued.
+Focused route co-seal and duplicate-row fixtures are green; production
+capture/commit, module drain, FACTSESSION, and CUT0 remain disconnected.
 
 ## ACCESS0-REWRITE-KNOWN-S0 closeout
 

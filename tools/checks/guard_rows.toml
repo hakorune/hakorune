@@ -118,7 +118,7 @@ cmd = ["tools/checks/lib/mirbuilder_fieldstore_observe_authority_guard.py", "."]
 
 [[rows]]
 id = "mirbuilder-headerport-candidate0"
-label = "HEADERPORT0 Candidate0 disconnected shell/failure guard"
+label = "HEADERPORT0 Candidate0 disconnected shell/failure and route guard"
 profiles = ["pilot"]
 cmd = ["tools/checks/lib/headerport_candidate0_guard.py", "."]
 

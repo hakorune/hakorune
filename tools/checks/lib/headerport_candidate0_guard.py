@@ -14,6 +14,7 @@ import pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 CANDIDATE = ROOT / "src/mir/builder/module_lowering_invocation_candidate.rs"
+CANDIDATE_P0 = ROOT / "src/mir/builder/module_lowering_invocation_candidate_p0.rs"
 BUILDER_MOD = ROOT / "src/mir/builder.rs"
 CARD = ROOT / (
     "docs/development/current/main/investigations/"
@@ -34,12 +35,15 @@ def forbid(text: str, fragment: str, label: str) -> None:
 
 def main() -> int:
     candidate = CANDIDATE.read_text()
+    candidate_p0 = CANDIDATE_P0.read_text()
     builder_mod = BUILDER_MOD.read_text()
     card = CARD.read_text()
     state = STATE.read_text()
 
     if len(candidate.splitlines()) >= 800:
         raise AssertionError("Candidate0 source must remain below 800 lines")
+    if len(candidate_p0.splitlines()) >= 800:
+        raise AssertionError("Candidate0 P0 source must remain below 800 lines")
 
     for fragment in (
         "ModuleLoweringInvocationCandidateV1",
@@ -55,6 +59,17 @@ def main() -> int:
         "builder_borrow_is_scoped_to_active_lowering_only",
     ):
         require(candidate, fragment, "Candidate0-S0 vocabulary/fixture")
+    for fragment in (
+        "InvocationCandidateRouteProofBuilderV1",
+        "InvocationCandidateRouteProofV1",
+        "UnexpectedRoute",
+        "candidate_abort_proof_co_seals_all_nine_route_rows",
+        "duplicate_route_is_rejected_before_seal",
+        "InvocationRouteMatrixV1::rows()",
+        "InvocationCandidatePublicationV1::Unchanged",
+        "InvocationCandidateRetryV1::Forbidden",
+    ):
+        require(candidate_p0, fragment, "Candidate0-P0 route co-seal/fixture")
 
     # The candidate may mention MirBuilder only as a short-lived method
     # parameter.  It must not store a Builder or expose a module map.
@@ -69,7 +84,7 @@ def main() -> int:
     require(builder_mod, "mod module_lowering_invocation_candidate;", "Candidate0 module registration")
     other_builder_files = []
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
-        if path == CANDIDATE or path == BUILDER_MOD:
+        if path in (CANDIDATE, CANDIDATE_P0, BUILDER_MOD):
             continue
         if "ModuleLoweringInvocationCandidateV1" in path.read_text():
             other_builder_files.append(str(path.relative_to(ROOT)))
@@ -78,10 +93,22 @@ def main() -> int:
             "Candidate0 production/test consumer exists outside the disconnected owner: "
             + ", ".join(other_builder_files)
         )
+    for symbol in (
+        "InvocationCandidateRouteProofBuilderV1",
+        "InvocationCandidateRouteProofV1",
+    ):
+        for path in (ROOT / "src/mir/builder").rglob("*.rs"):
+            if path in (CANDIDATE_P0, BUILDER_MOD) or path.name.endswith("_tests.rs"):
+                continue
+            if symbol in path.read_text():
+                raise AssertionError(
+                    f"Candidate0-P0 production consumer exists: {path.relative_to(ROOT)}"
+                )
 
     for fragment in (
         "HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-S0 (closed)",
-        "HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-P0",
+        "HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-P0 (closed)",
+        "HEADERPORT0-REENTRANT-TERM0-I0\n  next: one all-route production capture/commit cutover",
         "one disconnected invocation-owned shell/collector candidate",
         "typed abort/no-publication/no-retry proof",
         "production capture/commit remains forbidden",
@@ -90,7 +117,7 @@ def main() -> int:
         require(card, fragment, "Candidate0 task boundary")
     require(
         state,
-        "HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-P0 is next",
+        "HEADERPORT0-REENTRANT-TERM0-I0 is next",
         "current Candidate0 pointer",
     )
 

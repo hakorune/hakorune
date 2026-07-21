@@ -61,6 +61,8 @@ mod module_lowering_access_port; // HEADERPORT0 I0-ACCESS0-S0 disconnected vocab
 mod module_lowering_invocation;
 #[allow(dead_code)]
 mod module_lowering_invocation_candidate; // HEADERPORT0 CANDIDATE0-S0 disconnected abort owner
+#[allow(dead_code)]
+mod module_lowering_invocation_candidate_p0; // HEADERPORT0 CANDIDATE0-P0 route co-seal
 #[cfg(test)]
 mod module_lowering_invocation_legacyterm_tests;
 #[cfg(test)]
