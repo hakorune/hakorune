@@ -1,6 +1,6 @@
 # HEADERPORT0-ACCESS0: `me` method header ownership consultation
 
-Status: **Candidate A-prime typed-source refinement selected; S0 closed; P0 next;
+Status: **Candidate A-prime typed-source refinement selected; S0/P0 closed; I0 next;
 production I0 and CUT0 remain disconnected**
 
 Date: 2026-07-21
@@ -147,10 +147,10 @@ ACCESS0-MEHEADER-CONSULT0
   this decision; code delta = 0
 
 ACCESS0-MEHEADER-S0
-  disconnected owned parameter observation and matrix
+  (closed) disconnected owned parameter observation and matrix
 
 ACCESS0-MEHEADER-P0
-  legacy/raw/located parity and no-fallback proof
+  (closed) legacy/raw/located parity and no-fallback proof
 
 ACCESS0-MEHEADER-I0
   invocation raw method terminal only
@@ -199,8 +199,41 @@ current_module fallback changes = 0
 Three focused fixtures cover source-branded miss, first-parameter `Box`
 instance preparation, and empty/non-`Box` static preparation. The reusable
 S0 guard is `tools/checks/lib/me_call_header_observation_guard.py`.
-`ACCESS0-MEHEADER-P0` is next; it must first prove legacy/raw/invocation/
-located parity and loan-before-argument descent before I0.
+`ACCESS0-MEHEADER-P0` is now closed as a disconnected proof; I0 must still
+prove the same laws while connecting only the shared `MeCallPolicyBox`.
+
+## ACCESS0-MEHEADER-P0 closeout
+
+The P0 matrix keeps the three route families on their selected header source:
+
+```text
+legacy compatibility:
+  ModuleCompatibility
+
+located compatibility:
+  ModuleCompatibility, with no collector capability
+
+invocation raw:
+  InvocationCollector only
+```
+
+The disconnected fixtures prove that compatibility and invocation signatures
+do not cross-contaminate, an invocation miss remains `Missing` even when a
+stale module signature exists, and the owned observation can be followed by a
+header mutation before preparation. The source guard also proves that existing
+strict/warning arity diagnostics remain after `lower_all`, so P0 does not move
+error timing ahead of argument descent.
+
+```text
+source miss fallback = 0
+long-lived header loan = 0
+MeCallPolicyBox consumers = 0
+production method-port consumers = 0
+```
+
+`ACCESS0-MEHEADER-I0` is the next row. It may connect only the shared policy;
+terminal-time lookup/result annotation and production MODULEDRAFT/FACTSESSION
+capture remain outside this row.
 
 ## Required fixtures
 

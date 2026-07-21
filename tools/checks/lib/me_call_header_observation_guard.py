@@ -60,10 +60,16 @@ def main() -> int:
         require(source, fragment, "S0 fixture")
     forbid(source, "current_module", "S0 implicit module fallback")
     forbid(source, "collector: &", "S0 stored collector reference")
-    if source.count("impl MeCallHeaderObservationPortV1") != 0:
+    production_source = source.split("#[cfg(test)]", 1)[0]
+    if "impl MeCallHeaderObservationPortV1" in production_source:
         raise AssertionError("S0 production observation consumers must be zero")
     if "MeCallParameterObservationV1" in handler:
         raise AssertionError("MeCallPolicyBox must remain disconnected through S0")
+    descent_at = handler.index("let arg_values = descent.lower_all(builder)?;")
+    instance_arity_at = handler.index("if expected_params != provided_instance")
+    static_arity_at = handler.index("if expected_params != provided_static")
+    if not descent_at < instance_arity_at or not descent_at < static_arity_at:
+        raise AssertionError("P0 arity diagnostics moved before argument descent")
     for fragment in (
         "ACCESS0-MEHEADER-S0",
         "typed-source refinement",

@@ -190,6 +190,23 @@ mod tests {
         }
     }
 
+    struct TestObservationPort {
+        source: MeCallHeaderSourceV1,
+        headers: FakeHeaders,
+        observations: usize,
+    }
+
+    impl MeCallHeaderObservationPortV1 for TestObservationPort {
+        fn observe_me_call_parameters(
+            &mut self,
+            _builder: &MirBuilder,
+            symbol: &str,
+        ) -> MeCallParameterObservationV1 {
+            self.observations += 1;
+            MeCallParameterObservationV1::from_lookup(self.source, symbol, &self.headers)
+        }
+    }
+
     #[test]
     fn source_branded_missing_does_not_become_present() {
         let headers = FakeHeaders::default();
@@ -240,5 +257,104 @@ mod tests {
         let prepared = prepare_me_lowered_call_v1(observation, Some(ValueId(9))).unwrap();
         assert_eq!(prepared.expected_params(), 0);
         assert_eq!(prepared.receiver(), &PreparedMeReceiverV1::Static);
+    }
+
+    #[test]
+    fn route_source_matrix_keeps_missing_header_typed() {
+        let builder = MirBuilder::new();
+        let mut routes = [
+            TestObservationPort {
+                source: MeCallHeaderSourceV1::ModuleCompatibility,
+                headers: FakeHeaders::default(),
+                observations: 0,
+            },
+            TestObservationPort {
+                source: MeCallHeaderSourceV1::InvocationCollector,
+                headers: FakeHeaders::default(),
+                observations: 0,
+            },
+        ];
+
+        for route in &mut routes {
+            let observation = route.observe_me_call_parameters(&builder, "Box.m/1");
+            assert!(matches!(
+                observation,
+                MeCallParameterObservationV1::Missing { .. }
+            ));
+            assert_eq!(observation.source(), route.source);
+            assert_eq!(route.observations, 1);
+            assert!(prepare_me_lowered_call_v1(observation, None).is_none());
+        }
+    }
+
+    #[test]
+    fn owned_observation_ends_header_loan_before_mutation() {
+        let mut headers = FakeHeaders::default();
+        headers.insert("Box.m/1", vec![MirType::Box("Box".to_string())]);
+        let mut port = TestObservationPort {
+            source: MeCallHeaderSourceV1::InvocationCollector,
+            headers,
+            observations: 0,
+        };
+        let builder = MirBuilder::new();
+        let observation = port.observe_me_call_parameters(&builder, "Box.m/1");
+
+        // This mutation is legal immediately after observation: no lookup loan
+        // is retained by the owned product.
+        port.headers.insert("Box.m/1", vec![]);
+
+        let prepared = prepare_me_lowered_call_v1(observation, Some(ValueId(3))).unwrap();
+        assert_eq!(prepared.expected_params(), 1);
+        assert_eq!(
+            prepared.receiver(),
+            &PreparedMeReceiverV1::Instance {
+                me: Some(ValueId(3))
+            }
+        );
+        assert_eq!(port.observations, 1);
+    }
+
+    #[test]
+    fn compatibility_and_invocation_sources_keep_their_own_header_truth() {
+        let mut module_headers = FakeHeaders::default();
+        module_headers.insert("Box.m/1", vec![MirType::Integer]);
+        let mut collector_headers = FakeHeaders::default();
+        collector_headers.insert("Box.m/1", vec![MirType::Box("Box".to_string())]);
+        let module_observation = MeCallParameterObservationV1::from_lookup(
+            MeCallHeaderSourceV1::ModuleCompatibility,
+            "Box.m/1",
+            &module_headers,
+        );
+        let located_observation = MeCallParameterObservationV1::from_lookup(
+            MeCallHeaderSourceV1::ModuleCompatibility,
+            "Box.m/1",
+            &module_headers,
+        );
+        let invocation_observation = MeCallParameterObservationV1::from_lookup(
+            MeCallHeaderSourceV1::InvocationCollector,
+            "Box.m/1",
+            &collector_headers,
+        );
+
+        assert_eq!(
+            prepare_me_lowered_call_v1(module_observation, None)
+                .unwrap()
+                .receiver(),
+            &PreparedMeReceiverV1::Static
+        );
+        assert_eq!(
+            prepare_me_lowered_call_v1(located_observation, None)
+                .unwrap()
+                .receiver(),
+            &PreparedMeReceiverV1::Static
+        );
+        assert_eq!(
+            prepare_me_lowered_call_v1(invocation_observation, Some(ValueId(11)))
+                .unwrap()
+                .receiver(),
+            &PreparedMeReceiverV1::Instance {
+                me: Some(ValueId(11))
+            }
+        );
     }
 }

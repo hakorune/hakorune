@@ -1,8 +1,8 @@
 # HEADERPORT0-REENTRANT-TERM0-I0: production cutover consultation
 
 Status: **STATE0-S0/P0/I0/G0, CONSULT0, ACCESS0-S0, and
-ACCESS0-MEHEADER-S0 are closed; ACCESS0-MEHEADER-P0 is next, and production
-cutover remains disconnected**
+ACCESS0-MEHEADER-S0/P0 are closed; ACCESS0-MEHEADER-I0 is next, and
+production cutover remains disconnected**
 
 Date: 2026-07-21
 
@@ -445,7 +445,10 @@ HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-P0
     disconnected owned observation and pure receiver/arity prepare
 
   ACCESS0-MEHEADER-P0
-    legacy/raw/invocation/located parity and loan-before-arguments proof
+    (closed) legacy/raw/invocation/located parity and loan-before-arguments proof
+
+  ACCESS0-MEHEADER-I0
+    connect only the shared `MeCallPolicyBox` to the typed observation
 
   ACCESS0-REWRITE-KNOWN-P0
     parity matrix and invocation-path lookup threading
@@ -462,9 +465,9 @@ CANDIDATE0-P0 are green.  This decision closes the consultation boundary but
 does not claim any production route has been rewired.
 
 The `me` method reader consultation selected Candidate A-prime with a
-typed-source refinement. Its disconnected S0 vocabulary is closed; no
-implementation may connect the shared handler until ACCESS0-MEHEADER-P0 proves
-legacy/raw/invocation/located parity and loan-before-argument descent.
+typed-source refinement. Its disconnected S0/P0 vocabulary and parity proof
+are closed; I0 may connect only the shared handler, while production capture/
+commit and CUT0 remain disconnected.
 
 ## ACCESS0-REWRITE-KNOWN-S0 closeout
 
