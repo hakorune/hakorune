@@ -140,6 +140,18 @@ impl UnpublishedFunctionDraftV1<'_> {
 /// header cache and it cannot expose function body or metadata authority.
 pub(in crate::mir::builder) trait CompletedDraftSignatureViewV1 {
     fn signature(&self, symbol: &str) -> Option<&FunctionSignature>;
+
+    /// Exact header presence without exposing a second draft store.
+    fn contains_symbol(&self, symbol: &str) -> bool;
+
+    /// Deterministic header inventory cardinality.
+    fn symbol_count(&self) -> usize;
+
+    /// Visit exact owned draft symbols in deterministic collector order.
+    ///
+    /// This is deliberately a visitor instead of a cloned header list. The
+    /// collector's `BTreeMap` remains the sole inventory owner.
+    fn visit_symbols(&self, visitor: &mut dyn FnMut(&str));
 }
 
 /// Single owner for all module-invocation unpublished function drafts.
@@ -229,6 +241,20 @@ impl CompletedDraftSignatureViewV1 for ModuleDraftCollectorV1 {
         let key = self.key_by_symbol.get(symbol)?;
         self.drafts.get(key).map(|draft| &draft.draft.signature)
     }
+
+    fn contains_symbol(&self, symbol: &str) -> bool {
+        self.key_by_symbol.contains_key(symbol)
+    }
+
+    fn symbol_count(&self) -> usize {
+        self.key_by_symbol.len()
+    }
+
+    fn visit_symbols(&self, visitor: &mut dyn FnMut(&str)) {
+        for symbol in self.key_by_symbol.keys() {
+            visitor(symbol);
+        }
+    }
 }
 
 #[cfg(test)]
@@ -252,7 +278,7 @@ mod tests {
     }
 
     #[test]
-    fn signature_view_borrows_the_same_collector_owned_draft() {
+    fn header_view_borrows_the_same_collector_owned_draft() {
         let mut collector = ModuleDraftCollectorV1::default();
         let prepared = collector
             .prepare_admission(
@@ -267,6 +293,32 @@ mod tests {
         let signature = collector.signature("Parser.skip/1").unwrap();
         assert_eq!(signature.params, vec![MirType::Integer]);
         assert_eq!(signature.return_type, MirType::Integer);
+        assert!(collector.contains_symbol("Parser.skip/1"));
+        assert!(!collector.contains_symbol("Parser.missing/0"));
+        assert_eq!(collector.symbol_count(), 1);
+    }
+
+    #[test]
+    fn header_view_visits_same_owned_symbols_in_deterministic_order() {
+        let mut collector = ModuleDraftCollectorV1::default();
+        for symbol in ["Zeta.run/0", "Alpha.run/2"] {
+            let arity = symbol.rsplit_once('/').unwrap().1.parse::<usize>().unwrap();
+            let prepared = collector
+                .prepare_admission(
+                    FunctionDraftKeyV1::LegacySymbol(symbol.into()),
+                    symbol.into(),
+                    arity,
+                    DraftPublicationPolicyV1::LegacyReplaceWholePair,
+                )
+                .unwrap();
+            prepared.seal(draft(symbol, arity)).unwrap().collect();
+        }
+
+        let mut visited = Vec::new();
+        collector.visit_symbols(&mut |symbol| visited.push(symbol.to_owned()));
+        assert_eq!(visited, ["Alpha.run/2", "Zeta.run/0"]);
+        assert_eq!(collector.symbol_count(), 2);
+        assert_eq!(collector.signature("Alpha.run/2").unwrap().params.len(), 2);
     }
 
     #[test]
