@@ -60,6 +60,8 @@ mod module_lowering_invocation_legacyterm_tests;
 #[cfg(test)]
 mod module_lowering_invocation_reentrant_tests;
 #[allow(dead_code)]
+mod module_lowering_invocation_state; // HEADERPORT0 I0-STATE0-S0 disconnected seam
+#[allow(dead_code)]
 mod module_lowering_shell; // HEADERPORT0 I0-SHELL-S0 disconnected shell
 mod raw_expression_dispatch; // single raw AST expression dispatcher
 #[allow(dead_code)]

@@ -23,6 +23,7 @@ PORT_AWARE_DRAFT = ROOT / "src/mir/builder/port_aware_function_draft.rs"
 MODULE_SHELL = ROOT / "src/mir/builder/module_lowering_shell.rs"
 INVOCATION_DRAIN = ROOT / "src/mir/builder/module_invocation_drain.rs"
 ROUTE_MATRIX = ROOT / "src/mir/builder/module_invocation_route_matrix.rs"
+INVOCATION_STATE = ROOT / "src/mir/builder/module_lowering_invocation_state.rs"
 PENDING_TERMINAL = ROOT / "src/mir/builder/calls/function_session/terminal.rs"
 LEGACYTERM_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_legacyterm_tests.rs"
 RAWPORT_TESTS = ROOT / "src/mir/builder/recursive_child_lowering_rawport_tests.rs"
@@ -157,6 +158,7 @@ def main() -> int:
     module_shell = read(MODULE_SHELL)
     invocation_drain = read(INVOCATION_DRAIN)
     route_matrix = read(ROUTE_MATRIX)
+    invocation_state = read(INVOCATION_STATE)
     builder = read(BUILDER)
     compilation = read(COMPILATION)
     pending_terminal = read(PENDING_TERMINAL)
@@ -213,8 +215,24 @@ def main() -> int:
         "binding_ssa_recursive_module",
     ):
         require(route_matrix, fragment, "HEADERPORT0 I0-SHELL-I0-P0 route matrix")
+    for fragment in (
+        "RootCompletionStateV1",
+        "ModuleLoweringInvocationStateV1",
+        "shell: ModuleLoweringShellV1",
+        "collector: ModuleDraftCollectorV1",
+        "root: RootCompletionStateV1",
+        "state_owns_empty_shell_and_collector_without_exposing_function_map",
+        "state_parts_are_consumed_together_at_the_drain_boundary",
+    ):
+        require(invocation_state, fragment, "HEADERPORT0 I0-STATE0-S0 vocabulary")
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
-        if path in (INVOCATION_DRAIN, MODULE_SHELL, ROUTE_MATRIX, MODULE_DRAFT) or path.name.endswith("_tests.rs"):
+        if path in (
+            INVOCATION_DRAIN,
+            MODULE_SHELL,
+            ROUTE_MATRIX,
+            INVOCATION_STATE,
+            MODULE_DRAFT,
+        ) or path.name.endswith("_tests.rs"):
             continue
         forbid(
             read(path),
@@ -225,6 +243,11 @@ def main() -> int:
             read(path),
             "InvocationRouteMatrixV1",
             f"HEADERPORT0 I0-SHELL-I0-P0 disconnected matrix consumer {path.relative_to(ROOT)}",
+        )
+        forbid(
+            read(path),
+            "ModuleLoweringInvocationStateV1",
+            f"HEADERPORT0 I0-STATE0-S0 disconnected state consumer {path.relative_to(ROOT)}",
         )
     for fragment in (
         "shell_metadata_port_is_the_only_narrow_metadata_write_surface",

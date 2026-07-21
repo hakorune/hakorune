@@ -1,7 +1,7 @@
 # HEADERPORT0-REENTRANT-TERM0-I0: production cutover consultation
 
-Status: **design stop; I0-SHELL-I0-P0 is closed, production cutover is not
-admitted**
+Status: **STATE0-S0 is closed; STATE0-P0 is next, production cutover remains
+disconnected**
 
 Date: 2026-07-21
 
@@ -192,5 +192,38 @@ module finalization repair removal
 CUT0
 ```
 
-The parent P0 matrix remains green and the working tree may only advance to
-the disconnected `STATE0-S0` row after this consultation is accepted.
+The parent P0 matrix remains green; this consultation admitted only the
+disconnected `STATE0-S0` row before any production cutover.
+
+## STATE0-S0 closeout
+
+The disconnected ownership seam now lives in
+`src/mir/builder/module_lowering_invocation_state.rs`:
+
+```text
+ModuleLoweringInvocationStateV1
+  owns one ModuleLoweringShellV1
+  owns one ModuleDraftCollectorV1
+  owns one RootCompletionStateV1 marker
+```
+
+The existing `ModuleLoweringInvocationDrainOwnerV1` now owns this state
+product rather than carrying a parallel shell/collector pair.  It still
+performs the same preflight and single-use drain, so no production root or
+Builder consumer was connected.  The state exposes only borrowed shell and
+collector capabilities plus an consuming `into_parts` transition at the
+drain boundary; it exposes no function map, Builder, `TypeContext`, or
+fallback lookup.
+
+Focused state fixtures prove:
+
+```text
+empty shell + empty collector ownership
+shell/collector/root marker consumed together at drain boundary
+```
+
+The next code-facing row is
+`HEADERPORT0-REENTRANT-TERM0-I0-STATE0-P0`: map all 14 source-reader rows to
+the state/header/shell/lifecycle owners and prove that no lowering-time reader
+requires a completed function body.  Production capture/commit and `CUT0`
+remain forbidden.

@@ -5,6 +5,7 @@
 //! final function batch are checked before either owner is consumed.
 
 use super::module_draft_collector::{CompletedDraftSignatureViewV1, ModuleDraftCollectorV1};
+use super::module_lowering_invocation_state::ModuleLoweringInvocationStateV1;
 use super::module_lowering_shell::{
     ModuleLoweringShellDrainInventoryV1, ModuleLoweringShellErrorV1, ModuleLoweringShellV1,
 };
@@ -65,14 +66,12 @@ impl InvocationDrainExpectationV1 {
 /// allowed to turn a preflight result into a single-use drain product.
 #[derive(Debug)]
 pub(in crate::mir::builder) struct ModuleLoweringInvocationDrainOwnerV1 {
-    shell: ModuleLoweringShellV1,
-    collector: ModuleDraftCollectorV1,
+    state: ModuleLoweringInvocationStateV1,
 }
 
 #[derive(Debug)]
 pub(in crate::mir::builder) struct PreparedInvocationDrainV1 {
-    shell: ModuleLoweringShellV1,
-    collector: ModuleDraftCollectorV1,
+    state: ModuleLoweringInvocationStateV1,
     expectation: InvocationDrainExpectationV1,
     _seal: PreparedInvocationDrainSealV1,
 }
@@ -85,7 +84,9 @@ impl ModuleLoweringInvocationDrainOwnerV1 {
         shell: ModuleLoweringShellV1,
         collector: ModuleDraftCollectorV1,
     ) -> Self {
-        Self { shell, collector }
+        Self {
+            state: ModuleLoweringInvocationStateV1::new(shell, collector),
+        }
     }
 
     /// All checks run while both owners are still borrowed by this object.
@@ -93,14 +94,15 @@ impl ModuleLoweringInvocationDrainOwnerV1 {
         self,
         expectation: InvocationDrainExpectationV1,
     ) -> Result<PreparedInvocationDrainV1, InvocationDrainPreflightErrorV1> {
-        if self.shell.has_published_functions() {
+        if self.state.shell().has_published_functions() {
             return Err(InvocationDrainPreflightErrorV1::ShellAlreadyPublished {
-                count: self.shell.published_function_count(),
+                count: self.state.shell().published_function_count(),
             });
         }
 
         let mut actual = Vec::new();
-        self.collector
+        self.state
+            .collector()
             .visit_symbols(&mut |symbol| actual.push(symbol.to_owned()));
         let actual = actual.into_boxed_slice();
         if actual.as_ref() != expectation.inventory.symbols() {
@@ -110,22 +112,25 @@ impl ModuleLoweringInvocationDrainOwnerV1 {
             });
         }
 
-        if expectation.require_main && !self.collector.contains_symbol("main") {
+        if expectation.require_main && !self.state.collector().contains_symbol("main") {
             return Err(InvocationDrainPreflightErrorV1::MissingMain);
         }
         match expectation.condition_fn {
-            ConditionFnPolicyV1::Required if !self.collector.contains_symbol("condition_fn") => {
+            ConditionFnPolicyV1::Required
+                if !self.state.collector().contains_symbol("condition_fn") =>
+            {
                 return Err(InvocationDrainPreflightErrorV1::MissingConditionFn)
             }
-            ConditionFnPolicyV1::Forbidden if self.collector.contains_symbol("condition_fn") => {
+            ConditionFnPolicyV1::Forbidden
+                if self.state.collector().contains_symbol("condition_fn") =>
+            {
                 return Err(InvocationDrainPreflightErrorV1::UnexpectedConditionFn)
             }
             _ => {}
         }
 
         Ok(PreparedInvocationDrainV1 {
-            shell: self.shell,
-            collector: self.collector,
+            state: self.state,
             expectation,
             _seal: PreparedInvocationDrainSealV1,
         })
@@ -136,8 +141,9 @@ impl PreparedInvocationDrainV1 {
     /// The only S0 terminal.  Preflight has closed every fallible check, so
     /// this consumes both owners and returns the assembled module directly.
     pub(in crate::mir::builder) fn drain(self) -> MirModule {
-        let functions = self.collector.into_draft_functions();
-        self.shell
+        let (shell, collector, _root) = self.state.into_parts();
+        let functions = collector.into_draft_functions();
+        shell
             .prepare_drain(self.expectation.inventory)
             .commit_preflighted(functions)
     }
