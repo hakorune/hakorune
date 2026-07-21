@@ -405,7 +405,11 @@ impl super::MirBuilder {
 
             ASTNode::Call {
                 callee, arguments, ..
-            } => self.build_indirect_call_expression(*callee.clone(), arguments.clone()),
+            } => self.build_indirect_call_expression_with_port_v1(
+                port,
+                *callee.clone(),
+                arguments.clone(),
+            ),
 
             ASTNode::QMarkPropagate { expression, .. } => {
                 self.build_qmark_propagate_expression_with_port_v1(port, *expression.clone())
