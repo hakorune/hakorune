@@ -17,6 +17,7 @@ BUILDER = ROOT / "src/mir/builder.rs"
 COMPILATION = ROOT / "src/mir/builder/compilation_context.rs"
 INVOCATION = ROOT / "src/mir/builder/module_lowering_invocation.rs"
 PENDING_TERMINAL = ROOT / "src/mir/builder/calls/function_session/terminal.rs"
+LEGACYTERM_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_legacyterm_tests.rs"
 
 P0_DIRECT_HEADER_READER_FRAGMENTS = {
     "src/mir/builder/calls/annotation.rs": "module.functions.get(name)",
@@ -52,6 +53,7 @@ def main() -> int:
     builder = read(BUILDER)
     compilation = read(COMPILATION)
     pending_terminal = read(PENDING_TERMINAL)
+    legacyterm_tests = read(LEGACYTERM_TESTS)
 
     for fragment in (
         "struct LoweringHeaderPortV1",
@@ -149,6 +151,21 @@ def main() -> int:
             f"RAWPORT0 S0 production caller {relative}",
         )
 
+    for fragment in (
+        "legacy_child_primary_and_during_cleanup_restore_without_collection",
+        "legacy_child_success_cleanup_failure_restores_without_collection",
+        "legacy_child_unwind_restores_without_collection",
+        "legacy_child_port_receives_exact_static_and_instance_box_bodies",
+        "NyashParser::parse_from_string",
+        "complete_legacy_child",
+    ):
+        require(legacyterm_tests, fragment, "LEGACYTERM0 P0 proof")
+    forbid(
+        legacyterm_tests,
+        "drive_legacy_expression_v1",
+        "LEGACYTERM0 P0 duplicate raw dispatcher",
+    )
+
     for fragment in ("thread_local", "OnceLock", "static ", "derive(Clone)"):
         forbid(invocation, fragment, "HEADERPORT0 external invocation")
     for fragment in ("LoweringHeaderPortV1", "ModuleDraftCollectorV1"):
@@ -161,7 +178,7 @@ def main() -> int:
     print(
         "[module-draft-headerport-guard] ok "
         f"p0_reader_families={len(P0_DIRECT_HEADER_READER_FRAGMENTS)} "
-        "legacyterm0_s0_production_consumers=0"
+        "legacyterm0_p0_production_consumers=0"
     )
     return 0
 

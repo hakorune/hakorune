@@ -1,7 +1,7 @@
 ---
 Status: `HEADERPORT0-RAWPORT0-SELECT/S0/M0-T0/R0` and
-  `HEADERPORT0-RAWPORT0-LEGACYTERM0-S0` are closed;
-  `HEADERPORT0-RAWPORT0-LEGACYTERM0-P0` is next
+  `HEADERPORT0-RAWPORT0-LEGACYTERM0-S0/P0` are closed;
+  `HEADERPORT0-RAWPORT0-LEGACYTERM0-I0` is next
 Date: 2026-07-21
 Scope: one atomic `FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0` cutover
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-task-2026-07-20.md
@@ -29,8 +29,9 @@ CompilationContext field, TLS value, cache, second draft store, or fallback.
 The one semantic activation is the final atomic cutover.  Earlier I0 steps
 are buildable BoxShape preparation only and keep production consumers at zero.
 The raw recursive re-entrancy audit, passive S0 vocabulary, and port-owned
-resolved terminal and raw recursive threading are closed.  The next
-code-facing row is `RAWPORT0-LEGACYTERM0-P0`.
+resolved terminal, raw recursive threading, and the disconnected legacy
+terminal proof are closed.  The next code-facing row is
+`RAWPORT0-LEGACYTERM0-I0`.
 
 ## Fixed terminal law
 
@@ -588,3 +589,38 @@ primary failure, unwind restoration, exact raw static/instance Box child body
 port transport, and no resolved identity fabrication while preserving collector
 delta zero on every non-success terminal.  Loop remains outside that proof and
 behind `RAWPORT0-LOOPBRIDGE0-SELECT`.
+
+## RAWPORT0-LEGACYTERM0-P0 closeout (2026-07-21)
+
+`LEGACYTERM0-P0` proves the disconnected terminal through the exact production
+shape; it does not yet wire the raw Box declaration branch.
+
+```text
+lower primary failure
+  -> collector delta = 0 -> parent restored
+
+lower primary + cleanup failure
+  -> collector delta = 0 -> parent restored
+
+successful lowering + cleanup failure
+  -> collector delta = 0 -> parent restored
+
+lower panic/unwind
+  -> collector delta = 0 -> parent restored -> unwind resumes
+```
+
+The fixture enters a real outer function, calls
+`ModuleLoweringPortV1::complete_legacy_child`, and observes the same collector
+through the header port after each terminal.  It does not use the FACTSESSION
+test observer or a duplicate raw expression dispatcher.  A separate parser
+fixture takes the exact `run` body from one `static box` and one instance `box`;
+the legacy port installs each exact body as the child `fn_body_ast` before the
+lower closure receives control.  The guard requires all four failure/body
+fixtures, the parser-backed body carrier, `LegacyReplaceWholePair`, and zero
+raw production callers.
+
+`HEADERPORT0-RAWPORT0-LEGACYTERM0-I0` is next.  It may wire only raw static and
+instance `BoxDeclaration` child bodies through this existing legacy terminal.
+It must retain the current legacy body/snapshot behavior, never route through a
+resolved owner, and leave constructors, Lambda, Loop, finalization, and every
+other raw child family untouched.  Loop remains a separate design selection.

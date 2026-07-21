@@ -49,6 +49,8 @@ mod method_call_handlers;
 mod module_completion_candidate;
 mod module_draft_collector;
 mod module_lowering_invocation;
+#[cfg(test)]
+mod module_lowering_invocation_legacyterm_tests;
 mod raw_expression_dispatch; // single raw AST expression dispatcher
 #[allow(unused_imports)]
 pub(in crate::mir) use located_legacy_lowering::{
