@@ -47,6 +47,8 @@ mod capability_tests;
 #[cfg(test)]
 mod finite_direct_call_tests;
 #[cfg(test)]
+mod module_session_borrow_p0_tests;
+#[cfg(test)]
 mod recursive_callable_module_activation_tests;
 #[cfg(test)]
 mod resolved_callable_module_preflight_tests;

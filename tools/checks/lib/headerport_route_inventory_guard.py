@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import pathlib
 
+from headerport_borrow_canonical_guard import verify_borrow_canonical_p0
+
 
 def require(text: str, fragment: str, label: str) -> None:
     if fragment not in text:
@@ -145,7 +147,7 @@ def verify_single_header_s0(
     require(card, "WIRING-I0-ROUTEINV-P0c-SINGLEHDR-P0 closeout", "single-header P0 closeout")
     require(
         state,
-        "P0e-MATRIX-G0 are closed; BORROW-D0 worker audit is closed; BORROW-S0 is closed; BORROW-P0-RAW is closed; WIRING-I0-BORROW-P0-CANONICAL",
+        "P0e-MATRIX-G0 are closed; BORROW-D0 worker audit is closed; BORROW-S0 is closed; BORROW-P0-RAW is closed; BORROW-P0-CANONICAL is closed; WIRING-I0-BORROW-P0-ROOT",
         "single-header downstream closed-state pointer",
     )
 
@@ -304,7 +306,7 @@ def verify_callable_batch_p0(
     require(card, "WIRING-I0-ROUTEINV-P0d-CALLABLE-P0 closeout", "P0d closeout")
     require(
         state,
-        "P0e-MATRIX-G0 are closed; BORROW-D0 worker audit is closed; BORROW-S0 is closed; BORROW-P0-RAW is closed; WIRING-I0-BORROW-P0-CANONICAL",
+        "P0e-MATRIX-G0 are closed; BORROW-D0 worker audit is closed; BORROW-S0 is closed; BORROW-P0-RAW is closed; BORROW-P0-CANONICAL is closed; WIRING-I0-BORROW-P0-ROOT",
         "P0d downstream closed-state pointer",
     )
 
@@ -494,7 +496,7 @@ def verify_borrow_schedule_s0(
     require(card, "WIRING-I0-BORROW-S0 closeout", "BORROW-S0 closeout")
     require(
         state,
-        "BORROW-S0 is closed; BORROW-P0-RAW is closed; WIRING-I0-BORROW-P0-CANONICAL",
+        "BORROW-S0 is closed; BORROW-P0-RAW is closed; BORROW-P0-CANONICAL is closed; WIRING-I0-BORROW-P0-ROOT",
         "BORROW-S0 downstream state pointer",
     )
 
@@ -580,7 +582,7 @@ def verify_borrow_raw_p0(
     require(card, "WIRING-I0-BORROW-P0-RAW closeout", "BORROW-P0-RAW closeout")
     require(
         state,
-        "BORROW-P0-RAW is closed; WIRING-I0-BORROW-P0-CANONICAL is next",
+        "BORROW-P0-RAW is closed; BORROW-P0-CANONICAL is closed; WIRING-I0-BORROW-P0-ROOT is next",
         "BORROW-P0-RAW downstream state pointer",
     )
 
@@ -711,3 +713,4 @@ def verify_route_inventory_extension(
     verify_route_matrix_g0(root, builder_mod, card)
     verify_borrow_schedule_s0(root, builder_mod, card, state)
     verify_borrow_raw_p0(root, card, state)
+    verify_borrow_canonical_p0(root, card, state)

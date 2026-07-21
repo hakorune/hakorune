@@ -2693,3 +2693,95 @@ HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-BORROW-P0-CANONICAL
 It must prove A+, trivial BindingSSA, acyclic BindingSSA, and recursive
 BindingSSA phase ordering while keeping immutable callable catalogs external
 to the collector and preserving the live Builder on every candidate failure.
+
+## WIRING-I0-BORROW-P0-CANONICAL closeout
+
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-BORROW-P0-CANONICAL` is closed
+without a production behavior change. The four canonical families retain
+their existing preflight and semantic authorities:
+
+```text
+CurrentCanonicalAPlus
+  preflight = CanonicalLoweringPreflightV1
+  header    = VerifiedResolvedOwnerHeaderV1
+
+TrivialBindingSsa
+  preflight = CanonicalLoweringPreflightV1
+  header    = VerifiedResolvedOwnerHeaderV1
+
+BindingSsaAcyclic
+  preflight = VerifiedAcyclicCallableModulePlanV1
+  headers   = VerifiedResolvedCallableModuleV1 source catalog
+
+BindingSsaRecursive
+  preflight = VerifiedRecursiveCallableModulePlanV1 + SCC partition
+  headers   = VerifiedResolvedCallableModuleV1 source catalog
+```
+
+All four converge on the same physical candidate lifetime:
+
+```text
+verified preflight / immutable catalog
+-> CanonicalModuleLoweringSessionV1::open
+-> route-owned candidate lowering
+-> finish_built_canonical_module
+-> post-transform verification
+-> consuming session.commit
+-> live Builder replacement exactly once
+```
+
+The source-order guard checks `open < finish < commit` independently for the
+first-family, acyclic, and recursive ingress bodies. A+ and trivial share the
+first-family post-match finish/commit terminal but keep distinct selected
+plans and finish schedules. Acyclic and recursive retain distinct verified
+graph/SCC plans and never borrow collector headers for semantic call
+resolution.
+
+Per-function callable inputs continue to derive `callable_index` and
+`callable_header` directly from the immutable resolved callable source
+catalog. The trivial direct-call emitter consumes that header and has no
+collector/header-port fallback.
+
+A focused test-only module now proves the shared candidate owner itself:
+
+```text
+candidate drop after independent state mutation
+  live repl_mode unchanged
+  live recursion depth unchanged
+
+consuming candidate commit
+  candidate repl_mode adopted
+  candidate recursion depth adopted
+  second commit structurally unavailable
+```
+
+The existing canonical verification failure, acyclic rejection-then-success,
+and recursive rejection-then-success fixtures remain the route-level reuse
+baseline. Late callable-draft failures still publish zero candidate functions;
+they do not authorize direct external publication.
+
+The canonical guard was placed in the focused reusable
+`headerport_borrow_canonical_guard.py` instead of growing the existing route
+guard to the 800-line boundary. All changed source/check files remain below
+800 lines.
+
+The following are intentionally not retired by this P0 row:
+
+```text
+VerifiedUnpublishedCallableDraftSetV1 direct publish side store
+current canonical production roots
+common collector connection
+route-owned drain
+post-drain finalizer
+external commit
+```
+
+Those remain CUT0 work. The sole next code-facing row is:
+
+```text
+HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-BORROW-P0-ROOT
+```
+
+It must prove the exact eleven-row invocation-completion schedule, raw-only
+Main phases versus the all-route common tail, and root-batch/shell/drain/
+finalizer failure atomicity before BORROW-G0.
