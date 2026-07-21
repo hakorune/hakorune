@@ -3625,3 +3625,52 @@ condition_fn, the canonical atomic callable batch, and root error/abort paths
 must use the same collector ownership surface; no second collector, header
 cache, direct `MirModule` insertion, fact-session lane move, PHI repair, or
 finalization reordering is admitted.
+
+#### MODULEDRAFT0-I0 design stop — external header-port prerequisite
+
+The terminal transition itself is feasible, but it is not an independently
+implementable I0 under Candidate A-prime.
+
+```text
+child terminal:
+  operation
+  -> validate_before_restore
+  -> prepare collector admission
+  -> seal
+  -> infallible collect
+  -> restore parent
+```
+
+The contradiction is earlier in the lowering lifetime. The collected draft is
+the only admitted source of completed-function headers, but current lowering
+reaches `current_module.functions` through only `&mut MirBuilder`. The M0
+header-only readers include call annotation/materialization, method-call
+handling, known-call rewriting, method-index construction, static resolution,
+and constructor/birth checks. Moving drafts out of that map without an explicit
+read port changes those observations. Keeping a hidden reference in
+`MirBuilder` or `CompilationContext`, retaining a header-only `MirModule`, or
+copying a header cache each creates a forbidden ambient or second truth.
+
+This is source evidence that invalidates the original *terminal-only* I0
+implementation owner. It is not permission to relax the collector law.
+
+```text
+MODULEDRAFT0-HEADERPORT0-SELECT  # current design frontier
+  select one invocation-owned, read-only header-query port
+  that is external to MirBuilder and CompilationContext
+
+  -> MODULEDRAFT0-HEADERPORT0-S0/P0/I0/G0
+  -> MODULEDRAFT0-I0
+```
+
+The selection must decide how the same collector-owned
+`CompletedDraftSignatureViewV1` reaches raw and canonical lowering without a
+Builder field, thread-local state, cloned header cache, second draft store, or
+direct `MirModule` insertion. It must cover the legacy AST lowering fanout,
+the resolved/Binding-SSA child terminal, the canonical callable batch adapter,
+and main completion. Header reads remain read-only; function body and metadata
+reads are still a stop.
+
+Until that port is selected, I0 must not change a child terminal, main
+finalization, or callable-batch publication. FACTSESSION, PHI repair, JoinIR,
+finalization repair, MODULETX activation, and CUT0 remain outside this stop.
