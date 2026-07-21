@@ -6,7 +6,8 @@
 
 use std::collections::BTreeSet;
 
-use crate::mir::function::ModuleMetadata;
+use crate::ast::ASTNode;
+use crate::mir::function::{ClosureBodyId, ModuleMetadata, StaticDataPlan};
 use crate::mir::{ConstValue, MirFunction, MirModule};
 
 #[derive(Debug, PartialEq, Eq)]
@@ -175,6 +176,31 @@ impl ModuleLoweringShellPortV1<'_> {
     pub(in crate::mir::builder) fn set_optimization_level(&mut self, level: u32) {
         self.shell.module.metadata.optimization_level = level;
     }
+
+    /// Explicit shell-owned closure metadata write.  ACCESS0-P0 uses this
+    /// instead of allowing a port-aware body to reach through `current_module`.
+    pub(in crate::mir::builder) fn intern_closure_body(
+        &mut self,
+        body: Vec<ASTNode>,
+    ) -> Option<ClosureBodyId> {
+        if body.is_empty() {
+            return None;
+        }
+        Some(self.shell.module.intern_closure_body(body))
+    }
+
+    /// Explicit shell-owned static-data-plan lookup.  The returned plan is
+    /// borrowed only for the current operation and never becomes a header or
+    /// collector entry.
+    pub(in crate::mir::builder) fn static_data_plan(
+        &self,
+        source_name: &str,
+    ) -> Option<&StaticDataPlan> {
+        crate::mir::static_data_plan::find_static_data_plan(
+            &self.shell.module.metadata.static_data_plans,
+            source_name,
+        )
+    }
 }
 
 impl PreparedModuleLoweringShellDrainV1 {
@@ -331,6 +357,36 @@ mod tests {
             Some("source.hako")
         );
         assert_eq!(shell.module.metadata.optimization_level, 3);
+        assert!(!shell.has_published_functions());
+    }
+
+    #[test]
+    fn shell_metadata_port_owns_closure_and_static_plan_operations() {
+        let mut shell =
+            ModuleLoweringShellV1::from_empty_module(MirModule::new("main".to_owned())).unwrap();
+        shell
+            .module
+            .metadata
+            .static_data_plans
+            .push(StaticDataPlan {
+                source_name: "digits".to_owned(),
+                symbol: ".hako.static.digits".to_owned(),
+                element: "u16".to_owned(),
+                align: 2,
+                linkage: "private".to_owned(),
+                unnamed_addr: true,
+                values: vec![1, 2, 3],
+            });
+        shell.with_port(|port| {
+            let body = ASTNode::Program {
+                statements: Vec::new(),
+                span: crate::ast::Span::unknown(),
+            };
+            let body_id = port.intern_closure_body(vec![body]).unwrap();
+            assert!(port.static_data_plan("digits").is_some());
+            assert_eq!(body_id, 0);
+        });
+        assert!(shell.module.closure_body(0).is_some());
         assert!(!shell.has_published_functions());
     }
 }

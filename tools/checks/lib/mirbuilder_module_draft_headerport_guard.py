@@ -262,6 +262,12 @@ def main() -> int:
         "access_port_contract_has_exact_three_surfaces",
     ):
         require(access_port, fragment, "HEADERPORT0 I0-ACCESS0-S0 vocabulary")
+    for fragment in (
+        "intern_closure_body",
+        "static_data_plan",
+        "shell_metadata_port_owns_closure_and_static_plan_operations",
+    ):
+        require(module_shell, fragment, "HEADERPORT0 I0-ACCESS0-P0 shell surface")
     require(
         builder,
         "mod module_lowering_access_port",
