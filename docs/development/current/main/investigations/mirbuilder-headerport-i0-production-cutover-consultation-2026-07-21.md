@@ -2,7 +2,7 @@
 
 Status: **STATE0-S0/P0/I0/G0, CONSULT0, ACCESS0-S0, and
 ACCESS0-MEHEADER-S0/P0/I0/G0, ACCESS0-REWRITE-KNOWN-P0, ACCESS0-P0, and
-CANDIDATE0-S0/P0 are closed; production cutover I0 remains disconnected**
+CANDIDATE0-S0/P0 are closed; production I0 wiring is at a design stop**
 
 Date: 2026-07-21
 
@@ -466,14 +466,18 @@ HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-P0 (closed)
   duplicate/missing/drift rejection
   production consumers = 0
 
-HEADERPORT0-REENTRANT-TERM0-I0
-  next: one all-route production capture/commit cutover
+HEADERPORT0-REENTRANT-TERM0-I0-WIRING-CONSULT0
+  current design-stop frontier: shell-aware root wiring and port-aware
+  finalizer must be sealed before production capture/commit
+
+HEADERPORT0-REENTRANT-TERM0-I0-WIRING-S0
+  next code-facing row after the design stop: live shell/header bundle,
+  port-aware Main/root entry, and explicit finalizer lookup
 ```
 
-The current production I0 remains disconnected until the all-route cutover
-row is explicitly implemented and green; `CUT0` remains forbidden.  This
-decision closes the consultation boundary but does not claim any production
-route has been rewired.
+The current production I0 remains disconnected until the shell-aware root
+wiring is implemented and green; `CUT0` remains forbidden.  This consultation
+does not claim any production route has been rewired.
 
 The `me` method reader consultation selected Candidate A-prime with a
 typed-source refinement. Its disconnected S0/P0/I0/G0 vocabulary and parity
@@ -522,6 +526,97 @@ any retry disposition.  The matrix's collector-prefix, parent-restore, root
 drop, and retry laws are rechecked before the non-Clone proof is issued.
 Focused route co-seal and duplicate-row fixtures are green; production
 capture/commit, module drain, FACTSESSION, and CUT0 remain disconnected.
+
+## I0 wiring audit: design stop before production capture/commit
+
+The first production wiring audit found a concrete boundary that the
+disconnected products do not yet close.  This is new source evidence, not a
+reason to add a partial route cutover.
+
+```text
+ModuleLoweringPortV1
+  currently owns only the collector/header loan
+
+ModuleLoweringAccessPortV1
+  names shell operations but has no live shell capability
+
+RawInvocationChildPortV1
+  can lower nested children through the collector
+  rejects the root Main box
+
+build_module/lower_root/finalize_module
+  still lower through the legacy current_module path
+  and finalize by taking current_module back
+```
+
+The affected production surfaces are observable in the current source:
+
+```text
+src/mir/builder/module_lifecycle.rs
+  root declaration pass, Main entry, static-data writes, final module take
+
+src/mir/builder/decls.rs
+  build_static_main_box lowers the root wrapper directly
+
+src/mir/builder/recursive_child_lowering.rs
+  invocation child port is collector-aware, but its root Main operation is
+  intentionally rejected
+
+src/mir/builder/calls/lowering.rs
+  the legacy finalizer still uses the current-module compatibility facade
+```
+
+Therefore an all-route I0 cannot safely be implemented by simply constructing
+the existing candidate around `build_module`.  The following shortcuts remain
+rejected:
+
+```text
+leave current_module as a metadata/function-map mirror
+  -> duplicate header authority
+
+cut only RawInvocationChildPortV1 first
+  -> raw/Main/canonical route-family drift
+
+make Main rejection disappear without a port-aware root builder
+  -> root lowering silently returns to the legacy terminal
+
+drain children before finalization while finalization still reads
+current_module.functions
+  -> collector/header freshness split
+```
+
+### Selected refinement: shell-aware root wiring
+
+The next implementation series must first add a live, short-lived shell
+capability and a port-aware root finalizer.  It may reuse the current
+function-local Builder state, but it must not store a port in Builder,
+CompilationContext, or TLS.
+
+```text
+I0-WIRING-S0
+  live ModuleLoweringShellPortV1 + collector/header bundle
+  root Main/static-box port-aware entry
+  finalizer lookup injection
+  production consumers = 0
+
+I0-WIRING-P0
+  raw child, Main, script, A+/trivial, acyclic, recursive, condition_fn
+  route and failure parity
+
+I0-WIRING-I0
+  one all-route capture -> seal -> collect -> drain
+
+I0-WIRING-G0
+  current_module function-map reads during invocation = 0
+  shell/header stores = 1 each
+  production drains = 1
+  partial route cutovers = 0
+```
+
+This is a design stop under the repository rule: no production code is
+changed until the shell-aware root entry and the exact finalizer ownership are
+sealed.  `FACTSESSION0`, FunctionLoweringSession separation, PHI/finalization
+repair removal, JoinIR, and CUT0 remain outside this refinement.
 
 ## ACCESS0-REWRITE-KNOWN-S0 closeout
 
