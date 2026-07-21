@@ -1,8 +1,8 @@
 # HEADERPORT0-REENTRANT-TERM0-I0: production cutover consultation
 
-Status: **STATE0-S0/P0/I0/G0, CONSULT0, and ACCESS0-S0 are closed;
-ACCESS0-P0 is paused at the `me` header ownership consultation, and
-production cutover remains disconnected**
+Status: **STATE0-S0/P0/I0/G0, CONSULT0, ACCESS0-S0, and
+ACCESS0-MEHEADER-S0 are closed; ACCESS0-MEHEADER-P0 is next, and production
+cutover remains disconnected**
 
 Date: 2026-07-21
 
@@ -438,8 +438,14 @@ HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-P0
     shared method-tail candidate policy
     production consumers = 0
 
-  ACCESS0-MEHEADER-CONSULT0
-    shared `me` method header ownership decision
+  ACCESS0-MEHEADER-CONSULT0 (closed)
+    Candidate A-prime typed-source header observation decision
+
+  ACCESS0-MEHEADER-S0 (closed)
+    disconnected owned observation and pure receiver/arity prepare
+
+  ACCESS0-MEHEADER-P0
+    legacy/raw/invocation/located parity and loan-before-arguments proof
 
   ACCESS0-REWRITE-KNOWN-P0
     parity matrix and invocation-path lookup threading
@@ -455,10 +461,10 @@ The current production I0 and `CUT0` remain forbidden until ACCESS0-P0 and
 CANDIDATE0-P0 are green.  This decision closes the consultation boundary but
 does not claim any production route has been rewired.
 
-The `me` method reader now has a separate design-stop consultation:
-`mirbuilder-headerport-access0-me-handler-consultation-2026-07-21.md`.
-No implementation may cross that boundary until its parameter observation
-owner and legacy/located parity are selected.
+The `me` method reader consultation selected Candidate A-prime with a
+typed-source refinement. Its disconnected S0 vocabulary is closed; no
+implementation may connect the shared handler until ACCESS0-MEHEADER-P0 proves
+legacy/raw/invocation/located parity and loan-before-argument descent.
 
 ## ACCESS0-REWRITE-KNOWN-S0 closeout
 

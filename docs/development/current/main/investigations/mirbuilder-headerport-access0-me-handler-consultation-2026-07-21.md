@@ -1,6 +1,7 @@
 # HEADERPORT0-ACCESS0: `me` method header ownership consultation
 
-Status: **design stop; no implementation admitted**
+Status: **Candidate A-prime typed-source refinement selected; S0 closed; P0 next;
+production I0 and CUT0 remain disconnected**
 
 Date: 2026-07-21
 
@@ -122,7 +123,7 @@ does not admit a general canonical callable resolver for this route.
 
 ## Recommended decision
 
-Select **Candidate A-prime** if and only if the projection is explicitly
+Select **Candidate A-prime with the typed-source refinement** if and only if the projection is explicitly
 construction-only, non-Clone, and contains only the parameter disposition
 needed by `me` classification.  The method handler should consume it as an
 optional input:
@@ -163,6 +164,44 @@ then:
   ACCESS0-REWRITE-KNOWN-P0 closeout
 ```
 
+## ACCESS0-MEHEADER-S0 closeout
+
+The disconnected S0 vocabulary owns one typed-source observation and one pure
+receiver/arity preparation product:
+
+```text
+MeCallHeaderSourceV1
+  ModuleCompatibility | InvocationCollector
+
+MeCallParameterObservationV1
+  Missing { source, symbol }
+  Present { source, symbol, parameter_count, first_parameter }
+
+PreparedMeLoweredCallV1
+  expected_params + PreparedMeReceiverV1
+```
+
+The observation is owned and non-Clone. It is created from one explicit
+`FunctionSignatureLookupV1` source and carries no return type, effects, body,
+metadata, Builder, collector borrow, ValueId, route, or retry authority.
+`prepare_me_lowered_call_v1` consumes it and returns `None` for a
+source-branded miss without providing a fallback lookup.
+
+The method handler and every production method port remain disconnected:
+
+```text
+MeCallPolicyBox consumers = 0
+MeCallHeaderObservationPortV1 implementations = 0
+MethodCallLoweringPortV1 consumers = 0
+current_module fallback changes = 0
+```
+
+Three focused fixtures cover source-branded miss, first-parameter `Box`
+instance preparation, and empty/non-`Box` static preparation. The reusable
+S0 guard is `tools/checks/lib/me_call_header_observation_guard.py`.
+`ACCESS0-MEHEADER-P0` is next; it must first prove legacy/raw/invocation/
+located parity and loan-before-argument descent before I0.
+
 ## Required fixtures
 
 ```text
@@ -190,4 +229,3 @@ long-lived borrow across argument descent
 located session borrowing the invocation collector
 production root cutover in this row
 ```
-

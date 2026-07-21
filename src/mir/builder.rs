@@ -46,6 +46,8 @@ mod function_lowering_state;
 mod function_signature_lookup; // HEADERPORT0-S0 neutral header lookup surface
 mod function_state_transaction;
 mod located_legacy_lowering;
+#[allow(dead_code)]
+mod me_call_header_observation; // ACCESS0-MEHEADER-S0 typed source snapshot
 mod metadata_context; // Phase 136 follow-up (Step 6/7): MetadataContext extraction
 mod method_call_handlers;
 mod module_completion_candidate;
