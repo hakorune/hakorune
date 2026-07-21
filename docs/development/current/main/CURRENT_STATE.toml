@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0/S0/M0/P0-SELECT/P0-S0/P0-P0/P0-G0, FACTSESSION0-I0-SELECT, MODULEDRAFT0-S0/M0/P0 and HEADERPORT0-SELECT/S0/P0, and HEADERPORT0-RAWPORT0-SELECT/S0/M0-T0/R0/LEGACYTERM0-S0/P0/I0/G0/LOOPBRIDGE0-SELECT/S0/P0/I0/G0/HEADERPORT0-REENTRANT-TERM0-S0/P0/I0-SHELL-S0/P0/I0-SELECT/I0-S0/P0/STATE0-S0/P0/I0/G0/CONSULT0/ACCESS0-S0/MEHEADER-CONSULT0/MEHEADER-S0/MEHEADER-P0/MEHEADER-I0/MEHEADER-G0/REWRITE-KNOWN-P0 are closed; HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-P0 is next, with production capture/commit and CUT0 forbidden"
+status = "FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0/S0/M0/P0-SELECT/P0-S0/P0-P0/P0-G0, FACTSESSION0-I0-SELECT, MODULEDRAFT0-S0/M0/P0 and HEADERPORT0-SELECT/S0/P0, and HEADERPORT0-RAWPORT0-SELECT/S0/M0-T0/R0/LEGACYTERM0-S0/P0/I0/G0/LOOPBRIDGE0-SELECT/S0/P0/I0/G0/HEADERPORT0-REENTRANT-TERM0-S0/P0/I0-SHELL-S0/P0/I0-SELECT/I0-S0/P0/STATE0-S0/P0/I0/G0/CONSULT0/ACCESS0-S0/MEHEADER-CONSULT0/MEHEADER-S0/MEHEADER-P0/MEHEADER-I0/MEHEADER-G0/REWRITE-KNOWN-P0/ACCESS0-P0 are closed; HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-S0 is next, with production capture/commit and CUT0 forbidden"
 date = "2026-07-21"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -318,7 +318,7 @@ module_draft_headerport_i0_task = "docs/development/current/main/investigations/
 
 latest_card = "mirbuilder-headerport-access0-me-handler-consultation-2026-07-21"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-headerport-access0-me-handler-consultation-2026-07-21.md"
-latest_card_summary = """ACCESS0-S0 and ACCESS0-MEHEADER S0/P0/I0/G0 plus ACCESS0-REWRITE-KNOWN-P0 are closed. The lookup-only Known/unique/equals projection now has explicit header forwarding, missing/static-instance/0-1-many parity fixtures, environment/primitive/no-retry policy checks, and zero production access-port consumers. The broader HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-P0 census is next; production capture/commit and CUT0 remain forbidden."""
+latest_card_summary = """ACCESS0-S0 and ACCESS0-MEHEADER S0/P0/I0/G0, ACCESS0-REWRITE-KNOWN-P0, and the broader ACCESS0-P0 census are closed. Fourteen source-derived rows have one owner (header=8, shell metadata=2, lifecycle=2, canonical=2), unclassified/completed-body-required rows are zero, and production ModuleLoweringAccessPort consumers are zero. Candidate0 shell/candidate failure transaction is next; production capture/commit and CUT0 remain forbidden."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -520,7 +520,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-MODULEDRAFT0-HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-P0-150"
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-MODULEDRAFT0-HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-S0-151"
 finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
@@ -531,7 +531,7 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
   "2026-07-21: HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-S0 closes one disconnected non-Clone ModuleLoweringAccessPortV1 contract. Header/Shell/Terminal surfaces are exact; shell operations explicitly include closure-body interning and static-data-plan lookup, terminal operations are commit-only vocabulary, and production access-port consumers remain zero. Guard, focused tests, cargo check, fmt, pointer, and diff checks are green; ACCESS0-P0 is next and production capture/commit remains forbidden.",
-  "2026-07-21: ACCESS0-MEHEADER-CONSULT0/S0/P0/I0/G0 and ACCESS0-REWRITE-KNOWN-P0 close Candidate A-prime with typed-source refinement. One non-Clone observation brands ModuleCompatibility versus InvocationCollector, the shared MeCallPolicyBox has one consumer, and exactly three route adapters preserve source ownership. The Known/unique/equals lookup-only projection now has missing/static-instance/0-1-many parity fixtures, environment/primitive/no-retry policy guards, and zero production access-port consumers. HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-P0 is next; production capture/commit and CUT0 remain forbidden.",
+  "2026-07-21: ACCESS0-MEHEADER-CONSULT0/S0/P0/I0/G0, ACCESS0-REWRITE-KNOWN-P0, and HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-P0 close Candidate A-prime with typed-source refinement. One non-Clone observation brands ModuleCompatibility versus InvocationCollector, the shared MeCallPolicyBox has one consumer, and exactly three route adapters preserve source ownership. The lookup-only Known/unique/equals projection has explicit parity guards, and the broad 14-row census has one owner per row, zero unclassified/completed-body-required rows, and zero production access-port consumers. Candidate0 is next; production capture/commit and CUT0 remain forbidden.",
   "2026-07-21: I0-SHELL-P0 source census classifies production current_module references into collector header reads, shell metadata/global access, lifecycle publication, and canonical transaction adapters. No fallback authority is selected; shell metadata port and one collector drain preflight are required before production cutover.",
   "2026-07-21: HEADERPORT0-REENTRANT-TERM0-I0-SHELL-P0 closes the source-derived 14-row reader census and disconnected shell preflight. Header/shell-metadata/lifecycle/canonical families are checked against Rust anchors and the consultation card; the narrow shell metadata port and sorted drain inventory reject duplicate or mismatched symbols before mutation. Six shell fixtures and the reusable guard are green; I0-SHELL-I0-SELECT is next and production consumers remain zero.",
   "2026-07-21: HEADERPORT0-REENTRANT-TERM0-I0-SHELL-I0-SELECT selects Candidate S-prime after source and canonical-root audits: one invocation owns one function-empty shell and one draft collector across raw, A+/trivial, acyclic/recursive, main, and condition_fn roots. All function/header truth stays in the collector, shell function map remains empty until one prepared infallible drain, and current_module fallback/retry is forbidden. I0-SHELL-I0-S0 is next with production consumers zero.",

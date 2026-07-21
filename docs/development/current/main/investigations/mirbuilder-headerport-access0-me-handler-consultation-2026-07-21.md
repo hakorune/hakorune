@@ -1,8 +1,8 @@
 # HEADERPORT0-ACCESS0: `me` method header ownership consultation
 
-Status: **Candidate A-prime typed-source refinement selected; S0/P0/I0/G0
-and ACCESS0-REWRITE-KNOWN-P0 are closed; the broader ACCESS0-P0 is next;
-production capture/commit and CUT0 remain disconnected**
+Status: **Candidate A-prime typed-source refinement selected; S0/P0/I0/G0,
+ACCESS0-REWRITE-KNOWN-P0, and the broader ACCESS0-P0 are closed; Candidate0
+is next; production capture/commit and CUT0 remain disconnected**
 
 Date: 2026-07-21
 
@@ -165,7 +165,10 @@ ACCESS0-MEHEADER-G0
   located collector capability = 0
 
 then:
-  broader HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-P0
+  (closed) broader HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-P0
+
+then:
+  HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-S0/P0
 ```
 
 ## ACCESS0-MEHEADER-S0 closeout

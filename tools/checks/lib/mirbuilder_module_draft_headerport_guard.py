@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Reusable structural guard for MODULEDRAFT0-HEADERPORT0.
 
-P0 pins the disconnected capability: the invocation is external, its header
-port is read-only, and the old direct-reader inventory is explicit. I0/G0 will
-extend this guard with the inverse reader assertions after the atomic cutover.
+The disconnected access boundary owns one source-derived reader census,
+explicit header/shell/lifecycle/canonical owner classes, and zero production
+access-port consumers.  It intentionally does not authorize the later
+capture/commit cutover.
 """
 
 from __future__ import annotations

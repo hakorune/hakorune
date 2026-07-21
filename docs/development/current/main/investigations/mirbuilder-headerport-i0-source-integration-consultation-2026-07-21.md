@@ -1,6 +1,8 @@
 # HEADERPORT0-REENTRANT-TERM0-I0: source integration consultation
 
-Status: **Candidate S-prime selected; I0-SHELL-S0/P0, I0-SHELL-I0-S0/P0 closed; production I0 remains disconnected**
+Status: **Candidate S-prime selected; I0-SHELL-S0/P0, I0-SHELL-I0-S0/P0,
+ACCESS0-P0 closed; Candidate0 remains disconnected and production I0 remains
+disconnected**
 Date: 2026-07-21
 Parent: `mirbuilder-headerport-reentrant-terminal-task-2026-07-21.md`
 Decision: one invocation-owned shell plus one collector; shell vocabulary is
@@ -265,9 +267,29 @@ an undocumented authority change. Six focused shell fixtures, the source
 census guard, cargo check, and diff checks are green. No production reader,
 root, child, collector, or shell drain consumer has been connected.
 
-The next row is `HEADERPORT0-REENTRANT-TERM0-I0-SHELL-I0-SELECT`: decide the
-single production invocation cutover owner and exact shell/collector terminal
-sequence. Partial capture/commit remains forbidden.
+The historical shell-selection row is closed; the current next row is the
+Candidate0 shell/candidate failure transaction. Partial capture/commit remains
+forbidden.
+
+## HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-P0 closeout
+
+The broad access surface is now closed as a disconnected census boundary:
+
+```text
+source-derived rows = 14
+header = 8
+shell metadata = 2
+lifecycle = 2
+canonical transaction = 2
+unclassified rows = 0
+completed-body-required rows = 0
+ModuleLoweringAccessPortV1 production consumers = 0
+current_module fallback inside invocation state = 0
+```
+
+The reusable HeaderPort guard validates every Rust source anchor, future owner,
+and route consumer count. The next row is Candidate0 shell/candidate failure
+transaction; no production capture, collector drain, or CUT0 is admitted.
 
 ## I0-SHELL-I0-SELECT decision
 

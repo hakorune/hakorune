@@ -454,24 +454,25 @@ HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-P0
     (closed) parity matrix and invocation-path lookup threading
 
   HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-P0
-    broad reader census closeout after all disconnected adapters are green
+    (closed) broad reader census closeout after all disconnected adapters are green
 
 HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-S0/P0
-  invocation-owned shell take/restore and candidate failure transaction
+  next: invocation-owned shell take/restore and candidate failure transaction
 
 HEADERPORT0-REENTRANT-TERM0-I0
   one all-route production capture/commit cutover
 ```
 
-The current production I0 and `CUT0` remain forbidden until ACCESS0-P0 and
-CANDIDATE0-P0 are green.  This decision closes the consultation boundary but
-does not claim any production route has been rewired.
+The current production I0 and `CUT0` remain forbidden until CANDIDATE0-P0 is
+green. This decision closes the consultation boundary but does not claim any
+production route has been rewired.
 
 The `me` method reader consultation selected Candidate A-prime with a
 typed-source refinement. Its disconnected S0/P0/I0/G0 vocabulary and parity
 proof are closed. The Known/unique/equals rewrite P0 is also closed with its
-lookup-only parity guard; only the broader access-port census remains before
-any production capture/commit or CUT0 decision.
+lookup-only parity guard, and the broader access-port census is now green with
+zero production access-port consumers. Candidate0 remains before any
+production capture/commit or CUT0 decision.
 
 ## ACCESS0-REWRITE-KNOWN-S0 closeout
 
