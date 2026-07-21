@@ -2,14 +2,15 @@
 
 Status: **STATE0-S0/P0/I0/G0, CONSULT0, ACCESS0-S0, and
 ACCESS0-MEHEADER-S0/P0/I0/G0, ACCESS0-REWRITE-KNOWN-P0, ACCESS0-P0, and
-CANDIDATE0-S0/P0 are closed; production I0 wiring is at a design stop**
+CANDIDATE0-S0/P0 are closed; M-root-prime is selected and
+`HEADERPORT0-I0-MAINROLE0-S0` is next**
 
 Date: 2026-07-21
 
 Parent:
 `mirbuilder-headerport-i0-source-integration-consultation-2026-07-21.md`
 
-Decision: **state-seam-first Candidate D-prime is selected for consultation**
+Decision: **Candidate M-root-prime is selected for the production I0 task series**
 
 ## Why the direct I0 is not mechanical
 
@@ -661,3 +662,92 @@ The reusable HeaderPort guard requires the four disconnected adapter anchors
 consumer count at zero. The focused P0 guard is
 `tools/checks/lib/rewrite_header_p0_guard.py`; it fixes the 0/1/>1 candidate,
 arity, gate, primitive, and no-retry matrix without adding a production route.
+
+## M-root-prime decision lock and task order
+
+The external design review resolves the I0 wiring stop. `Main` is not one
+pending function draft. It is a source-expansion coordinator which produces
+distinct function identities:
+
+```text
+static box Main
+  root entry:        key=Main, symbol=main, arity=0
+  static children:   Main.foo/N, ...
+  optional compat:   Main.main/N
+```
+
+The selected lifecycle is:
+
+```text
+VerifiedMainExpansion
+  -> collect static children (including optional Main.main/N)
+  -> lower Main.main inline as the active root function
+  -> CompletedRootBodyV1
+  -> complete root main with one final collector-header loan
+  -> prepare/collect Main + optional condition_fn as one root batch
+  -> seal module declaration facts into the function-empty shell
+  -> route-owned drain -> DrainedModuleCandidateV1
+  -> finalize drained module exactly once
+  -> one external lifecycle commit
+```
+
+The root body completion witness is distinct from collector inventory. It
+proves that recursive body descent, child restores, pending terminals, and
+header loans are closed; it is not inferred from symbol count. The module
+finalizer runs only on `DrainedModuleCandidateV1` and cannot receive Builder,
+`current_module`, collector, HeaderPort, or function-local facts.
+
+### Task order
+
+```text
+HEADERPORT0-I0-MAINROLE0-D0 (closed by this decision)
+  Main source expansion and distinct root/child identities
+
+HEADERPORT0-I0-MAINROLE0-S0
+  next code-facing row
+  VerifiedMainExpansionV1 and root/child/compat dispositions
+
+HEADERPORT0-I0-MAINROLE0-P0
+  app/script/feature and source-order parity
+
+HEADERPORT0-I0-BODYDRAIN0-S0/P0
+  CompletedRootBodyV1 and nested child/pending-loan closure
+
+HEADERPORT0-I0-MAINPENDING0-S0/P0
+  root completion with explicit collector headers
+
+HEADERPORT0-I0-ROOTBATCH0-S0/P0
+  Main + condition_fn prepared admissions and infallible collection
+
+HEADERPORT0-I0-SHELLFACT0-S0/P0
+  one-way module declaration fact publication into shell
+
+HEADERPORT0-I0-DRAIN0-S0/P0
+  route-owned inventory witness and non-Clone drained candidate
+
+HEADERPORT0-I0-MODULEFINAL0-SPLIT0
+  split root completion from post-drain module finalization
+
+HEADERPORT0-I0-CANDIDATE0-P0
+  child/root/drain/finalizer failure matrix
+
+FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0
+  one all-route production capture/commit cutover
+
+HEADERPORT0-I0-G0
+  old terminals, direct module insertion, and current_module header reads = 0
+```
+
+The following remain forbidden throughout the series:
+
+```text
+Main.main/N replacing the root main wrapper
+placeholder main header before root completion
+second collector or header cache
+current_module fallback during invocation
+post-child-collect fallible work before parent restore
+bare MirModule between drain and finalization
+FACTSESSION0 or FunctionLoweringSession cutover
+JoinIR/Loop widening
+CUT0 before all-route parity is green
+```

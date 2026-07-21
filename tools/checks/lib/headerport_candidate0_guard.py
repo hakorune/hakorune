@@ -108,8 +108,8 @@ def main() -> int:
     for fragment in (
         "HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-S0 (closed)",
         "HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-P0 (closed)",
-        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-CONSULT0",
-        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-S0\n  next code-facing row after the design stop",
+        "M-root-prime decision lock and task order",
+        "HEADERPORT0-I0-MAINROLE0-S0\n  next code-facing row",
         "one disconnected invocation-owned shell/collector candidate",
         "typed abort/no-publication/no-retry proof",
         "production capture/commit remains forbidden",
@@ -118,7 +118,7 @@ def main() -> int:
         require(card, fragment, "Candidate0 task boundary")
     require(
         state,
-        "HEADERPORT0-REENTRANT-TERM0-I0 is at a design stop",
+        "HEADERPORT0-I0-MAINROLE0-S0 is next",
         "current Candidate0 pointer",
     )
 
