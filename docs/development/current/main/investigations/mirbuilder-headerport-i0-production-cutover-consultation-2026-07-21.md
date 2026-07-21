@@ -3072,3 +3072,54 @@ fallback/retry owners = 0
 No new semantic decision was required. `WIRING-I0-HDR0-M0` is next, followed
 by HDR0-P0/G0. The sole bounded design stop remains
 `CUT0-COMPAT-POLICY-CONSULT0` after HDR0-G0 and before CUT0-S0.
+
+## Reserved FastMem V1 handoff
+
+FastMem V1 is now scheduled rather than indefinitely parked. It does not
+interrupt the active HEADERPORT/FACTSESSION/finalization sequence. The exact
+handoff order is:
+
+```text
+WIRING-I0-HDR0-M0/P0/G0
+-> CUT0-COMPAT-POLICY-CONSULT0
+-> WIRING-I0-CUT0-S0/P0/I0/G0
+-> FACTSESSION0-ACTIVEBIND0-S0/P0
+-> FACTSESSION0-I0/G0
+-> REMATFACT0 / individual producer receipt closures
+-> FINALIZE0-PHI-SPLIT0-MODULETX0-P0
+-> FINALIZE0-PHI-SPLIT0-I0
+-> FINALIZE0-PHI-SPLIT0-MODULE-G0
+-> MODULE-FINALIZE-VERIFY-CUT0
+-> FastMem lane handoff
+-> FASTMEM-BASELINE0
+```
+
+`MODULETX0-P0` alone is not sufficient for the handoff. The production module
+transaction, its single consumer guard, and the final module verification
+cut must be green first. This prevents V1 capability, target-layout, and
+access-plan owners from being built on the mutable Builder/finalization
+boundaries that the preceding rows retire.
+
+The reserved FastMem lane then follows its own board without interleaving
+another MirBuilder architecture series:
+
+```text
+FASTMEM-BASELINE0
+-> FASTMEM-SSOT-DRIFT0
+-> FASTMEM-VOCAB-FREEZE0
+-> FASTMEM-BACKEND-ID0
+-> FASTMEM-BACKEND-PREFLIGHT0
+-> FASTMEM-TARGET0
+-> FASTMEM-CONTRACT0
+-> FASTMEM-FOUNDATION0
+-> FASTMEM-V1-PARSE0
+-> FASTMEM-FIELDLOAD-VERTICAL0
+```
+
+The first vertical ends only after one explicit branded TableIndex plus
+scalar FieldLoad executes through daily non-replay ny-llvmc and passes exact
+shape, executable parity, and C comparison gates. Rust MirInterpreter MemOp
+execution is not pulled forward; it must reject in backend preflight until
+the separate interpreter architecture is ready. FieldStore, owner,
+free-list, remote atomics, general contracts, trusted assumptions, and V0
+retirement remain individually gated downstream rows.

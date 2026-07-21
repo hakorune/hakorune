@@ -1,9 +1,11 @@
 ---
-Status: Parked execution board
+Status: Parked execution board with a reserved activation handoff
 Decision: task order selected; production activation remains forbidden
 Date: 2026-07-22
 Scope: FastMem V1 foundation, first ny-llvmc FieldLoad vertical, and retirement dependencies
 Current-lane effect: none; D-prime HEADERPORT0 remains authoritative
+Reserved activation: after `MODULE-FINALIZE-VERIFY-CUT0`
+First active row: `FASTMEM-BASELINE0`
 Parent:
   - docs/development/current/main/investigations/fastmem-v1-contracted-borrow-design-2026-07-20.md
 Related:
@@ -21,8 +23,12 @@ The contracted-borrow design is already accepted.  A three-worker read-only
 audit found no remaining semantic choice that requires another external
 consultation before task planning.
 
-When FastMem is explicitly reopened by `CURRENT_STATE.toml`, the sole first
-row is:
+FastMem is now reserved as the next dedicated lane after
+`MODULE-FINALIZE-VERIFY-CUT0`. The handoff is still conditional: the current
+HEADERPORT cutover, FACTSESSION activation, producer closures, module
+transaction integration, module guard, and final verification cut must all be
+green. At that point `CURRENT_STATE.toml` switches the active lane, and the
+sole first row is:
 
 ```text
 FASTMEM-BASELINE0
@@ -36,7 +42,28 @@ FieldLoad on daily non-replay ny-llvmc.  Existing llvmlite success is reference
 evidence only.
 
 This board does not change the current D-prime blocker and does not authorize
-FastMem production work while the lane is parked.
+FastMem production work before the reserved handoff.
+
+## Scheduled handoff dependency
+
+```text
+WIRING-I0-HDR0-M0/P0/G0
+-> CUT0-COMPAT-POLICY-CONSULT0
+-> WIRING-I0-CUT0-S0/P0/I0/G0
+-> FACTSESSION0-ACTIVEBIND0-S0/P0
+-> FACTSESSION0-I0/G0
+-> REMATFACT0 / individual producer receipt closures
+-> FINALIZE0-PHI-SPLIT0-MODULETX0-P0
+-> FINALIZE0-PHI-SPLIT0-I0
+-> FINALIZE0-PHI-SPLIT0-MODULE-G0
+-> MODULE-FINALIZE-VERIFY-CUT0
+-> FASTMEM-BASELINE0
+```
+
+The reservation prevents starvation without permitting parallel mutation of
+the same MirBuilder/finalization surfaces. No FastMem foundation row may be
+pulled before the handoff merely because its disconnected vocabulary could be
+built earlier.
 
 ## Current truth
 

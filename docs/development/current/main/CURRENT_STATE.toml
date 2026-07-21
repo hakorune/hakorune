@@ -311,6 +311,10 @@ fact0_tx0_task = "docs/development/current/main/investigations/mirbuilder-fact0-
 fastmem_receipt0_task = "docs/development/current/main/investigations/mirbuilder-fact0-transaction-boundary-task-2026-07-20.md"
 fastmem_fieldload0_task = "docs/development/current/main/investigations/mirbuilder-fact0-transaction-boundary-task-2026-07-20.md"
 fastmem_v1_execution_task = "docs/development/current/main/investigations/fastmem-v1-execution-task-2026-07-22.md"
+fastmem_v1_schedule_status = "reserved after MODULE-FINALIZE-VERIFY-CUT0; currently parked"
+fastmem_v1_resume_after = "MODULE-FINALIZE-VERIFY-CUT0"
+fastmem_v1_resume_row = "FASTMEM-BASELINE0"
+fastmem_v1_first_delivery = "FASTMEM-FIELDLOAD-VERTICAL0"
 weakfield_classify0_task = "docs/development/current/main/investigations/mirbuilder-weakfield-classification-task-2026-07-20.md"
 finalize0_boundary_consultation = "docs/development/current/main/investigations/mirbuilder-finalize0-boundary-consultation-2026-07-20.md"
 finalize0_p0_production_census_consultation = "docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-consultation-2026-07-20.md"
@@ -319,7 +323,7 @@ module_draft_headerport_i0_task = "docs/development/current/main/investigations/
 
 latest_card = "mirbuilder-headerport-i0-production-cutover-consultation-2026-07-21"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-headerport-i0-production-cutover-consultation-2026-07-21.md"
-latest_card_summary = """Candidate S-prime remains selected. ROOT-P0a/P0b/P0c/P0d/G0 and the whole WIRING-I0-BORROW-G0 are closed. One reusable guard now covers raw child re-entry, canonical candidate isolation, the eleven-phase root schedule, the atomic Main/condition collector batch, the four-lane declaration-fact shell transaction, route co-sealing, and exact external commit 0/1 observations. Root batch, shell-fact, drain, and finalizer owner definitions are exactly one each; production orchestration consumers, direct publication, fallback, and retry remain zero. All changed source/check files stay below 800 lines. WIRING-I0-HDR0-M0 is next for current header-read and loan inventory. The bounded compatibility-policy consultation remains after HDR0-G0 and before CUT0-S0. FastMem remains parked."""
+latest_card_summary = """Candidate S-prime remains selected. ROOT-P0a/P0b/P0c/P0d/G0 and the whole WIRING-I0-BORROW-G0 are closed. One reusable guard now covers raw child re-entry, canonical candidate isolation, the eleven-phase root schedule, the atomic Main/condition collector batch, the four-lane declaration-fact shell transaction, route co-sealing, and exact external commit 0/1 observations. Root batch, shell-fact, drain, and finalizer owner definitions are exactly one each; production orchestration consumers, direct publication, fallback, and retry remain zero. All changed source/check files stay below 800 lines. WIRING-I0-HDR0-M0 is next for current header-read and loan inventory. The bounded compatibility-policy consultation remains after HDR0-G0 and before CUT0-S0. FastMem V1 remains parked during this lane but now has an explicit reserved handoff after MODULE-FINALIZE-VERIFY-CUT0; that handoff must begin at FASTMEM-BASELINE0 and targets FASTMEM-FIELDLOAD-VERTICAL0 as its first executable delivery."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
