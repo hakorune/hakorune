@@ -7,7 +7,7 @@ use std::collections::BTreeMap;
 
 use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
 
-use super::{CallableHeaderSyntaxViewV1, FunctionOwnerIdV1};
+use super::{CallableHeaderSyntaxViewV1, CanonicalCallableSymbolV1, FunctionOwnerIdV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) enum CallableNamespaceV1 {
@@ -55,19 +55,6 @@ impl ResolvedCallableRefV1 {
 
     pub(crate) const fn owner(self) -> FunctionOwnerIdV1 {
         self.owner
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(crate) struct CanonicalCallableSymbolV1(Box<str>);
-
-impl CanonicalCallableSymbolV1 {
-    fn from_key(key: &CanonicalCallableKeyV1) -> Self {
-        Self(format!("{}/{}", key.name(), key.arity()).into_boxed_str())
-    }
-
-    pub(crate) fn as_mir_name(&self) -> &str {
-        &self.0
     }
 }
 
@@ -122,7 +109,10 @@ impl VerifiedOwnerFreeCallableHeaderV1 {
             .map_err(|_| CallableIndexSealErrorV1::ArityOverflow)?;
         let source_key = CanonicalCallableKeyV1::free_static(view.name(), arity);
         Ok(Self {
-            symbol: CanonicalCallableSymbolV1::from_key(&source_key),
+            symbol: CanonicalCallableSymbolV1::from_name_arity(
+                source_key.name(),
+                source_key.arity() as usize,
+            ),
             signature: ExactTrivialCallableSignatureV1::exact_i64(view.params().len()),
             source_key,
         })

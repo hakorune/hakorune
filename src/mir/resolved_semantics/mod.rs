@@ -13,6 +13,7 @@ mod callable_header_source_unit;
 mod callable_header_view;
 mod callable_index;
 mod callable_module_header_view;
+mod callable_symbol;
 mod direct_call;
 mod direct_call_verifier;
 mod function_root;
@@ -46,13 +47,14 @@ pub(crate) use callable_header_source_unit::VerifiedCallableHeaderSourceUnitV1;
 pub(crate) use callable_header_view::{CallableFunctionSyntaxViewV1, CallableHeaderSyntaxViewV1};
 pub(crate) use callable_index::{
     CallableIndexSealErrorV1, CallableLookupErrorV1, CallableNamespaceV1, CanonicalCallableKeyV1,
-    CanonicalCallableSymbolV1, ExactTrivialCallableSignatureV1, ResolvedCallableRefV1,
-    VerifiedCallableHeaderV1, VerifiedCallableIndexV1, VerifiedOwnerFreeCallableHeaderV1,
+    ExactTrivialCallableSignatureV1, ResolvedCallableRefV1, VerifiedCallableHeaderV1,
+    VerifiedCallableIndexV1, VerifiedOwnerFreeCallableHeaderV1,
 };
 pub(crate) use callable_module_header_view::{
     CallableModuleHeaderSyntaxErrorV1, CallableModuleHeaderSyntaxViewV1,
     LocatedCallableHeaderSyntaxViewV1, SourceCallableDeclarationSiteV1,
 };
+pub(crate) use callable_symbol::CanonicalCallableSymbolV1;
 pub(crate) use direct_call::{ResolvedDirectCallTargetV1, ResolvedDirectCallVerificationErrorV1};
 pub(crate) use function_root::{
     ResolvedFunctionLoweringRootsV1, ResolvedFunctionRootVerificationErrorV1,

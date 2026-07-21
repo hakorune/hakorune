@@ -78,7 +78,8 @@ fn seals_one_exact_static_i64_header_without_new_identity() {
         index.header_for_callable(missing_callable),
         Err(CallableLookupErrorV1::MissingCallableIdentity)
     );
-    let missing_symbol = CanonicalCallableSymbolV1::from_key(&wrong_name);
+    let missing_symbol =
+        CanonicalCallableSymbolV1::from_name_arity(wrong_name.name(), wrong_name.arity() as usize);
     assert_eq!(
         index.header_for_symbol(&missing_symbol),
         Err(CallableLookupErrorV1::MissingPhysicalSymbol)

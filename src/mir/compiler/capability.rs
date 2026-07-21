@@ -25,6 +25,11 @@ use super::located::{LocatedBodyV1, LocatedExprV1, LocatedStmtV1};
 use super::lowering_input::{CanonicalLoweringErrorV1, VerifiedResolvedSourceUnitV1};
 use super::source_view::{BodyChildRoleV1, ExprChildRoleV1};
 
+mod resolved_owner_header;
+pub(crate) use resolved_owner_header::{
+    ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1, VerifiedResolvedOwnerHeaderV1,
+};
+
 #[derive(Debug)]
 pub(crate) struct CanonicalCurrentAPlusPlanV1<'a> {
     function: ResolvedFunctionLoweringInputV1<'a>,
@@ -92,6 +97,38 @@ impl<'a> CanonicalTrivialBindingSsaPlanV1<'a> {
 pub(crate) enum CanonicalFirstFamilyPlanV1<'a> {
     TrivialBindingSsa(CanonicalTrivialBindingSsaPlanV1<'a>),
     CurrentCanonicalAPlus(CanonicalCurrentAPlusPlanV1<'a>),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct CanonicalFirstFamilyPlanBrandV1(ResolvedOwnerHeaderFamilyV1);
+
+impl CanonicalFirstFamilyPlanBrandV1 {
+    const fn family(self) -> ResolvedOwnerHeaderFamilyV1 {
+        self.0
+    }
+}
+
+impl<'a> CanonicalFirstFamilyPlanV1<'a> {
+    fn brand(&self) -> CanonicalFirstFamilyPlanBrandV1 {
+        let family = match self {
+            Self::TrivialBindingSsa(_) => ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa,
+            Self::CurrentCanonicalAPlus(_) => ResolvedOwnerHeaderFamilyV1::CurrentCanonicalAPlus,
+        };
+        CanonicalFirstFamilyPlanBrandV1(family)
+    }
+
+    fn function_input(&self) -> ResolvedFunctionLoweringInputV1<'a> {
+        match self {
+            Self::TrivialBindingSsa(plan) => plan.function,
+            Self::CurrentCanonicalAPlus(plan) => plan.function,
+        }
+    }
+
+    pub(crate) fn seal_resolved_owner_header_v1(
+        &self,
+    ) -> Result<VerifiedResolvedOwnerHeaderV1, ResolvedOwnerHeaderSealErrorV1> {
+        VerifiedResolvedOwnerHeaderV1::seal(self.brand(), self)
+    }
 }
 
 pub(crate) struct CanonicalLoweringPreflightV1;

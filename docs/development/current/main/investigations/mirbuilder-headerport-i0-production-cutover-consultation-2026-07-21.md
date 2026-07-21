@@ -1576,3 +1576,51 @@ The sole next code-facing row is
 `HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0c-SINGLEHDR-S0`.
 Canonical batch proof, production inventory consumers, capture/commit, drain,
 FACTSESSION, and CUT0 remain forbidden.
+
+## WIRING-I0-ROUTEINV-P0c-SINGLEHDR-S0 closeout
+
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0c-SINGLEHDR-S0`
+is closed as one disconnected first-family header authority. The selected
+`CanonicalFirstFamilyPlanV1` is now the only issuer of a private, non-Clone
+`VerifiedResolvedOwnerHeaderV1` before plan consumption. The product co-seals:
+
+```text
+exact first-family selection brand
+resolved FunctionOwnerIdV1
+physical free-function symbol
+source parameter arity
+```
+
+The seal validates that the lowering input, source view, and resolved function
+carry the same owner. A later attempt to pair the header with a foreign family
+or foreign owner returns a typed `ForeignPlan` error. The constructor remains
+`pub(super)` inside the private capability child module; callers cannot assemble
+a header from owner/string/arity pieces.
+
+The exact-i64 `VerifiedCallableHeaderV1` remains separate. Both A+ and
+Binding-SSA-trivial fixtures accept zero parameters, proving that this general
+first-family header has not inherited the callable catalog's scalar ABI or
+nonzero-arity profile. The new seal and the existing callable catalog share one
+neutral `CanonicalCallableSymbolV1::from_name_arity` projection instead of
+adding another local formatter. The two live A+/Binding-SSA lowerers retain
+their legacy projection until a later cutover, so repository-wide physical
+naming SSOT is not yet claimed. Callable identity, source admission, scalar
+ABI, and duplicate policy remain with their existing owners.
+
+```text
+VerifiedResolvedOwnerHeaderV1 production consumers = 0
+plan seal production callers = 0
+Builder/module/collector/draft/ValueId/fact fields = 0
+retry/fallback authority = 0
+production behavior delta = 0
+```
+
+The sole next code-facing row is
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0c-SINGLEHDR-P0`.
+It must close exact A+ and Binding-SSA-trivial fixtures, nonzero arity,
+declaration/source reorder parity, foreign pairing, canonical duplicate and
+symbol/arity failures, and raw-policy leakage. Because the physical projection
+uses `/` as its separator, P0 must also reject or otherwise prove injective any
+source name containing `/`; this S0 does not silently import CAT0's spelling
+admission law. Production capture/commit, drain, FACTSESSION, and CUT0 remain
+forbidden.

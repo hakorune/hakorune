@@ -2,7 +2,10 @@ use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::resolved_region_flow::ResolvedElseFallthroughV1;
 use crate::mir::resolved_semantics::SourcePathSegmentV1;
 
-use super::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
+use super::capability::{
+    CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1, ResolvedOwnerHeaderFamilyV1,
+    ResolvedOwnerHeaderSealErrorV1,
+};
 use super::{CanonicalLoweringErrorV1, MirCompiler, VerifiedResolvedSourceUnitV1};
 
 fn literal(value: i64) -> ASTNode {
@@ -65,8 +68,12 @@ fn if_stmt(
 }
 
 fn function(body: Vec<ASTNode>) -> ASTNode {
+    named_function("capability_fixture", body)
+}
+
+fn named_function(name: &str, body: Vec<ASTNode>) -> ASTNode {
     ASTNode::FunctionDeclaration {
-        name: "capability_fixture".into(),
+        name: name.into(),
         params: Vec::new(),
         param_decls: Vec::new(),
         return_type_name: None,
@@ -78,6 +85,84 @@ fn function(body: Vec<ASTNode>) -> ASTNode {
         attrs: DeclarationAttrs::default(),
         span: Span::unknown(),
     }
+}
+
+#[test]
+fn resolved_owner_header_seals_zero_arity_binding_ssa_before_plan_consumption() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(function(vec![
+        local("x", literal(0)),
+        if_stmt(
+            bool_literal(true),
+            vec![assignment("x", 1)],
+            Some(vec![assignment("x", 2)]),
+        ),
+        ASTNode::Return {
+            value: Some(Box::new(variable("x"))),
+            span: Span::unknown(),
+        },
+    ]))
+    .unwrap();
+    let plan = CanonicalLoweringPreflightV1::verify(&unit).unwrap();
+
+    let header = plan.seal_resolved_owner_header_v1().unwrap();
+
+    assert_eq!(
+        header.family(),
+        ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa
+    );
+    assert_eq!(header.arity(), 0);
+    assert_eq!(header.symbol().as_mir_name(), "capability_fixture/0");
+    header.require_same_plan(&plan).unwrap();
+
+    let CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) = plan else {
+        panic!("fixture must retain the exact Binding-SSA family")
+    };
+    let (input, ..) = plan.into_parts();
+    assert_eq!(header.owner(), input.owner());
+}
+
+#[test]
+fn resolved_owner_header_seals_a_plus_family_without_exact_i64_profile() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(named_function(
+        "a_plus_header",
+        vec![
+            local("x", literal(0)),
+            if_stmt(literal(1), vec![assignment("x", 1)], None),
+        ],
+    ))
+    .unwrap();
+    let plan = CanonicalLoweringPreflightV1::verify(&unit).unwrap();
+
+    let header = plan.seal_resolved_owner_header_v1().unwrap();
+
+    assert_eq!(
+        header.family(),
+        ResolvedOwnerHeaderFamilyV1::CurrentCanonicalAPlus
+    );
+    assert_eq!(header.symbol().as_mir_name(), "a_plus_header/0");
+    assert_eq!(header.arity(), 0);
+    header.require_same_plan(&plan).unwrap();
+}
+
+#[test]
+fn resolved_owner_header_rejects_foreign_plan_pairing() {
+    let first = VerifiedResolvedSourceUnitV1::resolve_function(function(vec![literal(1)])).unwrap();
+    let foreign = VerifiedResolvedSourceUnitV1::resolve_function(named_function(
+        "foreign_a_plus",
+        vec![
+            local("x", literal(0)),
+            if_stmt(literal(1), vec![assignment("x", 1)], None),
+        ],
+    ))
+    .unwrap();
+    let first_plan = CanonicalLoweringPreflightV1::verify(&first).unwrap();
+    let foreign_plan = CanonicalLoweringPreflightV1::verify(&foreign).unwrap();
+    let header = first_plan.seal_resolved_owner_header_v1().unwrap();
+
+    assert!(matches!(
+        header.require_same_plan(&foreign_plan),
+        Err(ResolvedOwnerHeaderSealErrorV1::ForeignPlan { .. })
+    ));
 }
 
 fn unsupported_branch(statement: ASTNode) -> VerifiedResolvedSourceUnitV1 {
