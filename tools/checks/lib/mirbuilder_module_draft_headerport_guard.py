@@ -21,6 +21,7 @@ METHOD_INDEX = ROOT / "src/mir/builder/builder_method_index.rs"
 INVOCATION = ROOT / "src/mir/builder/module_lowering_invocation.rs"
 INVOCATION_CANDIDATE = ROOT / "src/mir/builder/module_lowering_invocation_candidate.rs"
 INVOCATION_CANDIDATE_P0 = ROOT / "src/mir/builder/module_lowering_invocation_candidate_p0.rs"
+DRAINED_CANDIDATE_P0 = ROOT / "src/mir/builder/drained_module_candidate_p0.rs"
 MODULE_DRAFT = ROOT / "src/mir/builder/module_draft_collector.rs"
 ANNOTATION = ROOT / "src/mir/builder/calls/annotation.rs"
 SIGNATURE_LOOKUP = ROOT / "src/mir/builder/function_signature_lookup.rs"
@@ -319,6 +320,7 @@ def main() -> int:
             INVOCATION_CANDIDATE,
             INVOCATION_CANDIDATE_P0,
             MODULE_DRAFT,
+            DRAINED_CANDIDATE_P0,
         ) or path.name.endswith("_tests.rs"):
             continue
         forbid(
@@ -355,7 +357,7 @@ def main() -> int:
             f"STATE0-G0 current_module fallback in state seam {path.relative_to(ROOT)}",
         )
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
-        if path in (INVOCATION, INVOCATION_DRAIN, INVOCATION_STATE) or path.name.endswith(
+        if path in (INVOCATION, INVOCATION_DRAIN, INVOCATION_STATE, DRAINED_CANDIDATE_P0) or path.name.endswith(
             "_tests.rs"
         ):
             continue
@@ -377,7 +379,7 @@ def main() -> int:
     ):
         require(module_shell, fragment, "HEADERPORT0 I0-SHELL-P0 fixture")
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
-        if path in (MODULE_SHELL, REENTRANT_TESTS) or path.name.endswith("_tests.rs"):
+        if path in (MODULE_SHELL, REENTRANT_TESTS, DRAINED_CANDIDATE_P0) or path.name.endswith("_tests.rs"):
             continue
         forbid(
             read(path),

@@ -4,8 +4,8 @@ Status: **STATE0-S0/P0/I0/G0, CONSULT0, ACCESS0-S0, and
 ACCESS0-MEHEADER-S0/P0/I0/G0, ACCESS0-REWRITE-KNOWN-P0, ACCESS0-P0, and
 CANDIDATE0-S0/P0, MAINROLE0-D0/S0/P0, BODYDRAIN0-S0/P0,
 MAINPENDING0-S0/P0, ROOTBATCH0-S0/P0, SHELLFACT0-S0/P0, and
-DRAIN0-S0 are closed; M-root-prime remains selected and
-`HEADERPORT0-I0-DRAIN0-P0` is next**
+DRAIN0-S0/P0 are closed; M-root-prime remains selected and
+`HEADERPORT0-I0-MODULEFINAL0-SPLIT0` is next**
 
 Date: 2026-07-21
 
@@ -728,10 +728,10 @@ HEADERPORT0-I0-DRAIN0-S0 (closed)
   route-owned inventory witness and non-Clone drained candidate
 
 HEADERPORT0-I0-DRAIN0-P0
-  next code-facing row
   exact drain/inventory/condition policy and failure matrix
 
 HEADERPORT0-I0-MODULEFINAL0-SPLIT0
+  next code-facing row
   split root completion from post-drain module finalization
 
 HEADERPORT0-I0-CANDIDATE0-P0
@@ -884,6 +884,19 @@ module extraction API. Focused fixtures cover exact co-seal, duplicate and
 condition failures, and the absence of a bare-module consumer. The product is
 disconnected: production capture/commit, shell mutation, FACTSESSION0, and
 CUT0 remain forbidden.
+
+## DRAIN0-P0 closeout
+
+`HEADERPORT0-I0-DRAIN0-P0` is closed with production consumers still zero.
+The disconnected matrix exercises the old shell/collector preflight and the
+new candidate boundary together: deterministic inventory order, required,
+optional, and forbidden `condition_fn` policy, missing `main`, exact
+inventory mismatch, duplicate inventory entries, and candidate issuance
+failures are all typed before a drained candidate can be observed. The
+fixtures also prove that the candidate exposes only borrowed module and
+inventory views; no bare `MirModule` extraction, retry, fallback, shell
+mutation, or production drain was added. The next row is
+`HEADERPORT0-I0-MODULEFINAL0-SPLIT0`; FACTSESSION0 and CUT0 remain forbidden.
 
 ## MAINPENDING0-P0 closeout
 
