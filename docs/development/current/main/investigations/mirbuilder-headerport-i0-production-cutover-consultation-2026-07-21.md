@@ -716,9 +716,12 @@ HEADERPORT0-I0-BODYDRAIN0-S0/P0 (closed)
 HEADERPORT0-I0-MAINPENDING0-S0/P0 (closed)
   root completion with explicit short-lived collector/header loan and parity
 
-HEADERPORT0-I0-ROOTBATCH0-S0/P0
+HEADERPORT0-I0-ROOTBATCH0-S0 (closed)
+  Main + condition_fn prepared admissions without collector mutation
+
+HEADERPORT0-I0-ROOTBATCH0-P0
   next code-facing row
-  Main + condition_fn prepared admissions and infallible collection
+  root batch parity, collision, and failure matrix
 
 HEADERPORT0-I0-SHELLFACT0-S0/P0
   one-way module declaration fact publication into shell
@@ -815,6 +818,19 @@ draft rejection.
 
 The next row is `HEADERPORT0-I0-ROOTBATCH0-S0`; Main/condition_fn batching,
 drain, FACTSESSION0, and CUT0 remain forbidden.
+
+## ROOTBATCH0-S0 closeout
+
+`HEADERPORT0-I0-ROOTBATCH0-S0` is closed with production consumers still zero.
+`PreparedRootDraftBatchV1` owns the already-pending root draft, an optional
+validated synthetic `condition_fn` draft, and explicit Main/condition_fn
+admission plans. Required, optional-missing, and forbidden-present policies
+are explicit; condition symbol/arity is checked before the batch product is
+issued. The batch stores no collector borrow, Builder, module map, fallback,
+or publication capability, and no collection or drain route was connected.
+
+The next row is `HEADERPORT0-I0-ROOTBATCH0-P0`; collision/failure parity,
+collector collection, drain, FACTSESSION0, and CUT0 remain forbidden.
 
 ## MAINPENDING0-P0 closeout
 
