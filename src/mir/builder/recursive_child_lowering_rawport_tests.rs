@@ -1,7 +1,7 @@
 use crate::ast::{ASTNode, BinaryOperator, CheckItem, FieldDecl, LiteralValue, Span};
 use crate::mir::{
     BasicBlockId, BindingId, Effect, EffectMask, FunctionSignature, MirBuilder, MirFunction,
-    MirInstruction, MirType,
+    MirInstruction, MirModule, MirType,
 };
 use crate::parser::NyashParser;
 
@@ -60,12 +60,16 @@ fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
 }
 
 fn collector() -> ModuleDraftCollectorV1 {
+    collector_with_return_type(MirType::Void)
+}
+
+fn collector_with_return_type(return_type: MirType) -> ModuleDraftCollectorV1 {
     let mut collector = ModuleDraftCollectorV1::default();
     let function = MirFunction::new(
         FunctionSignature {
             name: "Prefix.f/1".to_string(),
             params: vec![MirType::Integer],
-            return_type: MirType::Void,
+            return_type,
             effects: EffectMask::READ.add(Effect::ReadHeap),
         },
         BasicBlockId(0),
@@ -164,6 +168,57 @@ fn raw_invocation_port_reborrows_one_collector_backed_header_view() {
         port.reborrow()
             .with_headers(|headers| assert!(headers.contains_symbol("Prefix.f/1")));
     });
+}
+
+#[test]
+fn headerport_annotation_matches_legacy_module_signature_without_ambient_module() {
+    let symbol = "Prefix.f/1";
+    let signature = FunctionSignature {
+        name: symbol.to_owned(),
+        params: vec![MirType::Integer],
+        return_type: MirType::Box("Result".to_owned()),
+        effects: EffectMask::READ.add(Effect::ReadHeap),
+    };
+
+    let mut legacy = MirBuilder::new();
+    legacy.enter_function_for_test("headerport_annotation/0".to_owned());
+    legacy.current_module = Some(MirModule::new("legacy-header-module".to_owned()));
+    legacy
+        .current_module
+        .as_mut()
+        .unwrap()
+        .add_function(MirFunction::new(signature, BasicBlockId(0)));
+    let mut port_builder = MirBuilder::new();
+    port_builder.enter_function_for_test("headerport_annotation/0".to_owned());
+
+    let dst = crate::mir::ValueId(11);
+    super::calls::annotation::annotate_call_result_from_func_name(&mut legacy, dst, symbol);
+    let mut invocation = ModuleLoweringInvocationV1::with_collector(
+        &mut port_builder,
+        collector_with_return_type(MirType::Box("Result".to_owned())),
+    );
+    invocation.with_header_port(|builder, headers| {
+        super::calls::annotation::annotate_call_result_from_func_name_with_lookup(
+            builder,
+            dst,
+            symbol,
+            Some(headers),
+        );
+    });
+
+    assert!(port_builder.current_module.is_none());
+    assert_eq!(
+        legacy.function_state.type_ctx.value_types.get(&dst),
+        port_builder.function_state.type_ctx.value_types.get(&dst)
+    );
+    assert_eq!(
+        legacy.function_state.type_ctx.value_origin_newbox.get(&dst),
+        port_builder
+            .function_state
+            .type_ctx
+            .value_origin_newbox
+            .get(&dst)
+    );
 }
 
 #[test]

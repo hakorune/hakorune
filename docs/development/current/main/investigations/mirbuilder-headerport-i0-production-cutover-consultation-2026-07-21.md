@@ -6,7 +6,8 @@ CANDIDATE0-S0/P0, MAINROLE0-D0/S0/P0, BODYDRAIN0-S0/P0,
 MAINPENDING0-S0/P0, ROOTBATCH0-S0/P0, SHELLFACT0-S0/P0, and
 DRAIN0-S0/P0, MODULEFINAL0-SPLIT0/P0, MODULEFINAL0-CANDIDATE0-P0, and
 WIRING-S0/P0 and WIRING-I0-HDR0-M0 are closed; M-root-prime and Candidate
-A-prime are selected. The next passive row is `WIRING-I0-HDR0-P0`;
+A-prime are selected. The first passive `WIRING-I0-HDR0-P0` annotation
+parity slice is landed; unresolved reader families remain in P0;
 production capture/commit and
 CUT0 remain forbidden until replacement/parity,
 the compatibility-policy consultation, and the all-route cutover gates are
@@ -3160,3 +3161,28 @@ HDR0-P0 assigns it a replacement/parity owner. It also asserts
 fallback or retry was found. The next code-facing row is
 `WIRING-I0-HDR0-P0`, followed by HDR0-G0. Production capture/commit, CUT0,
 FACTSESSION, and FastMem remain forbidden.
+
+## WIRING-I0-HDR0-P0 annotation parity slice
+
+The call-result annotation reader now has a focused passive parity witness.
+The legacy path reads one `MirModule` signature while the invocation path
+reads the same signature through `LoweringHeaderPortV1`; both publish the
+same return type and `NewBox` origin, and the invocation Builder has no
+ambient module. This is test-only evidence: it adds no production caller and
+does not alter annotation heuristics or fallback policy.
+
+```text
+source authority: completed invocation collector header
+non-authority: Builder.current_module, production capture/commit, CUT0
+fail-fast boundary: explicit header loan ends before later collector mutation
+landed proof: headerport_annotation_matches_legacy_module_signature_without_ambient_module
+next evidence: reuse the existing Known-rewrite lookup-only proof; no new
+  materializer wiring is selected while its `legacy_presence` policy remains
+  unresolved. The next owner decision covers constructor-birth, method-index
+  freshness, Located observation, and shell lifecycle rows
+```
+
+The remaining P0 rows are not mechanically selected by this witness. In
+particular, constructor/birth presence, method-index freshness, and the
+Located compatibility observation still have no unique replacement owner;
+choosing one would cross the documented design-consultation boundary.
