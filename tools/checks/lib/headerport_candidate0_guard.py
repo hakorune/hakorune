@@ -27,6 +27,7 @@ ACCESS_VOCAB = ROOT / "src/mir/builder/module_lowering_access_port.rs"
 ACCESS_IMPL = ROOT / "src/mir/builder/module_lowering_invocation.rs"
 ACCESS_LIVE = ROOT / "src/mir/builder/module_lowering_invocation_access.rs"
 ACCESS_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_access_tests.rs"
+WIRING_P0 = ROOT / "src/mir/builder/module_wiring_parity_p0.rs"
 SHELL_FACTS = ROOT / "src/mir/builder/module_declaration_facts.rs"
 SHELL_FACTS_P0 = ROOT / "src/mir/builder/module_declaration_facts_p0.rs"
 DRAINED_CANDIDATE = ROOT / "src/mir/builder/drained_module_candidate.rs"
@@ -66,6 +67,7 @@ def main() -> int:
     access_vocab = ACCESS_VOCAB.read_text()
     access_impl = ACCESS_IMPL.read_text()
     access_live = ACCESS_LIVE.read_text()
+    wiring_p0 = WIRING_P0.read_text()
     shell_facts = SHELL_FACTS.read_text()
     shell_facts_p0 = SHELL_FACTS_P0.read_text()
     drained_candidate = DRAINED_CANDIDATE.read_text()
@@ -97,6 +99,8 @@ def main() -> int:
         raise AssertionError("ROOTBATCH0-P0 fixture source must remain below 800 lines")
     if len(main_root_wiring.splitlines()) >= 800:
         raise AssertionError("WIRING-S0 source must remain below 800 lines")
+    if len(wiring_p0.splitlines()) >= 800:
+        raise AssertionError("WIRING-P0 source must remain below 800 lines")
     if len(shell_facts.splitlines()) >= 800:
         raise AssertionError("SHELLFACT0-S0 source must remain below 800 lines")
     if len(shell_facts_p0.splitlines()) >= 800:
@@ -212,6 +216,42 @@ def main() -> int:
     )
 
     for fragment in (
+        "HeaderPortWiringParityV1",
+        "WiringParityRowV1",
+        "WiringSurfaceV1",
+        "WiringSourceAnchorV1",
+        "WiringSourceSiteV1",
+        "WiringOwnerV1",
+        "WiringObservationV1",
+        "ConditionPolicyObservationV1",
+        "parity_derives_all_route_rows_without_redeclaring_route_identity",
+        "main_and_condition_routes_keep_root_batch_and_drain_boundaries",
+        "canonical_and_raw_children_require_capture_without_a_fallback_surface",
+    ):
+        require(wiring_p0, fragment, "WIRING-P0 route parity product/fixtures")
+
+    for relative, fragment in (
+        ("src/mir/builder/module_lifecycle.rs", "lower_root"),
+        ("src/mir/builder/decls.rs", "build_static_main_box"),
+        ("src/mir/builder/recursive_child_lowering.rs", "RawInvocationChildPortV1"),
+        ("src/mir/builder/calls/materializer.rs", "condition_fn"),
+        ("src/mir/compiler/mod.rs", "compile_resolved_first_family"),
+        (
+            "src/mir/builder/resolved_lowering/callable_module_transaction.rs",
+            "lower_resolved_trivial_function_draft",
+        ),
+        (
+            "src/mir/builder/resolved_lowering/callable_module_transaction.rs",
+            "build_recursive_callable_module_candidate",
+        ),
+    ):
+        require(
+            (ROOT / relative).read_text(),
+            fragment,
+            f"WIRING-P0 source anchor {relative}",
+        )
+
+    for fragment in (
         "SealedModuleDeclarationFactsV1",
         "user_box_field_decls",
         "record_decls",
@@ -299,6 +339,7 @@ def main() -> int:
             ACCESS_VOCAB,
             ACCESS_IMPL,
             ACCESS_LIVE,
+            WIRING_P0,
             SHELL_FACTS,
             SHELL_FACTS_P0,
             DRAINED_CANDIDATE,
@@ -337,6 +378,10 @@ def main() -> int:
         if "MainRootWiringPlanV1" in text:
             raise AssertionError(
                 f"WIRING-S0 production consumer exists: {path.relative_to(ROOT)}"
+            )
+        if "HeaderPortWiringParityV1" in text:
+            raise AssertionError(
+                f"WIRING-P0 production consumer exists: {path.relative_to(ROOT)}"
             )
 
     for fragment in (
@@ -383,6 +428,7 @@ def main() -> int:
     require(builder_mod, "mod root_draft_batch;", "ROOTBATCH0-S0 module registration")
     require(builder_mod, "mod root_draft_batch_p0;", "ROOTBATCH0-P0 fixture registration")
     require(builder_mod, "mod main_root_wiring;", "WIRING-S0 Main/root order registration")
+    require(builder_mod, "mod module_wiring_parity_p0;", "WIRING-P0 parity registration")
     require(
         builder_mod,
         "mod module_lowering_invocation_access;",
@@ -418,9 +464,20 @@ def main() -> int:
                     f"Candidate0-P0 production consumer exists: {path.relative_to(ROOT)}"
                 )
 
-    for symbol in ("ModuleLoweringAccessPortV1", "MainRootWiringPlanV1"):
+    for symbol in (
+        "ModuleLoweringAccessPortV1",
+        "MainRootWiringPlanV1",
+        "HeaderPortWiringParityV1",
+    ):
         for path in (ROOT / "src/mir/builder").rglob("*.rs"):
-            if path in (ACCESS_VOCAB, ACCESS_IMPL, ACCESS_LIVE, MAIN_ROOT_WIRING, BUILDER_MOD):
+            if path in (
+                ACCESS_VOCAB,
+                ACCESS_IMPL,
+                ACCESS_LIVE,
+                MAIN_ROOT_WIRING,
+                WIRING_P0,
+                BUILDER_MOD,
+            ):
                 continue
             if path.name.endswith("_tests.rs"):
                 continue
@@ -444,8 +501,10 @@ def main() -> int:
         "HEADERPORT0-I0-MODULEFINAL0-SPLIT0-P0 (closed)\n  ownership and declaration/fact failure matrix",
         "HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0\n  child/root/drain/finalizer failure matrix",
         "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-S0\n  closed",
-        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-P0\n  next code-facing row",
+        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-P0\n  closed",
+        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0\n  next code-facing row",
         "WIRING-S0 closeout",
+        "WIRING-P0 closeout",
         "one disconnected invocation-owned shell/collector candidate",
         "typed abort/no-publication/no-retry proof",
         "production capture/commit remains forbidden",
@@ -454,7 +513,7 @@ def main() -> int:
         require(card, fragment, "Candidate0 task boundary")
     require(
         state,
-        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-P0 is next",
+        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0 is next",
         "current Candidate0/MainROLE0 pointer",
     )
 

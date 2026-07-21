@@ -5,8 +5,8 @@ ACCESS0-MEHEADER-S0/P0/I0/G0, ACCESS0-REWRITE-KNOWN-P0, ACCESS0-P0, and
 CANDIDATE0-S0/P0, MAINROLE0-D0/S0/P0, BODYDRAIN0-S0/P0,
 MAINPENDING0-S0/P0, ROOTBATCH0-S0/P0, SHELLFACT0-S0/P0, and
 DRAIN0-S0/P0, MODULEFINAL0-SPLIT0/P0, MODULEFINAL0-CANDIDATE0-P0, and
-WIRING-S0 are closed; M-root-prime remains selected and
-`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-P0` is next**
+WIRING-S0/P0 are closed; M-root-prime remains selected and
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0` is next**
 
 Date: 2026-07-21
 
@@ -474,9 +474,9 @@ HEADERPORT0-REENTRANT-TERM0-I0-WIRING-CONSULT0
   current design-stop frontier: shell-aware root wiring and port-aware
   finalizer must be sealed before production capture/commit
 
-HEADERPORT0-REENTRANT-TERM0-I0-WIRING-S0
-  next code-facing row after the design stop: live shell/header bundle,
-  port-aware Main/root entry, and explicit finalizer lookup
+HEADERPORT0-REENTRANT-TERM0-I0-WIRING-S0 (closed)
+  live shell/header bundle, port-aware Main/root order vocabulary, and
+  explicit finalizer lookup; production consumers = 0
 ```
 
 The current production I0 remains disconnected until the shell-aware root
@@ -597,13 +597,13 @@ function-local Builder state, but it must not store a port in Builder,
 CompilationContext, or TLS.
 
 ```text
-I0-WIRING-S0
+I0-WIRING-S0 (closed)
   live ModuleLoweringShellPortV1 + collector/header bundle
   root Main/static-box port-aware entry
   finalizer lookup injection
   production consumers = 0
 
-I0-WIRING-P0
+I0-WIRING-P0 (closed)
   raw child, Main, script, A+/trivial, acyclic, recursive, condition_fn
   route and failure parity
 
@@ -746,10 +746,12 @@ HEADERPORT0-REENTRANT-TERM0-I0-WIRING-S0
   finalizer lookup seam, production consumers = 0
 
 HEADERPORT0-REENTRANT-TERM0-I0-WIRING-P0
-  next code-facing row
-  raw child/Main/script/A+/trivial/acyclic/recursive/condition parity
+  closed
+  source-derived route anchors, owner lanes, condition policy, and
+  entered/changed/fallback/publication observation requirements
 
 HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0
+  next code-facing row
   one all-route capture -> seal -> collect -> drain
 
 HEADERPORT0-REENTRANT-TERM0-I0-WIRING-G0
@@ -951,7 +953,7 @@ verification failures discard the unpublished invocation. Every row keeps
 external publication unchanged and forbids retry/fallback. This is only the
 failure ownership contract; it does not execute module repair, drain, or
 finalization. The next row is
-`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-S0`; FACTSESSION0 and CUT0 remain
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0`; FACTSESSION0 and CUT0 remain
 forbidden.
 
 ## WIRING-S0 closeout
@@ -976,6 +978,29 @@ The next row is `HEADERPORT0-REENTRANT-TERM0-I0-WIRING-P0`, which must prove
 raw-child, Main, script, A+/trivial, acyclic, recursive, and condition-function
 parity before any capture/commit wiring.  `FACTSESSION0`, partial route
 cutover, and `CUT0` remain forbidden.
+
+## WIRING-P0 closeout
+
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-P0` is closed as a disconnected
+parity product.  `HeaderPortWiringParityV1` derives one row from the existing
+nine-row `InvocationRouteMatrixV1`; it does not redeclare route identity,
+publication policy, or failure law.  Each row records exact source entry
+anchors, legacy owner lanes, intended shell/collector or canonical target
+owners, condition-function policy, and the required `entered`, `changed`,
+header-lookup, publication, and fallback-forbidden observations.
+
+The source-anchor guard checks the referenced Rust entry symbols, while the
+existing 14-row reader census remains the authority for direct publication and
+lookup sites.  Fixtures cover raw script/Main expansion, static and constructor
+child capture, synthetic `condition_fn`, A+/trivial single functions, and
+acyclic/recursive callable batches without creating a second collector or
+applying a raw `main` policy to canonical routes.
+
+This closeout proves only route inventory and observation requirements.  It
+does not claim that any production route has entered or changed, and it does
+not connect capture, commit, drain, or finalization.  The next row is
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0`; `condition_fn` miss/stub behavior,
+collector-miss no-fallback, and all-route atomicity remain explicit I0 gates.
 
 ## MAINPENDING0-P0 closeout
 

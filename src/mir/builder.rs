@@ -97,6 +97,8 @@ mod module_lowering_invocation_reentrant_tests;
 mod module_lowering_invocation_state; // HEADERPORT0 I0-STATE0-S0 disconnected seam
 #[allow(dead_code)]
 mod module_lowering_shell; // HEADERPORT0 I0-SHELL-S0 disconnected shell
+#[allow(dead_code)]
+mod module_wiring_parity_p0; // HEADERPORT0 WIRING-P0 disconnected parity
 mod raw_expression_dispatch; // single raw AST expression dispatcher
 #[allow(dead_code)]
 mod raw_loop_child_entry; // LOOPBRIDGE0-S0 pure raw Loop child-entry quarantine
