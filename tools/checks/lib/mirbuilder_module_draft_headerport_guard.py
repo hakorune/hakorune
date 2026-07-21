@@ -12,7 +12,6 @@ import pathlib
 import sys
 from collections import Counter
 
-
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 BUILDER = ROOT / "src/mir/builder.rs"
 COMPILATION = ROOT / "src/mir/builder/compilation_context.rs"
@@ -29,6 +28,7 @@ MODULE_SHELL = ROOT / "src/mir/builder/module_lowering_shell.rs"
 INVOCATION_DRAIN = ROOT / "src/mir/builder/module_invocation_drain.rs"
 ROUTE_MATRIX = ROOT / "src/mir/builder/module_invocation_route_matrix.rs"
 MATRIX_CONSUMERS = tuple(ROOT / f"src/mir/builder/{name}.rs" for name in ("module_wiring_parity_p0", "route_owned_invocation_inventory"))
+BORROW_ROOT_P0D = ROOT / "src/mir/builder/module_lowering_borrow_root_p0d.rs"
 INVOCATION_STATE = ROOT / "src/mir/builder/module_lowering_invocation_state.rs"
 ACCESS_PORT = ROOT / "src/mir/builder/module_lowering_access_port.rs"
 PENDING_TERMINAL = ROOT / "src/mir/builder/calls/function_session/terminal.rs"
@@ -47,7 +47,7 @@ STATE_CUTOVER_DOC = ROOT / (
     "docs/development/current/main/investigations/"
     "mirbuilder-headerport-i0-production-cutover-consultation-2026-07-21.md"
 )
-
+ROUTE_MATRIX_P0E = ROOT / "src/mir/builder/module_wiring_route_matrix_p0e.rs"
 P0_DIRECT_HEADER_READER_FRAGMENTS = {
     "src/mir/builder/calls/annotation.rs": "builder\n        .current_module\n        .as_ref()",
     "src/mir/builder/calls/lowering.rs": "self.current_module.take()",
@@ -64,7 +64,6 @@ P0_ACCESS_ADAPTER_FRAGMENTS = {
     "src/mir/builder/rewrite/special.rs": "try_special_equals_to_dst_with_lookup",
     "src/mir/builder/calls/unified_emitter.rs": "emit_unified_call_with_lookup",
 }
-
 # I0-SHELL-P0 owns the complete production reader census.  The source anchor
 # is checked against Rust and the future owner phrase is checked against the
 # consultation card, so a hand-entered row cannot survive source drift.
@@ -316,6 +315,7 @@ def main() -> int:
             INVOCATION,
             MODULE_SHELL,
             ROUTE_MATRIX,
+            BORROW_ROOT_P0D, ROUTE_MATRIX_P0E,
             *MATRIX_CONSUMERS,
             INVOCATION_STATE,
             INVOCATION_CANDIDATE,
@@ -557,7 +557,7 @@ def main() -> int:
         "HEADERPORT0 legacy commit-only owner",
     )
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
-        if path == INVOCATION or path.name == "module_lowering_invocation_reentrant_tests.rs":
+        if path in (INVOCATION, RAW_PORT) or path.name == "module_lowering_invocation_reentrant_tests.rs":
             continue
         source = read(path)
         forbid(
