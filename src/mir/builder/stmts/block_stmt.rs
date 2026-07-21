@@ -21,6 +21,9 @@
 
 use super::block_driver::{drive_legacy_block_v1, LegacyBlockDescentPortV1};
 use crate::ast::ASTNode;
+use crate::mir::builder::recursive_child_lowering::{
+    drive_legacy_statement_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+};
 use crate::mir::builder::MirBuilder;
 use crate::mir::builder::ValueId;
 
@@ -45,15 +48,38 @@ pub(in crate::mir::builder) fn build_block(
     builder: &mut MirBuilder,
     statements: Vec<ASTNode>,
 ) -> Result<ValueId, String> {
-    let mut port = OwnedLegacyBlockPortV1 { statements };
+    let mut child = RawLegacyChildLoweringPortV1;
+    build_block_with_port_v1(builder, &mut child, statements)
+}
+
+/// Run the existing sequential block driver while retaining one child port.
+///
+/// The driver still owns scope lifetime, suffix routing, termination, and
+/// last-value selection. This thin adapter owns only the raw statement list
+/// and reuses the caller's child descent for each element.  RAWPORT0 later
+/// supplies `RawInvocationChildPortV1` here; the legacy facade above remains
+/// the production route through M0.
+pub(in crate::mir::builder) fn build_block_with_port_v1<Port>(
+    builder: &mut MirBuilder,
+    child: &mut Port,
+    statements: Vec<ASTNode>,
+) -> Result<ValueId, String>
+where
+    Port: RecursiveChildLoweringPortV1<StatementInput = ASTNode>,
+{
+    let mut port = OwnedLegacyBlockPortV1 { statements, child };
     drive_legacy_block_v1(builder, &mut port)
 }
 
-struct OwnedLegacyBlockPortV1 {
+struct OwnedLegacyBlockPortV1<'port, Port> {
     statements: Vec<ASTNode>,
+    child: &'port mut Port,
 }
 
-impl LegacyBlockDescentPortV1 for OwnedLegacyBlockPortV1 {
+impl<Port> LegacyBlockDescentPortV1 for OwnedLegacyBlockPortV1<'_, Port>
+where
+    Port: RecursiveChildLoweringPortV1<StatementInput = ASTNode>,
+{
     type SuffixInput<'a>
         = &'a [ASTNode]
     where
@@ -72,7 +98,7 @@ impl LegacyBlockDescentPortV1 for OwnedLegacyBlockPortV1 {
         builder: &mut MirBuilder,
         index: usize,
     ) -> Result<ValueId, String> {
-        build_statement(builder, self.statements[index].clone())
+        drive_legacy_statement_v1(builder, self.child, self.statements[index].clone())
     }
 }
 

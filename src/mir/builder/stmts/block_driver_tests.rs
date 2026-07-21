@@ -1,5 +1,45 @@
 use crate::ast::{ASTNode, LiteralValue, Span};
+use crate::mir::builder::recursive_child_lowering::RecursiveChildLoweringPortV1;
 use crate::mir::{ConstValue, MirBuilder, MirInstruction, ValueId};
+
+#[derive(Default)]
+struct RecordingAstChildPortV1 {
+    statement_nodes: Vec<&'static str>,
+}
+
+impl RecursiveChildLoweringPortV1 for RecordingAstChildPortV1 {
+    type BodyInput = Vec<ASTNode>;
+    type StatementInput = ASTNode;
+    type ExpressionInput = ASTNode;
+
+    fn lower_body(
+        &mut self,
+        _builder: &mut MirBuilder,
+        _input: Self::BodyInput,
+    ) -> Result<ValueId, String> {
+        Err("body should remain owned by block driver".to_string())
+    }
+
+    fn lower_statement(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: Self::StatementInput,
+    ) -> Result<ValueId, String> {
+        self.statement_nodes.push(input.node_type());
+        crate::mir::builder::emission::constant::emit_integer(
+            builder,
+            100 + self.statement_nodes.len() as i64,
+        )
+    }
+
+    fn lower_expression(
+        &mut self,
+        _builder: &mut MirBuilder,
+        _input: Self::ExpressionInput,
+    ) -> Result<ValueId, String> {
+        Err("expression should remain owned by child port".to_string())
+    }
+}
 
 fn integer(value: i64) -> ASTNode {
     ASTNode::Literal {
@@ -92,6 +132,30 @@ fn statements_lower_once_in_source_order_and_return_the_last_value() {
     assert_eq!(constants[1].1, 22);
     assert_eq!(output, constants[1].0);
     assert!(builder.function_state.scope.lexical_scope_stack.is_empty());
+}
+
+#[test]
+fn port_aware_block_reuses_the_supplied_statement_descent() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("block_driver_port/0".to_string());
+    let mut child = RecordingAstChildPortV1::default();
+
+    let output = super::block_stmt::build_block_with_port_v1(
+        &mut builder,
+        &mut child,
+        vec![integer(11), integer(22)],
+    )
+    .unwrap();
+
+    assert_eq!(child.statement_nodes, vec!["Literal", "Literal"]);
+    assert_eq!(
+        instructions(&builder)
+            .iter()
+            .filter(|instruction| matches!(instruction, MirInstruction::Const { .. }))
+            .count(),
+        2
+    );
+    assert_eq!(output, integer_constants(&builder).last().unwrap().0);
 }
 
 #[test]
