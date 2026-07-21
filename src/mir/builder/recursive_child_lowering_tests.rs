@@ -1,4 +1,4 @@
-use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
+use crate::ast::{ASTNode, BinaryOperator, CheckItem, LiteralValue, Span};
 use crate::mir::{
     BasicBlockId, BindingId, Effect, EffectMask, FunctionSignature, MirBuilder, MirFunction,
     MirInstruction, MirType, ValueId,
@@ -125,6 +125,17 @@ fn grouped_assignment(name: &str, value: ASTNode) -> ASTNode {
     ASTNode::GroupedAssignmentExpr {
         lhs: name.to_string(),
         rhs: Box::new(value),
+        span: Span::unknown(),
+    }
+}
+
+fn check(expression: ASTNode) -> ASTNode {
+    ASTNode::CheckExpr {
+        name: None,
+        items: vec![CheckItem {
+            label: None,
+            expression,
+        }],
         span: Span::unknown(),
     }
 }
@@ -387,6 +398,29 @@ fn raw_invocation_port_preserves_grouped_assignment_rhs_descent() {
             builder.function_state.variable_ctx.variable_map["x"],
             output
         );
+        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
+    });
+}
+
+#[test]
+fn raw_invocation_port_preserves_check_item_descent() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("raw_invocation_check/0".to_string());
+    let mut invocation = ModuleLoweringInvocationV1::with_collector(
+        &mut builder,
+        collector_with_header("Prefix.f/1", 1),
+    );
+
+    invocation.with_module_port(|builder, module_port| {
+        let mut port = RawInvocationChildPortV1::new(module_port);
+        let output =
+            drive_legacy_expression_v1(builder, &mut port, check(add(integer(2), integer(3))))
+                .unwrap();
+
+        assert!(instructions(builder).iter().any(|instruction| matches!(
+            instruction,
+            MirInstruction::Select { dst, .. } if *dst == output
+        )));
         port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
     });
 }

@@ -1,4 +1,7 @@
-use crate::ast::CheckItem;
+use crate::ast::{ASTNode, CheckItem};
+use crate::mir::builder::recursive_child_lowering::{
+    drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+};
 
 use super::{MirInstruction, ValueId};
 
@@ -11,12 +14,25 @@ impl super::MirBuilder {
         &mut self,
         items: Vec<CheckItem>,
     ) -> Result<ValueId, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_check_expression_with_port_v1(&mut port, items)
+    }
+
+    /// Lower check items while retaining the caller's raw child-descent port.
+    pub(in crate::mir::builder) fn build_check_expression_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        items: Vec<CheckItem>,
+    ) -> Result<ValueId, String>
+    where
+        Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
+    {
         let one = crate::mir::builder::emission::constant::emit_integer(self, 1)?;
         let zero = crate::mir::builder::emission::constant::emit_integer(self, 0)?;
         let mut ok = one;
 
         for item in items {
-            let condition = self.build_expression_impl(item.expression)?;
+            let condition = drive_legacy_expression_v1(self, port, item.expression)?;
             let dst = self.next_value_id();
             let prepared = PreparedCheckSelectIntegerTypeV1::prepare(
                 self.function_state.type_ctx.get_type(dst),

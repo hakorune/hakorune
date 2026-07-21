@@ -327,7 +327,9 @@ impl super::MirBuilder {
                 }
             }
 
-            ASTNode::CheckExpr { items, .. } => self.build_check_expression(items),
+            ASTNode::CheckExpr { items, .. } => {
+                self.build_check_expression_with_port_v1(port, items)
+            }
 
             ASTNode::UnaryOp {
                 operator, operand, ..
