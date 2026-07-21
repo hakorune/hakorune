@@ -295,6 +295,19 @@ impl Drop for CanonicalFunctionLoweringSessionV1<'_> {
 }
 
 impl MirBuilder {
+    /// Test-only observation adapter for FACTSESSION0-P0.
+    ///
+    /// It intentionally exposes existing restore behavior without changing a
+    /// production session boundary or transporting any fact-session state.
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn observe_function_restore_for_p0_test(
+        &mut self,
+        function_name: &str,
+        operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
+    ) -> Result<(), String> {
+        self.with_function_lowering_session(function_name, Vec::new(), operation)
+    }
+
     pub(super) fn with_function_lowering_session(
         &mut self,
         function_name: &str,

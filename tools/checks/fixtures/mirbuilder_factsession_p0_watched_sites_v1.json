@@ -1,0 +1,126 @@
+{
+  "schema": "MirBuilderFactSessionP0WatchedSyntaxV1",
+  "entries": [
+    {
+      "path": "src/mir/builder/builder_build.rs",
+      "module_syntax_path": "hakorune::mir::builder::builder_build",
+      "enclosing_item_syntax_path": "hakorune::mir::builder::builder_build::<impl MirBuilder>::build_module",
+      "expression_kind": "expr_method_call",
+      "normalized_callee_syntax": "prepare_module",
+      "receiver_syntax": "self",
+      "direct_cfg_syntax": [],
+      "inherited_cfg_syntax": [],
+      "disposition": "root_open"
+    },
+    {
+      "path": "src/mir/builder/builder_build.rs",
+      "module_syntax_path": "hakorune::mir::builder::builder_build",
+      "enclosing_item_syntax_path": "hakorune::mir::builder::builder_build::<impl MirBuilder>::build_module",
+      "expression_kind": "expr_method_call",
+      "normalized_callee_syntax": "finalize_module",
+      "receiver_syntax": "self",
+      "direct_cfg_syntax": [],
+      "inherited_cfg_syntax": [],
+      "disposition": "completion"
+    },
+    {
+      "path": "src/mir/builder/resolved_lowering/mod.rs",
+      "module_syntax_path": "hakorune::mir::builder::resolved_lowering",
+      "enclosing_item_syntax_path": "hakorune::mir::builder::resolved_lowering::<impl MirBuilder>::build_resolved_function_module",
+      "expression_kind": "expr_method_call",
+      "normalized_callee_syntax": "with_resolved_function_lowering_session",
+      "receiver_syntax": "self",
+      "direct_cfg_syntax": [],
+      "inherited_cfg_syntax": [],
+      "disposition": "function_open"
+    },
+    {
+      "path": "src/mir/builder/resolved_lowering/mod.rs",
+      "module_syntax_path": "hakorune::mir::builder::resolved_lowering",
+      "enclosing_item_syntax_path": "hakorune::mir::builder::resolved_lowering::<impl MirBuilder>::lower_resolved_trivial_function_draft",
+      "expression_kind": "expr_method_call",
+      "normalized_callee_syntax": "with_resolved_function_draft_session",
+      "receiver_syntax": "self",
+      "direct_cfg_syntax": [],
+      "inherited_cfg_syntax": [],
+      "disposition": "function_open"
+    },
+    {
+      "path": "src/mir/builder/resolved_lowering/callable_module_transaction.rs",
+      "module_syntax_path": "hakorune::mir::builder::resolved_lowering::callable_module_transaction",
+      "enclosing_item_syntax_path": "hakorune::mir::builder::resolved_lowering::callable_module_transaction::<impl MirBuilder>::build_acyclic_callable_module_candidate_with",
+      "expression_kind": "expr_method_call",
+      "normalized_callee_syntax": "prepare_module",
+      "receiver_syntax": "self",
+      "direct_cfg_syntax": [],
+      "inherited_cfg_syntax": [],
+      "disposition": "root_open"
+    },
+    {
+      "path": "src/mir/builder/resolved_lowering/callable_module_transaction.rs",
+      "module_syntax_path": "hakorune::mir::builder::resolved_lowering::callable_module_transaction",
+      "enclosing_item_syntax_path": "hakorune::mir::builder::resolved_lowering::callable_module_transaction::<impl MirBuilder>::publish_callable_drafts",
+      "expression_kind": "expr_method_call",
+      "normalized_callee_syntax": "finalize_module",
+      "receiver_syntax": "self",
+      "direct_cfg_syntax": [],
+      "inherited_cfg_syntax": [],
+      "disposition": "completion"
+    },
+    {
+      "path": "src/mir/builder/calls/function_session.rs",
+      "module_syntax_path": "hakorune::mir::builder::calls::function_session",
+      "enclosing_item_syntax_path": "hakorune::mir::builder::calls::function_session::<impl CanonicalFunctionLoweringSessionV1 < 'builder >>::open",
+      "expression_kind": "expr_method_call",
+      "normalized_callee_syntax": "prepare_lowering_context",
+      "receiver_syntax": "builder",
+      "direct_cfg_syntax": [],
+      "inherited_cfg_syntax": [],
+      "disposition": "function_open"
+    },
+    {
+      "path": "src/mir/builder/calls/function_session.rs",
+      "module_syntax_path": "hakorune::mir::builder::calls::function_session",
+      "enclosing_item_syntax_path": "hakorune::mir::builder::calls::function_session::<impl CanonicalFunctionLoweringSessionV1 < 'builder >>::run",
+      "expression_kind": "expr_call",
+      "normalized_callee_syntax": "publish_function_draft",
+      "receiver_syntax": null,
+      "direct_cfg_syntax": [],
+      "inherited_cfg_syntax": [],
+      "disposition": "publication"
+    },
+    {
+      "path": "src/mir/builder/calls/function_session.rs",
+      "module_syntax_path": "hakorune::mir::builder::calls::function_session",
+      "enclosing_item_syntax_path": "hakorune::mir::builder::calls::function_session::<impl CanonicalFunctionLoweringSessionV1 < '_ >>::drop",
+      "expression_kind": "expr_method_call",
+      "normalized_callee_syntax": "restore_lowering_context",
+      "receiver_syntax": "self . builder",
+      "direct_cfg_syntax": [],
+      "inherited_cfg_syntax": [],
+      "disposition": "abort_drop"
+    },
+    {
+      "path": "src/mir/builder/module_lifecycle.rs",
+      "module_syntax_path": "hakorune::mir::builder::module_lifecycle",
+      "enclosing_item_syntax_path": "hakorune::mir::builder::module_lifecycle::<impl super :: MirBuilder>::finalize_module",
+      "expression_kind": "expr_method_call",
+      "normalized_callee_syntax": "new_function_with_metadata",
+      "receiver_syntax": "self",
+      "direct_cfg_syntax": [],
+      "inherited_cfg_syntax": [],
+      "disposition": "synthetic_function"
+    },
+    {
+      "path": "src/mir/builder/calls/function_session_tests.rs",
+      "module_syntax_path": "hakorune::mir::builder::calls::function_session_tests",
+      "enclosing_item_syntax_path": "hakorune::mir::builder::calls::function_session_tests::seeded_builder",
+      "expression_kind": "expr_method_call",
+      "normalized_callee_syntax": "enter_function_for_test",
+      "receiver_syntax": "builder",
+      "direct_cfg_syntax": [],
+      "inherited_cfg_syntax": [],
+      "disposition": "test_adapter"
+    }
+  ]
+}

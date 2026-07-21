@@ -123,6 +123,12 @@ profiles = ["pilot"]
 cmd = ["tools/checks/lib/mirbuilder_finalize0_pass_inventory.py"]
 
 [[rows]]
+id = "mirbuilder-factsession-p0-static"
+label = "FACTSESSION0-P0 syntax-only watched-site guard"
+profiles = ["pilot"]
+cmd = ["tools/checks/lib/mirbuilder_factsession_p0_static_guard.py", "."]
+
+[[rows]]
 id = "rust-source-topology-cargo-evidence"
 label = "FINALIZE0 CARGO0 disconnected evidence guard"
 profiles = ["pilot"]

@@ -12,7 +12,9 @@ use crate::mir::builder::ssa::phi_input_materializer::remat_fact::{
     OpenExactProducerReceiptLedgerV1, SealedExactProducerReceiptLedgerV1,
 };
 use crate::mir::builder::type_context::TypeContext;
-use crate::mir::{MirFunction, ValueId};
+use crate::mir::MirFunction;
+#[cfg(test)]
+use crate::mir::ValueId;
 
 /// Opaque identity for one function's transient fact session.
 ///
@@ -306,6 +308,86 @@ pub(in crate::mir::builder) struct SealedModuleFactSessionV1 {
 
 #[derive(Debug)]
 struct SealedModuleFactSessionSealV1;
+
+/// Test-only lifecycle adapter for FACTSESSION0-P0.
+///
+/// This deliberately owns only the disconnected session vocabulary. It does
+/// not borrow `MirBuilder`, move Builder maps, or stand in for a production
+/// completion boundary; P0 uses it beside existing Builder sessions solely to
+/// observe lifecycle ordering before I0 selects a live connection.
+#[cfg(test)]
+pub(super) mod p0_test_support {
+    use super::{
+        FactSessionIssuerErrorV1, FactSessionIssuerV1, FunctionFactGenerationV1,
+        ModuleFactSessionErrorV1, ModuleFactSessionV1,
+    };
+    use crate::mir::{MirFunction, ValueId};
+
+    #[allow(dead_code)] // P0-S0 exposes the typed test-only failure surface before P0 probes it.
+    #[derive(Debug)]
+    pub(in crate::mir::builder) enum FactSessionP0HarnessErrorV1 {
+        Issuer(FactSessionIssuerErrorV1),
+        Module(ModuleFactSessionErrorV1),
+    }
+
+    impl From<FactSessionIssuerErrorV1> for FactSessionP0HarnessErrorV1 {
+        fn from(error: FactSessionIssuerErrorV1) -> Self {
+            Self::Issuer(error)
+        }
+    }
+
+    impl From<ModuleFactSessionErrorV1> for FactSessionP0HarnessErrorV1 {
+        fn from(error: ModuleFactSessionErrorV1) -> Self {
+            Self::Module(error)
+        }
+    }
+
+    /// One test-only module invocation boundary.
+    #[derive(Debug)]
+    pub(in crate::mir::builder) struct FactSessionP0HarnessV1 {
+        module: ModuleFactSessionV1,
+    }
+
+    impl FactSessionP0HarnessV1 {
+        pub(in crate::mir::builder) fn open(
+            issuer: &mut FactSessionIssuerV1,
+        ) -> Result<Self, FactSessionP0HarnessErrorV1> {
+            Ok(Self {
+                module: issuer.open_module()?,
+            })
+        }
+
+        /// Exercises only the success sequence: open, seed, seal, collect.
+        pub(in crate::mir::builder) fn collect_success(
+            &mut self,
+            draft: MirFunction,
+            value: ValueId,
+        ) -> Result<FunctionFactGenerationV1, FactSessionP0HarnessErrorV1> {
+            let mut function = self.module.open_function()?;
+            let generation = function.generation();
+            function.test_insert_all_lanes(value);
+            self.module
+                .collect_completed(function.seal_with_draft(draft))?;
+            Ok(generation)
+        }
+
+        /// Exercises abort as a consuming terminal state without collection.
+        pub(in crate::mir::builder) fn abort_seeded(
+            &mut self,
+            value: ValueId,
+        ) -> Result<FunctionFactGenerationV1, FactSessionP0HarnessErrorV1> {
+            let mut function = self.module.open_function()?;
+            let generation = function.generation();
+            function.test_insert_all_lanes(value);
+            function.abort();
+            Ok(generation)
+        }
+
+        pub(in crate::mir::builder) fn completed_count(&self) -> usize {
+            self.module.completed.len()
+        }
+    }
+}
 
 #[cfg(test)]
 mod tests {

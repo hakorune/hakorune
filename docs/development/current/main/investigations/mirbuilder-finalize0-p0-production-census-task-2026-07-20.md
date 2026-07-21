@@ -1,5 +1,5 @@
 ---
-Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0/S0/M0/FACTSESSION0-D0/S0/M0/P0-SELECT are closed; FINALIZE0-FACTSESSION0-P0-S0 is next, and CUT0 remains forbidden
+Status: FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0/S0/M0/FACTSESSION0-D0/S0/M0/P0-SELECT/P0-S0 are closed; FINALIZE0-FACTSESSION0-P0-P0 is next, and CUT0 remains forbidden
 Date: 2026-07-21
 Scope: measured FINALIZE0 production topology and repair observation
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md
@@ -3328,3 +3328,27 @@ FINALIZE0-FACTSESSION0-P0-SELECT
 
 PHI repair, receipt issuers, map clearing, source semantic resolution, direct
 repair, unused-Phi deletion, JoinIR, and CUT0 remain outside this proof row.
+
+#### FACTSESSION0-P0-S0 closeout — disconnected harness and syntax policy
+
+The test-only `FactSessionP0HarnessV1` now owns only one
+`FactSessionIssuerV1`-opened module session. Its success operation is exactly
+open, seed all eight test lanes, seal with a supplied draft, and collect; its
+abort operation consumes the open function session without collection. A
+separate cfg(test)-only Builder adapter observes the existing child restore
+transaction. The adapter moves no Builder map and does not imply that existing
+Builder facts are session-owned; that production connection remains I0 work.
+
+The parser-backed `mirbuilder-factsession-p0-static` guard consumes neutral
+single-file topology facts and matches 11 exact syntax rows. Each row has one
+of `root_open`, `function_open`, `completion`, `abort_drop`, `publication`,
+`synthetic_function`, or `test_adapter`. The guard requires every watched row
+to remain parser-unresolved, rejects a duplicate classification, and reports
+`unclassified=0`; it makes no Rust def-path or production-reachability claim.
+
+Focused fact-session tests, the pilot row guard, format, `cargo check`, and
+the current-state pointer guard are green. All touched source/check files are
+below 800 lines. `FACTSESSION0-P0-P0` is next: it must add the complete nested
+success/error/panic, sibling-ValueId, candidate-failure, baseline reuse, and
+static matrix proofs without connecting a production lifecycle, receipt issuer,
+or PHI repair.
