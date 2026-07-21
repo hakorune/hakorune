@@ -608,7 +608,8 @@ impl super::MirBuilder {
                 arguments,
                 field_initializers,
                 ..
-            } => self.build_new_expression_with_field_initializers(
+            } => self.build_new_expression_with_field_initializers_with_port_v1(
+                port,
                 class.clone(),
                 arguments.clone(),
                 field_initializers.clone(),

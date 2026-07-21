@@ -83,6 +83,26 @@ impl super::MirBuilder {
         class: &str,
         field_initializers: Vec<(String, ASTNode)>,
     ) -> Result<(), String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_box_field_initializers_with_port_v1(
+            &mut port,
+            object_value,
+            class,
+            field_initializers,
+        )
+    }
+
+    /// Lower box field initializers without dropping the raw child port.
+    pub(in crate::mir::builder) fn build_box_field_initializers_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        object_value: ValueId,
+        class: &str,
+        field_initializers: Vec<(String, ASTNode)>,
+    ) -> Result<(), String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         let mut seen = std::collections::BTreeSet::new();
         for (field, value) in field_initializers {
             if !seen.insert(field.clone()) {
@@ -105,7 +125,7 @@ impl super::MirBuilder {
                     ));
                 }
             }
-            self.build_field_assignment_from_value(object_value, field, value)?;
+            self.build_field_assignment_from_value_with_port_v1(port, object_value, field, value)?;
         }
         Ok(())
     }

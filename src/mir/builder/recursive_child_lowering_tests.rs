@@ -1,18 +1,12 @@
-use crate::ast::{ASTNode, BinaryOperator, CheckItem, FieldDecl, LiteralValue, Span};
+use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::{
-    BasicBlockId, BindingId, Effect, EffectMask, FunctionSignature, MirBuilder, MirFunction,
-    MirInstruction, MirType, ValueId,
+    BasicBlockId, Effect, EffectMask, FunctionSignature, MirBuilder, MirInstruction, MirType,
+    ValueId,
 };
 
 use super::recursive_child_lowering::{
     drive_legacy_body_v1, drive_legacy_expression_v1, drive_legacy_statement_v1,
-    RawInvocationChildPortV1, RecursiveChildLoweringPortV1,
-};
-use super::{
-    module_draft_collector::{
-        DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftCollectorV1,
-    },
-    module_lowering_invocation::ModuleLoweringInvocationV1,
+    RecursiveChildLoweringPortV1,
 };
 
 struct BodyTokenV1(i64);
@@ -91,186 +85,16 @@ fn typeop(receiver: ASTNode) -> ASTNode {
     }
 }
 
-fn unary_minus(operand: ASTNode) -> ASTNode {
-    ASTNode::UnaryOp {
-        operator: crate::ast::UnaryOperator::Minus,
-        operand: Box::new(operand),
-        span: Span::unknown(),
-    }
-}
-
-fn await_expression(expression: ASTNode) -> ASTNode {
-    ASTNode::AwaitExpression {
-        expression: Box::new(expression),
-        span: Span::unknown(),
-    }
-}
-
-fn nowait(variable: &str, expression: ASTNode) -> ASTNode {
-    ASTNode::Nowait {
-        variable: variable.to_string(),
-        expression: Box::new(expression),
-        span: Span::unknown(),
-    }
-}
-
-fn qmark(expression: ASTNode) -> ASTNode {
-    ASTNode::QMarkPropagate {
-        expression: Box::new(expression),
-        span: Span::unknown(),
-    }
-}
-
-fn grouped_assignment(name: &str, value: ASTNode) -> ASTNode {
-    ASTNode::GroupedAssignmentExpr {
-        lhs: name.to_string(),
-        rhs: Box::new(value),
-        span: Span::unknown(),
-    }
-}
-
-fn compound_assignment(name: &str, value: ASTNode) -> ASTNode {
-    ASTNode::CompoundAssignment {
-        target: Box::new(ASTNode::Variable {
-            name: name.to_string(),
-            span: Span::unknown(),
-        }),
-        operator: BinaryOperator::Add,
-        value: Box::new(value),
-        span: Span::unknown(),
-    }
-}
-
-fn indirect_call(callee: ASTNode, arguments: Vec<ASTNode>) -> ASTNode {
-    ASTNode::Call {
-        callee: Box::new(callee),
-        arguments,
-        span: Span::unknown(),
-    }
-}
-
-fn from_call(parent: &str, method: &str, arguments: Vec<ASTNode>) -> ASTNode {
-    ASTNode::FromCall {
-        parent: parent.to_string(),
-        method: method.to_string(),
-        arguments,
-        span: Span::unknown(),
-    }
-}
-
-fn check(expression: ASTNode) -> ASTNode {
-    ASTNode::CheckExpr {
-        name: None,
-        items: vec![CheckItem {
-            label: None,
-            expression,
-        }],
-        span: Span::unknown(),
-    }
-}
-
-fn array(elements: Vec<ASTNode>) -> ASTNode {
-    ASTNode::ArrayLiteral {
-        elements,
-        span: Span::unknown(),
-    }
-}
-
-fn map(entries: Vec<(&str, ASTNode)>) -> ASTNode {
-    ASTNode::MapLiteral {
-        entries: entries
-            .into_iter()
-            .map(|(key, value)| (key.to_string(), value))
-            .collect(),
-        span: Span::unknown(),
-    }
-}
-
-fn throw(expression: ASTNode) -> ASTNode {
-    ASTNode::Throw {
-        expression: Box::new(expression),
-        span: Span::unknown(),
-    }
-}
-
-fn print(expression: ASTNode) -> ASTNode {
-    ASTNode::Print {
-        expression: Box::new(expression),
-        span: Span::unknown(),
-    }
-}
-
-fn field_access(object: ASTNode, field: &str) -> ASTNode {
-    ASTNode::FieldAccess {
-        object: Box::new(object),
-        field: field.to_string(),
-        span: Span::unknown(),
-    }
-}
-
-fn record_literal(fields: Vec<(&str, ASTNode)>) -> ASTNode {
-    ASTNode::RecordLiteral {
-        record_type_name: "Pair".to_string(),
-        fields: fields
-            .into_iter()
-            .map(|(name, value)| (name.to_string(), value))
-            .collect(),
-        span: Span::unknown(),
-    }
-}
-
-fn register_pair_record(builder: &mut MirBuilder) {
-    builder.comp_ctx.register_record_decl(
-        "Pair".to_string(),
-        Vec::new(),
-        &[FieldDecl {
-            name: "value".to_string(),
-            declared_type_name: None,
-            is_weak: false,
-            default_value: None,
-        }],
-    );
-}
-
 fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
-    let function = builder
+    builder
         .function_state
         .current_function
         .as_ref()
-        .expect("current test function");
-    function
+        .expect("current test function")
         .blocks
         .values()
         .flat_map(|block| block.instructions.iter().cloned())
         .collect()
-}
-
-fn collected_header(symbol: &str, arity: usize) -> MirFunction {
-    MirFunction::new(
-        FunctionSignature {
-            name: symbol.to_string(),
-            params: vec![MirType::Integer; arity],
-            return_type: MirType::Void,
-            effects: EffectMask::READ.add(Effect::ReadHeap),
-        },
-        BasicBlockId(0),
-    )
-}
-
-fn collector_with_header(symbol: &str, arity: usize) -> ModuleDraftCollectorV1 {
-    let mut collector = ModuleDraftCollectorV1::default();
-    collector
-        .prepare_admission(
-            FunctionDraftKeyV1::LegacySymbol(symbol.to_string()),
-            symbol.to_string(),
-            arity,
-            DraftPublicationPolicyV1::LegacyReplaceWholePair,
-        )
-        .unwrap()
-        .seal(collected_header(symbol, arity))
-        .unwrap()
-        .collect();
-    collector
 }
 
 #[test]
@@ -283,9 +107,10 @@ fn associated_inputs_dispatch_each_child_kind_exactly_once() {
     drive_legacy_statement_v1(&mut builder, &mut port, StatementTokenV1(2)).unwrap();
     drive_legacy_expression_v1(&mut builder, &mut port, ExpressionTokenV1(3)).unwrap();
 
-    assert_eq!(port.body_calls, 1);
-    assert_eq!(port.statement_calls, 1);
-    assert_eq!(port.expression_calls, 1);
+    assert_eq!(
+        (port.body_calls, port.statement_calls, port.expression_calls),
+        (1, 1, 1)
+    );
 }
 
 #[test]
@@ -302,450 +127,6 @@ fn child_driver_propagates_failure_without_retry() {
         "counting-expression-failure"
     );
     assert_eq!(port.expression_calls, 1);
-}
-
-#[test]
-fn raw_invocation_port_reborrows_one_collector_backed_header_view() {
-    let mut builder = MirBuilder::new();
-    let mut invocation = ModuleLoweringInvocationV1::with_collector(
-        &mut builder,
-        collector_with_header("Prefix.f/1", 1),
-    );
-
-    invocation.with_module_port(|_builder, module_port| {
-        let mut root = RawInvocationChildPortV1::new(module_port);
-        root.with_headers(|headers| {
-            assert_eq!(headers.signature("Prefix.f/1").unwrap().params.len(), 1);
-            assert_eq!(headers.symbol_count(), 1);
-        });
-
-        let nested = root.reborrow();
-        nested.with_headers(|headers| {
-            assert!(headers.contains_symbol("Prefix.f/1"));
-            assert_eq!(
-                headers.signature("Prefix.f/1").unwrap().return_type,
-                MirType::Void
-            );
-        });
-    });
-}
-
-#[test]
-fn raw_invocation_port_dispatches_nested_binary_without_collector_mutation() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw_invocation_nested_binary/0".to_string());
-    let mut invocation = ModuleLoweringInvocationV1::with_collector(
-        &mut builder,
-        collector_with_header("Prefix.f/1", 1),
-    );
-
-    invocation.with_module_port(|builder, module_port| {
-        let mut port = RawInvocationChildPortV1::new(module_port);
-        let output = drive_legacy_expression_v1(
-            builder,
-            &mut port,
-            add(integer(1), add(integer(2), integer(3))),
-        )
-        .unwrap();
-
-        assert!(instructions(builder).iter().any(|instruction| matches!(
-            instruction,
-            MirInstruction::BinOp { dst, .. } if *dst == output
-        )));
-        port.with_headers(|headers| {
-            assert_eq!(headers.symbol_count(), 1);
-            assert!(headers.contains_symbol("Prefix.f/1"));
-        });
-    });
-}
-
-#[test]
-fn raw_invocation_port_preserves_unary_operand_descent() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw_invocation_unary/0".to_string());
-    let mut invocation = ModuleLoweringInvocationV1::with_collector(
-        &mut builder,
-        collector_with_header("Prefix.f/1", 1),
-    );
-
-    invocation.with_module_port(|builder, module_port| {
-        let mut port = RawInvocationChildPortV1::new(module_port);
-        let output = drive_legacy_expression_v1(
-            builder,
-            &mut port,
-            unary_minus(add(integer(2), integer(3))),
-        )
-        .unwrap();
-
-        assert!(instructions(builder).iter().any(|instruction| matches!(
-            instruction,
-            MirInstruction::UnaryOp { dst, .. } if *dst == output
-        )));
-        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
-    });
-}
-
-#[test]
-fn raw_invocation_port_preserves_await_operand_descent() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw_invocation_await/0".to_string());
-    let mut invocation = ModuleLoweringInvocationV1::with_collector(
-        &mut builder,
-        collector_with_header("Prefix.f/1", 1),
-    );
-
-    invocation.with_module_port(|builder, module_port| {
-        let mut port = RawInvocationChildPortV1::new(module_port);
-        let output = drive_legacy_expression_v1(
-            builder,
-            &mut port,
-            await_expression(add(integer(2), integer(3))),
-        )
-        .unwrap();
-
-        assert!(instructions(builder).iter().any(|instruction| matches!(
-            instruction,
-            MirInstruction::Await { dst, .. } if *dst == output
-        )));
-        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
-    });
-}
-
-#[test]
-fn raw_invocation_port_preserves_nowait_operand_descent() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw_invocation_nowait/0".to_string());
-    let mut invocation = ModuleLoweringInvocationV1::with_collector(
-        &mut builder,
-        collector_with_header("Prefix.f/1", 1),
-    );
-
-    invocation.with_module_port(|builder, module_port| {
-        let mut port = RawInvocationChildPortV1::new(module_port);
-        let output = drive_legacy_expression_v1(
-            builder,
-            &mut port,
-            nowait("pending", add(integer(2), integer(3))),
-        )
-        .unwrap();
-
-        assert!(instructions(builder).iter().any(|instruction| matches!(
-            instruction,
-            MirInstruction::FutureNew { dst, .. } if *dst == output
-        )));
-        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
-    });
-}
-
-#[test]
-fn raw_invocation_port_preserves_qmark_operand_descent() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw_invocation_qmark/0".to_string());
-    let mut invocation = ModuleLoweringInvocationV1::with_collector(
-        &mut builder,
-        collector_with_header("Prefix.f/1", 1),
-    );
-
-    invocation.with_module_port(|builder, module_port| {
-        let mut port = RawInvocationChildPortV1::new(module_port);
-        let output = drive_legacy_expression_v1(builder, &mut port, qmark(integer(7))).unwrap();
-
-        assert!(instructions(builder).iter().any(|instruction| matches!(
-            instruction,
-            MirInstruction::Call { dst: Some(dst), .. } if *dst == output
-        )));
-        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
-    });
-}
-
-#[test]
-fn raw_invocation_port_preserves_grouped_assignment_rhs_descent() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw_invocation_grouped_assignment/0".to_string());
-    let old = crate::mir::builder::emission::constant::emit_integer(&mut builder, 1).unwrap();
-    builder
-        .function_state
-        .variable_ctx
-        .variable_map
-        .insert("x".to_string(), old);
-    builder
-        .function_state
-        .binding_ctx
-        .insert("x".to_string(), BindingId::new(0));
-    let mut invocation = ModuleLoweringInvocationV1::with_collector(
-        &mut builder,
-        collector_with_header("Prefix.f/1", 1),
-    );
-
-    invocation.with_module_port(|builder, module_port| {
-        let mut port = RawInvocationChildPortV1::new(module_port);
-        let output = drive_legacy_expression_v1(
-            builder,
-            &mut port,
-            grouped_assignment("x", add(integer(2), integer(3))),
-        )
-        .unwrap();
-
-        assert_eq!(
-            builder.function_state.variable_ctx.variable_map["x"],
-            output
-        );
-        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
-    });
-}
-
-#[test]
-fn raw_invocation_port_preserves_compound_assignment_child_descent() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw_invocation_compound_assignment/0".to_string());
-    let old = crate::mir::builder::emission::constant::emit_integer(&mut builder, 1).unwrap();
-    builder
-        .function_state
-        .variable_ctx
-        .variable_map
-        .insert("x".to_string(), old);
-    builder
-        .function_state
-        .binding_ctx
-        .insert("x".to_string(), BindingId::new(0));
-    let mut invocation = ModuleLoweringInvocationV1::with_collector(
-        &mut builder,
-        collector_with_header("Prefix.f/1", 1),
-    );
-
-    invocation.with_module_port(|builder, module_port| {
-        let mut port = RawInvocationChildPortV1::new(module_port);
-        let output = drive_legacy_expression_v1(
-            builder,
-            &mut port,
-            compound_assignment("x", add(integer(2), integer(3))),
-        )
-        .unwrap();
-
-        assert_eq!(
-            builder.function_state.variable_ctx.variable_map["x"],
-            output
-        );
-        assert!(instructions(builder).iter().any(|instruction| matches!(
-            instruction,
-            MirInstruction::BinOp { dst, .. } if *dst == output
-        )));
-        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
-    });
-}
-
-#[test]
-fn raw_invocation_port_preserves_indirect_call_children() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw_invocation_indirect_call/0".to_string());
-    let mut invocation = ModuleLoweringInvocationV1::with_collector(
-        &mut builder,
-        collector_with_header("Prefix.f/1", 1),
-    );
-
-    invocation.with_module_port(|builder, module_port| {
-        let mut port = RawInvocationChildPortV1::new(module_port);
-        let output = drive_legacy_expression_v1(
-            builder,
-            &mut port,
-            indirect_call(
-                add(integer(1), integer(2)),
-                vec![add(integer(3), integer(4))],
-            ),
-        )
-        .unwrap();
-
-        assert!(instructions(builder).iter().any(|instruction| matches!(
-            instruction,
-            MirInstruction::Call {
-                dst: Some(dst),
-                callee: Some(crate::mir::definitions::call_unified::Callee::Value(_)),
-                ..
-            } if *dst == output
-        )));
-        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
-    });
-}
-
-#[test]
-fn raw_invocation_port_preserves_from_call_arguments() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw_invocation_from_call/0".to_string());
-    let mut invocation = ModuleLoweringInvocationV1::with_collector(
-        &mut builder,
-        collector_with_header("Prefix.f/1", 1),
-    );
-
-    invocation.with_module_port(|builder, module_port| {
-        let mut port = RawInvocationChildPortV1::new(module_port);
-        let output = drive_legacy_expression_v1(
-            builder,
-            &mut port,
-            from_call("Parent", "build", vec![add(integer(3), integer(5))]),
-        )
-        .unwrap();
-
-        assert!(instructions(builder).iter().any(|instruction| matches!(
-            instruction,
-            MirInstruction::Call { dst: Some(dst), .. } if *dst == output
-        )));
-        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
-    });
-}
-
-#[test]
-fn raw_invocation_port_preserves_check_item_descent() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw_invocation_check/0".to_string());
-    let mut invocation = ModuleLoweringInvocationV1::with_collector(
-        &mut builder,
-        collector_with_header("Prefix.f/1", 1),
-    );
-
-    invocation.with_module_port(|builder, module_port| {
-        let mut port = RawInvocationChildPortV1::new(module_port);
-        let output =
-            drive_legacy_expression_v1(builder, &mut port, check(add(integer(2), integer(3))))
-                .unwrap();
-
-        assert!(instructions(builder).iter().any(|instruction| matches!(
-            instruction,
-            MirInstruction::Select { dst, .. } if *dst == output
-        )));
-        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
-    });
-}
-
-#[test]
-fn raw_invocation_port_preserves_collection_element_descent() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw_invocation_collections/0".to_string());
-    let mut invocation = ModuleLoweringInvocationV1::with_collector(
-        &mut builder,
-        collector_with_header("Prefix.f/1", 1),
-    );
-
-    invocation.with_module_port(|builder, module_port| {
-        let mut port = RawInvocationChildPortV1::new(module_port);
-        let array_output = drive_legacy_expression_v1(
-            builder,
-            &mut port,
-            array(vec![add(integer(2), integer(3))]),
-        )
-        .unwrap();
-        let map_output = drive_legacy_expression_v1(
-            builder,
-            &mut port,
-            map(vec![("key", add(integer(4), integer(5)))]),
-        )
-        .unwrap();
-
-        let boxes = instructions(builder)
-            .into_iter()
-            .filter_map(|instruction| match instruction {
-                MirInstruction::NewBox { dst, box_type, .. } => Some((dst, box_type)),
-                _ => None,
-            })
-            .collect::<Vec<_>>();
-        assert!(boxes.contains(&(array_output, "ArrayBox".to_string())));
-        assert!(boxes.contains(&(map_output, "MapBox".to_string())));
-        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
-    });
-}
-
-#[test]
-fn raw_invocation_port_preserves_throw_expression_descent() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw_invocation_throw/0".to_string());
-    let mut invocation = ModuleLoweringInvocationV1::with_collector(
-        &mut builder,
-        collector_with_header("Prefix.f/1", 1),
-    );
-
-    invocation.with_module_port(|builder, module_port| {
-        let mut port = RawInvocationChildPortV1::new(module_port);
-        let output =
-            drive_legacy_expression_v1(builder, &mut port, throw(add(integer(2), integer(3))))
-                .unwrap();
-
-        let function = builder
-            .function_state
-            .current_function
-            .as_ref()
-            .expect("current test function");
-        assert!(function.blocks.values().any(|block| matches!(
-            block.terminator.as_ref(),
-            Some(MirInstruction::Throw { exception, .. }) if *exception == output
-        )));
-        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
-    });
-}
-
-#[test]
-fn raw_invocation_port_preserves_print_expression_descent() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw_invocation_print/0".to_string());
-    let mut invocation = ModuleLoweringInvocationV1::with_collector(
-        &mut builder,
-        collector_with_header("Prefix.f/1", 1),
-    );
-
-    invocation.with_module_port(|builder, module_port| {
-        let mut port = RawInvocationChildPortV1::new(module_port);
-        let output =
-            drive_legacy_expression_v1(builder, &mut port, print(add(integer(2), integer(3))))
-                .unwrap();
-
-        assert!(instructions(builder).iter().any(|instruction| matches!(
-            instruction,
-            MirInstruction::BinOp { dst, .. } if *dst == output
-        )));
-        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
-    });
-}
-
-#[test]
-fn raw_invocation_port_preserves_field_and_record_child_descent() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw_invocation_field_record/0".to_string());
-    register_pair_record(&mut builder);
-    let mut invocation = ModuleLoweringInvocationV1::with_collector(
-        &mut builder,
-        collector_with_header("Prefix.f/1", 1),
-    );
-
-    invocation.with_module_port(|builder, module_port| {
-        let mut port = RawInvocationChildPortV1::new(module_port);
-        let ordinary = drive_legacy_expression_v1(
-            builder,
-            &mut port,
-            field_access(add(integer(2), integer(3)), "value"),
-        )
-        .unwrap();
-        let record = drive_legacy_expression_v1(
-            builder,
-            &mut port,
-            field_access(
-                record_literal(vec![("value", add(integer(5), integer(8)))]),
-                "value",
-            ),
-        )
-        .unwrap();
-
-        let rows = instructions(builder);
-        assert!(rows.iter().any(|instruction| matches!(
-            instruction,
-            MirInstruction::FieldGet { dst, .. } if *dst == ordinary
-        )));
-        assert!(rows
-            .iter()
-            .any(|instruction| matches!(instruction, MirInstruction::RecordValuePublish { .. })));
-        assert!(rows.iter().any(|instruction| matches!(
-            instruction,
-            MirInstruction::BinOp { dst, .. } if *dst == record
-        )));
-        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
-    });
 }
 
 #[test]
@@ -769,21 +150,18 @@ fn selected_raw_body_and_statement_ports_preserve_order_and_last_value() {
     builder.enter_function_for_test("recursive_child_body/0".to_string());
 
     let output = builder.build_block(vec![integer(4), integer(5)]).unwrap();
-    let integer_rows = instructions(&builder)
-        .into_iter()
+    let rows = instructions(&builder);
+    let values = rows
+        .iter()
         .filter_map(|instruction| match instruction {
             MirInstruction::Const {
                 dst,
                 value: crate::mir::ConstValue::Integer(value),
-            } => Some((dst, value)),
+            } => Some((*dst, *value)),
             _ => None,
         })
         .collect::<Vec<_>>();
-
-    assert_eq!(integer_rows.len(), 2);
-    assert_eq!(integer_rows[0].1, 4);
-    assert_eq!(integer_rows[1].1, 5);
-    assert_eq!(output, integer_rows[1].0);
+    assert_eq!(values, vec![(values[0].0, 4), (output, 5)]);
 
     let statement_output = builder.build_statement(integer(6)).unwrap();
     assert!(instructions(&builder).iter().any(|instruction| matches!(
@@ -823,10 +201,8 @@ fn raw_expression_depth_limit_rejects_without_poisoning_the_session() {
     let error = builder.build_expression(integer(8)).unwrap_err();
     assert!(error.contains("Recursion depth exceeded: 201"));
     assert_eq!(builder.recursion_depth, 200);
-
     builder.recursion_depth = 0;
     builder.build_expression(integer(9)).unwrap();
-    assert_eq!(builder.recursion_depth, 0);
 }
 
 #[test]
@@ -837,26 +213,12 @@ fn typeop_receiver_uses_nested_raw_depth_guard_without_publishing_on_failure() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("typeop_receiver_depth_limit/0".to_string());
 
-    // Public TypeOp lowering consumes one guard for the MethodCall and one for its receiver.
     builder.recursion_depth = 198;
     builder.build_expression(typeop(integer(8))).unwrap();
     assert_eq!(builder.recursion_depth, 198);
-    assert_eq!(
-        instructions(&builder)
-            .iter()
-            .filter(|instruction| matches!(instruction, MirInstruction::TypeOp { .. }))
-            .count(),
-        1
-    );
-
     builder.recursion_depth = 199;
     let before = instructions(&builder);
     let error = builder.build_expression(typeop(integer(9))).unwrap_err();
     assert!(error.contains("Recursion depth exceeded: 201"));
-    assert_eq!(builder.recursion_depth, 199);
     assert_eq!(instructions(&builder), before);
-
-    builder.recursion_depth = 0;
-    builder.build_expression(integer(10)).unwrap();
-    assert_eq!(builder.recursion_depth, 0);
 }

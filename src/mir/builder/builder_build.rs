@@ -2,6 +2,9 @@ use super::vars;
 use super::CallTarget;
 use super::{ConstValue, Effect, EffectMask, MirBuilder, MirInstruction, MirModule, ValueId};
 use crate::ast::{ASTNode, LiteralValue};
+use crate::mir::builder::recursive_child_lowering::{
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+};
 use crate::mir::exact_numeric_value_facts::ExactNumericConstFact;
 use crate::mir::numeric_substrate::{
     exact_numeric_const_from_i128, exact_numeric_mir_type_from_declared_name,
@@ -292,6 +295,20 @@ impl MirBuilder {
         class: String,
         arguments: Vec<ASTNode>,
     ) -> Result<ValueId, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_new_expression_with_port_v1(&mut port, class, arguments)
+    }
+
+    /// Lower a `new` expression while retaining the caller's raw child port.
+    pub(in crate::mir::builder) fn build_new_expression_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        class: String,
+        arguments: Vec<ASTNode>,
+    ) -> Result<ValueId, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         if self.is_record_constructor_class(&class) {
             return Err(format!(
                 "[record-construction/escape] record={} supported_use=local-field-read",
@@ -306,7 +323,7 @@ impl MirBuilder {
             // Evaluate arguments (pass through to env.box.new shim)
             let mut arg_vals: Vec<ValueId> = Vec::with_capacity(arguments.len());
             for a in arguments {
-                arg_vals.push(self.build_expression(a)?);
+                arg_vals.push(drive_legacy_expression_v1(self, port, a)?);
             }
             // Build arg list: [type, a1, a2, ...]
             let mut args: Vec<ValueId> = Vec::with_capacity(1 + arg_vals.len());
@@ -354,7 +371,7 @@ impl MirBuilder {
         // First, evaluate all arguments to get their ValueIds
         let mut arg_values = Vec::new();
         for arg in arguments {
-            let arg_value = self.build_expression(arg)?;
+            let arg_value = drive_legacy_expression_v1(self, port, arg)?;
             arg_values.push(arg_value);
         }
 
@@ -434,6 +451,26 @@ impl MirBuilder {
         arguments: Vec<ASTNode>,
         field_initializers: Vec<(String, ASTNode)>,
     ) -> Result<ValueId, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_new_expression_with_field_initializers_with_port_v1(
+            &mut port,
+            class,
+            arguments,
+            field_initializers,
+        )
+    }
+
+    /// Lower `new` plus field initializers while retaining one raw child port.
+    pub(in crate::mir::builder) fn build_new_expression_with_field_initializers_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        class: String,
+        arguments: Vec<ASTNode>,
+        field_initializers: Vec<(String, ASTNode)>,
+    ) -> Result<ValueId, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         if !field_initializers.is_empty() && self.is_record_constructor_class(&class) {
             return Err(format!(
                 "[box-init/record-reject] record={} does not support new-box field initializers",
@@ -441,8 +478,8 @@ impl MirBuilder {
             ));
         }
 
-        let dst = self.build_new_expression(class.clone(), arguments)?;
-        self.build_box_field_initializers(dst, &class, field_initializers)?;
+        let dst = self.build_new_expression_with_port_v1(port, class.clone(), arguments)?;
+        self.build_box_field_initializers_with_port_v1(port, dst, &class, field_initializers)?;
         Ok(dst)
     }
 
