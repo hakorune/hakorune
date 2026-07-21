@@ -3259,3 +3259,72 @@ canonical/synthetic/test-adapter matrix, nested and root failure paths,
 eight-lane transport, foreign/closed session rejection, and same-compiler
 reuse proof. It still has zero production receipt issuers and does not connect
 PHI repair, direct repair, unused-Phi deletion, JoinIR, or CUT0.
+
+#### FACTSESSION0-P0 selection — Candidate H-prime
+
+Candidate H-prime, **disconnected dual proof**, is selected. P0 has two
+independent products and neither changes lowering behavior.
+
+```text
+test-only lifecycle harness
+  -> opens/seals/aborts real FACTSESSION vocabulary
+  -> drives existing nested Builder restore mechanics as an observation
+
+parser-backed syntax policy guard
+  -> consumes existing neutral Rust topology facts
+  -> classifies watched facade syntax exactly once
+```
+
+The harness owns one `FactSessionIssuerV1` and its module session, never a
+Builder field. It opens a function session, seeds its eight test lanes, and
+only after a supplied draft succeeds seals and collects it. Primary error,
+cleanup error, and caught unwind consume `abort` before the existing parent
+restore. It may use `with_resolved_function_draft_session` to observe the
+actual FunctionOwned capture/restore, but it does **not** claim that current
+Builder maps have moved into the disconnected fact session. Main and
+`condition_fn` are synthetic draft fixtures only until I0 connects their live
+completion paths.
+
+The existing `rust_source_topology` extractor is parser/module/cfg aware but
+deliberately has zero semantic direct-call resolutions for the watched
+single-file surfaces. P0 must not call that `Unresolved` result a resolved
+callee, nor add a name-resolution heuristic to the neutral extractor. Its
+static policy guard instead matches the exact syntax fact key:
+
+```text
+path + enclosing syntax path + call expression kind + callee syntax
++ receiver syntax + cfg syntax
+```
+
+and assigns exactly one FACTSESSION disposition to every watched site. Thus the
+M0 requirement is corrected to **unclassified watched syntax = 0**, not
+semantic resolver `Unresolved = 0`. True Rust def-path resolution is parked as
+a separate source-topology semantic-resolver row.
+
+The current same-compiler stale-fact behavior is a P0 baseline observation,
+not a green isolation claim: legacy `prepare_module` retains the old maps while
+the next function reuses `%0`. P0 may observe that baseline through a
+test-only snapshot, but the real `compile -> failure -> compile` isolation
+assertion is an I0/post-I0 requirement. P0 must not clear current maps merely
+to make that witness green.
+
+```text
+FINALIZE0-FACTSESSION0-P0-SELECT
+  Candidate H-prime decision lock
+  code delta = 0
+
+-> FINALIZE0-FACTSESSION0-P0-S0
+   test-only lifecycle harness + syntax-policy guard vocabulary/fixtures
+   production consumers = 0
+
+-> FINALIZE0-FACTSESSION0-P0-P0
+   main/child/synthetic/test adapter, nested success/error/panic,
+   sibling ValueId, module failure/reuse baseline, and static matrix fixtures
+
+-> FINALIZE0-FACTSESSION0-P0-G0
+
+-> FINALIZE0-FACTSESSION0-I0
+```
+
+PHI repair, receipt issuers, map clearing, source semantic resolution, direct
+repair, unused-Phi deletion, JoinIR, and CUT0 remain outside this proof row.
