@@ -157,7 +157,7 @@ impl super::MirBuilder {
                 finally_body,
             )?)),
             ASTNode::Throw { expression, .. } => Ok(StatementSurfaceDispatch::Lowered(
-                self.cf_throw(*expression)?,
+                super::control_flow::exception::cf_throw_with_port_v1(self, port, *expression)?,
             )),
             node @ ASTNode::Assignment { .. } => {
                 let stmt = AssignStmt::try_from(node).expect("ASTNode::Assignment must convert");

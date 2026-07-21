@@ -32,5 +32,5 @@
 mod throw;
 mod try_catch;
 
-pub(in crate::mir::builder) use throw::cf_throw;
+pub(in crate::mir::builder) use throw::{cf_throw, cf_throw_with_port_v1};
 pub(in crate::mir::builder) use try_catch::cf_try_catch;
