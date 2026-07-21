@@ -5,10 +5,12 @@ ACCESS0-MEHEADER-S0/P0/I0/G0, ACCESS0-REWRITE-KNOWN-P0, ACCESS0-P0, and
 CANDIDATE0-S0/P0, MAINROLE0-D0/S0/P0, BODYDRAIN0-S0/P0,
 MAINPENDING0-S0/P0, ROOTBATCH0-S0/P0, SHELLFACT0-S0/P0, and
 DRAIN0-S0/P0, MODULEFINAL0-SPLIT0/P0, MODULEFINAL0-CANDIDATE0-P0, and
-WIRING-S0/P0 are closed; M-root-prime and Candidate A-prime are selected.
-The next passive row is `WIRING-I0-ROUTEINV-S0`; production capture/commit and
-CUT0 remain forbidden until the passive route inventory, borrow seam, and
-header/read census are green**
+WIRING-S0/P0 and WIRING-I0-HDR0-M0 are closed; M-root-prime and Candidate
+A-prime are selected. The next passive row is `WIRING-I0-HDR0-P0`;
+production capture/commit and
+CUT0 remain forbidden until replacement/parity,
+the compatibility-policy consultation, and the all-route cutover gates are
+green**
 
 Date: 2026-07-21
 
@@ -3123,3 +3125,38 @@ execution is not pulled forward; it must reject in backend preflight until
 the separate interpreter architecture is ready. FieldStore, owner,
 free-list, remote atomics, general contracts, trusted assumptions, and V0
 retirement remain individually gated downstream rows.
+
+## WIRING-I0-HDR0-M0 closeout
+
+`WIRING-I0-HDR0-M0` is closed as a source-only inventory. The reusable
+`headerport_header_reader_census.py` is invoked by the existing
+`headerport_candidate0_guard.py`; it does not connect a production reader or
+change route behavior.
+
+The census covers 29 production `current_module` source occurrences in 20
+semantic rows. Every row has a stable source anchor and one owner family:
+
+```text
+route_header           = 7
+canonical_catalog      = 3
+shell_lifecycle        = 6
+forbidden_fallback     = 3
+diagnostic_observation = 1
+```
+
+The route-header rows are the raw child/finalizer lookup, call annotation,
+known rewrite, method-index projection/freshness, and finalizer module loan.
+The three direct legacy probes in constructor/birth, tail resolution, and
+materialization are explicitly classified as `forbidden_fallback`; they are
+inventory only and are not accepted as collector fallback authority. The
+located legacy observation is compiled but has no non-test caller, so it is
+retained as a diagnostic row rather than silently counted as an active route.
+Canonical callable publication remains owned by the sealed source plan/catalog;
+the Builder module map is only the current publication destination.
+
+The guard rejects a new `current_module` occurrence or source file until
+HDR0-P0 assigns it a replacement/parity owner. It also asserts
+`diagnostic_observation=1` and `forbidden_fallback=3`; no explicit collector
+fallback or retry was found. The next code-facing row is
+`WIRING-I0-HDR0-P0`, followed by HDR0-G0. Production capture/commit, CUT0,
+FACTSESSION, and FastMem remain forbidden.

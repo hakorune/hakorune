@@ -12,6 +12,7 @@ from __future__ import annotations
 import pathlib
 
 from headerport_route_inventory_guard import verify_route_inventory_extension
+from headerport_header_reader_census import verify_header_reader_census
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
@@ -752,6 +753,7 @@ def main() -> int:
     ):
         require(card, fragment, "Candidate0 task boundary")
     verify_route_inventory_extension(ROOT, builder_mod, card, state)
+    verify_header_reader_census(ROOT)
 
     print(
         "[headerport-candidate0-guard] ok disconnected=1 "

@@ -214,8 +214,11 @@ def verify_borrow_root_p0(
     require(card, "WIRING-I0-BORROW-P0-ROOT-P0d closeout", "root P0d closeout")
     require(card, "WIRING-I0-BORROW-P0-ROOT-G0 closeout", "root G0 closeout")
     require(card, "WIRING-I0-BORROW-G0 closeout", "whole BORROW G0 closeout")
-    require(
-        state,
-        "BORROW-P0-ROOT-G0 and WIRING-I0-BORROW-G0 are closed; WIRING-I0-HDR0-M0 is next",
-        "BORROW-G0 pointer",
-    )
+    if not any(
+        pointer in state
+        for pointer in (
+            "BORROW-P0-ROOT-G0 and WIRING-I0-BORROW-G0 are closed; WIRING-I0-HDR0-M0 is next",
+            "BORROW-P0-ROOT-G0 and WIRING-I0-BORROW-G0 are closed; WIRING-I0-HDR0-M0 is closed and WIRING-I0-HDR0-P0 is next",
+        )
+    ):
+        raise AssertionError("missing BORROW-G0 pointer or its documented HDR0 follow-on")
