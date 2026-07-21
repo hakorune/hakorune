@@ -1,8 +1,9 @@
 # HEADERPORT0-REENTRANT-TERM0-I0: production cutover consultation
 
 Status: **STATE0-S0/P0/I0/G0, CONSULT0, ACCESS0-S0, and
-ACCESS0-MEHEADER-S0/P0/I0/G0 are closed; ACCESS0-REWRITE-KNOWN-P0 is next, and
-production cutover remains disconnected**
+ACCESS0-MEHEADER-S0/P0/I0/G0, ACCESS0-REWRITE-KNOWN-P0, ACCESS0-P0, and
+CANDIDATE0-S0 are closed; CANDIDATE0-P0 is next, and production cutover
+remains disconnected**
 
 Date: 2026-07-21
 
@@ -456,8 +457,13 @@ HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-P0
   HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-P0
     (closed) broad reader census closeout after all disconnected adapters are green
 
-HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-S0/P0
-  next: invocation-owned shell take/restore and candidate failure transaction
+HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-S0 (closed)
+  one disconnected invocation-owned shell/collector candidate
+  scoped Builder loan
+  typed abort/no-publication/no-retry proof
+
+HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-P0
+  next: raw/main/condition, route, and failure matrix
 
 HEADERPORT0-REENTRANT-TERM0-I0
   one all-route production capture/commit cutover
@@ -473,6 +479,32 @@ proof are closed. The Known/unique/equals rewrite P0 is also closed with its
 lookup-only parity guard, and the broader access-port census is now green with
 zero production access-port consumers. Candidate0 remains before any
 production capture/commit or CUT0 decision.
+
+## CANDIDATE0-S0 closeout
+
+`module_lowering_invocation_candidate.rs` now owns one private,
+non-Clone `ModuleLoweringInvocationCandidateV1` around the existing shell and
+collector state.  The candidate lends `MirBuilder` only to an explicit active
+lowering closure; it stores no Builder, `current_module`, collector port, fact
+session, or retry authority.
+
+The candidate's only failure transition is a typed abort product.  It records
+the failure stage, compares the collector symbol prefix, shell publication
+count, and root marker before/after abort, and fixes the terminal law to:
+
+```text
+external publication = unchanged
+retry/fallback = forbidden
+shell + collector = dropped together
+```
+
+The six root/child/preflight/verification/panic stages share the same
+no-publication law.  `PendingFunctionSessionCloseV1` remains the sole owner of
+parent function-state restoration; Candidate0-S0 does not duplicate that
+transaction or connect a production route.  The reusable guard is
+`tools/checks/lib/headerport_candidate0_guard.py`; focused Candidate0 tests,
+row guard, formatting, and diff checks are green.  Candidate0-P0 must still
+prove the route/failure matrix before any capture/commit or CUT0 wiring.
 
 ## ACCESS0-REWRITE-KNOWN-S0 closeout
 

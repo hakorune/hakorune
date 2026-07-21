@@ -19,6 +19,7 @@ BUILDER = ROOT / "src/mir/builder.rs"
 COMPILATION = ROOT / "src/mir/builder/compilation_context.rs"
 METHOD_INDEX = ROOT / "src/mir/builder/builder_method_index.rs"
 INVOCATION = ROOT / "src/mir/builder/module_lowering_invocation.rs"
+INVOCATION_CANDIDATE = ROOT / "src/mir/builder/module_lowering_invocation_candidate.rs"
 MODULE_DRAFT = ROOT / "src/mir/builder/module_draft_collector.rs"
 ANNOTATION = ROOT / "src/mir/builder/calls/annotation.rs"
 SIGNATURE_LOOKUP = ROOT / "src/mir/builder/function_signature_lookup.rs"
@@ -314,6 +315,7 @@ def main() -> int:
             MODULE_SHELL,
             ROUTE_MATRIX,
             INVOCATION_STATE,
+            INVOCATION_CANDIDATE,
             MODULE_DRAFT,
         ) or path.name.endswith("_tests.rs"):
             continue
@@ -338,11 +340,11 @@ def main() -> int:
             continue
         if "ModuleLoweringInvocationStateV1" in read(path):
             state_consumers.append(path)
-    expected_state_consumers = {INVOCATION, INVOCATION_DRAIN}
+    expected_state_consumers = {INVOCATION, INVOCATION_DRAIN, INVOCATION_CANDIDATE}
     if set(state_consumers) != expected_state_consumers:
         actual = sorted(str(path.relative_to(ROOT)) for path in state_consumers)
         raise AssertionError(
-            f"STATE0-I0 state consumers drifted: expected two owners, actual={actual}"
+            f"STATE0-I0 state consumers drifted: expected three owners, actual={actual}"
         )
     for path in (INVOCATION, INVOCATION_DRAIN, INVOCATION_STATE):
         forbid(

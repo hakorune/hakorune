@@ -1,0 +1,105 @@
+#!/usr/bin/env python3
+"""HEADERPORT0 Candidate0-S0 disconnected ownership guard.
+
+The candidate owns one shell/collector state, lends the Builder only to an
+active lowering closure, and exposes only typed abort/discard outcomes.  This
+guard prevents the vocabulary from becoming a production capture/commit path
+before Candidate0-P0 is complete.
+"""
+
+from __future__ import annotations
+
+import pathlib
+
+
+ROOT = pathlib.Path(__file__).resolve().parents[3]
+CANDIDATE = ROOT / "src/mir/builder/module_lowering_invocation_candidate.rs"
+BUILDER_MOD = ROOT / "src/mir/builder.rs"
+CARD = ROOT / (
+    "docs/development/current/main/investigations/"
+    "mirbuilder-headerport-i0-production-cutover-consultation-2026-07-21.md"
+)
+STATE = ROOT / "docs/development/current/main/CURRENT_STATE.toml"
+
+
+def require(text: str, fragment: str, label: str) -> None:
+    if fragment not in text:
+        raise AssertionError(f"missing {label}: {fragment!r}")
+
+
+def forbid(text: str, fragment: str, label: str) -> None:
+    if fragment in text:
+        raise AssertionError(f"forbidden {label}: {fragment!r}")
+
+
+def main() -> int:
+    candidate = CANDIDATE.read_text()
+    builder_mod = BUILDER_MOD.read_text()
+    card = CARD.read_text()
+    state = STATE.read_text()
+
+    if len(candidate.splitlines()) >= 800:
+        raise AssertionError("Candidate0 source must remain below 800 lines")
+
+    for fragment in (
+        "ModuleLoweringInvocationCandidateV1",
+        "InvocationCandidateFailureStageV1",
+        "InvocationCandidateAbortProofV1",
+        "with_active_lowering",
+        "boundary_unchanged",
+        "InvocationCandidatePublicationV1::Unchanged",
+        "InvocationCandidateRetryV1::Forbidden",
+        "pub(in crate::mir::builder) fn abort",
+        "pub(in crate::mir::builder) fn discard",
+        "candidate_owns_shell_and_collector_until_abort",
+        "builder_borrow_is_scoped_to_active_lowering_only",
+    ):
+        require(candidate, fragment, "Candidate0-S0 vocabulary/fixture")
+
+    # The candidate may mention MirBuilder only as a short-lived method
+    # parameter.  It must not store a Builder or expose a module map.
+    struct = candidate.split("pub(in crate::mir::builder) struct ModuleLoweringInvocationCandidateV1", 1)[1]
+    struct = struct.split("impl ModuleLoweringInvocationCandidateV1", 1)[0]
+    forbid(struct, "MirBuilder", "candidate-stored Builder")
+    forbid(candidate, "self.current_module", "candidate ambient module authority")
+    forbid(candidate, "builder.current_module", "candidate ambient module authority")
+    forbid(candidate, "ModuleLoweringPortV1", "candidate-owned collector port")
+    forbid(candidate, "fn retry(", "candidate retry implementation")
+
+    require(builder_mod, "mod module_lowering_invocation_candidate;", "Candidate0 module registration")
+    other_builder_files = []
+    for path in (ROOT / "src/mir/builder").rglob("*.rs"):
+        if path == CANDIDATE or path == BUILDER_MOD:
+            continue
+        if "ModuleLoweringInvocationCandidateV1" in path.read_text():
+            other_builder_files.append(str(path.relative_to(ROOT)))
+    if other_builder_files:
+        raise AssertionError(
+            "Candidate0 production/test consumer exists outside the disconnected owner: "
+            + ", ".join(other_builder_files)
+        )
+
+    for fragment in (
+        "HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-S0 (closed)",
+        "HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-P0",
+        "one disconnected invocation-owned shell/collector candidate",
+        "typed abort/no-publication/no-retry proof",
+        "production capture/commit remains forbidden",
+        "`CUT0` remains forbidden",
+    ):
+        require(card, fragment, "Candidate0 task boundary")
+    require(
+        state,
+        "HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-P0 is next",
+        "current Candidate0 pointer",
+    )
+
+    print(
+        "[headerport-candidate0-guard] ok disconnected=1 "
+        f"source_lines={len(candidate.splitlines())} production_consumers=0"
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

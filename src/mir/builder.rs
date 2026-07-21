@@ -59,6 +59,8 @@ mod module_invocation_route_matrix; // HEADERPORT0 I0-SHELL-I0-P0 disconnected m
 #[allow(dead_code)]
 mod module_lowering_access_port; // HEADERPORT0 I0-ACCESS0-S0 disconnected vocabulary
 mod module_lowering_invocation;
+#[allow(dead_code)]
+mod module_lowering_invocation_candidate; // HEADERPORT0 CANDIDATE0-S0 disconnected abort owner
 #[cfg(test)]
 mod module_lowering_invocation_legacyterm_tests;
 #[cfg(test)]
