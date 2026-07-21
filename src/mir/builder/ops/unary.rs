@@ -132,7 +132,7 @@ pub(super) fn build_unary_op(
 ///
 /// The operator semantics remain owned by this module.  Only operand descent
 /// is delegated, so a nested raw child cannot recreate a legacy-only port.
-pub(super) fn build_unary_op_with_port_v1<Port>(
+pub(in crate::mir::builder) fn build_unary_op_with_port_v1<Port>(
     builder: &mut super::super::MirBuilder,
     port: &mut Port,
     operator: String,
