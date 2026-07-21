@@ -431,6 +431,15 @@ HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-P0
   thread the port through all 14 reader families
   and prove no current_module function-map read remains in the candidate
 
+  First disconnected slice:
+  ACCESS0-REWRITE-KNOWN-S0
+    explicit header projection for Known/unique rewrite policy
+    shared method-tail candidate policy
+    production consumers = 0
+
+  ACCESS0-REWRITE-KNOWN-P0
+    parity matrix and invocation-path lookup threading
+
 HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-S0/P0
   invocation-owned shell take/restore and candidate failure transaction
 
@@ -441,3 +450,24 @@ HEADERPORT0-REENTRANT-TERM0-I0
 The current production I0 and `CUT0` remain forbidden until ACCESS0-P0 and
 CANDIDATE0-P0 are green.  This decision closes the consultation boundary but
 does not claim any production route has been rewired.
+
+## ACCESS0-REWRITE-KNOWN-S0 closeout
+
+The first disconnected ACCESS0 slice now owns one
+`KnownRewriteHeaderViewV1`.  It borrows only the explicit
+`FunctionSignatureLookupV1` surface and projects:
+
+```text
+completed-symbol presence
+function parameter count
+receiver-prepend decision
+unique method/arity candidate list
+```
+
+The method-tail policy is shared with the legacy method index through
+`method_candidates_from_symbols` and `method_candidates_from_headers`; the
+projection does not own a Builder, module map, rewrite emission, ValueId,
+metadata, or fallback.  Two focused fixtures cover static-versus-instance
+arity and unique-suffix ordering.  This closes only the disconnected S0
+vocabulary; the invocation terminal still has zero lookup consumers and
+production capture/commit remains forbidden.

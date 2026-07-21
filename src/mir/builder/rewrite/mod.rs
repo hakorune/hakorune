@@ -5,5 +5,6 @@
 //! - 特殊規則（toString→str（互換:stringify）, equals など）の集約。
 //! - 既定挙動は不変。dev 観測（resolve.try/choose）は observe 経由で発火。
 
+pub mod header_lookup;
 pub mod known;
 pub mod special;
