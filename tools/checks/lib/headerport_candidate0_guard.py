@@ -15,6 +15,7 @@ import pathlib
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 CANDIDATE = ROOT / "src/mir/builder/module_lowering_invocation_candidate.rs"
 CANDIDATE_P0 = ROOT / "src/mir/builder/module_lowering_invocation_candidate_p0.rs"
+MAIN_EXPANSION = ROOT / "src/mir/builder/main_expansion.rs"
 BUILDER_MOD = ROOT / "src/mir/builder.rs"
 CARD = ROOT / (
     "docs/development/current/main/investigations/"
@@ -36,6 +37,7 @@ def forbid(text: str, fragment: str, label: str) -> None:
 def main() -> int:
     candidate = CANDIDATE.read_text()
     candidate_p0 = CANDIDATE_P0.read_text()
+    main_expansion = MAIN_EXPANSION.read_text()
     builder_mod = BUILDER_MOD.read_text()
     card = CARD.read_text()
     state = STATE.read_text()
@@ -44,6 +46,25 @@ def main() -> int:
         raise AssertionError("Candidate0 source must remain below 800 lines")
     if len(candidate_p0.splitlines()) >= 800:
         raise AssertionError("Candidate0 P0 source must remain below 800 lines")
+    if len(main_expansion.splitlines()) >= 800:
+        raise AssertionError("MAINROLE0-S0 source must remain below 800 lines")
+
+    for fragment in (
+        "VerifiedMainExpansionV1",
+        "VerifiedMainRootBodyV1",
+        "VerifiedMainStaticChildV1",
+        "callable_main_compat",
+        "MainExpansionErrorV1",
+    ):
+        require(main_expansion, fragment, "MAINROLE0-S0 source product")
+
+    for path in (ROOT / "src/mir/builder").rglob("*.rs"):
+        if path in (MAIN_EXPANSION, BUILDER_MOD) or path.name.endswith("_tests.rs"):
+            continue
+        if "VerifiedMainExpansionV1" in path.read_text():
+            raise AssertionError(
+                f"MAINROLE0-S0 production consumer exists: {path.relative_to(ROOT)}"
+            )
 
     for fragment in (
         "ModuleLoweringInvocationCandidateV1",
