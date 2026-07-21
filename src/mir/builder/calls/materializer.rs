@@ -13,6 +13,7 @@
  */
 
 use crate::mir::builder::callable_declaration_catalog::BareStaticRecoveryDecisionV1;
+use crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1;
 use crate::mir::builder::{EffectMask, MirBuilder, MirInstruction, ValueId};
 use crate::mir::definitions::call_unified::Callee;
 
@@ -36,6 +37,31 @@ impl CallMaterializerBox {
         dst: Option<ValueId>,
         name: &str,
         args: &[ValueId],
+    ) -> Result<Option<()>, String> {
+        let direct_module_function = builder
+            .current_module
+            .as_ref()
+            .is_some_and(|module| module.functions.contains_key(name));
+        Self::try_global_additional_resolvers_with_lookup(
+            builder,
+            dst,
+            name,
+            args,
+            None,
+            direct_module_function,
+        )
+    }
+
+    /// Header-port sibling for direct global-function presence.  The caller
+    /// supplies the completed-header view; no module fallback is attempted.
+    #[allow(dead_code)]
+    pub(in crate::mir::builder) fn try_global_additional_resolvers_with_lookup(
+        builder: &mut MirBuilder,
+        dst: Option<ValueId>,
+        name: &str,
+        args: &[ValueId],
+        headers: Option<&dyn FunctionSignatureLookupV1>,
+        legacy_presence: bool,
     ) -> Result<Option<()>, String> {
         // 0) Dev-only safety: treat condition_fn as always-true predicate when missing
         if name == "condition_fn" {
@@ -61,21 +87,31 @@ impl CallMaterializerBox {
         }
 
         // 1) Direct module function resolver: call by name if present
-        if let Some(ref module) = builder.current_module {
-            if module.functions.contains_key(name) {
-                let dstv = dst.unwrap_or_else(|| builder.next_value_id());
-                let name_const =
-                    crate::mir::builder::name_const::make_name_const_result(builder, name)?;
-                builder.emit_instruction(MirInstruction::Call {
-                    dst: Some(dstv),
-                    func: name_const,
-                    callee: Some(Callee::Global(name.to_string())),
-                    args: args.to_vec(),
-                    effects: EffectMask::IO,
-                })?;
+        let direct_presence = headers
+            .map(|view| view.contains_symbol(name))
+            .unwrap_or(legacy_presence);
+        if direct_presence {
+            let dstv = dst.unwrap_or_else(|| builder.next_value_id());
+            let name_const =
+                crate::mir::builder::name_const::make_name_const_result(builder, name)?;
+            builder.emit_instruction(MirInstruction::Call {
+                dst: Some(dstv),
+                func: name_const,
+                callee: Some(Callee::Global(name.to_string())),
+                args: args.to_vec(),
+                effects: EffectMask::IO,
+            })?;
+            if let Some(headers) = headers {
+                super::annotation::annotate_call_result_from_func_name_with_lookup(
+                    builder,
+                    dstv,
+                    name,
+                    Some(headers),
+                );
+            } else {
                 builder.annotate_call_result_from_func_name(dstv, name);
-                return Ok(Some(()));
             }
+            return Ok(Some(()));
         }
 
         // 2) Unique static-method resolver: name+arity → canonical key → MIR symbol.
