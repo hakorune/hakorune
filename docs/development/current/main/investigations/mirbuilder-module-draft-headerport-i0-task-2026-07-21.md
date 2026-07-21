@@ -2,7 +2,8 @@
 Status: `HEADERPORT0-RAWPORT0-SELECT/S0/M0-T0/R0` and
   `HEADERPORT0-RAWPORT0-LEGACYTERM0-S0/P0/I0/G0` and
   `HEADERPORT0-RAWPORT0-LOOPBRIDGE0-SELECT/S0/P0/I0/G0` are closed;
-  `FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0` is next
+  `FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0` is paused at the re-entrant raw
+  child-terminal consultation
 Date: 2026-07-21
 Scope: one atomic `FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0` cutover
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-task-2026-07-20.md
@@ -33,6 +34,24 @@ The raw recursive re-entrancy audit, passive S0 vocabulary, and port-owned
   resolved terminal, raw recursive threading, and the disconnected legacy
  terminal proof are closed. `LOOPBRIDGE0-S0/P0/I0/G0` is also closed. The next
  code-facing row is `FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0`.
+
+## I0 source revalidation pause
+
+Before the atomic cutover, the production source audit found that the current
+`complete_legacy_child` API holds the invocation port mutably while its child
+closure runs. A child body can itself open another raw Box child, so that shape
+cannot reborrow the same port. The raw `BoxDeclaration` constructor loop also
+still calls the restore-then-publish legacy facade directly. The detailed
+source evidence and Candidate R-prime are in:
+
+```text
+docs/development/current/main/investigations/
+  mirbuilder-headerport-reentrant-terminal-consultation-2026-07-21.md
+```
+
+Do not activate I0 until that terminal shape is selected. The existing
+collector, header-port, raw-loop quarantine, and canonical callable catalog
+laws remain unchanged.
 
 ## Fixed terminal law
 
