@@ -1458,3 +1458,51 @@ The sole next code-facing row is
 `HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0b-RAWLEDGER-S0`.
 Canonical header/catalog proof, production capture/commit, drain, FACTSESSION,
 and CUT0 remain forbidden.
+
+## WIRING-I0-ROUTEINV-P0b-RAWLEDGER-S0 closeout
+
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0b-RAWLEDGER-S0`
+is closed as a disconnected invocation-local reservation/completion owner.
+Raw function work is registered one discovered unit at a time; no AST pre-scan,
+caller-authored inventory list, or collector symbol scan constructs the
+expected inventory.
+
+Each non-Clone reservation seals its exact ledger brand, discovery ordinal,
+raw role, key, symbol, arity, and publication policy. Completion consumes both
+that reservation and one successful collector receipt. Exact identity drift
+poisons the ledger, after which reservation, completion, and seal cannot retry.
+Foreign reservations are rejected without being adopted.
+
+The ledger keeps two distinct observations:
+
+```text
+completion event order:
+  preserves recursive inner/outer evidence including replaced events
+
+final unique inventory:
+  legacy whole-pair replacement updates key/symbol indexes together
+  canonical duplicate insertion is rejected
+```
+
+Raw root policy is explicit and temporary:
+
+```text
+root main = required
+condition_fn = RequiredCompatibility
+retirement owner = FINALIZE0-CONDITIONFN-RET0
+```
+
+Seal rejects poisoned state, any open reservation, missing root main, or
+missing compatibility condition. The open and sealed products store no
+Builder, module, function draft, collector, source AST, ValueId, header loan,
+fallback, retry, or publication capability. Production consumers remain zero.
+
+Focused fixtures prove exact receipt consumption, completion-order retention,
+required root/condition closure, foreign-token rejection, mismatch poisoning,
+and no retry. A reusable route-inventory guard helper now owns P0b-and-later
+checks so the pre-existing Candidate0 guard remains safely below 800 lines.
+
+The sole next code-facing row is
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0b-RAWLEDGER-P0`.
+Canonical header/catalog proof, production capture/commit, drain, FACTSESSION,
+and CUT0 remain forbidden.

@@ -103,6 +103,10 @@ mod module_lowering_invocation_state; // HEADERPORT0 I0-STATE0-S0 disconnected s
 mod module_lowering_shell; // HEADERPORT0 I0-SHELL-S0 disconnected shell
 #[allow(dead_code)]
 mod module_wiring_parity_p0; // HEADERPORT0 WIRING-P0 disconnected parity
+#[allow(dead_code)]
+mod raw_expansion_receipt_ledger; // ROUTEINV-P0b-RAWLEDGER-S0 disconnected owner
+#[cfg(test)]
+mod raw_expansion_receipt_ledger_tests; // ROUTEINV-P0b-RAWLEDGER-S0 fixtures
 mod raw_expression_dispatch; // single raw AST expression dispatcher
 #[allow(dead_code)]
 mod raw_loop_child_entry; // LOOPBRIDGE0-S0 pure raw Loop child-entry quarantine

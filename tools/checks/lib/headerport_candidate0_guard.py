@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import pathlib
 
+from headerport_route_inventory_guard import verify_route_inventory_extension
+
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 CANDIDATE = ROOT / "src/mir/builder/module_lowering_invocation_candidate.rs"
@@ -33,6 +35,8 @@ COLLECTOR = ROOT / "src/mir/builder/module_draft_collector.rs"
 COLLECTOR_RECEIPT = ROOT / "src/mir/builder/module_draft_collector/receipt.rs"
 COLLECTOR_RECEIPT_TESTS = ROOT / "src/mir/builder/module_draft_collector_receipt_tests.rs"
 COLLECTOR_RECEIPT_P0 = ROOT / "src/mir/builder/module_draft_collector_receipt_p0.rs"
+RAW_LEDGER = ROOT / "src/mir/builder/raw_expansion_receipt_ledger.rs"
+RAW_LEDGER_TESTS = ROOT / "src/mir/builder/raw_expansion_receipt_ledger_tests.rs"
 SHELL_FACTS = ROOT / "src/mir/builder/module_declaration_facts.rs"
 SHELL_FACTS_P0 = ROOT / "src/mir/builder/module_declaration_facts_p0.rs"
 DRAINED_CANDIDATE = ROOT / "src/mir/builder/drained_module_candidate.rs"
@@ -340,7 +344,14 @@ def main() -> int:
         text = path.read_text()
         if "CollectedDraftAdmissionReceiptV1::new(" in text:
             receipt_constructor_users.append(path)
-        if path in (COLLECTOR, COLLECTOR_RECEIPT, COLLECTOR_RECEIPT_TESTS, BUILDER_MOD):
+        if path in (
+            COLLECTOR,
+            COLLECTOR_RECEIPT,
+            COLLECTOR_RECEIPT_TESTS,
+            RAW_LEDGER,
+            RAW_LEDGER_TESTS,
+            BUILDER_MOD,
+        ):
             continue
         if "CollectedDraftAdmissionReceiptV1" in text:
             receipt_consumers.append(str(path.relative_to(ROOT)))
@@ -719,11 +730,7 @@ def main() -> int:
         "`CUT0` remains forbidden",
     ):
         require(card, fragment, "Candidate0 task boundary")
-    require(
-        state,
-        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0b-RAWLEDGER-S0",
-        "current Candidate0/MainROLE0 pointer",
-    )
+    verify_route_inventory_extension(ROOT, builder_mod, card, state)
 
     print(
         "[headerport-candidate0-guard] ok disconnected=1 "
