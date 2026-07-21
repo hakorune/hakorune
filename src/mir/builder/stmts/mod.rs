@@ -110,15 +110,14 @@ pub(in crate::mir::builder) use local_statement_descent::{
 pub(super) mod print_stmt;
 pub(in crate::mir::builder) mod return_statement_descent;
 pub(in crate::mir::builder) use return_statement_descent::{
-    RawLegacyValueReturnInputV1, ReturnStatementDescentPortV1,
+    drive_value_return_statement_v1, RawLegacyValueReturnInputV1, ReturnStatementDescentPortV1,
 };
 pub(super) mod return_stmt;
 pub(super) mod task_scope_stmt;
 mod variable_assignment_descent;
 pub(in crate::mir::builder) use variable_assignment_descent::{
-    drive_raw_variable_assignment_v1, drive_variable_assignment_v1,
-    RawLegacyVariableAssignmentInputV1, VariableAssignmentDescentPortV1,
-    VariableAssignmentSyntaxViewV1,
+    drive_variable_assignment_v1, RawLegacyVariableAssignmentInputV1,
+    VariableAssignmentDescentPortV1, VariableAssignmentSyntaxViewV1,
 };
 pub(super) mod variable_stmt;
 

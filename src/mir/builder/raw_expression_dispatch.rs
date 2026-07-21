@@ -13,9 +13,11 @@ use super::ops::{
     ShortCircuitExpressionDescentPortV1,
 };
 use super::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+    drive_legacy_body_v1, drive_legacy_expression_v1, drive_legacy_statement_v1,
+    RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
 use super::stmts::{
+    drive_local_statement_v1, drive_value_return_statement_v1, drive_variable_assignment_v1,
     LocalStatementDescentPortV1, RawLegacyLocalInputV1, RawLegacyValueReturnInputV1,
     RawLegacyVariableAssignmentInputV1, ReturnStatementDescentPortV1,
     VariableAssignmentDescentPortV1,
@@ -38,8 +40,11 @@ enum StatementSurfaceDispatch {
 /// closure is complete; `RawInvocationChildPortV1` is intentionally not wired
 /// here before all direct helper recursion has a port-aware sibling.
 pub(super) trait RawExpressionDispatchPortV1:
-    RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>
-    + BinaryExpressionDescentPortV1<BinaryInput = RawLegacyBinaryInputV1>
+    RecursiveChildLoweringPortV1<
+        BodyInput = Vec<ASTNode>,
+        StatementInput = ASTNode,
+        ExpressionInput = ASTNode,
+    > + BinaryExpressionDescentPortV1<BinaryInput = RawLegacyBinaryInputV1>
     + ShortCircuitExpressionDescentPortV1<ShortCircuitInput = RawLegacyShortCircuitInputV1>
     + MethodCallDescentPortV1<MethodCallInput = RawLegacyMethodCallInputV1>
     + MethodCallValueTerminalPortV1
@@ -50,8 +55,11 @@ pub(super) trait RawExpressionDispatchPortV1:
 }
 
 impl<Port> RawExpressionDispatchPortV1 for Port where
-    Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>
-        + BinaryExpressionDescentPortV1<BinaryInput = RawLegacyBinaryInputV1>
+    Port: RecursiveChildLoweringPortV1<
+            BodyInput = Vec<ASTNode>,
+            StatementInput = ASTNode,
+            ExpressionInput = ASTNode,
+        > + BinaryExpressionDescentPortV1<BinaryInput = RawLegacyBinaryInputV1>
         + ShortCircuitExpressionDescentPortV1<ShortCircuitInput = RawLegacyShortCircuitInputV1>
         + MethodCallDescentPortV1<MethodCallInput = RawLegacyMethodCallInputV1>
         + MethodCallValueTerminalPortV1
@@ -63,19 +71,27 @@ impl<Port> RawExpressionDispatchPortV1 for Port where
 }
 
 impl super::MirBuilder {
-    fn try_build_statement_surface_expression(
+    fn try_build_statement_surface_expression_with_port_v1<Port>(
         &mut self,
+        port: &mut Port,
         ast: ASTNode,
-    ) -> Result<StatementSurfaceDispatch, String> {
+    ) -> Result<StatementSurfaceDispatch, String>
+    where
+        Port: RawExpressionDispatchPortV1,
+    {
         match ast {
             ASTNode::Program { statements, .. } => {
-                Ok(StatementSurfaceDispatch::Lowered(self.cf_block(statements)?))
+                Ok(StatementSurfaceDispatch::Lowered(drive_legacy_body_v1(
+                    self, port, statements,
+                )?))
             }
             ASTNode::ScopeBox { body, .. } => {
                 if let Some(value) = self.try_build_guard_let_scopebox(body.clone())? {
                     Ok(StatementSurfaceDispatch::Lowered(value))
                 } else {
-                    Ok(StatementSurfaceDispatch::Lowered(self.cf_block(body)?))
+                    Ok(StatementSurfaceDispatch::Lowered(drive_legacy_body_v1(
+                        self, port, body,
+                    )?))
                 }
             }
             ASTNode::TaskScope {
@@ -146,7 +162,7 @@ impl super::MirBuilder {
             node @ ASTNode::Assignment { .. } => {
                 let stmt = AssignStmt::try_from(node).expect("ASTNode::Assignment must convert");
                 Ok(StatementSurfaceDispatch::Lowered(
-                    self.build_assignment_statement_expression(stmt)?,
+                    self.build_assignment_statement_expression_with_port_v1(port, stmt)?,
                 ))
             }
             ASTNode::CompoundAssignment {
@@ -160,7 +176,7 @@ impl super::MirBuilder {
             node @ ASTNode::Return { .. } => {
                 let stmt = ReturnStmt::try_from(node).expect("ASTNode::Return must convert");
                 Ok(StatementSurfaceDispatch::Lowered(
-                    self.build_return_statement_expression(stmt)?,
+                    self.build_return_statement_expression_with_port_v1(port, stmt)?,
                 ))
             }
             ASTNode::Local {
@@ -169,11 +185,14 @@ impl super::MirBuilder {
                 declared_type_names,
                 ..
             } => Ok(StatementSurfaceDispatch::Lowered(
-                super::stmts::variable_stmt::build_local_statement(
+                drive_local_statement_v1(
                     self,
-                    variables.clone(),
-                    initial_values.clone(),
-                    declared_type_names.clone(),
+                    port,
+                    &RawLegacyLocalInputV1::new(
+                        variables,
+                        initial_values,
+                        declared_type_names,
+                    ),
                 )?,
             )),
             ASTNode::Outbox { variables, .. } => Ok(StatementSurfaceDispatch::Lowered(
@@ -197,23 +216,41 @@ impl super::MirBuilder {
         }
     }
 
-    fn build_assignment_statement_expression(
+    fn build_assignment_statement_expression_with_port_v1<Port>(
         &mut self,
+        port: &mut Port,
         stmt: AssignStmt,
-    ) -> Result<ValueId, String> {
+    ) -> Result<ValueId, String>
+    where
+        Port: RawExpressionDispatchPortV1,
+    {
         if let ASTNode::FieldAccess { object, field, .. } = stmt.target.as_ref() {
             self.build_field_assignment(*object.clone(), field.clone(), *stmt.value.clone())
         } else if let ASTNode::Index { target, index, .. } = stmt.target.as_ref() {
             self.build_index_assignment(*target.clone(), *index.clone(), *stmt.value.clone())
         } else if let ASTNode::Variable { name, .. } = stmt.target.as_ref() {
-            super::stmts::drive_raw_variable_assignment_v1(self, name.clone(), *stmt.value.clone())
+            let input = RawLegacyVariableAssignmentInputV1::new(name.clone(), *stmt.value);
+            drive_variable_assignment_v1(self, port, &input)
         } else {
             Err("Complex assignment targets not yet supported".to_string())
         }
     }
 
-    fn build_return_statement_expression(&mut self, stmt: ReturnStmt) -> Result<ValueId, String> {
-        super::stmts::return_stmt::build_return_statement(self, stmt.value.clone())
+    fn build_return_statement_expression_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        stmt: ReturnStmt,
+    ) -> Result<ValueId, String>
+    where
+        Port: RawExpressionDispatchPortV1,
+    {
+        match stmt.value {
+            Some(value) => {
+                let input = RawLegacyValueReturnInputV1::new(*value);
+                drive_value_return_statement_v1(self, port, &input)
+            }
+            None => super::stmts::return_stmt::build_return_statement(self, None),
+        }
     }
 
     /// Legacy facade for the one generic raw AST dispatcher.
@@ -245,7 +282,7 @@ impl super::MirBuilder {
                 ));
             }
         }
-        let ast = match self.try_build_statement_surface_expression(ast)? {
+        let ast = match self.try_build_statement_surface_expression_with_port_v1(port, ast)? {
             StatementSurfaceDispatch::Lowered(value) => return Ok(value),
             StatementSurfaceDispatch::RegularExpression(ast) => ast,
         };
@@ -564,7 +601,7 @@ impl super::MirBuilder {
                     }
                 }
                 for stmt in prelude_stmts {
-                    let _ = self.build_statement(stmt)?;
+                    let _ = drive_legacy_statement_v1(self, port, stmt)?;
                 }
 
                 drive_legacy_expression_v1(self, port, *tail_expr)
