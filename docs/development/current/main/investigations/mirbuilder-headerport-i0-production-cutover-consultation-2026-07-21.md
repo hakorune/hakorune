@@ -2,8 +2,8 @@
 
 Status: **STATE0-S0/P0/I0/G0, CONSULT0, ACCESS0-S0, and
 ACCESS0-MEHEADER-S0/P0/I0/G0, ACCESS0-REWRITE-KNOWN-P0, ACCESS0-P0, and
-CANDIDATE0-S0/P0, and MAINROLE0-D0/S0/P0 are closed; M-root-prime remains
-selected and `HEADERPORT0-I0-BODYDRAIN0-S0` is next**
+CANDIDATE0-S0/P0, MAINROLE0-D0/S0/P0, and BODYDRAIN0-S0/P0 are closed;
+M-root-prime remains selected and `HEADERPORT0-I0-MAINPENDING0-S0` is next**
 
 Date: 2026-07-21
 
@@ -710,11 +710,11 @@ HEADERPORT0-I0-MAINROLE0-S0/P0 (closed)
 HEADERPORT0-I0-BODYDRAIN0-S0 (closed)
   CompletedRootBodyV1 activity vocabulary and one-shot witness
 
-HEADERPORT0-I0-BODYDRAIN0-P0
-  next code-facing row
-  nested child/pending-loan closure matrix and failure parity
+HEADERPORT0-I0-BODYDRAIN0-S0/P0 (closed)
+  CompletedRootBodyV1 witness and nested child/pending-loan failure parity
 
 HEADERPORT0-I0-MAINPENDING0-S0/P0
+  next code-facing row
   root completion with explicit collector headers
 
 HEADERPORT0-I0-ROOTBATCH0-S0/P0
@@ -785,6 +785,18 @@ ValueId allocator, fallback, or publication route. Its focused fixtures cover
 empty no-value completion, nested activity closure, open-activity rejection,
 and foreign/mismatched-token fail-fast behavior.
 
-The next row is `HEADERPORT0-I0-BODYDRAIN0-P0`; nested lowering parity and the
-root failure matrix remain disconnected, and production capture/commit,
+The next row is `HEADERPORT0-I0-MAINPENDING0-S0`; root completion parity and
+the root failure matrix remain disconnected, and production capture/commit,
 FACTSESSION0, and CUT0 are still forbidden.
+
+## BODYDRAIN0-P0 closeout
+
+`HEADERPORT0-I0-BODYDRAIN0-P0` is closed with production consumers still
+zero. The matrix proves nested child completion is inner-before-outer, header
+loans and pending terminals close before the root witness, each open activity
+has a distinct typed failure, and a failed completion consumes the tracker
+without producing a witness. These are disconnected fixture observations;
+they do not open a capture, collector, Builder, or module-finalization route.
+
+The next row is `HEADERPORT0-I0-MAINPENDING0-S0`; root completion, Main batch
+collection, drain, FACTSESSION0, and CUT0 remain forbidden.

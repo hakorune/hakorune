@@ -17,6 +17,7 @@ CANDIDATE = ROOT / "src/mir/builder/module_lowering_invocation_candidate.rs"
 CANDIDATE_P0 = ROOT / "src/mir/builder/module_lowering_invocation_candidate_p0.rs"
 MAIN_EXPANSION = ROOT / "src/mir/builder/main_expansion.rs"
 ROOT_BODY = ROOT / "src/mir/builder/root_body_completion.rs"
+ROOT_BODY_P0 = ROOT / "src/mir/builder/root_body_completion_p0.rs"
 BUILDER_MOD = ROOT / "src/mir/builder.rs"
 CARD = ROOT / (
     "docs/development/current/main/investigations/"
@@ -40,6 +41,7 @@ def main() -> int:
     candidate_p0 = CANDIDATE_P0.read_text()
     main_expansion = MAIN_EXPANSION.read_text()
     root_body = ROOT_BODY.read_text()
+    root_body_p0 = ROOT_BODY_P0.read_text()
     builder_mod = BUILDER_MOD.read_text()
     card = CARD.read_text()
     state = STATE.read_text()
@@ -52,6 +54,8 @@ def main() -> int:
         raise AssertionError("MAINROLE0-S0 source must remain below 800 lines")
     if len(root_body.splitlines()) >= 800:
         raise AssertionError("BODYDRAIN0-S0 source must remain below 800 lines")
+    if len(root_body_p0.splitlines()) >= 800:
+        raise AssertionError("BODYDRAIN0-P0 fixture source must remain below 800 lines")
 
     for fragment in (
         "VerifiedMainExpansionV1",
@@ -78,9 +82,16 @@ def main() -> int:
         "foreign_and_mismatched_tokens_fail_closed",
     ):
         require(root_body, fragment, "BODYDRAIN0-S0 source product/fixtures")
+    for fragment in (
+        "nested_children_close_inner_before_outer",
+        "header_and_pending_tokens_close_before_root_completion",
+        "each_open_activity_has_a_distinct_fail_fast_disposition",
+        "failed_completion_consumes_the_tracker_without_a_witness",
+    ):
+        require(root_body_p0, fragment, "BODYDRAIN0-P0 closure/failure fixtures")
 
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
-        if path in (MAIN_EXPANSION, ROOT_BODY, BUILDER_MOD) or path.name.endswith("_tests.rs"):
+        if path in (MAIN_EXPANSION, ROOT_BODY, ROOT_BODY_P0, BUILDER_MOD) or path.name.endswith("_tests.rs"):
             continue
         text = path.read_text()
         if "VerifiedMainExpansionV1" in text:
@@ -130,6 +141,7 @@ def main() -> int:
 
     require(builder_mod, "mod module_lowering_invocation_candidate;", "Candidate0 module registration")
     require(builder_mod, "mod root_body_completion;", "BODYDRAIN0-S0 module registration")
+    require(builder_mod, "mod root_body_completion_p0;", "BODYDRAIN0-P0 fixture registration")
     other_builder_files = []
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
         if path in (CANDIDATE, CANDIDATE_P0, BUILDER_MOD):
@@ -158,7 +170,8 @@ def main() -> int:
         "HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-P0 (closed)",
         "M-root-prime decision lock and task order",
         "HEADERPORT0-I0-MAINROLE0-S0/P0 (closed)",
-        "HEADERPORT0-I0-BODYDRAIN0-P0\n  next code-facing row",
+        "HEADERPORT0-I0-BODYDRAIN0-S0/P0 (closed)",
+        "HEADERPORT0-I0-MAINPENDING0-S0/P0\n  next code-facing row",
         "one disconnected invocation-owned shell/collector candidate",
         "typed abort/no-publication/no-retry proof",
         "production capture/commit remains forbidden",
@@ -167,7 +180,7 @@ def main() -> int:
         require(card, fragment, "Candidate0 task boundary")
     require(
         state,
-        "HEADERPORT0-I0-BODYDRAIN0-P0 is next",
+        "HEADERPORT0-I0-MAINPENDING0-S0 is next",
         "current Candidate0/MainROLE0 pointer",
     )
 
