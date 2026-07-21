@@ -1765,3 +1765,248 @@ It must close the four policy lanes, five root families, and nine route rows,
 project each route to exactly one P0b/P0c/P0d authority, and prove explicit
 invocation header miss has no stale `current_module` fallback. Production
 capture/commit, drain, finalization, FACTSESSION, and CUT0 remain forbidden.
+
+## WIRING-I0-ROUTEINV-P0e-MATRIX-G0 worker decision lock
+
+Three read-only worker audits agree that no external design consultation is
+required for P0e. The existing route matrix, route-owned policy projection,
+P0b raw receipt ledger, P0c resolved-owner header, and P0d callable plans
+already provide every durable authority required by this row. P0e adds only
+test-only correspondence and negative-path proof; it creates no production
+inventory owner.
+
+### Exact correspondence
+
+The sole route-row authority remains:
+
+```text
+InvocationRouteMatrixV1::rows()
+```
+
+The sole family-to-policy projection remains:
+
+```text
+RouteOwnedInvocationInventoryV2::derive(family)
+```
+
+The normalized counts are fixed as follows:
+
+| Policy lane | Root family | Route rows | P0 authority |
+| --- | --- | ---: | --- |
+| `Raw` | `Raw` | 4 | P0b sealed raw expansion receipt ledger |
+| `CanonicalSingle` | `CanonicalAPlus` | 2 | P0c resolved-owner header |
+| `CanonicalSingle` | `BindingSsaTrivial` | 1 | P0c resolved-owner header |
+| `BindingSsaAcyclic` | `BindingSsaAcyclic` | 1 | P0d acyclic callable plan/catalog proof |
+| `BindingSsaRecursive` | `BindingSsaRecursive` | 1 | P0d recursive callable plan/catalog/SCC proof |
+
+Therefore:
+
+```text
+policy lanes = 4
+root families = 5
+route rows = 9
+
+P0b rows = 4
+P0c rows = 3
+P0d rows = 2
+```
+
+The exhaustive discriminator is the existing
+`InvocationInventoryAuthorityV2` enum:
+
+```text
+RawExpansionReceipts
+  -> P0b
+
+CanonicalResolvedOwner
+  -> P0c
+
+CanonicalCallableCatalog
+  -> P0d
+```
+
+No route-name string match, caller-authored symbol list, second catalog, or
+persistent route map may implement this correspondence.
+
+The raw matrix intentionally has two coarse child rows while the P0b ledger
+has more detailed static, instance, constructor, callable-Main, and nested
+roles. P0e proves exact correspondence for the nine route rows only. It does
+not claim a new one-to-one mapping from every `RawExpansionDraftRoleV1` to a
+distinct matrix row.
+
+### Fixed implementation tasks
+
+#### 1. Test-only matrix projection
+
+Add one test-only sibling module:
+
+```text
+src/mir/builder/module_wiring_route_matrix_p0e.rs
+```
+
+It must:
+
+```text
+read InvocationRouteMatrixV1::rows()
+derive all five families through RouteOwnedInvocationInventoryV2
+observe four policy variants with row counts 4 / 3 / 1 / 1
+project authority counts 4 / 3 / 2 through an exhaustive enum match
+prove each matrix row appears exactly once in the flattened projection
+borrow duplicate/failure/retry law from the existing matrix and candidate proof
+```
+
+It must not construct an `InvocationRouteMatrixRowV1`, repeat the nine route
+names, or store Builder, module, function, collector, draft, header loan,
+fallback, retry, or caller-authored function symbols.
+
+#### 2. Entered/changed proof without false-green
+
+The existing `WiringObservationV1::{Entered, Changed}` list is an expected
+observation vocabulary, not a runtime observation. P0e must not present that
+list alone as dynamic evidence.
+
+The test-only sibling therefore owns a minimal observation fixture:
+
+```rust
+struct RouteObservationV1 {
+    entered: bool,
+    changed: bool,
+}
+```
+
+It must include both:
+
+```text
+entered = true, changed = false
+entered = true, changed = true
+```
+
+for one exact route and must never derive one bit from the other. This product
+does not connect to production wiring and does not claim that all nine routes
+have runtime observers.
+
+#### 3. Explicit collector-miss negative fixture
+
+Extend the existing raw invocation port tests with one exact fixture:
+
+```text
+raw_invocation_header_miss_does_not_retry_stale_current_module
+```
+
+The fixture must arrange:
+
+```text
+current_module:
+  contains a stale matching function signature
+
+invocation collector:
+  contains no matching header
+```
+
+Expected result:
+
+```text
+MeCallParameterObservationV1::Missing
+source = InvocationCollector
+prepare_me_lowered_call_v1 = None
+instruction delta = 0
+ValueId cursor delta = 0
+current_module retry = 0
+```
+
+The symbol must avoid `condition_fn`, declaration-catalog recovery, and other
+compatibility heuristics. A collector miss may continue through the existing
+ordinary semantic receiver/static policy, but it may not switch header source.
+That distinction is part of the fixture name and assertion text.
+
+#### 4. Reusable guard extension
+
+Extend only:
+
+```text
+tools/checks/lib/headerport_route_inventory_guard.py
+```
+
+The guard must verify:
+
+```text
+P0e proof reads the route-matrix SSOT and does not construct route rows
+four policy lanes / five families / nine rows
+P0b/P0c/P0d authority counts = 4 / 3 / 2
+entered and changed are distinct fields with both required fixtures
+the exact collector-miss negative fixture exists
+RawInvocationChildPortV1 me observation uses InvocationCollector
+RawInvocationChildPortV1 me observation does not read current_module
+caller-authored symbol inventory constructors = 0
+production inventory consumers = 0
+source/check files >= 800 lines = 0
+```
+
+Function-slice checks must be used where the same file also contains an
+intentional legacy compatibility facade. A whole-file ban on
+`current_module` would incorrectly reject that quarantined route.
+
+### Verification order
+
+```text
+focused P0e matrix tests
+focused raw invocation header-miss test
+existing me-header observation tests
+existing route-inventory tests
+headerport route-inventory guard
+module-draft/headerport guards
+current-state pointer guard
+cargo fmt --check
+cargo check --release --bin hakorune
+```
+
+### P0e may claim
+
+```text
+all nine matrix rows project exactly once through one of P0b/P0c/P0d
+the four policy lanes cover all five root families without a second route truth
+duplicate/failure/retry laws remain projections of InvocationRouteMatrixV1
+an explicit invocation collector miss never retries current_module headers
+entered and changed remain separate observation dimensions
+production inventory consumers remain zero
+```
+
+### P0e must not claim
+
+```text
+every detailed raw expansion role owns a distinct route row
+all production routes have runtime entered/changed observers
+all legacy header recovery has been retired
+ordinary me-call semantic routing is fallback-free
+condition_fn compatibility is retired
+callable declaration-catalog recovery is retired
+production capture, commit, drain, finalization, FACTSESSION, or CUT0 is active
+```
+
+### P0e stop conditions
+
+Stop before implementation if closing the row requires:
+
+```text
+new route or policy vocabulary
+route-name string matching as authority
+a caller-authored function-symbol inventory
+a second catalog, key map, collector, or header cache
+production observation counters
+current_module lookup after an explicit invocation header miss
+changing ordinary me-call semantics after a branded miss
+connecting any production inventory consumer
+```
+
+After the complete P0e gate is green, the sole continuation remains:
+
+```text
+WIRING-I0-BORROW-S0
+  -> WIRING-I0-HDR0
+  -> WIRING-I0-CUT0
+```
+
+No additional ChatGPT Pro consultation is scheduled before
+`WIRING-I0-BORROW-S0`. A new consultation is required only if one of the P0e
+stop conditions is reached or the BORROW-S0 inventory finds an unowned
+cross-session mutable borrow.
