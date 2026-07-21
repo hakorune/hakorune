@@ -9,7 +9,8 @@ use crate::ast::ASTNode;
 use crate::mir::{MirBuilder, ValueId};
 
 use super::super::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+    RecursiveChildLoweringPortV1,
 };
 use super::return_stmt::{
     emit_return_from_value, ensure_return_allowed, try_apply_match_return_optimization,
@@ -62,7 +63,10 @@ pub(in crate::mir::builder) trait ReturnStatementDescentPortV1:
     ) -> Result<Self::ExpressionInput, String>;
 }
 
-impl ReturnStatementDescentPortV1 for RawLegacyChildLoweringPortV1 {
+impl<Port> ReturnStatementDescentPortV1 for Port
+where
+    Port: RawAstChildLoweringPortV1,
+{
     type ReturnInput = RawLegacyValueReturnInputV1;
 
     fn return_value_syntax<'input>(

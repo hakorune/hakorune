@@ -10,7 +10,8 @@ use crate::ast::ASTNode;
 use crate::mir::{MirBuilder, ValueId};
 
 use super::super::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+    RecursiveChildLoweringPortV1,
 };
 use super::variable_stmt::{
     build_local_statement_from_values_with_types_and_preclaims,
@@ -103,7 +104,10 @@ pub(in crate::mir::builder) trait LocalStatementDescentPortV1:
     ) -> Result<ValueId, String>;
 }
 
-impl LocalStatementDescentPortV1 for RawLegacyChildLoweringPortV1 {
+impl<Port> LocalStatementDescentPortV1 for Port
+where
+    Port: RawAstChildLoweringPortV1,
+{
     type LocalInput = RawLegacyLocalInputV1;
 
     fn local_syntax<'input>(

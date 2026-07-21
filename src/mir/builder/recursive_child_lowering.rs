@@ -36,6 +36,30 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
     ) -> Result<ValueId, String>;
 }
 
+/// Raw AST specialization shared by the legacy facade and the future
+/// invocation-aware carrier.
+///
+/// Located/source-branded ports intentionally do not implement this marker.
+/// It permits raw syntax adapters to have one blanket implementation without
+/// fabricating a second AST representation or copying any source policy.
+pub(in crate::mir::builder) trait RawAstChildLoweringPortV1:
+    RecursiveChildLoweringPortV1<
+    BodyInput = Vec<ASTNode>,
+    StatementInput = ASTNode,
+    ExpressionInput = ASTNode,
+>
+{
+}
+
+impl<Port> RawAstChildLoweringPortV1 for Port where
+    Port: RecursiveChildLoweringPortV1<
+        BodyInput = Vec<ASTNode>,
+        StatementInput = ASTNode,
+        ExpressionInput = ASTNode,
+    >
+{
+}
+
 pub(in crate::mir::builder) fn drive_legacy_body_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,

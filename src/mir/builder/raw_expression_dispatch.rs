@@ -15,6 +15,11 @@ use super::ops::{
 use super::recursive_child_lowering::{
     drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
+use super::stmts::{
+    LocalStatementDescentPortV1, RawLegacyLocalInputV1, RawLegacyValueReturnInputV1,
+    RawLegacyVariableAssignmentInputV1, ReturnStatementDescentPortV1,
+    VariableAssignmentDescentPortV1,
+};
 use super::ValueId;
 use crate::ast::{
     ASTNode, AssignStmt, BinaryExpr, CallExpr, FieldAccessExpr, MethodCallExpr, ReturnStmt,
@@ -38,6 +43,9 @@ pub(super) trait RawExpressionDispatchPortV1:
     + ShortCircuitExpressionDescentPortV1<ShortCircuitInput = RawLegacyShortCircuitInputV1>
     + MethodCallDescentPortV1<MethodCallInput = RawLegacyMethodCallInputV1>
     + MethodCallValueTerminalPortV1
+    + LocalStatementDescentPortV1<LocalInput = RawLegacyLocalInputV1>
+    + VariableAssignmentDescentPortV1<VariableAssignmentInput = RawLegacyVariableAssignmentInputV1>
+    + ReturnStatementDescentPortV1<ReturnInput = RawLegacyValueReturnInputV1>
 {
 }
 
@@ -47,6 +55,10 @@ impl<Port> RawExpressionDispatchPortV1 for Port where
         + ShortCircuitExpressionDescentPortV1<ShortCircuitInput = RawLegacyShortCircuitInputV1>
         + MethodCallDescentPortV1<MethodCallInput = RawLegacyMethodCallInputV1>
         + MethodCallValueTerminalPortV1
+        + LocalStatementDescentPortV1<LocalInput = RawLegacyLocalInputV1>
+        + VariableAssignmentDescentPortV1<
+            VariableAssignmentInput = RawLegacyVariableAssignmentInputV1,
+        > + ReturnStatementDescentPortV1<ReturnInput = RawLegacyValueReturnInputV1>
 {
 }
 

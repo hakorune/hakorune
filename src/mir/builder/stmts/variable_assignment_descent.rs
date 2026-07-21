@@ -9,7 +9,8 @@ use crate::ast::ASTNode;
 use crate::mir::{MirBuilder, ValueId};
 
 use super::super::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+    RecursiveChildLoweringPortV1,
 };
 use super::super::vars::assignment_resolver::AssignmentResolverBox;
 
@@ -57,7 +58,10 @@ pub(in crate::mir::builder) trait VariableAssignmentDescentPortV1:
     ) -> Result<Self::ExpressionInput, String>;
 }
 
-impl VariableAssignmentDescentPortV1 for RawLegacyChildLoweringPortV1 {
+impl<Port> VariableAssignmentDescentPortV1 for Port
+where
+    Port: RawAstChildLoweringPortV1,
+{
     type VariableAssignmentInput = RawLegacyVariableAssignmentInputV1;
 
     fn variable_assignment_syntax<'input>(
