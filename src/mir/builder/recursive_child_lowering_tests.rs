@@ -129,6 +129,18 @@ fn grouped_assignment(name: &str, value: ASTNode) -> ASTNode {
     }
 }
 
+fn compound_assignment(name: &str, value: ASTNode) -> ASTNode {
+    ASTNode::CompoundAssignment {
+        target: Box::new(ASTNode::Variable {
+            name: name.to_string(),
+            span: Span::unknown(),
+        }),
+        operator: BinaryOperator::Add,
+        value: Box::new(value),
+        span: Span::unknown(),
+    }
+}
+
 fn check(expression: ASTNode) -> ASTNode {
     ASTNode::CheckExpr {
         name: None,
@@ -461,6 +473,46 @@ fn raw_invocation_port_preserves_grouped_assignment_rhs_descent() {
             builder.function_state.variable_ctx.variable_map["x"],
             output
         );
+        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
+    });
+}
+
+#[test]
+fn raw_invocation_port_preserves_compound_assignment_child_descent() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("raw_invocation_compound_assignment/0".to_string());
+    let old = crate::mir::builder::emission::constant::emit_integer(&mut builder, 1).unwrap();
+    builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .insert("x".to_string(), old);
+    builder
+        .function_state
+        .binding_ctx
+        .insert("x".to_string(), BindingId::new(0));
+    let mut invocation = ModuleLoweringInvocationV1::with_collector(
+        &mut builder,
+        collector_with_header("Prefix.f/1", 1),
+    );
+
+    invocation.with_module_port(|builder, module_port| {
+        let mut port = RawInvocationChildPortV1::new(module_port);
+        let output = drive_legacy_expression_v1(
+            builder,
+            &mut port,
+            compound_assignment("x", add(integer(2), integer(3))),
+        )
+        .unwrap();
+
+        assert_eq!(
+            builder.function_state.variable_ctx.variable_map["x"],
+            output
+        );
+        assert!(instructions(builder).iter().any(|instruction| matches!(
+            instruction,
+            MirInstruction::BinOp { dst, .. } if *dst == output
+        )));
         port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
     });
 }

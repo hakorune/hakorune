@@ -175,7 +175,12 @@ impl super::MirBuilder {
                 value,
                 ..
             } => Ok(StatementSurfaceDispatch::Lowered(
-                self.build_compound_assignment_statement(*target, operator, *value)?,
+                self.build_compound_assignment_statement_with_port_v1(
+                    port,
+                    *target,
+                    operator,
+                    *value,
+                )?,
             )),
             node @ ASTNode::Return { .. } => {
                 let stmt = ReturnStmt::try_from(node).expect("ASTNode::Return must convert");

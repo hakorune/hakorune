@@ -2,6 +2,9 @@
 
 use super::ValueId;
 use crate::ast::{ASTNode, BinaryOperator};
+use crate::mir::builder::recursive_child_lowering::{
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+};
 
 enum EvaluatedPlace {
     Local(String),
@@ -23,19 +26,41 @@ impl super::MirBuilder {
         operator: BinaryOperator,
         rhs: ASTNode,
     ) -> Result<ValueId, String> {
-        let place = self.evaluate_compound_place(target)?;
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_compound_assignment_statement_with_port_v1(&mut port, target, operator, rhs)
+    }
+
+    /// Lower a compound assignment while retaining the raw child-descent port.
+    pub(in crate::mir::builder) fn build_compound_assignment_statement_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        target: ASTNode,
+        operator: BinaryOperator,
+        rhs: ASTNode,
+    ) -> Result<ValueId, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
+        let place = self.evaluate_compound_place_with_port_v1(port, target)?;
         let old = self.read_compound_place(&place)?;
-        let rhs_value = self.build_expression(rhs)?;
+        let rhs_value = drive_legacy_expression_v1(self, port, rhs)?;
         let new_value = self.build_binary_op_from_values(operator, old, rhs_value)?;
         self.write_compound_place(place, new_value)
     }
 
-    fn evaluate_compound_place(&mut self, target: ASTNode) -> Result<EvaluatedPlace, String> {
+    fn evaluate_compound_place_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        target: ASTNode,
+    ) -> Result<EvaluatedPlace, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         match target {
             ASTNode::Variable { name, .. } => Ok(EvaluatedPlace::Local(name)),
             ASTNode::FieldAccess { object, field, .. } => {
                 self.fail_if_record_field_assignment_target(&object, &field)?;
-                let object_value = self.build_expression(*object)?;
+                let object_value = drive_legacy_expression_v1(self, port, *object)?;
                 let base = self.local_field_base(object_value);
                 Ok(EvaluatedPlace::Field { base, field })
             }
@@ -44,9 +69,9 @@ impl super::MirBuilder {
                     ASTNode::Variable { name, .. } => Some(name.clone()),
                     _ => None,
                 };
-                let base = self.build_expression(*target)?;
+                let base = drive_legacy_expression_v1(self, port, *target)?;
                 self.preflight_compound_index_place(base)?;
-                let index = self.build_expression(*index)?;
+                let index = drive_legacy_expression_v1(self, port, *index)?;
                 Ok(EvaluatedPlace::Index {
                     base,
                     index,
