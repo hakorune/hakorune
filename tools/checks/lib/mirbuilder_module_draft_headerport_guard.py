@@ -16,11 +16,13 @@ ROOT = pathlib.Path(__file__).resolve().parents[3]
 BUILDER = ROOT / "src/mir/builder.rs"
 COMPILATION = ROOT / "src/mir/builder/compilation_context.rs"
 INVOCATION = ROOT / "src/mir/builder/module_lowering_invocation.rs"
+MODULE_DRAFT = ROOT / "src/mir/builder/module_draft_collector.rs"
 SIGNATURE_LOOKUP = ROOT / "src/mir/builder/function_signature_lookup.rs"
 PORT_AWARE_DRAFT = ROOT / "src/mir/builder/port_aware_function_draft.rs"
 PENDING_TERMINAL = ROOT / "src/mir/builder/calls/function_session/terminal.rs"
 LEGACYTERM_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_legacyterm_tests.rs"
 RAWPORT_TESTS = ROOT / "src/mir/builder/recursive_child_lowering_rawport_tests.rs"
+REENTRANT_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_reentrant_tests.rs"
 RAW_DISPATCH = ROOT / "src/mir/builder/raw_expression_dispatch.rs"
 RAW_PORT = ROOT / "src/mir/builder/recursive_child_lowering.rs"
 RAW_LOOP_ENTRY = ROOT / "src/mir/builder/raw_loop_child_entry.rs"
@@ -65,6 +67,7 @@ def require_count(text: str, fragment: str, expected: int, subject: str) -> None
 
 def main() -> int:
     invocation = read(INVOCATION)
+    module_draft = read(MODULE_DRAFT)
     signature_lookup = read(SIGNATURE_LOOKUP)
     port_aware_draft = read(PORT_AWARE_DRAFT)
     builder = read(BUILDER)
@@ -72,9 +75,24 @@ def main() -> int:
     pending_terminal = read(PENDING_TERMINAL)
     legacyterm_tests = read(LEGACYTERM_TESTS)
     rawport_tests = read(RAWPORT_TESTS)
+    reentrant_tests = read(REENTRANT_TESTS)
     raw_dispatch = read(RAW_DISPATCH)
     raw_port = read(RAW_PORT)
     raw_loop_entry = read(RAW_LOOP_ENTRY)
+
+    for fragment in (
+        "PreparedCollectorReplacementV1",
+        "IndexDrift",
+        "replacement: PreparedCollectorReplacementV1",
+    ):
+        require(module_draft, fragment, "HEADERPORT0 collector preflight vocabulary")
+    forbid(module_draft, "remove_existing_symbol", "HEADERPORT0 post-collect lookup")
+    forbid(module_draft, "remove_existing_key", "HEADERPORT0 post-collect lookup")
+    collect_block = module_draft.split("fn collect_sealed", 1)[1].split(
+        "impl CompletedDraftSignatureViewV1", 1
+    )[0]
+    forbid(collect_block, "debug_assert!", "HEADERPORT0 post-collect assertion")
+    forbid(collect_block, "expect(", "HEADERPORT0 post-collect fallible lookup")
 
     for fragment in (
         "struct LoweringHeaderPortV1",
@@ -121,6 +139,8 @@ def main() -> int:
         "complete_legacy_child",
         "commit_resolved_pending",
         "commit_legacy_pending",
+        "capture_resolved_pending",
+        "capture_legacy_pending",
     ):
         require(module_port_impl, fragment, "RAWPORT0 stack-owned capability")
     for fragment in ("MirBuilder", "current_module", "thread_local", "OnceLock"):
@@ -155,6 +175,12 @@ def main() -> int:
         "struct LegacyFunctionPendingSessionV1",
         "RAWPORT0 legacy pending seam",
     )
+    for fragment in (
+        "pending_capture_ends_before_header_loan_and_commit",
+        "rejected_commit_restores_parent_without_collector_delta",
+        "capture_failure_never_reaches_commit_terminal",
+    ):
+        require(reentrant_tests, fragment, "HEADERPORT0 reentrant P0 proof")
     require(
         pending_terminal,
         "capture_legacy_function_pending_session_v1",
@@ -218,7 +244,7 @@ def main() -> int:
         "HEADERPORT0 legacy commit-only owner",
     )
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
-        if path == INVOCATION:
+        if path == INVOCATION or path.name == "module_lowering_invocation_reentrant_tests.rs":
             continue
         source = read(path)
         forbid(

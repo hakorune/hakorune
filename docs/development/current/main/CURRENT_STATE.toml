@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0/S0/M0/P0-SELECT/P0-S0/P0-P0/P0-G0, FACTSESSION0-I0-SELECT, MODULEDRAFT0-S0/M0/P0 and HEADERPORT0-SELECT/S0/P0, and HEADERPORT0-RAWPORT0-SELECT/S0/M0-T0/R0/LEGACYTERM0-S0/P0/I0/G0/LOOPBRIDGE0-SELECT/S0/P0/I0/G0 are closed; HEADERPORT0-REENTRANT-TERM0-SELECT/S0 is closed and P0 is next, and CUT0 remains forbidden"
+status = "FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0/S0/M0/P0-SELECT/P0-S0/P0-P0/P0-G0, FACTSESSION0-I0-SELECT, MODULEDRAFT0-S0/M0/P0 and HEADERPORT0-SELECT/S0/P0, and HEADERPORT0-RAWPORT0-SELECT/S0/M0-T0/R0/LEGACYTERM0-S0/P0/I0/G0/LOOPBRIDGE0-SELECT/S0/P0/I0/G0 are closed; HEADERPORT0-REENTRANT-TERM0-SELECT/S0 is closed and P0 is active, and CUT0 remains forbidden"
 date = "2026-07-21"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -318,7 +318,7 @@ module_draft_headerport_i0_task = "docs/development/current/main/investigations/
 
 latest_card = "mirbuilder-headerport-reentrant-terminal-task-2026-07-21"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-headerport-reentrant-terminal-task-2026-07-21.md"
-latest_card_summary = """R-prime is selected. HEADERPORT0-REENTRANT-TERM0-S0 is closed: the disconnected commit-only pending terminal, neutral signature lookup, and port-aware draft/body/finalizer protocol are guarded with zero production consumers. HEADERPORT0-REENTRANT-TERM0-P0 is next; nested raw reborrow and production capture/commit cutover remain pending."""
+latest_card_summary = """R-prime is selected. HEADERPORT0-REENTRANT-TERM0-S0 is closed and P0 is active: capture-only lifetime seams, rejected-commit restore fixtures, and collector replacement preflight are green. Port-aware body descent, nested constructor/header coverage, and production capture/commit cutover remain pending."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is

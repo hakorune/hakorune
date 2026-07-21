@@ -53,6 +53,8 @@ mod module_draft_collector;
 mod module_lowering_invocation;
 #[cfg(test)]
 mod module_lowering_invocation_legacyterm_tests;
+#[cfg(test)]
+mod module_lowering_invocation_reentrant_tests;
 mod raw_expression_dispatch; // single raw AST expression dispatcher
 #[allow(dead_code)]
 mod raw_loop_child_entry; // LOOPBRIDGE0-S0 pure raw Loop child-entry quarantine

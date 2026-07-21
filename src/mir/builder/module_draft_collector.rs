@@ -32,6 +32,10 @@ pub(in crate::mir::builder) enum DraftPublicationPolicyV1 {
 pub(in crate::mir::builder) enum ModuleDraftAdmissionErrorV1 {
     DuplicateKey(FunctionDraftKeyV1),
     DuplicateSymbol(String),
+    IndexDrift {
+        symbol: String,
+        key: FunctionDraftKeyV1,
+    },
     SymbolMismatch {
         expected: String,
         actual: String,
@@ -66,6 +70,19 @@ pub(in crate::mir::builder) struct PreparedFunctionDraftAdmissionV1<'collector> 
     expected_symbol: String,
     expected_arity: usize,
     policy: DraftPublicationPolicyV1,
+    replacement: PreparedCollectorReplacementV1,
+}
+
+/// All legacy index removals are decided before the child session is restored.
+/// Commit only applies these owned removals and performs no fallible lookup or
+/// post-mutation assertion.
+#[derive(Debug)]
+enum PreparedCollectorReplacementV1 {
+    Legacy {
+        symbol_key: Option<FunctionDraftKeyV1>,
+        key_symbol: Option<String>,
+    },
+    Canonical,
 }
 
 impl<'collector> PreparedFunctionDraftAdmissionV1<'collector> {
@@ -92,6 +109,7 @@ impl<'collector> PreparedFunctionDraftAdmissionV1<'collector> {
             collector: self.collector,
             key: self.key,
             policy: self.policy,
+            replacement: self.replacement,
             draft,
             _seal: UnpublishedFunctionDraftSealV1,
         })
@@ -104,6 +122,7 @@ pub(in crate::mir::builder) struct UnpublishedFunctionDraftV1<'collector> {
     collector: &'collector mut ModuleDraftCollectorV1,
     key: FunctionDraftKeyV1,
     policy: DraftPublicationPolicyV1,
+    replacement: PreparedCollectorReplacementV1,
     draft: MirFunction,
     _seal: UnpublishedFunctionDraftSealV1,
 }
@@ -128,10 +147,11 @@ impl UnpublishedFunctionDraftV1<'_> {
             collector,
             key,
             policy,
+            replacement,
             draft,
             _seal: _,
         } = self;
-        collector.collect_sealed(key, policy, draft);
+        collector.collect_sealed(key, policy, replacement, draft);
     }
 }
 
@@ -175,23 +195,63 @@ impl ModuleDraftCollectorV1 {
         expected_arity: usize,
         policy: DraftPublicationPolicyV1,
     ) -> Result<PreparedFunctionDraftAdmissionV1<'_>, ModuleDraftAdmissionErrorV1> {
-        if policy == DraftPublicationPolicyV1::CanonicalRejectDuplicate {
-            if self.drafts.contains_key(&key) {
-                return Err(ModuleDraftAdmissionErrorV1::DuplicateKey(key));
+        let symbol_key = self.key_by_symbol.get(&expected_symbol).cloned();
+        let key_symbol = self
+            .drafts
+            .get(&key)
+            .map(|entry| entry.draft.signature.name.clone());
+        let replacement = match policy {
+            DraftPublicationPolicyV1::CanonicalRejectDuplicate => {
+                if self.drafts.contains_key(&key) {
+                    return Err(ModuleDraftAdmissionErrorV1::DuplicateKey(key));
+                }
+                if self.key_by_symbol.contains_key(&expected_symbol) {
+                    return Err(ModuleDraftAdmissionErrorV1::DuplicateSymbol(
+                        expected_symbol,
+                    ));
+                }
+                PreparedCollectorReplacementV1::Canonical
             }
-            if self.key_by_symbol.contains_key(&expected_symbol) {
-                return Err(ModuleDraftAdmissionErrorV1::DuplicateSymbol(
-                    expected_symbol,
-                ));
+            DraftPublicationPolicyV1::LegacyReplaceWholePair => {
+                if let (Some(symbol_key), Some(key_symbol)) = (&symbol_key, &key_symbol) {
+                    if symbol_key != &key || key_symbol != &expected_symbol {
+                        return Err(ModuleDraftAdmissionErrorV1::IndexDrift {
+                            symbol: expected_symbol,
+                            key,
+                        });
+                    }
+                }
+                if symbol_key.is_some() && key_symbol.is_none() {
+                    return Err(ModuleDraftAdmissionErrorV1::IndexDrift {
+                        symbol: expected_symbol,
+                        key,
+                    });
+                }
+                if symbol_key.is_none() && key_symbol.is_some() {
+                    return Err(ModuleDraftAdmissionErrorV1::IndexDrift {
+                        symbol: expected_symbol,
+                        key,
+                    });
+                }
+                PreparedCollectorReplacementV1::Legacy {
+                    symbol_key,
+                    key_symbol,
+                }
             }
-        }
+        };
         Ok(PreparedFunctionDraftAdmissionV1 {
             collector: self,
             key,
             expected_symbol,
             expected_arity,
             policy,
+            replacement,
         })
+    }
+
+    #[cfg(test)]
+    fn inject_symbol_index_drift_for_test(&mut self, symbol: &str, key: FunctionDraftKeyV1) {
+        self.key_by_symbol.insert(symbol.to_owned(), key);
     }
 
     /// Infallibly insert or replace a draft that completed prepared admission.
@@ -199,41 +259,35 @@ impl ModuleDraftCollectorV1 {
         &mut self,
         key: FunctionDraftKeyV1,
         policy: DraftPublicationPolicyV1,
+        replacement: PreparedCollectorReplacementV1,
         draft: MirFunction,
     ) {
         let symbol = draft.signature.name.clone();
-        match policy {
-            DraftPublicationPolicyV1::LegacyReplaceWholePair => {
-                self.remove_existing_symbol(&symbol);
-                self.remove_existing_key(&key);
+        match (policy, replacement) {
+            (
+                DraftPublicationPolicyV1::LegacyReplaceWholePair,
+                PreparedCollectorReplacementV1::Legacy {
+                    symbol_key,
+                    key_symbol,
+                },
+            ) => {
+                if let Some(existing_key) = symbol_key {
+                    self.key_by_symbol.remove(&symbol);
+                    self.drafts.remove(&existing_key);
+                }
+                if let Some(existing_symbol) = key_symbol {
+                    self.drafts.remove(&key);
+                    self.key_by_symbol.remove(&existing_symbol);
+                }
             }
-            DraftPublicationPolicyV1::CanonicalRejectDuplicate => {
-                debug_assert!(!self.drafts.contains_key(&key));
-                debug_assert!(!self.key_by_symbol.contains_key(&symbol));
-            }
+            (
+                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+                PreparedCollectorReplacementV1::Canonical,
+            ) => {}
+            _ => unreachable!("prepared collector policy/replacement mismatch"),
         }
         self.key_by_symbol.insert(symbol, key.clone());
-        let previous = self.drafts.insert(key, CollectedFunctionDraftV1 { draft });
-        debug_assert!(previous.is_none());
-    }
-
-    fn remove_existing_symbol(&mut self, symbol: &str) {
-        let Some(existing_key) = self.key_by_symbol.remove(symbol) else {
-            return;
-        };
-        let existing = self
-            .drafts
-            .remove(&existing_key)
-            .expect("symbol index always names one owned unpublished draft");
-        debug_assert_eq!(existing.draft.signature.name, symbol);
-    }
-
-    fn remove_existing_key(&mut self, key: &FunctionDraftKeyV1) {
-        let Some(existing) = self.drafts.remove(key) else {
-            return;
-        };
-        let removed = self.key_by_symbol.remove(&existing.draft.signature.name);
-        debug_assert_eq!(removed.as_ref(), Some(key));
+        self.drafts.insert(key, CollectedFunctionDraftV1 { draft });
     }
 }
 
@@ -624,5 +678,27 @@ mod tests {
         assert!(unwind.is_err());
         assert_eq!(collector.symbol_count(), 0);
         assert!(!collector.contains_symbol("unwind/0"));
+    }
+
+    #[test]
+    fn legacy_index_drift_is_rejected_before_collect_mutation() {
+        let mut collector = ModuleDraftCollectorV1::default();
+        collector.inject_symbol_index_drift_for_test(
+            "drift/0",
+            FunctionDraftKeyV1::LegacySymbol("other/0".into()),
+        );
+
+        let error = collector.prepare_admission(
+            FunctionDraftKeyV1::LegacySymbol("drift/0".into()),
+            "drift/0".into(),
+            0,
+            DraftPublicationPolicyV1::LegacyReplaceWholePair,
+        );
+        assert!(matches!(
+            error,
+            Err(ModuleDraftAdmissionErrorV1::IndexDrift { .. })
+        ));
+        assert_eq!(collector.symbol_count(), 1);
+        assert!(collector.contains_symbol("drift/0"));
     }
 }

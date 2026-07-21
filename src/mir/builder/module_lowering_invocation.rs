@@ -320,6 +320,35 @@ impl ModuleLoweringPortV1<'_> {
             Ok(())
         })
     }
+
+    /// Capture-only seam used by P0 to prove that collector mutation starts
+    /// only after the child body and header loans have ended.
+    #[allow(dead_code)]
+    pub(in crate::mir::builder) fn capture_resolved_pending<'builder>(
+        &self,
+        builder: &'builder mut MirBuilder,
+        function_name: &str,
+        lower: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
+    ) -> Result<PendingFunctionSessionCloseV1<'builder>, ModuleLoweringPortChildErrorV1> {
+        builder
+            .capture_resolved_function_pending_session_v1(function_name, lower)
+            .map_err(ModuleLoweringPortChildErrorV1::Session)
+    }
+
+    /// Legacy counterpart to `capture_resolved_pending`; it owns no identity
+    /// and cannot prepare or collect a draft.
+    #[allow(dead_code)]
+    pub(in crate::mir::builder) fn capture_legacy_pending<'builder>(
+        &self,
+        builder: &'builder mut MirBuilder,
+        function_name: &str,
+        body_snapshot: Vec<ASTNode>,
+        lower: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
+    ) -> Result<LegacyFunctionPendingSessionV1<'builder>, ModuleLoweringPortChildErrorV1> {
+        builder
+            .capture_legacy_function_pending_session_v1(function_name, body_snapshot, lower)
+            .map_err(ModuleLoweringPortChildErrorV1::Session)
+    }
 }
 
 /// The external owner of one module-lowering invocation.

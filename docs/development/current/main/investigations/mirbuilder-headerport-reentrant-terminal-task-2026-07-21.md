@@ -1,6 +1,6 @@
 # HEADERPORT0-REENTRANT-TERM0: pending capture and commit-only terminal
 
-Status: `HEADERPORT0-REENTRANT-TERM0-S0` is closed; `HEADERPORT0-REENTRANT-TERM0-P0` is next
+Status: `HEADERPORT0-REENTRANT-TERM0-S0` is closed; `HEADERPORT0-REENTRANT-TERM0-P0` is active
 Date: 2026-07-21
 Parent: `mirbuilder-headerport-reentrant-terminal-consultation-2026-07-21.md`
 Decision: R-prime
@@ -27,6 +27,11 @@ only private vocabulary and thin signatures needed by the later P0 proof.
 The commit-only pending terminal, neutral signature lookup surface, and
 port-aware draft/body/finalizer protocol are now present; no production route
 uses the new commit methods.
+
+P0 progress now includes capture-only lifetime seams, rejected-commit parent
+restore fixtures, and collector replacement preflight. Full port-aware body
+descent, nested constructor coverage, and the complete header-loan matrix are
+still required before P0 closes.
 
 ## Authority
 
