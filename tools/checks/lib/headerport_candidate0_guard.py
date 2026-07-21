@@ -203,6 +203,8 @@ def main() -> int:
     for fragment in (
         "post_drain_input_co_seals_candidate_and_declaration_facts",
         "post_drain_input_consumes_both_owners_once",
+        "post_drain_input_preserves_all_declaration_lanes_without_refresh",
+        "post_drain_input_keeps_root_value_witness_separate_from_module_facts",
     ):
         require(module_final_p0, fragment, "MODULEFINAL0-SPLIT0 boundary fixtures")
     facts_struct = shell_facts.split(
@@ -347,7 +349,8 @@ def main() -> int:
         "HEADERPORT0-I0-DRAIN0-S0 (closed)\n  route-owned inventory witness and non-Clone drained candidate",
         "HEADERPORT0-I0-DRAIN0-P0\n  exact drain/inventory/condition policy and failure matrix",
         "HEADERPORT0-I0-MODULEFINAL0-SPLIT0 (closed)\n  post-drain finalization input",
-        "HEADERPORT0-I0-MODULEFINAL0-P0\n  next code-facing row",
+        "HEADERPORT0-I0-MODULEFINAL0-SPLIT0-P0 (closed)\n  ownership and declaration/fact failure matrix",
+        "HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0\n  next code-facing row",
         "one disconnected invocation-owned shell/collector candidate",
         "typed abort/no-publication/no-retry proof",
         "production capture/commit remains forbidden",
@@ -356,7 +359,7 @@ def main() -> int:
         require(card, fragment, "Candidate0 task boundary")
     require(
         state,
-        "HEADERPORT0-I0-MODULEFINAL0-P0 is next",
+        "HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0 is next",
         "current Candidate0/MainROLE0 pointer",
     )
 

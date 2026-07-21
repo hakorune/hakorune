@@ -4,8 +4,8 @@ Status: **STATE0-S0/P0/I0/G0, CONSULT0, ACCESS0-S0, and
 ACCESS0-MEHEADER-S0/P0/I0/G0, ACCESS0-REWRITE-KNOWN-P0, ACCESS0-P0, and
 CANDIDATE0-S0/P0, MAINROLE0-D0/S0/P0, BODYDRAIN0-S0/P0,
 MAINPENDING0-S0/P0, ROOTBATCH0-S0/P0, SHELLFACT0-S0/P0, and
-DRAIN0-S0/P0 and MODULEFINAL0-SPLIT0 are closed; M-root-prime remains
-selected and `HEADERPORT0-I0-MODULEFINAL0-P0` is next**
+DRAIN0-S0/P0 and MODULEFINAL0-SPLIT0/P0 are closed; M-root-prime remains
+selected and `HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0` is next**
 
 Date: 2026-07-21
 
@@ -733,9 +733,12 @@ HEADERPORT0-I0-DRAIN0-P0
 HEADERPORT0-I0-MODULEFINAL0-SPLIT0 (closed)
   post-drain finalization input
 
-HEADERPORT0-I0-MODULEFINAL0-P0
+HEADERPORT0-I0-MODULEFINAL0-SPLIT0-P0 (closed)
+  ownership and declaration/fact failure matrix
+
+HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0
   next code-facing row
-  failure and ownership matrix for the split boundary
+  child/root/drain/finalizer failure matrix
 
 HEADERPORT0-I0-CANDIDATE0-P0
   child/root/drain/finalizer failure matrix
@@ -899,7 +902,7 @@ failures are all typed before a drained candidate can be observed. The
 fixtures also prove that the candidate exposes only borrowed module and
 inventory views; no bare `MirModule` extraction, retry, fallback, shell
 mutation, or production drain was added. The next row is
-`HEADERPORT0-I0-MODULEFINAL0-SPLIT0`; FACTSESSION0 and CUT0 remain forbidden.
+`HEADERPORT0-I0-MODULEFINAL0-SPLIT0-P0`; FACTSESSION0 and CUT0 remain forbidden.
 
 ## MODULEFINAL0-SPLIT0 closeout
 
@@ -910,7 +913,18 @@ borrowed candidate/fact views plus one consuming `into_parts` handoff. It does
 not expose a bare `MirModule`, Builder, collector, function-local fact store,
 retry, fallback, or publication API. Focused fixtures prove both owners move
 together and cannot be split through a clone or second store. The next row is
-`HEADERPORT0-I0-MODULEFINAL0-P0`; FACTSESSION0 and CUT0 remain forbidden.
+`HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0`; FACTSESSION0 and CUT0 remain forbidden.
+
+## MODULEFINAL0-SPLIT0-P0 closeout
+
+`HEADERPORT0-I0-MODULEFINAL0-SPLIT0-P0` is closed with production consumers
+still zero. The matrix preserves all four declaration-fact lanes, keeps the
+root value/no-value witness separate from module facts, and proves that the
+candidate and declaration snapshot can only move together through one
+consuming input. No clone, second fact store, Builder, collector, bare module,
+retry, fallback, or production finalizer was introduced. The next row is
+`HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0`; FACTSESSION0 and CUT0 remain
+forbidden.
 
 ## MAINPENDING0-P0 closeout
 

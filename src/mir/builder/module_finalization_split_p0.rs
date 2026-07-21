@@ -5,7 +5,11 @@ use super::module_declaration_facts::SealedModuleDeclarationFactsV1;
 use super::module_finalization_split::DrainedModuleFinalizationInputV1;
 use super::module_invocation_drain::ConditionFnPolicyV1;
 use super::root_body_completion::{RootBodyCompletionTrackerV1, RootBodyResultV1};
-use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType};
+use crate::mir::function::{MirEnumDecl, RecordDecl};
+use crate::mir::{
+    BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType, UserBoxFieldDecl,
+    ValueId,
+};
 use std::collections::BTreeMap;
 
 fn module() -> MirModule {
@@ -44,6 +48,36 @@ fn declaration_facts() -> SealedModuleDeclarationFactsV1 {
     )
 }
 
+fn populated_declaration_facts() -> SealedModuleDeclarationFactsV1 {
+    SealedModuleDeclarationFactsV1::new(
+        BTreeMap::from([("Main".into(), vec!["entry".into()])]),
+        BTreeMap::from([(
+            "Main".into(),
+            vec![UserBoxFieldDecl {
+                name: "entry".into(),
+                declared_type_name: Some("i64".into()),
+                is_weak: false,
+            }],
+        )]),
+        BTreeMap::from([(
+            "Pair".into(),
+            RecordDecl {
+                name: "Pair".into(),
+                type_parameters: Vec::new(),
+                fields: Vec::new(),
+                default_field_names: Vec::new(),
+            },
+        )]),
+        BTreeMap::from([(
+            "Option".into(),
+            MirEnumDecl {
+                type_parameters: Vec::new(),
+                variants: Vec::new(),
+            },
+        )]),
+    )
+}
+
 #[test]
 fn post_drain_input_co_seals_candidate_and_declaration_facts() {
     let input = DrainedModuleFinalizationInputV1::new(candidate(), declaration_facts());
@@ -60,4 +94,34 @@ fn post_drain_input_consumes_both_owners_once() {
     let (candidate, facts) = input.into_parts();
     assert!(candidate.module().functions.contains_key("main"));
     assert!(facts.user_box_decls().contains_key("Main"));
+}
+
+#[test]
+fn post_drain_input_preserves_all_declaration_lanes_without_refresh() {
+    let input = DrainedModuleFinalizationInputV1::new(candidate(), populated_declaration_facts());
+    let facts = input.declaration_facts();
+    assert!(facts.user_box_decls().contains_key("Main"));
+    assert_eq!(facts.user_box_field_decls()["Main"][0].name, "entry");
+    assert!(facts.record_decls().contains_key("Pair"));
+    assert!(facts.enum_decls().contains_key("Option"));
+}
+
+#[test]
+fn post_drain_input_keeps_root_value_witness_separate_from_module_facts() {
+    let root = RootBodyCompletionTrackerV1::new()
+        .complete(RootBodyResultV1::Value(ValueId::new(9)))
+        .unwrap();
+    let inventory = CompletedInvocationInventoryV1::new(
+        vec!["main".into()],
+        root,
+        ConditionFnPolicyV1::Forbidden,
+    )
+    .unwrap();
+    let candidate = DrainedModuleCandidateV1::from_drained_module(module(), inventory).unwrap();
+    let input = DrainedModuleFinalizationInputV1::new(candidate, declaration_facts());
+    assert_eq!(
+        input.candidate().inventory().root_body().result(),
+        RootBodyResultV1::Value(ValueId::new(9))
+    );
+    assert!(input.declaration_facts().record_decls().is_empty());
 }
