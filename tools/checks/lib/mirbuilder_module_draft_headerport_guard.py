@@ -16,6 +16,7 @@ from collections import Counter
 ROOT = pathlib.Path(__file__).resolve().parents[3]
 BUILDER = ROOT / "src/mir/builder.rs"
 COMPILATION = ROOT / "src/mir/builder/compilation_context.rs"
+METHOD_INDEX = ROOT / "src/mir/builder/builder_method_index.rs"
 INVOCATION = ROOT / "src/mir/builder/module_lowering_invocation.rs"
 MODULE_DRAFT = ROOT / "src/mir/builder/module_draft_collector.rs"
 ANNOTATION = ROOT / "src/mir/builder/calls/annotation.rs"
@@ -182,6 +183,7 @@ def main() -> int:
     invocation_state = read(INVOCATION_STATE)
     access_port = read(ACCESS_PORT)
     builder = read(BUILDER)
+    method_index = read(METHOD_INDEX)
     compilation = read(COMPILATION)
     pending_terminal = read(PENDING_TERMINAL)
     legacyterm_tests = read(LEGACYTERM_TESTS)
@@ -270,6 +272,12 @@ def main() -> int:
         "lookup\n        .and_then(|view| view.signature(func_name.as_ref()))",
     ):
         require(annotation, fragment, "HEADERPORT0 I0-ACCESS0-P0 header adapter")
+    for fragment in (
+        "rebuild_method_tail_index_with_headers",
+        "rebuild_method_tail_index_from_names",
+        "headers.visit_symbols",
+    ):
+        require(method_index, fragment, "HEADERPORT0 I0-ACCESS0-P0 inventory adapter")
     for fragment in (
         "intern_closure_body",
         "static_data_plan",

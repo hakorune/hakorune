@@ -1,3 +1,4 @@
+use super::function_signature_lookup::FunctionSignatureLookupV1;
 use super::MirBuilder;
 
 impl MirBuilder {
@@ -6,23 +7,43 @@ impl MirBuilder {
     // ----------------------
     fn rebuild_method_tail_index(&mut self) {
         self.comp_ctx.method_tail_index.clear();
-        if let Some(ref module) = self.current_module {
-            for name in module.functions.keys() {
-                if let (Some(dot), Some(slash)) = (name.rfind('.'), name.rfind('/')) {
-                    if slash > dot {
-                        let tail = &name[dot..];
-                        self.comp_ctx
-                            .method_tail_index
-                            .entry(tail.to_string())
-                            .or_insert_with(Vec::new)
-                            .push(name.clone());
-                    }
+        let Some(module) = self.current_module.as_ref() else {
+            self.comp_ctx.method_tail_index_source_len = 0;
+            return;
+        };
+        let source_len = module.functions.len();
+        let mut names = Vec::with_capacity(source_len);
+        names.extend(module.functions.keys().cloned());
+        self.rebuild_method_tail_index_from_names(names, source_len);
+    }
+
+    /// Port-aware sibling for method-tail index projection.  It consumes only
+    /// the explicit completed-header inventory and never reaches through a
+    /// module storage fallback.
+    #[allow(dead_code)]
+    pub(in crate::mir::builder) fn rebuild_method_tail_index_with_headers(
+        &mut self,
+        headers: &dyn FunctionSignatureLookupV1,
+    ) {
+        let mut names = Vec::with_capacity(headers.symbol_count());
+        headers.visit_symbols(&mut |symbol| names.push(symbol.to_owned()));
+        self.rebuild_method_tail_index_from_names(names, headers.symbol_count());
+    }
+
+    fn rebuild_method_tail_index_from_names(&mut self, names: Vec<String>, source_len: usize) {
+        for name in names {
+            if let (Some(dot), Some(slash)) = (name.rfind('.'), name.rfind('/')) {
+                if slash > dot {
+                    let tail = &name[dot..];
+                    self.comp_ctx
+                        .method_tail_index
+                        .entry(tail.to_string())
+                        .or_insert_with(Vec::new)
+                        .push(name);
                 }
             }
-            self.comp_ctx.method_tail_index_source_len = module.functions.len();
-        } else {
-            self.comp_ctx.method_tail_index_source_len = 0;
         }
+        self.comp_ctx.method_tail_index_source_len = source_len;
     }
 
     fn ensure_method_tail_index(&mut self) {
