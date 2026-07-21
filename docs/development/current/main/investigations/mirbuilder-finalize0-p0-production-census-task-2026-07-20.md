@@ -3390,3 +3390,38 @@ on the P0 source/check surface.
 Focused fact-session tests, both P0 guards, `cargo check`, format, diff, and
 pointer guards are green. `FACTSESSION0-I0` is next. PHI repair, direct
 repair, unused-Phi deletion, JoinIR, and CUT0 remain forbidden.
+
+#### FACTSESSION0-I0 selection stop — draft/fact pairing has no live collector
+
+The P0 source audit exposes an ordering contradiction before the first
+production connection. Candidate F-prime requires each successful physical
+function to seal its eight lanes inseparably with its unpublished draft into
+`CompletedFunctionDraftWithFactsV1`, and only `ModuleFactSessionV1` may collect
+that product. Current child sessions instead insert a bare draft into the live
+candidate module, while root finalization takes a bare main function. A
+facts-only success collection would break the selected pairing law.
+
+The real facts remain in `FunctionLoweringStateV1` (`type_ctx` and
+`value_origins`), with 198 direct `type_ctx` uses. The existing child
+transaction also leaves diagnostic origins outside its capture and retains the
+legacy BoxCompilation three-clear/three-retain behavior. A parallel
+session-owned map or a one-root cutover is therefore forbidden.
+
+`FINALIZE0-FACTSESSION0-I0-SELECT` is now the explicit design stop. The
+recommended Candidate A introduces a prior module-draft collection boundary:
+
+```text
+MODULEDRAFT0-SELECT -> MODULEDRAFT0-S0/P0/I0/G0
+  -> FACTSESSION0-I0
+```
+
+It must make every production function completion yield an unpublished draft
+before FACTSESSION binds the existing live fact lanes to a generation and seals
+them with that draft. This prerequisite is not PHI repair or the later
+module-completion transaction. Full evidence and the exact consultation
+question are in
+`mirbuilder-factsession0-i0-ownership-consultation-2026-07-21.md`.
+
+No FACTSESSION production code is authorized until the selected ordering proves
+draft/fact inseparability, all root/child coverage, condition_fn disposition,
+single live fact maps, pre-restore child terminal handling, and root abort.
