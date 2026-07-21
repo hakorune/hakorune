@@ -227,3 +227,34 @@ The next code-facing row is
 the state/header/shell/lifecycle owners and prove that no lowering-time reader
 requires a completed function body.  Production capture/commit and `CUT0`
 remain forbidden.
+
+## STATE0-P0 owner classification
+
+The existing source-derived 14-row census is now assigned exactly once to the
+state-seam owner families:
+
+```text
+collector_header          = 8
+shell_port                = 2
+invocation_lifecycle      = 2
+canonical_catalog_adapter = 2
+completed body required    = 0
+```
+
+`collector_header` rows are the eight completed-header/presence readers and
+must consume only `LoweringHeaderPortV1`.  `shell_port` rows are module
+metadata/global observations and must consume only `ModuleLoweringShellPortV1`.
+`invocation_lifecycle` rows own publication and terminal ordering through the
+invocation state/drain owner.  `canonical_catalog_adapter` rows retain the
+sealed callable catalog as their sibling/header authority and do not fall back
+to collector prefixes.
+
+The guard checks the same Rust source anchors used by the parent census and
+rejects any uncategorized row or any claim that a completed function body is
+needed during lowering.  This closes STATE0-P0 as a disconnected evidence
+slice; no reader or production route has been rewired.
+
+The next code-facing row is
+`HEADERPORT0-REENTRANT-TERM0-I0-STATE0-I0`: connect the state surface to one
+complete invocation candidate while preserving all route-specific identity and
+failure laws.  Production capture/commit and `CUT0` remain forbidden.

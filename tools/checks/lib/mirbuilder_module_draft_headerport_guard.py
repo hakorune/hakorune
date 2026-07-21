@@ -36,6 +36,10 @@ SOURCE_CENSUS_DOC = ROOT / (
     "docs/development/current/main/investigations/"
     "mirbuilder-headerport-i0-source-integration-consultation-2026-07-21.md"
 )
+STATE_CUTOVER_DOC = ROOT / (
+    "docs/development/current/main/investigations/"
+    "mirbuilder-headerport-i0-production-cutover-consultation-2026-07-21.md"
+)
 
 P0_DIRECT_HEADER_READER_FRAGMENTS = {
     "src/mir/builder/calls/annotation.rs": "module.functions.get(name)",
@@ -124,6 +128,20 @@ P0_READER_CENSUS_ROWS = {
     ),
 }
 
+# STATE0-P0 assigns every source-census row to one future owner.  The boolean
+# is deliberately explicit: no lowering-time reader may require a completed
+# function body while this state seam is being introduced.
+STATE0_READER_OWNER_ROWS = {
+    relative: (
+        "collector_header" if family == "header" else
+        "shell_port" if family == "shell_metadata" else
+        "invocation_lifecycle" if family == "lifecycle" else
+        "canonical_catalog_adapter",
+        False,
+    )
+    for relative, (family, _source_anchor, _future_owner) in P0_READER_CENSUS_ROWS.items()
+}
+
 
 def read(path: pathlib.Path) -> str:
     try:
@@ -169,6 +187,7 @@ def main() -> int:
     raw_port = read(RAW_PORT)
     raw_loop_entry = read(RAW_LOOP_ENTRY)
     consultation = read(SOURCE_CENSUS_DOC)
+    state_consultation = read(STATE_CUTOVER_DOC)
 
     for fragment in (
         "ModuleLoweringShellV1",
@@ -611,6 +630,7 @@ def main() -> int:
         require(read(ROOT / relative), fragment, f"P0 direct header reader {relative}")
 
     census_counts = Counter()
+    state_owner_counts = Counter()
     for relative, (family, source_anchor, future_owner) in P0_READER_CENSUS_ROWS.items():
         source = read(ROOT / relative)
         require(source, source_anchor, f"I0-SHELL-P0 source census anchor {relative}")
@@ -626,15 +646,36 @@ def main() -> int:
             f"I0-SHELL-P0 future owner {relative}",
         )
         census_counts[family] += 1
+        owner, completed_body_required = STATE0_READER_OWNER_ROWS[relative]
+        if completed_body_required:
+            raise AssertionError(
+                f"STATE0-P0 reader requires completed body: {relative}"
+            )
+        if owner not in {
+            "collector_header",
+            "shell_port",
+            "invocation_lifecycle",
+            "canonical_catalog_adapter",
+        }:
+            raise AssertionError(f"STATE0-P0 unknown reader owner: {owner}")
+        require(
+            state_consultation,
+            f"`{owner}`",
+            f"STATE0-P0 owner row {relative}",
+        )
+        state_owner_counts[owner] += 1
 
     if sum(census_counts.values()) != len(P0_READER_CENSUS_ROWS):
         raise AssertionError("I0-SHELL-P0 census family accounting drifted")
+    if set(STATE0_READER_OWNER_ROWS) != set(P0_READER_CENSUS_ROWS):
+        raise AssertionError("STATE0-P0 owner census does not cover all reader rows")
 
     print(
         "[module-draft-headerport-guard] ok "
         f"p0_reader_families={len(P0_DIRECT_HEADER_READER_FRAGMENTS)} "
         f"p0_census_rows={len(P0_READER_CENSUS_ROWS)} "
         f"census={dict(sorted(census_counts.items()))} "
+        f"state0_owners={dict(sorted(state_owner_counts.items()))} "
         "legacyterm0_g0_raw_box_consumers=2 loop_bridge_consumers=0 "
         "loopbridge0_i0_plan_child_openers=0"
     )
