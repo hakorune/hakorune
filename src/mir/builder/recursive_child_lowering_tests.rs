@@ -149,6 +149,15 @@ fn indirect_call(callee: ASTNode, arguments: Vec<ASTNode>) -> ASTNode {
     }
 }
 
+fn from_call(parent: &str, method: &str, arguments: Vec<ASTNode>) -> ASTNode {
+    ASTNode::FromCall {
+        parent: parent.to_string(),
+        method: method.to_string(),
+        arguments,
+        span: Span::unknown(),
+    }
+}
+
 fn check(expression: ASTNode) -> ASTNode {
     ASTNode::CheckExpr {
         name: None,
@@ -553,6 +562,32 @@ fn raw_invocation_port_preserves_indirect_call_children() {
                 callee: Some(crate::mir::definitions::call_unified::Callee::Value(_)),
                 ..
             } if *dst == output
+        )));
+        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
+    });
+}
+
+#[test]
+fn raw_invocation_port_preserves_from_call_arguments() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("raw_invocation_from_call/0".to_string());
+    let mut invocation = ModuleLoweringInvocationV1::with_collector(
+        &mut builder,
+        collector_with_header("Prefix.f/1", 1),
+    );
+
+    invocation.with_module_port(|builder, module_port| {
+        let mut port = RawInvocationChildPortV1::new(module_port);
+        let output = drive_legacy_expression_v1(
+            builder,
+            &mut port,
+            from_call("Parent", "build", vec![add(integer(3), integer(5))]),
+        )
+        .unwrap();
+
+        assert!(instructions(builder).iter().any(|instruction| matches!(
+            instruction,
+            MirInstruction::Call { dst: Some(dst), .. } if *dst == output
         )));
         port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
     });

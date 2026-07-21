@@ -384,7 +384,12 @@ impl super::MirBuilder {
                 method,
                 arguments,
                 ..
-            } => self.build_from_expression(parent.clone(), method.clone(), arguments.clone()),
+            } => self.build_from_expression_with_port_v1(
+                port,
+                parent.clone(),
+                method.clone(),
+                arguments.clone(),
+            ),
 
             // Phase 152-A: Grouped assignment expression (x = expr)
             // Stage-3 only. Value/type same as rhs, side effect assigns to lhs.

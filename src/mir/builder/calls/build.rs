@@ -25,6 +25,10 @@ use super::static_resolution::BareStaticRecoveryEmissionV1;
 use super::CallTarget;
 use crate::ast::ASTNode;
 use crate::mir::builder::callable_declaration_catalog::BareStaticRecoveryNoRecoveryReasonV1;
+use crate::mir::builder::calls::drive_call_arguments_v1;
+use crate::mir::builder::recursive_child_lowering::{
+    RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+};
 
 impl MirBuilder {
     // Build function call: name(args)
@@ -185,13 +189,31 @@ impl MirBuilder {
         method: String,
         arguments: Vec<ASTNode>,
     ) -> Result<ValueId, String> {
-        if let Some(result) =
-            self.try_build_enum_variant_constructor(&parent, &method, arguments.clone())?
-        {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_from_expression_with_port_v1(&mut port, parent, method, arguments)
+    }
+
+    /// Lower a `from` call without dropping the caller's raw child port.
+    pub(in crate::mir::builder) fn build_from_expression_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        parent: String,
+        method: String,
+        arguments: Vec<ASTNode>,
+    ) -> Result<ValueId, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
+        if let Some(result) = self.try_build_enum_variant_constructor_with_port_v1(
+            port,
+            &parent,
+            &method,
+            arguments.clone(),
+        )? {
             return Ok(result);
         }
 
-        let arg_values = self.build_call_args(&arguments)?;
+        let arg_values = drive_call_arguments_v1(self, port, arguments.as_slice())?;
         let parent_value = crate::mir::builder::emission::constant::emit_string(self, parent)?;
         let result_id = self.next_value_id();
         self.emit_box_or_plugin_call(

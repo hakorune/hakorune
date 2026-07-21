@@ -1,4 +1,8 @@
 use crate::ast::{ASTNode, EnumMatchArm, LiteralValue};
+use crate::mir::builder::calls::drive_call_arguments_v1;
+use crate::mir::builder::recursive_child_lowering::{
+    RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+};
 use crate::mir::{CompareOp, MirInstruction, MirType, ValueId};
 
 impl super::MirBuilder {
@@ -48,6 +52,26 @@ impl super::MirBuilder {
         variant_name: &str,
         arguments: Vec<ASTNode>,
     ) -> Result<Option<ValueId>, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.try_build_enum_variant_constructor_with_port_v1(
+            &mut port,
+            enum_name,
+            variant_name,
+            arguments,
+        )
+    }
+
+    /// Lower a resolved enum constructor while retaining the raw child port.
+    pub(in crate::mir::builder) fn try_build_enum_variant_constructor_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        enum_name: &str,
+        variant_name: &str,
+        arguments: Vec<ASTNode>,
+    ) -> Result<Option<ValueId>, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         let Some(resolved) = self.comp_ctx.resolve_enum_variant(enum_name, variant_name) else {
             return Ok(None);
         };
@@ -77,7 +101,7 @@ impl super::MirBuilder {
             ));
         }
 
-        let arg_values = self.build_call_args(&arguments)?;
+        let arg_values = drive_call_arguments_v1(self, port, arguments.as_slice())?;
         let payload = match arg_values.as_slice() {
             [] => None,
             [payload] => Some(*payload),
