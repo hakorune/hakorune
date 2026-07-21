@@ -1,5 +1,7 @@
 ---
-Status: Accepted downstream decision; execution parked behind HEADERPORT0-I0-G0
+Status: Accepted downstream task order; execution parked behind
+  HEADERPORT0-I0-G0 (the current upstream code row remains
+  HEADERPORT0-RAWPORT0-LEGACYTERM0-S0)
 Date: 2026-07-21
 Scope: `FINALIZE0-FACTSESSION0-I0` production ownership selection.
 Related:
@@ -29,10 +31,12 @@ MODULEDRAFT0
   -> FACTSESSION0-I0
 ```
 
-`MODULEDRAFT0-S0/M0/P0` and the HeaderPort/RAWPORT prerequisite series have
-already established the collector and its explicit recursive port.  No
-FACTSESSION row is executable until `HEADERPORT0-I0-G0` closes.  The next
-downstream code-facing row is `FINALIZE0-FACTSESSION0-ACTIVEBIND0-S0`; it
+`MODULEDRAFT0-S0/M0/P0` and HeaderPort S0/P0 have already established the
+collector and its explicit recursive-port vocabulary.  RAWPORT0 is not yet
+closed: its current `LEGACYTERM0-S0` owner must complete the raw child terminal
+and Loop remains behind its separate bridge selection.  No FACTSESSION row is
+executable until the whole `HEADERPORT0-I0-G0` prerequisite closes.  The next
+*downstream* code-facing row is `FINALIZE0-FACTSESSION0-ACTIVEBIND0-S0`; it
 introduces only disconnected active-binding vocabulary and has zero production
 consumers, no draft clone, no second `TypeContext`, no PHI repair, and no
 finalization change.

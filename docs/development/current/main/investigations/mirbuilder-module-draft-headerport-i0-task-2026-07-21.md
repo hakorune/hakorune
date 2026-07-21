@@ -149,6 +149,88 @@ test seam, including `ASTNode::BoxDeclaration`.  If that closure cannot be
 made explicit without a second authority or an unbounded duplicate lowering
 tree, the series stops rather than partially activating I0.
 
+## RAWPORT0-M0-R0 checkpoint — legacy child terminal and Loop boundary
+
+Status: **the raw expression descendants are being ported, but M0-R0 may not
+claim closure yet.**  The direct raw control audit established two independent
+frontiers:
+
+```text
+BoxDeclaration child function
+  needs a legacy child completion terminal before it can collect before restore
+
+Loop body
+  reaches JoinIR route -> composer -> PlanLowerer and is not a thin raw
+  expression descent adapter
+```
+
+### Selected legacy-terminal shape
+
+`RAWPORT0-LEGACYTERM0` is selected as the next code-facing owner.  It extends
+the existing pending-session pattern without rebranding a raw child as a
+canonical resolved child:
+
+```text
+Legacy child lowering success
+-> existing cleanup / terminal validation
+-> capture LegacyFunctionPendingSessionV1
+-> prepare exact LegacySymbol admission with LegacyReplaceWholePair
+-> seal unpublished draft
+-> ModuleLoweringPortV1::complete_legacy_child
+-> infallible whole-pair collection
+-> restore parent
+```
+
+The prepared request owns only the existing legacy function identity, expected
+symbol/arity, and `LegacyReplaceWholePair` policy.  It must not fabricate a
+`CanonicalResolvedOwner`, a callable key, a second collector, a temporary
+module/header cache, or a Builder/CompilationContext/TLS port field.  All
+fallible cleanup and admission checks close before collection; primary,
+cleanup, admission, and unwind failures leave the collector unchanged and
+restore the parent exactly once.  This is a disconnected M0 terminal: raw V1
+facades remain the sole production route.
+
+The first code slice is:
+
+```text
+HEADERPORT0-RAWPORT0-LEGACYTERM0-S0
+  passive LegacyFunctionPendingSessionV1 / prepared admission vocabulary
+  and port completion API; production consumers = 0
+
+-> HEADERPORT0-RAWPORT0-LEGACYTERM0-P0
+   success, cleanup, admission, unwind, replace-whole-pair, and raw body-port
+   proofs; no resolved identity fabrication
+
+-> HEADERPORT0-RAWPORT0-LEGACYTERM0-I0
+   disconnected raw static/instance Box child body terminal wiring only
+
+-> HEADERPORT0-RAWPORT0-LEGACYTERM0-G0
+   one legacy pending-terminal owner; post-restore raw child publication = 0
+   for the disconnected path
+```
+
+### Loop is explicitly parked behind a separate selection
+
+`cf_loop` cannot be parameterized as another M0-R0 thin sibling.  Its active
+route reaches JoinIR routing, recipe composition, and `PlanLowerer`, where
+plan construction already mutates the Builder and normalized shadow may clone
+or reconstruct syntax.  Passing `ModuleLoweringPortV1` into that stack now
+would mix raw child transport with Loop semantic/transaction authority.
+
+After `LEGACYTERM0-G0`, `HEADERPORT0-RAWPORT0-LOOPBRIDGE0-SELECT` must choose
+one explicit Loop bridge or reject the relevant raw Loop profile before M0-G0.
+Until that selection:
+
+```text
+ModuleLoweringPortV1 parameter in JoinIR router / RecipeComposer / PlanLowerer = 0
+raw Loop clone/reconstruction for this port = 0
+Loop counted as M0-R0 closure = 0
+```
+
+Lambda is not a raw lowering child edge: it records a deferred closure body and
+does not open a function session at this point.  The M0 census must classify it
+as deferred-body ownership rather than pretending it was port-lowered.
+
 ## Exact task order
 
 ```text
