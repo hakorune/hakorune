@@ -1,3 +1,4 @@
+use super::super::function_signature_lookup::FunctionSignatureLookupV1;
 use super::super::MirBuilder;
 
 /// Phase 287 P5: Trace helper for toString normalization debugging
@@ -76,20 +77,50 @@ pub(crate) fn try_special_equals_to_dst(
     method: &str,
     args: Vec<super::super::ValueId>,
 ) -> Option<Result<super::super::ValueId, String>> {
+    try_special_equals_to_dst_with_lookup(
+        builder,
+        want_dst,
+        object_value,
+        class_name_opt,
+        method,
+        args,
+        None,
+    )
+}
+
+/// Header-aware equals/1 route.  The lookup is passed through to the single
+/// Known/unique policy owner and is not retained by the rewrite layer.
+pub(in crate::mir::builder) fn try_special_equals_to_dst_with_lookup(
+    builder: &mut MirBuilder,
+    want_dst: Option<super::super::ValueId>,
+    object_value: super::super::ValueId,
+    class_name_opt: &Option<String>,
+    method: &str,
+    args: Vec<super::super::ValueId>,
+    lookup: Option<&dyn FunctionSignatureLookupV1>,
+) -> Option<Result<super::super::ValueId, String>> {
     if method != "equals" || args.len() != 1 {
         return None;
     }
     if let Some(cls) = class_name_opt.as_ref() {
-        if let Some(res) = super::known::try_known_rewrite_to_dst(
+        if let Some(res) = super::known::try_known_rewrite_to_dst_with_lookup(
             builder,
             want_dst,
             object_value,
             cls,
             method,
             args.clone(),
+            lookup,
         ) {
             return Some(res);
         }
     }
-    super::known::try_unique_suffix_rewrite_to_dst(builder, want_dst, object_value, method, args)
+    super::known::try_unique_suffix_rewrite_to_dst_with_lookup(
+        builder,
+        want_dst,
+        object_value,
+        method,
+        args,
+        lookup,
+    )
 }

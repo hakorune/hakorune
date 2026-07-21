@@ -15,6 +15,7 @@
 
 use super::call_unified;
 use super::CallTarget;
+use crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1;
 use crate::mir::builder::{Effect, EffectMask, MirBuilder, MirInstruction, ValueId};
 use crate::mir::definitions::call_unified::Callee;
 
@@ -43,7 +44,19 @@ impl UnifiedCallEmitterBox {
         target: CallTarget,
         args: Vec<ValueId>,
     ) -> Result<(), String> {
-        Self::emit_unified_call_with_map_replay(builder, dst, target, args, None)
+        Self::emit_unified_call_with_lookup_and_map_replay(builder, dst, target, args, None, None)
+    }
+
+    /// Header-aware sibling used by invocation-owned terminals.  The lookup
+    /// is never stored and the legacy facade continues to pass `None`.
+    pub(in crate::mir::builder) fn emit_unified_call_with_lookup(
+        builder: &mut MirBuilder,
+        dst: Option<ValueId>,
+        target: CallTarget,
+        args: Vec<ValueId>,
+        lookup: Option<&dyn FunctionSignatureLookupV1>,
+    ) -> Result<(), String> {
+        Self::emit_unified_call_with_lookup_and_map_replay(builder, dst, target, args, lookup, None)
     }
 
     /// Private BoxCall-to-Unified handoff retaining an already prepared Map
@@ -53,6 +66,26 @@ impl UnifiedCallEmitterBox {
         dst: Option<ValueId>,
         target: CallTarget,
         args: Vec<ValueId>,
+        map_write_replay: Option<
+            crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1,
+        >,
+    ) -> Result<(), String> {
+        Self::emit_unified_call_with_lookup_and_map_replay(
+            builder,
+            dst,
+            target,
+            args,
+            None,
+            map_write_replay,
+        )
+    }
+
+    fn emit_unified_call_with_lookup_and_map_replay(
+        builder: &mut MirBuilder,
+        dst: Option<ValueId>,
+        target: CallTarget,
+        args: Vec<ValueId>,
+        lookup: Option<&dyn FunctionSignatureLookupV1>,
         map_write_replay: Option<
             crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1,
         >,
@@ -82,11 +115,12 @@ impl UnifiedCallEmitterBox {
             // Use the compatibility call entry when unified calls are disabled.
             builder.emit_legacy_call(dst, target, args)
         } else {
-            Self::emit_unified_call_impl_with_map_replay(
+            Self::emit_unified_call_impl_with_lookup_and_map_replay(
                 builder,
                 dst,
                 target,
                 args,
+                lookup,
                 map_write_replay,
             )
         };
@@ -100,7 +134,9 @@ impl UnifiedCallEmitterBox {
         target: CallTarget,
         args: Vec<ValueId>,
     ) -> Result<(), String> {
-        Self::emit_unified_call_impl_with_map_replay(builder, dst, target, args, None)
+        Self::emit_unified_call_impl_with_lookup_and_map_replay(
+            builder, dst, target, args, None, None,
+        )
     }
 
     fn emit_unified_call_impl_with_map_replay(
@@ -108,6 +144,26 @@ impl UnifiedCallEmitterBox {
         dst: Option<ValueId>,
         target: CallTarget,
         args: Vec<ValueId>,
+        map_write_replay: Option<
+            crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1,
+        >,
+    ) -> Result<(), String> {
+        Self::emit_unified_call_impl_with_lookup_and_map_replay(
+            builder,
+            dst,
+            target,
+            args,
+            None,
+            map_write_replay,
+        )
+    }
+
+    fn emit_unified_call_impl_with_lookup_and_map_replay(
+        builder: &mut MirBuilder,
+        dst: Option<ValueId>,
+        target: CallTarget,
+        args: Vec<ValueId>,
+        lookup: Option<&dyn FunctionSignatureLookupV1>,
         map_write_replay: Option<
             crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1,
         >,
@@ -155,7 +211,15 @@ impl UnifiedCallEmitterBox {
                 })
                 .unwrap_or_default();
             // Use indexed candidate lookup (tail → names)
-            let candidates: Vec<String> = builder.method_candidates(method, arity_for_try);
+            let candidates: Vec<String> = lookup
+                .map(|headers| {
+                    crate::mir::builder::builder_method_index::method_candidates_from_headers(
+                        headers,
+                        method,
+                        arity_for_try,
+                    )
+                })
+                .unwrap_or_else(|| builder.method_candidates(method, arity_for_try));
             let meta = serde_json::json!({
                 "recv_cls": recv_cls,
                 "method": method,
@@ -211,26 +275,32 @@ impl UnifiedCallEmitterBox {
                 return Ok(());
             }
             // equals/1
-            if let Some(res) = crate::mir::builder::rewrite::special::try_special_equals_to_dst(
-                builder,
-                dst,
-                receiver,
-                &class_name_opt,
-                method,
-                args.clone(),
-            ) {
+            if let Some(res) =
+                crate::mir::builder::rewrite::special::try_special_equals_to_dst_with_lookup(
+                    builder,
+                    dst,
+                    receiver,
+                    &class_name_opt,
+                    method,
+                    args.clone(),
+                    lookup,
+                )
+            {
                 res?;
                 return Ok(());
             }
             // Known or unique
-            if let Some(res) = crate::mir::builder::rewrite::known::try_known_or_unique_to_dst(
-                builder,
-                dst,
-                receiver,
-                &class_name_opt,
-                method,
-                args.clone(),
-            ) {
+            if let Some(res) =
+                crate::mir::builder::rewrite::known::try_known_or_unique_to_dst_with_lookup(
+                    builder,
+                    dst,
+                    receiver,
+                    &class_name_opt,
+                    method,
+                    args.clone(),
+                    lookup,
+                )
+            {
                 res?;
                 return Ok(());
             }
@@ -250,8 +320,13 @@ impl UnifiedCallEmitterBox {
                 if let CallTarget::Global(ref name) = target {
                     // Try additional resolvers (via CallMaterializerBox)
                     if let Some(result) =
-                        super::materializer::CallMaterializerBox::try_global_additional_resolvers(
-                            builder, dst, name, &args,
+                        super::materializer::CallMaterializerBox::try_global_additional_resolvers_with_lookup(
+                            builder,
+                            dst,
+                            name,
+                            &args,
+                            lookup,
+                            false,
                         )?
                     {
                         return Ok(result);

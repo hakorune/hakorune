@@ -471,3 +471,15 @@ metadata, or fallback.  Two focused fixtures cover static-versus-instance
 arity and unique-suffix ordering.  This closes only the disconnected S0
 vocabulary; the invocation terminal still has zero lookup consumers and
 production capture/commit remains forbidden.
+
+The next disconnected adapter extends the same view through Known/unique
+rewrite, equals/1, and the unified emitter.  Legacy `None` lookup facades
+retain the existing `current_module` and method-index behavior; an explicit
+lookup never falls back to those readers.  The lookup remains short-lived and
+is forwarded to global presence, signature arity, annotation, candidate
+trace, and rewrite selection without storing it in `MirBuilder` or TLS.
+
+`ACCESS0-REWRITE-KNOWN-P0` is not yet closed: the invocation method terminal
+still needs an explicit header-capability hook, and the parity matrix must
+cover missing headers, static/instance arity, unique 0/1/>1 candidates,
+environment gates, primitive guards, and error/no-retry behavior.

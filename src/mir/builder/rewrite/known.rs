@@ -1,3 +1,5 @@
+use super::super::builder_method_index::method_candidates_from_headers;
+use super::super::function_signature_lookup::FunctionSignatureLookupV1;
 use super::super::{MirBuilder, ValueId};
 
 /// Phase 287 P5: Guard against rewriting primitive type toString/stringify/str
@@ -79,11 +81,26 @@ fn rewrite_call_args_for_signature(
     object_value: ValueId,
     mut arg_values: Vec<ValueId>,
 ) -> Vec<ValueId> {
-    let expected_params = builder
-        .current_module
-        .as_ref()
-        .and_then(|module| module.functions.get(fname))
-        .map(|func| func.signature.params.len());
+    rewrite_call_args_for_signature_with_lookup(builder, fname, object_value, arg_values, None)
+}
+
+fn rewrite_call_args_for_signature_with_lookup(
+    builder: &MirBuilder,
+    fname: &str,
+    object_value: ValueId,
+    mut arg_values: Vec<ValueId>,
+    lookup: Option<&dyn FunctionSignatureLookupV1>,
+) -> Vec<ValueId> {
+    let expected_params = match lookup {
+        Some(view) => view
+            .signature(fname)
+            .map(|signature| signature.params.len()),
+        None => builder
+            .current_module
+            .as_ref()
+            .and_then(|module| module.functions.get(fname))
+            .map(|func| func.signature.params.len()),
+    };
 
     // Static-lowered methods have params == arg_values.len().
     // Instance-lowered methods have params == arg_values.len() + 1 (receiver first).
@@ -107,6 +124,19 @@ pub(crate) fn try_known_rewrite(
     cls: &str,
     method: &str,
     arg_values: Vec<ValueId>,
+) -> Option<Result<ValueId, String>> {
+    try_known_rewrite_with_lookup(builder, object_value, cls, method, arg_values, None)
+}
+
+/// Header-aware Known route.  The lookup is borrowed only for classification
+/// and call-result annotation; it is never stored in the builder.
+pub(in crate::mir::builder) fn try_known_rewrite_with_lookup(
+    builder: &mut MirBuilder,
+    object_value: ValueId,
+    cls: &str,
+    method: &str,
+    arg_values: Vec<ValueId>,
+    lookup: Option<&dyn FunctionSignatureLookupV1>,
 ) -> Option<Result<ValueId, String>> {
     // Global gate
     if !rewrite_enabled() {
@@ -146,10 +176,12 @@ pub(crate) fn try_known_rewrite(
     let fname = crate::mir::builder::calls::function_lowering::generate_method_function_name(
         cls, method, arity,
     );
-    let module_has = if let Some(ref module) = builder.current_module {
-        module.functions.contains_key(&fname)
-    } else {
-        false
+    let module_has = match lookup {
+        Some(view) => view.contains_symbol(&fname),
+        None => builder
+            .current_module
+            .as_ref()
+            .is_some_and(|module| module.functions.contains_key(&fname)),
     };
     if !((module_has || allow_userbox_rewrite) || (from_new_origin && allow_new_origin)) {
         return None;
@@ -157,21 +189,37 @@ pub(crate) fn try_known_rewrite(
     // Materialize function call according to lowered function signature:
     // - instance: receiver + args
     // - static:   args only
-    let mut call_args = rewrite_call_args_for_signature(builder, &fname, object_value, arg_values);
+    let mut call_args = rewrite_call_args_for_signature_with_lookup(
+        builder,
+        &fname,
+        object_value,
+        arg_values,
+        lookup,
+    );
     if let Err(e) = crate::mir::builder::ssa::local::finalize_args(builder, &mut call_args) {
         return Some(Err(e));
     }
     let dst = builder.next_value_id();
-    if let Err(e) = builder.emit_unified_call(
+    if let Err(e) = builder.emit_unified_call_with_lookup(
         Some(dst),
         crate::mir::builder::CallTarget::Global(fname.clone()),
         call_args,
+        lookup,
     ) {
         return Some(Err(e));
     }
     // Annotate and emit choose
     let chosen = fname.clone();
-    builder.annotate_call_result_from_func_name(dst, &chosen);
+    if let Some(view) = lookup {
+        crate::mir::builder::calls::annotation::annotate_call_result_from_func_name_with_lookup(
+            builder,
+            dst,
+            &chosen,
+            Some(view),
+        );
+    } else {
+        builder.annotate_call_result_from_func_name(dst, &chosen);
+    }
     let meta = serde_json::json!({
         "recv_cls": cls,
         "method": method,
@@ -192,6 +240,27 @@ pub(crate) fn try_known_rewrite_to_dst(
     cls: &str,
     method: &str,
     arg_values: Vec<ValueId>,
+) -> Option<Result<ValueId, String>> {
+    try_known_rewrite_to_dst_with_lookup(
+        builder,
+        want_dst,
+        object_value,
+        cls,
+        method,
+        arg_values,
+        None,
+    )
+}
+
+/// Header-aware Known route honoring a requested destination.
+pub(in crate::mir::builder) fn try_known_rewrite_to_dst_with_lookup(
+    builder: &mut MirBuilder,
+    want_dst: Option<ValueId>,
+    object_value: ValueId,
+    cls: &str,
+    method: &str,
+    arg_values: Vec<ValueId>,
+    lookup: Option<&dyn FunctionSignatureLookupV1>,
 ) -> Option<Result<ValueId, String>> {
     if !rewrite_enabled() {
         return None;
@@ -227,28 +296,46 @@ pub(crate) fn try_known_rewrite_to_dst(
     let fname = crate::mir::builder::calls::function_lowering::generate_method_function_name(
         cls, method, arity,
     );
-    let module_has = if let Some(ref module) = builder.current_module {
-        module.functions.contains_key(&fname)
-    } else {
-        false
+    let module_has = match lookup {
+        Some(view) => view.contains_symbol(&fname),
+        None => builder
+            .current_module
+            .as_ref()
+            .is_some_and(|module| module.functions.contains_key(&fname)),
     };
     if !((module_has || allow_userbox_rewrite) || (from_new_origin && allow_new_origin)) {
         return None;
     }
     // unified global function call (module-local)
-    let mut call_args = rewrite_call_args_for_signature(builder, &fname, object_value, arg_values);
+    let mut call_args = rewrite_call_args_for_signature_with_lookup(
+        builder,
+        &fname,
+        object_value,
+        arg_values,
+        lookup,
+    );
     if let Err(e) = crate::mir::builder::ssa::local::finalize_args(builder, &mut call_args) {
         return Some(Err(e));
     }
     let actual_dst = want_dst.unwrap_or_else(|| builder.next_value_id());
-    if let Err(e) = builder.emit_unified_call(
+    if let Err(e) = builder.emit_unified_call_with_lookup(
         Some(actual_dst),
         crate::mir::builder::CallTarget::Global(fname.clone()),
         call_args,
+        lookup,
     ) {
         return Some(Err(e));
     }
-    builder.annotate_call_result_from_func_name(actual_dst, &fname);
+    if let Some(view) = lookup {
+        crate::mir::builder::calls::annotation::annotate_call_result_from_func_name_with_lookup(
+            builder,
+            actual_dst,
+            &fname,
+            Some(view),
+        );
+    } else {
+        builder.annotate_call_result_from_func_name(actual_dst, &fname);
+    }
     let meta = serde_json::json!({
         "recv_cls": cls,
         "method": method,
@@ -270,6 +357,17 @@ pub(crate) fn try_unique_suffix_rewrite(
     method: &str,
     arg_values: Vec<ValueId>,
 ) -> Option<Result<ValueId, String>> {
+    try_unique_suffix_rewrite_with_lookup(builder, object_value, method, arg_values, None)
+}
+
+/// Header-aware unique-suffix route.
+pub(in crate::mir::builder) fn try_unique_suffix_rewrite_with_lookup(
+    builder: &mut MirBuilder,
+    object_value: ValueId,
+    method: &str,
+    arg_values: Vec<ValueId>,
+    lookup: Option<&dyn FunctionSignatureLookupV1>,
+) -> Option<Result<ValueId, String>> {
     if !rewrite_enabled() {
         return None;
     }
@@ -283,7 +381,9 @@ pub(crate) fn try_unique_suffix_rewrite(
     {
         return None;
     }
-    let mut cands: Vec<String> = builder.method_candidates(method, arg_values.len());
+    let mut cands: Vec<String> = lookup
+        .map(|view| method_candidates_from_headers(view, method, arg_values.len()))
+        .unwrap_or_else(|| builder.method_candidates(method, arg_values.len()));
     if cands.len() != 1 {
         return None;
     }
@@ -306,19 +406,35 @@ pub(crate) fn try_unique_suffix_rewrite(
 
     // unified
     let arity_us = arg_values.len();
-    let mut call_args = rewrite_call_args_for_signature(builder, &fname, object_value, arg_values);
+    let mut call_args = rewrite_call_args_for_signature_with_lookup(
+        builder,
+        &fname,
+        object_value,
+        arg_values,
+        lookup,
+    );
     if let Err(e) = crate::mir::builder::ssa::local::finalize_args(builder, &mut call_args) {
         return Some(Err(e));
     }
     let dst = builder.next_value_id();
-    if let Err(e) = builder.emit_unified_call(
+    if let Err(e) = builder.emit_unified_call_with_lookup(
         Some(dst),
         crate::mir::builder::CallTarget::Global(fname.clone()),
         call_args,
+        lookup,
     ) {
         return Some(Err(e));
     }
-    builder.annotate_call_result_from_func_name(dst, &fname);
+    if let Some(view) = lookup {
+        crate::mir::builder::calls::annotation::annotate_call_result_from_func_name_with_lookup(
+            builder,
+            dst,
+            &fname,
+            Some(view),
+        );
+    } else {
+        builder.annotate_call_result_from_func_name(dst, &fname);
+    }
     let meta = serde_json::json!({
         "recv_cls": builder.function_state.type_ctx.value_origin_newbox.get(&object_value).cloned().unwrap_or_default(),
         "method": method,
@@ -339,6 +455,25 @@ pub(crate) fn try_unique_suffix_rewrite_to_dst(
     method: &str,
     arg_values: Vec<ValueId>,
 ) -> Option<Result<ValueId, String>> {
+    try_unique_suffix_rewrite_to_dst_with_lookup(
+        builder,
+        want_dst,
+        object_value,
+        method,
+        arg_values,
+        None,
+    )
+}
+
+/// Header-aware unique-suffix route honoring a requested destination.
+pub(in crate::mir::builder) fn try_unique_suffix_rewrite_to_dst_with_lookup(
+    builder: &mut MirBuilder,
+    want_dst: Option<ValueId>,
+    object_value: ValueId,
+    method: &str,
+    arg_values: Vec<ValueId>,
+    lookup: Option<&dyn FunctionSignatureLookupV1>,
+) -> Option<Result<ValueId, String>> {
     if !rewrite_enabled() {
         return None;
     }
@@ -351,7 +486,9 @@ pub(crate) fn try_unique_suffix_rewrite_to_dst(
     {
         return None;
     }
-    let mut cands: Vec<String> = builder.method_candidates(method, arg_values.len());
+    let mut cands: Vec<String> = lookup
+        .map(|view| method_candidates_from_headers(view, method, arg_values.len()))
+        .unwrap_or_else(|| builder.method_candidates(method, arg_values.len()));
     if cands.len() != 1 {
         return None;
     }
@@ -378,19 +515,35 @@ pub(crate) fn try_unique_suffix_rewrite_to_dst(
         Err(e) => return Some(Err(e)),
     };
     let arity_us = arg_values.len();
-    let mut call_args = rewrite_call_args_for_signature(builder, &fname, object_value, arg_values);
+    let mut call_args = rewrite_call_args_for_signature_with_lookup(
+        builder,
+        &fname,
+        object_value,
+        arg_values,
+        lookup,
+    );
     if let Err(e) = crate::mir::builder::ssa::local::finalize_args(builder, &mut call_args) {
         return Some(Err(e));
     }
     let actual_dst = want_dst.unwrap_or_else(|| builder.next_value_id());
-    if let Err(e) = builder.emit_unified_call(
+    if let Err(e) = builder.emit_unified_call_with_lookup(
         Some(actual_dst),
         crate::mir::builder::CallTarget::Global(fname.clone()),
         call_args,
+        lookup,
     ) {
         return Some(Err(e));
     }
-    builder.annotate_call_result_from_func_name(actual_dst, &fname);
+    if let Some(view) = lookup {
+        crate::mir::builder::calls::annotation::annotate_call_result_from_func_name_with_lookup(
+            builder,
+            actual_dst,
+            &fname,
+            Some(view),
+        );
+    } else {
+        builder.annotate_call_result_from_func_name(actual_dst, &fname);
+    }
     let meta = serde_json::json!({
         "recv_cls": builder.function_state.type_ctx.value_origin_newbox.get(&object_value).cloned().unwrap_or_default(),
         "method": method,
@@ -412,13 +565,38 @@ pub(crate) fn try_known_or_unique(
     method: &str,
     arg_values: Vec<ValueId>,
 ) -> Option<Result<ValueId, String>> {
+    try_known_or_unique_with_lookup(
+        builder,
+        object_value,
+        class_name_opt,
+        method,
+        arg_values,
+        None,
+    )
+}
+
+/// Header-aware unified Known/unique entry.
+pub(in crate::mir::builder) fn try_known_or_unique_with_lookup(
+    builder: &mut MirBuilder,
+    object_value: ValueId,
+    class_name_opt: &Option<String>,
+    method: &str,
+    arg_values: Vec<ValueId>,
+    lookup: Option<&dyn FunctionSignatureLookupV1>,
+) -> Option<Result<ValueId, String>> {
     if let Some(cls) = class_name_opt.as_ref() {
-        if let Some(res) = try_known_rewrite(builder, object_value, cls, method, arg_values.clone())
-        {
+        if let Some(res) = try_known_rewrite_with_lookup(
+            builder,
+            object_value,
+            cls,
+            method,
+            arg_values.clone(),
+            lookup,
+        ) {
             return Some(res);
         }
     }
-    try_unique_suffix_rewrite(builder, object_value, method, arg_values)
+    try_unique_suffix_rewrite_with_lookup(builder, object_value, method, arg_values, lookup)
 }
 
 /// Variant: honor requested destination
@@ -430,17 +608,46 @@ pub(crate) fn try_known_or_unique_to_dst(
     method: &str,
     arg_values: Vec<ValueId>,
 ) -> Option<Result<ValueId, String>> {
+    try_known_or_unique_to_dst_with_lookup(
+        builder,
+        want_dst,
+        object_value,
+        class_name_opt,
+        method,
+        arg_values,
+        None,
+    )
+}
+
+/// Header-aware unified Known/unique entry honoring a requested destination.
+pub(in crate::mir::builder) fn try_known_or_unique_to_dst_with_lookup(
+    builder: &mut MirBuilder,
+    want_dst: Option<ValueId>,
+    object_value: ValueId,
+    class_name_opt: &Option<String>,
+    method: &str,
+    arg_values: Vec<ValueId>,
+    lookup: Option<&dyn FunctionSignatureLookupV1>,
+) -> Option<Result<ValueId, String>> {
     if let Some(cls) = class_name_opt.as_ref() {
-        if let Some(res) = try_known_rewrite_to_dst(
+        if let Some(res) = try_known_rewrite_to_dst_with_lookup(
             builder,
             want_dst,
             object_value,
             cls,
             method,
             arg_values.clone(),
+            lookup,
         ) {
             return Some(res);
         }
     }
-    try_unique_suffix_rewrite_to_dst(builder, want_dst, object_value, method, arg_values)
+    try_unique_suffix_rewrite_to_dst_with_lookup(
+        builder,
+        want_dst,
+        object_value,
+        method,
+        arg_values,
+        lookup,
+    )
 }

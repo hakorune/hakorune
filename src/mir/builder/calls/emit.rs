@@ -7,6 +7,7 @@
 
 use super::super::{EffectMask, MirBuilder, MirInstruction, ValueId};
 use super::CallTarget;
+use crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1;
 use crate::mir::definitions::call_unified::TypeCertainty;
 
 impl MirBuilder {
@@ -19,6 +20,20 @@ impl MirBuilder {
         args: Vec<ValueId>,
     ) -> Result<(), String> {
         super::unified_emitter::UnifiedCallEmitterBox::emit_unified_call(self, dst, target, args)
+    }
+
+    /// Invocation-header sibling.  The lookup is borrowed for one call only;
+    /// legacy callers continue through `emit_unified_call` unchanged.
+    pub(in crate::mir::builder) fn emit_unified_call_with_lookup(
+        &mut self,
+        dst: Option<ValueId>,
+        target: CallTarget,
+        args: Vec<ValueId>,
+        lookup: Option<&dyn FunctionSignatureLookupV1>,
+    ) -> Result<(), String> {
+        super::unified_emitter::UnifiedCallEmitterBox::emit_unified_call_with_lookup(
+            self, dst, target, args, lookup,
+        )
     }
 
     /// Compatibility call entry used by older lowering sites and RouterPolicy BoxCall routes.
