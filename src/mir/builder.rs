@@ -127,6 +127,8 @@ mod root_body_completion_p0; // HEADERPORT0-I0-BODYDRAIN0-P0 fixtures
 #[allow(dead_code)]
 mod root_draft_batch; // HEADERPORT0-I0-ROOTBATCH0-S0 disconnected batch
 #[cfg(test)]
+mod root_draft_batch_commit_p0; // HEADERPORT0 BORROW-P0-ROOT-P0b proof
+#[cfg(test)]
 mod root_draft_batch_p0; // HEADERPORT0-I0-ROOTBATCH0-P0 fixtures
 #[allow(dead_code)]
 mod route_owned_invocation_inventory; // HEADERPORT0 WIRING-I0-ROUTEINV-S0 policy

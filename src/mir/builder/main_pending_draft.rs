@@ -182,6 +182,13 @@ impl PendingMainDraftV1 {
     pub(in crate::mir::builder) fn header_source(&self) -> MainHeaderSourceV1 {
         self.header_source
     }
+
+    /// Consume the completed root handoff at the collector-wide batch seam.
+    /// The root-body and header-source witnesses cannot outlive the draft
+    /// because only the prepared root batch may call this terminal.
+    pub(super) fn into_draft(self) -> MirFunction {
+        self.draft
+    }
 }
 
 #[cfg(test)]

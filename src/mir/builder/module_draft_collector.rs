@@ -10,9 +10,14 @@ use crate::mir::resolved_semantics::{CanonicalCallableKeyV1, FunctionOwnerIdV1};
 use crate::mir::{FunctionSignature, MirFunction};
 
 mod receipt;
+mod root_batch;
 
 pub(in crate::mir::builder) use receipt::{
     CollectedDraftAdmissionReceiptV1, CollectedDraftReplacementDispositionV1,
+};
+pub(in crate::mir::builder) use root_batch::{
+    PreparedRootCollectorBatchV1, RejectedRootCollectorBatchV1, RootCollectorBatchPrepareErrorV1,
+    RootCollectorBatchReceiptV1,
 };
 
 /// Semantic identity for one draft admission, distinct from fact generation.
@@ -201,50 +206,7 @@ impl ModuleDraftCollectorV1 {
         expected_arity: usize,
         policy: DraftPublicationPolicyV1,
     ) -> Result<PreparedFunctionDraftAdmissionV1<'_>, ModuleDraftAdmissionErrorV1> {
-        let symbol_key = self.key_by_symbol.get(&expected_symbol).cloned();
-        let key_symbol = self
-            .drafts
-            .get(&key)
-            .map(|entry| entry.draft.signature.name.clone());
-        let replacement = match policy {
-            DraftPublicationPolicyV1::CanonicalRejectDuplicate => {
-                if self.drafts.contains_key(&key) {
-                    return Err(ModuleDraftAdmissionErrorV1::DuplicateKey(key));
-                }
-                if self.key_by_symbol.contains_key(&expected_symbol) {
-                    return Err(ModuleDraftAdmissionErrorV1::DuplicateSymbol(
-                        expected_symbol,
-                    ));
-                }
-                PreparedCollectorReplacementV1::Canonical
-            }
-            DraftPublicationPolicyV1::LegacyReplaceWholePair => {
-                if let (Some(symbol_key), Some(key_symbol)) = (&symbol_key, &key_symbol) {
-                    if symbol_key != &key || key_symbol != &expected_symbol {
-                        return Err(ModuleDraftAdmissionErrorV1::IndexDrift {
-                            symbol: expected_symbol,
-                            key,
-                        });
-                    }
-                }
-                if symbol_key.is_some() && key_symbol.is_none() {
-                    return Err(ModuleDraftAdmissionErrorV1::IndexDrift {
-                        symbol: expected_symbol,
-                        key,
-                    });
-                }
-                if symbol_key.is_none() && key_symbol.is_some() {
-                    return Err(ModuleDraftAdmissionErrorV1::IndexDrift {
-                        symbol: expected_symbol,
-                        key,
-                    });
-                }
-                PreparedCollectorReplacementV1::Legacy {
-                    symbol_key,
-                    key_symbol,
-                }
-            }
-        };
+        let replacement = root_batch::plan_admission_v1(self, &key, &expected_symbol, policy)?;
         Ok(PreparedFunctionDraftAdmissionV1 {
             collector: self,
             key,

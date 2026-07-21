@@ -82,6 +82,10 @@ impl PendingConditionFnDraftV1 {
     pub(in crate::mir::builder) fn draft(&self) -> &MirFunction {
         &self.draft
     }
+
+    pub(super) fn into_draft(self) -> MirFunction {
+        self.draft
+    }
 }
 
 /// Prepared root batch.  It owns the root and optional synthetic draft, but
@@ -167,6 +171,56 @@ impl PreparedRootDraftBatchV1 {
 
     pub(in crate::mir::builder) fn policy(&self) -> ConditionFnPolicyV1 {
         self.policy
+    }
+
+    /// Consume the already-validated root batch into exact physical entries.
+    /// No caller can add, remove, or reorder an admission at this boundary.
+    pub(super) fn into_collector_entries(self) -> Box<[RootDraftCollectorEntryV1]> {
+        let Self {
+            main,
+            condition_fn,
+            admissions,
+            policy: _,
+            _seal: _,
+        } = self;
+        let mut drafts = vec![main.into_draft()];
+        if let Some(condition_fn) = condition_fn {
+            drafts.push(condition_fn.into_draft());
+        }
+        admissions
+            .into_vec()
+            .into_iter()
+            .zip(drafts)
+            .map(|(admission, draft)| RootDraftCollectorEntryV1 { admission, draft })
+            .collect::<Vec<_>>()
+            .into_boxed_slice()
+    }
+}
+
+/// Consuming bridge used only by the collector-owned atomic batch preflight.
+#[derive(Debug)]
+pub(super) struct RootDraftCollectorEntryV1 {
+    admission: RootDraftAdmissionPlanV1,
+    draft: MirFunction,
+}
+
+impl RootDraftCollectorEntryV1 {
+    pub(super) fn into_parts(
+        self,
+    ) -> (
+        FunctionDraftKeyV1,
+        String,
+        usize,
+        DraftPublicationPolicyV1,
+        MirFunction,
+    ) {
+        (
+            self.admission.key,
+            self.admission.symbol.into_string(),
+            self.admission.arity,
+            self.admission.policy,
+            self.draft,
+        )
     }
 }
 

@@ -2884,3 +2884,70 @@ propagation before any all-route production cutover. BORROW, ROOT, HDR0, and
 the already selected FACTSESSION Candidate A-prime need no additional design
 consultation. FastMem remains parked and may resume only through an explicit
 lane switch beginning at `FASTMEM-BASELINE0`.
+
+## WIRING-I0-BORROW-P0-ROOT-P0b closeout
+
+`BORROW-P0-ROOT-P0b` is closed as a disconnected collector transaction. The
+physical owner is
+`src/mir/builder/module_draft_collector/root_batch.rs`; it consumes exactly
+one `ModuleDraftCollectorV1` and one already validated
+`PreparedRootDraftBatchV1`.
+
+The transaction fixes the following order:
+
+```text
+consume validated Main/condition batch
+-> validate every draft symbol and arity
+-> prepare every key/symbol/replacement disposition
+-> if any preparation fails, return the unchanged collector
+-> otherwise issue one non-Clone prepared batch
+-> commit the complete batch infallibly
+-> return exact per-draft collection receipts
+```
+
+The batch path reuses the same `plan_admission_v1` owner as single-draft
+collection. It does not introduce a second duplicate, index-drift, or legacy
+replacement policy. All fallible checks finish before the first collector
+mutation.
+
+The focused proof fixes three required cases:
+
+```text
+second_root_admission_failure_preserves_exact_collector_prefix
+prepared_root_batch_commits_main_and_condition_once_after_full_preflight
+legacy_main_replacement_is_prepared_with_the_whole_root_batch
+```
+
+The implementation remains construction-only. Production root-batch
+consumers, external module publication, Builder mutation, fallback, retry,
+FACTSESSION, PHI repair, JoinIR, FastMem, and CUT0 deltas are all zero. The
+new owner is 250 lines, its focused proof is 144 lines, and the parent
+collector remains 692 lines; all changed source/check files remain below 800
+lines.
+
+The remaining ROOT order is fixed without further design selection:
+
+```text
+BORROW-P0-ROOT-P0c  <- next
+  one disconnected declaration-fact shell commit owner
+  all declaration lanes move together
+  failed preparation leaves the shell unchanged
+  no Builder/CompilationContext read after sealing
+
+BORROW-P0-ROOT-P0d
+  co-seal all nine route rows with the eleven-phase schedule
+  prove external commit count 0 on drain/finalizer failure
+  prove external commit count 1 on success
+
+BORROW-P0-ROOT-G0
+  root batch/shell/drain/finalizer owners = one each
+  direct/fallback/retry owners = zero
+
+WIRING-I0-BORROW-G0
+  one reusable guard over raw, canonical, and root borrow proofs
+```
+
+No external design consultation is required for these rows. The only
+intentional later stop remains `CUT0-COMPAT-POLICY-CONSULT0`, after `HDR0-G0`
+and before `CUT0-S0`, for duplicate Main source behavior and optional callable
+`Main.main/N` failure propagation.
