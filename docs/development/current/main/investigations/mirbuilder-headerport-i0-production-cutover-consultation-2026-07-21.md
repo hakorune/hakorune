@@ -6,7 +6,7 @@ CANDIDATE0-S0/P0, MAINROLE0-D0/S0/P0, BODYDRAIN0-S0/P0,
 MAINPENDING0-S0/P0, ROOTBATCH0-S0/P0, SHELLFACT0-S0/P0, and
 DRAIN0-S0/P0, MODULEFINAL0-SPLIT0/P0, and MODULEFINAL0-CANDIDATE0-P0 are
 closed; M-root-prime remains selected and
-`FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0` is next**
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-S0` is next**
 
 Date: 2026-07-21
 
@@ -740,9 +740,18 @@ HEADERPORT0-I0-MODULEFINAL0-SPLIT0-P0 (closed)
 HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0
   child/root/drain/finalizer failure matrix
 
-FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0
+HEADERPORT0-REENTRANT-TERM0-I0-WIRING-S0
   next code-facing row
-  one all-route production capture/commit cutover
+  live shell/header bundle, port-aware Main/root, finalizer lookup
+
+HEADERPORT0-REENTRANT-TERM0-I0-WIRING-P0
+  raw child/Main/script/A+/trivial/acyclic/recursive/condition parity
+
+HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0
+  one all-route capture -> seal -> collect -> drain
+
+HEADERPORT0-REENTRANT-TERM0-I0-WIRING-G0
+  duplicate stores/fallback/partial cutover guard
 
 HEADERPORT0-I0-CANDIDATE0-P0
   child/root/drain/finalizer failure matrix
@@ -940,7 +949,7 @@ verification failures discard the unpublished invocation. Every row keeps
 external publication unchanged and forbids retry/fallback. This is only the
 failure ownership contract; it does not execute module repair, drain, or
 finalization. The next row is
-`FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0`; FACTSESSION0 and CUT0 remain
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-S0`; FACTSESSION0 and CUT0 remain
 forbidden.
 
 ## MAINPENDING0-P0 closeout

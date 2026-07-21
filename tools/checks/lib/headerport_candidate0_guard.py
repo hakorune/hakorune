@@ -371,7 +371,7 @@ def main() -> int:
         "HEADERPORT0-I0-MODULEFINAL0-SPLIT0 (closed)\n  post-drain finalization input",
         "HEADERPORT0-I0-MODULEFINAL0-SPLIT0-P0 (closed)\n  ownership and declaration/fact failure matrix",
         "HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0\n  child/root/drain/finalizer failure matrix",
-        "FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0\n  next code-facing row",
+        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-S0\n  next code-facing row",
         "one disconnected invocation-owned shell/collector candidate",
         "typed abort/no-publication/no-retry proof",
         "production capture/commit remains forbidden",
@@ -380,7 +380,7 @@ def main() -> int:
         require(card, fragment, "Candidate0 task boundary")
     require(
         state,
-        "FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0 is next",
+        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-S0 is next",
         "current Candidate0/MainROLE0 pointer",
     )
 
