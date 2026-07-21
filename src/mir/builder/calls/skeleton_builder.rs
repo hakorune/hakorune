@@ -56,7 +56,7 @@ impl MirBuilder {
     }
 
     /// 🎯 箱理論: Step 2b - 関数スケルトン作成（instance method版）
-    pub(super) fn create_method_skeleton(
+    pub(in crate::mir::builder) fn create_method_skeleton(
         &mut self,
         func_name: String,
         box_name: &str,

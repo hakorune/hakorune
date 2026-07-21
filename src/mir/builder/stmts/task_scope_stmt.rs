@@ -6,6 +6,9 @@
 
 use super::super::{MirBuilder, ValueId};
 use crate::ast::ASTNode;
+use crate::mir::builder::recursive_child_lowering::{
+    drive_legacy_body_v1, RecursiveChildLoweringPortV1,
+};
 
 const EARLY_EXIT_TAG: &str = "[freeze:contract][co/early-exit-unsupported]";
 
@@ -25,6 +28,30 @@ pub(in crate::mir::builder) fn build_task_scope_statement(
     let result = builder.cf_block(body)?;
     builder.emit_extern_call("env.task_scope", "pop", Vec::new(), None)?;
     Ok(result)
+}
+
+/// Port-aware task scope body driver.  Scope enter/exit stays here; every
+/// child statement is delegated to the caller's recursive capability.
+pub(in crate::mir::builder) fn build_task_scope_statement_with_port_v1<Port>(
+    builder: &mut MirBuilder,
+    child: &mut Port,
+    body: Vec<ASTNode>,
+    source_keyword: String,
+) -> Result<ValueId, String>
+where
+    Port: RecursiveChildLoweringPortV1<BodyInput = Vec<ASTNode>, StatementInput = ASTNode>,
+{
+    if let Some(reason) = first_unsupported_early_exit(&body) {
+        return Err(format!(
+            "{} spelling={} reason={} CONC-CO-MIR-001 v0 is normal-completion-only; scope-exit cleanup lowering is owned by CONC-CO-MIR-002",
+            EARLY_EXIT_TAG, source_keyword, reason
+        ));
+    }
+
+    builder.emit_extern_call("env.task_scope", "push", Vec::new(), None)?;
+    let result = drive_legacy_body_v1(builder, child, body);
+    builder.emit_extern_call("env.task_scope", "pop", Vec::new(), None)?;
+    result
 }
 
 fn first_unsupported_early_exit(statements: &[ASTNode]) -> Option<&'static str> {

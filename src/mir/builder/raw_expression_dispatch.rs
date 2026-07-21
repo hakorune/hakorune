@@ -40,7 +40,7 @@ enum StatementSurfaceDispatch {
 /// legacy implementation remains the only production consumer until that
 /// closure is complete; `RawInvocationChildPortV1` is intentionally not wired
 /// here before all direct helper recursion has a port-aware sibling.
-pub(super) trait RawExpressionDispatchPortV1:
+pub(in crate::mir::builder) trait RawExpressionDispatchPortV1:
     RecursiveChildLoweringPortV1<
         BodyInput = Vec<ASTNode>,
         StatementInput = ASTNode,
@@ -104,8 +104,9 @@ impl super::MirBuilder {
                 source_keyword,
                 ..
             } => Ok(StatementSurfaceDispatch::Lowered(
-                super::stmts::task_scope_stmt::build_task_scope_statement(
+                super::stmts::task_scope_stmt::build_task_scope_statement_with_port_v1(
                     self,
+                    port,
                     body.clone(),
                     source_keyword.clone(),
                 )?,
@@ -309,7 +310,7 @@ impl super::MirBuilder {
     }
 
     /// The sole raw AST match tree, parameterized by its child descent.
-    pub(super) fn build_expression_impl_with_port_v1<Port>(
+    pub(in crate::mir::builder) fn build_expression_impl_with_port_v1<Port>(
         &mut self,
         port: &mut Port,
         ast: ASTNode,
@@ -481,8 +482,10 @@ impl super::MirBuilder {
                     ));
                 }
                 if is_static && name == "Main" {
-                    // Special entry box: materialize main() as Program and lower others as static functions
-                    self.build_static_main_box(name.clone(), methods.clone())
+                    // Main is a root-only entry.  The invocation port rejects
+                    // nested Main before any root-main mutation; the legacy
+                    // adapter preserves the existing inline-main behavior.
+                    port.lower_static_main_box(self, name.clone(), methods.clone())
                 } else if is_static {
                     // In App mode (Main/main present), static boxes are lowered in lower_root().
                     // Here we only handle Script/Test mode or non-root contexts.
@@ -569,7 +572,8 @@ impl super::MirBuilder {
                         } = ctor_ast
                         {
                             let func_name = format!("{}.{}", name, ctor_key);
-                            self.lower_method_as_function(
+                            port.lower_instance_box_method(
+                                self,
                                 func_name,
                                 name.clone(),
                                 params.clone(),

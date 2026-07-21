@@ -30,7 +30,7 @@ LOOP_PLAN = ROOT / "src/mir/builder/control_flow/plan"
 
 P0_DIRECT_HEADER_READER_FRAGMENTS = {
     "src/mir/builder/calls/annotation.rs": "module.functions.get(name)",
-    "src/mir/builder/calls/lowering.rs": "self.current_module.as_ref()",
+    "src/mir/builder/calls/lowering.rs": "self.current_module.take()",
     "src/mir/builder/method_call_handlers.rs": "module.functions.get(&fname)",
     "src/mir/builder/rewrite/known.rs": "module.functions.get(fname)",
     "src/mir/builder/builder_method_index.rs": "module.functions.keys()",
@@ -179,6 +179,11 @@ def main() -> int:
         "pending_capture_ends_before_header_loan_and_commit",
         "rejected_commit_restores_parent_without_collector_delta",
         "capture_failure_never_reaches_commit_terminal",
+        "port_aware_static_body_collects_nested_static_child_before_outer_commit",
+        "port_aware_static_body_collects_nested_instance_child_before_outer_commit",
+        "port_aware_nested_instance_constructor_uses_the_same_child_terminal",
+        "invocation_main_box_is_rejected_before_root_effects",
+        "port_aware_capture_failure_restores_parent_without_collection",
     ):
         require(reentrant_tests, fragment, "HEADERPORT0 reentrant P0 proof")
     require(
@@ -301,15 +306,27 @@ def main() -> int:
         "box RawInstance",
     ):
         require(rawport_tests, fragment, "LEGACYTERM0 I0 raw Box proof")
-    for fragment in ("port.lower_static_box_method", "port.lower_instance_box_method"):
+    for fragment in (
+        "port.lower_static_main_box",
+        "port.lower_static_box_method",
+        "port.lower_instance_box_method",
+    ):
         require(raw_dispatch, fragment, "LEGACYTERM0 I0 dispatcher terminal")
     forbid(
         raw_dispatch,
-        "self.lower_static_method_as_function(",
-        "LEGACYTERM0 I0 direct static publication",
+        "self.build_static_main_box(",
+        "HEADERPORT0 P0 direct Main root bypass",
     )
-    for fragment in ("for (ctor_key, ctor_ast)", "self.lower_method_as_function("):
-        require(raw_dispatch, fragment, "LEGACYTERM0 I0 constructor remains legacy")
+    require(
+        raw_dispatch,
+        "for (ctor_key, ctor_ast)",
+        "HEADERPORT0 P0 constructor traversal",
+    )
+    forbid(
+        raw_dispatch,
+        "self.lower_method_as_function(",
+        "HEADERPORT0 P0 constructor direct bypass",
+    )
     require(
         raw_port,
         "impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1",
@@ -320,11 +337,24 @@ def main() -> int:
         "LegacyChildDraftAdmissionV1::legacy_symbol",
         "LEGACYTERM0 I0 legacy identity",
     )
+    for fragment in (
+        "capture_static_box_method_pending_v1",
+        "capture_instance_box_method_pending_v1",
+        "PortAwarePreparedDraftBodyV1",
+        "finalize_function_draft_with_headers",
+    ):
+        require(raw_port, fragment, "HEADERPORT0 P0 port-aware child capture")
     require_count(
         invocation,
         "pub(in crate::mir::builder) fn complete_legacy_child(",
         1,
         "LEGACYTERM0 collector terminal owner",
+    )
+    require_count(
+        raw_dispatch,
+        "port.lower_static_main_box(",
+        1,
+        "HEADERPORT0 P0 Main root boundary",
     )
     require_count(
         raw_dispatch,
@@ -335,7 +365,7 @@ def main() -> int:
     require_count(
         raw_dispatch,
         "port.lower_instance_box_method(",
-        1,
+        2,
         "LEGACYTERM0 instance raw dispatch",
     )
     require_count(

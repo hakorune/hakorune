@@ -47,7 +47,10 @@ struct PreparedInstanceReceiverParameterV1 {
 }
 
 impl MirBuilder {
-    pub(super) fn setup_function_params(&mut self, params: &[String]) -> Result<(), String> {
+    pub(in crate::mir::builder) fn setup_function_params(
+        &mut self,
+        params: &[String],
+    ) -> Result<(), String> {
         self.function_state.scope.function_param_names.clear();
         let entries = {
             let Some(function) = self.function_state.current_function.as_mut() else {
@@ -90,7 +93,7 @@ impl MirBuilder {
         Ok(())
     }
 
-    pub(super) fn setup_method_params(
+    pub(in crate::mir::builder) fn setup_method_params(
         &mut self,
         box_name: &str,
         params: &[String],

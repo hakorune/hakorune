@@ -161,7 +161,9 @@ where
             contract,
             body,
             span,
-        } => super::super::fastmem::build_fastmem_region(builder, contract, body, span),
+        } => super::super::fastmem::build_fastmem_region_with_port_v1(
+            builder, child, contract, body, span,
+        ),
         // 将来ここに While / LoopRange / Match / Using など statement 専用分岐を追加する。
         other => drive_legacy_expression_v1(builder, child, other),
     }

@@ -7,10 +7,12 @@
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 use crate::mir::{MirBuilder, ValueId};
 
+use super::calls::LegacyFunctionPendingSessionV1;
 use super::module_lowering_invocation::{
     LegacyChildDraftAdmissionV1, LoweringHeaderPortV1, ModuleLoweringPortChildErrorV1,
     ModuleLoweringPortV1,
 };
+use super::port_aware_function_draft_impl::PortAwarePreparedDraftBodyV1;
 use super::raw_expression_dispatch::RawExpressionDispatchPortV1;
 use super::raw_loop_child_entry::{
     classify_raw_loop_child_entry_v1, RawLoopChildEntryDispositionV1,
@@ -63,6 +65,19 @@ pub(in crate::mir::builder) trait RawAstChildLoweringPortV1:
 /// function terminal here.  Legacy callers retain their existing publication
 /// route; invocation callers use the collector-backed legacy terminal.
 pub(in crate::mir::builder) trait RawBoxMethodChildPortV1 {
+    /// Lower the special `Main` static box entry.
+    ///
+    /// `Main` is a root-only surface for invocation sessions.  Keeping this
+    /// decision on the same port makes the invocation implementation reject
+    /// it before any root-main mutation can occur, while the legacy adapter
+    /// retains the existing inline-main behavior.
+    fn lower_static_main_box(
+        &mut self,
+        builder: &mut MirBuilder,
+        box_name: String,
+        methods: std::collections::HashMap<String, ASTNode>,
+    ) -> Result<ValueId, String>;
+
     fn lower_static_box_method(
         &mut self,
         builder: &mut MirBuilder,
@@ -206,6 +221,103 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         self.module_port
             .complete_legacy_child(builder, body_snapshot, admission, lower)
     }
+
+    /// Capture one raw static child while the same invocation port remains
+    /// available to every recursive body descendant.  The header loan starts
+    /// only after body descent has returned.
+    #[allow(dead_code)]
+    pub(in crate::mir::builder) fn capture_static_box_method_pending_v1<'builder>(
+        &mut self,
+        builder: &'builder mut MirBuilder,
+        function_name: String,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
+    ) -> Result<LegacyFunctionPendingSessionV1<'builder>, ModuleLoweringPortChildErrorV1> {
+        let expected_arity = params.len();
+        let body_snapshot = body.clone();
+        let session_name = function_name.clone();
+        let pending = {
+            let mut child_port = self.reborrow();
+            builder
+                .capture_legacy_function_pending_session_v1(
+                    &session_name,
+                    body_snapshot,
+                    move |builder| {
+                        let prepared: PortAwarePreparedDraftBodyV1 = builder
+                            .build_static_method_draft_with_port_v1(
+                                &mut child_port,
+                                function_name,
+                                params,
+                                param_decls,
+                                return_type_name,
+                                body,
+                                uses,
+                                attrs,
+                            )?;
+                        child_port.with_headers(|headers| {
+                            builder.finalize_function_draft_with_headers(prepared, headers)
+                        })
+                    },
+                )
+                .map_err(ModuleLoweringPortChildErrorV1::Session)?
+        };
+        Ok(pending)
+    }
+
+    /// Instance counterpart of the port-aware capture seam.
+    #[allow(dead_code)]
+    pub(in crate::mir::builder) fn capture_instance_box_method_pending_v1<'builder>(
+        &mut self,
+        builder: &'builder mut MirBuilder,
+        function_name: String,
+        box_name: String,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
+    ) -> Result<LegacyFunctionPendingSessionV1<'builder>, ModuleLoweringPortChildErrorV1> {
+        let params =
+            super::calls::lowering::normalize_instance_method_params(&function_name, params);
+        let param_decls = super::calls::lowering::normalize_instance_method_param_decls(
+            &function_name,
+            param_decls,
+        );
+        let body_snapshot = body.clone();
+        let session_name = function_name.clone();
+        let pending = {
+            let mut child_port = self.reborrow();
+            builder
+                .capture_legacy_function_pending_session_v1(
+                    &session_name,
+                    body_snapshot,
+                    move |builder| {
+                        let prepared: PortAwarePreparedDraftBodyV1 = builder
+                            .build_instance_method_draft_with_port_v1(
+                                &mut child_port,
+                                function_name,
+                                box_name,
+                                params,
+                                param_decls,
+                                return_type_name,
+                                body,
+                                uses,
+                                attrs,
+                            )?;
+                        child_port.with_headers(|headers| {
+                            builder.finalize_function_draft_with_headers(prepared, headers)
+                        })
+                    },
+                )
+                .map_err(ModuleLoweringPortChildErrorV1::Session)?
+        };
+        Ok(pending)
+    }
 }
 
 impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
@@ -269,6 +381,15 @@ impl RecursiveChildLoweringPortV1 for RawLegacyChildLoweringPortV1 {
 }
 
 impl RawBoxMethodChildPortV1 for RawLegacyChildLoweringPortV1 {
+    fn lower_static_main_box(
+        &mut self,
+        builder: &mut MirBuilder,
+        box_name: String,
+        methods: std::collections::HashMap<String, ASTNode>,
+    ) -> Result<ValueId, String> {
+        builder.build_static_main_box(box_name, methods)
+    }
+
     fn lower_static_box_method(
         &mut self,
         builder: &mut MirBuilder,
@@ -328,6 +449,20 @@ impl RawLoopChildEntryPortV1 for RawLegacyChildLoweringPortV1 {
 }
 
 impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1<'_, '_> {
+    fn lower_static_main_box(
+        &mut self,
+        _builder: &mut MirBuilder,
+        box_name: String,
+        _methods: std::collections::HashMap<String, ASTNode>,
+    ) -> Result<ValueId, String> {
+        Err(
+            super::control_flow::lower::Freeze::contract(&format!(
+                "raw_invocation_main_box: root-only Main box cannot be lowered as a nested child name={box_name}"
+            ))
+            .to_string(),
+        )
+    }
+
     fn lower_static_box_method(
         &mut self,
         builder: &mut MirBuilder,

@@ -12,6 +12,7 @@
 //! Critical Constraint:
 //! Must execute BEFORE phi_type_inference (type annotation prerequisite)
 
+use super::function_signature_lookup::FunctionSignatureLookupV1;
 use super::type_context::TypeContext;
 use crate::mir::{MirFunction, MirModule, MirType};
 
@@ -34,6 +35,15 @@ pub(super) fn annotate_missing_result_types_from_calls_and_await(
     type_ctx: &mut TypeContext,
     function: &MirFunction,
     module: &MirModule,
+) {
+    annotate_missing_result_types_from_calls_and_await_with_lookup(type_ctx, function, module);
+}
+
+/// Port-aware sibling which consumes only a short-lived signature view.
+pub(in crate::mir::builder) fn annotate_missing_result_types_from_calls_and_await_with_lookup(
+    type_ctx: &mut TypeContext,
+    function: &MirFunction,
+    lookup: &dyn FunctionSignatureLookupV1,
 ) {
     use crate::mir::definitions::Callee;
     use crate::mir::MirInstruction;
@@ -61,10 +71,9 @@ pub(super) fn annotate_missing_result_types_from_calls_and_await(
                     }
                     let inferred = match callee {
                         Some(callee) => match callee {
-                            Callee::Global(name) => module
-                                .functions
-                                .get(name)
-                                .map(|f| f.signature.return_type.clone())
+                            Callee::Global(name) => lookup
+                                .signature(name)
+                                .map(|signature| signature.return_type.clone())
                                 .or_else(|| {
                                     crate::mir::builder::types::annotation::infer_return_type(name)
                                 })

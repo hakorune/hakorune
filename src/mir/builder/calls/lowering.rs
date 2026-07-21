@@ -87,7 +87,10 @@ pub(in crate::mir::builder) fn normalize_instance_method_param_decls(
     param_decls
 }
 
-fn mir_param_decls_from_source(params: &[String], param_decls: &[ParamDecl]) -> Vec<MirParamDecl> {
+pub(in crate::mir::builder) fn mir_param_decls_from_source(
+    params: &[String],
+    param_decls: &[ParamDecl],
+) -> Vec<MirParamDecl> {
     ParamDecl::with_name_fallback(param_decls, params)
         .iter()
         .map(|decl| MirParamDecl {
@@ -98,7 +101,7 @@ fn mir_param_decls_from_source(params: &[String], param_decls: &[ParamDecl]) -> 
         .collect()
 }
 
-fn mir_method_param_decls_from_source(
+pub(in crate::mir::builder) fn mir_method_param_decls_from_source(
     _box_name: &str,
     params: &[String],
     param_decls: &[ParamDecl],
@@ -284,6 +287,29 @@ impl MirBuilder {
         &mut self,
         returns_value: bool,
     ) -> Result<MirFunction, String> {
+        let module = self.current_module.take();
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            let lookup = module.as_ref().map(|module| {
+                module as &dyn super::super::function_signature_lookup::FunctionSignatureLookupV1
+            });
+            self.finalize_function_draft_with_lookup(returns_value, lookup)
+        }));
+        self.current_module = module;
+        match result {
+            Ok(result) => result,
+            Err(payload) => std::panic::resume_unwind(payload),
+        }
+    }
+
+    /// Shared finalizer with an explicitly supplied signature view.
+    ///
+    /// Legacy callers pass the current module through the facade above;
+    /// re-entrant invocation callers pass a short-lived header port instead.
+    pub(in crate::mir::builder) fn finalize_function_draft_with_lookup(
+        &mut self,
+        returns_value: bool,
+        lookup: Option<&dyn super::super::function_signature_lookup::FunctionSignatureLookupV1>,
+    ) -> Result<MirFunction, String> {
         // Void return追加（必要な場合）
         if !returns_value {
             if let Some(ref mut f) = self.function_state.current_function {
@@ -303,12 +329,13 @@ impl MirBuilder {
             TypePropagationPipeline::run(f, &mut self.function_state.type_ctx.value_types)?;
         }
 
-        if let (Some(function), Some(module)) = (
-            self.function_state.current_function.as_ref(),
-            self.current_module.as_ref(),
-        ) {
-            crate::mir::builder::type_hint_providers::annotate_missing_result_types_from_calls_and_await(
-                &mut self.function_state.type_ctx, function, module,
+        if let (Some(function), Some(lookup)) =
+            (self.function_state.current_function.as_ref(), lookup)
+        {
+            crate::mir::builder::type_hint_providers::annotate_missing_result_types_from_calls_and_await_with_lookup(
+                &mut self.function_state.type_ctx,
+                function,
+                lookup,
             );
         }
 

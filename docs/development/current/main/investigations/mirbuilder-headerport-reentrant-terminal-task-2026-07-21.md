@@ -1,6 +1,6 @@
 # HEADERPORT0-REENTRANT-TERM0: pending capture and commit-only terminal
 
-Status: `HEADERPORT0-REENTRANT-TERM0-S0` is closed; `HEADERPORT0-REENTRANT-TERM0-P0` is active
+Status: `HEADERPORT0-REENTRANT-TERM0-S0/P0` are closed; `HEADERPORT0-REENTRANT-TERM0-I0` is next
 Date: 2026-07-21
 Parent: `mirbuilder-headerport-reentrant-terminal-consultation-2026-07-21.md`
 Decision: R-prime
@@ -29,9 +29,17 @@ port-aware draft/body/finalizer protocol are now present; no production route
 uses the new commit methods.
 
 P0 progress now includes capture-only lifetime seams, rejected-commit parent
-restore fixtures, and collector replacement preflight. Full port-aware body
-descent, nested constructor coverage, and the complete header-loan matrix are
-still required before P0 closes.
+restore fixtures, collector replacement preflight, and complete port-aware
+body descent for nested static/instance/constructor, TaskScope, and FastMem
+containers. The special `Main` root is handled by the same raw port as a
+typed pre-effect rejection for invocation sessions; the legacy adapter alone
+retains inline-main lowering.
+
+The disconnected body and nested-child fixtures are green. The focused
+primary-failure and root-only Main zero-delta fixtures now complement the
+existing admission/panic terminal matrix. Remaining P0 work is explicit:
+finish the header-loan matrix audit, then keep the existing invocation trait
+consumers remain disconnected until the I0 capture/commit cutover.
 
 ## Authority
 
@@ -104,6 +112,7 @@ No body, metadata, MirModule, type fact, or collector mutation is exposed.
 outer raw child with nested static Box
 outer raw child with nested instance Box
 instance constructor plus ordinary method
+invocation Main root rejected before root effects
 nested header visible after inner collection
 primary / cleanup / admission / panic
 collector prefix unchanged on every rejected path
@@ -113,6 +122,11 @@ parent context restored exactly once
 The constructor path must have zero direct
 `lower_method_as_function` consumers in the invocation route. Legacy ports may
 retain that call as their behavior-preserving adapter.
+
+`Main` is a root-only entry. Invocation lowering must call the port-owned
+`lower_static_main_box` decision and reject before instruction, metadata, or
+collector mutation; only the legacy adapter may call
+`build_static_main_box`.
 
 ## Forbidden in S0/P0
 
@@ -132,6 +146,7 @@ HEADERPORT0-REENTRANT-TERM0-S0
   private vocabulary and port-aware signatures; consumers = 0
 -> HEADERPORT0-REENTRANT-TERM0-P0
   nested/re-entry/failure matrix and collector preflight proof
+  all disconnected P0 fixtures/guards green
 -> HEADERPORT0-REENTRANT-TERM0-I0
   raw invocation capture/commit cutover
 -> HEADERPORT0-REENTRANT-TERM0-G0
