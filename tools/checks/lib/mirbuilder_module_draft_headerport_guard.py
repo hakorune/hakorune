@@ -281,6 +281,28 @@ def main() -> int:
         raise AssertionError(
             f"STATE0-I0 state consumers drifted: expected two owners, actual={actual}"
         )
+    for path in (INVOCATION, INVOCATION_DRAIN, INVOCATION_STATE):
+        forbid(
+            read(path),
+            "current_module",
+            f"STATE0-G0 current_module fallback in state seam {path.relative_to(ROOT)}",
+        )
+    for path in (ROOT / "src/mir/builder").rglob("*.rs"):
+        if path in (INVOCATION, INVOCATION_DRAIN, INVOCATION_STATE) or path.name.endswith(
+            "_tests.rs"
+        ):
+            continue
+        source = read(path)
+        forbid(
+            source,
+            "ModuleLoweringInvocationV1",
+            f"STATE0-G0 production invocation candidate caller {path.relative_to(ROOT)}",
+        )
+        forbid(
+            source,
+            "ModuleLoweringInvocationDrainOwnerV1",
+            f"STATE0-G0 production drain caller {path.relative_to(ROOT)}",
+        )
     for fragment in (
         "shell_metadata_port_is_the_only_narrow_metadata_write_surface",
         "shell_drain_inventory_rejects_duplicate_symbols_before_commit",

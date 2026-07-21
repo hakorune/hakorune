@@ -284,3 +284,28 @@ The next code-facing row is
 `HEADERPORT0-REENTRANT-TERM0-I0-STATE0-G0`: freeze the consumer census and
 prove that the state seam has no current-module fallback or production root
 caller before any complete invocation cutover.  `CUT0` remains forbidden.
+
+## STATE0-G0 closeout
+
+The structural guard now closes the state seam boundary:
+
+```text
+ModuleLoweringInvocationStateV1 consumers = 2
+  ModuleLoweringInvocationV1
+  ModuleLoweringInvocationDrainOwnerV1
+
+state-seam current_module fallback readers = 0
+production invocation/drain callers = 0
+```
+
+The guard scans all builder production files, excludes only the two
+disconnected owners and their inline/test fixtures, and rejects any new
+invocation or drain caller.  It also rejects `current_module` inside the state
+seam itself.  This is a boundary proof, not a claim that the legacy
+`current_module` readers elsewhere have already been migrated; the 14-row
+reader census remains the migration inventory.
+
+The next code-facing row is
+`HEADERPORT0-REENTRANT-TERM0-I0-STATE0-CONSULT0`: decide the complete
+invocation candidate/state handoff before production capture/commit.  The
+existing all-route I0 and `CUT0` remain forbidden.
