@@ -18,6 +18,7 @@ CANDIDATE_P0 = ROOT / "src/mir/builder/module_lowering_invocation_candidate_p0.r
 MAIN_EXPANSION = ROOT / "src/mir/builder/main_expansion.rs"
 ROOT_BODY = ROOT / "src/mir/builder/root_body_completion.rs"
 ROOT_BODY_P0 = ROOT / "src/mir/builder/root_body_completion_p0.rs"
+MAIN_PENDING = ROOT / "src/mir/builder/main_pending_draft.rs"
 BUILDER_MOD = ROOT / "src/mir/builder.rs"
 CARD = ROOT / (
     "docs/development/current/main/investigations/"
@@ -42,6 +43,7 @@ def main() -> int:
     main_expansion = MAIN_EXPANSION.read_text()
     root_body = ROOT_BODY.read_text()
     root_body_p0 = ROOT_BODY_P0.read_text()
+    main_pending = MAIN_PENDING.read_text()
     builder_mod = BUILDER_MOD.read_text()
     card = CARD.read_text()
     state = STATE.read_text()
@@ -56,6 +58,8 @@ def main() -> int:
         raise AssertionError("BODYDRAIN0-S0 source must remain below 800 lines")
     if len(root_body_p0.splitlines()) >= 800:
         raise AssertionError("BODYDRAIN0-P0 fixture source must remain below 800 lines")
+    if len(main_pending.splitlines()) >= 800:
+        raise AssertionError("MAINPENDING0-S0 source must remain below 800 lines")
 
     for fragment in (
         "VerifiedMainExpansionV1",
@@ -90,8 +94,30 @@ def main() -> int:
     ):
         require(root_body_p0, fragment, "BODYDRAIN0-P0 closure/failure fixtures")
 
+    for fragment in (
+        "PendingMainDraftV1",
+        "MainCompletionRequestV1",
+        "MainHeaderLoanV1",
+        "MainHeaderSourceV1",
+        "finish_consumes_short_header_loan_without_storing_it",
+        "foreign_symbol_or_arity_is_rejected_before_pending_product",
+    ):
+        require(main_pending, fragment, "MAINPENDING0-S0 source product/fixtures")
+    pending_struct = main_pending.split(
+        "pub(in crate::mir::builder) struct PendingMainDraftV1", 1
+    )[1].split("#[derive(Debug)]\nstruct PendingMainDraftSealV1", 1)[0]
+    forbid(pending_struct, "MainHeaderLoanV1", "pending draft stores header loan")
+    forbid(pending_struct, "MirBuilder", "pending draft stores Builder")
+    forbid(pending_struct, "ModuleDraftCollector", "pending draft stores collector")
+
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
-        if path in (MAIN_EXPANSION, ROOT_BODY, ROOT_BODY_P0, BUILDER_MOD) or path.name.endswith("_tests.rs"):
+        if path in (
+            MAIN_EXPANSION,
+            ROOT_BODY,
+            ROOT_BODY_P0,
+            MAIN_PENDING,
+            BUILDER_MOD,
+        ) or path.name.endswith("_tests.rs"):
             continue
         text = path.read_text()
         if "VerifiedMainExpansionV1" in text:
@@ -101,6 +127,10 @@ def main() -> int:
         if "CompletedRootBodyV1" in text or "RootBodyCompletionTrackerV1" in text:
             raise AssertionError(
                 f"BODYDRAIN0-S0 production consumer exists: {path.relative_to(ROOT)}"
+            )
+        if "PendingMainDraftV1" in text or "MainCompletionRequestV1" in text:
+            raise AssertionError(
+                f"MAINPENDING0-S0 production consumer exists: {path.relative_to(ROOT)}"
             )
 
     for fragment in (
@@ -142,6 +172,7 @@ def main() -> int:
     require(builder_mod, "mod module_lowering_invocation_candidate;", "Candidate0 module registration")
     require(builder_mod, "mod root_body_completion;", "BODYDRAIN0-S0 module registration")
     require(builder_mod, "mod root_body_completion_p0;", "BODYDRAIN0-P0 fixture registration")
+    require(builder_mod, "mod main_pending_draft;", "MAINPENDING0-S0 module registration")
     other_builder_files = []
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
         if path in (CANDIDATE, CANDIDATE_P0, BUILDER_MOD):
@@ -171,7 +202,8 @@ def main() -> int:
         "M-root-prime decision lock and task order",
         "HEADERPORT0-I0-MAINROLE0-S0/P0 (closed)",
         "HEADERPORT0-I0-BODYDRAIN0-S0/P0 (closed)",
-        "HEADERPORT0-I0-MAINPENDING0-S0/P0\n  next code-facing row",
+        "HEADERPORT0-I0-MAINPENDING0-S0 (closed)",
+        "HEADERPORT0-I0-MAINPENDING0-P0\n  next code-facing row",
         "one disconnected invocation-owned shell/collector candidate",
         "typed abort/no-publication/no-retry proof",
         "production capture/commit remains forbidden",
@@ -180,7 +212,7 @@ def main() -> int:
         require(card, fragment, "Candidate0 task boundary")
     require(
         state,
-        "HEADERPORT0-I0-MAINPENDING0-S0 is next",
+        "HEADERPORT0-I0-MAINPENDING0-P0 is next",
         "current Candidate0/MainROLE0 pointer",
     )
 

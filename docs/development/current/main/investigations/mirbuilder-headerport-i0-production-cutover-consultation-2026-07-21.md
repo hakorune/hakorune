@@ -713,9 +713,12 @@ HEADERPORT0-I0-BODYDRAIN0-S0 (closed)
 HEADERPORT0-I0-BODYDRAIN0-S0/P0 (closed)
   CompletedRootBodyV1 witness and nested child/pending-loan failure parity
 
-HEADERPORT0-I0-MAINPENDING0-S0/P0
+HEADERPORT0-I0-MAINPENDING0-S0 (closed)
+  root completion with explicit short-lived collector/header loan
+
+HEADERPORT0-I0-MAINPENDING0-P0
   next code-facing row
-  root completion with explicit collector headers
+  root completion parity and header-source failure matrix
 
 HEADERPORT0-I0-ROOTBATCH0-S0/P0
   Main + condition_fn prepared admissions and infallible collection
@@ -798,5 +801,20 @@ has a distinct typed failure, and a failed completion consumes the tracker
 without producing a witness. These are disconnected fixture observations;
 they do not open a capture, collector, Builder, or module-finalization route.
 
-The next row is `HEADERPORT0-I0-MAINPENDING0-S0`; root completion, Main batch
+The next row is `HEADERPORT0-I0-MAINPENDING0-P0`; root completion, Main batch
 collection, drain, FACTSESSION0, and CUT0 remain forbidden.
+
+## MAINPENDING0-S0 closeout
+
+`HEADERPORT0-I0-MAINPENDING0-S0` is closed with production consumers still
+zero. `MainCompletionRequestV1` consumes a short-lived
+`MainHeaderLoanV1` and returns a non-Clone `PendingMainDraftV1` that owns the
+unpublished `MirFunction`, the completed-root witness, root identity, return
+disposition, and only the header-source tag. The pending draft stores no
+header borrow, Builder, collector, function map, fallback, or publication
+authority. Symbol/arity pairing is checked before the pending product is
+issued, and the disconnected fixtures prove header-loan expiry plus foreign
+draft rejection.
+
+The next row is `HEADERPORT0-I0-MAINPENDING0-P0`; root completion parity,
+Main/condition_fn batching, drain, FACTSESSION0, and CUT0 remain forbidden.

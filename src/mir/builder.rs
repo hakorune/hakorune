@@ -49,6 +49,8 @@ mod located_legacy_lowering;
 #[allow(dead_code)]
 mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion
 #[allow(dead_code)]
+mod main_pending_draft;
+#[allow(dead_code)]
 mod me_call_header_observation; // ACCESS0-MEHEADER-S0 typed source snapshot
 mod metadata_context; // Phase 136 follow-up (Step 6/7): MetadataContext extraction
 mod method_call_handlers;
@@ -79,7 +81,7 @@ mod raw_loop_child_entry; // LOOPBRIDGE0-S0 pure raw Loop child-entry quarantine
 #[allow(dead_code)]
 mod root_body_completion; // HEADERPORT0-I0-BODYDRAIN0-S0 disconnected witness
 #[cfg(test)]
-mod root_body_completion_p0; // HEADERPORT0-I0-BODYDRAIN0-P0 fixtures
+mod root_body_completion_p0; // HEADERPORT0-I0-BODYDRAIN0-P0 fixtures // HEADERPORT0-I0-MAINPENDING0-S0 disconnected handoff
 #[allow(unused_imports)]
 pub(in crate::mir) use located_legacy_lowering::{
     LocatedLegacyLoweringErrorV1, LocatedLegacyLoweringSessionV1,
