@@ -106,6 +106,8 @@ mod module_wiring_parity_p0; // HEADERPORT0 WIRING-P0 disconnected parity
 #[allow(dead_code)]
 mod raw_expansion_receipt_ledger; // ROUTEINV-P0b-RAWLEDGER-S0 disconnected owner
 #[cfg(test)]
+mod raw_expansion_receipt_ledger_p0; // ROUTEINV-P0b-RAWLEDGER-P0 proof matrix
+#[cfg(test)]
 mod raw_expansion_receipt_ledger_tests; // ROUTEINV-P0b-RAWLEDGER-S0 fixtures
 mod raw_expression_dispatch; // single raw AST expression dispatcher
 #[allow(dead_code)]

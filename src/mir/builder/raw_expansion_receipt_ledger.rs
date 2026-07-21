@@ -1,4 +1,4 @@
-//! WIRING-I0-ROUTEINV-P0b-RAWLEDGER-S0 raw completion ledger.
+//! WIRING-I0-ROUTEINV-P0b-RAWLEDGER-S0/P0 raw completion ledger.
 //!
 //! Recursive raw lowering discovers function work incrementally. This
 //! disconnected owner reserves each discovered unit and consumes exactly one
@@ -17,6 +17,23 @@ use super::module_draft_collector::{
 pub(in crate::mir::builder) enum RawConditionDispositionV1 {
     RequiredCompatibility,
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::builder) enum RawCallableMainCompatibilityDispositionV1 {
+    NotSelected,
+    Selected,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::builder) enum RawExpansionCutoverStopV1 {
+    DuplicateMainSourcePolicySelectionRequired,
+    CallableMainFailurePropagationPolicySelectionRequired,
+}
+
+const RAW_EXPANSION_CUTOVER_STOPS: [RawExpansionCutoverStopV1; 2] = [
+    RawExpansionCutoverStopV1::DuplicateMainSourcePolicySelectionRequired,
+    RawExpansionCutoverStopV1::CallableMainFailurePropagationPolicySelectionRequired,
+];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::builder) enum RawExpansionDraftRoleV1 {
@@ -140,6 +157,18 @@ impl RawExpansionCompletedEventV1 {
     pub(in crate::mir::builder) fn symbol(&self) -> &str {
         &self.symbol
     }
+
+    pub(in crate::mir::builder) const fn replacement(&self) -> &RawExpansionReplacementEventV1 {
+        &self.replacement
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::builder) enum RawExpansionAbortReasonV1 {
+    Primary,
+    Cleanup,
+    Admission,
+    Panic,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -160,6 +189,8 @@ pub(in crate::mir::builder) enum RawExpansionReceiptLedgerErrorV1 {
     OpenReservations { count: usize },
     MissingRootMain,
     MissingConditionFn,
+    MissingCallableMainCompatibility,
+    UnexpectedCallableMainCompatibility,
 }
 
 impl std::fmt::Display for RawExpansionReceiptLedgerErrorV1 {
@@ -182,6 +213,7 @@ pub(in crate::mir::builder) struct RawExpansionReceiptLedgerV1 {
     final_event_by_key: BTreeMap<FunctionDraftKeyV1, usize>,
     key_by_symbol: BTreeMap<Box<str>, FunctionDraftKeyV1>,
     condition: RawConditionDispositionV1,
+    callable_main: RawCallableMainCompatibilityDispositionV1,
     poisoned: bool,
     _seal: RawExpansionReceiptLedgerSealV1,
 }
@@ -195,16 +227,33 @@ pub(in crate::mir::builder) struct SealedRawExpansionReceiptLedgerV1 {
     final_event_by_key: BTreeMap<FunctionDraftKeyV1, usize>,
     key_by_symbol: BTreeMap<Box<str>, FunctionDraftKeyV1>,
     condition: RawConditionDispositionV1,
+    callable_main: RawCallableMainCompatibilityDispositionV1,
     _seal: SealedRawExpansionReceiptLedgerSealV1,
 }
 
 #[derive(Debug)]
 struct SealedRawExpansionReceiptLedgerSealV1;
 
+#[derive(Debug)]
+pub(in crate::mir::builder) struct AbortedRawExpansionReceiptLedgerV1 {
+    events: Box<[RawExpansionCompletedEventV1]>,
+    final_event_by_key: BTreeMap<FunctionDraftKeyV1, usize>,
+    failed_ordinal: u32,
+    failed_role: RawExpansionDraftRoleV1,
+    reason: RawExpansionAbortReasonV1,
+    outstanding_reservations: usize,
+    _seal: AbortedRawExpansionReceiptLedgerSealV1,
+}
+
+#[derive(Debug)]
+struct AbortedRawExpansionReceiptLedgerSealV1;
+
 static NEXT_RAW_EXPANSION_LEDGER_OWNER: AtomicU64 = AtomicU64::new(1);
 
 impl RawExpansionReceiptLedgerV1 {
-    pub(in crate::mir::builder) fn new() -> Self {
+    pub(in crate::mir::builder) fn new(
+        callable_main: RawCallableMainCompatibilityDispositionV1,
+    ) -> Self {
         Self {
             owner: NEXT_RAW_EXPANSION_LEDGER_OWNER.fetch_add(1, Ordering::Relaxed),
             next_ordinal: 0,
@@ -213,6 +262,7 @@ impl RawExpansionReceiptLedgerV1 {
             final_event_by_key: BTreeMap::new(),
             key_by_symbol: BTreeMap::new(),
             condition: RawConditionDispositionV1::RequiredCompatibility,
+            callable_main,
             poisoned: false,
             _seal: RawExpansionReceiptLedgerSealV1,
         }
@@ -320,6 +370,31 @@ impl RawExpansionReceiptLedgerV1 {
         Ok(())
     }
 
+    pub(in crate::mir::builder) fn abort(
+        mut self,
+        reservation: RawExpansionReservationV1,
+        reason: RawExpansionAbortReasonV1,
+    ) -> Result<AbortedRawExpansionReceiptLedgerV1, RawExpansionReceiptLedgerErrorV1> {
+        if self.poisoned {
+            return Err(RawExpansionReceiptLedgerErrorV1::LedgerPoisoned);
+        }
+        if reservation.owner != self.owner {
+            return Err(RawExpansionReceiptLedgerErrorV1::ForeignReservation);
+        }
+        if !self.open.remove(&reservation.ordinal) {
+            return Err(RawExpansionReceiptLedgerErrorV1::UnknownReservation);
+        }
+        Ok(AbortedRawExpansionReceiptLedgerV1 {
+            events: self.events.into_boxed_slice(),
+            final_event_by_key: self.final_event_by_key,
+            failed_ordinal: reservation.ordinal,
+            failed_role: reservation.request.role,
+            reason,
+            outstanding_reservations: self.open.len(),
+            _seal: AbortedRawExpansionReceiptLedgerSealV1,
+        })
+    }
+
     pub(in crate::mir::builder) fn seal(
         self,
     ) -> Result<SealedRawExpansionReceiptLedgerV1, RawExpansionReceiptLedgerErrorV1> {
@@ -343,13 +418,31 @@ impl RawExpansionReceiptLedgerV1 {
         {
             return Err(RawExpansionReceiptLedgerErrorV1::MissingConditionFn);
         }
+        let callable_main_present =
+            self.contains_final_role(RawExpansionDraftRoleV1::CallableMainCompatibility);
+        match (self.callable_main, callable_main_present) {
+            (RawCallableMainCompatibilityDispositionV1::Selected, false) => {
+                return Err(RawExpansionReceiptLedgerErrorV1::MissingCallableMainCompatibility);
+            }
+            (RawCallableMainCompatibilityDispositionV1::NotSelected, true) => {
+                return Err(RawExpansionReceiptLedgerErrorV1::UnexpectedCallableMainCompatibility);
+            }
+            _ => {}
+        }
         Ok(SealedRawExpansionReceiptLedgerV1 {
             events: self.events.into_boxed_slice(),
             final_event_by_key: self.final_event_by_key,
             key_by_symbol: self.key_by_symbol,
             condition: self.condition,
+            callable_main: self.callable_main,
             _seal: SealedRawExpansionReceiptLedgerSealV1,
         })
+    }
+
+    fn contains_final_role(&self, role: RawExpansionDraftRoleV1) -> bool {
+        self.final_event_by_key
+            .values()
+            .any(|index| self.events[*index].role == role)
     }
 
     fn poison(
@@ -374,7 +467,52 @@ impl SealedRawExpansionReceiptLedgerV1 {
         self.key_by_symbol.contains_key(symbol)
     }
 
+    pub(in crate::mir::builder) fn final_event_for_symbol(
+        &self,
+        symbol: &str,
+    ) -> Option<&RawExpansionCompletedEventV1> {
+        let key = self.key_by_symbol.get(symbol)?;
+        let event_index = self.final_event_by_key.get(key)?;
+        self.events.get(*event_index)
+    }
+
     pub(in crate::mir::builder) const fn condition(&self) -> RawConditionDispositionV1 {
         self.condition
+    }
+
+    pub(in crate::mir::builder) const fn callable_main(
+        &self,
+    ) -> RawCallableMainCompatibilityDispositionV1 {
+        self.callable_main
+    }
+
+    pub(in crate::mir::builder) const fn cutover_stops(&self) -> &[RawExpansionCutoverStopV1; 2] {
+        &RAW_EXPANSION_CUTOVER_STOPS
+    }
+}
+
+impl AbortedRawExpansionReceiptLedgerV1 {
+    pub(in crate::mir::builder) fn events(&self) -> &[RawExpansionCompletedEventV1] {
+        &self.events
+    }
+
+    pub(in crate::mir::builder) fn final_count(&self) -> usize {
+        self.final_event_by_key.len()
+    }
+
+    pub(in crate::mir::builder) const fn failed_ordinal(&self) -> u32 {
+        self.failed_ordinal
+    }
+
+    pub(in crate::mir::builder) const fn failed_role(&self) -> RawExpansionDraftRoleV1 {
+        self.failed_role
+    }
+
+    pub(in crate::mir::builder) const fn reason(&self) -> RawExpansionAbortReasonV1 {
+        self.reason
+    }
+
+    pub(in crate::mir::builder) const fn outstanding_reservations(&self) -> usize {
+        self.outstanding_reservations
     }
 }

@@ -1506,3 +1506,73 @@ The sole next code-facing row is
 `HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0b-RAWLEDGER-P0`.
 Canonical header/catalog proof, production capture/commit, drain, FACTSESSION,
 and CUT0 remain forbidden.
+
+## WIRING-I0-ROUTEINV-P0b-RAWLEDGER-P0 closeout
+
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0b-RAWLEDGER-P0`
+is closed. The raw ledger now proves every selected raw expansion role through
+one branded reservation and one successful collector receipt:
+
+```text
+root main
+compatibility condition_fn
+top-level function
+static / instance / constructor
+optional callable Main.main/N
+nested static / instance / constructor
+```
+
+Reservations preserve discovery order, while successful events preserve
+physical completion order. The P0 matrix reserves outer work before nested
+work and completes the nested receipt first. Legacy duplicate symbols keep
+both successful events but update the final key/symbol inventory as one whole
+pair, so historical completion evidence and final unique inventory are not a
+single truth.
+
+Optional callable Main compatibility is no longer inferred from absence:
+
+```text
+NotSelected + no callable receipt:
+  seal allowed
+
+Selected + callable receipt:
+  seal allowed
+
+Selected + no callable receipt:
+  MissingCallableMainCompatibility
+
+NotSelected + callable receipt:
+  UnexpectedCallableMainCompatibility
+```
+
+Failure consumes the complete open ledger and exact failed reservation into
+`AbortedRawExpansionReceiptLedgerV1`. That product retains only the completed
+prefix, failed ordinal/role/reason, and remaining open-reservation count. It
+has no `seal`, reserve, completion, retry, or fallback API. A nested-child
+failure therefore preserves the pre-child completion prefix, while a root
+failure after successful children can never be mistaken for a completed raw
+invocation.
+
+The two known compatibility disagreements remain explicit typed CUT0 stops:
+
+```text
+DuplicateMainSourcePolicySelectionRequired
+CallableMainFailurePropagationPolicySelectionRequired
+```
+
+The guard ties those stop rows to the current duplicate-Main rejection in
+`VerifiedMainExpansionV1` and the legacy discarded callable-Main lowering
+result. P0 does not choose either behavior. Production ledger consumers remain
+zero, and no AST pre-scan, caller-authored symbol list, collector scan, second
+catalog, module, Builder, draft, ValueId, header, retry, or fallback authority
+was introduced.
+
+Focused proof covers all roles, inner-before-outer completion, selected and
+unselected callable Main, child/root abort typestate, whole-pair replacement,
+required root/condition closure, and the typed compatibility stops. All source,
+proof, and guard files remain below 800 lines.
+
+The sole next code-facing row is
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0c-SINGLEHDR-S0`.
+Canonical batch proof, production inventory consumers, capture/commit, drain,
+FACTSESSION, and CUT0 remain forbidden.

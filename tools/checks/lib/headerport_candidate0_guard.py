@@ -36,6 +36,7 @@ COLLECTOR_RECEIPT = ROOT / "src/mir/builder/module_draft_collector/receipt.rs"
 COLLECTOR_RECEIPT_TESTS = ROOT / "src/mir/builder/module_draft_collector_receipt_tests.rs"
 COLLECTOR_RECEIPT_P0 = ROOT / "src/mir/builder/module_draft_collector_receipt_p0.rs"
 RAW_LEDGER = ROOT / "src/mir/builder/raw_expansion_receipt_ledger.rs"
+RAW_LEDGER_P0 = ROOT / "src/mir/builder/raw_expansion_receipt_ledger_p0.rs"
 RAW_LEDGER_TESTS = ROOT / "src/mir/builder/raw_expansion_receipt_ledger_tests.rs"
 SHELL_FACTS = ROOT / "src/mir/builder/module_declaration_facts.rs"
 SHELL_FACTS_P0 = ROOT / "src/mir/builder/module_declaration_facts_p0.rs"
@@ -349,6 +350,7 @@ def main() -> int:
             COLLECTOR_RECEIPT,
             COLLECTOR_RECEIPT_TESTS,
             RAW_LEDGER,
+            RAW_LEDGER_P0,
             RAW_LEDGER_TESTS,
             BUILDER_MOD,
         ):

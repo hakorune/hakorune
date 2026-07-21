@@ -5,8 +5,9 @@ use super::module_draft_collector::{
     ModuleDraftCollectorV1,
 };
 use super::raw_expansion_receipt_ledger::{
-    RawConditionDispositionV1, RawExpansionDraftRequestV1, RawExpansionDraftRoleV1,
-    RawExpansionReceiptLedgerErrorV1, RawExpansionReceiptLedgerV1,
+    RawCallableMainCompatibilityDispositionV1, RawConditionDispositionV1,
+    RawExpansionDraftRequestV1, RawExpansionDraftRoleV1, RawExpansionReceiptLedgerErrorV1,
+    RawExpansionReceiptLedgerV1,
 };
 use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirType};
 
@@ -40,7 +41,8 @@ fn receipt(
 #[test]
 fn exact_reservations_consume_receipts_and_seal_required_raw_inventory() {
     let mut collector = ModuleDraftCollectorV1::default();
-    let mut ledger = RawExpansionReceiptLedgerV1::new();
+    let mut ledger =
+        RawExpansionReceiptLedgerV1::new(RawCallableMainCompatibilityDispositionV1::NotSelected);
     let root = ledger
         .reserve(RawExpansionDraftRequestV1::root_main())
         .unwrap();
@@ -122,8 +124,10 @@ fn exact_reservations_consume_receipts_and_seal_required_raw_inventory() {
 #[test]
 fn foreign_reservation_and_identity_mismatch_fail_without_retry() {
     let mut collector = ModuleDraftCollectorV1::default();
-    let mut first = RawExpansionReceiptLedgerV1::new();
-    let mut second = RawExpansionReceiptLedgerV1::new();
+    let mut first =
+        RawExpansionReceiptLedgerV1::new(RawCallableMainCompatibilityDispositionV1::NotSelected);
+    let mut second =
+        RawExpansionReceiptLedgerV1::new(RawCallableMainCompatibilityDispositionV1::NotSelected);
     let foreign = first
         .reserve(RawExpansionDraftRequestV1::root_main())
         .unwrap();
@@ -188,7 +192,8 @@ fn foreign_reservation_and_identity_mismatch_fail_without_retry() {
 
 #[test]
 fn open_or_incomplete_required_inventory_cannot_seal() {
-    let mut open = RawExpansionReceiptLedgerV1::new();
+    let mut open =
+        RawExpansionReceiptLedgerV1::new(RawCallableMainCompatibilityDispositionV1::NotSelected);
     let _reservation = open
         .reserve(RawExpansionDraftRequestV1::root_main())
         .unwrap();
@@ -197,7 +202,8 @@ fn open_or_incomplete_required_inventory_cannot_seal() {
         RawExpansionReceiptLedgerErrorV1::OpenReservations { count: 1 }
     );
 
-    let missing = RawExpansionReceiptLedgerV1::new();
+    let missing =
+        RawExpansionReceiptLedgerV1::new(RawCallableMainCompatibilityDispositionV1::NotSelected);
     assert_eq!(
         missing.seal().unwrap_err(),
         RawExpansionReceiptLedgerErrorV1::MissingRootMain
