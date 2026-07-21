@@ -51,6 +51,14 @@ def forbid(text: str, fragment: str, subject: str) -> None:
         raise AssertionError(f"forbidden {subject}: {fragment!r}")
 
 
+def require_count(text: str, fragment: str, expected: int, subject: str) -> None:
+    actual = text.count(fragment)
+    if actual != expected:
+        raise AssertionError(
+            f"wrong {subject} count: fragment={fragment!r} expected={expected} actual={actual}"
+        )
+
+
 def main() -> int:
     invocation = read(INVOCATION)
     builder = read(BUILDER)
@@ -197,6 +205,26 @@ def main() -> int:
         "LegacyChildDraftAdmissionV1::legacy_symbol",
         "LEGACYTERM0 I0 legacy identity",
     )
+    require_count(
+        invocation,
+        "pub(in crate::mir::builder) fn complete_legacy_child(",
+        1,
+        "LEGACYTERM0 collector terminal owner",
+    )
+    require_count(
+        raw_dispatch,
+        "port.lower_static_box_method(",
+        1,
+        "LEGACYTERM0 static raw dispatch",
+    )
+    require_count(
+        raw_dispatch,
+        "port.lower_instance_box_method(",
+        1,
+        "LEGACYTERM0 instance raw dispatch",
+    )
+    for path in (ROOT / "src/mir/builder/control_flow").rglob("*.rs"):
+        forbid(read(path), "ModuleLoweringPortV1", "LEGACYTERM0 Loop bridge")
 
     for fragment in ("thread_local", "OnceLock", "static ", "derive(Clone)"):
         forbid(invocation, fragment, "HEADERPORT0 external invocation")
@@ -210,7 +238,7 @@ def main() -> int:
     print(
         "[module-draft-headerport-guard] ok "
         f"p0_reader_families={len(P0_DIRECT_HEADER_READER_FRAGMENTS)} "
-        "legacyterm0_p0_production_consumers=0"
+        "legacyterm0_g0_raw_box_consumers=2 loop_bridge_consumers=0"
     )
     return 0
 
