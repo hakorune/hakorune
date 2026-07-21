@@ -19,6 +19,9 @@ pub(crate) enum ResolvedOwnerHeaderFamilyV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ResolvedOwnerHeaderSealErrorV1 {
     SourceRootMustBeFunction,
+    SourceNameContainsPhysicalSeparator {
+        name: Box<str>,
+    },
     OwnerMismatch {
         input: FunctionOwnerIdV1,
         source: FunctionOwnerIdV1,
@@ -66,6 +69,13 @@ impl VerifiedResolvedOwnerHeaderV1 {
         }
         let header = CallableHeaderSyntaxViewV1::from_function_ast(input.source().root())
             .ok_or(ResolvedOwnerHeaderSealErrorV1::SourceRootMustBeFunction)?;
+        if header.name().contains('/') {
+            return Err(
+                ResolvedOwnerHeaderSealErrorV1::SourceNameContainsPhysicalSeparator {
+                    name: header.name().into(),
+                },
+            );
+        }
         let arity = header.params().len();
         Ok(Self {
             brand,

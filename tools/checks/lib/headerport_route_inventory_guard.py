@@ -16,18 +16,25 @@ def forbid(text: str, fragment: str, label: str) -> None:
         raise AssertionError(f"forbidden {label}: {fragment!r}")
 
 
-def verify_single_header_s0(root: pathlib.Path, card: str, state: str) -> None:
+def verify_single_header_s0(
+    root: pathlib.Path,
+    builder_mod: str,
+    card: str,
+    state: str,
+) -> None:
     source_path = root / "src/mir/compiler/capability/resolved_owner_header.rs"
     capability_path = root / "src/mir/compiler/capability.rs"
     tests_path = root / "src/mir/compiler/capability_tests.rs"
+    p0_path = root / "src/mir/builder/resolved_owner_header_p0.rs"
     symbol_path = root / "src/mir/resolved_semantics/callable_symbol.rs"
     source = source_path.read_text()
     capability = capability_path.read_text()
     tests = tests_path.read_text()
+    p0 = p0_path.read_text()
     symbol = symbol_path.read_text()
     if any(
         len(text.splitlines()) >= 800
-        for text in (source, capability, tests, symbol)
+        for text in (source, capability, tests, p0, symbol)
     ):
         raise AssertionError("ROUTEINV-P0c single-header source/proofs must remain below 800 lines")
 
@@ -40,6 +47,7 @@ def verify_single_header_s0(root: pathlib.Path, card: str, state: str) -> None:
         "CanonicalCallableSymbolV1",
         "OwnerMismatch",
         "ForeignPlan",
+        "SourceNameContainsPhysicalSeparator",
     ):
         require(source + capability, fragment, "ROUTEINV-P0c single-header vocabulary")
     require(
@@ -83,9 +91,38 @@ def verify_single_header_s0(root: pathlib.Path, card: str, state: str) -> None:
         "ResolvedOwnerHeaderSealErrorV1::ForeignPlan",
     ):
         require(tests, fragment, "ROUTEINV-P0c single-header fixture")
+    for fragment in (
+        "single_header_exact_families_nonzero_arity_and_source_reorder_are_stable",
+        "single_header_rejects_separator_and_foreign_owner_family_pairing",
+        "single_header_projects_canonical_duplicate_symbol_and_arity_failures",
+        "binding_header/1",
+        "a_plus_header/1",
+        "bad/name",
+        "SourceNameContainsPhysicalSeparator",
+        "FunctionDraftKeyV1::CanonicalResolvedOwner",
+        "DraftPublicationPolicyV1::CanonicalRejectDuplicate",
+        "ModuleDraftAdmissionErrorV1::DuplicateKey",
+        "ModuleDraftAdmissionErrorV1::DuplicateSymbol",
+        "ModuleDraftAdmissionErrorV1::SymbolMismatch",
+        "ModuleDraftAdmissionErrorV1::ArityMismatch",
+    ):
+        require(p0, fragment, "ROUTEINV-P0c single-header P0 matrix")
+    for fragment in (
+        "FunctionDraftKeyV1::Main",
+        "FunctionDraftKeyV1::SyntheticConditionFn",
+        "condition_fn",
+        "RawExpansion",
+        "RawCondition",
+    ):
+        forbid(source + capability + p0, fragment, "raw policy leaks into single-header proof")
+    require(
+        builder_mod,
+        "mod resolved_owner_header_p0;",
+        "single-header P0 registration",
+    )
 
     consumers = []
-    excluded = {source_path, capability_path, tests_path}
+    excluded = {source_path, capability_path, tests_path, p0_path}
     for path in (root / "src/mir").rglob("*.rs"):
         if path in excluded:
             continue
@@ -95,7 +132,7 @@ def verify_single_header_s0(root: pathlib.Path, card: str, state: str) -> None:
         raise AssertionError("ROUTEINV-P0c production consumers: " + ", ".join(consumers))
     call_count = 0
     for path in (root / "src/mir").rglob("*.rs"):
-        if path == tests_path:
+        if path in (tests_path, p0_path):
             continue
         call_count += path.read_text().count("seal_resolved_owner_header_v1(")
     if call_count != 1:
@@ -104,10 +141,11 @@ def verify_single_header_s0(root: pathlib.Path, card: str, state: str) -> None:
             f"occurrences={call_count}"
         )
 
-    require(card, "WIRING-I0-ROUTEINV-P0c-SINGLEHDR-S0 closeout", "single-header closeout")
+    require(card, "WIRING-I0-ROUTEINV-P0c-SINGLEHDR-S0 closeout", "single-header S0 closeout")
+    require(card, "WIRING-I0-ROUTEINV-P0c-SINGLEHDR-P0 closeout", "single-header P0 closeout")
     require(
         state,
-        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0c-SINGLEHDR-P0",
+        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0d-CALLABLE-P0",
         "single-header next pointer",
     )
 
@@ -230,7 +268,7 @@ def verify_route_inventory_extension(
     require(card, "WIRING-I0-ROUTEINV-P0b-RAWLEDGER-P0 closeout", "raw ledger closeout")
     require(
         state,
-        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0c-SINGLEHDR-",
+        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0",
         "raw ledger next pointer",
     )
-    verify_single_header_s0(root, card, state)
+    verify_single_header_s0(root, builder_mod, card, state)

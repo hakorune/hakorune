@@ -112,6 +112,8 @@ mod raw_expansion_receipt_ledger_tests; // ROUTEINV-P0b-RAWLEDGER-S0 fixtures
 mod raw_expression_dispatch; // single raw AST expression dispatcher
 #[allow(dead_code)]
 mod raw_loop_child_entry; // LOOPBRIDGE0-S0 pure raw Loop child-entry quarantine
+#[cfg(test)]
+mod resolved_owner_header_p0; // ROUTEINV-P0c-SINGLEHDR-P0 matrix
 #[allow(dead_code)]
 mod root_body_completion; // HEADERPORT0-I0-BODYDRAIN0-S0 disconnected witness
 #[cfg(test)]

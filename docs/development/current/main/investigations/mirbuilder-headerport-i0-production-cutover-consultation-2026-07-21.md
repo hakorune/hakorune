@@ -1624,3 +1624,69 @@ uses `/` as its separator, P0 must also reject or otherwise prove injective any
 source name containing `/`; this S0 does not silently import CAT0's spelling
 admission law. Production capture/commit, drain, FACTSESSION, and CUT0 remain
 forbidden.
+
+## WIRING-I0-ROUTEINV-P0c-SINGLEHDR-P0 closeout
+
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0c-SINGLEHDR-P0`
+is closed. One test-only projection consumes the S0 header seal and the existing
+canonical collector policy without creating a production consumer.
+
+The family matrix proves:
+
+```text
+Binding-SSA-trivial:
+  exact i64 parameter
+  arity = 1
+  symbol = binding_header/1
+
+Current A+:
+  untyped parameter
+  arity = 1
+  symbol = a_plus_header/1
+
+zero arity:
+  remains accepted by both S0 family fixtures
+```
+
+Reordering function-local declarations changes the resolved owner brand but
+preserves family, physical symbol, and arity. A header paired with a different
+owner/family plan fails with `ForeignPlan`. A source declaration name containing
+`/` now fails inside the disconnected header seal with
+`SourceNameContainsPhysicalSeparator`; the physical `name/arity` projection is
+therefore injective for the admitted first-family source surface without
+borrowing CAT0's exact-i64 profile.
+
+The existing `CanonicalRejectDuplicate` collector law is projected directly:
+
+```text
+duplicate CanonicalResolvedOwner key:
+  DuplicateKey
+
+foreign owner with the same physical symbol:
+  DuplicateSymbol
+
+prepared header with a different physical draft symbol:
+  SymbolMismatch
+
+prepared header with a different physical draft arity:
+  ArityMismatch
+
+all four failures:
+  collector draft/index prefix unchanged
+  publication = 0
+  retry = 0
+```
+
+The P0 product and fixtures contain no raw Main key, synthetic condition key,
+raw expansion/condition disposition, Builder-held header cache, fallback, or
+retry authority. `VerifiedResolvedOwnerHeaderV1` production consumers and plan
+seal production callers remain zero. All source/proof/guard files remain below
+800 lines.
+
+The sole next code-facing row is
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0d-CALLABLE-P0`.
+It must borrow the existing acyclic/recursive callable catalogs and plan maps,
+prove exact key/header/symbol/arity/cardinality correspondence and late-failure
+publication zero, and add no catalog, key map, collector connection, or
+production consumer. Production capture/commit, drain, FACTSESSION, and CUT0
+remain forbidden.
