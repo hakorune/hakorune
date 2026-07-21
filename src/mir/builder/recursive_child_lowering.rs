@@ -141,6 +141,36 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
     }
 }
 
+impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
+    type BodyInput = Vec<ASTNode>;
+    type StatementInput = ASTNode;
+    type ExpressionInput = ASTNode;
+
+    fn lower_body(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: Self::BodyInput,
+    ) -> Result<ValueId, String> {
+        super::stmts::block_stmt::build_block_with_port_v1(builder, self, input)
+    }
+
+    fn lower_statement(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: Self::StatementInput,
+    ) -> Result<ValueId, String> {
+        super::stmts::block_stmt::build_statement_with_port_v1(builder, self, input)
+    }
+
+    fn lower_expression(
+        &mut self,
+        builder: &mut MirBuilder,
+        input: Self::ExpressionInput,
+    ) -> Result<ValueId, String> {
+        lower_raw_expression_with_recursion_guard_v1(builder, self, input)
+    }
+}
+
 impl RecursiveChildLoweringPortV1 for RawLegacyChildLoweringPortV1 {
     type BodyInput = Vec<ASTNode>;
     type StatementInput = ASTNode;

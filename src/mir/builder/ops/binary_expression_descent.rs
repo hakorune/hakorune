@@ -9,7 +9,8 @@ use crate::ast::{ASTNode, BinaryOperator};
 use crate::mir::{MirBuilder, ValueId};
 
 use super::super::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+    RecursiveChildLoweringPortV1,
 };
 
 pub(in crate::mir::builder) struct RawLegacyBinaryInputV1 {
@@ -65,7 +66,10 @@ pub(in crate::mir::builder) trait BinaryExpressionDescentPortV1:
     ) -> Result<Self::ExpressionInput, String>;
 }
 
-impl BinaryExpressionDescentPortV1 for RawLegacyChildLoweringPortV1 {
+impl<Port> BinaryExpressionDescentPortV1 for Port
+where
+    Port: RawAstChildLoweringPortV1,
+{
     type BinaryInput = RawLegacyBinaryInputV1;
 
     fn binary_syntax<'input>(

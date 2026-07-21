@@ -9,7 +9,7 @@ use crate::ast::ASTNode;
 use crate::mir::{MirBuilder, ValueId};
 
 use super::super::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawLegacyChildLoweringPortV1,
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
 };
 use super::call_argument_descent::{drive_call_arguments_v1, CallArgumentDescentPortV1};
 
@@ -198,7 +198,10 @@ impl RawLegacyMethodCallInputV1 {
     }
 }
 
-impl MethodCallDescentPortV1 for RawLegacyChildLoweringPortV1 {
+impl<Port> MethodCallDescentPortV1 for Port
+where
+    Port: RawAstChildLoweringPortV1,
+{
     type MethodCallInput = RawLegacyMethodCallInputV1;
 
     fn method_call_syntax<'input>(

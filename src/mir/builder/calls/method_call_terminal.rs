@@ -8,7 +8,7 @@
 use super::extern_calls::EnvMethodSpec;
 use super::method_call_descent::{AssociatedMethodCallArgumentsV1, MethodCallDescentPortV1};
 use super::CallTarget;
-use crate::mir::builder::recursive_child_lowering::RawLegacyChildLoweringPortV1;
+use crate::mir::builder::recursive_child_lowering::RawAstChildLoweringPortV1;
 use crate::mir::{MirBuilder, MirInstruction, MirType, TypeOpKind, ValueId};
 
 pub(in crate::mir::builder) trait MethodCallValueTerminalPortV1:
@@ -61,7 +61,10 @@ pub(in crate::mir::builder) trait MethodCallValueTerminalPortV1:
     ) -> Result<ValueId, String>;
 }
 
-impl MethodCallValueTerminalPortV1 for RawLegacyChildLoweringPortV1 {
+impl<Port> MethodCallValueTerminalPortV1 for Port
+where
+    Port: RawAstChildLoweringPortV1,
+{
     fn emit_typeop_value_terminal(
         &mut self,
         builder: &mut MirBuilder,

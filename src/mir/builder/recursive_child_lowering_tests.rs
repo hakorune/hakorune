@@ -190,6 +190,35 @@ fn raw_invocation_port_reborrows_one_collector_backed_header_view() {
 }
 
 #[test]
+fn raw_invocation_port_dispatches_nested_binary_without_collector_mutation() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("raw_invocation_nested_binary/0".to_string());
+    let mut invocation = ModuleLoweringInvocationV1::with_collector(
+        &mut builder,
+        collector_with_header("Prefix.f/1", 1),
+    );
+
+    invocation.with_module_port(|builder, module_port| {
+        let mut port = RawInvocationChildPortV1::new(module_port);
+        let output = drive_legacy_expression_v1(
+            builder,
+            &mut port,
+            add(integer(1), add(integer(2), integer(3))),
+        )
+        .unwrap();
+
+        assert!(instructions(builder).iter().any(|instruction| matches!(
+            instruction,
+            MirInstruction::BinOp { dst, .. } if *dst == output
+        )));
+        port.with_headers(|headers| {
+            assert_eq!(headers.symbol_count(), 1);
+            assert!(headers.contains_symbol("Prefix.f/1"));
+        });
+    });
+}
+
+#[test]
 fn selected_raw_expression_port_preserves_nested_mir() {
     let expression = add(integer(1), add(integer(2), integer(3)));
     let mut selected = MirBuilder::new();

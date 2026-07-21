@@ -8,7 +8,8 @@ use crate::ast::{ASTNode, BinaryOperator};
 use crate::mir::{MirBuilder, ValueId};
 
 use super::super::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+    RecursiveChildLoweringPortV1,
 };
 use super::logical_shortcircuit::build_logical_shortcircuit_after_lhs_v1;
 
@@ -67,7 +68,10 @@ pub(in crate::mir::builder) trait ShortCircuitExpressionDescentPortV1:
     ) -> Result<Self::ExpressionInput, String>;
 }
 
-impl ShortCircuitExpressionDescentPortV1 for RawLegacyChildLoweringPortV1 {
+impl<Port> ShortCircuitExpressionDescentPortV1 for Port
+where
+    Port: RawAstChildLoweringPortV1,
+{
     type ShortCircuitInput = RawLegacyShortCircuitInputV1;
 
     fn short_circuit_syntax<'input>(

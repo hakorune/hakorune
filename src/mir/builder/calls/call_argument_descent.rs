@@ -11,7 +11,8 @@ use crate::ast::ASTNode;
 use crate::mir::{MirBuilder, ValueId};
 
 use super::super::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+    RecursiveChildLoweringPortV1,
 };
 
 pub(in crate::mir::builder) trait CallArgumentDescentPortV1:
@@ -163,7 +164,10 @@ fn observe_undefined_argument_value<Port>(
     ));
 }
 
-impl CallArgumentDescentPortV1 for RawLegacyChildLoweringPortV1 {
+impl<Port> CallArgumentDescentPortV1 for Port
+where
+    Port: RawAstChildLoweringPortV1,
+{
     type ArgumentsInput = [ASTNode];
 
     fn argument_count(&self, input: &Self::ArgumentsInput) -> usize {
