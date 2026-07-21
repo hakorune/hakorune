@@ -24,6 +24,13 @@ fn string(value: &str) -> ASTNode {
     }
 }
 
+fn boolean(value: bool) -> ASTNode {
+    ASTNode::Literal {
+        value: LiteralValue::Bool(value),
+        span: Span::unknown(),
+    }
+}
+
 fn add(left: ASTNode, right: ASTNode) -> ASTNode {
     ASTNode::BinaryOp {
         operator: BinaryOperator::Add,
@@ -296,6 +303,65 @@ fn raw_invocation_port_preserves_function_preflight_children() {
                 callee: Some(crate::mir::Callee::Extern(_)),
                 ..
             } if *dst == externcall
+        )));
+        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
+    });
+}
+
+#[test]
+fn raw_invocation_port_preserves_if_children() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("raw_port_if/0".to_string());
+    with_port!(builder, port, {
+        let if_node = ASTNode::If {
+            condition: Box::new(boolean(true)),
+            then_body: vec![add(int(1), int(2))],
+            else_body: Some(vec![add(int(3), int(4))]),
+            span: Span::unknown(),
+        };
+        let output = drive_legacy_expression_v1(builder, &mut port, if_node).unwrap();
+        assert!(instructions(builder).iter().any(|row| matches!(
+            row,
+            MirInstruction::Phi { dst, .. } if *dst == output
+        )));
+        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
+    });
+}
+
+#[test]
+fn raw_invocation_port_preserves_try_body_children() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("raw_port_trycatch/0".to_string());
+    with_port!(builder, port, {
+        let try_node = ASTNode::TryCatch {
+            try_body: vec![add(int(1), int(2))],
+            catch_clauses: Vec::new(),
+            finally_body: None,
+            span: Span::unknown(),
+        };
+        drive_legacy_expression_v1(builder, &mut port, try_node).unwrap();
+        assert!(instructions(builder)
+            .iter()
+            .any(|row| matches!(row, MirInstruction::BinOp { .. })));
+        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
+    });
+}
+
+#[test]
+fn raw_invocation_port_preserves_match_children() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("raw_port_match/0".to_string());
+    with_port!(builder, port, {
+        let match_node = ASTNode::MatchExpr {
+            scrutinee: Box::new(add(int(1), int(2))),
+            arms: vec![(LiteralValue::Integer(3), add(int(4), int(5)))],
+            else_expr: Box::new(add(int(6), int(7))),
+            span: Span::unknown(),
+        };
+        let output = drive_legacy_expression_v1(builder, &mut port, match_node).unwrap();
+        assert!(instructions(builder).iter().any(|row| matches!(
+            row,
+            MirInstruction::Phi { dst, .. } if *dst == output
         )));
         port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
     });

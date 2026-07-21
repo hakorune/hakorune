@@ -1,5 +1,8 @@
 use super::{BasicBlockId, ValueId};
 use crate::ast::{ASTNode, LiteralValue};
+use crate::mir::builder::recursive_child_lowering::{
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+};
 
 impl super::MirBuilder {
     // Peek expression lowering
@@ -9,8 +12,23 @@ impl super::MirBuilder {
         arms: Vec<(LiteralValue, ASTNode)>,
         else_expr: ASTNode,
     ) -> Result<ValueId, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_peek_expression_with_port_v1(&mut port, scrutinee, arms, else_expr)
+    }
+
+    /// Lower a match/peek expression without dropping the raw child port.
+    pub(in crate::mir::builder) fn build_peek_expression_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        scrutinee: ASTNode,
+        arms: Vec<(LiteralValue, ASTNode)>,
+        else_expr: ASTNode,
+    ) -> Result<ValueId, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         // Evaluate scrutinee in the current block
-        let scr_val = self.build_expression_impl(scrutinee)?;
+        let scr_val = drive_legacy_expression_v1(self, port, scrutinee)?;
 
         // Prepare merge and result
         let merge_block: BasicBlockId = self.next_block_id();
@@ -42,7 +60,7 @@ impl super::MirBuilder {
             let else_block = self.next_block_id();
             crate::mir::builder::emission::branch::emit_jump(self, else_block)?;
             self.start_new_block(else_block)?;
-            let else_val = self.build_expression_impl(else_expr)?;
+            let else_val = drive_legacy_expression_v1(self, port, else_expr)?;
             phi_inputs.push((else_block, else_val));
             crate::mir::builder::emission::branch::emit_jump(self, merge_block)?;
             self.start_new_block(merge_block)?;
@@ -105,7 +123,7 @@ impl super::MirBuilder {
 
             // then arm
             self.start_new_block(then_block)?;
-            let then_val = self.build_expression_impl(arm_expr)?;
+            let then_val = drive_legacy_expression_v1(self, port, arm_expr)?;
             phi_inputs.push((then_block, then_val));
             crate::mir::builder::emission::branch::emit_jump(self, merge_block)?;
 
@@ -115,7 +133,7 @@ impl super::MirBuilder {
 
         // Lower else expression in else_block
         self.start_new_block(else_block)?;
-        let else_val = self.build_expression_impl(else_expr)?;
+        let else_val = drive_legacy_expression_v1(self, port, else_expr)?;
         phi_inputs.push((else_block, else_val));
         crate::mir::builder::emission::branch::emit_jump(self, merge_block)?;
 

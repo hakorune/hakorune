@@ -119,6 +119,47 @@ impl super::MirBuilder {
         self.lower_if_form(condition, then_branch, else_branch)
     }
 
+    /// Lower an If while retaining the caller's raw child-descent port.
+    pub(in crate::mir::builder) fn cf_if_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        condition: ASTNode,
+        then_branch: ASTNode,
+        else_branch: Option<ASTNode>,
+    ) -> Result<ValueId, String>
+    where
+        Port: crate::mir::builder::recursive_child_lowering::RawAstChildLoweringPortV1,
+    {
+        use crate::mir::builder::if_form::IfBranchKindV1;
+        use crate::mir::builder::recursive_child_lowering::drive_legacy_expression_v1;
+
+        let condition_value = drive_legacy_expression_v1(self, port, condition)?;
+        let has_explicit_else = else_branch.is_some();
+        let mut then_branch = Some(then_branch);
+        let mut else_branch = else_branch;
+        self.lower_if_form_with_condition_value_and_branch_lowerer(
+            condition_value,
+            None,
+            has_explicit_else,
+            move |builder, branch| match branch {
+                IfBranchKindV1::Then => drive_legacy_expression_v1(
+                    builder,
+                    port,
+                    then_branch
+                        .take()
+                        .ok_or_else(|| "[if-form/raw-then-demanded-twice]".to_string())?,
+                ),
+                IfBranchKindV1::Else => drive_legacy_expression_v1(
+                    builder,
+                    port,
+                    else_branch
+                        .take()
+                        .ok_or_else(|| "[if-form/raw-else-demanded-without-input]".to_string())?,
+                ),
+            },
+        )
+    }
+
     /// Control-flow: loop
     ///
     /// # Phase 49: JoinIR Frontend Mainline Integration

@@ -86,7 +86,7 @@ impl super::MirBuilder {
                 )?))
             }
             ASTNode::ScopeBox { body, .. } => {
-                if let Some(value) = self.try_build_guard_let_scopebox(body.clone())? {
+                if let Some(value) = self.try_build_guard_let_scopebox_with_port_v1(port, body.clone())? {
                     Ok(StatementSurfaceDispatch::Lowered(value))
                 } else {
                     Ok(StatementSurfaceDispatch::Lowered(drive_legacy_body_v1(
@@ -135,8 +135,11 @@ impl super::MirBuilder {
                     statements: b,
                     span: Span::unknown(),
                 });
-                Ok(StatementSurfaceDispatch::Lowered(self.cf_if(
-                    *condition, then_node, else_node,
+                Ok(StatementSurfaceDispatch::Lowered(self.cf_if_with_port_v1(
+                    port,
+                    *condition,
+                    then_node,
+                    else_node,
                 )?))
             }
             ASTNode::Loop {
@@ -155,11 +158,15 @@ impl super::MirBuilder {
                 catch_clauses,
                 finally_body,
                 ..
-            } => Ok(StatementSurfaceDispatch::Lowered(self.cf_try_catch(
+            } => Ok(StatementSurfaceDispatch::Lowered(
+                super::control_flow::exception::cf_try_catch_with_port_v1(
+                    self,
+                    port,
                 try_body,
                 catch_clauses,
                 finally_body,
-            )?)),
+                )?,
+            )),
             ASTNode::Throw { expression, .. } => Ok(StatementSurfaceDispatch::Lowered(
                 super::control_flow::exception::cf_throw_with_port_v1(self, port, *expression)?,
             )),
@@ -425,7 +432,12 @@ impl super::MirBuilder {
                 arms,
                 else_expr,
                 ..
-            } => self.build_peek_expression(*scrutinee.clone(), arms.clone(), *else_expr.clone()),
+            } => self.build_peek_expression_with_port_v1(
+                port,
+                *scrutinee.clone(),
+                arms.clone(),
+                *else_expr.clone(),
+            ),
 
             ASTNode::EnumMatchExpr {
                 enum_name,
@@ -433,7 +445,8 @@ impl super::MirBuilder {
                 arms,
                 else_expr,
                 ..
-            } => self.build_enum_match_expression(
+            } => self.build_enum_match_expression_with_port_v1(
+                port,
                 enum_name.clone(),
                 *scrutinee.clone(),
                 arms.clone(),

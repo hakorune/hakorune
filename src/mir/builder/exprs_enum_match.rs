@@ -1,7 +1,8 @@
 use crate::ast::{ASTNode, EnumMatchArm, LiteralValue};
 use crate::mir::builder::calls::drive_call_arguments_v1;
 use crate::mir::builder::recursive_child_lowering::{
-    RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+    drive_legacy_expression_v1, drive_legacy_statement_v1, RawAstChildLoweringPortV1,
+    RawLegacyChildLoweringPortV1,
 };
 use crate::mir::{CompareOp, MirInstruction, MirType, ValueId};
 
@@ -10,13 +11,25 @@ impl super::MirBuilder {
         &mut self,
         body: Vec<ASTNode>,
     ) -> Result<Option<ValueId>, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.try_build_guard_let_scopebox_with_port_v1(&mut port, body)
+    }
+
+    pub(in crate::mir::builder) fn try_build_guard_let_scopebox_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        body: Vec<ASTNode>,
+    ) -> Result<Option<ValueId>, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         let Some(temp_name) = guard_let_scopebox_subject(&body) else {
             return Ok(None);
         };
 
         let mut last_value = None;
         for stmt in body {
-            last_value = Some(self.build_statement(stmt)?);
+            last_value = Some(drive_legacy_statement_v1(self, port, stmt)?);
         }
         self.function_state.variable_ctx.remove(&temp_name);
         self.function_state.binding_ctx.remove(&temp_name);
@@ -30,6 +43,23 @@ impl super::MirBuilder {
         arms: Vec<EnumMatchArm>,
         else_expr: Option<Box<ASTNode>>,
     ) -> Result<ValueId, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_enum_match_expression_with_port_v1(
+            &mut port, enum_name, scrutinee, arms, else_expr,
+        )
+    }
+
+    pub(in crate::mir::builder) fn build_enum_match_expression_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        enum_name: String,
+        scrutinee: ASTNode,
+        arms: Vec<EnumMatchArm>,
+        else_expr: Option<Box<ASTNode>>,
+    ) -> Result<ValueId, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         if else_expr.is_some() {
             return Err(format!(
                 "[freeze:contract][mir_builder/enum_match] `{}` else-arm lowering is outside direct-MIR guard-let MVP",
@@ -37,13 +67,13 @@ impl super::MirBuilder {
             ));
         }
 
-        if let Some(projected) =
-            self.try_build_guard_let_payload_projection(&enum_name, &scrutinee, &arms)?
-        {
+        if let Some(projected) = self.try_build_guard_let_payload_projection_with_port_v1(
+            port, &enum_name, &scrutinee, &arms,
+        )? {
             return Ok(projected);
         }
 
-        self.build_guard_let_variant_bool_select(enum_name, scrutinee, arms)
+        self.build_guard_let_variant_bool_select_with_port_v1(port, enum_name, scrutinee, arms)
     }
 
     pub(super) fn try_build_enum_variant_constructor(
@@ -158,12 +188,16 @@ impl super::MirBuilder {
         Ok(Some(dst))
     }
 
-    fn build_guard_let_variant_bool_select(
+    fn build_guard_let_variant_bool_select_with_port_v1<Port>(
         &mut self,
+        port: &mut Port,
         enum_name: String,
         scrutinee: ASTNode,
         arms: Vec<EnumMatchArm>,
-    ) -> Result<ValueId, String> {
+    ) -> Result<ValueId, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         if arms.is_empty() {
             return Err(format!(
                 "[freeze:contract][mir_builder/enum_match] `{}` has no arms",
@@ -189,7 +223,7 @@ impl super::MirBuilder {
             specs.push((resolved.tag, value));
         }
 
-        let scrutinee_value = self.build_expression_impl(scrutinee)?;
+        let scrutinee_value = drive_legacy_expression_v1(self, port, scrutinee)?;
         let tag_value = self.next_value_id();
         self.emit_instruction(MirInstruction::VariantTag {
             dst: tag_value,
@@ -236,12 +270,16 @@ impl super::MirBuilder {
         Ok(result)
     }
 
-    fn try_build_guard_let_payload_projection(
+    fn try_build_guard_let_payload_projection_with_port_v1<Port>(
         &mut self,
+        port: &mut Port,
         enum_name: &str,
         scrutinee: &ASTNode,
         arms: &[EnumMatchArm],
-    ) -> Result<Option<ValueId>, String> {
+    ) -> Result<Option<ValueId>, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         let Some(target_arm) = single_projection_arm(arms) else {
             return Ok(None);
         };
@@ -256,7 +294,7 @@ impl super::MirBuilder {
         let tag = resolved.tag;
         let variant_name = target_arm.variant_name.clone();
         let declared_payload_type_name = resolved.decl.payload_type_name.clone();
-        let scrutinee_value = self.build_expression_impl(scrutinee.clone())?;
+        let scrutinee_value = drive_legacy_expression_v1(self, port, scrutinee.clone())?;
         let payload_type = payload_mir_type(declared_payload_type_name.as_deref()).or_else(|| {
             self.function_state
                 .type_ctx
