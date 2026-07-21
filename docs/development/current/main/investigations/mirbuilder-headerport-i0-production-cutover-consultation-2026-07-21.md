@@ -716,14 +716,11 @@ HEADERPORT0-I0-BODYDRAIN0-S0/P0 (closed)
 HEADERPORT0-I0-MAINPENDING0-S0/P0 (closed)
   root completion with explicit short-lived collector/header loan and parity
 
-HEADERPORT0-I0-ROOTBATCH0-S0 (closed)
-  Main + condition_fn prepared admissions without collector mutation
-
-HEADERPORT0-I0-ROOTBATCH0-P0
-  next code-facing row
-  root batch parity, collision, and failure matrix
+HEADERPORT0-I0-ROOTBATCH0-S0/P0 (closed)
+  Main + condition_fn prepared admissions and policy/failure parity
 
 HEADERPORT0-I0-SHELLFACT0-S0/P0
+  next code-facing row
   one-way module declaration fact publication into shell
 
 HEADERPORT0-I0-DRAIN0-S0/P0
@@ -831,6 +828,18 @@ or publication capability, and no collection or drain route was connected.
 
 The next row is `HEADERPORT0-I0-ROOTBATCH0-P0`; collision/failure parity,
 collector collection, drain, FACTSESSION0, and CUT0 remain forbidden.
+
+## ROOTBATCH0-P0 closeout
+
+`HEADERPORT0-I0-ROOTBATCH0-P0` is closed with production consumers still
+zero. The policy matrix proves required/optional/forbidden condition_fn
+behavior, optional present/missing admission counts, and typed symbol/arity
+failures before a batch product exists. Main remains the sole primary
+admission; no collision mutation, collector borrow, drain, fallback, or retry
+route was introduced.
+
+The next row is `HEADERPORT0-I0-SHELLFACT0-S0`; collection, drain,
+FACTSESSION0, and CUT0 remain forbidden.
 
 ## MAINPENDING0-P0 closeout
 

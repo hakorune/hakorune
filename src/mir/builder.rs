@@ -83,9 +83,11 @@ mod raw_loop_child_entry; // LOOPBRIDGE0-S0 pure raw Loop child-entry quarantine
 #[allow(dead_code)]
 mod root_body_completion; // HEADERPORT0-I0-BODYDRAIN0-S0 disconnected witness
 #[cfg(test)]
-mod root_body_completion_p0;
+mod root_body_completion_p0; // HEADERPORT0-I0-BODYDRAIN0-P0 fixtures
 #[allow(dead_code)]
-mod root_draft_batch; // HEADERPORT0-I0-ROOTBATCH0-S0 disconnected batch // HEADERPORT0-I0-BODYDRAIN0-P0 fixtures // HEADERPORT0-I0-MAINPENDING0-S0 disconnected handoff
+mod root_draft_batch; // HEADERPORT0-I0-ROOTBATCH0-S0 disconnected batch
+#[cfg(test)]
+mod root_draft_batch_p0; // HEADERPORT0-I0-ROOTBATCH0-P0 fixtures
 #[allow(unused_imports)]
 pub(in crate::mir) use located_legacy_lowering::{
     LocatedLegacyLoweringErrorV1, LocatedLegacyLoweringSessionV1,
