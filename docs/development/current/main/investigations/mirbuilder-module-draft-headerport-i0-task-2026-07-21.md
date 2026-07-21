@@ -258,6 +258,166 @@ FACTSESSION0-ACTIVEBIND0-S0/P0
 -> REMATFACT0-P0
 ```
 
+### FACTSESSION0 continuation contract — Candidate A-prime
+
+This is a downstream contract, not an authorization to begin FACTSESSION0
+while `RAWPORT0-M0-R0` is active.  Candidate A-prime is fixed as follows:
+
+```text
+MODULEDRAFT0
+  one invocation-owned unpublished-draft collector
+-> FACTSESSION0-ACTIVEBIND0
+  bind generation + receipt ledger to the existing live fact lanes
+-> FACTSESSION0-I0
+  seal the collected draft and all eight lanes as one product
+```
+
+The production active fact owner remains the already-live
+`FunctionLoweringStateV1` storage:
+
+```text
+FunctionLoweringStateV1
+  type_ctx                 // six existing TypeContext lanes
+  value_origins            // two diagnostic-origin lanes
+  active_fact_binding      // generation + open receipt ledger only
+```
+
+`ActiveFunctionFactBindingV1` must not own, mirror, or synthesize a second
+`TypeContext`.  On successful completion the same existing lanes are taken,
+sealed, and paired with the one unpublished draft.  On abort they are consumed
+or discarded under the existing session law.  The legacy BoxCompilation
+three-clear/three-retain behavior is retired only at this later cutover.
+
+#### One collector, prepared admission, and terminal ordering
+
+`MODULEDRAFT0`'s collector is the only physical collector.  FACTSESSION0
+upgrades that same ownership surface from:
+
+```text
+UnpublishedFunctionDraftV1
+```
+
+to:
+
+```text
+CompletedFunctionDraftWithFactsV1
+```
+
+It must not add a parallel facts map or a second bare-draft map.  Function
+identity and fact generation remain distinct:
+
+```text
+FunctionDraftKeyV1
+  Main | LegacySymbol | CanonicalResolvedOwner | CanonicalCallableKey
+  | SyntheticConditionFn
+
+FunctionFactGenerationV1
+  fact-session lifetime brand only
+```
+
+Every child completion must close all fallible work before mutating the
+collector:
+
+```text
+physical lowering success
+-> validate_before_restore(success = true)
+-> prepare admission
+     expected symbol / arity
+     module brand
+     duplicate policy and key collision
+     collector capacity
+-> seal draft (+ later facts)
+-> infallible collect
+-> restore parent
+```
+
+The required failure behavior is:
+
+```text
+operation success + cleanup failure
+  -> collector unchanged -> restore -> Cleanup error
+
+operation failure + cleanup failure
+  -> collector unchanged -> restore -> DuringCleanup
+
+admission failure
+  -> collector unchanged -> restore -> Publication error
+
+unwind
+  -> abort -> restore -> resume_unwind
+```
+
+Neither `collect -> validate` nor `restore -> bare publish` is allowed.  A
+legacy duplicate replaces the complete paired product; a canonical duplicate
+rejects before collection.  Duplicate policy is not normalized in this row.
+
+#### Lowering-time header read view
+
+Moving an unfinished child out of `current_module.functions` must not silently
+remove the existing Call/Await compatibility signature read.  Before the I0
+cutover, every such reader is classified as signature/header-only,
+declaration-only, metadata-required, body-required, or lifecycle-only.
+
+Only signature/header-only readers may use a temporary
+`CompletedDraftSignatureViewV1` borrowed from the same collector-owned draft.
+The view never clones a draft/header, exposes a body or `FunctionMetadata`, or
+becomes a semantic cache.  A body- or metadata-required lowering-time reader
+is a stop condition for this series.  This compatibility view is temporary;
+its retirement owner is `FINALIZE0-CALLAWAIT-CLOSE0` after physical producer
+receipts close result disposition.
+
+Binding-SSA acyclic and recursive batches retain their sealed callable catalog
+as sibling-header authority.  A prefix of collector headers must never replace
+that catalog.
+
+#### Root, synthetic, and issuer law
+
+Main is not an exception:
+
+```text
+open module invocation
+-> open Main attempt
+-> complete and collect Main
+-> aggregate only after all collection
+```
+
+The existing synthetic `condition_fn` receives a real empty-fact disposition
+and uses the same collector port.  The collector checks its symbol inventory:
+it creates the synthetic function only when `condition_fn` is absent.  Its
+eventual removal remains `FINALIZE0-CONDITIONFN-RET0` work.
+
+`FactSessionIssuerV1` belongs to `MirCompiler` lifetime, outside a replaceable
+candidate `MirBuilder`.  Each `ModuleFactSessionV1` is opened explicitly by
+that issuer and passed to the live or candidate builder.  Production code may
+not create a local issuer inside a bare `MirBuilder::build_module` fallback;
+that API must take an explicit session or become a proven test-only adapter.
+
+#### Fixed downstream order and stop conditions
+
+Once `HEADERPORT0-I0-G0` is green, the fixed order is:
+
+```text
+FACTSESSION0-ACTIVEBIND0-S0
+-> FACTSESSION0-ACTIVEBIND0-P0
+-> FACTSESSION0-I0
+-> FACTSESSION0-G0
+-> REMATFACT0-P0 / individual producer receipt closures
+-> MODULETX0-P0
+```
+
+Stop and return to design selection if implementation requires any of:
+
+```text
+a second session-owned TypeContext
+an independently keyed fact or draft collector
+post-collection cleanup/admission validation
+a cloned/current_module header cache
+body or metadata access through the signature view
+generation used as function identity
+a local Builder-owned issuer fallback
+PHI repair, TypePipeline/Call-Await redesign, JoinIR, MODULETX, or CUT0
+```
+
 The later fact-session cutover takes and seals the eight existing function
 fact lanes with the collected draft.  It does not reopen this collector or
 HeaderPort ownership decision.
