@@ -1,7 +1,7 @@
 # HEADERPORT0-ACCESS0: `me` method header ownership consultation
 
-Status: **Candidate A-prime typed-source refinement selected; S0/P0 closed; I0 next;
-production I0 and CUT0 remain disconnected**
+Status: **Candidate A-prime typed-source refinement selected; S0/P0/I0 closed;
+G0 is next; production capture/commit and CUT0 remain disconnected**
 
 Date: 2026-07-21
 
@@ -153,9 +153,12 @@ ACCESS0-MEHEADER-P0
   (closed) legacy/raw/located parity and no-fallback proof
 
 ACCESS0-MEHEADER-I0
-  invocation raw method terminal only
+  (closed) shared `MeCallPolicyBox` consumes typed observation through all
+  three route adapters; terminal lookup remains separate
 
 ACCESS0-MEHEADER-G0
+  next: one shared policy owner, no direct header fallback, and no long-lived
+  observation loan
   shared me policy owner = 1
   invocation current_module fallback = 0
   located collector capability = 0
@@ -231,9 +234,43 @@ MeCallPolicyBox consumers = 0
 production method-port consumers = 0
 ```
 
-`ACCESS0-MEHEADER-I0` is the next row. It may connect only the shared policy;
-terminal-time lookup/result annotation and production MODULEDRAFT/FACTSESSION
-capture remain outside this row.
+The P0 row is now closed. `ACCESS0-MEHEADER-I0` connects only the shared
+policy; terminal-time lookup/result annotation and production
+MODULEDRAFT/FACTSESSION capture remain outside this row.
+
+## ACCESS0-MEHEADER-I0 closeout
+
+The shared `MeCallPolicyBox` now consumes one owned typed observation before
+argument descent through all three route adapters:
+
+```text
+RawLegacyChildLoweringPortV1:
+  ModuleCompatibility
+
+RawInvocationChildPortV1:
+  InvocationCollector only, including an explicit miss
+
+LocatedLegacyLoweringSessionV1:
+  ModuleCompatibility, with no collector capability
+```
+
+The header loan ends before `lower_all`, and the existing strict/warning arity
+diagnostics, missing-receiver timing, and terminal-time result lookup remain
+unchanged. The handler has no direct module-map read and an invocation miss
+cannot fall back to `current_module`.
+
+```text
+MeCallPolicyBox consumers = 1
+MeCallHeaderObservationPortV1 route adapters = 3
+direct method-handler module reads = 0
+invocation miss -> current_module fallback = 0
+header loan across argument descent = 0
+observation persistence/cache = 0
+terminal result-annotation redesign = 0
+```
+
+`ACCESS0-MEHEADER-G0` is now the sole next row. `ACCESS0-REWRITE-KNOWN-P0`
+and the production capture/commit/CUT0 rows remain outside this closeout.
 
 ## Required fixtures
 

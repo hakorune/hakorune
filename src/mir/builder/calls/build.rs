@@ -18,6 +18,7 @@
 //! - After: 311 lines orchestrator + 4 extracted modules (537 lines total)
 //! - Net reduction: -444 lines of complexity in build.rs
 
+use super::super::me_call_header_observation::MethodCallLoweringPortV1;
 use super::super::{Effect, EffectMask, MirBuilder, MirInstruction, ValueId};
 #[allow(unused_imports)]
 use super::debug_method_routing::*;
@@ -119,7 +120,7 @@ impl MirBuilder {
         input: &Port::MethodCallInput,
     ) -> Result<ValueId, String>
     where
-        Port: super::method_call_terminal::MethodCallValueTerminalPortV1,
+        Port: MethodCallLoweringPortV1,
     {
         let typeop = {
             let syntax = port.method_call_syntax(input)?;
@@ -172,7 +173,7 @@ impl MirBuilder {
         input: &Port::MethodCallInput,
     ) -> Result<ValueId, String>
     where
-        Port: super::method_call_terminal::MethodCallValueTerminalPortV1,
+        Port: MethodCallLoweringPortV1,
     {
         // ========================================
         // Section 1: Debug Tracing (debug_method_routing module)

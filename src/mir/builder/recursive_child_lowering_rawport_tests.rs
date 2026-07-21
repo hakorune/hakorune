@@ -5,6 +5,10 @@ use crate::mir::{
 };
 use crate::parser::NyashParser;
 
+use super::me_call_header_observation::{
+    prepare_me_lowered_call_v1, MeCallHeaderObservationPortV1, MeCallHeaderSourceV1,
+    PreparedMeReceiverV1,
+};
 use super::module_draft_collector::{
     DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftCollectorV1,
 };
@@ -159,6 +163,38 @@ fn raw_invocation_port_reborrows_one_collector_backed_header_view() {
         });
         port.reborrow()
             .with_headers(|headers| assert!(headers.contains_symbol("Prefix.f/1")));
+    });
+}
+
+#[test]
+fn raw_invocation_me_header_ignores_stale_module_signature() {
+    let mut builder = MirBuilder::new();
+    builder.current_module = Some(crate::mir::MirModule::new("stale-me-module".to_string()));
+    builder
+        .current_module
+        .as_mut()
+        .unwrap()
+        .add_function(MirFunction::new(
+            FunctionSignature {
+                name: "Prefix.f/1".to_string(),
+                params: vec![MirType::Box("Prefix".to_string()), MirType::Integer],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId(0),
+        ));
+
+    let mut invocation = ModuleLoweringInvocationV1::with_collector(&mut builder, collector());
+    invocation.with_module_port(|builder, module_port| {
+        let mut port = RawInvocationChildPortV1::new(module_port);
+        let observation = port.observe_me_call_parameters(builder, "Prefix.f/1");
+        assert_eq!(
+            observation.source(),
+            MeCallHeaderSourceV1::InvocationCollector
+        );
+        let prepared = prepare_me_lowered_call_v1(observation, Some(crate::mir::ValueId(4)))
+            .expect("collector header should be present");
+        assert_eq!(prepared.receiver(), &PreparedMeReceiverV1::Static);
     });
 }
 

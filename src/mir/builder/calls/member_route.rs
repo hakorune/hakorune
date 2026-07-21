@@ -3,6 +3,7 @@
 //! This box decides the member-call lowering lane once and then emits from the
 //! selected plan without re-probing receiver shape.
 
+use super::super::me_call_header_observation::MethodCallLoweringPortV1;
 use super::super::{MirBuilder, ValueId};
 use super::extern_calls::EnvMethodSpec;
 use super::method_call_descent::{
@@ -43,7 +44,7 @@ impl MirBuilder {
         input: &Port::MethodCallInput,
     ) -> Result<ValueId, String>
     where
-        Port: MethodCallValueTerminalPortV1,
+        Port: MethodCallLoweringPortV1,
     {
         let (route_plan, method, arguments) = {
             let syntax = port.method_call_syntax(input)?;

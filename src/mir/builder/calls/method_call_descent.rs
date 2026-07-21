@@ -8,6 +8,9 @@
 use crate::ast::ASTNode;
 use crate::mir::{MirBuilder, ValueId};
 
+use super::super::me_call_header_observation::{
+    MeCallHeaderObservationPortV1, MeCallParameterObservationV1, MethodCallLoweringPortV1,
+};
 use super::super::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1,
 };
@@ -134,6 +137,19 @@ where
 
     pub(super) fn terminal_parts(&mut self) -> (&mut Port, &Port::MethodCallInput) {
         (self.port, self.input)
+    }
+}
+
+impl<Port> AssociatedMethodCallArgumentsV1<'_, '_, Port>
+where
+    Port: MethodCallLoweringPortV1,
+{
+    pub(in crate::mir::builder) fn observe_me_call_parameters(
+        &mut self,
+        builder: &MirBuilder,
+        symbol: &str,
+    ) -> MeCallParameterObservationV1 {
+        self.port.observe_me_call_parameters(builder, symbol)
     }
 }
 

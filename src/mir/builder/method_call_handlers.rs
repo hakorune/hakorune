@@ -10,8 +10,11 @@ use crate::mir::builder::calls::{
     emit_standard_value_terminal_raw_v1, AssociatedMethodCallArgumentsV1,
     LegacyMethodCallArgumentsV1, MethodCallArgumentDescentV1, MethodCallValueTerminalPortV1,
 };
+use crate::mir::builder::me_call_header_observation::{
+    prepare_me_lowered_call_v1, MethodCallLoweringPortV1, PreparedMeReceiverV1,
+};
 use crate::mir::builder::{MirBuilder, ValueId};
-use crate::mir::{MirType, TypeOpKind};
+use crate::mir::TypeOpKind;
 
 /// Me-call 専用のポリシー箱。
 ///
@@ -46,7 +49,7 @@ impl MeCallPolicyBox {
         descent: &mut AssociatedMethodCallArgumentsV1<'_, '_, Port>,
     ) -> Result<Option<ValueId>, String>
     where
-        Port: MethodCallValueTerminalPortV1,
+        Port: MethodCallLoweringPortV1,
     {
         // Instance box: prefer enclosing box method (lowered function) if存在
         let enclosing_cls = current_enclosing_box_name(builder);
@@ -79,30 +82,21 @@ impl MeCallPolicyBox {
                 }
             }
 
-            if let Some(ref module) = builder.current_module {
-                if let Some(func) = module.functions.get(&fname) {
-                    let params = func.signature.params.clone();
-                    let arg_values = descent.lower_all(builder)?;
-                    // Decide whether this lowered function expects an implicit receiver.
-                    // Instance methods: params[0] is Box(box_name)
-                    // Static methods:   params[0] is non-Box or params.is_empty()
-                    let is_instance_method =
-                        !params.is_empty() && matches!(params[0], MirType::Box(_));
+            let observation = descent.observe_me_call_parameters(builder, &fname);
+            if let Some(prepared) = prepare_me_lowered_call_v1(observation, me_value) {
+                let arg_values = descent.lower_all(builder)?;
+                let (expected_params, receiver) = prepared.into_parts();
+                let provided_static = arg_values.len();
+                let provided_instance = arg_values.len() + 1;
 
-                    // Expected argument count from signature (including receiver for instance)
-                    let expected_params = params.len();
-                    let provided_static = arg_values.len();
-                    let provided_instance = arg_values.len() + 1;
-
-                    // Build call_args based on method kind
-                    let call_args: Vec<ValueId> = if is_instance_method {
-                        let Some(me_id) = me_value else {
+                let call_args: Vec<ValueId> = match receiver {
+                    PreparedMeReceiverV1::Instance { me } => {
+                        let Some(me_id) = me else {
                             return Err(format!(
                                 "[me-call] missing receiver for instance method {}",
                                 fname
                             ));
                         };
-                        // Instance method: prepend 'me' receiver
                         if expected_params != provided_instance {
                             if crate::config::env::builder_me_call_arity_strict() {
                                 return Err(format!(
@@ -116,12 +110,12 @@ impl MeCallPolicyBox {
                                 ));
                             }
                         }
-                        let mut v = Vec::with_capacity(provided_instance);
-                        v.push(me_id);
-                        v.extend(arg_values.into_iter());
-                        v
-                    } else {
-                        // Static method: no receiver
+                        let mut values = Vec::with_capacity(provided_instance);
+                        values.push(me_id);
+                        values.extend(arg_values);
+                        values
+                    }
+                    PreparedMeReceiverV1::Static => {
                         if expected_params != provided_static {
                             if crate::config::env::builder_me_call_arity_strict() {
                                 return Err(format!(
@@ -136,26 +130,26 @@ impl MeCallPolicyBox {
                             }
                         }
                         arg_values
-                    };
+                    }
+                };
 
-                    let checked_source_arity = u32::try_from(arguments.len()).map_err(|_| {
-                        format!(
-                            "[me-call] source arity exceeds u32 for {}.{}: {}",
-                            cls,
-                            method,
-                            arguments.len()
-                        )
-                    })?;
-                    return descent
-                        .finish_me_lowered_global_value_terminal(
-                            builder,
-                            cls,
-                            method,
-                            checked_source_arity,
-                            call_args,
-                        )
-                        .map(Some);
-                }
+                let checked_source_arity = u32::try_from(arguments.len()).map_err(|_| {
+                    format!(
+                        "[me-call] source arity exceeds u32 for {}.{}: {}",
+                        cls,
+                        method,
+                        arguments.len()
+                    )
+                })?;
+                return descent
+                    .finish_me_lowered_global_value_terminal(
+                        builder,
+                        cls,
+                        method,
+                        checked_source_arity,
+                        call_args,
+                    )
+                    .map(Some);
             }
 
             // Route 1: if `me` is bound, keep instance semantics.
@@ -273,7 +267,7 @@ impl MirBuilder {
         descent: &mut AssociatedMethodCallArgumentsV1<'_, '_, Port>,
     ) -> Result<Option<ValueId>, String>
     where
-        Port: MethodCallValueTerminalPortV1,
+        Port: MethodCallLoweringPortV1,
     {
         MeCallPolicyBox::resolve_me_call(self, method, arguments, descent)
     }

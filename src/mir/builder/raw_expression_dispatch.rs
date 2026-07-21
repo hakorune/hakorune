@@ -3,10 +3,9 @@
 //! RAWPORT0 keeps exactly one AST match tree here. The legacy facade still
 //! owns production behavior; later M0 commits parameterize this dispatcher
 //! with the invocation child port rather than adding a second matcher.
-use super::calls::{
-    MethodCallDescentPortV1, MethodCallValueTerminalPortV1, RawLegacyMethodCallInputV1,
-};
+use super::calls::{MethodCallDescentPortV1, RawLegacyMethodCallInputV1};
 use super::declaration_order::{sorted_constructor_entries, sorted_method_entries};
+use super::me_call_header_observation::MethodCallLoweringPortV1;
 use super::ops::{
     drive_ordinary_binary_expression_v1, drive_short_circuit_expression_v1,
     BinaryExpressionDescentPortV1, RawLegacyBinaryInputV1, RawLegacyShortCircuitInputV1,
@@ -49,7 +48,7 @@ pub(in crate::mir::builder) trait RawExpressionDispatchPortV1:
     + ShortCircuitExpressionDescentPortV1<ShortCircuitInput = RawLegacyShortCircuitInputV1>
     + MethodCallDescentPortV1<MethodCallInput = RawLegacyMethodCallInputV1>
     + RawFunctionHeaderLookupPortV1
-    + MethodCallValueTerminalPortV1
+    + MethodCallLoweringPortV1
     + LocalStatementDescentPortV1<LocalInput = RawLegacyLocalInputV1>
     + VariableAssignmentDescentPortV1<VariableAssignmentInput = RawLegacyVariableAssignmentInputV1>
     + ReturnStatementDescentPortV1<ReturnInput = RawLegacyValueReturnInputV1>
@@ -67,7 +66,7 @@ impl<Port> RawExpressionDispatchPortV1 for Port where
         + ShortCircuitExpressionDescentPortV1<ShortCircuitInput = RawLegacyShortCircuitInputV1>
         + MethodCallDescentPortV1<MethodCallInput = RawLegacyMethodCallInputV1>
         + RawFunctionHeaderLookupPortV1
-        + MethodCallValueTerminalPortV1
+        + MethodCallLoweringPortV1
         + LocalStatementDescentPortV1<LocalInput = RawLegacyLocalInputV1>
         + VariableAssignmentDescentPortV1<
             VariableAssignmentInput = RawLegacyVariableAssignmentInputV1,

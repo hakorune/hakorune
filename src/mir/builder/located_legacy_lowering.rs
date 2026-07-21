@@ -48,6 +48,10 @@ use super::calls::{
     CallArgumentDescentPortV1, MethodCallDescentPortV1, MethodCallSyntaxViewV1,
     MethodCallValueTerminalPortV1,
 };
+use super::function_signature_lookup::FunctionSignatureLookupV1;
+use super::me_call_header_observation::{
+    MeCallHeaderObservationPortV1, MeCallHeaderSourceV1, MeCallParameterObservationV1,
+};
 use super::ops::{
     drive_ordinary_binary_expression_v1, drive_short_circuit_expression_v1,
     BinaryExpressionDescentPortV1, BinarySyntaxViewV1, ShortCircuitExpressionDescentPortV1,
@@ -521,6 +525,23 @@ impl<'plan> MethodCallDescentPortV1 for LocatedLegacyLoweringSessionV1<'plan> {
         input: &'input Self::MethodCallInput,
     ) -> Result<&'input Self::ArgumentsInput, String> {
         Ok(input)
+    }
+}
+
+impl MeCallHeaderObservationPortV1 for LocatedLegacyLoweringSessionV1<'_> {
+    fn observe_me_call_parameters(
+        &mut self,
+        builder: &MirBuilder,
+        symbol: &str,
+    ) -> MeCallParameterObservationV1 {
+        MeCallParameterObservationV1::from_optional_lookup(
+            MeCallHeaderSourceV1::ModuleCompatibility,
+            symbol,
+            builder
+                .current_module
+                .as_ref()
+                .map(|module| module as &dyn FunctionSignatureLookupV1),
+        )
     }
 }
 

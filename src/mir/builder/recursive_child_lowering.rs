@@ -9,6 +9,9 @@ use crate::mir::{MirBuilder, ValueId};
 
 use super::calls::LegacyFunctionPendingSessionV1;
 use super::function_signature_lookup::FunctionSignatureLookupV1;
+use super::me_call_header_observation::{
+    MeCallHeaderObservationPortV1, MeCallHeaderSourceV1, MeCallParameterObservationV1,
+};
 use super::module_lowering_invocation::{
     LegacyChildDraftAdmissionV1, LoweringHeaderPortV1, ModuleLoweringPortChildErrorV1,
     ModuleLoweringPortV1,
@@ -171,6 +174,23 @@ where
 }
 
 pub(in crate::mir::builder) struct RawLegacyChildLoweringPortV1;
+
+impl MeCallHeaderObservationPortV1 for RawLegacyChildLoweringPortV1 {
+    fn observe_me_call_parameters(
+        &mut self,
+        builder: &MirBuilder,
+        symbol: &str,
+    ) -> MeCallParameterObservationV1 {
+        MeCallParameterObservationV1::from_optional_lookup(
+            MeCallHeaderSourceV1::ModuleCompatibility,
+            symbol,
+            builder
+                .current_module
+                .as_ref()
+                .map(|module| module as &dyn FunctionSignatureLookupV1),
+        )
+    }
+}
 
 /// Stack-owned raw-recursion capability for one module-lowering invocation.
 ///
@@ -563,6 +583,22 @@ impl RawFunctionHeaderLookupPortV1 for RawInvocationChildPortV1<'_, '_> {
         observe: impl for<'headers> FnOnce(Option<&'headers dyn FunctionSignatureLookupV1>) -> R,
     ) -> R {
         self.with_headers(|headers| observe(Some(headers)))
+    }
+}
+
+impl MeCallHeaderObservationPortV1 for RawInvocationChildPortV1<'_, '_> {
+    fn observe_me_call_parameters(
+        &mut self,
+        _builder: &MirBuilder,
+        symbol: &str,
+    ) -> MeCallParameterObservationV1 {
+        self.with_function_headers(|lookup| {
+            MeCallParameterObservationV1::from_optional_lookup(
+                MeCallHeaderSourceV1::InvocationCollector,
+                symbol,
+                lookup,
+            )
+        })
     }
 }
 

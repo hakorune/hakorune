@@ -3,7 +3,8 @@
 //! This box selects one header source and turns only the parameter facts needed
 //! by `me.method(...)` classification into an owned value.  It does not perform
 //! argument descent, call emission, result annotation, or module publication.
-//! Production ports consume this vocabulary only in the later I0 cutover.
+//! The shared method policy consumes this vocabulary at I0; production
+//! module draft/fact capture remains a separate cutover.
 
 use super::calls::MethodCallValueTerminalPortV1;
 use super::function_signature_lookup::FunctionSignatureLookupV1;
@@ -36,16 +37,31 @@ pub(in crate::mir::builder) enum MeCallParameterObservationV1 {
 }
 
 impl MeCallParameterObservationV1 {
+    pub(in crate::mir::builder) fn missing(source: MeCallHeaderSourceV1, symbol: &str) -> Self {
+        Self::Missing {
+            source,
+            symbol: symbol.into(),
+        }
+    }
+
+    pub(in crate::mir::builder) fn from_optional_lookup(
+        source: MeCallHeaderSourceV1,
+        symbol: &str,
+        lookup: Option<&dyn FunctionSignatureLookupV1>,
+    ) -> Self {
+        lookup.map_or_else(
+            || Self::missing(source, symbol),
+            |lookup| Self::from_lookup(source, symbol, lookup),
+        )
+    }
+
     pub(in crate::mir::builder) fn from_lookup(
         source: MeCallHeaderSourceV1,
         symbol: &str,
         lookup: &dyn FunctionSignatureLookupV1,
     ) -> Self {
         let Some(signature) = lookup.signature(symbol) else {
-            return Self::Missing {
-                source,
-                symbol: symbol.into(),
-            };
+            return Self::missing(source, symbol);
         };
 
         let parameter_count = signature.params.len();
@@ -75,8 +91,8 @@ impl MeCallParameterObservationV1 {
 /// Construction-only header observation capability for method-call routes.
 ///
 /// The returned product owns its small snapshot, so the source loan ends
-/// before argument descent.  This trait is intentionally disconnected until
-/// `ACCESS0-MEHEADER-I0`.
+/// before argument descent.  Invocation uses collector authority only;
+/// compatibility routes remain module-backed.
 pub(in crate::mir::builder) trait MeCallHeaderObservationPortV1 {
     fn observe_me_call_parameters(
         &mut self,
@@ -85,7 +101,8 @@ pub(in crate::mir::builder) trait MeCallHeaderObservationPortV1 {
     ) -> MeCallParameterObservationV1;
 }
 
-/// Capability bundle reserved for the later method-call cutover.
+/// Capability bundle used by the shared method-call policy.  Terminal lookup
+/// and pre-argument header observation remain separate authorities.
 pub(in crate::mir::builder) trait MethodCallLoweringPortV1:
     MethodCallValueTerminalPortV1 + MeCallHeaderObservationPortV1
 {
@@ -115,6 +132,10 @@ impl PreparedMeLoweredCallV1 {
 
     pub(in crate::mir::builder) fn receiver(&self) -> &PreparedMeReceiverV1 {
         &self.receiver
+    }
+
+    pub(in crate::mir::builder) fn into_parts(self) -> (usize, PreparedMeReceiverV1) {
+        (self.expected_params, self.receiver)
     }
 }
 

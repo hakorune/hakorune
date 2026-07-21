@@ -1,7 +1,7 @@
 # HEADERPORT0-REENTRANT-TERM0-I0: production cutover consultation
 
 Status: **STATE0-S0/P0/I0/G0, CONSULT0, ACCESS0-S0, and
-ACCESS0-MEHEADER-S0/P0 are closed; ACCESS0-MEHEADER-I0 is next, and
+ACCESS0-MEHEADER-S0/P0/I0 are closed; ACCESS0-MEHEADER-G0 is next, and
 production cutover remains disconnected**
 
 Date: 2026-07-21
