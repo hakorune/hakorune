@@ -4,12 +4,9 @@
 //! or module-repair consumer. Its only job is to make the later producer
 //! receipt, candidate reservation, and one-shot projection boundaries explicit.
 
+use crate::mir::builder::fact_session::FunctionFactGenerationV1;
 use crate::mir::{BasicBlockId, MirType, ValueId};
 use std::collections::BTreeSet;
-
-/// Opaque function-local identity minted by the future function-session owner.
-#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
-pub(in crate::mir::builder) struct FunctionFactGenerationV1(u64);
 
 /// Physical producer families P0 can eventually rematerialize.
 ///
@@ -339,15 +336,15 @@ impl PreparedPhiRematExactTypeProjectionV1 {
 #[cfg(test)]
 pub(super) mod test_support {
     use super::{
-        ExactProducerFamilyV1, FunctionFactGenerationV1, ProducerDefinitionIdentityV1,
-        VerifiedPhiRematerializationNodeV1,
+        ExactProducerFamilyV1, ProducerDefinitionIdentityV1, VerifiedPhiRematerializationNodeV1,
     };
+    use crate::mir::builder::fact_session::FunctionFactGenerationV1;
     use crate::mir::{BasicBlockId, ValueId};
 
     pub(in crate::mir::builder::ssa::phi_input_materializer) const fn generation(
         value: u64,
     ) -> FunctionFactGenerationV1 {
-        FunctionFactGenerationV1(value)
+        FunctionFactGenerationV1::for_test(value, 0)
     }
 
     pub(in crate::mir::builder::ssa::phi_input_materializer) const fn definition(

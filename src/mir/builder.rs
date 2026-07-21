@@ -37,6 +37,7 @@ mod exprs; // expression lowering split
 mod exprs_call;
 mod exprs_check; // CheckExpr lowering
 mod exprs_enum_match; // narrow direct-MIR enum match lowering for guard-let sugar
+mod fact_session;
 mod fastmem; // fastmem source -> MIR MemOp metadata lowering
 mod fastmem_context; // FastMemory region context helpers
 mod function_lowering_state;

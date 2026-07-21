@@ -3168,3 +3168,32 @@ equal the String result from a fresh compiler. It must also succeed after a
 failure that occurs after one physical producer. The current `prepare_module`
 does not clear transient facts and `MirFunction` restarts its value allocation,
 so this is a real stale-fact collision proof, not merely a unit-map test.
+
+#### FACTSESSION0-S0 closeout
+
+One disconnected private vocabulary now owns the selected lifecycle shape:
+`FactSessionIssuerV1` opens module-branded `ModuleFactSessionV1` values;
+each module session opens one `OpenFunctionFactSessionV1` per physical
+function; that session owns all six `TypeContext` lanes, both diagnostic-origin
+lanes, and the exact-producer receipt ledger; and sealing a function with its
+draft produces one non-Clone `CompletedFunctionDraftWithFactsV1`. A module
+collector rejects a foreign completed generation before insertion and seals a
+per-function collection for the eventual candidate boundary.
+
+`FunctionFactGenerationV1` now carries a module brand plus function ordinal,
+so identical local ValueIds in sibling functions or later compiler invocations
+cannot denote the same receipt session. The former disconnected raw generation
+newtype is no longer a PHI-local authority. The focused four fixtures prove
+cross-module generation distinction with reused function ordinals, all eight
+lane transport, foreign completed-draft rejection, and consuming abort.
+
+No `MirBuilder` lifecycle entry, `FunctionLoweringStateV1`, transaction,
+finalizer, module candidate, TypeContext map, receipt issuer, metadata,
+candidate fact commit, or PHI repair consumer has changed. The existing flat
+`PendingModuleCompletionFactsV1` remains disconnected and is explicitly not
+admitted to MODULETX0-P0; a later session-collection consumer replaces it.
+
+`FACTSESSION0-M0` is next. It must inventory every root, legacy child,
+canonical child, test-only entry, completion, abort, and publication seam
+before I0 chooses a production cutover. REMATFACT proof/issuer work, direct
+repair, unused-Phi deletion, JoinIR, and CUT0 remain forbidden.
