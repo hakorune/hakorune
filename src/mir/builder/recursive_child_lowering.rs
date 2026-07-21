@@ -4,10 +4,13 @@
 //! It owns no source navigation, callable-result plan, location, ledger,
 //! MethodCall route, or result-publication policy.
 
-use crate::ast::ASTNode;
+use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 use crate::mir::{MirBuilder, ValueId};
 
-use super::module_lowering_invocation::{LoweringHeaderPortV1, ModuleLoweringPortV1};
+use super::module_lowering_invocation::{
+    LegacyChildDraftAdmissionV1, LoweringHeaderPortV1, ModuleLoweringPortChildErrorV1,
+    ModuleLoweringPortV1,
+};
 use super::raw_expression_dispatch::RawExpressionDispatchPortV1;
 
 const MAX_RAW_EXPRESSION_RECURSION_DEPTH: usize = 200;
@@ -49,6 +52,38 @@ pub(in crate::mir::builder) trait RawAstChildLoweringPortV1:
     ExpressionInput = ASTNode,
 >
 {
+}
+
+/// One raw Box method-child terminal capability.
+///
+/// The raw dispatcher keeps one AST match tree and delegates only the child
+/// function terminal here.  Legacy callers retain their existing publication
+/// route; invocation callers use the collector-backed legacy terminal.
+pub(in crate::mir::builder) trait RawBoxMethodChildPortV1 {
+    fn lower_static_box_method(
+        &mut self,
+        builder: &mut MirBuilder,
+        function_name: String,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
+    ) -> Result<(), String>;
+
+    fn lower_instance_box_method(
+        &mut self,
+        builder: &mut MirBuilder,
+        function_name: String,
+        box_name: String,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
+    ) -> Result<(), String>;
 }
 
 impl<Port> RawAstChildLoweringPortV1 for Port where
@@ -139,6 +174,21 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
     ) -> R {
         self.module_port.with_headers(observe)
     }
+
+    /// Complete one raw legacy child through this exact invocation port.
+    ///
+    /// Only the port holds the collector borrow, so a raw Box method cannot
+    /// supply a foreign prepared admission or resolved owner identity.
+    pub(in crate::mir::builder) fn complete_legacy_child(
+        &mut self,
+        builder: &mut MirBuilder,
+        body_snapshot: Vec<ASTNode>,
+        admission: LegacyChildDraftAdmissionV1,
+        lower: impl FnOnce(&mut MirBuilder) -> Result<crate::mir::MirFunction, String>,
+    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
+        self.module_port
+            .complete_legacy_child(builder, body_snapshot, admission, lower)
+    }
 }
 
 impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
@@ -198,6 +248,130 @@ impl RecursiveChildLoweringPortV1 for RawLegacyChildLoweringPortV1 {
         input: Self::ExpressionInput,
     ) -> Result<ValueId, String> {
         lower_raw_expression_with_recursion_guard_v1(builder, self, input)
+    }
+}
+
+impl RawBoxMethodChildPortV1 for RawLegacyChildLoweringPortV1 {
+    fn lower_static_box_method(
+        &mut self,
+        builder: &mut MirBuilder,
+        function_name: String,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
+    ) -> Result<(), String> {
+        builder.lower_static_method_as_function(
+            function_name,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        )
+    }
+
+    fn lower_instance_box_method(
+        &mut self,
+        builder: &mut MirBuilder,
+        function_name: String,
+        box_name: String,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
+    ) -> Result<(), String> {
+        builder.lower_method_as_function(
+            function_name,
+            box_name,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        )
+    }
+}
+
+impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1<'_, '_> {
+    fn lower_static_box_method(
+        &mut self,
+        builder: &mut MirBuilder,
+        function_name: String,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
+    ) -> Result<(), String> {
+        builder.observe_legacy_method_lowering_v1(&function_name, &body, None);
+        let expected_arity = params.len();
+        let body_snapshot = body.clone();
+        self.complete_legacy_child(
+            builder,
+            body_snapshot,
+            LegacyChildDraftAdmissionV1::legacy_symbol(function_name.clone(), expected_arity),
+            move |builder| {
+                builder.build_static_method_draft_v1(
+                    function_name,
+                    params,
+                    param_decls,
+                    return_type_name,
+                    body,
+                    uses,
+                    attrs,
+                )
+            },
+        )
+        .map_err(|error| error.to_string())
+    }
+
+    fn lower_instance_box_method(
+        &mut self,
+        builder: &mut MirBuilder,
+        function_name: String,
+        box_name: String,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
+    ) -> Result<(), String> {
+        let params =
+            super::calls::lowering::normalize_instance_method_params(&function_name, params);
+        let param_decls = super::calls::lowering::normalize_instance_method_param_decls(
+            &function_name,
+            param_decls,
+        );
+        builder.observe_legacy_method_lowering_v1(&function_name, &body, Some(&box_name));
+        let expected_arity = params.len() + 1;
+        let body_snapshot = body.clone();
+        self.complete_legacy_child(
+            builder,
+            body_snapshot,
+            LegacyChildDraftAdmissionV1::legacy_symbol(function_name.clone(), expected_arity),
+            move |builder| {
+                builder.build_instance_method_draft_v1(
+                    function_name,
+                    box_name,
+                    params,
+                    param_decls,
+                    return_type_name,
+                    body,
+                    uses,
+                    attrs,
+                )
+            },
+        )
+        .map_err(|error| error.to_string())
     }
 }
 

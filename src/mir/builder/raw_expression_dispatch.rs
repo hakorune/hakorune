@@ -14,7 +14,7 @@ use super::ops::{
 };
 use super::recursive_child_lowering::{
     drive_legacy_body_v1, drive_legacy_expression_v1, drive_legacy_statement_v1,
-    RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+    RawBoxMethodChildPortV1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
 use super::stmts::{
     drive_local_statement_v1, drive_value_return_statement_v1, drive_variable_assignment_v1,
@@ -51,6 +51,7 @@ pub(super) trait RawExpressionDispatchPortV1:
     + LocalStatementDescentPortV1<LocalInput = RawLegacyLocalInputV1>
     + VariableAssignmentDescentPortV1<VariableAssignmentInput = RawLegacyVariableAssignmentInputV1>
     + ReturnStatementDescentPortV1<ReturnInput = RawLegacyValueReturnInputV1>
+    + RawBoxMethodChildPortV1
 {
 }
 
@@ -67,6 +68,7 @@ impl<Port> RawExpressionDispatchPortV1 for Port where
         + VariableAssignmentDescentPortV1<
             VariableAssignmentInput = RawLegacyVariableAssignmentInputV1,
         > + ReturnStatementDescentPortV1<ReturnInput = RawLegacyValueReturnInputV1>
+        + RawBoxMethodChildPortV1
 {
 }
 
@@ -515,7 +517,8 @@ impl super::MirBuilder {
                                     method_name,
                                     format!("/{}", params.len())
                                 );
-                                self.lower_static_method_as_function(
+                                port.lower_static_box_method(
+                                    self,
                                     func_name,
                                     params.clone(),
                                     param_decls.clone(),
@@ -594,7 +597,8 @@ impl super::MirBuilder {
                                     method_name,
                                     format!("/{}", params.len())
                                 );
-                                self.lower_method_as_function(
+                                port.lower_instance_box_method(
+                                    self,
                                     func_name,
                                     name.clone(),
                                     params.clone(),

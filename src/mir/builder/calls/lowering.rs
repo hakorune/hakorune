@@ -26,6 +26,8 @@
 
 use super::function_lowering;
 use crate::ast::{ASTNode, ParamDecl};
+use crate::mir::builder::module_lowering_invocation::LegacyChildDraftAdmissionV1;
+use crate::mir::builder::recursive_child_lowering::RawInvocationChildPortV1;
 use crate::mir::builder::{MirBuilder, MirFunction, MirInstruction, MirType};
 use crate::mir::function::MirParamDecl;
 use std::collections::BTreeSet;
@@ -42,7 +44,10 @@ fn is_constructor_name(func_name: &str) -> bool {
     func_name.contains(".birth/") || func_name.contains(".init/") || func_name.contains(".pack/")
 }
 
-fn normalize_instance_method_params(func_name: &str, mut params: Vec<String>) -> Vec<String> {
+pub(in crate::mir::builder) fn normalize_instance_method_params(
+    func_name: &str,
+    mut params: Vec<String>,
+) -> Vec<String> {
     let Some(declared_arity) = parse_declared_method_arity(func_name) else {
         return params;
     };
@@ -62,7 +67,7 @@ fn normalize_instance_method_params(func_name: &str, mut params: Vec<String>) ->
     params
 }
 
-fn normalize_instance_method_param_decls(
+pub(in crate::mir::builder) fn normalize_instance_method_param_decls(
     func_name: &str,
     mut param_decls: Vec<ParamDecl>,
 ) -> Vec<ParamDecl> {
@@ -109,6 +114,94 @@ fn mir_method_param_decls_from_source(
 }
 
 impl MirBuilder {
+    pub(in crate::mir::builder) fn observe_legacy_method_lowering_v1(
+        &self,
+        function_name: &str,
+        body: &[ASTNode],
+        box_name: Option<&str>,
+    ) {
+        if crate::config::env::joinir_dev::debug_enabled() {
+            let ring0 = crate::runtime::get_global_ring0();
+            let detail = box_name.map_or_else(
+                || format!("function='{function_name}'"),
+                |box_name| format!("function='{function_name}' box={box_name}"),
+            );
+            ring0.log.debug(&format!(
+                "[legacy_method_lowering] body_nodes={} {detail}",
+                body.len()
+            ));
+        }
+        let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
+            || crate::config::env::joinir_dev_enabled();
+        let planner_required =
+            strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled();
+        if planner_required && !has_any_loop(body) {
+            let message = format!("[joinir/no_plan reason=no_loop] func={function_name}");
+            if crate::config::env::joinir_dev::strict_planner_required_enabled() {
+                let ring0 = crate::runtime::get_global_ring0();
+                let _ = ring0.io.stderr_write(format!("{message}\n").as_bytes());
+            } else if crate::config::env::joinir_dev::debug_enabled() {
+                let ring0 = crate::runtime::get_global_ring0();
+                ring0.log.debug(&message);
+            }
+        }
+    }
+
+    pub(in crate::mir::builder) fn build_static_method_draft_v1(
+        &mut self,
+        function_name: String,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: crate::ast::DeclarationAttrs,
+    ) -> Result<MirFunction, String> {
+        self.create_function_skeleton(function_name, &params, &body)?;
+        self.set_current_function_declared_signature(
+            mir_param_decls_from_source(&params, &param_decls),
+            return_type_name,
+        );
+        self.set_current_function_runes(&attrs);
+        self.set_current_function_declared_capability_uses(&uses);
+        self.setup_function_params(&params)?;
+        self.lower_function_body(body)?;
+        let returns_value = self
+            .function_state
+            .current_function
+            .as_ref()
+            .is_some_and(|function| !matches!(function.signature.return_type, MirType::Void));
+        self.finalize_function_draft(returns_value)
+    }
+
+    pub(in crate::mir::builder) fn build_instance_method_draft_v1(
+        &mut self,
+        function_name: String,
+        box_name: String,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: crate::ast::DeclarationAttrs,
+    ) -> Result<MirFunction, String> {
+        self.create_method_skeleton(function_name, &box_name, &params, &body)?;
+        self.set_current_function_declared_signature(
+            mir_method_param_decls_from_source(&box_name, &params, &param_decls),
+            return_type_name,
+        );
+        self.set_current_function_runes(&attrs);
+        self.set_current_function_declared_capability_uses(&uses);
+        self.setup_method_params(&box_name, &params)?;
+        self.lower_method_body(body)?;
+        let returns_value = self
+            .function_state
+            .current_function
+            .as_ref()
+            .is_some_and(|function| !matches!(function.signature.return_type, MirType::Void));
+        self.finalize_function_draft(returns_value)
+    }
+
     // ============================================================================
     // Step 4: 本体lowering (Body Lowering)
     // ============================================================================
@@ -400,22 +493,15 @@ impl MirBuilder {
         }
         let session_name = func_name.clone();
         self.with_function_lowering_session(&session_name, body.clone(), move |builder| {
-            builder.create_function_skeleton(func_name, &params, &body)?;
-            builder.set_current_function_declared_signature(
-                mir_param_decls_from_source(&params, &param_decls),
+            builder.build_static_method_draft_v1(
+                func_name,
+                params,
+                param_decls,
                 return_type_name,
-            );
-            builder.set_current_function_runes(&attrs);
-            builder.set_current_function_declared_capability_uses(&uses);
-            builder.setup_function_params(&params)?;
-            builder.lower_function_body(body)?;
-
-            let returns_value = builder
-                .function_state
-                .current_function
-                .as_ref()
-                .is_some_and(|function| !matches!(function.signature.return_type, MirType::Void));
-            builder.finalize_function_draft(returns_value)
+                body,
+                uses,
+                attrs,
+            )
         })
     }
 
@@ -460,22 +546,16 @@ impl MirBuilder {
         }
         let session_name = func_name.clone();
         self.with_function_lowering_session(&session_name, body.clone(), move |builder| {
-            builder.create_method_skeleton(func_name, &box_name, &params, &body)?;
-            builder.set_current_function_declared_signature(
-                mir_method_param_decls_from_source(&box_name, &params, &param_decls),
+            builder.build_instance_method_draft_v1(
+                func_name,
+                box_name,
+                params,
+                param_decls,
                 return_type_name,
-            );
-            builder.set_current_function_runes(&attrs);
-            builder.set_current_function_declared_capability_uses(&uses);
-            builder.setup_method_params(&box_name, &params)?;
-            builder.lower_method_body(body)?;
-
-            let returns_value = builder
-                .function_state
-                .current_function
-                .as_ref()
-                .is_some_and(|function| !matches!(function.signature.return_type, MirType::Void));
-            builder.finalize_function_draft(returns_value)
+                body,
+                uses,
+                attrs,
+            )
         })
     }
 

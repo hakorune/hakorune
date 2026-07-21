@@ -3,6 +3,7 @@ use crate::mir::{
     BasicBlockId, BindingId, Effect, EffectMask, FunctionSignature, MirBuilder, MirFunction,
     MirInstruction, MirType,
 };
+use crate::parser::NyashParser;
 
 use super::module_draft_collector::{
     DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftCollectorV1,
@@ -138,6 +139,15 @@ fn pair(builder: &mut MirBuilder) {
     );
 }
 
+fn parsed_box(source: &str) -> ASTNode {
+    let ASTNode::Program { mut statements, .. } = NyashParser::parse_from_string(source).unwrap()
+    else {
+        panic!("expected Program");
+    };
+    assert_eq!(statements.len(), 1);
+    statements.remove(0)
+}
+
 #[test]
 fn raw_invocation_port_reborrows_one_collector_backed_header_view() {
     let mut builder = MirBuilder::new();
@@ -147,6 +157,29 @@ fn raw_invocation_port_reborrows_one_collector_backed_header_view() {
         });
         port.reborrow()
             .with_headers(|headers| assert!(headers.contains_symbol("Prefix.f/1")));
+    });
+}
+
+#[test]
+fn raw_invocation_port_collects_static_and_instance_box_methods() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("raw_port_boxes/0".to_owned());
+    let mut invocation = ModuleLoweringInvocationV1::open(&mut builder);
+
+    invocation.with_module_port(|builder, module_port| {
+        let mut port = RawInvocationChildPortV1::new(module_port);
+        for source in [
+            "static box RawStatic { run() { return 7 } }",
+            "box RawInstance { run() { return 8 } }",
+        ] {
+            drive_legacy_expression_v1(builder, &mut port, parsed_box(source)).unwrap();
+        }
+    });
+
+    invocation.with_header_port(|_builder, headers| {
+        assert!(headers.contains_symbol("RawStatic.run/0"));
+        assert!(headers.contains_symbol("RawInstance.run/0"));
+        assert_eq!(headers.symbol_count(), 2);
     });
 }
 
