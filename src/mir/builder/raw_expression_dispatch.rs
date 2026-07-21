@@ -3,7 +3,18 @@
 //! RAWPORT0 keeps exactly one AST match tree here. The legacy facade still
 //! owns production behavior; later M0 commits parameterize this dispatcher
 //! with the invocation child port rather than adding a second matcher.
+use super::calls::{
+    MethodCallDescentPortV1, MethodCallValueTerminalPortV1, RawLegacyMethodCallInputV1,
+};
 use super::declaration_order::{sorted_constructor_entries, sorted_method_entries};
+use super::ops::{
+    drive_ordinary_binary_expression_v1, drive_short_circuit_expression_v1,
+    BinaryExpressionDescentPortV1, RawLegacyBinaryInputV1, RawLegacyShortCircuitInputV1,
+    ShortCircuitExpressionDescentPortV1,
+};
+use super::recursive_child_lowering::{
+    drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+};
 use super::ValueId;
 use crate::ast::{
     ASTNode, AssignStmt, BinaryExpr, CallExpr, FieldAccessExpr, MethodCallExpr, ReturnStmt,
@@ -13,6 +24,30 @@ use hakorune_mir_builder::BoxCompilationContext;
 enum StatementSurfaceDispatch {
     Lowered(ValueId),
     RegularExpression(ASTNode),
+}
+
+/// Capability set consumed by the one raw AST expression match tree.
+///
+/// M0 progressively moves every recursive raw surface into this port. The
+/// legacy implementation remains the only production consumer until that
+/// closure is complete; `RawInvocationChildPortV1` is intentionally not wired
+/// here before all direct helper recursion has a port-aware sibling.
+pub(super) trait RawExpressionDispatchPortV1:
+    RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>
+    + BinaryExpressionDescentPortV1<BinaryInput = RawLegacyBinaryInputV1>
+    + ShortCircuitExpressionDescentPortV1<ShortCircuitInput = RawLegacyShortCircuitInputV1>
+    + MethodCallDescentPortV1<MethodCallInput = RawLegacyMethodCallInputV1>
+    + MethodCallValueTerminalPortV1
+{
+}
+
+impl<Port> RawExpressionDispatchPortV1 for Port where
+    Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>
+        + BinaryExpressionDescentPortV1<BinaryInput = RawLegacyBinaryInputV1>
+        + ShortCircuitExpressionDescentPortV1<ShortCircuitInput = RawLegacyShortCircuitInputV1>
+        + MethodCallDescentPortV1<MethodCallInput = RawLegacyMethodCallInputV1>
+        + MethodCallValueTerminalPortV1
+{
 }
 
 impl super::MirBuilder {
@@ -169,8 +204,25 @@ impl super::MirBuilder {
         super::stmts::return_stmt::build_return_statement(self, stmt.value.clone())
     }
 
-    // Main expression dispatcher
+    /// Legacy facade for the one generic raw AST dispatcher.
+    //
+    // It deliberately creates its raw child port only at the legacy root. A
+    // recursive descent receives that same port from the generic core instead
+    // of rebuilding it at every Binary/MethodCall/Weak/BlockExpr boundary.
     pub(super) fn build_expression_impl(&mut self, ast: ASTNode) -> Result<ValueId, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_expression_impl_with_port_v1(&mut port, ast)
+    }
+
+    /// The sole raw AST match tree, parameterized by its child descent.
+    pub(super) fn build_expression_impl_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        ast: ASTNode,
+    ) -> Result<ValueId, String>
+    where
+        Port: RawExpressionDispatchPortV1,
+    {
         // Track current source span for downstream instruction emission
         self.metadata_ctx.set_current_span(ast.span());
         if crate::config::env::builder_loopform_debug() {
@@ -192,7 +244,19 @@ impl super::MirBuilder {
             node @ ASTNode::BinaryOp { .. } => {
                 // Use BinaryExpr for clear destructuring (no behavior change)
                 let e = BinaryExpr::try_from(node).expect("ASTNode::BinaryOp must convert");
-                self.build_binary_op(*e.left, e.operator, *e.right)
+                let left = *e.left;
+                let right = *e.right;
+                match e.operator {
+                    operator @ (crate::ast::BinaryOperator::And
+                    | crate::ast::BinaryOperator::Or) => {
+                        let input = RawLegacyShortCircuitInputV1::new(left, operator, right);
+                        drive_short_circuit_expression_v1(self, port, &input)
+                    }
+                    operator => {
+                        let input = RawLegacyBinaryInputV1::new(left, operator, right);
+                        drive_ordinary_binary_expression_v1(self, port, &input)
+                    }
+                }
             }
 
             ASTNode::CheckExpr { items, .. } => self.build_check_expression(items),
@@ -203,7 +267,7 @@ impl super::MirBuilder {
                 match operator {
                     // Phase 285W-Syntax-0: weak <expr> → WeakRef(New)
                     crate::ast::UnaryOperator::Weak => {
-                        let box_val = self.build_expression_impl(*operand)?;
+                        let box_val = drive_legacy_expression_v1(self, port, *operand)?;
                         self.emit_weak_new(box_val)
                     }
                     // Traditional unary operators
@@ -225,7 +289,8 @@ impl super::MirBuilder {
 
             node @ ASTNode::MethodCall { .. } => {
                 let m = MethodCallExpr::try_from(node).expect("ASTNode::MethodCall must convert");
-                self.build_method_call(*m.object.clone(), m.method.clone(), m.arguments.clone())
+                let input = RawLegacyMethodCallInputV1::new(*m.object, m.method, m.arguments);
+                self.build_method_call_from_input_v1(port, &input)
             }
 
             ASTNode::FromCall {
@@ -490,7 +555,7 @@ impl super::MirBuilder {
                     let _ = self.build_statement(stmt)?;
                 }
 
-                self.build_expression_impl(*tail_expr)
+                drive_legacy_expression_v1(self, port, *tail_expr)
             }
 
             _ => Err(format!("Unsupported AST node type: {:?}", ast)),

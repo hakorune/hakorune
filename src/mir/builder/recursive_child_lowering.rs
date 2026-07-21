@@ -8,6 +8,7 @@ use crate::ast::ASTNode;
 use crate::mir::{MirBuilder, ValueId};
 
 use super::module_lowering_invocation::{LoweringHeaderPortV1, ModuleLoweringPortV1};
+use super::raw_expression_dispatch::RawExpressionDispatchPortV1;
 
 const MAX_RAW_EXPRESSION_RECURSION_DEPTH: usize = 200;
 
@@ -142,17 +143,21 @@ impl RecursiveChildLoweringPortV1 for RawLegacyChildLoweringPortV1 {
         builder: &mut MirBuilder,
         input: Self::ExpressionInput,
     ) -> Result<ValueId, String> {
-        lower_raw_expression_with_recursion_guard_v1(builder, input)
+        lower_raw_expression_with_recursion_guard_v1(builder, self, input)
     }
 }
 
-fn lower_raw_expression_with_recursion_guard_v1(
+fn lower_raw_expression_with_recursion_guard_v1<Port>(
     builder: &mut MirBuilder,
+    port: &mut Port,
     input: ASTNode,
-) -> Result<ValueId, String> {
+) -> Result<ValueId, String>
+where
+    Port: RawExpressionDispatchPortV1,
+{
     let node_kind = std::mem::discriminant(&input);
-    with_legacy_expression_recursion_guard_v1(builder, node_kind, |builder| {
-        builder.build_expression_impl(input)
+    with_legacy_expression_recursion_guard_v1(builder, node_kind, move |builder| {
+        builder.build_expression_impl_with_port_v1(port, input)
     })
 }
 

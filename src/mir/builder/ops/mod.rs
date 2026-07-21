@@ -130,6 +130,7 @@ pub(super) mod arithmetic;
 mod binary_expression_descent;
 pub(in crate::mir::builder) use binary_expression_descent::{
     drive_ordinary_binary_expression_v1, BinaryExpressionDescentPortV1, BinarySyntaxViewV1,
+    RawLegacyBinaryInputV1,
 };
 #[cfg(test)]
 mod binary_expression_descent_tests;
@@ -142,8 +143,8 @@ pub(super) mod converters;
 pub(super) mod logical_shortcircuit;
 mod short_circuit_expression_descent;
 pub(in crate::mir::builder) use short_circuit_expression_descent::{
-    drive_short_circuit_expression_v1, ShortCircuitExpressionDescentPortV1,
-    ShortCircuitSyntaxViewV1,
+    drive_short_circuit_expression_v1, RawLegacyShortCircuitInputV1,
+    ShortCircuitExpressionDescentPortV1, ShortCircuitSyntaxViewV1,
 };
 #[cfg(test)]
 mod short_circuit_expression_descent_tests;

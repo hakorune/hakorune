@@ -55,6 +55,7 @@ mod method_call_terminal;
 pub(in crate::mir::builder) use method_call_descent::{
     lower_method_call_argument_v1, AssociatedMethodCallArgumentsV1, LegacyMethodCallArgumentsV1,
     MethodCallArgumentDescentV1, MethodCallDescentPortV1, MethodCallSyntaxViewV1,
+    RawLegacyMethodCallInputV1,
 };
 pub(in crate::mir::builder) use method_call_terminal::MethodCallValueTerminalPortV1;
 pub(in crate::mir::builder) use method_call_terminal::{
