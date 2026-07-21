@@ -8,6 +8,9 @@
 use super::super::{MirBuilder, MirInstruction, MirType, ValueId};
 use super::special_handlers;
 use crate::ast::{ASTNode, LiteralValue};
+use crate::mir::builder::recursive_child_lowering::{
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+};
 use crate::mir::TypeOpKind;
 
 impl MirBuilder {
@@ -17,9 +20,22 @@ impl MirBuilder {
         name: &str,
         args: &[ASTNode],
     ) -> Result<Option<ValueId>, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.try_build_typeop_function_with_port_v1(&mut port, name, args)
+    }
+
+    pub(in crate::mir::builder) fn try_build_typeop_function_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        name: &str,
+        args: &[ASTNode],
+    ) -> Result<Option<ValueId>, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         if (name == "isType" || name == "asType") && args.len() == 2 {
             if let Some(type_name) = special_handlers::extract_string_literal(&args[1]) {
-                let val = self.build_expression(args[0].clone())?;
+                let val = drive_legacy_expression_v1(self, port, args[0].clone())?;
                 let ty = special_handlers::parse_type_name_to_mir(&type_name);
                 let dst = self.next_value_id();
                 let op = if name == "isType" {
@@ -45,6 +61,19 @@ impl MirBuilder {
         name: &str,
         raw_args: Vec<ASTNode>,
     ) -> Option<Result<ValueId, String>> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.try_handle_math_function_with_port_v1(&mut port, name, raw_args)
+    }
+
+    pub(in crate::mir::builder) fn try_handle_math_function_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        name: &str,
+        raw_args: Vec<ASTNode>,
+    ) -> Option<Result<ValueId, String>>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         if !special_handlers::is_math_function(name) {
             return None;
         }
@@ -55,7 +84,7 @@ impl MirBuilder {
                 ASTNode::New {
                     class, arguments, ..
                 } if class == "FloatBox" && arguments.len() == 1 => {
-                    match self.build_expression(arguments[0].clone()) {
+                    match drive_legacy_expression_v1(self, port, arguments[0].clone()) {
                         v @ Ok(_) => math_args.push(v.unwrap()),
                         err @ Err(_) => return Some(err),
                     }
@@ -63,7 +92,7 @@ impl MirBuilder {
                 ASTNode::New {
                     class, arguments, ..
                 } if class == "IntegerBox" && arguments.len() == 1 => {
-                    let iv = match self.build_expression(arguments[0].clone()) {
+                    let iv = match drive_legacy_expression_v1(self, port, arguments[0].clone()) {
                         Ok(v) => v,
                         Err(e) => return Some(Err(e)),
                     };
@@ -81,11 +110,11 @@ impl MirBuilder {
                 ASTNode::Literal {
                     value: LiteralValue::Float(_),
                     ..
-                } => match self.build_expression(a) {
+                } => match drive_legacy_expression_v1(self, port, a) {
                     v @ Ok(_) => math_args.push(v.unwrap()),
                     err @ Err(_) => return Some(err),
                 },
-                other => match self.build_expression(other) {
+                other => match drive_legacy_expression_v1(self, port, other) {
                     v @ Ok(_) => math_args.push(v.unwrap()),
                     err @ Err(_) => return Some(err),
                 },

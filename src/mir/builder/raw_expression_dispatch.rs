@@ -405,7 +405,7 @@ impl super::MirBuilder {
 
             node @ ASTNode::FunctionCall { .. } => {
                 let c = CallExpr::try_from(node).expect("ASTNode::FunctionCall must convert");
-                self.build_function_call(c.name, c.arguments)
+                self.build_function_call_with_port_v1(port, c.name, c.arguments)
             }
 
             ASTNode::Call {

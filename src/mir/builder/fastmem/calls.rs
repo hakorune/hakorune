@@ -7,6 +7,9 @@
 //! each facade supplies only its existing indexed expression descent.
 
 use crate::ast::{ASTNode, LiteralValue};
+use crate::mir::builder::recursive_child_lowering::{
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+};
 use crate::mir::builder::MirBuilder;
 use crate::mir::function::FastMemBlockNextProofKind;
 use crate::mir::instruction::{FastMemRegionId, MemOpKind};
@@ -79,6 +82,20 @@ pub(crate) fn lower_fastmem_function_call(
     name: String,
     arguments: Vec<ASTNode>,
 ) -> Result<ValueId, String> {
+    let mut port = RawLegacyChildLoweringPortV1;
+    lower_fastmem_function_call_with_port_v1(builder, region, name, arguments, &mut port)
+}
+
+pub(in crate::mir::builder) fn lower_fastmem_function_call_with_port_v1<Port>(
+    builder: &mut MirBuilder,
+    region: FastMemRegionId,
+    name: String,
+    arguments: Vec<ASTNode>,
+    port: &mut Port,
+) -> Result<ValueId, String>
+where
+    Port: RawAstChildLoweringPortV1,
+{
     let Some(spec) = lookup_fastmem_intrinsic(&name) else {
         return Err(format!(
             "[freeze:contract][fastmem/forbidden_call] call={}",
@@ -86,7 +103,7 @@ pub(crate) fn lower_fastmem_function_call(
         ));
     };
     lower_fastmem_intrinsic_with(builder, region, spec, &arguments, |builder, index| {
-        builder.build_expression(arguments[index].clone())
+        drive_legacy_expression_v1(builder, port, arguments[index].clone())
     })
 }
 

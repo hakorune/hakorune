@@ -5,6 +5,9 @@
 
 use super::super::{MirBuilder, ValueId};
 use crate::ast::ASTNode;
+use crate::mir::builder::recursive_child_lowering::{
+    RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+};
 
 impl MirBuilder {
     pub(super) fn try_handle_function_preflight(
@@ -12,6 +15,19 @@ impl MirBuilder {
         name: &str,
         args: &[ASTNode],
     ) -> Result<Option<ValueId>, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.try_handle_function_preflight_with_port_v1(&mut port, name, args)
+    }
+
+    pub(in crate::mir::builder) fn try_handle_function_preflight_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        name: &str,
+        args: &[ASTNode],
+    ) -> Result<Option<ValueId>, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         // Phase 285W-Syntax-0.1: Reject weak(...) function call syntax.
         // SSOT: docs/reference/language/lifecycle.md - weak <expr> is the ONLY valid syntax.
         if name == "weak" {
@@ -28,20 +44,23 @@ impl MirBuilder {
         }
 
         if name == "externcall" {
-            return self.build_explicit_extern_call(args.to_vec()).map(Some);
+            return self
+                .build_explicit_extern_call_with_port_v1(port, args.to_vec())
+                .map(Some);
         }
 
         if self.comp_ctx.is_brand_declared(name) {
             return self
-                .build_brand_constructor_call(name.to_string(), args.to_vec())
+                .build_brand_constructor_call_with_port_v1(port, name.to_string(), args.to_vec())
                 .map(Some);
         }
 
-        if let Some(result) = self.try_build_typeop_function(name, args)? {
+        if let Some(result) = self.try_build_typeop_function_with_port_v1(port, name, args)? {
             return Ok(Some(result));
         }
 
-        if let Some(result) = self.try_handle_math_function(name, args.to_vec()) {
+        if let Some(result) = self.try_handle_math_function_with_port_v1(port, name, args.to_vec())
+        {
             return result.map(Some);
         }
 

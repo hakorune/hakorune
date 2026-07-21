@@ -27,7 +27,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::callable_declaration_catalog::BareStaticRecoveryNoRecoveryReasonV1;
 use crate::mir::builder::calls::drive_call_arguments_v1;
 use crate::mir::builder::recursive_child_lowering::{
-    RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
 };
 
 impl MirBuilder {
@@ -37,6 +37,20 @@ impl MirBuilder {
         name: String,
         args: Vec<ASTNode>,
     ) -> Result<ValueId, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_function_call_with_port_v1(&mut port, name, args)
+    }
+
+    /// Lower a function call while retaining the caller's raw child port.
+    pub(in crate::mir::builder) fn build_function_call_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        name: String,
+        args: Vec<ASTNode>,
+    ) -> Result<ValueId, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         // Dev trace
         if crate::config::env::cli_verbose() {
             let cur_fun = self
@@ -54,20 +68,20 @@ impl MirBuilder {
             ));
         }
 
-        if let Some(result) = self.try_handle_function_preflight(&name, &args)? {
+        if let Some(result) = self.try_handle_function_preflight_with_port_v1(port, &name, &args)? {
             return Ok(result);
         }
 
         if let Some(region) = self.current_fastmem_region() {
             if name.starts_with("mem.") {
-                return crate::mir::builder::fastmem::calls::lower_fastmem_function_call(
-                    self, region, name, args,
+                return crate::mir::builder::fastmem::calls::lower_fastmem_function_call_with_port_v1(
+                    self, region, name, args, port,
                 );
             }
         }
 
         // 1. Build argument values
-        let arg_values = self.build_call_args(&args)?;
+        let arg_values = drive_call_arguments_v1(self, port, args.as_slice())?;
 
         // 2. Special-case: global str(x) → x.str() normalization
         if name == "str" && arg_values.len() == 1 {
@@ -232,6 +246,19 @@ impl MirBuilder {
         name: String,
         args: Vec<ASTNode>,
     ) -> Result<ValueId, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_brand_constructor_call_with_port_v1(&mut port, name, args)
+    }
+
+    pub(in crate::mir::builder) fn build_brand_constructor_call_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        name: String,
+        args: Vec<ASTNode>,
+    ) -> Result<ValueId, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         if args.len() != 1 {
             return Err(format!(
                 "[brand/constructor-arity] {} expects exactly one value, got {}",
@@ -241,7 +268,7 @@ impl MirBuilder {
         }
         let mut args = args.into_iter();
         let value = args.next().expect("len checked");
-        self.build_expression(value)
+        drive_legacy_expression_v1(self, port, value)
     }
 
     // ========================================
@@ -324,6 +351,18 @@ impl MirBuilder {
         &mut self,
         args: Vec<ASTNode>,
     ) -> Result<ValueId, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_explicit_extern_call_with_port_v1(&mut port, args)
+    }
+
+    pub(in crate::mir::builder) fn build_explicit_extern_call_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        args: Vec<ASTNode>,
+    ) -> Result<ValueId, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         if args.is_empty() {
             return Err(
                 "externcall requires a target string literal: externcall \"name\"(...)".to_string(),
@@ -333,7 +372,7 @@ impl MirBuilder {
         let extern_name = Self::extract_string_literal(&args[0]).ok_or_else(|| {
             "externcall target must be a string literal: externcall \"name\"(...)".to_string()
         })?;
-        let arg_values = self.build_call_args(&args[1..])?;
+        let arg_values = drive_call_arguments_v1(self, port, &args[1..])?;
         let return_type = super::extern_calls::explicit_extern_return_type(&extern_name);
         let (iface_name, method_name) =
             super::extern_calls::split_explicit_extern_name(&extern_name);

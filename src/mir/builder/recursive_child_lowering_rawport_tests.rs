@@ -17,6 +17,13 @@ fn int(value: i64) -> ASTNode {
     }
 }
 
+fn string(value: &str) -> ASTNode {
+    ASTNode::Literal {
+        value: LiteralValue::String(value.to_string()),
+        span: Span::unknown(),
+    }
+}
+
 fn add(left: ASTNode, right: ASTNode) -> ASTNode {
     ASTNode::BinaryOp {
         operator: BinaryOperator::Add,
@@ -88,6 +95,14 @@ fn field(object: ASTNode, name: &str) -> ASTNode {
     ASTNode::FieldAccess {
         object: Box::new(object),
         field: name.to_string(),
+        span: Span::unknown(),
+    }
+}
+
+fn function_call(name: &str, arguments: Vec<ASTNode>) -> ASTNode {
+    ASTNode::FunctionCall {
+        name: name.to_string(),
+        arguments,
         span: Span::unknown(),
     }
 }
@@ -249,6 +264,39 @@ fn raw_invocation_port_preserves_call_and_from_children() {
         assert!(instructions(builder)
             .iter()
             .any(|row| matches!(row, MirInstruction::Call { .. })));
+        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
+    });
+}
+
+#[test]
+fn raw_invocation_port_preserves_function_preflight_children() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("raw_port_function_preflight/0".to_string());
+    with_port!(builder, port, {
+        let typeop = drive_legacy_expression_v1(
+            builder,
+            &mut port,
+            function_call("isType", vec![add(int(1), int(2)), string("Integer")]),
+        )
+        .unwrap();
+        let externcall = drive_legacy_expression_v1(
+            builder,
+            &mut port,
+            function_call("externcall", vec![string("io.print"), add(int(3), int(4))]),
+        )
+        .unwrap();
+        assert!(instructions(builder).iter().any(|row| matches!(
+            row,
+            MirInstruction::TypeOp { dst, .. } if *dst == typeop
+        )));
+        assert!(instructions(builder).iter().any(|row| matches!(
+            row,
+            MirInstruction::Call {
+                dst: Some(dst),
+                callee: Some(crate::mir::Callee::Extern(_)),
+                ..
+            } if *dst == externcall
+        )));
         port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
     });
 }
