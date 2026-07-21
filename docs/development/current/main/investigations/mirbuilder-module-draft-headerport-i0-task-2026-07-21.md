@@ -1,5 +1,5 @@
 ---
-Status: `HEADERPORT0-RAWPORT0-SELECT` is closed; `HEADERPORT0-RAWPORT0-S0` is next
+Status: `HEADERPORT0-RAWPORT0-SELECT/S0` are closed; `HEADERPORT0-RAWPORT0-M0` is next
 Date: 2026-07-21
 Scope: one atomic `FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0` cutover
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-task-2026-07-20.md
@@ -26,8 +26,8 @@ CompilationContext field, TLS value, cache, second draft store, or fallback.
 
 The one semantic activation is the final atomic cutover.  Earlier I0 steps
 are buildable BoxShape preparation only and keep production consumers at zero.
-The raw recursive re-entrancy audit below is a prerequisite selection.  It is
-now closed; the first code-facing row is the passive `RAWPORT0-S0` vocabulary.
+The raw recursive re-entrancy audit and its passive S0 vocabulary are closed;
+the next code-facing row is `RAWPORT0-M0`.
 
 ## Fixed terminal law
 
@@ -238,3 +238,27 @@ FACTSESSION0-ACTIVEBIND0-S0/P0
 The later fact-session cutover takes and seals the eight existing function
 fact lanes with the collected draft.  It does not reopen this collector or
 HeaderPort ownership decision.
+
+## RAWPORT0-S0 closeout (2026-07-21)
+
+`RAWPORT0-S0` closes with production consumers still at zero.
+
+```text
+ModuleLoweringPortV1
+  owns only the invocation collector borrow
+  loans headers through an HRTB-scoped read callback
+  has no Builder, CompilationContext, TLS, cache, or second collector field
+
+PendingFunctionSessionCloseV1
+  captures a successful canonical child before parent restore
+  exposes abort/drop restoration only in S0
+  has no admission or collector API, preventing foreign admission pairing
+```
+
+The collector vocabulary now distinguishes A-plus
+`CanonicalResolvedOwner(FunctionOwnerIdV1)` from legacy symbols, and its
+disconnected fixtures use real `main`/`condition_fn` symbols with arities
+`0`/`1`. Focused port, collector, and pending-terminal tests, the
+HeaderPort guard, `cargo check`, formatting, and whitespace checks are green.
+`RAWPORT0-M0` alone may thread this port through the audited raw/resolved
+recursive descent and construct the port-branded terminal admission.

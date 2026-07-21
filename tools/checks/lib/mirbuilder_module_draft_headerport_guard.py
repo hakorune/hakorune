@@ -16,6 +16,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[3]
 BUILDER = ROOT / "src/mir/builder.rs"
 COMPILATION = ROOT / "src/mir/builder/compilation_context.rs"
 INVOCATION = ROOT / "src/mir/builder/module_lowering_invocation.rs"
+PENDING_TERMINAL = ROOT / "src/mir/builder/calls/function_session/terminal.rs"
 
 P0_DIRECT_HEADER_READER_FRAGMENTS = {
     "src/mir/builder/calls/annotation.rs": "module.functions.get(name)",
@@ -50,24 +51,51 @@ def main() -> int:
     invocation = read(INVOCATION)
     builder = read(BUILDER)
     compilation = read(COMPILATION)
+    pending_terminal = read(PENDING_TERMINAL)
 
     for fragment in (
         "struct LoweringHeaderPortV1",
+        "struct ModuleLoweringPortV1",
         "struct ModuleLoweringInvocationV1",
         "collector: ModuleDraftCollectorV1",
         "builder: &'builder mut MirBuilder",
         "fn with_header_port",
+        "fn with_module_port",
         "fn prepare_draft_admission",
     ):
         require(invocation, fragment, "HEADERPORT0 invocation vocabulary")
 
     header_impl = invocation.split("impl LoweringHeaderPortV1", 1)[1].split(
-        "/// The external owner", 1
+        "/// Stack-owned capability", 1
     )[0]
-    for fragment in ("signature", "contains_symbol", "symbol_count", "visit_symbols"):
+    for fragment in (
+        "signature",
+        "contains_symbol",
+        "symbol_count",
+        "visit_symbols",
+    ):
         require(header_impl, fragment, "HEADERPORT0 read capability")
     for fragment in ("prepare", "collect", "MirFunction", "current_module"):
         forbid(header_impl, fragment, "HEADERPORT0 read capability")
+    require(invocation, "for<'header>", "HEADERPORT0 non-escaping read borrow")
+    require(invocation, "for<'port>", "RAWPORT0 non-escaping stack port")
+
+    module_port_impl = invocation.split("struct ModuleLoweringPortV1", 1)[1].split(
+        "/// The external owner", 1
+    )[0]
+    for fragment in ("collector: &'collector mut ModuleDraftCollectorV1", "with_headers", "prepare_draft_admission"):
+        require(module_port_impl, fragment, "RAWPORT0 stack-owned capability")
+    for fragment in ("MirBuilder", "current_module", "thread_local", "OnceLock"):
+        forbid(module_port_impl, fragment, "RAWPORT0 stack-owned capability")
+
+    pending_decl = pending_terminal.split("struct PendingFunctionSessionCloseV1", 1)[1].split(
+        "impl<'builder> CanonicalFunctionLoweringSessionV1", 1
+    )[0]
+    for fragment in ("session: CanonicalFunctionLoweringSessionV1", "draft: Option<MirFunction>"):
+        require(pending_decl, fragment, "RAWPORT0 pending terminal")
+    for fragment in ("ModuleDraftCollectorV1", "MirBuilder", "current_module"):
+        forbid(pending_decl, fragment, "RAWPORT0 pending terminal")
+    forbid(pending_terminal, "derive(Clone)", "RAWPORT0 pending terminal")
 
     for fragment in ("thread_local", "OnceLock", "static ", "derive(Clone)"):
         forbid(invocation, fragment, "HEADERPORT0 external invocation")

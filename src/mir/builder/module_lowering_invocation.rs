@@ -44,6 +44,43 @@ impl LoweringHeaderPortV1<'_> {
     }
 }
 
+/// Stack-owned capability for one recursive module-lowering descent.
+///
+/// The port borrows only the invocation collector. It cannot retain a Builder,
+/// so every lowering caller must pass its Builder explicitly. Header reads are
+/// scoped to `with_headers`; a mutable admission can begin only after that
+/// callback returns.
+pub(in crate::mir::builder) struct ModuleLoweringPortV1<'collector> {
+    collector: &'collector mut ModuleDraftCollectorV1,
+    _seal: ModuleLoweringPortSealV1,
+}
+
+struct ModuleLoweringPortSealV1;
+
+impl ModuleLoweringPortV1<'_> {
+    pub(in crate::mir::builder) fn with_headers<R>(
+        &self,
+        observe: impl for<'header> FnOnce(&'header LoweringHeaderPortV1<'header>) -> R,
+    ) -> R {
+        let headers = LoweringHeaderPortV1 {
+            view: &*self.collector,
+            _seal: LoweringHeaderPortSealV1,
+        };
+        observe(&headers)
+    }
+
+    pub(in crate::mir::builder) fn prepare_draft_admission(
+        &mut self,
+        key: FunctionDraftKeyV1,
+        expected_symbol: String,
+        expected_arity: usize,
+        policy: DraftPublicationPolicyV1,
+    ) -> Result<PreparedFunctionDraftAdmissionV1<'_>, ModuleDraftAdmissionErrorV1> {
+        self.collector
+            .prepare_admission(key, expected_symbol, expected_arity, policy)
+    }
+}
+
 /// The external owner of one module-lowering invocation.
 ///
 /// It borrows the route's Builder and owns the invocation-local collector, but
@@ -77,19 +114,32 @@ impl<'builder> ModuleLoweringInvocationV1<'builder> {
         }
     }
 
+    /// Lend one stack-owned lowering port to an explicit recursive descent.
+    ///
+    /// This remains disconnected in RAWPORT0-S0. Future routes use the port to
+    /// alternate header reads with child terminal collection without ambient
+    /// collector lookup.
+    pub(in crate::mir::builder) fn with_module_port<R>(
+        &mut self,
+        lower: impl for<'port> FnOnce(&mut MirBuilder, &'port mut ModuleLoweringPortV1<'port>) -> R,
+    ) -> R {
+        let builder = &mut *self.builder;
+        let mut port = ModuleLoweringPortV1 {
+            collector: &mut self.collector,
+            _seal: ModuleLoweringPortSealV1,
+        };
+        lower(builder, &mut port)
+    }
+
     /// Lend the same-owned collector header view to one explicit lowering step.
     ///
     /// When `lower` returns, the port is dropped before any later mutable
     /// collector transition can begin.
     pub(in crate::mir::builder) fn with_header_port<R>(
         &mut self,
-        lower: impl FnOnce(&mut MirBuilder, &LoweringHeaderPortV1<'_>) -> R,
+        lower: impl for<'header> FnOnce(&mut MirBuilder, &'header LoweringHeaderPortV1<'header>) -> R,
     ) -> R {
-        let header_port = LoweringHeaderPortV1 {
-            view: &self.collector,
-            _seal: LoweringHeaderPortSealV1,
-        };
-        lower(self.builder, &header_port)
+        self.with_module_port(|builder, port| port.with_headers(|headers| lower(builder, headers)))
     }
 
     /// Begin the one future terminal transition after every header borrow ends.
@@ -232,6 +282,35 @@ mod tests {
         invocation.with_header_port(|_builder, headers| {
             assert_eq!(headers.symbol_count(), 1);
             assert_eq!(headers.signature("Prefix.f/1").unwrap().params.len(), 1);
+        });
+    }
+
+    #[test]
+    fn module_port_alternates_header_reads_and_collector_mutation() {
+        let mut builder = MirBuilder::new();
+        let mut invocation = ModuleLoweringInvocationV1::open(&mut builder);
+
+        invocation.with_module_port(|builder, port| {
+            port.with_headers(|headers| {
+                assert_eq!(headers.symbol_count(), 0);
+            });
+            assert_eq!(builder.next_value_id().0, 0);
+
+            port.prepare_draft_admission(
+                FunctionDraftKeyV1::Main,
+                "main".into(),
+                0,
+                DraftPublicationPolicyV1::LegacyReplaceWholePair,
+            )
+            .unwrap()
+            .seal(draft("main", 0))
+            .unwrap()
+            .collect();
+
+            port.with_headers(|headers| {
+                assert!(headers.contains_symbol("main"));
+                assert_eq!(headers.signature("main").unwrap().params.len(), 0);
+            });
         });
     }
 }

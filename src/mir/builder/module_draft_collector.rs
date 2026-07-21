@@ -6,7 +6,7 @@
 
 use std::collections::BTreeMap;
 
-use crate::mir::resolved_semantics::CanonicalCallableKeyV1;
+use crate::mir::resolved_semantics::{CanonicalCallableKeyV1, FunctionOwnerIdV1};
 use crate::mir::{FunctionSignature, MirFunction};
 
 /// Semantic identity for one draft admission, distinct from fact generation.
@@ -15,6 +15,7 @@ use crate::mir::{FunctionSignature, MirFunction};
 pub(in crate::mir::builder) enum FunctionDraftKeyV1 {
     Main,
     LegacySymbol(String),
+    CanonicalResolvedOwner(FunctionOwnerIdV1),
     CanonicalCallable(CanonicalCallableKeyV1),
     SyntheticConditionFn,
 }
@@ -263,6 +264,7 @@ mod tests {
         CompletedDraftSignatureViewV1, DraftPublicationPolicyV1, FunctionDraftKeyV1,
         ModuleDraftAdmissionErrorV1, ModuleDraftCollectorV1,
     };
+    use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
     use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirType};
     use std::panic::{catch_unwind, AssertUnwindSafe};
 
@@ -378,6 +380,75 @@ mod tests {
     }
 
     #[test]
+    fn resolved_owner_key_is_distinct_from_legacy_symbol_identity() {
+        let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
+        let owner = issuer.issue().unwrap();
+        let mut collector = ModuleDraftCollectorV1::default();
+
+        collector
+            .prepare_admission(
+                FunctionDraftKeyV1::CanonicalResolvedOwner(owner),
+                "canonical_a_plus/0".into(),
+                0,
+                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+            )
+            .unwrap()
+            .seal(draft("canonical_a_plus/0", 0))
+            .unwrap()
+            .collect();
+
+        let error = collector
+            .prepare_admission(
+                FunctionDraftKeyV1::CanonicalResolvedOwner(owner),
+                "canonical_a_plus/0".into(),
+                0,
+                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+            )
+            .unwrap_err();
+        assert!(matches!(
+            error,
+            ModuleDraftAdmissionErrorV1::DuplicateKey(
+                FunctionDraftKeyV1::CanonicalResolvedOwner(actual)
+            ) if actual == owner
+        ));
+    }
+
+    #[test]
+    fn canonical_symbol_collision_rejects_a_distinct_resolved_owner_key() {
+        let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
+        let first_owner = issuer.issue().unwrap();
+        let second_owner = issuer.issue().unwrap();
+        let mut collector = ModuleDraftCollectorV1::default();
+
+        collector
+            .prepare_admission(
+                FunctionDraftKeyV1::CanonicalResolvedOwner(first_owner),
+                "same_symbol/0".into(),
+                0,
+                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+            )
+            .unwrap()
+            .seal(draft("same_symbol/0", 0))
+            .unwrap()
+            .collect();
+
+        let error = collector
+            .prepare_admission(
+                FunctionDraftKeyV1::CanonicalResolvedOwner(second_owner),
+                "same_symbol/0".into(),
+                0,
+                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+            )
+            .unwrap_err();
+        assert!(matches!(
+            error,
+            ModuleDraftAdmissionErrorV1::DuplicateSymbol(symbol) if symbol == "same_symbol/0"
+        ));
+        assert_eq!(collector.symbol_count(), 1);
+        assert!(collector.contains_symbol("same_symbol/0"));
+    }
+
+    #[test]
     fn signature_or_arity_drift_rejects_without_collector_mutation() {
         let mut collector = ModuleDraftCollectorV1::default();
         let prepared = collector
@@ -402,13 +473,13 @@ mod tests {
         for (key, symbol, arity, policy) in [
             (
                 FunctionDraftKeyV1::Main,
-                "main/0",
+                "main",
                 0,
                 DraftPublicationPolicyV1::LegacyReplaceWholePair,
             ),
             (
                 FunctionDraftKeyV1::SyntheticConditionFn,
-                "condition_fn/1",
+                "condition_fn",
                 1,
                 DraftPublicationPolicyV1::CanonicalRejectDuplicate,
             ),
@@ -423,7 +494,7 @@ mod tests {
 
         let mut symbols = Vec::new();
         collector.visit_symbols(&mut |symbol| symbols.push(symbol.to_owned()));
-        assert_eq!(symbols, ["condition_fn/1", "main/0"]);
+        assert_eq!(symbols, ["condition_fn", "main"]);
         assert_eq!(collector.symbol_count(), 2);
     }
 

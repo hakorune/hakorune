@@ -12,6 +12,10 @@ use crate::mir::function::{FunctionPublicationErrorV1, MirFunction, MirModule};
 
 use super::context_lifecycle::LoweringContext;
 
+mod terminal;
+#[allow(unused_imports)] // RAWPORT0-S0 exposes the later invocation terminal without a caller.
+pub(in crate::mir::builder) use terminal::PendingFunctionSessionCloseV1;
+
 #[derive(Debug)]
 struct FunctionSessionCleanupErrorV1 {
     imbalances: Vec<&'static str>,
@@ -201,11 +205,15 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
 
     fn cleanup(&mut self, operation_succeeded: bool) -> Result<(), FunctionSessionCleanupErrorV1> {
         let validation = self.validate_before_restore(operation_succeeded);
+        self.restore_context();
+        validation
+    }
+
+    fn restore_context(&mut self) {
         if let Some(context) = self.context.take() {
             self.builder.restore_lowering_context(context);
         }
         self.closed = true;
-        validation
     }
 
     fn validate_before_restore(
