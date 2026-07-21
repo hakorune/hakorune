@@ -1,7 +1,7 @@
 # HEADERPORT0-REENTRANT-TERM0-I0: production cutover consultation
 
-Status: **STATE0-S0 is closed; STATE0-P0 is next, production cutover remains
-disconnected**
+Status: **STATE0-S0/P0/I0/G0 and CONSULT0 are closed; ACCESS0-S0 is next,
+production cutover remains disconnected**
 
 Date: 2026-07-21
 
@@ -305,7 +305,139 @@ seam itself.  This is a boundary proof, not a claim that the legacy
 `current_module` readers elsewhere have already been migrated; the 14-row
 reader census remains the migration inventory.
 
-The next code-facing row is
-`HEADERPORT0-REENTRANT-TERM0-I0-STATE0-CONSULT0`: decide the complete
-invocation candidate/state handoff before production capture/commit.  The
-existing all-route I0 and `CUT0` remain forbidden.
+The following consultation row,
+`HEADERPORT0-REENTRANT-TERM0-I0-STATE0-CONSULT0`, is now closed.  It selects
+the invocation-owned candidate plus explicit access-port handoff described
+below.  The next code-facing row is
+`HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-S0`; production capture/commit and
+`CUT0` remain forbidden.
+
+## STATE0-CONSULT0 decision
+
+The complete handoff is not a one-call replacement.  `current_module` is
+currently both storage and an implicit capability, so leaving it in place
+while adding a collector would create a second function/header truth.
+
+### Rejected candidates
+
+```text
+mirror collector headers into current_module
+  -> stale duplicate truth and ambiguous replacement order
+
+keep current_module as an empty shell while migrating only one route
+  -> root-family-dependent authority and one-root-at-a-time cutover
+
+store ModuleLoweringPortV1 in MirBuilder/CompilationContext/TLS
+  -> ambient mutable authority and nested-borrow hazard
+
+rewrite the complete FunctionLoweringSession in the same row
+  -> mixes state ownership with the independent function-session series
+```
+
+### Selected H-prime: invocation-owned candidate plus explicit access port
+
+The production handoff will use one invocation candidate whose ownership is
+structurally explicit:
+
+```rust
+struct ModuleLoweringInvocationCandidateV1<'builder> {
+    builder: &'builder mut MirBuilder,
+    state: ModuleLoweringInvocationStateV1,
+    _seal: InvocationCandidateSealV1,
+}
+```
+
+The candidate takes the module shell out of the Builder before body lowering;
+the Builder does not retain a second function map.  Lowering receives a
+short-lived `ModuleLoweringAccessPortV1` with exactly three surfaces:
+
+```text
+header surface:
+  collector-owned completed signatures/presence/inventory
+
+shell surface:
+  module name, globals, accumulated metadata, closure-body interning,
+  and static-data-plan lookup
+
+terminal surface:
+  capture/prepare/seal/collect and the one final drain
+```
+
+The port is threaded explicitly through raw expression/body descent.  A
+header loan ends before terminal mutation.  Canonical A+/trivial and
+acyclic/recursive lowering keeps its existing sealed callable catalog as
+semantic header authority; the collector is only the physical unpublished
+draft sink.  No current-module fallback is introduced.
+
+The shell surface is intentionally explicit rather than a blanket metadata
+borrow.  `intern_closure_body` and static-data-plan lookup are the two current
+metadata readers that otherwise silently reach back into `current_module`.
+ACCESS0 must either expose those operations through the shell port or project
+their immutable inputs before the invocation starts; it may not retain a
+`current_module` fallback.  Function maps and completed headers remain
+collector-only.
+
+Function-local state remains in the existing Builder for this series.  Moving
+that state into a separate `FunctionLoweringSession` is the later
+`MIRBUILDER-CLEAN0-FSESSION0` owner and must not be smuggled into this I0.
+
+### Handoff and failure law
+
+```text
+prepare invocation:
+  take the module shell
+  install one invocation state
+  expose no current_module function map
+
+lower root/children:
+  use explicit access-port loans
+  collect nested drafts before parent restore
+
+complete main + condition_fn:
+  capture and collect as unpublished drafts
+
+finalize candidate:
+  all header reads through collector/catalog ports
+  no source/body/name reconstruction
+
+commit:
+  preflight complete inventory and shell emptiness
+  drain exactly once
+  no fallible check or retry after drain
+```
+
+```text
+primary/cleanup/admission failure before drain:
+  collector prefix and shell unchanged
+  parent restored exactly once
+
+root/finalizer failure before drain:
+  invocation candidate dropped
+  external module unchanged
+
+post-drain verification failure:
+  unpublished candidate is discarded
+  no legacy/A+/BindingSSA fallback
+```
+
+### Next task order
+
+```text
+HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-S0
+  disconnected ModuleLoweringAccessPortV1 vocabulary
+  production consumers = 0
+
+HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-P0
+  thread the port through all 14 reader families
+  and prove no current_module function-map read remains in the candidate
+
+HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-S0/P0
+  invocation-owned shell take/restore and candidate failure transaction
+
+HEADERPORT0-REENTRANT-TERM0-I0
+  one all-route production capture/commit cutover
+```
+
+The current production I0 and `CUT0` remain forbidden until ACCESS0-P0 and
+CANDIDATE0-P0 are green.  This decision closes the consultation boundary but
+does not claim any production route has been rewired.
