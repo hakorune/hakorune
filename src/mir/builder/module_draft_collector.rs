@@ -428,6 +428,69 @@ mod tests {
     }
 
     #[test]
+    fn p0_route_policy_matrix_covers_every_root_and_child_family() {
+        let routes = [
+            (
+                "legacy_main_root",
+                DraftPublicationPolicyV1::LegacyReplaceWholePair,
+            ),
+            (
+                "canonical_a_plus_root",
+                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+            ),
+            (
+                "binding_ssa_trivial_root",
+                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+            ),
+            (
+                "binding_ssa_acyclic_module_root",
+                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+            ),
+            (
+                "binding_ssa_recursive_module_root",
+                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+            ),
+            (
+                "legacy_static_free_child",
+                DraftPublicationPolicyV1::LegacyReplaceWholePair,
+            ),
+            (
+                "legacy_instance_constructor_child",
+                DraftPublicationPolicyV1::LegacyReplaceWholePair,
+            ),
+            (
+                "canonical_a_plus_child",
+                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+            ),
+            (
+                "binding_ssa_child",
+                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+            ),
+        ];
+
+        let mut collector = ModuleDraftCollectorV1::default();
+        for (route, policy) in routes {
+            let symbol = format!("p0/{route}/0");
+            let key = if route == "legacy_main_root" {
+                FunctionDraftKeyV1::Main
+            } else {
+                FunctionDraftKeyV1::LegacySymbol(symbol.clone())
+            };
+            collector
+                .prepare_admission(key, symbol.clone(), 0, policy)
+                .unwrap()
+                .seal(draft(&symbol, 0))
+                .unwrap()
+                .collect();
+        }
+
+        assert_eq!(collector.symbol_count(), 9);
+        assert!(collector.contains_symbol("p0/legacy_main_root/0"));
+        assert!(collector.contains_symbol("p0/canonical_a_plus_child/0"));
+        assert!(collector.contains_symbol("p0/binding_ssa_recursive_module_root/0"));
+    }
+
+    #[test]
     fn p0_admission_failures_stop_before_collecting_a_new_draft() {
         let mut collector = ModuleDraftCollectorV1::default();
         collector

@@ -3574,3 +3574,54 @@ production collector consumer, no parent-restore rewrite, no fact-session
 connection, no finalizer change, and no PHI repair. A body/metadata read,
 cloned header cache, second draft collector, or direct live-module insertion
 remains an I0 stop.
+
+#### MODULEDRAFT0-P0 closeout — disconnected collector and route-profile proof
+
+The same-owned view now exposes exactly the header operations required by the
+M0 census:
+
+```text
+signature(symbol)
+contains_symbol(symbol)
+symbol_count()
+visit_symbols(visitor) in BTreeMap order
+```
+
+The visitor borrows symbols from the collector's one `BTreeMap`; it does not
+clone a header list or expose function body/metadata. Focused fixtures prove
+return/parameter header access, exact symbol presence, deterministic inventory
+order, all five root plus four child prepared-policy profiles, legacy whole
+replacement, canonical duplicate rejection, and main together with the
+synthetic `condition_fn` disposition.
+
+The failure matrix is split at its real owners:
+
+```text
+prepared admission / sealing:
+  duplicate, symbol, and arity failures leave collector delta = 0
+
+unpublished draft before collect:
+  unwind leaves collector delta = 0
+
+existing function session:
+  success, primary, cleanup, and panic restore observations remain green
+```
+
+This is explicitly a disconnected proof, not an assertion that the existing
+child terminal already collects before restore. M0 records its current
+`cleanup -> restore -> publish` behavior; I0 alone changes that handoff.
+Focused collector tests, existing function-session and FACTSESSION P0 matrices,
+format, cargo check, diff, and pointer guards are green. The collector source
+is 557 lines. Production collector consumers, parent-restore rewrites,
+fact-session connections, finalizer changes, PHI repair, and direct
+live-module insertion remain zero.
+
+`FINALIZE0-MODULEDRAFT0-I0` is next. It must connect one prepared collector
+admission through each existing child terminal before parent restore, collect
+main through the same port, and make module aggregation the sole downstream
+consumer. It preserves legacy replace and canonical reject, makes every
+post-preparation collection infallible, and leaves facts disconnected. Main,
+condition_fn, the canonical atomic callable batch, and root error/abort paths
+must use the same collector ownership surface; no second collector, header
+cache, direct `MirModule` insertion, fact-session lane move, PHI repair, or
+finalization reordering is admitted.
