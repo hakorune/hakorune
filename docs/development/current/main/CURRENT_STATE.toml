@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0/S0/M0/P0-SELECT/P0-S0/P0-P0/P0-G0, FACTSESSION0-I0-SELECT, and MODULEDRAFT0-S0/M0/P0 and HEADERPORT0-SELECT/S0/P0 are closed; FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0 is next, and CUT0 remains forbidden"
+status = "FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0/S0/M0/P0-SELECT/P0-S0/P0-P0/P0-G0, FACTSESSION0-I0-SELECT, MODULEDRAFT0-S0/M0/P0 and HEADERPORT0-SELECT/S0/P0, and HEADERPORT0-RAWPORT0-SELECT are closed; FINALIZE0-MODULEDRAFT0-HEADERPORT0-RAWPORT0-S0 is next, and CUT0 remains forbidden"
 date = "2026-07-21"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -314,10 +314,11 @@ weakfield_classify0_task = "docs/development/current/main/investigations/mirbuil
 finalize0_boundary_consultation = "docs/development/current/main/investigations/mirbuilder-finalize0-boundary-consultation-2026-07-20.md"
 finalize0_p0_production_census_consultation = "docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-consultation-2026-07-20.md"
 finalize0_p0_production_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-task-2026-07-20.md"
+module_draft_headerport_i0_task = "docs/development/current/main/investigations/mirbuilder-module-draft-headerport-i0-task-2026-07-21.md"
 
-latest_card = "mirbuilder-finalize0-p0-production-census-task-2026-07-20"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-task-2026-07-20.md"
-latest_card_summary = """FINALIZE0-MODULEDRAFT0-S0/M0/P0 and HEADERPORT0-SELECT/S0/P0 are closed. Candidate H-prime now proves the invocation-owned HeaderPort has a short read loan: a collected prefix is observed, then the same collector prepares/seals/collects, and the later read sees the extended prefix; rejected admission preserves it. One reusable guard pins the external/no-cache boundary and eight direct reader families. No production root, terminal, main finalizer, or canonical batch consumes this vocabulary. MODULEDRAFT0-HEADERPORT0-I0 is next and is the only activation: it must atomically route every header reader through the port and move all completion collection before restore. FACTSESSION, PHI repair, JoinIR, finalization repair, MODULETX activation, and CUT0 remain forbidden."""
+latest_card = "mirbuilder-module-draft-headerport-i0-task-2026-07-21"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-module-draft-headerport-i0-task-2026-07-21.md"
+latest_card_summary = """FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0 is taskized as an atomic final cutover. The nested raw BoxDeclaration audit selected Candidate A-prime: one stack-owned, explicit ModuleLoweringPortV1 carries the invocation-owned collector through re-entrant raw and resolved child lowering; header reads are short and end before collect-before-restore mutation. HEADERPORT0-RAWPORT0-S0 is next with zero production consumers. It owns passive port/terminal/key vocabulary, including truthful A-plus FunctionOwnerId, main, and condition_fn admissions; M0/P0 then prove full recursive closure before the one I0 activation."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -519,7 +520,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0-113"
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-MODULEDRAFT0-HEADERPORT0-RAWPORT0-S0-115"
 finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
