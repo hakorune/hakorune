@@ -7,6 +7,9 @@
 
 use crate::ast::ASTNode;
 use crate::mir::builder::compilation_context::RecordLocalFieldValue;
+use crate::mir::builder::recursive_child_lowering::{
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+};
 use crate::mir::builder::MirBuilder;
 use crate::mir::function::{RecordDecl, RecordValueBoundaryKind};
 use crate::mir::{MirInstruction, UserBoxFieldDecl, ValueId};
@@ -22,6 +25,20 @@ impl MirBuilder {
         class: String,
         arguments: Vec<ASTNode>,
     ) -> Result<ValueId, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_record_constructor_value_with_port_v1(&mut port, class, arguments)
+    }
+
+    /// Lower a record constructor without dropping the caller's raw child port.
+    pub(in crate::mir::builder) fn build_record_constructor_value_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        class: String,
+        arguments: Vec<ASTNode>,
+    ) -> Result<ValueId, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         let Some(decl) = self.comp_ctx.record_decls.get(&class).cloned() else {
             return Err(format!(
                 "[type/record_contract_unknown_record] record={}",
@@ -48,7 +65,8 @@ impl MirBuilder {
         for (field_index, (field, argument)) in
             decl.fields.iter().zip(arguments.into_iter()).enumerate()
         {
-            field_values.push(self.build_checked_record_field_value(
+            field_values.push(self.build_checked_record_field_value_with_port_v1(
+                port,
                 field_index,
                 field,
                 argument,
@@ -73,6 +91,20 @@ impl MirBuilder {
         record_type_name: String,
         fields: Vec<(String, ASTNode)>,
     ) -> Result<ValueId, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_record_literal_value_with_port_v1(&mut port, record_type_name, fields)
+    }
+
+    /// Lower a record literal while retaining the recursive raw child port.
+    pub(in crate::mir::builder) fn build_record_literal_value_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        record_type_name: String,
+        fields: Vec<(String, ASTNode)>,
+    ) -> Result<ValueId, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         let Some(decl) = self.comp_ctx.record_decls.get(&record_type_name).cloned() else {
             return Err(format!(
                 "[type/record_contract_unknown_record] record={}",
@@ -127,7 +159,8 @@ impl MirBuilder {
                 .position(|field| field.name == field_name)
                 .expect("record field set preflight");
             let field = &decl.fields[field_index];
-            let value = self.build_checked_record_field_value(
+            let value = self.build_checked_record_field_value_with_port_v1(
+                port,
                 field_index,
                 field,
                 expr,
@@ -153,7 +186,8 @@ impl MirBuilder {
                         record_type_name, field.name
                     )
                 })?;
-            let value = self.build_checked_record_field_value(
+            let value = self.build_checked_record_field_value_with_port_v1(
+                port,
                 field_index,
                 field,
                 default_expr,
@@ -188,6 +222,20 @@ impl MirBuilder {
         base: ASTNode,
         updates: Vec<(String, ASTNode)>,
     ) -> Result<ValueId, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_record_update_value_with_port_v1(&mut port, base, updates)
+    }
+
+    /// Lower a record update while retaining the recursive raw child port.
+    pub(in crate::mir::builder) fn build_record_update_value_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        base: ASTNode,
+        updates: Vec<(String, ASTNode)>,
+    ) -> Result<ValueId, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         let expected_record_name = self.record_name_for_value_base(&base).ok_or_else(|| {
             "[type/record_contract_update_base_mismatch] expected=record-local-value".to_string()
         })?;
@@ -224,7 +272,7 @@ impl MirBuilder {
         }
 
         let (dst, contract_id, fingerprint) = self.begin_record_value_contract(&decl);
-        let base_value = self.build_record_value_base(base)?;
+        let base_value = self.build_record_value_base_with_port_v1(port, base)?;
         let Some(record) = self
             .function_state
             .compilation
@@ -274,7 +322,8 @@ impl MirBuilder {
                 .iter()
                 .position(|field| field.name == field_name)
                 .expect("update field preflight");
-            let value = self.build_checked_record_field_value(
+            let value = self.build_checked_record_field_value_with_port_v1(
+                port,
                 field_index,
                 &decl.fields[field_index],
                 expr,
@@ -337,6 +386,20 @@ impl MirBuilder {
         object: &ASTNode,
         field: &str,
     ) -> Result<Option<ValueId>, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.try_lower_record_field_read_from_ast_with_port_v1(&mut port, object, field)
+    }
+
+    /// Preserve the caller's raw child port through record-backed field reads.
+    pub(in crate::mir::builder) fn try_lower_record_field_read_from_ast_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        object: &ASTNode,
+        field: &str,
+    ) -> Result<Option<ValueId>, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         match object {
             ASTNode::Variable { name, .. } => {
                 let Some(value) = self
@@ -353,8 +416,11 @@ impl MirBuilder {
             ASTNode::New {
                 class, arguments, ..
             } if self.is_record_constructor_class(class) => {
-                let value =
-                    self.build_record_constructor_value(class.clone(), arguments.clone())?;
+                let value = self.build_record_constructor_value_with_port_v1(
+                    port,
+                    class.clone(),
+                    arguments.clone(),
+                )?;
                 self.lower_record_field_read_from_value(value, field)
             }
             ASTNode::RecordLiteral {
@@ -362,12 +428,19 @@ impl MirBuilder {
                 fields,
                 ..
             } => {
-                let value =
-                    self.build_record_literal_value(record_type_name.clone(), fields.clone())?;
+                let value = self.build_record_literal_value_with_port_v1(
+                    port,
+                    record_type_name.clone(),
+                    fields.clone(),
+                )?;
                 self.lower_record_field_read_from_value(value, field)
             }
             ASTNode::RecordUpdate { base, updates, .. } => {
-                let value = self.build_record_update_value(*base.clone(), updates.clone())?;
+                let value = self.build_record_update_value_with_port_v1(
+                    port,
+                    *base.clone(),
+                    updates.clone(),
+                )?;
                 self.lower_record_field_read_from_value(value, field)
             }
             _ => Ok(None),
@@ -422,7 +495,14 @@ impl MirBuilder {
         Ok(())
     }
 
-    fn build_record_value_base(&mut self, base: ASTNode) -> Result<ValueId, String> {
+    fn build_record_value_base_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        base: ASTNode,
+    ) -> Result<ValueId, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         match base {
             ASTNode::Variable { name, .. } => self
                 .function_state
@@ -434,15 +514,15 @@ impl MirBuilder {
             ASTNode::New {
                 class, arguments, ..
             } if self.is_record_constructor_class(&class) => {
-                self.build_record_constructor_value(class, arguments)
+                self.build_record_constructor_value_with_port_v1(port, class, arguments)
             }
             ASTNode::RecordLiteral {
                 record_type_name,
                 fields,
                 ..
-            } => self.build_record_literal_value(record_type_name, fields),
+            } => self.build_record_literal_value_with_port_v1(port, record_type_name, fields),
             ASTNode::RecordUpdate { base, updates, .. } => {
-                self.build_record_update_value(*base, updates)
+                self.build_record_update_value_with_port_v1(port, *base, updates)
             }
             _ => Err("[record-update/base-unsupported] expected=record-local-value".to_string()),
         }
@@ -508,15 +588,19 @@ impl MirBuilder {
         (dst, contract_id, fingerprint)
     }
 
-    fn build_checked_record_field_value(
+    fn build_checked_record_field_value_with_port_v1<Port>(
         &mut self,
+        port: &mut Port,
         field_index: usize,
         field: &UserBoxFieldDecl,
         expr: ASTNode,
         contract_id: &str,
         fingerprint: &str,
-    ) -> Result<RecordLocalFieldValue, String> {
-        let value = self.build_expression(expr)?;
+    ) -> Result<RecordLocalFieldValue, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
+        let value = drive_legacy_expression_v1(self, port, expr)?;
         self.emit_record_field_contract_check(field_index, field, value, contract_id, fingerprint)?;
         Ok(RecordLocalFieldValue {
             name: field.name.clone(),

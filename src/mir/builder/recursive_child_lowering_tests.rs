@@ -1,4 +1,4 @@
-use crate::ast::{ASTNode, BinaryOperator, CheckItem, LiteralValue, Span};
+use crate::ast::{ASTNode, BinaryOperator, CheckItem, FieldDecl, LiteralValue, Span};
 use crate::mir::{
     BasicBlockId, BindingId, Effect, EffectMask, FunctionSignature, MirBuilder, MirFunction,
     MirInstruction, MirType, ValueId,
@@ -169,6 +169,38 @@ fn print(expression: ASTNode) -> ASTNode {
         expression: Box::new(expression),
         span: Span::unknown(),
     }
+}
+
+fn field_access(object: ASTNode, field: &str) -> ASTNode {
+    ASTNode::FieldAccess {
+        object: Box::new(object),
+        field: field.to_string(),
+        span: Span::unknown(),
+    }
+}
+
+fn record_literal(fields: Vec<(&str, ASTNode)>) -> ASTNode {
+    ASTNode::RecordLiteral {
+        record_type_name: "Pair".to_string(),
+        fields: fields
+            .into_iter()
+            .map(|(name, value)| (name.to_string(), value))
+            .collect(),
+        span: Span::unknown(),
+    }
+}
+
+fn register_pair_record(builder: &mut MirBuilder) {
+    builder.comp_ctx.register_record_decl(
+        "Pair".to_string(),
+        Vec::new(),
+        &[FieldDecl {
+            name: "value".to_string(),
+            declared_type_name: None,
+            is_weak: false,
+            default_value: None,
+        }],
+    );
 }
 
 fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
@@ -539,6 +571,50 @@ fn raw_invocation_port_preserves_print_expression_descent() {
         assert!(instructions(builder).iter().any(|instruction| matches!(
             instruction,
             MirInstruction::BinOp { dst, .. } if *dst == output
+        )));
+        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
+    });
+}
+
+#[test]
+fn raw_invocation_port_preserves_field_and_record_child_descent() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("raw_invocation_field_record/0".to_string());
+    register_pair_record(&mut builder);
+    let mut invocation = ModuleLoweringInvocationV1::with_collector(
+        &mut builder,
+        collector_with_header("Prefix.f/1", 1),
+    );
+
+    invocation.with_module_port(|builder, module_port| {
+        let mut port = RawInvocationChildPortV1::new(module_port);
+        let ordinary = drive_legacy_expression_v1(
+            builder,
+            &mut port,
+            field_access(add(integer(2), integer(3)), "value"),
+        )
+        .unwrap();
+        let record = drive_legacy_expression_v1(
+            builder,
+            &mut port,
+            field_access(
+                record_literal(vec![("value", add(integer(5), integer(8)))]),
+                "value",
+            ),
+        )
+        .unwrap();
+
+        let rows = instructions(builder);
+        assert!(rows.iter().any(|instruction| matches!(
+            instruction,
+            MirInstruction::FieldGet { dst, .. } if *dst == ordinary
+        )));
+        assert!(rows
+            .iter()
+            .any(|instruction| matches!(instruction, MirInstruction::RecordValuePublish { .. })));
+        assert!(rows.iter().any(|instruction| matches!(
+            instruction,
+            MirInstruction::BinOp { dst, .. } if *dst == record
         )));
         port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
     });

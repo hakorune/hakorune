@@ -243,7 +243,12 @@ impl super::MirBuilder {
         Port: RawExpressionDispatchPortV1,
     {
         if let ASTNode::FieldAccess { object, field, .. } = stmt.target.as_ref() {
-            self.build_field_assignment(*object.clone(), field.clone(), *stmt.value.clone())
+            self.build_field_assignment_with_port_v1(
+                port,
+                *object.clone(),
+                field.clone(),
+                *stmt.value.clone(),
+            )
         } else if let ASTNode::Index { target, index, .. } = stmt.target.as_ref() {
             self.build_index_assignment_with_port_v1(
                 port,
@@ -581,7 +586,7 @@ impl super::MirBuilder {
 
             node @ ASTNode::FieldAccess { .. } => {
                 let f = FieldAccessExpr::try_from(node).expect("ASTNode::FieldAccess must convert");
-                self.build_field_access(*f.object.clone(), f.field.clone())
+                self.build_field_access_with_port_v1(port, *f.object.clone(), f.field.clone())
             }
 
             ASTNode::New {
@@ -614,9 +619,13 @@ impl super::MirBuilder {
                 record_type_name,
                 fields,
                 ..
-            } => self.build_record_literal_value(record_type_name.clone(), fields.clone()),
+            } => self.build_record_literal_value_with_port_v1(
+                port,
+                record_type_name.clone(),
+                fields.clone(),
+            ),
             ASTNode::RecordUpdate { base, updates, .. } => {
-                self.build_record_update_value(*base.clone(), updates.clone())
+                self.build_record_update_value_with_port_v1(port, *base.clone(), updates.clone())
             }
 
             ASTNode::BlockExpr {

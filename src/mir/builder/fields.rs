@@ -2,6 +2,9 @@
 use super::weak_field_write_route::{prepare_field_write_route_v1, PreparedFieldWriteRouteV1};
 use super::ValueId;
 use crate::ast::ASTNode;
+use crate::mir::builder::recursive_child_lowering::{
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+};
 use crate::mir::instruction::FastMemRegionId;
 
 mod post_success;
@@ -16,13 +19,27 @@ impl super::MirBuilder {
         object: ASTNode,
         field: String,
     ) -> Result<ValueId, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_field_access_with_port_v1(&mut port, object, field)
+    }
+
+    /// Lower a field read without dropping the caller's raw child port.
+    pub(in crate::mir::builder) fn build_field_access_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        object: ASTNode,
+        field: String,
+    ) -> Result<ValueId, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         if let Some(record_field_value) =
-            self.try_lower_record_field_read_from_ast(&object, &field)?
+            self.try_lower_record_field_read_from_ast_with_port_v1(port, &object, &field)?
         {
             return Ok(record_field_value);
         }
 
-        let object_value = self.build_expression(object)?;
+        let object_value = drive_legacy_expression_v1(self, port, object)?;
         let object_value = self.local_field_base(object_value);
 
         if let Some(property_value) = self.try_lower_property_read(object_value, &field)? {
@@ -39,10 +56,25 @@ impl super::MirBuilder {
         field: String,
         value: ASTNode,
     ) -> Result<ValueId, String> {
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_field_assignment_with_port_v1(&mut port, object, field, value)
+    }
+
+    /// Lower a field assignment without dropping the caller's raw child port.
+    pub(in crate::mir::builder) fn build_field_assignment_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        object: ASTNode,
+        field: String,
+        value: ASTNode,
+    ) -> Result<ValueId, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
         self.fail_if_record_field_assignment_target(&object, &field)?;
-        let object_value = self.build_expression(object)?;
+        let object_value = drive_legacy_expression_v1(self, port, object)?;
         let object_value = self.local_field_base(object_value);
-        self.build_field_assignment_from_value(object_value, field, value)
+        self.build_field_assignment_from_value_with_port_v1(port, object_value, field, value)
     }
 
     pub(super) fn build_box_field_initializers(
@@ -140,7 +172,21 @@ impl super::MirBuilder {
         field: String,
         value: ASTNode,
     ) -> Result<ValueId, String> {
-        let mut value_result = self.build_expression(value)?;
+        let mut port = RawLegacyChildLoweringPortV1;
+        self.build_field_assignment_from_value_with_port_v1(&mut port, object_value, field, value)
+    }
+
+    fn build_field_assignment_from_value_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        object_value: ValueId,
+        field: String,
+        value: ASTNode,
+    ) -> Result<ValueId, String>
+    where
+        Port: RawAstChildLoweringPortV1,
+    {
+        let mut value_result = drive_legacy_expression_v1(self, port, value)?;
         value_result = self.local_arg(value_result);
         self.build_field_assignment_from_value_id(
             self.current_fastmem_region(),
