@@ -1,5 +1,5 @@
 ---
-Status: Design stop
+Status: Accepted decision
 Date: 2026-07-21
 Scope: `FINALIZE0-FACTSESSION0-I0` production ownership selection.
 Related:
@@ -9,10 +9,30 @@ Related:
   - src/mir/builder/function_state_transaction.rs
   - src/mir/builder/calls/function_session.rs
   - src/mir/builder/module_lifecycle.rs
-Decision: consultation required before code.
+Decision: Candidate A-prime accepted; `FINALIZE0-MODULEDRAFT0-S0` is next.
 ---
 
 # FACTSESSION0-I0: physical owner and draft-collection boundary
+
+## Accepted decision — Candidate A-prime
+
+`MODULEDRAFT0` is the mandatory prerequisite to FACTSESSION0. It creates one
+unpublished-draft collector before any production fact-session connection;
+`FACTSESSION0-ACTIVEBIND0` then binds generation and an open receipt ledger to
+the existing `FunctionLoweringStateV1` fact lanes; only `FACTSESSION0-I0`
+seals those lanes inseparably with the already-unpublished draft.
+
+```text
+MODULEDRAFT0
+  -> FACTSESSION0-ACTIVEBIND0
+  -> FACTSESSION0-I0
+```
+
+The first code-facing row is `FINALIZE0-MODULEDRAFT0-S0`. It introduces only
+private disconnected vocabulary: `UnpublishedFunctionDraftV1`,
+`PreparedFunctionDraftAdmissionV1`, `ModuleDraftCollectorV1`, and
+`CompletedDraftSignatureViewV1`. It has zero production consumers, no draft
+clone, no fact-session connection, no PHI repair, and no finalization change.
 
 ## Question
 
@@ -107,7 +127,7 @@ let an old child transaction retain its BoxCompilation partial-clear behavior
   // does not transport all eight lanes
 ```
 
-## Candidate A — selected recommendation: draft-collection prerequisite
+## Candidate A-prime — accepted draft-collection prerequisite
 
 Introduce a narrow prerequisite boundary before FACTSESSION0-I0:
 
@@ -148,10 +168,9 @@ child entry families. Its issuer may be compiler-lifetime so compiler reuse
 receives a distinct module brand, but the opened `ModuleFactSessionV1` is never
 a `MirBuilder`, `CompilationContext`, metadata, or `TypeContext` field.
 
-## Required decision confirmation
+## Fixed acceptance law
 
-Confirm Candidate A, or supply an alternative that proves all of the
-following without a fallback:
+The following conditions are mandatory for the series:
 
 1. Each successful production function keeps its draft and sealed eight fact
    lanes inseparable until exactly one module collector consumes them.
@@ -166,5 +185,24 @@ following without a fallback:
 5. No receipt issuer, PHI repair, unused-Phi deletion, type pipeline,
    finalization repair, JoinIR conversion, or CUT0 is included.
 
-Until this is selected, `FINALIZE0-FACTSESSION0-I0` has no safe code-facing
-owner.
+`MODULEDRAFT0-M0` must census every `current_module.functions` lowering-time
+reader before I0. A signature/header-only reader may use a read-only view of
+the same collector-owned draft; any body/metadata reader stops the series.
+Legacy replacement and canonical duplicate rejection are distinct prepared
+admission policies. `FunctionFactGenerationV1` is never a draft identity.
+
+Child success validates cleanup and prepares every collector failure point
+before collection, then performs infallible collect-before-restore. Primary,
+cleanup, publication, and unwind paths abort before restore. Main and the
+synthetic `condition_fn` use the same collector port; the latter receives an
+empty fact disposition until `FINALIZE0-CONDITIONFN-RET0`.
+
+The fixed task order is:
+
+```text
+MODULEDRAFT0-S0 -> MODULEDRAFT0-M0 -> MODULEDRAFT0-P0
+  -> MODULEDRAFT0-I0 -> MODULEDRAFT0-G0
+  -> FACTSESSION0-ACTIVEBIND0-S0/P0
+  -> FACTSESSION0-I0 -> FACTSESSION0-G0
+  -> REMATFACT0-P0 / producer receipt closures -> MODULETX0-P0
+```

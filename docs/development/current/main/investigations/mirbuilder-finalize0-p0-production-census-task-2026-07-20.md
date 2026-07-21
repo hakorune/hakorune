@@ -3425,3 +3425,39 @@ question are in
 No FACTSESSION production code is authorized until the selected ordering proves
 draft/fact inseparability, all root/child coverage, condition_fn disposition,
 single live fact maps, pre-restore child terminal handling, and root abort.
+
+#### FACTSESSION0-I0-SELECT closeout — Candidate A-prime
+
+Candidate A-prime is accepted. `MODULEDRAFT0` creates the one
+module-invocation-owned unpublished-draft collector before FACTSESSION enters
+production. It owns `UnpublishedFunctionDraftV1`, prepared admission carrying
+the exact legacy-replace or canonical-reject duplicate policy, and a read-only
+signature/header projection over the same owned draft. `MODULEDRAFT0-M0` must
+census all `current_module.functions` lowering-time readers; body or metadata
+read requirements stop the series rather than creating a second draft store.
+
+`FACTSESSION0-ACTIVEBIND0` follows MODULEDRAFT0: the active owner remains the
+existing `FunctionLoweringStateV1` TypeContext and diagnostic-origin lanes;
+one `ActiveFunctionFactBindingV1` adds only generation and open receipt ledger.
+Success takes those same lanes and seals them with the unpublished draft;
+abort consumes them. No parallel TypeContext is admissible. Main and
+`condition_fn` use the same collector port, with `condition_fn` receiving an
+empty synthetic disposition until its separate retirement row.
+
+Child terminal order is fixed as validate and fully prepare admission, then
+infallible collect, then parent restore. Primary, cleanup, publication, and
+unwind paths abort before restore. The issuer is compiler-lifetime while each
+opened ModuleFactSession is an explicit input, never a Builder or
+CompilationContext field.
+
+```text
+FINALIZE0-MODULEDRAFT0-S0
+  -> MODULEDRAFT0-M0/P0/I0/G0
+  -> FACTSESSION0-ACTIVEBIND0-S0/P0
+  -> FACTSESSION0-I0/G0
+  -> REMATFACT0-P0
+```
+
+`FINALIZE0-MODULEDRAFT0-S0` is the sole next code-facing row. PHI repair,
+receipt issuance, unused-Phi deletion, TypePipeline/Call-Await redesign,
+JoinIR, MODULETX activation, and CUT0 remain outside this series.
