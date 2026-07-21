@@ -247,6 +247,7 @@ def main() -> int:
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
         if path in (
             INVOCATION_DRAIN,
+            INVOCATION,
             MODULE_SHELL,
             ROUTE_MATRIX,
             INVOCATION_STATE,
@@ -267,6 +268,18 @@ def main() -> int:
             read(path),
             "ModuleLoweringInvocationStateV1",
             f"HEADERPORT0 I0-STATE0-S0 disconnected state consumer {path.relative_to(ROOT)}",
+        )
+    state_consumers = []
+    for path in (ROOT / "src/mir/builder").rglob("*.rs"):
+        if path in (INVOCATION_STATE,) or path.name.endswith("_tests.rs"):
+            continue
+        if "ModuleLoweringInvocationStateV1" in read(path):
+            state_consumers.append(path)
+    expected_state_consumers = {INVOCATION, INVOCATION_DRAIN}
+    if set(state_consumers) != expected_state_consumers:
+        actual = sorted(str(path.relative_to(ROOT)) for path in state_consumers)
+        raise AssertionError(
+            f"STATE0-I0 state consumers drifted: expected two owners, actual={actual}"
         )
     for fragment in (
         "shell_metadata_port_is_the_only_narrow_metadata_write_surface",
@@ -676,6 +689,7 @@ def main() -> int:
         f"p0_census_rows={len(P0_READER_CENSUS_ROWS)} "
         f"census={dict(sorted(census_counts.items()))} "
         f"state0_owners={dict(sorted(state_owner_counts.items()))} "
+        f"state0_consumers={len(state_consumers)} "
         "legacyterm0_g0_raw_box_consumers=2 loop_bridge_consumers=0 "
         "loopbridge0_i0_plan_child_openers=0"
     )

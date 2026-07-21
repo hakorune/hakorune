@@ -19,6 +19,8 @@ use super::module_draft_collector::{
     DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftAdmissionErrorV1,
     PreparedFunctionDraftAdmissionV1,
 };
+use super::module_lowering_invocation_state::ModuleLoweringInvocationStateV1;
+use super::module_lowering_shell::ModuleLoweringShellV1;
 
 /// Owned canonical child identity before collector admission.
 ///
@@ -359,7 +361,7 @@ impl ModuleLoweringPortV1<'_> {
 /// child terminal; production collection remains an I0 responsibility.
 pub(in crate::mir::builder) struct ModuleLoweringInvocationV1<'builder> {
     builder: &'builder mut MirBuilder,
-    collector: ModuleDraftCollectorV1,
+    state: ModuleLoweringInvocationStateV1,
     _seal: ModuleLoweringInvocationSealV1,
 }
 
@@ -378,9 +380,13 @@ impl<'builder> ModuleLoweringInvocationV1<'builder> {
         builder: &'builder mut MirBuilder,
         collector: ModuleDraftCollectorV1,
     ) -> Self {
+        let shell = ModuleLoweringShellV1::from_empty_module(super::MirModule::new(
+            "disconnected-invocation".to_owned(),
+        ))
+        .expect("empty disconnected invocation shell");
         Self {
             builder,
-            collector,
+            state: ModuleLoweringInvocationStateV1::new(shell, collector),
             _seal: ModuleLoweringInvocationSealV1,
         }
     }
@@ -396,7 +402,7 @@ impl<'builder> ModuleLoweringInvocationV1<'builder> {
     ) -> R {
         let builder = &mut *self.builder;
         let mut port = ModuleLoweringPortV1 {
-            collector: &mut self.collector,
+            collector: self.state.collector_mut(),
             _seal: ModuleLoweringPortSealV1,
         };
         lower(builder, &mut port)
@@ -425,7 +431,8 @@ impl<'builder> ModuleLoweringInvocationV1<'builder> {
         expected_arity: usize,
         policy: DraftPublicationPolicyV1,
     ) -> Result<PreparedFunctionDraftAdmissionV1<'_>, ModuleDraftAdmissionErrorV1> {
-        self.collector
+        self.state
+            .collector_mut()
             .prepare_admission(key, expected_symbol, expected_arity, policy)
     }
 }

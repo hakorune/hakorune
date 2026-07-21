@@ -258,3 +258,29 @@ The next code-facing row is
 `HEADERPORT0-REENTRANT-TERM0-I0-STATE0-I0`: connect the state surface to one
 complete invocation candidate while preserving all route-specific identity and
 failure laws.  Production capture/commit and `CUT0` remain forbidden.
+
+## STATE0-I0 closeout
+
+The existing disconnected `ModuleLoweringInvocationV1` now owns
+`ModuleLoweringInvocationStateV1` instead of carrying a parallel collector.
+Its recursive header/port and admission tests therefore exercise the same
+state seam that the drain owner consumes.  The candidate creates an empty
+function shell for its disconnected harness; it does not publish a module or
+read `current_module`.
+
+The structural consumer set is now exactly:
+
+```text
+ModuleLoweringInvocationV1      = one disconnected candidate
+ModuleLoweringInvocationDrainOwnerV1 = one drain owner
+production roots                = zero
+```
+
+No root, canonical transaction, Builder field, `CompilationContext`, or
+fallback reader was connected.  The existing 24 invocation tests, state and
+drain fixtures, cargo check, and HeaderPort guard remain green.
+
+The next code-facing row is
+`HEADERPORT0-REENTRANT-TERM0-I0-STATE0-G0`: freeze the consumer census and
+prove that the state seam has no current-module fallback or production root
+caller before any complete invocation cutover.  `CUT0` remains forbidden.

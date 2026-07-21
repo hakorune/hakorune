@@ -49,6 +49,10 @@ impl ModuleLoweringInvocationStateV1 {
         &self.collector
     }
 
+    pub(in crate::mir::builder) fn collector_mut(&mut self) -> &mut ModuleDraftCollectorV1 {
+        &mut self.collector
+    }
+
     pub(in crate::mir::builder) fn root(&self) -> RootCompletionStateV1 {
         self.root
     }
