@@ -16,6 +16,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::callable_declaration_catalog::{
     BareStaticRecoveryDecisionV1, BareStaticRecoveryNoRecoveryReasonV1,
 };
+use crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(super) enum BareStaticRecoveryEmissionV1 {
@@ -132,5 +133,40 @@ impl MirBuilder {
             }
         }
         Ok(None)
+    }
+
+    /// Header-port sibling for the experimental suffix resolver.  Candidate
+    /// lowering supplies a completed-header inventory; no module map fallback
+    /// is consulted by this entrypoint.
+    #[allow(dead_code)]
+    pub(in crate::mir::builder) fn try_tail_based_resolver_with_headers(
+        &mut self,
+        name: &str,
+        arg_values: &[ValueId],
+        headers: &dyn FunctionSignatureLookupV1,
+    ) -> Result<Option<ValueId>, String> {
+        if !crate::config::env::builder_tail_resolve() {
+            return Ok(None);
+        }
+        let tail = format!(".{}{}", name, format!("/{}", arg_values.len()));
+        let mut cands = Vec::new();
+        headers.visit_symbols(&mut |symbol| {
+            if symbol.ends_with(&tail) {
+                cands.push(symbol.to_owned());
+            }
+        });
+        if cands.len() != 1 {
+            return Ok(None);
+        }
+        let Some(func_name) = cands.pop() else {
+            return Ok(None);
+        };
+        let dst = self.next_value_id();
+        self.emit_legacy_call(
+            Some(dst),
+            CallTarget::Global(func_name),
+            arg_values.to_vec(),
+        )?;
+        Ok(Some(dst))
     }
 }
