@@ -336,7 +336,8 @@ PHI/TypePipeline/Call-Await/JoinIR semantic repair in this row
 
 ## Downstream task boundary
 
-Only after `HEADERPORT0-I0-G0`:
+Only after the active `HEADERPORT0-RAWPORT0-LOOPBRIDGE0-SELECT` frontier is
+resolved and the remaining `HEADERPORT0-I0-G0` cutover is green:
 
 ```text
 FACTSESSION0-ACTIVEBIND0-S0/P0
@@ -347,7 +348,8 @@ FACTSESSION0-ACTIVEBIND0-S0/P0
 ### FACTSESSION0 continuation contract — Candidate A-prime
 
 This is a downstream contract, not an authorization to begin FACTSESSION0
-while `RAWPORT0-M0-R0` is active.  Candidate A-prime is fixed as follows:
+while the raw Loop bridge selection or remaining HeaderPort cutover is active.
+Candidate A-prime is fixed as follows:
 
 ```text
 MODULEDRAFT0
@@ -480,7 +482,8 @@ that API must take an explicit session or become a proven test-only adapter.
 
 #### Fixed downstream order and stop conditions
 
-Once `HEADERPORT0-I0-G0` is green, the fixed order is:
+Once the Loop bridge is selected and `HEADERPORT0-I0-G0` is green, the fixed
+order is:
 
 ```text
 FACTSESSION0-ACTIVEBIND0-S0

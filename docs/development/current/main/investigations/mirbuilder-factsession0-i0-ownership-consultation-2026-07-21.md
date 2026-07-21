@@ -1,7 +1,7 @@
 ---
-Status: Accepted downstream task order; execution parked behind
-  HEADERPORT0-I0-G0 (the current upstream code row remains
-  HEADERPORT0-RAWPORT0-LEGACYTERM0-S0)
+Status: Accepted downstream task order; execution parked behind the active
+  `HEADERPORT0-RAWPORT0-LOOPBRIDGE0-SELECT` frontier and its required
+  HeaderPort completion (the next FACTSESSION code row remains downstream)
 Date: 2026-07-21
 Scope: `FINALIZE0-FACTSESSION0-I0` production ownership selection.
 Related:
@@ -11,8 +11,9 @@ Related:
   - src/mir/builder/function_state_transaction.rs
   - src/mir/builder/calls/function_session.rs
   - src/mir/builder/module_lifecycle.rs
-Decision: Candidate A-prime accepted; the next downstream row is
-  `FINALIZE0-FACTSESSION0-ACTIVEBIND0-S0` after `HEADERPORT0-I0-G0`.
+Decision: Candidate A-prime accepted; after the active Loop bridge is selected
+  and the remaining HeaderPort cutover is green, the next downstream row is
+  `FINALIZE0-FACTSESSION0-ACTIVEBIND0-S0`.
 ---
 
 # FACTSESSION0-I0: physical owner and draft-collection boundary
@@ -32,14 +33,13 @@ MODULEDRAFT0
 ```
 
 `MODULEDRAFT0-S0/M0/P0` and HeaderPort S0/P0 have already established the
-collector and its explicit recursive-port vocabulary.  RAWPORT0 is not yet
-closed: its current `LEGACYTERM0-S0` owner must complete the raw child terminal
-and Loop remains behind its separate bridge selection.  No FACTSESSION row is
-executable until the whole `HEADERPORT0-I0-G0` prerequisite closes.  The next
-*downstream* code-facing row is `FINALIZE0-FACTSESSION0-ACTIVEBIND0-S0`; it
-introduces only disconnected active-binding vocabulary and has zero production
-consumers, no draft clone, no second `TypeContext`, no PHI repair, and no
-finalization change.
+collector and its explicit recursive-port vocabulary. `LEGACYTERM0-G0` is
+closed, but RAWPORT0 is not: Loop remains behind its separate bridge selection.
+No FACTSESSION row is executable until that selection and the remaining
+HeaderPort cutover close. The next *downstream* code-facing row is
+`FINALIZE0-FACTSESSION0-ACTIVEBIND0-S0`; it introduces only disconnected
+active-binding vocabulary and has zero production consumers, no draft clone,
+no second `TypeContext`, no PHI repair, and no finalization change.
 
 ## Question
 
