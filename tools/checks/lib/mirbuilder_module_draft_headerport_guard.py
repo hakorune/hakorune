@@ -18,6 +18,9 @@ COMPILATION = ROOT / "src/mir/builder/compilation_context.rs"
 INVOCATION = ROOT / "src/mir/builder/module_lowering_invocation.rs"
 PENDING_TERMINAL = ROOT / "src/mir/builder/calls/function_session/terminal.rs"
 LEGACYTERM_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_legacyterm_tests.rs"
+RAWPORT_TESTS = ROOT / "src/mir/builder/recursive_child_lowering_rawport_tests.rs"
+RAW_DISPATCH = ROOT / "src/mir/builder/raw_expression_dispatch.rs"
+RAW_PORT = ROOT / "src/mir/builder/recursive_child_lowering.rs"
 
 P0_DIRECT_HEADER_READER_FRAGMENTS = {
     "src/mir/builder/calls/annotation.rs": "module.functions.get(name)",
@@ -54,6 +57,9 @@ def main() -> int:
     compilation = read(COMPILATION)
     pending_terminal = read(PENDING_TERMINAL)
     legacyterm_tests = read(LEGACYTERM_TESTS)
+    rawport_tests = read(RAWPORT_TESTS)
+    raw_dispatch = read(RAW_DISPATCH)
+    raw_port = read(RAW_PORT)
 
     for fragment in (
         "struct LoweringHeaderPortV1",
@@ -164,6 +170,32 @@ def main() -> int:
         legacyterm_tests,
         "drive_legacy_expression_v1",
         "LEGACYTERM0 P0 duplicate raw dispatcher",
+    )
+
+    for fragment in (
+        "raw_invocation_port_collects_static_and_instance_box_methods",
+        "static box RawStatic",
+        "box RawInstance",
+    ):
+        require(rawport_tests, fragment, "LEGACYTERM0 I0 raw Box proof")
+    for fragment in ("port.lower_static_box_method", "port.lower_instance_box_method"):
+        require(raw_dispatch, fragment, "LEGACYTERM0 I0 dispatcher terminal")
+    forbid(
+        raw_dispatch,
+        "self.lower_static_method_as_function(",
+        "LEGACYTERM0 I0 direct static publication",
+    )
+    for fragment in ("for (ctor_key, ctor_ast)", "self.lower_method_as_function("):
+        require(raw_dispatch, fragment, "LEGACYTERM0 I0 constructor remains legacy")
+    require(
+        raw_port,
+        "impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1",
+        "LEGACYTERM0 I0 invocation terminal owner",
+    )
+    require(
+        raw_port,
+        "LegacyChildDraftAdmissionV1::legacy_symbol",
+        "LEGACYTERM0 I0 legacy identity",
     )
 
     for fragment in ("thread_local", "OnceLock", "static ", "derive(Clone)"):

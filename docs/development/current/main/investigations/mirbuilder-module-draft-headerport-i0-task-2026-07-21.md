@@ -1,7 +1,7 @@
 ---
 Status: `HEADERPORT0-RAWPORT0-SELECT/S0/M0-T0/R0` and
-  `HEADERPORT0-RAWPORT0-LEGACYTERM0-S0/P0` are closed;
-  `HEADERPORT0-RAWPORT0-LEGACYTERM0-I0` is next
+  `HEADERPORT0-RAWPORT0-LEGACYTERM0-S0/P0/I0` are closed;
+  `HEADERPORT0-RAWPORT0-LEGACYTERM0-G0` is next
 Date: 2026-07-21
 Scope: one atomic `FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0` cutover
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-task-2026-07-20.md
@@ -31,7 +31,7 @@ are buildable BoxShape preparation only and keep production consumers at zero.
 The raw recursive re-entrancy audit, passive S0 vocabulary, and port-owned
 resolved terminal, raw recursive threading, and the disconnected legacy
 terminal proof are closed.  The next code-facing row is
-`RAWPORT0-LEGACYTERM0-I0`.
+`RAWPORT0-LEGACYTERM0-G0`.
 
 ## Fixed terminal law
 

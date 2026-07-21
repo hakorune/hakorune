@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0/S0/M0/P0-SELECT/P0-S0/P0-P0/P0-G0, FACTSESSION0-I0-SELECT, MODULEDRAFT0-S0/M0/P0 and HEADERPORT0-SELECT/S0/P0, and HEADERPORT0-RAWPORT0-SELECT/S0/M0-T0/R0/LEGACYTERM0-S0/P0 are closed; HEADERPORT0-RAWPORT0-LEGACYTERM0-I0 is next, and CUT0 remains forbidden"
+status = "FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0/S0/M0/P0-SELECT/P0-S0/P0-P0/P0-G0, FACTSESSION0-I0-SELECT, MODULEDRAFT0-S0/M0/P0 and HEADERPORT0-SELECT/S0/P0, and HEADERPORT0-RAWPORT0-SELECT/S0/M0-T0/R0/LEGACYTERM0-S0/P0/I0 are closed; HEADERPORT0-RAWPORT0-LEGACYTERM0-G0 is next, and CUT0 remains forbidden"
 date = "2026-07-21"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -318,7 +318,7 @@ module_draft_headerport_i0_task = "docs/development/current/main/investigations/
 
 latest_card = "mirbuilder-module-draft-headerport-i0-task-2026-07-21"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-module-draft-headerport-i0-task-2026-07-21.md"
-latest_card_summary = """FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0 is taskized as an atomic final cutover. RAWPORT0-S0/M0-T0/R0 and LEGACYTERM0-S0/P0 are closed: ModuleLoweringPortV1 owns only the collector borrow and HRTB header loans; its resolved and legacy terminals consume their matching pending child and identity request as capture -> prepare -> seal -> collect -> restore. LEGACYTERM0-P0 proves failure/unwind and parser-backed static/instance Box body transport with zero production callers. LEGACYTERM0-I0 next may wire only those raw Box child bodies. Loop remains explicitly parked behind LOOPBRIDGE0-SELECT and is not counted as M0 closure."""
+latest_card_summary = """FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0 is taskized as an atomic final cutover. RAWPORT0-S0/M0-T0/R0 and LEGACYTERM0-S0/P0/I0 are closed: ModuleLoweringPortV1 owns only the collector borrow and HRTB header loans; its resolved and legacy terminals consume their matching pending child and identity request as capture -> prepare -> seal -> collect -> restore. I0 wires only raw static/instance Box method bodies through the legacy terminal; constructors and Loop remain legacy/parked. LEGACYTERM0-G0 next closes the structural census."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -520,7 +520,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-MODULEDRAFT0-HEADERPORT0-RAWPORT0-LEGACYTERM0-I0-120"
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-MODULEDRAFT0-HEADERPORT0-RAWPORT0-LEGACYTERM0-G0-121"
 finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
