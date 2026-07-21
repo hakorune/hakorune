@@ -1,6 +1,6 @@
 # HEADERPORT0-REENTRANT-TERM0-I0: production cutover consultation
 
-Status: **STATE0-S0/P0/I0/G0 and CONSULT0 are closed; ACCESS0-S0 is next,
+Status: **STATE0-S0/P0/I0/G0, CONSULT0, and ACCESS0-S0 are closed; ACCESS0-P0 is next,
 production cutover remains disconnected**
 
 Date: 2026-07-21
@@ -423,7 +423,7 @@ post-drain verification failure:
 ### Next task order
 
 ```text
-HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-S0
+HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-S0 (closed)
   disconnected ModuleLoweringAccessPortV1 vocabulary
   production consumers = 0
 

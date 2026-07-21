@@ -24,6 +24,7 @@ MODULE_SHELL = ROOT / "src/mir/builder/module_lowering_shell.rs"
 INVOCATION_DRAIN = ROOT / "src/mir/builder/module_invocation_drain.rs"
 ROUTE_MATRIX = ROOT / "src/mir/builder/module_invocation_route_matrix.rs"
 INVOCATION_STATE = ROOT / "src/mir/builder/module_lowering_invocation_state.rs"
+ACCESS_PORT = ROOT / "src/mir/builder/module_lowering_access_port.rs"
 PENDING_TERMINAL = ROOT / "src/mir/builder/calls/function_session/terminal.rs"
 LEGACYTERM_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_legacyterm_tests.rs"
 RAWPORT_TESTS = ROOT / "src/mir/builder/recursive_child_lowering_rawport_tests.rs"
@@ -177,6 +178,7 @@ def main() -> int:
     invocation_drain = read(INVOCATION_DRAIN)
     route_matrix = read(ROUTE_MATRIX)
     invocation_state = read(INVOCATION_STATE)
+    access_port = read(ACCESS_PORT)
     builder = read(BUILDER)
     compilation = read(COMPILATION)
     pending_terminal = read(PENDING_TERMINAL)
@@ -244,6 +246,38 @@ def main() -> int:
         "state_parts_are_consumed_together_at_the_drain_boundary",
     ):
         require(invocation_state, fragment, "HEADERPORT0 I0-STATE0-S0 vocabulary")
+    for fragment in (
+        "ModuleLoweringAccessSurfaceV1",
+        "ModuleLoweringHeaderOperationV1",
+        "ModuleLoweringShellOperationV1",
+        "ModuleLoweringTerminalOperationV1",
+        "ModuleLoweringAccessPortV1",
+        "InternClosureBody",
+        "StaticDataPlanLookup",
+        "CapturePending",
+        "PrepareAdmission",
+        "SealPending",
+        "CollectPending",
+        "DrainInvocation",
+        "access_port_contract_has_exact_three_surfaces",
+    ):
+        require(access_port, fragment, "HEADERPORT0 I0-ACCESS0-S0 vocabulary")
+    require(
+        builder,
+        "mod module_lowering_access_port",
+        "HEADERPORT0 I0-ACCESS0-S0 module registration",
+    )
+    access_port_consumers = []
+    for path in (ROOT / "src/mir/builder").rglob("*.rs"):
+        if path in (ACCESS_PORT, BUILDER) or path.name.endswith("_tests.rs"):
+            continue
+        if "ModuleLoweringAccessPortV1" in read(path):
+            access_port_consumers.append(path)
+    if access_port_consumers:
+        actual = sorted(str(path.relative_to(ROOT)) for path in access_port_consumers)
+        raise AssertionError(
+            "ACCESS0-S0 production consumers must be zero: " + str(actual)
+        )
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
         if path in (
             INVOCATION_DRAIN,
@@ -712,6 +746,7 @@ def main() -> int:
         f"census={dict(sorted(census_counts.items()))} "
         f"state0_owners={dict(sorted(state_owner_counts.items()))} "
         f"state0_consumers={len(state_consumers)} "
+        f"access_port_consumers={len(access_port_consumers)} "
         "legacyterm0_g0_raw_box_consumers=2 loop_bridge_consumers=0 "
         "loopbridge0_i0_plan_child_openers=0"
     )

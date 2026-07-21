@@ -54,6 +54,8 @@ mod module_draft_collector;
 mod module_invocation_drain; // HEADERPORT0 I0-SHELL-I0-S0 disconnected drain
 #[allow(dead_code)]
 mod module_invocation_route_matrix; // HEADERPORT0 I0-SHELL-I0-P0 disconnected matrix
+#[allow(dead_code)]
+mod module_lowering_access_port; // HEADERPORT0 I0-ACCESS0-S0 disconnected vocabulary
 mod module_lowering_invocation;
 #[cfg(test)]
 mod module_lowering_invocation_legacyterm_tests;
