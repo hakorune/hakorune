@@ -22,6 +22,11 @@ MAIN_PENDING = ROOT / "src/mir/builder/main_pending_draft.rs"
 MAIN_PENDING_P0 = ROOT / "src/mir/builder/main_pending_draft_p0.rs"
 ROOT_BATCH = ROOT / "src/mir/builder/root_draft_batch.rs"
 ROOT_BATCH_P0 = ROOT / "src/mir/builder/root_draft_batch_p0.rs"
+MAIN_ROOT_WIRING = ROOT / "src/mir/builder/main_root_wiring.rs"
+ACCESS_VOCAB = ROOT / "src/mir/builder/module_lowering_access_port.rs"
+ACCESS_IMPL = ROOT / "src/mir/builder/module_lowering_invocation.rs"
+ACCESS_LIVE = ROOT / "src/mir/builder/module_lowering_invocation_access.rs"
+ACCESS_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_access_tests.rs"
 SHELL_FACTS = ROOT / "src/mir/builder/module_declaration_facts.rs"
 SHELL_FACTS_P0 = ROOT / "src/mir/builder/module_declaration_facts_p0.rs"
 DRAINED_CANDIDATE = ROOT / "src/mir/builder/drained_module_candidate.rs"
@@ -57,6 +62,10 @@ def main() -> int:
     main_pending_p0 = MAIN_PENDING_P0.read_text()
     root_batch = ROOT_BATCH.read_text()
     root_batch_p0 = ROOT_BATCH_P0.read_text()
+    main_root_wiring = MAIN_ROOT_WIRING.read_text()
+    access_vocab = ACCESS_VOCAB.read_text()
+    access_impl = ACCESS_IMPL.read_text()
+    access_live = ACCESS_LIVE.read_text()
     shell_facts = SHELL_FACTS.read_text()
     shell_facts_p0 = SHELL_FACTS_P0.read_text()
     drained_candidate = DRAINED_CANDIDATE.read_text()
@@ -86,6 +95,8 @@ def main() -> int:
         raise AssertionError("ROOTBATCH0-S0 source must remain below 800 lines")
     if len(root_batch_p0.splitlines()) >= 800:
         raise AssertionError("ROOTBATCH0-P0 fixture source must remain below 800 lines")
+    if len(main_root_wiring.splitlines()) >= 800:
+        raise AssertionError("WIRING-S0 source must remain below 800 lines")
     if len(shell_facts.splitlines()) >= 800:
         raise AssertionError("SHELLFACT0-S0 source must remain below 800 lines")
     if len(shell_facts_p0.splitlines()) >= 800:
@@ -163,6 +174,42 @@ def main() -> int:
         "condition_identity_failures_are_typed_before_batch_creation",
     ):
         require(root_batch_p0, fragment, "ROOTBATCH0-P0 policy/failure fixtures")
+
+    for fragment in (
+        "MainRootWiringPlanV1",
+        "MainRootWiringStepV1",
+        "MainRootFunctionIdentityV1",
+        "StaticChildren",
+        "CallableMainCompatibility",
+        "InlineRootBody",
+        "root_is_distinct_and_children_precede_inline_body",
+        "compatibility_child_is_optional_but_root_body_is_not",
+    ):
+        require(main_root_wiring, fragment, "WIRING-S0 Main/root order vocabulary/fixtures")
+
+    for fragment in (
+        "ModuleLoweringAccessSurfaceV1",
+        "ModuleLoweringHeaderOperationV1",
+        "ModuleLoweringShellOperationV1",
+        "ModuleLoweringTerminalOperationV1",
+        "ModuleLoweringAccessPortV1",
+        "access_port_contract_has_exact_three_surfaces",
+        "shell_contract_names_current_metadata_holes",
+        "terminal_contract_is_commit_only",
+    ):
+        require(access_vocab, fragment, "ACCESS0-S0 capability vocabulary/fixtures")
+
+    require(access_impl, "with_access_port", "WIRING-S0 live access bundle/fixture")
+    for fragment in (
+        "ModuleLoweringInvocationAccessPortV1",
+        "with_finalizer_headers",
+    ):
+        require(access_live, fragment, "WIRING-S0 live access bundle/fixture")
+    require(
+        ACCESS_TESTS.read_text(),
+        "access_port_keeps_shell_metadata_and_headers_as_short_separate_loans",
+        "WIRING-S0 live access fixture",
+    )
 
     for fragment in (
         "SealedModuleDeclarationFactsV1",
@@ -248,6 +295,10 @@ def main() -> int:
             MAIN_PENDING_P0,
             ROOT_BATCH,
             ROOT_BATCH_P0,
+            MAIN_ROOT_WIRING,
+            ACCESS_VOCAB,
+            ACCESS_IMPL,
+            ACCESS_LIVE,
             SHELL_FACTS,
             SHELL_FACTS_P0,
             DRAINED_CANDIDATE,
@@ -282,6 +333,10 @@ def main() -> int:
         if "ModuleFinalizationFailureMatrixV1" in text:
             raise AssertionError(
                 f"MODULEFINAL0-CANDIDATE0-P0 production consumer exists: {path.relative_to(ROOT)}"
+            )
+        if "MainRootWiringPlanV1" in text:
+            raise AssertionError(
+                f"WIRING-S0 production consumer exists: {path.relative_to(ROOT)}"
             )
 
     for fragment in (
@@ -327,6 +382,12 @@ def main() -> int:
     require(builder_mod, "mod main_pending_draft_p0;", "MAINPENDING0-P0 fixture registration")
     require(builder_mod, "mod root_draft_batch;", "ROOTBATCH0-S0 module registration")
     require(builder_mod, "mod root_draft_batch_p0;", "ROOTBATCH0-P0 fixture registration")
+    require(builder_mod, "mod main_root_wiring;", "WIRING-S0 Main/root order registration")
+    require(
+        builder_mod,
+        "mod module_lowering_invocation_access;",
+        "WIRING-S0 live access registration",
+    )
     require(builder_mod, "mod module_declaration_facts;", "SHELLFACT0-S0 module registration")
     require(builder_mod, "mod module_declaration_facts_p0;", "SHELLFACT0-P0 fixture registration")
     require(builder_mod, "mod drained_module_candidate;", "DRAIN0-S0 module registration")
@@ -357,6 +418,17 @@ def main() -> int:
                     f"Candidate0-P0 production consumer exists: {path.relative_to(ROOT)}"
                 )
 
+    for symbol in ("ModuleLoweringAccessPortV1", "MainRootWiringPlanV1"):
+        for path in (ROOT / "src/mir/builder").rglob("*.rs"):
+            if path in (ACCESS_VOCAB, ACCESS_IMPL, ACCESS_LIVE, MAIN_ROOT_WIRING, BUILDER_MOD):
+                continue
+            if path.name.endswith("_tests.rs"):
+                continue
+            if symbol in path.read_text():
+                raise AssertionError(
+                    f"WIRING-S0 production consumer exists: {path.relative_to(ROOT)}"
+                )
+
     for fragment in (
         "HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-S0 (closed)",
         "HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-P0 (closed)",
@@ -371,7 +443,9 @@ def main() -> int:
         "HEADERPORT0-I0-MODULEFINAL0-SPLIT0 (closed)\n  post-drain finalization input",
         "HEADERPORT0-I0-MODULEFINAL0-SPLIT0-P0 (closed)\n  ownership and declaration/fact failure matrix",
         "HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0\n  child/root/drain/finalizer failure matrix",
-        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-S0\n  next code-facing row",
+        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-S0\n  closed",
+        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-P0\n  next code-facing row",
+        "WIRING-S0 closeout",
         "one disconnected invocation-owned shell/collector candidate",
         "typed abort/no-publication/no-retry proof",
         "production capture/commit remains forbidden",
@@ -380,7 +454,7 @@ def main() -> int:
         require(card, fragment, "Candidate0 task boundary")
     require(
         state,
-        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-S0 is next",
+        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-P0 is next",
         "current Candidate0/MainROLE0 pointer",
     )
 

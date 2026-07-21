@@ -4,9 +4,9 @@ Status: **STATE0-S0/P0/I0/G0, CONSULT0, ACCESS0-S0, and
 ACCESS0-MEHEADER-S0/P0/I0/G0, ACCESS0-REWRITE-KNOWN-P0, ACCESS0-P0, and
 CANDIDATE0-S0/P0, MAINROLE0-D0/S0/P0, BODYDRAIN0-S0/P0,
 MAINPENDING0-S0/P0, ROOTBATCH0-S0/P0, SHELLFACT0-S0/P0, and
-DRAIN0-S0/P0, MODULEFINAL0-SPLIT0/P0, and MODULEFINAL0-CANDIDATE0-P0 are
-closed; M-root-prime remains selected and
-`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-S0` is next**
+DRAIN0-S0/P0, MODULEFINAL0-SPLIT0/P0, MODULEFINAL0-CANDIDATE0-P0, and
+WIRING-S0 are closed; M-root-prime remains selected and
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-P0` is next**
 
 Date: 2026-07-21
 
@@ -741,10 +741,12 @@ HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0
   child/root/drain/finalizer failure matrix
 
 HEADERPORT0-REENTRANT-TERM0-I0-WIRING-S0
-  next code-facing row
-  live shell/header bundle, port-aware Main/root, finalizer lookup
+  closed
+  live shell/header bundle, port-aware Main/root order vocabulary,
+  finalizer lookup seam, production consumers = 0
 
 HEADERPORT0-REENTRANT-TERM0-I0-WIRING-P0
+  next code-facing row
   raw child/Main/script/A+/trivial/acyclic/recursive/condition parity
 
 HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0
@@ -951,6 +953,29 @@ failure ownership contract; it does not execute module repair, drain, or
 finalization. The next row is
 `HEADERPORT0-REENTRANT-TERM0-I0-WIRING-S0`; FACTSESSION0 and CUT0 remain
 forbidden.
+
+## WIRING-S0 closeout
+
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-S0` is closed with production
+capture/commit still zero.  The live invocation seam now owns one short-lived
+shell/header bundle: shell metadata access, collector-owned header lookup, and
+finalizer signature lookup are separate loans and no Builder or ambient module
+function map is stored in the bundle.  The focused fixture proves that a shell
+write, collector header read, and finalizer lookup can occur in sequence while
+the Builder value cursor remains unchanged.
+
+The Main/root side is represented by one disconnected
+`MainRootWiringPlanV1`.  It keeps root `main` (`symbol = "main", arity = 0`)
+distinct from optional `Main.main/N` compatibility children and fixes the
+order to static children, optional compatibility child, then inline root body.
+The plan owns no AST, Builder, collector, ValueId, metadata, or publication
+route.  Main root rejection in the invocation child port remains unchanged;
+this row adds vocabulary and fixtures only.
+
+The next row is `HEADERPORT0-REENTRANT-TERM0-I0-WIRING-P0`, which must prove
+raw-child, Main, script, A+/trivial, acyclic, recursive, and condition-function
+parity before any capture/commit wiring.  `FACTSESSION0`, partial route
+cutover, and `CUT0` remain forbidden.
 
 ## MAINPENDING0-P0 closeout
 

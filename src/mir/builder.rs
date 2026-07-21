@@ -57,6 +57,8 @@ mod main_pending_draft; // HEADERPORT0-I0-MAINPENDING0-S0 disconnected handoff
 #[cfg(test)]
 mod main_pending_draft_p0; // HEADERPORT0-I0-MAINPENDING0-P0 fixtures
 #[allow(dead_code)]
+mod main_root_wiring; // HEADERPORT0-REENTRANT-TERM0-I0-WIRING-S0 disconnected order
+#[allow(dead_code)]
 mod me_call_header_observation; // ACCESS0-MEHEADER-S0 typed source snapshot
 mod metadata_context; // Phase 136 follow-up (Step 6/7): MetadataContext extraction
 mod method_call_handlers;
@@ -80,6 +82,10 @@ mod module_invocation_route_matrix; // HEADERPORT0 I0-SHELL-I0-P0 disconnected m
 mod module_lowering_access_port; // HEADERPORT0 I0-ACCESS0-S0 disconnected vocabulary
 mod module_lowering_invocation;
 #[allow(dead_code)]
+mod module_lowering_invocation_access; // HEADERPORT0 WIRING-S0 live bundle
+#[cfg(test)]
+mod module_lowering_invocation_access_tests;
+#[allow(dead_code)]
 mod module_lowering_invocation_candidate; // HEADERPORT0 CANDIDATE0-S0 disconnected abort owner
 #[allow(dead_code)]
 mod module_lowering_invocation_candidate_p0; // HEADERPORT0 CANDIDATE0-P0 route co-seal
@@ -101,7 +107,7 @@ mod root_body_completion_p0; // HEADERPORT0-I0-BODYDRAIN0-P0 fixtures
 #[allow(dead_code)]
 mod root_draft_batch; // HEADERPORT0-I0-ROOTBATCH0-S0 disconnected batch
 #[cfg(test)]
-mod root_draft_batch_p0; // HEADERPORT0-I0-ROOTBATCH0-P0 fixtures // HEADERPORT0-I0-SHELLFACT0-S0 disconnected facts
+mod root_draft_batch_p0; // HEADERPORT0-I0-ROOTBATCH0-P0 fixtures
 #[allow(unused_imports)]
 pub(in crate::mir) use located_legacy_lowering::{
     LocatedLegacyLoweringErrorV1, LocatedLegacyLoweringSessionV1,

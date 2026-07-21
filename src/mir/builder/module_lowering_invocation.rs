@@ -1,10 +1,8 @@
 //! HEADERPORT0-S0: external owner for one module-lowering invocation.
 //!
 //! This vocabulary deliberately stays outside `MirBuilder` and
-//! `CompilationContext`. It owns the sole unpublished-draft collector and
-//! lends only a short-lived, read-only header port to an explicit lowering
-//! closure. Production roots and child terminals remain disconnected until the
-//! atomic MODULEDRAFT0-HEADERPORT0-I0 cutover.
+//! `CompilationContext`. It owns one unpublished-draft collector and
+//! lends only a short-lived, read-only header port to an explicit lowering closure.
 
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
@@ -19,6 +17,7 @@ use super::module_draft_collector::{
     DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftAdmissionErrorV1,
     PreparedFunctionDraftAdmissionV1,
 };
+use super::module_lowering_invocation_access::ModuleLoweringInvocationAccessPortV1;
 use super::module_lowering_invocation_state::ModuleLoweringInvocationStateV1;
 use super::module_lowering_shell::ModuleLoweringShellV1;
 
@@ -132,6 +131,15 @@ pub(in crate::mir::builder) struct LoweringHeaderPortV1<'collector> {
 struct LoweringHeaderPortSealV1;
 
 impl LoweringHeaderPortV1<'_> {
+    pub(in crate::mir::builder) fn from_view(
+        view: &dyn CompletedDraftSignatureViewV1,
+    ) -> LoweringHeaderPortV1<'_> {
+        LoweringHeaderPortV1 {
+            view,
+            _seal: LoweringHeaderPortSealV1,
+        }
+    }
+
     pub(in crate::mir::builder) fn signature(&self, symbol: &str) -> Option<&FunctionSignature> {
         self.view.signature(symbol)
     }
@@ -408,6 +416,22 @@ impl<'builder> ModuleLoweringInvocationV1<'builder> {
         lower(builder, &mut port)
     }
 
+    /// Lend one short-lived shell/header bundle for wiring-only construction.
+    /// Production roots remain disconnected until the all-route I0 cutover.
+    #[allow(dead_code)]
+    pub(in crate::mir::builder) fn with_access_port<R>(
+        &mut self,
+        lower: impl for<'shell, 'collector> FnOnce(
+            &mut MirBuilder,
+            &mut ModuleLoweringInvocationAccessPortV1<'shell, 'collector>,
+        ) -> R,
+    ) -> R {
+        let builder = &mut *self.builder;
+        let (shell, collector) = self.state.split_shell_collector_mut();
+        let mut access = ModuleLoweringInvocationAccessPortV1::new(shell, collector);
+        lower(builder, &mut access)
+    }
+
     /// Lend the same-owned collector header view to one explicit lowering step.
     ///
     /// When `lower` returns, the port is dropped before any later mutable
@@ -450,7 +474,7 @@ mod tests {
         FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, VerifiedResolvedFunctionV1,
     };
     use crate::mir::{
-        BasicBlockId, EffectMask, FunctionSignature, MirBuilder, MirFunction, MirType,
+        BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirBuilder, MirFunction, MirType,
     };
     use std::sync::Arc;
 

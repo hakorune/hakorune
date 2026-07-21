@@ -45,12 +45,22 @@ impl ModuleLoweringInvocationStateV1 {
         &self.shell
     }
 
+    pub(in crate::mir::builder) fn shell_mut(&mut self) -> &mut ModuleLoweringShellV1 {
+        &mut self.shell
+    }
+
     pub(in crate::mir::builder) fn collector(&self) -> &ModuleDraftCollectorV1 {
         &self.collector
     }
 
     pub(in crate::mir::builder) fn collector_mut(&mut self) -> &mut ModuleDraftCollectorV1 {
         &mut self.collector
+    }
+
+    pub(in crate::mir::builder) fn split_shell_collector_mut(
+        &mut self,
+    ) -> (&mut ModuleLoweringShellV1, &mut ModuleDraftCollectorV1) {
+        (&mut self.shell, &mut self.collector)
     }
 
     pub(in crate::mir::builder) fn root(&self) -> RootCompletionStateV1 {
