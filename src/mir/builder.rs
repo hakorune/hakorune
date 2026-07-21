@@ -69,6 +69,8 @@ mod module_declaration_facts; // HEADERPORT0-I0-SHELLFACT0-S0 disconnected facts
 mod module_declaration_facts_p0; // HEADERPORT0-I0-SHELLFACT0-P0 fixtures
 mod module_draft_collector;
 #[cfg(test)]
+mod module_draft_collector_receipt_tests; // ROUTEINV-P0a-RECEIPT-S0 fixtures
+#[cfg(test)]
 mod module_finalization_candidate_p0; // HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0 matrix
 #[allow(dead_code)]
 mod module_finalization_split; // HEADERPORT0-I0-MODULEFINAL0-SPLIT0 input

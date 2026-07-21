@@ -29,6 +29,9 @@ ACCESS_LIVE = ROOT / "src/mir/builder/module_lowering_invocation_access.rs"
 ACCESS_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_access_tests.rs"
 WIRING_P0 = ROOT / "src/mir/builder/module_wiring_parity_p0.rs"
 ROUTE_INVENTORY = ROOT / "src/mir/builder/route_owned_invocation_inventory.rs"
+COLLECTOR = ROOT / "src/mir/builder/module_draft_collector.rs"
+COLLECTOR_RECEIPT = ROOT / "src/mir/builder/module_draft_collector/receipt.rs"
+COLLECTOR_RECEIPT_TESTS = ROOT / "src/mir/builder/module_draft_collector_receipt_tests.rs"
 SHELL_FACTS = ROOT / "src/mir/builder/module_declaration_facts.rs"
 SHELL_FACTS_P0 = ROOT / "src/mir/builder/module_declaration_facts_p0.rs"
 DRAINED_CANDIDATE = ROOT / "src/mir/builder/drained_module_candidate.rs"
@@ -70,6 +73,9 @@ def main() -> int:
     access_live = ACCESS_LIVE.read_text()
     wiring_p0 = WIRING_P0.read_text()
     route_inventory = ROUTE_INVENTORY.read_text()
+    collector = COLLECTOR.read_text()
+    collector_receipt = COLLECTOR_RECEIPT.read_text()
+    collector_receipt_tests = COLLECTOR_RECEIPT_TESTS.read_text()
     shell_facts = SHELL_FACTS.read_text()
     shell_facts_p0 = SHELL_FACTS_P0.read_text()
     drained_candidate = DRAINED_CANDIDATE.read_text()
@@ -105,6 +111,12 @@ def main() -> int:
         raise AssertionError("WIRING-P0 source must remain below 800 lines")
     if len(route_inventory.splitlines()) >= 800:
         raise AssertionError("WIRING-I0-ROUTEINV-S0 source must remain below 800 lines")
+    if len(collector.splitlines()) >= 800:
+        raise AssertionError("MODULEDRAFT0 collector source must remain below 800 lines")
+    if len(collector_receipt.splitlines()) >= 800:
+        raise AssertionError("ROUTEINV-P0a receipt source must remain below 800 lines")
+    if len(collector_receipt_tests.splitlines()) >= 800:
+        raise AssertionError("ROUTEINV-P0a receipt fixtures must remain below 800 lines")
     if len(shell_facts.splitlines()) >= 800:
         raise AssertionError("SHELLFACT0-S0 source must remain below 800 lines")
     if len(shell_facts_p0.splitlines()) >= 800:
@@ -252,6 +264,70 @@ def main() -> int:
         "unknown_or_unreachable_source_topology_cannot_issue_a_policy",
     ):
         require(route_inventory, fragment, "WIRING-I0-ROUTEINV-S0 product/fixtures")
+    for fragment in (
+        "CollectedDraftAdmissionReceiptV1",
+        "CollectedDraftReplacementDispositionV1",
+        "Inserted",
+        "ReplacedWholePair",
+        "pub(super) fn new",
+        "FunctionDraftKeyV1",
+        "DraftPublicationPolicyV1",
+    ):
+        require(collector_receipt, fragment, "WIRING-I0-ROUTEINV-P0a receipt product")
+    for fragment in (
+        "fn collect(self) -> CollectedDraftAdmissionReceiptV1",
+        "fn collect_sealed(",
+        ") -> CollectedDraftAdmissionReceiptV1",
+        "CollectedDraftAdmissionReceiptV1::new(",
+    ):
+        require(collector, fragment, "WIRING-I0-ROUTEINV-P0a sole receipt producer")
+    for fragment in (
+        "successful_commit_returns_exact_insert_receipt",
+        "legacy_replacement_receipt_names_the_discarded_whole_pair",
+        "canonical_commit_reports_insert_and_duplicate_stops_before_a_receipt",
+        "symbol_or_arity_failure_has_no_collector_or_receipt_effect",
+    ):
+        require(collector_receipt_tests, fragment, "WIRING-I0-ROUTEINV-P0a fixtures")
+    receipt_struct = collector_receipt.split(
+        "pub(in crate::mir::builder) struct CollectedDraftAdmissionReceiptV1", 1
+    )[1].split("struct CollectedDraftAdmissionReceiptSealV1", 1)[0]
+    for fragment in (
+        "MirBuilder",
+        "ModuleDraftCollector",
+        "MirModule",
+        "MirFunction",
+        "ValueId",
+        "TypeContext",
+        "header",
+        "retry",
+        "fallback",
+    ):
+        forbid(receipt_struct, fragment, f"receipt stores {fragment}")
+    forbid(
+        collector_receipt,
+        "derive(Debug, Clone",
+        "receipt product derives Clone",
+    )
+    receipt_constructor_users = []
+    receipt_consumers = []
+    for path in (ROOT / "src/mir/builder").rglob("*.rs"):
+        text = path.read_text()
+        if "CollectedDraftAdmissionReceiptV1::new(" in text:
+            receipt_constructor_users.append(path)
+        if path in (COLLECTOR, COLLECTOR_RECEIPT, COLLECTOR_RECEIPT_TESTS, BUILDER_MOD):
+            continue
+        if "CollectedDraftAdmissionReceiptV1" in text:
+            receipt_consumers.append(str(path.relative_to(ROOT)))
+    if receipt_constructor_users != [COLLECTOR]:
+        raise AssertionError(
+            "receipt constructor owner drift: "
+            + ", ".join(str(path.relative_to(ROOT)) for path in receipt_constructor_users)
+        )
+    if receipt_consumers:
+        raise AssertionError(
+            "ROUTEINV-P0a production receipt consumer exists: "
+            + ", ".join(receipt_consumers)
+        )
     for fragment in (
         "MirCompiler::compile_legacy_request",
         "MirBuilder::build_module",
@@ -517,6 +593,11 @@ def main() -> int:
     )
     require(
         builder_mod,
+        "mod module_draft_collector_receipt_tests;",
+        "WIRING-I0-ROUTEINV-P0a fixture registration",
+    )
+    require(
+        builder_mod,
         "mod module_lowering_invocation_access;",
         "WIRING-S0 live access registration",
     )
@@ -591,6 +672,7 @@ def main() -> int:
         "Candidate A-prime",
         "WIRING-I0-ROUTEINV-S0",
         "WIRING-I0-ROUTEINV-S0 closeout",
+        "WIRING-I0-ROUTEINV-P0a-RECEIPT-S0 closeout",
         "WIRING-I0-BORROW-S0",
         "WIRING-I0-HDR0",
         "production capture/commit and\nCUT0 remain forbidden",
@@ -607,7 +689,7 @@ def main() -> int:
         require(card, fragment, "Candidate0 task boundary")
     require(
         state,
-        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0",
+        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0a-RECEIPT-P0",
         "current Candidate0/MainROLE0 pointer",
     )
 

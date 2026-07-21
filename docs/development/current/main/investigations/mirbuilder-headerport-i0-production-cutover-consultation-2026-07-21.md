@@ -1372,3 +1372,42 @@ storing Builder, module, collector, draft, ValueId, or retry authority in a rece
 FastMem remains an independent parked execution lane. Its selected contracted
 raw-borrow V1 task order is unchanged and does not pre-empt this MirBuilder
 production-cutover dependency chain.
+
+## WIRING-I0-ROUTEINV-P0a-RECEIPT-S0 closeout
+
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0a-RECEIPT-S0`
+is closed. The one preflighted collector commit terminal now returns a
+non-Clone `CollectedDraftAdmissionReceiptV1` after the infallible mutation.
+The receipt seals the exact key, actual symbol and arity, publication policy,
+and either `Inserted` or `ReplacedWholePair` disposition.
+
+The product lives in a private child module of `module_draft_collector`; its
+constructor is visible only to the parent collector module. No sibling
+lowering route can synthesize a successful receipt. Receipt construction and
+all receipt-owned allocations occur before the collector mutation, while the
+product is returned only after the new draft and symbol index have both
+committed.
+
+All existing production call sites intentionally discard the new return
+value. Therefore:
+
+```text
+collector commit owners = 1
+receipt constructors = 1
+production receipt producers = existing collector terminal only
+production receipt consumers = 0
+new draft/header/fact stores = 0
+Builder/module/collector/ValueId/retry fields in receipt = 0
+production behavior delta = 0
+```
+
+Focused fixtures cover exact insert identity, legacy whole-pair replacement,
+canonical duplicate rejection before a second receipt, and symbol mismatch
+with no collector effect. The reusable HeaderPort guard fixes the private
+constructor, non-Clone/negative-field law, registration, line limits, and
+production-consumer zero.
+
+The sole next code-facing row is
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0a-RECEIPT-P0`.
+Raw receipt-ledger consumption, canonical header/catalog proof, production
+capture/commit, drain, FACTSESSION, and CUT0 remain forbidden.

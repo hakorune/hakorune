@@ -9,6 +9,12 @@ use std::collections::BTreeMap;
 use crate::mir::resolved_semantics::{CanonicalCallableKeyV1, FunctionOwnerIdV1};
 use crate::mir::{FunctionSignature, MirFunction};
 
+mod receipt;
+
+pub(in crate::mir::builder) use receipt::{
+    CollectedDraftAdmissionReceiptV1, CollectedDraftReplacementDispositionV1,
+};
+
 /// Semantic identity for one draft admission, distinct from fact generation.
 #[allow(dead_code)] // S0 exposes every future physical identity before I0 connects callers.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -142,7 +148,7 @@ struct CollectedFunctionDraftV1 {
 impl UnpublishedFunctionDraftV1<'_> {
     /// Commit cannot fail: its collector was exclusively borrowed when
     /// admission preflight completed, so no collision can have appeared.
-    pub(in crate::mir::builder) fn collect(self) {
+    pub(in crate::mir::builder) fn collect(self) -> CollectedDraftAdmissionReceiptV1 {
         let Self {
             collector,
             key,
@@ -151,7 +157,7 @@ impl UnpublishedFunctionDraftV1<'_> {
             draft,
             _seal: _,
         } = self;
-        collector.collect_sealed(key, policy, replacement, draft);
+        collector.collect_sealed(key, policy, replacement, draft)
     }
 }
 
@@ -261,8 +267,40 @@ impl ModuleDraftCollectorV1 {
         policy: DraftPublicationPolicyV1,
         replacement: PreparedCollectorReplacementV1,
         draft: MirFunction,
-    ) {
+    ) -> CollectedDraftAdmissionReceiptV1 {
         let symbol = draft.signature.name.clone();
+        let arity = draft.signature.params.len();
+        let replacement_disposition = match (&policy, &replacement) {
+            (
+                DraftPublicationPolicyV1::LegacyReplaceWholePair,
+                PreparedCollectorReplacementV1::Legacy {
+                    symbol_key: Some(previous_key),
+                    key_symbol: Some(previous_symbol),
+                },
+            ) => CollectedDraftReplacementDispositionV1::ReplacedWholePair {
+                previous_key: previous_key.clone(),
+                previous_symbol: previous_symbol.clone().into_boxed_str(),
+            },
+            (
+                DraftPublicationPolicyV1::LegacyReplaceWholePair,
+                PreparedCollectorReplacementV1::Legacy {
+                    symbol_key: None,
+                    key_symbol: None,
+                },
+            )
+            | (
+                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+                PreparedCollectorReplacementV1::Canonical,
+            ) => CollectedDraftReplacementDispositionV1::Inserted,
+            _ => unreachable!("prepared collector policy/replacement mismatch"),
+        };
+        let receipt = CollectedDraftAdmissionReceiptV1::new(
+            key.clone(),
+            symbol.clone().into_boxed_str(),
+            arity,
+            policy,
+            replacement_disposition,
+        );
         match (policy, replacement) {
             (
                 DraftPublicationPolicyV1::LegacyReplaceWholePair,
@@ -288,6 +326,7 @@ impl ModuleDraftCollectorV1 {
         }
         self.key_by_symbol.insert(symbol, key.clone());
         self.drafts.insert(key, CollectedFunctionDraftV1 { draft });
+        receipt
     }
 
     /// Move the collector-owned drafts out only for the invocation drain.
