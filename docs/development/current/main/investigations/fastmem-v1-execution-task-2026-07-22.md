@@ -2,13 +2,14 @@
 Status: Parked execution board with a reserved activation handoff
 Decision: task order selected; production activation remains forbidden
 Date: 2026-07-22
-Scope: FastMem V1 foundation, first ny-llvmc FieldLoad vertical, and retirement dependencies
+Scope: FastMem V1 foundation, first Hako/native-library FieldLoad vertical, and retirement dependencies
 Current-lane effect: none; D-prime HEADERPORT0 remains authoritative
 Reserved activation: after `MODULE-FINALIZE-VERIFY-CUT0`
 First active row: `FASTMEM-BASELINE0`
 Parent:
   - docs/development/current/main/investigations/fastmem-v1-contracted-borrow-design-2026-07-20.md
 Related:
+  - docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md
   - docs/development/current/main/design/mir-fastmem-memop-dialect-ssot.md
   - docs/development/current/main/design/fastmem-layout-table-contract-v0-ssot.md
   - docs/development/current/main/design/fastmem-verified-direct-default-retirement-ssot.md
@@ -35,11 +36,21 @@ FASTMEM-BASELINE0
 ```
 
 It removes one test-only nondeterministic block-iteration expectation before
-any FastMem source or contract is touched.  It is followed by one SSOT sync,
-one vocabulary freeze, and the backend/target foundation.
-The first executable feature remains one exact TableIndex plus scalar
-FieldLoad on daily non-replay ny-llvmc.  Existing llvmlite success is reference
-evidence only.
+any FastMem source or contract is touched. It is followed by one SSOT sync,
+one vocabulary freeze, the llvmlite reference census, and the backend/target
+foundation. The first executable feature remains one exact TableIndex plus
+scalar FieldLoad, but its selected production route is now explicit:
+
+```text
+sealed FastMem access plan
+-> .hako LLVM-text emitter
+-> versioned libhako_llvmc_ffi LLVM-text/object API
+-> executable
+```
+
+ny-llvmc proves the same library operation as a CLI adapter. Existing
+llvmlite success is reference evidence only. The legacy C MIR JSON lowerer is
+not widened into a second FastMem V1 lowering authority.
 
 This board does not change the current D-prime blocker and does not authorize
 FastMem production work before the reserved handoff.
@@ -79,13 +90,21 @@ V0 transport:
   access identity = block + instruction index
 
 V0 llvmlite:
-  TableIndex/FieldLoad implementation exists
+  all 17 MemOp lowering functions exist
+  focused positive proofs = 11/17
+  CurrentAllocOwnerId linked runtime proof = absent
   compatibility/reference only
 
 V1 capability/anchor/value/site/plan:
   production owners = 0
 
-ny-llvmc non-replay MemOp producer:
+legacy C pure-first MemOp producer:
+  0
+
+.hako FastMem LLVM-text producer:
+  0
+
+versioned native-library LLVM-text/object ABI:
   0
 
 Rust MirInterpreter MemOp execution:
@@ -115,8 +134,22 @@ raw route selection:
 
 ```text
 FASTMEM-BASELINE0
+  -> LLVMLITE-ROUTE0-CENSUS0
+  -> LLVMLITE-ROUTE0-IDENTITY0
+  -> LLVMLITE-ROUTE0-OBSERVE0
+  -> LLVM-NATIVELIB0-CENSUS0
+  -> LLVM-NATIVELIB0-ROLELOCK0
+  -> LLVM-NATIVELIB0-ABI0
+  -> LLVM-NATIVELIB0-TARGETPORT0
+  -> LLVM-NATIVELIB0-ERROR0
+  -> LLVM-NATIVELIB0-VISIBILITY0
+  -> LLVM-NATIVELIB0-SESSION0
+  -> LLVM-NATIVELIB0-TOOLTX0
+  -> LLVM-NATIVELIB0-LLTEXT0
+  -> LLVM-NATIVELIB0-HAKOPORT0
   -> FASTMEM-SSOT-DRIFT0
   -> FASTMEM-VOCAB-FREEZE0
+  -> FASTMEM-LLVMLITE-REF0
   -> FASTMEM-BACKEND-ID0
   -> FASTMEM-BACKEND-PREFLIGHT0
   -> FASTMEM-TARGET0
@@ -296,7 +329,39 @@ New reusable checks belong in a small manifest-driven
 `fastmem_capability_inventory_common.py`; if it must change, split it first as
 an independent behavior-neutral BoxShape commit.
 
-## 3. Backend safety foundation
+## 3. `FASTMEM-LLVMLITE-REF0`
+
+Freeze the existing llvmlite implementation as a closed reference matrix
+before connecting any V1 consumer.
+
+```text
+all 17 MemOps:
+  implementation site
+  positive IR-construction proof
+  link/execution proof
+  runtime-symbol dependency
+  target/layout assumption
+  proof-token assumption
+  known gap
+```
+
+The current audited split is:
+
+```text
+implementation = 17/17
+focused positive proof = 11/17
+missing focused positive proof =
+  AddrOf LogicalShr BitAnd Add Sub FreeHeadPop
+```
+
+Add missing tests only to freeze current V0 behavior. `CurrentAllocOwnerId`
+must distinguish IR construction from linked execution because its emitted
+runtime symbol has no confirmed definition.
+
+This row changes no source acceptance, MIR shape, production route, runtime,
+or backend selection. New V1 semantics in llvmlite are forbidden.
+
+## 4. Backend safety foundation
 
 ### `FASTMEM-BACKEND-ID0`
 
@@ -305,7 +370,11 @@ Replace the broad completion claim with explicit identities:
 ```text
 MirJsonTransport
 LlvmLiteKeep
-NyLlvmcMainline
+HakoLlTextEmitter
+NativeLibraryLlTextObject
+NyLlvmcCliAdapter
+LegacyCMirJsonLowerer
+RustNativeCanary
 RustMirInterpreter
 HakoMirInterpreter
 CArtifact
@@ -328,7 +397,7 @@ dev/strict/planner flags and never attempts host-pointer execution.  The future
 Hako interpreter remains parked and will use arena id plus checked offset, not
 host raw pointers.
 
-## 4. Representation foundation
+## 5. Representation foundation
 
 ### `FASTMEM-TARGET0`
 
@@ -368,7 +437,7 @@ PROVE0-S0
 
 Production producers and consumers remain zero throughout these S0 products.
 
-## 5. `FASTMEM-V1-PARSE0`
+## 6. `FASTMEM-V1-PARSE0`
 
 Record the required `docs/reference/**` language decision, then change the Rust
 parser, selfhost parser, AST/Program JSON, and parity fixtures together.
@@ -381,7 +450,7 @@ No V1 lowering consumer is connected in this row.  Missing/duplicate roles,
 missing alias, effectful role expressions, nested region, and V0 fallback all
 reject.
 
-## 6. `FASTMEM-FIELDLOAD-VERTICAL0`
+## 7. `FASTMEM-FIELDLOAD-VERTICAL0`
 
 Open only the first exact slice:
 
@@ -396,7 +465,9 @@ ANCHOR0-I0
 -> FIELDLOAD0
 -> REGION0-I0
 -> ACCESSPLAN0-I0
--> NYLLVMC-FIELDLOAD0
+-> HAKOLL-FASTMEM-FIELDLOAD0
+-> NATIVELIB-LLTEXT-OBJECT0
+-> NYLLVMC-ROUTE-PROOF0
 -> FIELDLOAD0-EXE0
 -> PROVE0-RANGE0
 -> FIELDLOAD0-PERF0
@@ -424,14 +495,21 @@ MIR JSON preserves one stable access-site id, target/contract fingerprint, and
 one producer-sealed plan for every surviving physical site.  The plan is not
 first-published by completed-MIR scanning or semantic refresh.
 
-ny-llvmc must implement a genuine non-replay MemOp producer.  Acceptance
-requires:
+The Hako LLVM-text emitter consumes the producer-sealed access plan and emits
+exact TableIndex/FieldLoad LLVM text. It must not reconstruct offsets from
+names or final MIR. `libhako_llvmc_ffi` consumes that text through its
+versioned compile-LL ABI. ny-llvmc exercises the same library call as a CLI
+adapter; it does not implement another lowering rule.
+
+Acceptance requires:
 
 ```text
-owner = boundary
-recipe = pure-first
-compat_replay = none
+lowering owner = hako LLVM-text emitter
+object owner = native-library compile-LL ABI
+ny-llvmc role = CLI adapter
+legacy C MIR JSON lowering = 0 on selected route
 Python child/harness path = 0
+compat replay/fallback = 0
 TableIndex/FieldLoad helper call = 0
 ```
 
@@ -460,10 +538,19 @@ After the first vertical is fully green, open exactly one family at a time:
 
 ```text
 FASTMEM-FIELDSTORE0
-FASTMEM-OWNER0
-FASTMEM-FREELIST0
-FASTMEM-REMOTE0
+FASTMEM-OWNER-PROVIDER0
+FASTMEM-OWNER-COMPARE0
+FASTMEM-LOCALFREE0
+FASTMEM-FREEHEAD0
+FASTMEM-REMOTE-PUSH0
+FASTMEM-REMOTE-DRAIN0
+FASTMEM-REMOTE-TRANSFER0
 ```
+
+`LOCALFREE0` and `FREEHEAD0` each open push before pop. `REMOTE-DRAIN0`
+produces one sealed transfer token and `REMOTE-TRANSFER0` consumes it. Current
+V0 block-next facts must not be shared between local/free-head/remote proof
+kinds merely because their payload shapes match.
 
 Later, independently:
 
@@ -483,17 +570,36 @@ Retirement is dependency-driven:
 AMBIENT-RET0
   after V0 syntax callers are zero or independently proven disconnected
 
+ADDROF-RET0
+  after anchor/binding owns address formation and source AddrOf callers are zero
+
 ARITH-RET0
   after migration-only MemOps have ordinary-MIR/branded-role replacements
 
+ASSUME-BOUNDS-RET0
+  after PROVE owns table-length and index-range obligations
+
+ASSUME-OWNER-RET0
+  after OWNER-PROVIDER/OWNER-COMPARE own the surviving law
+
+ASSUME-BLOCKNEXT-RET0
+  after LOCALFREE/FREEHEAD/REMOTE own distinct block-next proof kinds
+
+ASSUME-NONEMPTY-RET0
+  after local/free-head empty-state transitions are recipe-owned
+
 ASSUME-RET0
-  after PROVE/OWNER/FREELIST/REMOTE and all V0 assume callers are zero
+  after all four assume-family retirements and all V0 assume callers are zero
 
 OWNEROP-RET0
   after branded OwnerId plus ordinary Compare owns the surviving law
 
 RECIPE-TRANSPORT-RET0
-  after FREELIST and REMOTE own their recipes
+  after LOCALFREE/FREEHEAD/REMOTE own their recipes
+
+LLVMLITE-FASTMEM-REFERENCE-RET0
+  after every surviving FastMem family has production execution proof and an
+  independent semantic oracle; never implied by the first FieldLoad vertical
 
 V0-SYNTAX-RET0
   after source/parser/JSON/backend callers are zero
@@ -549,7 +655,10 @@ Stop the active FastMem row if any step requires:
     assume in the first FieldLoad vertical;
 11. extending the oversized legacy inventory checker instead of splitting or
     adding a small manifest-driven V1 owner;
-12. touching a source/check file at 800 lines or more.
+12. adding FastMem V1 lowering to both Hako LLVM-text and legacy C MIR JSON;
+13. treating ny-llvmc's Rust native canary as the FastMem lowering owner;
+14. using native-library failure as permission to replay through llvmlite;
+15. touching a source/check file at 800 lines or more.
 
 ## First-vertical claim boundary
 
@@ -559,7 +668,8 @@ After `FASTMEM-FIELDLOAD-VERTICAL0` is green, implementation may claim only:
 one explicit branded PageMapV1 capability selects one raw table root
 unrelated region expressions retain ordinary semantics
 TableIndex yields an opaque LayoutRef rather than Integer representation truth
-one proved scalar FieldLoad executes on daily non-replay ny-llvmc
+one proved scalar FieldLoad is emitted by Hako LLVM text and compiled through
+the native-library ABI; ny-llvmc reaches the same operation as a CLI adapter
 Rust VM rejects before execution
 raw capabilities do not escape
 backend lowering consumes target-specific producer-sealed plans

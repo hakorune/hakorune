@@ -5,6 +5,7 @@ Date: 2026-04-16
 Scope: Hakorune の LLVM daily lane / keep lane / bootstrap lane と ABI/boundary ownership を固定する正本
 Related:
   - CURRENT_TASK.md
+  - docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md
   - docs/development/current/main/design/de-rust-backend-zero-boundary-lock-ssot.md
   - docs/development/current/main/design/stage2-aot-native-thin-path-design-note.md
   - docs/development/current/main/design/stage2-fast-leaf-manifest-ssot.md
@@ -26,11 +27,30 @@ Related:
 
 ## Fixed Lane Reading
 
-### Daily owner
+### Current daily owner
 
 - `ny-llvmc(boundary pure-first)` が daily/mainline LLVM owner
 - current mainline route is:
   - `.hako -> MIR -> thin backend boundary -> ny-llvmc(boundary pure-first) -> object/exe`
+
+This describes the current production route, not the terminal ownership split.
+
+### Selected terminal ownership
+
+After the parked native-library and Hako-emitter cutovers are proven:
+
+```text
+sealed MIR/backend plan
+  -> .hako LLVM-text emitter
+  -> versioned libhako_llvmc_ffi LLVM-text/object API
+  -> object/exe
+```
+
+`ny-llvmc` becomes a CLI/file adapter to the same library operation. The
+existing C pure-first MIR(JSON)-to-LLVM lowerer remains a compatibility owner
+until family-by-family Hako emitter coverage permits its separate retirement.
+New FastMem V1 semantic lowering must not be duplicated into that legacy C
+lowerer.
 
 ### Keep lanes
 
@@ -40,6 +60,11 @@ Related:
   - local typed lowering may exist, but it is not the mainline owner
 - `--driver harness`
   - explicit compat replay lane
+
+The default ny-llvmc route is non-replay, but other generic/compat ingress
+families still reach harness automatically. llvmlite graduation therefore
+requires an ingress census and individual retirement; it is not implied by
+the default-route setting.
 
 ### Bootstrap / canary lane
 
@@ -62,9 +87,16 @@ Related:
    - transport-only handoff
    - recipe replay
    - object/exe request shaping
-4. `ny-llvmc(boundary pure-first)`
-   - daily compile/link owner
-5. `LLVM`
+4. current `ny-llvmc(boundary pure-first)` / C lowerer
+   - transition daily compile/lower/link owner
+5. selected `.hako LLVM-text emitter`
+   - terminal LLVM lowering owner after cutover
+6. selected `libhako_llvmc_ffi`
+   - versioned target/session/error boundary
+   - LLVM verification, object emission, and link transaction
+7. selected `ny-llvmc`
+   - CLI adapter to the same native-library operation
+8. `LLVM`
    - IR-level consumer
    - profitability / codegen
 
@@ -141,6 +173,10 @@ Forbidden:
 - expanding `native_driver` into the final owner
 - exposing backend-private value classes as a third public ABI
 - moving route policy back out of `.hako` / MIR into transport glue
+- growing `--driver native` into a second LLVM lowering owner
+- adding one new semantic lowering rule to both Hako LLVM-text and legacy C
+  MIR JSON lowering
+- retrying native-library or Hako-emitter failure through llvmlite
 
 ## Optimization Rule
 
