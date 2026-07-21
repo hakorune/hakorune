@@ -1,9 +1,10 @@
 # HEADERPORT0-REENTRANT-TERM0-I0: source integration consultation
 
-Status: **design stop; no production I0 implementation is authorized**
+Status: **Candidate A-prime selected; production I0 remains disconnected**
 Date: 2026-07-21
 Parent: `mirbuilder-headerport-reentrant-terminal-task-2026-07-21.md`
-Decision prerequisite: choose one module-shell/header authority before code
+Decision: one invocation-owned shell plus one collector; shell vocabulary is
+the next disconnected code-facing slice
 
 ## Evidence
 
@@ -108,7 +109,76 @@ header lookup = collector prefix, then current_module fallback
 Rejected: this is a dual authority and violates the selected HeaderPort law.
 It also makes duplicate and replacement semantics dependent on lookup order.
 
-## Questions that must be answered before I0
+## Selected Candidate A-prime
+
+Candidate A is narrowed to a shell/collector split that preserves one function
+authority without making the collector a mutable `MirModule` view.
+
+```text
+ModuleLoweringInvocationV1
+  owns ModuleLoweringShellV1
+  owns ModuleDraftCollectorV1
+  lends LoweringHeaderPortV1 from the collector only
+
+ModuleLoweringShellV1
+  owns module name, globals, and module metadata accumulation
+  owns no published function map during lowering
+
+ModuleDraftCollectorV1
+  owns every completed function draft and header identity
+  owns the only completed-function header view during lowering
+```
+
+The shell may use the existing `MirModule` metadata/global vocabulary, but its
+`functions` map is structurally empty until the final drain. A shell function
+map is never used as a header fallback. The collector is drained exactly once
+after all drafts are sealed and all module-level preflight has passed.
+
+The root `main` is represented as the live, unpublished
+`FunctionLoweringState` until its terminal capture. It is not inserted into a
+shell function map while children are still lowering. The terminal sequence is:
+
+```text
+prepare shell metadata
+-> lower root with one explicit raw port
+-> capture main pending session
+-> prepare/seal/collect Main
+-> synthesize and collect condition_fn when absent
+-> preflight collector-to-shell drain
+-> drain collector exactly once into shell
+-> final module verification and external return
+```
+
+Lowering-time metadata reads/writes are split from function-header reads:
+
+```text
+module name/globals/static plans/declared metadata
+  -> ModuleLoweringShellPortV1
+
+completed function signature/presence/inventory
+  -> LoweringHeaderPortV1 (collector only)
+```
+
+No consumer may read `current_module.functions` during an active invocation.
+The existing eight-reader census must therefore be rechecked after the shell
+port is introduced; a reader that needs a completed body or metadata is a
+typed stop, not a shell fallback.
+
+### Why this is the smallest coherent owner
+
+```text
+one invocation = one shell + one collector
+one header authority = collector
+one function publication point = collector drain
+one main admission = Main key / symbol main / arity 0
+one synthetic admission = SyntheticConditionFn / symbol condition_fn / arity 1
+```
+
+This keeps legacy replacement and canonical duplicate policy inside prepared
+collector admission. It does not redesign TypePipeline, PHI repair, JoinIR,
+FACTSESSION, or finalization; those remain after the shell/collector bridge.
+
+## Questions that must be answered before implementation
 
 1. Does `ModuleLoweringInvocationV1` own the module shell, or does a separate
    `ModuleDraftCollector` terminal consume an explicit shell product?
@@ -125,20 +195,16 @@ It also makes duplicate and replacement semantics dependent on lookup order.
 
 ## Minimum implementation slice after consultation
 
-Do not wire a child consumer yet. The next approved code-facing slice should
-be one of:
+Do not wire a child consumer yet. The next approved code-facing slice is:
 
 ```text
 I0-SHELL-S0
   immutable module shell + collector drain vocabulary, consumers = 0
-
-I0-MAIN-S0
-  port-aware main draft product and explicit main admission, consumers = 0
 ```
 
 The slice must include a fixture proving that a collected child header is
-visible to a later child while `current_module.functions` remains empty for
-the same identity. It must not add a fallback or retry route.
+visible to a later child while the shell function map remains empty for the
+same identity. It must not add a fallback or retry route.
 
 ## Non-claims
 
@@ -150,4 +216,3 @@ FACTSESSION0 activation
 PHI or finalization repair changes
 JoinIR or Loop bridge widening
 ```
-
