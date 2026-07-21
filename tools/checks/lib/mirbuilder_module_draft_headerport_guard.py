@@ -18,6 +18,7 @@ BUILDER = ROOT / "src/mir/builder.rs"
 COMPILATION = ROOT / "src/mir/builder/compilation_context.rs"
 INVOCATION = ROOT / "src/mir/builder/module_lowering_invocation.rs"
 MODULE_DRAFT = ROOT / "src/mir/builder/module_draft_collector.rs"
+ANNOTATION = ROOT / "src/mir/builder/calls/annotation.rs"
 SIGNATURE_LOOKUP = ROOT / "src/mir/builder/function_signature_lookup.rs"
 PORT_AWARE_DRAFT = ROOT / "src/mir/builder/port_aware_function_draft.rs"
 MODULE_SHELL = ROOT / "src/mir/builder/module_lowering_shell.rs"
@@ -43,7 +44,7 @@ STATE_CUTOVER_DOC = ROOT / (
 )
 
 P0_DIRECT_HEADER_READER_FRAGMENTS = {
-    "src/mir/builder/calls/annotation.rs": "module.functions.get(name)",
+    "src/mir/builder/calls/annotation.rs": "builder\n        .current_module\n        .as_ref()",
     "src/mir/builder/calls/lowering.rs": "self.current_module.take()",
     "src/mir/builder/method_call_handlers.rs": "module.functions.get(&fname)",
     "src/mir/builder/rewrite/known.rs": "module.functions.get(fname)",
@@ -59,7 +60,7 @@ P0_DIRECT_HEADER_READER_FRAGMENTS = {
 P0_READER_CENSUS_ROWS = {
     "src/mir/builder/calls/annotation.rs": (
         "header",
-        "module.functions.get(name)",
+        "builder\n        .current_module\n        .as_ref()",
         "LoweringHeaderPortV1",
     ),
     "src/mir/builder/calls/lowering.rs": (
@@ -172,6 +173,7 @@ def require_count(text: str, fragment: str, expected: int, subject: str) -> None
 def main() -> int:
     invocation = read(INVOCATION)
     module_draft = read(MODULE_DRAFT)
+    annotation = read(ANNOTATION)
     signature_lookup = read(SIGNATURE_LOOKUP)
     port_aware_draft = read(PORT_AWARE_DRAFT)
     module_shell = read(MODULE_SHELL)
@@ -262,6 +264,12 @@ def main() -> int:
         "access_port_contract_has_exact_three_surfaces",
     ):
         require(access_port, fragment, "HEADERPORT0 I0-ACCESS0-S0 vocabulary")
+    for fragment in (
+        "annotate_call_result_from_func_name_with_lookup",
+        "FunctionSignatureLookupV1",
+        "lookup\n        .and_then(|view| view.signature(func_name.as_ref()))",
+    ):
+        require(annotation, fragment, "HEADERPORT0 I0-ACCESS0-P0 header adapter")
     for fragment in (
         "intern_closure_body",
         "static_data_plan",
