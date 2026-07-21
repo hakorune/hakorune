@@ -88,6 +88,8 @@ mod module_invocation_route_matrix; // HEADERPORT0 I0-SHELL-I0-P0 disconnected m
 mod module_lowering_access_port; // HEADERPORT0 I0-ACCESS0-S0 disconnected vocabulary
 #[cfg(test)]
 mod module_lowering_borrow_root_p0; // HEADERPORT0 WIRING-I0-BORROW-P0-ROOT proof
+#[cfg(test)]
+mod module_lowering_borrow_root_p0d; // HEADERPORT0 WIRING-I0-BORROW-P0-ROOT-P0d proof
 #[allow(dead_code)]
 mod module_lowering_borrow_schedule; // HEADERPORT0 WIRING-I0-BORROW-S0 passive schedule
 mod module_lowering_invocation;

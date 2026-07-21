@@ -484,8 +484,14 @@ def verify_borrow_schedule_s0(
     )
     consumers = []
     root_proof_path = root / "src/mir/builder/module_lowering_borrow_root_p0.rs"
+    root_p0d_proof_path = root / "src/mir/builder/module_lowering_borrow_root_p0d.rs"
     for path in (root / "src/mir").rglob("*.rs"):
-        if path in (source_path, root_proof_path, root / "src/mir/builder.rs"):
+        if path in (
+            source_path,
+            root_proof_path,
+            root_p0d_proof_path,
+            root / "src/mir/builder.rs",
+        ):
             continue
         if "ModuleLoweringBorrowScheduleV1" in path.read_text():
             consumers.append(str(path.relative_to(root)))

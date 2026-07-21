@@ -29,6 +29,7 @@ def verify_borrow_root_p0(
     fact_commit_proof_path = (
         root / "src/mir/builder/module_declaration_fact_shell_commit_p0.rs"
     )
+    route_commit_proof_path = root / "src/mir/builder/module_lowering_borrow_root_p0d.rs"
     proof = proof_path.read_text()
     matrix = matrix_path.read_text()
     owners = "\n".join(
@@ -46,6 +47,7 @@ def verify_borrow_root_p0(
         batch_commit_proof_path,
         fact_commit_path,
         fact_commit_proof_path,
+        route_commit_proof_path,
     ):
         if len(path.read_text().splitlines()) >= 800:
             raise AssertionError(f"BORROW-P0-ROOT source/proof reached 800 lines: {path}")
@@ -123,6 +125,19 @@ def verify_borrow_root_p0(
         "#[cfg(test)]\nmod module_declaration_fact_shell_commit_p0;",
         "BORROW-P0-ROOT-P0c proof registration",
     )
+    route_commit_proof = route_commit_proof_path.read_text()
+    for fragment in (
+        "all_nine_routes_co_seal_with_the_exact_raw_prefix_or_common_tail",
+        "every_route_observes_external_commit_zero_on_failure_and_one_on_success",
+        "assert_eq!(projected_route_step_count, 4 * 11 + 5 * 6)",
+        "assert_eq!(observations.len(), 9 * 3)",
+    ):
+        require(route_commit_proof, fragment, "BORROW-P0-ROOT-P0d proof")
+    require(
+        builder_mod,
+        "#[cfg(test)]\nmod module_lowering_borrow_root_p0d;",
+        "BORROW-P0-ROOT-P0d proof registration",
+    )
 
     production_calls = []
     excluded = {
@@ -136,6 +151,7 @@ def verify_borrow_root_p0(
         batch_commit_proof_path,
         fact_commit_path,
         fact_commit_proof_path,
+        route_commit_proof_path,
     }
     watched = (
         "PreparedRootDraftBatchV1::prepare(",
@@ -163,8 +179,9 @@ def verify_borrow_root_p0(
     require(card, "WIRING-I0-BORROW-P0-ROOT-P0a closeout", "root P0a closeout")
     require(card, "WIRING-I0-BORROW-P0-ROOT-P0b closeout", "root P0b closeout")
     require(card, "WIRING-I0-BORROW-P0-ROOT-P0c closeout", "root P0c closeout")
+    require(card, "WIRING-I0-BORROW-P0-ROOT-P0d closeout", "root P0d closeout")
     require(
         state,
-        "BORROW-P0-ROOT-P0c is closed; BORROW-P0-ROOT-P0d is next",
-        "root P0c pointer",
+        "BORROW-P0-ROOT-P0d is closed; BORROW-P0-ROOT-G0 is next",
+        "root P0d pointer",
     )

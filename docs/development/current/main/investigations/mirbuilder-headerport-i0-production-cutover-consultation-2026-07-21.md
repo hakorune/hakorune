@@ -2992,3 +2992,48 @@ Main prefix while the five canonical rows enter only the common six-phase
 tail, and observe external commit count zero on drain/finalizer failure and
 one on success. ROOT-G0 and BORROW-G0 remain forbidden until that matrix is
 green.
+
+## WIRING-I0-BORROW-P0-ROOT-P0d closeout
+
+`BORROW-P0-ROOT-P0d` is closed as a passive co-seal over existing route,
+schedule, and finalization-failure authorities. It introduces no new runtime
+or lifecycle owner.
+
+The exact projection is:
+
+```text
+route rows = 9
+  raw rows = 4
+    phases per row = 5 RawOnly + 6 AllRoutes
+  canonical rows = 5
+    phases per row = 6 AllRoutes
+
+exact route/phase pairs = (4 * 11) + (5 * 6) = 74
+```
+
+For every route, three terminal observations are kept separate:
+
+```text
+drain-preflight failure:
+  external commit count = 0
+  retry = 0
+
+post-drain finalizer failure:
+  external commit count = 0
+  retry = 0
+
+success:
+  ExternalCommit phase occurrences = 1
+  external commit count = 1
+  retry = 0
+```
+
+The observation matrix therefore contains exactly `9 * 3 = 27` rows. Failure
+counts are projected from `ModuleFinalizationFailureMatrixV1`; success count
+is projected from the sole `ExternalCommit` schedule phase. A zero observed
+commit never claims that production wiring already exists.
+
+Production orchestration consumers, Builder mutation, module publication,
+fallback, retry, FACTSESSION, PHI repair, JoinIR, FastMem, and CUT0 deltas
+remain zero. `BORROW-P0-ROOT-G0` is next, followed by the reusable whole
+`WIRING-I0-BORROW-G0` guard.
