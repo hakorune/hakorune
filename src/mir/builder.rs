@@ -84,6 +84,8 @@ mod module_invocation_drain; // HEADERPORT0 I0-SHELL-I0-S0 disconnected drain
 mod module_invocation_route_matrix; // HEADERPORT0 I0-SHELL-I0-P0 disconnected matrix
 #[allow(dead_code)]
 mod module_lowering_access_port; // HEADERPORT0 I0-ACCESS0-S0 disconnected vocabulary
+#[allow(dead_code)]
+mod module_lowering_borrow_schedule; // HEADERPORT0 WIRING-I0-BORROW-S0 passive schedule
 mod module_lowering_invocation;
 #[allow(dead_code)]
 mod module_lowering_invocation_access; // HEADERPORT0 WIRING-S0 live bundle

@@ -145,7 +145,7 @@ def verify_single_header_s0(
     require(card, "WIRING-I0-ROUTEINV-P0c-SINGLEHDR-P0 closeout", "single-header P0 closeout")
     require(
         state,
-        "P0e-MATRIX-G0 and BORROW-D0 worker audit are closed; WIRING-I0-BORROW-S0",
+        "P0e-MATRIX-G0 are closed; BORROW-D0 worker audit is closed; BORROW-S0 is closed; WIRING-I0-BORROW-P0-RAW",
         "single-header downstream closed-state pointer",
     )
 
@@ -304,7 +304,7 @@ def verify_callable_batch_p0(
     require(card, "WIRING-I0-ROUTEINV-P0d-CALLABLE-P0 closeout", "P0d closeout")
     require(
         state,
-        "P0e-MATRIX-G0 and BORROW-D0 worker audit are closed; WIRING-I0-BORROW-S0",
+        "P0e-MATRIX-G0 are closed; BORROW-D0 worker audit is closed; BORROW-S0 is closed; WIRING-I0-BORROW-P0-RAW",
         "P0d downstream closed-state pointer",
     )
 
@@ -419,6 +419,84 @@ def verify_route_matrix_g0(
 
     require(card, "WIRING-I0-ROUTEINV-P0e-MATRIX-G0 worker decision lock", "P0e task lock")
     require(card, "WIRING-I0-ROUTEINV-P0e-MATRIX-G0 closeout", "P0e closeout")
+
+
+def verify_borrow_schedule_s0(
+    root: pathlib.Path,
+    builder_mod: str,
+    card: str,
+    state: str,
+) -> None:
+    source_path = root / "src/mir/builder/module_lowering_borrow_schedule.rs"
+    source = source_path.read_text()
+    if len(source.splitlines()) >= 800:
+        raise AssertionError("BORROW-S0 schedule source must remain below 800 lines")
+
+    for fragment in (
+        "ModuleLoweringBorrowScheduleV1",
+        "InvocationBorrowScheduleDomainV1",
+        "InvocationBorrowRouteScopeV1",
+        "InvocationBorrowSurfaceV1",
+        "InvocationBorrowPhaseV1",
+        "InvocationBorrowArtifactV1",
+        "InvocationBorrowScheduleErrorV1",
+        "child.len() != 5 || invocation.len() != 11",
+        "SharedHeaderOverlapsCollectorMutation",
+        "BuilderLoanAfterMainPending",
+        "LiveLoanAfterDrain",
+        "CollectedInvocationDrafts",
+        "RootBatchCommit",
+        "PostDrainFinalize",
+        "ExternalCommit",
+        "commit_mutations_are_infallible_after_preflight",
+    ):
+        require(source, fragment, "BORROW-S0 passive schedule")
+    require(
+        source,
+        "#[derive(Debug)]\npub(in crate::mir::builder) struct ModuleLoweringBorrowScheduleV1",
+        "non-Clone BORROW-S0 schedule",
+    )
+    for fragment in (
+        "MirBuilder",
+        "MirModule",
+        "MirFunction",
+        "ModuleDraftCollectorV1",
+        "ValueId",
+        "RefCell",
+        "Mutex",
+        "unsafe {",
+        "Vec<String>",
+    ):
+        forbid(source, fragment, f"BORROW-S0 schedule stores or escapes {fragment}")
+    forbid(
+        source,
+        "impl Clone for ModuleLoweringBorrowScheduleV1",
+        "BORROW-S0 schedule Clone implementation",
+    )
+
+    require(
+        builder_mod,
+        "mod module_lowering_borrow_schedule;",
+        "BORROW-S0 module registration",
+    )
+    consumers = []
+    for path in (root / "src/mir").rglob("*.rs"):
+        if path in (source_path, root / "src/mir/builder.rs"):
+            continue
+        if "ModuleLoweringBorrowScheduleV1" in path.read_text():
+            consumers.append(str(path.relative_to(root)))
+    if consumers:
+        raise AssertionError("BORROW-S0 production consumers: " + ", ".join(consumers))
+
+    invocation_path = root / "src/mir/builder/module_lowering_invocation.rs"
+    if len(invocation_path.read_text().splitlines()) >= 800:
+        raise AssertionError("module_lowering_invocation.rs reached the 800-line stop")
+    require(card, "WIRING-I0-BORROW-S0 closeout", "BORROW-S0 closeout")
+    require(
+        state,
+        "BORROW-S0 is closed; WIRING-I0-BORROW-P0-RAW is next",
+        "BORROW-S0 downstream state pointer",
+    )
 
 
 def verify_route_inventory_extension(
@@ -545,3 +623,4 @@ def verify_route_inventory_extension(
     verify_single_header_s0(root, builder_mod, card, state)
     verify_callable_batch_p0(root, card, state)
     verify_route_matrix_g0(root, builder_mod, card)
+    verify_borrow_schedule_s0(root, builder_mod, card, state)

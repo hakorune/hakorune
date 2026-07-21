@@ -2172,10 +2172,10 @@ child completion and module completion into one flat lifecycle.
 ChildTerminal schedule:
   BodyDescent
     BuilderMut + short recursive port reborrow
-  CapturePending
-    BuilderMut; no surviving collector/header loan
   HeaderObservation
-    CollectorHeaderShared; callback-scoped
+    BuilderMut + CollectorHeaderShared; callback-scoped
+  CapturePending
+    BuilderMut -> owned pending; no surviving collector/header loan
   CommitPending
     CollectorMut; Builder accepted only through pending token
   ParentRestore
@@ -2325,7 +2325,7 @@ WIRING-I0-BORROW-S0             <- next code-facing row
 
 WIRING-I0-BORROW-P0-RAW
   three-level static / instance / constructor recursion
-  capture -> header -> commit -> restore ordering
+  body -> short header -> pending seal -> commit -> restore ordering
   body, cleanup, admission, and panic failure matrix
 
 WIRING-I0-BORROW-P0-CANONICAL
@@ -2523,3 +2523,85 @@ FastMem remains explicitly parked in
 Its selected contracted raw-view / FieldLoad vertical slice is already
 taskified, but it does not pre-empt BORROW -> HDR0 -> CUT0 unless the active
 lane is explicitly switched.
+
+## WIRING-I0-BORROW-S0 closeout
+
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-BORROW-S0` is closed with one
+disconnected, non-Clone `ModuleLoweringBorrowScheduleV1` and zero production
+consumers. The schedule lives in the new focused
+`module_lowering_borrow_schedule.rs`; the 799-line
+`module_lowering_invocation.rs` remains unchanged.
+
+The product seals two distinct domains:
+
+```text
+ChildTerminal = 5 rows
+  body descent
+  short final header observation
+  pending-session seal
+  collector commit
+  parent restore
+
+InvocationCompletion = 11 rows
+  root body drive
+  root body seal
+  Main header completion
+  root-batch preflight
+  root-batch commit
+  declaration-fact seal
+  shell commit
+  drain preflight
+  drain commit
+  post-drain finalization
+  external commit
+```
+
+The child order deliberately reflects the physical port-aware draft builder:
+the final header lookup happens inside the capture closure after body descent,
+and the pending session is returned only after that header callback has ended.
+No schedule row may overlap a shared completed-header loan with exclusive
+collector mutation. No Builder loan appears after `PendingMainDraftV1`, and no
+Builder, collector, or shell loan survives `DrainCommit`.
+
+The first five invocation-completion rows are `RawOnly`. The remaining six
+rows are `AllRoutes`; raw root-batch commit produces the neutral
+`CollectedInvocationDrafts` handoff at which canonical routes join. The
+schedule therefore does not impose raw `main` on canonical families and does
+not duplicate route names, callable keys, or symbol inventories.
+
+Construction validates exact cardinality, unique phases, contiguous owned
+artifact handoffs, route scope, forbidden borrow overlap, the post-Main
+Builder boundary, and the post-drain loan boundary. Root-batch, shell, drain,
+and external commit mutations are explicitly infallible after their preceding
+preflight rows.
+
+The reusable HeaderPort guard now fixes:
+
+```text
+one passive schedule definition
+5 child rows / 11 invocation rows
+non-Clone product
+no Builder/module/function/collector/ValueId storage
+no RefCell/Mutex/unsafe escape
+production schedule consumers = 0
+module_lowering_invocation.rs < 800 lines
+all changed source/check files < 800 lines
+```
+
+Focused schedule tests cover exact domain cardinality, contiguous artifact
+handoffs, shared-header/exclusive-collector exclusion, the raw-only to
+all-route boundary, no live loan after drain, and infallible commit rows.
+Production capture/commit, route header replacement, root-batch wiring,
+drain, finalization, external commit, FACTSESSION, and FastMem remain
+unchanged.
+
+The sole next code-facing row is:
+
+```text
+HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-BORROW-P0-RAW
+```
+
+It must prove the existing port-aware raw path through at least three nested
+static/instance/constructor frames, exact header-before-pending ordering,
+commit-before-restore, prefix preservation, and primary/cleanup/admission/panic
+failure laws before the canonical or root proof slices begin.
