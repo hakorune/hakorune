@@ -203,10 +203,10 @@ impl super::MirBuilder {
                 expression,
                 ..
             } => Ok(StatementSurfaceDispatch::Lowered(
-                super::stmts::async_stmt::build_nowait_statement(
-                    self,
-                    variable.clone(),
-                    *expression.clone(),
+                self.build_nowait_statement_expression_with_port_v1(
+                    port,
+                    variable,
+                    *expression,
                 )?,
             )),
             ASTNode::UsingStatement { .. } => Ok(StatementSurfaceDispatch::Lowered(
@@ -214,6 +214,20 @@ impl super::MirBuilder {
             )),
             ast => Ok(StatementSurfaceDispatch::RegularExpression(ast)),
         }
+    }
+
+    fn build_nowait_statement_expression_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        variable: String,
+        expression: ASTNode,
+    ) -> Result<ValueId, String>
+    where
+        Port: RawExpressionDispatchPortV1,
+    {
+        super::stmts::async_stmt::build_nowait_statement_with_port_v1(
+            self, port, variable, expression,
+        )
     }
 
     fn build_assignment_statement_expression_with_port_v1<Port>(
@@ -578,7 +592,11 @@ impl super::MirBuilder {
             ASTNode::MapLiteral { entries, .. } => self.build_map_literal(entries),
 
             ASTNode::AwaitExpression { expression, .. } => {
-                super::stmts::async_stmt::build_await_expression(self, *expression.clone())
+                super::stmts::async_stmt::build_await_expression_with_port_v1(
+                    self,
+                    port,
+                    *expression.clone(),
+                )
             }
 
             ASTNode::RecordLiteral {

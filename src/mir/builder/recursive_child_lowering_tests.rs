@@ -99,6 +99,21 @@ fn unary_minus(operand: ASTNode) -> ASTNode {
     }
 }
 
+fn await_expression(expression: ASTNode) -> ASTNode {
+    ASTNode::AwaitExpression {
+        expression: Box::new(expression),
+        span: Span::unknown(),
+    }
+}
+
+fn nowait(variable: &str, expression: ASTNode) -> ASTNode {
+    ASTNode::Nowait {
+        variable: variable.to_string(),
+        expression: Box::new(expression),
+        span: Span::unknown(),
+    }
+}
+
 fn instructions(builder: &MirBuilder) -> Vec<MirInstruction> {
     let function = builder
         .function_state
@@ -247,6 +262,58 @@ fn raw_invocation_port_preserves_unary_operand_descent() {
         assert!(instructions(builder).iter().any(|instruction| matches!(
             instruction,
             MirInstruction::UnaryOp { dst, .. } if *dst == output
+        )));
+        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
+    });
+}
+
+#[test]
+fn raw_invocation_port_preserves_await_operand_descent() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("raw_invocation_await/0".to_string());
+    let mut invocation = ModuleLoweringInvocationV1::with_collector(
+        &mut builder,
+        collector_with_header("Prefix.f/1", 1),
+    );
+
+    invocation.with_module_port(|builder, module_port| {
+        let mut port = RawInvocationChildPortV1::new(module_port);
+        let output = drive_legacy_expression_v1(
+            builder,
+            &mut port,
+            await_expression(add(integer(2), integer(3))),
+        )
+        .unwrap();
+
+        assert!(instructions(builder).iter().any(|instruction| matches!(
+            instruction,
+            MirInstruction::Await { dst, .. } if *dst == output
+        )));
+        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
+    });
+}
+
+#[test]
+fn raw_invocation_port_preserves_nowait_operand_descent() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("raw_invocation_nowait/0".to_string());
+    let mut invocation = ModuleLoweringInvocationV1::with_collector(
+        &mut builder,
+        collector_with_header("Prefix.f/1", 1),
+    );
+
+    invocation.with_module_port(|builder, module_port| {
+        let mut port = RawInvocationChildPortV1::new(module_port);
+        let output = drive_legacy_expression_v1(
+            builder,
+            &mut port,
+            nowait("pending", add(integer(2), integer(3))),
+        )
+        .unwrap();
+
+        assert!(instructions(builder).iter().any(|instruction| matches!(
+            instruction,
+            MirInstruction::FutureNew { dst, .. } if *dst == output
         )));
         port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
     });

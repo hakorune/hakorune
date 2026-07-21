@@ -13,6 +13,9 @@
 
 use super::super::{MirBuilder, MirInstruction, MirType, ValueId};
 use crate::ast::ASTNode;
+use crate::mir::builder::recursive_child_lowering::{
+    drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+};
 
 /// Nowait: Phase‑0 semantics (sequential evaluation + FutureNew)
 ///
@@ -32,7 +35,21 @@ pub(in crate::mir::builder) fn build_nowait_statement(
     variable: String,
     expression: ASTNode,
 ) -> Result<ValueId, String> {
-    let expression_value = builder.build_expression(expression)?;
+    let mut port = RawLegacyChildLoweringPortV1;
+    build_nowait_statement_with_port_v1(builder, &mut port, variable, expression)
+}
+
+/// Lower `nowait` while retaining the caller's raw child-descent port.
+pub(in crate::mir::builder) fn build_nowait_statement_with_port_v1<Port>(
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    variable: String,
+    expression: ASTNode,
+) -> Result<ValueId, String>
+where
+    Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
+{
+    let expression_value = drive_legacy_expression_v1(builder, port, expression)?;
     let future_id = builder.next_value_id();
     builder.emit_instruction(MirInstruction::FutureNew {
         dst: future_id,
@@ -77,7 +94,20 @@ pub(in crate::mir::builder) fn build_await_expression(
     builder: &mut MirBuilder,
     expression: ASTNode,
 ) -> Result<ValueId, String> {
-    let future_value = builder.build_expression(expression)?;
+    let mut port = RawLegacyChildLoweringPortV1;
+    build_await_expression_with_port_v1(builder, &mut port, expression)
+}
+
+/// Lower `await` while retaining the caller's raw child-descent port.
+pub(in crate::mir::builder) fn build_await_expression_with_port_v1<Port>(
+    builder: &mut MirBuilder,
+    port: &mut Port,
+    expression: ASTNode,
+) -> Result<ValueId, String>
+where
+    Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
+{
+    let future_value = drive_legacy_expression_v1(builder, port, expression)?;
     builder.emit_instruction(MirInstruction::Safepoint)?;
     let result_id = builder.next_value_id();
     builder.emit_instruction(MirInstruction::Await {
