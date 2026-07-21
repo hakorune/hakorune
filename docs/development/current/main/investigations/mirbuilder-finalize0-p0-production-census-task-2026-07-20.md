@@ -3488,3 +3488,89 @@ the canonical header/arity validation seam. It may classify only
 signature/header-only, declaration-only, metadata-required, body-required, or
 lifecycle-only use; a body or metadata requirement stops I0 rather than adding
 a second collector view.
+
+#### MODULEDRAFT0-M0 closeout — collector header surface and terminal census
+
+The production census finds no current-builder lowering-time consumer that
+needs a completed function body or `FunctionMetadata` before module assembly.
+Every eligible reader is a same-owned draft header consumer:
+
+```text
+signature return type:
+  calls/annotation.rs
+  type_hint_providers.rs
+
+signature parameters / arity:
+  method_call_handlers.rs
+  rewrite/known.rs
+
+exact symbol presence:
+  calls/materializer.rs
+  rewrite/known.rs
+  builder_build.rs
+
+deterministic symbol inventory / count:
+  builder_method_index.rs
+  calls/static_resolution.rs
+```
+
+`CompletedDraftSignatureViewV1::signature()` alone is therefore deliberately
+not yet a sufficient P0 surface. P0 must extend the *same owned-draft view*
+with exact symbol presence and deterministic symbol inventory/count access; it
+must not create a cloned header cache or a second draft map. Full
+`FunctionSignature` remains the only per-symbol header authority.
+
+The excluded cases are explicit:
+
+```text
+module_lifecycle.rs condition_fn presence:
+  lifecycle-only
+
+module_lifecycle.rs all-function PHI materialization:
+  post-assembly body mutation; outside MODULEDRAFT0
+
+JoinIR JoinModule readers:
+  separate body-required caller family; excluded
+
+indexing / static-data metadata readers:
+  non-function module metadata; excluded
+```
+
+The direct publication census also freezes current behavior before I0:
+
+```text
+legacy root main:
+  finalize_module -> MirModule::add_function
+  replace by symbol
+
+legacy and canonical A-prime children:
+  operation -> cleanup -> parent restore -> publish_function_draft
+  legacy replaces; canonical rejects duplicate
+
+BindingSSA trivial:
+  restored unpublished draft -> try_add_function
+
+BindingSSA acyclic / recursive module:
+  restored drafts -> canonical header/symbol/arity/cardinality validation
+  -> try_add_functions_atomic
+
+condition_fn:
+  lifecycle-only direct insertion after main
+```
+
+In particular, every current child normal session restores its parent before
+bare publication. I0 must replace that terminal handoff rather than redirect
+`publish_function_draft`. Canonical header/symbol/arity validation currently
+lives only in the callable-module transaction; P0 pins its migration into
+prepared common-collector admission. Legacy replacement remains an explicit
+whole-draft policy, not an implicit map behavior.
+
+`FINALIZE0-MODULEDRAFT0-P0` is next. It adds only disconnected proof coverage:
+the expanded same-owned header view; all five root and four child route
+fixtures; legacy replace versus canonical reject; main and synthetic
+`condition_fn`; signature-view parity; and success, primary-error,
+cleanup-error, publication-preflight, and unwind terminal ordering. It has no
+production collector consumer, no parent-restore rewrite, no fact-session
+connection, no finalizer change, and no PHI repair. A body/metadata read,
+cloned header cache, second draft collector, or direct live-module insertion
+remains an I0 stop.
