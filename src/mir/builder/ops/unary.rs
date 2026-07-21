@@ -70,6 +70,9 @@
 
 use super::super::{MirInstruction, MirType, ValueId};
 use crate::ast::ASTNode;
+use crate::mir::builder::recursive_child_lowering::{
+    drive_legacy_expression_v1, RawLegacyChildLoweringPortV1, RecursiveChildLoweringPortV1,
+};
 
 /// Build a unary operation.
 ///
@@ -121,6 +124,23 @@ pub(super) fn build_unary_op(
     operator: String,
     operand: ASTNode,
 ) -> Result<ValueId, String> {
+    let mut port = RawLegacyChildLoweringPortV1;
+    build_unary_op_with_port_v1(builder, &mut port, operator, operand)
+}
+
+/// Lower a unary operation while retaining the caller's raw child port.
+///
+/// The operator semantics remain owned by this module.  Only operand descent
+/// is delegated, so a nested raw child cannot recreate a legacy-only port.
+pub(super) fn build_unary_op_with_port_v1<Port>(
+    builder: &mut super::super::MirBuilder,
+    port: &mut Port,
+    operator: String,
+    operand: ASTNode,
+) -> Result<ValueId, String>
+where
+    Port: RecursiveChildLoweringPortV1<ExpressionInput = ASTNode>,
+{
     let return_type = match operator.as_str() {
         "-" | "~" => MirType::Integer,
         "!" | "not" => MirType::Bool,
@@ -137,7 +157,7 @@ pub(super) fn build_unary_op(
             }
         }
     }
-    let operand_val = builder.build_expression(operand)?;
+    let operand_val = drive_legacy_expression_v1(builder, port, operand)?;
     let all_call = crate::config::env::builder_operator_box_all_call();
     if all_call {
         let (name, guard_prefix) = match operator.as_str() {

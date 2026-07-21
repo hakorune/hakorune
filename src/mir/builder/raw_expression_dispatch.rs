@@ -327,7 +327,9 @@ impl super::MirBuilder {
                             crate::ast::UnaryOperator::BitNot => "~".to_string(),
                             crate::ast::UnaryOperator::Weak => unreachable!("handled above"),
                         };
-                        self.build_unary_op(op_string, *operand)
+                        super::ops::unary::build_unary_op_with_port_v1(
+                            self, port, op_string, *operand,
+                        )
                     }
                 }
             }
