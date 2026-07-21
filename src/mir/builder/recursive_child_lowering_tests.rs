@@ -1,7 +1,7 @@
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::{
-    BasicBlockId, Effect, EffectMask, FunctionSignature, MirBuilder, MirFunction, MirInstruction,
-    MirType, ValueId,
+    BasicBlockId, BindingId, Effect, EffectMask, FunctionSignature, MirBuilder, MirFunction,
+    MirInstruction, MirType, ValueId,
 };
 
 use super::recursive_child_lowering::{
@@ -117,6 +117,14 @@ fn nowait(variable: &str, expression: ASTNode) -> ASTNode {
 fn qmark(expression: ASTNode) -> ASTNode {
     ASTNode::QMarkPropagate {
         expression: Box::new(expression),
+        span: Span::unknown(),
+    }
+}
+
+fn grouped_assignment(name: &str, value: ASTNode) -> ASTNode {
+    ASTNode::GroupedAssignmentExpr {
+        lhs: name.to_string(),
+        rhs: Box::new(value),
         span: Span::unknown(),
     }
 }
@@ -343,6 +351,42 @@ fn raw_invocation_port_preserves_qmark_operand_descent() {
             instruction,
             MirInstruction::Call { dst: Some(dst), .. } if *dst == output
         )));
+        port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
+    });
+}
+
+#[test]
+fn raw_invocation_port_preserves_grouped_assignment_rhs_descent() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("raw_invocation_grouped_assignment/0".to_string());
+    let old = crate::mir::builder::emission::constant::emit_integer(&mut builder, 1).unwrap();
+    builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .insert("x".to_string(), old);
+    builder
+        .function_state
+        .binding_ctx
+        .insert("x".to_string(), BindingId::new(0));
+    let mut invocation = ModuleLoweringInvocationV1::with_collector(
+        &mut builder,
+        collector_with_header("Prefix.f/1", 1),
+    );
+
+    invocation.with_module_port(|builder, module_port| {
+        let mut port = RawInvocationChildPortV1::new(module_port);
+        let output = drive_legacy_expression_v1(
+            builder,
+            &mut port,
+            grouped_assignment("x", add(integer(2), integer(3))),
+        )
+        .unwrap();
+
+        assert_eq!(
+            builder.function_state.variable_ctx.variable_map["x"],
+            output
+        );
         port.with_headers(|headers| assert_eq!(headers.symbol_count(), 1));
     });
 }

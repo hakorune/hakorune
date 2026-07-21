@@ -374,7 +374,8 @@ impl super::MirBuilder {
             // Stage-3 only. Value/type same as rhs, side effect assigns to lhs.
             // Remains outside ASN0 and returns the SSA ValueId.
             ASTNode::GroupedAssignmentExpr { lhs, rhs, .. } => {
-                self.build_grouped_assignment(lhs.clone(), *rhs.clone())
+                let input = RawLegacyVariableAssignmentInputV1::new(lhs, *rhs);
+                drive_variable_assignment_v1(self, port, &input)
             }
 
             ASTNode::Index { target, index, .. } => {
