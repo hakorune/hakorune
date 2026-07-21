@@ -95,7 +95,9 @@ mod tests {
         let view = KnownRewriteHeaderViewV1::new(&headers);
 
         assert!(view.contains_symbol("User.f/1"));
+        assert!(!view.contains_symbol("User.missing/0"));
         assert_eq!(view.parameter_count("User.f/1"), Some(1));
+        assert_eq!(view.parameter_count("User.missing/0"), None);
         assert!(!view.prepend_receiver("User.f/1", 1));
         assert!(view.prepend_receiver("User.f/1", 0));
     }
@@ -109,6 +111,7 @@ mod tests {
         let headers = FakeHeaders { signatures };
         let view = KnownRewriteHeaderViewV1::new(&headers);
 
+        assert!(view.unique_suffix_candidates("missing", 0).is_empty());
         assert_eq!(view.unique_suffix_candidates("f", 1).len(), 2);
         assert_eq!(view.unique_suffix_candidates("g", 1), vec!["Other.g/1"]);
     }
