@@ -487,3 +487,8 @@ parity matrix must cover missing headers, static/instance arity, unique
 0/1/>1 candidates, environment gates, primitive guards, and error/no-retry
 behavior, and the production-consumer guard must remain zero until the
 candidate cutover.
+
+The reusable HeaderPort guard also requires the four disconnected adapter
+anchors (`KnownRewriteHeaderViewV1`, the Known/unique and equals lookup
+entries, and `emit_unified_call_with_lookup`) while keeping the production
+access-port consumer count at zero.

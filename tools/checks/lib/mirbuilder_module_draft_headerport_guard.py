@@ -55,6 +55,13 @@ P0_DIRECT_HEADER_READER_FRAGMENTS = {
     "src/mir/builder/builder_build.rs": "module.functions.contains_key(&lowered)",
 }
 
+P0_ACCESS_ADAPTER_FRAGMENTS = {
+    "src/mir/builder/rewrite/header_lookup.rs": "KnownRewriteHeaderViewV1",
+    "src/mir/builder/rewrite/known.rs": "try_known_or_unique_to_dst_with_lookup",
+    "src/mir/builder/rewrite/special.rs": "try_special_equals_to_dst_with_lookup",
+    "src/mir/builder/calls/unified_emitter.rs": "emit_unified_call_with_lookup",
+}
+
 # I0-SHELL-P0 owns the complete production reader census.  The source anchor
 # is checked against Rust and the future owner phrase is checked against the
 # consultation card, so a hand-entered row cannot survive source drift.
@@ -719,6 +726,8 @@ def main() -> int:
 
     for relative, fragment in P0_DIRECT_HEADER_READER_FRAGMENTS.items():
         require(read(ROOT / relative), fragment, f"P0 direct header reader {relative}")
+    for relative, fragment in P0_ACCESS_ADAPTER_FRAGMENTS.items():
+        require(read(ROOT / relative), fragment, f"ACCESS0 adapter {relative}")
 
     census_counts = Counter()
     state_owner_counts = Counter()
