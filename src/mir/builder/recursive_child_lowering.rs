@@ -8,6 +8,7 @@ use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 use crate::mir::{MirBuilder, ValueId};
 
 use super::calls::LegacyFunctionPendingSessionV1;
+use super::function_signature_lookup::FunctionSignatureLookupV1;
 use super::module_lowering_invocation::{
     LegacyChildDraftAdmissionV1, LoweringHeaderPortV1, ModuleLoweringPortChildErrorV1,
     ModuleLoweringPortV1,
@@ -57,6 +58,15 @@ pub(in crate::mir::builder) trait RawAstChildLoweringPortV1:
     ExpressionInput = ASTNode,
 >
 {
+}
+
+/// Optional completed-header capability for raw terminals.  The legacy raw
+/// port returns no view; the invocation port supplies a short collector loan.
+pub(in crate::mir::builder) trait RawFunctionHeaderLookupPortV1 {
+    fn with_function_headers<R>(
+        &mut self,
+        observe: impl for<'headers> FnOnce(Option<&'headers dyn FunctionSignatureLookupV1>) -> R,
+    ) -> R;
 }
 
 /// One raw Box method-child terminal capability.
@@ -437,6 +447,15 @@ impl RawBoxMethodChildPortV1 for RawLegacyChildLoweringPortV1 {
     }
 }
 
+impl RawFunctionHeaderLookupPortV1 for RawLegacyChildLoweringPortV1 {
+    fn with_function_headers<R>(
+        &mut self,
+        observe: impl for<'headers> FnOnce(Option<&'headers dyn FunctionSignatureLookupV1>) -> R,
+    ) -> R {
+        observe(None)
+    }
+}
+
 impl RawLoopChildEntryPortV1 for RawLegacyChildLoweringPortV1 {
     fn lower_loop(
         &mut self,
@@ -535,6 +554,15 @@ impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1<'_, '_> {
             },
         )
         .map_err(|error| error.to_string())
+    }
+}
+
+impl RawFunctionHeaderLookupPortV1 for RawInvocationChildPortV1<'_, '_> {
+    fn with_function_headers<R>(
+        &mut self,
+        observe: impl for<'headers> FnOnce(Option<&'headers dyn FunctionSignatureLookupV1>) -> R,
+    ) -> R {
+        self.with_headers(|headers| observe(Some(headers)))
     }
 }
 

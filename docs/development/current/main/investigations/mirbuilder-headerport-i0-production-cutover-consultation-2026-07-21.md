@@ -479,7 +479,11 @@ lookup never falls back to those readers.  The lookup remains short-lived and
 is forwarded to global presence, signature arity, annotation, candidate
 trace, and rewrite selection without storing it in `MirBuilder` or TLS.
 
-`ACCESS0-REWRITE-KNOWN-P0` is not yet closed: the invocation method terminal
-still needs an explicit header-capability hook, and the parity matrix must
-cover missing headers, static/instance arity, unique 0/1/>1 candidates,
-environment gates, primitive guards, and error/no-retry behavior.
+The raw terminal now has an explicit short-lived header-capability hook:
+legacy raw ports return `None`, while `RawInvocationChildPortV1` lends the
+collector view only during terminal emission.  The hook is not stored in the
+port, Builder, or TLS.  `ACCESS0-REWRITE-KNOWN-P0` is still not closed: the
+parity matrix must cover missing headers, static/instance arity, unique
+0/1/>1 candidates, environment gates, primitive guards, and error/no-retry
+behavior, and the production-consumer guard must remain zero until the
+candidate cutover.
