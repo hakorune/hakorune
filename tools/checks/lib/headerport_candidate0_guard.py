@@ -502,9 +502,16 @@ def main() -> int:
         "HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0\n  child/root/drain/finalizer failure matrix",
         "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-S0\n  closed",
         "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-P0\n  closed",
-        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0\n  next code-facing row",
+        "Candidate A-prime",
+        "WIRING-I0-ROUTEINV-S0",
+        "WIRING-I0-BORROW-S0",
+        "WIRING-I0-HDR0",
+        "production capture/commit and\nCUT0 remain forbidden",
         "WIRING-S0 closeout",
         "WIRING-P0 closeout",
+        "Candidate A: route-owned invocation inventory",
+        "Candidate B: common collector, route-specific drain expectations",
+        "Selected refinement: Candidate A-prime",
         "one disconnected invocation-owned shell/collector candidate",
         "typed abort/no-publication/no-retry proof",
         "production capture/commit remains forbidden",
@@ -513,7 +520,7 @@ def main() -> int:
         require(card, fragment, "Candidate0 task boundary")
     require(
         state,
-        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0 is next",
+        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-S0",
         "current Candidate0/MainROLE0 pointer",
     )
 

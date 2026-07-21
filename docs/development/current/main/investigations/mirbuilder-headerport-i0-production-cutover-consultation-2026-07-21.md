@@ -5,8 +5,10 @@ ACCESS0-MEHEADER-S0/P0/I0/G0, ACCESS0-REWRITE-KNOWN-P0, ACCESS0-P0, and
 CANDIDATE0-S0/P0, MAINROLE0-D0/S0/P0, BODYDRAIN0-S0/P0,
 MAINPENDING0-S0/P0, ROOTBATCH0-S0/P0, SHELLFACT0-S0/P0, and
 DRAIN0-S0/P0, MODULEFINAL0-SPLIT0/P0, MODULEFINAL0-CANDIDATE0-P0, and
-WIRING-S0/P0 are closed; M-root-prime remains selected and
-`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0` is next**
+WIRING-S0/P0 are closed; M-root-prime and Candidate A-prime are selected.
+The next passive row is `WIRING-I0-ROUTEINV-S0`; production capture/commit and
+CUT0 remain forbidden until the passive route inventory, borrow seam, and
+header/read census are green**
 
 Date: 2026-07-21
 
@@ -751,7 +753,7 @@ HEADERPORT0-REENTRANT-TERM0-I0-WIRING-P0
   entered/changed/fallback/publication observation requirements
 
 HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0
-  next code-facing row
+  parked behind I0-CONSULT0 design stop
   one all-route capture -> seal -> collect -> drain
 
 HEADERPORT0-REENTRANT-TERM0-I0-WIRING-G0
@@ -1001,6 +1003,121 @@ does not claim that any production route has entered or changed, and it does
 not connect capture, commit, drain, or finalization.  The next row is
 `HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0`; `condition_fn` miss/stub behavior,
 collector-miss no-fallback, and all-route atomicity remain explicit I0 gates.
+
+## WIRING-I0-CONSULT0 design closeout
+
+The route parity census exposes a policy boundary that must be resolved before
+production capture/commit.  The current raw lifecycle assumes a root `main`
+and may synthesize or tolerate `condition_fn`; canonical A+/trivial and
+acyclic/recursive callable modules legitimately contain only resolved callable
+symbols and do not have a raw `main`.  Therefore a single raw `main` drain
+expectation cannot be reused as the canonical module contract.
+
+### Source authority
+
+```text
+raw source expansion       module_lifecycle.rs / decls.rs
+raw child entry            recursive_child_lowering.rs
+condition policy           root_draft_batch.rs / module_invocation_drain.rs
+canonical root selection   compiler/mod.rs
+callable batch publication  resolved_lowering/callable_module_transaction.rs
+header/read census         existing 14-row HeaderPort reader inventory
+```
+
+### Non-authority
+
+```text
+collector symbol prefix as a root-policy oracle
+raw `main` required flag on canonical routes
+condition_fn materializer fallback value
+current_module lookup after an explicit collector miss
+post-drain MIR scan to infer route identity
+caller-authored symbol lists as the canonical inventory
+```
+
+### Candidate slices
+
+```text
+Candidate A: route-owned invocation inventory
+  Raw inventory owns root main + script/Main condition policy.
+  Canonical inventory owns callable-key/cardinality policy.
+  One drain product consumes a tagged route inventory without merging policy.
+
+Candidate B: common collector, route-specific drain expectations
+  All drafts share collection, but each route seals its own required roots,
+  symbol set, and condition policy before the collector is drained.
+
+Candidate C: canonical adapter into raw Main shell
+  rejected: invents a synthetic main for canonical modules and duplicates
+  header/return authority.
+```
+
+### Selected refinement: Candidate A-prime
+
+Candidate A-prime is selected.  The physical collector remains singular, while
+the drain policy is owned by a tagged route inventory.  Raw/Main owns its root
+`main` and script/`condition_fn` policy; A+/trivial and acyclic/recursive
+callable routes own their resolved callable-key/cardinality policy.  These
+policies are not merged and the raw `main` requirement is never imposed on a
+canonical module.
+
+The first code-facing slice is still passive:
+
+```text
+WIRING-I0-ROUTEINV-S0
+  RouteOwnedInvocationInventoryV2 vocabulary
+  route-specific root/condition policy
+  exact ingress/root symbols and three-valued reachability
+  production consumers = 0
+
+WIRING-I0-ROUTEINV-P0
+  all four ingress families and failure/duplicate matrices
+  collector-miss no-fallback and no caller-authored inventory
+  production consumers = 0
+
+WIRING-I0-BORROW-S0
+  outer orchestration helper and short ModuleLoweringPort loans
+  no Builder-held invocation/collector mirror
+  production consumers = 0
+
+WIRING-I0-HDR0
+  route-owned header/read authority census before function-map removal
+
+WIRING-I0-CUT0
+  one all-route capture -> seal -> collect -> drain -> finalizer -> commit
+  only after the preceding passive products are green
+```
+
+The physical cutover order is fixed as:
+
+```text
+header/read authority
+-> child draft capture/commit
+-> canonical draft collection
+-> Main/root batch
+-> shell declaration facts
+-> route-owned drain
+-> post-drain finalizer
+-> external commit
+```
+
+`WIRING-I0-CUT0` must connect Raw/Main, A+/trivial, and acyclic/recursive
+routes atomically; a canary or partial route cutover is not admitted.  The
+orchestration helper is required because `ModuleLoweringInvocationV1` holds a
+long-lived Builder borrow: production ingress methods must not store an
+invocation/collector mirror in `MirBuilder` or reborrow it directly.  FACTSESSION,
+PHI repair, JoinIR conversion, and repository-wide CUT0 remain outside this
+series.
+
+### Explicit non-claims
+
+```text
+canonical modules can be drained by raw `main` policy
+condition_fn fallback is semantically harmless
+old and new collector inventories are interchangeable
+any production route has entered or changed
+FACTSESSION0 or FunctionLoweringSession separation is complete
+```
 
 ## MAINPENDING0-P0 closeout
 
