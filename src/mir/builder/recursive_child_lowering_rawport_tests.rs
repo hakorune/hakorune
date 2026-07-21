@@ -199,6 +199,65 @@ fn raw_invocation_me_header_ignores_stale_module_signature() {
 }
 
 #[test]
+fn raw_invocation_header_miss_does_not_retry_stale_current_module() {
+    let symbol = "Ghost.m/1";
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("raw_invocation_header_miss/0".to_owned());
+    builder.current_module = Some(crate::mir::MirModule::new("stale-miss-module".to_string()));
+    builder
+        .current_module
+        .as_mut()
+        .unwrap()
+        .add_function(MirFunction::new(
+            FunctionSignature {
+                name: symbol.to_string(),
+                params: vec![MirType::Box("Ghost".to_string()), MirType::Integer],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId(0),
+        ));
+    let instructions_before = instructions(&builder);
+    let next_value_before = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .next_value_id;
+
+    {
+        let mut invocation = ModuleLoweringInvocationV1::with_collector(
+            &mut builder,
+            ModuleDraftCollectorV1::default(),
+        );
+        invocation.with_module_port(|builder, module_port| {
+            let mut port = RawInvocationChildPortV1::new(module_port);
+            let observation = port.observe_me_call_parameters(builder, symbol);
+            assert_eq!(
+                observation.source(),
+                MeCallHeaderSourceV1::InvocationCollector
+            );
+            assert!(matches!(
+                &observation,
+                super::me_call_header_observation::MeCallParameterObservationV1::Missing { .. }
+            ));
+            assert!(prepare_me_lowered_call_v1(observation, None).is_none());
+        });
+    }
+
+    assert_eq!(instructions(&builder), instructions_before);
+    assert_eq!(
+        builder
+            .function_state
+            .current_function
+            .as_ref()
+            .unwrap()
+            .next_value_id,
+        next_value_before
+    );
+}
+
+#[test]
 fn raw_invocation_port_collects_static_and_instance_box_methods() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("raw_port_boxes/0".to_owned());

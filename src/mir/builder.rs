@@ -103,6 +103,8 @@ mod module_lowering_invocation_state; // HEADERPORT0 I0-STATE0-S0 disconnected s
 mod module_lowering_shell; // HEADERPORT0 I0-SHELL-S0 disconnected shell
 #[allow(dead_code)]
 mod module_wiring_parity_p0; // HEADERPORT0 WIRING-P0 disconnected parity
+#[cfg(test)]
+mod module_wiring_route_matrix_p0e; // ROUTEINV-P0e test-only matrix closure
 #[allow(dead_code)]
 mod raw_expansion_receipt_ledger; // ROUTEINV-P0b-RAWLEDGER-S0 disconnected owner
 #[cfg(test)]

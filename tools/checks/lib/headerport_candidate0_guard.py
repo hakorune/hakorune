@@ -31,6 +31,7 @@ ACCESS_LIVE = ROOT / "src/mir/builder/module_lowering_invocation_access.rs"
 ACCESS_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_access_tests.rs"
 WIRING_P0 = ROOT / "src/mir/builder/module_wiring_parity_p0.rs"
 ROUTE_INVENTORY = ROOT / "src/mir/builder/route_owned_invocation_inventory.rs"
+ROUTE_MATRIX_P0E = ROOT / "src/mir/builder/module_wiring_route_matrix_p0e.rs"
 COLLECTOR = ROOT / "src/mir/builder/module_draft_collector.rs"
 COLLECTOR_RECEIPT = ROOT / "src/mir/builder/module_draft_collector/receipt.rs"
 COLLECTOR_RECEIPT_TESTS = ROOT / "src/mir/builder/module_draft_collector_receipt_tests.rs"
@@ -532,6 +533,7 @@ def main() -> int:
             ACCESS_LIVE,
             WIRING_P0,
             ROUTE_INVENTORY,
+            ROUTE_MATRIX_P0E,
             SHELL_FACTS,
             SHELL_FACTS_P0,
             DRAINED_CANDIDATE,

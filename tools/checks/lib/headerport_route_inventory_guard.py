@@ -145,8 +145,8 @@ def verify_single_header_s0(
     require(card, "WIRING-I0-ROUTEINV-P0c-SINGLEHDR-P0 closeout", "single-header P0 closeout")
     require(
         state,
-        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0e-MATRIX-G0",
-        "single-header downstream pointer",
+        "P0e-MATRIX-G0 are closed; WIRING-I0-BORROW-S0",
+        "single-header downstream closed-state pointer",
     )
 
 
@@ -304,9 +304,121 @@ def verify_callable_batch_p0(
     require(card, "WIRING-I0-ROUTEINV-P0d-CALLABLE-P0 closeout", "P0d closeout")
     require(
         state,
-        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0e-MATRIX-G0",
-        "P0d next pointer",
+        "P0e-MATRIX-G0 are closed; WIRING-I0-BORROW-S0",
+        "P0d downstream closed-state pointer",
     )
+
+
+def verify_route_matrix_g0(
+    root: pathlib.Path,
+    builder_mod: str,
+    card: str,
+) -> None:
+    proof_path = root / "src/mir/builder/module_wiring_route_matrix_p0e.rs"
+    policy_path = root / "src/mir/builder/route_owned_invocation_inventory.rs"
+    matrix_path = root / "src/mir/builder/module_invocation_route_matrix.rs"
+    raw_port_path = root / "src/mir/builder/recursive_child_lowering.rs"
+    raw_tests_path = root / "src/mir/builder/recursive_child_lowering_rawport_tests.rs"
+    proof = proof_path.read_text()
+    policy = policy_path.read_text()
+    matrix = matrix_path.read_text()
+    raw_port = raw_port_path.read_text()
+    raw_tests = raw_tests_path.read_text()
+
+    for path, text in (
+        (proof_path, proof),
+        (policy_path, policy),
+        (matrix_path, matrix),
+        (raw_port_path, raw_port),
+        (raw_tests_path, raw_tests),
+    ):
+        if len(text.splitlines()) >= 800:
+            raise AssertionError(f"ROUTEINV-P0e source/proof must remain below 800 lines: {path}")
+
+    for fragment in (
+        "InvocationRouteMatrixV1::rows()",
+        "RouteOwnedInvocationInventoryV2::derive(family)",
+        "RouteAuthorityLaneV1::RawLedger",
+        "RouteAuthorityLaneV1::SingleOwnerHeader",
+        "RouteAuthorityLaneV1::CallableBatch",
+        "assert_eq!(policy_lane_counts, [4, 3, 1, 1]);",
+        "assert_eq!(projected.len(), 9);",
+        "assert_eq!(authority_counts, [4, 3, 2]);",
+        "route_matrix_projects_all_nine_rows_to_exactly_one_existing_authority",
+        "route_failure_and_publication_laws_remain_matrix_projections",
+    ):
+        require(proof, fragment, "ROUTEINV-P0e matrix projection")
+    for fragment in (
+        "struct RouteObservationV1",
+        "entered: bool",
+        "changed: bool",
+        "entered: true,\n            changed: false",
+        "entered: true,\n            changed: true",
+        "entered_and_changed_observations_are_independent_dimensions",
+    ):
+        require(proof, fragment, "ROUTEINV-P0e independent observation")
+    for fragment in (
+        "InvocationRouteMatrixRowV1 {",
+        "Vec<String>",
+        "BTreeMap",
+        "MirBuilder",
+        "MirModule",
+        "MirFunction",
+        "ModuleDraftCollectorV1",
+    ):
+        forbid(proof, fragment, f"P0e proof owns {fragment}")
+    require(
+        builder_mod,
+        "#[cfg(test)]\nmod module_wiring_route_matrix_p0e;",
+        "test-only P0e registration",
+    )
+
+    require(
+        matrix,
+        "pub(in crate::mir::builder) const fn rows()",
+        "route-matrix SSOT",
+    )
+    require(policy, "pub(in crate::mir::builder) fn derive(", "family policy projection")
+    require(
+        policy,
+        "fallback: RouteFallbackPolicyV2::Forbidden",
+        "route fallback prohibition",
+    )
+
+    invocation_observer = raw_port.split(
+        "impl MeCallHeaderObservationPortV1 for RawInvocationChildPortV1", 1
+    )[1].split("impl RawLoopChildEntryPortV1", 1)[0]
+    for fragment in ("with_function_headers", "MeCallHeaderSourceV1::InvocationCollector"):
+        require(invocation_observer, fragment, "collector-only invocation observer")
+    for fragment in ("current_module", "MeCallHeaderSourceV1::ModuleCompatibility"):
+        forbid(invocation_observer, fragment, "invocation observer compatibility fallback")
+
+    for fragment in (
+        "raw_invocation_header_miss_does_not_retry_stale_current_module",
+        'let symbol = "Ghost.m/1";',
+        "ModuleDraftCollectorV1::default()",
+        "MeCallHeaderSourceV1::InvocationCollector",
+        "MeCallParameterObservationV1::Missing",
+        "prepare_me_lowered_call_v1(observation, None).is_none()",
+        "assert_eq!(instructions(&builder), instructions_before);",
+        "next_value_before",
+    ):
+        require(raw_tests, fragment, "explicit invocation header-miss fixture")
+
+    for symbol in ("RouteAuthorityProjectionV1", "RouteObservationV1"):
+        consumers = []
+        for path in (root / "src/mir/builder").rglob("*.rs"):
+            if path in (proof_path, root / "src/mir/builder.rs"):
+                continue
+            if symbol in path.read_text():
+                consumers.append(str(path.relative_to(root)))
+        if consumers:
+            raise AssertionError(
+                f"ROUTEINV-P0e test proof has production consumers: {consumers}"
+            )
+
+    require(card, "WIRING-I0-ROUTEINV-P0e-MATRIX-G0 worker decision lock", "P0e task lock")
+    require(card, "WIRING-I0-ROUTEINV-P0e-MATRIX-G0 closeout", "P0e closeout")
 
 
 def verify_route_inventory_extension(
@@ -427,8 +539,9 @@ def verify_route_inventory_extension(
     require(card, "WIRING-I0-ROUTEINV-P0b-RAWLEDGER-P0 closeout", "raw ledger closeout")
     require(
         state,
-        "HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0",
-        "raw ledger next pointer",
+        "P0b-RAWLEDGER-S0/P0",
+        "raw ledger closed-state pointer",
     )
     verify_single_header_s0(root, builder_mod, card, state)
     verify_callable_batch_p0(root, card, state)
+    verify_route_matrix_g0(root, builder_mod, card)

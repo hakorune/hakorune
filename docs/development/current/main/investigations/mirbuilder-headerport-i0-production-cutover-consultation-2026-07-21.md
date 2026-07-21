@@ -2010,3 +2010,81 @@ No additional ChatGPT Pro consultation is scheduled before
 `WIRING-I0-BORROW-S0`. A new consultation is required only if one of the P0e
 stop conditions is reached or the BORROW-S0 inventory finds an unowned
 cross-session mutable borrow.
+
+## WIRING-I0-ROUTEINV-P0e-MATRIX-G0 closeout
+
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0e-MATRIX-G0`
+is closed with test-only evidence and zero production inventory consumers.
+One new proof module reads the existing route matrix and derives every family
+through the existing route-owned policy product. It does not repeat the nine
+route names or construct a route row.
+
+The exact closed correspondence is:
+
+```text
+four policy lanes:
+  Raw = 4 rows
+  CanonicalSingle = 3 rows
+  BindingSsaAcyclic = 1 row
+  BindingSsaRecursive = 1 row
+
+five root families:
+  Raw
+  CanonicalAPlus
+  BindingSsaTrivial
+  BindingSsaAcyclic
+  BindingSsaRecursive
+
+existing authority products:
+  P0b RawExpansionReceipts = 4 rows
+  P0c CanonicalResolvedOwner = 3 rows
+  P0d CanonicalCallableCatalog = 2 rows
+```
+
+Every matrix row appears exactly once in the flattened family projection.
+Publication, failure stages, prefix preservation, and retry prohibition remain
+direct projections of `InvocationRouteMatrixV1`; P0e adds no duplicate or
+failure-law store.
+
+The entered/changed proof is deliberately test-only. It records both
+`entered=true, changed=false` and `entered=true, changed=true` for the same
+route, so a no-op execution cannot be collapsed into a non-entry observation.
+It does not claim that all production routes already own runtime observers.
+
+The raw invocation integration fixture now installs a stale matching function
+only in `current_module` while keeping the invocation collector empty. The
+result is a branded `InvocationCollector` miss, `prepare_me_lowered_call_v1`
+returns `None`, and both MIR instructions and the function ValueId cursor stay
+unchanged. The invocation route never retries the stale module header. Legacy
+module compatibility remains a separate explicit port and is not retired by
+this claim.
+
+The reusable route-inventory guard now fixes:
+
+```text
+matrix SSOT consumption
+four / five / nine cardinality
+P0b / P0c / P0d counts 4 / 3 / 2
+independent entered / changed fields
+exact empty-collector negative fixture
+collector-only invocation me-header observer
+caller-authored symbol inventory = 0
+production P0e proof consumers = 0
+source/check files >= 800 lines = 0
+```
+
+Focused matrix tests pass 3/3, the explicit header-miss fixture passes 1/1,
+the broader raw-port suite passes 16/16, the existing me-header and route
+inventory suites pass, and the reusable Candidate0/route-inventory guard is
+green. Production capture/commit, drain, finalization, FACTSESSION, condition
+compatibility retirement, and CUT0 remain forbidden.
+
+The sole next code-facing row is:
+
+```text
+HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-BORROW-S0
+```
+
+It must inventory every mutable borrow crossing capture, header observation,
+collector admission, parent restore, and root completion before any production
+cutover. `WIRING-I0-HDR0` and `WIRING-I0-CUT0` remain downstream.
