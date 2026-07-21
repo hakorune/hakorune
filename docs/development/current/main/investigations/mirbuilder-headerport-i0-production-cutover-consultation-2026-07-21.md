@@ -4,8 +4,9 @@ Status: **STATE0-S0/P0/I0/G0, CONSULT0, ACCESS0-S0, and
 ACCESS0-MEHEADER-S0/P0/I0/G0, ACCESS0-REWRITE-KNOWN-P0, ACCESS0-P0, and
 CANDIDATE0-S0/P0, MAINROLE0-D0/S0/P0, BODYDRAIN0-S0/P0,
 MAINPENDING0-S0/P0, ROOTBATCH0-S0/P0, SHELLFACT0-S0/P0, and
-DRAIN0-S0/P0 and MODULEFINAL0-SPLIT0/P0 are closed; M-root-prime remains
-selected and `HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0` is next**
+DRAIN0-S0/P0, MODULEFINAL0-SPLIT0/P0, and MODULEFINAL0-CANDIDATE0-P0 are
+closed; M-root-prime remains selected and
+`FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0` is next**
 
 Date: 2026-07-21
 
@@ -737,8 +738,11 @@ HEADERPORT0-I0-MODULEFINAL0-SPLIT0-P0 (closed)
   ownership and declaration/fact failure matrix
 
 HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0
-  next code-facing row
   child/root/drain/finalizer failure matrix
+
+FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0
+  next code-facing row
+  one all-route production capture/commit cutover
 
 HEADERPORT0-I0-CANDIDATE0-P0
   child/root/drain/finalizer failure matrix
@@ -924,6 +928,19 @@ candidate and declaration snapshot can only move together through one
 consuming input. No clone, second fact store, Builder, collector, bare module,
 retry, fallback, or production finalizer was introduced. The next row is
 `HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0`; FACTSESSION0 and CUT0 remain
+forbidden.
+
+## MODULEFINAL0-CANDIDATE0-P0 closeout
+
+`HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0` is closed with production
+consumers still zero. The passive six-row failure matrix assigns child
+primary/cleanup/admission failures to collector-prefix preservation and one
+parent restore, while root completion, drain preflight, and post-drain
+verification failures discard the unpublished invocation. Every row keeps
+external publication unchanged and forbids retry/fallback. This is only the
+failure ownership contract; it does not execute module repair, drain, or
+finalization. The next row is
+`FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0`; FACTSESSION0 and CUT0 remain
 forbidden.
 
 ## MAINPENDING0-P0 closeout
