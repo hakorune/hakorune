@@ -1411,3 +1411,50 @@ The sole next code-facing row is
 `HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0a-RECEIPT-P0`.
 Raw receipt-ledger consumption, canonical header/catalog proof, production
 capture/commit, drain, FACTSESSION, and CUT0 remain forbidden.
+
+## WIRING-I0-ROUTEINV-P0a-RECEIPT-P0 closeout
+
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0a-RECEIPT-P0`
+is closed. A test-only exact snapshot observes both collector-owned draft rows
+and the symbol-to-key index from the same owner. It is compiled only under
+`cfg(test)` and introduces no production inventory or read API.
+
+The matrix proves:
+
+```text
+canonical duplicate key:
+  typed preflight error
+  draft/index prefix unchanged
+  receipt publication = 0
+
+canonical duplicate symbol with a distinct key:
+  typed preflight error
+  draft/index prefix unchanged
+  receipt publication = 0
+
+symbol or arity drift:
+  typed seal error
+  draft/index prefix unchanged
+  receipt publication = 0
+
+sealed draft dropped before collect:
+  draft/index prefix unchanged
+  receipt publication = 0
+
+legacy whole-pair replacement:
+  exactly one successful receipt
+  previous exact key/symbol named by the receipt
+  unaffected prefix retained
+  draft/index bijection retained
+```
+
+The existing injected index-drift fixture remains the preflight proof for a
+malformed legacy pair. There is no fallible `collect` result or failure-retry
+surface after a draft has passed prepare and seal; dropping or unwinding
+before that terminal emits no receipt. The private constructor, non-Clone
+law, production-consumer zero, and all source/check line limits remain guarded.
+
+The sole next code-facing row is
+`HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-ROUTEINV-P0b-RAWLEDGER-S0`.
+Canonical header/catalog proof, production capture/commit, drain, FACTSESSION,
+and CUT0 remain forbidden.

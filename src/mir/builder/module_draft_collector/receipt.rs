@@ -6,6 +6,11 @@
 
 use super::{DraftPublicationPolicyV1, FunctionDraftKeyV1};
 
+#[cfg(test)]
+use super::ModuleDraftCollectorV1;
+#[cfg(test)]
+use crate::mir::FunctionSignature;
+
 /// Exact effect of one successful collector admission on the prior pair.
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum CollectedDraftReplacementDispositionV1 {
@@ -70,5 +75,55 @@ impl CollectedDraftAdmissionReceiptV1 {
         &self,
     ) -> &CollectedDraftReplacementDispositionV1 {
         &self.replacement
+    }
+}
+
+/// Test-only exact view used to prove that rejected receipt paths preserve
+/// both collector indexes. It never exists in a production build.
+#[cfg(test)]
+#[derive(Debug, PartialEq)]
+pub(in crate::mir::builder) struct ModuleDraftCollectorReceiptProofSnapshotV1 {
+    draft_rows: Box<[(FunctionDraftKeyV1, FunctionSignature)]>,
+    symbol_rows: Box<[(Box<str>, FunctionDraftKeyV1)]>,
+}
+
+#[cfg(test)]
+impl ModuleDraftCollectorReceiptProofSnapshotV1 {
+    pub(in crate::mir::builder) fn is_bijective(&self) -> bool {
+        self.draft_rows.len() == self.symbol_rows.len()
+            && self.draft_rows.iter().all(|(key, signature)| {
+                self.symbol_rows.iter().any(|(symbol, indexed_key)| {
+                    symbol.as_ref() == signature.name && indexed_key == key
+                })
+            })
+            && self.symbol_rows.iter().all(|(symbol, key)| {
+                self.draft_rows.iter().any(|(draft_key, signature)| {
+                    draft_key == key && signature.name == symbol.as_ref()
+                })
+            })
+    }
+}
+
+#[cfg(test)]
+impl ModuleDraftCollectorV1 {
+    pub(in crate::mir::builder) fn receipt_proof_snapshot(
+        &self,
+    ) -> ModuleDraftCollectorReceiptProofSnapshotV1 {
+        let draft_rows = self
+            .drafts
+            .iter()
+            .map(|(key, entry)| (key.clone(), entry.draft.signature.clone()))
+            .collect::<Vec<_>>()
+            .into_boxed_slice();
+        let symbol_rows = self
+            .key_by_symbol
+            .iter()
+            .map(|(symbol, key)| (symbol.clone().into_boxed_str(), key.clone()))
+            .collect::<Vec<_>>()
+            .into_boxed_slice();
+        ModuleDraftCollectorReceiptProofSnapshotV1 {
+            draft_rows,
+            symbol_rows,
+        }
     }
 }
