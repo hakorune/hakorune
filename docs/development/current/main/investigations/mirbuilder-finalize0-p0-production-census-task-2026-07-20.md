@@ -3461,3 +3461,30 @@ FINALIZE0-MODULEDRAFT0-S0
 `FINALIZE0-MODULEDRAFT0-S0` is the sole next code-facing row. PHI repair,
 receipt issuance, unused-Phi deletion, TypePipeline/Call-Await redesign,
 JoinIR, MODULETX activation, and CUT0 remain outside this series.
+
+#### MODULEDRAFT0-S0 closeout — disconnected collector vocabulary
+
+One private `ModuleDraftCollectorV1` now owns the only disconnected
+unpublished-draft storage. `FunctionDraftKeyV1` separates Main, legacy symbol,
+canonical callable, and synthetic-condition identities from a future fact
+generation. A non-Clone `PreparedFunctionDraftAdmissionV1` exclusively borrows
+the collector from preflight through seal, so no second admission can create a
+late key/symbol collision. Successful seal yields one non-Clone
+`UnpublishedFunctionDraftV1`; its sole `collect` transition is infallible.
+
+The collector preserves `LegacyReplaceWholePair` and
+`CanonicalRejectDuplicate` as explicit policy. Its only read product is
+`CompletedDraftSignatureViewV1`, which borrows the exact signature owned by the
+same collected draft and exposes neither body nor metadata. Four disconnected
+fixtures cover signature projection, whole-pair legacy replacement, canonical
+duplicate preflight, and signature/arity rejection without collector mutation.
+There are no Builder, `MirModule`, fact-session, finalizer, or production
+consumer connections. Focused tests, format, cargo check, diff check, and the
+under-800-line source boundary are green.
+
+`FINALIZE0-MODULEDRAFT0-M0` is next. It must census every lowering-time reader
+of `current_module.functions`, every direct function publication entry, and
+the canonical header/arity validation seam. It may classify only
+signature/header-only, declaration-only, metadata-required, body-required, or
+lifecycle-only use; a body or metadata requirement stops I0 rather than adding
+a second collector view.

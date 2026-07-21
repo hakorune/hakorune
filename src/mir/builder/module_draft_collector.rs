@@ -1,0 +1,345 @@
+//! MODULEDRAFT0-S0: one disconnected owner for unpublished function drafts.
+//!
+//! This vocabulary has no Builder, module, fact-session, or publication
+//! consumer yet. It establishes the one collector that later receives a
+//! completed draft together with its sealed fact session.
+
+use std::collections::BTreeMap;
+
+use crate::mir::resolved_semantics::CanonicalCallableKeyV1;
+use crate::mir::{FunctionSignature, MirFunction};
+
+/// Semantic identity for one draft admission, distinct from fact generation.
+#[allow(dead_code)] // S0 exposes every future physical identity before I0 connects callers.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub(in crate::mir::builder) enum FunctionDraftKeyV1 {
+    Main,
+    LegacySymbol(String),
+    CanonicalCallable(CanonicalCallableKeyV1),
+    SyntheticConditionFn,
+}
+
+/// Preserve each current route family's duplicate behavior at collection.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::builder) enum DraftPublicationPolicyV1 {
+    LegacyReplaceWholePair,
+    CanonicalRejectDuplicate,
+}
+
+/// Typed preflight failure before a completed draft enters the collector.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder) enum ModuleDraftAdmissionErrorV1 {
+    DuplicateKey(FunctionDraftKeyV1),
+    DuplicateSymbol(String),
+    SymbolMismatch {
+        expected: String,
+        actual: String,
+    },
+    ArityMismatch {
+        symbol: String,
+        expected: usize,
+        actual: usize,
+    },
+}
+
+impl std::fmt::Display for ModuleDraftAdmissionErrorV1 {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            formatter,
+            "[freeze:contract][module_draft/admission] {self:?}"
+        )
+    }
+}
+
+impl std::error::Error for ModuleDraftAdmissionErrorV1 {}
+
+/// A fully checked admission which can consume exactly one matching draft.
+///
+/// Collector collisions are checked during preparation, while the physical
+/// draft's symbol and arity are checked by `seal`. Commit therefore cannot
+/// fail after a child terminal has elected collect-before-restore.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct PreparedFunctionDraftAdmissionV1<'collector> {
+    collector: &'collector mut ModuleDraftCollectorV1,
+    key: FunctionDraftKeyV1,
+    expected_symbol: String,
+    expected_arity: usize,
+    policy: DraftPublicationPolicyV1,
+}
+
+impl<'collector> PreparedFunctionDraftAdmissionV1<'collector> {
+    pub(in crate::mir::builder) fn seal(
+        self,
+        draft: MirFunction,
+    ) -> Result<UnpublishedFunctionDraftV1<'collector>, ModuleDraftAdmissionErrorV1> {
+        let actual_symbol = draft.signature.name.clone();
+        if actual_symbol != self.expected_symbol {
+            return Err(ModuleDraftAdmissionErrorV1::SymbolMismatch {
+                expected: self.expected_symbol,
+                actual: actual_symbol,
+            });
+        }
+        let actual_arity = draft.signature.params.len();
+        if actual_arity != self.expected_arity {
+            return Err(ModuleDraftAdmissionErrorV1::ArityMismatch {
+                symbol: draft.signature.name.clone(),
+                expected: self.expected_arity,
+                actual: actual_arity,
+            });
+        }
+        Ok(UnpublishedFunctionDraftV1 {
+            collector: self.collector,
+            key: self.key,
+            policy: self.policy,
+            draft,
+            _seal: UnpublishedFunctionDraftSealV1,
+        })
+    }
+}
+
+/// One non-Clone completed draft which has not entered a `MirModule`.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct UnpublishedFunctionDraftV1<'collector> {
+    collector: &'collector mut ModuleDraftCollectorV1,
+    key: FunctionDraftKeyV1,
+    policy: DraftPublicationPolicyV1,
+    draft: MirFunction,
+    _seal: UnpublishedFunctionDraftSealV1,
+}
+
+#[derive(Debug)]
+struct UnpublishedFunctionDraftSealV1;
+
+/// Collector-owned form after infallible admission commit.
+///
+/// This remains private so callers cannot separate a collected draft from its
+/// collector identity or invent a second draft store.
+#[derive(Debug)]
+struct CollectedFunctionDraftV1 {
+    draft: MirFunction,
+}
+
+impl UnpublishedFunctionDraftV1<'_> {
+    /// Commit cannot fail: its collector was exclusively borrowed when
+    /// admission preflight completed, so no collision can have appeared.
+    pub(in crate::mir::builder) fn collect(self) {
+        let Self {
+            collector,
+            key,
+            policy,
+            draft,
+            _seal: _,
+        } = self;
+        collector.collect_sealed(key, policy, draft);
+    }
+}
+
+/// The only signature/header view admitted during the temporary collection era.
+///
+/// It projects the signature owned by the same draft; it is not a copied
+/// header cache and it cannot expose function body or metadata authority.
+pub(in crate::mir::builder) trait CompletedDraftSignatureViewV1 {
+    fn signature(&self, symbol: &str) -> Option<&FunctionSignature>;
+}
+
+/// Single owner for all module-invocation unpublished function drafts.
+#[derive(Debug, Default)]
+pub(in crate::mir::builder) struct ModuleDraftCollectorV1 {
+    drafts: BTreeMap<FunctionDraftKeyV1, CollectedFunctionDraftV1>,
+    key_by_symbol: BTreeMap<String, FunctionDraftKeyV1>,
+    _seal: ModuleDraftCollectorSealV1,
+}
+
+#[derive(Debug, Default)]
+struct ModuleDraftCollectorSealV1;
+
+impl ModuleDraftCollectorV1 {
+    /// Prepare every fallible collector admission check before child teardown.
+    pub(in crate::mir::builder) fn prepare_admission(
+        &mut self,
+        key: FunctionDraftKeyV1,
+        expected_symbol: String,
+        expected_arity: usize,
+        policy: DraftPublicationPolicyV1,
+    ) -> Result<PreparedFunctionDraftAdmissionV1<'_>, ModuleDraftAdmissionErrorV1> {
+        if policy == DraftPublicationPolicyV1::CanonicalRejectDuplicate {
+            if self.drafts.contains_key(&key) {
+                return Err(ModuleDraftAdmissionErrorV1::DuplicateKey(key));
+            }
+            if self.key_by_symbol.contains_key(&expected_symbol) {
+                return Err(ModuleDraftAdmissionErrorV1::DuplicateSymbol(
+                    expected_symbol,
+                ));
+            }
+        }
+        Ok(PreparedFunctionDraftAdmissionV1 {
+            collector: self,
+            key,
+            expected_symbol,
+            expected_arity,
+            policy,
+        })
+    }
+
+    /// Infallibly insert or replace a draft that completed prepared admission.
+    fn collect_sealed(
+        &mut self,
+        key: FunctionDraftKeyV1,
+        policy: DraftPublicationPolicyV1,
+        draft: MirFunction,
+    ) {
+        let symbol = draft.signature.name.clone();
+        match policy {
+            DraftPublicationPolicyV1::LegacyReplaceWholePair => {
+                self.remove_existing_symbol(&symbol);
+                self.remove_existing_key(&key);
+            }
+            DraftPublicationPolicyV1::CanonicalRejectDuplicate => {
+                debug_assert!(!self.drafts.contains_key(&key));
+                debug_assert!(!self.key_by_symbol.contains_key(&symbol));
+            }
+        }
+        self.key_by_symbol.insert(symbol, key.clone());
+        let previous = self.drafts.insert(key, CollectedFunctionDraftV1 { draft });
+        debug_assert!(previous.is_none());
+    }
+
+    fn remove_existing_symbol(&mut self, symbol: &str) {
+        let Some(existing_key) = self.key_by_symbol.remove(symbol) else {
+            return;
+        };
+        let existing = self
+            .drafts
+            .remove(&existing_key)
+            .expect("symbol index always names one owned unpublished draft");
+        debug_assert_eq!(existing.draft.signature.name, symbol);
+    }
+
+    fn remove_existing_key(&mut self, key: &FunctionDraftKeyV1) {
+        let Some(existing) = self.drafts.remove(key) else {
+            return;
+        };
+        let removed = self.key_by_symbol.remove(&existing.draft.signature.name);
+        debug_assert_eq!(removed.as_ref(), Some(key));
+    }
+}
+
+impl CompletedDraftSignatureViewV1 for ModuleDraftCollectorV1 {
+    fn signature(&self, symbol: &str) -> Option<&FunctionSignature> {
+        let key = self.key_by_symbol.get(symbol)?;
+        self.drafts.get(key).map(|draft| &draft.draft.signature)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{
+        CompletedDraftSignatureViewV1, DraftPublicationPolicyV1, FunctionDraftKeyV1,
+        ModuleDraftAdmissionErrorV1, ModuleDraftCollectorV1,
+    };
+    use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirType};
+
+    fn draft(symbol: &str, arity: usize) -> MirFunction {
+        MirFunction::new(
+            FunctionSignature {
+                name: symbol.to_string(),
+                params: vec![MirType::Integer; arity],
+                return_type: MirType::Integer,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        )
+    }
+
+    #[test]
+    fn signature_view_borrows_the_same_collector_owned_draft() {
+        let mut collector = ModuleDraftCollectorV1::default();
+        let prepared = collector
+            .prepare_admission(
+                FunctionDraftKeyV1::LegacySymbol("Parser.skip/1".into()),
+                "Parser.skip/1".into(),
+                1,
+                DraftPublicationPolicyV1::LegacyReplaceWholePair,
+            )
+            .unwrap();
+        prepared.seal(draft("Parser.skip/1", 1)).unwrap().collect();
+
+        let signature = collector.signature("Parser.skip/1").unwrap();
+        assert_eq!(signature.params, vec![MirType::Integer]);
+        assert_eq!(signature.return_type, MirType::Integer);
+    }
+
+    #[test]
+    fn legacy_replacement_discards_the_whole_old_draft_pair() {
+        let mut collector = ModuleDraftCollectorV1::default();
+        for return_type in [MirType::Integer, MirType::String] {
+            let prepared = collector
+                .prepare_admission(
+                    FunctionDraftKeyV1::LegacySymbol("Legacy.f/0".into()),
+                    "Legacy.f/0".into(),
+                    0,
+                    DraftPublicationPolicyV1::LegacyReplaceWholePair,
+                )
+                .unwrap();
+            let mut next = draft("Legacy.f/0", 0);
+            next.signature.return_type = return_type;
+            prepared.seal(next).unwrap().collect();
+        }
+
+        assert_eq!(
+            collector.signature("Legacy.f/0").unwrap().return_type,
+            MirType::String
+        );
+    }
+
+    #[test]
+    fn canonical_duplicate_rejects_before_draft_seal_or_collection() {
+        let mut collector = ModuleDraftCollectorV1::default();
+        let key = FunctionDraftKeyV1::LegacySymbol("Canonical.f/0".into());
+        let prepared = collector
+            .prepare_admission(
+                key.clone(),
+                "Canonical.f/0".into(),
+                0,
+                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+            )
+            .unwrap();
+        prepared.seal(draft("Canonical.f/0", 0)).unwrap().collect();
+
+        let error = collector
+            .prepare_admission(
+                key,
+                "Canonical.f/0".into(),
+                0,
+                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+            )
+            .unwrap_err();
+        assert!(matches!(
+            error,
+            ModuleDraftAdmissionErrorV1::DuplicateKey(_)
+        ));
+        assert_eq!(
+            collector.signature("Canonical.f/0").unwrap().params.len(),
+            0
+        );
+    }
+
+    #[test]
+    fn signature_or_arity_drift_rejects_without_collector_mutation() {
+        let mut collector = ModuleDraftCollectorV1::default();
+        let prepared = collector
+            .prepare_admission(
+                FunctionDraftKeyV1::Main,
+                "main".into(),
+                0,
+                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+            )
+            .unwrap();
+        let error = prepared.seal(draft("main", 1)).unwrap_err();
+        assert!(matches!(
+            error,
+            ModuleDraftAdmissionErrorV1::ArityMismatch { .. }
+        ));
+        assert!(collector.signature("main").is_none());
+    }
+}
