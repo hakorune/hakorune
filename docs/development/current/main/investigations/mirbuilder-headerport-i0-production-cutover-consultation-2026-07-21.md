@@ -3037,3 +3037,38 @@ Production orchestration consumers, Builder mutation, module publication,
 fallback, retry, FACTSESSION, PHI repair, JoinIR, FastMem, and CUT0 deltas
 remain zero. `BORROW-P0-ROOT-G0` is next, followed by the reusable whole
 `WIRING-I0-BORROW-G0` guard.
+
+## WIRING-I0-BORROW-P0-ROOT-G0 closeout
+
+`BORROW-P0-ROOT-G0` is closed. The reusable guard proves exactly one physical
+definition for each root completion owner:
+
+```text
+root-batch preparation owner = 1
+declaration-fact shell preparation owner = 1
+invocation drain owner = 1
+post-drain finalization input owner = 1
+```
+
+It also requires every P0a/P0b/P0c/P0d proof product, all changed
+source/check files below 800 lines, and zero production root-orchestration
+consumers. The G0 claim is deliberately structural: it does not claim that
+production capture, commit, or external publication has been enabled.
+
+## WIRING-I0-BORROW-G0 closeout
+
+`WIRING-I0-BORROW-G0` is closed through the single reusable
+`headerport_candidate0_guard.py` entry. That entry composes the raw,
+canonical, and root guards and now fixes:
+
+```text
+ownerless cross-session mutable borrow = 0
+long-lived collector header loan across mutation = 0
+post-restore bare publication = 0
+production root orchestration consumers = 0
+fallback/retry owners = 0
+```
+
+No new semantic decision was required. `WIRING-I0-HDR0-M0` is next, followed
+by HDR0-P0/G0. The sole bounded design stop remains
+`CUT0-COMPAT-POLICY-CONSULT0` after HDR0-G0 and before CUT0-S0.

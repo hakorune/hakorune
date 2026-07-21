@@ -11,6 +11,14 @@ def require(text: str, fragment: str, label: str) -> None:
         raise AssertionError(f"missing {label}: {fragment!r}")
 
 
+def require_exact_count(text: str, fragment: str, count: int, label: str) -> None:
+    actual = text.count(fragment)
+    if actual != count:
+        raise AssertionError(
+            f"{label} count mismatch: expected={count} actual={actual} fragment={fragment!r}"
+        )
+
+
 def verify_borrow_root_p0(
     root: pathlib.Path,
     builder_mod: str,
@@ -176,12 +184,38 @@ def verify_borrow_root_p0(
             + ", ".join(production_calls)
         )
 
+    for source, fragment, label in (
+        (
+            batch_commit,
+            "pub(in crate::mir::builder) fn prepare_root_batch",
+            "root batch preparation owner",
+        ),
+        (
+            fact_commit,
+            "pub(in crate::mir::builder) fn prepare_declaration_fact_commit",
+            "shell declaration-fact preparation owner",
+        ),
+        (
+            drain_path.read_text(),
+            "pub(in crate::mir::builder) struct PreparedInvocationDrainV1",
+            "invocation drain owner",
+        ),
+        (
+            final_path.read_text(),
+            "pub(in crate::mir::builder) struct DrainedModuleFinalizationInputV1",
+            "post-drain finalization owner",
+        ),
+    ):
+        require_exact_count(source, fragment, 1, label)
+
     require(card, "WIRING-I0-BORROW-P0-ROOT-P0a closeout", "root P0a closeout")
     require(card, "WIRING-I0-BORROW-P0-ROOT-P0b closeout", "root P0b closeout")
     require(card, "WIRING-I0-BORROW-P0-ROOT-P0c closeout", "root P0c closeout")
     require(card, "WIRING-I0-BORROW-P0-ROOT-P0d closeout", "root P0d closeout")
+    require(card, "WIRING-I0-BORROW-P0-ROOT-G0 closeout", "root G0 closeout")
+    require(card, "WIRING-I0-BORROW-G0 closeout", "whole BORROW G0 closeout")
     require(
         state,
-        "BORROW-P0-ROOT-P0d is closed; BORROW-P0-ROOT-G0 is next",
-        "root P0d pointer",
+        "BORROW-P0-ROOT-G0 and WIRING-I0-BORROW-G0 are closed; WIRING-I0-HDR0-M0 is next",
+        "BORROW-G0 pointer",
     )
