@@ -52,19 +52,20 @@ impl<'headers> KnownRewriteHeaderViewV1<'headers> {
 mod tests {
     use super::*;
     use crate::mir::{EffectMask, FunctionSignature, MirType};
-    use std::collections::BTreeMap;
-
     struct FakeHeaders {
-        signatures: BTreeMap<String, FunctionSignature>,
+        signatures: Vec<(String, FunctionSignature)>,
     }
 
     impl FunctionSignatureLookupV1 for FakeHeaders {
         fn signature(&self, symbol: &str) -> Option<&FunctionSignature> {
-            self.signatures.get(symbol)
+            self.signatures
+                .iter()
+                .find(|(name, _)| name == symbol)
+                .map(|(_, signature)| signature)
         }
 
         fn contains_symbol(&self, symbol: &str) -> bool {
-            self.signatures.contains_key(symbol)
+            self.signatures.iter().any(|(name, _)| name == symbol)
         }
 
         fn symbol_count(&self) -> usize {
@@ -72,7 +73,7 @@ mod tests {
         }
 
         fn visit_symbols(&self, visitor: &mut dyn FnMut(&str)) {
-            for symbol in self.signatures.keys() {
+            for (symbol, _) in &self.signatures {
                 visitor(symbol);
             }
         }
@@ -89,8 +90,7 @@ mod tests {
 
     #[test]
     fn header_view_preserves_signature_arity_policy() {
-        let mut signatures = BTreeMap::new();
-        signatures.insert("User.f/1".to_owned(), signature("User.f/1", 1));
+        let signatures = vec![("User.f/1".to_owned(), signature("User.f/1", 1))];
         let headers = FakeHeaders { signatures };
         let view = KnownRewriteHeaderViewV1::new(&headers);
 
@@ -104,10 +104,11 @@ mod tests {
 
     #[test]
     fn header_view_uses_shared_unique_suffix_policy() {
-        let mut signatures = BTreeMap::new();
-        signatures.insert("User.f/1".to_owned(), signature("User.f/1", 1));
-        signatures.insert("Other.f/1".to_owned(), signature("Other.f/1", 1));
-        signatures.insert("Other.g/1".to_owned(), signature("Other.g/1", 1));
+        let signatures = vec![
+            ("Other.g/1".to_owned(), signature("Other.g/1", 1)),
+            ("Other.f/1".to_owned(), signature("Other.f/1", 1)),
+            ("User.f/1".to_owned(), signature("User.f/1", 1)),
+        ];
         let headers = FakeHeaders { signatures };
         let view = KnownRewriteHeaderViewV1::new(&headers);
 
