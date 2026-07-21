@@ -264,6 +264,7 @@ mod tests {
         ModuleDraftAdmissionErrorV1, ModuleDraftCollectorV1,
     };
     use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirType};
+    use std::panic::{catch_unwind, AssertUnwindSafe};
 
     fn draft(symbol: &str, arity: usize) -> MirFunction {
         MirFunction::new(
@@ -393,5 +394,101 @@ mod tests {
             ModuleDraftAdmissionErrorV1::ArityMismatch { .. }
         ));
         assert!(collector.signature("main").is_none());
+    }
+
+    #[test]
+    fn p0_main_and_synthetic_condition_drafts_share_one_header_view() {
+        let mut collector = ModuleDraftCollectorV1::default();
+        for (key, symbol, arity, policy) in [
+            (
+                FunctionDraftKeyV1::Main,
+                "main/0",
+                0,
+                DraftPublicationPolicyV1::LegacyReplaceWholePair,
+            ),
+            (
+                FunctionDraftKeyV1::SyntheticConditionFn,
+                "condition_fn/1",
+                1,
+                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+            ),
+        ] {
+            collector
+                .prepare_admission(key, symbol.into(), arity, policy)
+                .unwrap()
+                .seal(draft(symbol, arity))
+                .unwrap()
+                .collect();
+        }
+
+        let mut symbols = Vec::new();
+        collector.visit_symbols(&mut |symbol| symbols.push(symbol.to_owned()));
+        assert_eq!(symbols, ["condition_fn/1", "main/0"]);
+        assert_eq!(collector.symbol_count(), 2);
+    }
+
+    #[test]
+    fn p0_admission_failures_stop_before_collecting_a_new_draft() {
+        let mut collector = ModuleDraftCollectorV1::default();
+        collector
+            .prepare_admission(
+                FunctionDraftKeyV1::LegacySymbol("canonical/0".into()),
+                "canonical/0".into(),
+                0,
+                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+            )
+            .unwrap()
+            .seal(draft("canonical/0", 0))
+            .unwrap()
+            .collect();
+
+        let duplicate = collector.prepare_admission(
+            FunctionDraftKeyV1::LegacySymbol("canonical/0".into()),
+            "canonical/0".into(),
+            0,
+            DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+        );
+        assert!(matches!(
+            duplicate,
+            Err(ModuleDraftAdmissionErrorV1::DuplicateKey(_))
+        ));
+
+        let mismatch = collector
+            .prepare_admission(
+                FunctionDraftKeyV1::LegacySymbol("arity/0".into()),
+                "arity/0".into(),
+                0,
+                DraftPublicationPolicyV1::LegacyReplaceWholePair,
+            )
+            .unwrap()
+            .seal(draft("arity/0", 1));
+        assert!(matches!(
+            mismatch,
+            Err(ModuleDraftAdmissionErrorV1::ArityMismatch { .. })
+        ));
+        assert_eq!(collector.symbol_count(), 1);
+        assert!(collector.contains_symbol("canonical/0"));
+        assert!(!collector.contains_symbol("arity/0"));
+    }
+
+    #[test]
+    fn p0_unwind_before_collect_leaves_the_collector_unchanged() {
+        let mut collector = ModuleDraftCollectorV1::default();
+        let unwind = catch_unwind(AssertUnwindSafe(|| {
+            let prepared = collector
+                .prepare_admission(
+                    FunctionDraftKeyV1::LegacySymbol("unwind/0".into()),
+                    "unwind/0".into(),
+                    0,
+                    DraftPublicationPolicyV1::LegacyReplaceWholePair,
+                )
+                .unwrap();
+            let _unpublished = prepared.seal(draft("unwind/0", 0)).unwrap();
+            panic!("P0 unwind before collect");
+        }));
+
+        assert!(unwind.is_err());
+        assert_eq!(collector.symbol_count(), 0);
+        assert!(!collector.contains_symbol("unwind/0"));
     }
 }
