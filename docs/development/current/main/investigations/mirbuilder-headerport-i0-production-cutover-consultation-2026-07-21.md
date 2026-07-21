@@ -1,6 +1,7 @@
 # HEADERPORT0-REENTRANT-TERM0-I0: production cutover consultation
 
-Status: **STATE0-S0/P0/I0/G0, CONSULT0, and ACCESS0-S0 are closed; ACCESS0-P0 is next,
+Status: **STATE0-S0/P0/I0/G0, CONSULT0, and ACCESS0-S0 are closed;
+ACCESS0-P0 is paused at the `me` header ownership consultation, and
 production cutover remains disconnected**
 
 Date: 2026-07-21
@@ -437,6 +438,9 @@ HEADERPORT0-REENTRANT-TERM0-I0-ACCESS0-P0
     shared method-tail candidate policy
     production consumers = 0
 
+  ACCESS0-MEHEADER-CONSULT0
+    shared `me` method header ownership decision
+
   ACCESS0-REWRITE-KNOWN-P0
     parity matrix and invocation-path lookup threading
 
@@ -450,6 +454,11 @@ HEADERPORT0-REENTRANT-TERM0-I0
 The current production I0 and `CUT0` remain forbidden until ACCESS0-P0 and
 CANDIDATE0-P0 are green.  This decision closes the consultation boundary but
 does not claim any production route has been rewired.
+
+The `me` method reader now has a separate design-stop consultation:
+`mirbuilder-headerport-access0-me-handler-consultation-2026-07-21.md`.
+No implementation may cross that boundary until its parameter observation
+owner and legacy/located parity are selected.
 
 ## ACCESS0-REWRITE-KNOWN-S0 closeout
 
