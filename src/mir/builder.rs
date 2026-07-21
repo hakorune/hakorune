@@ -67,6 +67,10 @@ mod module_declaration_facts; // HEADERPORT0-I0-SHELLFACT0-S0 disconnected facts
 mod module_declaration_facts_p0; // HEADERPORT0-I0-SHELLFACT0-P0 fixtures
 mod module_draft_collector;
 #[allow(dead_code)]
+mod module_finalization_split; // HEADERPORT0-I0-MODULEFINAL0-SPLIT0 input
+#[cfg(test)]
+mod module_finalization_split_p0; // HEADERPORT0-I0-MODULEFINAL0-SPLIT0-P0 fixtures
+#[allow(dead_code)]
 mod module_invocation_drain; // HEADERPORT0 I0-SHELL-I0-S0 disconnected drain
 #[allow(dead_code)]
 mod module_invocation_route_matrix; // HEADERPORT0 I0-SHELL-I0-P0 disconnected matrix

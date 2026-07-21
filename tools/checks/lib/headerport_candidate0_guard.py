@@ -26,6 +26,8 @@ SHELL_FACTS = ROOT / "src/mir/builder/module_declaration_facts.rs"
 SHELL_FACTS_P0 = ROOT / "src/mir/builder/module_declaration_facts_p0.rs"
 DRAINED_CANDIDATE = ROOT / "src/mir/builder/drained_module_candidate.rs"
 DRAINED_CANDIDATE_P0 = ROOT / "src/mir/builder/drained_module_candidate_p0.rs"
+MODULE_FINAL = ROOT / "src/mir/builder/module_finalization_split.rs"
+MODULE_FINAL_P0 = ROOT / "src/mir/builder/module_finalization_split_p0.rs"
 BUILDER_MOD = ROOT / "src/mir/builder.rs"
 CARD = ROOT / (
     "docs/development/current/main/investigations/"
@@ -58,6 +60,8 @@ def main() -> int:
     shell_facts_p0 = SHELL_FACTS_P0.read_text()
     drained_candidate = DRAINED_CANDIDATE.read_text()
     drained_candidate_p0 = DRAINED_CANDIDATE_P0.read_text()
+    module_final = MODULE_FINAL.read_text()
+    module_final_p0 = MODULE_FINAL_P0.read_text()
     builder_mod = BUILDER_MOD.read_text()
     card = CARD.read_text()
     state = STATE.read_text()
@@ -88,6 +92,10 @@ def main() -> int:
         raise AssertionError("DRAIN0-S0 source must remain below 800 lines")
     if len(drained_candidate_p0.splitlines()) >= 800:
         raise AssertionError("DRAIN0-P0 fixture source must remain below 800 lines")
+    if len(module_final.splitlines()) >= 800:
+        raise AssertionError("MODULEFINAL0-SPLIT0 source must remain below 800 lines")
+    if len(module_final_p0.splitlines()) >= 800:
+        raise AssertionError("MODULEFINAL0-SPLIT0-P0 fixture source must remain below 800 lines")
 
     for fragment in (
         "VerifiedMainExpansionV1",
@@ -186,6 +194,17 @@ def main() -> int:
         "duplicate_inventory_is_rejected_before_drain_candidate_creation",
     ):
         require(drained_candidate_p0, fragment, "DRAIN0-P0 failure matrix fixtures")
+    for fragment in (
+        "DrainedModuleFinalizationInputV1",
+        "into_parts",
+        "post-drain finalization input",
+    ):
+        require(module_final, fragment, "MODULEFINAL0-SPLIT0 source product")
+    for fragment in (
+        "post_drain_input_co_seals_candidate_and_declaration_facts",
+        "post_drain_input_consumes_both_owners_once",
+    ):
+        require(module_final_p0, fragment, "MODULEFINAL0-SPLIT0 boundary fixtures")
     facts_struct = shell_facts.split(
         "pub(in crate::mir::builder) struct SealedModuleDeclarationFactsV1", 1
     )[1].split("#[derive(Debug, Clone, Copy", 1)[0]
@@ -217,6 +236,8 @@ def main() -> int:
             SHELL_FACTS_P0,
             DRAINED_CANDIDATE,
             DRAINED_CANDIDATE_P0,
+            MODULE_FINAL,
+            MODULE_FINAL_P0,
             BUILDER_MOD,
         ) or path.name.endswith("_tests.rs"):
             continue
@@ -236,6 +257,10 @@ def main() -> int:
         if "DrainedModuleCandidateV1" in text or "CompletedInvocationInventoryV1" in text:
             raise AssertionError(
                 f"DRAIN0-S0 production consumer exists: {path.relative_to(ROOT)}"
+            )
+        if "DrainedModuleFinalizationInputV1" in text:
+            raise AssertionError(
+                f"MODULEFINAL0-SPLIT0 production consumer exists: {path.relative_to(ROOT)}"
             )
 
     for fragment in (
@@ -285,6 +310,8 @@ def main() -> int:
     require(builder_mod, "mod module_declaration_facts_p0;", "SHELLFACT0-P0 fixture registration")
     require(builder_mod, "mod drained_module_candidate;", "DRAIN0-S0 module registration")
     require(builder_mod, "mod drained_module_candidate_p0;", "DRAIN0-P0 fixture registration")
+    require(builder_mod, "mod module_finalization_split;", "MODULEFINAL0-SPLIT0 module registration")
+    require(builder_mod, "mod module_finalization_split_p0;", "MODULEFINAL0-SPLIT0 fixture registration")
     other_builder_files = []
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
         if path in (CANDIDATE, CANDIDATE_P0, BUILDER_MOD):
@@ -319,7 +346,8 @@ def main() -> int:
         "HEADERPORT0-I0-SHELLFACT0-S0/P0 (closed)",
         "HEADERPORT0-I0-DRAIN0-S0 (closed)\n  route-owned inventory witness and non-Clone drained candidate",
         "HEADERPORT0-I0-DRAIN0-P0\n  exact drain/inventory/condition policy and failure matrix",
-        "HEADERPORT0-I0-MODULEFINAL0-SPLIT0\n  next code-facing row",
+        "HEADERPORT0-I0-MODULEFINAL0-SPLIT0 (closed)\n  post-drain finalization input",
+        "HEADERPORT0-I0-MODULEFINAL0-P0\n  next code-facing row",
         "one disconnected invocation-owned shell/collector candidate",
         "typed abort/no-publication/no-retry proof",
         "production capture/commit remains forbidden",
@@ -328,7 +356,7 @@ def main() -> int:
         require(card, fragment, "Candidate0 task boundary")
     require(
         state,
-        "HEADERPORT0-I0-MODULEFINAL0-SPLIT0 is next",
+        "HEADERPORT0-I0-MODULEFINAL0-P0 is next",
         "current Candidate0/MainROLE0 pointer",
     )
 
