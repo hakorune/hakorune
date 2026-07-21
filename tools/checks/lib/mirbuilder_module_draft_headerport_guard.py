@@ -21,6 +21,8 @@ LEGACYTERM_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_legacyterm
 RAWPORT_TESTS = ROOT / "src/mir/builder/recursive_child_lowering_rawport_tests.rs"
 RAW_DISPATCH = ROOT / "src/mir/builder/raw_expression_dispatch.rs"
 RAW_PORT = ROOT / "src/mir/builder/recursive_child_lowering.rs"
+RAW_LOOP_ENTRY = ROOT / "src/mir/builder/raw_loop_child_entry.rs"
+LOOP_PLAN = ROOT / "src/mir/builder/control_flow/plan"
 
 P0_DIRECT_HEADER_READER_FRAGMENTS = {
     "src/mir/builder/calls/annotation.rs": "module.functions.get(name)",
@@ -68,6 +70,7 @@ def main() -> int:
     rawport_tests = read(RAWPORT_TESTS)
     raw_dispatch = read(RAW_DISPATCH)
     raw_port = read(RAW_PORT)
+    raw_loop_entry = read(RAW_LOOP_ENTRY)
 
     for fragment in (
         "struct LoweringHeaderPortV1",
@@ -223,8 +226,38 @@ def main() -> int:
         1,
         "LEGACYTERM0 instance raw dispatch",
     )
+    require(
+        raw_dispatch,
+        "self.cf_loop(*condition, body)?",
+        "LOOPBRIDGE0 P0 unchanged raw Loop delegate",
+    )
+    require_count(
+        raw_dispatch,
+        "self.cf_loop(*condition, body)?",
+        1,
+        "LOOPBRIDGE0 P0 raw Loop delegate",
+    )
+    forbid(
+        raw_dispatch,
+        "classify_raw_loop_child_entry_v1(",
+        "LOOPBRIDGE0 P0 disconnected classifier consumer",
+    )
+    for fragment in (
+        "enum RawLoopChildEntryDispositionV1",
+        "ASTNode::BoxDeclaration { .. } => true",
+        "ASTNode::Lambda { .. } | ASTNode::FunctionDeclaration { .. } => false",
+        "node.any_child(contains_reachable_box_declaration)",
+    ):
+        require(raw_loop_entry, fragment, "LOOPBRIDGE0 P0 syntax quarantine")
+
     for path in (ROOT / "src/mir/builder/control_flow").rglob("*.rs"):
         forbid(read(path), "ModuleLoweringPortV1", "LEGACYTERM0 Loop bridge")
+        forbid(read(path), "RawInvocationChildPortV1", "LOOPBRIDGE0 Loop bridge")
+    for path in LOOP_PLAN.rglob("*.rs"):
+        plan_source = read(path)
+        forbid(plan_source, "ASTNode::BoxDeclaration", "LOOPBRIDGE0 plan child opener")
+        forbid(plan_source, "lower_static_method_as_function", "LOOPBRIDGE0 plan child opener")
+        forbid(plan_source, "lower_method_as_function", "LOOPBRIDGE0 plan child opener")
 
     for fragment in ("thread_local", "OnceLock", "static ", "derive(Clone)"):
         forbid(invocation, fragment, "HEADERPORT0 external invocation")
@@ -238,7 +271,8 @@ def main() -> int:
     print(
         "[module-draft-headerport-guard] ok "
         f"p0_reader_families={len(P0_DIRECT_HEADER_READER_FRAGMENTS)} "
-        "legacyterm0_g0_raw_box_consumers=2 loop_bridge_consumers=0"
+        "legacyterm0_g0_raw_box_consumers=2 loop_bridge_consumers=0 "
+        "loopbridge0_p0_plan_child_openers=0"
     )
     return 0
 

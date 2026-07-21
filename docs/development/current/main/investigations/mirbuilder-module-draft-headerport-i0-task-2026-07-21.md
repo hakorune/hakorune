@@ -311,6 +311,24 @@ route matrix plus pre-effect rejection/parity before I0 wires the one raw
 invocation boundary. No production dispatcher, `cf_loop`, JoinIR, or collector
 consumer changed in S0.
 
+#### LOOPBRIDGE0-P0 closeout — route isolation proof
+
+`LOOPBRIDGE0-P0` extends the existing reusable HeaderPort guard rather than
+adding a row-only shell check. It proves that the sole raw Loop dispatcher still
+has exactly one unchanged `cf_loop` delegate and zero classifier consumers;
+the disconnected classifier retains the direct Box, deferred Lambda/function,
+and generic-child-topology laws. The guard also proves that no
+`ModuleLoweringPortV1` or `RawInvocationChildPortV1` has entered any control
+flow source, and that the plan subtree contains no `BoxDeclaration` or legacy
+method-function opener. Thus the current accepted plan/recipe routes have zero
+known child-session opener. This is a static route proof, not a claim that the
+production dispatcher has begun rejecting anything.
+
+`HEADERPORT0-RAWPORT0-LOOPBRIDGE0-I0` is next. It alone may make the pure
+disposition observable at the raw invocation Loop boundary, before `cf_loop`.
+It must preserve the legacy raw facade, keep the one dispatch match tree, and
+prove zero Builder/collector/header delta on `ReachableBoxDeclaration`.
+
 ## Exact task order
 
 ```text
