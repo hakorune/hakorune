@@ -42,6 +42,8 @@ mod fact_session_p0_tests;
 mod fastmem; // fastmem source -> MIR MemOp metadata lowering
 mod fastmem_context; // FastMemory region context helpers
 mod function_lowering_state;
+#[allow(dead_code)]
+mod function_signature_lookup; // HEADERPORT0-S0 neutral header lookup surface
 mod function_state_transaction;
 mod located_legacy_lowering;
 mod metadata_context; // Phase 136 follow-up (Step 6/7): MetadataContext extraction
@@ -127,6 +129,8 @@ mod phi_merge;
 mod phi_type_inference; // Phase 29bq+: PHI type inference (multi-phase fallback chain)
 #[allow(dead_code)]
 mod phi_type_publication;
+#[allow(dead_code)]
+mod port_aware_function_draft; // HEADERPORT0-S0 disconnected body/finalizer vocabulary
 mod type_hint_providers; // Phase 29bq+: Type hint provision (call results, method signatures) // Phase 25.1q: Unified PHI merge helper // prepare/lower_root/finalize split
                          // legacy large-match remains inline for now (planned extraction)
 pub(in crate::mir) mod emission; // emission::*（Const/Compare/Branch の薄い発行箱）

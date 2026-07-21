@@ -1,7 +1,7 @@
 # Current State SSOT
 # Keep live pointers compact. Detailed scope belongs in the active card.
 
-status = "FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0/S0/M0/P0-SELECT/P0-S0/P0-P0/P0-G0, FACTSESSION0-I0-SELECT, MODULEDRAFT0-S0/M0/P0 and HEADERPORT0-SELECT/S0/P0, and HEADERPORT0-RAWPORT0-SELECT/S0/M0-T0/R0/LEGACYTERM0-S0/P0/I0/G0/LOOPBRIDGE0-SELECT/S0/P0/I0/G0 are closed; HEADERPORT0 re-entrant raw child terminal is a DESIGN-STOP before I0, and CUT0 remains forbidden"
+status = "FINALIZE0-CENSUS0-P0a-S0b and VERIFY-SPLIT0-S0/P0/I0/FUNCTION-G0-D0/S0/P0/G0 and PHI-SPLIT0-D0/S0/M0/P0/I0-SELECT/MODULETX0-S0/REMATFACT0-D0/S0/M0/P0-SELECT/P0-S0/P0-P0/P0-G0, FACTSESSION0-I0-SELECT, MODULEDRAFT0-S0/M0/P0 and HEADERPORT0-SELECT/S0/P0, and HEADERPORT0-RAWPORT0-SELECT/S0/M0-T0/R0/LEGACYTERM0-S0/P0/I0/G0/LOOPBRIDGE0-SELECT/S0/P0/I0/G0 are closed; HEADERPORT0-REENTRANT-TERM0-SELECT/S0 is closed and P0 is next, and CUT0 remains forbidden"
 date = "2026-07-21"
 
 active_lane = "MIRBUILDER D′ Binding SSA Final Form"
@@ -316,9 +316,9 @@ finalize0_p0_production_census_consultation = "docs/development/current/main/inv
 finalize0_p0_production_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-task-2026-07-20.md"
 module_draft_headerport_i0_task = "docs/development/current/main/investigations/mirbuilder-module-draft-headerport-i0-task-2026-07-21.md"
 
-latest_card = "mirbuilder-headerport-reentrant-terminal-consultation-2026-07-21"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-headerport-reentrant-terminal-consultation-2026-07-21.md"
-latest_card_summary = """HEADERPORT0-I0 source revalidation found that the selected legacy child terminal holds the mutable invocation port across child lowering, so nested raw Box children cannot reborrow the one collector capability. A constructor route also still restores then bare-publishes. Candidate R-prime separates pending capture from sole ModuleLoweringPort commit and injects a short signature-only header lookup into child finalization. This is an explicit DESIGN-STOP; no partial I0 activation is authorized."""
+latest_card = "mirbuilder-headerport-reentrant-terminal-task-2026-07-21"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-headerport-reentrant-terminal-task-2026-07-21.md"
+latest_card_summary = """R-prime is selected. HEADERPORT0-REENTRANT-TERM0-S0 is closed: the disconnected commit-only pending terminal, neutral signature lookup, and port-aware draft/body/finalizer protocol are guarded with zero production consumers. HEADERPORT0-REENTRANT-TERM0-P0 is next; nested raw reborrow and production capture/commit cutover remain pending."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -520,7 +520,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-MODULEDRAFT0-HEADERPORT0-REENTRANT-TERMINAL-DESIGN-STOP-127"
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-MODULEDRAFT0-HEADERPORT0-REENTRANT-TERM0-P0-129"
 finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."

@@ -2,8 +2,7 @@
 Status: `HEADERPORT0-RAWPORT0-SELECT/S0/M0-T0/R0` and
   `HEADERPORT0-RAWPORT0-LEGACYTERM0-S0/P0/I0/G0` and
   `HEADERPORT0-RAWPORT0-LOOPBRIDGE0-SELECT/S0/P0/I0/G0` are closed;
-  `FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0` is paused at the re-entrant raw
-  child-terminal consultation
+  `HEADERPORT0-REENTRANT-TERM0-S0` is now the sole next code-facing row
 Date: 2026-07-21
 Scope: one atomic `FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0` cutover
 Parent: docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-task-2026-07-20.md
@@ -49,9 +48,15 @@ docs/development/current/main/investigations/
   mirbuilder-headerport-reentrant-terminal-consultation-2026-07-21.md
 ```
 
-Do not activate I0 until that terminal shape is selected. The existing
-collector, header-port, raw-loop quarantine, and canonical callable catalog
-laws remain unchanged.
+R-prime is selected and taskized in:
+
+```text
+docs/development/current/main/investigations/
+  mirbuilder-headerport-reentrant-terminal-task-2026-07-21.md
+```
+
+The existing collector, header-port, raw-loop quarantine, and canonical
+callable catalog laws remain unchanged.
 
 ## Fixed terminal law
 

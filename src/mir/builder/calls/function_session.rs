@@ -14,7 +14,9 @@ use super::context_lifecycle::LoweringContext;
 
 mod terminal;
 #[allow(unused_imports)] // RAWPORT0-S0 exposes the later invocation terminal without a caller.
-pub(in crate::mir::builder) use terminal::PendingFunctionSessionCloseV1;
+pub(in crate::mir::builder) use terminal::{
+    LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1,
+};
 
 #[derive(Debug)]
 struct FunctionSessionCleanupErrorV1 {

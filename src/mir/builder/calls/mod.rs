@@ -33,6 +33,10 @@ mod function_session; // Closure-scoped function transaction and cleanup owner
 pub(in crate::mir) use function_session::CanonicalFunctionSessionErrorV1;
 #[cfg(test)]
 pub(in crate::mir::builder) use function_session::FunctionSessionP0TerminalV1;
+#[allow(unused_imports)]
+pub(in crate::mir::builder) use function_session::{
+    LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1,
+};
 #[cfg(test)]
 mod finalize_value_lifecycle_tests;
 #[cfg(test)]

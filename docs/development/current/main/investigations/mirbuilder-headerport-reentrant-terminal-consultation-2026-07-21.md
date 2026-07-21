@@ -1,6 +1,6 @@
 # HEADERPORT0 re-entrant raw child terminal consultation
 
-Status: DESIGN-STOP
+Status: resolved; R-prime selected
 Date: 2026-07-21
 Scope: repair the terminal shape before `FINALIZE0-MODULEDRAFT0-HEADERPORT0-I0`
 Related:
@@ -126,9 +126,7 @@ mutation. Legacy test facades may retain a module-backed adapter until their
 separate retirement, but no production HEADERPORT0 route may fall back from a
 port query to `current_module.functions`.
 
-## Decision requested
-
-Select one of these before code resumes:
+## Decision
 
 ```text
 R-prime (recommended)
@@ -139,6 +137,8 @@ R-alt
   replace the raw recursive lowering interface with a pure function plan
   before child capture. This expands scope into a dedicated pure-plan bridge.
 ```
+
+R-prime is selected. R-alt remains a parked future architecture row.
 
 ## Acceptance after R-prime
 

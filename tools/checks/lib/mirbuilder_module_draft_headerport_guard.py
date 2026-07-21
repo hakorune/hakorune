@@ -16,6 +16,8 @@ ROOT = pathlib.Path(__file__).resolve().parents[3]
 BUILDER = ROOT / "src/mir/builder.rs"
 COMPILATION = ROOT / "src/mir/builder/compilation_context.rs"
 INVOCATION = ROOT / "src/mir/builder/module_lowering_invocation.rs"
+SIGNATURE_LOOKUP = ROOT / "src/mir/builder/function_signature_lookup.rs"
+PORT_AWARE_DRAFT = ROOT / "src/mir/builder/port_aware_function_draft.rs"
 PENDING_TERMINAL = ROOT / "src/mir/builder/calls/function_session/terminal.rs"
 LEGACYTERM_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_legacyterm_tests.rs"
 RAWPORT_TESTS = ROOT / "src/mir/builder/recursive_child_lowering_rawport_tests.rs"
@@ -63,6 +65,8 @@ def require_count(text: str, fragment: str, expected: int, subject: str) -> None
 
 def main() -> int:
     invocation = read(INVOCATION)
+    signature_lookup = read(SIGNATURE_LOOKUP)
+    port_aware_draft = read(PORT_AWARE_DRAFT)
     builder = read(BUILDER)
     compilation = read(COMPILATION)
     pending_terminal = read(PENDING_TERMINAL)
@@ -115,6 +119,8 @@ def main() -> int:
         "prepare_draft_admission",
         "complete_resolved_child",
         "complete_legacy_child",
+        "commit_resolved_pending",
+        "commit_legacy_pending",
     ):
         require(module_port_impl, fragment, "RAWPORT0 stack-owned capability")
     for fragment in ("MirBuilder", "current_module", "thread_local", "OnceLock"):
@@ -129,6 +135,16 @@ def main() -> int:
         forbid(pending_decl, fragment, "RAWPORT0 pending terminal")
     forbid(pending_terminal, "derive(Clone)", "RAWPORT0 pending terminal")
     require(pending_terminal, "complete_before_restore", "RAWPORT0 port-owned terminal")
+    require(
+        invocation,
+        "pending: PendingFunctionSessionCloseV1<'_>",
+        "HEADERPORT0 resolved commit-only terminal",
+    )
+    require(
+        invocation,
+        "pending: LegacyFunctionPendingSessionV1<'_>",
+        "HEADERPORT0 legacy commit-only terminal",
+    )
     require(
         pending_terminal,
         "capture_resolved_function_pending_session_v1",
@@ -145,6 +161,76 @@ def main() -> int:
         "RAWPORT0 legacy capture seam",
     )
     forbid(pending_terminal, "PreparedFunctionDraftAdmissionV1", "RAWPORT0 pending terminal")
+
+    require(
+        signature_lookup,
+        "trait FunctionSignatureLookupV1",
+        "HEADERPORT0 neutral signature lookup",
+    )
+    require(
+        port_aware_draft,
+        "PortAwareFunctionBodyRequestV1",
+        "HEADERPORT0 port-aware body request",
+    )
+    require(
+        port_aware_draft,
+        "PortAwareFinalizerRequestV1",
+        "HEADERPORT0 port-aware finalizer request",
+    )
+    require(
+        port_aware_draft,
+        "trait PortAwareFunctionDraftSurfaceV1",
+        "HEADERPORT0 port-aware draft surface",
+    )
+    for fragment in (
+        "build_static_method_draft_with_port_v1",
+        "build_instance_method_draft_with_port_v1",
+        "lower_function_body_with_port_v1",
+        "lower_method_body_with_port_v1",
+        "finalize_function_draft_with_headers",
+    ):
+        require(port_aware_draft, fragment, "HEADERPORT0 port-aware draft surface")
+    forbid(
+        port_aware_draft,
+        "MirBuilder",
+        "HEADERPORT0 disconnected port-aware draft vocabulary",
+    )
+    forbid(
+        port_aware_draft,
+        "ModuleDraftCollectorV1",
+        "HEADERPORT0 disconnected port-aware draft vocabulary",
+    )
+    forbid(
+        port_aware_draft,
+        "ValueId",
+        "HEADERPORT0 disconnected port-aware draft vocabulary",
+    )
+    require_count(
+        invocation,
+        "pub(in crate::mir::builder) fn commit_resolved_pending(",
+        1,
+        "HEADERPORT0 resolved commit-only owner",
+    )
+    require_count(
+        invocation,
+        "pub(in crate::mir::builder) fn commit_legacy_pending(",
+        1,
+        "HEADERPORT0 legacy commit-only owner",
+    )
+    for path in (ROOT / "src/mir/builder").rglob("*.rs"):
+        if path == INVOCATION:
+            continue
+        source = read(path)
+        forbid(
+            source,
+            "commit_resolved_pending(",
+            f"HEADERPORT0 S0 disconnected resolved commit consumer {path.relative_to(ROOT)}",
+        )
+        forbid(
+            source,
+            "commit_legacy_pending(",
+            f"HEADERPORT0 S0 disconnected legacy commit consumer {path.relative_to(ROOT)}",
+        )
 
     legacy_admission = invocation.split("struct LegacyChildDraftAdmissionV1", 1)[1].split(
         "/// Failure while", 1

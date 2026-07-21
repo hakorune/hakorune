@@ -10,7 +10,10 @@ use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{FunctionSignature, MirBuilder, MirFunction};
 
-use super::calls::CanonicalFunctionSessionErrorV1;
+use super::calls::{
+    CanonicalFunctionSessionErrorV1, LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1,
+};
+use super::function_signature_lookup::FunctionSignatureLookupV1;
 use super::module_draft_collector::{CompletedDraftSignatureViewV1, ModuleDraftCollectorV1};
 use super::module_draft_collector::{
     DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftAdmissionErrorV1,
@@ -144,6 +147,24 @@ impl LoweringHeaderPortV1<'_> {
     }
 }
 
+impl FunctionSignatureLookupV1 for LoweringHeaderPortV1<'_> {
+    fn signature(&self, symbol: &str) -> Option<&FunctionSignature> {
+        self.signature(symbol)
+    }
+
+    fn contains_symbol(&self, symbol: &str) -> bool {
+        self.contains_symbol(symbol)
+    }
+
+    fn symbol_count(&self) -> usize {
+        self.symbol_count()
+    }
+
+    fn visit_symbols(&self, visitor: &mut dyn FnMut(&str)) {
+        self.visit_symbols(visitor)
+    }
+}
+
 /// Stack-owned capability for one recursive module-lowering descent.
 ///
 /// The port borrows only the invocation collector. It cannot retain a Builder,
@@ -229,6 +250,60 @@ impl ModuleLoweringPortV1<'_> {
         let pending = builder
             .capture_legacy_function_pending_session_v1(&symbol, body_snapshot, lower)
             .map_err(ModuleLoweringPortChildErrorV1::Session)?;
+        pending.complete_before_restore(|draft| {
+            let prepared = self
+                .prepare_draft_admission(
+                    key,
+                    symbol,
+                    arity,
+                    DraftPublicationPolicyV1::LegacyReplaceWholePair,
+                )
+                .map_err(ModuleLoweringPortChildErrorV1::Admission)?;
+            prepared
+                .seal(draft)
+                .map_err(ModuleLoweringPortChildErrorV1::Admission)?
+                .collect();
+            Ok(())
+        })
+    }
+
+    /// Commit one already-captured resolved child after all body/header loans
+    /// have ended.  S0 exposes the commit-only terminal but keeps it
+    /// disconnected from production callers until the re-entrant cutover.
+    #[allow(dead_code)]
+    pub(in crate::mir::builder) fn commit_resolved_pending(
+        &mut self,
+        pending: PendingFunctionSessionCloseV1<'_>,
+        admission: ResolvedChildDraftAdmissionV1,
+    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
+        let (key, symbol, arity) = admission.collector_parts();
+        pending.complete_before_restore(|draft| {
+            let prepared = self
+                .prepare_draft_admission(
+                    key,
+                    symbol,
+                    arity,
+                    DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+                )
+                .map_err(ModuleLoweringPortChildErrorV1::Admission)?;
+            prepared
+                .seal(draft)
+                .map_err(ModuleLoweringPortChildErrorV1::Admission)?
+                .collect();
+            Ok(())
+        })
+    }
+
+    /// Commit one already-captured legacy child after all body/header loans
+    /// have ended.  No lowering closure or Builder is accepted here, so this
+    /// API is structurally commit-only.
+    #[allow(dead_code)]
+    pub(in crate::mir::builder) fn commit_legacy_pending(
+        &mut self,
+        pending: LegacyFunctionPendingSessionV1<'_>,
+        admission: LegacyChildDraftAdmissionV1,
+    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
+        let (key, symbol, arity) = admission.collector_parts();
         pending.complete_before_restore(|draft| {
             let prepared = self
                 .prepare_draft_admission(
