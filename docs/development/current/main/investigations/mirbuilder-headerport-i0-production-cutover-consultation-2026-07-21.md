@@ -707,12 +707,12 @@ HEADERPORT0-I0-MAINROLE0-S0/P0 (closed)
   VerifiedMainExpansionV1, root/child/compat dispositions, and
   app/script/feature/source-order parity fixtures
 
-HEADERPORT0-I0-MAINROLE0-P0
-  app/script/feature and source-order parity
+HEADERPORT0-I0-BODYDRAIN0-S0 (closed)
+  CompletedRootBodyV1 activity vocabulary and one-shot witness
 
-HEADERPORT0-I0-BODYDRAIN0-S0/P0
+HEADERPORT0-I0-BODYDRAIN0-P0
   next code-facing row
-  CompletedRootBodyV1 and nested child/pending-loan closure
+  nested child/pending-loan closure matrix and failure parity
 
 HEADERPORT0-I0-MAINPENDING0-S0/P0
   root completion with explicit collector headers
@@ -769,6 +769,22 @@ deterministic child symbol order and distinct Main.main/N compatibility identity
 The product does not read environment or feature state; compatibility policy
 remains an explicit later route decision. No Builder, collector, ValueId,
 metadata, header cache, fallback, or publication authority was added. The
-next row is `HEADERPORT0-I0-BODYDRAIN0-S0`; production capture/commit, root
+next row is `HEADERPORT0-I0-BODYDRAIN0-P0`; production capture/commit, root
 completion, drain, module finalization, FACTSESSION0, and CUT0 remain
 disconnected.
+
+## BODYDRAIN0-S0 closeout
+
+`HEADERPORT0-I0-BODYDRAIN0-S0` is closed with production consumers still zero.
+The disconnected `root_body_completion` product provides one non-Clone
+`CompletedRootBodyV1` witness over an explicit value/no-value disposition. A
+short-lived token tracks child scopes, header loans, and pending terminals;
+completion rejects any open activity, foreign token, or token-kind mismatch.
+The product owns no Builder, collector, function map, header cache, fact store,
+ValueId allocator, fallback, or publication route. Its focused fixtures cover
+empty no-value completion, nested activity closure, open-activity rejection,
+and foreign/mismatched-token fail-fast behavior.
+
+The next row is `HEADERPORT0-I0-BODYDRAIN0-P0`; nested lowering parity and the
+root failure matrix remain disconnected, and production capture/commit,
+FACTSESSION0, and CUT0 are still forbidden.

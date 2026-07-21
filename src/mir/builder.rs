@@ -75,7 +75,9 @@ mod module_lowering_invocation_state; // HEADERPORT0 I0-STATE0-S0 disconnected s
 mod module_lowering_shell; // HEADERPORT0 I0-SHELL-S0 disconnected shell
 mod raw_expression_dispatch; // single raw AST expression dispatcher
 #[allow(dead_code)]
-mod raw_loop_child_entry; // LOOPBRIDGE0-S0 pure raw Loop child-entry quarantine
+mod raw_loop_child_entry;
+#[allow(dead_code)]
+mod root_body_completion; // HEADERPORT0-I0-BODYDRAIN0-S0 disconnected witness // LOOPBRIDGE0-S0 pure raw Loop child-entry quarantine
 #[allow(unused_imports)]
 pub(in crate::mir) use located_legacy_lowering::{
     LocatedLegacyLoweringErrorV1, LocatedLegacyLoweringSessionV1,
