@@ -2,8 +2,8 @@
 
 Status: **STATE0-S0/P0/I0/G0, CONSULT0, ACCESS0-S0, and
 ACCESS0-MEHEADER-S0/P0/I0/G0, ACCESS0-REWRITE-KNOWN-P0, ACCESS0-P0, and
-CANDIDATE0-S0/P0 are closed; M-root-prime is selected and
-`HEADERPORT0-I0-MAINROLE0-S0` is next**
+CANDIDATE0-S0/P0, and MAINROLE0-D0/S0/P0 are closed; M-root-prime remains
+selected and `HEADERPORT0-I0-BODYDRAIN0-S0` is next**
 
 Date: 2026-07-21
 
@@ -703,14 +703,15 @@ finalizer runs only on `DrainedModuleCandidateV1` and cannot receive Builder,
 HEADERPORT0-I0-MAINROLE0-D0 (closed by this decision)
   Main source expansion and distinct root/child identities
 
-HEADERPORT0-I0-MAINROLE0-S0
-  next code-facing row
-  VerifiedMainExpansionV1 and root/child/compat dispositions
+HEADERPORT0-I0-MAINROLE0-S0/P0 (closed)
+  VerifiedMainExpansionV1, root/child/compat dispositions, and
+  app/script/feature/source-order parity fixtures
 
 HEADERPORT0-I0-MAINROLE0-P0
   app/script/feature and source-order parity
 
 HEADERPORT0-I0-BODYDRAIN0-S0/P0
+  next code-facing row
   CompletedRootBodyV1 and nested child/pending-loan closure
 
 HEADERPORT0-I0-MAINPENDING0-S0/P0
@@ -751,3 +752,23 @@ FACTSESSION0 or FunctionLoweringSession cutover
 JoinIR/Loop widening
 CUT0 before all-route parity is green
 ```
+
+## MAINROLE0-P0 closeout
+
+`HEADERPORT0-I0-MAINROLE0-P0` is closed with production consumers still zero.
+The source-only expansion product now has focused parity fixtures for:
+
+```text
+app-shaped Program with unrelated top-level statements
+script-shaped Program without static Main
+static root and child contract rejection
+duplicate Main declaration rejection
+deterministic child symbol order and distinct Main.main/N compatibility identity
+```
+
+The product does not read environment or feature state; compatibility policy
+remains an explicit later route decision. No Builder, collector, ValueId,
+metadata, header cache, fallback, or publication authority was added. The
+next row is `HEADERPORT0-I0-BODYDRAIN0-S0`; production capture/commit, root
+completion, drain, module finalization, FACTSESSION0, and CUT0 remain
+disconnected.

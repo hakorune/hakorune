@@ -310,4 +310,140 @@ mod tests {
             MainExpansionErrorV1::MainMethodMustBeFunction
         );
     }
+
+    #[test]
+    fn app_shape_ignores_non_main_top_level_statements() {
+        let mut source = program({
+            let mut methods = HashMap::new();
+            methods.insert("main".to_owned(), function("main", true, 0));
+            methods.insert("helper".to_owned(), function("helper", true, 1));
+            methods
+        });
+        let ASTNode::Program { statements, .. } = &mut source else {
+            unreachable!("program helper creates a Program");
+        };
+        statements.insert(
+            0,
+            ASTNode::Literal {
+                value: crate::ast::LiteralValue::Integer(7),
+                span: Span::unknown(),
+            },
+        );
+
+        let expansion = VerifiedMainExpansionV1::from_program(&source).unwrap();
+        assert_eq!(expansion.root().box_name(), "Main");
+        assert_eq!(expansion.static_children().len(), 1);
+        assert_eq!(expansion.static_children()[0].symbol(), "Main.helper/1");
+        assert_eq!(
+            expansion.callable_main_compat().unwrap().symbol(),
+            "Main.main/0"
+        );
+    }
+
+    #[test]
+    fn script_shape_without_static_main_stays_out_of_this_product() {
+        let source = ASTNode::Program {
+            statements: vec![ASTNode::Literal {
+                value: crate::ast::LiteralValue::Integer(1),
+                span: Span::unknown(),
+            }],
+            span: Span::unknown(),
+        };
+
+        assert_eq!(
+            VerifiedMainExpansionV1::from_program(&source).unwrap_err(),
+            MainExpansionErrorV1::MainBoxMissing
+        );
+    }
+
+    #[test]
+    fn child_and_root_static_contracts_are_checked_before_builder_effects() {
+        let mut methods = HashMap::new();
+        methods.insert("main".to_owned(), function("main", true, 0));
+        methods.insert("instance".to_owned(), function("instance", false, 0));
+        assert_eq!(
+            VerifiedMainExpansionV1::from_program(&program(methods)).unwrap_err(),
+            MainExpansionErrorV1::StaticChildMustBeStatic {
+                method: "instance".to_owned(),
+            }
+        );
+
+        let mut methods = HashMap::new();
+        methods.insert("main".to_owned(), function("main", false, 0));
+        assert_eq!(
+            VerifiedMainExpansionV1::from_program(&program(methods)).unwrap_err(),
+            MainExpansionErrorV1::StaticChildMustBeStatic {
+                method: "main".to_owned(),
+            }
+        );
+    }
+
+    #[test]
+    fn duplicate_main_boxes_are_rejected_without_order_dependence() {
+        let mut first_methods = HashMap::new();
+        first_methods.insert("main".to_owned(), function("main", true, 0));
+        let mut second_methods = HashMap::new();
+        second_methods.insert("main".to_owned(), function("main", true, 0));
+
+        let mut source = program(first_methods);
+        let ASTNode::Program { statements, .. } = &mut source else {
+            unreachable!("program helper creates a Program");
+        };
+        let ASTNode::BoxDeclaration {
+            name,
+            methods,
+            is_static,
+            fields,
+            field_decls,
+            public_fields,
+            private_fields,
+            constructors,
+            init_fields,
+            weak_fields,
+            delegates,
+            invariants,
+            transitions,
+            is_interface,
+            is_sync,
+            is_record,
+            type_parameters,
+            extends,
+            implements,
+            static_init,
+            attrs,
+            span,
+        } = &statements[0]
+        else {
+            unreachable!("program helper creates a Main box");
+        };
+        statements.push(ASTNode::BoxDeclaration {
+            name: name.clone(),
+            methods: second_methods,
+            is_static: *is_static,
+            fields: fields.clone(),
+            field_decls: field_decls.clone(),
+            public_fields: public_fields.clone(),
+            private_fields: private_fields.clone(),
+            constructors: constructors.clone(),
+            init_fields: init_fields.clone(),
+            weak_fields: weak_fields.clone(),
+            delegates: delegates.clone(),
+            invariants: invariants.clone(),
+            transitions: transitions.clone(),
+            is_interface: *is_interface,
+            is_sync: *is_sync,
+            is_record: *is_record,
+            type_parameters: type_parameters.clone(),
+            extends: extends.clone(),
+            implements: implements.clone(),
+            static_init: static_init.clone(),
+            attrs: attrs.clone(),
+            span: *span,
+        });
+
+        assert_eq!(
+            VerifiedMainExpansionV1::from_program(&source).unwrap_err(),
+            MainExpansionErrorV1::DuplicateMainBox
+        );
+    }
 }

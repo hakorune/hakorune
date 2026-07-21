@@ -55,8 +55,12 @@ def main() -> int:
         "VerifiedMainStaticChildV1",
         "callable_main_compat",
         "MainExpansionErrorV1",
+        "app_shape_ignores_non_main_top_level_statements",
+        "script_shape_without_static_main_stays_out_of_this_product",
+        "child_and_root_static_contracts_are_checked_before_builder_effects",
+        "duplicate_main_boxes_are_rejected_without_order_dependence",
     ):
-        require(main_expansion, fragment, "MAINROLE0-S0 source product")
+        require(main_expansion, fragment, "MAINROLE0-S0/P0 source product/fixtures")
 
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
         if path in (MAIN_EXPANSION, BUILDER_MOD) or path.name.endswith("_tests.rs"):
@@ -130,7 +134,8 @@ def main() -> int:
         "HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-S0 (closed)",
         "HEADERPORT0-REENTRANT-TERM0-I0-CANDIDATE0-P0 (closed)",
         "M-root-prime decision lock and task order",
-        "HEADERPORT0-I0-MAINROLE0-S0\n  next code-facing row",
+        "HEADERPORT0-I0-MAINROLE0-S0/P0 (closed)",
+        "HEADERPORT0-I0-BODYDRAIN0-S0/P0\n  next code-facing row",
         "one disconnected invocation-owned shell/collector candidate",
         "typed abort/no-publication/no-retry proof",
         "production capture/commit remains forbidden",
@@ -139,8 +144,8 @@ def main() -> int:
         require(card, fragment, "Candidate0 task boundary")
     require(
         state,
-        "HEADERPORT0-I0-MAINROLE0-S0 is next",
-        "current Candidate0 pointer",
+        "HEADERPORT0-I0-BODYDRAIN0-S0 is next",
+        "current Candidate0/MainROLE0 pointer",
     )
 
     print(
