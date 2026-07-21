@@ -178,6 +178,30 @@ This keeps legacy replacement and canonical duplicate policy inside prepared
 collector admission. It does not redesign TypePipeline, PHI repair, JoinIR,
 FACTSESSION, or finalization; those remain after the shell/collector bridge.
 
+## I0-SHELL-S0 closeout
+
+The disconnected shell vocabulary is now present in
+`src/mir/builder/module_lowering_shell.rs`:
+
+```text
+ModuleLoweringShellV1
+  accepts only a function-empty MirModule
+
+PreparedModuleLoweringShellDrainV1
+  is non-Clone and single-use
+  preflights duplicate function symbols before shell mutation
+```
+
+Its three focused tests prove rejection of an already-published function map,
+one successful batch drain, and duplicate-symbol rejection. The module is
+registered behind the reusable HeaderPort guard, and no production lowering
+consumer calls `prepare_drain` yet. The shell is therefore a vocabulary and
+transaction boundary, not a second live module store.
+
+The next row is `HEADERPORT0-REENTRANT-TERM0-I0-SHELL-P0`: inventory the
+module metadata/global writes and prove the collector-to-shell drain preflight
+without connecting a production root or child.
+
 ## Questions that must be answered before implementation
 
 1. Does `ModuleLoweringInvocationV1` own the module shell, or does a separate

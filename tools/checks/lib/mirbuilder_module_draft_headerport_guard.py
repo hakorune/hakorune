@@ -19,6 +19,7 @@ INVOCATION = ROOT / "src/mir/builder/module_lowering_invocation.rs"
 MODULE_DRAFT = ROOT / "src/mir/builder/module_draft_collector.rs"
 SIGNATURE_LOOKUP = ROOT / "src/mir/builder/function_signature_lookup.rs"
 PORT_AWARE_DRAFT = ROOT / "src/mir/builder/port_aware_function_draft.rs"
+MODULE_SHELL = ROOT / "src/mir/builder/module_lowering_shell.rs"
 PENDING_TERMINAL = ROOT / "src/mir/builder/calls/function_session/terminal.rs"
 LEGACYTERM_TESTS = ROOT / "src/mir/builder/module_lowering_invocation_legacyterm_tests.rs"
 RAWPORT_TESTS = ROOT / "src/mir/builder/recursive_child_lowering_rawport_tests.rs"
@@ -70,6 +71,7 @@ def main() -> int:
     module_draft = read(MODULE_DRAFT)
     signature_lookup = read(SIGNATURE_LOOKUP)
     port_aware_draft = read(PORT_AWARE_DRAFT)
+    module_shell = read(MODULE_SHELL)
     builder = read(BUILDER)
     compilation = read(COMPILATION)
     pending_terminal = read(PENDING_TERMINAL)
@@ -79,6 +81,24 @@ def main() -> int:
     raw_dispatch = read(RAW_DISPATCH)
     raw_port = read(RAW_PORT)
     raw_loop_entry = read(RAW_LOOP_ENTRY)
+
+    for fragment in (
+        "ModuleLoweringShellV1",
+        "PreparedModuleLoweringShellDrainV1",
+        "from_empty_module",
+        "prepare_drain",
+        "FunctionMapNotEmpty",
+        "DuplicateFunction",
+    ):
+        require(module_shell, fragment, "HEADERPORT0 I0-SHELL-S0 vocabulary")
+    for path in (ROOT / "src/mir/builder").rglob("*.rs"):
+        if path in (MODULE_SHELL, REENTRANT_TESTS) or path.name.endswith("_tests.rs"):
+            continue
+        forbid(
+            read(path),
+            "prepare_drain()",
+            f"HEADERPORT0 I0-SHELL-S0 disconnected drain consumer {path.relative_to(ROOT)}",
+        )
 
     for fragment in (
         "PreparedCollectorReplacementV1",
