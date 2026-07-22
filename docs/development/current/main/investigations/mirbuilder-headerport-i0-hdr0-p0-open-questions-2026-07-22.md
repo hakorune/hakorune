@@ -1,14 +1,30 @@
 # HDR0-P0 Open Design Questions
 
-Status: **Active — decision input required**  
-Date: 2026-07-22  
-Scope: unresolved HeaderPort replacement, parity, and cutover policy questions
+Status: **Closed — Q1 through Q4 accepted**
+Date: 2026-07-22
+Scope: accepted HeaderPort replacement, parity, and cutover policy decisions
 
 Related:
 
 - `docs/development/current/main/CURRENT_STATE.toml`
 - `docs/development/current/main/investigations/mirbuilder-headerport-i0-production-cutover-consultation-2026-07-21.md`
 - `tools/checks/lib/headerport_header_reader_census.py`
+- `docs/development/current/main/investigations/mirbuilder-headerport-i0-hdr0-p0-execution-task-2026-07-22.md`
+
+## Decision
+
+Accepted on 2026-07-22:
+
+```text
+Q1 = Pure projection
+Q2 = Thread one short HeaderPort loan through resolve, emit, and annotation
+Q3 = Keep explicit invocation and legacy compatibility presence separate
+Q4 = Atomic all-route CUT0
+```
+
+A disconnected sealed adapter is permitted only as CUT0 preparation. It is
+not a second production policy. The executable task order and acceptance
+criteria now live in the related HDR0-P0 execution task.
 
 ## Context
 
@@ -199,8 +215,7 @@ This document does not claim:
 - retirement of `current_module` readers;
 - FACTSESSION activation or finalization repair removal;
 - JoinIR, FastMem, LLVM, or selfhost parser migration progress;
-- a selected answer for Questions 1–4.
+- completion of the execution tasks selected by Questions 1–4.
 
-Until the questions are answered, the next implementation may add only
-passive parity fixtures or guard evidence that does not connect a production
-consumer.
+The first selected code-facing task is HDR0-P0-AUTHORITY-ERASURE0. Production
+capture/commit remains forbidden until the atomic CUT0 gate is complete.

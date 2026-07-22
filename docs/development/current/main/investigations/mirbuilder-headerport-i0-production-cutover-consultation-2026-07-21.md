@@ -2317,7 +2317,11 @@ FinalizedModuleCandidateV1 and external handoff:
   post-drain finalizer / MirCompiler session owner
 ```
 
-### Exact implementation order
+### Historical implementation order (BORROW through CUT0)
+
+The completed BORROW rows below retain their original handoff wording. They
+are historical evidence, not the current `next` pointer; use
+`CURRENT_STATE.toml` and the latest HDR0-P0 execution task for the live row.
 
 ```text
 WIRING-I0-BORROW-S0             <- next code-facing row
@@ -3206,3 +3210,27 @@ caller, capture/commit, catalog authority, or CUT0 wiring is added.
 The worker decision does not extend to method-index freshness, static tail
 resolver routing, materializer `legacy_presence`, or lifecycle cutover. Those
 still require a separate cache/policy/route owner decision.
+
+## WIRING-I0-HDR0-P0 decision closeout and execution handoff
+
+The four bounded policy questions are accepted on 2026-07-22:
+
+```text
+method-index freshness = pure deterministic HeaderPort projection
+static tail resolver   = one short HeaderPort loan through emit/annotation
+materializer presence  = exclusive invocation/legacy compatibility modes
+lifecycle activation   = atomic all-route CUT0
+```
+
+The first code-facing row is `HDR0-P0-AUTHORITY-ERASURE0`. It closes the
+explicit tail-emission, unique-static-recovery emission, and materializer
+recovery-annotation authority loss without adding an accepted call shape or a
+production invocation consumer. Method-tail compatibility stabilization and
+the full caller census follow before HDR0-G0.
+
+The detailed task order, acceptance gates, typed lifecycle blockers, and
+non-claims are fixed in
+`mirbuilder-headerport-i0-hdr0-p0-execution-task-2026-07-22.md`.
+`CUT0-COMPAT-POLICY-CONSULT0` remains in place because duplicate Main and
+optional callable-Main failure semantics are independent of the now-selected
+atomic activation topology.
