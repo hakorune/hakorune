@@ -63,6 +63,8 @@ mod canonical_physical_completion_p0;
 #[cfg(test)]
 mod canonical_bridge_fixture0_p0;
 #[cfg(test)]
+mod drain_policy_p0;
+#[cfg(test)]
 mod resolved_callable_module_tests;
 #[cfg(test)]
 mod sibling_call_tests;

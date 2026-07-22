@@ -34,6 +34,7 @@ use crate::mir::function::MirFunction;
 use crate::mir::module_invocation_identity::{
     ModuleInvocationBrandV1, ModuleInvocationFamilyV1, ModuleInvocationTokenV1,
 };
+use crate::mir::module_invocation_policy::ModuleInvocationPolicyV1;
 
 static NEXT_COMPILER_DOMAIN: AtomicU64 = AtomicU64::new(1);
 
@@ -107,21 +108,15 @@ impl<'a> ExactCanonicalPreflightPlanV1<'a> {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum CanonicalRoutePolicyV1 {
-    ExactOwner,
-    ExactCallableCatalog,
-}
-
 #[derive(Debug)]
 pub(in crate::mir) enum CanonicalSourceContinuationV1<'a> {
     Single {
         header: VerifiedResolvedOwnerHeaderV1,
-        policy: CanonicalRoutePolicyV1,
+        policy: ModuleInvocationPolicyV1,
     },
     Callable {
         source: &'a VerifiedResolvedCallableModuleV1,
-        policy: CanonicalRoutePolicyV1,
+        policy: ModuleInvocationPolicyV1,
     },
 }
 
@@ -500,7 +495,9 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
                 );
                 Ok(CanonicalSourceContinuationV1::Single {
                     header,
-                    policy: CanonicalRoutePolicyV1::ExactOwner,
+                    policy: ModuleInvocationPolicyV1::policy_for_family(
+                        ModuleInvocationFamilyV1::CanonicalAPlus,
+                    ),
                 })
             }
             ExactCanonicalPreflightPlanV1::BindingSsaTrivial(plan) => {
@@ -510,19 +507,25 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
                 debug_assert_eq!(header.family(), ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa);
                 Ok(CanonicalSourceContinuationV1::Single {
                     header,
-                    policy: CanonicalRoutePolicyV1::ExactOwner,
+                    policy: ModuleInvocationPolicyV1::policy_for_family(
+                        ModuleInvocationFamilyV1::BindingSsaTrivial,
+                    ),
                 })
             }
             ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan) => {
                 Ok(CanonicalSourceContinuationV1::Callable {
                     source: plan.module(),
-                    policy: CanonicalRoutePolicyV1::ExactCallableCatalog,
+                    policy: ModuleInvocationPolicyV1::policy_for_family(
+                        ModuleInvocationFamilyV1::BindingSsaAcyclic,
+                    ),
                 })
             }
             ExactCanonicalPreflightPlanV1::BindingSsaRecursive(plan) => {
                 Ok(CanonicalSourceContinuationV1::Callable {
                     source: plan.module(),
-                    policy: CanonicalRoutePolicyV1::ExactCallableCatalog,
+                    policy: ModuleInvocationPolicyV1::policy_for_family(
+                        ModuleInvocationFamilyV1::BindingSsaRecursive,
+                    ),
                 })
             }
         }

@@ -13,37 +13,19 @@
 use super::module_invocation_route_matrix::{
     InvocationRootFamilyV1, InvocationRouteMatrixRowV1, InvocationRouteMatrixV1,
 };
+pub(in crate::mir::builder) use crate::mir::module_invocation_policy::{
+    InvocationConditionPolicyV1 as RouteConditionPolicyV2,
+    InvocationFallbackPolicyV1 as RouteFallbackPolicyV2,
+    InvocationInventoryAuthorityV1 as InvocationInventoryAuthorityV2,
+    InvocationRootPolicyV1 as InvocationRootPolicyV2,
+    ModuleInvocationPolicyV1,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::builder) enum StaticRouteReachabilityV2 {
     Reachable,
     Unreachable,
     Unknown,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::builder) enum InvocationInventoryAuthorityV2 {
-    RawExpansionReceipts,
-    CanonicalResolvedOwner,
-    CanonicalCallableCatalog,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::builder) enum InvocationRootPolicyV2 {
-    RequiredMain,
-    ExactCanonicalOwner,
-    ExactCallableCatalog,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::builder) enum RouteConditionPolicyV2 {
-    RawSourceSelected,
-    Forbidden,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::builder) enum RouteFallbackPolicyV2 {
-    Forbidden,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -98,10 +80,7 @@ pub(in crate::mir::builder) struct RouteOwnedInventoryPolicyV2 {
     family: InvocationRootFamilyV1,
     matrix_rows: Box<[InvocationRouteMatrixRowV1]>,
     source_symbols: ExactInvocationSourceSymbolsV2,
-    inventory_authority: InvocationInventoryAuthorityV2,
-    root_policy: InvocationRootPolicyV2,
-    condition_policy: RouteConditionPolicyV2,
-    fallback: RouteFallbackPolicyV2,
+    policy: ModuleInvocationPolicyV1,
     _seal: RouteOwnedInventoryPolicySealV2,
 }
 
@@ -112,16 +91,13 @@ impl RouteOwnedInvocationInventoryV2 {
     pub(in crate::mir::builder) fn derive(
         family: InvocationRootFamilyV1,
     ) -> Result<Self, RouteOwnedInventorySealErrorV2> {
-        let (source_symbols, inventory_authority, root_policy, condition_policy) =
-            route_policy(family);
+        let (source_symbols, policy) = route_policy(family);
         let policy = seal_policy(
             family,
             source_symbols,
             StaticRouteReachabilityV2::Reachable,
             StaticRouteReachabilityV2::Reachable,
-            inventory_authority,
-            root_policy,
-            condition_policy,
+            policy,
         )?;
         Ok(match family {
             InvocationRootFamilyV1::Raw => Self::Raw(policy),
@@ -159,19 +135,19 @@ impl RouteOwnedInventoryPolicyV2 {
     pub(in crate::mir::builder) const fn inventory_authority(
         &self,
     ) -> InvocationInventoryAuthorityV2 {
-        self.inventory_authority
+        self.policy.inventory_authority()
     }
 
     pub(in crate::mir::builder) const fn root_policy(&self) -> InvocationRootPolicyV2 {
-        self.root_policy
+        self.policy.root_policy()
     }
 
     pub(in crate::mir::builder) const fn condition_policy(&self) -> RouteConditionPolicyV2 {
-        self.condition_policy
+        self.policy.condition_policy()
     }
 
     pub(in crate::mir::builder) const fn fallback(&self) -> RouteFallbackPolicyV2 {
-        self.fallback
+        self.policy.fallback_policy()
     }
 }
 
@@ -180,9 +156,7 @@ fn seal_policy(
     source_symbols: ExactInvocationSourceSymbolsV2,
     ingress_reachability: StaticRouteReachabilityV2,
     root_reachability: StaticRouteReachabilityV2,
-    inventory_authority: InvocationInventoryAuthorityV2,
-    root_policy: InvocationRootPolicyV2,
-    condition_policy: RouteConditionPolicyV2,
+    policy: ModuleInvocationPolicyV1,
 ) -> Result<RouteOwnedInventoryPolicyV2, RouteOwnedInventorySealErrorV2> {
     if ingress_reachability != StaticRouteReachabilityV2::Reachable {
         return Err(RouteOwnedInventorySealErrorV2::IngressNotReachable {
@@ -208,67 +182,49 @@ fn seal_policy(
         family,
         matrix_rows: matrix_rows.into_boxed_slice(),
         source_symbols,
-        inventory_authority,
-        root_policy,
-        condition_policy,
-        fallback: RouteFallbackPolicyV2::Forbidden,
+        policy,
         _seal: RouteOwnedInventoryPolicySealV2,
     })
 }
 
 fn route_policy(
     family: InvocationRootFamilyV1,
-) -> (
-    ExactInvocationSourceSymbolsV2,
-    InvocationInventoryAuthorityV2,
-    InvocationRootPolicyV2,
-    RouteConditionPolicyV2,
-) {
+) -> (ExactInvocationSourceSymbolsV2, ModuleInvocationPolicyV1) {
     match family {
         InvocationRootFamilyV1::Raw => (
             ExactInvocationSourceSymbolsV2 {
                 ingress: "MirCompiler::compile_legacy_request",
                 lowering_root: "MirBuilder::build_module",
             },
-            InvocationInventoryAuthorityV2::RawExpansionReceipts,
-            InvocationRootPolicyV2::RequiredMain,
-            RouteConditionPolicyV2::RawSourceSelected,
+            ModuleInvocationPolicyV1::policy_for_family(family),
         ),
         InvocationRootFamilyV1::CanonicalAPlus => (
             ExactInvocationSourceSymbolsV2 {
                 ingress: "MirCompiler::compile_resolved_first_family",
                 lowering_root: "MirBuilder::build_resolved_function_module",
             },
-            InvocationInventoryAuthorityV2::CanonicalResolvedOwner,
-            InvocationRootPolicyV2::ExactCanonicalOwner,
-            RouteConditionPolicyV2::Forbidden,
+            ModuleInvocationPolicyV1::policy_for_family(family),
         ),
         InvocationRootFamilyV1::BindingSsaTrivial => (
             ExactInvocationSourceSymbolsV2 {
                 ingress: "MirCompiler::compile_resolved_first_family",
                 lowering_root: "MirBuilder::build_resolved_trivial_function_module",
             },
-            InvocationInventoryAuthorityV2::CanonicalResolvedOwner,
-            InvocationRootPolicyV2::ExactCanonicalOwner,
-            RouteConditionPolicyV2::Forbidden,
+            ModuleInvocationPolicyV1::policy_for_family(family),
         ),
         InvocationRootFamilyV1::BindingSsaAcyclic => (
             ExactInvocationSourceSymbolsV2 {
                 ingress: "MirCompiler::compile_resolved_callable_module",
                 lowering_root: "MirBuilder::build_acyclic_callable_module_candidate",
             },
-            InvocationInventoryAuthorityV2::CanonicalCallableCatalog,
-            InvocationRootPolicyV2::ExactCallableCatalog,
-            RouteConditionPolicyV2::Forbidden,
+            ModuleInvocationPolicyV1::policy_for_family(family),
         ),
         InvocationRootFamilyV1::BindingSsaRecursive => (
             ExactInvocationSourceSymbolsV2 {
                 ingress: "MirCompiler::compile_resolved_recursive_callable_module",
                 lowering_root: "MirBuilder::build_recursive_callable_module_candidate",
             },
-            InvocationInventoryAuthorityV2::CanonicalCallableCatalog,
-            InvocationRootPolicyV2::ExactCallableCatalog,
-            RouteConditionPolicyV2::Forbidden,
+            ModuleInvocationPolicyV1::policy_for_family(family),
         ),
     }
 }
@@ -378,9 +334,7 @@ mod tests {
             symbols,
             StaticRouteReachabilityV2::Unknown,
             StaticRouteReachabilityV2::Reachable,
-            InvocationInventoryAuthorityV2::RawExpansionReceipts,
-            InvocationRootPolicyV2::RequiredMain,
-            RouteConditionPolicyV2::RawSourceSelected,
+            ModuleInvocationPolicyV1::policy_for_family(InvocationRootFamilyV1::Raw),
         )
         .unwrap_err();
         assert!(matches!(
@@ -396,9 +350,7 @@ mod tests {
             symbols,
             StaticRouteReachabilityV2::Reachable,
             StaticRouteReachabilityV2::Unreachable,
-            InvocationInventoryAuthorityV2::RawExpansionReceipts,
-            InvocationRootPolicyV2::RequiredMain,
-            RouteConditionPolicyV2::RawSourceSelected,
+            ModuleInvocationPolicyV1::policy_for_family(InvocationRootFamilyV1::Raw),
         )
         .unwrap_err();
         assert!(matches!(

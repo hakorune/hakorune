@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-DRAIN0 実行タスク
 
-Status: **Active — ROOT0-DRAIN0-POLICY0 is the next executable row**
+Status: **Active — ROOT0-DRAIN0-MANIFEST0 is the next executable row**
 
 Related:
 
@@ -80,6 +80,31 @@ caller policy/fallback/condition constructor = 0
 Raw policy behavior unchanged
 production drain consumer = 0
 ```
+
+## POLICY0 closeout — 2026-07-23
+
+`ROOT0-DRAIN0-POLICY0` is closed. A neutral `crate::mir` policy SSOT now
+derives family, inventory authority, root, condition, and fallback policy for
+all five families. Canonical source continuations use it instead of the old
+compiler-local route policy. The Builder route wrapper delegates to the same
+policy product and retains only route-matrix/source-symbol evidence; it no
+longer carries a second policy decision table.
+
+Evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo check -q --lib                         green
+RUSTFLAGS='-Awarnings' cargo test -q drain_policy_p0 --lib         2 passed
+RUSTFLAGS='-Awarnings' cargo test -q route-owned policy fixtures    green
+git diff --check                                                   green
+bash tools/checks/current_state_pointer_guard.sh                   green
+```
+
+The source, manifest, and focused-test files remain below 800 lines. No
+concrete function rows, physical drain, canonical production consumer, Raw
+route change, finalizer, external commit, retry, or fallback was added.
+
+The next executable row is `ROOT0-DRAIN0-MANIFEST0`.
 
 ## ROOT0-DRAIN0-MANIFEST0 — exact source projection
 
