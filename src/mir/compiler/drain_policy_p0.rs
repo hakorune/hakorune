@@ -18,10 +18,7 @@ fn policy_ssot_keeps_raw_and_canonical_laws_distinct() {
         raw.condition_policy(),
         InvocationConditionPolicyV1::RawSourceSelected
     );
-    assert_eq!(
-        raw.fallback_policy(),
-        InvocationFallbackPolicyV1::Forbidden
-    );
+    assert_eq!(raw.fallback_policy(), InvocationFallbackPolicyV1::Forbidden);
 
     for family in [
         ModuleInvocationFamilyV1::CanonicalAPlus,
