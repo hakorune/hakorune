@@ -167,3 +167,11 @@ preflighted raw-ledger root batch. `RawInvocationRootWitnessV1` and
 `RawCompleteInvocationV1` are the sole unpublished products. Focused fixtures
 and the RAW0 guard are green; production capture, drain, finalizer, and
 external commit consumers remain zero. `ROOT0-CANON0` is the next row.
+
+## ROOT0-CANON0 design stop
+
+Worker棚卸しで、canonical single/callable batchの現状はCOLLECT0のco-seal
+までで、route-specific complete productは未実装と確認した。次の質問カードで
+source authority binding、Main専用state流用禁止、recursive capabilityの唯一owner、
+source-derived inventoryを固定する。回答まではproduction ingress、drain、
+finalizer、external commitを変更しない。

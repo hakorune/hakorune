@@ -1,6 +1,6 @@
 # CUT0-I0 T-prime-r1 Execution Task
 
-Status: **CUT0-I0-ROOT0-RAW0 closed; ROOT0-CANON0 next**
+Status: **CUT0-I0-ROOT0-RAW0 closed; ROOT0-CANON0 design stop — answer required**
 Date: 2026-07-22
 Decision: **Candidate T-prime-r1 selected**
 Scope: build one invocation-branded module transaction, then perform one
@@ -575,6 +575,20 @@ records both required slots through one preflighted batch terminal. Focused
 RAW0 fixtures and `cut0_i0_root0_raw0_guard.py` are green; production consumers
 remain zero. Callable-main success wiring remains part of the later raw
 ingress, while selected-without-receipt is fail-fast here.
+
+### CUT0-I0-ROOT0-CANON0 — design stop
+
+Worker audit found four authority decisions that must be answered before code:
+
+1. source-sealed canonical plan/header continuation versus family-only token;
+2. route-specific canonical complete products versus Main-only state reuse;
+3. source-to-shell recursive capability authority;
+4. complete-product-derived canonical inventory versus caller-supplied inventory.
+
+The linked [CANON0 question card](cut0-i0-root0-canon0-design-question-2026-07-22.md)
+records the recommended C-prime answer for all four. Until answered, production
+canonical ingress, Main-state reuse, drain/finalizer wiring, and external commit
+remain forbidden.
 
 ### CUT0-I0-ROOT0 — route-specific completion and drain policy
 
