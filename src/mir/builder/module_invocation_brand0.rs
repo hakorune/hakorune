@@ -17,6 +17,9 @@ use super::module_invocation_session::{
     BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1,
 };
 use super::module_lowering_shell::{ModuleLoweringShellErrorV1, ModuleLoweringShellV1};
+use super::module_lowering_shell::{
+    AcyclicCapabilityAbsenceWitnessV1, RecursiveCapabilityInstallReceiptV1,
+};
 use crate::mir::compiler::capability::VerifiedResolvedOwnerHeaderV1;
 use crate::mir::builder::resolved_lowering::VerifiedUnpublishedCallableDraftSetV1;
 use super::MirBuilder;
@@ -34,10 +37,33 @@ pub(in crate::mir) struct CollectedCanonicalCallablePhysicalV1 {
 }
 
 #[derive(Debug)]
+pub(in crate::mir) enum CanonicalCallableCapabilityWitnessV1 {
+    Acyclic(AcyclicCapabilityAbsenceWitnessV1),
+    Recursive(RecursiveCapabilityInstallReceiptV1),
+}
+
+impl CanonicalCallableCapabilityWitnessV1 {
+    pub(in crate::mir) fn brand(&self) -> ModuleInvocationBrandV1 {
+        match self {
+            Self::Acyclic(witness) => witness.brand(),
+            Self::Recursive(receipt) => receipt.brand(),
+        }
+    }
+
+    pub(in crate::mir) fn family(&self) -> super::module_invocation_identity::ModuleInvocationFamilyV1 {
+        match self {
+            Self::Acyclic(witness) => witness.family(),
+            Self::Recursive(receipt) => receipt.family(),
+        }
+    }
+}
+
+#[derive(Debug)]
 pub(in crate::mir) enum CanonicalPhysicalCollectionErrorV1 {
     Single(CollectedDraftAdmissionProductErrorV1),
     Batch(CallableCollectorBatchPrepareErrorV1),
     CollectorUnbranded,
+    CapabilityMissing,
 }
 
 #[derive(Debug)]
@@ -100,6 +126,24 @@ impl InvocationPhysicalStateV1 {
 
     pub(in crate::mir) fn brand(&self) -> ModuleInvocationBrandV1 {
         self.brand
+    }
+
+    pub(in crate::mir) fn install_callable_capability(
+        &mut self,
+        family: super::module_invocation_identity::ModuleInvocationFamilyV1,
+    ) -> Result<CanonicalCallableCapabilityWitnessV1, &'static str> {
+        let installed = self.shell.install_callable_batch_capability(family)?;
+        match (family, installed) {
+            (
+                super::module_invocation_identity::ModuleInvocationFamilyV1::BindingSsaAcyclic,
+                Err(witness),
+            ) => Ok(CanonicalCallableCapabilityWitnessV1::Acyclic(witness)),
+            (
+                super::module_invocation_identity::ModuleInvocationFamilyV1::BindingSsaRecursive,
+                Ok(receipt),
+            ) => Ok(CanonicalCallableCapabilityWitnessV1::Recursive(receipt)),
+            _ => Err("[freeze:contract][canonical_bridge/capability_family]"),
+        }
     }
 
     pub(in crate::mir::builder) fn shell(&self) -> &BrandedShellV1<ModuleLoweringShellV1> {
@@ -172,6 +216,17 @@ impl InvocationPhysicalStateV1 {
             .collect_all_branded()
             .expect("collector brand was preflighted before callable collection");
         Ok(CollectedCanonicalCallablePhysicalV1 { shell, collected })
+    }
+
+    pub(in crate::mir) fn reject_capability_missing(
+        self,
+    ) -> RejectedCanonicalPhysicalCollectionV1 {
+        let (brand, shell, collector) = self.into_parts();
+        RejectedCanonicalPhysicalCollectionV1 {
+            shell,
+            collector,
+            error: CanonicalPhysicalCollectionErrorV1::CapabilityMissing,
+        }
     }
 }
 

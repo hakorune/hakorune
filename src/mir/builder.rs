@@ -105,8 +105,9 @@ mod module_invocation_brand_p0; // CUT0-I0-ID0-P0 fixtures
 #[allow(dead_code)]
 mod module_invocation_brand0; // CUT0-I0-ROOT0-BRAND0 real owner
 pub(in crate::mir) use module_invocation_brand0::{
-    CanonicalPhysicalCollectionErrorV1, CollectedCanonicalCallablePhysicalV1,
-    CollectedCanonicalSinglePhysicalV1, InvocationPhysicalStateV1,
+    CanonicalCallableCapabilityWitnessV1, CanonicalPhysicalCollectionErrorV1,
+    CollectedCanonicalCallablePhysicalV1, CollectedCanonicalSinglePhysicalV1,
+    InvocationPhysicalStateV1,
     RejectedCanonicalPhysicalCollectionV1,
 };
 pub(in crate::mir) use module_lowering_shell::ModuleLoweringShellErrorV1;

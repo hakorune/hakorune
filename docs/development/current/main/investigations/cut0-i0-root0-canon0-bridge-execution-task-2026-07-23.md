@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-CANON0 CANON-BRIDGE0 実行タスク
 
-Status: **Active — CB-prime selected; COLLECT0-COMPLETION is the only executable row**
+Status: **Active — CB-prime selected; CANON-FIXTURE0 is the only executable row**
 
 Related:
 
@@ -153,7 +153,7 @@ git diff --check = passed
 all touched source/check files < 800 lines
 ```
 
-### CANON-BRIDGE0-COLLECT0-COMPLETION — active
+### CANON-BRIDGE0-COLLECT0-COMPLETION — closed
 
 Move the collected physical product into a route-specific completion owner
 without loosening the source authority:
@@ -165,12 +165,33 @@ CollectedCanonicalPhysicalInvocationV1
 -> recursive/acyclic witness co-sealed
 ```
 
-The completion terminal must consume the collected owner by value. No loose
-receipt argument, receipt rebranding, collector re-acquisition, or legacy
-Main-state reuse is allowed. Aggregate four-route fixture remains blocked
-until this handoff is real.
+The compiler-side completion terminal consumes the collected owner by value.
+No loose receipt argument, receipt rebranding, collector re-acquisition, or
+legacy Main-state reuse is allowed. The new product keeps the original token,
+session, source continuation, opaque physical shell/collector/receipt product,
+and callable capability witness together.
 
-### CANON-FIXTURE0 — later
+Closeout evidence (2026-07-23):
+
+```text
+new completion module = src/mir/compiler/canonical_physical_completion.rs
+completion consumer = CollectedCanonicalPhysicalInvocationV1::complete (1)
+route products = Single / Callable
+single receipt + token/session/physical brand = retained by value
+acyclic capability absence + receipt = same brand/family
+recursive install receipt + receipt = same brand/family
+canonical_physical_completion_p0 = 3 passed
+RUSTFLAGS='-Awarnings' cargo check -q --lib = passed
+cut0_i0_root0_canon0_bridge_guard.py = passed
+current_state_pointer_guard.sh = passed
+git diff --check = passed
+all touched source/check files < 800 lines
+```
+
+The old Builder-only `canonical_root_completion.rs` remains disconnected and
+is not converted or imported by the new compiler completion path.
+
+### CANON-FIXTURE0 — active
 
 Only after the bridge rows close, add the real four-route aggregate fixture:
 
@@ -201,7 +222,7 @@ the existing SOURCE-BIND0 and completion fixtures are not one aggregate proof
 green disconnected boxes do not prove a cross-layer owner chain
 builder test tokens are not production identity
 CanonicalModuleLoweringSessionV1 is not the new physical owner
-CANON-FIXTURE0 is not executable before OWNER0/COLLECT0
+CANON-FIXTURE0 is now executable, but its aggregate proof is not yet closed
 production CUT0 activation is not part of this task
 ```
 
@@ -212,11 +233,11 @@ git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 RUSTFLAGS='-Awarnings' cargo check -q --lib
 RUSTFLAGS='-Awarnings' cargo test -q source_bound_package --lib
+RUSTFLAGS='-Awarnings' cargo test -q canonical_physical_completion_p0 --lib
 RUSTFLAGS='-Awarnings' cargo test -q module_invocation_identity --lib
 python3 tools/checks/lib/cut0_i0_root0_canon0_bridge_guard.py
 ```
 
-The active completion subrow closes only when the collected physical owner is
-retained by a route-specific completion product. The shared identity kernel,
-physical owner, typed single/batch admission, and receipt provenance are now
-green; aggregate fixture, DRAIN0, finalization, and commit remain forbidden.
+The active fixture row closes only when the four route proofs use the real
+compiler-owned bridge in one aggregate fixture. DRAIN0, finalization, and
+external commit remain forbidden until that fixture and its guard are green.

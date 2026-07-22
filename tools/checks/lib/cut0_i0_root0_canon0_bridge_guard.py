@@ -12,6 +12,9 @@ SHARED = ROOT / "src/mir/module_invocation_identity.rs"
 BUILDER_ID = ROOT / "src/mir/builder/module_invocation_identity.rs"
 ROUTE = ROOT / "src/mir/builder/module_invocation_route_matrix.rs"
 SOURCE = ROOT / "src/mir/compiler/source_bound_package.rs"
+SOURCE_P0 = ROOT / "src/mir/compiler/source_bound_package_p0.rs"
+COMPLETION = ROOT / "src/mir/compiler/canonical_physical_completion.rs"
+COMPLETION_P0 = ROOT / "src/mir/compiler/canonical_physical_completion_p0.rs"
 COMPILER_MOD = ROOT / "src/mir/compiler/mod.rs"
 MIR_MOD = ROOT / "src/mir/mod.rs"
 BUILDER = ROOT / "src/mir/builder.rs"
@@ -36,6 +39,9 @@ MANIFEST = (
     BUILDER_ID,
     ROUTE,
     SOURCE,
+    SOURCE_P0,
+    COMPLETION,
+    COMPLETION_P0,
     COMPILER_MOD,
     MIR_MOD,
     BUILDER,
@@ -76,6 +82,9 @@ def main() -> int:
     mir_mod = MIR_MOD.read_text()
     builder = BUILDER.read_text()
     task = TASK.read_text()
+    completion = COMPLETION.read_text()
+    completion_p0 = COMPLETION_P0.read_text()
+    compiler_mod = COMPILER_MOD.read_text()
 
     for path in MANIFEST:
         if len(path.read_text().splitlines()) >= 800:
@@ -118,8 +127,8 @@ def main() -> int:
     ):
         require(source, fragment, label)
 
-    completion = (ROOT / "src/mir/builder/canonical_root_completion.rs").read_text()
-    if "TestInvocationPreflightFactoryV1" in completion or "ModuleInvocationTokenV1::from_test" in completion:
+    legacy_completion = (ROOT / "src/mir/builder/canonical_root_completion.rs").read_text()
+    if "TestInvocationPreflightFactoryV1" in legacy_completion or "ModuleInvocationTokenV1::from_test" in legacy_completion:
         raise AssertionError("canonical completion still mints test identity")
     if "ModuleInvocationBrandV1 {" in builder_id or "ModuleInvocationTokenV1 {" in builder_id:
         raise AssertionError("Builder shim reconstructs shared identity")
@@ -132,8 +141,8 @@ def main() -> int:
     require(source, "CanonicalPhysicalInvocationV1", "physical invocation owner")
     require(source, "ModuleBuilderInvocationSessionV1::open_for_token", "shared Builder session open")
     require(source, "InvocationPhysicalStateV1::from_token", "shared shell/collector open")
-    require(source, "canonical_source_binding_owner0_uses_one_physical_owner", "OWNER0 fixture")
-    require(source, "begin_canonical_invocation", "MirCompiler bridge terminal")
+    require(SOURCE_P0.read_text(), "canonical_source_binding_owner0_uses_one_physical_owner", "OWNER0 fixture")
+    require(COMPILER_MOD.read_text(), "begin_canonical_invocation", "MirCompiler bridge terminal")
     if "CanonicalModuleLoweringSessionV1" in source:
         raise AssertionError("new package owner still depends on legacy canonical session")
     if "let package = SourceBoundCanonicalPackageV1 {" in source:
@@ -143,8 +152,9 @@ def main() -> int:
     require(BRAND0.read_text(), "pub(in crate::mir) fn collect_callable_batch(", "typed batch collector terminal")
     require(source, "CollectedCanonicalPhysicalInvocationV1", "COLLECT0 collected owner")
     require(source, "pub(in crate::mir) fn collect(", "COLLECT0 source terminal")
-    require(source, "canonical_source_binding_collect0_retains_same_brand_and_receipt", "single COLLECT0 fixture")
-    require(source, "canonical_source_binding_collect0_projects_callable_catalog_atomically", "batch COLLECT0 fixture")
+    source_p0 = SOURCE_P0.read_text()
+    require(source_p0, "canonical_source_binding_collect0_retains_same_brand_and_receipt", "single COLLECT0 fixture")
+    require(source_p0, "canonical_source_binding_collect0_projects_callable_catalog_atomically", "batch COLLECT0 fixture")
     require(CALLABLE_TX.read_text(), "into_canonical_entries", "source-driven callable projection")
     require(COLLECTED_PRODUCT.read_text(), "pub(in crate::mir) fn receipt_brand", "single receipt provenance")
     require(CALLABLE_BATCH.read_text(), "pub(in crate::mir) fn receipt_brand", "batch receipt provenance")
@@ -152,6 +162,24 @@ def main() -> int:
         raise AssertionError("single physical terminal no longer derives canonical admission")
     if "FunctionDraftKeyV1::Main" in BRAND0.read_text() or "FunctionDraftKeyV1::SyntheticConditionFn" in BRAND0.read_text():
         raise AssertionError("canonical physical collector references synthetic root keys")
+
+    require(compiler_mod, "mod canonical_physical_completion_p0;", "completion fixture registration")
+    require(completion, "CollectedCanonicalPhysicalInvocationV1", "completion source owner")
+    require(completion, "fn complete(", "one-shot completion terminal")
+    require(completion, "CanonicalPhysicalCompleteInvocationV1", "route-specific completion product")
+    require(completion, "CollectedCanonicalSinglePhysicalV1", "single physical receipt retention")
+    require(completion, "CollectedCanonicalCallablePhysicalV1", "callable physical receipt retention")
+    require(completion, "CanonicalCallableCapabilityWitnessV1", "capability witness retention")
+    if "canonical_root_completion" in completion or "Option<" in completion or ".take().expect" in completion:
+        raise AssertionError("new completion reuses legacy scaffold or drop-only plan path")
+    for fixture in (
+        "compiler_bridge_completion_retains_single_physical_receipt",
+        "compiler_bridge_completion_retains_acyclic_capability_and_receipt",
+        "compiler_bridge_completion_retains_recursive_capability_and_receipt",
+    ):
+        require(completion_p0, fixture, f"completion fixture: {fixture}")
+    if "canonical_root_completion::" in source or "canonical_root_completion::" in completion_p0:
+        raise AssertionError("new compiler bridge calls legacy canonical completion")
 
     factory_callers = []
     for path in production_rust_files():
@@ -167,7 +195,7 @@ def main() -> int:
     print(
         "[cut0-i0-root0-canon0-bridge-guard] ok "
         "shared_identity=1 issuer_callers=1 owner0=1 collect0_single=1 "
-        "collect0_batch=1 token_conversion=0 canonical_test_factory=0"
+        "collect0_batch=1 completion=1 token_conversion=0 canonical_test_factory=0"
     )
     return 0
 

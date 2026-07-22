@@ -24,7 +24,8 @@ use crate::mir::builder::resolved_lowering::{
     VerifiedUnpublishedCallableDraftSetV1,
 };
 use crate::mir::builder::{
-    BuilderInvocationConfigV1, CanonicalPhysicalCollectionErrorV1,
+    BuilderInvocationConfigV1, CanonicalCallableCapabilityWitnessV1,
+    CanonicalPhysicalCollectionErrorV1,
     CollectedCanonicalCallablePhysicalV1, CollectedCanonicalSinglePhysicalV1,
     InvocationPhysicalStateV1, MirBuilder, ModuleBuilderInvocationSessionV1,
     ModuleLoweringShellErrorV1, RejectedCanonicalPhysicalCollectionV1,
@@ -176,6 +177,7 @@ pub(in crate::mir) struct CanonicalPhysicalInvocationV1<'a> {
     token: ModuleInvocationTokenV1,
     session: ModuleBuilderInvocationSessionV1,
     physical: InvocationPhysicalStateV1,
+    callable_capability: Option<CanonicalCallableCapabilityWitnessV1>,
     plan: ExactCanonicalPreflightPlanV1<'a>,
     continuation: CanonicalSourceContinuationV1<'a>,
 }
@@ -183,11 +185,17 @@ pub(in crate::mir) struct CanonicalPhysicalInvocationV1<'a> {
 #[derive(Debug)]
 pub(in crate::mir) struct RejectedCanonicalPhysicalOpenV1<'a> {
     package: SourceBoundCanonicalPackageV1<'a>,
-    error: ModuleLoweringShellErrorV1,
+    error: CanonicalPhysicalOpenErrorV1,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(in crate::mir) enum CanonicalPhysicalOpenErrorV1 {
+    Shell(ModuleLoweringShellErrorV1),
+    Capability(&'static str),
 }
 
 impl<'a> RejectedCanonicalPhysicalOpenV1<'a> {
-    pub(in crate::mir) fn error(&self) -> &ModuleLoweringShellErrorV1 {
+    pub(in crate::mir) fn error(&self) -> &CanonicalPhysicalOpenErrorV1 {
         &self.error
     }
 }
@@ -196,6 +204,7 @@ impl<'a> RejectedCanonicalPhysicalOpenV1<'a> {
 pub(in crate::mir) struct LoweredCanonicalPhysicalInvocationV1<'a> {
     session: ModuleBuilderInvocationSessionV1,
     physical: InvocationPhysicalStateV1,
+    callable_capability: Option<CanonicalCallableCapabilityWitnessV1>,
     lowered: LoweredCanonicalPlanV1<'a>,
 }
 
@@ -203,6 +212,7 @@ pub(in crate::mir) struct LoweredCanonicalPhysicalInvocationV1<'a> {
 pub(in crate::mir) struct RejectedCanonicalPhysicalLoweringV1<'a> {
     session: ModuleBuilderInvocationSessionV1,
     physical: InvocationPhysicalStateV1,
+    callable_capability: Option<CanonicalCallableCapabilityWitnessV1>,
     rejected: RejectedCanonicalLoweringV1<'a>,
 }
 
@@ -218,6 +228,7 @@ pub(in crate::mir) enum CollectedCanonicalPhysicalInvocationV1<'a> {
         token: ModuleInvocationTokenV1,
         continuation: CanonicalSourceContinuationV1<'a>,
         session: ModuleBuilderInvocationSessionV1,
+        capability: CanonicalCallableCapabilityWitnessV1,
         physical: CollectedCanonicalCallablePhysicalV1,
     },
 }
@@ -227,6 +238,7 @@ pub(in crate::mir) struct RejectedCanonicalPhysicalCollectionInvocationV1<'a> {
     token: ModuleInvocationTokenV1,
     continuation: CanonicalSourceContinuationV1<'a>,
     session: ModuleBuilderInvocationSessionV1,
+    callable_capability: Option<CanonicalCallableCapabilityWitnessV1>,
     physical: RejectedCanonicalPhysicalCollectionV1,
 }
 
@@ -238,6 +250,7 @@ impl<'a> CanonicalPhysicalInvocationV1<'a> {
             token,
             mut session,
             physical,
+            callable_capability,
             plan,
             continuation,
         } = self;
@@ -250,11 +263,13 @@ impl<'a> CanonicalPhysicalInvocationV1<'a> {
             Ok(lowered) => Ok(LoweredCanonicalPhysicalInvocationV1 {
                 session,
                 physical,
+                callable_capability,
                 lowered,
             }),
             Err(rejected) => Err(RejectedCanonicalPhysicalLoweringV1 {
                 session,
                 physical,
+                callable_capability,
                 rejected,
             }),
         }
@@ -294,6 +309,7 @@ impl<'a> LoweredCanonicalPhysicalInvocationV1<'a> {
         let Self {
             session,
             physical,
+            callable_capability,
             lowered,
         } = self;
         match lowered {
@@ -312,6 +328,7 @@ impl<'a> LoweredCanonicalPhysicalInvocationV1<'a> {
                     token,
                     continuation: CanonicalSourceContinuationV1::Single { header, policy },
                     session,
+                    callable_capability: None,
                     physical: rejected,
                 }),
             },
@@ -319,20 +336,33 @@ impl<'a> LoweredCanonicalPhysicalInvocationV1<'a> {
                 token,
                 continuation: CanonicalSourceContinuationV1::Callable { source, policy },
                 drafts,
-            } => match physical.collect_callable_batch(drafts) {
+            } => {
+                let Some(capability) = callable_capability else {
+                    return Err(RejectedCanonicalPhysicalCollectionInvocationV1 {
+                        token,
+                        continuation: CanonicalSourceContinuationV1::Callable { source, policy },
+                        session,
+                        callable_capability: None,
+                        physical: physical.reject_capability_missing(),
+                    });
+                };
+                match physical.collect_callable_batch(drafts) {
                 Ok(physical) => Ok(CollectedCanonicalPhysicalInvocationV1::Callable {
                     token,
                     continuation: CanonicalSourceContinuationV1::Callable { source, policy },
                     session,
+                    capability,
                     physical,
                 }),
                 Err(rejected) => Err(RejectedCanonicalPhysicalCollectionInvocationV1 {
                     token,
                     continuation: CanonicalSourceContinuationV1::Callable { source, policy },
                     session,
+                    callable_capability: Some(capability),
                     physical: rejected,
                 }),
-            },
+                }
+            }
             LoweredCanonicalPlanV1::Single { continuation, .. }
             | LoweredCanonicalPlanV1::Callable { continuation, .. } => {
                 unreachable!("source-bound plan and continuation family diverged")
@@ -387,7 +417,7 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
             plan,
             continuation,
         } = self;
-        let physical = match InvocationPhysicalStateV1::from_token(&token, module_name) {
+        let mut physical = match InvocationPhysicalStateV1::from_token(&token, module_name) {
             Ok(physical) => physical,
             Err(error) => {
                 return Err(RejectedCanonicalPhysicalOpenV1 {
@@ -396,9 +426,30 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
                         plan,
                         continuation,
                     },
-                    error,
+                    error: CanonicalPhysicalOpenErrorV1::Shell(error),
                 })
             }
+        };
+        let callable_capability = match token.family() {
+            ModuleInvocationFamilyV1::BindingSsaAcyclic
+            | ModuleInvocationFamilyV1::BindingSsaRecursive => {
+                match physical.install_callable_capability(token.family()) {
+                    Ok(witness) => Some(witness),
+                    Err(error) => {
+                        return Err(RejectedCanonicalPhysicalOpenV1 {
+                            package: Self {
+                                token,
+                                plan,
+                                continuation,
+                            },
+                            error: CanonicalPhysicalOpenErrorV1::Capability(error),
+                        })
+                    }
+                }
+            }
+            ModuleInvocationFamilyV1::CanonicalAPlus
+            | ModuleInvocationFamilyV1::BindingSsaTrivial
+            | ModuleInvocationFamilyV1::Raw => None,
         };
         let session = ModuleBuilderInvocationSessionV1::open_for_token(&token, current, config);
         debug_assert_eq!(session.brand(), token.brand());
@@ -407,6 +458,7 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
             token,
             session,
             physical,
+            callable_capability,
             plan,
             continuation,
         })
@@ -642,151 +694,5 @@ impl InvocationIdentityIssuerV1 {
             ordinal,
             family_for_route(route),
         ))
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl, Span};
-
-    fn literal(value: i64) -> ASTNode {
-        ASTNode::Literal {
-            value: LiteralValue::Integer(value),
-            span: Span::unknown(),
-        }
-    }
-
-    fn function(name: &str) -> ASTNode {
-        ASTNode::FunctionDeclaration {
-            name: name.into(),
-            params: Vec::new(),
-            param_decls: Vec::new(),
-            return_type_name: None,
-            body: vec![ASTNode::Return {
-                value: Some(Box::new(literal(1))),
-                span: Span::unknown(),
-            }],
-            uses: Vec::new(),
-            contracts: Vec::new(),
-            is_static: true,
-            is_override: false,
-            attrs: DeclarationAttrs::default(),
-            span: Span::unknown(),
-        }
-    }
-
-    fn callable_function(name: &str, value: ASTNode) -> ASTNode {
-        ASTNode::FunctionDeclaration {
-            name: name.into(),
-            params: vec!["x".into()],
-            param_decls: vec![ParamDecl {
-                name: "x".into(),
-                declared_type_name: Some("i64".into()),
-            }],
-            return_type_name: Some("i64".into()),
-            body: vec![ASTNode::Return {
-                value: Some(Box::new(value)),
-                span: Span::unknown(),
-            }],
-            uses: Vec::new(),
-            contracts: Vec::new(),
-            is_static: true,
-            is_override: false,
-            attrs: DeclarationAttrs::default(),
-            span: Span::unknown(),
-        }
-    }
-
-    fn variable(name: &str) -> ASTNode {
-        ASTNode::Variable {
-            name: name.into(),
-            span: Span::unknown(),
-        }
-    }
-
-    fn call(name: &str, argument: ASTNode) -> ASTNode {
-        ASTNode::FunctionCall {
-            name: name.into(),
-            arguments: vec![argument],
-            span: Span::unknown(),
-        }
-    }
-
-    #[test]
-    fn canonical_source_binding_owner0_uses_one_physical_owner() {
-        let unit = super::super::VerifiedResolvedSourceUnitV1::resolve_function(function("owner0"))
-            .unwrap();
-        let plan = super::super::CanonicalLoweringPreflightV1::verify(&unit).unwrap();
-        let exact = ExactCanonicalPreflightPlanV1::from_first_family(plan);
-        let mut compiler = super::super::MirCompiler::new();
-        let package = compiler.bind_canonical_source(exact).unwrap();
-        let package_brand = package.brand();
-        let active = compiler.begin_canonical_invocation(package, Some("owner0.hako"), "owner0".to_owned()).unwrap();
-        assert_eq!(active.brand(), package_brand);
-
-        let lowered = active.lower().unwrap();
-        assert_eq!(lowered.brand(), package_brand);
-        assert_eq!(lowered.session_brand(), package_brand);
-        assert_eq!(lowered.physical_brand(), package_brand);
-        assert!(matches!(
-            lowered.lowered(),
-            LoweredCanonicalPlanV1::Single { .. }
-        ));
-        assert!(compiler.builder.current_module.is_none());
-    }
-
-    #[test]
-    fn canonical_source_binding_collect0_retains_same_brand_and_receipt() {
-        let unit =
-            super::super::VerifiedResolvedSourceUnitV1::resolve_function(function("collect0"))
-                .unwrap();
-        let plan = super::super::CanonicalLoweringPreflightV1::verify(&unit).unwrap();
-        let exact = ExactCanonicalPreflightPlanV1::from_first_family(plan);
-        let mut compiler = super::super::MirCompiler::new();
-        let package = compiler.bind_canonical_source(exact).unwrap();
-        let package_brand = package.brand();
-        let active = compiler.begin_canonical_invocation(package, Some("collect0.hako"), "collect0".to_owned()).unwrap();
-
-        let lowered = active.lower().unwrap();
-        let collected = lowered.collect().unwrap();
-        assert_eq!(collected.brand(), package_brand);
-        assert_eq!(collected.session_brand(), package_brand);
-        assert_eq!(collected.physical_brand(), package_brand);
-        assert_eq!(collected.receipt_brand(), package_brand);
-        assert!(compiler.builder.current_module.is_none());
-    }
-
-    #[test]
-    fn canonical_source_binding_collect0_projects_callable_catalog_atomically() {
-        let program = super::super::VerifiedResolvedCallableProgramV1::resolve(
-            ASTNode::Program {
-                statements: vec![
-                    callable_function("caller", call("callee", variable("x"))),
-                    callable_function("callee", variable("x")),
-                ],
-                span: Span::unknown(),
-            },
-        )
-        .unwrap();
-        let plan =
-            super::super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
-                program.module(),
-            )
-            .unwrap();
-        let exact = ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan);
-        let mut compiler = super::super::MirCompiler::new();
-        let package = compiler.bind_canonical_source(exact).unwrap();
-        let package_brand = package.brand();
-        let active = compiler
-            .begin_canonical_invocation(package, Some("batch0.hako"), "batch0".to_owned())
-            .unwrap();
-        let lowered = active.lower().unwrap();
-        let collected = lowered.collect().unwrap();
-        assert_eq!(collected.brand(), package_brand);
-        assert_eq!(collected.session_brand(), package_brand);
-        assert_eq!(collected.physical_brand(), package_brand);
-        assert_eq!(collected.receipt_brand(), package_brand);
-        assert!(compiler.builder.current_module.is_none());
     }
 }

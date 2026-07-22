@@ -19,6 +19,8 @@ pub(in crate::mir) mod callable_graph_inventory;
 #[allow(dead_code)]
 pub(in crate::mir) mod callable_scc_partition;
 pub(in crate::mir) mod capability;
+#[allow(dead_code)]
+pub(in crate::mir) mod canonical_physical_completion;
 pub(in crate::mir) mod function_input;
 #[allow(dead_code)]
 pub(in crate::mir) mod located;
@@ -54,6 +56,10 @@ mod module_session_borrow_p0_tests;
 mod recursive_callable_module_activation_tests;
 #[cfg(test)]
 mod resolved_callable_module_preflight_tests;
+#[cfg(test)]
+mod source_bound_package_p0;
+#[cfg(test)]
+mod canonical_physical_completion_p0;
 #[cfg(test)]
 mod resolved_callable_module_tests;
 #[cfg(test)]
