@@ -21,6 +21,11 @@ OLD_CARD = ROOT / (
     "mirbuilder-headerport-i0-hdr0-p0-execution-task-2026-07-22.md"
 )
 SRC = ROOT / "src"
+IDENTITY_ALLOWED = {
+    pathlib.Path("src/mir/builder.rs"),
+    pathlib.Path("src/mir/builder/module_invocation_identity.rs"),
+    pathlib.Path("src/mir/builder/module_invocation_identity_p0.rs"),
+}
 
 
 def require(text: str, fragment: str, label: str) -> None:
@@ -39,7 +44,7 @@ def main() -> int:
             raise AssertionError(f"T-prime-r1 file must stay below 800 lines: {path}")
 
     require(state, "CUT0-I0-CONSULT0 is closed with Candidate T-prime-r1", "state decision")
-    require(state, "CUT0-I0-ID0-S0 is next", "state next row")
+    require(state, "CUT0-I0-ID0-P0 is next", "state next row")
     require(
         state,
         'latest_card = "cut0-i0-t-prime-r1-execution-task-2026-07-22"',
@@ -59,6 +64,8 @@ def main() -> int:
         ("PreparedModuleExternalCommitV1", "one-shot external commit"),
         ("DuringCleanup { primary, cleanup }", "primary plus cleanup"),
         ("later sibling descent = 0", "outer child-failure abort"),
+        ("CUT0-I0-ID0-S0 — closed", "identity row closeout"),
+        ("CUT0-I0-ID0-P0", "next identity row"),
         ("CUT0-I0-P0-R1", "real-authority proof row"),
         ("Production consumer count remains zero", "pre-cutover production zero"),
     ):
@@ -73,14 +80,14 @@ def main() -> int:
     for path in SRC.rglob("*.rs"):
         text = path.read_text()
         for fragment in forbidden:
-            if fragment in text:
+            if fragment in text and path.relative_to(ROOT) not in IDENTITY_ALLOWED:
                 consumers.append(f"{path.relative_to(ROOT)}:{fragment}")
     if consumers:
         raise AssertionError(
-            "T-prime-r1 source consumers before ID0-S0: " + ", ".join(consumers)
+            "T-prime-r1 source consumers before ID0-P0: " + ", ".join(consumers)
         )
 
-    print("[cut0-i0-t-prime-r1-guard] ok decision=locked next=ID0-S0 production_consumers=0")
+    print("[cut0-i0-t-prime-r1-guard] ok decision=locked next=ID0-P0 production_consumers=0")
     return 0
 
 

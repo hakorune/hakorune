@@ -1,6 +1,6 @@
 # CUT0-I0 T-prime-r1 Execution Task
 
-Status: **Active — decision locked; CUT0-I0-ID0-S0 next**
+Status: **Active — CUT0-I0-ID0-S0 closed; CUT0-I0-ID0-P0 next**
 Date: 2026-07-22
 Decision: **Candidate T-prime-r1 selected**
 Scope: build one invocation-branded module transaction, then perform one
@@ -286,7 +286,7 @@ production behavior changes. This docs-only row owns
 `cut0_i0_t_prime_r1_guard.py`, which freezes the decision vocabulary, next
 pointer, production-consumer zero, and the 800-line ceiling.
 
-### CUT0-I0-ID0-S0 — identity and token vocabulary
+### CUT0-I0-ID0-S0 — closed
 
 Add private, non-Clone invocation identity and the five-family sealed token.
 Mint both only through one test-only/disconnected preflight factory. Add
@@ -302,6 +302,17 @@ caller-selectable route flags = 0
 production token consumers = 0
 source/check files < 800 lines
 ```
+
+Closeout evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q module_invocation_identity_p0 --lib = 4 passed
+python3 tools/checks/lib/cut0_i0_id0_s0_guard.py = green
+python3 tools/checks/lib/cut0_i0_t_prime_r1_guard.py = green
+```
+
+The production vocabulary has zero shell, collector, receipt, compiler, or
+publication consumers. The next disconnected row is `CUT0-I0-ID0-P0`.
 
 ### CUT0-I0-ID0-P0 — brand the complete owner chain
 

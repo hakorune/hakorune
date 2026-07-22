@@ -91,6 +91,10 @@ mod module_invocation_drain_s0_tests; // CUT0-S0 same-state drain fixtures
 #[allow(dead_code)]
 mod module_invocation_route_matrix; // HEADERPORT0 I0-SHELL-I0-P0 disconnected matrix
 #[allow(dead_code)]
+mod module_invocation_identity; // CUT0-I0-ID0-S0 disconnected identity/token
+#[cfg(test)]
+mod module_invocation_identity_p0; // CUT0-I0-ID0-S0 fixtures
+#[allow(dead_code)]
 mod module_lowering_access_port; // HEADERPORT0 I0-ACCESS0-S0 disconnected vocabulary
 #[cfg(test)]
 mod module_lowering_borrow_root_p0; // HEADERPORT0 WIRING-I0-BORROW-P0-ROOT proof
