@@ -19,6 +19,12 @@ use super::capability::{
 };
 use super::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1;
 use super::resolved_callable_module::VerifiedResolvedCallableModuleV1;
+use crate::mir::builder::resolved_lowering::{
+    CallableModuleTransactionErrorV1, CanonicalResolvedBuildErrorV1,
+    VerifiedUnpublishedCallableDraftSetV1,
+};
+use crate::mir::builder::MirBuilder;
+use crate::mir::function::MirFunction;
 
 static NEXT_COMPILER_DOMAIN: AtomicU64 = AtomicU64::new(1);
 
@@ -84,7 +90,7 @@ impl std::error::Error for SourceBindingErrorV1 {}
 /// The four canonical preflight routes.  Raw remains on the closed RAW0
 /// chain and is intentionally not rewrapped by SOURCE-BIND0.
 #[derive(Debug)]
-pub(super) enum ExactCanonicalPreflightPlanV1<'a> {
+pub(in crate::mir) enum ExactCanonicalPreflightPlanV1<'a> {
     APlus(CanonicalCurrentAPlusPlanV1<'a>),
     BindingSsaTrivial(CanonicalTrivialBindingSsaPlanV1<'a>),
     BindingSsaAcyclic(VerifiedAcyclicCallableModulePlanV1<'a>),
@@ -116,7 +122,7 @@ pub(super) enum CanonicalRoutePolicyV1 {
 }
 
 #[derive(Debug)]
-enum CanonicalSourceContinuationV1<'a> {
+pub(in crate::mir) enum CanonicalSourceContinuationV1<'a> {
     Single {
         header: VerifiedResolvedOwnerHeaderV1,
         policy: CanonicalRoutePolicyV1,
@@ -128,7 +134,34 @@ enum CanonicalSourceContinuationV1<'a> {
 }
 
 #[derive(Debug)]
-pub(super) struct SourceBoundCanonicalPackageV1<'a> {
+pub(in crate::mir) enum CanonicalPlanLoweringErrorV1 {
+    Single(CanonicalResolvedBuildErrorV1),
+    Callable(CallableModuleTransactionErrorV1),
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct RejectedCanonicalLoweringV1<'a> {
+    token: CanonicalInvocationTokenV1,
+    continuation: CanonicalSourceContinuationV1<'a>,
+    error: CanonicalPlanLoweringErrorV1,
+}
+
+#[derive(Debug)]
+pub(in crate::mir) enum LoweredCanonicalPlanV1<'a> {
+    Single {
+        token: CanonicalInvocationTokenV1,
+        continuation: CanonicalSourceContinuationV1<'a>,
+        draft: MirFunction,
+    },
+    Callable {
+        token: CanonicalInvocationTokenV1,
+        continuation: CanonicalSourceContinuationV1<'a>,
+        drafts: VerifiedUnpublishedCallableDraftSetV1<'a>,
+    },
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct SourceBoundCanonicalPackageV1<'a> {
     token: CanonicalInvocationTokenV1,
     plan: ExactCanonicalPreflightPlanV1<'a>,
     continuation: CanonicalSourceContinuationV1<'a>,
@@ -205,6 +238,78 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
         self.token.brand()
     }
 
+    /// LOWER0's only package consumer.  The source-bound plan is moved into
+    /// the existing draft lowerers; no module finalization or publication is
+    /// reachable from this terminal.
+    pub(super) fn consume(
+        self,
+        builder: &mut MirBuilder,
+    ) -> Result<LoweredCanonicalPlanV1<'a>, RejectedCanonicalLoweringV1<'a>> {
+        let Self {
+            token,
+            plan,
+            continuation,
+        } = self;
+        match plan {
+            ExactCanonicalPreflightPlanV1::APlus(plan) => {
+                match builder.lower_resolved_function_draft(plan) {
+                    Ok(draft) => Ok(LoweredCanonicalPlanV1::Single {
+                        token,
+                        continuation,
+                        draft,
+                    }),
+                    Err(error) => Err(RejectedCanonicalLoweringV1 {
+                        token,
+                        continuation,
+                        error: CanonicalPlanLoweringErrorV1::Single(error),
+                    }),
+                }
+            }
+            ExactCanonicalPreflightPlanV1::BindingSsaTrivial(plan) => {
+                match builder.lower_resolved_trivial_function_draft(plan) {
+                    Ok(draft) => Ok(LoweredCanonicalPlanV1::Single {
+                        token,
+                        continuation,
+                        draft,
+                    }),
+                    Err(error) => Err(RejectedCanonicalLoweringV1 {
+                        token,
+                        continuation,
+                        error: CanonicalPlanLoweringErrorV1::Single(error),
+                    }),
+                }
+            }
+            ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan) => {
+                match builder.lower_acyclic_callable_drafts(plan) {
+                    Ok(drafts) => Ok(LoweredCanonicalPlanV1::Callable {
+                        token,
+                        continuation,
+                        drafts,
+                    }),
+                    Err(error) => Err(RejectedCanonicalLoweringV1 {
+                        token,
+                        continuation,
+                        error: CanonicalPlanLoweringErrorV1::Callable(error),
+                    }),
+                }
+            }
+            ExactCanonicalPreflightPlanV1::BindingSsaRecursive(plan) => {
+                match builder.lower_recursive_callable_drafts(plan) {
+                    Ok(drafts) => Ok(LoweredCanonicalPlanV1::Callable {
+                        token,
+                        continuation,
+                        drafts,
+                    }),
+                    Err(error) => Err(RejectedCanonicalLoweringV1 {
+                        token,
+                        continuation,
+                        error: CanonicalPlanLoweringErrorV1::Callable(error),
+                    }),
+                }
+            }
+        }
+    }
+
     #[cfg(test)]
     fn has_plan_and_continuation(&self) -> bool {
         match (&self.plan, &self.continuation) {
@@ -224,7 +329,7 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
 }
 
 #[derive(Debug)]
-pub(super) struct RejectedCanonicalSourceBindingV1<'a> {
+pub(in crate::mir) struct RejectedCanonicalSourceBindingV1<'a> {
     plan: ExactCanonicalPreflightPlanV1<'a>,
     error: SourceBindingErrorV1,
 }
@@ -363,5 +468,31 @@ mod tests {
             rejected.plan(),
             ExactCanonicalPreflightPlanV1::BindingSsaTrivial(_)
         ));
+    }
+
+    #[test]
+    fn package_consume_moves_trivial_plan_into_a_draft_lowerer() {
+        let unit = super::super::VerifiedResolvedSourceUnitV1::resolve_function(function("lowered"))
+            .unwrap();
+        let plan = super::super::CanonicalLoweringPreflightV1::verify(&unit).unwrap();
+        let exact = ExactCanonicalPreflightPlanV1::from_first_family(plan);
+        let mut issuer = InvocationIdentityIssuerV1::new();
+        let package = SourceBoundCanonicalPackageV1::bind(&mut issuer, exact).unwrap();
+        let mut builder = MirBuilder::new();
+        let lowered = package.consume(&mut builder).unwrap();
+        assert!(matches!(lowered, LoweredCanonicalPlanV1::Single { .. }));
+    }
+
+    #[test]
+    fn compiler_lower_terminal_keeps_live_builder_outside_candidate_session() {
+        let unit = super::super::VerifiedResolvedSourceUnitV1::resolve_function(function("session"))
+            .unwrap();
+        let plan = super::super::CanonicalLoweringPreflightV1::verify(&unit).unwrap();
+        let exact = ExactCanonicalPreflightPlanV1::from_first_family(plan);
+        let mut compiler = super::super::MirCompiler::new();
+        let package = compiler.bind_canonical_source(exact).unwrap();
+        let candidate = compiler.lower_canonical_source(package, Some("lower0.hako")).unwrap();
+        assert!(matches!(candidate.lowered, LoweredCanonicalPlanV1::Single { .. }));
+        assert!(compiler.builder.current_module.is_none());
     }
 }

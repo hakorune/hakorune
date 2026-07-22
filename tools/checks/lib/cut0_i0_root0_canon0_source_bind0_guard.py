@@ -37,6 +37,7 @@ def production_rust_files() -> list[pathlib.Path]:
 
 def main() -> int:
     package = PACKAGE.read_text()
+    package_production = package.split("#[cfg(test)]", 1)[0]
     compiler = COMPILER.read_text()
     capability = CAPABILITY.read_text()
     header = HEADER.read_text()
@@ -47,8 +48,8 @@ def main() -> int:
         if len(path.read_text().splitlines()) >= 800:
             raise AssertionError(f"SOURCE-BIND0 file must remain below 800 lines: {path}")
 
-    require(state, "LOWER0-20260722", "successor blocker")
-    require(state, "SOURCE-BIND0 closes", "SOURCE-BIND0 closeout")
+    require(state, "RECEIPT0-20260722", "successor blocker")
+    require(task, "Status: **Closed — SOURCE-BIND0", "SOURCE-BIND0 closed card")
     require(task, "SOURCE-BIND0 implementation and evidence gate passed", "SOURCE-BIND0 closeout")
     require(task, "LOWER0", "later lowering row")
     require(task, "production lowering/drain/finalizer/external commit = 0", "stop line")
@@ -81,7 +82,7 @@ def main() -> int:
         ("prepare(token", "caller token package"),
         ("current_module", "ambient source reacquisition"),
     ):
-        if forbidden in package:
+        if forbidden in package_production:
             raise AssertionError(f"forbidden {label}: {forbidden}")
 
     producer_calls = []

@@ -63,8 +63,9 @@ mod source_view_tests;
 
 use capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
 use source_bound_package::{
-    ExactCanonicalPreflightPlanV1, InvocationIdentityIssuerV1,
-    RejectedCanonicalSourceBindingV1, SourceBoundCanonicalPackageV1,
+    ExactCanonicalPreflightPlanV1, InvocationIdentityIssuerV1, LoweredCanonicalPlanV1,
+    RejectedCanonicalLoweringV1, RejectedCanonicalSourceBindingV1,
+    SourceBoundCanonicalPackageV1,
 };
 pub use lowering_input::{
     CanonicalLoweringErrorV1, LegacyModuleLoweringInputV1, ResolvedModuleLoweringInputV1,
@@ -158,6 +159,13 @@ pub struct MirCompiler {
     invocation_identity: InvocationIdentityIssuerV1,
 }
 
+/// Unpublished LOWER0 result.  The candidate session stays owned until a
+/// later collector/publication row consumes this product.
+pub(in crate::mir) struct CanonicalLoweringCandidateV1<'a> {
+    session: CanonicalModuleLoweringSessionV1,
+    lowered: LoweredCanonicalPlanV1<'a>,
+}
+
 impl MirCompiler {
     /// Create a new MIR compiler
     pub fn new() -> Self {
@@ -187,6 +195,20 @@ impl MirCompiler {
         plan: ExactCanonicalPreflightPlanV1<'a>,
     ) -> Result<SourceBoundCanonicalPackageV1<'a>, RejectedCanonicalSourceBindingV1<'a>> {
         SourceBoundCanonicalPackageV1::bind(&mut self.invocation_identity, plan)
+    }
+
+    /// LOWER0's disconnected plan-consuming terminal.  It opens only the
+    /// candidate session, moves the package into a draft lowerer, and keeps
+    /// the live Builder untouched on every failure.
+    pub(in crate::mir) fn lower_canonical_source<'a>(
+        &mut self,
+        package: SourceBoundCanonicalPackageV1<'a>,
+        source_file: Option<&str>,
+    ) -> Result<CanonicalLoweringCandidateV1<'a>, RejectedCanonicalLoweringV1<'a>> {
+        let mut session = CanonicalModuleLoweringSessionV1::open(&self.builder);
+        set_candidate_source_hint(session.builder_mut(), source_file);
+        let lowered = package.consume(session.builder_mut())?;
+        Ok(CanonicalLoweringCandidateV1 { session, lowered })
     }
 
     /// Phase 288 P2: Set REPL mode flag

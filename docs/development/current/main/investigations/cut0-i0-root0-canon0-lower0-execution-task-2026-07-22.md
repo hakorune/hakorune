@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-CANON0 LOWER0 実行タスク
 
-Status: **Active — SOURCE-BIND0 closed; real plan-consuming lowering next**
+Status: **Closed — LOWER0 draft-only plan consumer and evidence gate passed; RECEIPT0 next**
 
 Related:
 
@@ -82,6 +82,7 @@ git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 RUSTFLAGS='-Awarnings' cargo check -q --lib
 python3 tools/checks/lib/cut0_i0_root0_canon0_source_bind0_guard.py
+python3 tools/checks/lib/cut0_i0_root0_canon0_lower0_guard.py
 ```
 
 LOWER0専用のfocused fixtureは、成功、plan lowering failure、package drop後のlive
@@ -93,3 +94,26 @@ Builder不変を別ファイルで固定する。RECEIPT0/CANON-FIXTURE0のrecei
 LOWER0完了は「planが実lowererへ一度だけmoveされた」ことだけを意味する。collector
 receipt、root completion、recursive marker、drain、finalizer、external commit、
 atomic CUT0 activationは後続rowのまま停止する。
+
+## Implementation result
+
+`MirCompiler::lower_canonical_source` now consumes the package by value and
+returns an unpublished `CanonicalLoweringCandidateV1`. The package dispatches
+all four canonical routes to draft-only seams: A+ uses the resolved function
+draft session, trivial uses the existing trivial draft lowerer, and acyclic /
+recursive use unpublished callable draft sets. The live Builder is changed
+only through the disconnected candidate session; no module preparation,
+finalization, receipt, publication, drain, retry, or fallback is connected.
+
+Evidence:
+
+```text
+source-bound focused tests: 6 passed
+RUSTFLAGS='-Awarnings' cargo check -q --lib: passed
+source-bind0 guard: passed
+lower0 guard: passed
+git diff --check: passed
+```
+
+The next executable row is `RECEIPT0`: make collector and exact receipt one
+by-value product and retain that receipt in the canonical completion witness.

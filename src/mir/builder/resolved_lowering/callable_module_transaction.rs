@@ -49,7 +49,8 @@ pub(in crate::mir) enum CallableModuleTransactionErrorV1 {
 }
 
 /// Complete, individually verified drafts which are still absent from MIR.
-pub(super) struct VerifiedUnpublishedCallableDraftSetV1<'a> {
+#[derive(Debug)]
+pub(in crate::mir) struct VerifiedUnpublishedCallableDraftSetV1<'a> {
     source: &'a VerifiedResolvedCallableModuleV1,
     drafts_by_key: BTreeMap<CanonicalCallableKeyV1, MirFunction>,
 }
@@ -238,6 +239,28 @@ impl<'a> VerifiedUnpublishedCallableDraftSetV1<'a> {
 }
 
 impl MirBuilder {
+    /// LOWER0 draft-only callable consumer.  It lowers every verified plan
+    /// but does not prepare a module, install a recursive marker, or publish.
+    pub(in crate::mir) fn lower_acyclic_callable_drafts<'a>(
+        &mut self,
+        plan: VerifiedAcyclicCallableModulePlanV1<'a>,
+    ) -> Result<VerifiedUnpublishedCallableDraftSetV1<'a>, CallableModuleTransactionErrorV1> {
+        VerifiedUnpublishedCallableDraftSetV1::collect_acyclic_with(plan, |_key, plan| {
+            self.lower_resolved_trivial_function_draft(plan)
+        })
+    }
+
+    /// LOWER0 draft-only recursive consumer.  Capability installation stays
+    /// with the later RECURSIVE0 row.
+    pub(in crate::mir) fn lower_recursive_callable_drafts<'a>(
+        &mut self,
+        plan: VerifiedRecursiveCallableModulePlanV1<'a>,
+    ) -> Result<VerifiedUnpublishedCallableDraftSetV1<'a>, CallableModuleTransactionErrorV1> {
+        VerifiedUnpublishedCallableDraftSetV1::collect_recursive_with(plan, |_key, plan| {
+            self.lower_resolved_trivial_function_draft(plan)
+        })
+    }
+
     pub(in crate::mir) fn build_acyclic_callable_module_candidate(
         &mut self,
         plan: VerifiedAcyclicCallableModulePlanV1<'_>,

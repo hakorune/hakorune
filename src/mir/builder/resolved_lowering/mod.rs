@@ -18,6 +18,10 @@ mod ownership;
 mod semantic_stack;
 mod trivial_ssa;
 
+pub(in crate::mir) use callable_module_transaction::{
+    CallableModuleTransactionErrorV1, VerifiedUnpublishedCallableDraftSetV1,
+};
+
 #[cfg(test)]
 mod block_expr_tests;
 #[cfg(test)]
@@ -90,8 +94,28 @@ impl MirBuilder {
         &mut self,
         plan: CanonicalCurrentAPlusPlanV1<'_>,
     ) -> Result<MirModule, CanonicalResolvedBuildErrorV1> {
-        let (input, flow, completion, block_expr_count) = plan.into_parts();
         self.prepare_module()?;
+        let draft = self.lower_resolved_function_draft(plan)?;
+        self.current_module
+            .as_mut()
+            .expect("prepare_module installs the candidate module")
+            .try_add_function(draft)
+            .map_err(
+                |error| CanonicalResolvedBuildErrorV1::DuplicateFunctionPublication {
+                    function_name: error.function_name,
+                },
+            )?;
+        let entry_result = crate::mir::builder::emission::constant::emit_void(self)?;
+        Ok(self.finalize_module(entry_result)?)
+    }
+
+    /// LOWER0 draft-only A+ consumer.  The plan is moved into the canonical
+    /// lowerer and no module entry/finalization/publication is performed.
+    pub(in crate::mir) fn lower_resolved_function_draft(
+        &mut self,
+        plan: CanonicalCurrentAPlusPlanV1<'_>,
+    ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
+        let (input, flow, completion, block_expr_count) = plan.into_parts();
         let crate::ast::ASTNode::FunctionDeclaration {
             name,
             params,
@@ -106,7 +130,7 @@ impl MirBuilder {
         };
         let function_name = format!("{}/{}", name, params.len());
         let session_name = function_name.clone();
-        self.with_resolved_function_lowering_session(&session_name, |builder| {
+        let draft = self.with_resolved_function_draft_session(&session_name, |builder| {
             builder
                 .function_state
                 .resolved_binding_state
@@ -136,9 +160,7 @@ impl MirBuilder {
             .lower()?;
             finalize_ready_function_completion(builder, ready)
         })?;
-
-        let entry_result = crate::mir::builder::emission::constant::emit_void(self)?;
-        Ok(self.finalize_module(entry_result)?)
+        Ok(draft)
     }
 
     pub(in crate::mir) fn build_resolved_trivial_function_module(
@@ -161,7 +183,7 @@ impl MirBuilder {
         Ok(self.finalize_module(entry_result)?)
     }
 
-    pub(super) fn lower_resolved_trivial_function_draft(
+    pub(in crate::mir) fn lower_resolved_trivial_function_draft(
         &mut self,
         plan: CanonicalTrivialBindingSsaPlanV1<'_>,
     ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
