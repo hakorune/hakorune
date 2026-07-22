@@ -77,7 +77,6 @@ pub(in crate::mir::builder) enum RouteOwnedInvocationInventoryV2 {
 
 #[derive(Debug)]
 pub(in crate::mir::builder) struct RouteOwnedInventoryPolicyV2 {
-    family: InvocationRootFamilyV1,
     matrix_rows: Box<[InvocationRouteMatrixRowV1]>,
     source_symbols: ExactInvocationSourceSymbolsV2,
     policy: ModuleInvocationPolicyV1,
@@ -121,7 +120,7 @@ impl RouteOwnedInvocationInventoryV2 {
 
 impl RouteOwnedInventoryPolicyV2 {
     pub(in crate::mir::builder) const fn family(&self) -> InvocationRootFamilyV1 {
-        self.family
+        self.policy.family()
     }
 
     pub(in crate::mir::builder) fn matrix_rows(&self) -> &[InvocationRouteMatrixRowV1] {
@@ -179,7 +178,6 @@ fn seal_policy(
         return Err(RouteOwnedInventorySealErrorV2::RouteMatrixFamilyMissing { family });
     }
     Ok(RouteOwnedInventoryPolicyV2 {
-        family,
         matrix_rows: matrix_rows.into_boxed_slice(),
         source_symbols,
         policy,
