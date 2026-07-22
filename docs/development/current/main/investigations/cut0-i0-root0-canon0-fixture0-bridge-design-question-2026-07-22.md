@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-CANON0 CANON-FIXTURE0 / CANON-BRIDGE0 設計相談
 
-Status: **Design Stop — decision required before implementation**
+Status: **Closed — Candidate CB-prime selected; execution task next**
 
 Related:
 
@@ -148,3 +148,36 @@ synthetic-root branchの存在 = reachable canonical rejectionではない
 
 相談が閉じるまで、canonical production ingress、capture、drain、finalizer、
 external commit、fallback、retryはすべて0のままにする。
+
+## Decision lock
+
+Candidate CB-prime is selected:
+
+```text
+Q1 bridge owner       = Compiler-owned one-shot bridge
+Q2 identity           = one shared identity kernel; token conversion forbidden
+Q3 lowering handoff  = open the physical owner first and lower in that session
+Q4 synthetic identity = canonical typed admission facade
+Q5 fixture scope     = aggregate fixture only after the bridge rows close
+```
+
+The compiler remains the sole identity issuer. The shared kernel contains the
+process-scoped compiler domain and compiler-local invocation ordinal, while
+the non-Clone token remains owned through completion and drain. No ordinal
+copy, compiler-token-to-builder-token conversion, post-hoc rebrand, or test
+factory token is permitted on the new path.
+
+The implementation order is fixed:
+
+```text
+CANON-BRIDGE0-IDKERNEL
+  -> CANON-BRIDGE0-OWNER0
+  -> CANON-BRIDGE0-COLLECT0
+  -> CANON-FIXTURE0
+  -> DRAIN0
+```
+
+The active execution task is
+`cut0-i0-root0-canon0-bridge-execution-task-2026-07-23.md`. Until its first
+row closes, canonical production ingress, drain, finalizer, external commit,
+fallback, and retry remain zero.
