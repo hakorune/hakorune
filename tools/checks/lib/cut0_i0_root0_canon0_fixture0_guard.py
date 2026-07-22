@@ -63,6 +63,11 @@ def require(text: str, fragment: str, label: str) -> None:
         raise AssertionError(f"missing {label}: {fragment!r}")
 
 
+def require_any(text: str, fragments: tuple[str, ...], label: str) -> None:
+    if not any(fragment in text for fragment in fragments):
+        raise AssertionError(f"missing {label}: {fragments!r}")
+
+
 def production_rust_files() -> list[pathlib.Path]:
     """Return implementation files, excluding focused test modules."""
 
@@ -112,14 +117,24 @@ def main() -> int:
                 f"{path.relative_to(ROOT)}"
             )
 
-    require(
+    require_any(
         state,
-        "CANON-FIXTURE0-S0/P0/C0/G0 is taskized and active",
-        "active aggregate fixture row",
+        (
+            "CANON-FIXTURE0-S0/P0/C0/G0 is taskized and active",
+            "CANON-FIXTURE0-S0/P0/C0/G0 is closed",
+        ),
+        "aggregate fixture row active or closed",
     )
     require(task, "CANON-FIXTURE0", "bridge lane fixture row")
     require(task, "DRAIN0", "fixture stop line")
-    require(fixture_task, "Status: **Active — CANON-FIXTURE0-S0", "fixture task status")
+    require_any(
+        fixture_task,
+        (
+            "Status: **Active — CANON-FIXTURE0-S0",
+            "Status: **Closed — CANON-FIXTURE0",
+        ),
+        "fixture task status",
+    )
     require(fixture_task, "CANON-FIXTURE0-G0", "fixture guard row")
     require(
         compiler_mod,
