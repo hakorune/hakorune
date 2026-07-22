@@ -25,8 +25,37 @@ impl ModuleInvocationIdV1 {
         self == other
     }
 
+    /// A copyable proof for disconnected owners. The non-Clone ID itself
+    /// remains owned by the source token; later products carry this opaque
+    /// brand instead of duplicating the owner.
+    pub(in crate::mir::builder) fn brand(&self) -> ModuleInvocationBrandV1 {
+        ModuleInvocationBrandV1 {
+            ordinal: self.ordinal,
+            _seal: ModuleInvocationBrandSealV1,
+        }
+    }
+
     #[cfg(test)]
     pub(in crate::mir::builder) fn ordinal(&self) -> u64 {
+        self.ordinal.get()
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub(in crate::mir::builder) struct ModuleInvocationBrandV1 {
+    ordinal: NonZeroU64,
+    _seal: ModuleInvocationBrandSealV1,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+struct ModuleInvocationBrandSealV1;
+
+impl ModuleInvocationBrandV1 {
+    pub(in crate::mir::builder) fn same(self, other: Self) -> bool {
+        self.ordinal == other.ordinal
+    }
+
+    pub(in crate::mir::builder) const fn ordinal(self) -> u64 {
         self.ordinal.get()
     }
 }
@@ -110,6 +139,10 @@ impl ModuleInvocationTokenV1 {
             | ModuleInvocationTokenKindV1::BindingSsaAcyclic { id, .. }
             | ModuleInvocationTokenKindV1::BindingSsaRecursive { id, .. } => id,
         }
+    }
+
+    pub(in crate::mir::builder) fn brand(&self) -> ModuleInvocationBrandV1 {
+        self.id().brand()
     }
 
     pub(in crate::mir::builder) const fn family(&self) -> ModuleInvocationFamilyV1 {

@@ -25,6 +25,8 @@ IDENTITY_ALLOWED = {
     pathlib.Path("src/mir/builder.rs"),
     pathlib.Path("src/mir/builder/module_invocation_identity.rs"),
     pathlib.Path("src/mir/builder/module_invocation_identity_p0.rs"),
+    pathlib.Path("src/mir/builder/module_invocation_owner_chain.rs"),
+    pathlib.Path("src/mir/builder/module_invocation_brand_p0.rs"),
 }
 
 
@@ -44,7 +46,7 @@ def main() -> int:
             raise AssertionError(f"T-prime-r1 file must stay below 800 lines: {path}")
 
     require(state, "CUT0-I0-CONSULT0 is closed with Candidate T-prime-r1", "state decision")
-    require(state, "CUT0-I0-ID0-P0 is next", "state next row")
+    require(state, "CUT0-I0-COLLECT0-S0 is next", "state next row")
     require(
         state,
         'latest_card = "cut0-i0-t-prime-r1-execution-task-2026-07-22"',
@@ -65,7 +67,8 @@ def main() -> int:
         ("DuringCleanup { primary, cleanup }", "primary plus cleanup"),
         ("later sibling descent = 0", "outer child-failure abort"),
         ("CUT0-I0-ID0-S0 — closed", "identity row closeout"),
-        ("CUT0-I0-ID0-P0", "next identity row"),
+        ("CUT0-I0-ID0-P0 — closed", "brand row closeout"),
+        ("CUT0-I0-COLLECT0-S0", "next collection row"),
         ("CUT0-I0-P0-R1", "real-authority proof row"),
         ("Production consumer count remains zero", "pre-cutover production zero"),
     ):
@@ -84,10 +87,10 @@ def main() -> int:
                 consumers.append(f"{path.relative_to(ROOT)}:{fragment}")
     if consumers:
         raise AssertionError(
-            "T-prime-r1 source consumers before ID0-P0: " + ", ".join(consumers)
+            "T-prime-r1 source consumers before COLLECT0-S0: " + ", ".join(consumers)
         )
 
-    print("[cut0-i0-t-prime-r1-guard] ok decision=locked next=ID0-P0 production_consumers=0")
+    print("[cut0-i0-t-prime-r1-guard] ok decision=locked next=COLLECT0-S0 production_consumers=0")
     return 0
 
 

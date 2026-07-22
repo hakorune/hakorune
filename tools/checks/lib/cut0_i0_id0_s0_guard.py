@@ -14,11 +14,13 @@ TASK = ROOT / (
 )
 IDENTITY = ROOT / "src/mir/builder/module_invocation_identity.rs"
 FIXTURES = ROOT / "src/mir/builder/module_invocation_identity_p0.rs"
+BRAND_CHAIN = ROOT / "src/mir/builder/module_invocation_owner_chain.rs"
 BUILDER = ROOT / "src/mir/builder.rs"
 SRC = ROOT / "src"
 ALLOWED = {
     IDENTITY.relative_to(ROOT),
     FIXTURES.relative_to(ROOT),
+    BRAND_CHAIN.relative_to(ROOT),
     BUILDER.relative_to(ROOT),
 }
 
@@ -40,7 +42,8 @@ def main() -> int:
             raise AssertionError(f"ID0-S0 file must remain below 800 lines: {path}")
 
     require(state, "CUT0-I0-ID0-S0 is closed as a disconnected identity/token proof", "row closeout")
-    require(state, "CUT0-I0-ID0-P0 is next", "next pointer")
+    require(state, "CUT0-I0-ID0-P0 is closed as a disconnected branded owner-chain proof", "row successor closeout")
+    require(state, "CUT0-I0-COLLECT0-S0 is next", "next pointer")
     require(task, "CUT0-I0-ID0-S0 — closed", "task row")
     require(task, "CUT0-I0-ID0-P0", "next task row")
     require(task, "foreign family/source construction", "foreign-source acceptance")

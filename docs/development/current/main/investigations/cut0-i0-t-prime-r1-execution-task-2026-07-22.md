@@ -1,6 +1,6 @@
 # CUT0-I0 T-prime-r1 Execution Task
 
-Status: **Active — CUT0-I0-ID0-S0 closed; CUT0-I0-ID0-P0 next**
+Status: **Active — CUT0-I0-ID0-S0 and CUT0-I0-ID0-P0 closed; CUT0-I0-COLLECT0-S0 next**
 Date: 2026-07-22
 Decision: **Candidate T-prime-r1 selected**
 Scope: build one invocation-branded module transaction, then perform one
@@ -312,9 +312,10 @@ python3 tools/checks/lib/cut0_i0_t_prime_r1_guard.py = green
 ```
 
 The production vocabulary has zero shell, collector, receipt, compiler, or
-publication consumers. The next disconnected row is `CUT0-I0-ID0-P0`.
+publication consumers. The next disconnected row is `CUT0-I0-ID0-P0`, now
+closed below.
 
-### CUT0-I0-ID0-P0 — brand the complete owner chain
+### CUT0-I0-ID0-P0 — closed: brand the complete owner chain
 
 Thread the ID through session, shell, collector, ledger,
 `InvocationDraftSourceProofV1`, every receipt, and all
@@ -332,6 +333,22 @@ foreign batch receipt -> pre-mutation error
 same-invocation happy path -> exact ID preserved to final candidate
 source proof + collector co-seal -> same invocation ID required
 ```
+
+Closeout evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q module_invocation_brand_p0 --lib = 4 passed
+python3 tools/checks/lib/cut0_i0_id0_p0_guard.py = green
+python3 tools/checks/lib/cut0_i0_id0_s0_guard.py = green
+python3 tools/checks/lib/cut0_i0_t_prime_r1_guard.py = green
+```
+
+The disconnected owner-chain vocabulary now carries one opaque brand through
+the Builder session, source proof, receipt, collector co-seal, complete,
+drained, finalized, and prepared external-commit products. Foreign collector
+or receipt pairing fails before co-seal mutation, and receipt family policy is
+checked against the sealed source family. No production consumer or ingress
+was added. The next disconnected row is `CUT0-I0-COLLECT0-S0`.
 
 ### CUT0-I0-COLLECT0-S0 — raw and canonical-single co-seal
 
