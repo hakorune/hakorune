@@ -1,6 +1,6 @@
 # HDR0-P0 Execution Task
 
-Status: **Active — CUT0-S0 closed; CUT0-P0 next**
+Status: **Active — CUT0-P0 closed; CUT0-I0 preflight next**
 Date: 2026-07-22
 Scope: complete HeaderPort reader replacement and prepare one atomic all-route CUT0
 
@@ -186,6 +186,63 @@ explicit header -> legacy retry  = 0
 post-drain current_module read   = 0
 failure retry                    = 0
 ```
+
+#### CUT0-I0 preflight boundary
+
+Before changing any production caller, freeze the owner census below as a
+design boundary. The disconnected adapter and its guards are not evidence
+that these owners can already be merged:
+
+```text
+raw module entry:
+  MirBuilder::build_module -> live builder/current_module lifecycle
+
+canonical resolved entries:
+  CanonicalModuleLoweringSessionV1 -> isolated candidate commit
+
+post-build publication:
+  finish_built_module -> verifier/optimizer/final publication
+
+disconnected CUT0 owner:
+  ModuleLoweringInvocationCandidateV1 -> route-owned shell/collector
+```
+
+`CUT0-I0` must first select one common external-commit capability and one
+production ingress owner that can consume both raw and canonical products.
+Until that boundary is specified and guarded, the following remain forbidden:
+
+- wiring only the raw `build_module` route;
+- wiring only a canonical resolved route;
+- adapting one route by rebuilding `shell + collector`;
+- treating `CanonicalModuleLoweringSessionV1` as proof of the new raw
+  capture/drain lifecycle;
+- adding a route-specific activation flag, fallback, or retry.
+
+The preflight task is read-only census plus a design decision. Its completion
+condition is an explicit common owner/commit contract; otherwise the lane
+stays at `CUT0-I0` design-stop with production capture and commit consumers at
+zero.
+
+The current census leaves four decisions open and therefore blocks production
+wiring:
+
+1. `MirCompiler::compile_legacy` still lowers through a live `MirBuilder`,
+   while A+/trivial/acyclic/recursive entries use separate
+   `CanonicalModuleLoweringSessionV1` candidates. These cannot be joined by a
+   route-local adapter.
+2. Function-draft publication and root `Main`/`condition_fn` insertion still
+   write directly to `current_module`; both must move behind one collector
+   admission and one external commit capability.
+3. The route matrix marks canonical `condition_fn` as forbidden, while the
+   shared finalizer currently synthesizes it unconditionally. The policy must
+   be made explicit before a common transaction is selected.
+4. The post-build verifier/optimizer/canonicalize sequence has no typed
+   drained-candidate boundary, and persistent compiler settings cannot be
+   copied by blindly cloning `CompilationContext`. State transfer must be an
+   explicit ingress contract.
+
+Until these four points have a single owner and guard, `CUT0-I0` is a design
+consultation, not an implementation invitation.
 
 ### CUT0-G0 — retire old owners
 
