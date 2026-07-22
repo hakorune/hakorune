@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-CANON0 SOURCE-BIND0 設計相談
 
-Status: **未決定 — Q1〜Q8の回答待ち。実装・fixture昇格・DRAIN0・production wiringは禁止**
+Status: **未決定 — Q1/Q2/Q9/Q11 decision lock待ち。実装・fixture昇格・DRAIN0・production wiringは禁止**
 
 Related:
 
@@ -268,6 +268,65 @@ BindingSsaRecursive
 route policyはこのenumから導出し、callerの`require_main`、`Optional`、symbol
 inventory、string flagを受け取らない。RawのMain stateをcanonicalへ流用しない。
 
+## 座長からの追加質問: Q13〜Q14
+
+Claude側のレビューで、Q2のcollision domainと、Q1〜Q12の重さ自体が追加の
+decision boundaryとして指摘された。これは相談文へ入れるべき論点である。
+
+### Q13. collision domainは本当にCUT0のcorrectness条件か
+
+尖った一問はこれである。
+
+> 並列`MirCompiler`のbrand衝突は、self-host compilerで実際に起きるシナリオか。
+> 実在するなら、却下したglobal atomicへ戻らず、globally-distinctなdomain seedを
+> どこから調達するのか。プロセス起動時UUID、PID、constructor callerのseed、または
+> 別の一意domain ownerのどれを採るのか。
+
+現時点のコードから確実に言えるのは、production token producer自体が未接続で、
+test factoryは各インスタンスの`next=1`を持つことだけである。したがって、
+「並列compilerを今すぐサポートする」ことと「単一compilerを型で閉じる」ことを
+混同してはいけない。
+
+候補:
+
+1. **単一compiler domainを明示し、並列compilerはSOURCE-BIND0のnon-claimにする**
+2. process-scoped domain seed + compiler-local monotonic ordinal
+3. constructor callerがdomain seedを注入
+4. global atomic invocation ID
+
+4はhidden/global authorityになるため現方針では不採択寄りだが、2/3を選ぶなら
+seed ownerとlifetimeを型・fixtureで証明する必要がある。Q2はこの選択なしにlock
+してはいけない。
+
+### Q14. 12契約のうち、どれがload-bearingか
+
+CUT0直前に全契約を一つのrowへ詰め込むと、BoxCountとceremonyが膨らむ。次の
+tier分けをPro先生へ確認する。
+
+```text
+SOURCE-BIND0 decision lock (今すぐ必要):
+  Q1 exact plan-driven package constructor
+  Q2 issuer owner + collision domain / parallel non-claim
+  Q9 non-Clone package shape + rejected owner
+  Q11 continuation lifetime
+
+next semantic rows:
+  RECEIPT0  = Q4 exact receipt retention/provenance
+  LOWER0    = Q10 real plan-consuming lowering terminal
+  RECURSIVE0= Q5 branded recursive install receipt
+  GUARD0    = Q6 evidence-grade census + focused gate
+  DRAIN0    = Q8 source-derived one-shot consumption
+
+route vocabulary:
+  Q12 is a boundary contract, but Raw ledger rewiring remains a separate
+  non-claim until its own row is selected.
+```
+
+特にQ5 recursive receiptとQ2 collision domainは、A+/trivial/acyclicの最初の
+vertical sliceだけなら後続へ送れる可能性がある。ただし、それを送るなら
+「recursive routeはCUT0前に未対応」「parallel compilerは非対応」という明示的
+non-claimを残し、将来の型変更を隠さない。
+
 ## 回答を求める最小セット
 
 一度に全部を実装する相談ではない。まず次を決める。
@@ -351,6 +410,11 @@ raw ledger/route-local IDの再増殖とcompiler reuseのlifecycle ambiguityを�
    test gateへ強化するか。
 4. Q7/Q8: SOURCE-BIND0→CANON-FIXTURE0→DRAIN0の順序と、production consumer zeroを
   維持するか。
+
+5. Q13: collision domainを今のcorrectnessに含めるか、単一compiler domainを
+   non-claimとしてYAGNIにするか。
+6. Q14: SOURCE-BIND0に必要なload-bearing契約をQ1/Q2/Q9/Q11へ絞り、receipt/
+   lowering/recursive/guard/drainを後続rowへ分離するか。
 
 ## 実装停止線
 
