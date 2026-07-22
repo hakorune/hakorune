@@ -75,6 +75,12 @@ impl ValueIdGenerator {
         Self { next_id: 0 }
     }
 
+    /// Create a generator with an explicit next-id cursor for a Builder
+    /// invocation seed. The cursor is not a second allocation authority.
+    pub fn from_next_id(next_id: u32) -> Self {
+        Self { next_id }
+    }
+
     /// Generate the next unique ValueId
     pub fn next(&mut self) -> ValueId {
         let id = ValueId(self.next_id);

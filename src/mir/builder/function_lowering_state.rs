@@ -49,6 +49,47 @@ pub(super) struct FunctionLoweringStateV1 {
     pub(super) in_unified_boxcall_fallback: bool,
 }
 
+impl FunctionLoweringStateV1 {
+    pub(super) fn is_closed_for_external_commit(&self) -> bool {
+        self.current_function.is_none()
+            && self.current_block.is_none()
+            && self.variable_ctx.is_empty()
+            && self.type_ctx.value_types.is_empty()
+            && self.type_ctx.value_kinds.is_empty()
+            && self.type_ctx.value_origin_newbox.is_empty()
+            && self.type_ctx.string_literals.is_empty()
+            && self.type_ctx.map_value_types.is_empty()
+            && self.type_ctx.map_literal_value_types.is_empty()
+            && self.binding_ctx.is_empty()
+            && self.resolved_binding_state.session_success_is_closed(false)
+            && self.scope.lexical_scope_stack.is_empty()
+            && self.scope.loop_header_stack.is_empty()
+            && self.scope.loop_exit_stack.is_empty()
+            && self.scope.if_merge_stack.is_empty()
+            && self.scope.function_param_names.is_empty()
+            && self.scope.fastmem_region_stack.is_empty()
+            && self.compilation.reserved_value_ids.is_empty()
+            && self.compilation.fn_body_ast.is_none()
+            && self.compilation.record_local_values.is_empty()
+            && self.value_origins.value_origin_spans.is_empty()
+            && self.value_origins.value_origin_callers.is_empty()
+            && self.pending_phis.is_empty()
+            && self.local_ssa_map.is_empty()
+            && self.schedule_mat_map.is_empty()
+            && self.pin_slot_names.is_empty()
+            && self.frag_emit_session.is_empty_for_commit()
+            && !self.return_defer_active
+            && self.return_defer_slot.is_none()
+            && self.return_defer_target.is_none()
+            && !self.return_deferred_emitted
+            && !self.in_cleanup_block
+            && !self.cleanup_allow_return
+            && !self.cleanup_allow_throw
+            && !self.suppress_pin_entry_copy_next
+            && !self.in_unified_boxcall_fallback
+    }
+}
+
 /// FunctionOwned leaves split from the mixed `ScopeContext`.
 ///
 /// `debug_scope_stack` remains an ObservationBorrow and is intentionally absent.

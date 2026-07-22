@@ -52,6 +52,11 @@ impl FragEmitSession {
         self.sealed.clear();
     }
 
+    /// Commit witness: no function-local block remains sealed or open.
+    pub(in crate::mir::builder) fn is_empty_for_commit(&self) -> bool {
+        self.sealed.is_empty()
+    }
+
     #[cfg(test)]
     pub(in crate::mir::builder) fn is_sealed_for_test(&self, block: BasicBlockId) -> bool {
         self.sealed.contains_key(&block)

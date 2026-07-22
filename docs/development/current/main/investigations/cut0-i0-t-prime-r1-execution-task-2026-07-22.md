@@ -1,6 +1,6 @@
 # CUT0-I0 T-prime-r1 Execution Task
 
-Status: **Active — CUT0-I0-ID0-S0, CUT0-I0-ID0-P0, CUT0-I0-COLLECT0-S0, and CUT0-I0-COLLECT0-BATCH0 closed; CUT0-I0-SESSION0 next**
+Status: **Active — CUT0-I0-ID0-S0, CUT0-I0-ID0-P0, CUT0-I0-COLLECT0-S0, CUT0-I0-COLLECT0-BATCH0, and CUT0-I0-SESSION0 closed; CUT0-I0-ROOT0 next**
 Date: 2026-07-22
 Decision: **Candidate T-prime-r1 selected**
 Scope: build one invocation-branded module transaction, then perform one
@@ -426,7 +426,7 @@ installation; raw/acyclic routes carry no marker. No `publish_into` consumer,
 production caller, or route activation changed. The next disconnected row is
 `CUT0-I0-SESSION0`.
 
-### CUT0-I0-SESSION0 — route-neutral Builder transaction
+### CUT0-I0-SESSION0 — closed: route-neutral Builder transaction
 
 Add explicit config snapshot/install and CoreContext seed policy around a
 fresh candidate Builder. Prove live Builder invariance for every failure and
@@ -434,6 +434,39 @@ compiler-reuse parity for Raw `ContinueLive` and canonical `Fresh`.
 
 Do not mutate live imports/source hints before session success. Add a
 commit-ready state witness, but no external commit consumer yet.
+
+Acceptance:
+
+```text
+all persistent config fields are snapshotted once
+ContinueLive carries Value/Block/Binding/temp/debug cursors
+Fresh starts all five cursors at zero
+candidate drop/failure leaves live Builder unchanged
+commit-ready witness rejects open module/function/slot state
+prepared Builder commit is consuming and one-shot
+new session production consumers = 0
+```
+
+Closeout evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q module_invocation_session_p0 --lib = 6 passed
+RUSTFLAGS='-Awarnings' cargo check -q --lib = green
+python3 tools/checks/lib/cut0_i0_session0_guard.py = green
+python3 tools/checks/current_state_pointer_guard.py = green
+```
+
+`ModuleBuilderInvocationSessionV1` now owns a disconnected candidate Builder
+with an explicit `BuilderInvocationConfigV1`. The config copies REPL/log,
+imports, plugin signatures, resolved source metadata, and a typed
+`ContinueLive`/`Fresh` CoreContext seed. `CoreContext::from_cursors` installs
+all five counters without a second allocation authority. A consuming
+commit-ready witness rejects open publication state before issuing the
+one-shot prepared Builder commit. Fixtures prove explicit configuration,
+five-counter parity, candidate-drop invariance, readiness rejection, and
+single-use commit. Existing canonical session/open/commit callers are
+unchanged and no production ingress or external commit consumer was added.
+The next disconnected row is `CUT0-I0-ROOT0`.
 
 ### CUT0-I0-ROOT0 — route-specific completion and drain policy
 

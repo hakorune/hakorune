@@ -51,6 +51,24 @@ impl CoreContext {
         }
     }
 
+    /// Recreate one invocation-local context from a sealed cursor snapshot.
+    /// The snapshot is data only; allocation remains owned by this context.
+    pub fn from_cursors(
+        next_value: u32,
+        next_block: u32,
+        next_binding_id: u32,
+        temp_slot_counter: u32,
+        debug_join_counter: u32,
+    ) -> Self {
+        Self {
+            value_gen: ValueIdGenerator::from_next_id(next_value),
+            block_gen: BasicBlockIdGenerator::from_next_id(next_block),
+            next_binding_id,
+            temp_slot_counter,
+            debug_join_counter,
+        }
+    }
+
     /// Allocate the next ValueId from the primary generator
     ///
     /// Note: MirBuilder::next_value_id() provides higher-level allocation
