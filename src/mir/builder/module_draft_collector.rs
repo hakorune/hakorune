@@ -10,7 +10,14 @@ use crate::mir::resolved_semantics::{CanonicalCallableKeyV1, FunctionOwnerIdV1};
 use crate::mir::{FunctionSignature, MirFunction};
 
 mod receipt;
+mod callable_batch;
 mod root_batch;
+
+pub(in crate::mir::builder) use callable_batch::{
+    CallableCollectorBatchPrepareErrorV1, CallableCollectorDraftEntryV1,
+    CallableCollectorBatchReceiptV1, PreparedCallableCollectorBatchV1,
+    RejectedCallableCollectorBatchV1,
+};
 
 pub(in crate::mir::builder) use receipt::{
     CollectedDraftAdmissionReceiptV1, CollectedDraftReplacementDispositionV1,

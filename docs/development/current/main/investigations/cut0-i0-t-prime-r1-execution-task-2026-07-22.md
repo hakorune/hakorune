@@ -1,6 +1,6 @@
 # CUT0-I0 T-prime-r1 Execution Task
 
-Status: **Active — CUT0-I0-ID0-S0, CUT0-I0-ID0-P0, and CUT0-I0-COLLECT0-S0 closed; CUT0-I0-COLLECT0-BATCH0 next**
+Status: **Active — CUT0-I0-ID0-S0, CUT0-I0-ID0-P0, CUT0-I0-COLLECT0-S0, and CUT0-I0-COLLECT0-BATCH0 closed; CUT0-I0-SESSION0 next**
 Date: 2026-07-22
 Decision: **Candidate T-prime-r1 selected**
 Scope: build one invocation-branded module transaction, then perform one
@@ -386,7 +386,7 @@ arity, policy, and replacement failures remain pre-co-seal errors. No
 production caller or route activation was added. The next disconnected row is
 `CUT0-I0-COLLECT0-BATCH0`.
 
-### CUT0-I0-COLLECT0-BATCH0 — atomic callable collection
+### CUT0-I0-COLLECT0-BATCH0 — closed: atomic callable collection
 
 Teach the existing verified unpublished callable draft owner to prepare one
 whole collector batch. All fallible validation precedes an infallible
@@ -403,6 +403,28 @@ recursive capability preserved exactly once
 new collector-batch production consumers = 0
 existing publish_into(MirModule) remains unchanged until atomic CUT0-I0
 ```
+
+Closeout evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test -q callable_batch_collection_p0 --lib = 6 passed
+RUSTFLAGS='-Awarnings' cargo test -q callable_module_transaction --lib = 13 passed
+python3 tools/checks/lib/cut0_i0_collect0_batch0_guard.py = green
+RUSTFLAGS='-Awarnings' cargo check -q --lib = green
+```
+
+The existing `VerifiedUnpublishedCallableDraftSetV1` now retains its verified
+catalog source while projecting exact `CanonicalCallable` rows into a new
+collector-only batch terminal. All row checks, collector collisions, and
+within-batch duplicate checks happen before `collect_all`; the commit terminal
+is infallible and returns one whole-batch receipt with canonical policy and
+inserted replacement disposition for every row. The callable source/collector
+co-seal compares actual catalog headers, physical collector keys, arity, and
+receipt rows under one invocation brand. The recursive fixture installs the
+existing shell metadata capability exactly once and rejects a duplicate
+installation; raw/acyclic routes carry no marker. No `publish_into` consumer,
+production caller, or route activation changed. The next disconnected row is
+`CUT0-I0-SESSION0`.
 
 ### CUT0-I0-SESSION0 — route-neutral Builder transaction
 

@@ -29,6 +29,11 @@ IDENTITY_ALLOWED = {
     pathlib.Path("src/mir/builder/module_invocation_brand_p0.rs"),
     pathlib.Path("src/mir/builder/module_invocation_collection.rs"),
     pathlib.Path("src/mir/builder/module_invocation_collect0_s0_p0.rs"),
+    pathlib.Path("src/mir/builder/module_invocation_callable_batch.rs"),
+    pathlib.Path("src/mir/builder/module_draft_collector/callable_batch.rs"),
+    pathlib.Path("src/mir/builder/resolved_lowering/callable_module_transaction.rs"),
+    pathlib.Path("src/mir/builder/resolved_lowering/callable_batch_collection_p0.rs"),
+    pathlib.Path("src/mir/builder/module_lowering_shell.rs"),
 }
 
 
@@ -48,7 +53,8 @@ def main() -> int:
             raise AssertionError(f"T-prime-r1 file must stay below 800 lines: {path}")
 
     require(state, "CUT0-I0-CONSULT0 is closed with Candidate T-prime-r1", "state decision")
-    require(state, "CUT0-I0-COLLECT0-BATCH0 is next", "state next row")
+    require(state, "CUT0-I0-COLLECT0-BATCH0 is closed as a disconnected atomic callable-batch proof", "batch closeout")
+    require(state, "CUT0-I0-SESSION0 is next", "state next row")
     require(
         state,
         'latest_card = "cut0-i0-t-prime-r1-execution-task-2026-07-22"',
@@ -72,6 +78,7 @@ def main() -> int:
         ("CUT0-I0-ID0-P0 — closed", "brand row closeout"),
         ("CUT0-I0-COLLECT0-S0 — closed", "collection row closeout"),
         ("CUT0-I0-COLLECT0-BATCH0", "next collection batch row"),
+        ("CUT0-I0-SESSION0", "next session row"),
         ("CUT0-I0-P0-R1", "real-authority proof row"),
         ("Production consumer count remains zero", "pre-cutover production zero"),
     ):
@@ -93,7 +100,7 @@ def main() -> int:
             "T-prime-r1 source consumers before COLLECT0-BATCH0: " + ", ".join(consumers)
         )
 
-    print("[cut0-i0-t-prime-r1-guard] ok decision=locked next=COLLECT0-BATCH0 production_consumers=0")
+    print("[cut0-i0-t-prime-r1-guard] ok decision=locked next=SESSION0 production_consumers=0")
     return 0
 
 

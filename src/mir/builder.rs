@@ -103,6 +103,8 @@ mod module_invocation_collection; // CUT0-I0-COLLECT0-S0 co-seal terminal
 #[cfg(test)]
 mod module_invocation_collect0_s0_p0; // CUT0-I0-COLLECT0-S0 fixtures
 #[allow(dead_code)]
+mod module_invocation_callable_batch; // CUT0-I0-COLLECT0-BATCH0 source/co-seal
+#[allow(dead_code)]
 mod module_lowering_access_port; // HEADERPORT0 I0-ACCESS0-S0 disconnected vocabulary
 #[cfg(test)]
 mod module_lowering_borrow_root_p0; // HEADERPORT0 WIRING-I0-BORROW-P0-ROOT proof

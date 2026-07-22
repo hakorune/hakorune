@@ -9,6 +9,7 @@ use std::collections::BTreeSet;
 use crate::ast::ASTNode;
 use crate::mir::function::{ClosureBodyId, ModuleMetadata, StaticDataPlan};
 use crate::mir::{ConstValue, MirFunction, MirModule};
+use super::module_invocation_identity::ModuleInvocationFamilyV1;
 
 mod declaration_fact_commit;
 
@@ -207,6 +208,44 @@ impl ModuleLoweringShellPortV1<'_> {
             &self.shell.module.metadata.static_data_plans,
             source_name,
         )
+    }
+
+    /// Disconnected BATCH0 proof seam. Production lowering does not call this
+    /// test-only capability terminal; later SESSION/ROOT wiring will consume a
+    /// sealed family token and the same shell-owned metadata slot.
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn install_callable_batch_shell_fact_for_test(
+        &mut self,
+        family: ModuleInvocationFamilyV1,
+    ) -> Result<(), &'static str> {
+        use crate::mir::canonical_recursive_callable_module_capability::
+            CanonicalRecursiveCallableModuleCapabilityV1;
+        match family {
+            ModuleInvocationFamilyV1::BindingSsaRecursive => {
+                CanonicalRecursiveCallableModuleCapabilityV1::install_for_module(
+                    &mut self
+                        .shell
+                        .module
+                        .metadata
+                        .canonical_recursive_callable_module_capability,
+                    true,
+                )
+            }
+            ModuleInvocationFamilyV1::BindingSsaAcyclic => {
+                if self
+                    .shell
+                    .module
+                    .metadata
+                    .canonical_recursive_callable_module_capability
+                    .is_some()
+                {
+                    Err("[freeze:contract][canonical_recursive_module/capability_unexpected]")
+                } else {
+                    Ok(())
+                }
+            }
+            _ => Err("[freeze:contract][callable_batch/shell_family]")
+        }
     }
 }
 

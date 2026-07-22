@@ -38,7 +38,8 @@ def main() -> int:
             raise AssertionError(f"COLLECT0-S0 file must remain below 800 lines: {path}")
 
     require(state, "CUT0-I0-COLLECT0-S0 is closed as a disconnected raw/canonical co-seal proof", "row closeout")
-    require(state, "CUT0-I0-COLLECT0-BATCH0 is next", "next pointer")
+    require(state, "CUT0-I0-COLLECT0-BATCH0 is closed as a disconnected atomic callable-batch proof", "successor closeout")
+    require(state, "CUT0-I0-SESSION0 is next", "next pointer")
     require(task, "CUT0-I0-COLLECT0-S0 — closed", "task row")
     require(task, "Raw: final ledger rows", "raw acceptance")
     require(task, "Canonical-single: exact one row", "canonical acceptance")
