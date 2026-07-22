@@ -63,9 +63,9 @@ mod source_view_tests;
 
 use capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
 use source_bound_package::{
-    ExactCanonicalPreflightPlanV1, InvocationIdentityIssuerV1, LoweredCanonicalPlanV1,
-    RejectedCanonicalLoweringV1, RejectedCanonicalSourceBindingV1,
-    SourceBoundCanonicalPackageV1,
+    CanonicalPhysicalInvocationV1, ExactCanonicalPreflightPlanV1, InvocationIdentityIssuerV1,
+    LoweredCanonicalPlanV1, RejectedCanonicalLoweringV1, RejectedCanonicalPhysicalOpenV1,
+    RejectedCanonicalSourceBindingV1, SourceBoundCanonicalPackageV1,
 };
 pub use lowering_input::{
     CanonicalLoweringErrorV1, LegacyModuleLoweringInputV1, ResolvedModuleLoweringInputV1,
@@ -195,6 +195,21 @@ impl MirCompiler {
         plan: ExactCanonicalPreflightPlanV1<'a>,
     ) -> Result<SourceBoundCanonicalPackageV1<'a>, RejectedCanonicalSourceBindingV1<'a>> {
         SourceBoundCanonicalPackageV1::bind(&mut self.invocation_identity, plan)
+    }
+
+    /// OWNER0's compiler-owned physical bridge.  The package is consumed only
+    /// after one real session, shell, and collector have opened from its token.
+    pub(in crate::mir) fn begin_canonical_invocation<'a>(
+        &mut self,
+        package: SourceBoundCanonicalPackageV1<'a>,
+        source_file: Option<&str>,
+        module_name: String,
+    ) -> Result<CanonicalPhysicalInvocationV1<'a>, RejectedCanonicalPhysicalOpenV1<'a>> {
+        let config = crate::mir::builder::BuilderInvocationConfigV1::snapshot_for_canonical(
+            &self.builder,
+            source_file,
+        );
+        package.open_physical(&self.builder, config, module_name)
     }
 
     /// LOWER0's disconnected plan-consuming terminal.  It opens only the

@@ -23,7 +23,10 @@ use crate::mir::builder::resolved_lowering::{
     CallableModuleTransactionErrorV1, CanonicalResolvedBuildErrorV1,
     VerifiedUnpublishedCallableDraftSetV1,
 };
-use crate::mir::builder::MirBuilder;
+use crate::mir::builder::{
+    BuilderInvocationConfigV1, InvocationPhysicalStateV1, MirBuilder,
+    ModuleBuilderInvocationSessionV1, ModuleLoweringShellErrorV1,
+};
 use crate::mir::function::MirFunction;
 use crate::mir::module_invocation_identity::{
     ModuleInvocationBrandV1, ModuleInvocationFamilyV1, ModuleInvocationTokenV1,
@@ -146,11 +149,150 @@ pub(in crate::mir) enum LoweredCanonicalPlanV1<'a> {
     },
 }
 
+impl LoweredCanonicalPlanV1<'_> {
+    pub(in crate::mir) fn brand(&self) -> ModuleInvocationBrandV1 {
+        match self {
+            Self::Single { token, .. } | Self::Callable { token, .. } => token.brand(),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub(in crate::mir) struct SourceBoundCanonicalPackageV1<'a> {
     token: ModuleInvocationTokenV1,
     plan: ExactCanonicalPreflightPlanV1<'a>,
     continuation: CanonicalSourceContinuationV1<'a>,
+}
+
+/// OWNER0 physical owner opened from one source-bound package.
+///
+/// The package is consumed only after the real candidate session, shell, and
+/// collector have been created.  The plan remains inside this owner until the
+/// same session performs the draft-only lowering.
+#[derive(Debug)]
+pub(in crate::mir) struct CanonicalPhysicalInvocationV1<'a> {
+    token: ModuleInvocationTokenV1,
+    session: ModuleBuilderInvocationSessionV1,
+    physical: InvocationPhysicalStateV1,
+    plan: ExactCanonicalPreflightPlanV1<'a>,
+    continuation: CanonicalSourceContinuationV1<'a>,
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct RejectedCanonicalPhysicalOpenV1<'a> {
+    package: SourceBoundCanonicalPackageV1<'a>,
+    error: ModuleLoweringShellErrorV1,
+}
+
+impl<'a> RejectedCanonicalPhysicalOpenV1<'a> {
+    pub(in crate::mir) fn error(&self) -> &ModuleLoweringShellErrorV1 {
+        &self.error
+    }
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct LoweredCanonicalPhysicalInvocationV1<'a> {
+    session: ModuleBuilderInvocationSessionV1,
+    physical: InvocationPhysicalStateV1,
+    lowered: LoweredCanonicalPlanV1<'a>,
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct RejectedCanonicalPhysicalLoweringV1<'a> {
+    session: ModuleBuilderInvocationSessionV1,
+    physical: InvocationPhysicalStateV1,
+    rejected: RejectedCanonicalLoweringV1<'a>,
+}
+
+impl<'a> CanonicalPhysicalInvocationV1<'a> {
+    pub(super) fn lower(
+        self,
+    ) -> Result<LoweredCanonicalPhysicalInvocationV1<'a>, RejectedCanonicalPhysicalLoweringV1<'a>> {
+        let Self {
+            token,
+            mut session,
+            physical,
+            plan,
+            continuation,
+        } = self;
+        match SourceBoundCanonicalPackageV1::consume_parts(
+            token,
+            plan,
+            continuation,
+            session.builder_mut(),
+        ) {
+            Ok(lowered) => Ok(LoweredCanonicalPhysicalInvocationV1 {
+                session,
+                physical,
+                lowered,
+            }),
+            Err(rejected) => Err(RejectedCanonicalPhysicalLoweringV1 {
+                session,
+                physical,
+                rejected,
+            }),
+        }
+    }
+
+    pub(in crate::mir) fn brand(&self) -> ModuleInvocationBrandV1 {
+        self.token.brand()
+    }
+}
+
+impl<'a> LoweredCanonicalPhysicalInvocationV1<'a> {
+    pub(in crate::mir) fn brand(&self) -> ModuleInvocationBrandV1 {
+        self.lowered.brand()
+    }
+
+    pub(in crate::mir) fn session_brand(&self) -> ModuleInvocationBrandV1 {
+        self.session.brand()
+    }
+
+    pub(in crate::mir) fn physical_brand(&self) -> ModuleInvocationBrandV1 {
+        self.physical.brand()
+    }
+
+    pub(in crate::mir) fn lowered(&self) -> &LoweredCanonicalPlanV1<'a> {
+        &self.lowered
+    }
+}
+
+impl<'a> SourceBoundCanonicalPackageV1<'a> {
+    pub(super) fn open_physical(
+        self,
+        current: &MirBuilder,
+        config: BuilderInvocationConfigV1,
+        module_name: String,
+    ) -> Result<CanonicalPhysicalInvocationV1<'a>, RejectedCanonicalPhysicalOpenV1<'a>> {
+        let Self {
+            token,
+            plan,
+            continuation,
+        } = self;
+        let physical = match InvocationPhysicalStateV1::from_token(&token, module_name) {
+            Ok(physical) => physical,
+            Err(error) => {
+                return Err(RejectedCanonicalPhysicalOpenV1 {
+                    package: Self {
+                        token,
+                        plan,
+                        continuation,
+                    },
+                    error,
+                })
+            }
+        };
+        let session = ModuleBuilderInvocationSessionV1::open_for_token(&token, current, config);
+        debug_assert_eq!(session.brand(), token.brand());
+        debug_assert_eq!(physical.brand(), token.brand());
+        Ok(CanonicalPhysicalInvocationV1 {
+            token,
+            session,
+            physical,
+            plan,
+            continuation,
+        })
+    }
 }
 
 impl<'a> SourceBoundCanonicalPackageV1<'a> {
@@ -236,6 +378,15 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
             plan,
             continuation,
         } = self;
+        Self::consume_parts(token, plan, continuation, builder)
+    }
+
+    fn consume_parts(
+        token: ModuleInvocationTokenV1,
+        plan: ExactCanonicalPreflightPlanV1<'a>,
+        continuation: CanonicalSourceContinuationV1<'a>,
+        builder: &mut MirBuilder,
+    ) -> Result<LoweredCanonicalPlanV1<'a>, RejectedCanonicalLoweringV1<'a>> {
         match plan {
             ExactCanonicalPreflightPlanV1::APlus(plan) => {
                 match builder.lower_resolved_function_draft(plan) {
@@ -478,6 +629,31 @@ mod tests {
         let package = compiler.bind_canonical_source(exact).unwrap();
         let candidate = compiler.lower_canonical_source(package, Some("lower0.hako")).unwrap();
         assert!(matches!(candidate.lowered, LoweredCanonicalPlanV1::Single { .. }));
+        assert!(compiler.builder.current_module.is_none());
+    }
+
+    #[test]
+    fn canonical_source_binding_owner0_uses_one_physical_owner() {
+        let unit = super::super::VerifiedResolvedSourceUnitV1::resolve_function(function("owner0"))
+            .unwrap();
+        let plan = super::super::CanonicalLoweringPreflightV1::verify(&unit).unwrap();
+        let exact = ExactCanonicalPreflightPlanV1::from_first_family(plan);
+        let mut compiler = super::super::MirCompiler::new();
+        let package = compiler.bind_canonical_source(exact).unwrap();
+        let package_brand = package.brand();
+        let active = compiler
+            .begin_canonical_invocation(package, Some("owner0.hako"), "owner0".to_owned())
+            .unwrap();
+        assert_eq!(active.brand(), package_brand);
+
+        let lowered = active.lower().unwrap();
+        assert_eq!(lowered.brand(), package_brand);
+        assert_eq!(lowered.session_brand(), package_brand);
+        assert_eq!(lowered.physical_brand(), package_brand);
+        assert!(matches!(
+            lowered.lowered(),
+            LoweredCanonicalPlanV1::Single { .. }
+        ));
         assert!(compiler.builder.current_module.is_none());
     }
 }

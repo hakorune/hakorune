@@ -20,7 +20,7 @@ pub(in crate::mir::builder) use declaration_fact_commit::{
 };
 
 #[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir::builder) enum ModuleLoweringShellErrorV1 {
+pub(in crate::mir) enum ModuleLoweringShellErrorV1 {
     FunctionMapNotEmpty {
         count: usize,
     },

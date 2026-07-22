@@ -17,14 +17,14 @@ use super::module_lowering_shell::{ModuleLoweringShellErrorV1, ModuleLoweringShe
 use super::MirBuilder;
 
 #[derive(Debug)]
-pub(in crate::mir::builder) struct InvocationPhysicalStateV1 {
+pub(in crate::mir) struct InvocationPhysicalStateV1 {
     brand: ModuleInvocationBrandV1,
     shell: BrandedShellV1<ModuleLoweringShellV1>,
     collector: BrandedCollectorV1<ModuleDraftCollectorV1>,
 }
 
 impl InvocationPhysicalStateV1 {
-    fn from_token(
+    pub(in crate::mir) fn from_token(
         token: &ModuleInvocationTokenV1,
         module_name: String,
     ) -> Result<Self, ModuleLoweringShellErrorV1> {
@@ -37,7 +37,7 @@ impl InvocationPhysicalStateV1 {
         })
     }
 
-    pub(in crate::mir::builder) fn brand(&self) -> ModuleInvocationBrandV1 {
+    pub(in crate::mir) fn brand(&self) -> ModuleInvocationBrandV1 {
         self.brand
     }
 

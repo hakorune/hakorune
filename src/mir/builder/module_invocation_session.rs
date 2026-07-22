@@ -65,7 +65,7 @@ pub(in crate::mir::builder) enum BuilderCoreSeedPolicyV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir::builder) struct BuilderInvocationConfigV1 {
+pub(in crate::mir) struct BuilderInvocationConfigV1 {
     repl_mode: bool,
     quiet_internal_logs: bool,
     using_import_boxes: HashMap<String, String>,
@@ -75,6 +75,15 @@ pub(in crate::mir::builder) struct BuilderInvocationConfigV1 {
 }
 
 impl BuilderInvocationConfigV1 {
+    pub(in crate::mir) fn snapshot_for_canonical(
+        current: &MirBuilder,
+        source_file: Option<&str>,
+    ) -> Self {
+        let mut config = Self::snapshot_with_policy(current, BuilderCoreSeedPolicyV1::Fresh);
+        config.source_file = source_file.map(str::to_owned);
+        config
+    }
+
     pub(in crate::mir::builder) fn snapshot(
         current: &MirBuilder,
         core_id_seed: BuilderCoreIdSeedV1,
@@ -141,12 +150,23 @@ impl BuilderInvocationConfigV1 {
     }
 }
 
-pub(in crate::mir::builder) struct ModuleBuilderInvocationSessionV1 {
+pub(in crate::mir) struct ModuleBuilderInvocationSessionV1 {
     brand: ModuleInvocationBrandV1,
     family: ModuleInvocationFamilyV1,
     candidate: MirBuilder,
     config: BuilderInvocationConfigV1,
     _seal: ModuleBuilderInvocationSessionSealV1,
+}
+
+impl std::fmt::Debug for ModuleBuilderInvocationSessionV1 {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter
+            .debug_struct("ModuleBuilderInvocationSessionV1")
+            .field("brand", &self.brand)
+            .field("family", &self.family)
+            .field("config", &self.config)
+            .finish_non_exhaustive()
+    }
 }
 
 #[derive(Debug)]
@@ -181,7 +201,7 @@ pub(in crate::mir::builder) struct PreparedBuilderExternalCommitV1 {
 struct PreparedBuilderExternalCommitSealV1;
 
 impl ModuleBuilderInvocationSessionV1 {
-    pub(in crate::mir::builder) fn open_for_token(
+    pub(in crate::mir) fn open_for_token(
         token: &ModuleInvocationTokenV1,
         _current: &MirBuilder,
         config: BuilderInvocationConfigV1,
@@ -217,7 +237,7 @@ impl ModuleBuilderInvocationSessionV1 {
         )
     }
 
-    pub(in crate::mir::builder) fn builder_mut(&mut self) -> &mut MirBuilder {
+    pub(in crate::mir) fn builder_mut(&mut self) -> &mut MirBuilder {
         &mut self.candidate
     }
 
@@ -225,7 +245,7 @@ impl ModuleBuilderInvocationSessionV1 {
         &self.config
     }
 
-    pub(in crate::mir::builder) fn brand(&self) -> ModuleInvocationBrandV1 {
+    pub(in crate::mir) fn brand(&self) -> ModuleInvocationBrandV1 {
         self.brand
     }
 

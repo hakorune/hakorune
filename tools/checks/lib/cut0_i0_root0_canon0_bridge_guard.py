@@ -12,13 +12,35 @@ SHARED = ROOT / "src/mir/module_invocation_identity.rs"
 BUILDER_ID = ROOT / "src/mir/builder/module_invocation_identity.rs"
 ROUTE = ROOT / "src/mir/builder/module_invocation_route_matrix.rs"
 SOURCE = ROOT / "src/mir/compiler/source_bound_package.rs"
+COMPILER_MOD = ROOT / "src/mir/compiler/mod.rs"
 MIR_MOD = ROOT / "src/mir/mod.rs"
 BUILDER = ROOT / "src/mir/builder.rs"
+BRAND0 = ROOT / "src/mir/builder/module_invocation_brand0.rs"
+SESSION = ROOT / "src/mir/builder/module_invocation_session.rs"
+SHELL = ROOT / "src/mir/builder/module_lowering_shell.rs"
 TASK = ROOT / (
     "docs/development/current/main/investigations/"
     "cut0-i0-root0-canon0-bridge-execution-task-2026-07-23.md"
 )
-MANIFEST = (SHARED, BUILDER_ID, ROUTE, SOURCE, MIR_MOD, BUILDER, TASK, pathlib.Path(__file__))
+OWNER_TASK = ROOT / (
+    "docs/development/current/main/investigations/"
+    "cut0-i0-root0-canon0-bridge-owner0-execution-task-2026-07-23.md"
+)
+MANIFEST = (
+    SHARED,
+    BUILDER_ID,
+    ROUTE,
+    SOURCE,
+    COMPILER_MOD,
+    MIR_MOD,
+    BUILDER,
+    BRAND0,
+    SESSION,
+    SHELL,
+    TASK,
+    OWNER_TASK,
+    pathlib.Path(__file__),
+)
 
 
 def require(text: str, fragment: str, label: str) -> None:
@@ -51,6 +73,9 @@ def main() -> int:
 
     require(task, "CANON-BRIDGE0", "CANON-BRIDGE0 lane card")
     require(task, "Shared guard policy", "shared bridge guard policy")
+    owner_task = OWNER_TASK.read_text()
+    require(owner_task, "OWNER0", "OWNER0 card")
+    require(owner_task, "collector admission count = 0", "OWNER0 non-claim")
     require(mir_mod, "pub(crate) mod module_invocation_identity;", "shared identity module")
     for fragment, label in (
         ("enum ModuleInvocationFamilyV1", "one shared family definition"),
@@ -91,6 +116,18 @@ def main() -> int:
     if "ordinal copy" in source.lower() or "from_source(brand" in source:
         raise AssertionError("post-hoc identity conversion/rebrand remains in compiler source")
     require(builder, "mod module_invocation_identity;", "Builder identity module registration")
+
+    require(source, "pub(super) fn open_physical(", "package physical-open terminal")
+    require(source, "pub(super) fn lower(", "same-owner lowering terminal")
+    require(source, "CanonicalPhysicalInvocationV1", "physical invocation owner")
+    require(source, "ModuleBuilderInvocationSessionV1::open_for_token", "shared Builder session open")
+    require(source, "InvocationPhysicalStateV1::from_token", "shared shell/collector open")
+    require(source, "canonical_source_binding_owner0_uses_one_physical_owner", "OWNER0 fixture")
+    require(source, "begin_canonical_invocation", "MirCompiler bridge terminal")
+    if "CanonicalModuleLoweringSessionV1" in source:
+        raise AssertionError("new package owner still depends on legacy canonical session")
+    if "let package = SourceBoundCanonicalPackageV1 {" in source:
+        raise AssertionError("physical lowering reconstructs a consumed package")
 
     factory_callers = []
     for path in production_rust_files():

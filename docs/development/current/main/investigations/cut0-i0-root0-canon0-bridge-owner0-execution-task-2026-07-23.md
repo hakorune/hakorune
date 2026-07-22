@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-CANON0 CANON-BRIDGE0 OWNER0 実行タスク
 
-Status: **Active — physical compiler-owned bridge only**
+Status: **Closed — physical compiler-owned bridge only**
 
 Related:
 
@@ -76,6 +76,35 @@ bash tools/checks/current_state_pointer_guard.sh
 RUSTFLAGS='-Awarnings' cargo check -q --lib
 RUSTFLAGS='-Awarnings' cargo test -q canonical_source_binding_owner0 --lib
 python3 tools/checks/lib/cut0_i0_root0_canon0_bridge_guard.py
+```
+
+## Closeout evidence (2026-07-23)
+
+```text
+MirCompiler::begin_canonical_invocation = one private bridge terminal
+SourceBoundCanonicalPackageV1 -> physical owner = by-value
+session/shell/collector/lowering share the same ModuleInvocationBrandV1
+shell published function count = 0
+collector admission count = 0 (COLLECT0 owns this transition)
+canonical_source_binding_owner0 = 1 passed
+source_bound_package = 7 passed
+module_invocation_identity = 7 passed
+RUSTFLAGS='-Awarnings' cargo check -q --lib = passed
+cut0_i0_root0_canon0_bridge_guard.py = passed
+current_state_pointer_guard.sh = passed
+git diff --check = passed
+all touched source/check files < 800 lines
+```
+
+## Explicit non-claims
+
+```text
+OWNER0 does not merge the shell MirModule with the candidate Builder module.
+OWNER0 does not collect lowered drafts or issue completion receipts.
+The collector is opened and branded here; draft admission belongs to COLLECT0.
+CanonicalModuleLoweringSessionV1 remains a quarantined legacy ingress.
+Production canonical ingress, drain, finalizer, external commit, retry, and
+fallback remain zero.
 ```
 
 ## Stop line

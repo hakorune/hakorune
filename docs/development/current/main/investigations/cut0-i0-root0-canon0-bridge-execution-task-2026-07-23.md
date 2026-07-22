@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-CANON0 CANON-BRIDGE0 実行タスク
 
-Status: **Active — CB-prime selected; OWNER0 is the only executable row**
+Status: **Active — CB-prime selected; COLLECT0 is the only executable row**
 
 Related:
 
@@ -96,7 +96,7 @@ RUSTFLAGS='-Awarnings' cargo check -q --lib = passed
 cut0_i0_root0_canon0_bridge_guard.py = passed
 ```
 
-### CANON-BRIDGE0-OWNER0 — active
+### CANON-BRIDGE0-OWNER0 — closed
 
 Add one private `MirCompiler` terminal that consumes the source-bound package
 by value and opens the actual `ModuleBuilderInvocationSessionV1`, shell, and
@@ -110,7 +110,14 @@ legacy ingress until atomic CUT0; the new bridge must not open it.
 Failure law: package/physical-open failure retains the unpublished package,
 leaves the live Builder and collector unchanged, and permits no retry.
 
-### CANON-BRIDGE0-COLLECT0 — later
+Closeout evidence: the compiler-owned `begin_canonical_invocation` terminal
+now opens one shared-brand session, function-empty shell, and branded
+collector before invoking the existing draft-only LOWER0 seam. The focused
+`canonical_source_binding_owner0` fixture and lane guard are green. OWNER0
+intentionally does not merge the shell module with the candidate Builder or
+collect drafts; those are COLLECT0 responsibilities.
+
+### CANON-BRIDGE0-COLLECT0 — active
 
 Make canonical admission typed and source-driven:
 

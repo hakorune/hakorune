@@ -323,9 +323,9 @@ module_draft_headerport_i0_task = "docs/development/current/main/investigations/
 headerport_hdr0_p0_execution_task = "docs/development/current/main/investigations/mirbuilder-headerport-i0-hdr0-p0-execution-task-2026-07-22.md"
 cut0_i0_t_prime_r1_execution_task = "docs/development/current/main/investigations/cut0-i0-t-prime-r1-execution-task-2026-07-22.md"
 
-latest_card = "cut0-i0-root0-canon0-bridge-owner0-execution-task-2026-07-23"
-latest_card_path = "docs/development/current/main/investigations/cut0-i0-root0-canon0-bridge-owner0-execution-task-2026-07-23.md"
-latest_card_summary = """CANON-BRIDGE0-IDKERNEL is closed with one shared compiler-domain/local-ordinal identity vocabulary and a sole MirCompiler issuer. OWNER0 is now the only active row: consume the source-bound package by value, open the real Builder session/shell/collector, and lower in that same physical owner. Canonical production ingress, collection, drain, finalization, and commit remain zero."""
+latest_card = "cut0-i0-root0-canon0-bridge-execution-task-2026-07-23"
+latest_card_path = "docs/development/current/main/investigations/cut0-i0-root0-canon0-bridge-execution-task-2026-07-23.md"
+latest_card_summary = """CANON-BRIDGE0-IDKERNEL and OWNER0 are closed. COLLECT0 is now the only active row: connect the shared-brand physical collector to typed canonical single/batch admission and retain the collector-issued receipt product, while aggregate fixture, DRAIN0, finalization, and commit remain zero."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -527,7 +527,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-MODULEDRAFT0-HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-CUT0-I0-ROOT0-CANON0-CANON-BRIDGE0-OWNER0-20260723"
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-MODULEDRAFT0-HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-CUT0-I0-ROOT0-CANON0-CANON-BRIDGE0-COLLECT0-20260723"
 finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
