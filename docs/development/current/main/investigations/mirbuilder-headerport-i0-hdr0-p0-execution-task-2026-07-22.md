@@ -458,3 +458,39 @@ python3 tools/checks/lib/headerport_route_inventory_guard.py . = green
 The adapter and fixtures remain test-only/disconnected. Production
 capture/commit, all-route CUT0 activation, and the nine-route proof remain
 zero/unstarted. The next code-facing row is `CUT0-P0`.
+
+## CUT0-P0 closeout
+
+The disconnected all-route proof is closed on 2026-07-22.
+
+One test-only `Cut0P0OuterAdapterV1` now executes every row from the existing
+`InvocationRouteMatrixV1` through the same move-only candidate lifecycle. The
+adapter projects the existing route-owned authority lanes without opening a
+new production API or duplicating symbol inventories.
+
+The exercised outcomes are:
+
+```text
+success
+primary / cleanup / admission / root failure
+drain preflight failure
+post-drain finalizer failure
+panic
+```
+
+The success path reaches `complete_success` -> `prepare_complete` ->
+`drain_candidate` -> `finalize_drained_module_once` and a test-only external
+commit probe exactly once. Every failure and panic keeps external commit at
+zero and retry forbidden. The 9 x 8 execution matrix is asserted by fixtures;
+the adapter and guard remain below 800 lines and production consumers remain
+zero.
+
+Evidence:
+
+```text
+cargo test -q module_invocation_cut0_p0 --lib = green (2 tests)
+python3 tools/checks/lib/cut0_p0_guard.py = green
+```
+
+The next code-facing row is `CUT0-I0`. Production capture/commit and atomic
+CUT0 activation remain forbidden until that row is explicitly selected.

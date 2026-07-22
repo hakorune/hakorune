@@ -569,6 +569,7 @@ def main() -> int:
             DECL_FACT_COMMIT,
             DECL_FACT_COMMIT_P0,
             BORROW_ROOT_P0D,
+            ROOT / "src/mir/builder/module_invocation_cut0_p0.rs",
             BUILDER_MOD,
         ) or path.name.endswith("_tests.rs"):
             continue
@@ -684,7 +685,13 @@ def main() -> int:
     require(builder_mod, "mod module_finalization_candidate_p0;", "MODULEFINAL0-CANDIDATE0-P0 registration")
     other_builder_files = []
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
-        if path in (CANDIDATE, CANDIDATE_P0, BUILDER_MOD, MODULE_INVOCATION_DRAIN_S0_TESTS):
+        if path in (
+            CANDIDATE,
+            CANDIDATE_P0,
+            BUILDER_MOD,
+            MODULE_INVOCATION_DRAIN_S0_TESTS,
+            ROOT / "src/mir/builder/module_invocation_cut0_p0.rs",
+        ):
             continue
         if "ModuleLoweringInvocationCandidateV1" in path.read_text():
             other_builder_files.append(str(path.relative_to(ROOT)))

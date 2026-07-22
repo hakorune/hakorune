@@ -211,6 +211,8 @@ mod module_compat_policy; // CUT0-S0-COMPAT0 ingress policy snapshot
 mod module_compat_policy_p0; // CUT0-S0-COMPAT0 typed failure fixtures
 #[cfg(test)]
 mod module_compat_raw_ledger_p0; // CUT0-S0-COMPAT0 receipt bridge fixtures
+#[cfg(test)]
+mod module_invocation_cut0_p0; // CUT0-P0 disconnected all-route adapter
 mod module_lifecycle; // Phase 29bq+: Module lifecycle orchestrator (prepare → lower → finalize)
 mod ops;
 mod phi;
