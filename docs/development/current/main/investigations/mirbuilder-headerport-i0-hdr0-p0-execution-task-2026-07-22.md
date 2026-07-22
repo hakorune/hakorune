@@ -244,6 +244,45 @@ wiring:
 Until these four points have a single owner and guard, `CUT0-I0` is a design
 consultation, not an implementation invitation.
 
+#### CUT0-I0-CONSULT0 — unresolved common-owner contract
+
+The production census adds six questions that must be answered on one SSOT
+page before an API or route is changed:
+
+1. **Ingress token:** what typed outer-ingress enum/token covers raw,
+   A+/trivial, acyclic, recursive, and the nine route rows without a
+   route-local activation flag?
+2. **Receipt conversion:** how do `RawReceipt`, canonical single-function
+   drafts, and callable batches become collector-owned facts without allowing
+   a caller-supplied symbol inventory or a second declaration authority?
+3. **Builder boundary:** how are persistent compiler settings transferred
+   across the invocation boundary? `ModuleLoweringInvocationV1` borrows
+   `&mut MirBuilder`; storing it in `MirBuilder` or `CompilationContext`, or
+   merely wrapping `build_module`, is not a valid solution.
+4. **Root policy:** is `condition_fn` required, forbidden, or explicitly
+   route-dependent? The route matrix forbids it for canonical routes while
+   the shared finalizer currently synthesizes it unconditionally.
+5. **Postprocess/commit:** does optimizer/verifier/canonicalize belong before
+   drain, in a typed post-drain finalizer, or behind a separate capability?
+   The phrase `external commit = 1` must name one concrete publication
+   boundary; a returned `MirCompileResult` is not automatically that proof.
+6. **Poison/error state:** after primary, cleanup, admission, panic, or
+   postprocess failure, what exact candidate/session state is consumed and
+   what state is allowed to be retried? The answer must preserve the existing
+   no-retry and primary-plus-cleanup laws.
+
+Consultation close condition:
+
+```text
+one SSOT decision for all six questions
+-> one route-neutral, disconnected API-only slice
+-> fixtures/guard for the ownership and publication laws
+-> only then reconsider production CUT0-I0
+```
+
+Until this closes, production capture, drain, finalizer, and external-commit
+consumers remain zero. The current next action is consultation, not code.
+
 ### CUT0-G0 — retire old owners
 
 Remove old closure terminals, restore-then-publish, direct module insertion,
