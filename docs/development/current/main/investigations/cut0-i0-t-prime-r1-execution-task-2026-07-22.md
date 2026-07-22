@@ -528,6 +528,8 @@ root-batch preflight, `CompletedRootBodyV1`, the required condition receipt,
 and callable-Main disposition in one atomic row. Candidate B splits a receipt-
 only prerequisite into `ROOT0-RAW0-RECEIPT`. Candidate A is recommended, but
 no code-facing RAW0 row is selected until the scope is explicitly locked.
+The standalone question is tracked in
+`cut0-i0-root0-raw0-design-question-2026-07-22.md`.
 
 ### CUT0-I0-ROOT0 — route-specific completion and drain policy
 

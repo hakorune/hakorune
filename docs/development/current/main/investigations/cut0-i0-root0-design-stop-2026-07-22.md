@@ -5,6 +5,7 @@ Date: 2026-07-22
 Decision: **ROOT0 R-prime selected; RAW0 scope is unresolved**
 Related:
 
+- `docs/development/current/main/investigations/cut0-i0-root0-raw0-design-question-2026-07-22.md`
 - `docs/development/current/main/CURRENT_STATE.toml`
 - `docs/development/current/main/investigations/cut0-i0-t-prime-r1-execution-task-2026-07-22.md`
 - `src/mir/builder/module_invocation_identity.rs`
