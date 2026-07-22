@@ -1,10 +1,11 @@
 # CUT0-I0 ROOT0-DRAIN0 実行タスク
 
-Status: **Active — ROOT0-DRAIN0-PHYSICAL0 is the next executable row**
+Status: **DESIGN-STOP — ROOT0-DRAIN0-PHYSICAL0 boundary consultation is required**
 
 Related:
 
 - `cut0-i0-root0-drain0-design-question-2026-07-23.md`
+- `cut0-i0-root0-drain0-physical0-boundary-question-2026-07-23.md`
 - `cut0-i0-root0-canon0-fixture0-execution-task-2026-07-23.md`
 - `cut0-i0-root0-canon0-bridge-execution-task-2026-07-23.md`
 - `cut0-i0-root0-design-stop-2026-07-22.md`
@@ -171,6 +172,21 @@ retry, fallback, or Raw route change was added. All touched source and check
 files remain below 800 lines.
 
 The next executable row is `ROOT0-DRAIN0-PHYSICAL0`.
+
+## PHYSICAL0 design stop — 2026-07-23
+
+The source manifest is compiler-owned, while the physical terminal is
+Builder-owned. The current code has no legal shared row vocabulary or keyed
+collector extraction seam between those layers. PHYSICAL0 is paused at a
+design boundary rather than importing the compiler manifest or reusing the old
+symbol-only drain.
+
+Read and answer:
+
+`cut0-i0-root0-drain0-physical0-boundary-question-2026-07-23.md`
+
+No PHYSICAL0 implementation or production consumer is authorized until its
+Q1–Q4 choices are locked.
 
 ## ROOT0-DRAIN0-PHYSICAL0 — prepared physical terminal
 
