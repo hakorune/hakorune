@@ -3,7 +3,6 @@
 //! This module is disconnected from public compiler ingress.  It consumes a
 //! preflight package once, keeps the real BRAND0 shell/collector owner, and
 //! emits route-specific completion products without reusing Raw Main state.
-
 use super::module_draft_collector::{
     CallableCollectorBatchReceiptV1, CollectedCallableCollectorBatchV1,
     CallableCollectorBatchPrepareErrorV1, CallableCollectorDraftEntryV1,
@@ -25,7 +24,6 @@ use super::module_lowering_shell::{
 };
 use super::route_owned_invocation_inventory::RouteOwnedInvocationInventoryV2;
 use crate::mir::builder::module_invocation_callable_batch::CallableBatchSourceErrorV1;
-use crate::mir::canonical_recursive_callable_module_capability::CanonicalRecursiveCallableModuleCapabilityV1;
 use crate::mir::compiler::capability::{
     CanonicalFirstFamilyPlanV1, ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1,
     VerifiedResolvedOwnerHeaderV1,
@@ -37,7 +35,6 @@ use crate::mir::compiler::{
 };
 use crate::mir::resolved_semantics::CanonicalCallableKeyV1;
 use crate::mir::function::MirFunction;
-
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum CanonicalSourceBindingErrorV1 {
     FamilyMismatch {
@@ -48,7 +45,6 @@ pub(in crate::mir::builder) enum CanonicalSourceBindingErrorV1 {
     RoutePolicy,
     CallablePlan(CallableBatchSourceErrorV1),
 }
-
 impl std::fmt::Display for CanonicalSourceBindingErrorV1 {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -57,7 +53,6 @@ impl std::fmt::Display for CanonicalSourceBindingErrorV1 {
         )
     }
 }
-
 impl std::error::Error for CanonicalSourceBindingErrorV1 {}
 
 #[derive(Debug)]
@@ -67,7 +62,6 @@ pub(in crate::mir::builder) struct CanonicalSingleSourceContinuationV1 {
     policy: RouteOwnedInvocationInventoryV2,
     _seal: CanonicalSingleSourceContinuationSealV1,
 }
-
 #[derive(Debug)]
 struct CanonicalSingleSourceContinuationSealV1;
 
@@ -78,7 +72,6 @@ pub(in crate::mir::builder) struct PreparedCanonicalSingleSourceV1<'a> {
     continuation: CanonicalSingleSourceContinuationV1,
     _seal: PreparedCanonicalSingleSourceSealV1,
 }
-
 #[derive(Debug)]
 struct PreparedCanonicalSingleSourceSealV1;
 
@@ -88,7 +81,6 @@ pub(in crate::mir::builder) struct BrandedCanonicalSingleLoweringPlanV1<'a> {
     plan: CanonicalFirstFamilyPlanV1<'a>,
     _seal: BrandedCanonicalSingleLoweringPlanSealV1,
 }
-
 #[derive(Debug)]
 struct BrandedCanonicalSingleLoweringPlanSealV1;
 
@@ -162,7 +154,6 @@ impl<'a> PreparedCanonicalSingleSourceV1<'a> {
         )
     }
 }
-
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum CanonicalCompletionErrorV1 {
     Shell(ModuleLoweringShellErrorV1),
@@ -184,8 +175,12 @@ pub(in crate::mir::builder) enum CanonicalCompletionErrorV1 {
     CallableReplacementForbidden,
     RecursiveCapability(&'static str),
     CapabilityFamilyMismatch(ModuleInvocationFamilyV1),
+    CapabilityBrandMismatch { expected: u64, actual: u64 },
+    CapabilityWitnessFamilyMismatch {
+        expected: ModuleInvocationFamilyV1,
+        actual: ModuleInvocationFamilyV1,
+    },
 }
-
 impl std::fmt::Display for CanonicalCompletionErrorV1 {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -194,7 +189,6 @@ impl std::fmt::Display for CanonicalCompletionErrorV1 {
         )
     }
 }
-
 impl std::error::Error for CanonicalCompletionErrorV1 {}
 
 #[derive(Debug)]
@@ -203,7 +197,6 @@ pub(in crate::mir::builder) struct CanonicalSingleRootWitnessV1 {
     receipt: InvocationBranded<CollectedDraftAdmissionReceiptV1>,
     _seal: CanonicalSingleRootWitnessSealV1,
 }
-
 #[derive(Debug)]
 struct CanonicalSingleRootWitnessSealV1;
 
@@ -216,7 +209,6 @@ pub(in crate::mir::builder) struct CanonicalSingleDrainPlanV1 {
     arity: usize,
     _seal: CanonicalSingleDrainPlanSealV1,
 }
-
 #[derive(Debug)]
 struct CanonicalSingleDrainPlanSealV1;
 
@@ -229,7 +221,6 @@ pub(in crate::mir::builder) struct CanonicalSingleCompleteInvocationV1 {
     drain_plan: CanonicalSingleDrainPlanV1,
     _seal: CanonicalSingleCompleteInvocationSealV1,
 }
-
 #[derive(Debug)]
 struct CanonicalSingleCompleteInvocationSealV1;
 
@@ -399,7 +390,6 @@ pub(in crate::mir::builder) struct RejectedCanonicalSingleCollectionV1<'a> {
     shell: BrandedShellV1<ModuleLoweringShellV1>,
     rejected: RejectedCollectedDraftAdmissionV1,
 }
-
 pub(in crate::mir::builder) struct CanonicalSingleCollectedInvocationV1<'a> {
     token: ModuleInvocationTokenV1,
     lowering: Option<BrandedCanonicalSingleLoweringPlanV1<'a>>,
@@ -408,7 +398,6 @@ pub(in crate::mir::builder) struct CanonicalSingleCollectedInvocationV1<'a> {
     shell: BrandedShellV1<ModuleLoweringShellV1>,
     collected: CollectedDraftAdmissionProductV1,
 }
-
 impl<'a> CanonicalSingleActiveInvocationV1<'a> {
     pub(in crate::mir::builder) fn open(
         prepared: PreparedCanonicalSingleSourceV1<'a>,
@@ -590,7 +579,6 @@ pub(in crate::mir::builder) struct CallableBatchCollectedInvocationV1<'a> {
     shell: BrandedShellV1<ModuleLoweringShellV1>,
     collected: CollectedCallableCollectorBatchV1,
 }
-
 impl<'a> CallableBatchActiveInvocationV1<'a> {
     pub(in crate::mir::builder) fn open(
         prepared: PreparedCallableBatchSourceV1<'a>,
@@ -604,15 +592,39 @@ impl<'a> CallableBatchActiveInvocationV1<'a> {
             .map_err(CanonicalCompletionErrorV1::Shell)?;
         let (token, session, physical) = active.into_parts();
         let (_brand, mut shell, collector) = physical.into_parts();
+        let brand = token.brand();
         let installed = shell
-            .payload_mut()
-            .with_port(|port| port.install_callable_batch_shell_fact(family))
+            .install_callable_batch_capability(family)
             .map_err(CanonicalCompletionErrorV1::RecursiveCapability)?;
         let capability = match (family, installed) {
             (ModuleInvocationFamilyV1::BindingSsaAcyclic, Err(absence)) => {
+                if absence.family() != family {
+                    return Err(CanonicalCompletionErrorV1::CapabilityWitnessFamilyMismatch {
+                        expected: family,
+                        actual: absence.family(),
+                    });
+                }
+                if absence.brand() != brand {
+                    return Err(CanonicalCompletionErrorV1::CapabilityBrandMismatch {
+                        expected: brand.ordinal(),
+                        actual: absence.brand().ordinal(),
+                    });
+                }
                 CallableBatchCapabilityDispositionV1::Acyclic(absence)
             }
             (ModuleInvocationFamilyV1::BindingSsaRecursive, Ok(receipt)) => {
+                if receipt.family() != family {
+                    return Err(CanonicalCompletionErrorV1::CapabilityWitnessFamilyMismatch {
+                        expected: family,
+                        actual: receipt.family(),
+                    });
+                }
+                if receipt.brand() != brand {
+                    return Err(CanonicalCompletionErrorV1::CapabilityBrandMismatch {
+                        expected: brand.ordinal(),
+                        actual: receipt.brand().ordinal(),
+                    });
+                }
                 CallableBatchCapabilityDispositionV1::Recursive(receipt)
             }
             _ => return Err(CanonicalCompletionErrorV1::CapabilityFamilyMismatch(family)),
@@ -685,7 +697,6 @@ impl<'a> CallableBatchActiveInvocationV1<'a> {
         })
     }
 }
-
 impl<'a> CallableBatchCollectedInvocationV1<'a> {
     pub(in crate::mir::builder) fn complete(
         self,

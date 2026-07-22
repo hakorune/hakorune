@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-CANON0 RECURSIVE0 実行タスク
 
-Status: **Active — RECEIPT0 closed; recursive capability provenance next**
+Status: **Closed — RECURSIVE0 branded capability provenance complete**
 
 Related:
 
@@ -71,6 +71,40 @@ python3 tools/checks/lib/cut0_i0_root0_canon0_receipt0_guard.py
 
 Add focused acyclic/recursive install fixtures and a static census guard.
 Do not connect production canonical ingress or DRAIN0 in this row.
+
+## Closeout evidence
+
+```text
+src/mir/builder/module_lowering_shell.rs
+  -> recursive and acyclic witnesses retain invocation brand and family
+  -> branded shell terminal injects its own brand and installs the marker once
+
+src/mir/builder/canonical_root_completion.rs
+  -> source-driven capability install is co-sealed with completion
+  -> foreign brand/family witnesses fail before completion mutation
+
+focused fixtures:
+  recursive_install_returns_exact_brand_and_family_once
+  acyclic_install_returns_branded_absence_witness
+  acyclic_route_rejects_a_preexisting_recursive_marker
+```
+
+Evidence passed:
+
+```bash
+git diff --check
+bash tools/checks/current_state_pointer_guard.sh
+RUSTFLAGS='-Awarnings' cargo check -q --lib
+RUSTFLAGS='-Awarnings' cargo test -q canonical_root_completion_recursive0_p0 --lib
+python3 tools/checks/lib/cut0_i0_root0_canon0_recursive0_guard.py
+python3 tools/checks/lib/cut0_i0_root0_canon0_source_bind0_guard.py
+python3 tools/checks/lib/cut0_i0_root0_canon0_lower0_guard.py
+python3 tools/checks/lib/cut0_i0_root0_canon0_receipt0_guard.py
+```
+
+The disconnected legacy recursive publisher remains explicitly allowlisted;
+no production canonical capture, drain, finalizer, or external commit was
+added. CANON-FIXTURE0 is the sole next row.
 
 ## Stop line
 

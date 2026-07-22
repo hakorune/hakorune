@@ -323,9 +323,9 @@ module_draft_headerport_i0_task = "docs/development/current/main/investigations/
 headerport_hdr0_p0_execution_task = "docs/development/current/main/investigations/mirbuilder-headerport-i0-hdr0-p0-execution-task-2026-07-22.md"
 cut0_i0_t_prime_r1_execution_task = "docs/development/current/main/investigations/cut0-i0-t-prime-r1-execution-task-2026-07-22.md"
 
-latest_card = "cut0-i0-root0-canon0-recursive0-execution-task-2026-07-22"
-latest_card_path = "docs/development/current/main/investigations/cut0-i0-root0-canon0-recursive0-execution-task-2026-07-22.md"
-latest_card_summary = """RECEIPT0 is closed: canonical single and callable-batch collection now move collector-issued branded receipts together with their physical collectors, and route-specific completion retains exact receipts by value in root witnesses. Three focused fixtures, cargo check, receipt guard, predecessor guards, pointer guard, and diff check are green; recursive capability, drain, finalizer, and external commit remain zero. RECURSIVE0 is next."""
+latest_card = "cut0-i0-root0-canon0-fixture0-execution-task-2026-07-22"
+latest_card_path = "docs/development/current/main/investigations/cut0-i0-root0-canon0-fixture0-execution-task-2026-07-22.md"
+latest_card_summary = """RECURSIVE0 is closed: recursive and acyclic callable routes now carry branded family witnesses from the source-driven shell install into canonical completion, with focused fixtures and a census guard green. The disconnected legacy recursive publisher remains allowlisted; canonical ingress, drain, finalization, and external commit remain zero. CANON-FIXTURE0 is next."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -527,7 +527,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-MODULEDRAFT0-HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-CUT0-I0-ROOT0-CANON0-RECURSIVE0-20260722"
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-MODULEDRAFT0-HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-CUT0-I0-ROOT0-CANON0-CANON-FIXTURE0-20260722"
 finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
@@ -537,6 +537,7 @@ pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 
 landed_tail = [
+  "2026-07-22: ROOT0-CANON0 RECURSIVE0 closes. Callable source-driven shell installation now emits non-Clone branded recursive receipts or branded acyclic absence witnesses; completion co-seals family and invocation brand, duplicate/preexisting markers fail fast, focused fixtures and the census guard are green, and the disconnected legacy publisher remains allowlisted. CANON-FIXTURE0 is next; production ingress, drain, finalization, and external commit remain zero.",
   "2026-07-22: ROOT0-CANON0 RECEIPT0 closes. Canonical single and callable-batch collection move collector-issued branded receipts together with their physical collectors; route-specific completion retains exact receipts by value in root witnesses. Three focused fixtures, cargo check, receipt guard, predecessor guards, pointer guard, and diff check are green. RECURSIVE0 is next; drain, finalization, and production wiring remain separate.",
   "2026-07-22: ROOT0-CANON0 Q1-Q4 are all answered with C-prime. The implementation task now requires one-time preflight package split, BRAND0 active physical owner co-seal, collector-issued receipts, route-specific canonical completion, and private source-derived drain plans. Main-only state reuse and production canonical wiring remain forbidden. The next executable row is ROOT0-CANON0 implementation.",
   "2026-07-22: CUT0-I0-ROOT0-RAW0 closes Candidate A as a disconnected retained-root-witness proof. A branded collector batch retains CompletedRootBodyV1, exact Main/condition receipts, and callable-main disposition; the raw ledger records both required root slots through one preflighted batch terminal; RawInvocationRootWitnessV1 and RawCompleteInvocationV1 are the only unpublished products. Focused RAW0 fixtures, cargo check, pointer guard, and the new below-800-line guard are green. Production capture, drain, finalizer, and external commit remain zero. ROOT0-CANON0 is next.",
@@ -548,5 +549,4 @@ landed_tail = [
   "2026-07-22: CUT0-I0-CONSULT0 closes with Candidate T-prime-r1. One invocation ID brands the full owner chain; callable batches preflight atomically before infallible collection; raw Main and canonical completion use distinct states; Builder config preserves route-specific CoreContext seed policy; postprocess and verifier behavior remain exact; and the first production child error aborts the outer invocation with no later sibling, retry, fallback, or publication. CUT0-I0-ID0-S0 is next; production capture/commit remains zero.",
   "2026-07-22: CUT0-P0 closes the disconnected all-route proof. One test-only outer adapter executes all nine route rows across success, primary, cleanup, admission, root, drain, finalizer, and panic outcomes. The candidate→complete→same-state drain→Builder-free finalizer→external commit probe succeeds only once; every failure and panic keeps external commit at zero and retry forbidden. Authority lanes are projected from the existing route-owned inventory; production consumers remain zero. CUT0-I0 is next.",
   "2026-07-22: CUT0-S0-COMPAT0 closes the disconnected callable-Main receipt bridge. Required policy maps to a dedicated raw-ledger request; success performs capture→admission→seal→collect→ledger.complete exactly once; Primary/Cleanup/Admission/Panic paths consume ledger.abort and preserve typed child evidence plus the completed collector prefix. NotSelected performs no reservation or lowering. The adapter, fixtures, and guard remain test-only/disconnected, with production capture/commit and CUT0 activation still zero. CUT0-P0 is next.",
-  "2026-07-22: CUT0-S0-OWNER0 closes the disconnected linear-owner structural seam. Root completion now has explicit capture→complete transitions; the same candidate state moves through `complete_success`→`prepare_complete`→`drain_candidate` without shell/collector reconstruction; and `finalize_drained_module_once` consumes the co-sealed post-drain input into a typed final candidate without Builder, collector, HeaderPort, bare-module, retry, or publication authority. New source/tests and the CUT0-S0 guard are below 800 lines with production consumers=0. CUT0-S0-COMPAT0 is next.",
 ]

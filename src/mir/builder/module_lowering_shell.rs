@@ -9,7 +9,8 @@ use std::collections::BTreeSet;
 use crate::ast::ASTNode;
 use crate::mir::function::{ClosureBodyId, ModuleMetadata, StaticDataPlan};
 use crate::mir::{ConstValue, MirFunction, MirModule};
-use super::module_invocation_identity::ModuleInvocationFamilyV1;
+use super::module_invocation_identity::{ModuleInvocationBrandV1, ModuleInvocationFamilyV1};
+use super::module_invocation_owner_chain::InvocationBranded;
 
 mod declaration_fact_commit;
 
@@ -87,6 +88,8 @@ struct ModuleLoweringShellDrainSealV1;
 
 #[derive(Debug)]
 pub(in crate::mir::builder) struct RecursiveCapabilityInstallReceiptV1 {
+    brand: ModuleInvocationBrandV1,
+    family: ModuleInvocationFamilyV1,
     _seal: RecursiveCapabilityInstallReceiptSealV1,
 }
 
@@ -95,11 +98,33 @@ struct RecursiveCapabilityInstallReceiptSealV1;
 
 #[derive(Debug)]
 pub(in crate::mir::builder) struct AcyclicCapabilityAbsenceWitnessV1 {
+    brand: ModuleInvocationBrandV1,
+    family: ModuleInvocationFamilyV1,
     _seal: AcyclicCapabilityAbsenceWitnessSealV1,
 }
 
 #[derive(Debug)]
 struct AcyclicCapabilityAbsenceWitnessSealV1;
+
+impl RecursiveCapabilityInstallReceiptV1 {
+    pub(in crate::mir::builder) const fn brand(&self) -> ModuleInvocationBrandV1 {
+        self.brand
+    }
+
+    pub(in crate::mir::builder) const fn family(&self) -> ModuleInvocationFamilyV1 {
+        self.family
+    }
+}
+
+impl AcyclicCapabilityAbsenceWitnessV1 {
+    pub(in crate::mir::builder) const fn brand(&self) -> ModuleInvocationBrandV1 {
+        self.brand
+    }
+
+    pub(in crate::mir::builder) const fn family(&self) -> ModuleInvocationFamilyV1 {
+        self.family
+    }
+}
 
 impl ModuleLoweringShellV1 {
     pub(in crate::mir::builder) fn from_empty_module(
@@ -226,8 +251,9 @@ impl ModuleLoweringShellPortV1<'_> {
         )
     }
 
-    pub(in crate::mir::builder) fn install_callable_batch_shell_fact(
+    fn install_callable_batch_shell_fact(
         &mut self,
+        brand: ModuleInvocationBrandV1,
         family: ModuleInvocationFamilyV1,
     ) -> Result<
         Result<RecursiveCapabilityInstallReceiptV1, AcyclicCapabilityAbsenceWitnessV1>,
@@ -246,6 +272,8 @@ impl ModuleLoweringShellPortV1<'_> {
                     true,
                 )?;
                 Ok(Ok(RecursiveCapabilityInstallReceiptV1 {
+                    brand,
+                    family,
                     _seal: RecursiveCapabilityInstallReceiptSealV1,
                 }))
             }
@@ -260,6 +288,8 @@ impl ModuleLoweringShellPortV1<'_> {
                     Err("[freeze:contract][canonical_recursive_module/capability_unexpected]")
                 } else {
                     Ok(Err(AcyclicCapabilityAbsenceWitnessV1 {
+                        brand,
+                        family,
                         _seal: AcyclicCapabilityAbsenceWitnessSealV1,
                     }))
                 }
@@ -273,7 +303,23 @@ impl ModuleLoweringShellPortV1<'_> {
         &mut self,
         family: ModuleInvocationFamilyV1,
     ) -> Result<(), &'static str> {
-        self.install_callable_batch_shell_fact(family).map(|_| ())
+        self.install_callable_batch_shell_fact(ModuleInvocationBrandV1::legacy_test(), family)
+            .map(|_| ())
+    }
+}
+
+impl InvocationBranded<ModuleLoweringShellV1> {
+    /// Source-driven shell terminal; the wrapper injects its own brand.
+    pub(in crate::mir::builder) fn install_callable_batch_capability(
+        &mut self,
+        family: ModuleInvocationFamilyV1,
+    ) -> Result<
+        Result<RecursiveCapabilityInstallReceiptV1, AcyclicCapabilityAbsenceWitnessV1>,
+        &'static str,
+    > {
+        let brand = self.brand();
+        self.payload_mut()
+            .with_port(|port| port.install_callable_batch_shell_fact(brand, family))
     }
 }
 

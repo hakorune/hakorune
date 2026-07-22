@@ -52,7 +52,7 @@ def main() -> int:
         if len(path.read_text().splitlines()) >= 800:
             raise AssertionError(f"LOWER0 file must remain below 800 lines: {path}")
 
-    require(state, "RECURSIVE0-20260722", "successor blocker")
+    require(state, "CANON-FIXTURE0-20260722", "successor blocker")
     require(source_task, "Status: **Closed — SOURCE-BIND0", "source-bind predecessor")
     require(task, "private consume_lowering(package)", "LOWER0 terminal contract")
     require(compiler, "pub(in crate::mir) fn lower_canonical_source", "compiler lower terminal")
