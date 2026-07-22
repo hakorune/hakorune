@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-CANON0 SOURCE-BIND0 実行タスク
 
-Status: **Active — Candidate SB-prime-r1 selected; SOURCE-BIND0 implementation next**
+Status: **Closed — SOURCE-BIND0 implementation and evidence gate passed; LOWER0 next**
 
 Decision source:
 
@@ -57,10 +57,10 @@ per-route producer、raw ledger ordinal、test factoryのproduction昇格は禁�
 
 ### 2. Plan-driven source-bound package
 
-new box候補:
+implemented box:
 
 ```text
-src/mir/builder/module_invocation_source_binding.rs
+src/mir/compiler/source_bound_package.rs
 ```
 
 ```rust
@@ -140,6 +140,19 @@ tools/checks/lib/cut0_i0_root0_canon0_source_bind0_guard.py
 実装前にfixtureを追加してsemantic failure boundaryを固定するが、production ingress
 へは接続しない。
 
+実装結果:
+
+```text
+compiler-owned InvocationIdentityIssuerV1 = 1
+process-scoped domain + local ordinal brand = 1
+SourceBoundCanonicalPackageV1 = 1 non-Clone owner
+RejectedCanonicalSourceBindingV1 = 1 typed owner
+MirCompiler::bind_canonical_source = 1 sole production constructor
+focused source-bound tests = 4 passed
+SOURCE-BIND0 census guard = green
+production capture/drain/finalizer/commit = 0
+```
+
 ## Explicit non-claims and parked rows
 
 このrowはtransport/source provenanceを閉じるだけで、次をclaimしない。
@@ -192,3 +205,13 @@ focused fixture commandは実装時にカードへ確定し、成功結果をclo
 このカードの受け入れ後も、production canonical capture、drain、finalizer、external
 commitはゼロでなければならない。SOURCE-BIND0の目的外の修正を同じcommitへ混ぜない。
 1 semantic row = 1 commitを守り、800行を越えそうな箱は先に分割する。
+
+## Closeout
+
+SOURCE-BIND0はexact plan-driven source bindingだけを閉じた。RawはROOT0-RAW0の
+既存chainに残し、packageの実lowering、receipt retention、recursive install、
+CANON-FIXTURE0、DRAIN0、production ingressは未claimである。
+
+次の実行カード:
+
+`cut0-i0-root0-canon0-lower0-execution-task-2026-07-22.md`

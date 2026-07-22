@@ -39,6 +39,15 @@ pub(crate) struct CanonicalCurrentAPlusPlanV1<'a> {
 }
 
 impl<'a> CanonicalCurrentAPlusPlanV1<'a> {
+    pub(crate) fn seal_resolved_owner_header_v1(
+        &self,
+    ) -> Result<VerifiedResolvedOwnerHeaderV1, ResolvedOwnerHeaderSealErrorV1> {
+        VerifiedResolvedOwnerHeaderV1::seal_input(
+            CanonicalFirstFamilyPlanBrandV1(ResolvedOwnerHeaderFamilyV1::CurrentCanonicalAPlus),
+            self.function,
+        )
+    }
+
     pub(crate) fn into_parts(
         self,
     ) -> (
@@ -66,6 +75,15 @@ pub(crate) struct CanonicalTrivialBindingSsaPlanV1<'a> {
 }
 
 impl<'a> CanonicalTrivialBindingSsaPlanV1<'a> {
+    pub(crate) fn seal_resolved_owner_header_v1(
+        &self,
+    ) -> Result<VerifiedResolvedOwnerHeaderV1, ResolvedOwnerHeaderSealErrorV1> {
+        VerifiedResolvedOwnerHeaderV1::seal_input(
+            CanonicalFirstFamilyPlanBrandV1(ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa),
+            self.function,
+        )
+    }
+
     pub(crate) fn direct_call_count(&self) -> usize {
         self.profile.direct_calls().len()
     }

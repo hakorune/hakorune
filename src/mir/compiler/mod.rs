@@ -35,6 +35,8 @@ pub(in crate::mir) mod resolved_callable_module_preflight;
 mod source_projection;
 #[allow(dead_code)]
 pub(in crate::mir) mod source_view;
+#[allow(dead_code)]
+pub(in crate::mir) mod source_bound_package;
 
 #[cfg(test)]
 mod acyclic_callable_module_activation_tests;
@@ -60,6 +62,10 @@ mod sibling_call_tests;
 mod source_view_tests;
 
 use capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
+use source_bound_package::{
+    ExactCanonicalPreflightPlanV1, InvocationIdentityIssuerV1,
+    RejectedCanonicalSourceBindingV1, SourceBoundCanonicalPackageV1,
+};
 pub use lowering_input::{
     CanonicalLoweringErrorV1, LegacyModuleLoweringInputV1, ResolvedModuleLoweringInputV1,
     VerifiedResolvedSourceUnitV1,
@@ -149,6 +155,7 @@ pub struct MirCompiler {
     builder: MirBuilder,
     verifier: MirVerifier,
     optimize: bool,
+    invocation_identity: InvocationIdentityIssuerV1,
 }
 
 impl MirCompiler {
@@ -158,6 +165,7 @@ impl MirCompiler {
             builder: MirBuilder::new(),
             verifier: MirVerifier::new(),
             optimize: true,
+            invocation_identity: InvocationIdentityIssuerV1::new(),
         }
     }
 
@@ -167,7 +175,18 @@ impl MirCompiler {
             builder: MirBuilder::new(),
             verifier: MirVerifier::new(),
             optimize,
+            invocation_identity: InvocationIdentityIssuerV1::new(),
         }
+    }
+
+    /// SOURCE-BIND0 sole constructor.  The exact canonical plan is the only
+    /// source authority; identity is minted only after its continuation has
+    /// been sealed.  LOWER0 is the only future package consumer.
+    pub(in crate::mir) fn bind_canonical_source<'a>(
+        &mut self,
+        plan: ExactCanonicalPreflightPlanV1<'a>,
+    ) -> Result<SourceBoundCanonicalPackageV1<'a>, RejectedCanonicalSourceBindingV1<'a>> {
+        SourceBoundCanonicalPackageV1::bind(&mut self.invocation_identity, plan)
     }
 
     /// Phase 288 P2: Set REPL mode flag
