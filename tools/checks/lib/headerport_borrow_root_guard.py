@@ -222,6 +222,7 @@ def verify_borrow_root_p0(
             "BORROW-P0-ROOT-G0 and WIRING-I0-BORROW-G0 are closed; WIRING-I0-HDR0-M0 is closed; HDR0-P0 Q1-Q4 decisions are accepted and HDR0-P0-AUTHORITY-ERASURE0 is next",
             "BORROW-P0-ROOT-G0 and WIRING-I0-BORROW-G0 are closed; WIRING-I0-HDR0-M0 is closed; HDR0-P0 Q1-Q4 decisions are accepted, HDR0-P0-AUTHORITY-ERASURE0 is closed, and HDR0-P0-METHODTAIL-COMPAT0 is next",
             "BORROW-P0-ROOT-G0 and WIRING-I0-BORROW-G0 are closed; WIRING-I0-HDR0-M0 is closed; HDR0-P0 Q1-Q4 decisions are accepted, HDR0-P0-AUTHORITY-ERASURE0 and HDR0-P0-METHODTAIL-COMPAT0 are closed, and HDR0-P0-CALLER-CENSUS0 is next",
+            "BORROW-P0-ROOT-G0 and WIRING-I0-BORROW-G0 are closed; WIRING-I0-HDR0-M0 is closed; HDR0-P0 Q1-Q4 decisions are accepted, HDR0-P0-AUTHORITY-ERASURE0, HDR0-P0-METHODTAIL-COMPAT0, and HDR0-P0-CALLER-CENSUS0 are closed, and HDR0-G0 is next",
         )
     ):
         raise AssertionError("missing BORROW-G0 pointer or its documented HDR0 follow-on")

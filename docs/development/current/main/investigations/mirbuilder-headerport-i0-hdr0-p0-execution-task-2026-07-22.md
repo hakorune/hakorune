@@ -257,3 +257,26 @@ cargo test -q method_tail_index --lib = green (3 tests)
 
 The next code-facing row is `HDR0-P0-CALLER-CENSUS0`; production capture,
 drain, finalizer, external commit, and CUT0 remain zero.
+
+## HDR0-P0-CALLER-CENSUS0 closeout
+
+The post-slice caller census is closed on 2026-07-22. Explicit projection
+callers are limited to rewrite/header lookup, unified method observation, and
+static recovery. Legacy `method_candidates` remains behind three named
+compatibility consumers. Materializer presence has one legacy wrapper and one
+exclusive authority core. No unclassified HeaderPort caller, new
+`current_module` fallback, retry, or production capture/commit consumer was
+found.
+
+Evidence:
+
+```text
+python3 tools/checks/lib/headerport_header_reader_census.py = green (20 rows)
+python3 tools/checks/lib/headerport_authority_erasure_guard.py = green
+python3 tools/checks/lib/headerport_method_tail_compat_guard.py = green
+python3 tools/checks/lib/headerport_candidate0_guard.py . = green
+```
+
+The next code-facing row is `HDR0-G0`. The existing compatibility-policy
+consultation still remains before CUT0-S0; this census does not authorize
+production lifecycle wiring.
