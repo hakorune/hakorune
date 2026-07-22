@@ -7,74 +7,9 @@
 
 use std::num::NonZeroU64;
 
-use super::module_invocation_route_matrix::InvocationRootFamilyV1;
-
-pub(in crate::mir::builder) type ModuleInvocationFamilyV1 = InvocationRootFamilyV1;
-
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(in crate::mir::builder) struct ModuleInvocationIdV1 {
-    ordinal: NonZeroU64,
-    _seal: ModuleInvocationIdSealV1,
-}
-
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-struct ModuleInvocationIdSealV1;
-
-impl ModuleInvocationIdV1 {
-    pub(in crate::mir::builder) fn same(&self, other: &Self) -> bool {
-        self == other
-    }
-
-    /// A copyable proof for disconnected owners. The non-Clone ID itself
-    /// remains owned by the source token; later products carry this opaque
-    /// brand instead of duplicating the owner.
-    pub(in crate::mir::builder) fn brand(&self) -> ModuleInvocationBrandV1 {
-        ModuleInvocationBrandV1 {
-            ordinal: self.ordinal,
-            _seal: ModuleInvocationBrandSealV1,
-        }
-    }
-
-    #[cfg(test)]
-    pub(in crate::mir::builder) fn ordinal(&self) -> u64 {
-        self.ordinal.get()
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(in crate::mir::builder) struct ModuleInvocationBrandV1 {
-    ordinal: NonZeroU64,
-    _seal: ModuleInvocationBrandSealV1,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-struct ModuleInvocationBrandSealV1;
-
-impl ModuleInvocationBrandV1 {
-    pub(in crate::mir::builder) fn same(self, other: Self) -> bool {
-        self.ordinal == other.ordinal
-    }
-
-    pub(in crate::mir::builder) const fn ordinal(self) -> u64 {
-        self.ordinal.get()
-    }
-
-    #[cfg(test)]
-    pub(in crate::mir::builder) const fn legacy_test() -> Self {
-        Self {
-            ordinal: NonZeroU64::new(1).expect("non-zero test brand"),
-            _seal: ModuleInvocationBrandSealV1,
-        }
-    }
-
-    #[cfg(test)]
-    pub(in crate::mir::builder) fn test_with_ordinal(ordinal: u64) -> Self {
-        Self {
-            ordinal: NonZeroU64::new(ordinal).expect("non-zero test brand"),
-            _seal: ModuleInvocationBrandSealV1,
-        }
-    }
-}
+pub(in crate::mir::builder) use crate::mir::module_invocation_identity::{
+    ModuleInvocationBrandV1, ModuleInvocationFamilyV1, ModuleInvocationTokenV1,
+};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum ModuleInvocationIdentityErrorV1 {
@@ -92,115 +27,6 @@ impl std::fmt::Display for ModuleInvocationIdentityErrorV1 {
 }
 
 impl std::error::Error for ModuleInvocationIdentityErrorV1 {}
-
-/// Private source brands for ID0-S0. ID0-P0 replaces them with actual plans.
-#[derive(Debug, PartialEq, Eq)]
-enum SealedInvocationSourceWitnessV1 {
-    Raw,
-    CanonicalAPlus,
-    BindingSsaTrivial,
-    BindingSsaAcyclic,
-    BindingSsaRecursive,
-}
-
-impl SealedInvocationSourceWitnessV1 {
-    fn family(&self) -> ModuleInvocationFamilyV1 {
-        match self {
-            Self::Raw => InvocationRootFamilyV1::Raw,
-            Self::CanonicalAPlus => InvocationRootFamilyV1::CanonicalAPlus,
-            Self::BindingSsaTrivial => InvocationRootFamilyV1::BindingSsaTrivial,
-            Self::BindingSsaAcyclic => InvocationRootFamilyV1::BindingSsaAcyclic,
-            Self::BindingSsaRecursive => InvocationRootFamilyV1::BindingSsaRecursive,
-        }
-    }
-}
-
-#[derive(Debug, PartialEq, Eq)]
-enum ModuleInvocationTokenKindV1 {
-    Raw {
-        id: ModuleInvocationIdV1,
-        source: SealedInvocationSourceWitnessV1,
-    },
-    CanonicalAPlus {
-        id: ModuleInvocationIdV1,
-        source: SealedInvocationSourceWitnessV1,
-    },
-    BindingSsaTrivial {
-        id: ModuleInvocationIdV1,
-        source: SealedInvocationSourceWitnessV1,
-    },
-    BindingSsaAcyclic {
-        id: ModuleInvocationIdV1,
-        source: SealedInvocationSourceWitnessV1,
-    },
-    BindingSsaRecursive {
-        id: ModuleInvocationIdV1,
-        source: SealedInvocationSourceWitnessV1,
-    },
-}
-
-/// Sealed wrapper around the five private token variants. Sibling modules can
-/// inspect the brand but cannot construct a foreign source/family pairing.
-#[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir::builder) struct ModuleInvocationTokenV1 {
-    kind: ModuleInvocationTokenKindV1,
-}
-
-impl ModuleInvocationTokenV1 {
-    pub(in crate::mir::builder) fn id(&self) -> &ModuleInvocationIdV1 {
-        match &self.kind {
-            ModuleInvocationTokenKindV1::Raw { id, .. }
-            | ModuleInvocationTokenKindV1::CanonicalAPlus { id, .. }
-            | ModuleInvocationTokenKindV1::BindingSsaTrivial { id, .. }
-            | ModuleInvocationTokenKindV1::BindingSsaAcyclic { id, .. }
-            | ModuleInvocationTokenKindV1::BindingSsaRecursive { id, .. } => id,
-        }
-    }
-
-    pub(in crate::mir::builder) fn brand(&self) -> ModuleInvocationBrandV1 {
-        self.id().brand()
-    }
-
-    pub(in crate::mir::builder) const fn family(&self) -> ModuleInvocationFamilyV1 {
-        match self.kind {
-            ModuleInvocationTokenKindV1::Raw { .. } => InvocationRootFamilyV1::Raw,
-            ModuleInvocationTokenKindV1::CanonicalAPlus { .. } => InvocationRootFamilyV1::CanonicalAPlus,
-            ModuleInvocationTokenKindV1::BindingSsaTrivial { .. } => InvocationRootFamilyV1::BindingSsaTrivial,
-            ModuleInvocationTokenKindV1::BindingSsaAcyclic { .. } => InvocationRootFamilyV1::BindingSsaAcyclic,
-            ModuleInvocationTokenKindV1::BindingSsaRecursive { .. } => InvocationRootFamilyV1::BindingSsaRecursive,
-        }
-    }
-
-    #[cfg(test)]
-    fn from_test_preflight(
-        id: ModuleInvocationIdV1,
-        family: ModuleInvocationFamilyV1,
-        source: SealedInvocationSourceWitnessV1,
-    ) -> Result<Self, ModuleInvocationIdentityErrorV1> {
-        if source.family() != family {
-            return Err(ModuleInvocationIdentityErrorV1::FamilySourceMismatch {
-                family,
-                source_family: source.family(),
-            });
-        }
-        let kind = match family {
-            InvocationRootFamilyV1::Raw => ModuleInvocationTokenKindV1::Raw { id, source },
-            InvocationRootFamilyV1::CanonicalAPlus => {
-                ModuleInvocationTokenKindV1::CanonicalAPlus { id, source }
-            }
-            InvocationRootFamilyV1::BindingSsaTrivial => {
-                ModuleInvocationTokenKindV1::BindingSsaTrivial { id, source }
-            }
-            InvocationRootFamilyV1::BindingSsaAcyclic => {
-                ModuleInvocationTokenKindV1::BindingSsaAcyclic { id, source }
-            }
-            InvocationRootFamilyV1::BindingSsaRecursive => {
-                ModuleInvocationTokenKindV1::BindingSsaRecursive { id, source }
-            }
-        };
-        Ok(Self { kind })
-    }
-}
 
 #[cfg(test)]
 pub(in crate::mir::builder) struct TestInvocationPreflightFactoryV1 {
@@ -237,24 +63,6 @@ impl TestInvocationPreflightFactoryV1 {
             .next
             .checked_add(1)
             .ok_or(ModuleInvocationIdentityErrorV1::OrdinalExhausted)?;
-        ModuleInvocationTokenV1::from_test_preflight(
-            ModuleInvocationIdV1 {
-                ordinal,
-                _seal: ModuleInvocationIdSealV1,
-            },
-            family,
-            source_witness(source_family),
-        )
-    }
-}
-
-#[cfg(test)]
-fn source_witness(family: ModuleInvocationFamilyV1) -> SealedInvocationSourceWitnessV1 {
-    match family {
-        InvocationRootFamilyV1::Raw => SealedInvocationSourceWitnessV1::Raw,
-        InvocationRootFamilyV1::CanonicalAPlus => SealedInvocationSourceWitnessV1::CanonicalAPlus,
-        InvocationRootFamilyV1::BindingSsaTrivial => SealedInvocationSourceWitnessV1::BindingSsaTrivial,
-        InvocationRootFamilyV1::BindingSsaAcyclic => SealedInvocationSourceWitnessV1::BindingSsaAcyclic,
-        InvocationRootFamilyV1::BindingSsaRecursive => SealedInvocationSourceWitnessV1::BindingSsaRecursive,
+        Ok(ModuleInvocationTokenV1::from_test(ordinal, family))
     }
 }

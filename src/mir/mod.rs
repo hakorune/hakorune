@@ -44,6 +44,9 @@ pub(crate) mod canonical_direct_static_call_capability;
 pub(crate) mod canonical_recursive_callable_module_backend_capability;
 pub(crate) mod canonical_recursive_callable_module_capability;
 pub(crate) mod compile_timing;
+pub(crate) mod module_invocation_identity;
+#[cfg(test)]
+mod module_invocation_identity_idkernel_p0;
 mod compiler;
 pub mod concat_const_suffix_micro_seed_plan; // MIR-owned route plan for temporary concat const-suffix micro seed bridge
 pub mod constructor_call_route_plan; // MIR-owned constructor call route plans

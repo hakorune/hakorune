@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-CANON0 CANON-BRIDGE0 実行タスク
 
-Status: **Active — CB-prime selected; IDKERNEL is the only executable row**
+Status: **Active — CB-prime selected; OWNER0 is the only executable row**
 
 Related:
 
@@ -51,7 +51,7 @@ token/plan/header/catalog/receipt arguments are forbidden on the new path.
 
 ## Row order
 
-### CANON-BRIDGE0-IDKERNEL — active
+### CANON-BRIDGE0-IDKERNEL — closed
 
 Move only the identity value vocabulary to one neutral `crate::mir` module:
 
@@ -83,7 +83,20 @@ same compiler ordinals are monotonic and never reused
 all touched source/check files < 800 lines
 ```
 
-### CANON-BRIDGE0-OWNER0 — next
+Closeout evidence (2026-07-23):
+
+```text
+shared module_invocation_identity.rs owns the single family/brand/id/token vocabulary
+MirCompiler::InvocationIdentityIssuerV1 is the only production from_issued caller
+compiler and Builder duplicate value definitions/conversion paths = 0
+module_invocation_identity_idkernel_p0 = 3 passed
+source_bound_package = 6 passed
+module_invocation_identity = 7 passed
+RUSTFLAGS='-Awarnings' cargo check -q --lib = passed
+cut0_i0_root0_canon0_bridge_guard.py = passed
+```
+
+### CANON-BRIDGE0-OWNER0 — active
 
 Add one private `MirCompiler` terminal that consumes the source-bound package
 by value and opens the actual `ModuleBuilderInvocationSessionV1`, shell, and

@@ -25,6 +25,9 @@ use crate::mir::builder::resolved_lowering::{
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::function::MirFunction;
+use crate::mir::module_invocation_identity::{
+    ModuleInvocationBrandV1, ModuleInvocationFamilyV1, ModuleInvocationTokenV1,
+};
 
 static NEXT_COMPILER_DOMAIN: AtomicU64 = AtomicU64::new(1);
 
@@ -36,39 +39,22 @@ pub(crate) enum CanonicalSourceRouteV1 {
     BindingSsaRecursive,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-struct CompilerInvocationDomainV1(NonZeroU64);
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(super) struct CanonicalInvocationBrandV1 {
-    domain: CompilerInvocationDomainV1,
-    ordinal: NonZeroU64,
-}
-
-impl CanonicalInvocationBrandV1 {
-    pub(crate) fn same(self, other: Self) -> bool {
-        self.domain == other.domain && self.ordinal == other.ordinal
-    }
-
-    #[cfg(test)]
-    const fn ordinal(self) -> u64 {
-        self.ordinal.get()
+const fn family_for_route(route: CanonicalSourceRouteV1) -> ModuleInvocationFamilyV1 {
+    match route {
+        CanonicalSourceRouteV1::APlus => ModuleInvocationFamilyV1::CanonicalAPlus,
+        CanonicalSourceRouteV1::BindingSsaTrivial => ModuleInvocationFamilyV1::BindingSsaTrivial,
+        CanonicalSourceRouteV1::BindingSsaAcyclic => ModuleInvocationFamilyV1::BindingSsaAcyclic,
+        CanonicalSourceRouteV1::BindingSsaRecursive => ModuleInvocationFamilyV1::BindingSsaRecursive,
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
-pub(super) struct CanonicalInvocationTokenV1 {
-    route: CanonicalSourceRouteV1,
-    brand: CanonicalInvocationBrandV1,
-}
-
-impl CanonicalInvocationTokenV1 {
-    pub(crate) const fn route(&self) -> CanonicalSourceRouteV1 {
-        self.route
-    }
-
-    pub(crate) const fn brand(&self) -> CanonicalInvocationBrandV1 {
-        self.brand
+fn route_for_family(family: ModuleInvocationFamilyV1) -> CanonicalSourceRouteV1 {
+    match family {
+        ModuleInvocationFamilyV1::CanonicalAPlus => CanonicalSourceRouteV1::APlus,
+        ModuleInvocationFamilyV1::BindingSsaTrivial => CanonicalSourceRouteV1::BindingSsaTrivial,
+        ModuleInvocationFamilyV1::BindingSsaAcyclic => CanonicalSourceRouteV1::BindingSsaAcyclic,
+        ModuleInvocationFamilyV1::BindingSsaRecursive => CanonicalSourceRouteV1::BindingSsaRecursive,
+        ModuleInvocationFamilyV1::Raw => unreachable!("canonical package cannot carry Raw"),
     }
 }
 
@@ -141,7 +127,7 @@ pub(in crate::mir) enum CanonicalPlanLoweringErrorV1 {
 
 #[derive(Debug)]
 pub(in crate::mir) struct RejectedCanonicalLoweringV1<'a> {
-    token: CanonicalInvocationTokenV1,
+    token: ModuleInvocationTokenV1,
     continuation: CanonicalSourceContinuationV1<'a>,
     error: CanonicalPlanLoweringErrorV1,
 }
@@ -149,12 +135,12 @@ pub(in crate::mir) struct RejectedCanonicalLoweringV1<'a> {
 #[derive(Debug)]
 pub(in crate::mir) enum LoweredCanonicalPlanV1<'a> {
     Single {
-        token: CanonicalInvocationTokenV1,
+        token: ModuleInvocationTokenV1,
         continuation: CanonicalSourceContinuationV1<'a>,
         draft: MirFunction,
     },
     Callable {
-        token: CanonicalInvocationTokenV1,
+        token: ModuleInvocationTokenV1,
         continuation: CanonicalSourceContinuationV1<'a>,
         drafts: VerifiedUnpublishedCallableDraftSetV1<'a>,
     },
@@ -162,7 +148,7 @@ pub(in crate::mir) enum LoweredCanonicalPlanV1<'a> {
 
 #[derive(Debug)]
 pub(in crate::mir) struct SourceBoundCanonicalPackageV1<'a> {
-    token: CanonicalInvocationTokenV1,
+    token: ModuleInvocationTokenV1,
     plan: ExactCanonicalPreflightPlanV1<'a>,
     continuation: CanonicalSourceContinuationV1<'a>,
 }
@@ -230,11 +216,11 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
         }
     }
 
-    pub(crate) const fn route(&self) -> CanonicalSourceRouteV1 {
-        self.token.route()
+    pub(crate) fn route(&self) -> CanonicalSourceRouteV1 {
+        route_for_family(self.token.family())
     }
 
-    pub(crate) const fn brand(&self) -> CanonicalInvocationBrandV1 {
+    pub(crate) const fn brand(&self) -> ModuleInvocationBrandV1 {
         self.token.brand()
     }
 
@@ -347,7 +333,7 @@ impl<'a> RejectedCanonicalSourceBindingV1<'a> {
 
 #[derive(Debug)]
 pub(super) struct InvocationIdentityIssuerV1 {
-    domain: Option<CompilerInvocationDomainV1>,
+    domain: Option<NonZeroU64>,
     next_ordinal: u64,
 }
 
@@ -362,7 +348,7 @@ impl InvocationIdentityIssuerV1 {
     fn issue(
         &mut self,
         route: CanonicalSourceRouteV1,
-    ) -> Result<CanonicalInvocationTokenV1, SourceBindingErrorV1> {
+    ) -> Result<ModuleInvocationTokenV1, SourceBindingErrorV1> {
         let domain = match self.domain {
             Some(domain) => domain,
             None => {
@@ -371,9 +357,7 @@ impl InvocationIdentityIssuerV1 {
                         value.checked_add(1)
                     })
                     .map_err(|_| SourceBindingErrorV1::DomainExhausted)?;
-                let domain = CompilerInvocationDomainV1(
-                    NonZeroU64::new(raw).ok_or(SourceBindingErrorV1::DomainExhausted)?,
-                );
+                let domain = NonZeroU64::new(raw).ok_or(SourceBindingErrorV1::DomainExhausted)?;
                 self.domain = Some(domain);
                 domain
             }
@@ -384,10 +368,11 @@ impl InvocationIdentityIssuerV1 {
             .next_ordinal
             .checked_add(1)
             .ok_or(SourceBindingErrorV1::OrdinalExhausted)?;
-        Ok(CanonicalInvocationTokenV1 {
-            route,
-            brand: CanonicalInvocationBrandV1 { domain, ordinal },
-        })
+        Ok(ModuleInvocationTokenV1::from_issued(
+            domain,
+            ordinal,
+            family_for_route(route),
+        ))
     }
 }
 
