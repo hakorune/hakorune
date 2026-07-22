@@ -277,6 +277,61 @@ python3 tools/checks/lib/headerport_method_tail_compat_guard.py = green
 python3 tools/checks/lib/headerport_candidate0_guard.py . = green
 ```
 
-The next code-facing row is `HDR0-G0`. The existing compatibility-policy
-consultation still remains before CUT0-S0; this census does not authorize
-production lifecycle wiring.
+`HDR0-G0` is the final verification row for this lane and remains closed
+below. The existing compatibility-policy consultation still remains before
+CUT0-S0; this census does not authorize production lifecycle wiring.
+
+## CUT0-COMPAT-POLICY-CONSULT0-DESIGN-STOP
+
+HDR0-G0 is closed. The next step is deliberately a design stop, not an
+implementation row.
+
+Source authority:
+
+```text
+source-level Main/condition_fn compatibility behavior
+VerifiedMainExpansionV1 and raw expansion receipt policy
+existing language/reference semantics once explicitly decided
+```
+
+Non-authority:
+
+```text
+HeaderPort presence or method-tail freshness
+current_module as an invocation fallback
+route names, environment toggles, or a passing VM example
+passive route matrix rows without semantic policy evidence
+```
+
+Fail-fast boundary:
+
+```text
+duplicate Main source boxes => no silent winner
+Selected optional Main.main/N with lowering failure => no discarded error
+any unresolved policy => CUT0-S0/I0 remains disconnected
+partial route activation, fallback, and retry => forbidden
+```
+
+Decision axes for the consultation:
+
+1. Choose whether duplicate Main source boxes are rejected, or whether one
+   explicit source rule preserves a distinct compatibility identity.
+2. Choose whether a selected optional `Main.main/N` lowering failure is
+   propagated as a typed error or has an explicitly documented compatibility
+   disposition.
+3. Define the exact fixtures, error vocabulary, and CUT0 acceptance gate for
+   both choices.
+
+Recommended next slice:
+
+```text
+one consultation decision record
+-> duplicate-Main and optional-callable failure fixtures
+-> explicit acceptance/rejection policy
+-> CUT0-S0 disconnected linear-owner implementation
+```
+
+Still unclaimed: production lifecycle wiring, all-route CUT0, FACTSESSION0,
+finalization repair retirement, FastMem/LLVM execution, and parser/selfhost
+migration. The goal stops here until this policy frontier receives a new
+design result.
