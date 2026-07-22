@@ -85,6 +85,22 @@ pub(in crate::mir::builder) struct PreparedModuleLoweringShellDrainV1 {
 #[derive(Debug)]
 struct ModuleLoweringShellDrainSealV1;
 
+#[derive(Debug)]
+pub(in crate::mir::builder) struct RecursiveCapabilityInstallReceiptV1 {
+    _seal: RecursiveCapabilityInstallReceiptSealV1,
+}
+
+#[derive(Debug)]
+struct RecursiveCapabilityInstallReceiptSealV1;
+
+#[derive(Debug)]
+pub(in crate::mir::builder) struct AcyclicCapabilityAbsenceWitnessV1 {
+    _seal: AcyclicCapabilityAbsenceWitnessSealV1,
+}
+
+#[derive(Debug)]
+struct AcyclicCapabilityAbsenceWitnessSealV1;
+
 impl ModuleLoweringShellV1 {
     pub(in crate::mir::builder) fn from_empty_module(
         module: MirModule,
@@ -210,14 +226,13 @@ impl ModuleLoweringShellPortV1<'_> {
         )
     }
 
-    /// Disconnected BATCH0 proof seam. Production lowering does not call this
-    /// test-only capability terminal; later SESSION/ROOT wiring will consume a
-    /// sealed family token and the same shell-owned metadata slot.
-    #[cfg(test)]
-    pub(in crate::mir::builder) fn install_callable_batch_shell_fact_for_test(
+    pub(in crate::mir::builder) fn install_callable_batch_shell_fact(
         &mut self,
         family: ModuleInvocationFamilyV1,
-    ) -> Result<(), &'static str> {
+    ) -> Result<
+        Result<RecursiveCapabilityInstallReceiptV1, AcyclicCapabilityAbsenceWitnessV1>,
+        &'static str,
+    > {
         use crate::mir::canonical_recursive_callable_module_capability::
             CanonicalRecursiveCallableModuleCapabilityV1;
         match family {
@@ -229,7 +244,10 @@ impl ModuleLoweringShellPortV1<'_> {
                         .metadata
                         .canonical_recursive_callable_module_capability,
                     true,
-                )
+                )?;
+                Ok(Ok(RecursiveCapabilityInstallReceiptV1 {
+                    _seal: RecursiveCapabilityInstallReceiptSealV1,
+                }))
             }
             ModuleInvocationFamilyV1::BindingSsaAcyclic => {
                 if self
@@ -241,11 +259,21 @@ impl ModuleLoweringShellPortV1<'_> {
                 {
                     Err("[freeze:contract][canonical_recursive_module/capability_unexpected]")
                 } else {
-                    Ok(())
+                    Ok(Err(AcyclicCapabilityAbsenceWitnessV1 {
+                        _seal: AcyclicCapabilityAbsenceWitnessSealV1,
+                    }))
                 }
             }
-            _ => Err("[freeze:contract][callable_batch/shell_family]")
+            _ => Err("[freeze:contract][callable_batch/shell_family]"),
         }
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn install_callable_batch_shell_fact_for_test(
+        &mut self,
+        family: ModuleInvocationFamilyV1,
+    ) -> Result<(), &'static str> {
+        self.install_callable_batch_shell_fact(family).map(|_| ())
     }
 }
 

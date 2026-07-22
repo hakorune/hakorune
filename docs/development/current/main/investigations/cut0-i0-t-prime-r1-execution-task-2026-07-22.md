@@ -1,6 +1,6 @@
 # CUT0-I0 T-prime-r1 Execution Task
 
-Status: **CUT0-I0-ROOT0-RAW0 closed; ROOT0-CANON0 C-prime selected — implementation next**
+Status: **CUT0-I0-ROOT0-RAW0 closed; ROOT0-CANON0 C-prime slice implemented — fixture/production wiring still parked**
 Date: 2026-07-22
 Decision: **Candidate T-prime-r1 selected**
 Scope: build one invocation-branded module transaction, then perform one
@@ -600,6 +600,14 @@ ingress, drain, finalizer, and external commit consumers remain zero.
 Implementation scope is limited to the new canonical completion/source boxes,
 collector-issued receipts, fixtures, guard, and docs. Every touched source/check
 file remains below 800 lines.
+
+Current slice landed: the source package split, real BRAND0 active-owner
+construction, collector-issued callable batch receipt terminal, route-specific
+completion products, recursive install receipt, and source-derived drain-plan
+products are present in the disconnected `canonical_root_completion.rs` box.
+The focused CANON0 guard, pointer guard, and library build pass. Public ingress,
+canonical fixture promotion, drain consumption, and production consumers remain
+intentionally out of scope for this commit.
 
 ### CUT0-I0-ROOT0 — route-specific completion and drain policy
 

@@ -11,6 +11,8 @@ use super::{
     CollectedDraftAdmissionReceiptV1, DraftPublicationPolicyV1, FunctionDraftKeyV1,
     ModuleDraftAdmissionErrorV1, ModuleDraftCollectorV1, PreparedCollectorReplacementV1,
 };
+use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
+use crate::mir::builder::module_invocation_owner_chain::InvocationBranded;
 use crate::mir::MirFunction;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -122,6 +124,11 @@ struct PreparedCallableCollectorBatchSealV1;
 pub(in crate::mir::builder) struct CallableCollectorBatchReceiptV1 {
     admissions: Box<[CollectedDraftAdmissionReceiptV1]>,
     _seal: CallableCollectorBatchReceiptSealV1,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(in crate::mir::builder) enum CallableCollectorBatchBrandErrorV1 {
+    CollectorUnbranded,
 }
 
 #[derive(Debug)]
@@ -241,6 +248,42 @@ impl PreparedCallableCollectorBatchV1 {
                 _seal: CallableCollectorBatchReceiptSealV1,
             },
         )
+    }
+
+    /// The physical collector issues the whole-batch receipt with its own
+    /// brand; no post-hoc receipt relabeling is a production terminal.
+    pub(in crate::mir::builder) fn collect_all_branded(
+        mut self,
+    ) -> Result<
+        (
+            ModuleDraftCollectorV1,
+            InvocationBranded<CallableCollectorBatchReceiptV1>,
+        ),
+        CallableCollectorBatchBrandErrorV1,
+    > {
+        let brand = self
+            .collector
+            .receipt_brand
+            .ok_or(CallableCollectorBatchBrandErrorV1::CollectorUnbranded)?;
+        let mut admissions = Vec::with_capacity(self.entries.len());
+        for entry in self.entries.into_vec() {
+            admissions.push(self.collector.collect_sealed(
+                entry.key,
+                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+                entry.replacement,
+                entry.draft,
+            ));
+        }
+        Ok((
+            self.collector,
+            InvocationBranded::from_source(
+                brand,
+                CallableCollectorBatchReceiptV1 {
+                    admissions: admissions.into_boxed_slice(),
+                    _seal: CallableCollectorBatchReceiptSealV1,
+                },
+            ),
+        ))
     }
 }
 

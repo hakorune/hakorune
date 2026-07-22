@@ -50,6 +50,16 @@ impl InvocationPhysicalStateV1 {
     ) -> &BrandedCollectorV1<ModuleDraftCollectorV1> {
         &self.collector
     }
+
+    pub(in crate::mir::builder) fn into_parts(
+        self,
+    ) -> (
+        ModuleInvocationBrandV1,
+        BrandedShellV1<ModuleLoweringShellV1>,
+        BrandedCollectorV1<ModuleDraftCollectorV1>,
+    ) {
+        (self.brand, self.shell, self.collector)
+    }
 }
 
 impl InvocationBranded<ModuleDraftCollectorV1> {

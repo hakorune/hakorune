@@ -17,7 +17,8 @@ mod root_batch;
 
 pub(in crate::mir::builder) use callable_batch::{
     CallableCollectorBatchPrepareErrorV1, CallableCollectorDraftEntryV1,
-    CallableCollectorBatchReceiptV1, PreparedCallableCollectorBatchV1,
+    CallableCollectorBatchReceiptV1, CallableCollectorBatchBrandErrorV1,
+    PreparedCallableCollectorBatchV1,
     RejectedCallableCollectorBatchV1,
 };
 

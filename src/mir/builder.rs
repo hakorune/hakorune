@@ -106,6 +106,7 @@ mod module_invocation_collection; // CUT0-I0-COLLECT0-S0 co-seal terminal
 mod module_invocation_collect0_s0_p0; // CUT0-I0-COLLECT0-S0 fixtures
 #[allow(dead_code)]
 mod module_invocation_callable_batch; // CUT0-I0-COLLECT0-BATCH0 source/co-seal
+mod canonical_root_completion; // CUT0-I0-ROOT0-CANON0 route-specific completion
 #[allow(dead_code)]
 mod module_invocation_session; // CUT0-I0-SESSION0 disconnected Builder transaction
 #[cfg(test)]

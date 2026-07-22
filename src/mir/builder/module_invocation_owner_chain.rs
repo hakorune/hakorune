@@ -53,6 +53,10 @@ impl<T> InvocationBranded<T> {
         &self.payload
     }
 
+    pub(in crate::mir::builder) fn payload_mut(&mut self) -> &mut T {
+        &mut self.payload
+    }
+
     pub(in crate::mir::builder) fn into_payload(self) -> T {
         self.payload
     }
