@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-DRAIN0 実行タスク
 
-Status: **Active — ROOT0-DRAIN0-MANIFEST0 is the next executable row**
+Status: **Active — ROOT0-DRAIN0-PHYSICAL0 is the next executable row**
 
 Related:
 
@@ -139,6 +139,38 @@ expected inventory = source manifest, never receipt/collector/module map
 The manifest is projected exactly once during drain preparation and becomes a
 non-Clone drained inventory witness. No source re-resolution or catalog
 reacquisition is allowed.
+
+## MANIFEST0 closeout — 2026-07-23
+
+`ROOT0-DRAIN0-MANIFEST0` is closed. The canonical drain manifest now projects
+expected rows only from the retained source continuation: one owned header for
+single routes and the verified callable catalog for callable routes. Callable
+rows follow the catalog's canonical-key order and carry semantic identity,
+physical symbol, arity, and a type-sealed canonical inserted disposition.
+
+The manifest owns no collector, receipt, `MirModule`, or Builder state. It is
+non-`Clone`; its constructors are restricted to the compiler projection path,
+and the caller cannot provide keys, symbols, arities, or publication policy.
+The manifest family is derived from the neutral policy SSOT rather than stored
+as a second route authority. A package-level projector checks the resulting
+family against the package token before returning the manifest.
+
+Evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo check -q --lib                              green
+RUSTFLAGS='-Awarnings' cargo test -q canonical_drain_manifest_p0 --lib  2 passed
+RUSTFLAGS='-Awarnings' cargo test -q drain_policy_p0 --lib              2 passed
+git diff --check                                                        green
+bash tools/checks/current_state_pointer_guard.sh                        green
+```
+
+No physical collector/receipt validation, shell mutation, completion-owned
+drain, old drain connection, production consumer, finalizer, external commit,
+retry, fallback, or Raw route change was added. All touched source and check
+files remain below 800 lines.
+
+The next executable row is `ROOT0-DRAIN0-PHYSICAL0`.
 
 ## ROOT0-DRAIN0-PHYSICAL0 — prepared physical terminal
 

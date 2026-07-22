@@ -17,6 +17,10 @@ use super::capability::{
     CanonicalTrivialBindingSsaPlanV1, ResolvedOwnerHeaderFamilyV1,
     ResolvedOwnerHeaderSealErrorV1, VerifiedResolvedOwnerHeaderV1,
 };
+use super::canonical_drain_manifest::{
+    CanonicalDrainIdentityV1, CanonicalDrainManifestErrorV1, CanonicalDrainManifestV1,
+    CanonicalDrainRowV1,
+};
 use super::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1;
 use super::resolved_callable_module::VerifiedResolvedCallableModuleV1;
 use crate::mir::builder::resolved_lowering::{
@@ -401,6 +405,19 @@ impl RejectedCanonicalPhysicalCollectionInvocationV1<'_> {
 }
 
 impl<'a> SourceBoundCanonicalPackageV1<'a> {
+    /// MANIFEST0 projection used by the later completion-owned drain.  The
+    /// package supplies its own brand; callers cannot pair a foreign brand or
+    /// author concrete rows.
+    pub(super) fn project_drain_manifest(
+        &self,
+    ) -> Result<CanonicalDrainManifestV1, CanonicalDrainManifestErrorV1> {
+        let manifest = self
+            .continuation
+            .project_drain_manifest(self.token.brand())?;
+        debug_assert_eq!(manifest.family(), self.token.family());
+        Ok(manifest)
+    }
+
     pub(super) fn open_physical(
         self,
         current: &MirBuilder,
@@ -457,6 +474,50 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
             plan,
             continuation,
         })
+    }
+}
+
+impl<'a> CanonicalSourceContinuationV1<'a> {
+    /// Project the exact expected physical rows from retained source
+    /// authority.  This is the only manifest producer; physical evidence is
+    /// intentionally not consulted here.  DRAIN0 consumes this projection
+    /// once while consuming the complete invocation.
+    pub(in crate::mir) fn project_drain_manifest(
+        &self,
+        brand: ModuleInvocationBrandV1,
+    ) -> Result<CanonicalDrainManifestV1, CanonicalDrainManifestErrorV1> {
+        match self {
+            Self::Single { header, policy } => Ok(CanonicalDrainManifestV1::single(
+                brand,
+                *policy,
+                CanonicalDrainRowV1::new(
+                    CanonicalDrainIdentityV1::ResolvedOwner(header.owner()),
+                    header.symbol().as_mir_name().into(),
+                    header.arity(),
+                ),
+            )),
+            Self::Callable { source, policy } => {
+                let mut rows = Vec::with_capacity(source.functions_by_key().len());
+                for key in source.functions_by_key().keys() {
+                    let header = source
+                        .source()
+                        .catalog()
+                        .index()
+                        .lookup(key)
+                        .ok_or_else(|| CanonicalDrainManifestErrorV1::MissingCallableHeader(key.clone()))?;
+                    rows.push(CanonicalDrainRowV1::new(
+                        CanonicalDrainIdentityV1::Callable(key.clone()),
+                        header.symbol().as_mir_name().into(),
+                        header.signature().arity(),
+                    ));
+                }
+                Ok(CanonicalDrainManifestV1::callable(
+                    brand,
+                    *policy,
+                    rows,
+                ))
+            }
+        }
     }
 }
 
