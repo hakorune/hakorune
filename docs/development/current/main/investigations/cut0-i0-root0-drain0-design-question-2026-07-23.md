@@ -1,11 +1,12 @@
 # CUT0-I0 ROOT0-DRAIN0 設計相談
 
-Status: **Design Stop — DRAIN0-D0 required before implementation**
+Status: **Closed — Candidate D-prime-r1 selected; execution task next**
 
 Related:
 
 - `cut0-i0-root0-canon0-fixture0-execution-task-2026-07-23.md`
 - `cut0-i0-root0-canon0-bridge-execution-task-2026-07-23.md`
+- `cut0-i0-root0-drain0-execution-task-2026-07-23.md`
 - `cut0-i0-root0-design-stop-2026-07-22.md`
 - `docs/development/current/main/CURRENT_STATE.toml`
 
@@ -133,7 +134,7 @@ Single routes may retain an owned header; callable routes may borrow the exact
 verified catalog/source carried by the package. No re-resolution, catalog
 reacquisition, `current_module` read, or module-map reconstruction is allowed.
 
-## Candidate D-prime (not yet locked)
+## Candidate D-prime-r1 decision lock
 
 ```text
 exact source-bound complete
@@ -143,9 +144,12 @@ exact source-bound complete
 -> later finalizer (separate row)
 ```
 
-This card deliberately does not authorize implementation. Do not call the old
-drain owner, edit `canonical_root_completion.rs`, activate production drain,
-finalization, external commit, fallback, or retry until Q1–Q6 are decided.
+Q1–Q6 are accepted as D-prime-r1. The detailed implementation order and
+acceptance evidence are now owned by
+`cut0-i0-root0-drain0-execution-task-2026-07-23.md`.
+
+The old drain owner remains disconnected. Production drain, finalization,
+external commit, fallback, retry, and Raw convergence remain forbidden.
 
 ## Required answer shape
 
@@ -158,4 +162,5 @@ Q5 failure/one-shot law
 Q6 lifetime/re-observation law
 ```
 
-The next executable card should be created only after this consultation closes.
+The next executable card is
+`cut0-i0-root0-drain0-execution-task-2026-07-23.md`.
