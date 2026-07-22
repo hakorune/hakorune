@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-CANON0 CANON-BRIDGE0 実行タスク
 
-Status: **Active — CB-prime selected; COLLECT0 is the only executable row**
+Status: **Active — CB-prime selected; COLLECT0-COMPLETION is the only executable row**
 
 Related:
 
@@ -117,7 +117,7 @@ collector before invoking the existing draft-only LOWER0 seam. The focused
 intentionally does not merge the shell module with the candidate Builder or
 collect drafts; those are COLLECT0 responsibilities.
 
-### CANON-BRIDGE0-COLLECT0 — active
+### CANON-BRIDGE0-COLLECT0-PHYSICAL — closed
 
 Make canonical admission typed and source-driven:
 
@@ -131,8 +131,44 @@ entries. `Main` and `SyntheticConditionFn` are therefore not constructible on
 the canonical path. A physical symbol spelled `condition_fn/N` remains valid
 when its canonical key/header/catalog authority is exact.
 
-The collector and exact receipt remain one by-value product through completion;
-recursive and acyclic capability witnesses retain the same token brand/family.
+The compiler-owned physical owner now derives both admission forms from source
+authority and issues the exact receipt product from the same branded collector.
+The collector and receipt are retained together in the collected physical
+owner; the next subrow will move that product into route-specific completion.
+
+Closeout evidence (2026-07-23):
+
+```text
+single: exact VerifiedResolvedOwnerHeaderV1 -> CanonicalResolvedOwner key,
+       header symbol, and header arity
+batch: exact VerifiedResolvedCallableModuleV1 catalog -> CanonicalCallable
+       rows with whole-batch preflight before collector mutation
+receipt: collector-issued brand matches the compiler token brand
+canonical_source_binding_collect0 = 2 passed (single + acyclic batch)
+RUSTFLAGS='-Awarnings' cargo test -q source_bound_package --lib = 3 passed
+RUSTFLAGS='-Awarnings' cargo check -q --lib = passed
+cut0_i0_root0_canon0_bridge_guard.py = passed
+current_state_pointer_guard.sh = passed
+git diff --check = passed
+all touched source/check files < 800 lines
+```
+
+### CANON-BRIDGE0-COLLECT0-COMPLETION — active
+
+Move the collected physical product into a route-specific completion owner
+without loosening the source authority:
+
+```text
+CollectedCanonicalPhysicalInvocationV1
+-> canonical single / callable-batch completion product
+-> exact receipt retained by value through completion
+-> recursive/acyclic witness co-sealed
+```
+
+The completion terminal must consume the collected owner by value. No loose
+receipt argument, receipt rebranding, collector re-acquisition, or legacy
+Main-state reuse is allowed. Aggregate four-route fixture remains blocked
+until this handoff is real.
 
 ### CANON-FIXTURE0 — later
 
@@ -180,5 +216,7 @@ RUSTFLAGS='-Awarnings' cargo test -q module_invocation_identity --lib
 python3 tools/checks/lib/cut0_i0_root0_canon0_bridge_guard.py
 ```
 
-The active row closes only when the shared identity kernel is real and the
-Builder/compiler duplicate value definitions and conversion paths are gone.
+The active completion subrow closes only when the collected physical owner is
+retained by a route-specific completion product. The shared identity kernel,
+physical owner, typed single/batch admission, and receipt provenance are now
+green; aggregate fixture, DRAIN0, finalization, and commit remain forbidden.

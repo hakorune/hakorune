@@ -102,6 +102,33 @@ impl<'a> RejectedCallableCollectorInvocationV1<'a> {
 }
 
 impl<'a> VerifiedUnpublishedCallableDraftSetV1<'a> {
+    /// Project the already verified source/catalog into canonical collector
+    /// entries.  No caller supplies key, symbol, arity, or publication policy.
+    pub(in crate::mir) fn into_canonical_entries(
+        self,
+    ) -> Vec<CallableCollectorDraftEntryV1> {
+        let source = self.source;
+        self.drafts_by_key
+            .into_iter()
+            .map(|(key, draft)| {
+                let header = source
+                    .source()
+                    .catalog()
+                    .index()
+                    .lookup(&key)
+                    .expect("verified callable draft set has an exact catalog header");
+                CallableCollectorDraftEntryV1::new(
+                    crate::mir::builder::module_draft_collector::FunctionDraftKeyV1::CanonicalCallable(
+                        key,
+                    ),
+                    header.symbol().as_mir_name().to_owned(),
+                    header.signature().arity(),
+                    draft,
+                )
+            })
+            .collect()
+    }
+
     fn collect_acyclic_with(
         plan: VerifiedAcyclicCallableModulePlanV1<'a>,
         lower: impl FnMut(

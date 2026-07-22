@@ -16,7 +16,7 @@ use crate::mir::builder::module_invocation_owner_chain::InvocationBranded;
 use crate::mir::MirFunction;
 
 #[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir::builder) enum CallableCollectorBatchPrepareErrorV1 {
+pub(in crate::mir) enum CallableCollectorBatchPrepareErrorV1 {
     Admission {
         ordinal: usize,
         symbol: String,
@@ -128,7 +128,7 @@ pub(in crate::mir::builder) struct CallableCollectorBatchReceiptV1 {
 
 /// Collector and whole-batch receipt move as one non-Clone product.
 #[derive(Debug)]
-pub(in crate::mir::builder) struct CollectedCallableCollectorBatchV1 {
+pub(in crate::mir) struct CollectedCallableCollectorBatchV1 {
     collector: super::super::module_invocation_owner_chain::BrandedCollectorV1<
         ModuleDraftCollectorV1,
     >,
@@ -136,7 +136,11 @@ pub(in crate::mir::builder) struct CollectedCallableCollectorBatchV1 {
 }
 
 impl CollectedCallableCollectorBatchV1 {
-    pub(in crate::mir::builder) fn into_parts(
+    pub(in crate::mir) fn receipt_brand(&self) -> ModuleInvocationBrandV1 {
+        self.receipt.brand()
+    }
+
+    pub(in crate::mir) fn into_parts(
         self,
     ) -> (
         super::super::module_invocation_owner_chain::BrandedCollectorV1<ModuleDraftCollectorV1>,

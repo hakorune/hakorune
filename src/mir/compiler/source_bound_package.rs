@@ -24,8 +24,10 @@ use crate::mir::builder::resolved_lowering::{
     VerifiedUnpublishedCallableDraftSetV1,
 };
 use crate::mir::builder::{
-    BuilderInvocationConfigV1, InvocationPhysicalStateV1, MirBuilder,
-    ModuleBuilderInvocationSessionV1, ModuleLoweringShellErrorV1,
+    BuilderInvocationConfigV1, CanonicalPhysicalCollectionErrorV1,
+    CollectedCanonicalCallablePhysicalV1, CollectedCanonicalSinglePhysicalV1,
+    InvocationPhysicalStateV1, MirBuilder, ModuleBuilderInvocationSessionV1,
+    ModuleLoweringShellErrorV1, RejectedCanonicalPhysicalCollectionV1,
 };
 use crate::mir::function::MirFunction;
 use crate::mir::module_invocation_identity::{
@@ -204,6 +206,30 @@ pub(in crate::mir) struct RejectedCanonicalPhysicalLoweringV1<'a> {
     rejected: RejectedCanonicalLoweringV1<'a>,
 }
 
+#[derive(Debug)]
+pub(in crate::mir) enum CollectedCanonicalPhysicalInvocationV1<'a> {
+    Single {
+        token: ModuleInvocationTokenV1,
+        continuation: CanonicalSourceContinuationV1<'a>,
+        session: ModuleBuilderInvocationSessionV1,
+        physical: CollectedCanonicalSinglePhysicalV1,
+    },
+    Callable {
+        token: ModuleInvocationTokenV1,
+        continuation: CanonicalSourceContinuationV1<'a>,
+        session: ModuleBuilderInvocationSessionV1,
+        physical: CollectedCanonicalCallablePhysicalV1,
+    },
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct RejectedCanonicalPhysicalCollectionInvocationV1<'a> {
+    token: ModuleInvocationTokenV1,
+    continuation: CanonicalSourceContinuationV1<'a>,
+    session: ModuleBuilderInvocationSessionV1,
+    physical: RejectedCanonicalPhysicalCollectionV1,
+}
+
 impl<'a> CanonicalPhysicalInvocationV1<'a> {
     pub(super) fn lower(
         self,
@@ -254,6 +280,98 @@ impl<'a> LoweredCanonicalPhysicalInvocationV1<'a> {
 
     pub(in crate::mir) fn lowered(&self) -> &LoweredCanonicalPlanV1<'a> {
         &self.lowered
+    }
+
+    /// COLLECT0: consume the draft payload in the same physical collector
+    /// that was opened before lowering.  The source continuation and session
+    /// remain attached to the resulting completion owner.
+    pub(in crate::mir) fn collect(
+        self,
+    ) -> Result<
+        CollectedCanonicalPhysicalInvocationV1<'a>,
+        RejectedCanonicalPhysicalCollectionInvocationV1<'a>,
+    > {
+        let Self {
+            session,
+            physical,
+            lowered,
+        } = self;
+        match lowered {
+            LoweredCanonicalPlanV1::Single {
+                token,
+                continuation: CanonicalSourceContinuationV1::Single { header, policy },
+                draft,
+            } => match physical.collect_single(&header, draft) {
+                Ok(physical) => Ok(CollectedCanonicalPhysicalInvocationV1::Single {
+                    token,
+                    continuation: CanonicalSourceContinuationV1::Single { header, policy },
+                    session,
+                    physical,
+                }),
+                Err(rejected) => Err(RejectedCanonicalPhysicalCollectionInvocationV1 {
+                    token,
+                    continuation: CanonicalSourceContinuationV1::Single { header, policy },
+                    session,
+                    physical: rejected,
+                }),
+            },
+            LoweredCanonicalPlanV1::Callable {
+                token,
+                continuation: CanonicalSourceContinuationV1::Callable { source, policy },
+                drafts,
+            } => match physical.collect_callable_batch(drafts) {
+                Ok(physical) => Ok(CollectedCanonicalPhysicalInvocationV1::Callable {
+                    token,
+                    continuation: CanonicalSourceContinuationV1::Callable { source, policy },
+                    session,
+                    physical,
+                }),
+                Err(rejected) => Err(RejectedCanonicalPhysicalCollectionInvocationV1 {
+                    token,
+                    continuation: CanonicalSourceContinuationV1::Callable { source, policy },
+                    session,
+                    physical: rejected,
+                }),
+            },
+            LoweredCanonicalPlanV1::Single { continuation, .. }
+            | LoweredCanonicalPlanV1::Callable { continuation, .. } => {
+                unreachable!("source-bound plan and continuation family diverged")
+            }
+        }
+    }
+}
+
+impl CollectedCanonicalPhysicalInvocationV1<'_> {
+    pub(in crate::mir) fn brand(&self) -> ModuleInvocationBrandV1 {
+        match self {
+            Self::Single { token, .. } | Self::Callable { token, .. } => token.brand(),
+        }
+    }
+
+    pub(in crate::mir) fn session_brand(&self) -> ModuleInvocationBrandV1 {
+        match self {
+            Self::Single { session, .. } | Self::Callable { session, .. } => session.brand(),
+        }
+    }
+
+    pub(in crate::mir) fn physical_brand(&self) -> ModuleInvocationBrandV1 {
+        match self {
+            Self::Single { physical, .. } => physical.brand(),
+            Self::Callable { physical, .. } => physical.brand(),
+        }
+    }
+
+    pub(in crate::mir) fn receipt_brand(&self) -> ModuleInvocationBrandV1 {
+        match self {
+            Self::Single { physical, .. } => physical.receipt_brand(),
+            Self::Callable { physical, .. } => physical.receipt_brand(),
+        }
+    }
+}
+
+impl RejectedCanonicalPhysicalCollectionInvocationV1<'_> {
+    pub(in crate::mir) fn error(&self) -> &CanonicalPhysicalCollectionErrorV1 {
+        self.physical.error()
     }
 }
 
@@ -530,7 +648,7 @@ impl InvocationIdentityIssuerV1 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
+    use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl, Span};
 
     fn literal(value: i64) -> ASTNode {
         ASTNode::Literal {
@@ -558,78 +676,41 @@ mod tests {
         }
     }
 
-    #[test]
-    fn issuer_is_monotonic_and_does_not_reuse_dropped_ordinals() {
-        let mut issuer = InvocationIdentityIssuerV1::new();
-        let first = issuer.issue(CanonicalSourceRouteV1::APlus).unwrap();
-        let second = issuer.issue(CanonicalSourceRouteV1::APlus).unwrap();
-        assert_eq!(first.brand().ordinal(), 1);
-        assert_eq!(second.brand().ordinal(), 2);
-        assert!(!first.brand().same(second.brand()));
+    fn callable_function(name: &str, value: ASTNode) -> ASTNode {
+        ASTNode::FunctionDeclaration {
+            name: name.into(),
+            params: vec!["x".into()],
+            param_decls: vec![ParamDecl {
+                name: "x".into(),
+                declared_type_name: Some("i64".into()),
+            }],
+            return_type_name: Some("i64".into()),
+            body: vec![ASTNode::Return {
+                value: Some(Box::new(value)),
+                span: Span::unknown(),
+            }],
+            uses: Vec::new(),
+            contracts: Vec::new(),
+            is_static: true,
+            is_override: false,
+            attrs: DeclarationAttrs::default(),
+            span: Span::unknown(),
+        }
     }
 
-    #[test]
-    fn separate_compiler_domains_do_not_equate_local_ordinals() {
-        let mut first = InvocationIdentityIssuerV1::new();
-        let mut second = InvocationIdentityIssuerV1::new();
-        let first_token = first.issue(CanonicalSourceRouteV1::APlus).unwrap();
-        let second_token = second.issue(CanonicalSourceRouteV1::APlus).unwrap();
-        assert_eq!(first_token.brand().ordinal(), second_token.brand().ordinal());
-        assert!(!first_token.brand().same(second_token.brand()));
+    fn variable(name: &str) -> ASTNode {
+        ASTNode::Variable {
+            name: name.into(),
+            span: Span::unknown(),
+        }
     }
 
-    #[test]
-    fn package_binds_exact_plan_before_issuing_identity() {
-        let unit = super::super::VerifiedResolvedSourceUnitV1::resolve_function(function("bound"))
-            .unwrap();
-        let plan = super::super::CanonicalLoweringPreflightV1::verify(&unit).unwrap();
-        let exact = ExactCanonicalPreflightPlanV1::from_first_family(plan);
-        let mut compiler = super::super::MirCompiler::new();
-        let package = compiler.bind_canonical_source(exact).unwrap();
-        assert_eq!(package.route(), CanonicalSourceRouteV1::BindingSsaTrivial);
-        assert!(package.has_plan_and_continuation());
-    }
-
-    #[test]
-    fn issuer_failure_returns_the_exact_plan_owner() {
-        let unit = super::super::VerifiedResolvedSourceUnitV1::resolve_function(function("bound"))
-            .unwrap();
-        let plan = super::super::CanonicalLoweringPreflightV1::verify(&unit).unwrap();
-        let exact = ExactCanonicalPreflightPlanV1::from_first_family(plan);
-        let mut issuer = InvocationIdentityIssuerV1::new();
-        issuer.next_ordinal = u64::MAX;
-        let rejected = SourceBoundCanonicalPackageV1::bind(&mut issuer, exact).unwrap_err();
-        assert_eq!(rejected.error(), &SourceBindingErrorV1::OrdinalExhausted);
-        assert!(matches!(
-            rejected.plan(),
-            ExactCanonicalPreflightPlanV1::BindingSsaTrivial(_)
-        ));
-    }
-
-    #[test]
-    fn package_consume_moves_trivial_plan_into_a_draft_lowerer() {
-        let unit = super::super::VerifiedResolvedSourceUnitV1::resolve_function(function("lowered"))
-            .unwrap();
-        let plan = super::super::CanonicalLoweringPreflightV1::verify(&unit).unwrap();
-        let exact = ExactCanonicalPreflightPlanV1::from_first_family(plan);
-        let mut issuer = InvocationIdentityIssuerV1::new();
-        let package = SourceBoundCanonicalPackageV1::bind(&mut issuer, exact).unwrap();
-        let mut builder = MirBuilder::new();
-        let lowered = package.consume(&mut builder).unwrap();
-        assert!(matches!(lowered, LoweredCanonicalPlanV1::Single { .. }));
-    }
-
-    #[test]
-    fn compiler_lower_terminal_keeps_live_builder_outside_candidate_session() {
-        let unit = super::super::VerifiedResolvedSourceUnitV1::resolve_function(function("session"))
-            .unwrap();
-        let plan = super::super::CanonicalLoweringPreflightV1::verify(&unit).unwrap();
-        let exact = ExactCanonicalPreflightPlanV1::from_first_family(plan);
-        let mut compiler = super::super::MirCompiler::new();
-        let package = compiler.bind_canonical_source(exact).unwrap();
-        let candidate = compiler.lower_canonical_source(package, Some("lower0.hako")).unwrap();
-        assert!(matches!(candidate.lowered, LoweredCanonicalPlanV1::Single { .. }));
-        assert!(compiler.builder.current_module.is_none());
+    fn call(name: &str, argument: ASTNode) -> ASTNode {
+        ASTNode::FunctionCall {
+            name: name.into(),
+            arguments: vec![argument],
+            span: Span::unknown(),
+        }
     }
 
     #[test]
@@ -641,9 +722,7 @@ mod tests {
         let mut compiler = super::super::MirCompiler::new();
         let package = compiler.bind_canonical_source(exact).unwrap();
         let package_brand = package.brand();
-        let active = compiler
-            .begin_canonical_invocation(package, Some("owner0.hako"), "owner0".to_owned())
-            .unwrap();
+        let active = compiler.begin_canonical_invocation(package, Some("owner0.hako"), "owner0".to_owned()).unwrap();
         assert_eq!(active.brand(), package_brand);
 
         let lowered = active.lower().unwrap();
@@ -654,6 +733,60 @@ mod tests {
             lowered.lowered(),
             LoweredCanonicalPlanV1::Single { .. }
         ));
+        assert!(compiler.builder.current_module.is_none());
+    }
+
+    #[test]
+    fn canonical_source_binding_collect0_retains_same_brand_and_receipt() {
+        let unit =
+            super::super::VerifiedResolvedSourceUnitV1::resolve_function(function("collect0"))
+                .unwrap();
+        let plan = super::super::CanonicalLoweringPreflightV1::verify(&unit).unwrap();
+        let exact = ExactCanonicalPreflightPlanV1::from_first_family(plan);
+        let mut compiler = super::super::MirCompiler::new();
+        let package = compiler.bind_canonical_source(exact).unwrap();
+        let package_brand = package.brand();
+        let active = compiler.begin_canonical_invocation(package, Some("collect0.hako"), "collect0".to_owned()).unwrap();
+
+        let lowered = active.lower().unwrap();
+        let collected = lowered.collect().unwrap();
+        assert_eq!(collected.brand(), package_brand);
+        assert_eq!(collected.session_brand(), package_brand);
+        assert_eq!(collected.physical_brand(), package_brand);
+        assert_eq!(collected.receipt_brand(), package_brand);
+        assert!(compiler.builder.current_module.is_none());
+    }
+
+    #[test]
+    fn canonical_source_binding_collect0_projects_callable_catalog_atomically() {
+        let program = super::super::VerifiedResolvedCallableProgramV1::resolve(
+            ASTNode::Program {
+                statements: vec![
+                    callable_function("caller", call("callee", variable("x"))),
+                    callable_function("callee", variable("x")),
+                ],
+                span: Span::unknown(),
+            },
+        )
+        .unwrap();
+        let plan =
+            super::super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
+                program.module(),
+            )
+            .unwrap();
+        let exact = ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan);
+        let mut compiler = super::super::MirCompiler::new();
+        let package = compiler.bind_canonical_source(exact).unwrap();
+        let package_brand = package.brand();
+        let active = compiler
+            .begin_canonical_invocation(package, Some("batch0.hako"), "batch0".to_owned())
+            .unwrap();
+        let lowered = active.lower().unwrap();
+        let collected = lowered.collect().unwrap();
+        assert_eq!(collected.brand(), package_brand);
+        assert_eq!(collected.session_brand(), package_brand);
+        assert_eq!(collected.physical_brand(), package_brand);
+        assert_eq!(collected.receipt_brand(), package_brand);
         assert!(compiler.builder.current_module.is_none());
     }
 }

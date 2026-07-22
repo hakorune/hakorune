@@ -16,6 +16,11 @@ COMPILER_MOD = ROOT / "src/mir/compiler/mod.rs"
 MIR_MOD = ROOT / "src/mir/mod.rs"
 BUILDER = ROOT / "src/mir/builder.rs"
 BRAND0 = ROOT / "src/mir/builder/module_invocation_brand0.rs"
+OWNER_CHAIN = ROOT / "src/mir/builder/module_invocation_owner_chain.rs"
+COLLECTOR = ROOT / "src/mir/builder/module_draft_collector.rs"
+COLLECTED_PRODUCT = ROOT / "src/mir/builder/module_draft_collector/collected_product.rs"
+CALLABLE_BATCH = ROOT / "src/mir/builder/module_draft_collector/callable_batch.rs"
+CALLABLE_TX = ROOT / "src/mir/builder/resolved_lowering/callable_module_transaction.rs"
 SESSION = ROOT / "src/mir/builder/module_invocation_session.rs"
 SHELL = ROOT / "src/mir/builder/module_lowering_shell.rs"
 TASK = ROOT / (
@@ -35,6 +40,11 @@ MANIFEST = (
     MIR_MOD,
     BUILDER,
     BRAND0,
+    OWNER_CHAIN,
+    COLLECTOR,
+    COLLECTED_PRODUCT,
+    CALLABLE_BATCH,
+    CALLABLE_TX,
     SESSION,
     SHELL,
     TASK,
@@ -129,6 +139,20 @@ def main() -> int:
     if "let package = SourceBoundCanonicalPackageV1 {" in source:
         raise AssertionError("physical lowering reconstructs a consumed package")
 
+    require(BRAND0.read_text(), "pub(in crate::mir) fn collect_single(", "typed single collector terminal")
+    require(BRAND0.read_text(), "pub(in crate::mir) fn collect_callable_batch(", "typed batch collector terminal")
+    require(source, "CollectedCanonicalPhysicalInvocationV1", "COLLECT0 collected owner")
+    require(source, "pub(in crate::mir) fn collect(", "COLLECT0 source terminal")
+    require(source, "canonical_source_binding_collect0_retains_same_brand_and_receipt", "single COLLECT0 fixture")
+    require(source, "canonical_source_binding_collect0_projects_callable_catalog_atomically", "batch COLLECT0 fixture")
+    require(CALLABLE_TX.read_text(), "into_canonical_entries", "source-driven callable projection")
+    require(COLLECTED_PRODUCT.read_text(), "pub(in crate::mir) fn receipt_brand", "single receipt provenance")
+    require(CALLABLE_BATCH.read_text(), "pub(in crate::mir) fn receipt_brand", "batch receipt provenance")
+    if "collect_canonical_single(key" not in BRAND0.read_text():
+        raise AssertionError("single physical terminal no longer derives canonical admission")
+    if "FunctionDraftKeyV1::Main" in BRAND0.read_text() or "FunctionDraftKeyV1::SyntheticConditionFn" in BRAND0.read_text():
+        raise AssertionError("canonical physical collector references synthetic root keys")
+
     factory_callers = []
     for path in production_rust_files():
         text = path.read_text()
@@ -142,7 +166,8 @@ def main() -> int:
 
     print(
         "[cut0-i0-root0-canon0-bridge-guard] ok "
-        "shared_identity=1 issuer_callers=1 token_conversion=0 canonical_test_factory=0"
+        "shared_identity=1 issuer_callers=1 owner0=1 collect0_single=1 "
+        "collect0_batch=1 token_conversion=0 canonical_test_factory=0"
     )
     return 0
 

@@ -16,8 +16,8 @@ pub(in crate::mir::builder) struct InvocationBranded<T> {
 #[derive(Debug)]
 struct InvocationBrandedOwnerSealV1;
 
-pub(in crate::mir::builder) type BrandedShellV1<T> = InvocationBranded<T>;
-pub(in crate::mir::builder) type BrandedCollectorV1<T> = InvocationBranded<T>;
+pub(in crate::mir) type BrandedShellV1<T> = InvocationBranded<T>;
+pub(in crate::mir) type BrandedCollectorV1<T> = InvocationBranded<T>;
 pub(in crate::mir::builder) type BrandedLedgerV1<T> = InvocationBranded<T>;
 pub(in crate::mir::builder) type BrandedCompleteV1<T> = InvocationBranded<T>;
 pub(in crate::mir::builder) type BrandedDrainedV1<T> = InvocationBranded<T>;
@@ -26,7 +26,7 @@ pub(in crate::mir::builder) type BrandedFinalizedV1<T> = InvocationBranded<T>;
 impl<T> InvocationBranded<T> {
     /// The only production-side constructor: the caller must already own a
     /// source-sealed brand and supplies one real physical payload.
-    pub(in crate::mir::builder) fn from_source(
+    pub(in crate::mir) fn from_source(
         brand: ModuleInvocationBrandV1,
         payload: T,
     ) -> Self {
@@ -45,19 +45,19 @@ impl<T> InvocationBranded<T> {
         Self::from_source(brand, payload)
     }
 
-    pub(in crate::mir::builder) fn brand(&self) -> ModuleInvocationBrandV1 {
+    pub(in crate::mir) fn brand(&self) -> ModuleInvocationBrandV1 {
         self.brand
     }
 
-    pub(in crate::mir::builder) fn payload(&self) -> &T {
+    pub(in crate::mir) fn payload(&self) -> &T {
         &self.payload
     }
 
-    pub(in crate::mir::builder) fn payload_mut(&mut self) -> &mut T {
+    pub(in crate::mir) fn payload_mut(&mut self) -> &mut T {
         &mut self.payload
     }
 
-    pub(in crate::mir::builder) fn into_payload(self) -> T {
+    pub(in crate::mir) fn into_payload(self) -> T {
         self.payload
     }
 }

@@ -28,7 +28,8 @@ pub(in crate::mir::builder) use receipt::{
     CollectedDraftAdmissionReceiptV1, CollectedDraftReplacementDispositionV1,
 };
 pub(in crate::mir::builder) use collected_product::{
-    CollectedDraftAdmissionProductV1, RejectedCollectedDraftAdmissionV1,
+    CollectedDraftAdmissionProductErrorV1, CollectedDraftAdmissionProductV1,
+    RejectedCollectedDraftAdmissionV1,
 };
 pub(in crate::mir::builder) use root_batch::{
     BrandedRootCollectorBatchReceiptV1, PreparedRootCollectorBatchV1,
@@ -242,7 +243,7 @@ impl ModuleDraftCollectorV1 {
         }
     }
 
-    pub(in crate::mir::builder) fn receipt_brand(&self) -> Option<ModuleInvocationBrandV1> {
+    pub(in crate::mir) fn receipt_brand(&self) -> Option<ModuleInvocationBrandV1> {
         self.receipt_brand
     }
 

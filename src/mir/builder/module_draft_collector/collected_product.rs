@@ -11,28 +11,33 @@ use super::{
 use crate::mir::builder::module_invocation_owner_chain::{
     BrandedCollectorV1, InvocationBranded,
 };
+use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
 use crate::mir::MirFunction;
 
 #[derive(Debug)]
-pub(in crate::mir::builder) struct CollectedDraftAdmissionProductV1 {
+pub(in crate::mir) struct CollectedDraftAdmissionProductV1 {
     collector: BrandedCollectorV1<ModuleDraftCollectorV1>,
     receipt: InvocationBranded<CollectedDraftAdmissionReceiptV1>,
 }
 
 #[derive(Debug)]
-pub(in crate::mir::builder) struct RejectedCollectedDraftAdmissionV1 {
+pub(in crate::mir) struct RejectedCollectedDraftAdmissionV1 {
     collector: BrandedCollectorV1<ModuleDraftCollectorV1>,
     error: CollectedDraftAdmissionProductErrorV1,
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir::builder) enum CollectedDraftAdmissionProductErrorV1 {
+pub(in crate::mir) enum CollectedDraftAdmissionProductErrorV1 {
     Admission(ModuleDraftAdmissionErrorV1),
     CollectorUnbranded,
 }
 
 impl CollectedDraftAdmissionProductV1 {
-    pub(in crate::mir::builder) fn into_parts(
+    pub(in crate::mir) fn receipt_brand(&self) -> ModuleInvocationBrandV1 {
+        self.receipt.brand()
+    }
+
+    pub(in crate::mir) fn into_parts(
         self,
     ) -> (
         BrandedCollectorV1<ModuleDraftCollectorV1>,
@@ -43,15 +48,15 @@ impl CollectedDraftAdmissionProductV1 {
 }
 
 impl RejectedCollectedDraftAdmissionV1 {
-    pub(in crate::mir::builder) fn collector(&self) -> &BrandedCollectorV1<ModuleDraftCollectorV1> {
+    pub(in crate::mir) fn collector(&self) -> &BrandedCollectorV1<ModuleDraftCollectorV1> {
         &self.collector
     }
 
-    pub(in crate::mir::builder) fn error(&self) -> &CollectedDraftAdmissionProductErrorV1 {
+    pub(in crate::mir) fn error(&self) -> &CollectedDraftAdmissionProductErrorV1 {
         &self.error
     }
 
-    pub(in crate::mir::builder) fn into_parts(
+    pub(in crate::mir) fn into_parts(
         self,
     ) -> (
         BrandedCollectorV1<ModuleDraftCollectorV1>,
