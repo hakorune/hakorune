@@ -491,7 +491,7 @@ The design-stop brief is:
 `docs/development/current/main/investigations/cut0-i0-root0-design-stop-2026-07-22.md`
 
 The next executable slices are `ROOT0-RAW0`, `ROOT0-CANON0`,
-`ROOT0-CANON0`, `ROOT0-DRAIN0`, then `ROOT0-P0/G0`. Production capture,
+`ROOT0-DRAIN0`, then `ROOT0-P0/G0`. Production capture,
 drain, finalization, and CUT0 activation remain forbidden.
 
 ### CUT0-I0-ROOT0-BRAND0 — closed: one real branded physical owner
