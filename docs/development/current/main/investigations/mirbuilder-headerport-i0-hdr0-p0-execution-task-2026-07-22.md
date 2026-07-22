@@ -9,6 +9,7 @@ Related:
 - `docs/development/current/main/CURRENT_STATE.toml`
 - `docs/development/current/main/investigations/mirbuilder-headerport-i0-hdr0-p0-open-questions-2026-07-22.md`
 - `docs/development/current/main/investigations/mirbuilder-headerport-i0-production-cutover-consultation-2026-07-21.md`
+- `docs/development/current/main/investigations/cut0-i0-production-transaction-consultation-2026-07-22.md`
 - `tools/checks/lib/headerport_header_reader_census.py`
 - `tools/checks/lib/headerport_authority_erasure_guard.py`
 - `tools/checks/lib/headerport_method_tail_compat_guard.py`
