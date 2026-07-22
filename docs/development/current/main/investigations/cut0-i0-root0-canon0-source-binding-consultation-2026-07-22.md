@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-CANON0 SOURCE-BIND0 設計相談
 
-Status: **未決定 — Q1/Q2/Q9/Q11 decision lock待ち。実装・fixture昇格・DRAIN0・production wiringは禁止**
+Status: **回答済み — Candidate SB-prime-r1を採択。SOURCE-BIND0実行タスクへ移行**
 
 Related:
 
@@ -420,3 +420,40 @@ raw ledger/route-local IDの再増殖とcompiler reuseのlifecycle ambiguityを�
 
 回答が閉じるまで、`prepare(token, plan)`のproduction化、receipt retentionの実装、
 fixture追加、DRAIN0、public ingress、finalizer、external commitを行わない。
+
+## Decision closeout — SB-prime-r1
+
+今回の回答で、次を採択する。
+
+| 論点 | 決定 |
+| --- | --- |
+| Q1 plan-driven package | 採択。compiler layerのprivate constructorがexact canonical planからsource-bound packageを作る。callerはtoken/family/header/catalogを渡さない。 |
+| Q2 sole issuer / collision | 採択。`MirCompiler`が唯一のproduction issuerを所有し、process-scoped compiler domain + compiler-local monotonic ordinalを論理brandとする。process-crossing uniquenessはclaimしない。 |
+| Q3 one-time move | 方針を採択、実splitはLOWER0。SOURCE-BIND0ではpackageを不可分に保ち、LOWER0だけがby-valueでplanをconsumeする。 |
+| Q4 receipt retention | 採択、実装はRECEIPT0。completion root witnessがcollector-issued receiptをby-valueで保持する。 |
+| Q5 recursive receipt | 採択、実装はRECURSIVE0。recursive install receiptとacyclic absence witnessをbrand付きにする。 |
+| Q6 evidence guard | 採択。実census、focused test gate、explicit manifestを分離して各rowで固定する。 |
+| Q7/Q8 order and stop line | 修正採択。`SOURCE-BIND0 → RECEIPT0 → LOWER0 → RECURSIVE0/GUARD0 → CANON-FIXTURE0 → DRAIN0`。production ingress/capture/drain/finalizer/commitはP0までゼロ。 |
+| Q9 package shape | 採択。SOURCE-BIND0はA+、BindingSsaTrivial、BindingSsaAcyclic、BindingSsaRecursiveのcanonical 4 variantだけ。Rawは閉じたRAW0 chainを維持する。 |
+| Q11 continuation lifetime | 採択。singleはplanからsealしたexact headerをownedで保持し、callable batchはexact verified source/catalogを借用する。再resolve・再取得・`Arc`/`Clone`は禁止。 |
+| Q13 collision domain | 採択。parallel/multi-compilerでもlocal ordinal衝突を同一brandと誤認しないためdomainを含める。domain allocatorの実方式はissuer内部に閉じ、routeへ漏らさない。 |
+| Q14 load-bearing tier | 採択。SOURCE-BIND0はQ1/Q2/Q3方針/Q9/Q11/Q12/Q8 non-claimに限定し、receipt/lowering/recursive/fixture/guard実装/drainを後続rowへ分離する。 |
+
+### SOURCE-BIND0の実行境界
+
+```text
+exact canonical preflight plan
+  -> MirCompiler-owned token issuer
+  -> non-Clone SourceBoundCanonicalPackageV1
+  -> rejected owner on validation/issuer failure
+  -> route-specific continuation
+```
+
+SOURCE-BIND0では、`prepare(token, plan)`をproductionへ残さない。packageのpublic
+split terminal、`Option<Plan>`、`take().expect`、caller-authored family/header/catalog、
+canonical production lowering、receipt retention、recursive install、DRAIN0、public
+ingress、external commitも扱わない。
+
+実装タスクは次のカードへ移した。
+
+`cut0-i0-root0-canon0-source-binding-execution-task-2026-07-22.md`
