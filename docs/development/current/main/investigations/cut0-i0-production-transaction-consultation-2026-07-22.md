@@ -1,7 +1,7 @@
 # CUT0-I0 Production Transaction Consultation
 
-Status: **Design Stop — decision input required**  
-Date: 2026-07-22  
+Status: **Closed — Candidate T-prime-r1 selected**
+Date: 2026-07-22
 Scope: define one route-neutral owner/commit contract before production CUT0
 
 Related:
@@ -11,12 +11,13 @@ Related:
 - `src/mir/builder/module_invocation_route_matrix.rs`
 - `src/mir/builder/route_owned_invocation_inventory.rs`
 - `src/mir/compiler/module_session.rs`
+- `docs/development/current/main/investigations/cut0-i0-t-prime-r1-execution-task-2026-07-22.md`
 
 ## Decision status
 
-`Decision: provisional` — Candidate T-prime below is a design proposal only.
-No production caller, route flag, or publication path may consume it until all
-questions in this document are explicitly accepted and guarded.
+`Decision: accepted` — Candidate T-prime-r1 is selected. The original
+T-prime text below remains the consultation input; the r1 corrections and
+executable row order are authoritative in the linked execution task.
 
 The production census proves that the current raw and canonical routes have
 different Builder owners and publication seams. A wrapper around
@@ -51,7 +52,7 @@ The following are not interchangeable proof products:
 - Returning `MirCompileResult` is an API result boundary, not yet a typed
   external-commit proof.
 
-## Candidate T-prime
+## Candidate T-prime (consultation input; corrected by r1)
 
 ### 1. One outer ingress token
 
@@ -168,7 +169,7 @@ Do not collapse child restoration and outer invocation abortion into one global
 `poisoned` bit. Preserve primary-plus-cleanup errors and keep the existing
 `LedgerPoisoned` invariant boundary.
 
-## Required decisions before implementation
+## Required decisions before implementation (resolved by r1)
 
 The following must be accepted in one SSOT decision record:
 
@@ -179,7 +180,7 @@ The following must be accepted in one SSOT decision record:
 5. postprocess ordering and the exact external-commit owner;
 6. child-vs-invocation failure scope, poison, and no-retry behavior.
 
-## Smallest slice after decision lock
+## Smallest slice after decision lock (superseded by the r1 task order)
 
 Only after the six decisions are accepted:
 
@@ -197,3 +198,24 @@ This consultation does not claim production capture, collector wiring,
 condition policy activation, postprocess ownership, external commit, or
 selfhost compiler progress. It records the minimum design boundary needed to
 continue without inventing a second authority or a route-specific fallback.
+
+## T-prime-r1 closeout
+
+The accepted revision adds four corrections to the consultation input:
+
+1. one invocation ID brands token, session, shell, collector, every receipt,
+   every candidate, postprocess, and the prepared external commit;
+2. callable batches complete one whole-batch preflight before an infallible
+   collect-all terminal;
+3. raw Main completion and canonical owner/catalog completion use distinct
+   typed states and converge only at `CompleteInvocationV1`;
+4. any production child failure restores the parent locally and then aborts
+   the outer invocation; later sibling descent, fallback, and retry are zero.
+
+T-prime-r1 also preserves existing route semantics for Builder CoreContext
+seeding, postprocess order, legacy non-fatal verifier results, canonical final
+verification as a commit barrier, and recursive module capability transport.
+
+The design stop is closed. Production activation remains forbidden until the
+disconnected identity, collection, session, root, postprocess, and real-route
+proof rows in the execution task are all closed.

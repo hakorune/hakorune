@@ -1,6 +1,6 @@
 # HDR0-P0 Execution Task
 
-Status: **Active — CUT0-P0 closed; CUT0-I0 preflight next**
+Status: **Closed — superseded by the CUT0-I0 T-prime-r1 execution task**
 Date: 2026-07-22
 Scope: complete HeaderPort reader replacement and prepare one atomic all-route CUT0
 
@@ -10,6 +10,7 @@ Related:
 - `docs/development/current/main/investigations/mirbuilder-headerport-i0-hdr0-p0-open-questions-2026-07-22.md`
 - `docs/development/current/main/investigations/mirbuilder-headerport-i0-production-cutover-consultation-2026-07-21.md`
 - `docs/development/current/main/investigations/cut0-i0-production-transaction-consultation-2026-07-22.md`
+- `docs/development/current/main/investigations/cut0-i0-t-prime-r1-execution-task-2026-07-22.md`
 - `tools/checks/lib/headerport_header_reader_census.py`
 - `tools/checks/lib/headerport_authority_erasure_guard.py`
 - `tools/checks/lib/headerport_method_tail_compat_guard.py`
@@ -283,6 +284,18 @@ one SSOT decision for all six questions
 
 Until this closes, production capture, drain, finalizer, and external-commit
 consumers remain zero. The current next action is consultation, not code.
+
+#### CUT0-I0-CONSULT0 closeout
+
+Candidate T-prime-r1 is selected. The authoritative implementation rows now
+live in the dedicated execution task. The revision brands the full owner chain
+with one invocation ID, requires atomic callable-batch collection, separates
+raw Main completion from canonical completion, preserves route-specific Core
+ID/postprocess/verifier behavior, and aborts the outer invocation on the first
+production child failure.
+
+The design stop is closed. `CUT0-I0-ID0-S0` is the next disconnected
+code-facing row; production capture/commit and CUT0 activation remain zero.
 
 ### CUT0-G0 — retire old owners
 
