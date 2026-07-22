@@ -1,6 +1,6 @@
 # CUT0-I0 T-prime-r1 Execution Task
 
-Status: **Active — CUT0-I0-ID0-S0 and CUT0-I0-ID0-P0 closed; CUT0-I0-COLLECT0-S0 next**
+Status: **Active — CUT0-I0-ID0-S0, CUT0-I0-ID0-P0, and CUT0-I0-COLLECT0-S0 closed; CUT0-I0-COLLECT0-BATCH0 next**
 Date: 2026-07-22
 Decision: **Candidate T-prime-r1 selected**
 Scope: build one invocation-branded module transaction, then perform one
@@ -348,9 +348,10 @@ the Builder session, source proof, receipt, collector co-seal, complete,
 drained, finalized, and prepared external-commit products. Foreign collector
 or receipt pairing fails before co-seal mutation, and receipt family policy is
 checked against the sealed source family. No production consumer or ingress
-was added. The next disconnected row is `CUT0-I0-COLLECT0-S0`.
+was added. `CUT0-I0-COLLECT0-S0` is now closed below; the next disconnected
+row is `CUT0-I0-COLLECT0-BATCH0`.
 
-### CUT0-I0-COLLECT0-S0 — raw and canonical-single co-seal
+### CUT0-I0-COLLECT0-S0 — closed: raw and canonical-single co-seal
 
 Add separate private `seal_raw` and `seal_canonical_single` terminals. They
 consume source proof plus collector and emit one
@@ -360,6 +361,30 @@ caller symbol list is accepted.
 Acceptance covers bijection, key/symbol/arity/policy/cardinality, raw
 replacement history, callable-Main disposition, surplus/missing rows, and
 foreign invocation rejection before mutation.
+
+```text
+Raw: final ledger rows, collector rows, and physical receipts are bijective
+Canonical-single: exact one row, exact owner key, no synthetic roots
+```
+
+Closeout evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test module_invocation_collect0_s0_p0 --lib = 3 passed
+python3 tools/checks/lib/cut0_i0_collect0_s0_guard.py = green
+python3 tools/checks/lib/cut0_i0_id0_p0_guard.py = green
+```
+
+`RawInvocationSourceProofV1` now owns a sealed raw expansion ledger and
+`CanonicalSingleInvocationSourceProofV1` owns a verified owner header. The
+private `seal_raw` and `seal_canonical_single` terminals compare those source
+authorities with a branded physical collector and receipts before issuing
+route-specific collected sets. Raw checks final ledger rows and replacement
+history; canonical-single checks one exact owner row, symbol, arity, and
+`CanonicalRejectDuplicate`. Foreign brand, family, cardinality, key, symbol,
+arity, policy, and replacement failures remain pre-co-seal errors. No
+production caller or route activation was added. The next disconnected row is
+`CUT0-I0-COLLECT0-BATCH0`.
 
 ### CUT0-I0-COLLECT0-BATCH0 — atomic callable collection
 

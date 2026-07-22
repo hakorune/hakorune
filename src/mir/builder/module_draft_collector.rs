@@ -298,6 +298,13 @@ impl ModuleDraftCollectorV1 {
     pub(in crate::mir::builder) fn into_draft_functions(self) -> Vec<MirFunction> {
         self.drafts.into_values().map(|entry| entry.draft).collect()
     }
+
+    pub(in crate::mir::builder) fn key_for_symbol(
+        &self,
+        symbol: &str,
+    ) -> Option<&FunctionDraftKeyV1> {
+        self.key_by_symbol.get(symbol)
+    }
 }
 
 impl CompletedDraftSignatureViewV1 for ModuleDraftCollectorV1 {

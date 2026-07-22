@@ -184,6 +184,10 @@ impl RawExpansionCompletedEventV1 {
         self.arity
     }
 
+    pub(in crate::mir::builder) const fn policy(&self) -> DraftPublicationPolicyV1 {
+        self.policy
+    }
+
     pub(in crate::mir::builder) const fn replacement(&self) -> &RawExpansionReplacementEventV1 {
         &self.replacement
     }

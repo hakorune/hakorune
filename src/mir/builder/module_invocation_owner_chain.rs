@@ -185,6 +185,10 @@ impl<T> InvocationBranded<T> {
         self.brand
     }
 
+    pub(in crate::mir::builder) fn payload(&self) -> &T {
+        &self.payload
+    }
+
     #[cfg(test)]
     pub(in crate::mir::builder) fn into_payload(self) -> T {
         self.payload

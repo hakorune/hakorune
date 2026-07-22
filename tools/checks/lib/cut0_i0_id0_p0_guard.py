@@ -15,6 +15,8 @@ SRC = ROOT / "src/mir/builder"
 BUILDER = SRC / ".." / "builder.rs"
 CHAIN = SRC / "module_invocation_owner_chain.rs"
 FIXTURE = SRC / "module_invocation_brand_p0.rs"
+COLLECTION = SRC / "module_invocation_collection.rs"
+COLLECT_FIXTURE = SRC / "module_invocation_collect0_s0_p0.rs"
 
 
 def require(text: str, fragment: str, label: str) -> None:
@@ -30,12 +32,13 @@ def main() -> int:
     fixture = FIXTURE.read_text()
     builder = BUILDER.resolve().read_text()
 
-    for path in (CHAIN, FIXTURE, pathlib.Path(__file__)):
+    for path in (CHAIN, FIXTURE, COLLECTION, COLLECT_FIXTURE, pathlib.Path(__file__)):
         if len(path.read_text().splitlines()) >= 800:
             raise AssertionError(f"ID0-P0 file must remain below 800 lines: {path}")
 
     require(state, "CUT0-I0-ID0-P0 is closed as a disconnected branded owner-chain proof", "row closeout")
-    require(state, "CUT0-I0-COLLECT0-S0 is next", "next pointer")
+    require(state, "CUT0-I0-COLLECT0-S0 is closed as a disconnected raw/canonical co-seal proof", "successor closeout")
+    require(state, "CUT0-I0-COLLECT0-BATCH0 is next", "next pointer")
     require(task, "CUT0-I0-ID0-P0 — closed", "task row")
     require(task, "foreign shell + collector", "foreign owner fixture")
     require(task, "source proof + collector co-seal", "co-seal acceptance")
@@ -63,6 +66,8 @@ def main() -> int:
     allowed = {
         CHAIN.relative_to(ROOT),
         FIXTURE.relative_to(ROOT),
+        COLLECTION.relative_to(ROOT),
+        COLLECT_FIXTURE.relative_to(ROOT),
         BUILDER.resolve().relative_to(ROOT),
     }
     forbidden = (

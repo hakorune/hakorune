@@ -15,12 +15,16 @@ TASK = ROOT / (
 IDENTITY = ROOT / "src/mir/builder/module_invocation_identity.rs"
 FIXTURES = ROOT / "src/mir/builder/module_invocation_identity_p0.rs"
 BRAND_CHAIN = ROOT / "src/mir/builder/module_invocation_owner_chain.rs"
+COLLECTION = ROOT / "src/mir/builder/module_invocation_collection.rs"
+COLLECT_FIXTURE = ROOT / "src/mir/builder/module_invocation_collect0_s0_p0.rs"
 BUILDER = ROOT / "src/mir/builder.rs"
 SRC = ROOT / "src"
 ALLOWED = {
     IDENTITY.relative_to(ROOT),
     FIXTURES.relative_to(ROOT),
     BRAND_CHAIN.relative_to(ROOT),
+    COLLECTION.relative_to(ROOT),
+    COLLECT_FIXTURE.relative_to(ROOT),
     BUILDER.relative_to(ROOT),
 }
 
@@ -43,7 +47,8 @@ def main() -> int:
 
     require(state, "CUT0-I0-ID0-S0 is closed as a disconnected identity/token proof", "row closeout")
     require(state, "CUT0-I0-ID0-P0 is closed as a disconnected branded owner-chain proof", "row successor closeout")
-    require(state, "CUT0-I0-COLLECT0-S0 is next", "next pointer")
+    require(state, "CUT0-I0-COLLECT0-S0 is closed as a disconnected raw/canonical co-seal proof", "successor closeout")
+    require(state, "CUT0-I0-COLLECT0-BATCH0 is next", "next pointer")
     require(task, "CUT0-I0-ID0-S0 — closed", "task row")
     require(task, "CUT0-I0-ID0-P0", "next task row")
     require(task, "foreign family/source construction", "foreign-source acceptance")
