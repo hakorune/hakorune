@@ -323,9 +323,9 @@ module_draft_headerport_i0_task = "docs/development/current/main/investigations/
 headerport_hdr0_p0_execution_task = "docs/development/current/main/investigations/mirbuilder-headerport-i0-hdr0-p0-execution-task-2026-07-22.md"
 cut0_i0_t_prime_r1_execution_task = "docs/development/current/main/investigations/cut0-i0-t-prime-r1-execution-task-2026-07-22.md"
 
-latest_card = "cut0-i0-root0-canon0-source-binding-design-question-2026-07-22"
-latest_card_path = "docs/development/current/main/investigations/cut0-i0-root0-canon0-source-binding-design-question-2026-07-22.md"
-latest_card_summary = """ROOT0-CANON0 C-prime's first disconnected scaffold exists, but SOURCE-BIND0 is now a design stop. The current prepare(token, plan) APIs only compare family and cannot reject a same-family foreign preflight plan. Before CANON0 fixture promotion or DRAIN0, select one source-bound package constructor that co-mints the exact plan, continuation, and sole invocation token producer. Public canonical ingress, drain, finalizer, and external commit remain parked. FastMem remains parked until MODULE-FINALIZE-VERIFY-CUT0."""
+latest_card = "cut0-i0-root0-canon0-source-binding-consultation-2026-07-22"
+latest_card_path = "docs/development/current/main/investigations/cut0-i0-root0-canon0-source-binding-consultation-2026-07-22.md"
+latest_card_summary = """Worker audit widened SOURCE-BIND0 beyond family-only token binding. The design stop now covers the sole issuer and identity collision domain, non-Clone package/rejected-owner shape, one-time plan move versus a real lowering consumer, exact receipt retention, branded recursive install receipt, evidence-grade guard census, fixture order, continuation lifetime, typed route shape, and the CANON0/DRAIN0 stop line. No fixture promotion, drain, finalizer, external commit, or public ingress is authorized until Q1-Q12 are answered."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
@@ -527,7 +527,7 @@ semantic descriptors and the S/L/R schedule. It has zero production consumers
 and makes zero fact-map writes. M0 must now freeze the direct Unified,
 terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
 failure/success witness matrix before any production connection."""
-current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-MODULEDRAFT0-HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-CUT0-I0-ROOT0-CANON0-SOURCE-BINDING-CONSULT0-20260722"
+current_blocker_token = "DPRIME-MIRBUILDER-CLEAN0-FINALIZE0-MODULEDRAFT0-HEADERPORT0-REENTRANT-TERM0-I0-WIRING-I0-CUT0-I0-ROOT0-CANON0-SOURCE-BINDING-CONSULT1-20260722"
 finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
