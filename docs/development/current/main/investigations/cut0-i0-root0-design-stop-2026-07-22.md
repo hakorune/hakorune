@@ -1,8 +1,8 @@
 # CUT0-I0 ROOT0 design-stop brief
 
-Status: **ROOT0 R-prime selected; ROOT0-BRAND0 closed**
+Status: **ROOT0-RAW0-D0 design stop after BRAND0**
 Date: 2026-07-22
-Decision: **ROOT0 R-prime is selected; ROOT0-BRAND0 is closed and ROOT0-RAW0 is next**
+Decision: **ROOT0 R-prime selected; RAW0 scope is unresolved**
 Related:
 
 - `docs/development/current/main/CURRENT_STATE.toml`
@@ -134,3 +134,26 @@ This brief does not claim that:
 
 The next executable owner is `ROOT0-BRAND0` only after the three boundary
 decisions above are accepted. Until then, code implementation is paused.
+
+## ROOT0-RAW0-D0 — scope boundary (design stop)
+
+The next row has two possible scopes and must not be silently narrowed:
+
+```text
+Candidate A (recommended)
+  collector-bound branded receipt provenance
+  -> raw root-batch preflight
+  -> retained CompletedRootBodyV1
+  -> exact condition receipt + callable-main disposition
+  -> one Raw completion witness
+
+Candidate B
+  ROOT0-RAW0-RECEIPT: branded receipt provenance only
+  ROOT0-RAW0: root witness retention as a separate later row
+```
+
+The brief defines `ROOT0-RAW0` as Candidate A. Receipt provenance is a
+prerequisite seam, not evidence that Candidate A is complete. No implementation
+or SSOT closeout may claim receipt-only completion until this boundary is
+explicitly locked. The receipt-only WIP is recoverable in
+`stash@{0}: wip/ROOT0-RAW0 receipt provenance design scope`.

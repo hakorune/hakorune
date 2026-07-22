@@ -1,6 +1,6 @@
 # CUT0-I0 T-prime-r1 Execution Task
 
-Status: **CUT0-I0-ROOT0-BRAND0 closed; ROOT0-RAW0 next**
+Status: **CUT0-I0-ROOT0-RAW0-D0 design stop**
 Date: 2026-07-22
 Decision: **Candidate T-prime-r1 selected**
 Scope: build one invocation-branded module transaction, then perform one
@@ -519,6 +519,15 @@ RUSTFLAGS='-Awarnings' cargo test -q raw_expansion_receipt_ledger_tests --lib
 ```
 
 The next disconnected row is `ROOT0-RAW0`; production consumers remain zero.
+
+### CUT0-I0-ROOT0-RAW0-D0 — design stop: receipt seam versus root witness
+
+The active ROOT0 brief defines RAW0 as the retained raw root witness, not
+receipt provenance alone. Candidate A keeps collector-bound receipts, raw
+root-batch preflight, `CompletedRootBodyV1`, the required condition receipt,
+and callable-Main disposition in one atomic row. Candidate B splits a receipt-
+only prerequisite into `ROOT0-RAW0-RECEIPT`. Candidate A is recommended, but
+no code-facing RAW0 row is selected until the scope is explicitly locked.
 
 ### CUT0-I0-ROOT0 — route-specific completion and drain policy
 
