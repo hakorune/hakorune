@@ -49,6 +49,10 @@ DRAINED_CANDIDATE_P0 = ROOT / "src/mir/builder/drained_module_candidate_p0.rs"
 MODULE_FINAL = ROOT / "src/mir/builder/module_finalization_split.rs"
 MODULE_FINAL_P0 = ROOT / "src/mir/builder/module_finalization_split_p0.rs"
 MODULE_FINAL_CANDIDATE_P0 = ROOT / "src/mir/builder/module_finalization_candidate_p0.rs"
+MODULE_FINAL_ONCE = ROOT / "src/mir/builder/module_finalization_once.rs"
+MODULE_FINAL_ONCE_P0 = ROOT / "src/mir/builder/module_finalization_once_p0.rs"
+MODULE_INVOCATION_DRAIN = ROOT / "src/mir/builder/module_invocation_drain.rs"
+MODULE_INVOCATION_DRAIN_S0_TESTS = ROOT / "src/mir/builder/module_invocation_drain_s0_tests.rs"
 BORROW_ROOT_P0 = ROOT / "src/mir/builder/module_lowering_borrow_root_p0.rs"
 ROOT_BATCH_COMMIT = ROOT / "src/mir/builder/module_draft_collector/root_batch.rs"
 ROOT_BATCH_COMMIT_P0 = ROOT / "src/mir/builder/root_draft_batch_commit_p0.rs"
@@ -555,6 +559,9 @@ def main() -> int:
             MODULE_FINAL,
             MODULE_FINAL_P0,
             MODULE_FINAL_CANDIDATE_P0,
+            MODULE_FINAL_ONCE,
+            MODULE_FINAL_ONCE_P0,
+            MODULE_INVOCATION_DRAIN,
             BORROW_ROOT_P0,
             ROOT_BATCH_COMMIT,
             ROOT_BATCH_COMMIT_P0,
@@ -676,7 +683,7 @@ def main() -> int:
     require(builder_mod, "mod module_finalization_candidate_p0;", "MODULEFINAL0-CANDIDATE0-P0 registration")
     other_builder_files = []
     for path in (ROOT / "src/mir/builder").rglob("*.rs"):
-        if path in (CANDIDATE, CANDIDATE_P0, BUILDER_MOD):
+        if path in (CANDIDATE, CANDIDATE_P0, BUILDER_MOD, MODULE_INVOCATION_DRAIN_S0_TESTS):
             continue
         if "ModuleLoweringInvocationCandidateV1" in path.read_text():
             other_builder_files.append(str(path.relative_to(ROOT)))

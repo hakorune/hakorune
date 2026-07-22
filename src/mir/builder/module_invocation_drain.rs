@@ -4,8 +4,13 @@
 //! proves that shell/collector inventory, main/condition policy, and the
 //! final function batch are checked before either owner is consumed.
 
+use super::drained_module_candidate::{
+    CompletedInvocationInventoryV1, DrainedModuleCandidateErrorV1, DrainedModuleCandidateV1,
+};
 use super::module_draft_collector::{CompletedDraftSignatureViewV1, ModuleDraftCollectorV1};
-use super::module_lowering_invocation_state::ModuleLoweringInvocationStateV1;
+use super::module_lowering_invocation_state::{
+    CompleteInvocationV1, ModuleLoweringInvocationStateV1, RootCompletionStateV1,
+};
 use super::module_lowering_shell::{
     ModuleLoweringShellDrainInventoryV1, ModuleLoweringShellErrorV1, ModuleLoweringShellV1,
 };
@@ -89,6 +94,19 @@ impl ModuleLoweringInvocationDrainOwnerV1 {
         }
     }
 
+    /// Prepare a drain from the exact completed invocation state.  Unlike
+    /// `new`, this terminal never rebuilds shell+collector from loose parts.
+    pub(in crate::mir::builder) fn prepare_complete(
+        complete: CompleteInvocationV1,
+        expectation: InvocationDrainExpectationV1,
+    ) -> Result<PreparedInvocationDrainV1, InvocationDrainPreflightErrorV1> {
+        let owner = Self {
+            state: complete.into_state(),
+        };
+        debug_assert_eq!(owner.state.root(), RootCompletionStateV1::Complete);
+        owner.prepare(expectation)
+    }
+
     /// All checks run while both owners are still borrowed by this object.
     pub(in crate::mir::builder) fn prepare(
         self,
@@ -146,6 +164,22 @@ impl PreparedInvocationDrainV1 {
         shell
             .prepare_drain(self.expectation.inventory)
             .commit_preflighted(functions)
+    }
+
+    /// Consume the same completed invocation state directly into the typed
+    /// post-drain candidate.  The intermediate module is never returned to a
+    /// caller and no second shell/collector owner is constructed.
+    pub(in crate::mir::builder) fn drain_candidate(
+        self,
+        inventory: CompletedInvocationInventoryV1,
+    ) -> Result<DrainedModuleCandidateV1, DrainedModuleCandidateErrorV1> {
+        let (shell, collector, root) = self.state.into_parts();
+        debug_assert_eq!(root, RootCompletionStateV1::Complete);
+        let functions = collector.into_draft_functions();
+        let module = shell
+            .prepare_drain(self.expectation.inventory)
+            .commit_preflighted(functions);
+        DrainedModuleCandidateV1::from_drained_module(module, inventory)
     }
 }
 

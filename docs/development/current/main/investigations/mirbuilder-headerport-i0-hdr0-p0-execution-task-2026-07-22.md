@@ -1,6 +1,6 @@
 # HDR0-P0 Execution Task
 
-Status: **Active — Candidate S-prime selected; CUT0-S0 next**
+Status: **Active — CUT0-S0-OWNER0 closed; CUT0-S0-COMPAT0 next**
 Date: 2026-07-22
 Scope: complete HeaderPort reader replacement and prepare one atomic all-route CUT0
 
@@ -12,6 +12,7 @@ Related:
 - `tools/checks/lib/headerport_header_reader_census.py`
 - `tools/checks/lib/headerport_authority_erasure_guard.py`
 - `tools/checks/lib/headerport_method_tail_compat_guard.py`
+- `tools/checks/lib/cut0_s0_guard.py`
 
 ## Accepted decisions
 
@@ -53,7 +54,7 @@ current_module function-map readers
 
 ## Implementation queue
 
-### HDR0-P0-AUTHORITY-ERASURE0 — next
+### HDR0-P0-AUTHORITY-ERASURE0 — closed
 
 Close exactly the three known authority-loss sites:
 
@@ -83,7 +84,7 @@ Acceptance:
 This is a BoxShape slice. It must not add a new accepted call shape, resolver,
 cache, environment variable, or production route.
 
-### HDR0-P0-METHODTAIL-COMPAT0
+### HDR0-P0-METHODTAIL-COMPAT0 — closed
 
 Make the selected Q1 boundary executable:
 
@@ -103,14 +104,14 @@ Acceptance fixtures:
 - fresh legacy snapshot and explicit headers agree for unique, ambiguous, and
   missing results.
 
-### HDR0-P0-CALLER-CENSUS0
+### HDR0-P0-CALLER-CENSUS0 — closed
 
 Re-run the full reader/caller census after the two code slices. Every
 materializer mode and method-tail caller must have one named owner. Located
 legacy observation remains diagnostic/disconnected unless new evidence
 selects a separate task.
 
-### HDR0-G0
+### HDR0-G0 — closed
 
 Close only when:
 
@@ -124,8 +125,8 @@ production capture/commit consumers = 0
 ## Atomic lifecycle queue
 
 The production policy is fixed now, but CUT0 is not yet executable. After
-HDR0-G0 and the existing bounded compatibility-policy consultation, use the
-following queue.
+HDR0-G0 and the accepted compatibility-policy closeout, use the following
+queue.
 
 ### CUT0-S0 — disconnected linear owner
 
@@ -192,12 +193,11 @@ Remove old closure terminals, restore-then-publish, direct module insertion,
 direct callable publication, and current-module header fallback after their
 consumer counts are zero.
 
-## Existing consultation retained
+## Existing consultation — closed
 
-`CUT0-COMPAT-POLICY-CONSULT0` remains after HDR0-G0 and before CUT0-S0. It
-decides duplicate Main source behavior and optional callable-Main failure
-propagation. Q4 decides activation topology, not those remaining semantic
-policies.
+`CUT0-COMPAT-POLICY-CONSULT0` is closed with Candidate S-prime before
+`CUT0-S0`. Duplicate Main source behavior and selected callable-Main failure
+propagation are now explicit; Q4 remains the activation-topology decision.
 
 ## Non-claims
 
@@ -395,3 +395,36 @@ source/check files: < 800 lines
 Still unclaimed: production lifecycle wiring, all-route CUT0 activation,
 FACTSESSION0, finalization repair retirement, FastMem/LLVM execution, and
 parser/selfhost migration. CUT0-S0 must close before those lanes advance.
+
+## CUT0-S0-OWNER0 closeout
+
+The disconnected linear-owner structural seam is closed on 2026-07-22.
+
+```text
+root capture -> root complete -> CompleteInvocationV1
+candidate -> complete_success
+CompleteInvocationV1 -> prepare_complete
+PreparedInvocationDrainV1 -> drain_candidate
+DrainedModuleFinalizationInputV1 -> finalize_drained_module_once
+```
+
+The handoff keeps the original shell+collector state and the root-completion
+witness intact. The post-drain terminal returns a typed finalized candidate;
+it does not expose Builder, collector, HeaderPort, a bare module, retry, or
+publication authority. Production capture/commit, drain, finalizer, and
+external-commit consumers remain zero.
+
+Evidence:
+
+```text
+python3 tools/checks/lib/cut0_s0_guard.py = green
+cargo test -q completed_candidate_drains_to_typed_candidate_without_rebuilding_state --lib = green
+cargo test -q finalizer_ --lib = green (6 tests)
+cargo test -q successful_candidate_handoff_preserves_the_same_complete_state --lib = green
+cargo check -q = green
+```
+
+The next code-facing row is `CUT0-S0-COMPAT0`: seal the compatibility policy
+once at ingress, reject duplicate static Main before effects, propagate
+selected callable-Main typed failures, and add the required failure fixtures
+and static guard. No production route activation is authorized yet.

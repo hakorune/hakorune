@@ -78,10 +78,16 @@ mod module_draft_collector_receipt_tests; // ROUTEINV-P0a-RECEIPT-S0 fixtures
 mod module_finalization_candidate_p0; // HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0 matrix
 #[allow(dead_code)]
 mod module_finalization_split; // HEADERPORT0-I0-MODULEFINAL0-SPLIT0 input
+#[allow(dead_code)]
+mod module_finalization_once; // CUT0-S0 Builder-free finalizer
 #[cfg(test)]
 mod module_finalization_split_p0; // HEADERPORT0-I0-MODULEFINAL0-SPLIT0-P0 fixtures
+#[cfg(test)]
+mod module_finalization_once_p0; // CUT0-S0 finalizer fixtures
 #[allow(dead_code)]
 mod module_invocation_drain; // HEADERPORT0 I0-SHELL-I0-S0 disconnected drain
+#[cfg(test)]
+mod module_invocation_drain_s0_tests; // CUT0-S0 same-state drain fixtures
 #[allow(dead_code)]
 mod module_invocation_route_matrix; // HEADERPORT0 I0-SHELL-I0-P0 disconnected matrix
 #[allow(dead_code)]

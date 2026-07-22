@@ -155,6 +155,10 @@ def verify_borrow_root_p0(
         root / "src/mir/builder/module_declaration_facts_p0.rs",
         root / "src/mir/builder/drained_module_candidate_p0.rs",
         root / "src/mir/builder/module_finalization_split_p0.rs",
+        root / "src/mir/builder/module_finalization_once.rs",
+        root / "src/mir/builder/module_finalization_once_p0.rs",
+        root / "src/mir/builder/module_invocation_drain.rs",
+        root / "src/mir/builder/module_invocation_drain_s0_tests.rs",
         batch_commit_path,
         batch_commit_proof_path,
         fact_commit_path,
@@ -225,6 +229,7 @@ def verify_borrow_root_p0(
             "BORROW-P0-ROOT-G0 and WIRING-I0-BORROW-G0 are closed; WIRING-I0-HDR0-M0 is closed; HDR0-P0 Q1-Q4 decisions are accepted, HDR0-P0-AUTHORITY-ERASURE0, HDR0-P0-METHODTAIL-COMPAT0, and HDR0-P0-CALLER-CENSUS0 are closed, and HDR0-G0 is next",
             "BORROW-P0-ROOT-G0 and WIRING-I0-BORROW-G0 are closed; WIRING-I0-HDR0-M0 is closed; HDR0-P0 Q1-Q4 decisions are accepted, HDR0-P0-AUTHORITY-ERASURE0, HDR0-P0-METHODTAIL-COMPAT0, HDR0-P0-CALLER-CENSUS0, and HDR0-G0 are closed; CUT0-COMPAT-POLICY-CONSULT0-DESIGN-STOP is next",
             "BORROW-P0-ROOT-G0 and WIRING-I0-BORROW-G0 are closed; WIRING-I0-HDR0-M0 is closed; HDR0-P0 Q1-Q4 decisions are accepted, HDR0-P0-AUTHORITY-ERASURE0, HDR0-P0-METHODTAIL-COMPAT0, HDR0-P0-CALLER-CENSUS0, and HDR0-G0 are closed; CUT0-COMPAT-POLICY-CONSULT0 is closed with Candidate S-prime; CUT0-S0 is next",
+            "BORROW-P0-ROOT-G0 and WIRING-I0-BORROW-G0 are closed; WIRING-I0-HDR0-M0 is closed; HDR0-P0 Q1-Q4 decisions are accepted, HDR0-P0-AUTHORITY-ERASURE0, HDR0-P0-METHODTAIL-COMPAT0, HDR0-P0-CALLER-CENSUS0, and HDR0-G0 are closed; CUT0-COMPAT-POLICY-CONSULT0 is closed with Candidate S-prime; CUT0-S0-OWNER0 is closed, CUT0-S0-COMPAT0 is next",
         )
     ):
         raise AssertionError("missing BORROW-G0 pointer or its documented HDR0 follow-on")

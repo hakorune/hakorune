@@ -7,7 +7,9 @@
 //! owned by `PendingFunctionSessionCloseV1`.
 
 use super::module_draft_collector::{CompletedDraftSignatureViewV1, ModuleDraftCollectorV1};
-use super::module_lowering_invocation_state::ModuleLoweringInvocationStateV1;
+use super::module_lowering_invocation_state::{
+    CompleteInvocationV1, ModuleLoweringInvocationStateV1, RootCompletionTransitionErrorV1,
+};
 use super::module_lowering_shell::ModuleLoweringShellV1;
 use crate::mir::MirBuilder;
 
@@ -21,6 +23,20 @@ pub(in crate::mir::builder) enum InvocationCandidateFailureStageV1 {
     FinalVerification,
     Panic,
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::builder) enum InvocationCandidateCompletionErrorV1 {
+    StateAlreadyConsumed,
+    RootTransition(RootCompletionTransitionErrorV1),
+}
+
+impl std::fmt::Display for InvocationCandidateCompletionErrorV1 {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(formatter, "[freeze:contract][invocation_completion] {self:?}")
+    }
+}
+
+impl std::error::Error for InvocationCandidateCompletionErrorV1 {}
 
 /// The only external effect an aborted disconnected candidate may report.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -151,6 +167,15 @@ impl ModuleLoweringInvocationCandidateV1 {
         &self.baseline
     }
 
+    pub(in crate::mir::builder) fn capture_main(
+        &mut self,
+    ) -> Result<(), RootCompletionTransitionErrorV1> {
+        self.state
+            .as_mut()
+            .expect("active invocation candidate owns one state")
+            .capture_main()
+    }
+
     /// Lend the Builder only for the active lowering closure.  The candidate
     /// never stores a Builder or a `current_module` view, so the borrow ends
     /// before any later abort or drain transition.
@@ -164,6 +189,26 @@ impl ModuleLoweringInvocationCandidateV1 {
             .as_mut()
             .expect("active invocation candidate owns one state");
         lower(builder, state)
+    }
+
+    /// Consume the same candidate after the root has been captured and hand
+    /// it to the typed complete-state owner.  No shell or collector is
+    /// reconstructed at this boundary.
+    pub(in crate::mir::builder) fn complete_success(
+        mut self,
+    ) -> Result<CompleteInvocationV1, InvocationCandidateCompletionErrorV1> {
+        let state = self
+            .state
+            .as_mut()
+            .ok_or(InvocationCandidateCompletionErrorV1::StateAlreadyConsumed)?;
+        state
+            .complete_root()
+            .map_err(InvocationCandidateCompletionErrorV1::RootTransition)?;
+        Ok(CompleteInvocationV1::from_state(
+            self.state
+                .take()
+                .expect("complete invocation owns one state after transition"),
+        ))
     }
 
     /// Abort without publishing or retrying.  The resulting proof compares
@@ -286,6 +331,18 @@ mod tests {
             InvocationCandidateRetryV1::Forbidden
         );
         aborted.discard();
+    }
+
+    #[test]
+    fn successful_candidate_handoff_preserves_the_same_complete_state() {
+        let mut candidate =
+            ModuleLoweringInvocationCandidateV1::open(shell(), collector_with_prefix());
+        candidate.capture_main().unwrap();
+        let complete = candidate.complete_success().unwrap();
+        assert_eq!(
+            complete.root(),
+            super::super::module_lowering_invocation_state::RootCompletionStateV1::Complete
+        );
     }
 
     #[test]

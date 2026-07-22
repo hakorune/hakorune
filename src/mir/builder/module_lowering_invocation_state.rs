@@ -15,6 +15,32 @@ pub(in crate::mir::builder) enum RootCompletionStateV1 {
     Complete,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::builder) enum RootCompletionTransitionErrorV1 {
+    ExpectedMainPending,
+    ExpectedMainCaptured,
+}
+
+impl std::fmt::Display for RootCompletionTransitionErrorV1 {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(formatter, "[freeze:contract][root_transition] {self:?}")
+    }
+}
+
+impl std::error::Error for RootCompletionTransitionErrorV1 {}
+
+/// Typed success handoff after the root body has been captured and completed.
+/// The state is still the same shell+collector pair; only its lifecycle phase
+/// has advanced.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct CompleteInvocationV1 {
+    state: ModuleLoweringInvocationStateV1,
+    _seal: CompleteInvocationSealV1,
+}
+
+#[derive(Debug)]
+struct CompleteInvocationSealV1;
+
 /// One invocation owns one shell, one collector, and one root-completion
 /// marker.  Function-local lowering state is deliberately not stored here.
 #[derive(Debug)]
@@ -67,6 +93,26 @@ impl ModuleLoweringInvocationStateV1 {
         self.root
     }
 
+    pub(in crate::mir::builder) fn capture_main(
+        &mut self,
+    ) -> Result<(), RootCompletionTransitionErrorV1> {
+        if self.root != RootCompletionStateV1::MainPending {
+            return Err(RootCompletionTransitionErrorV1::ExpectedMainPending);
+        }
+        self.root = RootCompletionStateV1::MainCaptured;
+        Ok(())
+    }
+
+    pub(in crate::mir::builder) fn complete_root(
+        &mut self,
+    ) -> Result<(), RootCompletionTransitionErrorV1> {
+        if self.root != RootCompletionStateV1::MainCaptured {
+            return Err(RootCompletionTransitionErrorV1::ExpectedMainCaptured);
+        }
+        self.root = RootCompletionStateV1::Complete;
+        Ok(())
+    }
+
     /// Consume the complete invocation state only at the one drain boundary.
     pub(in crate::mir::builder) fn into_parts(
         self,
@@ -76,6 +122,23 @@ impl ModuleLoweringInvocationStateV1 {
         RootCompletionStateV1,
     ) {
         (self.shell, self.collector, self.root)
+    }
+}
+
+impl CompleteInvocationV1 {
+    pub(in crate::mir::builder) fn from_state(state: ModuleLoweringInvocationStateV1) -> Self {
+        Self {
+            state,
+            _seal: CompleteInvocationSealV1,
+        }
+    }
+
+    pub(in crate::mir::builder) fn root(&self) -> RootCompletionStateV1 {
+        self.state.root()
+    }
+
+    pub(in crate::mir::builder) fn into_state(self) -> ModuleLoweringInvocationStateV1 {
+        self.state
     }
 }
 
@@ -103,5 +166,19 @@ mod tests {
         let state = ModuleLoweringInvocationStateV1::new(shell, ModuleDraftCollectorV1::default());
         let (_shell, _collector, root) = state.into_parts();
         assert_eq!(root, RootCompletionStateV1::MainPending);
+    }
+
+    #[test]
+    fn root_completion_requires_ordered_typed_transitions() {
+        let shell =
+            ModuleLoweringShellV1::from_empty_module(MirModule::new("state".into())).unwrap();
+        let mut state = ModuleLoweringInvocationStateV1::new(shell, ModuleDraftCollectorV1::default());
+        assert_eq!(
+            state.complete_root().unwrap_err(),
+            RootCompletionTransitionErrorV1::ExpectedMainCaptured
+        );
+        state.capture_main().unwrap();
+        state.complete_root().unwrap();
+        assert_eq!(state.root(), RootCompletionStateV1::Complete);
     }
 }
