@@ -1,6 +1,6 @@
 # HDR0-P0 Execution Task
 
-Status: **Active — decisions accepted; authority-erasure slice next**
+Status: **Active — Candidate S-prime selected; CUT0-S0 next**
 Date: 2026-07-22
 Scope: complete HeaderPort reader replacement and prepare one atomic all-route CUT0
 
@@ -278,13 +278,13 @@ python3 tools/checks/lib/headerport_candidate0_guard.py . = green
 ```
 
 `HDR0-G0` is the final verification row for this lane and remains closed
-below. The existing compatibility-policy consultation still remains before
-CUT0-S0; this census does not authorize production lifecycle wiring.
+below. The compatibility-policy consultation is recorded and closed below;
+this card now owns the bounded CUT0-S0 implementation queue.
 
-## CUT0-COMPAT-POLICY-CONSULT0-DESIGN-STOP
+## CUT0-COMPAT-POLICY-CONSULT0-DESIGN-STOP (closed)
 
-HDR0-G0 is closed. The next step is deliberately a design stop, not an
-implementation row.
+HDR0-G0 is closed. This section records the resolved design stop; the
+Candidate S-prime decision and its implementation queue follow below.
 
 Source authority:
 
@@ -322,16 +322,76 @@ Decision axes for the consultation:
 3. Define the exact fixtures, error vocabulary, and CUT0 acceptance gate for
    both choices.
 
-Recommended next slice:
+Resolved handoff:
 
 ```text
-one consultation decision record
+Candidate S-prime decision record
 -> duplicate-Main and optional-callable failure fixtures
 -> explicit acceptance/rejection policy
 -> CUT0-S0 disconnected linear-owner implementation
 ```
 
-Still unclaimed: production lifecycle wiring, all-route CUT0, FACTSESSION0,
-finalization repair retirement, FastMem/LLVM execution, and parser/selfhost
-migration. The goal stops here until this policy frontier receives a new
-design result.
+## CUT0-COMPAT-POLICY-CONSULT0 closeout
+
+Candidate S-prime is selected.
+
+Duplicate Main policy:
+
+- More than one top-level static `Main` declaration is rejected
+  deterministically with `MainExpansionErrorV1::DuplicateMainBox`.
+- No source-order winner, merge, legacy replacement, or synthetic owner
+  identity is permitted.
+- Rejection occurs before Builder effects, invocation candidate creation,
+  receipt reservation, or collector mutation.
+- General duplicate owner collisions involving non-static `Main` remain
+  owned by the callable declaration catalog (`DuplicateBoxOwner`).
+
+Callable Main compatibility policy:
+
+- `NotSelected` performs no reservation and no lowering.
+- `Selected` makes the `Main.main/N` compatibility draft mandatory.
+- Session, cleanup, admission, or panic failure aborts the unpublished
+  invocation and preserves the original typed failure.
+- A selected failure is never downgraded to `NotSelected`, replaced with
+  `MissingCallableMainCompatibility`, retried, or followed by inline-root
+  lowering.
+- `MissingCallableMainCompatibility` remains an adapter invariant for a
+  missing receipt, not a recovery result for a failed selected child.
+
+Compatibility selection is sealed once at the legacy module ingress. Builder
+body lowering and child terminals do not read an ambient environment toggle.
+
+## CUT0-S0 implementation task
+
+Implement the policy as one disconnected, linear-owner slice before any
+production route activation:
+
+1. Add one `VerifiedRawRootExpansionV1` selector that classifies Script,
+   exactly one static `Main`, and duplicate static `Main` before candidate
+   open or Builder effects.
+2. Snapshot `NYASH_BUILD_STATIC_MAIN_ENTRY` once at the legacy ingress into a
+   typed `CallableMainCompatibilityPolicyV1`; remove Builder-body env reads.
+3. Route `Selected` callable Main lowering through the existing capture,
+   admission, seal, collect, and receipt ledger. Propagate the original typed
+   child error and stop before inline root, root batch, drain, finalizer, or
+   external commit.
+4. Preserve primary plus cleanup failures and panic restoration under the
+   existing candidate failure proof; do not add retry or fallback.
+5. Add duplicate-Main and selected-callable failure fixtures, plus a static
+   guard forbidding `let _ = lower_static_method_as_function(...)` and any
+   selected-failure continuation into inline-root lowering.
+
+Acceptance:
+
+```text
+duplicate Main: deterministic typed rejection, Builder/candidate/collector = 0
+NotSelected: reservation = 0, lowering = 0
+Selected success: exact compatibility receipt consumed once
+Selected failure: original typed error retained, root/drain/finalizer/commit = 0
+all routes: disconnected owner only, production capture/commit = 0
+source/check files: < 800 lines
+```
+
+Still unclaimed: production lifecycle wiring, all-route CUT0 activation,
+FACTSESSION0, finalization repair retirement, FastMem/LLVM execution, and
+parser/selfhost migration. CUT0-S0 must close before those lanes advance.
