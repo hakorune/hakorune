@@ -168,10 +168,15 @@ preflighted raw-ledger root batch. `RawInvocationRootWitnessV1` and
 and the RAW0 guard are green; production capture, drain, finalizer, and
 external commit consumers remain zero. `ROOT0-CANON0` is the next row.
 
-## ROOT0-CANON0 design stop
+## ROOT0-CANON0 design stop — closed
 
 Worker棚卸しで、canonical single/callable batchの現状はCOLLECT0のco-seal
 までで、route-specific complete productは未実装と確認した。次の質問カードで
 source authority binding、Main専用state流用禁止、recursive capabilityの唯一owner、
 source-derived inventoryを固定する。回答まではproduction ingress、drain、
 finalizer、external commitを変更しない。
+
+Q1〜Q4はすべてC-primeで採択された。`ROOT0-CANON0` は、preflight packageの
+one-time split、BRAND0の実shellを含むactive physical owner、collector-issued
+receipt、route-specific completion、private source-derived drain planを一つの
+semantic rowとして実装する。既存Main専用stateとproduction wiringは触らない。

@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-CANON0 未決定質問
 
-Status: **worker棚卸し済み — 回答待ち**
+Status: **回答済み — Q1〜Q4すべてC-prime採択**
 Date: 2026-07-22
 
 ## 背景
@@ -131,3 +131,27 @@ module-map再観測によるinventory補完
 
 関連: [ROOT0 design-stop brief](cut0-i0-root0-design-stop-2026-07-22.md),
 [T-prime-r1 execution task](cut0-i0-t-prime-r1-execution-task-2026-07-22.md)
+
+## Decision closeout
+
+Q1〜Q4はすべてC-primeで採択する。
+
+実装契約に次を追加する。
+
+```text
+preflight package
+  -> plan moves to lowering
+  -> non-Clone source continuation remains for completion
+
+active physical owner
+  = real BRAND0 shell + collector + session
+
+recursive capability
+  = shell-issued non-Clone install receipt
+  != Clone/Copy marker value
+```
+
+`ROOT0-CANON0` は、source binding、route-specific completion、private
+source-derived drain plan、collector-issued receiptを一つのsemantic rowで
+実装する。既存Main専用state、production ingress、drain/finalizer/commit wiring
+はこのrowでは変更しない。
