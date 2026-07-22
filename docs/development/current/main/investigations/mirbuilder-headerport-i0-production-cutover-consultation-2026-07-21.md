@@ -3178,14 +3178,15 @@ fail-fast boundary: explicit header loan ends before later collector mutation
 landed proof: headerport_annotation_matches_legacy_module_signature_without_ambient_module
 next evidence: reuse the existing Known-rewrite lookup-only proof; no new
   materializer wiring is selected while its `legacy_presence` policy remains
-  unresolved. The next owner decision covers constructor-birth, method-index
-  freshness, Located observation, and shell lifecycle rows
+  unresolved. The open owner questions cover method-index freshness, static
+  tail routing, materializer policy, and lifecycle activation
 ```
 
-The remaining P0 rows are not mechanically selected by this witness. In
-particular, constructor/birth presence, method-index freshness, and the
-Located compatibility observation still have no unique replacement owner;
-choosing one would cross the documented design-consultation boundary.
+The remaining unresolved policy questions are collected in
+`mirbuilder-headerport-i0-hdr0-p0-open-questions-2026-07-22.md`. Constructor/
+birth presence is now mechanically owned by the explicit HeaderPort; the
+open choices are method-index freshness, static tail routing, materializer
+`legacy_presence`, and the lifecycle activation boundary.
 
 ## WIRING-I0-HDR0-P0 constructor/birth presence slice
 
