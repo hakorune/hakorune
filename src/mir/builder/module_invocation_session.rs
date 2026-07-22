@@ -7,6 +7,9 @@
 use std::collections::HashMap;
 
 use super::MirBuilder;
+use super::module_invocation_identity::{
+    ModuleInvocationBrandV1, ModuleInvocationFamilyV1, ModuleInvocationTokenV1,
+};
 use crate::mir::MirType;
 use hakorune_mir_builder::CoreContext;
 
@@ -139,6 +142,8 @@ impl BuilderInvocationConfigV1 {
 }
 
 pub(in crate::mir::builder) struct ModuleBuilderInvocationSessionV1 {
+    brand: ModuleInvocationBrandV1,
+    family: ModuleInvocationFamilyV1,
     candidate: MirBuilder,
     config: BuilderInvocationConfigV1,
     _seal: ModuleBuilderInvocationSessionSealV1,
@@ -167,6 +172,7 @@ impl std::fmt::Display for BuilderCommitReadinessErrorV1 {
 impl std::error::Error for BuilderCommitReadinessErrorV1 {}
 
 pub(in crate::mir::builder) struct PreparedBuilderExternalCommitV1 {
+    brand: ModuleInvocationBrandV1,
     session: ModuleBuilderInvocationSessionV1,
     _seal: PreparedBuilderExternalCommitSealV1,
 }
@@ -175,17 +181,40 @@ pub(in crate::mir::builder) struct PreparedBuilderExternalCommitV1 {
 struct PreparedBuilderExternalCommitSealV1;
 
 impl ModuleBuilderInvocationSessionV1 {
-    pub(in crate::mir::builder) fn open(
+    pub(in crate::mir::builder) fn open_for_token(
+        token: &ModuleInvocationTokenV1,
         _current: &MirBuilder,
+        config: BuilderInvocationConfigV1,
+    ) -> Self {
+        Self::open_with_identity(token.brand(), token.family(), config)
+    }
+
+    fn open_with_identity(
+        brand: ModuleInvocationBrandV1,
+        family: ModuleInvocationFamilyV1,
         config: BuilderInvocationConfigV1,
     ) -> Self {
         let mut candidate = MirBuilder::new();
         config.install_into(&mut candidate);
         Self {
+            brand,
+            family,
             candidate,
             config,
             _seal: ModuleBuilderInvocationSessionSealV1,
         }
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn open(
+        _current: &MirBuilder,
+        config: BuilderInvocationConfigV1,
+    ) -> Self {
+        Self::open_with_identity(
+            ModuleInvocationBrandV1::legacy_test(),
+            ModuleInvocationFamilyV1::Raw,
+            config,
+        )
     }
 
     pub(in crate::mir::builder) fn builder_mut(&mut self) -> &mut MirBuilder {
@@ -194,6 +223,14 @@ impl ModuleBuilderInvocationSessionV1 {
 
     pub(in crate::mir::builder) fn config(&self) -> &BuilderInvocationConfigV1 {
         &self.config
+    }
+
+    pub(in crate::mir::builder) fn brand(&self) -> ModuleInvocationBrandV1 {
+        self.brand
+    }
+
+    pub(in crate::mir::builder) const fn family(&self) -> ModuleInvocationFamilyV1 {
+        self.family
     }
 
     pub(in crate::mir::builder) fn prepare_external_commit(
@@ -221,6 +258,7 @@ impl ModuleBuilderInvocationSessionV1 {
             return Err(BuilderCommitReadinessErrorV1::RecursionDepthOpen);
         }
         Ok(PreparedBuilderExternalCommitV1 {
+            brand: self.brand,
             session: self,
             _seal: PreparedBuilderExternalCommitSealV1,
         })
@@ -228,6 +266,10 @@ impl ModuleBuilderInvocationSessionV1 {
 }
 
 impl PreparedBuilderExternalCommitV1 {
+    pub(in crate::mir::builder) const fn brand(&self) -> ModuleInvocationBrandV1 {
+        self.brand
+    }
+
     pub(in crate::mir::builder) fn commit(self, current: &mut MirBuilder) {
         *current = self.session.candidate;
     }

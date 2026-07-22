@@ -6,12 +6,16 @@
 //! has no Builder, module, draft, header, retry, or publication capability.
 
 use std::collections::{BTreeMap, BTreeSet};
-use std::sync::atomic::{AtomicU64, Ordering};
+
+#[cfg(test)]
+use std::sync::{Mutex, OnceLock};
 
 use super::module_draft_collector::{
     CollectedDraftAdmissionReceiptV1, CollectedDraftReplacementDispositionV1,
     DraftPublicationPolicyV1, FunctionDraftKeyV1,
 };
+use super::module_invocation_identity::{ModuleInvocationBrandV1, ModuleInvocationTokenV1};
+use super::module_invocation_owner_chain::InvocationBranded;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::builder) enum RawConditionDispositionV1 {
@@ -134,7 +138,7 @@ impl RawExpansionDraftRequestV1 {
 
 #[derive(Debug)]
 pub(in crate::mir::builder) struct RawExpansionReservationV1 {
-    owner: u64,
+    brand: ModuleInvocationBrandV1,
     ordinal: u32,
     request: RawExpansionDraftRequestV1,
     _seal: RawExpansionReservationSealV1,
@@ -236,7 +240,7 @@ impl std::error::Error for RawExpansionReceiptLedgerErrorV1 {}
 
 #[derive(Debug)]
 pub(in crate::mir::builder) struct RawExpansionReceiptLedgerV1 {
-    owner: u64,
+    brand: ModuleInvocationBrandV1,
     next_ordinal: u32,
     open: BTreeSet<u32>,
     events: Vec<RawExpansionCompletedEventV1>,
@@ -253,6 +257,7 @@ struct RawExpansionReceiptLedgerSealV1;
 
 #[derive(Debug)]
 pub(in crate::mir::builder) struct SealedRawExpansionReceiptLedgerV1 {
+    brand: ModuleInvocationBrandV1,
     events: Box<[RawExpansionCompletedEventV1]>,
     final_event_by_key: BTreeMap<FunctionDraftKeyV1, usize>,
     key_by_symbol: BTreeMap<Box<str>, FunctionDraftKeyV1>,
@@ -266,6 +271,7 @@ struct SealedRawExpansionReceiptLedgerSealV1;
 
 #[derive(Debug)]
 pub(in crate::mir::builder) struct AbortedRawExpansionReceiptLedgerV1 {
+    brand: ModuleInvocationBrandV1,
     events: Box<[RawExpansionCompletedEventV1]>,
     final_event_by_key: BTreeMap<FunctionDraftKeyV1, usize>,
     failed_ordinal: u32,
@@ -278,14 +284,20 @@ pub(in crate::mir::builder) struct AbortedRawExpansionReceiptLedgerV1 {
 #[derive(Debug)]
 struct AbortedRawExpansionReceiptLedgerSealV1;
 
-static NEXT_RAW_EXPANSION_LEDGER_OWNER: AtomicU64 = AtomicU64::new(1);
-
 impl RawExpansionReceiptLedgerV1 {
-    pub(in crate::mir::builder) fn new(
+    pub(in crate::mir::builder) fn new_for_token(
+        token: &ModuleInvocationTokenV1,
+        callable_main: RawCallableMainCompatibilityDispositionV1,
+    ) -> Self {
+        Self::new_with_brand(token.brand(), callable_main)
+    }
+
+    fn new_with_brand(
+        brand: ModuleInvocationBrandV1,
         callable_main: RawCallableMainCompatibilityDispositionV1,
     ) -> Self {
         Self {
-            owner: NEXT_RAW_EXPANSION_LEDGER_OWNER.fetch_add(1, Ordering::Relaxed),
+            brand,
             next_ordinal: 0,
             open: BTreeSet::new(),
             events: Vec::new(),
@@ -296,6 +308,20 @@ impl RawExpansionReceiptLedgerV1 {
             poisoned: false,
             _seal: RawExpansionReceiptLedgerSealV1,
         }
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn new(
+        callable_main: RawCallableMainCompatibilityDispositionV1,
+    ) -> Self {
+        static NEXT_TEST_BRAND: OnceLock<Mutex<u64>> = OnceLock::new();
+        let counter = NEXT_TEST_BRAND.get_or_init(|| Mutex::new(0));
+        let mut ordinal = counter.lock().expect("test brand counter poisoned");
+        *ordinal += 1;
+        Self::new_with_brand(
+            ModuleInvocationBrandV1::test_with_ordinal(*ordinal),
+            callable_main,
+        )
     }
 
     pub(in crate::mir::builder) fn reserve(
@@ -312,11 +338,15 @@ impl RawExpansionReceiptLedgerV1 {
             .ok_or(RawExpansionReceiptLedgerErrorV1::ReservationOrdinalOverflow)?;
         self.open.insert(ordinal);
         Ok(RawExpansionReservationV1 {
-            owner: self.owner,
+            brand: self.brand,
             ordinal,
             request,
             _seal: RawExpansionReservationSealV1,
         })
+    }
+
+    pub(in crate::mir::builder) const fn brand(&self) -> ModuleInvocationBrandV1 {
+        self.brand
     }
 
     pub(in crate::mir::builder) fn complete(
@@ -327,7 +357,7 @@ impl RawExpansionReceiptLedgerV1 {
         if self.poisoned {
             return Err(RawExpansionReceiptLedgerErrorV1::LedgerPoisoned);
         }
-        if reservation.owner != self.owner {
+        if reservation.brand != self.brand {
             return Err(RawExpansionReceiptLedgerErrorV1::ForeignReservation);
         }
         if !self.open.contains(&reservation.ordinal) {
@@ -400,6 +430,17 @@ impl RawExpansionReceiptLedgerV1 {
         Ok(())
     }
 
+    pub(in crate::mir::builder) fn complete_branded(
+        &mut self,
+        reservation: RawExpansionReservationV1,
+        receipt: InvocationBranded<CollectedDraftAdmissionReceiptV1>,
+    ) -> Result<(), RawExpansionReceiptLedgerErrorV1> {
+        if receipt.brand() != self.brand {
+            return Err(RawExpansionReceiptLedgerErrorV1::ForeignReservation);
+        }
+        self.complete(reservation, receipt.into_payload())
+    }
+
     pub(in crate::mir::builder) fn abort(
         mut self,
         reservation: RawExpansionReservationV1,
@@ -408,13 +449,14 @@ impl RawExpansionReceiptLedgerV1 {
         if self.poisoned {
             return Err(RawExpansionReceiptLedgerErrorV1::LedgerPoisoned);
         }
-        if reservation.owner != self.owner {
+        if reservation.brand != self.brand {
             return Err(RawExpansionReceiptLedgerErrorV1::ForeignReservation);
         }
         if !self.open.remove(&reservation.ordinal) {
             return Err(RawExpansionReceiptLedgerErrorV1::UnknownReservation);
         }
         Ok(AbortedRawExpansionReceiptLedgerV1 {
+            brand: self.brand,
             events: self.events.into_boxed_slice(),
             final_event_by_key: self.final_event_by_key,
             failed_ordinal: reservation.ordinal,
@@ -460,6 +502,7 @@ impl RawExpansionReceiptLedgerV1 {
             _ => {}
         }
         Ok(SealedRawExpansionReceiptLedgerV1 {
+            brand: self.brand,
             events: self.events.into_boxed_slice(),
             final_event_by_key: self.final_event_by_key,
             key_by_symbol: self.key_by_symbol,
@@ -497,6 +540,10 @@ impl RawExpansionReceiptLedgerV1 {
 }
 
 impl SealedRawExpansionReceiptLedgerV1 {
+    pub(in crate::mir::builder) const fn brand(&self) -> ModuleInvocationBrandV1 {
+        self.brand
+    }
+
     pub(in crate::mir::builder) fn events(&self) -> &[RawExpansionCompletedEventV1] {
         &self.events
     }
@@ -534,6 +581,10 @@ impl SealedRawExpansionReceiptLedgerV1 {
 }
 
 impl AbortedRawExpansionReceiptLedgerV1 {
+    pub(in crate::mir::builder) const fn brand(&self) -> ModuleInvocationBrandV1 {
+        self.brand
+    }
+
     pub(in crate::mir::builder) fn events(&self) -> &[RawExpansionCompletedEventV1] {
         &self.events
     }

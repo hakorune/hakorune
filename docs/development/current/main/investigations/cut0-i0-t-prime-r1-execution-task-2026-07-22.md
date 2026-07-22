@@ -1,6 +1,6 @@
 # CUT0-I0 T-prime-r1 Execution Task
 
-Status: **Design stop — CUT0-I0-ROOT0-D0 required before ROOT0 implementation**
+Status: **CUT0-I0-ROOT0-BRAND0 closed; ROOT0-RAW0 next**
 Date: 2026-07-22
 Decision: **Candidate T-prime-r1 selected**
 Scope: build one invocation-branded module transaction, then perform one
@@ -490,9 +490,35 @@ The design-stop brief is:
 
 `docs/development/current/main/investigations/cut0-i0-root0-design-stop-2026-07-22.md`
 
-The next executable slices are `ROOT0-BRAND0`, `ROOT0-RAW0`,
+The next executable slices are `ROOT0-RAW0`, `ROOT0-CANON0`,
 `ROOT0-CANON0`, `ROOT0-DRAIN0`, then `ROOT0-P0/G0`. Production capture,
 drain, finalization, and CUT0 activation remain forbidden.
+
+### CUT0-I0-ROOT0-BRAND0 — closed: one real branded physical owner
+
+ROOT0 R-prime is selected. The actual Builder invocation session now carries
+the source-sealed invocation brand and route family. A disconnected active
+owner creates that session together with one real branded module shell and one
+real branded draft collector from the same token. The raw receipt ledger can
+only be opened from that token (the legacy constructor is test-only and uses a
+fixed compatibility brand); its old independent owner ordinal is retired.
+
+Prepared Builder external commit products retain the same brand. Fixtures
+cover same-token propagation, foreign-token separation, candidate drop
+invariance, and prepared-commit propagation. The old placeholder session,
+unit-payload owner chain, ledger `AtomicU64` owner, and loose production
+consumers remain absent. This row changes no root completion, drain,
+finalization, publication, or CUT0 wiring.
+
+Guard and focused tests are green:
+
+```text
+bash tools/checks/lib/cut0_i0_root0_brand0_guard.py
+RUSTFLAGS='-Awarnings' cargo test -q module_invocation_brand_p0 --lib
+RUSTFLAGS='-Awarnings' cargo test -q raw_expansion_receipt_ledger_tests --lib
+```
+
+The next disconnected row is `ROOT0-RAW0`; production consumers remain zero.
 
 ### CUT0-I0-ROOT0 — route-specific completion and drain policy
 

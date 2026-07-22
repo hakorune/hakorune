@@ -58,20 +58,16 @@ def main() -> int:
     require(task, "source proof + collector co-seal", "co-seal acceptance")
 
     for fragment, label in (
-        ("ModuleBuilderInvocationSessionV1", "Builder session brand"),
-        ("InvocationDraftSourceProofV1", "source proof"),
-        ("InvocationBrandedReceiptV1", "receipt brand"),
-        ("CollectedInvocationDraftSetV1", "collected draft set"),
-        ("PreparedModuleExternalCommitV1", "prepared commit"),
-        ("ForeignOwner", "foreign owner error"),
-        ("ReceiptKindMismatch", "receipt family check"),
-        ("advance_to_prepared_commit", "same-brand terminal"),
+        ("InvocationBranded", "generic brand carrier"),
+        ("from_source", "source brand terminal"),
+        ("BrandedShellV1", "shell alias"),
+        ("BrandedCollectorV1", "collector alias"),
     ):
         require(chain, fragment, label)
     for fragment, label in (
-        ("one_source_brand_survives_session_collection_and_prepared_commit", "happy path"),
-        ("source_and_collector_foreign_pair_fails_before_co_seal", "foreign pair"),
-        ("foreign_receipt_and_wrong_kind_fail_before_co_seal", "foreign receipt"),
+        ("one_token_brands_actual_session_shell_collector_and_ledger", "happy path"),
+        ("foreign_tokens_cannot_be_confused_with_the_active_owner", "foreign owner"),
+        ("prepared_commit_keeps_the_invocation_brand", "prepared commit"),
     ):
         require(fixture, fragment, label)
     require(builder, "mod module_invocation_owner_chain;", "chain registration")
@@ -88,11 +84,7 @@ def main() -> int:
         SESSION_FIXTURE.relative_to(ROOT),
         BUILDER.resolve().relative_to(ROOT),
     }
-    forbidden = (
-        "ModuleBuilderInvocationSessionV1",
-        "InvocationDraftSourceProofV1",
-        "PreparedModuleExternalCommitV1",
-    )
+    forbidden = ("advance_to_prepared_commit", "CollectedInvocationDraftSetV1")
     consumers = []
     for path in ROOT.glob("src/**/*.rs"):
         if path.relative_to(ROOT) in allowed:

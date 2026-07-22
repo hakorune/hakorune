@@ -1,8 +1,8 @@
 # CUT0-I0 ROOT0 design-stop brief
 
-Status: **Design stop — implementation paused at ROOT0-D0**
+Status: **ROOT0 R-prime selected; ROOT0-BRAND0 closed**
 Date: 2026-07-22
-Decision: **No ROOT0 implementation slice is selected yet**
+Decision: **ROOT0 R-prime is selected; ROOT0-BRAND0 is closed and ROOT0-RAW0 is next**
 Related:
 
 - `docs/development/current/main/CURRENT_STATE.toml`

@@ -20,6 +20,11 @@ COLLECT_FIXTURE = ROOT / "src/mir/builder/module_invocation_collect0_s0_p0.rs"
 CALLABLE_BATCH = ROOT / "src/mir/builder/module_invocation_callable_batch.rs"
 CALLABLE_BATCH_FIXTURE = ROOT / "src/mir/builder/resolved_lowering/callable_batch_collection_p0.rs"
 BUILDER = ROOT / "src/mir/builder.rs"
+SESSION = ROOT / "src/mir/builder/module_invocation_session.rs"
+SESSION_FIXTURE = ROOT / "src/mir/builder/module_invocation_session_p0.rs"
+LEDGER = ROOT / "src/mir/builder/raw_expansion_receipt_ledger.rs"
+ACTIVE = ROOT / "src/mir/builder/module_invocation_brand0.rs"
+BRAND_FIXTURE = ROOT / "src/mir/builder/module_invocation_brand_p0.rs"
 SRC = ROOT / "src"
 ALLOWED = {
     IDENTITY.relative_to(ROOT),
@@ -30,6 +35,11 @@ ALLOWED = {
     CALLABLE_BATCH.relative_to(ROOT),
     CALLABLE_BATCH_FIXTURE.relative_to(ROOT),
     BUILDER.relative_to(ROOT),
+    SESSION.relative_to(ROOT),
+    SESSION_FIXTURE.relative_to(ROOT),
+    LEDGER.relative_to(ROOT),
+    ACTIVE.relative_to(ROOT),
+    BRAND_FIXTURE.relative_to(ROOT),
 }
 
 
@@ -54,7 +64,7 @@ def main() -> int:
     require(state, "CUT0-I0-COLLECT0-S0 is closed as a disconnected raw/canonical co-seal proof", "successor closeout")
     require(state, "CUT0-I0-COLLECT0-BATCH0 is closed as a disconnected atomic callable-batch proof", "batch closeout")
     require(state, "CUT0-I0-SESSION0 is closed as a disconnected Builder transaction", "session closeout")
-    require(state, "CUT0-I0-ROOT0-D0 is a design stop before ROOT0 implementation", "ROOT0 design stop")
+    require(state, "CUT0-I0-ROOT0-BRAND0 is closed as a disconnected real branded physical-owner proof", "ROOT0 brand successor")
     require(task, "CUT0-I0-ID0-S0 — closed", "task row")
     require(task, "CUT0-I0-ID0-P0", "next task row")
     require(task, "foreign family/source construction", "foreign-source acceptance")

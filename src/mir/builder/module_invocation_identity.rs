@@ -58,6 +58,22 @@ impl ModuleInvocationBrandV1 {
     pub(in crate::mir::builder) const fn ordinal(self) -> u64 {
         self.ordinal.get()
     }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) const fn legacy_test() -> Self {
+        Self {
+            ordinal: NonZeroU64::new(1).expect("non-zero test brand"),
+            _seal: ModuleInvocationBrandSealV1,
+        }
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn test_with_ordinal(ordinal: u64) -> Self {
+        Self {
+            ordinal: NonZeroU64::new(ordinal).expect("non-zero test brand"),
+            _seal: ModuleInvocationBrandSealV1,
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Eq)]
