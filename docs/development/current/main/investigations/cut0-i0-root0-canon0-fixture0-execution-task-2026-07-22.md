@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-CANON0 CANON-FIXTURE0 実行タスク
 
-Status: **Design Stop — compiler/builder owner bridge is undefined**
+Status: **Superseded — bridge decision and executable fixture task moved to the 2026-07-23 card**
 
 Related:
 
@@ -10,7 +10,12 @@ Related:
 - `cut0-i0-root0-canon0-recursive0-execution-task-2026-07-22.md`
 - `CURRENT_STATE.toml`
 
-## Objective
+> This historical design-stop card is retained for audit history only. The
+> compiler-owned bridge is now closed through IDKERNEL, OWNER0, COLLECT0, and
+> COMPLETION. Continue from
+> `cut0-i0-root0-canon0-fixture0-execution-task-2026-07-23.md`.
+
+## Historical objective
 
 Build one disconnected aggregate proof for the four canonical source-bound
 routes without connecting canonical ingress, drain, finalization, or external
@@ -27,7 +32,7 @@ BindingSsaAcyclic
 BindingSsaRecursive
 ```
 
-## Required matrix
+## Historical required matrix
 
 ```text
 success:
@@ -48,7 +53,7 @@ recursive parity:
   acyclic source has one branded absence witness
 ```
 
-## Acceptance
+## Historical acceptance
 
 ```text
 four route fixtures registered and focused test command is green
@@ -61,7 +66,7 @@ production capture/drain/finalizer/external commit = 0
 all touched source/check files < 800 lines
 ```
 
-## Required evidence
+## Historical required evidence
 
 ```bash
 git diff --check
@@ -75,14 +80,14 @@ python3 tools/checks/lib/cut0_i0_root0_canon0_receipt0_guard.py
 python3 tools/checks/lib/cut0_i0_root0_canon0_recursive0_guard.py
 ```
 
-## Stop line
+## Historical stop line
 
 CANON-FIXTURE0 closes only the disconnected four-route aggregate proof.
 Completion-to-drain consumption, source-derived inventory projection in the
 live executor, finalization, external commit, retry/fallback, and atomic CUT0
 activation remain separate DRAIN0/CUT0 rows.
 
-## Design-stop finding
+## Superseded design-stop finding
 
 The requested aggregate cannot honestly be implemented from the current
 owners. `src/mir/compiler/source_bound_package.rs` owns

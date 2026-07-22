@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-CANON0 CANON-BRIDGE0 実行タスク
 
-Status: **Active — CB-prime selected; CANON-FIXTURE0 is the only executable row**
+Status: **Active — bridge rows closed; CANON-FIXTURE0 taskized in the 2026-07-23 fixture card**
 
 Related:
 
@@ -9,6 +9,7 @@ Related:
 - `cut0-i0-root0-canon0-lower0-execution-task-2026-07-22.md`
 - `cut0-i0-root0-canon0-receipt0-execution-task-2026-07-22.md`
 - `cut0-i0-root0-canon0-recursive0-execution-task-2026-07-22.md`
+- `cut0-i0-root0-canon0-fixture0-execution-task-2026-07-23.md`
 - `CURRENT_STATE.toml`
 
 ## Objective
@@ -191,9 +192,12 @@ all touched source/check files < 800 lines
 The old Builder-only `canonical_root_completion.rs` remains disconnected and
 is not converted or imported by the new compiler completion path.
 
-### CANON-FIXTURE0 — active
+### CANON-FIXTURE0 — delegated to the 2026-07-23 fixture card
 
-Only after the bridge rows close, add the real four-route aggregate fixture:
+The bridge rows are now closed. Continue in
+`cut0-i0-root0-canon0-fixture0-execution-task-2026-07-23.md`, which splits the
+row into aggregate success, structural non-claims, collision evidence, and a
+dedicated fixture guard. The new card is the executable SSOT:
 
 ```text
 CanonicalAPlus
@@ -202,10 +206,15 @@ BindingSsaAcyclic
 BindingSsaRecursive
 ```
 
-The fixture uses the compiler-owned bridge, never a test token or post-hoc
-brand. It covers success, foreign pairing, late batch collision,
-condition_fn/N canonical spelling, synthetic-key rejection, and recursive vs
-acyclic witness parity. DRAIN0 consumes the complete product only afterward.
+```text
+CANON-FIXTURE0-S0 -> P0 -> C0 -> G0
+```
+
+The aggregate uses the compiler-owned bridge, never a test token or post-hoc
+brand. Foreign pairing and synthetic-key rejection are static/API
+non-claims, while late collision remains covered by the existing disconnected
+same-collector batch proof. DRAIN0 consumes the complete product only after
+the dedicated fixture guard closes.
 
 ## Shared guard policy
 
@@ -226,7 +235,7 @@ CANON-FIXTURE0 is now executable, but its aggregate proof is not yet closed
 production CUT0 activation is not part of this task
 ```
 
-## Required evidence for the active row
+## Historical bridge evidence
 
 ```bash
 git diff --check
@@ -238,6 +247,7 @@ RUSTFLAGS='-Awarnings' cargo test -q module_invocation_identity --lib
 python3 tools/checks/lib/cut0_i0_root0_canon0_bridge_guard.py
 ```
 
-The active fixture row closes only when the four route proofs use the real
-compiler-owned bridge in one aggregate fixture. DRAIN0, finalization, and
-external commit remain forbidden until that fixture and its guard are green.
+The active fixture row and its acceptance evidence now live in
+`cut0-i0-root0-canon0-fixture0-execution-task-2026-07-23.md`. DRAIN0,
+finalization, and external commit remain forbidden until that fixture card and
+its dedicated guard are green.
