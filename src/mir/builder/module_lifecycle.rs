@@ -66,6 +66,10 @@ use super::type_hint_providers;
 impl super::MirBuilder {
     pub(super) fn prepare_module(&mut self) -> Result<(), String> {
         self.comp_ctx.clear_callable_declaration_catalog();
+        // A new module is a new legacy compatibility snapshot. Clearing the
+        // candidate cache also resets its freshness witness so same-size module
+        // replacement cannot reuse the previous module's tail candidates.
+        self.comp_ctx.clear_method_tail_index();
 
         let mut module = MirModule::new("main".to_string());
         module.metadata.source_file = self.current_source_file();

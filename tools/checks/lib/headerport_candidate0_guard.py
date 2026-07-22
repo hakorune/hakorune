@@ -14,6 +14,7 @@ import pathlib
 from headerport_route_inventory_guard import verify_route_inventory_extension
 from headerport_header_reader_census import verify_header_reader_census
 from headerport_authority_erasure_guard import verify_authority_erasure
+from headerport_method_tail_compat_guard import verify_method_tail_compat
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[3]
@@ -756,6 +757,7 @@ def main() -> int:
     verify_route_inventory_extension(ROOT, builder_mod, card, state)
     verify_header_reader_census(ROOT)
     verify_authority_erasure(ROOT)
+    verify_method_tail_compat(ROOT)
 
     print(
         "[headerport-candidate0-guard] ok disconnected=1 "

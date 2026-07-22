@@ -98,3 +98,15 @@ fn test_method_tail_index_rebuild() {
     assert!(!ctx.maybe_rebuild_method_tail_index(100));
     assert!(ctx.maybe_rebuild_method_tail_index(200));
 }
+
+#[test]
+fn clearing_method_tail_index_resets_freshness_witness() {
+    let mut ctx = CompilationContext::new();
+    assert!(ctx.maybe_rebuild_method_tail_index(2));
+    ctx.add_method_tail_entry(".run/1".to_owned(), "Old.run/1".to_owned());
+
+    ctx.clear_method_tail_index();
+
+    assert_eq!(ctx.method_tail_index_source_len, 0);
+    assert!(ctx.get_method_tail_candidates(".run/1").is_none());
+}

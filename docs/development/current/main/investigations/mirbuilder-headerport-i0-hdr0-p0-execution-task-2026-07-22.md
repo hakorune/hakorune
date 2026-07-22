@@ -11,6 +11,7 @@ Related:
 - `docs/development/current/main/investigations/mirbuilder-headerport-i0-production-cutover-consultation-2026-07-21.md`
 - `tools/checks/lib/headerport_header_reader_census.py`
 - `tools/checks/lib/headerport_authority_erasure_guard.py`
+- `tools/checks/lib/headerport_method_tail_compat_guard.py`
 
 ## Accepted decisions
 
@@ -92,6 +93,8 @@ Make the selected Q1 boundary executable:
 - `prepare_module` clears the legacy cache and resets its source-length
   witness;
 - legacy rebuild sorts source symbols and every candidate list.
+
+Guard: `python3 tools/checks/lib/headerport_method_tail_compat_guard.py`.
 
 Acceptance fixtures:
 
@@ -233,3 +236,24 @@ cargo test -q raw_invocation --lib = green (16 tests)
 Production invocation capture/commit, lifecycle drain, external commit, and
 CUT0 remain zero. The next code-facing row is
 `HDR0-P0-METHODTAIL-COMPAT0`.
+
+## HDR0-P0-METHODTAIL-COMPAT0 closeout
+
+The selected Q1 compatibility slice is closed on 2026-07-22.
+`prepare_module` now clears both the legacy method-tail cache and its
+freshness witness; legacy rebuilds sort source symbols and every candidate
+list; and the unused explicit-header cache writer is removed. Explicit
+invocation routes continue to use pure projection and never update the
+ambient cache.
+
+Evidence:
+
+```text
+python3 tools/checks/lib/headerport_method_tail_compat_guard.py = green
+python3 tools/checks/lib/headerport_candidate0_guard.py . = green
+cargo check -q = green
+cargo test -q method_tail_index --lib = green (3 tests)
+```
+
+The next code-facing row is `HDR0-P0-CALLER-CENSUS0`; production capture,
+drain, finalizer, external commit, and CUT0 remain zero.

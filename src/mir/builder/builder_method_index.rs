@@ -50,20 +50,8 @@ impl MirBuilder {
         self.rebuild_method_tail_index_from_names(names, source_len);
     }
 
-    /// Port-aware sibling for method-tail index projection.  It consumes only
-    /// the explicit completed-header inventory and never reaches through a
-    /// module storage fallback.
-    #[allow(dead_code)]
-    pub(in crate::mir::builder) fn rebuild_method_tail_index_with_headers(
-        &mut self,
-        headers: &dyn FunctionSignatureLookupV1,
-    ) {
-        let mut names = Vec::with_capacity(headers.symbol_count());
-        headers.visit_symbols(&mut |symbol| names.push(symbol.to_owned()));
-        self.rebuild_method_tail_index_from_names(names, headers.symbol_count());
-    }
-
-    fn rebuild_method_tail_index_from_names(&mut self, names: Vec<String>, source_len: usize) {
+    fn rebuild_method_tail_index_from_names(&mut self, mut names: Vec<String>, source_len: usize) {
+        names.sort();
         for name in names {
             if let (Some(dot), Some(slash)) = (name.rfind('.'), name.rfind('/')) {
                 if slash > dot {
@@ -75,6 +63,9 @@ impl MirBuilder {
                         .push(name);
                 }
             }
+        }
+        for candidates in self.comp_ctx.method_tail_index.values_mut() {
+            candidates.sort();
         }
         self.comp_ctx.method_tail_index_source_len = source_len;
     }

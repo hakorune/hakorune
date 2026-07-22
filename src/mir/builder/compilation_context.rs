@@ -397,6 +397,7 @@ impl CompilationContext {
     /// Clear method tail index
     pub fn clear_method_tail_index(&mut self) {
         self.method_tail_index.clear();
+        self.method_tail_index_source_len = 0;
     }
 
     /// Get plugin method signature
