@@ -55,7 +55,7 @@ def main() -> int:
     require(state, "CUT0-I0-CONSULT0 is closed with Candidate T-prime-r1", "state decision")
     require(state, "CUT0-I0-COLLECT0-BATCH0 is closed as a disconnected atomic callable-batch proof", "batch closeout")
     require(state, "CUT0-I0-SESSION0 is closed as a disconnected Builder transaction", "session closeout")
-    require(state, "CUT0-I0-ROOT0 is next", "state next row")
+    require(state, "CUT0-I0-ROOT0-D0 is a design stop before ROOT0 implementation", "ROOT0 design stop")
     require(
         state,
         'latest_card = "cut0-i0-t-prime-r1-execution-task-2026-07-22"',
@@ -80,7 +80,7 @@ def main() -> int:
         ("CUT0-I0-COLLECT0-S0 — closed", "collection row closeout"),
         ("CUT0-I0-COLLECT0-BATCH0", "next collection batch row"),
         ("CUT0-I0-SESSION0 — closed", "session row closeout"),
-        ("CUT0-I0-ROOT0", "next root row"),
+        ("CUT0-I0-ROOT0-D0", "ROOT0 design stop"),
         ("CUT0-I0-P0-R1", "real-authority proof row"),
         ("Production consumer count remains zero", "pre-cutover production zero"),
     ):
@@ -102,7 +102,7 @@ def main() -> int:
             "T-prime-r1 source consumers before COLLECT0-BATCH0: " + ", ".join(consumers)
         )
 
-    print("[cut0-i0-t-prime-r1-guard] ok decision=locked next=ROOT0 production_consumers=0")
+    print("[cut0-i0-t-prime-r1-guard] ok decision=locked ROOT0=design_stop production_consumers=0")
     return 0
 
 

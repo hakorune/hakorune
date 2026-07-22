@@ -50,7 +50,7 @@ def main() -> int:
     card = CARD.read_text()
     require(
         state,
-        "CUT0-S0-OWNER0, CUT0-S0-COMPAT0, and CUT0-P0 are closed as disconnected proofs; CUT0-I0-CONSULT0 is closed with Candidate T-prime-r1; CUT0-I0-ID0-S0 is closed as a disconnected identity/token proof; CUT0-I0-ID0-P0 is closed as a disconnected branded owner-chain proof; CUT0-I0-COLLECT0-S0 is closed as a disconnected raw/canonical co-seal proof; CUT0-I0-COLLECT0-BATCH0 is closed as a disconnected atomic callable-batch proof; CUT0-I0-SESSION0 is closed as a disconnected Builder transaction; CUT0-I0-ROOT0 is next",
+        "CUT0-S0-OWNER0, CUT0-S0-COMPAT0, and CUT0-P0 are closed as disconnected proofs; CUT0-I0-CONSULT0 is closed with Candidate T-prime-r1; CUT0-I0-ID0-S0 is closed as a disconnected identity/token proof; CUT0-I0-ID0-P0 is closed as a disconnected branded owner-chain proof; CUT0-I0-COLLECT0-S0 is closed as a disconnected raw/canonical co-seal proof; CUT0-I0-COLLECT0-BATCH0 is closed as a disconnected atomic callable-batch proof; CUT0-I0-SESSION0 is closed as a disconnected Builder transaction; CUT0-I0-ROOT0-D0 is a design stop before ROOT0 implementation",
         "current CUT0-S0 pointer",
     )
     require(card, "CUT0-S0-OWNER0 closeout", "CUT0-S0 owner closeout")

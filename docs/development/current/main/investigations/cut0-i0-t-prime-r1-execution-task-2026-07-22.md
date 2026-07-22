@@ -1,6 +1,6 @@
 # CUT0-I0 T-prime-r1 Execution Task
 
-Status: **Active — CUT0-I0-ID0-S0, CUT0-I0-ID0-P0, CUT0-I0-COLLECT0-S0, CUT0-I0-COLLECT0-BATCH0, and CUT0-I0-SESSION0 closed; CUT0-I0-ROOT0 next**
+Status: **Design stop — CUT0-I0-ROOT0-D0 required before ROOT0 implementation**
 Date: 2026-07-22
 Decision: **Candidate T-prime-r1 selected**
 Scope: build one invocation-branded module transaction, then perform one
@@ -467,6 +467,32 @@ five-counter parity, candidate-drop invariance, readiness rejection, and
 single-use commit. Existing canonical session/open/commit callers are
 unchanged and no production ingress or external commit consumer was added.
 The next disconnected row is `CUT0-I0-ROOT0`.
+
+### CUT0-I0-ROOT0-D0 — design stop: owner, evidence, and drain authority
+
+ROOT0 implementation is paused. A read-only source/worker audit found three
+unresolved authority boundaries:
+
+```text
+actual Builder session + shell + source/collector set -> one invocation brand
+Raw root body + condition receipt + callable-main disposition -> one witness
+route-specific complete state -> private source-derived drain plan
+```
+
+The current ID0 placeholder brand carries `()` payloads, the real Builder
+session is unbranded, and the raw receipt ledger mints a second owner ordinal.
+The raw root body is also consumed before collector receipt publication, while
+the existing drain still accepts caller symbols/`require_main`/Optional and
+unconditionally requires `main`. These must not be papered over by another
+wrapper or boolean.
+
+The design-stop brief is:
+
+`docs/development/current/main/investigations/cut0-i0-root0-design-stop-2026-07-22.md`
+
+The next executable slices are `ROOT0-BRAND0`, `ROOT0-RAW0`,
+`ROOT0-CANON0`, `ROOT0-DRAIN0`, then `ROOT0-P0/G0`. Production capture,
+drain, finalization, and CUT0 activation remain forbidden.
 
 ### CUT0-I0-ROOT0 — route-specific completion and drain policy
 

@@ -40,7 +40,7 @@ def main() -> int:
     require(state, "CUT0-I0-COLLECT0-S0 is closed as a disconnected raw/canonical co-seal proof", "row closeout")
     require(state, "CUT0-I0-COLLECT0-BATCH0 is closed as a disconnected atomic callable-batch proof", "successor closeout")
     require(state, "CUT0-I0-SESSION0 is closed as a disconnected Builder transaction", "session closeout")
-    require(state, "CUT0-I0-ROOT0 is next", "next pointer")
+    require(state, "CUT0-I0-ROOT0-D0 is a design stop before ROOT0 implementation", "ROOT0 design stop")
     require(task, "CUT0-I0-COLLECT0-S0 — closed", "task row")
     require(task, "Raw: final ledger rows", "raw acceptance")
     require(task, "Canonical-single: exact one row", "canonical acceptance")

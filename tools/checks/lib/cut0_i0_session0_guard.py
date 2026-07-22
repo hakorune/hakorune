@@ -50,7 +50,7 @@ def main() -> int:
             raise AssertionError(f"SESSION0 file must remain below 800 lines: {path}")
 
     require(state, "CUT0-I0-SESSION0 is closed as a disconnected Builder transaction", "state closeout")
-    require(state, "CUT0-I0-ROOT0 is next", "successor pointer")
+    require(state, "CUT0-I0-ROOT0-D0 is a design stop before ROOT0 implementation", "ROOT0 design stop")
     require(task, "### CUT0-I0-SESSION0 — closed", "task closeout")
     require(task, "CUT0-I0-ROOT0", "successor task")
     require(builder, "mod module_invocation_session;", "session registration")
