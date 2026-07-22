@@ -371,6 +371,7 @@ def main() -> int:
             DECL_FACT_COMMIT,
             DECL_FACT_COMMIT_P0,
             BORROW_ROOT_P0D,
+            ACCESS_IMPL,
             BUILDER_MOD,
         ):
             continue

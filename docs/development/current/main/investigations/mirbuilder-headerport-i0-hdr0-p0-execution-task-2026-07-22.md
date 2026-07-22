@@ -1,6 +1,6 @@
 # HDR0-P0 Execution Task
 
-Status: **Active — CUT0-S0-OWNER0 closed; CUT0-S0-COMPAT0 next**
+Status: **Active — CUT0-S0 closed; CUT0-P0 next**
 Date: 2026-07-22
 Scope: complete HeaderPort reader replacement and prepare one atomic all-route CUT0
 
@@ -205,7 +205,7 @@ This card does not claim:
 
 - that CUT0 gates are currently met;
 - production HeaderPort capture/commit or lifecycle activation;
-- completed root-state transitions, success handoff, or post-drain finalizer;
+- the nine-route all-route proof required by CUT0-P0;
 - retirement of all `current_module` readers;
 - FACTSESSION0, finalization-repair removal, FastMem, LLVM, JoinIR retirement,
   or selfhost migration progress.
@@ -429,9 +429,9 @@ once at ingress, reject duplicate static Main before effects, propagate
 selected callable-Main typed failures, and add the required failure fixtures
 and static guard. No production route activation is authorized yet.
 
-## CUT0-S0-COMPAT0 implementation progress
+## CUT0-S0-COMPAT0 closeout
 
-The first structural slice is now landed in the working tree:
+The disconnected compatibility bridge is closed on 2026-07-22:
 
 - `VerifiedRawRootExpansionV1` performs source-only Script/App selection and
   rejects duplicate top-level static `Main` before `prepare_module`.
@@ -441,10 +441,20 @@ The first structural slice is now landed in the working tree:
   restores the enclosing static-box context before returning an error.
 - The typed failure fixture and `cut0_s0_compat_guard.py` forbid the old
   discarded-error form and keep the source/check files below 800 lines.
+- Required policy reserves a dedicated `CallableMainCompatibility` ledger
+  request. Success consumes exactly one collector receipt with
+  `ledger.complete`; Primary, Cleanup, Admission, and Panic consume
+  `ledger.abort` and retain the typed source failure plus collector prefix.
+- `NotSelected` performs no reservation and no lowering.
 
-This does not close `CUT0-S0-COMPAT0` yet. The remaining acceptance is the
-actual compatibility receipt reservation/collection through the disconnected
-raw ledger, including success exact-once consumption and failure proofs that
-stop before inline root, root batch, drain, finalizer, and publication. Until
-that slice lands, production capture/commit remains zero and CUT0 activation
-is forbidden.
+Evidence:
+
+```text
+cargo test -q module_compat_raw_ledger --lib = green (4 tests)
+python3 tools/checks/lib/cut0_s0_compat_guard.py = green
+python3 tools/checks/lib/headerport_route_inventory_guard.py . = green
+```
+
+The adapter and fixtures remain test-only/disconnected. Production
+capture/commit, all-route CUT0 activation, and the nine-route proof remain
+zero/unstarted. The next code-facing row is `CUT0-P0`.

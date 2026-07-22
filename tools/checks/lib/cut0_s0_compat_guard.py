@@ -24,6 +24,7 @@ def main() -> int:
         "main_expansion.rs",
         "module_compat_policy.rs",
         "module_compat_policy_p0.rs",
+        "module_compat_raw_ledger_p0.rs",
         "decls.rs",
         "calls/function_session.rs",
         "calls/lowering.rs",
@@ -45,6 +46,19 @@ def main() -> int:
     require(files["builder_build.rs"], "VerifiedRawRootExpansionV1::from_program", "preflight selector")
     require(files["module_lifecycle.rs"], "build_static_main_box_typed", "typed root entry")
     require(files["module_compat_policy_p0.rs"], "not_a_missing_receipt", "typed failure fixture")
+    require(files["module_compat_raw_ledger_p0.rs"], "callable_main_compatibility", "dedicated receipt request")
+    require(files["module_compat_raw_ledger_p0.rs"], ".complete(reservation", "receipt completion")
+    require(files["module_compat_raw_ledger_p0.rs"], ".abort(reservation", "failure abort")
+    require(files["module_compat_raw_ledger_p0.rs"], "RawExpansionAbortReasonV1::Panic", "panic abort proof")
+    if "build_static_main_box_typed" in files["module_compat_raw_ledger_p0.rs"]:
+        raise AssertionError("disconnected receipt adapter must not call root lowering")
+    if "finalize_drained_module_once" in files["module_compat_raw_ledger_p0.rs"]:
+        raise AssertionError("selected child failure must not reach post-drain finalizer")
+    require(
+        (SRC.parent / "builder.rs").read_text(),
+        "mod module_compat_raw_ledger_p0;",
+        "receipt bridge registration",
+    )
 
     policy_readers = [
         name for name, text in files.items() if "builder_build_static_main_entry()" in text
@@ -56,7 +70,7 @@ def main() -> int:
     require(card, "CUT0-S0-COMPAT0", "compatibility task row")
     require(card, "selected callable-Main typed failures", "compatibility acceptance")
 
-    print("[cut0-s0-compat-guard] ok policy=sealed duplicate_main=preflight error=typed")
+    print("[cut0-s0-compat-guard] ok policy=sealed duplicate_main=preflight receipt=abort-proof")
     return 0
 
 

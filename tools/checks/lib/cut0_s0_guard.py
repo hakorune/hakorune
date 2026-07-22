@@ -48,7 +48,7 @@ def main() -> int:
 
     state = STATE.read_text()
     card = CARD.read_text()
-    require(state, "CUT0-S0-OWNER0 is closed, CUT0-S0-COMPAT0 is next", "current CUT0-S0 pointer")
+    require(state, "CUT0-S0-OWNER0 and CUT0-S0-COMPAT0 are closed as disconnected proofs, CUT0-P0 is next", "current CUT0-S0 pointer")
     require(card, "CUT0-S0-OWNER0 closeout", "CUT0-S0 owner closeout")
     require(card, "production capture/commit = 0", "CUT0-S0 acceptance")
 

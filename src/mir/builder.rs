@@ -209,6 +209,8 @@ mod loop_api_impl; // CLEAN-D: LoopBuilderApi wiring kept inside builder layer
 mod module_compat_policy; // CUT0-S0-COMPAT0 ingress policy snapshot
 #[cfg(test)]
 mod module_compat_policy_p0; // CUT0-S0-COMPAT0 typed failure fixtures
+#[cfg(test)]
+mod module_compat_raw_ledger_p0; // CUT0-S0-COMPAT0 receipt bridge fixtures
 mod module_lifecycle; // Phase 29bq+: Module lifecycle orchestrator (prepare → lower → finalize)
 mod ops;
 mod phi;

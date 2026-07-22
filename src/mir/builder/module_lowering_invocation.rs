@@ -7,12 +7,13 @@
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{FunctionSignature, MirBuilder, MirFunction};
-
 use super::calls::{
     CanonicalFunctionSessionErrorV1, LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1,
 };
 use super::function_signature_lookup::FunctionSignatureLookupV1;
-use super::module_draft_collector::{CompletedDraftSignatureViewV1, ModuleDraftCollectorV1};
+use super::module_draft_collector::{
+    CollectedDraftAdmissionReceiptV1, CompletedDraftSignatureViewV1, ModuleDraftCollectorV1,
+};
 use super::module_draft_collector::{
     DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftAdmissionErrorV1,
     PreparedFunctionDraftAdmissionV1,
@@ -101,7 +102,7 @@ impl LegacyChildDraftAdmissionV1 {
 }
 
 /// Failure while a port-owned resolved child completes before parent restore.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum ModuleLoweringPortChildErrorV1 {
     Session(CanonicalFunctionSessionErrorV1),
     Admission(ModuleDraftAdmissionErrorV1),
@@ -255,7 +256,7 @@ impl ModuleLoweringPortV1<'_> {
         body_snapshot: Vec<ASTNode>,
         admission: LegacyChildDraftAdmissionV1,
         lower: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
-    ) -> Result<(), ModuleLoweringPortChildErrorV1> {
+    ) -> Result<CollectedDraftAdmissionReceiptV1, ModuleLoweringPortChildErrorV1> {
         let (key, symbol, arity) = admission.collector_parts();
         let pending = builder
             .capture_legacy_function_pending_session_v1(&symbol, body_snapshot, lower)
@@ -269,11 +270,10 @@ impl ModuleLoweringPortV1<'_> {
                     DraftPublicationPolicyV1::LegacyReplaceWholePair,
                 )
                 .map_err(ModuleLoweringPortChildErrorV1::Admission)?;
-            prepared
+            Ok(prepared
                 .seal(draft)
                 .map_err(ModuleLoweringPortChildErrorV1::Admission)?
-                .collect();
-            Ok(())
+                .collect())
         })
     }
 

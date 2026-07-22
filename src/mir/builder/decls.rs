@@ -1,5 +1,6 @@
 // Declarations lowering: static boxes and box declarations
 use super::calls::CanonicalFunctionSessionErrorV1;
+use super::module_lowering_invocation::ModuleLoweringPortChildErrorV1;
 use super::{declaration_order::sorted_method_entries, MirInstruction, ValueId};
 use crate::ast::ASTNode;
 use crate::mir::slot_registry::{get_or_assign_type_id, reserve_method_slot};
@@ -9,6 +10,7 @@ use std::collections::HashSet;
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum CallableMainCompatibilityLoweringErrorV1 {
     Session(CanonicalFunctionSessionErrorV1),
+    Child(ModuleLoweringPortChildErrorV1),
     Lowering(String),
 }
 
@@ -16,6 +18,7 @@ impl std::fmt::Display for CallableMainCompatibilityLoweringErrorV1 {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Session(error) => write!(formatter, "[callable-main/session] {error}"),
+            Self::Child(error) => write!(formatter, "[callable-main/child] {error}"),
             Self::Lowering(error) => write!(formatter, "[callable-main/lowering] {error}"),
         }
     }
@@ -32,6 +35,12 @@ impl From<String> for CallableMainCompatibilityLoweringErrorV1 {
 impl From<CanonicalFunctionSessionErrorV1> for CallableMainCompatibilityLoweringErrorV1 {
     fn from(error: CanonicalFunctionSessionErrorV1) -> Self {
         Self::Session(error)
+    }
+}
+
+impl From<ModuleLoweringPortChildErrorV1> for CallableMainCompatibilityLoweringErrorV1 {
+    fn from(error: ModuleLoweringPortChildErrorV1) -> Self {
+        Self::Child(error)
     }
 }
 

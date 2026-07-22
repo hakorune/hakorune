@@ -112,6 +112,24 @@ impl RawExpansionDraftRequestV1 {
             _seal: RawExpansionDraftRequestSealV1,
         })
     }
+
+    pub(in crate::mir::builder) fn callable_main_compatibility(
+        symbol: impl Into<Box<str>>,
+        arity: usize,
+    ) -> Result<Self, RawExpansionReceiptLedgerErrorV1> {
+        let symbol = symbol.into();
+        if symbol.is_empty() {
+            return Err(RawExpansionReceiptLedgerErrorV1::EmptySymbol);
+        }
+        Ok(Self {
+            role: RawExpansionDraftRoleV1::CallableMainCompatibility,
+            key: FunctionDraftKeyV1::LegacySymbol(symbol.to_string()),
+            symbol,
+            arity,
+            policy: DraftPublicationPolicyV1::LegacyReplaceWholePair,
+            _seal: RawExpansionDraftRequestSealV1,
+        })
+    }
 }
 
 #[derive(Debug)]
@@ -156,6 +174,14 @@ impl RawExpansionCompletedEventV1 {
 
     pub(in crate::mir::builder) fn symbol(&self) -> &str {
         &self.symbol
+    }
+
+    pub(in crate::mir::builder) fn key(&self) -> &FunctionDraftKeyV1 {
+        &self.key
+    }
+
+    pub(in crate::mir::builder) const fn arity(&self) -> usize {
+        self.arity
     }
 
     pub(in crate::mir::builder) const fn replacement(&self) -> &RawExpansionReplacementEventV1 {
@@ -451,6 +477,18 @@ impl RawExpansionReceiptLedgerV1 {
     ) -> Result<(), RawExpansionReceiptLedgerErrorV1> {
         self.poisoned = true;
         Err(error)
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn completed_event_count(&self) -> usize {
+        self.events.len()
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn last_completed_event(
+        &self,
+    ) -> Option<&RawExpansionCompletedEventV1> {
+        self.events.last()
     }
 }
 

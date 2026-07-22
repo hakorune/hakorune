@@ -690,7 +690,13 @@ def verify_route_inventory_extension(
     )
     consumers = []
     for path in (root / "src/mir/builder").rglob("*.rs"):
-        if path in (source_path, tests_path, p0_path, root / "src/mir/builder.rs"):
+        if path in (
+            source_path,
+            tests_path,
+            p0_path,
+            root / "src/mir/builder/module_compat_raw_ledger_p0.rs",
+            root / "src/mir/builder.rs",
+        ):
             continue
         if "RawExpansionReceiptLedgerV1" in path.read_text():
             consumers.append(str(path.relative_to(root)))
