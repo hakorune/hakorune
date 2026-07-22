@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-RAW0 未決定質問
 
-Status: **回答待ち**
+Status: **回答済み — Candidate A selected**
 Date: 2026-07-22
 
 ## 質問
@@ -31,9 +31,10 @@ ROOT0-RAW0
   = root witness retention later
 ```
 
-## 推奨回答
+## 決定
 
-`A` または `B` の一文字で回答してください。
+**Candidate Aを採択**する。receipt provenanceはRAW0の前提箱として
+同じnon-Clone ownership chainへ入れ、root witnessと別rowには分割しない。
 
 ## 根拠と制約
 
@@ -42,7 +43,7 @@ ROOT0-RAW0
 - receipt provenanceだけでRAW0を閉じると、既存SSOTより狭い意味論になる。
 - どちらを選んでも、production capture、drain、finalizer、CUT0 wiringは
   この質問の回答後まで未接続のままにする。
-- 回答前のreceipt実装WIPは、`stash@{0}` に保存している。
+- receipt実装WIPは、採択済みAの実装時に必要な部分だけを取り込む。
 
 関連:
 

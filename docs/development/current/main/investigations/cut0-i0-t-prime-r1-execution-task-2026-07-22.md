@@ -1,6 +1,6 @@
 # CUT0-I0 T-prime-r1 Execution Task
 
-Status: **CUT0-I0-ROOT0-RAW0-D0 design stop**
+Status: **CUT0-I0-ROOT0-RAW0 Candidate A selected; implementation next**
 Date: 2026-07-22
 Decision: **Candidate T-prime-r1 selected**
 Scope: build one invocation-branded module transaction, then perform one
@@ -520,16 +520,51 @@ RUSTFLAGS='-Awarnings' cargo test -q raw_expansion_receipt_ledger_tests --lib
 
 The next disconnected row is `ROOT0-RAW0`; production consumers remain zero.
 
-### CUT0-I0-ROOT0-RAW0-D0 — design stop: receipt seam versus root witness
+### CUT0-I0-ROOT0-RAW0-D0 — closed: receipt seam versus root witness
 
 The active ROOT0 brief defines RAW0 as the retained raw root witness, not
 receipt provenance alone. Candidate A keeps collector-bound receipts, raw
 root-batch preflight, `CompletedRootBodyV1`, the required condition receipt,
-and callable-Main disposition in one atomic row. Candidate B splits a receipt-
-only prerequisite into `ROOT0-RAW0-RECEIPT`. Candidate A is recommended, but
-no code-facing RAW0 row is selected until the scope is explicitly locked.
+and callable-Main disposition in one atomic row. Candidate B would split a
+receipt-only prerequisite into `ROOT0-RAW0-RECEIPT`. Candidate A is selected.
 The standalone question is tracked in
 `cut0-i0-root0-raw0-design-question-2026-07-22.md`.
+
+### CUT0-I0-ROOT0-RAW0 — selected execution task
+
+Implement one disconnected non-Clone ownership chain:
+
+```text
+collector-issued branded receipt
+-> raw root-batch preflight
+-> retained CompletedRootBodyV1
+-> exact main/condition slots + callable-main disposition
+-> RawInvocationRootWitnessV1
+-> RawCompleteInvocationV1
+```
+
+Use a new `raw_root_completion.rs` for RAW0-specific batch/witness products;
+do not enlarge a pre-existing source/check file beyond 800 lines. The physical
+receipt remains owned once by the collected raw batch. Ledger records a
+projection from borrowed receipts and atomically records Main plus condition;
+typed slot proofs must not become a second receipt owner.
+
+Required acceptance:
+
+```text
+same branded collector -> two exact root receipts -> Raw witness
+foreign root body / collector / ledger -> reject before mutation
+missing condition or selected callable-main receipt -> no witness
+second root admission failure -> collector and ledger deltas both zero
+success -> CompletedRootBody remains until RawComplete
+drop/panic -> live Builder unchanged; drain/finalizer/commit = 0
+```
+
+`RootBodyCompletionTrackerV1` receives the invocation brand; raw collection
+must not call the old `PendingMainDraftV1::into_draft()` erasure seam. The raw
+ledger gets a batch terminal that preflights both root receipts before event
+history mutation. Existing generic raw collection must consume the collected
+root receipt chain rather than fabricate a second receipt vector.
 
 ### CUT0-I0-ROOT0 — route-specific completion and drain policy
 
