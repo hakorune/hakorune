@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-CANON0 CANON-BRIDGE0 実行タスク
 
-Status: **Active — bridge rows closed; CANON-FIXTURE0 taskized in the 2026-07-23 fixture card**
+Status: **Closed — CANON-BRIDGE0 and CANON-FIXTURE0 disconnected proofs closed; ROOT0-DRAIN0 is next design frontier**
 
 Related:
 

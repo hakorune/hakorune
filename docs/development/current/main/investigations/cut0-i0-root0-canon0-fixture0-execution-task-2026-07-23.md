@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-CANON0 CANON-FIXTURE0 実行タスク
 
-Status: **Active — CANON-FIXTURE0-S0 is the next executable row**
+Status: **Closed — CANON-FIXTURE0-S0/P0/C0/G0**
 
 Related:
 
@@ -201,6 +201,32 @@ RUSTFLAGS='-Awarnings' cargo test -q callable_batch_collection_p0 --lib
 python3 tools/checks/lib/cut0_i0_root0_canon0_bridge_guard.py
 python3 tools/checks/lib/cut0_i0_root0_canon0_fixture0_guard.py
 ```
+
+## Closeout evidence — 2026-07-23
+
+```text
+canonical_bridge_fixture0_p0 = 4 passed
+source_bound_package_p0 = 3 passed
+canonical_physical_completion_p0 = 3 passed
+callable_batch_collection_p0 = 6 passed
+RUSTFLAGS='-Awarnings' cargo check -q --lib = passed
+cut0_i0_root0_canon0_bridge_guard.py = passed
+cut0_i0_root0_canon0_fixture0_guard.py = passed
+  aggregate=1 routes=4 condition_fn=1 synthetic_guard=1
+  witness_parity=1 late_collision=1 production_callers=0 files_under_800=1
+current_state_pointer_guard.sh = passed
+git diff --check = passed
+fixture source = 475 lines
+fixture/guard manifest files = below 800 lines
+```
+
+The four-route aggregate now consumes the compiler-owned bridge by value.
+A+/trivial are matched to their exact preflight variants; acyclic/recursive
+retain branded capability witnesses; `condition_fn/0` is accepted as a
+canonical physical spelling. Foreign pairing and synthetic-key rejection are
+proved as structural/API non-claims, while late collision remains the
+existing disconnected same-collector atomic proof. No production canonical
+ingress, drain, finalizer, external commit, fallback, or retry was connected.
 
 ## Stop line and explicit non-claims
 
