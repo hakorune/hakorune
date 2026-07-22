@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-CANON0 CANON-FIXTURE0 実行タスク
 
-Status: **Active — RECURSIVE0 closed; four-route aggregate proof next**
+Status: **Design Stop — compiler/builder owner bridge is undefined**
 
 Related:
 
@@ -81,3 +81,36 @@ CANON-FIXTURE0 closes only the disconnected four-route aggregate proof.
 Completion-to-drain consumption, source-derived inventory projection in the
 live executor, finalization, external commit, retry/fallback, and atomic CUT0
 activation remain separate DRAIN0/CUT0 rows.
+
+## Design-stop finding
+
+The requested aggregate cannot honestly be implemented from the current
+owners. `src/mir/compiler/source_bound_package.rs` owns
+`CanonicalInvocationTokenV1`, `CanonicalInvocationBrandV1`,
+`LoweredCanonicalPlanV1`, and the only SOURCE-BIND0/LOWER0 terminals. The
+disconnected completion scaffold in
+`src/mir/builder/canonical_root_completion.rs` owns a different
+`ModuleInvocationTokenV1`/`ModuleInvocationBrandV1` and accepts only a
+test-factory token plus a separately supplied plan. No production caller
+connects the two chains.
+
+The following census is therefore a hard boundary, not a missing fixture:
+
+```text
+compiler package -> builder completion bridge        = 0
+builder completion production callers                = 0
+compiler token -> builder token conversion            = 0
+post-hoc brand rewrap that preserves provenance       = impossible to accept
+```
+
+Adding four tests with independently minted builder tokens would prove two
+parallel disconnected boxes, not the required
+`source -> token -> package -> LOWER0 -> shell/collector -> receipt ->
+completion` chain. Synthetic-root rejection is also not reachable through the
+current canonical active collector because that terminal derives the canonical
+key internally; the loose collector API still accepts `Main` and
+`SyntheticConditionFn` for the legacy/raw use case.
+
+The worktree remains code-clean at this design stop. Do not add the aggregate
+fixture, a test-only bridge, or a second identity authority until the attached
+bridge consultation is decided.

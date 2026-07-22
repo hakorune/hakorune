@@ -40,7 +40,7 @@ def main() -> int:
         if len(path.read_text().splitlines()) >= 800:
             raise AssertionError(f"RECEIPT0 file must remain below 800 lines: {path}")
 
-    require(state, "CANON-FIXTURE0-20260722", "successor blocker")
+    require(state, "CANON-FIXTURE0-DESIGN-STOP-20260722", "successor blocker")
     require(task, "Status: **Closed — RECEIPT0", "closed receipt task")
     require(product, "CollectedDraftAdmissionProductV1", "single receipt product")
     require(product, "collect_canonical_single", "single collector terminal")

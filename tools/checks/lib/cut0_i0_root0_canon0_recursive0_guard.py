@@ -48,7 +48,7 @@ def main() -> int:
         if len(path.read_text().splitlines()) >= 800:
             raise AssertionError(f"RECURSIVE0 file must remain below 800 lines: {path}")
 
-    require(state, "CANON-FIXTURE0-20260722", "successor blocker")
+    require(state, "CANON-FIXTURE0-DESIGN-STOP-20260722", "successor blocker")
     require(task, "Status: **Closed — RECURSIVE0 branded capability provenance complete", "closed recursive task")
     for fragment, label in (
         ("brand: ModuleInvocationBrandV1", "receipt brand field"),

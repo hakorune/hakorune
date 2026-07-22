@@ -48,7 +48,7 @@ def main() -> int:
         if len(path.read_text().splitlines()) >= 800:
             raise AssertionError(f"SOURCE-BIND0 file must remain below 800 lines: {path}")
 
-    require(state, "CANON-FIXTURE0-20260722", "successor blocker")
+    require(state, "CANON-FIXTURE0-DESIGN-STOP-20260722", "successor blocker")
     require(task, "Status: **Closed — SOURCE-BIND0", "SOURCE-BIND0 closed card")
     require(task, "SOURCE-BIND0 implementation and evidence gate passed", "SOURCE-BIND0 closeout")
     require(task, "LOWER0", "later lowering row")
