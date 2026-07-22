@@ -222,7 +222,6 @@ def main() -> int:
         "bind": [],
         "collect": [],
         "complete": [],
-        "test_factory": [],
     }
     for path in production:
         text = path.read_text()
@@ -234,8 +233,6 @@ def main() -> int:
             bridge_calls["collect"].append(path.relative_to(ROOT))
         if ".complete()" in text and "canonical" in path.name:
             bridge_calls["complete"].append(path.relative_to(ROOT))
-        if "TestInvocationPreflightFactoryV1::new(" in text:
-            bridge_calls["test_factory"].append(path.relative_to(ROOT))
 
     for key, paths in bridge_calls.items():
         if paths:
@@ -264,7 +261,7 @@ def main() -> int:
     require(brand, "drafts.into_canonical_entries()", "catalog-derived batch entries")
     require(completion, "physical.receipt_brand()", "receipt retained through completion")
     require(session, "open_for_token", "shared session owner")
-    require(physical, "InvocationBranded::from_source", "branded physical state")
+    require(brand, "InvocationBranded::from_source", "branded physical state")
     require(callable_tx, "into_canonical_entries", "catalog-driven batch projection")
 
     # Static P0 census: canonical callers cannot supply a key, policy, symbol,
@@ -336,6 +333,25 @@ def main() -> int:
         raise AssertionError(
             "CANON-FIXTURE0 requires production lower/collect/complete callers = 0: "
             f"{physical_transition_paths}"
+        )
+
+    # A few legacy implementation files contain cfg(test) modules inline.
+    # Restrict the factory census to canonical production surfaces so those
+    # unrelated raw fixtures do not become false production callers.
+    canonical_factory_callers = []
+    for path in production:
+        relative = path.relative_to(ROOT).as_posix()
+        if not (
+            relative.startswith("src/mir/compiler/")
+            or relative.startswith("src/mir/builder/canonical")
+        ):
+            continue
+        if "TestInvocationPreflightFactoryV1::new(" in path.read_text():
+            canonical_factory_callers.append(path.relative_to(ROOT))
+    if canonical_factory_callers:
+        raise AssertionError(
+            "CANON-FIXTURE0 aggregate canonical factory callers must be zero: "
+            f"{canonical_factory_callers}"
         )
 
     if not test_registration(compiler_mod, "canonical_bridge_fixture0_p0"):
