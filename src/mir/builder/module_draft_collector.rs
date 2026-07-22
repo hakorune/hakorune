@@ -13,17 +13,22 @@ use super::module_invocation_owner_chain::InvocationBranded;
 
 mod receipt;
 mod callable_batch;
+mod collected_product;
 mod root_batch;
 
 pub(in crate::mir::builder) use callable_batch::{
     CallableCollectorBatchPrepareErrorV1, CallableCollectorDraftEntryV1,
     CallableCollectorBatchReceiptV1, CallableCollectorBatchBrandErrorV1,
+    CollectedCallableCollectorBatchV1,
     PreparedCallableCollectorBatchV1,
     RejectedCallableCollectorBatchV1,
 };
 
 pub(in crate::mir::builder) use receipt::{
     CollectedDraftAdmissionReceiptV1, CollectedDraftReplacementDispositionV1,
+};
+pub(in crate::mir::builder) use collected_product::{
+    CollectedDraftAdmissionProductV1, RejectedCollectedDraftAdmissionV1,
 };
 pub(in crate::mir::builder) use root_batch::{
     BrandedRootCollectorBatchReceiptV1, PreparedRootCollectorBatchV1,
@@ -235,6 +240,10 @@ impl ModuleDraftCollectorV1 {
             receipt_brand: Some(brand),
             ..Self::default()
         }
+    }
+
+    pub(in crate::mir::builder) fn receipt_brand(&self) -> Option<ModuleInvocationBrandV1> {
+        self.receipt_brand
     }
 
     /// Prepare every fallible collector admission check before child teardown.

@@ -126,6 +126,26 @@ pub(in crate::mir::builder) struct CallableCollectorBatchReceiptV1 {
     _seal: CallableCollectorBatchReceiptSealV1,
 }
 
+/// Collector and whole-batch receipt move as one non-Clone product.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct CollectedCallableCollectorBatchV1 {
+    collector: super::super::module_invocation_owner_chain::BrandedCollectorV1<
+        ModuleDraftCollectorV1,
+    >,
+    receipt: InvocationBranded<CallableCollectorBatchReceiptV1>,
+}
+
+impl CollectedCallableCollectorBatchV1 {
+    pub(in crate::mir::builder) fn into_parts(
+        self,
+    ) -> (
+        super::super::module_invocation_owner_chain::BrandedCollectorV1<ModuleDraftCollectorV1>,
+        InvocationBranded<CallableCollectorBatchReceiptV1>,
+    ) {
+        (self.collector, self.receipt)
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum CallableCollectorBatchBrandErrorV1 {
     CollectorUnbranded,
@@ -254,13 +274,7 @@ impl PreparedCallableCollectorBatchV1 {
     /// brand; no post-hoc receipt relabeling is a production terminal.
     pub(in crate::mir::builder) fn collect_all_branded(
         mut self,
-    ) -> Result<
-        (
-            ModuleDraftCollectorV1,
-            InvocationBranded<CallableCollectorBatchReceiptV1>,
-        ),
-        CallableCollectorBatchBrandErrorV1,
-    > {
+    ) -> Result<CollectedCallableCollectorBatchV1, CallableCollectorBatchBrandErrorV1> {
         let brand = self
             .collector
             .receipt_brand
@@ -274,16 +288,16 @@ impl PreparedCallableCollectorBatchV1 {
                 entry.draft,
             ));
         }
-        Ok((
-            self.collector,
-            InvocationBranded::from_source(
+        Ok(CollectedCallableCollectorBatchV1 {
+            collector: InvocationBranded::from_source(brand, self.collector),
+            receipt: InvocationBranded::from_source(
                 brand,
                 CallableCollectorBatchReceiptV1 {
                     admissions: admissions.into_boxed_slice(),
                     _seal: CallableCollectorBatchReceiptSealV1,
                 },
             ),
-        ))
+        })
     }
 }
 

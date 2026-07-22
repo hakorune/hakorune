@@ -5,9 +5,12 @@
 //! emits route-specific completion products without reusing Raw Main state.
 
 use super::module_draft_collector::{
-    CallableCollectorBatchReceiptV1, CollectedDraftAdmissionReceiptV1,
+    CallableCollectorBatchReceiptV1, CollectedCallableCollectorBatchV1,
+    CallableCollectorBatchPrepareErrorV1, CallableCollectorDraftEntryV1,
+    CollectedDraftAdmissionProductV1, CollectedDraftAdmissionReceiptV1,
     CollectedDraftReplacementDispositionV1, CompletedDraftSignatureViewV1,
     DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftCollectorV1,
+    RejectedCollectedDraftAdmissionV1,
 };
 use super::module_invocation_brand0::ActiveModuleInvocationV1;
 use super::module_invocation_callable_batch::CallableBatchShellFactV1;
@@ -33,6 +36,7 @@ use crate::mir::compiler::{
     recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1,
 };
 use crate::mir::resolved_semantics::CanonicalCallableKeyV1;
+use crate::mir::function::MirFunction;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum CanonicalSourceBindingErrorV1 {
@@ -196,6 +200,7 @@ impl std::error::Error for CanonicalCompletionErrorV1 {}
 #[derive(Debug)]
 pub(in crate::mir::builder) struct CanonicalSingleRootWitnessV1 {
     source: CanonicalSingleSourceContinuationV1,
+    receipt: InvocationBranded<CollectedDraftAdmissionReceiptV1>,
     _seal: CanonicalSingleRootWitnessSealV1,
 }
 
@@ -272,6 +277,7 @@ pub(in crate::mir::builder) enum CallableBatchCapabilityDispositionV1 {
 #[derive(Debug)]
 pub(in crate::mir::builder) struct CallableBatchRootWitnessV1<'a> {
     source: CallableBatchSourceContinuationV1<'a>,
+    receipt: InvocationBranded<CallableCollectorBatchReceiptV1>,
     capability: CallableBatchCapabilityDispositionV1,
     _seal: CallableBatchRootWitnessSealV1,
 }
@@ -385,6 +391,24 @@ pub(in crate::mir::builder) struct CanonicalSingleActiveInvocationV1<'a> {
     collector: BrandedCollectorV1<ModuleDraftCollectorV1>,
 }
 
+pub(in crate::mir::builder) struct RejectedCanonicalSingleCollectionV1<'a> {
+    token: ModuleInvocationTokenV1,
+    lowering: Option<BrandedCanonicalSingleLoweringPlanV1<'a>>,
+    source: CanonicalSingleSourceContinuationV1,
+    session: ModuleBuilderInvocationSessionV1,
+    shell: BrandedShellV1<ModuleLoweringShellV1>,
+    rejected: RejectedCollectedDraftAdmissionV1,
+}
+
+pub(in crate::mir::builder) struct CanonicalSingleCollectedInvocationV1<'a> {
+    token: ModuleInvocationTokenV1,
+    lowering: Option<BrandedCanonicalSingleLoweringPlanV1<'a>>,
+    source: CanonicalSingleSourceContinuationV1,
+    session: ModuleBuilderInvocationSessionV1,
+    shell: BrandedShellV1<ModuleLoweringShellV1>,
+    collected: CollectedDraftAdmissionProductV1,
+}
+
 impl<'a> CanonicalSingleActiveInvocationV1<'a> {
     pub(in crate::mir::builder) fn open(
         prepared: PreparedCanonicalSingleSourceV1<'a>,
@@ -407,11 +431,60 @@ impl<'a> CanonicalSingleActiveInvocationV1<'a> {
         })
     }
 
+    pub(in crate::mir::builder) fn collect(
+        self,
+        draft: MirFunction,
+    ) -> Result<CanonicalSingleCollectedInvocationV1<'a>, RejectedCanonicalSingleCollectionV1<'a>> {
+        let Self {
+            token,
+            lowering,
+            source,
+            session,
+            shell,
+            collector,
+        } = self;
+        let key = FunctionDraftKeyV1::CanonicalResolvedOwner(source.header.owner());
+        let symbol = source.header.symbol().as_mir_name().to_owned();
+        match collector.collect_canonical_single(
+            key,
+            symbol,
+            source.header.arity(),
+            draft,
+        ) {
+            Ok(collected) => Ok(CanonicalSingleCollectedInvocationV1 {
+                token,
+                lowering,
+                source,
+                session,
+                shell,
+                collected,
+            }),
+            Err(rejected) => Err(RejectedCanonicalSingleCollectionV1 {
+                token,
+                lowering,
+                source,
+                session,
+                shell,
+                rejected,
+            }),
+        }
+    }
+}
+
+impl<'a> CanonicalSingleCollectedInvocationV1<'a> {
     pub(in crate::mir::builder) fn complete(
-        mut self,
-        receipt: InvocationBranded<CollectedDraftAdmissionReceiptV1>,
+        self,
     ) -> Result<CanonicalSingleCompleteInvocationV1, CanonicalCompletionErrorV1> {
-        let brand = self.token.brand();
+        let Self {
+            token,
+            mut lowering,
+            source,
+            session,
+            shell,
+            collected,
+        } = self;
+        let (collector, receipt) = collected.into_parts();
+        let brand = token.brand();
         if receipt.brand() != brand {
             return Err(CanonicalCompletionErrorV1::ForeignBrand {
                 expected: brand.ordinal(),
@@ -419,8 +492,8 @@ impl<'a> CanonicalSingleActiveInvocationV1<'a> {
             });
         }
         let physical = receipt.payload();
-        let symbol = self.source.header.symbol().as_mir_name().to_owned();
-        let expected_key = FunctionDraftKeyV1::CanonicalResolvedOwner(self.source.header.owner());
+        let symbol = source.header.symbol().as_mir_name().to_owned();
+        let expected_key = FunctionDraftKeyV1::CanonicalResolvedOwner(source.header.owner());
         if matches!(
             physical.key(),
             FunctionDraftKeyV1::Main | FunctionDraftKeyV1::SyntheticConditionFn
@@ -438,9 +511,9 @@ impl<'a> CanonicalSingleActiveInvocationV1<'a> {
                 actual: physical.symbol().to_owned(),
             });
         }
-        if physical.arity() != self.source.header.arity() {
+        if physical.arity() != source.header.arity() {
             return Err(CanonicalCompletionErrorV1::ArityMismatch {
-                expected: self.source.header.arity(),
+                expected: source.header.arity(),
                 actual: physical.arity(),
             });
         }
@@ -450,21 +523,19 @@ impl<'a> CanonicalSingleActiveInvocationV1<'a> {
         if !matches!(
             physical.replacement(),
             CollectedDraftReplacementDispositionV1::Inserted
-        ) || self.collector.payload().symbol_count() != 1
-            || self.collector.payload().key_for_symbol(&symbol) != Some(&expected_key)
+        ) || collector.payload().symbol_count() != 1
+            || collector.payload().key_for_symbol(&symbol) != Some(&expected_key)
         {
             return Err(CanonicalCompletionErrorV1::ReplacementForbidden);
         }
-        let _lowering = self
-            .lowering
+        let _lowering = lowering
             .take()
             .expect("canonical lowering plan consumed once");
-        let source = self.source;
         Ok(CanonicalSingleCompleteInvocationV1 {
             brand,
-            session: self.session,
-            shell: self.shell,
-            collector: self.collector,
+            session,
+            shell,
+            collector,
             drain_plan: CanonicalSingleDrainPlanV1 {
                 brand,
                 family: source.policy.policy().family(),
@@ -475,6 +546,7 @@ impl<'a> CanonicalSingleActiveInvocationV1<'a> {
             },
             root: CanonicalSingleRootWitnessV1 {
                 source,
+                receipt,
                 _seal: CanonicalSingleRootWitnessSealV1,
             },
             _seal: CanonicalSingleCompleteInvocationSealV1,
@@ -490,6 +562,33 @@ pub(in crate::mir::builder) struct CallableBatchActiveInvocationV1<'a> {
     session: ModuleBuilderInvocationSessionV1,
     shell: BrandedShellV1<ModuleLoweringShellV1>,
     collector: BrandedCollectorV1<ModuleDraftCollectorV1>,
+}
+
+pub(in crate::mir::builder) struct RejectedCallableBatchCollectionV1<'a> {
+    token: ModuleInvocationTokenV1,
+    lowering: Option<BrandedCallableBatchLoweringPlanV1<'a>>,
+    source: CallableBatchSourceContinuationV1<'a>,
+    capability: CallableBatchCapabilityDispositionV1,
+    session: ModuleBuilderInvocationSessionV1,
+    shell: BrandedShellV1<ModuleLoweringShellV1>,
+    collector: BrandedCollectorV1<ModuleDraftCollectorV1>,
+    error: CallableBatchCollectionErrorV1,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(in crate::mir::builder) enum CallableBatchCollectionErrorV1 {
+    Prepare(CallableCollectorBatchPrepareErrorV1),
+    CollectorUnbranded,
+}
+
+pub(in crate::mir::builder) struct CallableBatchCollectedInvocationV1<'a> {
+    token: ModuleInvocationTokenV1,
+    lowering: Option<BrandedCallableBatchLoweringPlanV1<'a>>,
+    source: CallableBatchSourceContinuationV1<'a>,
+    capability: CallableBatchCapabilityDispositionV1,
+    session: ModuleBuilderInvocationSessionV1,
+    shell: BrandedShellV1<ModuleLoweringShellV1>,
+    collected: CollectedCallableCollectorBatchV1,
 }
 
 impl<'a> CallableBatchActiveInvocationV1<'a> {
@@ -529,20 +628,88 @@ impl<'a> CallableBatchActiveInvocationV1<'a> {
         })
     }
 
+    pub(in crate::mir::builder) fn collect(
+        self,
+        entries: Vec<CallableCollectorDraftEntryV1>,
+    ) -> Result<CallableBatchCollectedInvocationV1<'a>, RejectedCallableBatchCollectionV1<'a>> {
+        let Self {
+            token,
+            lowering,
+            source,
+            capability,
+            session,
+            shell,
+            collector,
+        } = self;
+        let brand = token.brand();
+        if collector.payload().receipt_brand() != Some(brand) {
+            return Err(RejectedCallableBatchCollectionV1 {
+                token,
+                lowering,
+                source,
+                capability,
+                session,
+                shell,
+                collector,
+                error: CallableBatchCollectionErrorV1::CollectorUnbranded,
+            });
+        }
+        let raw_collector = collector.into_payload();
+        let prepared = match raw_collector.prepare_callable_batch(entries) {
+            Ok(prepared) => prepared,
+            Err(rejected) => {
+                let (collector, error) = rejected.into_parts();
+                return Err(RejectedCallableBatchCollectionV1 {
+                    token,
+                    lowering,
+                    source,
+                    capability,
+                    session,
+                    shell,
+                    collector: InvocationBranded::from_source(brand, collector),
+                    error: CallableBatchCollectionErrorV1::Prepare(error),
+                });
+            }
+        };
+        let collected = prepared
+            .collect_all_branded()
+            .expect("collector brand was preflighted before batch collection");
+        Ok(CallableBatchCollectedInvocationV1 {
+            token,
+            lowering,
+            source,
+            capability,
+            session,
+            shell,
+            collected,
+        })
+    }
+}
+
+impl<'a> CallableBatchCollectedInvocationV1<'a> {
     pub(in crate::mir::builder) fn complete(
-        mut self,
-        receipt: InvocationBranded<CallableCollectorBatchReceiptV1>,
+        self,
     ) -> Result<CallableBatchCompleteInvocationV1<'a>, CanonicalCompletionErrorV1> {
-        let brand = self.token.brand();
+        let Self {
+            token,
+            mut lowering,
+            source,
+            capability,
+            session,
+            shell,
+            collected,
+        } = self;
+        let (collector, receipt) = collected.into_parts();
+        let brand = token.brand();
         if receipt.brand() != brand {
             return Err(CanonicalCompletionErrorV1::ForeignBrand {
                 expected: brand.ordinal(),
                 actual: receipt.brand().ordinal(),
             });
         }
-        let expected = self.source.source.functions_by_key().len();
+        let expected = source.source.functions_by_key().len();
         if receipt.payload().len() != expected
-            || self.collector.payload().symbol_count() != expected
+            || collector.payload().symbol_count() != expected
         {
             return Err(CanonicalCompletionErrorV1::CollectorCardinality {
                 expected,
@@ -568,9 +735,8 @@ impl<'a> CallableBatchActiveInvocationV1<'a> {
                 return Err(CanonicalCompletionErrorV1::ReplacementForbidden);
             }
         }
-        for (key, _) in self.source.source.functions_by_key() {
-            let header = self
-                .source
+        for (key, _) in source.source.functions_by_key() {
+            let header = source
                 .source
                 .source()
                 .catalog()
@@ -579,7 +745,7 @@ impl<'a> CallableBatchActiveInvocationV1<'a> {
                 .ok_or(CanonicalCompletionErrorV1::MissingReceipt)?;
             let symbol = header.symbol().as_mir_name();
             let expected_key = FunctionDraftKeyV1::CanonicalCallable(key.clone());
-            if self.collector.payload().key_for_symbol(symbol) != Some(&expected_key) {
+            if collector.payload().key_for_symbol(symbol) != Some(&expected_key) {
                 return Err(CanonicalCompletionErrorV1::KeyMismatch);
             }
             let admission = receipt
@@ -592,21 +758,20 @@ impl<'a> CallableBatchActiveInvocationV1<'a> {
                 return Err(CanonicalCompletionErrorV1::KeyMismatch);
             }
         }
-        let _lowering = self
-            .lowering
+        let _lowering = lowering
             .take()
             .expect("callable lowering plan consumed once");
-        let source = self.source;
         let source_ref = source.source;
         let family = source.family;
         Ok(CallableBatchCompleteInvocationV1 {
             brand,
-            session: self.session,
-            shell: self.shell,
-            collector: self.collector,
+            session,
+            shell,
+            collector,
             root: CallableBatchRootWitnessV1 {
                 source,
-                capability: self.capability,
+                receipt,
+                capability,
                 _seal: CallableBatchRootWitnessSealV1,
             },
             drain_plan: CallableBatchDrainPlanV1 {
