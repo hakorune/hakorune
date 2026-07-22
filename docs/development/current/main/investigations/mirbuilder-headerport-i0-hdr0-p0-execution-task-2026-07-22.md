@@ -10,6 +10,7 @@ Related:
 - `docs/development/current/main/investigations/mirbuilder-headerport-i0-hdr0-p0-open-questions-2026-07-22.md`
 - `docs/development/current/main/investigations/mirbuilder-headerport-i0-production-cutover-consultation-2026-07-21.md`
 - `tools/checks/lib/headerport_header_reader_census.py`
+- `tools/checks/lib/headerport_authority_erasure_guard.py`
 
 ## Accepted decisions
 
@@ -75,6 +76,7 @@ Acceptance:
   authority to completion;
 - a static guard rejects any explicit-authority path that reaches the five
   forbidden legacy reader/facade families above;
+- `python3 tools/checks/lib/headerport_authority_erasure_guard.py` is green;
 - production invocation capture/commit and CUT0 consumers remain zero.
 
 This is a BoxShape slice. It must not add a new accepted call shape, resolver,
@@ -207,3 +209,27 @@ This card does not claim:
 
 After CUT0-G0 the fixed queue resumes at FACTSESSION0. FastMem remains parked
 until `MODULE-FINALIZE-VERIFY-CUT0` as recorded by the current state.
+
+## HDR0-P0-AUTHORITY-ERASURE0 closeout
+
+The first code-facing slice is closed on 2026-07-22. The explicit call route
+now borrows headers only after argument descent, passes the same lookup through
+unique static and deterministic tail recovery, keeps materializer presence in
+an exclusive invocation/legacy enum, and carries the lookup into the
+post-success annotation receipt. The legacy port still returns `None` and
+retains its compatibility annotation path.
+
+Evidence:
+
+```text
+python3 tools/checks/lib/headerport_authority_erasure_guard.py = green
+python3 tools/checks/lib/headerport_candidate0_guard.py . = green
+cargo check -q = green
+cargo test -q explicit_header_authority_survives_unified_call_post_success --lib = green
+cargo test -q explicit_projection_is_sorted_and_ignores_non_methods --lib = green
+cargo test -q raw_invocation --lib = green (16 tests)
+```
+
+Production invocation capture/commit, lifecycle drain, external commit, and
+CUT0 remain zero. The next code-facing row is
+`HDR0-P0-METHODTAIL-COMPAT0`.

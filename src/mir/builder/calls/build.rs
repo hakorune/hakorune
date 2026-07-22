@@ -28,7 +28,8 @@ use crate::ast::ASTNode;
 use crate::mir::builder::callable_declaration_catalog::BareStaticRecoveryNoRecoveryReasonV1;
 use crate::mir::builder::calls::drive_call_arguments_v1;
 use crate::mir::builder::recursive_child_lowering::{
-    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawLegacyChildLoweringPortV1,
+    drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawFunctionHeaderLookupPortV1,
+    RawLegacyChildLoweringPortV1,
 };
 
 impl MirBuilder {
@@ -50,7 +51,7 @@ impl MirBuilder {
         args: Vec<ASTNode>,
     ) -> Result<ValueId, String>
     where
-        Port: RawAstChildLoweringPortV1,
+        Port: RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1,
     {
         // Dev trace
         if crate::config::env::cli_verbose() {
@@ -89,16 +90,19 @@ impl MirBuilder {
             return self.build_str_normalization(arg_values[0]);
         }
 
-        // 3. Determine call route (unified builtin/extern vs resolved global)
-        let use_unified = super::call_unified::is_unified_call_enabled()
-            && (super::super::call_resolution::is_builtin_function(&name)
-                || super::super::call_resolution::is_extern_function(&name));
+        // 3. Keep the completed invocation header authoritative through
+        // resolver, emitter, and annotation. The legacy port returns None.
+        port.with_function_headers(|lookup| {
+            let use_unified = super::call_unified::is_unified_call_enabled()
+                && (super::super::call_resolution::is_builtin_function(&name)
+                    || super::super::call_resolution::is_extern_function(&name));
 
-        if !use_unified {
-            self.build_resolved_function_call(name, arg_values)
-        } else {
-            self.build_unified_function_call(name, arg_values)
-        }
+            if !use_unified {
+                self.build_resolved_function_call(name, arg_values, lookup)
+            } else {
+                self.build_unified_function_call(name, arg_values, lookup)
+            }
+        })
     }
 
     // Build method call: object.method(arguments)
@@ -289,6 +293,7 @@ impl MirBuilder {
         &mut self,
         name: String,
         arg_values: Vec<ValueId>,
+        lookup: Option<&dyn super::super::function_signature_lookup::FunctionSignatureLookupV1>,
     ) -> Result<ValueId, String> {
         let dst = self.next_value_id();
 
@@ -298,7 +303,7 @@ impl MirBuilder {
             Err(_e) => {
                 // Additional resolver: unique static method
                 let tail_recovery_allowed =
-                    match self.try_unique_static_method_recovery(&name, &arg_values)? {
+                    match self.try_unique_static_method_recovery(&name, &arg_values, lookup)? {
                         BareStaticRecoveryEmissionV1::Emitted(result) => {
                             return Ok(result);
                         }
@@ -311,7 +316,12 @@ impl MirBuilder {
                     };
                 // Dev-only additional resolver: suffix match
                 if tail_recovery_allowed {
-                    if let Some(result) = self.try_tail_based_resolver(&name, &arg_values)? {
+                    let result = match lookup {
+                        Some(headers) => self
+                            .try_tail_based_resolver_with_headers(&name, &arg_values, headers)?,
+                        None => self.try_tail_based_resolver(&name, &arg_values)?,
+                    };
+                    if let Some(result) = result {
                         return Ok(result);
                     }
                 }
@@ -342,9 +352,15 @@ impl MirBuilder {
         &mut self,
         name: String,
         arg_values: Vec<ValueId>,
+        lookup: Option<&dyn super::super::function_signature_lookup::FunctionSignatureLookupV1>,
     ) -> Result<ValueId, String> {
         let dst = self.next_value_id();
-        self.emit_unified_call(Some(dst), CallTarget::Global(name), arg_values)?;
+        self.emit_unified_call_with_lookup(
+            Some(dst),
+            CallTarget::Global(name),
+            arg_values,
+            lookup,
+        )?;
         Ok(dst)
     }
 

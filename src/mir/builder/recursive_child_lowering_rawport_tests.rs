@@ -247,6 +247,45 @@ fn headerport_annotation_matches_legacy_module_signature_without_ambient_module(
 }
 
 #[test]
+fn explicit_header_authority_survives_unified_call_post_success() {
+    let symbol = "Prefix.f/1";
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("headerport_call/0".to_owned());
+    let stale = MirFunction::new(
+        FunctionSignature {
+            name: symbol.to_owned(),
+            params: vec![MirType::Integer],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId(0),
+    );
+    builder.current_module = Some(MirModule::new("stale-call-module".to_owned()));
+    builder.current_module.as_mut().unwrap().add_function(stale);
+    let dst = crate::mir::ValueId(12);
+    let mut invocation = ModuleLoweringInvocationV1::with_collector(
+        &mut builder,
+        collector_with_return_type(MirType::Box("Result".to_owned())),
+    );
+    invocation.with_header_port(|builder, headers| {
+        let arg = crate::mir::builder::emission::constant::emit_integer(builder, 1).unwrap();
+        builder
+            .emit_unified_call_with_lookup(
+                Some(dst),
+                super::calls::CallTarget::Global(symbol.to_owned()),
+                vec![arg],
+                Some(headers),
+            )
+            .unwrap();
+    });
+    drop(invocation);
+    assert_eq!(
+        builder.function_state.type_ctx.value_types.get(&dst),
+        Some(&MirType::Box("Result".to_owned()))
+    );
+}
+
+#[test]
 fn headerport_birth_presence_matches_legacy_newbox_branch() {
     let birth = MirFunction::new(
         FunctionSignature {

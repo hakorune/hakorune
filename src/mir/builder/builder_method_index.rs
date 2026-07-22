@@ -111,3 +111,23 @@ impl MirBuilder {
             .unwrap_or_default()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::method_candidates_from_symbols;
+
+    #[test]
+    fn explicit_projection_is_sorted_and_ignores_non_methods() {
+        let candidates = method_candidates_from_symbols(
+            vec![
+                "Zulu.run/1".to_owned(),
+                "not-a-method".to_owned(),
+                "Alpha.run/1".to_owned(),
+                "Alpha.run/2".to_owned(),
+            ],
+            "run",
+            1,
+        );
+        assert_eq!(candidates, vec!["Alpha.run/1", "Zulu.run/1"]);
+    }
+}

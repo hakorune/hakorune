@@ -4,6 +4,7 @@
 //! invocation descriptors that I0 may consume after a physical Call receipt;
 //! it neither publishes facts nor selects annotation policy.
 
+use crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1;
 use crate::mir::builder::{MirBuilder, ValueId};
 use crate::mir::definitions::call_unified::{Callee, CalleeBoxKind, TypeCertainty};
 
@@ -12,11 +13,11 @@ use super::super::annotation::callee_sig_name;
 /// Immutable payload prepared after unified-call normalization and before its
 /// physical instruction. It is deliberately non-Clone: the later receipt
 /// owner must consume one prepared payload at most once.
-#[derive(Debug)]
-pub(super) struct PreparedUnifiedCallPostSuccessV1 {
+pub(super) struct PreparedUnifiedCallPostSuccessV1<'lookup> {
     signature: Option<PreparedSignatureAnnotationV1>,
     collection_result: Option<PreparedCollectionResultAnnotationV1>,
     map_write: Option<Box<[crate::mir::builder::types::map_value::post_success::MapWriteObservationDescriptorV1]>>,
+    lookup: Option<&'lookup dyn FunctionSignatureLookupV1>,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -32,7 +33,7 @@ struct PreparedCollectionResultAnnotationV1 {
     arguments: Box<[ValueId]>,
 }
 
-impl PreparedUnifiedCallPostSuccessV1 {
+impl<'lookup> PreparedUnifiedCallPostSuccessV1<'lookup> {
     /// Build descriptors only from the already-finalized call shape.
     ///
     /// There is intentionally no `MirBuilder` argument, fact write, lookup,
@@ -44,6 +45,7 @@ impl PreparedUnifiedCallPostSuccessV1 {
         map_write: Option<
             crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1,
         >,
+        lookup: Option<&'lookup dyn FunctionSignatureLookupV1>,
     ) -> Self {
         let signature = destination.and_then(|destination| {
             let arity = signature_arity(callee, arguments);
@@ -62,6 +64,7 @@ impl PreparedUnifiedCallPostSuccessV1 {
             signature,
             collection_result,
             map_write: map_write.map(|replay| replay.into_observations()),
+            lookup,
         }
     }
 
@@ -87,11 +90,20 @@ impl PreparedUnifiedCallPostSuccessV1 {
                     signature.destination.0, signature.function_name
                 ));
             }
-            super::super::annotation::annotate_call_result_from_func_name(
-                builder,
-                signature.destination,
-                &signature.function_name,
-            );
+            if let Some(lookup) = self.lookup {
+                super::super::annotation::annotate_call_result_from_func_name_with_lookup(
+                    builder,
+                    signature.destination,
+                    &signature.function_name,
+                    Some(lookup),
+                );
+            } else {
+                super::super::annotation::annotate_call_result_from_func_name(
+                    builder,
+                    signature.destination,
+                    &signature.function_name,
+                );
+            }
         }
         if let Some(collection) = self.collection_result {
             super::super::super::types::array_element::annotate_array_element_result(
@@ -134,6 +146,7 @@ mod tests {
             &Callee::Global("answer".to_string()),
             &arguments,
             None,
+            None,
         );
 
         assert_eq!(
@@ -162,6 +175,7 @@ mod tests {
             },
             &[receiver, ValueId::new(4)],
             None,
+            None,
         );
 
         assert_eq!(
@@ -179,6 +193,7 @@ mod tests {
             None,
             &Callee::Value(ValueId::new(9)),
             &[ValueId::new(9)],
+            None,
             None,
         );
 

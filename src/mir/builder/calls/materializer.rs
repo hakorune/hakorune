@@ -25,6 +25,17 @@ use crate::mir::definitions::call_unified::Callee;
 /// - サポート役: 本体のCall発行をサポートする役割
 pub struct CallMaterializerBox;
 
+/// Exclusive authority for direct global presence during migration.
+///
+/// Invocation headers and the legacy module-map observation are different
+/// policies. The enum prevents an explicit header from being paired with a
+/// contradictory legacy-presence flag.
+#[derive(Clone, Copy)]
+pub(in crate::mir::builder) enum GlobalPresenceAuthorityV1<'a> {
+    InvocationHeader(&'a dyn FunctionSignatureLookupV1),
+    LegacyCompatibility { present: bool },
+}
+
 impl CallMaterializerBox {
     /// Try additional resolvers for unresolved global functions.
     ///
@@ -42,26 +53,24 @@ impl CallMaterializerBox {
             .current_module
             .as_ref()
             .is_some_and(|module| module.functions.contains_key(name));
-        Self::try_global_additional_resolvers_with_lookup(
+        Self::try_global_additional_resolvers_with_authority(
             builder,
             dst,
             name,
             args,
-            None,
-            direct_module_function,
+            GlobalPresenceAuthorityV1::LegacyCompatibility {
+                present: direct_module_function,
+            },
         )
     }
 
-    /// Header-port sibling for direct global-function presence.  The caller
-    /// supplies the completed-header view; no module fallback is attempted.
-    #[allow(dead_code)]
-    pub(in crate::mir::builder) fn try_global_additional_resolvers_with_lookup(
+    /// Resolve direct global presence with one exclusive authority mode.
+    pub(in crate::mir::builder) fn try_global_additional_resolvers_with_authority(
         builder: &mut MirBuilder,
         dst: Option<ValueId>,
         name: &str,
         args: &[ValueId],
-        headers: Option<&dyn FunctionSignatureLookupV1>,
-        legacy_presence: bool,
+        authority: GlobalPresenceAuthorityV1<'_>,
     ) -> Result<Option<()>, String> {
         // 0) Dev-only safety: treat condition_fn as always-true predicate when missing
         if name == "condition_fn" {
@@ -87,9 +96,10 @@ impl CallMaterializerBox {
         }
 
         // 1) Direct module function resolver: call by name if present
-        let direct_presence = headers
-            .map(|view| view.contains_symbol(name))
-            .unwrap_or(legacy_presence);
+        let direct_presence = match authority {
+            GlobalPresenceAuthorityV1::InvocationHeader(headers) => headers.contains_symbol(name),
+            GlobalPresenceAuthorityV1::LegacyCompatibility { present } => present,
+        };
         if direct_presence {
             let dstv = dst.unwrap_or_else(|| builder.next_value_id());
             let name_const =
@@ -101,15 +111,18 @@ impl CallMaterializerBox {
                 args: args.to_vec(),
                 effects: EffectMask::IO,
             })?;
-            if let Some(headers) = headers {
-                super::annotation::annotate_call_result_from_func_name_with_lookup(
-                    builder,
-                    dstv,
-                    name,
-                    Some(headers),
-                );
-            } else {
-                builder.annotate_call_result_from_func_name(dstv, name);
+            match authority {
+                GlobalPresenceAuthorityV1::InvocationHeader(headers) => {
+                    super::annotation::annotate_call_result_from_func_name_with_lookup(
+                        builder,
+                        dstv,
+                        name,
+                        Some(headers),
+                    );
+                }
+                GlobalPresenceAuthorityV1::LegacyCompatibility { .. } => {
+                    builder.annotate_call_result_from_func_name(dstv, name);
+                }
             }
             return Ok(Some(()));
         }
@@ -136,8 +149,19 @@ impl CallMaterializerBox {
                 args: args.to_vec(),
                 effects: EffectMask::IO,
             })?;
-            // annotate
-            builder.annotate_call_result_from_func_name(dstv, func_name);
+            match authority {
+                GlobalPresenceAuthorityV1::InvocationHeader(headers) => {
+                    super::annotation::annotate_call_result_from_func_name_with_lookup(
+                        builder,
+                        dstv,
+                        &func_name,
+                        Some(headers),
+                    );
+                }
+                GlobalPresenceAuthorityV1::LegacyCompatibility { .. } => {
+                    builder.annotate_call_result_from_func_name(dstv, func_name);
+                }
+            }
             return Ok(Some(()));
         }
 

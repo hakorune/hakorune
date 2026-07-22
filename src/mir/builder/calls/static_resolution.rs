@@ -72,6 +72,7 @@ impl MirBuilder {
         &mut self,
         name: &str,
         arg_values: &[ValueId],
+        lookup: Option<&dyn FunctionSignatureLookupV1>,
     ) -> Result<BareStaticRecoveryEmissionV1, String> {
         let decision = {
             let catalog = self
@@ -87,10 +88,11 @@ impl MirBuilder {
                 let dst = self.next_value_id();
                 let func_name = key.mir_symbol_projection();
                 // Emit unified global call to the lowered static method function
-                self.emit_unified_call(
+                self.emit_unified_call_with_lookup(
                     Some(dst),
                     CallTarget::Global(func_name),
                     arg_values.to_vec(),
+                    lookup,
                 )?;
                 Ok(BareStaticRecoveryEmissionV1::Emitted(dst))
             }
@@ -148,24 +150,23 @@ impl MirBuilder {
         if !crate::config::env::builder_tail_resolve() {
             return Ok(None);
         }
-        let tail = format!(".{}{}", name, format!("/{}", arg_values.len()));
-        let mut cands = Vec::new();
-        headers.visit_symbols(&mut |symbol| {
-            if symbol.ends_with(&tail) {
-                cands.push(symbol.to_owned());
-            }
-        });
+        let cands = crate::mir::builder::builder_method_index::method_candidates_from_headers(
+            headers,
+            name,
+            arg_values.len(),
+        );
         if cands.len() != 1 {
             return Ok(None);
         }
-        let Some(func_name) = cands.pop() else {
+        let Some(func_name) = cands.into_iter().next() else {
             return Ok(None);
         };
         let dst = self.next_value_id();
-        self.emit_legacy_call(
+        self.emit_unified_call_with_lookup(
             Some(dst),
             CallTarget::Global(func_name),
             arg_values.to_vec(),
+            Some(headers),
         )?;
         Ok(Some(dst))
     }

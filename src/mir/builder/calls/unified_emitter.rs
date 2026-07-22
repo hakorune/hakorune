@@ -326,14 +326,15 @@ impl UnifiedCallEmitterBox {
             Err(e) => {
                 if let CallTarget::Global(ref name) = target {
                     // Try additional resolvers (via CallMaterializerBox)
+                    let authority = lookup.map_or(
+                        super::materializer::GlobalPresenceAuthorityV1::LegacyCompatibility {
+                            present: false,
+                        },
+                        super::materializer::GlobalPresenceAuthorityV1::InvocationHeader,
+                    );
                     if let Some(result) =
-                        super::materializer::CallMaterializerBox::try_global_additional_resolvers_with_lookup(
-                            builder,
-                            dst,
-                            name,
-                            &args,
-                            lookup,
-                            false,
+                        super::materializer::CallMaterializerBox::try_global_additional_resolvers_with_authority(
+                            builder, dst, name, &args, authority,
                         )?
                     {
                         return Ok(result);
@@ -657,6 +658,7 @@ impl UnifiedCallEmitterBox {
             &callee,
             &args_local,
             map_write_replay,
+            lookup,
         );
 
         // Build the MIR Call instruction with a concrete Callee and finalized operands.
