@@ -33,7 +33,7 @@ impl InvocationPhysicalStateV1 {
         Ok(Self {
             brand,
             shell: InvocationBranded::from_source(brand, shell),
-            collector: InvocationBranded::from_source(brand, ModuleDraftCollectorV1::default()),
+            collector: InvocationBranded::from_source(brand, ModuleDraftCollectorV1::with_brand(brand)),
         })
     }
 

@@ -46,9 +46,10 @@ def main() -> int:
             raise AssertionError(f"ROOT0-BRAND0 file must remain below 800 lines: {path}")
 
     require(state, "CUT0-I0-ROOT0-BRAND0 is closed", "state closeout")
-    require(state, "ROOT0-RAW0 is next", "successor row")
+    if "ROOT0-RAW0 is next" not in state and "CUT0-I0-ROOT0-RAW0 is closed" not in state:
+        raise AssertionError("missing ROOT0-RAW0 successor/closeout")
     require(task, "CUT0-I0-ROOT0-BRAND0 — closed", "task row")
-    require(brief, "ROOT0 R-prime is selected", "decision lock")
+    require(brief, "ROOT0 R-prime selected", "decision lock")
 
     for fragment, label in (
         ("brand: ModuleInvocationBrandV1", "session brand"),

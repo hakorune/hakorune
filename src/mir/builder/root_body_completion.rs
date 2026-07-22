@@ -5,9 +5,11 @@
 //! header loans, and pending terminals before a root result disposition is
 //! sealed.  It owns no Builder, collector, function map, or fact store.
 
+#[cfg(test)]
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use crate::mir::ValueId;
+use super::module_invocation_identity::ModuleInvocationBrandV1;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum RootBodyCompletionErrorV1 {
@@ -15,6 +17,7 @@ pub(in crate::mir::builder) enum RootBodyCompletionErrorV1 {
     OpenHeaderLoans { count: usize },
     OpenPendingTerminals { count: usize },
     ForeignToken,
+    ForeignBrand,
     TokenKindMismatch,
     NoOpenToken,
 }
@@ -47,6 +50,7 @@ enum RootBodyActivityKindV1 {
 
 #[derive(Debug)]
 pub(in crate::mir::builder) struct RootBodyActivityTokenV1 {
+    brand: ModuleInvocationBrandV1,
     owner: u64,
     kind: RootBodyActivityKindV1,
     _seal: RootBodyActivityTokenSealV1,
@@ -60,6 +64,7 @@ struct RootBodyActivityTokenSealV1;
 /// produced while recursive child/header/pending work remains open.
 #[derive(Debug)]
 pub(in crate::mir::builder) struct RootBodyCompletionTrackerV1 {
+    brand: ModuleInvocationBrandV1,
     owner: u64,
     open_children: usize,
     open_header_loans: usize,
@@ -74,6 +79,7 @@ struct RootBodyCompletionTrackerSealV1;
 /// A non-Clone, single-use witness that recursive root-body descent is closed.
 #[derive(Debug)]
 pub(in crate::mir::builder) struct CompletedRootBodyV1 {
+    brand: ModuleInvocationBrandV1,
     result: RootBodyResultV1,
     completed_children: usize,
     _seal: CompletedRootBodySealV1,
@@ -82,11 +88,26 @@ pub(in crate::mir::builder) struct CompletedRootBodyV1 {
 #[derive(Debug)]
 struct CompletedRootBodySealV1;
 
+#[cfg(test)]
 static NEXT_ROOT_BODY_OWNER: AtomicU64 = AtomicU64::new(1);
 
 impl RootBodyCompletionTrackerV1 {
+    pub(in crate::mir::builder) fn new_for_brand(brand: ModuleInvocationBrandV1) -> Self {
+        Self {
+            brand,
+            owner: 0,
+            open_children: 0,
+            open_header_loans: 0,
+            open_pending_terminals: 0,
+            completed_children: 0,
+            _seal: RootBodyCompletionTrackerSealV1,
+        }
+    }
+
+    #[cfg(test)]
     pub(in crate::mir::builder) fn new() -> Self {
         Self {
+            brand: ModuleInvocationBrandV1::legacy_test(),
             owner: NEXT_ROOT_BODY_OWNER.fetch_add(1, Ordering::Relaxed),
             open_children: 0,
             open_header_loans: 0,
@@ -116,6 +137,7 @@ impl RootBodyCompletionTrackerV1 {
         token: RootBodyActivityTokenV1,
     ) -> Result<(), RootBodyCompletionErrorV1> {
         Self::close_token(
+            self.brand,
             self.owner,
             token,
             RootBodyActivityKindV1::Child,
@@ -130,6 +152,7 @@ impl RootBodyCompletionTrackerV1 {
         token: RootBodyActivityTokenV1,
     ) -> Result<(), RootBodyCompletionErrorV1> {
         Self::close_token(
+            self.brand,
             self.owner,
             token,
             RootBodyActivityKindV1::HeaderLoan,
@@ -142,6 +165,7 @@ impl RootBodyCompletionTrackerV1 {
         token: RootBodyActivityTokenV1,
     ) -> Result<(), RootBodyCompletionErrorV1> {
         Self::close_token(
+            self.brand,
             self.owner,
             token,
             RootBodyActivityKindV1::PendingTerminal,
@@ -169,6 +193,7 @@ impl RootBodyCompletionTrackerV1 {
             });
         }
         Ok(CompletedRootBodyV1 {
+            brand: self.brand,
             result,
             completed_children: self.completed_children,
             _seal: CompletedRootBodySealV1,
@@ -177,6 +202,7 @@ impl RootBodyCompletionTrackerV1 {
 
     fn token(&self, kind: RootBodyActivityKindV1) -> RootBodyActivityTokenV1 {
         RootBodyActivityTokenV1 {
+            brand: self.brand,
             owner: self.owner,
             kind,
             _seal: RootBodyActivityTokenSealV1,
@@ -184,11 +210,15 @@ impl RootBodyCompletionTrackerV1 {
     }
 
     fn close_token(
+        brand: ModuleInvocationBrandV1,
         owner: u64,
         token: RootBodyActivityTokenV1,
         expected: RootBodyActivityKindV1,
         count: &mut usize,
     ) -> Result<(), RootBodyCompletionErrorV1> {
+        if token.brand != brand {
+            return Err(RootBodyCompletionErrorV1::ForeignBrand);
+        }
         if token.owner != owner {
             return Err(RootBodyCompletionErrorV1::ForeignToken);
         }
@@ -204,6 +234,9 @@ impl RootBodyCompletionTrackerV1 {
 }
 
 impl CompletedRootBodyV1 {
+    pub(in crate::mir::builder) const fn brand(&self) -> ModuleInvocationBrandV1 {
+        self.brand
+    }
     pub(in crate::mir::builder) fn result(&self) -> RootBodyResultV1 {
         self.result
     }

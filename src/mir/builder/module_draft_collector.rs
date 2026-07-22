@@ -8,6 +8,8 @@ use std::collections::BTreeMap;
 
 use crate::mir::resolved_semantics::{CanonicalCallableKeyV1, FunctionOwnerIdV1};
 use crate::mir::{FunctionSignature, MirFunction};
+use super::module_invocation_identity::ModuleInvocationBrandV1;
+use super::module_invocation_owner_chain::InvocationBranded;
 
 mod receipt;
 mod callable_batch;
@@ -23,8 +25,9 @@ pub(in crate::mir::builder) use receipt::{
     CollectedDraftAdmissionReceiptV1, CollectedDraftReplacementDispositionV1,
 };
 pub(in crate::mir::builder) use root_batch::{
-    PreparedRootCollectorBatchV1, RejectedRootCollectorBatchV1, RootCollectorBatchPrepareErrorV1,
-    RootCollectorBatchReceiptV1,
+    BrandedRootCollectorBatchReceiptV1, PreparedRootCollectorBatchV1,
+    RejectedRootCollectorBatchV1, RootCollectorBatchBrandErrorV1,
+    RootCollectorBatchPrepareErrorV1, RootCollectorBatchReceiptV1,
 };
 
 /// Semantic identity for one draft admission, distinct from fact generation.
@@ -63,6 +66,11 @@ pub(in crate::mir::builder) enum ModuleDraftAdmissionErrorV1 {
         expected: usize,
         actual: usize,
     },
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir::builder) enum CollectorReceiptBrandErrorV1 {
+    CollectorUnbranded,
 }
 
 impl std::fmt::Display for ModuleDraftAdmissionErrorV1 {
@@ -160,7 +168,7 @@ struct CollectedFunctionDraftV1 {
 impl UnpublishedFunctionDraftV1<'_> {
     /// Commit cannot fail: its collector was exclusively borrowed when
     /// admission preflight completed, so no collision can have appeared.
-    pub(in crate::mir::builder) fn collect(self) -> CollectedDraftAdmissionReceiptV1 {
+    fn collect_inner(self) -> CollectedDraftAdmissionReceiptV1 {
         let Self {
             collector,
             key,
@@ -170,6 +178,21 @@ impl UnpublishedFunctionDraftV1<'_> {
             _seal: _,
         } = self;
         collector.collect_sealed(key, policy, replacement, draft)
+    }
+
+    pub(in crate::mir::builder) fn collect(self) -> CollectedDraftAdmissionReceiptV1 {
+        self.collect_inner()
+    }
+
+    pub(in crate::mir::builder) fn collect_branded(
+        self,
+    ) -> Result<InvocationBranded<CollectedDraftAdmissionReceiptV1>, CollectorReceiptBrandErrorV1>
+    {
+        let brand = self
+            .collector
+            .receipt_brand
+            .ok_or(CollectorReceiptBrandErrorV1::CollectorUnbranded)?;
+        Ok(InvocationBranded::from_source(brand, self.collect_inner()))
     }
 }
 
@@ -198,6 +221,7 @@ pub(in crate::mir::builder) trait CompletedDraftSignatureViewV1 {
 pub(in crate::mir::builder) struct ModuleDraftCollectorV1 {
     drafts: BTreeMap<FunctionDraftKeyV1, CollectedFunctionDraftV1>,
     key_by_symbol: BTreeMap<String, FunctionDraftKeyV1>,
+    receipt_brand: Option<ModuleInvocationBrandV1>,
     _seal: ModuleDraftCollectorSealV1,
 }
 
@@ -205,6 +229,13 @@ pub(in crate::mir::builder) struct ModuleDraftCollectorV1 {
 struct ModuleDraftCollectorSealV1;
 
 impl ModuleDraftCollectorV1 {
+    pub(in crate::mir::builder) fn with_brand(brand: ModuleInvocationBrandV1) -> Self {
+        Self {
+            receipt_brand: Some(brand),
+            ..Self::default()
+        }
+    }
+
     /// Prepare every fallible collector admission check before child teardown.
     pub(in crate::mir::builder) fn prepare_admission(
         &mut self,
@@ -269,6 +300,7 @@ impl ModuleDraftCollectorV1 {
             arity,
             policy,
             replacement_disposition,
+            self.receipt_brand,
         );
         match (policy, replacement) {
             (

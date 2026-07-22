@@ -157,3 +157,13 @@ Candidate A is selected. Receipt provenance is a prerequisite seam inside the
 same RAW0 owner chain, not an independently completed row. The receipt-only
 WIP remains recoverable in `stash@{0}: wip/ROOT0-RAW0 receipt provenance
 design scope` until the implementation task consumes only its valid pieces.
+
+## ROOT0-RAW0 closeout
+
+ROOT0-RAW0 Candidate A is closed as a disconnected proof. The implementation
+retains `CompletedRootBodyV1` through collector batch commit, issues exact
+collector-branded Main/condition receipts, and records both slots through one
+preflighted raw-ledger root batch. `RawInvocationRootWitnessV1` and
+`RawCompleteInvocationV1` are the sole unpublished products. Focused fixtures
+and the RAW0 guard are green; production capture, drain, finalizer, and
+external commit consumers remain zero. `ROOT0-CANON0` is the next row.

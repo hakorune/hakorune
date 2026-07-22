@@ -10,8 +10,11 @@ use super::{
 };
 use crate::mir::builder::root_draft_batch::PreparedRootDraftBatchV1;
 use crate::mir::MirFunction;
+use crate::mir::builder::root_body_completion::CompletedRootBodyV1;
+use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
+use crate::mir::builder::module_invocation_owner_chain::InvocationBranded;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) enum RootCollectorBatchPrepareErrorV1 {
     Admission {
         ordinal: usize,
@@ -29,6 +32,8 @@ pub(in crate::mir::builder) enum RootCollectorBatchPrepareErrorV1 {
         expected: usize,
         actual: usize,
     },
+    MissingRootBody,
+    ForeignBrand { expected: u64, actual: u64 },
 }
 
 impl std::fmt::Display for RootCollectorBatchPrepareErrorV1 {
@@ -82,6 +87,7 @@ impl RejectedRootCollectorBatchV1 {
 #[derive(Debug)]
 pub(in crate::mir::builder) struct PreparedRootCollectorBatchV1 {
     collector: ModuleDraftCollectorV1,
+    root_body: CompletedRootBodyV1,
     entries: Box<[PreparedRootCollectorEntryV1]>,
     _seal: PreparedRootCollectorBatchSealV1,
 }
@@ -92,7 +98,50 @@ struct PreparedRootCollectorBatchSealV1;
 #[derive(Debug)]
 pub(in crate::mir::builder) struct RootCollectorBatchReceiptV1 {
     admissions: Box<[CollectedDraftAdmissionReceiptV1]>,
+    root_body: CompletedRootBodyV1,
     _seal: RootCollectorBatchReceiptSealV1,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(in crate::mir::builder) enum RootCollectorBatchBrandErrorV1 {
+    CollectorUnbranded,
+}
+
+#[derive(Debug)]
+pub(in crate::mir::builder) struct BrandedRootCollectorBatchReceiptV1 {
+    admissions: Box<[InvocationBranded<CollectedDraftAdmissionReceiptV1>]>,
+    root_body: CompletedRootBodyV1,
+    brand: ModuleInvocationBrandV1,
+    _seal: BrandedRootCollectorBatchReceiptSealV1,
+}
+
+#[derive(Debug)]
+struct BrandedRootCollectorBatchReceiptSealV1;
+
+impl BrandedRootCollectorBatchReceiptV1 {
+    pub(in crate::mir::builder) fn admissions(
+        &self,
+    ) -> &[InvocationBranded<CollectedDraftAdmissionReceiptV1>] {
+        &self.admissions
+    }
+
+    pub(in crate::mir::builder) fn root_body(&self) -> &CompletedRootBodyV1 {
+        &self.root_body
+    }
+
+    pub(in crate::mir::builder) const fn brand(&self) -> ModuleInvocationBrandV1 {
+        self.brand
+    }
+
+    pub(in crate::mir::builder) fn into_parts(
+        self,
+    ) -> (
+        Box<[InvocationBranded<CollectedDraftAdmissionReceiptV1>]>,
+        CompletedRootBodyV1,
+        ModuleInvocationBrandV1,
+    ) {
+        (self.admissions, self.root_body, self.brand)
+    }
 }
 
 #[derive(Debug)]
@@ -102,13 +151,32 @@ impl RootCollectorBatchReceiptV1 {
     pub(in crate::mir::builder) fn admissions(&self) -> &[CollectedDraftAdmissionReceiptV1] {
         &self.admissions
     }
+
+    pub(in crate::mir::builder) fn root_body(&self) -> &CompletedRootBodyV1 {
+        &self.root_body
+    }
 }
 
 impl ModuleDraftCollectorV1 {
     pub(in crate::mir::builder) fn prepare_root_batch(
         self,
-        batch: PreparedRootDraftBatchV1,
+        mut batch: PreparedRootDraftBatchV1,
     ) -> Result<PreparedRootCollectorBatchV1, RejectedRootCollectorBatchV1> {
+        let root_body = match batch.take_root_body() {
+            Some(root_body) => root_body,
+            None => return Err(reject(self, RootCollectorBatchPrepareErrorV1::MissingRootBody)),
+        };
+        if let Some(brand) = self.receipt_brand {
+            if brand != root_body.brand() {
+                return Err(reject(
+                    self,
+                    RootCollectorBatchPrepareErrorV1::ForeignBrand {
+                        expected: brand.ordinal(),
+                        actual: root_body.brand().ordinal(),
+                    },
+                ));
+            }
+        }
         let mut entries = Vec::new();
         for (ordinal, entry) in batch
             .into_collector_entries()
@@ -162,6 +230,7 @@ impl ModuleDraftCollectorV1 {
         }
         Ok(PreparedRootCollectorBatchV1 {
             collector: self,
+            root_body,
             entries: entries.into_boxed_slice(),
             _seal: PreparedRootCollectorBatchSealV1,
         })
@@ -187,9 +256,41 @@ impl PreparedRootCollectorBatchV1 {
             self.collector,
             RootCollectorBatchReceiptV1 {
                 admissions: admissions.into_boxed_slice(),
+                root_body: self.root_body,
                 _seal: RootCollectorBatchReceiptSealV1,
             },
         )
+    }
+
+    pub(in crate::mir::builder) fn commit_branded(
+        mut self,
+    ) -> Result<
+        (ModuleDraftCollectorV1, BrandedRootCollectorBatchReceiptV1),
+        RootCollectorBatchBrandErrorV1,
+    > {
+        let brand = self
+            .collector
+            .receipt_brand
+            .ok_or(RootCollectorBatchBrandErrorV1::CollectorUnbranded)?;
+        let mut admissions = Vec::with_capacity(self.entries.len());
+        for entry in self.entries.into_vec() {
+            let receipt = self.collector.collect_sealed(
+                entry.key,
+                entry.policy,
+                entry.replacement,
+                entry.draft,
+            );
+            admissions.push(InvocationBranded::from_source(brand, receipt));
+        }
+        Ok((
+            self.collector,
+            BrandedRootCollectorBatchReceiptV1 {
+                admissions: admissions.into_boxed_slice(),
+                root_body: self.root_body,
+                brand,
+                _seal: BrandedRootCollectorBatchReceiptSealV1,
+            },
+        ))
     }
 }
 

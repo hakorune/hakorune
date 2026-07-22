@@ -107,7 +107,7 @@ struct MainCompletionRequestSealV1;
 #[derive(Debug)]
 pub(in crate::mir::builder) struct PendingMainDraftV1 {
     draft: MirFunction,
-    root_body: CompletedRootBodyV1,
+    root_body: Option<CompletedRootBodyV1>,
     identity: MainDraftIdentityV1,
     returns_value: bool,
     header_source: MainHeaderSourceV1,
@@ -153,7 +153,7 @@ impl MainCompletionRequestV1 {
 
         Ok(PendingMainDraftV1 {
             draft,
-            root_body: self.root_body,
+            root_body: Some(self.root_body),
             identity: self.identity,
             returns_value: self.returns_value,
             header_source: headers.source(),
@@ -168,7 +168,13 @@ impl PendingMainDraftV1 {
     }
 
     pub(in crate::mir::builder) fn root_body(&self) -> &CompletedRootBodyV1 {
-        &self.root_body
+        self.root_body
+            .as_ref()
+            .expect("pending root body must remain until root-batch preparation")
+    }
+
+    pub(in crate::mir::builder) fn take_root_body(&mut self) -> Option<CompletedRootBodyV1> {
+        self.root_body.take()
     }
 
     pub(in crate::mir::builder) fn identity(&self) -> &MainDraftIdentityV1 {

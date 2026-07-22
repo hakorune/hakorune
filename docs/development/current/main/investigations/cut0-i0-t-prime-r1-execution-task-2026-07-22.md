@@ -1,6 +1,6 @@
 # CUT0-I0 T-prime-r1 Execution Task
 
-Status: **CUT0-I0-ROOT0-RAW0 Candidate A selected; implementation next**
+Status: **CUT0-I0-ROOT0-RAW0 closed; ROOT0-CANON0 next**
 Date: 2026-07-22
 Decision: **Candidate T-prime-r1 selected**
 Scope: build one invocation-branded module transaction, then perform one
@@ -532,6 +532,8 @@ The standalone question is tracked in
 
 ### CUT0-I0-ROOT0-RAW0 — selected execution task
 
+Status: **closed — Candidate A implemented as a disconnected proof**
+
 Implement one disconnected non-Clone ownership chain:
 
 ```text
@@ -565,6 +567,14 @@ must not call the old `PendingMainDraftV1::into_draft()` erasure seam. The raw
 ledger gets a batch terminal that preflights both root receipts before event
 history mutation. Existing generic raw collection must consume the collected
 root receipt chain rather than fabricate a second receipt vector.
+
+Closeout: `raw_root_completion.rs` now retains `CompletedRootBodyV1`, exact
+branded Main/condition receipts, and the callable-main disposition in
+`RawInvocationRootWitnessV1`/`RawCompleteInvocationV1`. The root ledger
+records both required slots through one preflighted batch terminal. Focused
+RAW0 fixtures and `cut0_i0_root0_raw0_guard.py` are green; production consumers
+remain zero. Callable-main success wiring remains part of the later raw
+ingress, while selected-without-receipt is fail-fast here.
 
 ### CUT0-I0-ROOT0 — route-specific completion and drain policy
 

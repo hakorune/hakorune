@@ -144,6 +144,28 @@ pub(in crate::mir::builder) struct RawExpansionReservationV1 {
     _seal: RawExpansionReservationSealV1,
 }
 
+impl RawExpansionReservationV1 {
+    pub(in crate::mir::builder) const fn brand(&self) -> ModuleInvocationBrandV1 {
+        self.brand
+    }
+
+    pub(in crate::mir::builder) fn key(&self) -> &FunctionDraftKeyV1 {
+        &self.request.key
+    }
+
+    pub(in crate::mir::builder) fn symbol(&self) -> &str {
+        &self.request.symbol
+    }
+
+    pub(in crate::mir::builder) const fn arity(&self) -> usize {
+        self.request.arity
+    }
+
+    pub(in crate::mir::builder) const fn policy(&self) -> DraftPublicationPolicyV1 {
+        self.request.policy
+    }
+}
+
 #[derive(Debug)]
 struct RawExpansionReservationSealV1;
 
@@ -354,6 +376,14 @@ impl RawExpansionReceiptLedgerV1 {
         reservation: RawExpansionReservationV1,
         receipt: CollectedDraftAdmissionReceiptV1,
     ) -> Result<(), RawExpansionReceiptLedgerErrorV1> {
+        self.complete_inner(reservation, &receipt)
+    }
+
+    fn complete_inner(
+        &mut self,
+        reservation: RawExpansionReservationV1,
+        receipt: &CollectedDraftAdmissionReceiptV1,
+    ) -> Result<(), RawExpansionReceiptLedgerErrorV1> {
         if self.poisoned {
             return Err(RawExpansionReceiptLedgerErrorV1::LedgerPoisoned);
         }
@@ -433,12 +463,98 @@ impl RawExpansionReceiptLedgerV1 {
     pub(in crate::mir::builder) fn complete_branded(
         &mut self,
         reservation: RawExpansionReservationV1,
-        receipt: InvocationBranded<CollectedDraftAdmissionReceiptV1>,
+        receipt: &InvocationBranded<CollectedDraftAdmissionReceiptV1>,
     ) -> Result<(), RawExpansionReceiptLedgerErrorV1> {
         if receipt.brand() != self.brand {
             return Err(RawExpansionReceiptLedgerErrorV1::ForeignReservation);
         }
-        self.complete(reservation, receipt.into_payload())
+        if receipt.payload().collector_brand() != Some(self.brand) {
+            return Err(RawExpansionReceiptLedgerErrorV1::ForeignReservation);
+        }
+        self.complete_inner(reservation, receipt.payload())
+    }
+
+    /// Atomically record the required raw root pair.  All identity, open
+    /// reservation, and replacement checks happen before either event is
+    /// appended, so a late condition failure cannot leave a Main-only history.
+    pub(in crate::mir::builder) fn complete_required_root_batch(
+        &mut self,
+        main_reservation: RawExpansionReservationV1,
+        main: &InvocationBranded<CollectedDraftAdmissionReceiptV1>,
+        condition_reservation: RawExpansionReservationV1,
+        condition: &InvocationBranded<CollectedDraftAdmissionReceiptV1>,
+    ) -> Result<(), RawExpansionReceiptLedgerErrorV1> {
+        self.validate_branded_root_slot(&main_reservation, main, true)?;
+        self.validate_branded_root_slot(&condition_reservation, condition, false)?;
+        self.complete_inner(main_reservation, main.payload())?;
+        self.complete_inner(condition_reservation, condition.payload())
+    }
+
+    fn validate_branded_root_slot(
+        &self,
+        reservation: &RawExpansionReservationV1,
+        receipt: &InvocationBranded<CollectedDraftAdmissionReceiptV1>,
+        main: bool,
+    ) -> Result<(), RawExpansionReceiptLedgerErrorV1> {
+        if receipt.brand() != self.brand || receipt.payload().collector_brand() != Some(self.brand) {
+            return Err(RawExpansionReceiptLedgerErrorV1::ForeignReservation);
+        }
+        if reservation.brand != self.brand || !self.open.contains(&reservation.ordinal) {
+            return Err(RawExpansionReceiptLedgerErrorV1::ForeignReservation);
+        }
+        let expected_key = if main {
+            FunctionDraftKeyV1::Main
+        } else {
+            FunctionDraftKeyV1::SyntheticConditionFn
+        };
+        let expected_symbol = if main { "main" } else { "condition_fn" };
+        let expected_arity = if main { 0 } else { 1 };
+        let expected_policy = if main {
+            DraftPublicationPolicyV1::LegacyReplaceWholePair
+        } else {
+            DraftPublicationPolicyV1::CanonicalRejectDuplicate
+        };
+        if reservation.request.key != expected_key
+            || reservation.request.symbol.as_ref() != expected_symbol
+            || reservation.request.arity != expected_arity
+            || reservation.request.policy != expected_policy
+            || receipt.payload().key() != &expected_key
+            || receipt.payload().symbol() != expected_symbol
+            || receipt.payload().arity() != expected_arity
+            || receipt.payload().policy() != expected_policy
+        {
+            return Err(RawExpansionReceiptLedgerErrorV1::ReceiptKeyMismatch);
+        }
+        if !main
+            && (self.final_event_by_key.contains_key(&expected_key)
+                || self.key_by_symbol.contains_key(expected_symbol))
+        {
+            return Err(RawExpansionReceiptLedgerErrorV1::InsertedReceiptCollision);
+        }
+        if main {
+            match receipt.payload().replacement() {
+                CollectedDraftReplacementDispositionV1::Inserted => {
+                    if self.final_event_by_key.contains_key(&expected_key)
+                        || self.key_by_symbol.contains_key(expected_symbol)
+                    {
+                        return Err(RawExpansionReceiptLedgerErrorV1::InsertedReceiptCollision);
+                    }
+                }
+                CollectedDraftReplacementDispositionV1::ReplacedWholePair {
+                    previous_key,
+                    previous_symbol,
+                } => {
+                    if previous_key != &expected_key
+                        || previous_symbol.as_ref() != expected_symbol
+                        || !self.final_event_by_key.contains_key(previous_key)
+                        || self.key_by_symbol.get(previous_symbol.as_ref()) != Some(previous_key)
+                    {
+                        return Err(RawExpansionReceiptLedgerErrorV1::ReplacementHistoryMismatch);
+                    }
+                }
+            }
+        }
+        Ok(())
     }
 
     pub(in crate::mir::builder) fn abort(

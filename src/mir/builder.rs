@@ -156,6 +156,8 @@ mod root_body_completion; // HEADERPORT0-I0-BODYDRAIN0-S0 disconnected witness
 mod root_body_completion_p0; // HEADERPORT0-I0-BODYDRAIN0-P0 fixtures
 #[allow(dead_code)]
 mod root_draft_batch; // HEADERPORT0-I0-ROOTBATCH0-S0 disconnected batch
+#[allow(dead_code)]
+mod raw_root_completion; // CUT0-I0-ROOT0-RAW0 retained raw root witness
 #[cfg(test)]
 mod root_draft_batch_commit_p0; // HEADERPORT0 BORROW-P0-ROOT-P0b proof
 #[cfg(test)]

@@ -5,6 +5,7 @@
 //! a second draft store or a publication/retry capability.
 
 use super::{DraftPublicationPolicyV1, FunctionDraftKeyV1};
+use super::super::module_invocation_identity::ModuleInvocationBrandV1;
 
 #[cfg(test)]
 use super::ModuleDraftCollectorV1;
@@ -29,6 +30,7 @@ pub(in crate::mir::builder) struct CollectedDraftAdmissionReceiptV1 {
     arity: usize,
     policy: DraftPublicationPolicyV1,
     replacement: CollectedDraftReplacementDispositionV1,
+    collector_brand: Option<ModuleInvocationBrandV1>,
     _seal: CollectedDraftAdmissionReceiptSealV1,
 }
 
@@ -44,6 +46,7 @@ impl CollectedDraftAdmissionReceiptV1 {
         arity: usize,
         policy: DraftPublicationPolicyV1,
         replacement: CollectedDraftReplacementDispositionV1,
+        collector_brand: Option<ModuleInvocationBrandV1>,
     ) -> Self {
         Self {
             key,
@@ -51,6 +54,7 @@ impl CollectedDraftAdmissionReceiptV1 {
             arity,
             policy,
             replacement,
+            collector_brand,
             _seal: CollectedDraftAdmissionReceiptSealV1,
         }
     }
@@ -75,6 +79,12 @@ impl CollectedDraftAdmissionReceiptV1 {
         &self,
     ) -> &CollectedDraftReplacementDispositionV1 {
         &self.replacement
+    }
+
+    pub(in crate::mir::builder) const fn collector_brand(
+        &self,
+    ) -> Option<ModuleInvocationBrandV1> {
+        self.collector_brand
     }
 }
 

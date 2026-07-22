@@ -8,6 +8,7 @@ use super::main_pending_draft::PendingMainDraftV1;
 use super::module_draft_collector::{DraftPublicationPolicyV1, FunctionDraftKeyV1};
 use super::module_invocation_drain::ConditionFnPolicyV1;
 use crate::mir::MirFunction;
+use super::root_body_completion::CompletedRootBodyV1;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum RootDraftBatchErrorV1 {
@@ -17,6 +18,7 @@ pub(in crate::mir::builder) enum RootDraftBatchErrorV1 {
     ConditionArityMismatch { actual: usize },
     MainIdentityMismatch,
     DuplicateAdmissionSymbol { symbol: String },
+    MissingRootBody,
 }
 
 impl std::fmt::Display for RootDraftBatchErrorV1 {
@@ -93,6 +95,7 @@ impl PendingConditionFnDraftV1 {
 #[derive(Debug)]
 pub(in crate::mir::builder) struct PreparedRootDraftBatchV1 {
     main: PendingMainDraftV1,
+    root_body: Option<CompletedRootBodyV1>,
     condition_fn: Option<PendingConditionFnDraftV1>,
     admissions: Box<[RootDraftAdmissionPlanV1]>,
     policy: ConditionFnPolicyV1,
@@ -108,6 +111,10 @@ impl PreparedRootDraftBatchV1 {
         condition_fn: Option<MirFunction>,
         policy: ConditionFnPolicyV1,
     ) -> Result<Self, RootDraftBatchErrorV1> {
+        let mut main = main;
+        let root_body = main
+            .take_root_body()
+            .ok_or(RootDraftBatchErrorV1::MissingRootBody)?;
         let identity = main.identity();
         if identity.symbol() != "main" || identity.arity() != 0 {
             return Err(RootDraftBatchErrorV1::MainIdentityMismatch);
@@ -150,6 +157,7 @@ impl PreparedRootDraftBatchV1 {
 
         Ok(Self {
             main,
+            root_body: Some(root_body),
             condition_fn: pending_condition,
             admissions: admissions.into_boxed_slice(),
             policy,
@@ -173,6 +181,10 @@ impl PreparedRootDraftBatchV1 {
         self.policy
     }
 
+    pub(in crate::mir::builder) fn take_root_body(&mut self) -> Option<CompletedRootBodyV1> {
+        self.root_body.take()
+    }
+
     /// Consume the already-validated root batch into exact physical entries.
     /// No caller can add, remove, or reorder an admission at this boundary.
     pub(super) fn into_collector_entries(self) -> Box<[RootDraftCollectorEntryV1]> {
@@ -180,6 +192,7 @@ impl PreparedRootDraftBatchV1 {
             main,
             condition_fn,
             admissions,
+            root_body: _,
             policy: _,
             _seal: _,
         } = self;
