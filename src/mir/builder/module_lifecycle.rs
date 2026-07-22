@@ -66,6 +66,8 @@ use super::type_hint_providers;
 impl super::MirBuilder {
     pub(super) fn prepare_module(&mut self) -> Result<(), String> {
         self.comp_ctx.clear_callable_declaration_catalog();
+        self.comp_ctx.callable_main_compatibility_policy =
+            super::module_compat_policy::CallableMainCompatibilityPolicyV1::snapshot_from_legacy_ingress();
         // A new module is a new legacy compatibility snapshot. Clearing the
         // candidate cache also resets its freshness witness so same-size module
         // replacement cannot reuse the previous module's tail candidates.
@@ -334,7 +336,8 @@ impl super::MirBuilder {
                 if is_app_mode {
                     // App モード: Main.main をエントリとして扱う
                     if let Some((box_name, methods)) = main_static {
-                        self.build_static_main_box(box_name, methods)
+                        self.build_static_main_box_typed(box_name, methods)
+                            .map_err(|error| error.to_string())
                     } else {
                         // 理論上は起こりにくいが、安全のため Script モードと同じ lowering にする
                         self.cf_block(runtime_statements)

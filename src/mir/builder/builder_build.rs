@@ -1,3 +1,4 @@
+use super::main_expansion::VerifiedRawRootExpansionV1;
 use super::vars;
 use super::CallTarget;
 use super::{ConstValue, Effect, EffectMask, MirBuilder, MirInstruction, MirModule, ValueId};
@@ -16,6 +17,10 @@ use crate::mir::slot_registry::resolve_slot_by_type_name;
 impl MirBuilder {
     /// Build a complete MIR module from AST
     pub fn build_module(&mut self, ast: ASTNode) -> Result<MirModule, String> {
+        if matches!(ast, ASTNode::Program { .. }) {
+            VerifiedRawRootExpansionV1::from_program(&ast)
+                .map_err(|error| format!("[mir/main-expansion/preflight] {error:?}"))?;
+        }
         self.prepare_module()?;
         let result_value = self.lower_root(ast)?;
         self.finalize_module(result_value)

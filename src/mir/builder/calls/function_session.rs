@@ -394,6 +394,20 @@ impl MirBuilder {
         .map_err(|error| error.to_string())
     }
 
+    pub(in crate::mir::builder) fn with_legacy_function_lowering_session_typed(
+        &mut self,
+        function_name: &str,
+        body_snapshot: Vec<ASTNode>,
+        operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
+    ) -> Result<(), CanonicalFunctionSessionErrorV1> {
+        CanonicalFunctionLoweringSessionV1::open(
+            self,
+            function_name,
+            FunctionBodyCaptureV1::Legacy(body_snapshot),
+        )
+        .run(operation)
+    }
+
     pub(in crate::mir::builder) fn with_resolved_function_lowering_session(
         &mut self,
         function_name: &str,

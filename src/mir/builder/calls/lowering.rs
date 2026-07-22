@@ -495,6 +495,30 @@ impl MirBuilder {
         uses: Vec<String>,
         attrs: crate::ast::DeclarationAttrs,
     ) -> Result<(), String> {
+        self.lower_static_method_as_function_typed(
+            func_name,
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+        )
+        .map_err(|error| error.to_string())
+    }
+
+    /// Typed sibling used by compatibility adapters that must retain the
+    /// original session/cleanup error instead of erasing it to a String.
+    pub(in crate::mir::builder) fn lower_static_method_as_function_typed(
+        &mut self,
+        func_name: String,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: crate::ast::DeclarationAttrs,
+    ) -> Result<(), super::function_session::CanonicalFunctionSessionErrorV1> {
         // Phase 200-C: Store fn_body for capture analysis
         if crate::config::env::joinir_dev::debug_enabled() {
             let ring0 = crate::runtime::get_global_ring0();
@@ -519,17 +543,21 @@ impl MirBuilder {
             }
         }
         let session_name = func_name.clone();
-        self.with_function_lowering_session(&session_name, body.clone(), move |builder| {
-            builder.build_static_method_draft_v1(
-                func_name,
-                params,
-                param_decls,
-                return_type_name,
-                body,
-                uses,
-                attrs,
-            )
-        })
+        self.with_legacy_function_lowering_session_typed(
+            &session_name,
+            body.clone(),
+            move |builder| {
+                builder.build_static_method_draft_v1(
+                    func_name,
+                    params,
+                    param_decls,
+                    return_type_name,
+                    body,
+                    uses,
+                    attrs,
+                )
+            },
+        )
     }
 
     /// 🎯 箱理論: 統合エントリーポイント - instance method lowering

@@ -58,6 +58,7 @@ use super::callable_declaration_catalog::{
     SameModuleCallableDeclarationCatalogSessionErrorV1, SameModuleCallableNamespaceV1,
     VerifiedSameModuleCallableDeclarationCatalogV1, VerifiedSameModuleCallableDeclarationV1,
 };
+use super::module_compat_policy::CallableMainCompatibilityPolicyV1;
 use super::properties::PropertyRegistry;
 use super::static_scalar_facts::{infer_static_scalar_method_fact, StaticScalarMethodFact};
 use super::type_registry::TypeRegistry;
@@ -77,6 +78,10 @@ pub(crate) struct CompilationContext {
 
     /// Current static box name when lowering a static box body (e.g., "Main")
     pub current_static_box: Option<String>,
+
+    /// One module-ingress snapshot; body lowering never reads the env toggle.
+    pub(in crate::mir::builder) callable_main_compatibility_policy:
+        CallableMainCompatibilityPolicyV1,
 
     /// Names of user-defined boxes declared in the current module
     /// Phase 285LLVM-1.1: Extended to track fields (box name → field names)
@@ -179,6 +184,7 @@ impl CompilationContext {
         Self {
             compilation_context: None,
             current_static_box: None,
+            callable_main_compatibility_policy: CallableMainCompatibilityPolicyV1::Omitted,
             user_defined_boxes: HashMap::new(), // Phase 285LLVM-1.1: HashMap for fields
             brand_decls: HashMap::new(),
             user_box_field_decls: HashMap::new(),

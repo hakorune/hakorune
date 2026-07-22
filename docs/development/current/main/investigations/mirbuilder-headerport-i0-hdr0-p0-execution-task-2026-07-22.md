@@ -428,3 +428,23 @@ The next code-facing row is `CUT0-S0-COMPAT0`: seal the compatibility policy
 once at ingress, reject duplicate static Main before effects, propagate
 selected callable-Main typed failures, and add the required failure fixtures
 and static guard. No production route activation is authorized yet.
+
+## CUT0-S0-COMPAT0 implementation progress
+
+The first structural slice is now landed in the working tree:
+
+- `VerifiedRawRootExpansionV1` performs source-only Script/App selection and
+  rejects duplicate top-level static `Main` before `prepare_module`.
+- `CallableMainCompatibilityPolicyV1` snapshots the legacy environment toggle
+  once in `prepare_module`; Builder body lowering has no ambient toggle read.
+- Selected callable-Main lowering uses the typed function-session path and
+  restores the enclosing static-box context before returning an error.
+- The typed failure fixture and `cut0_s0_compat_guard.py` forbid the old
+  discarded-error form and keep the source/check files below 800 lines.
+
+This does not close `CUT0-S0-COMPAT0` yet. The remaining acceptance is the
+actual compatibility receipt reservation/collection through the disconnected
+raw ledger, including success exact-once consumption and failure proofs that
+stop before inline root, root batch, drain, finalizer, and publication. Until
+that slice lands, production capture/commit remains zero and CUT0 activation
+is forbidden.

@@ -95,6 +95,42 @@ pub(in crate::mir::builder) struct VerifiedMainExpansionV1<'src> {
 #[derive(Debug)]
 struct MainExpansionSealV1;
 
+/// One source-only root selector.  Script and App are classified once before
+/// any Builder, candidate, collector, or receipt effect is possible.
+#[derive(Debug)]
+pub(in crate::mir::builder) enum VerifiedRawRootExpansionV1<'src> {
+    Script,
+    App(VerifiedMainExpansionV1<'src>),
+}
+
+impl<'src> VerifiedRawRootExpansionV1<'src> {
+    pub(in crate::mir::builder) fn from_program(
+        source: &'src ASTNode,
+    ) -> Result<Self, MainExpansionErrorV1> {
+        let ASTNode::Program { statements, .. } = source else {
+            return Err(MainExpansionErrorV1::RootMustBeProgram);
+        };
+        let main_count = statements
+            .iter()
+            .filter(|statement| {
+                matches!(
+                    statement,
+                    ASTNode::BoxDeclaration {
+                        name,
+                        is_static: true,
+                        ..
+                    } if name == "Main"
+                )
+            })
+            .count();
+        match main_count {
+            0 => Ok(Self::Script),
+            1 => Ok(Self::App(VerifiedMainExpansionV1::from_program(source)?)),
+            _ => Err(MainExpansionErrorV1::DuplicateMainBox),
+        }
+    }
+}
+
 impl<'src> VerifiedMainExpansionV1<'src> {
     /// Classify exactly one top-level static `Main` box without cloning AST.
     pub(in crate::mir::builder) fn from_program(
@@ -443,6 +479,37 @@ mod tests {
 
         assert_eq!(
             VerifiedMainExpansionV1::from_program(&source).unwrap_err(),
+            MainExpansionErrorV1::DuplicateMainBox
+        );
+    }
+
+    #[test]
+    fn raw_root_selector_accepts_script_without_main_box() {
+        let source = ASTNode::Program {
+            statements: vec![ASTNode::Literal {
+                value: crate::ast::LiteralValue::Integer(1),
+                span: Span::unknown(),
+            }],
+            span: Span::unknown(),
+        };
+        assert!(matches!(
+            VerifiedRawRootExpansionV1::from_program(&source).unwrap(),
+            VerifiedRawRootExpansionV1::Script
+        ));
+    }
+
+    #[test]
+    fn raw_root_selector_rejects_duplicate_main_before_app_expansion() {
+        let mut methods = HashMap::new();
+        methods.insert("main".to_owned(), function("main", true, 0));
+        let mut source = program(methods);
+        let ASTNode::Program { statements, .. } = &mut source else {
+            unreachable!("program helper creates a Program");
+        };
+        let duplicate = statements[0].clone();
+        statements.push(duplicate);
+        assert_eq!(
+            VerifiedRawRootExpansionV1::from_program(&source).unwrap_err(),
             MainExpansionErrorV1::DuplicateMainBox
         );
     }

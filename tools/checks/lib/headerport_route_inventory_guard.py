@@ -706,6 +706,11 @@ def verify_route_inventory_extension(
     )
     require(
         legacy_main,
+        "lower_static_method_as_function_typed(",
+        "typed callable Main failure compatibility stop source",
+    )
+    forbid(
+        legacy_main,
         "let _ = self.lower_static_method_as_function(",
         "swallowed callable Main failure compatibility stop source",
     )
