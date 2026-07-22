@@ -433,7 +433,7 @@ fixture追加、DRAIN0、public ingress、finalizer、external commitを行わ�
 | Q4 receipt retention | 採択、実装はRECEIPT0。completion root witnessがcollector-issued receiptをby-valueで保持する。 |
 | Q5 recursive receipt | 採択、実装はRECURSIVE0。recursive install receiptとacyclic absence witnessをbrand付きにする。 |
 | Q6 evidence guard | 採択。実census、focused test gate、explicit manifestを分離して各rowで固定する。 |
-| Q7/Q8 order and stop line | 修正採択。`SOURCE-BIND0 → RECEIPT0 → LOWER0 → RECURSIVE0/GUARD0 → CANON-FIXTURE0 → DRAIN0`。production ingress/capture/drain/finalizer/commitはP0までゼロ。 |
+| Q7/Q8 order and stop line | 修正採択。`SOURCE-BIND0 → LOWER0 → RECEIPT0 → RECURSIVE0/GUARD0 → CANON-FIXTURE0 → DRAIN0`。production ingress/capture/drain/finalizer/commitはP0までゼロ。 |
 | Q9 package shape | 採択。SOURCE-BIND0はA+、BindingSsaTrivial、BindingSsaAcyclic、BindingSsaRecursiveのcanonical 4 variantだけ。Rawは閉じたRAW0 chainを維持する。 |
 | Q11 continuation lifetime | 採択。singleはplanからsealしたexact headerをownedで保持し、callable batchはexact verified source/catalogを借用する。再resolve・再取得・`Arc`/`Clone`は禁止。 |
 | Q13 collision domain | 採択。parallel/multi-compilerでもlocal ordinal衝突を同一brandと誤認しないためdomainを含める。domain allocatorの実方式はissuer内部に閉じ、routeへ漏らさない。 |
