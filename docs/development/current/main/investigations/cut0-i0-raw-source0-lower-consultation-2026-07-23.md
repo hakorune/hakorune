@@ -198,3 +198,92 @@ one retirement condition for direct lower_root/finalize_module use
 
 Until that decision is locked, do not add a Raw lowering adapter or wire any
 production consumer.
+
+## LOWER0-D0 closeout (2026-07-23)
+
+Worker audit closed Q1-Q5 as **Candidate LOWER0-prime-r1**. The decision is
+deliberately narrower than a full Raw root migration: the first executable
+slice is a child-draft proof, not a public executor or root finalization.
+
+### Q1 — owner
+
+Select **1**. Add one Builder-side, non-Clone `RawDraftInvocationV1` which
+consumes `SourceBoundRawPackageV1` by value. It owns the candidate
+`ModuleBuilderInvocationSessionV1`, branded shell/collector, Raw receipt
+ledger, and unpublished progress. No second compiler traversal, loose token
+re-entry, or self-referential session is allowed.
+
+### Q2 — draft-only seam
+
+Select **1**. The Raw path gets a new unpublished seam rather than calling the
+legacy `prepare_module -> lower_root -> finalize_module` trio. Function-local
+child lowering uses the existing port-aware capture/restore machinery and a
+new Raw-branded admission terminal. `current_module` is never the expected
+inventory or publication authority. Full root lowering remains blocked until
+declaration indexing, closure metadata, static-data plans, and root Main /
+`condition_fn` have dedicated ports; S0 does not claim those facts.
+
+### Q3 — discovery and admission
+
+Select **1**, with one source-derived `RawChildWorkRequestV1` joining the
+ledger reservation and typed collector admission. The order is:
+
+```text
+source locator -> one work request/reservation
+-> reserve before child descent
+-> capture/lower in a function-local session
+-> close header loan
+-> collector admission preflight and branded collect
+-> ledger completion
+-> restore parent exactly once
+```
+
+No caller creates independent ledger and collector requests. Nested children
+reuse the same terminal. Root Main plus `condition_fn` will later use one
+atomic root-batch reservation/commit after the inline body succeeds; two
+independent root aborts are forbidden.
+
+### Q4 — source-derived root policy
+
+Select **1**. The owner consumes the retained owned AST/projection and Raw
+continuation once. Script has no callable-Main child (the existing Raw ledger
+still records the synthetic wrapper `main` and `condition_fn` root batch).
+App follows sealed declaration order and `Omitted`/`Selected` callable-Main
+disposition; a Selected child failure aborts before inline root completion.
+The incomplete PLAN0 projection is not treated as a final App inventory and
+`VerifiedRawRootExpansionV1` is never re-run.
+
+### Q5 — failure and handoff
+
+Select **1**. Every fallible terminal returns a non-retryable rejected owner
+retaining token, source continuation/config, candidate session, shell,
+collector prefix, ledger state, and root progress. It exposes inspection and
+discard only. Primary/Cleanup/DuringCleanup errors remain nested; reservation
+abort is recorded. No sibling continuation, retry, fallback, drain,
+finalizer, or external commit is permitted. Production uses structural
+Drop/unwind for panic; `catch_unwind` is not introduced.
+
+### Smallest executable row
+
+`RAW-SOURCE0-LOWER0-S0` is intentionally child-only:
+
+```text
+SourceBoundRawPackageV1
+-> RawDraftInvocationV1::open
+-> one source-locator-derived static/top-level child work request
+-> reserve ledger before descent
+-> capture/lower with RawInvocationChildPortV1
+-> branded collector admission + ledger completion
+-> RawDraftChildReceiptV1 or rejected owner
+```
+
+S0 proves source -> session -> draft -> collector -> ledger provenance while
+keeping root capture, App-wide declaration inventory, physical drain,
+finalization, postprocess, public ingress, and production consumers at zero.
+`RAW-SOURCE0-LOWER0-ROOT0` is a later row for inline root and atomic Main /
+`condition_fn` completion. Direct `lower_root`/`finalize_module` retirement
+waits until every non-test Raw ingress (legacy AST, AST-JSON parity, and the
+separate Program(JSON v0) lane) has migrated and the final census is zero.
+
+The next executable task is
+`cut0-i0-raw-source0-lower-execution-task-2026-07-23.md`.

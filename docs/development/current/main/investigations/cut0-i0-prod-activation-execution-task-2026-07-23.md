@@ -759,18 +759,21 @@ external commit, JSON behavior changes, and atomic CUT0 remain forbidden.
 
 ## RAW-SOURCE0-LOWER0 design stop
 
-The next row cannot be implemented by adapting `MirBuilder::lower_root` or
-`finalize_module`. Those methods still own a direct current-module/current-
-function lifecycle and do not emit unpublished drafts into the Raw collector
-or reserve discovered work in the Raw ledger. The existing Raw root and
-physical products require those drafts and reservations before they can be
-consumed.
+The LOWER0 consultation is now closed with Candidate LOWER0-prime-r1. The
+next executable row is the deliberately smaller disconnected
+`RAW-SOURCE0-LOWER0-S0` child-draft proof. It must not adapt
+`MirBuilder::lower_root` or `finalize_module`; those methods still own a
+direct current-module/current-function lifecycle and do not emit unpublished
+drafts into the Raw collector or reserve discovered work in the Raw ledger.
+The existing Raw root and physical products require those drafts and
+reservations before they can be consumed.
 
 The dedicated consultation card
-`cut0-i0-raw-source0-lower-consultation-2026-07-23.md` now owns Q1-Q5:
-draft-only Raw owner, root seam, discovery/admission order, source-derived
-Script/App policy, and rejected-owner failure law. Until those decisions are
-locked, no Raw lowering adapter or production consumer is allowed.
+`cut0-i0-raw-source0-lower-consultation-2026-07-23.md` closes Q1-Q5 with one
+Raw draft-only Builder owner, one source-derived work-request handoff, and a
+discard-only rejected owner. The execution details are in
+`cut0-i0-raw-source0-lower-execution-task-2026-07-23.md`. S0 adds no Raw
+production consumer, root completion, public ingress, or executor wiring.
 
 ## Required evidence per row
 

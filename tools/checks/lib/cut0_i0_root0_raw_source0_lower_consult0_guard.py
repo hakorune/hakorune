@@ -26,6 +26,14 @@ def require(text: str, fragment: str, label: str) -> None:
 def main() -> int:
     state = STATE.read_text()
     card = CARD.read_text()
+    if 'current_execution_row = "RAW-SOURCE0-LOWER0-S0"' in state:
+        require(card, "LOWER0-D0 closeout", "decision closeout")
+        require(card, "RAW-SOURCE0-LOWER0-S0", "next executable row")
+        print(
+            "[cut0-i0-root0-raw-source0-lower-consult0-guard] closed "
+            "next=RAW-SOURCE0-LOWER0-S0"
+        )
+        return 0
     require(state, 'current_design_stop = "RAW-SOURCE0-LOWER0-CONSULT0"', "design stop")
     require(state, 'current_execution_row = "RAW-SOURCE0-LOWER0-CONSULT0"', "execution row")
     for fragment in (
