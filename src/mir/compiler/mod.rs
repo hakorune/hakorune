@@ -28,6 +28,8 @@ pub(in crate::mir) mod raw_finalization;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_source_binding;
 #[allow(dead_code)]
+pub(in crate::mir) mod raw_root_package;
+#[allow(dead_code)]
 pub(in crate::mir) mod module_postprocess;
 #[allow(dead_code)]
 pub(in crate::mir) mod external_commit;

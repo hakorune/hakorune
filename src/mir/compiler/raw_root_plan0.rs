@@ -6,16 +6,10 @@
 //! are represented explicitly so later Root rows cannot silently rediscover
 //! them from `current_module`.
 
-use std::collections::HashMap;
-
 use crate::ast::ASTNode;
 
 use super::raw_source_binding::SourceBoundRawPackageV1;
-use crate::mir::builder::{
-    OwnedRawRootProjectionV1, OwnedRawSourceV1, RawRootProjectionPartsV1, RawSourceLocatorV1,
-    RawSourceOriginV1,
-};
-use crate::mir::module_invocation_identity::{ModuleInvocationBrandV1, ModuleInvocationTokenV1};
+use crate::mir::builder::{OwnedRawRootProjectionV1, RawSourceLocatorV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) struct RawPhysicalRootIdentityV1 {
@@ -171,7 +165,6 @@ pub(in crate::mir) struct RawRootAccessRequirementsV1 {
 pub(in crate::mir) struct RawCallableHeaderRowV1 {
     symbol: Box<str>,
     arity: usize,
-    selected: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -231,7 +224,12 @@ pub(in crate::mir) struct RawAppRootPlanV1 {
     main: RawSourceLocatorV1,
     static_children: Box<[RawSourceLocatorV1]>,
     callable_main: RawSourceLocatorV1,
-    callable_main_selected: bool,
+}
+
+impl RawAppRootPlanV1 {
+    pub(in crate::mir) const fn main(&self) -> &RawSourceLocatorV1 {
+        &self.main
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -242,36 +240,30 @@ pub(in crate::mir) enum RawRootKindV1 {
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir) struct RawRootPlanV1 {
-    token: ModuleInvocationTokenV1,
-    origin: RawSourceOriginV1,
     physical: RawPhysicalRootIdentityV1,
     kind: RawRootKindV1,
     environment: RawRootEnvironmentPlanV1,
 }
 
 impl RawRootPlanV1 {
-    pub(in crate::mir) const fn token(&self) -> &ModuleInvocationTokenV1 {
-        &self.token
-    }
-
-    pub(in crate::mir) const fn brand(&self) -> ModuleInvocationBrandV1 {
-        self.token.brand()
-    }
-
-    pub(in crate::mir) fn from_package(
-        package: SourceBoundRawPackageV1,
+    pub(in crate::mir) fn from_bound_package(
+        package: &SourceBoundRawPackageV1,
     ) -> Result<Self, RawRootPlanErrorV1> {
-        let (token, source, continuation, config, _module_name) = package.into_parts();
+        if package.module_name().is_empty() {
+            return Err(RawRootPlanErrorV1::EmptyModuleName);
+        }
+        let source = package.source();
+        let config = package.config();
         let source_file = config.source_file().map(str::to_owned).map(Into::into);
-        let (ast, origin, projection) = source.into_plan_parts();
-        let ASTNode::Program { statements, .. } = &ast else {
+        let ast = source.ast();
+        let projection = source.projection();
+        let ASTNode::Program { statements, .. } = ast else {
             return Err(RawRootPlanErrorV1::RootMustBeProgram);
         };
         let schedule = build_schedule(statements);
         let declarations = build_declarations(statements);
         let static_data = build_static_data(statements);
-        let callable_headers =
-            build_callable_headers(&projection, statements, continuation.callable_main());
+        let callable_headers = build_callable_headers(projection, statements);
         let environment = RawRootEnvironmentPlanV1 {
             work_schedule: schedule.into_boxed_slice(),
             declarations: RawDeclarationFactPlanV1 {
@@ -293,27 +285,23 @@ impl RawRootPlanV1 {
                 entry_safepoint: RawRuntimeInputDispositionV1::NotCapturedUntilRuntimeInput0,
             },
         };
-        let kind = match projection.into_plan_parts() {
-            RawRootProjectionPartsV1::Script { statement_count } => {
-                RawRootKindV1::Script(RawScriptRootPlanV1 { statement_count })
+        let kind = match projection {
+            OwnedRawRootProjectionV1::Script { statement_count } => {
+                RawRootKindV1::Script(RawScriptRootPlanV1 {
+                    statement_count: *statement_count,
+                })
             }
-            RawRootProjectionPartsV1::App {
+            OwnedRawRootProjectionV1::App {
                 main,
                 static_children,
                 callable_main,
             } => RawRootKindV1::App(RawAppRootPlanV1 {
-                main,
-                static_children,
-                callable_main,
-                callable_main_selected: matches!(
-                    continuation.callable_main(),
-                    crate::mir::builder::RawCallableMainCompatibilityDispositionV1::Selected
-                ),
+                main: main.clone(),
+                static_children: static_children.to_vec().into_boxed_slice(),
+                callable_main: callable_main.clone(),
             }),
         };
         Ok(Self {
-            token,
-            origin,
             physical: RawPhysicalRootIdentityV1::fixed(),
             kind,
             environment,
@@ -332,14 +320,12 @@ impl RawRootPlanV1 {
         &self.environment
     }
 
-    pub(in crate::mir) const fn origin(&self) -> RawSourceOriginV1 {
-        self.origin
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum RawRootPlanErrorV1 {
     RootMustBeProgram,
+    EmptyModuleName,
 }
 
 impl std::fmt::Display for RawRootPlanErrorV1 {
@@ -445,24 +431,18 @@ fn build_static_data(statements: &[ASTNode]) -> Vec<RawStaticDataSourceRowV1> {
 fn build_callable_headers(
     projection: &OwnedRawRootProjectionV1,
     statements: &[ASTNode],
-    disposition: crate::mir::builder::RawCallableMainCompatibilityDispositionV1,
 ) -> Vec<RawCallableHeaderRowV1> {
     let mut rows = Vec::new();
     for locator in projection.static_child_locators() {
         rows.push(RawCallableHeaderRowV1 {
             symbol: locator.symbol().to_owned().into_boxed_str(),
             arity: locator.arity(),
-            selected: false,
         });
     }
     if let Some(locator) = projection.callable_main_locator() {
         rows.push(RawCallableHeaderRowV1 {
             symbol: locator.symbol().to_owned().into_boxed_str(),
             arity: locator.arity(),
-            selected: matches!(
-                disposition,
-                crate::mir::builder::RawCallableMainCompatibilityDispositionV1::Selected
-            ),
         });
     }
     for statement in statements {
@@ -470,17 +450,10 @@ fn build_callable_headers(
             rows.push(RawCallableHeaderRowV1 {
                 symbol: name.clone().into_boxed_str(),
                 arity: params.len(),
-                selected: false,
             });
         }
     }
     rows
-}
-
-impl SourceBoundRawPackageV1 {
-    pub(in crate::mir) fn into_root_plan(self) -> Result<RawRootPlanV1, RawRootPlanErrorV1> {
-        RawRootPlanV1::from_package(self)
-    }
 }
 
 #[cfg(test)]
@@ -490,6 +463,7 @@ mod tests {
     use crate::mir::compiler::lowering_input::LegacyModuleLoweringInputV1;
     use crate::mir::compiler::raw_source_binding::RawCallableMainSelectionV1;
     use crate::mir::MirCompiler;
+    use std::collections::HashMap;
 
     fn function(name: &str, arity: usize) -> ASTNode {
         ASTNode::FunctionDeclaration {
@@ -572,8 +546,9 @@ mod tests {
         };
         let package = bind(source, RawCallableMainSelectionV1::Omitted);
         let package_brand = package.brand();
-        let plan = package.into_root_plan().unwrap();
-        assert_eq!(plan.brand(), package_brand);
+        let root = package.into_root_package().unwrap();
+        assert_eq!(root.brand(), package_brand);
+        let plan = root.plan();
         assert!(matches!(plan.kind(), RawRootKindV1::Script(_)));
         assert_eq!(plan.physical().main_symbol(), "main");
         assert_eq!(plan.physical().main_arity(), 0);
@@ -588,34 +563,34 @@ mod tests {
 
     #[test]
     fn app_plan_keeps_source_arity_separate_from_physical_root() {
-        let plan = bind(app_source(), RawCallableMainSelectionV1::Omitted)
-            .into_root_plan()
+        let root = bind(app_source(), RawCallableMainSelectionV1::Omitted)
+            .into_root_package()
             .unwrap();
+        let plan = root.plan();
         let RawRootKindV1::App(app) = plan.kind() else {
             panic!("expected app plan");
         };
         assert_eq!(app.main.arity(), 2);
         assert_eq!(plan.physical().main_arity(), 0);
-        assert!(!app.callable_main_selected);
+        assert_eq!(
+            root.continuation().callable_main(),
+            crate::mir::builder::RawCallableMainCompatibilityDispositionV1::NotSelected
+        );
         assert_eq!(plan.environment().callable_headers().rows().len(), 2);
     }
 
     #[test]
     fn app_plan_retains_selected_callable_main_disposition() {
-        let plan = bind(app_source(), RawCallableMainSelectionV1::Required)
-            .into_root_plan()
+        let root = bind(app_source(), RawCallableMainSelectionV1::Required)
+            .into_root_package()
             .unwrap();
+        let plan = root.plan();
         let RawRootKindV1::App(app) = plan.kind() else {
             panic!("expected app plan");
         };
-        assert!(app.callable_main_selected);
-        let selected = plan
-            .environment()
-            .callable_headers()
-            .rows()
-            .iter()
-            .filter(|row| row.selected)
-            .count();
-        assert_eq!(selected, 1);
+        assert_eq!(
+            root.continuation().callable_main(),
+            crate::mir::builder::RawCallableMainCompatibilityDispositionV1::Selected
+        );
     }
 }

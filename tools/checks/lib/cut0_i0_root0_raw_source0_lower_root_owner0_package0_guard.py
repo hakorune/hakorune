@@ -18,6 +18,7 @@ TASK = ROOT / (
 )
 SOURCE_MANIFEST = (
     ROOT / "src/mir/compiler/raw_source_binding.rs",
+    ROOT / "src/mir/compiler/raw_root_package.rs",
     ROOT / "src/mir/compiler/raw_root_plan0.rs",
     ROOT / "src/mir/compiler/mod.rs",
 )
@@ -70,12 +71,24 @@ def main() -> int:
     if "begin_raw_root(" in joined:
         raise AssertionError("physical Raw owner consumer exists during PACKAGE0")
 
-    implementation_count = joined.count("SourceBoundRawRootPackageV1")
-    if implementation_count > 1:
+    implementation_count = joined.count("struct SourceBoundRawRootPackageV1")
+    if implementation_count != 1:
         raise AssertionError(
-            "root package vocabulary must have at most one source definition "
+            "root package vocabulary must have exactly one source definition "
             f"during taskization: {implementation_count}"
         )
+    require(
+        joined,
+        "fn into_root_package(",
+        "consuming root-package terminal",
+    )
+    for forbidden in (
+        "callable_main_selected",
+        "selected: bool",
+        "fn begin_raw_root(",
+    ):
+        if forbidden in joined:
+            raise AssertionError(f"forbidden PACKAGE0 vocabulary remains: {forbidden}")
 
     for path in (CONSULT, TASK, *SOURCE_MANIFEST):
         if len(path.read_text().splitlines()) >= 800:
