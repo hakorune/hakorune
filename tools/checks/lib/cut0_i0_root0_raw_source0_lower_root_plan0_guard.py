@@ -27,9 +27,13 @@ def require(text: str, fragment: str, label: str) -> None:
 def main() -> int:
     state = STATE.read_text()
     task = TASK.read_text()
-    require(state, 'current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-PLAN0"', "design stop")
-    require(state, 'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-PLAN0"', "execution row")
-    require(state, 'latest_card = "cut0-i0-raw-source0-lower-root-plan0-execution-task-2026-07-23"', "latest card")
+    active = 'current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-PLAN0"' in state
+    if active:
+        require(state, 'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-PLAN0"', "execution row")
+        require(state, 'latest_card = "cut0-i0-raw-source0-lower-root-plan0-execution-task-2026-07-23"', "latest card")
+    else:
+        require(state, "RAW-SOURCE0-LOWER0-ROOT0-PLAN0 are closed", "historical closeout")
+        require(task, "Status: **Closed", "task closeout status")
     for fragment in (
         "RawRootKindV1",
         "Physical root identity",
@@ -89,9 +93,10 @@ def main() -> int:
     for path in (TASK, PLAN, *PROD):
         if len(path.read_text().splitlines()) >= 800:
             raise AssertionError(f"file must remain below 800 lines: {path}")
+    mode = "active" if active else "closed"
     print(
         "[cut0-i0-root0-raw-source0-lower-root-plan0-guard] ok "
-        "plan=1 raw_consumer=0 executor=0 below_800=1"
+        f"mode={mode} plan=1 raw_consumer=0 executor=0 below_800=1"
     )
     return 0
 

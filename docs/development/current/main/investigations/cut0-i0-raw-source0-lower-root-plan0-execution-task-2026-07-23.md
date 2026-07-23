@@ -1,6 +1,6 @@
 # CUT0-I0 RAW-SOURCE0 LOWER ROOT0 PLAN0 execution task
 
-Status: **Active executable row — `RAW-SOURCE0-LOWER0-ROOT0-PLAN0`**  
+Status: **Closed — `RAW-SOURCE0-LOWER0-ROOT0-PLAN0` (implementation landed in `0268d46c9b`)**
 Date: 2026-07-23  
 Scope: source-derived Raw Script/App root plan only. No Builder/session,
 shell, collector, ledger, lowering, reservation, receipt, root body,
@@ -171,3 +171,21 @@ python3 tools/checks/lib/cut0_i0_root0_raw_source0_lower_root_plan0_guard.py
 
 No public ingress, JSON bridge, Raw production consumer, or physical
 finalization is authorized by this row.
+
+## Closeout
+
+The source-derived Script/App plan is landed and verified. It seals physical
+`main/0` and `condition_fn/1`, an ordered top-level work schedule, declaration
+and static-data projections, callable-header projections, explicit closure and
+runtime-input dispositions, and the compiler-issued invocation token. The
+plan is non-`Clone`; focused Script/App/selection fixtures pass, the source
+binding and Root0 guards pass, `cargo check --lib` passes, and no Builder,
+session, shell, collector, ledger, reservation, lowering, or production
+consumer was added.
+
+The next owner handoff is intentionally not claimed here. The current plan
+consumer retains only derived plan facts and the token; the source AST/body,
+sealed `RawSourceContinuationV1`, Builder config, and module name must be
+retained or split exactly once before `ROOT0-OWNER0`. No loose plan/package
+re-pairing, AST re-resolution, ambient re-read, or copied callable-Main
+selection may be introduced. Those choices are the next design consultation.
