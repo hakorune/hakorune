@@ -287,3 +287,7 @@ separate Program(JSON v0) lane) has migrated and the final census is zero.
 
 The next executable task is
 `cut0-i0-raw-source0-lower-execution-task-2026-07-23.md`.
+
+After S0 lands, the next design stop is
+`RAW-SOURCE0-LOWER0-ROOT-CONSULT0`; Root/App lowering remains disconnected
+until that consultation selects its owner and atomic root handoff.

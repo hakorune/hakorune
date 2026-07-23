@@ -12,6 +12,10 @@ CARD = ROOT / (
     "docs/development/current/main/investigations/"
     "cut0-i0-raw-source0-lower-consultation-2026-07-23.md"
 )
+TASK = ROOT / (
+    "docs/development/current/main/investigations/"
+    "cut0-i0-raw-source0-lower-execution-task-2026-07-23.md"
+)
 PROD = (
     ROOT / "src/mir/compiler/mod.rs",
     ROOT / "src/runtime/mirbuilder_emit.rs",
@@ -26,6 +30,15 @@ def require(text: str, fragment: str, label: str) -> None:
 def main() -> int:
     state = STATE.read_text()
     card = CARD.read_text()
+    task = TASK.read_text()
+    if 'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT-CONSULT0"' in state:
+        require(task, "LOWER0-S0 closeout", "S0 closeout")
+        require(card, "RAW-SOURCE0-LOWER0-ROOT-CONSULT0", "next root consultation")
+        print(
+            "[cut0-i0-root0-raw-source0-lower-consult0-guard] closed "
+            "next=RAW-SOURCE0-LOWER0-ROOT-CONSULT0"
+        )
+        return 0
     if 'current_execution_row = "RAW-SOURCE0-LOWER0-S0"' in state:
         require(card, "LOWER0-D0 closeout", "decision closeout")
         require(card, "RAW-SOURCE0-LOWER0-S0", "next executable row")

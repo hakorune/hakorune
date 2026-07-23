@@ -139,3 +139,42 @@ python3 tools/checks/lib/cut0_i0_root0_raw_source0_lower_s0_guard.py
 
 The guard must also verify that no public executor or Raw production caller
 appears while this row is disconnected.
+
+## LOWER0-S0 closeout (2026-07-23)
+
+S0 is landed and pushed as commit `433392d918`.
+
+The disconnected proof now exercises one real owner chain:
+
+```text
+SourceBoundRawPackageV1
+-> RawDraftInvocationV1
+-> owned source locator
+-> reserve before child descent
+-> function-local capture/lower/restore
+-> branded collector admission
+-> matching Raw ledger completion
+```
+
+The package projection is not cloned or re-resolved. The candidate session,
+shell, collector, ledger, token, source, and continuation remain under one
+non-Clone owner. Child failure returns a discard-only rejected owner and does
+not continue to a sibling or fallback path.
+
+Evidence is green:
+
+```text
+raw_s0 focused tests: 2 passed
+raw_bind focused tests: 5 passed
+selected_callable_main focused tests: 2 passed
+cargo check --lib: green
+diff --check: green
+LOWER0-S0 guard: green
+pointer guard: green
+```
+
+This closeout does not claim root Script/App lowering, declaration/static-data
+or closure metadata admission, root Main/`condition_fn` batching, physical
+drain, finalization, postprocess, public ingress, JSON parity, or production
+Raw consumers. The next design stop is
+`RAW-SOURCE0-LOWER0-ROOT-CONSULT0`.

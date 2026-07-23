@@ -19,6 +19,10 @@ CARD = ROOT / (
     "docs/development/current/main/investigations/"
     "cut0-i0-raw-source0-lower-consultation-2026-07-23.md"
 )
+TASK = ROOT / (
+    "docs/development/current/main/investigations/"
+    "cut0-i0-raw-source0-lower-execution-task-2026-07-23.md"
+)
 PROD = (
     ROOT / "src/mir/compiler/mod.rs",
     ROOT / "src/runtime/mirbuilder_emit.rs",
@@ -34,8 +38,19 @@ def main() -> int:
     state = STATE.read_text()
     task = TASK.read_text()
     card = CARD.read_text()
-    require(state, 'current_execution_row = "RAW-SOURCE0-LOWER0-S0"', "execution row")
-    require(state, 'latest_card = "cut0-i0-raw-source0-lower-execution-task-2026-07-23"', "latest card")
+    if 'current_execution_row = "RAW-SOURCE0-LOWER0-S0"' not in state:
+        require(
+            state,
+            'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT-CONSULT0"',
+            "closed row / next root consultation",
+        )
+        require(
+            state,
+            'latest_card = "cut0-i0-raw-source0-lower-root-consultation-2026-07-23"',
+            "next root consultation card",
+        )
+    else:
+        require(state, 'latest_card = "cut0-i0-raw-source0-lower-execution-task-2026-07-23"', "latest card")
     for fragment in (
         "LOWER0-D0 closeout",
         "Q1 — owner",
@@ -57,6 +72,7 @@ def main() -> int:
         "below 800 lines",
     ):
         require(task, fragment, f"task boundary {fragment}")
+    require(task, "LOWER0-S0 closeout", "S0 closeout")
     for path, fragments in (
         (
             OWNER,
