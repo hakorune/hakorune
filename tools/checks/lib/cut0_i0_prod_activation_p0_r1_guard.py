@@ -64,6 +64,11 @@ def main() -> int:
     require(texts["failure"], "ModulePostprocessErrorV1::FinalVerification", "final verifier error")
     require(texts["raw"], "p0_r1_raw_real_authority_chain", "Raw aggregate fixture")
     require(
+        texts["raw"],
+        "p0_r1_raw_verifier_error_remains_reportable",
+        "Raw reportable verifier fixture",
+    )
+    require(
         texts["raw_root"],
         "late_collector_admission_failure_happens_before_root_commit",
         "Raw root-batch failure fixture",
@@ -134,7 +139,7 @@ def main() -> int:
         "[cut0-i0-prod-activation-p0-r1-guard] ok "
         "canonical_routes=4 raw_route=1 full_chain=5 readiness_failure=1 "
         "drain_failure=1 capability_failure=1 "
-        "post_failure=1 root_batch_failure=1 "
+        "post_failure=1 raw_verifier_reportable=1 root_batch_failure=1 "
         "production_consumers=0 below_800=1"
     )
     return 0

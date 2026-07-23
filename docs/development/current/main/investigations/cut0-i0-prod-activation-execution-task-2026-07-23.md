@@ -310,6 +310,11 @@ late duplicate `SyntheticConditionFn` admission is rejected by the whole-batch
 preflight before collector/ledger root publication. This proves the typed
 publication-zero boundary only; rejected-owner retention and child/panic
 coverage remain separate rows.
+
+The Raw side of POST is also fixed: an invalid CFG edge remains a successful
+Raw postprocess result with `pre_transform` verification error evidence,
+preserving the legacy reportable-verifier contract. Canonical final-verifier
+failure remains fatal as recorded above.
 ```
 
 Next P0-R1 slice: add the real-authority failure matrix and keep the outer

@@ -191,7 +191,8 @@ mod tests {
     use crate::mir::builder::root_draft_batch::PreparedRootDraftBatchV1;
     use crate::mir::builder::MirBuilder;
     use crate::mir::{
-        BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType,
+        BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirInstruction, MirModule,
+        MirType,
     };
     use crate::mir::compiler::module_postprocess::ModulePostprocessOwnerV1;
     use crate::mir::compiler::MirCompiler;
@@ -375,6 +376,53 @@ mod tests {
             )
         ));
         assert_eq!(rejected.owner.token.brand(), brand);
+    }
+
+    #[test]
+    fn p0_r1_raw_verifier_error_remains_reportable() {
+        let (token, complete) = raw_complete();
+        let brand = token.brand();
+        let shell = InvocationBranded::from_test(
+            brand,
+            ModuleLoweringShellV1::from_empty_module(MirModule::new("raw".into())).unwrap(),
+        );
+        let active_session = session(&token);
+        let input = complete
+            .bind_physical(token, active_session, shell)
+            .unwrap()
+            .prepare_finalization()
+            .unwrap();
+        let mut finalized =
+            crate::mir::compiler::raw_finalization::RawModuleFinalizerV1::finalize(
+                crate::mir::compiler::raw_finalization::RawModuleFinalizerV1::prepare(input)
+                    .unwrap(),
+            );
+        let function = finalized
+            .input
+            .module
+            .functions
+            .values_mut()
+            .next()
+            .expect("Raw verifier fixture function");
+        let entry = function.entry_block;
+        function
+            .get_block_mut(entry)
+            .expect("Raw verifier fixture entry block")
+            .set_terminator(MirInstruction::Jump {
+                target: BasicBlockId::new(9999),
+                edge_args: None,
+            });
+        let mut verifier = MirVerifier::new();
+        let processed = ModulePostprocessOwnerV1::new(&mut verifier, false)
+            .run_raw(finalized)
+            .expect("Raw verifier errors remain reportable");
+        let crate::mir::compiler::module_postprocess::ModuleVerificationEvidenceV1::Raw {
+            pre_transform,
+        } = processed.verification
+        else {
+            panic!("Raw route must retain reportable pre-transform evidence")
+        };
+        assert!(pre_transform.is_err());
     }
 
     #[test]
