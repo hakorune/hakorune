@@ -108,3 +108,51 @@ fn map_abort_reason(error: &ModuleLoweringPortChildErrorV1) -> RawExpansionAbort
         | ModuleLoweringPortChildErrorV1::ReceiptBrand(_) => RawExpansionAbortReasonV1::Admission,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use super::super::super::calls::CanonicalFunctionSessionErrorV1;
+    use super::super::super::module_draft_collector::{
+        CollectorReceiptBrandErrorV1, FunctionDraftKeyV1, ModuleDraftAdmissionErrorV1,
+    };
+
+    #[test]
+    fn typed_child_causes_map_to_existing_coarse_abort_reasons() {
+        assert_eq!(
+            map_abort_reason(&ModuleLoweringPortChildErrorV1::Session(
+                CanonicalFunctionSessionErrorV1::Primary("primary".into()),
+            )),
+            RawExpansionAbortReasonV1::Primary
+        );
+        assert_eq!(
+            map_abort_reason(&ModuleLoweringPortChildErrorV1::Session(
+                CanonicalFunctionSessionErrorV1::Cleanup("cleanup".into()),
+            )),
+            RawExpansionAbortReasonV1::Cleanup
+        );
+        assert_eq!(
+            map_abort_reason(&ModuleLoweringPortChildErrorV1::Session(
+                CanonicalFunctionSessionErrorV1::DuringCleanup {
+                    primary: "primary".into(),
+                    cleanup: "cleanup".into(),
+                },
+            )),
+            RawExpansionAbortReasonV1::Cleanup
+        );
+        assert_eq!(
+            map_abort_reason(&ModuleLoweringPortChildErrorV1::Admission(
+                ModuleDraftAdmissionErrorV1::DuplicateKey(FunctionDraftKeyV1::LegacySymbol(
+                    "Main.alpha/0".into(),
+                )),
+            )),
+            RawExpansionAbortReasonV1::Admission
+        );
+        assert_eq!(
+            map_abort_reason(&ModuleLoweringPortChildErrorV1::ReceiptBrand(
+                CollectorReceiptBrandErrorV1::CollectorUnbranded,
+            )),
+            RawExpansionAbortReasonV1::Admission
+        );
+    }
+}

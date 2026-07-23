@@ -35,8 +35,9 @@ zero.
 The disconnected CHILDREN0 owner, lexical schedule handoff, Builder-side
 short-lived child terminal, and Script/App completion products are now wired.
 The focused Script-zero-child, App-two-helper lexical-order, locator-drift,
-and second-child-prefix fixtures pass; production consumers remain zero. The
-full typed-cause matrix is still required before this row can close.
+second-child-prefix, and coarse-abort-mapping fixtures pass; production
+consumers remain zero. Full physical receipt-brand and ledger-completion
+failure fixtures are still required before this row can close.
 
 ## Locked decisions
 

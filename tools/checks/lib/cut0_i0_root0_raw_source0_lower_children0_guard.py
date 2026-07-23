@@ -52,6 +52,8 @@ def main() -> int:
     ):
         if required not in children:
             raise AssertionError(f"missing CHILDREN0 contract: {required}")
+    if "typed_child_causes_map_to_existing_coarse_abort_reasons" not in joined:
+        raise AssertionError("missing CHILDREN0 coarse abort mapping fixture")
     print("[cut0-i0-root0-raw-source0-lower-children0-guard] ok below_800=1 production_consumer=0")
     return 0
 
