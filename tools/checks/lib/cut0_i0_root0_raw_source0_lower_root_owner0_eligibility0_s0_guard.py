@@ -17,6 +17,10 @@ TASK = ROOT / (
     "docs/development/current/main/investigations/"
     "cut0-i0-raw-source0-lower-root-owner0-eligibility0-s0-execution-task-2026-07-24.md"
 )
+G0_TASK = ROOT / (
+    "docs/development/current/main/investigations/"
+    "cut0-i0-raw-source0-lower-root-owner0-eligibility0-g0-execution-task-2026-07-24.md"
+)
 CONSULT = ROOT / (
     "docs/development/current/main/investigations/"
     "cut0-i0-raw-source0-lower-root-owner0-eligibility-consultation-2026-07-23.md"
@@ -49,18 +53,18 @@ def main() -> int:
 
     require(
         state,
-        'current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-OWNER0-ELIGIBILITY0-S0"',
-        "active S0 design stop",
+        'current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-OWNER0-ELIGIBILITY0-G0"',
+        "active S0-G0 design stop",
     )
     require(
         state,
-        'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-OWNER0-ELIGIBILITY0-S0"',
-        "active S0 execution row",
+        'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-OWNER0-ELIGIBILITY0-G0"',
+        "active S0-G0 execution row",
     )
     require(
         state,
-        'latest_card = "cut0-i0-raw-source0-lower-root-owner0-eligibility0-s0-execution-task-2026-07-24"',
-        "latest S0 task",
+        'latest_card = "cut0-i0-raw-source0-lower-root-owner0-eligibility0-g0-execution-task-2026-07-24"',
+        "latest S0-G0 task",
     )
     for fragment in (
         "Decision: ELIGIBILITY-prime-r1",
@@ -83,6 +87,7 @@ def main() -> int:
     require(consult, "Status: **Closed", "closed consultation")
     require(consult, "ELIGIBILITY-prime-r1", "consultation decision")
     require(question, "Required answer format", "historical question")
+    require(G0_TASK.read_text(), "Status: **Active", "active S0-G0 task")
 
     for path in SOURCE:
         if not path.exists():
@@ -121,13 +126,13 @@ def main() -> int:
         if fragment in joined:
             raise AssertionError(f"physical/production wiring present during S0: {fragment}")
 
-    for path in (STATE, TASK, CONSULT, QUESTION, *SOURCE):
+    for path in (STATE, TASK, G0_TASK, CONSULT, QUESTION, *SOURCE):
         if len(path.read_text().splitlines()) >= 800:
             raise AssertionError(f"file must remain below 800 lines: {path}")
 
     print(
         "[cut0-i0-root0-raw-source0-lower-root-owner0-eligibility0-s0-guard] ok "
-        "task=1 physical_consumer=0 production_consumer=0 below_800=1"
+        "task=s0-g0 physical_consumer=0 production_consumer=0 below_800=1"
     )
     return 0
 

@@ -378,6 +378,16 @@ mod tests {
         }
     }
 
+    fn app_with_helper(main_body: Vec<ASTNode>) -> ASTNode {
+        let mut source = app(main_body);
+        if let ASTNode::Program { statements, .. } = &mut source {
+            if let Some(ASTNode::BoxDeclaration { methods, .. }) = statements.first_mut() {
+                methods.insert("helper".into(), function("helper", Vec::new()));
+            }
+        }
+        source
+    }
+
     #[test]
     fn empty_script_is_the_smallest_eligible_catalog() {
         let eligible = package(ASTNode::Program {
@@ -403,6 +413,17 @@ mod tests {
         assert_eq!(
             eligible.proof().catalog(),
             RawEligibleCatalogV1::PlainStaticMain { helper_count: 0 }
+        );
+    }
+
+    #[test]
+    fn plain_static_main_accepts_a_helper_catalog_row() {
+        let eligible = package(app_with_helper(Vec::new()))
+            .prepare_eligibility()
+            .unwrap();
+        assert_eq!(
+            eligible.proof().catalog(),
+            RawEligibleCatalogV1::PlainStaticMain { helper_count: 1 }
         );
     }
 
