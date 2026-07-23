@@ -29,6 +29,12 @@ pub(crate) use callable_declaration_catalog::{
     VerifiedSameModuleCallableDeclarationCatalogV1, VerifiedSameModuleCallableDeclarationV1,
 };
 mod calls; // Call system modules (refactored from builder_calls)
+#[allow(dead_code)]
+mod canonical_physical_drain;
+#[cfg(test)]
+mod canonical_root_completion_receipt0_p0; // CUT0-I0-ROOT0-CANON0-RECEIPT0 fixtures
+#[cfg(test)]
+mod canonical_root_completion_recursive0_p0; // CUT0-I0-ROOT0-CANON0-RECURSIVE0 fixtures
 mod collection_literals; // ArrayLiteral / MapLiteral lowering
 mod compilation_context; // Phase 136 follow-up (Step 7/7): CompilationContext extraction
 mod compound_assignment; // evaluated Place read-modify-write lowering
@@ -75,57 +81,50 @@ mod module_draft_collector_receipt_p0; // ROUTEINV-P0a-RECEIPT-P0 matrix
 #[cfg(test)]
 mod module_draft_collector_receipt_tests; // ROUTEINV-P0a-RECEIPT-S0 fixtures
 #[cfg(test)]
-mod canonical_root_completion_receipt0_p0; // CUT0-I0-ROOT0-CANON0-RECEIPT0 fixtures
-#[cfg(test)]
-mod canonical_root_completion_recursive0_p0; // CUT0-I0-ROOT0-CANON0-RECURSIVE0 fixtures
-#[cfg(test)]
 mod module_finalization_candidate_p0; // HEADERPORT0-I0-MODULEFINAL0-CANDIDATE0-P0 matrix
-#[allow(dead_code)]
-mod module_finalization_split; // HEADERPORT0-I0-MODULEFINAL0-SPLIT0 input
 #[allow(dead_code)]
 mod module_finalization_once; // CUT0-S0 Builder-free finalizer
 #[cfg(test)]
-mod module_finalization_split_p0; // HEADERPORT0-I0-MODULEFINAL0-SPLIT0-P0 fixtures
-#[cfg(test)]
 mod module_finalization_once_p0; // CUT0-S0 finalizer fixtures
+#[allow(dead_code)]
+mod module_finalization_split; // HEADERPORT0-I0-MODULEFINAL0-SPLIT0 input
+#[cfg(test)]
+mod module_finalization_split_p0; // HEADERPORT0-I0-MODULEFINAL0-SPLIT0-P0 fixtures
+#[allow(dead_code)]
+mod module_invocation_brand0; // CUT0-I0-ROOT0-BRAND0 real owner
+#[cfg(test)]
+mod module_invocation_brand_p0; // CUT0-I0-ID0-P0 fixtures
 #[allow(dead_code)]
 mod module_invocation_drain; // HEADERPORT0 I0-SHELL-I0-S0 disconnected drain
 #[cfg(test)]
 mod module_invocation_drain_s0_tests; // CUT0-S0 same-state drain fixtures
-#[allow(dead_code)]
-mod module_invocation_route_matrix; // HEADERPORT0 I0-SHELL-I0-P0 disconnected matrix
 #[allow(dead_code)]
 mod module_invocation_identity; // CUT0-I0-ID0-S0 disconnected identity/token
 #[cfg(test)]
 mod module_invocation_identity_p0; // CUT0-I0-ID0-S0 fixtures
 #[allow(dead_code)]
 mod module_invocation_owner_chain; // CUT0-I0-ID0-P0 disconnected brand chain
-#[cfg(test)]
-mod module_invocation_brand_p0; // CUT0-I0-ID0-P0 fixtures
 #[allow(dead_code)]
-mod module_invocation_brand0; // CUT0-I0-ROOT0-BRAND0 real owner
-#[allow(dead_code)]
-mod canonical_physical_drain; // ROOT0-DRAIN0-PHYSICAL0-PREP0
+mod module_invocation_route_matrix; // HEADERPORT0 I0-SHELL-I0-P0 disconnected matrix // ROOT0-DRAIN0-PHYSICAL0-PREP0
+pub(in crate::mir) use canonical_physical_drain::{
+    CanonicalDrainedCallablePhysicalV1, CanonicalDrainedSinglePhysicalV1,
+    CanonicalPhysicalDrainPrepareErrorV1, PreparedCanonicalCallablePhysicalDrainV1,
+    PreparedCanonicalSinglePhysicalDrainV1, RejectedCanonicalCallablePhysicalDrainV1,
+    RejectedCanonicalSinglePhysicalDrainV1,
+};
 pub(in crate::mir) use module_invocation_brand0::{
     CanonicalCallableCapabilityWitnessV1, CanonicalPhysicalCollectionErrorV1,
     CollectedCanonicalCallablePhysicalV1, CollectedCanonicalSinglePhysicalV1,
-    InvocationPhysicalStateV1,
-    RejectedCanonicalPhysicalCollectionV1,
-};
-pub(in crate::mir) use canonical_physical_drain::{
-    CanonicalPhysicalDrainPrepareErrorV1, PreparedCanonicalCallablePhysicalDrainV1,
-    PreparedCanonicalSinglePhysicalDrainV1, RejectedCanonicalCallablePhysicalDrainV1,
-    RejectedCanonicalSinglePhysicalDrainV1, CanonicalDrainedCallablePhysicalV1,
-    CanonicalDrainedSinglePhysicalV1,
+    InvocationPhysicalStateV1, RejectedCanonicalPhysicalCollectionV1,
 };
 pub(in crate::mir) use module_lowering_shell::ModuleLoweringShellErrorV1;
+mod canonical_root_completion; // CUT0-I0-ROOT0-CANON0 route-specific completion
 #[allow(dead_code)]
-mod module_invocation_collection; // CUT0-I0-COLLECT0-S0 co-seal terminal
+mod module_invocation_callable_batch; // CUT0-I0-COLLECT0-BATCH0 source/co-seal
 #[cfg(test)]
 mod module_invocation_collect0_s0_p0; // CUT0-I0-COLLECT0-S0 fixtures
 #[allow(dead_code)]
-mod module_invocation_callable_batch; // CUT0-I0-COLLECT0-BATCH0 source/co-seal
-mod canonical_root_completion; // CUT0-I0-ROOT0-CANON0 route-specific completion
+mod module_invocation_collection; // CUT0-I0-COLLECT0-S0 co-seal terminal
 #[allow(dead_code)]
 mod module_invocation_session; // CUT0-I0-SESSION0 disconnected Builder transaction
 pub(in crate::mir) use module_invocation_session::{
@@ -172,6 +171,10 @@ mod raw_expansion_receipt_ledger_tests; // ROUTEINV-P0b-RAWLEDGER-S0 fixtures
 mod raw_expression_dispatch; // single raw AST expression dispatcher
 #[allow(dead_code)]
 mod raw_loop_child_entry; // LOOPBRIDGE0-S0 pure raw Loop child-entry quarantine
+#[allow(dead_code)]
+mod raw_physical_finalization;
+#[allow(dead_code)]
+mod raw_root_completion; // CUT0-I0-ROOT0-RAW0 retained raw root witness
 #[cfg(test)]
 mod resolved_owner_header_p0; // ROUTEINV-P0c-SINGLEHDR-P0 matrix
 #[allow(dead_code)]
@@ -179,9 +182,11 @@ mod root_body_completion; // HEADERPORT0-I0-BODYDRAIN0-S0 disconnected witness
 #[cfg(test)]
 mod root_body_completion_p0; // HEADERPORT0-I0-BODYDRAIN0-P0 fixtures
 #[allow(dead_code)]
-mod root_draft_batch; // HEADERPORT0-I0-ROOTBATCH0-S0 disconnected batch
-#[allow(dead_code)]
-mod raw_root_completion; // CUT0-I0-ROOT0-RAW0 retained raw root witness
+mod root_draft_batch; // HEADERPORT0-I0-ROOTBATCH0-S0 disconnected batch // CUT0-I0-POST0-RAW-S0 physical retention
+pub(in crate::mir) use raw_physical_finalization::{
+    RawFinalizationInputV1, RawPhysicalCompleteInvocationV1, RawPhysicalFinalizationErrorV1,
+    RejectedRawFinalizationV1,
+};
 #[cfg(test)]
 mod root_draft_batch_commit_p0; // HEADERPORT0 BORROW-P0-ROOT-P0b proof
 #[cfg(test)]

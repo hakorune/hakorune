@@ -5,20 +5,19 @@
 //! physical collector receipts, the raw ledger, and `CompletedRootBodyV1`
 //! become one unpublished completion product.
 
+use super::module_draft_collector::CollectedDraftAdmissionReceiptV1;
 use super::module_draft_collector::{
-    FunctionDraftKeyV1, ModuleDraftCollectorV1,
-    RootCollectorBatchPrepareErrorV1,
+    FunctionDraftKeyV1, ModuleDraftCollectorV1, RootCollectorBatchPrepareErrorV1,
 };
 use super::module_invocation_drain::ConditionFnPolicyV1;
 use super::module_invocation_identity::{ModuleInvocationBrandV1, ModuleInvocationTokenV1};
 use super::module_invocation_owner_chain::{BrandedCollectorV1, InvocationBranded};
 use super::raw_expansion_receipt_ledger::{
     RawCallableMainCompatibilityDispositionV1, RawExpansionReceiptLedgerErrorV1,
-    RawExpansionReservationV1, RawExpansionReceiptLedgerV1, SealedRawExpansionReceiptLedgerV1,
+    RawExpansionReceiptLedgerV1, RawExpansionReservationV1, SealedRawExpansionReceiptLedgerV1,
 };
 use super::root_body_completion::CompletedRootBodyV1;
 use super::root_draft_batch::{PreparedRootDraftBatchV1, RootDraftBatchErrorV1};
-use super::module_draft_collector::CollectedDraftAdmissionReceiptV1;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum RawRootCompletionErrorV1 {
@@ -89,9 +88,7 @@ impl RawCompleteInvocationV1 {
         self.brand
     }
 
-    pub(in crate::mir::builder) fn collector(
-        &self,
-    ) -> &BrandedCollectorV1<ModuleDraftCollectorV1> {
+    pub(in crate::mir::builder) fn collector(&self) -> &BrandedCollectorV1<ModuleDraftCollectorV1> {
         &self.collector
     }
 
@@ -101,6 +98,19 @@ impl RawCompleteInvocationV1 {
 
     pub(in crate::mir::builder) fn root(&self) -> &RawInvocationRootWitnessV1 {
         &self.root
+    }
+
+    /// Consume the raw completion proof for the later physical-owner bridge.
+    /// The raw ledger, collector, and retained root witness stay together.
+    pub(in crate::mir::builder) fn into_parts(
+        self,
+    ) -> (
+        ModuleInvocationBrandV1,
+        BrandedCollectorV1<ModuleDraftCollectorV1>,
+        SealedRawExpansionReceiptLedgerV1,
+        RawInvocationRootWitnessV1,
+    ) {
+        (self.brand, self.collector, self.ledger, self.root)
     }
 }
 
@@ -182,12 +192,13 @@ pub(in crate::mir::builder) fn complete_raw_root(
         .into_payload()
         .prepare_root_batch(batch)
         .map_err(|rejected| RawRootCompletionErrorV1::Collector(rejected.error().clone()))?;
-    let (collector, branded_receipt) = prepared
-        .commit_branded()
-        .map_err(|_| RawRootCompletionErrorV1::ForeignBrand {
-            expected: brand.ordinal(),
-            actual: 0,
-        })?;
+    let (collector, branded_receipt) =
+        prepared
+            .commit_branded()
+            .map_err(|_| RawRootCompletionErrorV1::ForeignBrand {
+                expected: brand.ordinal(),
+                actual: 0,
+            })?;
     let (admissions, root_body, receipt_brand) = branded_receipt.into_parts();
     if receipt_brand != brand || root_body.brand() != brand {
         return Err(RawRootCompletionErrorV1::ForeignBrand {
@@ -243,7 +254,9 @@ mod tests {
     use crate::mir::builder::root_body_completion::{
         RootBodyCompletionTrackerV1, RootBodyResultV1,
     };
-    use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType};
+    use crate::mir::{
+        BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType,
+    };
 
     fn draft(symbol: &str, arity: usize) -> MirFunction {
         MirFunction::new(
@@ -289,7 +302,9 @@ mod tests {
             RawCallableMainCompatibilityDispositionV1::NotSelected,
         );
         let main_reservation = ledger
-            .reserve(super::super::raw_expansion_receipt_ledger::RawExpansionDraftRequestV1::root_main())
+            .reserve(
+                super::super::raw_expansion_receipt_ledger::RawExpansionDraftRequestV1::root_main(),
+            )
             .unwrap();
         let condition_reservation = ledger
             .reserve(super::super::raw_expansion_receipt_ledger::RawExpansionDraftRequestV1::required_condition_fn())
@@ -317,7 +332,10 @@ mod tests {
             RawCallableMainCompatibilityDispositionV1::NotSelected,
         )
         .unwrap();
-        assert_eq!(complete.root().root_body().result(), RootBodyResultV1::NoValue);
+        assert_eq!(
+            complete.root().root_body().result(),
+            RootBodyResultV1::NoValue
+        );
         assert_eq!(complete.ledger().final_count(), 2);
         assert_eq!(complete.collector().payload().symbol_count(), 2);
     }

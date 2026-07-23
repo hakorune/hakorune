@@ -153,6 +153,27 @@ introducing the old Main-only `DrainedModuleCandidateV1` adapter. Keep the
 new owner disconnected until its focused failure/success matrix and guard are
 green.
 
+POST0-RAW-S0 closeout (2026-07-23):
+
+```text
+RawCompleteInvocationV1 now has a consuming physical-owner bridge that keeps
+the same Raw token, Builder session, branded empty shell, collector, sealed
+ledger, and retained root witness together. Mutation-free preparation rejects
+foreign identity, published shells, and non-exact Main/condition inventory;
+success emits RawFinalizationInputV1 with the drained module and legacy
+verifier/ledger evidence. Two focused fixtures, the Raw guard, cargo check,
+and pointer guard are green. There is no production consumer.
+```
+
+The next boundary is **POST0-RAW-FINALIZER0**: consume the retained Raw
+finalization input into a route-specific finalized product and carry the
+reportable pre-transform verifier result into POST0's evidence type.
+
+## POST0-RAW-FINALIZER0 — Raw compiler finalization (next)
+
+Add the compiler-side Raw finalization wrapper and its disconnected fixture.
+Do not connect Raw or canonical postprocess to public ingress yet.
+
 ## COMMIT0 — paired external commit
 
 Add compiler-private, non-Clone:

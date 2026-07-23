@@ -82,6 +82,7 @@ def main() -> int:
         path.relative_to(ROOT)
         for path in ROOT.glob("src/**/*.rs")
         if path != FILES["finalizer"]
+        and path != ROOT / "src/mir/builder/raw_physical_finalization.rs"
         if not path.name.endswith("_p0.rs")
         and not path.name.endswith("_tests.rs")
         and "tests" not in path.parts
