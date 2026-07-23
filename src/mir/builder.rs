@@ -59,6 +59,8 @@ mod located_legacy_lowering;
 #[allow(dead_code)]
 mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion
 #[allow(dead_code)]
+mod raw_source_projection; // RAW-SOURCE0-PLAN0 owned source locators
+#[allow(dead_code)]
 mod main_pending_draft; // HEADERPORT0-I0-MAINPENDING0-S0 disconnected handoff
 #[cfg(test)]
 mod main_pending_draft_p0; // HEADERPORT0-I0-MAINPENDING0-P0 fixtures

@@ -16,13 +16,17 @@ CARD = ROOT / (
     "docs/development/current/main/investigations/"
     "cut0-i0-atomic-cutover-consultation-2026-07-23.md"
 )
+RAW_CARD = ROOT / (
+    "docs/development/current/main/investigations/"
+    "cut0-i0-raw-source0-consultation-2026-07-23.md"
+)
 PROD_SOURCES = (
     ROOT / "src/mir/compiler/mod.rs",
     ROOT / "src/runtime/mirbuilder_emit.rs",
 )
 COMPAT = ROOT / "src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs"
 CONFIG = ROOT / "src/mir/builder/module_invocation_session.rs"
-SIZE_FILES = (*PROD_SOURCES, COMPAT, CONFIG, CARD)
+SIZE_FILES = (*PROD_SOURCES, COMPAT, CONFIG, CARD, RAW_CARD)
 
 
 def require(text: str, fragment: str, label: str) -> None:
@@ -33,14 +37,15 @@ def require(text: str, fragment: str, label: str) -> None:
 def main() -> int:
     state = STATE.read_text()
     card = CARD.read_text()
+    raw_card = RAW_CARD.read_text()
     sources = {path: path.read_text() for path in PROD_SOURCES}
     compat = COMPAT.read_text()
     config = CONFIG.read_text()
 
     require(
         state,
-        'current_design_stop = "RAW-SOURCE0-CONSULT0"',
-        "Raw source design-stop pointer",
+        'current_design_stop = "none"',
+        "no open design-stop pointer",
     )
     require(
         state,
@@ -50,13 +55,13 @@ def main() -> int:
     for question in ("Q1 — atomic executor scope", "Q2 — Raw source authority", "Q3 — AST JSON"):
         require(card, question, f"consultation question {question}")
     for fragment in (
-        "RAW-SOURCE0-CONSULT0",
         "SOURCE-FIRST-prime-r1 closeout",
         "Program(JSON v0)",
         "production outer executor = 0",
         "BuilderInvocationConfigV1",
     ):
         require(card, fragment, f"consultation boundary {fragment}")
+    require(raw_card, "RAW-SOURCE0-BIND0", "next Raw source row")
 
     joined_prod = "\n".join(sources.values())
     if "execute_preflighted_module_invocation" in joined_prod:

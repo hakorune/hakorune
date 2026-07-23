@@ -1,6 +1,6 @@
 # CUT0-I0 Production Activation Execution Task
 
-Status: **Design stop — RAW-SOURCE0-CONSULT0; SOURCE-FIRST-prime-r1 is locked; production ingress remains disconnected**
+Status: **Active — RAW-SOURCE0-PLAN0 is closed; RAW-SOURCE0-BIND0 next; production ingress remains disconnected**
 Date: 2026-07-23
 Decision: **Candidate ACT-prime-r1 accepted**
 
@@ -730,6 +730,20 @@ LegacyModuleLoweringInputV1
 This row must not add a public executor, change runtime JSON behavior, or
 retire `MirBuilder::build_module`. Program(JSON v0) remains a later,
 independent `PROGRAM-V0-SOURCE0` design row.
+
+## RAW-SOURCE0-PLAN0 closeout
+
+The first Builder-side Raw slice now provides one disconnected
+`OwnedRawSourceV1` product. It owns the AST and origin, and retains an
+`OwnedRawRootProjectionV1` made only of source locators: Script keeps the
+statement count; App keeps Main, deterministic static-child, and callable-Main
+locators. It does not own a token, Builder session, collector, ledger, receipt,
+or module map.
+
+`VerifiedRawRootExpansionV1<'src>` remains the source-only preflight authority;
+the projection is a one-way owned handoff and never a self-referential borrow.
+The focused projection tests and PLAN0 guard are green. The next row is
+`RAW-SOURCE0-BIND0`; production consumers remain zero.
 
 ## Required evidence per row
 

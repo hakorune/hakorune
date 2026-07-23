@@ -1,6 +1,6 @@
 # CUT0-I0 RAW-SOURCE0 Consultation
 
-Status: **Design stop — Candidate SOURCE-FIRST-prime-r1 selected; RAW-SOURCE0-PLAN0 next**
+Status: **Active — RAW-SOURCE0-PLAN0 closed; RAW-SOURCE0-BIND0 next; production ingress remains disconnected**
 Date: 2026-07-23
 Scope: Builder-side Raw source authority only. No production executor,
 public-ingress wiring, runtime JSON change, or `MirBuilder::build_module`
@@ -216,3 +216,27 @@ all new/check files below 800 lines
 
 Until these decisions are locked, do not add a production Raw consumer or
 modify runtime JSON semantics.
+
+## RAW-SOURCE0-PLAN0 closeout
+
+The owned source projection slice is closed as a disconnected proof.
+
+```text
+OwnedRawSourceV1
+  owns AST + RawSourceOriginV1 + OwnedRawRootProjectionV1
+
+OwnedRawRootProjectionV1
+  Script -> statement count only
+  App    -> owned Main/static-child/callable-Main source locators
+```
+
+The projection is produced from the verified source expansion, but stores no
+borrowed expansion, token, collector, ledger, receipt, Builder session, or
+MirModule map. Duplicate Main and malformed root shapes remain source
+preflight failures. The focused projection tests, PLAN0 guard, cargo check,
+and pointer guard are green.
+
+The next row is `RAW-SOURCE0-BIND0`: compiler-owned Raw token issuance,
+source continuation sealing, and one `BuilderInvocationConfigV1` snapshot.
+Production outer executor, public ingress, AST-JSON behavior, and
+Program(JSON v0) behavior remain unchanged.
