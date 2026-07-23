@@ -22,6 +22,21 @@ Production ingress, root capture, child descent, callable-Main descent,
 root-body lowering, Main/condition batch, drain, finalization, postprocess,
 external commit, retry, fallback, and JSON behavior remain zero.
 
+## Pre-open hardening
+
+Before adding the physical-open terminal, close these authority seams:
+
+```text
+EligibleSourceBoundRawRootPackageV1.package visibility is not crate-wide
+RawRootEligibilityV1 is not copied as a second authority
+proof observation is borrow-only (test accessors may inspect, not extract)
+there is exactly one consuming physical-open terminal
+```
+
+Do not add a loose package `into_parts` tuple. The physical terminal may
+destructure the eligible owner only after physical construction succeeds, and
+the rejected owner must retain the complete eligible package.
+
 ## Locked ownership laws
 
 1. The eligible wrapper is the only physical-open input. Raw package or plan
@@ -51,6 +66,19 @@ The route-specific owner may share the existing neutral physical/session
 vocabulary, but it must not create a second identity system or widen the
 legacy Main-only state. `RawRootPhysicalStateV1` is private to the Builder
 boundary and is not a bare shell/collector tuple exposed to callers.
+
+The existing neutral constructors are the only allowed physical primitives:
+
+```text
+ModuleBuilderInvocationSessionV1::open_for_token
+InvocationPhysicalStateV1::from_token
+RawExpansionReceiptLedgerV1::new_for_token
+RootBodyCompletionTrackerV1::new_for_brand
+```
+
+The new Raw terminal composes them once. It does not reuse
+`RawDraftInvocationV1` or `ModuleLoweringInvocationStateV1`, both of which
+carry the legacy Main-only lifecycle.
 
 ## Required fixtures
 
