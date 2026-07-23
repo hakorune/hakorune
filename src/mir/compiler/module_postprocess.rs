@@ -7,7 +7,10 @@
 use super::canonical_finalization::{CanonicalFinalizationInputV1, FinalizedModuleInvocationV1};
 use super::raw_finalization::{RawFinalizationInputV1, RawFinalizedModuleInvocationV1};
 use crate::mir::function::MirModule;
-use crate::mir::module_invocation_identity::{ModuleInvocationBrandV1, ModuleInvocationFamilyV1};
+use crate::mir::builder::PreparedBuilderExternalCommitV1;
+use crate::mir::module_invocation_identity::{
+    ModuleInvocationBrandV1, ModuleInvocationFamilyV1, ModuleInvocationTokenV1,
+};
 use crate::mir::optimizer::MirOptimizer;
 use crate::mir::passes::rc_insertion::insert_rc_instructions;
 use crate::mir::semantic_refresh::{
@@ -136,6 +139,35 @@ impl<'a> PostprocessedModuleInvocationV1<'a> {
                 &input.physical.module
             }
             ModulePostprocessInputV1::Raw(input) => &input.module,
+        }
+    }
+
+    pub(in crate::mir) fn into_external_commit_parts(
+        self,
+    ) -> (
+        ModuleInvocationTokenV1,
+        PreparedBuilderExternalCommitV1,
+        MirModule,
+        ModuleVerificationEvidenceV1,
+    ) {
+        let Self {
+            input,
+            verification,
+            ..
+        } = self;
+        match input {
+            ModulePostprocessInputV1::Canonical(CanonicalFinalizationInputV1::Single(input)) => {
+                let builder = input.builder.into_external_commit();
+                (input.token, builder, input.physical.module, verification)
+            }
+            ModulePostprocessInputV1::Canonical(CanonicalFinalizationInputV1::Callable(input)) => {
+                let builder = input.builder.into_external_commit();
+                (input.token, builder, input.physical.module, verification)
+            }
+            ModulePostprocessInputV1::Raw(input) => {
+                let builder = input.builder.into_external_commit();
+                (input.token, builder, input.module, verification)
+            }
         }
     }
 }

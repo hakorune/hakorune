@@ -1,6 +1,6 @@
 # CUT0-I0 Production Activation Execution Task
 
-Status: **Active — COMMIT0 is the only executable row; FINAL0 and POST0 closed as disconnected proofs**
+Status: **Active — P0-R1 is the only executable row; FINAL0, POST0, and COMMIT0 closed as disconnected proofs**
 Date: 2026-07-23
 Decision: **Candidate ACT-prime-r1 accepted**
 
@@ -83,8 +83,8 @@ readiness matrix, FINAL0 census guard, cargo check, focused tests, PHYSICAL0
 guard, and pointer guard are green. No production finalizer consumer exists.
 ```
 
-Next executable row: **POST0**. COMMIT0, P0-R1, and atomic CUT0/G0 remain
-disconnected and forbidden.
+FINAL0 is closed. POST0 and COMMIT0 are also closed as disconnected proofs;
+P0-R1 is the only remaining executable row before atomic CUT0/G0.
 
 ## POST0 — one postprocess owner (closed; production disconnected)
 
@@ -139,13 +139,11 @@ verification. The schedule matrix and canonical success fixture are green;
 the postprocess guard proves policy is family-derived and production
 consumers remain zero.
 
-The remaining POST0 boundary is **POST0-RAW-S0**: Raw needs a route-specific
-finalization input that retains its Builder session/module owner and carries
-reportable pre-transform verifier evidence. The existing
-`RawCompleteInvocationV1` currently retains collector/ledger/root evidence but
-not that physical module/session pair, so COMMIT0 remains blocked by design.
+The historical remaining POST0 boundary was **POST0-RAW-S0**. The Raw
+finalization and postprocess slices below are now closed as disconnected
+proofs; COMMIT0 is no longer blocked by a missing Raw evidence path.
 
-## POST0-RAW-S0 — Raw finalization input (next)
+## POST0-RAW-S0 — Raw finalization input (closed)
 
 Add the Raw-side retained physical owner and route-specific finalization input.
 It must preserve legacy reportable pre-transform verifier errors without
@@ -165,9 +163,8 @@ verifier/ledger evidence. Two focused fixtures, the Raw guard, cargo check,
 and pointer guard are green. There is no production consumer.
 ```
 
-The next boundary is **POST0-RAW-FINALIZER0**: consume the retained Raw
-finalization input into a route-specific finalized product and carry the
-reportable pre-transform verifier result into POST0's evidence type.
+The next boundary was **POST0-RAW-FINALIZER0**; that slice is now closed and
+its result is consumed by the Raw postprocess proof below.
 
 ## POST0-RAW-FINALIZER0 — Raw compiler finalization (closed)
 
@@ -183,10 +180,8 @@ production consumer.
 Focused success and readiness-failure fixtures are green. The dedicated
 `POST0-RAW-FINALIZER0` census guard and pointer guard are green.
 
-The next executable row is **POST0-RAW-POSTPROCESS0**: carry Raw finalization
-through the existing family schedule while preserving reportable legacy
-pre-transform verifier errors. COMMIT0, P0-R1, and atomic CUT0/G0 remain
-disconnected.
+The next boundary was **POST0-RAW-POSTPROCESS0**: its family schedule and
+reportable verifier evidence are now closed as a disconnected proof.
 
 ## POST0-RAW-POSTPROCESS0 — Raw family postprocess (closed)
 
@@ -213,12 +208,13 @@ POST0 guards, cargo check, and pointer guard are green. Production consumers
 remain zero.
 ```
 
-The next executable row is **COMMIT0**: construct the paired Builder/module
-external-commit product without wiring public ingress or atomic CUT0 yet.
+COMMIT0 is now closed as the disconnected paired Builder/module external-commit
+proof. The next executable row is **P0-R1**; public ingress and atomic CUT0
+remain disconnected.
 
-## COMMIT0 — paired external commit
+## COMMIT0 — paired external commit (closed; production disconnected)
 
-Add compiler-private, non-Clone:
+The compiler-private, non-Clone product is now implemented:
 
 ```rust
 PreparedModuleExternalCommitV1 {
@@ -246,6 +242,23 @@ failure/panic => live Builder unchanged, commit 0
 success => external commit exactly 1
 commit product consumer = 0
 ```
+
+COMMIT0 closeout (2026-07-23):
+
+```text
+PreparedModuleExternalCommitV1 consumes the postprocessed invocation, retains
+the PreparedBuilderExternalCommitV1 readiness owner, the postprocessed module,
+and route-appropriate verification evidence, then commits exactly once into a
+live Builder and constructs MirCompileResult at that terminal only. Token
+brand/family must match Builder readiness and Raw/canonical evidence variants;
+canonical evidence includes the final-verifier seal while Raw retains the
+reportable pre-transform Result. The disconnected success fixture, COMMIT0
+guard, cargo check, focused tests, and pointer guard are green. No public
+ingress or production commit consumer is wired.
+```
+
+The next executable row is **P0-R1**: replace the synthetic all-route harness
+with real source authority and exercise the complete disconnected chain.
 
 ## P0-R1 — real-authority all-route proof
 

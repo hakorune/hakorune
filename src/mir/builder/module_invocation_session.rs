@@ -193,8 +193,10 @@ impl std::fmt::Display for BuilderCommitReadinessErrorV1 {
 
 impl std::error::Error for BuilderCommitReadinessErrorV1 {}
 
-pub(in crate::mir::builder) struct PreparedBuilderExternalCommitV1 {
+#[derive(Debug)]
+pub(in crate::mir) struct PreparedBuilderExternalCommitV1 {
     brand: ModuleInvocationBrandV1,
+    family: ModuleInvocationFamilyV1,
     session: ModuleBuilderInvocationSessionV1,
     _seal: PreparedBuilderExternalCommitSealV1,
 }
@@ -343,9 +345,10 @@ impl ModuleBuilderInvocationSessionV1 {
         let prepared = self
             .prepare_module_session()
             .map_err(|rejected| rejected.into_parts().1)?;
-        let (brand, _family, session) = prepared.into_parts();
+        let (brand, family, session) = prepared.into_parts();
         Ok(PreparedBuilderExternalCommitV1 {
             brand,
+            family,
             session,
             _seal: PreparedBuilderExternalCommitSealV1,
         })
@@ -373,6 +376,16 @@ impl PreparedBuilderModuleSessionV1 {
     ) {
         (self.brand, self.family, self.session)
     }
+
+    pub(in crate::mir) fn into_external_commit(self) -> PreparedBuilderExternalCommitV1 {
+        let (brand, family, session) = self.into_parts();
+        PreparedBuilderExternalCommitV1 {
+            brand,
+            family,
+            session,
+            _seal: PreparedBuilderExternalCommitSealV1,
+        }
+    }
 }
 
 impl RejectedPreparedBuilderModuleSessionV1 {
@@ -391,11 +404,15 @@ impl RejectedPreparedBuilderModuleSessionV1 {
 }
 
 impl PreparedBuilderExternalCommitV1 {
-    pub(in crate::mir::builder) const fn brand(&self) -> ModuleInvocationBrandV1 {
+    pub(in crate::mir) const fn brand(&self) -> ModuleInvocationBrandV1 {
         self.brand
     }
 
-    pub(in crate::mir::builder) fn commit(self, current: &mut MirBuilder) {
+    pub(in crate::mir) const fn family(&self) -> ModuleInvocationFamilyV1 {
+        self.family
+    }
+
+    pub(in crate::mir) fn commit(self, current: &mut MirBuilder) {
         *current = self.session.candidate;
     }
 }

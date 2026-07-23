@@ -129,7 +129,8 @@ mod module_invocation_collection; // CUT0-I0-COLLECT0-S0 co-seal terminal
 mod module_invocation_session; // CUT0-I0-SESSION0 disconnected Builder transaction
 pub(in crate::mir) use module_invocation_session::{
     BuilderCommitReadinessErrorV1, BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1,
-    PreparedBuilderModuleSessionV1, RejectedPreparedBuilderModuleSessionV1,
+    PreparedBuilderExternalCommitV1, PreparedBuilderModuleSessionV1,
+    RejectedPreparedBuilderModuleSessionV1,
 };
 #[cfg(test)]
 mod module_invocation_session_p0; // CUT0-I0-SESSION0 fixtures
