@@ -1,6 +1,6 @@
 # CUT0-I0 POST-FAILURE0 Consultation
 
-Status: **Design stop — deterministic postprocess failure authority is undecided**
+Status: **Decision locked and natural row closed — Candidate NF-prime-r1 selected; atomic CUT0/G0 next**
 Date: 2026-07-23
 Scope: decide the smallest typed failure evidence needed after POST-P0 and
 POST-EVIDENCE0, before any production outer executor or atomic CUT0 wiring.
@@ -149,3 +149,52 @@ all production consumers at zero.
 Until this consultation closes, do not add a fault field, environment toggle,
 malformed source plan, `catch_unwind`, RC fallibility refactor, retry,
 fallback, or public-ingress wiring.
+
+## NF-prime-r1 decision closeout (2026-07-23)
+
+Candidate **NF-prime-r1** is selected:
+
+```text
+Q1 optimizer  = 1  existing NYASH_OPT_DIAG_FAIL plus natural diagnostic MIR
+Q2 contract   = 1  orphan Static Table plan without a source spec
+Q3 RC/refresh = 1  keep existing APIs infallible; typed failure is not claimed
+Q4 closeout   = 1  close only the naturally observable failure matrix
+```
+
+The optimizer fixture starts from a real canonical trivial route, adds one
+existing diagnostic `Call` shape, and scopes the existing process policy with
+a test-only save/restore mutex. It removes optimizer-disable and strict
+planner-required inputs for the fixture and restores every prior environment
+value on drop. No production field, new environment variable, or fault
+disposition is introduced.
+
+The contract fixture starts from the same real canonical route and adds only a
+post-lowering `StaticDataPlan` without its existing
+`StaticTableContractSpec`. The source-bound plan and lowering route remain
+valid; the existing Static Table contract refresh rejects the orphan fact with
+`[type/static_table_contract_spec_missing]`.
+
+RC insertion, rune refresh, semantic refresh, and callsite canonicalization
+remain infallible and are explicit non-claims. Real-route panic evidence is
+also not claimed. `RejectedModulePostprocessV1` remains the sole fatal owner;
+`PostprocessEvidenceSealV1` remains the sole successful handoff evidence.
+
+The smallest executable row is `POST-FAILURE0-NATURAL-P0`. It adds only the
+two test-only natural fixtures, a measured guard, and this closeout. Production
+postprocess, external commit, outer executor, public ingress, retry, fallback,
+and atomic CUT0 remain zero.
+
+## POST-FAILURE0-NATURAL-P0 closeout (2026-07-23)
+
+The natural failure matrix is closed as a disconnected proof. A real
+canonical trivial owner with one existing unlowered type-op `Call` rejects at
+the optimizer stage under a serialized, test-scoped `NYASH_OPT_DIAG_FAIL`
+policy. A real canonical owner with an orphan `StaticDataPlan` rejects at
+contract refresh with the existing Static Table missing-spec tag. Both paths
+retain `RejectedModulePostprocessV1` and remain discard-only.
+
+The focused two-fixture test, POST-FAILURE0 guard, existing POST0/P0-R1
+fixtures, cargo check, and pointer guard are green. RC/refresh fallibility,
+real-route panic, production postprocess, external commit, outer executor,
+retry, fallback, and public-ingress wiring remain non-claims. The next row is
+the single atomic `CUT0-I0-ATOMIC-CUT0/G0` activation boundary.

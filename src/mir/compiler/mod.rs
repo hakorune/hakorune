@@ -77,6 +77,8 @@ mod external_commit_p0;
 #[cfg(test)]
 mod module_postprocess_p0;
 #[cfg(test)]
+mod module_postprocess_failure_p0;
+#[cfg(test)]
 mod canonical_bridge_fixture0_p0;
 #[cfg(test)]
 mod canonical_drain_manifest_p0;

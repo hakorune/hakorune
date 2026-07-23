@@ -1,6 +1,6 @@
 # CUT0-I0 Production Activation Execution Task
 
-Status: **Design stop — POST-FAILURE0-CONSULT0; OWNER-RETENTION0-POST-P0 and POST-EVIDENCE0 are closed; production ingress remains disconnected**
+Status: **Active — POST-FAILURE0-NATURAL-P0 is closed; atomic CUT0/G0 is next; production ingress remains disconnected**
 Date: 2026-07-23
 Decision: **Candidate ACT-prime-r1 accepted**
 
@@ -607,11 +607,65 @@ on existing diagnostic policy, contract refresh needs a naturally invalid
 module-level fact, and RC insertion remains infallible.
 
 The dedicated consultation card
-`cut0-i0-prod-activation-post-failure-consultation-2026-07-23.md` asks which
-failure authority is allowed, which rows may remain non-claims, and whether a
-natural-fact fixture exists. Until Q1–Q4 are decided, production postprocess,
-outer executor, retry, fallback, RC fallibility refactoring, and atomic CUT0
-remain forbidden.
+`cut0-i0-prod-activation-post-failure-consultation-2026-07-23.md` is closed
+with NF-prime-r1. The natural-failure row below is the only permitted next
+implementation; production postprocess, outer executor, retry, fallback, RC
+fallibility refactoring, and atomic CUT0 remain disconnected until it closes.
+
+## POST-FAILURE0-NATURAL-P0 — natural failure matrix
+
+Candidate NF-prime-r1 is selected. This row uses no new fault authority:
+
+```text
+optimizer:
+  real canonical trivial route
+  + one existing unlowered type-op Call
+  + test-scoped NYASH_OPT_DIAG_FAIL policy
+  -> RejectedModulePostprocessV1::Optimizer
+
+contract:
+  real canonical trivial route
+  + existing StaticDataPlan without StaticTableContractSpec
+  -> RejectedModulePostprocessV1::ContractRefresh
+```
+
+The optimizer policy scope saves/restores exact process environment values and
+serializes the fixture. RC insertion, semantic refresh, callsite
+canonicalization, and real-route panic remain explicit non-claims because the
+current operations are infallible or have no sanctioned injection terminal.
+No production postprocess, external-commit, outer-executor, retry, fallback,
+or public-ingress consumer is permitted.
+
+Acceptance:
+
+```text
+optimizer natural rejection = green
+Static Table orphan-plan rejection = green
+existing canonical final-verifier fixture = green
+Raw reportable verifier fixture = green
+RejectedModulePostprocessV1 is discard-only
+external commit = 0
+live Builder mutation = 0
+all touched source/check files < 800 lines
+```
+
+The dedicated guard is
+`tools/checks/lib/cut0_i0_prod_activation_post_failure0_guard.py`. After this
+row closes, the next boundary is atomic CUT0/G0; production consumers remain
+zero until that single activation patch.
+
+### POST-FAILURE0-NATURAL-P0 closeout (2026-07-23)
+
+NF-prime-r1 is closed as a disconnected natural-failure proof. The real
+canonical trivial route rejects one existing optimizer diagnostic shape under
+the serialized existing policy scope, and the same route rejects an orphan
+Static Table plan during contract refresh. Both failures retain the current
+unpublished input in `RejectedModulePostprocessV1` and expose discard only.
+
+The dedicated natural-failure guard, focused two-fixture test, existing POST0
+and P0-R1 fixtures, cargo check, diff check, and pointer guard are green. RC,
+refresh, and real-route panic failure semantics remain explicit non-claims.
+The next row is the one-shot atomic `CUT0-I0-ATOMIC-CUT0/G0` activation.
 
 ## Atomic CUT0/G0
 
