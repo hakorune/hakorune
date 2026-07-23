@@ -34,12 +34,26 @@ def main() -> int:
         "POST0 boundary",
     )
     require(texts["mod"], "mod module_postprocess;", "POST0 module registration")
+    require(
+        texts["mod"],
+        "#[cfg(test)]\nmod prod_activation_p0_r1;",
+        "P0-R1 fixture must remain test-only",
+    )
     for fragment in (
         "ModulePostprocessScheduleV1",
         "ModulePostprocessOwnerV1",
         "ModuleVerificationEvidenceV1",
         "ModulePostprocessInputV1",
         "PostprocessedModuleInvocationV1",
+        "RejectedModulePostprocessV1",
+        "input: ModulePostprocessInputV1<'a>",
+        "schedule: ModulePostprocessScheduleV1",
+        "stage: PostprocessFailureStageV1",
+        "error: ModulePostprocessErrorV1",
+        "PostprocessFailureStageV1",
+        "fn discard(self)",
+        "fn error(&self)",
+        "fn stage(&self)",
         "run_raw(",
         "ModuleVerificationEvidenceV1::Raw",
         "for_family(",
@@ -53,12 +67,12 @@ def main() -> int:
         require(texts["post"], fragment, f"postprocess owner: {fragment}")
 
     order = [
-        "refresh_module_rune_plans(module)",
-        "optimize_module(module)",
-        "refresh_and_validate_for_boundary(module",
-        "verify_module(module)",
-        "insert_rc_instructions(module)",
-        "refresh_module_semantic_metadata(module)",
+        "refresh_module_rune_plans(module_mut(&mut input))",
+        "MirOptimizer::new().optimize_module(module_mut(&mut input))",
+        "refresh_and_validate_for_boundary(\n        module_mut(&mut input)",
+        "verify_module(module_mut(&mut input))",
+        "insert_rc_instructions(module_mut(&mut input))",
+        "refresh_module_semantic_metadata(module_mut(&mut input))",
         "canonicalize_for_site",
     ]
     positions = [texts["post"].find(fragment) for fragment in order]
@@ -80,6 +94,7 @@ def main() -> int:
     for fixture in (
         "postprocess_schedule_is_family_owned",
         "postprocess_consumes_finalized_single_without_publication",
+        "postprocess_final_verifier_failure_retains_discard_only_owner",
     ):
         require(texts["tests"], fixture, f"POST0 fixture: {fixture}")
 
@@ -88,6 +103,7 @@ def main() -> int:
         for path in ROOT.glob("src/**/*.rs")
         if path not in (FILES["post"], FILES["final"], FILES["raw"], ROOT / "src/mir/builder/raw_physical_finalization.rs")
         and not path.name.endswith("_p0.rs")
+        and path.name != "prod_activation_p0_r1.rs"
         and not path.name.endswith("_tests.rs")
         and "tests" not in path.parts
         and ("ModulePostprocessOwnerV1::new" in path.read_text()

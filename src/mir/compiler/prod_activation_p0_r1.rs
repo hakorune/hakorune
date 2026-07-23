@@ -2,7 +2,9 @@
 
 use super::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
 use super::canonical_finalization::{CanonicalFinalizationInputV1, CanonicalModuleFinalizerV1};
-use super::module_postprocess::{ModulePostprocessErrorV1, ModulePostprocessOwnerV1};
+use super::module_postprocess::{
+    ModulePostprocessErrorV1, ModulePostprocessOwnerV1, PostprocessFailureStageV1,
+};
 use super::source_bound_package::ExactCanonicalPreflightPlanV1;
 use super::{MirCompiler, VerifiedResolvedSourceUnitV1};
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
@@ -78,9 +80,17 @@ fn p0_r1_final_verifier_failure_keeps_commit_zero() {
         .set_jump_with_edge_args(BasicBlockId::new(9999), None);
 
     let mut verifier = MirVerifier::new();
-    let error = ModulePostprocessOwnerV1::new(&mut verifier, false)
+    let rejected = ModulePostprocessOwnerV1::new(&mut verifier, false)
         .run(finalized)
         .expect_err("missing CFG target must fail canonical final verification");
-    assert!(matches!(error, ModulePostprocessErrorV1::FinalVerification(_)));
+    assert_eq!(
+        rejected.stage(),
+        PostprocessFailureStageV1::FinalVerification
+    );
+    assert!(matches!(
+        rejected.error(),
+        ModulePostprocessErrorV1::FinalVerification(_)
+    ));
+    rejected.discard();
     assert!(compiler.builder.current_module.is_none());
 }

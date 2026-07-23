@@ -1,6 +1,6 @@
 # CUT0-I0 OWNER-RETENTION0-POST Consultation
 
-Status: **Design stop — postprocess rejected-owner and evidence-retention policy undecided**
+Status: **Decision locked — Candidate PR-prime selected; OWNER-RETENTION0-POST-P0 next**
 Date: 2026-07-23
 Scope: decide the postprocess owner boundary before any production outer
 executor or atomic CUT0 wiring.
@@ -153,9 +153,9 @@ How must postprocess success preserve route evidence until the paired commit?
    and is not acceptable for CUT0.
 ```
 
-## Candidate PR-prime (not yet locked)
+## Candidate PR-prime decision closeout (2026-07-23)
 
-The worker audit recommends:
+The worker audit and user review select:
 
 ```text
 Q1 = 1   full rejected owner
@@ -177,7 +177,19 @@ FinalizedModuleInvocationV1
   -> one-shot commit
 ```
 
-## Non-claims while stopped
+The following are now durable policy:
+
+```text
+RejectedModulePostprocessV1 exposes only error inspection and discard.
+It has no retry, resume, replacement-manifest, fallback, or recovery terminal.
+The rejected owner may retain an in-place mutated unpublished module prefix.
+Raw pre-transform verifier Err remains reportable evidence.
+RC failure retention is not claimed while RC insertion is infallible.
+PostprocessEvidenceSealV1 is required at paired commit preparation; dropping
+continuation/physical inventory/receipt/capability as bare fields is forbidden.
+```
+
+## Non-claims while implementing the next row
 
 ```text
 production postprocess consumer = 0
@@ -189,7 +201,7 @@ Raw pre-transform verifier Err becomes fatal = 0
 source/catalog/current_module re-observation = 0
 ```
 
-## Smallest next executable row after decision
+## Smallest next executable row
 
 ```text
 OWNER-RETENTION0-POST-P0
@@ -204,9 +216,22 @@ The row must stay below 800 lines per touched source/check file and must not
 wire the outer executor, external commit, fallback, retry, or canonical/Raw
 public ingress.
 
-## Required response
+The next code-facing row is `OWNER-RETENTION0-POST-P0`. `POST-FAILURE0` owns
+any later deterministic optimizer/RC fault matrix, and production consumers
+remain zero until the atomic CUT0 patch.
 
-Select Q1–Q4, state whether `PostprocessEvidenceSealV1` is the handoff proof,
-and identify any failure categories that remain owned by a later
-`POST-FAILURE0` row. Do not implement or connect production consumers before
-this policy is locked.
+## OWNER-RETENTION0-POST-P0 closeout (2026-07-23)
+
+The selected rejected-owner boundary is implemented. Fatal optimizer,
+contract-refresh, and canonical final-verifier branches now return
+`RejectedModulePostprocessV1` with the current unpublished input, family-owned
+schedule, failure stage, and stage error. The owner exposes only stage/error
+inspection and discard. In-place mutation before failure is retained; no
+rollback clone, retry, resume, fallback, or recovery terminal was added.
+
+Raw pre-transform verifier errors remain reportable evidence, and RC failure
+remains outside this row because the current RC insertion API is infallible.
+The focused final-verifier rejection fixture, P0-R1 compatibility fixture,
+POST0 guard, cargo check, and diff check are green. `PostprocessEvidenceSealV1`
+is still the next implementation boundary, and production consumers remain
+zero.

@@ -92,6 +92,13 @@ pub(in crate::mir) enum ModulePostprocessErrorV1 {
     FinalVerification(Box<[VerificationError]>),
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) enum PostprocessFailureStageV1 {
+    Optimizer,
+    ContractRefresh,
+    FinalVerification,
+}
+
 #[derive(Debug)]
 pub(in crate::mir) struct PostprocessedModuleInvocationV1<'a> {
     pub(in crate::mir) input: ModulePostprocessInputV1<'a>,
@@ -103,6 +110,37 @@ pub(in crate::mir) struct PostprocessedModuleInvocationV1<'a> {
 pub(in crate::mir) enum ModulePostprocessInputV1<'a> {
     Canonical(CanonicalFinalizationInputV1<'a>),
     Raw(RawFinalizationInputV1),
+}
+
+/// Rejected postprocess keeps the unpublished invocation at the exact stage
+/// where it failed.  The owner is intentionally discard-only: no retry,
+/// resume, replacement manifest, or fallback terminal is exposed.
+#[derive(Debug)]
+pub(in crate::mir) struct RejectedModulePostprocessV1<'a> {
+    input: ModulePostprocessInputV1<'a>,
+    schedule: ModulePostprocessScheduleV1,
+    stage: PostprocessFailureStageV1,
+    error: ModulePostprocessErrorV1,
+}
+
+impl<'a> RejectedModulePostprocessV1<'a> {
+    pub(in crate::mir) fn stage(&self) -> PostprocessFailureStageV1 {
+        self.stage
+    }
+
+    pub(in crate::mir) fn error(&self) -> &ModulePostprocessErrorV1 {
+        &self.error
+    }
+
+    pub(in crate::mir) fn discard(self) {
+        let Self {
+            input,
+            schedule: _,
+            stage: _,
+            error: _,
+        } = self;
+        drop(input);
+    }
 }
 
 impl<'a> PostprocessedModuleInvocationV1<'a> {
@@ -185,7 +223,7 @@ impl<'a> ModulePostprocessOwnerV1<'a> {
     pub(in crate::mir) fn run(
         self,
         finalized: FinalizedModuleInvocationV1<'a>,
-    ) -> Result<PostprocessedModuleInvocationV1<'a>, ModulePostprocessErrorV1> {
+    ) -> Result<PostprocessedModuleInvocationV1<'a>, RejectedModulePostprocessV1<'a>> {
         let FinalizedModuleInvocationV1 { input, .. } = finalized;
         let family = match &input {
             CanonicalFinalizationInputV1::Single(input) => input.token.family(),
@@ -203,7 +241,8 @@ impl<'a> ModulePostprocessOwnerV1<'a> {
     pub(in crate::mir) fn run_raw(
         self,
         finalized: RawFinalizedModuleInvocationV1,
-    ) -> Result<PostprocessedModuleInvocationV1<'static>, ModulePostprocessErrorV1> {
+    ) -> Result<PostprocessedModuleInvocationV1<'static>, RejectedModulePostprocessV1<'static>>
+    {
         let RawFinalizedModuleInvocationV1 { input, .. } = finalized;
         let family = input.token.family();
         process_input(
@@ -220,56 +259,60 @@ fn process_input<'a>(
     schedule: ModulePostprocessScheduleV1,
     verifier: &mut MirVerifier,
     optimize: bool,
-) -> Result<PostprocessedModuleInvocationV1<'a>, ModulePostprocessErrorV1> {
-    let module = match &mut input {
-        ModulePostprocessInputV1::Canonical(CanonicalFinalizationInputV1::Single(input)) => {
-            &mut input.physical.module
-        }
-        ModulePostprocessInputV1::Canonical(CanonicalFinalizationInputV1::Callable(input)) => {
-            &mut input.physical.module
-        }
-        ModulePostprocessInputV1::Raw(input) => &mut input.module,
-    };
-
-    crate::mir::rune_plan_refresh::refresh_module_rune_plans(module);
+) -> Result<PostprocessedModuleInvocationV1<'a>, RejectedModulePostprocessV1<'a>> {
+    crate::mir::rune_plan_refresh::refresh_module_rune_plans(module_mut(&mut input));
     if optimize {
-        let stats = MirOptimizer::new().optimize_module(module);
+        let stats = MirOptimizer::new().optimize_module(module_mut(&mut input));
         if (crate::config::env::opt_diag_fail() || crate::config::env::opt_diag_forbid_legacy())
             && stats.diagnostics_reported > 0
         {
-            return Err(ModulePostprocessErrorV1::OptimizerDiagnostics {
-                count: stats.diagnostics_reported,
-            });
+            return Err(rejected(
+                input,
+                schedule,
+                PostprocessFailureStageV1::Optimizer,
+                ModulePostprocessErrorV1::OptimizerDiagnostics {
+                    count: stats.diagnostics_reported,
+                },
+            ));
         }
     }
-    refresh_and_validate_for_boundary(module, ContractRefreshBoundary::Verifier)
-        .map_err(|error| ModulePostprocessErrorV1::ContractRefresh(format!("{error:?}")))?;
+    if let Err(error) =
+        refresh_and_validate_for_boundary(module_mut(&mut input), ContractRefreshBoundary::Verifier)
+    {
+        return Err(rejected(
+            input,
+            schedule,
+            PostprocessFailureStageV1::ContractRefresh,
+            ModulePostprocessErrorV1::ContractRefresh(format!("{error:?}")),
+        ));
+    }
     let pre_transform = verifier
-        .verify_module(module)
+        .verify_module(module_mut(&mut input))
         .map(|()| ())
         .map_err(|errors| errors.into_boxed_slice());
     if matches!(schedule.rc(), RcInsertionScheduleV1::Run) {
-        insert_rc_instructions(module);
+        insert_rc_instructions(module_mut(&mut input));
     }
-    refresh_module_semantic_metadata(module);
+    refresh_module_semantic_metadata(module_mut(&mut input));
     let changed = crate::mir::passes::callsite_canonicalize::canonicalize_for_site(
-        module,
+        module_mut(&mut input),
         crate::mir::passes::callsite_canonicalize::CallsiteCanonicalizeScheduleSite::MirCompilerPostRc,
     );
     if changed > 0 {
-        refresh_module_semantic_metadata(module);
+        refresh_module_semantic_metadata(module_mut(&mut input));
     }
     let verification = match schedule.verifier() {
         VerificationBarrierV1::ReportPreTransformOnly => {
-            ModuleVerificationEvidenceV1::Raw {
-                pre_transform,
-            }
+            ModuleVerificationEvidenceV1::Raw { pre_transform }
         }
         VerificationBarrierV1::RequireFinal => {
-            let errors = verifier.verify_module(module);
+            let errors = verifier.verify_module(module_mut(&mut input));
             if let Err(errors) = errors {
-                return Err(ModulePostprocessErrorV1::FinalVerification(
-                    errors.into_boxed_slice(),
+                return Err(rejected(
+                    input,
+                    schedule,
+                    PostprocessFailureStageV1::FinalVerification,
+                    ModulePostprocessErrorV1::FinalVerification(errors.into_boxed_slice()),
                 ));
             }
             ModuleVerificationEvidenceV1::Canonical {
@@ -285,4 +328,30 @@ fn process_input<'a>(
         schedule,
         verification,
     })
+}
+
+fn module_mut<'a, 'b>(input: &'a mut ModulePostprocessInputV1<'b>) -> &'a mut MirModule {
+    match input {
+        ModulePostprocessInputV1::Canonical(CanonicalFinalizationInputV1::Single(input)) => {
+            &mut input.physical.module
+        }
+        ModulePostprocessInputV1::Canonical(CanonicalFinalizationInputV1::Callable(input)) => {
+            &mut input.physical.module
+        }
+        ModulePostprocessInputV1::Raw(input) => &mut input.module,
+    }
+}
+
+fn rejected<'a>(
+    input: ModulePostprocessInputV1<'a>,
+    schedule: ModulePostprocessScheduleV1,
+    stage: PostprocessFailureStageV1,
+    error: ModulePostprocessErrorV1,
+) -> RejectedModulePostprocessV1<'a> {
+    RejectedModulePostprocessV1 {
+        input,
+        schedule,
+        stage,
+        error,
+    }
 }

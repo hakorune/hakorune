@@ -1,6 +1,6 @@
 # CUT0-I0 Production Activation Execution Task
 
-Status: **Active — ROOT-RETENTION0-TOKEN-HANDOFF is closed; OWNER-RETENTION0-POST is next; OR-prime and ACT-prime-r1 are locked**
+Status: **Active — OWNER-RETENTION0-POST-P0 is closed; POST-EVIDENCE0 is next; production ingress remains disconnected**
 Date: 2026-07-23
 Decision: **Candidate ACT-prime-r1 accepted**
 
@@ -546,6 +546,41 @@ complete route-specific finalization input and typed validation error. A
 foreign physical brand fixture proves the retained input and unchanged live
 Builder. ROOT and POST retention remain open.
 ```
+
+### OWNER-RETENTION0-POST-CONSULT0 — closed (Candidate PR-prime)
+
+The postprocess boundary is now locked:
+
+```text
+Q1  fatal stages return RejectedModulePostprocessV1 with the exact input
+Q2  in-place unpublished mutation is retained and discard-only
+Q3  existing optimizer/contract/canonical-final-verifier failures only;
+    Raw pre-transform verifier Err remains reportable; RC failure is deferred
+Q4  paired commit preparation must consume route evidence into a sealed
+    PostprocessEvidenceSealV1
+```
+
+The next executable row is `OWNER-RETENTION0-POST-P0`. It adds rejected-owner
+retention and focused natural-failure fixtures only. Evidence sealing is a
+separate follow-up row; production postprocess, external commit, public
+ingress, retry, and atomic CUT0 remain disconnected.
+
+### OWNER-RETENTION0-POST-P0 closeout (2026-07-23)
+
+`ModulePostprocessOwnerV1::run` and `run_raw` now return
+`RejectedModulePostprocessV1` for every existing fatal stage. The rejected
+product retains the exact current `ModulePostprocessInputV1`, family-derived
+schedule, failure stage, and typed/opaque stage error. Its only terminals are
+error/stage inspection and discard; retry, resume, replacement manifest, and
+fallback are absent.
+
+The postprocess module is allowed to contain the successful in-place prefix at
+failure time, but it is still unpublished and the live Builder remains
+unchanged. Raw pre-transform verifier errors remain reportable evidence, while
+canonical final-verifier errors are rejected. The focused rejection fixture,
+P0-R1 compatibility fixture, POST0 guard, cargo check, and diff check are
+green. RC-failure injection and commit evidence sealing remain separate
+non-claims. The next row is `OWNER-RETENTION0-POST-EVIDENCE0`.
 
 ## Atomic CUT0/G0
 
