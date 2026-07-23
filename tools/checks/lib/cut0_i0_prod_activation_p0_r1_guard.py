@@ -14,6 +14,7 @@ FILES = {
     "raw": ROOT / "src/mir/builder/raw_physical_finalization.rs",
     "raw_root": ROOT / "src/mir/builder/raw_root_completion.rs",
     "finalizer": ROOT / "src/mir/compiler/canonical_finalization.rs",
+    "finalization_tests": ROOT / "src/mir/compiler/canonical_finalization_p0.rs",
     "raw_finalizer": ROOT / "src/mir/compiler/raw_finalization.rs",
     "postprocess": ROOT / "src/mir/compiler/module_postprocess.rs",
     "commit": ROOT / "src/mir/compiler/external_commit.rs",
@@ -113,6 +114,12 @@ def main() -> int:
     ):
         require(texts["raw"], fragment, f"Raw chain: {fragment}")
     require(texts["finalizer"], "CanonicalModuleFinalizerV1", "canonical finalizer")
+    require(texts["finalizer"], "RejectedCanonicalFinalizerV1", "finalizer rejected owner")
+    require(
+        texts["finalization_tests"],
+        "owner_retention0_finalizer_failure_keeps_complete_input",
+        "finalizer owner-retention fixture",
+    )
     require(texts["raw_finalizer"], "RawModuleFinalizerV1", "Raw finalizer")
     require(texts["postprocess"], "ModulePostprocessOwnerV1", "postprocess owner")
     require(texts["commit"], "PreparedModuleExternalCommitV1", "paired commit product")

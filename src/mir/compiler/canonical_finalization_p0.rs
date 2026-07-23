@@ -8,6 +8,7 @@ use super::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1
 use super::source_bound_package::ExactCanonicalPreflightPlanV1;
 use super::{MirCompiler, VerifiedResolvedCallableProgramV1, VerifiedResolvedSourceUnitV1};
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl, Span};
+use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
 
 fn literal(value: i64) -> ASTNode {
     ASTNode::Literal {
@@ -117,6 +118,57 @@ fn final0_prepares_and_finalizes_single_route() {
     );
     assert_eq!(input.builder.brand(), input.token.brand());
     assert_eq!(input.physical.brand, input.token.brand());
+    assert!(compiler.builder.current_module.is_none());
+}
+
+#[test]
+fn owner_retention0_finalizer_failure_keeps_complete_input() {
+    let source = single_source("owner_retention_finalizer");
+    let plan = match CanonicalLoweringPreflightV1::verify(&source).unwrap() {
+        CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan) => {
+            ExactCanonicalPreflightPlanV1::BindingSsaTrivial(plan)
+        }
+        _ => panic!("owner-retention fixture must remain trivial SSA"),
+    };
+    let mut compiler = MirCompiler::new();
+    let package = compiler.bind_canonical_source(plan).unwrap();
+    let input = compiler
+        .begin_canonical_invocation(
+            package,
+            Some("owner_retention_finalizer.hako"),
+            "owner_retention_finalizer".into(),
+        )
+        .unwrap()
+        .lower()
+        .unwrap()
+        .collect()
+        .unwrap()
+        .complete()
+        .unwrap()
+        .prepare_drain()
+        .unwrap()
+        .drain()
+        .prepare_finalization()
+        .unwrap();
+    let crate::mir::compiler::canonical_finalization::CanonicalFinalizationInputV1::Single(
+        mut single,
+    ) = input
+    else {
+        panic!("owner-retention fixture changed route shape")
+    };
+    single.physical.brand = ModuleInvocationBrandV1::legacy_test();
+    let rejected = CanonicalModuleFinalizerV1::finalize(
+        CanonicalFinalizationInputV1::Single(single),
+    )
+    .expect_err("foreign physical brand must retain finalizer input");
+    assert!(matches!(
+        rejected.error,
+        super::canonical_finalization::CanonicalFinalizationErrorV1::ForeignBrand
+    ));
+    let CanonicalFinalizationInputV1::Single(retained) = rejected.input else {
+        panic!("rejected finalizer owner changed route shape")
+    };
+    assert_eq!(retained.physical.brand, ModuleInvocationBrandV1::legacy_test());
     assert!(compiler.builder.current_module.is_none());
 }
 

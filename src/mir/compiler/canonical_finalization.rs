@@ -56,6 +56,12 @@ pub(in crate::mir) struct FinalizedModuleInvocationV1<'a> {
 struct FinalizedModuleInvocationSealV1;
 
 #[derive(Debug)]
+pub(in crate::mir) struct RejectedCanonicalFinalizerV1<'a> {
+    pub(in crate::mir) input: CanonicalFinalizationInputV1<'a>,
+    pub(in crate::mir) error: CanonicalFinalizationErrorV1,
+}
+
+#[derive(Debug)]
 pub(in crate::mir) enum RejectedCanonicalFinalizationOwnerV1<'a> {
     Single {
         token: ModuleInvocationTokenV1,
@@ -96,8 +102,10 @@ pub(in crate::mir) struct CanonicalModuleFinalizerV1;
 impl CanonicalModuleFinalizerV1 {
     pub(in crate::mir) fn finalize<'a>(
         input: CanonicalFinalizationInputV1<'a>,
-    ) -> Result<FinalizedModuleInvocationV1<'a>, CanonicalFinalizationErrorV1> {
-        validate_input(&input)?;
+    ) -> Result<FinalizedModuleInvocationV1<'a>, RejectedCanonicalFinalizerV1<'a>> {
+        if let Err(error) = validate_input(&input) {
+            return Err(RejectedCanonicalFinalizerV1 { input, error });
+        }
         Ok(FinalizedModuleInvocationV1 {
             input,
             _seal: FinalizedModuleInvocationSealV1,

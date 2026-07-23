@@ -441,6 +441,15 @@ all touched source/check files < 800 lines
 Do not widen a generic `Rejected<Owner, Error>` API across unrelated layers;
 each terminal must retain only the route-specific owner it already controls.
 
+OWNER-RETENTION0-FINAL progress (2026-07-23):
+
+```text
+CanonicalModuleFinalizerV1 now returns RejectedCanonicalFinalizerV1 with the
+complete route-specific finalization input and typed validation error. A
+foreign physical brand fixture proves the retained input and unchanged live
+Builder. ROOT and POST retention remain open.
+```
+
 ## Atomic CUT0/G0
 
 In one activation patch, route all public canonical and legacy ingress wrappers
