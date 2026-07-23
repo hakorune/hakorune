@@ -169,6 +169,10 @@ impl PreparedRootDraftBatchV1 {
         &self.main
     }
 
+    pub(in crate::mir::builder) fn root_body(&self) -> Option<&CompletedRootBodyV1> {
+        self.root_body.as_ref()
+    }
+
     pub(in crate::mir::builder) fn condition_fn(&self) -> Option<&PendingConditionFnDraftV1> {
         self.condition_fn.as_ref()
     }

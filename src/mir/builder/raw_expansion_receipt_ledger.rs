@@ -17,6 +17,8 @@ use super::module_draft_collector::{
 use super::module_invocation_identity::{ModuleInvocationBrandV1, ModuleInvocationTokenV1};
 use super::module_invocation_owner_chain::InvocationBranded;
 
+mod preflight;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::builder) enum RawConditionDispositionV1 {
     RequiredCompatibility,

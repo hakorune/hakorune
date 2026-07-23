@@ -16,6 +16,11 @@ use crate::mir::builder::module_invocation_owner_chain::InvocationBranded;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) enum RootCollectorBatchPrepareErrorV1 {
+    MainIdentityMismatch,
+    MissingConditionFn,
+    InvalidAdmissionCount {
+        actual: usize,
+    },
     Admission {
         ordinal: usize,
         symbol: String,
@@ -158,6 +163,127 @@ impl RootCollectorBatchReceiptV1 {
 }
 
 impl ModuleDraftCollectorV1 {
+    /// Borrow-only root admission validation used by the retention preflight.
+    ///
+    /// The prepared batch and both collector indexes remain untouched.  The
+    /// consuming `prepare_root_batch` terminal repeats the same checks when
+    /// the later commit row is opened, but this method is the proof boundary
+    /// that lets a rejected root retain the original batch owner.
+    pub(in crate::mir::builder) fn validate_root_batch(
+        &self,
+        batch: &PreparedRootDraftBatchV1,
+        brand: ModuleInvocationBrandV1,
+    ) -> Result<(), RootCollectorBatchPrepareErrorV1> {
+        if self.receipt_brand != Some(brand) {
+            return Err(RootCollectorBatchPrepareErrorV1::ForeignBrand {
+                expected: brand.ordinal(),
+                actual: self
+                    .receipt_brand
+                    .map_or(0, ModuleInvocationBrandV1::ordinal),
+            });
+        }
+        let root_body = batch
+            .root_body()
+            .ok_or(RootCollectorBatchPrepareErrorV1::MissingRootBody)?;
+        if root_body.brand() != brand {
+            return Err(RootCollectorBatchPrepareErrorV1::ForeignBrand {
+                expected: brand.ordinal(),
+                actual: root_body.brand().ordinal(),
+            });
+        }
+        if batch.main().identity().symbol() != "main" || batch.main().identity().arity() != 0 {
+            return Err(RootCollectorBatchPrepareErrorV1::MainIdentityMismatch);
+        }
+        let condition = batch
+            .condition_fn()
+            .ok_or(RootCollectorBatchPrepareErrorV1::MissingConditionFn)?;
+        if condition.draft().signature.name != "condition_fn" {
+            return Err(RootCollectorBatchPrepareErrorV1::DraftSymbolMismatch {
+                ordinal: 1,
+                expected: "condition_fn".into(),
+                actual: condition.draft().signature.name.clone(),
+            });
+        }
+        if condition.draft().signature.params.len() != 1 {
+            return Err(RootCollectorBatchPrepareErrorV1::DraftArityMismatch {
+                ordinal: 1,
+                symbol: "condition_fn".into(),
+                expected: 1,
+                actual: condition.draft().signature.params.len(),
+            });
+        }
+        if batch.admissions().len() != 2 {
+            return Err(RootCollectorBatchPrepareErrorV1::InvalidAdmissionCount {
+                actual: batch.admissions().len(),
+            });
+        }
+        for (ordinal, admission) in batch.admissions().iter().enumerate() {
+            let expected = if ordinal == 0 {
+                (
+                    &FunctionDraftKeyV1::Main,
+                    "main",
+                    0,
+                    DraftPublicationPolicyV1::LegacyReplaceWholePair,
+                )
+            } else {
+                (
+                    &FunctionDraftKeyV1::SyntheticConditionFn,
+                    "condition_fn",
+                    1,
+                    DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+                )
+            };
+            if admission.key() != expected.0
+                || admission.symbol() != expected.1
+                || admission.arity() != expected.2
+                || admission.policy() != expected.3
+            {
+                return Err(RootCollectorBatchPrepareErrorV1::Admission {
+                    ordinal,
+                    symbol: admission.symbol().to_owned(),
+                    source: ModuleDraftAdmissionErrorV1::IndexDrift {
+                        symbol: admission.symbol().to_owned(),
+                        key: admission.key().clone(),
+                    },
+                });
+            }
+            let (draft_symbol, draft_arity) = if ordinal == 0 {
+                (
+                    &batch.main().draft().signature.name,
+                    batch.main().draft().signature.params.len(),
+                )
+            } else {
+                (
+                    &condition.draft().signature.name,
+                    condition.draft().signature.params.len(),
+                )
+            };
+            if draft_symbol != expected.1 {
+                return Err(RootCollectorBatchPrepareErrorV1::DraftSymbolMismatch {
+                    ordinal,
+                    expected: expected.1.into(),
+                    actual: draft_symbol.clone(),
+                });
+            }
+            if draft_arity != expected.2 {
+                return Err(RootCollectorBatchPrepareErrorV1::DraftArityMismatch {
+                    ordinal,
+                    symbol: expected.1.into(),
+                    expected: expected.2,
+                    actual: draft_arity,
+                });
+            }
+            if let Err(source) = plan_admission_v1(self, expected.0, expected.1, expected.3) {
+                return Err(RootCollectorBatchPrepareErrorV1::Admission {
+                    ordinal,
+                    symbol: expected.1.into(),
+                    source,
+                });
+            }
+        }
+        Ok(())
+    }
+
     pub(in crate::mir::builder) fn prepare_root_batch(
         self,
         mut batch: PreparedRootDraftBatchV1,

@@ -43,7 +43,11 @@ def main() -> int:
             raise AssertionError(f"RAW0 file must remain below 800 lines: {path}")
 
     require(state, "CUT0-I0-ROOT0-RAW0 is closed", "state closeout")
-    require(state, "ROOT0-CANON0 is next", "successor row")
+    if not any(
+        marker in state
+        for marker in ("ROOT0-CANON0 is next", "ROOT-RETENTION0-PREFLIGHT", "ROOT-RETENTION0-COMMIT")
+    ):
+        raise AssertionError("missing successor row: ROOT0-CANON0 or ROOT-RETENTION0")
     require(task, "Status: **closed — Candidate A implemented", "task closeout")
     require(brief, "ROOT0-RAW0 Candidate A is closed", "brief closeout")
 
@@ -70,7 +74,8 @@ def main() -> int:
 
     for path in SRC.glob("*.rs"):
         text = path.read_text()
-        if "complete_raw_root(" in text and path != ROOT_FILE:
+        production_text = text.split("#[cfg(test)]", 1)[0]
+        if "complete_raw_root(" in production_text and path != ROOT_FILE:
             raise AssertionError(f"RAW0 production consumer must remain zero: {path}")
 
     print("[cut0-i0-root0-raw0-guard] ok retained_root=1 atomic_root_batch=1 production_consumers=0")

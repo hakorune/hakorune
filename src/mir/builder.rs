@@ -178,6 +178,8 @@ mod raw_physical_finalization;
 #[allow(dead_code)]
 mod raw_root_completion; // CUT0-I0-ROOT0-RAW0 retained raw root witness
 pub(in crate::mir) use raw_root_completion::RawInvocationRootWitnessV1;
+#[allow(dead_code)]
+mod raw_root_completion_preflight; // ROOT-RETENTION0-PREFLIGHT borrowed owner checks
 #[cfg(test)]
 mod resolved_owner_header_p0; // ROUTEINV-P0c-SINGLEHDR-P0 matrix
 #[allow(dead_code)]
