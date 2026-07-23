@@ -369,8 +369,14 @@ impl RawExpansionReceiptLedgerV1 {
         })
     }
 
-    pub(in crate::mir::builder) const fn brand(&self) -> ModuleInvocationBrandV1 {
+    pub(in crate::mir) const fn brand(&self) -> ModuleInvocationBrandV1 {
         self.brand
+    }
+
+    pub(in crate::mir) const fn callable_main(
+        &self,
+    ) -> RawCallableMainCompatibilityDispositionV1 {
+        self.callable_main
     }
 
     pub(in crate::mir::builder) fn complete(

@@ -25,6 +25,19 @@ pub(in crate::mir) struct SourceBoundRawRootPackageV1 {
     plan: RawRootPlanV1,
 }
 
+/// The only named consuming handoff after the physical carrier has opened.
+/// Keeping this as a product avoids exposing a loose tuple that callers could
+/// use to re-pair source and physical state.
+#[derive(Debug)]
+pub(in crate::mir::compiler) struct RawRootPhysicalOpenPartsV1 {
+    pub(in crate::mir::compiler) token: ModuleInvocationTokenV1,
+    pub(in crate::mir::compiler) source: OwnedRawSourceV1,
+    pub(in crate::mir::compiler) continuation: RawSourceContinuationV1,
+    pub(in crate::mir::compiler) config: BuilderInvocationConfigV1,
+    pub(in crate::mir::compiler) module_name: Box<str>,
+    pub(in crate::mir::compiler) plan: RawRootPlanV1,
+}
+
 #[derive(Debug)]
 pub(in crate::mir) struct RejectedRawRootPlanningV1 {
     owner: SourceBoundRawPackageV1,
@@ -54,6 +67,10 @@ impl SourceBoundRawPackageV1 {
 }
 
 impl SourceBoundRawRootPackageV1 {
+    pub(in crate::mir) const fn token(&self) -> &ModuleInvocationTokenV1 {
+        &self.token
+    }
+
     pub(in crate::mir) const fn brand(&self) -> ModuleInvocationBrandV1 {
         self.token.brand()
     }
@@ -74,9 +91,19 @@ impl SourceBoundRawRootPackageV1 {
         &self.continuation
     }
 
-    #[cfg(test)]
     pub(in crate::mir) fn module_name(&self) -> &str {
         &self.module_name
+    }
+
+    pub(in crate::mir::compiler) fn into_physical_open_parts(self) -> RawRootPhysicalOpenPartsV1 {
+        RawRootPhysicalOpenPartsV1 {
+            token: self.token,
+            source: self.source,
+            continuation: self.continuation,
+            config: self.config,
+            module_name: self.module_name,
+            plan: self.plan,
+        }
     }
 }
 

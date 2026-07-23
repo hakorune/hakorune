@@ -92,6 +92,10 @@ struct CompletedRootBodySealV1;
 static NEXT_ROOT_BODY_OWNER: AtomicU64 = AtomicU64::new(1);
 
 impl RootBodyCompletionTrackerV1 {
+    pub(in crate::mir) const fn brand(&self) -> ModuleInvocationBrandV1 {
+        self.brand
+    }
+
     pub(in crate::mir::builder) fn new_for_brand(brand: ModuleInvocationBrandV1) -> Self {
         Self {
             brand,

@@ -6,6 +6,10 @@
 use super::raw_root_package::SourceBoundRawRootPackageV1;
 use super::raw_root_plan0::RawStaticDataSourceRowV1;
 use crate::ast::ASTNode;
+use crate::mir::builder::{
+    ModuleBuilderInvocationSessionV1, ModuleLoweringShellErrorV1, MirBuilder,
+    RawRootPhysicalStateV1,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum RawRootEligibilityStageV1 {
@@ -41,7 +45,7 @@ impl std::fmt::Display for RawRootEligibilityErrorV1 {
 
 impl std::error::Error for RawRootEligibilityErrorV1 {}
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir) struct RawRootEligibilityV1 {
     catalog: RawEligibleCatalogV1,
 }
@@ -245,13 +249,13 @@ fn verify_plain_static_main(
 
 #[derive(Debug)]
 pub(in crate::mir) struct EligibleSourceBoundRawRootPackageV1 {
-    pub(in crate::mir) package: SourceBoundRawRootPackageV1,
+    package: SourceBoundRawRootPackageV1,
     proof: RawRootEligibilityV1,
 }
 
 impl EligibleSourceBoundRawRootPackageV1 {
-    pub(in crate::mir) const fn proof(&self) -> RawRootEligibilityV1 {
-        self.proof
+    pub(in crate::mir) const fn proof(&self) -> &RawRootEligibilityV1 {
+        &self.proof
     }
 }
 
@@ -260,6 +264,106 @@ pub(in crate::mir) struct RejectedRawRootEligibilityV1 {
     owner: SourceBoundRawRootPackageV1,
     stage: RawRootEligibilityStageV1,
     error: RawRootEligibilityErrorV1,
+}
+
+#[derive(Debug)]
+pub(in crate::mir) enum RawRootPhysicalOpenErrorV1 {
+    Shell(ModuleLoweringShellErrorV1),
+}
+
+#[derive(Debug)]
+struct RawRootPhysicalCoreV1 {
+    token: crate::mir::module_invocation_identity::ModuleInvocationTokenV1,
+    source: crate::mir::builder::OwnedRawSourceV1,
+    continuation: super::raw_source_binding::RawSourceContinuationV1,
+    config: crate::mir::builder::BuilderInvocationConfigV1,
+    module_name: Box<str>,
+    plan: super::raw_root_plan0::RawRootPlanV1,
+    proof: RawRootEligibilityV1,
+    session: ModuleBuilderInvocationSessionV1,
+    physical: RawRootPhysicalStateV1,
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct RawScriptRootInvocationV1 {
+    core: RawRootPhysicalCoreV1,
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct RawAppRootInvocationV1 {
+    core: RawRootPhysicalCoreV1,
+}
+
+#[derive(Debug)]
+pub(in crate::mir) enum RawRootInvocationV1 {
+    Script(RawScriptRootInvocationV1),
+    App(RawAppRootInvocationV1),
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct RejectedRawRootPhysicalOpenV1 {
+    owner: EligibleSourceBoundRawRootPackageV1,
+    error: RawRootPhysicalOpenErrorV1,
+}
+
+impl RejectedRawRootPhysicalOpenV1 {
+    pub(in crate::mir) const fn error(&self) -> &RawRootPhysicalOpenErrorV1 {
+        &self.error
+    }
+
+    pub(in crate::mir) fn discard(self) {}
+}
+
+impl EligibleSourceBoundRawRootPackageV1 {
+    /// The only PHYSICAL0 terminal. The eligible owner is retained intact if
+    /// the empty shell cannot be opened; package fields move only afterwards.
+    pub(in crate::mir) fn open_physical(
+        self,
+        current: &MirBuilder,
+    ) -> Result<RawRootInvocationV1, RejectedRawRootPhysicalOpenV1> {
+        let physical = match RawRootPhysicalStateV1::open(
+            self.package.token(),
+            self.package.module_name().to_owned(),
+            self.package.continuation().callable_main(),
+        ) {
+            Ok(physical) => physical,
+            Err(error) => {
+                return Err(RejectedRawRootPhysicalOpenV1 {
+                    owner: self,
+                    error: RawRootPhysicalOpenErrorV1::Shell(error),
+                });
+            }
+        };
+        let proof = self.proof;
+        let parts = self.package.into_physical_open_parts();
+        let session = ModuleBuilderInvocationSessionV1::open_for_token(
+            &parts.token,
+            current,
+            parts.config.clone(),
+        );
+        let core = RawRootPhysicalCoreV1 {
+            token: parts.token,
+            source: parts.source,
+            continuation: parts.continuation,
+            config: parts.config,
+            module_name: parts.module_name,
+            plan: parts.plan,
+            proof,
+            session,
+            physical,
+        };
+        let is_script = matches!(core.plan.kind(), super::raw_root_plan0::RawRootKindV1::Script(_));
+        if is_script {
+            Ok(RawRootInvocationV1::Script(RawScriptRootInvocationV1 {
+                core: RawRootPhysicalCoreV1 {
+                    physical: core.physical,
+                    ..core
+                },
+            }))
+        } else {
+            Ok(RawRootInvocationV1::App(RawAppRootInvocationV1 { core }))
+        }
+    }
 }
 
 impl RejectedRawRootEligibilityV1 {
@@ -313,6 +417,7 @@ mod tests {
     use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
     use crate::mir::compiler::lowering_input::LegacyModuleLoweringInputV1;
     use crate::mir::compiler::raw_source_binding::RawCallableMainSelectionV1;
+    use crate::mir::builder::{MirBuilder, RawCallableMainCompatibilityDispositionV1};
     use crate::mir::MirCompiler;
     use std::collections::HashMap;
 
@@ -333,13 +438,20 @@ mod tests {
     }
 
     fn package(source: ASTNode) -> SourceBoundRawRootPackageV1 {
+        package_with_selection(source, RawCallableMainSelectionV1::Omitted)
+    }
+
+    fn package_with_selection(
+        source: ASTNode,
+        selection: RawCallableMainSelectionV1,
+    ) -> SourceBoundRawRootPackageV1 {
         let mut compiler = MirCompiler::new();
         compiler
             .bind_raw_source(
                 LegacyModuleLoweringInputV1::bare_ast(source),
                 None,
                 "eligibility0",
-                RawCallableMainSelectionV1::Omitted,
+                selection,
             )
             .unwrap()
             .into_root_package()
@@ -458,5 +570,72 @@ mod tests {
         .unwrap_err();
         assert_eq!(static_data.stage(), RawRootEligibilityStageV1::Access);
         static_data.discard();
+    }
+
+    #[test]
+    fn physical_open_keeps_script_route_empty_and_unselected() {
+        let eligible = package(ASTNode::Program {
+            statements: Vec::new(),
+            span: Span::unknown(),
+        })
+        .prepare_eligibility()
+        .unwrap();
+        let invocation = eligible.open_physical(&MirBuilder::new()).unwrap();
+        let RawRootInvocationV1::Script(invocation) = invocation else {
+            panic!("empty script must open the Script physical route")
+        };
+        assert!(invocation.core.physical.shell_is_empty());
+        assert_eq!(
+            invocation.core.physical.callable_main(),
+            RawCallableMainCompatibilityDispositionV1::NotSelected
+        );
+        assert_eq!(
+            invocation.core.token.brand(),
+            invocation.core.physical.brand()
+        );
+        assert_eq!(
+            invocation.core.token.brand(),
+            invocation.core.physical.ledger_brand()
+        );
+        assert_eq!(
+            invocation.core.token.brand(),
+            invocation.core.physical.tracker_brand()
+        );
+        assert_eq!(
+            invocation.core.token.brand(),
+            invocation.core.session.brand()
+        );
+    }
+
+    #[test]
+    fn physical_open_keeps_app_callable_main_disposition_without_descent() {
+        let omitted = package(app(Vec::new()))
+            .prepare_eligibility()
+            .unwrap()
+            .open_physical(&MirBuilder::new())
+            .unwrap();
+        let RawRootInvocationV1::App(omitted) = omitted else {
+            panic!("static Main must open the App physical route")
+        };
+        assert_eq!(
+            omitted.core.physical.callable_main(),
+            RawCallableMainCompatibilityDispositionV1::NotSelected
+        );
+        assert!(omitted.core.physical.shell_is_empty());
+
+        let selected = package_with_selection(app(Vec::new()), RawCallableMainSelectionV1::Required)
+            .prepare_eligibility()
+            .unwrap();
+        let selected = selected
+            .open_physical(&MirBuilder::new())
+            .unwrap();
+        let RawRootInvocationV1::App(selected) = selected else {
+            panic!("static Main must open the App physical route")
+        };
+        assert_eq!(
+            selected.core.physical.callable_main(),
+            RawCallableMainCompatibilityDispositionV1::Selected
+        );
+        assert!(selected.core.physical.shell_is_empty());
     }
 }
