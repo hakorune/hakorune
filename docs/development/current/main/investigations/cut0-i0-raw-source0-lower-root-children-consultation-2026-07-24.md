@@ -1,6 +1,6 @@
 # RAW-SOURCE0 LOWER ROOT0 — CHILDREN0 consultation
 
-Status: **Design stop — Candidate CHILD-prime-r1 proposed**
+Status: **Closed — Candidate CHILD-prime-r1 selected; S0 is next**
 Date: 2026-07-24
 
 ## Context
@@ -102,6 +102,22 @@ Should pre-root static-helper completion use a separate
 descent? The recommendation is **yes**: CHILDREN0 may retain the tracker
 brand, but must not count helper receipts in the root-body witness.
 
+## Decision closeout
+
+Candidate `CHILD-prime-r1` is selected for Q1 through Q6.
+
+The child order is the single PLAN0-derived deterministic lexical method-name
+order. `RawRootPhysicalStateV1` owns the sole short-lived collector loan. Exact
+locator/declaration/request validation precedes one-child reservation and
+capture. Rejected owners retain the exact typed cause while ledger history
+keeps its existing coarse abort vocabulary. Script and App have distinct
+zero-child/all-helper completion products, and helper evidence is separate
+from the BODY0-only root tracker.
+
+The next executable row is
+`RAW-SOURCE0-LOWER0-ROOT0-CHILDREN0-S0`, recorded in the linked execution task
+card. Production root capture/commit and CUT0 activation remain forbidden.
+
 ## Non-claims while stopped
 
 ```text
@@ -112,4 +128,5 @@ drain/finalization/postprocess/external commit
 production ingress/CUT0 activation
 ```
 
-No code implementation is authorized until Q1-Q6 are decision-locked.
+The consultation is closed. No implementation beyond the S0 execution task is
+authorized.
