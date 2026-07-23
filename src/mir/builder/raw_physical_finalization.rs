@@ -63,11 +63,11 @@ pub(in crate::mir) struct RejectedRawFinalizationV1 {
 impl RawCompleteInvocationV1 {
     pub(in crate::mir) fn bind_physical(
         self,
-        token: ModuleInvocationTokenV1,
         session: ModuleBuilderInvocationSessionV1,
         shell: BrandedShellV1<ModuleLoweringShellV1>,
     ) -> Result<RawPhysicalCompleteInvocationV1, RejectedRawPhysicalBindingV1> {
-        let (brand, collector, ledger, root) = self.into_parts();
+        let (token, collector, ledger, root) = self.into_parts();
+        let brand = token.brand();
         let expected = token.brand();
         if token.family() != ModuleInvocationFamilyV1::Raw {
             return Err(RejectedRawPhysicalBindingV1 {
@@ -174,8 +174,11 @@ mod tests {
         MainCompletionRequestV1, MainDraftIdentityV1, MainHeaderLoanV1, MainHeaderSourceV1,
     };
     use crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1;
-    use crate::mir::builder::module_invocation_identity::TestInvocationPreflightFactoryV1;
+    use crate::mir::builder::module_invocation_identity::{
+        ModuleInvocationBrandV1, TestInvocationPreflightFactoryV1,
+    };
     use crate::mir::builder::module_invocation_owner_chain::InvocationBranded;
+    use crate::mir::builder::raw_root_completion_preflight::RawRootCompletionInputV1;
     use crate::mir::builder::module_invocation_session::{
         BuilderCoreSeedPolicyV1, BuilderInvocationConfigV1,
     };
@@ -210,7 +213,7 @@ mod tests {
         )
     }
 
-    fn raw_complete() -> (ModuleInvocationTokenV1, RawCompleteInvocationV1) {
+    fn raw_complete() -> (ModuleInvocationBrandV1, RawCompleteInvocationV1) {
         let mut factory = TestInvocationPreflightFactoryV1::new();
         let token = factory.mint(ModuleInvocationFamilyV1::Raw).unwrap();
         let brand = token.brand();
@@ -240,37 +243,37 @@ mod tests {
         let condition_reservation = ledger
             .reserve(RawExpansionDraftRequestV1::required_condition_fn())
             .unwrap();
-        let complete = complete_raw_root(
-            &token,
+        let complete = complete_raw_root(RawRootCompletionInputV1::new(
+            token,
             InvocationBranded::from_test(brand, ModuleDraftCollectorV1::with_brand(brand)),
             ledger,
             batch,
             main_reservation,
             condition_reservation,
             RawCallableMainCompatibilityDispositionV1::NotSelected,
-        )
+        ))
         .unwrap();
-        (token, complete)
+        (brand, complete)
     }
 
-    fn session(token: &ModuleInvocationTokenV1) -> ModuleBuilderInvocationSessionV1 {
+    fn session(complete: &RawCompleteInvocationV1) -> ModuleBuilderInvocationSessionV1 {
         let live = MirBuilder::new();
         let config =
             BuilderInvocationConfigV1::snapshot_with_policy(&live, BuilderCoreSeedPolicyV1::Fresh);
-        ModuleBuilderInvocationSessionV1::open_for_token(token, &live, config)
+        ModuleBuilderInvocationSessionV1::open_for_token(complete.token(), &live, config)
     }
 
     #[test]
     fn raw_physical_owner_retains_module_session_and_legacy_evidence() {
-        let (token, complete) = raw_complete();
-        let brand = token.brand();
+        let (brand, complete) = raw_complete();
+        assert_eq!(complete.token().brand(), brand);
         let shell = InvocationBranded::from_test(
             brand,
             ModuleLoweringShellV1::from_empty_module(MirModule::new("raw".into())).unwrap(),
         );
-        let active_session = session(&token);
+        let active_session = session(&complete);
         let input = complete
-            .bind_physical(token, active_session, shell)
+            .bind_physical(active_session, shell)
             .unwrap()
             .prepare_finalization()
             .unwrap();
@@ -293,15 +296,14 @@ mod tests {
 
     #[test]
     fn raw_physical_prepare_rejects_published_shell_before_move() {
-        let (token, complete) = raw_complete();
-        let brand = token.brand();
+        let (brand, complete) = raw_complete();
         let mut shell_payload =
             ModuleLoweringShellV1::from_empty_module(MirModule::new("raw".into())).unwrap();
         shell_payload.publish_function_for_test(draft("already/0", 0));
         let shell = InvocationBranded::from_test(brand, shell_payload);
-        let active_session = session(&token);
+        let active_session = session(&complete);
         let rejected = complete
-            .bind_physical(token, active_session, shell)
+            .bind_physical(active_session, shell)
             .unwrap()
             .prepare_finalization()
             .unwrap_err();
@@ -313,15 +315,14 @@ mod tests {
 
     #[test]
     fn raw_finalizer_consumes_physical_input_without_legacy_finalize() {
-        let (token, complete) = raw_complete();
-        let brand = token.brand();
+        let (brand, complete) = raw_complete();
         let shell = InvocationBranded::from_test(
             brand,
             ModuleLoweringShellV1::from_empty_module(MirModule::new("raw".into())).unwrap(),
         );
-        let active_session = session(&token);
+        let active_session = session(&complete);
         let input = complete
-            .bind_physical(token, active_session, shell)
+            .bind_physical(active_session, shell)
             .unwrap()
             .prepare_finalization()
             .unwrap();
@@ -352,16 +353,15 @@ mod tests {
 
     #[test]
     fn raw_finalizer_retains_readiness_failure_owner() {
-        let (token, complete) = raw_complete();
-        let brand = token.brand();
+        let (brand, complete) = raw_complete();
         let shell = InvocationBranded::from_test(
             brand,
             ModuleLoweringShellV1::from_empty_module(MirModule::new("raw".into())).unwrap(),
         );
-        let mut active_session = session(&token);
+        let mut active_session = session(&complete);
         active_session.builder_mut().current_module = Some(MirModule::new("open".into()));
         let input = complete
-            .bind_physical(token, active_session, shell)
+            .bind_physical(active_session, shell)
             .unwrap()
             .prepare_finalization()
             .unwrap();
@@ -380,15 +380,14 @@ mod tests {
 
     #[test]
     fn p0_r1_raw_verifier_error_remains_reportable() {
-        let (token, complete) = raw_complete();
-        let brand = token.brand();
+        let (brand, complete) = raw_complete();
         let shell = InvocationBranded::from_test(
             brand,
             ModuleLoweringShellV1::from_empty_module(MirModule::new("raw".into())).unwrap(),
         );
-        let active_session = session(&token);
+        let active_session = session(&complete);
         let input = complete
-            .bind_physical(token, active_session, shell)
+            .bind_physical(active_session, shell)
             .unwrap()
             .prepare_finalization()
             .unwrap();
@@ -427,15 +426,14 @@ mod tests {
 
     #[test]
     fn p0_r1_raw_real_authority_chain() {
-        let (token, complete) = raw_complete();
-        let brand = token.brand();
+        let (brand, complete) = raw_complete();
         let shell = InvocationBranded::from_test(
             brand,
             ModuleLoweringShellV1::from_empty_module(MirModule::new("p0_r1_raw".into()))
                 .unwrap(),
         );
-        let active_session = session(&token);
-        let physical = complete.bind_physical(token, active_session, shell).unwrap();
+        let active_session = session(&complete);
+        let physical = complete.bind_physical(active_session, shell).unwrap();
         let physical = physical.prepare_finalization().unwrap();
         let finalized = crate::mir::compiler::raw_finalization::RawModuleFinalizerV1::prepare(
             physical,

@@ -20,6 +20,7 @@ ROOT_FILE = SRC / "raw_root_completion.rs"
 BODY = SRC / "root_body_completion.rs"
 ROOT_BATCH = SRC / "module_draft_collector/root_batch.rs"
 LEDGER = SRC / "raw_expansion_receipt_ledger.rs"
+LEDGER_PREFLIGHT = SRC / "raw_expansion_receipt_ledger/preflight.rs"
 BUILDER = SRC.parent / "builder.rs"
 
 
@@ -35,10 +36,17 @@ def main() -> int:
     root = ROOT_FILE.read_text()
     body = BODY.read_text()
     root_batch = ROOT_BATCH.read_text()
-    ledger = LEDGER.read_text()
+    ledger = LEDGER.read_text() + "\n" + LEDGER_PREFLIGHT.read_text()
     builder = BUILDER.read_text()
 
-    for path in (ROOT_FILE, BODY, ROOT_BATCH, LEDGER, pathlib.Path(__file__)):
+    for path in (
+        ROOT_FILE,
+        BODY,
+        ROOT_BATCH,
+        LEDGER,
+        LEDGER_PREFLIGHT,
+        pathlib.Path(__file__),
+    ):
         if len(path.read_text().splitlines()) >= 800:
             raise AssertionError(f"RAW0 file must remain below 800 lines: {path}")
 
@@ -61,10 +69,15 @@ def main() -> int:
         ("RawCompleteInvocationV1", "raw complete product"),
         ("complete_raw_root", "raw root terminal"),
         ("CompletedRootBodyV1", "retained root body"),
-        ("complete_required_root_batch", "atomic ledger root batch"),
-        ("SelectedCallableMainMissing", "selected callable failure boundary"),
     ):
         require(root, fragment, label)
+
+    require(ledger, "complete_required_root_batch", "atomic ledger root batch")
+    require(
+        SRC.joinpath("raw_root_completion_preflight.rs").read_text(),
+        "SelectedCallableMainMissing",
+        "selected callable failure boundary",
+    )
 
     require(body, "new_for_brand", "brand-bound root tracker")
     require(root_batch, "root_body: CompletedRootBodyV1", "collector root retention")

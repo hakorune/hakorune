@@ -184,7 +184,7 @@ impl PreparedRawRootCompletionV1 {
             .seal()
             .unwrap_or_else(|_| unreachable!("raw root ledger proof drifted before seal"));
         RawCompleteInvocationV1::from_committed_parts(
-            brand,
+            token,
             InvocationBranded::from_source(brand, collector),
             ledger,
             root_body,
@@ -198,6 +198,10 @@ impl PreparedRawRootCompletionV1 {
 impl RejectedRawRootCompletionV1 {
     pub(in crate::mir::builder) fn error(&self) -> &RawRootCompletionPreflightErrorV1 {
         &self.error
+    }
+
+    pub(in crate::mir::builder) fn into_error(self) -> RawRootCompletionPreflightErrorV1 {
+        self.error
     }
 
     pub(in crate::mir::builder) const fn brand(&self) -> ModuleInvocationBrandV1 {

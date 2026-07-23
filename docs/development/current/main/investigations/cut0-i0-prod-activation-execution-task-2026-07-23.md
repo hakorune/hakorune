@@ -1,6 +1,6 @@
 # CUT0-I0 Production Activation Execution Task
 
-Status: **Active — ROOT-RETENTION0-PREFLIGHT is next; OR-prime is locked; ACT-prime-r1 and P0-R1 bounded closeout are recorded**
+Status: **Active — ROOT-RETENTION0-TOKEN-HANDOFF is closed; OWNER-RETENTION0-POST is next; OR-prime and ACT-prime-r1 are locked**
 Date: 2026-07-23
 Decision: **Candidate ACT-prime-r1 accepted**
 
@@ -519,6 +519,23 @@ TOKEN-HANDOFF remains separate: RawCompleteInvocationV1 still exposes the
 existing brand-only physical bridge until the next row removes loose token
 re-entry. Production Raw ingress, finalizer, postprocess, and external commit
 remain disconnected.
+```
+
+ROOT-RETENTION0-TOKEN-HANDOFF closeout (2026-07-23):
+
+```text
+RawCompleteInvocationV1 now owns the original non-Clone
+ModuleInvocationTokenV1 by value; brand is derived from that token and no
+longer acts as a replacement authority. `into_parts` and committed-root
+construction move the token through the complete product. Physical binding
+consumes the complete product with `bind_physical(self, session, shell)` and
+has no loose token parameter, so a second token cannot be re-entered at the
+handoff boundary.
+
+The focused raw completion, physical finalization, preflight guard, RAW0
+guard, cargo check, and diff check are green. Production Raw ingress,
+finalizer, postprocess, and external commit remain disconnected. The next
+row is OWNER-RETENTION0-POST; no canonical or atomic CUT0 wiring is opened.
 ```
 
 OWNER-RETENTION0-FINAL progress (2026-07-23):
