@@ -14,9 +14,7 @@ use crate::mir::builder::{
 };
 use crate::mir::canonical_physical_drain::CanonicalPhysicalDrainManifestV1;
 use crate::mir::compiler::source_bound_package::CanonicalSourceContinuationV1;
-use crate::mir::module_invocation_identity::{
-    ModuleInvocationFamilyV1, ModuleInvocationTokenV1,
-};
+use crate::mir::module_invocation_identity::{ModuleInvocationFamilyV1, ModuleInvocationTokenV1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum ExternalCommitPreparationErrorV1 {

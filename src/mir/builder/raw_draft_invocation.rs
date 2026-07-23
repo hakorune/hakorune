@@ -6,9 +6,7 @@
 //! deliberately outside this module.
 
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
-use crate::mir::compiler::raw_source_binding::{
-    RawSourceContinuationV1, SourceBoundRawPackageV1,
-};
+use crate::mir::compiler::raw_source_binding::{RawSourceContinuationV1, SourceBoundRawPackageV1};
 use crate::mir::module_invocation_identity::{ModuleInvocationBrandV1, ModuleInvocationTokenV1};
 use crate::mir::{MirBuilder, MirModule};
 
@@ -18,14 +16,13 @@ use super::module_draft_collector::{
 use super::module_invocation_owner_chain::InvocationBranded;
 use super::module_invocation_session::ModuleBuilderInvocationSessionV1;
 use super::module_lowering_invocation::{
-    LegacyChildDraftAdmissionV1, ModuleLoweringPortChildErrorV1, ModuleLoweringInvocationV1,
+    LegacyChildDraftAdmissionV1, ModuleLoweringInvocationV1, ModuleLoweringPortChildErrorV1,
 };
 use super::module_lowering_invocation_state::ModuleLoweringInvocationStateV1;
 use super::module_lowering_shell::ModuleLoweringShellV1;
 use super::raw_expansion_receipt_ledger::{
-    AbortedRawExpansionReceiptLedgerV1, RawExpansionAbortReasonV1,
-    RawExpansionDraftRequestV1, RawExpansionDraftRoleV1, RawExpansionReceiptLedgerErrorV1,
-    RawExpansionReceiptLedgerV1,
+    AbortedRawExpansionReceiptLedgerV1, RawExpansionAbortReasonV1, RawExpansionDraftRequestV1,
+    RawExpansionDraftRoleV1, RawExpansionReceiptLedgerErrorV1, RawExpansionReceiptLedgerV1,
 };
 use super::raw_source_projection::OwnedRawSourceV1;
 
@@ -155,20 +152,16 @@ pub(in crate::mir) struct RejectedRawDraftInvocationV1 {
 struct RejectedRawDraftInvocationSealV1;
 
 impl RawDraftInvocationV1 {
-    pub(in crate::mir) fn open(
-        package: SourceBoundRawPackageV1,
-        current: &MirBuilder,
-    ) -> Self {
+    pub(in crate::mir) fn open(package: SourceBoundRawPackageV1, current: &MirBuilder) -> Self {
         let (token, source, continuation, config, module_name) = package.into_parts();
         let session = ModuleBuilderInvocationSessionV1::open_for_token(&token, current, config);
-        let shell = ModuleLoweringShellV1::from_empty_module(MirModule::new(module_name.to_string()))
-            .expect("Raw S0 opens an empty module shell");
+        let shell =
+            ModuleLoweringShellV1::from_empty_module(MirModule::new(module_name.to_string()))
+                .expect("Raw S0 opens an empty module shell");
         let collector = ModuleDraftCollectorV1::with_brand(token.brand());
         let state = ModuleLoweringInvocationStateV1::new(shell, collector);
-        let ledger = RawExpansionReceiptLedgerV1::new_for_token(
-            &token,
-            continuation.callable_main(),
-        );
+        let ledger =
+            RawExpansionReceiptLedgerV1::new_for_token(&token, continuation.callable_main());
         Self {
             token,
             source,
@@ -296,12 +289,11 @@ impl RawDraftInvocationV1 {
             shell,
             collector,
         );
-        let admission = LegacyChildDraftAdmissionV1::legacy_symbol(
-            request.symbol.to_string(),
-            request.arity,
-        );
+        let admission =
+            LegacyChildDraftAdmissionV1::legacy_symbol(request.symbol.to_string(), request.arity);
         let child_result = invocation.with_module_port(|builder, port| {
-            let mut child_port = super::recursive_child_lowering::RawInvocationChildPortV1::new(port);
+            let mut child_port =
+                super::recursive_child_lowering::RawInvocationChildPortV1::new(port);
             child_port.complete_static_box_method_branded(
                 builder,
                 admission,

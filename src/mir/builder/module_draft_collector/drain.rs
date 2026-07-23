@@ -26,17 +26,36 @@ pub(in crate::mir::builder) enum CanonicalCollectorReceiptViewV1<'a> {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) enum CanonicalCollectorDrainErrorV1 {
     BrandMismatch,
-    ReceiptCountMismatch { expected: usize, actual: usize },
+    ReceiptCountMismatch {
+        expected: usize,
+        actual: usize,
+    },
     DuplicateReceiptKey(FunctionDraftKeyV1),
     DuplicateReceiptSymbol(String),
     MissingKey(FunctionDraftKeyV1),
     SurplusKey(FunctionDraftKeyV1),
-    SymbolIndexDrift { symbol: String },
-    SymbolMismatch { key: FunctionDraftKeyV1, expected: String, actual: String },
-    ArityMismatch { key: FunctionDraftKeyV1, expected: usize, actual: usize },
-    ReceiptMismatch { key: FunctionDraftKeyV1 },
-    LegacyAdmission { key: FunctionDraftKeyV1 },
-    ReplacedAdmission { key: FunctionDraftKeyV1 },
+    SymbolIndexDrift {
+        symbol: String,
+    },
+    SymbolMismatch {
+        key: FunctionDraftKeyV1,
+        expected: String,
+        actual: String,
+    },
+    ArityMismatch {
+        key: FunctionDraftKeyV1,
+        expected: usize,
+        actual: usize,
+    },
+    ReceiptMismatch {
+        key: FunctionDraftKeyV1,
+    },
+    LegacyAdmission {
+        key: FunctionDraftKeyV1,
+    },
+    ReplacedAdmission {
+        key: FunctionDraftKeyV1,
+    },
 }
 
 #[derive(Debug)]
@@ -134,20 +153,26 @@ fn expected_rows(
     manifest
         .callable_rows()
         .unwrap_or_default()
-            .iter()
-            .map(|row| {
-                (
-                    FunctionDraftKeyV1::CanonicalCallable(row.key().clone()),
-                    row.symbol().to_owned(),
-                    row.arity(),
-                )
-            })
-            .collect()
+        .iter()
+        .map(|row| {
+            (
+                FunctionDraftKeyV1::CanonicalCallable(row.key().clone()),
+                row.symbol().to_owned(),
+                row.arity(),
+            )
+        })
+        .collect()
 }
 
 fn receipt_rows(
     receipt: CanonicalCollectorReceiptViewV1<'_>,
-) -> Vec<(FunctionDraftKeyV1, String, usize, DraftPublicationPolicyV1, bool)> {
+) -> Vec<(
+    FunctionDraftKeyV1,
+    String,
+    usize,
+    DraftPublicationPolicyV1,
+    bool,
+)> {
     match receipt {
         CanonicalCollectorReceiptViewV1::Single(receipt) => {
             let receipt = receipt.payload();
@@ -164,20 +189,35 @@ fn receipt_rows(
 
 fn receipt_row(
     receipt: &CollectedDraftAdmissionReceiptV1,
-) -> (FunctionDraftKeyV1, String, usize, DraftPublicationPolicyV1, bool) {
+) -> (
+    FunctionDraftKeyV1,
+    String,
+    usize,
+    DraftPublicationPolicyV1,
+    bool,
+) {
     (
         receipt.key().clone(),
         receipt.symbol().to_owned(),
         receipt.arity(),
         receipt.policy(),
-        matches!(receipt.replacement(), CollectedDraftReplacementDispositionV1::Inserted),
+        matches!(
+            receipt.replacement(),
+            CollectedDraftReplacementDispositionV1::Inserted
+        ),
     )
 }
 
 fn validate_rows(
     collector: &ModuleDraftCollectorV1,
     expected: &[(FunctionDraftKeyV1, String, usize)],
-    actual: &[(FunctionDraftKeyV1, String, usize, DraftPublicationPolicyV1, bool)],
+    actual: &[(
+        FunctionDraftKeyV1,
+        String,
+        usize,
+        DraftPublicationPolicyV1,
+        bool,
+    )],
 ) -> Result<(), CanonicalCollectorDrainErrorV1> {
     if expected.len() != actual.len() {
         return Err(CanonicalCollectorDrainErrorV1::ReceiptCountMismatch {
@@ -189,7 +229,10 @@ fn validate_rows(
     let mut expected_by_key = BTreeMap::new();
     let mut expected_symbols = BTreeSet::new();
     for (key, symbol, arity) in expected {
-        if expected_by_key.insert(key.clone(), (symbol.as_str(), *arity)).is_some() {
+        if expected_by_key
+            .insert(key.clone(), (symbol.as_str(), *arity))
+            .is_some()
+        {
             return Err(CanonicalCollectorDrainErrorV1::SurplusKey(key.clone()));
         }
         expected_symbols.insert(symbol.as_str());
@@ -201,10 +244,14 @@ fn validate_rows(
             .insert(key.clone(), (symbol.as_str(), *arity, *policy, *inserted))
             .is_some()
         {
-            return Err(CanonicalCollectorDrainErrorV1::DuplicateReceiptKey(key.clone()));
+            return Err(CanonicalCollectorDrainErrorV1::DuplicateReceiptKey(
+                key.clone(),
+            ));
         }
         if !actual_symbols.insert(symbol.as_str()) {
-            return Err(CanonicalCollectorDrainErrorV1::DuplicateReceiptSymbol(symbol.clone()));
+            return Err(CanonicalCollectorDrainErrorV1::DuplicateReceiptSymbol(
+                symbol.clone(),
+            ));
         }
         if *policy != DraftPublicationPolicyV1::CanonicalRejectDuplicate {
             return Err(CanonicalCollectorDrainErrorV1::LegacyAdmission { key: key.clone() });
@@ -239,9 +286,7 @@ fn validate_rows(
                 symbol: symbol.clone(),
             });
         }
-        if actual_by_key.get(key).map(|(s, a, _, _)| (*s, *a))
-            != Some((symbol.as_str(), *arity))
-        {
+        if actual_by_key.get(key).map(|(s, a, _, _)| (*s, *a)) != Some((symbol.as_str(), *arity)) {
             return Err(CanonicalCollectorDrainErrorV1::ReceiptMismatch { key: key.clone() });
         }
     }
@@ -279,7 +324,7 @@ mod tests {
         CanonicalInsertedDispositionV1, CanonicalPhysicalSingleRowV1,
     };
     use crate::mir::module_invocation_identity::{
-        ModuleInvocationFamilyV1, ModuleInvocationBrandV1,
+        ModuleInvocationBrandV1, ModuleInvocationFamilyV1,
     };
     use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
     use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirType};
@@ -301,17 +346,15 @@ mod tests {
         let brand = ModuleInvocationBrandV1::test_with_ordinal(77);
         let mut owners = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
         let owner = owners.issue().unwrap();
-        let collector = InvocationBranded::from_source(
-            brand,
-            ModuleDraftCollectorV1::with_brand(brand),
-        )
-        .collect_canonical_single(
-            FunctionDraftKeyV1::CanonicalResolvedOwner(owner),
-            "owner/0".to_owned(),
-            0,
-            draft("owner/0"),
-        )
-        .unwrap();
+        let collector =
+            InvocationBranded::from_source(brand, ModuleDraftCollectorV1::with_brand(brand))
+                .collect_canonical_single(
+                    FunctionDraftKeyV1::CanonicalResolvedOwner(owner),
+                    "owner/0".to_owned(),
+                    0,
+                    draft("owner/0"),
+                )
+                .unwrap();
         let (collector, receipt) = collector.into_parts();
         let manifest = CanonicalPhysicalDrainManifestV1::single(
             brand,
@@ -342,17 +385,15 @@ mod tests {
         let brand = ModuleInvocationBrandV1::test_with_ordinal(78);
         let mut owners = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
         let owner = owners.issue().unwrap();
-        let product = InvocationBranded::from_source(
-            brand,
-            ModuleDraftCollectorV1::with_brand(brand),
-        )
-        .collect_canonical_single(
-            FunctionDraftKeyV1::CanonicalResolvedOwner(owner),
-            "owner/0".to_owned(),
-            0,
-            draft("owner/0"),
-        )
-        .unwrap();
+        let product =
+            InvocationBranded::from_source(brand, ModuleDraftCollectorV1::with_brand(brand))
+                .collect_canonical_single(
+                    FunctionDraftKeyV1::CanonicalResolvedOwner(owner),
+                    "owner/0".to_owned(),
+                    0,
+                    draft("owner/0"),
+                )
+                .unwrap();
         let (collector, receipt) = product.into_parts();
         let mut collector = collector.into_payload();
         collector.inject_symbol_index_drift_for_test("owner/0", FunctionDraftKeyV1::Main);
@@ -388,17 +429,15 @@ mod tests {
         let foreign = ModuleInvocationBrandV1::test_with_ordinal(80);
         let mut owners = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
         let owner = owners.issue().unwrap();
-        let product = InvocationBranded::from_source(
-            brand,
-            ModuleDraftCollectorV1::with_brand(brand),
-        )
-        .collect_canonical_single(
-            FunctionDraftKeyV1::CanonicalResolvedOwner(owner),
-            "owner/0".to_owned(),
-            0,
-            draft("owner/0"),
-        )
-        .unwrap();
+        let product =
+            InvocationBranded::from_source(brand, ModuleDraftCollectorV1::with_brand(brand))
+                .collect_canonical_single(
+                    FunctionDraftKeyV1::CanonicalResolvedOwner(owner),
+                    "owner/0".to_owned(),
+                    0,
+                    draft("owner/0"),
+                )
+                .unwrap();
         let (collector, receipt) = product.into_parts();
         let foreign_receipt = InvocationBranded::from_test(foreign, receipt.into_payload());
         let manifest = CanonicalPhysicalDrainManifestV1::single(

@@ -84,7 +84,10 @@ fn app(body: Vec<ASTNode>, with_sibling: bool) -> ASTNode {
     }
 }
 
-fn bind(source: ASTNode, selection: RawCallableMainSelectionV1) -> super::raw_root_package::SourceBoundRawRootPackageV1 {
+fn bind(
+    source: ASTNode,
+    selection: RawCallableMainSelectionV1,
+) -> super::raw_root_package::SourceBoundRawRootPackageV1 {
     let mut compiler = MirCompiler::new();
     compiler
         .bind_raw_source(
@@ -103,7 +106,10 @@ fn selected_callable_main_is_only_a_continuation_disposition() {
     let eligible = bind(app(Vec::new(), false), RawCallableMainSelectionV1::Required)
         .prepare_eligibility()
         .unwrap();
-    assert_eq!(eligible.proof().catalog(), RawEligibleCatalogV1::PlainStaticMain { helper_count: 0 });
+    assert_eq!(
+        eligible.proof().catalog(),
+        RawEligibleCatalogV1::PlainStaticMain { helper_count: 0 }
+    );
 }
 
 #[test]
@@ -121,7 +127,10 @@ fn unsupported_preprocessed_and_process_slot_shapes_reject() {
     .prepare_eligibility()
     .unwrap_err();
     assert_eq!(using.stage(), RawRootEligibilityStageV1::Work);
-    assert!(matches!(using.error(), RawRootEligibilityErrorV1::UnsupportedWork { .. }));
+    assert!(matches!(
+        using.error(),
+        RawRootEligibilityErrorV1::UnsupportedWork { .. }
+    ));
 
     let new_expr = bind(
         ASTNode::Program {
@@ -155,36 +164,58 @@ fn partial_catalog_and_main_arity_reject_before_physical_open() {
     assert_eq!(partial.owner_module_name(), "eligibility-p0");
 
     let mut methods = HashMap::new();
-    methods.insert("main".into(), ASTNode::FunctionDeclaration {
-        name: "main".into(),
-        params: vec!["args".into()],
-        param_decls: Vec::new(),
-        return_type_name: None,
-        body: Vec::new(),
-        uses: Vec::new(),
-        contracts: Vec::new(),
-        is_static: true,
-        is_override: false,
-        attrs: DeclarationAttrs::default(),
-        span: Span::unknown(),
-    });
+    methods.insert(
+        "main".into(),
+        ASTNode::FunctionDeclaration {
+            name: "main".into(),
+            params: vec!["args".into()],
+            param_decls: Vec::new(),
+            return_type_name: None,
+            body: Vec::new(),
+            uses: Vec::new(),
+            contracts: Vec::new(),
+            is_static: true,
+            is_override: false,
+            attrs: DeclarationAttrs::default(),
+            span: Span::unknown(),
+        },
+    );
     let arity = bind(
         ASTNode::Program {
             statements: vec![ASTNode::BoxDeclaration {
-                name: "Main".into(), methods, is_static: true,
-                fields: Vec::new(), field_decls: Vec::new(), public_fields: Vec::new(),
-                private_fields: Vec::new(), constructors: HashMap::new(), init_fields: Vec::new(),
-                weak_fields: Vec::new(), delegates: Vec::new(), invariants: Vec::new(),
-                transitions: Vec::new(), is_interface: false, is_sync: false, is_record: false,
-                type_parameters: Vec::new(), extends: Vec::new(), implements: Vec::new(),
-                static_init: None, attrs: DeclarationAttrs::default(), span: Span::unknown(),
-            }], span: Span::unknown(),
+                name: "Main".into(),
+                methods,
+                is_static: true,
+                fields: Vec::new(),
+                field_decls: Vec::new(),
+                public_fields: Vec::new(),
+                private_fields: Vec::new(),
+                constructors: HashMap::new(),
+                init_fields: Vec::new(),
+                weak_fields: Vec::new(),
+                delegates: Vec::new(),
+                invariants: Vec::new(),
+                transitions: Vec::new(),
+                is_interface: false,
+                is_sync: false,
+                is_record: false,
+                type_parameters: Vec::new(),
+                extends: Vec::new(),
+                implements: Vec::new(),
+                static_init: None,
+                attrs: DeclarationAttrs::default(),
+                span: Span::unknown(),
+            }],
+            span: Span::unknown(),
         },
         RawCallableMainSelectionV1::Omitted,
     )
     .prepare_eligibility()
     .unwrap_err();
-    assert!(matches!(arity.error(), RawRootEligibilityErrorV1::MainMustBeArityZero));
+    assert!(matches!(
+        arity.error(),
+        RawRootEligibilityErrorV1::MainMustBeArityZero
+    ));
 }
 
 #[test]

@@ -17,8 +17,7 @@ pub(in crate::mir::builder) use crate::mir::module_invocation_policy::{
     InvocationConditionPolicyV1 as RouteConditionPolicyV2,
     InvocationFallbackPolicyV1 as RouteFallbackPolicyV2,
     InvocationInventoryAuthorityV1 as InvocationInventoryAuthorityV2,
-    InvocationRootPolicyV1 as InvocationRootPolicyV2,
-    ModuleInvocationPolicyV1,
+    InvocationRootPolicyV1 as InvocationRootPolicyV2, ModuleInvocationPolicyV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

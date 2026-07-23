@@ -4,9 +4,6 @@
 //! `CompilationContext`. It owns one unpublished-draft collector and
 //! lends only a short-lived, read-only header port to an explicit lowering closure.
 
-use crate::ast::ASTNode;
-use crate::mir::resolved_semantics::FunctionOwnerIdV1;
-use crate::mir::{FunctionSignature, MirBuilder, MirFunction};
 use super::calls::{
     CanonicalFunctionSessionErrorV1, LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1,
 };
@@ -21,6 +18,9 @@ use super::module_draft_collector::{
 use super::module_lowering_invocation_access::ModuleLoweringInvocationAccessPortV1;
 use super::module_lowering_invocation_state::ModuleLoweringInvocationStateV1;
 use super::module_lowering_shell::ModuleLoweringShellV1;
+use crate::ast::ASTNode;
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
+use crate::mir::{FunctionSignature, MirBuilder, MirFunction};
 
 /// Owned canonical child identity before collector admission.
 ///

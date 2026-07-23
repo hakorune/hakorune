@@ -6,12 +6,12 @@
 //! ledger, or publication route; RAW-SOURCE0-LOWER0 owns that later transition.
 
 use super::lowering_input::{LegacyModuleLoweringInputV1, LegacyModuleOriginV1};
-use super::source_bound_package::{InvocationIdentityIssuerV1, SourceBindingErrorV1};
 use super::raw_runtime_inputs::{RawRuntimeInputCaptureErrorV1, RawRuntimeInputSnapshotV1};
+use super::source_bound_package::{InvocationIdentityIssuerV1, SourceBindingErrorV1};
 use crate::ast::ASTNode;
 use crate::mir::builder::{
-    BuilderInvocationConfigV1, OwnedRawSourceV1,
-    RawCallableMainCompatibilityDispositionV1, RawSourceOriginV1, RawSourceProjectionErrorV1,
+    BuilderInvocationConfigV1, OwnedRawSourceV1, RawCallableMainCompatibilityDispositionV1,
+    RawSourceOriginV1, RawSourceProjectionErrorV1,
 };
 use crate::mir::module_invocation_identity::{
     ModuleInvocationBrandV1, ModuleInvocationFamilyV1, ModuleInvocationTokenV1,
@@ -81,7 +81,6 @@ impl RawSourceContinuationV1 {
     pub(in crate::mir) const fn runtime_inputs(&self) -> &RawRuntimeInputSnapshotV1 {
         &self.runtime_inputs
     }
-
 }
 
 #[derive(Debug)]

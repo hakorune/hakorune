@@ -13,7 +13,9 @@ use super::raw_expansion_receipt_ledger::{
 };
 use super::MirBuilder;
 
-fn token(factory: &mut TestInvocationPreflightFactoryV1) -> super::module_invocation_identity::ModuleInvocationTokenV1 {
+fn token(
+    factory: &mut TestInvocationPreflightFactoryV1,
+) -> super::module_invocation_identity::ModuleInvocationTokenV1 {
     factory.mint(InvocationRootFamilyV1::Raw).unwrap()
 }
 
@@ -25,13 +27,9 @@ fn one_token_brands_actual_session_shell_collector_and_ledger() {
         BuilderCoreSeedPolicyV1::ContinueLive,
     );
     let mut factory = TestInvocationPreflightFactoryV1::new();
-    let active = ActiveModuleInvocationV1::open(
-        token(&mut factory),
-        &current,
-        config,
-        "brand0".into(),
-    )
-    .unwrap();
+    let active =
+        ActiveModuleInvocationV1::open(token(&mut factory), &current, config, "brand0".into())
+            .unwrap();
     let brand = active.brand();
     assert_eq!(active.session().brand(), brand);
     assert_eq!(active.physical().brand(), brand);
@@ -48,10 +46,8 @@ fn one_token_brands_actual_session_shell_collector_and_ledger() {
 #[test]
 fn foreign_tokens_cannot_be_confused_with_the_active_owner() {
     let current = MirBuilder::new();
-    let config = BuilderInvocationConfigV1::snapshot_with_policy(
-        &current,
-        BuilderCoreSeedPolicyV1::Fresh,
-    );
+    let config =
+        BuilderInvocationConfigV1::snapshot_with_policy(&current, BuilderCoreSeedPolicyV1::Fresh);
     let mut factory = TestInvocationPreflightFactoryV1::new();
     let first = ActiveModuleInvocationV1::open(
         token(&mut factory),
@@ -60,13 +56,9 @@ fn foreign_tokens_cannot_be_confused_with_the_active_owner() {
         "first".into(),
     )
     .unwrap();
-    let second = ActiveModuleInvocationV1::open(
-        token(&mut factory),
-        &current,
-        config,
-        "second".into(),
-    )
-    .unwrap();
+    let second =
+        ActiveModuleInvocationV1::open(token(&mut factory), &current, config, "second".into())
+            .unwrap();
     assert_ne!(first.brand(), second.brand());
     assert_ne!(first.physical().brand(), second.physical().brand());
 }
@@ -95,13 +87,9 @@ fn dropping_an_active_owner_does_not_mutate_the_live_builder() {
         BuilderCoreSeedPolicyV1::ContinueLive,
     );
     let mut factory = TestInvocationPreflightFactoryV1::new();
-    let active = ActiveModuleInvocationV1::open(
-        token(&mut factory),
-        &current,
-        config,
-        "drop".into(),
-    )
-    .unwrap();
+    let active =
+        ActiveModuleInvocationV1::open(token(&mut factory), &current, config, "drop".into())
+            .unwrap();
     drop(active);
     assert_eq!(current.core_ctx.peek_next_value().as_u32(), before);
 }

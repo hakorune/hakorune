@@ -32,7 +32,10 @@ pub(in crate::mir::builder) enum InvocationCandidateCompletionErrorV1 {
 
 impl std::fmt::Display for InvocationCandidateCompletionErrorV1 {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(formatter, "[freeze:contract][invocation_completion] {self:?}")
+        write!(
+            formatter,
+            "[freeze:contract][invocation_completion] {self:?}"
+        )
     }
 }
 
@@ -204,11 +207,9 @@ impl ModuleLoweringInvocationCandidateV1 {
         state
             .complete_root()
             .map_err(InvocationCandidateCompletionErrorV1::RootTransition)?;
-        Ok(CompleteInvocationV1::from_state(
-            self.state
-                .take()
-                .expect("complete invocation owns one state after transition"),
-        ))
+        Ok(CompleteInvocationV1::from_state(self.state.take().expect(
+            "complete invocation owns one state after transition",
+        )))
     }
 
     /// Abort without publishing or retrying.  The resulting proof compares

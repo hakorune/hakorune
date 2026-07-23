@@ -8,11 +8,11 @@ use crate::mir::{MirBuilder, MirFunction};
 
 use super::calls::{LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1};
 use super::module_draft_collector::CollectedDraftAdmissionReceiptV1;
+use super::module_draft_collector::DraftPublicationPolicyV1;
 use super::module_invocation_owner_chain::InvocationBranded;
 use super::module_lowering_invocation::{
     LegacyChildDraftAdmissionV1, ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1,
 };
-use super::module_draft_collector::DraftPublicationPolicyV1;
 
 impl ModuleLoweringPortV1<'_> {
     pub(in crate::mir::builder) fn complete_legacy_child(

@@ -6,43 +6,41 @@
 
 use std::collections::BTreeMap;
 
-use crate::mir::resolved_semantics::{CanonicalCallableKeyV1, FunctionOwnerIdV1};
-use crate::mir::{FunctionSignature, MirFunction};
 use super::module_invocation_identity::ModuleInvocationBrandV1;
 use super::module_invocation_owner_chain::InvocationBranded;
+use crate::mir::resolved_semantics::{CanonicalCallableKeyV1, FunctionOwnerIdV1};
+use crate::mir::{FunctionSignature, MirFunction};
 
-mod receipt;
 mod callable_batch;
 mod collected_product;
 mod drain;
+mod receipt;
 mod root_batch;
 
 pub(in crate::mir::builder) use drain::{
-    CanonicalCollectorReceiptViewV1, CanonicalCollectorDrainErrorV1,
+    CanonicalCollectorDrainErrorV1, CanonicalCollectorReceiptViewV1,
     PreparedCanonicalCollectorDrainV1, RejectedCanonicalCollectorDrainV1,
 };
 
 pub(in crate::mir::builder) use callable_batch::{
-    CallableCollectorBatchPrepareErrorV1, CallableCollectorDraftEntryV1,
-    CallableCollectorBatchReceiptV1, CallableCollectorBatchBrandErrorV1,
-    CollectedCallableCollectorBatchV1,
-    PreparedCallableCollectorBatchV1,
+    CallableCollectorBatchBrandErrorV1, CallableCollectorBatchPrepareErrorV1,
+    CallableCollectorBatchReceiptV1, CallableCollectorDraftEntryV1,
+    CollectedCallableCollectorBatchV1, PreparedCallableCollectorBatchV1,
     RejectedCallableCollectorBatchV1,
 };
 
-pub(in crate::mir::builder) use receipt::{
-    CollectedDraftAdmissionReceiptV1, CollectedDraftReplacementDispositionV1,
-};
 pub(in crate::mir) use callable_batch::CallableCollectorBatchReceiptV1 as CommitCallableCollectorBatchReceiptV1;
-pub(in crate::mir) use receipt::CollectedDraftAdmissionReceiptV1 as CommitCollectedDraftAdmissionReceiptV1;
 pub(in crate::mir::builder) use collected_product::{
     CollectedDraftAdmissionProductErrorV1, CollectedDraftAdmissionProductV1,
     RejectedCollectedDraftAdmissionV1,
 };
+pub(in crate::mir) use receipt::CollectedDraftAdmissionReceiptV1 as CommitCollectedDraftAdmissionReceiptV1;
+pub(in crate::mir::builder) use receipt::{
+    CollectedDraftAdmissionReceiptV1, CollectedDraftReplacementDispositionV1,
+};
 pub(in crate::mir::builder) use root_batch::{
-    BrandedRootCollectorBatchReceiptV1, PreparedRootCollectorBatchV1,
-    RejectedRootCollectorBatchV1, RootCollectorBatchBrandErrorV1,
-    RootCollectorBatchPrepareErrorV1, RootCollectorBatchReceiptV1,
+    BrandedRootCollectorBatchReceiptV1, PreparedRootCollectorBatchV1, RejectedRootCollectorBatchV1,
+    RootCollectorBatchBrandErrorV1, RootCollectorBatchPrepareErrorV1, RootCollectorBatchReceiptV1,
 };
 
 /// Semantic identity for one draft admission, distinct from fact generation.
@@ -90,7 +88,10 @@ pub(in crate::mir::builder) enum CollectorReceiptBrandErrorV1 {
 
 impl std::fmt::Display for CollectorReceiptBrandErrorV1 {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(formatter, "[freeze:contract][module_draft/receipt_brand] {self:?}")
+        write!(
+            formatter,
+            "[freeze:contract][module_draft/receipt_brand] {self:?}"
+        )
     }
 }
 

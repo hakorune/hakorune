@@ -263,8 +263,8 @@ fn finish_canonical_route<'a>(
         .drain()
         .prepare_finalization()
         .unwrap();
-    let finalized = super::canonical_finalization::CanonicalModuleFinalizerV1::finalize(finalized)
-        .unwrap();
+    let finalized =
+        super::canonical_finalization::CanonicalModuleFinalizerV1::finalize(finalized).unwrap();
     let mut verifier = MirVerifier::new();
     let processed = super::module_postprocess::ModulePostprocessOwnerV1::new(&mut verifier, false)
         .run(finalized)
@@ -529,8 +529,12 @@ fn p0_r1_canonical_four_route_real_authority_chain() {
         }
         _ => panic!("P0-R1 A+ route changed preflight family"),
     };
-    let (a_plus_brand, a_plus_result) =
-        finish_canonical_route(&mut compiler, a_plus_plan, "p0_r1_a_plus.hako", "p0_r1_a_plus");
+    let (a_plus_brand, a_plus_result) = finish_canonical_route(
+        &mut compiler,
+        a_plus_plan,
+        "p0_r1_a_plus.hako",
+        "p0_r1_a_plus",
+    );
     assert!(a_plus_result
         .module
         .functions
@@ -557,10 +561,11 @@ fn p0_r1_canonical_four_route_real_authority_chain() {
     assert!(trivial_result.verification_result.is_ok());
 
     let acyclic = acyclic_source();
-    let acyclic_plan = super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
-        acyclic.module(),
-    )
-    .unwrap();
+    let acyclic_plan =
+        super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
+            acyclic.module(),
+        )
+        .unwrap();
     let (acyclic_brand, acyclic_result) = finish_canonical_route(
         &mut compiler,
         ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(acyclic_plan),
@@ -619,9 +624,10 @@ fn p0_r1_real_authority_readiness_failure_keeps_commit_zero() {
         panic!("P0-R1 readiness fixture changed route shape")
     };
     product.session.builder_mut().current_module = Some(MirModule::new("open".into()));
-    let rejected = super::canonical_physical_completion::CanonicalDrainedInvocationV1::Single(product)
-        .prepare_finalization()
-        .expect_err("open candidate Builder must reject before commit");
+    let rejected =
+        super::canonical_physical_completion::CanonicalDrainedInvocationV1::Single(product)
+            .prepare_finalization()
+            .expect_err("open candidate Builder must reject before commit");
     assert!(matches!(
         rejected.error,
         super::canonical_finalization::CanonicalFinalizationErrorV1::BuilderReadiness(_)
@@ -641,7 +647,11 @@ fn p0_r1_real_authority_drain_failure_keeps_commit_zero() {
     let mut compiler = MirCompiler::with_options(false);
     let package = compiler.bind_canonical_source(plan).unwrap();
     let mut completion = compiler
-        .begin_canonical_invocation(package, Some("p0_r1_drain_failure.hako"), "p0_r1_drain_failure".into())
+        .begin_canonical_invocation(
+            package,
+            Some("p0_r1_drain_failure.hako"),
+            "p0_r1_drain_failure".into(),
+        )
         .unwrap()
         .lower()
         .unwrap()
@@ -666,15 +676,20 @@ fn p0_r1_real_authority_drain_failure_keeps_commit_zero() {
 fn p0_r1_callable_capability_mismatch_stops_before_commit() {
     let mut compiler = MirCompiler::with_options(false);
     let first_source = acyclic_source();
-    let first_plan = super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
-        first_source.module(),
-    )
-    .unwrap();
+    let first_plan =
+        super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
+            first_source.module(),
+        )
+        .unwrap();
     let first_package = compiler
         .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(first_plan))
         .unwrap();
     let first_collected = compiler
-        .begin_canonical_invocation(first_package, Some("p0_r1_capability_a.hako"), "p0_r1_capability_a".into())
+        .begin_canonical_invocation(
+            first_package,
+            Some("p0_r1_capability_a.hako"),
+            "p0_r1_capability_a".into(),
+        )
         .unwrap()
         .lower()
         .unwrap()
@@ -688,7 +703,9 @@ fn p0_r1_callable_capability_mismatch_stops_before_commit() {
         )
         .unwrap();
     let second_package = compiler
-        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(second_plan))
+        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(
+            second_plan,
+        ))
         .unwrap();
     let second_collected = compiler
         .begin_canonical_invocation(

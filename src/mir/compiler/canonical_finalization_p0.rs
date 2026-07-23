@@ -157,10 +157,9 @@ fn owner_retention0_finalizer_failure_keeps_complete_input() {
         panic!("owner-retention fixture changed route shape")
     };
     single.physical.brand = ModuleInvocationBrandV1::legacy_test();
-    let rejected = CanonicalModuleFinalizerV1::finalize(
-        CanonicalFinalizationInputV1::Single(single),
-    )
-    .expect_err("foreign physical brand must retain finalizer input");
+    let rejected =
+        CanonicalModuleFinalizerV1::finalize(CanonicalFinalizationInputV1::Single(single))
+            .expect_err("foreign physical brand must retain finalizer input");
     assert!(matches!(
         rejected.error,
         super::canonical_finalization::CanonicalFinalizationErrorV1::ForeignBrand
@@ -168,7 +167,10 @@ fn owner_retention0_finalizer_failure_keeps_complete_input() {
     let CanonicalFinalizationInputV1::Single(retained) = rejected.input else {
         panic!("rejected finalizer owner changed route shape")
     };
-    assert_eq!(retained.physical.brand, ModuleInvocationBrandV1::legacy_test());
+    assert_eq!(
+        retained.physical.brand,
+        ModuleInvocationBrandV1::legacy_test()
+    );
     assert!(compiler.builder.current_module.is_none());
 }
 

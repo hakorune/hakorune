@@ -6,11 +6,11 @@
 
 use std::collections::BTreeSet;
 
+use super::module_invocation_identity::{ModuleInvocationBrandV1, ModuleInvocationFamilyV1};
+use super::module_invocation_owner_chain::InvocationBranded;
 use crate::ast::ASTNode;
 use crate::mir::function::{ClosureBodyId, ModuleMetadata, StaticDataPlan};
 use crate::mir::{ConstValue, MirFunction, MirModule};
-use super::module_invocation_identity::{ModuleInvocationBrandV1, ModuleInvocationFamilyV1};
-use super::module_invocation_owner_chain::InvocationBranded;
 
 mod declaration_fact_commit;
 
@@ -264,8 +264,7 @@ impl ModuleLoweringShellPortV1<'_> {
         Result<RecursiveCapabilityInstallReceiptV1, AcyclicCapabilityAbsenceWitnessV1>,
         &'static str,
     > {
-        use crate::mir::canonical_recursive_callable_module_capability::
-            CanonicalRecursiveCallableModuleCapabilityV1;
+        use crate::mir::canonical_recursive_callable_module_capability::CanonicalRecursiveCallableModuleCapabilityV1;
         match family {
             ModuleInvocationFamilyV1::BindingSsaRecursive => {
                 CanonicalRecursiveCallableModuleCapabilityV1::install_for_module(

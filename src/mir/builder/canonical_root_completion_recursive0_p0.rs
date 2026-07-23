@@ -21,7 +21,10 @@ fn recursive_install_returns_exact_brand_and_family_once() {
         .unwrap()
         .unwrap();
     assert_eq!(receipt.brand(), brand);
-    assert_eq!(receipt.family(), ModuleInvocationFamilyV1::BindingSsaRecursive);
+    assert_eq!(
+        receipt.family(),
+        ModuleInvocationFamilyV1::BindingSsaRecursive
+    );
     let duplicate = shell
         .install_callable_batch_capability(ModuleInvocationFamilyV1::BindingSsaRecursive)
         .unwrap_err();
@@ -37,7 +40,10 @@ fn acyclic_install_returns_branded_absence_witness() {
         .unwrap()
         .unwrap_err();
     assert_eq!(absence.brand(), brand);
-    assert_eq!(absence.family(), ModuleInvocationFamilyV1::BindingSsaAcyclic);
+    assert_eq!(
+        absence.family(),
+        ModuleInvocationFamilyV1::BindingSsaAcyclic
+    );
 }
 
 #[test]

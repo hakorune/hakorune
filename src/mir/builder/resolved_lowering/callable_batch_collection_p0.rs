@@ -18,8 +18,7 @@ use crate::mir::builder::module_invocation_identity::{
 };
 use crate::mir::builder::module_invocation_owner_chain::InvocationBranded;
 use crate::mir::builder::module_lowering_shell::ModuleLoweringShellV1;
-use crate::mir::canonical_recursive_callable_module_capability::
-    CanonicalRecursiveCallableModuleCapabilityV1;
+use crate::mir::canonical_recursive_callable_module_capability::CanonicalRecursiveCallableModuleCapabilityV1;
 use crate::mir::compiler::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1;
 use crate::mir::compiler::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1;
 use crate::mir::compiler::resolved_callable_module::VerifiedResolvedCallableModuleV1;
@@ -81,11 +80,17 @@ fn resolve(functions: Vec<ASTNode>) -> VerifiedResolvedCallableModuleV1 {
 }
 
 fn acyclic_source() -> VerifiedResolvedCallableModuleV1 {
-    resolve(vec![function("first", call("second")), function("second", variable())])
+    resolve(vec![
+        function("first", call("second")),
+        function("second", variable()),
+    ])
 }
 
 fn recursive_source() -> VerifiedResolvedCallableModuleV1 {
-    resolve(vec![function("even", call("odd")), function("odd", call("even"))])
+    resolve(vec![
+        function("even", call("odd")),
+        function("odd", call("even")),
+    ])
 }
 
 fn collect_acyclic(
@@ -139,7 +144,9 @@ fn exact_catalog_batch_co_seals_one_physical_receipt() {
     }));
 
     let mut factory = TestInvocationPreflightFactoryV1::new();
-    let token = factory.mint(ModuleInvocationFamilyV1::BindingSsaAcyclic).unwrap();
+    let token = factory
+        .mint(ModuleInvocationFamilyV1::BindingSsaAcyclic)
+        .unwrap();
     let source_proof = source_from_test(token, source_ref, None).unwrap();
     let brand = source_proof.brand();
     let collected = seal_callable_batch(
@@ -177,7 +184,12 @@ fn late_collector_collision_rejects_without_delta() {
     collector
         .prepare_admission(
             FunctionDraftKeyV1::CanonicalCallable(
-                source.functions_by_key().keys().next_back().unwrap().clone(),
+                source
+                    .functions_by_key()
+                    .keys()
+                    .next_back()
+                    .unwrap()
+                    .clone(),
             ),
             "second/1".into(),
             1,
@@ -212,11 +224,16 @@ fn recursive_batch_preserves_one_shell_capability_marker() {
         })
         .unwrap();
     let duplicate = shell.with_port(|port| {
-        port.install_callable_batch_shell_fact_for_test(ModuleInvocationFamilyV1::BindingSsaRecursive)
+        port.install_callable_batch_shell_fact_for_test(
+            ModuleInvocationFamilyV1::BindingSsaRecursive,
+        )
     });
     assert!(duplicate.is_err());
     let capability = shell
-        .with_port(|port| port.metadata().canonical_recursive_callable_module_capability)
+        .with_port(|port| {
+            port.metadata()
+                .canonical_recursive_callable_module_capability
+        })
         .unwrap();
     let mut factory = TestInvocationPreflightFactoryV1::new();
     let token = factory
@@ -243,7 +260,10 @@ fn non_callable_family_is_rejected_before_source_co_seal() {
         source_from_test(token, &source, None).unwrap_err(),
         CallableBatchSourceErrorV1::UnsupportedFamily(ModuleInvocationFamilyV1::Raw)
     );
-    let _ = CallableBatchSealErrorV1::CardinalityMismatch { expected: 0, actual: 0 };
+    let _ = CallableBatchSealErrorV1::CardinalityMismatch {
+        expected: 0,
+        actual: 0,
+    };
     let _ = shell_fact_from_test(ModuleInvocationFamilyV1::BindingSsaAcyclic, None).unwrap();
     let _ = CanonicalRecursiveCallableModuleCapabilityV1::v1();
 }
@@ -289,5 +309,8 @@ fn foreign_callable_brand_fails_before_co_seal() {
         physical_receipt_from_test(source_brand, receipt),
     )
     .unwrap_err();
-    assert!(matches!(error, CallableBatchSealErrorV1::ForeignOwner { .. }));
+    assert!(matches!(
+        error,
+        CallableBatchSealErrorV1::ForeignOwner { .. }
+    ));
 }

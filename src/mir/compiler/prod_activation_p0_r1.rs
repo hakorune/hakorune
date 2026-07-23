@@ -1,7 +1,7 @@
 //! CUT0-I0-P0-R1 POST failure evidence on the real canonical owner chain.
 
-use super::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
 use super::canonical_finalization::{CanonicalFinalizationInputV1, CanonicalModuleFinalizerV1};
+use super::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
 use super::module_postprocess::{
     ModulePostprocessErrorV1, ModulePostprocessOwnerV1, PostprocessFailureStageV1,
 };

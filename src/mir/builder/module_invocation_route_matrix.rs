@@ -6,8 +6,7 @@
 
 use super::module_draft_collector::DraftPublicationPolicyV1;
 
-pub(in crate::mir::builder) use crate::mir::module_invocation_identity::ModuleInvocationFamilyV1
-    as InvocationRootFamilyV1;
+pub(in crate::mir::builder) use crate::mir::module_invocation_identity::ModuleInvocationFamilyV1 as InvocationRootFamilyV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub(in crate::mir::builder) enum InvocationEntryV1 {

@@ -1,6 +1,5 @@
 use super::canonical_physical_completion::{
-    CanonicalDrainPrepareErrorV1, CanonicalDrainedInvocationV1,
-    CanonicalPhysicalCompletionErrorV1,
+    CanonicalDrainPrepareErrorV1, CanonicalDrainedInvocationV1, CanonicalPhysicalCompletionErrorV1,
 };
 use super::source_bound_package::{
     CollectedCanonicalPhysicalInvocationV1, ExactCanonicalPreflightPlanV1,
@@ -137,8 +136,8 @@ fn compiler_bridge_drains_a_plus_single_route() {
 
 #[test]
 fn compiler_bridge_completion_retains_single_physical_receipt() {
-    let source = super::VerifiedResolvedSourceUnitV1::resolve_function(
-        ASTNode::FunctionDeclaration {
+    let source =
+        super::VerifiedResolvedSourceUnitV1::resolve_function(ASTNode::FunctionDeclaration {
             name: "single".into(),
             params: Vec::new(),
             param_decls: Vec::new(),
@@ -156,9 +155,8 @@ fn compiler_bridge_completion_retains_single_physical_receipt() {
             is_override: false,
             attrs: DeclarationAttrs::default(),
             span: Span::unknown(),
-        },
-    )
-    .unwrap();
+        })
+        .unwrap();
     let plan = super::capability::CanonicalLoweringPreflightV1::verify(&source).unwrap();
     let mut compiler = MirCompiler::new();
     let package = compiler
@@ -188,8 +186,8 @@ fn compiler_bridge_completion_retains_single_physical_receipt() {
 
 #[test]
 fn physical_drain_accepts_canonical_condition_fn_spelling() {
-    let source = super::VerifiedResolvedSourceUnitV1::resolve_function(
-        ASTNode::FunctionDeclaration {
+    let source =
+        super::VerifiedResolvedSourceUnitV1::resolve_function(ASTNode::FunctionDeclaration {
             name: "condition_fn".into(),
             params: Vec::new(),
             param_decls: Vec::new(),
@@ -207,9 +205,8 @@ fn physical_drain_accepts_canonical_condition_fn_spelling() {
             is_override: false,
             attrs: DeclarationAttrs::default(),
             span: Span::unknown(),
-        },
-    )
-    .unwrap();
+        })
+        .unwrap();
     let plan = super::capability::CanonicalLoweringPreflightV1::verify(&source).unwrap();
     let mut compiler = MirCompiler::new();
     let package = compiler
@@ -230,13 +227,17 @@ fn physical_drain_accepts_canonical_condition_fn_spelling() {
     let CanonicalDrainedInvocationV1::Single(product) = drained else {
         panic!("canonical condition_fn route drained as callable")
     };
-    assert!(product.physical.module.functions.contains_key("condition_fn/0"));
+    assert!(product
+        .physical
+        .module
+        .functions
+        .contains_key("condition_fn/0"));
 }
 
 #[test]
 fn physical_prepare_failure_leaves_live_builder_unchanged() {
-    let source = super::VerifiedResolvedSourceUnitV1::resolve_function(
-        ASTNode::FunctionDeclaration {
+    let source =
+        super::VerifiedResolvedSourceUnitV1::resolve_function(ASTNode::FunctionDeclaration {
             name: "prepare_failure".into(),
             params: Vec::new(),
             param_decls: Vec::new(),
@@ -254,16 +255,19 @@ fn physical_prepare_failure_leaves_live_builder_unchanged() {
             is_override: false,
             attrs: DeclarationAttrs::default(),
             span: Span::unknown(),
-        },
-    )
-    .unwrap();
+        })
+        .unwrap();
     let plan = super::capability::CanonicalLoweringPreflightV1::verify(&source).unwrap();
     let mut compiler = MirCompiler::new();
     let package = compiler
         .bind_canonical_source(ExactCanonicalPreflightPlanV1::from_first_family(plan))
         .unwrap();
     let mut complete = compiler
-        .begin_canonical_invocation(package, Some("prepare_failure.hako"), "prepare_failure".into())
+        .begin_canonical_invocation(
+            package,
+            Some("prepare_failure.hako"),
+            "prepare_failure".into(),
+        )
         .unwrap()
         .lower()
         .unwrap()
@@ -363,10 +367,11 @@ fn capability_brand_drift_is_not_misreported_as_foreign_physical_brand() {
         function("caller", call("callee")),
         function("callee", variable()),
     ]);
-    let first_plan = super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
-        first.module(),
-    )
-    .unwrap();
+    let first_plan =
+        super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
+            first.module(),
+        )
+        .unwrap();
     let first_package = compiler
         .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(first_plan))
         .unwrap();
@@ -382,12 +387,15 @@ fn capability_brand_drift_is_not_misreported_as_foreign_physical_brand() {
         function("caller", call("callee")),
         function("callee", variable()),
     ]);
-    let second_plan = super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
-        second.module(),
-    )
-    .unwrap();
+    let second_plan =
+        super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
+            second.module(),
+        )
+        .unwrap();
     let second_package = compiler
-        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(second_plan))
+        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(
+            second_plan,
+        ))
         .unwrap();
     let second_collected = compiler
         .begin_canonical_invocation(second_package, Some("second.hako"), "second".into())
@@ -403,21 +411,23 @@ fn capability_brand_drift_is_not_misreported_as_foreign_physical_brand() {
         session: first_session,
         capability: _,
         physical: first_physical,
-    } = first_collected else {
+    } = first_collected
+    else {
         panic!("first route changed family")
     };
     let CollectedCanonicalPhysicalInvocationV1::Callable {
         capability: second_capability,
         ..
-    } = second_collected else {
+    } = second_collected
+    else {
         panic!("second route changed family")
     };
     let mixed = CollectedCanonicalPhysicalInvocationV1::Callable {
-            token: first_token,
-            continuation: first_continuation,
-            session: first_session,
-            capability: second_capability,
-            physical: first_physical,
+        token: first_token,
+        continuation: first_continuation,
+        session: first_session,
+        capability: second_capability,
+        physical: first_physical,
     };
     let rejected = mixed.complete().unwrap_err();
     assert!(matches!(

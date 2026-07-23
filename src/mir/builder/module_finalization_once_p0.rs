@@ -47,7 +47,11 @@ fn finalize() -> FinalizedModuleCandidateV1 {
 #[test]
 fn finalizer_consumes_co_sealed_input_without_bare_module_or_builder() {
     let finalized = finalize();
-    assert!(finalized.candidate().module().functions.contains_key("main"));
+    assert!(finalized
+        .candidate()
+        .module()
+        .functions
+        .contains_key("main"));
     assert!(finalized.declaration_facts().user_box_decls().is_empty());
 }
 

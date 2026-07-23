@@ -15,8 +15,8 @@ use crate::mir::resolved_semantics::{CanonicalCallableKeyV1, CanonicalCallableSy
 
 use super::{CanonicalResolvedBuildErrorV1, MirBuilder};
 use crate::mir::builder::module_draft_collector::{
-    CallableCollectorDraftEntryV1, ModuleDraftCollectorV1,
-    PreparedCallableCollectorBatchV1, RejectedCallableCollectorBatchV1,
+    CallableCollectorDraftEntryV1, ModuleDraftCollectorV1, PreparedCallableCollectorBatchV1,
+    RejectedCallableCollectorBatchV1,
 };
 
 #[derive(Debug)]
@@ -104,9 +104,7 @@ impl<'a> RejectedCallableCollectorInvocationV1<'a> {
 impl<'a> VerifiedUnpublishedCallableDraftSetV1<'a> {
     /// Project the already verified source/catalog into canonical collector
     /// entries.  No caller supplies key, symbol, arity, or publication policy.
-    pub(in crate::mir) fn into_canonical_entries(
-        self,
-    ) -> Vec<CallableCollectorDraftEntryV1> {
+    pub(in crate::mir) fn into_canonical_entries(self) -> Vec<CallableCollectorDraftEntryV1> {
         let source = self.source;
         self.drafts_by_key
             .into_iter()
@@ -226,7 +224,8 @@ impl<'a> VerifiedUnpublishedCallableDraftSetV1<'a> {
     pub(super) fn prepare_collector_batch(
         self,
         collector: ModuleDraftCollectorV1,
-    ) -> Result<PreparedCallableCollectorInvocationV1<'a>, RejectedCallableCollectorInvocationV1<'a>> {
+    ) -> Result<PreparedCallableCollectorInvocationV1<'a>, RejectedCallableCollectorInvocationV1<'a>>
+    {
         let Self {
             source,
             drafts_by_key,
@@ -378,8 +377,8 @@ impl MirBuilder {
 }
 
 #[cfg(test)]
-#[path = "callable_module_transaction_p0d_tests.rs"]
-mod p0d_tests;
-#[cfg(test)]
 #[path = "callable_batch_collection_p0.rs"]
 mod callable_batch_collection_p0;
+#[cfg(test)]
+#[path = "callable_module_transaction_p0d_tests.rs"]
+mod p0d_tests;

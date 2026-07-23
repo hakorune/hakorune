@@ -7,8 +7,8 @@
 use super::main_pending_draft::PendingMainDraftV1;
 use super::module_draft_collector::{DraftPublicationPolicyV1, FunctionDraftKeyV1};
 use super::module_invocation_drain::ConditionFnPolicyV1;
-use crate::mir::MirFunction;
 use super::root_body_completion::CompletedRootBodyV1;
+use crate::mir::MirFunction;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum RootDraftBatchErrorV1 {

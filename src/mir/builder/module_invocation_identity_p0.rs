@@ -31,9 +31,7 @@ fn one_factory_mints_each_existing_family_once() {
 #[test]
 fn invocation_ids_are_distinct_and_not_clone_authority() {
     let mut factory = TestInvocationPreflightFactoryV1::new();
-    let first = factory
-        .mint(InvocationRootFamilyV1::Raw)
-        .unwrap();
+    let first = factory.mint(InvocationRootFamilyV1::Raw).unwrap();
     let second = factory
         .mint(InvocationRootFamilyV1::BindingSsaRecursive)
         .unwrap();

@@ -129,9 +129,8 @@ pub(in crate::mir) struct CallableCollectorBatchReceiptV1 {
 /// Collector and whole-batch receipt move as one non-Clone product.
 #[derive(Debug)]
 pub(in crate::mir) struct CollectedCallableCollectorBatchV1 {
-    collector: super::super::module_invocation_owner_chain::BrandedCollectorV1<
-        ModuleDraftCollectorV1,
-    >,
+    collector:
+        super::super::module_invocation_owner_chain::BrandedCollectorV1<ModuleDraftCollectorV1>,
     receipt: InvocationBranded<CallableCollectorBatchReceiptV1>,
 }
 
@@ -329,7 +328,9 @@ fn plan_admission_v1(
         return Err(ModuleDraftAdmissionErrorV1::DuplicateKey(key.clone()));
     }
     if collector.key_by_symbol.contains_key(symbol) {
-        return Err(ModuleDraftAdmissionErrorV1::DuplicateSymbol(symbol.to_owned()));
+        return Err(ModuleDraftAdmissionErrorV1::DuplicateSymbol(
+            symbol.to_owned(),
+        ));
     }
     Ok(PreparedCollectorReplacementV1::Canonical)
 }

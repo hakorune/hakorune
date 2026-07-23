@@ -4,8 +4,8 @@
 //! preflighted, infallible commit. It is an ephemeral completion witness, not
 //! a second draft store or a publication/retry capability.
 
-use super::{DraftPublicationPolicyV1, FunctionDraftKeyV1};
 use super::super::module_invocation_identity::ModuleInvocationBrandV1;
+use super::{DraftPublicationPolicyV1, FunctionDraftKeyV1};
 
 #[cfg(test)]
 use super::ModuleDraftCollectorV1;
@@ -81,9 +81,7 @@ impl CollectedDraftAdmissionReceiptV1 {
         &self.replacement
     }
 
-    pub(in crate::mir::builder) const fn collector_brand(
-        &self,
-    ) -> Option<ModuleInvocationBrandV1> {
+    pub(in crate::mir::builder) const fn collector_brand(&self) -> Option<ModuleInvocationBrandV1> {
         self.collector_brand
     }
 }

@@ -91,5 +91,8 @@ fn callable_batch_product_uses_collector_brand_for_the_whole_receipt() {
     assert_eq!(collector.brand(), brand);
     assert_eq!(receipt.brand(), brand);
     assert_eq!(receipt.payload().len(), 1);
-    assert_eq!(receipt.payload().admissions()[0].collector_brand(), Some(brand));
+    assert_eq!(
+        receipt.payload().admissions()[0].collector_brand(),
+        Some(brand)
+    );
 }

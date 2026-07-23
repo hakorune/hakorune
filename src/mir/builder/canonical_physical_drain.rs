@@ -8,6 +8,7 @@ use crate::mir::canonical_physical_drain::CanonicalPhysicalDrainManifestV1;
 use crate::mir::module_invocation_identity::{ModuleInvocationBrandV1, ModuleInvocationFamilyV1};
 use crate::mir::MirModule;
 
+use super::module_draft_collector::CallableCollectorBatchReceiptV1;
 use super::module_draft_collector::{
     CanonicalCollectorDrainErrorV1, CanonicalCollectorReceiptViewV1,
     CollectedDraftAdmissionReceiptV1, PreparedCanonicalCollectorDrainV1,
@@ -16,10 +17,7 @@ use super::module_invocation_brand0::{
     CollectedCanonicalCallablePhysicalV1, CollectedCanonicalSinglePhysicalV1,
 };
 use super::module_invocation_owner_chain::{BrandedCollectorV1, BrandedShellV1, InvocationBranded};
-use super::module_draft_collector::CallableCollectorBatchReceiptV1;
-use super::module_lowering_shell::{
-    ModuleLoweringShellDrainInventoryV1, ModuleLoweringShellV1,
-};
+use super::module_lowering_shell::{ModuleLoweringShellDrainInventoryV1, ModuleLoweringShellV1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum CanonicalPhysicalDrainPrepareErrorV1 {
@@ -125,9 +123,10 @@ impl CollectedCanonicalSinglePhysicalV1 {
                 CanonicalPhysicalDrainPrepareErrorV1::ForeignBrand,
             ));
         }
-        if !matches!(family, ModuleInvocationFamilyV1::CanonicalAPlus
-            | ModuleInvocationFamilyV1::BindingSsaTrivial)
-        {
+        if !matches!(
+            family,
+            ModuleInvocationFamilyV1::CanonicalAPlus | ModuleInvocationFamilyV1::BindingSsaTrivial
+        ) {
             return Err(reject_single(
                 shell,
                 collector,
@@ -189,9 +188,11 @@ impl CollectedCanonicalCallablePhysicalV1 {
                 CanonicalPhysicalDrainPrepareErrorV1::ForeignBrand,
             ));
         }
-        if !matches!(family, ModuleInvocationFamilyV1::BindingSsaAcyclic
-            | ModuleInvocationFamilyV1::BindingSsaRecursive)
-        {
+        if !matches!(
+            family,
+            ModuleInvocationFamilyV1::BindingSsaAcyclic
+                | ModuleInvocationFamilyV1::BindingSsaRecursive
+        ) {
             return Err(reject_callable(
                 shell,
                 collector,
@@ -312,7 +313,13 @@ fn prepare_collector(
     manifest: &CanonicalPhysicalDrainManifestV1,
     receipt: CanonicalCollectorReceiptViewV1<'_>,
     brand: ModuleInvocationBrandV1,
-) -> Result<PreparedCanonicalCollectorDrainV1, (BrandedCollectorV1<super::module_draft_collector::ModuleDraftCollectorV1>, CanonicalPhysicalDrainPrepareErrorV1)> {
+) -> Result<
+    PreparedCanonicalCollectorDrainV1,
+    (
+        BrandedCollectorV1<super::module_draft_collector::ModuleDraftCollectorV1>,
+        CanonicalPhysicalDrainPrepareErrorV1,
+    ),
+> {
     let collector_payload = collector.into_payload();
     match collector_payload.prepare_canonical_drain(manifest, receipt, brand) {
         Ok(prepared) => Ok(prepared),
@@ -357,14 +364,16 @@ fn reject_callable(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::builder::module_draft_collector::{FunctionDraftKeyV1, ModuleDraftCollectorV1};
+    use crate::mir::builder::module_invocation_identity::ModuleInvocationFamilyV1;
     use crate::mir::canonical_physical_drain::{
         CanonicalInsertedDispositionV1, CanonicalPhysicalCallableRowV1,
         CanonicalPhysicalSingleRowV1,
     };
-    use crate::mir::builder::module_draft_collector::{FunctionDraftKeyV1, ModuleDraftCollectorV1};
-    use crate::mir::builder::module_invocation_identity::ModuleInvocationFamilyV1;
     use crate::mir::resolved_semantics::{CanonicalCallableKeyV1, FunctionOwnerIssuerV1};
-    use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType};
+    use crate::mir::{
+        BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType,
+    };
 
     fn draft(symbol: &str) -> MirFunction {
         MirFunction::new(
@@ -381,22 +390,23 @@ mod tests {
     fn single_fixture(
         brand: ModuleInvocationBrandV1,
         published: bool,
-    ) -> (CollectedCanonicalSinglePhysicalV1, CanonicalPhysicalDrainManifestV1) {
+    ) -> (
+        CollectedCanonicalSinglePhysicalV1,
+        CanonicalPhysicalDrainManifestV1,
+    ) {
         let mut owners = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
         let owner = owners.issue().unwrap();
-        let collected = InvocationBranded::from_source(
-            brand,
-            ModuleDraftCollectorV1::with_brand(brand),
-        )
-        .collect_canonical_single(
-            FunctionDraftKeyV1::CanonicalResolvedOwner(owner),
-            "owner/0".to_owned(),
-            0,
-            draft("owner/0"),
-        )
-        .unwrap();
-        let mut shell = ModuleLoweringShellV1::from_empty_module(MirModule::new("fixture".into()))
-            .unwrap();
+        let collected =
+            InvocationBranded::from_source(brand, ModuleDraftCollectorV1::with_brand(brand))
+                .collect_canonical_single(
+                    FunctionDraftKeyV1::CanonicalResolvedOwner(owner),
+                    "owner/0".to_owned(),
+                    0,
+                    draft("owner/0"),
+                )
+                .unwrap();
+        let mut shell =
+            ModuleLoweringShellV1::from_empty_module(MirModule::new("fixture".into())).unwrap();
         if published {
             shell.publish_function_for_test(draft("already/0"));
         }
@@ -417,7 +427,8 @@ mod tests {
 
     #[test]
     fn published_shell_rejects_before_collector_prepare() {
-        let (physical, manifest) = single_fixture(ModuleInvocationBrandV1::test_with_ordinal(91), true);
+        let (physical, manifest) =
+            single_fixture(ModuleInvocationBrandV1::test_with_ordinal(91), true);
         let rejected = physical.prepare_drain(manifest).unwrap_err();
         assert!(matches!(
             rejected.error(),
@@ -427,7 +438,8 @@ mod tests {
 
     #[test]
     fn manifest_symbol_drift_rejects_before_shell_mutation() {
-        let (physical, manifest) = single_fixture(ModuleInvocationBrandV1::test_with_ordinal(92), false);
+        let (physical, manifest) =
+            single_fixture(ModuleInvocationBrandV1::test_with_ordinal(92), false);
         let row = manifest.single_row().expect("single fixture row");
         let manifest = CanonicalPhysicalDrainManifestV1::single(
             manifest.brand(),
@@ -461,19 +473,18 @@ mod tests {
         // mutation.
         let mut owners = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
         let owner = owners.issue().unwrap();
-        let foreign_product = InvocationBranded::from_source(
-            foreign,
-            ModuleDraftCollectorV1::with_brand(foreign),
-        )
-        .collect_canonical_single(
-            FunctionDraftKeyV1::CanonicalResolvedOwner(owner),
-            "owner/0".to_owned(),
-            0,
-            draft("owner/0"),
-        )
-        .unwrap();
+        let foreign_product =
+            InvocationBranded::from_source(foreign, ModuleDraftCollectorV1::with_brand(foreign))
+                .collect_canonical_single(
+                    FunctionDraftKeyV1::CanonicalResolvedOwner(owner),
+                    "owner/0".to_owned(),
+                    0,
+                    draft("owner/0"),
+                )
+                .unwrap();
         let (_foreign_collector, foreign_receipt) = foreign_product.into_parts();
-        let mismatched_receipt = InvocationBranded::from_test(brand, foreign_receipt.into_payload());
+        let mismatched_receipt =
+            InvocationBranded::from_test(brand, foreign_receipt.into_payload());
         let collected =
             super::super::module_draft_collector::CollectedDraftAdmissionProductV1::from_test_parts(
                 collector,
@@ -490,7 +501,8 @@ mod tests {
 
     #[test]
     fn foreign_manifest_brand_rejects_before_collector_prepare() {
-        let (physical, manifest) = single_fixture(ModuleInvocationBrandV1::test_with_ordinal(96), false);
+        let (physical, manifest) =
+            single_fixture(ModuleInvocationBrandV1::test_with_ordinal(96), false);
         let foreign_manifest = CanonicalPhysicalDrainManifestV1::single(
             ModuleInvocationBrandV1::test_with_ordinal(97),
             manifest.family(),
@@ -513,7 +525,10 @@ mod tests {
 
     fn callable_fixture(
         brand: ModuleInvocationBrandV1,
-    ) -> (CollectedCanonicalCallablePhysicalV1, Vec<CanonicalCallableKeyV1>) {
+    ) -> (
+        CollectedCanonicalCallablePhysicalV1,
+        Vec<CanonicalCallableKeyV1>,
+    ) {
         let keys = vec![
             CanonicalCallableKeyV1::free_static_for_test("alpha", 0),
             CanonicalCallableKeyV1::free_static_for_test("zeta", 0),
@@ -529,10 +544,8 @@ mod tests {
                 )
             })
             .collect();
-        let collector = InvocationBranded::from_source(
-            brand,
-            ModuleDraftCollectorV1::with_brand(brand),
-        );
+        let collector =
+            InvocationBranded::from_source(brand, ModuleDraftCollectorV1::with_brand(brand));
         let collected = collector
             .into_payload()
             .prepare_callable_batch(entries)

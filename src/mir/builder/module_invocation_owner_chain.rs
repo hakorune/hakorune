@@ -26,10 +26,7 @@ pub(in crate::mir::builder) type BrandedFinalizedV1<T> = InvocationBranded<T>;
 impl<T> InvocationBranded<T> {
     /// The only production-side constructor: the caller must already own a
     /// source-sealed brand and supplies one real physical payload.
-    pub(in crate::mir) fn from_source(
-        brand: ModuleInvocationBrandV1,
-        payload: T,
-    ) -> Self {
+    pub(in crate::mir) fn from_source(brand: ModuleInvocationBrandV1, payload: T) -> Self {
         Self {
             brand,
             payload,
@@ -38,10 +35,7 @@ impl<T> InvocationBranded<T> {
     }
 
     #[cfg(test)]
-    pub(in crate::mir::builder) fn from_test(
-        brand: ModuleInvocationBrandV1,
-        payload: T,
-    ) -> Self {
+    pub(in crate::mir::builder) fn from_test(brand: ModuleInvocationBrandV1, payload: T) -> Self {
         Self::from_source(brand, payload)
     }
 

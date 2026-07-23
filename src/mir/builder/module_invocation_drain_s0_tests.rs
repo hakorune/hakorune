@@ -39,23 +39,18 @@ fn collector() -> super::module_draft_collector::ModuleDraftCollectorV1 {
 }
 
 fn expectation() -> InvocationDrainExpectationV1 {
-    InvocationDrainExpectationV1::new(
-        vec!["main".into()],
-        true,
-        ConditionFnPolicyV1::Forbidden,
-    )
-    .unwrap()
+    InvocationDrainExpectationV1::new(vec!["main".into()], true, ConditionFnPolicyV1::Forbidden)
+        .unwrap()
 }
 
 #[test]
 fn completed_candidate_drains_to_typed_candidate_without_rebuilding_state() {
-    let shell =
-        ModuleLoweringShellV1::from_empty_module(MirModule::new("s0".into())).unwrap();
+    let shell = ModuleLoweringShellV1::from_empty_module(MirModule::new("s0".into())).unwrap();
     let mut candidate = ModuleLoweringInvocationCandidateV1::open(shell, collector());
     candidate.capture_main().unwrap();
     let complete = candidate.complete_success().unwrap();
-    let prepared = ModuleLoweringInvocationDrainOwnerV1::prepare_complete(complete, expectation())
-        .unwrap();
+    let prepared =
+        ModuleLoweringInvocationDrainOwnerV1::prepare_complete(complete, expectation()).unwrap();
     let root = RootBodyCompletionTrackerV1::new()
         .complete(RootBodyResultV1::NoValue)
         .unwrap();

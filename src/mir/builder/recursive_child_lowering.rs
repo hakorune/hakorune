@@ -308,7 +308,8 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             uses,
             attrs,
         )?;
-        self.module_port.commit_legacy_pending_branded(pending, admission)
+        self.module_port
+            .commit_legacy_pending_branded(pending, admission)
     }
 
     /// Instance counterpart of the port-aware capture seam.

@@ -8,11 +8,11 @@ use super::{
     CollectedDraftAdmissionReceiptV1, DraftPublicationPolicyV1, FunctionDraftKeyV1,
     ModuleDraftAdmissionErrorV1, ModuleDraftCollectorV1, PreparedCollectorReplacementV1,
 };
-use crate::mir::builder::root_draft_batch::PreparedRootDraftBatchV1;
-use crate::mir::MirFunction;
-use crate::mir::builder::root_body_completion::CompletedRootBodyV1;
 use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
 use crate::mir::builder::module_invocation_owner_chain::InvocationBranded;
+use crate::mir::builder::root_body_completion::CompletedRootBodyV1;
+use crate::mir::builder::root_draft_batch::PreparedRootDraftBatchV1;
+use crate::mir::MirFunction;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) enum RootCollectorBatchPrepareErrorV1 {
@@ -38,7 +38,10 @@ pub(in crate::mir::builder) enum RootCollectorBatchPrepareErrorV1 {
         actual: usize,
     },
     MissingRootBody,
-    ForeignBrand { expected: u64, actual: u64 },
+    ForeignBrand {
+        expected: u64,
+        actual: u64,
+    },
 }
 
 impl std::fmt::Display for RootCollectorBatchPrepareErrorV1 {
@@ -300,7 +303,12 @@ impl ModuleDraftCollectorV1 {
     ) -> Result<PreparedRootCollectorBatchV1, RejectedRootCollectorBatchV1> {
         let root_body = match batch.take_root_body() {
             Some(root_body) => root_body,
-            None => return Err(reject(self, RootCollectorBatchPrepareErrorV1::MissingRootBody)),
+            None => {
+                return Err(reject(
+                    self,
+                    RootCollectorBatchPrepareErrorV1::MissingRootBody,
+                ))
+            }
         };
         if let Some(brand) = self.receipt_brand {
             if brand != root_body.brand() {

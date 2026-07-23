@@ -317,8 +317,9 @@ impl MirBuilder {
                 // Dev-only additional resolver: suffix match
                 if tail_recovery_allowed {
                     let result = match lookup {
-                        Some(headers) => self
-                            .try_tail_based_resolver_with_headers(&name, &arg_values, headers)?,
+                        Some(headers) => {
+                            self.try_tail_based_resolver_with_headers(&name, &arg_values, headers)?
+                        }
                         None => self.try_tail_based_resolver(&name, &arg_values)?,
                     };
                     if let Some(result) = result {

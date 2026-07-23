@@ -8,10 +8,8 @@ use super::{
     CollectedDraftAdmissionReceiptV1, DraftPublicationPolicyV1, FunctionDraftKeyV1,
     ModuleDraftAdmissionErrorV1, ModuleDraftCollectorV1,
 };
-use crate::mir::builder::module_invocation_owner_chain::{
-    BrandedCollectorV1, InvocationBranded,
-};
 use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
+use crate::mir::builder::module_invocation_owner_chain::{BrandedCollectorV1, InvocationBranded};
 use crate::mir::MirFunction;
 
 #[derive(Debug)]

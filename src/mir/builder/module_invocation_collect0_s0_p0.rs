@@ -5,15 +5,15 @@ use super::module_draft_collector::{
     ModuleDraftCollectorV1,
 };
 use super::module_invocation_collection::{
-    canonical_source_from_parts, physical_receipt_from_test, raw_source_from_parts, seal_canonical_single,
-    seal_raw, CanonicalSingleCollectedInvocationDraftSetV1, InvocationCollectionSealErrorV1,
-    InvocationPhysicalReceiptV1, RawCollectedInvocationDraftSetV1,
+    canonical_source_from_parts, physical_receipt_from_test, raw_source_from_parts,
+    seal_canonical_single, seal_raw, CanonicalSingleCollectedInvocationDraftSetV1,
+    InvocationCollectionSealErrorV1, InvocationPhysicalReceiptV1, RawCollectedInvocationDraftSetV1,
 };
 use super::module_invocation_identity::TestInvocationPreflightFactoryV1;
 use super::module_invocation_owner_chain::InvocationBranded;
 use super::module_invocation_route_matrix::InvocationRootFamilyV1;
 use super::raw_expansion_receipt_ledger::{
-    RawExpansionDraftRequestV1, RawExpansionDraftRoleV1, RawCallableMainCompatibilityDispositionV1,
+    RawCallableMainCompatibilityDispositionV1, RawExpansionDraftRequestV1, RawExpansionDraftRoleV1,
     RawExpansionReceiptLedgerV1,
 };
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl, Span};
@@ -55,9 +55,8 @@ fn raw_source_and_rows() -> (
     Vec<InvocationPhysicalReceiptV1>,
     ModuleDraftCollectorV1,
 ) {
-    let mut ledger = RawExpansionReceiptLedgerV1::new(
-        RawCallableMainCompatibilityDispositionV1::NotSelected,
-    );
+    let mut ledger =
+        RawExpansionReceiptLedgerV1::new(RawCallableMainCompatibilityDispositionV1::NotSelected);
     let mut ledger_collector = ModuleDraftCollectorV1::default();
     for (request, key, symbol, arity, policy) in [
         (
@@ -227,7 +226,12 @@ fn raw_seal_checks_final_ledger_and_replacement_history() {
         .into_iter()
         .map(|receipt| InvocationBranded::from_test(brand, receipt.into_payload()))
         .collect();
-    let sealed = seal_raw(source, InvocationBranded::from_test(brand, collector), receipts).unwrap();
+    let sealed = seal_raw(
+        source,
+        InvocationBranded::from_test(brand, collector),
+        receipts,
+    )
+    .unwrap();
     assert_eq!(sealed.receipt_count(), 3);
 }
 
@@ -259,7 +263,11 @@ fn foreign_brand_missing_row_and_wrong_policy_fail_before_co_seal() {
         .map(|receipt| InvocationBranded::from_test(foreign, receipt.into_payload()))
         .collect();
     assert!(matches!(
-        seal_raw(source, InvocationBranded::from_test(foreign, collector), receipts),
+        seal_raw(
+            source,
+            InvocationBranded::from_test(foreign, collector),
+            receipts
+        ),
         Err(InvocationCollectionSealErrorV1::ForeignOwner { .. })
     ));
 
@@ -274,7 +282,11 @@ fn foreign_brand_missing_row_and_wrong_policy_fail_before_co_seal() {
         .map(|receipt| InvocationBranded::from_test(brand, receipt.into_payload()))
         .collect();
     assert!(matches!(
-        seal_raw(source, InvocationBranded::from_test(brand, collector), receipts),
+        seal_raw(
+            source,
+            InvocationBranded::from_test(brand, collector),
+            receipts
+        ),
         Err(InvocationCollectionSealErrorV1::CardinalityMismatch { .. })
     ));
 
@@ -296,14 +308,20 @@ fn foreign_brand_missing_row_and_wrong_policy_fail_before_co_seal() {
         .map(|receipt| InvocationBranded::from_test(brand, receipt.into_payload()))
         .collect();
     assert!(matches!(
-        seal_raw(source, InvocationBranded::from_test(brand, collector), receipts),
+        seal_raw(
+            source,
+            InvocationBranded::from_test(brand, collector),
+            receipts
+        ),
         Err(InvocationCollectionSealErrorV1::CardinalityMismatch { .. })
     ));
 
     let mut factory = TestInvocationPreflightFactoryV1::new();
     let foreign_header = header("foreign_header", false, true);
     let error = canonical_source_from_parts(
-        factory.mint(InvocationRootFamilyV1::BindingSsaTrivial).unwrap(),
+        factory
+            .mint(InvocationRootFamilyV1::BindingSsaTrivial)
+            .unwrap(),
         foreign_header,
     )
     .unwrap_err();
@@ -313,7 +331,9 @@ fn foreign_brand_missing_row_and_wrong_policy_fail_before_co_seal() {
     ));
 
     let mut factory = TestInvocationPreflightFactoryV1::new();
-    let token = factory.mint(InvocationRootFamilyV1::CanonicalAPlus).unwrap();
+    let token = factory
+        .mint(InvocationRootFamilyV1::CanonicalAPlus)
+        .unwrap();
     let brand = token.brand();
     let selected_header = header("wrong_policy", false, true);
     let symbol = selected_header.symbol().as_mir_name();

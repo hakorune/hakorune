@@ -12,14 +12,13 @@ use std::num::NonZeroU64;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1;
-use super::capability::{
-    CanonicalCurrentAPlusPlanV1, CanonicalFirstFamilyPlanV1,
-    CanonicalTrivialBindingSsaPlanV1, ResolvedOwnerHeaderFamilyV1,
-    ResolvedOwnerHeaderSealErrorV1, VerifiedResolvedOwnerHeaderV1,
-};
 use super::canonical_drain_manifest::{
     CanonicalDrainIdentityV1, CanonicalDrainManifestErrorV1, CanonicalDrainManifestV1,
     CanonicalDrainRowV1,
+};
+use super::capability::{
+    CanonicalCurrentAPlusPlanV1, CanonicalFirstFamilyPlanV1, CanonicalTrivialBindingSsaPlanV1,
+    ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1, VerifiedResolvedOwnerHeaderV1,
 };
 use super::recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1;
 use super::resolved_callable_module::VerifiedResolvedCallableModuleV1;
@@ -29,10 +28,10 @@ use crate::mir::builder::resolved_lowering::{
 };
 use crate::mir::builder::{
     BuilderInvocationConfigV1, CanonicalCallableCapabilityWitnessV1,
-    CanonicalPhysicalCollectionErrorV1,
-    CollectedCanonicalCallablePhysicalV1, CollectedCanonicalSinglePhysicalV1,
-    InvocationPhysicalStateV1, MirBuilder, ModuleBuilderInvocationSessionV1,
-    ModuleLoweringShellErrorV1, RejectedCanonicalPhysicalCollectionV1,
+    CanonicalPhysicalCollectionErrorV1, CollectedCanonicalCallablePhysicalV1,
+    CollectedCanonicalSinglePhysicalV1, InvocationPhysicalStateV1, MirBuilder,
+    ModuleBuilderInvocationSessionV1, ModuleLoweringShellErrorV1,
+    RejectedCanonicalPhysicalCollectionV1,
 };
 use crate::mir::function::MirFunction;
 use crate::mir::module_invocation_identity::{
@@ -55,7 +54,9 @@ const fn family_for_route(route: CanonicalSourceRouteV1) -> ModuleInvocationFami
         CanonicalSourceRouteV1::APlus => ModuleInvocationFamilyV1::CanonicalAPlus,
         CanonicalSourceRouteV1::BindingSsaTrivial => ModuleInvocationFamilyV1::BindingSsaTrivial,
         CanonicalSourceRouteV1::BindingSsaAcyclic => ModuleInvocationFamilyV1::BindingSsaAcyclic,
-        CanonicalSourceRouteV1::BindingSsaRecursive => ModuleInvocationFamilyV1::BindingSsaRecursive,
+        CanonicalSourceRouteV1::BindingSsaRecursive => {
+            ModuleInvocationFamilyV1::BindingSsaRecursive
+        }
     }
 }
 
@@ -64,7 +65,9 @@ fn route_for_family(family: ModuleInvocationFamilyV1) -> CanonicalSourceRouteV1 
         ModuleInvocationFamilyV1::CanonicalAPlus => CanonicalSourceRouteV1::APlus,
         ModuleInvocationFamilyV1::BindingSsaTrivial => CanonicalSourceRouteV1::BindingSsaTrivial,
         ModuleInvocationFamilyV1::BindingSsaAcyclic => CanonicalSourceRouteV1::BindingSsaAcyclic,
-        ModuleInvocationFamilyV1::BindingSsaRecursive => CanonicalSourceRouteV1::BindingSsaRecursive,
+        ModuleInvocationFamilyV1::BindingSsaRecursive => {
+            CanonicalSourceRouteV1::BindingSsaRecursive
+        }
         ModuleInvocationFamilyV1::Raw => unreachable!("canonical package cannot carry Raw"),
     }
 }
@@ -244,7 +247,8 @@ pub(in crate::mir) struct RejectedCanonicalPhysicalCollectionInvocationV1<'a> {
 impl<'a> CanonicalPhysicalInvocationV1<'a> {
     pub(super) fn lower(
         self,
-    ) -> Result<LoweredCanonicalPhysicalInvocationV1<'a>, RejectedCanonicalPhysicalLoweringV1<'a>> {
+    ) -> Result<LoweredCanonicalPhysicalInvocationV1<'a>, RejectedCanonicalPhysicalLoweringV1<'a>>
+    {
         let Self {
             token,
             mut session,
@@ -346,20 +350,20 @@ impl<'a> LoweredCanonicalPhysicalInvocationV1<'a> {
                     });
                 };
                 match physical.collect_callable_batch(drafts) {
-                Ok(physical) => Ok(CollectedCanonicalPhysicalInvocationV1::Callable {
-                    token,
-                    continuation: CanonicalSourceContinuationV1::Callable { source, policy },
-                    session,
-                    capability,
-                    physical,
-                }),
-                Err(rejected) => Err(RejectedCanonicalPhysicalCollectionInvocationV1 {
-                    token,
-                    continuation: CanonicalSourceContinuationV1::Callable { source, policy },
-                    session,
-                    callable_capability: Some(capability),
-                    physical: rejected,
-                }),
+                    Ok(physical) => Ok(CollectedCanonicalPhysicalInvocationV1::Callable {
+                        token,
+                        continuation: CanonicalSourceContinuationV1::Callable { source, policy },
+                        session,
+                        capability,
+                        physical,
+                    }),
+                    Err(rejected) => Err(RejectedCanonicalPhysicalCollectionInvocationV1 {
+                        token,
+                        continuation: CanonicalSourceContinuationV1::Callable { source, policy },
+                        session,
+                        callable_capability: Some(capability),
+                        physical: rejected,
+                    }),
                 }
             }
             LoweredCanonicalPlanV1::Single { continuation, .. }
@@ -499,23 +503,22 @@ impl<'a> CanonicalSourceContinuationV1<'a> {
             Self::Callable { source, policy } => {
                 let mut rows = Vec::with_capacity(source.functions_by_key().len());
                 for key in source.functions_by_key().keys() {
-                    let header = source
-                        .source()
-                        .catalog()
-                        .index()
-                        .lookup(key)
-                        .ok_or_else(|| CanonicalDrainManifestErrorV1::MissingCallableHeader(key.clone()))?;
+                    let header =
+                        source
+                            .source()
+                            .catalog()
+                            .index()
+                            .lookup(key)
+                            .ok_or_else(|| {
+                                CanonicalDrainManifestErrorV1::MissingCallableHeader(key.clone())
+                            })?;
                     rows.push(CanonicalDrainRowV1::new(
                         CanonicalDrainIdentityV1::Callable(key.clone()),
                         header.symbol().as_mir_name().into(),
                         header.signature().arity(),
                     ));
                 }
-                Ok(CanonicalDrainManifestV1::callable(
-                    brand,
-                    *policy,
-                    rows,
-                ))
+                Ok(CanonicalDrainManifestV1::callable(brand, *policy, rows))
             }
         }
     }
@@ -565,7 +568,10 @@ impl<'a> SourceBoundCanonicalPackageV1<'a> {
                 let header = plan
                     .seal_resolved_owner_header_v1()
                     .map_err(SourceBindingErrorV1::Header)?;
-                debug_assert_eq!(header.family(), ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa);
+                debug_assert_eq!(
+                    header.family(),
+                    ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa
+                );
                 Ok(CanonicalSourceContinuationV1::Single {
                     header,
                     policy: ModuleInvocationPolicyV1::policy_for_family(
@@ -761,16 +767,14 @@ impl InvocationIdentityIssuerV1 {
                 domain
             }
         };
-        let ordinal = NonZeroU64::new(self.next_ordinal)
-            .ok_or(SourceBindingErrorV1::OrdinalExhausted)?;
+        let ordinal =
+            NonZeroU64::new(self.next_ordinal).ok_or(SourceBindingErrorV1::OrdinalExhausted)?;
         self.next_ordinal = self
             .next_ordinal
             .checked_add(1)
             .ok_or(SourceBindingErrorV1::OrdinalExhausted)?;
         Ok(ModuleInvocationTokenV1::from_issued(
-            domain,
-            ordinal,
-            family,
+            domain, ordinal, family,
         ))
     }
 }

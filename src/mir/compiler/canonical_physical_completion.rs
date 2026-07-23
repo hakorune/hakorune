@@ -5,19 +5,19 @@
 //! source continuation and the collector/receipt product already came from
 //! the compiler-owned bridge and are moved here unchanged.
 
+use super::canonical_drain_manifest::CanonicalDrainManifestErrorV1;
 use super::source_bound_package::{
     CanonicalSourceContinuationV1, CollectedCanonicalPhysicalInvocationV1,
 };
 use crate::mir::builder::{
-    CanonicalCallableCapabilityWitnessV1, CollectedCanonicalCallablePhysicalV1,
-    CanonicalDrainedCallablePhysicalV1, CanonicalDrainedSinglePhysicalV1,
-    CollectedCanonicalSinglePhysicalV1, ModuleBuilderInvocationSessionV1,
-    PreparedCanonicalCallablePhysicalDrainV1, PreparedCanonicalSinglePhysicalDrainV1,
-    RejectedCanonicalCallablePhysicalDrainV1, RejectedCanonicalSinglePhysicalDrainV1,
-    CanonicalPhysicalDrainPrepareErrorV1,
+    CanonicalCallableCapabilityWitnessV1, CanonicalDrainedCallablePhysicalV1,
+    CanonicalDrainedSinglePhysicalV1, CanonicalPhysicalDrainPrepareErrorV1,
+    CollectedCanonicalCallablePhysicalV1, CollectedCanonicalSinglePhysicalV1,
+    ModuleBuilderInvocationSessionV1, PreparedCanonicalCallablePhysicalDrainV1,
+    PreparedCanonicalSinglePhysicalDrainV1, RejectedCanonicalCallablePhysicalDrainV1,
+    RejectedCanonicalSinglePhysicalDrainV1,
 };
 use crate::mir::module_invocation_identity::{ModuleInvocationBrandV1, ModuleInvocationTokenV1};
-use super::canonical_drain_manifest::CanonicalDrainManifestErrorV1;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir) enum CanonicalPhysicalCompletionErrorV1 {
@@ -139,7 +139,8 @@ impl<'a> CollectedCanonicalPhysicalInvocationV1<'a> {
     /// collector, source header, or capability can be supplied separately.
     pub(in crate::mir) fn complete(
         self,
-    ) -> Result<CanonicalPhysicalCompleteInvocationV1<'a>, RejectedCanonicalPhysicalCompletionV1<'a>> {
+    ) -> Result<CanonicalPhysicalCompleteInvocationV1<'a>, RejectedCanonicalPhysicalCompletionV1<'a>>
+    {
         match &self {
             Self::Single {
                 token,
@@ -241,10 +242,10 @@ impl<'a> CanonicalPhysicalCompleteInvocationV1<'a> {
                             owner: RejectedCanonicalDrainOwnerV1::Complete(
                                 CanonicalPhysicalCompleteInvocationV1::Single(
                                     CanonicalSinglePhysicalCompleteInvocationV1 {
-                                    token,
-                                    continuation,
-                                    session,
-                                    physical,
+                                        token,
+                                        continuation,
+                                        session,
+                                        physical,
                                     },
                                 ),
                             ),
@@ -290,11 +291,11 @@ impl<'a> CanonicalPhysicalCompleteInvocationV1<'a> {
                             owner: RejectedCanonicalDrainOwnerV1::Complete(
                                 CanonicalPhysicalCompleteInvocationV1::Callable(
                                     CanonicalCallablePhysicalCompleteInvocationV1 {
-                                    token,
-                                    continuation,
-                                    session,
-                                    capability,
-                                    physical,
+                                        token,
+                                        continuation,
+                                        session,
+                                        capability,
+                                        physical,
                                     },
                                 ),
                             ),

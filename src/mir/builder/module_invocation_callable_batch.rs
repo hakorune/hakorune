@@ -11,8 +11,7 @@ use super::module_draft_collector::{
 };
 use super::module_invocation_identity::{ModuleInvocationFamilyV1, ModuleInvocationTokenV1};
 use super::module_invocation_owner_chain::{BrandedCollectorV1, InvocationBranded};
-use crate::mir::canonical_recursive_callable_module_capability::
-    CanonicalRecursiveCallableModuleCapabilityV1;
+use crate::mir::canonical_recursive_callable_module_capability::CanonicalRecursiveCallableModuleCapabilityV1;
 use crate::mir::compiler::resolved_callable_module::VerifiedResolvedCallableModuleV1;
 use crate::mir::compiler::{
     acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1,
@@ -57,7 +56,10 @@ pub(in crate::mir::builder) enum CallableBatchSourceErrorV1 {
 
 impl std::fmt::Display for CallableBatchSourceErrorV1 {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(formatter, "[freeze:contract][callable_batch/source] {self:?}")
+        write!(
+            formatter,
+            "[freeze:contract][callable_batch/source] {self:?}"
+        )
     }
 }
 
@@ -65,15 +67,38 @@ impl std::error::Error for CallableBatchSourceErrorV1 {}
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum CallableBatchSealErrorV1 {
-    ForeignOwner { expected: u64, actual: u64 },
-    CardinalityMismatch { expected: usize, actual: usize },
-    MissingRow { key: CanonicalCallableKeyV1 },
-    SurplusRow { symbol: String },
-    KeyMismatch { symbol: String },
-    SymbolMismatch { expected: String, actual: String },
-    ArityMismatch { symbol: String, expected: usize, actual: usize },
-    PolicyMismatch { symbol: String },
-    ReplacementForbidden { symbol: String },
+    ForeignOwner {
+        expected: u64,
+        actual: u64,
+    },
+    CardinalityMismatch {
+        expected: usize,
+        actual: usize,
+    },
+    MissingRow {
+        key: CanonicalCallableKeyV1,
+    },
+    SurplusRow {
+        symbol: String,
+    },
+    KeyMismatch {
+        symbol: String,
+    },
+    SymbolMismatch {
+        expected: String,
+        actual: String,
+    },
+    ArityMismatch {
+        symbol: String,
+        expected: usize,
+        actual: usize,
+    },
+    PolicyMismatch {
+        symbol: String,
+    },
+    ReplacementForbidden {
+        symbol: String,
+    },
 }
 
 impl std::fmt::Display for CallableBatchSealErrorV1 {
@@ -165,7 +190,8 @@ pub(in crate::mir::builder) fn shell_fact_from_test(
             Ok(CallableBatchShellFactV1::Acyclic)
         }
         ModuleInvocationFamilyV1::BindingSsaRecursive => {
-            let capability = capability.ok_or(CallableBatchSourceErrorV1::RecursiveCapabilityMissing)?;
+            let capability =
+                capability.ok_or(CallableBatchSourceErrorV1::RecursiveCapabilityMissing)?;
             CanonicalRecursiveCallableModuleCapabilityV1::verify_required(Some(&capability))
                 .map_err(|_| CallableBatchSourceErrorV1::RecursiveCapabilityInvalid)?;
             Ok(CallableBatchShellFactV1::Recursive { capability })

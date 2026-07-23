@@ -136,7 +136,11 @@ impl CanonicalPhysicalDrainManifestV1 {
         family: ModuleInvocationFamilyV1,
         rows: Box<[CanonicalPhysicalCallableRowV1]>,
     ) -> Self {
-        Self::Callable { brand, family, rows }
+        Self::Callable {
+            brand,
+            family,
+            rows,
+        }
     }
 
     pub(crate) const fn brand(&self) -> ModuleInvocationBrandV1 {

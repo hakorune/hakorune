@@ -21,13 +21,8 @@ impl RawExpansionReceiptLedgerV1 {
             super::super::module_draft_collector::CollectedDraftAdmissionReceiptV1,
         >,
     ) {
-        self.complete_required_root_batch(
-            main_reservation,
-            main,
-            condition_reservation,
-            condition,
-        )
-        .unwrap_or_else(|_| unreachable!("root ledger preflight drifted before commit"));
+        self.complete_required_root_batch(main_reservation, main, condition_reservation, condition)
+            .unwrap_or_else(|_| unreachable!("root ledger preflight drifted before commit"));
     }
 
     /// Borrow-only reservation/history validation for the required Raw root

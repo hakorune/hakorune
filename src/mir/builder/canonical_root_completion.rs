@@ -4,8 +4,8 @@
 //! preflight package once, keeps the real BRAND0 shell/collector owner, and
 //! emits route-specific completion products without reusing Raw Main state.
 use super::module_draft_collector::{
-    CallableCollectorBatchReceiptV1, CollectedCallableCollectorBatchV1,
-    CallableCollectorBatchPrepareErrorV1, CallableCollectorDraftEntryV1,
+    CallableCollectorBatchPrepareErrorV1, CallableCollectorBatchReceiptV1,
+    CallableCollectorDraftEntryV1, CollectedCallableCollectorBatchV1,
     CollectedDraftAdmissionProductV1, CollectedDraftAdmissionReceiptV1,
     CollectedDraftReplacementDispositionV1, CompletedDraftSignatureViewV1,
     DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftCollectorV1,
@@ -33,8 +33,8 @@ use crate::mir::compiler::{
     acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1,
     recursive_callable_module_plan::VerifiedRecursiveCallableModulePlanV1,
 };
-use crate::mir::resolved_semantics::CanonicalCallableKeyV1;
 use crate::mir::function::MirFunction;
+use crate::mir::resolved_semantics::CanonicalCallableKeyV1;
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum CanonicalSourceBindingErrorV1 {
     FamilyMismatch {
@@ -157,16 +157,31 @@ impl<'a> PreparedCanonicalSingleSourceV1<'a> {
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum CanonicalCompletionErrorV1 {
     Shell(ModuleLoweringShellErrorV1),
-    ForeignBrand { expected: u64, actual: u64 },
-    CollectorCardinality { expected: usize, actual: usize },
+    ForeignBrand {
+        expected: u64,
+        actual: u64,
+    },
+    CollectorCardinality {
+        expected: usize,
+        actual: usize,
+    },
     MissingReceipt,
     SyntheticRoot(FunctionDraftKeyV1),
     KeyMismatch,
-    SymbolMismatch { expected: String, actual: String },
-    ArityMismatch { expected: usize, actual: usize },
+    SymbolMismatch {
+        expected: String,
+        actual: String,
+    },
+    ArityMismatch {
+        expected: usize,
+        actual: usize,
+    },
     PolicyMismatch,
     ReplacementForbidden,
-    CallableCardinality { expected: usize, actual: usize },
+    CallableCardinality {
+        expected: usize,
+        actual: usize,
+    },
     CallableMissing(CanonicalCallableKeyV1),
     CallableKeyMismatch,
     CallableSymbolMismatch,
@@ -175,7 +190,10 @@ pub(in crate::mir::builder) enum CanonicalCompletionErrorV1 {
     CallableReplacementForbidden,
     RecursiveCapability(&'static str),
     CapabilityFamilyMismatch(ModuleInvocationFamilyV1),
-    CapabilityBrandMismatch { expected: u64, actual: u64 },
+    CapabilityBrandMismatch {
+        expected: u64,
+        actual: u64,
+    },
     CapabilityWitnessFamilyMismatch {
         expected: ModuleInvocationFamilyV1,
         actual: ModuleInvocationFamilyV1,
@@ -423,7 +441,8 @@ impl<'a> CanonicalSingleActiveInvocationV1<'a> {
     pub(in crate::mir::builder) fn collect(
         self,
         draft: MirFunction,
-    ) -> Result<CanonicalSingleCollectedInvocationV1<'a>, RejectedCanonicalSingleCollectionV1<'a>> {
+    ) -> Result<CanonicalSingleCollectedInvocationV1<'a>, RejectedCanonicalSingleCollectionV1<'a>>
+    {
         let Self {
             token,
             lowering,
@@ -434,12 +453,7 @@ impl<'a> CanonicalSingleActiveInvocationV1<'a> {
         } = self;
         let key = FunctionDraftKeyV1::CanonicalResolvedOwner(source.header.owner());
         let symbol = source.header.symbol().as_mir_name().to_owned();
-        match collector.collect_canonical_single(
-            key,
-            symbol,
-            source.header.arity(),
-            draft,
-        ) {
+        match collector.collect_canonical_single(key, symbol, source.header.arity(), draft) {
             Ok(collected) => Ok(CanonicalSingleCollectedInvocationV1 {
                 token,
                 lowering,
@@ -599,10 +613,12 @@ impl<'a> CallableBatchActiveInvocationV1<'a> {
         let capability = match (family, installed) {
             (ModuleInvocationFamilyV1::BindingSsaAcyclic, Err(absence)) => {
                 if absence.family() != family {
-                    return Err(CanonicalCompletionErrorV1::CapabilityWitnessFamilyMismatch {
-                        expected: family,
-                        actual: absence.family(),
-                    });
+                    return Err(
+                        CanonicalCompletionErrorV1::CapabilityWitnessFamilyMismatch {
+                            expected: family,
+                            actual: absence.family(),
+                        },
+                    );
                 }
                 if absence.brand() != brand {
                     return Err(CanonicalCompletionErrorV1::CapabilityBrandMismatch {
@@ -614,10 +630,12 @@ impl<'a> CallableBatchActiveInvocationV1<'a> {
             }
             (ModuleInvocationFamilyV1::BindingSsaRecursive, Ok(receipt)) => {
                 if receipt.family() != family {
-                    return Err(CanonicalCompletionErrorV1::CapabilityWitnessFamilyMismatch {
-                        expected: family,
-                        actual: receipt.family(),
-                    });
+                    return Err(
+                        CanonicalCompletionErrorV1::CapabilityWitnessFamilyMismatch {
+                            expected: family,
+                            actual: receipt.family(),
+                        },
+                    );
                 }
                 if receipt.brand() != brand {
                     return Err(CanonicalCompletionErrorV1::CapabilityBrandMismatch {
@@ -719,9 +737,7 @@ impl<'a> CallableBatchCollectedInvocationV1<'a> {
             });
         }
         let expected = source.source.functions_by_key().len();
-        if receipt.payload().len() != expected
-            || collector.payload().symbol_count() != expected
-        {
+        if receipt.payload().len() != expected || collector.payload().symbol_count() != expected {
             return Err(CanonicalCompletionErrorV1::CollectorCardinality {
                 expected,
                 actual: receipt.payload().len(),

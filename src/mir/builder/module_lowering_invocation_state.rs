@@ -172,7 +172,8 @@ mod tests {
     fn root_completion_requires_ordered_typed_transitions() {
         let shell =
             ModuleLoweringShellV1::from_empty_module(MirModule::new("state".into())).unwrap();
-        let mut state = ModuleLoweringInvocationStateV1::new(shell, ModuleDraftCollectorV1::default());
+        let mut state =
+            ModuleLoweringInvocationStateV1::new(shell, ModuleDraftCollectorV1::default());
         assert_eq!(
             state.complete_root().unwrap_err(),
             RootCompletionTransitionErrorV1::ExpectedMainCaptured

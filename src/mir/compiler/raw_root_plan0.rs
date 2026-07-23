@@ -8,10 +8,10 @@
 
 use crate::ast::ASTNode;
 
-use super::raw_source_binding::SourceBoundRawPackageV1;
 use super::raw_root_eligibility_classifier::{
     RawScalarControl0ClassifierV1, RawScalarControl0ErrorV1, RawScalarUnsupportedSurface0V1,
 };
+use super::raw_source_binding::SourceBoundRawPackageV1;
 use crate::mir::builder::{OwnedRawRootProjectionV1, RawSourceLocatorV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -194,7 +194,6 @@ impl RawRootEnvironmentPlanV1 {
     pub(in crate::mir) const fn access(&self) -> RawRootAccessRequirementsV1 {
         self.access
     }
-
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -295,7 +294,6 @@ impl RawRootPlanV1 {
     pub(in crate::mir) const fn environment(&self) -> &RawRootEnvironmentPlanV1 {
         &self.environment
     }
-
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -422,9 +420,7 @@ fn work_kind_for_scalar_error(error: &RawScalarControl0ErrorV1) -> RawRootWorkKi
     match error {
         RawScalarControl0ErrorV1::UnsupportedSurface { surface, .. } => match surface {
             RawScalarUnsupportedSurface0V1::Closure => RawRootWorkKindV1::UnsupportedClosure,
-            RawScalarUnsupportedSurface0V1::StaticData => {
-                RawRootWorkKindV1::UnsupportedStaticData
-            }
+            RawScalarUnsupportedSurface0V1::StaticData => RawRootWorkKindV1::UnsupportedStaticData,
             RawScalarUnsupportedSurface0V1::ProcessGlobalSlot => {
                 RawRootWorkKindV1::UnsupportedProcessGlobalSlot
             }

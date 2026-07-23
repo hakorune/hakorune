@@ -7,8 +7,8 @@
 //! caller until the later all-route cutover.
 
 use super::module_draft_collector::{
-    CollectedDraftAdmissionReceiptV1, CompletedDraftSignatureViewV1,
-    DraftPublicationPolicyV1, FunctionDraftKeyV1, ModuleDraftCollectorV1,
+    CollectedDraftAdmissionReceiptV1, CompletedDraftSignatureViewV1, DraftPublicationPolicyV1,
+    FunctionDraftKeyV1, ModuleDraftCollectorV1,
 };
 use super::module_invocation_identity::{
     ModuleInvocationBrandV1, ModuleInvocationFamilyV1, ModuleInvocationTokenV1,
@@ -46,21 +46,49 @@ pub(in crate::mir::builder) enum InvocationCollectionSealErrorV1 {
         expected: ModuleInvocationFamilyV1,
         actual: ModuleInvocationFamilyV1,
     },
-    ForeignOwner { expected: u64, actual: u64 },
-    CardinalityMismatch { expected: usize, actual: usize },
-    MissingRow { symbol: String },
-    SurplusRow { symbol: String },
-    KeyMismatch { symbol: String },
-    SymbolMismatch { expected: String, actual: String },
-    ArityMismatch { symbol: String, expected: usize, actual: usize },
-    PolicyMismatch { symbol: String },
-    ReplacementHistoryMismatch { symbol: String },
-    CanonicalReplacementForbidden { symbol: String },
+    ForeignOwner {
+        expected: u64,
+        actual: u64,
+    },
+    CardinalityMismatch {
+        expected: usize,
+        actual: usize,
+    },
+    MissingRow {
+        symbol: String,
+    },
+    SurplusRow {
+        symbol: String,
+    },
+    KeyMismatch {
+        symbol: String,
+    },
+    SymbolMismatch {
+        expected: String,
+        actual: String,
+    },
+    ArityMismatch {
+        symbol: String,
+        expected: usize,
+        actual: usize,
+    },
+    PolicyMismatch {
+        symbol: String,
+    },
+    ReplacementHistoryMismatch {
+        symbol: String,
+    },
+    CanonicalReplacementForbidden {
+        symbol: String,
+    },
 }
 
 impl std::fmt::Display for InvocationCollectionSealErrorV1 {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(formatter, "[freeze:contract][invocation_collection] {self:?}")
+        write!(
+            formatter,
+            "[freeze:contract][invocation_collection] {self:?}"
+        )
     }
 }
 
@@ -116,72 +144,70 @@ fn check_brand(
 
 #[cfg(test)]
 pub(in crate::mir::builder) fn raw_source_from_parts(
-        token: ModuleInvocationTokenV1,
-        ledger: SealedRawExpansionReceiptLedgerV1,
-    ) -> Result<RawInvocationSourceProofV1, InvocationCollectionSealErrorV1> {
-        if token.family() != ModuleInvocationFamilyV1::Raw {
-            return Err(InvocationCollectionSealErrorV1::SourceFamilyMismatch {
-                expected: ModuleInvocationFamilyV1::Raw,
-                actual: token.family(),
-            });
-        }
-        let brand = token.brand();
-        Ok(InvocationBranded::from_test(
-            brand,
-            RawCollectionSourcePayloadV1 { token, ledger },
-        ))
+    token: ModuleInvocationTokenV1,
+    ledger: SealedRawExpansionReceiptLedgerV1,
+) -> Result<RawInvocationSourceProofV1, InvocationCollectionSealErrorV1> {
+    if token.family() != ModuleInvocationFamilyV1::Raw {
+        return Err(InvocationCollectionSealErrorV1::SourceFamilyMismatch {
+            expected: ModuleInvocationFamilyV1::Raw,
+            actual: token.family(),
+        });
+    }
+    let brand = token.brand();
+    Ok(InvocationBranded::from_test(
+        brand,
+        RawCollectionSourcePayloadV1 { token, ledger },
+    ))
 }
 
 #[cfg(test)]
 pub(in crate::mir::builder) fn canonical_source_from_parts(
-        token: ModuleInvocationTokenV1,
-        header: VerifiedResolvedOwnerHeaderV1,
-    ) -> Result<CanonicalSingleInvocationSourceProofV1, InvocationCollectionSealErrorV1> {
-        let expected = match token.family() {
-            ModuleInvocationFamilyV1::CanonicalAPlus => {
-                ResolvedOwnerHeaderFamilyV1::CurrentCanonicalAPlus
-            }
-            ModuleInvocationFamilyV1::BindingSsaTrivial => {
-                ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa
-            }
-            actual => {
-                return Err(InvocationCollectionSealErrorV1::SourceFamilyMismatch {
-                    expected: ModuleInvocationFamilyV1::CanonicalAPlus,
-                    actual,
-                })
-            }
-        };
-        if header.family() != expected {
-            return Err(InvocationCollectionSealErrorV1::SourceFamilyMismatch {
-                expected: token.family(),
-                actual: match header.family() {
-                    ResolvedOwnerHeaderFamilyV1::CurrentCanonicalAPlus => {
-                        ModuleInvocationFamilyV1::CanonicalAPlus
-                    }
-                    ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa => {
-                        ModuleInvocationFamilyV1::BindingSsaTrivial
-                    }
-                },
-            });
+    token: ModuleInvocationTokenV1,
+    header: VerifiedResolvedOwnerHeaderV1,
+) -> Result<CanonicalSingleInvocationSourceProofV1, InvocationCollectionSealErrorV1> {
+    let expected = match token.family() {
+        ModuleInvocationFamilyV1::CanonicalAPlus => {
+            ResolvedOwnerHeaderFamilyV1::CurrentCanonicalAPlus
         }
-        let brand = token.brand();
-        Ok(InvocationBranded::from_test(
-            brand,
-            CanonicalSingleCollectionSourcePayloadV1 { token, header },
-        ))
+        ModuleInvocationFamilyV1::BindingSsaTrivial => {
+            ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa
+        }
+        actual => {
+            return Err(InvocationCollectionSealErrorV1::SourceFamilyMismatch {
+                expected: ModuleInvocationFamilyV1::CanonicalAPlus,
+                actual,
+            })
+        }
+    };
+    if header.family() != expected {
+        return Err(InvocationCollectionSealErrorV1::SourceFamilyMismatch {
+            expected: token.family(),
+            actual: match header.family() {
+                ResolvedOwnerHeaderFamilyV1::CurrentCanonicalAPlus => {
+                    ModuleInvocationFamilyV1::CanonicalAPlus
+                }
+                ResolvedOwnerHeaderFamilyV1::TrivialBindingSsa => {
+                    ModuleInvocationFamilyV1::BindingSsaTrivial
+                }
+            },
+        });
+    }
+    let brand = token.brand();
+    Ok(InvocationBranded::from_test(
+        brand,
+        CanonicalSingleCollectionSourcePayloadV1 { token, header },
+    ))
 }
 
 #[cfg(test)]
 pub(in crate::mir::builder) fn physical_receipt_from_test(
-        brand: ModuleInvocationBrandV1,
-        receipt: CollectedDraftAdmissionReceiptV1,
-    ) -> InvocationPhysicalReceiptV1 {
-        InvocationBranded::from_test(brand, receipt)
+    brand: ModuleInvocationBrandV1,
+    receipt: CollectedDraftAdmissionReceiptV1,
+) -> InvocationPhysicalReceiptV1 {
+    InvocationBranded::from_test(brand, receipt)
 }
 
-fn physical_receipt(
-    receipt: &InvocationPhysicalReceiptV1,
-) -> &CollectedDraftAdmissionReceiptV1 {
+fn physical_receipt(receipt: &InvocationPhysicalReceiptV1) -> &CollectedDraftAdmissionReceiptV1 {
     receipt.payload()
 }
 
@@ -292,9 +318,11 @@ pub(in crate::mir::builder) fn seal_canonical_single(
         physical.replacement(),
         super::module_draft_collector::CollectedDraftReplacementDispositionV1::Inserted
     ) {
-        return Err(InvocationCollectionSealErrorV1::CanonicalReplacementForbidden {
-            symbol: physical.symbol().to_owned(),
-        });
+        return Err(
+            InvocationCollectionSealErrorV1::CanonicalReplacementForbidden {
+                symbol: physical.symbol().to_owned(),
+            },
+        );
     }
     Ok(CanonicalSingleCollectedInvocationDraftSetV1 {
         source,

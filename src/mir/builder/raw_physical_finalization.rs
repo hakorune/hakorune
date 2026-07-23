@@ -5,9 +5,7 @@
 //! adapting through the legacy Main-only drained candidate.
 
 use super::module_draft_collector::{CompletedDraftSignatureViewV1, ModuleDraftCollectorV1};
-use super::module_invocation_identity::{
-    ModuleInvocationFamilyV1, ModuleInvocationTokenV1,
-};
+use super::module_invocation_identity::{ModuleInvocationFamilyV1, ModuleInvocationTokenV1};
 use super::module_invocation_owner_chain::{BrandedCollectorV1, BrandedShellV1};
 use super::module_invocation_session::ModuleBuilderInvocationSessionV1;
 use super::module_lowering_shell::{ModuleLoweringShellDrainInventoryV1, ModuleLoweringShellV1};
@@ -178,7 +176,6 @@ mod tests {
         ModuleInvocationBrandV1, TestInvocationPreflightFactoryV1,
     };
     use crate::mir::builder::module_invocation_owner_chain::InvocationBranded;
-    use crate::mir::builder::raw_root_completion_preflight::RawRootCompletionInputV1;
     use crate::mir::builder::module_invocation_session::{
         BuilderCoreSeedPolicyV1, BuilderInvocationConfigV1,
     };
@@ -188,18 +185,19 @@ mod tests {
         RawExpansionReceiptLedgerV1,
     };
     use crate::mir::builder::raw_root_completion::complete_raw_root;
+    use crate::mir::builder::raw_root_completion_preflight::RawRootCompletionInputV1;
     use crate::mir::builder::root_body_completion::{
         RootBodyCompletionTrackerV1, RootBodyResultV1,
     };
     use crate::mir::builder::root_draft_batch::PreparedRootDraftBatchV1;
     use crate::mir::builder::MirBuilder;
+    use crate::mir::compiler::module_postprocess::ModulePostprocessOwnerV1;
+    use crate::mir::compiler::MirCompiler;
+    use crate::mir::verification::MirVerifier;
     use crate::mir::{
         BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirInstruction, MirModule,
         MirType,
     };
-    use crate::mir::compiler::module_postprocess::ModulePostprocessOwnerV1;
-    use crate::mir::compiler::MirCompiler;
-    use crate::mir::verification::MirVerifier;
 
     fn draft(symbol: &str, arity: usize) -> MirFunction {
         MirFunction::new(
@@ -326,24 +324,22 @@ mod tests {
             .unwrap()
             .prepare_finalization()
             .unwrap();
-        let prepared = crate::mir::compiler::raw_finalization::RawModuleFinalizerV1::prepare(
-            input,
-        )
-        .expect("raw finalization readiness must close the candidate session");
+        let prepared = crate::mir::compiler::raw_finalization::RawModuleFinalizerV1::prepare(input)
+            .expect("raw finalization readiness must close the candidate session");
         assert_eq!(prepared.builder.brand(), brand);
         assert_eq!(prepared.token.brand(), brand);
         assert_eq!(prepared.module.functions.len(), 2);
-        let finalized = crate::mir::compiler::raw_finalization::RawModuleFinalizerV1::finalize(
-            prepared,
-        );
+        let finalized =
+            crate::mir::compiler::raw_finalization::RawModuleFinalizerV1::finalize(prepared);
         assert_eq!(finalized.input.root.brand(), brand);
         let mut verifier = crate::mir::verification::MirVerifier::new();
-        let postprocessed = crate::mir::compiler::module_postprocess::ModulePostprocessOwnerV1::new(
-            &mut verifier,
-            false,
-        )
-        .run_raw(finalized)
-        .expect("Raw postprocess must retain reportable verifier evidence");
+        let postprocessed =
+            crate::mir::compiler::module_postprocess::ModulePostprocessOwnerV1::new(
+                &mut verifier,
+                false,
+            )
+            .run_raw(finalized)
+            .expect("Raw postprocess must retain reportable verifier evidence");
         assert_eq!(postprocessed.family(), ModuleInvocationFamilyV1::Raw);
         assert!(matches!(
             postprocessed.verification,
@@ -365,10 +361,8 @@ mod tests {
             .unwrap()
             .prepare_finalization()
             .unwrap();
-        let rejected = crate::mir::compiler::raw_finalization::RawModuleFinalizerV1::prepare(
-            input,
-        )
-        .expect_err("open Builder state must reject before finalization");
+        let rejected = crate::mir::compiler::raw_finalization::RawModuleFinalizerV1::prepare(input)
+            .expect_err("open Builder state must reject before finalization");
         assert!(matches!(
             rejected.error,
             crate::mir::compiler::raw_finalization::RawFinalizationErrorV1::BuilderReadiness(
@@ -391,11 +385,9 @@ mod tests {
             .unwrap()
             .prepare_finalization()
             .unwrap();
-        let mut finalized =
-            crate::mir::compiler::raw_finalization::RawModuleFinalizerV1::finalize(
-                crate::mir::compiler::raw_finalization::RawModuleFinalizerV1::prepare(input)
-                    .unwrap(),
-            );
+        let mut finalized = crate::mir::compiler::raw_finalization::RawModuleFinalizerV1::finalize(
+            crate::mir::compiler::raw_finalization::RawModuleFinalizerV1::prepare(input).unwrap(),
+        );
         let function = finalized
             .input
             .module
@@ -429,19 +421,16 @@ mod tests {
         let (brand, complete) = raw_complete();
         let shell = InvocationBranded::from_test(
             brand,
-            ModuleLoweringShellV1::from_empty_module(MirModule::new("p0_r1_raw".into()))
-                .unwrap(),
+            ModuleLoweringShellV1::from_empty_module(MirModule::new("p0_r1_raw".into())).unwrap(),
         );
         let active_session = session(&complete);
         let physical = complete.bind_physical(active_session, shell).unwrap();
         let physical = physical.prepare_finalization().unwrap();
-        let finalized = crate::mir::compiler::raw_finalization::RawModuleFinalizerV1::prepare(
-            physical,
-        )
-        .unwrap();
-        let finalized = crate::mir::compiler::raw_finalization::RawModuleFinalizerV1::finalize(
-            finalized,
-        );
+        let finalized =
+            crate::mir::compiler::raw_finalization::RawModuleFinalizerV1::prepare(physical)
+                .unwrap();
+        let finalized =
+            crate::mir::compiler::raw_finalization::RawModuleFinalizerV1::finalize(finalized);
         let mut verifier = MirVerifier::new();
         let processed = ModulePostprocessOwnerV1::new(&mut verifier, false)
             .run_raw(finalized)

@@ -57,8 +57,8 @@ impl TestInvocationPreflightFactoryV1 {
                 source_family,
             });
         }
-        let ordinal = NonZeroU64::new(self.next)
-            .ok_or(ModuleInvocationIdentityErrorV1::OrdinalExhausted)?;
+        let ordinal =
+            NonZeroU64::new(self.next).ok_or(ModuleInvocationIdentityErrorV1::OrdinalExhausted)?;
         self.next = self
             .next
             .checked_add(1)

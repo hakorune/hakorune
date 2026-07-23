@@ -79,10 +79,7 @@ fn finalized_trivial<'a>(
         .drain()
         .prepare_finalization()
         .unwrap();
-    super::canonical_finalization::CanonicalModuleFinalizerV1::finalize(
-        finalization_input,
-    )
-    .unwrap()
+    super::canonical_finalization::CanonicalModuleFinalizerV1::finalize(finalization_input).unwrap()
 }
 
 struct ExistingOptimizerPolicyScopeV1 {
@@ -188,15 +185,20 @@ fn orphan_static_plan_natural_failure_retains_discard_only_owner() {
     else {
         panic!("POST-FAILURE0 contract fixture changed route shape")
     };
-    input.physical.module.metadata.static_data_plans.push(StaticDataPlan {
-        source_name: "ORPHAN".into(),
-        symbol: ".hako.static.ORPHAN".into(),
-        element: "u16".into(),
-        align: 2,
-        linkage: "private".into(),
-        unnamed_addr: true,
-        values: vec![1],
-    });
+    input
+        .physical
+        .module
+        .metadata
+        .static_data_plans
+        .push(StaticDataPlan {
+            source_name: "ORPHAN".into(),
+            symbol: ".hako.static.ORPHAN".into(),
+            element: "u16".into(),
+            align: 2,
+            linkage: "private".into(),
+            unnamed_addr: true,
+            values: vec![1],
+        });
 
     let mut verifier = super::super::verification::MirVerifier::new();
     let rejected = ModulePostprocessOwnerV1::new(&mut verifier, false)

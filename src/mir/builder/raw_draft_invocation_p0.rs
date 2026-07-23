@@ -1,8 +1,8 @@
 use super::raw_draft_invocation::RawDraftInvocationErrorV1;
 use super::RawDraftInvocationV1;
 use crate::ast::{ASTNode, DeclarationAttrs, Span};
-use crate::mir::compiler::{LegacyModuleLoweringInputV1, MirCompiler};
 use crate::mir::compiler::raw_source_binding::RawCallableMainSelectionV1;
+use crate::mir::compiler::{LegacyModuleLoweringInputV1, MirCompiler};
 use std::collections::HashMap;
 
 fn function(name: &str) -> ASTNode {

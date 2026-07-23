@@ -4,8 +4,8 @@ use super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1;
 use super::source_bound_package::ExactCanonicalPreflightPlanV1;
 use super::{MirCompiler, VerifiedResolvedCallableProgramV1, VerifiedResolvedSourceUnitV1};
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl, Span};
-use crate::mir::compiler::canonical_drain_manifest::CanonicalDrainIdentityV1;
 use crate::mir::canonical_physical_drain::CanonicalPhysicalDrainManifestV1;
+use crate::mir::compiler::canonical_drain_manifest::CanonicalDrainIdentityV1;
 use crate::mir::module_invocation_identity::ModuleInvocationFamilyV1;
 use crate::mir::module_invocation_policy::{
     InvocationConditionPolicyV1, InvocationInventoryAuthorityV1, InvocationRootPolicyV1,
@@ -76,7 +76,8 @@ fn callable_function(name: &str, body: ASTNode) -> ASTNode {
 
 #[test]
 fn single_manifest_projects_retained_header_without_physical_evidence() {
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function(first_family_function("owner")).unwrap();
+    let unit =
+        VerifiedResolvedSourceUnitV1::resolve_function(first_family_function("owner")).unwrap();
     let preflight = super::capability::CanonicalLoweringPreflightV1::verify(&unit).unwrap();
     let exact = ExactCanonicalPreflightPlanV1::from_first_family(preflight);
     let mut compiler = MirCompiler::new();
@@ -85,18 +86,30 @@ fn single_manifest_projects_retained_header_without_physical_evidence() {
     let manifest = package.project_drain_manifest().unwrap();
 
     assert_eq!(manifest.brand(), brand);
-    assert_eq!(manifest.family(), ModuleInvocationFamilyV1::BindingSsaTrivial);
+    assert_eq!(
+        manifest.family(),
+        ModuleInvocationFamilyV1::BindingSsaTrivial
+    );
     assert_eq!(
         manifest.policy().inventory_authority(),
         InvocationInventoryAuthorityV1::CanonicalResolvedOwner
     );
-    assert_eq!(manifest.policy().root_policy(), InvocationRootPolicyV1::ExactCanonicalOwner);
-    assert_eq!(manifest.policy().condition_policy(), InvocationConditionPolicyV1::Forbidden);
+    assert_eq!(
+        manifest.policy().root_policy(),
+        InvocationRootPolicyV1::ExactCanonicalOwner
+    );
+    assert_eq!(
+        manifest.policy().condition_policy(),
+        InvocationConditionPolicyV1::Forbidden
+    );
     assert_eq!(manifest.rows().len(), 1);
     let row = &manifest.rows()[0];
     assert_eq!(row.symbol(), "owner/0");
     assert_eq!(row.arity(), 0);
-    assert!(matches!(row.identity(), CanonicalDrainIdentityV1::ResolvedOwner(_)));
+    assert!(matches!(
+        row.identity(),
+        CanonicalDrainIdentityV1::ResolvedOwner(_)
+    ));
 }
 
 #[test]
@@ -120,7 +133,10 @@ fn callable_manifest_projects_catalog_in_canonical_key_order() {
         manifest.policy().inventory_authority(),
         InvocationInventoryAuthorityV1::CanonicalCallableCatalog
     );
-    assert_eq!(manifest.policy().root_policy(), InvocationRootPolicyV1::ExactCallableCatalog);
+    assert_eq!(
+        manifest.policy().root_policy(),
+        InvocationRootPolicyV1::ExactCallableCatalog
+    );
     assert_eq!(manifest.rows()[0].symbol(), "alpha/1");
     assert_eq!(manifest.rows()[1].symbol(), "zeta/1");
     assert!(matches!(
@@ -135,7 +151,8 @@ fn callable_manifest_projects_catalog_in_canonical_key_order() {
 
 #[test]
 fn source_manifest_consumes_into_neutral_physical_rows() {
-    let unit = VerifiedResolvedSourceUnitV1::resolve_function(first_family_function("owner")).unwrap();
+    let unit =
+        VerifiedResolvedSourceUnitV1::resolve_function(first_family_function("owner")).unwrap();
     let preflight = super::capability::CanonicalLoweringPreflightV1::verify(&unit).unwrap();
     let exact = ExactCanonicalPreflightPlanV1::from_first_family(preflight);
     let mut compiler = MirCompiler::new();
@@ -143,7 +160,10 @@ fn source_manifest_consumes_into_neutral_physical_rows() {
     let physical = package.project_drain_manifest().unwrap().into_physical();
 
     assert_eq!(physical.rows_len(), 1);
-    assert_eq!(physical.family(), ModuleInvocationFamilyV1::BindingSsaTrivial);
+    assert_eq!(
+        physical.family(),
+        ModuleInvocationFamilyV1::BindingSsaTrivial
+    );
     let row = physical.single_row().expect("single physical row");
     assert_eq!(row.symbol(), "owner/0");
     assert_eq!(row.arity(), 0);

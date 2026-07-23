@@ -16,13 +16,13 @@ use super::module_invocation_owner_chain::{BrandedCollectorV1, BrandedShellV1, I
 use super::module_invocation_session::{
     BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1,
 };
-use super::module_lowering_shell::{ModuleLoweringShellErrorV1, ModuleLoweringShellV1};
 use super::module_lowering_shell::{
     AcyclicCapabilityAbsenceWitnessV1, RecursiveCapabilityInstallReceiptV1,
 };
-use crate::mir::compiler::capability::VerifiedResolvedOwnerHeaderV1;
-use crate::mir::builder::resolved_lowering::VerifiedUnpublishedCallableDraftSetV1;
+use super::module_lowering_shell::{ModuleLoweringShellErrorV1, ModuleLoweringShellV1};
 use super::MirBuilder;
+use crate::mir::builder::resolved_lowering::VerifiedUnpublishedCallableDraftSetV1;
+use crate::mir::compiler::capability::VerifiedResolvedOwnerHeaderV1;
 
 #[derive(Debug)]
 pub(in crate::mir) struct CollectedCanonicalSinglePhysicalV1 {
@@ -50,7 +50,9 @@ impl CanonicalCallableCapabilityWitnessV1 {
         }
     }
 
-    pub(in crate::mir) fn family(&self) -> super::module_invocation_identity::ModuleInvocationFamilyV1 {
+    pub(in crate::mir) fn family(
+        &self,
+    ) -> super::module_invocation_identity::ModuleInvocationFamilyV1 {
         match self {
             Self::Acyclic(witness) => witness.family(),
             Self::Recursive(receipt) => receipt.family(),
@@ -177,7 +179,10 @@ impl InvocationPhysicalStateV1 {
         Ok(Self {
             brand,
             shell: InvocationBranded::from_source(brand, shell),
-            collector: InvocationBranded::from_source(brand, ModuleDraftCollectorV1::with_brand(brand)),
+            collector: InvocationBranded::from_source(
+                brand,
+                ModuleDraftCollectorV1::with_brand(brand),
+            ),
         })
     }
 
@@ -207,9 +212,7 @@ impl InvocationPhysicalStateV1 {
         &self.shell
     }
 
-    pub(in crate::mir::builder) fn collector(
-        &self,
-    ) -> &BrandedCollectorV1<ModuleDraftCollectorV1> {
+    pub(in crate::mir::builder) fn collector(&self) -> &BrandedCollectorV1<ModuleDraftCollectorV1> {
         &self.collector
     }
 
@@ -275,9 +278,7 @@ impl InvocationPhysicalStateV1 {
         Ok(CollectedCanonicalCallablePhysicalV1 { shell, collected })
     }
 
-    pub(in crate::mir) fn reject_capability_missing(
-        self,
-    ) -> RejectedCanonicalPhysicalCollectionV1 {
+    pub(in crate::mir) fn reject_capability_missing(self) -> RejectedCanonicalPhysicalCollectionV1 {
         let (brand, shell, collector) = self.into_parts();
         RejectedCanonicalPhysicalCollectionV1 {
             shell,

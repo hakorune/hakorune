@@ -1,8 +1,8 @@
 //! CUT0-I0-COMMIT0 focused fixture.
 
 use super::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
-use super::module_postprocess::ModulePostprocessOwnerV1;
 use super::external_commit::PostprocessEvidenceSealV1;
+use super::module_postprocess::ModulePostprocessOwnerV1;
 use super::source_bound_package::ExactCanonicalPreflightPlanV1;
 use super::{MirCompiler, VerifiedResolvedSourceUnitV1};
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};

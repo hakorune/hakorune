@@ -5,13 +5,12 @@
 //! current Builder state.  Those are physical evidence and belong to the
 //! later PHYSICAL0 row.
 
+use crate::mir::canonical_physical_drain::{
+    CanonicalPhysicalCallableRowV1, CanonicalPhysicalDrainManifestV1, CanonicalPhysicalSingleRowV1,
+};
 use crate::mir::module_invocation_identity::{ModuleInvocationBrandV1, ModuleInvocationFamilyV1};
 use crate::mir::module_invocation_policy::ModuleInvocationPolicyV1;
 use crate::mir::resolved_semantics::{CanonicalCallableKeyV1, FunctionOwnerIdV1};
-use crate::mir::canonical_physical_drain::{
-    CanonicalPhysicalCallableRowV1, CanonicalPhysicalDrainManifestV1,
-    CanonicalPhysicalSingleRowV1,
-};
 
 /// The only publication disposition admitted by a canonical drain manifest.
 ///
@@ -45,11 +44,7 @@ pub(super) struct CanonicalDrainRowV1 {
 }
 
 impl CanonicalDrainRowV1 {
-    pub(super) fn new(
-        identity: CanonicalDrainIdentityV1,
-        symbol: Box<str>,
-        arity: usize,
-    ) -> Self {
+    pub(super) fn new(identity: CanonicalDrainIdentityV1, symbol: Box<str>, arity: usize) -> Self {
         Self {
             identity,
             symbol,
@@ -95,11 +90,7 @@ impl CanonicalDrainManifestV1 {
         policy: ModuleInvocationPolicyV1,
         row: CanonicalDrainRowV1,
     ) -> Self {
-        Self::Single {
-            brand,
-            policy,
-            row,
-        }
+        Self::Single { brand, policy, row }
     }
 
     pub(super) fn callable(
@@ -168,7 +159,11 @@ impl CanonicalDrainManifestV1 {
                     ),
                 )
             }
-            Self::Callable { brand, policy, rows } => {
+            Self::Callable {
+                brand,
+                policy,
+                rows,
+            } => {
                 let physical_rows = rows
                     .into_vec()
                     .into_iter()
@@ -194,11 +189,7 @@ impl CanonicalDrainManifestV1 {
                     })
                     .collect::<Vec<_>>()
                     .into_boxed_slice();
-                CanonicalPhysicalDrainManifestV1::callable(
-                    brand,
-                    policy.family(),
-                    physical_rows,
-                )
+                CanonicalPhysicalDrainManifestV1::callable(brand, policy.family(), physical_rows)
             }
         }
     }

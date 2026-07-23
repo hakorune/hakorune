@@ -18,34 +18,34 @@ pub(in crate::mir) mod acyclic_callable_module_plan;
 pub(in crate::mir) mod callable_graph_inventory;
 #[allow(dead_code)]
 pub(in crate::mir) mod callable_scc_partition;
-pub(in crate::mir) mod capability;
 #[allow(dead_code)]
-pub(in crate::mir) mod canonical_physical_completion;
+mod canonical_drain_manifest;
 #[allow(dead_code)]
 pub(in crate::mir) mod canonical_finalization;
 #[allow(dead_code)]
-pub(in crate::mir) mod raw_finalization;
-#[allow(dead_code)]
-pub(in crate::mir) mod raw_source_binding;
-#[allow(dead_code)]
-pub(in crate::mir) mod raw_runtime_inputs;
-#[allow(dead_code)]
-pub(in crate::mir) mod raw_root_eligibility_classifier;
-#[allow(dead_code)]
-pub(in crate::mir) mod raw_root_eligibility;
-#[allow(dead_code)]
-pub(in crate::mir) mod raw_root_package;
-#[allow(dead_code)]
-pub(in crate::mir) mod module_postprocess;
+pub(in crate::mir) mod canonical_physical_completion;
+pub(in crate::mir) mod capability;
 #[allow(dead_code)]
 pub(in crate::mir) mod external_commit;
-#[allow(dead_code)]
-mod canonical_drain_manifest;
 pub(in crate::mir) mod function_input;
 #[allow(dead_code)]
 pub(in crate::mir) mod located;
 mod lowering_input;
+#[allow(dead_code)]
+pub(in crate::mir) mod module_postprocess;
 mod module_session;
+#[allow(dead_code)]
+pub(in crate::mir) mod raw_finalization;
+#[allow(dead_code)]
+pub(in crate::mir) mod raw_root_eligibility;
+#[allow(dead_code)]
+pub(in crate::mir) mod raw_root_eligibility_classifier;
+#[allow(dead_code)]
+pub(in crate::mir) mod raw_root_package;
+#[allow(dead_code)]
+pub(in crate::mir) mod raw_runtime_inputs;
+#[allow(dead_code)]
+pub(in crate::mir) mod raw_source_binding;
 #[allow(dead_code)]
 pub(in crate::mir) mod recursive_callable_module_plan;
 #[allow(dead_code)]
@@ -54,11 +54,11 @@ mod resolved_callable_module_input;
 #[allow(dead_code)]
 pub(in crate::mir) mod resolved_callable_module_preflight;
 #[allow(dead_code)]
+pub(in crate::mir) mod source_bound_package;
+#[allow(dead_code)]
 mod source_projection;
 #[allow(dead_code)]
 pub(in crate::mir) mod source_view;
-#[allow(dead_code)]
-pub(in crate::mir) mod source_bound_package;
 
 #[cfg(test)]
 mod acyclic_callable_module_activation_tests;
@@ -67,67 +67,67 @@ mod callable_batch_correspondence_test_support;
 #[cfg(test)]
 mod callable_catalog_cutover_tests;
 #[cfg(test)]
+mod canonical_bridge_fixture0_p0;
+#[cfg(test)]
+mod canonical_drain_manifest_p0;
+#[cfg(test)]
+mod canonical_finalization_p0;
+#[cfg(test)]
+mod canonical_physical_completion_p0;
+#[cfg(test)]
 mod capability_tests;
+#[cfg(test)]
+mod drain_policy_p0;
+#[cfg(test)]
+mod external_commit_p0;
 #[cfg(test)]
 mod finite_direct_call_tests;
 #[cfg(test)]
+mod module_postprocess_failure_p0;
+#[cfg(test)]
+mod module_postprocess_p0;
+#[cfg(test)]
 mod module_session_borrow_p0_tests;
+#[cfg(test)]
+mod prod_activation_p0_r1;
+#[cfg(test)]
+mod raw_root_eligibility_p0;
+#[allow(dead_code)]
+pub(in crate::mir) mod raw_root_plan0;
+#[cfg(test)]
+mod raw_source_binding_p0;
 #[cfg(test)]
 mod recursive_callable_module_activation_tests;
 #[cfg(test)]
 mod resolved_callable_module_preflight_tests;
 #[cfg(test)]
-mod source_bound_package_p0;
-#[cfg(test)]
-mod canonical_physical_completion_p0;
-#[cfg(test)]
-mod canonical_finalization_p0;
-#[cfg(test)]
-mod external_commit_p0;
-#[cfg(test)]
-mod module_postprocess_p0;
-#[cfg(test)]
-mod module_postprocess_failure_p0;
-#[cfg(test)]
-mod canonical_bridge_fixture0_p0;
-#[cfg(test)]
-mod canonical_drain_manifest_p0;
-#[cfg(test)]
-mod prod_activation_p0_r1;
-#[cfg(test)]
-mod drain_policy_p0;
-#[cfg(test)]
 mod resolved_callable_module_tests;
 #[cfg(test)]
 mod sibling_call_tests;
 #[cfg(test)]
+mod source_bound_package_p0;
+#[cfg(test)]
 mod source_view_tests;
-#[cfg(test)]
-mod raw_source_binding_p0;
-#[cfg(test)]
-mod raw_root_eligibility_p0;
-#[allow(dead_code)]
-pub(in crate::mir) mod raw_root_plan0;
 
-use capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
 use crate::mir::builder::BuilderInvocationConfigV1;
-use source_bound_package::{
-    CanonicalPhysicalInvocationV1, ExactCanonicalPreflightPlanV1, InvocationIdentityIssuerV1,
-    LoweredCanonicalPlanV1, RejectedCanonicalLoweringV1, RejectedCanonicalPhysicalOpenV1,
-    RejectedCanonicalSourceBindingV1, SourceBoundCanonicalPackageV1,
-};
-use raw_source_binding::{
-    RawCallableMainSelectionV1, RawIngressRequestV1, RejectedRawSourceBindingV1,
-    SourceBoundRawPackageV1,
-};
+use capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
 pub use lowering_input::{
     CanonicalLoweringErrorV1, LegacyModuleLoweringInputV1, ResolvedModuleLoweringInputV1,
     VerifiedResolvedSourceUnitV1,
 };
 use lowering_input::{MirLoweringRequestErrorV1, MirLoweringRequestV1};
 use module_session::CanonicalModuleLoweringSessionV1;
+use raw_source_binding::{
+    RawCallableMainSelectionV1, RawIngressRequestV1, RejectedRawSourceBindingV1,
+    SourceBoundRawPackageV1,
+};
 pub use resolved_callable_module_input::{
     ResolvedCallableModuleLoweringInputV1, VerifiedResolvedCallableProgramV1,
+};
+use source_bound_package::{
+    CanonicalPhysicalInvocationV1, ExactCanonicalPreflightPlanV1, InvocationIdentityIssuerV1,
+    LoweredCanonicalPlanV1, RejectedCanonicalLoweringV1, RejectedCanonicalPhysicalOpenV1,
+    RejectedCanonicalSourceBindingV1, SourceBoundCanonicalPackageV1,
 };
 
 /// Closed post-build schedule selected with the canonical lowering owner.

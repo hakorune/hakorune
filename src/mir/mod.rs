@@ -41,14 +41,10 @@ pub(crate) mod canonical_direct_call;
 pub(crate) mod canonical_direct_call_contract;
 pub(crate) mod canonical_direct_static_call_backend_capability;
 pub(crate) mod canonical_direct_static_call_capability;
+pub(crate) mod canonical_physical_drain;
 pub(crate) mod canonical_recursive_callable_module_backend_capability;
 pub(crate) mod canonical_recursive_callable_module_capability;
 pub(crate) mod compile_timing;
-pub(crate) mod canonical_physical_drain;
-pub(crate) mod module_invocation_identity;
-pub(crate) mod module_invocation_policy;
-#[cfg(test)]
-mod module_invocation_identity_idkernel_p0;
 mod compiler;
 pub mod concat_const_suffix_micro_seed_plan; // MIR-owned route plan for temporary concat const-suffix micro seed bridge
 pub mod constructor_call_route_plan; // MIR-owned constructor call route plans
@@ -100,6 +96,10 @@ pub mod loop_canonicalizer; // Phase 1: Loop skeleton canonicalization (AST prep
 pub mod map_lookup_fusion_plan; // MIR-owned MapGet/MapHas same-key fusion metadata
 pub mod map_missing_empty_route_plan; // MIR-owned local empty MapGet missing-route metadata
 pub mod map_repr_plan; // MIR-owned MapBox representation plan family
+pub(crate) mod module_invocation_identity;
+#[cfg(test)]
+mod module_invocation_identity_idkernel_p0;
+pub(crate) mod module_invocation_policy;
 pub mod naming; // Static box / entry naming rules（NamingBox）
 pub(crate) mod numeric_substrate; // fixed-width/pointer-sized numeric type-name vocabulary
 pub mod optimizer;
