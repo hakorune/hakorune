@@ -456,6 +456,7 @@ and atomic CUT0 activation remain separate later rows.
 git diff --check
 bash tools/checks/current_state_pointer_guard.sh
 RUSTFLAGS='-Awarnings' cargo check -q --lib
-RUSTFLAGS='-Awarnings' cargo test -q drain0_p0 --lib
+RUSTFLAGS='-Awarnings' cargo test -q canonical_physical_completion_p0 --lib
+RUSTFLAGS='-Awarnings' cargo test -q module_draft_collector::drain::tests --lib
 python3 tools/checks/lib/cut0_i0_root0_drain0_physical0_guard.py
 ```

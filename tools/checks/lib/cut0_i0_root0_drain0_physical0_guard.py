@@ -117,8 +117,11 @@ def main() -> int:
         "compiler_bridge_completion_retains_single_physical_receipt",
         "compiler_bridge_completion_retains_acyclic_capability_and_receipt",
         "compiler_bridge_completion_retains_recursive_capability_and_receipt",
+        "capability_brand_drift_is_not_misreported_as_foreign_physical_brand",
     ):
         require(texts[FIXTURE], fixture, f"four-route drain fixture: {fixture}")
+    require(texts[COLLECTOR_DRAIN], "keyed_prepare_rejects_index_drift_and_returns_the_collector", "index-drift rejection fixture")
+    require(texts[COLLECTOR_DRAIN], "keyed_prepare_rejects_foreign_receipt_before_consuming_collector", "foreign-receipt rejection fixture")
 
     forbidden_canonical = (
         "InvocationDrainExpectationV1",

@@ -274,6 +274,7 @@ impl CanonicalCollectorReceiptViewV1<'_> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::builder::module_draft_collector::CompletedDraftSignatureViewV1;
     use crate::mir::canonical_physical_drain::{
         CanonicalInsertedDispositionV1, CanonicalPhysicalSingleRowV1,
     };
@@ -334,5 +335,93 @@ mod tests {
         let drafts = prepared.drain();
         assert_eq!(drafts.len(), 1);
         assert_eq!(drafts[0].signature.name, "owner/0");
+    }
+
+    #[test]
+    fn keyed_prepare_rejects_index_drift_and_returns_the_collector() {
+        let brand = ModuleInvocationBrandV1::test_with_ordinal(78);
+        let mut owners = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
+        let owner = owners.issue().unwrap();
+        let product = InvocationBranded::from_source(
+            brand,
+            ModuleDraftCollectorV1::with_brand(brand),
+        )
+        .collect_canonical_single(
+            FunctionDraftKeyV1::CanonicalResolvedOwner(owner),
+            "owner/0".to_owned(),
+            0,
+            draft("owner/0"),
+        )
+        .unwrap();
+        let (collector, receipt) = product.into_parts();
+        let mut collector = collector.into_payload();
+        collector.inject_symbol_index_drift_for_test("owner/0", FunctionDraftKeyV1::Main);
+        let manifest = CanonicalPhysicalDrainManifestV1::single(
+            brand,
+            ModuleInvocationFamilyV1::BindingSsaTrivial,
+            CanonicalPhysicalSingleRowV1::new(
+                owner,
+                "owner/0".into(),
+                0,
+                CanonicalInsertedDispositionV1::from_canonical_source(),
+            ),
+        );
+
+        let rejected = collector
+            .prepare_canonical_drain(
+                &manifest,
+                CanonicalCollectorReceiptViewV1::Single(&receipt),
+                brand,
+            )
+            .unwrap_err();
+        let (collector, error) = rejected.into_parts();
+        assert!(matches!(
+            error,
+            CanonicalCollectorDrainErrorV1::SymbolIndexDrift { .. }
+        ));
+        assert_eq!(collector.symbol_count(), 1);
+    }
+
+    #[test]
+    fn keyed_prepare_rejects_foreign_receipt_before_consuming_collector() {
+        let brand = ModuleInvocationBrandV1::test_with_ordinal(79);
+        let foreign = ModuleInvocationBrandV1::test_with_ordinal(80);
+        let mut owners = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
+        let owner = owners.issue().unwrap();
+        let product = InvocationBranded::from_source(
+            brand,
+            ModuleDraftCollectorV1::with_brand(brand),
+        )
+        .collect_canonical_single(
+            FunctionDraftKeyV1::CanonicalResolvedOwner(owner),
+            "owner/0".to_owned(),
+            0,
+            draft("owner/0"),
+        )
+        .unwrap();
+        let (collector, receipt) = product.into_parts();
+        let foreign_receipt = InvocationBranded::from_test(foreign, receipt.into_payload());
+        let manifest = CanonicalPhysicalDrainManifestV1::single(
+            brand,
+            ModuleInvocationFamilyV1::BindingSsaTrivial,
+            CanonicalPhysicalSingleRowV1::new(
+                owner,
+                "owner/0".into(),
+                0,
+                CanonicalInsertedDispositionV1::from_canonical_source(),
+            ),
+        );
+
+        let rejected = collector
+            .into_payload()
+            .prepare_canonical_drain(
+                &manifest,
+                CanonicalCollectorReceiptViewV1::Single(&foreign_receipt),
+                brand,
+            )
+            .unwrap_err();
+        let (collector, error) = rejected.into_parts();
+        assert_eq!(error, CanonicalCollectorDrainErrorV1::BrandMismatch);
+        assert!(collector.signature("owner/0").is_some());
     }
 }

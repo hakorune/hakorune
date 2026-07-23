@@ -1,5 +1,9 @@
-use super::canonical_physical_completion::CanonicalDrainedInvocationV1;
-use super::source_bound_package::ExactCanonicalPreflightPlanV1;
+use super::canonical_physical_completion::{
+    CanonicalDrainedInvocationV1, CanonicalPhysicalCompletionErrorV1,
+};
+use super::source_bound_package::{
+    CollectedCanonicalPhysicalInvocationV1, ExactCanonicalPreflightPlanV1,
+};
 use super::{MirCompiler, VerifiedResolvedCallableProgramV1};
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, ParamDecl, Span};
 
@@ -242,4 +246,74 @@ fn compiler_bridge_completion_retains_recursive_capability_and_receipt() {
         CanonicalDrainedInvocationV1::Single(_) => panic!("recursive route drained as single"),
     }
     assert!(compiler.builder.current_module.is_none());
+}
+
+#[test]
+fn capability_brand_drift_is_not_misreported_as_foreign_physical_brand() {
+    let mut compiler = MirCompiler::new();
+    let first = program(vec![
+        function("caller", call("callee")),
+        function("callee", variable()),
+    ]);
+    let first_plan = super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
+        first.module(),
+    )
+    .unwrap();
+    let first_package = compiler
+        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(first_plan))
+        .unwrap();
+    let first_collected = compiler
+        .begin_canonical_invocation(first_package, Some("first.hako"), "first".into())
+        .unwrap()
+        .lower()
+        .unwrap()
+        .collect()
+        .unwrap();
+
+    let second = program(vec![
+        function("caller", call("callee")),
+        function("callee", variable()),
+    ]);
+    let second_plan = super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1::verify(
+        second.module(),
+    )
+    .unwrap();
+    let second_package = compiler
+        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(second_plan))
+        .unwrap();
+    let second_collected = compiler
+        .begin_canonical_invocation(second_package, Some("second.hako"), "second".into())
+        .unwrap()
+        .lower()
+        .unwrap()
+        .collect()
+        .unwrap();
+
+    let CollectedCanonicalPhysicalInvocationV1::Callable {
+        token: first_token,
+        continuation: first_continuation,
+        session: first_session,
+        capability: _,
+        physical: first_physical,
+    } = first_collected else {
+        panic!("first route changed family")
+    };
+    let CollectedCanonicalPhysicalInvocationV1::Callable {
+        capability: second_capability,
+        ..
+    } = second_collected else {
+        panic!("second route changed family")
+    };
+    let mixed = CollectedCanonicalPhysicalInvocationV1::Callable {
+            token: first_token,
+            continuation: first_continuation,
+            session: first_session,
+            capability: second_capability,
+            physical: first_physical,
+    };
+    let rejected = mixed.complete().unwrap_err();
+    assert!(matches!(
+        rejected.error,
+        CanonicalPhysicalCompletionErrorV1::CapabilityMismatch
+    ));
 }
