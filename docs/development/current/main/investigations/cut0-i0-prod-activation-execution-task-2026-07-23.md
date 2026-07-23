@@ -128,6 +128,31 @@ inventory evidence preserved
 postprocessor production consumer = 0
 ```
 
+### POST0-CANONICAL-S0 closeout (2026-07-23)
+
+The disconnected family-owned schedule and compiler-private
+`ModulePostprocessOwnerV1` are implemented for the canonical drained products.
+The exact existing stage order is preserved: rune refresh, optimizer,
+contract refresh, pre-transform verification, family RC policy, semantic
+refresh, callsite canonicalization, changed-only refresh, and canonical final
+verification. The schedule matrix and canonical success fixture are green;
+the postprocess guard proves policy is family-derived and production
+consumers remain zero.
+
+The remaining POST0 boundary is **POST0-RAW-S0**: Raw needs a route-specific
+finalization input that retains its Builder session/module owner and carries
+reportable pre-transform verifier evidence. The existing
+`RawCompleteInvocationV1` currently retains collector/ledger/root evidence but
+not that physical module/session pair, so COMMIT0 remains blocked by design.
+
+## POST0-RAW-S0 — Raw finalization input (next)
+
+Add the Raw-side retained physical owner and route-specific finalization input.
+It must preserve legacy reportable pre-transform verifier errors without
+introducing the old Main-only `DrainedModuleCandidateV1` adapter. Keep the
+new owner disconnected until its focused failure/success matrix and guard are
+green.
+
 ## COMMIT0 — paired external commit
 
 Add compiler-private, non-Clone:
