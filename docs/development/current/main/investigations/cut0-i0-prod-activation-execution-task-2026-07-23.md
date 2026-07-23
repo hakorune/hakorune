@@ -1,6 +1,6 @@
 # CUT0-I0 Production Activation Execution Task
 
-Status: **Active — OWNER-RETENTION0 is the next executable row; P0-R1 bounded closeout is closed; FINAL0, POST0, and COMMIT0 remain disconnected proofs**
+Status: **Design stop — OWNER-RETENTION0-ROOT-CONSULT0 is active; ACT-prime-r1 and P0-R1 bounded closeout are recorded; root retention is not yet executable**
 Date: 2026-07-23
 Decision: **Candidate ACT-prime-r1 accepted**
 
@@ -12,7 +12,10 @@ Related decision:
 ## Scope and stop line
 
 This card turns the accepted ACT-prime-r1 decision into small executable rows.
-It does not permit partial production wiring. Until the atomic CUT0 row,
+It does not permit partial production wiring. The root-retention slice is
+paused at a design consultation because the current root completion API still
+consumes the collector/batch before every later fallible check has passed.
+Until the atomic CUT0 row,
 production consumers of the new drained products, finalizer, postprocessor,
 and external commit remain zero.
 
@@ -406,7 +409,7 @@ panic injection, or typed optimizer/contract/RC failure coverage.
 OWNER-RETENTION0 and POST-FAILURE0 remain mandatory before activation.
 ```
 
-## OWNER-RETENTION0 — rejected-owner products (next)
+## OWNER-RETENTION0 — rejected-owner products (design split)
 
 This is the next code-facing row. It must add no production consumer and must
 not change the source-bound plan contract. Split the work into three narrow
@@ -425,6 +428,52 @@ OWNER-RETENTION0-POST
   optimizer/contract/RC/final-verifier failures retain the postprocess owner;
   no retry, replacement manifest, or recovery-to-complete terminal
 ```
+
+### OWNER-RETENTION0-ROOT-CONSULT0 — active design stop
+
+The Raw root boundary is not a test-only omission. `complete_raw_root` still
+accepts seven loose owned arguments, `prepare_root_batch(self, batch)` can
+consume the prepared batch before a later ledger check, and a late ledger
+failure is mapped to a bare error. Therefore the next implementation must not
+extend only `RejectedRootCollectorBatchV1`; that would still drop part of the
+unpublished owner.
+
+Candidate OR-prime is under review:
+
+```text
+RawRootCompletionInputV1
+  owns token / branded collector / ledger / prepared root batch /
+       reservations / callable-main disposition
+
+-> prepare(self)
+     read-only family, brand, reservation, collector, and ledger checks
+
+success -> PreparedRawRootCompletionV1
+failure -> RejectedRawRootCompletionV1 { owner, typed error }
+
+-> commit(self)
+     one infallible collector + ledger + root-witness publication
+```
+
+The design stop must decide Q1–Q4 in the consultation card before code edits:
+
+```text
+Q1  one private root input owner, token/family sealed once
+Q2  collector borrowed validation before consuming batch
+Q3  ledger borrowed validation before one commit terminal
+Q4  PREFLIGHT -> COMMIT -> TOKEN-HANDOFF refactor series
+```
+
+The first executable row after consultation is only
+`ROOT-RETENTION0-PREFLIGHT`. It must retain the full input owner on every
+preflight rejection, keep collector/ledger/root-body state unchanged, and
+leave production consumers at zero. `ROOT-RETENTION0-COMMIT` and the later
+token handoff are separate rows. Root-body completion and reservation
+allocation retention are explicitly not claimed by this consultation.
+
+No canonical source changes, production Raw ingress, physical drain,
+finalizer/postprocess wiring, atomic CUT0, retry, fallback, or recovery
+terminal may be added while this design stop is active.
 
 Acceptance for each subrow:
 
