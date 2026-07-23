@@ -317,8 +317,10 @@ preserving the legacy reportable-verifier contract. Canonical final-verifier
 failure remains fatal as recorded above.
 ```
 
-Next P0-R1 slice: add the real-authority failure matrix and keep the outer
-executor/CUT0 activation boundary disconnected.
+Next P0-R1 slice is paused at a design stop:
+`cut0-i0-prod-activation-p0-r1-failure-consultation-2026-07-23.md`.
+The outer executor/CUT0 activation boundary remains disconnected until the
+failure authority and rejected-owner policy are selected.
 
 ### P0-R1 executable failure subrows
 
