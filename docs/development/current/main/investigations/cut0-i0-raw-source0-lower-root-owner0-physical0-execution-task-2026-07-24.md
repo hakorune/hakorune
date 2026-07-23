@@ -1,6 +1,6 @@
 # RAW-SOURCE0 LOWER ROOT0 OWNER0 — PHYSICAL0 execution task
 
-Status: **Active — Candidate RAW-OWNER-prime-r1 selected**  
+Status: **Closed — physical owner boundary green; CHILD-prime-r1 is the next design stop**
 Date: 2026-07-24
 
 ## Boundary
@@ -123,3 +123,18 @@ python3 tools/checks/lib/cut0_i0_root0_raw_source0_lower_root_owner0_physical0_g
 
 The next row after PHYSICAL0 is child/root lowering only after this owner
 boundary is green. This task does not authorize production cutover.
+
+## Closeout evidence
+
+```text
+RUSTFLAGS='-Awarnings' cargo check -q --lib                         green
+RUSTFLAGS='-Awarnings' cargo test -q raw_ --lib -- --test-threads=1       green (181)
+raw_root_eligibility physical-open fixtures                             green (13)
+current-state-pointer-guard                                              green
+physical0 guard                                                           green
+all touched PHYSICAL0 files < 800 lines                                   green
+```
+
+The next child-lowering row is intentionally a design consultation. Existing
+`RawDraftInvocationV1` and `ModuleLoweringInvocationV1::with_shell_collector`
+are not eligible consumers because both reintroduce the Main-only lifecycle.
