@@ -1,6 +1,6 @@
 # CUT0-I0 RAW-SOURCE0 LOWER ROOT0 OWNER0-PACKAGE0 execution task
 
-Status: **Active executable row — `RAW-SOURCE0-LOWER0-ROOT0-OWNER0-PACKAGE0`**
+Status: **Closed — `RAW-SOURCE0-LOWER0-ROOT0-OWNER0-PACKAGE0`**
 Date: 2026-07-23
 Scope: repair the one-time source-plan handoff only. No Builder session,
 shell, collector, ledger, tracker, lowering, publication, or production
@@ -226,3 +226,32 @@ python3 \
 
 This row requires a real code/artifact delta. A docs-only closeout is
 forbidden.
+
+## Closeout
+
+PACKAGE0 landed in `7fbab72456`.
+
+`SourceBoundRawRootPackageV1` now borrows the complete bound package to build
+the tokenless `RawRootPlanV1`, and only after successful planning consumes the
+original package into one non-Clone owner. `OwnedRawSourceV1`, the typed
+`RawSourceContinuationV1`, Builder config, module name, token, and plan remain
+co-sealed. Planning rejection retains the original package in a
+discard-only `RejectedRawRootPlanningV1`.
+
+`RawRootPlanV1` no longer owns token/origin identity. Callable-Main selection
+booleans were removed; the retained typed continuation is the only selection
+authority. No session, shell, collector, ledger, tracker, lowering, or
+production consumer was added.
+
+Evidence:
+
+```text
+cargo check -q --lib                         = green
+cargo test -q raw_root_plan0 --lib           = 3 passed
+cargo test -q raw_root_package --lib         = 3 passed
+PACKAGE0 guard                               = green
+current-state pointer guard                  = green
+```
+
+The next boundary is the design stop
+`RAW-SOURCE0-LOWER0-ROOT0-OWNER0-ELIGIBILITY0-CONSULT0`.

@@ -34,21 +34,25 @@ def main() -> int:
     consult = CONSULT.read_text()
     task = TASK.read_text()
 
-    require(
-        state,
-        'current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-OWNER0-PACKAGE0"',
-        "active design stop",
-    )
-    require(
-        state,
-        'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-OWNER0-PACKAGE0"',
-        "active execution row",
-    )
-    require(
-        state,
-        'latest_card = "cut0-i0-raw-source0-lower-root-owner0-package0-execution-task-2026-07-23"',
-        "latest task card",
-    )
+    active = 'current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-OWNER0-PACKAGE0"' in state
+    if active:
+        require(
+            state,
+            'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-OWNER0-PACKAGE0"',
+            "active execution row",
+        )
+        require(
+            state,
+            'latest_card = "cut0-i0-raw-source0-lower-root-owner0-package0-execution-task-2026-07-23"',
+            "latest task card",
+        )
+    else:
+        require(
+            state,
+            "RAW-SOURCE0-LOWER0-ROOT0-OWNER0-PACKAGE0",
+            "historical package pointer",
+        )
+        require(task, "Status: **Closed", "package task closeout")
     require(consult, "Candidate RAW-OWNER-prime-r1", "decision lock")
 
     for fragment in (
@@ -96,7 +100,7 @@ def main() -> int:
 
     print(
         "[cut0-i0-root0-raw-source0-lower-root-owner0-package0-guard] ok "
-        f"task=1 implementation_refs={implementation_count} "
+        f"mode={'active' if active else 'closed'} implementation_refs={implementation_count} "
         "physical_consumer=0 executor=0 below_800=1"
     )
     return 0
