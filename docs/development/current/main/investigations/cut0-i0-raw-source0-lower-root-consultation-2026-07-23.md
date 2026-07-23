@@ -197,3 +197,75 @@ one rejected-owner handoff with no retry
 Until that decision is locked, do not implement Root/App lowering or wire any
 production consumer. S0 remains the landed child-only evidence; Root0 is the
 next design row.
+
+## ROOT0-D0 closeout (2026-07-23)
+
+Worker-audited **Candidate RAW-ROOT-prime-r1** is selected. Q1-Q5 all select
+option 1, with the first executable row intentionally limited to source-plan
+construction.
+
+### Q1 — route-owned root protocol
+
+Raw root lowering receives a dedicated Script/App protocol. The existing
+`MainPending -> MainCaptured -> Complete` state remains legacy/disconnected
+evidence and is not widened into a Script/App authority. A future root owner
+will retain token, source/continuation, candidate session, physical
+shell/collector, ledger, child receipts, root tracker, and route-specific
+environment as one consuming chain.
+
+### Q2 — required root pair
+
+The inline body closes before any required root reservation. Physical `main/0`
+and `condition_fn/1` are then prepared as one required batch. Collector and
+ledger checks are mutation-free until a single prepared pair commit. Condition
+is fixed to `CanonicalRejectDuplicate + Inserted`. Source `Main.main/N` arity
+is never copied to physical wrapper `main/0`.
+
+### Q3 — source-derived environment
+
+The owned source projection is extended into one complete Root environment plan
+covering declaration/index facts, callable catalog, static-data plans, closure
+sites, access requirements, and root runtime inputs. Missing or unsupported
+facts reject before Builder effects; `current_module` is not an inventory
+authority. Process-global method-slot mutation is either moved behind a later
+invocation-local slot row or explicitly rejected for unsupported source shapes.
+
+### Q4 — callable Main
+
+Only the sealed `RawSourceContinuationV1` disposition selects callable Main.
+`NotSelected` performs no reservation or descent. `Selected` lowers and
+collects the exact compatibility child before inline root lowering; any
+failure aborts the whole root owner and preserves its typed cause. Locator
+presence is not selection authority.
+
+### Q5 — failure and handoff
+
+Every fallible root stage returns a discard-only rejected owner retaining the
+exact unpublished chain, including successful child receipt evidence. Paired
+root reservation terminals are required; independent Main/condition aborts are
+forbidden. Successful completion produces one route-owned
+`CompletedRawSourceInvocationV1` with source, continuation, session, shell,
+collector, sealed ledger, root witness, environment evidence, and child
+receipts. Retry, fallback, sibling continuation, drain, finalizer, postprocess,
+external commit, and public ingress remain outside this decision.
+
+### First executable row
+
+`RAW-SOURCE0-LOWER0-ROOT0-PLAN0` constructs and verifies the complete
+source-derived Script/App root plan only:
+
+```text
+RawRootKindV1::{Script, App}
+physical main/0 and condition_fn/1 identity
+ordered source work schedule
+declaration/index plan
+callable catalog
+static-data and closure locators
+access requirements
+sealed runtime-input snapshot
+```
+
+PLAN0 opens no Builder session, shell, collector, or ledger; performs no
+reservation or lowering; and has zero production consumers. The next rows are
+OWNER0, DECLACCESS0, SLOT0, CHILDREN0, CALLMAIN0, BODY0, PAIR0, COMPLETE0,
+then P0/G0.

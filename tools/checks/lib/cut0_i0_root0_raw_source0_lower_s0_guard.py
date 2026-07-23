@@ -39,16 +39,23 @@ def main() -> int:
     task = TASK.read_text()
     card = CARD.read_text()
     if 'current_execution_row = "RAW-SOURCE0-LOWER0-S0"' not in state:
-        require(
-            state,
-            'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT-CONSULT0"',
-            "closed row / next root consultation",
-        )
-        require(
-            state,
-            'latest_card = "cut0-i0-raw-source0-lower-root-consultation-2026-07-23"',
-            "next root consultation card",
-        )
+        if 'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-PLAN0"' in state:
+            require(
+                state,
+                'latest_card = "cut0-i0-raw-source0-lower-root-plan0-execution-task-2026-07-23"',
+                "next root plan card",
+            )
+        else:
+            require(
+                state,
+                'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT-CONSULT0"',
+                "closed row / next root consultation",
+            )
+            require(
+                state,
+                'latest_card = "cut0-i0-raw-source0-lower-root-consultation-2026-07-23"',
+                "next root consultation card",
+            )
     else:
         require(state, 'latest_card = "cut0-i0-raw-source0-lower-execution-task-2026-07-23"', "latest card")
     for fragment in (
