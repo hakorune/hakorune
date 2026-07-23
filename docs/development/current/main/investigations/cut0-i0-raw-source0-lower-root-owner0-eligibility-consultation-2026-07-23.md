@@ -1,6 +1,6 @@
 # CUT0-I0 RAW-SOURCE0 LOWER ROOT0 OWNER0-ELIGIBILITY0 consultation
 
-Status: **Design stop — worker audit complete; implementation paused**
+Status: **Closed — Decision ELIGIBILITY-prime-r1; S0 execution task is next**
 Date: 2026-07-23
 Scope: decide which source/runtime capabilities are eligible to open a Raw
 physical owner after PACKAGE0. No session, shell, collector, ledger, tracker,

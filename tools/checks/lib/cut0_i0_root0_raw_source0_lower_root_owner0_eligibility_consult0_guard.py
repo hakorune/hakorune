@@ -32,21 +32,7 @@ def main() -> int:
     state = STATE.read_text()
     card = CARD.read_text()
     question = QUESTION.read_text()
-    require(
-        state,
-        'current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-OWNER0-ELIGIBILITY0-CONSULT0"',
-        "active design stop",
-    )
-    require(
-        state,
-        'current_execution_row = "RAW-SOURCE0-LOWER0-ROOT0-OWNER0-ELIGIBILITY0-CONSULT0"',
-        "active execution row",
-    )
-    require(
-        state,
-        'latest_card = "cut0-i0-raw-source0-lower-root-owner0-eligibility-question-2026-07-23"',
-        "latest eligibility question card",
-    )
+    require(state, "RAW-SOURCE0-LOWER0-ROOT0-OWNER0-ELIGIBILITY0-CONSULT0 is closed", "closed consultation")
     for fragment in (
         "Q1 — runtime inputs",
         "Q2 — source work schedule",
@@ -57,19 +43,12 @@ def main() -> int:
         "physical effects = 0",
         "No child traversal",
         "CURRENT_STATE.toml",
+        "Status: **Closed",
+        "ELIGIBILITY-prime-r1",
+        "ELIGIBILITY-prime-r1",
     ):
         require(card, fragment, f"eligibility consultation {fragment}")
-    for fragment in (
-        "Q1 — runtime-input authority",
-        "Q2 — source-work authority",
-        "Q3 — callable/declaration coverage",
-        "Q4 — closure and static-data authority",
-        "Q5 — process-global slots",
-        "ELIGIBILITY-prime-r1",
-        "Required answer format",
-        "physical effects = 0",
-    ):
-        require(question, fragment, f"eligibility question {fragment}")
+    require(question, "Required answer format", "historical eligibility question")
     joined = "\n".join(path.read_text() for path in PROD)
     for forbidden in (
         "begin_raw_root(",
@@ -85,7 +64,7 @@ def main() -> int:
             raise AssertionError(f"file must remain below 800 lines: {path}")
     print(
         "[cut0-i0-root0-raw-source0-lower-root-owner0-eligibility-consult0-guard] ok "
-        "design_stop=1 physical_consumer=0 global_slot_mutation=0 below_800=1"
+        "historical=1 physical_consumer=0 global_slot_mutation=0 below_800=1"
     )
     return 0
 

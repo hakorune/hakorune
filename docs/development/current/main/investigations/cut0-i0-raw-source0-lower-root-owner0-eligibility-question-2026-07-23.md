@@ -1,6 +1,6 @@
 # RAW-SOURCE0 LOWER ROOT0 OWNER0 — ELIGIBILITY0 question
 
-Status: **Design consultation — answer required before implementation**  
+Status: **Closed — Decision ELIGIBILITY-prime-r1; S0 execution task is next**
 Date: 2026-07-23
 
 ## Context
@@ -173,3 +173,37 @@ source re-resolution is permitted.
 
 Cleanup census (`CLEAN0-*`) is intentionally a separate lane and is not part
 of this design decision.
+
+## Decision closeout
+
+`ELIGIBILITY-prime-r1` is selected.
+
+```text
+Q1 = CaptureOnce
+  Raw script args and entry safepoint are parsed/validated once before token
+  issuance, retained in RawSourceContinuationV1, and never re-read by a
+  lowerer. Malformed input is a typed ingress rejection; absent input is
+  Absent/Disabled.
+
+Q2 = NarrowExhaustive
+  ScalarControl0 is the first eligible grammar. The classifier is recursive
+  and wildcard-free; RuntimeStatement is never a silent catch-all.
+
+Q3 = NarrowReject
+  Only Empty Script and one plain static-Main App with an exact Main-local
+  catalog are eligible. Partial or foreign declaration coverage rejects.
+
+Q4 = reject
+  Closure and static-data shapes reject until CLOSURE0/STATICDATA0 provide
+  exact source authority.
+
+Q5 = reject
+  Process-global slot shapes reject with UnsupportedProcessGlobalSlot until
+  SLOT0 supplies invocation-local authority.
+```
+
+The next executable row is
+`RAW-SOURCE0-LOWER0-ROOT0-OWNER0-ELIGIBILITY0-S0`. It may produce only a
+non-Clone eligible package or a discard-only rejection. Physical owner open,
+child/root lowering, declaration install, publication, and production
+consumers remain zero.
