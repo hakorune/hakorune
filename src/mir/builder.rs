@@ -62,6 +62,11 @@ mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion
 mod raw_source_projection; // RAW-SOURCE0-PLAN0 owned source locators
 mod raw_root_physical; // RAW-SOURCE0-LOWER0-ROOT0-OWNER0-PHYSICAL0 empty carrier
 pub(in crate::mir) use raw_root_physical::RawRootPhysicalStateV1;
+pub(in crate::mir) use raw_root_physical::child_terminal::RawRootPhysicalChildErrorV1;
+mod raw_root_child_work; // RAW-SOURCE0-LOWER0-ROOT0-CHILDREN0 source-bound helper work
+pub(in crate::mir) use raw_root_child_work::{
+    RawRootStaticChildWorkErrorV1, RawRootStaticChildWorkV1,
+};
 pub(in crate::mir) use raw_source_projection::{
     OwnedRawRootProjectionV1, OwnedRawSourceV1, RawRootProjectionPartsV1, RawSourceLocatorV1,
     RawSourceOriginV1, RawSourceProjectionErrorV1,
@@ -127,8 +132,10 @@ pub(in crate::mir) use module_invocation_brand0::{
 };
 pub(in crate::mir) use module_invocation_owner_chain::InvocationBranded;
 pub(in crate::mir) use module_draft_collector::{
-    CommitCallableCollectorBatchReceiptV1, CommitCollectedDraftAdmissionReceiptV1,
+    CollectedDraftAdmissionReceiptV1, CommitCallableCollectorBatchReceiptV1,
+    CommitCollectedDraftAdmissionReceiptV1,
 };
+pub(in crate::mir) use module_lowering_invocation::ModuleLoweringPortChildErrorV1;
 pub(in crate::mir) use module_lowering_shell::ModuleLoweringShellErrorV1;
 mod canonical_root_completion; // CUT0-I0-ROOT0-CANON0 route-specific completion
 #[allow(dead_code)]

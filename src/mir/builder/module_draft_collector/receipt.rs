@@ -14,7 +14,7 @@ use crate::mir::FunctionSignature;
 
 /// Exact effect of one successful collector admission on the prior pair.
 #[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir::builder) enum CollectedDraftReplacementDispositionV1 {
+pub(in crate::mir) enum CollectedDraftReplacementDispositionV1 {
     Inserted,
     ReplacedWholePair {
         previous_key: FunctionDraftKeyV1,

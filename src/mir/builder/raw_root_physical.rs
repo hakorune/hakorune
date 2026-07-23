@@ -12,11 +12,21 @@ use super::raw_expansion_receipt_ledger::{
 use super::root_body_completion::RootBodyCompletionTrackerV1;
 use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
 
+pub(in crate::mir) mod child_terminal;
+
+#[derive(Debug)]
+enum RawRootLedgerStateV1 {
+    Open(RawExpansionReceiptLedgerV1),
+    Aborted(super::raw_expansion_receipt_ledger::AbortedRawExpansionReceiptLedgerV1),
+    AbortedPlaceholder,
+}
+
 #[derive(Debug)]
 pub(in crate::mir) struct RawRootPhysicalStateV1 {
     physical: InvocationPhysicalStateV1,
-    ledger: RawExpansionReceiptLedgerV1,
+    ledger: RawRootLedgerStateV1,
     tracker: RootBodyCompletionTrackerV1,
+    callable_main: RawCallableMainCompatibilityDispositionV1,
 }
 
 impl RawRootPhysicalStateV1 {
@@ -32,8 +42,9 @@ impl RawRootPhysicalStateV1 {
         debug_assert_eq!(ledger.brand(), token.brand());
         Ok(Self {
             physical,
-            ledger,
+            ledger: RawRootLedgerStateV1::Open(ledger),
             tracker,
+            callable_main,
         })
     }
 
@@ -46,7 +57,11 @@ impl RawRootPhysicalStateV1 {
     }
 
     pub(in crate::mir) fn ledger_brand(&self) -> ModuleInvocationBrandV1 {
-        self.ledger.brand()
+        match &self.ledger {
+            RawRootLedgerStateV1::Open(ledger) => ledger.brand(),
+            RawRootLedgerStateV1::Aborted(ledger) => ledger.brand(),
+            RawRootLedgerStateV1::AbortedPlaceholder => self.physical.brand(),
+        }
     }
 
     pub(in crate::mir) fn tracker_brand(&self) -> ModuleInvocationBrandV1 {
@@ -54,14 +69,14 @@ impl RawRootPhysicalStateV1 {
     }
 
     pub(in crate::mir) fn callable_main(&self) -> RawCallableMainCompatibilityDispositionV1 {
-        self.ledger.callable_main()
+        self.callable_main
     }
 
-    pub(in crate::mir) fn into_parts(
+    pub(in crate::mir::builder) fn into_parts(
         self,
     ) -> (
         InvocationPhysicalStateV1,
-        RawExpansionReceiptLedgerV1,
+        RawRootLedgerStateV1,
         RootBodyCompletionTrackerV1,
     ) {
         (self.physical, self.ledger, self.tracker)

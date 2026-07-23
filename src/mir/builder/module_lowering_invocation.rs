@@ -103,7 +103,7 @@ impl LegacyChildDraftAdmissionV1 {
 
 /// Failure while a port-owned resolved child completes before parent restore.
 #[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir::builder) enum ModuleLoweringPortChildErrorV1 {
+pub(in crate::mir) enum ModuleLoweringPortChildErrorV1 {
     Session(CanonicalFunctionSessionErrorV1),
     Admission(ModuleDraftAdmissionErrorV1),
     ReceiptBrand(CollectorReceiptBrandErrorV1),
@@ -192,6 +192,15 @@ pub(in crate::mir::builder) struct ModuleLoweringPortV1<'collector> {
 struct ModuleLoweringPortSealV1;
 
 impl ModuleLoweringPortV1<'_> {
+    pub(in crate::mir::builder) fn from_collector(
+        collector: &mut ModuleDraftCollectorV1,
+    ) -> ModuleLoweringPortV1<'_> {
+        ModuleLoweringPortV1 {
+            collector,
+            _seal: ModuleLoweringPortSealV1,
+        }
+    }
+
     pub(in crate::mir::builder) fn with_headers<R>(
         &self,
         observe: impl for<'header> FnOnce(&'header LoweringHeaderPortV1<'header>) -> R,

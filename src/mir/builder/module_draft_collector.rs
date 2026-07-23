@@ -35,7 +35,7 @@ pub(in crate::mir::builder) use collected_product::{
     RejectedCollectedDraftAdmissionV1,
 };
 pub(in crate::mir) use receipt::CollectedDraftAdmissionReceiptV1 as CommitCollectedDraftAdmissionReceiptV1;
-pub(in crate::mir::builder) use receipt::{
+pub(in crate::mir) use receipt::{
     CollectedDraftAdmissionReceiptV1, CollectedDraftReplacementDispositionV1,
 };
 pub(in crate::mir::builder) use root_batch::{

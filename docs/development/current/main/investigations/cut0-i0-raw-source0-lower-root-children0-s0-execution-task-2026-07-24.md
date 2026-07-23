@@ -1,6 +1,6 @@
 # RAW-SOURCE0 LOWER ROOT0 — CHILDREN0-S0 execution task
 
-Status: **Selected — implementation may begin; production consumers remain zero**
+Status: **Implementation slice landed; focused success proof green; failure matrix remains in this row**
 Date: 2026-07-24
 Decision: **CHILD-prime-r1**
 
@@ -29,6 +29,14 @@ This row does not lower callable Main, the inline root body, or the required
 Main/condition batch. Drain, finalization, postprocess, external commit,
 public ingress, JSON behavior, retry, fallback, and CUT0 activation remain
 zero.
+
+## Current evidence
+
+The disconnected CHILDREN0 owner, lexical schedule handoff, Builder-side
+short-lived child terminal, and Script/App completion products are now wired.
+The focused Script-zero-child and App-two-helper lexical-order fixtures pass;
+production consumers remain zero. Locator-drift, prefix-failure, and full
+typed-cause matrix fixtures are still required before this row can close.
 
 ## Locked decisions
 

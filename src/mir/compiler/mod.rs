@@ -39,6 +39,8 @@ pub(in crate::mir) mod raw_finalization;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_eligibility;
 #[allow(dead_code)]
+pub(in crate::mir) mod raw_root_children;
+#[allow(dead_code)]
 pub(in crate::mir) mod raw_root_eligibility_classifier;
 #[allow(dead_code)]
 pub(in crate::mir) mod raw_root_package;

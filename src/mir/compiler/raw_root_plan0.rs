@@ -294,6 +294,40 @@ impl RawRootPlanV1 {
     pub(in crate::mir) const fn environment(&self) -> &RawRootEnvironmentPlanV1 {
         &self.environment
     }
+
+    pub(in crate::mir) fn into_pre_root_children(self) -> (Self, Box<[RawSourceLocatorV1]>) {
+        let Self {
+            physical,
+            kind,
+            environment,
+        } = self;
+        match kind {
+            RawRootKindV1::Script(plan) => (
+                Self {
+                    physical,
+                    kind: RawRootKindV1::Script(plan),
+                    environment,
+                },
+                Box::new([]),
+            ),
+            RawRootKindV1::App(RawAppRootPlanV1 {
+                main,
+                static_children,
+                callable_main,
+            }) => (
+                Self {
+                    physical,
+                    kind: RawRootKindV1::App(RawAppRootPlanV1 {
+                        main,
+                        static_children: Box::new([]),
+                        callable_main,
+                    }),
+                    environment,
+                },
+                static_children,
+            ),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

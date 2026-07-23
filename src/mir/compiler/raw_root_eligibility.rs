@@ -47,7 +47,7 @@ impl std::error::Error for RawRootEligibilityErrorV1 {}
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir) struct RawRootEligibilityV1 {
-    catalog: RawEligibleCatalogV1,
+    pub(super) catalog: RawEligibleCatalogV1,
 }
 
 impl RawRootEligibilityV1 {
@@ -272,26 +272,26 @@ pub(in crate::mir) enum RawRootPhysicalOpenErrorV1 {
 }
 
 #[derive(Debug)]
-struct RawRootPhysicalCoreV1 {
-    token: crate::mir::module_invocation_identity::ModuleInvocationTokenV1,
-    source: crate::mir::builder::OwnedRawSourceV1,
-    continuation: super::raw_source_binding::RawSourceContinuationV1,
-    config: crate::mir::builder::BuilderInvocationConfigV1,
-    module_name: Box<str>,
-    plan: super::raw_root_plan0::RawRootPlanV1,
-    proof: RawRootEligibilityV1,
-    session: ModuleBuilderInvocationSessionV1,
-    physical: RawRootPhysicalStateV1,
+pub(super) struct RawRootPhysicalCoreV1 {
+    pub(super) token: crate::mir::module_invocation_identity::ModuleInvocationTokenV1,
+    pub(super) source: crate::mir::builder::OwnedRawSourceV1,
+    pub(super) continuation: super::raw_source_binding::RawSourceContinuationV1,
+    pub(super) config: crate::mir::builder::BuilderInvocationConfigV1,
+    pub(super) module_name: Box<str>,
+    pub(super) plan: super::raw_root_plan0::RawRootPlanV1,
+    pub(super) proof: RawRootEligibilityV1,
+    pub(super) session: ModuleBuilderInvocationSessionV1,
+    pub(super) physical: RawRootPhysicalStateV1,
 }
 
 #[derive(Debug)]
 pub(in crate::mir) struct RawScriptRootInvocationV1 {
-    core: RawRootPhysicalCoreV1,
+    pub(super) core: RawRootPhysicalCoreV1,
 }
 
 #[derive(Debug)]
 pub(in crate::mir) struct RawAppRootInvocationV1 {
-    core: RawRootPhysicalCoreV1,
+    pub(super) core: RawRootPhysicalCoreV1,
 }
 
 #[derive(Debug)]
