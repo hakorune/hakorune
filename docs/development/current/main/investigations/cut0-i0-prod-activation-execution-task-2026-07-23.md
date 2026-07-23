@@ -304,6 +304,12 @@ mutated after finalization with a jump to a non-existent MIR block, and the
 canonical final-verifier barrier rejects before any external commit. This
 fixture is test-owned only; optimizer, contract/RC, pre-transform verifier,
 child/root-batch, and panic rows remain open.
+
+The existing Raw root-batch admission fixture is now counted in P0-R1: a
+late duplicate `SyntheticConditionFn` admission is rejected by the whole-batch
+preflight before collector/ledger root publication. This proves the typed
+publication-zero boundary only; rejected-owner retention and child/panic
+coverage remain separate rows.
 ```
 
 Next P0-R1 slice: add the real-authority failure matrix and keep the outer

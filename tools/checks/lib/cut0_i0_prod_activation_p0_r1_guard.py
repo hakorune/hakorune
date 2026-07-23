@@ -11,6 +11,7 @@ FILES = {
     "task": ROOT / "docs/development/current/main/investigations/cut0-i0-prod-activation-execution-task-2026-07-23.md",
     "canonical": ROOT / "src/mir/compiler/canonical_bridge_fixture0_p0.rs",
     "raw": ROOT / "src/mir/builder/raw_physical_finalization.rs",
+    "raw_root": ROOT / "src/mir/builder/raw_root_completion.rs",
     "finalizer": ROOT / "src/mir/compiler/canonical_finalization.rs",
     "raw_finalizer": ROOT / "src/mir/compiler/raw_finalization.rs",
     "postprocess": ROOT / "src/mir/compiler/module_postprocess.rs",
@@ -62,6 +63,12 @@ def main() -> int:
     require(texts["failure"], "BasicBlockId::new(9999)", "invalid CFG edge fixture")
     require(texts["failure"], "ModulePostprocessErrorV1::FinalVerification", "final verifier error")
     require(texts["raw"], "p0_r1_raw_real_authority_chain", "Raw aggregate fixture")
+    require(
+        texts["raw_root"],
+        "late_collector_admission_failure_happens_before_root_commit",
+        "Raw root-batch failure fixture",
+    )
+    require(texts["raw_root"], "RawRootCompletionErrorV1::Collector", "root-batch typed failure")
     for family in (
         "CanonicalAPlus",
         "BindingSsaTrivial",
@@ -127,7 +134,7 @@ def main() -> int:
         "[cut0-i0-prod-activation-p0-r1-guard] ok "
         "canonical_routes=4 raw_route=1 full_chain=5 readiness_failure=1 "
         "drain_failure=1 capability_failure=1 "
-        "post_failure=1 "
+        "post_failure=1 root_batch_failure=1 "
         "production_consumers=0 below_800=1"
     )
     return 0
