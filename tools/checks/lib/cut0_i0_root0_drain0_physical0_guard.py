@@ -17,11 +17,13 @@ COMPILER_MOD = ROOT / "src/mir/compiler/mod.rs"
 COMPLETE = ROOT / "src/mir/compiler/canonical_physical_completion.rs"
 FIXTURE = ROOT / "src/mir/compiler/canonical_physical_completion_p0.rs"
 BRIDGE_FIXTURE = ROOT / "src/mir/compiler/canonical_bridge_fixture0_p0.rs"
+MANIFEST_P0 = ROOT / "src/mir/compiler/canonical_drain_manifest_p0.rs"
 BUILDER_MOD = ROOT / "src/mir/builder.rs"
 PHYSICAL = ROOT / "src/mir/builder/canonical_physical_drain.rs"
 COLLECTOR = ROOT / "src/mir/builder/module_draft_collector.rs"
 COLLECTOR_DRAIN = ROOT / "src/mir/builder/module_draft_collector/drain.rs"
 BRAND0 = ROOT / "src/mir/builder/module_invocation_brand0.rs"
+SESSION_P0 = ROOT / "src/mir/builder/module_invocation_session_p0.rs"
 
 MANIFEST = (
     TASK,
@@ -31,11 +33,13 @@ MANIFEST = (
     COMPLETE,
     FIXTURE,
     BRIDGE_FIXTURE,
+    MANIFEST_P0,
     BUILDER_MOD,
     PHYSICAL,
     COLLECTOR,
     COLLECTOR_DRAIN,
     BRAND0,
+    SESSION_P0,
     pathlib.Path(__file__),
 )
 
@@ -113,6 +117,10 @@ def main() -> int:
     require(texts[COMPLETE], "fn drain(self)", "one-shot drain terminal")
     require(texts[COMPLETE], "CanonicalDrainedInvocationV1", "route-specific drained product")
     require(texts[COMPLETE], "CapabilityMismatch", "capability mismatch classification")
+    if texts[COMPLETE].count("pub(in crate::mir) fn prepare_drain(") != 1:
+        raise AssertionError("canonical completion must expose exactly one prepare_drain definition")
+    if texts[COMPLETE].count("pub(in crate::mir) fn drain(self)") != 1:
+        raise AssertionError("canonical completion must expose exactly one drain definition")
 
     for fixture in (
         "compiler_bridge_drains_a_plus_single_route",
@@ -123,6 +131,8 @@ def main() -> int:
     ):
         require(texts[FIXTURE], fixture, f"four-route drain fixture: {fixture}")
     require(texts[BRIDGE_FIXTURE], "canonical_bridge_fixture0_condition_fn_spelling_is_canonical", "canonical condition_fn spelling fixture")
+    require(texts[MANIFEST_P0], "callable_manifest_projects_catalog_in_canonical_key_order", "source reorder parity fixture")
+    require(texts[MANIFEST_P0], "callable_source_manifest_keeps_canonical_key_order_across_handoff", "physical reorder handoff fixture")
     require(texts[COLLECTOR_DRAIN], "keyed_prepare_rejects_index_drift_and_returns_the_collector", "index-drift rejection fixture")
     require(texts[COLLECTOR_DRAIN], "keyed_prepare_rejects_foreign_receipt_before_consuming_collector", "foreign-receipt rejection fixture")
     require(texts[PHYSICAL], "published_shell_rejects_before_collector_prepare", "published-shell rejection fixture")
@@ -130,6 +140,7 @@ def main() -> int:
     require(texts[PHYSICAL], "collector_payload_receipt_brand_mismatch_rejects_before_shell_mutation", "collector payload receipt-brand fixture")
     require(texts[PHYSICAL], "foreign_manifest_brand_rejects_before_collector_prepare", "foreign manifest brand fixture")
     require(texts[PHYSICAL], "callable_row_cardinality_rejects_missing_and_surplus_manifest_rows", "callable cardinality fixture")
+    require(texts[SESSION_P0], "dropping_failed_candidate_leaves_live_builder_unchanged", "live Builder failure fixture")
 
     forbidden_canonical = (
         "InvocationDrainExpectationV1",
