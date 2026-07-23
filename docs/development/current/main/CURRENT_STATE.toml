@@ -331,10 +331,11 @@ raw_source0_lower_root_consultation = "docs/development/current/main/investigati
 raw_source0_lower_root_plan_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-plan0-execution-task-2026-07-23.md"
 raw_source0_lower_root_owner_package_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-owner0-package0-execution-task-2026-07-23.md"
 raw_source0_lower_root_owner_eligibility_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-owner0-eligibility-consultation-2026-07-23.md"
+raw_source0_lower_root_owner_eligibility_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-owner0-eligibility-question-2026-07-23.md"
 
-latest_card = "cut0-i0-raw-source0-lower-root-owner0-eligibility-consultation-2026-07-23"
-latest_card_path = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-owner0-eligibility-consultation-2026-07-23.md"
-latest_card_summary = """PACKAGE0 is closed. OWNER0-ELIGIBILITY0 is a design stop: runtime inputs, exhaustive source work, complete declaration/callable coverage, closure/static-data access, and process-global method-slot requirements must be sealed or typed-rejected before PHYSICAL0."""
+latest_card = "cut0-i0-raw-source0-lower-root-owner0-eligibility-question-2026-07-23"
+latest_card_path = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-owner0-eligibility-question-2026-07-23.md"
+latest_card_summary = """Question card for the ELIGIBILITY0 design stop. Q1-Q5 must choose one coherent runtime/source/catalog/access/slot policy before OWNER0-S0; physical effects and production consumers remain zero."""
 latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
 requires strict current-function/current-block membership, emits one physical
 Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is

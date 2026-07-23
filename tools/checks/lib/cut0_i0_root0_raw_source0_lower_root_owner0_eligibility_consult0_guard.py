@@ -12,6 +12,10 @@ CARD = ROOT / (
     "docs/development/current/main/investigations/"
     "cut0-i0-raw-source0-lower-root-owner0-eligibility-consultation-2026-07-23.md"
 )
+QUESTION = ROOT / (
+    "docs/development/current/main/investigations/"
+    "cut0-i0-raw-source0-lower-root-owner0-eligibility-question-2026-07-23.md"
+)
 PROD = (
     ROOT / "src/mir/compiler/mod.rs",
     ROOT / "src/mir/compiler/raw_root_package.rs",
@@ -27,6 +31,7 @@ def require(text: str, fragment: str, label: str) -> None:
 def main() -> int:
     state = STATE.read_text()
     card = CARD.read_text()
+    question = QUESTION.read_text()
     require(
         state,
         'current_design_stop = "RAW-SOURCE0-LOWER0-ROOT0-OWNER0-ELIGIBILITY0-CONSULT0"',
@@ -39,8 +44,8 @@ def main() -> int:
     )
     require(
         state,
-        'latest_card = "cut0-i0-raw-source0-lower-root-owner0-eligibility-consultation-2026-07-23"',
-        "latest consultation card",
+        'latest_card = "cut0-i0-raw-source0-lower-root-owner0-eligibility-question-2026-07-23"',
+        "latest eligibility question card",
     )
     for fragment in (
         "Q1 — runtime inputs",
@@ -54,6 +59,17 @@ def main() -> int:
         "CURRENT_STATE.toml",
     ):
         require(card, fragment, f"eligibility consultation {fragment}")
+    for fragment in (
+        "Q1 — runtime-input authority",
+        "Q2 — source-work authority",
+        "Q3 — callable/declaration coverage",
+        "Q4 — closure and static-data authority",
+        "Q5 — process-global slots",
+        "ELIGIBILITY-prime-r1",
+        "Required answer format",
+        "physical effects = 0",
+    ):
+        require(question, fragment, f"eligibility question {fragment}")
     joined = "\n".join(path.read_text() for path in PROD)
     for forbidden in (
         "begin_raw_root(",
@@ -64,7 +80,7 @@ def main() -> int:
     ):
         if forbidden in joined:
             raise AssertionError(f"physical effect wired during eligibility stop: {forbidden}")
-    for path in (CARD, *PROD):
+    for path in (CARD, QUESTION, *PROD):
         if len(path.read_text().splitlines()) >= 800:
             raise AssertionError(f"file must remain below 800 lines: {path}")
     print(
