@@ -1,6 +1,6 @@
 # CUT0-I0 ROOT0-DRAIN0 実行タスク
 
-Status: **Active — ROOT0-DRAIN0-PHYSICAL0-P0/G0 is next**
+Status: **Closed — ROOT0-DRAIN0-PHYSICAL0-P0/G0 complete; production activation consultation next**
 
 Related:
 
@@ -436,38 +436,32 @@ The guard must distinguish shell-empty invariant reads from forbidden
 expected-inventory reconstruction. Do not edit `canonical_root_completion.rs`;
 retain it only as disconnected legacy evidence until a later retirement row.
 
-## P0/G0 audit — 2026-07-23 (partial; not a closeout)
+## P0/G0 closeout — 2026-07-23
 
-The implementation slice is green, but the complete P0/G0 matrix is not yet
-closed. The following evidence is now present:
+The disconnected PHYSICAL0 matrix is now closed. The following evidence is
+present:
 
 ```text
-canonical physical prepare/drain tests       = 4 passed
-canonical completion drain tests              = 5 passed
+canonical physical prepare/drain tests       = 5 passed
+canonical completion drain tests              = 7 passed
 keyed collector drain tests                  = 3 passed
-canonical condition_fn spelling fixture      = registered and green
+canonical manifest projection tests          = 4 passed
+canonical condition_fn spelling drain        = green
 foreign manifest brand rejection              = registered and green
+receipt payload provenance                   = registered and green
+drain receipt/capability retention            = registered and green
+prepare failure live Builder isolation        = registered and green
+physical prepare/drain consumer census        = 2 / 2
+retry/re-entry authority                      = 0
 physical guard / pointer guard / diff check   = green
 all touched PHYSICAL0 files                  < 800 lines
 ```
 
-The remaining executable proof row is deliberately explicit:
-
-```text
-ROOT0-DRAIN0-P0b
-  -> prepare failure leaves the live Builder unchanged
-  -> measured callsite census for prepare_drain/drain and forbidden retry
-```
-
-P0b progress: receipt payload collector-brand mismatch and drain-after-success
-receipt/capability retention, source-to-physical reorder parity, and the
-no-retry structural guard are now green and committed. The two items above
-remain open; the existing disconnected Builder-session failure fixture is
-only a precursor, not yet proof of physical `prepare_drain` failure.
-
-Until P0b is green, do not claim ROOT0-DRAIN0-P0/G0 closed and do not wire
-canonical production ingress, finalization, external commit, Raw convergence,
-or atomic CUT0 activation.
+The P0/G0 guard now checks the two route-specific physical prepare consumers,
+the two route-specific physical drain consumers, the old-drain caller census,
+the canonical synthetic-identity absence, and the no-retry boundary. This is
+still a disconnected proof: do not wire canonical production ingress,
+finalization, external commit, Raw convergence, or atomic CUT0 activation.
 
 ## Failure and one-shot law
 
@@ -492,5 +486,6 @@ RUSTFLAGS='-Awarnings' cargo check -q --lib
 RUSTFLAGS='-Awarnings' cargo test -q canonical_physical_completion_p0 --lib
 RUSTFLAGS='-Awarnings' cargo test -q module_draft_collector::drain::tests --lib
 RUSTFLAGS='-Awarnings' cargo test -q canonical_physical_drain::tests --lib
+RUSTFLAGS='-Awarnings' cargo test -q canonical_drain_manifest_p0 --lib
 python3 tools/checks/lib/cut0_i0_root0_drain0_physical0_guard.py
 ```

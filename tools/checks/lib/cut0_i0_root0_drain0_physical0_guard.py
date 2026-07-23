@@ -68,7 +68,7 @@ def main() -> int:
     task = texts[TASK]
     require(task, "PHYSICAL0-P0", "P0 proof matrix")
     require(task, "ROOT0-DRAIN0-G0", "G0 guard boundary")
-    require(task, "ROOT0-DRAIN0-PHYSICAL0-P0/G0 is next", "current task frontier")
+    require(task, "ROOT0-DRAIN0-PHYSICAL0-P0/G0 complete", "P0/G0 closeout frontier")
 
     neutral = texts[NEUTRAL]
     for fragment in (
