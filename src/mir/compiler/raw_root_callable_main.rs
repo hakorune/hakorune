@@ -152,6 +152,15 @@ impl RawCallableMainReadyInvocationV1 {
             Self::App(ready) => ready.core.session.brand(),
         }
     }
+
+    pub(in crate::mir) fn token_brand(
+        &self,
+    ) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
+        match self {
+            Self::Script(ready) => ready.core.token.brand(),
+            Self::App(ready) => ready.core.token.brand(),
+        }
+    }
 }
 
 #[derive(Debug)]

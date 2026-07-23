@@ -116,6 +116,7 @@ fn app_selected_uses_callable_main_role_and_same_brand() {
     );
     assert_eq!(receipt.receipt_brand(), ready.physical_brand());
     assert_eq!(receipt.receipt_brand(), ready.session_brand());
+    assert_eq!(receipt.receipt_brand(), ready.token_brand());
     assert_eq!(ready.tracker_completed_children(), 0);
 }
 
