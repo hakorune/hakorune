@@ -181,3 +181,33 @@ consumers disconnected until the selected all-route policy is implementable.
 Until this consultation closes, do not add `execute_preflighted_module_invocation`
 to public callers, remove `MirBuilder::build_module`, or alter runtime JSON
 semantics.
+
+## Worker recommendation (not yet a decision lock)
+
+The current evidence supports the following provisional answer:
+
+```text
+Q1 = 3
+  keep every production consumer disconnected until the Raw boundary exists
+
+Q2 = 1
+  design a production Raw source-bound ingress as its own semantic row
+
+Q3 = split policy
+  AST JSON may join the compiler-owned executor only after explicit parity;
+  Program(JSON v0) remains the existing explicit compatibility lane until a
+  separate PROGRAM-V0-SOURCE0 decision is closed
+
+Q4 = 1
+  seal BuilderInvocationConfigV1 once at the outer ingress
+
+Q5 = 1
+  require measured zero non-test direct Builder callers before CUT0
+```
+
+The next smallest row is therefore `RAW-SOURCE0-CONSULT0`, not executor
+wiring. It must decide the source-bound request for legacy AST input, the
+compiler-owned identity/token issuance point, the Raw source inventory and
+compatibility policy, and how the existing `BuilderInvocationConfigV1` is
+captured. It must not add a public executor, change the Program(JSON v0)
+compatibility lane, or retire `MirBuilder::build_module`.
