@@ -115,6 +115,16 @@ What owns `runtime/mirbuilder_emit.rs` and other direct JSON-to-MIR paths?
    the same identity chain; otherwise it creates a second production owner.
 ```
 
+Worker audit note: AST-JSON and Program(JSON v0) are not interchangeable
+compatibility inputs. The AST-JSON bridge currently lowers through
+`MirBuilder::build_module`, while `json_v0_bridge::lower_program` is an
+independent ProgramV0-to-`MirModule` lowerer. Redirecting both to the same
+executor without a parity decision would change postprocess/output semantics
+and would create an unproven source converter. Q3=1 therefore requires an
+explicit parity fixture and ownership decision; otherwise Program(JSON v0)
+needs a separate `PROGRAM-V0-SOURCE0` design row or a documented compatibility
+lane exception.
+
 ### Q4 — live Builder configuration
 
 Where are imports, source-file hints, REPL mode, plugin signatures, and Core
