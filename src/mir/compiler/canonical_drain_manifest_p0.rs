@@ -5,6 +5,7 @@ use super::source_bound_package::ExactCanonicalPreflightPlanV1;
 use super::{MirCompiler, VerifiedResolvedCallableProgramV1, VerifiedResolvedSourceUnitV1};
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl, Span};
 use crate::mir::compiler::canonical_drain_manifest::CanonicalDrainIdentityV1;
+use crate::mir::canonical_physical_drain::CanonicalPhysicalDrainManifestV1;
 use crate::mir::module_invocation_identity::ModuleInvocationFamilyV1;
 use crate::mir::module_invocation_policy::{
     InvocationConditionPolicyV1, InvocationInventoryAuthorityV1, InvocationRootPolicyV1,
@@ -130,4 +131,43 @@ fn callable_manifest_projects_catalog_in_canonical_key_order() {
         manifest.rows()[1].identity(),
         CanonicalDrainIdentityV1::Callable(_)
     ));
+}
+
+#[test]
+fn source_manifest_consumes_into_neutral_physical_rows() {
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(first_family_function("owner")).unwrap();
+    let preflight = super::capability::CanonicalLoweringPreflightV1::verify(&unit).unwrap();
+    let exact = ExactCanonicalPreflightPlanV1::from_first_family(preflight);
+    let mut compiler = MirCompiler::new();
+    let package = compiler.bind_canonical_source(exact).unwrap();
+    let physical = package.project_drain_manifest().unwrap().into_physical();
+
+    assert_eq!(physical.rows_len(), 1);
+    assert_eq!(physical.family(), ModuleInvocationFamilyV1::BindingSsaTrivial);
+    let row = physical.single_row().expect("single physical row");
+    assert_eq!(row.symbol(), "owner/0");
+    assert_eq!(row.arity(), 0);
+}
+
+#[test]
+fn callable_source_manifest_keeps_canonical_key_order_across_handoff() {
+    let program = VerifiedResolvedCallableProgramV1::resolve(ASTNode::Program {
+        statements: vec![
+            callable_function("zeta", call("alpha", variable("x"))),
+            callable_function("alpha", variable("x")),
+        ],
+        span: Span::unknown(),
+    })
+    .unwrap();
+    let plan = VerifiedAcyclicCallableModulePlanV1::verify(program.module()).unwrap();
+    let mut compiler = MirCompiler::new();
+    let package = compiler
+        .bind_canonical_source(ExactCanonicalPreflightPlanV1::BindingSsaAcyclic(plan))
+        .unwrap();
+    let physical = package.project_drain_manifest().unwrap().into_physical();
+    let rows = physical.callable_rows().expect("callable physical rows");
+
+    assert_eq!(rows.len(), 2);
+    assert_eq!(rows[0].symbol(), "alpha/1");
+    assert_eq!(rows[1].symbol(), "zeta/1");
 }

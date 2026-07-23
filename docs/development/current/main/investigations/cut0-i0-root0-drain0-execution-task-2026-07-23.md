@@ -216,6 +216,30 @@ all touched files < 800 lines
 physical/collector/production consumers = 0
 ```
 
+### BRIDGE0 closeout — 2026-07-23
+
+`CanonicalPhysicalDrainManifestV1` now owns the neutral single/callable
+physical vocabulary. It carries only brand, family, canonical identity,
+symbol, arity, and the sealed inserted-only disposition. The compiler source
+manifest is compiler-private and is consumed exactly once by
+`into_physical(self)`; row order and ownership are preserved across the
+handoff.
+
+Evidence:
+
+```text
+RUSTFLAGS='-Awarnings' cargo check -q --lib                         green
+RUSTFLAGS='-Awarnings' cargo test -q canonical_drain_manifest_p0 --lib  4 passed
+RUSTFLAGS='-Awarnings' cargo test -q drain_policy_p0 --lib          2 passed
+git diff --check                                                   green
+bash tools/checks/current_state_pointer_guard.sh                   green
+```
+
+No collector extraction, shell mutation, completion-owned drain, production
+consumer, finalizer, external commit, retry, fallback, or Raw route change
+was added. The next executable row is
+`ROOT0-DRAIN0-PHYSICAL0-COLLECT0`.
+
 ## ROOT0-DRAIN0-PHYSICAL0-COLLECT0 — keyed collector terminal
 
 Add `module_draft_collector/drain.rs` with mutation-free keyed preflight and a

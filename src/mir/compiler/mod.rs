@@ -22,7 +22,7 @@ pub(in crate::mir) mod capability;
 #[allow(dead_code)]
 pub(in crate::mir) mod canonical_physical_completion;
 #[allow(dead_code)]
-pub(in crate::mir) mod canonical_drain_manifest;
+mod canonical_drain_manifest;
 pub(in crate::mir) mod function_input;
 #[allow(dead_code)]
 pub(in crate::mir) mod located;
