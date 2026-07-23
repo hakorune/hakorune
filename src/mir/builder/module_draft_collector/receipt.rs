@@ -24,7 +24,7 @@ pub(in crate::mir::builder) enum CollectedDraftReplacementDispositionV1 {
 
 /// Non-Clone witness returned after exactly one successful draft collection.
 #[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir::builder) struct CollectedDraftAdmissionReceiptV1 {
+pub(in crate::mir) struct CollectedDraftAdmissionReceiptV1 {
     key: FunctionDraftKeyV1,
     symbol: Box<str>,
     arity: usize,

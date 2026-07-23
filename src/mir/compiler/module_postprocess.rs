@@ -6,6 +6,14 @@
 
 use super::canonical_finalization::{CanonicalFinalizationInputV1, FinalizedModuleInvocationV1};
 use super::raw_finalization::{RawFinalizationInputV1, RawFinalizedModuleInvocationV1};
+use super::source_bound_package::CanonicalSourceContinuationV1;
+use crate::mir::builder::{
+    CanonicalCallableCapabilityWitnessV1,
+    CanonicalDrainedCallablePhysicalV1, CanonicalDrainedSinglePhysicalV1,
+    CommitCallableCollectorBatchReceiptV1, CommitCollectedDraftAdmissionReceiptV1,
+    InvocationBranded, RawInvocationRootWitnessV1, SealedRawExpansionReceiptLedgerV1,
+};
+use crate::mir::canonical_physical_drain::CanonicalPhysicalDrainManifestV1;
 use crate::mir::function::MirModule;
 use crate::mir::builder::PreparedBuilderExternalCommitV1;
 use crate::mir::module_invocation_identity::{
@@ -112,6 +120,29 @@ pub(in crate::mir) enum ModulePostprocessInputV1<'a> {
     Raw(RawFinalizationInputV1),
 }
 
+/// Route evidence extracted exactly once when the postprocessed owner is
+/// handed to paired external commit preparation.  It is not a lookup source;
+/// it only preserves the source/receipt/physical correspondence until the
+/// one-shot commit consumes it.
+#[derive(Debug)]
+pub(in crate::mir) enum PostprocessEvidenceInputV1<'a> {
+    CanonicalSingle {
+        continuation: CanonicalSourceContinuationV1<'a>,
+        receipt: InvocationBranded<CommitCollectedDraftAdmissionReceiptV1>,
+        inventory: CanonicalPhysicalDrainManifestV1,
+    },
+    CanonicalCallable {
+        continuation: CanonicalSourceContinuationV1<'a>,
+        receipt: InvocationBranded<CommitCallableCollectorBatchReceiptV1>,
+        inventory: CanonicalPhysicalDrainManifestV1,
+        capability: CanonicalCallableCapabilityWitnessV1,
+    },
+    Raw {
+        ledger: SealedRawExpansionReceiptLedgerV1,
+        root: RawInvocationRootWitnessV1,
+    },
+}
+
 /// Rejected postprocess keeps the unpublished invocation at the exact stage
 /// where it failed.  The owner is intentionally discard-only: no retry,
 /// resume, replacement manifest, or fallback terminal is exposed.
@@ -187,6 +218,7 @@ impl<'a> PostprocessedModuleInvocationV1<'a> {
         PreparedBuilderExternalCommitV1,
         MirModule,
         ModuleVerificationEvidenceV1,
+        PostprocessEvidenceInputV1<'a>,
     ) {
         let Self {
             input,
@@ -196,15 +228,63 @@ impl<'a> PostprocessedModuleInvocationV1<'a> {
         match input {
             ModulePostprocessInputV1::Canonical(CanonicalFinalizationInputV1::Single(input)) => {
                 let builder = input.builder.into_external_commit();
-                (input.token, builder, input.physical.module, verification)
+                let CanonicalDrainedSinglePhysicalV1 {
+                    module,
+                    receipt,
+                    inventory,
+                    brand: _,
+                    family: _,
+                } = input.physical;
+                (
+                    input.token,
+                    builder,
+                    module,
+                    verification,
+                    PostprocessEvidenceInputV1::CanonicalSingle {
+                        continuation: input.continuation,
+                        receipt,
+                        inventory,
+                    },
+                )
             }
             ModulePostprocessInputV1::Canonical(CanonicalFinalizationInputV1::Callable(input)) => {
                 let builder = input.builder.into_external_commit();
-                (input.token, builder, input.physical.module, verification)
+                let CanonicalDrainedCallablePhysicalV1 {
+                    module,
+                    receipt,
+                    inventory,
+                    brand: _,
+                    family: _,
+                } = input.physical;
+                (
+                    input.token,
+                    builder,
+                    module,
+                    verification,
+                    PostprocessEvidenceInputV1::CanonicalCallable {
+                        continuation: input.continuation,
+                        receipt,
+                        inventory,
+                        capability: input.capability,
+                    },
+                )
             }
             ModulePostprocessInputV1::Raw(input) => {
                 let builder = input.builder.into_external_commit();
-                (input.token, builder, input.module, verification)
+                let RawFinalizationInputV1 {
+                    token,
+                    module,
+                    ledger,
+                    root,
+                    builder: _,
+                } = input;
+                (
+                    token,
+                    builder,
+                    module,
+                    verification,
+                    PostprocessEvidenceInputV1::Raw { ledger, root },
+                )
             }
         }
     }

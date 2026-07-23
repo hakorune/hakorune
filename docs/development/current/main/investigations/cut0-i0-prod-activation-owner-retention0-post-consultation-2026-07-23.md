@@ -235,3 +235,17 @@ The focused final-verifier rejection fixture, P0-R1 compatibility fixture,
 POST0 guard, cargo check, and diff check are green. `PostprocessEvidenceSealV1`
 is still the next implementation boundary, and production consumers remain
 zero.
+
+## OWNER-RETENTION0-POST-EVIDENCE0 closeout (2026-07-23)
+
+The selected Q4 handoff is implemented. Postprocess success now yields a
+route-specific evidence input, and paired commit preparation consumes it once
+into `PostprocessEvidenceSealV1` after checking token brand/family against the
+physical receipt, inventory, ledger/root, and callable capability witnesses.
+The prepared commit product retains that seal until its one-shot commit.
+
+Canonical continuation is retained with its exact receipt/inventory; callable
+routes additionally retain capability evidence; Raw retains sealed ledger/root
+evidence. The old bare token/Builder/module/verification tuple is no longer
+the complete handoff proof. `POST-FAILURE0` remains the owner for any later
+deterministic optimizer/RC fault matrix, and production consumers remain zero.

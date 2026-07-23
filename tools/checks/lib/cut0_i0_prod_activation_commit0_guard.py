@@ -30,12 +30,16 @@ def main() -> int:
     require(texts["task"], "## COMMIT0 — paired external commit", "COMMIT0 task row")
     for fragment in (
         "PreparedModuleExternalCommitV1",
+        "PostprocessEvidenceSealV1",
+        "PostprocessEvidenceInputV1",
         "ExternalCommitPreparationErrorV1",
         "ModuleVerificationEvidenceV1",
-        "commit_prepared_module(",
+        "commit_prepared_module",
         "MirCompileResult",
         "builder.commit(current)",
         "token.family() != builder.family()",
+        "evidence: PostprocessEvidenceSealV1<'a>",
+        "PostprocessEvidenceSealV1::seal",
     ):
         require(texts["commit"], fragment, f"paired commit product: {fragment}")
     for fragment in (

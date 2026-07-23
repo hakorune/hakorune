@@ -7,7 +7,7 @@
 use super::module_invocation_identity::ModuleInvocationBrandV1;
 
 #[derive(Debug)]
-pub(in crate::mir::builder) struct InvocationBranded<T> {
+pub(in crate::mir) struct InvocationBranded<T> {
     brand: ModuleInvocationBrandV1,
     payload: T,
     _seal: InvocationBrandedOwnerSealV1,

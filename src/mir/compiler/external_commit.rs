@@ -3,10 +3,20 @@
 //! This remains disconnected from public ingress.  It is the only product
 //! allowed to pair a postprocessed module with the Builder readiness owner.
 
-use super::module_postprocess::{ModuleVerificationEvidenceV1, PostprocessedModuleInvocationV1};
+use super::module_postprocess::{
+    ModuleVerificationEvidenceV1, PostprocessEvidenceInputV1, PostprocessedModuleInvocationV1,
+};
 use super::MirCompileResult;
-use crate::mir::builder::{MirBuilder, PreparedBuilderExternalCommitV1};
-use crate::mir::module_invocation_identity::{ModuleInvocationFamilyV1, ModuleInvocationTokenV1};
+use crate::mir::builder::{
+    CanonicalCallableCapabilityWitnessV1, CommitCallableCollectorBatchReceiptV1,
+    CommitCollectedDraftAdmissionReceiptV1, InvocationBranded, MirBuilder,
+    PreparedBuilderExternalCommitV1, RawInvocationRootWitnessV1, SealedRawExpansionReceiptLedgerV1,
+};
+use crate::mir::canonical_physical_drain::CanonicalPhysicalDrainManifestV1;
+use crate::mir::compiler::source_bound_package::CanonicalSourceContinuationV1;
+use crate::mir::module_invocation_identity::{
+    ModuleInvocationFamilyV1, ModuleInvocationTokenV1,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum ExternalCommitPreparationErrorV1 {
@@ -15,22 +25,47 @@ pub(in crate::mir) enum ExternalCommitPreparationErrorV1 {
 }
 
 #[derive(Debug)]
-pub(in crate::mir) struct PreparedModuleExternalCommitV1 {
+pub(in crate::mir) enum PostprocessEvidenceSealV1<'a> {
+    CanonicalSingle {
+        continuation: CanonicalSourceContinuationV1<'a>,
+        receipt: InvocationBranded<CommitCollectedDraftAdmissionReceiptV1>,
+        inventory: CanonicalPhysicalDrainManifestV1,
+    },
+    CanonicalCallable {
+        continuation: CanonicalSourceContinuationV1<'a>,
+        receipt: InvocationBranded<CommitCallableCollectorBatchReceiptV1>,
+        inventory: CanonicalPhysicalDrainManifestV1,
+        capability: CanonicalCallableCapabilityWitnessV1,
+    },
+    Raw {
+        ledger: SealedRawExpansionReceiptLedgerV1,
+        root: RawInvocationRootWitnessV1,
+    },
+}
+
+#[derive(Debug)]
+pub(in crate::mir) struct PreparedModuleExternalCommitV1<'a> {
     token: ModuleInvocationTokenV1,
     builder: PreparedBuilderExternalCommitV1,
     module: crate::mir::MirModule,
     verification: ModuleVerificationEvidenceV1,
+    evidence: PostprocessEvidenceSealV1<'a>,
     _seal: PreparedModuleExternalCommitSealV1,
 }
 
 #[derive(Debug)]
 struct PreparedModuleExternalCommitSealV1;
 
-impl PreparedModuleExternalCommitV1 {
+impl<'a> PreparedModuleExternalCommitV1<'a> {
+    pub(in crate::mir) fn evidence(&self) -> &PostprocessEvidenceSealV1<'a> {
+        &self.evidence
+    }
+
     pub(in crate::mir) fn prepare(
-        postprocessed: PostprocessedModuleInvocationV1<'_>,
+        postprocessed: PostprocessedModuleInvocationV1<'a>,
     ) -> Result<Self, ExternalCommitPreparationErrorV1> {
-        let (token, builder, module, verification) = postprocessed.into_external_commit_parts();
+        let (token, builder, module, verification, evidence_input) =
+            postprocessed.into_external_commit_parts();
         if token.brand() != builder.brand() || token.family() != builder.family() {
             return Err(ExternalCommitPreparationErrorV1::ForeignBrand);
         }
@@ -57,11 +92,13 @@ impl PreparedModuleExternalCommitV1 {
         if !evidence_matches {
             return Err(ExternalCommitPreparationErrorV1::EvidenceMismatch);
         }
+        let evidence = PostprocessEvidenceSealV1::seal(evidence_input, &token)?;
         Ok(Self {
             token,
             builder,
             module,
             verification,
+            evidence,
             _seal: PreparedModuleExternalCommitSealV1,
         })
     }
@@ -72,6 +109,7 @@ impl PreparedModuleExternalCommitV1 {
             builder,
             module,
             verification,
+            evidence: _,
             _seal: _,
         } = self;
         builder.commit(current);
@@ -88,17 +126,84 @@ impl PreparedModuleExternalCommitV1 {
     }
 }
 
+impl<'a> PostprocessEvidenceSealV1<'a> {
+    fn seal(
+        input: PostprocessEvidenceInputV1<'a>,
+        token: &ModuleInvocationTokenV1,
+    ) -> Result<Self, ExternalCommitPreparationErrorV1> {
+        let brand = token.brand();
+        let family = token.family();
+        match input {
+            PostprocessEvidenceInputV1::CanonicalSingle {
+                continuation,
+                receipt,
+                inventory,
+            } => {
+                if !matches!(
+                    family,
+                    ModuleInvocationFamilyV1::CanonicalAPlus
+                        | ModuleInvocationFamilyV1::BindingSsaTrivial
+                ) || receipt.brand() != brand
+                    || inventory.brand() != brand
+                    || inventory.family() != family
+                {
+                    return Err(ExternalCommitPreparationErrorV1::EvidenceMismatch);
+                }
+                Ok(Self::CanonicalSingle {
+                    continuation,
+                    receipt,
+                    inventory,
+                })
+            }
+            PostprocessEvidenceInputV1::CanonicalCallable {
+                continuation,
+                receipt,
+                inventory,
+                capability,
+            } => {
+                if !matches!(
+                    family,
+                    ModuleInvocationFamilyV1::BindingSsaAcyclic
+                        | ModuleInvocationFamilyV1::BindingSsaRecursive
+                ) || receipt.brand() != brand
+                    || inventory.brand() != brand
+                    || inventory.family() != family
+                    || capability.brand() != brand
+                    || capability.family() != family
+                {
+                    return Err(ExternalCommitPreparationErrorV1::EvidenceMismatch);
+                }
+                Ok(Self::CanonicalCallable {
+                    continuation,
+                    receipt,
+                    inventory,
+                    capability,
+                })
+            }
+            PostprocessEvidenceInputV1::Raw { ledger, root } => {
+                if family != ModuleInvocationFamilyV1::Raw
+                    || ledger.brand() != brand
+                    || root.brand() != brand
+                {
+                    return Err(ExternalCommitPreparationErrorV1::EvidenceMismatch);
+                }
+                Ok(Self::Raw { ledger, root })
+            }
+        }
+    }
+}
+
 impl super::MirCompiler {
-    pub(in crate::mir) fn prepare_module_external_commit(
+    pub(in crate::mir) fn prepare_module_external_commit<'a>(
         &mut self,
-        postprocessed: PostprocessedModuleInvocationV1<'_>,
-    ) -> Result<PreparedModuleExternalCommitV1, ExternalCommitPreparationErrorV1> {
+        postprocessed: PostprocessedModuleInvocationV1<'a>,
+    ) -> Result<PreparedModuleExternalCommitV1<'a>, ExternalCommitPreparationErrorV1> {
         PreparedModuleExternalCommitV1::prepare(postprocessed)
     }
 
-    pub(in crate::mir) fn commit_prepared_module(
+    pub(in crate::mir) fn commit_prepared_module<'a>(
         &mut self,
-        prepared: PreparedModuleExternalCommitV1,
+        prepared: PreparedModuleExternalCommitV1<'a>,
     ) -> MirCompileResult {
         prepared.commit(&mut self.builder)
     }

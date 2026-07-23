@@ -2,6 +2,7 @@
 
 use super::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
 use super::module_postprocess::ModulePostprocessOwnerV1;
+use super::external_commit::PostprocessEvidenceSealV1;
 use super::source_bound_package::ExactCanonicalPreflightPlanV1;
 use super::{MirCompiler, VerifiedResolvedSourceUnitV1};
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
@@ -62,6 +63,10 @@ fn paired_external_commit_consumes_builder_and_module_once() {
         .run(finalized)
         .unwrap();
     let prepared = compiler.prepare_module_external_commit(processed).unwrap();
+    assert!(matches!(
+        prepared.evidence(),
+        PostprocessEvidenceSealV1::CanonicalSingle { .. }
+    ));
     let result = compiler.commit_prepared_module(prepared);
 
     assert!(result.module.functions.contains_key("commit_fixture/0"));

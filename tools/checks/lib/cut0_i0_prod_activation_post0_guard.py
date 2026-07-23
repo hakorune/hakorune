@@ -69,7 +69,7 @@ def main() -> int:
     order = [
         "refresh_module_rune_plans(module_mut(&mut input))",
         "MirOptimizer::new().optimize_module(module_mut(&mut input))",
-        "refresh_and_validate_for_boundary(\n        module_mut(&mut input)",
+        "refresh_and_validate_for_boundary(module_mut(&mut input)",
         "verify_module(module_mut(&mut input))",
         "insert_rc_instructions(module_mut(&mut input))",
         "refresh_module_semantic_metadata(module_mut(&mut input))",

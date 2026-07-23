@@ -33,6 +33,8 @@ pub(in crate::mir::builder) use callable_batch::{
 pub(in crate::mir::builder) use receipt::{
     CollectedDraftAdmissionReceiptV1, CollectedDraftReplacementDispositionV1,
 };
+pub(in crate::mir) use callable_batch::CallableCollectorBatchReceiptV1 as CommitCallableCollectorBatchReceiptV1;
+pub(in crate::mir) use receipt::CollectedDraftAdmissionReceiptV1 as CommitCollectedDraftAdmissionReceiptV1;
 pub(in crate::mir::builder) use collected_product::{
     CollectedDraftAdmissionProductErrorV1, CollectedDraftAdmissionProductV1,
     RejectedCollectedDraftAdmissionV1,

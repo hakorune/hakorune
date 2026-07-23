@@ -1,6 +1,6 @@
 # CUT0-I0 Production Activation Execution Task
 
-Status: **Active — OWNER-RETENTION0-POST-P0 is closed; POST-EVIDENCE0 is next; production ingress remains disconnected**
+Status: **Active — OWNER-RETENTION0-POST-P0 and POST-EVIDENCE0 are closed; POST-FAILURE0 is next; production ingress remains disconnected**
 Date: 2026-07-23
 Decision: **Candidate ACT-prime-r1 accepted**
 
@@ -581,6 +581,22 @@ canonical final-verifier errors are rejected. The focused rejection fixture,
 P0-R1 compatibility fixture, POST0 guard, cargo check, and diff check are
 green. RC-failure injection and commit evidence sealing remain separate
 non-claims. The next row is `OWNER-RETENTION0-POST-EVIDENCE0`.
+
+### OWNER-RETENTION0-POST-EVIDENCE0 closeout (2026-07-23)
+
+`PostprocessedModuleInvocationV1::into_external_commit_parts` no longer
+drops route evidence. It produces a route-specific evidence input, and
+`PreparedModuleExternalCommitV1::prepare` consumes that input exactly once
+into `PostprocessEvidenceSealV1` after token/family/brand checks.
+
+The seal retains canonical continuation plus receipt/inventory, callable
+capability plus receipt/inventory, or Raw ledger/root evidence until the
+one-shot commit consumes the prepared product. No source/catalog/current
+module re-observation or bare evidence drop was added. The COMMIT0 fixture,
+COMMIT0/POST0 guards, cargo check, focused tests, and diff check are green.
+Production postprocess and external commit consumers remain zero. The next
+row is `POST-FAILURE0`; RC fault injection and universal optimizer/contract
+failure coverage remain explicitly deferred.
 
 ## Atomic CUT0/G0
 

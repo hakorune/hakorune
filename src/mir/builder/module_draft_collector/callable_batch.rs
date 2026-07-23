@@ -121,7 +121,7 @@ pub(in crate::mir::builder) struct PreparedCallableCollectorBatchV1 {
 struct PreparedCallableCollectorBatchSealV1;
 
 #[derive(Debug)]
-pub(in crate::mir::builder) struct CallableCollectorBatchReceiptV1 {
+pub(in crate::mir) struct CallableCollectorBatchReceiptV1 {
     admissions: Box<[CollectedDraftAdmissionReceiptV1]>,
     _seal: CallableCollectorBatchReceiptSealV1,
 }

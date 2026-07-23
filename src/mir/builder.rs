@@ -117,6 +117,10 @@ pub(in crate::mir) use module_invocation_brand0::{
     CollectedCanonicalCallablePhysicalV1, CollectedCanonicalSinglePhysicalV1,
     InvocationPhysicalStateV1, RejectedCanonicalPhysicalCollectionV1,
 };
+pub(in crate::mir) use module_invocation_owner_chain::InvocationBranded;
+pub(in crate::mir) use module_draft_collector::{
+    CommitCallableCollectorBatchReceiptV1, CommitCollectedDraftAdmissionReceiptV1,
+};
 pub(in crate::mir) use module_lowering_shell::ModuleLoweringShellErrorV1;
 mod canonical_root_completion; // CUT0-I0-ROOT0-CANON0 route-specific completion
 #[allow(dead_code)]
