@@ -1,6 +1,6 @@
 # RAW-SOURCE0 LOWER ROOT0 — CHILDREN0-S0 execution task
 
-Status: **Implementation slice landed; focused success proof green; failure matrix remains in this row**
+Status: **Closed; CHILDREN0 owner and exercised failure proof are green**
 Date: 2026-07-24
 Decision: **CHILD-prime-r1**
 
@@ -35,9 +35,13 @@ zero.
 The disconnected CHILDREN0 owner, lexical schedule handoff, Builder-side
 short-lived child terminal, and Script/App completion products are now wired.
 The focused Script-zero-child, App-two-helper lexical-order, locator-drift,
-second-child-prefix, and coarse-abort-mapping fixtures pass; production
-consumers remain zero. Full physical receipt-brand and ledger-completion
-failure fixtures are still required before this row can close.
+second-child-prefix, natural primary-failure, and coarse-abort-mapping
+fixtures pass; production consumers remain zero. Receipt-brand, reservation,
+admission-collision, and ledger-completion mismatches are explicit
+CHILDREN0 non-claims: the sole owner constructs matching empty physical state,
+derives request/receipt from one work product, and exposes no foreign-product
+or retry terminal. Their malformed-state laws remain covered by the existing
+ledger/port unit evidence listed below.
 
 ## Locked decisions
 
@@ -135,15 +139,29 @@ symbol or arity mismatch
 request rejection before reservation
 reservation rejection before capture
 natural primary lowering error
-cleanup and primary+cleanup cause retention
-collector admission collision
-receipt-brand rejection
-ledger completion mismatch
+cleanup and primary+cleanup cause retention (lower-level evidence)
+collector admission collision (structural non-claim)
+receipt-brand rejection (structural non-claim)
+ledger completion mismatch (structural non-claim)
 first child success + second child failure -> prefix=1, third descent=0
 ```
 
-Every failure proves the live unpublished owner is retained for discard,
-later sibling descent is zero, and no retry/fallback/re-entry terminal exists.
+The natural primary path is `Return(Variable("missing"))` in the second
+eligible helper. It reaches the existing child-session `Primary` error after
+the first helper succeeds, aborts the current child reservation, and retains
+the unpublished prefix. CHILDREN0 does not add fault injection for cleanup,
+foreign receipt, reservation overflow, or late ledger mismatch.
+
+Receipt-brand, reservation, admission-collision, and late ledger mismatch are
+structural non-claims for this row. The constructor/callsite boundary makes
+them unreachable on the sole owner path; malformed-state behavior remains
+covered by lower-level ledger and port tests rather than a CHILDREN0 fault
+adapter.
+
+Every exercised CHILDREN0 failure proves the live unpublished owner is retained
+for discard, later sibling descent is zero, and no retry/fallback/re-entry
+terminal exists. Structural non-claims are covered by lower-level evidence and
+have no CHILDREN0 fault adapter.
 
 ## Guard and visibility contract
 
@@ -160,6 +178,17 @@ RootBodyCompletionTracker begin/close/complete calls = 0
 rejected retry/resume/continue/into_owner = 0
 callable Main/root body lowering = 0
 production child/root consumers = 0
+```
+
+Lower-level evidence for those non-claims:
+
+```text
+src/mir/builder/raw_expansion_receipt_ledger_tests.rs
+  foreign reservation, receipt identity mismatch, poison/no-retry
+src/mir/builder/module_lowering_invocation_legacyterm_tests.rs
+  Primary/Cleanup/DuringCleanup and parent restoration
+src/mir/builder/raw_root_physical/child_terminal.rs
+  coarse abort mapping for typed causes
 ```
 
 Prefer an existing reusable Raw lane/batch guard assertion. Do not create a
@@ -209,5 +238,13 @@ RUSTFLAGS='-Awarnings' cargo test -q raw_root_children --lib -- --test-threads=1
 python3 tools/checks/lib/cut0_i0_root0_raw_source0_lower_children0_guard.py
 ```
 
-All touched source/check files must remain below 800 lines. The next row is
-BODY0 only after this child completion owner and its failure matrix are green.
+All touched source/check files must remain below 800 lines.
+
+## Closeout
+
+CHILDREN0-S0 is closed. The source-derived lexical schedule, sole physical
+child terminal, validate-before-reserve lifecycle, typed discard-only
+rejection, Script/App exact completion witnesses, natural primary prefix
+failure, and BODY0-only tracker semantics are verified. The next boundary is
+the BODY0 design stop; no root-body implementation or production consumer is
+authorized by this card.

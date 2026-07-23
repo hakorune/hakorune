@@ -68,6 +68,10 @@ impl RawRootPhysicalStateV1 {
         self.tracker.brand()
     }
 
+    pub(in crate::mir) fn tracker_completed_children(&self) -> usize {
+        self.tracker.completed_children()
+    }
+
     pub(in crate::mir) fn callable_main(&self) -> RawCallableMainCompatibilityDispositionV1 {
         self.callable_main
     }

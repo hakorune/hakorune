@@ -324,12 +324,16 @@ mod tests {
     use std::collections::HashMap;
 
     fn function(name: &str) -> ASTNode {
+        function_with_body(name, Vec::new())
+    }
+
+    fn function_with_body(name: &str, body: Vec<ASTNode>) -> ASTNode {
         ASTNode::FunctionDeclaration {
             name: name.into(),
             params: Vec::new(),
             param_decls: Vec::new(),
             return_type_name: None,
-            body: Vec::new(),
+            body,
             uses: Vec::new(),
             contracts: Vec::new(),
             is_static: true,
@@ -406,6 +410,7 @@ mod tests {
         assert_eq!(complete.completion.expected_count, 0);
         assert_eq!(complete.completion.successful_count, 0);
         assert!(complete.receipts.is_empty());
+        assert_eq!(complete.core.physical.tracker_completed_children(), 0);
     }
 
     #[test]
@@ -425,6 +430,7 @@ mod tests {
         assert_eq!(complete.receipts[1].symbol.as_ref(), "Main.zeta/0");
         assert_eq!(complete.receipts[0].locator.method_name(), "alpha");
         assert_eq!(complete.receipts[1].locator.method_name(), "zeta");
+        assert_eq!(complete.core.physical.tracker_completed_children(), 0);
     }
 
     #[test]
@@ -498,6 +504,47 @@ mod tests {
         assert_eq!(failed.ordinal, 1);
         assert_eq!(failed.locator.method_name(), "missing");
         assert!(owner.schedule.remaining.is_empty());
+    }
+
+    #[test]
+    fn natural_primary_child_failure_aborts_after_successful_prefix() {
+        let mut source = app(&["alpha", "zeta"]);
+        if let ASTNode::Program { statements, .. } = &mut source {
+            let ASTNode::BoxDeclaration { methods, .. } = statements.first_mut().unwrap() else {
+                panic!("static Main declaration is required")
+            };
+            methods.insert(
+                "zeta".into(),
+                function_with_body(
+                    "zeta",
+                    vec![ASTNode::Return {
+                        value: Some(Box::new(ASTNode::Variable {
+                            name: "missing".into(),
+                            span: Span::unknown(),
+                        })),
+                        span: Span::unknown(),
+                    }],
+                ),
+            );
+        }
+        let invocation = bound(source);
+        let rejected = invocation
+            .prepare_children()
+            .unwrap()
+            .complete_all()
+            .unwrap_err();
+        let RejectedRawRootChildrenInvocationV1::Physical {
+            owner,
+            error: RawRootPhysicalChildErrorV1::Child(error),
+            failed: Some(failed),
+        } = rejected
+        else {
+            panic!("undefined variable must be retained as a primary child failure")
+        };
+        assert!(error.is_primary_session());
+        assert_eq!(owner.prefix.len(), 1);
+        assert_eq!(failed.ordinal, 1);
+        assert_eq!(owner.core.physical.tracker_completed_children(), 0);
     }
 
 }

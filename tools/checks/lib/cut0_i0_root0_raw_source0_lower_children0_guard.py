@@ -49,6 +49,7 @@ def main() -> int:
         "successful_prefix_count",
         "locator_drift_is_rejected_before_physical_effects",
         "second_child_failure_keeps_successful_prefix_and_stops_siblings",
+        "natural_primary_child_failure_aborts_after_successful_prefix",
     ):
         if required not in children:
             raise AssertionError(f"missing CHILDREN0 contract: {required}")

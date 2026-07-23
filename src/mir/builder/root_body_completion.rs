@@ -96,6 +96,10 @@ impl RootBodyCompletionTrackerV1 {
         self.brand
     }
 
+    pub(in crate::mir::builder) const fn completed_children(&self) -> usize {
+        self.completed_children
+    }
+
     pub(in crate::mir::builder) fn new_for_brand(brand: ModuleInvocationBrandV1) -> Self {
         Self {
             brand,

@@ -109,6 +109,16 @@ pub(in crate::mir) enum ModuleLoweringPortChildErrorV1 {
     ReceiptBrand(CollectorReceiptBrandErrorV1),
 }
 
+#[cfg(test)]
+impl ModuleLoweringPortChildErrorV1 {
+    pub(in crate::mir) const fn is_primary_session(&self) -> bool {
+        matches!(
+            self,
+            Self::Session(CanonicalFunctionSessionErrorV1::Primary(_))
+        )
+    }
+}
+
 impl std::fmt::Display for ModuleLoweringPortChildErrorV1 {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
